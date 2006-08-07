@@ -45,6 +45,7 @@ import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
@@ -137,7 +138,8 @@ public class SearchServiceImpl implements SearchService
 				log.error(" searchIndexBuilder must be set");
 				throw new RuntimeException("Must set searchIndexBuilder");
 			}
-			if ( filter == null ) {
+			if (filter == null)
+			{
 				log.error("filter must be set, even if its a null filter");
 				throw new RuntimeException("Must set filter");
 			}
@@ -230,11 +232,14 @@ public class SearchServiceImpl implements SearchService
 
 	/**
 	 * {@inheritDoc}
-	 * @param indexFilter 
+	 * 
+	 * @param indexFilter
 	 */
 	public SearchList search(String searchTerms, List contexts, int start,
-			int end) {
-		return search (searchTerms, contexts, start, end, defaultFilter, defaultSorter );
+			int end)
+	{
+		return search(searchTerms, contexts, start, end, defaultFilter,
+				defaultSorter);
 	}
 
 	public SearchList search(String searchTerms, List contexts, int start,
@@ -261,22 +266,30 @@ public class SearchServiceImpl implements SearchService
 			if (indexSearcher != null)
 			{
 				Hits h = null;
-				Filter indexFilter = (Filter)luceneFilters.get(filterName);
+				Filter indexFilter = (Filter) luceneFilters.get(filterName);
 				Sort indexSorter = (Sort) luceneSorters.get(sorterName);
-				log.debug("Using Filter "+filterName+":"+indexFilter+" and "+sorterName+":"+indexSorter);
-				if ( indexFilter != null && indexSorter != null ) {
-					h = indexSearcher.search(query,indexFilter,indexSorter);
-				} else if ( indexFilter != null ) {
-					h = indexSearcher.search(query,indexFilter);
-				} else if ( indexSorter != null ) {
-					h = indexSearcher.search(query,indexSorter);
-				} else {
+				log.debug("Using Filter " + filterName + ":" + indexFilter
+						+ " and " + sorterName + ":" + indexSorter);
+				if (indexFilter != null && indexSorter != null)
+				{
+					h = indexSearcher.search(query, indexFilter, indexSorter);
+				}
+				else if (indexFilter != null)
+				{
+					h = indexSearcher.search(query, indexFilter);
+				}
+				else if (indexSorter != null)
+				{
+					h = indexSearcher.search(query, indexSorter);
+				}
+				else
+				{
 					h = indexSearcher.search(query);
 				}
 				log.debug("Got " + h.length() + " hits");
 
 				return new SearchListImpl(h, textQuery, start, end,
-						indexStorage.getAnalyzer(),filter);
+						indexStorage.getAnalyzer(), filter);
 			}
 			else
 			{
@@ -294,7 +307,6 @@ public class SearchServiceImpl implements SearchService
 			throw new RuntimeException("Failed to run Search ", e);
 		}
 	}
-	
 
 	/**
 	 * {@inheritDoc}
@@ -306,33 +318,46 @@ public class SearchServiceImpl implements SearchService
 
 	}
 
+
 	public IndexSearcher getIndexSearcher(boolean reload)
 	{
 		if (runningIndexSearcher == null || reload)
 		{
 
-			try
+			long lastUpdate = indexStorage.getLastUpdate();
+			if (lastUpdate > reloadStart)
 			{
-				reloadStart = System.currentTimeMillis();
-				
-				// dont leave closing the index searcher to the GC. It may not happen fast enough.
-				IndexSearcher newRunningIndexSearcher = indexStorage.getIndexSearcher();
-				IndexSearcher oldRunningIndexSearcher = runningIndexSearcher;
-				runningIndexSearcher = newRunningIndexSearcher;
-				
-				try {
-					oldRunningIndexSearcher.close();
-				} catch ( Exception ex) {
-					log.debug("Failed to close old searcher ",ex);
-				}
+				log.info("Reloading Index ");
+				try
+				{
+					reloadStart = System.currentTimeMillis();
 
-				reloadEnd = System.currentTimeMillis();
-			}
-			catch (IOException e)
-			{
-				reloadStart = reloadEnd;
-			}
+					// dont leave closing the index searcher to the GC. It may
+					// not happen fast enough.
+
+					IndexSearcher newRunningIndexSearcher = indexStorage
+							.getIndexSearcher();
+					IndexSearcher oldRunningIndexSearcher = runningIndexSearcher;
+					runningIndexSearcher = newRunningIndexSearcher;
+
+					try
+					{
+						oldRunningIndexSearcher.close();
+					}
+					catch (Exception ex)
+					{
+						log.debug("Failed to close old searcher ", ex);
+					}
+
+					reloadEnd = System.currentTimeMillis();
+				}
+				catch (IOException e)
+				{
+					reloadStart = reloadEnd;
+				}
+			} 
 		}
+
 		return runningIndexSearcher;
 	}
 
@@ -406,14 +431,13 @@ public class SearchServiceImpl implements SearchService
 	{
 		String ll = "not loaded";
 		String lt = "";
-		if ( reloadEnd != 0 ) 
+		if (reloadEnd != 0)
 		{
 			ll = (new Date(reloadEnd)).toString();
-			lt = String
-				.valueOf((double) (0.001 * (reloadEnd - reloadStart)));
+			lt = String.valueOf((double) (0.001 * (reloadEnd - reloadStart)));
 		}
-		final String lastLoad = ll; 
-		final String loadTime = lt; 
+		final String lastLoad = ll;
+		final String loadTime = lt;
 		final SearchWriterLock lock = searchIndexBuilder.getCurrentLock();
 		final List lockNodes = searchIndexBuilder.getNodeStatus();
 		final String pdocs = String.valueOf(getPendingDocs());
@@ -438,22 +462,26 @@ public class SearchServiceImpl implements SearchService
 
 			public String getCurrentWorkerETC()
 			{
-				if ( SecurityService.isSuperUser() ) 
+				if (SecurityService.isSuperUser())
 				{
-					return MessageFormat.format(" due {0} <br> Last {1} in {2}s <br> Current {3} {4}",
-						new Object[] {
-						lock.getExpires(),
-						searchIndexBuilder.getLastDocument(),
-						searchIndexBuilder.getLastElapsed(),
-						searchIndexBuilder.getCurrentDocument(),
-						searchIndexBuilder.getCurrentElapsed()
-					});
+					return MessageFormat
+							.format(
+									" due {0} <br> This Node activity ({5}) <br />Last {1} in {2}s <br> Current {3} {4}",
+									new Object[] {
+											lock.getExpires(),
+											searchIndexBuilder
+													.getLastDocument(),
+											searchIndexBuilder.getLastElapsed(),
+											searchIndexBuilder
+													.getCurrentDocument(),
+											searchIndexBuilder
+													.getCurrentElapsed(),
+											ServerConfigurationService.getServerIdInstance()});
 				}
-				else 
+				else
 				{
-					return MessageFormat.format(" due {0}",
-						new Object[] {
-							lock.getExpires()});
+					return MessageFormat.format(" due {0}", new Object[] { lock
+							.getExpires() });
 				}
 			}
 
@@ -488,6 +516,7 @@ public class SearchServiceImpl implements SearchService
 			{
 				return pdocs;
 			}
+
 
 		};
 
@@ -525,7 +554,8 @@ public class SearchServiceImpl implements SearchService
 	}
 
 	/**
-	 * @param filter The filter to set.
+	 * @param filter
+	 *        The filter to set.
 	 */
 	public void setFilter(SearchItemFilter filter)
 	{
@@ -541,7 +571,8 @@ public class SearchServiceImpl implements SearchService
 	}
 
 	/**
-	 * @param defaultFilter The defaultFilter to set.
+	 * @param defaultFilter
+	 *        The defaultFilter to set.
 	 */
 	public void setDefaultFilter(String defaultFilter)
 	{
@@ -557,7 +588,8 @@ public class SearchServiceImpl implements SearchService
 	}
 
 	/**
-	 * @param defaultSorter The defaultSorter to set.
+	 * @param defaultSorter
+	 *        The defaultSorter to set.
 	 */
 	public void setDefaultSorter(String defaultSorter)
 	{
@@ -573,7 +605,8 @@ public class SearchServiceImpl implements SearchService
 	}
 
 	/**
-	 * @param luceneFilters The luceneFilters to set.
+	 * @param luceneFilters
+	 *        The luceneFilters to set.
 	 */
 	public void setLuceneFilters(Map luceneFilters)
 	{
@@ -589,11 +622,17 @@ public class SearchServiceImpl implements SearchService
 	}
 
 	/**
-	 * @param luceneSorters The luceneSorters to set.
+	 * @param luceneSorters
+	 *        The luceneSorters to set.
 	 */
 	public void setLuceneSorters(Map luceneSorters)
 	{
 		this.luceneSorters = luceneSorters;
+	}
+
+	public List getSegmentInfo()
+	{
+		return indexStorage.getSegmentInfoList();
 	}
 	
 	

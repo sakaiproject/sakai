@@ -225,6 +225,8 @@ public interface SearchService
 	 */
 	boolean removeWorkerLock();
 
+	List getSegmentInfo();
+
 
 
 }

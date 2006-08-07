@@ -105,6 +105,7 @@ public class SearchReloadNotificationAction implements NotificationAction
 		// this is done so that if we want to persist the events, we can do so
 		// without
 		// being forced to keep a reference to the SearchService
+		dlog.info("Search Index Reloading ");
 		searchService.reload();
 	}
 

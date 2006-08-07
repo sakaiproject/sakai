@@ -22,6 +22,7 @@
 package org.sakaiproject.search.index.impl;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -194,6 +195,16 @@ public class SearchIndexStorage implements IndexStorage
 	{
 		this.location = location;
 
+	}
+
+	public long getLastUpdate()
+	{
+		return runningIndexStorage.getLastUpdate();
+	}
+
+	public List getSegmentInfoList()
+	{
+		return runningIndexStorage.getSegmentInfoList();
 	}
 
 }

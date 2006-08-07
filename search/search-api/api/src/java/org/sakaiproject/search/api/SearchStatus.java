@@ -80,4 +80,5 @@ public interface SearchStatus
 	 * @return
 	 */
 	String getPDocuments();
+	
 }

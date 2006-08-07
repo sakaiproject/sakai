@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -245,7 +247,6 @@ public class JDBCIndexStorage implements IndexStorage
 		if ( recover ) {
 			log.warn("Automatic recovery not available on the JDBC Search Index Driver");
 		}
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -253,6 +254,19 @@ public class JDBCIndexStorage implements IndexStorage
 	{
 		searchTableName = location;
 		
+	}
+
+	public long getLastUpdate()
+	{
+		log.warn("Last Update not implemented, relying on cluster events for reload ");
+		return 0;
+	}
+
+	public List getSegmentInfoList()
+	{
+		List l = new ArrayList();
+		l.add(new Object[]{"Index Segment Info is not implemented for JDBC file system index stores","",""});
+		return l;
 	}
 
 }

@@ -24,7 +24,9 @@ package org.sakaiproject.search.index.impl;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,6 +57,8 @@ public class FSIndexStorage implements IndexStorage
 	protected AnalyzerFactory analyzerFactory = null;
 
 	protected boolean recoverCorruptedIndex = false;
+
+	private long lastUpdate = System.currentTimeMillis();
 
 	public void init() {
 		
@@ -96,6 +100,7 @@ public class FSIndexStorage implements IndexStorage
 
 	public void doPostIndexUpdate() throws IOException
 	{
+		lastUpdate = System.currentTimeMillis();
 
 	}
 
@@ -224,6 +229,19 @@ public class FSIndexStorage implements IndexStorage
 	{
 		searchIndexDirectory = location;
 		
+	}
+
+	public long getLastUpdate()
+	{
+		// not really relevant in the non cluster environment
+		return lastUpdate;
+	}
+
+	public List getSegmentInfoList()
+	{
+		List l = new ArrayList();
+		l.add(new Object[] {"Index Segment Info is not implemented for Local file system index stores","",""});
+		return l;
 	}
 
 }

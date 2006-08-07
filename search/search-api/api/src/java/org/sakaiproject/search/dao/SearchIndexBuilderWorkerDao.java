@@ -39,4 +39,5 @@ public interface SearchIndexBuilderWorkerDao
 	 */
 	void processToDoListTransaction(SearchIndexBuilderWorker worker);
 
+
 }

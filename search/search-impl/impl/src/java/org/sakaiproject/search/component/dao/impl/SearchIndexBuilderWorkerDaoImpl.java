@@ -91,7 +91,6 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 
 	private RDFSearchService rdfSearchService = null;
 
-	
 	/**
 	 * injected to abstract the storage impl
 	 */
@@ -102,11 +101,13 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
 				.getInstance();
 		eventTrackingService = (EventTrackingService) load(cm,
-				EventTrackingService.class.getName(),true);
-		entityManager = (EntityManager) load(cm, EntityManager.class.getName(),true);
+				EventTrackingService.class.getName(), true);
+		entityManager = (EntityManager) load(cm, EntityManager.class.getName(),
+				true);
 		searchIndexBuilder = (SearchIndexBuilder) load(cm,
-				SearchIndexBuilder.class.getName(),true);
-		rdfSearchService = (RDFSearchService) load(cm, RDFSearchService.class.getName(),false);
+				SearchIndexBuilder.class.getName(), true);
+		rdfSearchService = (RDFSearchService) load(cm, RDFSearchService.class
+				.getName(), false);
 
 		enabled = "true".equals(ServerConfigurationService.getString(
 				"search.experimental", "false"));
@@ -130,9 +131,14 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 			}
 			if (rdfSearchService == null)
 			{
-				log.info("No RDFSearchService has been defined, RDF Indexing not enabled");
-			} else {
-				log.warn("Experimental RDF Search Service is enabled using implementation "+rdfSearchService);
+				log
+						.info("No RDFSearchService has been defined, RDF Indexing not enabled");
+			}
+			else
+			{
+				log
+						.warn("Experimental RDF Search Service is enabled using implementation "
+								+ rdfSearchService);
 			}
 
 		}
@@ -147,7 +153,8 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 		Object o = cm.get(name);
 		if (o == null)
 		{
-			if ( aserror ) {
+			if (aserror)
+			{
 				log.error("Cant find Spring component named " + name);
 			}
 		}
@@ -217,7 +224,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 										{
 											sbi
 													.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
-											
+
 											continue;
 										}
 										// remove document
@@ -233,7 +240,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 											{
 												sbi
 														.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
-									
+
 											}
 											else
 											{
@@ -299,15 +306,17 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 														+ sbi);
 									}
 
-									long startDocIndex = System.currentTimeMillis();
-									log.info("Indexing "+ref.getReference());
-									
+									long startDocIndex = System
+											.currentTimeMillis();
+									log.info("Indexing " + ref.getReference());
+
 									try
 									{
 										Entity entity = ref.getEntity();
 										EntityContentProducer sep = searchIndexBuilder
 												.newEntityContentProducer(ref);
-										if (sep != null && sep.isForIndex(ref) && ref.getContext() != null)
+										if (sep != null && sep.isForIndex(ref)
+												&& ref.getContext() != null)
 										{
 
 											Document doc = new Document();
@@ -316,11 +325,13 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 											if (container == null)
 												container = "";
 											doc
-											.add(new Field(
-													SearchService.DATE_STAMP,
-													String.valueOf(System.currentTimeMillis()),
-													Field.Store.YES,
-													Field.Index.UN_TOKENIZED));
+													.add(new Field(
+															SearchService.DATE_STAMP,
+															String
+																	.valueOf(System
+																			.currentTimeMillis()),
+															Field.Store.YES,
+															Field.Index.UN_TOKENIZED));
 											doc
 													.add(new Field(
 															SearchService.FIELD_CONTAINER,
@@ -446,14 +457,14 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 
 											log.debug("Indexing Document "
 													+ doc);
-											
+
 											indexWrite.addDocument(doc);
-											
+
 											log.debug("Done Indexing Document "
 													+ doc);
-											
+
 											processRDF(sep);
-											
+
 										}
 										else
 										{
@@ -469,16 +480,27 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 												.debug(" Failed to index document cause: "
 														+ e1.getMessage());
 									}
-									long endDocIndex = System.currentTimeMillis();
-									if ( (endDocIndex - startDocIndex) > 60000L) {
-										log.warn("Slow index operation "+String.valueOf((endDocIndex-startDocIndex)/1000)+" seconds to index "+ref.getReference());
+									long endDocIndex = System
+											.currentTimeMillis();
+									if ((endDocIndex - startDocIndex) > 60000L)
+									{
+										log
+												.warn("Slow index operation "
+														+ String
+																.valueOf((endDocIndex - startDocIndex) / 1000)
+														+ " seconds to index "
+														+ ref.getReference());
 									}
 									// update this node lock to indicate its
 									// still alove, no document should
 									// take more than 2 mins to process
 									// refresh the lock
-									if ( !worker.getLockTransaction(15L * 60L * 1000L,true) ) {
-										throw new HibernateException("Transaction Lock Expired while indexing "+ref.getReference());
+									if (!worker.getLockTransaction(
+											15L * 60L * 1000L, true))
+									{
+										throw new HibernateException(
+												"Transaction Lock Expired while indexing "
+														+ ref.getReference());
 									}
 
 								}
@@ -551,7 +573,6 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 				}
 			}
 
-
 		};
 		int totalDocs = 0;
 		if (worker.isRunning())
@@ -593,11 +614,14 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 		}
 
 	}
+
 	private void processRDF(EntityContentProducer sep) throws RDFIndexException
 	{
-		if ( rdfSearchService != null ) {
+		if (rdfSearchService != null)
+		{
 			String s = sep.getCustomRDF();
-			if ( s != null ) {
+			if (s != null)
+			{
 				rdfSearchService.addData(s);
 			}
 		}
@@ -899,8 +923,11 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 			for (Iterator ci = contentList.iterator(); ci.hasNext();)
 			{
 				String resourceName = (String) ci.next();
-				if ( resourceName == null || resourceName.length() > 255 ) {
-					log.warn("Entity Reference Longer than 255 characters, ignored: Reference="+resourceName);
+				if (resourceName == null || resourceName.length() > 255)
+				{
+					log
+							.warn("Entity Reference Longer than 255 characters, ignored: Reference="
+									+ resourceName);
 					continue;
 				}
 				List lx = session.createQuery(
@@ -915,12 +942,17 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 					sbi.setSearchaction(SearchBuilderItem.ACTION_ADD);
 					sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
 					String context = null;
-					try {
+					try
+					{
 						context = ecp.getSiteId(resourceName);
-					} catch ( Exception ex ) {
-						log.info("No context for resource "+resourceName+" defaulting to none");
 					}
-					if ( context == null || context.length() == 0 ) {
+					catch (Exception ex)
+					{
+						log.info("No context for resource " + resourceName
+								+ " defaulting to none");
+					}
+					if (context == null || context.length() == 0)
+					{
 						context = "none";
 					}
 					sbi.setContext(context);
@@ -993,5 +1025,6 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 	{
 		this.indexStorage = indexStorage;
 	}
+
 
 }

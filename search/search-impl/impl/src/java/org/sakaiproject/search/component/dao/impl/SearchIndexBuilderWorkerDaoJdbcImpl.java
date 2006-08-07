@@ -1094,7 +1094,8 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 			{
 
 				for (Iterator i = SiteService.getSites(SelectionType.ANY, null,
-						null, null, SortType.NONE, null).iterator(); i.hasNext();)
+						null, null, SortType.NONE, null).iterator(); i
+						.hasNext();)
 				{
 					Site s = (Site) i.next();
 					contextList.add(s.getId());
@@ -1266,5 +1267,6 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 	{
 		this.dataSource = dataSource;
 	}
+
 
 }

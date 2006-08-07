@@ -21,6 +21,7 @@
 
 package org.sakaiproject.search.index.impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -78,6 +79,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	private static final String TEMP_INDEX_NAME = "tempindex";
 
+	private static final String INDEX_PATCHNAME = "indexpatch";;
+
 	private boolean autoDdl = false;
 
 	/**
@@ -95,9 +98,10 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	 * the Segments that we try and remove.
 	 */
 	private static boolean okToRemove = true;
-	
+
 	private String sharedSegments = null;
 
+	private boolean debug = false;
 
 	public void init()
 	{
@@ -148,9 +152,11 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				if (!found)
 				{
 					updateLocalSegments.add(db_si);
-				    log.debug("Missing Will update "+db_si);
-				} else {
-					log.debug("Present Will Not update "+db_si);
+					log.debug("Missing Will update " + db_si);
+				}
+				else
+				{
+					log.debug("Present Will Not update " + db_si);
 				}
 			}
 
@@ -168,13 +174,14 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 							&& db_si.getVersion() > version)
 					{
 						updateLocalSegments.add(db_si);
-						log.error("Newer will Update "+db_si);
+						log.debug("Newer will Update " + db_si);
 						found = true;
 						break;
 					}
 				}
-				if ( ! found ) {
-					log.debug("Ok will not update "+current_si);
+				if (!found)
+				{
+					log.debug("Ok will not update " + current_si);
 				}
 			}
 
@@ -184,7 +191,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			// ie only on the first time in any 1 JVM run
 			if (okToRemove)
 			{
-				okToRemove = true; 
+				okToRemove = true;
 				// with merge we need to remove local segments
 				// that are not present. This may cause problems with
 				// an open index, as it will suddenly see segments dissapear
@@ -210,9 +217,11 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					if (!found)
 					{
 						removeLocalSegments.add(local_si);
-						log.debug("Will remove "+local_si);
-					} else {
-						log.debug("Ok Will not remove "+local_si);
+						log.debug("Will remove " + local_si);
+					}
+					else
+					{
+						log.debug("Ok Will not remove " + local_si);
 					}
 				}
 
@@ -228,6 +237,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			{
 				SegmentInfo addsi = (SegmentInfo) i.next();
 				updateLocalSegment(connection, addsi);
+
+			}
+			// if we made any modifications, we also need to process the patch
+			if (updateLocalSegments.size() > 0)
+			{
+				updateLocalPatch(connection);
 			}
 
 			// build the list putting the current segment at the end
@@ -236,7 +251,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				SegmentInfo si = (SegmentInfo) i.next();
 				File f = new File(searchIndexDirectory, si.getName());
 				segmentList.add(f.getPath());
-				log.debug("Segment Present at "+f.getName());
+				log.debug("Segment Present at " + f.getName());
 			}
 
 			connection.commit();
@@ -327,12 +342,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				if (!found)
 				{
 					removeDBSegments.add(db_si);
-					log.debug("Will remove from the DB "+db_si);
+					log.debug("Will remove from the DB " + db_si);
 				}
 				else
 				{
 					currentDBSegments.add(db_si);
-					log.debug("In the DB will not remove "+db_si);
+					log.debug("In the DB will not remove " + db_si);
 				}
 			}
 
@@ -356,9 +371,11 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				if (!found)
 				{
 					updateDBSegments.add(local_si);
-					log.debug(" Will update to the DB "+local_si);
-				} else {
-					log.debug(" Will NOT update to the DB "+local_si);
+					log.debug(" Will update to the DB " + local_si);
+				}
+				else
+				{
+					log.debug(" Will NOT update to the DB " + local_si);
 
 				}
 			}
@@ -377,14 +394,15 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 							&& version > db_si.getVersion())
 					{
 						updateDBSegments.add(db_si);
-						log.debug("Will update modified to the DB "+db_si);
+						log.debug("Will update modified to the DB " + db_si);
 						found = true;
 						break;
 					}
 				}
-				if ( !found ) {
-					log.debug("Will not update the DB, matches "+local_si);
-					
+				if (!found)
+				{
+					log.debug("Will not update the DB, matches " + local_si);
+
 				}
 			}
 
@@ -401,13 +419,14 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				updateDBSegment(connection, addsi);
 			}
 			// build the list putting the current segment at the end
+			updateDBPatch(connection);
 
 			for (Iterator i = updateDBSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo si = (SegmentInfo) i.next();
 				File f = new File(searchIndexDirectory, si.getName());
 				segmentList.add(f.getPath());
-				log.debug("Segments saved "+f.getName());
+				log.debug("Segments saved " + f.getName());
 
 			}
 			connection.commit();
@@ -535,13 +554,15 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	protected void updateLocalSegment(Connection connection, SegmentInfo addsi)
 			throws SQLException, IOException
 	{
-		if ( sharedSegments == null || sharedSegments.length() == 0 ) {
-			updateLocalSegmentBLOB(connection,addsi);
-		} else {
-			updateLocalSegmentFilesystem(connection,addsi);
+		if (sharedSegments == null || sharedSegments.length() == 0)
+		{
+			updateLocalSegmentBLOB(connection, addsi);
+		}
+		else
+		{
+			updateLocalSegmentFilesystem(connection, addsi);
 		}
 
-		
 	}
 
 	/**
@@ -550,8 +571,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	 * @param connection
 	 * @param addsi
 	 */
-	protected void updateLocalSegmentBLOB(Connection connection, SegmentInfo addsi)
-			throws SQLException, IOException
+	protected void updateLocalSegmentBLOB(Connection connection,
+			SegmentInfo addsi) throws SQLException, IOException
 	{
 		log.debug("Updating local segment from databse " + addsi);
 		PreparedStatement segmentSelect = null;
@@ -636,8 +657,9 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		try
 		{
 			segmentAllSelect = connection
-					.prepareStatement("select version_, name_ from search_segments");
+					.prepareStatement("select version_, name_ from search_segments where name_ <> ? ");
 			segmentAllSelect.clearParameters();
+			segmentAllSelect.setString(1, INDEX_PATCHNAME);
 			resultSet = segmentAllSelect.executeQuery();
 			while (resultSet.next())
 			{
@@ -668,14 +690,217 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		return dbsegments;
 	}
 
+	protected void updateDBPatch(Connection connection) throws SQLException,
+			IOException
+	{
+
+		if (sharedSegments == null || sharedSegments.length() == 0)
+		{
+			updateDBPatchBLOB(connection);
+		}
+		else
+		{
+			updateDBPatchFilesystem(connection);
+		}
+	}
+
+	/**
+	 * updat this save this local segment into the db
+	 * 
+	 * @param connection
+	 * @param addsi
+	 */
+	protected void updateDBPatchBLOB(Connection connection)
+			throws SQLException, IOException
+	{
+
+		PreparedStatement segmentUpdate = null;
+		PreparedStatement segmentInsert = null;
+		InputStream packetStream = null;
+		File packetFile = null;
+		long newVersion = System.currentTimeMillis();
+		try
+		{
+			segmentUpdate = connection
+					.prepareStatement("update search_segments set packet_ = ?, version_ = ?, size_ = ? where name_ = ?");
+			segmentInsert = connection
+					.prepareStatement("insert into search_segments (packet_, name_, version_, size_ ) values ( ?,?,?,?)");
+			packetFile = packPatch();
+			packetStream = new FileInputStream(packetFile);
+			segmentUpdate.clearParameters();
+			segmentUpdate.setBinaryStream(1, packetStream, (int) packetFile
+					.length());
+			segmentUpdate.setLong(2, newVersion);
+			segmentUpdate.setLong(3, packetFile.length());
+			segmentUpdate.setString(4, INDEX_PATCHNAME);
+			if (segmentUpdate.executeUpdate() != 1)
+			{
+				segmentInsert.clearParameters();
+				segmentInsert.setBinaryStream(1, packetStream, (int) packetFile
+						.length());
+				segmentInsert.setString(2, INDEX_PATCHNAME);
+				segmentInsert.setLong(3, newVersion);
+				segmentInsert.setLong(4, packetFile.length());
+				if (segmentInsert.executeUpdate() != 1)
+				{
+					throw new SQLException(" Failed to insert patch  ");
+				}
+			}
+			log.debug("DB Updated Patch ");
+		}
+		finally
+		{
+			try
+			{
+				packetStream.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				packetFile.delete();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				segmentUpdate.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				segmentInsert.close();
+			}
+			catch (Exception ex)
+			{
+			}
+		}
+
+	}
+
+	/**
+	 * updat this save this local segment into the db
+	 * 
+	 * @param connection
+	 * @param addsi
+	 */
+	protected void updateDBPatchFilesystem(Connection connection)
+			throws SQLException, IOException
+	{
+
+		PreparedStatement segmentUpdate = null;
+		PreparedStatement segmentInsert = null;
+		InputStream packetStream = null;
+		OutputStream sharedStream = null;
+		File packetFile = null;
+		File sharedFinalFile = null;
+		File sharedTempFile = null;
+		long newVersion = System.currentTimeMillis();
+		try
+		{
+			sharedTempFile = new File(getSharedTempFileName(INDEX_PATCHNAME));
+			sharedFinalFile = new File(getSharedFileName(INDEX_PATCHNAME));
+			packetFile = packPatch();
+			packetStream = new FileInputStream(packetFile);
+			sharedStream = new FileOutputStream(sharedTempFile);
+
+			byte[] b = new byte[1024 * 1024];
+			int l = 0;
+			while ((l = packetStream.read(b)) != -1)
+			{
+				sharedStream.write(b, 0, l);
+			}
+
+			packetStream.close();
+			sharedStream.close();
+
+			segmentUpdate = connection
+					.prepareStatement("update search_segments set  version_ = ?, size_ = ? where name_ = ? ");
+			segmentInsert = connection
+					.prepareStatement("insert into search_segments ( name_, version_, size_ ) values ( ?,?,?)");
+
+			segmentUpdate.clearParameters();
+			segmentUpdate.setLong(1, newVersion);
+			segmentUpdate.setLong(2, packetFile.length());
+			segmentUpdate.setString(3, INDEX_PATCHNAME);
+			if (segmentUpdate.executeUpdate() != 1)
+			{
+				segmentInsert.clearParameters();
+				segmentInsert.setString(1, INDEX_PATCHNAME);
+				segmentInsert.setLong(2, newVersion);
+				segmentInsert.setLong(3, packetFile.length());
+				if (segmentInsert.executeUpdate() != 1)
+				{
+					throw new SQLException(" Failed to add patch packet  ");
+				}
+			}
+			sharedTempFile.renameTo(sharedFinalFile);
+			log.debug("DB Patch ");
+
+		}
+		finally
+		{
+			try
+			{
+				packetStream.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				packetFile.delete();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				sharedStream.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				sharedTempFile.delete();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				segmentUpdate.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				segmentInsert.close();
+			}
+			catch (Exception ex)
+			{
+			}
+		}
+
+	}
+
 	protected void updateDBSegment(Connection connection, SegmentInfo addsi)
 			throws SQLException, IOException
 	{
 
-		if ( sharedSegments == null || sharedSegments.length() == 0 ) {
-			updateDBSegmentBLOB(connection,addsi);
-		} else {
-			updateDBSegmentFilesystem(connection,addsi);
+		if (sharedSegments == null || sharedSegments.length() == 0)
+		{
+			updateDBSegmentBLOB(connection, addsi);
+		}
+		else
+		{
+			updateDBSegmentFilesystem(connection, addsi);
 		}
 	}
 
@@ -796,15 +1021,17 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				segmentDelete.setString(1, rmsi.getName());
 				segmentDelete.setLong(2, rmsi.getVersion());
 				segmentDelete.execute();
-				
+
 				String sharedSegment = getSharedFileName(rmsi.getName());
-				if ( sharedSegment != null ) {
+				if (sharedSegment != null)
+				{
 					File f = new File(sharedSegment);
-					if ( f.exists() ) {
+					if (f.exists())
+					{
 						f.delete();
 					}
 				}
-				
+
 				log.debug("DB Removed " + rmsi);
 			}
 		}
@@ -1139,6 +1366,56 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	}
 
 	/**
+	 * unpack a segment from a zip
+	 * 
+	 * @param addsi
+	 * @param packetStream
+	 * @param version
+	 */
+	protected void unpackPatch(InputStream packetStream) throws IOException
+	{
+		ZipInputStream zin = new ZipInputStream(packetStream);
+		ZipEntry zipEntry = null;
+		FileOutputStream fout = null;
+		try
+		{
+			log.debug("Starting Patch ");
+			byte[] buffer = new byte[4096];
+			while ((zipEntry = zin.getNextEntry()) != null)
+			{
+
+				long ts = zipEntry.getTime();
+				File f = new File(searchIndexDirectory, zipEntry.getName());
+				log.debug("Patching " + f.getAbsolutePath());
+				f.getParentFile().mkdirs();
+				fout = new FileOutputStream(f);
+
+				int len;
+				while ((len = zin.read(buffer)) > 0)
+				{
+					fout.write(buffer, 0, len);
+				}
+				zin.closeEntry();
+				fout.close();
+				f.setLastModified(ts);
+			}
+			log.debug("Finished Patch");
+
+		}
+		finally
+		{
+			try
+			{
+				fout.close();
+			}
+			catch (Exception ex)
+			{
+			}
+		}
+
+	}
+
+	/**
 	 * pack a segment into the zip
 	 * 
 	 * @param addsi
@@ -1160,7 +1437,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		byte[] buffer = new byte[4096];
 		if (segmentFile.isDirectory())
 		{
-			addFile(segmentFile, zout, buffer);
+			addFile(segmentFile, zout, buffer, 0);
 		}
 		zout.close();
 		// touch the version
@@ -1179,6 +1456,58 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	}
 
 	/**
+	 * pack a segment into the zip
+	 * 
+	 * @param addsi
+	 * @return
+	 * @throws IOException
+	 */
+	protected File packPatch() throws IOException
+	{
+		File tmpFile = new File(searchIndexDirectory, PACKFILE
+				+ String.valueOf(System.currentTimeMillis()) + ".zip");
+		ZipOutputStream zout = new ZipOutputStream(
+				new FileOutputStream(tmpFile));
+		byte[] buffer = new byte[4096];
+
+		ZipEntry ze = new ZipEntry("lastpatchmarker");
+		ze.setTime(System.currentTimeMillis());
+		zout.putNextEntry(ze);
+		try
+		{
+			ByteArrayInputStream fin = new ByteArrayInputStream(
+					"--PATCH MARKER--".getBytes());
+			try
+			{
+				int len = 0;
+				while ((len = fin.read(buffer)) > 0)
+				{
+					zout.write(buffer, 0, len);
+				}
+			}
+			finally
+			{
+				fin.close();
+			}
+		}
+		finally
+		{
+			zout.closeEntry();
+		}
+		// itertate over all segments present locally
+
+		List l = getLocalSegments();
+		for (Iterator li = l.iterator(); li.hasNext();)
+		{
+			SegmentInfo sgi = (SegmentInfo) li.next();
+			File f = new File(searchIndexDirectory, sgi.getName());
+			addFile(f, zout, buffer, sgi.getVersion());
+		}
+		zout.close();
+		return tmpFile;
+	}
+
+	/**
 	 * add a file to the zout stream
 	 * 
 	 * @param f
@@ -1186,8 +1515,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	 * @param buffer
 	 * @throws IOException
 	 */
-	private void addFile(File f, ZipOutputStream zout, byte[] buffer)
-			throws IOException
+	private void addFile(File f, ZipOutputStream zout, byte[] buffer,
+			long modtime) throws IOException
 	{
 		FileInputStream fin = null;
 		try
@@ -1201,45 +1530,26 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					{
 						if (files[i].isDirectory())
 						{
-							addFile(files[i], zout, buffer);
+							addFile(files[i], zout, buffer, modtime);
 						}
 						else
 						{
-							String path = files[i].getPath();
-							if (path.startsWith(searchIndexDirectory))
+							if (files[i].lastModified() > modtime)
 							{
-								path = path.substring(searchIndexDirectory
-										.length());
+								dolog("Adding " + files[i].getPath());
+								addSingleFile(files[i], zout, buffer);
 							}
-							ZipEntry ze = new ZipEntry(path);
-							log.debug("Adding " + ze.getName());
-							ze.setTime(files[i].lastModified());
-							zout.putNextEntry(ze);
-							fin = new FileInputStream(files[i]);
-							int len = 0;
-							while ((len = fin.read(buffer)) > 0)
+							else
 							{
-								zout.write(buffer, 0, len);
+								dolog("Skipping " + files[i].getPath());
 							}
-							fin.close();
-							zout.closeEntry();
 						}
 					}
 				}
 			}
 			else
 			{
-				ZipEntry ze = new ZipEntry(f.getPath());
-				ze.setTime(f.lastModified());
-				zout.putNextEntry(ze);
-				fin = new FileInputStream(f);
-				int len = 0;
-				while ((len = fin.read(buffer)) > 0)
-				{
-					zout.write(buffer, 0, len);
-				}
-				fin.close();
-				zout.closeEntry();
+				addSingleFile(f, zout, buffer);
 			}
 		}
 		finally
@@ -1252,6 +1562,40 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			{
 			}
 		}
+	}
+
+	private void addSingleFile(File file, ZipOutputStream zout, byte[] buffer)
+			throws IOException
+	{
+		String path = file.getPath();
+		if (path.startsWith(searchIndexDirectory))
+		{
+			path = path.substring(searchIndexDirectory.length());
+		}
+		ZipEntry ze = new ZipEntry(path);
+		ze.setTime(file.lastModified());
+		zout.putNextEntry(ze);
+		try
+		{
+			InputStream fin = new FileInputStream(file);
+			try
+			{
+				int len = 0;
+				while ((len = fin.read(buffer)) > 0)
+				{
+					zout.write(buffer, 0, len);
+				}
+			}
+			finally
+			{
+				fin.close();
+			}
+		}
+		finally
+		{
+			zout.closeEntry();
+		}
+
 	}
 
 	/**
@@ -1358,6 +1702,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		{
 			connection = dataSource.getConnection();
 			updateLocalSegment(connection, recoverSegInfo);
+			// we also need to re-apply the patch
+			updateLocalPatch(connection);
 			connection.commit();
 		}
 		catch (Exception ex)
@@ -1382,6 +1728,138 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			catch (Exception e)
 			{
 
+			}
+		}
+
+	}
+
+	protected void updateLocalPatch(Connection connection) throws SQLException,
+			IOException
+	{
+		if (sharedSegments == null || sharedSegments.length() == 0)
+		{
+			updateLocalPatchBLOB(connection);
+		}
+		else
+		{
+			updateLocalPatchFilesystem(connection);
+		}
+	}
+
+	protected void updateLocalPatchFilesystem(Connection connection)
+			throws SQLException, IOException
+	{
+		log.debug("Updating local patch ");
+		PreparedStatement segmentSelect = null;
+		ResultSet resultSet = null;
+		try
+		{
+			segmentSelect = connection
+					.prepareStatement("select version_ from search_segments where name_ = ?");
+			segmentSelect.clearParameters();
+			segmentSelect.setString(1, INDEX_PATCHNAME);
+			resultSet = segmentSelect.executeQuery();
+			if (resultSet.next())
+			{
+				InputStream packetStream = null;
+				try
+				{
+					long version = resultSet.getLong(1);
+					File f = new File(getSharedFileName(INDEX_PATCHNAME));
+					packetStream = new FileInputStream(f);
+					unpackPatch(packetStream);
+					log.debug("Updated Patch ");
+				}
+				finally
+				{
+					try
+					{
+						packetStream.close();
+					}
+					catch (Exception ex)
+					{
+					}
+				}
+			}
+			else
+			{
+				log.debug("Didnt find patch in database, this is Ok");
+			}
+		}
+		finally
+		{
+			try
+			{
+				resultSet.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				segmentSelect.close();
+			}
+			catch (Exception ex)
+			{
+			}
+		}
+
+	}
+
+	private void updateLocalPatchBLOB(Connection connection)
+			throws SQLException, IOException
+	{
+		log.debug("Updating local patch ");
+		PreparedStatement segmentSelect = null;
+		ResultSet resultSet = null;
+		try
+		{
+			segmentSelect = connection
+					.prepareStatement("select version_, packet_ from search_segments where name_ = ?");
+			segmentSelect.clearParameters();
+			segmentSelect.setString(1, INDEX_PATCHNAME);
+			resultSet = segmentSelect.executeQuery();
+			if (resultSet.next())
+			{
+				InputStream packetStream = null;
+				try
+				{
+					long version = resultSet.getLong(1);
+					packetStream = resultSet.getBinaryStream(2);
+					unpackPatch(packetStream);
+					log.debug("Updated Patch from DB " + version);
+				}
+				finally
+				{
+					try
+					{
+						packetStream.close();
+					}
+					catch (Exception ex)
+					{
+					}
+				}
+			}
+			else
+			{
+				log.debug("Didnt find patch in database, this is Ok ");
+			}
+		}
+		finally
+		{
+			try
+			{
+				resultSet.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				segmentSelect.close();
+			}
+			catch (Exception ex)
+			{
 			}
 		}
 
@@ -1436,11 +1914,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			if (!check)
 			{
-				if ( !force ) {
+				if (!force)
+				{
 					log.info("Checksum Failed Live(" + segmentName + ") = "
-						+ liveCheckSum );
+							+ liveCheckSum);
 					log.info("Checksum Failed Stor(" + segmentName + ") = "
-						+ storedCheckSum);
+							+ storedCheckSum);
 				}
 			}
 			return check;
@@ -1463,7 +1942,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		byte[] buffer = new byte[4096];
 		for (int i = 0; i < files.length; i++)
 		{
-			if (TIMESTAMP_FILE.indexOf(files[i].getName()) < 0)
+			// only perform the md5 on the index, not the segments or del tables
+			if (files[i].getName().endsWith(".cfs"))
 			{
 				InputStream fin = new FileInputStream(files[i]);
 				int len = 0;
@@ -1514,7 +1994,6 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			deleteAll(mergeSegment);
 		}
 	}
-
 
 	/**
 	 * updat this save this local segment into the db
@@ -1737,4 +2216,153 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		this.sharedSegments = sharedSegments;
 	}
 
+	public void dolog(String message)
+	{
+		if (debug)
+		{
+			log.info("JDBCClusterDebug :" + message);
+		}
+		else if (log.isDebugEnabled())
+		{
+			log.debug("JDBCClusterDebug :" + message);
+		}
+	}
+
+	public long getLastUpdate()
+	{
+		PreparedStatement segmentSelect = null;
+		ResultSet resultSet = null;
+		Connection connection = null;
+
+		try
+		{
+			connection = dataSource.getConnection();
+			segmentSelect = connection
+					.prepareStatement("select version_ from search_segments order by version_ desc");
+			segmentSelect.clearParameters();
+			resultSet = segmentSelect.executeQuery();
+			if (resultSet.next())
+			{
+				return resultSet.getLong(1);
+			}
+			else
+			{
+				return 0;
+			}
+		}
+		catch (Exception ex)
+		{
+			return 0;
+		}
+		finally
+		{
+			try
+			{
+				resultSet.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				segmentSelect.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				connection.close();
+			}
+			catch (Exception ex)
+			{
+
+			}
+		}
+	}
+
+	public List getSegmentInfoList()
+	{
+		List seginfo = new ArrayList();
+		try
+		{
+		
+			List l = new ArrayList();
+			File searchDir = new File(searchIndexDirectory);
+			File[] files = searchDir.listFiles();
+			long tsize = 0;
+			if (files != null)
+			{
+				for (int i = 0; i < files.length; i++)
+				{
+					if (files[i].isDirectory())
+					{
+						File timestamp = new File(files[i], TIMESTAMP_FILE);
+						if (timestamp.exists())
+						{
+							String name = files[i].getName();
+							long lsize = getLocalSegmentSize(files[i]);
+							tsize += lsize;
+							long ts = getLocalSegmentLastModified(files[i]);
+							String lastup = (new Date(ts)).toString();
+							
+							String size =null;
+							if ( lsize > 1024*1024*10 ) { 
+								size = String.valueOf(lsize/(1024*1024))+"MB";				 
+							} else if ( lsize >= 1024*1024 ) {
+								size = String.valueOf(lsize/(1024*1024))+"."+String.valueOf(lsize/(102*1024)+"MB");				 
+							} else  {
+								size = String.valueOf(lsize/(1024))+"KB";				 
+							}
+							seginfo.add( new Object[] {name, size, lastup });		
+						}
+					}
+				}
+			}
+			String size = null;
+			if ( tsize > 1024*1024*10 ) { 
+				size = String.valueOf(tsize/(1024*1024))+"MB";				 
+			} else if ( tsize >= 1024*1024 ) {
+				size = String.valueOf(tsize/(1024*1024))+"."+String.valueOf(tsize/(102*1024)+"MB");				 
+			} else  {
+				size = String.valueOf(tsize/(1024))+"KB";				 
+			}
+			seginfo.add( new Object[] {"Total", size, "" });		
+		}
+		catch ( Exception ex ) {
+			seginfo.add("Failed to get Segment Info list "+ex.getClass().getName()+" "+ex.getMessage());
+		}
+		return seginfo;
+
+	}
+
+	private long getLocalSegmentLastModified(File file)
+	{
+		long lm = file.lastModified();
+		if ( file.isDirectory() ) {
+			File[] l = file.listFiles();
+			for ( int i = 0; i < l.length; i++  ) {
+				if ( l[i].lastModified() > lm ) {
+					lm = l[i].lastModified();
+				}
+			}
+			
+		} 
+		return lm;
+	}
+
+	private long getLocalSegmentSize(File file)
+	{
+		if ( file.isDirectory() ) {
+			long lm = 0;
+			File[] l = file.listFiles();
+			for ( int i = 0; i < l.length; i++  ) {
+				lm += l[i].length();
+			}
+			return lm;
+			
+		} else {
+			return file.length();
+		}
+	}
 }

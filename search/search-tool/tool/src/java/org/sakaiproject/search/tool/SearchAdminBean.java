@@ -91,4 +91,6 @@ public interface SearchAdminBean
 	 */
 	String getSiteMasterDocuments( String rowFormat );
 	String getCommandFeedback();
+	
+	String getSegmentInfo(String rowFormat);
 }

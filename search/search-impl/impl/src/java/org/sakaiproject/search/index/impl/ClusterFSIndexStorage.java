@@ -129,13 +129,13 @@ public class ClusterFSIndexStorage implements IndexStorage
 					clusterFS.recoverSegment(segmentName);
 					readers[j] = IndexReader.open(segment);
 					log
-							.warn("Recovery complete, resuming normal operations having restored "
+							.warn("Recovery complete, resuming normal operations having restored, ignore previous problems with this segment "
 									+ segmentName);
 				}
 				catch (Exception e)
 				{
 					log
-							.error("---Failed to recover corrupted segment from the DB,\n"
+							.error("---Propblem recovering corrupted segment from the DB,\n"
 									+ "--- it is probably that there has been a local hardware\n"
 									+ "--- failure on this node or that the backup in the DB is missing\n"
 									+ "--- or corrupt. To recover, remove the segment from the db, and rebuild the index \n"
@@ -454,6 +454,7 @@ public class ClusterFSIndexStorage implements IndexStorage
 		
 		clusterFS.saveSegments();
 		
+		
 		log.debug("End Index Cycle");
 	}
 	
@@ -495,6 +496,16 @@ public class ClusterFSIndexStorage implements IndexStorage
 	public void setClusterFS(ClusterFilesystem clusterFS)
 	{
 		this.clusterFS = clusterFS;
+	}
+
+	public long getLastUpdate()
+	{
+		return clusterFS.getLastUpdate();
+	}
+
+	public List getSegmentInfoList()
+	{
+		return clusterFS.getSegmentInfoList();
 	}
 
 

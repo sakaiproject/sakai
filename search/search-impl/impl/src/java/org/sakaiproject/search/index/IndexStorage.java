@@ -22,6 +22,7 @@
 package org.sakaiproject.search.index;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
@@ -96,5 +97,9 @@ public interface IndexStorage
 	 * @param location
 	 */
 	void setLocation(String location);
+
+	long getLastUpdate();
+
+	List getSegmentInfoList();
 
 }

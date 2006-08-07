@@ -364,6 +364,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 						{
 							// make certain the node updates hearbeat
 							updateNodeLock(2L*60L*1000L);
+							searchService.reload();
 							log.debug("Not taking Lock, too much activity");
 							break;
 						}
@@ -667,6 +668,9 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 		}
 
 	}
+	
+
+	
 	public boolean getLockTransaction(long nodeLifetime) {
 		return getLockTransaction(nodeLifetime,false);
 	}

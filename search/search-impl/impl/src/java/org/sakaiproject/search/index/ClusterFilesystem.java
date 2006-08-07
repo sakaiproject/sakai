@@ -127,4 +127,8 @@ public interface ClusterFilesystem
 	 */
 	void removeLocalSegment(File mergeSegment);
 
+	long getLastUpdate();
+
+	List getSegmentInfoList();
+
 }

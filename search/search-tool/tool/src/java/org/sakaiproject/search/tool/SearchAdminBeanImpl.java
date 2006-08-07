@@ -354,4 +354,16 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 		return commandFeedback;
 	}
 
+
+
+	public String getSegmentInfo(String rowFormat)
+	{
+		List segmentInfo = searchService.getSegmentInfo();
+		StringBuffer sb = new StringBuffer();
+		for ( Iterator i = segmentInfo.iterator(); i.hasNext(); ) {
+			sb.append(MessageFormat.format(rowFormat, (Object[]) i.next() ));
+		}
+		return sb.toString();
+	}
+
 }
