@@ -385,7 +385,7 @@ public class SectionManagerImpl implements SectionManager {
     	String role = getSectionStudentRole(group);
 		try {
 			authzGroupService.joinGroup(sectionUuid, role);
-			postEvent("section.join", sectionUuid);
+			postEvent("section.student.join", sectionUuid);
 		} catch (AuthzPermissionException e) {
 			log.error("access denied while attempting to join authz group: ", e);
 			return null;
@@ -502,7 +502,7 @@ public class SectionManagerImpl implements SectionManager {
 		
 		try {
 			siteService.saveGroupMembership(group.getContainingSite());
-			postEvent("section.ta.add", sectionUuid);
+			postEvent("section.add.ta", sectionUuid);
 		} catch (IdUnusedException e) {
 			log.error("unable to find site: ", e);
 			return null;
