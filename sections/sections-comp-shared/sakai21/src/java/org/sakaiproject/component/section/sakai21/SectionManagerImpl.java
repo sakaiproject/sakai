@@ -429,6 +429,7 @@ public class SectionManagerImpl implements SectionManager {
 	 */
     public void switchSection(String newSectionUuid) throws RoleConfigurationException {
     	CourseSection newSection = getSection(newSectionUuid);
+		String userUid = sessionManager.getCurrentSessionUserId();
     	
 		// Remove any section membership for a section of the same category.
     	// We can not use dropEnrollmentFromCategory because security checks won't
@@ -437,21 +438,25 @@ public class SectionManagerImpl implements SectionManager {
 		
 		boolean errorDroppingSection = false;
 		
+		String oldSectionUuid = null;
 		for(Iterator iter = categorySections.iterator(); iter.hasNext();) {
 			CourseSection section = (CourseSection)iter.next();
 			// Skip the current section
 			if(section.getUuid().equals(newSectionUuid)) {
 				continue;
 			}
-			try {
-				authzGroupService.unjoinGroup(section.getUuid());
-			} catch (GroupNotDefinedException e) {
-				errorDroppingSection = true;
-				log.error("There is not authzGroup with id " + section.getUuid());
-			} catch (AuthzPermissionException e) {
-				errorDroppingSection = true;
-				String userUid = sessionManager.getCurrentSessionUserId();
-				log.error("Permission denied while " + userUid + " attempted to unjoin authzGroup " + section.getUuid());
+			if(this.isMember(userUid, section)) {
+				oldSectionUuid = section.getUuid();
+				try {
+					authzGroupService.unjoinGroup(section.getUuid());
+					oldSectionUuid = section.getUuid();
+				} catch (GroupNotDefinedException e) {
+					errorDroppingSection = true;
+					log.error("There is not authzGroup with id " + section.getUuid());
+				} catch (AuthzPermissionException e) {
+					errorDroppingSection = true;
+					log.error("Permission denied while " + userUid + " attempted to unjoin authzGroup " + section.getUuid());
+				}
 			}
 		}
 
@@ -460,12 +465,17 @@ public class SectionManagerImpl implements SectionManager {
 	    	// Join the new section
 	    	joinSection(newSectionUuid);
 	    	
-	    	// Post the event
+	    	// Post the events
+			postEvent("section.student.unjoin", oldSectionUuid);
 			postEvent("section.student.switch", newSectionUuid);
 		}
 
     }
 
+    private boolean isMember(String userUid, CourseSection section) {
+    	return authzGroupService.getUserRole(userUid, section.getUuid()) != null;
+    }
+    
 	/**
 	 * @inheritDoc
 	 */
