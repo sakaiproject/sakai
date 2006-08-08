@@ -21,11 +21,15 @@
 
 package org.sakaiproject.site.impl;
 
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Properties;
 import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.site.api.SitePage;
@@ -166,10 +170,26 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		m_layoutHints = other.getLayoutHints();
 		m_pageId = bOther.m_pageId;
 		m_pageOrder = bOther.m_pageOrder;
-		m_siteId = bOther.m_siteId;
+		
+		m_siteId = getContainingPage().getContainingSite().getId();
 		m_skin = bOther.m_skin;
 
-		m_config.putAll(other.getPlacementConfig());
+		Hashtable h = other.getPlacementConfig();
+		// exact copying of ToolConfiguration items vs replacing occurence of site id within item value, depending on "exact" setting	-zqian
+		if (exact)
+		{
+			m_config.putAll(other.getPlacementConfig());
+		}
+		else
+		{
+			for (Enumeration e=h.keys(); e.hasMoreElements();)
+			{
+				// replace site id string inside configuration
+				String pOtherConfig = (String) e.nextElement();
+				String pOtherConfigValue = (String) h.get(pOtherConfig);
+				m_config.put(pOtherConfig, pOtherConfigValue.replaceAll(bOther.getSiteId(), m_siteId));
+			}
+		}
 		m_configLazy = bOther.m_configLazy;
 	}
 

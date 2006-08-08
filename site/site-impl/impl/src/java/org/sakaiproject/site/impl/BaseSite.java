@@ -498,11 +498,18 @@ public class BaseSite implements Site
 
 		m_properties = new BaseResourcePropertiesEdit();
 		ResourceProperties pOther = other.getProperties();
-		Iterator l = pOther.getPropertyNames();
-		while (l.hasNext())
+		if (exact)
 		{
-			String pOtherName = (String) l.next();
-			m_properties.addProperty(pOtherName, pOther.getProperty(pOtherName).replaceAll(other.getId(), getId()));
+			m_properties.addAll(pOther);
+		}
+		else
+		{
+			Iterator l = pOther.getPropertyNames();
+			while (l.hasNext())
+			{
+				String pOtherName = (String) l.next();
+				m_properties.addProperty(pOtherName, pOther.getProperty(pOtherName).replaceAll(other.getId(), getId()));
+			}
 		}
 		((BaseResourcePropertiesEdit) m_properties).setLazy(((BaseResourceProperties) other.getProperties()).isLazy());
 

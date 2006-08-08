@@ -219,13 +219,21 @@ public class BaseSitePage implements SitePage, Identifiable
 
 		m_properties = new BaseResourcePropertiesEdit();
 		ResourceProperties pOther = other.getProperties();
-		Iterator l = pOther.getPropertyNames();
-		while (l.hasNext())
+		// exact copying of SitePage properties vs replacing occurence of site id within, depending on "exact" setting			--- zqian
+		if (exact)
 		{
-			String pOtherName = (String) l.next();
-			// TODO: why this replaceAll? When is the site id in a page property? if exact, it's a big waste... - ggolden
-			m_properties.addProperty(pOtherName, pOther.getProperty(pOtherName).replaceAll(bOther.getSiteId(), getSiteId()));
+			m_properties.addAll(pOther);
 		}
+		else
+		{
+			Iterator l = pOther.getPropertyNames();
+			while (l.hasNext())
+			{
+				String pOtherName = (String) l.next();
+				m_properties.addProperty(pOtherName, pOther.getProperty(pOtherName).replaceAll(bOther.getSiteId(), getSiteId()));
+			}
+		}
+		
 		((BaseResourcePropertiesEdit) m_properties).setLazy(((BaseResourceProperties) other.getProperties()).isLazy());
 
 		// deep copy the tools
