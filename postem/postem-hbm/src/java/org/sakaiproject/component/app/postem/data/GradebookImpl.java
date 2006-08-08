@@ -127,6 +127,7 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 	public void setCreator(String creator) {
 		this.creator = creator;
 		setCreatorEid(creator);
+
 	}
 	
 	public String getCreatorEid() {
@@ -134,11 +135,12 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 	}
 	
 	public void setCreatorEid(String creatorUserId) {
-		try {
-			this.creatorEid = UserDirectoryService.getUserEid(creatorUserId);
-			
-		} catch(UserNotDefinedException e) {
-			e.printStackTrace();
+		if(creatorUserId != null) {
+			try {
+				this.creatorEid = UserDirectoryService.getUserEid(creatorUserId);		
+			} catch(UserNotDefinedException e) {
+				this.creatorEid = null;
+			}
 		}
 	}
 
@@ -164,11 +166,12 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 	}
 	
 	public void setLastUpdaterEid(String lastUpdaterUserId) {
-		try {
-			this.lastUpdaterEid = UserDirectoryService.getUserEid(lastUpdaterUserId);
-			
-		} catch(UserNotDefinedException e) {
-			e.printStackTrace();
+		if (lastUpdaterUserId != null) {
+			try {
+				this.lastUpdaterEid = UserDirectoryService.getUserEid(lastUpdaterUserId);
+			} catch(UserNotDefinedException e) {
+				this.lastUpdaterEid = null;
+			}
 		}
 	}
 
