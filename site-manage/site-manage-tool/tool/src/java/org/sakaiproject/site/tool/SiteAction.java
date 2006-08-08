@@ -8385,7 +8385,16 @@ public class SiteAction extends PagedResourceActionII
 		
 											List pageToolList = page.getTools();
 											String toolId = ((ToolConfiguration)pageToolList.get(0)).getTool().getId();
-											transferCopyEntities(toolId, ContentHostingService.getSiteCollection(oSiteId), ContentHostingService.getSiteCollection(nSiteId));
+											if (toolId.equalsIgnoreCase("sakai.resources"))
+											{
+												// handle resource tool specially
+												transferCopyEntities(toolId, ContentHostingService.getSiteCollection(oSiteId), ContentHostingService.getSiteCollection(nSiteId));
+											}
+											else
+											{
+												// other tools
+												transferCopyEntities(toolId, oSiteId, nSiteId);
+											}
 										}
 									}
 								} 
@@ -10276,11 +10285,8 @@ public class SiteAction extends PagedResourceActionII
 				String toolId = (String) toolIds.get(i);
 
 				Object contentHosting = (Object) ContentHostingService.getInstance();
-				if (toolId.equalsIgnoreCase("sakai.resources") && importTools.containsKey(toolId)
-						&& contentHosting instanceof EntityTransferrer)
+				if (toolId.equalsIgnoreCase("sakai.resources") && importTools.containsKey(toolId))
 				{
-					EntityTransferrer et = (EntityTransferrer) contentHosting;
-
 					List importSiteIds = (List) importTools.get(toolId);
 
 					for (int k = 0; k < importSiteIds.size(); k++)
@@ -10290,7 +10296,7 @@ public class SiteAction extends PagedResourceActionII
 
 						String fromSiteCollectionId = ContentHostingService.getSiteCollection(fromSiteId);
 						String toSiteCollectionId = ContentHostingService.getSiteCollection(toSiteId);
-						et.transferCopyEntities(fromSiteCollectionId, toSiteCollectionId, new Vector());
+						transferCopyEntities(toolId, fromSiteCollectionId, toSiteCollectionId);
 						resourcesImported = true;
 					}
 				}
