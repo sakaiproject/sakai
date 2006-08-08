@@ -72,6 +72,8 @@ public class PostemTool {
 	protected Gradebook oldGradebook;
 
 	protected String userId;
+	
+	protected String userEid;
 
 	protected String filename = null;
 
@@ -133,6 +135,14 @@ public class PostemTool {
 	public ArrayList getGradebooks() {
 		if (userId == null) {
 			userId = SessionManager.getCurrentSessionUserId();
+			
+			if (userId != null) {
+				try {
+					userEid = UserDirectoryService.getUserEid(userId);
+				} catch (UserNotDefinedException e) {
+					LOG.error("UserNotDefinedException", e);
+				}
+			}
 		}
 
 		Placement placement = ToolManager.getCurrentPlacement();
@@ -222,6 +232,13 @@ public class PostemTool {
 
 	public String getCurrentStudentGrades() {
 		this.userId = SessionManager.getCurrentSessionUserId();
+		if (this.userId != null) {
+			try {
+				this.userEid = UserDirectoryService.getUserEid(this.userId);
+			} catch (UserNotDefinedException e) {
+				LOG.error("UserNotDefinedException:",e);
+			}
+		}
 		/*
 		 * if (checkAccess()) { if (currentGradebook.getTemplate() != null) { return
 		 * currentGradebook.getTemplate().getTemplateCode(); } else { return "<p>No
@@ -230,10 +247,10 @@ public class PostemTool {
 		if (currentGradebook == null) {
 			return "<p>" + msgs.getString("no_gradebook_selected") + "</p>";
 		}
-		if (!currentGradebook.hasStudent(this.userId)) {
+		if (!currentGradebook.hasStudent(this.userEid)) {
 			return "<p>" + msgs.getString("no_grades_for_user") + " " + currentGradebook.getTitle() + ".</p>";
 		}
-		return currentGradebook.studentGrades(this.userId).formatGrades();
+		return currentGradebook.studentGrades(this.userEid).formatGrades();
 	}
 
 	public String getFirstStudentGrades() {
