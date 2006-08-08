@@ -332,7 +332,8 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     }
     catch (ParseException e)
     {
-      throw new RuntimeException(e);
+      LOG.debug("ParseException parsing Help search query  " + queryStr);
+      return null;
     }
   }
 

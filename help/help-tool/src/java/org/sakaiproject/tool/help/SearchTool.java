@@ -104,10 +104,15 @@ public class SearchTool
 
     EventTrackingService.post(EventTrackingService.newEvent("help.search", this.searchString, false));
     
-    Set resultSet = getHelpManager().searchResources(this.searchString);
-    TreeSet treeSet = new TreeSet(resultSet);
     searchResults = new ArrayList();
-    searchResults.addAll(treeSet);
+
+    Set resultSet = getHelpManager().searchResources(this.searchString);
+    if (resultSet != null)
+    {
+       TreeSet treeSet = new TreeSet(resultSet);
+       searchResults.addAll(treeSet);
+    }
+
     String searchStr = this.searchString;
     this.setNumberOfResult(searchResults.size());
     return "main";
