@@ -16,12 +16,8 @@
 				#if ($showSubject)
 					<h3 class="textPanelHeader">$validator.escapeHtml($item.Header.Subject)</h3>
 					<p class="textPanelFooter"> ($!{validator.escapeHtml($item.Header.From.DisplayName)} - $!{item.Header.Date.toStringLocalFull()})</p>
-					<hr class="itemSeparator" />
-
 				#else
 					#set ($text=$item.Body)
-					<h3 class="textPanelHeader">$validator.escapeHtml($item.Header.Subject)</h3>
-					<p class="textPanelFooter"> ($!{validator.escapeHtml($item.Header.From.DisplayName)} - $!{item.Header.Date.toStringLocalFull()})</p>
 					<div class="textPanel">$!{validator.escapeHtmlFormattedText($validator.limitFormattedText($text,$length))}</div>
 				#end
 				#set ($size = 0)
