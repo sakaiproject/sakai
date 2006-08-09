@@ -647,6 +647,16 @@ input.upload{
 	left: -999px;
 	height: 0;
 }
+/*"inactive" gets applied to a container whose children you want to make look grayed out (not inactive per se) - applies to all textual elements and images
+placeholder till more standard way of doing it*/
+.inactive img{
+	filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=50), progid:DXImageTransform.Microsoft.BasicImage(grayscale=1) !important;
+	-moz-opacity:.50 !important;
+}
+.inactive *
+{
+	color: #999 !important;
+}
 
 /*external login form formatting*/
 .login{
