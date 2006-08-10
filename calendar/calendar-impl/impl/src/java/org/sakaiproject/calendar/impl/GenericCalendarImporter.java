@@ -392,6 +392,46 @@ public class GenericCalendarImporter implements CalendarImporterService
 			this.location = location;
 		}
 
+		/**
+		* Gets the event creator (userid), if any (cover for PROP_CREATOR).
+		* @return The event's creator property.
+		*/
+		public String getCreator()
+		{
+			// Stub routine only
+			return null;
+
+		} // getCreator
+
+		/**
+		* Set the event creator (cover for PROP_CREATOR) to current user
+		*/
+		public void setCreator()
+		{
+			// Stub routine only
+
+		} // setCreator
+
+		/**
+		* Gets the event modifier (userid), if any (cover for PROP_MODIFIED_BY).
+		* @return The event's modified-by property.
+		*/
+		public String getModifiedBy()
+		{
+			// Stub routine only
+			return null;
+
+		} // getModifiedBy
+
+		/**
+		* Set the event modifier (cover for PROP_MODIFIED_BY) to current user
+		*/
+		public void setModifiedBy()
+		{
+			// Stub routine only
+
+		} // setModifiedBy
+
 		/*
 		 * (non-Javadoc)
 		 * 

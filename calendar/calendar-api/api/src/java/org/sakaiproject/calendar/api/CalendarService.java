@@ -46,23 +46,38 @@ public interface CalendarService
 	/** This string starts the references to resources in this service. */
 	public static final String REFERENCE_ROOT = Entity.SEPARATOR + "calendar";
 
-	/** Name for the event of adding a calendar. */
+	/** Name for the event of adding a calendar event. */
 	public static final String EVENT_ADD_CALENDAR = "calendar.new";
 
-	/** Name for the event of removing a calendar. */
+	/** Name for the event of removing a calendar event */
 	public static final String EVENT_REMOVE_CALENDAR = "calendar.delete";
 
-	/** Security lock for importing events into a calendar. */
-	public static final String EVENT_IMPORT_CALENDAR = "calendar.import";
-
-	/** Security lock for adding to a calendar. */
-	public static final String EVENT_READ_CALENDAR = "calendar.read";
-
-	/** Security lock for removing or changing any events in a calendar. */
+	/** Name for the event of removing or changing any events in a calendar. */
 	public static final String EVENT_MODIFY_CALENDAR = "calendar.revise";
 
+   /** Security lock for adding a calendar event */
+	public static final String AUTH_ADD_CALENDAR = "calendar.new";
+
+   /** Security lock for removing any calendar event */
+	public static final String AUTH_REMOVE_CALENDAR_ANY = "calendar.delete.any";
+
+   /** Security lock for removing user's own calendar event */
+	public static final String AUTH_REMOVE_CALENDAR_OWN = "calendar.delete.own";
+
+	/** Security lock for changing any events (or fields) in a calendar. */
+	public static final String AUTH_MODIFY_CALENDAR_ANY = "calendar.revise.any";
+
+	/** Security lock for changing user's own events in a calendar. */
+	public static final String AUTH_MODIFY_CALENDAR_OWN = "calendar.revise.own";
+
+	/** Security lock for importing events into a calendar. */
+	public static final String AUTH_IMPORT_CALENDAR = "calendar.import";
+
+	/** Security lock for adding to a calendar. */
+	public static final String AUTH_READ_CALENDAR = "calendar.read";
+
 	/** Security function granted to users who will then have membership in all site groups based on their site membership. */
-	public static final String EVENT_ALL_GROUPS_CALENDAR = "calendar.all.groups";
+	public static final String AUTH_ALL_GROUPS_CALENDAR = "calendar.all.groups";
 
 	/** The Reference type for a calendar. */
 	public static final String REF_TYPE_CALENDAR = "calendar";
@@ -117,13 +132,6 @@ public interface CalendarService
 	public List getCalendars();
 
 	/**
-	* check permissions for addCalendar().
-	* @param ref A reference for the calendar.
-	* @return true if the user is allowed to addCalendar(ref), false if not.
-	*/
-	public boolean allowAddCalendar(String ref);
-
-	/**
 	* Add a new calendar.
 	* Must commitCalendar() to make official, or cancelCalendar() when done!
 	* @param ref The new calendar reference.
@@ -160,11 +168,18 @@ public interface CalendarService
 	public boolean allowImportCalendar(String ref);
 
 	/**
-	* check permissions for editCalendar()
+	* check permissions for editCalendar() e.g. add/delete fields
 	* @param ref The calendar reference.
-	* @return true if the user is allowed to update the calendar, false if not.
+	* @return true if the user is allowed to edit the calendar, false if not.
 	*/
-	public boolean allowUpdateCalendar(String ref);
+	public boolean allowEditCalendar(String ref);
+
+	/**
+	* check permissions for mergeCalendar()
+	* @param ref The calendar reference.
+	* @return true if the user is allowed to merge the calendar, false if not.
+	*/
+	public boolean allowMergeCalendar(String ref);
 
 	/**
 	* Get a locked calendar object for editing.
@@ -199,13 +214,6 @@ public interface CalendarService
 	*/
 	public void removeCalendar(CalendarEdit edit)
 		throws PermissionException;
-
-	/**
-	* check permissions for removeCalendar().
-	* @param ref The calendar reference.
-	* @return true if the user is allowed to removeCalendar(calendarId), false if not.
-	*/
-	public boolean allowRemoveCalendar(String ref);
 
 	/**
 	* Access the internal reference which can be used to access the calendar from within the system.

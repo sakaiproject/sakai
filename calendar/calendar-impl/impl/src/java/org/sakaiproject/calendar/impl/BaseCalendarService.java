@@ -472,12 +472,14 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
 		// register functions
-		FunctionManager.registerFunction(EVENT_ADD_CALENDAR);
-		FunctionManager.registerFunction(EVENT_REMOVE_CALENDAR);
-		FunctionManager.registerFunction(EVENT_IMPORT_CALENDAR);
-		FunctionManager.registerFunction(EVENT_READ_CALENDAR);
-		FunctionManager.registerFunction(EVENT_MODIFY_CALENDAR);
-		FunctionManager.registerFunction(EVENT_ALL_GROUPS_CALENDAR);
+		FunctionManager.registerFunction(AUTH_ADD_CALENDAR);
+		FunctionManager.registerFunction(AUTH_REMOVE_CALENDAR_OWN);
+		FunctionManager.registerFunction(AUTH_REMOVE_CALENDAR_ANY);
+		FunctionManager.registerFunction(AUTH_MODIFY_CALENDAR_OWN);
+		FunctionManager.registerFunction(AUTH_MODIFY_CALENDAR_ANY);
+		FunctionManager.registerFunction(AUTH_IMPORT_CALENDAR);
+		FunctionManager.registerFunction(AUTH_READ_CALENDAR);
+		FunctionManager.registerFunction(AUTH_ALL_GROUPS_CALENDAR);
 	}
 
 	/**
@@ -506,19 +508,6 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
-	 * check permissions for addCalendar().
-	 * 
-	 * @param ref
-	 *        A reference for the calendar.
-	 * @return true if the user is allowed to addCalendar(ref), false if not.
-	 */
-	public boolean allowAddCalendar(String ref)
-	{
-		return unlockCheck(EVENT_ADD_CALENDAR, ref);
-
-	} // allowAddCalendar
-
-	/**
 	 * Add a new calendar. Must commitCalendar() to make official, or cancelCalendar() when done!
 	 * 
 	 * @param ref
@@ -528,10 +517,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	 *            if the id is not unique.
 	 * @exception IdInvalidException
 	 *            if the id is not made up of valid characters.
-	 * @exception PermissionException
-	 *            if the user does not have permission to add a calendar.
 	 */
-	public CalendarEdit addCalendar(String ref) throws IdUsedException, IdInvalidException, PermissionException
+	public CalendarEdit addCalendar(String ref) throws IdUsedException, IdInvalidException
 	{
 		// check the name's validity
 		if (!m_entityManager.checkReference(ref)) throw new IdInvalidException(ref);
@@ -541,9 +528,6 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		{
 			throw new IdUsedException(ref);
 		}
-
-		// check security
-		unlock(EVENT_ADD_CALENDAR, ref);
 
 		// keep it
 		CalendarEdit calendar = m_storage.putCalendar(ref);
@@ -563,7 +547,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	 */
 	public boolean allowGetCalendar(String ref)
 	{
-		return unlockCheck(EVENT_READ_CALENDAR, ref);
+		return unlockCheck(AUTH_READ_CALENDAR, ref);
 
 	} // allowGetCalendar
 
@@ -633,24 +617,11 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		if (c == null) throw new IdUnusedException(ref);
 
 		// check security (throws if not permitted)
-		unlock(EVENT_READ_CALENDAR, ref);
+		unlock(AUTH_READ_CALENDAR, ref);
 
 		return c;
 
 	} // getCalendar
-
-	/**
-	 * check permissions for removeCalendar().
-	 * 
-	 * @param ref
-	 *        The calendar reference.
-	 * @return true if the user is allowed to removeCalendar(calendarId), false if not.
-	 */
-	public boolean allowRemoveCalendar(String ref)
-	{
-		return unlockCheck(EVENT_REMOVE_CALENDAR, ref);
-
-	} // allowRemoveCalendar
 
 	/**
 	 * Remove a calendar that is locked for edit.
@@ -677,7 +648,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		}
 
 		// check security
-		unlock(EVENT_REMOVE_CALENDAR, calendar.getReference());
+		unlock(AUTH_REMOVE_CALENDAR_ANY, calendar.getReference());
 
 		m_storage.removeCalendar(calendar);
 
@@ -775,7 +746,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	 */
 	public boolean allowImportCalendar(String ref)
 	{
-		return unlockCheck(EVENT_IMPORT_CALENDAR, ref);
+		return unlockCheck(AUTH_IMPORT_CALENDAR, ref);
 
 	} // allowImportCalendar
 
@@ -786,11 +757,22 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	 *        The calendar reference.
 	 * @return true if the user is allowed to update the calendar, false if not.
 	 */
-	public boolean allowUpdateCalendar(String ref)
+	public boolean allowEditCalendar(String ref)
 	{
-		return unlockCheck(EVENT_MODIFY_CALENDAR, ref);
+		return unlockCheck(AUTH_MODIFY_CALENDAR_ANY, ref);
 
-	} // allowUpdateCalendar
+	} // allowEditCalendar
+   
+	/**
+	* check permissions for merge()
+	* @param ref The calendar reference.
+	* @return true if the user is allowed to update the calendar, false if not.
+	*/
+	public boolean allowMergeCalendar(String ref)
+	{
+		return unlockCheck(AUTH_MODIFY_CALENDAR_ANY, ref);
+
+	} // allowMergeCalendar
 
 	/**
 	 * Get a locked calendar object for editing. Must commitCalendar() to make official, or cancelCalendar() or removeCalendar() when done!
@@ -814,7 +796,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		}
 
 		// check security (throws if not permitted)
-		unlock(EVENT_MODIFY_CALENDAR, ref);
+		unlock(AUTH_MODIFY_CALENDAR_ANY, ref);
 
 		// ignore the cache - get the calendar with a lock from the info store
 		CalendarEdit edit = m_storage.editCalendar(ref);
@@ -1886,9 +1868,6 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			catch (IdInvalidException e)
 			{
 			}
-			catch (PermissionException e)
-			{
-			}
 		}
 		catch (PermissionException e)
 		{
@@ -2110,7 +2089,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 */
 		public boolean allowGetEvents()
 		{
-			return unlockCheck(EVENT_READ_CALENDAR, getReference());
+			return unlockCheck(AUTH_READ_CALENDAR, getReference());
 
 		} // allowGetEvents
 
@@ -2119,7 +2098,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 */
 		public boolean allowGetEvent(String eventId)
 		{
-			return unlockCheck(EVENT_READ_CALENDAR, eventReference(m_context, m_id, eventId));
+			return unlockCheck(AUTH_READ_CALENDAR, eventReference(m_context, m_id, eventId));
 		}
 
 		/**
@@ -2136,10 +2115,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		public List getEvents(TimeRange range, Filter filter) throws PermissionException
 		{
 			// check security (throws if not permitted)
-			unlock(EVENT_READ_CALENDAR, getReference());
-
-			// track event
-			// EventTrackingService.post(EventTrackingService.newEvent(EVENT_READ_CALENDAR, getReference(), false));
+			unlock(AUTH_READ_CALENDAR, getReference());
 
 			List events = new Vector();
 
@@ -2312,14 +2288,11 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		public CalendarEvent getEvent(String eventId) throws IdUnusedException, PermissionException
 		{
 			// check security on the event (throws if not permitted)
-			unlock(EVENT_READ_CALENDAR, eventReference(m_context, m_id, eventId));
+			unlock(AUTH_READ_CALENDAR, eventReference(m_context, m_id, eventId));
 
 			CalendarEvent e = findEvent(eventId);
 
 			if (e == null) throw new IdUnusedException(eventId);
-
-			// track event
-			// EventTrackingService.post(EventTrackingService.newEvent(EVENT_READ_CALENDAR, e.getReference(), false));
 
 			return e;
 
@@ -2349,7 +2322,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			// base the check for SECURE_ADD on the site and the calendar only (not the groups).
 
 			// check security on the calendar (throws if not permitted)
-			return unlockCheck(EVENT_ADD_CALENDAR, getReference());
+			return unlockCheck(AUTH_ADD_CALENDAR, getReference());
 		}
 
 		/**
@@ -2395,6 +2368,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			edit.setDescription(description);
 			edit.setType(type);
 			edit.setLocation(location);
+         edit.setCreator();
 			
 			// for site...
 			if (access == EventAccess.SITE)
@@ -2417,7 +2391,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				// if not allowed to GROUP, will throw permission exception
 				try
 				{
-					edit.setGroupAccess(groups);
+					edit.setGroupAccess(groups,true);
 				}
 				catch (PermissionException e)
 				{
@@ -2485,7 +2459,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		public CalendarEventEdit addEvent() throws PermissionException
 		{
 			// check security (throws if not permitted)
-			unlock(EVENT_ADD_CALENDAR, getReference());
+			unlock(AUTH_ADD_CALENDAR, getReference());
 
 			// allocate a new unique event id
 			String id = getUniqueId();
@@ -2511,12 +2485,13 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 */
 		public CalendarEventEdit mergeEvent(Element el) throws PermissionException, IdUsedException
 		{
-			// check security (throws if not permitted)
-			unlock(EVENT_MODIFY_CALENDAR, getReference());
-
 			CalendarEvent eventFromXml = (CalendarEvent) newResource(this, el);
 
-			// reserve a user with this id from the info store - if it's in use, this will return null
+			// check security 
+         if ( ! allowEditEvent( eventFromXml.getId() ) )
+			   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+                                          AUTH_MODIFY_CALENDAR_ANY, getReference());
+			// reserve a calendar event with this id from the info store - if it's in use, this will return null
 			CalendarEventEdit event = m_storage.putEvent(this, eventFromXml.getId());
 			if (event == null)
 			{
@@ -2541,13 +2516,25 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 */
 		public boolean allowRemoveEvent(CalendarEvent event)
 		{
-			// this is true if we can remove it due to any of our group membership
-			boolean allowed = unlockCheck(EVENT_REMOVE_CALENDAR, event.getReference());
-
+ 			String currentUser = SessionManager.getCurrentSessionUserId();
+         String eventOwner = event.getCreator();
+         boolean allowed = false;
+         
+         // for backward compatibility, treat unowned event as if it owned by this user
+         boolean ownEvent = (eventOwner == null || eventOwner.equals("") || currentUser.equals(eventOwner) );
+         
+			// check security to delete any event
+         if ( unlockCheck(AUTH_REMOVE_CALENDAR_ANY, getReference()) )
+            allowed = true;
+            
+			// check security to delete own event
+			else if ( unlockCheck(AUTH_REMOVE_CALENDAR_OWN, getReference()) && ownEvent )
+            allowed = true; 
+            
 			// but we must also assure, that for grouped events, we can remove it from ALL of the groups
 			if (allowed && (event.getAccess() == EventAccess.GROUPED))
 			{
-				allowed = EntityCollections.isContainedEntityRefsToEntities(event.getGroups(), getGroupsAllowRemoveEvent());
+				allowed = EntityCollections.isContainedEntityRefsToEntities(event.getGroups(), getGroupsAllowRemoveEvent(ownEvent));
 			}
 
 			return allowed;
@@ -2594,7 +2581,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			if (!allowRemoveEvent(edit))
 			{
 				cancelEvent(edit);
-				throw new PermissionException(SessionManager.getCurrentSessionUserId(), EVENT_REMOVE_CALENDAR, edit.getReference());
+				throw new PermissionException(SessionManager.getCurrentSessionUserId(), AUTH_REMOVE_CALENDAR_ANY, edit.getReference());
 			}
 
 			BaseCalendarEventEdit bedit = (BaseCalendarEventEdit) edit;
@@ -2685,10 +2672,28 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			CalendarEvent e = findEvent(eventId);
 			if (e == null) return false;
 
-			// check security (throws if not permitted)
-			return unlockCheck(EVENT_MODIFY_CALENDAR, eventReference(m_context, m_id, eventId));
+ 			String currentUser = SessionManager.getCurrentSessionUserId();
+         String eventOwner = e.getCreator();
+         
+			// check security to revise any event
+			if ( unlockCheck(AUTH_MODIFY_CALENDAR_ANY, getReference()) )
+            return true;
+            
+			// check security to revise un-owned event (backward compatibility)
+			else if ( unlockCheck(AUTH_MODIFY_CALENDAR_OWN, getReference())
+                   && (eventOwner == null || eventOwner.equals("")) )
+            return true; 
+            
+			// check security to revise own event
+			else if ( unlockCheck(AUTH_MODIFY_CALENDAR_OWN, getReference())
+                   && currentUser.equals(eventOwner) )
+            return true;
+            
+         // otherwise not authorized
+         else
+            return false;
 
-		} // allowEditCalendarEvent
+		} // allowEditEvent
 
 		/**
 		 * Return a specific calendar event, as specified by event name, locked for update. Must commitEvent() to make official, or cancelEvent(), or removeEvent() when done!
@@ -2726,8 +2731,10 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			CalendarEvent e = findEvent(eventId);
 			if (e == null) throw new IdUnusedException(eventId);
 
-			// check security (throws if not permitted)
-			unlock(EVENT_MODIFY_CALENDAR, e.getReference());
+			// check security 
+         if ( ! allowEditEvent( eventId ) )
+			   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+                                          AUTH_MODIFY_CALENDAR_ANY, getReference());
 
 			// ignore the cache - get the CalendarEvent with a lock from the info store
 			CalendarEventEdit edit = m_storage.editEvent(this, eventId);
@@ -2788,6 +2795,12 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			}
 
 			BaseCalendarEventEdit bedit = (BaseCalendarEventEdit) edit;
+         
+         // If creator doesn't exist, set it now (backward compatibility)
+         if ( edit.getCreator() == null || edit.getCreator().equals("") )
+            edit.setCreator(); 
+         
+         edit.setModifiedBy();  // update modified-by properties
 
 			// if the id has a time range encoded, as for one of a sequence of recurring events, separate that out
 			TimeRange timeRange = null;
@@ -3174,7 +3187,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 */
 		public Collection getGroupsAllowAddEvent() 
 		{
-			return getGroupsAllowFunction(EVENT_ADD_CALENDAR);
+			return getGroupsAllowFunction(AUTH_ADD_CALENDAR);
 		}
 
 		/**
@@ -3182,15 +3195,15 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 */
 		public Collection getGroupsAllowGetEvent() 
 		{
-			return getGroupsAllowFunction(EVENT_READ_CALENDAR);
+			return getGroupsAllowFunction(AUTH_READ_CALENDAR);
 		}
 		
 		/**
 		 * {@inheritDoc}
 		 */
-		public Collection getGroupsAllowRemoveEvent() 
+		public Collection getGroupsAllowRemoveEvent( boolean own ) 
 		{
-			return getGroupsAllowFunction(EVENT_REMOVE_CALENDAR);
+         return getGroupsAllowFunction(own ? AUTH_REMOVE_CALENDAR_OWN : AUTH_REMOVE_CALENDAR_ANY );
 		}
 
 		/**
@@ -3869,6 +3882,50 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		} // setLocation
 
 		/**
+		* Gets the event creator (userid), if any (cover for PROP_CREATOR).
+		* @return The event's creator property.
+		*/
+		public String getCreator()
+		{
+			return m_properties.getProperty(ResourceProperties.PROP_CREATOR);
+
+		} // getCreator
+
+		/**
+		* Set the event creator (cover for PROP_CREATOR) to current user
+		*/
+		public void setCreator()
+		{
+ 			String currentUser = SessionManager.getCurrentSessionUserId();
+			String now = TimeService.newTime().toString();
+			m_properties.addProperty(ResourceProperties.PROP_CREATOR, currentUser);
+			m_properties.addProperty(ResourceProperties.PROP_CREATION_DATE, now);
+
+		} // setCreator
+
+		/**
+		* Gets the event modifier (userid), if any (cover for PROP_MODIFIED_BY).
+		* @return The event's modified-by property.
+		*/
+		public String getModifiedBy()
+		{
+			return m_properties.getPropertyFormatted(ResourceProperties.PROP_MODIFIED_BY);
+
+		} // getModifiedBy
+
+		/**
+		* Set the event modifier (cover for PROP_MODIFIED_BY) to current user
+		*/
+		public void setModifiedBy()
+		{
+ 			String currentUser = SessionManager.getCurrentSessionUserId();
+			String now = TimeService.newTime().toString();
+			m_properties.addProperty(ResourceProperties.PROP_MODIFIED_BY, currentUser);
+			m_properties.addProperty(ResourceProperties.PROP_MODIFIED_DATE, now);
+
+		} // setModifiedBy
+
+		/**
 		 * Sets the recurrence rule.
 		 * 
 		 * @param rule
@@ -4233,7 +4290,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		/**
 		 * @inheritDoc
 		 */
-		public void setGroupAccess(Collection groups) throws PermissionException
+		public void setGroupAccess(Collection groups, boolean own) throws PermissionException
 		{
 			// convenience (and what else are we going to do?)
 			if ((groups == null) || (groups.size() == 0))
@@ -4254,14 +4311,14 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			if (removedGroups.size() > 0)
 			{
 				// the Group objects the user has remove permission
-				Collection allowedGroups = m_calendar.getGroupsAllowRemoveEvent();
+				Collection allowedGroups = m_calendar.getGroupsAllowRemoveEvent(own);
 
 				for (Iterator i = removedGroups.iterator(); i.hasNext();)
 				{
 					String ref = (String) i.next();
 
 					// is ref a group the user can remove from?
-					if (!EntityCollections.entityCollectionContainsRefString(allowedGroups, ref))
+					if ( !EntityCollections.entityCollectionContainsRefString(allowedGroups, ref) )
 					{
 						throw new PermissionException(SessionManager.getCurrentSessionUserId(), "access:group:remove", ref);
 					}

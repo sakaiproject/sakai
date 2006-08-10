@@ -233,11 +233,13 @@ public interface Calendar
 	Collection getGroupsAllowGetEvent();
 
 	/**
-	 * Get the collection of Group defined for the context of this channel that the end user has remove message permissions in.
+	 * Get the collection of Group defined for the context of this channel that the end user has remove event permissions in.
+    *
+    * @param own boolean flag indicating whether user owns event
 	 * 
-	 * @return The Collection (Group) of groups defined for the context of this channel that the end user has get message permissions in, empty if none.
+	 * @return The Collection (Group) of groups defined for the context of this channel that the end user has remove event permissions in, empty if none.
 	 */
-	Collection getGroupsAllowRemoveEvent();
+	Collection getGroupsAllowRemoveEvent( boolean own );
 
 }	// Calendar
 

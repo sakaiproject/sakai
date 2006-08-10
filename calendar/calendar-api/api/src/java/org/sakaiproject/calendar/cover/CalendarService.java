@@ -51,12 +51,6 @@ public class CalendarService
 
 	public static java.lang.String APPLICATION_ID = org.sakaiproject.calendar.api.CalendarService.APPLICATION_ID;
 	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.calendar.api.CalendarService.REFERENCE_ROOT;
-	public static java.lang.String EVENT_ADD_CALENDAR = org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR;
-	public static java.lang.String EVENT_IMPORT_CALENDAR = org.sakaiproject.calendar.api.CalendarService.EVENT_IMPORT_CALENDAR;
-	public static java.lang.String EVENT_REMOVE_CALENDAR = org.sakaiproject.calendar.api.CalendarService.EVENT_REMOVE_CALENDAR;
-	public static java.lang.String EVENT_READ_CALENDAR = org.sakaiproject.calendar.api.CalendarService.EVENT_READ_CALENDAR;
-	public static java.lang.String EVENT_MODIFY_CALENDAR = org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR;
-	public static java.lang.String EVENT_ALL_GROUPS_CALENDAR = org.sakaiproject.calendar.api.CalendarService.EVENT_ALL_GROUPS_CALENDAR;
 	public static java.lang.String REF_TYPE_CALENDAR = org.sakaiproject.calendar.api.CalendarService.REF_TYPE_CALENDAR;
 	public static java.lang.String REF_TYPE_CALENDAR_PDF = org.sakaiproject.calendar.api.CalendarService.REF_TYPE_CALENDAR_PDF;
 	public static java.lang.String REF_TYPE_EVENT = org.sakaiproject.calendar.api.CalendarService.REF_TYPE_EVENT;
@@ -99,15 +93,6 @@ public class CalendarService
 		return service.getCalendars();
 	}
 
-	public static boolean allowAddCalendar(java.lang.String param0)
-	{
-		org.sakaiproject.calendar.api.CalendarService service = getInstance();
-		if (service == null)
-			return false;
-
-		return service.allowAddCalendar(param0);
-	}
-
 	public static org.sakaiproject.calendar.api.CalendarEdit addCalendar(java.lang.String param0) throws org.sakaiproject.exception.IdUsedException, org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.PermissionException
 	{
 		org.sakaiproject.calendar.api.CalendarService service = getInstance();
@@ -135,15 +120,24 @@ public class CalendarService
 		return service.allowImportCalendar(param0);
 	}
 
-	public static boolean allowUpdateCalendar(java.lang.String param0)
+	public static boolean allowEditCalendar(java.lang.String param0)
 	{
 		org.sakaiproject.calendar.api.CalendarService service = getInstance();
 		if (service == null)
 			return false;
 
-		return service.allowUpdateCalendar(param0);
+		return service.allowEditCalendar(param0);
 	}
 
+	public static boolean allowMergeCalendar(java.lang.String param0)
+	{
+		org.sakaiproject.calendar.api.CalendarService service = getInstance();
+		if (service == null)
+			return false;
+
+		return service.allowMergeCalendar(param0);
+	}
+   
 	public static org.sakaiproject.calendar.api.CalendarEdit editCalendar(java.lang.String param0) throws org.sakaiproject.exception.IdUnusedException, org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.InUseException
 	{
 		org.sakaiproject.calendar.api.CalendarService service = getInstance();
@@ -178,15 +172,6 @@ public class CalendarService
 			return;
 
 		service.removeCalendar(param0);
-	}
-
-	public static boolean allowRemoveCalendar(java.lang.String param0)
-	{
-		org.sakaiproject.calendar.api.CalendarService service = getInstance();
-		if (service == null)
-			return false;
-
-		return service.allowRemoveCalendar(param0);
 	}
 
 	public static java.lang.String eventReference(java.lang.String param0, java.lang.String param1, java.lang.String param2)

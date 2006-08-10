@@ -88,10 +88,12 @@ public interface CalendarEventEdit
 	 * 
 	 * @param Collection
 	 *        groups The colelction of Group objects to use for this event.
+    * @param own
+    *        boolean flag true if setting access for own event
 	 * @throws PermissionException
 	 *         if the end user does not have permission to remove from the groups that would be removed or add to the groups that would be added.
 	 */
-	void setGroupAccess(Collection groups) throws PermissionException;
+	void setGroupAccess(Collection groups, boolean own) throws PermissionException;
 
 	/**
 	 * Remove any grouping for this event; the access mode reverts to site and any groups are removed.
@@ -101,6 +103,16 @@ public interface CalendarEventEdit
 	 */
 	void clearGroupAccess() throws PermissionException;
 
+	/**
+	* Set the event creator (cover for PROP_CREATOR) to current user
+	*/
+	public void setCreator();
+	
+	/**
+	* Set the event modifier (cover for PROP_MODIFIED_BY) to current user
+	*/
+	public void setModifiedBy();
+	
 }	// CalendarEventEdit
 
 

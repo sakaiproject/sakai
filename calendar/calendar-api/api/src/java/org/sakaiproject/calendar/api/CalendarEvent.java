@@ -90,6 +90,18 @@ public interface CalendarEvent
 	public RecurrenceRule getRecurrenceRule();
 	
 	/**
+	* Gets the event creator (userid), if any (cover for PROP_CREATOR).
+	* @return The event's creator property.
+	*/
+	public String getCreator();	
+
+	/**
+	* Gets the event modifier (userid), if any (cover for PROP_MODIFIED_BY).
+	* @return The event's modified-by property.
+	*/
+	public String getModifiedBy();	
+
+	/**
 	 * <p>
 	 * EventAccess enumerates different access modes for the event: site-wide or grouped.
 	 * </p>

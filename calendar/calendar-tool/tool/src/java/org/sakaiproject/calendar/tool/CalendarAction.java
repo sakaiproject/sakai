@@ -78,6 +78,7 @@ import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.FormattedText;
@@ -1675,12 +1676,9 @@ extends VelocityPortletStateAction
 				if (calendarObj == null)
 				{
 					// If the calendar isn't there, try adding it.
-					if (CalendarService.allowAddCalendar(calendarReference))
-					{
-						CalendarService.commitCalendar(
-						CalendarService.addCalendar(calendarReference));
-						calendarObj = CalendarService.getCalendar(calendarReference);
-					}
+					CalendarService.commitCalendar(
+					CalendarService.addCalendar(calendarReference));
+					calendarObj = CalendarService.getCalendar(calendarReference);
 				}
 			}
 			
@@ -1855,7 +1853,7 @@ extends VelocityPortletStateAction
 			// I wasn't quite sure how to check if the calendar reference that was formerly
 			// passed was a user or a group site.  This seems to do the job, but I'm leaving
 			// Glenn's comment intact in case this needs to be revistied.
-			return !isOnWorkspaceTab && allowModifyCalendarProperties(calendarReference);
+			return !isOnWorkspaceTab && CalendarService.allowMergeCalendar(calendarReference);
 		}
 		
 		/**
@@ -1864,7 +1862,7 @@ extends VelocityPortletStateAction
 		 */
 		static public boolean allowModifyCalendarProperties(String calendarReference)
 		{
-			return CalendarService.allowUpdateCalendar(calendarReference);
+			return CalendarService.allowEditCalendar(calendarReference);
 		}
 
 		/**
@@ -2194,7 +2192,6 @@ extends VelocityPortletStateAction
 				// form a reference to the default calendar for this request's site
 				calendarReference = CalendarService.calendarReference(ToolManager.getCurrentPlacement().getContext(), SiteService.MAIN_CONTAINER);
 				state.setPrimaryCalendarReference(calendarReference);
-				//CalendarCalendarService.getCalendar(calendarReference));
 			}
 		}
 	}
@@ -2546,6 +2543,15 @@ extends VelocityPortletStateAction
 				
 				context.put(EVENT_CONTEXT_VAR, calEvent);
 				context.put("tlang",rb);	
+            
+            String ownerId = calEvent.getCreator();
+            if ( ownerId != null && ! ownerId.equals("") )
+            {
+               String ownerName = 
+                      UserDirectoryService.getUser( ownerId ).getDisplayName();
+               context.put("owner_name", ownerName);
+            }
+            
 				RecurrenceRule rule = calEvent.getRecurrenceRule();
 				// for a brand new event, there is no saved recurring rule
 				if (rule != null)
@@ -2568,6 +2574,11 @@ extends VelocityPortletStateAction
 				context.put(NO_EVENT_FLAG_CONTEXT_VAR, TRUE_STRING);
 			}
 			catch (PermissionException e)
+			{
+				exceptionMessage.append(rb.getString("java.alert.younotpermadd"));
+				M_log.debug(".buildDescriptionContext(): " + e);
+			}
+			catch (UserNotDefinedException e)
 			{
 				exceptionMessage.append(rb.getString("java.alert.younotpermadd"));
 				M_log.debug(".buildDescriptionContext(): " + e);
@@ -3258,34 +3269,27 @@ extends VelocityPortletStateAction
 			}
 			catch(IdUnusedException e)
 			{
-				if(CalendarService.allowAddCalendar(calId))
+				try
 				{
-					try
-					{
-						CalendarService.commitCalendar(CalendarService.addCalendar(calId));
-						calendarObj = CalendarService.getCalendar(calId);
-						allowed = true;
-					}
-					catch (PermissionException err)
-					{
-						M_log.debug(".buildWeekContext(): " + err);
-					}
-					catch(IdUsedException err)
-					{
-						M_log.debug(".buildWeekContext(): " + err);
-					}
-					catch(IdInvalidException err)
-					{
-						M_log.debug(".buildWeekContext(): " + err);
-					}
-					catch(IdUnusedException err)
-					{
-						M_log.debug(".buildWeekContext(): " + err);
-					}
-				}//end if
-				else
+					CalendarService.commitCalendar(CalendarService.addCalendar(calId));
+					calendarObj = CalendarService.getCalendar(calId);
+					allowed = true;
+				}
+				catch (PermissionException err)
 				{
-					allowed  = false;
+					M_log.debug(".buildWeekContext(): " + err);
+				}
+				catch(IdUsedException err)
+				{
+					M_log.debug(".buildWeekContext(): " + err);
+				}
+				catch(IdInvalidException err)
+				{
+					M_log.debug(".buildWeekContext(): " + err);
+				}
+				catch(IdUnusedException err)
+				{
+					M_log.debug(".buildWeekContext(): " + err);
 				}
 			}
 			catch (PermissionException e)
@@ -4344,6 +4348,9 @@ extends VelocityPortletStateAction
 							
 							String [] customFields = getCustomFieldsArray(state, sstate); 
 							
+							// Set the creator
+							newEvent.setCreator();
+                  
 							// Copy any custom fields.
 							if ( customFields != null )
 							{
@@ -5485,6 +5492,7 @@ extends VelocityPortletStateAction
 				// edit it further
 				CalendarEventEdit edit = calendarObj.editEvent(event.getId());
 				edit.setDescriptionFormatted(description);
+				edit.setCreator();
 				setFields(edit, addfieldsMap);
 				
 				RecurrenceRule rule = (RecurrenceRule) sstate.getAttribute(CalendarAction.SSTATE__RECURRING_RULE);
@@ -6831,15 +6839,6 @@ extends VelocityPortletStateAction
 		{
 			bar.add( new MenuEntry(rb.getString("java.import"), null, allow_new, MenuItem.CHECKED_NA, "doImport") );
 		}
-		
-		//bar.add( new MenuEntry(rb.getString("java.delete"), null, allow_delete, MenuItem.CHECKED_NA, "doDelete") );
-		//bar.add( new MenuEntry(rb.getString("java.revise"), null, allow_revise, MenuItem.CHECKED_NA, "doRevise") );
-		//bar.add( new MenuEntry("View by day", null, viewDay, MenuItem.CHECKED_NA, "doMenueday") );
-		//bar.add( new MenuEntry("View by week", null, viewWeek, MenuItem.CHECKED_TRUE, "doWeek") );
-		//bar.add( new MenuEntry("View by month", null, viewMonth, MenuItem.CHECKED_NA, "doMonth") );
-		//bar.add( new MenuEntry("View by year", null, viewYear, MenuItem.CHECKED_NA, "doYear") );
-		//bar.add( new MenuEntry("View list", null, viewList, MenuItem.CHECKED_NA, "doList") );
-		//bar.add( new MenuEntry("Go home", null, true/* visible at all views */, MenuItem.CHECKED_NA, "doHome") );
 		
 		// 2nd menu bar for the PDF print only
 		Menu bar_PDF = new MenuImpl(portlet, runData, "CalendarAction");
