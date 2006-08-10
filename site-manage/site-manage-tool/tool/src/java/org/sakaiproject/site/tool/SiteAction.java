@@ -12304,7 +12304,7 @@ public class SiteAction extends PagedResourceActionII
 				{
 					try
 					{
-						i1 = Integer.parseInt(((CourseMember) o1).getId());	
+						i1 = Integer.parseInt(((CourseMember) o1).getUniqname());	
 					}
 					catch (Exception e) {}
 				}
@@ -12317,7 +12317,7 @@ public class SiteAction extends PagedResourceActionII
 				{
 					try
 					{
-						i2 = Integer.parseInt(((CourseMember) o2).getId());	
+						i2 = Integer.parseInt(((CourseMember) o2).getUniqname());	
 					}
 					catch (Exception e) {}
 				}
