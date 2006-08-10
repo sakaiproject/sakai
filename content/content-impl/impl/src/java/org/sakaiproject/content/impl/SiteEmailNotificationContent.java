@@ -289,7 +289,7 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 		String contextRef = SiteService.siteReference(ref.getContext());
 
 		// get the list of users who have SECURE_ALL_GROUPS
-		List allGroupUsers = SecurityService.unlockUsers(ContentHostingService.EVENT_RESOURCE_ALL_GROUPS, contextRef);
+		List allGroupUsers = SecurityService.unlockUsers(ContentHostingService.AUTH_RESOURCE_ALL_GROUPS, contextRef);
 		
 		// filter down by the permission
 		if (getResourceAbility() != null)

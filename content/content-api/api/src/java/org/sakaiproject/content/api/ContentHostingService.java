@@ -110,21 +110,39 @@ public interface ContentHostingService extends EntityProducer
 	/** Name of the event when removing a resource. */
 	public static final String EVENT_RESOURCE_REMOVE = "content.delete";
 	
-	/** name of event when accessing hidden entities */
-	public static final String EVENT_RESOURCE_HIDDEN = "content.hidden";
+	/** Security function for creating a resource. */
+	public static final String AUTH_RESOURCE_ADD = "content.new";
+
+	/** Security function for reading a resource. */
+	public static final String AUTH_RESOURCE_READ = "content.read";
+
+	/** Security function for writing any resource. */
+	public static final String AUTH_RESOURCE_WRITE_ANY = "content.revise.any";
+
+	/** Security function for writing own resource. */
+	public static final String AUTH_RESOURCE_WRITE_OWN = "content.revise.own";
+
+	/** Security function for removing any resource. */
+	public static final String AUTH_RESOURCE_REMOVE_ANY = "content.delete.any";
+	
+	/** Security function for removing own resource. */
+	public static final String AUTH_RESOURCE_REMOVE_OWN = "content.delete.own";
 	
 	/** Security function granted to users who will then have membership in all site groups based on their site membership. */
-	public static final String EVENT_RESOURCE_ALL_GROUPS = "content.all.groups";
+	public static final String AUTH_RESOURCE_ALL_GROUPS = "content.all.groups";
 
-	/** Name of the event when accessing a resource belonging to a group. */
-	public static final String EVENT_GROUP_RESOURCE_READ = "content.read_group_resources";
+	/** Security function for accessing a resource belonging to a group. */
+	public static final String AUTH_GROUP_RESOURCE_READ = "content.read_group_resources";
 	
 	/** Security function for those who may OWN a dropbox. */
-	public static final String EVENT_DROPBOX_OWN = "dropbox.own";
+	public static final String AUTH_DROPBOX_OWN = "dropbox.own";
 
 	/** Security function for those who may maintain dropboxes. */
-	public static final String EVENT_DROPBOX_MAINTAIN = "dropbox.maintain";
+	public static final String AUTH_DROPBOX_MAINTAIN = "dropbox.maintain";
 
+	/** Security function for accessing hidden entities */
+	public static final String AUTH_RESOURCE_HIDDEN = "content.hidden";
+	
 	/** Property name on a Resource that will cause getUrl() and getRefernce() to return an alternal root reference. */
 	public static final String PROP_ALTERNATE_REFERENCE = "sakai:reference-root";
 

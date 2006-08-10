@@ -65,12 +65,8 @@ public class ContentHostingService
 
 	public static java.lang.String EVENT_RESOURCE_REMOVE = org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_REMOVE;
 
-	public static java.lang.String EVENT_RESOURCE_ALL_GROUPS = org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_ALL_GROUPS;
+	public static java.lang.String AUTH_RESOURCE_ALL_GROUPS = org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_ALL_GROUPS;
 	
-	public static java.lang.String EVENT_DROPBOX_OWN = org.sakaiproject.content.api.ContentHostingService.EVENT_DROPBOX_OWN;
-
-	public static java.lang.String EVENT_DROPBOX_MAINTAIN = org.sakaiproject.content.api.ContentHostingService.EVENT_DROPBOX_MAINTAIN;
-
 	public static java.lang.String PROP_ALTERNATE_REFERENCE = org.sakaiproject.content.api.ContentHostingService.PROP_ALTERNATE_REFERENCE;
 
 	public static int MAXIMUM_RESOURCE_ID_LENGTH = org.sakaiproject.content.api.ContentHostingService.MAXIMUM_RESOURCE_ID_LENGTH;

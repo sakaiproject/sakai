@@ -9976,7 +9976,6 @@ public class ResourcesAction
 			}
 			if(parent == null || ! parent.canDelete())
 			{
-				// canDelete = contentService.allowRemoveResource(collectionId);
 				canDelete = contentService.allowRemoveCollection(collectionId);
 			}
 			else
@@ -9985,7 +9984,6 @@ public class ResourcesAction
 			}
 			if(parent == null || ! parent.canRevise())
 			{
-				// canRevise = contentService.allowUpdateResource(collectionId);
 				canRevise = contentService.allowUpdateCollection(collectionId);
 			}
 			else
@@ -10025,8 +10023,11 @@ public class ResourcesAction
 			{
 				state.setAttribute(STATE_PASTE_ALLOWED_FLAG, Boolean.TRUE.toString());
 			}
-			boolean hasDeletableChildren = canDelete;
-			boolean hasCopyableChildren = canRead;
+			// each child will have it's own delete status based on: delete.own or delete.any
+			boolean hasDeletableChildren = true; 
+         
+			// may have perms to copy in another folder, even if no perms in this folder
+			boolean hasCopyableChildren = canRead; 
 
 			String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
 
@@ -10185,7 +10186,7 @@ public class ResourcesAction
 				List newMembers = collection.getMemberResources ();
 
 				Collections.sort (newMembers, ContentHostingService.newContentHostingComparator (sortedBy, Boolean.valueOf (sortedAsc).booleanValue ()));
-				// loop thru the (possibly) new members and add to the list
+				// loop thru the (possibly new) members and add to the list
 				Iterator it = newMembers.iterator();
 				while(it.hasNext())
 				{
@@ -10251,10 +10252,11 @@ public class ResourcesAction
 						newItem.setContainer(collectionId);
 						newItem.setRoot(folder.getRoot());
 
-						newItem.setCanDelete(canDelete && ! isLocked);
-						newItem.setCanRevise(canRevise);
+						// delete and revise permissions based on item (not parent)
+						newItem.setCanDelete(contentService.allowRemoveResource(itemId) && ! isLocked);
+						newItem.setCanRevise(contentService.allowUpdateResource(itemId)); 
 						newItem.setCanRead(canRead);
-						newItem.setCanCopy(canRead);
+						newItem.setCanCopy(canRead); // may have perms to copy in another folder, even if no perms in this folder
 						newItem.setCanAddItem(canAddItem); // true means this user can add an item in the folder containing this item (used for "duplicate")
 
 						if(highlightedItems == null || highlightedItems.isEmpty())

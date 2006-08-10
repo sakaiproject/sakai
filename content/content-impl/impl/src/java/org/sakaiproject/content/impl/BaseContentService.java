@@ -495,15 +495,17 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
 			// register functions
-			FunctionManager.registerFunction(EVENT_RESOURCE_ADD);
-			FunctionManager.registerFunction(EVENT_RESOURCE_READ);
-			FunctionManager.registerFunction(EVENT_RESOURCE_WRITE);
-			FunctionManager.registerFunction(EVENT_RESOURCE_REMOVE);
-			FunctionManager.registerFunction(EVENT_RESOURCE_ALL_GROUPS);
-			FunctionManager.registerFunction(EVENT_RESOURCE_HIDDEN);
+			FunctionManager.registerFunction(AUTH_RESOURCE_ADD);
+			FunctionManager.registerFunction(AUTH_RESOURCE_READ);
+			FunctionManager.registerFunction(AUTH_RESOURCE_WRITE_ANY);
+			FunctionManager.registerFunction(AUTH_RESOURCE_WRITE_OWN);
+			FunctionManager.registerFunction(AUTH_RESOURCE_REMOVE_ANY);
+			FunctionManager.registerFunction(AUTH_RESOURCE_REMOVE_OWN);
+			FunctionManager.registerFunction(AUTH_RESOURCE_ALL_GROUPS);
+			FunctionManager.registerFunction(AUTH_RESOURCE_HIDDEN);
 
-			FunctionManager.registerFunction(EVENT_DROPBOX_OWN);
-			FunctionManager.registerFunction(EVENT_DROPBOX_MAINTAIN);
+			FunctionManager.registerFunction(AUTH_DROPBOX_OWN);
+			FunctionManager.registerFunction(AUTH_DROPBOX_MAINTAIN);
 
 			M_log.info("init(): site quota: " + m_siteQuota + " body path: " + m_bodyPath + " volumes: "
 					+ buf.toString());
@@ -843,7 +845,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			String[] parts = StringUtil.split(id, "/");
 			if (parts.length >= 4)
 			{
-				return EVENT_DROPBOX_MAINTAIN;
+				return AUTH_DROPBOX_MAINTAIN;
 			}
 		}
 
@@ -921,7 +923,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		if(! available)
 		{
 			// available if user has permission to view hidden entities
-			String lock = EVENT_RESOURCE_HIDDEN;
+			String lock = AUTH_RESOURCE_HIDDEN;
 			lock = convertLockIfDropbox(lock, id);
 			available = SecurityService.unlock(lock, entity.getReference());
 		}
@@ -956,7 +958,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		if(! isAllowed)
 		{
 			lock = convertLockIfDropbox(lock, id);
-	
+
 			// make a reference from the resource id, if specified
 			String ref = null;
 			if (id != null)
@@ -1232,7 +1234,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 
 		// check security
-		return unlockCheck(EVENT_RESOURCE_ADD, id);
+		return unlockCheck(AUTH_RESOURCE_ADD, id);
 
 	} // allowAddCollection
 
@@ -1329,7 +1331,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 
 		// check security
-		unlock(EVENT_RESOURCE_ADD, id);
+		unlock(AUTH_RESOURCE_ADD, id);
 
 		return addValidPermittedCollection(id);
 	}
@@ -1385,7 +1387,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public boolean allowGetCollection(String id)
 	{
-		return unlockCheck(EVENT_RESOURCE_READ, id);
+		return unlockCheck(AUTH_RESOURCE_READ, id);
 
 	} // allowGetCollection
 
@@ -1403,7 +1405,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public void checkCollection(String id) throws IdUnusedException, TypeException, PermissionException
 	{
-		unlock(EVENT_RESOURCE_READ, id);
+		unlock(AUTH_RESOURCE_READ, id);
 
 		ContentCollection collection = findCollection(id);
 		if (collection == null) throw new IdUnusedException(id);
@@ -1425,7 +1427,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public ContentCollection getCollection(String id) throws IdUnusedException, TypeException, PermissionException
 	{
-		unlock(EVENT_RESOURCE_READ, id);
+		unlock(AUTH_RESOURCE_READ, id);
 
 		ContentCollection collection = findCollection(id);
 		if (collection == null) throw new IdUnusedException(id);
@@ -1555,7 +1557,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		if(includeCollections)
 		{
-			if (unlockCheck(EVENT_RESOURCE_READ, collection.getId()))
+			if (unlockCheck(AUTH_RESOURCE_READ, collection.getId()))
 			{
 				rv.add(collection);
 			}
@@ -1572,7 +1574,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 			if (next instanceof ContentResource)
 			{
-				if (unlockCheck(EVENT_RESOURCE_READ, next.getId()))
+				if (unlockCheck(AUTH_RESOURCE_READ, next.getId()))
 				{
 					rv.add(next);
 				}
@@ -1665,7 +1667,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public boolean allowUpdateCollection(String id)
 	{
-		boolean isAllowed = unlockCheck(EVENT_RESOURCE_WRITE, id);
+		boolean isAllowed = allowUpdate(id);
 		
 		if(isAllowed)
 		{
@@ -1684,6 +1686,42 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	} // allowUpdateCollection
 
 	/**
+	* check permissions for revising collections or resources
+	* @param id The id of the collection.
+	* @return true if the user is allowed to update the collection, false if not.
+	*/
+	public boolean allowUpdate(String id)
+	{
+		String currentUser = SessionManager.getCurrentSessionUserId();
+		String owner = "";
+      
+      try
+      {
+ 			ResourceProperties props = getProperties(id);
+			owner = props.getProperty(ResourceProperties.PROP_CREATOR);
+      }
+      catch ( Exception e ) 
+      {
+         // PermissionException can be thrown if not AUTH_RESOURCE_READ
+         return false;
+      }
+      
+		// check security to delete any collection
+		if ( unlockCheck(AUTH_RESOURCE_WRITE_ANY, id) )
+         return true;
+
+		// check security to delete own collection
+		else if ( unlockCheck(AUTH_RESOURCE_WRITE_OWN, id)
+                && currentUser.equals(owner) )
+         return true;
+            
+      // otherwise not authorized
+      else
+         return false;
+
+	} // allowUpdate
+
+	/**
 	 * check permissions for removeCollection(). Note: for just this collection, not the members on down.
 	 * 
 	 * @param id
@@ -1692,9 +1730,47 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public boolean allowRemoveCollection(String id)
 	{
-		return unlockCheck(EVENT_RESOURCE_REMOVE, id);
+		return allowRemove(id);
 
 	} // allowRemoveCollection
+
+	/**
+	* check permissions for removing collections or resources
+	* Note: for just this collection, not the members on down.
+	* @param id The id of the collection.
+	* @return true if the user is allowed to removeCollection(id), false if not.
+	*/
+	protected boolean allowRemove(String id)
+	{
+		String ref = getReference(id);
+		String currentUser = SessionManager.getCurrentSessionUserId();
+      String owner = "";
+      
+      try
+      {
+ 			ResourceProperties props = getProperties(id);
+			owner = props.getProperty(ResourceProperties.PROP_CREATOR);
+      }
+      catch ( Exception e ) 
+      {
+         // PermissionException can be thrown if not RESOURCE_AUTH_READ
+         return false;
+      }
+      
+		// check security to delete any collection
+		if ( unlockCheck(AUTH_RESOURCE_REMOVE_ANY, id) )
+         return true;
+
+		// check security to delete own collection
+		else if ( unlockCheck(AUTH_RESOURCE_REMOVE_OWN, id) 
+                && currentUser.equals(owner) )
+         return true;
+            
+      // otherwise not authorized
+      else
+         return false;
+
+	} // allowRemove
 
 	/**
 	 * Remove just a collection. It must be empty.
@@ -1727,8 +1803,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return;
 		}
 
-		// check security (throws if not permitted)
-		unlock(EVENT_RESOURCE_REMOVE, edit.getId());
+		// check security 
+      if ( ! allowRemoveCollection(edit.getId()) )
+		   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+                                       AUTH_RESOURCE_REMOVE_ANY, edit.getReference());
 
 		// check for members
 		List members = edit.getMemberResources();
@@ -1784,8 +1862,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public void removeCollection(String id) throws IdUnusedException, TypeException, PermissionException, InUseException,
 			ServerOverloadException
 	{
-		// check security for remove
-		unlock(EVENT_RESOURCE_REMOVE, id);
+		// check security 
+      if ( ! allowRemoveCollection(id) )
+		   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+                                       AUTH_RESOURCE_REMOVE_ANY, getReference(id) );
 
 		// find the collection
 		ContentCollection thisCollection = findCollection(id);
@@ -1793,7 +1873,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		// check security: can we remove members (if any)
 		// Note: this will also be done in clear(), except some might get deleted before one is not allowed.
-		// unlockContained(EVENT_RESOURCE_REMOVE, thisCollection);
+		// unlockContained(AUTH_RESOURCE_REMOVE, thisCollection);
 
 		// get an edit
 		ContentCollectionEdit edit = editCollection(id);
@@ -1860,7 +1940,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 //			if(AccessMode.GROUPED.equals(access))
 //			{
 //				Reference ref = m_entityManager.newReference(edit.getReference());
-//				if(SecurityService.isSuperUser() || SecurityService.unlock(EVENT_RESOURCE_ALL_GROUPS, ref.getContext()))
+//				if(SecurityService.isSuperUser() || SecurityService.unlock(AUTH_RESOURCE_ALL_GROUPS, ref.getContext()))
 //				{
 //					allowed = true;
 //				}
@@ -2156,7 +2236,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 		
 		// check security
-		boolean isAllowed = unlockCheck(EVENT_RESOURCE_ADD, id);
+		boolean isAllowed = unlockCheck(AUTH_RESOURCE_ADD, id);
 		
 		if(isAllowed)
 		{
@@ -2507,7 +2587,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		// check security
 		checkExplicitLock(id);
-		unlock(EVENT_RESOURCE_ADD, id);
+		unlock(AUTH_RESOURCE_ADD, id);
 
 		// make sure the containing collection exists
 		String container = isolateContainingId(id);
@@ -2546,7 +2626,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public boolean allowAddAttachmentResource()
 	{
-		return unlockCheck(EVENT_RESOURCE_ADD, ATTACHMENTS_COLLECTION);
+		return unlockCheck(AUTH_RESOURCE_ADD, ATTACHMENTS_COLLECTION);
 
 	} // allowAddAttachmentResource
 
@@ -2773,7 +2853,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public boolean allowUpdateResource(String id)
 	{
-		return unlockCheck(EVENT_RESOURCE_WRITE, id);
+		return allowUpdate(id);
 
 	} // allowUpdateResource
 
@@ -2836,7 +2916,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// check security (throws if not permitted)
 		checkExplicitLock(id);
 		
-		unlock(EVENT_RESOURCE_WRITE, id);
+		// check security 
+      if ( ! allowUpdateResource(id) )
+		   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+                                       AUTH_RESOURCE_WRITE_ANY, getReference(id));
 
 		// check for existance
 		if (!m_storage.checkResource(id))
@@ -2855,6 +2938,47 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	} // editResource
 
 	/**
+	 * Access the resource with this resource id, locked for update. For non-collection resources only. Must commitEdit() to make official, or cancelEdit() when done! The resource content and properties are accessible from the returned Resource object.
+	 * 
+	 * @param id
+	 *        The id of the resource.
+	 * @exception PermissionException
+	 *            if the user does not have permissions to read the resource or read through any containing collection.
+	 * @exception IdUnusedException
+	 *            if the resource id is not found.
+	 * @exception TypeException
+	 *            if the resource is a collection.
+	 * @exception InUseException
+	 *            if the resource is locked by someone else.
+	 * @return the ContentResource object found.
+	 */
+	protected ContentResourceEdit editResourceForDelete(String id) throws PermissionException, IdUnusedException, TypeException, InUseException
+	{
+		// check security (throws if not permitted)
+		checkExplicitLock(id);
+		
+		// check security 
+      if ( ! allowRemoveResource(id) )
+		   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+                                       AUTH_RESOURCE_REMOVE_ANY, getReference(id));
+
+		// check for existance
+		if (!m_storage.checkResource(id))
+		{
+			throw new IdUnusedException(id);
+		}
+
+		// ignore the cache - get the collection with a lock from the info store
+		BaseResourceEdit resource = (BaseResourceEdit) m_storage.editResource(id);
+		if (resource == null) throw new InUseException(id);
+
+		resource.setEvent(EVENT_RESOURCE_REMOVE);
+
+		return resource;
+
+	} // editResourceForDelete
+
+	/**
 	 * check permissions for getResource().
 	 * 
 	 * @param id
@@ -2863,7 +2987,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public boolean allowGetResource(String id)
 	{
-		return unlockCheck(EVENT_RESOURCE_READ, id);
+		return unlockCheck(AUTH_RESOURCE_READ, id);
 
 	} // allowGetResource
 
@@ -2882,7 +3006,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public void checkResource(String id) throws PermissionException, IdUnusedException, TypeException
 	{
 		// check security
-		unlock(EVENT_RESOURCE_READ, id);
+		unlock(AUTH_RESOURCE_READ, id);
 
 		ContentResource resource = findResource(id);
 		if (resource == null) throw new IdUnusedException(id);
@@ -2905,7 +3029,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public ContentResource getResource(String id) throws PermissionException, IdUnusedException, TypeException
 	{
 		// check security
-		unlock(EVENT_RESOURCE_READ, id);
+		unlock(AUTH_RESOURCE_READ, id);
 
 		ContentResource resource = findResource(id);
 		if (resource == null) throw new IdUnusedException(id);
@@ -2937,8 +3061,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		checkExplicitLock(id);
 	
-		// check security (throws if not permitted)
-		unlock(EVENT_RESOURCE_WRITE, id);
+		// check security 
+      if ( ! allowUpdateCollection(id) )
+		   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+                                       AUTH_RESOURCE_WRITE_ANY, getReference(id));
 	
 		// check for existance
 		if (!m_storage.checkCollection(id))
@@ -3037,7 +3163,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public boolean allowRemoveResource(String id)
 	{
 		// check security
-		boolean isAllowed = unlockCheck(EVENT_RESOURCE_REMOVE, id);
+		boolean isAllowed = allowRemove(id);
 		
 		if(isAllowed)
 		{
@@ -3071,7 +3197,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public void removeResource(String id) throws PermissionException, IdUnusedException, TypeException, InUseException
 	{
-		BaseResourceEdit edit = (BaseResourceEdit) editResource(id);
+		BaseResourceEdit edit = (BaseResourceEdit) editResourceForDelete(id);
 		removeResource(edit);
 
 	} // removeResource
@@ -3104,7 +3230,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		// check security (throws if not permitted)
 		checkExplicitLock(id);
-		unlock(EVENT_RESOURCE_REMOVE, id);
+      if ( ! allowRemoveResource(edit.getId()) )
+		   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+                                       AUTH_RESOURCE_REMOVE_ANY, edit.getReference());
+
 
 		// htripath -store the metadata information into a delete table
 		// assumed uuid is not null as checkExplicitLock(id) throws exception when null
@@ -3184,7 +3313,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			id = id.substring(0, id.length() - 1);
 		}
 		// check security-unlock to add record
-		unlock(EVENT_RESOURCE_ADD, id);
+		unlock(AUTH_RESOURCE_ADD, id);
 
 		// reserve the resource in storage - it will fail if the id is in use
 		BaseResourceEdit edit = (BaseResourceEdit) m_storage.putDeleteResource(id, uuid, userId);
@@ -3225,8 +3354,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		M_log.warn("allowRename(" + id + ") - Rename not implemented");
 		return false;
 
-		// return unlockCheck(EVENT_RESOURCE_ADD, new_id) &&
-		// unlockCheck(EVENT_RESOURCE_REMOVE, id);
+		// return unlockCheck(AUTH_RESOURCE_ADD, new_id) &&
+		// unlockCheck(AUTH_RESOURCE_REMOVE, id);
 
 	} // allowRename
 
@@ -3258,14 +3387,16 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// and then overridden in those derived classes which can support
 		// a direct rename operation.
 
-		// check security for create new resource
-		unlock(EVENT_RESOURCE_REMOVE, id);
+		// check security for remove resource (own or any)
+      if ( ! allowRemove(id) )
+		   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+                                       AUTH_RESOURCE_REMOVE_ANY, getReference(id));
 
-		// check security for create new resource
-		unlock(EVENT_RESOURCE_READ, id);
+		// check security for read resource
+		unlock(AUTH_RESOURCE_READ, id);
 
-		// check security for remove
-		unlock(EVENT_RESOURCE_ADD, new_id);
+		// check security for add resource
+		unlock(AUTH_RESOURCE_ADD, new_id);
 
 		boolean isCollection = false;
 		boolean isRootCollection = false;
@@ -3320,7 +3451,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public boolean allowCopy(String id, String new_id)
 	{
-		return unlockCheck(EVENT_RESOURCE_ADD, new_id) && unlockCheck(EVENT_RESOURCE_READ, id);
+		return unlockCheck(AUTH_RESOURCE_ADD, new_id) && unlockCheck(AUTH_RESOURCE_READ, id);
 	}
 
 	/**
@@ -3470,14 +3601,16 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 		String new_id = newName(id, folder_id);
 
-		// check security for delete existing resource
-		unlock(EVENT_RESOURCE_REMOVE, id);
+		// check security for delete existing resource (any or own)
+      if ( ! allowRemove(id) )
+		   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+                                       AUTH_RESOURCE_REMOVE_ANY, getReference(id));
 
 		// check security for read existing resource
-		unlock(EVENT_RESOURCE_READ, id);
+		unlock(AUTH_RESOURCE_READ, id);
 
 		// check security for add new resource
-		unlock(EVENT_RESOURCE_ADD, new_id);
+		unlock(AUTH_RESOURCE_ADD, new_id);
 
 		boolean isCollection = false;
 		boolean isRootCollection = false;
@@ -4296,7 +4429,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public boolean allowGetProperties(String id)
 	{
-		return unlockCheck(EVENT_RESOURCE_READ, id);
+		return unlockCheck(AUTH_RESOURCE_READ, id);
 
 	} // allowGetProperties
 
@@ -4313,7 +4446,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public ResourceProperties getProperties(String id) throws PermissionException, IdUnusedException
 	{
-		unlock(EVENT_RESOURCE_READ, id);
+		unlock(AUTH_RESOURCE_READ, id);
 
 		boolean collectionHint = id.endsWith(Entity.SEPARATOR);
 
@@ -4353,7 +4486,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public boolean allowAddProperty(String id)
 	{
-		boolean isAllowed = unlockCheck(EVENT_RESOURCE_WRITE, id);
+		boolean isAllowed = allowUpdate(id);
 		if(isAllowed)
 		{
 			try 
@@ -4394,8 +4527,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public ResourceProperties addProperty(String id, String name, String value) throws PermissionException, IdUnusedException,
 			TypeException, InUseException, ServerOverloadException
 	{
+		// check security 
 		checkExplicitLock(id);
-		unlock(EVENT_RESOURCE_WRITE, id);
+      if ( ! allowAddProperty(id) )
+		   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+                                       AUTH_RESOURCE_WRITE_ANY, getReference(id));
 
 		boolean collectionHint = id.endsWith(Entity.SEPARATOR);
 		Edit o = null;
@@ -4443,7 +4579,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public boolean allowRemoveProperty(String id)
 	{
-		boolean isAllowed = unlockCheck(EVENT_RESOURCE_WRITE, id);
+		boolean isAllowed = allowUpdate(id);
 
 		if(isAllowed)
 		{
@@ -4483,8 +4619,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public ResourceProperties removeProperty(String id, String name) throws PermissionException, IdUnusedException, TypeException,
 			InUseException, ServerOverloadException
 	{
+		// check security 
 		checkExplicitLock(id);
-		unlock(EVENT_RESOURCE_WRITE, id);
+      if ( ! allowRemoveProperty(id) )
+		   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+                                       AUTH_RESOURCE_WRITE_ANY, getReference(id));
 
 		boolean collectionHint = id.endsWith(Entity.SEPARATOR);
 		Edit o = null;
@@ -4759,7 +4898,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		// need read permission
 		if (!allowGetResource(ref.getId()))
-			throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), EVENT_RESOURCE_READ, ref.getReference());
+			throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), AUTH_RESOURCE_READ, ref.getReference());
 
 		BaseResourceEdit resource = null;
 		try
@@ -4995,7 +5134,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		// need read permission
 		if (!allowGetResource(ref.getId()))
-			throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), EVENT_RESOURCE_READ, ref.getReference());
+			throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), AUTH_RESOURCE_READ, ref.getReference());
 
 		BaseCollectionEdit collection = null;
 		try
@@ -5192,7 +5331,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				boolean useSiteAsContext = false;
 				if(site != null && userId != null)
 				{
-					useSiteAsContext = site.isAllowed(userId, EVENT_RESOURCE_ALL_GROUPS);
+					useSiteAsContext = site.isAllowed(userId, AUTH_RESOURCE_ALL_GROUPS);
 				}
 				if(useSiteAsContext)
 				{
@@ -6719,7 +6858,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public boolean isPubView(String id)
 	{
-		boolean pubView = SecurityService.unlock(UserDirectoryService.getAnonymousUser(), EVENT_RESOURCE_READ, getReference(id));
+		boolean pubView = SecurityService.unlock(UserDirectoryService.getAnonymousUser(), AUTH_RESOURCE_READ, getReference(id));
 		return pubView;
 	}
 
@@ -6733,7 +6872,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		// check for pubview on the container
 		String containerId = isolateContainingId(id);
-		boolean pubView = SecurityService.unlock(UserDirectoryService.getAnonymousUser(), EVENT_RESOURCE_READ,
+		boolean pubView = SecurityService.unlock(UserDirectoryService.getAnonymousUser(), AUTH_RESOURCE_READ,
 				getReference(containerId));
 		return pubView;
 	}
@@ -6799,9 +6938,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				}
 			}
 
-			if (!role.isAllowed(EVENT_RESOURCE_READ))
+			if (!role.isAllowed(AUTH_RESOURCE_READ))
 			{
-				role.allowFunction(EVENT_RESOURCE_READ);
+				role.allowFunction(AUTH_RESOURCE_READ);
 				changed = true;
 			}
 		}
@@ -6813,10 +6952,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			Role role = edit.getRole(AuthzGroupService.ANON_ROLE);
 			if (role != null)
 			{
-				if (role.isAllowed(EVENT_RESOURCE_READ))
+				if (role.isAllowed(AUTH_RESOURCE_READ))
 				{
 					changed = true;
-					role.disallowFunction(EVENT_RESOURCE_READ);
+					role.disallowFunction(AUTH_RESOURCE_READ);
 				}
 
 				if (role.allowsNoFunctions())
@@ -7172,9 +7311,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 //			return;
 //		}
 
-		// The EVENT_DROPBOX_OWN is granted within the site, so we can ask for all the users who have this ability
+		// The AUTH_DROPBOX_OWN is granted within the site, so we can ask for all the users who have this ability
 		// using just the dropbox collection
-		List users = SecurityService.unlockUsers(EVENT_DROPBOX_OWN, getReference(dropbox));
+		List users = SecurityService.unlockUsers(AUTH_DROPBOX_OWN, getReference(dropbox));
 		for (Iterator it = users.iterator(); it.hasNext();)
 		{
 			User user = (User) it.next();
@@ -7215,7 +7354,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	/**
 	 * Create an individual dropbox collection for the current user if the site-level dropbox exists
-	 * and the current user has EVENT_DROPBOX_OWN for the site.
+	 * and the current user has AUTH_DROPBOX_OWN for the site.
 	 * 
 	 * @param siteId
 	 *        the Site id.
@@ -7250,7 +7389,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// the folder id for this user's dropbox in this group
 			String userFolder = dropbox + user.getId() + "/";
 
-			if(SecurityService.unlock(EVENT_DROPBOX_OWN, getReference(dropbox)))
+			if(SecurityService.unlock(AUTH_DROPBOX_OWN, getReference(dropbox)))
 			{
 				// see if it exists - add if it doesn't
 				try
@@ -7318,7 +7457,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		// if the user has dropbox maintain in the site, they are the dropbox maintainer
 		// (dropbox maintain in their myWorkspace just gives them access to their own dropbox)
-		return SecurityService.unlock(EVENT_DROPBOX_MAINTAIN, m_siteService.siteReference(siteId));
+		return SecurityService.unlock(AUTH_DROPBOX_MAINTAIN, m_siteService.siteReference(siteId));
 	}
 	
 	/******************************************************************************************************************************************************************************************************************************************************
@@ -7341,7 +7480,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		
 		String refString = getReference(collectionId);
 		Reference ref = m_entityManager.newReference(refString);
-		Collection groups = getGroupsAllowFunction(EVENT_RESOURCE_READ, ref.getReference());
+		Collection groups = getGroupsAllowFunction(AUTH_RESOURCE_READ, ref.getReference());
 		if(groups != null && ! groups.isEmpty())
 		{
 			rv.addAll(groups);
@@ -7365,7 +7504,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		
 		String refString = getReference(collectionId);
 		Reference ref = m_entityManager.newReference(refString);
-		Collection groups = getGroupsAllowFunction(EVENT_RESOURCE_ADD, ref.getReference());
+		Collection groups = getGroupsAllowFunction(AUTH_RESOURCE_ADD, ref.getReference());
 		if(groups != null && ! groups.isEmpty())
 		{
 			rv.addAll(groups);
@@ -7386,10 +7525,28 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public Collection getGroupsWithRemovePermission(String collectionId)
 	{
 		Collection rv = new Vector();
+      String owner = "";
+		String currentUser = SessionManager.getCurrentSessionUserId();
 		
+      try
+      {
+ 			ResourceProperties props = getProperties(collectionId);
+			owner = props.getProperty(ResourceProperties.PROP_CREATOR);
+      }
+      catch ( Exception e ) 
+      {
+			// assume user is not owner
+      }
+      
 		String refString = getReference(collectionId);
 		Reference ref = m_entityManager.newReference(refString);
-		Collection groups = getGroupsAllowFunction(EVENT_RESOURCE_REMOVE, ref.getReference());
+      
+		Collection groups = null;
+      if ( currentUser.equals(owner) )
+			groups = getGroupsAllowFunction(AUTH_RESOURCE_REMOVE_OWN, ref.getReference());
+		else
+			groups = getGroupsAllowFunction(AUTH_RESOURCE_REMOVE_ANY, ref.getReference());
+         
 		if(groups != null && ! groups.isEmpty())
 		{
 			rv.addAll(groups);
@@ -7457,7 +7614,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				{
 					rv.addAll(groups);
 				}
-				else if(SecurityService.unlock(EVENT_RESOURCE_ALL_GROUPS, site.getReference()) && unlockCheck(function, entity.getId()))
+				else if(SecurityService.unlock(AUTH_RESOURCE_ALL_GROUPS, site.getReference()) && unlockCheck(function, entity.getId()))
 				{
 					rv.addAll(groups);
 				}
@@ -7758,8 +7915,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		/** 
 		 * Determine whether current user can update the group assignments (add/remove groups) for the current resource.
-		 * This is based on whether the user has adequate rights defined for the group (EVENT_RESOURCE_ADD) or for the 
-		 * containing collection of the resource (EVENT_RESOURCE_ADD).  
+		 * This is based on whether the user has adequate rights defined for the group (AUTH_RESOURCE_ADD) or for the 
+		 * containing collection of the resource (AUTH_RESOURCE_ADD).  
 		 * @param group The group ionvolved in the query.
 		 * @return true if allowed, false otherwise.
 		 */
@@ -7771,8 +7928,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		/** 
 		 * Determine whether current user can update the group assignments (add/remove groups) for a specified resource.
-		 * This is based on whether the user has adequate rights defined for the group (EVENT_RESOURCE_ADD) or for the 
-		 * containing collection of the resource (EVENT_RESOURCE_ADD).  
+		 * This is based on whether the user has adequate rights defined for the group (AUTH_RESOURCE_ADD) or for the 
+		 * containing collection of the resource (AUTH_RESOURCE_ADD).  
 		 * @param group The group ionvolved in the query.
 		 * @param resourceRef A reference string for the resource.
 		 * @return true if allowed, false otherwise.
@@ -7780,7 +7937,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		protected boolean allowGroupUpdate(Group group, String resourceRef)
 		{
 			String collectionId = getContainingCollectionId(resourceRef);
-			return unlockCheck(EVENT_RESOURCE_ADD, group.getReference()) || unlockCheck(EVENT_RESOURCE_ADD, collectionId);
+			return unlockCheck(AUTH_RESOURCE_ADD, group.getReference()) || unlockCheck(AUTH_RESOURCE_ADD, collectionId);
 		}
 
 		public Time getReleaseDate()
