@@ -52,7 +52,7 @@ public class ClusterFSIndexStorageEclipsetest extends TestCase
 		{
 			Properties properties = new Properties();
 			properties.setProperty("driverClassName", "org.hsqldb.jdbcDriver");
-			properties.setProperty("url", "jdbc:hsqldb:.");
+			properties.setProperty("url", "jdbc:hsqldb:mem:search-test");
 			properties.setProperty("maxActive", "10");
 			properties.setProperty("maxWait", "500");
 			properties.setProperty("defaultAutoCommit", "false");
