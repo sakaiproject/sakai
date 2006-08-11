@@ -116,7 +116,7 @@ languages, as follows:
     Local ID: de_AT
 
 18) Swedish
-    Status: in progress
+    Status: initial 2.2 translation checked in
     Translated by: n/a
     Contact: Magnus Tagesson (magnus.tagesson@it.su.se)
     Local ID: sv_SE
