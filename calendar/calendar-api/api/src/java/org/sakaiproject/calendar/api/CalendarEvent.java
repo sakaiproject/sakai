@@ -96,6 +96,12 @@ public interface CalendarEvent
 	public String getCreator();	
 
 	/**
+	* Returns true if current user is thhe event's owner/creator
+	* @return boolean true or false
+	*/
+	public boolean isUserOwner();	
+
+	/**
 	* Gets the event modifier (userid), if any (cover for PROP_MODIFIED_BY).
 	* @return The event's modified-by property.
 	*/

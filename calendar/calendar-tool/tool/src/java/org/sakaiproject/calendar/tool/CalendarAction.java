@@ -2311,7 +2311,7 @@ extends VelocityPortletStateAction
 						context.put("allowedToSite", Boolean.valueOf(calendarObj.allowAddCalendarEvent()));
 						
 						// all the groups the user is allowed to do remove from
-						context.put("allowedRemoveGroups", calendarObj.getGroupsAllowRemoveEvent());
+						context.put("allowedRemoveGroups", calendarObj.getGroupsAllowRemoveEvent(calEvent.isUserOwner()));
 					}
 					else
 						getEventsFlag = false;
@@ -4382,7 +4382,7 @@ extends VelocityPortletStateAction
 										groups.add(site.getGroup(groupRef));
 									}
 									
-									newEvent.setGroupAccess(groups);
+									newEvent.setGroupAccess(groups, true);
 								}
 							}
 							catch (Exception e)
@@ -5883,7 +5883,7 @@ extends VelocityPortletStateAction
 										groups.add(site.getGroup(groupRef));
 									}
 									
-									edit.setGroupAccess(groups);
+									edit.setGroupAccess(groups, edit.isUserOwner());
 								}
 							}
 							catch (Exception e)

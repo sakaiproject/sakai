@@ -2516,12 +2516,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 */
 		public boolean allowRemoveEvent(CalendarEvent event)
 		{
- 			String currentUser = SessionManager.getCurrentSessionUserId();
-         String eventOwner = event.getCreator();
          boolean allowed = false;
-         
-         // for backward compatibility, treat unowned event as if it owned by this user
-         boolean ownEvent = (eventOwner == null || eventOwner.equals("") || currentUser.equals(eventOwner) );
+         boolean ownEvent = event.isUserOwner();
          
 			// check security to delete any event
          if ( unlockCheck(AUTH_REMOVE_CALENDAR_ANY, getReference()) )
@@ -2672,21 +2668,14 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			CalendarEvent e = findEvent(eventId);
 			if (e == null) return false;
 
- 			String currentUser = SessionManager.getCurrentSessionUserId();
-         String eventOwner = e.getCreator();
+         boolean ownEvent = e.isUserOwner();
          
 			// check security to revise any event
 			if ( unlockCheck(AUTH_MODIFY_CALENDAR_ANY, getReference()) )
             return true;
             
-			// check security to revise un-owned event (backward compatibility)
-			else if ( unlockCheck(AUTH_MODIFY_CALENDAR_OWN, getReference())
-                   && (eventOwner == null || eventOwner.equals("")) )
-            return true; 
-            
 			// check security to revise own event
-			else if ( unlockCheck(AUTH_MODIFY_CALENDAR_OWN, getReference())
-                   && currentUser.equals(eventOwner) )
+			else if ( unlockCheck(AUTH_MODIFY_CALENDAR_OWN, getReference()) && ownEvent )
             return true;
             
          // otherwise not authorized
@@ -3890,6 +3879,19 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			return m_properties.getProperty(ResourceProperties.PROP_CREATOR);
 
 		} // getCreator
+
+		/**
+		* Returns true if current user is thhe event's owner/creator
+		* @return boolean true or false
+		*/
+		public boolean isUserOwner()
+      {
+ 			String currentUser = SessionManager.getCurrentSessionUserId();
+         String eventOwner = this.getCreator();
+                   
+         // for backward compatibility, treat unowned event as if it owned by this user
+         return (eventOwner == null || eventOwner.equals("") || currentUser.equals(eventOwner) );
+      }
 
 		/**
 		* Set the event creator (cover for PROP_CREATOR) to current user

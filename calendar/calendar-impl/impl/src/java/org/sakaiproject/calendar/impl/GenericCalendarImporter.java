@@ -393,6 +393,17 @@ public class GenericCalendarImporter implements CalendarImporterService
 		}
 
 		/**
+		* Returns true if current user is thhe event's owner/creator
+		* @return boolean true or false
+		*/
+		public boolean isUserOwner()
+      {
+			// Stub routine only
+			return true;
+
+      }
+
+		/**
 		* Gets the event creator (userid), if any (cover for PROP_CREATOR).
 		* @return The event's creator property.
 		*/
@@ -612,7 +623,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 		{
 		}
 
-		public void setGroupAccess(Collection groups) throws PermissionException
+		public void setGroupAccess(Collection groups, boolean own) throws PermissionException
 		{
 		}
 
