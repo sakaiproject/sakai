@@ -50,7 +50,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 //import org.sakaiproject.tool.assessment.integration.delivery.SessionUtil;
@@ -100,7 +99,6 @@ public class DeliveryActionListener
   {
     log.debug("DeliveryActionListener.processAction() ");
     FacesContext context = FacesContext.getCurrentInstance();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
 
     try
     {
@@ -186,6 +184,7 @@ public class DeliveryActionListener
       case 1: // Take assessment
       case 5: // Take assessment via url
               log.debug("**** DeliveryActionListener #0");
+              
               // this returns a HashMap with (publishedItemId, itemGrading)
               itemGradingHash = service.getLastItemGradingData(id, agent); //
               log.debug("**** DeliveryActionListener #1");
@@ -203,6 +202,7 @@ public class DeliveryActionListener
                  delivery.setAssessmentGrading(ag);
               }
               log.debug("**** DeliveryAction, itemgrading size="+ag.getItemGradingSet().size());
+              
               // ag can't be null beyond this point and must have persisted to DB
               // version 2.1.1 requirement
               setFeedbackMode(delivery);
@@ -246,7 +246,7 @@ public class DeliveryActionListener
    * @param itemGradingHash the itemGradingHash hash map
    * @param setNullOK if there is none set null if true
    */
-  private AssessmentGradingData setAssessmentGradingFromItemData(DeliveryBean delivery,
+  protected AssessmentGradingData setAssessmentGradingFromItemData(DeliveryBean delivery,
                       HashMap itemGradingHash, boolean setNullOK)
   {
     AssessmentGradingData agrading = null;
@@ -324,7 +324,7 @@ public class DeliveryActionListener
    * @param publishedAssessment the published assessment
    * @return
    */
-  private ContentsDeliveryBean getContents(PublishedAssessmentFacade
+  protected ContentsDeliveryBean getContents(PublishedAssessmentFacade
                                            publishedAssessment,
                                            HashMap itemGradingHash,
                                            DeliveryBean delivery,
@@ -1386,7 +1386,7 @@ public class DeliveryActionListener
     return id;
   }
 
-  private void clearElapsedTime(DeliveryBean delivery){
+  protected void clearElapsedTime(DeliveryBean delivery){
     if (!delivery.isTimeRunning()) {
       delivery.setTimeElapse(null);
     }
@@ -1397,7 +1397,7 @@ public class DeliveryActionListener
     }
   }
 
-  private void setFeedbackMode(DeliveryBean delivery){
+  protected void setFeedbackMode(DeliveryBean delivery){
     int action = delivery.getActionMode();
     String showfeedbacknow = cu.lookupParam("showfeedbacknow");
     delivery.setFeedback("false");
@@ -1487,7 +1487,7 @@ public class DeliveryActionListener
     delivery.getSettings().setFormatByQuestion(false);
   }
 
-  private void setDeliverySettings(DeliveryBean delivery, PublishedAssessmentFacade publishedAssessment){
+  protected void setDeliverySettings(DeliveryBean delivery, PublishedAssessmentFacade publishedAssessment){
     if (delivery.getSettings() == null){
       BeginDeliveryActionListener listener = new BeginDeliveryActionListener();
       listener.populateBeanFromPub(delivery, publishedAssessment);
@@ -1540,7 +1540,7 @@ public class DeliveryActionListener
     }
   }
 
-  private void setTimer(DeliveryBean delivery, PublishedAssessmentFacade publishedAssessment){
+  protected void setTimer(DeliveryBean delivery, PublishedAssessmentFacade publishedAssessment){
     // i hope to use the property timedAssessment but it appears that this property
     // is not recorded properly in DB - daisyf
     int timeLimit = 0;
@@ -1617,7 +1617,7 @@ public class DeliveryActionListener
     delivery.setTimeElapse(ag.getTimeElapsed().toString());
   }
 
-  private AssessmentGradingData createAssessmentGrading(
+  protected AssessmentGradingData createAssessmentGrading(
                                 PublishedAssessmentFacade publishedAssessment){
     AssessmentGradingData adata = new AssessmentGradingData();
     adata.setAgentId(getAgentString());

@@ -626,6 +626,24 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 
   }
 
-
+  /*
+   * This API is for linear access to create a dummy record to indicate the student
+   * has taken action on the item (question). Therefore, we just need one itemTextId
+   * for recording - use the first one (index 0).
+   */
+  public Long getItemTextId(final Long publishedItemId) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select i.id from PublishedItemText i where i.item.itemId = ?");
+	    		q.setLong(0, publishedItemId.longValue());
+	    		return q.list();
+	    	};
+	    };
+	    List list = getHibernateTemplate().executeFind(hcb);
+	    log.debug("list.size() = " + list.size());
+	    Long itemTextId = (Long) list.get(0);
+	    log.debug("itemTextId" + itemTextId);
+	    return itemTextId;
+  }
 
 }

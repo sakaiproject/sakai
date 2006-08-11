@@ -140,10 +140,20 @@
 <!-- When previewing, we don't need to check security. When take the assessment for real, we do -->
  <h:commandButton accesskey="#{msg.a_next}" value="#{msg.begin_assessment_}" 
     action="#{delivery.validate}" type="submit" styleClass="active" 
-    rendered="#{delivery.actionString=='takeAssessment'
-             || delivery.actionString=='takeAssessmentViaUrl'}">
+    rendered="#{(delivery.actionString=='takeAssessment'
+             || delivery.actionString=='takeAssessmentViaUrl')
+			 && delivery.navigation != 1}">
 <%--    <f:param name="beginAssessment" value="true"/> --%>
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+  </h:commandButton>
+
+ <h:commandButton accesskey="#{msg.a_next}" value="#{msg.begin_assessment_}" 
+    action="#{delivery.validate}" type="submit" styleClass="active" 
+    rendered="#{(delivery.actionString=='takeAssessment'
+             || delivery.actionString=='takeAssessmentViaUrl')
+			 && delivery.navigation == 1}">
+<%--    <f:param name="beginAssessment" value="true"/> --%>
+	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" />
   </h:commandButton>
 
  <h:commandButton accesskey="#{msg.a_next}" value="#{msg.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}">

@@ -94,4 +94,5 @@ public interface ItemFacadeQueriesAPI
 
   public HashMap getItemsByKeyword(String keyword);
 
+  public Long getItemTextId(Long publishedItemId);
 }

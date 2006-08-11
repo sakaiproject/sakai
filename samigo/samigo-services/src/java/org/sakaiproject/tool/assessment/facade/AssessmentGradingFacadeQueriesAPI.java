@@ -155,5 +155,7 @@ public interface AssessmentGradingFacadeQueriesAPI
   public PublishedAssessmentIfc getPublishedAssessmentByAssessmentGradingId(Long assessmentGradingId);
 
   public PublishedAssessmentIfc getPublishedAssessmentByPublishedItemId(Long publishedItemId);
+  
+  public ArrayList getLastItemGradingDataPosition(Long assessmentGradingId, String agentId);
 
 }

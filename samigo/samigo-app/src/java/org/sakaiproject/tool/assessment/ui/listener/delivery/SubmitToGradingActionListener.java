@@ -48,6 +48,7 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
+import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
@@ -70,8 +71,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class SubmitToGradingActionListener implements ActionListener {
 	private static Log log = LogFactory
 			.getLog(SubmitToGradingActionListener.class);
-
-	private static ContextUtil cu;
 
 	/**
 	 * ACTION.
@@ -106,8 +105,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				delivery.setPublishedAssessment(publishedAssessment);
 			}
 
-			AssessmentGradingData adata = submitToGradingService(
-					publishedAssessment, delivery);
+			AssessmentGradingData adata = submitToGradingService(ae, publishedAssessment, delivery);
 			// set AssessmentGrading in delivery
 			delivery.setAssessmentGrading(adata);
 
@@ -217,7 +215,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 	 * @return
 	 */
 	private synchronized AssessmentGradingData submitToGradingService(
-			PublishedAssessmentFacade publishedAssessment, DeliveryBean delivery) {
+			ActionEvent ae, PublishedAssessmentFacade publishedAssessment, DeliveryBean delivery) {
 		log.debug("****1a. inside submitToGradingService ");
 		String submissionId = "";
 		HashSet itemGradingHash = new HashSet();
@@ -244,7 +242,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			while (iter2.hasNext()) { // go through each item from form
 				ItemContentsBean item = (ItemContentsBean) iter2.next();
 				log.debug("****** before prepareItemGradingPerItem");
-				prepareItemGradingPerItem(delivery, item, adds, removes);
+				prepareItemGradingPerItem(ae, delivery, item, adds, removes);
 				log.debug("****** after prepareItemGradingPerItem");
 			}
 		}
@@ -456,11 +454,10 @@ public class SubmitToGradingActionListener implements ActionListener {
 	 * and one for ecah blank in FIB. To understand the logic in this method, it
 	 * is best to study jsf/delivery/item/deliver*.jsp
 	 */
-	private void prepareItemGradingPerItem(DeliveryBean delivery,
+	private void prepareItemGradingPerItem(ActionEvent ae, DeliveryBean delivery,
 			ItemContentsBean item, HashSet adds, HashSet removes) {
 		ArrayList grading = item.getItemGradingDataArray();
 		int typeId = item.getItemData().getTypeId().intValue();
-
 		// 1. add all the new itemgrading for MC/Survey and discard any
 		// itemgrading for MC/Survey
 		// 2. add any modified SAQ/TF/FIB/Matching/MCMR/Audio
@@ -557,6 +554,29 @@ public class SubmitToGradingActionListener implements ActionListener {
 		case 7: // Audio
                         handleMarkForReview(grading, adds);
                         break;
+		}
+		// if it is linear access and there is not answer, we add an empty itemGradingData
+		String actionCommand = "";
+		if (ae != null) {
+			actionCommand = ae.getComponent().getId();
+			log.debug("ae is not null, getActionCommand() = " + actionCommand);	
+		}
+		else {
+			log.debug("ae is null");
+		}
+		
+		if (delivery.getNavigation().equals("1") && adds.size() ==0 && !"showFeedback".equals(actionCommand)) {
+			ItemGradingData itemGrading = new ItemGradingData();
+			itemGrading.setAssessmentGradingId(delivery.getAssessmentGrading().getAssessmentGradingId());
+			itemGrading.setAgentId(AgentFacade.getAgentString());
+			Long publishedItemId = item.getItemData().getItemId();
+			log.debug("publishedItemId = " + publishedItemId);
+			itemGrading.setPublishedItemId(publishedItemId);
+			ItemService itemService = new ItemService();
+			Long itemTextId = itemService.getItemTextId(publishedItemId);
+			log.debug("itemTextId = " + itemTextId);
+			itemGrading.setPublishedItemTextId(itemTextId);
+			adds.add(itemGrading);
 		}
 	}
 

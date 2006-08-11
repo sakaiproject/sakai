@@ -268,7 +268,7 @@ function saveTime()
   <h:commandButton accesskey="#{msg.a_saveAndExit}" type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit2"
     rendered="#{delivery.actionString=='takeAssessment'
-            && (delivery.navigation eq '1'|| ! delivery.continue)}"
+            && delivery.navigation eq '1' && delivery.continue}"
     onclick="disableSave2();" onkeypress="disableSave2();"
     disabled="#{delivery.actionString=='previewAssessment'}"/>
 

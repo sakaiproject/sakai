@@ -205,5 +205,14 @@ public class ItemService
 
   }
 
-
+  public Long getItemTextId(Long publishedItemId) {
+	    try{
+	      return PersistenceService.getInstance().getItemFacadeQueries().
+	      getItemTextId(publishedItemId);
+	    }
+	    catch(Exception e)
+	    {
+	      log.error(e); throw new RuntimeException(e);
+	    }
+  }
 }

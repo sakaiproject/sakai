@@ -444,6 +444,12 @@ public class GradingService
           && assessment.getAssessmentGradingId().longValue()>0){
 	//1. if assessmentGrading contain itemGrading, we want to insert/update itemGrading first
         Set itemGradingSet = assessment.getItemGradingSet(); 
+        Iterator iter = itemGradingSet.iterator();
+        while (iter.hasNext()) {
+        	ItemGradingData itemGradingData = (ItemGradingData) iter.next();
+        	System.out.println("date = " + itemGradingData.getSubmittedDate());
+        }
+        
 	saveOrUpdateAll(itemGradingSet);
       }
       // this will update itemGradingSet and assessmentGrading. May as well, otherwise I would have
@@ -539,6 +545,7 @@ public class GradingService
                           HashMap publishedItemHash, HashMap publishedItemTextHash,
                           HashMap publishedAnswerHash) 
   {
+	  System.out.println("storeGrades: data.getSubmittedDate()" + data.getSubmittedDate());
     storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash);
   }
 
@@ -593,7 +600,7 @@ public class GradingService
         if (!regrade)
         {
           itemGrading.setAssessmentGradingId(data.getAssessmentGradingId());
-          itemGrading.setSubmittedDate(new Date());
+          //itemGrading.setSubmittedDate(new Date());
           itemGrading.setAgentId(agent);
           itemGrading.setOverrideScore(new Float(0));
           // note that totalItems & fibAnswersMap would be modified by the following method
@@ -1115,6 +1122,17 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	      e.printStackTrace();
 	    }
 	    return pub;
+	  }
+  
+  public ArrayList getLastItemGradingDataPosition(Long assessmentGradingId, String agentId) {
+	  	ArrayList results = null;
+	    try {
+	    	results = PersistenceService.getInstance().
+	        getAssessmentGradingFacadeQueries().getLastItemGradingDataPosition(assessmentGradingId, agentId);
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	    }
+	    return results;
 	  }
 
 }

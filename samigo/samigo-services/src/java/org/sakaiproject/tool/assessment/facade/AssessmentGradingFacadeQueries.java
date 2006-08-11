@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 import org.hibernate.Criteria;
@@ -1156,4 +1157,56 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    return pub; 
   }
 
+  public ArrayList getLastItemGradingDataPosition(final Long assessmentGradingId, final String agentId)
+  {
+	  ArrayList position = new ArrayList();  
+	  try {
+		  final HibernateCallback hcb = new HibernateCallback(){
+			  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				  Query q = session.createQuery("select s.sequence " +
+						  " from ItemGradingData i, PublishedItemData pi, PublishedSectionData s " +
+						  " where i.agentId = ? and i.assessmentGradingId = ? " +
+						  " and pi.itemId = i.publishedItemId " +
+						  " and pi.section.id = s.id " +
+						  " order by s.sequence desc , pi.sequence desc");
+				  q.setString(0, agentId);
+				  q.setLong(1, assessmentGradingId.longValue());
+				  return q.list();
+			  };
+		  };
+		  ArrayList list = (ArrayList) getHibernateTemplate().executeFind(hcb);
+		  if ( list.size() == 0) {
+			  position.add(new Integer(0));
+			  position.add(new Integer(0));
+		  }
+		  else {
+			  Integer sequence = (Integer) list.get(0);
+			  Integer nextSequence;
+			  int count = 1;
+			  for (int i = 1; i < list.size(); i++) {
+				  log.debug("i = " + i);
+				  nextSequence = (Integer) list.get(i);
+				  if (sequence.equals(nextSequence)) {
+					  log.debug("equal");
+					  count++;
+				  }
+				  else {
+					  break;
+				  }
+			  }
+			  log.debug("sequence = " + sequence);
+			  log.debug("count = " + count);
+			  position.add(sequence);
+			  position.add(new Integer(count));
+		  }
+		  return position;
+	  } 
+	  catch (Exception e) {
+		  e.printStackTrace();
+		  position.add(new Integer(0));
+		  position.add(new Integer(0));
+		  return position;
+	  }
+  }
+  
 }
