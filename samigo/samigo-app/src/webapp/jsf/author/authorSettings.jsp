@@ -70,6 +70,14 @@ function validateUrl0(){
   alert("hello"+finalPageUrl.value);
   window.open(finalPageUrl.value,'validateUrl');
 }
+
+function submitForm()
+{
+  document.forms[0].onsubmit();
+  document.forms[0].submit();
+}
+
+
 // By convention we start all feedback JSF ids with "feedback".
 var feedbackIdFlag = "assessmentSettingsAction:feedback";
 var noFeedback = "3";
@@ -385,6 +393,7 @@ function uncheckOther(field){
         <h:outputText value="#{msg.timed_minutes}. " />
        <f:verbatim><br/></f:verbatim>
         <h:outputText value="#{msg.auto_submit_description}" />
+		       <h:outputText value="#{assessmentSettings.itemNavigation}" />
       </h:panelGroup>
     </h:panelGrid>
 <%-- SAK-3578: auto submit will always be true for timed assessment,
@@ -410,7 +419,8 @@ function uncheckOther(field){
     <h:panelGroup rendered="#{assessmentSettings.valueMap.itemAccessType_isInstructorEditable==true}">
   <f:verbatim> <div class="longtext"></f:verbatim> <h:outputLabel for="itemNavigation" value="#{msg.navigation}" /><f:verbatim></div><div class="tier3"></f:verbatim>
       <h:panelGrid columns="2"  >
-        <h:selectOneRadio id="itemNavigation" value="#{assessmentSettings.itemNavigation}"  layout="pageDirection">
+        <h:selectOneRadio id="itemNavigation" value="#{assessmentSettings.itemNavigation}"  layout="pageDirection" 
+		onclick="submitForm();">
           <f:selectItem itemValue="1" itemLabel="#{msg.linear_access}"/>
           <f:selectItem itemValue="2" itemLabel="#{msg.random_access}"/>
         </h:selectOneRadio>
@@ -422,14 +432,24 @@ function uncheckOther(field){
     <h:panelGroup rendered="#{assessmentSettings.valueMap.displayChunking_isInstructorEditable==true}">
     <f:verbatim><div class="longtext"></f:verbatim><h:outputLabel for="assessmentFormat" value="#{msg.question_layout}" /><f:verbatim></div><div class="tier3"></f:verbatim>
       <h:panelGrid columns="2"  >
-        <h:selectOneRadio id="assessmentFormat" value="#{assessmentSettings.assessmentFormat}"  layout="pageDirection">
+        <h:selectOneRadio id="assessmentFormat" value="#{assessmentSettings.assessmentFormat}"  layout="pageDirection"  rendered="#{assessmentSettings.itemNavigation!=1}">
+          <f:selectItem itemValue="1" itemLabel="#{msg.layout_by_question}"/>
+          <f:selectItem itemValue="2" itemLabel="#{msg.layout_by_part}"/>
+          <f:selectItem itemValue="3" itemLabel="#{msg.layout_by_assessment}"/>
+        </h:selectOneRadio>
+	 </h:panelGrid>
+	 <!-- If "linear access" is selected, checked layout by question radio button and then disable all three radio buttons -->
+	 <!-- Here we just manipulate the displayed value. The value of assessmentFormat is updated in SaveAssessmentSeetings.java -->
+	 <h:panelGrid columns="2"  >
+		<h:selectOneRadio id="assessmentFormat2" value="1"  layout="pageDirection"  disabled="true" rendered="#{assessmentSettings.itemNavigation==1}">
           <f:selectItem itemValue="1" itemLabel="#{msg.layout_by_question}"/>
           <f:selectItem itemValue="2" itemLabel="#{msg.layout_by_part}"/>
           <f:selectItem itemValue="3" itemLabel="#{msg.layout_by_assessment}"/>
         </h:selectOneRadio>
       </h:panelGrid>
-<f:verbatim></div></f:verbatim>
+	<f:verbatim></div></f:verbatim>
     </h:panelGroup>
+
 
     <!-- NUMBERING -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.displayNumbering_isInstructorEditable==true}">

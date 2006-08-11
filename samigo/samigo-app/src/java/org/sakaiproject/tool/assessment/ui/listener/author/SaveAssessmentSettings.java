@@ -25,7 +25,6 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
@@ -38,9 +37,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 
@@ -106,8 +103,13 @@ public class SaveAssessmentSettings
       control.setAutoSubmit(AssessmentAccessControl.DO_NOT_AUTO_SUBMIT);
 
     // c. set Assessment Orgainzation
-    if (assessmentSettings.getItemNavigation()!=null )
-      control.setItemNavigation(new Integer(assessmentSettings.getItemNavigation()));
+    if (assessmentSettings.getItemNavigation()!=null ) {
+    	String nav = assessmentSettings.getItemNavigation();
+    	if (nav.equals("1")) {
+    		assessmentSettings.setAssessmentFormat("1");
+    	}
+    	control.setItemNavigation(new Integer(nav));
+    }
     if (assessmentSettings.getItemNumbering()!=null)
       control.setItemNumbering(new Integer(assessmentSettings.getItemNumbering()));
     if (assessmentSettings.getAssessmentFormat()!=null )
@@ -231,7 +233,6 @@ public class SaveAssessmentSettings
 
 
   private void updateMetaWithValueMap(AssessmentIfc assessment, HashMap map){
-    HashMap metaMap = assessment.getAssessmentMetaDataMap();
     //log.info("** map size ="+map.size());
     if (map!=null && map.keySet()!=null){
         Iterator iter = map.keySet().iterator();
