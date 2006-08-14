@@ -849,7 +849,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     <!-- COMMENT -->
     <h:column rendered="#{questionScores.sortType!='comments'}">
      <f:facet name="header">
-      <h:commandLink title="#{msg.t_sortComment}" id="comments" action="questionScores">
+      <h:commandLink title="#{msg.t_sortComments}" id="comments" action="questionScores">
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
         <f:actionListener
@@ -868,7 +868,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
     <h:column rendered="#{questionScores.sortType eq 'comments' && questionScores.sortAscending}">
       <f:facet name="header">
-        <h:commandLink title="#{msg.t_sortComment}" action="questionScores">
+        <h:commandLink title="#{msg.t_sortComments}" action="questionScores">
           <h:outputText value="#{msg.comment}" />
           <f:param name="sortAscending" value="false" />
           <h:graphicImage alt="#{msg.alt_sortCommentDescending}" rendered="#{questionScores.sortAscending}" url="/images/sortascending.gif"/>
@@ -888,7 +888,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     
     <h:column rendered="#{questionScores.sortType eq 'comments' && !questionScores.sortAscending}">
       <f:facet name="header">
-        <h:commandLink title="#{msg.t_sortComment}" action="questionScores">
+        <h:commandLink title="#{msg.t_sortComments}" action="questionScores">
           <h:outputText value="#{msg.comment}" />
           <f:param name="sortAscending" value="true" />
           <h:graphicImage alt="#{msg.alt_sortCommentAscending}" rendered="#{!questionScores.sortAscending}" url="/images/sortdescending.gif"/>
