@@ -98,11 +98,16 @@ document.links[newindex].onclick();
        <h:outputText value="#{msg.qs}#{msg.column} #{assessmentBean.title}" />
     </h3>
   </div><div class="navList">
-    <h:outputText value="#{assessmentBean.questionSize} #{msg.existing_qs} #{msg.dash} " />
+    <h:outputText value="#{assessmentBean.questionSize} #{msg.existing_qs} #{msg.dash} " rendered="#{assessmentBean.questionSize > 1}" />
+	<h:outputText value="#{assessmentBean.questionSize} #{msg.existing_q} #{msg.dash} " rendered="#{assessmentBean.questionSize == 1}" />
+	<h:outputText value="#{assessmentBean.questionSize} #{msg.existing_qs} #{msg.dash} " rendered="#{assessmentBean.questionSize == 0}" />
     <h:outputText value="#{assessmentBean.totalScore}">
   <f:convertNumber maxFractionDigits="2"/>
     </h:outputText>
-    <h:outputText value="#{msg.total_pt}" />
+    <h:outputText value="#{msg.total_pts}" rendered="#{assessmentBean.totalScore > 1}" />
+    <h:outputText value="#{msg.total_pt}" rendered="#{assessmentBean.totalScore == 1}" />
+    <h:outputText value="#{msg.total_pts}" rendered="#{assessmentBean.totalScore == 0}" />
+
  </div>
   <p class="navViewAction">
     <h:commandLink title="#{msg.t_addPart}" id="addPart" action="editPart" immediate="true">
