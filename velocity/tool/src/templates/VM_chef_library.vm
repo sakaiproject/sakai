@@ -415,7 +415,7 @@ scheduleUpdate();
 <tr>
 <td><img src = "#imageLink("sakai/class_dis.gif")" border="0" alt="$tlang.getString('del.class') - $tlang.getString('del.disc')" /> $tlang.getString('del.class') - $tlang.getString('del.disc')</td>
 <td><img src = "#imageLink("sakai/class_lab.gif")" border="0" alt="$tlang.getString('del.class') - $tlang.getString('del.lab')" /> $tlang.getString('del.class') - $tlang.getString('del.lab')</td>
-<td><img src = "#imageLink("sakai/class_lec.gif")" border="0" alt="$tlang.getString('del.class') - $tlang.getString('del.lab')" /> $tlang.getString('del.class') - $tlang.getString('del.lab')</td>
+<td><img src = "#imageLink("sakai/class_lec.gif")" border="0" alt="$tlang.getString('del.class') - $tlang.getString('del.lect')" /> $tlang.getString('del.class') - $tlang.getString('del.lect')</td>
 </tr>
 <tr>
 <td><img src = "#imageLink("sakai/class_sma.gif")" border="0" alt="$tlang.getString('del.class') - $tlang.getString('del.small')" /> $tlang.getString('del.class') - $tlang.getString('del.small')</td>
