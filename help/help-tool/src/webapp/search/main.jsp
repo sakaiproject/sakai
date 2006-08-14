@@ -38,7 +38,7 @@
       		<sakai:panel_edit>
 	 			<h:inputText value="#{SearchTool.searchString}" required="true" onclick="clearText(this)"/>
 	  		</sakai:panel_edit>
-	 		<h:commandButton action="#{SearchTool.processActionSearch}" id="searchButton" value="#{msgs.search}"  onclick="document.getElementById('message').style.display = 'block';"> 
+	 		<h:commandButton action="#{SearchTool.processActionSearch}" id="searchButton" value="#{msgs.search_button}"  onclick="document.getElementById('message').style.display = 'block';"> 
 				 <help:defaultAction/>
 	 		</h:commandButton>
 		</sakai:group_box>
