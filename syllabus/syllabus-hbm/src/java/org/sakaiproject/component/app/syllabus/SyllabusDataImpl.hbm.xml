@@ -24,7 +24,7 @@
         </property>
 
         <property name="position">
-            <column name="position" not-null="true" index="syllabus_position"/>
+            <column name="position_c" not-null="true" index="syllabus_position"/>
         </property>
         
         <property name="title">
