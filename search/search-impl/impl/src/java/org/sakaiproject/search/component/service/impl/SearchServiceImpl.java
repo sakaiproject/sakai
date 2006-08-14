@@ -168,18 +168,6 @@ public class SearchServiceImpl implements SearchService
 			notification.setAction(new SearchNotificationAction(
 					searchIndexBuilder));
 
-			// register a transient notification for resources
-			NotificationEdit sbnotification = notificationService
-					.addTransientNotification();
-
-			// add all the functions that are registered to trigger search index
-			// modification
-
-			sbnotification
-					.setFunction(SearchService.EVENT_TRIGGER_INDEX_RELOAD);
-
-			// set the action
-			sbnotification.setAction(new SearchReloadNotificationAction(this));
 
 			initComplete = true;
 			log.debug("init end");
@@ -313,9 +301,7 @@ public class SearchServiceImpl implements SearchService
 	 */
 	public void reload()
 	{
-		log.debug("Reload");
 		getIndexSearcher(true);
-
 	}
 
 
@@ -327,7 +313,7 @@ public class SearchServiceImpl implements SearchService
 			long lastUpdate = indexStorage.getLastUpdate();
 			if (lastUpdate > reloadStart)
 			{
-				log.info("Reloading Index ");
+				log.debug("Reloading Index, force="+reload);
 				try
 				{
 					reloadStart = System.currentTimeMillis();
@@ -355,7 +341,9 @@ public class SearchServiceImpl implements SearchService
 				{
 					reloadStart = reloadEnd;
 				}
-			} 
+			} else {
+				log.debug("No Reload lastUpdate "+lastUpdate+" < lastReload "+reloadStart);
+			}
 		}
 
 		return runningIndexSearcher;

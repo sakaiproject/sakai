@@ -125,7 +125,7 @@ public class ClusterFSIndexStorage implements IndexStorage
 					log
 							.warn("Found corrupted segment ("
 									+ segmentName
-									+ ") in Local store, attempting to recover from DB");
+									+ ") in Local store, attempting to recover from DB.  Reason: "+ex.getClass().getName()+":"+ex.getMessage());
 					clusterFS.recoverSegment(segmentName);
 					readers[j] = IndexReader.open(segment);
 					log

@@ -51,8 +51,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchIndexBuilderWorker;
@@ -101,8 +99,6 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 
 	private EntityManager entityManager;
 
-	private EventTrackingService eventTrackingService;
-
 	private RDFSearchService rdfSearchService = null;
 
 	private IdentifierGenerator idgenerator = new VersionFourGenerator();
@@ -118,8 +114,6 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 	{
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
 				.getInstance();
-		eventTrackingService = (EventTrackingService) load(cm,
-				EventTrackingService.class.getName(), true);
 		entityManager = (EntityManager) load(cm, EntityManager.class.getName(),
 				true);
 		searchIndexBuilder = (SearchIndexBuilder) load(cm,
@@ -134,10 +128,6 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 			if (searchIndexBuilder == null)
 			{
 				log.error("Search Index Worker needs searchIndexBuilder ");
-			}
-			if (eventTrackingService == null)
-			{
-				log.error("Search Index Worker needs EventTrackingService ");
 			}
 			if (entityManager == null)
 			{
@@ -591,12 +581,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 			}
 
 			if (worker.isRunning())
-			{
-
-				eventTrackingService.post(eventTrackingService.newEvent(
-						SearchService.EVENT_TRIGGER_INDEX_RELOAD,
-						"/searchindexreload", true,
-						NotificationService.PREF_IMMEDIATE));
+			{		
 				long endTime = System.currentTimeMillis();
 				float totalTime = endTime - startTime;
 				float ndocs = totalDocs;

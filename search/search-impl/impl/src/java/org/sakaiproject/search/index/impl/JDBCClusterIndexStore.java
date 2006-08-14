@@ -2252,6 +2252,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		}
 		catch (Exception ex)
 		{
+			log.warn(" Cant find last update time "+ex.getClass().getName()+":"+ex.getMessage());
 			return 0;
 		}
 		finally
