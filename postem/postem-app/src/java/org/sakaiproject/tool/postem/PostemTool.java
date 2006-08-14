@@ -232,25 +232,28 @@ public class PostemTool {
 
 	public String getCurrentStudentGrades() {
 		this.userId = SessionManager.getCurrentSessionUserId();
-		if (this.userId != null) {
-			try {
-				this.userEid = UserDirectoryService.getUserEid(this.userId);
-			} catch (UserNotDefinedException e) {
-				LOG.error("UserNotDefinedException:",e);
+		try {
+			this.userEid = UserDirectoryService.getUserEid(this.userId);
+			
+				/*
+				 * if (checkAccess()) { if (currentGradebook.getTemplate() != null) { return
+				 * currentGradebook.getTemplate().getTemplateCode(); } else { return "<p>No
+				 * template currently exists for this gradebook.</p>"; } }
+				 */
+			if (currentGradebook == null) {
+				return "<p>" + msgs.getString("no_gradebook_selected") + "</p>";
 			}
+			if (!currentGradebook.hasStudent(this.userEid)) {
+				return "<p>" + msgs.getString("no_grades_for_user") + " " + currentGradebook.getTitle() + ".</p>";
+			}
+			return currentGradebook.studentGrades(this.userEid).formatGrades();
+			
+		} catch (UserNotDefinedException e) {
+			LOG.error("UserNotDefinedException:",e);
 		}
-		/*
-		 * if (checkAccess()) { if (currentGradebook.getTemplate() != null) { return
-		 * currentGradebook.getTemplate().getTemplateCode(); } else { return "<p>No
-		 * template currently exists for this gradebook.</p>"; } }
-		 */
-		if (currentGradebook == null) {
-			return "<p>" + msgs.getString("no_gradebook_selected") + "</p>";
-		}
-		if (!currentGradebook.hasStudent(this.userEid)) {
-			return "<p>" + msgs.getString("no_grades_for_user") + " " + currentGradebook.getTitle() + ".</p>";
-		}
-		return currentGradebook.studentGrades(this.userEid).formatGrades();
+		
+		return "";
+		
 	}
 
 	public String getFirstStudentGrades() {
@@ -597,8 +600,8 @@ public class PostemTool {
 		// logger.info("[POSTEM] processGradebookView -- " +
 		// currentGradebook.getTitle());
 		this.userId = SessionManager.getCurrentSessionUserId();
-		if (currentGradebook.hasStudent(this.userId)) {
-			currentGradebook.studentGrades(this.userId).setLastChecked(
+		if (currentGradebook.hasStudent(this.userEid)) {
+			currentGradebook.studentGrades(this.userEid).setLastChecked(
 					new Timestamp(new Date().getTime()));
 			gradebookManager.saveGradebook(currentGradebook);
 		}
