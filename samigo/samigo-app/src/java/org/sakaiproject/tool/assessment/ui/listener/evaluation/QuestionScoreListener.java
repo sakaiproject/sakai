@@ -511,25 +511,30 @@ log.debug("item==null ");
             answerText = gdata.getAnswerText();
           }
 
-          if (bean.getTypeId().equals("9"))
-            answerText = gdataPubItemText.getSequence() + ":" +
-              answerText;
+          if (bean.getTypeId().equals("9")) {
+        	  if (gdataAnswer != null) {
+        		  answerText = gdataPubItemText.getSequence() + ":" + answerText;
+        	  }
+          }
 
-          if (bean.getTypeId().equals("8"))
-            answerText = gdataAnswer.getSequence() + ":" +
-              answerText;
+          if (bean.getTypeId().equals("8")) {
+        	  if (gdataAnswer != null) {
+        		  answerText = gdataAnswer.getSequence() + ":" + answerText;
+        	  }
+          }
+            
 
           // file upload 
           if (bean.getTypeId().equals("6")){
             gdata.setMediaArray(delegate.getMediaArray(gdata.getItemGradingId().toString()));
-	  }
+          }
 
           // audio recording
           if (bean.getTypeId().equals("7")){
             ArrayList mediaList = delegate.getMediaArray(gdata.getItemGradingId().toString());
             setDurationIsOver(item,mediaList);
             gdata.setMediaArray(mediaList);
-	  }
+          }
 
           if (answerText == null)
             answerText = "N/A";

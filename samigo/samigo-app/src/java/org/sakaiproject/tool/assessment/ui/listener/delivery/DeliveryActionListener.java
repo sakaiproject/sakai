@@ -185,21 +185,42 @@ public class DeliveryActionListener
       case 5: // Take assessment via url
               log.debug("**** DeliveryActionListener #0");
               
-              // this returns a HashMap with (publishedItemId, itemGrading)
-              itemGradingHash = service.getLastItemGradingData(id, agent); //
-              log.debug("**** DeliveryActionListener #1");
-
-	      if (itemGradingHash!=null && itemGradingHash.size()>0){
-                log.debug("**** DeliveryActionListener #1a");
-	        ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, true);
-                log.debug("**** DeliveryActionListener #1b");
-                delivery.setAssessmentGrading(ag);
+              // If this is a linear access and user clicks on Show Feedback, we do not
+              // get data from db. Use delivery bean instead
+              if (delivery.getNavigation().equals("1") && ae != null && "showFeedback".equals(ae.getComponent().getId())) {
+            	  log.debug("Do notget data from db if it is linear access and the action is show feedback");
+            	  ag = delivery.getAssessmentGrading();
+            	  Iterator iter = ag.getItemGradingSet().iterator();
+            	  while (iter.hasNext())
+            	  {
+            		  ItemGradingData data = (ItemGradingData) iter.next();
+            		  ArrayList thisone = (ArrayList) itemGradingHash.get(data.getPublishedItemId());
+            		  if (thisone == null) {
+            			  thisone = new ArrayList();
+            		  }
+            		  thisone.add(data);
+            		  itemGradingHash.put(data.getPublishedItemId(), thisone);
+            	  }
               }
-              else{
-                ag = service.getLastSavedAssessmentGradingByAgentId(id, agent);
-                if (ag == null)
-                 ag = createAssessmentGrading(publishedAssessment);
-                 delivery.setAssessmentGrading(ag);
+              else {
+            	  log.debug("Get data from db otherwise");
+                  // this returns a HashMap with (publishedItemId, itemGrading)
+                  itemGradingHash = service.getLastItemGradingData(id, agent); //
+                  log.debug("**** DeliveryActionListener #1");
+
+                  if (itemGradingHash!=null && itemGradingHash.size()>0){
+                	  log.debug("**** DeliveryActionListener #1a");
+                	  ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, true);
+                	  log.debug("**** DeliveryActionListener #1b");
+                	  delivery.setAssessmentGrading(ag);
+                  }
+                  else {
+                	  ag = service.getLastSavedAssessmentGradingByAgentId(id, agent);
+                	  if (ag == null) {
+                		  ag = createAssessmentGrading(publishedAssessment);
+                	  }
+                	  delivery.setAssessmentGrading(ag);
+                  }
               }
               log.debug("**** DeliveryAction, itemgrading size="+ag.getItemGradingSet().size());
               
@@ -227,10 +248,7 @@ public class DeliveryActionListener
                                               delivery, publishedAnswerHash));
       // get current page contents
       log.debug("**** resetPageContents="+this.resetPageContents);
-      if (this.resetPageContents)
-	  delivery.setPageContents(getPageContents(publishedAssessment, delivery,
-                                                   itemGradingHash, publishedAnswerHash));
-   
+	  delivery.setPageContents(getPageContents(publishedAssessment, delivery, itemGradingHash, publishedAnswerHash));
     }
     catch (Exception e)
     {

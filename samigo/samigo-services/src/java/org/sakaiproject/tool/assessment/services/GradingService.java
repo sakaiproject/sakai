@@ -957,6 +957,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     Matcher m;
     boolean matchresult = false;
 
+    if (data.getPublishedAnswerId() == null) {
+    	return (float) 0;
+    }
+    
     String answertext = ((AnswerIfc)publishedAnswerHash.get(data.getPublishedAnswerId())).getText();
     Long itemId = itemdata.getItemId();
 

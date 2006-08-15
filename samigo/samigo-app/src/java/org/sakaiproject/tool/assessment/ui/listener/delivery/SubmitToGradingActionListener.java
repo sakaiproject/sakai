@@ -81,7 +81,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
 		try {
 			log.debug("SubmitToGradingActionListener.processAction() ");
-
+			
 			// get managed bean
 			DeliveryBean delivery = (DeliveryBean) ContextUtil
 					.lookupBean("delivery");
@@ -104,7 +104,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						.getPublishedAssessment(delivery.getAssessmentId());
 				delivery.setPublishedAssessment(publishedAssessment);
 			}
-
+			
 			AssessmentGradingData adata = submitToGradingService(ae, publishedAssessment, delivery);
 			// set AssessmentGrading in delivery
 			delivery.setAssessmentGrading(adata);
@@ -246,7 +246,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 				log.debug("****** after prepareItemGradingPerItem");
 			}
 		}
-		AssessmentGradingData adata = persistAssessmentGrading(delivery,
+		
+		AssessmentGradingData adata = persistAssessmentGrading(ae, delivery,
 				itemGradingHash, publishedAssessment, adds, removes);
 		delivery.setSubmissionId(submissionId);
 		delivery.setSubmissionTicket(submissionId);// is this the same thing?
@@ -256,7 +257,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		return adata;
 	}
 
-	private AssessmentGradingData persistAssessmentGrading(
+	private AssessmentGradingData persistAssessmentGrading(ActionEvent ae, 
 			DeliveryBean delivery, HashSet itemGradingHash,
 			PublishedAssessmentFacade publishedAssessment, HashSet adds,
 			HashSet removes) {
@@ -319,21 +320,25 @@ public class SubmitToGradingActionListener implements ActionListener {
 		adata.setForGrade(new Boolean(delivery.getForGrade()));
 		log.debug("*** 2b. before storingGrades, did all the removes and adds "
 				+ (new Date()));
-		service.saveOrUpdateAssessmentGrading(adata);
-
-		log.debug("*** 3. before storingGrades, did all the removes and adds "
-				+ (new Date()));
-		// 3. let's build three HashMap with (publishedItemId, publishedItem),
-		// (publishedItemTextId, publishedItem), (publishedAnswerId,
-		// publishedItem) to help with
-		// storing grades
-		HashMap publishedItemHash = delivery.getPublishedItemHash();
-		HashMap publishedItemTextHash = delivery.getPublishedItemTextHash();
-		HashMap publishedAnswerHash = delivery.getPublishedAnswerHash();
-		service.storeGrades(adata, publishedAssessment, publishedItemHash,
-				publishedItemTextHash, publishedAnswerHash);
-		log.debug("*** 4. after storingGrades, did all the removes and adds "
-				+ (new Date()));
+		
+		if (delivery.getNavigation().equals("1") && ae != null && "showFeedback".equals(ae.getComponent().getId())) {
+			log.debug("Do not persist to db if it is linear access and the action is show feedback");
+		}
+		else {
+			log.debug("Persist to db otherwise");
+			service.saveOrUpdateAssessmentGrading(adata);
+			log.debug("*** 3. before storingGrades, did all the removes and adds " + (new Date()));
+			// 3. let's build three HashMap with (publishedItemId, publishedItem),
+			// (publishedItemTextId, publishedItem), (publishedAnswerId,
+			// publishedItem) to help with
+			// storing grades
+			HashMap publishedItemHash = delivery.getPublishedItemHash();
+			HashMap publishedItemTextHash = delivery.getPublishedItemTextHash();
+			HashMap publishedAnswerHash = delivery.getPublishedAnswerHash();
+			service.storeGrades(adata, publishedAssessment, publishedItemHash, publishedItemTextHash, publishedAnswerHash);
+		
+			log.debug("*** 4. after storingGrades, did all the removes and adds " + (new Date()));
+		}
 		return adata;
 	}
 
@@ -509,7 +514,6 @@ public class SubmitToGradingActionListener implements ActionListener {
 			break;
 		case 4: // T/F
 		case 5: // SAQ
-		case 8: // FIB
 		case 9: // Matching
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
@@ -523,8 +527,27 @@ public class SubmitToGradingActionListener implements ActionListener {
 					adds.addAll(grading);
 					break;
 				} else if (itemgrading.getPublishedAnswerId() != null
-						|| itemgrading.getAnswerText() != null) {
-					// null=> skipping this question
+						|| itemgrading.getAnswerText() != null ) {
+					adds.addAll(grading);
+					break;
+				}
+			}
+			break;
+		case 8: // FIB
+			for (int m = 0; m < grading.size(); m++) {
+				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+				itemgrading.setAgentId(AgentFacade.getAgentString());
+				itemgrading.setSubmittedDate(new Date());
+			}
+			for (int m = 0; m < grading.size(); m++) {
+				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+				if (itemgrading.getItemGradingId() != null
+						&& itemgrading.getItemGradingId().intValue() > 0) {
+					adds.addAll(grading);
+					break;
+				} else if (itemgrading.getAnswerText() != null && !itemgrading.getAnswerText().equals("")) {
+					String s = itemgrading.getAnswerText();
+					log.debug("s = " + s);
 					adds.addAll(grading);
 					break;
 				}
@@ -566,6 +589,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		}
 		
 		if (delivery.getNavigation().equals("1") && adds.size() ==0 && !"showFeedback".equals(actionCommand)) {
+			log.debug("enter here");
 			ItemGradingData itemGrading = new ItemGradingData();
 			itemGrading.setAssessmentGradingId(delivery.getAssessmentGrading().getAssessmentGradingId());
 			itemGrading.setAgentId(AgentFacade.getAgentString());
