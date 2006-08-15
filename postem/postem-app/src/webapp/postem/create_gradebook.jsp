@@ -11,7 +11,9 @@
       
       	<h3><h:outputText value="#{msgs.create_update}"/></h3>
       				
-				<h:messages globalOnly="true" style="color: #b11;" layout="table" />
+				<h:panelGroup styleClass="alertMessage" rendered="#{PostemTool.displayErrors}">
+				  <h:messages globalOnly="true" layout="table" />
+				</h:panelGroup>
 
 				<sakai:panel_titled>
 					<h:outputText style="font-weight: bold;" value="#{msgs.feedback_instructions}"/>
@@ -34,11 +36,11 @@
 						<h:outputText style="font-weight: bold;" value="#{msgs.gradebook_choosefile}"/>
 						<corejsf:upload value="#{PostemTool.csv}" />
 
-						<h:outputText value="#{msgs.delimiter}" style="font-weight: bold;" />
+						<%--<h:outputText value="#{msgs.delimiter}" style="font-weight: bold;" />
 					  <h:selectOneRadio styleClass="checkbox" value="#{PostemTool.delimiter}" layout="pageDirection">
 				      <f:selectItem itemValue="comma" itemLabel="#{msgs.comma_delim}"/>
   			      <f:selectItem itemValue="tab" itemLabel="#{msgs.tab_delim}"/>
-			      </h:selectOneRadio>
+			      </h:selectOneRadio>--%>
 
 						<h:outputText value="#{msgs.gradebook_feedbackavail}" style="font-weight: bold;"/>
 						<h:panelGroup styleClass="checkbox">
@@ -59,9 +61,9 @@
 				
 				<%-- <sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/> --%>
 				
-				<sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
+				<%--<sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
 				
-				<sakai:hideDivision title="#{msgs.advanced}">
+				<sakai:hideDivision title="#{msgs.advanced}">--%>
 				<%--<sakai:panel_edit>
 					<h:outputText value="#{msgs.with_header}"/>
 					<h:selectBooleanCheckbox value="#{PostemTool.withHeader}"/>
@@ -69,7 +71,7 @@
 					<h:selectBooleanCheckbox value="#{PostemTool.currentGradebook.releaseStats}"/>
 				</sakai:panel_edit>--%>
 				
-					<sakai:panel_titled>
+					<%--<sakai:panel_titled>
 					  <h4><h:outputText value="#{msgs.template_file}" /></h4>
 						<h:outputText value="#{msgs.feedback_instructions}" style="font-weight: bold;" />
 						<f:verbatim><br /></f:verbatim>
@@ -82,7 +84,7 @@
 					</sakai:panel_titled>
 				
 				</sakai:hideDivision>
-				<script type="text/javascript">showHideDiv(<h:outputText value="#{msgs.divid}"/>, '/sakai-jsf-resource');</script>
+				<script type="text/javascript">showHideDiv(<h:outputText value="#{msgs.divid}"/>, '/sakai-jsf-resource');</script>--%>
 				
 				<br />
 				

@@ -95,6 +95,8 @@ public class PostemTool {
 	
 	protected String delimiter;
 	
+	protected boolean displayErrors;
+	
 	private static final int TEMPLATE_MAX_LENGTH = 4000;
 	
 	private static final String COMMA_DELIM_STR = "comma";
@@ -228,6 +230,17 @@ public class PostemTool {
 
 	public void setWithHeader(boolean withHeader) {
 		this.withHeader = withHeader;
+	}
+	
+	public boolean getDisplayErrors() {	
+		for(Iterator iter = FacesContext.getCurrentInstance().getMessages(); iter.hasNext();) {
+			return true;   // there is at least one message to display
+		}
+		return false;
+	}
+	
+	public void setDisplayErrors(boolean displayErrors) {
+		this.displayErrors = displayErrors;
 	}
 
 	public String getCurrentStudentGrades() {
@@ -852,7 +865,7 @@ public class PostemTool {
 			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
 					"invalid_username", new Object[] { invalidUsernames.get(0) });
 			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
-					"single_invalid_username_dir", new Object[] { invalidUsernames.get(0) });
+					"single_invalid_username_dir", new Object[] { });
 		} else if (invalidUsernames.size() > 1) {
 			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
 					"blank", new Object[] { });
