@@ -230,6 +230,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
         if (itemId.equals(new Long(0))) {
           criteria.add(disjunction);
+          criteria.add(Expression.isNotNull("submittedDate"));
         }
         else {
 
@@ -237,6 +238,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
           //Criterion pubCriterion = Expression.eq("publishedItem.itemId", itemId);
           Criterion pubCriterion = Expression.eq("publishedItemId", itemId);
           criteria.add(Expression.and(pubCriterion, disjunction));
+          criteria.add(Expression.isNotNull("submittedDate"));
         }
           criteria.addOrder(Order.asc("agentId"));
           criteria.addOrder(Order.desc("submittedDate"));
