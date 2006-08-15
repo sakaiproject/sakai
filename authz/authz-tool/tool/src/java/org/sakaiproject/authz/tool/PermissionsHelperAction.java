@@ -81,6 +81,17 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 	}
 
 	/**
+	 * Allow extension classes to control which build method gets called for this pannel
+	 * @param panel
+	 * @return
+	 */
+	protected String panelMethodName(String panel)
+	{
+		// we are always calling buildMainPanelContext
+		return "buildMainPanelContext";
+	}
+
+	/**
 	 * Default is to use when Portal starts up
 	 */
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState sstate)
