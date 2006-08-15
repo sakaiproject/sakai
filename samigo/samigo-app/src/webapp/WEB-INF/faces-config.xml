@@ -582,7 +582,6 @@
       <to-view-id>/jsf/author/item/matching.jsp</to-view-id>
     </navigation-case>
 
-
   <!-- QUESTION POOL	 -->
     <navigation-case>
       <from-outcome>poolList</from-outcome>

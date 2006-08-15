@@ -23,7 +23,22 @@
 
 package org.sakaiproject.jsf.util;
 
+import java.io.IOException;
+import java.util.Enumeration;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.sakaiproject.jsf.util.JsfTool;
+import org.sakaiproject.tool.api.ActiveTool;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolException;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.ActiveToolManager;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.util.Web;
 
 /**
  * <p>
@@ -33,18 +48,20 @@ import org.sakaiproject.jsf.util.JsfTool;
  * </p>
  * 
  */
-public class SamigoJsfTool extends JsfTool
-{
-
-	/**
-	 * Recognize a path that is a resource request. It must have an "extension", i.e. a dot followed by characters that do not include a slash.
+  public class SamigoJsfTool extends JsfTool {
+    private static final String HELPER_EXT = ".helper";
+    private static final String HELPER_SESSION_PREFIX = "session.";
+        /**
+         * Recognize a path that is a resource request. It must have an "extension", i.e. a dot followed by characters that do not include a slash.
 	 * 
 	 * @param path
 	 *        The path to check
 	 * @return true if the path is a resource request, false if not.
 	 */
+      /*
 	protected boolean isResourceRequest(String path)
 	{
+	    System.out.println("***0. inside isResourceRequest, path="+path);
 		// we need some path
 		if ((path == null) || (path.length() == 0)) return false;
 
@@ -54,6 +71,7 @@ public class SamigoJsfTool extends JsfTool
 
 		// we need that last dot to be the end of the path, not burried in the path somewhere (i.e. no more slashes after the last dot)
 		String ext = path.substring(pos);
+	    System.out.println("***1. inside isResourceRequest, ext="+ext);
 		if (ext.indexOf("/") != -1) return false;
 
 		// these are JSF pages, not resources		
@@ -65,7 +83,165 @@ public class SamigoJsfTool extends JsfTool
 		// ok, it's a resource request
 		return true;
 	}
-}
+      */
 
+    protected void dispatch(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+      // NOTE: this is a simple path dispatching, taking the path as the view id = jsp file name for the view,
+      //       with default used if no path and a path prefix as configured.
 
+      // build up the target that will be dispatched to
+      String target = req.getPathInfo();
+      System.out.println("****0. target ="+target);
 
+      boolean sendToHelper = sendToHelper(req, res);
+      boolean isResourceRequest = isResourceRequest(target);
+      System.out.println("****1. send to helper ="+sendToHelper);
+      System.out.println("****2. isResourceRequest ="+ isResourceRequest);
+
+      // see if we have a helper request
+      if (sendToHelper) {
+        return;
+      }
+
+      if (isResourceRequest) {
+        // get a dispatcher to the path
+        RequestDispatcher resourceDispatcher = getServletContext().getRequestDispatcher(target);
+        if (resourceDispatcher != null)  {
+          resourceDispatcher.forward(req, res);
+          return;
+        }
+      }
+
+      if (target == null || "/".equals(target)) {
+        target = computeDefaultTarget();
+
+        // make sure it's a valid path
+        if (!target.startsWith("/")){
+          target = "/" + target;
+        }
+
+        // now that we've messed with the URL, send a redirect to make it official
+        res.sendRedirect(Web.returnUrl(req, target));
+        return;
+      }
+
+      // add the configured folder root and extension (if missing)
+      target = m_path + target;
+
+      // add the default JSF extension (if we have no extension)
+      int lastSlash = target.lastIndexOf("/");
+      int lastDot = target.lastIndexOf(".");
+      if (lastDot < 0 || lastDot < lastSlash)
+	  {
+	      target += JSF_EXT;
+	  }
+
+      // set the information that can be removed from return URLs
+      req.setAttribute(URL_PATH, m_path);
+      req.setAttribute(URL_EXT, ".jsp");
+
+      // set the sakai request object wrappers to provide the native, not Sakai set up, URL information
+      // - this assures that the FacesServlet can dispatch to the proper view based on the path info
+      req.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
+
+      // TODO: Should setting the HTTP headers be moved up to the portal level as well?
+      res.setContentType("text/html; charset=UTF-8");
+      res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
+      res.addDateHeader("Last-Modified", System.currentTimeMillis());
+      res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
+      res.addHeader("Pragma", "no-cache");
+
+      // dispatch to the target
+      System.out.println("****dispatching path: " + req.getPathInfo() + " to: " + target + " context: "
+	+ getServletContext().getServletContextName());
+      RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(target);
+      dispatcher.forward(req, res);
+
+      // restore the request object
+      req.removeAttribute(Tool.NATIVE_URL);
+      req.removeAttribute(URL_PATH);
+      req.removeAttribute(URL_EXT);
+      
+    }
+
+    protected boolean sendToHelper(HttpServletRequest req, HttpServletResponse res)
+                      throws ToolException {
+      String path = req.getPathInfo();
+      if (path == null) path = "/";
+
+      // 0 parts means the path was just "/", otherwise parts[0] = "", parts[1] = item id, parts[2] 
+      // if present is "edit"...
+      String[] parts = path.split("/");
+
+      System.out.println("*** sendToHelper.partLength="+parts.length);
+      String helperPath =null;
+      String toolPath=null;
+
+      // e.g. helper url in Samigo can be /jsf/author/item/sakai.filepicker.helper/tool
+      //      or /sakai.filepicker.helper 
+      if (parts.length > 2){
+        System.out.println("*** sendToHelper.partLength="+parts.length);
+        helperPath = parts[parts.length - 2];
+        toolPath = parts[parts.length - 1];
+      }
+      else if (parts.length == 2){
+        System.out.println("*** sendToHelper.partLength="+parts.length);
+        helperPath = parts[1];
+      }
+      else return false;
+
+      if (!helperPath.endsWith(HELPER_EXT)) return false;
+      System.out.println("**** sendToHelper, part #1="+helperPath);
+      System.out.println("**** sendToHelper, part #2="+toolPath);
+
+      ToolSession toolSession = SessionManager.getCurrentToolSession();
+
+      Enumeration params = req.getParameterNames();
+      while (params.hasMoreElements()) {
+        String paramName = (String)params.nextElement();
+        if (paramName.startsWith(HELPER_SESSION_PREFIX)) {
+	  String attributeName = paramName.substring(HELPER_SESSION_PREFIX.length());
+	  toolSession.setAttribute(attributeName, req.getParameter(paramName));
+        }
+      }
+
+      // calc helper id
+      int posEnd = helperPath.lastIndexOf(".");
+      String helperId = helperPath.substring(0, posEnd);
+      System.out.println("**** sendToHelper, helperId="+helperId);
+      ActiveTool helperTool = ActiveToolManager.getActiveTool(helperId);
+
+      String url = req.getContextPath() + req.getServletPath();
+      if (toolSession.getAttribute(helperTool.getId() + Tool.HELPER_DONE_URL) == null) {
+	toolSession.setAttribute(helperTool.getId() + Tool.HELPER_DONE_URL,
+				 url + computeDefaultTarget(true));
+      }
+
+      System.out.println("**** sendToHelper, url="+url);
+      System.out.println("**** sendToHelper, computeDefualtTarget="+computeDefaultTarget(true));
+      String context = url + "/"+ helperPath;
+      System.out.println("**** sendToHelper, context="+context);
+      //String toolPath = Web.makePath(parts, 2, parts.length);
+      if (toolPath != null) 
+        helperTool.help(req, res, context, "/"+toolPath);
+      else
+        helperTool.help(req, res, context, "");
+
+      return true; // was handled as helper call
+    }
+
+    protected String computeDefaultTarget(boolean lastVisited){
+      // setup for the default view as configured
+      String target = "/" + m_default;
+
+      // if we are doing lastVisit and there's a last-visited view, for this tool placement / user, use that
+      if (lastVisited)	{
+        ToolSession session = SessionManager.getCurrentToolSession();
+        String last = (String) session.getAttribute(LAST_VIEW_VISITED);
+        if (last != null) {
+          target = last;
+	}
+      }
+      return target;
+    }
+  }

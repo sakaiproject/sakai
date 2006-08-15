@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -82,6 +83,16 @@
    </samigo:wysiwyg>
 
   </h:panelGrid>
+
+  <!-- 2a ATTACHMENTS -->
+
+  <span id="num2a" class="number"></span>
+   <div class="longtext"><h:outputLabel value="#{msg.attachments}" />
+  <br/>
+  <sakai:button_bar>
+    <sakai:button_bar_item action="#{itemauthor.addAttachmentsRedirect}"
+           value="#{msg.add_attachments}"/>
+  </sakai:button_bar>
 
 </div>
   <!-- 3 PART -->

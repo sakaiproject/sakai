@@ -27,9 +27,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.faces.context.FacesContext;
+import javax.faces.context.ExternalContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
@@ -48,6 +50,12 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.entity.cover.EntityManager;
+
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
 
 //import org.osid.shared.*;
 
@@ -91,6 +99,7 @@ public class ItemAuthorBean
   private ItemBean currentItem;
   private ItemFacade itemToDelete;
   private ItemFacade itemToPreview;
+  private ArrayList attachmentList;
 
   // for questionpool
   private String qpoolId;
@@ -904,5 +913,31 @@ ItemService delegate = new ItemService();
     showFeedbackAuthoring= string;
   }
 
+  public ArrayList getAttachmentList()
+  {
+    return attachmentList;
+  }
+
+  /**
+   * @param list
+   */
+  public void setAttachmentList(ArrayList attachmentList)
+  {
+    this.attachmentList = attachmentList;
+  }
+
+  public String addAttachmentsRedirect() {
+    try	{
+      List filePickerList = EntityManager.newReferenceList();
+      ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+      currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);
+      ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+      context.redirect("sakai.filepicker.helper/tool");
+    }
+    catch(Exception e){
+      log.error("fail to redirect to attachment page: " + e.getMessage());
+    }
+    return null;
+  }
 
 }

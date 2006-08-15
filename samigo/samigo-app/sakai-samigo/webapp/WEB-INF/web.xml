@@ -7,17 +7,6 @@
   <description>Sakai Assessment Manager</description>
 
   <!-- Context Params -->
-<!--
-  <context-param>
-    <param-name>PathToSecurity</param-name>
-    <param-value>/opt/sa_forms/java/dev</param-value>
-  </context-param>
-
-  <context-param>
-    <param-name>PathToSettings</param-name>
-    <param-value>/opt/j2ee/dev</param-value>
-  </context-param>
--->
   <context-param>
      <param-name>contextConfigLocation</param-name>
      <param-value>
@@ -53,19 +42,6 @@
 
 
   <!-- Filters  -->
-
-  <!--** Important: This SetCharacterEncodingFilter must be the 1st one in the list of fillter **-->
-  <!-- Let Sakai handle setting the character encoding (through the Sakai request filter) -->
-  <!--
-  <filter>
-    <filter-name>Set Character Encoding</filter-name>
-    <filter-class>org.sakaiproject.tool.assessment.ui.web.filter.SetCharacterEncodingFilter</filter-class>
-    <init-param>
-      <param-name>encoding</param-name>
-      <param-value>UTF-8</param-value>
-    </init-param>
-  </filter>
-  -->
 
   <filter>
     <filter-name>sakai.request</filter-name>
