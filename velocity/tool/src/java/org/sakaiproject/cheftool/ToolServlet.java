@@ -153,32 +153,23 @@ public abstract class ToolServlet extends VmServlet
 	 */
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException
 	{
-		// Note: this not needed (?) since we are sync'ing in prepState -ggolden
-		// // jump right to disptch, no state init or actions, for title.
-		// // Note: this is to avoid concurrent prepState() when Title and Main come in together. -ggolden
-		// String panel = ((ParameterParser) req.getAttribute(ATTR_PARAMS)).getString(ActionURL.PARAM_PANEL);
-		// if (TITLE_PANEL.equals(panel))
-		// {
-		// // dispatch
-		// toolModeDispatch("doView", getToolMode(req), req, res);
-		// return;
-		// }
+		// get the panel
+		String panel = ((ParameterParser) req.getAttribute(ATTR_PARAMS)).getString(ActionURL.PARAM_PANEL);
+		if (panel == null) panel = MAIN_PANEL;
+
+		// HELPER_ID needs the panel appended
+		String helperId = HELPER_ID + panel;
 
 		// detect a helper done
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		String helper = ((ParameterParser) req.getAttribute(ATTR_PARAMS)).getString(HELPER_ID);
+		String helper = ((ParameterParser) req.getAttribute(ATTR_PARAMS)).getString(helperId);
 		if (helper != null)
 		{
 			// clear our helper id indicator from session
-			toolSession.removeAttribute(HELPER_ID);
+			toolSession.removeAttribute(helperId);
 			
 			// redirect to the same URL w/o the helper done indication, otherwise this is left in the browser and can be re-processed later
-			String newUrl = req.getContextPath() + req.getServletPath() + (req.getPathInfo() == null ? "" : req.getPathInfo());			
-			String panel = ((ParameterParser) req.getAttribute(ATTR_PARAMS)).getString(ActionURL.PARAM_PANEL);
-			if (panel !=  null)
-			{
-				newUrl += "?" + ActionURL.PARAM_PANEL + "=" + panel;
-			}
+			String newUrl = req.getContextPath() + req.getServletPath() + (req.getPathInfo() == null ? "" : req.getPathInfo()) + "?" + ActionURL.PARAM_PANEL + "=" + panel;
 			try
 			{
 				res.sendRedirect(newUrl);
@@ -192,7 +183,7 @@ public abstract class ToolServlet extends VmServlet
 
 		// get the sakai.tool.helper.id helper id from the tool session
 		// if defined and it's not our tool id, we need to defer to the helper
-		helper = (String) toolSession.getAttribute(HELPER_ID);
+		helper = (String) toolSession.getAttribute(helperId);
 		Tool me = ToolManager.getCurrentTool();
 		if ((helper != null) && (!helper.equals(me.getId())))
 		{
@@ -225,23 +216,30 @@ public abstract class ToolServlet extends VmServlet
 	 * @param helperId
 	 *        The helper tool id.
 	 */
-	protected void startHelper(HttpServletRequest req, String helperId)
+	protected void startHelper(HttpServletRequest req, String helperId, String panel)
 	{
+		if (panel == null) panel = MAIN_PANEL;
+
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		toolSession.setAttribute(HELPER_ID, helperId);
+		toolSession.setAttribute(HELPER_ID + panel, helperId);
 
 		// the done URL - this url and the extra parameter to indicate done
-		String doneUrl = req.getContextPath() + req.getServletPath() + (req.getPathInfo() == null ? "" : req.getPathInfo()) + "?"
-				+ HELPER_ID + "=done";
-		
 		// also make sure the panel is indicated - assume that it needs to be main, assuming that helpers are taking over the entire tool response
-		String panel = ((ParameterParser) req.getAttribute(ATTR_PARAMS)).getString(ActionURL.PARAM_PANEL);
-		if (panel !=  null)
-		{
-			doneUrl += "&" + ActionURL.PARAM_PANEL + "=" + MAIN_PANEL;
-		}
+		String doneUrl = req.getContextPath() + req.getServletPath() + (req.getPathInfo() == null ? "" : req.getPathInfo()) + "?"
+				+ HELPER_ID + panel + "=done" + "&" + ActionURL.PARAM_PANEL + "=" + panel;
 
 		toolSession.setAttribute(helperId + Tool.HELPER_DONE_URL, doneUrl);
+	}
+
+	/**
+	 * Setup for a helper tool - all subsequent requests will be directed there, till the tool is done.
+	 * 
+	 * @param helperId
+	 *        The helper tool id.
+	 */
+	protected void startHelper(HttpServletRequest req, String helperId)
+	{
+		startHelper(req, helperId, MAIN_PANEL);
 	}
 
 	/**

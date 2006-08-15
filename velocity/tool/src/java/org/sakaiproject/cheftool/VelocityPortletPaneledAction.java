@@ -379,7 +379,10 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 			types[1] = Context.class;
 			types[2] = RunData.class;
 			types[3] = SessionState.class;
-			String methodName = "build" + panel + "PanelContext";
+
+			// let our extension classes override the pannel name for the method
+			String methodName = panelMethodName(panel);
+
 			Method method = getClass().getMethod(methodName, types);
 
 			Object[] args = new Object[4];
@@ -453,6 +456,16 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		}
 
 	} // toolModeDispatch
+
+	/**
+	 * Allow extension classes to control which build method gets called for this pannel
+	 * @param panel
+	 * @return
+	 */
+	protected String panelMethodName(String panel)
+	{
+		return "build" + panel + "PanelContext";
+	}
 
 	/**
 	 * Process a Portlet action.
