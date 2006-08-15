@@ -32,6 +32,11 @@
 
 		<!-- add in demo stuff -->
 		<copy file="${basedir}/reference/demo/sakai.properties" tofile="${maven.tomcat.home}sakai/sakai.properties" />
+		<copy todir="${maven.tomcat.home}sakai/db">
+			<fileset dir="${basedir}/reference/demo/db">
+				<include name="**/sakai.db.*" />
+			</fileset>
+		</copy>
 		<copy file="${basedir}/reference/demo/toolOrder.xml" tofile="${maven.tomcat.home}sakai/toolOrder.xml" />
 		<copy file="${basedir}/reference/demo/readme.txt" tofile="${maven.tomcat.home}demo_readme.txt" />
 		<copy file="${basedir}/reference/docs/readme.txt" tofile="${maven.tomcat.home}sakai_readme.txt" />
