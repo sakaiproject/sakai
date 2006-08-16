@@ -379,55 +379,6 @@ public class QuestionScoreListener
         bean.setMaxScore(new Float(score).toString());
       }
 
-/*
-      // replaced by populateSections()
-      ArrayList sections = new ArrayList();
-      log.debug("questionScores(): publishedAssessment.getSectionArraySorted size = " + publishedAssessment.getSectionArraySorted().size());
-      iter = publishedAssessment.getSectionArraySorted().iterator();
-      int i=1;
-      while (iter.hasNext())
-      {
-        SectionDataIfc section = (SectionDataIfc) iter.next();
-        ArrayList items = new ArrayList();
-        PartData part = new PartData();
-	
-	part.setPartNumber(""+i);
-    
-        part.setId(section.getSectionId().toString());
-        Iterator iter2 = section.getItemArraySortedForGrading().iterator();
-        int j = 1;
-        while (iter2.hasNext())
-        {
-          ItemDataIfc item = (ItemDataIfc) iter2.next();
-          PartData partitem = new PartData();
-	  
-          partitem.setPartNumber(""+j);
-          partitem.setId(item.getItemId().toString());
-          log.debug("*   item.getId = " + item.getItemId()); 
-
-          if (totalBean.getAnsweredItems().get(item.getItemId()) != null)
-          {
-          log.debug("*   make a link for = " + item.getItemId()); 
-            partitem.setLinked(true);
-          }
-          else
-          {
-          log.debug("*   do not make a link for = " + item.getItemId()); 
-            partitem.setLinked(false);
-          }
-          Iterator iter3 = scores.iterator();
-          items.add(partitem);
-          j++;
-        }
-      log.debug("questionScores(): items size = " + items.size());
-        part.setQuestionNumberList(items);
-        sections.add(part);
-        i++;
-      }
-      log.debug("questionScores(): sections size = " + sections.size());
-      bean.setSections(sections);
-*/
-
 // need to get id from somewhere else, not from data.  data only contains answered items , we want to return all items. 
       ItemDataIfc item = (ItemDataIfc)publishedItemHash.get(data.getPublishedItemId());
 
@@ -601,7 +552,11 @@ log.debug("item==null ");
               results.setLastInitial(results.getFirstName().substring(0,1));
             else
 	      results.setLastInitial("Anonymous");
-            results.setIdString(agent.getEidString());
+            results.setIdString(agent.getIdString());
+            results.setAgentEid(agent.getEidString());
+            log.debug("testing agent getEid agent.getFirstname= " + agent.getFirstName());
+            log.debug("testing agent getEid agent.getid= " + agent.getIdString());
+            log.debug("testing agent getEid agent.geteid = " + agent.getEidString());
             results.setRole(agent.getRole());
             agents.add(results);
           }
@@ -652,27 +607,27 @@ log.debug("item==null ");
    * itemScoresMap will be refreshed when the next QuestionScore link is click
    */
   private HashMap getItemScores(Long publishedId, Long itemId, String which, boolean isValueChange){
-log.debug("getItemScores");
-    GradingService delegate = new GradingService();
-    QuestionScoresBean questionScoresBean =
-      (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
-    HashMap itemScoresMap = questionScoresBean.getItemScoresMap();
-log.debug("getItemScores: itemScoresMap ==null ?" + itemScoresMap);
-log.debug("getItemScores: isValueChange ?" + isValueChange);
-    if (itemScoresMap == null || isValueChange){
-log.debug("getItemScores: itemScoresMap ==null or isValueChange==true " + itemScoresMap );
-      itemScoresMap = new HashMap();
-      questionScoresBean.setItemScoresMap(itemScoresMap);
-    }
-log.debug("getItemScores: itemScoresMap.size() " + itemScoresMap.size() );
-    HashMap map = (HashMap) itemScoresMap.get(itemId);
-    if (map == null){
-log.debug("getItemScores: map == null " + map );
-      map = delegate.getItemScores(publishedId, itemId, which);
-log.debug("getItemScores: map size " + map.size() );
-      itemScoresMap.put(itemId, map);
-    }
-    return map;
+	  log.debug("getItemScores");
+	  GradingService delegate = new GradingService();
+	  QuestionScoresBean questionScoresBean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
+	  HashMap itemScoresMap = questionScoresBean.getItemScoresMap();
+	  log.debug("getItemScores: itemScoresMap ==null ?" + itemScoresMap);
+	  log.debug("getItemScores: isValueChange ?" + isValueChange);
+	  
+	  if (itemScoresMap == null || isValueChange){
+		  log.debug("getItemScores: itemScoresMap ==null or isValueChange==true " + itemScoresMap );
+		  itemScoresMap = new HashMap();
+		  questionScoresBean.setItemScoresMap(itemScoresMap);
+	  }
+	  log.debug("getItemScores: itemScoresMap.size() " + itemScoresMap.size() );
+	  HashMap map = (HashMap) itemScoresMap.get(itemId);
+	  if (map == null){
+		  log.debug("getItemScores: map == null " + map );
+		  map = delegate.getItemScores(publishedId, itemId, which);
+		  log.debug("getItemScores: map size " + map.size() );
+		  itemScoresMap.put(itemId, map);
+	  }
+	  return map;
   }
 
   private void setDurationIsOver(ItemDataIfc item, ArrayList mediaList){
