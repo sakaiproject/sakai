@@ -25,8 +25,6 @@ include file for displaying multiple choice single correct survey questions
 --%>
 -->
 
-  <h:outputText value="#{question.description}" escape="false"/>
-  <f:verbatim><br /></f:verbatim>
   <h:outputText value="#{question.text}"  escape="false"/>
   <h:dataTable value="#{question.itemTextArray}" var="itemText">
    <h:column>

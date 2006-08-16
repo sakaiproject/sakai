@@ -25,6 +25,4 @@ include file for displaying short answer essay questions
 --%>
 -->
 
-<h:outputText value="#{question.description}" escape="false"/>
-<f:verbatim><br /></f:verbatim>
 <h:outputText value="#{question.text}"  escape="false"/>

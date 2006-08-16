@@ -25,8 +25,6 @@ include file for displaying matching questions
 --%>
 -->
 
-<h:outputText value="#{question.description}" escape="false"/>
-<f:verbatim><br /></f:verbatim>
 <h:outputText value="#{question.text}"  escape="false"/>
 <h:dataTable value="#{question.itemTextArraySorted}" var="itemText">
  <h:column>
