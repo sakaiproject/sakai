@@ -463,9 +463,7 @@ log.debug("item==null ");
           }
 
           if (bean.getTypeId().equals("9")) {
-        	  if (gdataAnswer != null) {
         		  answerText = gdataPubItemText.getSequence() + ":" + answerText;
-        	  }
           }
 
           if (bean.getTypeId().equals("8")) {
