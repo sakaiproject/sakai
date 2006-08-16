@@ -96,6 +96,8 @@ public class PostemTool {
 	protected String delimiter;
 	
 	protected boolean displayErrors;
+
+	protected boolean userPressedBack = false;
 	
 	private static final int TEMPLATE_MAX_LENGTH = 4000;
 	
@@ -357,6 +359,7 @@ public class PostemTool {
 		oldGradebook = gradebookManager.createEmptyGradebook(currentGradebook
 				.getCreator(), currentGradebook.getContext());
 		oldGradebook.setId(currentGradebook.getId());
+		oldGradebook.setStudents(currentGradebook.getStudents());
 
 		gradebooks = null;
 
@@ -487,7 +490,7 @@ public class PostemTool {
 				}
 				List slist = grades.getStudents();
 
-				if (oldGradebook.getId() != null) {
+				if (oldGradebook.getId() != null && !this.userPressedBack) {
 					Set oldStudents = currentGradebook.getStudents();
 					oldGradebook.setStudents(oldStudents);
 				}
@@ -590,6 +593,7 @@ public class PostemTool {
 			this.csv = null;
 			currentGradebook.setStudents(null);
 		}
+		this.userPressedBack = true;
 		return "create_gradebook";
 	}
 
