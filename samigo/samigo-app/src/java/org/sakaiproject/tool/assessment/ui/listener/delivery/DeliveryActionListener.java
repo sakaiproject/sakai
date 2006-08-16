@@ -1631,7 +1631,7 @@ public class DeliveryActionListener
     // not sure why isLate lost its value, so setting it again here
     ag.setIsLate(Boolean.FALSE);
     GradingService gradingService = new GradingService();
-    gradingService.saveOrUpdateAssessmentGrading(ag);
+    gradingService.saveOrUpdateAssessmentGradingOnly(ag);
     delivery.setTimeElapse(ag.getTimeElapsed().toString());
   }
 

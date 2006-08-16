@@ -461,6 +461,29 @@ public class GradingService
     }
 
   }
+  
+  // This API only touch SAM_ASSESSMENTGRADING_T. No data gets inserted/updated in SAM_ITEMGRADING_T
+  public void saveOrUpdateAssessmentGradingOnly(AssessmentGradingIfc assessment)
+  {
+	  Set origItemGradingSet = assessment.getItemGradingSet();
+	  HashSet h = new HashSet(origItemGradingSet);
+	  
+	  // Clear the itemGradingSet so no data gets inserted/updated in SAM_ITEMGRADING_T;
+	  origItemGradingSet.clear();
+      int size = assessment.getItemGradingSet().size();
+      log.debug("before persist to db: size = " + size);
+      try {
+    	  PersistenceService.getInstance().getAssessmentGradingFacadeQueries().saveOrUpdateAssessmentGrading(assessment);
+      } catch (Exception e) {
+    	  e.printStackTrace();
+      }
+      finally {
+    	  // Restore the original itemGradingSet back
+    	  assessment.setItemGradingSet(h);
+    	  size = assessment.getItemGradingSet().size();
+		  log.debug("after persist to db: size = " + size);
+      }
+  }
 
   public List getAssessmentGradingIds(String publishedItemId){
     try{
