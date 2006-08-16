@@ -68,6 +68,8 @@ public class SuTool
 	private String username;
 
 	private String validatedUserId;
+	
+	private String validatedUserEid;
 
 	private User userinfo;
 
@@ -105,6 +107,7 @@ public class SuTool
 			// try with the user id
 			userinfo = M_uds.getUser(username.trim());
 			validatedUserId = userinfo.getId();
+			validatedUserEid = userinfo.getEid();
 		}
 		catch (UserNotDefinedException e)
 		{
@@ -113,6 +116,7 @@ public class SuTool
 				// try with the user eid
 				userinfo = M_uds.getUserByEid(username.trim());
 				validatedUserId = userinfo.getId();
+				validatedUserEid = userinfo.getEid();
 			}
 			catch (UserNotDefinedException ee)
 			{
@@ -126,13 +130,13 @@ public class SuTool
 
 		if (!confirm)
 		{
-			message = msgs.getString("displaying_info_for") + ": " + validatedUserId;
+			message = msgs.getString("displaying_info_for") + ": " + validatedUserEid;
 			fc.addMessage("su", new FacesMessage(FacesMessage.SEVERITY_INFO, message, message + ":" + userinfo.getDisplayName()));
 			return "unconfirmed";
 		}
 
 		// set the session user from the value supplied in the form
-		message = "Username " + sakaiSession.getUserId() + " becoming " + validatedUserId;
+		message = "Username " + sakaiSession.getUserId() + " becoming " + validatedUserEid;
 		M_log.info("[SuTool] " + message);
 		fc.addMessage("su", new FacesMessage(FacesMessage.SEVERITY_INFO, message, message + ": Currently="
 				+ userinfo.getDisplayName()));
@@ -147,7 +151,7 @@ public class SuTool
 		
 		// login - set the user id and eid into session, and refresh this user's authz information
 		sakaiSession.setUserId(validatedUserId);
-		sakaiSession.setUserEid(validatedUserId);
+		sakaiSession.setUserEid(validatedUserEid);
 		M_authzGroupService.refreshUser(validatedUserId);
 
 		return "redirect";
