@@ -137,12 +137,7 @@ public class InputRichTextRenderer extends Renderer
     ///////////////////////////////////////////////////////////////////////////
     // attributes
     ///////////////////////////////////////////////////////////////////////////
-//  Width of the widget (in pixel units).
-//  If this attribute is not specified, the width is controlled by the 'cols' attribute.
-    String width = (String) RendererUtil.getAttribute(context, component, "width");
-//  Height of the widget (in pixel units).
-//  If this attribute is not specified, the width is controlled by the 'rows' attribute.
-    String height = (String) RendererUtil.getAttribute(context, component, "height");
+
 //  If true, only the textarea will be rendered.  Defaults to false.
 //  If true, the rich text toolbar  and external HTMLArea JavaScript will NOT.
     String textareaOnly = (String) RendererUtil.getAttribute(context, component, "textareaOnly");
@@ -178,14 +173,25 @@ public class InputRichTextRenderer extends Renderer
       Integer rows = (Integer) RendererUtil.getAttribute(context, component, "rows");
       if (cols != null) textareaColumns = cols.intValue();
       if (rows != null) textareaRows = rows.intValue();
+      
+//    Width of the widget (in pixel units).
+//    If this attribute is not specified, the width is controlled by the 'cols' attribute.
+      String width = (String) RendererUtil.getAttribute(context, component, "width");
+      if (width != null) widthPx = Integer.parseInt(width);
+//    Height of the widget (in pixel units).
+//    If this attribute is not specified, the width is controlled by the 'rows' attribute.
+      String height = (String) RendererUtil.getAttribute(context, component, "height");
+      if (height != null) heightPx = Integer.parseInt(height);
     }
     catch (Exception ex)
     {
       //default, whatever goes awry
     }
 
-    widthPx = (DEFAULT_WIDTH_PX*textareaColumns)/DEFAULT_COLUMNS;
-    heightPx = (DEFAULT_HEIGHT_PX*textareaRows)/DEFAULT_ROWS;
+    if (widthPx == DEFAULT_WIDTH_PX && textareaColumns != DEFAULT_COLUMNS)
+       widthPx = (DEFAULT_WIDTH_PX*textareaColumns)/DEFAULT_COLUMNS;
+    if (heightPx == DEFAULT_HEIGHT_PX && textareaRows != DEFAULT_ROWS)
+       heightPx = (DEFAULT_HEIGHT_PX*textareaRows)/DEFAULT_ROWS;
 
     Locale locale = Locale.getDefault();
 
