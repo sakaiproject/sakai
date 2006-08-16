@@ -314,6 +314,22 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	{
 		return m_storage.countAuthzGroups(criteria);
 	}
+	
+	/**
+	 * {@inheritDoc} 
+	 */
+	public Set getAuthzGroupIds(String providerId)
+	{
+		return m_storage.getAuthzGroupIds(providerId);
+	}
+
+	/**
+	 * {@inheritDoc} 
+	 */
+	public Set getProviderIds(String authzGroupId)
+	{
+		return m_storage.getProviderIds(authzGroupId);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -1083,6 +1099,22 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		 * @return The count of AuthzGroups that meet specified criteria.
 		 */
 		int countAuthzGroups(String criteria);
+
+		/**
+		 * Get the provider IDs for an AuthzGroup
+		 * 
+		 * @param authzGroupId The ID of the AuthzGroup
+		 * @return The Set (String) of provider IDs
+		 */
+		public Set getProviderIds(String authzGroupId);
+
+		/**
+		 * Get the AuthzGroup IDs associated with a provider ID.
+		 * 
+		 * @param providerId The provider id
+		 * @return The Set (String) of AuthzGroup IDs
+		 */
+		public Set getAuthzGroupIds(String providerId);
 
 		/**
 		 * Complete the read process once the basic AuthzGroup info has been read.

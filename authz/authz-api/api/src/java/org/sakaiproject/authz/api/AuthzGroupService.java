@@ -347,4 +347,19 @@ public interface AuthzGroupService extends EntityProducer
 	 *            if the id is already used.
 	 */
 	AuthzGroup newAuthzGroup(String id, AuthzGroup other, String maintainUserId) throws GroupAlreadyDefinedException;
+	
+	/**
+	 * Gets the IDs of the AuthzGroups with the given provider ID.
+	 * 
+	 * @return The Set of Strings representing authzGroup IDs (such as /site/1234 or /site/1234/group/5678) for all authzGroups with the given providerId.
+	 */
+	public Set getAuthzGroupIds(String providerId);
+
+	/**
+	 * Gets the provider IDs associated with an AuthzGroup.
+	 * 
+	 * @return The Set of Strings representing external group IDs, as recognized by the GroupProvider implementation, that are associated with the given groupId. These strings
+	 * must not be "compound IDs", as defined by the GroupProvider's String[] unpackId(String id) method.
+	 */
+	public Set getProviderIds(String authzGroupId); 
 }

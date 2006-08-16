@@ -21,6 +21,9 @@
 
 package org.sakaiproject.authz.cover;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**
@@ -83,6 +86,22 @@ public class AuthzGroupService
 		if (service == null) return 0;
 
 		return service.countAuthzGroups(param0);
+	}
+
+	public static Set getAuthzGroupIds(String providerId)
+	{
+		org.sakaiproject.authz.api.AuthzGroupService service = getInstance();
+		if (service == null) return new HashSet();
+		
+		return service.getAuthzGroupIds(providerId);
+	}
+
+	public Set getProviderIds(String authzGroupId)
+	{
+		org.sakaiproject.authz.api.AuthzGroupService service = getInstance();
+		if (service == null) return new HashSet();
+		
+		return service.getProviderIds(authzGroupId);
 	}
 
 	public static org.sakaiproject.authz.api.AuthzGroup getAuthzGroup(java.lang.String param0)

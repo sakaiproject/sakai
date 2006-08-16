@@ -669,6 +669,28 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			return rv;
 		}
 
+		public Set getProviderIds(String authzGroupId)
+		{
+			String statement = "select srp.PROVIDER_ID from SAKAI_REALM sr INNER JOIN SAKAI_REALM_PROVIDER srp on sr.REALM_KEY = srp.REALM_KEY where sr.REALM_ID=?";
+			List results = sqlService().dbRead(statement, new Object[] {authzGroupId}, null);	
+			if(results == null)
+			{
+				return new HashSet();
+			}
+			return new HashSet(results);
+		}
+
+		public Set getAuthzGroupIds(String providerId)
+		{
+			String statement = "select sr.REALM_ID from SAKAI_REALM sr INNER JOIN SAKAI_REALM_PROVIDER srp on sr.REALM_KEY = srp.REALM_KEY where srp.PROVIDER_ID=?";
+			List results = sqlService().dbRead(statement, new Object[] {providerId}, null);	
+			if(results == null)
+			{
+				return new HashSet();
+			}
+			return new HashSet(results);
+		}
+		
 		/**
 		 * {@inheritDoc}
 		 */
