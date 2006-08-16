@@ -1153,7 +1153,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						  " where i.agentId = ? and i.assessmentGradingId = ? " +
 						  " and pi.itemId = i.publishedItemId " +
 						  " and pi.section.id = s.id " +
-						  " group by i.publishedItemId" + 
+						  " group by i.publishedItemId, s.sequence, pi.sequence " + 
 						  " order by s.sequence desc , pi.sequence desc");
 				  q.setString(0, agentId);
 				  q.setLong(1, assessmentGradingId.longValue());
