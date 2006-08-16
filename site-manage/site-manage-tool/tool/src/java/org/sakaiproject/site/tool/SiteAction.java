@@ -7510,25 +7510,25 @@ public class SiteAction extends PagedResourceActionII
 				// remove all roles and then add back those that were checked
 				for (int i=0; i<participants.size(); i++)
 				{
-					String id = null;
+					String eId = null;
 					
 					// added participant
 					Object participant = (Object) participants.get(i);
 					
 					if (participant.getClass().equals(Participant.class))
 					{	
-						id = ((Participant) participant).getUniqname();
+						eId = ((Participant) participant).getUniqname();
 					}
 					else if (participant.getClass().equals(CourseMember.class))
 					{
 						// course member
-						id = ((CourseMember) participant).getUniqname();
+						eId = ((CourseMember) participant).getUniqname();
 					}
 						
-					if (id != null)
+					if (eId != null)
 					{
 						//get the newly assigned role
-						String inputRoleField = "role" + id;
+						String inputRoleField = "role" + eId;
 						String roleId = params.getString(inputRoleField);
 					
 						// only change roles when they are different than before
@@ -7536,7 +7536,7 @@ public class SiteAction extends PagedResourceActionII
 						{
 							// get the grant active status
 							boolean activeGrant = true;
-							String activeGrantField = "activeGrant" + id;
+							String activeGrantField = "activeGrant" + eId;
 							if (params.getString(activeGrantField) != null)
 							{
 								activeGrant = params.getString(activeGrantField).equalsIgnoreCase("true")?true:false;
@@ -7550,7 +7550,15 @@ public class SiteAction extends PagedResourceActionII
 									fromProvider = true;
 								}
 							}
-							realmEdit.addMember(id, roleId, activeGrant, fromProvider);
+							try
+							{
+								User user = UserDirectoryService.getUserByEid(eId);
+								realmEdit.addMember(user.getId(), roleId, activeGrant, fromProvider);
+							}
+							catch (UserNotDefinedException e)
+							{
+								M_log.warn(this + " IdUnusedException " + eId + ". ");
+							}
 						}
 					}
 				}
@@ -7562,10 +7570,10 @@ public class SiteAction extends PagedResourceActionII
 					state.setAttribute(STATE_SELECTED_USER_LIST, removals);
 					for(int i = 0; i<removals.size(); i++)
 					{
-						String rId = (String) removals.get(i);
+						String rEId = (String) removals.get(i);
 						try
 						{
-							User user = UserDirectoryService.getUser(rId);
+							User user = UserDirectoryService.getUserByEid(rEId);
 							Participant selected = new Participant();
 							selected.name = user.getDisplayName();
 							selected.uniqname = user.getId();
@@ -7573,7 +7581,7 @@ public class SiteAction extends PagedResourceActionII
 						}
 						catch (UserNotDefinedException e)
 						{
-							M_log.warn(this + " IdUnusedException " + rId + ". ");
+							M_log.warn(this + " IdUnusedException " + rEId + ". ");
 						}
 					}
 				}
