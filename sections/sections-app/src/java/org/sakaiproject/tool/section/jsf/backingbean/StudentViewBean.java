@@ -241,6 +241,13 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 		.getRequestParameterMap().get("sectionUuid");
 		//is this section still joinable?
 		CourseSection section = getSectionManager().getSection(sectionUuid);
+		
+		// The section might have been deleted
+		if(section == null) {
+			// There's nothing we can do in the UI, really.
+			return;
+		}
+
 		//check that there are still places available
 		int maxEnrollments = Integer.MAX_VALUE;
 		if(section.getMaxEnrollments() != null) {
@@ -262,8 +269,15 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	public void processSwitchSection(ActionEvent event) {
 		String sectionUuid = (String)FacesContext.getCurrentInstance().getExternalContext()
 		.getRequestParameterMap().get("sectionUuid");
-		//is this section still joinable?
+		
+		// Does the section still exist, and is it still joinable?
 		CourseSection section = getSectionManager().getSection(sectionUuid);
+		
+		if(section == null) {
+			// There's nothing we can do in the UI, really.
+			return;
+		}
+
 		//check that there are still places available
 		int maxEnrollments = Integer.MAX_VALUE;
 		if(section.getMaxEnrollments() != null) {

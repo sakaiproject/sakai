@@ -382,6 +382,13 @@ public class SectionManagerImpl implements SectionManager {
 	 */
     public EnrollmentRecord joinSection(String sectionUuid) throws RoleConfigurationException {
     	Group group = siteService.findGroup(sectionUuid);
+    	
+		// It's possible that this section has been deleted
+		if(group == null) {
+			log.error("Section " + sectionUuid + " has been deleted, so it can't be joined.");
+			return null;
+		}
+
     	String role = getSectionStudentRole(group);
 		try {
 			authzGroupService.joinGroup(sectionUuid, role);
@@ -398,7 +405,7 @@ public class SectionManagerImpl implements SectionManager {
 		String userUid = sessionManager.getCurrentSessionUserId();
 		User user = SakaiUtil.getUserFromSakai(userUid);
 		CourseSection section = getSection(sectionUuid);
-
+		
 		return new EnrollmentRecordImpl(section, null, user);
     }
 
@@ -429,6 +436,12 @@ public class SectionManagerImpl implements SectionManager {
 	 */
     public void switchSection(String newSectionUuid) throws RoleConfigurationException {
     	CourseSection newSection = getSection(newSectionUuid);
+
+    	// It's possible that this section has been deleted
+		if(newSection == null) {
+			return;
+		}
+
 		String userUid = sessionManager.getCurrentSessionUserId();
     	
 		// Remove any section membership for a section of the same category.
@@ -492,6 +505,12 @@ public class SectionManagerImpl implements SectionManager {
 	
     private ParticipationRecord addTaToSection(String userUid, String sectionUuid) throws RoleConfigurationException {
 		CourseSectionImpl section = (CourseSectionImpl)getSection(sectionUuid);
+
+		// It's possible that this section has been deleted
+		if(section == null) {
+			return null;
+		}
+
 		Group group = section.getGroup();
 		User user = SakaiUtil.getUserFromSakai(userUid);
 
@@ -519,6 +538,12 @@ public class SectionManagerImpl implements SectionManager {
 		User user = SakaiUtil.getUserFromSakai(userUid);
 
 		CourseSectionImpl newSection = (CourseSectionImpl)getSection(sectionUuid);
+		
+		// It's possible that this section has been deleted
+		if(newSection == null) {
+			return null;
+		}
+		
 		Group group = newSection.getGroup();
 
 		String studentRole = getSectionStudentRole(group);
@@ -552,6 +577,12 @@ public class SectionManagerImpl implements SectionManager {
 	 */
 	public void setSectionMemberships(Set userUids, Role role, String sectionUuid) throws RoleConfigurationException {
 		CourseSectionImpl section = (CourseSectionImpl)getSection(sectionUuid);
+
+		// It's possible that this section has been deleted
+		if(section == null) {
+			return;
+		}
+
 		Group group = section.getGroup();
 		String sakaiRoleString;
 		if(role.isTeachingAssistant()) {

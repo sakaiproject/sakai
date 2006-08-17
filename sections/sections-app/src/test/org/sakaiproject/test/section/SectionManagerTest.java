@@ -69,6 +69,21 @@ public class SectionManagerTest extends SectionsTestBase{
         userMgr = (UserManager)applicationContext.getBean("org.sakaiproject.component.section.support.UserManager");
     }
 
+    public void testChangeMembershipOnDeletedSection() throws Exception {
+    	// These methods should gracefully handle operations on missing (possibly deleted) sections
+    	
+    	// Test joining a non-existent section
+    	Assert.assertNull(secMgr.joinSection("foo"));
+    	
+    	// Test switching into a non-existent section
+    	secMgr.switchSection("foo");
+
+    	// Test setSectionMemberships on a non-existent section\
+    	Set userSet = new HashSet();
+    	userSet.add("user1");
+    	secMgr.setSectionMemberships(userSet, Role.STUDENT, "foo");
+    }
+    
     public void testSectionMembership() throws Exception {
 
     	// FIXME This test has become totally unruly.  Split it up, even though it will lead to a lot of duplication

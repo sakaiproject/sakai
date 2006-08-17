@@ -307,6 +307,12 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     public EnrollmentRecord joinSection(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
+            	try {
+            		getSection(sectionUuid, session);
+            	} catch (MembershipException me) {
+            		log.error(me);
+            		return null;
+            	}
             	String userUid = authn.getUserUid(null);
             	String siteContext = context.getContext(null);
                 Query q = session.getNamedQuery("findEnrollment");
@@ -334,6 +340,12 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     public void switchSection(final String newSectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
+            	try {
+            		getSection(newSectionUuid, session);
+            	} catch (MembershipException me) {
+            		log.error(me);
+            		return null;
+            	}
             	String userUid = authn.getUserUid(null);
             	String siteContext = context.getContext(null);
             	CourseSection newSection = getSection(newSectionUuid, session);
@@ -450,6 +462,13 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	public void setSectionMemberships(final Set userUids, final Role role, final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
+            	try {
+            		getSection(sectionUuid, session);
+            	} catch (MembershipException me) {
+            		log.error(me);
+            		return null;
+            	}
+
             	String siteContext = context.getContext(null);
         		List currentMembers;
         		if(role.isTeachingAssistant()) {
