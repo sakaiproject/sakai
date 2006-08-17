@@ -199,12 +199,4 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 				+ newline;
 		return rv;
 	}
-
-	/**
-	 * @inheritDoc
-	 */
-	protected boolean headerToRecipient()
-	{
-		return false;
-	}
 }
