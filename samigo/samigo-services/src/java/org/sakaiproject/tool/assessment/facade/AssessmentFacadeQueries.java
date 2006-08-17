@@ -876,6 +876,8 @@ public class AssessmentFacadeQueries
 
   public void saveOrUpdate(AssessmentFacade assessment) {
     AssessmentData data = (AssessmentData) assessment.getData();
+    data.setLastModifiedBy(AgentFacade.getAgentString());
+    data.setLastModifiedDate(new Date());
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
@@ -913,7 +915,8 @@ public class AssessmentFacadeQueries
   }
 
   public void saveOrUpdate(final AssessmentTemplateData template) {
-
+	template.setLastModifiedBy(AgentFacade.getAgentString());
+	template.setLastModifiedDate(new Date());
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
@@ -999,6 +1002,9 @@ public class AssessmentFacadeQueries
       checkForQuestionPoolItem(section, h);
 
       AssessmentData assessment = (AssessmentData) section.getAssessment();
+      assessment.setLastModifiedBy(AgentFacade.getAgentString());
+      assessment.setLastModifiedDate(new Date());
+      
       // lazy loading on sectionSet, so need to initialize it
       Set sectionSet = getSectionSetForAssessment(assessment);
       assessment.setSectionSet(sectionSet);
@@ -1052,8 +1058,8 @@ public class AssessmentFacadeQueries
   }
 
   public void saveOrUpdateSection(SectionFacade section) {
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
-    while (retryCount > 0){
+	  int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+	  while (retryCount > 0){
       try {
         getHibernateTemplate().saveOrUpdate(section.getData());
         retryCount = 0;
@@ -1116,6 +1122,10 @@ public class AssessmentFacadeQueries
   public void removeAllItems(Long sourceSectionId) {
     SectionData section= loadSection(sourceSectionId);
 
+    AssessmentData assessment = (AssessmentData) section.getAssessment();
+    assessment.setLastModifiedBy(AgentFacade.getAgentString());
+    assessment.setLastModifiedDate(new Date());
+
     Set itemSet = section.getItemSet();
     //HashSet newItemSet = new HashSet();
     Iterator iter = itemSet.iterator();
@@ -1136,6 +1146,18 @@ public class AssessmentFacadeQueries
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
       }
     }
+    }
+    // update assessment info (LastModifiedBy and LastModifiedDate)
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+        try {
+          getHibernateTemplate().update(assessment); // sections reordered
+          retryCount = 0;
+        }
+        catch (Exception e) {
+          log.warn("problem updating asssessment: "+e.getMessage());
+          retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        }
     }
     // need to reload the section again.
     section= loadSection(sourceSectionId);
@@ -1329,5 +1351,23 @@ public class AssessmentFacadeQueries
 //                new Object[]{ new Long(1) },
 //                new org.hibernate.type.Type[] { Hibernate.LONG });
 
+  }
+  
+  public void updateAssessmentLastModifiedInfo(AssessmentFacade assessmentFacade) {
+	  int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+	  AssessmentBaseIfc data = assessmentFacade.getData();
+	  data.setLastModifiedBy(AgentFacade.getAgentString());
+	  data.setLastModifiedDate(new Date());
+	  retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+	  while (retryCount > 0){
+		  try {
+			  getHibernateTemplate().update(data);
+			  retryCount = 0;
+	      }
+	      catch (Exception e) {
+	        log.warn("problem update assessment: "+e.getMessage());
+	        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+	      }
+	  }
   }
 }

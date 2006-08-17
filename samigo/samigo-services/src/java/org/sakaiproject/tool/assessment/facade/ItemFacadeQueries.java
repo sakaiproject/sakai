@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.List;
 import java.util.Iterator;
 
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -42,9 +41,8 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
@@ -471,7 +469,6 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 
 
  public ItemFacade saveItem(ItemFacade item) throws DataFacadeException {
-    boolean insert = false;
     try{
       ItemData itemdata = (ItemData) item.getData();
       itemdata.setLastModifiedDate(new Date());
@@ -487,8 +484,21 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
       }
     }
-
-      return item;
+    AssessmentIfc assessment = item.getData().getSection().getAssessment();
+    assessment.setLastModifiedBy(AgentFacade.getAgentString());
+    assessment.setLastModifiedDate(new Date());
+    retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+    	try {
+    		getHibernateTemplate().update(assessment);
+    		retryCount = 0;
+    	}
+    	catch (Exception e) {
+    		log.warn("problem updating asssessment: "+e.getMessage());
+    		retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+    	}
+    }
+    return item;
     }
     catch(Exception e){
 	e.printStackTrace();

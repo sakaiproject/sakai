@@ -83,6 +83,7 @@ public class ReorderPartsListener
       AssessmentService service = new AssessmentService();
       service.saveOrUpdateSection(section1);
       service.saveOrUpdateSection(section2);
+      service.updateAssessmentLastModifiedInfo(assessment);
     }
 
    // goto editAssessment.jsp, so reset assessmentBean

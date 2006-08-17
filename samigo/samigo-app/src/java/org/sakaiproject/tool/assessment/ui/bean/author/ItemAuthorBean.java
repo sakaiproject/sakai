@@ -868,6 +868,7 @@ ItemService delegate = new ItemService();
                                           "assessmentBean");
     AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
     assessmentBean.setAssessment(assessment);
+    assessdelegate.updateAssessmentLastModifiedInfo(assessment);
 
 
 	return "editAssessment";

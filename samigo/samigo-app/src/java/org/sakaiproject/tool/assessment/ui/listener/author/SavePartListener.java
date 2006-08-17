@@ -214,7 +214,7 @@ public class SavePartListener
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentBean.getAssessmentId());
     assessmentBean.setAssessment(assessment);
-
+    assessmentService.updateAssessmentLastModifiedInfo(assessment);
   }
 
   public SectionFacade addPart(String assessmentId){

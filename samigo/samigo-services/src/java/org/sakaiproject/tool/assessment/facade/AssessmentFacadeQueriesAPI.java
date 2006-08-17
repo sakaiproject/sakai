@@ -164,4 +164,5 @@ public interface AssessmentFacadeQueriesAPI
 
   public void deleteAllMetaData(AssessmentBaseIfc assessment);
 
+  public void updateAssessmentLastModifiedInfo(AssessmentFacade assessmentFacade);
 }

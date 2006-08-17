@@ -387,4 +387,16 @@ public void deleteAssessment(Id assessmentId)
       deleteAllMetaData(assessment);
   }
 
+  public void updateAssessmentLastModifiedInfo(AssessmentFacade assessmentFacade)
+  {
+    try{
+      PersistenceService.getInstance().getAssessmentFacadeQueries().
+      updateAssessmentLastModifiedInfo(assessmentFacade);
+    }
+    catch(Exception e)
+    {
+      log.error(e); throw new RuntimeException(e);
+    }
+  }
+  
 }
