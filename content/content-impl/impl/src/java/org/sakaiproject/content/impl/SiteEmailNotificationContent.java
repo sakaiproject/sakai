@@ -21,9 +21,9 @@
 
 package org.sakaiproject.content.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Vector;
 
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -172,12 +172,18 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 	/**
 	 * @inheritDoc
 	 */
-	protected List getHeaders(Event e)
+	protected List getHeaders(Event event)
 	{
-		List rv = new ArrayList(1);
+		List rv = new Vector();
 
 		// the Subject
-		rv.add("Subject: " + getSubject(e));
+		rv.add("Subject: " + getSubject(event));
+
+		// from
+		rv.add(getFrom(event));
+
+		// to
+		rv.add(getTo(event));
 
 		return rv;
 	}
@@ -290,14 +296,14 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 
 		// get the list of users who have SECURE_ALL_GROUPS
 		List allGroupUsers = SecurityService.unlockUsers(ContentHostingService.AUTH_RESOURCE_ALL_GROUPS, contextRef);
-		
+
 		// filter down by the permission
 		if (getResourceAbility() != null)
 		{
 			List allGroupUsers2 = SecurityService.unlockUsers(getResourceAbility(), contextRef);
 			allGroupUsers.retainAll(allGroupUsers2);
 		}
-		
+
 		// remove any in the list already
 		allGroupUsers.removeAll(users);
 
