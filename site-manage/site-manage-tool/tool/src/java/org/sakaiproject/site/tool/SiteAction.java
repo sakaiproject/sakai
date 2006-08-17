@@ -5719,7 +5719,7 @@ public class SiteAction extends PagedResourceActionII
 	*/
 	private void sendSiteRequest(SessionState state, String request, int requestListSize, List requestFields)
 	{
-
+		User cUser = UserDirectoryService.getCurrentUser();
 		boolean sendEmailToRequestee = false;
 		StringBuffer buf = new StringBuffer();
 		
@@ -5759,8 +5759,7 @@ public class SiteAction extends PagedResourceActionII
 			String message_subject = NULL_STRING;
 			String content = NULL_STRING;
 			
-			String sessionUserName = UserDirectoryService.getCurrentUser().getDisplayName();
-			String sessionUserId = StringUtil.trimToZero(SessionManager.getCurrentSessionUserId());
+			String sessionUserName = cUser.getDisplayName();
 			String additional = NULL_STRING;
 			if (request.equals("new"))
 			{
@@ -5842,10 +5841,10 @@ public class SiteAction extends PagedResourceActionII
 			}
 		
 			//To Support
-			from = UserDirectoryService.getCurrentUser().getEmail();
+			from = cUser.getEmail();
 			to = requestEmail;
 			headerTo = requestEmail;
-			replyTo = UserDirectoryService.getCurrentUser().getEmail();
+			replyTo = cUser.getEmail();
 			buf.setLength(0);
 			buf.append(rb.getString("java.to")+"\t\t" + productionSiteName + " "+rb.getString("java.supp")+"\n");
 			buf.append("\n"+rb.getString("java.from")+"\t" + sessionUserName + "\n");
@@ -5891,7 +5890,7 @@ public class SiteAction extends PagedResourceActionII
 					buf.append(requiredField +"\t" + requiredFieldList.get(j) + "\n");
 				}
 			}
-			buf.append(rb.getString("java.name")+"\t" + sessionUserName + " (" + noEmailInIdAccountName + " " + sessionUserName + ")\n");
+			buf.append(rb.getString("java.name")+"\t" + sessionUserName + " (" + noEmailInIdAccountName + " " + cUser.getEid() + ")\n");
 			buf.append(rb.getString("java.email")+"\t" + replyTo + "\n\n");
 			buf.append(rb.getString("java.sitetitle")+"\t" + title + "\n"); 
 			buf.append(rb.getString("java.siteid")+"\t" +  id + "\n");
@@ -5912,9 +5911,8 @@ public class SiteAction extends PagedResourceActionII
 			EmailService.send(from, to, message_subject, content, headerTo, replyTo, null);
 			
 			//To the Instructor
-			User curUser = UserDirectoryService.getCurrentUser();
 			from = requestEmail;
-			to = curUser.getEmail();
+			to = cUser.getEmail();
 			headerTo = to;
 			replyTo = to;
 			buf.setLength(0);
