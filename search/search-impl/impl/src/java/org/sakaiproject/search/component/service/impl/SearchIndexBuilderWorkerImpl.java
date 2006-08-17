@@ -702,6 +702,19 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	 */
 	public boolean getLockTransaction(long nodeLifetime, boolean checklock)
 	{
+		if (searchIndexBuilderWorkerDao.isLockRequired() ) {
+			return getHardLock(nodeLifetime,checklock);
+		} else {
+			try {
+				updateNodeLock(nodeLifetime);
+			} catch ( SQLException e) {
+				log.warn("Failed to update node lock "+e.getClass().getName()+" :"+e.getMessage());
+			}
+			return true;
+		}
+	}
+	public boolean getHardLock(long nodeLifetime, boolean checklock)
+	{
 		String nodeID = getNodeID();
 		Connection connection = null;
 		boolean locked = false;
@@ -949,6 +962,12 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	 */
 
 	private void clearLockTransaction()
+	{
+		if (searchIndexBuilderWorkerDao.isLockRequired() ) {
+			clearHardLock();
+		} 
+	}
+	public void clearHardLock() 
 	{
 		String nodeID = getNodeID();
 

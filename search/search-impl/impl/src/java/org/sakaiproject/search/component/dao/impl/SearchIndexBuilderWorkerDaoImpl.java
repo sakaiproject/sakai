@@ -248,27 +248,18 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 								}
 								finally
 								{
+									
 									if (indexReader != null)
 									{
-
-										indexReader.close();
+										indexStorage.closeIndexReader(indexReader);
 										indexReader = null;
 									}
 								}
-								if (worker.isRunning())
-								{
-									indexWrite = indexStorage
-											.getIndexWriter(false);
-								}
 							}
-							else
+							if (worker.isRunning())
 							{
-								// create for update
-								if (worker.isRunning())
-								{
-									indexWrite = indexStorage
-											.getIndexWriter(true);
-								}
+								indexWrite = indexStorage
+										.getIndexWriter(true);
 							}
 							for (Iterator tditer = runtimeToDo.iterator(); worker
 									.isRunning()
@@ -514,7 +505,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 						{
 							if (indexWrite != null)
 							{
-								indexWrite.close();
+								indexStorage.closeIndexWriter(indexWrite);
 								indexWrite = null;
 							}
 						}
@@ -1010,6 +1001,11 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 	public void setIndexStorage(IndexStorage indexStorage)
 	{
 		this.indexStorage = indexStorage;
+	}
+
+	public boolean isLockRequired()
+	{
+		return !indexStorage.isMultipleIndexers();
 	}
 
 

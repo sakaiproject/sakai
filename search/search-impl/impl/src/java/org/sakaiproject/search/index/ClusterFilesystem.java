@@ -131,4 +131,23 @@ public interface ClusterFilesystem
 
 	List getSegmentInfoList();
 
+	/**
+	 * if the thread already has a lock ignore
+	 * get a lock on the index so that it can be updated
+	 * this should block untill a lock becomes free
+	 */
+	void getLock();
+
+	/**
+	 * release the lock, only if there is one
+	 * this should block untill a lock becomes free
+	 */
+	void releaseLock();
+
+	/**
+	 * can the Cluster Filesystem cope with multiple indexers running at the same time
+	 * @return
+	 */
+	boolean isMultipleIndexers();
+
 }

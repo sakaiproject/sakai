@@ -39,5 +39,12 @@ public interface SearchIndexBuilderWorkerDao
 	 */
 	void processToDoListTransaction(SearchIndexBuilderWorker worker);
 
+	/**
+	 * If the implementation of the SearchIndexBuilder requires that the call aquires a lock
+	 * before processing.
+	 * @return true is a lock should be taken prior to processToDoTransaction
+	 */
+	boolean isLockRequired();
+
 
 }

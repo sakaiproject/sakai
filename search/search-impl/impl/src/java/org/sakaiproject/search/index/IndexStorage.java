@@ -102,4 +102,25 @@ public interface IndexStorage
 
 	List getSegmentInfoList();
 
+	/**
+	 * This will close the index reader and release any locks
+	 * @param indexReader
+	 * @throws IOException 
+	 */
+	void closeIndexReader(IndexReader indexReader) throws IOException;
+
+	/**
+	 * this will close the index reader and release any locks
+	 * @param indexWrite
+	 * @throws IOException 
+	 */
+	void closeIndexWriter(IndexWriter indexWrite) throws IOException;
+
+	/**
+	 * Returns true if its ok to allow multiple indexers to run at the same time
+	 * The index storage may manage its own locks.
+	 * @return
+	 */
+	boolean isMultipleIndexers();
+
 }

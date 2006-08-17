@@ -81,6 +81,13 @@ public class ClusterFSIndexStorage implements IndexStorage
 
 	public IndexReader getIndexReader() throws IOException
 	{
+		return getIndexReader(true);
+	}
+	private IndexReader getIndexReader(boolean withLock) throws IOException
+	{
+		if ( withLock  ) {
+			clusterFS.getLock();
+		}
 		List segments = clusterFS.updateSegments();
 		log.debug("Found " + segments.size() + " segments ");
 		IndexReader[] readers = new IndexReader[segments.size()];
@@ -214,7 +221,7 @@ public class ClusterFSIndexStorage implements IndexStorage
 		try
 		{
 			long reloadStart = System.currentTimeMillis();
-			indexSearcher = new IndexSearcher(getIndexReader());
+			indexSearcher = new IndexSearcher(getIndexReader(false));
 			if (indexSearcher == null)
 			{
 				log.warn("No search Index exists at this time");
@@ -267,6 +274,9 @@ public class ClusterFSIndexStorage implements IndexStorage
 	}
 
 	public void doPostIndexUpdate() throws IOException
+	{
+	}
+	private void mergeAndUpdate() throws IOException
 	{
 		FSDirectory.setDisableLocks(true);
 		// get the tmp index
@@ -506,6 +516,36 @@ public class ClusterFSIndexStorage implements IndexStorage
 	public List getSegmentInfoList()
 	{
 		return clusterFS.getSegmentInfoList();
+	}
+
+	public void closeIndexReader(IndexReader indexReader) throws IOException
+	{
+		if ( indexReader != null ) {
+			indexReader.close();
+		}
+		clusterFS.getLock();
+		mergeAndUpdate();
+		clusterFS.releaseLock();
+		// if a lock was aquired, the lock should be released and the indx synchronised
+		
+		
+		
+	}
+
+	public void closeIndexWriter(IndexWriter indexWrite) throws IOException
+	{
+		if ( indexWrite != null ) {
+			indexWrite.close();
+		}
+		clusterFS.getLock();
+		mergeAndUpdate();
+		clusterFS.releaseLock();
+		// we should aquire a lock, merge in the index and sync
+	}
+
+	public boolean isMultipleIndexers()
+	{
+		return clusterFS.isMultipleIndexers();
 	}
 
 

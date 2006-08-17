@@ -269,4 +269,23 @@ public class JDBCIndexStorage implements IndexStorage
 		return l;
 	}
 
+	public void closeIndexReader(IndexReader indexReader) throws IOException
+	{
+		if ( indexReader != null ) {
+			indexReader.close();
+		}
+	}
+
+	public void closeIndexWriter(IndexWriter indexWrite) throws IOException
+	{
+		if ( indexWrite != null ) {
+			indexWrite.close();
+		}		
+	}
+	public boolean isMultipleIndexers()
+	{
+		return false;
+	}
+
+
 }

@@ -182,6 +182,8 @@ public interface SearchBuilderItem
 		"Refresh",
 		"Rebuild"
 	};
+
+	public static final Integer STATE_LOCKED = new Integer(5);
 	
 
 }
