@@ -20,9 +20,9 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.syllabus;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Vector;
 
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
@@ -33,7 +33,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationAction;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -41,7 +40,7 @@ import org.sakaiproject.util.SiteEmailNotification;
 
 public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 {
-	////private static ResourceBundle rb = ResourceBundle.getBundle("siteemaanc");
+	// //private static ResourceBundle rb = ResourceBundle.getBundle("siteemaanc");
 	private static ResourceBundle rb = ResourceBundle.getBundle("siteemacon");
 
 	private org.sakaiproject.component.api.ComponentManager cm;
@@ -102,18 +101,15 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 		String returnedString = "";
 		if (SyllabusService.EVENT_SYLLABUS_POST_NEW.equals(function))
 		{
-			returnedString = "[ " + title + " - " + "New Posted Syllabus Item" + " ] " + syllabusName;
-			;
+			returnedString = "[ " + title + " - " + "New Posted Syllabus Item" + " ] " + syllabusName;;
 		}
 		else if (SyllabusService.EVENT_SYLLABUS_POST_CHANGE.equals(function))
 		{
-			returnedString = "[ " + title + " - " + "Existing Syllabus Item Changed" + " ] " + syllabusName;
-			;
+			returnedString = "[ " + title + " - " + "Existing Syllabus Item Changed" + " ] " + syllabusName;;
 		}
 		else if (SyllabusService.EVENT_SYLLABUS_DELETE_POST.equals(function))
 		{
-			returnedString = "[ " + title + " - " + "Posted Syllabus Item Has Been Deleted" + " ] " + syllabusName;
-			;
+			returnedString = "[ " + title + " - " + "Posted Syllabus Item Has Been Deleted" + " ] " + syllabusName;;
 		}
 
 		return returnedString;
@@ -185,15 +181,21 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 	/**
 	 * @inheritDoc
 	 */
-	protected List getHeaders(Event e)
+	protected List getHeaders(Event event)
 	{
-		List rv = new ArrayList(2);
+		List rv = new Vector();
 
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html");
 
 		// set the subject
-		rv.add("Subject: " + getSubject(e));
+		rv.add("Subject: " + getSubject(event));
+
+		// from
+		rv.add(getFrom(event));
+
+		// to
+		rv.add(getTo(event));
 
 		return rv;
 	}
