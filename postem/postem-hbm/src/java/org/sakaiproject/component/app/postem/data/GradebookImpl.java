@@ -61,6 +61,8 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 	protected Timestamp lastUpdated;
 
 	protected String context;
+	
+	protected String firstUploadedUsername;
 
 	protected Set students = new TreeSet();
 
@@ -266,6 +268,14 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 
 	public void setReleaseStats(boolean releaseStats) {
 		this.releaseStatistics = new Boolean(releaseStats);
+	}
+	
+	public void setFirstUploadedUsername(String firstUploadedUsername) {
+		this.firstUploadedUsername = firstUploadedUsername;
+	}
+	
+	public String getFirstUploadedUsername() {
+		return firstUploadedUsername;
 	}
 
 	public String getHeadingsRow() {

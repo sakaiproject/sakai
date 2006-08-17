@@ -104,5 +104,9 @@ public interface Gradebook {
 	// public Map getTotals(int column);
 
 	public StudentGrades studentGrades(String username);
+	
+	public String getFirstUploadedUsername();
+	
+	public void setFirstUploadedUsername(String username);
 
 }

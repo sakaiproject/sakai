@@ -279,8 +279,13 @@ public class PostemTool {
 		if (students.size() == 0) {
 			return "<p>" + msgs.getString("no_grades_in_gradebook") + " " + currentGradebook.getTitle() + ".</p>";
 		}
-		StudentGrades student = (StudentGrades) students.iterator().next();
-		return student.formatGrades();
+		if (currentGradebook.getFirstUploadedUsername() != null) {
+			StudentGrades student = currentGradebook.studentGrades(currentGradebook.getFirstUploadedUsername());
+			return student.formatGrades();
+		} else {
+			StudentGrades student = (StudentGrades) students.iterator().next();
+			return student.formatGrades();
+		}
 	}
 
 	public String getSelectedStudentGrades() {
@@ -505,6 +510,9 @@ public class PostemTool {
 					// uname);
 					gradebookManager.createStudentGradesInGradebook(uname, ss,
 							currentGradebook);
+					if (currentGradebook.getStudents().size() == 1) {
+						currentGradebook.setFirstUploadedUsername(uname);  //otherwise, the verify screen shows first in ABC order
+					}
 				}
 			} catch (DataFormatException exception) {
 				/*
