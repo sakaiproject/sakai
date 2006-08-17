@@ -21,10 +21,10 @@
 
 package org.sakaiproject.announcement.impl;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Vector;
 
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
@@ -94,7 +94,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
 		AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
 
-		// skip drafts
+		// do not do notification for draft messages
 		if (hdr.getDraft()) return;
 
 		super.notify(notification, event);
@@ -187,15 +187,21 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	/**
 	 * @inheritDoc
 	 */
-	protected List getHeaders(Event e)
+	protected List getHeaders(Event event)
 	{
-		List rv = new ArrayList(2);
+		List rv = new Vector();
 
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html");
 
 		// set the subject
-		rv.add("Subject: " + getSubject(e));
+		rv.add("Subject: " + getSubject(event));
+
+		// from
+		rv.add(getFrom(event));
+
+		// to
+		rv.add(getTo(event));
 
 		return rv;
 	}
@@ -268,14 +274,14 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 
 		// get the list of users who have SECURE_ALL_GROUPS
 		List allGroupUsers = SecurityService.unlockUsers(AnnouncementService.SECURE_ANNC_ALL_GROUPS, contextRef);
-		
+
 		// filter down by the permission
 		if (getResourceAbility() != null)
 		{
 			List allGroupUsers2 = SecurityService.unlockUsers(getResourceAbility(), contextRef);
 			allGroupUsers.retainAll(allGroupUsers2);
 		}
-		
+
 		// remove any in the list already
 		allGroupUsers.removeAll(users);
 
