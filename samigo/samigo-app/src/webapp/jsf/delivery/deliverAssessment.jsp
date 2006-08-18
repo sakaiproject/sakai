@@ -77,11 +77,19 @@ function setLocation()
 {
 	partIndex = document.forms[0].elements['takeAssessmentForm:partIndex'].value;
 	questionIndex = document.forms[0].elements['takeAssessmentForm:questionIndex'].value;
-	formatByQuestion = document.forms[0].elements['takeAssessmentForm:formatByQuestion'].value;
+	formatByPart = document.forms[0].elements['takeAssessmentForm:formatByPart'].value;
+	formatByAssessment = document.forms[0].elements['takeAssessmentForm:formatByAssessment'].value;
     //alert("partIndex = " + partIndex);
     //alert("questionIndex = " + questionIndex);
-	//alert("formatByQuestion = " + formatByQuestion);
-	if (questionIndex != 0 && formatByQuestion == 'false') {
+	//alert("formatByPart = " + formatByPart);
+	//alert("formatByAssessment = " + formatByAssessment);
+	// We don't want to set the location when the index points to fist question on the page
+	// We only set the location in following cases:
+	// 1. If it is formatByPart, we set the location when it is not the first question of each part
+	// 2. If it is formatByAssessment, we set the location when:
+	//    a. it is not the first question of the first part
+	//    b. it is a question in any parts other than the first one
+	if ((formatByPart == 'true' && questionIndex != 0) || (formatByAssessment == 'true' && ((partIndex == 0 && questionIndex !=0) || partIndex != 0))) {
 		window.location = '#p' + ++partIndex + 'q' + ++questionIndex;
 	}
 }
@@ -101,7 +109,8 @@ function saveTime()
 </script>
 <h:inputHidden id="partIndex" value="#{delivery.partIndex}"/>
 <h:inputHidden id="questionIndex" value="#{delivery.questionIndex}"/>
-<h:inputHidden id="formatByQuestion" value="#{delivery.settings.formatByQuestion}"/>
+<h:inputHidden id="formatByPart" value="#{delivery.settings.formatByPart}"/>
+<h:inputHidden id="formatByAssessment" value="#{delivery.settings.formatByAssessment}"/>
 
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
