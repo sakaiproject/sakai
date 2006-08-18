@@ -81,7 +81,7 @@ function setLocation()
     //alert("partIndex = " + partIndex);
     //alert("questionIndex = " + questionIndex);
 	//alert("formatByQuestion = " + formatByQuestion);
-	if (questionIndex != 0 && !formatByQuestion) {
+	if (questionIndex != 0 && formatByQuestion == 'false') {
 		window.location = '#p' + ++partIndex + 'q' + ++questionIndex;
 	}
 }
