@@ -940,4 +940,13 @@ ItemService delegate = new ItemService();
     return null;
   }
 
+  private boolean hasAttachment = false;
+  public boolean getHasAttachment(){
+      return this.hasAttachment;
+  }
+
+  public void setHasAttachment(boolean hasAttachment){
+    this.hasAttachment = hasAttachment;
+  }
+
 }

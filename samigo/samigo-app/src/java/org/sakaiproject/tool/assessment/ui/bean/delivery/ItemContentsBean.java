@@ -79,7 +79,6 @@ public class ItemContentsBean implements Serializable {
   // score
   private boolean showStudentQuestionScore;
   private String pointsDisplayString;
-  private List itemAttachmentList;
 
   public ItemContentsBean()
   {
@@ -920,15 +919,14 @@ public class ItemContentsBean implements Serializable {
 		return ContextUtil.getStringInUnicode(getKey());
 	}
 
-  public List getItemAttachmentList() {
-    this.itemAttachmentList = new ArrayList();
-    if (itemData!=null)
-      this.itemAttachmentList = itemData.getItemAttachmentList();
-    return itemAttachmentList;
-  }
-
-  public void setItemAttachmentList(List itemAttachmentList) {
-    this.itemAttachmentList = itemAttachmentList;
+  public boolean getHasAttachment(){
+    boolean hasAttachment = false;
+    if (itemData!=null){
+      List l = itemData.getItemAttachmentList();
+      if (l!=null && l.size() >0)
+        hasAttachment = true;
+    }
+    return hasAttachment;
   }
 
 }

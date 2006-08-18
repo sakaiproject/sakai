@@ -89,21 +89,26 @@
   <span id="num2a" class="number"></span>
    <div class="longtext"><h:outputLabel value="#{msg.attachments}" />
   <br/>
-  <sakai:button_bar>
-    <sakai:button_bar_item action="#{itemauthor.addAttachmentsRedirect}"
-           value="#{msg.add_attachments}"/>
-  </sakai:button_bar>
-  <h:panelGroup rendered="#{itemauthor.attachmentList!=null}">
-    <dataTable value="#{itemauthor.attachmentList}" var="attach">
+  <h:panelGroup rendered="#{itemauthor.hasAttachment}">
+    <h:dataTable value="#{itemauthor.attachmentList}" var="attach">
         <h:column>
           <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-          <h:outputLink title="#{msg.t_uploadedFile}" value="#{attach.location}"
+          <h:outputLink value="#{attach.location}"
              target="new_window">
              <h:outputText escape="false" value="#{attach.filename}" />
           </h:outputLink>
         </h:column>
-    </dataTable>
+    </h:dataTable>
   </h:panelGroup>
+  <h:panelGroup rendered="#{!itemauthor.hasAttachment}">
+    <h:outputText escape="false" value="#{msg.no_attachment}" />
+  </h:panelGroup>
+
+  <sakai:button_bar>
+    <sakai:button_bar_item action="#{itemauthor.addAttachmentsRedirect}"
+           value="#{msg.add_attachments}"/>
+  </sakai:button_bar>
+
 </div>
   <!-- 3 PART -->
 

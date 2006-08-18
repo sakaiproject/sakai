@@ -2,7 +2,6 @@
 include file for delivering short answer essay questions
 should be included in file importing DeliveryMessages
 --%>
-<!--
 <%--
 ***********************************************************************************
 *
@@ -24,19 +23,18 @@ should be included in file importing DeliveryMessages
 *
 **********************************************************************************/
 --%>
--->
 
   <h:outputText escape="false" value="#{question.itemData.text}" />
-  <h:outputText escape="false" value="#{question.itemData.itemAttachmentList}" />
-  <dataTable value="#{question.itemData.itemAttachmentList}" var="attachment">
-    <h:column>
-      <h:outputText  value="?? #{attachment.filename}" />
-    </h:column>
-    <h:column>
-      <h:outputText  value="?? #{attachment.location}" />
-    </h:column>
-  </dataTable>
 
+  <h:dataTable value="#{question.itemData.itemAttachmentList}" var="attachment">
+    <h:column>
+      <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+      <h:outputLink value="#{attachment.location}" target="new_window">
+        <h:outputText escape="false" value="#{attachment.filename}" />
+      </h:outputLink>
+    </h:column>
+  </h:dataTable>
+  
   <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
     <h:column>
       <h:dataTable value="#{itemText.answerArray}" var="answer">
@@ -48,10 +46,10 @@ should be included in file importing DeliveryMessages
 
         </h:column>
       </h:dataTable>
-
-
     </h:column>
   </h:dataTable>
+--%>
+
 
 <h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2' }">
   <h:outputLabel value="#{msg.feedback}: " />

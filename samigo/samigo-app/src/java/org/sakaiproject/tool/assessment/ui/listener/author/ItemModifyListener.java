@@ -160,7 +160,12 @@ public class ItemModifyListener implements ActionListener
         populateItemText(itemauthorbean, itemfacade, bean);
       }
 
-      itemauthorbean.setAttachmentList(prepareItemAttachment(itemfacade.getData()));
+      ArrayList attachmentList = prepareItemAttachment(itemfacade.getData());
+      itemauthorbean.setAttachmentList(attachmentList);
+      if (attachmentList != null && attachmentList.size() >0)
+        itemauthorbean.setHasAttachment(true);
+      else
+        itemauthorbean.setHasAttachment(false);
 
         int itype=0; // default to true/false
         if (itemauthorbean.getItemType()!=null) {
@@ -535,6 +540,7 @@ public class ItemModifyListener implements ActionListener
 
   private ArrayList prepareItemAttachment(ItemDataIfc item){
     Set attachmentSet = item.getItemAttachmentSet();
+    System.out.println("*** attachment size="+attachmentSet.size());
     AssessmentService assessmentService = new AssessmentService();
     String protocol = ContextUtil.getProtocol();
     ToolSession session = SessionManager.getCurrentToolSession();
