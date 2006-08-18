@@ -27,12 +27,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Category;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -72,6 +74,7 @@ public class PublishedItemData
   private HashMap itemMetaDataMap = new HashMap();
   private HashMap itemFeedbackMap = new HashMap();
   private ItemGradingData lastItemGradingDataByAgent;
+  private Set itemAttachmentSet;
 
   public PublishedItemData() {}
 
@@ -587,5 +590,24 @@ public class PublishedItemData
     return i;
   }
     */
+
+
+  public Set getItemAttachmentSet() {
+    return itemAttachmentSet;
+  }
+
+  public void setItemAttachmentSet(Set itemAttachmentSet) {
+    this.itemAttachmentSet = itemAttachmentSet;
+  }
+
+  public List getItemAttachmentList() {
+    ArrayList list = new ArrayList();
+    Iterator iter = itemAttachmentSet.iterator();
+    while (iter.hasNext()){
+      ItemAttachmentIfc a = (ItemAttachmentIfc)iter.next();
+      list.add(a);
+    }
+    return list;
+  }
 
 }

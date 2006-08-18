@@ -23,12 +23,14 @@ package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Iterator;
 
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
@@ -44,67 +46,40 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  */
 
 public class ItemContentsBean implements Serializable {
-	private static Log log = LogFactory.getLog(ItemContentsBean.class);
-
-	// private static ContextUtil cu;
-	private boolean review;
-
-	private boolean unanswered;
-
-	private ItemDataIfc itemData;
-
-	private String gradingComment;
-
-	private String feedback;
-
-	private String responseId = "2";
-
-	private String responseText = "";
-
-	private String[] responseIds = null;
-
-	private float points;
-
-	private float maxPoints;
-
-	private int number;
-
-	private ArrayList itemGradingDataArray;
-
-	private ArrayList answers;
-
-	private String instruction;
-
-	private String rationale;
-
-	private ArrayList matchingArray;
-
-	private ArrayList fibArray;
-
-	private ArrayList selectionArray;
-
-	private String key;
-
-	private String sequence;
-
-	private ArrayList shuffledAnswers;
-
-	private ArrayList mediaArray;
-
-	// for audio
-	private Integer duration;
-
-	private Integer triesAllowed;
-
-	private Integer attemptsRemaining;
-
-	// for display/hide score
-	private boolean showStudentScore; // this is to show student assessment
-										// score
-
-	private boolean showStudentQuestionScore;
-
-	private String pointsDisplayString;
+  private static Log log = LogFactory.getLog(ItemContentsBean.class);
+  // private static ContextUtil cu;
+  private boolean review;
+  private boolean unanswered;
+  private ItemDataIfc itemData;
+  private String gradingComment;
+  private String feedback;
+  private String responseId = "2";
+  private String responseText = "";
+  private String[] responseIds = null;
+  private float points;
+  private float maxPoints;
+  private int number;
+  private ArrayList itemGradingDataArray;
+  private ArrayList answers;
+  private String instruction;
+  private String rationale;
+  private ArrayList matchingArray;
+  private ArrayList fibArray;
+  private ArrayList selectionArray;
+  private String key;
+  private String sequence;
+  private ArrayList shuffledAnswers;
+  private ArrayList mediaArray;
+  // for audio
+  private Integer duration;
+  private Integer triesAllowed;
+  private Integer attemptsRemaining;
+  // for display/hide score
+  private boolean showStudentScore; // this is to show student assessment
+  // score
+  private boolean showStudentQuestionScore;
+  private String pointsDisplayString;
+  private List itemAttachmentList;
 
   public ItemContentsBean()
   {
@@ -944,5 +919,16 @@ public class ItemContentsBean implements Serializable {
 	public String getKeyInUnicode() {
 		return ContextUtil.getStringInUnicode(getKey());
 	}
+
+  public List getItemAttachmentList() {
+    this.itemAttachmentList = new ArrayList();
+    if (itemData!=null)
+      this.itemAttachmentList = itemData.getItemAttachmentList();
+    return itemAttachmentList;
+  }
+
+  public void setItemAttachmentList(List itemAttachmentList) {
+    this.itemAttachmentList = itemAttachmentList;
+  }
 
 }

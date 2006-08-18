@@ -32,6 +32,8 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 
 public interface AssessmentFacadeQueriesAPI
 {
@@ -164,5 +166,9 @@ public interface AssessmentFacadeQueriesAPI
 
   public void deleteAllMetaData(AssessmentBaseIfc assessment);
 
+  public ItemAttachmentIfc createItemAttachment(ItemDataIfc item, 
+    String resourceId, String filename, String protocol);
+
   public void updateAssessmentLastModifiedInfo(AssessmentFacade assessmentFacade);
+
 }

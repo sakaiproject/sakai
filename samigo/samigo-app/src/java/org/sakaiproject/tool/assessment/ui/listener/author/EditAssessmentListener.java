@@ -43,6 +43,13 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
+import java.util.List;
+import java.util.Set;
+import java.util.Iterator;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+
 /**
  * <p>Title: Samigo</p>2
  * <p>Description: Sakai Assessment Manager</p>
@@ -81,17 +88,39 @@ public class EditAssessmentListener
     String assessmentId = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("assessmentId");
     AssessmentService assessmentService = new AssessmentService();
-  
-   	AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
+    AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
 	    lookupBean("assessmentSettings");
 
-
-	if (assessmentId == null){
-	    assessmentId = assessmentSettings.getAssessmentId().toString();
-	}
-  AssessmentFacade assessment = assessmentService.getAssessment(
+    if (assessmentId == null){
+      assessmentId = assessmentSettings.getAssessmentId().toString();
+    }
+    AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentId);
-	assessmentSettings.setAssessment(assessment);
+    assessmentSettings.setAssessment(assessment);
+
+    // testing
+    Set sectionSet = assessment.getSectionSet();
+    Iterator iter_s = sectionSet.iterator();
+    while (iter_s.hasNext()){
+      SectionDataIfc s = (SectionDataIfc) iter_s.next();
+      Iterator iter = s.getItemSet().iterator();
+      while (iter.hasNext()){
+        ItemDataIfc item = (ItemDataIfc)iter.next();
+        List attachSet = item.getItemAttachmentList();
+	/*
+        Set attachSet = item.getItemAttachmentSet();
+        System.out.println("**** attach size="+attachSet.size());
+        Iterator iter_a = attachSet.iterator();
+	*/
+        Iterator iter_a = attachSet.iterator();
+        while (iter_a.hasNext()){
+          ItemAttachmentIfc a = (ItemAttachmentIfc) iter_a.next();
+          System.out.println("**** a = "+a);
+          System.out.println("**** filename = "+a.getFilename());
+          System.out.println("**** location = "+a.getLocation());
+	}
+      }
+    } 
 
     //#1b - permission checking before proceeding - daisyf
     AuthorBean author = (AuthorBean) cu.lookupBean("author");

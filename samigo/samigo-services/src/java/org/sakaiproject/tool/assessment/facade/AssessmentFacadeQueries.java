@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 //import java.util.ResourceBundle;
 
@@ -53,6 +54,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
@@ -60,6 +62,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -69,6 +73,9 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.entity.api.ResourceProperties; 
 
 public class AssessmentFacadeQueries
     extends HibernateDaoSupport implements AssessmentFacadeQueriesAPI {
@@ -1352,6 +1359,45 @@ public class AssessmentFacadeQueries
 //                new org.hibernate.type.Type[] { Hibernate.LONG });
 
   }
+
+  public ItemAttachmentIfc createItemAttachment(ItemDataIfc item,
+         String resourceId, String filename, String protocol){
+    ItemAttachment attach = null;
+    Boolean isLink = Boolean.FALSE;
+    try{
+      ContentResource cr = ContentHostingService.getResource(resourceId);
+      if (cr !=null){
+        ResourceProperties p = cr.getProperties();
+        attach = new ItemAttachment();
+        attach.setItem(item);
+        attach.setResourceId(resourceId);
+        attach.setFilename(filename);
+	attach.setMimeType(cr.getContentType());
+	attach.setFileSize(new Long(cr.getContentLength()));
+        if (cr.getContentType().lastIndexOf("url") > -1)
+          isLink = Boolean.TRUE;
+        attach.setIsLink(isLink);
+        attach.setStatus(ItemAttachmentIfc.ACTIVE_STATUS);
+	attach.setCreatedBy(p.getProperty(p.getNamePropCreator()));
+        attach.setCreatedDate(new Date());
+	attach.setLastModifiedBy(p.getProperty(p.getNamePropModifiedBy()));
+        attach.setLastModifiedDate(new Date());
+
+        //get relative path
+	String url = cr.getUrl();
+        url.replaceAll("/\b/","%20");
+        System.out.println("****url="+url);
+        String location = url.substring(url.lastIndexOf(protocol));
+        attach.setLocation(location);
+        getHibernateTemplate().save(attach);
+      }
+    }
+    catch(Exception e){
+      e.printStackTrace();
+    }
+    return attach;
+  }
+
   
   public void updateAssessmentLastModifiedInfo(AssessmentFacade assessmentFacade) {
 	  int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
@@ -1370,4 +1416,5 @@ public class AssessmentFacadeQueries
 	      }
 	  }
   }
+
 }

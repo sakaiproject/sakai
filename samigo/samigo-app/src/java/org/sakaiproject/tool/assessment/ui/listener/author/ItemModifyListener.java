@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.faces.event.AbortProcessingException;
@@ -39,6 +40,8 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
@@ -51,6 +54,13 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.entity.api.Reference;
+
 
 /**
  * <p>Title: Samigo</p>
@@ -150,6 +160,7 @@ public class ItemModifyListener implements ActionListener
         populateItemText(itemauthorbean, itemfacade, bean);
       }
 
+      itemauthorbean.setAttachmentList(prepareItemAttachment(itemfacade.getData()));
 
         int itype=0; // default to true/false
         if (itemauthorbean.getItemType()!=null) {
@@ -522,10 +533,37 @@ public class ItemModifyListener implements ActionListener
      }
   }
 
+  private ArrayList prepareItemAttachment(ItemDataIfc item){
+    Set attachmentSet = item.getItemAttachmentSet();
+    AssessmentService assessmentService = new AssessmentService();
+    String protocol = ContextUtil.getProtocol();
+    ToolSession session = SessionManager.getCurrentToolSession();
+    if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
+        session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
+      List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+      Reference ref = (Reference)refs.get(0);
 
-
-
-
-
+      for(int i=0; i<refs.size(); i++) {
+        ref = (Reference) refs.get(i);
+        System.out.println("**** ref.Id="+ref.getId());
+        System.out.println("**** ref.name="+ref.getProperties().getProperty(									    ref.getProperties().getNamePropDisplayName()));
+        ItemAttachmentIfc newAttach = assessmentService.createItemAttachment(
+                                   item,
+                                   ref.getId(), ref.getProperties().getProperty(
+                                                ref.getProperties().getNamePropDisplayName()),
+                                   protocol);
+	attachmentSet.add(newAttach);
+      }
+    }
+    session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+    session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
+    ArrayList list = new ArrayList();
+    Iterator iter = attachmentSet.iterator();
+    while (iter.hasNext()){
+      ItemAttachmentIfc a = (ItemAttachmentIfc)iter.next();
+      list.add(a);
+    }
+    return list;
+  }
 
 }

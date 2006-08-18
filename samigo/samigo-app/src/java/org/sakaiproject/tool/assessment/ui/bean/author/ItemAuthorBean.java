@@ -55,7 +55,6 @@ import org.sakaiproject.entity.cover.EntityManager;
 
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.api.ToolSession;
 
 //import org.osid.shared.*;
 
@@ -914,10 +913,10 @@ ItemService delegate = new ItemService();
     showFeedbackAuthoring= string;
   }
 
-  public ArrayList getAttachmentList()
-  {
+  public ArrayList getAttachmentList() {
     return attachmentList;
   }
+
 
   /**
    * @param list

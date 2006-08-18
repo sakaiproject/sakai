@@ -31,6 +31,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
@@ -385,6 +387,18 @@ public void deleteAssessment(Id assessmentId)
   public void deleteAllMetaData(AssessmentBaseIfc assessment) {
     PersistenceService.getInstance().getAssessmentFacadeQueries().
       deleteAllMetaData(assessment);
+  }
+
+  public ItemAttachmentIfc createItemAttachment(ItemDataIfc item, String resourceId, String filename, String protocol){
+    ItemAttachmentIfc attachment = null;
+    try{
+      AssessmentFacadeQueriesAPI queries = PersistenceService.getInstance().getAssessmentFacadeQueries();
+      attachment = queries.createItemAttachment(item, resourceId, filename, protocol);
+    }
+    catch(Exception e){
+      e.printStackTrace();
+    }
+    return attachment;
   }
 
   public void updateAssessmentLastModifiedInfo(AssessmentFacade assessmentFacade)

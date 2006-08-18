@@ -93,7 +93,17 @@
     <sakai:button_bar_item action="#{itemauthor.addAttachmentsRedirect}"
            value="#{msg.add_attachments}"/>
   </sakai:button_bar>
-
+  <h:panelGroup rendered="#{itemauthor.attachmentList!=null}">
+    <dataTable value="#{itemauthor.attachmentList}" var="attach">
+        <h:column>
+          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+          <h:outputLink title="#{msg.t_uploadedFile}" value="#{attach.location}"
+             target="new_window">
+             <h:outputText escape="false" value="#{attach.filename}" />
+          </h:outputLink>
+        </h:column>
+    </dataTable>
+  </h:panelGroup>
 </div>
   <!-- 3 PART -->
 

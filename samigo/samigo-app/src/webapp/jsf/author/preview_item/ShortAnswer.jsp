@@ -27,6 +27,16 @@ should be included in file importing DeliveryMessages
 -->
 
   <h:outputText escape="false" value="#{question.itemData.text}" />
+  <h:outputText escape="false" value="#{question.itemData.itemAttachmentList}" />
+  <dataTable value="#{question.itemAttachmentList}" var="attachment">
+    <h:column>
+      <h:outputText  value="?? #{attachment.filename}" />
+    </h:column>
+    <h:column>
+      <h:outputText  value="?? #{attachment.location}" />
+    </h:column>
+  </dataTable>
+
   <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
     <h:column>
       <h:dataTable value="#{itemText.answerArray}" var="answer">

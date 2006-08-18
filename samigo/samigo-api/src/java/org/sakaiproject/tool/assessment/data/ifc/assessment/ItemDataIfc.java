@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.List;
 
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
@@ -160,4 +161,9 @@ public interface ItemDataIfc extends java.io.Serializable {
 
   String getAnswerKey();
 
+  Set getItemAttachmentSet();
+
+  void setItemAttachmentSet(Set itemAttachmentSet);
+
+  List getItemAttachmentList();
 }

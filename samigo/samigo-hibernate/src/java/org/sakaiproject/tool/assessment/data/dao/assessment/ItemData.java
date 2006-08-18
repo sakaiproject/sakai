@@ -6,11 +6,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Category;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -49,6 +51,7 @@ public class ItemData
   private Set itemFeedbackSet;
   private HashMap itemMetaDataMap = new HashMap();
   private HashMap itemFeedbackMap;
+  private Set itemAttachmentSet;
 
   public ItemData() {}
 
@@ -711,5 +714,24 @@ public class ItemData
       }
    }
    return false;
- }
+  }
+
+  public Set getItemAttachmentSet() {
+    return itemAttachmentSet;
+  }
+
+  public void setItemAttachmentSet(Set itemAttachmentSet) {
+    this.itemAttachmentSet = itemAttachmentSet;
+  }
+
+  public List getItemAttachmentList() {
+    ArrayList list = new ArrayList();
+    Iterator iter = itemAttachmentSet.iterator();
+    while (iter.hasNext()){
+      ItemAttachmentIfc a = (ItemAttachmentIfc)iter.next();
+      list.add(a);
+    }
+    return list;
+  }
+
 }

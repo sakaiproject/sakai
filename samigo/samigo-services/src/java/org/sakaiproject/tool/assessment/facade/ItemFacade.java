@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -40,6 +41,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -94,6 +96,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
   private HashMap itemMetaDataMap = new HashMap();
   private HashMap itemFeedbackMap = new HashMap();
   private TypeFacade itemTypeFacade;
+  private Set itemAttachmentSet;
 
   /** ItemFacade is the class that is exposed to developer
    *  It contains some of the useful methods specified in
@@ -1007,4 +1010,23 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
       ItemFacade a = (ItemFacade)o;
       return sequence.compareTo(a.sequence);
   }
+
+  public Set getItemAttachmentSet() {
+    return itemAttachmentSet;
+  }
+
+  public void setItemAttachmentSet(Set itemAttachmentSet) {
+    this.itemAttachmentSet = itemAttachmentSet;
+  }
+
+  public List getItemAttachmentList() {
+    ArrayList list = new ArrayList();
+    Iterator iter = itemAttachmentSet.iterator();
+    while (iter.hasNext()){
+      ItemAttachmentIfc a = (ItemAttachmentIfc)iter.next();
+      list.add(a);
+    }
+    return list;
+  }
+
 }

@@ -143,6 +143,12 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-content-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+
     <!--**********************************************************-->
     <dependency>
       <groupId>OKI</groupId>
