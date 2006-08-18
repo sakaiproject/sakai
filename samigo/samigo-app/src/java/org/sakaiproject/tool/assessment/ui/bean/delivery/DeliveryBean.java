@@ -1558,6 +1558,7 @@ public class DeliveryBean
     byte[] mediaByte = new byte[0];
     try
     {
+      int i;
       int size = 0;
       mediaStream = new FileInputStream(mediaLocation);
       if (mediaStream != null)
