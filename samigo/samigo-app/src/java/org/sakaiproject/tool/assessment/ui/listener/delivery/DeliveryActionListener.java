@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
 
@@ -98,7 +97,6 @@ public class DeliveryActionListener
     AbortProcessingException
   {
     log.debug("DeliveryActionListener.processAction() ");
-    FacesContext context = FacesContext.getCurrentInstance();
 
     try
     {
@@ -125,8 +123,19 @@ public class DeliveryActionListener
       // all questions will be displayed on one page). When navigating from TOC, a part number
       // signal that the navigation is either by question or by part. We then must set the 
       // delivery bean to the right place.
-      goToRightQuestionFromTOC(delivery);
-
+      // However, it comes from Begin Assessment button clicks, we need to reset the indexes to 0
+      // Otherwise, the first question of the first part will not be displayed 
+      if (!delivery.getNavigation().equals("1") && ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
+    	  // If it comes from Begin Assessment button clicks, reset the indexes to 0
+    	  log.debug("From Begin Assessment button clicks");
+    	  delivery.setPartIndex(0);
+    	  delivery.setQuestionIndex(0);
+      }
+      else {
+    	  // If comes from TOC, set the indexes from request parameters
+    	  goToRightQuestionFromTOC(delivery);
+      }
+      
       // 4. this purpose of this listener is to integrated itemGradingData and 
       //    assessmentGradingData to the publishedAssessment during these 3 processes:
       //    taking assessment, reviewing assessment and grading assessment by question. 
@@ -321,19 +330,14 @@ public class DeliveryActionListener
     NumberFormatException
   {
     if (cu.lookupParam("partnumber") != null &&
-          !cu.lookupParam("partnumber").trim().equals(""))
+          !cu.lookupParam("partnumber").trim().equals("") && 
+        cu.lookupParam("questionnumber") != null &&
+          !cu.lookupParam("questionnumber").trim().equals(""))
     {
-      if (delivery.getSettings().isFormatByPart() ||
-        delivery.getSettings().isFormatByQuestion())
-      {
         delivery.setPartIndex(new Integer
-                            (cu.lookupParam("partnumber")).intValue() - 1);
-      }
-      if (delivery.getSettings().isFormatByQuestion())
-      {
+                (cu.lookupParam("partnumber")).intValue() - 1);
         delivery.setQuestionIndex(new Integer
-          (cu.lookupParam("questionnumber")).intValue() - 1);
-      }
+                (cu.lookupParam("questionnumber")).intValue() - 1);
     }
   }
 
@@ -780,18 +784,6 @@ public class DeliveryActionListener
     sec.setItemContents(itemContents);
 
     return sec;
-  }
-
-  /**
-   * Helper method.
-   * @param points
-   * @return
-   */
-  private float roundToTenths(float points)
-  {
-    int tmp = Math.round(points * 10.0f);
-    points = (float) tmp / 10.0f;
-    return points;
   }
 
   /**

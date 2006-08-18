@@ -40,7 +40,7 @@
       <title> <h:outputText value="#{delivery.assessmentTitle}"/>
       </title>
       </head>
-       <body onload="<%= request.getAttribute("html.body.onload") %>; checkRadio();">
+       <body onload="<%= request.getAttribute("html.body.onload") %>; checkRadio(); setLocation();">
 
    <!--div class="portletBody" style='background:#c57717'-->
       <!--h:outputText value="<body bgcolor='#c57717' #{delivery.settings.bgcolor} #{delivery.settings.background} onLoad='checkRadio();'>" escape="false" /-->
@@ -71,7 +71,19 @@ function checkRadio()
       }
     }
   }
+}
 
+function setLocation()
+{
+	partIndex = document.forms[0].elements['takeAssessmentForm:partIndex'].value;
+	questionIndex = document.forms[0].elements['takeAssessmentForm:questionIndex'].value;
+	formatByQuestion = document.forms[0].elements['takeAssessmentForm:formatByQuestion'].value;
+    //alert("partIndex = " + partIndex);
+    //alert("questionIndex = " + questionIndex);
+	//alert("formatByQuestion = " + formatByQuestion);
+	if (questionIndex != 0 && !formatByQuestion) {
+		window.location = '#p' + ++partIndex + 'q' + ++questionIndex;
+	}
 }
 
 function noenter(){
@@ -87,6 +99,9 @@ function saveTime()
 }
 
 </script>
+<h:inputHidden id="partIndex" value="#{delivery.partIndex}"/>
+<h:inputHidden id="questionIndex" value="#{delivery.questionIndex}"/>
+<h:inputHidden id="formatByQuestion" value="#{delivery.settings.formatByQuestion}"/>
 
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>

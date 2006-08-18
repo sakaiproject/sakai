@@ -27,16 +27,13 @@ package org.sakaiproject.tool.assessment.ui.bean.delivery;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.text.NumberFormat;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ExternalContext;
@@ -45,7 +42,6 @@ import javax.servlet.ServletContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
@@ -60,11 +56,9 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener;
-import org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
@@ -175,7 +169,8 @@ public class DeliveryBean
   private String feedbackDelivery;
   private String showScore;
   private boolean hasTimeLimit;
-
+  private boolean isMoreThanOneQuestion;
+  
   // daisyf added for servlet Login.java, to support anonymous login with
   // publishedUrl
   private boolean anonymousLogin = false;
@@ -1355,6 +1350,7 @@ public class DeliveryBean
     if (getSettings().isFormatByPart())
     {
       partIndex--;
+      questionIndex = 0;
     }
     if (getSettings().isFormatByQuestion())
     {
@@ -1562,7 +1558,6 @@ public class DeliveryBean
     byte[] mediaByte = new byte[0];
     try
     {
-      int i = 0;
       int size = 0;
       mediaStream = new FileInputStream(mediaLocation);
       if (mediaStream != null)
@@ -2322,5 +2317,23 @@ public class DeliveryBean
    public void setPublishedAnswerHash(HashMap publishedAnswerHash){
     this.publishedAnswerHash = publishedAnswerHash;
   }
+   
+   public boolean getIsMoreThanOneQuestion() {
+	   log.debug("getIsMoreThanOneQuestion() starts");
+	   ArrayList partsContents = this.pageContents.getPartsContents();
+	   if (partsContents.size() == 1) {
+		   String size = ((SectionContentsBean) partsContents.get(0)).getItemContentsSize();
+		   log.debug("ItemContentsSize = " + size);
+		   if (size.equals("1")) {
+			   log.debug("isMoreThanOneQuestion set to false");
+			   isMoreThanOneQuestion = false;
+		   }
+	   }
+	   else {
+		   log.debug("isMoreThanOneQuestion set to true");
+		   isMoreThanOneQuestion = true;   
+	   }
+	   return isMoreThanOneQuestion;
+   }
  
 }

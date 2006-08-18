@@ -138,7 +138,7 @@
 
 <!-- BEGIN ASSESSMENT BUTTON -->
 <!-- When previewing, we don't need to check security. When take the assessment for real, we do -->
- <h:commandButton accesskey="#{msg.a_next}" value="#{msg.begin_assessment_}" 
+ <h:commandButton id="beginAssessment1" accesskey="#{msg.a_next}" value="#{msg.begin_assessment_}" 
     action="#{delivery.validate}" type="submit" styleClass="active" 
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl')
@@ -156,7 +156,7 @@
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" />
   </h:commandButton>
 
- <h:commandButton accesskey="#{msg.a_next}" value="#{msg.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}">
+ <h:commandButton id="beginAssessment2" accesskey="#{msg.a_next}" value="#{msg.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 
