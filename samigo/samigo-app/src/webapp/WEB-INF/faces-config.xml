@@ -172,12 +172,6 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
   <managed-bean>
-    <description>For delivery: ItemAttachment backing bean.</description>
-    <managed-bean-name>itemAttachment</managed-bean-name>
-    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.delivery.ItemAttachmentBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
     <description>For author: Item Author backing bean.</description>
     <managed-bean-name>itemauthor</managed-bean-name>
     <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean</managed-bean-class>
