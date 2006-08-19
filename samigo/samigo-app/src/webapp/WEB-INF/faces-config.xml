@@ -178,6 +178,12 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
   <managed-bean>
+    <description>For author: Item Attachment backing bean.</description>
+    <managed-bean-name>attachmentBean</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.AttachmentBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
     <description>For author: Published Assessment backing bean.</description>
     <managed-bean-name>publishedassessment</managed-bean-name>
     <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentBean</managed-bean-class>
@@ -546,6 +552,10 @@
     <navigation-case>
       <from-outcome>publishAssessment</from-outcome>
       <to-view-id>/jsf/author/authorIndex.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>confirmRemoveAttachment</from-outcome>
+      <to-view-id>/jsf/author/removeAttachment.jsp</to-view-id>
     </navigation-case>
 
   <!-- ITEM AUTHORING -->

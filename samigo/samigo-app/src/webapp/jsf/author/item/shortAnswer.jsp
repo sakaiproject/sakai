@@ -91,13 +91,23 @@
   <br/>
   <h:panelGroup rendered="#{itemauthor.hasAttachment}">
     <h:dataTable value="#{itemauthor.attachmentList}" var="attach">
-        <h:column>
-          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-          <h:outputLink value="#{attach.location}"
-             target="new_window">
-             <h:outputText escape="false" value="#{attach.filename}" />
-          </h:outputLink>
-        </h:column>
+      <h:column>
+        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+        <h:outputLink value="#{attach.location}"
+           target="new_window">
+           <h:outputText escape="false" value="#{attach.filename}" />
+        </h:outputLink>
+      </h:column>
+      <h:column>
+        <h:commandLink title="#{msg.t_remove_attachment}" action="confirmRemoveAttachment" immediate="true">
+          <h:outputText value="   #{msg.remove_attachment}" />
+          <f:param name="attachmentId" value="#{attach.attachmentId}"/>
+          <f:param name="attachmentLocation" value="#{attach.location}"/>
+          <f:param name="attachmentFilename" value="#{attach.filename}"/>
+          <f:param name="attachmentType" value="3"/>
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRemoveAttachmentListener" />
+        </h:commandLink>
+      </h:column>
     </h:dataTable>
   </h:panelGroup>
   <h:panelGroup rendered="#{!itemauthor.hasAttachment}">

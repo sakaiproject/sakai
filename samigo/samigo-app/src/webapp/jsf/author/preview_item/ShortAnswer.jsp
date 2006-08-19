@@ -26,11 +26,11 @@ should be included in file importing DeliveryMessages
 
   <h:outputText escape="false" value="#{question.itemData.text}" />
 
-  <h:dataTable value="#{question.itemData.itemAttachmentList}" var="attachment">
+  <h:dataTable value="#{question.itemData.itemAttachmentList}" var="attach">
     <h:column>
       <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-      <h:outputLink value="#{attachment.location}" target="new_window">
-        <h:outputText escape="false" value="#{attachment.filename}" />
+      <h:outputLink value="#{attach.location}" target="new_window">
+        <h:outputText escape="false" value="#{attach.filename}" />
       </h:outputLink>
     </h:column>
   </h:dataTable>

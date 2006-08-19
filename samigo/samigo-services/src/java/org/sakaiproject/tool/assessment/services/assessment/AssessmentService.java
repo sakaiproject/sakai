@@ -401,6 +401,12 @@ public void deleteAssessment(Id assessmentId)
     return attachment;
   }
 
+  public void removeItemAttachment(String attachmentId)
+  {
+    PersistenceService.getInstance().getAssessmentFacadeQueries().
+          removeItemAttachment(new Long(attachmentId));
+  }
+
   public void updateAssessmentLastModifiedInfo(AssessmentFacade assessmentFacade)
   {
     try{

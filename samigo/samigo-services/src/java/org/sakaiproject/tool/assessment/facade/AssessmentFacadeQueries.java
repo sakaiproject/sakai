@@ -1385,10 +1385,13 @@ public class AssessmentFacadeQueries
 
         //get relative path
 	String url = cr.getUrl();
-        url.replaceAll("/\b/","%20");
-        System.out.println("****url="+url);
-        String location = url.substring(url.lastIndexOf(protocol));
-        attach.setLocation(location);
+        // replace whitespace with %20
+        url = replaceSpace(url);
+        String location = url.replaceAll(protocol,"");
+        System.out.println("***url="+url);
+        System.out.println("***location="+location);
+        //attach.setLocation(location);
+        attach.setLocation(url);
         getHibernateTemplate().save(attach);
       }
     }
@@ -1398,6 +1401,45 @@ public class AssessmentFacadeQueries
     return attach;
   }
 
+  private String replaceSpace(String tempString){
+    String newString = new String();
+    char[] oneChar = new char[1];
+    for(int i=0; i<tempString.length(); i++){
+      if (tempString.charAt(i) != ' '){
+        oneChar[0] = tempString.charAt(i);
+        String concatString = new String(oneChar);
+        newString = newString.concat(concatString);
+      }
+      else {
+        newString = newString.concat("%20");
+      }
+    }
+    return newString;  
+  }
+
+  public void removeItemAttachment(Long itemAttachmentId){
+    ItemAttachment itemAttachment = (ItemAttachment)
+        getHibernateTemplate().load(ItemAttachment.class, itemAttachmentId);
+    ItemDataIfc item = itemAttachment.getItem(); 
+    String resourceId = itemAttachment.getResourceId();
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        if (item!=null){ // need to dissociate with item before deleting in Hibernate 3
+          Set set = item.getItemAttachmentSet();
+          set.remove(itemAttachment);
+          getHibernateTemplate().delete(itemAttachment);
+          if(resourceId.toLowerCase().startsWith("/attachment"))
+            ContentHostingService.removeResource(resourceId);
+          retryCount = 0;
+	}
+      }
+      catch (Exception e) {
+        log.warn("problem delete itemAttachment: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
+  }
   
   public void updateAssessmentLastModifiedInfo(AssessmentFacade assessmentFacade) {
 	  int retryCount = PersistenceService.getInstance().getRetryCount().intValue();

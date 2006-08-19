@@ -160,6 +160,7 @@ public class ItemModifyListener implements ActionListener
         populateItemText(itemauthorbean, itemfacade, bean);
       }
 
+      // attach item attachemnt to itemAuthorBean
       ArrayList attachmentList = prepareItemAttachment(itemfacade.getData());
       itemauthorbean.setAttachmentList(attachmentList);
       if (attachmentList != null && attachmentList.size() >0)
@@ -167,11 +168,11 @@ public class ItemModifyListener implements ActionListener
       else
         itemauthorbean.setHasAttachment(false);
 
-        int itype=0; // default to true/false
-        if (itemauthorbean.getItemType()!=null) {
+      int itype=0; // default to true/false
+      if (itemauthorbean.getItemType()!=null) {
                 itype = new Integer(itemauthorbean.getItemType()).intValue();
-        }
-        switch (itype) {
+      }
+      switch (itype) {
                 case 1:
                         bean.setMultipleCorrect(false);
                         bean.setMultipleCorrectString(TypeFacade.MULTIPLE_CHOICE.toString());
@@ -452,12 +453,6 @@ public class ItemModifyListener implements ActionListener
 
 
   }
-
-
-
-
-
-
 
   private void populateMetaData(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean)  {
 

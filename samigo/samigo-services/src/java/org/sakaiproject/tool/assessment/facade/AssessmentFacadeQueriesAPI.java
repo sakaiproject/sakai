@@ -169,6 +169,8 @@ public interface AssessmentFacadeQueriesAPI
   public ItemAttachmentIfc createItemAttachment(ItemDataIfc item, 
     String resourceId, String filename, String protocol);
 
+  public void removeItemAttachment(Long itemAttachmentId);
+
   public void updateAssessmentLastModifiedInfo(AssessmentFacade assessmentFacade);
 
 }
