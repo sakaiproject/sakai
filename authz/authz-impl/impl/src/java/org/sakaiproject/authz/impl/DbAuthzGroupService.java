@@ -511,10 +511,21 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			});
 
 			// read the role descriptions
-			sql = "select ROLE_NAME, DESCRIPTION "
-			+ "from SAKAI_REALM_ROLE inner join SAKAI_REALM_ROLE_DESC inner join SAKAI_REALM "
-			+ "on SAKAI_REALM_ROLE.ROLE_KEY = SAKAI_REALM_ROLE_DESC.ROLE_KEY and SAKAI_REALM.REALM_KEY = SAKAI_REALM_ROLE_DESC.REALM_KEY "
-			+ "where REALM_ID = ?";
+			if ("mysql".equals(sqlService().getVendor()))
+			{
+				sql = "select ROLE_NAME, DESCRIPTION "
+					+ "from SAKAI_REALM_ROLE inner join SAKAI_REALM_ROLE_DESC inner join SAKAI_REALM "
+					+ "on SAKAI_REALM_ROLE.ROLE_KEY = SAKAI_REALM_ROLE_DESC.ROLE_KEY and SAKAI_REALM.REALM_KEY = SAKAI_REALM_ROLE_DESC.REALM_KEY "
+					+ "where REALM_ID = ?";
+			}
+			else
+			// oracle and hsql
+			{
+                sql = "select "
+                    + "(select ROLE_NAME from SAKAI_REALM_ROLE where SAKAI_REALM_ROLE.ROLE_KEY = SAKAI_REALM_ROLE_DESC.ROLE_KEY), "
+                    + "DESCRIPTION "
+                    + "from SAKAI_REALM_ROLE_DESC where REALM_KEY in (select REALM_KEY from SAKAI_REALM where REALM_ID = ?)";		
+			}
 
 			m_sql.dbRead(conn, sql, fields, new SqlReader()
 			{
@@ -548,10 +559,22 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			});
 
 			// read the role grants		
-			sql = "select ROLE_NAME, USER_ID, ACTIVE, PROVIDED "
+			if ("mysql".equals(sqlService().getVendor()))
+			{
+				sql = "select ROLE_NAME, USER_ID, ACTIVE, PROVIDED "
 					+ "from SAKAI_REALM_RL_GR A inner join SAKAI_REALM B inner join SAKAI_REALM_ROLE C "
 					+ "on A.REALM_KEY = B.REALM_KEY and A.ROLE_KEY = C.ROLE_KEY "
 					+ "where B.REALM_ID = ?";
+			}
+			else
+			// oracle and hsql
+			{
+			    sql = "select "
+                    + "(select ROLE_NAME from SAKAI_REALM_ROLE where SAKAI_REALM_ROLE.ROLE_KEY = SAKAI_REALM_RL_GR.ROLE_KEY), "
+                    + "USER_ID, ACTIVE, PROVIDED "
+                    + "from SAKAI_REALM_RL_GR where REALM_KEY in (select REALM_KEY from SAKAI_REALM where REALM_ID = ?)";
+			}
+			
 			all = m_sql.dbRead(conn, sql, fields, new SqlReader()
 			{
 				public Object readSqlResultRecord(ResultSet result)
