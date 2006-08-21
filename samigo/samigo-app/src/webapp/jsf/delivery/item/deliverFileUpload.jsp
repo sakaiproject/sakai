@@ -91,8 +91,9 @@ should be included in file importing DeliveryMessages
 </h:panelGroup>
 
 <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" 
-   rendered="#{delivery.actionString=='takeAssessment'
-            || delivery.actionString=='takeAssessmentViaUrl'}" />
+   rendered="#{(delivery.actionString=='takeAssessment'
+            || delivery.actionString=='takeAssessmentViaUrl')
+			&& delivery.navigation ne '1'}" />
 <h:outputLabel for="mark_for_review" value="#{msg.mark}"
   rendered="#{(delivery.actionString=='takeAssessment'|| delivery.actionString=='takeAssessmentViaUrl')
             && delivery.navigation ne '1'}" />
