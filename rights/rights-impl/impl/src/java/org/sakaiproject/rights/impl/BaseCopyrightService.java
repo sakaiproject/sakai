@@ -19,7 +19,7 @@ public class BaseCopyrightService implements CopyrightService {
 
 	}
 
-	public RightsAssignmentEdit createRightsAssignment(String entityRef) 
+	public RightsAssignment createRightsAssignment(String entityRef) 
 	{
 		// TODO Auto-generated method stub
 		return null;
@@ -37,7 +37,7 @@ public class BaseCopyrightService implements CopyrightService {
 
 	}
 	
-	public class BasicCopyright implements CopyrightEdit 
+	public class BasicCopyright implements Copyright 
 	{
 
 		public void setOwner(String owner) 

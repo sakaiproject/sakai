@@ -10,6 +10,9 @@ public interface Copyright
 	public String getYear();
 	public String getOwner();
 	
-	public Element toXml(Document doc, Stack stack);
+	public void setYear(String year);
+	public void setOwner(String owner);
+	
+	// public Element toXml(Document doc, Stack stack);
 	
 }	// interface Copyright

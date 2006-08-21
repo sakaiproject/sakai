@@ -51,6 +51,15 @@ public interface CreativeCommonsLicense
 	public boolean hasRequirements();
 	public Collection getRequirements();
 
-	public Element toXml(Document doc, Stack stack);
+	public void addPermission(String permission);
+	public void setPermissions(Collection permissions);
+	
+	public void addProhibition(String prohibition);
+	public void setProhibitions(Collection prohibitions);
+	
+	public void addRequirement();
+	public void setRequirements(Collection requirements);
+	
+	// public Element toXml(Document doc, Stack stack);
 	
 }	// interface CreativeCommonsLicense

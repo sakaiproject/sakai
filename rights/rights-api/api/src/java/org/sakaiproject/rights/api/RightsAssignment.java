@@ -2,10 +2,9 @@ package org.sakaiproject.rights.api;
 
 import java.util.Collection;
 
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.rights.api.Copyright;
 
-public interface RightsAssignment extends Entity
+public interface RightsAssignment 
 {
 	public boolean hasCopyright();
 	public Copyright getCopyright();
@@ -17,7 +16,10 @@ public interface RightsAssignment extends Entity
 	public Collection getLicenses();
 
 //	public boolean 
-
+	public void setCopyright(Copyright copyright);
+	
+	public void addLicense(CreativeCommonsLicense license);
+	public void setLicenses(Collection licenses);
 
 }	// interface RightsAssignment
 

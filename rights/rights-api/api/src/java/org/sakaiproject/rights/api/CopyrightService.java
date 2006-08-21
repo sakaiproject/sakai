@@ -18,11 +18,6 @@ public interface CopyrightService
 	 * @param entityRef
 	 * @return
 	 */
-	public RightsAssignmentEdit createRightsAssignment(String entityRef);
+	public RightsAssignment addRightsAssignment(String entityRef);
 	
-	/**
-	 * @param edit
-	 */
-	public void commitRightsAssignment(RightsAssignmentEdit edit);
-
 }	// interface CopyrightService
