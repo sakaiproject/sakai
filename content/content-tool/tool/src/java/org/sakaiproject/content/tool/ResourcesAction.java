@@ -1174,17 +1174,14 @@ public class ResourcesAction
 		}
 		else if(MODE_ATTACHMENT_CREATE_INIT.equals(helper_mode))
 		{
-			// setupStructuredObjects(state);
 			template = buildCreateContext(portlet, context, data, state);
 		}
 		else if(MODE_ATTACHMENT_NEW_ITEM_INIT.equals(helper_mode))
 		{
-			// setupStructuredObjects(state);
 			template = buildItemTypeContext(portlet, context, data, state);
 		}
 		else if(MODE_ATTACHMENT_EDIT_ITEM_INIT.equals(helper_mode))
 		{
-			// setupStructuredObjects(state);
 			template = buildEditContext(portlet, context, data, state);
 		}
 		return template;
@@ -2541,7 +2538,6 @@ public class ResourcesAction
 		{
 			current_stack_frame = pushOnStack(state);
 		}
-		//setupStructuredObjects(state);
 
 		String encoding = data.getRequest().getCharacterEncoding();
 
@@ -2613,6 +2609,15 @@ public class ResourcesAction
 		{
 			// TODO Auto-generated catch block
 			logger.warn("ResourcesAction.newEditItems() TypeException ", e);
+		}
+		
+		boolean isUserSite = false;
+		String refstr = collection.getReference();
+		Reference ref = EntityManager.newReference(refstr);
+		String contextId = ref.getContext();
+		if(contextId != null)
+		{
+			isUserSite = SiteService.isUserSite(contextId);
 		}
 
 		boolean pubviewset = ContentHostingService.isInheritingPubView(collectionId) || ContentHostingService.isPubView(collectionId);
@@ -2692,6 +2697,7 @@ public class ResourcesAction
 			item.setReleaseDate(TimeService.newTime());
 			item.setUseRetractDate(false);
 			item.setRetractDate(defaultRetractDate);
+			item.setInWorkspace(isUserSite);
 
 			item.setCopyrightStatus(defaultCopyrightStatus);
 			new_items.add(item);
@@ -3563,7 +3569,6 @@ public class ResourcesAction
 							parent.appendChild(node);
 						}
 					}
-
 				}
 			}
 			else if(object instanceof ElementCarrier)
@@ -5997,6 +6002,15 @@ public class ResourcesAction
 			item = new EditItem(id, itemName, itemType);
 			
 			item.setInDropbox(ContentHostingService.isInDropbox(id));
+			boolean isUserSite = false;
+			String refstr = entity.getReference();
+			Reference ref = EntityManager.newReference(refstr);
+			String contextId = ref.getContext();
+			if(contextId != null)
+			{
+				isUserSite = SiteService.isUserSite(contextId);
+			}
+			item.setInWorkspace(isUserSite);
 			
 			BasicRightsAssignment rightsObj = new BasicRightsAssignment(item.getItemNum(), properties);
 			item.setRights(rightsObj);
@@ -6014,7 +6028,6 @@ public class ResourcesAction
 				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
 			}
 			item.setCopyrightStatus(defaultCopyrightStatus);
-
 
 			if(content != null)
 			{
@@ -6363,9 +6376,7 @@ public class ResourcesAction
 				// setup for quota - ADMIN only, site-root collection only
 				if (SecurityService.isSuperUser())
 				{
-					Reference ref = EntityManager.newReference(entity.getReference());
-					String context = ref.getContext();
-					String siteCollectionId = ContentHostingService.getSiteCollection(context);
+					String siteCollectionId = ContentHostingService.getSiteCollection(contextId);
 					if(siteCollectionId.equals(entity.getId()))
 					{
 						item.setCanSetQuota(true);
@@ -7404,17 +7415,17 @@ public class ResourcesAction
 		if(item.isFileUpload())
 		{
 			String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
-			int max_bytes = 1096 * 1096;
+			int max_bytes = 1024 * 1024;
 			try
 			{
-				max_bytes = Integer.parseInt(max_file_size_mb) * 1096 * 1096;
+				max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
 			}
 			catch(Exception e)
 			{
 				// if unable to parse an integer from the value
 				// in the properties file, use 1 MB as a default
 				max_file_size_mb = "1";
-				max_bytes = 1096 * 1096;
+				max_bytes = 1024 * 1024;
 			}
 			/*
 			 // params.getContentLength() returns m_req.getContentLength()
@@ -7963,17 +7974,17 @@ public class ResourcesAction
 		Set first_item_alerts = null;
 
 		String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
-		int max_bytes = 1096 * 1096;
+		int max_bytes = 1024 * 1024;
 		try
 		{
-			max_bytes = Integer.parseInt(max_file_size_mb) * 1096 * 1096;
+			max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
 		}
 		catch(Exception e)
 		{
 			// if unable to parse an integer from the value
 			// in the properties file, use 1 MB as a default
 			max_file_size_mb = "1";
-			max_bytes = 1096 * 1096;
+			max_bytes = 1024 * 1024;
 		}
 
 		/*
@@ -9229,8 +9240,6 @@ public class ResourcesAction
 		{
 			state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
 		}
-		
-		
 
 		// state.setAttribute(STATE_TOP_PAGE_MESSAGE_ID, "");
 
@@ -9324,15 +9333,15 @@ public class ResourcesAction
 		state.setAttribute (STATE_COLLECTION_ID, home);
 		state.setAttribute (STATE_NAVIGATION_ROOT, home);
 
-//		HomeFactory factory = (HomeFactory) ComponentManager.get("homeFactory");
-//		if(factory != null)
-//		{
-//			Map homes = factory.getHomes(StructuredArtifactHomeInterface.class);
-//			if(! homes.isEmpty())
-//			{
-//				state.setAttribute(STATE_SHOW_FORM_ITEMS, Boolean.TRUE.toString());
-//			}
-//		}
+		HomeFactory factory = (HomeFactory) ComponentManager.get("homeFactory");
+		if(factory != null)
+		{
+			Map homes = factory.getHomes(StructuredArtifactHomeInterface.class);
+			if(! homes.isEmpty())
+			{
+				state.setAttribute(STATE_SHOW_FORM_ITEMS, Boolean.TRUE.toString());
+			}
+		}
 
 		// state.setAttribute (STATE_COLLECTION_ID, state.getAttribute (STATE_HOME_COLLECTION_ID));
 
@@ -10120,6 +10129,8 @@ public class ResourcesAction
 			folder.setCanAddFolder(canAddFolder);
 			folder.setCanDelete(canDelete);
 			folder.setCanUpdate(canUpdate);
+			
+			folder.setAvailable(collection.isAvailable());
 
 			try
 			{
@@ -10186,7 +10197,7 @@ public class ResourcesAction
 				List newMembers = collection.getMemberResources ();
 
 				Collections.sort (newMembers, ContentHostingService.newContentHostingComparator (sortedBy, Boolean.valueOf (sortedAsc).booleanValue ()));
-				// loop thru the (possibly new) members and add to the list
+				// loop thru the (possibly) new members and add to the list
 				Iterator it = newMembers.iterator();
 				while(it.hasNext())
 				{
@@ -10194,6 +10205,11 @@ public class ResourcesAction
 					ResourceProperties props = resource.getProperties();
 
 					String itemId = resource.getId();
+					
+					if(contentService.isAvailabilityEnabled() && ! contentService.isAvailable(itemId))
+					{
+						continue;
+					}
 
 					if(resource.isCollection())
 					{
@@ -10228,6 +10244,13 @@ public class ResourcesAction
 						BrowseItem newItem = new BrowseItem(itemId, itemName, itemType);
 						
 						boolean isLocked = contentService.isLocked(itemId);
+						
+						boolean isAvailable = folder.isAvailable();
+						if(isAvailable)
+						{
+							isAvailable = resource.isAvailable();
+						}
+						newItem.setAvailable(isAvailable);
 
 						newItem.setAccess(access_mode.toString());
 						newItem.setInheritedAccess(folder.getEffectiveAccess());
@@ -12532,6 +12555,7 @@ public class ResourcesAction
 		protected Time m_retractDate;
 		protected boolean m_useReleaseDate;
 		protected boolean m_useRetractDate;
+		private boolean m_isInUserSite;
 
 		/**
 		 * @param id
@@ -12574,6 +12598,16 @@ public class ResourcesAction
 		
 		}
 		
+		public void setInWorkspace(boolean isInUserSite) 
+		{
+			m_isInUserSite = isInUserSite;
+		}
+		
+		public boolean isInWorkspace()
+		{
+			return m_isInUserSite;
+		}
+
 		public void setHidden(boolean hidden) 
 		{
 			this.m_hidden = hidden;

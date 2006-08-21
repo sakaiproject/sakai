@@ -378,14 +378,15 @@
 							#set ($copy="false")
 							#set ($move="false")
 							#if($copyFlag && $member.isHighlighted())
-									class="selectedCopy"
-									 title ="$tlang.getString("list.copied")"
-									#set ($copy="true")
-							#end
-							#if($moveFlag && $member.isHighlighted())
-								class="selectedMove" 
+								class="selectedCopy#if(!$member.isAvailable()) inactive#end"
+								title ="$tlang.getString("list.copied")"
+								#set ($copy="true")
+							#elseif($moveFlag && $member.isHighlighted())
+								class="selectedMove#if(!$member.isAvailable()) inactive#end" 
 								title ="$tlang.getString("list.moved")"
 								#set ($move="true")
+							#elseif(!$member.isAvailable())
+								class="inactive"
 							#end
 							>
 							######################  Item title and action links  ##############
@@ -859,14 +860,15 @@
 									#set ($copy="false")
 									#set ($move="false")
 									#if($copyFlag && $member.isHighlighted())
-											class="selectedCopy"
-											 title ="$tlang.getString("list.copied")"
-											#set ($copy="true")
-									#end
-									#if($moveFlag && $member.isHighlighted())
-										class="selectedMove" 
+										class="selectedCopy#if(!$member.isAvailable()) inactive#end"
+										title ="$tlang.getString("list.copied")"
+										#set ($copy="true")
+									#elseif($moveFlag && $member.isHighlighted())
+										class="selectedMove#if(!$member.isAvailable()) inactive#end" 
 										title ="$tlang.getString("list.moved")"
 										#set ($move="true")
+									#elseif(!$member.isAvailable())
+										class="inactive"
 									#end
 									>
 									######################  Item title and action links  ##############
