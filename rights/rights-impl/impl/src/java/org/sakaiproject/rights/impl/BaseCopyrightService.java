@@ -5,21 +5,25 @@ import java.util.Stack;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.sakaiproject.rights.api.CopyrightEdit;
+import org.sakaiproject.rights.api.Copyright;
 import org.sakaiproject.rights.api.CopyrightService;
 import org.sakaiproject.rights.api.RightsAssignment;
-import org.sakaiproject.rights.api.RightsAssignmentEdit;
+import org.sakaiproject.rights.api.RightsAssignment;
 
 
 public class BaseCopyrightService implements CopyrightService {
 
-	public void commitRightsAssignment(RightsAssignmentEdit edit) 
+	public void commitRightsAssignment(RightsAssignment edit) 
 	{
 		// TODO Auto-generated method stub
 
 	}
 
-	public RightsAssignment createRightsAssignment(String entityRef) 
+	/**
+	 * @param entityRef
+	 * @return
+	 */
+	public RightsAssignment addRightsAssignment(String entityRef)
 	{
 		// TODO Auto-generated method stub
 		return null;

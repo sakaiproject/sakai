@@ -3,6 +3,7 @@ package org.sakaiproject.rights.api;
 import java.util.Collection;
 
 import org.sakaiproject.rights.api.Copyright;
+import org.sakaiproject.rights.api.CreativeCommonsLicense;
 
 public interface RightsAssignment 
 {
