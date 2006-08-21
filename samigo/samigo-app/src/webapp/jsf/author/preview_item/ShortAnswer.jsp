@@ -48,7 +48,7 @@ should be included in file importing DeliveryMessages
       </h:dataTable>
     </h:column>
   </h:dataTable>
---%>
+
 
 
 <h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2' }">
