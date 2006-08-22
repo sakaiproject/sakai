@@ -327,13 +327,6 @@
 								#if ($!displayId)
 									## for those internal users as Participant objects
 									$displayId
-								#else
-									## for those external users as CourseMember objects
-									#set($user = $!userDirectoryService.getUserByEid($participant.getUniqname()))
-									#if ($!user)
-										#set($displayId=$user.getDisplayId())
-									#end
-									$!displayId
 								#end)
 							</h5>
 						</td>
@@ -349,7 +342,7 @@
 							</td>
 							<td headers="id">
 								#set($partId = "")
-								#set($partId = $participant.getId())
+								#set($partId = $participant.getRegId())
 								$!partId
 							</td>
 							<td headers="credits">

@@ -4674,14 +4674,30 @@ public class SiteAction extends PagedResourceActionII
 					found = false;
 					for(Iterator iSet = gMemberSet.iterator(); !found && iSet.hasNext();)
 					{
-						if (((Member) iSet.next()).getUserId().equals(aId))
+						if (((Member) iSet.next()).getUserEid().equals(aId))
 						{
 							found = true;
 						}
 					}
 					if (!found)
 					{
-						gMemberSet.add(site.getMember(aId));
+						try
+						{
+							User u = UserDirectoryService.getUser(aId);
+							gMemberSet.add(site.getMember(u.getId()));
+						}
+						catch (UserNotDefinedException e)
+						{
+							try
+							{
+								User u2 = UserDirectoryService.getUserByEid(aId);
+								gMemberSet.add(site.getMember(u2.getId()));
+							}
+							catch (UserNotDefinedException ee)
+							{
+								M_log.warn(this + ee.getMessage() + aId);
+							}
+						}
 					}
 				}
 			}
@@ -7508,25 +7524,16 @@ public class SiteAction extends PagedResourceActionII
 				// remove all roles and then add back those that were checked
 				for (int i=0; i<participants.size(); i++)
 				{
-					String eId = null;
+					String id = null;
 					
 					// added participant
-					Object participant = (Object) participants.get(i);
-					
-					if (participant.getClass().equals(Participant.class))
-					{	
-						eId = ((Participant) participant).getUniqname();
-					}
-					else if (participant.getClass().equals(CourseMember.class))
-					{
-						// course member
-						eId = ((CourseMember) participant).getUniqname();
-					}
+					Participant participant = (Participant) participants.get(i);
+					id = participant.getUniqname();
 						
-					if (eId != null)
+					if (id != null)
 					{
 						//get the newly assigned role
-						String inputRoleField = "role" + eId;
+						String inputRoleField = "role" + id;
 						String roleId = params.getString(inputRoleField);
 					
 						// only change roles when they are different than before
@@ -7534,29 +7541,19 @@ public class SiteAction extends PagedResourceActionII
 						{
 							// get the grant active status
 							boolean activeGrant = true;
-							String activeGrantField = "activeGrant" + eId;
+							String activeGrantField = "activeGrant" + id;
 							if (params.getString(activeGrantField) != null)
 							{
 								activeGrant = params.getString(activeGrantField).equalsIgnoreCase("true")?true:false;
 							}
 							
-							boolean fromProvider = false;
-							if (participant.getClass().equals(CourseMember.class))
+							boolean fromProvider = !participant.isRemoveable();
+							if(fromProvider && !roleId.equals(participant.getProviderRole()))
 							{
-								if (roleId.equals(((CourseMember) participant).getProviderRole()))
-								{
-									fromProvider = true;
-								}
+								
+								fromProvider=false;
 							}
-							try
-							{
-								User user = UserDirectoryService.getUserByEid(eId);
-								realmEdit.addMember(user.getId(), roleId, activeGrant, fromProvider);
-							}
-							catch (UserNotDefinedException e)
-							{
-								M_log.warn(this + " IdUnusedException " + eId + ". ");
-							}
+							realmEdit.addMember(id, roleId, activeGrant, fromProvider);
 						}
 					}
 				}
@@ -7568,10 +7565,10 @@ public class SiteAction extends PagedResourceActionII
 					state.setAttribute(STATE_SELECTED_USER_LIST, removals);
 					for(int i = 0; i<removals.size(); i++)
 					{
-						String rEId = (String) removals.get(i);
+						String rId = (String) removals.get(i);
 						try
 						{
-							User user = UserDirectoryService.getUserByEid(rEId);
+							User user = UserDirectoryService.getUser(rId);
 							Participant selected = new Participant();
 							selected.name = user.getDisplayName();
 							selected.uniqname = user.getId();
@@ -7579,7 +7576,7 @@ public class SiteAction extends PagedResourceActionII
 						}
 						catch (UserNotDefinedException e)
 						{
-							M_log.warn(this + " IdUnusedException " + rEId + ". ");
+							M_log.warn(this + " IdUnusedException " + rId + ". ");
 						}
 					}
 				}
@@ -9337,7 +9334,26 @@ public class SiteAction extends PagedResourceActionII
 						{
 							member.setRole(r.getId());
 						}
-						participants.add(member);
+						
+						try
+						{
+							User user = UserDirectoryService.getUserByEid(memberUniqname);
+							Participant participant = new Participant();
+							participant.name = user.getSortName();
+							participant.uniqname = user.getId();
+							participant.role = member.getRole();
+							participant.providerRole = member.getProviderRole();
+							participant.course = member.getCourse();
+							participant.section = member.getSection();
+							participant.credits = member.getCredits();
+							participant.regId = member.getId();
+							participant.removeable = false;
+							participants.add(participant);
+						}
+						catch (UserNotDefinedException e)
+						{
+							// deal with missing user quietly without throwing a warning message
+						}
 					}
 				}
 				
@@ -12566,12 +12582,31 @@ public class SiteAction extends PagedResourceActionII
 		public String name = NULL_STRING;
 		// Note: uniqname is really a user ID
 		public String uniqname = NULL_STRING;
-		public String role = NULL_STRING; 
+		public String role = NULL_STRING;
+		/** role from provider */
+		public String providerRole = NULL_STRING; 
+		/** The member credits */
+		protected String credits = NULL_STRING;
+		/** The course */
+		public String course = NULL_STRING;
+		/** The section */
+		public String section = NULL_STRING;
+		/** The regestration id */
+		public String regId = NULL_STRING;
+		/** removeable if not from provider */
+		public boolean removeable = true;
+		
 		
 		public String getName() {return name; }
 		public String getUniqname() {return uniqname; }
 		public String getRole() { return role; } // cast to Role
-		public boolean isRemoveable(){return true;}
+		public String getProviderRole() { return providerRole; } 
+		public boolean isRemoveable(){return removeable;}
+		// extra info from provider
+		public String getCredits(){return credits;} // getCredits
+		public String getCourse(){return course;} // getCourse
+		public String getSection(){return section;} // getSection
+		public String getRegId(){return regId;} // getRegId
 
 		/**
 		 * Access the user eid, if we can find it - fall back to the id if not.
