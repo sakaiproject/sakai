@@ -140,6 +140,8 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	protected static final String MACRO_SITE_ID             = "${SITE_ID}";
 	/** Macro name: User id */
 	protected static final String MACRO_USER_ID             = "${USER_ID}";
+	/** Macro name: User enterprise id */
+	protected static final String MACRO_USER_ID             = "${USER_EID}";
 	/** Macro name: First name */
 	protected static final String MACRO_USER_FIRST_NAME     = "${USER_FIRST_NAME}";
 	/** Macro name: Last name */
@@ -151,7 +153,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	
 	private static final String IFRAME_ALLOWED_MACROS_PROPERTY = "iframe.allowed.macros";
 	
-	private static final String MACRO_DEFAULT_ALLOWED = "${USER_ID},${USER_FIRST_NAME},${USER_LAST_NAME},${SITE_ID},${USER_ROLE}";
+	private static final String MACRO_DEFAULT_ALLOWED = "${USER_ID},${USER_EID},${USER_FIRST_NAME},${USER_LAST_NAME},${SITE_ID},${USER_ROLE}";
 	
 	private static ArrayList allowedMacrosList;
 	
@@ -415,6 +417,24 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		}
 		return session.getUserId();
 	}
+	
+
+	/**
+	 * Get the current user eid
+	 * @throws SessionDataException
+	 * @return User eid
+	 */
+	private String getUserEid() throws SessionDataException
+	{
+		Session session = SessionManager.getCurrentSession();
+
+		if (session == null)
+		{
+			throw new SessionDataException("No current user session");
+		}
+		return session.getUserEid();
+	}
+	
 
 	/**
 	 * Get current User information
@@ -494,6 +514,10 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			if (macroName.equals(MACRO_USER_ID))
 			{
 				return this.getUserId();
+			}
+			if (macroName.equals(MACRO_USER_EID))
+			{
+				return this.getUserEid();
 			}
 			if (macroName.equals(MACRO_USER_FIRST_NAME))
 			{
