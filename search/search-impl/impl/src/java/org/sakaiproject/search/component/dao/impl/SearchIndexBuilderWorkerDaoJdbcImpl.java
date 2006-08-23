@@ -1012,6 +1012,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 						sbi.setSearchstate(SearchBuilderItem.STATE_LOCKED);
 						a.add(sbi);
 					}
+					connection.commit();
 					
 					
 					
@@ -1110,6 +1111,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 
 			log
 					.debug("DONE DELETE ALL RECORDS ===========================================================");
+			connection.commit();
 			log
 					.debug("ADD ALL RECORDS ===========================================================");
 			long lastupdate = System.currentTimeMillis();
@@ -1191,6 +1193,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 						{
 							log.error("Failed to update " + sqlex.getMessage());
 						}
+						connection.commit();
 
 					}
 					log.debug(" Added " + added);
@@ -1200,6 +1203,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 					.debug("DONE ADD ALL RECORDS ===========================================================");
 			controlItem.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
 			updateOrSave(connection, controlItem);
+			connection.commit();
 		}
 		finally
 		{
@@ -1246,6 +1250,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 			}
 			controlItem.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
 			updateOrSave(connection, controlItem);
+			connection.commit();
 		}
 		finally
 		{
