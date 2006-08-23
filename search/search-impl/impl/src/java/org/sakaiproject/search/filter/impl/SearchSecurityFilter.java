@@ -93,7 +93,8 @@ public class SearchSecurityFilter implements SearchItemFilter
 		Reference ref = entityManager.newReference(reference);
 		EntityContentProducer ecp = searchIndexBuilder
 				.newEntityContentProducer(ref);
-		if (!ecp.canRead(ref))
+		
+		if (ecp == null || !ecp.canRead(ref))
 		{
 			result = new CensoredSearchResult();
 		}
