@@ -40,13 +40,13 @@
 <%@include file="header.jsp"%>
     	<div class="portletBody">    		
     	
+	  <% if ( searchBean.hasAdmin() ) { %>
     <div class="navIntraTool">
 	  <span class="rwiki_pageLinks">
-	  <% if ( searchBean.hasAdmin() ) { %>
 	    <a href="<%= searchBean.getToolUrl() %>/admin/index">Admin</a>
-	  <% } %>
 	  </span>
     </div>
+	  <% } %>
     <%
     if ( searchBean.isEnabled() ) 
     {
