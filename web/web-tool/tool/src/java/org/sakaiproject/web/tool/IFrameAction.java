@@ -141,7 +141,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	/** Macro name: User id */
 	protected static final String MACRO_USER_ID             = "${USER_ID}";
 	/** Macro name: User enterprise id */
-	protected static final String MACRO_USER_ID             = "${USER_EID}";
+	protected static final String MACRO_USER_EID            = "${USER_EID}";
 	/** Macro name: First name */
 	protected static final String MACRO_USER_FIRST_NAME     = "${USER_FIRST_NAME}";
 	/** Macro name: Last name */
