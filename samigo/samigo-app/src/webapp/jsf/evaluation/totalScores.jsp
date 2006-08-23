@@ -461,7 +461,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         </h:commandLink>
      </f:facet>
         <h:outputText value="#{description.submittedDate}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
-          <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
+          <f:convertDateTime pattern="#{genMsg.output_data_picker_w_sec}"/>
         </h:outputText>
     </h:column>
 
@@ -476,7 +476,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
           </h:commandLink>    
       </f:facet>
         <h:outputText value="#{description.submittedDate}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
-          <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
+          <f:convertDateTime pattern="#{genMsg.output_data_picker_w_sec}"/>
         </h:outputText>
     </h:column>
     
@@ -491,7 +491,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
       </h:commandLink> 
       </f:facet>
         <h:outputText value="#{description.submittedDate}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
-          <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
+          <f:convertDateTime pattern="#{genMsg.output_data_picker_w_sec}"/>
         </h:outputText>
     </h:column>
     
