@@ -213,19 +213,10 @@ sorting actions for table:
           </h:commandLink>
       </h:panelGroup>
       </f:facet>
-      <h:commandLink title="#{msg.t_reviewAssessment}" action="takeAssessment"  rendered="#{reviewable.feedback != 'true'}"> 
-        <f:param name="publishedId" value="#{reviewable.assessmentId}" />
-        <f:param name="nofeedback" value="true"/>
-        <f:param name="actionString" value="reviewAssessment"/>
-        <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
-        <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
-        <h:outputText value="#{reviewable.assessmentTitle}" />
-      </h:commandLink>
-    
 
- <h:commandLink title="#{msg.t_reviewAssessment}" action="takeAssessment" rendered="#{reviewable.feedback == 'true'}">
+    <h:outputText value="#{reviewable.assessmentTitle}" rendered="#{reviewable.feedback != 'true'}"/>
+
+	<h:commandLink title="#{msg.t_reviewAssessment}" action="takeAssessment" rendered="#{reviewable.feedback == 'true'}">
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
         <f:param name="nofeedback" value="false"/>
         <f:param name="actionString" value="reviewAssessment"/>
