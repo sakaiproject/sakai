@@ -123,4 +123,6 @@ public interface IndexStorage
 	 */
 	boolean isMultipleIndexers();
 
+	void closeIndexSearcher(IndexSearcher oldRunningIndexSearcher);
+
 }

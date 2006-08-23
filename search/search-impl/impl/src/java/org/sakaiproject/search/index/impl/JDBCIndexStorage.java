@@ -286,6 +286,27 @@ public class JDBCIndexStorage implements IndexStorage
 	{
 		return false;
 	}
+	public void closeIndexSearcher(IndexSearcher indexSearcher)
+	{
+		IndexReader indexReader = indexSearcher.getIndexReader();
+		try
+		{
+			indexReader.close();
+		}
+		catch (Exception ex)
+		{
+			log.error("Failed to close Index Reader "+ex.getMessage());
+		}
+		try
+		{
+			indexSearcher.close();
+		}
+		catch (Exception ex)
+		{
+			log.error("Failed to close Index Searcher "+ex.getMessage());
+
+		}
+	}
 
 
 }

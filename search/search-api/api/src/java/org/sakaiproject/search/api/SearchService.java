@@ -227,6 +227,12 @@ public interface SearchService
 
 	List getSegmentInfo();
 
+	/**
+	 * Force a reload regardless of if the index has changed
+	 *
+	 */
+	void forceReload();
+
 
 
 }

@@ -221,5 +221,11 @@ public class SearchIndexStorage implements IndexStorage
 		return runningIndexStorage.isMultipleIndexers();
 	}
 
+	public void closeIndexSearcher(IndexSearcher indexSearcher)
+	{
+		runningIndexStorage.closeIndexSearcher(indexSearcher);
+		
+	}
+
 
 }

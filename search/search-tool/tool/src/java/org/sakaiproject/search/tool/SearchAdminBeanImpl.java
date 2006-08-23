@@ -64,18 +64,23 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 
 	private static final String REFRESHINSTNACE = "refreshinstance";
 
-	private static final Object COMMAND_REFRESHINSTANCE = "?" + COMMAND + "="
+	private static final String COMMAND_REFRESHINSTANCE = "?" + COMMAND + "="
 			+ REFRESHINSTNACE;
 
 	private static final String REFRESHSTATUS = "refreshstatus";
 
-	private static final Object COMMAND_REFRESHSTATUS = "?" + COMMAND + "="
+	private static final String COMMAND_REFRESHSTATUS = "?" + COMMAND + "="
 			+ REFRESHSTATUS;
 
 	private static final String REMOVELOCK = "removelock";
 
-	private static final Object COMMAND_REMOVELOCK = "?" + COMMAND + "="
+	private static final String COMMAND_REMOVELOCK = "?" + COMMAND + "="
 	+ REMOVELOCK;
+
+	private static final String RELOADINDEX = "reloadindex";
+
+	private static final String COMMAND_RELOADINDEX = "?" + COMMAND + "="
+	+ RELOADINDEX;
 
 	private SearchService searchService = null;
 
@@ -162,9 +167,21 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 			doRemoveLock();
 
 		}
+		else if ( internCommand == RELOADINDEX ) {
+			doReloadIndex();
+		}
 		internCommand = null;
 
 	}
+
+	private void doReloadIndex()
+	{
+		searchService.forceReload();
+		searchService.reload();
+		commandFeedback = "Reloaded Index";
+	}
+
+
 
 	private void doRemoveLock()
 	{
@@ -346,6 +363,8 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 			sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
 				COMMAND_REMOVELOCK, "Remove Lock", 
 				"onClick=\"return confirm('Are you sure you want to remove the lock\\n Check there are no indexers running');\"" }));
+			sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
+					COMMAND_RELOADINDEX, "Reload Index","" }));
 		}
 		return sb.toString();
 	}
