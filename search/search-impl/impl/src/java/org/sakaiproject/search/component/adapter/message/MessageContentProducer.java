@@ -219,7 +219,7 @@ public class MessageContentProducer implements EntityContentProducer
 					Object o = getSubject.invoke(mh,new Object[]{});
 					subject = "Subject: "+o.toString()+" ";
 				} catch ( Exception ex ) {
-					log.info("Didnt get Subject  from "+mh);
+					log.debug("Didnt get Subject  from "+mh);
 				}
 				
 				
