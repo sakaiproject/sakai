@@ -50,8 +50,6 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.sakaiproject.search.index.ClusterFilesystem;
 
 /**
@@ -248,7 +246,13 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			for (Iterator i = updateLocalSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo addsi = (SegmentInfo) i.next();
-				updateLocalSegment(connection, addsi);
+				try {
+					updateLocalSegment(connection, addsi);
+				} catch ( Exception ex ) {
+					// ignore failures to unpack a local segment. It may have been removed by
+					// annother node
+					log.info("Segment was not unpacked "+ex.getClass().getName()+":"+ex.getMessage());
+				}
 
 			}
 			// if we made any modifications, we also need to process the patch
@@ -262,7 +266,10 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			{
 				SegmentInfo si = (SegmentInfo) i.next();
 				File f = new File(searchIndexDirectory, si.getName());
-				segmentList.add(f.getPath());
+				if ( f.exists() ) {
+					// only add those segments that exist after the sync
+					segmentList.add(f.getPath());
+				}
 				log.debug("Segment Present at " + f.getName());
 			}
 
