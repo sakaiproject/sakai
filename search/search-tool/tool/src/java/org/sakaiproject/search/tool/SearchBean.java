@@ -38,9 +38,10 @@ public interface SearchBean
 	 *        A Message format string {0} is the result index, {1} is the item
 	 *        UR, {2} is the item title, {3} is the content fragment, {4} is the
 	 *        score
+	 * @param errorFeedbackFormat {0} is the error message location
 	 * @return
 	 */
-	String getSearchResults(String searchItemFormat);
+	String getSearchResults(String searchItemFormat, String errorFeedbackFormat);
 
 	/**
 	 * get an html fragment representing a pager the
@@ -94,6 +95,7 @@ public interface SearchBean
 	 * @return
 	 */
 	boolean isEnabled();
+
 	
 	
 }

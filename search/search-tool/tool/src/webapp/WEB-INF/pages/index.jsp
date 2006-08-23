@@ -5,6 +5,7 @@
 		request.getAttribute(org.sakaiproject.search.tool.SearchBeanFactory.SEARCH_BEAN_FACTORY_ATTR);
 	org.sakaiproject.search.tool.SearchBean searchBean = searchBeanFactory.newSearchBean(request);
 	
+	String errorMessageFormat = "<div class=\"alertMessage\" >{0}</div>";
 	String searchItemFormat = "<p class=\"searchItem\" ><a href=\"{1}\" target=\"searchresult\" >{2}</a><br />"
 			+ "{3} <br/> "
 			+ "<span class=\"searchScore\" > Hit: {0} "
@@ -71,7 +72,7 @@
     </tr>
     </table>
 
-    <%= searchBean.getSearchResults(searchItemFormat) %>
+    <%= searchBean.getSearchResults(searchItemFormat,errorMessageFormat) %>
     
     <table cellspacing="0" cellpadding="0" >
     <tr valign="top" >
