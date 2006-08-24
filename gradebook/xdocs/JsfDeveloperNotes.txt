@@ -1,0 +1,83 @@
+GRADEBOOK JSF DEVELOPER NOTES
+
+1. GENERAL BACKGROUND
+
+Some background on the design of the Gradebook application can be found at:
+
+  http://bugs.sakaiproject.org/confluence/display/ENC/Sakai+2.0+Gradebook+Internals
+
+2. JSF BACKING BEAN SCOPE AND NAVIGATION
+
+Developers who plan to add new functionality should try to bear the existing
+design approach in mind.
+
+To reduce reliance on session-scoped data, all view-specific backing beans are
+in request scope. Session scope is only used for data which remains the same
+across all pages of the application, such as user preferences.
+
+Within the context of a simple back-and-forth workflow (e.g., submit,
+validate, return error or success or change of context), the request-scoped
+bean is maintained by embedding it in the JSP page with the "<sakai:flowState>"
+tag.
+
+Persistent data is retrieved from the database at the beginning of each
+page display. Any changes are stored in the database when the request
+arrives and before the next page is navigated to. We count on DB-level
+or business-level caching rather than explicitly caching in the UI layer
+with session scope.
+
+The nastiest aspect of all this is probably that JSF throws away
+all request parameters when doing a redirect, and doing a redirect
+is the only way to keep the browser's displayed URL in synch with
+the displayed page. We just decided to give up on that one. We
+redirect when we don't need transient workflow state, but don't
+redirect when we do. On the bright side, URLs that need transient
+workflow state would make less useful bookmarks anyway.
+
+Gradebook code follows these rules of thumb when looking at how to handle a
+new application page, feature, or workflow step:
+
+  a) Is the target page independent of any context other than the current gradebook
+  and the current user? (That is, could it be reasonable to use as a static
+  bookmark, or to put on a static application-wide toolbar?)
+
+  If so:
+    - Navigate to the page with "<redirect/>".
+
+  b) Does the target page require some special context object which is
+  stored in the database? (For example, does the page deal with a particular
+  selected assignment?)
+
+  If so:
+    - Do not use "<redirect/>" in JSF navigation.
+    - In the JSF bean configuration, pass a pointer to the persisted object
+      as a managed property.
+
+  Example:
+
+  	<managed-bean>
+  		<managed-bean-name>editAssignmentBean</managed-bean-name>
+  		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.EditAssignmentBean</managed-bean-class>
+  		<managed-bean-scope>request</managed-bean-scope>
+  		<managed-property>
+  			<property-name>assignmentId</property-name>
+  			<value>#{param.assignmentId}</value>
+  		</managed-property>
+  		...
+  	</managed-bean>
+
+  c) Does the target page require knowledge of dynamic data which is not yet
+  stored in the database? (For example, does the page submit assignment
+  scores? Or is the page part of a multi-step process which accumulates
+  changes before storing them in the DB?)
+
+  If so:
+    - Do not use "<redirect/>" in JSF navigation.
+    - Keep the same page-embedded bean in play. (In most cases you'll end up
+      on the same page, which makes it easy!)
+
+  Example: The limited functionality of the Gradebook as of 2.1 hasn't required a
+  "work-in-progress" bean to be handed off between different JSP views. But you
+  can find an example in the Section Info tool if you look at the navigation
+  between the "overview" page and the "deleteSections" pages.
+
