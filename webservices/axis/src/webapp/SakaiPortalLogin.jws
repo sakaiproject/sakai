@@ -28,7 +28,7 @@ public class SakaiPortalLogin {
         User user = null ;
 
 	try {
-        	user = UserDirectoryService.getUser(id);
+        	user = UserDirectoryService.getUserByEid(id);
 	} catch (Exception e) {
 		user = null;
 	}
@@ -60,7 +60,7 @@ public class SakaiPortalLogin {
 		try {
 			// Set password to something unguessable - they can set a new PW once they are logged in
 			String hiddenPW = IdManager.createUuid();
- 			UserDirectoryService.addUser(id,firstName,lastName,eMail,hiddenPW,"portal", null);
+ 			UserDirectoryService.addUser(null,id,firstName,lastName,eMail,hiddenPW,"portal", null);
                         System.out.println("User Created...");
 		} catch(Exception e) {
 			System.out.println("Unable to create user...");
