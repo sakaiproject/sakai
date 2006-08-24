@@ -22,10 +22,13 @@
 package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 import java.util.Set;
 // import java.io.File;
 
@@ -39,11 +42,14 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -578,7 +584,7 @@ public class SubmitToGradingActionListener implements ActionListener {
                         handleMarkForReview(grading, adds);
                         break;
 		}
-		// if it is linear access and there is not answer, we add an empty itemGradingData
+		// if it is linear access and there is not answer, we add an fake ItemGradingData
 		String actionCommand = "";
 		if (ae != null) {
 			actionCommand = ae.getComponent().getId();
@@ -590,17 +596,30 @@ public class SubmitToGradingActionListener implements ActionListener {
 		
 		if (delivery.getNavigation().equals("1") && adds.size() ==0 && !"showFeedback".equals(actionCommand)) {
 			log.debug("enter here");
-			ItemGradingData itemGrading = new ItemGradingData();
-			itemGrading.setAssessmentGradingId(delivery.getAssessmentGrading().getAssessmentGradingId());
-			itemGrading.setAgentId(AgentFacade.getAgentString());
+			Long assessmentGradingId = delivery.getAssessmentGrading().getAssessmentGradingId();
 			Long publishedItemId = item.getItemData().getItemId();
+			log.debug("assessmentGradingId = " + assessmentGradingId);
 			log.debug("publishedItemId = " + publishedItemId);
-			itemGrading.setPublishedItemId(publishedItemId);
-			ItemService itemService = new ItemService();
-			Long itemTextId = itemService.getItemTextId(publishedItemId);
-			log.debug("itemTextId = " + itemTextId);
-			itemGrading.setPublishedItemTextId(itemTextId);
-			adds.add(itemGrading);
+			GradingService gradingService = new GradingService();
+			// For File Upload question, if user clicks on "Upload", a ItemGradingData will be created. 
+			// Therefore, when user clicks on "Next", we shouldn't create it again.
+			// Same for Audio question, if user records anything, a ItemGradingData will be created.
+			// We don't create it again when user clicks on "Next".
+			if ((typeId == 6 || typeId == 7) && gradingService.getItemGradingData(assessmentGradingId.toString(), publishedItemId.toString()) != null ) {
+				log.debug("File Upload or Audio! Do not create empty ItemGradingData if there exists one");
+			}
+			else {
+				log.debug("Create a new (fake) ItemGradingData");
+				ItemGradingData itemGrading = new ItemGradingData();
+				itemGrading.setAssessmentGradingId(assessmentGradingId);
+				itemGrading.setAgentId(AgentFacade.getAgentString());
+				itemGrading.setPublishedItemId(publishedItemId);
+				ItemService itemService = new ItemService();
+				Long itemTextId = itemService.getItemTextId(publishedItemId);
+				log.debug("itemTextId = " + itemTextId);
+				itemGrading.setPublishedItemTextId(itemTextId);
+				adds.add(itemGrading);
+			}
 		}
 	}
 
@@ -624,6 +643,87 @@ public class SubmitToGradingActionListener implements ActionListener {
 			return Boolean.TRUE;
 		else
 			return Boolean.FALSE;
+	}
+
+
+	/*
+	 * We create an ItemGradingData when it is not yet created
+	 */
+	public void completeItemGradingData() {
+		ArrayList answeredPublishedItemIdList = new ArrayList();
+		DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+
+		AssessmentGradingData assessmentGradingData = delivery.getAssessmentGrading();
+		GradingService gradingService = new GradingService();
+		List itemGradingIds = gradingService.getItemGradingIds(assessmentGradingData.getAssessmentGradingId());
+		Iterator iter = itemGradingIds.iterator();
+		Long answeredPublishedItemId;
+		while (iter.hasNext()) {
+			answeredPublishedItemId = (Long) iter.next();
+			log.debug("answeredPublishedItemId = " + answeredPublishedItemId);
+			answeredPublishedItemIdList.add(answeredPublishedItemId);
+		}
+		
+		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+		HashSet sectionSet = publishedAssessmentService.getSectionSetForAssessment(delivery.getAssessmentGrading().getPublishedAssessmentId());
+		PublishedSectionData publishedSectionData;
+		iter = sectionSet.iterator();
+		while (iter.hasNext()) {
+			ArrayList itemArrayList;
+			Long publishedItemId;
+			PublishedItemData publishedItemData;
+			publishedSectionData = (PublishedSectionData) iter.next();
+			log.debug("sectionId = " + publishedSectionData.getSectionId());
+			String authorType = publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
+			if (authorType != null && authorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
+				log.debug("Random draw from questonpool");
+				itemArrayList = publishedSectionData.getItemArray();
+				long seed = (long) AgentFacade.getAgentString().hashCode();
+				Collections.shuffle(itemArrayList,  new Random(seed));
+				
+				Integer numberToBeDrawn = new Integer(0);
+				if (publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
+					numberToBeDrawn= new Integer(publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+				}
+
+				int samplesize = numberToBeDrawn.intValue();
+				for (int i=0; i < samplesize; i++){
+					publishedItemData = (PublishedItemData) itemArrayList.get(i);
+					publishedItemId = publishedItemData.getItemId();
+					log.debug("publishedItemId = " + publishedItemId); 
+					if (!answeredPublishedItemIdList.contains(publishedItemId)) {
+						saveItemGradingData(delivery, publishedItemId);
+					}
+				}
+			}
+			else {
+				log.debug("Not random draw from questonpool");
+				itemArrayList = publishedSectionData.getItemArray();
+				Iterator itemIter = itemArrayList.iterator();
+				while (itemIter.hasNext()) {
+					publishedItemData = (PublishedItemData) itemIter.next();
+					publishedItemId = publishedItemData.getItemId();
+					log.debug("publishedItemId = " + publishedItemId);
+					if (!answeredPublishedItemIdList.contains(publishedItemId)) {
+						saveItemGradingData(delivery, publishedItemId);
+					}
+				}
+			}
+		}
+	}
+		
+	private void saveItemGradingData(DeliveryBean delivery, Long publishedItemId) {
+		log.debug("Adding one ItemGradingData...");
+		ItemGradingData itemGradingData = new ItemGradingData();
+		itemGradingData.setAssessmentGradingId(delivery.getAssessmentGrading().getAssessmentGradingId());
+		itemGradingData.setAgentId(AgentFacade.getAgentString());
+		itemGradingData.setPublishedItemId(publishedItemId);
+		ItemService itemService = new ItemService();
+		Long itemTextId = itemService.getItemTextId(publishedItemId);
+		log.debug("itemTextId = " + itemTextId);
+		itemGradingData.setPublishedItemTextId(itemTextId);
+		GradingService gradingService = new GradingService();
+		gradingService.saveItemGrading(itemGradingData);
 	}
 
 }

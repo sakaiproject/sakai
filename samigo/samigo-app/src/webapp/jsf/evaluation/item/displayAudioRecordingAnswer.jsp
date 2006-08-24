@@ -26,12 +26,10 @@ should be included in file importing DeliveryMessages
 --%>
 -->
 
-<h:outputText value="#{question.text}"  escape="false"/>
-<f:verbatim><br /></f:verbatim>
-
       <%-- media list, note that question is ItemContentsBean --%>
   <h:dataTable value="#{description.itemGradingArrayList}" var="itemGradingArrayList">
     <h:column>
+		<h:outputText value="#{description.answer}" escape="false" rendered="#{itemGradingArrayList.mediaSize == 0}" />
       <h:dataTable value="#{itemGradingArrayList.mediaArray}" var="media">
         <h:column>
 <%--

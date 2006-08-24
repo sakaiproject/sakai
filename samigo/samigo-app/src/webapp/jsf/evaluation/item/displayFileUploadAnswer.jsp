@@ -26,15 +26,12 @@ should be included in file importing DeliveryMessages
 --%>
 -->
 
-<h:outputText value="#{question.text}"  escape="false"/>
-<f:verbatim><br /></f:verbatim>
-
       <%-- media list, note that question is ItemContentsBean --%>
   <h:dataTable value="#{description.itemGradingArrayList}" var="itemGradingArrayList">
     <h:column>
+	  <h:outputText value="#{description.answer}" escape="false" rendered="#{itemGradingArrayList.mediaSize == 0}" />
       <h:dataTable value="#{itemGradingArrayList.mediaArray}" var="media">
         <h:column>
-          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
           <h:outputLink title="#{msg.t_fileUpload}" value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}&sam_fileupload_siteId=#{delivery.siteId}&createdBy=#{question.itemData.createdBy}" target="new_window">
              <h:outputText escape="false" value="#{media.filename}" />
           </h:outputLink>

@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 //import java.util.HashSet;
 import java.util.Iterator;
@@ -57,7 +58,6 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.PartData;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
-import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 // end testing
@@ -80,7 +80,9 @@ public class QuestionScoreListener
   //private static EvaluationListenerUtil util;
   private static BeanSort bs;
   private static ContextUtil cu;
-
+  private static final String noAnswer = (String) ContextUtil.getLocalizedString(
+										"org.sakaiproject.tool.assessment.bundle.EvaluationMessages",
+										"no_answer");
   /**
    * Standard process action method.
    * @param event ActionEvent
@@ -273,6 +275,7 @@ public class QuestionScoreListener
     log.debug("questionScores(): this section has no students");
       bean.setAgents(agents);
       bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
+      bean.setAnonymous(totalBean.getAnonymous());
       return true;
       }
 
@@ -447,9 +450,9 @@ log.debug("item==null ");
 	  AnswerIfc gdataAnswer = (AnswerIfc) publishedAnswerHash.get(gdata.getPublishedAnswerId());
 
           // This all just gets the text of the answer to display
-          String answerText = "N/A";
+          String answerText = noAnswer;
           String rationale = "";
-          String fullAnswerText = "N/A";
+          String fullAnswerText = noAnswer;
           if (bean.getTypeId().equals("1") || bean.getTypeId().equals("2") ||
               bean.getTypeId().equals("3") || bean.getTypeId().equals("4") ||
               bean.getTypeId().equals("9"))
@@ -486,7 +489,7 @@ log.debug("item==null ");
           }
 
           if (answerText == null)
-            answerText = "N/A";
+            answerText = noAnswer;
           else
           {
             if (gdata.getRationale() != null &&
@@ -659,6 +662,9 @@ log.debug("item==null ");
         part.setPartNumber(""+i);
    
         part.setId(section.getSectionId().toString());
+        GradingService gradingService = new GradingService();
+        HashSet itemSet = gradingService.getItemSet(publishedAssessment.getPublishedAssessmentId(), section.getSectionId());
+        section.setItemSet(itemSet);
         Iterator iter2 = section.getItemArraySortedForGrading().iterator();
         int j = 1;
         while (iter2.hasNext())
@@ -669,22 +675,13 @@ log.debug("item==null ");
           partitem.setPartNumber(""+j);
           partitem.setId(item.getItemId().toString());
           log.debug("*   item.getId = " + item.getItemId());
-
-          if (totalBean.getAnsweredItems().get(item.getItemId()) != null)
-          {
-          log.debug("*   make a link for = " + item.getItemId());
-            partitem.setLinked(true);
-          }
-          else
-          {
-          log.debug("*   do not make a link for = " + item.getItemId());
-            partitem.setLinked(false);
-          }
+          partitem.setLinked(true);
+          
           //Iterator iter3 = scores.iterator();
           items.add(partitem);
           j++;
         }
-      log.debug("questionScores(): items size = " + items.size());
+        log.debug("questionScores(): items size = " + items.size());
         part.setQuestionNumberList(items);
         sections.add(part);
         i++;
@@ -692,6 +689,5 @@ log.debug("item==null ");
       log.debug("questionScores(): sections size = " + sections.size());
       bean.setSections(sections);
   }
-
 
 }

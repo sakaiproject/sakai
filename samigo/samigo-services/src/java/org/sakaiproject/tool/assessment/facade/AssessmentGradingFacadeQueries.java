@@ -49,6 +49,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
@@ -213,7 +214,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
         if (itemId.equals(new Long(0))) {
           criteria.add(disjunction);
-          criteria.add(Expression.isNotNull("submittedDate"));
+          //criteria.add(Expression.isNotNull("submittedDate"));
         }
         else {
 
@@ -221,7 +222,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
           //Criterion pubCriterion = Expression.eq("publishedItem.itemId", itemId);
           Criterion pubCriterion = Expression.eq("publishedItemId", itemId);
           criteria.add(Expression.and(pubCriterion, disjunction));
-          criteria.add(Expression.isNotNull("submittedDate"));
+          //criteria.add(Expression.isNotNull("submittedDate"));
         }
           criteria.addOrder(Order.asc("agentId"));
           criteria.addOrder(Order.desc("submittedDate"));
@@ -1194,5 +1195,47 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  return position;
 	  }
   }
+  
+  public List getItemGradingIds(final Long assessmentGradingId){
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select i.publishedItemId from "+
+	    		         " ItemGradingData i where i.assessmentGradingId=?");
+	    		q.setLong(0, assessmentGradingId.longValue());
+	    		return q.list();
+	    	};
+	    };
+	    return getHibernateTemplate().executeFind(hcb);
+  }
+  
+  public HashSet getItemSet(final Long publishedAssessmentId, final Long sectionId) {
+	  HashSet itemSet = new HashSet();
+
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(
+	    				"select distinct p " +
+	    				"from PublishedItemData p, AssessmentGradingData a, ItemGradingData i " +
+	    				"where a.publishedAssessmentId=? and a.forGrade=? and p.section.id=? " +
+	    				"and i.assessmentGradingId = a.assessmentGradingId " +
+	    				"and p.itemId = i.publishedItemId ");
+	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setBoolean(1, true);
+	    		q.setLong(2, sectionId.longValue());
+	    		return q.list();
+	    	};
+	    };
+	    List assessmentGradings = getHibernateTemplate().executeFind(hcb);
+
+	    Iterator iter = assessmentGradings.iterator();
+	    PublishedItemData publishedItemData;
+	    while(iter.hasNext()) {
+	    	publishedItemData = (PublishedItemData) iter.next();
+	    	log.debug("itemId = " + publishedItemData.getItemId());
+	    	itemSet.add(publishedItemData);
+	    }
+	    return itemSet;
+  }
+
   
 }

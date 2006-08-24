@@ -946,7 +946,7 @@ public class PublishedAssessmentFacadeQueries
     }
     return set;
   }
-
+  
   // IMPORTANT:
   // 1. we do not want any Section info, so set loadSection to false
   // 2. We have also declared SectionData as lazy loading. If loadSection is set
@@ -1447,4 +1447,14 @@ public class PublishedAssessmentFacadeQueries
     }
   }
 
+  public HashSet getSectionSetForAssessment(Long publishedAssessmentId) {
+	    List sectionList = getHibernateTemplate().find(
+	        "from PublishedSectionData s where s.assessment.publishedAssessmentId=" +
+	        publishedAssessmentId);
+	    HashSet set = new HashSet();
+	    for (int j = 0; j < sectionList.size(); j++) {
+	      set.add( (PublishedSectionData) sectionList.get(j));
+	    }
+	    return set;
+  }
 }

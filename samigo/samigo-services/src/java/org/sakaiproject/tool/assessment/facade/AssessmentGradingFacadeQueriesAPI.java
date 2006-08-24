@@ -24,6 +24,7 @@ package org.sakaiproject.tool.assessment.facade;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -158,4 +159,7 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public ArrayList getLastItemGradingDataPosition(Long assessmentGradingId, String agentId);
 
+  public List getItemGradingIds(Long assessmentGradingId);
+  
+  public HashSet getItemSet(Long publishedAssessmentId, Long sectionId);
 }

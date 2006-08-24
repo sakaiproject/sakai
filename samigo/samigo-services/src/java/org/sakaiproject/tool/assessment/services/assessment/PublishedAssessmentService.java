@@ -24,6 +24,7 @@ package org.sakaiproject.tool.assessment.services.assessment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -437,4 +438,8 @@ public class PublishedAssessmentService {
     return map;
   }
 
+  public HashSet getSectionSetForAssessment(Long publishedAssessmentId){
+	    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+	    getSectionSetForAssessment(publishedAssessmentId);
+  }
 }
