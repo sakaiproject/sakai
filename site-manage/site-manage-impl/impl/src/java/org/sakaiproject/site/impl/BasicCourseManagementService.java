@@ -329,5 +329,13 @@ public class BasicCourseManagementService implements CourseManagementService
 		return rv;
 	}
 
+	/**
+	* @inheritDoc
+	*/
+	public String getProviderId (List providerIdList)
+	{
+		return m_provider.getProviderId(providerIdList);
+		
+	}
 } // BasicCourseManagementService
 

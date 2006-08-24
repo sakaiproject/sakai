@@ -27,6 +27,7 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.site.api.Course;
+import org.sakaiproject.site.api.CourseMember;
 import org.sakaiproject.site.api.CourseManagementProvider;
 import org.sakaiproject.site.api.Term;
 import org.sakaiproject.util.ResourceLoader;
@@ -77,6 +78,7 @@ public class SampleCourseManagementProvider implements CourseManagementProvider
 		c.setId("2005,FALL,SMPL,001,001");
 		c.setTermId("FALL 2005");
 		c.setTitle("Sample Course");
+		
 		m_courses = new Course[1];
 		m_courses[0] = c;
 
@@ -189,7 +191,21 @@ public class SampleCourseManagementProvider implements CourseManagementProvider
 		{
 			if (m_courses[i].getId().equals(courseId))
 			{
-				return m_courses[i].getMembers();
+				List members = new Vector();
+				
+				CourseMember m = new CourseMember();
+				m.setName("User One");
+				m.setUniqname("user1");
+				m.setId("11111");
+				m.setLevel("u");
+				m.setCredits("4");
+				m.setRole("Student");
+				m.setProviderRole("Student");
+				m.setCourse("sample course");
+				m.setSection("001");
+				members.add(m);
+				
+				return members;
 			}
 		}
 		return new Vector();
@@ -204,6 +220,28 @@ public class SampleCourseManagementProvider implements CourseManagementProvider
 		for (int i = 0; i < m_courses.length; i++)
 		{
 			rv.add(m_courses[i]);
+		}
+		return rv;
+	}
+	
+	/**
+	* @inheritDoc
+	*/
+	public String getProviderId (List providerIdList)
+	{
+		String rv = "";
+		
+		for (int i = 0; i < providerIdList.size(); i++)
+		{
+			// concatinate list items by "+"
+			if (i > 0)
+			{
+				rv = rv.concat("+").concat((String) providerIdList.get(i));
+			}
+			else
+			{
+				rv = rv.concat((String) providerIdList.get(i));
+			}
 		}
 		return rv;
 	}

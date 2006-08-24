@@ -131,4 +131,11 @@ public class CourseManagementService
 		return service.getTerm(param0);
 	}
 
+	public static String getProviderId (java.util.List param0)
+	{
+		org.sakaiproject.site.api.CourseManagementService service = getInstance();
+		if (service == null) return null;
+
+		return service.getProviderId(param0);
+	}
 }

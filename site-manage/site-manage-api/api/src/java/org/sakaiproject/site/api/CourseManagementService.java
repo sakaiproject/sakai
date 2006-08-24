@@ -112,6 +112,14 @@ public interface CourseManagementService
 	 * @return The Term object
 	 */
 	public Term getTerm(String termId);
-
+	
+	/**
+	* creates a realm provider id in one of three formats,
+	* for a single section, for multiple sections of the same course, or
+	* for a cross-listing having multiple courses
+	* @param providerIdList is a List of provider ids
+	*/
+	public String getProviderId (List providerIdList);
+	
 } // CourseManagementService
 

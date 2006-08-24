@@ -5588,7 +5588,7 @@ public class SiteAction extends PagedResourceActionII
 	* @param sectionList is a Vector of CourseListItem
 	* @param id The site id
 	*/
-	private String buildExternalRealm(String id, SessionState state, List sectionList)
+	private String buildExternalRealm(String id, SessionState state, List providerIdList)
 	{
 		String realm = SiteService.siteReference(id);
 		if (!AuthzGroupService.allowUpdate(realm))
@@ -5597,135 +5597,7 @@ public class SiteAction extends PagedResourceActionII
 			return null;
 		}
 		
-		boolean same_course = true;
-		// No sections in list
-		if (sectionList.size() == 0) 
-		{
-			return null;
-		}
-		// One section in list
-		else if (sectionList.size() == 1) 
-		{
-			// 2002,2,A,EDUC,406,001
-			return (String) sectionList.get(0);
-		}
-		// More than one section in list
-		else
-		{
-			String full_key = (String) sectionList.get(0);
-			
-			String course = full_key.substring(0, full_key.lastIndexOf(","));
-			same_course = true;
-			for (ListIterator i = sectionList.listIterator(); i.hasNext(); )
-			{
-				String item = (String) i.next();
-				if (item.indexOf(course) == -1) same_course = false; // If there is a difference in course part, multiple courses
-			}
-			// Same course but with multiple sections
-			if (same_course)
-			{
-				StringBuffer sections = new StringBuffer();
-				sections.append(course);
-				sections.append(",[");
-				boolean first_section = true;
-				for (ListIterator i = sectionList.listIterator(); i.hasNext(); )
-				{
-					String item = (String) i.next();
-					// remove the "," from the first section string
-					String section = new String();
-					if (first_section)
-					{
-						section = item.substring(item.lastIndexOf(",")+1,item.length());
-					}
-					else
-					{
-						section = item.substring(item.lastIndexOf(","),item.length());
-					}
-					first_section = false;
-					sections.append(section);
-				}
-				sections.append("]");
-				// 2002,2,A,EDUC,406,[001,002,003]
-				return sections.toString();
-			}
-			// Multiple courses 
-			else
-			{
-				// First, put course section keys next to each other to establish the course demarcation points
-				Vector keys = new Vector();
-				for (int i = 0; i < sectionList.size(); i++ )
-				{
-					String item = (String) sectionList.get(i);
-					keys.add(item);
-				}
-				Collections.sort(keys);
-				StringBuffer buf = new StringBuffer();
-				StringBuffer section_buf = new StringBuffer();
-				String last_course = null;
-				String last_section = null;
-				String to_buf = null;
-				// Compare previous and next keys. When the course changes, build a component part of the id.
-				for (int i = 0; i < keys.size(); i++)
-				{
-					// Go through the list of keys, comparing this key with the previous key
-					String this_key= (String) keys.get(i);
-					String this_course = this_key.substring(0, this_key.lastIndexOf(","));
-					String this_section = this_key.substring(this_key.lastIndexOf(","), this_key.length());
-					last_course = this_course;
-					if(i != 0)
-					{
-						// This is not the first key in the list, so it has a previous key
-						String previous_key = (String) keys.get(i-1);
-						String previous_course = previous_key.substring(0, previous_key.lastIndexOf(","));
-						String previous_section = previous_key.substring(previous_key.lastIndexOf(","), previous_key.length());
-						if (previous_course.equals(this_course))
-						{
-							same_course = true;
-							section_buf.append(previous_section);
-						}
-						else
-						{
-							same_course = false; // Different course, so wrap up the realm component for the previous course
-							buf.append(previous_course);
-							section_buf.append(previous_section);
-							if (section_buf.lastIndexOf(",") == 0) // ,001
-							{
-								to_buf = section_buf.toString();
-								buf.append(to_buf);
-							}
-							else
-							{
-								buf.append(",[");
-								to_buf = section_buf.toString();
-								buf.append(to_buf.substring(1)); // 001,002
-								buf.append("]");	
-							}
-							section_buf.setLength(0);
-							buf.append("+");
-						}
-						last_section = this_section;
-					} // one comparison
-				}
-				// Hit the end of the list, so wrap up the realm component for the last course in the list
-				if (same_course)
-				{
-					buf.append(last_course);
-					buf.append(",[");
-					buf.append((section_buf.toString()).substring(1));
-					buf.append(last_section);
-					// There must be more than one section, because there the last course was the same as this course
-					buf.append ("]");
-				}
-				else
-				{
-					// There can't be more than one section, because the last course was different from this course
-					buf.append(last_course);
-					buf.append(last_section);
-				}
-				// 2003,3,A,AOSS,172,001+2003,3,A,NRE,111,001+2003,3,A,ENVIRON,111,001+2003,3,A,SOC,111,001
-				return buf.toString();
-			}
-		}
+		return CourseManagementService.getProviderId(providerIdList);
 		
 	} // buildExternalRealm
 

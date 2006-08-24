@@ -86,4 +86,13 @@ public interface CourseManagementProvider
 	 * @return The list of courses
 	 */
 	public List getInstructorCourses(String instructorId, String termYear, String termTerm);
+
+	/**
+	* creates a realm provider id in one of three formats,
+	* for a single section, for multiple sections of the same course, or
+	* for a cross-listing having multiple courses
+	* @param providerIdList is a List of provider ids
+	*/
+	public String getProviderId (List providerIdList);
+	
 }
