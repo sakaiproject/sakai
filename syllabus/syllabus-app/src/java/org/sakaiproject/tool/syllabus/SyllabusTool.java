@@ -1489,7 +1489,7 @@ public String processDeleteCancel()
         session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) 
     {
       List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-      Reference ref = (Reference)refs.get(0);
+      Reference ref = null;
       
       for(int i=0; i<refs.size(); i++)
       {
@@ -1713,7 +1713,7 @@ public String processDeleteCancel()
         session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) 
     {
       List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-      Reference ref = (Reference)refs.get(0);
+      Reference ref = null;
       
       for(int i=0; i<refs.size(); i++)
       {
