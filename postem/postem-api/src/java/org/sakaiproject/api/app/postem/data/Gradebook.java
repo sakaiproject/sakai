@@ -27,6 +27,13 @@ import java.util.Set;
 import java.util.TreeMap;
 
 public interface Gradebook {
+	
+	final String SORT_BY_TITLE = "title";
+	final String SORT_BY_CREATOR = "creator";
+	final String SORT_BY_MOD_BY = "modBy";
+	final String SORT_BY_MOD_DATE = "modDate";
+	final String SORT_BY_RELEASED = "released";
+	
 	public String getTitle();
 
 	public void setTitle(String title);
@@ -34,6 +41,10 @@ public interface Gradebook {
 	public String getCreator();
 
 	public void setCreator(String creator);
+	
+	public String getCreatorEid();
+	
+	public void setCreatorEid(String creatorUserId);
 
 	public Timestamp getCreated();
 
@@ -42,6 +53,10 @@ public interface Gradebook {
 	public String getLastUpdater();
 
 	public void setLastUpdater(String lastUpdater);
+	
+	public String getLastUpdaterEid();
+	
+	public void setLastUpdaterEid(String lastUpdaterUserId);
 
 	public String getUpdatedDateTime();
 

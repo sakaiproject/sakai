@@ -40,9 +40,9 @@ public interface GradebookManager {
 	public Gradebook getGradebookByTitleAndContext(final String title,
 			final String context);
 
-	public SortedSet getGradebooksByContext(String context);
+	public SortedSet getGradebooksByContext(final String context, final String sortBy, final boolean ascending);
 
-	public SortedSet getReleasedGradebooksByContext(final String context);
+	public SortedSet getReleasedGradebooksByContext(final String context, final String sortBy, final boolean ascending);
 
 	public SortedSet getStudentGradesForGradebook(final Gradebook gradebook);
 

@@ -95,6 +95,10 @@ public class PostemTool {
 	
 	protected String delimiter;
 	
+	protected boolean ascending = true;
+	
+	protected String sortBy = Gradebook.SORT_BY_TITLE;
+	
 	protected boolean displayErrors;
 
 	protected boolean userPressedBack = false;
@@ -157,11 +161,11 @@ public class PostemTool {
 			if (checkAccess()) {
 				// logger.info("**** Getting by context!");
 				gradebooks = new ArrayList(gradebookManager
-						.getGradebooksByContext(siteId));
+						.getGradebooksByContext(siteId, sortBy, ascending));
 			} else {
 				// logger.info("**** Getting RELEASED by context!");
 				gradebooks = new ArrayList(gradebookManager
-						.getReleasedGradebooksByContext(siteId));
+						.getReleasedGradebooksByContext(siteId, sortBy, ascending));
 			}
 		} catch (Exception e) {
 			gradebooks = null;
@@ -309,6 +313,78 @@ public class PostemTool {
 		}
 		return msgs.getString("select_participant");
 	}
+	
+	public void toggleSort(String sortByType) {
+		if (sortBy.equals(sortByType)) {
+	       if (ascending) {
+	    	   ascending = false;
+	       } else {
+	    	   ascending = true;
+	       }
+	    } else {
+	    	sortBy = sortByType;
+	    	ascending = true;
+	    }
+	}
+	
+	public String toggleTitleSort()	{
+		toggleSort(Gradebook.SORT_BY_TITLE);
+	    return "main";
+	}
+	
+	public String toggleCreatorSort()	{
+		toggleSort(Gradebook.SORT_BY_CREATOR);
+	    return "main";
+	}
+	
+	public String toggleModBySort()	{    
+		toggleSort(Gradebook.SORT_BY_MOD_BY);
+	    return "main";
+	}
+	    
+	public String toggleModDateSort()	{    
+		toggleSort(Gradebook.SORT_BY_MOD_DATE);
+	    return "main";
+	}
+	
+	public String toggleReleasedSort()	{    
+		toggleSort(Gradebook.SORT_BY_RELEASED);	    
+	    return "main";
+	}
+	
+	public boolean isTitleSort() {
+		if (sortBy.equals(Gradebook.SORT_BY_TITLE))
+			return true;
+		return false;
+	}
+		
+	public boolean isCreatorSort() {
+		if (sortBy.equals(Gradebook.SORT_BY_CREATOR))
+			return true;
+		return false;
+	}
+		
+	public boolean isModBySort() {
+		if (sortBy.equals(Gradebook.SORT_BY_MOD_BY))
+			return true;
+		return false;
+	}
+	
+	public boolean isModDateSort() {
+		if (sortBy.equals(Gradebook.SORT_BY_MOD_DATE))
+			return true;
+		return false;
+	}
+	
+	public boolean isReleasedSort() {
+		if (sortBy.equals(Gradebook.SORT_BY_RELEASED))
+			return true;
+		return false;
+	}
+	
+	public boolean isAscending() {
+		return ascending;
+	}
 
 	public String processCreateNew() {
 		try {
@@ -379,7 +455,7 @@ public class PostemTool {
 		return "create_gradebook";
 
 	}
-
+	
 	public static void populateMessage(FacesMessage.Severity severity,
 			String messageId, Object[] args) {
 		ApplicationFactory factory = (ApplicationFactory) FactoryFinder

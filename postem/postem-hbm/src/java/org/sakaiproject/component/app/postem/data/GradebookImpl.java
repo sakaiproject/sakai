@@ -26,6 +26,7 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -79,6 +80,17 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 	protected Boolean releaseStatistics = new Boolean(false);
 
 	private static String units = "px";
+	
+	public static Comparator TitleAscComparator;
+	public static Comparator TitleDescComparator;
+	public static Comparator CreatorAscComparator;
+	public static Comparator CreatorDescComparator;
+	public static Comparator ModByAscComparator;
+	public static Comparator ModByDescComparator;
+	public static Comparator ModDateAscComparator;
+	public static Comparator ModDateDescComparator;
+	public static Comparator ReleasedAscComparator;
+	public static Comparator ReleasedDescComparator;
 
 	public GradebookImpl() {
 
@@ -476,5 +488,141 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 		}
 		return studentMap;
 	}
+	
+	private static int compareTitles(Gradebook gradebook, Gradebook otherGradebook) {
+		String title1 = gradebook.getTitle().toUpperCase();
+        String title2 = otherGradebook.getTitle().toUpperCase();
+		
+		int val = title1.compareTo(title2);
+        if (val != 0)
+        	return val;
+        else
+        	return 1;  //we want "Test" and "test" to appear together
+	}
+	
+	static
+	  {  
+		// We have to be careful because the gradebooks use the "SortedSet" structure
+		// that will only accept one occurrence if the items being compared are equal
+		
+	    TitleAscComparator = new Comparator() {
+	    	public int compare(Object gradebook, Object otherGradebook) {	        
+	    		return compareTitles((Gradebook) gradebook, (Gradebook)otherGradebook);  
+	      }
+	    };
 
+	    TitleDescComparator = new Comparator() {
+	    	public int compare(Object gradebook, Object otherGradebook) {
+	    		return compareTitles((Gradebook) otherGradebook, (Gradebook)gradebook);  
+	    	}
+	    };
+	    
+	    CreatorAscComparator = new Comparator() {
+	    	public int compare(Object gradebook, Object otherGradebook) {
+	    		String creator1 = ((Gradebook) gradebook).getCreatorEid().toUpperCase();
+	    		String creator2 = ((Gradebook) otherGradebook).getCreatorEid().toUpperCase();
+	    		
+	    		if(creator1.equals(creator2)) {
+	    			return compareTitles((Gradebook) gradebook, (Gradebook)otherGradebook);  
+	    		}
+
+	    		return creator1.compareTo(creator2);
+    	  }
+	    };
+	    
+	    CreatorDescComparator = new Comparator() {
+	    	public int compare(Object gradebook, Object otherGradebook) {
+	    		String creator1 = ((Gradebook) gradebook).getCreatorEid().toUpperCase();
+	  	      	String creator2 = ((Gradebook) otherGradebook).getCreatorEid().toUpperCase();
+	  	      
+	  	      	if(creator1.equals(creator2)) {
+	  	      		return compareTitles((Gradebook) gradebook, (Gradebook)otherGradebook);  
+	  	      	}
+	  	      
+	  	      	return creator2.compareTo(creator1);
+	        }
+	    };
+	    
+	    ModByAscComparator = new Comparator() {
+	    	public int compare(Object gradebook, Object otherGradebook) {
+	    		String modBy1 = ((Gradebook) gradebook).getLastUpdaterEid().toUpperCase();
+	    		String modBy2 = ((Gradebook) otherGradebook).getLastUpdaterEid().toUpperCase();
+  	        
+	    		if(modBy1.equals(modBy2)) {
+	    			return compareTitles((Gradebook) gradebook, (Gradebook)otherGradebook);  
+	    		}
+	    		
+	    		return modBy1.compareTo(modBy2);
+    	  }
+	    };
+	    
+	    ModByDescComparator = new Comparator() {
+	    	public int compare(Object gradebook, Object otherGradebook) {
+	  	        String modBy1 = ((Gradebook) gradebook).getLastUpdaterEid().toUpperCase();
+	  	        String modBy2 = ((Gradebook) otherGradebook).getLastUpdaterEid().toUpperCase();
+	  	        
+	  	        if(modBy1.equals(modBy2)) {
+	  	        	return compareTitles((Gradebook) gradebook, (Gradebook)otherGradebook);  
+	    		}
+	  	        
+	            return modBy2.compareTo(modBy1);
+	    	}
+	    };
+	    
+	    ModDateAscComparator = new Comparator() {
+	    	public int compare(Object gradebook, Object otherGradebook) {
+	    		Timestamp modDate1 = ((Gradebook) gradebook).getLastUpdated();
+	    		Timestamp modDate2 = ((Gradebook) otherGradebook).getLastUpdated();
+  	        
+	    		if(modDate1.equals(modDate2)) {
+	    			return compareTitles((Gradebook) gradebook, (Gradebook)otherGradebook);  
+  	      		}
+  	        
+	    		return modDate1.compareTo(modDate2);
+	    	}
+	    };
+	    
+	    ModDateDescComparator = new Comparator() {
+	    	public int compare(Object gradebook, Object otherGradebook) {
+	  	        Timestamp modDate1 = ((Gradebook) gradebook).getLastUpdated();
+	  	        Timestamp modDate2 = ((Gradebook) otherGradebook).getLastUpdated();
+	  	        
+	  	        if(modDate1.equals(modDate2)) {
+	  	        	return compareTitles((Gradebook) gradebook, (Gradebook)otherGradebook);  
+	  	        }
+	  	      
+	            return modDate2.compareTo(modDate1);
+	    	}
+	    };
+	    
+	    ReleasedAscComparator = new Comparator() {
+	    	public int compare(Object gradebook, Object otherGradebook) {
+	    		boolean released1 = ((Gradebook) gradebook).getRelease();
+	    		boolean released2 = ((Gradebook) otherGradebook).getRelease();
+  	        
+	    		if (released1 == released2)
+	    			return compareTitles((Gradebook) gradebook, (Gradebook)otherGradebook);  
+	    		else if (released1 && !released2)
+	    			return -1;
+	    		else
+	    			return 1;
+	    	}
+	    };
+	    
+	    ReleasedDescComparator = new Comparator() {
+	    	public int compare(Object gradebook, Object otherGradebook) {
+	    		boolean released1 = ((Gradebook) gradebook).getRelease();
+	  	        boolean released2 = ((Gradebook) otherGradebook).getRelease();
+	  	        
+	  	        if (released1 == released2) {
+	  	        	return compareTitles((Gradebook) gradebook, (Gradebook)otherGradebook);  
+	  	        }
+	  	        else if (released1 && !released2)
+	  	        	return 1;
+	  	        else
+	  	        	return -1;
+	    	}
+	    };
+
+	  }
 }

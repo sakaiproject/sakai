@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Comparator;
 
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -169,7 +170,7 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 
 	}
 
-	public SortedSet getGradebooksByContext(final String context) {
+	public SortedSet getGradebooksByContext(final String context, final String sortBy, final boolean ascending) {
 		if (context == null) {
 			throw new IllegalArgumentException("Null Argument");
 		} else {
@@ -181,7 +182,10 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 							Expression.eq(CONTEXT, context));
 
 					List gbs = crit.list();
-					SortedSet gradebooks = new TreeSet();
+					
+					Comparator gbComparator = determineComparator(sortBy, ascending);
+					
+					SortedSet gradebooks = new TreeSet(gbComparator);
 
 					Iterator gbIterator = gbs.iterator();
 
@@ -198,7 +202,7 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 		}
 	}
 
-	public SortedSet getReleasedGradebooksByContext(final String context) {
+	public SortedSet getReleasedGradebooksByContext(final String context, final String sortBy, final boolean ascending) {
 		if (context == null) {
 			throw new IllegalArgumentException("Null Argument");
 		} else {
@@ -211,7 +215,10 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 							Expression.eq(RELEASED, new Boolean(true)));
 
 					List gbs = crit.list();
-					SortedSet gradebooks = new TreeSet();
+					
+					Comparator gbComparator = determineComparator(sortBy, ascending);
+					
+					SortedSet gradebooks = new TreeSet(gbComparator);
 
 					Iterator gbIterator = gbs.iterator();
 
@@ -277,6 +284,34 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 	public void updateTemplate(Gradebook gradebook, String template) {
 		gradebook.setTemplate(createTemplate(template));
 		getHibernateTemplate().saveOrUpdate(gradebook);
+	}
+	
+	private Comparator determineComparator(String sortBy, boolean ascending) {
+		if (ascending) {
+			if (sortBy.equals(Gradebook.SORT_BY_CREATOR)) {
+				return GradebookImpl.CreatorAscComparator;
+			} else if (sortBy.equals(Gradebook.SORT_BY_MOD_BY)) {
+				return GradebookImpl.ModByAscComparator;
+			} else if (sortBy.equals(Gradebook.SORT_BY_MOD_DATE)) {
+				return GradebookImpl.ModDateAscComparator;
+			} else if (sortBy.equals(Gradebook.SORT_BY_RELEASED)) {
+				return GradebookImpl.ReleasedAscComparator;
+			} else {
+				return GradebookImpl.TitleAscComparator;
+			}
+		} else {
+			if (sortBy.equals(Gradebook.SORT_BY_CREATOR)) {
+				return GradebookImpl.CreatorDescComparator;
+			} else if (sortBy.equals(Gradebook.SORT_BY_MOD_BY)) {
+				return GradebookImpl.ModByDescComparator;
+			} else if (sortBy.equals(Gradebook.SORT_BY_MOD_DATE)) {
+				return GradebookImpl.ModDateDescComparator;
+			} else if (sortBy.equals(Gradebook.SORT_BY_RELEASED)) {
+				return GradebookImpl.ReleasedDescComparator;
+			} else {
+				return GradebookImpl.TitleDescComparator;
+			}	
+		}
 	}
 
 }

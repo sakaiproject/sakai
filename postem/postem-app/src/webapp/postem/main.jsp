@@ -19,32 +19,52 @@
 				<sakai:flat_list value="#{PostemTool.gradebooks}" var="gradebook" binding="#{PostemTool.gradebookTable}">
 					<h:column>
 						<f:facet name="header">
-							<h:outputText style="height: 16px; width=72px" value="#{msgs.gradebook_titles}" />
+							<h:commandLink action="#{PostemTool.toggleTitleSort}" title="#{msgs.sort_title}">
+						   	<h:outputText value="#{msgs.gradebook_titles}" />
+								<h:graphicImage value="postem/images/sortascending.gif" rendered="#{PostemTool.titleSort && PostemTool.ascending}" alt="#{msgs.sort_title_asc}"/>
+								<h:graphicImage value="postem/images/sortdescending.gif" rendered="#{PostemTool.titleSort && !PostemTool.ascending}" alt="#{msgs.sort_title_desc}"/>
+							</h:commandLink>
 						</f:facet>
 						<h:outputText value="#{gradebook.title}" />
 					</h:column>
 					<h:column rendered="#{PostemTool.editable}">
 						<f:facet name="header">
-							<h:outputText value="#{msgs.gradebook_creators}"/>
+						  <h:commandLink action="#{PostemTool.toggleCreatorSort}" title="#{msgs.sort_creator}">
+						   	<h:outputText value="#{msgs.gradebook_creators}" />
+								<h:graphicImage value="postem/images/sortascending.gif"  rendered="#{PostemTool.creatorSort && PostemTool.ascending}" alt="#{msgs.sort_creator_asc}"/>
+								<h:graphicImage value="postem/images/sortdescending.gif"  rendered="#{PostemTool.creatorSort && !PostemTool.ascending}" alt="#{msgs.sort_creator_desc}"/>
+							</h:commandLink>
 						</f:facet>
 						<h:outputText value="#{gradebook.creatorEid}"/>
 					</h:column>
 					<h:column rendered="#{PostemTool.editable}">
 						<f:facet name="header">
-							<h:outputText value="#{msgs.gradebook_lastmodifiedby}"/>
+							<h:commandLink action="#{PostemTool.toggleModBySort}" title="#{msgs.sort_mod_by}">
+						   	<h:outputText value="#{msgs.gradebook_lastmodifiedby}" />
+								<h:graphicImage value="postem/images/sortascending.gif"  rendered="#{PostemTool.modBySort && PostemTool.ascending}" alt="#{msgs.sort_mod_by_asc}"/>
+								<h:graphicImage value="postem/images/sortdescending.gif"  rendered="#{PostemTool.modBySort && !PostemTool.ascending}" alt="#{msgs.sort_mod_by_desc}"/>
+							</h:commandLink>
 						</f:facet>
 						<h:outputText value="#{gradebook.lastUpdaterEid}"/>
 					</h:column>
 					<h:column>
 						<f:facet name="header">
-							<h:outputText value="#{msgs.gradebook_lastmodified}"/>
+							<h:commandLink action="#{PostemTool.toggleModDateSort}" title="#{msgs.sort_mod_date}">
+						   	<h:outputText value="#{msgs.gradebook_lastmodified}" />
+								<h:graphicImage value="postem/images/sortascending.gif"  rendered="#{PostemTool.modDateSort && PostemTool.ascending}" alt="#{msgs.sort_mod_date_asc}"/>
+								<h:graphicImage value="postem/images/sortdescending.gif"  rendered="#{PostemTool.modDateSort && !PostemTool.ascending}" alt="#{msgs.sort_mod_date_desc}"/>
+							</h:commandLink>
 						</f:facet>
 						<%-- <sakai:outputDate value="#{gradebook.lastUpdated}" showDate="true" showTime="true"/> --%>
 						<h:outputText value="#{gradebook.updatedDateTime}"/>
 					</h:column>
 					<h:column rendered="#{PostemTool.editable}">
 						<f:facet name="header">
-							<h:outputText value="#{msgs.released}"/>
+							<h:commandLink action="#{PostemTool.toggleReleasedSort}" title="#{msgs.sort_released}">
+						   	<h:outputText value="#{msgs.released}" />
+								<h:graphicImage value="postem/images/sortascending.gif"  rendered="#{PostemTool.releasedSort && PostemTool.ascending}" alt="#{msgs.sort_released_asc}"/>
+								<h:graphicImage value="postem/images/sortdescending.gif"  rendered="#{PostemTool.releasedSort && !PostemTool.ascending}" alt="#{msgs.sort_released_desc}"/>
+							</h:commandLink>
 						</f:facet>
 						<h:outputText rendered="#{gradebook.released}" value="#{msgs.yes}"/>
 						<h:outputText rendered="#{!gradebook.released}" value="#{msgs.no}"/>
