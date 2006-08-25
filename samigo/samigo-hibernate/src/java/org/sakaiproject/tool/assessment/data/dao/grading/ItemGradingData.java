@@ -65,7 +65,8 @@ public class ItemGradingData
   // these two properties are used by audio question in Samigo 2.2
   private Integer attemptsRemaining;
   private String lastDuration;
-
+  private ArrayList mediaArray;
+  
   public ItemGradingData() {
   }
 
@@ -215,13 +216,16 @@ public class ItemGradingData
     this.lastDuration = lastDuration;
   }
 
-  private ArrayList mediaArray;
   public ArrayList getMediaArray(){
     return mediaArray;
   }
 
   public void setMediaArray(ArrayList mediaArray){
     this.mediaArray = mediaArray;
+  }
+
+  public int getMediaSize(){
+	  return mediaArray.size();
   }
 
 }

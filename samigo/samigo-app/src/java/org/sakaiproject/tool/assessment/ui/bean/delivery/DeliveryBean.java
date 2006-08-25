@@ -1262,6 +1262,11 @@ public class DeliveryBean
     SubmitToGradingActionListener listener =
       new SubmitToGradingActionListener();
     listener.processAction(null);
+    // We don't need to call completeItemGradingData to create new ItemGradingData for linear access
+    // because each ItemGradingData is created when it is viewed/answered 
+    if (!navigation.equals("1")) {
+    	listener.completeItemGradingData();
+    }
     syncTimeElapsedWithServer();
 
     String returnValue="submitAssessment";
