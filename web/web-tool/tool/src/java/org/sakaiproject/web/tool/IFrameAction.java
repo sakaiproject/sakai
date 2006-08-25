@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Collections;
+import java.net.URLEncoder;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -580,7 +581,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		index = sb.indexOf(macroName);
 		while (index != -1)
 		{
-			String  macroValue = getMacroValue(macroName);
+			String  macroValue = URLEncoder.encode(getMacroValue(macroName));
 
 			sb.replace(index, (index + macroName.length()), macroValue);
 			index = sb.indexOf(macroName, (index + macroValue.length()));
