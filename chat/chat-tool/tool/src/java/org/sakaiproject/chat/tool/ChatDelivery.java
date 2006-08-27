@@ -125,7 +125,13 @@ public class ChatDelivery extends BaseDelivery
 		{
 		}
 
-		String browserId = UsageSessionService.getSession().getBrowserId();
+		// We may not have a usage session
+		UsageSession session = UsageSessionService.getSession();
+		String browserId = UsageSession.UNKNOWN;
+		if ( session != null ) 
+		{
+			browserId = session.getBrowserId();
+		}
 
 		String retval = null;
 
