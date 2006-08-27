@@ -1157,6 +1157,13 @@ public class CharonPortal extends HttpServlet
 			return;
 		}
 
+		// Reset the tool state if requested
+		if ( "true".equals(req.getParameter("sakai.state.reset") ) ) {
+			Session s = SessionManager.getCurrentSession();
+			ToolSession ts = s.getToolSession(placementId);
+			ts.clearAttributes();
+		}
+
 		// find the tool registered for this
 		ActiveTool tool = ActiveToolManager.getActiveTool(siteTool.getToolId());
 		if (tool == null)
@@ -2084,6 +2091,7 @@ public class CharonPortal extends HttpServlet
 			return;
 		}
 
+
 		// let the tool do some the work (include) (see note above)
 		// tool.include(req, res, siteTool, toolContextPath, toolPathInfo);
 
@@ -2096,6 +2104,13 @@ public class CharonPortal extends HttpServlet
 		// // let the tool output its own title frame
 		// titleUrl = toolUrl + "?panel=Title";
 		// }
+
+		// Reset the tool state if requested
+		if ( "true".equals(req.getParameter("sakai.state.reset") ) ) {
+			Session s = SessionManager.getCurrentSession();
+			ToolSession ts = s.getToolSession(placement.getId());
+			ts.clearAttributes();
+		}
 
 		// this is based on what varuna is currently putting out
 		out.println("<div class=\"portlet\">");
