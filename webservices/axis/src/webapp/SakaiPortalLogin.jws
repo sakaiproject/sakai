@@ -10,11 +10,20 @@ import org.sakaiproject.id.cover.IdManager;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
+
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.site.cover.SiteService;
 
 import org.apache.axis.AxisFault;
+import org.apache.axis.Constants;
+import org.apache.axis.MessageContext;
+
+// Necessary until code moves into UsageSessionServiceAdaptor.java
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.event.cover.EventTrackingService;
 
 /**
  * class to support Sakai Login headers sent in request as a string array
@@ -39,17 +48,19 @@ public class SakaiPortalLogin {
         throws AxisFault
     {
 
+	MessageContext messageContext = MessageContext.getCurrentContext(); 
+	String ipAddress = messageContext.getStrProp(Constants.MC_REMOTE_ADDR);
+
     	String portalSecret = ServerConfigurationService.getString("webservice.portalsecret");
 
 	// Leave this in for a while until this is better tested
 
 	System.out.println("SakaiPortalLogin.loginAndCreate id="+id+" pw="+pw+" sec="+portalSecret);
-	System.out.println("        fn="+firstName+" ln="+lastName+" em="+eMail);
+	System.out.println("        fn="+firstName+" ln="+lastName+" em="+eMail+" ip="+ipAddress);
 
 	if ( portalSecret == null || pw == null || 
 	     portalSecret.equals("") || ! portalSecret.equals(pw) ) {
-		// TODO: Should add IP address to this
-		LOG.info("SakaiPortalLogin secret mismatch");
+		LOG.info("SakaiPortalLogin secret mismatch ip="+ipAddress);
                 throw new AxisFault("Failed login");
 	}
 
@@ -60,7 +71,7 @@ public class SakaiPortalLogin {
 		try {
 			// Set password to something unguessable - they can set a new PW once they are logged in
 			String hiddenPW = IdManager.createUuid();
- 			UserDirectoryService.addUser(null,id,firstName,lastName,eMail,hiddenPW,"portal", null);
+ 			UserDirectoryService.addUser(null,id,firstName,lastName,eMail,hiddenPW,"registered", null);
                         System.out.println("User Created...");
 		} catch(Exception e) {
 			System.out.println("Unable to create user...");
@@ -76,13 +87,17 @@ public class SakaiPortalLogin {
                 if (s == null)
                 {
                         // System.out.println("no session established");
-                        LOG.warn("Web Services Login failed to establish session for - "+id);
+                        LOG.warn("Web Services Login failed to establish session for id="+id+" ip="+ipAddress);
                         throw new AxisFault("Unable to establish session");
                 }
                 else
                 {
-                        s.setUserId(user.getId());
-			s.setUserEid(id);
+			// We do not care too much on the off-change that this fails - folks simply won't show up in presense
+			// and events won't be trackable back to people / IP Addresses - but if it fails - there is nothing
+			// we can do anyways.
+
+			UsageSessionService_loginDirect(user.getId(), id, ipAddress, "SakaiPortalLogin.jws");
+
 			try {
 				String siteId = SiteService.getUserSiteId(s.getUserId());
 				System.out.println("Site exists..."+siteId);
@@ -90,11 +105,11 @@ public class SakaiPortalLogin {
 				System.out.println("Site does not exist...");
         			throw new AxisFault("Failed login");
 			}
+                	if ( LOG.isDebugEnabled() ) LOG.debug("Sakai Portal Login id="+id+" ip="+ipAddress+" session="+s.getId());
 			return s.getId();
                 }
 	}
-	// TODO: Should add IP address to this
-	LOG.info("SakaiPortalLogin Failed");
+	LOG.info("SakaiPortalLogin Failed ip="+ipAddress);
         throw new AxisFault("Failed login");
     }
 
@@ -104,4 +119,36 @@ public class SakaiPortalLogin {
 	System.out.println("SakiaPortalLogin.login()");
 	return loginAndCreate(id, pw, null, null, null);
     }
+
+    // This code is adapted from the file:
+    // ./event-impl/impl/src/java/org/sakaiproject/event/impl/UsageSessionServiceAdaptor.java
+    // Method
+    // public boolean login(Authentication authn, HttpServletRequest req)
+    // We want to do exactly what this routine *does* but we do not have an HttpServletRequest
+    // to hand it
+
+        public boolean UsageSessionService_loginDirect(String userId, String userEid, String ipAddress, String userAgent)
+        {
+                // establish the user's session - this has been known to fail
+                UsageSession session = UsageSessionService.startSession(userId,ipAddress,userAgent);
+                if (session == null)
+                {
+                        return false;
+                }
+
+                // set the user information into the current session
+                Session sakaiSession = SessionManager.getCurrentSession();
+                sakaiSession.setUserId(userId);
+                sakaiSession.setUserEid(userEid);
+
+                // update the user's externally provided realm definitions
+                AuthzGroupService.refreshUser(userId);
+
+		String EVENT_LOGIN = "user.login";
+
+                // post the login event
+                EventTrackingService.post(EventTrackingService.newEvent(EVENT_LOGIN, null, true));
+
+                return true;
+        }
 }

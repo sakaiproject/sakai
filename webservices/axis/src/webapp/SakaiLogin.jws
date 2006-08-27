@@ -12,6 +12,14 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import org.apache.axis.AxisFault;
+import org.apache.axis.Constants;
+import org.apache.axis.MessageContext;
+
+// Necessary until code moves into UsageSessionServiceAdaptor.java
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.event.cover.EventTrackingService;
 
 /**
  * class to support Sakai Login headers sent in request as a string array
@@ -24,6 +32,8 @@ public class SakaiLogin
     public String login(String id,String pw) 
 	throws AxisFault
     {
+	MessageContext messageContext = MessageContext.getCurrentContext(); 
+	String ipAddress = messageContext.getStrProp(Constants.MC_REMOTE_ADDR);
 
 	boolean allowLogin = ServerConfigurationService.getBoolean("webservices.allowlogin", false);
 
@@ -34,21 +44,60 @@ public class SakaiLogin
         User user = UserDirectoryService.authenticate(id,pw);
 	if ( user != null ) {
                 Session s = SessionManager.startSession();
+                SessionManager.setCurrentSession(s);
                 if (s == null)
                 {
-        		LOG.warn("Web Services Login failed to establish session for - "+id);
+        		LOG.warn("Web Services Login failed to establish session for id="+id+" ip="+ipAddress);
                         throw new AxisFault("Unable to establish session");
                 }
                 else
                 {
-			s.setUserId(user.getId()); 
-			s.setUserEid(id);
-                	if ( LOG.isDebugEnabled() ) LOG.debug("Sakai Web Services Login " + id );
+
+			// We do not care too much on the off-change that this fails - folks simply won't show up in presense
+			// and events won't be trackable back to people / IP Addresses - but if it fails - there is nothing
+			// we can do anyways.
+
+			UsageSessionService_loginDirect(user.getId(), id, ipAddress, "SakaiLogin.jws");
+
+                	if ( LOG.isDebugEnabled() ) LOG.debug("Sakai Web Services Login id="+id+" ip="+ipAddress+" session="+s.getId());
 			return s.getId();
                 }
 	}
-	// TODO: Add IP address here
-        LOG.warn("Failed Web Services Login - "+id);
+        LOG.warn("Failed Web Services Login id="+id+" ip="+ipAddress);
         throw new AxisFault("Unable to login");
     }
+
+    // This code is adapted from the file:
+    // ./event-impl/impl/src/java/org/sakaiproject/event/impl/UsageSessionServiceAdaptor.java
+    // Method
+    // public boolean login(Authentication authn, HttpServletRequest req)
+    // We want to do exactly what this routine *does* but we do not have an HttpServletRequest
+    // to hand it
+
+        public boolean UsageSessionService_loginDirect(String userId, String userEid, String ipAddress, String userAgent)
+        {
+                // establish the user's session - this has been known to fail
+                UsageSession session = UsageSessionService.startSession(userId,ipAddress,userAgent);
+                if (session == null)
+                {
+                        return false;
+                }
+
+                // set the user information into the current session
+                Session sakaiSession = SessionManager.getCurrentSession();
+                sakaiSession.setUserId(userId);
+                sakaiSession.setUserEid(userEid);
+
+                // update the user's externally provided realm definitions
+                AuthzGroupService.refreshUser(userId);
+
+		String EVENT_LOGIN = "user.login";
+
+                // post the login event
+                EventTrackingService.post(EventTrackingService.newEvent(EVENT_LOGIN, null, true));
+
+                return true;
+        }
+
 }
+

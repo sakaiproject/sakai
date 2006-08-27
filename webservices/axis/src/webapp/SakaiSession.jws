@@ -28,4 +28,18 @@ public class SakaiSession {
 		return resp;
         }
     }
+
+    public String getSessionUser(String id) {
+        Session s = SessionManager.getSession(id);
+        if (s == null)
+        {
+		System.out.println("getSessionUser session id="+id+" Has no user");
+		return "";
+        }
+        else
+        {
+		System.out.println("getSessionUser session id="+id+" eid="+s.getUserEid());
+		return s.getUserEid();
+        }
+    }
 }

@@ -175,6 +175,10 @@ public class SakaiSite {
 		Node urlNode  = dom.createElement("url");
 		siteNode.appendChild(urlNode);
 		urlNode.appendChild(dom.createTextNode(serverUrl+"/portal/worksite/"+theSite.getId()));
+
+		Node typeNode  = dom.createElement("type");
+		siteNode.appendChild(typeNode);
+		typeNode.appendChild(dom.createTextNode(theSite.getType()));
  
 		// Load up the pages
 		if ( doTools) scanPages(dom, theSite, siteNode, serverUrl);
