@@ -100,6 +100,7 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.metaobj.shared.control.SchemaBean;
 import org.sakaiproject.metaobj.shared.mgt.HomeFactory;
+import org.sakaiproject.metaobj.shared.mgt.ReadableObjectHome;
 import org.sakaiproject.metaobj.shared.mgt.StructuredArtifactValidationService;
 import org.sakaiproject.metaobj.shared.mgt.home.StructuredArtifactHomeInterface;
 import org.sakaiproject.metaobj.shared.model.ElementBean;
@@ -6421,8 +6422,8 @@ public class ResourcesAction
 		return item;
 
 	}
-
-	/**
+   
+   /**
 	 * This method updates the session state with information needed to create or modify
 	 * structured artifacts in the resources tool.  Among other things, it obtains a list
 	 * of "forms" available to the user and places that list in state indexed as
@@ -6466,6 +6467,15 @@ public class ResourcesAction
 			catch(Exception ignore)
 			{}
 		}
+      
+      final Comparator worksiteHomesComparator = new Comparator() {
+         public int compare(Object o1, Object o2) {
+                return ((ReadableObjectHome)o1).getType().getDescription().toLowerCase().compareTo(((ReadableObjectHome)o2).getType().getDescription().toLowerCase());
+         }
+      };
+      
+      Collections.sort(listOfHomes, worksiteHomesComparator);
+      
 		current_stack_frame.put(STATE_STRUCTOBJ_HOMES, listOfHomes);
 		if(!listOfHomes.isEmpty())
 		{
