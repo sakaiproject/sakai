@@ -71,6 +71,19 @@ public class CSV {
 	public List getStudents() {
 		return students;
 	}
+	
+	public List getStudentUsernames() {
+		List usernames = new ArrayList();
+		
+		Iterator studentIter = students.iterator();
+		while (studentIter.hasNext()) {
+			List s1 = (List) studentIter.next();
+			String usr = ((String) s1.get(0)).trim();
+			usernames.add(usr);
+		}
+		
+		return usernames;
+	}
 
 	public String getCsv() {
 		return csv;

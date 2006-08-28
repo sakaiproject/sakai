@@ -545,6 +545,10 @@ public class PostemTool {
 				  if(!usernamesValid(grades)) {
 					  return "create_gradebook";
 				  }
+				  
+				  if (hasADuplicateUsername(grades)) {
+					  return "create_gradebook";
+				  }
 				}
 				
 				if (this.newTemplate != null && this.newTemplate.trim().length() > 0) {
@@ -905,20 +909,55 @@ public class PostemTool {
 		return new Column(currentGradebook, column);
 	}
 	
-	public boolean usernamesValid(CSV studentGrades) {
+	private boolean hasADuplicateUsername(CSV studentGrades) {
+		List usernameList = studentGrades.getStudentUsernames();
+		List duplicatesList = new ArrayList();
+		
+		while (usernameList.size() > 0) {
+			String username = (String)usernameList.get(0);
+			usernameList.remove(username);
+			if (usernameList.contains(username)
+					&& !duplicatesList.contains(username)) {
+				duplicatesList.add(username);
+			}
+		}
+		
+		if (duplicatesList.size() <= 0) {
+			return false;
+		}
+		
+		if (duplicatesList.size() == 1) {
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+					"single_duplicate_username", new Object[] { });
+		} else {
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+					"mult_duplicate_usernames", new Object[] { });
+		}
+		
+		for (int i=0; i < duplicatesList.size(); i++) {
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+					"duplicate_username", new Object[] { duplicatesList.get(i) });
+		}
+		
+		PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+				"duplicate_username_dir", new Object[] { });
+		
+		return true;
+	}
+	
+	private boolean usernamesValid(CSV studentGrades) {
 		boolean usersAreValid = true;
 		List blankRows = new ArrayList();
 		List invalidUsernames = new ArrayList();
 		int row=1;
 		
-		List studentList = studentGrades.getStudents();
+		List studentList = studentGrades.getStudentUsernames();
 		Iterator studentIter = studentList.iterator();
 		while (studentIter.hasNext()) {
 			row++;
-			List s1 = (List) studentIter.next();
-			String usr = ((String) s1.get(0)).trim();
+			String usr = (String) studentIter.next();
 			
-			if(usr.equals("") || usr == null) {
+			if (usr.equals("") || usr == null) {
 				usersAreValid = false;
 				blankRows.add(new Integer(row));
 			} else if(!isSiteMember(getUserId(usr))) {
