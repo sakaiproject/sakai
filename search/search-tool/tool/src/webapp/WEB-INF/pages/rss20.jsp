@@ -14,6 +14,11 @@
 	+ "</span></p>"
 	+ "</description>"
 	+ "</item>";
+	String errorMessageFormat = 
+	  "<item><title>Error</title><description> " 
+	+ "<p class=\"alertMessage\" >{0}</p>"
+	+ "</description>"
+	+ "</item>";
 %>
 <rss version="2.0">
   <channel>
@@ -30,7 +35,7 @@
      <%= (new java.util.Date()).toString() %>
      </lastBuildDate>
      <generator>Sakai Search RSS Generator</generator>
-    		<%= searchBean.getSearchResults(searchItemFormat) %>
+    		<%= searchBean.getSearchResults(searchItemFormat,errorMessageFormat) %>
      </channel>
 </rss>
 
