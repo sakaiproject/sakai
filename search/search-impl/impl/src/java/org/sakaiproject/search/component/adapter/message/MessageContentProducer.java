@@ -162,7 +162,14 @@ public class MessageContentProducer implements EntityContentProducer
 				sb.append("From ").append(mh.getFrom().getDisplayName())
 						.append("\n");
 				sb.append("Message Body\n");
-				sb.append(m.getBody()).append("\n");
+				String mBody = m.getBody();
+				
+				mBody = mBody.replaceAll("\\s+"," ");
+				mBody = mBody.replaceAll("<!--.*?-->","");
+				mBody = mBody.replaceAll("&.*?;","");
+				mBody = mBody.replaceAll("<.*?>","");
+				
+				sb.append(mBody).append("\n");
 				log.debug("Message Content for " + cr.getReference() + " is "
 						+ sb.toString());
 
