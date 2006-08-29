@@ -152,17 +152,24 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
             // Store old value to see whether an update is really needed.
             Double oldPointsEarned = cgr.getPointsEarned();
+			Double oldSortGrade = cgr.getSortGrade();
 
             // Calculate and update the total points and sort grade fields
             cgr.calculateTotalPointsEarned(gradeRecords);
+            if (cgr.getEnteredGrade() == null) {
+				cgr.setSortGrade(cgr.calculatePercent(cg.getTotalPoints().doubleValue()));
+			}
 
             // Only update if there's been a change.
             Double newPointsEarned = cgr.getPointsEarned();
-            if ( ((newPointsEarned != null) && (!newPointsEarned.equals(oldPointsEarned))) ||
-            	((newPointsEarned == null) && (oldPointsEarned != null)) ) {
-				if (cgr.getEnteredGrade() == null) {
-					cgr.setSortGrade(cgr.calculatePercent(cg.getTotalPoints().doubleValue()));
-				}
+            Double newSortGrade = cgr.getSortGrade();
+
+            if (
+				((newPointsEarned != null) && (!newPointsEarned.equals(oldPointsEarned))) ||
+            	((newPointsEarned == null) && (oldPointsEarned != null)) ||
+            	((newSortGrade != null) && (!newSortGrade.equals(oldSortGrade))) ||
+            	((newSortGrade == null) && (oldSortGrade != null))
+            ) {
 				session.saveOrUpdate(cgr);
 				changedRecordCount++;
 			}

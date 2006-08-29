@@ -92,7 +92,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 // If the same mapping is selected, but it has been modified, we need
                 // to trigger a sort value update on the explicitly entered course grades
                 if(!mappingFromPersistence.equals(gradebook.getSelectedGradeMapping())) {
-					updateCourseGradeRecordSortValues(gradebook.getId(), true);
+					updateCourseGradeRecordSortValues(gradebook.getId());
                 }
 
                 return null;
@@ -685,53 +685,28 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
     /**
      * Updates the values used for sorting on any course grade record where a letter
-     * grade has (or hasn't) been explicitly set.  This should happen anytime a gradebook's
-     * grade mapping has been modified (using true to operate on manually entered
-     * course grade records) and when an existing assignment's point value changes
-     * (using false, so the sort values are changed only on auto-calculated
-     * course grade records).
+     * grade has been explicitly set.  This should happen anytime a gradebook's
+     * grade mapping has been modified.
      *
      * @param gradebookId The gradebook id
-     * @param manuallyEnteredRecords Whether to update manually entered records or
-     * TODO Should this be deleted, since it should be handled by recalculateCourseGradeRecords?
      */
-    private void updateCourseGradeRecordSortValues(final Long gradebookId, final boolean manuallyEnteredRecords) {
+    private void updateCourseGradeRecordSortValues(final Long gradebookId) {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-                if(manuallyEnteredRecords) {
-                    if(logger.isDebugEnabled()) logger.debug("Updating sort values on manually entered course grades");
-                } else {
-                    if(logger.isDebugEnabled()) logger.debug("Updating sort values on auto-calculated course grades");
-                }
+                if(logger.isDebugEnabled()) logger.debug("Updating sort values on manually entered course grades");
+
                 Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
                 GradeMapping mapping = gb.getSelectedGradeMapping();
 
-                // We'll need to get the total points in the gradebook if we're
-                // resetting the sort values for non-explicitly set grade records
-                // There's no need to take the performance hit of making the total
-                // points query if we don't need it.
-                double totalPointsPossible = 0;
-                if(!manuallyEnteredRecords) {
-                    totalPointsPossible = getTotalPoints(gradebookId);
-                }
-
-                StringBuffer hql = new StringBuffer("from CourseGradeRecord as cgr where cgr.enteredGrade is ");
-                if(manuallyEnteredRecords) {
-                    hql.append("not ");
-                }
-                hql.append("null and cgr.gradableObject.gradebook.id=?");
-
+                StringBuffer hql = new StringBuffer(
+					"from CourseGradeRecord as cgr where cgr.enteredGrade is not null and cgr.gradableObject.gradebook.id=?");
                 List gradeRecords = session.createQuery(hql.toString()).
                 	setLong(0, gradebookId.longValue()).
                 	list();
 
                 for(Iterator gradeRecordIterator = gradeRecords.iterator(); gradeRecordIterator.hasNext();) {
                     CourseGradeRecord cgr = (CourseGradeRecord)gradeRecordIterator.next();
-                    if(manuallyEnteredRecords) {
-                        cgr.setSortGrade(mapping.getValue(cgr.getEnteredGrade()));
-                    } else {
-                        cgr.setSortGrade(cgr.calculatePercent(totalPointsPossible));
-                    }
+                    cgr.setSortGrade(mapping.getValue(cgr.getEnteredGrade()));
                     session.update(cgr);
                 }
                 return null;

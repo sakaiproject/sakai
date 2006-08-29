@@ -342,12 +342,19 @@ public class GradeManagerTest extends GradebookTestBase {
         asn2.setNotCounted(true);
         gradebookManager.updateAssignment(asn2);
 
+		// Get what the student will see.
+		CourseGradeRecord scgr = gradebookManager.getStudentCourseGradeRecord(gradebook, (String)studentUidsList.get(0));
+
         // Make sure it's not counted.
         courseGrade = gradebookManager.getCourseGradeWithStats(gradebook.getId());
 		Assert.assertTrue(courseGrade.getPointsForDisplay().doubleValue() == 10.0);
 		courseGradeRecords = gradebookManager.getPointsEarnedSortedGradeRecords(courseGrade, studentUidsList);
 		cgr = (CourseGradeRecord)courseGradeRecords.get(0);
 		Assert.assertTrue(cgr.getPointsEarned().doubleValue() == 8.0);
+
+		// Make sure there's no disconnect between what the instructor
+		// will see and what the student will see.
+		Assert.assertTrue(cgr.getNonNullAutoCalculatedGrade().equals(scgr.getSortGrade()));
 
 		// Test what is now (unfortunately) a different code path.
         List persistentGradeRecords = gradebookManager.getPointsEarnedSortedGradeRecords(asn1, studentUidsList);
@@ -360,4 +367,46 @@ public class GradeManagerTest extends GradebookTestBase {
 		cgr = (CourseGradeRecord)courseGradeRecords.get(0);
 		Assert.assertTrue(cgr.getPointsEarned().doubleValue() == 7.0);
     }
+
+    /**
+     * This tests an edge case responsible for an earlier bug: If an unscored assignment
+     * changes whether it's counted towards the course grade, all course grades need
+     * to be recalculated because the total points possible have changed.
+     */
+    public void testNotCountedUnscoredAssignments() throws Exception {
+		List studentUidsList = Arrays.asList(new String[] {
+			"testStudentUserUid1",
+		});
+		addUsersEnrollments(gradebook, studentUidsList);
+
+        Long id1 = gradebookManager.createAssignment(gradebook.getId(), "asn1", new Double(10), null, Boolean.FALSE);
+        Long id2 = gradebookManager.createAssignment(gradebook.getId(), "asn2", new Double(20), new Date(10), Boolean.FALSE);
+
+        Assignment asn1 = gradebookManager.getAssignmentWithStats(id1);
+        Assignment asn2 = gradebookManager.getAssignmentWithStats(id2);
+
+		// Only score the first assignment.
+		GradeRecordSet gradeRecordSet = new GradeRecordSet(asn1);
+		gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn1, (String)studentUidsList.get(0), new Double(8)));
+		gradebookManager.updateAssignmentGradeRecords(gradeRecordSet);
+
+        // Don't count the unscored assignment.
+        asn2.setNotCounted(true);
+        gradebookManager.updateAssignment(asn2);
+
+		// Get what the student will see.
+		CourseGradeRecord scgr = gradebookManager.getStudentCourseGradeRecord(gradebook, (String)studentUidsList.get(0));
+
+        // Make sure it's not counted.
+        CourseGrade courseGrade = gradebookManager.getCourseGradeWithStats(gradebook.getId());
+		Assert.assertTrue(courseGrade.getPointsForDisplay().doubleValue() == 10.0);
+		List courseGradeRecords = gradebookManager.getPointsEarnedSortedGradeRecords(courseGrade, studentUidsList);
+		CourseGradeRecord cgr = (CourseGradeRecord)courseGradeRecords.get(0);
+		Assert.assertTrue(cgr.getPointsEarned().doubleValue() == 8.0);
+
+		// Make sure there's no disconnect between what the instructor
+		// will see and what the student will see.
+		Assert.assertTrue(cgr.getNonNullAutoCalculatedGrade().equals(scgr.getSortGrade()));
+	}
+
 }
