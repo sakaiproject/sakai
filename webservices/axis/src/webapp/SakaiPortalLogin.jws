@@ -52,16 +52,29 @@ public class SakaiPortalLogin {
 	String ipAddress = messageContext.getStrProp(Constants.MC_REMOTE_ADDR);
 
     	String portalSecret = ServerConfigurationService.getString("webservice.portalsecret");
+	String portalIPs = ServerConfigurationService.getString("webservice.portalIP");
+	String ipCheck = ServerConfigurationService.getString("webservice.IPCheck");
 
 	// Leave this in for a while until this is better tested
 
 	System.out.println("SakaiPortalLogin.loginAndCreate id="+id+" pw="+pw+" sec="+portalSecret);
+	System.out.println("SakaiPortalLogin.loginAndCreate ip="+ipAddress+" portalIP="+portalIPs+" IPCheck="+ipCheck);
 	System.out.println("        fn="+firstName+" ln="+lastName+" em="+eMail+" ip="+ipAddress);
 
 	if ( portalSecret == null || pw == null || 
 	     portalSecret.equals("") || ! portalSecret.equals(pw) ) {
 		LOG.info("SakaiPortalLogin secret mismatch ip="+ipAddress);
                 throw new AxisFault("Failed login");
+	}
+
+        // Verify that this IP address matches our string
+	if ( "true".equalsIgnoreCase(ipCheck) )
+	{
+		if (  portalIPs == null || portalIPs.equals("") ||  portalIPs.indexOf(ipAddress) == -1 ) {
+			System.out.println(" SakaiPortalLogin Trusted IP not found" );
+		 	LOG.info("SakaiPortalLogin Trusted IP not found");
+                 	throw new AxisFault("Failed login");
+		}
 	}
 
         User user = getSakaiUser(id,pw);
