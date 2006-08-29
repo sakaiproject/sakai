@@ -94,7 +94,7 @@ FCKConfig.FontSizes		= '1/xx-small;2/x-small;3/small;4/medium;5/large;6/x-large;
 FCKConfig.FontFormats	= 'p;div;pre;address;h1;h2;h3;h4;h5;h6' ;
 
 FCKConfig.SpellChecker			= 'ieSpell' ;	// 'ieSpell' | 'SpellerPages'
-FCKConfig.IeSpellDownloadUrl	= 'http://www.iespell.com/rel/ieSpellSetup211325.exe' ;
+FCKConfig.IeSpellDownloadUrl	= 'http://www.iespell.com/download.php' ;
 
 FCKConfig.MaxUndoLevels = 15 ;
 
