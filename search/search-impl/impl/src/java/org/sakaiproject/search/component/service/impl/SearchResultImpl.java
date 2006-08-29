@@ -41,6 +41,7 @@ import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.Scorer;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * @author ieb
@@ -136,8 +137,9 @@ public class SearchResultImpl implements SearchResult
 
 	public String getTitle()
 	{
-		return doc.get(SearchService.FIELD_TOOL) + ": "
-				+ doc.get(SearchService.FIELD_TITLE);
+		return FormattedText.escapeHtml(			
+doc.get(SearchService.FIELD_TOOL) + ": "
+				+ doc.get(SearchService.FIELD_TITLE),false);
 	}
 
 	public int getIndex()
@@ -160,7 +162,7 @@ public class SearchResultImpl implements SearchResult
 					sb.append(contents[i]);
 				}
 			}
-			String text = sb.toString();
+			String text = FormattedText.escapeHtml(sb.toString(),false);			
 			TokenStream tokenStream = analyzer.tokenStream(
 					SearchService.FIELD_CONTENTS, new StringReader(text));
 			return hightlighter.getBestFragments(tokenStream, text, 5, " ... ");
