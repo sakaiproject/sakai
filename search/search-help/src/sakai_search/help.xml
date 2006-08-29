@@ -6,7 +6,7 @@
       <value>search_content1</value>
     </property>
     <property name="name">
-      <value>Search Overview</value>
+      <value>Search: Overview</value>
     </property>
     <property name="location">
       <value>/sakai_search/overview.htm</value>
