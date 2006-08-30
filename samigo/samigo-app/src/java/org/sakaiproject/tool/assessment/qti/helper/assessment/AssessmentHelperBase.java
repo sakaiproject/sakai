@@ -245,6 +245,13 @@ public abstract class AssessmentHelperBase
     List list = assessmentXml.selectNodes(xpath);
     try
     {
+      // If nothing is entered into description field, 
+      // description will be "" from mysql but it will be null from oracle
+      // we need to set it to "" if it is null (SAK-5950)
+      if (description == null) {
+    	  log.debug("description is null");
+    	  description = "";
+      }
       description =  "<![CDATA[" + description + "]]>";
       assessmentXml.update(xpath, description);
     }
