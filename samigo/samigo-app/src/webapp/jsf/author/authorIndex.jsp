@@ -278,7 +278,7 @@ onkeypress=
 --%>
       <h:outputText value=" #{msg.separator} " 
          rendered="#{publishedAssessment.submissionSize >0 and (authorization.publishAnyAssessment or authorization.publishOwnAssessment)}"/>
-      <h:commandLink title="#{msg.t_score}" action="#{author.getOutcome}" immediate="true" 
+      <h:commandLink title="#{msg.t_score}" action="#{author.getOutcome}" immediate="true" id="authorIndexToScore" 
          rendered="#{publishedAssessment.submissionSize >0 and (authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">
 
         <h:outputText value="#{msg.link_scores}" />
