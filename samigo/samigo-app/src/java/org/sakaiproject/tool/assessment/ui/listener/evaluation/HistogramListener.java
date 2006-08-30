@@ -19,7 +19,6 @@ import javax.faces.event.ValueChangeListener;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -33,6 +32,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramBarBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramQuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -95,6 +95,9 @@ public class HistogramListener
                                 "totalScores");
     HistogramScoresBean bean = (HistogramScoresBean) cu.lookupBean(
                                "histogramScores");
+    QuestionScoresBean questionBean = (QuestionScoresBean)
+    ContextUtil.lookupBean("questionScores");
+    
     String publishedId = totalBean.getPublishedId();
 
     if (publishedId == "0")
@@ -106,7 +109,9 @@ public class HistogramListener
 
     if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
         log.debug("changed submission pulldown ");
-        bean.setAllSubmissions(selectedvalue);    // changed submission pulldown
+        bean.setAllSubmissions(selectedvalue);    // changed for histogram score bean
+        totalBean.setAllSubmissions(selectedvalue);    // changed for total score bean
+        questionBean.setAllSubmissions(selectedvalue); // changed for Question score bean
     }
 
 

@@ -65,7 +65,6 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
-import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
@@ -185,7 +184,9 @@ public class TotalScoreListener
       else 
       {
         log.debug("changed submission pulldown ");
-        bean.setAllSubmissions(selectedvalue);    // changed submission pulldown
+        bean.setAllSubmissions(selectedvalue);    // changed for total score bean
+        histobean.setAllSubmissions(selectedvalue);    // changed for total histogram score bean
+        questionbean.setAllSubmissions(selectedvalue); // changed for Question score bean
       }
     }
 

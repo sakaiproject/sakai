@@ -55,6 +55,7 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 //import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.PartData;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
@@ -113,7 +114,8 @@ public class QuestionScoreListener
     log.debug("QuestionScore CHANGE LISTENER.");
     QuestionScoresBean bean = (QuestionScoresBean)
       ContextUtil.lookupBean("questionScores");
-    TotalScoresBean totalScoreBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+    TotalScoresBean totalBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+    HistogramScoresBean histogramBean = (HistogramScoresBean) cu.lookupBean("histogramScores");
     
     // we probably want to change the poster to be consistent
     String publishedId = ContextUtil.lookupParam("publishedId");
@@ -129,7 +131,8 @@ public class QuestionScoreListener
       else if (event.getComponent().getId().indexOf("allSubmissions")>-1)
       {
         bean.setAllSubmissions(selectedvalue);    // changed submission pulldown
-        totalScoreBean.setAllSubmissions(selectedvalue);    // changed for total score bean
+        totalBean.setAllSubmissions(selectedvalue);    // changed for total score bean
+        histogramBean.setAllSubmissions(selectedvalue); // changed for histogram score bean
         toggleSubmissionSelection = true;
       }
       else  // inline or popup
