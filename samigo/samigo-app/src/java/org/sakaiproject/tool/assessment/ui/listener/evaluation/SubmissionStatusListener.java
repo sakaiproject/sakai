@@ -148,10 +148,17 @@ public class SubmissionStatusListener
 
       GradingService delegate =	new GradingService();
 
-      if (cu.lookupParam("sortBy") != null &&
-          !cu.lookupParam("sortBy").trim().equals(""))
-        bean.setSortType(cu.lookupParam("sortBy"));
+      if (ContextUtil.lookupParam("sortBy") != null &&
+          !ContextUtil.lookupParam("sortBy").trim().equals(""))
+        bean.setSortType(ContextUtil.lookupParam("sortBy"));
 
+      boolean sortAscending = true;
+      if (ContextUtil.lookupParam("sortAscending") != null &&
+      		!ContextUtil.lookupParam("sortAscending").trim().equals("")){
+      	sortAscending = Boolean.valueOf(ContextUtil.lookupParam("sortAscending")).booleanValue();
+      	bean.setSortAscending(sortAscending);
+      	log.debug("submissionStatus() :: sortAscending = " + sortAscending);
+      }
       totalScoresBean.setSelectedSectionFilterValue(bean.getSelectedSectionFilterValue());
       
       bean.setPublishedId(publishedId);
@@ -256,8 +263,15 @@ public class SubmissionStatusListener
         bs.toStringSort();
       }
 
-
-      bs.sort();
+      if (sortAscending) {
+      	log.debug("TotalScoreListener: setRoleAndSortSection() :: sortAscending");
+      	agents = (ArrayList)bs.sort();
+      }
+      else {
+      	log.debug("TotalScoreListener: setRoleAndSortSection() :: !sortAscending");
+      	agents = (ArrayList)bs.sortDesc();
+      }
+      
       bean.setAgents(agents);
       bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
     }

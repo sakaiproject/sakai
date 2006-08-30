@@ -61,6 +61,7 @@ public class SubmissionStatusBean
   private String lateHandling; // read-only property set for UI late handling
   private String dueDate;
   private String sortType;
+  private boolean sortAscending = true;
   private String roleSelection;
   private String allSubmissions;
   private RecordingData recordingData;
@@ -402,6 +403,24 @@ public class SubmissionStatusBean
     sortType = psortType;
   }
 
+  /**
+   * is scores table sorted in ascending order
+   * @return true if it is
+   */
+  public boolean isSortAscending()
+  {
+    return sortAscending;
+  }
+
+  /**
+  *
+  * @param sortAscending is scores table sorted in ascending order
+  */
+ public void setSortAscending(boolean sortAscending)
+ {
+   this.sortAscending = sortAscending;
+ }
+ 
   /**
    * Is this an all submissions or, just the largest
    * @return true if is is, else false

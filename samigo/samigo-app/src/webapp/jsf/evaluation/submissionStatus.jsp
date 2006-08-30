@@ -132,6 +132,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
         <f:param name="sortBy" value="lastName" />
+        <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
      <h:panelGroup>
@@ -145,10 +146,17 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
      </h:panelGroup>
     </h:column>
 
-    <h:column rendered="#{submissionStatus.sortType eq 'lastName'}">
-     <f:facet name="header">
+	<h:column rendered="#{submissionStatus.sortType eq 'lastName' && submissionStatus.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortLastName}" action="submissionStatus">
           <h:outputText value="#{msg.name}" />
-     </f:facet>
+          <f:param name="sortBy" value="lastName" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortLastNameDescending}" rendered="#{submissionStatus.sortAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
+          </h:commandLink>    
+      </f:facet>
      <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
@@ -159,7 +167,29 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
      </span>
      </h:panelGroup>
     </h:column>
-    
+
+	<h:column rendered="#{submissionStatus.sortType eq 'lastName' && !submissionStatus.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortLastName}" action="submissionStatus">
+          <h:outputText value="#{msg.name}" />
+          <f:param name="sortBy" value="lastName" />
+          <f:param name="sortAscending" value="true" />
+          <h:graphicImage alt="#{msg.alt_sortLastNameAscending}" rendered="#{!submissionStatus.sortAscending}" url="/images/sortdescending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
+          </h:commandLink>    
+      </f:facet>
+     <h:panelGroup>
+       <h:outputText value="<a name=\"" escape="false" />
+       <h:outputText value="#{description.lastInitial}" />
+       <h:outputText value="\"></a>" escape="false" />
+       <h:outputText value="#{description.firstName}" />
+       <h:outputText value=" " />
+       <h:outputText value="#{description.lastName}" />
+     </span>
+     </h:panelGroup>
+    </h:column>
+
 
    <!-- STUDENT ID -->
     <h:column  rendered="#{submissionStatus.sortType ne 'idString'}" >
@@ -169,17 +199,38 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
         <f:param name="sortBy" value="idString" />
+        <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
         <h:outputText value="#{description.idString}" />
     </h:column>
 
-    <h:column rendered="#{submissionStatus.sortType eq 'idString'}" >
-     <f:facet name="header">
-       <h:outputText value="#{msg.uid}" />
-     </f:facet>
-        <h:outputText value="#{description.idString}" />
+	<h:column rendered="#{submissionStatus.sortType eq 'idString' && submissionStatus.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortUserId}" action="submissionStatus">
+          <h:outputText value="#{msg.uid}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortUserIdDescending}" rendered="#{submissionStatus.sortAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
+          </h:commandLink>    
+      </f:facet>
+       <h:outputText value="#{description.idString}" />
     </h:column>
+
+	<h:column rendered="#{submissionStatus.sortType eq 'idString' && !submissionStatus.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortUserId}" action="submissionStatus">
+          <h:outputText value="#{msg.uid}" />
+          <f:param name="sortAscending" value="true" />
+          <h:graphicImage alt="#{msg.alt_sortUserIdAscending}" rendered="#{!submissionStatus.sortAscending}" url="/images/sortdescending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
+          </h:commandLink>    
+      </f:facet>
+       <h:outputText value="#{description.idString}" />
+    </h:column>
+
 
     <!-- ROLE -->
     <h:column rendered="#{submissionStatus.sortType ne 'role'}">
@@ -189,16 +240,36 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
         <f:param name="sortBy" value="role" />
+        <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
         <h:outputText value="#{description.role}"/>
     </h:column>
 
-    <h:column rendered="#{submissionStatus.sortType eq 'role'}">
-     <f:facet name="header" >
-       <h:outputText value="#{msg.role}" />
-     </f:facet>
-        <h:outputText value="#{description.role}"/>
+	<h:column rendered="#{submissionStatus.sortType eq 'role' && submissionStatus.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortRole}" action="submissionStatus">
+          <h:outputText value="#{msg.role}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortRoleDescending}" rendered="#{submissionStatus.sortAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
+          </h:commandLink>    
+      </f:facet>
+       <h:outputText value="#{description.role}" />
+    </h:column>
+
+	<h:column rendered="#{submissionStatus.sortType eq 'role' && !submissionStatus.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortRole}" action="submissionStatus">
+          <h:outputText value="#{msg.role}" />
+          <f:param name="sortAscending" value="true" />
+          <h:graphicImage alt="#{msg.alt_sortRoleAscending}" rendered="#{!submissionStatus.sortAscending}" url="/images/sortdescending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
+          </h:commandLink>    
+      </f:facet>
+       <h:outputText value="#{description.role}" />
     </h:column>
 
     <!-- DATE -->
@@ -214,17 +285,39 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <h:outputText rendered="#{description.submittedDate !=null && description.submittedDate ne ''}" value="#{description.submittedDate}">
           <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
         </h:outputText>
-<h:outputText rendered="#{description.submittedDate == null || description.submittedDate eq ''}" value="#{msg.no_submission}"/>
-         
+		<h:outputText rendered="#{description.submittedDate == null || description.submittedDate eq ''}" value="#{msg.no_submission}"/>
     </h:column>
-
-    <h:column rendered="#{submissionStatus.sortType=='submittedDate'}">
-     <f:facet name="header">
-       <h:outputText value="#{msg.date}" />
-     </f:facet>
-        <h:outputText value="#{description.submittedDate}">
+	
+	<h:column rendered="#{submissionStatus.sortType eq 'submittedDate' && submissionStatus.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortSubmittedDate}" action="submissionStatus">
+          <h:outputText value="#{msg.date}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortSubmittedDateDescending}" rendered="#{submissionStatus.sortAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
+          </h:commandLink>    
+      </f:facet>
+        <h:outputText rendered="#{description.submittedDate !=null && description.submittedDate ne ''}" value="#{description.submittedDate}">
            <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
         </h:outputText>
+		<h:outputText rendered="#{description.submittedDate == null || description.submittedDate eq ''}" value="#{msg.no_submission}"/>
+    </h:column>
+
+	<h:column rendered="#{submissionStatus.sortType eq 'submittedDate' && !submissionStatus.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortSubmittedDate}" action="submissionStatus">
+          <h:outputText value="#{msg.date}" />
+          <f:param name="sortAscending" value="true" />
+          <h:graphicImage alt="#{msg.alt_sortSubmittedDateAscending}" rendered="#{!submissionStatus.sortAscending}" url="/images/sortdescending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
+          </h:commandLink>    
+      </f:facet>
+        <h:outputText rendered="#{description.submittedDate !=null && description.submittedDate ne ''}" value="#{description.submittedDate}">
+           <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
+        </h:outputText>
+		<h:outputText rendered="#{description.submittedDate == null || description.submittedDate eq ''}" value="#{msg.no_submission}"/>
     </h:column>
 
   </h:dataTable>
