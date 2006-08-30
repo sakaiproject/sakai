@@ -222,12 +222,6 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setAssessmentId((pubAssessment.getPublishedAssessmentId()).toString());
     delivery.setAssessmentTitle(pubAssessment.getTitle());
     String instructorMessage = pubAssessment.getDescription();
-    // The description field in Assessment table will be string "null" after importing
-    // The following fix just (temporary?) fixes the displaying (SAK-5950)
-    // We should also fix the import/export part to avoid "null" getting inserted to db
-    if (instructorMessage != null && instructorMessage.equals("null")) {
-    	instructorMessage = "";
-    }
     delivery.setInstructorMessage(instructorMessage);
 
     String ownerSiteId = service.getPublishedAssessmentOwner(pubAssessment.getPublishedAssessmentId());
