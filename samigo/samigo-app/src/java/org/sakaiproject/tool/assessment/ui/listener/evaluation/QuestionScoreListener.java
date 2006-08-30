@@ -113,7 +113,8 @@ public class QuestionScoreListener
     log.debug("QuestionScore CHANGE LISTENER.");
     QuestionScoresBean bean = (QuestionScoresBean)
       ContextUtil.lookupBean("questionScores");
-
+    TotalScoresBean totalScoreBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+    
     // we probably want to change the poster to be consistent
     String publishedId = ContextUtil.lookupParam("publishedId");
     boolean toggleSubmissionSelection = false;
@@ -128,6 +129,7 @@ public class QuestionScoreListener
       else if (event.getComponent().getId().indexOf("allSubmissions")>-1)
       {
         bean.setAllSubmissions(selectedvalue);    // changed submission pulldown
+        totalScoreBean.setAllSubmissions(selectedvalue);    // changed for total score bean
         toggleSubmissionSelection = true;
       }
       else  // inline or popup

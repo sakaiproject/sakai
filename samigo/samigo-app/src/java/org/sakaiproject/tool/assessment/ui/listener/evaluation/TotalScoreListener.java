@@ -114,15 +114,19 @@ public class TotalScoreListener
     PublishedAssessmentFacade pubAssessment = pubAssessmentService.
                                               getPublishedAssessment(publishedId);
 
-    // reset scoringType based on evaluationModel,scoringType if coming from authorIndex     
-    EvaluationModelIfc model = pubAssessment.getEvaluationModel();
-    if (model != null && model.getScoringType()!=null){
-    	bean.setAllSubmissions(model.getScoringType().toString());
+    // reset scoringType based on evaluationModel,scoringType if coming from authorIndex
+    log.debug("ae.getComponent().getId() = " + ae.getComponent().getId());
+    if (ae != null && ae.getComponent().getId() == "authorIndexToScore") {
+    	log.debug("coming from authorIndex");
+    	EvaluationModelIfc model = pubAssessment.getEvaluationModel();
+    	if (model != null && model.getScoringType()!=null){
+    		bean.setAllSubmissions(model.getScoringType().toString());
+    	}
+    	else {
+    		bean.setAllSubmissions(TotalScoresBean.LAST_SUBMISSION); 
+    	}
     }
-    else {
-      bean.setAllSubmissions(TotalScoresBean.LAST_SUBMISSION); 
-    }
-    
+    	
    // checking for permission first
     FacesContext context = FacesContext.getCurrentInstance();
     AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
