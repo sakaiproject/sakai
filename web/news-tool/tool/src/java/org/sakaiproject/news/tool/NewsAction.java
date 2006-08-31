@@ -185,6 +185,8 @@ public class NewsAction extends VelocityPortletPaneledAction
 		// }
 		// }
 
+		context.put("tlang", rb);
+
 		String mode = (String) state.getAttribute(STATE_MODE);
 		if (MODE_OPTIONS.equals(mode))
 		{
@@ -435,13 +437,13 @@ public class NewsAction extends VelocityPortletPaneledAction
 			catch (NewsConnectionException e)
 			{
 				// display message
-				addAlert(state, newChannelUrl + rb.getString("invalidfeed"));
+				addAlert(state, newChannelUrl + " " + rb.getString("invalidfeed"));
 				return;
 			}
 			catch (NewsFormatException e)
 			{
 				// display message
-				addAlert(state, newChannelUrl + rb.getString("invalidfeed"));
+				addAlert(state, newChannelUrl + " " + rb.getString("invalidfeed"));
 				return;
 			}
 			catch (Exception e)
