@@ -53,7 +53,6 @@
 <%-- QUESTION PROPERTIES --%>
 <%-- 1 POINTS --%>
 <div class="tier2">
-  <span id="num1" class="number"></span>
   <div class="shorttext"><h:outputLabel for="answerptr" value="#{msg.answer_point_value}" />
   <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true">
     <f:validateDoubleRange />
@@ -62,7 +61,6 @@
  </div>
 <br/>
 <%-- 2 QUESTION TEXT --%>
-  <span id="num2" class="number"></span>
   <div class="longtext"> <h:outputLabel for="qtextarea" value="#{msg.q_text}" />
   <br/></div>
 <div class="tier2">
@@ -103,7 +101,7 @@
 
 <%-- 3 PART --%>
 <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
-   <f:verbatim><span id="num3" class="number"></span></f:verbatim>
+  <f:verbatim>&nbsp;</f:verbatim>
   <h:outputLabel value="#{msg.assign_to_p}" />
   <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />
@@ -112,7 +110,7 @@
 </h:panelGrid>
 <%-- 5 POOL --%>
 <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
- <f:verbatim><span id="num4" class="number"></span></f:verbatim>
+ <f:verbatim>&nbsp;</f:verbatim>
   <h:outputLabel value="#{msg.assign_to_question_p}" />
   <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
      <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_name}" />
@@ -121,7 +119,7 @@
 </h:panelGrid>
 <%-- FEEDBACK --%>
  <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
-<f:verbatim><span id="num5" class="number"></span><div class="longtext"></f:verbatim>
+<f:verbatim><div class="longtext"></f:verbatim>
  <h:outputLabel value="#{msg.correct_incorrect_an}" />
 <f:verbatim> <div class="tier2"></f:verbatim>
   <h:panelGrid>
@@ -138,7 +136,7 @@
 </h:panelGroup>
  <%-- METADATA --%>
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
-<f:verbatim><span id="num6" class="number"></span></f:verbatim>
+<f:verbatim></f:verbatim>
 <h:outputLabel value="Metadata"/><br/>
 <f:verbatim><div class="tier3"></f:verbatim>
 

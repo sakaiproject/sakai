@@ -59,7 +59,6 @@
 <!-- QUESTION PROPERTIES -->
   <!-- 1 POINTS -->
 
-   <span id="num1" class="number"></span>
 <div class="shorttext">
     <h:outputLabel value="#{msg.answer_point_value}"/>
     <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true">
@@ -69,7 +68,6 @@
   </div><br/>
 
   <!-- 2 TEXT -->
-     <span id="num2" class="number"></span>
  <div class="longtext">
   <h:outputLabel value="#{msg.q_text}" />
   <!-- STUB FOR WYSIWYG -->
@@ -85,11 +83,9 @@
   </div>
 
   <!-- 3 ANSWER -->
- <span id="num3" class="number"></span>
   <div class="longtext">
   <h:outputLabel value="#{msg.answer} " /></div>
    <div class="tier2">
-
   <h:selectOneRadio layout="lineDirection" id="TF" border="0"
      value="#{itemauthor.currentItem.corrAnswer}" required="true">
      <f:selectItems value="#{itemauthor.trueFalseAnswerSelectList}" />
@@ -98,23 +94,23 @@
 </div>
 
     <!-- 4 RATIONALE -->
-
-     <span id="num4" class="number"></span>
     <div class="longtext">
-    <h:outputLabel value="#{msg.req_rationale}" />
+    <h:outputLabel value="#{msg.req_rationale}" /></div>
+	<div class="tier2">
     <h:selectOneRadio value="#{itemauthor.currentItem.rationale}" id="rational" required="true">
      <f:selectItem itemValue="true"
        itemLabel="#{msg.yes}" />
      <f:selectItem itemValue="false"
        itemLabel="#{msg.no}" />
     </h:selectOneRadio>
-<br/> <h:message for="rational" styleClass="validate"/><br/>
+<br/> <h:message for="rational" styleClass="validate"/>
   </div>
 
   <!-- 5 PART -->
-
-  <h:panelGrid rendered="#{itemauthor.target == 'assessment'}" columnClasses="shorttext">  <h:panelGroup>
-   <f:verbatim><span id="num5" class="number"></span></f:verbatim>
+<div class="longtext">
+  <h:panelGrid rendered="#{itemauthor.target == 'assessment'}" columnClasses="shorttext">  
+  <h:panelGroup>
+     <f:verbatim></f:verbatim>
   <h:outputLabel value="#{msg.assign_to_p}" />
   <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />
@@ -122,13 +118,13 @@
   </h:selectOneMenu>
   </h:panelGroup>
   </h:panelGrid>
-
+  </div>
 
   <!-- 6 POOL -->
-
+<div class="longtext">
   <h:panelGrid rendered="#{itemauthor.target == 'assessment'}" columnClasses="shorttext">
   <h:panelGroup>
-   <f:verbatim><span id="num6" class="number"></span></f:verbatim>
+     <f:verbatim></f:verbatim>
   <h:outputLabel value="#{msg.assign_to_question_p}" />
   <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
      <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_name}" />
@@ -136,26 +132,24 @@
   </h:selectOneMenu>
   </h:panelGroup>
   </h:panelGrid>
-<h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
+  </div>
 
- <!-- FEEDBACK -->
-
-  
-  <f:verbatim><span id="num7" class="number"></span><div class="longtext"></f:verbatim>
+   <!-- FEEDBACK -->
+<h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}"><br/>
+  <f:verbatim><div class="longtext"></f:verbatim>
   <h:outputLabel value="#{msg.correct_incorrect_an}" />
 <f:verbatim></div>
- <div class="longtext"></f:verbatim>
+ <div class="tier2"></f:verbatim>
   <h:outputLabel value="#{msg.correct_answer_opti}" />
-  <h:panelGrid>
- 
-  <!-- WYSIWYG -->
 
+  <!-- WYSIWYG -->
+  <h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 </h:panelGrid>
 
- <f:verbatim></div><div class="longtext"></f:verbatim>
+ <f:verbatim></div><div class="tier2"></f:verbatim>
  <h:outputLabel  value="#{msg.incorrect_answer_op}" />
 
   <!-- WYSIWYG -->
@@ -168,7 +162,7 @@
 </h:panelGroup>
  <!-- METADATA -->
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
-<f:verbatim><span id="num9" class="number"></span></f:verbatim>
+<f:verbatim></f:verbatim>
 <h:outputLabel value="Metadata"/><br/>
 <f:verbatim><div class="tier3"></f:verbatim>
 

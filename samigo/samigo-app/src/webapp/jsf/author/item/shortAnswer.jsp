@@ -62,17 +62,15 @@
 <!-- QUESTION PROPERTIES -->
   <!-- 1 POINTS -->
   <div class="tier2">
-   <span id="num1" class="number"></span>
     <div class="shorttext">  <h:outputLabel value="#{msg.answer_point_value}" />
     <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true">
-<f:validateDoubleRange/>
-</h:inputText>
-<br/> <h:message for="answerptr" styleClass="validate"/>
-  </div>
-<br/>
+	<f:validateDoubleRange/>
+	</h:inputText>
+	<br/> 
+	<h:message for="answerptr" styleClass="validate"/>
+	</div>
+	<br/>
   <!-- 2 TEXT -->
-
-  <span id="num2" class="number"></span>
    <div class="longtext"><h:outputLabel value="#{msg.q_text}" />
   <br/>
   <!-- WYSIWYG -->
@@ -83,10 +81,8 @@
    </samigo:wysiwyg>
 
   </h:panelGrid>
-
+  </div>
   <!-- 2a ATTACHMENTS -->
-
-  <span id="num2a" class="number"></span>
    <div class="longtext"><h:outputLabel value="#{msg.attachments}" />
   <br/>
   <h:panelGroup rendered="#{itemauthor.hasAttachment}">
@@ -118,39 +114,34 @@
     <sakai:button_bar_item action="#{itemauthor.addAttachmentsRedirect}"
            value="#{msg.add_attachments}"/>
   </sakai:button_bar>
-
 </div>
-  <!-- 3 PART -->
 
+  <!-- 3 PART -->
   <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
-  <f:verbatim><span id="num3" class="number"></span></f:verbatim>
+  <f:verbatim>&nbsp;</f:verbatim>
   <h:outputLabel value="#{msg.assign_to_p}" />
   <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />
      <!-- use this in real  value="#{section.sectionNumberList}" -->
   </h:selectOneMenu>
-
   </h:panelGrid>
 
-  <!-- 4 POOL -->
 
+  <!-- 4 POOL -->
   <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
-  <f:verbatim><span id="num4" class="number"></span></f:verbatim>
+  <f:verbatim>&nbsp;</f:verbatim>
   <h:outputLabel value="#{msg.assign_to_question_p}" />
   <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
      <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_name}" />
      <f:selectItems value="#{itemauthor.poolSelectList}" />
   </h:selectOneMenu>
-
   </h:panelGrid>
-
+  <br/>
  <!-- 5 ANSWER and ANSWERFEEDBACK -->
-
-  <span id="num5" class="number"></span>
    <div class="longtext">
-  <h:outputLabel value="#{msg.answer_provide_a_mo}" />  </div><br/>
+  <h:outputLabel value="#{msg.answer_provide_a_mo}" />  </div>
 <div class="tier2">
-<h:outputText value="#{msg.model_short_answer}" /><br/>
+<h:outputText value="#{msg.model_short_answer}" />
 
  <!-- WYSIWYG -->
  <h:panelGrid>
@@ -175,7 +166,7 @@
 
 
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
-<f:verbatim><span id="num9" class="number"></span></f:verbatim>
+<f:verbatim></f:verbatim>
 <h:outputLabel value="Metadata"/><br/>
 
 

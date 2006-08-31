@@ -81,8 +81,6 @@
 
   <!-- 1 POINTS -->
   <div class="tier2">
-
-   <span id="num1" class="number"></span>
    <div class="shorttext"> <h:outputLabel value="#{msg.answer_point_value}" />
     <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true">
 <f:validateDoubleRange/>
@@ -91,8 +89,6 @@
   </div>
 <br/>
   <!-- 2 TEXT -->
-
-    <span id="num2" class="number"></span>
   <div class="longtext"> <h:outputLabel value="#{msg.q_text}" />
   <br/>
   <!-- WYSIWYG -->
@@ -105,9 +101,7 @@
   </div>
 
   <!-- 3 ANSWER -->
-
-      <span id="num3" class="number"></span>
-    <div class="longtext"> <h:outputLabel value="#{msg.create_pairing} " /></div>
+  <div class="longtext"> <h:outputLabel value="#{msg.create_pairing} " /></div>
 <div class="tier2">
   <!-- display existing pairs -->
 
@@ -210,16 +204,16 @@
 
 <f:verbatim><br/></f:verbatim>
 <f:verbatim><br/></f:verbatim>
+<div class="tier2">
   <h:commandButton accesskey="#{msg.a_create}" value="#{msg.button_save_pair}" action="#{itemauthor.currentItem.addMatchPair}">
   </h:commandButton>
+</div>
 <f:verbatim><br/></f:verbatim>
 <f:verbatim><br/></f:verbatim>
 <f:verbatim><br/></f:verbatim>
 
 <%--
     <!-- 4 RANDOMIZE -->
-
-    <span id="num4" class="number"></span>
    <div class="longtext">  <h:outputText value="#{msg.randomize_answers}" />
     <h:selectOneRadio value="#{itemauthor.currentItem.randomized}" >
      <f:selectItem itemValue="true"
@@ -231,8 +225,6 @@
 
 
     <!-- 5 RATIONALE -->
-
-      <span id="num5" class="number"></span>
    <div class="longtext"> <h:outputText value="#{msg.req_rationale}" />
     <h:selectOneRadio value="#{itemauthor.currentItem.rationale}" >
      <f:selectItem itemValue="true"
@@ -246,9 +238,8 @@
     <!-- 6 PART -->
 
 <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
-       <f:verbatim> <span id="num6" class="number"></span></f:verbatim>
-
-  <h:outputLabel value="#{msg.assign_to_p}" />
+<f:verbatim>&nbsp;</f:verbatim>
+<h:outputLabel value="#{msg.assign_to_p}" />
   <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />
   </h:selectOneMenu>
@@ -257,24 +248,23 @@
 
     <!-- 7 POOL -->
 <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
-
-   <f:verbatim> <span id="num7" class="number"></span></f:verbatim>
-
-  <h:outputLabel value="#{msg.assign_to_question_p}" />
+<f:verbatim>&nbsp;</f:verbatim>  <h:outputLabel value="#{msg.assign_to_question_p}" />
 <%-- stub debug --%>
   <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
      <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_name}" />
      <f:selectItems value="#{itemauthor.poolSelectList}" />
   </h:selectOneMenu>
 
-  </h:panelGrid>
+  </h:panelGrid><br/>
 
 
+ <!-- 8 FEEDBACK -->
  <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
-  <f:verbatim><span id="num8" class="number"></span></f:verbatim>
-<f:verbatim><div class="tier2"></f:verbatim>
+  <f:verbatim></f:verbatim>
+<f:verbatim><div class="longtext"></f:verbatim>
   <h:outputLabel value="#{msg.correct_incorrect_an}" />
-<f:verbatim><br/></br/></f:verbatim>
+<f:verbatim><br/></br/></div><div class="tier2"></f:verbatim>
+
   <h:outputText value="#{msg.correct_answer_opti}" /><f:verbatim><br/></f:verbatim>
 
   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}"  >
@@ -290,11 +280,10 @@
 <f:verbatim><br/></div></f:verbatim>
   </h:panelGroup>
 
-
 <!-- METADATA -->
 
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
-<f:verbatim><span id="num9" class="number"></span></f:verbatim>
+<f:verbatim></f:verbatim>
 <h:outputLabel value="Metadata"/><br/>
 <f:verbatim><div class="tier2"></f:verbatim>
 

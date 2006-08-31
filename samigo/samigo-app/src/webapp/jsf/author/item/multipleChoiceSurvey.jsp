@@ -59,7 +59,6 @@
 
   <!-- 1 POINTS -->
   <div class="tier2">
-<span id="num1" class="number"></span>
 <div class="shorttext">
 
     <h:outputLabel value="#{msg.answer_point_value}"/>
@@ -67,7 +66,6 @@
  </div>
 <br/>
   <!-- 2 TEXT -->
- <span id="num2" class="number"></span>
   <div class="longtext">
   <h:outputLabel value="#{msg.q_text}" />
   <!-- WYSIWYG -->
@@ -86,7 +84,6 @@
        PREDEFINED_SCALE: YES, AGREE, UNDECIDED, AVERAGE, STRONGLY_AGREE, EXCELLENT, 5, 10 
   -->
 
- <span id="num3" class="number"></span>
 <div class="longtext">
     <h:outputLabel value="#{msg.answer} " /> </div>
    <div class="tier2">
@@ -109,7 +106,7 @@
   </div>
     <!-- 4 PART -->
 <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
-<f:verbatim><span id="num4" class="number"></span></f:verbatim>
+<f:verbatim>&nbsp;</f:verbatim>
   <h:outputLabel rendered="#{itemauthor.target == 'assessment'}" value="#{msg.assign_to_p}" />
   <h:selectOneMenu rendered="#{itemauthor.target == 'assessment'}" id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />
@@ -118,8 +115,7 @@
 
     <!-- 5 POOL -->
 <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
-
- <f:verbatim><span id="num5" class="number"></span></f:verbatim>
+<f:verbatim>&nbsp;</f:verbatim>
   <h:outputLabel rendered="#{itemauthor.target == 'assessment'}" value="#{msg.assign_to_question_p}" />
   <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
      <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_name}" />
@@ -129,7 +125,7 @@
 
  <!-- FEEDBACK -->
  <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
- <f:verbatim><span id="num6" class="number"></span><div class="longtext"></f:verbatim>
+ <f:verbatim><div class="longtext"></f:verbatim>
   <h:outputLabel value="#{msg.feedback_optional}<br />" />
 <f:verbatim><div class="tier2"></f:verbatim>
   <!-- WYSIWYG -->
@@ -144,7 +140,7 @@
 </h:panelGroup>
 <!-- METADATA -->
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
-<f:verbatim><span id="num9" class="number"></span></f:verbatim>
+<f:verbatim></f:verbatim>
 <h:outputLabel value="Metadata"/><br/>
 <f:verbatim><div class="tier2"></f:verbatim>
 

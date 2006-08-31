@@ -56,8 +56,6 @@
 <div class="tier2">
 <!-- QUESTION PROPERTIES -->
   <!-- 1 POINTS -->
-
-   <span id="num1" class="number"></span>
   <div class="shorttext">
     <h:outputLabel value="#{msg.answer_point_value}" />
     <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true">
@@ -67,8 +65,6 @@
   </div>
 <br/>
   <!-- 2 TEXT -->
-
-   <span id="num2" class="number"></span>
  <div class="longtext">
   <h:outputLabel  value="#{msg.q_text}" />
   <br/>
@@ -92,9 +88,7 @@
 
 
   <h:panelGrid columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}" columns="3">
-<f:verbatim><span id="num3" class="number"></span></f:verbatim>
-
-  <h:outputLabel value="#{msg.assign_to_p}" />
+  <f:verbatim>&nbsp;</f:verbatim>  <h:outputLabel value="#{msg.assign_to_p}" />
   <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />
      <!-- use this in real  value="#{section.sectionNumberList}" -->
@@ -107,7 +101,7 @@
   <!-- 4 POOL -->
 
   <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
-   <f:verbatim><span id="num4" class="number"></span></f:verbatim>
+  <f:verbatim>&nbsp;</f:verbatim>
   <h:outputLabel value="#{msg.assign_to_question_p}" />
   <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
      <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_name}" />
@@ -118,8 +112,7 @@
 
  <!-- FEEDBACK -->
  <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
-  <f:verbatim> <span id="num5" class="number"></span>
-<div class="longtext"></f:verbatim>
+  <f:verbatim><div class="longtext"></f:verbatim>
   <h:outputLabel value="#{msg.feedback_optional}<br />" />
 
 
@@ -134,7 +127,7 @@
 <!-- METADATA -->
 
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
-<f:verbatim><span id="num6" class="number"></span></f:verbatim>
+<f:verbatim></f:verbatim>
 <h:outputLabel value="Metadata"/><br/>
 <f:verbatim><div class="tier3"></f:verbatim>
 
