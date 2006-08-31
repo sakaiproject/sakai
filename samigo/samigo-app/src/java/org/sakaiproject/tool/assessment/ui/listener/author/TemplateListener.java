@@ -117,7 +117,7 @@ public class TemplateListener extends TemplateBaseListener
 /*
      // debug
      for (int i=0; i<templates.size();i++){
-       System.out.println("*****"+((TemplateBean)templates.get(i)).getLastModified());
+       log.debug("*****"+((TemplateBean)templates.get(i)).getLastModified());
      }
 */
 

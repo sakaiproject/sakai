@@ -31,6 +31,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.jsf.util.JsfTool;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Tool;
@@ -51,7 +53,9 @@ import org.sakaiproject.util.Web;
   public class SamigoJsfTool extends JsfTool {
     private static final String HELPER_EXT = ".helper";
     private static final String HELPER_SESSION_PREFIX = "session.";
-        /**
+    private static Log log = LogFactory.getLog(SamigoJsfTool.class);
+
+    /**
          * Recognize a path that is a resource request. It must have an "extension", i.e. a dot followed by characters that do not include a slash.
 	 * 
 	 * @param path
@@ -61,7 +65,7 @@ import org.sakaiproject.util.Web;
       /*
 	protected boolean isResourceRequest(String path)
 	{
-	    System.out.println("***0. inside isResourceRequest, path="+path);
+	    log.debug("***0. inside isResourceRequest, path="+path);
 		// we need some path
 		if ((path == null) || (path.length() == 0)) return false;
 
@@ -71,7 +75,7 @@ import org.sakaiproject.util.Web;
 
 		// we need that last dot to be the end of the path, not burried in the path somewhere (i.e. no more slashes after the last dot)
 		String ext = path.substring(pos);
-	    System.out.println("***1. inside isResourceRequest, ext="+ext);
+	    log.debug("***1. inside isResourceRequest, ext="+ext);
 		if (ext.indexOf("/") != -1) return false;
 
 		// these are JSF pages, not resources		
@@ -91,12 +95,12 @@ import org.sakaiproject.util.Web;
 
       // build up the target that will be dispatched to
       String target = req.getPathInfo();
-      System.out.println("****0. target ="+target);
+      log.debug("****0. target ="+target);
 
       boolean sendToHelper = sendToHelper(req, res);
       boolean isResourceRequest = isResourceRequest(target);
-      System.out.println("****1. send to helper ="+sendToHelper);
-      System.out.println("****2. isResourceRequest ="+ isResourceRequest);
+      log.debug("****1. send to helper ="+sendToHelper);
+      log.debug("****2. isResourceRequest ="+ isResourceRequest);
 
       // see if we have a helper request
       if (sendToHelper) {
@@ -152,7 +156,7 @@ import org.sakaiproject.util.Web;
       res.addHeader("Pragma", "no-cache");
 
       // dispatch to the target
-      System.out.println("****dispatching path: " + req.getPathInfo() + " to: " + target + " context: "
+      log.debug("****dispatching path: " + req.getPathInfo() + " to: " + target + " context: "
 	+ getServletContext().getServletContextName());
       RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(target);
       dispatcher.forward(req, res);
@@ -173,26 +177,26 @@ import org.sakaiproject.util.Web;
       // if present is "edit"...
       String[] parts = path.split("/");
 
-      System.out.println("*** sendToHelper.partLength="+parts.length);
+      log.debug("*** sendToHelper.partLength="+parts.length);
       String helperPath =null;
       String toolPath=null;
 
       // e.g. helper url in Samigo can be /jsf/author/item/sakai.filepicker.helper/tool
       //      or /sakai.filepicker.helper 
       if (parts.length > 2){
-        System.out.println("*** sendToHelper.partLength="+parts.length);
+        log.debug("*** sendToHelper.partLength="+parts.length);
         helperPath = parts[parts.length - 2];
         toolPath = parts[parts.length - 1];
       }
       else if (parts.length == 2){
-        System.out.println("*** sendToHelper.partLength="+parts.length);
+        log.debug("*** sendToHelper.partLength="+parts.length);
         helperPath = parts[1];
       }
       else return false;
 
       if (!helperPath.endsWith(HELPER_EXT)) return false;
-      System.out.println("**** sendToHelper, part #1="+helperPath);
-      System.out.println("**** sendToHelper, part #2="+toolPath);
+      log.debug("**** sendToHelper, part #1="+helperPath);
+      log.debug("**** sendToHelper, part #2="+toolPath);
 
       ToolSession toolSession = SessionManager.getCurrentToolSession();
 
@@ -208,7 +212,7 @@ import org.sakaiproject.util.Web;
       // calc helper id
       int posEnd = helperPath.lastIndexOf(".");
       String helperId = helperPath.substring(0, posEnd);
-      System.out.println("**** sendToHelper, helperId="+helperId);
+      log.debug("**** sendToHelper, helperId="+helperId);
       ActiveTool helperTool = ActiveToolManager.getActiveTool(helperId);
 
       String url = req.getContextPath() + req.getServletPath();
@@ -217,10 +221,10 @@ import org.sakaiproject.util.Web;
 				 url + computeDefaultTarget(true));
       }
 
-      System.out.println("**** sendToHelper, url="+url);
-      System.out.println("**** sendToHelper, computeDefualtTarget="+computeDefaultTarget(true));
+      log.debug("**** sendToHelper, url="+url);
+      log.debug("**** sendToHelper, computeDefualtTarget="+computeDefaultTarget(true));
       String context = url + "/"+ helperPath;
-      System.out.println("**** sendToHelper, context="+context);
+      log.debug("**** sendToHelper, context="+context);
       //String toolPath = Web.makePath(parts, 2, parts.length);
       if (toolPath != null) 
         helperTool.help(req, res, context, "/"+toolPath);

@@ -8,9 +8,6 @@
   AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean(
                          "authorization");
 
-  // debugging code
-  System.out.println("***** standalone roleCheck: authzBean="+authzBean);
-
   // in general, probably will be empty, but we provide for this
   // possibility
   if (authzBean.getAuthzMap().size()==0){

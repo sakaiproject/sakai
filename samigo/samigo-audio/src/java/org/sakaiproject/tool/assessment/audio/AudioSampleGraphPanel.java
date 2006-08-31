@@ -60,7 +60,6 @@ import java.util.Vector;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import java.awt.BasicStroke;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -72,7 +71,9 @@ import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.geom.Line2D;
 import javax.swing.JPanel;
-import java.awt.LayoutManager;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Render a WaveForm.
@@ -80,6 +81,7 @@ import java.awt.LayoutManager;
 public class AudioSampleGraphPanel
   extends JPanel
 {
+  private static Log log = LogFactory.getLog(AudioSampleGraphPanel.class);
   private static final String RESOURCE_PACKAGE =
     "org.sakaiproject.tool.assessment.audio";
   private static final String RESOURCE_NAME = "AudioResources";
@@ -102,7 +104,7 @@ public class AudioSampleGraphPanel
 
   public void reportGraphStatus(String msg)
   {
-    System.out.println("Status: " + msg);
+    log.debug("Status: " + msg);
   }
 
   public void createWaveForm(
@@ -222,8 +224,8 @@ public class AudioSampleGraphPanel
     fileName = data.getFileName();
     duration = data.getDuration();
     maxSeconds = data.getMaxSeconds();
-    //System.out.println("*** seconds="+seconds);
-    //System.out.println("*** duration="+duration);
+    //log.debug("*** seconds="+seconds);
+    //log.debug("*** duration="+duration);
 
     Dimension d = getSize();
     int w = d.width;

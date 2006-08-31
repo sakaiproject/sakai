@@ -26,6 +26,9 @@ import java.io.Serializable;
 
 import javax.faces.context.FacesContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
@@ -39,6 +42,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class TestWSBean
   implements Serializable
 {
+  private static Log log = LogFactory.getLog(TestWSBean.class);
   private String itemid;
   private String itembankxml;
 
@@ -52,7 +56,7 @@ public class TestWSBean
     ItemContentsBean itemContentsBean = (ItemContentsBean) ContextUtil.lookupBean("itemContents");
     String itemId = (String)  FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("itemid");
-     System.out.println("Getting Item Id=  "+ itemId);
+     log.debug("Getting Item Id=  "+ itemId);
     if (itemId != null && !itemId.equals(""))
     {
      ItemService itemService = new ItemService();

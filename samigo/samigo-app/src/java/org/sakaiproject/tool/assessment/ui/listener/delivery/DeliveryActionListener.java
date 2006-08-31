@@ -102,7 +102,7 @@ public class DeliveryActionListener
     {
       // 1. get managed bean
       DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
-      //System.out.println("***DeliveryBean in deliveryListener = "+delivery);
+      //log.debug("***DeliveryBean in deliveryListener = "+delivery);
       // a. set publishedId, note that id can be changed by isPreviewingMode()
       String id = getPublishedAssessmentId(delivery);
       String agent = getAgentString();
@@ -1333,10 +1333,10 @@ public class DeliveryActionListener
         testResult = extractFIBTextArray(testsuite[i]);
         if (verbose)
         {
-          System.out.println("Extracting: " + testsuite[i]);
+          log.debug("Extracting: " + testsuite[i]);
           for (int j = 0; j < testResult.size(); j++)
           {
-            System.out.println("testResult.get(" + j +
+            log.debug("testResult.get(" + j +
                                ")="+testResult.get(j));
           }
         }
@@ -1344,7 +1344,7 @@ public class DeliveryActionListener
         {
           if (verbose)
           {
-            System.out.println("Extraction failed: exceeded reasonable size.");
+            log.debug("Extraction failed: exceeded reasonable size.");
           }
           return false;
         }
@@ -1354,7 +1354,7 @@ public class DeliveryActionListener
     {
       if (verbose)
       {
-        System.out.println("Extraction failed: " + ex);
+        log.debug("Extraction failed: " + ex);
       }
       return false;
     }
@@ -1370,7 +1370,7 @@ public class DeliveryActionListener
       verbose = false;
     }
 
-    //System.out.println("testExtractFIBTextArray result="+testExtractFIBTextArray(verbose));;
+    //log.debug("testExtractFIBTextArray result="+testExtractFIBTextArray(verbose));;
 
   }
 
@@ -1598,8 +1598,8 @@ public class DeliveryActionListener
                 new Date(), new Date(), // need modify later
                 false);
       queue.add(timedAG);
-      //System.out.println("***0. queue="+queue);
-      //System.out.println("***1. put timedAG in queue, timedAG="+timedAG);
+      //log.debug("***0. queue="+queue);
+      //log.debug("***1. put timedAG in queue, timedAG="+timedAG);
     }
     else{
       // if timedAG exists && beginAssessment==true, this is dodgy. It means that
@@ -1618,7 +1618,7 @@ public class DeliveryActionListener
     // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
     // later time, we need to account for the time taht he used before
     int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
-    //System.out.println("***time passed before reload next page="+timeElapsed+timeTakenBefore);
+    //log.debug("***time passed before reload next page="+timeElapsed+timeTakenBefore);
     ag.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
     // not sure why isLate lost its value, so setting it again here
     ag.setIsLate(Boolean.FALSE);

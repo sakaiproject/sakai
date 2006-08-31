@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 //import java.util.ResourceBundle;
 
@@ -65,7 +64,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
@@ -1388,8 +1386,8 @@ public class AssessmentFacadeQueries
         // replace whitespace with %20
         url = replaceSpace(url);
         String location = url.replaceAll(protocol,"");
-        System.out.println("***url="+url);
-        System.out.println("***location="+location);
+        log.debug("***url="+url);
+        log.debug("***location="+location);
         //attach.setLocation(location);
         attach.setLocation(url);
         getHibernateTemplate().save(attach);

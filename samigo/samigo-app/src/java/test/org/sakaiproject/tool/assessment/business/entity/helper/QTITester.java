@@ -26,6 +26,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import javax.faces.context.FacesContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.w3c.dom.Document;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
@@ -43,17 +46,18 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
  */
 
 public class QTITester {
+  private static Log log = LogFactory.getLog(QTITester.class);
 //  private static boolean useContextPath = true;
   private static boolean useContextPath = false;
 //  private static int version = QTIVersion.VERSION_1_2;
   private static int version = QTIVersion.VERSION_2_0;
 
   public static void main(String[] args) {
-//    System.out.println("testing: AuthoringHelper");
+//    log.debug("testing: AuthoringHelper");
 //    testAuthoringHelper();
-//    System.out.println("<!--testing: AuthoringXml templates-->");
+//    log.debug("<!--testing: AuthoringXml templates-->");
 //    testAuthoringXmlTemplates();
-    System.out.println("<!--testing: AuthoringXml routines-->");
+    log.debug("<!--testing: AuthoringXml routines-->");
     testAuthoringXmlRoutines();
 
     }
@@ -70,13 +74,13 @@ public class QTITester {
       PublishedAssessmentFacade pub = (PublishedAssessmentFacade) list.get(
         i);
       String pubid = pub.getAssessmentId().toString();
-      System.out.println("testing: " + pubid);
-      System.out.println(
+      log.debug("testing: " + pubid);
+      log.debug(
         "=======================================================");
       InputStream is = ax.getTemplateInputStream(AuthoringXml.ASSESSMENT);
       Document doc = authHelper.getAssessment(pubid, is);
-      System.out.println(doc.toString());
-      System.out.println(
+      log.debug(doc.toString());
+      log.debug(
         "=======================================================");
     }
 
@@ -109,9 +113,9 @@ public class QTITester {
 
     for (int i = 0; i < template.length; i++)
     {
-      System.out.println("<!--=======================================================");
-      System.out.println("testing: " + template[i]);
-      System.out.println("=======================================================-->");
+      log.debug("<!--=======================================================");
+      log.debug("testing: " + template[i]);
+      log.debug("=======================================================-->");
       InputStream is = null;
 
       if (useContextPath)
@@ -122,9 +126,9 @@ public class QTITester {
       {
       is = ax.getTemplateInputStream(template[i]);
       }
-      System.out.println("<!--=======================================================-->");
-      System.out.println(ax.getTemplateAsString(is));
-      System.out.println("<!--=======================================================-->");
+      log.debug("<!--=======================================================-->");
+      log.debug(ax.getTemplateAsString(is));
+      log.debug("<!--=======================================================-->");
 
     }
 
@@ -140,16 +144,16 @@ public class QTITester {
     is = ax.getTemplateInputStream(ax.ASSESSMENT);
 
     assessmentXml = ax.readXMLDocument(is);
-    System.out.println("<!--============= assessment ==============================-->");
-    System.out.println(XmlUtil.getDOMString(assessmentXml));
-    System.out.println("<!--=======================================================-->");
+    log.debug("<!--============= assessment ==============================-->");
+    log.debug(XmlUtil.getDOMString(assessmentXml));
+    log.debug("<!--=======================================================-->");
 
     is = ax.getTemplateInputStream(ax.SECTION);
 
     sectionXml = ax.readXMLDocument(is);
-    System.out.println("<!--============= section ================================-->");
-    System.out.println(XmlUtil.getDOMString(sectionXml));
-    System.out.println("<!--=======================================================-->");
+    log.debug("<!--============= section ================================-->");
+    log.debug(XmlUtil.getDOMString(sectionXml));
+    log.debug("<!--=======================================================-->");
     try
     {
       assessmentXml = ax.update(assessmentXml, "questestinterop/assessment/@ident",
@@ -159,11 +163,11 @@ public class QTITester {
     }
     catch (Exception ex)
     {
-      System.out.println("oops: " + ex);
+      log.error("oops: " + ex);
     }
-    System.out.println("<!--============= modified assessment =====================-->");
-    System.out.println(XmlUtil.getDOMString(assessmentXml));
-    System.out.println("<!--=======================================================-->");
+    log.debug("<!--============= modified assessment =====================-->");
+    log.debug(XmlUtil.getDOMString(assessmentXml));
+    log.debug("<!--=======================================================-->");
     try
     {
       sectionXml = ax.update(sectionXml, "section/@ident",
@@ -173,11 +177,11 @@ public class QTITester {
     }
     catch (Exception ex)
     {
-      System.out.println("oops: " + ex);
+      log.error("oops: " + ex);
     }
-    System.out.println("<!--============= modified section ===============-->");
-    System.out.println(XmlUtil.getDOMString(sectionXml));
-    System.out.println("<!--=======================================================-->");
+    log.debug("<!--============= modified section ===============-->");
+    log.debug(XmlUtil.getDOMString(sectionXml));
+    log.debug("<!--=======================================================-->");
 
     try {
       ax.addElement(assessmentXml, "questestinterop/assessment",
@@ -189,11 +193,11 @@ public class QTITester {
                              "custom_value");
     }
     catch (Exception ex) {
-      System.out.println("oops: " + ex);
+      log.error("oops: " + ex);
     }
-    System.out.println("<!--============= modified assessment and section ===============-->");
-    System.out.println(XmlUtil.getDOMString(sectionXml));
-    System.out.println("<!--=======================================================-->");
+    log.debug("<!--============= modified assessment and section ===============-->");
+    log.debug(XmlUtil.getDOMString(sectionXml));
+    log.debug("<!--=======================================================-->");
 
 
   }

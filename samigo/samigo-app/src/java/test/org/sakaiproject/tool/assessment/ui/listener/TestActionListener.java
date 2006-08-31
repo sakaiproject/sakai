@@ -29,6 +29,9 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
@@ -38,6 +41,7 @@ import javax.faces.event.ActionListener;
 
 public class TestActionListener implements ActionListener
 {
+	private static Log log = LogFactory.getLog(TestActionListener.class);
   public TestActionListener()
   {
   }
@@ -47,9 +51,9 @@ public class TestActionListener implements ActionListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    System.out.println("debugging ActionEvent: " + ae);
-    System.out.println("debug requestParams: " + requestParams);
-    System.out.println("debug reqMap: " + reqMap);
+    log.debug("debugging ActionEvent: " + ae);
+    log.debug("debug requestParams: " + requestParams);
+    log.debug("debug reqMap: " + reqMap);
 
   }
 

@@ -447,7 +447,7 @@ public class GradingService
         Iterator iter = itemGradingSet.iterator();
         while (iter.hasNext()) {
         	ItemGradingData itemGradingData = (ItemGradingData) iter.next();
-        	System.out.println("date = " + itemGradingData.getSubmittedDate());
+        	log.debug("date = " + itemGradingData.getSubmittedDate());
         }
         
 	saveOrUpdateAll(itemGradingSet);
@@ -568,7 +568,7 @@ public class GradingService
                           HashMap publishedItemHash, HashMap publishedItemTextHash,
                           HashMap publishedAnswerHash) 
   {
-	  System.out.println("storeGrades: data.getSubmittedDate()" + data.getSubmittedDate());
+	  log.debug("storeGrades: data.getSubmittedDate()" + data.getSubmittedDate());
     storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash);
   }
 
@@ -773,16 +773,16 @@ public class GradingService
                 autoScore += itemGrading.getOverrideScore().floatValue();
               if (!totalItems.containsKey(itemId)){
                 totalItems.put(itemId, new Float(autoScore));
-                //System.out.println("****0. first answer score = "+autoScore);
+                //log.debug("****0. first answer score = "+autoScore);
 	      }
               else{
                 accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
-                //System.out.println("****1. before adding new score = "+accumelateScore);
-                //System.out.println("****2. this answer score = "+autoScore);
+                //log.debug("****1. before adding new score = "+accumelateScore);
+                //log.debug("****2. this answer score = "+autoScore);
                 accumelateScore += autoScore;
-                //System.out.println("****3. add 1+2 score = "+accumelateScore);
+                //log.debug("****3. add 1+2 score = "+accumelateScore);
                 totalItems.put(itemId, new Float(accumelateScore));
-                //System.out.println("****4. what did we put in = "+((Float)totalItems.get(itemId)).floatValue());
+                //log.debug("****4. what did we put in = "+((Float)totalItems.get(itemId)).floatValue());
               }
               break;
 

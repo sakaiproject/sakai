@@ -32,6 +32,9 @@ import java.io.File;
 
 import org.w3c.dom.Document;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
@@ -55,7 +58,8 @@ public class XMLImportBean implements Serializable
 	
 	  /** Use serialVersionUID for interoperability. */
 	  private final static long serialVersionUID = 418920360211039758L;
-
+	  private static Log log = LogFactory.getLog(XMLImportBean.class);
+	  
   private int qtiVersion;
   private String uploadFileName;
   private String importType;
@@ -179,12 +183,12 @@ public class XMLImportBean implements Serializable
 
     // remove uploaded file
     try{
-      //System.out.println("****filename="+fileName);
+      //log.debug("****filename="+fileName);
       File upload = new File(fileName);
       upload.delete();
     }
     catch(Exception e){
-      System.out.println(e.getMessage());
+      log.error(e.getMessage());
     }
 
   }

@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.awt.Color;
 import java.util.StringTokenizer;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class ColorModel
 {
   private static final String RESOURCE_PACKAGE = "org.sakaiproject.tool.assessment.audio";
@@ -17,26 +20,27 @@ public class ColorModel
   private static ResourceBundle colors = ResourceBundle.getBundle(RESOURCE_PACKAGE + "." +
     RESOURCE_NAME, Locale.getDefault());
   private static HashMap map = new HashMap();
-
+  private static Log log = LogFactory.getLog(ColorModel.class);
+  
   ColorModel()
   {
       if (map.size()==0)
       {
-//        System.out.println("Map size zero.");
+//        log.debug("Map size zero.");
         Enumeration cEnum = colors.getKeys();
         while (cEnum.hasMoreElements())
         {
           String colorName = (String) cEnum.nextElement();
           String colorString = (String) colors.getString(colorName);
-//          System.out.println(colorName + "=" + colorString);
+//          log.debug(colorName + "=" + colorString);
           Color color = makeColor(colorString);
           map.put(colorName, color);
-//          System.out.println("DEBUG: " + getColor(colorName));
+//          log.debug("DEBUG: " + getColor(colorName));
         }
       }
       else
       {
-//        System.out.println("map.size()="+map.size());
+//        log.debug("map.size()="+map.size());
       }
   }
 
@@ -72,7 +76,7 @@ public class ColorModel
       }
       catch (NumberFormatException ex)
       {
-        System.out.println("Unable to read color " + colorNames[i] + " value.");
+        log.error("Unable to read color " + colorNames[i] + " value.");
       }
     }
     return new Color(colorArray[0],colorArray[1],colorArray[2]);

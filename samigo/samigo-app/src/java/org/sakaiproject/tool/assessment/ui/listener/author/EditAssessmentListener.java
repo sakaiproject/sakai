@@ -109,15 +109,15 @@ public class EditAssessmentListener
         List attachSet = item.getItemAttachmentList();
 	/*
         Set attachSet = item.getItemAttachmentSet();
-        System.out.println("**** attach size="+attachSet.size());
+        log.debug("**** attach size="+attachSet.size());
         Iterator iter_a = attachSet.iterator();
 	*/
         Iterator iter_a = attachSet.iterator();
         while (iter_a.hasNext()){
           ItemAttachmentIfc a = (ItemAttachmentIfc) iter_a.next();
-          System.out.println("**** a = "+a);
-          System.out.println("**** filename = "+a.getFilename());
-          System.out.println("**** location = "+a.getLocation());
+          log.debug("**** a = "+a);
+          log.debug("**** filename = "+a.getFilename());
+          log.debug("**** location = "+a.getLocation());
 	}
       }
     } 

@@ -56,7 +56,6 @@ import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.entity.api.Reference;
@@ -535,7 +534,7 @@ public class ItemModifyListener implements ActionListener
 
   private ArrayList prepareItemAttachment(ItemDataIfc item){
     Set attachmentSet = item.getItemAttachmentSet();
-    System.out.println("*** attachment size="+attachmentSet.size());
+    log.debug("*** attachment size="+attachmentSet.size());
     AssessmentService assessmentService = new AssessmentService();
     String protocol = ContextUtil.getProtocol();
     ToolSession session = SessionManager.getCurrentToolSession();
@@ -546,8 +545,8 @@ public class ItemModifyListener implements ActionListener
 
       for(int i=0; i<refs.size(); i++) {
         ref = (Reference) refs.get(i);
-        System.out.println("**** ref.Id="+ref.getId());
-        System.out.println("**** ref.name="+ref.getProperties().getProperty(									    ref.getProperties().getNamePropDisplayName()));
+        log.debug("**** ref.Id="+ref.getId());
+        log.debug("**** ref.name="+ref.getProperties().getProperty(									    ref.getProperties().getNamePropDisplayName()));
         ItemAttachmentIfc newAttach = assessmentService.createItemAttachment(
                                    item,
                                    ref.getId(), ref.getProperties().getProperty(

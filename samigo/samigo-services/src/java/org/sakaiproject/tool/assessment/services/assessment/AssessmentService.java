@@ -208,7 +208,7 @@ public class AssessmentService
         typeIdLong = new Long(typeId);
 
       AssessmentFacadeQueriesAPI queries = PersistenceService.getInstance().getAssessmentFacadeQueries();
-      System.out.println("**** AssessmentFacadeQueries="+queries);
+      log.debug("**** AssessmentFacadeQueries="+queries);
       assessment = queries.createAssessment(title, description, typeIdLong, templateIdLong);
     }
     catch(Exception e)

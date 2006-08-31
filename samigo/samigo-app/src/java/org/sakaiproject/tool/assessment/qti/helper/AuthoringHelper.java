@@ -547,7 +547,7 @@ public class AuthoringHelper
                 String value="";
                 if (itemMap.get(label)!=null){
                   value = (String) itemMap.get(label).toString();
-                  System.out.println("get Label: " + label + ", Value: " + value);
+                  log.debug("get Label: " + label + ", Value: " + value);
                 }
                 
               }

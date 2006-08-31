@@ -30,8 +30,12 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.StringTokenizer;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class RenderMaker
 {
+  private static Log log = LogFactory.getLog(RenderMaker.class);	
   // either run this application from the command line with the input file as an
   // argument, or edit this name to suit your fancy.
   //  private static String fileName = "c:\\Navigo\\webapp\\html\\picker.html";
@@ -86,16 +90,16 @@ public class RenderMaker
     {
       if (args.length > 2)
       {
-        System.out.println( makeMethodFromFile(fileName, args[1]));
+        log.debug( makeMethodFromFile(fileName, args[1]));
       }
       else
       {
-        System.out.println( makeMethodFromFile(fileName, "encodeBegin"));
+        log.debug( makeMethodFromFile(fileName, "encodeBegin"));
       }
     }
     catch (IOException ex)
     {
-      System.out.println("ooops");
+      log.error("ooops");
     }
   }
 
@@ -104,20 +108,20 @@ public class RenderMaker
     StringReader sr = new StringReader("<table bgcolor=\"#000000\" width=\"100%\" border=\"0\" cellpadding=\"0\"");
     StringReader sr2 = new StringReader("<a href=\"%xxx%\">100%%%</a>");
     try {
-      System.out.println(makeMethod(sr,  "encodeBegin"));
-      System.out.println(makeMethod(sr2,  "encodeChildren"));
+      log.debug(makeMethod(sr,  "encodeBegin"));
+      log.debug(makeMethod(sr2,  "encodeChildren"));
     }
     catch (Exception ex) {
-      System.out.println("\n\n***********\n\nError in makeMethod(): " + ex );
+      log.error("\n\n***********\n\nError in makeMethod(): " + ex );
     }
   }
   public static void fileTest()
   {
     try {
-      System.out.println(makeMethodFromFile(fileName,  "encodeBegin"));
+      log.debug(makeMethodFromFile(fileName,  "encodeBegin"));
     }
     catch (Exception ex) {
-      System.out.println("\n\n***********\n\nError in makeMethodFromFile(): " + ex );
+      log.error("\n\n***********\n\nError in makeMethodFromFile(): " + ex );
     }
   }
 

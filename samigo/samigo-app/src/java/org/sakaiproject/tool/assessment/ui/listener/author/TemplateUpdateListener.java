@@ -28,8 +28,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -51,7 +49,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentTemplateIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.IndexBean;
@@ -96,7 +93,7 @@ public class TemplateUpdateListener
     AssessmentService assessmentService = new AssessmentService();
 
     boolean isUnique=assessmentService.assessmentTitleIsUnique(templateBean.getIdString(),tempName,true);
-    //System.out.println("*** is unique="+isUnique);
+    //log.debug("*** is unique="+isUnique);
     if(tempName!=null && (tempName.trim()).equals("")){
      	String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.TemplateMessages","templateName_empty");
 	context.addMessage(null,new FacesMessage(err1));
@@ -278,7 +275,7 @@ public class TemplateUpdateListener
 
       delegate.deleteAllMetaData((AssessmentTemplateData)template);
 
-      System.out.println("**** after deletion of meta data");
+      log.debug("**** after deletion of meta data");
       HashSet set = new HashSet();
       Iterator iter = templateBean.getValueMap().keySet().iterator();
       while (iter.hasNext())

@@ -1580,11 +1580,11 @@ public class DeliveryBean
     }
     catch (FileNotFoundException ex)
     {
-      log.debug("file not found=" + ex.getMessage());
+      log.error("file not found=" + ex.getMessage());
     }
     catch (IOException ex)
     {
-      log.debug("io exception=" + ex.getMessage());
+      log.error("io exception=" + ex.getMessage());
     }
     finally
     {
@@ -1629,7 +1629,7 @@ public class DeliveryBean
    */
   public String addMediaToItemGrading(String mediaLocation)
     {
-    System.out.println("****"+mediaLocation+" "+(new Date()));
+    log.debug("****"+mediaLocation+" "+(new Date()));
     GradingService gradingService = new GradingService();
     //PublishedAssessmentService publishedService = new PublishedAssessmentService();
     HashMap itemHash = getPublishedItemHash();
@@ -1653,7 +1653,7 @@ public class DeliveryBean
     log.debug("***3b. addMediaToItemGrading, assessmentId =" + assessmentId);
     if (agent == null){
       String agentId = mediaLocation.substring(agentIndex, myfileIndex -1);
-      System.out.println("**** agentId="+agentId);
+      log.debug("**** agentId="+agentId);
       agent = agentId;
     }
     log.debug("***3c. addMediaToItemGrading, agent =" + agent);
@@ -2201,7 +2201,7 @@ public class DeliveryBean
         // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
         // later time, we need to account for the time taht he used before
         int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
-        //System.out.println("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
+        //log.debug("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
         adata.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
         GradingService gradingService = new GradingService();
         gradingService.saveOrUpdateAssessmentGrading(adata);
@@ -2223,7 +2223,7 @@ public class DeliveryBean
 	        // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
 	        // later time, we need to account for the time taht he used before
 	        int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
-	        //System.out.println("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
+	        //log.debug("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
 	        adata.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
 	        GradingService gradingService = new GradingService();
 	        gradingService.saveOrUpdateAssessmentGradingOnly(adata);

@@ -29,7 +29,6 @@ import java.io.FileNotFoundException;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
@@ -47,12 +46,8 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
 
 import java.util.Date;
 import java.util.ArrayList;
@@ -91,15 +86,15 @@ public class UploadAudioMediaServlet extends HttpServlet
     String repositoryPath = (String)context.getAttribute("FILEUPLOAD_REPOSITORY_PATH");
     String saveToDb = (String)context.getAttribute("FILEUPLOAD_SAVE_MEDIA_TO_DB");
 
-    System.out.println("req content length ="+req.getContentLength());
-    System.out.println("req content type ="+req.getContentType());
+    log.debug("req content length ="+req.getContentLength());
+    log.debug("req content type ="+req.getContentType());
 
     // we get media location in assessmentXXX/questionXXX/agentId/audio.au form
     String suffix = req.getParameter("suffix");
     if (suffix == null || ("").equals(suffix))
       suffix = "au";
     String mediaLocation = req.getParameter("media")+"."+suffix;
-    System.out.println("****media location="+mediaLocation);
+    log.debug("****media location="+mediaLocation);
     String zip_mediaLocation=null;
 
     // test for nonemptiness first
@@ -110,7 +105,7 @@ public class UploadAudioMediaServlet extends HttpServlet
       File mediaDir = mediaFile.getParentFile(); 
       if (!mediaDir.exists())
         mediaDir.mkdirs();
-      //System.out.println("*** directory exist="+mediaDir.exists());
+      //log.debug("*** directory exist="+mediaDir.exists());
       mediaIsValid=writeToFile(req, mediaLocation);
 
       //this is progess for SAK-5792, comment is out for now
@@ -194,7 +189,7 @@ public class UploadAudioMediaServlet extends HttpServlet
 
     try {
       // Create the ZIP file
-      System.out.println("*** zip file="+zip_mediaLocation);
+      log.debug("*** zip file="+zip_mediaLocation);
       ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(zip_mediaLocation));
     
       // Add ZIP entry to output stream.
@@ -252,15 +247,15 @@ public class UploadAudioMediaServlet extends HttpServlet
 						     questionIndex - 1);
     String questionId = mediaLocation.substring(questionIndex + 8, agentIndex);
     String agentEid = mediaLocation.substring(agentIndex+1, myfileIndex);
-    //System.out.println("****pubAss="+pubAssessmentId);
-    //System.out.println("****questionId="+questionId);
-    //System.out.println("****agent="+agentId);
+    //log.debug("****pubAss="+pubAssessmentId);
+    //log.debug("****questionId="+questionId);
+    //log.debug("****agent="+agentId);
 
     PublishedItemData item = pubService.loadPublishedItem(questionId);
     PublishedItemText itemText = (PublishedItemText)(item.getItemTextSet()).iterator().next();
 
-    System.out.println("****agentId="+agentId);
-    System.out.println("****pubAssId="+pubAssessmentId);
+    log.debug("****agentId="+agentId);
+    log.debug("****pubAssId="+pubAssessmentId);
     // 1. get assessmentGrading form DB
     AssessmentGradingData adata = gradingService.getLastSavedAssessmentGradingByAgentId(
                                   pubAssessmentId, agentId);
@@ -283,7 +278,7 @@ public class UploadAudioMediaServlet extends HttpServlet
 	mediaList = service.getMediaArray(itemGrading.getItemGradingId().toString());
 
       if (mediaList.size()>0){
-        System.out.println("*** delete old audio");
+        log.debug("*** delete old audio");
         gradingService.deleteAll(mediaList);
       }
       if (itemGrading.getAttemptsRemaining() == null){
@@ -320,9 +315,9 @@ public class UploadAudioMediaServlet extends HttpServlet
       itemGrading.setLastDuration(duration);
       gradingService.saveItemGrading(itemGrading);
     }
-    System.out.println("****1. assessmentGradingId="+adata.getAssessmentGradingId());
-    System.out.println("****2. attemptsRemaining="+attemptsRemaining);
-    System.out.println("****3. itemGradingDataId="+itemGrading.getItemGradingId());
+    log.debug("****1. assessmentGradingId="+adata.getAssessmentGradingId());
+    log.debug("****2. attemptsRemaining="+attemptsRemaining);
+    log.debug("****3. itemGradingDataId="+itemGrading.getItemGradingId());
     // 3. save Media and fix up itemGrading
     saveMedia(attemptsRemaining, mimeType, agentId, mediaLocation, itemGrading, saveToDb, duration);
   }
@@ -334,8 +329,8 @@ public class UploadAudioMediaServlet extends HttpServlet
     if (saveToDb.equals("true"))
       SAVETODB = true;
 
-    System.out.println("****4. saveMedia, saveToDB"+SAVETODB);
-    System.out.println("****5. saveMedia, mediaLocation"+mediaLocation);
+    log.debug("****4. saveMedia, saveToDB"+SAVETODB);
+    log.debug("****5. saveMedia, mediaLocation"+mediaLocation);
 
     GradingService gradingService = new GradingService();
     // 1. create a media record
@@ -364,7 +359,7 @@ public class UploadAudioMediaServlet extends HttpServlet
 
     }
     Long mediaId = gradingService.saveMedia(mediaData);
-    System.out.println("mediaId=" + mediaId);
+    log.debug("mediaId=" + mediaId);
 
     // 2. store mediaId in itemGradingRecord.answerText
     itemGrading.setAttemptsRemaining(new Integer(attemptsRemaining));
