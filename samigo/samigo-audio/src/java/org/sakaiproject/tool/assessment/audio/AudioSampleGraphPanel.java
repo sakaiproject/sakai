@@ -60,6 +60,7 @@ import java.util.Vector;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -71,9 +72,7 @@ import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.geom.Line2D;
 import javax.swing.JPanel;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.awt.LayoutManager;
 
 /**
  * Render a WaveForm.
@@ -81,7 +80,6 @@ import org.apache.commons.logging.LogFactory;
 public class AudioSampleGraphPanel
   extends JPanel
 {
-  private static Log log = LogFactory.getLog(AudioSampleGraphPanel.class);
   private static final String RESOURCE_PACKAGE =
     "org.sakaiproject.tool.assessment.audio";
   private static final String RESOURCE_NAME = "AudioResources";
@@ -104,7 +102,7 @@ public class AudioSampleGraphPanel
 
   public void reportGraphStatus(String msg)
   {
-    log.debug("Status: " + msg);
+    System.out.println("Status: " + msg);
   }
 
   public void createWaveForm(
@@ -214,8 +212,6 @@ public class AudioSampleGraphPanel
     double seconds;
     String fileName;
     double duration;
-    double maxSeconds;
-
     lines = data.getLine();
     errStr = data.getErrStr();
     capture = data.getCapture();
@@ -223,9 +219,7 @@ public class AudioSampleGraphPanel
     seconds = data.getSeconds();
     fileName = data.getFileName();
     duration = data.getDuration();
-    maxSeconds = data.getMaxSeconds();
-    //log.debug("*** seconds="+seconds);
-    //log.debug("*** duration="+duration);
+
 
     Dimension d = getSize();
     int w = d.width;
@@ -247,17 +241,11 @@ public class AudioSampleGraphPanel
     }
     else if (captureThread != null)
     {
-      if (seconds > maxSeconds)
-        drawLengthText(maxSeconds, h, g2);
-      else
-        drawLengthText(seconds, h, g2);
+      drawLengthText(seconds, h, g2);
     }
     else
     {
-      if (duration > maxSeconds)
-        drawFileLengthText(seconds, fileName, maxSeconds, h, g2);
-      else
-        drawFileLengthText(seconds, fileName, duration, h, g2);
+      drawFileLengthText(seconds, fileName, duration, h, g2);
 
       if (audioInputStream != null)
       {
@@ -307,14 +295,10 @@ public class AudioSampleGraphPanel
   {
     g2.setColor(graphColor);
     g2.setFont(font12);
-    g2.drawString(res.getString("Length_1") +
-                  String.valueOf(duration), 3, h - 4);
-    /*
     g2.drawString(res.getString("File_") + fileName + "  " +
                   res.getString("Length_1") +
                   String.valueOf(duration) + "  " + res.getString("Position_") +
                   String.valueOf(seconds), 3, h - 4);
-    */
   }
 
   private void drawLengthText(double seconds, int h, Graphics2D g2)
