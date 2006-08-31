@@ -464,7 +464,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortAscending" value="true" />
         </h:commandLink>
      </f:facet>
-        <h:outputText value="#{description.idString}" />
+        <h:outputText value="#{description.agentEid}" />
     </h:column>
 
     <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType eq 'idString' && questionScores.sortAscending}">
@@ -479,7 +479,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
-        <h:outputText value="#{description.idString}" />
+        <h:outputText value="#{description.agentEid}" />
     </h:column>    
     
     <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType eq 'idString' && !questionScores.sortAscending}">
@@ -494,7 +494,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
-        <h:outputText value="#{description.idString}" />
+        <h:outputText value="#{description.agentEid}" />
     </h:column>      
 
 
