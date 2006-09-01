@@ -41,7 +41,11 @@ import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityAccessOverloadException;
+import org.sakaiproject.entity.api.EntityCopyrightException;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityNotDefinedException;
+import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -1261,7 +1265,11 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		{
 			public void handleAccess(HttpServletRequest req,
 					HttpServletResponse res, Reference ref,
-					Collection copyrightAcceptedRefs)
+					Collection copyrightAcceptedRefs) 
+					throws EntityPermissionException, 
+					EntityNotDefinedException, 
+					EntityAccessOverloadException, 
+					EntityCopyrightException
 
 			{
 				checkReference(ref);
@@ -1307,10 +1315,14 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 					}
 					else
 					{
-						res.reset();
-						res.sendError(HttpServletResponse.SC_NOT_FOUND,
-								" Resource Now found " + ref.getReference());
+						throw new EntityNotDefinedException(ref.getReference());
 					}
+				}
+				catch (org.sakaiproject.exception.PermissionException p ) {
+					throw new EntityPermissionException(p.getUser(),p.getLock(),p.getResource());
+				}
+				catch ( EntityNotDefinedException e) {
+					throw e;
 				}
 				catch (Throwable t)
 				{
