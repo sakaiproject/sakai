@@ -8734,6 +8734,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			{
 				m_access = AccessMode.INHERITED;
 			}
+			collection.setAttribute(ACCESS_MODE, m_access.toString());
+
 			collection.setAttribute(HIDDEN, Boolean.toString(m_hidden));
 			if(!m_hidden && m_releaseDate != null)
 			{
