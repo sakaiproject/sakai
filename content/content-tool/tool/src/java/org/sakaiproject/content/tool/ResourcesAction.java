@@ -7171,50 +7171,57 @@ public class ResourcesAction
 			String release_min = params.getString("release_minute");
 			String release_ampm = params.getString("release_ampm");
 			
-			String release_time = params.getString("release_time");
-			String retract_month = params.getString("retract_month");
-			String retract_day = params.getString("retract_day");
-			String retract_year = params.getString("retract_year");
-			String retract_time = params.getString("retract_time");
-			String retract_hour = params.getString("retract_hour");
-			String retract_min = params.getString("retract_minute");
-			String retract_ampm = params.getString("retract_ampm");
-			
-			item.setHidden(Boolean.TRUE.toString().equalsIgnoreCase(hidden));
-			item.setUseReleaseDate(Boolean.TRUE.toString().equalsIgnoreCase(use_start_date));
-			item.setUseRetractDate(Boolean.TRUE.toString().equalsIgnoreCase(use_end_date));
-			
-			int begin_year = Integer.parseInt(release_year);
-			int begin_month = Integer.parseInt(release_month);
-			int begin_day = Integer.parseInt(release_day);
-			int begin_hour = Integer.parseInt(release_hour);
-			int begin_min = Integer.parseInt(release_min);
-			if("pm".equals(release_ampm))
+			try
 			{
-				begin_hour += 12;
+				String release_time = params.getString("release_time");
+				String retract_month = params.getString("retract_month");
+				String retract_day = params.getString("retract_day");
+				String retract_year = params.getString("retract_year");
+				String retract_time = params.getString("retract_time");
+				String retract_hour = params.getString("retract_hour");
+				String retract_min = params.getString("retract_minute");
+				String retract_ampm = params.getString("retract_ampm");
+				
+				int begin_year = Integer.parseInt(release_year);
+				int begin_month = Integer.parseInt(release_month);
+				int begin_day = Integer.parseInt(release_day);
+				int begin_hour = Integer.parseInt(release_hour);
+				int begin_min = Integer.parseInt(release_min);
+				if("pm".equals(release_ampm))
+				{
+					begin_hour += 12;
+				}
+				else if(begin_hour == 12)
+				{
+					begin_hour = 0;
+				}
+				Time releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
+				item.setReleaseDate(releaseDate);
+				
+				int end_year = Integer.parseInt(retract_year);
+				int end_month = Integer.parseInt(retract_month);
+				int end_day = Integer.parseInt(retract_day);
+				int end_hour = Integer.parseInt(retract_hour);
+				int end_min = Integer.parseInt(retract_min);
+				if("pm".equals(retract_ampm))
+				{
+					end_hour += 12;
+				}
+				else if(begin_hour == 12)
+				{
+					end_hour = 0;
+				}
+				Time retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
+				item.setRetractDate(retractDate);
+				
+				item.setHidden(Boolean.TRUE.toString().equalsIgnoreCase(hidden));
+				item.setUseReleaseDate(Boolean.TRUE.toString().equalsIgnoreCase(use_start_date));
+				item.setUseRetractDate(Boolean.TRUE.toString().equalsIgnoreCase(use_end_date));
 			}
-			else if(begin_hour == 12)
+			catch(NumberFormatException e)
 			{
-				begin_hour = 0;
+				// no values retrieved from date widget, or values are not numbers 
 			}
-			Time releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
-			item.setReleaseDate(releaseDate);
-			
-			int end_year = Integer.parseInt(retract_year);
-			int end_month = Integer.parseInt(retract_month);
-			int end_day = Integer.parseInt(retract_day);
-			int end_hour = Integer.parseInt(retract_hour);
-			int end_min = Integer.parseInt(retract_min);
-			if("pm".equals(retract_ampm))
-			{
-				end_hour += 12;
-			}
-			else if(begin_hour == 12)
-			{
-				end_hour = 0;
-			}
-			Time retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
-			item.setRetractDate(retractDate);
 			
 			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 			if(preventPublicDisplay == null)
@@ -7718,41 +7725,48 @@ public class ResourcesAction
 			String retract_min = params.getString("retract" + index + "_minute");
 			String retract_ampm = params.getString("retract" + index + "_ampm");
 			
-			item.setHidden(Boolean.TRUE.toString().equalsIgnoreCase(hidden));
-			item.setUseReleaseDate(Boolean.TRUE.toString().equalsIgnoreCase(use_start_date));
-			item.setUseRetractDate(Boolean.TRUE.toString().equalsIgnoreCase(use_end_date));
-			
-			int begin_year = Integer.parseInt(release_year);
-			int begin_month = Integer.parseInt(release_month);
-			int begin_day = Integer.parseInt(release_day);
-			int begin_hour = Integer.parseInt(release_hour);
-			int begin_min = Integer.parseInt(release_min);
-			if("pm".equals(release_ampm))
+			try
 			{
-				begin_hour += 12;
+				int begin_year = Integer.parseInt(release_year);
+				int begin_month = Integer.parseInt(release_month);
+				int begin_day = Integer.parseInt(release_day);
+				int begin_hour = Integer.parseInt(release_hour);
+				int begin_min = Integer.parseInt(release_min);
+				if("pm".equals(release_ampm))
+				{
+					begin_hour += 12;
+				}
+				else if(begin_hour == 12)
+				{
+					begin_hour = 0;
+				}
+				Time releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
+				item.setReleaseDate(releaseDate);
+				
+				int end_year = Integer.parseInt(retract_year);
+				int end_month = Integer.parseInt(retract_month);
+				int end_day = Integer.parseInt(retract_day);
+				int end_hour = Integer.parseInt(retract_hour);
+				int end_min = Integer.parseInt(retract_min);
+				if("pm".equals(retract_ampm))
+				{
+					end_hour += 12;
+				}
+				else if(begin_hour == 12)
+				{
+					end_hour = 0;
+				}
+				Time retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
+				item.setRetractDate(retractDate);
+	
+				item.setHidden(Boolean.TRUE.toString().equalsIgnoreCase(hidden));
+				item.setUseReleaseDate(Boolean.TRUE.toString().equalsIgnoreCase(use_start_date));
+				item.setUseRetractDate(Boolean.TRUE.toString().equalsIgnoreCase(use_end_date));
 			}
-			else if(begin_hour == 12)
+			catch(NumberFormatException e)
 			{
-				begin_hour = 0;
+				// no values retrieved from date widget, or values are not numbers
 			}
-			Time releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
-			item.setReleaseDate(releaseDate);
-			
-			int end_year = Integer.parseInt(retract_year);
-			int end_month = Integer.parseInt(retract_month);
-			int end_day = Integer.parseInt(retract_day);
-			int end_hour = Integer.parseInt(retract_hour);
-			int end_min = Integer.parseInt(retract_min);
-			if("pm".equals(retract_ampm))
-			{
-				end_hour += 12;
-			}
-			else if(begin_hour == 12)
-			{
-				end_hour = 0;
-			}
-			Time retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
-			item.setRetractDate(retractDate);
 			
 			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 			if(preventPublicDisplay == null)
