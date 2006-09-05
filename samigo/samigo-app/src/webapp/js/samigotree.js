@@ -478,7 +478,11 @@ function checkUpdate(){
     }
 
  }
+}
 
+function inIt()
+{
+	abledButton();
 }
 
 function disabledButton(){

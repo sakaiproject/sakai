@@ -54,7 +54,8 @@
 </script>
       </head>
 
-<f:verbatim><body onload="collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);flagRows();<%= request.getAttribute("html.body.onload") %>"></f:verbatim>
+<f:verbatim><body onload="collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);flagRows();<%= request.getAttribute("html.body.onload") %>;disabledButton()"></f:verbatim>
+
  <div class="portletBody">
 <h:form id="editform">
   <!-- HEADINGS -->
@@ -83,21 +84,21 @@
  <div class="tier2">
 <h:panelGrid columns="2" columnClasses="shorttext">
   <h:outputLabel for="namefield" value="#{msg.p_name}"/>
-  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}"  id="namefield" size="30" value="#{questionpool.currentPool.displayName}" />
+  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}"  onkeydown="inIt()" id="namefield" size="30" value="#{questionpool.currentPool.displayName}" />
   <h:outputLabel for="ownerfield" value="#{msg.creator}"/>
-  <h:outputText id="ownerfield"  value="#{questionpool.currentPool.owner}"/>
+  <h:outputText id="ownerfield" value="#{questionpool.currentPool.owner}"/>
 
   <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}"  for="orgfield" value="#{msg.dept}"/>
-  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="orgfield" size="30" value="#{questionpool.currentPool.organizationName}" rendered="!#{questionpool.currentPool.showParentPools}"/>
+  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="orgfield" size="30"  onkeydown="inIt()" value="#{questionpool.currentPool.organizationName}" rendered="!#{questionpool.currentPool.showParentPools}"/>
  
   <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}" for="descfield" value="#{msg.desc}" />
-  <h:inputTextarea disabled="#{questionpool.importToAuthoring == 'true'}"  id="descfield" rendered="!#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.description}" cols="30" rows="5"/>
+  <h:inputTextarea disabled="#{questionpool.importToAuthoring == 'true'}"  id="descfield" onkeydown="inIt()" rendered="!#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.description}" cols="30" rows="5"/>
 
   <h:outputLabel for="objfield" value="#{msg.obj} " rendered="!#{questionpool.currentPool.showParentPools}"/>
-  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="objfield" size="30" value="#{questionpool.currentPool.objectives}" rendered="!#{questionpool.currentPool.showParentPools}"/>
+  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="objfield" size="30"  onkeydown="inIt()" value="#{questionpool.currentPool.objectives}" rendered="!#{questionpool.currentPool.showParentPools}"/>
 
   <h:outputLabel for="keyfield" value="#{msg.keywords} " rendered="!#{questionpool.currentPool.showParentPools}" />
-  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="keyfield" size="30" value="#{questionpool.currentPool.keywords}" rendered="!#{questionpool.currentPool.showParentPools}" />
+  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="keyfield" size="30"  onkeydown="inIt()" value="#{questionpool.currentPool.keywords}" rendered="!#{questionpool.currentPool.showParentPools}" />
 
   <h:inputHidden id="createdDate" value="#{questionpool.currentPool.dateCreated}">
   <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
@@ -171,7 +172,7 @@
 
 <div class="tier1">
 <!-- for normal pool operations -->
-  <h:commandButton accesskey="#{msg.a_update}" id="submit"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}"
+  <h:commandButton accesskey="#{msg.a_update}" id="Submit"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}"
         value="#{msg.update}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
  

@@ -145,7 +145,7 @@ onkeypress=
       <f:facet name="header">
         <h:outputText value="#{msg.remove_chbox}"/>
       </f:facet>
- <h:selectManyCheckbox immediate="true" id="removeCheckbox" value ="#{questionpool.destItems}">
+ <h:selectManyCheckbox immediate="true" id="removeCheckbox" onclick="checkUpdate()" onkeypress="checkUpdate()"  value ="#{questionpool.destItems}">
          <f:selectItem itemValue="#{question.itemIdString}" itemLabel=""/>
  </h:selectManyCheckbox>
      </h:column>
