@@ -9,9 +9,9 @@
       <property name="defaultForTool"><value>sakai.samigo</value></property>
    </bean>
    
-   <bean id="createAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+   <bean id="createAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>ardm</value></property>
-      <property name="name"><value>Create New Assignment</value></property>
+      <property name="name"><value>Create New Assessment</value></property>
       <property name="location"><value>/sakai_samigo/ardm.html</value></property>
    </bean>
    
@@ -176,7 +176,7 @@
                <property name="resources">
                   <list>
                      <ref bean="samigoOverview"/>
-					 <ref bean="createAssignment"/>
+					 <ref bean="createAssessment"/>
 					 <ref bean="createQuestions"/>
 					 <ref bean="previewAssessment"/>
 					 <ref bean="restrictAccess"/>
