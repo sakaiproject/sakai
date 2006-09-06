@@ -33,11 +33,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.tool.jsf.InitializableBean;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 
 
@@ -57,8 +63,13 @@ public class SiteListBean extends InitializableBean implements Serializable {
 	private final static String COL_STATUS			= "status";
 
 	/** Private */
-	private boolean				allowed				= true;
+	//private boolean				allowed				= true;
+	private Boolean				allowed				= Boolean.TRUE;
 	private List				siteRows;
+	private String				siteId				= null;
+	private Site				site				= null;
+	private String				userId				= SessionManager.getCurrentSessionUserId();
+	private Tool				tool				= ToolManager.getCurrentTool();
 
 	/** UI related */
 	private List				siteTypes;
@@ -73,6 +84,7 @@ public class SiteListBean extends InitializableBean implements Serializable {
 
 	/** Manager APIs */
 	private SiteService			M_ss				= (SiteService) ComponentManager.get(SiteService.class.getName());
+	private StatsManager		sm					= (StatsManager) ComponentManager.get(StatsManager.class.getName());
 
 	// ######################################################################################
 	// Main methods
@@ -85,13 +97,48 @@ public class SiteListBean extends InitializableBean implements Serializable {
 		}
 	}
 
-	public boolean isAllowed() {
+	/*public boolean isAllowed() {
 		allowed = SecurityService.isSuperUser() && ToolManager.getCurrentTool().getId().endsWith("admin");
 		if(!allowed){
 			FacesContext fc = FacesContext.getCurrentInstance();
 			fc.addMessage("allowed", new FacesMessage(FacesMessage.SEVERITY_FATAL, msgs.getString("unauthorized"), null));
 		}
 		return allowed;
+	}*/
+	public boolean isAllowed() {
+		// get site
+		if(site == null){
+			try{
+				site = M_ss.getSite(ToolManager.getCurrentPlacement().getContext());
+			}catch(IdUnusedException e){
+				LOG.error("Unable to get current site.", e);
+				return false;
+			}
+		}
+
+		if(allowed == null) allowed = new Boolean(sm.isUserAllowed(userId, site, tool));
+		if(!allowed.booleanValue()){
+			FacesContext fc = FacesContext.getCurrentInstance();
+			fc.addMessage("allowed", new FacesMessage(FacesMessage.SEVERITY_FATAL, msgs.getString("unauthorized"), null));
+		}
+		return allowed.booleanValue();
+	}
+	
+	public String getSiteId() {
+		if(siteId == null){
+			Placement placement = ToolManager.getCurrentPlacement();
+			siteId = placement.getContext();
+		}
+		return siteId;
+	}
+
+	public Site getSite() {
+		try{
+			site = M_ss.getSite(getSiteId());
+		}catch(IdUnusedException e){
+			LOG.warn("BaseBean: no site found with id: " + siteId);
+		}
+		return site;
 	}
 
 	// ######################################################################################

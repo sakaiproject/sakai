@@ -1,3 +1,11 @@
+2006/09/06 - Version 0.5.4
+------------------------------
+- Fixed (rare) case where no data was displayed in Events and Resources page unless searching by keyword
+- replaced 'disc.delete.any' and 'disc.delete.own' events by 'disc.delete.category' event
+- if auto.ddl, do not update indexes for hsqldb
+- added addEventIds@StatsManager sakai property to add events to existing event list
+- added removeEventIds@StatsManager sakai property to remove events from existing event list
+
 2006/08/01 - Version 0.5.3
 ------------------------------
 - STAT-8: Hibernate date functions not correctly translated in Oracle

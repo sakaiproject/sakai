@@ -28,7 +28,7 @@
 		<!-- Event IDs to be collected (event names are set in resource bundle) -->
 		<property name="eventIds">
 			<value>
-				pres.begin,mail.new,mail.delete.any,mail.delete.own,chat.new,chat.delete.any,chat.delete.own,disc.new,disc.new.category,disc.null,disc.delete.any,disc.delete.own,content.new,content.read,content.revise,content.delete,asn.new.assignment,asn.revise.assignment,asn.delete.assignment,asn.submit.submission,asn.save.submission,asn.grade.submission,annc.new,annc.revise.own,annc.revise.any,annc.delete.own,annc.delete.any,calendar.new,calendar.revise,wiki.revise,syllabus.post.new,syllabus.post.change
+				pres.begin,mail.new,mail.delete.any,mail.delete.own,chat.new,chat.delete.any,chat.delete.own,disc.new,disc.new.category,disc.null,disc.delete.category,content.new,content.read,content.revise,content.delete,asn.new.assignment,asn.revise.assignment,asn.delete.assignment,asn.submit.submission,asn.save.submission,asn.grade.submission,annc.new,annc.revise.own,annc.revise.any,annc.delete.own,annc.delete.any,calendar.new,calendar.revise,wiki.revise,syllabus.post.new,syllabus.post.change
 			</value>
 		</property>
 		<!-- Aggregate administrator events? -->

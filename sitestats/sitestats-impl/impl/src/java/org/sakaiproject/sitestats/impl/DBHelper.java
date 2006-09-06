@@ -22,6 +22,8 @@ public class DBHelper {
 	}
 
 	public void updateIndexes() {
+		if(!M_sql.getVendor().equals("mysql") || !M_sql.getVendor().equals("oracle"))
+			return;
 		notifiedIndexesUpdate = false;
 		try{
 			Connection c = M_sql.borrowConnection();
