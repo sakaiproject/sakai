@@ -541,18 +541,20 @@ public class ItemModifyListener implements ActionListener
     if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
         session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
       List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-      Reference ref = (Reference)refs.get(0);
+      if (refs!=null && refs.size() > 0){
+        Reference ref = (Reference)refs.get(0);
 
-      for(int i=0; i<refs.size(); i++) {
-        ref = (Reference) refs.get(i);
-        log.debug("**** ref.Id="+ref.getId());
-        log.debug("**** ref.name="+ref.getProperties().getProperty(									    ref.getProperties().getNamePropDisplayName()));
-        ItemAttachmentIfc newAttach = assessmentService.createItemAttachment(
-                                   item,
-                                   ref.getId(), ref.getProperties().getProperty(
-                                                ref.getProperties().getNamePropDisplayName()),
-                                   protocol);
-	attachmentSet.add(newAttach);
+        for(int i=0; i<refs.size(); i++) {
+          ref = (Reference) refs.get(i);
+          log.debug("**** ref.Id="+ref.getId());
+          log.debug("**** ref.name="+ref.getProperties().getProperty(									    ref.getProperties().getNamePropDisplayName()));
+          ItemAttachmentIfc newAttach = assessmentService.createItemAttachment(
+                                        item,
+                                        ref.getId(), ref.getProperties().getProperty(
+                                                     ref.getProperties().getNamePropDisplayName()),
+                                        protocol);
+          attachmentSet.add(newAttach);
+        }
       }
     }
     session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
