@@ -62,7 +62,7 @@ import org.sakaiproject.util.Web;
 	 *        The path to check
 	 * @return true if the path is a resource request, false if not.
 	 */
-      /*
+
 	protected boolean isResourceRequest(String path)
 	{
 	    log.debug("***0. inside isResourceRequest, path="+path);
@@ -83,11 +83,11 @@ import org.sakaiproject.util.Web;
 		if (ext.equals(".jsf")) return false;
 		if (ext.equals(".faces")) return false;
 		if (path.startsWith("/faces/")) return false;
+                if (path.indexOf(".helper") > -1) return false;
 		
 		// ok, it's a resource request
 		return true;
 	}
-      */
 
     protected void dispatch(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
       // NOTE: this is a simple path dispatching, taking the path as the view id = jsp file name for the view,
@@ -135,11 +135,10 @@ import org.sakaiproject.util.Web;
       // add the default JSF extension (if we have no extension)
       int lastSlash = target.lastIndexOf("/");
       int lastDot = target.lastIndexOf(".");
-      if (lastDot < 0 || lastDot < lastSlash)
-	  {
-	      target += JSF_EXT;
-	  }
-
+      if (lastDot < 0 || lastDot < lastSlash){
+        target += JSF_EXT;
+      }
+     
       // set the information that can be removed from return URLs
       req.setAttribute(URL_PATH, m_path);
       req.setAttribute(URL_EXT, ".jsp");
@@ -167,6 +166,7 @@ import org.sakaiproject.util.Web;
       req.removeAttribute(URL_EXT);
       
     }
+
 
     protected boolean sendToHelper(HttpServletRequest req, HttpServletResponse res)
                       throws ToolException {
