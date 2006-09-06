@@ -116,6 +116,7 @@ import org.sakaiproject.util.Web;
         }
       }
 
+      ToolSession session = SessionManager.getCurrentToolSession();
       if (target == null || "/".equals(target)) {
         target = computeDefaultTarget();
 
@@ -127,6 +128,26 @@ import org.sakaiproject.util.Web;
         // now that we've messed with the URL, send a redirect to make it official
         res.sendRedirect(Web.returnUrl(req, target));
         return;
+      }
+
+      // see if we want to change the specifically requested view
+      String newTarget = redirectRequestedTarget(target);
+
+      // make sure it's a valid path
+      if (!newTarget.startsWith("/")){
+        newTarget = "/" + newTarget;
+      }
+
+      if (!newTarget.equals(target)){
+        // now that we've messed with the URL, send a redirect to make it official
+        res.sendRedirect(Web.returnUrl(req, newTarget));
+        return;
+      }
+      target = newTarget;
+
+      // store this
+      if (m_defaultToLastView){
+        session.setAttribute(LAST_VIEW_VISITED, target);
       }
 
       // add the configured folder root and extension (if missing)
@@ -236,16 +257,18 @@ import org.sakaiproject.util.Web;
 
     protected String computeDefaultTarget(boolean lastVisited){
       // setup for the default view as configured
+      ToolSession session = SessionManager.getCurrentToolSession();
       String target = "/" + m_default;
 
       // if we are doing lastVisit and there's a last-visited view, for this tool placement / user, use that
       if (lastVisited)	{
-        ToolSession session = SessionManager.getCurrentToolSession();
         String last = (String) session.getAttribute(LAST_VIEW_VISITED);
         if (last != null) {
           target = last;
 	}
       }
+      session.removeAttribute(LAST_VIEW_VISITED);
+
       return target;
     }
   }
