@@ -103,6 +103,8 @@ public class PostemTool {
 
 	protected boolean userPressedBack = false;
 	
+	protected boolean gradebooksExist = true;
+	
 	private static final int TEMPLATE_MAX_LENGTH = 4000;
 	
 	private static final String COMMA_DELIM_STR = "comma";
@@ -170,9 +172,18 @@ public class PostemTool {
 		} catch (Exception e) {
 			gradebooks = null;
 		}
+		
+		if (gradebooks.size() > 0)
+			gradebooksExist = true;
+		else
+			gradebooksExist = false;
 
 		return gradebooks;
 
+	}
+	
+	public boolean getGradebooksExist() {
+		return gradebooksExist;
 	}
 
 	public String getCsv() {

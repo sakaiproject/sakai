@@ -16,7 +16,7 @@
 			<sakai:view_content>
 				<br/>
 	
-				<sakai:flat_list value="#{PostemTool.gradebooks}" var="gradebook" binding="#{PostemTool.gradebookTable}">
+				<sakai:flat_list value="#{PostemTool.gradebooks}" var="gradebook" binding="#{PostemTool.gradebookTable}" styleClass="listHier lines nolines">
 					<h:column>
 						<f:facet name="header">
 							<h:commandLink action="#{PostemTool.toggleTitleSort}" title="#{msgs.sort_title}">
@@ -111,7 +111,9 @@
 					</h:column>
 				</sakai:flat_list>
 				
-
+				<p class="instruction">
+				  <h:outputText value="#{msgs.no_gradebooks}" rendered="#{!PostemTool.gradebooksExist}" />				
+				</p>
 			</sakai:view_content>
 
 		</h:form>
