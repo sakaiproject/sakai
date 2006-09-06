@@ -91,16 +91,16 @@ site types are a local setting - adjust */
 
 .sitenav-max{
 	/*user logged in */
-	height: 7.8em;
+	height: 8.6em;
 	max-height:140px;
 	min-height:100px;
 	width: 100%;
 }
 
-* html .sitenav-max{
-	/*user logged in - iframe height tweak for IE*/
+/** html .sitenav-max{
+	/*user logged in - iframe height tweak for IE
 	height: 8em;
-	}
+	}*/
 .sitenav-min{
 	/*no logos or banners*/
 	height: 2em;
@@ -112,20 +112,8 @@ site types are a local setting - adjust */
 TODO:get it and its children onto main document. Children are #mastHead,#tabNavWrap*/
 .siteNavWrap{
 	margin: 0; 
-	border-bottom:3px solid #fff;
 	height:100%;
 	overflow:auto
-}
-/*depending on site type - different border-bottoms for the site menu parent block
-site types are a local setting - adjust */
-.workspace .siteNavWrap{
-	border-bottom:3px solid #aaa;
-}
-.course .siteNavWrap{
-	border-bottom:3px solid #fc6;
-}
-.project .siteNavWrap{
-	border-bottom:3px solid #9cf;
 }
 
 
@@ -237,28 +225,46 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom*/
 .siteNavWrap{
 	width: 100%;
-	background: #09c url(images/sitenavback.jpg) top left repeat-x;
 	padding: 0;
 	margin: 0;
 	float: left;
-	border-top: 1px solid #09c;
 }
 
 /*wrapper for the site links and site <select> blocks - children are #siteNav and #tabNav */
 /*note - after tag 2.2 004 - this and children are no longer nested floated boxes due to fact of site nav remaining in iframe with attendant float drop problems*/
 #siteNav{
 	width:100%;
+	background: #09c url(images/sitenavback.jpg) top left repeat-x;
+	border-top: 1px solid #09c;
+	border-bottom:3px solid #fff;
 }
+
+/*depending on site type - different border-bottoms for the site menu parent block
+site types are a local setting - adjust */
+.workspace #siteNav{
+	border-bottom:3px solid #aaa;
+}
+.course #siteNav{
+	border-bottom:3px solid #fc6;
+}
+.project #siteNav{
+	border-bottom:3px solid #9cf;
+}
+
+
 #siteNav td{
-	padding:0
+	padding: 4px 0;
 }
 
 /*wrapper for the site link list   - the #siteLinkList child)*/
 #linkNav{
 
 }
-* html body  #linkNav{
-/*margin-top:.2em*/
+
+/* in IE, scrollbars appear within content, so add enough bottom margin
+   to accomodate a horiz scrollbar */
+* html body  #siteNav{
+	margin-bottom: 10px;
 }
 /*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
 #selectNav{
@@ -284,7 +290,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	list-style: none none none;
 	font-size: .8em;
 	margin: 0;	
-	padding: 4px 0;
+	padding: 0;
 	width: auto;
 }
 
