@@ -107,7 +107,7 @@
     </h:dataTable>
   </h:panelGroup>
   <h:panelGroup rendered="#{!itemauthor.hasAttachment}">
-    <h:outputText escape="false" value="#{msg.no_attachment}" />
+    <h:outputText escape="false" value="#{msg.no_attachments}" />
   </h:panelGroup>
 
   <sakai:button_bar>
