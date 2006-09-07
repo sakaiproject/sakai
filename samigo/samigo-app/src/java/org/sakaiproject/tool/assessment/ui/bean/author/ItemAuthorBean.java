@@ -48,6 +48,7 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
+import org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.tool.api.ToolSession;
@@ -927,6 +928,11 @@ ItemService delegate = new ItemService();
   }
 
   public String addAttachmentsRedirect() {
+    // 1. first save any question text and stuff
+    ItemAddListener lis = new ItemAddListener();
+    lis.processAction(null);
+
+    // 2. then redirect to add attachment
     try	{
       List filePickerList = EntityManager.newReferenceList();
       ToolSession currentToolSession = SessionManager.getCurrentToolSession();
@@ -937,7 +943,8 @@ ItemService delegate = new ItemService();
     catch(Exception e){
       log.error("fail to redirect to attachment page: " + e.getMessage());
     }
-    return null;
+    System.out.println("**** outcome="+getOutcome());
+    return getOutcome();
   }
 
   private boolean hasAttachment = false;

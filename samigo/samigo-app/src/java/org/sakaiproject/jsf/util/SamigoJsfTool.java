@@ -65,7 +65,7 @@ import org.sakaiproject.util.Web;
 
 	protected boolean isResourceRequest(String path)
 	{
-	    log.debug("***0. inside isResourceRequest, path="+path);
+	    System.out.println("****0. inside isResourceRequest, path="+path);
 		// we need some path
 		if ((path == null) || (path.length() == 0)) return false;
 
@@ -75,7 +75,7 @@ import org.sakaiproject.util.Web;
 
 		// we need that last dot to be the end of the path, not burried in the path somewhere (i.e. no more slashes after the last dot)
 		String ext = path.substring(pos);
-	    log.debug("***1. inside isResourceRequest, ext="+ext);
+	    System.out.println("****1. inside isResourceRequest, ext="+ext);
 		if (ext.indexOf("/") != -1) return false;
 
 		// these are JSF pages, not resources		
@@ -95,12 +95,12 @@ import org.sakaiproject.util.Web;
 
       // build up the target that will be dispatched to
       String target = req.getPathInfo();
-      log.debug("****0. target ="+target);
+      System.out.println("***0. dispatch, target ="+target);
 
       boolean sendToHelper = sendToHelper(req, res);
       boolean isResourceRequest = isResourceRequest(target);
-      log.debug("****1. send to helper ="+sendToHelper);
-      log.debug("****2. isResourceRequest ="+ isResourceRequest);
+      System.out.println("***1. dispatch, send to helper ="+sendToHelper);
+      System.out.println("***2. dispatch, isResourceRequest ="+ isResourceRequest);
 
       // see if we have a helper request
       if (sendToHelper) {
@@ -116,7 +116,6 @@ import org.sakaiproject.util.Web;
         }
       }
 
-      ToolSession session = SessionManager.getCurrentToolSession();
       if (target == null || "/".equals(target)) {
         target = computeDefaultTarget();
 
@@ -146,9 +145,20 @@ import org.sakaiproject.util.Web;
       target = newTarget;
 
       // store this
-      if (m_defaultToLastView){
-        session.setAttribute(LAST_VIEW_VISITED, target);
+      ToolSession toolSession = SessionManager.getCurrentToolSession();
+      if (toolSession!=null){
+          toolSession.setAttribute(LAST_VIEW_VISITED, target);
       }
+        System.out.println("3a. dispatch: toolSession="+toolSession);
+        System.out.println("3b. dispatch: target="+target);
+        System.out.println("3c. dispatch: lastview?"+m_defaultToLastView);
+
+	  /*
+      if (m_defaultToLastView){
+      }
+	  */
+
+
 
       // add the configured folder root and extension (if missing)
       target = m_path + target;
@@ -176,7 +186,7 @@ import org.sakaiproject.util.Web;
       res.addHeader("Pragma", "no-cache");
 
       // dispatch to the target
-      log.debug("****dispatching path: " + req.getPathInfo() + " to: " + target + " context: "
+      System.out.println("***4. dispatch, dispatching path: " + req.getPathInfo() + " to: " + target + " context: "
 	+ getServletContext().getServletContextName());
       RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(target);
       dispatcher.forward(req, res);
@@ -198,26 +208,26 @@ import org.sakaiproject.util.Web;
       // if present is "edit"...
       String[] parts = path.split("/");
 
-      log.debug("*** sendToHelper.partLength="+parts.length);
+      System.out.println("***a. sendToHelper.partLength="+parts.length);
       String helperPath =null;
       String toolPath=null;
 
       // e.g. helper url in Samigo can be /jsf/author/item/sakai.filepicker.helper/tool
       //      or /sakai.filepicker.helper 
       if (parts.length > 2){
-        log.debug("*** sendToHelper.partLength="+parts.length);
+        System.out.println("***b. sendToHelper.partLength="+parts.length);
         helperPath = parts[parts.length - 2];
         toolPath = parts[parts.length - 1];
       }
       else if (parts.length == 2){
-        log.debug("*** sendToHelper.partLength="+parts.length);
+        System.out.println("***c. sendToHelper.partLength="+parts.length);
         helperPath = parts[1];
       }
       else return false;
 
       if (!helperPath.endsWith(HELPER_EXT)) return false;
-      log.debug("**** sendToHelper, part #1="+helperPath);
-      log.debug("**** sendToHelper, part #2="+toolPath);
+      System.out.println("****d. sendToHelper, part #1="+helperPath);
+      System.out.println("****e. sendToHelper, part #2="+toolPath);
 
       ToolSession toolSession = SessionManager.getCurrentToolSession();
 
@@ -233,7 +243,7 @@ import org.sakaiproject.util.Web;
       // calc helper id
       int posEnd = helperPath.lastIndexOf(".");
       String helperId = helperPath.substring(0, posEnd);
-      log.debug("**** sendToHelper, helperId="+helperId);
+      System.out.println("****f. sendToHelper, helperId="+helperId);
       ActiveTool helperTool = ActiveToolManager.getActiveTool(helperId);
 
       String url = req.getContextPath() + req.getServletPath();
@@ -242,11 +252,9 @@ import org.sakaiproject.util.Web;
 				 url + computeDefaultTarget(true));
       }
 
-      log.debug("**** sendToHelper, url="+url);
-      log.debug("**** sendToHelper, computeDefualtTarget="+computeDefaultTarget(true));
+      System.out.println("****g. sendToHelper, url="+url);
       String context = url + "/"+ helperPath;
-      log.debug("**** sendToHelper, context="+context);
-      //String toolPath = Web.makePath(parts, 2, parts.length);
+      System.out.println("****h. sendToHelper, context="+context);
       if (toolPath != null) 
         helperTool.help(req, res, context, "/"+toolPath);
       else
@@ -268,7 +276,7 @@ import org.sakaiproject.util.Web;
 	}
       }
       session.removeAttribute(LAST_VIEW_VISITED);
-
+      System.out.println("***3. computeDefaultTarget()="+target);
       return target;
     }
   }
