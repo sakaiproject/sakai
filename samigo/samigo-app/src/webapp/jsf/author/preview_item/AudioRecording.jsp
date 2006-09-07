@@ -27,6 +27,9 @@ should be included in file importing DeliveryMessages
 --%>
 -->
   <h:outputText escape="false" value="#{question.itemData.text}" />
+  <!-- ATTACHMENTS -->
+  <%@ include file="/jsf/author/preview_item/attachment.jsp" %>
+
   <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
   <h:outputText escape="false" value="#{msg.time_allowed_seconds} #{question.itemData.duration}" />
   <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>

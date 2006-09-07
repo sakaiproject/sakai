@@ -28,6 +28,9 @@ should be included in file importing DeliveryMessages
   <%@ taglib uri="http://java.sun.com/upload" prefix="corejsf" %>
 
   <h:outputText escape="false" value="#{question.itemData.text}" />
+  <!-- ATTACHMENTS -->
+  <%@ include file="/jsf/author/preview_item/attachment.jsp" %>
+
   <h:panelGrid columns="1" width="100%">
     <h:outputText escape="false" value="#{msg.upload_instruction}" />
     <h:panelGroup>

@@ -26,6 +26,9 @@ should be included in file importing DeliveryMessages
 --%>
 -->
   <h:outputText escape="false" value="#{question.itemData.text}" />
+  <!-- ATTACHMENTS -->
+  <%@ include file="/jsf/author/preview_item/attachment.jsp" %>
+
   <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
     <h:column>
       <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
