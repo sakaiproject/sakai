@@ -11,4 +11,7 @@
     <bean id="org.sakaiproject.api.section.facade.manager.Context"
         class="org.sakaiproject.component.section.facade.impl.sakai21.ContextSakaiImpl"/>
 
+	<bean id="org.sakaiproject.api.section.facade.manager.ResourceLoader"
+		class="org.sakaiproject.component.section.facade.impl.sakai21.ResourceLoaderSakaiImpl"/>
+
 </beans>

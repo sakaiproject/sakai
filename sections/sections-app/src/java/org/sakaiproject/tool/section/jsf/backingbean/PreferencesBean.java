@@ -20,9 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.tool.section.jsf.backingbean;
 
-import org.sakaiproject.util.ResourceLoader;
-
-import javax.faces.context.FacesContext;
+import org.sakaiproject.api.section.facade.manager.ResourceLoader;
 
 /**
  * Stores user preferences for table sorting and paging.  These preferences are
@@ -32,7 +30,11 @@ import javax.faces.context.FacesContext;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class PreferencesBean {
+public class PreferencesBean extends CourseDependentBean {
+	
+	private static final long serialVersionUID = 1L;
+
+	private ResourceLoader resourceLoader;
 	
 	public PreferencesBean() {
 		overviewSortColumn = "title";
@@ -41,10 +43,12 @@ public class PreferencesBean {
 		rosterSortColumn = "studentName";
 		rosterSortAscending = true;
 		rosterMaxDisplayedRows = 10;
-		
-		// Get the max name length for displaying names from the app's properties file
-        ResourceLoader rb = new ResourceLoader("sections");
-        maxNameLength = Integer.parseInt(rb.getString("max_name_length"));
+	}
+
+	public void init() {
+		// Get the max name length for displaying names from the app's properties file.
+		// We can't do this in the constructor, since we need to wait for our dependencies.
+        maxNameLength = Integer.parseInt(resourceLoader.getString("max_name_length"));
 	}
 	
 	protected int maxNameLength;
@@ -88,6 +92,16 @@ public class PreferencesBean {
 	public int getMaxNameLength() {
 		return maxNameLength;
 	}
+	
+	public ResourceLoader getResourceLoader() {
+		return resourceLoader;
+	}
 
-
+	// Dependency injection
+	public void setResourceLoader(ResourceLoader resourceLoader) {
+		this.resourceLoader = resourceLoader;
+		
+		// TODO This is a hack... fix it
+		init();
+	}
 }

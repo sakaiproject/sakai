@@ -31,13 +31,17 @@ import java.util.Locale;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.ServletContext;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.section.facade.manager.Context;
+import org.sakaiproject.api.section.facade.manager.ResourceLoader;
 import org.sakaiproject.jsf.util.ConversionUtil;
 import org.sakaiproject.tool.section.jsf.backingbean.MessagingBean;
-import org.sakaiproject.util.ResourceLoader;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.WebApplicationContext;
 
 /**
  * A utility to help deal with common tasks in JSF.
@@ -69,23 +73,6 @@ public class JsfUtil {
 	 * format abberviated times (with only hours and am/pm marker).
 	 */
 	public static final String TIME_PATTERN_SHORT = "h a";
-
-	/**
-	 * Gets the current locale for a request, as provided by the faces context.
-	 * If not locale can be found, defaults to Locale.US.
-	 * 
-	 * @return
-	 */
-	public static Locale getLocale() {
-		Locale locale;
-		try {
-			locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
-		} catch (Exception e) {
-			log.warn("Could not get locale from FacesContext (perhaps this was this called during testing?)");
-			locale = Locale.US;
-		}
-		return locale;
-	}
 	
 	/**
 	 * To cut down on configuration noise, allow access to request-scoped beans from
@@ -159,17 +146,8 @@ public class JsfUtil {
      * Gets a localized message from the message bundle.
      */
     public static String getLocalizedMessage(String key) {
-        FacesContext context = FacesContext.getCurrentInstance();
-        String bundleName;
-        
-        // We need to be able to call this from tests.  Is there a way to manually construct a FacesContext?
-        if(context == null) {
-        	bundleName = "sections";
-        } else {
-        	bundleName = context.getApplication().getMessageBundle();
-        }
-        ResourceLoader rb = new ResourceLoader(bundleName);
-        return rb.getString(key);
+    	ResourceLoader rl = (ResourceLoader)resolveVariable("org.sakaiproject.api.section.facade.manager.ResourceLoader");
+        return rl.getString(key);
 	}
 	
     /**

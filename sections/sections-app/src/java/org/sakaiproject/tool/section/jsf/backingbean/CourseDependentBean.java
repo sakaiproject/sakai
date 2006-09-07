@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.faces.context.FacesContext;
@@ -34,7 +35,6 @@ import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Base class for all JSF backing beans relying on knowledge of the current
@@ -45,7 +45,6 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class CourseDependentBean extends InitializableBean implements Serializable {
 
-   private static ResourceLoader rb = new ResourceLoader();
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(CourseDependentBean.class);
 
@@ -57,7 +56,7 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 		}
 		return courseBean;
 	}
-	
+
 	/**
 	 * Gets the categories that are currently being used in this site context.
 	 * 
@@ -110,7 +109,8 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	}
 
 	protected String getCategoryName(String categoryId) {
-		return getCourseBean().sectionManager.getCategoryName(categoryId, rb.getLocale());
+		Locale locale = getCourseBean().getPrefs().getResourceLoader().getLocale();
+		return getCourseBean().sectionManager.getCategoryName(categoryId, locale);
 	}
 	
 	protected List getSectionCategories() {

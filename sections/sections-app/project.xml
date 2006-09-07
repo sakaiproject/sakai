@@ -117,7 +117,7 @@
 		<dependency>
 			<groupId>hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
-			<version>1.7.3.3</version>
+			<version>1.8.0.5</version>
 		</dependency>
 
 		<!-- Uncomment as necessary to run tests, or to generate new db schemas -->
@@ -176,6 +176,12 @@
 			<artifactId>cglib-nodep</artifactId>
 			<version>2.1_3</version>
 		</dependency>
+
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>2.7.6rc1</version>
+        </dependency>
 
 		<dependency>
 			<groupId>odmg</groupId>

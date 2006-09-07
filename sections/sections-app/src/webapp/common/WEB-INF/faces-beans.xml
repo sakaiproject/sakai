@@ -116,5 +116,10 @@
         <managed-bean-name>preferencesBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.PreferencesBean</managed-bean-class>
         <managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>resourceLoader</property-name>
+            <value>#{org_sakaiproject_api_section_facade_manager_ResourceLoader}</value>
+		</managed-property>
     </managed-bean>
+    
 </faces-config>
