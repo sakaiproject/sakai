@@ -41,6 +41,8 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 
 /**
  * <p>
@@ -147,17 +149,11 @@ import org.sakaiproject.util.Web;
       // store this
       ToolSession toolSession = SessionManager.getCurrentToolSession();
       if (toolSession!=null){
-          toolSession.setAttribute(LAST_VIEW_VISITED, target);
+        toolSession.setAttribute(LAST_VIEW_VISITED, target);
       }
         System.out.println("3a. dispatch: toolSession="+toolSession);
         System.out.println("3b. dispatch: target="+target);
         System.out.println("3c. dispatch: lastview?"+m_defaultToLastView);
-
-	  /*
-      if (m_defaultToLastView){
-      }
-	  */
-
 
 
       // add the configured folder root and extension (if missing)
@@ -188,6 +184,16 @@ import org.sakaiproject.util.Web;
       // dispatch to the target
       System.out.println("***4. dispatch, dispatching path: " + req.getPathInfo() + " to: " + target + " context: "
 	+ getServletContext().getServletContextName());
+      // if this is a return from the file picker and going back to item mofification
+      // save the question now - this will hook up the freshly uploaded file to the question.
+      if (target.indexOf("/jsf/author/item/") > -1 
+	  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
+	 ItemAuthorBean bean = (ItemAuthorBean) ContextUtil.lookupBeanFromExternalServlet(
+                               "itemauthor", req, res);
+         System.out.println("** populate item");
+         bean.populateItem();
+         toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
+      }
       RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(target);
       dispatcher.forward(req, res);
 
@@ -230,6 +236,7 @@ import org.sakaiproject.util.Web;
       System.out.println("****e. sendToHelper, part #2="+toolPath);
 
       ToolSession toolSession = SessionManager.getCurrentToolSession();
+      toolSession.setAttribute("SENT_TO_FILEPICKER_HELPER", "true");
 
       Enumeration params = req.getParameterNames();
       while (params.hasMoreElements()) {

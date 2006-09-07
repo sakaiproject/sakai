@@ -84,14 +84,25 @@ public class ItemModifyListener implements ActionListener
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
 
     String itemId= cu.lookupParam("itemid");
-    String target= cu.lookupParam("target");
-
+    if (itemId != null){
+      itemauthorbean.setItemId(itemId);
+    }
+    else{ 
+      // i am afraid on returning to the item modify page, I need to call ItemModifyListener 
+      // to save any new attachments and re-populate the attachment list.
+      // so i can't read itemId from a form. - daisyf
+      itemId = itemauthorbean.getItemId();
+    }
+ 
     String poolid = cu.lookupParam("poolId");
     if(poolid!=null) {
        itemauthorbean.setQpoolId(poolid);
     }
 
-    itemauthorbean.setTarget(target);
+    String target= cu.lookupParam("target");
+    if (target!=null){
+      itemauthorbean.setTarget(target);
+    }
 
     if (!populateItemBean(itemauthorbean, itemId))
     {

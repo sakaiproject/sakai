@@ -49,6 +49,7 @@ import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener;
+import org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.tool.api.ToolSession;
@@ -86,7 +87,7 @@ public class ItemAuthorBean
   private String insertType;
   private String assessmentID;
   private String currentSection;
-//  private String itemId;
+  private String itemId;
   private String itemNo;
   private String itemType;
   private String itemTypeString;  // used for inserting a question
@@ -284,23 +285,16 @@ public class ItemAuthorBean
   }
 
 
-  /**
-   * @return
-
   public String getItemId()
   {
     return itemId;
   }
 
-   */
-
-  /**
-   * @param string
   public void setItemId(String string)
   {
     itemId= string;
   }
-   */
+
 
   /**
    * @return
@@ -929,8 +923,7 @@ ItemService delegate = new ItemService();
 
   public String addAttachmentsRedirect() {
     // 1. first save any question text and stuff
-    ItemAddListener lis = new ItemAddListener();
-    lis.processAction(null);
+    saveItem();
 
     // 2. then redirect to add attachment
     try	{
@@ -945,6 +938,16 @@ ItemService delegate = new ItemService();
     }
     System.out.println("**** outcome="+getOutcome());
     return getOutcome();
+  }
+
+  private void saveItem(){
+    ItemAddListener lis = new ItemAddListener();
+    lis.processAction(null);
+  }
+
+  public void populateItem(){
+    ItemModifyListener lis = new ItemModifyListener();
+    lis.processAction(null);
   }
 
   private boolean hasAttachment = false;
