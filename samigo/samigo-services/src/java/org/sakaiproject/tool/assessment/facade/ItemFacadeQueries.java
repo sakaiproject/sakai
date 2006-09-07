@@ -477,6 +477,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     while (retryCount > 0){
       try {
         getHibernateTemplate().saveOrUpdate(itemdata);
+        item.setItemId(itemdata.getItemId());
         retryCount = 0;
       }
       catch (Exception e) {

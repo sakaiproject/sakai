@@ -35,6 +35,9 @@ should be included in file importing DeliveryMessages
 <input type=\"hidden\" name=\"mediaLocation_#{question.itemData.itemId}\" value=\"jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio.au\"/>" />
 
 <h:outputText value="#{question.text} "  escape="false"/>
+<!-- ATTACHMENTS -->
+<%@ include file="/jsf/delivery/item/attachment.jsp" %>
+
 <f:verbatim><br /></f:verbatim>
 <f:verbatim><br /></f:verbatim>
 

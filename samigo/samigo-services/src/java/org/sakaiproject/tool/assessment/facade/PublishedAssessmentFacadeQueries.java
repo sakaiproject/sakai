@@ -52,6 +52,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
@@ -62,6 +63,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswerFeedb
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemMetaData;
@@ -365,9 +367,12 @@ public class PublishedAssessmentFacadeQueries
           publishedItem, item.getItemMetaDataSet());
       Set publishedItemFeedbackSet = preparePublishedItemFeedbackSet(
           publishedItem, item.getItemFeedbackSet());
+      Set publishedItemAttachmentSet = preparePublishedItemAttachmentSet(
+          publishedItem, item.getItemAttachmentSet());
       publishedItem.setItemTextSet(publishedItemTextSet);
       publishedItem.setItemMetaDataSet(publishedItemMetaDataSet);
       publishedItem.setItemFeedbackSet(publishedItemFeedbackSet);
+      publishedItem.setItemAttachmentSet(publishedItemAttachmentSet);
       h.add(publishedItem);
     }
     return h;
@@ -414,6 +419,23 @@ public class PublishedAssessmentFacadeQueries
       PublishedItemFeedback publishedItemFeedback = new PublishedItemFeedback(
           publishedItem, itemFeedback.getTypeId(), itemFeedback.getText());
       h.add(publishedItemFeedback);
+    }
+    return h;
+  }
+
+  public Set preparePublishedItemAttachmentSet(PublishedItemData publishedItem,
+                                             Set itemAttachmentSet) {
+    HashSet h = new HashSet();
+    Iterator o = itemAttachmentSet.iterator();
+    while (o.hasNext()) {
+      ItemAttachment itemAttachment = (ItemAttachment) o.next();
+      PublishedItemAttachment publishedItemAttachment = new PublishedItemAttachment(
+        null, publishedItem, itemAttachment.getResourceId(), itemAttachment.getFilename(),
+        itemAttachment.getMimeType(), itemAttachment.getFileSize(), itemAttachment.getDescription(),
+        itemAttachment.getLocation(), itemAttachment.getIsLink(), itemAttachment.getStatus(),
+        itemAttachment.getCreatedBy(), itemAttachment.getCreatedDate(), itemAttachment.getLastModifiedBy(),
+        itemAttachment.getLastModifiedDate());
+      h.add(publishedItemAttachment);
     }
     return h;
   }

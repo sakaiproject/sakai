@@ -549,7 +549,8 @@ public class ItemAddListener
         itemauthor.setOutcome("editAssessment");
 
       }
-
+      // sorry, i need this for item attachment
+      itemauthor.setItemId(item.getItemId().toString());
       return true;
     }
     catch (Exception e) {

@@ -28,6 +28,8 @@ should be included in file importing DeliveryMessages
 --%>
 
 <h:outputText value="#{question.text} <br/>"  escape="false"/>
+<!-- ATTACHMENTS -->
+<%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
 <h:panelGroup rendered="#{delivery.actionString=='takeAssessment' 
                        || delivery.actionString=='takeAssessmentViaUrl'}">

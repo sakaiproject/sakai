@@ -26,6 +26,9 @@ should be included in file importing DeliveryMessages
 --%>
 -->
   <h:outputText value="#{question.text}"  escape="false"/>
+  <!-- ATTACHMENTS -->
+  <%@ include file="/jsf/delivery/item/attachment.jsp" %>
+
   <h:dataTable value="#{question.selectionArray}" var="selection">
     <h:column rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
