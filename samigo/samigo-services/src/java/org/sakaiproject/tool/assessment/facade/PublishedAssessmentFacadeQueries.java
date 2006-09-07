@@ -89,6 +89,9 @@ import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
 import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.cover.ContentHostingService;
+
 
 public class PublishedAssessmentFacadeQueries
     extends HibernateDaoSupport implements PublishedAssessmentFacadeQueriesAPI {
@@ -429,13 +432,24 @@ public class PublishedAssessmentFacadeQueries
     Iterator o = itemAttachmentSet.iterator();
     while (o.hasNext()) {
       ItemAttachment itemAttachment = (ItemAttachment) o.next();
-      PublishedItemAttachment publishedItemAttachment = new PublishedItemAttachment(
-        null, publishedItem, itemAttachment.getResourceId(), itemAttachment.getFilename(),
-        itemAttachment.getMimeType(), itemAttachment.getFileSize(), itemAttachment.getDescription(),
-        itemAttachment.getLocation(), itemAttachment.getIsLink(), itemAttachment.getStatus(),
-        itemAttachment.getCreatedBy(), itemAttachment.getCreatedDate(), itemAttachment.getLastModifiedBy(),
-        itemAttachment.getLastModifiedDate());
-      h.add(publishedItemAttachment);
+      try{
+        // create a copy of the resource
+        ContentResource cr = ContentHostingService.getResource(itemAttachment.getResourceId());
+        ContentResource cr_copy = ContentHostingService.addAttachmentResource(
+                                  itemAttachment.getFilename(), cr.getContentType(), cr.getContent(),
+                                  cr.getProperties());
+
+        PublishedItemAttachment publishedItemAttachment = new PublishedItemAttachment(
+          null, publishedItem, cr_copy.getId(), itemAttachment.getFilename(),
+          itemAttachment.getMimeType(), itemAttachment.getFileSize(), itemAttachment.getDescription(),
+          itemAttachment.getLocation(), itemAttachment.getIsLink(), itemAttachment.getStatus(),
+          itemAttachment.getCreatedBy(), itemAttachment.getCreatedDate(), itemAttachment.getLastModifiedBy(),
+          itemAttachment.getLastModifiedDate());
+        h.add(publishedItemAttachment);
+      }
+      catch (Exception e){
+        log.warn(e.getMessage());
+      }
     }
     return h;
   }
