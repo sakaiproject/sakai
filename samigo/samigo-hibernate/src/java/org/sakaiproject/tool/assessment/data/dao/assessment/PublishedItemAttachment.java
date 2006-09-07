@@ -28,7 +28,7 @@ import java.util.Date;
 import java.util.ResourceBundle;
 
 public class PublishedItemAttachment
-    extends AttachmentData
+    extends PublishedAttachmentData
     implements java.io.Serializable, ItemAttachmentIfc
 {
   private ItemDataIfc item;

@@ -439,6 +439,10 @@ public class PublishedAssessmentFacadeQueries
                                   itemAttachment.getFilename(), cr.getContentType(), cr.getContent(),
                                   cr.getProperties());
 
+        System.out.println("****resourceId="+itemAttachment.getResourceId());
+        System.out.println("****cr.id="+cr.getId());
+        System.out.println("****cr_copy.id="+cr_copy.getId());
+
         PublishedItemAttachment publishedItemAttachment = new PublishedItemAttachment(
           null, publishedItem, cr_copy.getId(), itemAttachment.getFilename(),
           itemAttachment.getMimeType(), itemAttachment.getFileSize(), itemAttachment.getDescription(),
