@@ -73,6 +73,10 @@
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedback"/>
     </set>
+    <set name="itemAttachmentSet" table="SAM_PUBLISHEDATTACHMENT_T" cascade="all" order-by="createdDate asc" inverse="true" lazy="false">
+       <key column="ITEMID"/>
+       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemAttachment"/>
+    </set>
   </class>
 
 
@@ -176,6 +180,76 @@
     <property name="text">
       <column name="TEXT" not-null="false" sql-type="varchar(4000)" />
     </property>
+  </class>
+
+  <class name="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData" table="SAM_PUBLISHEDATTACHMENT_T">
+    <id name="attachmentId" column="ATTACHMENTID" type="java.lang.Long" unsaved-value="0">
+      <generator class="native">
+        <param name="sequence">SAM_PUBLISHEDATTACHMENT_ID_S</param>
+      </generator>
+    </id>
+
+    <discriminator column="ATTACHMENTTYPE" />
+
+    <property name="resourceId">
+      <column name="RESOURCEID" not-null="false" sql-type="varchar(255)" />
+    </property>
+    <property name="filename">
+      <column name="FILENAME" not-null="false" sql-type="varchar(255)" />
+    </property>
+    <property name="mimeType">
+      <column name="MIMETYPE" not-null="false" sql-type="varchar(80)" />
+    </property>
+    <property name="fileSize">
+      <column name="FILESIZE" not-null="false" sql-type="integer"/>
+    </property>
+    <property name="description">
+      <column name="DESCRIPTION" not-null="false" sql-type="varchar(4000)" />
+    </property>
+    <property name="location">
+      <column name="LOCATION" not-null="false" sql-type="varchar(4000)" />
+    </property>
+    <property name="isLink">
+      <column name="ISLINK" not-null="false" sql-type="integer" />
+    </property>
+    <property name="status">
+      <column name="STATUS" not-null="true" sql-type="integer" />
+    </property>
+    <property name="createdBy">
+      <column name="CREATEDBY" not-null="true" sql-type="varchar(36)" />
+    </property>
+    <property name="createdDate" type="timestamp">
+      <column name="CREATEDDATE" not-null="true" />
+    </property>
+    <property name="lastModifiedBy">
+      <column name="LASTMODIFIEDBY" not-null="true" sql-type="varchar(36)" />
+    </property>
+    <property name="lastModifiedDate" type="timestamp">
+      <column name="LASTMODIFIEDDATE" not-null="true" />
+    </property>
+
+<!--
+    <subclass name="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentAttachment"
+      discriminator-value="1" lazy="false" > 
+      <property 
+      <many-to-one name="assessmentId" column="ASSESSMENTID" not-nul="true"
+        class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"/>
+    </subclass>
+
+    <subclass name="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionAttachment"
+      discriminator-value="2" lazy="false" > 
+      <property 
+      <many-to-one name="sectionId" column="SECTIONID" not-nul="true"
+        class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData"/>
+    </subclass>
+
+-->
+    <subclass name="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemAttachment"
+      discriminator-value="3" lazy="false" > 
+      <many-to-one name="item" column="ITEMID" not-null="true"
+        class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"/>
+    </subclass>
+
   </class>
 
 </hibernate-mapping>
