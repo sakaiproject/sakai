@@ -82,41 +82,11 @@
 
   </h:panelGrid>
   </div>
+
   <!-- 2a ATTACHMENTS -->
-   <div class="longtext"><h:outputLabel value="#{msg.attachments}" />
-  <br/>
-  <h:panelGroup rendered="#{itemauthor.hasAttachment}">
-    <h:dataTable value="#{itemauthor.attachmentList}" var="attach">
-      <h:column>
-        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-        <h:outputLink value="#{attach.location}"
-           target="new_window">
-           <h:outputText escape="false" value="#{attach.filename}" />
-        </h:outputLink>
-      </h:column>
-      <h:column>
-        <h:commandLink title="#{msg.t_remove_attachment}" action="confirmRemoveAttachment" immediate="true">
-          <h:outputText value="   #{msg.remove_attachment}" />
-          <f:param name="attachmentId" value="#{attach.attachmentId}"/>
-          <f:param name="attachmentLocation" value="#{attach.location}"/>
-          <f:param name="attachmentFilename" value="#{attach.filename}"/>
-          <f:param name="attachmentType" value="3"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRemoveAttachmentListener" />
-        </h:commandLink>
-      </h:column>
-    </h:dataTable>
-  </h:panelGroup>
-  <h:panelGroup rendered="#{!itemauthor.hasAttachment}">
-    <h:outputText escape="false" value="#{msg.no_attachments}" />
-  </h:panelGroup>
+  <%@ include file="/jsf/author/item/attachment.jsp" %>
 
-  <sakai:button_bar>
-    <sakai:button_bar_item action="#{itemauthor.addAttachmentsRedirect}"
-           value="#{msg.add_attachments}"/>
-  </sakai:button_bar>
-</div>
-
-  <!-- 3 PART -->
+   <!-- 3 PART -->
   <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
   <f:verbatim>&nbsp;</f:verbatim>
   <h:outputLabel value="#{msg.assign_to_p}" />
