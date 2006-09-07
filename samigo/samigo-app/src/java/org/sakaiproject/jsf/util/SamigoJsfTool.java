@@ -67,7 +67,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 
 	protected boolean isResourceRequest(String path)
 	{
-	    System.out.println("****0. inside isResourceRequest, path="+path);
+	    log.debug("****0. inside isResourceRequest, path="+path);
 		// we need some path
 		if ((path == null) || (path.length() == 0)) return false;
 
@@ -77,7 +77,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 
 		// we need that last dot to be the end of the path, not burried in the path somewhere (i.e. no more slashes after the last dot)
 		String ext = path.substring(pos);
-	    System.out.println("****1. inside isResourceRequest, ext="+ext);
+	    log.debug("****1. inside isResourceRequest, ext="+ext);
 		if (ext.indexOf("/") != -1) return false;
 
 		// these are JSF pages, not resources		
@@ -97,12 +97,12 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 
       // build up the target that will be dispatched to
       String target = req.getPathInfo();
-      System.out.println("***0. dispatch, target ="+target);
+      log.debug("***0. dispatch, target ="+target);
 
       boolean sendToHelper = sendToHelper(req, res);
       boolean isResourceRequest = isResourceRequest(target);
-      System.out.println("***1. dispatch, send to helper ="+sendToHelper);
-      System.out.println("***2. dispatch, isResourceRequest ="+ isResourceRequest);
+      log.debug("***1. dispatch, send to helper ="+sendToHelper);
+      log.debug("***2. dispatch, isResourceRequest ="+ isResourceRequest);
 
       // see if we have a helper request
       if (sendToHelper) {
@@ -151,9 +151,9 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
       if (toolSession!=null){
         toolSession.setAttribute(LAST_VIEW_VISITED, target);
       }
-        System.out.println("3a. dispatch: toolSession="+toolSession);
-        System.out.println("3b. dispatch: target="+target);
-        System.out.println("3c. dispatch: lastview?"+m_defaultToLastView);
+        log.debug("3a. dispatch: toolSession="+toolSession);
+        log.debug("3b. dispatch: target="+target);
+        log.debug("3c. dispatch: lastview?"+m_defaultToLastView);
 
 
       // add the configured folder root and extension (if missing)
@@ -182,7 +182,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
       res.addHeader("Pragma", "no-cache");
 
       // dispatch to the target
-      System.out.println("***4. dispatch, dispatching path: " + req.getPathInfo() + " to: " + target + " context: "
+      log.debug("***4. dispatch, dispatching path: " + req.getPathInfo() + " to: " + target + " context: "
 	+ getServletContext().getServletContextName());
       // if this is a return from the file picker and going back to item mofification
       // save the question now - this will hook up the freshly uploaded file to the question.
@@ -190,7 +190,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 	  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
 	 ItemAuthorBean bean = (ItemAuthorBean) ContextUtil.lookupBeanFromExternalServlet(
                                "itemauthor", req, res);
-         System.out.println("** populate item");
+         log.debug("** populate item");
          bean.populateItem();
          toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
       }
@@ -214,26 +214,26 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
       // if present is "edit"...
       String[] parts = path.split("/");
 
-      System.out.println("***a. sendToHelper.partLength="+parts.length);
+      log.debug("***a. sendToHelper.partLength="+parts.length);
       String helperPath =null;
       String toolPath=null;
 
       // e.g. helper url in Samigo can be /jsf/author/item/sakai.filepicker.helper/tool
       //      or /sakai.filepicker.helper 
       if (parts.length > 2){
-        System.out.println("***b. sendToHelper.partLength="+parts.length);
+        log.debug("***b. sendToHelper.partLength="+parts.length);
         helperPath = parts[parts.length - 2];
         toolPath = parts[parts.length - 1];
       }
       else if (parts.length == 2){
-        System.out.println("***c. sendToHelper.partLength="+parts.length);
+        log.debug("***c. sendToHelper.partLength="+parts.length);
         helperPath = parts[1];
       }
       else return false;
 
       if (!helperPath.endsWith(HELPER_EXT)) return false;
-      System.out.println("****d. sendToHelper, part #1="+helperPath);
-      System.out.println("****e. sendToHelper, part #2="+toolPath);
+      log.debug("****d. sendToHelper, part #1="+helperPath);
+      log.debug("****e. sendToHelper, part #2="+toolPath);
 
       ToolSession toolSession = SessionManager.getCurrentToolSession();
       toolSession.setAttribute("SENT_TO_FILEPICKER_HELPER", "true");
@@ -250,7 +250,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
       // calc helper id
       int posEnd = helperPath.lastIndexOf(".");
       String helperId = helperPath.substring(0, posEnd);
-      System.out.println("****f. sendToHelper, helperId="+helperId);
+      log.debug("****f. sendToHelper, helperId="+helperId);
       ActiveTool helperTool = ActiveToolManager.getActiveTool(helperId);
 
       String url = req.getContextPath() + req.getServletPath();
@@ -259,9 +259,9 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 				 url + computeDefaultTarget(true));
       }
 
-      System.out.println("****g. sendToHelper, url="+url);
+      log.debug("****g. sendToHelper, url="+url);
       String context = url + "/"+ helperPath;
-      System.out.println("****h. sendToHelper, context="+context);
+      log.debug("****h. sendToHelper, context="+context);
       if (toolPath != null) 
         helperTool.help(req, res, context, "/"+toolPath);
       else
@@ -283,7 +283,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 	}
       }
       session.removeAttribute(LAST_VIEW_VISITED);
-      System.out.println("***3. computeDefaultTarget()="+target);
+      log.debug("***3. computeDefaultTarget()="+target);
       return target;
     }
   }
