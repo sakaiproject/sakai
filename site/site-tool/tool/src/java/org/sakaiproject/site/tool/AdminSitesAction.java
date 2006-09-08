@@ -1925,6 +1925,7 @@ public class AdminSitesAction extends PagedResourceActionII
 
 		// read the layout hints
 		String hints = StringUtil.trimToNull(data.getParameters().getString("layoutHints"));
+      hints = hints.replaceAll("\\s",""); // strip all whitespace
 		tool.setLayoutHints(hints);
 
 		Tool t = tool.getTool();
