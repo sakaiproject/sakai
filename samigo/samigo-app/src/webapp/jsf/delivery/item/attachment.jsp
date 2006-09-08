@@ -7,7 +7,10 @@
       <h:outputText escape="false" value="#{attach.attachmentId} : " />
       <h:outputText escape="false" value="#{attach.resourceId} : " />
 --%>
-      <h:outputLink value="#{attach.location}" target="new_window">
+      <h:outputLink value="#{attach.filename}" target="new_window" rendered="#{attach.isLink}">
+        <h:outputText escape="false" value="#{attach.filename}" />
+      </h:outputLink>
+      <h:outputLink value="#{attach.location}" target="new_window" rendered="#{!attach.isLink}">
         <h:outputText escape="false" value="#{attach.filename}" />
       </h:outputLink>
     </h:column>
