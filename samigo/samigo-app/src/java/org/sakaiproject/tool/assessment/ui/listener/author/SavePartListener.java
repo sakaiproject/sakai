@@ -25,8 +25,10 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-
+import java.util.HashSet;
+import java.util.Set;
 
 import java.util.ResourceBundle;
 import javax.faces.context.FacesContext;
@@ -37,6 +39,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -50,6 +53,11 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.entity.api.Reference;
 
 /**
  * <p>Title: Samigo</p>2
@@ -180,6 +188,15 @@ public class SavePartListener
           section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW, poolname);
         }
       }
+      // attach item attachemnt to sectionBean
+      ArrayList attachmentList = prepareSectionAttachment(section.getData());
+      sectionBean.setAttachmentList(attachmentList);
+      if (attachmentList != null && attachmentList.size() >0){
+        sectionBean.setHasAttachment(true);
+      }
+      else{
+        sectionBean.setHasAttachment(false);
+      }
     }
 
 
@@ -254,6 +271,45 @@ public class SavePartListener
      
      return true;
            
+  }
+
+  private ArrayList prepareSectionAttachment(SectionDataIfc section){
+    Set attachmentSet = section.getSectionAttachmentSet();
+    if (attachmentSet == null){
+	attachmentSet = new HashSet();
+    }
+    log.debug("*** attachment size="+attachmentSet.size());
+    AssessmentService assessmentService = new AssessmentService();
+    String protocol = ContextUtil.getProtocol();
+    ToolSession session = SessionManager.getCurrentToolSession();
+    if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
+        session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
+      List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+      if (refs!=null && refs.size() > 0){
+        Reference ref = (Reference)refs.get(0);
+
+        for(int i=0; i<refs.size(); i++) {
+          ref = (Reference) refs.get(i);
+          log.debug("**** ref.Id="+ref.getId());
+          log.debug("**** ref.name="+ref.getProperties().getProperty(									    ref.getProperties().getNamePropDisplayName()));
+          SectionAttachmentIfc newAttach = assessmentService.createSectionAttachment(
+                                        section,
+                                        ref.getId(), ref.getProperties().getProperty(
+                                                     ref.getProperties().getNamePropDisplayName()),
+                                        protocol);
+          attachmentSet.add(newAttach);
+        }
+      }
+    }
+    session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+    session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
+    ArrayList list = new ArrayList();
+    Iterator iter = attachmentSet.iterator();
+    while (iter.hasNext()){
+      SectionAttachmentIfc a = (SectionAttachmentIfc)iter.next();
+      list.add(a);
+    }
+    return list;
   }
 
 }

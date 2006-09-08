@@ -231,19 +231,17 @@
 <!--
     <subclass name="org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAttachment"
       discriminator-value="1" lazy="false" > 
-      <property 
-      <many-to-one name="assessmentId" column="ASSESSMENTID" not-nul="true"
+      <many-to-one name="assessment" column="ASSESSMENTID" not-null="true"
         class="org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData"/>
     </subclass>
+-->
 
     <subclass name="org.sakaiproject.tool.assessment.data.dao.assessment.SectionAttachment"
       discriminator-value="2" lazy="false" > 
-      <property 
-      <many-to-one name="sectionId" column="SECTIONID" not-nul="true"
+      <many-to-one name="section" column="SECTIONID" not-null="true"
         class="org.sakaiproject.tool.assessment.data.dao.assessment.SectionData"/>
     </subclass>
 
--->
     <subclass name="org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment"
       discriminator-value="3" lazy="false" > 
       <many-to-one name="item" column="ITEMID" not-null="true"

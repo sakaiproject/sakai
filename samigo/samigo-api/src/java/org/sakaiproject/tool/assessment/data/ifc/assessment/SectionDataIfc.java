@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.List;
 
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
@@ -118,6 +119,11 @@ public interface SectionDataIfc
 
    void addSectionMetaData(String label, String entry);
 
+   Set getSectionAttachmentSet();
+
+   void setSectionAttachmentSet(Set sectionAttachmentSet);
+
+   List getSectionAttachmentList();
 
 
 }

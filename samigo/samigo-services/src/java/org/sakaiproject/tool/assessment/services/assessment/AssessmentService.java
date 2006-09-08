@@ -33,6 +33,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
@@ -417,6 +419,24 @@ public void deleteAssessment(Id assessmentId)
     {
       log.error(e); throw new RuntimeException(e);
     }
+  }
+
+  public SectionAttachmentIfc createSectionAttachment(SectionDataIfc section, String resourceId, String filename, String protocol){
+    SectionAttachmentIfc attachment = null;
+    try{
+      AssessmentFacadeQueriesAPI queries = PersistenceService.getInstance().getAssessmentFacadeQueries();
+      attachment = queries.createSectionAttachment(section, resourceId, filename, protocol);
+    }
+    catch(Exception e){
+      e.printStackTrace();
+    }
+    return attachment;
+  }
+
+  public void removeSectionAttachment(String attachmentId)
+  {
+    PersistenceService.getInstance().getAssessmentFacadeQueries().
+          removeSectionAttachment(new Long(attachmentId));
   }
   
 }

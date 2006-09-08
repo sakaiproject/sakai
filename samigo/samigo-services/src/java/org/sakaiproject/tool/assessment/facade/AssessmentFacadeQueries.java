@@ -54,6 +54,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateDa
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.SectionAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
@@ -64,6 +65,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
@@ -1455,6 +1457,71 @@ public class AssessmentFacadeQueries
 	        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
 	      }
 	  }
+  }
+
+  public SectionAttachmentIfc createSectionAttachment(SectionDataIfc section,
+         String resourceId, String filename, String protocol){
+    SectionAttachment attach = null;
+    Boolean isLink = Boolean.FALSE;
+    try{
+      ContentResource cr = ContentHostingService.getResource(resourceId);
+      if (cr !=null){
+        ResourceProperties p = cr.getProperties();
+        attach = new SectionAttachment();
+        attach.setSection(section);
+        attach.setResourceId(resourceId);
+        attach.setFilename(filename);
+	attach.setMimeType(cr.getContentType());
+	attach.setFileSize(new Long(cr.getContentLength()));
+        if (cr.getContentType().lastIndexOf("url") > -1)
+          isLink = Boolean.TRUE;
+        attach.setIsLink(isLink);
+        attach.setStatus(SectionAttachmentIfc.ACTIVE_STATUS);
+	attach.setCreatedBy(p.getProperty(p.getNamePropCreator()));
+        attach.setCreatedDate(new Date());
+	attach.setLastModifiedBy(p.getProperty(p.getNamePropModifiedBy()));
+        attach.setLastModifiedDate(new Date());
+
+        //get relative path
+	String url = cr.getUrl();
+        // replace whitespace with %20
+        url = replaceSpace(url);
+        String location = url.replaceAll(protocol,"");
+        log.debug("***url="+url);
+        log.debug("***location="+location);
+        //attach.setLocation(location);
+        attach.setLocation(url);
+        getHibernateTemplate().save(attach);
+      }
+    }
+    catch(Exception e){
+      e.printStackTrace();
+    }
+    return attach;
+  }
+
+  public void removeSectionAttachment(Long sectionAttachmentId){
+    SectionAttachment sectionAttachment = (SectionAttachment)
+        getHibernateTemplate().load(SectionAttachment.class, sectionAttachmentId);
+    SectionDataIfc section = sectionAttachment.getSection(); 
+    String resourceId = sectionAttachment.getResourceId();
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        if (section!=null){ // need to dissociate with section before deleting in Hibernate 3
+          Set set = section.getSectionAttachmentSet();
+          set.remove(sectionAttachment);
+          getHibernateTemplate().delete(sectionAttachment);
+          if(resourceId.toLowerCase().startsWith("/attachment"))
+            ContentHostingService.removeResource(resourceId);
+          retryCount = 0;
+	}
+      }
+      catch (Exception e) {
+        log.warn("problem delete sectionAttachment: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
   }
 
 }

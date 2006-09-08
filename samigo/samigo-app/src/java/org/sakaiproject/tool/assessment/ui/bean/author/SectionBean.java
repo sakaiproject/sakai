@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 import javax.faces.context.FacesContext;
+import javax.faces.context.ExternalContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
@@ -43,13 +44,19 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.ui.listener.author.EditPartListener;
+import org.sakaiproject.tool.assessment.ui.listener.author.SavePartListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.entity.cover.EntityManager;
 
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * Used to be org.navigoproject.ui.web.asi.author.section.SectionActionForm.java
@@ -90,8 +97,9 @@ private boolean hideRandom = false;
 private boolean hideOneByOne= false;
 
 private String outcome;
- private Tree tree;
+private Tree tree;
 
+private ArrayList attachmentList;
 
 
   public void setSection(SectionFacade section) {
@@ -651,5 +659,51 @@ private String outcome;
     this.outcome= param;
   }
 
+  public ArrayList getAttachmentList() {
+    return attachmentList;
+  }
+
+  public void setAttachmentList(ArrayList attachmentList)
+  {
+    this.attachmentList = attachmentList;
+  }
+
+  private boolean hasAttachment = false;
+  public boolean getHasAttachment(){
+    return this.hasAttachment;
+  }
+
+  public void setHasAttachment(boolean hasAttachment){
+    this.hasAttachment = hasAttachment;
+  }
+
+  public String addAttachmentsRedirect() {
+    // 1. first save any part description and stuff
+    savePart();
+
+    // 2. then redirect to add attachment
+    try	{
+      List filePickerList = EntityManager.newReferenceList();
+      ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+      currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);
+      ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+      context.redirect("sakai.filepicker.helper/tool");
+    }
+    catch(Exception e){
+      log.error("fail to redirect to attachment page: " + e.getMessage());
+    }
+    System.out.println("**** outcome="+getOutcome());
+    return getOutcome();
+  }
+
+  private void savePart(){
+    SavePartListener lis = new SavePartListener();
+    lis.processAction(null);
+  }
+
+  public void populatePart(){
+    EditPartListener lis = new EditPartListener();
+    lis.processAction(null);
+  }
 
 }

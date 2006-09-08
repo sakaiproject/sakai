@@ -936,7 +936,6 @@ ItemService delegate = new ItemService();
     catch(Exception e){
       log.error("fail to redirect to attachment page: " + e.getMessage());
     }
-    System.out.println("**** outcome="+getOutcome());
     return getOutcome();
   }
 

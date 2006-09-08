@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -545,6 +546,8 @@ public class ItemModifyListener implements ActionListener
 
   private ArrayList prepareItemAttachment(ItemDataIfc item){
     Set attachmentSet = item.getItemAttachmentSet();
+    if (attachmentSet == null)
+      attachmentSet = new HashSet();
     log.debug("*** attachment size="+attachmentSet.size());
     AssessmentService assessmentService = new AssessmentService();
     String protocol = ContextUtil.getProtocol();
