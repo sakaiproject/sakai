@@ -130,8 +130,8 @@ public class PagerRenderer extends Renderer
 		
 		// Output HTML
 		
-		out.startElement("span", null);
-		out.writeAttribute("class", "nav", null);
+		out.startElement("div", null);
+		out.writeAttribute("class", "listNav", null);
 		
 		writeStatus(out, textStatus);
 		writeButton(out, renderFirst, idFirst, labelFirst, disabledFirst, titleFirst, accesskeyFirst);
@@ -149,18 +149,17 @@ public class PagerRenderer extends Renderer
 		out.writeAttribute("value", String.valueOf(firstItem), null);
 		out.endElement("input");
 		
-		out.endElement("span");
+		out.endElement("div");
 	}
 	
 	/** Output status display */
 	private static void writeStatus(ResponseWriter out, String status)
 		throws IOException
 	{
-		out.startElement("span", null);
+		out.startElement("div", null);
 		out.writeAttribute("class", "instruction", null);
 		out.writeText(status, null);
-		out.endElement("span");		
-		out.write("<br />\n");
+		out.endElement("div");		
 	}
 	
 	/** Output an HTML button */
