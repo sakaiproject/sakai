@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -39,6 +40,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.osid.assessment.impl.SectionImpl;
@@ -75,6 +77,7 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
   private Set metaDataSet= new HashSet();
   private HashMap metaDataMap= new HashMap();
   private Set itemFacadeSet;
+  private Set sectionAttachmentSet;
 
   /** SectionFacade is the class that is exposed to developer
    *  It contains some of the useful methods specified in
@@ -646,6 +649,24 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
   public int compareTo(Object o) {
       SectionFacade a = (SectionFacade)o;
       return sequence.compareTo(a.sequence);
+  }
+
+  public Set getSectionAttachmentSet() {
+    return sectionAttachmentSet;
+  }
+
+  public void setSectionAttachmentSet(Set sectionAttachmentSet) {
+    this.sectionAttachmentSet = sectionAttachmentSet;
+  }
+
+  public List getSectionAttachmentList() {
+    ArrayList list = new ArrayList();
+    Iterator iter = sectionAttachmentSet.iterator();
+    while (iter.hasNext()){
+      SectionAttachmentIfc a = (SectionAttachmentIfc)iter.next();
+      list.add(a);
+    }
+    return list;
   }
 
 }

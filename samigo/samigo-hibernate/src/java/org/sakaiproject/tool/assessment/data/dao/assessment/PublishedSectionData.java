@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -34,6 +35,7 @@ import org.apache.log4j.Category;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 //import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -65,6 +67,7 @@ public class PublishedSectionData
   private Set itemSet;
   private Set sectionMetaDataSet;
   private HashMap sectionMetaDataMap;
+  private Set sectionAttachmentSet;
 
   public PublishedSectionData() {}
 
@@ -287,6 +290,24 @@ public class PublishedSectionData
   public int compareTo(Object o) {
       PublishedSectionData a = (PublishedSectionData)o;
       return sequence.compareTo(a.sequence);
+  }
+
+  public Set getSectionAttachmentSet() {
+    return sectionAttachmentSet;
+  }
+
+  public void setSectionAttachmentSet(Set sectionAttachmentSet) {
+    this.sectionAttachmentSet = sectionAttachmentSet;
+  }
+
+  public List getSectionAttachmentList() {
+    ArrayList list = new ArrayList();
+    Iterator iter = sectionAttachmentSet.iterator();
+    while (iter.hasNext()){
+      SectionAttachmentIfc a = (SectionAttachmentIfc)iter.next();
+      list.add(a);
+    }
+    return list;
   }
 
 }
