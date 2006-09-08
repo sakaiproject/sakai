@@ -257,7 +257,14 @@ public class DeliveryActionListener
                                               delivery, publishedAnswerHash));
       // get current page contents
       log.debug("**** resetPageContents="+this.resetPageContents);
-	  delivery.setPageContents(getPageContents(publishedAssessment, delivery, itemGradingHash, publishedAnswerHash));
+      // If it comes from Show Feedback link clicks, call getShowFeedbackPageContents() to 
+      // reset the partIndex and questionIndex (the last part of SAK-5750)
+      if (ae != null && ae.getComponent().getId().equals("showFeedback")) {
+    	  delivery.setPageContents(getShowFeedbackPageContents(publishedAssessment, delivery, itemGradingHash, publishedAnswerHash));
+      }
+      else {
+    	  delivery.setPageContents(getPageContents(publishedAssessment, delivery, itemGradingHash, publishedAnswerHash));
+      }
     }
     catch (Exception e)
     {
@@ -419,6 +426,47 @@ public class DeliveryActionListener
 
   }
 
+  /**
+   * When user clicks on Show Feedback, this method gets a contents bean for the current page.
+   * The difference of the above one is we reset partIndex/questionIndex to make the first
+   * question to be seen on the top (the last part of SAK-5750).
+   *
+   * @todo these should actually take a copy of contents and filter it
+   * for the page unstead of doing a recompute, which is less efficient
+   * @param publishedAssessment the published assessment
+   * @return
+   */
+  public ContentsDeliveryBean getShowFeedbackPageContents(
+    PublishedAssessmentFacade publishedAssessment,
+    DeliveryBean delivery, HashMap itemGradingHash, HashMap publishedAnswerHash)
+  {
+    
+    if (delivery.getSettings().isFormatByAssessment())
+    { 
+      delivery.setPartIndex(0);	
+      delivery.setQuestionIndex(0);
+      return getPageContentsByAssessment(publishedAssessment, itemGradingHash,
+                                         delivery, publishedAnswerHash);
+    }
+    if (delivery.getSettings().isFormatByPart())
+    {
+      delivery.setQuestionIndex(0);
+      return getPageContentsByPart(publishedAssessment, delivery.getQuestionIndex(), delivery.getPartIndex(),
+                                   itemGradingHash, delivery, publishedAnswerHash);
+    }
+    else if (delivery.getSettings().isFormatByQuestion())
+    {
+      return getPageContentsByQuestion(publishedAssessment, delivery.getQuestionIndex(),
+    		  delivery.getPartIndex(), itemGradingHash, delivery, publishedAnswerHash);
+    }
+
+    // default... ...shouldn't get here :O
+    log.warn("delivery.getSettings().isFormatBy... is NOT set!");
+    delivery.setPartIndex(0);	
+    delivery.setQuestionIndex(0);
+    return getPageContentsByAssessment(publishedAssessment, itemGradingHash, 
+                                       delivery, publishedAnswerHash);
+  }
   /**
    * Gets a contents bean for the current page if is format by assessment.
    *
