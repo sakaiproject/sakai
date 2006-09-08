@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -43,6 +44,10 @@
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
  <div class="portletBody">
+
+ <!-- JAVASCRIPT -->
+<%@ include file="/js/delivery.js" %>
+
 <!-- content... -->
 <h:form id="editTotalResults">
   <h:inputHidden id="publishedId" value="#{totalScores.publishedId}" />
@@ -88,27 +93,29 @@
   </p>
 <div class="tier1">
   <h:messages styleClass="validation"/>
-
   <!-- only shows Max Score Possible if this assessment does not contain random dawn parts -->
-  <h:panelGroup rendered="#{!totalScores.hasRandomDrawPart}">
 
-     <h:outputText value="#{msg.max_score_poss}" style="instruction"/>
-     <h:outputText value="#{totalScores.maxScore}" style="instruction"/></span>
-     <f:verbatim><br /></f:verbatim>
-  </h:panelGroup>
+<sakai:flowState bean="#{totalScores}" />
+<h:panelGrid columns="2" columnClasses="samLeftNav,samRightNav" width="100%" rendered="#{totalScores.anonymous eq 'false'}">
+  <h:panelGroup>
+    <h:panelGrid columns="1" columnClasses="samLeftNav" width="100%">
+	  <h:panelGroup rendered="#{!totalScores.hasRandomDrawPart}">
+        <h:outputText value="#{msg.max_score_poss}" style="instruction"/>
+        <h:outputText value="#{totalScores.maxScore}" style="instruction"/>
+      </h:panelGroup>
+	  
+	  <h:panelGroup>
+        <!-- SECTION AWARE -->
+        <h:outputText value="#{msg.view}"/>
+        <h:outputText value="#{msg.column}"/>
+        <h:selectOneMenu value="#{totalScores.selectedSectionFilterValue}" id="sectionpicker" required="true" onchange="document.forms[0].submit();">
+          <f:selectItems value="#{totalScores.sectionFilterSelectItems}"/>
+          <f:valueChangeListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener"/>
+        </h:selectOneMenu>
 
-  <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
-  
-     <h:outputText value="#{msg.view}" />
-     <h:outputText value="#{msg.column} " />
-     <h:selectOneMenu value="#{totalScores.selectedSectionFilterValue}" id="sectionpicker"
-        rendered="#{totalScores.anonymous eq 'false'}" required="true" onchange="document.forms[0].submit();" >
-	<f:selectItems value="#{totalScores.sectionFilterSelectItems}" />
-      <f:valueChangeListener
-         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-     </h:selectOneMenu>
-
-     <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsL"
+	
+     <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsL1"
         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
       <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
       <f:selectItem itemValue="2" itemLabel="#{msg.last_sub}" />
@@ -116,32 +123,68 @@
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
      </h:selectOneMenu>
 
-     <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsH"
+     <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsH1"
         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
       <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
       <f:selectItem itemValue="1" itemLabel="#{msg.highest_sub}" />
       <f:valueChangeListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
      </h:selectOneMenu>
+      </h:panelGroup>
 
-  
-
-<%--  THIS MIGHT BE FOR NEXT RELEASE
-
-  <span class="rightNav">
-    <!-- Need to hook up to the back end, DUMMIED -->
-    <samigo:pagerButtons  formId="editTotalResults" dataTableId="myData"
-      firstItem="1" lastItem="10" totalItems="50"
-      prevText="Previous" nextText="Next" numItems="10" />
-    </span>
-END OF TEMPORARY OUT FOR THIS RELEASE --%>
-
-  <h:panelGroup rendered="#{totalScores.anonymous eq 'false'}">
-   <f:verbatim><span class="abc"></f:verbatim> 
-     <samigo:alphaIndex initials="#{totalScores.agentInitials}" />
-   <f:verbatim></span></f:verbatim> 
+	  <h:panelGroup>
+ 	        <h:outputText value="#{msg.search}"/>
+            <h:outputText value="#{msg.column}"/>
+			<h:inputText
+				id="searchString"
+				value="#{totalScores.searchString}"
+				onfocus="clearIfDefaultString(this, '#{msg.search_default_student_search_string}')"
+				onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"/>
+			<f:verbatim> </f:verbatim>
+			<h:commandButton actionListener="#{totalScores.search}" value="#{msg.search_find}" id="searchSubmitButton" />
+			<f:verbatim> </f:verbatim>
+			<h:commandButton actionListener="#{totalScores.clear}" value="#{msg.search_clear}"/>
+	  </h:panelGroup>
+    </h:panelGrid>
   </h:panelGroup>
+   
+   <h:panelGroup>
+	<sakai:pager id="pager1" totalItems="#{totalScores.dataRows}" firstItem="#{totalScores.firstRow}" pageSize="#{totalScores.maxDisplayedRows}" textStatus="#{msg.paging_status}" />
+  </h:panelGroup>
+</h:panelGrid>
 
+<h:panelGrid columns="2" columnClasses="samLeftNav,samRightNav" width="100%" rendered="#{totalScores.anonymous eq 'true'}">
+  <h:panelGroup>
+    <h:panelGrid columns="1" columnClasses="samLeftNav" width="100%">
+	  <h:panelGroup rendered="#{!totalScores.hasRandomDrawPart}">
+        <h:outputText value="#{msg.max_score_poss}" style="instruction"/>
+        <h:outputText value="#{totalScores.maxScore}" style="instruction"/>
+      </h:panelGroup>
+
+      <h:panelGroup>
+        <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsL2"
+         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
+        <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
+        <f:selectItem itemValue="2" itemLabel="#{msg.last_sub}" />
+        <f:valueChangeListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+        </h:selectOneMenu>
+
+        <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsH2"
+         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
+          <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
+          <f:selectItem itemValue="1" itemLabel="#{msg.highest_sub}" />
+          <f:valueChangeListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+        </h:selectOneMenu>
+      </h:panelGroup>
+    </h:panelGrid>
+  </h:panelGroup>
+  
+  <h:panelGroup>
+	<sakai:pager id="pager2" totalItems="#{totalScores.dataRows}" firstItem="#{totalScores.firstRow}" pageSize="#{totalScores.maxDisplayedRows}" textStatus="#{msg.paging_status}" />
+  </h:panelGroup>
+</h:panelGrid>
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
@@ -281,11 +324,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         </h:commandLink>
      </f:facet>
      <h:panelGroup >
-<%--
-      <h:outputText value="Anonymous" rendered="#{description.assessmentGradingId eq '-1'}" />
---%>
-       <h:commandLink title="#{msg.t_student}" action="studentScores" 
-          rendered="#{description.submittedDate!=null && description.assessmentGradingId ne '-1'}" >
+       <h:commandLink title="#{msg.t_student}" action="studentScores">
          <h:outputText value="#{description.assessmentGradingId}" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
@@ -312,11 +351,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
           </h:commandLink>    
       </f:facet>
      <h:panelGroup>
-<%--
-       <h:outputText value="Anonymous" rendered="#{description.assessmentGradingId eq '-1'}" />
---%>
-       <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true" 
-          rendered="#{description.submittedDate!=null && description.assessmentGradingId ne '-1'}">
+       <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true">
          <h:outputText value="#{description.assessmentGradingId}" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
@@ -343,11 +378,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
       </h:commandLink> 
       </f:facet>
      <h:panelGroup>
-<%--
-       <h:outputText value="Anonymous" rendered="#{description.assessmentGradingId eq '-1'}" />
---%>
-       <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true" 
-          rendered="#{description.submittedDate!=null && description.assessmentGradingId ne '-1'}">
+       <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true">
          <h:outputText value="#{description.assessmentGradingId}" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
@@ -630,7 +661,6 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
       <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
 		<f:validateDoubleRange/>
 	 </h:inputText>
-	 <br />
      <h:message for="adjustTotal" style="color:red"/>
    </h:column>
 
@@ -648,7 +678,6 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
       <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal2" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
 		<f:validateDoubleRange/>
 	 </h:inputText>
-	 <br />
      <h:message for="adjustTotal2" style="color:red"/>
    </h:column>
     
@@ -665,7 +694,6 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
       <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal3" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
 		<f:validateDoubleRange/>
 	 </h:inputText>
-	 <br />
      <h:message for="adjustTotal3" style="color:red"/>
    </h:column>
   

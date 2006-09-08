@@ -93,9 +93,12 @@ public class QuestionScoreListener
     AbortProcessingException
   {
     log.debug("QuestionScore LISTENER.");
-    QuestionScoresBean bean = (QuestionScoresBean)
-      ContextUtil.lookupBean("questionScores");
+    QuestionScoresBean bean = (QuestionScoresBean)ContextUtil.lookupBean("questionScores");
 
+    // Reset the search field
+    String defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
+    bean.setSearchString(defaultSearchString);
+    
     // we probably want to change the poster to be consistent
     String publishedId = ContextUtil.lookupParam("publishedId");
 
@@ -112,10 +115,9 @@ public class QuestionScoreListener
   public void processValueChange(ValueChangeEvent event)
   {
     log.debug("QuestionScore CHANGE LISTENER.");
-    QuestionScoresBean bean = (QuestionScoresBean)
-      ContextUtil.lookupBean("questionScores");
+    QuestionScoresBean bean = (QuestionScoresBean)ContextUtil.lookupBean("questionScores");
     TotalScoresBean totalBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
-    HistogramScoresBean histogramBean = (HistogramScoresBean) cu.lookupBean("histogramScores");
+    HistogramScoresBean histogramBean = (HistogramScoresBean) ContextUtil.lookupBean("histogramScores");
     
     // we probably want to change the poster to be consistent
     String publishedId = ContextUtil.lookupParam("publishedId");
@@ -127,6 +129,7 @@ public class QuestionScoreListener
       if (event.getComponent().getId().indexOf("sectionpicker") >-1 )
       {
         bean.setSelectedSectionFilterValue(selectedvalue);   // changed section pulldown
+        totalBean.setSelectedSectionFilterValue(selectedvalue);
       }
       else if (event.getComponent().getId().indexOf("allSubmissions")>-1)
       {
@@ -279,6 +282,7 @@ public class QuestionScoreListener
         // this section has no students
     log.debug("questionScores(): this section has no students");
       bean.setAgents(agents);
+      bean.setAllAgents(agents);
       bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
       bean.setAnonymous(totalBean.getAnonymous());
       return true;
@@ -593,6 +597,7 @@ log.debug("item==null ");
       
       //log.info("Listing agents.");
       bean.setAgents(agents);
+      bean.setAllAgents(agents);
       bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
     }
 

@@ -371,6 +371,31 @@ function showNotif2(item, button,formName)
         }
 }
 
+function clearIfDefaultString(formField, defaultString) {
+	if(formField.value == defaultString) {
+		formField.value = "";
+	}
+}
+
+
+function submitOnEnter(event, defaultButtonId) {
+	var characterCode;
+	if (event.which) {
+		characterCode = event.which;
+	} else if (event.keyCode) {
+		characterCode = event.keyCode;
+	}
+
+	if (characterCode == 13) {
+		event.returnValue = false;
+		event.cancel = true;
+		document.getElementById(defaultButtonId).click();
+		return false;
+	} else {
+		return true;
+	}
+}
+
 
 //-->
 </script>

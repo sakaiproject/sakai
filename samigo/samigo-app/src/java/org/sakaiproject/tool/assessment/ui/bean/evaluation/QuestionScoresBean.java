@@ -29,12 +29,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import javax.faces.event.ActionEvent;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.jsf.model.PhaseAware;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
+import org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 
 /**
@@ -42,7 +48,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
  *
  */
 public class QuestionScoresBean
-  implements Serializable
+  implements Serializable, PhaseAware
 {
   private String assessmentId;
   private String publishedId;
@@ -81,6 +87,18 @@ public class QuestionScoresBean
   private static Log log = LogFactory.getLog(QuestionScoresBean.class);
   private String selectedSectionFilterValue = TotalScoresBean.ALL_SECTIONS_SELECT_VALUE;
   private String selectedSARationaleView =SHOW_SA_RATIONALE_RESPONSES_POPUP;
+  private ArrayList allAgents;
+  
+  //Paging.
+  private int firstScoreRow;
+  private int maxDisplayedScoreRows;
+  private int scoreDataRows;
+  
+  //Searching
+  private String searchString;
+  private String defaultSearchString;
+
+  
   /**
    * Creates a new QuestionScoresBean object.
    */
@@ -90,6 +108,51 @@ public class QuestionScoresBean
     resetFields();
   }
 
+	protected void init() {
+        defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
+		if (searchString == null) {
+			searchString = defaultSearchString;
+		}
+		
+		// Get allAgents only at the first time
+		if (allAgents == null) {
+			allAgents = getAllAgents();
+		}
+		
+		ArrayList matchingAgents;
+		if (isFilteredSearch()) {
+			matchingAgents = findMatchingAgents(searchString);
+		}
+		else {
+			matchingAgents = allAgents;
+		}
+		scoreDataRows = matchingAgents.size();
+		ArrayList newAgents = new ArrayList();
+		if (maxDisplayedScoreRows == 0) {
+			newAgents = matchingAgents;
+		} else {
+			int nextPageRow = Math.min(firstScoreRow + maxDisplayedScoreRows, scoreDataRows);
+			newAgents = new ArrayList(matchingAgents.subList(firstScoreRow, nextPageRow));
+			log.debug("init(): subList " + firstScoreRow + ", " + nextPageRow);
+		}
+		
+		agents = newAgents;
+	}
+ 
+	// Following three methods are for interface PhaseAware
+	public void endProcessValidators() {
+		log.debug("endProcessValidators");
+	}
+
+	public void endProcessUpdates() {
+		log.debug("endProcessUpdates");
+	}
+	
+	public void startRenderResponse() {
+		log.debug("startRenderResponse");
+		init();
+	}
+	
   /**
    * get assessment name
    *
@@ -568,9 +631,12 @@ public class QuestionScoresBean
    */
   public void setAllSubmissions(String pallSubmissions)
   {
-    allSubmissions = pallSubmissions;
+    if (!pallSubmissions.equals(this.allSubmissions)) {
+    	this.allSubmissions = pallSubmissions;
+		setFirstRow(0); // clear the paging when we update the search
+    }
   }
-
+  
   /**
    * DOCUMENTATION PENDING
    *
@@ -654,7 +720,10 @@ public class QuestionScoresBean
   }
 
   public void setSelectedSectionFilterValue(String param ) {
-      this.selectedSectionFilterValue = param;
+      if (!param.equals(this.selectedSectionFilterValue)) {
+			this.selectedSectionFilterValue = param;
+			setFirstRow(0); // clear the paging when we update the search
+      }
   }
 
   // itemScoresMap = (publishedItemId, HashMap)
@@ -682,4 +751,76 @@ public String getSelectedSARationaleView() {
 public void setSelectedSARationaleView(String selectedSARationaleView) {
 	this.selectedSARationaleView = selectedSARationaleView;
 }
+
+public int getFirstRow() {
+    return firstScoreRow;
+}
+public void setFirstRow(int firstRow) {
+    firstScoreRow = firstRow;
+}
+public int getMaxDisplayedRows() {
+    return maxDisplayedScoreRows;
+}
+public void setMaxDisplayedRows(int maxDisplayedRows) {
+    maxDisplayedScoreRows = maxDisplayedRows;
+}
+public int getDataRows() {
+    return scoreDataRows;
+}
+
+public void setAllAgents(ArrayList allAgents) {
+	  this.allAgents = allAgents;
+}
+
+public ArrayList getAllAgents()
+{
+	  String publishedId = ContextUtil.lookupParam("publishedId");
+	  QuestionScoreListener questionScoreListener = new QuestionScoreListener();
+	  if (!questionScoreListener.questionScores(publishedId, this, false))
+	  {
+		  throw new RuntimeException("failed to call questionScores.");
+	  }
+	  return allAgents;
+}
+
+public String getSearchString() {
+    return searchString;
+}
+public void setSearchString(String searchString) {
+    if (StringUtils.trimToNull(searchString) == null) {
+        searchString = defaultSearchString;
+    }
+	if (!StringUtils.equals(searchString, this.searchString)) {
+	    	log.debug("setSearchString " + searchString);
+	        this.searchString = searchString;
+	        setFirstRow(0); // clear the paging when we update the search
+	    }
+}
+
+public void search(ActionEvent event) {
+    // We don't need to do anything special here, since init will handle the search
+    log.debug("search");
+}
+
+public void clear(ActionEvent event) {
+    log.debug("clear");
+    setSearchString(null);
+}
+
+	private boolean isFilteredSearch() {
+      return !StringUtils.equals(searchString, defaultSearchString);
+	}
+
+	public ArrayList findMatchingAgents(final String pattern) {
+		ArrayList filteredList = new ArrayList();
+		for(Iterator iter = allAgents.iterator(); iter.hasNext();) {
+			AgentResults result = (AgentResults)iter.next();
+			if (result.getFirstName().toLowerCase().startsWith(pattern.toLowerCase()) ||
+				result.getLastName().toLowerCase().startsWith(pattern.toLowerCase()) ||
+				result.getAgentEid().toLowerCase().startsWith(pattern.toLowerCase())) {
+				filteredList.add(result);
+			}
+		}
+		return filteredList;
+	}
 }

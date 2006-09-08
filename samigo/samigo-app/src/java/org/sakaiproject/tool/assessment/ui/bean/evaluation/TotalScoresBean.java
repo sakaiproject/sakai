@@ -30,35 +30,39 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.Iterator;
-import java.text.NumberFormat;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
+
+import org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 
 import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
-import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.jsf.model.PhaseAware;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
-import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
 /**
  * <p>Description: class form for evaluating total scores</p>
  *
  */
 public class TotalScoresBean
-  implements Serializable
+  implements Serializable, PhaseAware
 {
   private String assessmentId;
   private String publishedId;
@@ -98,7 +102,19 @@ public class TotalScoresBean
   private List availableSections;
   private boolean releaseToAnonymous = false;
   private PublishedAssessmentData publishedAssessment; 
-
+  private ArrayList allAgents;
+  
+  // Paging.
+  private int firstScoreRow;
+  private int maxDisplayedScoreRows;
+  private int scoreDataRows;
+  
+  // Searching
+  private String searchString;
+  private String defaultSearchString;
+  
+  
+  
   private static Log log = LogFactory.getLog(TotalScoresBean.class);
 
   /**
@@ -110,6 +126,64 @@ public class TotalScoresBean
     resetFields();
   }
 
+	protected void init() {
+        defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
+		if (searchString == null) {
+			searchString = defaultSearchString;
+		}
+		
+		// Get allAgents only at the first time
+		if (allAgents == null) {
+			allAgents = getAllAgents();
+		}
+		
+		// For anonymous grading, we want to take out the records that has not been submitted
+		if ("true".equalsIgnoreCase(anonymous)) {
+			Iterator iter = allAgents.iterator();
+			ArrayList anonymousAgents = new ArrayList();
+			while (iter.hasNext()) {
+				AgentResults agentResult = (AgentResults) iter.next();
+				if (agentResult.getSubmittedDate() != null && agentResult.getAssessmentGradingId().intValue() != -1) {
+					anonymousAgents.add(agentResult);
+				}
+			}
+			allAgents = anonymousAgents;
+		}
+		
+		ArrayList matchingAgents;
+		if (isFilteredSearch()) {
+			matchingAgents = findMatchingAgents(searchString);
+		}
+		else {
+			matchingAgents = allAgents;
+		}
+		scoreDataRows = matchingAgents.size();
+		ArrayList newAgents = new ArrayList();
+		if (maxDisplayedScoreRows == 0) {
+			newAgents = matchingAgents;
+		} else {
+			int nextPageRow = Math.min(firstScoreRow + maxDisplayedScoreRows, scoreDataRows);
+			newAgents = new ArrayList(matchingAgents.subList(firstScoreRow, nextPageRow));
+			log.debug("init(): subList " + firstScoreRow + ", " + nextPageRow);
+		}
+		
+		agents = newAgents;
+	}
+ 
+	// Following three methods are for interface PhaseAware
+	public void endProcessValidators() {
+		log.debug("endProcessValidators");
+	}
+
+	public void endProcessUpdates() {
+		log.debug("endProcessUpdates");
+	}
+	
+	public void startRenderResponse() {
+		log.debug("startRenderResponse");
+		init();
+	}
+	
   /**
    * get assessment name
    *
@@ -475,7 +549,10 @@ public class TotalScoresBean
    */
   public void setAllSubmissions(String pallSubmissions)
   {
-    allSubmissions = pallSubmissions;
+    if (!pallSubmissions.equals(this.allSubmissions)) {
+    	allSubmissions = pallSubmissions;
+		setFirstRow(0); // clear the paging when we update the search
+    }
   }
 
   /**
@@ -578,7 +655,10 @@ public class TotalScoresBean
   }
 
   public void setSelectedSectionFilterValue(String param ) {
-      this.selectedSectionFilterValue = param;
+      if (!param.equals(this.selectedSectionFilterValue)) {
+			this.selectedSectionFilterValue = param;
+			setFirstRow(0); // clear the paging when we update the search
+    }
   }
 
   public String getScoringOption()
@@ -768,4 +848,85 @@ public class TotalScoresBean
     return assessmentGradingList;
   }
 
+  public int getFirstRow() {
+      return firstScoreRow;
+  }
+  public void setFirstRow(int firstRow) {
+      firstScoreRow = firstRow;
+  }
+  public int getMaxDisplayedRows() {
+      return maxDisplayedScoreRows;
+  }
+  public void setMaxDisplayedRows(int maxDisplayedRows) {
+      maxDisplayedScoreRows = maxDisplayedRows;
+  }
+  public int getDataRows() {
+      return scoreDataRows;
+  }
+  
+  public void setAllAgents(ArrayList allAgents) {
+	  this.allAgents = allAgents;
+  }
+  /**
+   * This will populate the SubmissionStatusBean with the data associated with the
+   * particular versioned assessment based on the publishedId.
+   *
+   * @todo Some of this code will change when we move this to Hibernate persistence.
+   * @param publishedId String
+   * @param bean SubmissionStatusBean
+   * @return boolean
+   */
+  public ArrayList getAllAgents()
+  {
+	  String publishedId = ContextUtil.lookupParam("publishedId");
+	  PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
+	  PublishedAssessmentFacade pubAssessment = pubAssessmentService.getPublishedAssessment(publishedId);
+	  TotalScoreListener totalScoreListener = new TotalScoreListener();
+	  if (!totalScoreListener.totalScores(pubAssessment, this, false))
+	  {
+		  throw new RuntimeException("failed to call questionScores.");
+	  }
+	  return allAgents;
+  }
+    
+  public String getSearchString() {
+      return searchString;
+  }
+  public void setSearchString(String searchString) {
+	  if (StringUtils.trimToNull(searchString) == null) {
+          searchString = defaultSearchString;
+      }
+	  if (!StringUtils.equals(searchString, this.searchString)) {
+	    	log.debug("setSearchString " + searchString);
+	        this.searchString = searchString;
+	        setFirstRow(0); // clear the paging when we update the search
+	  }
+  }
+  
+  public void search(ActionEvent event) {
+      // We don't need to do anything special here, since init will handle the search
+      log.debug("search");
+  }
+  
+  public void clear(ActionEvent event) {
+      log.debug("clear");
+      setSearchString(null);
+  }
+  
+	private boolean isFilteredSearch() {
+        return !StringUtils.equals(searchString, defaultSearchString);
+	}
+
+	public ArrayList findMatchingAgents(final String pattern) {
+		ArrayList filteredList = new ArrayList();
+		for(Iterator iter = allAgents.iterator(); iter.hasNext();) {
+			AgentResults result = (AgentResults)iter.next();
+			if (result.getFirstName().toLowerCase().startsWith(pattern.toLowerCase()) ||
+				result.getLastName().toLowerCase().startsWith(pattern.toLowerCase()) ||
+				result.getAgentEid().toLowerCase().startsWith(pattern.toLowerCase())) {
+				filteredList.add(result);
+			}
+		}
+		return filteredList;
+	}
 }

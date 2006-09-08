@@ -29,11 +29,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import javax.faces.event.ActionEvent;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.jsf.model.PhaseAware;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
+import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+
 
 /**
  * <p>Description: class form for evaluating submission status</p>
@@ -41,7 +48,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
  *
  */
 public class SubmissionStatusBean
-  implements Serializable
+  implements Serializable, PhaseAware
 {
   private String assessmentId;
   private String publishedId;
@@ -70,7 +77,17 @@ public class SubmissionStatusBean
   private HashMap answeredItems;
   private static Log log = LogFactory.getLog(SubmissionStatusBean.class);
   private String selectedSectionFilterValue = TotalScoresBean.ALL_SECTIONS_SELECT_VALUE;
-
+  private ArrayList allAgents;
+  
+  // Paging.
+  private int firstScoreRow;
+  private int maxDisplayedScoreRows;
+  private int scoreDataRows;
+  
+  // Searching
+  private String searchString;
+  private String defaultSearchString;
+  
   /**
    * Creates a new SubmissionStatusBean object.
    */
@@ -80,6 +97,51 @@ public class SubmissionStatusBean
     resetFields();
   }
 
+	protected void init() {
+        defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
+		if (searchString == null) {
+			searchString = defaultSearchString;
+		}
+		
+		// Get allAgents only at the first time
+		if (allAgents == null) {
+			allAgents = getAllAgents();
+		}
+		
+		ArrayList matchingAgents;
+		if (isFilteredSearch()) {
+			matchingAgents = findMatchingAgents(searchString);
+		}
+		else {
+			matchingAgents = allAgents;
+		}
+		scoreDataRows = matchingAgents.size();
+		ArrayList newAgents = new ArrayList();
+		if (maxDisplayedScoreRows == 0) {
+			newAgents = matchingAgents;
+		} else {
+			int nextPageRow = Math.min(firstScoreRow + maxDisplayedScoreRows, scoreDataRows);
+			newAgents = new ArrayList(matchingAgents.subList(firstScoreRow, nextPageRow));
+			log.debug("init(): subList " + firstScoreRow + ", " + nextPageRow);
+		}
+		
+		agents = newAgents;
+	}
+ 
+	// Following three methods are for interface PhaseAware
+	public void endProcessValidators() {
+		log.debug("endProcessValidators");
+	}
+
+	public void endProcessUpdates() {
+		log.debug("endProcessUpdates");
+	}
+	
+	public void startRenderResponse() {
+		log.debug("startRenderResponse");
+		init();
+	}
+	
   /**
    * get assessment name
    *
@@ -529,8 +591,84 @@ public class SubmissionStatusBean
     return selectedSectionFilterValue;
   }
 
-  public void setSelectedSectionFilterValue(String param ) {
-      this.selectedSectionFilterValue = param;
+  public void setSelectedSectionFilterValue(String param) {
+      if (!param.equals(this.selectedSectionFilterValue)) {
+			this.selectedSectionFilterValue = param;
+			setFirstRow(0); // clear the paging when we update the search
+      }
   }
 
+  public int getFirstRow() {
+      return firstScoreRow;
+  }
+  public void setFirstRow(int firstRow) {
+      firstScoreRow = firstRow;
+  }
+  public int getMaxDisplayedRows() {
+      return maxDisplayedScoreRows;
+  }
+  public void setMaxDisplayedRows(int maxDisplayedRows) {
+      maxDisplayedScoreRows = maxDisplayedRows;
+  }
+  public int getDataRows() {
+      return scoreDataRows;
+  }
+  
+  public void setAllAgents(ArrayList allAgents) {
+	  this.allAgents = allAgents;
+  }
+
+  public ArrayList getAllAgents()
+  {
+    log.debug("getAllAgents()");
+    TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+    String publishedId = ContextUtil.lookupParam("publishedId");
+    SubmissionStatusListener submissionStatusListener = new SubmissionStatusListener();
+    
+    if (!submissionStatusListener.submissionStatus(publishedId, this, totalScoresBean, false)) {
+		  throw new RuntimeException("failed to call questionScores.");
+    }
+    return allAgents;
+  }
+  
+  public String getSearchString() {
+      return searchString;
+  }
+  public void setSearchString(String searchString) {
+      if (StringUtils.trimToNull(searchString) == null) {
+          searchString = defaultSearchString;
+      }
+  	if (!StringUtils.equals(searchString, this.searchString)) {
+	    	log.debug("setSearchString " + searchString);
+	        this.searchString = searchString;
+	        setFirstRow(0); // clear the paging when we update the search
+	    }
+  }
+  
+  public void search(ActionEvent event) {
+      // We don't need to do anything special here, since init will handle the search
+      log.debug("search");
+  }
+  
+  public void clear(ActionEvent event) {
+      log.debug("clear");
+      setSearchString(null);
+  }
+  
+	private boolean isFilteredSearch() {
+        return !StringUtils.equals(searchString, defaultSearchString);
+	}
+
+	public ArrayList findMatchingAgents(final String pattern) {
+		ArrayList filteredList = new ArrayList();
+		for(Iterator iter = allAgents.iterator(); iter.hasNext();) {
+			AgentResults result = (AgentResults)iter.next();
+			if (result.getFirstName().toLowerCase().startsWith(pattern.toLowerCase()) ||
+				result.getLastName().toLowerCase().startsWith(pattern.toLowerCase()) ||
+				result.getAgentEid().toLowerCase().startsWith(pattern.toLowerCase())) {
+				filteredList.add(result);
+			}
+		}
+		return filteredList;
+	}
 }

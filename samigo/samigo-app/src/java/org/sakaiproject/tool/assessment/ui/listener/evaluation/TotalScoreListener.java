@@ -105,7 +105,9 @@ public class TotalScoreListener
     log.debug("TotalScore Action Listener.");
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
     TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
-
+    QuestionScoresBean questionbean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
+    HistogramScoresBean histobean = (HistogramScoresBean) ContextUtil.lookupBean("histogramScores");
+    
     // we probably want to change the poster to be consistent
     String publishedId = ContextUtil.lookupParam("publishedId");
     //log.info("Got publishedId " + publishedId);
@@ -119,10 +121,15 @@ public class TotalScoreListener
     	log.debug("coming from authorIndex");
     	EvaluationModelIfc model = pubAssessment.getEvaluationModel();
     	if (model != null && model.getScoringType()!=null){
-    		bean.setAllSubmissions(model.getScoringType().toString());
+    		String allSubmissions = model.getScoringType().toString();
+    		bean.setAllSubmissions(allSubmissions);
+    		questionbean.setAllSubmissions(allSubmissions);
+    		histobean.setAllSubmissions(allSubmissions);
     	}
     	else {
     		bean.setAllSubmissions(TotalScoresBean.LAST_SUBMISSION); 
+    		questionbean.setAllSubmissions(TotalScoresBean.LAST_SUBMISSION);
+    		histobean.setAllSubmissions(TotalScoresBean.LAST_SUBMISSION);
     	}
     }
     	
@@ -138,14 +145,17 @@ public class TotalScoreListener
     // set action mode
     delivery.setActionString("gradeAssessment");
 
+    // Reset the search field
+    String defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
+    bean.setSearchString(defaultSearchString);
+    
     // reset question score page content 
-    QuestionScoresBean questionbean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
     questionbean.setSections(new ArrayList());
     questionbean.setTypeId("0");   // if setting "", QuestionScoreBean.getTypeId will default to 1. Thus setting it to 0. 
     questionbean.setMaxScore("");
     questionbean.setDeliveryItem(new ArrayList());
     questionbean.setSelectedSARationaleView(QuestionScoresBean.SHOW_SA_RATIONALE_RESPONSES_POPUP);
-
+    
     if (!totalScores(pubAssessment, bean, false))
     {
       throw new RuntimeException("failed to call totalScores.");
@@ -180,18 +190,17 @@ public class TotalScoreListener
       {
         log.debug("changed section picker");
         bean.setSelectedSectionFilterValue(selectedvalue);   // changed section pulldown
+        questionbean.setSelectedSectionFilterValue(selectedvalue);
       }
       else 
       {
         log.debug("changed submission pulldown ");
         bean.setAllSubmissions(selectedvalue);    // changed for total score bean
-        histobean.setAllSubmissions(selectedvalue);    // changed for total histogram score bean
+        histobean.setAllSubmissions(selectedvalue);    // changed for histogram score bean
         questionbean.setAllSubmissions(selectedvalue); // changed for Question score bean
       }
     }
 
-    questionbean.setAllSubmissions(null);    // reset questionScores pulldown  
-    histobean.setAllSubmissions(null);    // reset histogramScores pulldown  
     //log.info("Calling totalScores.");
     if (!totalScores(pubAssessment, bean, true))
     {
@@ -264,6 +273,7 @@ public class TotalScoreListener
       // no submission and no not_submitted students, return
       {
         bean.setAgents(agents);
+        bean.setAllAgents(agents);
         return true;
       }
 
@@ -294,6 +304,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       prepareAgentResult(p, scores.iterator(), agents, userRoles);
       prepareNotSubmittedAgentResult(students_not_submitted.iterator(), agents, userRoles);
       bean.setAgents(agents);
+      bean.setAllAgents(agents);
       bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
 
       //#5 - set role & sort selection

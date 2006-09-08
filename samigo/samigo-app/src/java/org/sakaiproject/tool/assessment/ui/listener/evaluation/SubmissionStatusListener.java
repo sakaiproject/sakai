@@ -96,6 +96,10 @@ public class SubmissionStatusListener
     String publishedId = cu.lookupParam("publishedId");
     //log.info("Got publishedId " + publishedId);
 
+    // Reset the search field
+    String defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
+    bean.setSearchString(defaultSearchString);
+    
     if (!submissionStatus(publishedId, bean, totalScoresBean, false))
     {
       throw new RuntimeException("failed to call submissionStatus.");
@@ -171,18 +175,15 @@ public class SubmissionStatusListener
       {
         // this section has no students
       bean.setAgents(agents);
+      bean.setAllAgents(agents);
       bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
       return true;
       }
 
-/*
-      if (!iter.hasNext())
-        return false;
-*/
       Object next = iter.next();
       Date dueDate = null;
 
-      // - Collect a list of all the users in the scores list
+      // Collect a list of all the users in the scores list
       Map useridMap= totalScoresBean.getUserIdMap();
 
 
@@ -273,6 +274,7 @@ public class SubmissionStatusListener
       }
       
       bean.setAgents(agents);
+      bean.setAllAgents(agents);
       bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
     }
 

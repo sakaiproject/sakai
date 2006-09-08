@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -44,6 +45,10 @@ $Id$
         value="#{msg.title_question}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+ <!-- JAVASCRIPT -->
+<%@ include file="/js/delivery.js" %>
+
 <!-- content... -->
  <div class="portletBody">
 <h:form id="editTotalResults">
@@ -196,77 +201,106 @@ $Id$
 	 </h:panelGroup>
 </h:panelGrid>
 
+<sakai:flowState bean="#{questionScores}" />
+<h:panelGrid columns="2" columnClasses="samLeftNav,samRightNav" width="100%" rendered="#{totalScores.anonymous eq 'false'}">
+  <h:panelGroup>
+    <h:panelGrid columns="1" columnClasses="samLeftNav" width="100%">
+	  <h:panelGroup>
+        <!-- SECTION AWARE -->
+        <h:outputText value="#{msg.view}"/>
+        <h:outputText value="#{msg.column}"/>
+        <h:selectOneMenu value="#{questionScores.selectedSectionFilterValue}" id="sectionpicker" required="true" onchange="document.forms[0].submit();">
+          <f:selectItems value="#{totalScores.sectionFilterSelectItems}"/>
+          <f:valueChangeListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener"/>
+        </h:selectOneMenu>
 
-  <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
+	
+        <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsL1"
+         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
+          <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
+          <f:selectItem itemValue="2" itemLabel="#{msg.last_sub}" />
+          <f:valueChangeListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+        </h:selectOneMenu>
 
-     <!-- h:outputText value="#{msg.max_score_poss}" style="instruction"/-->
-     <!-- h:outputText value="#{questionScores.maxScore}" style="instruction"/-->
-<div class="viewNav">
-     <h:outputText value="#{msg.view}:" />
-<!--
- public static final String ALL_SECTIONS_SELECT_VALUE = "-1";
-  public static final String ALL_SUBMISSIONS = "3";
-  public static final String LAST_SUBMISSION = "2";
-  public static final String HIGHEST_SUBMISSION = "1";
+        <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsH1"
+         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
+          <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
+          <f:selectItem itemValue="1" itemLabel="#{msg.highest_sub}" />
+          <f:valueChangeListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+        </h:selectOneMenu>
 
--->
+        <h:selectOneMenu value="#{questionScores.selectedSARationaleView}" id="inlinepopup1" 
+         rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4'  || questionScores.typeId == '5')}" 
+       	 required="true" onchange="document.forms[0].submit();" >
+           <f:selectItem itemValue="1" itemLabel="#{msg.responses_popup}" />
+           <f:selectItem itemValue="2" itemLabel="#{msg.responses_inline}" />
+           <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+        </h:selectOneMenu> 
+      </h:panelGroup>
 
-     <h:selectOneMenu value="#{questionScores.selectedSectionFilterValue}" id="sectionpicker" rendered="#{totalScores.anonymous eq 'false'}"
-     required="true" onchange="document.forms[0].submit();" >
-        <f:selectItems value="#{totalScores.sectionFilterSelectItems}" />
-      <f:valueChangeListener
-         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-     </h:selectOneMenu>
-
-     <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsL"
-        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
-      <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
-      <f:selectItem itemValue="2" itemLabel="#{msg.last_sub}" />
-      <f:valueChangeListener
-         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-     </h:selectOneMenu>
-
-     <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsH"
-        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
-      <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
-      <f:selectItem itemValue="1" itemLabel="#{msg.highest_sub}" />
-      <f:valueChangeListener
-         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-     </h:selectOneMenu>
-     
-<!--
- public static final String SHOW_SA_RATIONALE_RESPONSES_INLINE = "2"; 
-  public static final String SHOW_SA_RATIONALE_RESPONSES_POPUP = "1"; 
-
---> 
+	  <h:panelGroup>
+ 	        <h:outputText value="#{msg.search}"/>
+            <h:outputText value="#{msg.column}"/>
+			<h:inputText
+				id="searchString"
+				value="#{questionScores.searchString}"
+				onfocus="clearIfDefaultString(this, '#{msg.search_default_student_search_string}')"
+				onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"/>
+			<f:verbatim> </f:verbatim>
+			<h:commandButton actionListener="#{questionScores.search}" value="#{msg.search_find}" id="searchSubmitButton" />
+			<f:verbatim> </f:verbatim>
+			<h:commandButton actionListener="#{questionScores.clear}" value="#{msg.search_clear}"/>
+	  </h:panelGroup>
+    </h:panelGrid>
+  </h:panelGroup>
    
-    <h:selectOneMenu value="#{questionScores.selectedSARationaleView}" id="inlinepopup" 
-    	rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4'  || questionScores.typeId == '5')}" 
-       	required="true" onchange="document.forms[0].submit();" >
-       <f:selectItem itemValue="1" itemLabel="#{msg.responses_popup}" />
-       <f:selectItem itemValue="2" itemLabel="#{msg.responses_inline}" />
-       
-      <f:valueChangeListener
+   <h:panelGroup>
+	<sakai:pager id="pager1" totalItems="#{questionScores.dataRows}" firstItem="#{questionScores.firstRow}" pageSize="#{questionScores.maxDisplayedRows}" textStatus="#{msg.paging_status}" />
+  </h:panelGroup>
+</h:panelGrid>
+
+<h:panelGrid columns="2" columnClasses="samLeftNav,samRightNav" width="100%" rendered="#{totalScores.anonymous eq 'true'}">
+  <h:panelGroup>
+    <h:panelGrid columns="1" columnClasses="samLeftNav" width="100%">
+      <h:panelGroup>
+        <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsL2"
+         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
+        <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
+        <f:selectItem itemValue="2" itemLabel="#{msg.last_sub}" />
+        <f:valueChangeListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-     </h:selectOneMenu> 
+        </h:selectOneMenu>
 
-<%--  THIS MIGHT BE FOR NEXT RELEASE
+        <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsH2"
+         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
+          <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
+          <f:selectItem itemValue="1" itemLabel="#{msg.highest_sub}" />
+          <f:valueChangeListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+        </h:selectOneMenu>
 
-  <span class="rightNav">
-    <!-- Need to hook up to the back end, DUMMIED -->
-    <samigo:pagerButtons  formId="editTotalResults" dataTableId="myData"
-      firstItem="1" lastItem="10" totalItems="50"
-      prevText="Previous" nextText="Next" numItems="10" />
- </span>
-END OF TEMPORARY OUT FOR THIS RELEASE --%>
+		<h:selectOneMenu value="#{questionScores.selectedSARationaleView}" id="inlinepopup2" 
+         rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4'  || questionScores.typeId == '5')}" 
+       	 required="true" onchange="document.forms[0].submit();" >
+           <f:selectItem itemValue="1" itemLabel="#{msg.responses_popup}" />
+           <f:selectItem itemValue="2" itemLabel="#{msg.responses_inline}" />
+           <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+        </h:selectOneMenu> 
+
+      </h:panelGroup>
+    </h:panelGrid>
+  </h:panelGroup>
+  
+  <h:panelGroup>
+	<sakai:pager id="pager2" totalItems="#{questionScores.dataRows}" firstItem="#{questionScores.firstRow}" pageSize="#{questionScores.maxDisplayedRows}" textStatus="#{msg.paging_status}" />
+  </h:panelGroup>
+</h:panelGrid>
+
+
 </div>
-   <h:panelGroup rendered="#{questionScores.anonymous eq 'false'}">
-   <f:verbatim> <div class="itemNav"></f:verbatim> 
-      <samigo:alphaIndex initials="#{questionScores.agentInitials}" />
-  <f:verbatim> </div></f:verbatim> 
-   </h:panelGroup>
-   
-
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->

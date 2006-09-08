@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
   
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -47,6 +48,10 @@ $Id$
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
+
+<!-- JAVASCRIPT -->
+<%@ include file="/js/delivery.js" %>
+
  <div class="portletBody">
 <h:form id="editTotalResults">
   <h:inputHidden id="publishedId" value="#{totalScores.publishedId}" />
@@ -93,30 +98,43 @@ $Id$
      <br />
 
 
-  <!-- SECTION AWARE -->
-     <h:outputText value="#{msg.view}"/>
-     <h:outputText value="#{msg.column}"/>
-     <h:selectOneMenu value="#{submissionStatus.selectedSectionFilterValue}" id="sectionpicker" required="true" onchange="document.forms[0].submit();">
-        <f:selectItems value="#{totalScores.sectionFilterSelectItems}"/>
-     <f:valueChangeListener
+<sakai:flowState bean="#{submissionStatus}" />
+<h:panelGrid columns="2" columnClasses="samLeftNav,samRightNav" width="100%">
+  <h:panelGroup>
+    <h:panelGrid columns="1" columnClasses="samLeftNav" width="100%">
+	  <h:panelGroup>
+        <!-- SECTION AWARE -->
+        <h:outputText value="#{msg.view}"/>
+        <h:outputText value="#{msg.column}"/>
+        <h:selectOneMenu value="#{submissionStatus.selectedSectionFilterValue}" id="sectionpicker" required="true" onchange="document.forms[0].submit();">
+          <f:selectItems value="#{totalScores.sectionFilterSelectItems}"/>
+          <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener"/>
-     </h:selectOneMenu>
-
-<%--  THIS MIGHT BE FOR NEXT RELEASE
-
-  <span class="rightNav">
-    <!-- Need to hook up to the back end, DUMMIED -->
-    <samigo:pagerButtons  formId="editTotalResults" dataTableId="myData"
-      firstItem="1" lastItem="10" totalItems="50"
-      prevText="Previous" nextText="Next" numItems="10" />
-    </span>
-END OF TEMPORARY OUT FOR THIS RELEASE --%>
-
-  <h:panelGroup rendered="#{totalScores.anonymous eq 'false'}">
-   <f:verbatim><span class="abc"></f:verbatim> 
-     <samigo:alphaIndex initials="#{totalScores.agentInitials}" />
-   <f:verbatim></span></f:verbatim> 
+        </h:selectOneMenu>
+      </h:panelGroup>
+	
+	  <h:panelGroup>
+			<h:outputText value="#{msg.search}"/>
+            <h:outputText value="#{msg.column}"/>
+			<h:inputText
+				id="searchString"
+				value="#{submissionStatus.searchString}"
+				onfocus="clearIfDefaultString(this, '#{msg.search_default_student_search_string}')"
+				onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"/>
+			<f:verbatim> </f:verbatim>
+			<h:commandButton actionListener="#{submissionStatus.search}" value="#{msg.search_find}" id="searchSubmitButton" />
+			<f:verbatim> </f:verbatim>
+			<h:commandButton actionListener="#{submissionStatus.clear}" value="#{msg.search_clear}"/>
+	  </h:panelGroup>
+    </h:panelGrid>
   </h:panelGroup>
+
+  <h:panelGroup>
+	<div>
+	<sakai:pager id="pager" totalItems="#{submissionStatus.dataRows}" firstItem="#{submissionStatus.firstRow}" pageSize="#{submissionStatus.maxDisplayedRows}" textStatus="#{msg.paging_status}" />
+	</div>
+  </h:panelGroup>
+</h:panelGrid>
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
@@ -323,6 +341,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
   </h:dataTable>
 </div>
 </div>
+
 </h:form>
 </div>
   <!-- end content -->

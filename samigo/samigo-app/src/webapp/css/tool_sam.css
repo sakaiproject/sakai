@@ -77,3 +77,16 @@
 .validate{
 	color:red;
 }
+/*
+	OVERRIDE NAV CONTROL SAKAI CSS DEFINITIONS FOR NOW.
+	They don't handle our situation, with search filters bottom-aligned
+	on the left and paging controls on the right.
+*/
+.samLeftNav  {
+	vertical-align:bottom;
+    text-align:left;
+}
+.samRightNav  {
+	vertical-align:bottom;
+    text-align:right;
+}
