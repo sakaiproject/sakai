@@ -442,11 +442,15 @@ public class PublishedAssessmentFacadeQueries
         System.out.println("****resourceId="+itemAttachment.getResourceId());
         System.out.println("****cr.id="+cr.getId());
         System.out.println("****cr_copy.id="+cr_copy.getId());
+        //get relative path
+        String url = cr_copy.getUrl();
+        // replace whitespace with %20
+        url = replaceSpace(url);
 
         PublishedItemAttachment publishedItemAttachment = new PublishedItemAttachment(
           null, publishedItem, cr_copy.getId(), itemAttachment.getFilename(),
           itemAttachment.getMimeType(), itemAttachment.getFileSize(), itemAttachment.getDescription(),
-          itemAttachment.getLocation(), itemAttachment.getIsLink(), itemAttachment.getStatus(),
+          url, itemAttachment.getIsLink(), itemAttachment.getStatus(),
           itemAttachment.getCreatedBy(), itemAttachment.getCreatedDate(), itemAttachment.getLastModifiedBy(),
           itemAttachment.getLastModifiedDate());
         h.add(publishedItemAttachment);
@@ -1497,4 +1501,21 @@ public class PublishedAssessmentFacadeQueries
 	    }
 	    return set;
   }
+
+  private String replaceSpace(String tempString){
+    String newString = new String();
+    char[] oneChar = new char[1];
+    for(int i=0; i<tempString.length(); i++){
+      if (tempString.charAt(i) != ' '){
+        oneChar[0] = tempString.charAt(i);
+        String concatString = new String(oneChar);
+        newString = newString.concat(concatString);
+      }
+      else {
+	newString = newString.concat("%20");
+      }
+    }
+    return newString;
+  }
+
 }
