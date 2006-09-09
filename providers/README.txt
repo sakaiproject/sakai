@@ -15,3 +15,5 @@ jldap        Contains the jldap UserDirectoryProvider - see the README
 
 kerberos     Contains a basic Kerberos provider.
 
+allhands 	Contains a provider that makes a "sakai.allhands" provider and
+   enrolls all users in that provider.

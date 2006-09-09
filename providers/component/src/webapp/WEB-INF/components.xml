@@ -27,6 +27,17 @@
 	</bean>
 -->
 
+<!-- Uncomment to use the sample AllHandsGroup Provider 
+     (read the code to see exactly what it does!)
+
+        <bean id="org.sakaiproject.authz.api.GroupProvider"
+                        class="org.sakaiproject.provider.authzGroup.AllHandsGroupProvider"
+                        init-method="init"
+                        destroy-method="destroy"
+                        singleton="true">
+        </bean>
+-->
+
 <!--    Uncomment to use the IMS Enterprise provider
 
                  Make sure to remove any other UserDirectoryProviders as there can only be one user provider active at any time.
