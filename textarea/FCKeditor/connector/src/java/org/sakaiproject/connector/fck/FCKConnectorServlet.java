@@ -220,7 +220,6 @@ public class FCKConnectorServlet extends HttpServlet
                     while (iter.hasNext()) 
                     {
                         FileItem item = (FileItem) iter.next();
-                        // System.out.println(item.getFieldName() + " === " + item);
                         if (item.isFormField()) 
                              fields.put(item.getFieldName(), item.getString());
                         else
@@ -233,8 +232,14 @@ public class FCKConnectorServlet extends HttpServlet
                     String[] pathParts = filePath.split("/");
                     fileName = pathParts[pathParts.length-1];
                     
-                    String nameWithoutExt = fileName.substring(0, fileName.lastIndexOf(".")); 
-                    String ext = fileName.substring(fileName.lastIndexOf(".") + 1); 
+                    String nameWithoutExt = fileName; 
+                    String ext = ""; 
+
+                    if (fileName.lastIndexOf(".") > 0) 
+                    {
+                         nameWithoutExt = fileName.substring(0, fileName.lastIndexOf(".")); 
+                         ext = fileName.substring(fileName.lastIndexOf(".")); 
+                    }
 
                     String mime = uplFile.getContentType();
 
@@ -257,7 +262,7 @@ public class FCKConnectorServlet extends HttpServlet
                          catch (IdUsedException iue) 
                          {
                               //the name is already used, so we do a slight rename to prevent the colision
-                              fileName = nameWithoutExt + "(" + counter + ")" + "." + ext;
+                              fileName = nameWithoutExt + "(" + counter + ")" + ext;
                               status = "201";
                               counter++;
                          }
