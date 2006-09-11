@@ -52,10 +52,13 @@
 
 package org.sakaiproject.tool.assessment.audio;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -88,6 +91,7 @@ import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -98,10 +102,7 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.SoftBevelBorder;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import javax.swing.filechooser.FileFilter;
 import java.io.InputStream;
 
 /**
@@ -117,7 +118,7 @@ import java.io.InputStream;
 public class AudioRecorder extends JPanel implements ActionListener,
   AudioControlContext
 {
-  private static Log log = LogFactory.getLog(AudioRecorder.class);
+
   private static final String RESOURCE_PACKAGE =
     "org.sakaiproject.tool.assessment.audio";
   private static final String RESOURCE_NAME = "AudioResources";
@@ -162,7 +163,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
     // load images
     imageUrl = params.getImageUrl();
-    log.debug("**** imageUrl="+imageUrl);
+    System.out.println("**** imageUrl="+imageUrl);
     try{
       recordIcon = new ImageIcon(new URL(imageUrl+"/audio_record.gif"));
       playIcon = new ImageIcon(new URL(imageUrl+"/audio_play.gif"));
@@ -263,7 +264,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
       /* daisy test code - pls do not delete
     String mediaUrl = "http://sakai-l.stanford.edu:8080/samigo/servlet/ShowMedia?mediaId=107";
     //String mediaUrl = "http://sakai-l.stanford.edu:8080/samigo/spacemusic.au";
-    log.debug("*****open applet="+mediaUrl);
+    System.out.println("*****open applet="+mediaUrl);
     createAudioInputStream(mediaUrl, true);
       */
   }
@@ -475,7 +476,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
       OutputStream outputStream = urlConn.getOutputStream();
 
       try{
-        //log.debug("**** no. of bytes recorded="+audioInputStream.available());
+        //System.out.println("**** no. of bytes recorded="+audioInputStream.available());
         int c = AudioSystem.write(audioInputStream, audioType, outputStream);
         if (c <= 0){
           throw new IOException(res.getString("Problems_writing_to"));
@@ -510,7 +511,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
   {
     if ( (errStr = msg) != null)
     {
-      log.debug(errStr);
+      System.out.println(errStr);
       samplingGraph.repaint();
     }
   }
@@ -1061,7 +1062,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
         Thread.sleep(1000);
       }
       catch(Exception ex){
-        log.error(ex.getMessage());
+        System.out.println(ex.getMessage());
       }
     }
     saveMedia();
@@ -1093,17 +1094,17 @@ public class AudioRecorder extends JPanel implements ActionListener,
       long milliseconds = (long) ( (audioInputStream.getFrameLength() * 1000) /
                                     audioInputStream.getFormat().getFrameRate());
       duration = milliseconds / 1000.0;
-      log.debug("*****createAudioInpuStream= "+audioInputStream);
-      log.debug("*** duration= "+duration);
+      System.out.println("*****createAudioInpuStream= "+audioInputStream);
+      System.out.println("*** duration= "+duration);
       if (updateComponents){
         formatControls.setFormat(audioInputStream.getFormat());
-        log.debug("*** calling samplingGraph.createWaveForm");
+        System.out.println("*** calling samplingGraph.createWaveForm");
         samplingGraph.createWaveForm(null, lines, audioInputStream);
       }
     }
     catch (Exception ex){
       // doesn't matter; treat it as no input stream
-      log.error(ex.getMessage());
+      System.out.println(ex.getMessage());
     }
   }
 

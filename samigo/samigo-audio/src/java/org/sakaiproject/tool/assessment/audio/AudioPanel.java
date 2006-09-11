@@ -76,10 +76,8 @@ import java.util.ResourceBundle;
 import java.util.Locale;
 import javax.swing.Box;
 import java.awt.event.KeyEvent;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 
 /**
@@ -92,7 +90,6 @@ public class AudioPanel
   extends JPanel
   implements ChangeListener, Runnable
 {
-  private static Log log = LogFactory.getLog(AudioPanel.class);
   private static final String RESOURCE_PACKAGE = "org.sakaiproject.tool.assessment.audio";
   private static final String RESOURCE_NAME = "AudioResources";
   static ResourceBundle res = ResourceBundle.getBundle(RESOURCE_PACKAGE + "." +
@@ -265,7 +262,7 @@ public class AudioPanel
       File file = new File(args[0]);
       if (file == null && !file.isDirectory())
       {
-        log.debug(res.getString("usage_java_JavaSound"));
+        System.out.println(res.getString("usage_java_JavaSound"));
       }
       else
       {
