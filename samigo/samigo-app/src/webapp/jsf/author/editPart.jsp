@@ -79,7 +79,7 @@
   </h:panelGrid>
 
   <!-- PART ATTACHMENTS -->
-  <%@ include file="/jsf/author/part_attachment.jsp" %>
+  <%@ include file="/jsf/author/editPart_attachment.jsp" %>
 
 </div>
 

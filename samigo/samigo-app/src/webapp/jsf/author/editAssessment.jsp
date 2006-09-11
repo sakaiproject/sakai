@@ -191,7 +191,9 @@ document.links[newindex].onclick();
     </h:panelGrid>
       <f:verbatim></h4></f:verbatim>
         <h:outputText escape="false" value="#{partBean.description}" />
-    
+        <!-- PART ATTACHMENTS -->
+        <%@ include file="/jsf/author/part_attachment.jsp" %>
+
 <f:verbatim><div class="tier2"></f:verbatim>
 
 

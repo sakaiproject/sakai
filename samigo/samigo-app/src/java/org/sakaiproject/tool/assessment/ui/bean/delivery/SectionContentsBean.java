@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import javax.faces.model.SelectItem;
@@ -64,6 +65,7 @@ public class SectionContentsBean
   private Integer numberToBeDrawn;
   private Long poolIdToBeDrawn;
   private String poolNameToBeDrawn;
+  private List attachmentList;
 
   public SectionContentsBean()
   {
@@ -358,6 +360,9 @@ public class SectionContentsBean
       // set questionNumbers now
       setQuestionNumbers();
       setMetaData(section);
+      this.attachmentList = section.getSectionAttachmentList();
+      if (this.attachmentList !=null && this.attachmentList.size() >0 )
+        this.hasAttachment = true;
     }
     catch (Exception e)
     {
@@ -590,6 +595,24 @@ public class SectionContentsBean
     int tmp = Math.round(points * 100.0f);
     points = (float) tmp / 100.0f;
     return points;
+  }
+
+  public List getAttachmentList() {
+    return attachmentList;
+  }
+
+  public void setAttachmentList(List attachmentList)
+  {
+    this.attachmentList = attachmentList;
+  }
+
+  private boolean hasAttachment = false;
+  public boolean getHasAttachment(){
+    return this.hasAttachment;
+  }
+
+  public void setHasAttachment(boolean hasAttachment){
+    this.hasAttachment = hasAttachment;
   }
 
 }
