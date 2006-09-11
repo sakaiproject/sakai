@@ -1021,10 +1021,12 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
 
   public List getItemAttachmentList() {
     ArrayList list = new ArrayList();
-    Iterator iter = itemAttachmentSet.iterator();
-    while (iter.hasNext()){
-      ItemAttachmentIfc a = (ItemAttachmentIfc)iter.next();
-      list.add(a);
+    if (itemAttachmentSet !=null ){
+      Iterator iter = itemAttachmentSet.iterator();
+      while (iter.hasNext()){
+        ItemAttachmentIfc a = (ItemAttachmentIfc)iter.next();
+        list.add(a);
+      }
     }
     return list;
   }

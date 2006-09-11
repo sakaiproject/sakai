@@ -1,3 +1,4 @@
+
 /**********************************************************************************
  * $URL$
  * $Id$
@@ -44,8 +45,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.ui.listener.author.EditPartListener;
 import org.sakaiproject.tool.assessment.ui.listener.author.SavePartListener;
+import org.sakaiproject.tool.assessment.ui.listener.author.SavePartAttachmentListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
@@ -99,7 +100,7 @@ private boolean hideOneByOne= false;
 private String outcome;
 private Tree tree;
 
-private ArrayList attachmentList;
+private List attachmentList;
 
 
   public void setSection(SectionFacade section) {
@@ -115,6 +116,10 @@ private ArrayList attachmentList;
     catch (Exception ex) {
       log.warn(ex.getMessage());
     }
+  }
+
+  public SectionFacade getSection(){
+    return section;
   }
 
   public boolean getHideRandom()
@@ -659,11 +664,11 @@ private ArrayList attachmentList;
     this.outcome= param;
   }
 
-  public ArrayList getAttachmentList() {
+  public List getAttachmentList() {
     return attachmentList;
   }
 
-  public void setAttachmentList(ArrayList attachmentList)
+  public void setAttachmentList(List attachmentList)
   {
     this.attachmentList = attachmentList;
   }
@@ -701,8 +706,8 @@ private ArrayList attachmentList;
     lis.processAction(null);
   }
 
-  public void populatePart(){
-    EditPartListener lis = new EditPartListener();
+  public void savePartAttachment(){
+    SavePartAttachmentListener lis = new SavePartAttachmentListener();
     lis.processAction(null);
   }
 

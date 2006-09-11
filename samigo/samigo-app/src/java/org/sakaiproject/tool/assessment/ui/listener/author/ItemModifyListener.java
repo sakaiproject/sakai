@@ -89,7 +89,8 @@ public class ItemModifyListener implements ActionListener
       itemauthorbean.setItemId(itemId);
     }
     else{ 
-      // i am afraid on returning to the item modify page, I need to call ItemModifyListener 
+      // i am afraid on returning from attachment resource management to the item modify page, 
+      // I need to call ItemModifyListener, see SamigoJsfTool.java
       // to save any new attachments and re-populate the attachment list.
       // so i can't read itemId from a form. - daisyf
       itemId = itemauthorbean.getItemId();

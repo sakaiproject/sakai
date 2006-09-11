@@ -43,6 +43,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 
 /**
  * <p>
@@ -184,16 +185,27 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
       // dispatch to the target
       log.debug("***4. dispatch, dispatching path: " + req.getPathInfo() + " to: " + target + " context: "
 	+ getServletContext().getServletContextName());
-      // if this is a return from the file picker and going back to item mofification
-      // save the question now - this will hook up the freshly uploaded file to the question.
+      // if this is a return from the file picker and going back to 
+      // case 1: item mofification, then save the question now.
+      //         this will hook up the freshly uploaded file to the question.
       if (target.indexOf("/jsf/author/item/") > -1 
 	  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
 	 ItemAuthorBean bean = (ItemAuthorBean) ContextUtil.lookupBeanFromExternalServlet(
                                "itemauthor", req, res);
-         log.debug("** populate item");
          bean.populateItem();
          toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
       }
+
+      // case 2: part mofification, then save the part now.
+      //         this will hook up the freshly uploaded file to the part.
+      if (target.indexOf("/jsf/author/editPart") > -1 
+	  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
+	 SectionBean bean = (SectionBean) ContextUtil.lookupBeanFromExternalServlet(
+                               "sectionBean", req, res);
+         bean.savePartAttachment();
+         toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
+      }
+
       RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(target);
       dispatcher.forward(req, res);
 

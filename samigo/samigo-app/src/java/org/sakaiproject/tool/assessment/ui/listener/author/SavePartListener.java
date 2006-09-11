@@ -54,11 +54,6 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
-import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.entity.api.Reference;
-
 /**
  * <p>Title: Samigo</p>2
  * <p>Description: Sakai Assessment Manager</p>
@@ -189,7 +184,7 @@ public class SavePartListener
         }
       }
       // attach item attachemnt to sectionBean
-      ArrayList attachmentList = prepareSectionAttachment(section.getData());
+      List attachmentList = section.getSectionAttachmentList();
       sectionBean.setAttachmentList(attachmentList);
       if (attachmentList != null && attachmentList.size() >0){
         sectionBean.setHasAttachment(true);
@@ -273,6 +268,7 @@ public class SavePartListener
            
   }
 
+    /*
   private ArrayList prepareSectionAttachment(SectionDataIfc section){
     Set attachmentSet = section.getSectionAttachmentSet();
     if (attachmentSet == null){
@@ -311,5 +307,5 @@ public class SavePartListener
     }
     return list;
   }
-
+    */
 }
