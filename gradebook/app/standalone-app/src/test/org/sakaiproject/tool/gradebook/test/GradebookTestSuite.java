@@ -32,7 +32,6 @@ public class GradebookTestSuite extends TestCase {
 		// This test must run first to be useful, since
 		// it tests automatic updating of a blank database.
 		suite.addTestSuite(GradeMappingConfigTest.class);
-
 		suite.addTestSuite(AssignmentSortingTest.class);
 		suite.addTestSuite(CalculationsTest.class);
 		suite.addTestSuite(GradableObjectManagerTest.class);
@@ -41,6 +40,7 @@ public class GradebookTestSuite extends TestCase {
 		suite.addTestSuite(GradebookServiceInternalTest.class);
 		suite.addTestSuite(GradebookServiceTest.class);
 		suite.addTestSuite(GradeMappingTest.class);
-		return suite;
+        suite.addTestSuite(SpreadsheetTest.class);
+        return suite;
 	}
 }

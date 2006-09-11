@@ -110,8 +110,9 @@
 		<dependency>
 			<groupId>hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
-			<version>1.8.0.5</version>
+			<version>1.7.3.0</version>
 		</dependency>
+
 
 		<!-- Since none of these JDBC libraries will be used except in standalone test -->
 		<!-- builds, we specify the '_g' Oracle JAR to obtain more debugging information. -->
@@ -122,26 +123,26 @@
 			<artifactId>oracle</artifactId>
 			<jar>ojdbc14_g.jar</jar>
 		</dependency>
-
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>3.1.12-bin</version>
+			<version>3.1.12</version>
 		</dependency>
+
 -->
 
 <!-- End database dependencies -->
 
  		<dependency>
-			<groupId>${sakai.spring.groupId}</groupId>
-			<artifactId>${sakai.spring.artifactId}</artifactId>
+			<groupId>springframework</groupId>
+			<artifactId>spring</artifactId>
 			<version>${sakai.spring.version}</version>
 		</dependency>
 
  		<dependency>
-			<groupId>${sakai.spring.groupId}</groupId>
-			<artifactId>${sakai.spring.mock.artifactId}</artifactId>
-			<version>${sakai.spring.mock.version}</version>
+			<groupId>springframework</groupId>
+			<artifactId>spring-mock</artifactId>
+			<version>${sakai.spring.version}</version>
 		</dependency>
 
  		<dependency>
@@ -226,6 +227,16 @@
 			<artifactId>commons-logging</artifactId>
 			<version>1.0.4</version>
 		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.2</version>
+                  <properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+
+		</dependency>
+
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>

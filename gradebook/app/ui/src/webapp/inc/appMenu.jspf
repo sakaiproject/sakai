@@ -11,17 +11,27 @@
 	<h:commandLink action="roster" immediate="true" rendered="#{bean.pageName ne 'roster'}">
 		<h:outputText value="#{msgs.appmenu_roster}"/>
 	</h:commandLink>
-	<h:outputText value="#{msgs.appmenu_roster}" rendered="#{bean.pageName eq 'roster'}" styleClass="currentView" />
-	<h:panelGroup rendered="#{bean.userAbleToEditAssessments}">
-		<h:outputText value=" | "/>
-		<h:commandLink action="addAssignment" immediate="true" rendered="#{bean.pageName ne 'addAssignment'}">
-			<h:outputText value="#{msgs.appmenu_add_assignment}"/>
-		</h:commandLink>
-		<h:outputText value="#{msgs.appmenu_add_assignment}" rendered="#{bean.pageName eq 'addAssignment'}" styleClass="currentView" />
-		<h:outputText value=" | "/>
-		<h:commandLink action="feedbackOptions" immediate="true" rendered="#{bean.pageName ne 'feedbackOptions'}">
-			<h:outputText value="#{msgs.appmenu_feedback_options}"/>
-		</h:commandLink>
-		<h:outputText value="#{msgs.appmenu_feedback_options}" rendered="#{bean.pageName eq 'feedbackOptions'}" styleClass="currentView" />
+    <h:outputText value="#{msgs.appmenu_roster}" rendered="#{bean.pageName eq 'roster'}" styleClass="currentView" />
+    <h:panelGroup rendered="#{bean.userAbleToEditAssessments}">
+        <h:outputText value=" | "/>
+        <h:commandLink action="addAssignment" immediate="true" rendered="#{bean.pageName ne 'addAssignment'}">
+            <h:outputText value="#{msgs.appmenu_add_assignment}"/>
+        </h:commandLink>
+        <h:outputText value="#{msgs.appmenu_add_assignment}" rendered="#{bean.pageName eq 'addAssignment'}" styleClass="currentView" />
+
+        <h:outputText value=" | " rendered="#{bean.pageName ne 'feedbackOptions'}"/>
+        <h:commandLink action="feedbackOptions" immediate="true" rendered="#{bean.pageName ne 'feedbackOptions'}">
+            <h:outputText value="#{msgs.appmenu_feedback_options}"/>
+        </h:commandLink>
+        <h:outputText value=" | " rendered="#{bean.pageName eq 'feedbackOptions'}"/>
+        <h:outputText value="#{msgs.appmenu_feedback_options}" rendered="#{bean.pageName eq 'feedbackOptions'}" styleClass="currentView" />
+
+        <h:outputText value=" | "/>
+        <h:commandLink action="spreadsheetListing" immediate="true">
+            <h:outputText value="#{msgs.appmenu_import_upload}" rendered="#{bean.pageName ne 'spreadsheetListing'}" styleClass="currentView" />
+            <f:param name="pageName" value="spreadsheetListing"/>
+        </h:commandLink>
+        <h:outputText value="#{msgs.appmenu_import_upload}" rendered="#{bean.pageName eq 'spreadsheetListing'}" styleClass="currentView" />
+
 	</h:panelGroup>
 </x:div>

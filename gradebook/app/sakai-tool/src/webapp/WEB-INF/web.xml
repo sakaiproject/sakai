@@ -77,6 +77,10 @@
     <filter>
         <filter-name>sakai.request</filter-name>
         <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+         <init-param>
+        	<param-name>upload.enabled</param-name>
+        	<param-value>false</param-value>
+        </init-param>
     </filter>
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
@@ -86,52 +90,67 @@
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
 
-	<!-- Support for MyFaces component resources. -->
-	<filter>
-		<filter-name>MyFacesExtensionsFilter</filter-name>
-		<filter-class>org.apache.myfaces.component.html.util.ExtensionsFilter</filter-class>
-	</filter>
-	<filter-mapping>
-		<filter-name>MyFacesExtensionsFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-        <dispatcher>REQUEST</dispatcher>
-        <dispatcher>FORWARD</dispatcher>
-        <dispatcher>INCLUDE</dispatcher>
-	</filter-mapping>
-	<filter-mapping>
-		<filter-name>MyFacesExtensionsFilter</filter-name>
-		<url-pattern>/faces/myFacesExtensionResource/*</url-pattern>
-	</filter-mapping>
 
-	<filter>
-		<filter-name>GradebookAuthzFilter</filter-name>
-		<filter-class>org.sakaiproject.tool.gradebook.ui.RoleFilter</filter-class>
-		<init-param>
-			<param-name>authorizationFilterConfigurationBean</param-name>
-			<param-value>org.sakaiproject.tool.gradebook.ui.AuthorizationFilterConfigurationBean</param-value>
-		</init-param>
-		<init-param>
-			<param-name>authnServiceBean</param-name>
-			<param-value>org_sakaiproject_tool_gradebook_facades_Authn</param-value>
-		</init-param>
-		<init-param>
-			<param-name>authzServiceBean</param-name>
-			<param-value>org_sakaiproject_tool_gradebook_facades_Authz</param-value>
-		</init-param>
-		<init-param>
-			<param-name>contextManagementServiceBean</param-name>
-			<param-value>org_sakaiproject_tool_gradebook_facades_ContextManagement</param-value>
-		</init-param>
-	</filter>
-	<filter-mapping>
-		<filter-name>GradebookAuthzFilter</filter-name>
+
+    <!-- Support for MyFaces component resources. -->
+    <filter>
+        <filter-name>MyFacesExtensionsFilter</filter-name>
+        <filter-class>org.apache.myfaces.component.html.util.ExtensionsFilter</filter-class>
+        <init-param>
+            <param-name>uploadMaxFileSize</param-name>
+            <param-value>10m</param-value>
+        </init-param>
+        <init-param>
+            <param-name>uploadThresholdSize</param-name>
+            <param-value>100k</param-value>
+        </init-param>
+   </filter>
+
+    <filter-mapping>
+        <filter-name>MyFacesExtensionsFilter</filter-name>
+          <url-pattern>/*</url-pattern>
+         <dispatcher>REQUEST</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+   </filter-mapping>
+    <filter-mapping>
+        <filter-name>MyFacesExtensionsFilter</filter-name>
+        <url-pattern>/faces/myFacesExtensionResource/*</url-pattern>
+    </filter-mapping>
+
+
+    <filter>
+        <filter-name>GradebookAuthzFilter</filter-name>
+        <filter-class>org.sakaiproject.tool.gradebook.ui.RoleFilter</filter-class>
+        <init-param>
+            <param-name>authorizationFilterConfigurationBean</param-name>
+            <param-value>org.sakaiproject.tool.gradebook.ui.AuthorizationFilterConfigurationBean</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authnServiceBean</param-name>
+            <param-value>org_sakaiproject_tool_gradebook_facades_Authn</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authzServiceBean</param-name>
+            <param-value>org_sakaiproject_tool_gradebook_facades_Authz</param-value>
+        </init-param>
+        <init-param>
+            <param-name>contextManagementServiceBean</param-name>
+            <param-value>org_sakaiproject_tool_gradebook_facades_ContextManagement</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>GradebookAuthzFilter</filter-name>
 		<url-pattern>*.jsf</url-pattern>
 		<dispatcher>REQUEST</dispatcher>
 		<dispatcher>FORWARD</dispatcher>
 		<dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
 
-	<!--
+
+
+
+    <!--
 		Prelude and coda for standalone web application.
 		To eliminate "head" and "body" tags, making the application output suitable
 		as a portlet or for embedding, replace "preludeStandalone" with "link" tags

@@ -25,6 +25,7 @@ package org.sakaiproject.tool.gradebook.business;
 import java.util.*;
 
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -34,6 +35,7 @@ import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvents;
+import org.sakaiproject.tool.gradebook.Spreadsheet;
 
 /**
  * Manages Gradebook persistence.
@@ -233,7 +235,8 @@ public interface GradebookManager {
      */
     public Assignment getAssignmentWithStats(Long assignmentId);
 
-    /**
+
+   /**
      * Add a new assignment to a gradebook
      *
      * @param gradebookId The gradebook ID to which this new assignment belongs
@@ -241,11 +244,13 @@ public interface GradebookManager {
      * @param points The number of points possible for this assignment (must not be null)
      * @param dueDate The due date for the assignment (optional)
      * @param isNotCounted True if the assignment should not count towards the final course grade (optional)
-     *
+     * @param isReleased  True if the assignment should be release/ or visble to students
      * @return The ID of the new assignment
      */
-    public Long createAssignment(Long gradebookId, String name, Double points, Date dueDate, Boolean isNotCounted)
-        throws ConflictingAssignmentNameException, StaleObjectModificationException;
+
+    public Long createAssignment(Long gradebookId, String name, Double points, Date dueDate, Boolean isNotCounted, Boolean isReleased)
+            throws ConflictingAssignmentNameException, StaleObjectModificationException;
+
 
     /**
      * Updates an existing assignment
@@ -271,5 +276,41 @@ public interface GradebookManager {
     public CourseGrade getCourseGradeWithStats(Long gradebookId);
 
     public double getTotalPoints(Long gradebookId);
+
+    /**
+     * Fetches a spreadsheet that has been saved
+     *
+      * @param spreadsheetId
+     * @return  The saved spreadsheet object
+     */
+    public Spreadsheet getSpreadsheet(Long spreadsheetId);
+
+    /**
+     *
+     * @param gradebookId
+     * @return  a Collection of spreadsheets
+     */
+    public List getSpreadsheets(Long gradebookId);
+
+    /**
+     *
+     * @param spreadsheetid
+     * @throws StaleObjectModificationException
+     */
+
+    public void removeSpreadsheet(Long spreadsheetid) throws StaleObjectModificationException;
+   
+    /**
+     * create a net spreadsheet
+     *
+     * @param gradebookId
+     * @param name
+     * @param creator
+     * @param dateCreated
+     * @param content
+     * @return
+     * @throws ConflictingSpreadsheetNameException StaleObjectModificationException
+     */
+    public Long createSpreadsheet(Long gradebookId, String name, String creator, Date dateCreated, String content) throws ConflictingSpreadsheetNameException, StaleObjectModificationException;
 
 }

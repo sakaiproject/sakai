@@ -161,12 +161,38 @@
 			<property-name>pageName</property-name>
 			<value>overview</value>
 		</managed-property>
-	</managed-bean>
+    </managed-bean>
 
-	<managed-bean>
-		<managed-bean-name>exportBean</managed-bean-name>
-		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.ExportBean</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
-	</managed-bean>
+    <managed-bean>
+        <managed-bean-name>exportBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.ExportBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>spreadsheetUploadBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetUploadBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+        <managed-property>
+            <property-name>spreadsheetId</property-name>
+            <value>#{param.spreadsheetId}</value>
+        </managed-property>
+
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>spreadsheetRemoveBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetRemoveBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+        <managed-property>
+            <property-name>spreadsheetId</property-name>
+            <value>#{param.spreadsheetId}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>pageName</property-name>
+            <value>removeSpreadsheet</value>
+        </managed-property>
+    </managed-bean>
 
 </faces-config>
+

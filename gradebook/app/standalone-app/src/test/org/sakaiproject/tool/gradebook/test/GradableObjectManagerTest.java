@@ -68,7 +68,7 @@ public class GradableObjectManagerTest extends GradebookTestBase {
     }
 
     public void testCreateAndUpdateAssignment() throws Exception {
-        Long asnId = gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(10), new Date(), Boolean.FALSE);
+        Long asnId = gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
         Assignment asn = (Assignment)gradebookManager.getGradableObject(asnId);
         asn.setPointsPossible(new Double(20));
         gradebookManager.updateAssignment(asn);
@@ -81,14 +81,14 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         // Try to save a new assignment with the same name
         boolean errorThrown = false;
         try {
-            gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(20), new Date(), Boolean.FALSE);
+            gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(20), new Date(), Boolean.FALSE,Boolean.FALSE);
         } catch (ConflictingAssignmentNameException e) {
             errorThrown = true;
         }
         Assert.assertTrue(errorThrown);
 
         // Save a second assignment
-        Long secondId = gradebookManager.createAssignment(gradebook.getId(), ASN2_NAME, new Double(10), new Date(), Boolean.FALSE);
+        Long secondId = gradebookManager.createAssignment(gradebook.getId(), ASN2_NAME, new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
         Assignment asn2 = (Assignment)gradebookManager.getGradableObject(secondId);
 
         errorThrown = false;
@@ -103,15 +103,16 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         Assert.assertTrue(errorThrown);
     }
 
+
     public void testGradableObjectSorting() throws Exception {
         // Create an assignment with a null date
-        Long id1 = gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(10), null, Boolean.FALSE);
+        Long id1 = gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(10), null, Boolean.FALSE,Boolean.FALSE);
 
         // Create an assignment with an early date (in 1970)
-        Long id2 = gradebookManager.createAssignment(gradebook.getId(), ASN2_NAME, new Double(20), new Date(10), Boolean.FALSE);
+        Long id2 = gradebookManager.createAssignment(gradebook.getId(), ASN2_NAME, new Double(20), new Date(10), Boolean.FALSE,Boolean.FALSE);
 
         // Create an assignment with a date of now
-        Long id3 = gradebookManager.createAssignment(gradebook.getId(), ASN3_NAME, new Double(30), new Date(), Boolean.FALSE);
+        Long id3 = gradebookManager.createAssignment(gradebook.getId(), ASN3_NAME, new Double(30), new Date(), Boolean.FALSE,Boolean.FALSE);
 
         // Get lists of assignments with different sort orders
         List ascDateOrderedAssignments = gradebookManager.getAssignments(gradebook.getId(), Assignment.SORT_BY_DATE, true);
@@ -160,9 +161,9 @@ public class GradableObjectManagerTest extends GradebookTestBase {
 		addUsersEnrollments(gradebook, studentUidsList);
 		Set studentUids = new HashSet(studentUidsList);
 
-        Long id1 = gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(10), null, Boolean.FALSE);
-        Long id2 = gradebookManager.createAssignment(gradebook.getId(), ASN2_NAME, new Double(20), new Date(10), Boolean.FALSE);
-        Long id3 = gradebookManager.createAssignment(gradebook.getId(), ASN3_NAME, new Double(30), new Date(), Boolean.FALSE);
+        Long id1 = gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(10), null, Boolean.FALSE,Boolean.FALSE);
+        Long id2 = gradebookManager.createAssignment(gradebook.getId(), ASN2_NAME, new Double(20), new Date(10), Boolean.FALSE,Boolean.FALSE);
+        Long id3 = gradebookManager.createAssignment(gradebook.getId(), ASN3_NAME, new Double(30), new Date(), Boolean.FALSE,Boolean.FALSE);
 
         List assignments = gradebookManager.getAssignments(gradebook.getId());
         Assignment asn = gradebookManager.getAssignmentWithStats(id1);
@@ -204,7 +205,7 @@ public class GradableObjectManagerTest extends GradebookTestBase {
 
         // Make sure we can add a new assignment with the same name as the removed one.
         // This will throw an exception if it doesn't like the assignment name.
-        gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(10), new Date(), Boolean.FALSE);
+        gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
     }
 
     /**
@@ -226,9 +227,9 @@ public class GradableObjectManagerTest extends GradebookTestBase {
      * @throws Exception
      */
     public void testTotalPointsInGradebook() throws Exception {
-        Long id1 = gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(10), null, Boolean.FALSE);
-        gradebookManager.createAssignment(gradebook.getId(), ASN2_NAME, new Double(20), new Date(10), Boolean.FALSE);
-        gradebookManager.createAssignment(gradebook.getId(), ASN3_NAME, new Double(30), new Date(), Boolean.FALSE);
+        Long id1 = gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(10), null, Boolean.FALSE,Boolean.FALSE);
+        gradebookManager.createAssignment(gradebook.getId(), ASN2_NAME, new Double(20), new Date(10), Boolean.FALSE,Boolean.FALSE);
+        gradebookManager.createAssignment(gradebook.getId(), ASN3_NAME, new Double(30), new Date(), Boolean.FALSE,Boolean.FALSE);
 
         double totalPointsPossible = gradebookManager.getTotalPoints(gradebook.getId());
         Assert.assertTrue(totalPointsPossible == 60);
@@ -238,7 +239,7 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         totalPointsPossible = gradebookManager.getTotalPoints(gradebook.getId());
         Assert.assertTrue(totalPointsPossible == 50);
 
-        gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(50), null, Boolean.FALSE);
+        gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(50), null, Boolean.FALSE,Boolean.FALSE);
 
         totalPointsPossible = gradebookManager.getTotalPoints(gradebook.getId());
         Assert.assertTrue(totalPointsPossible == 100);

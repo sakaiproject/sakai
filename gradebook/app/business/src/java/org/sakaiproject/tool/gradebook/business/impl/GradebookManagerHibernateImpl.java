@@ -35,6 +35,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
+
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.component.gradebook.BaseHibernateManager;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -47,6 +49,7 @@ import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
+import org.sakaiproject.tool.gradebook.Spreadsheet;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
@@ -482,7 +485,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     }
 
     private List getAssignmentsWithStatsInternal(final Long gradebookId, final String sortBy, final boolean ascending, final Set studentUids) {
-    	List assignments;
+        if(logger.isDebugEnabled())logger.debug("sort by is "+sortBy);
+        List assignments;
     	if (studentUids.isEmpty()) {
     		// Hibernate 2.1.8 generates invalid SQL if an empty collection is used
     		// as a parameter list.
@@ -527,6 +531,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
             comp = Assignment.meanComparator;
         } else if(Assignment.SORT_BY_POINTS.equals(sortBy)) {
             comp = Assignment.pointsComparator;
+        }else if(Assignment.releasedComparator.equals(sortBy)){
+            comp = Assignment.releasedComparator;
         } else {
             comp = Assignment.dateComparator;
         }
@@ -595,40 +601,47 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
     /**
      */
-    public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted)
-        throws ConflictingAssignmentNameException, StaleObjectModificationException {
+  
+    public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased) throws ConflictingAssignmentNameException, StaleObjectModificationException {
+
         HibernateCallback hc = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-                int numNameConflicts = ((Integer)session.createQuery(
-                        "select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
-                        setString(0, name).
-                        setEntity(1, gb).
-                        uniqueResult()).intValue();
-                if(numNameConflicts > 0) {
-                    throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
-                }
+               public Object doInHibernate(Session session) throws HibernateException {
+                   Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+                   int numNameConflicts = ((Integer)session.createQuery(
+                           "select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+                           setString(0, name).
+                           setEntity(1, gb).
+                           uniqueResult()).intValue();
+                   if(numNameConflicts > 0) {
+                       throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
+                   }
 
-                Assignment asn = new Assignment();
-                asn.setGradebook(gb);
-                asn.setName(name);
-                asn.setPointsPossible(points);
-                asn.setDueDate(dueDate);
-                if (isNotCounted != null) {
-	                asn.setNotCounted(isNotCounted.booleanValue());
-	            }
+                   Assignment asn = new Assignment();
+                   asn.setGradebook(gb);
+                   asn.setName(name);
+                   asn.setPointsPossible(points);
+                   asn.setDueDate(dueDate);
+                   if (isNotCounted != null) {
+                       asn.setNotCounted(isNotCounted.booleanValue());
+                   }
 
-                // Save the new assignment
-                Long id = (Long)session.save(asn);
+                   if(isReleased!=null){
+                       asn.setReleased(isReleased.booleanValue());
+                   }
 
-                // Recalculate the course grades
-                recalculateCourseGradeRecords(asn.getGradebook(), session);
+                   // Save the new assignment
+                   Long id = (Long)session.save(asn);
 
-                return id;
-            }
-        };
+                   // Recalculate the course grades
+                   recalculateCourseGradeRecords(asn.getGradebook(), session);
 
-        return (Long)getHibernateTemplate().execute(hc);
+                   return id;
+               }
+           };
+
+           return (Long)getHibernateTemplate().execute(hc);
+
+
     }
 
     /**
@@ -737,5 +750,124 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 			}
 		});
 	}
+
+
+    /**
+     *
+     * @param spreadsheetId
+     * @return
+     */
+    public Spreadsheet getSpreadsheet(final Long spreadsheetId) {
+        return (Spreadsheet)getHibernateTemplate().load(Spreadsheet.class, spreadsheetId);
+    }
+
+    /**
+     *
+     * @param gradebookId
+     * @return
+     */
+    public List getSpreadsheets(final Long gradebookId) {
+        return (List)getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                List spreadsheets = getSpreadsheets(gradebookId, session);
+                return spreadsheets;
+            }
+        });
+    }
+
+    /**
+     *
+     * @param spreadsheetid
+     */
+    public void removeSpreadsheet(final Long spreadsheetId)throws StaleObjectModificationException {
+
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                Spreadsheet spt = (Spreadsheet)session.load(Spreadsheet.class, spreadsheetId);
+                session.delete(spt);
+                if(logger.isInfoEnabled()) logger.info("Spreadsheet " + spt.getName() + " has been removed from gradebook" );
+
+                return null;
+            }
+        };
+        getHibernateTemplate().execute(hc);
+
+    }
+
+    /**
+     *
+     * @param spreadsheet
+     */
+    public void updateSpreadsheet(final Spreadsheet spreadsheet)throws ConflictingAssignmentNameException, StaleObjectModificationException  {
+            HibernateCallback hc = new HibernateCallback() {
+                public Object doInHibernate(Session session) throws HibernateException {
+                    // Ensure that we don't have the assignment in the session, since
+                    // we need to compare the existing one in the db to our edited assignment
+                    session.evict(spreadsheet);
+
+                    Spreadsheet sptFromDb = (Spreadsheet)session.load(Spreadsheet.class, spreadsheet.getId());
+                    int numNameConflicts = ((Integer)session.createQuery(
+                            "select count(spt) from Spreadsheet as spt where spt.name = ? and spt.gradebook = ? and spt.id != ?").
+                            setString(0, spreadsheet.getName()).
+                            setEntity(1, spreadsheet.getGradebook()).
+                            setLong(2, spreadsheet.getId().longValue()).
+                            uniqueResult()).intValue();
+                    if(numNameConflicts > 0) {
+                        throw new ConflictingAssignmentNameException("You can not save multiple spreadsheets in a gradebook with the same name");
+                    }
+
+                    session.evict(sptFromDb);
+                    session.update(spreadsheet);
+
+                    return null;
+                }
+            };
+            try {
+                getHibernateTemplate().execute(hc);
+            } catch (HibernateOptimisticLockingFailureException holfe) {
+                if(logger.isInfoEnabled()) logger.info("An optimistic locking failure occurred while attempting to update a spreadsheet");
+                throw new StaleObjectModificationException(holfe);
+            }
+    }
+
+
+    public Long createSpreadsheet(final Long gradebookId, final String name, final String creator, Date dateCreated, final String content) throws ConflictingSpreadsheetNameException,StaleObjectModificationException {
+
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+                int numNameConflicts = ((Integer)session.createQuery(
+                        "select count(spt) from Spreadsheet as spt where spt.name = ? and spt.gradebook = ? ").
+                        setString(0, name).
+                        setEntity(1, gb).
+                        uniqueResult()).intValue();
+                if(numNameConflicts > 0) {
+                    throw new ConflictingAssignmentNameException("You can not save multiple spreadsheets in a gradebook with the same name");
+                }
+
+                Spreadsheet spt = new Spreadsheet();
+                spt.setGradebook(gb);
+                spt.setName(name);
+                spt.setCreator(creator);
+                spt.setDateCreated(new Date());
+                spt.setContent(content);
+
+                // Save the new assignment
+                Long id = (Long)session.save(spt);
+                return id;
+            }
+        };
+
+        return (Long)getHibernateTemplate().execute(hc);
+
+    }
+
+    protected List getSpreadsheets(Long gradebookId, Session session) throws HibernateException {
+        List spreadsheets = session.createQuery(
+                "from Spreadsheet as spt where spt.gradebook.id=? ").
+                setLong(0, gradebookId.longValue()).
+                list();
+        return spreadsheets;
+    }
 
 }

@@ -131,6 +131,7 @@ public class CourseGradeRecord extends AbstractGradeRecord {
             if(agr.getPointsEarned() == null) {
                 continue;
             }
+
             total += agr.getPointsEarned().doubleValue();
         }
         pointsEarned = new Double(total);

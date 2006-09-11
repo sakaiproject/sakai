@@ -28,16 +28,47 @@
 		</navigation-case>
 		<navigation-case>
 			<from-outcome>editAssignment</from-outcome>
-			<to-view-id>/editAssignment.jsp</to-view-id>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>removeAssignment</from-outcome>
-			<to-view-id>/removeAssignment.jsp</to-view-id>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>feedbackOptions</from-outcome>
-			<to-view-id>/gradeOptions.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>
-	</navigation-rule>
+            <to-view-id>/editAssignment.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>removeAssignment</from-outcome>
+            <to-view-id>/removeAssignment.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>feedbackOptions</from-outcome>
+            <to-view-id>/gradeOptions.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>spreadsheetUpload</from-outcome>
+            <to-view-id>/spreadsheetUpload.jsp</to-view-id>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>spreadsheetPreview</from-outcome>
+            <to-view-id>/spreadsheetPreview.jsp</to-view-id>
+        </navigation-case>
+
+         <navigation-case>
+            <from-outcome>spreadsheetUploadPreview</from-outcome>
+            <to-view-id>/spreadsheetUploadPreview.jsp</to-view-id>
+         </navigation-case>
+
+        <navigation-case>
+            <from-outcome>spreadsheetImport</from-outcome>
+            <to-view-id>/spreadsheetImport.jsp</to-view-id>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>spreadsheetListing</from-outcome>
+            <to-view-id>/spreadsheetListing.jsp</to-view-id>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>spreadsheetRemove</from-outcome>
+            <to-view-id>/spreadsheetRemove.jsp</to-view-id>
+        </navigation-case>
+
+    </navigation-rule>
 </faces-config>

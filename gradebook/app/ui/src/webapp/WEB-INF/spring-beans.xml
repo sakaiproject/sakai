@@ -34,7 +34,13 @@
 				<value>editAssignment</value>
 				<value>removeAssignment</value>
 				<value>gradeOptions</value>
-			</list>
+                <value>spreadsheetUploadPreview</value>
+                <value>spreadsheetPreview</value>
+                <value>spreadsheetUpload</value>
+                <value>spreadsheetImport</value>
+                <value>spreadsheetListing</value>
+                <value>spreadsheetRemove</value>
+            </list>
 		</property>
 		<property name="userAbleToGradePages">
 			<list>
@@ -50,5 +56,11 @@
 			</list>
 		</property>
 	</bean>
+
+   <!-- sets up spreadsheetbean session -->
+
+
+
+
 
 </beans>

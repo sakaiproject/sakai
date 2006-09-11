@@ -83,18 +83,18 @@ public class TestGradebookLoader extends GradebookLoaderBase {
         	int pts = (i + 1) * 10;
         	Date date = new Date();
             date.setTime(date.getTime() - ((6 - i) * 86400000));
-            gradebookManager.createAssignment(gb.getId(), ASN_BASE_NAME + i, new Double(pts), date, Boolean.FALSE);
+            gradebookManager.createAssignment(gb.getId(), ASN_BASE_NAME + i, new Double(pts), date, Boolean.FALSE,Boolean.FALSE);
         }
 
         // Add an assignment without a due date.
-        gradebookManager.createAssignment(gb.getId(), ASN_NO_DUE_DATE_NAME, new Double(50), null, Boolean.FALSE);
+        gradebookManager.createAssignment(gb.getId(), ASN_NO_DUE_DATE_NAME, new Double(50), null, Boolean.FALSE,Boolean.FALSE);
 
         // Add external assessments
         gradebookService.addExternalAssessment(gb.getUid(), EXTERNAL_ASN_NAME1, "samigo://external1", EXTERNAL_ASN_NAME1, 10, new Date(), "Test and Quiz");
         gradebookService.addExternalAssessment(gb.getUid(), EXTERNAL_ASN_NAME2, null, EXTERNAL_ASN_NAME2, 10, new Date(), "Test and Quiz");
 
         // Add an assignment which won't count towards the final grade.
-        gradebookManager.createAssignment(gb.getId(), ASN_NOT_COUNTED_NAME, new Double(100), new Date(), Boolean.TRUE);
+        gradebookManager.createAssignment(gb.getId(), ASN_NOT_COUNTED_NAME, new Double(100), new Date(), Boolean.TRUE,Boolean.FALSE);
 
         // Ensure that this is actually saved to the database
         setComplete();

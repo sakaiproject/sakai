@@ -356,8 +356,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				asn.setExternalInstructorLink(externalUrl);
 				asn.setExternalStudentLink(externalUrl);
 				asn.setExternalAppName(externalServiceDescription);
+                //set released to be true to support selective release
+                asn.setReleased(true);
 
-				session.save(asn);
+                session.save(asn);
 				recalculateCourseGradeRecords(gradebook, session);
 				return null;
 			}
@@ -394,6 +396,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
                 asn.setExternalStudentLink(externalUrl);
                 asn.setName(title);
                 asn.setDueDate(dueDate);
+                //support selective release
+                asn.setReleased(true);
                 // If the points possible changes, we need to update the course grade sort values
                 if(!asn.getPointsPossible().equals(new Double(points))) {
                     updateCourseGradeSortScore = true;

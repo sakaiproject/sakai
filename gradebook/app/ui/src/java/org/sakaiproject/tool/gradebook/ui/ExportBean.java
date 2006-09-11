@@ -206,8 +206,8 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 		HSSFRow headerRow = sheet.createRow((short)0);
 
 		// Add the column headers
-		headerRow.createCell((short)(0)).setCellValue(getLocalizedString("export_student_name"));
-		headerRow.createCell((short)(1)).setCellValue(getLocalizedString("export_student_id"));
+        headerRow.createCell((short)(0)).setCellValue(getLocalizedString("export_student_id"));
+        headerRow.createCell((short)(1)).setCellValue(getLocalizedString("export_student_name"));
 
 		for(short i=0; i < gradableObjects.size(); i++) {
 			GradableObject go = (GradableObject)gradableObjects.get(i);
@@ -230,8 +230,8 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 			EnrollmentRecord enr = (EnrollmentRecord)enrollmentIter.next();
 			Map studentMap = (Map)scoresMap.get(enr.getUser().getUserUid());
 			HSSFRow row = sheet.createRow(sheet.getLastRowNum() + 1);
-			row.createCell((short)0).setCellValue(enr.getUser().getSortName());
-			row.createCell((short)1).setCellValue(enr.getUser().getDisplayId());
+            row.createCell((short)0).setCellValue(enr.getUser().getDisplayId());
+            row.createCell((short)1).setCellValue(enr.getUser().getSortName());
 			for(short j=0; j < gradableObjects.size(); j++) {
 				GradableObject go = (GradableObject)gradableObjects.get(j);
 				HSSFCell cell = row.createCell((short)(j+2));
@@ -246,7 +246,8 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 			}
 		}
 
-		return wb;
+
+        return wb;
 	}
 
 	/**
@@ -260,19 +261,20 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 	 * @return The csv document
 	 */
 	private String getAsCsv(boolean showCourseGradeAsPoints) {
-		StringBuffer sb = new StringBuffer();
+        StringBuffer sb = new StringBuffer();
 
-		// Add the headers
-		sb.append(getLocalizedString("export_student_name"));
-		sb.append(",");
-		sb.append(getLocalizedString("export_student_id"));
-		sb.append(",");
-		for(Iterator goIter = gradableObjects.iterator(); goIter.hasNext();) {
-			GradableObject go = (GradableObject)goIter.next();
+        // Add the headers
+        sb.append(getLocalizedString("export_student_id"));
+        sb.append(",");
+        sb.append(getLocalizedString("export_student_name"));
+        sb.append(",");
+
+        for(Iterator goIter = gradableObjects.iterator(); goIter.hasNext();) {
+            GradableObject go = (GradableObject)goIter.next();
             String header;
             if(go.isCourseGrade()) {
                 if(showCourseGradeAsPoints) {
-                	header = getLocalizedString("roster_course_grade_column_name");
+                    header = getLocalizedString("roster_course_grade_column_name");
                 } else {
                     header = getLocalizedString("course_grade_details_course_grade_column_name");
                 }
@@ -289,32 +291,34 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 		// Add the data
         Collections.sort(enrollments, EnrollmentTableBean.ENROLLMENT_NAME_COMPARATOR);
 
-		for(Iterator enrIter = enrollments.iterator(); enrIter.hasNext();) {
-			EnrollmentRecord enr = (EnrollmentRecord)enrIter.next();
-			Map studentMap = (Map)scoresMap.get(enr.getUser().getUserUid());
-			if (studentMap == null) {
-				studentMap = new HashMap();
-			}
+        for(Iterator enrIter = enrollments.iterator(); enrIter.hasNext();) {
+            EnrollmentRecord enr = (EnrollmentRecord)enrIter.next();
+            Map studentMap = (Map)scoresMap.get(enr.getUser().getUserUid());
+            if (studentMap == null) {
+                studentMap = new HashMap();
+            }
+            appendQuoted(sb, enr.getUser().getDisplayId());
+            sb.append(",");
+            appendQuoted(sb, enr.getUser().getSortName());
+            sb.append(",");
 
-			appendQuoted(sb, enr.getUser().getSortName());
-			sb.append(",");
-			appendQuoted(sb, enr.getUser().getDisplayId());
-			sb.append(",");
 
-			for(Iterator goIter = gradableObjects.iterator(); goIter.hasNext();) {
-				GradableObject go = (GradableObject)goIter.next();
-				if(logger.isDebugEnabled()) logger.debug("userUid=" + enr.getUser().getUserUid() + ", go=" + go + ", studentMap=" + studentMap);
-				Object cellValue = (studentMap != null) ? studentMap.get(go.getId()) : null;
-				if(cellValue != null) {
-					sb.append(cellValue);
-				}
-				if(goIter.hasNext()) {
+            for(Iterator goIter = gradableObjects.iterator(); goIter.hasNext();) {
+                GradableObject go = (GradableObject)goIter.next();
+                if(logger.isDebugEnabled()) logger.debug("userUid=" + enr.getUser().getUserUid() + ", go=" + go + ", studentMap=" + studentMap);
+                Object cellValue = (studentMap != null) ? studentMap.get(go.getId()) : null;
+                if(cellValue != null) {
+                    sb.append(cellValue);
+                }
+                if(goIter.hasNext()) {
 					sb.append(",");
 				}
 			}
 			sb.append("\n");
 		}
-		return sb.toString();
+
+        if(logger.isDebugEnabled())logger.debug(sb.toString());
+        return sb.toString();
 	}
 
 	/**

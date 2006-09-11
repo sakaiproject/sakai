@@ -61,4 +61,8 @@ public class AssignmentImpl implements org.sakaiproject.service.gradebook.shared
 		return assignment.isExternallyMaintained();
 	}
 
+
+    public boolean isReleased() {
+        return assignment.isReleased();
+    }
 }

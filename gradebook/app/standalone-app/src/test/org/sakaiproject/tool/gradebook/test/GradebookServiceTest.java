@@ -74,7 +74,7 @@ public class GradebookServiceTest extends GradebookTestBase {
 
         // Add an internal assignment
         Long gbId = gradebook.getId();
-        asn_1Id = gradebookManager.createAssignment(gbId, ASN_1, new Double(10), null, Boolean.FALSE);
+        asn_1Id = gradebookManager.createAssignment(gbId, ASN_1, new Double(10), null, Boolean.FALSE,Boolean.FALSE);
 
         // Add a score for the internal assignment
         List assignments = gradebookManager.getAssignments(gbId);

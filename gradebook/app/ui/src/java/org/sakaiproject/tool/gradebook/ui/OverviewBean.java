@@ -49,8 +49,10 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
         columnSortMap = new HashMap();
         columnSortMap.put(Assignment.SORT_BY_NAME, Assignment.nameComparator);
         columnSortMap.put(Assignment.SORT_BY_DATE, Assignment.dateComparator);
+        columnSortMap.put(Assignment.SORT_BY_RELEASED,Assignment.releasedComparator);
         columnSortMap.put(Assignment.SORT_BY_MEAN, Assignment.meanComparator);
         columnSortMap.put(Assignment.SORT_BY_POINTS, Assignment.pointsComparator);
+
     }
 
 	public List getGradableObjects() {

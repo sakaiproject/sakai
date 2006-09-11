@@ -55,4 +55,11 @@ public interface Assignment {
 	 *         other than the Gradebook itself.
 	 */
 	public boolean isExternallyMaintained();
+
+    /**
+     *
+     * @return true if the assignment has been released for view to students
+     */
+
+    public boolean isReleased();
 }
