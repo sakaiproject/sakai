@@ -896,29 +896,83 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		// check for the allowed groups of the current end use if we need it, and only once
 		Collection allowedGroups = null;
+		Site site = null;
+		try
+		{
+			site = SiteService.getSite(context);
+		}
+		catch (IdUnusedException e)
+		{
+			M_log.warn(this + e.getMessage() + " context=" + context);
+		}
 		
 		for (int x = 0; x < assignments.size(); x++)
 		{
 			Assignment tempAssignment = (Assignment) assignments.get(x);
 			if (tempAssignment.getAccess() == Assignment.AssignmentAccess.GROUPED)
 			{
+				
+				// Can at least one of the designated groups been found
+				boolean groupFound = false;
+				
 				// if grouped, check that the end user has get access to any of this assignment's groups; reject if not
 
 				// check the assignment's groups to the allowed (get) groups for the current user
 				Collection asgGroups = tempAssignment.getGroups();
 
-				// we need the allowed groups, so get it if we have not done so yet
-				if (allowedGroups == null)
+				for (Iterator iAsgGroups=asgGroups.iterator(); site!=null && !groupFound && iAsgGroups.hasNext();)
 				{
-					allowedGroups = getGroupsAllowGetAssignment(context);
+					String groupId = (String) iAsgGroups.next();
+					try
+					{
+						if (site.getGroup(groupId) != null)
+						{
+							groupFound = true;
+						}
+					}
+					catch (Exception ee)
+					{
+						M_log.warn(this + ee.getMessage() + groupId);
+					}
+					
 				}
 				
-				// reject if there is no intersection
-				if (!isIntersectionGroupRefsToGroups(asgGroups, allowedGroups)) continue;
+				if (!groupFound)
+				{
+					// if none of the group exists, mark the assignment as draft and list it
+					String assignmentId = tempAssignment.getId();
+					try
+					{
+						AssignmentEdit aEdit = editAssignment(assignmentReference(context, assignmentId));
+						aEdit.setDraft(true);
+						commitEdit(aEdit);
+						rv.add(getAssignment(assignmentId));
+					}
+					catch (Exception e)
+					{
+						M_log.warn(this + e.getMessage() + " assignment id =" + assignmentId);
+						continue;
+					}
+				}
+				else
+				{
+					// we need the allowed groups, so get it if we have not done so yet
+					if (allowedGroups == null)
+					{
+						allowedGroups = getGroupsAllowGetAssignment(context);
+					}
+					
+					// reject if there is no intersection
+					if (!isIntersectionGroupRefsToGroups(asgGroups, allowedGroups)) continue;
+					
+					rv.add(tempAssignment);
+				}
 			}
-			
-			/// if not reject, add it
-			rv.add(tempAssignment);
+			else
+			{
+				/// if not reject, add it
+				rv.add(tempAssignment);
+			}
 		}
 
 		return rv;
