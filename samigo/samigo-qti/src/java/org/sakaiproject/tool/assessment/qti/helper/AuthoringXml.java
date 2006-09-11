@@ -35,7 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import javax.faces.context.FacesContext;
+import org.springframework.core.io.ClassPathResource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -61,7 +61,7 @@ import org.sakaiproject.tool.assessment.qti.util.PathInfo;
 
 
 /**
- * <p>Utility to load XML templates from Faces context or local file system.</p>
+ * <p>Utility to load XML templates from Sprint context or local file system.</p>
  * <p> </p>
  * <p>Copyright: Copyright (c) 2005 Sakai</p>
  * <p> </p>
@@ -75,7 +75,7 @@ public class AuthoringXml
 
   public static final String SETTINGS_FILE = "SAM.properties";
   // paths
-  public static final String TEMPLATE_PATH = "/xml/author/";
+  public static final String TEMPLATE_PATH = "xml/author/";
   public static final String SURVEY_PATH = "survey/";
   //assessment template
   public static final String ASSESSMENT = "assessmentTemplate.xml";
@@ -170,17 +170,15 @@ public class AuthoringXml
   }
 
   /**
-   * get template as stream using faces context
+   * get template as stream using spring's ClassPathResource 
    * @param templateName
    * @param context
    * @return
    */
-  public InputStream getTemplateInputStream(String templateName,
-    FacesContext context)
+  public InputStream getTemplateInputStream(String templateName)
   {
     InputStream is = null;
 
-    if (context!=null) {
     try
     {
       if (!this.valid(templateName))
@@ -188,18 +186,13 @@ public class AuthoringXml
         throw new IllegalArgumentException("not a valid template: " +
           templateName);
       }
-        is =
-          context.getExternalContext().getResourceAsStream(
-          TEMPLATE_PATH + "/" + qtiPath + "/" + templateName);
+      ClassPathResource resource = 
+        new ClassPathResource(TEMPLATE_PATH + qtiPath + "/" + templateName);
+      is = resource.getInputStream(); 
     }
     catch (Exception e)
     {
       log.error(e.getMessage(), e);
-    }
-    }
-    else {
-      // if not coming from a jsf page
-      is = getTemplateInputStream(templateName);
     }
 
 
@@ -213,6 +206,10 @@ public class AuthoringXml
    * @param templateName
    * @return the input stream
    */
+/*
+  This method is probably not needed now that FacesContext has been
+  replaced for ClassPathResource (which just needs spring)..
+
   public InputStream getTemplateInputStream(String templateName)
   {
     InputStream is = null;
@@ -246,6 +243,7 @@ public class AuthoringXml
     }
     return is;
   }
+*/
 
   /**
    * get a template as a string from its input stream

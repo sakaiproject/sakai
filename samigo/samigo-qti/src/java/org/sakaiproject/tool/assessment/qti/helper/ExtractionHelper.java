@@ -32,7 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.faces.context.FacesContext;
+
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
@@ -84,7 +84,7 @@ public class ExtractionHelper
   private static final String QTI_VERSION_1_2_PATH = "v1p2";
   private static final String QTI_VERSION_2_0_PATH = "v2p0";
   private static final String TRANSFORM_PATH =
-      "/xml/xsl/dataTransform/import";
+      "xml/xsl/dataTransform/import";
 
   private static final String ASSESSMENT_TRANSFORM =
       "extractAssessment.xsl";
@@ -177,14 +177,7 @@ public class ExtractionHelper
       throw new IllegalArgumentException("NOT valid template.");
     }
     String templateContextPath = this.getTransformPath() + "/" + template;
-    FacesContext context = FacesContext.getCurrentInstance();
-    if (context == null)
-    {
-      return XmlUtil.readDocument(templateContextPath);
-    }
-    document = XmlUtil.readDocument(context, templateContextPath);
-
-    return document;
+    return XmlUtil.readDocument(templateContextPath);
   }
 
   /**

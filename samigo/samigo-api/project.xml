@@ -22,5 +22,14 @@
 
   <build>
     <sourceDirectory>src/java</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.xsl</include>
+        </includes>
+     </resource>
+   </resources>
   </build>
 </project>

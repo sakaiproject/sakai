@@ -25,7 +25,7 @@ package org.sakaiproject.tool.assessment.ui.bean.qti;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.StringTokenizer;
-import javax.faces.context.FacesContext;
+//import javax.faces.context.FacesContext;
 
 import org.w3c.dom.Document;
 
@@ -189,8 +189,7 @@ public class XMLController implements Serializable
 
       String xml =
         ax.getTemplateAsString(
-        ax.getTemplateInputStream(ax.ASSESSMENT,
-                                  FacesContext.getCurrentInstance()));
+        ax.getTemplateInputStream(ax.ASSESSMENT));
       setUpXmlNoDecl(xml);
     }
   }
@@ -253,16 +252,14 @@ public class XMLController implements Serializable
     {
       xmlBean.setDescription("section fragment id=" + id);
       xmlBean.setName(documentType); // get from document later
-      InputStream is = ax.getTemplateInputStream(ax.SECTION,
-                                                 FacesContext.getCurrentInstance());
+      InputStream is = ax.getTemplateInputStream(ax.SECTION);
       setUpXmlNoDecl(ax.getTemplateAsString(is));
     }
     else
     {
       xmlBean.setDescription("section template");
       xmlBean.setName(documentType); // get from document later
-      InputStream is = ax.getTemplateInputStream(ax.SECTION,
-                                                 FacesContext.getCurrentInstance());
+      InputStream is = ax.getTemplateInputStream(ax.SECTION);
       setUpXmlNoDecl(ax.getTemplateAsString(is));
     }
   }
@@ -288,8 +285,7 @@ public class XMLController implements Serializable
       AuthoringXml ax = getAuthoringXml();
       xmlBean.setDescription("item template");
       xmlBean.setName(documentType); // get from document later
-      InputStream is = ax.getTemplateInputStream(documentType,
-                                                 FacesContext.getCurrentInstance());
+      InputStream is = ax.getTemplateInputStream(documentType);
       setUpXmlNoDecl(ax.getTemplateAsString(is));
     }
   }
@@ -326,8 +322,7 @@ public class XMLController implements Serializable
   {
     xmlBean.setDescription("survey item fragment template");
     xmlBean.setName(documentType); // get from document later
-    InputStream is = getAuthoringXml().getTemplateInputStream(documentType,
-      FacesContext.getCurrentInstance());
+    InputStream is = getAuthoringXml().getTemplateInputStream(documentType);
     setUpXmlNoDecl(getAuthoringXml().getTemplateAsString(is));
   }
 

@@ -24,8 +24,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
+import org.springframework.core.io.ClassPathResource;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -173,14 +174,13 @@ public final class XmlUtil
   }
 
   /**
-   * Read document from within FacesContext/context path
+   * Read document from within spring context path
    *
-   * @param context FacesContext
    * @param path path
    *
    * @return Document
    */
-  public static Document readDocument(FacesContext context, String path)
+  public static Document readDocument(String path)
   {
     if(log.isDebugEnabled())
     {
@@ -190,13 +190,16 @@ public final class XmlUtil
       log.debug("readDocument(String " + path + ")");
 
     Document document = null;
-    InputStream inputStream = context.getExternalContext().getResourceAsStream(path);
     DocumentBuilderFactory builderFactory =
       DocumentBuilderFactory.newInstance();
     builderFactory.setNamespaceAware(true);
+    ClassPathResource resource = new ClassPathResource(path);
 
     try
     {
+
+      InputStream inputStream = resource.getInputStream();
+
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
       document = documentBuilder.parse(inputStream);
     }
@@ -267,11 +270,12 @@ public final class XmlUtil
    *
    * @return a Document
    */
+/*
   public static Document readDocument(String path)
   {
     return readDocument(path, false);
   }
-
+*/
   /**
    * This more forgiving version skips blank lines if trim = true
    * Otherwise it does a direct parse of the file.

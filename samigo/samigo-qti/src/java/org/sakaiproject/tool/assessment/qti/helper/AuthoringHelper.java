@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import javax.faces.context.FacesContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -106,15 +105,16 @@ public class AuthoringHelper
   }
 
   /**
-   * Get a published assessment in Document form from Faces context.
+   * Get a published assessment in Document form.
    *
    * @param assessmentId the published assessment's Id
    * @return the Document with the published assessment data
    */
   public Document getAssessment(String assessmentId)
   {
+
     InputStream is =
-      ax.getTemplateInputStream(ax.ASSESSMENT, FacesContext.getCurrentInstance());
+      ax.getTemplateInputStream(ax.ASSESSMENT);
 
     return getAssessment(assessmentId, is);
   }
@@ -241,7 +241,7 @@ public class AuthoringHelper
       {
         SectionDataIfc section = (SectionDataIfc) sectionList.get(i);
         InputStream sis =
-          ax.getTemplateInputStream(ax.SECTION, FacesContext.getCurrentInstance());
+          ax.getTemplateInputStream(ax.SECTION);
         Section sectionXml = sectionHelper.readXMLDocument(sis);
         sectionXml.update(section);
         addSection(assessmentXml, sectionXml);

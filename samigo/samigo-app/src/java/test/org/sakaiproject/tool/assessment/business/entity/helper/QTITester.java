@@ -24,7 +24,7 @@ package test.org.sakaiproject.tool.assessment.business.entity.helper;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import javax.faces.context.FacesContext;
+//import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -120,7 +120,7 @@ public class QTITester {
 
       if (useContextPath)
       {
-        is = ax.getTemplateInputStream(template[i],FacesContext.getCurrentInstance());
+        is = ax.getTemplateInputStream(template[i]);
       }
       else
       {

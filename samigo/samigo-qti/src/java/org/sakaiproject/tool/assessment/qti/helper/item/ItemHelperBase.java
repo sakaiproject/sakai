@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
-import javax.faces.context.FacesContext;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
@@ -123,8 +122,7 @@ public abstract class ItemHelperBase
     AuthoringXml ax = getAuthoringXml();
     InputStream is;
     String template = getTemplateFromType(type);
-    is = ax.getTemplateInputStream(template,
-                                   FacesContext.getCurrentInstance());
+    is = ax.getTemplateInputStream(template);
     Item itemXml = readXMLDocument(is);
     return itemXml;
   }
@@ -144,8 +142,7 @@ public abstract class ItemHelperBase
       scaleName = "STRONGLY_AGREE";
     }
     String template = getTemplateFromScale(scaleName);
-    is = ax.getTemplateInputStream(template,
-                                   FacesContext.getCurrentInstance());
+    is = ax.getTemplateInputStream(template);
     Item itemXml = readXMLDocument(is);
     return itemXml;
 
