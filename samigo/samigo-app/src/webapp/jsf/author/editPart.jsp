@@ -78,7 +78,7 @@
 
   </h:panelGrid>
 
-  <!-- ATTACHMENTS -->
+  <!-- PART ATTACHMENTS -->
   <%@ include file="/jsf/author/part_attachment.jsp" %>
 
 </div>

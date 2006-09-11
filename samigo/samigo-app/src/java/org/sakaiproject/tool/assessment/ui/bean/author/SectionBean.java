@@ -102,7 +102,6 @@ private Tree tree;
 
 private List attachmentList;
 
-
   public void setSection(SectionFacade section) {
     try {
       this.section = section;
@@ -112,6 +111,9 @@ private List attachmentList;
       this.sectionId = section.getSectionId().toString();
       this.sectionTitle = section.getTitle();
       this.sectionDescription = section.getDescription();
+      this.attachmentList = section.getSectionAttachmentList();
+      if (this.attachmentList != null && this.attachmentList.size() >0)
+        this.hasAttachment = true;
     }
     catch (Exception ex) {
       log.warn(ex.getMessage());

@@ -135,6 +135,7 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
     this.itemSet = getItemSet();
     this.metaDataSet = getSectionMetaDataSet();
     this.metaDataMap = getSectionMetaDataMap(this.metaDataSet);
+    this.sectionAttachmentSet = getSectionAttachmentSet(); 
     // *TODO* will work on returning itemFacade later, sorry! daisyf 11/22/04
   }
 
@@ -651,12 +652,19 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
       return sequence.compareTo(a.sequence);
   }
 
-  public Set getSectionAttachmentSet() {
-    return sectionAttachmentSet;
+  public Set getSectionAttachmentSet() throws DataFacadeException {
+    try {
+      this.data = (SectionDataIfc) section.getData();
+    }
+    catch (AssessmentException ex) {
+      throw new DataFacadeException(ex.getMessage());
+    }
+    return this.data.getSectionAttachmentSet();
   }
 
   public void setSectionAttachmentSet(Set sectionAttachmentSet) {
     this.sectionAttachmentSet = sectionAttachmentSet;
+    this.data.setSectionAttachmentSet(sectionAttachmentSet);
   }
 
   public List getSectionAttachmentList() {
