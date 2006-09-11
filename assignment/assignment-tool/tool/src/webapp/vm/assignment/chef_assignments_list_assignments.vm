@@ -366,11 +366,16 @@
 								#else
 									#set($count=1)
 									#foreach ($group in $assignment.Groups)
-										#if ($count>1)
-											#set($for=$for.concat(","))
+										## found the associated group
+										#set($groupFound=false)
+										#set($groupFound=$!site.getGroup($group))
+										#if($!groupFound)
+											#if ($count>1)
+												#set($for=$for.concat(","))
+											#end
+											#set($for= $for.concat($groupFound.Title))
+											#set($count=$count+1)
 										#end
-										#set($for= $for.concat($!site.getGroup($group).Title))
-										#set($count=$count+1)
 									#end
 								#end
 								<td  style="padding-bottom:0">
