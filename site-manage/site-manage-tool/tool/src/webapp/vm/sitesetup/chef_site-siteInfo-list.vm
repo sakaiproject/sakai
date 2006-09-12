@@ -2,6 +2,10 @@
 ## Site list Sites list on worksite setup home page
 <div class ="portletBody">
 	#if($menu)#toolbar($menu)#end
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="clear"></div>
+	#end
 	#if ($fromWSetup)
 		<form name="siteForm" id="siteForm" class="inlineForm" action="#toolForm("SiteAction")" method="post">
 			<input type="hidden" name="option" value="x" />

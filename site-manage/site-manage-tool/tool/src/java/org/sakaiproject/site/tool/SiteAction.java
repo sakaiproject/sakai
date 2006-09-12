@@ -7430,6 +7430,10 @@ public class SiteAction extends PagedResourceActionII
 					}
 				}
 				
+				// does the site has maintain type user(s) before the removing of selected participant?
+				String maintainRoleString = realmEdit.getMaintainRole();
+				boolean hadMaintainUser = realmEdit.getUsersHasRole(maintainRoleString).isEmpty();
+				
 				//remove selected users
 				if (params.getStrings ("selectedUser") != null)
 				{
@@ -7453,10 +7457,9 @@ public class SiteAction extends PagedResourceActionII
 					}
 				}
 				
-				String maintainRoleString = realmEdit.getMaintainRole();
-				if (realmEdit.getUsersHasRole(maintainRoleString).isEmpty())
+				if (hadMaintainUser != realmEdit.getUsersHasRole(maintainRoleString).isEmpty())
 				{
-					// if after update, there is no maintainer role user for the site, show alert message and don't save the update
+					// if after update, the "had maintain type user" status changed, show alert message and don't save the update
 					addAlert(state, rb.getString("sitegen.siteinfolist.nomaintainuser") + maintainRoleString + ".");
 				}
 				else
