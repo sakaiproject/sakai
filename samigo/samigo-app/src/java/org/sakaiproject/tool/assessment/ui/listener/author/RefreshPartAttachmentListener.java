@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/samigo-app/src/java/org/sakaiproject/tool/assessment/ui/listener/shared/RemoveMediaListener.java $
- * $Id: RemoveMediaListener.java 9268 2006-05-10 21:27:24Z daisyf@stanford.edu $
+ * $URL: https://source.sakaiproject.org/svn/sam/trunk/samigo-app/src/java/org/sakaiproject/tool/assessment/ui/listener/author/EditPartListener.java $
+ * $Id: EditPartListener.java 9268 2006-05-10 21:27:24Z daisyf@stanford.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -20,9 +20,14 @@
  **********************************************************************************/
 
 
-package org.sakaiproject.tool.assessment.ui.listener.author;
 
+package org.sakaiproject.tool.assessment.ui.listener.author;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -31,44 +36,51 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.ui.bean.author.AttachmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.entity.api.Reference;
 
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
- * @author Ed Smiley
- * @version $Id: RemoveMediaListener.java 9268 2006-05-10 21:27:24Z daisyf@stanford.edu $
+ * @version $Id: EditPartListener.java 9268 2006-05-10 21:27:24Z daisyf@stanford.edu $
  */
 
-public class RemoveItemAttachmentListener implements ActionListener
+public class RefreshPartAttachmentListener
+    implements ActionListener
 {
-  private static Log log = LogFactory.getLog(RemoveItemAttachmentListener.class);
+  private static Log log = LogFactory.getLog(SavePartAttachmentListener.class);
   private static ContextUtil cu;
 
-  public RemoveItemAttachmentListener()
+  public RefreshPartAttachmentListener()
   {
   }
 
-  public void processAction(ActionEvent ae) throws AbortProcessingException
-  {
+  public void processAction(ActionEvent ae) throws AbortProcessingException {
+
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
 
-    AttachmentBean attachmentBean = (AttachmentBean) cu.lookupBean(
-        "attachmentBean");
-    AssessmentService assessmentService = new AssessmentService();
+    SectionBean sectionBean = (SectionBean) cu.lookupBean("sectionBean");
+    String sectionId = sectionBean.getSectionId();
 
-    // #1. get all the info need from bean
-    String attachmentId = attachmentBean.getAttachmentId().toString();
-    Long attachmentType = attachmentBean.getAttachmentType();
-    if ((AttachmentIfc.ITEM_ATTACHMENT).equals(attachmentType))
-      assessmentService.removeItemAttachment(attachmentId);
+    // attach section attachemnt to sectionBean
+    List attachmentList = sectionBean.getSection().getSectionAttachmentList();
+    sectionBean.setAttachmentList(attachmentList);
+    if (attachmentList != null && attachmentList.size() >0)
+      sectionBean.setHasAttachment(true);
+    else
+      sectionBean.setHasAttachment(false);
   }
+ }
 
-}
