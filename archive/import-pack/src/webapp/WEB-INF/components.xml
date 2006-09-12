@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- File parsers -->
+	<bean id="org.sakaiproject.importer.api.ImportFileParser-Sakai"
+			class="org.sakaiproject.importer.impl.SakaiArchiveFileParser"
+			singleton="false">
+	</bean>
+	
+<!--
+    <bean id="org.sakaiproject.importer.api.ImportFileParser-CommonCartridge"
+			class="org.sakaiproject.importer.impl.CommonCartridgeFileParser"
+			singleton="false">
+	</bean>
+-->
+
+	<!-- Handlers -->
+<!--
+	<bean id="org.sakaiproject.importer.impl.handlers.AnnouncementHandler"
+			class="org.sakaiproject.importer.impl.handlers.AnnouncementHandler"
+			singleton="true">
+		<property name="announcementService">
+			<ref bean="org.sakaiproject.announcement.api.AnnouncementService" /> 
+		</property>
+	</bean>
+-->
+<!--
+	<bean id="org.sakaiproject.importer.impl.handlers.ResourcesHandler"
+			class="org.sakaiproject.importer.impl.handlers.ResourcesHandler"
+			singleton="true">
+	</bean>
+-->
+<!--
+	<bean id="org.sakaiproject.importer.impl.handlers.SamigoHandler"
+			class="org.sakaiproject.importer.impl.handlers.SamigoHandler"
+			singleton="true">
+	</bean>
+-->
+<!--
+	<bean id="org.sakaiproject.importer.impl.handlers.MessageCenterHandler"
+			class="org.sakaiproject.importer.impl.handlers.MessageCenterHandler"
+			singleton="true">
+	</bean>
+-->
+	<!-- Import service -->
+	<!-- Add your handlers to the property list -->
+	<bean id="org.sakaiproject.importer.api.ImportService"
+			class="org.sakaiproject.importer.impl.BasicImportService"
+			singleton="true">
+		<property name="parsers">
+			<list>
+				<ref bean="org.sakaiproject.importer.api.ImportFileParser-Sakai"/>
+				<!-- <ref bean="org.sakaiproject.importer.api.ImportFileParser-CommonCartridge"/> -->
+			</list>
+		</property>
+		<property name="resourceHandlers">
+			<list>
+				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.ResourcesHandler"/> -->
+				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.SamigoHandler"/> -->
+				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.MessageCenterHandler"/> -->
+			</list>
+		</property>
+	</bean>
+
+</beans>
