@@ -15,7 +15,7 @@
         <h:outputText escape="false" value="#{attach.fileSize} kb" rendered="#{!attach.isLink}"/>
       </h:column>
       <h:column>
-        <h:commandLink title="#{msg.t_remove_attachment}" action="confirmRemoveAttachment" immediate="true">
+        <h:commandLink title="#{msg.t_remove_attachment}" action="confirmRemoveItemAttachment" immediate="true">
           <h:outputText value="   #{msg.remove_attachment}" />
           <f:param name="attachmentId" value="#{attach.attachmentId}"/>
           <f:param name="attachmentLocation" value="#{attach.location}"/>

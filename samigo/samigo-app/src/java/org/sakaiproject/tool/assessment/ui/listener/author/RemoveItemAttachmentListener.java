@@ -45,12 +45,12 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * @version $Id: RemoveMediaListener.java 9268 2006-05-10 21:27:24Z daisyf@stanford.edu $
  */
 
-public class RemoveAttachmentListener implements ActionListener
+public class RemoveItemAttachmentListener implements ActionListener
 {
   private static Log log = LogFactory.getLog(RemoveAttachmentListener.class);
   private static ContextUtil cu;
 
-  public RemoveAttachmentListener()
+  public RemoveItemAttachmentListener()
   {
   }
 

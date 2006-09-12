@@ -557,6 +557,10 @@
       <from-outcome>confirmRemoveItemAttachment</from-outcome>
       <to-view-id>/jsf/author/removeItemAttachment.jsp</to-view-id>
     </navigation-case>
+    <navigation-case>
+      <from-outcome>confirmRemovePartAttachment</from-outcome>
+      <to-view-id>/jsf/author/removePartAttachment.jsp</to-view-id>
+    </navigation-case>
 
   <!-- ITEM AUTHORING -->
     <navigation-case>
