@@ -745,7 +745,7 @@ public class DeliveryActionListener
     sec.setShowStudentScore(delivery.isShowStudentScore());
     sec.setUnansweredQuestions(unansweredQuestions);
     sec.setItemContents(itemContents);
-
+    sec.setAttachmentList(part.getSectionAttachmentList());
     return sec;
   }
 

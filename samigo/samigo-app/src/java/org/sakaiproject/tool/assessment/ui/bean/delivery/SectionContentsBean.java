@@ -608,11 +608,11 @@ public class SectionContentsBean
 
   private boolean hasAttachment = false;
   public boolean getHasAttachment(){
-    return this.hasAttachment;
-  }
-
-  public void setHasAttachment(boolean hasAttachment){
-    this.hasAttachment = hasAttachment;
+    boolean hasAttachment = false;
+    if (attachmentList!=null && attachmentList.size() >0){
+        hasAttachment = true;
+    }
+    return hasAttachment;
   }
 
 }

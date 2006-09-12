@@ -69,11 +69,13 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedbac
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.SectionAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -322,6 +324,9 @@ public class PublishedAssessmentFacadeQueries
           section.getCreatedBy(), section.getCreatedDate(),
           section.getLastModifiedBy(),
           section.getLastModifiedDate());
+      Set publishedSectionAttachmentSet = preparePublishedSectionAttachmentSet(
+          publishedSection, section.getSectionAttachmentSet());
+      publishedSection.setSectionAttachmentSet(publishedSectionAttachmentSet);
       Set publishedItemSet = preparePublishedItemSet(publishedSection,
           section.getItemSet());
       publishedSection.setItemSet(publishedItemSet);
@@ -454,6 +459,42 @@ public class PublishedAssessmentFacadeQueries
           itemAttachment.getCreatedBy(), itemAttachment.getCreatedDate(), itemAttachment.getLastModifiedBy(),
           itemAttachment.getLastModifiedDate());
         h.add(publishedItemAttachment);
+      }
+      catch (Exception e){
+        log.warn(e.getMessage());
+      }
+    }
+    return h;
+  }
+
+  public Set preparePublishedSectionAttachmentSet(PublishedSectionData publishedSection,
+                                             Set sectionAttachmentSet) {
+    HashSet h = new HashSet();
+    Iterator o = sectionAttachmentSet.iterator();
+    while (o.hasNext()) {
+      SectionAttachment sectionAttachment = (SectionAttachment) o.next();
+      try{
+        // create a copy of the resource
+        ContentResource cr = ContentHostingService.getResource(sectionAttachment.getResourceId());
+        ContentResource cr_copy = ContentHostingService.addAttachmentResource(
+                                  sectionAttachment.getFilename(), cr.getContentType(), cr.getContent(),
+                                  cr.getProperties());
+
+        System.out.println("****resourceId="+sectionAttachment.getResourceId());
+        System.out.println("****cr.id="+cr.getId());
+        System.out.println("****cr_copy.id="+cr_copy.getId());
+        //get relative path
+        String url = cr_copy.getUrl();
+        // replace whitespace with %20
+        url = replaceSpace(url);
+
+        PublishedSectionAttachment publishedSectionAttachment = new PublishedSectionAttachment(
+          null, publishedSection, cr_copy.getId(), sectionAttachment.getFilename(),
+          sectionAttachment.getMimeType(), sectionAttachment.getFileSize(), sectionAttachment.getDescription(),
+          url, sectionAttachment.getIsLink(), sectionAttachment.getStatus(),
+          sectionAttachment.getCreatedBy(), sectionAttachment.getCreatedDate(), sectionAttachment.getLastModifiedBy(),
+          sectionAttachment.getLastModifiedDate());
+        h.add(publishedSectionAttachment);
       }
       catch (Exception e){
         log.warn(e.getMessage());

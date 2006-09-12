@@ -314,6 +314,12 @@
       <key column="SECTIONID"/>
       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionMetaData"/>
     </set>
+
+    <set name="sectionAttachmentSet" table="SAM_PUBLISHEDATTACHMENT_T" cascade="all" order-by="createdDate asc"
+      inverse="true" lazy="false">
+      <key column="SECTIONID"/>
+      <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionAttachment"/>
+    </set>
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionMetaData"

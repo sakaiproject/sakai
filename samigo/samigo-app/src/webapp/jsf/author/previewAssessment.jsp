@@ -68,6 +68,9 @@
 
     </h:panelGrid>
 
+  <!-- PART ATTACHMENTS -->
+  <%@ include file="/jsf/author/part_attachment.jsp" %>
+
     <h:dataTable border="1" cellpadding="0" cellspacing="0" styleClass="listHier" id="parts" value="#{partBean.itemContents}" var="question">
 
       <h:column>
