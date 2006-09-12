@@ -41,16 +41,15 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Description: Sakai Assessment Manager</p>
  * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
- * @author Ed Smiley
  * @version $Id: RemoveMediaListener.java 9268 2006-05-10 21:27:24Z daisyf@stanford.edu $
  */
 
-public class RemoveItemAttachmentListener implements ActionListener
+public class RemoveAttachmentListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(RemoveItemAttachmentListener.class);
+  private static Log log = LogFactory.getLog(RemoveAttachmentListener.class);
   private static ContextUtil cu;
 
-  public RemoveItemAttachmentListener()
+  public RemoveAttachmentListener()
   {
   }
 
@@ -69,6 +68,8 @@ public class RemoveItemAttachmentListener implements ActionListener
     Long attachmentType = attachmentBean.getAttachmentType();
     if ((AttachmentIfc.ITEM_ATTACHMENT).equals(attachmentType))
       assessmentService.removeItemAttachment(attachmentId);
+    if ((AttachmentIfc.SECTION_ATTACHMENT).equals(attachmentType))
+      assessmentService.removeSectionAttachment(attachmentId);
   }
 
 }
