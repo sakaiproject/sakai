@@ -302,10 +302,12 @@ public class PublishedSectionData
 
   public List getSectionAttachmentList() {
     ArrayList list = new ArrayList();
-    Iterator iter = sectionAttachmentSet.iterator();
-    while (iter.hasNext()){
-      SectionAttachmentIfc a = (SectionAttachmentIfc)iter.next();
-      list.add(a);
+    if (sectionAttachmentSet != null){
+      Iterator iter = sectionAttachmentSet.iterator();
+      while (iter.hasNext()){
+        SectionAttachmentIfc a = (SectionAttachmentIfc)iter.next();
+        list.add(a);
+      }
     }
     return list;
   }
