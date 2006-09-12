@@ -135,6 +135,11 @@ import org.sakaiproject.util.Validator;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import org.sakaiproject.importer.api.ImportService;
+import org.sakaiproject.importer.api.ImportDataSource;
+import org.sakaiproject.importer.api.SakaiArchive;
+
+
 /**
 * <p>SiteAction controls the interface for worksite setup.</p>
 */
@@ -142,6 +147,8 @@ public class SiteAction extends PagedResourceActionII
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(SiteAction.class);
+	
+	private ImportService importService = org.sakaiproject.importer.cover.ImportService.getInstance();
 
 	/** portlet configuration parameter values**/
 	/** Resource bundle using current language locale */
@@ -451,6 +458,8 @@ public class SiteAction extends PagedResourceActionII
   	private static final String STATE_GROUP_MEMBERS = "state_group_members";
   	private static final String STATE_GROUP_REMOVE = "state_group_remove";
   	private static final String GROUP_PROP_WSETUP_CREATED = "group_prop_wsetup_created";
+  	
+  	private static final String IMPORT_DATA_SOURCE = "import_data_source";
   
 	/**
 	* Populate the state object, if needed.
@@ -2969,269 +2978,43 @@ public class SiteAction extends PagedResourceActionII
     List directcopyList = new Vector();
 
     // see if the user uploaded a file
-    FileItem file =data.getParameters().getFileItem("file");
-    String fileName =Validator.getFileName(file.getFileName());
-    if(!fileName.endsWith(".zip")){
-      addAlert(state, "Please select zip file to upload and extract to your site");
+    FileItem fileFromUpload = null;
+    String fileName = null;
+    fileFromUpload = data.getParameters().getFileItem("file");
+    byte[] fileData = fileFromUpload.get();
+    if (importService.isValidArchive(fileData)) {
+	    ImportDataSource importDataSource = importService.parseFromFile(fileData);
+    	Log.info("chef","Getting import items from manifest.");
+	    List lst = importDataSource.getItemCategories();
+	      if (lst != null && lst.size() > 0)
+	      {
+	        Iterator iter = lst.iterator();
+	        while (iter.hasNext())
+	        {
+	          ImportMetadata importdata = (ImportMetadata) iter.next();
+	          // Log.info("chef","Preparing import item '" + importdata.getId() + "'");
+	          if ((!importdata.isMandatory())
+	                && (importdata.getFileName().endsWith(".xml")))
+	          {
+	            allzipList.add(importdata);
+	          }
+	          else
+	          {
+	            directcopyList.add(importdata);
+	          }
+	        }
+	      }
+	    //set Attributes
+	    state.setAttribute(ALL_ZIP_IMPORT_SITES, allzipList);
+	    state.setAttribute(FINAL_ZIP_IMPORT_SITES, finalzipList);
+	    state.setAttribute(DIRECT_ZIP_IMPORT_SITES, directcopyList);
+	    state.setAttribute(CLASSIC_ZIP_FILE_NAME, fileName);
+	    state.setAttribute(IMPORT_DATA_SOURCE, importDataSource);
+	
+	    state.setAttribute(STATE_TEMPLATE_INDEX, "46");
+    } else { // uploaded file is not a valid archive
+    	
     }
-    boolean mappingFilePresent = false;
-    String sakaiHome = System.getProperty("sakai.home");
-    // Rashmi: should use IdManager in future to get guid
-    String contextString = IdManager.createUuid();//ToolManager.getCurrentPlacement().getContext();
-    
-    File dir = new File(sakaiHome + "/archive/" + contextString.toString()); //directory where file would be saved
-    if (!dir.exists())
-    {
-      dir.mkdirs();
-    }
-
-    //Store the Zip file
-    byte[] bytes = file.get();
-    String fpath = dir.getPath() + "/" + fileName;
-    fpath = fpath.replace('\\', '/');
-    
-    try
-    {
-      FileOutputStream fos = new FileOutputStream(fpath);
-      final int BSIZE = 1024;
-      int bytesRemaining = bytes.length;
-
-      for (int i = 0; i < bytes.length; i += BSIZE)
-      {
-        int nbytes = (BSIZE < bytesRemaining) ? BSIZE : bytesRemaining;
-        fos.write(bytes, i, nbytes);
-        bytesRemaining -= nbytes;
-      }
-      fos.close();
-    }
-    catch (Exception e4)
-    {
-      M_log.warn("chef-site import" +e4.getMessage());
-    }
-    
-    // store import_mapping.xml file and Attachment type files
-    try
-    {
-      ZipFile zip = new ZipFile(dir.getPath() + "/" + fileName);
-      Enumeration entries = zip.entries();
-      while (entries.hasMoreElements())
-      {
-        //store import_mapping.xml file to read for display
-        ZipEntry entry = (ZipEntry) entries.nextElement();
-        if (entry.getName().equals("import_mappings.xml"))
-        {
-          mappingFilePresent = true;
-          InputStream entryStream = zip.getInputStream(entry);
-          FileOutputStream ofile = new FileOutputStream(dir.getPath() + "/"
-              + entry.getName());
-          byte[] buffer = new byte[1024 * 10];
-          int bytesRead;
-          while ((bytesRead = entryStream.read(buffer)) != -1)
-          {
-            ofile.write(buffer, 0, bytesRead);
-          }
-
-          ofile.close();
-          entryStream.close();
-        }
-        //store site.xml file to check user permission
-        if (entry.getName().equals("site.xml"))
-        {
-          InputStream entryStream = zip.getInputStream(entry);
-          FileOutputStream ofile = new FileOutputStream(dir.getPath() + "/"
-              + entry.getName());
-          byte[] buffer = new byte[1024 * 10];
-          int bytesRead;
-          while ((bytesRead = entryStream.read(buffer)) != -1)
-          {
-            ofile.write(buffer, 0, bytesRead);
-          }
-
-          ofile.close();
-          entryStream.close();
-        }
-        
-        //for attachment type files
-        if (!(entry.getName().endsWith(".xml")))
-        {
-          File maindir = new File(sakaiHome + "/archive/"
-              + contextString.toString() + "/source/");
-          if (!maindir.exists())
-          {
-            maindir.mkdirs();
-
-          }
-          InputStream attentryStream = zip.getInputStream(entry);
-          FileOutputStream attfile = new FileOutputStream(maindir.getPath() + "/"
-              + entry.getName());
-
-          byte[] attbuffer = new byte[1024 * 256];
-          int attbytesRead;
-          while ((attbytesRead = attentryStream.read(attbuffer)) != -1)
-          {
-            attfile.write(attbuffer, 0, attbytesRead);
-          }
-          attfile.close();
-          attentryStream.close();
-        }
-      }
-      zip.close();
-    }
-    catch (Exception e5)
-    {
-      M_log.warn("chef-site import" + e5.getMessage());
-    }    
-    //read site.xml for user permission
-    File sitefile = new File(dir.getPath() + "/" + "site.xml");
-    String sitepath = dir.getPath() + "/" + "site.xml";
-    sitepath = sitepath.replace('\\', '/');
-    Document sitedoc = null;
-    DocumentBuilder sitedocBuilder;
-    try
-    {
-      sitedocBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-      InputStream fis;
-      try
-      {
-        fis = new FileInputStream(sitepath);
-        try
-        {
-          sitedoc = (Document) sitedocBuilder.parse(fis);
-        }
-        catch (SAXException e3)
-        {
-          M_log.warn("chef-site import" + e3.getMessage());
-        }
-      }
-      catch (FileNotFoundException e1)
-      {
-        M_log.warn("chef-site import" + e1.getMessage());
-      }
-      catch (IOException e2)
-      {
-        M_log.warn("chef-site import" + e2.getMessage());
-      }
-    }
-    catch (ParserConfigurationException e)
-    {
-      M_log.warn("chef-site import" + e.getMessage());
-    }
-    if (sitedoc != null)
-    {
-      String sessionUserId = UserDirectoryService.getCurrentUser().getId();
-      if(!(ImportMetadataService.hasMaintainRole(sessionUserId, sitedoc))){
-        addAlert(state, "You don't have permission to import material from file");
-  			state.setAttribute(STATE_TEMPLATE_INDEX, "45");
-  			return;
-      }
-
-    }
-    // read the import_mapping.xml file
-    File mappingfile = new File(dir.getPath() + "/" + "import_mappings.xml");
-    String absolutepath = dir.getPath() + "/" + "import_mappings.xml";
-    absolutepath = absolutepath.replace('\\', '/');
-    Document doc = null;
-    DocumentBuilder docBuilder;
-    try
-    {
-      docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-      InputStream fis;
-      try
-      {
-        fis = new FileInputStream(absolutepath);
-        try
-        {
-          doc = (Document) docBuilder.parse(fis);
-        }
-        catch (SAXException e3)
-        {
-          M_log.warn("chef-site import" + e3.getMessage());
-        }
-      }
-      catch (FileNotFoundException e1)
-      {
-        M_log.warn("chef-site import" + e1.getMessage());
-      }
-      catch (IOException e2)
-      {
-        M_log.warn("chef-site import" + e2.getMessage());
-      }
-    }
-    catch (ParserConfigurationException e)
-    {
-      M_log.warn("chef-site import" + e.getMessage());
-    }
-    if (doc != null)
-    {
-      List lst = ImportMetadataService.getImportMetadataElements(doc);
-      if (lst != null && lst.size() > 0)
-      {
-        Iterator iter = lst.iterator();
-        while (iter.hasNext())
-        {
-          ImportMetadata importdata = (ImportMetadata) iter.next();
-          if ((!importdata.isMandatory())
-              && (importdata.getFileName().endsWith(".xml")))
-          {
-            allzipList.add(importdata);
-          }
-          else
-          {
-            directcopyList.add(importdata);
-          }
-        }
-      }
-    }
-    //htripath- Sep02 - option to select only tools available IM257143
-    List toolzipList = new Vector();
-    List pageList=new Vector();
-    String siteId=ToolManager.getCurrentPlacement().getContext(); 
-    Site site=null;
-    try
-    {
-      site=SiteService.getSite(siteId);
-      pageList=site.getPages();
-    }
-    catch (IdUnusedException e1)
-    {
-      M_log.warn("chef-site import" + e1.getMessage());
-    }
-    //create toolzipList
-    boolean web_content_tool = false;
-    for (Iterator iter = allzipList.iterator(); iter.hasNext();)
-    {
-      boolean toolpresent=false ;
-      ImportMetadata zipelement = (ImportMetadata) iter.next();
-      for (Iterator iterator = pageList.iterator(); iterator.hasNext();)
-      {
-        SitePage pgelement = (SitePage) iterator.next();
-        if (pgelement.getTitle().equals(zipelement.getSakaiTool())){
-          toolpresent=true;
-          if(zipelement.getSakaiTool().equals("Web Content"))
-          {
-          	web_content_tool = true;
-          }
-        }
-      }
-      if(toolpresent){
-        toolzipList.add(zipelement) ;
-      }      
-      if(zipelement.getSakaiTool().equals("Web Content") && !web_content_tool)
-      {
-      	toolzipList.add(zipelement);
-      	web_content_tool = true;
-      }
-    }
-
-    state.setAttribute(ALL_ZIP_IMPORT_SITES, toolzipList);
-    //set Attributes
-    //state.setAttribute(ALL_ZIP_IMPORT_SITES, allzipList);
-    state.setAttribute(FINAL_ZIP_IMPORT_SITES, finalzipList);
-    state.setAttribute(DIRECT_ZIP_IMPORT_SITES, directcopyList);
-    state.setAttribute(CLASSIC_ZIP_FILE_NAME, fileName);
-    state.setAttribute(SESSION_CONTEXT_ID, contextString.toString());
-
-    state.setAttribute(STATE_TEMPLATE_INDEX, "46");
   } // doImportMtrlFrmFile
 
   /**
@@ -3331,125 +3114,43 @@ public class SiteAction extends PagedResourceActionII
   /**
    * Handle the request for Save
    * @param data
+ * @throws ImportException 
    */
   public void doSaveMtrlSite(RunData data)
-  {
+  {	
     SessionState state =
     ((JetspeedRunData) data).getPortletSessionState(
     ((JetspeedRunData) data).getJs_peid());
 
+    String siteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
     List fnlList = (List) state.getAttribute(FINAL_ZIP_IMPORT_SITES);
     List directList = (List) state.getAttribute(DIRECT_ZIP_IMPORT_SITES);
-
-    String sakaiHome = System.getProperty("sakai.home");
-    String contextString = (String) state.getAttribute(SESSION_CONTEXT_ID);
+    ImportDataSource importDataSource = (ImportDataSource) state.getAttribute(IMPORT_DATA_SOURCE);
     
-    File dir = new File(sakaiHome + "/archive/" + contextString + "/source/"); //directory where file would be saved
-    if (!dir.exists())
-    {
-      dir.mkdirs();
+    // combine the selected import items with the mandatory import items
+    fnlList.addAll(directList);
+    Log.info("chef","doSaveMtrlSite() about to import " + fnlList.size() + " top level items");
+    Log.info("chef", "doSaveMtrlSite() the importDataSource is " + importDataSource.getClass().getName());
+    if (importDataSource instanceof SakaiArchive) {
+    	Log.info("chef","doSaveMtrlSite() our data source is a Sakai format");
+    	((SakaiArchive)importDataSource).buildSourceFolder(fnlList);
+    	Log.info("chef","doSaveMtrlSite() source folder is " + ((SakaiArchive)importDataSource).getSourceFolder());
+    	ArchiveService.merge(((SakaiArchive)importDataSource).getSourceFolder(), siteId, null);
+    } else {
+	    importService.doImportItems(importDataSource.getItemsForCategories(fnlList), siteId);
     }
-    //FileItem zf = (FileItem) state.getAttribute(CLASSIC_ZIP_FILE_NAME);
-    String fileName=(String)state.getAttribute(CLASSIC_ZIP_FILE_NAME);
-    String upZipfile = sakaiHome + "/archive/" + contextString + "/"
-        + fileName;
-    try
-    {
-      ZipFile zip = new ZipFile(upZipfile);
-      for (int i = 0; i < directList.size(); i++)
-      {
-        ImportMetadata impvalue = (ImportMetadata) directList.get(i);
-        String value = impvalue.getFileName();
-        ZipEntry entry = zip.getEntry(value);
-        if (entry != null)
-        {
-          InputStream entryStream = zip.getInputStream(entry);
-          try
-          {
-            FileOutputStream file = new FileOutputStream(dir.getPath() + "/"
-                + entry.getName());
-            try
-            {
-              byte[] buffer = new byte[1024 * 10];
-              int bytesRead;
-              while ((bytesRead = entryStream.read(buffer)) != -1)
-              {
-                file.write(buffer, 0, bytesRead);
-              }
-              file.close();
-            }
-            catch (IOException ioe)
-            {
-              M_log.warn("chef-site import" + ioe.getMessage());
-              return;
-            }
-          }
-          catch (IOException ioe)
-          {
-            M_log.warn("chef-site import" + ioe.getMessage());
-            return;
-          }
-          entryStream.close();
-        }
-      } //for directList loop
+    //remove attributes
+    state.removeAttribute(ALL_ZIP_IMPORT_SITES);
+    state.removeAttribute(FINAL_ZIP_IMPORT_SITES);
+    state.removeAttribute(DIRECT_ZIP_IMPORT_SITES);
+    state.removeAttribute(CLASSIC_ZIP_FILE_NAME);
+    state.removeAttribute(SESSION_CONTEXT_ID);
+    state.removeAttribute(IMPORT_DATA_SOURCE);
 
-      //copy user selected files
-      for (int i = 0; i < fnlList.size(); i++)
-      {
-        ImportMetadata impvalue = (ImportMetadata) fnlList.get(i);
-        String value = impvalue.getFileName();
-        ZipEntry entry = zip.getEntry(value);
-
-        if (entry != null)
-        {
-          InputStream entryStream = zip.getInputStream(entry);
-          try
-          {
-            FileOutputStream file = new FileOutputStream(dir.getPath() + "/"
-                + entry.getName());
-            try
-            {
-              byte[] buffer = new byte[1024 * 10];
-              int bytesRead;
-              while ((bytesRead = entryStream.read(buffer)) != -1)
-              {
-                file.write(buffer, 0, bytesRead);
-              }
-              file.close();
-            }
-            catch (IOException ioe)
-            {
-              M_log.warn("chef-site import" + ioe.getMessage());
-              return;
-            }
-          }
-          catch (IOException ioe)
-          {
-            M_log.warn("chef-site import" + ioe.getMessage());
-            return;
-          }
-          entryStream.close();
-        }
-      } //for fnlList loop
-
-      //doImport
-      String id = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
-      String folder = contextString.toString() + "/source/";
-      ArchiveService.merge(folder, id, null);
-      zip.close();
-    }
-    catch (IOException ioe)
-    {
-      M_log.warn("chef-site import" + ioe.getMessage());
-      return;
-    }
-
-    //delete the directory
-    dir.deleteOnExit();
     state.setAttribute(STATE_TEMPLATE_INDEX, "48");
     
     //state.setAttribute(STATE_TEMPLATE_INDEX, "28");
-  } // doCopy_MtrlSite
+  } // doSave_MtrlSite
   
   public void doSaveMtrlSiteMsg(RunData data)
   {
