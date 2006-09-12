@@ -278,7 +278,7 @@ public class NewsAction extends VelocityPortletPaneledAction
 			addAlert(state, e.getMessage());
 		}
 
-		context.put("news_items", items.iterator());
+		context.put("news_items", items);
 
 		return (String) getContext(rundata).get("template") + "-List";
 
