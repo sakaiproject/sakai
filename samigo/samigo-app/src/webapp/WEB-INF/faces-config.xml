@@ -554,8 +554,8 @@
       <to-view-id>/jsf/author/authorIndex.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
-      <from-outcome>confirmRemoveAttachment</from-outcome>
-      <to-view-id>/jsf/author/removeAttachment.jsp</to-view-id>
+      <from-outcome>confirmRemoveItemAttachment</from-outcome>
+      <to-view-id>/jsf/author/removeItemAttachment.jsp</to-view-id>
     </navigation-case>
 
   <!-- ITEM AUTHORING -->

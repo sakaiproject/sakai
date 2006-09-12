@@ -85,15 +85,8 @@ public class ItemModifyListener implements ActionListener
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
 
     String itemId= cu.lookupParam("itemid");
-    if (itemId != null){
-      itemauthorbean.setItemId(itemId);
-    }
-    else{ 
-      // i am afraid on returning from attachment resource management to the item modify page, 
-      // I need to call ItemModifyListener, see SamigoJsfTool.java
-      // to save any new attachments and re-populate the attachment list.
-      // so i can't read itemId from a form. - daisyf
-      itemId = itemauthorbean.getItemId();
+    if(itemId!=null) {
+       itemauthorbean.setItemId(itemId);
     }
  
     String poolid = cu.lookupParam("poolId");
@@ -124,9 +117,9 @@ public class ItemModifyListener implements ActionListener
       ItemService delegate = new ItemService();
       ItemFacade itemfacade =  delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
 
-
       bean.setItemId(itemfacade.getItemId().toString());
       bean.setItemType(itemfacade.getTypeId().toString());
+      itemauthorbean.setItem(itemfacade.getData());
       itemauthorbean.setItemType(itemfacade.getTypeId().toString());
 
       // if the item only exists in pool, sequence = null
@@ -173,7 +166,7 @@ public class ItemModifyListener implements ActionListener
       }
 
       // attach item attachemnt to itemAuthorBean
-      ArrayList attachmentList = prepareItemAttachment(itemfacade.getData());
+      List attachmentList = itemfacade.getData().getItemAttachmentList();
       itemauthorbean.setAttachmentList(attachmentList);
       if (attachmentList != null && attachmentList.size() >0)
         itemauthorbean.setHasAttachment(true);
@@ -543,44 +536,6 @@ public class ItemModifyListener implements ActionListener
 
 
      }
-  }
-
-  private ArrayList prepareItemAttachment(ItemDataIfc item){
-    Set attachmentSet = item.getItemAttachmentSet();
-    if (attachmentSet == null)
-      attachmentSet = new HashSet();
-    log.debug("*** attachment size="+attachmentSet.size());
-    AssessmentService assessmentService = new AssessmentService();
-    String protocol = ContextUtil.getProtocol();
-    ToolSession session = SessionManager.getCurrentToolSession();
-    if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
-        session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
-      List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-      if (refs!=null && refs.size() > 0){
-        Reference ref = (Reference)refs.get(0);
-
-        for(int i=0; i<refs.size(); i++) {
-          ref = (Reference) refs.get(i);
-          log.debug("**** ref.Id="+ref.getId());
-          log.debug("**** ref.name="+ref.getProperties().getProperty(									    ref.getProperties().getNamePropDisplayName()));
-          ItemAttachmentIfc newAttach = assessmentService.createItemAttachment(
-                                        item,
-                                        ref.getId(), ref.getProperties().getProperty(
-                                                     ref.getProperties().getNamePropDisplayName()),
-                                        protocol);
-          attachmentSet.add(newAttach);
-        }
-      }
-    }
-    session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-    session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
-    ArrayList list = new ArrayList();
-    Iterator iter = attachmentSet.iterator();
-    while (iter.hasNext()){
-      ItemAttachmentIfc a = (ItemAttachmentIfc)iter.next();
-      list.add(a);
-    }
-    return list;
   }
 
 }

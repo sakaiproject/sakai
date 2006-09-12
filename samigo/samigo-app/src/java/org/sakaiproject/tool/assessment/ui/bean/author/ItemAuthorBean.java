@@ -37,6 +37,7 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -49,7 +50,7 @@ import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener;
-import org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener;
+import org.sakaiproject.tool.assessment.ui.listener.author.SaveItemAttachmentListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.tool.api.ToolSession;
@@ -97,10 +98,11 @@ public class ItemAuthorBean
   private String showSelectionLevelFeedback;
   private String showFeedbackAuthoring;
   private ArrayList trueFalseAnswerSelectList;
+  private ItemDataIfc item;
   private ItemBean currentItem;
   private ItemFacade itemToDelete;
   private ItemFacade itemToPreview;
-  private ArrayList attachmentList;
+  private List attachmentList;
 
   // for questionpool
   private String qpoolId;
@@ -128,7 +130,17 @@ public class ItemAuthorBean
 
   }
 
-   public void setCurrentItem(ItemBean item)
+  public void setItem(ItemDataIfc item)
+   {
+	this.item=item;
+   }
+
+  public ItemDataIfc getItem()
+  {
+    return item;
+  }
+
+  public void setCurrentItem(ItemBean item)
    {
 	this.currentItem=item;
    }
@@ -908,7 +920,7 @@ ItemService delegate = new ItemService();
     showFeedbackAuthoring= string;
   }
 
-  public ArrayList getAttachmentList() {
+  public List getAttachmentList() {
     return attachmentList;
   }
 
@@ -916,7 +928,7 @@ ItemService delegate = new ItemService();
   /**
    * @param list
    */
-  public void setAttachmentList(ArrayList attachmentList)
+  public void setAttachmentList(List attachmentList)
   {
     this.attachmentList = attachmentList;
   }
@@ -944,8 +956,8 @@ ItemService delegate = new ItemService();
     lis.processAction(null);
   }
 
-  public void populateItem(){
-    ItemModifyListener lis = new ItemModifyListener();
+  public void saveItemAttachment(){
+    SaveItemAttachmentListener lis = new SaveItemAttachmentListener();
     lis.processAction(null);
   }
 
