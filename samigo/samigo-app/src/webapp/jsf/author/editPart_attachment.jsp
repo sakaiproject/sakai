@@ -20,7 +20,7 @@
           <f:param name="attachmentId" value="#{attach.attachmentId}"/>
           <f:param name="attachmentLocation" value="#{attach.location}"/>
           <f:param name="attachmentFilename" value="#{attach.filename}"/>
-          <f:param name="attachmentType" value="3"/>
+          <f:param name="attachmentType" value="2"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRemoveAttachmentListener" />
         </h:commandLink>
       </h:column>

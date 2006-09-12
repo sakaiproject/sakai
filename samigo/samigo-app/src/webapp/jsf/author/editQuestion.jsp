@@ -68,7 +68,10 @@ something like if type true false render include true false etc.
     <f:actionListener
       type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorQuestionListener" />
   </h:commandButton>
-  <h:commandButton accesskey="#{msg.a_cancel}" type="submit" value="#{msg.button_cancel}" action="editAssessment"/>
+  <h:commandButton accesskey="#{msg.a_cancel}" type="submit" value="#{msg.button_cancel}" action="editAssessment">
+    <f:actionListener
+      type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorQuestionListener" />
+  </h:commandButton>
 </h:panelGrid>
 
 </h:form>

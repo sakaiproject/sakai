@@ -82,6 +82,17 @@ public class EditPartListener
     String sectionId = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("sectionId");
 
+    if (sectionId != null){
+	sectionBean.setSectionId(sectionId);
+    }
+    else{
+	// i am afraid on returning from removal, EditPartListener is accled to
+	// to re-populate the part
+	// so i can't read sectionId from a form. - daisyf
+	sectionId = sectionBean.getSectionId();
+    }
+
+
     //log.info("**SectionId = "+sectionId);
     // #1a. prepare sectionBean
     AssessmentService assessmentService = new AssessmentService();

@@ -57,7 +57,7 @@
       <h:commandButton id="remove" accesskey="#{msg.remove_attachment}" type="submit" value="#{msg.button_remove}" action="#{itemauthor.getOutcome}" styleClass="active">
         <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RemoveAttachmentListener" />
-        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RefreshItemAttachmentListener" />
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener" />
       </h:commandButton>
       <h:commandButton accesskey="#{msg.a_cancel}" id="cancel" value="#{msg.button_cancel}" type="submit" action="editAssessment"/>
    </p>

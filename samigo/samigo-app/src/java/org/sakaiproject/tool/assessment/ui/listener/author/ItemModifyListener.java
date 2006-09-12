@@ -88,6 +88,12 @@ public class ItemModifyListener implements ActionListener
     if(itemId!=null) {
        itemauthorbean.setItemId(itemId);
     }
+    else{
+	// i am afraid on returning to the item modify page, I need to call ItemModifyListener
+	// to save any new attachments and re-populate the attachment list.
+	// so i can't read itemId from a form. - daisyf
+	itemId = itemauthorbean.getItemId();
+    }
  
     String poolid = cu.lookupParam("poolId");
     if(poolid!=null) {
