@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -35,6 +36,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -88,6 +90,7 @@ public class PublishedAssessmentFacade
   private Integer feedbackAuthoring;
   private Date feedbackDate;
   private String ownerSiteName;
+  private Set assessmentAttachmentSet;
 
   public PublishedAssessmentFacade() {
   }
@@ -607,4 +610,27 @@ public class PublishedAssessmentFacade
       return null;
     }
   }
+
+  public Set getAssessmentAttachmentSet() throws DataFacadeException {
+    return assessmentAttachmentSet;
+  }
+
+  public void setAssessmentAttachmentSet(Set assessmentAttachmentSet) {
+    this.assessmentAttachmentSet = assessmentAttachmentSet;
+    this.data.setAssessmentAttachmentSet(assessmentAttachmentSet);
+  }
+
+  public List getAssessmentAttachmentList() {
+    ArrayList list = new ArrayList();
+    if (assessmentAttachmentSet != null){
+      Iterator iter = assessmentAttachmentSet.iterator();
+      while (iter.hasNext()){
+        AssessmentAttachmentIfc a = (AssessmentAttachmentIfc)iter.next();
+        list.add(a);
+      }
+    }
+    return list;
+  }
+
+
 }
