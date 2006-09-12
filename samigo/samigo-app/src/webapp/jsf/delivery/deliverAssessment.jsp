@@ -152,11 +152,12 @@ function saveTime()
 </h:panelGrid>
       <f:verbatim></h4></f:verbatim>
       <h:outputText value="#{part.description}" escape="false"/>
+   <f:verbatim><div class="tier2"></f:verbatim>
 
   <!-- PART ATTACHMENTS -->
   <%@ include file="/jsf/delivery/part_attachment.jsp" %>
-
    <f:verbatim><div class="tier2"></f:verbatim>
+
       <h:dataTable width="100%" value="#{part.itemContents}" var="question">
         <h:column>
 <f:verbatim><h5></f:verbatim>

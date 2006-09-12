@@ -191,11 +191,10 @@ document.links[newindex].onclick();
     </h:panelGrid>
       <f:verbatim></h4></f:verbatim>
         <h:outputText escape="false" value="#{partBean.description}" />
+<f:verbatim><div class="tier2"></f:verbatim>
         <!-- PART ATTACHMENTS -->
         <%@ include file="/jsf/author/part_attachment.jsp" %>
-
 <f:verbatim><div class="tier2"></f:verbatim>
-
 
         <h:outputText rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2'}" value="#{msg.random_draw_msg}" />
 
