@@ -31,10 +31,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import org.jaxen.JaxenException;
-import org.jaxen.XPath;
-import org.jaxen.dom.DOMXPath;
-
 public class CommonCartridgeFileParser extends IMSFileParser {
 	private static final String CC_SCHEMA_NAME = "IMS Common Cartridge";
 	private Document manifest;
