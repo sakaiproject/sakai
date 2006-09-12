@@ -46,6 +46,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
@@ -62,6 +63,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -1519,6 +1521,71 @@ public class AssessmentFacadeQueries
       }
       catch (Exception e) {
         log.warn("problem delete sectionAttachment: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
+  }
+
+  public AssessmentAttachmentIfc createAssessmentAttachment(AssessmentIfc assessment,
+         String resourceId, String filename, String protocol){
+    AssessmentAttachment attach = null;
+    Boolean isLink = Boolean.FALSE;
+    try{
+      ContentResource cr = ContentHostingService.getResource(resourceId);
+      if (cr !=null){
+        ResourceProperties p = cr.getProperties();
+        attach = new AssessmentAttachment();
+        attach.setAssessment(assessment);
+        attach.setResourceId(resourceId);
+        attach.setFilename(filename);
+	attach.setMimeType(cr.getContentType());
+	attach.setFileSize(new Long(cr.getContentLength()));
+        if (cr.getContentType().lastIndexOf("url") > -1)
+          isLink = Boolean.TRUE;
+        attach.setIsLink(isLink);
+        attach.setStatus(AssessmentAttachmentIfc.ACTIVE_STATUS);
+	attach.setCreatedBy(p.getProperty(p.getNamePropCreator()));
+        attach.setCreatedDate(new Date());
+	attach.setLastModifiedBy(p.getProperty(p.getNamePropModifiedBy()));
+        attach.setLastModifiedDate(new Date());
+
+        //get relative path
+	String url = cr.getUrl();
+        // replace whitespace with %20
+        url = replaceSpace(url);
+        String location = url.replaceAll(protocol,"");
+        log.debug("***url="+url);
+        log.debug("***location="+location);
+        //attach.setLocation(location);
+        attach.setLocation(url);
+        getHibernateTemplate().save(attach);
+      }
+    }
+    catch(Exception e){
+      e.printStackTrace();
+    }
+    return attach;
+  }
+
+  public void removeAssessmentAttachment(Long assessmentAttachmentId){
+    AssessmentAttachment assessmentAttachment = (AssessmentAttachment)
+        getHibernateTemplate().load(AssessmentAttachment.class, assessmentAttachmentId);
+    AssessmentIfc assessment = assessmentAttachment.getAssessment(); 
+    String resourceId = assessmentAttachment.getResourceId();
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        if (assessment!=null){ // need to dissociate with assessment before deleting in Hibernate 3
+          Set set = assessment.getAssessmentAttachmentSet();
+          set.remove(assessmentAttachment);
+          getHibernateTemplate().delete(assessmentAttachment);
+          if(resourceId.toLowerCase().startsWith("/attachment"))
+            ContentHostingService.removeResource(resourceId);
+          retryCount = 0;
+	}
+      }
+      catch (Exception e) {
+        log.warn("problem delete assessmentAttachment: "+e.getMessage());
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
       }
     }

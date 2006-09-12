@@ -289,6 +289,10 @@ function uncheckOther(field){
          </samigo:wysiwyg>
         </h:panelGroup>
 
+       <p></p>
+       <!-- ASSESSMENT ATTACHMENTS -->
+       <%@ include file="/jsf/author/authorSettings_attachment.jsp" %>
+  
     </h:panelGrid>
 </div>
   </samigo:hideDivision>

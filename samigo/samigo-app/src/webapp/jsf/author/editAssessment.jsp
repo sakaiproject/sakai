@@ -130,6 +130,8 @@ document.links[newindex].onclick();
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
       </h:commandLink>
   </p>
+
+
 <h:panelGrid columns="2" columnClasses="shortText">
   <h:outputLabel for="changeQType" value="#{msg.add_q}   "/>
 <h:selectOneMenu onchange="clickInsertLink(this);"
