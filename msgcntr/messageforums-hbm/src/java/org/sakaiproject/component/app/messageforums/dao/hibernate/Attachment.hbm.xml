@@ -67,10 +67,10 @@
   </class>
 
   <query name="findAttachmentById">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl as area where attachment.id = :id]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl as a where a.id = :id]]>
   </query>
 
   <query name="findAttachmentByUuid">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl as ap where attachment.uuid = :uuid]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl as a where a.uuid = :uuid]]>
   </query>
 </hibernate-mapping>

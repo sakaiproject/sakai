@@ -225,13 +225,13 @@
   <query name="findOpenTopicAndParentById">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic 
              join topic.openForum
-             left join fetch attachmentsSet
+             left join fetch topic.attachmentsSet
              where topic.id = :id ]]>
   </query>
   <query name="findPrivateTopicAndParentById">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
              join topic.privateForum
-             left join fetch attachmentsSet
+             left join fetch topic.attachmentsSet
              where topic.id = :id ]]>
   </query>
   <query name="findTopicByUuid">
