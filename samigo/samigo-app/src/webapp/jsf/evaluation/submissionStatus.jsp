@@ -160,6 +160,7 @@ $Id$
        <h:outputText value="#{description.firstName}" />
        <h:outputText value=" " />
        <h:outputText value="#{description.lastName}" />
+       <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
      </span>
      </h:panelGroup>
     </h:column>
@@ -182,6 +183,7 @@ $Id$
        <h:outputText value="#{description.firstName}" />
        <h:outputText value=" " />
        <h:outputText value="#{description.lastName}" />
+       <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
      </span>
      </h:panelGroup>
     </h:column>
@@ -204,6 +206,7 @@ $Id$
        <h:outputText value="#{description.firstName}" />
        <h:outputText value=" " />
        <h:outputText value="#{description.lastName}" />
+       <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
      </span>
      </h:panelGroup>
     </h:column>
