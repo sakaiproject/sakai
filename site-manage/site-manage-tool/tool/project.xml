@@ -14,7 +14,7 @@
 	<inceptionYear>2003</inceptionYear>
                                                       
 	<properties>
-		<!-- deploy as a war -->
+		<!-- deploy as a war. -->
 		<deploy.type>war</deploy.type>
 	</properties>
 
