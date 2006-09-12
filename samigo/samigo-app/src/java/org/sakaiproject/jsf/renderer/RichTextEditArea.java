@@ -34,6 +34,8 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.cover.ToolManager; 
+import org.sakaiproject.content.cover.ContentHostingService; 
 import org.sakaiproject.util.FormattedText;
 
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -416,11 +418,13 @@ public class RichTextEditArea extends Renderer
     {
 
         String connector = "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector";
+	String collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext()); 
+
 
         if ("archival".equals(ServerConfigurationService.getString("tags.focus")))
              writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/archival_config.js\";\n");
         else {
-          writer.write("\n\t\tvar courseId = \"/group/" + AgentFacade.getCurrentSiteId() + "/\";");
+	  writer.write("\n\t\tvar courseId = \"" + collectionId + "\";"); 
           writer.write("\n\toFCKeditor.Config['ImageBrowserURL'] = oFCKeditor.BasePath + " + 
                 "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Image&CurrentFolder=\" + courseId;");
           writer.write("\n\toFCKeditor.Config['LinkBrowserURL'] = oFCKeditor.BasePath + " + 
