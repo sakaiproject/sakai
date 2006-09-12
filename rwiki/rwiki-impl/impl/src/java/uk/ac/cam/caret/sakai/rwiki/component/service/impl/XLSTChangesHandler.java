@@ -59,6 +59,9 @@ import uk.ac.cam.caret.sakai.rwiki.utils.UserDisplayHelper;
  */
 public class XLSTChangesHandler extends XSLTEntityHandler
 {
+
+	private static final String RFC822DATE = "EEE, dd MMM yyyy HH:mm:ss Z";
+
 	private RWikiObjectService rwikiObjectService = null;
 
 	private SiteService siteService;
@@ -207,7 +210,7 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 				// XXX Internationalize 
 				// 2006-02-16T18:28:03+01:00
 				SimpleDateFormat sd = new SimpleDateFormat(
-						"yyyy-MM-dd'T'HH:mm:ssZ");
+						RFC822DATE);
 				addPropertyElement("_datestamp", sd
 						.format(new Date()), ch);
 			}
@@ -316,7 +319,7 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 			propA.addAttribute("", SchemaNames.ATTR_REVISION,
 					SchemaNames.ATTR_REVISION, "string", String.valueOf(rwco
 							.getRevision()));
-			SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+			SimpleDateFormat sd = new SimpleDateFormat(RFC822DATE);
 			propA.addAttribute("", SchemaNames.ATTR_LAST_CHANGE,
 					SchemaNames.ATTR_LAST_CHANGE, "string", sd.format(rwco
 							.getVersion()));
@@ -376,7 +379,7 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 			propA.addAttribute("", SchemaNames.ATTR_REVISION,
 					SchemaNames.ATTR_REVISION, "string", String.valueOf(rwco
 							.getRevision()));
-			SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+			SimpleDateFormat sd = new SimpleDateFormat(RFC822DATE);
 			propA.addAttribute("", SchemaNames.ATTR_LAST_CHANGE,
 					SchemaNames.ATTR_LAST_CHANGE, "string", sd.format(rwco
 							.getVersion()));
