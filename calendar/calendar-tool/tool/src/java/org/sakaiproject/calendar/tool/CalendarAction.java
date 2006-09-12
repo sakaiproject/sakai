@@ -6969,16 +6969,21 @@ extends VelocityPortletStateAction
 			
 			Reference calendarRef = EntityManager.newReference(state.getPrimaryCalendarReference());
 
+				
 			String accessPointUrl = ServerConfigurationService.getAccessUrl()
 					+ CalendarService.calendarPdfReference(calendarRef.getContext(), calendarRef.getId(),
 			printType,
-			getCalendarReferenceList(
-			portlet,
-			state.getPrimaryCalendarReference(),
-			isOnWorkspaceTab()),
 			timeRangeString,
 			UserDirectoryService.getCurrentUser().getDisplayName(),
 			dailyStartTime);
+			
+			// set the actual list of calendars into the user's session:
+			List calRefList = getCalendarReferenceList(
+					portlet,
+					state.getPrimaryCalendarReference(),
+					isOnWorkspaceTab());
+			
+			SessionManager.getCurrentSession().setAttribute(CalendarService.SESSION_CALENDAR_LIST,calRefList);
 			
 			bar_PDF.add(new MenuEntry(rb.getString("java.print"), "").setUrl(accessPointUrl));
 		}

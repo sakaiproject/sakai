@@ -29,6 +29,9 @@ import org.sakaiproject.component.cover.ComponentManager;
 */
 public class CalendarService
 {
+   /** session attribute for list of all calendars user can reference */   
+   public static final String SESSION_CALENDAR_LIST =  org.sakaiproject.calendar.api.CalendarService.SESSION_CALENDAR_LIST;
+
 	/**
 	 * Access the component instance: special cover only method.
 	 * @return the component instance.
@@ -75,13 +78,13 @@ public class CalendarService
 	}
 
 	public static java.lang.String calendarPdfReference(java.lang.String param0, java.lang.String param1,
-			int param2, java.util.List param3, java.lang.String param4, java.lang.String param5, org.sakaiproject.time.api.TimeRange param6)
+			int param2, java.lang.String param3, java.lang.String param4, org.sakaiproject.time.api.TimeRange param5)
 	{
 		org.sakaiproject.calendar.api.CalendarService service = getInstance();
 		if (service == null)
 			return null;
 
-		return service.calendarPdfReference(param0, param1, param2, param3, param4, param5, param6);
+		return service.calendarPdfReference(param0, param1, param2, param3, param4, param5);
 	}
 
 	public static java.util.List getCalendars()

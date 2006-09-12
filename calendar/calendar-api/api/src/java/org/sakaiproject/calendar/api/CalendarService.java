@@ -125,6 +125,9 @@ public interface CalendarService
 	/** Security function giving the user permission to all groups, if granted to at the calendar or calendar level. */
 	public static final String SECURE_ALL_GROUPS = "calendar.all.groups";
 
+   /** session attribute for list of all calendars user can reference */   
+   public static final String SESSION_CALENDAR_LIST = "calendar.ref.list";
+
 	/**
 	* Return a List of all the defined calendars.
 	* @return a List of Calendar objects (may be empty)
@@ -229,7 +232,7 @@ public interface CalendarService
 	* @param id The calendar id.
 	* @return The the internal reference which can be used to access the calendar-in-pdf format from within the system.
 	*/
-	public String calendarPdfReference(String context, String id, int scheduleType, List calendars, String timeRangeString,
+	public String calendarPdfReference(String context, String id, int scheduleType, String timeRangeString,
 			String userName, TimeRange dailyTimeRange);
 
 	/**

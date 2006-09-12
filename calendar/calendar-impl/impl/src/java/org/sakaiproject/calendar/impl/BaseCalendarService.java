@@ -239,12 +239,12 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	/**
 	 * @inheritDoc
 	 */
-	public String calendarPdfReference(String context, String id, int scheduleType, List calendars, String timeRangeString,
+	public String calendarPdfReference(String context, String id, int scheduleType, String timeRangeString,
 			String userName, TimeRange dailyTimeRange)
 	{
 		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_PDF + Entity.SEPARATOR + context + Entity.SEPARATOR + id
 				+ "?" + SCHEDULE_TYPE_PARAMETER_NAME + "=" + Validator.escapeHtml(new Integer(scheduleType).toString()) + "&"
-				+ getCalendarListParameters(calendars) + "&" + TIME_RANGE_PARAMETER_NAME + "=" + timeRangeString + "&"
+				+ TIME_RANGE_PARAMETER_NAME + "=" + timeRangeString + "&"
 				+ Validator.escapeHtml(USER_NAME_PARAMETER_NAME) + "=" + Validator.escapeHtml(userName) + "&"
 				+ DAILY_START_TIME_PARAMETER_NAME + "=" + Validator.escapeHtml(dailyTimeRange.toString());
 	}
@@ -6021,61 +6021,6 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		parent.appendChild(eventElement);
 	}
 
-	/**
-	 * Given a Properties structure, generates a list of calendar references.
-	 */
-	protected List getCalendarListFromParameters(Properties parameters)
-	{
-		int curParameterNumber = 0;
-
-		List calendarList = new ArrayList();
-
-		String calendarReference = null;
-
-		do
-		{
-			calendarReference = (String) parameters.get(CALENDAR_PARAMETER_BASE_NAME + curParameterNumber++);
-
-			if (calendarReference != null)
-			{
-				calendarList.add(calendarReference);
-			}
-
-		}
-		while (calendarReference != null);
-
-		return calendarList;
-	}
-
-	/**
-	 * Given a list of calendar references, formats a URL fragment of parameters.
-	 */
-	protected String getCalendarListParameters(List calendars)
-	{
-		Iterator it = calendars.iterator();
-		int calendarNumber = 0;
-		StringBuffer parameters = new StringBuffer();
-		boolean firstTime = true;
-
-		while (it.hasNext())
-		{
-			String calendarReference = (String) it.next();
-
-			if (!firstTime)
-			{
-				parameters.append("&");
-			}
-			else
-			{
-				firstTime = false;
-			}
-
-			parameters.append(CALENDAR_PARAMETER_BASE_NAME + calendarNumber++ + "=" + Validator.escapeHtml(calendarReference));
-		}
-
-		return parameters.toString();
-	}
-
 	/*
 	 * Gets the daily start time parameter from a Properties object filled from URL parameters.
 	 */
@@ -6365,8 +6310,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		// Get the user name.
 		String userName = (String) parameters.get(USER_NAME_PARAMETER_NAME);
 
-		// Get the list of calendars.
-		List calendarReferenceList = getCalendarListFromParameters(parameters);
+		// Get the list of calendars.from user session
+		List calendarReferenceList = (List)SessionManager.getCurrentSession().getAttribute(SESSION_CALENDAR_LIST);
 
 		// check if there is any calendar to which the user has acces
 		Iterator it = calendarReferenceList.iterator();
