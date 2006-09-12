@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/svn/sam/trunk/samigo-api/src/java/org/sakaiproject/tool/assessment/data/ifc/grading/MediaIfc.java $
+ * $Id: MediaIfc.java 11438 2006-06-30 20:06:03Z daisyf@stanford.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -23,41 +23,11 @@
 
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+public interface AssessmentAttachmentIfc
+    extends AttachmentIfc{
 
-/**
- * @author Rachel Gollub
- * @version 1.0
- */
-public interface AssessmentIfc
-    extends Serializable, AssessmentBaseIfc
-{
+  Long getAttachmentType();
 
-  Long getAssessmentId();
-
-  Long getAssessmentTemplateId();
-
-  void setAssessmentTemplateId(Long assessmentTemplateId);
-
-  Set getSectionSet();
-
-  void setSectionSet(Set sectionSet);
-
-  SectionDataIfc getSection(Long sequence);
-
-  SectionDataIfc getDefaultSection();
-
-  ArrayList getSectionArray();
-
-  ArrayList getSectionArraySorted();
-
-  Set getAssessmentAttachmentSet();
-
-  void setAssessmentAttachmentSet(Set assessmentAttachmentSet);
-
-  List getAssessmentAttachmentList();
+  void setAttachmentType(Long attachmentType);
 
 }

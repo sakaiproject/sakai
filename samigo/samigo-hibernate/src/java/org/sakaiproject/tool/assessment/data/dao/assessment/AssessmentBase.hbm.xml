@@ -86,7 +86,14 @@
         <key column="ASSESSMENTID"/>
         <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.SectionData"/>
       </set>
+
+      <set name="assessmentAttachmentSet" table="SAM_ATTACHMENT_T" cascade="all" order-by="createdDate asc"
+        inverse="true" lazy="false">
+        <key column="ASSESSMENTID"/>
+        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAttachment"/>
+      </set>
     </subclass>
+
     <subclass name="org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData"
       discriminator-value="1" lazy="false" />
  </class>

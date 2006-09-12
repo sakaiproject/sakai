@@ -26,12 +26,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.log4j.Category;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -84,6 +86,7 @@ public class PublishedAssessmentData
   private Integer feedbackAuthoring;
   private Date feedbackDate;
   private String ownerSiteName;
+  private Set assessmentAttachmentSet;
 
   public PublishedAssessmentData() {}
   /**
@@ -587,6 +590,26 @@ public class PublishedAssessmentData
       }
     }
     return new Float(total);
+  }
+
+  public Set getAssessmentAttachmentSet() {
+    return assessmentAttachmentSet;
+  }
+
+  public void setAssessmentAttachmentSet(Set assessmentAttachmentSet) {
+    this.assessmentAttachmentSet = assessmentAttachmentSet;
+  }
+
+  public List getAssessmentAttachmentList() {
+    ArrayList list = new ArrayList();
+    if (assessmentAttachmentSet != null){
+      Iterator iter = assessmentAttachmentSet.iterator();
+      while (iter.hasNext()){
+        AssessmentAttachmentIfc a = (AssessmentAttachmentIfc)iter.next();
+        list.add(a);
+      }
+    }
+    return list;
   }
 
 }

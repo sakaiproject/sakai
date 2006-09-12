@@ -228,13 +228,11 @@
       <column name="LASTMODIFIEDDATE" not-null="true" />
     </property>
 
-<!--
     <subclass name="org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAttachment"
       discriminator-value="1" lazy="false" > 
-      <many-to-one name="assessment" column="ASSESSMENTID" not-null="true"
+      <many-to-one name="assessment" column="ASSESSMENTID" not-null="false"
         class="org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData"/>
     </subclass>
--->
 
     <subclass name="org.sakaiproject.tool.assessment.data.dao.assessment.SectionAttachment"
       discriminator-value="2" lazy="false" > 

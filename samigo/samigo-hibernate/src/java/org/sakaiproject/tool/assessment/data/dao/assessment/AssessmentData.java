@@ -24,9 +24,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 
 public class AssessmentData extends org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData
@@ -38,6 +40,8 @@ public class AssessmentData extends org.sakaiproject.tool.assessment.data.dao.as
   // These are the properties that an assessment has and an assessmentTemplate don't
   private Long assessmentTemplateId;
   private Set sectionSet;
+  private Set assessmentAttachmentSet;
+
   /* Assessment has AssessmentAccessControl and EvaluationModel
    * as well as a set of Sections
    * private AssessmentAccessControlIfc assessmentAccessControl;
@@ -119,6 +123,26 @@ public class AssessmentData extends org.sakaiproject.tool.assessment.data.dao.as
       return null;
     else
       return (SectionDataIfc) list.get(0);
+  }
+
+  public Set getAssessmentAttachmentSet() {
+    return assessmentAttachmentSet;
+  }
+
+  public void setAssessmentAttachmentSet(Set assessmentAttachmentSet) {
+    this.assessmentAttachmentSet = assessmentAttachmentSet;
+  }
+
+  public List getAssessmentAttachmentList() {
+    ArrayList list = new ArrayList();
+    if (assessmentAttachmentSet !=null ){
+      Iterator iter = assessmentAttachmentSet.iterator();
+      while (iter.hasNext()){
+        AssessmentAttachmentIfc a = (AssessmentAttachmentIfc)iter.next();
+        list.add(a);
+      }
+    }
+    return list;
   }
 
 }
