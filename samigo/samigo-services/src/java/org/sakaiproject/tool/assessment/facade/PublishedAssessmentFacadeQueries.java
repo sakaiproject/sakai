@@ -1451,7 +1451,7 @@ public class PublishedAssessmentFacadeQueries
 //  	List l = getHibernateTemplate().find(query,
 //  			new Object[]{ publishedAssessmentId},
 //				new org.hibernate.type.Type[] {Hibernate.LONG});
-  	final String query2 = "select s from PublishedAssessmentData p, PublishedSectionData s, "+
+  	final String query2 = "select s from PublishedAssessmentData p, PublishedSectionData s "+
 		" where p.publishedAssessmentId=? and"+
 		" p.publishedAssessmentId=s.assessment.publishedAssessmentId ";
 
