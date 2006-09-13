@@ -3783,7 +3783,8 @@ public class SiteAction extends PagedResourceActionII
 		state.setAttribute(STATE_TEMPLATE_INDEX, "0"); // return to the site list
 
 		// TODO: hard coding this frame id is fragile, portal dependent, and needs to be fixed -ggolden
-		schedulePeerFrameRefresh("sitenav");
+		// schedulePeerFrameRefresh("sitenav");
+		scheduleTopRefresh();
 		
 	} // doSite_delete_confirmed
 
@@ -4044,7 +4045,8 @@ public class SiteAction extends PagedResourceActionII
 		enableObserver(state);
 
 		// TODO: hard coding this frame id is fragile, portal dependent, and needs to be fixed -ggolden
-		schedulePeerFrameRefresh("sitenav");
+		// schedulePeerFrameRefresh("sitenav");
+		scheduleTopRefresh();
 
 	}	// doSitemanage_saveas
 
@@ -5175,7 +5177,8 @@ public class SiteAction extends PagedResourceActionII
 				}
 			}
 			// TODO: hard coding this frame id is fragile, portal dependent, and needs to be fixed -ggolden
-			schedulePeerFrameRefresh("sitenav");
+			// schedulePeerFrameRefresh("sitenav");
+			scheduleTopRefresh();
 				
 			resetPaging(state);
 			
@@ -7271,7 +7274,8 @@ public class SiteAction extends PagedResourceActionII
 				state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 
 				// TODO: hard coding this frame id is fragile, portal dependent, and needs to be fixed -ggolden
-				schedulePeerFrameRefresh("sitenav");
+				// schedulePeerFrameRefresh("sitenav");
+				scheduleTopRefresh();
 
 				state.removeAttribute(STATE_JOINABLE);
 				state.removeAttribute(STATE_JOINERROLE);
@@ -7742,7 +7746,8 @@ public class SiteAction extends PagedResourceActionII
 					}
 					
 					// TODO: hard coding this frame id is fragile, portal dependent, and needs to be fixed -ggolden
-					schedulePeerFrameRefresh("sitenav");
+					// schedulePeerFrameRefresh("sitenav");
+					scheduleTopRefresh();
 				}
 				break;
 			case 18:
@@ -7999,7 +8004,8 @@ public class SiteAction extends PagedResourceActionII
 								}
 								
 								// TODO: hard coding this frame id is fragile, portal dependent, and needs to be fixed -ggolden
-								schedulePeerFrameRefresh("sitenav");
+								// schedulePeerFrameRefresh("sitenav");
+								scheduleTopRefresh();
 								
 								state.setAttribute(SITE_DUPLICATED, Boolean.TRUE);
 							}
@@ -12356,7 +12362,8 @@ public class SiteAction extends PagedResourceActionII
 		addGradToolsFeatures(state);
 		
 		// TODO: hard coding this frame id is fragile, portal dependent, and needs to be fixed -ggolden
-		schedulePeerFrameRefresh("sitenav");
+		// schedulePeerFrameRefresh("sitenav");
+		scheduleTopRefresh();
 		
 		resetPaging(state);
 		

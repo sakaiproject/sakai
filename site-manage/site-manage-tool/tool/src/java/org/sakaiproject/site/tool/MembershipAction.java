@@ -329,7 +329,9 @@ public class MembershipAction extends PagedResourceActionII
 		}
 
 		// TODO: hard coding this frame id is fragile, portal dependent, and needs to be fixed -ggolden
-		schedulePeerFrameRefresh("sitenav");
+		// schedulePeerFrameRefresh("sitenav");
+		
+		scheduleTopRefresh();
 
 	} // doJoin
 
