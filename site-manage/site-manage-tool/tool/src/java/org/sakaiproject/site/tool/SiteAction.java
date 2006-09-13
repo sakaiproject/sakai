@@ -2554,7 +2554,7 @@ public class SiteAction extends PagedResourceActionII
 				context.put ("term", t);
 				if (t != null)
 				{
-					String userId = StringUtil.trimToZero(SessionManager.getCurrentSession().getUserEid());
+					String userId = StringUtil.trimToZero(SessionManager.getCurrentSessionUserId());
 					List courses = CourseManagementService.getInstructorCourses(userId, t.getYear(), t.getTerm());
 					if (courses != null && courses.size() > 0)
 					{
