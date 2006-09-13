@@ -64,7 +64,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public IdImpl getAssessmentTemplateId(long id);
 
-  public PublishedAssessmentData preparePublishedAssessment(AssessmentData a);
+  public PublishedAssessmentData preparePublishedAssessment(AssessmentData a, String protocol);
 
   public PublishedFeedback preparePublishedFeedback(PublishedAssessmentData p,
       AssessmentFeedback a);
@@ -81,13 +81,13 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public Set preparePublishedSecuredIPSet(PublishedAssessmentData p, Set ipSet);
 
   public Set preparePublishedSectionSet(
-      PublishedAssessmentData publishedAssessment, Set sectionSet);
+      PublishedAssessmentData publishedAssessment, Set sectionSet, String protocol);
 
   public Set preparePublishedSectionMetaDataSet(
       PublishedSectionData publishedSection, Set metaDataSet);
 
   public Set preparePublishedItemSet(PublishedSectionData publishedSection,
-      Set itemSet);
+      Set itemSet, String protocol);
 
   public Set preparePublishedItemTextSet(PublishedItemData publishedItem,
       Set itemTextSet);
@@ -108,9 +108,9 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public Long getPublishedAssessmentId(Long assessmentId);
 
-  public PublishedAssessmentFacade publishAssessment(AssessmentFacade assessment) throws Exception;
+  public PublishedAssessmentFacade publishAssessment(AssessmentFacade assessment, String protocol) throws Exception;
 
-  public PublishedAssessmentFacade publishPreviewAssessment(AssessmentFacade assessment);
+  public PublishedAssessmentFacade publishPreviewAssessment(AssessmentFacade assessment, String protocol);
 
   public void createAuthorization(PublishedAssessmentData p);
 

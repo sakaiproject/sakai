@@ -77,10 +77,6 @@ public class SaveItemAttachmentListener
     // attach item attachemnt to itemAuthorBean
     ArrayList attachmentList = prepareItemAttachment(itemauthorbean.getItem());
     itemauthorbean.setAttachmentList(attachmentList);
-    if (attachmentList != null && attachmentList.size() >0)
-      itemauthorbean.setHasAttachment(true);
-    else
-      itemauthorbean.setHasAttachment(false);
   }
 
   private ArrayList prepareItemAttachment(ItemDataIfc item){

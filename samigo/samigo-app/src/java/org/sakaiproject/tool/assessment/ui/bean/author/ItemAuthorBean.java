@@ -933,6 +933,13 @@ ItemService delegate = new ItemService();
     this.attachmentList = attachmentList;
   }
 
+  public boolean getHasAttachment(){
+    if (attachmentList != null && attachmentList.size() >0)
+      return true;
+    else
+      return false;    
+  }
+
   public String addAttachmentsRedirect() {
     // 1. first save any question text and stuff
     saveItem();
@@ -959,15 +966,6 @@ ItemService delegate = new ItemService();
   public void saveItemAttachment(){
     SaveItemAttachmentListener lis = new SaveItemAttachmentListener();
     lis.processAction(null);
-  }
-
-  private boolean hasAttachment = false;
-  public boolean getHasAttachment(){
-      return this.hasAttachment;
-  }
-
-  public void setHasAttachment(boolean hasAttachment){
-    this.hasAttachment = hasAttachment;
   }
 
 }

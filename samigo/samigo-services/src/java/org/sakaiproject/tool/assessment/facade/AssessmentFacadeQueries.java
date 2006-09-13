@@ -1384,16 +1384,7 @@ public class AssessmentFacadeQueries
         attach.setCreatedDate(new Date());
 	attach.setLastModifiedBy(p.getProperty(p.getNamePropModifiedBy()));
         attach.setLastModifiedDate(new Date());
-
-        //get relative path
-	String url = cr.getUrl();
-        // replace whitespace with %20
-        url = replaceSpace(url);
-        String location = url.replaceAll(protocol,"");
-        log.debug("***url="+url);
-        log.debug("***location="+location);
-        //attach.setLocation(location);
-        attach.setLocation(url);
+        attach.setLocation(getRelativePath(cr.getUrl(), protocol));
         getHibernateTemplate().save(attach);
       }
     }
@@ -1401,6 +1392,17 @@ public class AssessmentFacadeQueries
       e.printStackTrace();
     }
     return attach;
+  }
+
+  public String getRelativePath(String url, String protocol){
+    // replace whitespace with %20
+    url = replaceSpace(url);
+    String location = url;
+    int index = url.lastIndexOf(protocol);
+    if (index == 0){
+      location = url.substring(protocol.length());
+    }
+    return location;
   }
 
   private String replaceSpace(String tempString){
@@ -1483,16 +1485,7 @@ public class AssessmentFacadeQueries
         attach.setCreatedDate(new Date());
 	attach.setLastModifiedBy(p.getProperty(p.getNamePropModifiedBy()));
         attach.setLastModifiedDate(new Date());
-
-        //get relative path
-	String url = cr.getUrl();
-        // replace whitespace with %20
-        url = replaceSpace(url);
-        String location = url.replaceAll(protocol,"");
-        log.debug("***url="+url);
-        log.debug("***location="+location);
-        //attach.setLocation(location);
-        attach.setLocation(url);
+        attach.setLocation(getRelativePath(cr.getUrl(), protocol));
         getHibernateTemplate().save(attach);
       }
     }
@@ -1548,16 +1541,7 @@ public class AssessmentFacadeQueries
         attach.setCreatedDate(new Date());
 	attach.setLastModifiedBy(p.getProperty(p.getNamePropModifiedBy()));
         attach.setLastModifiedDate(new Date());
-
-        //get relative path
-	String url = cr.getUrl();
-        // replace whitespace with %20
-        url = replaceSpace(url);
-        String location = url.replaceAll(protocol,"");
-        log.debug("***url="+url);
-        log.debug("***location="+location);
-        //attach.setLocation(location);
-        attach.setLocation(url);
+        attach.setLocation(getRelativePath(cr.getUrl(), protocol));
         getHibernateTemplate().save(attach);
       }
     }

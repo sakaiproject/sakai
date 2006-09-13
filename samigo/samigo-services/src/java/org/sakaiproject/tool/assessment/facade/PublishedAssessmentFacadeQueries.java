@@ -159,7 +159,7 @@ public class PublishedAssessmentFacadeQueries
   }
 
 
-  public PublishedAssessmentData preparePublishedAssessment(AssessmentData a) {
+  public PublishedAssessmentData preparePublishedAssessment(AssessmentData a, String protocol) {
     PublishedAssessmentData publishedAssessment = new PublishedAssessmentData(a.
         getTitle(), a.getDescription(),
         a.getComments(), TypeFacade.HOMEWORK, a.getInstructorNotification(),
@@ -171,7 +171,7 @@ public class PublishedAssessmentFacadeQueries
 
     // section set
     Set publishedSectionSet = preparePublishedSectionSet(publishedAssessment,
-        a.getSectionSet());
+        a.getSectionSet(), protocol);
     publishedAssessment.setSectionSet(publishedSectionSet);
 
     // access control
@@ -223,7 +223,7 @@ public class PublishedAssessmentFacadeQueries
 
     // attachmentSet
     Set publishedAssessmentAttachmentSet = preparePublishedAssessmentAttachmentSet(
-                                           publishedAssessment, a.getAssessmentAttachmentSet());
+                                           publishedAssessment, a.getAssessmentAttachmentSet(), protocol);
     publishedAssessment.setAssessmentAttachmentSet(publishedAssessmentAttachmentSet);
 
     return publishedAssessment;
@@ -315,7 +315,7 @@ public class PublishedAssessmentFacadeQueries
 
 
   public Set preparePublishedSectionSet(PublishedAssessmentData
-                                        publishedAssessment, Set sectionSet) {
+                                        publishedAssessment, Set sectionSet, String protocol) {
     log.debug("**published section size = " + sectionSet.size());
     HashSet h = new HashSet();
     Iterator i = sectionSet.iterator();
@@ -332,10 +332,10 @@ public class PublishedAssessmentFacadeQueries
           section.getLastModifiedBy(),
           section.getLastModifiedDate());
       Set publishedSectionAttachmentSet = preparePublishedSectionAttachmentSet(
-          publishedSection, section.getSectionAttachmentSet());
+          publishedSection, section.getSectionAttachmentSet(), protocol );
       publishedSection.setSectionAttachmentSet(publishedSectionAttachmentSet);
       Set publishedItemSet = preparePublishedItemSet(publishedSection,
-          section.getItemSet());
+          section.getItemSet(), protocol);
       publishedSection.setItemSet(publishedItemSet);
       Set publishedMetaDataSet = preparePublishedSectionMetaDataSet(publishedSection, section.getSectionMetaDataSet());
       publishedSection.setSectionMetaDataSet(publishedMetaDataSet);
@@ -359,7 +359,7 @@ public class PublishedAssessmentFacadeQueries
   }
 
   public Set preparePublishedItemSet(PublishedSectionData publishedSection,
-                                     Set itemSet) {
+                                     Set itemSet, String protocol) {
     log.debug("**published item size = " + itemSet.size());
     HashSet h = new HashSet();
     Iterator j = itemSet.iterator();
@@ -383,7 +383,7 @@ public class PublishedAssessmentFacadeQueries
       Set publishedItemFeedbackSet = preparePublishedItemFeedbackSet(
           publishedItem, item.getItemFeedbackSet());
       Set publishedItemAttachmentSet = preparePublishedItemAttachmentSet(
-          publishedItem, item.getItemAttachmentSet());
+          publishedItem, item.getItemAttachmentSet(), protocol);
       publishedItem.setItemTextSet(publishedItemTextSet);
       publishedItem.setItemMetaDataSet(publishedItemMetaDataSet);
       publishedItem.setItemFeedbackSet(publishedItemFeedbackSet);
@@ -439,7 +439,7 @@ public class PublishedAssessmentFacadeQueries
   }
 
   public Set preparePublishedItemAttachmentSet(PublishedItemData publishedItem,
-                                             Set itemAttachmentSet) {
+                                             Set itemAttachmentSet, String protocol) {
     HashSet h = new HashSet();
     Iterator o = itemAttachmentSet.iterator();
     while (o.hasNext()) {
@@ -455,10 +455,8 @@ public class PublishedAssessmentFacadeQueries
         System.out.println("****cr.id="+cr.getId());
         System.out.println("****cr_copy.id="+cr_copy.getId());
         //get relative path
-        String url = cr_copy.getUrl();
-        // replace whitespace with %20
-        url = replaceSpace(url);
-
+        String url = getRelativePath(cr_copy.getUrl(), protocol);
+        
         PublishedItemAttachment publishedItemAttachment = new PublishedItemAttachment(
           null, publishedItem, cr_copy.getId(), itemAttachment.getFilename(),
           itemAttachment.getMimeType(), itemAttachment.getFileSize(), itemAttachment.getDescription(),
@@ -475,7 +473,7 @@ public class PublishedAssessmentFacadeQueries
   }
 
   public Set preparePublishedSectionAttachmentSet(PublishedSectionData publishedSection,
-                                             Set sectionAttachmentSet) {
+                                             Set sectionAttachmentSet, String protocol) {
     HashSet h = new HashSet();
     Iterator o = sectionAttachmentSet.iterator();
     while (o.hasNext()) {
@@ -491,9 +489,7 @@ public class PublishedAssessmentFacadeQueries
         System.out.println("****cr.id="+cr.getId());
         System.out.println("****cr_copy.id="+cr_copy.getId());
         //get relative path
-        String url = cr_copy.getUrl();
-        // replace whitespace with %20
-        url = replaceSpace(url);
+        String url = getRelativePath(cr_copy.getUrl(), protocol);
 
         PublishedSectionAttachment publishedSectionAttachment = new PublishedSectionAttachment(
           null, publishedSection, cr_copy.getId(), sectionAttachment.getFilename(),
@@ -511,7 +507,7 @@ public class PublishedAssessmentFacadeQueries
   }
 
   public Set preparePublishedAssessmentAttachmentSet(PublishedAssessmentData publishedAssessment,
-                                             Set assessmentAttachmentSet) {
+                                             Set assessmentAttachmentSet, String protocol) {
     HashSet h = new HashSet();
     Iterator o = assessmentAttachmentSet.iterator();
     while (o.hasNext()) {
@@ -527,9 +523,7 @@ public class PublishedAssessmentFacadeQueries
         System.out.println("****cr.id="+cr.getId());
         System.out.println("****cr_copy.id="+cr_copy.getId());
         //get relative path
-        String url = cr_copy.getUrl();
-        // replace whitespace with %20
-        url = replaceSpace(url);
+        String url = getRelativePath(cr_copy.getUrl(), protocol);
 
         PublishedAssessmentAttachment publishedAssessmentAttachment = new PublishedAssessmentAttachment(
           null, publishedAssessment, cr_copy.getId(), assessmentAttachment.getFilename(),
@@ -599,10 +593,10 @@ public class PublishedAssessmentFacadeQueries
   }
 
   public PublishedAssessmentFacade publishAssessment(AssessmentFacade
-      assessment) throws Exception {
+      assessment, String protocol) throws Exception {
     boolean addedToGradebook = false;
     PublishedAssessmentData publishedAssessment = preparePublishedAssessment( (
-        AssessmentData) assessment.getData());
+        AssessmentData) assessment.getData(), protocol);
 
     try{
       saveOrUpdate(publishedAssessment);
@@ -647,10 +641,10 @@ public class PublishedAssessmentFacadeQueries
     // This method is specific for publish an assessment for preview assessment,
     // because it will be deleted after preview is done, and shouldn't talk to gradebook.
   public PublishedAssessmentFacade publishPreviewAssessment(AssessmentFacade
-      assessment) {
+      assessment, String protocol) {
     boolean addedToGradebook = false;
     PublishedAssessmentData publishedAssessment = preparePublishedAssessment( (
-        AssessmentData) assessment.getData());
+        AssessmentData) assessment.getData(), protocol);
     publishedAssessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);
     try{
       saveOrUpdate(publishedAssessment);
@@ -1600,6 +1594,17 @@ public class PublishedAssessmentFacadeQueries
       }
     }
     return newString;
+  }
+
+  public String getRelativePath(String url, String protocol){
+    // replace whitespace with %20
+    url = replaceSpace(url);
+    String location = url;
+    int index = url.lastIndexOf(protocol);
+    if (index == 0){
+      location = url.substring(protocol.length());
+    }
+    return location;
   }
 
 }

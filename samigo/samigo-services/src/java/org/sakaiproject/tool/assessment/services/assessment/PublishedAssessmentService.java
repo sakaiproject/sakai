@@ -189,18 +189,18 @@ public class PublishedAssessmentService {
   }
 
   public PublishedAssessmentFacade publishAssessment(AssessmentFacade
-      assessment) throws Exception {
+      assessment, String protocol) throws Exception {
       return PersistenceService.getInstance().
           getPublishedAssessmentFacadeQueries().
-          publishAssessment(assessment);
+          publishAssessment(assessment, protocol);
   }
 
   public PublishedAssessmentFacade publishPreviewAssessment(AssessmentFacade
-      assessment) {
+      assessment, String protocol) {
     try {
       return PersistenceService.getInstance().
           getPublishedAssessmentFacadeQueries().
-          publishPreviewAssessment(assessment);
+          publishPreviewAssessment(assessment, protocol);
     }
     catch (Exception e) {
       log.error(e);
