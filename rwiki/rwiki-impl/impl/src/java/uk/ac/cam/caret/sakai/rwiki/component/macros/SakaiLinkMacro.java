@@ -29,6 +29,9 @@ import org.radeox.api.engine.RenderEngine;
 import org.radeox.macro.BaseLocaleMacro;
 import org.radeox.macro.parameter.MacroParameter;
 import org.radeox.util.Encoder;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderContext;
 
@@ -94,28 +97,20 @@ public class SakaiLinkMacro extends BaseLocaleMacro
 		{
 			if (target == null)
 			{
-				if (url.indexOf(":/") >= 0 && url.indexOf(":/") < 10)
-				{
-					target = "rwikiexternal";
-				}
-				else
+				
+				if (url.startsWith("sakai:") || url.startsWith("worksite:/") || url.indexOf(":/") < 0 || url.indexOf(":/") > 10)
 				{
 					target = "none";
 				}
+				else
+				{
+					target = "rwikiexternal";
+				}
 
 			}
 
-			// check url for sakai:// or worksite://
-			if (url.startsWith("sakai:/"))
-			{
-				url = "/access/content/group/"
-						+ url.substring("sakai:/".length());
-			}
-			else if (url.startsWith("worksite:/"))
-			{
-				url = "/access/content/group/" + context.getSiteId() + "/"
-						+ url.substring("worksite:/".length());
-			}
+
+
 
 			writer.write("<span class=\"nobr\">");
 			if (!"none".equals(img) && engine instanceof ImageRenderEngine)
@@ -123,14 +118,26 @@ public class SakaiLinkMacro extends BaseLocaleMacro
 				writer.write(((ImageRenderEngine) engine)
 						.getExternalImageLink());
 			}
-			writer.write("<a href=\"");
-			writer.write(url);
-			writer.write("\"");
+			
+
+			String siteId = context.getSiteId();
+
+			String siteType = null;
+			try
+			{
+				Site s = SiteService.getSite(siteId);
+				siteType = s.getType();
+			}
+			catch (IdUnusedException e)
+			{
+			}
+			
+			url = convertLink(url, siteType, siteId);
+
+			writer.write("<a href=\"" + Encoder.escape(url) + "\"");
 			if (!"none".equals(target))
 			{
-				writer.write(" target=\"");
-				writer.write(target);
-				writer.write("\" ");
+				writer.write("target=\"" + Encoder.escape(target) + "\"");
 			}
 			writer.write(">");
 			writer.write(text);
@@ -143,4 +150,73 @@ public class SakaiLinkMacro extends BaseLocaleMacro
 		}
 		return;
 	}
+	private String convertLink(String link, String siteType, String siteId)
+	{
+
+		if (link.startsWith("sakai:/"))
+		{
+			String refSiteUrl = link.substring("sakai:/".length());
+			if ( refSiteUrl.startsWith("/") ) {
+				refSiteUrl = refSiteUrl.substring(1);
+			}
+			String[] parts = refSiteUrl.split("/");
+			if (parts == null || parts.length < 1)
+			{
+				return "Link Cant be resolved";
+			}
+
+			String regSiteId = parts[0];
+			String regSiteType = "group";
+			try
+			{
+				Site s = SiteService.getSite(regSiteId);
+				regSiteType = s.getType();
+
+			}
+			catch (IdUnusedException e)
+			{
+			}
+			if ((regSiteId != null && regSiteId.startsWith("~")) || regSiteType == null)
+			{
+				String remLink = link.substring("sakai:/".length());
+				if ( remLink.startsWith("/") ) {
+					remLink = remLink.substring(1);
+				}
+				if ( remLink.startsWith("~") ) {
+					remLink = remLink.substring(1);
+				}
+				link = "/access/content/user/"
+						+ remLink;
+
+			}
+			else
+			{
+				link = "/access/content/group/"
+						+ link.substring("sakai:/".length());
+			}
+		}
+		else if (link.startsWith("worksite:/"))
+		{
+			// need to check siteid
+
+			
+			if ((siteId != null && siteId.startsWith("~")) || siteType == null)
+			{
+				if ( siteId.startsWith("~") ) {
+					siteId = siteId.substring(1);
+				}
+				link = "/access/content/user/" + siteId + "/"
+						+ link.substring("worksite:/".length());
+
+			}
+			else
+			{
+				link = "/access/content/group/" + siteId + "/"
+						+ link.substring("worksite:/".length());
+			}
+
+		}
+		return link;
+	}
+
 }
