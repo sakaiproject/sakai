@@ -6523,6 +6523,10 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			//	get all active site users
 			String authzGroupId = SiteService.siteReference(contextString);
+			
+			// all users that can submit
+			List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
+			
 			try
 			{
 				AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupId);
@@ -6533,7 +6537,11 @@ public class AssignmentAction extends PagedResourceActionII
 					try
 					{
 						User u = UserDirectoryService.getUser(userId);
-						returnResources.add(u);
+						// only include those users that can submit to this assignment
+						if (allowAddSubmissionUsers.contains(u))
+						{
+							returnResources.add(u);
+						}
 					}
 					catch (Exception e)
 					{
