@@ -18,7 +18,7 @@ body{
 }
 
 /*wrapper for iframe containing masthead  and site navigation (3 possible classes for this iframe .sitenav-max,.sitenav-min,.sitenav-log) as well as accessibility links wrapper #skipNav */
-#header{
+#headerMax,#headerMin{
 	width: 98%;
 	margin: 1em auto 0 auto;
 }
@@ -31,7 +31,8 @@ body{
 #container{
 	width: 98%;
 	margin: 0 auto;
-	border:1px solid #fff
+	border:1px solid #fff;
+	clear:both
 }
 
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
@@ -92,7 +93,7 @@ body{
 /*outer wrapper for contents of site navigation document that is displayed inside of the site navigation iframe
 TODO:get it and its children onto main document. Children are #mastHead,#tabNavWrap*/
 #siteNavWrapper{
-	margin: 0; /*float:right*/
+	margin: 0; 
 }
 
 /*wrapper for mast head elements - children are 3 blocks - #mastLogo,#mastBanner,#mastLogin*/
@@ -213,29 +214,27 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 #siteNav{
 	width:100%;
 }
-#siteNav td{
-	padding:0
-}
-* html body #siteNav{
-	height:1.5em;
-}
 
 /*wrapper for the site link list   - the #siteLinkList child)*/
 #linkNav{
-	padding: 0;
+	float:left
 }
 
 /*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
 #selectNav{
 	padding: .2em;
+	padding: .4em .4em .2em .2em;
 	text-align: right;
+	vertical-align: middle;
+	float:right
+
 }
 
 /*the <select> contextually defined*/
 #selectNav select{
 	display:inline;
-	font-size: .8em;
-	margin: 0 0 0 3px;
+	font-size: .75em;
+	margin: 0 3px;
 	padding: 0;
 }
 
@@ -245,7 +244,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 
 /*a ul - the li below are outer wrappers for the links to sites */
 #siteLinkList{
-	white-space: nowrap;
+/*	white-space: nowrap;*/
 	list-style: none none none;
 	font-size: .8em;
 	margin: 0;	
@@ -256,7 +255,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 /*list elements - children are <span> and <a>*/
 #siteLinkList li{
 	display: inline;
-	line-height: 1.3em;
+	line-height: 2em;
 }
 
 /*span shim for fine grained manipulation of link display (decorative)*/

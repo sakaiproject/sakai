@@ -17,7 +17,7 @@ body{
 }
 
 /*wrapper for iframe containing masthead  and site navigation (3 possible classes for this iframe .sitenav-max,.sitenav-min,.sitenav-log) as well as accessibility links wrapper #skipNav */
-#header{
+#headerMax,#headerMin,{
 	width: 98%;
 	margin: 1em auto 0 auto;
 }
@@ -28,6 +28,7 @@ body{
 
 /*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
 #container{
+	clear:both;
 	width: 98%;
 	margin: 1em auto;
 	border:1px solid #000
@@ -227,12 +228,10 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 #siteNav{
 	width:100%;
 }
-#siteNav td{
-	padding:0
-}
 
 /*wrapper for the site link list   - the #siteLinkList child)*/
 #linkNav{
+	float:left
 
 }
 * html body  #linkNav{
@@ -241,7 +240,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 /*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
 #selectNav{
 	padding: .2em;
-		text-align: right;
+	text-align: right;
 }
 
 /*the <select> contextually defined*/
@@ -258,7 +257,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 
 /*a ul - the li below are outer wrappers for the links to sites */
 #siteLinkList{
-	white-space: nowrap;
+/*	white-space: nowrap;*/
 	list-style: none none none;
 	font-size: .9em;
 	margin: 3px 0 -4px 0;	
