@@ -158,6 +158,7 @@ public class BeginDeliveryActionListener implements ActionListener
     if (component.getShowDateFeedback() && control.getFeedbackDate()!= null && currentDate.after(control.getFeedbackDate())) {
       delivery.setFeedbackOnDate(true); 
     }
+    delivery.setAttachmentList(pubAssessment.getAssessmentAttachmentList());
   }
 
   /**

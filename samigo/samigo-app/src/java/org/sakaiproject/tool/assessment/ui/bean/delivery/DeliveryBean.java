@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -2341,5 +2342,24 @@ public class DeliveryBean
 	   }
 	   return isMoreThanOneQuestion;
    }
+
+  private List attachmentList;
+  public List getAttachmentList() {
+    return attachmentList;
+  }
+
+  public void setAttachmentList(List attachmentList)
+  {
+    this.attachmentList = attachmentList;
+  }
+
+  private boolean hasAttachment = false;
+  public boolean getHasAttachment(){
+    boolean hasAttachment = false;
+    if (attachmentList!=null && attachmentList.size() >0){
+        hasAttachment = true;
+    }
+    return hasAttachment;
+  }
  
 }

@@ -48,6 +48,7 @@ import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
@@ -61,6 +62,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessContr
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemAttachment;
@@ -218,6 +220,11 @@ public class PublishedAssessmentFacadeQueries
     Set publishedIPSet = preparePublishedSecuredIPSet(publishedAssessment,
         a.getSecuredIPAddressSet());
     publishedAssessment.setSecuredIPAddressSet(publishedIPSet);
+
+    // attachmentSet
+    Set publishedAssessmentAttachmentSet = preparePublishedAssessmentAttachmentSet(
+                                           publishedAssessment, a.getAssessmentAttachmentSet());
+    publishedAssessment.setAssessmentAttachmentSet(publishedAssessmentAttachmentSet);
 
     return publishedAssessment;
   }
@@ -495,6 +502,42 @@ public class PublishedAssessmentFacadeQueries
           sectionAttachment.getCreatedBy(), sectionAttachment.getCreatedDate(), sectionAttachment.getLastModifiedBy(),
           sectionAttachment.getLastModifiedDate());
         h.add(publishedSectionAttachment);
+      }
+      catch (Exception e){
+        log.warn(e.getMessage());
+      }
+    }
+    return h;
+  }
+
+  public Set preparePublishedAssessmentAttachmentSet(PublishedAssessmentData publishedAssessment,
+                                             Set assessmentAttachmentSet) {
+    HashSet h = new HashSet();
+    Iterator o = assessmentAttachmentSet.iterator();
+    while (o.hasNext()) {
+      AssessmentAttachment assessmentAttachment = (AssessmentAttachment) o.next();
+      try{
+        // create a copy of the resource
+        ContentResource cr = ContentHostingService.getResource(assessmentAttachment.getResourceId());
+        ContentResource cr_copy = ContentHostingService.addAttachmentResource(
+                                  assessmentAttachment.getFilename(), cr.getContentType(), cr.getContent(),
+                                  cr.getProperties());
+
+        System.out.println("****resourceId="+assessmentAttachment.getResourceId());
+        System.out.println("****cr.id="+cr.getId());
+        System.out.println("****cr_copy.id="+cr_copy.getId());
+        //get relative path
+        String url = cr_copy.getUrl();
+        // replace whitespace with %20
+        url = replaceSpace(url);
+
+        PublishedAssessmentAttachment publishedAssessmentAttachment = new PublishedAssessmentAttachment(
+          null, publishedAssessment, cr_copy.getId(), assessmentAttachment.getFilename(),
+          assessmentAttachment.getMimeType(), assessmentAttachment.getFileSize(), assessmentAttachment.getDescription(),
+          url, assessmentAttachment.getIsLink(), assessmentAttachment.getStatus(),
+          assessmentAttachment.getCreatedBy(), assessmentAttachment.getCreatedDate(), assessmentAttachment.getLastModifiedBy(),
+          assessmentAttachment.getLastModifiedDate());
+        h.add(publishedAssessmentAttachment);
       }
       catch (Exception e){
         log.warn(e.getMessage());

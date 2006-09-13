@@ -66,6 +66,11 @@
 <div class="tier2">
 <h:messages styleClass="validation"/>
   <h:outputText value="#{delivery.instructorMessage}" escape="false"/>
+
+  <p></p> 
+  <!-- ASSESSMENT ATTACHMENTS -->
+  <%@ include file="/jsf/delivery/assessment_attachment.jsp" %>
+
 <h:panelGrid columns="2" cellpadding="2">
     <h:outputLabel value="#{msg.course}" rendered="#{delivery.courseName ne ''}" />
     <h:outputText value="#{delivery.courseName} " />
