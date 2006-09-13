@@ -26,32 +26,17 @@
         <xsl:variable name="baseurl" select="/entity-service/request-properties/@server-url"/>
         <rss version="2.0">
             <channel>
-                <title>
-                    <xsl:value-of
-                        select="/entity-service/entity/properties/property[@name='_title']"/>
-                </title>
-                <description>
-                    <xsl:value-of
-                        select="/entity-service/entity/properties/property[@name='_description']"/>
-                </description>
-                <link>
-                    <xsl:value-of select="$baseurl"/>
-                </link>
-                <lastBuildDate>
-                    <xsl:value-of
-                        select="/entity-service/entity/properties/property[@name='_datestamp']"/>
-                </lastBuildDate>
+                <title><xsl:value-of
+                        select="/entity-service/entity/properties/property[@name='_title']"/></title>
+                <description><xsl:value-of
+                        select="/entity-service/entity/properties/property[@name='_description']"/></description>
+                <link><xsl:value-of select="$baseurl"/></link>
+                <lastBuildDate><xsl:value-of select="/entity-service/entity/properties/property[@name='_datestamp']"/></lastBuildDate>
                 <generator>Sakai RWiki RSS Generator</generator>
                 <xsl:for-each select="/entity-service/entity/changes/change">
                     <item>
-                        <title>
-                            <xsl:value-of select="@local-name"/> (Revision <xsl:value-of select="@revision"/>)
-                        </title>
-                        <link>
-                            <xsl:value-of
-                                select="concat($baseurl,'/access/wiki',@name,'.html')"
-                            />
-                        </link>
+                        <title><xsl:value-of select="@local-name"/> (Revision <xsl:value-of select="@revision"/>)</title>
+                        <link><xsl:value-of select="concat($baseurl,'/access/wiki',@name,'.html')"/></link>
                         <description>
 			  Last edited by <xsl:value-of select="@user-display"/> at <xsl:value-of select="@last-modified"/>&lt;hr/&gt;
                             <xsl:copy-of select="content/rendered-cdata/node()"/>
