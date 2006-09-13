@@ -9,11 +9,16 @@
 
 		<configuration name="channel" value="" />
 		<configuration name="pagesize" value="10" />
-
+		<configuration name="days" value="10" />
+		<configuration name="items" value="3" />
+		<configuration name="length" value="50" />
+		
 		<category name="course" />
-      <category name="project" />
-      <category name="portfolio" />
+		<category name="project" />
 		<category name="myworkspace" />
+		<category name="GradToolsStudent" />
+		<category name="GradToolsDepartment" />
+		<category name="GradToolsRackham" />
 
 	</tool>
 

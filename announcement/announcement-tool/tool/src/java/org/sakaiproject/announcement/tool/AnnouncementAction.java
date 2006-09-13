@@ -28,7 +28,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Properties;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -39,6 +41,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.cover.AnnouncementService;
+import org.sakaiproject.announcement.tool.AnnouncementActionState.DisplayOptions;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
@@ -760,8 +763,11 @@ public class AnnouncementAction extends PagedResourceActionII
 		Placement placement = ToolManager.getCurrentPlacement();
 		if (placement != null)
 		{
+			Properties props = placement.getPlacementConfig();
+			if(props.isEmpty())
+				props = placement.getConfig();
 			AnnouncementActionState.DisplayOptions disOptions = state.getDisplayOptions();
-			disOptions.loadProperties(placement.getPlacementConfig());
+			disOptions.loadProperties(props);
 			context.put(VELOCITY_DISPLAY_OPTIONS, disOptions);
 		}
 		else
@@ -3400,9 +3406,11 @@ public class AnnouncementAction extends PagedResourceActionII
 		AnnouncementActionState.DisplayOptions displayOptions = new AnnouncementActionState.DisplayOptions();
 		annState.setDisplayOptions(displayOptions);
 
-		PortletConfig portletConfig = portlet.getPortletConfig();
-
-		displayOptions.loadProperties(portletConfig.getInitParameters());
+		//PortletConfig portletConfig = portlet.getPortletConfig();
+		//displayOptions.loadProperties(portletConfig.getInitParameters());
+		Properties registeredProperties = ToolManager.getCurrentTool().getRegisteredConfig();
+		displayOptions.loadProperties((Map)registeredProperties);
+		
 
 	} // initState
 

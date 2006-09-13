@@ -12,7 +12,7 @@
 		<configuration name="length" value="50" />
 		<configuration name="showAllColumns" value="false" />
 		<configuration name="showOnlyOptionsButton" value="true" />
-		<configuration name="showAnnouncementBody" value="true" />
+		<configuration name="showAnnouncementBody" value="false" />
 		<configuration name="channel" value="" />
 
 		<configuration name="reset.button" value="false" type="final" />
