@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -71,12 +71,12 @@ public class SaveAssessmentAttachmentListener
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
 
-    AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean("assessmentBean");
-    String assessmentId = assessmentBean.getAssessmentId();
+    AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.lookupBean("assessmentSettings");
+    String assessmentId = assessmentSettings.getAssessmentId().toString();
 
     // attach item attachemnt to assessmentBean
-    ArrayList attachmentList = prepareAssessmentAttachment((AssessmentIfc)assessmentBean.getAssessment().getData());
-    assessmentBean.setAttachmentList(attachmentList);
+    ArrayList attachmentList = prepareAssessmentAttachment((AssessmentIfc)assessmentSettings.getAssessment().getData());
+    assessmentSettings.setAttachmentList(attachmentList);
   }
 
   private ArrayList prepareAssessmentAttachment(AssessmentIfc assessment){

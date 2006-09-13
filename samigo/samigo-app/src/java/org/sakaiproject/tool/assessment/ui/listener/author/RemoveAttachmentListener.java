@@ -68,8 +68,10 @@ public class RemoveAttachmentListener implements ActionListener
     Long attachmentType = attachmentBean.getAttachmentType();
     if ((AttachmentIfc.ITEM_ATTACHMENT).equals(attachmentType))
       assessmentService.removeItemAttachment(attachmentId);
-    if ((AttachmentIfc.SECTION_ATTACHMENT).equals(attachmentType))
+    else if ((AttachmentIfc.SECTION_ATTACHMENT).equals(attachmentType))
       assessmentService.removeSectionAttachment(attachmentId);
+    else if ((AttachmentIfc.ASSESSMENT_ATTACHMENT).equals(attachmentType))
+      assessmentService.removeAssessmentAttachment(attachmentId);
   }
 
 }

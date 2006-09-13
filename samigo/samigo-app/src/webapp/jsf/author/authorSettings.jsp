@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 
 
 <!--
@@ -289,9 +290,12 @@ function uncheckOther(field){
          </samigo:wysiwyg>
         </h:panelGroup>
 
-       <p></p>
        <!-- ASSESSMENT ATTACHMENTS -->
-       <%@ include file="/jsf/author/authorSettings_attachment.jsp" %>
+       <h:panelGroup>
+         <h:panelGrid columns="1">
+           <%@ include file="/jsf/author/authorSettings_attachment.jsp" %>
+         </h:panelGrid>
+       </h:panelGroup>
   
     </h:panelGrid>
 </div>

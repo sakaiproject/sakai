@@ -26,7 +26,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.faces.context.FacesContext;
-import javax.faces.context.ExternalContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
@@ -38,13 +37,6 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.shared.TypeService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
-import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachmentListener;
-
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.entity.cover.EntityManager;
-
-import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * @author rshastri
@@ -72,7 +64,6 @@ public class AssessmentBean  implements Serializable {
   private String newQuestionTypeId;
   private String firstSectionId;
   private boolean hasRandomDrawPart;
-  private List attachmentList;
 
   /*
    * Creates a new AssessmentBean object.
@@ -101,7 +92,6 @@ public class AssessmentBean  implements Serializable {
       setPartNumbers();
       setQuestionSizeAndTotalScore();
       setSectionList(sectionArray);
-      this.attachmentList = assessment.getAssessmentAttachmentList();
     }
     catch (Exception ex) {
 	ex.printStackTrace();
@@ -265,42 +255,6 @@ public class AssessmentBean  implements Serializable {
 
   public void setHasRandomDrawPart(boolean param) {
     this.hasRandomDrawPart= param;
-  }
-
-  public List getAttachmentList() {
-    return attachmentList;
-  }
-
-  public void setAttachmentList(List attachmentList)
-  {
-    this.attachmentList = attachmentList;
-  }
-
-  private boolean hasAttachment = false;
-  public boolean getHasAttachment(){
-    if (attachmentList!=null && attachmentList.size() >0)
-      this.hasAttachment = true;
-    return this.hasAttachment;
-  }
-
-  public String addAttachmentsRedirect() {
-    // 1. redirect to add attachment
-    try	{
-      List filePickerList = EntityManager.newReferenceList();
-      ToolSession currentToolSession = SessionManager.getCurrentToolSession();
-      currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);
-      ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-      context.redirect("sakai.filepicker.helper/tool");
-    }
-    catch(Exception e){
-      log.error("fail to redirect to attachment page: " + e.getMessage());
-    }
-    return "editAssessment";
-  }
-
-  public void saveAssessmentAttachment(){
-    SaveAssessmentAttachmentListener lis = new SaveAssessmentAttachmentListener();
-    lis.processAction(null);
   }
 
 }

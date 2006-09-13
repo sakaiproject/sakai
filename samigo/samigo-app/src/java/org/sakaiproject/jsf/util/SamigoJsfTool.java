@@ -44,6 +44,7 @@ import org.sakaiproject.util.Web;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 
 /**
  * <p>
@@ -203,6 +204,16 @@ import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 	 SectionBean bean = (SectionBean) ContextUtil.lookupBeanFromExternalServlet(
                                "sectionBean", req, res);
          bean.savePartAttachment();
+         toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
+      }
+
+      // case 3: assessment settings mofification, then save the settings now.
+      //         this will hook up the freshly uploaded file to the part.
+      if (target.indexOf("/jsf/author/authorSettings") > -1 
+	  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
+	 AssessmentSettingsBean bean = (AssessmentSettingsBean) ContextUtil.lookupBeanFromExternalServlet(
+                               "assessmentSettings", req, res);
+         bean.saveAssessmentAttachment();
          toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
       }
 

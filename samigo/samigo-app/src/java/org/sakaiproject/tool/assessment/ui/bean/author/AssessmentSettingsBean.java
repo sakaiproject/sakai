@@ -36,6 +36,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.faces.context.ExternalContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
@@ -57,11 +58,19 @@ import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFa
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachmentListener;
+import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettings;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.entity.cover.EntityManager;
+
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.tool.cover.SessionManager;
+
 
 /**
- * @author rshastri
  *
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
@@ -152,13 +161,15 @@ public class AssessmentSettingsBean
   private String bgImage;
   private HashMap values = new HashMap(); // contains only "can edit" element
   private String bgColorSelect;
- private String bgImageSelect;
+  private String bgImageSelect;
 
   // extra properties
   private boolean noTemplate;
   private String publishedUrl;
   private String alias;
-    private static boolean error;
+  private static boolean error;
+
+    private List attachmentList;
 
   /**
    *  we use the calendar widget which uses 'MM/dd/yyyy hh:mm:ss a'
@@ -196,8 +207,9 @@ public class AssessmentSettingsBean
         this.templateAuthors = template.getAssessmentMetaDataByLabel(
             "author"); // see TemplateUploadListener line 142
       }
-      else
+      else{
         setNoTemplate(true);
+      }
       //2. set the assessment info
       this.assessment = assessment;
       // set the valueMap
@@ -1167,6 +1179,47 @@ public class AssessmentSettingsBean
     this.feedbackAuthoring = feedbackAuthoring;
   }
 
+  public List getAttachmentList() {
+    return attachmentList;
+  }
 
+  public void setAttachmentList(List attachmentList)
+  {
+    this.attachmentList = attachmentList;
+  }
+
+  private boolean hasAttachment = false;
+  public boolean getHasAttachment(){
+    if (attachmentList!=null && attachmentList.size() >0)
+      this.hasAttachment = true;
+    return this.hasAttachment;
+  }
+
+  public String addAttachmentsRedirect() {
+    // 1. save the assessment settings 1st
+    saveAssessmentSettings();
+    // 2. redirect to add attachment
+    try	{
+      List filePickerList = EntityManager.newReferenceList();
+      ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+      currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);
+      ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+      context.redirect("sakai.filepicker.helper/tool");
+    }
+    catch(Exception e){
+      log.error("fail to redirect to attachment page: " + e.getMessage());
+    }
+    return "editAssessmentSettings";
+  }
+
+  public void saveAssessmentSettings(){
+    SaveAssessmentSettings lis = new SaveAssessmentSettings();
+    lis.save(this);
+  }
+
+  public void saveAssessmentAttachment(){
+    SaveAssessmentAttachmentListener lis = new SaveAssessmentAttachmentListener();
+    lis.processAction(null);
+  }
 
 }

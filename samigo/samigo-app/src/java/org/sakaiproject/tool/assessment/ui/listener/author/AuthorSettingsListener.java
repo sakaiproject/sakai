@@ -33,6 +33,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -73,6 +74,10 @@ public class AuthorSettingsListener implements ActionListener
     // #1a - load the assessment
     String assessmentId = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("assessmentId");
+    if (assessmentId == null){
+      assessmentId = assessmentSettings.getAssessmentId().toString();
+    }
+
     AssessmentService assessmentService = new AssessmentService();
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentId);
@@ -88,6 +93,10 @@ public class AuthorSettingsListener implements ActionListener
     // pass authz, move on
     //if not duplicate name
     assessmentSettings.setAssessment(assessment);
+    assessmentSettings.setAssessmentId(assessment.getAssessmentId());
+    assessmentSettings.setAttachmentList(((AssessmentIfc)assessment.getData()).getAssessmentAttachmentList());
+
+    System.out.println("***assessment Setting .attachmentList="+assessmentSettings.getAttachmentList());
     // else throw error
 
     // #1c - get question size
