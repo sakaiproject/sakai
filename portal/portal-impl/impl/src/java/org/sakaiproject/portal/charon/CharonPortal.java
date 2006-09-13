@@ -60,6 +60,7 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.ErrorReporter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
@@ -108,6 +109,8 @@ public class CharonPortal extends HttpServlet
 	private static final String TOOLCONFIG_HELP_DOCUMENT_ID = "help.id";
 
 	private static final String TOOLCONFIG_HELP_DOCUMENT_URL = "help.url";
+
+	private BasicAuth basicAuth = null;
 
 	/**
 	 * Shutdown the servlet.
@@ -298,6 +301,7 @@ public class CharonPortal extends HttpServlet
 	{
 		try
 		{
+			basicAuth.doLogin(req);
 			// get the Sakai session
 			Session session = SessionManager.getCurrentSession();
 
@@ -694,6 +698,16 @@ public class CharonPortal extends HttpServlet
 	protected void doLogin(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath,
 			boolean skipContainer) throws ToolException
 	{
+		try {
+		if ( basicAuth.doAuth(req,res) ) {
+			//System.err.println("BASIC Auth Request Sent to the Browser ");
+			return;
+		} 
+		} catch ( IOException ioex ) {
+			throw new ToolException(ioex);
+			
+		}
+		
 		// setup for the helper if needed (Note: in session, not tool session, special for Login helper)
 		// Note: always set this if we are passed in a return path... a blank return path is valid... to clean up from
 		// possible abandened previous login attempt -ggolden
@@ -842,6 +856,7 @@ public class CharonPortal extends HttpServlet
 	{
 		try
 		{
+			basicAuth.doLogin(req);
 			// get the Sakai session
 			Session session = SessionManager.getCurrentSession();
 
@@ -2168,6 +2183,9 @@ public class CharonPortal extends HttpServlet
 		super.init(config);
 
 		M_log.info("init()");
+		
+		basicAuth  = new BasicAuth();
+		basicAuth.init();
 	}
 
 	/**
