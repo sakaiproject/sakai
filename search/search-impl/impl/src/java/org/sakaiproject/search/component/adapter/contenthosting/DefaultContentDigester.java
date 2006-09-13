@@ -20,10 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.search.component.adapter.contenthosting;
 
-import java.io.FilterReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -48,7 +44,7 @@ public class DefaultContentDigester implements ContentDigester
 			StringBuffer sb = new StringBuffer();
 			sb.append(rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME)).append(" ");
 			sb.append(rp.getProperty(ResourceProperties.PROP_DESCRIPTION));
-			return sb.toString();
+			return sb.toString().replaceAll("[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\ud800-\\udfff\\uffff\\ufffe]", "");
 		}
 		catch (Exception e)
 		{

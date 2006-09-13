@@ -24,13 +24,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.StringWriter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pdfbox.pdmodel.PDDocument;
 import org.pdfbox.util.PDFTextStripper;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.search.api.SearchUtils;
 
 /**
  * @author ieb
@@ -55,7 +55,7 @@ public class PDFContentDigester extends BaseContentDigester
 			pddoc = PDDocument.load(contentStream);
 			String text = stripper.getText(pddoc);
 			pddoc.close();
-			return text;
+			return SearchUtils.getCleanString(text);
 		}
 		catch (Exception ex)
 		{

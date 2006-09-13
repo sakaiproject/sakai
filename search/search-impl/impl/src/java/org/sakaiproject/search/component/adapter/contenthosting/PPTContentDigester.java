@@ -57,7 +57,7 @@ public class PPTContentDigester extends BaseContentDigester
 			StringBuffer sb = new StringBuffer();
 			sb.append(pptExtractor.getText()).append(" ").append(
 					pptExtractor.getNotes());
-			return sb.toString();
+			return sb.toString().replaceAll("[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\ud800-\\udfff\\uffff\\ufffe]", "");
 		}
 		catch (Exception e)
 		{

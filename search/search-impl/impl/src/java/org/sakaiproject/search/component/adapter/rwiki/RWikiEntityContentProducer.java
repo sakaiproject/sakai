@@ -38,6 +38,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
@@ -127,6 +128,7 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		String renderedPage = renderService.renderPage(rwo, pageSpace,
 				objectService.getComponentPageLinkRender(pageSpace));
 
+		SearchUtils.getCleanString(renderedPage);
 		return DigestHtml.digest(renderedPage);
 
 	}
@@ -135,7 +137,7 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 	{
 		RWikiEntity rwe = (RWikiEntity) cr;
 		RWikiObject rwo = rwe.getRWikiObject();
-		return rwo.getName();
+		return SearchUtils.getCleanString(rwo.getName());
 	}
 
 	public boolean matches(Reference ref)

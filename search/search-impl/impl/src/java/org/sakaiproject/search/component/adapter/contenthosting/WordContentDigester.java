@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.search.api.SearchUtils;
 
 /**
  * @author ieb
@@ -60,7 +61,7 @@ public class WordContentDigester extends BaseContentDigester
 			{
 				sb.append(paragraphs[i]).append(" ");
 			}
-			return sb.toString();
+			return SearchUtils.getCleanString(sb.toString());
 		}
 		catch (Exception e)
 		{

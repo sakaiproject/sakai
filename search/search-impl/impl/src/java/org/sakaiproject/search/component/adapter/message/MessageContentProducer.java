@@ -47,6 +47,7 @@ import org.sakaiproject.message.api.MessageService;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
 /**
@@ -191,7 +192,7 @@ public class MessageContentProducer implements EntityContentProducer
 				
 				
 				
-				return sb.toString();
+				return sb.toString().replaceAll("[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\ud800-\\udfff\\uffff\\ufffe]", "");
 			}
 			catch (IdUnusedException e)
 			{
@@ -230,7 +231,9 @@ public class MessageContentProducer implements EntityContentProducer
 				}
 				
 				
-				return subject+"From " + mh.getFrom().getDisplayName();
+				String title =  subject+"From " + mh.getFrom().getDisplayName();
+				return SearchUtils.getCleanString(title);
+				
 			}
 			catch (IdUnusedException e)
 			{

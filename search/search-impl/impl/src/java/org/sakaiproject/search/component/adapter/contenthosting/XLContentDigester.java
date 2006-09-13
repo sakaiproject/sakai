@@ -33,6 +33,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.search.api.SearchUtils;
 
 /**
  * @author ieb
@@ -78,7 +79,7 @@ public class XLContentDigester extends BaseContentDigester
 					}
 				}
 			}
-			return sb.toString();
+			return SearchUtils.getCleanString(sb.toString());
 		}
 		catch (Exception e)
 		{
