@@ -1869,10 +1869,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// complete the edit
 		m_storage.removeCollection(edit);
 
-		// track it (no notification)
-		EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_REMOVE, edit.getReference(), true,
-				NotificationService.NOTI_NONE));
-
 		// close the edit object
 		((BaseCollectionEdit) edit).closeEdit();
 
@@ -1894,6 +1890,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		catch (GroupNotDefinedException ignore)
 		{
 		}
+
+		// track it (no notification)
+		EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_REMOVE, edit.getReference(), true,
+				NotificationService.NOTI_NONE));
 
 	} // removeCollection
 
@@ -2053,18 +2053,17 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// complete the edit
 		m_storage.commitCollection(edit);
 
+		// close the edit object
+		((BaseCollectionEdit) edit).closeEdit();
+
+		// the collection has changed so we must remove the old version from thread-local cache
+		String ref = edit.getReference();
+		ThreadLocalManager.set("findCollection@" + ref, null);
+
 		// track it (no notification)
 		EventTrackingService.post(EventTrackingService.newEvent(((BaseCollectionEdit) edit).getEvent(), edit.getReference(), true,
 				NotificationService.NOTI_NONE));
 
-		// close the edit object
-		((BaseCollectionEdit) edit).closeEdit();
-
-		// the collection has changed so we must remove
-		// the old version from thread-local cache.
-		String ref = edit.getReference();
-		ThreadLocalManager.set("findCollection@" + ref, null);
-		
 	} // commitCollection
 
 	/**
@@ -3466,10 +3465,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// complete the edit
 		m_storage.removeResource(edit);
 
-		// track it (no notification)
-		EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_REMOVE, edit.getReference(), true,
-				NotificationService.NOTI_NONE));
-
 		// close the edit object
 		((BaseResourceEdit) edit).closeEdit();
 
@@ -3491,6 +3486,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		catch (GroupNotDefinedException ignore)
 		{
 		}
+
+		// track it (no notification)
+		EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_REMOVE, edit.getReference(), true,
+				NotificationService.NOTI_NONE));
 
 	} // removeResource
 
@@ -4573,18 +4572,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// complete the edit
 		m_storage.commitResource(edit);
 
-		// track it
-		EventTrackingService.post(EventTrackingService.newEvent(((BaseResourceEdit) edit).getEvent(), edit.getReference(), true,
-				priority));
-
 		// close the edit object
 		((BaseResourceEdit) edit).closeEdit();
-		
+
 		// must remove old version of this edit from thread-local cache
 		// so we get new version if we try to retrieve it in same thread
 		String ref = edit.getReference();
 		ThreadLocalManager.set("findResource@" + ref, null);
-		
+
+		// track it
+		EventTrackingService.post(EventTrackingService.newEvent(((BaseResourceEdit) edit).getEvent(), edit.getReference(), true,
+				priority));
+
 	} // commitResourceEdit
 	
 	/**
