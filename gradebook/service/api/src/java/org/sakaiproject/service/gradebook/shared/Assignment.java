@@ -50,11 +50,11 @@ public interface Assignment {
 	 */
 	public Date getDueDate();
 
-	/**
-	 * @return Returns true if the assignment is maintained by some software
-	 *         other than the Gradebook itself.
-	 */
-	public boolean isExternallyMaintained();
+    /**
+     * @return Returns true if the assignment is maintained by some software
+     *         other than the Gradebook itself.
+     */
+    public boolean isExternallyMaintained();
 
     /**
      *
@@ -62,4 +62,15 @@ public interface Assignment {
      */
 
     public boolean isReleased();
+    /**
+     *
+     * @return Returns the externalAppName
+     */
+    public String getExternalAppName();
+    /**
+     *
+     * @return Returns the external Id
+     */
+    public String getExternalId();
+
 }
