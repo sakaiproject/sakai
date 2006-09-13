@@ -20,7 +20,10 @@
 				<label #if(!$user) for="eid" #end>
 					$tlang.getString("useedi.useid")
 				</label>
-				#if(!$user)<input type="text" name="eid" id="eid" #if($valueEid)value="$validator.escapeHtml($valueEid)"#end/>#else$validator.escapeHtml($user.Eid)#end
+				#if($user && !$valueEid)
+					#set($valueEid=$user.Eid)
+				#end
+				<input type="text" name="eid" id="eid" #if($valueEid)value="$validator.escapeHtml($valueEid)"#end/>
 			</p>	
 			<p class="shorttext">
 				<label for="first-name">
