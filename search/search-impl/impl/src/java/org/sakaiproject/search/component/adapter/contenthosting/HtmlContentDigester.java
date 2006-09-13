@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.component.adapter.util.DigestHtml;
 import org.w3c.tidy.Tidy;
 
@@ -62,7 +63,8 @@ public class HtmlContentDigester extends BaseContentDigester
 			tidy.setShowWarnings(false);
 			tidy.setOnlyErrors(true);
 			tidy.parse(contentStream, baos);
-			String tidyOut = new String(baos.toByteArray());
+			
+			String tidyOut = SearchUtils.getCleanString(new String(baos.toByteArray()));
 			log.debug("Tidy Output was "+tidyOut);
 			return DigestHtml.digest(tidyOut);
 			

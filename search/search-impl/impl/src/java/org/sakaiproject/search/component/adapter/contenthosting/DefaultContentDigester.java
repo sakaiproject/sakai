@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.search.api.SearchUtils;
 
 /**
  * @author ieb
@@ -44,7 +45,7 @@ public class DefaultContentDigester implements ContentDigester
 			StringBuffer sb = new StringBuffer();
 			sb.append(rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME)).append(" ");
 			sb.append(rp.getProperty(ResourceProperties.PROP_DESCRIPTION));
-			return sb.toString().replaceAll("[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\ud800-\\udfff\\uffff\\ufffe]", "");
+			return SearchUtils.getCleanString(sb.toString());
 		}
 		catch (Exception e)
 		{
