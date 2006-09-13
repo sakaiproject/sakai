@@ -26,31 +26,37 @@ should be included in file importing DeliveryMessages
 --%>
 -->
 
-      <%-- media list, note that question is ItemContentsBean --%>
-  <h:dataTable value="#{description.itemGradingArrayList}" var="itemGradingArrayList">
+<h:panelGroup>
+  <h:dataTable value="#{description.itemGradingArrayList}" var="itemGradingArrayList" cellpadding="10">
     <h:column>
-		<h:outputText value="#{description.answer}" escape="false" rendered="#{itemGradingArrayList.mediaSize == 0}" />
-      <h:dataTable value="#{itemGradingArrayList.mediaArray}" var="media">
-        <h:column>
-<%--
-          <h:outputText escape="false" value="
-            <embed src=\"/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}\"
-                volume=\"50\" height=\"25\" width=\"250\" autostart=\"false\"/>
-            " />
---%>
-          <h:outputLink title="#{msg.t_playAudio}" value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}" target="new_window">
-             <h:outputText escape="false" value="play audio" />
-          </h:outputLink>
-        </h:column>
-        <h:column>
-         <h:outputText value="#{msg.open_bracket}"/>
-         <h:outputText value="#{media.createdDate}">
-           <f:convertDateTime pattern="#{msg.grading_date_no_time_format}" />
-         </h:outputText>
-         <h:outputText value="#{msg.close_bracket}"/>
-        </h:column>
-      </h:dataTable>
-    </h:column>
+      <h:outputText value="#{description.answer}" escape="false" rendered="#{itemGradingArrayList.mediaSize == 0}" />
+	  <h:dataTable value="#{itemGradingArrayList.mediaArray}" var="media">
+	    <h:column>
+      <h:outputText escape="false" value="
+         <embed src=\"/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}&fromLink=true\"
+                volume=\"50\" height=\"25\" width=\"300\" autostart=\"false\"/>
+         " />
+
+      <f:verbatim><br /></f:verbatim>
+      <h:outputText value="#{msg.open_bracket}"/>
+      <h:outputText value="#{media.duration} sec, recorded on " rendered="#{!media.durationIsOver}" />
+      <h:outputText value="#{question.duration} sec, recorded on " rendered="#{media.durationIsOver}" />
+	  <h:outputText value="#{media.createdDate}">
+        <f:convertDateTime pattern="#{msg.grading_date_no_time_format}" />
+      </h:outputText>
+      <h:outputText value="#{msg.close_bracket}"/>
+      <f:verbatim><br /></f:verbatim>
+	  
+	  <div>
+      <h:outputText value="#{msg.can_you_hear_1}"  escape="false"/>
+      <h:outputLink value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}&setMimeType=false">
+        <h:outputText value=" #{msg.can_you_hear_2} " escape="false" />
+      </h:outputLink>
+      <h:outputText value="#{msg.can_you_hear_3}"  escape="false"/>
+      </div>
+
+     </h:column>
   </h:dataTable>
-
-
+       </h:column>
+  </h:dataTable>
+</h:panelGroup>

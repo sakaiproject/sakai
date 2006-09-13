@@ -27,6 +27,7 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -68,6 +69,7 @@ public class ShowMediaServlet extends HttpServlet
   {
     // get media
     String mediaId = req.getParameter("mediaId");
+    String fromLink = req.getParameter("fromLink");
     GradingService gradingService = new GradingService();
     MediaData mediaData = gradingService.getMedia(mediaId);
     String mediaLocation = mediaData.getLocation();
@@ -100,11 +102,19 @@ public class ShowMediaServlet extends HttpServlet
     // some log checking
     //log.debug("agentIdString ="+agentIdString);
     //log.debug("****current site Id ="+currentSiteId);
-
-    if (agentIdString !=null && mediaData != null &&
-         (agentIdString.equals(mediaData.getCreatedBy()) // user is creator
-	  || canGrade(req, res, agentIdString, currentSiteId, assessmentCreatedBy)))  
+    
+    // We only need to verify the Previleage if we display the media as a hyperlink
+    // If we display them in line, the previleage has been checked during rendering
+    boolean hasPrevileage = agentIdString !=null && mediaData != null &&
+    	(agentIdString.equals(mediaData.getCreatedBy()) // user is creator
+    	 || canGrade(req, res, agentIdString, currentSiteId, assessmentCreatedBy));
+    boolean isFromLink = true;
+    if (fromLink != null) {
+    	isFromLink = (new Boolean(fromLink)).booleanValue();
+    }
+    if (hasPrevileage || isFromLink) {
       accessDenied = false;
+    }
     if (accessDenied){
       String path = "/jsf/delivery/mediaAccessDenied.faces";
       RequestDispatcher dispatcher = req.getRequestDispatcher(path);
@@ -193,8 +203,7 @@ public class ShowMediaServlet extends HttpServlet
 
   public boolean canGrade(HttpServletRequest req,  HttpServletResponse res,
                           String agentId, String currentSiteId, String assessmentCreatedBy){
-    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet(
-			   "authorization", req, res);
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet("authorization", req, res);
     boolean hasPrivilege_any = authzBean.getGradeAnyAssessment(req, currentSiteId);
     boolean hasPrivilege_own0 = authzBean.getGradeOwnAssessment(req, currentSiteId);
     boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(agentId, assessmentCreatedBy));
