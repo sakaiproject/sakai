@@ -447,6 +447,7 @@ onkeypress=
       <h:commandLink title="#{msg.t_score}" action="#{author.getOutcome}" immediate="true" 
          rendered="#{inactivePublishedAssessment.submissionSize >0 and (authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">
         <h:outputText value="Scores" />
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <f:param name="publishedId" value="#{inactivePublishedAssessment.publishedAssessmentId}" />
       </h:commandLink>
