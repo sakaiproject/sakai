@@ -102,4 +102,62 @@
 	</bean>
 -->
 
+	<!--
+		CourseManagement-backed Group and Course Providers
+
+	<bean id="org.sakaiproject.authz.api.GroupProvider"
+			class="org.sakaiproject.coursemanagement.impl.provider.CourseManagementGroupProvider"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+			<property name="cmService">
+				<ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+			</property>
+			<property name="roleResolvers">
+				<list>
+					<bean class="org.sakaiproject.coursemanagement.impl.provider.SectionRoleResolver">
+						<property name="roleMap">
+							<map>
+								<entry key="I" value="Instructor" />
+								<entry key="S" value="Student" />
+								<entry key="GSI" value="Teaching Assistant"/>
+							</map>
+						</property>
+						<property name="officialInstructorRole" value="Instructor" />
+						<property name="enrollmentRole" value="Student" />
+					</bean>
+					<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseOfferingRoleResolver">
+						<property name="roleMap">
+							<map>
+								<entry key="CourseAdmin" value="Instructor" />
+								<entry key="I" value="Instructor" />
+							</map>
+						</property>
+					</bean>
+					<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseSetRoleResolver">
+						<property name="roleMap">
+							<map>
+								<entry key="DeptAdmin" value="Instructor" />
+							</map>
+						</property>
+					</bean>
+				</list>
+			</property>
+	</bean>
+	
+	<bean id="org.sakaiproject.site.api.CourseManagementProvider"
+		class="org.sakaiproject.coursemanagement.impl.provider.CourseManagementProviderCMImpl">
+			<property name="cmService">
+				<ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+			</property>
+			<property name="cmGroupProvider">
+				<ref bean="org.sakaiproject.authz.api.GroupProvider"/>
+			</property>
+			<property name="uds">
+				<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+			</property>
+	</bean>
+
+	-->
+
 </beans>
