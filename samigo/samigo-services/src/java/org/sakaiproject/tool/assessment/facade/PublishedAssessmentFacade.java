@@ -90,7 +90,7 @@ public class PublishedAssessmentFacade
   private Integer feedbackAuthoring;
   private Date feedbackDate;
   private String ownerSiteName;
-  private Set assessmentAttachmentSet;
+  private Set publishedAssessmentAttachmentSet;
 
   public PublishedAssessmentFacade() {
   }
@@ -170,6 +170,7 @@ public class PublishedAssessmentFacade
     this.publishedMetaDataMap = data.getAssessmentMetaDataMap(
         this.publishedMetaDataSet);
     this.publishedSecuredIPAddressSet = data.getSecuredIPAddressSet();
+    this.publishedAssessmentAttachmentSet = data.getAssessmentAttachmentSet();
   }
 
   public Long getPublishedAssessmentId(){
@@ -612,18 +613,18 @@ public class PublishedAssessmentFacade
   }
 
   public Set getAssessmentAttachmentSet() throws DataFacadeException {
-    return assessmentAttachmentSet;
+    return publishedAssessmentAttachmentSet;
   }
 
-  public void setAssessmentAttachmentSet(Set assessmentAttachmentSet) {
-    this.assessmentAttachmentSet = assessmentAttachmentSet;
-    this.data.setAssessmentAttachmentSet(assessmentAttachmentSet);
+  public void setAssessmentAttachmentSet(Set publishedAssessmentAttachmentSet) {
+    this.publishedAssessmentAttachmentSet = publishedAssessmentAttachmentSet;
+    this.data.setAssessmentAttachmentSet(publishedAssessmentAttachmentSet);
   }
 
   public List getAssessmentAttachmentList() {
     ArrayList list = new ArrayList();
-    if (assessmentAttachmentSet != null){
-      Iterator iter = assessmentAttachmentSet.iterator();
+    if (publishedAssessmentAttachmentSet != null){
+      Iterator iter = publishedAssessmentAttachmentSet.iterator();
       while (iter.hasNext()){
         AssessmentAttachmentIfc a = (AssessmentAttachmentIfc)iter.next();
         list.add(a);
