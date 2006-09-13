@@ -549,7 +549,7 @@ public class ItemAddListener
         itemauthor.setOutcome("editAssessment");
 
       }
-      // sorry, i need this for item attachment
+      // sorry, i need this for item attachment, used by SaveItemAttachmentListener. 
       itemauthor.setItemId(item.getItemId().toString());
       return true;
     }

@@ -50,7 +50,7 @@ import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener;
-import org.sakaiproject.tool.assessment.ui.listener.author.SaveItemAttachmentListener;
+import org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.tool.api.ToolSession;
@@ -964,7 +964,7 @@ ItemService delegate = new ItemService();
   }
 
   public void saveItemAttachment(){
-    SaveItemAttachmentListener lis = new SaveItemAttachmentListener();
+    ItemModifyListener lis = new ItemModifyListener();
     lis.processAction(null);
   }
 

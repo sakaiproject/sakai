@@ -62,10 +62,10 @@ public interface PublishedAssessmentServiceAPI {
 
   public Long getPublishedAssessmentId(String assessmentId);
 
-  public PublishedAssessmentIfc publishAssessment(AssessmentIfc assessment);
+  public PublishedAssessmentIfc publishAssessment(AssessmentIfc assessment, String protocol);
 
   public PublishedAssessmentIfc publishPreviewAssessment(AssessmentIfc
-      assessment);
+      assessment, String protocol);
 
   public void saveAssessment(PublishedAssessmentIfc assessment);
 

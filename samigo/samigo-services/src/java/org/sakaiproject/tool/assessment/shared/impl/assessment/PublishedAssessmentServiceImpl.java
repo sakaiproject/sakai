@@ -236,7 +236,7 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
    * @param assessment
    * @return
    */
-  public PublishedAssessmentIfc publishAssessment(AssessmentIfc assessment)
+  public PublishedAssessmentIfc publishAssessment(AssessmentIfc assessment, String protocol)
   {
     try
     {
@@ -244,7 +244,7 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
       AssessmentService assessmentService = new AssessmentService();
       AssessmentFacade facade = assessmentService.getAssessment(
         assessment.getAssessmentId().toString());
-      return service.publishAssessment(facade);
+      return service.publishAssessment(facade, protocol);
     }
     catch (Exception ex)
     {
@@ -257,7 +257,7 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
    * @param assessment the assessment to preview.
    * @return the published assessment "view" into the assessment.
    */
-  public PublishedAssessmentIfc publishPreviewAssessment(AssessmentIfc assessment)
+  public PublishedAssessmentIfc publishPreviewAssessment(AssessmentIfc assessment, String protocol)
   {
     try
     {
@@ -265,7 +265,7 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
       AssessmentService assessmentService = new AssessmentService();
       AssessmentFacade facade = assessmentService.getAssessment(
         assessment.getAssessmentId().toString());
-      return service.publishPreviewAssessment(facade);
+      return service.publishPreviewAssessment(facade, protocol);
     }
     catch (Exception ex)
     {
