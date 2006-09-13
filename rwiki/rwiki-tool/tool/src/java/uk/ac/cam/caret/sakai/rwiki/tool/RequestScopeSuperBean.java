@@ -218,9 +218,15 @@ public class RequestScopeSuperBean
 			String user = this.getCurrentUser();
 			if (user != null && user.length() > 0)
 			{
-				messageService.updatePresence(session.getId(), this
-						.getCurrentUser(), this.getCurrentPageName(), this
-						.getCurrentPageSpace());
+				String currentPageName = this.getCurrentPageName();
+				String pageSpace = this.getCurrentPageSpace();
+				if ( currentPageName != null && currentPageName.length() < 255 && pageSpace != null && pageSpace.length() < 255 ) {
+					messageService.updatePresence(session.getId(), this
+							.getCurrentUser(), this.getCurrentPageName(), this
+							.getCurrentPageSpace());
+				} else {
+					log.warn("Page names in wiki cannot be over 225 characters in length, presence not updated. Page Name was "+currentPageName);
+				}
 			}
 		}
 		
