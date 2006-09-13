@@ -24,6 +24,7 @@ package uk.ac.cam.caret.sakai.rwiki.tool.bean.helper;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.site.api.SiteService;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.AuthZGroupBean;
@@ -36,7 +37,7 @@ public class AuthZGroupBeanHelper
 {
 
 	public static AuthZGroupBean createRealmBean(
-			AuthzGroupService realmService, RWikiObject rwikiObject,
+			AuthzGroupService realmService, SiteService siteService, RWikiObject rwikiObject,
 			ErrorBean errorBean, ViewBean vb)
 	{
 		AuthZGroupBean rb = new AuthZGroupBean(vb.getPageName(), vb
@@ -56,7 +57,7 @@ public class AuthZGroupBeanHelper
 					+ " is not recognised in the system.");
 		}
 
-		rb.setSiteUpdateAllowed(realmService.allowUpdate(realmId));
+		rb.setSiteUpdateAllowed(realmService.allowUpdate(realmId) && siteService.allowUpdateSite(realmId));
 
 		return rb;
 	}
