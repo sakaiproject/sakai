@@ -44,7 +44,7 @@
       <!-- AUTHORING -->
       <samigo:script path="/js/authoring.js"/>
       </head>
-<body onload="resetInsertAnswerSelectMenus();countNum();<%= request.getAttribute("html.body.onload") %>">
+<body onload="resetInsertAnswerSelectMenus();<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
 <!-- content... -->

@@ -44,7 +44,7 @@
       <samigo:script path="/js/authoring.js"/>
 
       </head>
-<body onload="countNum();<%= request.getAttribute("html.body.onload") %>">
+<body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
 <!-- content... -->
@@ -178,7 +178,7 @@
   </h:commandButton>
 
 
-  <h:commandButton accesskey="#{msg.a_cancel}" rendered="#{itemauthor.target=='assessment'}" value="#{msg.button_cancel}" action="editAssessment" immediate="true"/>
+  <h:commandButton accesskey="#{msg.a_cancel}" rendered="#{itemauthor.target=='assessment'}" value="#{msg.button_cancel}" action="editAssessment" immediate="true">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
   </h:commandButton>

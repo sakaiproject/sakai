@@ -61,7 +61,7 @@
 --%>
       </head>
 <%-- unfortunately have to use a scriptlet here --%>
-<body onload="countNum();<%= request.getAttribute("html.body.onload") %>">
+<body onload="<%= request.getAttribute("html.body.onload") %>">
 <%--
       <body onload="javascript:initEditors('<%=request.getContextPath()%>');;<%= request.getAttribute("html.body.onload") %>">
 --%>

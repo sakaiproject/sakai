@@ -42,7 +42,7 @@
       <title><h:outputText value="#{msg.item_display_author}"/></title>
       <samigo:script path="/js/authoring.js"/>
       </head>
-      <body onload="countNum();<%= request.getAttribute("html.body.onload") %>">
+      <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
 <%-- content... --%>
