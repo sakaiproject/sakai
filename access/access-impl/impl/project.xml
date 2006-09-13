@@ -46,6 +46,12 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-user-util</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-event-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
@@ -91,6 +97,12 @@
 			<artifactId>sakai-util</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
+
+        <dependency>
+       	<groupId>sakaiproject</groupId>
+           <artifactId>sakai-user-util</artifactId>
+           <version>${sakai.version}</version>
+        </dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>

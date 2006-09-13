@@ -32,7 +32,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
+import org.apache.commons.logging.Log; 
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -54,6 +54,7 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.BaseResourceProperties;
+import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
@@ -106,6 +107,8 @@ public class AccessServlet extends VmServlet
 
 	/** Session attribute holding copyright-accepted references (a collection of Strings). */
 	protected static final String COPYRIGHT_ACCEPTED_REFS_ATTR = "Access.Copyright.Accepted";
+	
+	protected BasicAuth basicAuth = null;
 
 	/** init thread - so we don't wait in the actual init() call */
 	public class AccessServletInit extends Thread
@@ -140,6 +143,9 @@ public class AccessServlet extends VmServlet
 	{
 		super.init(config);
 		startInit();
+		basicAuth = new BasicAuth();
+		basicAuth.init();
+		
 	}
 
 	/**
@@ -164,14 +170,15 @@ public class AccessServlet extends VmServlet
 	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
+		// process any login that might be present
+		basicAuth.doLogin(req);
 		// catch the login helper requests
 		String option = req.getPathInfo();
 		String[] parts = option.split("/");
 		if ((parts.length == 2) && ((parts[1].equals("login"))))
 		{
 			doLogin(req, res, null);
-		}
-
+		}	
 		else
 		{
 			dispatch(req, res);
@@ -192,6 +199,8 @@ public class AccessServlet extends VmServlet
 	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
+		// process any login that might be present
+		basicAuth.doLogin(req);
 		// catch the login helper posts
 		String option = req.getPathInfo();
 		String[] parts = option.split("/");
@@ -340,7 +349,9 @@ public class AccessServlet extends VmServlet
 			// if not permitted, and the user is the anon user, let them login
 			if (SessionManager.getCurrentSessionUserId() == null)
 			{
-				doLogin(req, res, origPath);
+				try {
+					doLogin(req, res, origPath);
+				} catch ( IOException ioex ) {}
 				return;
 			}
 
@@ -428,9 +439,17 @@ public class AccessServlet extends VmServlet
 	 *        HttpServletResponse object back to the client.
 	 * @param path
 	 *        The current request path, set ONLY if we want this to be where to redirect the user after successfull login
+	 * @throws IOException 
 	 */
-	protected void doLogin(HttpServletRequest req, HttpServletResponse res, String path) throws ToolException
+	protected void doLogin(HttpServletRequest req, HttpServletResponse res, String path) throws ToolException, IOException
 	{
+		// if basic auth is valid do that
+		if ( basicAuth.doAuth(req,res) ) {
+			//System.err.println("BASIC Auth Request Sent to the Browser ");
+			return;
+		} 
+		
+		
 		// get the Sakai session
 		Session session = SessionManager.getCurrentSession();
 
