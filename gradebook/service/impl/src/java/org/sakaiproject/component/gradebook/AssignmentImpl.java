@@ -65,4 +65,20 @@ public class AssignmentImpl implements org.sakaiproject.service.gradebook.shared
     public boolean isReleased() {
         return assignment.isReleased();
     }
+
+    /**
+     *
+     * @return Returns the externalAppName
+     */
+    
+    public String getExternalAppName() {
+        return assignment.getExternalAppName();
+    }
+    /**
+     *
+     * @return Returns the external id
+     */
+    public String getExternalId() {
+        return assignment.getExternalId();
+    }
 }
