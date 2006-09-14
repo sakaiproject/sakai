@@ -922,4 +922,12 @@ public class ContentHostingService
 
 		return service.isAvailabilityEnabled();
 	}
+
+	public static boolean isPrioritySortEnabled() 
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return false;
+
+		return service.isPrioritySortEnabled();
+	}
 }

@@ -149,6 +149,13 @@ public interface ContentHostingService extends EntityProducer
 	/** The maximum number of characters allowed in a new resource ID: make is so the reference, /content/<id>, is 255 or less */
 	public static final int MAXIMUM_RESOURCE_ID_LENGTH = 247;
 	
+	/** 
+	 * When assigning default priority (for "priority" sort) folders come before files, 
+	 * so files get "priority" much higher than folders.  Add the offset to folder priorities  
+	 * to force all files to sort after folders 
+	 */
+	public static final int CONTENT_RESOURCE_PRIORITY_OFFSET = Integer.MAX_VALUE / 8;
+
 	/**
     * For a given id, return its UUID (creating it if it does not already exist)
     */
@@ -1495,4 +1502,11 @@ public interface ContentHostingService extends EntityProducer
 	 * and false otherwise. 
 	 */
 	public boolean isAvailable(String entityId);
+	
+	/**
+	 * Access flag indicating whether sorting by "priority" is enabled.
+	 * @return true if the custom sort by priority is enabled, false otherwise.
+	 */ 
+	public boolean isPrioritySortEnabled();
+	
 }

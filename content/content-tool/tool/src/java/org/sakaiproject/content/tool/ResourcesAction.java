@@ -442,6 +442,16 @@ public class ResourcesAction
 
 	/** The copied item ids */
 	private static final String STATE_MOVED_IDS = "resources.revise_moved_ids";
+	
+	/************** the reorder context *****************************************/
+
+	protected static final String STATE_REORDER_FOLDER = "resources.reorder_folder_id";
+
+	/** The property (column) to sort by in the reorder context */
+	protected static final String STATE_REORDER_SORT_BY = "resources.reorder_sort_by";
+	
+	/** The sort ascending or decending for the reorder context */
+	protected static final String STATE_REORDER_SORT_ASC = "resources.sort_asc";
 
 	/** Modes. */
 	private static final String MODE_LIST = "list";
@@ -452,6 +462,8 @@ public class ResourcesAction
 	private static final String MODE_DELETE_CONFIRM = "deleteConfirm";
 	private static final String MODE_MORE = "more";
 	private static final String MODE_PROPERTIES = "properties";
+	private static final String MODE_REORDER = "reorder";
+
 
 	/** modes for attachment helper */
 	public static final String MODE_ATTACHMENT_SELECT = "resources.attachment_select";
@@ -479,6 +491,7 @@ public class ResourcesAction
 	private static final String TEMPLATE_DELETE_CONFIRM = "content/chef_resources_deleteConfirm";
 	private static final String TEMPLATE_PROPERTIES = "content/chef_resources_properties";
 	// private static final String TEMPLATE_REPLACE = "_replace";
+	private static final String TEMPLATE_REORDER = "content/chef_resources_reorder";
 
 	/** the site title */
 	private static final String STATE_SITE_TITLE = "site_title";
@@ -528,8 +541,7 @@ public class ResourcesAction
 	protected static final String STATE_TOP_MESSAGE_INDEX = "resources.top_message_index";
 
 	protected static final String STATE_REMOVED_ATTACHMENTS = "resources.removed_attachments";
-
-
+	
 	/********* Global constants *********/
 
 	/** The null/empty string */
@@ -650,6 +662,10 @@ public class ResourcesAction
 		{
 			template = buildOptionsPanelContext (portlet, context, data, state);
 		}
+		else if (mode.equals (MODE_REORDER))
+		{
+			template = buildReorderContext (portlet, context, data, state);
+		}
 		else if(mode.equals(MODE_DAV))
 		{
 			template = buildWebdavContext (portlet, context, data, state);
@@ -658,6 +674,44 @@ public class ResourcesAction
 		return template;
 
 	}	// buildMainPanelContext
+
+	/**
+	 * Build the context to establish a custom-ordering of resources/folders within a folder.
+	 */
+	public String buildReorderContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
+	{
+		context.put("tlang",rb);
+		
+		String folderId = (String) state.getAttribute(STATE_REORDER_FOLDER);
+		context.put("folderId", folderId);
+		
+		SortedSet expandedCollections = new TreeSet();
+		
+		//ContentCollection coll = contentService.getCollection(collectionId);
+		expandedCollections.add(folderId);
+
+		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
+		String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+		
+		String sortBy = (String) state.getAttribute(STATE_REORDER_SORT_BY);
+		String sortAsc = (String) state.getAttribute(STATE_REORDER_SORT_ASC);
+
+		Set highlightedItems = new TreeSet();
+		List all_roots = new Vector();
+		List this_site = new Vector();
+		List members = getBrowseItems(folderId, expandedCollections, highlightedItems, sortBy, sortAsc, (BrowseItem) null, true, state);
+
+		if(members != null && members.size() > 0)
+		{
+			BrowseItem root = (BrowseItem) members.remove(0);
+			root.addMembers(members);
+			this_site.add(root);
+			all_roots.add(root);
+		}
+		context.put ("this_site", this_site);
+		
+		return TEMPLATE_REORDER;
+	}
 
 	/**
 	* Build the context for the list view
@@ -8669,19 +8723,35 @@ public class ResourcesAction
 		{
 			criteria = ResourceProperties.PROP_MODIFIED_DATE;
 		}
+		else if (criteria.equals("priority") && ContentHostingService.isPrioritySortEnabled())
+		{
+			// if error, use title sort
+			criteria = ResourceProperties.PROP_CONTENT_PRIORITY;
+		}
+		else
+		{
+			criteria = ResourceProperties.PROP_DISPLAY_NAME;
+		}
 
+		String sortBy_attribute = STATE_SORT_BY;
+		String sortAsc_attribute = STATE_SORT_ASC;
+		if(state.getAttribute(STATE_MODE).equals(MODE_REORDER))
+		{
+			sortBy_attribute = STATE_REORDER_SORT_BY;
+			sortAsc_attribute = STATE_REORDER_SORT_ASC;
+		}
 		// current sorting sequence
 		String asc = NULL_STRING;
-		if (!criteria.equals (state.getAttribute (STATE_SORT_BY)))
+		if (!criteria.equals (state.getAttribute (sortBy_attribute)))
 		{
-			state.setAttribute (STATE_SORT_BY, criteria);
+			state.setAttribute (sortBy_attribute, criteria);
 			asc = Boolean.TRUE.toString();
-			state.setAttribute (STATE_SORT_ASC, asc);
+			state.setAttribute (sortAsc_attribute, asc);
 		}
 		else
 		{
 			// current sorting sequence
-			asc = (String) state.getAttribute (STATE_SORT_ASC);
+			asc = (String) state.getAttribute (sortAsc_attribute);
 
 			//toggle between the ascending and descending sequence
 			if (asc.equals (Boolean.TRUE.toString()))
@@ -8692,7 +8762,7 @@ public class ResourcesAction
 			{
 				asc = Boolean.TRUE.toString();
 			}
-			state.setAttribute (STATE_SORT_ASC, asc);
+			state.setAttribute (sortAsc_attribute, asc);
 		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -8703,6 +8773,117 @@ public class ResourcesAction
 		}	// if-else
 
 	}	// doSort
+
+	/**
+	* Sort based on the given property
+	*/
+	public static void doReorder ( RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+		
+		boolean isPrioritySortEnabled = ContentHostingService.isPrioritySortEnabled();
+
+
+		String folderId = params.getString ("folderId");
+		if(folderId == null)
+		{
+			addAlert(state, "error");
+		}
+		
+		String sortBy = (String) state.getAttribute(STATE_REORDER_SORT_BY);
+		if(sortBy == null)
+		{
+			sortBy = ResourceProperties.PROP_CONTENT_PRIORITY;
+			state.setAttribute(STATE_REORDER_SORT_BY, sortBy);
+		}
+		String sortedAsc = (String) state.getAttribute (STATE_REORDER_SORT_ASC);
+		if(sortedAsc == null)
+		{
+			sortedAsc = Boolean.TRUE.toString();
+			state.setAttribute(STATE_REORDER_SORT_ASC, sortedAsc);
+		}
+
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			state.setAttribute(STATE_REORDER_FOLDER, folderId);
+			state.setAttribute (STATE_MODE, MODE_REORDER);
+
+		}	// if-else
+
+	}	// doReorder
+
+	/**
+	* Sort based on the given property
+	*/
+	public static void doSaveOrder ( RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+
+		String folderId = params.getString ("folderId");
+		if(folderId == null)
+		{
+			// TODO: log error
+			// TODO: move strings to rb
+			addAlert(state, "Unable to complete Sort");
+		}
+		else
+		{
+			try
+			{
+				ContentCollectionEdit collection = ContentHostingService.editCollection(folderId);
+				List memberIds = collection.getMembers();
+				Map priorities = new Hashtable();
+				Iterator it = memberIds.iterator();
+				while(it.hasNext())
+				{
+					String memberId = (String) it.next();
+					int position = params.getInt("position_" + Validator.escapeUrl(memberId));
+					priorities.put(memberId, new Integer(position));
+				}
+				collection.setPriorityMap(priorities);
+				
+				ContentHostingService.commitCollection(collection);
+			}
+			catch(IdUnusedException e)
+			{
+				// TODO: log error
+				// TODO: move strings to rb
+				addAlert(state, "Unable to complete Sort");
+			}
+			catch(TypeException e)
+			{
+				// TODO: log error
+				// TODO: move strings to rb
+				addAlert(state, "Unable to complete Sort");
+			}
+			catch(PermissionException e)
+			{
+				// TODO: log error
+				// TODO: move strings to rb
+				addAlert(state, "Unable to complete Sort");
+			}
+			catch(InUseException e)
+			{
+				// TODO: log error
+				// TODO: move strings to rb
+				addAlert(state, "Unable to complete Sort");
+			}
+		}
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			state.setAttribute (STATE_MODE, MODE_LIST);
+
+		}	// if-else
+
+	}	// doSaveOrder
 
 	/**
 	* set the state name to be "deletecofirm" if any item has been selected for deleting

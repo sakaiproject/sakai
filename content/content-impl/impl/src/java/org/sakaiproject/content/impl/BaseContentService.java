@@ -446,7 +446,30 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		return m_availabilityChecksEnabled;
 	}
+	
+	/** flag indicating whether custom sort order based on "priority" is enabled */
+	protected boolean m_prioritySortEnabled = true;
+	
+	/**
+	 * Configuration: set a flag indicating whether custom sort order based on "priority" is enabled
+	 * 
+	 * @param value
+	 *        The value indicating whether custom sort order is enabled.
+	 */
+	public void setPrioritySortEnabled(String value)
+	{
+		m_prioritySortEnabled = value != null && Boolean.TRUE.toString().equalsIgnoreCase(value);
+	}
 
+	/**
+	 * Access flag indicating whether sorting by "priority" is enabled.
+	 * @return true if the custom sort by priority is enabled, false otherwise.
+	 */ 
+	public boolean isPrioritySortEnabled()
+	{
+		return m_prioritySortEnabled;
+	}
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -1977,76 +2000,20 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			verifyGroups(edit, edit.getGroups());
 		}
-
-//		boolean allowed = true;
-//		try
-//		{
-//			boolean inherited = false;
-//			GroupAwareEntity gaEntity = findCollection(edit.getId());
-//			AccessMode access = gaEntity.getAccess(); //  edit.getAccess();
-//			Collection currentGroupRefs = new Vector();
-//			if(AccessMode.INHERITED == access)
-//			{
-//				inherited = true;
-//				access = gaEntity.getInheritedAccess();
-//			}
-//			
-//			if(AccessMode.GROUPED.equals(access))
-//			{
-//				Reference ref = m_entityManager.newReference(edit.getReference());
-//				if(SecurityService.isSuperUser() || SecurityService.unlock(AUTH_RESOURCE_ALL_GROUPS, ref.getContext()))
-//				{
-//					allowed = true;
-//				}
-//				else
-//				{
-//					GroupAwareEntity entity = findCollection(edit.getId());
-//					if(entity == null)
-//					{
-//						entity = edit;
-//					}
-//					
-//					if(inherited)
-//					{
-//						currentGroupRefs.addAll(entity.getInheritedGroups());
-//					}
-//					else
-//					{
-//						currentGroupRefs.addAll(entity.getGroups());
-//					}
-//					
-//					// the Group objects the user has add permission
-//					Collection allowedGroups = getGroupsWithAddPermission(isolateContainingId(edit.getId()));
-//		
-//					// check all defined groups in the edit
-//					for (Iterator i = edit.getGroups().iterator(); allowed && i.hasNext();)
-//					{
-//						String groupRef = (String) i.next();
-//						
-//						// if this group has been added in this edit
-//						if (!currentGroupRefs.contains(groupRef))
-//						{
-//							// make sure it's among those groups this user has add permissions for
-//							if (!groupCollectionContainsRefString(allowedGroups, groupRef))
-//							{
-//								allowed = false;
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//		catch(TypeException e)
-//		{
-//			// ignore
-//		}
-//		
-//		if (!allowed)
-//		{
-//			cancelCollection(edit);
-//			throw new PermissionException(SessionManager.getCurrentSessionUserId(),((BaseResourceEdit) edit).getEvent(), edit.getReference());
-//		}
 		
+		if(this.m_prioritySortEnabled)
+		{
+			ResourcePropertiesEdit props = edit.getPropertiesEdit();
+			String sortBy = props.getProperty(ResourceProperties.PROP_CONTENT_PRIORITY);
+			if(sortBy == null)
+			{
+				// add a default value that sorts new items after existing items, with new folders before new resources
+				ContentCollection container = edit.getContainingCollection();
+				int count = container.getMembers().size();
+				props.addProperty(ResourceProperties.PROP_CONTENT_PRIORITY, Integer.toString(count + 1));
+			}
+		}
+
 		// update the properties for update
 		addLiveUpdateCollectionProperties(edit);
 
@@ -4566,6 +4533,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return;
 		}
 		
+		if(this.m_prioritySortEnabled)
+		{
+			((BasicGroupAwareEdit) edit).setPriority();
+		}
+		
 		// update the properties for update
 		addLiveUpdateResourceProperties(edit);
 
@@ -7043,7 +7015,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// if we cannot, give up
 		catch (Exception any)
 		{
-			M_log.warn("generateCollections: " + any.getMessage());
+			M_log.warn("generateCollections: " + any.getMessage(), any);
 		}
 
 	} // generateCollections
@@ -7388,6 +7360,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public static final String RETRACT_DATE = "sakai:retract_date";
 
 	public static final String HIDDEN = "sakai:hidden";
+	
+	public static final String CUSTOM_ORDER = "sakai:custom_order";
+	
+	public static final String CUSTOM_RANK = "sakai:rank_element";
+	
+	public static final String MEMBER_ID = "sakai:member_id";
+	
+	public static final String RANK = "sakai:rank";
 
 	/**
 	 * @inheritDoc
@@ -7929,6 +7909,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		/** The Collection of group-ids for groups with access to this entity. */
 		protected Collection m_groups = new Vector();
 
+		protected int m_customOrderRank = 0;
+
 		/**
 		 * @inheritDoc
 		 */
@@ -8268,6 +8250,58 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			this.m_retractDate = null;
 		}
 
+		public ContentCollection getContainingCollection()
+		{
+			ContentCollection container = null;
+			String containerId = isolateContainingId(this.getId());
+			try
+			{
+				container = findCollection(containerId);
+			}
+			catch (TypeException e)
+			{
+			}
+			return container;
+		}
+
+		public void setPriority()
+		{
+			ResourcePropertiesEdit props = getPropertiesEdit();
+			String sortBy = props.getProperty(ResourceProperties.PROP_CONTENT_PRIORITY);
+			if(sortBy == null)
+			{
+				// add a default value that sorts new items after existing items, with new folders before new resources
+				String containingCollectionId = isolateContainingId(this.m_id);
+				int count = 1;
+				if(containingCollectionId != null)
+				{
+					try 
+					{
+						count = getCollectionSize(containingCollectionId) + 1;
+					} 
+					catch (IdUnusedException e) 
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+					catch (TypeException e) 
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+					catch (PermissionException e) 
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				if(! m_id.endsWith(Entity.SEPARATOR))
+				{
+					count += ContentHostingService.CONTENT_RESOURCE_PRIORITY_OFFSET;
+				}
+				props.addProperty(ResourceProperties.PROP_CONTENT_PRIORITY, Integer.toString(count));
+			}
+		}
 
 	}	// BasicGroupAwareEntity
 
@@ -8345,6 +8379,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				{
 					// re-create properties
 					m_properties = new BaseResourcePropertiesEdit(element);
+					if(m_prioritySortEnabled)
+					{
+						setPriority();
+					}
 				}
 				// look for groups 
 				else if(element.getTagName().equals(GROUP_LIST))
@@ -8872,22 +8910,68 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return true;
 		}
 
-		/**
-		 * @inheritDoc
-		 * @see org.sakaiproject.content.api.ContentEntity#getContainingCollection()
-		 */
-		public ContentCollection getContainingCollection()
+		public void setPriorityMap(Map priorities) 
 		{
-			ContentCollection container = null;
-			String containerId = isolateContainingId(this.getId());
-			try
+			if(m_prioritySortEnabled)
 			{
-				container = findCollection(containerId);
+				ResourcePropertiesEdit myProps = getPropertiesEdit();
+				myProps.addProperty(ResourceProperties.PROP_HAS_CUSTOM_SORT, Boolean.TRUE.toString());
+				Iterator nameIt = priorities.keySet().iterator();
+				while(nameIt.hasNext())
+				{
+					String name = (String) nameIt.next();
+					Integer priority = (Integer) priorities.get(name);
+					
+					try
+					{
+						if(name.endsWith(Entity.SEPARATOR))
+						{
+							ContentCollectionEdit entity = editCollection(name);
+							ResourcePropertiesEdit props = entity.getPropertiesEdit();
+							props.addProperty(ResourceProperties.PROP_CONTENT_PRIORITY, priority.toString());
+							commitCollection(entity);
+						}
+						else
+						{
+							ContentResourceEdit entity = editResource(name);
+							ResourcePropertiesEdit props = entity.getPropertiesEdit();
+							props.addProperty(ResourceProperties.PROP_CONTENT_PRIORITY, priority.toString());
+							commitResource((ContentResourceEdit) entity);
+						}
+					}
+					catch(TypeException e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+					catch (IdUnusedException e) 
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+					catch (PermissionException e) 
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+					catch (InUseException e) 
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+					catch (OverQuotaException e) 
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+					catch (ServerOverloadException e) 
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
 			}
-			catch (TypeException e)
-			{
-			}
-			return container;
 		}
 
 	} // class BaseCollection
@@ -9066,6 +9150,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				{
 					// re-create properties
 					m_properties = new BaseResourcePropertiesEdit(element);
+					if(m_prioritySortEnabled)
+					{
+						setPriority();
+					}
 				}
 				// look for groups
 				else if(element.getTagName().equals(GROUP_LIST))
@@ -9535,24 +9623,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			// TODO: this may need a different implementation in the handler
 			return false;
-		}
-
-		/**
-		 * @inheritDoc
-		 * @see org.sakaiproject.content.api.ContentEntity#getContainingCollection()
-		 */
-		public ContentCollection getContainingCollection()
-		{
-			ContentCollection container = null;
-			String containerId = isolateContainingId(this.getId());
-			try
-			{
-				container = findCollection(containerId);
-			}
-			catch (TypeException e)
-			{
-			}
-			return container;
 		}
 
 	} // BaseResource

@@ -22,6 +22,7 @@
 package org.sakaiproject.content.api;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.entity.api.Edit;
@@ -33,6 +34,12 @@ import org.sakaiproject.time.api.Time;
 public interface ContentCollectionEdit
 	extends ContentCollection, Edit, GroupAwareEdit
 {
+
+	/**
+	 * @param priorities
+	 */
+	void setPriorityMap(Map priorities);
+	
 }	// ContentCollectionEdit
 
 
