@@ -548,10 +548,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
-				Query q = session.createQuery("from AssignmentGradeRecord as gr where gr.gradableObject=:go and gr.studentId in (:studentIds)");
-                q.setParameter("go", assignment);
-                q.setParameterList("studentIds", studentIds);
-				List existingScores = q.list();
+				List existingScores;
+				if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+					Query q = session.createQuery("from AssignmentGradeRecord as gr where gr.gradableObject=:go and gr.studentId in (:studentIds)");
+					q.setParameter("go", assignment);
+					q.setParameterList("studentIds", studentIds);
+					existingScores = q.list();
+				} else {
+					Query q = session.createQuery("from AssignmentGradeRecord as gr where gr.gradableObject=:go");
+					q.setParameter("go", assignment);
+					existingScores = filterGradeRecordsByStudents(q.list(), studentIds);
+				}
 
 				Set previouslyUnscoredStudents = new HashSet(studentIds);
 				Set changedStudents = new HashSet();

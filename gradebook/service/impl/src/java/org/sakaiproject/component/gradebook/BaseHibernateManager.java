@@ -32,6 +32,7 @@ import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -45,6 +46,10 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public abstract class BaseHibernateManager extends HibernateDaoSupport {
     private static final Log log = LogFactory.getLog(BaseHibernateManager.class);
+
+    // Oracle will throw a SQLException if we put more than this into a
+    // "WHERE tbl.col IN (:paramList)" query.
+    public static int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 1000;
 
     protected SectionAwareness sectionAwareness;
     protected Authn authn;
@@ -239,6 +244,26 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		propertiesMap.put(name, value);
 	}
 
+	/**
+	 * Oracle has a low limit on the maximum length of a parameter list
+	 * in SQL queries of the form "WHERE tbl.col IN (:paramList)".
+	 * Since enrollment lists can sometimes be very long, we've replaced
+	 * such queries with full selects followed by filtering. This helper
+	 * method filters out unwanted grade records. (Typically they're not
+	 * wanted because they're either no longer officially enrolled in the
+	 * course or they're not members of the selected section.)
+	 */
+	protected List filterGradeRecordsByStudents(Collection gradeRecords, Collection studentUids) {
+		List filteredRecords = new ArrayList();
+		for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
+			AbstractGradeRecord agr = (AbstractGradeRecord)iter.next();
+			if (studentUids.contains(agr.getStudentId())) {
+				filteredRecords.add(agr);
+			}
+		}
+		return filteredRecords;
+	}
+
     public Authn getAuthn() {
         return authn;
     }
@@ -257,6 +282,4 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         this.sectionAwareness = sectionAwareness;
     }
 
-
-    
 }
