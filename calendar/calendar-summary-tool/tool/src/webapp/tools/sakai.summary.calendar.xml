@@ -10,6 +10,6 @@
     	-->
 		
 		<configuration name="reset.button" value="true" type="final" />
-		<configuration name="help.id" value="sakai.summary.calendar" type="final" />
+		<configuration name="help.id" value="sakai.schedule" type="final" />
 	</tool>
 </registration>
