@@ -59,9 +59,8 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 //import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
 /**
- * The GradingService calls the back end to get grading information from
- * the database.
- * @author Rachel Gollub <rgollub@stanford.edu>
+ * The GradingService calls the back end to get/store grading information. 
+ * It also calculates scores for autograded types.
  */
 public class GradingService
 {
@@ -1082,7 +1081,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     String answertext = ((AnswerIfc)publishedAnswerHash.get(data.getPublishedAnswerId())).getText();
     Long itemId = itemdata.getItemId();
 
-    String mutuallyexclusive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIN);
+    // not used for now
+    //String mutuallyexclusive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIN);
+    
     Set answerSet = new HashSet();
 
     float totalScore = (float) 0;
@@ -1104,14 +1105,14 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         	answer1Num = Float.valueOf(answer1).floatValue();
         }catch(NumberFormatException ex){
         	answer1Num =  Float.NaN;
-//        	No debería pasar si se ha filtrado en edición
+//        	should not go here
         }
         log.info("answer1Num= " + answer1Num);
         try{
         	answer2Num = Float.valueOf(answer2).floatValue();
         }catch(NumberFormatException ex){
         	answer2Num =  Float.NaN;
-//        	No debería pasar si se ha filtrado en edición
+//        	should not go here
         }
         
         log.info("answer2Num= " + answer2Num);      
@@ -1138,9 +1139,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       	answerNum = Float.valueOf(answer).floatValue(); 
       }catch(NumberFormatException ex){
       	answerNum =  Float.NaN;
-//      	No debería pasar si se ha filtrado en edición
+//      	should not go here
       }
-      log.info("No rango: answerNum= " +  answerNum);
+      log.info("answerNum= " +  answerNum);
       
       
         if (data.getAnswerText() != null){
@@ -1157,6 +1158,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         }
       }
       
+      /*  
+       // commenting this out for now, until we see a use case for numeric responses to have mutually exclusive.
+       
         if (matchresult){
 
             boolean alreadyused=false;
@@ -1184,11 +1188,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
             if (!alreadyused) {
               totalScore += ((AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId())).getScore().floatValue();
             }
-
-            // SAK-3005: quit if answer is correct, e.g. if you answered A for {a|A}, you already scored
           
           }
-      
+      */
      
     }
     return totalScore;
