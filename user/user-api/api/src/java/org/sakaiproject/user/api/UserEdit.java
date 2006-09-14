@@ -85,4 +85,36 @@ public interface UserEdit extends User, Edit
 	 *        The user type.
 	 */
 	void setType(String type);
+	
+	/**
+	 * Make the user's first name unchangable during this edit
+	 *    
+	 */
+	void restrictEditFirstName();
+	
+	/**
+	 * Make the user's last name unchangable during this edit
+	 *    
+	 */
+	void restrictEditLastName();
+	
+	/**
+	 * Make the user's email address unchangable during this edit
+	 *    
+	 */
+	void restrictEditEmail();
+	
+	/**
+	 * Make the user's password unchangable during this edit
+	 *    
+	 */
+	void restrictEditPassword();
+	
+	/**
+	 * Make the user's type unchangable during this edit
+	 *    
+	 */
+	void restrictEditType();
+	
+	
 }

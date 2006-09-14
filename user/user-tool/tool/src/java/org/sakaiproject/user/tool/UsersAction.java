@@ -243,6 +243,9 @@ public class UsersAction extends PagedResourceActionII
 	 */
 	private String buildNewContext(SessionState state, Context context)
 	{
+		// put the service in the context
+		context.put("service", UserDirectoryService.getInstance());
+		
 		// include the password fields?
 		context.put("incPw", state.getAttribute("include-password"));
 
@@ -272,6 +275,9 @@ public class UsersAction extends PagedResourceActionII
 	 */
 	private String buildCreateContext(SessionState state, Context context)
 	{
+		// put the service in the context
+		context.put("service", UserDirectoryService.getInstance());
+
 		// is the type to be pre-set
 		context.put("type", state.getAttribute("create-type"));
 
@@ -300,6 +306,10 @@ public class UsersAction extends PagedResourceActionII
 	 */
 	private String buildEditContext(SessionState state, Context context)
 	{
+		
+		// put the service in the context
+		context.put("service", UserDirectoryService.getInstance());
+
 		// name the html form for user edit fields
 		context.put("form-name", "user-form");
 
@@ -869,9 +879,9 @@ public class UsersAction extends PagedResourceActionII
 			
 			// eid, pw, type might not be editable
 			if (eid != null) user.setEid(eid);
-			user.setFirstName(firstName);
-			user.setLastName(lastName);
-			user.setEmail(email);
+			if (firstName != null) user.setFirstName(firstName);
+			if (lastName != null) user.setLastName(lastName);
+			if (email != null) user.setEmail(email);
 			if (type != null) user.setType(type);
 			
 			// make sure we have matching password fields

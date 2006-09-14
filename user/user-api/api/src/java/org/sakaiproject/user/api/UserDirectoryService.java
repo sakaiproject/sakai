@@ -52,7 +52,21 @@ public interface UserDirectoryService extends EntityProducer
 
 	/** Name for the event of updating one's own user info. */
 	static final String SECURE_UPDATE_USER_OWN = "user.upd.own";
+	
+	/** Name for the event of updating one's own name. */
+	static final String SECURE_UPDATE_USER_OWN_NAME = "user.upd.own.name";
+	
+	/** Name for the event of updating one's own email. */
+	static final String SECURE_UPDATE_USER_OWN_EMAIL = "user.upd.own.email";
 
+	/** Name for the event of updating one's own password. */
+	static final String SECURE_UPDATE_USER_OWN_PASSWORD = "user.upd.own.passwd";
+
+	/** Name for the event of updating one's own type. */
+	static final String SECURE_UPDATE_USER_OWN_TYPE = "user.upd.own.type";
+
+	
+	
 	/** User id for the admin user. */
 	static final String ADMIN_ID = "admin";
 
@@ -130,6 +144,44 @@ public interface UserDirectoryService extends EntityProducer
 	 * @return true if the user is allowed to update the user, false if not.
 	 */
 	boolean allowUpdateUser(String id);
+	
+	
+	/**
+	 * check permissions for editUser()
+	 * 
+	 * @param id
+	 *        The user id.
+	 * @return true if the user is allowed to update their own first and last names, false if not.
+	 */
+	public boolean allowUpdateUserName(String id);
+	
+	/**
+	 * check permissions for editUser()
+	 * 
+	 * @param id
+	 *        The user id.
+	 * @return true if the user is allowed to update their own email address, false if not.
+	 */
+	public boolean allowUpdateUserEmail(String id);
+	
+	/**
+	 * check permissions for editUser()
+	 * 
+	 * @param id
+	 *        The user id.
+	 * @return true if the user is allowed to update their own password, false if not.
+	 */
+	public boolean allowUpdateUserPassword(String id);
+	
+	/**
+	 * check permissions for editUser()
+	 * 
+	 * @param id
+	 *        The user id.
+	 * @return true if the user is allowed to update their own type, false if not.
+	 */
+	public boolean allowUpdateUserType(String id);
+	
 
 	/**
 	 * Authenticate a user / password.

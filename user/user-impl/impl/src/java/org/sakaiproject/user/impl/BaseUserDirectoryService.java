@@ -21,6 +21,7 @@
 
 package org.sakaiproject.user.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -181,6 +182,29 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		return true;
 	}
+	
+	/**
+	 * Check security permission.
+	 * 
+	 * @param lock
+	 *        A list of lock strings to consider.
+	 * @param resource
+	 *        The resource reference string, or null if no resource is involved.
+	 * @return true if any of these locks are allowed, false if not
+	 */
+	protected boolean unlockCheck(List locks, String resource)
+	{
+		Iterator locksIterator = locks.iterator();
+		
+		while(locksIterator.hasNext()) {
+			
+			if(securityService().unlock((String) locksIterator.next(), resource))
+					return true;
+			
+		}
+	
+		return false;
+	}
 
 	/**
 	 * Check security permission.
@@ -215,13 +239,17 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 *        The resource reference string, or null if no resource is involved.
 	 * @exception UserPermissionException
 	 *            Thrown if the user does not have access
+	 * @return The lock id string that succeeded
 	 */
-	protected void unlock(String lock, String resource) throws UserPermissionException
+	protected String unlock(String lock, String resource) throws UserPermissionException
 	{
+		
 		if (!unlockCheck(lock, resource))
 		{
 			throw new UserPermissionException(sessionManager().getCurrentSessionUserId(), lock, resource);
 		}
+		
+	    return lock;
 	}
 
 	/**
@@ -242,6 +270,48 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 			throw new UserPermissionException(sessionManager().getCurrentSessionUserId(), lock1 + "/" + lock2, resource);
 		}
+	}
+	
+	/**
+	 * Check security permission.
+	 * 
+	 * 
+	 * @param locks
+	 *        The list of lock strings.
+	 * @param resource
+	 *        The resource reference string, or null if no resource is involved.
+	 * @exception UserPermissionException
+	 *            Thrown if the user does not have access to either.
+	 * @return A list of the lock strings that the user has access to.
+	 */
+	
+	protected List unlock(List locks, String resource) throws UserPermissionException
+	{
+		List locksSucceeded = new ArrayList();
+		String locksFailed = "";
+		
+		Iterator locksIterator = locks.iterator();
+		
+		while (locksIterator.hasNext()) {
+		
+			String lock = (String) locksIterator.next();
+			
+			if (unlockCheck(lock, resource))
+			{
+				locksSucceeded.add(lock);
+				
+			} else {
+				
+				locksFailed += lock + " ";
+			}
+			
+		}
+			
+		if (locksSucceeded.size() < 1) {
+			throw new UserPermissionException(sessionManager().getCurrentSessionUserId(), locksFailed, resource);
+		}
+		
+		return locksSucceeded;
 	}
 
 	/**
@@ -432,8 +502,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			functionManager().registerFunction(SECURE_ADD_USER);
 			functionManager().registerFunction(SECURE_REMOVE_USER);
 			functionManager().registerFunction(SECURE_UPDATE_USER_OWN);
+			functionManager().registerFunction(SECURE_UPDATE_USER_OWN_NAME);
+			functionManager().registerFunction(SECURE_UPDATE_USER_OWN_EMAIL);
+			functionManager().registerFunction(SECURE_UPDATE_USER_OWN_PASSWORD);
+			functionManager().registerFunction(SECURE_UPDATE_USER_OWN_TYPE);
 			functionManager().registerFunction(SECURE_UPDATE_USER_ANY);
-
+			
 			// if no provider was set, see if we can find one
 			if (m_provider == null)
 			{
@@ -742,8 +816,16 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// is this the user's own?
 		if (id.equals(sessionManager().getCurrentSessionUserId()))
 		{
+			ArrayList locks = new ArrayList();
+			locks.add(SECURE_UPDATE_USER_OWN);
+			locks.add(SECURE_UPDATE_USER_ANY);
+			locks.add(SECURE_UPDATE_USER_OWN_NAME);
+			locks.add(SECURE_UPDATE_USER_OWN_EMAIL);
+			locks.add(SECURE_UPDATE_USER_OWN_PASSWORD);
+			locks.add(SECURE_UPDATE_USER_OWN_TYPE);
+			
 			// own or any
-			return unlockCheck2(SECURE_UPDATE_USER_OWN, SECURE_UPDATE_USER_ANY, userReference(id));
+			return unlockCheck(locks, userReference(id));
 		}
 
 		else
@@ -752,29 +834,161 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			return unlockCheck(SECURE_UPDATE_USER_ANY, userReference(id));
 		}
 	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public boolean allowUpdateUserName(String id)
+	{
+		// clean up the id
+		id = cleanId(id);
+		if (id == null) return false;
+		
+		//		 is this the user's own?
+		if (id.equals(sessionManager().getCurrentSessionUserId()))
+		{
+			ArrayList locks = new ArrayList();
+			locks.add(SECURE_UPDATE_USER_OWN);
+			locks.add(SECURE_UPDATE_USER_ANY);
+			locks.add(SECURE_UPDATE_USER_OWN_NAME);
+			
+			
+			// own or any
+			return unlockCheck(locks, userReference(id));
+		}
 
+		else
+		{
+			// just any
+			return unlockCheck(SECURE_UPDATE_USER_ANY, userReference(id));
+		}
+		
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public boolean allowUpdateUserEmail(String id)
+	{
+		// clean up the id
+		id = cleanId(id);
+		if (id == null) return false;
+		
+		//		 is this the user's own?
+		if (id.equals(sessionManager().getCurrentSessionUserId()))
+		{
+			ArrayList locks = new ArrayList();
+			locks.add(SECURE_UPDATE_USER_OWN);
+			locks.add(SECURE_UPDATE_USER_ANY);
+			locks.add(SECURE_UPDATE_USER_OWN_EMAIL);
+			
+			
+			// own or any
+			return unlockCheck(locks, userReference(id));
+		}
+
+		else
+		{
+			// just any
+			return unlockCheck(SECURE_UPDATE_USER_ANY, userReference(id));
+		}
+		
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public boolean allowUpdateUserPassword(String id)
+	{
+		// clean up the id
+		id = cleanId(id);
+		if (id == null) return false;
+		
+		//		 is this the user's own?
+		if (id.equals(sessionManager().getCurrentSessionUserId()))
+		{
+			ArrayList locks = new ArrayList();
+			locks.add(SECURE_UPDATE_USER_OWN);
+			locks.add(SECURE_UPDATE_USER_ANY);
+			locks.add(SECURE_UPDATE_USER_OWN_PASSWORD);
+			
+			
+			// own or any
+			return unlockCheck(locks, userReference(id));
+		}
+
+		else
+		{
+			// just any
+			return unlockCheck(SECURE_UPDATE_USER_ANY, userReference(id));
+		}
+		
+	}
+	
+
+	/**
+	 * @inheritDoc
+	 */
+	public boolean allowUpdateUserType(String id)
+	{
+		// clean up the id
+		id = cleanId(id);
+		if (id == null) return false;
+		
+		//		 is this the user's own?
+		if (id.equals(sessionManager().getCurrentSessionUserId()))
+		{
+			ArrayList locks = new ArrayList();
+			locks.add(SECURE_UPDATE_USER_OWN);
+			locks.add(SECURE_UPDATE_USER_ANY);
+			locks.add(SECURE_UPDATE_USER_OWN_TYPE);
+			
+			
+			// own or any
+			return unlockCheck(locks, userReference(id));
+		}
+
+		else
+		{
+			// just any
+			return unlockCheck(SECURE_UPDATE_USER_ANY, userReference(id));
+		}
+		
+	}
+
+	
 	/**
 	 * @inheritDoc
 	 */
 	public UserEdit editUser(String id) throws UserNotDefinedException, UserPermissionException, UserLockedException
 	{
+		
 		// clean up the id
 		id = cleanId(id);
 
 		if (id == null) throw new UserNotDefinedException("null");
 
 		// is this the user's own?
+		List locksSucceeded = new ArrayList();
 		String function = null;
 		if (id.equals(sessionManager().getCurrentSessionUserId()))
 		{
 			// own or any
-			unlock2(SECURE_UPDATE_USER_OWN, SECURE_UPDATE_USER_ANY, userReference(id));
+			List locks = new ArrayList();
+			locks.add(SECURE_UPDATE_USER_OWN);
+			locks.add(SECURE_UPDATE_USER_OWN_NAME);
+			locks.add(SECURE_UPDATE_USER_OWN_EMAIL);
+			locks.add(SECURE_UPDATE_USER_OWN_PASSWORD);
+			locks.add(SECURE_UPDATE_USER_OWN_TYPE);
+			locks.add(SECURE_UPDATE_USER_ANY);
+			
+			locksSucceeded = unlock(locks, userReference(id));
 			function = SECURE_UPDATE_USER_OWN;
 		}
 		else
 		{
 			// just any
-			unlock(SECURE_UPDATE_USER_ANY, userReference(id));
+			locksSucceeded.add(unlock(SECURE_UPDATE_USER_ANY, userReference(id)));
 			function = SECURE_UPDATE_USER_ANY;
 		}
 
@@ -787,6 +1001,30 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// ignore the cache - get the user with a lock from the info store
 		UserEdit user = m_storage.edit(id);
 		if (user == null) throw new UserLockedException(id);
+		
+		if(!locksSucceeded.contains(SECURE_UPDATE_USER_ANY) && !locksSucceeded.contains(SECURE_UPDATE_USER_OWN)) {
+			
+			// current session does not have permission to edit all properties for this user
+			// lock the properties the user does not have access to edit
+			
+			if(!locksSucceeded.contains(SECURE_UPDATE_USER_OWN_NAME)) {
+				user.restrictEditFirstName();
+			    user.restrictEditLastName();
+			}
+			
+			if(!locksSucceeded.contains(SECURE_UPDATE_USER_OWN_EMAIL)) {
+				user.restrictEditEmail();
+			}
+			
+			if(!locksSucceeded.contains(SECURE_UPDATE_USER_OWN_PASSWORD)) {
+				user.restrictEditPassword();
+			}
+			
+			if(!locksSucceeded.contains(SECURE_UPDATE_USER_OWN_TYPE)) {
+				user.restrictEditType();
+			}
+			
+		}
 
 		((BaseUserEdit) user).setEvent(function);
 
@@ -1573,6 +1811,27 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/** The time last modified. */
 		protected Time m_lastModifiedTime = null;
+		
+		/** If editing the first name is restricted **/ 
+		protected boolean m_restrictedFirstName = false;
+		
+		/** If editing the last name is restricted **/ 
+		protected boolean m_restrictedLastName = false;
+		
+		
+		/** If editing the email is restricted **/ 
+		protected boolean m_restrictedEmail = false;
+		
+		/** If editing the password is restricted **/ 
+		protected boolean m_restrictedPassword = false;
+		
+		/** If editing the type is restricted **/ 
+		protected boolean m_restrictedType = false;
+		
+
+		
+
+		
 
 		/**
 		 * Construct.
@@ -2120,7 +2379,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public void setFirstName(String name)
 		{
-			m_firstName = name;
+		    if(!m_restrictedFirstName) { 	
+		    	m_firstName = name;	 
+		    }
 		}
 
 		/**
@@ -2128,15 +2389,19 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public void setLastName(String name)
 		{
-			m_lastName = name;
+			if(!m_restrictedLastName) { 
+		    	m_lastName = name;
+		    }
 		}
 
 		/**
 		 * @inheritDoc
 		 */
 		public void setEmail(String email)
-		{
-			m_email = email;
+		{	
+			if(!m_restrictedEmail) { 
+				m_email = email;
+			}
 		}
 
 		/**
@@ -2144,17 +2409,21 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public void setPassword(String pw)
 		{
-			// to clear it
-			if (pw == null)
-			{
-				m_pw = null;
-			}
 			
-			// else encode the new one
-			else
-			{
-				String encoded = OneWayHash.encode(pw);
-				m_pw = encoded;
+			if(!m_restrictedPassword) { 
+		
+				// to clear it
+				if (pw == null)
+				{
+					m_pw = null;
+				}
+				
+				// else encode the new one
+				else
+				{
+					String encoded = OneWayHash.encode(pw);
+					m_pw = encoded;
+				}
 			}
 		}
 
@@ -2163,7 +2432,43 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public void setType(String type)
 		{
-			m_type = type;
+			if(!m_restrictedType) {
+		
+				m_type = type;
+			
+			}
+		}
+		
+		public void restrictEditFirstName() {
+			
+			m_restrictedFirstName = true;
+			
+		}
+		
+		public void restrictEditLastName() {
+			
+			m_restrictedLastName = true;
+			
+		}
+		
+		
+		
+		public void restrictEditEmail() {
+			
+			m_restrictedEmail = true;
+			
+		}
+		
+		public void restrictEditPassword() {
+			
+			m_restrictedPassword = true;
+			
+		}
+		
+		public void restrictEditType() {
+			
+			m_restrictedType = true;
+			
 		}
 
 		/**
