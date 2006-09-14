@@ -160,7 +160,6 @@
 			<property name="sectionMappingRoles">
 				<list>
 					<value>Instructor</value>
-					<value>Teaching Assistant</value>
 				</list>
 			</property>
 	</bean>
