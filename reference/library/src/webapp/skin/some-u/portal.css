@@ -1,4 +1,4 @@
-/*general body - used by main portal document and document inside of the #sitenav iframe*/ 
+/*general body - used by main portal document*/ 
 body{
 	width: 100%;
 	padding: 0;
@@ -17,7 +17,8 @@ body{
 #portalContainer{
 }
 
-/*wrapper for iframe containing masthead  and site navigation (3 possible classes for this iframe .sitenav-max,.sitenav-min,.sitenav-log) as well as accessibility links wrapper #skipNav */
+/*wrapper for masthead  and site navigation
+ two possible states - logged in headerMax, not logged in - headerMin*/
 #headerMax,#headerMin{
 	width: 98%;
 	margin: 1em auto 0 auto;
@@ -39,7 +40,7 @@ body{
 #toolMenuWrap{
 	padding:.2em;
 	border-bottom:1px solid #CB2DCC;
-	margin-bottom:.5em
+	margin-bottom:.5em;
 }
 
 /*wrapper for site content (portlets) -  children can be #col1 or #col1of2 and #col2of2 depending in the number of columns*/
@@ -63,15 +64,14 @@ body{
 
 /*PART 2 - HEADER IFRAME SETTINGS*/	
 /*iframe sizes for different states*/
-.sitenav-log{
-	/*user not logged in*/
+/*gone for 2.3*/
+/*.sitenav-log{
 	height: 90px;
 	width: 100%;
 	border-bottom:1px solid #CB2DCC
 }
 
 .sitenav-max{
-	/*user logged in */
 	height: 7.5em;
 	max-height:140px;
 	min-height:100px;
@@ -79,19 +79,16 @@ body{
 }
 
 * html .sitenav-max{
-	/*user logged in - iframe height tweak for IE*/
 	height: 8em;
 	}
 
 .sitenav-min{
-	/*no logos or banners*/
 	height: 2em;
 	width: 100%;
 }
-
+*/
 /*PART 3 - HEADER BLOCKS (BRANDING,LOGIN)*/
-/*outer wrapper for contents of site navigation document that is displayed inside of the site navigation iframe
-TODO:get it and its children onto main document. Children are #mastHead,#tabNavWrap*/
+/*outer wrapper for contents of site navigation -  Children are #mastHead,#tabNavWrap*/
 #siteNavWrapper{
 	margin: 0; 
 }
@@ -210,7 +207,6 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 }
 
 /*wrapper for the site links and site <select> blocks - children are #siteNav and #tabNav */
-/*note - after tag 2.2 004 - this and children are no longer nested floated boxes due to fact of site nav remaining in iframe with attendant float drop problems*/
 #siteNav{
 	width:100%;
 }
@@ -427,7 +423,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 .portlet{
 }
 
-/*.portletTitleWrap and .portletTitleWrap are wrappers for the iframes holding the tool title documents,
+/*.portletTitleWrap and .portletTitleWrap are wrappers for the tool title and tool iframe,
 below they are contextually defined depending on the column as an example,as you may want to adjust the widths accordingly*/ 
 #col1 .portletTitleWrap{
 	width: 99%;
@@ -448,13 +444,72 @@ below they are contextually defined depending on the column as an example,as you
 	margin-bottom: .5em;
 }
 
+.portletTitle{
+	width: 100%;
+}
+
+.portletTitle .title img{
+	margin: 0;
+	border:none;
+/*	vertical-align: text-bottom;*/
+	width: 18px;
+	height: 16px;
+}
+
+.portletTitle .title{
+	padding: 2px 4px 6px 4px;
+	height: 1em;
+	font-size: 100%;
+	float: left;
+	color: #000;
+}
+
+.portletTitle .title h2{
+	display: inline;
+	margin: 0 0 0 .2em;
+	padding: 0;
+	color: #555;
+	font-weight: bold;
+	font-size: 1em;
+}
+
+.portletTitle .title a{
+	background: url(images/reload.gif) center left no-repeat;
+}
+
+.portletTitle .title a:hover{
+	background: url(images/reload_h.gif) center left no-repeat;
+}
+
+.portletTitle .action{
+	padding: 2px 4px 6px 2px;
+	text-align: right;
+	vertical-align: middle;
+}
+
+.portletTitle .action img{
+	margin: 0;
+	border:none;
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
+
+.portletTitle .action a{
+	background: url(images/help.gif) center right no-repeat;
+}
+
+.portletTitle .action a:hover{
+	background: url(images/help_h.gif) center right no-repeat;
+}
+
 /*iframes for portlet title and portlet content*/
-.portletTitleIframe{
+/*gone for 2.3*/
+/*.portletTitleIframe{
 	margin: 0;
 	height: 1.8em;
 	width: 100%;
 }
-
+*/
 .portletMainIframe{
 	text-align: left;
 	margin-bottom: .5em;

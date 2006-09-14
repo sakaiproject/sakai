@@ -845,62 +845,7 @@ width:auto !important
 
 
 
-/*SECTION 12 TOOL TITLE SELECTORS and other PORTAL THINGS*/
-.portletTitle{
-	width: 100%;
-}
-
-.portletTitle .title img{
-	margin: 0;
-/*	vertical-align: text-bottom;*/
-	width: 18px;
-	height: 16px;
-}
-
-.portletTitle .title{
-	padding: 2px 4px 6px 4px;
-	height: 1em;
-	font-size: 120%;
-	float: left;
-	color: #000;
-}
-
-.portletTitle .title h2{
-	display: inline;
-	margin: 0 0 0 .2em;
-	padding: 0;
-	color: #CC6633;
-	font-weight: bold;
-	font-size: 1.2em;
-}
-
-.portletTitle .title a{
-	background: url(images/reload.gif) center left no-repeat;
-}
-
-.portletTitle .title a:hover{
-	background: url(images/reload_h.gif) center left no-repeat;
-}
-
-.portletTitle .action{
-	padding: 4px 4px 6px 2px;
-	text-align: right;
-	vertical-align: middle;
-}
-
-.portletTitle .action img{
-	margin: 0;
-	vertical-align: text-bottom;
-	width: 16px !important;
-}
-
-.portletTitle .action a{
-	background: url(images/help.gif) center right no-repeat;
-}
-
-.portletTitle .action a:hover{
-	background: url(images/help_h.gif) center right no-repeat;
-}
+/*SECTION 12 PORTAL THINGS*/
 
 /*below for "presence in chat" functionality*/
 .presenceList{

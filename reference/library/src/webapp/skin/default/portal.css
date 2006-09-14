@@ -1,4 +1,4 @@
-/*general body - used by main portal document and document inside of the #sitenav iframe*/ 
+/*general body - used by main portal document */ 
 body{
 	width: 100%;
 	padding: 0;
@@ -17,12 +17,16 @@ body{
 #portalContainer{
 }
 
-/*wrapper masthead  and site navigation  - 2 possible classes for this block depending if a user is logged in or not*/
+/*wrapper masthead  and site navigation 
+ two possible states - logged in headerMax, not logged in - headerMin*/
 #headerMax,#headerMin{
 	width: 98%;
 	margin: 1em auto 0 auto;
 	height:100%;
 	overflow:hidden;
+}
+#headerMin{
+	border-bottom:2px solid #09C
 }
 
 /*accessibility links wrapper */
@@ -112,13 +116,6 @@ site types are a local setting - adjust */
 }*/
 
 /*PART 3 - HEADER BLOCKS (BRANDING,LOGIN)*/
-/*outer wrapper for contents of site navigation document that is displayed inside of the site navigation iframe
-TODO:get it and its children onto main document. Children are #mastHead,#tabNavWrap*/
-/*.siteNavWrap{
-	margin: 0; 
-	border-bottom:3px solid #fff;
-	height:100%;
-}*/
 /*depending on site type - different border-bottoms for the site menu parent block
 site types are a local setting - adjust */
 .workspace .siteNavWrap{
@@ -129,6 +126,9 @@ site types are a local setting - adjust */
 }
 .project .siteNavWrap{
 	border-bottom:3px solid #9cf;
+}
+#siteNavWrapper{
+	margin: 0;
 }
 
 
@@ -268,7 +268,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 /*the <select> contextually defined*/
 #selectNav select{
 	display:inline;
-	font-size: .75em;
+	font-size: .8em;
 	margin: 0 3px;
 	padding: 0;
 }
@@ -556,14 +556,14 @@ below they are contextually defined depending on the column as an example,as you
 	height: 1.8em;
 	width: 100%;
 }
-
+*/
 .portletMainIframe{
 	text-align: left;
 	margin-bottom: .5em;
 	height: auto;
 	border: none;
 }
-*/
+
 /*PART 8 - FOOTER BLOCKS - descendants of #footer TODO - unpack the 3 descendants and make them all children*/
 /*wrapper for links going to external sites - links are output as a series  separated via pipes (TODO:make a list already)*/
 .footerExtNav{
@@ -611,9 +611,4 @@ below they are contextually defined depending on the column as an example,as you
 	left: -999px;
 	height: 0;
 
-}
-
-div
-{
-	/*border:1px solid red*/
 }

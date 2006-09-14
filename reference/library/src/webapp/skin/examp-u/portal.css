@@ -1,9 +1,10 @@
-/*general body - used by main portal document and document inside of the #sitenav iframe*/ 
+/*general body - used by main portal document */ 
 body{
 	width: 100%;
 	padding: 0;
 	font-family: 'Trebuchet MS',Verdana,sans-serif;
 	margin: 0;
+	font-size:.8em;
 	background: #fff;
 }
 
@@ -16,7 +17,9 @@ body{
 #portalContainer{
 }
 
-/*wrapper for iframe containing masthead  and site navigation (3 possible classes for this iframe .sitenav-max,.sitenav-min,.sitenav-log) as well as accessibility links wrapper #skipNav */
+/*wrapper for masthead  and site navigation 
+ as well as accessibility links wrapper #skipNav */
+/* two possible states - logged in headerMax, not logged in - headerMin*/
 #headerMax,#headerMin{
 	width: 98%;
 	margin: 1em auto 0 auto;
@@ -69,15 +72,14 @@ body{
 
 /*PART 2 - HEADER IFRAME SETTINGS*/	
 /*iframe sizes for different states*/
-.sitenav-log{
-	/*user not logged in*/
+/*gone for 2.3*/
+/*.sitenav-log{
 	height: 90px;
 	width: 100%;
 	border-bottom:1px solid #004D73
 }
 
 .sitenav-max{
-	/*user logged in */
 	height: 7.5em;
 	max-height:140px;
 	min-height:100px;
@@ -85,26 +87,22 @@ body{
 }
 
 * html .sitenav-max{
-	/*user logged in - iframe height tweak for IE*/
 	height: 8em;
 	}
 
 .sitenav-min{
-	/*no logos or banners*/
 	height: 2em;
 	width: 100%;
 }
-
+*/
 /*PART 3 - HEADER BLOCKS (BRANDING,LOGIN)*/
-/*outer wrapper for contents of site navigation document that is displayed inside of the site navigation iframe
-TODO:get it and its children onto main document. Children are #mastHead,#tabNavWrap*/
+/*outer wrapper for contents of site navigation */
 #siteNavWrapper{
 	margin: 0;
 }
 
 /*wrapper for mast head elements - children are 3 blocks - #mastLogo,#mastBanner,#mastLogin*/
 #mastHead{
-	font-size: .8em;
 }
 
 /*container wrapping branding images - portal outputs one /library/skin/<skin name>/images/logo_inst.gif
@@ -208,15 +206,15 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 /*outer wrapper for the site navigation blocks - it is a class,not an id because it can be overloaded with other values having to do with site type
 so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom*/
 .siteNavWrap{
-	clear:both;
 	width: 100%;
-	padding: .3em;
+	padding: 0;
 	margin: 0;
+	float: left;
+	clear:both;
 	background: #004D73;
 }
 
 /*wrapper for the site links and site <select> blocks - children are #siteNav and #tabNav */
-/*note - after tag 2.2 004 - this and children are no longer nested floated boxes due to fact of site nav remaining in iframe with attendant float drop problems*/
 #siteNav{
 	width:100%;
 }
@@ -227,7 +225,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 }
 /*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
 #selectNav{
-	padding: .2em;
+	padding: .4em .4em .2em .2em;
 	text-align: right;
 }
 
@@ -247,7 +245,6 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 #siteLinkList{
 	line-height: 2em;
 	list-style: none none none;
-	font-size: .8em;
 	margin: 0;	
 	padding: 4px 0;
 	width: auto;
@@ -301,10 +298,9 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 /*PART 5 - SITE TOOL LINKS  - children of #toolMenuWrap	*/
 /*wrapper for ul that lists the links to tools*/
 #toolMenu{
-	width: 12em;
+	width: 9.6em;
 	padding: 0;
 	margin: 1em 0 0 0;
-	font-size: 80%;
 	color: #000;
 }
 
@@ -313,6 +309,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	list-style: none;
 	margin: 0;
 	padding-right: 0;
+		padding-left: 0;
 }
 
 #toolMenu li{
@@ -406,7 +403,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 
 /*wrapper for title of iframe ("Users present")*/
 #presenceTitle{
-	font-size: .7em;
+	font-size: .8em;
 	text-align: right;
 	margin-right: .5em;
 }
@@ -439,7 +436,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 .portlet{
 }
 
-/*.portletTitleWrap and .portletTitleWrap are wrappers for the iframes holding the tool title documents,
+/*.portletTitleWrap and .portletTitleWrap are wrappers for the tool title and the tool iframe,
 below they are contextually defined depending on the column as an example,as you may want to adjust the widths accordingly*/ 
 #col1 .portletTitleWrap{
 	width: 99%;
@@ -459,14 +456,71 @@ below they are contextually defined depending on the column as an example,as you
 	width: 98.5%;
 	margin-bottom: .5em;
 }
+.portletTitle{
+	width: 100%;
+}
 
+.portletTitle .title img{
+	margin: 0;
+	border:none;
+/*	vertical-align: text-bottom;*/
+	width: 18px;
+	height: 16px;
+}
+
+.portletTitle .title{
+	padding: 2px 4px 6px 4px;
+	height: 1em;
+	font-size: 110%;
+	float: left;
+	color: #000;
+}
+
+.portletTitle .title h2{
+	display: inline;
+	margin: 0 0 0 .2em;
+	padding: 0;
+	color: #555;
+	font-weight: bold;
+	font-size: 1em;
+}
+
+.portletTitle .title a{
+	background: url(images/reload.gif) center left no-repeat;
+}
+
+.portletTitle .title a:hover{
+	background: url(images/reload_h.gif) center left no-repeat;
+}
+
+.portletTitle .action{
+	padding: 2px 4px 6px 2px;
+	text-align: right;
+	vertical-align: middle;
+}
+
+.portletTitle .action img{
+	margin: 0;
+	border:none;
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
+
+.portletTitle .action a{
+	background: url(images/help.gif) center right no-repeat;
+}
+
+.portletTitle .action a:hover{
+	background: url(images/help_h.gif) center right no-repeat;
+}
 /*iframes for portlet title and portlet content*/
-.portletTitleIframe{
+/*gone for 2.3*/
+/*.portletTitleIframe{
 	margin: 0;
 	height: 1.8em;
 	width: 100%;
 }
-
+*/
 .portletMainIframe{
 	text-align: left;
 	margin-bottom: .5em;
