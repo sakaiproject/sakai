@@ -257,4 +257,12 @@ public class MediaData
     this.durationIsOver = durationIsOver;
   }
 
+  private String timeAllowed;
+  public String getTimeAllowed() {
+	  return timeAllowed;
+  }
+  
+  public void setTimeAllowed(String timeAllowed) {
+	  this.timeAllowed = timeAllowed;  
+  }
 }

@@ -37,10 +37,10 @@ should be included in file importing DeliveryMessages
                 volume=\"50\" height=\"25\" width=\"300\" autostart=\"false\"/>
          " />
 
-      <f:verbatim><br /></f:verbatim>
+	  <f:verbatim><br /></f:verbatim>
       <h:outputText value="#{msg.open_bracket}"/>
       <h:outputText value="#{media.duration} sec, recorded on " rendered="#{!media.durationIsOver}" />
-      <h:outputText value="#{question.duration} sec, recorded on " rendered="#{media.durationIsOver}" />
+      <h:outputText value="#{media.timeAllowed} sec, recorded on " rendered="#{media.durationIsOver}" />
 	  <h:outputText value="#{media.createdDate}">
         <f:convertDateTime pattern="#{msg.grading_date_no_time_format}" />
       </h:outputText>
