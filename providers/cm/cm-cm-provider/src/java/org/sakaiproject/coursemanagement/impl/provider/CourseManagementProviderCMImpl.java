@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,13 +20,31 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
+/**
+ * An adapter that allows the use of the legacy CourseManagementService (and
+ * hence an unmodified site info / worksite setup) while using the new CourseManagementService
+ * to provide enterprise data to Sakai.  This provider implementation may only be
+ * used when Sakai is configured to use the CourseManagementGroupProvider implementation
+ * of GroupProvider.  See /providers/component/src/webapp/WEB-INF/components.xml
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class CourseManagementProviderCMImpl implements CourseManagementProvider {
 
 	private static final Log log = LogFactory.getLog(CourseManagementProviderCMImpl.class);
 	
+	/** The new cm service **/
 	private CourseManagementService cmService;
+	
+	/** Our CM group provider keep the logic for searching for users' roles in the CM hierarchy **/
 	private GroupProvider cmGroupProvider;
+	
+	/** The Sakai UserDirectoryService */
 	private UserDirectoryService uds;
+	
+	/** These roles are allowed to associate rosters (sections) with a site **/
+	private List sectionMappingRoles;
 
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("CourseManagementProviderCMImpl");
@@ -60,6 +77,7 @@ public class CourseManagementProviderCMImpl implements CourseManagementProvider 
 
 	public String getCourseId(Term term, List requiredFields) {
 		StringBuffer sb = new StringBuffer();
+		if(log.isDebugEnabled()) log.debug("Constructing getCourseId");
 		if (term != null) {
 			sb.append(term.getYear());
 			sb.append(",");
@@ -73,7 +91,9 @@ public class CourseManagementProviderCMImpl implements CourseManagementProvider 
 			sb.append(",");
 			sb.append((String) requiredFields.get(i));
 		}
-		return sb.toString();
+		String id = sb.toString();
+		if(log.isDebugEnabled()) log.debug("courseId constructed as: " + id);
+		return id;
 	}
 
 	public List getCourseIdRequiredFields() {
@@ -117,6 +137,19 @@ public class CourseManagementProviderCMImpl implements CourseManagementProvider 
 			// Add the course member to the list
 			members.add(courseMember);
 		}
+		if(log.isDebugEnabled()) {
+			StringBuffer sb = new StringBuffer("Found the following course members for ");
+			sb.append(courseId);
+			sb.append(": ");
+			for(Iterator iter = members.iterator(); iter.hasNext();) {
+				CourseMember member = (CourseMember)iter.next();
+				sb.append(member.getUniqname());
+				if(iter.hasNext()) {
+					sb.append(", ");
+				}
+			}
+			log.debug(sb.toString());
+		}
 		return members;
 	}
 
@@ -126,22 +159,36 @@ public class CourseManagementProviderCMImpl implements CourseManagementProvider 
 	}
 
 	public List getInstructorCourses(String instructorId, String termYear, String termTerm) {
-		Set sections = cmService.findInstructingSections(instructorId);
+		Map groupRoleMap = cmGroupProvider.getGroupRolesForUser(instructorId);
+		
+		if(log.isDebugEnabled()) log.debug("Found the following section EIDs for instructor " + instructorId + ": " + groupRoleMap.keySet());
 		List courses = new ArrayList();
-		for(Iterator iter = sections.iterator(); iter.hasNext();) {
-			Section section = (Section)iter.next();
+		for(Iterator iter = groupRoleMap.keySet().iterator(); iter.hasNext();) {
+			String sectionEid = (String)iter.next();
+			String role = (String)groupRoleMap.get(sectionEid);
+			
+			// Does this role qualify the user to associate a section with a site?
+			if( ! sectionMappingRoles.contains(role)) {
+				continue;
+			}
+			
+			Section section = cmService.getSection(sectionEid);
 			Course course = getLegacyCourseFromCmSection(section);
 			AcademicSession as = cmService.getAcademicSession(course.getTermId());
 			
 			// TODO: How do we convert between these term strings and the CM AcademicSession?
-			if(as.getTitle().indexOf(termYear) != -1 && as.getTitle().indexOf(termTerm) != -1) {
+			if(as.getTitle().toLowerCase().indexOf(termYear.toLowerCase()) != -1 && as.getTitle().toLowerCase().indexOf(termTerm.toLowerCase()) != -1) {
+				if(log.isDebugEnabled()) log.debug("Section " + section.getEid() + " matches the term " + termTerm + " " + termYear);
 				courses.add(course);
+			} else {
+				if(log.isDebugEnabled()) log.debug("Section " + section.getEid() + " does not match the term " + termTerm + " " + termYear);
 			}
 		}
 		return courses;
 	}
 
 	public String getProviderId(List providerIdList) {
+		if(log.isDebugEnabled()) log.debug("Generating a provider id for " + providerIdList);
 		StringBuffer sb = new StringBuffer();
 		for(Iterator iter = providerIdList.iterator(); iter.hasNext();) {
 			String id = (String)iter.next();
@@ -150,6 +197,7 @@ public class CourseManagementProviderCMImpl implements CourseManagementProvider 
 				sb.append("+");
 			}
 		}
+		if(log.isDebugEnabled()) log.debug("Provider id = " + sb.toString());
 		return sb.toString();
 	}
 
@@ -165,6 +213,10 @@ public class CourseManagementProviderCMImpl implements CourseManagementProvider 
 
 	public void setUds(UserDirectoryService uds) {
 		this.uds = uds;
+	}
+
+	public void setSectionMappingRoles(List sectionMappingRoles) {
+		this.sectionMappingRoles = sectionMappingRoles;
 	}
 
 }

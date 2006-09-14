@@ -33,7 +33,9 @@ import org.sakaiproject.authz.api.GroupProvider;
 
 /**
  * A Sakai GroupProvider that utilizes the CourseManagementService and the
- * CmMappingService to supply authz data to Sakai.
+ * CmMappingService to supply authz data to Sakai.  This implementation uses
+ * a list of RoleResolvers, which can be used to resolve a user's role in a section
+ * based on memberships in parent objects such as CourseSets.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */

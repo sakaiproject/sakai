@@ -105,6 +105,7 @@
 	<!--
 		CourseManagement-backed Group and Course Providers
 
+
 	<bean id="org.sakaiproject.authz.api.GroupProvider"
 			class="org.sakaiproject.coursemanagement.impl.provider.CourseManagementGroupProvider"
 			init-method="init"
@@ -156,8 +157,13 @@
 			<property name="uds">
 				<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
 			</property>
+			<property name="sectionMappingRoles">
+				<list>
+					<value>Instructor</value>
+					<value>Teaching Assistant</value>
+				</list>
+			</property>
 	</bean>
-
 	-->
 
 </beans>
