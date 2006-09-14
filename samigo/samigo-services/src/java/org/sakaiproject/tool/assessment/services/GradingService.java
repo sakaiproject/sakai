@@ -1118,7 +1118,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         
         
           if (data.getAnswerText() != null){
-    	    studentanswer= data.getAnswerText().trim().replace(",",".");
+    	    studentanswer= data.getAnswerText().trim().replace(',','.');
     	    try{
     	    	studentAnswerNum = Float.valueOf(studentanswer).floatValue();   	    	
             }catch(NumberFormatException ex){
@@ -1144,7 +1144,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       
       
         if (data.getAnswerText() != null){
-  	    studentanswer= data.getAnswerText().trim().replace(",",".");
+  	    studentanswer= data.getAnswerText().trim().replace(',','.');
 	    try{
   	    	studentAnswerNum = Float.valueOf(studentanswer).floatValue(); 	    	
           }catch(NumberFormatException ex){
