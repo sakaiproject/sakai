@@ -8826,54 +8826,59 @@ public class ResourcesAction
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
 
-		String folderId = params.getString ("folderId");
-		if(folderId == null)
+		String flow = params.getString("flow");
+		
+		if("save".equalsIgnoreCase(flow))
 		{
-			// TODO: log error
-			// TODO: move strings to rb
-			addAlert(state, "Unable to complete Sort");
-		}
-		else
-		{
-			try
+			String folderId = params.getString ("folderId");
+			if(folderId == null)
 			{
-				ContentCollectionEdit collection = ContentHostingService.editCollection(folderId);
-				List memberIds = collection.getMembers();
-				Map priorities = new Hashtable();
-				Iterator it = memberIds.iterator();
-				while(it.hasNext())
+				// TODO: log error
+				// TODO: move strings to rb
+				addAlert(state, "Unable to complete Sort");
+			}
+			else
+			{
+				try
 				{
-					String memberId = (String) it.next();
-					int position = params.getInt("position_" + Validator.escapeUrl(memberId));
-					priorities.put(memberId, new Integer(position));
+					ContentCollectionEdit collection = ContentHostingService.editCollection(folderId);
+					List memberIds = collection.getMembers();
+					Map priorities = new Hashtable();
+					Iterator it = memberIds.iterator();
+					while(it.hasNext())
+					{
+						String memberId = (String) it.next();
+						int position = params.getInt("position_" + Validator.escapeUrl(memberId));
+						priorities.put(memberId, new Integer(position));
+					}
+					collection.setPriorityMap(priorities);
+					
+					ContentHostingService.commitCollection(collection);
 				}
-				collection.setPriorityMap(priorities);
-				
-				ContentHostingService.commitCollection(collection);
-			}
-			catch(IdUnusedException e)
-			{
-				// TODO: log error
-				// TODO: move strings to rb
-				addAlert(state, "Unable to complete Sort");
-			}
-			catch(TypeException e)
-			{
-				// TODO: log error
-				// TODO: move strings to rb
-				addAlert(state, "Unable to complete Sort");
-			}
-			catch(PermissionException e)
-			{
-				// TODO: log error
-				// TODO: move strings to rb
-				addAlert(state, "Unable to complete Sort");
-			}
-			catch(InUseException e)
-			{
-				// TODO: log error
-				// TODO: move strings to rb
-				addAlert(state, "Unable to complete Sort");
+				catch(IdUnusedException e)
+				{
+					// TODO: log error
+					// TODO: move strings to rb
+					addAlert(state, "Unable to complete Sort");
+				}
+				catch(TypeException e)
+				{
+					// TODO: log error
+					// TODO: move strings to rb
+					addAlert(state, "Unable to complete Sort");
+				}
+				catch(PermissionException e)
+				{
+					// TODO: log error
+					// TODO: move strings to rb
+					addAlert(state, "Unable to complete Sort");
+				}
+				catch(InUseException e)
+				{
+					// TODO: log error
+					// TODO: move strings to rb
+					addAlert(state, "Unable to complete Sort");
+				}
 			}
 		}
 

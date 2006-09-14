@@ -1075,7 +1075,7 @@
 #end
 ############################################# end of macro prop_timeSelection 
 ##
-<script language="JavaScript" type="text/JavaScript">
+<script language="JavaScript" type="text/javascript">
 	<!--
 	function submitform(id)
 	{
