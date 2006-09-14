@@ -2128,17 +2128,8 @@ public class CharonPortal extends HttpServlet
 
 
 		// let the tool do some the work (include) (see note above)
-		// tool.include(req, res, siteTool, toolContextPath, toolPathInfo);
-
 		String toolUrl = ServerConfigurationService.getToolUrl() + "/" + Web.escapeUrl(placement.getId());
-		String titleUrl = Web.returnUrl(req, "/title/" + Web.escapeUrl(placement.getId()));
 		String titleString = Web.escapeHtml(placement.getTitle());
-		// boolean portalHandlesTitleFrame = !"false".equals(placement.getConfig().getProperty(TOOLCONFIG_PORTAL_HANDLES_TITLEBAR));
-		// if (!portalHandlesTitleFrame)
-		// {
-		// // let the tool output its own title frame
-		// titleUrl = toolUrl + "?panel=Title";
-		// }
 
 		// Reset the tool state if requested
 		if ( "true".equals(req.getParameter("sakai.state.reset") ) ) {
@@ -2150,21 +2141,58 @@ public class CharonPortal extends HttpServlet
 		// this is based on what varuna is currently putting out
 		out.println("<div class=\"portlet\">");
 		out.println("<div class=\"portletTitleWrap\">");
-		out.println("<iframe");
-		out.println("	name=\"" + Web.escapeJavascript("Title" + placement.getId()) + "\"");
-		out.println("	id=\"" + Web.escapeJavascript("Title" + placement.getId()) + "\"");
-		out.println("	title=\"" + titleString + "\"");
-		out.println("	class =\"portletTitleIframe\"");
-		out.println("	height=\"22\"");
-		out.println("	width=\"99%\"");
-		out.println("	frameborder=\"0\"");
-		out.println("	marginwidth=\"0\"");
-		out.println("	marginheight=\"0\"");
-		out.println("	scrolling=\"no\"");
-		out.println("	src=\"" + titleUrl + "\">");
-		out.println("</iframe>");
-		out.println("</div>");
 
+		// emit title information
+
+		// for the reset button
+		boolean showResetButton = !"false".equals(placement.getConfig().getProperty(TOOLCONFIG_SHOW_RESET_BUTTON));
+
+		// for the help button
+		// get the help document ID from the tool config (tool registration usually).
+		// The help document ID defaults to the tool ID
+		boolean helpEnabledGlobally = ServerConfigurationService.getBoolean("display.help.icon", true);
+		boolean helpEnabledInTool = !"false".equals(placement.getConfig().getProperty(TOOLCONFIG_SHOW_HELP_BUTTON));
+		boolean showHelpButton = helpEnabledGlobally && helpEnabledInTool;
+
+		String helpActionUrl = "";
+		if (showHelpButton)
+		{
+			String helpDocId = placement.getConfig().getProperty(TOOLCONFIG_HELP_DOCUMENT_ID);
+			String helpDocUrl = placement.getConfig().getProperty(TOOLCONFIG_HELP_DOCUMENT_URL);
+			if (helpDocUrl != null && helpDocUrl.length() > 0)
+			{
+				helpActionUrl = helpDocUrl;
+			}
+			else
+			{
+				if (helpDocId == null || helpDocId.length() == 0)
+				{
+					helpDocId = tool.getId();
+				}
+				helpActionUrl = ServerConfigurationService.getHelpUrl(helpDocId);
+			}
+		}
+
+		out.write("<div class=\"portletTitle\">\n");
+		out.write("\t<div class=\"title\">\n");
+		if (showResetButton)
+		{
+			out.write("\t\t<a href=\"" + toolUrl + "?sakai.state.reset=true" + "\" "
+					+ " target=\"" + Web.escapeJavascript("Main" + placement.getId()) + "\""
+					+ " title=\"Reset\"><img src=\"/library/image/transparent.gif\" alt=\"Reset\" border=\"1\" /></a>");
+		}
+	        out.write("<h2>"+titleString+"\n"+"\t</h2></div>\n");
+		out.write("\t<div class=\"action\">\n");
+		if (showHelpButton)
+		{
+			out.write("\t\t<a href=\"" + helpActionUrl + "\" target=\"_blank\" "
+					+ "onclick=\"openWindow('" + helpActionUrl + "', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
+					+ "<img src=\"/library/image/transparent.gif\" alt=\"Help\" border=\"0\" /></a>\n");
+		}
+		out.write("\t</div>\n");
+		out.write("</div>\n");
+
+		// Output the iframe for the tool content
 		out.println("<div class=\"portletMainWrap\">");
 		out.println("<iframe");
 		out.println("	name=\"" + Web.escapeJavascript("Main" + placement.getId()) + "\"");
@@ -2292,6 +2320,9 @@ public class CharonPortal extends HttpServlet
 
 		out.println("    <link href=\"" + skinRepo + "/" + skin
 				+ "/portal.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
+		out.println("    <link href=\"" + skinRepo + "/" + skin
+				+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
+
 
 		out.println("    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />" + "    <title>" + Web.escapeHtml(title)
 				+ "</title>" + "    <script type=\"text/javascript\" language=\"JavaScript\" src=\"" + getScriptPath()
