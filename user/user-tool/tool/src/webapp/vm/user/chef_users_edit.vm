@@ -20,10 +20,21 @@
 				<label #if(!$user) for="eid" #end>
 					$tlang.getString("useedi.useid")
 				</label>
-				#if($user && !$valueEid)
+				#if($!user && !$valueEid)
 					#set($valueEid=$user.Eid)
 				#end
-				<input type="text" name="eid" id="eid" #if($valueEid)value="$validator.escapeHtml($valueEid)"#end/>
+				#if(!$user)
+					## creating new account
+					<input type="text" name="eid" id="eid" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
+				#else
+					## modifying existing account
+					#if($!superUser)
+						## only admin type user can modify the eid field
+						<input type="text" name="eid" id="eid" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
+					#else
+						$validator.escapeHtml($!valueEid)
+					#end
+				#end
 			</p>	
 			<p class="shorttext">
 				<label for="first-name">

@@ -306,6 +306,9 @@ public class UsersAction extends PagedResourceActionII
 		// get the user to edit
 		UserEdit user = (UserEdit) state.getAttribute("user");
 		context.put("user", user);
+		
+		// is super user/admin user?
+		context.put("superUser", Boolean.valueOf(SecurityService.isSuperUser()));
 
 		// include the password fields?
 		context.put("incPw", state.getAttribute("include-password"));
@@ -561,6 +564,8 @@ public class UsersAction extends PagedResourceActionII
 			{
 				// TODO: this means the EID value is not unique... when we implement EID fully, we need to check this and send it back to the user
 				Log.warn("chef", "UsersAction.doSave()" + e);
+				addAlert(state, rb.getString("useact.theuseid1"));
+				return;
 			}
 		}
 
@@ -833,6 +838,35 @@ public class UsersAction extends PagedResourceActionII
 		// update
 		else
 		{
+			if (!user.isActiveEdit())
+			{
+				try
+				{
+					// add the user in one step so that all you need is add not update permission
+					// (the added might be "anon", and anon has add but not update permission)
+					user = UserDirectoryService.editUser(user.getId());
+	
+					// put the user in the state
+					state.setAttribute("user", user);
+				}
+				catch (UserLockedException e)
+				{
+					addAlert(state, rb.getString("useact.somels"));
+					return false;
+				}
+				catch (UserNotDefinedException e)
+				{
+					addAlert(state, rb.getString("useact.use") + " " + user.getId() + " " + rb.getString("useact.notfou"));
+					
+					return false;
+				}
+				catch (UserPermissionException e)
+				{
+					addAlert(state, rb.getString("useact.youdonot3"));
+					return false;
+				}
+			}
+			
 			// eid, pw, type might not be editable
 			if (eid != null) user.setEid(eid);
 			user.setFirstName(firstName);
