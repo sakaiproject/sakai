@@ -3,6 +3,7 @@ body{
 	width: 100%;
 	padding: 0;
 	font-family: 'Trebuchet MS',Verdana,sans-serif;
+	font-size:.8em;
 	margin: 0;
 	background: #fff;
 }
@@ -42,7 +43,7 @@ body{
 	color: #000;
 	text-align: right;
 	padding:0 .5em 0 0;
-	border-right:2px solid #FFF
+	border-right:2px solid #fff
 }
 
 #toolMenuWrap:hover{
@@ -84,15 +85,16 @@ site types are a local setting - adjust */
 
 /*PART 2 - HEADER IFRAME SETTINGS*/	
 /*iframe sizes for different states*/
+/*gone for 2.3
 .sitenav-log{
-	/*user not logged in*/
+	user not logged in
 	height: 90px;
 	width: 100%;
 	border-bottom:1px solid #09c
 }
 
 .sitenav-max{
-	/*user logged in */
+	user logged in 
 	height: 7.8em;
 	max-height:140px;
 	min-height:100px;
@@ -100,23 +102,23 @@ site types are a local setting - adjust */
 }
 
 * html .sitenav-max{
-	/*user logged in - iframe height tweak for IE*/
+	user logged in - iframe height tweak for IE
 	height: 8em;
 	}
 .sitenav-min{
-	/*no logos or banners*/
+	no logos or banners
 	height: 2em;
 	width: 100%;
-}
+}*/
 
 /*PART 3 - HEADER BLOCKS (BRANDING,LOGIN)*/
 /*outer wrapper for contents of site navigation document that is displayed inside of the site navigation iframe
 TODO:get it and its children onto main document. Children are #mastHead,#tabNavWrap*/
-.siteNavWrap{
+/*.siteNavWrap{
 	margin: 0; 
 	border-bottom:3px solid #fff;
 	height:100%;
-}
+}*/
 /*depending on site type - different border-bottoms for the site menu parent block
 site types are a local setting - adjust */
 .workspace .siteNavWrap{
@@ -133,7 +135,6 @@ site types are a local setting - adjust */
 
 /*wrapper for mast head elements - children are 3 blocks - #mastLogo,#mastBanner,#mastLogin*/
 #mastHead{
-	font-size: .8em;
 	clear: both;
 }
 
@@ -248,7 +249,6 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 }
 
 /*wrapper for the site links and site <select> blocks - children are #siteNav and #tabNav */
-/*note - after tag 2.2 004 - this and children are no longer nested floated boxes due to fact of site nav remaining in iframe with attendant float drop problems*/
 #siteNav{
 	width:100%;
 }
@@ -282,7 +282,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 /*	white-space: nowrap;*/
 	line-height:2em;
 	list-style: none none none;
-	font-size: .8em;
+	font-size: 1em;
 	margin: 0;	
 	padding: 4px 0;
 	width: auto;
@@ -336,14 +336,11 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 /*PART 5 - SITE TOOL LINKS  - children of #toolMenuWrap	*/
 /*wrapper for ul that lists the links to tools*/
 #toolMenu{
-	width: 12em;
+	width: 9.6em;
 	padding: 0;
 	margin: 1em 0 0 0;
-	font-size: 80%;
 	color: #000;
-/*	clear: both;*/
 	background: inherit;
-
 }
 
 #toolMenu ul{
@@ -351,6 +348,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	list-style: none;
 	margin: 0;
 	padding-right: 0;
+	padding-left: 0;
 }
 
 #toolMenu li{
@@ -471,11 +469,11 @@ display:none*/
 .portlet{
 }
 
-/*.portletTitleWrap and .portletTitleWrap are wrappers for the iframes holding the tool title documents,
+/*.portletTitleWrap are wrappers for the tool title documents,
 below they are contextually defined depending on the column as an example,as you may want to adjust the widths accordingly*/ 
 #col1 .portletTitleWrap{
 	width: 99%;
-		border-bottom: 2px solid #09c;
+	border-bottom: 2px solid #09c;
 }
 
 #col1 .portletMainWrap{
@@ -484,7 +482,7 @@ below they are contextually defined depending on the column as an example,as you
 
 #col1of2 .portletTitleWrap,#col2of2 .portletTitleWrap{
 	width: 98.5%;
-		border-bottom: 2px solid #09c;
+	border-bottom: 2px solid #09c;
 }
 
 #col1of2 .portletMainWrap,#col2of2 .portletMainWrap{
@@ -492,7 +490,67 @@ below they are contextually defined depending on the column as an example,as you
 	margin-bottom: .5em;
 }
 
+.portletTitle{
+	width: 100%;
+}
+
+.portletTitle .title img{
+	margin: 0;
+	vertical-align: text-bottom;
+	width: 18px;
+	border:none;
+	height: 16px;
+}
+
+.portletTitle .title{
+	padding: 2px 4px 6px 0;
+	height: 1em;
+	float: left;
+	color: #000;
+}
+
+.portletTitle .title h2{
+	display: inline;
+	margin: 0 0 0 .2em;
+	padding: 0;
+	color: #555;
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+.portletTitle .title a{
+	background: url(images/reload.gif) center left no-repeat;
+}
+
+.portletTitle .title a:hover{
+	background: url(images/reload_h.gif) center left no-repeat;
+}
+
+.portletTitle .action{
+	padding: 2px 4px 6px 2px;
+	text-align: right;
+	vertical-align: middle;
+}
+
+.portletTitle .action img{
+	margin: 0;
+	border:none;
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
+
+.portletTitle .action a{
+	background: url(images/help.gif) center right no-repeat;
+}
+
+.portletTitle .action a:hover{
+	background: url(images/help_h.gif) center right no-repeat;
+}
+
+
+
 /*iframes for portlet title and portlet content*/
+/*gone for 2.3
 .portletTitleIframe{
 	margin: 0;
 	height: 1.8em;
@@ -505,7 +563,7 @@ below they are contextually defined depending on the column as an example,as you
 	height: auto;
 	border: none;
 }
-
+*/
 /*PART 8 - FOOTER BLOCKS - descendants of #footer TODO - unpack the 3 descendants and make them all children*/
 /*wrapper for links going to external sites - links are output as a series  separated via pipes (TODO:make a list already)*/
 .footerExtNav{
