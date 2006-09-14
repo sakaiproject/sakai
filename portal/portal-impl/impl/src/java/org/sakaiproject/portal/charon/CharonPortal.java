@@ -648,7 +648,7 @@ public class CharonPortal extends HttpServlet
 			out.write("\t<div class=\"action\">\n");
 		if (showHelpButton)
 		{
-			out.write("\t\t<a href=\"" + helpActionUrl + "\" target=\"_blank\" "
+			out.write("\t\t<a accesskey=\"h\" href=\"" + helpActionUrl + "\" target=\"_blank\" "
 					+ "onclick=\"openWindow('" + helpActionUrl + "', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
 					+ "<img src=\"/library/image/transparent.gif\" alt=\"Help\" border=\"0\" /></a>\n");
 		}
@@ -1444,7 +1444,7 @@ public class CharonPortal extends HttpServlet
 		if (accessibilityURL != null && accessibilityURL != "")
 		{
 			out.println("<a href=\"" + accessibilityURL + "\" class=\"skip\" title=\""
-					+ Web.escapeHtml(rb.getString("sit.accessibility")) + "\" accesskey=\"a\">"
+					+ Web.escapeHtml(rb.getString("sit.accessibility")) + "\" accesskey=\"0\">"
 					+ Web.escapeHtml(rb.getString("sit.accessibility")) + "</a>");
 		}
 		out.println("	<a href=\"#tocontent\"  class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "\" accesskey=\"c\">" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "</a>");
@@ -1701,7 +1701,7 @@ public class CharonPortal extends HttpServlet
 		List pages = site.getOrderedPages();
 
 		// gsilver - counter for tool accesskey attributes of <a>
-		int count = 0;
+		//int count = 0;
 
 		for (Iterator i = pages.iterator(); i.hasNext();)
 		{
@@ -1716,10 +1716,12 @@ public class CharonPortal extends HttpServlet
 			{
 				out.print("			<li><a ");	
 			}
-			if (count < 10)
-			{
-				out.print("accesskey=\"" + count + "\" ");
-			}
+
+// removing accesskeys from tool menu
+//			if (count < 10)
+//			{
+//				out.print("accesskey=\"" + count + "\" ");
+//			}
 			if (current)
 			{
 				out.print("class=\"selected\" ");
@@ -1742,7 +1744,7 @@ public class CharonPortal extends HttpServlet
 			}
 			out.println("\"><span>" + Web.escapeHtml(p.getTitle()) + "</span></a></li>");
 
-			count++;
+//			count++;
 		}
 
 		if (showHelp)
@@ -1750,8 +1752,8 @@ public class CharonPortal extends HttpServlet
 			String helpUrl = ServerConfigurationService.getHelpUrl(null);
 			out.println("			<li>");
 
-			// help gets its own accesskey - h
-			out.println("				<a  accesskey=\"h\" href=\"" + helpUrl + "\" target=\"_blank\" "
+			// help gets its own accesskey - 6
+			out.println("				<a  accesskey=\"6\" href=\"" + helpUrl + "\" target=\"_blank\" "
 				+ "onclick=\"openWindow('" + helpUrl + "', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
 				+ "<span>" + rb.getString("sit.help") + "</span></a>");
 
@@ -1767,7 +1769,7 @@ public class CharonPortal extends HttpServlet
 			out.println(Web.escapeHtml(rb.getString("sit.presencetitle")));
 			out.println("	</div>");
 			out.println("	<iframe ");
-			out.println("		name=\"presence\"");
+			out.println("		name=\"presenceIframe\"");
 			out.println("		id=\"presenceIframe\"");
 			out.println("		title=\"" + Web.escapeHtml(rb.getString("sit.presenceiframetit")) + "\"");
 			out.println("		frameborder=\"0\"");
@@ -1819,7 +1821,7 @@ public class CharonPortal extends HttpServlet
 		if (accessibilityURL != null && accessibilityURL != "")
 		{
 			out.println("<a href=\"" + accessibilityURL + "\" class=\"skip\" title=\""
-					+ Web.escapeHtml(rb.getString("sit.accessibility")) + "\" accesskey=\"a\">"
+					+ Web.escapeHtml(rb.getString("sit.accessibility")) + "\" accesskey=\"0\">"
 					+ Web.escapeHtml(rb.getString("sit.accessibility")) + "</a>");
 		}
 		out.println("<a href=\"#tocontent\"  class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "\" accesskey=\"c\">" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "</a>");
@@ -2185,12 +2187,13 @@ public class CharonPortal extends HttpServlet
 		out.write("\t<div class=\"action\">\n");
 		if (showHelpButton)
 		{
-			out.write("\t\t<a href=\"" + helpActionUrl + "\" target=\"_blank\" "
+			out.write("\t\t<a accesskey=\"h\" href=\"" + helpActionUrl + "\" target=\"_blank\" "
 					+ "onclick=\"openWindow('" + helpActionUrl + "', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
 					+ "<img src=\"/library/image/transparent.gif\" alt=\"Help\" border=\"0\" /></a>\n");
 		}
-		out.write("\t</div>\n");
-		out.write("</div>\n");
+		out.write("\t</div><!--gsilver end of the action-->\n");
+		out.write("</div><!--gsilver end of the portletTitle-->\n");
+		out.write("</div><!--gsilver end of the portletTitleWrap-->\n");
 
 		// Output the iframe for the tool content
 		out.println("<div class=\"portletMainWrap\">");
@@ -2206,7 +2209,7 @@ public class CharonPortal extends HttpServlet
 		out.println("	marginheight=\"0\"");
 		out.println("	scrolling=\"auto\"");
 		out.println("	src=\"" + toolUrl + "?panel=Main\">");
-		out.println("</iframe></div></div>");
+		out.println("</iframe></div><!--gsilver end of the portletMainWrap--></div><!--gsilver end of the portlet-->");
 	}
 
 	protected void includeWorksite(PrintWriter out, HttpServletRequest req, Session session, Site site, SitePage page,
@@ -2320,10 +2323,6 @@ public class CharonPortal extends HttpServlet
 
 		out.println("    <link href=\"" + skinRepo + "/" + skin
 				+ "/portal.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
-		out.println("    <link href=\"" + skinRepo + "/" + skin
-				+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
-
-
 		out.println("    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />" + "    <title>" + Web.escapeHtml(title)
 				+ "</title>" + "    <script type=\"text/javascript\" language=\"JavaScript\" src=\"" + getScriptPath()
 				+ "headscripts.js\"></script>" + "  </head>");
