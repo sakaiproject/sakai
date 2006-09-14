@@ -259,16 +259,6 @@
 						#if($root && ($root.canAddItem() || $root.canAddFolder()))
 							<div name="enabledActionLinks" class="itemAction">
 								#set ($itemsOnLine = 0)
-								####### deal with reordering contents of folders
-								#if($root.canRevise())
-									#if ($itemsOnLine > 0)
-										|
-										#set($actionLinkString = "$actionLinkString | ")
-									#end
-									#set ($itemsOnLine = $itemsOnLine + 1)
-									<a href="#toolLinkParam("ResourcesAction" "doReorder" "folderId=$validator.escapeUrl(${root.id})")" title ="$tlang.getString('list.reorder')">$tlang.getString("list.reorder").trim()</a>
-									#set($actionLinkString = "$actionLinkString$tlang.getString('list.reorder')")
-								#end
 								####### deal with adding item/folder
 								#if($root.canAddItem())
 									#if ($itemsOnLine > 0)
@@ -299,6 +289,16 @@
 										#set($actionLinkString = "$actionLinkString$tlang.getString('list.props')")
 									#end
 								##end
+								####### deal with reordering contents of folders
+								#if($root.canRevise() && $root.isSortable())
+									#if ($itemsOnLine > 0)
+										|
+										#set($actionLinkString = "$actionLinkString | ")
+									#end
+									#set ($itemsOnLine = $itemsOnLine + 1)
+									<a href="#toolLinkParam("ResourcesAction" "doReorder" "folderId=$validator.escapeUrl(${root.id})")" title ="$tlang.getString('list.reorder')">$tlang.getString("list.reorder").trim()</a>
+									#set($actionLinkString = "$actionLinkString$tlang.getString('list.reorder')")
+								#end
 								####### deal with site/folder permissions
 								#if($showPermissions && "$!inMyWorkspace" == "false")
 								##if($root.canUpdate() && "$!inMyWorkspace" == "false")
@@ -529,16 +529,6 @@
 								<div name="enabledActionLinks" class="itemAction">
 									#if($member.isFolder())
 										#set ($itemsOnLine = 0)
-										####### deal with reordering contents of folders
-										#if($member.canRevise())
-											#if ($itemsOnLine > 0)
-												|
-												#set($actionLinkString = "$actionLinkString | ")
-											#end
-											#set ($itemsOnLine = $itemsOnLine + 1)
-											<a href="#toolLinkParam("ResourcesAction" "doReorder" "folderId=$validator.escapeUrl(${member.id})")" title ="$tlang.getString('list.reorder')">$tlang.getString("list.reorder").trim()</a>
-											#set($actionLinkString = "$actionLinkString$tlang.getString('list.reorder')")
-										#end
 										####### deal with adding item/folder
 										#if($member.canAddItem())
 											#if ($itemsOnLine > 0)
@@ -566,6 +556,16 @@
 											#set ($itemsOnLine = $itemsOnLine + 1)
 											<a href="#toolLinkParam("ResourcesAction" "doMore" "from=list&id=$validator.escapeUrl($member.id)&collectionId=$validator.escapeUrl($member.container)")" title="$tlang.getString('list.props.title')">$tlang.getString("list.props").trim()</a>
 											#set($actionLinkString = "$actionLinkString$tlang.getString('list.props')")
+										#end
+										####### deal with reordering contents of folders
+										#if($member.canRevise() && $member.isSortable())
+											#if ($itemsOnLine > 0)
+												|
+												#set($actionLinkString = "$actionLinkString | ")
+											#end
+											#set ($itemsOnLine = $itemsOnLine + 1)
+											<a href="#toolLinkParam("ResourcesAction" "doReorder" "folderId=$validator.escapeUrl(${member.id})")" title ="$tlang.getString('list.reorder')">$tlang.getString("list.reorder").trim()</a>
+											#set($actionLinkString = "$actionLinkString$tlang.getString('list.reorder')")
 										#end
 										####### deal with folder permissions
 										#if($showPermissions && "$!inMyWorkspace" == "false")

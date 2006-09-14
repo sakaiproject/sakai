@@ -10386,6 +10386,7 @@ public class ResourcesAction
 			{
 				int collection_size = contentService.getCollectionSize(collectionId);
 				folder.setIsEmpty(collection_size < 1);
+				folder.setSortable(collection_size > 1 && collection_size < EXPANDABLE_FOLDER_SIZE_LIMIT);
 				folder.setIsTooBig(collection_size > EXPANDABLE_FOLDER_SIZE_LIMIT);
 			}
 			catch(RuntimeException e)
@@ -11456,6 +11457,7 @@ public class ResourcesAction
 		protected boolean m_pubview;
 		protected boolean m_pubview_inherited;
 		protected boolean m_pubview_possible;
+		protected boolean m_sortable;
 		
 		/**
 		 * @param id
@@ -12708,6 +12710,16 @@ public class ResourcesAction
 			this.m_inDropbox = inDropbox;
 		}
 
+		public boolean isSortable()
+		{
+			return m_sortable;
+		}
+		
+		public void setSortable(boolean sortable)
+		{
+			m_sortable = sortable;
+		}
+		
 	}	// inner class BrowseItem
 
 
