@@ -88,6 +88,12 @@ public class CharonPortal extends HttpServlet
 	 */
 	protected static final String PARAM_FORCE_LOGIN = "force.login";
 
+	/** Parameter to force state reset */
+	protected static final String PARM_STATE_RESET = "sakai.state.reset";
+
+	/** Configuration option to enable/disable state reset on navigation change */
+	protected static final String CONFIG_AUTO_RESET = "portal.experimental.auto.reset";
+
 	/** Parameter value to indicate to look up a tool ID within a site */
 	protected static final String PARAM_SAKAI_SITE = "sakai.site";
 
@@ -1173,7 +1179,7 @@ public class CharonPortal extends HttpServlet
 		}
 
 		// Reset the tool state if requested
-		if ( "true".equals(req.getParameter("sakai.state.reset") ) ) {
+		if ( "true".equals(req.getParameter(PARM_STATE_RESET) ) ) {
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placementId);
 			ts.clearAttributes();
@@ -1740,7 +1746,12 @@ public class CharonPortal extends HttpServlet
 			}
 			else
 			{
-				out.print(pageUrl + Web.escapeUrl(p.getId()));
+				String pagerefUrl = pageUrl + Web.escapeUrl(p.getId());
+				if ( "true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET) ) )
+				{
+					pagerefUrl = pagerefUrl + "?" + PARM_STATE_RESET + "=true";;
+				}
+				out.print(pagerefUrl);
 			}
 			out.println("\"><span>" + Web.escapeHtml(p.getTitle()) + "</span></a></li>");
 
@@ -2039,6 +2050,10 @@ public class CharonPortal extends HttpServlet
 		{
 			String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/"
 					+ Web.escapeUrl(getUserEidBasedSiteId(session.getUserId()));
+			if ( "true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET) ) )
+			{
+				siteUrl = siteUrl + "?" + PARM_STATE_RESET + "=true";;
+			}
 			out.println("						<li><a href=\"" + siteUrl + "\" target=\"_parent\" title=\""
 					+ Web.escapeHtml(rb.getString("sit.mywor")) + "\"><span>" + Web.escapeHtml(rb.getString("sit.mywor")) + "</span></a></li>");
 		}
@@ -2054,6 +2069,10 @@ public class CharonPortal extends HttpServlet
 			else
 			{
 				String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/" + Web.escapeUrl(getSiteEffectiveId(s));
+			if ( "true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET) ) )
+			{
+				siteUrl = siteUrl + "?" + PARM_STATE_RESET + "=true";;
+			}
 				out.println("							<li><a href=\"" + siteUrl + "\" target=\"_parent\" title=\"" + Web.escapeHtml(s.getTitle())
 						+ " " + Web.escapeHtml(rb.getString("sit.worksite")) + "\"><span>" + Web.escapeHtml(s.getTitle()) + "</span></a></li>");
 			}
@@ -2134,7 +2153,7 @@ public class CharonPortal extends HttpServlet
 		String titleString = Web.escapeHtml(placement.getTitle());
 
 		// Reset the tool state if requested
-		if ( "true".equals(req.getParameter("sakai.state.reset") ) ) {
+		if ( "true".equals(req.getParameter(PARM_STATE_RESET) ) ) {
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placement.getId());
 			ts.clearAttributes();
@@ -2179,7 +2198,7 @@ public class CharonPortal extends HttpServlet
 		out.write("\t<div class=\"title\">\n");
 		if (showResetButton)
 		{
-			out.write("\t\t<a href=\"" + toolUrl + "?sakai.state.reset=true" + "\" "
+			out.write("\t\t<a href=\"" + toolUrl + "?" + PARM_STATE_RESET + "=true" + "\" "
 					+ " target=\"" + Web.escapeJavascript("Main" + placement.getId()) + "\""
 					+ " title=\"Reset\"><img src=\"/library/image/transparent.gif\" alt=\"Reset\" border=\"1\" /></a>");
 		}
