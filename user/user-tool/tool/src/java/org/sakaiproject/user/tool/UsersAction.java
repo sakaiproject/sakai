@@ -788,6 +788,12 @@ public class UsersAction extends PagedResourceActionII
 				type = (String) state.getAttribute("create-type");
 			}
 		}
+		
+		//insure valid email address
+		if(email != null && !email.matches(".+@.+\\..+")) {
+				addAlert(state, rb.getString("useact.invemail"));	
+				return false;
+		}
 
 		// get the user
 		UserEdit user = (UserEdit) state.getAttribute("user");
@@ -879,9 +885,9 @@ public class UsersAction extends PagedResourceActionII
 			
 			// eid, pw, type might not be editable
 			if (eid != null) user.setEid(eid);
-			if (firstName != null) user.setFirstName(firstName);
-			if (lastName != null) user.setLastName(lastName);
-			if (email != null) user.setEmail(email);
+			user.setFirstName(firstName);
+			user.setLastName(lastName);
+			user.setEmail(email);
 			if (type != null) user.setType(type);
 			
 			// make sure we have matching password fields
