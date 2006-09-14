@@ -50,6 +50,12 @@
       <xsl:apply-templates mode="itemRichText" />
     </itemFibText>
   </xsl:for-each>
+  <!-- FIN item text-->
+    <xsl:for-each select="//presentation//material/mattext">
+      <itemFinText type="list">
+        <xsl:apply-templates mode="itemRichText" />
+      </itemFinText>
+  </xsl:for-each>
   <!-- MATCHING item text, answers-->
   <xsl:for-each select="//presentation//response_grp//material/mattext">
     <xsl:choose>
@@ -237,6 +243,7 @@
       <xsl:choose>
         <xsl:when test=".//render_choice and .//response_grp">Matching</xsl:when>
         <xsl:when test=".//resprocessing and .//render_fib">Fill In the Blank</xsl:when>
+        <xsl:when test=".//resprocessing and .//render_fin">Numeric Response</xsl:when>
         <!-- this is lame, but true false acts like a 2 answer MCSC with answers True, False -->
         <xsl:when test=".//render_choice and $labels='TF'">True False</xsl:when>
         <xsl:when test=".//render_choice and @title='Multiple Correct'">Multiple Correct Answer</xsl:when>

@@ -34,6 +34,7 @@ public interface TypeIfc extends java.io.Serializable {
   public static Long FILE_UPLOAD = new Long(6);
   public static Long AUDIO_RECORDING = new Long(7);
   public static Long FILL_IN_BLANK = new Long(8);
+  public static Long FILL_IN_NUMERIC = new Long(11);
   public static Long MATCHING = new Long(9);
   // these are section type available in this site,
   public static Long DEFAULT_SECTION = new Long(21);

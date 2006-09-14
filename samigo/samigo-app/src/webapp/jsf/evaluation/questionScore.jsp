@@ -115,6 +115,10 @@ $Id$
      <h:panelGroup rendered="#{questionScores.typeId == '8'}">
          <h:outputText value="#{msg.q_fib}"/>
      </h:panelGroup>
+     <h:panelGroup rendered="#{questionScores.typeId == '11'}">
+         <h:outputText value="#{msg.q_fin}"/>
+     </h:panelGroup>
+     
       <h:panelGroup rendered="#{questionScores.typeId == '9'}">
          <h:outputText value="#{msg.q_match}"/>
      </h:panelGroup>
@@ -152,6 +156,11 @@ $Id$
     <f:subview id="displayFileUpload">
     <%@ include file="/jsf/evaluation/item/displayFileUploadQuestion.jsp" %>
     </f:subview>
+  </h:panelGroup>
+    <h:panelGroup rendered="#{questionScores.typeId == '11'}">
+      <f:subview id="displayFillInNumeric">
+      <%@ include file="/jsf/evaluation/item/displayFillInNumeric.jsp" %>
+      </f:subview>
   </h:panelGroup>
   <h:panelGroup rendered="#{questionScores.typeId == '8'}">
     <f:subview id="displayFillInTheBlank">

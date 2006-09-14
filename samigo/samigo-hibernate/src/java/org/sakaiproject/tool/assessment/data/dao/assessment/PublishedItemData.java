@@ -487,6 +487,12 @@ public class PublishedItemData
          text = text.replaceAll("\\{","__");
          text = text.replaceAll("\\}","__");
       }
+       if (this.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC))
+       { //e.g. Roses are {}. Violets are {}. replace as
+         // Roses are ____. Violets are ____.
+         text = text.replaceAll("\\{","__");
+         text = text.replaceAll("\\}","__");
+      }
     }
     return text;
    }

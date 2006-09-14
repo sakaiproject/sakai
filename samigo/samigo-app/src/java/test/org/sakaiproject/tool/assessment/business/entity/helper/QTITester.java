@@ -95,6 +95,7 @@ public class QTITester {
       ax.ITEM_AUDIO, //   "audioRecordingTemplate.xml";
       ax.ITEM_ESSAY, //   "essayTemplate.xml";
       ax.ITEM_FIB, //   "fibTemplate.xml";
+      ax.ITEM_FIN, //   "finTemplate.xml";
       ax.ITEM_FILE, //   "fileUploadTemplate.xml";
       ax.ITEM_MATCH, //   "matchTemplate.xml";
       ax.ITEM_MCMC, //   "mcMCTemplate.xml";

@@ -217,6 +217,10 @@ public class ItemModifyListener implements ActionListener
                         itemauthorbean.setItemTypeString("Fill In the Blank");  //  need to get it from properties file
                         nextpage = "fillInBlackItem";
                         break;
+                case 11:
+                    itemauthorbean.setItemTypeString("Fill In Numeric");  //  need to get it from properties file
+                    nextpage = "fillInNumericItem";
+                    break;
                 case 9:
                         itemauthorbean.setItemTypeString("Matching");  //  need to get it from properties file
 			MatchItemBean matchitem = new MatchItemBean();
@@ -341,6 +345,42 @@ public class ItemModifyListener implements ActionListener
 
 
        } //fib
+       
+       if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.FILL_IN_NUMERIC)) {
+
+//    	 restore the original question text, which includes answers in the braces.
+
+    	       String orig = itemText.getText();
+    	       String replaced = null;
+    	       Set answerSet = itemText.getAnswerSet();
+    	       Iterator iter1 = answerSet.iterator();
+    	       //need to check sequence no, since this answerSet returns answers in random order
+    	       int count = answerSet.size();
+    	       String[] answerArray = new String[count];
+    	       while (iter1.hasNext()){
+    		 Answer answerobj = (Answer) iter1.next();
+    	         String answer = answerobj.getText();
+    	         Long seq = answerobj.getSequence();
+    	         if ( (answerArray[seq.intValue()-1] == null ) || (answerArray[seq.intValue()-1].equals("")) ) {
+    	           answerArray[seq.intValue()-1] = answer;
+    		 }
+    	 	 else {
+    	           answerArray[seq.intValue()-1] = answerArray[seq.intValue()-1] + " | " + answer;
+    		 }
+
+    	       }
+    	       for (int i=0; i<answerArray.length; i++) {
+    		 replaced = orig.replaceFirst("\\{\\}", "{"+answerArray[i]+"}");
+    	         orig = replaced;
+    	       }
+
+    	       bean.setItemText(replaced);
+
+
+    	       } //fin
+       
+       
+       
 
        if ((new Long(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CHOICE)) ||(new Long(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT)) ) {
 	 Set answerobjlist = itemText.getAnswerSet();
@@ -514,6 +554,19 @@ public class ItemModifyListener implements ActionListener
        if (meta.getLabel().equals(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB)){
 	 bean.setMutuallyExclusiveForFib((new Boolean(meta.getEntry())).booleanValue());
        }
+       
+       
+//     get settings for case sensitivity for fin
+       // If metadata doesn't exist, by default it is false. 
+      if (meta.getLabel().equals(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIN)){
+	 bean.setCaseSensitiveForFin((new Boolean(meta.getEntry())).booleanValue());
+      }
+
+	// get settings for mutually exclusive for fin. 
+       // If metadata doesn't exist, by default it is false. 
+      if (meta.getLabel().equals(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIN)){
+	 bean.setMutuallyExclusiveForFin((new Boolean(meta.getEntry())).booleanValue());
+      }
 
 	// get part id for the item
        if (meta.getLabel().equals(ItemMetaDataIfc.PARTID)){

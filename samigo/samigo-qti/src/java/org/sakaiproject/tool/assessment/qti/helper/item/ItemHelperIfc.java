@@ -43,6 +43,7 @@ public interface ItemHelperIfc
   public static final long ITEM_ESSAY = TypeIfc.ESSAY_QUESTION.longValue();
   public static final long ITEM_FILE = TypeIfc.FILE_UPLOAD.longValue();
   public static final long ITEM_FIB = TypeIfc.FILL_IN_BLANK.longValue();
+  public static final long ITEM_FIN = TypeIfc.FILL_IN_NUMERIC.longValue();
   public static final long ITEM_MCSC = TypeIfc.MULTIPLE_CHOICE.longValue();
   public static final long ITEM_SURVEY = TypeIfc.MULTIPLE_CHOICE_SURVEY.
     longValue();
@@ -60,6 +61,7 @@ public interface ItemHelperIfc
     "File Upload",
     "Audio Recording",
     "Fill In the Blank",
+    "Numeric Response",
     "Matching",
   };
 

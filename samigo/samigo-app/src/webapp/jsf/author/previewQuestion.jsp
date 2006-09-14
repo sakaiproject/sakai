@@ -58,6 +58,10 @@
           <h:panelGroup rendered="#{itemContents.itemData.typeId == 9}">
             <%@ include file="/jsf/author/questionpreview/Matching.jsp" %>
           </h:panelGroup>
+ <h:panelGroup rendered="#{itemContents.itemData.typeId == 11}">
+            <%@ include file="/jsf/author/questionpreview/FillInNumeric.jsp" %>
+          </h:panelGroup>
+
 
           <h:panelGroup rendered="#{itemContents.itemData.typeId == 8}">
             <%@ include file="/jsf/author/questionpreview/FillInTheBlank.jsp" %>

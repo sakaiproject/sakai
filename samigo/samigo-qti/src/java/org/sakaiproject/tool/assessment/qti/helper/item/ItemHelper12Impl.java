@@ -734,6 +734,313 @@ public class ItemHelper12Impl extends ItemHelperBase
     return itemXml;
   }
 
+//////////////////////////////////////////////////////////////////////////////
+  // Numeric Response
+  //////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Set the item text.
+   * This is only valid for FIN,a single item text separated by '{}'.
+   * @param itemText text to be updated, the syntax is in the form:
+   * 'roses are {} and violets are {}.' -> 'roses are ',' and violets are ','.'
+   * @param itemXml
+   */
+  private void setItemTextFIN(String finAns, Item itemXml)
+  {
+    if ( (finAns != null) && (finAns.trim().length() > 0))
+    {
+      List finList = parseFillInNumeric(finAns);
+      Map valueMap = null;
+      Set newSet = null;
+      String mattext = null;
+      String respStr = null;
+      String xpath = "item/presentation/flow/flow";
+      String position = null;
+      String[] responses = null;
+
+      if ( (finList != null) && (finList.size() > 0))
+      {
+
+        List idsAndResponses = new ArrayList();
+        //1. add Mattext And Responses
+        for (int i = 0; i < finList.size(); i++)
+        {
+
+          valueMap = (Map) finList.get(i);
+
+          if ( (valueMap != null) && (valueMap.size() > 0))
+          {
+            mattext = (String) valueMap.get("text");
+
+            if (mattext != null)
+            {
+              //add mattext
+              itemXml.add(xpath, "material/mattext");
+              String newXpath =
+                xpath + "/material[" +
+                (new Integer(i + 1).toString() + "]/mattext");
+
+              updateItemXml(itemXml, newXpath, mattext);
+            }
+
+            respStr = (String) valueMap.get("ans");
+
+            if (respStr != null)
+            {
+              //add response_str
+              itemXml.add(xpath, "response_str/render_fin");
+              String newXpath =
+                xpath + "/response_str[" +
+                (new Integer(i + 1).toString() + "]");
+
+              itemXml.addAttribute(newXpath, "ident");
+              String ident = "FIN0" + i;
+              updateItemXml(
+                itemXml, newXpath + "/@ident", ident);
+
+              itemXml.addAttribute(newXpath, "rcardinality");
+              updateItemXml(
+                itemXml, newXpath + "/@rcardinality", "Ordered");
+
+              newXpath = newXpath + "/render_fin";
+              itemXml.addAttribute(newXpath, "fintype");
+              updateItemXml(
+                itemXml, newXpath + "/@fintype", "String");
+
+              itemXml.addAttribute(newXpath, "prompt");
+              updateItemXml(
+                itemXml, newXpath + "/@prompt", "Box");
+
+              itemXml.addAttribute(newXpath, "columns");
+              updateItemXml(
+                itemXml, newXpath + "/@columns",
+                (new Integer(respStr.length() + 5).toString()));
+
+              itemXml.addAttribute(newXpath, "rows");
+              updateItemXml(itemXml, newXpath + "/@rows", "1");
+
+              // we throw this into our global (ugh) list of idents
+              allIdents.add(ident);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * we ensure that answer text between brackets is always nonempty, also that
+   * starting text is nonempty, we use a non-breaking space for this purpose
+   * @param fin
+   * @return
+   */
+  private static String padFinWithNonbreakSpacesText(String fin)
+  {
+
+    if (fin.startsWith("{"))
+    {
+      fin = NBSP + fin;
+    }
+    return fin.replaceAll("\\}\\{", "}" + NBSP + "{");
+  }
+
+  /**
+   * Special FIN processing.
+   * @param itemXml
+   * @param responseCondNo
+   * @param respIdent
+   * @param points
+   * @param responses
+   * @return
+   */
+  private Item addFINRespconditionNotMutuallyExclusive(
+    Item itemXml, String responseCondNo,
+    String respIdent, String points, String[] responses)
+  {
+    String xpath = "item/resprocessing";
+    itemXml.add(xpath, "respcondition");
+    String respCond =
+      "item/resprocessing/respcondition[" + responseCondNo + "]";
+    itemXml.addAttribute(respCond, "continue");
+    updateItemXml(itemXml, respCond + "/@continue", "Yes");
+
+    String or = "";
+
+    itemXml.add(respCond, "conditionvar/or");
+    or = respCond + "/conditionvar/or";
+
+    for (int i = 0; i < responses.length; i++)
+    {
+      itemXml.add(or, "varequal");
+      int iString = i + 1;
+      String varequal = or + "/varequal[" + iString + "]";
+      itemXml.addAttribute(varequal, "case");
+      itemXml.addAttribute(varequal, "respident");
+
+      updateItemXml(itemXml, varequal + "/@case", "No");
+
+      updateItemXml(
+        itemXml, varequal + "/@respident", respIdent);
+      updateItemXml(itemXml, varequal, responses[i]);
+    }
+
+    //Add setvar
+    itemXml.add(respCond, "setvar");
+    itemXml.addAttribute(respCond + "/setvar", "action");
+
+    updateItemXml(
+      itemXml, respCond + "/setvar/@action", "Add");
+    itemXml.addAttribute(respCond + "/setvar", "varname");
+
+    updateItemXml(
+      itemXml, respCond + "/setvar/@varname", "SCORE");
+
+    updateItemXml(itemXml, respCond + "/setvar", points); // this should be minimum value
+
+    return itemXml;
+  }
+
+  /**
+   * Special FIN processing.
+   * @param itemXml
+   * @param responseCondNo
+   * @param respIdents
+   * @param points
+   * @param response
+   * @return
+   */
+  private Item addFINRespconditionMutuallyExclusive(Item itemXml,
+    String responseCondNo,
+    ArrayList respIdents, String points, String response)
+  {
+    String xpath = "item/resprocessing";
+    itemXml.add(xpath, "respcondition");
+    String respCond =
+      "item/resprocessing/respcondition[" + responseCondNo + "]";
+    itemXml.addAttribute(respCond, "continue");
+
+    updateItemXml(itemXml, respCond + "/@continue", "Yes");
+
+    String or = "";
+    itemXml.add(respCond, "conditionvar/or");
+    or = respCond + "/conditionvar/or";
+
+    for (int i = 0; i < respIdents.size(); i++)
+    {
+      int iString = i + 1;
+
+      itemXml.add(or, "varequal");
+      String varequal = or + "/varequal[" + (i + 1) + "]";
+      itemXml.addAttribute(varequal, "case");
+      itemXml.addAttribute(varequal, "respident");
+
+      updateItemXml(itemXml, varequal + "/@case", "No");
+
+      updateItemXml(
+        itemXml, varequal + "/@respident", (String) respIdents.get(i));
+      updateItemXml(itemXml, varequal, response);
+    }
+
+    //Add setvar
+    itemXml.add(respCond, "setvar");
+    itemXml.addAttribute(respCond + "/setvar", "action");
+
+    updateItemXml(
+      itemXml, respCond + "/setvar/@action", "Add");
+    itemXml.addAttribute(respCond + "/setvar", "varname");
+
+    updateItemXml(
+      itemXml, respCond + "/setvar/@varname", "SCORE");
+
+    updateItemXml(itemXml, respCond + "/setvar", points); // this should be minimum value
+
+    return itemXml;
+  }
+
+  /**
+   * Special FIN processing.
+   * @param itemXml
+   * @param responseCondNo
+   * @return
+   */
+  private Item addFINRespconditionCorrectFeedback(
+    Item itemXml, String responseCondNo)
+  {
+    String xpath = "item/resprocessing";
+    itemXml.add(xpath, "respcondition");
+    String respCond =
+      "item/resprocessing/respcondition[" + responseCondNo + "]";
+    itemXml.addAttribute(respCond, "continue");
+
+    updateItemXml(itemXml, respCond + "/@continue", "Yes");
+
+    String and = "";
+
+    itemXml.add(respCond, "conditionvar/and");
+    and = respCond + "/conditionvar/and";
+
+    for (int i = 1; i < (new Integer(responseCondNo)).intValue(); i++)
+    {
+      List or = itemXml.selectNodes("item/resprocessing/respcondition[" + i +
+                                    "]/conditionvar/or");
+      if (or != null)
+      {
+        itemXml.addElement(and, ( (Element) or.get(0)));
+      }
+    }
+
+    //Add display feedback
+    itemXml.add(respCond, "displayfeedback");
+    itemXml.addAttribute(respCond + "/displayfeedback", "feedbacktype");
+
+    updateItemXml(
+      itemXml, respCond + "/displayfeedback/@feedbacktype", "Response");
+    itemXml.addAttribute(respCond + "/displayfeedback", "linkrefid");
+
+    updateItemXml(
+      itemXml, respCond + "/displayfeedback/@linkrefid", "Correct");
+    return itemXml;
+  }
+
+  /**
+   * Special FIN processing.
+   * @param itemXml
+   * @param responseCondNo
+   * @return
+   */
+  private Item addFINRespconditionInCorrectFeedback(
+    Item itemXml, String responseCondNo)
+  {
+    String xpath = "item/resprocessing";
+    itemXml.add(xpath, "respcondition");
+    String respCond =
+      "item/resprocessing/respcondition[" + responseCondNo + "]";
+    itemXml.addAttribute(respCond, "continue");
+
+    updateItemXml(itemXml, respCond + "/@continue", "No");
+
+    itemXml.add(respCond, "conditionvar/other");
+
+//			Add display feedback
+    itemXml.add(respCond, "displayfeedback");
+    itemXml.addAttribute(respCond + "/displayfeedback", "feedbacktype");
+
+    updateItemXml(
+      itemXml, respCond + "/displayfeedback/@feedbacktype", "Response");
+    itemXml.addAttribute(respCond + "/displayfeedback", "linkrefid");
+
+    updateItemXml(
+      itemXml, respCond + "/displayfeedback/@linkrefid", "InCorrect");
+    return itemXml;
+  }
+  
+  
+  
+  
+  
+  
+  
+  
   /**
    *
    * @param idsAndResponses
@@ -856,10 +1163,72 @@ public class ItemHelper12Impl extends ItemHelperBase
                                              toString());
       }
 
-    }
-    return itemXml;
-  }
+		}
+		return itemXml;
+	}
+  
+  /**
+   * Special FIN processing.
+   * @param itemXml
+   * @param idsAndResponses
+   * @param allIdents
+   * @param isMutuallyExclusive
+   * @param points
+   * @return
+   */
 
+  
+  private Item addFINRespconditions(Item itemXml, List idsAndResponses,
+			List allIdents, boolean isMutuallyExclusive, String points) {
+		if (idsAndResponses.size() > 0) {
+			ArrayList combinationResponses = getSimilarCorrectAnswerIDs(idsAndResponses);
+			if (combinationResponses != null && combinationResponses.size() > 0) {
+				int respConditionNo = 1;
+				for (int i = 0; i < combinationResponses.size(); i++) {
+					Map currentEntry = (Map) combinationResponses.get(i);
+					Set entrySet = currentEntry.keySet();
+					Iterator entrykeys = entrySet.iterator();
+					while (entrykeys.hasNext()) {
+						String[] responses = (String[]) entrykeys.next();
+						ArrayList idList = (ArrayList) currentEntry
+								.get(responses);
+						if (idList != null && idList.size() > 0) {
+							if (idList.size() == 1) {
+								addFINRespconditionNotMutuallyExclusive(
+										itemXml, new Integer(respConditionNo)
+												.toString(), (String) idList
+												.get(0), points, responses);
+								respConditionNo = respConditionNo + 1;
+							} else {
+								for (int k = 0; k < responses.length; k++) {
+
+									addFINRespconditionMutuallyExclusive(
+											itemXml,
+											new Integer(respConditionNo)
+													.toString(), idList,
+											points, responses[k]);
+									respConditionNo = respConditionNo + 1;
+
+								}
+
+							}
+						}
+					}
+				}
+				// add respcondition for all correct answers
+				addFINRespconditionCorrectFeedback(itemXml, new Integer(
+						respConditionNo).toString());
+				respConditionNo = respConditionNo + 1;
+				// add respcondition for all incorrect answers
+				addFINRespconditionInCorrectFeedback(itemXml, new Integer(
+						respConditionNo).toString());
+			}
+
+		}
+		return itemXml;
+	}
+  
+  
   /**
    *  Get list of form:
    *  {ans=red, text=Roses are},
@@ -909,6 +1278,47 @@ public class ItemHelper12Impl extends ItemHelperBase
     return storeParts;
   }
 
+  
+  private static List parseFillInNumeric(String input)
+  {
+    input = padFinWithNonbreakSpacesText(input);
+
+    Map tempMap = null;
+    List storeParts = new ArrayList();
+    if (input == null)
+    {
+      return storeParts;
+    }
+
+    StringTokenizer st = new StringTokenizer(input, "}");
+    String tempToken = "";
+    String[] splitArray = null;
+
+    while (st.hasMoreTokens())
+    {
+      tempToken = st.nextToken();
+      tempMap = new HashMap();
+
+      //split out text and answer parts from token
+      splitArray = tempToken.trim().split("\\{", 2);
+      tempMap.put("text", splitArray[0].trim());
+      if (splitArray.length > 1)
+      {
+
+        tempMap.put("ans", (splitArray[1]));
+      }
+      else
+      {
+        tempMap.put("ans", null);
+      }
+
+      storeParts.add(tempMap);
+    }
+
+    return storeParts;
+  }
+  
+  
   private static String[] getPossibleCorrectResponses(String inputStr)
   {
     String patternStr = ",";
@@ -973,6 +1383,11 @@ public class ItemHelper12Impl extends ItemHelperBase
       setItemTextFIB(text, itemXml);
       return;
     }
+    else if (itemXml.isFIN())
+    {
+        setItemTextFIN(text, itemXml);
+        return;
+    }
     else
     {
       setItemText(text, itemXml);
@@ -1006,7 +1421,7 @@ public class ItemHelper12Impl extends ItemHelperBase
     log.debug("size=" + itemTextList.size());
     // other types either have no answer or include them in their template, or,
     // in matching, generate all in setItemTextMatching()
-    if (!itemXml.isFIB() && !itemXml.isMCSC()
+    if (!itemXml.isFIB() && !itemXml.isMCSC() && !itemXml.isFIN()
         && !itemXml.isMCMC() && !itemXml.isEssay())
     {
       return;
@@ -1054,6 +1469,20 @@ public class ItemHelper12Impl extends ItemHelperBase
           xpathIndex++;
           continue; //
         }
+        
+        if (itemXml.isFIN())
+        {
+          String[] responses =
+            {
+            value}; // one possible for now
+          String respIdent = (String) allIdents.get(respIdentCount++);
+          addFINRespconditionNotMutuallyExclusive(
+            itemXml, "" + xpathIndex, respIdent, "0", responses);
+          label++;
+          xpathIndex++;
+          continue; //
+}
+
         // process into XML
         // we assume that we have equal to or more than the requisite elements
         // if we have more than the existing elements we manufacture more

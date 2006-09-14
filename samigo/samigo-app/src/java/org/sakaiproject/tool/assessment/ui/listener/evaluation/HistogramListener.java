@@ -335,7 +335,8 @@ public class HistogramListener
         qbean.getQuestionType().equals("3") ||  // mc survey
         qbean.getQuestionType().equals("4") || // tf
         qbean.getQuestionType().equals("9") || // matching
-        qbean.getQuestionType().equals("8")) // Fill in the blank
+        qbean.getQuestionType().equals("8") || // Fill in the blank
+    	qbean.getQuestionType().equals("11"))  //  Numeric Response
       doAnswerStatistics(pub, qbean, itemScores);
     if (qbean.getQuestionType().equals("5") || // essay
         qbean.getQuestionType().equals("6") || // file upload
@@ -381,6 +382,8 @@ public class HistogramListener
       getTFMCScores(publishedAnswerHash, scores, qbean, answers);
     else if (qbean.getQuestionType().equals("8"))
       getFIBMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers);
+    else if (qbean.getQuestionType().equals("11"))
+        getFINMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers);
     else if (qbean.getQuestionType().equals("9"))
       getMatchingScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
   }
@@ -553,6 +556,173 @@ public class HistogramListener
       qbean.setPercentCorrect(new Integer((int)(((float) correctresponses/(float) responses) * 100)).toString());
   }
 
+  public void getFINMCMCScores(HashMap publishedItemHash, HashMap publishedAnswerHash, 
+		    ArrayList scores, HistogramQuestionScoresBean qbean, ArrayList answers)
+		  {
+		    HashMap texts = new HashMap();
+		    Iterator iter = answers.iterator();
+		    HashMap results = new HashMap();
+		    HashMap numStudentRespondedMap= new HashMap();   
+		    while (iter.hasNext())
+		    {
+		      AnswerIfc answer = (AnswerIfc) iter.next();
+		      texts.put(answer.getId(), answer);
+		      results.put(answer.getId(), new Integer(0));
+		    }
+		    iter = scores.iterator();
+		    while (iter.hasNext())
+		    {
+		      ItemGradingData data = (ItemGradingData) iter.next();
+		      AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
+		      if (answer != null)
+		      {
+		        //log.info("Rachel: looking for " + answer.getId());
+		        // found a response
+		        Integer num = null;
+		        // num is a counter
+		        try {
+		        // we found a response, now get existing count from the hashmap
+		          num = (Integer) results.get(answer.getId());
+
+
+		        } catch (Exception e) {
+		          log.warn("No results for " + answer.getId());
+		        }
+		        if (num == null)
+		          num = new Integer(0);
+
+		    	  ArrayList studentResponseList = (ArrayList)numStudentRespondedMap.get(data.getAssessmentGradingId());
+		          if (studentResponseList==null) {
+		    	    studentResponseList = new ArrayList();
+		          }
+		          studentResponseList.add(data);
+		          numStudentRespondedMap.put(data.getAssessmentGradingId(), studentResponseList);
+		        // we found a response, and got the  existing num , now update one
+		        if (qbean.getQuestionType().equals("11"))
+		        {
+		          // for fib we only count the number of correct responses 
+		          Float autoscore = data.getAutoScore();
+		          if (!(new Float(0)).equals(autoscore)) {
+		            results.put(answer.getId(), new Integer(num.intValue() + 1));
+		          }
+		        }
+		        else {  
+		          // for mc, we count the number of all responses 
+		          results.put(answer.getId(), new Integer(num.intValue() + 1));
+		        }
+		      }
+		    }
+		    HistogramBarBean[] bars = new HistogramBarBean[results.keySet().size()];
+		    int[] numarray = new int[results.keySet().size()];
+		    iter = results.keySet().iterator();
+		    int i = 0;
+		    int responses = 0;
+		    int correctresponses = 0;
+		    while (iter.hasNext())
+		    {
+		      Long answerId = (Long) iter.next();
+		      AnswerIfc answer = (AnswerIfc) texts.get(answerId);
+		      int num = ((Integer) results.get(answerId)).intValue();
+		      numarray[i] = num;
+		      bars[i] = new HistogramBarBean();
+		      if(answer != null)
+		      	bars[i].setLabel(answer.getText());
+
+		      // this doens't not apply to fib , do not show checkmarks for FIB
+		    	if (!qbean.getQuestionType().equals("11") && answer != null)
+		      	{
+			  bars[i].setIsCorrect(answer.getIsCorrect());
+		        }
+
+
+			if ((num>1)||(num==0))
+		          {
+		              bars[i].setNumStudentsText(num + " Responses");
+		          }
+		      else
+		          {
+		              bars[i].setNumStudentsText(num + " Response");
+
+		      }
+		      bars[i].setNumStudents(num);
+		      i++;
+		    }
+
+
+		    responses = numStudentRespondedMap.size();
+		    Iterator mapiter = numStudentRespondedMap.keySet().iterator();
+		    while (mapiter.hasNext())
+		    {
+		      Long assessmentGradingId= (Long)mapiter.next();
+		      ArrayList resultsForOneStudent = (ArrayList)numStudentRespondedMap.get(assessmentGradingId);
+		      boolean hasIncorrect = false;
+		      Iterator listiter = resultsForOneStudent.iterator();
+		      while (listiter.hasNext())
+		      {
+		        ItemGradingData item = (ItemGradingData)listiter.next();
+			if (qbean.getQuestionType().equals("11"))
+			{
+		          Float autoscore = item.getAutoScore();
+		          if (!(new Float(0)).equals(autoscore)) {
+		            hasIncorrect = true;
+		            break;
+		          }
+		        }
+			else if (qbean.getQuestionType().equals("2"))
+		      	{
+
+			  // only answered choices are created in the ItemGradingData_T, so we need to check
+			  // if # of checkboxes the student checked is == the number of correct answers
+			  // otherwise if a student only checked one of the multiple correct answers,
+			  // it would count as a correct response
+
+		          try {
+			    ArrayList itemTextArray = ((ItemDataIfc)publishedItemHash.get(item.getPublishedItemId())).getItemTextArraySorted();
+		    	    ArrayList answerArray = ((ItemTextIfc)itemTextArray.get(0)).getAnswerArraySorted();
+
+		            int corranswers = 0;
+		            Iterator answeriter = answerArray.iterator();
+		            while (answeriter.hasNext()){
+			      AnswerIfc answerchoice = (AnswerIfc) answeriter.next();
+		              if (answerchoice.getIsCorrect().booleanValue()){
+				corranswers++;
+			      }
+		            }
+		            if (resultsForOneStudent.size() !=  corranswers){
+		              hasIncorrect = true;
+		              break;
+		            }
+		          }
+		          catch (Exception e) {
+			    e.printStackTrace();
+		            throw new RuntimeException("error calculating mcmc question.");
+			  }
+
+		          // now check each answer in MCMC 
+
+		          AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(item.getPublishedAnswerId());
+		      	  if ( answer != null && (answer.getIsCorrect() == null || (!answer.getIsCorrect().booleanValue())))
+		  	  {
+		            hasIncorrect = true;
+		            break;
+		 	  }
+		        }
+		      }
+		      if (!hasIncorrect) {
+		        correctresponses = correctresponses + 1;
+		      }
+		    }
+		    //NEW
+		    int[] heights = calColumnHeight(numarray,responses);
+		    // int[] heights = calColumnHeight(numarray);
+		    for (i=0; i<bars.length; i++)
+		      bars[i].setColumnHeight(new Integer(heights[i]).toString());
+		    qbean.setHistogramBars(bars);
+		    qbean.setNumResponses(responses);
+		    if (responses > 0)
+		      qbean.setPercentCorrect(new Integer((int)(((float) correctresponses/(float) responses) * 100)).toString());
+		  }
+  
 
   public void getTFMCScores(HashMap publishedAnswerHash, ArrayList scores,
     HistogramQuestionScoresBean qbean, ArrayList answers)

@@ -138,6 +138,8 @@ onkeypress=
      <h:outputText rendered="#{question.typeId== 7}" value="#{authmsg.audio_recording}"/>
      <h:outputText rendered="#{question.typeId== 8}" value="#{authmsg.fill_in_the_blank}"/>
      <h:outputText rendered="#{question.typeId== 9}" value="#{authmsg.matching}"/>
+     <h:outputText rendered="#{question.typeId== 11}" value="#{authmsg.fill_in_numeric}"/>
+     
 
     </h:column>
 

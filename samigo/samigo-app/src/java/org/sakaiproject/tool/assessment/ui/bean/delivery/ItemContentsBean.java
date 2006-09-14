@@ -46,59 +46,85 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  */
 
 public class ItemContentsBean implements Serializable {
-  private static Log log = LogFactory.getLog(ItemContentsBean.class);
-  // private static ContextUtil cu;
-  private boolean review;
-  private boolean unanswered;
-  private ItemDataIfc itemData;
-  private String gradingComment;
-  private String feedback;
-  private String responseId = "2";
-  private String responseText = "";
-  private String[] responseIds = null;
-  private float points;
-  private float maxPoints;
-  private int number;
-  private ArrayList itemGradingDataArray;
-  private ArrayList answers;
-  private String instruction;
-  private String rationale;
-  private ArrayList matchingArray;
-  private ArrayList fibArray;
-  private ArrayList selectionArray;
-  private String key;
-  private String sequence;
-  private ArrayList shuffledAnswers;
-  private ArrayList mediaArray;
-  // for audio
-  private Integer duration;
-  private Integer triesAllowed;
-  private Integer attemptsRemaining;
-  // for display/hide score
-  private boolean showStudentScore; // this is to show student assessment
-  // score
-  private boolean showStudentQuestionScore;
-  private String pointsDisplayString;
+	private static Log log = LogFactory.getLog(ItemContentsBean.class);
 
-  public ItemContentsBean()
-  {
-  }
+	// private static ContextUtil cu;
+
+	private boolean review;
+
+	private boolean unanswered;
+
+	private ItemDataIfc itemData;
+
+	private String gradingComment;
+
+	private String feedback;
+
+	private String responseId = "2";
+
+	private String responseText = "";
+
+	private String[] responseIds = null;
+
+	private float points;
+
+	private float maxPoints;
+
+	private int number;
+
+	private ArrayList itemGradingDataArray;
+
+	private ArrayList answers;
+
+	private String instruction;
+
+	private String rationale;
+
+	private ArrayList matchingArray;
+
+	private ArrayList fibArray;
+
+	private ArrayList finArray;
+
+	private ArrayList selectionArray;
+
+	private String key;
+
+	private String sequence;
+
+	private ArrayList shuffledAnswers;
+
+	private ArrayList mediaArray;
+
+	// for audio
+	private Integer duration;
+
+	private Integer triesAllowed;
+
+	private Integer attemptsRemaining;
+
+	// for display/hide score
+	private boolean showStudentScore; // this is to show student assessment
+										// score
+
+	private boolean showStudentQuestionScore;
+
+	private String pointsDisplayString;
+
+	public ItemContentsBean() {
+	}
 
 	// added by daisyf on 11/22/04
-  public ItemContentsBean(ItemDataIfc itemData)
-  {
-    this.itemData = itemData;
-    setInstruction(this.itemData.getInstruction());
-    Integer sequence = this.itemData.getSequence();
-    if (sequence != null)
-    {
-      setNumber(sequence.intValue());
-    }
-    else
-    {
-      setNumber(1);
-    }
-  }
+	public ItemContentsBean(ItemDataIfc itemData) {
+		this.itemData = itemData;
+		setInstruction(this.itemData.getInstruction());
+		Integer sequence = this.itemData.getSequence();
+		if (sequence != null) {
+			setNumber(sequence.intValue());
+		} else {
+			setNumber(1);
+		}
+	}
 
 	/**
 	 * In the case of an ordinary question, this will obtain the a set of text
@@ -234,9 +260,11 @@ public class ItemContentsBean implements Serializable {
 		Iterator iter = getItemGradingDataArray().iterator();
 		while (iter.hasNext()) {
 			ItemGradingData data = (ItemGradingData) iter.next();
-			if (getItemData().getTypeId().toString().equals("8")) // fix for
-																	// bug
-																	// sam-330
+			if (getItemData().getTypeId().toString().equals("8")
+					|| getItemData().getTypeId().toString().equals("11")) // fix
+																			// for
+																			// bug
+																			// sam-330
 			{
 				if (data.getAnswerText() != null
 						&& !data.getAnswerText().equals("")) {
@@ -380,16 +408,16 @@ public class ItemContentsBean implements Serializable {
 		return false;
 	}
 
-  public ArrayList getItemGradingDataArray()
-  {
-    if (itemGradingDataArray == null)
-    {
-      // log.debug("getReview : getitemgradingdataarray is null, size =0 ");
-      return new ArrayList();
-    }
-    // log.debug("getReview: getitemgradingdataarray size " + itemGradingDataArray.size());
-    return itemGradingDataArray;
-  }
+	public ArrayList getItemGradingDataArray() {
+		if (itemGradingDataArray == null) {
+			// log.debug("getReview : getitemgradingdataarray is null, size =0
+			// ");
+			return new ArrayList();
+		}
+		// log.debug("getReview: getitemgradingdataarray size " +
+		// itemGradingDataArray.size());
+		return itemGradingDataArray;
+	}
 
 	public void setItemGradingDataArray(ArrayList newArray) {
 		itemGradingDataArray = newArray;
@@ -649,6 +677,14 @@ public class ItemContentsBean implements Serializable {
 
 	public void setFibArray(ArrayList newArray) {
 		fibArray = newArray;
+	}
+
+	public ArrayList getFinArray() {
+		return finArray;
+	}
+
+	public void setFinArray(ArrayList newArray) {
+		finArray = newArray;
 	}
 
 	public ArrayList getSelectionArray() {

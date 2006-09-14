@@ -38,7 +38,11 @@ public interface ItemMetaDataIfc
   public static final String NUMATTEMPTS= "NUMATTEMPTS";
   public static final String CASE_SENSITIVE_FOR_FIB= "CASE_SENSITIVE_FOR_FIB";
   public static final String MUTUALLY_EXCLUSIVE_FOR_FIB= "MUTUALLY_EXCLUSIVE_FOR_FIB";
+  public static final String CASE_SENSITIVE_FOR_FIN= "CASE_SENSITIVE_FOR_FIN";
+  public static final String MUTUALLY_EXCLUSIVE_FOR_FIN= "MUTUALLY_EXCLUSIVE_FOR_FIN";
 
+  
+  
   // used in QTI import/export
   // possible entries YES, AGREE, UNDECIDED, AVERAGE, STRONGLY_AGREE, EXCELLENT, 5, 10 
  

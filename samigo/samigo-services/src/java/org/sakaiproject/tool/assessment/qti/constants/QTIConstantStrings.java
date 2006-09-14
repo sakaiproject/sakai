@@ -83,6 +83,7 @@ public class QTIConstantStrings
   public static final  String RENDER_CHOICE = "render_choice";
   public static final  String RENDER_HOTSPOT = "render_hotspot";
   public static final  String RENDER_FIB = "render_fib";
+  public static final  String RENDER_FIN = "render_fin";
   public static final  String RENDER_SLIDER = "render_slider";
   public static final  String RESPONSE_LABEL = "response_label";
   public static final  String FLOW_LABEL = "flow_label";
@@ -166,6 +167,7 @@ public class QTIConstantStrings
   public static final  String MAXCHARS = "maxchars";
   public static final  String PROMPT = "prompt";
   public static final  String FIBTYPE = "fibtype";
+  public static final  String FINTYPE = "fintype";
   public static final  String ORIENTATION = "orientation";
   public static final  String LOWERBOUND = "lowerbound";
   public static final  String UPPERBOUND = "upperbound";

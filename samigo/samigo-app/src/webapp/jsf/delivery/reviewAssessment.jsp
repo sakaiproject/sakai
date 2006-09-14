@@ -85,6 +85,11 @@
            <%@ include file="/jsf/delivery/itemreview/deliverFileUpload.jsp" %>
            </f:subview>
           </h:panelGroup>
+          <h:panelGroup rendered="#{question.itemData.typeId == 11}">
+	       <f:subview id="deliverFillInNumeric">
+	       <%@ include file="/jsf/delivery/item/deliverFillInNumeric.jsp" %>
+	       </f:subview>
+          </h:panelGroup>
           <h:panelGroup rendered="#{question.itemData.typeId == 8}">
            <f:subview id="deliverFillInTheBlank">
            <!-- %@ include file="/jsf/delivery/item/deliverFillInTheBlank.jsp" % -->

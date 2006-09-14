@@ -55,6 +55,7 @@ public class ItemConfigBean implements Serializable
   private boolean showMultipleChoiceMultipleCorrect;
   private boolean showSurvey;
   private boolean showFillInTheBlank;
+  private boolean showFillInNumeric;
   private boolean selectFromQuestionPool;
 
   /**
@@ -201,6 +202,23 @@ public class ItemConfigBean implements Serializable
   * @return if true
   */
 
+  public boolean isShowFillInNumeric()
+     {
+       return showFillInNumeric;
+     }
+     /**
+      * Set whether fill in numeric should be shown.
+      * @param showFillInNumeric if this type should be shown
+   */
+
+  public void setShowFillInNumeric(boolean showFillInNumeric)
+  {
+    this.showFillInNumeric = showFillInNumeric;
+  }
+  /**
+   * Should we show survey question?
+  * @return if true
+  */
   public boolean isShowSurvey()
   {
     return showSurvey;
@@ -243,6 +261,8 @@ public class ItemConfigBean implements Serializable
     if (showFillInTheBlank)
       list.add(new SelectItem("8", getResourceDisplayName("fill_in_the_blank")));
 
+if (showFillInNumeric)
+      list.add(new SelectItem("11", getResourceDisplayName("fill_in_numeric")));
     if (showMatching)
       list.add(new SelectItem("9", getResourceDisplayName("matching")));
 
@@ -277,6 +297,7 @@ public class ItemConfigBean implements Serializable
     bean.setShowEssay(true);
     bean.setShowFileUpload(true);
     bean.setShowFillInTheBlank(true);
+    bean.setShowFillInNumeric(true);
     bean.setShowMatching(true);
     bean.setShowMultipleChoiceMultipleCorrect(true);
     bean.setShowMultipleChoiceSingleCorrect(true);

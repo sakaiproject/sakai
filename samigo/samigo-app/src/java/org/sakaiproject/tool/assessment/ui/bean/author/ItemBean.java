@@ -113,12 +113,13 @@ public class ItemBean
 
   private boolean caseSensitiveForFib=false;
   private boolean mutuallyExclusiveForFib=false;
-
+  private boolean caseSensitiveForFin=false;
+  private boolean mutuallyExclusiveForFin=false;
   //not used now. This is used to deteremine whether 
   //we show the checkbox for mutually exclusive, 
   //depending on the answers entered in the wysiwyg editor.   
   private boolean showMutuallyExclusiveForFibCheckbox=false;  
-
+  private boolean showMutuallyExclusiveForFinCheckbox=false;
   /**
    * Creates a new ItemBean object.
    */
@@ -1239,6 +1240,63 @@ public class ItemBean
   {
     this.showMutuallyExclusiveForFibCheckbox= param;
   }
+
+
+   /**
+     * for fin, case sensitive for grading?
+     * @return
+     */
+    public boolean getCaseSensitiveForFin()
+    {
+      return caseSensitiveForFin;
+    }
+
+    /**
+     * for fin questions
+     * @param case sensitive for grading?
+     */
+    public void setCaseSensitiveForFin(boolean param)
+    {
+      this.caseSensitiveForFin = param;
+    }
+
+    /**
+     * for fin, Mutually exclusive for multiple answers,  for grading?
+     * @return
+     */
+    public boolean getMutuallyExclusiveForFin()
+    {
+      return mutuallyExclusiveForFin;
+    }
+
+    /**
+     * for fin questions
+     * @param, Mutually exclusive for multiple answers,  for grading?
+     */
+    public void setMutuallyExclusiveForFin(boolean param)
+    {
+      this.mutuallyExclusiveForFin = param;
+    }
+
+    /**
+     * for fin, Mutually exclusive for multiple answers,  for grading?
+     * @return
+     */
+    public boolean getShowMutuallyExclusiveForFinCheckbox()
+    {
+      return showMutuallyExclusiveForFinCheckbox;
+    }
+
+    /**
+     * for fin questions
+     * @param, Mutually exclusive for multiple answers,  for grading?
+     */
+    public void setShowMutuallyExclusiveForFinCheckbox(boolean param)
+    {
+      this.showMutuallyExclusiveForFinCheckbox= param;
+    }
+
+
 
 
 }

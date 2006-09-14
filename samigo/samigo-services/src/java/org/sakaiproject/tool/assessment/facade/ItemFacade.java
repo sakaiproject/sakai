@@ -896,7 +896,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
   /**
    * Utility method.
    * In the case of an ordinary question, this will obtain the a set of text with
-   * one element and return it; in FIB return multiple elements separated by
+   * one element and return it; in FIB or FIN return multiple elements separated by
    * underscores.
    * @return text of question
    */

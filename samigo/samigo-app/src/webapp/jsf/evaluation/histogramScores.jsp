@@ -230,8 +230,8 @@ $Id$
           <h:outputLabel for="responses1" value="#{msg.responses}" />
           <h:outputText id="responses1" value="#{item.numResponses}" />
         </h:panelGrid>
-        <h:panelGrid columns="2" rendered="#{item.questionType == '1' or  item.questionType == '2' or  item.questionType == '4' or  item.questionType == '8' or item.questionType == '9'}">
-          <h:outputLabel for="responses2" value="#{msg.responses}" />
+         <h:panelGrid columns="2" rendered="#{item.questionType == '1' or  item.questionType == '2' or  item.questionType == '4' or  item.questionType == '8' or item.questionType == '9' or item.questionType == '11'}" columnClasses="alignLeft,aligntRight">
+             <h:outputLabel for="responses2" value="#{msg.responses}" />
           <h:outputText id="responses2" value="#{item.numResponses}" />
           <h:outputLabel for="percentCorrect" value="#{msg.percentCorrect}" />
           <h:outputText id="percentCorrect" value="#{item.percentCorrect}" />

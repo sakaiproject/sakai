@@ -128,6 +128,10 @@
       <property-name>showFillInTheBlank</property-name>
       <value>true</value>
     </managed-property>
+    <managed-property>
+      <property-name>showFillInNumeric</property-name>
+      <value>true</value>
+    </managed-property>
   </managed-bean>
   <managed-bean>
     <description>For authorization</description>
@@ -576,6 +580,10 @@
       <to-view-id>/jsf/author/item/fillInTheBlank.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
+   <from-outcome>fillInNumericItem</from-outcome>
+      <to-view-id>/jsf/author/item/fillInNumeric.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>shortAnswerItem</from-outcome>
       <to-view-id>/jsf/author/item/shortAnswer.jsp</to-view-id>
     </navigation-case>
@@ -774,6 +782,27 @@
     <navigation-case>
       <from-outcome>FIBPoolFailure</from-outcome>
       <to-view-id>/jsf/author/item/fillInTheBlank.jsp</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+
+<navigation-rule>
+    <from-view-id>/jsf/author/item/fillInNumeric.jsp</from-view-id>
+    <navigation-case>
+      <from-outcome>FINSuccess</from-outcome>
+      <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>FINFailure</from-outcome>
+      <to-view-id>/jsf/author/item/fillInNumeric.jsp</to-view-id>
+    </navigation-case>
+     <navigation-case>
+      <from-outcome>FINPoolSuccess</from-outcome>
+      <to-view-id>/jsf/questionpool/editPool.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>FINPoolFailure</from-outcome>
+      <to-view-id>/jsf/author/item/fillInNumeric.jsp</to-view-id>
     </navigation-case>
   </navigation-rule>
 

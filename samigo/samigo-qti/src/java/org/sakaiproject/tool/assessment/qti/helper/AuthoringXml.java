@@ -85,6 +85,7 @@ public class AuthoringXml
   public static final String ITEM_AUDIO = "audioRecordingTemplate.xml";
   public static final String ITEM_ESSAY = "essayTemplate.xml";
   public static final String ITEM_FIB = "fibTemplate.xml";
+  public static final String ITEM_FIN = "finTemplate.xml";
   public static final String ITEM_FILE = "fileUploadTemplate.xml";
   public static final String ITEM_MATCH = "matchTemplate.xml";
   public static final String ITEM_MCMC = "mcMCTemplate.xml";
@@ -143,6 +144,7 @@ public class AuthoringXml
     validTemplates.put(ITEM_AUDIO, "audioRecordingTemplate.xml");
     validTemplates.put(ITEM_ESSAY, "essayTemplate.xml");
     validTemplates.put(ITEM_FIB, "fibTemplate.xml");
+    validTemplates.put(ITEM_FIN, "finTemplate.xml");
     validTemplates.put(ITEM_FILE, "fileUploadTemplate.xml");
     validTemplates.put(ITEM_MATCH, "matchTemplate.xml");
     validTemplates.put(ITEM_MCMC, "mcMCTemplate.xml");

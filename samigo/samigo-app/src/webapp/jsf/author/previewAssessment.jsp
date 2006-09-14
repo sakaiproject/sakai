@@ -89,6 +89,11 @@
           <h:panelGroup rendered="#{question.itemData.typeId == 9}">
             <%@ include file="/jsf/author/preview_item/Matching.jsp" %>
           </h:panelGroup>
+		 
+		  <h:panelGroup rendered="#{question.itemData.typeId == 11}">
+            <%@ include file="/jsf/author/preview_item/FillInNumeric.jsp" %>
+          </h:panelGroup>
+
 
           <h:panelGroup rendered="#{question.itemData.typeId == 8}">
             <%@ include file="/jsf/author/preview_item/FillInTheBlank.jsp" %>

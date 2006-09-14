@@ -64,6 +64,7 @@ public class AuthoringConstantStrings
   //Item Types
   public static final String MATCHING = rb.getString("matching"); //"Matching"
   public static final String FIB = rb.getString("fib"); //"Fill In the Blank"
+  public static final String FIN = rb.getString("fin"); //"Numeric Response"
   public static final String MCMC = rb.getString("mcmc"); //"Multiple Correct Answer"
   public static final String MCSC = rb.getString("mcsc"); // "Multiple Choice"
   public static final String TF = rb.getString("tf"); // "True False"
@@ -75,7 +76,7 @@ public class AuthoringConstantStrings
 
   // "Unknown Type" is a placeholder for the invalid '0' , "Unused Type" is an alternate MCMC
   public static String[] itemTypes =
-  { "Unknown Type", MCSC, MCMC, SURVEY, TF, ESSAY, FILE, AUDIO, FIB, MATCHING };
+  { "Unknown Type", MCSC, MCMC, SURVEY, TF, ESSAY, FILE, AUDIO, FIB, MATCHING, FIN };
 
 
   // Feedback Type

@@ -58,6 +58,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.ContentsDeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FeedbackComponent;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FibBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.FinBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.MatchingBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
@@ -939,13 +940,13 @@ public class DeliveryActionListener
       ItemTextIfc text = (ItemTextIfc) key1.next();
       Iterator key2 = null;
 
-      // Never randomize Fill-in-the-blank, always randomize matching
-      if ( (randomize && !item.getTypeId().toString().equals("8")) ||
-          item.getTypeId().toString().equals("9"))
-      {
-        ArrayList shuffled = new ArrayList();
-        Iterator i1 = text.getAnswerArraySorted().iterator();
-        while (i1.hasNext())
+      // Never randomize Fill-in-the-blank or Numeric Response, always randomize matching
+      if (randomize && !(item.getTypeId().toString().equals("8")||item.getTypeId().toString().equals("11")) || item.getTypeId().toString().equals("9"))
+          {
+            ArrayList shuffled = new ArrayList();
+            Iterator i1 = text.getAnswerArraySorted().iterator();
+            while (i1.hasNext())
+
         {
           shuffled.add(i1.next());
 
@@ -1028,7 +1029,7 @@ public class DeliveryActionListener
           {
             key += answer.getText();
           }
-          if (item.getTypeId().toString().equals("8"))
+          if (item.getTypeId().toString().equals("8")||item.getTypeId().toString().equals("11"))
           {
             if (key.equals(""))
             {
@@ -1171,6 +1172,15 @@ public class DeliveryActionListener
       // round the points to the nearest tenth
 
     }
+    
+    if (item.getTypeId().toString().equals("11")) //numeric response
+    {
+      populateFin(item, itemBean);
+
+      // round the points to the nearest tenth
+
+}
+
 
     return itemBean;
   }
@@ -1410,6 +1420,163 @@ public class DeliveryActionListener
     return status;
   }
 
+  public void populateFin(ItemDataIfc item, ItemContentsBean bean)
+  {
+    // Only one text in FIN
+    ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
+    ArrayList fins = new ArrayList();
+    String alltext = new String(text.getText());
+    ArrayList texts = extractFINTextArray(alltext);
+    int i = 0;
+    Iterator iter = text.getAnswerArraySorted().iterator();
+    while (iter.hasNext())
+    {
+      AnswerIfc answer = (AnswerIfc) iter.next();
+      FinBean fbean = new FinBean();
+      fbean.setItemContentsBean(bean);
+      fbean.setAnswer(answer);
+      if(texts.toArray().length>i)
+        fbean.setText( (String) texts.toArray()[i++]);
+      else
+        fbean.setText("");
+      fbean.setHasInput(true);
+
+      ArrayList datas = bean.getItemGradingDataArray();
+      if (datas == null || datas.isEmpty())
+      {
+        fbean.setIsCorrect(false);
+      }
+      else
+      {
+        Iterator iter2 = datas.iterator();
+        while (iter2.hasNext())
+        {
+          ItemGradingData data = (ItemGradingData) iter2.next();
+          
+          
+          System.out.println(" " + data.getPublishedAnswerId() + " = " + answer.getId());
+          
+          if (data.getPublishedAnswerId().equals(answer.getId()))
+          {
+        	  
+            fbean.setItemGradingData(data);
+            fbean.setResponse(data.getAnswerText());
+            fbean.setIsCorrect(false);
+            if (answer.getText() == null)
+            {
+              answer.setText("");
+            }
+            StringTokenizer st2 = new StringTokenizer(answer.getText(), "|");
+            while (st2.hasMoreTokens())
+            {
+              String nextT = st2.nextToken();
+//  mark answer as correct if autoscore > 0
+ 
+/*
+              if (data.getAnswerText() != null &&
+                  data.getAnswerText().equalsIgnoreCase(nextT))
+*/
+              if (data.getAutoScore() != null &&
+                  data.getAutoScore().floatValue() > 0.0)
+               {
+                fbean.setIsCorrect(true);
+              }
+// need to check if case sensitive, mutual exclusive.
+            }
+          }
+        }
+      }
+      fins.add(fbean);
+    }
+
+    FinBean fbean = new FinBean();
+    if(texts.toArray().length>i)
+      fbean.setText( (String) texts.toArray()[i]);
+     else
+      fbean.setText("");
+    fbean.setHasInput(false);
+    fins.add(fbean);
+
+    bean.setFinArray(fins);
+  }
+
+  private static ArrayList extractFINTextArray(String alltext)
+  {
+    ArrayList texts = new ArrayList();
+
+    while (alltext.indexOf("{") > -1)
+    {
+      int alltextLeftIndex = alltext.indexOf("{");
+      int alltextRightIndex = alltext.indexOf("}");
+
+      String tmp = alltext.substring(0, alltextLeftIndex);
+      alltext = alltext.substring(alltextRightIndex + 1);
+      texts.add(tmp);
+      // there are no more "}", exit loop
+      if (alltextRightIndex == -1)
+      {
+        break;
+      }
+    }
+    texts.add(alltext);
+    return texts;
+  }
+
+  /**
+   * Tests that malformed FIN text does not create an excessive number of loops.
+   * Quickie test, nice to have: refine, move to JUnit.
+   * @param verbose
+   * @return
+   */
+  private static boolean testExtractFINTextArray(boolean verbose)
+  {
+    boolean status = true;
+    String[] testsuite = {
+      "aaa{bbb}ccc{ddd}eee", // correct
+      "aaa{bbb}ccc{", //incorrect
+      "aaa{bbb}ccc}", //incorrect
+      "aaa{bbb{ccc}ddd}eee" //incorrect
+    };
+
+    ArrayList testResult;
+
+    try
+    {
+      for (int i = 0; i < testsuite.length; i++)
+      {
+        testResult = extractFINTextArray(testsuite[i]);
+        if (verbose)
+        {
+          System.out.println("Extracting: " + testsuite[i]);
+          for (int j = 0; j < testResult.size(); j++)
+          {
+            System.out.println("testResult.get(" + j +
+                               ")="+testResult.get(j));
+          }
+        }
+        if (testResult.size() > 10)
+        {
+          if (verbose)
+          {
+            System.out.println("Extraction failed: exceeded reasonable size.");
+          }
+          return false;
+        }
+      }
+    }
+    catch (Exception ex)
+    {
+      if (verbose)
+      {
+        System.out.println("Extraction failed: " + ex);
+      }
+      return false;
+    }
+
+    return status;
+  }
+  
+  
   public static void main (String args[])
   {
     boolean verbose = true;

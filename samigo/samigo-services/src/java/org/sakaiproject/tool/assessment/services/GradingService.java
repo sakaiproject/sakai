@@ -593,7 +593,7 @@ public class GradingService
         setIsLate(data, pub);
       }
       // note that this itemGradingSet is a partial set of answer submitted. it contains only 
-      // newly submitted answers, updated answers and MCMR/FIB answers ('cos we need the old ones to
+      // newly submitted answers, updated answers and MCMR/FIB/FIN answers ('cos we need the old ones to
       // calculate scores for new ones)
       Set itemGradingSet = data.getItemGradingSet();
       if (itemGradingSet == null)
@@ -609,7 +609,8 @@ public class GradingService
       // so if the first blank has an answer 'red', the 'red' answer should 
       // not be included in the answers for the other mutually exclusive blanks. 
       HashMap fibAnswersMap= new HashMap();
-
+      HashMap finAnswersMap= new HashMap();
+      
       //change algorithm based on each question (SAK-1930 & IM271559) -cwen
       HashMap totalItems = new HashMap();
       log.debug("****x2. "+(new Date()).getTime());
@@ -628,7 +629,7 @@ public class GradingService
           itemGrading.setOverrideScore(new Float(0));
           // note that totalItems & fibAnswersMap would be modified by the following method
           autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
-                                 totalItems, fibAnswersMap, publishedAnswerHash);
+                                 totalItems, fibAnswersMap, publishedAnswerHash, finAnswersMap);
           log.debug("**!regrade, autoScore="+autoScore);
           if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType))
             totalItems.put(itemId, new Float(autoScore));
@@ -733,7 +734,7 @@ public class GradingService
   private float getScoreByQuestionType(ItemGradingIfc itemGrading, ItemDataIfc item,
                                        Long itemType, HashMap publishedItemTextHash, 
                                        HashMap totalItems, HashMap fibAnswersMap,
-                                       HashMap publishedAnswerHash){
+                                       HashMap publishedAnswerHash, HashMap finAnswersMap){
     float score = (float) 0;
     float initScore = (float) 0;
     float autoScore = (float) 0;
@@ -817,6 +818,20 @@ public class GradingService
                 totalItems.put(itemId, new Float(accumelateScore));
               }
               break;
+      case 11: // FIN
+          autoScore = getFINScore(itemGrading, finAnswersMap, item, publishedAnswerHash) / (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
+          //overridescore - cwen
+          if (itemGrading.getOverrideScore() != null)
+            autoScore += itemGrading.getOverrideScore().floatValue();
+
+          if (!totalItems.containsKey(itemId))
+            totalItems.put(itemId, new Float(autoScore));
+          else {
+            accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
+            accumelateScore += autoScore;
+            totalItems.put(itemId, new Float(accumelateScore));
+          }
+          break;
 
       case 5: // SAQ
       case 6: // file upload
@@ -1056,6 +1071,130 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     return totalScore;
   }
 
+  private float getFINScore(ItemGradingIfc data, HashMap finmap, ItemDataIfc itemdata, HashMap publishedAnswerHash)
+  {
+    String studentanswer = "";
+    boolean range;
+    boolean matchresult = false;
+    float studentAnswerNum,answer1Num,answer2Num,answerNum;
+
+    
+    String answertext = ((AnswerIfc)publishedAnswerHash.get(data.getPublishedAnswerId())).getText();
+    Long itemId = itemdata.getItemId();
+
+    String mutuallyexclusive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIN);
+    Set answerSet = new HashSet();
+
+    float totalScore = (float) 0;
+
+    if (answertext != null)
+    {
+      StringTokenizer st = new StringTokenizer(answertext, "|");
+      range=false;
+      if (st.countTokens()>1){
+    	  range=true;
+      }
+      if (range)
+    	  
+      {
+    	
+        String answer1 = st.nextToken().trim();
+        String answer2 = st.nextToken().trim();
+        try{
+        	answer1Num = Float.valueOf(answer1).floatValue();
+        }catch(NumberFormatException ex){
+        	answer1Num =  Float.NaN;
+//        	No debería pasar si se ha filtrado en edición
+        }
+        log.info("answer1Num= " + answer1Num);
+        try{
+        	answer2Num = Float.valueOf(answer2).floatValue();
+        }catch(NumberFormatException ex){
+        	answer2Num =  Float.NaN;
+//        	No debería pasar si se ha filtrado en edición
+        }
+        
+        log.info("answer2Num= " + answer2Num);      
+        
+        
+          if (data.getAnswerText() != null){
+    	    studentanswer= data.getAnswerText().trim().replace(",",".");
+    	    try{
+    	    	studentAnswerNum = Float.valueOf(studentanswer).floatValue();   	    	
+            }catch(NumberFormatException ex){
+            	studentAnswerNum =  Float.NaN;
+            	//Temporal. Directamente contará como mala.
+            }
+            log.info("studentAnswerNum= " + studentAnswerNum);  	   
+            if (!(studentAnswerNum ==  Float.NaN || answer1Num ==  Float.NaN|| answer2Num ==  Float.NaN)){ 	   
+            matchresult=((answer1Num <= studentAnswerNum) && (answer2Num >= studentAnswerNum)) ;
+          	}
+            
+          }
+      }else{ //range
+    	  String answer = st.nextToken().trim();
+      
+      try{
+      	answerNum = Float.valueOf(answer).floatValue(); 
+      }catch(NumberFormatException ex){
+      	answerNum =  Float.NaN;
+//      	No debería pasar si se ha filtrado en edición
+      }
+      log.info("No rango: answerNum= " +  answerNum);
+      
+      
+        if (data.getAnswerText() != null){
+  	    studentanswer= data.getAnswerText().trim().replace(",",".");
+	    try{
+  	    	studentAnswerNum = Float.valueOf(studentanswer).floatValue(); 	    	
+          }catch(NumberFormatException ex){
+          	studentAnswerNum =  Float.NaN;
+          }
+          log.info("studentAnswerNum= " + studentAnswerNum);  	   
+          if (!(studentAnswerNum ==  Float.NaN || answerNum ==  Float.NaN)){ 	   
+          matchresult=(answerNum == studentAnswerNum) ;
+          }
+        }
+      }
+      
+        if (matchresult){
+
+            boolean alreadyused=false;
+// add check for mutual exclusive
+            if ("true".equalsIgnoreCase(mutuallyexclusive))
+            {
+              // check if answers are already used.
+              Set answer_used_sofar = (HashSet) finmap.get(itemId);
+              if ((answer_used_sofar!=null) && ( answer_used_sofar.contains(studentanswer.toLowerCase()))){
+                // already used, so it's a wrong answer for mutually exclusive questions
+                alreadyused=true;
+              }
+              else {
+                // not used, it's a good answer, now add this to the already_used list.
+                // we only store lowercase strings in the fibmap.
+                if (answer_used_sofar==null) {
+                  answer_used_sofar = new HashSet();
+                }
+
+                answer_used_sofar.add(studentanswer.toLowerCase());
+                finmap.put(itemId, answer_used_sofar);
+              }
+            }
+
+            if (!alreadyused) {
+              totalScore += ((AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId())).getScore().floatValue();
+            }
+
+            // SAK-3005: quit if answer is correct, e.g. if you answered A for {a|A}, you already scored
+          
+          }
+      
+     
+    }
+    return totalScore;
+  }
+  
+  
   public float getTotalCorrectScore(ItemGradingIfc data, HashMap publishedAnswerHash)
   {
     AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());

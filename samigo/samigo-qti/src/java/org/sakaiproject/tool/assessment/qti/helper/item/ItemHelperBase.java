@@ -51,6 +51,7 @@ public abstract class ItemHelperBase
   protected static final long ITEM_ESSAY = TypeIfc.ESSAY_QUESTION.longValue();
   protected static final long ITEM_FILE = TypeIfc.FILE_UPLOAD.longValue();
   protected static final long ITEM_FIB = TypeIfc.FILL_IN_BLANK.longValue();
+  protected static final long ITEM_FIN = TypeIfc.FILL_IN_NUMERIC.longValue();
   protected static final long ITEM_MCSC = TypeIfc.MULTIPLE_CHOICE.longValue();
   protected static final long ITEM_SURVEY = TypeIfc.MULTIPLE_CHOICE_SURVEY.
     longValue();
@@ -229,6 +230,10 @@ public abstract class ItemHelperBase
     else if (ITEM_FIB == typeId)
     {
       template = ax.ITEM_FIB;
+    }
+    else if (ITEM_FIN == typeId)
+    {
+      template = ax.ITEM_FIN;
     }
     else if (ITEM_MCSC == typeId)
     {

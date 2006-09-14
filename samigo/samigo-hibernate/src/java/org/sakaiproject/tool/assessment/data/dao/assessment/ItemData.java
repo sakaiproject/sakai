@@ -540,7 +540,7 @@ public class ItemData
 
   /**
    * In the case of an ordinary question, this will obtain the a set of text with
-   * one element and return it; in FIB return multiple elements separated by underscores.
+   * one element and return it; in FIB or FIN return multiple elements separated by underscores.
    * @return text of question
    */
    public String getText() {
@@ -559,6 +559,13 @@ public class ItemData
        { //e.g. Roses are {}. Violets are {}. replace as
          // Roses are ____. Violets are ____.
          text = text.replaceAll("\\{","__");
+         text = text.replaceAll("\\}","__");
+      }
+       
+        if (this.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC))
+       { //e.g. Roses are {}. Violets are {}. replace as
+         // Roses are ____. Violets are ____.
+    	 text = text.replaceAll("\\{","__");
          text = text.replaceAll("\\}","__");
       }
     }

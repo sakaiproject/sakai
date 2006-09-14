@@ -211,6 +211,13 @@ public class ItemHelper20Impl extends ItemHelperBase
 //      process fib
 //      return;
     }
+    
+    if (itemXml.isFIN())
+    {
+//      process fin
+//      return;
+    }
+    
     try
     {
       itemXml.update(xPath, text);
@@ -251,7 +258,7 @@ public class ItemHelper20Impl extends ItemHelperBase
   public void setAnswers(ArrayList itemTextList, Item itemXml)
   {
     // other types either have no answer or include them in their template
-    if (!itemXml.isMatching() && !itemXml.isFIB() &&
+    if (!itemXml.isMatching() && !itemXml.isFIB() && !itemXml.isFIN() &&
         !itemXml.isMCSC() && !itemXml.isMCMC())
     {
       return;

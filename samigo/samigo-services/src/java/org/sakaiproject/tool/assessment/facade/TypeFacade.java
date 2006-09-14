@@ -42,6 +42,7 @@ public class TypeFacade implements Serializable, TypeIfc{
   public static final Long FILE_UPLOAD = new Long(6);
   public static final Long AUDIO_RECORDING = new Long(7);
   public static final Long FILL_IN_BLANK = new Long(8);
+  public static final Long FILL_IN_NUMERIC = new Long(11);
   public static final Long MATCHING = new Long(9);
   // these are section type available in this site,
   public static final Long DEFAULT_SECTION = new Long(21);

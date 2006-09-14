@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/svn/sam/trunk/samigo-app/src/java/org/sakaiproject/tool/assessment/ui/listener/evaluation/QuestionScoreListener.java $
+ * $Id: QuestionScoreListener.java 11438 2006-06-30 20:06:03Z daisyf@stanford.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -71,7 +71,7 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
- * @version $Id$
+ * @version $Id: QuestionScoreListener.java 11438 2006-06-30 20:06:03Z daisyf@stanford.edu $
  */
 
 public class QuestionScoreListener
@@ -484,6 +484,13 @@ log.debug("item==null ");
         	  }
           }
             
+
+
+          if (bean.getTypeId().equals("11"))
+              answerText = gdataAnswer.getSequence() + ":" +
+                answerText;
+
+          
 
           // file upload 
           if (bean.getTypeId().equals("6")){

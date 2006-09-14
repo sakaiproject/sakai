@@ -182,7 +182,7 @@ public class Item extends ASIBaseClass
     }
 
     String instruction = item.getInstruction();
-    if (this.isMatching() || this.isFIB())
+    if (this.isMatching() || this.isFIB() || this.isFIN())
     {
       if ( instruction != null)
         {
@@ -330,6 +330,11 @@ public class Item extends ASIBaseClass
   public boolean  isFIB()
   {
     return AuthoringConstantStrings.FIB.equals(this.getItemType()) ? true : false;
+  }
+  
+  public boolean  isFIN()
+  {
+    return AuthoringConstantStrings.FIN.equals(this.getItemType()) ? true : false;
   }
 
   public boolean  isMCMC()

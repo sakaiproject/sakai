@@ -154,6 +154,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 4}" value="#{msg.true_false}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 5}" value="#{msg.short_answer_essay}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 8}" value="#{msg.fill_in_the_blank}"/>
+     <h:outputText rendered="#{itemauthor.currentItem.itemType== 11}" value="#{msg.fill_in_numeric}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 9}" value="#{msg.matching}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 7}" value="#{msg.audio_recording}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 6}" value="#{msg.file_upload}"/>

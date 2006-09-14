@@ -125,6 +125,18 @@ public class ItemAddListener
 
 	}
     }
+    if(iType.equals(TypeFacade.FILL_IN_NUMERIC.toString())){
+    	
+    	if(isErrorFIN()){
+    	    err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","pool_missingBracket_error");
+    	    context.addMessage(null,new FacesMessage(err));
+    	    item.setOutcome("fillInNumericItem");
+    	    item.setPoolOutcome("fillInNumericItem");
+    	    return;
+
+    	}
+        }
+    
   
 	
     if (!saveItem(itemauthorbean)){
@@ -303,6 +315,69 @@ public class ItemAddListener
     }
 }
 	
+    public boolean isErrorFIN() {
+    	ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
+    	ItemBean item =itemauthorbean.getCurrentItem();
+    	int index=0;
+    	boolean FINerror=false;
+    	String err="";
+    	boolean hasOpen=false;
+    	int opencount=0;
+    	int closecount=0;
+    	boolean notEmpty=false;
+    	int indexOfOpen=-1;
+    	String text=item.getItemText();
+    	while(index<text.length()){ 
+    	    char c=text.charAt(index);
+    	    if(c=='{'){
+    		opencount++;
+    		if(hasOpen){
+    		    FINerror=true;
+    		    break;
+    		}
+    		else{
+    		    hasOpen=true;
+    		    indexOfOpen=index;
+    		}
+    	    }
+    	    else if(c=='}'){
+    		closecount++;
+    		if(!hasOpen){
+    		    FINerror=true;
+    		    break;
+    		}
+    		else{
+    		    if((notEmpty==true)&&(index+1 !=index)&&(!(text.substring(indexOfOpen+1,index).equals("</p><p>")))){
+    		       hasOpen=false;
+                           notEmpty=false;
+    		    }
+    		    else{
+    		    //error for emptyString
+    			FINerror=true;
+    			break;
+    		   }
+
+    		}
+    	    }
+           
+    	    else{
+               
+    		if((hasOpen==true)&&(Character.getType(c)!=12) &&(Character.getType(c)!=25)){
+    	    	notEmpty=true; 
+    		}
+    	    }
+    	
+    	
+    	    index++;
+         }//end while
+        if((hasOpen==true)||(opencount<1)||(opencount!=closecount)||(FINerror==true)){
+    	return true;
+        }
+        else{ 
+    	return false;
+        }
+    }
+    
   
 
   public boolean saveItem(ItemAuthorBean itemauthor) {
@@ -808,6 +883,27 @@ public class ItemAddListener
       textSet.add(text1);
 
     }
+    
+    
+    else if (item.getTypeId().equals(TypeFacade.FILL_IN_NUMERIC)) {
+//    	 this is for fill in numeric
+    	      String entiretext = bean.getItemText();
+    	      String fintext = entiretext.replaceAll("[\\{][^\\}]*[\\}]", "{}");
+    	      text1.setText(fintext);
+    	      //log.info(" new text without answer is = " + fintext);
+    	      Object[] finanswers = getFINanswers(entiretext).toArray();
+    	      for (int i = 0; i < finanswers.length; i++) {
+    	        String oneanswer = (String) finanswers[i];
+    	        Answer answer1 = new Answer(text1, oneanswer,
+    	                                      new Long(i + 1), null, Boolean.TRUE, null,
+    	                                      new Float(bean.getItemScore()));
+    	        answerSet1.add(answer1);
+    	      }
+
+    	      text1.setAnswerSet(answerSet1);
+    	      textSet.add(text1);
+
+    	    }
 
     else if ( (item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE)) ||
              (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT))) {
@@ -909,6 +1005,23 @@ public class ItemAddListener
       set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB,
                                new Boolean(wellformatted).toString()));
 
+      
+      //This must be removed
+    // save settings for mutually exclusive for FIN. Default=false
+    // first check to see if it's a valid mutually exclusive mutiple answers FIN
+//    save settings for mutually exclusive for FIN. Default=false
+	    // first check to see if it's a valid mutually exclusive mutiple answers FIN
+	      boolean wellformattedFIN = false;
+	      if (bean.getMutuallyExclusiveForFin()) {
+	        wellformattedFIN = isValidMutualExclusiveFIN(bean);
+	      }
+	
+	      set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIN,
+	                               new Boolean(wellformattedFIN).toString()));
+
+   
+      
+     
     // save part id
     if (bean.getSelectedSection() != null) {
       set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.PARTID,
@@ -972,6 +1085,39 @@ public class ItemAddListener
 
   }
 
+  private static ArrayList getFINanswers(String entiretext) {
+	    String[] tokens = entiretext.split("[\\}][^\\{]*[\\{]");
+	    ArrayList list = new ArrayList();
+	    if (tokens.length==1) {
+	        String[] afteropen= tokens[0].split("\\{");
+	        if (afteropen.length>1) {
+//	 must have text in between {}
+	          String[] lastpart = afteropen[1].split("\\}");
+	          list.add(lastpart[0]);
+	        }
+	    }
+	    else {
+	      for (int i = 0; i < tokens.length; i++) {
+	      if (i == 0) {
+	        String[] firstpart = tokens[i].split("\\{");
+		if (firstpart.length>1) {
+	          list.add(firstpart[1]);
+	        }
+	      }
+	      else if (i == (tokens.length - 1)) {
+	        String[] lastpart = tokens[i].split("\\}");
+	        list.add(lastpart[0]);
+	      }
+	      else {
+	        list.add(tokens[i]);
+	      }
+	      }
+	    } // token.length>1
+
+	    return list;
+
+	  }
+  
   /**
    ** returns if the multile choice label is the correct choice,
    ** bean.getCorrAnswers() returns a string[] of labels
@@ -1097,4 +1243,41 @@ Object[] fibanswers = getFIBanswers(entiretext).toArray();
     return !invalid; 
   } 
 
+  //This is not in use
+  private boolean isValidMutualExclusiveFIN(ItemBean bean){
+	    // all answer sets have to be identical, case insensitive
+
+	     String entiretext = bean.getItemText();
+	      String fintext = entiretext.replaceAll("[\\{][^\\}]*[\\}]", "{}");
+
+	Object[] finanswers = getFINanswers(entiretext).toArray();
+	      List blanklist = new  ArrayList();
+	      for (int i = 0; i < finanswers.length; i++) {
+	        String oneanswer = (String) finanswers[i];
+	        String[] oneblank = oneanswer.split("\\|");
+	        Set oneblankset = new HashSet();
+	        for (int j = 0; j < oneblank.length; j++) {
+	           oneblankset.add(oneblank[j].trim().toLowerCase());
+	        }
+	        blanklist.add(oneblankset);
+
+	      }
+	      // now check if there are at least 2 sets, and make sure they are identically, all should contain only lowercase strings. 
+	      boolean invalid= false;
+	      if (blanklist.size()<=1){
+	           invalid = true;
+	      }
+	      else {
+	      for (int i = 1; i < blanklist.size(); i++) {
+	        if (!(blanklist.get(0).equals(blanklist.get(i)))){
+	           invalid = true;
+	           break;
+	        }
+	      }
+	      }
+
+
+	    return !invalid; 
+	  } 
+  
 }

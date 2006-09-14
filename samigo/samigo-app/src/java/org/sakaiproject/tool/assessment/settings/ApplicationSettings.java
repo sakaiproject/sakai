@@ -44,6 +44,7 @@ public class ApplicationSettings
   private static boolean disableMultipleChoiceSurvey = false;
   private static boolean disableShortAnswerEssay = false;
   private static boolean disableFillInTheBlank = false;
+  private static boolean disableFillInNumeric = false;
   private static boolean disableMatching = false;
   private static boolean disableTrueFalse = false;
   private static boolean disableAudioRecording = false;
@@ -101,6 +102,13 @@ public class ApplicationSettings
       {
         log.info("disableFillInTheBlank = true");
         disableFillInTheBlank = true;
+      }
+      // disableFillInNumeric
+      b = new Boolean(p.getProperty("disableFillInNumeric", "false"));
+      if (b.booleanValue())
+      {
+        log.info("disableFillInNumeric = true");
+        disableFillInNumeric = true;
       }
       // disableMatching
       b = new Boolean(p.getProperty("disableMatching", "false"));
@@ -188,6 +196,14 @@ public class ApplicationSettings
   public static boolean isDisableFillInTheBlank()
   {
     return disableFillInTheBlank;
+  }
+  
+  /**
+   * @return Returns the disableFillNumeric
+   */
+  public static boolean isDisableFillInNumeric()
+  {
+    return disableFillInNumeric;
   }
 
   /**
