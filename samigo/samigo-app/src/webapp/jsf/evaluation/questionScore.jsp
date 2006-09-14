@@ -736,7 +736,7 @@ $Id$
     <h:outputText value="#{description.answer}" escape="false"/>
      <f:verbatim><br/></f:verbatim>
 		<h:outputLink title="#{msg.t_fullShortAnswer}"   value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
-    		<h:outputText  value="(#{msg.click_shortAnswer})" />
+    		<h:outputText  value="(#{msg.click_shortAnswer})" rendered="#{description.answer != 'No Answer'}"/>
     	</h:outputLink>
     </h:panelGroup>
     
@@ -800,10 +800,12 @@ $Id$
 
     <h:panelGroup rendered="#{questionScores.selectedSARationaleView == '1' && questionScores.typeId == '5'}">
     <h:outputText value="#{description.answer}" escape="false"/>
+	<f:verbatim><br/></f:verbatim>
 		<h:outputLink title="#{msg.t_fullShortAnswer}"   value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
-    		<h:outputText  value="(#{msg.click_shortAnswer})" />
+    		<h:outputText  value="(#{msg.click_shortAnswer})" rendered="#{description.answer != 'No Answer'}"/>
     	</h:outputLink>
     </h:panelGroup>
+
     
     <h:panelGroup rendered="#{questionScores.selectedSARationaleView == '2' && questionScores.typeId == '5'}">
 		<h:outputText  escape="false" value="#{description.fullAnswer}"/>
@@ -858,8 +860,9 @@ $Id$
 
     <h:panelGroup rendered="#{questionScores.selectedSARationaleView == '1' && questionScores.typeId == '5'}">
     <h:outputText value="#{description.answer}" escape="false"/>
+	<f:verbatim><br/></f:verbatim>
 		<h:outputLink title="#{msg.t_fullShortAnswer}"   value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
-    		<h:outputText  value="(#{msg.click_shortAnswer})" />
+    		<h:outputText  value="(#{msg.click_shortAnswer})" rendered="#{description.answer != 'No Answer'}" />
     	</h:outputLink>
     </h:panelGroup>
     
