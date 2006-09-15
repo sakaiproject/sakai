@@ -23,6 +23,7 @@
 <h:graphicImage url="/images/mimeicons/html.gif" rendered="#{attach.mimeType == 'text/html'}"/>
 <h:graphicImage url="/images/mimeicons/txt.gif" rendered="#{attach.mimeType == 'text/plain'}"/>
 <h:graphicImage url="/images/mimeicons/txt.gif" rendered="#{attach.mimeType == 'text/xml'}"/>
+<h:graphicImage url="/images/mimeicons/html.gif" rendered="#{attach.mimeType == 'text/url'}"/>
 <h:graphicImage url="/images/mimeicons/mpg.gif" rendered="#{attach.mimeType == 'video/mpeg'}"/>
 <h:graphicImage url="/images/mimeicons/mov.gif" rendered="#{attach.mimeType == 'video/quicktime'}"/>
 
