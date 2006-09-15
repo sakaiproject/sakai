@@ -656,7 +656,7 @@ log.debug("item==null ");
         float duration = (new Float(m.getDuration())).floatValue();
         if (duration > maxDurationAllowed) {
           m.setDurationIsOver(true);
-          m.setTimeAllowed(String.valueOf(maxDurationAllowed));
+          //m.setTimeAllowed(String.valueOf(maxDurationAllowed));
         }
        	else
           m.setDurationIsOver(false);
