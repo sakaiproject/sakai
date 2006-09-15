@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
-<!-- $Id: web.xml,v 1.8 2005/06/08 03:06:41 daisyf.stanford.edu Exp $ -->
+<web-app id="WebApp_9" xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
+  <!-- $Id: web.xml,v 1.8 2005/06/08 03:06:41 daisyf.stanford.edu Exp $ -->
   <display-name>SAM</display-name>
   <description>Sakai Assessment Manager</description>
 
@@ -17,19 +18,18 @@
 
   <!-- BEGIN SAMIGO JSF CONTEXT PARAM-->
     <context-param>
-        <param-name>com.sun.faces.validateXml</param-name>
-        <param-value>false</param-value>
         <description>
             Set this flag to true if you want the JavaServer Faces
             Reference Implementation to validate the XML in your
             faces-config.xml resources against the DTD.  Default
             value is false.
         </description>
+        <param-name>com.sun.faces.validateXml</param-name>
+        <param-value>false</param-value>
     </context-param>
 
     <context-param>
-        <param-name>com.sun.faces.verifyObjects</param-name>
-        <param-value>false</param-value>
+    	<!--  Ordering change required - PAFH 9/7/2006 -->
         <description>
             Set this flag to true if you want the JavaServer Faces
             Reference Implementation to verify that all of the application
@@ -37,6 +37,8 @@
             renderers, and validators) can be successfully created.
             Default value is false.
         </description>
+        <param-name>com.sun.faces.verifyObjects</param-name>
+        <param-value>false</param-value>
     </context-param>
   <!-- END SAMIGO JSF CONTEXT PARAM-->
 
@@ -161,38 +163,43 @@
   </servlet>
 
   <servlet>
+   	<!--  Ordering change required - PAFH 9/7/2006 -->
+    <description>Handle on the fly login.</description>
+    <display-name>Login</display-name>
     <servlet-name>LoginServlet</servlet-name>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.LoginServlet</servlet-class>
-    <display-name>Login</display-name>
-    <description>Handle on the fly login.</description>
   </servlet>
 
   <!--  ShowQTIServlet not used right now, could handle XML exports later on -->
   <servlet>
-    <servlet-name>ShowQTIServlet</servlet-name>
-    <display-name>QTIXML</display-name>
+   	<!--  Ordering change required - PAFH 9/7/2006 -->
     <description>Show QTI XML from XMLDisplay bean.</description>
+    <display-name>QTIXML</display-name>
+    <servlet-name>ShowQTIServlet</servlet-name>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.qti.ShowQTIServlet</servlet-class>
   </servlet>
 
   <servlet>
-    <servlet-name>ShowMediaServlet</servlet-name>
-    <display-name>Show Media</display-name>
+   	<!--  Ordering change required - PAFH 9/7/2006 -->
     <description>Show uploaded media file.</description>
+    <display-name>Show Media</display-name>
+    <servlet-name>ShowMediaServlet</servlet-name>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.ShowMediaServlet</servlet-class>
   </servlet>
 
   <servlet>
-    <servlet-name>DownloadAllMediaServlet</servlet-name>
-    <display-name>Download All Media</display-name>
+   	<!--  Ordering change required - PAFH 9/7/2006 -->
     <description>Download all uploaded media files.</description>
+    <display-name>Download All Media</display-name>
+    <servlet-name>DownloadAllMediaServlet</servlet-name>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.DownloadAllMediaServlet</servlet-class>
   </servlet>
 
   <servlet>
-    <servlet-name>UploadAudioMediaServlet</servlet-name>
-    <display-name>UploadAudio</display-name>
+   	<!--  Ordering change required - PAFH 9/7/2006 -->
     <description>Upload audio file from client stream.</description>
+    <display-name>UploadAudio</display-name>
+    <servlet-name>UploadAudioMediaServlet</servlet-name>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.UploadAudioMediaServlet</servlet-class>
   </servlet>
 
@@ -218,22 +225,25 @@
 
   <!-- initialization servlets -->
   <servlet>
-    <servlet-name>storeApplicationContext</servlet-name>
+   	<!--  Ordering change required - PAFH 9/7/2006 -->
     <description>This servlet stores the Spring application context in memory.</description>
+    <servlet-name>storeApplicationContext</servlet-name>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.StoreApplicationContext</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
 
   <servlet>
-    <servlet-name>initAction</servlet-name>
+   	<!--  Ordering change required - PAFH 9/7/2006 -->
     <description>This servlet loads the Facade Queries in memory.</description>
+    <servlet-name>initAction</servlet-name>
     <servlet-class>org.sakaiproject.tool.assessment.ui.web.action.InitAction</servlet-class>
     <load-on-startup>2</load-on-startup>
   </servlet>
 
   <servlet>
-    <servlet-name>initMimeTypes</servlet-name>
+   	<!--  Ordering change required - PAFH 9/7/2006 -->
     <description>Set Mime Types File Type Map in memory.</description>
+    <servlet-name>initMimeTypes</servlet-name>
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.InitMimeTypes</servlet-class>
     <load-on-startup>2</load-on-startup>
   </servlet>
@@ -271,16 +281,18 @@
   <!-- BEGIN APACHE AXIS SECTION-->
 
   <servlet>
-    <servlet-name>AxisServlet</servlet-name>
+   	<!--  Ordering change required - PAFH 9/7/2006 -->
     <display-name>Apache-Axis Servlet</display-name>
+    <servlet-name>AxisServlet</servlet-name>
     <servlet-class>
         org.apache.axis.transport.http.AxisServlet
     </servlet-class>
   </servlet>
 
   <servlet>
-    <servlet-name>AdminServlet</servlet-name>
+   	<!--  Ordering change required - PAFH 9/7/2006 -->
     <display-name>Axis Admin Servlet</display-name>
+    <servlet-name>AdminServlet</servlet-name>
     <servlet-class>
         org.apache.axis.transport.http.AdminServlet
     </servlet-class>
@@ -288,8 +300,9 @@
   </servlet>
 
   <servlet>
-    <servlet-name>SOAPMonitorService</servlet-name>
+   	<!--  Ordering change required - PAFH 9/7/2006 -->
     <display-name>SOAPMonitorService</display-name>
+    <servlet-name>SOAPMonitorService</servlet-name>
     <servlet-class>
         org.apache.axis.monitor.SOAPMonitorService
     </servlet-class>
@@ -320,6 +333,7 @@
     <url-pattern>/SOAPMonitor</url-pattern>
   </servlet-mapping>
 
+ 
   <!-- BEGIN SAMIGO JSF SECTION-->
 
   <!-- JSF TAGLIBS -->
@@ -329,7 +343,12 @@
       <include-prelude>/include/header.inc</include-prelude>
       <!-- <include-coda>/include/footer.inc</include-coda> -->
     </jsp-property-group>
-  <taglib>
+   	<!--  end jsp-config tag was moved - PAFH 9/7/2006 -->
+  </jsp-config>
+
+<!-- END SAMIGO JSF -->
+<!-- The taglibs are unnecessary - PAFH 9/7/2006 -->
+ <!-- taglib>
     <taglib-uri>http://www.sakaiproject.org/samigo</taglib-uri>
     <taglib-location>/WEB-INF/samigo.tld</taglib-location>
   </taglib>
@@ -344,7 +363,6 @@
   <taglib>
     <taglib-uri>http://java.sun.com/upload</taglib-uri>
     <taglib-location>/WEB-INF/upload.tld</taglib-location>
-  </taglib>
-  </jsp-config>
-<!-- END SAMIGO JSF -->
+  </taglib-->
+
 </web-app>
