@@ -167,6 +167,14 @@
         <war.bundle>false</war.bundle>
       </properties>
     </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-entity-impl</artifactId>
+      <version>${sakai.version}</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
       <!-- need to use ToolManager, ToolSession, Placement -->
     <dependency>
       <groupId>sakaiproject</groupId>
