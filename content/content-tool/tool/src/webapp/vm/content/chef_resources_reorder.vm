@@ -24,12 +24,11 @@
 	*#
 			</h3>
 		</div>		
-		<table class="listHier lines" summary="Tabled list of resources. Table headers have links to sort their column. Column 1 will indicate if item has been selected to be moved, copied or deleted, column 2  has checkboxes to select, column 3 the resource or folder link, column 4 links to actions you can take, column 5, the date it was modified, column 6 the author of the resource, column 6 the size." border="0" cellspacing="0">
-			<caption class="skip" style="display: none;">List of resources</caption>
+		<table class="listHier lines nolines" summary="Table holds items to be sorted. Second column holds linto move item up. Third:link to move down. Last: select to move item to specific location" border="0" cellspacing="0">
+			<caption class="skip" style="display: none;">List of resources to be sorted</caption>
 			<tbody>
 			<tr>
 				<th id="expansion">
-					<img src="#imageLink("sakai/expand-collapse.gif")" title="$tlang.getString('expandall')" alt="$tlang.getString('expandall')" border="0" hspace="0">
 				</th>
 				<th id="moveUp">
 				</th>
@@ -58,7 +57,7 @@
 			</tr>
 			#foreach($root in $this_site)
 				<tr>
-					<td headers="expansion">
+					<td headers="expansion" class="arrowHere">
 					</td>
 					<td headers="moveUp" class="moveUp">
 					</td>
@@ -231,12 +230,20 @@
 				
 				if (rowsArray[curRow].tagName == "TR") {
 					if (curRow == targetRow) {
-						rowsArray[curRow].style.background = "#35b";
-						rowsArray[curRow].style.color = "white";
+## gsilver - target a class/value instead					
+						rowsArray[curRow].id = "selectedReorder";
+## gsilver - give the first cell in the row a special class						
+						rowsArray[curRow].cells[0].className = "arrowHere";
+						
+##						rowsArray[curRow].style.background = "red";
+##						rowsArray[curRow].style.color = "white";
 						// We updated the H4s below in the innermost loop
 					} else {
-						rowsArray[curRow].style.background = "white";
-						rowsArray[curRow].style.color = "black";
+## gsilver - let standard redenring take place via the old class					
+							rowsArray[curRow].id = "sortable";		
+
+##						rowsArray[curRow].style.background = "white";
+##						rowsArray[curRow].style.color = "black";
 					}
 				}
 				
@@ -271,9 +278,9 @@
 							
 							if (cellChildNodes[curCellChild].tagName == "H4") {
 								if (curRow == targetRow) {
-									cellChildNodes[curCellChild].style.color = "white";
+##									cellChildNodes[curCellChild].style.color = "white";
 								} else {
-									cellChildNodes[curCellChild].style.color = "black";
+##									cellChildNodes[curCellChild].style.color = "black";
 								}
 							}
 
@@ -423,4 +430,3 @@
 		}
 	//-->
 </script>
-
