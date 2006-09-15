@@ -1507,6 +1507,6 @@ public interface ContentHostingService extends EntityProducer
 	 * Access flag indicating whether sorting by "priority" is enabled.
 	 * @return true if the custom sort by priority is enabled, false otherwise.
 	 */ 
-	public boolean isPrioritySortEnabled();
+	public boolean isSortByPriorityEnabled();
 	
 }

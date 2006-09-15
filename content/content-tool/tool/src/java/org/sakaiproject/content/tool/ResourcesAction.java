@@ -8739,7 +8739,7 @@ public class ResourcesAction
 		{
 			criteria = ResourceProperties.PROP_MODIFIED_DATE;
 		}
-		else if (criteria.equals("priority") && ContentHostingService.isPrioritySortEnabled())
+		else if (criteria.equals("priority") && ContentHostingService.isSortByPriorityEnabled())
 		{
 			// if error, use title sort
 			criteria = ResourceProperties.PROP_CONTENT_PRIORITY;
@@ -8806,7 +8806,7 @@ public class ResourcesAction
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
 		
-		boolean isPrioritySortEnabled = ContentHostingService.isPrioritySortEnabled();
+		boolean isPrioritySortEnabled = ContentHostingService.isSortByPriorityEnabled();
 
 
 		String folderId = params.getString ("folderId");

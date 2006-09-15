@@ -923,11 +923,11 @@ public class ContentHostingService
 		return service.isAvailabilityEnabled();
 	}
 
-	public static boolean isPrioritySortEnabled() 
+	public static boolean isSortByPriorityEnabled() 
 	{
 		org.sakaiproject.content.api.ContentHostingService service = getInstance();
 		if (service == null) return false;
 
-		return service.isPrioritySortEnabled();
+		return service.isSortByPriorityEnabled();
 	}
 }
