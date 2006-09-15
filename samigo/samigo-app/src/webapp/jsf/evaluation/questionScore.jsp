@@ -86,19 +86,25 @@ $Id$
       <h:outputText value="#{msg.part} #{partinit.partNumber}#{msg.column}" />
     </h:column>
     <h:column>
-      <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="100">
+      <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="100" rendered="#{!partinit.isRandomDrawPart}" >
         <h:column>
-          <h:commandLink title="#{msg.t_questionScores}"action="questionScores" immediate="true"
-            rendered="#{iteminit.linked}" >
-            <h:outputText value="#{msg.q} #{iteminit.partNumber} " />
+          <h:commandLink title="#{msg.t_questionScores}"action="questionScores" immediate="true" >
+            <h:outputText value="#{msg.q} #{iteminit.partNumber} "/>
             <f:actionListener
               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
             <f:param name="newItemId" value="#{iteminit.id}" />
           </h:commandLink>
-          <h:outputText value="#{msg.q} #{iteminit.partNumber} "
-             rendered="#{!iteminit.linked}" />
-        </h:column>
+		          </h:column>
+
       </samigo:dataLine>
+  	      <h:outputText value="#{msg.random_drow_part} " rendered="#{partinit.isRandomDrawPart}"/>
+		  <h:commandLink title="#{msg.t_totalScores}" action="totalScores" immediate="true" rendered="#{partinit.isRandomDrawPart}">
+		    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
+		    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+		    <h:outputText value="#{msg.grade_by_student}" />
+	      </h:commandLink>
+
+
     </h:column>
   </h:dataTable>
 
