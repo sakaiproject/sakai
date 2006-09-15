@@ -8,24 +8,19 @@
 		<input name="sakai_action" id="sakai_action" value="doSaveOrder" type="hidden" />
 		<div class ="breadCrumb specialLink">
 			<h3>
-				$tlang.getString("gen.location")
+				$tlang.getString("sort.title")
 				<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
-	#*	
 				#foreach ($item in $collectionPath)
-					#if ($dropboxMode && $velocityCount == 1)
-						$siteTitle $tlang.getString("gen.drop")
-					#elseif($velocityCount == 1)
-						$siteTitle $tlang.getString("gen.reso")
-					#else
-						$validator.escapeHtml("$item.name")
-					#end
+					$validator.escapeHtml("$item.name")
 					#if(! $item.isLast()) / #end
 				#end
-	*#
 			</h3>
-		</div>		
-		<table class="listHier lines nolines" summary="Table holds items to be sorted. Second column holds linto move item up. Third:link to move down. Last: select to move item to specific location" border="0" cellspacing="0">
-			<caption class="skip" style="display: none;">List of resources to be sorted</caption>
+		</div>
+		<div class="instruction">
+			$tlang.getString("sort.instruct")
+		</div>
+		<table class="listHier lines nolines" summary="$tlang.getString("sort.summary")" border="0" cellspacing="0">
+			<caption class="skip" style="display: none;">$tlang.getString("sort.caption")</caption>
 			<tbody>
 			<tr>
 				<th id="expansion">
@@ -65,7 +60,7 @@
 					</td>
 					<td headers="title" class="specialLink">
 						<h3> 
-							<img src="#imageLink("sakai/dir_openroot.gif")" border="0">
+							<img src="#imageLink("sakai/dir_open.gif")" border="0">
 							$root.name
 						</h3>	
 					</td>
@@ -81,18 +76,22 @@
 						<td headers="expansion">
 						</td>
 						<td headers="moveUp" class="moveUp">
-							<a#if($count <= 1) style="display:none;"#end href="#" onclick="moveRow(this,'up')">
+							<a#if($count <= 1) style="display:none;"#end href="#" onclick="moveRow(this,'up')" title="$tlang.getString("sort.moveup")">
 								<img src="#imageLink("sakai/arrowUp.gif")" alt="move item up" border="0">
 							</a>
 						</td>
 						<td headers="moveDown" class="moveDown">
-							<a href="#"#if($count >= $collectionMembers.size())  style="display:none;"#end onclick="moveRow(this,'down')">
+							<a href="#"#if($count >= $collectionMembers.size())  style="display:none;"#end onclick="moveRow(this,'down')" title="$tlang.getString("sort.movedn")">
 								<img src="#imageLink("sakai/arrowDown.gif")" alt="move item down" border="0">
 							</a>
 						</td>
 						<td headers="title" style="text-indent: 1em;" class="specialLink">
 							<h4>
-								<img src="#imageLink("sakai/dir_closedplus.gif")" title="" alt="" border="0">
+								#if($member.isFolder())
+									<img src="#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0">
+								#else
+									<img src="#imageLink($contentTypeImageService.getContentTypeImage("$member.type"))" border="0">
+								#end
 								$member.name
 							</h4>	
 						</td>
@@ -186,9 +185,7 @@
 				// Set the destination integer for consumption below
 				destination = destIndex+1;
 			}
-			// If we've gotten an integer (from the select drop-downs) then we'll 
-			
-			if (destination && (""+destination).match(/^[0-9]+$/) && destination > 0 && destination <= childTrs.length) {
+			if (destination && ("" + destination).match(/^[0-9]+$/) && destination > 0 && destination <= childTrs.length) {
 
 				destIndex = destination-1;
 				
@@ -224,7 +221,6 @@
 		}
 
 		function updateUserInterface(rowsArray,targetRow) {
-			// TODO: Make visual indicator of which row got moved
 			for (var curRow=0; curRow < rowsArray.length; curRow++){
 				var rowChildNodes = rowsArray[curRow].childNodes;
 				

@@ -695,28 +695,56 @@ public class ResourcesAction
 		String folderId = (String) state.getAttribute(STATE_REORDER_FOLDER);
 		context.put("folderId", folderId);
 		
-		SortedSet expandedCollections = new TreeSet();
+		SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 		
 		//ContentCollection coll = contentService.getCollection(collectionId);
 		expandedCollections.add(folderId);
 
 		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
 		String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+
+		boolean atHome = false;
+
+		context.put("atHome", Boolean.toString(atHome));
+
+		List cPath = getCollectionPath(state);
+		context.put ("collectionPath", cPath);
+
 		
 		String sortBy = (String) state.getAttribute(STATE_REORDER_SORT_BY);
+		context.put("sortBy", sortBy);
 		String sortAsc = (String) state.getAttribute(STATE_REORDER_SORT_ASC);
+		context.put("sortAsc", sortAsc);
 		Comparator comparator = (Comparator) state.getAttribute(STATE_REORDER_SORT);
 
 		Set highlightedItems = new TreeSet();
 		List all_roots = new Vector();
 		List this_site = new Vector();
 
-		List members = getListView(folderId, highlightedItems, (BrowseItem) null, true, state); //getBrowseItems(folderId, expandedCollections, highlightedItems, sortBy, sortAsc, (BrowseItem) null, true, state);
+		List members = getListView(folderId, highlightedItems, (BrowseItem) null, true, state);
+		String rootTitle = (String) state.getAttribute (STATE_SITE_TITLE);
+		if (folderId.equals(homeCollectionId))
+		{
+			atHome = true;
+			rootTitle = (String) state.getAttribute (STATE_HOME_COLLECTION_DISPLAY_NAME);
+		}
+		else
+		{
+			// should be not PermissionException thrown at this time, when the user can successfully navigate to this collection
+			try
+			{
+				rootTitle = ContentHostingService.getCollection(folderId).getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			}
+			catch (IdUnusedException e){}
+			catch (TypeException e) {}
+			catch (PermissionException e) {}
+		}
 
 		if(members != null && members.size() > 0)
 		{
 			BrowseItem root = (BrowseItem) members.remove(0);
 			root.addMembers(members);
+			root.setName(rootTitle);
 			this_site.add(root);
 			all_roots.add(root);
 		}
@@ -8828,6 +8856,8 @@ public class ResourcesAction
 			state.setAttribute(STATE_REORDER_SORT_ASC, sortedAsc);
 		}
 
+		Comparator comparator = ContentHostingService.newContentHostingComparator(sortBy, Boolean.getBoolean(sortedAsc));
+		state.setAttribute(STATE_REORDER_SORT, comparator);
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
@@ -8876,6 +8906,22 @@ public class ResourcesAction
 					collection.setPriorityMap(priorities);
 					
 					ContentHostingService.commitCollection(collection);
+					
+					SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+					if(expandedCollections == null)
+					{
+						expandedCollections = (SortedSet) new Hashtable();
+					}
+					expandedCollections.add(folderId);
+					
+					Comparator comparator = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true);
+					Map expandedFolderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
+					if(expandedFolderSortMap == null)
+					{
+						expandedFolderSortMap = new Hashtable();
+						state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, expandedFolderSortMap);
+					}
+					expandedFolderSortMap.put(folderId, comparator);
 				}
 				catch(IdUnusedException e)
 				{
@@ -9382,6 +9428,7 @@ public class ResourcesAction
 		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
 
 		state.setAttribute(STATE_EXPANDED_COLLECTIONS, new TreeSet());
+		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());
 		state.setAttribute(STATE_EXPAND_ALL_FLAG, Boolean.FALSE.toString());
 
 	}	// doUnexpandall
@@ -9420,6 +9467,7 @@ public class ResourcesAction
 		state.removeAttribute(DEFAULT_COPYRIGHT_ALERT);
 		state.removeAttribute(DEFAULT_COPYRIGHT);
 		state.removeAttribute(STATE_EXPANDED_COLLECTIONS);
+		state.removeAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
 		state.removeAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
 		state.removeAttribute(NEW_COPYRIGHT_INPUT);
 		state.removeAttribute(STATE_COLLECTION_ID);
@@ -9595,6 +9643,7 @@ public class ResourcesAction
 		SortedSet expandedCollections = new TreeSet();
 		//expandedCollections.add (state.getAttribute (STATE_HOME_COLLECTION_ID));
 		state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());
 		
 		if(state.getAttribute(STATE_USING_CREATIVE_COMMONS) == null)
 		{
@@ -9998,6 +10047,12 @@ public class ResourcesAction
 		{
 			expandedItems = new TreeSet();
 		}
+		Map folderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
+		if(folderSortMap == null)
+		{
+			folderSortMap = new Hashtable();
+			state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, folderSortMap);
+		}
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
@@ -10025,6 +10080,10 @@ public class ResourcesAction
 			{
 	//			newSet.put(id,collection);
 				newSet.add(id);
+			}
+			else
+			{
+				folderSortMap.remove(id);
 			}
 		}
 
@@ -10415,7 +10474,7 @@ public class ResourcesAction
 			{
 				int collection_size = contentService.getCollectionSize(collectionId);
 				folder.setIsEmpty(collection_size < 1);
-				folder.setSortable(collection_size > 1 && collection_size < EXPANDABLE_FOLDER_SIZE_LIMIT);
+				folder.setSortable(ContentHostingService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < EXPANDABLE_FOLDER_SIZE_LIMIT);
 				folder.setIsTooBig(collection_size > EXPANDABLE_FOLDER_SIZE_LIMIT);
 			}
 			catch(RuntimeException e)
