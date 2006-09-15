@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/svn/podcasts/trunk/podcasts-app/src/java/org/sakaiproject/tool/podcasts/podHomeBean.java $
+ * $Id: podHomeBean.java 14961 2006-09-15 12:36:27Z josrodri@iupui.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.

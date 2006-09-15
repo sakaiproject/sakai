@@ -1,5 +1,5 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/syllabus/tags/sakai_2-2-001/syllabus-api/src/java/org/sakaiproject/api/app/syllabus/SyllabusService.java $
+ * $URL: https://source.sakaiproject.org/svn/podcasts/trunk/podcasts-impl/impl/src/java/org/sakaiproject/component/app/podcasts/PodcastServiceImpl.java $
  * $Id: PodcastServiceImpl.java 8802 2006-05-03 15:06:26Z josrodri@iupui.edu $
  ***********************************************************************************
  *
