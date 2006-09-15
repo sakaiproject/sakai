@@ -276,7 +276,7 @@ public class QuestionScoreListener
 
     log.debug("questionScores(): calling populateSections ");
 
-      populateSections(publishedAssessment, bean, totalBean, scores);    // set up the Q1, Q2... links
+      populateSections(publishedAssessment, bean, totalBean, scores, pubService);    // set up the Q1, Q2... links
       if (!iter.hasNext())
       {
         // this section has no students
@@ -665,7 +665,7 @@ log.debug("item==null ");
     }
   }
 
-  private void populateSections(PublishedAssessmentIfc publishedAssessment, QuestionScoresBean bean, TotalScoresBean totalBean, ArrayList scores){
+  private void populateSections(PublishedAssessmentIfc publishedAssessment, QuestionScoresBean bean, TotalScoresBean totalBean, ArrayList scores, PublishedAssessmentService pubService){
       ArrayList sections = new ArrayList();
       log.debug("questionScores(): populate sctions publishedAssessment.getSectionArraySorted size = " + publishedAssessment.getSectionArraySorted().size());
       Iterator iter = publishedAssessment.getSectionArraySorted().iterator();
@@ -675,7 +675,8 @@ log.debug("item==null ");
         SectionDataIfc section = (SectionDataIfc) iter.next();
         ArrayList items = new ArrayList();
         PartData part = new PartData();
-
+        boolean isRandomDrawPart = pubService.isRandomDrawPart(publishedAssessment.getPublishedAssessmentId(), section.getSectionId());
+        part.setIsRandomDrawPart(isRandomDrawPart);
         part.setPartNumber(""+i);
    
         part.setId(section.getSectionId().toString());

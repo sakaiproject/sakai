@@ -1448,25 +1448,23 @@ public class PublishedAssessmentFacadeQueries
     };
     List l = getHibernateTemplate().executeFind(hcb);
 
-//  	List l = getHibernateTemplate().find(query,
-//  			new Object[]{ publishedAssessmentId},
-//				new org.hibernate.type.Type[] {Hibernate.LONG});
-  	final String query2 = "select s from PublishedAssessmentData p, PublishedSectionData s "+
-		" where p.publishedAssessmentId=? and"+
+    final String key = SectionDataIfc.AUTHOR_TYPE;
+    final String value = SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString();
+  	final String query2 = "select s from PublishedAssessmentData p, PublishedSectionData s, PublishedSectionMetaData m "+
+		" where p.publishedAssessmentId=? and s = m.section and m.label=? and m.entry=? and "+
 		" p.publishedAssessmentId=s.assessment.publishedAssessmentId ";
 
     final HibernateCallback hcb2 = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(query2);
     		q.setLong(0, publishedAssessmentId.longValue());
+    		q.setString(1, key);
+    		q.setString(2, value);
     		return q.list();
     	};
     };
     List sec = getHibernateTemplate().executeFind(hcb2);
 
-//  	List sec = getHibernateTemplate().find(query,
-//  			new Object[]{ publishedAssessmentId },
-//				new org.hibernate.type.Type[] {Hibernate.LONG});
   	PublishedItemData returnItem = null;
   	if(sec.size() > 0 && l.size() >0)
   	{
@@ -1606,5 +1604,31 @@ public class PublishedAssessmentFacadeQueries
     }
     return location;
   }
+
+  public boolean isRandomDrawPart(final Long publishedAssessmentId, final Long sectionId){
+	    boolean isRandomDrawPart = false;
+	    final String key = SectionDataIfc.AUTHOR_TYPE;
+	    final String value = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
+	    final String query =
+	        "select s from PublishedSectionData s, PublishedSectionMetaData m where "+
+	        " s = m.section and s.assessment.publishedAssessmentId=? and " +
+	        " s.id=? and m.label=? and m.entry=?";
+
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(query);
+	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setLong(1, sectionId.longValue());
+	    		q.setString(2, key);
+	    		q.setString(3, value);
+	    		return q.list();
+	    	};
+	    };
+	    List l = getHibernateTemplate().executeFind(hcb);
+
+	    if (l.size()>0)
+	    	isRandomDrawPart=true;
+	    return isRandomDrawPart;
+	  }
 
 }

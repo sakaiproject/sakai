@@ -457,4 +457,9 @@ public class PublishedAssessmentService {
 	    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
 	    getSectionSetForAssessment(publishedAssessmentId);
   }
+  
+  public boolean isRandomDrawPart(Long publishedAssessmentId, Long publishedSectionId){
+	    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+	    isRandomDrawPart(publishedAssessmentId, publishedSectionId);
+  }
 }

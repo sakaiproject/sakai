@@ -288,4 +288,5 @@ public interface PublishedAssessmentFacadeQueriesAPI
   
   public HashSet getSectionSetForAssessment(Long publishedAssessmentId);
 
+  public boolean isRandomDrawPart(Long publishedAssessmentId, Long sectionId);
 }

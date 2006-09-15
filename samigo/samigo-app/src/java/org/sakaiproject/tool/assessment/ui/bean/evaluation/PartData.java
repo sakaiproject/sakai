@@ -44,6 +44,7 @@ public class PartData
   private String partNumber;
   private String id;
   private boolean linked;
+  private boolean isRandomDrawPart;
 
   /**
    * Returns a list of the question numbers as Strings.
@@ -97,5 +98,13 @@ public class PartData
   public void setLinked(boolean newLinked)
   {
     linked = newLinked;
+  }
+  
+  public boolean getIsRandomDrawPart() {
+	  return isRandomDrawPart;
+  }
+  
+  public void setIsRandomDrawPart(boolean isRandomDrawPart) {
+	  this.isRandomDrawPart = isRandomDrawPart;
   }
 }
