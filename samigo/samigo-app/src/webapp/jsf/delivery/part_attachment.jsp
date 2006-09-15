@@ -4,6 +4,9 @@
   <h:panelGroup rendered="#{part.hasAttachment}">
     <h:dataTable value="#{part.attachmentList}" var="attach">
       <h:column>
+        <%@ include file="/jsf/shared/mimeicon.jsp" %>
+      </h:column>
+      <h:column>
         <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
         <h:outputLink value="#{attach.filename}" target="new_window" rendered="#{attach.isLink}">
           <h:outputText escape="false" value="#{attach.filename}" />

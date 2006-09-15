@@ -4,6 +4,9 @@
   <h:panelGroup rendered="#{assessmentSettings.hasAttachment}">
     <h:dataTable value="#{assessmentSettings.attachmentList}" var="attach">
       <h:column>
+        <%@ include file="/jsf/shared/mimeicon.jsp" %>
+      </h:column>
+      <h:column>
         <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
         <h:outputLink value="#{attach.location}"
            target="new_window">
