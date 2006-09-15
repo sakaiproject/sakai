@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -45,6 +46,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Placement;
@@ -2127,10 +2129,30 @@ public class CharonPortal extends HttpServlet
 		{
 			out.println("<div id=\"col1\">");
 		}
+
+		Site site = null;
+		try
+		{
+			site = SiteService.getSite(page.getSiteId());
+		} 
+		catch (Exception ignoreMe )
+		{
+			// Non fatal - just assume null
+			if ( M_log.isTraceEnabled() ) M_log.trace("includePage unable to find site for page "+page.getId());
+		}
+
 		List tools = page.getTools(0);
 		for (Iterator i = tools.iterator(); i.hasNext();)
 		{
 			ToolConfiguration placement = (ToolConfiguration) i.next();
+
+			if ( site != null ) 
+			{
+				Tool tool = placement.getTool() ; 
+				boolean thisTool = allowTool(site, tool) ;
+				// System.out.println(" Allow Tool Display -" + placement.getTitle() + " retval = " + thisTool);
+				if ( ! thisTool ) continue;  // Skip this tool if not allowed
+			}
 
 			// for this tool invocation, form the servlet context and path info
 			String contextPath = ServerConfigurationService.getToolUrl() + "/"
@@ -2164,6 +2186,23 @@ public class CharonPortal extends HttpServlet
 		}
 
 		out.println("</div>");
+	}
+
+	private boolean allowTool(Site site, Tool tool)
+	{
+		boolean retval = true;
+		String TOOL_CFG_FUNCTIONS = "functions.require";
+		Properties roleConfig = tool.getRegisteredConfig();
+		boolean requreSpecified = roleConfig.containsKey(TOOL_CFG_FUNCTIONS);
+
+		// allow by default, when no config keys are present
+		if(requreSpecified) {
+			String[] result = roleConfig.getProperty(TOOL_CFG_FUNCTIONS).split("\\,");
+			for (int x=0; x<result.length; x++){
+				if ( ! SecurityService.unlock(result[x],site.getReference()) ) retval = false;
+			}
+		}
+		return retval;
 	}
 
 	protected void includePageNav(PrintWriter out, HttpServletRequest req,
@@ -2230,6 +2269,24 @@ public class CharonPortal extends HttpServlet
 		for (Iterator i = pages.iterator(); i.hasNext();)
 		{
 			SitePage p = (SitePage) i.next();
+
+			// check if current user has permission to see page
+			// will draw page button if it have permission to see at least one tool
+			List pTools = p.getTools();
+			Iterator iPt = pTools.iterator();
+
+			boolean allowPage = false;
+			while( iPt.hasNext() ) 
+			{
+				Tool tool = ((ToolConfiguration) iPt.next()).getTool();
+
+				boolean thisTool = allowTool(site,tool) ;
+				if ( thisTool ) allowPage = true;
+				// System.out.println(" Allow Tool -" + tool.getTitle() + " retval = " + thisTool + " page=" + allowPage);
+			}
+
+			if ( !allowPage ) continue;
+
 			boolean current = (p.getId().equals(page.getId()) && !p.isPopUp());
 
 			if (current)
