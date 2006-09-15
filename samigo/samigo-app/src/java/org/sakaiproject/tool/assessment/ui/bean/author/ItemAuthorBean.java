@@ -951,7 +951,6 @@ ItemService delegate = new ItemService();
     // 2. load resources into session for resources mgmt page
     //    then redirect to resources mgmt page
     try	{
-	//List filePickerList = EntityManager.newReferenceList();
       List filePickerList = prepareReferenceList(attachmentList);
       ToolSession currentToolSession = SessionManager.getCurrentToolSession();
       currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);

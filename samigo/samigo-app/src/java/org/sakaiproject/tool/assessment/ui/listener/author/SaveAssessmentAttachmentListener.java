@@ -23,6 +23,8 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -75,47 +77,80 @@ public class SaveAssessmentAttachmentListener
     String assessmentId = assessmentSettings.getAssessmentId().toString();
 
     // attach item attachemnt to assessmentBean
-    ArrayList attachmentList = prepareAssessmentAttachment((AssessmentIfc)assessmentSettings.getAssessment().getData());
+    List attachmentList = prepareAssessmentAttachment((AssessmentIfc)assessmentSettings.getAssessment().getData());
     assessmentSettings.setAttachmentList(attachmentList);
   }
 
-  private ArrayList prepareAssessmentAttachment(AssessmentIfc assessment){
-    Set attachmentSet = assessment.getAssessmentAttachmentSet();
-    if (attachmentSet == null){
-	attachmentSet = new HashSet();
+  private HashMap getResourceIdHash(Set attachmentSet){
+    HashMap map = new HashMap();
+    if (attachmentSet !=null ){
+      Iterator iter = attachmentSet.iterator();
+      while (iter.hasNext()){
+        AssessmentAttachmentIfc attach = (AssessmentAttachmentIfc) iter.next();
+        map.put(attach.getResourceId(), attach);
+      }
     }
-    log.debug("*** attachment size="+attachmentSet.size());
-    AssessmentService assessmentService = new AssessmentService();
-    String protocol = ContextUtil.getProtocol();
+    return map;
+  }
+
+  private List prepareAssessmentAttachment(AssessmentIfc assessment){
     ToolSession session = SessionManager.getCurrentToolSession();
-    if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
+    if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null  &&
         session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
+      
+      Set attachmentSet = assessment.getAssessmentAttachmentSet();
+      HashMap map = getResourceIdHash(attachmentSet);
+      ArrayList newAttachmentList = new ArrayList();
+      HashSet newAttachmentSet = new HashSet();
+
+      AssessmentService assessmentService = new AssessmentService();
+      String protocol = ContextUtil.getProtocol();
+
       List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
       if (refs!=null && refs.size() > 0){
         Reference ref = (Reference)refs.get(0);
 
         for(int i=0; i<refs.size(); i++) {
           ref = (Reference) refs.get(i);
-          log.debug("**** ref.Id="+ref.getId());
-          log.debug("**** ref.name="+ref.getProperties().getProperty(									    ref.getProperties().getNamePropDisplayName()));
-          AssessmentAttachmentIfc newAttach = assessmentService.createAssessmentAttachment(
-                                        assessment,
-                                        ref.getId(), ref.getProperties().getProperty(
-                                                     ref.getProperties().getNamePropDisplayName()),
+          String resourceId = ref.getId();
+          if (map.get(resourceId) == null){
+            // new attachment, add 
+            log.debug("**** ref.Id="+ref.getId());
+            log.debug("**** ref.name="+ref.getProperties().getProperty(
+                       ref.getProperties().getNamePropDisplayName()));
+            AssessmentAttachmentIfc newAttach = assessmentService.createAssessmentAttachment(
+                                          assessment,
+                                          ref.getId(), ref.getProperties().getProperty(
+                                                       ref.getProperties().getNamePropDisplayName()),
                                         protocol);
-          attachmentSet.add(newAttach);
+            newAttachmentList.add(newAttach);
+            newAttachmentSet.add(newAttach);
+	  }
+          else{ 
+            // attachment already exist, let's add it to new list and
+	    // check it off from map
+            newAttachmentList.add((AssessmentAttachmentIfc)map.get(resourceId));
+            newAttachmentSet.add((AssessmentAttachmentIfc)map.get(resourceId));
+            map.remove(resourceId);
+	  }
         }
       }
+
+      // the resulting map should now contain attachment that has been removed
+      // inside filepicker, we will now get rid of its association with the assessment
+      Collection oldAttachs = map.values();
+      Iterator iter1 = oldAttachs.iterator();
+      while (iter1.hasNext()){
+        AssessmentAttachmentIfc oldAttach = (AssessmentAttachmentIfc)iter1.next();
+        assessmentService.removeAssessmentAttachment(oldAttach.getAttachmentId().toString());
+      }
+
+      session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+      session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
+      assessment.setAssessmentAttachmentSet(newAttachmentSet);
+      return newAttachmentList;
     }
-    session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-    session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
-    ArrayList list = new ArrayList();
-    Iterator iter = attachmentSet.iterator();
-    while (iter.hasNext()){
-      AssessmentAttachmentIfc a = (AssessmentAttachmentIfc)iter.next();
-      list.add(a);
-    }
-    return list;
+    else return assessment.getAssessmentAttachmentList();
   }
 
  }

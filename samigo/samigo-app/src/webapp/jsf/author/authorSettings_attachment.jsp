@@ -12,17 +12,7 @@
       </h:column>
       <h:column>
         <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-        <h:outputText escape="false" value="#{attach.fileSize} kb" rendered="#{!attach.isLink}"/>
-      </h:column>
-      <h:column>
-        <h:commandLink title="#{msg.t_remove_attachment}" action="confirmRemoveAssessmentAttachment" immediate="true">
-          <h:outputText value="   #{msg.remove_attachment}" />
-          <f:param name="attachmentId" value="#{attach.attachmentId}"/>
-          <f:param name="attachmentLocation" value="#{attach.location}"/>
-          <f:param name="attachmentFilename" value="#{attach.filename}"/>
-          <f:param name="attachmentType" value="1"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRemoveAttachmentListener" />
-        </h:commandLink>
+        <h:outputText escape="false" value="(#{attach.fileSize}kb)" rendered="#{!attach.isLink}"/>
       </h:column>
     </h:dataTable>
   </h:panelGroup>
@@ -30,9 +20,18 @@
     <h:outputText escape="false" value="#{msg.no_attachments}" />
   </h:panelGroup>
 
-  <sakai:button_bar>
-    <sakai:button_bar_item action="#{assessmentSettings.addAttachmentsRedirect}"
-           value="#{msg.add_attachments}"/>
-  </sakai:button_bar>
+  <h:panelGroup rendered="#{!assessmentSettings.hasAttachment}">
+    <sakai:button_bar>
+      <sakai:button_bar_item action="#{assessmentSettings.addAttachmentsRedirect}"
+             value="#{msg.add_attachments}"/>
+    </sakai:button_bar>
+  </h:panelGroup>
+
+  <h:panelGroup rendered="#{assessmentSettings.hasAttachment}">
+    <sakai:button_bar>
+      <sakai:button_bar_item action="#{assessmentSettings.addAttachmentsRedirect}"
+             value="#{msg.add_remove_attachments}"/>
+    </sakai:button_bar>
+  </h:panelGroup>
 </div>
 

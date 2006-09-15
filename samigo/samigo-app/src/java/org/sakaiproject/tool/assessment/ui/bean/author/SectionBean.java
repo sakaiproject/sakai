@@ -41,6 +41,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
@@ -55,8 +56,11 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.impl.ReferenceComponent;
 
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.tool.cover.SessionManager;
 
 /**
@@ -690,7 +694,7 @@ private List attachmentList;
 
     // 2. then redirect to add attachment
     try	{
-      List filePickerList = EntityManager.newReferenceList();
+      List filePickerList = prepareReferenceList(attachmentList);
       ToolSession currentToolSession = SessionManager.getCurrentToolSession();
       currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);
       ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
@@ -711,6 +715,25 @@ private List attachmentList;
   public void savePartAttachment(){
     SavePartAttachmentListener lis = new SavePartAttachmentListener();
     lis.processAction(null);
+  }
+
+  private List prepareReferenceList(List attachmentList){
+    List list = new ArrayList();
+    for (int i=0; i<attachmentList.size(); i++){
+      AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
+      try{
+        ContentResource cr = ContentHostingService.getResource(attach.getResourceId());
+        if (cr!=null){
+          ReferenceComponent ref = new ReferenceComponent(cr.getReference());
+          System.out.println("**** ref="+ref);
+          if (ref !=null ) list.add(ref);
+        }
+      }
+      catch(Exception e){
+        log.warn(e.getMessage());
+      }
+    }
+    return list;
   }
 
 }

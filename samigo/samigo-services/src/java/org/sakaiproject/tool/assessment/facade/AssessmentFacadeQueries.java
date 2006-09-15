@@ -1509,8 +1509,6 @@ public class AssessmentFacadeQueries
           Set set = section.getSectionAttachmentSet();
           set.remove(sectionAttachment);
           getHibernateTemplate().delete(sectionAttachment);
-          if(resourceId.toLowerCase().startsWith("/attachment"))
-            ContentHostingService.removeResource(resourceId);
           retryCount = 0;
 	}
       }
@@ -1565,8 +1563,6 @@ public class AssessmentFacadeQueries
           Set set = assessment.getAssessmentAttachmentSet();
           set.remove(assessmentAttachment);
           getHibernateTemplate().delete(assessmentAttachment);
-          if(resourceId.toLowerCase().startsWith("/attachment"))
-            ContentHostingService.removeResource(resourceId);
           retryCount = 0;
 	}
       }

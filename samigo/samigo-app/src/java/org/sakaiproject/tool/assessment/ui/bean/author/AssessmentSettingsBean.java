@@ -48,6 +48,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentTemplateIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecuredIPAddressIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -65,10 +66,12 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.impl.ReferenceComponent;
 
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.tool.cover.SessionManager;
-
 
 /**
  *
@@ -1200,7 +1203,7 @@ public class AssessmentSettingsBean
     saveAssessmentSettings();
     // 2. redirect to add attachment
     try	{
-      List filePickerList = EntityManager.newReferenceList();
+      List filePickerList = prepareReferenceList(attachmentList);
       ToolSession currentToolSession = SessionManager.getCurrentToolSession();
       currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);
       ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
@@ -1220,6 +1223,25 @@ public class AssessmentSettingsBean
   public void saveAssessmentAttachment(){
     SaveAssessmentAttachmentListener lis = new SaveAssessmentAttachmentListener();
     lis.processAction(null);
+  }
+
+  private List prepareReferenceList(List attachmentList){
+    List list = new ArrayList();
+    for (int i=0; i<attachmentList.size(); i++){
+      AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
+      try{
+        ContentResource cr = ContentHostingService.getResource(attach.getResourceId());
+        if (cr!=null){
+          ReferenceComponent ref = new ReferenceComponent(cr.getReference());
+          System.out.println("**** ref="+ref);
+          if (ref !=null ) list.add(ref);
+        }
+      }
+      catch(Exception e){
+        log.warn(e.getMessage());
+      }
+    }
+    return list;
   }
 
 }
