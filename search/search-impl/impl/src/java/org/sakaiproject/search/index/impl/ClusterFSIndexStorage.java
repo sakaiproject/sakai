@@ -78,7 +78,6 @@ public class ClusterFSIndexStorage implements IndexStorage
 
 	public void init()
 	{
-		clusterFS.setLocation(searchIndexDirectory);
 	}
 
 	public IndexReader getIndexReader() throws IOException
