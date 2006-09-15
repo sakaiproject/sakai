@@ -97,4 +97,8 @@ public interface MediaIfc
 
   void setDurationIsOver(boolean durationIsOver);
 
+  String getTimeAllowed();
+
+  void setTimeAllowed(String timeAllowed);
+
 }
