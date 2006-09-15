@@ -178,7 +178,8 @@
           <from-outcome>addGroupsUsers</from-outcome>
           <to-view-id>/jsp/discussionForum/permissions/addGroupsUsers.jsp</to-view-id>
           <redirect/>
-        </navigation-case>navigation-case>
+        </navigation-case>
+        <!-- There was a syntax error on the previous line - PAFH 8/26/2006 -->
         <!--forum -->
         <navigation-case>
             <from-outcome>dfForumSettings</from-outcome>
