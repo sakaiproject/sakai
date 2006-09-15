@@ -26,6 +26,8 @@ should be included in file importing DeliveryMessages
 **********************************************************************************/
 --%>
 -->
+<!-- ATTACHMENTS -->
+<%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
 <samigo:dataLine value="#{question.finArray}" var="answer"
   separator=" " first="0" rows="100">

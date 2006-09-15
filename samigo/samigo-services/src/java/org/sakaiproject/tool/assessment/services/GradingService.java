@@ -1158,9 +1158,12 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         }
       }
       
-      /*  
+      if (matchresult){
+          totalScore += ((AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId())).getScore().floatValue();
+
+      }
        // commenting this out for now, until we see a use case for numeric responses to have mutually exclusive.
-       
+       /*
         if (matchresult){
 
             boolean alreadyused=false;
@@ -1191,6 +1194,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           
           }
       */
+      
      
     }
     return totalScore;
