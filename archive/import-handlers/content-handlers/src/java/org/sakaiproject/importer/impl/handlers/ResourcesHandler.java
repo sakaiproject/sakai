@@ -21,6 +21,7 @@ import org.sakaiproject.importer.impl.importables.Folder;
 import org.sakaiproject.importer.impl.importables.WebLink;
 import org.sakaiproject.importer.impl.importables.HtmlDocument;
 import org.sakaiproject.importer.impl.importables.TextDocument;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -45,6 +46,8 @@ public class ResourcesHandler implements HandlesImportable {
 
 	public void handle(Importable thing, String siteId) {
 		if(canHandleType(thing.getTypeName())){
+			String currentUser = SessionManager.getCurrentSessionUserId();
+			SessionManager.getCurrentSession().setUserId("admin");
 			String id = null;
 			String contentType = null;
 			byte[] contents = null;
@@ -110,21 +113,21 @@ public class ResourcesHandler implements HandlesImportable {
 					m_log.debug("import ResourcesHandler about to add text document entitled '" + title + "'");
 				}
 				addContentResource(id, contentType, contents, resourceProps, notifyOption);
-			} else if ("sakai-folder".equals(thing.getTypeName())) {
-				title = ((Folder)thing).getTitle();
-				description = ((Folder)thing).getDescription();
-				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
-	  			resourceProps.put(ResourceProperties.PROP_DESCRIPTION, description);
-	  			resourceProps.put(ResourceProperties.PROP_COPYRIGHT, COPYRIGHT);
-	  			/*
-	  			 * Added title to the end of the path. Otherwise, we're setting the props on the 
-	  			 * containing folder rather than the folder itself.
-	  			 */
-	  			String path = "/group/" + siteId + "/" + ((Folder)thing).getPath()+ title + "/" ;
-	  			addContentCollection(path,resourceProps);
-	  			
-			}
-			
+				} // else if ("sakai-folder".equals(thing.getTypeName())) {
+//				title = ((Folder)thing).getTitle();
+//				description = ((Folder)thing).getDescription();
+//				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
+//	  			resourceProps.put(ResourceProperties.PROP_DESCRIPTION, description);
+//	  			resourceProps.put(ResourceProperties.PROP_COPYRIGHT, COPYRIGHT);
+//	  			/*
+//	  			 * Added title to the end of the path. Otherwise, we're setting the props on the 
+//	  			 * containing folder rather than the folder itself.
+//	  			 */
+//	  			String path = "/group/" + siteId + "/" + ((Folder)thing).getPath()+ title;
+//	  			addContentCollection(path,resourceProps);
+//	  			
+//			}
+			SessionManager.getCurrentSession().setUserId(currentUser);
 		}
 
 	}
@@ -137,14 +140,15 @@ public class ResourcesHandler implements HandlesImportable {
 				String value = (String)properties.get(key);
 				resourceProps.addProperty(key, value);
 			}
-			String enclosingDirectory = id.substring(0, id.lastIndexOf('/', id.length() - 2) + 1);
-			if(!existsDirectory(enclosingDirectory)) {
-				addContentCollection(enclosingDirectory, new HashMap());
-			}
+//			String enclosingDirectory = id.substring(0, id.lastIndexOf('/', id.length() - 2) + 1);
+//			if(!existsDirectory(enclosingDirectory)) {
+//				Map props = new HashMap();
+//				props.put(ResourceProperties.PROP_DISPLAY_NAME, enclosingDirectory.substring(enclosingDirectory.lastIndexOf('/') + 1, enclosingDirectory.length()));
+//				addContentCollection(enclosingDirectory, props);
+//			}
 			ContentHostingService.addResource(id, contentType, contents, resourceProps, notifyOption);
 		} catch (PermissionException e) {
-//			TODO Auto-generated catch block
-            e.printStackTrace();
+			m_log.error("ResourcesHandler.addContentResource: " + e.toString());
 		} catch (IdUsedException e) {
 //			TODO Auto-generated catch block
             e.printStackTrace();
@@ -173,26 +177,27 @@ public class ResourcesHandler implements HandlesImportable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (PermissionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			m_log.error("ResourcesHandler.existsDirectory: " + e.toString());
 		}
 		return true;
 	}
 
 	protected void addContentCollection(String path, Map properties) {
-			ResourcePropertiesEdit resourceProps = ContentHostingService.newResourceProperties();
-			Set keys = properties.keySet();
-			for (Iterator i = keys.iterator();i.hasNext();) {
-				String key = (String)i.next();
-				String value = (String)properties.get(key);
-				resourceProps.addProperty(key, value);
-			}
+//			ResourcePropertiesEdit resourceProps = ContentHostingService.newResourceProperties();
+//			Set keys = properties.keySet();
+//			for (Iterator i = keys.iterator();i.hasNext();) {
+//				String key = (String)i.next();
+//				String value = (String)properties.get(key);
+//				resourceProps.addProperty(key, value);
+//			}
 			try {
-				String enclosingDirectory = path.substring(0, path.lastIndexOf('/', path.length() - 2) + 1);
-				if(!existsDirectory(enclosingDirectory)) {
-					addContentCollection(enclosingDirectory, new HashMap());
-				}
-				ContentHostingService.addCollection(path, resourceProps);
+//				String enclosingDirectory = path.substring(0, path.lastIndexOf('/', path.length() - 2) + 1);
+//				if(!existsDirectory(enclosingDirectory)) {
+//					ContentCollectionEdit coll = ContentHostingService.addCollection(enclosingDirectory);
+//					ContentHostingService.commitCollection(coll);
+//				}
+				ContentCollectionEdit coll = ContentHostingService.addCollection(path);
+				ContentHostingService.commitCollection(coll);
 			} catch (IdUsedException e) {
 				// if this thing already exists (which it probably does), 
 				// we'll do an update on the properties rather than creating the folder
@@ -204,8 +209,7 @@ public class ResourcesHandler implements HandlesImportable {
                 ContentHostingService.addProperty
 	                (path, ResourceProperties.PROP_DESCRIPTION, (String)properties.get(ResourceProperties.PROP_DESCRIPTION));
 	            } catch (PermissionException e1) {
-	                // TODO Auto-generated catch block
-	                e1.printStackTrace();
+	            	m_log.error("ResourcesHandler.addContentCollection: " + e.toString());
 	            } catch (IdUnusedException e1) {
 	                // TODO Auto-generated catch block
 	                e1.printStackTrace();

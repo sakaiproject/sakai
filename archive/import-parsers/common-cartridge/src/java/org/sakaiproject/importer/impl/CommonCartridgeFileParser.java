@@ -29,6 +29,8 @@ import org.sakaiproject.importer.impl.importables.FileResource;
 import org.sakaiproject.importer.impl.importables.Folder;
 import org.sakaiproject.importer.impl.importables.WebLink;
 import org.sakaiproject.importer.impl.translators.CCAssessmentTranslator;
+import org.sakaiproject.importer.impl.translators.CCWebContentTranslator;
+import org.sakaiproject.importer.impl.translators.CCWebLinkTranslator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -39,6 +41,8 @@ public class CommonCartridgeFileParser extends IMSFileParser {
 	public CommonCartridgeFileParser() {
 		// add resource translators here
 		addResourceTranslator(new CCAssessmentTranslator());
+		addResourceTranslator(new CCWebLinkTranslator());
+		// addResourceTranslator(new  CCWebContentTranslator());
 		resourceHelper = new CCResourceHelper();
 		itemHelper = new CCItemHelper();
 		fileHelper = new CCFileHelper();
@@ -55,6 +59,26 @@ public class CommonCartridgeFileParser extends IMSFileParser {
 	protected Collection getCategoriesFromArchive(String pathToData) {
 		Collection categories = new ArrayList();
 		ImportMetadata im;
+//		if(XPathHelper.getNodeValue("//resource[@type='webcontent']", this.archiveManifest) != null) {
+//			im = new BasicImportMetadata();
+//			im.setId("webcontent");
+//			im.setLegacyTool("Web Content");
+//			im.setMandatory(false);
+//			im.setFileName(".xml");
+//			im.setSakaiServiceName("ContentHostingService");
+//			im.setSakaiTool("Resources");
+//			categories.add(im);
+//		}
+//		if(XPathHelper.getNodeValue("//resource[@type='imsqti_xmlv1p2/imscc_xmlv1p0/assessment']", this.archiveManifest) != null) {
+//			im = new BasicImportMetadata();
+//			im.setId("assessments");
+//			im.setLegacyTool("Assessments");
+//			im.setMandatory(false);
+//			im.setFileName(".xml");
+//			im.setSakaiServiceName("Samigo");
+//			im.setSakaiTool("Tests and Quizzes");
+//			categories.add(im);
+//		}
 		Node topLevelItem;
 		List topLevelItems = manifestHelper.getTopLevelItemNodes(this.archiveManifest);
 		for(Iterator i = topLevelItems.iterator(); i.hasNext(); ) {
@@ -63,6 +87,7 @@ public class CommonCartridgeFileParser extends IMSFileParser {
 			im.setId(itemHelper.getId(topLevelItem));
 			im.setLegacyTool(itemHelper.getTitle(topLevelItem));
 			im.setMandatory(false);
+			im.setFileName(".xml");
 			im.setSakaiServiceName("ContentHostingService");
 			im.setSakaiTool("Resources");
 			categories.add(im);
@@ -119,7 +144,7 @@ public class CommonCartridgeFileParser extends IMSFileParser {
 		}
 
 		public String getTitle(Node itemNode) {
-			return XPathHelper.getNodeValue("./@title",itemNode);
+			return XPathHelper.getNodeValue("./title",itemNode);
 		}
 
 		public String getDescription(Node itemNode) {
@@ -145,6 +170,12 @@ public class CommonCartridgeFileParser extends IMSFileParser {
 		}
 
 		public List getTopLevelItemNodes(Document manifest) {
+			List items = XPathHelper.selectNodes("//organization/item", manifest);
+			if (items != null && items.size() > 1) return items;
+			
+			items = XPathHelper.selectNodes("//organization/item/item", manifest);
+			if (items != null && items.size() > 1) return items;
+			
 			return XPathHelper.selectNodes("//organization/item/item/item", manifest);
 		}
 		
@@ -152,7 +183,7 @@ public class CommonCartridgeFileParser extends IMSFileParser {
 	
 	protected class CCFileHelper extends FileHelper {
 		
-		public String getFilePathForNode(Node node) {
+		public String getFilePathForNode(Node node, String basePath) {
 			return XPathHelper.getNodeValue("./@href", node);
 		}
 	}

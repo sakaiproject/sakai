@@ -6,11 +6,11 @@ import org.w3c.dom.Node;
 
 public interface ManifestFile {
 	
-	String getFilePathForNode(Node fileNode);
+	String getFilePathForNode(Node fileNode, String basePath);
 	
 	String getFilenameForNode(Node fileNode);
 	
-	byte[] getFileBytesForNode(Node fileNode) throws IOException;
+	byte[] getFileBytesForNode(Node fileNode, String basePath) throws IOException;
 	
 	String getTitle(Node fileNode);
 

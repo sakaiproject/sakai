@@ -88,7 +88,14 @@ public abstract class IMSFileParser extends ZipFileParser {
 	protected Collection translateFromNodeToImportables(Node node, String contextPath, Importable parent) {
 		Collection branchOfImportables = new ArrayList();
 		String tag = node.getNodeName();
-		String itemResourceId = itemHelper.getResourceId(node);
+		String itemResourceId = null;
+		if ("item".equals(tag)) {
+			itemResourceId = itemHelper.getResourceId(node);
+		} else if ("resource".equals(tag)) {
+			itemResourceId = resourceHelper.getId(node);
+		} else if ("file".equals(tag)) {
+			itemResourceId = resourceHelper.getId(node.getParentNode());
+		}
 		Document resourceDescriptor = resourceHelper.getDescriptor(manifestHelper.getResourceForId(itemResourceId, this.archiveManifest));
 		if (resourceHelper.isFolder(resourceDescriptor) || 
 	  		    ("item".equals(tag) && (XPathHelper.selectNodes("./item", node).size() > 0)) ||
@@ -124,6 +131,10 @@ public abstract class IMSFileParser extends ZipFileParser {
 			// this item is a leaf, so we handle the resource associated with it
 			Node resourceNode = manifestHelper.getResourceForId(itemResourceId, this.archiveManifest);
   			if (resourceNode != null) {
+  				if (parent == null) {
+  					parent = new Folder();
+  					parent.setLegacyGroup(itemHelper.getTitle(node));
+  				}
   				branchOfImportables.addAll(
   						translateFromNodeToImportables(resourceNode,contextPath, parent));
   			}
@@ -131,21 +142,21 @@ public abstract class IMSFileParser extends ZipFileParser {
 			FileResource file = new FileResource();
 			try {
 				String fileName = fileHelper.getFilenameForNode(node);
-				file.setFileName(fileName);
+ 				file.setFileName(fileName);
 				// If 
 				if (node.getParentNode().getChildNodes().getLength() > 1) {
 					file.setDescription("");
 				} else file.setDescription(resourceHelper.getDescription(node.getParentNode()));
-				file.setFileBytes(fileHelper.getFileBytesForNode(node));
-				file.setDestinationResourcePath(contextPath + fileName);
+				file.setFileBytes(fileHelper.getFileBytesForNode(node, contextPath));
+				file.setDestinationResourcePath(fileHelper.getFilePathForNode(node, contextPath));
 				file.setContentType(this.mimeTypes.getContentType(fileName));
 				file.setTitle(fileHelper.getTitle(node));
 				if(parent != null) {
 					file.setParent(parent);
 					file.setLegacyGroup(parent.getLegacyGroup());
-				} else file.setLegacyGroup(fileHelper.getTitle(node));
+				} else file.setLegacyGroup("");
 			} catch (IOException e) {
-				e.printStackTrace();
+				resourceMap.remove(resourceHelper.getId(node.getParentNode()));
 				return branchOfImportables;
 			}
 			branchOfImportables.add(file);
@@ -154,9 +165,11 @@ public abstract class IMSFileParser extends ZipFileParser {
 		} else if("resource".equals(tag)) {
 			// TODO handle a resource node
 			Importable resource = null;
+			boolean processResourceChildren = true;
 			IMSResourceTranslator translator = (IMSResourceTranslator)translatorMap.get(resourceHelper.getType(node));
 			if (translator != null) {
 				resource = translator.translate(node, resourceHelper.getDescriptor(node), contextPath, this.pathToData);
+				processResourceChildren = translator.processResourceChildren();
 			}
 			if (resource != null) {
 				if (parent != null) {
@@ -166,10 +179,14 @@ public abstract class IMSFileParser extends ZipFileParser {
 				branchOfImportables.add(resource);
 				parent = resource;
 			}
-			NodeList children = node.getChildNodes();
-	  		for (int i = 0;i < children.getLength();i++) {
-	  			branchOfImportables.addAll(translateFromNodeToImportables(children.item(i), contextPath, parent));
-	  			}
+			// processing the child nodes implies that their files can wind up in the Resources tool.
+			// this is not always desireable, such as the QTI files from assessments.
+			if (processResourceChildren) {
+				NodeList children = node.getChildNodes();
+		  		for (int i = 0;i < children.getLength();i++) {
+		  			branchOfImportables.addAll(translateFromNodeToImportables(children.item(i), contextPath, parent));
+		  			}
+			}
 			resourceMap.remove(itemResourceId);
 		}
 		return branchOfImportables;
@@ -209,11 +226,15 @@ public abstract class IMSFileParser extends ZipFileParser {
 	
 	protected abstract class FileHelper implements ManifestFile {
 		
-		public byte[] getFileBytesForNode(Node node) throws IOException {
-			String filePath = getFilePathForNode(node);
+		public byte[] getFileBytesForNode(Node node, String contextPath) throws IOException {
+			String filePath = getFilePathForNode(node, contextPath);
 			return getBytesFromFile(new File(pathToData + "/" + filePath));
 		}
 		
+		public String getFilePathForNode(Node node, String contextPath) {
+			return contextPath + "/" + getFilenameForNode(node);
+		}
+
 		public String getTitle(Node fileNode) {
 			// if the resource that this file belongs to has multiple files,
 			// we just want to use the filename as the title

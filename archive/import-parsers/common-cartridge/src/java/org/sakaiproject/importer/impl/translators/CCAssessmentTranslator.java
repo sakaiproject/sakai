@@ -20,4 +20,8 @@ public class CCAssessmentTranslator implements IMSResourceTranslator {
 		return rv;
 	}
 
+	public boolean processResourceChildren() {
+		return false;
+	}
+
 }

@@ -8,5 +8,7 @@ public interface IMSResourceTranslator {
 	public Importable translate(Node resourceNode, Document descriptor, String contextPath, String archiveBasePath);
 	
 	public String getTypeName();
+	
+	public boolean processResourceChildren();
 
 }
