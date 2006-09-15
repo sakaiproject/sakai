@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/podcasts/trunk/podcasts-impl/impl/src/java/org/sakaiproject/component/app/podcasts/PodcastComparator.java $
- * $Id: PodcastComparator.java 8802 2006-05-03 15:06:26Z josrodri@iupui.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.

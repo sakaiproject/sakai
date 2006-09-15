@@ -1,5 +1,5 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/podcasts/trunk/podcasts-app/src/java/org/sakaiproject/tool/podcasts/podOptionsBean.java $
+ * $URL$
  * $Id: podOptionsBean.java 14691 2006-09-15 12:36:27Z josrodri@iupui.edu$
  ***********************************************************************************
  *

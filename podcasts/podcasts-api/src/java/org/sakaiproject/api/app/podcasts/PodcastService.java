@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/podcasts/trunk/podcasts-api/src/java/org/sakaiproject/api/app/podcasts/PodcastService.java $
- * $Id: PodcastService.java 8802 2006-05-03 15:06:26Z josrodri@iupui.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2006 The Sakai Foundation.
