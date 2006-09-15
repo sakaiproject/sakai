@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -5044,6 +5045,46 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return new ContentHostingComparator(property, ascending);
 	}
 
+	/**
+	 * Return a map of Worksite collections roots that the user has access to.
+	 * 
+	 * @return Map of worksite resource root id (String) to worksite title (String) 
+	 */
+	public Map getCollectionMap()
+	{
+		// the return map
+		Map rv = new HashMap();
+
+		// get the sites the user has access to
+		List mySites = m_siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null, null,
+				org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
+
+		// check each one for dropbox and resources
+		for (Iterator i = mySites.iterator(); i.hasNext();)
+		{
+			Site site = (Site) i.next();
+
+			// test dropbox
+			if (site.getToolForCommonId("sakai.dropbox") != null)
+			{
+				String collectionId = getDropboxCollection(site.getId());
+				String title = site.getTitle() + " " + rb.getString("gen.drop");
+				rv.put(collectionId, title);
+			}
+
+			// test resources
+			if (site.getToolForCommonId("sakai.resources") != null)
+			{
+			
+				String collectionId = getSiteCollection(site.getId());
+				String title = site.getTitle() + " " + rb.getString("gen.reso");
+				rv.put(collectionId, title);
+			}
+		}
+
+		return rv;
+	}
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * EntityProducer implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -7199,7 +7240,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		List globalList = new ArrayList();
 
-		Map othersites = CollectionUtil.getCollectionMap();
+		Map othersites = getCollectionMap();
 		Iterator siteIt = othersites.keySet().iterator();
 		while (siteIt.hasNext())
 		{
@@ -7210,25 +7251,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 
 		return globalList;
-	}
-
-	/**
-	 * Return a map of Worksite collections roots that the user has access to.
-	 * 
-	 * @return Map of worksite resource root id (String) to worksite title (String) 
-	 */
-	public Map getCollectionMap()
-	{
-		/*
-		List sites = m_siteService.getSites("",null,"",new Hashtable(), SortType.TITLE_ASC, new PagingPosition());
-		Iterator siteIt = sites.iterator();
-		while(siteIt.hasNext())
-		{
-			Site site = (Site) siteIt.next();
-			
-		}
-		*/
-		return CollectionUtil.getCollectionMap();
 	}
 
 	/**
