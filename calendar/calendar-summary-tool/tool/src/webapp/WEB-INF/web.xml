@@ -12,19 +12,19 @@
 	</context-param>
 
 	<context-param>
-		<param-name>com.sun.faces.validateXml</param-name>
-		<param-value>false</param-value>
+		<!-- Changed ordering to meet DTD - PAFH 8/24/2006 -->
 		<description>
 			Set this flag to true if you want the JavaServer Faces
 			Reference Implementation to validate the XML in your
 			faces-config.xml resources against the DTD. Default value is
 			false.
 		</description>
+		<param-name>com.sun.faces.validateXml</param-name>
+		<param-value>false</param-value>
 	</context-param>
 
 	<context-param>
-		<param-name>com.sun.faces.verifyObjects</param-name>
-		<param-value>false</param-value>
+		<!-- Changed ordering to meet DTD - PAFH 8/24/2006 -->
 		<description>
 			Set this flag to true if you want the JavaServer Faces
 			Reference Implementation to verify that all of the
@@ -32,6 +32,8 @@
 			converters, renderers, and validators) can be successfully
 			created. Default value is false.
 		</description>
+		<param-name>com.sun.faces.verifyObjects</param-name>
+		<param-value>false</param-value>
 	</context-param>
 
 	<!-- MyFaces 1.0.9 support -->
