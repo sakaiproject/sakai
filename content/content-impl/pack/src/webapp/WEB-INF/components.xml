@@ -29,9 +29,9 @@
  		<property name="siteQuota"><value>1048576</value></property>
  		<property name="availabilityChecksEnabled"><value>true</value></property>
  		<!--
- 		<property name="prioritySortEnabled"><value>true</value></property>
- 		-->
-	</bean>
+  		<property name="prioritySortEnabled"><value>true</value></property>
+  		-->
+ 	</bean>
 
 	<bean id="org.sakaiproject.content.api.ContentTypeImageService"
 			class="org.sakaiproject.content.impl.BasicContentTypeImageService"

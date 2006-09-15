@@ -463,6 +463,17 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	}
 
 	/**
+	 * Configuration: set a flag indicating whether custom sort order based on "priority" is enabled
+	 * 
+	 * @param value
+	 *        The value indicating whether custom sort order is enabled.
+	 */
+	public String getPrioritySortEnabled()
+	{
+		return Boolean.toString(m_prioritySortEnabled);
+	}
+
+	/**
 	 * Access flag indicating whether sorting by "priority" is enabled.
 	 * @return true if the custom sort by priority is enabled, false otherwise.
 	 */ 
