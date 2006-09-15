@@ -102,6 +102,29 @@
 	</bean>
 -->
 
+<!-- Uncomment and configure to use the Federating UserDirectoryProvider.
+
+   <bean
+  		id="org.sakaiproject.user.api.UserDirectoryProvider"
+  		class="org.sakaiproject.provider.user.FilterUserDirectoryProvider"
+  		init-method="init" destroy-method="destroy" singleton="true">
+  		<property name="myProvider">
+  			<ref bean="org.sakaiproject.user.api.UserDirectoryProvider.provider1" />
+  		</property>
+  		<property name="nextProvider">
+  			<ref bean="org.sakaiproject.user.api.UserDirectoryProvider.chain1" />
+  		</property>
+  	</bean>
+  	<bean
+  		id="org.sakaiproject.user.api.UserDirectoryProvider.chain1"
+  		class="org.sakaiproject.provider.user.FilterUserDirectoryProvider"
+  		init-method="init" destroy-method="destroy" singleton="true">
+  		<property name="myProvider">
+  			<ref bean="org.sakaiproject.user.api.UserDirectoryProvider.provider2" />
+  		</property>
+  	</bean>
+ -->
+ 
 	<!--
 		CourseManagement-backed Group and Course Providers
 
