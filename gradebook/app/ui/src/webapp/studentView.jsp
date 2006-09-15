@@ -58,7 +58,7 @@
 					</f:facet>
 
 					<h:outputText value="#{row.assignment.dueDate}" rendered="#{row.assignment.dueDate != null}">
-						<f:convertDateTime />
+						<gbx:convertDateTime />
 					</h:outputText>
 					<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{row.assignment.dueDate == null}"/>
 				</h:column>

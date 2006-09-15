@@ -58,7 +58,9 @@
 		            </x:commandSortHeader>
 		        </f:facet>
 
-				<h:outputText value="#{gradableObject.dueDate}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate != null}"/>
+				<h:outputText value="#{gradableObject.dueDate}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate != null}">
+                    <gbx:convertDateTime/>
+                </h:outputText>
 				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate == null}"/>
 			</h:column>
 

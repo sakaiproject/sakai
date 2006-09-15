@@ -9,4 +9,10 @@
 		<component-type>org.sakaiproject.tool.gradebook.jsf.dhtmlpopup</component-type>
 		<component-class>org.sakaiproject.tool.gradebook.jsf.dhtmlpopup.DhtmlPopupComponent</component-class>
 	</component>
+
+    <converter>
+       <converter-id>org.sakaiproject.tool.gradebook.jsf.convertDateTime.DateTimeConverter</converter-id>
+       <converter-class>org.sakaiproject.tool.gradebook.jsf.convertDateTime.DateTimeConverter</converter-class>
+    </converter>
+
 </faces-config>
