@@ -6,9 +6,10 @@
     <!-- Base Hibernate SessionFactory -->
     <bean id="org.springframework.orm.hibernate.PostemSessionFactory" 
         class="org.springframework.orm.hibernate.LocalSessionFactoryBean">
-        <property name="dataSource">
+        <!-- The reference does not exist - commmented out - PAFH 8/30/2006 -->
+        <!-- property name="dataSource">
             <ref local="postem.javax.sql.DataSource" />
-        </property>
+        </property -->
         <property name="mappingResources">
             <list>            	
             	<value>org/sakaiproject/component/postem/data/GradebookImpl.hbm.xml</value>
