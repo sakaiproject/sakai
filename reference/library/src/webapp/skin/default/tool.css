@@ -445,8 +445,8 @@ tr#selectedReorder{
 }
 
 tr#selectedReorder:hover{
-	color: #000; !important
-	background: #fe6; !important
+	color: #000 !important;
+	background: #fe6 !important;
 }
 tr#selectedReorder h4{
 	font-weight:bold;
