@@ -30,7 +30,7 @@
 	  </classpath>
 	</taskdef>
         <copy file="hibernate.properties"
-          tofile="${basedir}/component/target/classes/hibernate.properties"
+          tofile="${basedir}/samigo-hibernate/target/classes/hibernate.properties"
           overwrite="true"
           verbose="true" 
         />
@@ -40,7 +40,7 @@
 		  	  delimiter=";"
 		  	  output="schema-export.sql">
 
-	  <fileset dir="${basedir}/component/src/java/org/sakaiproject/tool/assessment/data/dao">
+	  <fileset dir="${basedir}/samigo-hibernate/src/java/org/sakaiproject/tool/assessment/data/dao">
 		<include name="assessment/AssessmentBase.hbm.xml" />
 		<include name="assessment/ItemData.hbm.xml" />
 		<include name="assessment/PublishedAssessment.hbm.xml" />

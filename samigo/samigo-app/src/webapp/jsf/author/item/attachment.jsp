@@ -1,8 +1,19 @@
+<!-- JAVASCRIPT -->
+<script language="javascript" type="text/JavaScript">
+
+function getMimeIcon(String mimeType){
+  return "http://sakai-l.stanford.edu:8080/samigo/images/pdf.gif"
+}
+</script>
+
 <!-- 2a ATTACHMENTS -->
  <div class="longtext"><h:outputLabel value="#{msg.attachments}" />
   <br/>
   <h:panelGroup rendered="#{itemauthor.hasAttachment}">
     <h:dataTable value="#{itemauthor.attachmentList}" var="attach">
+      <h:column>
+        <h:graphicImage value="javascript:getMimeIcon(\"#{attach.mimeType}\");" />
+      </h:column>
       <h:column>
         <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
         <h:outputLink value="#{attach.location}"
