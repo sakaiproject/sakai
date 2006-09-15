@@ -32,16 +32,18 @@
     </listener>
     
   <servlet>
-    <servlet-name>AxisServlet</servlet-name>
+    <!-- Changed ordering - PAFH 8/24/2006 -->
     <display-name>Apache-Axis Servlet</display-name>
+    <servlet-name>AxisServlet</servlet-name>
     <servlet-class>
         org.apache.axis.transport.http.AxisServlet
     </servlet-class>
   </servlet>
 
   <servlet>
-    <servlet-name>AdminServlet</servlet-name>
+    <!-- Changed ordering - PAFH 8/24/2006 -->
     <display-name>Axis Admin Servlet</display-name>
+    <servlet-name>AdminServlet</servlet-name>
     <servlet-class>
         org.apache.axis.transport.http.AdminServlet
     </servlet-class>
@@ -49,8 +51,9 @@
   </servlet>
 
   <servlet>
-    <servlet-name>SOAPMonitorService</servlet-name>
+    <!-- Changed ordering - PAFH 8/24/2006 -->
     <display-name>SOAPMonitorService</display-name>
+    <servlet-name>SOAPMonitorService</servlet-name>
     <servlet-class>
         org.apache.axis.monitor.SOAPMonitorService
     </servlet-class>
