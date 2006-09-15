@@ -1,20 +1,39 @@
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2006 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
 package org.sakaiproject.portal.charon;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.sun.org.apache.xalan.internal.xsltc.runtime.Hashtable;
-
 public class SessionRequestHolder
 {
-
 	private Hashtable headers;
 
 	private String contextPath;
@@ -25,8 +44,7 @@ public class SessionRequestHolder
 
 	private Map parameterMap;
 
-	public SessionRequestHolder(HttpServletRequest request, String marker,
-			String replacement)
+	public SessionRequestHolder(HttpServletRequest request, String marker, String replacement)
 	{
 		headers = new Hashtable();
 		Enumeration e = request.getHeaderNames();
@@ -43,11 +61,13 @@ public class SessionRequestHolder
 		}
 		Map m = request.getParameterMap();
 		parameterMap = new HashMap();
-		for ( Iterator i = m.keySet().iterator(); i.hasNext(); ) {
+		for (Iterator i = m.keySet().iterator(); i.hasNext();)
+		{
 			Object o = i.next();
-			parameterMap.put(o,m.get(o));
+			parameterMap.put(o, m.get(o));
 		}
-		contextPath = request.getContextPath().replace(marker, replacement);
+		// TODO: this wants to be simple java 1.5 replace(), not 1.4 regex repalceAll -ggolden
+		contextPath = request.getContextPath().replaceAll(marker, replacement);
 		method = request.getMethod();
 		queryString = request.getQueryString();
 	}
@@ -117,7 +137,6 @@ public class SessionRequestHolder
 	{
 		return method;
 	}
-
 
 	public String getQueryString()
 	{
