@@ -654,8 +654,10 @@ log.debug("item==null ");
       for (int i=0; i<mediaList.size(); i++){
 	MediaIfc m = (MediaIfc) mediaList.get(i);
         float duration = (new Float(m.getDuration())).floatValue();
-        if (duration > maxDurationAllowed)
+        if (duration > maxDurationAllowed) {
           m.setDurationIsOver(true);
+          m.setTimeAllowed(String.valueOf(maxDurationAllowed));
+        }
        	else
           m.setDurationIsOver(false);
       }
