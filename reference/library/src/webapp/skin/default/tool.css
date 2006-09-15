@@ -428,6 +428,38 @@ tr.lightHighLightRow{
 tr.selectedFound{
 	background: #cff;
 }
+
+
+
+/*when a row contained a searched for item has been found*/
+
+/*see: discussion*/
+
+tr.selectedFound{
+	background: #cff;
+}
+/*a row that is being sorted - see resources in Sakai 2.3*/
+tr#selectedReorder{
+	color: #000;
+	background: #fe6;
+}
+
+tr#selectedReorder:hover{
+	color: #000; !important
+	background: #fe6; !important
+}
+tr#selectedReorder h4{
+	font-weight:bold;
+}
+
+tr td.arrowHere{
+	width: 14px
+}
+
+tr#selectedReorder td.arrowHere{
+	background: url(images/arrowhere.gif) center .5em no-repeat
+}
+
 /*skinned info for disclosure toggle*/
 /*see: assignment*/
 .discTria{
