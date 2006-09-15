@@ -125,13 +125,7 @@
 			</properties>   
      </dependency>
 
-    <dependency>
-       <groupId>sakaiproject</groupId>
-       <artifactId>sakai-util</artifactId>
-       <version>${sakai.version}</version>
-     </dependency>
-
-	</dependencies>
+ </dependencies>
 
 	<!-- needed so it will compile the java files,
 		process the properties bundles,

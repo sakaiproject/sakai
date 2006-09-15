@@ -44,7 +44,7 @@
        <url-pattern>/site/*</url-pattern>
     </servlet-mapping>
   
-  <security-constraint>
+<!--  <security-constraint>
 		<web-resource-collection>
 			<web-resource-name>Sakai Podcast Feed Servlet</web-resource-name>
 			<url-pattern>/site/*</url-pattern>
@@ -67,6 +67,7 @@
 		</description>
 		<role-name>tomcat</role-name>
 	</security-role>
+-->
 
 	<!-- the RequestFilter works with JsfTool to intercept requests -->
     <filter>
@@ -89,13 +90,10 @@
     <filter>
         <filter-name>sakai.request</filter-name>
         <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
-<!--        <init-param>
-          <param-name>upload.enabled</param-name>
-        	  <param-value>true</param-value>
-        </init-param> -->
      </filter>
   <filter-mapping>
-        <filter-name>sakai.request</filter-name>
+
+    <filter-name>sakai.request</filter-name>
         <servlet-name>podcasts</servlet-name>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>

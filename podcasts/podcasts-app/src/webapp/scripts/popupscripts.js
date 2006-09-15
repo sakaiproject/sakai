@@ -35,10 +35,13 @@ function getAbsolutePos(el) {
 //-----------------------------------------------------------------------
 function showPopupHere(el,divid) {
   var targetdiv;
+//  var podcast_info;
   if ( document.all ) {
     targetdiv = document.all[divid];
+//    podcast_info = document.all["podcast_info"];
   } else {
 	targetdiv = document.getElementById(divid);
+//	podcast_info = document.getElementById("podcast_info");
   }
 		
   if ( targetdiv != null ) {
@@ -48,20 +51,25 @@ function showPopupHere(el,divid) {
 
     // Need to adjust position given
     if (document.all) { 
+    
        // For IE, need to adjust both
        pos.y -= (height * 2.7);
        pos.x -= (width * .3);
+
     }
     else {
        // For non-IE
        //    just adjust the height by offsetHeight of element */
        pos.y += height;
+ 
     }
     
     targetdiv.style.top = pos.y+"px ";
     targetdiv.style.left = pos.x+"px ";
     targetdiv.style.bgolor = "#cccccc";		    
-    targetdiv.style.visibility = "visible";
+//    targetdiv.style.visibility = "visible";
+    
+//    podcast_info.style.visibility = "visible";
   } else {
     alert('problem: ' + targetdiv.innerHTML);
   }
@@ -75,6 +83,7 @@ function showPopupHere(el,divid) {
 //-----------------------------------------------------------------------
 function hidePopup(divid) {
   var targetdiv;
+  var podcast_info;
   if ( document.all ) {
       targetdiv = document.all[divid];
   } else {
@@ -82,7 +91,9 @@ function hidePopup(divid) {
   }    
 
   if ( targetdiv != null ) {
-    targetdiv.style.visibility = "hidden";		
+    targetdiv.style.top = "-1000px ";
+    targetdiv.style.left = "-1000px ";
   }
+  
 }
 -->

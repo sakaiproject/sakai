@@ -1,56 +1,62 @@
-  <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-  <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-  <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
-  <% response.setContentType("text/html; charset=UTF-8"); %>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<% response.setContentType("text/html; charset=UTF-8"); %>
 
 <f:loadBundle basename="org.sakaiproject.tool.podcasts.bundle.Messages" var="msgs"/>
 
-  <f:view>
-    <sakai:view>
-        <link href="./css/podcaster.css" type="text/css" rel="stylesheet" media="all" />
+   <f:view> 
+     <sakai:view> 
 
-        <script type="text/javascript" language="JavaScript" src="scripts/popupscripts.js"></script>
-    <h:form>
+       <link href="./css/podcaster.css" type="text/css" rel="stylesheet" media="all" />
+
+       <script type="text/javascript" language="JavaScript" src="scripts/popupscripts.js"></script>
+
+  
+      <h:form>
+      <h:panelGroup rendered="#{podHomeBean.resourceToolExists && podHomeBean.canUpdateSite}" >
       <sakai:tool_bar>
-          <sakai:tool_bar_item action="podcastAdd" value="#{msgs.add}" rendered="#{podHomeBean.resourceToolExists && podHomeBean.canUpdateSite}" />
-          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" rendered="#{podHomeBean.resourceToolExists && podHomeBean.canUpdateSite}" />
-          <sakai:tool_bar_item action="podcastPermissions" value="#{msgs.permissions}" rendered="#{podHomeBean.resourceToolExists && podHomeBean.canUpdateSite}" />
+          <sakai:tool_bar_item action="podcastAdd" value="#{msgs.add}"  />
+          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" />
       </sakai:tool_bar>
-
+      </h:panelGroup>
+      
  	  <div>
-		  <h:messages styleClass="alertMessage" id="errorMessages"/> 
+ 	  	  <h:messages styleClass="alertMessage" id="errorMessages"/> 
  	      <h3><h:outputText value="#{msgs.podcast_home_title}" /></h3>
- 	     <div styleClass="instruction" class="indnt1">
+ 	     <div class="instruction indnt1">
             <h:outputText value="#{msgs.podcast_home_sub}" />
  
-            <span onmouseover="showPopupHere(this,'podcatcher'); return false;" 
- 	              onmouseout="hidePopup('podcatcher');" style="color: #0099cc;" class="active">
- 	           <h:outputText value="#{msgs.podcatcher}" />
+            <span onClick="showPopupHere(this,'podcatcher'); return false;"
+            	     onMouseOver="this.style.cursor='pointer'; return false;"
+ 	              onMouseOut="hidePopup('podcatcher');" class="active">
+	             <h:outputText value="#{msgs.podcatcher}#{msgs.colon}" />
+				<%-- <h:outputText value="#{msgs.colon}" /> --%>
  	        </span>
+ 	            
+	     </div>
+ 	     <br />
 
- 	     </div>
- 	     <br />
- 	     <b class="indnt1"><h:outputText value="#{podHomeBean.URL}" /></b>
+ 	       <h:outputText value="#{podHomeBean.URL}" styleClass="indnt1" />
+     
+         <h:outputLink value="#{podHomeBean.URL}" styleClass="nolines" target="_blank"> 
+ 	       <h:graphicImage value="images/rss-feed-icon.png" styleClass="indnt1 rssIcon" width="25px" height="25px" />
+         </h:outputLink>
+         <br />
  	     
-  	     <h:outputLink value="#{podHomeBean.URL}" styleClass="indnt1" >
-   	       <h:graphicImage value="images/rss20.gif"  />
-		</h:outputLink>
- 	     <br />
- 	     
- 	     <h:commandLink action="podfeedRevise" styleClass="indnt1" >
+ 	     <h:commandLink action="podfeedRevise" styleClass="indnt2" rendered="#{podHomeBean.canUpdateSite}" >
  	         <h:outputText value="#{msgs.revise}" />
  	     </h:commandLink>
- 	  </div>
+ 	  </div> 
 
-      <div class="indnt1" style="position:relative; top:20px;">
+    <div class="indnt1 moveUp">
          <h:outputText  styleClass="instruction" value="#{msgs.no_podcasts}" 
                 rendered="#{podHomeBean.podcastFolderExists && !podHomeBean.actPodcastsExist}" />
-      </div>
+    </div>
  
-	  <!-- TODO: if there are podcasts, display their information here 
-	     or possibly return this part from previous tag -->
-      <div class="indnt1" style="position:relative; top:20px;">
-      <h:dataTable value="#{podHomeBean.contents}" var="eachPodcast"  rendered="#{podHomeBean.actPodcastsExist}" >
+	<!-- if there are podcasts, display their information here -->
+    <div id="podcast_info" class="indnt1 moveUp" >
+      <h:dataTable value="#{podHomeBean.contents}" var="eachPodcast" rendered="#{podHomeBean.actPodcastsExist}" >
         <h:column>
             <h:outputText value="#{eachPodcast.displayDate}" styleClass="podDateFormat" />
 			<f:verbatim><br /></f:verbatim>
@@ -61,20 +67,22 @@
             <h:outputText value="#{eachPodcast.description}" styleClass="podDescFormat" />
 			<f:verbatim><br /></f:verbatim>
             
-            <!--  Download link -->
+            <%--  Download link --%>
             <f:verbatim><div class="podLinksPosition" ></f:verbatim>
 
-            <!--  7/17/06 Hack to fix if spaces in name. 
+            <%--  7/17/06 Hack to fix if spaces in name. 
                   TODO: redo correctly
                   Below is correct JSP. Problem is when rendering what's sent from bean
             		 it escapes spaces which causes link to fail  
             h:outputLink value="#{eachPodcast.fileURL}" styleClass="active" 
                  h:outputText value="#{msgs.download}" 
-            h:outputLink> -->
+            h:outputLink> --%>
  
  			 <f:verbatim><a href="</f:verbatim>
  			 <h:outputText value="#{eachPodcast.fileURL}" />
- 			 <f:verbatim>" class="active" alt="Download the file" ></f:verbatim>
+ 			 <f:verbatim>" class="active" alt="Download the file" target="</f:verbatim>
+ 			 <h:outputText value="#{eachPodcast.newWindow}" />
+ 			 <f:verbatim>" > </f:verbatim>
  			 
  			 <h:outputText value="#{msgs.download} " />
  			 
@@ -83,10 +91,10 @@
               <h:outputText value=" #{msgs.open_paren}" />
               <h:outputText value="#{eachPodcast.size}" />
             
-              <h:outputText value=" " /> <!--  type -->
+              <h:outputText value=" " /> <%--  type --%>
               <h:outputText value="#{eachPodcast.type}" />
 
-              <!--  go to Revise page -->
+              <%--  go to Revise page --%>
               <h:outputText value="#{msgs.close_paren}" /><h:outputText value=" " />
               <h:outputText value=" #{msgs.spacer_bar}" rendered="#{podHomeBean.canUpdateSite}" />
               <h:commandLink action="podcastRevise" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.revise}" styleClass="active" 
@@ -94,7 +102,7 @@
                 <f:param name="resourceId" value="#{eachPodcast.resourceId}" />
               </h:commandLink>
                  
-              <!--  go to Delete page --> 
+              <%--  go to Delete page --%> 
               <h:outputText value="#{msgs.spacer_bar}" rendered="#{podHomeBean.canUpdateSite}" />
               <h:commandLink action="podcastDelete" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.delete}" styleClass="active" 
                     rendered="#{podHomeBean.canUpdateSite}" >
@@ -113,14 +121,15 @@
             
         </h:column>
       </h:dataTable>
-      </div>
+    </div>
  
     </h:form>
-  </sakai:view>
+   </sakai:view>
   
-  <!-- This is the div for the popup definition. It is not displayed until the element is moused over -->
+    <!-- This is the div for the popup definition. It is not displayed until the element is moused over -->
     <div id="podcatcher" class="podcatcher_popup" 
-        style="position:absolute; top: -1000px; left: -1000px; visibility:hidden;">
+        style="position:absolute; top: -1000px; left: -1000px;" >
   	  <h:outputText value="#{msgs.popup_text}" />
     </div>
-</f:view>
+  </f:view> 
+ 

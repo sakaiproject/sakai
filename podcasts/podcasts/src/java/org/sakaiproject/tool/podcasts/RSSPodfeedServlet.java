@@ -1,10 +1,29 @@
+/**********************************************************************************
+ * $URL: https://source.sakaiproject.org/svn/syllabus/tags/sakai_2-2-001/syllabus-api/src/java/org/sakaiproject/api/app/syllabus/SyllabusService.java $
+ * $Id: RSSPodfeedServlet.java 8802 2006-05-03 15:06:26Z josrodri@iupui.edu $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
+
 package org.sakaiproject.tool.podcasts;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.security.Principal;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -12,189 +31,271 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.podcasts.PodcastService;
+import org.apache.xerces.impl.dv.util.Base64;
 import org.sakaiproject.api.app.podcasts.PodfeedService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.dav.DavPrincipal;
-import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.user.api.Authentication;
-import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.cover.AuthenticationManager;
 import org.sakaiproject.util.IdPwEvidence;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 public class RSSPodfeedServlet extends HttpServlet {
-	private static final String RESPONSE_MIME_TYPE="application/xml; charset=UTF-8";
-	private static final String FEED_TYPE = "type";
-	
-	private PodfeedService podfeedService;
-	private Log LOG = LogFactory.getLog(RSSPodfeedServlet.class);
-	
-	/**
-	 * Constructor of the object.
-	 */
-	public RSSPodfeedServlet() {
-		super();
-	}
+	/** Used to set the MIME type of the response back to the client **/
+	private static final String RESPONSE_MIME_TYPE = "application/xml; charset=UTF-8";
 
-	/**
-	 * Destruction of the servlet. <br>
-	 */
-	public void destroy() {
-		super.destroy(); // Just puts "destroy" string in log
-		// Put your code here
-	}
+	/** Used to track the event of generating a public feed **/
+	private final String EVENT_PUBLIC_FEED = "podcast.generate.public";
+	
+	/** Used to track the event of generating a private feed **/
+	private final String EVENT_PRIVATE_FEED = "podcast.generate.private";
+	
+	/** FUTURE DEVELOPMENT: set to pass in feed type as a parameter with name 'type' **/ 
+	private static final String FEED_TYPE = "type";
+
+	private PodfeedService podfeedService;
+
+	private final Log LOG = LogFactory.getLog(RSSPodfeedServlet.class);
 
 	/**
 	 * The doGet method of the servlet. <br>
-	 *
+	 * 
 	 * This method is called when a form has its tag value method equals to get.
 	 * 
-	 * @param request the request send by the client to the server
-	 * @param response the response send by the server to the client
-	 * @throws ServletException if an error occurred
-	 * @throws IOException if an error occurred
+	 * @param request
+	 *            the request send by the client to the server
+	 * @param response
+	 *            the response send by the server to the client
+	 * @throws ServletException
+	 *             if an error occurred
+	 * @throws IOException
+	 *             if an error occurred
 	 */
-	public void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		
+	public void doGet(final HttpServletRequest request,
+			final HttpServletResponse response) throws ServletException,
+			IOException {
+
+		// get requested URL in attempt to extract siteId
 		String reqURL = request.getPathInfo();
-		String siteID;
-		
+		String siteId;
+
 		if (reqURL != null) {
-			siteID = reqURL.substring(reqURL.lastIndexOf("/") + 1);
-		}
+			siteId = reqURL.substring(reqURL.lastIndexOf("/") + 1);
+		} 
 		else {
+			// could not get it from request URL, try URI
 			reqURL = request.getRequestURI();
-			
-			siteID = reqURL.substring(1, reqURL.lastIndexOf("/"));
+
+			siteId = reqURL.substring(1, reqURL.lastIndexOf("/"));
 		}
 
-		String siteCollection = ContentHostingService.getSiteCollection(siteID);
-		String podcastsCollection = siteCollection + PodcastService.COLLECTION_PODCASTS + Entity.SEPARATOR;
+		LOG.debug("Podcast feed requested for site: " + siteId);
 
-		if (! ContentHostingService.isPubView(podcastsCollection)) {
-			// Authentication madness:
-			//  1. Determine if resource if public/private ("default" - public)
-			//  2. if private, was username/password sent with request?
-			//  3.     if so, authenticate
-			//  4.     if successful, in you go, if not -> 403 response
-			//  5. if no username/password, 403 response
-			//  6. if public, on you go
-		
-			// try to authenticate based on a Principal (one of ours) in the req
-			Principal prin = (DavPrincipal) request.getUserPrincipal();
-			String username;
-		
-			if ((prin != null) && (prin instanceof DavPrincipal))
-			{
-				String eid = prin.getName();
-				String pw = ((DavPrincipal) prin).getPassword();
-				Evidence e = new IdPwEvidence(eid, pw);
+		// get podcast folder id to determine if public/private
+		final String podcastsCollection = podfeedService.retrievePodcastFolderId(siteId);
+
+		// if error finding podcast folder id, will return null, so return
+		// Internal Server Error message back to client
+		if (podcastsCollection == null) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
+			return;
+		}
+
+		// Determine if resource if public/private ("default" - public)
+		final boolean pubView = ContentHostingService
+				.isPubView(podcastsCollection);
+
+		if (!pubView) {
+
+			// if private, was username/password sent with request?
+			final Evidence e = getBasicAuthEvidence(request);
+
+			if ((e != null)) {
 
 				// authenticate
-				try
-				{
-					if ((eid.length() == 0) || (pw.length() == 0))
-					{
-						throw new AuthenticationException("missing required fields");
-					}
+				try {
+					LOG.info("Authenticating " + e);
+					final Authentication a = AuthenticationManager
+							.authenticate(e);
 
-					Authentication a = AuthenticationManager.authenticate(e);
-
-					if (!UsageSessionService.login(a, request))
-					{
-						// login failed
-						response.setHeader("WWW-Authenticate", HttpServletRequest.BASIC_AUTH + " realm=\"Podcaster\"");
-						response.sendError(401);
+					if (!UsageSessionService.login(a, request)) {
+						// login failed, so ask for auth again
+						sendErrorResponse(response);
+							
 						return;
 					}
 				}
-				catch (AuthenticationException ex)
-				{
-					// not authenticated
-					response.setHeader("WWW-Authenticate", HttpServletRequest.BASIC_AUTH + " realm=\"Podcaster\"");
-					response.sendError(401);
+				catch (final Exception exc) {
+					// something went wrong, so ask for auth again
+					sendErrorResponse(response);
+						
 					return;
 				}
 			}
-			else
-			{
-				// user name missing, so can't authenticate
-				response.setHeader("WWW-Authenticate", HttpServletRequest.BASIC_AUTH + " realm=\"Podcaster\"");
-				response.sendError(401);
+			else {
+				// user name missing, so can't authenticate, so ask for auth
+				sendErrorResponse(response);
+
 				return;
 			}
 			
+			// Authenticated, but are they members of the site
+			// accomplished by doing a check on read access to podcast folder
+			if (!podfeedService.allowAccess(podcastsCollection)) {
+				// check to access denied error
+				response.sendError(403);
+			}
 		}
-
+		
 		response.setContentType(RESPONSE_MIME_TYPE);
-		
-		// We want to generate this every time to ensure changes to the Podcast folder are put in feed "immediately"
-		String podcastFeed = podfeedService.generatePodcastRSS(PodfeedService.PODFEED_CATEGORY, "FromServlet.xml", siteID, request.getParameter(FEED_TYPE));
 
-		if (podcastFeed.equals("")) {
+		// generates actual feed, 2nd parameter for future to allow different
+		// feed types currently only rss_2.0 is generated
+		final String podcastFeed = podfeedService.generatePodcastRSS(siteId,
+				request.getParameter(FEED_TYPE));
+
+		// if problem getting feed, null will be returned so return
+		// Internal Server Error to client
+		if (podcastFeed == null || podcastFeed.equals("")) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		}
+		} 
 		else {
-			PrintWriter pw = response.getWriter();
-			pw.write(podcastFeed);
+			response.getWriter().write(podcastFeed);
+
+			// add entry for event tracking
+			Event event = null;
+			if (pubView) {
+				event = EventTrackingService.newEvent(EVENT_PUBLIC_FEED, podcastsCollection, false, NotificationService.NOTI_NONE);
+			}
+			else {
+				event = EventTrackingService.newEvent(EVENT_PRIVATE_FEED, podcastsCollection, false, NotificationService.NOTI_NONE);
+			}
+			EventTrackingService.post(event);
+
 
 		}
-		
-/*		}
-		catch (InconsistentException e) {
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		}
-*/		
+
 	}
 
 	/**
 	 * The doPost method of the servlet. <br>
-	 *
-	 * This method is called when a form has its tag value method equals to post.
 	 * 
-	 * @param request the request send by the client to the server
-	 * @param response the response send by the server to the client
-	 * @throws ServletException if an error occurred
-	 * @throws IOException if an error occurred
+	 * This method is called when a form has its tag value method equals to
+	 * post.
+	 * 
+	 * @param request
+	 *            the request send by the client to the server
+	 * @param response
+	 *            the response send by the server to the client
+	 * @throws ServletException
+	 *             if an error occurred
+	 * @throws IOException
+	 *             if an error occurred
 	 */
-	public void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+	public void doPost(final HttpServletRequest request,
+			final HttpServletResponse response) throws ServletException,
+			IOException {
 
 		doGet(request, response);
 	}
 
 	/**
 	 * Initialization of the servlet. <br>
-	 *
-	 * @throws ServletException if an error occure
+	 * 
+	 * @throws ServletException
+	 *             if an error occure
 	 */
 	public void init() throws ServletException {
-		System.out.println(this+": RSSPodfeedServlet.init()");
-		
-		ServletContext sc = this.getServletContext();
+		LOG.debug(this + ": RSSPodfeedServlet.init()");
 
-		WebApplicationContext wac = WebApplicationContextUtils.getWebApplicationContext(sc);
+		podfeedService = (PodfeedService) ComponentManager
+				.get("org.sakaiproject.api.app.podcasts.PodfeedService");
 
-		podfeedService = (PodfeedService) wac.getBean("org.sakaiproject.api.app.podcasts.PodfeedService");
-	}
-	
-	/**
-	 * @return Returns the podfeedService.
-	 */
-	public PodfeedService getPodfeedService() {
-		return podfeedService;
+		if (podfeedService == null)
+			throw new ServletException(new IllegalStateException(
+					"podfeedService == null"));
 	}
 
 	/**
-	 * @param podfeedService The podfeedService to set.
+	 * @param podfeedService
+	 *            The podfeedService to set.
 	 */
-	public void setPodfeedService(PodfeedService podfeedService) {
+	public void setPodfeedService(final PodfeedService podfeedService) {
 		this.podfeedService = podfeedService;
+	}
+
+	/**
+	 * Extracts auth information if it exists in the HTTP headers
+	 * 
+	 * @param request
+	 * 			The HttpRequest object to be searched
+	 * 
+	 * @return IdPwEvidence
+	 * 			Contains the auth information if found in request headers or null if not found
+	 */
+	private IdPwEvidence getBasicAuthEvidence(final HttpServletRequest request) {
+
+		final String header = request.getHeader("Authorization");
+		String[] elements = null;
+
+		LOG.debug("Authorization: " + header);
+
+		if (header != null)
+			elements = header.split(" ");
+
+		if (elements != null && elements.length >= 2) {
+
+			final String type = elements[0];
+			final String hash = elements[1];
+
+			LOG.debug("type: " + type + " hash: " + hash);
+
+			final String[] credential = (new String(Base64.decode(hash)))
+					.split(":");
+
+			LOG.debug("credential: " + credential);
+
+			if (credential != null && credential.length >= 2) {
+				final String eid = credential[0];
+				final String password = credential[1];
+
+				LOG.debug("eid: " + eid + " password: ********");
+
+				if ((eid.length() == 0) || (password.length() == 0)) {
+					return null;
+				}
+
+				return new IdPwEvidence(eid, password);
+
+			}
+
+		}
+
+		return null;
+
+	}
+
+	/**
+	 * If missing or invalid username/password given, return HTTP 401 to request
+	 * authentication.
+	 * 
+	 * @param response
+	 * 			The Response object so we can set headers
+	 * 
+	 * @throws IOException
+	 * 			Throw this exception back if there was a problem setting the headers
+	 */
+	private void sendErrorResponse(final HttpServletResponse response) throws IOException {
+		response.setHeader("WWW-Authenticate",
+				HttpServletRequest.BASIC_AUTH
+						+ " realm=\"Podcaster\"");
+		response.sendError(401);
+		
 	}
 
 }

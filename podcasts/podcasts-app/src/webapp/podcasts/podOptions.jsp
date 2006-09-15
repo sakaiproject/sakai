@@ -8,7 +8,6 @@
 <f:loadBundle basename="org.sakaiproject.tool.podcasts.bundle.Messages" var="msgs"/>
 
 <f:view>
-  <sakai:view>
     <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
     <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
     <link href="./css/podcaster.css" type="text/css" rel="stylesheet" media="all" />
@@ -16,20 +15,23 @@
     <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
     <script type="text/javascript" language="JavaScript" src="./scripts/popupscripts.js"></script>
 
+  <sakai:view>
   <h:form enctype="multipart/form-data">
     <div>  <!-- Page title and Instructions -->
       <h3><h:outputText value="#{msgs.options_title}" /></h3>
       <div class="indnt1">
           <p class="instruction"> 
             <h:outputText value="#{msgs.options_directions1}" />
-            <span onmouseover="showPopupHere(this,'podcatcher'); return false;" 
- 	              onmouseout="hidePopup('podcatcher');" style="color: #0099cc;" class="active">
+            <span onClick="showPopupHere(this,'podcatcher'); return false;" 
+            	     onMouseOver="this.style.cursor='pointer'; return false;"
+ 	              onMouseOut="hidePopup('podcatcher');" style="color: #0099cc;" class="active">
  	           <h:outputText value="#{msgs.podcatcher}" />,
  	        </span>
 
  	        <h:outputText value="#{msgs.options_directions2}" />
-            <span onmouseover="showPopupHere(this,'podcatcher'); return false;" 
- 	              onmouseout="hidePopup('podcatcher');" style="color: #0099cc;" class="active">
+            <span onClick="showPopupHere(this,'podcatcher'); return false;" 
+            	     onMouseOver="this.style.cursor='pointer'; return false;"
+ 	              onMouseOut="hidePopup('podcatcher');" style="color: #0099cc;" class="active">
  	           <h:outputText value="#{msgs.podcatcher}" />,
  	        </span>
 
@@ -39,7 +41,7 @@
     </div>
     <br />
 
-  <table class="listHier lines nolines" cellpadding="0" cellspacing="0" border="0"
+  <table class="listHier lines nolines nocolor" cellpadding="0" cellspacing="0" border="0"
        summary="Table holds radio buttons to select access rights.">
 
       <tr class="navIntraTool">
@@ -67,7 +69,7 @@
 
     <!-- This is the div for the popup definition. It is not displayed until the element is moused over -->
     <div id="podcatcher" class="podcatcher_popup" 
-        style="position:absolute; top: -1000px; left: -1000px; visibility:hidden;">
+        style="position:absolute; top: -1000px; left: -1000px;">
       <h:outputText value="#{msgs.popup_text}" />
     </div>
 </f:view>  

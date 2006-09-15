@@ -24,6 +24,8 @@ package org.sakaiproject.api.app.podcasts;
 import java.util.Date;
 import java.util.List;
 
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -44,8 +46,11 @@ import org.sakaiproject.tool.api.ToolManager;
 
 public interface PodcastService // extends EntityProducer
 {
-  /** This string can be used to find the service in the service manager. */
-	public static final String COLLECTION_PODCASTS = "podcasts";
+	/** This string can be used to find the service in the service manager. */
+	public static final String COLLECTION_PODCASTS = "Podcasts";
+	
+	/** This string can be used as an alternate method to finding the podcasts folder */
+	public static final String COLLECTION_PODCASTS_ALT = "podcasts";
 	
 	/** This string used as part of URL for podcast feed **/
 	public static final String COLLECTION_PODCASTS_FEED = "podcastsFeed";
@@ -62,8 +67,11 @@ public interface PodcastService // extends EntityProducer
 	/** This string is the name of the property used when displaying and sorting the podcasts **/
 	public static final String DISPLAY_DATE = "displayDate";
 	
+	/** This string is the name of the property for the title of a podcast in the feed **/
+	public static final String DISPLAY_TITLE = "displayTitle";
+	
 	/** This string gives the update function (permission) string for checking permissions **/
-	public static final String UPDATE_PERMISSIONS = "/site.upd";
+	public static final String UPDATE_PERMISSIONS = "site.upd";
 
 	/**
 	 * Determines if podcast folder is part of Resources of site.
@@ -153,7 +161,11 @@ public interface PodcastService // extends EntityProducer
 	/**
 	 * Returns an editable resource if ID exists.
 	 * 
-	 * @return ContentResourceEdit object if ID valid, null otherwise
+	 * @param String
+	 *            	The resourceId of the resource to get
+	 *            
+	 * @return ContentResourceEdit 
+	 * 				If found, null otherwise
 	 */
 	public ContentResourceEdit getAResource(String resourceId) throws PermissionException, IdUnusedException;
 
@@ -194,9 +206,116 @@ public interface PodcastService // extends EntityProducer
             String filename) throws PermissionException, InUseException, OverQuotaException, ServerOverloadException;
 	
 	/**
-	 * Determines if user can modify the site.
+	 * Determines if user can modify the site. Used by feed.
+	 * 
+	 * @return boolean true if user can modify, false otherwise
+	 */
+	public boolean canUpdateSite(String siteId);
+	
+	/**
+	 * Determines if user can modify the site. Used within the tool.
 	 * 
 	 * @return boolean true if user can modify, false otherwise
 	 */
 	public boolean canUpdateSite();
+	
+	/**
+	 * Returns the ContentCollection that contains the podcasts.
+	 * 
+	 * @param siteId The site id to pull the correct collection
+	 * 
+	 * @return ContentCollection
+	 */
+	public ContentCollection getContentCollection(String siteId) throws IdUnusedException, PermissionException;
+	
+	/**
+	 * Returns the ContentCollection that contains the podcasts.
+	 * 
+	 * @param siteId The site id to pull the correct collection
+	 * 
+	 * @return ContentCollection
+	 */
+	public ContentCollectionEdit getContentCollectionEditable(String siteId) throws IdUnusedException, PermissionException, InUseException;
+	
+	/**
+	 * Changes whether the podcast folder is public/private
+	 * 
+	 * @param option int that sets the public/private option
+	 */
+	public void reviseOptions(boolean option);
+
+	/**
+	 * Only add podcast resources whose DISPLAY_DATE is today or earlier
+	 * 
+	 * @param resourcesList List of podcasts
+	 * 
+	 * @return List of podcasts whose DISPLAY_DATE is today or before
+	 */
+	public List filterPodcasts(List resourcesList);
+
+	/**
+	 * Gets whether the podcast folder is Publicly viewable or not.
+	 * 
+	 * @return int 0 = Public 1 = Site 
+	 */
+	public int getOptions();
+	
+	/**
+	 * Commit the changes made to the ContentCollection.
+	 * 
+	 * @param contentCollectionEdit The ContentCollection object that needs to be commited.
+	 */
+	public void commitContentCollection(ContentCollectionEdit contentCollectionEdit);
+	
+	/**
+	 * Cancels attempt at changing this collection (releases the lock)
+	 * 
+	 * @param cce
+	 *            The ContentCollectionEdit that is not to be changed
+	 */
+	public void cancelContentCollection(ContentCollectionEdit cce);
+
+	/**
+	 * Returns podcast folder id using either 'podcasts' or 'Podcasts'. If it
+	 * does not exist in either form, will create it.
+	 * 
+	 * @param siteId
+	 *            The site to search
+	 * @return String containing the complete id for the podcast folder
+	 * 
+	 * @throws PermissionException
+	 */
+	public String retrievePodcastFolderId(String siteId)
+			throws PermissionException; 
+
+	/**
+	 * Returns whether site is Public (true) or Site (false)
+	 * @param siteId
+	 * @return
+	 */
+	public boolean isPublic(String siteId);
+	
+	/**
+	 * Takes the date String passed in and converts it to a Date object
+	 * using GMT time
+	 * 
+	 * @param date
+	 * 			A long value representing the date to be converted`
+	 * 
+	 * @return
+	 * 			Date object created
+	 */
+	public Date getGMTdate(long date);
+
+	/**
+	 * Determines if authenticated user has 'read' access to podcast collection folder
+	 * 
+	 * @param id
+	 * 			The id for the podcast collection folder
+	 * 
+	 * @return
+	 * 		TRUE - has read access, FALSE - does not
+	 */
+	public boolean allowAccess(String id);
+
 }

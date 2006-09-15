@@ -4,7 +4,7 @@
 	<tool
 			id="sakai.podcasts"
 			title="Podcasts"
-			description="Will manage podcasts.">
+			description="For managing individual podcast and podcast feed information.">
 			
 		<category name="course" />
 		<category name="project" />

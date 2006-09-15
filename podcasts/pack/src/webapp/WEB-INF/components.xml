@@ -15,19 +15,9 @@
  			<ref bean="org.sakaiproject.tool.api.ActiveToolManager" />
 		</property>
 		
-		<!-- needed to get current user object -->
-		<property name="userDirectoryService">
-		    <ref bean="org.sakaiproject.user.api.UserDirectoryService" />
-		</property>
-		
-		<!-- needed to get current user's permissions -->
-		<property name="securityService">
-		    <ref bean="org.sakaiproject.authz.api.SecurityService" />
-		</property>
-
-		<property name="notificationService">
+<!--		<property name="notificationService">
 			<ref bean="org.sakaiproject.event.api.NotificationService" />
-		</property>
+		</property> -->
 	</bean>
 
     <bean id="org.sakaiproject.api.app.podcasts.PodfeedService"
@@ -37,6 +27,11 @@
            <ref bean="org.sakaiproject.api.app.podcasts.PodcastService"/>
        </property>
        
+		<!-- needed to get current user's permissions -->
+		<property name="securityService">
+		    <ref bean="org.sakaiproject.authz.api.SecurityService" />
+		</property>
+
      </bean>
  
 </beans>

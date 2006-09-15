@@ -18,7 +18,7 @@
     
   <!-- let the framework deal with the beans -->
   <managed-bean>
-    <description>check for Resources and possibly podcasts</description>
+    <description>podHomeBean - Backing bean for main page, Add podcast, Revise podcast</description>
     <managed-bean-name>podHomeBean</managed-bean-name>
     <managed-bean-class>org.sakaiproject.tool.podcasts.podHomeBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
@@ -28,11 +28,6 @@
 		<description>podcastService</description>
 		<property-name>podcastService</property-name>
 		<value>#{Components["org.sakaiproject.api.app.podcasts.PodcastService"]}</value>
-	</managed-property>
-	<managed-property>
-		<description>podfeedService</description>
-		<property-name>podfeedService</property-name>
-		<value>#{Components["org.sakaiproject.api.app.podcasts.PodfeedService"]}</value>
 	</managed-property>
   </managed-bean>
   
@@ -48,15 +43,58 @@
     <managed-bean-name>podPerms</managed-bean-name>
     <managed-bean-class>org.sakaiproject.tool.podcasts.podPermBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
+
+     <!--	 Needed to access the services of PodcastService -->
+     <managed-property>
+		<description>podcastService</description>
+		<property-name>podcastService</property-name>
+		<value>#{Components["org.sakaiproject.api.app.podcasts.PodcastService"]}</value>
+	 </managed-property>
+   </managed-bean>
 
   <managed-bean>
     <description>Bean to hold display option (Public / Site)</description>
     <managed-bean-name>podOptions</managed-bean-name>
     <managed-bean-class>org.sakaiproject.tool.podcasts.podOptionsBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
+
+    <!--	 Needed to access the services of PodcastService -->
+    <managed-property>
+		<description>podcastService</description>
+		<property-name>podcastService</property-name>
+		<value>#{Components["org.sakaiproject.api.app.podcasts.PodcastService"]}</value>
+	</managed-property>
   </managed-bean>
 
+  <managed-bean>
+    <description>Bean to process global feed information</description>
+    <managed-bean-name>podfeedBean</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.podcasts.podFeedBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+
+	<managed-property>
+		<description>podfeedService</description>
+		<property-name>podfeedService</property-name>
+		<value>#{Components["org.sakaiproject.api.app.podcasts.PodfeedService"]}</value>
+	</managed-property>
+
+  </managed-bean>
+  
+  <!-- Custom tags -->
+  <render-kit>
+    <!-- date picker -->
+    <renderer>
+      <component-family>javax.faces.Input</component-family>
+      <renderer-type>DatePicker</renderer-type>
+      <renderer-class>org.sakaiproject.tool.podcasts.jsf.renderer.DatePickerRenderer</renderer-class>
+    </renderer>
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>DatePickerPopup</renderer-type>
+      <renderer-class>org.sakaiproject.tool.podcasts.jsf.renderer.DatePickerPopupRenderer</renderer-class>
+    </renderer>
+  </render-kit>
+	
 	<!-- navigation
 			FROM what page TO what page
 			IUPUI: path needs to be /projname/xx.jsp -->

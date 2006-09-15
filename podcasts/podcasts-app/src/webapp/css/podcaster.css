@@ -1,3 +1,7 @@
+body {
+	width: 98%;
+}
+
 .reqPrompt {
     position : relative;
     top : 4px;
@@ -81,4 +85,18 @@ span.active {
 .podDelButtonsPosition {
 	position: relative;
 	top: 30px;
+}
+
+.blacklink {
+    color: #FFFFFF;
+}
+
+.moveUp {
+	position: relative;
+	top: 20px;
+}
+
+.rssIcon {
+	position: relative;
+	top: 6px;
 }

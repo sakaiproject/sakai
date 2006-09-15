@@ -6,11 +6,13 @@
 <f:loadBundle basename="org.sakaiproject.tool.podcasts.bundle.Messages" var="msgs"/>
 
   <f:view>
-    <sakai:view>
         <link href="./css/podcaster.css" type="text/css" rel="stylesheet" media="all" />
 
+    <sakai:view>
+
     <h:form>
- 
+      <h3><h:outputText value="#{msgs.delete_title}" /></h3>
+ 	  
   	  <h:outputText value="#{msgs.del_confirm}" styleClass="alertMessage" />
 
       <h:outputText value="#{podHomeBean.selectedPodcast.displayDate}" styleClass="podDelDateFormat" />

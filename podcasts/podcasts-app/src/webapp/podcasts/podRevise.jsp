@@ -1,18 +1,18 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://www.sakaiproject.org/podcasts" prefix="podcasts" %>
 <% response.setContentType("text/html; charset=UTF-8"); %>
 
 <f:loadBundle basename="org.sakaiproject.tool.podcasts.bundle.Messages" var="msgs"/>
 
 <f:view>
-  <sakai:view>
     <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
     <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
     <link href="./css/podcaster.css" type="text/css" rel="stylesheet" media="all" />
 
-    <!--  TODO: figure out why it is not finding this -->
-    <script type="text/javascript" src="/library/calendar/js/calendar2.js" language="JavaScript" ></script>
+    <script type="text/javascript" src="jsf/widget/datepicker/datepicker.js" language="JavaScript" ></script> 
+  <sakai:view>
 
   <h:form id="podRev" enctype="multipart/form-data">
 
@@ -21,9 +21,6 @@
       <div class="indnt1">
           <p class="instruction"> 
             <h:outputText value="#{msgs.revise_directions}" />
- 	        <br /><br />
-            <h:outputText value="#{msgs.required_prompt}" />
-            <span class="reqStarInline">*</span>
           </p>
  	  </div>
     </div>
@@ -35,26 +32,27 @@
       <br />
       
  	  <h:outputText value="#{msgs.file_prompt}" styleClass="reqPrompt" />
- 	  <sakai:inputFileUpload id="podfile" value="#{podHomeBean.filename}"
- 	     valueChangeListener="#{podHomeBean.processFileUpload}" 
- 	     styleClass="indnt1" size="35" />
+ 	  <sakai:inputFileUpload id="podfile" valueChangeListener="#{podHomeBean.processFileUpload}" 
+ 	     styleClass="indnt2" size="35" />
 
       <h:message for="podfile" styleClass="alertMessage" />
     </div>
-    <br />
+    <br /><br />
 
     <div class="indnt1">  <!-- Date -->
-     <h:outputText value="#{msgs.current_date}" />
-     <b><h:outputText value="#{podHomeBean.selectedPodcast.displayDate}" styleClass="indnt2" /></b>
-     <br />
-     
+<!--     <h:outputText value="#{msgs.current_date}" />
+     <b><h:outputText value="#{podHomeBean.selectedPodcast.displayDate}" /></b>
+	<br />
+-->	 
       <h:outputText value="#{msgs.date_prompt}" styleClass="reqPrompt" />
-
-     <sakai:input_date id="poddate" value="#{podHomeBean.date}" showDate="true" rendered="true" />
+      <podcasts:datePicker value="#{podHomeBean.selectedPodcast.displayDateRevise}" id="poddate" size="28" />
+	  <h:outputText value="#{msgs.date_picker_format_string}" />
      
       <h:message for="poddate" styleClass="alertMessage" />
+      <h:outputText value="#{msgs.invalid_date_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayInvalidDateErrMsg}" />
+      
     </div>
-    <br />
+    <br /><br />
      
     <div class="indnt1">  <!-- Title -->
       <h:outputText value="#{msgs.title_prompt}" styleClass="reqPrompt" />
@@ -62,7 +60,7 @@
 
       <h:message for="podtitle" styleClass="alertMessage" />
     </div>
-    <br />
+    <br /><br />
 
     <div class="indnt1"> <!-- Description -->
       <h:outputText value="#{msgs.description_prompt}" styleClass="reqPrompt" />
@@ -71,7 +69,7 @@
     </div>
     <br />
 
-    <div class="indnt1"> <!-- Email Notification -->
+<%--    <div class="indnt1"> <!-- Email Notification -->
       <h:outputText value="#{msgs.email_prompt}" />
       <h:selectOneMenu value="#{podHomeBean.email}">
           <f:selectItems value="#{podHomeBean.emailItems}" />
@@ -79,7 +77,7 @@
       
     </div>
     <br />
-
+--%>
     <sakai:button_bar>  <!-- Save Changes and Cancel buttons -->
       <sakai:button_bar_item action="#{podHomeBean.processRevisePodcast}" value="#{msgs.change_submit}" 
           accesskey="s" title="#{msgs.change_submit}" styleClass="active" />

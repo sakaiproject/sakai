@@ -13,9 +13,11 @@
 	</organization>
 	<inceptionYear>2003</inceptionYear>
 
-   	<properties>
+	<properties>
+		<!-- deploy as a jar -->
 		<deploy.type>war</deploy.type>
 	</properties>
+
 
 	<dependencies>
 
@@ -130,6 +132,18 @@
        <artifactId>sakai-util</artifactId>
        <version>${sakai.version}</version>
      </dependency>
+
+	<dependency>
+			<groupId>xerces</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>2.6.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>xerces</groupId>
+			<artifactId>xmlParserAPIs</artifactId>
+			<version>2.6.2</version>
+		</dependency>
 
 	</dependencies>
 
