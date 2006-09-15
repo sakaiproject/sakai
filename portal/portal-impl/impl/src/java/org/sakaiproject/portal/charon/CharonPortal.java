@@ -333,7 +333,7 @@ public class CharonPortal extends HttpServlet
 	protected void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException
 	{
-
+		boolean resetDone = false;	
 		try
 		{
 			basicAuth.doLogin(req);
@@ -395,6 +395,32 @@ public class CharonPortal extends HttpServlet
 				doDirectTool(req, res, session, parts[2], req.getContextPath()
 						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web
 						.makePath(parts, 3, parts.length));
+			}
+
+			// These reet urls simply set a session value to indicate to reset state and then redirect
+			// This is necessary os that hte URL is clean and we do not see resets on refresh
+			else if ((parts.length >= 2) && (parts[1].equals("site-reset")))
+			{
+				String siteUrl = req.getContextPath() + "/site" + Web.makePath(parts, 2, parts.length);
+				setResetState("true");
+				resetDone = true;				
+				res.sendRedirect(siteUrl);
+			}
+
+			else if ((parts.length >= 2) && (parts[1].equals("worksite-reset")))
+			{
+				String siteUrl = req.getContextPath() + "/worksite" + Web.makePath(parts, 2, parts.length);
+				setResetState("true");
+				resetDone = true;				
+				res.sendRedirect(siteUrl);
+			}
+
+			else if ((parts.length >= 2) && (parts[1].equals("gallery-reset")))
+			{
+				String siteUrl = req.getContextPath() + "/gallery" + Web.makePath(parts, 2, parts.length);
+				setResetState("true");
+				resetDone = true;				
+				res.sendRedirect(siteUrl);
 			}
 
 			else if ((parts.length >= 2) && (parts[1].equals("title")))
@@ -588,6 +614,11 @@ public class CharonPortal extends HttpServlet
 		catch (Throwable t)
 		{
 			doThrowableError(req, res, t);
+		}
+
+		// Make sure to clear any reset State at the end of the request unless we *just* set it
+		if ( !resetDone ) {
+			setResetState(null);
 		}
 
 	}
@@ -1373,7 +1404,8 @@ public class CharonPortal extends HttpServlet
 		}
 
 		// Reset the tool state if requested
-		if ( "true".equals(req.getParameter(PARM_STATE_RESET) ) ) {
+		if ("true".equals(req.getParameter(PARM_STATE_RESET)) || "true".equals(getResetState()))
+		{
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placementId);
 			ts.clearAttributes();
@@ -1455,7 +1487,7 @@ public class CharonPortal extends HttpServlet
 		}
 
 		// Reset the tool state if requested
-		if ("true".equals(req.getParameter("sakai.state.reset")))
+		if ("true".equals(req.getParameter(PARM_STATE_RESET)) || "true".equals(getResetState()))
 		{
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placementId);
@@ -1629,7 +1661,24 @@ public class CharonPortal extends HttpServlet
 		Session s = SessionManager.getCurrentSession();
 		if (s.getAttribute("direct-stored-state") == null || ss == null)
 		{
-			s.setAttribute("direct-stored-state", ss);
+			s.setAttribute("reset-stored-state", ss);
+		}
+	}
+
+	// To allow us to retain reset state across redirects
+	private String getResetState()
+	{
+		Session s = SessionManager.getCurrentSession();
+		String ss = (String) s.getAttribute("reset-stored-state");
+		return ss;
+	}
+
+	private void setResetState(String ss)
+	{
+		Session s = SessionManager.getCurrentSession();
+		if (s.getAttribute("reset-stored-state") == null || ss == null)
+		{
+			s.setAttribute("reset-stored-state", ss);
 		}
 	}
 
@@ -2123,6 +2172,14 @@ public class CharonPortal extends HttpServlet
 	{
 		String presenceUrl = Web.returnUrl(req, "/presence/"
 				+ Web.escapeUrl(site.getId()));
+
+		// If we have turned on auto-state reset on navigation, we generate the
+		// "site-reset" "worksite-reset" and "gallery-reset" urls
+		if ( "true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET) ) )
+		{
+			portalPrefix = portalPrefix + "-reset";
+		}
+
 		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
 				+ Web.escapeUrl(getSiteEffectiveId(site)) + "/page/");
 		String pagePopupUrl = Web.returnUrl(req, "/page/");
@@ -2213,10 +2270,6 @@ public class CharonPortal extends HttpServlet
 			else
 			{
 				String pagerefUrl = pageUrl + Web.escapeUrl(p.getId());
-				if ( "true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET) ) )
-				{
-					pagerefUrl = pagerefUrl + "?" + PARM_STATE_RESET + "=true";;
-				}
 				out.print(pagerefUrl);
 			}
 			out.println("\"><span>" + Web.escapeHtml(p.getTitle())
@@ -2369,6 +2422,13 @@ public class CharonPortal extends HttpServlet
 	{
 		// for skinning
 		String siteType = calcSiteType(siteId);
+
+		// If we have turned on auto-state reset on navigation, we generate the
+		// "site-reset" "worksite-reset" and "gallery-reset" urls
+		if ( "true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET) ) )
+		{
+			prefix = prefix + "-reset";
+		}
 
 		// is the current site the end user's My Workspace?
 		// Note: the site id can match the user's id or eid
@@ -2571,10 +2631,6 @@ public class CharonPortal extends HttpServlet
 					+ ServerConfigurationService.getString("portalPath") + "/"
 					+ prefix + "/"
 					+ Web.escapeUrl(getUserEidBasedSiteId(session.getUserId()));
-			if ( "true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET) ) )
-			{
-				siteUrl = siteUrl + "?" + PARM_STATE_RESET + "=true";;
-			}
 			out.println("						<li><a href=\"" + siteUrl + "\" target=\"_parent\" title=\""
 					+ Web.escapeHtml(rb.getString("sit.mywor")) + "\"><span>" + Web.escapeHtml(rb.getString("sit.mywor")) + "</span></a></li>");
 		}
@@ -2593,10 +2649,6 @@ public class CharonPortal extends HttpServlet
 			else
 			{
 				String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/" + Web.escapeUrl(getSiteEffectiveId(s));
-			if ( "true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET) ) )
-			{
-				siteUrl = siteUrl + "?" + PARM_STATE_RESET + "=true";;
-			}
 				out.println("							<li><a href=\"" + siteUrl + "\" target=\"_parent\" title=\"" + Web.escapeHtml(s.getTitle())
 						+ " " + Web.escapeHtml(rb.getString("sit.worksite")) + "\"><span>" + Web.escapeHtml(s.getTitle()) + "</span></a></li>");
 			}
@@ -2697,7 +2749,8 @@ public class CharonPortal extends HttpServlet
 		String titleString = Web.escapeHtml(placement.getTitle());
 
 		// Reset the tool state if requested
-		if ( "true".equals(req.getParameter(PARM_STATE_RESET) ) ) {
+		if ("true".equals(req.getParameter(PARM_STATE_RESET)) || "true".equals(getResetState()))
+		{
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placement.getId());
 			ts.clearAttributes();
