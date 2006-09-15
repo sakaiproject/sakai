@@ -3015,7 +3015,7 @@ public class CharonPortal extends HttpServlet
 	 * etc) of the given site; special handling of returning "workspace" for
 	 * user workspace sites. This method is tightly coupled to site skinning.
 	 */
-	private String calcSiteType(String siteId)
+	protected String calcSiteType(String siteId)
 	{
 		String siteType = null;
 		if (siteId != null && siteId.length() != 0)

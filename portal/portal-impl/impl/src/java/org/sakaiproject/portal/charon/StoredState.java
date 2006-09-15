@@ -59,7 +59,7 @@ public class StoredState
 
 	public HttpServletRequest getRequest(HttpServletRequest currentRequest)
 	{
-		return new RecoveredServletRequest(currentRequest, requestHolder, marker, replacement);
+		return new RecoveredServletRequest(currentRequest, requestHolder);
 	}
 
 	public void setRequest(HttpServletRequest request)
@@ -76,8 +76,7 @@ public class StoredState
 	{
 		if (toolContextPath != null)
 		{
-			// TODO: this wants to be simple java 1.5 replace(), not 1.4 regex repalceAll -ggolden
-			this.toolContextPath = toolContextPath.replaceAll(marker, replacement);
+			this.toolContextPath = PortalStringUtil.replaceFirst(toolContextPath,marker, replacement);
 		}
 		else
 		{
@@ -94,8 +93,7 @@ public class StoredState
 	{
 		if (toolPathInfo != null)
 		{
-			// TODO: this wants to be simple java 1.5 replace(), not 1.4 regex repalceAll -ggolden
-			this.toolPathInfo = toolPathInfo.replaceAll(marker, replacement);
+			this.toolPathInfo = PortalStringUtil.replaceFirst(toolPathInfo,marker, replacement);
 		}
 		else
 		{

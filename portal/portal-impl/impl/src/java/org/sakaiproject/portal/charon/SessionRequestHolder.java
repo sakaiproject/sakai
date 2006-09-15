@@ -66,11 +66,11 @@ public class SessionRequestHolder
 			Object o = i.next();
 			parameterMap.put(o, m.get(o));
 		}
-		// TODO: this wants to be simple java 1.5 replace(), not 1.4 regex repalceAll -ggolden
-		contextPath = request.getContextPath().replaceAll(marker, replacement);
+		contextPath = PortalStringUtil.replaceFirst(request.getContextPath(),marker,replacement);
 		method = request.getMethod();
 		queryString = request.getQueryString();
 	}
+
 
 	public String getContextPath()
 	{

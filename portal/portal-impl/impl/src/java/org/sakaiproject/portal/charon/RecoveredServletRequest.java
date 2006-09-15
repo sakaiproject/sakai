@@ -42,16 +42,10 @@ public class RecoveredServletRequest extends HttpServletRequestWrapper
 
 	private SessionRequestHolder holder = null;
 
-	private String marker = null;
-
-	private String replacement = null;
-
-	public RecoveredServletRequest(HttpServletRequest request, SessionRequestHolder requestHolder, String marker, String replacement)
+	public RecoveredServletRequest(HttpServletRequest request, SessionRequestHolder requestHolder)
 	{
 		super(request);
 		this.holder = requestHolder;
-		this.marker = marker;
-		this.replacement = replacement;
 	}
 
 	public String getAuthType()
@@ -326,50 +320,42 @@ public class RecoveredServletRequest extends HttpServletRequestWrapper
 
 	public RequestDispatcher getRequestDispatcher(String arg0)
 	{
-		// TODO Auto-generated method stub
 		RequestDispatcher dispatcher = super.getRequestDispatcher(arg0);
 		return dispatcher;
 	}
 
 	public String getScheme()
 	{
-		// TODO Auto-generated method stub
 		return super.getScheme();
 	}
 
 	public String getServerName()
 	{
-		// TODO Auto-generated method stub
 		return super.getServerName();
 	}
 
 	public int getServerPort()
 	{
-		// TODO Auto-generated method stub
 		return super.getServerPort();
 	}
 
 	public boolean isSecure()
 	{
-		// TODO Auto-generated method stub
 		return super.isSecure();
 	}
 
 	public void removeAttribute(String arg0)
 	{
-		// TODO Auto-generated method stub
 		super.removeAttribute(arg0);
 	}
 
 	public void setAttribute(String arg0, Object arg1)
 	{
-		// TODO Auto-generated method stub
 		super.setAttribute(arg0, arg1);
 	}
 
 	public void setCharacterEncoding(String arg0) throws UnsupportedEncodingException
 	{
-		// TODO Auto-generated method stub
 		super.setCharacterEncoding(arg0);
 	}
 }
