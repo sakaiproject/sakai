@@ -28,6 +28,9 @@ import org.sakaiproject.rights.api.CreativeCommonsLicense;
 
 public interface RightsAssignment 
 {
+	public String getRightsId();
+	public String getEntityRef();
+	
 	public boolean hasCopyright();
 	public Copyright getCopyright();
 
@@ -37,7 +40,6 @@ public interface RightsAssignment
 	public int countLicenses();
 	public Collection getLicenses();
 
-//	public boolean 
 	public void setCopyright(Copyright copyright);
 	
 	public void addLicense(CreativeCommonsLicense license);

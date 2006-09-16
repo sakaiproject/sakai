@@ -21,7 +21,7 @@
 
 package org.sakaiproject.rights.api;
 
-public interface CopyrightService 
+public interface RightsService 
 {
 	/**
 	 * @param entityRef
@@ -46,4 +46,10 @@ public interface CopyrightService
 	 */
 	public void save(RightsAssignment rights);
 	
+	public UserRightsPolicy addUserRightsPolicy(String context, String userId);
+	public SiteRightsPolicy addSiteRightsPolicy(String context);
+	public UserRightsPolicy getUserRightsPolicy(String context, String userId);
+	public SiteRightsPolicy getSiteRightsPolicy(String context);
+	public void save(RightsPolicy policy);
+		
 }	// interface CopyrightService

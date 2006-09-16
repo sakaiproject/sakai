@@ -22,9 +22,9 @@
 package org.sakaiproject.rights.api;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Stack;
 
+import org.sakaiproject.rights.util.RightsException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -58,8 +58,14 @@ public interface CreativeCommonsLicense
 	
 	/**
 	 * @param permission
+	 * @throws RightsException 
 	 */
-	public void addPermission(String permission);
+	public void addPermission(String permission) throws RightsException;
+	
+	/**
+	 * @param permission
+	 */
+	public void addPermission(Permission permission);
 	
 	/**
 	 * @param permission
@@ -88,7 +94,12 @@ public interface CreativeCommonsLicense
 	/**
 	 * @param prohibition
 	 */
-	public void addProhibition(String prohibition);
+	public void addProhibition(String prohibition) throws RightsException;
+	
+	/**
+	 * @param prohibition
+	 */
+	public void addProhibition(Prohibition prohibition);
 	
 	/**
 	 * @param prohibitions
@@ -115,9 +126,14 @@ public interface CreativeCommonsLicense
 	public Collection getRequirements();
 
 	/**
-	 * 
+	 * @param requirement
 	 */
-	public void addRequirement();
+	public void addRequirement(String requirement) throws RightsException;
+	
+	/**
+	 * @param requirement
+	 */
+	public void addRequirement(Requirement requirement);
 	
 	/**
 	 * @param requirements
@@ -178,7 +194,7 @@ public interface CreativeCommonsLicense
 		 * @param permitted
 		 * @return
 		 */
-		static public Permission fromString(String permitted)
+		public static Permission fromString(String permitted)
 		{
 			if (REPRODUCTION.m_id.equals(permitted)) return REPRODUCTION;
 			if (DISTRIBUTION.m_id.equals(permitted)) return DISTRIBUTION;
@@ -241,7 +257,7 @@ public interface CreativeCommonsLicense
 		 * @param prohibited
 		 * @return
 		 */
-		static public Prohibition fromString(String prohibited)
+		public static Prohibition fromString(String prohibited)
 		{
 			if (COMMERCIAL_USE.m_id.equals(prohibited)) return COMMERCIAL_USE;
 			return null;
@@ -303,7 +319,7 @@ public interface CreativeCommonsLicense
 		 * @param required
 		 * @return
 		 */
-		static public Requirement fromString(String required)
+		public static Requirement fromString(String required)
 		{
 			if (NOTICE.m_id.equals(required)) return NOTICE;
 			if (ATTRIBUTION.m_id.equals(required)) return ATTRIBUTION;
@@ -325,6 +341,11 @@ public interface CreativeCommonsLicense
 		public static final Requirement SOURCE_CODE = new Requirement("SourceCode");
 	}
 
-	// public Element toXml(Document doc, Stack stack);
+	/**
+	 * @param doc
+	 * @param stack
+	 * @return
+	 */
+	public Element toXml(Document doc, Stack stack);
 	
 }	// interface CreativeCommonsLicense

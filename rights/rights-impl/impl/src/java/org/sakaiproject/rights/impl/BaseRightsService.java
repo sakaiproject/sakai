@@ -1,0 +1,514 @@
+/**********************************************************************************
+ * $URL: https://source.sakaiproject.org/svn/content/trunk/content-tool/tool/src/java/org/sakaiproject/content/tool/ResourcesAction.java $
+ * $Id: ResourcesAction.java 13885 2006-08-21 16:03:28Z jimeng@umich.edu $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
+package org.sakaiproject.rights.impl;
+
+import java.util.Collection;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+import java.util.TreeSet;
+import java.util.Vector;
+
+import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.rights.api.Copyright;
+import org.sakaiproject.rights.api.RightsPolicy;
+import org.sakaiproject.rights.api.RightsService;
+import org.sakaiproject.rights.api.CreativeCommonsLicense;
+import org.sakaiproject.rights.api.RightsAssignment;
+import org.sakaiproject.rights.api.SiteRightsPolicy;
+import org.sakaiproject.rights.api.UserRightsPolicy;
+import org.sakaiproject.rights.util.RightsException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+
+public abstract class BaseRightsService implements RightsService 
+{
+	public class BasicCopyright implements Copyright 
+	{
+
+		protected String m_id;
+		protected String m_entityRef;
+		protected String m_year;
+		protected String m_owner;
+		
+		public BasicCopyright(String entityRef)
+		{
+			m_entityRef = entityRef;
+		}
+		
+		public BasicCopyright(String entityRef, String year, String owner)
+		{
+			m_entityRef = entityRef;
+			m_year = year;
+			m_owner = owner;
+		}
+		
+		public String getCopyrightId() 
+		{
+			return m_id;
+		}
+
+		public String getEntityRef() 
+		{
+			return m_entityRef;
+		}
+
+		public String getOwner() 
+		{
+			return m_owner;
+		}
+
+		public String getYear() 
+		{
+			return m_year;
+		}
+
+		public void setOwner(String owner) 
+		{
+			m_owner = owner;
+		}
+
+		public void setYear(String year) 
+		{
+			m_year = year;
+		}
+
+		public Element toXml(Document doc, Stack stack) 
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+	}	// class BasicCopyright
+	
+	public class BasicCreativeCommonsLicense implements CreativeCommonsLicense
+	{
+		protected String m_id;
+		protected Set m_permissions = new TreeSet();
+		protected Set m_prohibitions = new TreeSet();
+		protected Set m_requirements = new TreeSet();
+
+		public void addPermission(Permission permission) 
+		{
+			if(m_permissions == null)
+			{
+				m_permissions = new TreeSet();
+			}
+			m_permissions.add(permission);
+		}
+
+		public void addPermission(String permission)  throws RightsException
+		{
+			Permission p = Permission.fromString(permission);
+			if(p == null)
+			{
+				throw new RightsException();
+			}
+			addPermission(p);
+		}
+
+		public void addProhibition(Prohibition prohibition) 
+		{
+			if(m_prohibitions == null)
+			{
+				m_prohibitions = new TreeSet();
+			}
+			m_prohibitions.add(prohibition);
+		}
+
+		public void addProhibition(String prohibition) throws RightsException
+		{
+			Prohibition p = Prohibition.fromString(prohibition);
+			if(p == null)
+			{
+				throw new RightsException();
+			}
+			addProhibition(p);
+		}
+
+		public void addRequirement(Requirement requirement) 
+		{
+			if(m_requirements == null)
+			{
+				m_requirements = new TreeSet();
+			}
+			m_requirements.add(requirement);
+		}
+
+		public void addRequirement(String requirement) throws RightsException 
+		{
+			Requirement r = Requirement.fromString(requirement);
+			if(r == null)
+			{
+				throw new RightsException();
+			}
+			addRequirement(r);
+		}
+
+		public String getIdentifier() 
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public Collection getPermissions() 
+		{
+			return m_permissions;
+		}
+
+		public Collection getProhibitions() 
+		{
+			return m_prohibitions;
+		}
+
+		public Collection getRequirements() 
+		{
+			return m_requirements;
+		}
+
+		public String getUri() 
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public boolean hasPermissions() 
+		{
+			return m_permissions != null && ! m_permissions.isEmpty();
+		}
+
+		public boolean hasProhibitions() 
+		{
+			return m_prohibitions != null && ! m_prohibitions.isEmpty();
+		}
+
+		public boolean hasRequirements() 
+		{
+			return m_requirements != null && ! m_requirements.isEmpty();
+		}
+
+		public void removePermission(String permission) 
+		{
+			Permission p = Permission.fromString(permission);
+			if(p != null)
+			{
+				this.m_permissions.remove(p);
+			}
+		}
+
+		public void removeProhibitions(Collection prohibitions) 
+		{
+			if(prohibitions != null)
+			{
+				Iterator it = prohibitions.iterator();
+				while(it.hasNext())
+				{
+					Prohibition p = null;
+					Object obj = it.next();
+					if(obj instanceof Prohibition)
+					{
+						p = (Prohibition) obj;
+					}
+					else if(obj instanceof String)
+					{
+						p = Prohibition.fromString((String) obj);
+					}
+					if(p != null)
+					{
+						this.m_prohibitions.remove(p);
+					}
+				}
+			}
+		}
+
+		public void removeRequirements(Collection requirements) 
+		{
+			if(this.m_requirements == null)
+			{
+				this.m_requirements = new TreeSet();
+			}
+			this.m_requirements.clear();
+			
+			if(requirements != null)
+			{
+				Iterator it = requirements.iterator();
+				while(it.hasNext())
+				{
+					Requirement r = null;
+					Object obj = it.next();
+					if(obj instanceof Requirement)
+					{
+						r = (Requirement) obj;
+					}
+					else if(obj instanceof String)
+					{
+						r = Requirement.fromString((String) obj);
+					}
+					if(r != null)
+					{
+						this.m_requirements.remove(r);
+					}
+				}
+			}
+		}
+		
+		public void setPermissions(Collection permissions) 
+		{
+			if(this.m_permissions == null)
+			{
+				this.m_permissions = new TreeSet();
+			}
+			this.m_permissions.clear();
+			
+			if(permissions != null)
+			{
+				Iterator it = permissions.iterator();
+				while(it.hasNext())
+				{
+					Permission p = null;
+					Object obj = it.next();
+					if(obj instanceof Permission)
+					{
+						p = (Permission) obj;
+					}
+					else if(obj instanceof String)
+					{
+						p = Permission.fromString((String) obj);
+					}
+					if(p != null)
+					{
+						this.m_permissions.add(p);
+					}
+				}
+			}
+		}
+
+		public void setProhibitions(Collection prohibitions) 
+		{
+			if(this.m_prohibitions == null)
+			{
+				this.m_prohibitions = new TreeSet();
+			}
+			this.m_prohibitions.clear();
+			
+			if(prohibitions != null)
+			{
+				Iterator it = prohibitions.iterator();
+				while(it.hasNext())
+				{
+					Prohibition p = null;
+					Object obj = it.next();
+					if(obj instanceof Prohibition)
+					{
+						p = (Prohibition) obj;
+					}
+					else if(obj instanceof String)
+					{
+						p = Prohibition.fromString((String) obj);
+					}
+					if(p != null)
+					{
+						this.m_prohibitions.add(p);
+					}
+				}
+			}
+		}
+
+		public void setRequirements(Collection requirements) 
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		public Element toXml(Document doc, Stack stack) 
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+	}	// class BasicCreativeCommonsLicense
+
+	public class BasicRightsAssignment implements RightsAssignment
+	{
+		protected Map m_licenses = new Hashtable();
+		protected Copyright m_copyright;
+		protected String m_entityRef = null;
+		protected String m_id;
+		protected boolean m_copyrightAlert = false;
+
+		public BasicRightsAssignment(String entityRef) 
+		{
+			m_id = IdManager.createUuid();
+			m_entityRef = entityRef;
+			
+		}
+
+		public void addLicense(CreativeCommonsLicense license) 
+		{
+			if(m_licenses == null)
+			{
+				m_licenses = new Hashtable();
+			}
+			m_licenses.put(license.getIdentifier(), license);
+		}
+
+		public int countLicenses() 
+		{
+			return m_licenses.size();
+		}
+
+		public Copyright getCopyright() 
+		{
+			return m_copyright;
+		}
+
+		public String getEntityRef() 
+		{
+			return m_entityRef;
+		}
+
+		public Collection getLicenses() 
+		{
+			return m_licenses.values();
+		}
+
+		public String getRightsId() 
+		{
+			return m_id;
+		}
+
+		public boolean hasCopyright() 
+		{
+			return m_copyright != null;
+		}
+
+		public boolean hasCopyrightAlert() 
+		{
+			return m_copyrightAlert;
+		}
+
+		public boolean hasLicense() 
+		{
+			return m_licenses != null && ! m_licenses.isEmpty();
+		}
+		
+		public void setCopyright(Copyright copyright) 
+		{
+			m_copyright = copyright;
+		}
+
+		public void setLicenses(Collection licenses) 
+		{
+			
+		}
+
+		public Element toXml(Document doc, Stack stack) 
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+	}
+
+	public interface Storage
+	{
+		public Copyright getCopyright(String copyrightId);
+		public CreativeCommonsLicense getLicense(String licenseId);
+		public RightsAssignment getRightsAssignment(String entityRef);
+		public RightsPolicy getRightsPolicy(String context, String userId);
+		public Copyright newCopyright(String rightsId);
+		public CreativeCommonsLicense newLicense(String rightsId);
+		public RightsAssignment newRightsAssignment(String entityRef);
+		public RightsPolicy newRightsPolicy(String context, String userId);
+		public String save(Copyright copyright);
+		
+		public String save(CreativeCommonsLicense license);
+		public String save(RightsAssignment rights);
+		public String save(RightsPolicy policy);
+		
+	}
+
+	/**
+	 * @param entityRef
+	 * @return
+	 */
+	public RightsAssignment addRightsAssignment(String entityRef)
+	{
+		return new BasicRightsAssignment(entityRef);
+	}
+	
+	public SiteRightsPolicy addSiteRightsPolicy(String context) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public UserRightsPolicy addUserRightsPolicy(String context, String userId) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public RightsAssignment getRightsAssignment(String entityRef) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public SiteRightsPolicy getSiteRightsPolicy(String context) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public UserRightsPolicy getUserRightsPolicy(String context, String userId) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @param rights
+	 */
+	public void save(RightsAssignment rights)
+	{
+		// TODO 
+	}
+
+	public void save(RightsPolicy policy) 
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setRightsAssignment(String entityRef, RightsAssignment rights) 
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+}	// class BaseCopyrightService

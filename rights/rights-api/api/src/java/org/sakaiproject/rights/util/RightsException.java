@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/content/trunk/content-tool/tool/src/java/org/sakaiproject/content/tool/ResourcesAction.java $
- * $Id: ResourcesAction.java 13885 2006-08-21 16:03:28Z jimeng@umich.edu $
+ * $URL:  $
+ * $Id:  $
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
@@ -19,46 +19,9 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.rights.api;
+package org.sakaiproject.rights.util;
 
-import java.util.Stack;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-/**
- * 
- *
- */
-public interface Copyright 
+public class RightsException extends Exception 
 {
-	public String getCopyrightId();
-	
-	/**
-	 * @return
-	 */
-	public String getYear();
-	
-	/**
-	 * @return
-	 */
-	public String getOwner();
-	
-	/**
-	 * @param year
-	 */
-	public void setYear(String year);
-	
-	/**
-	 * @param owner
-	 */
-	public void setOwner(String owner);
-	
-	/**
-	 * @param doc
-	 * @param stack
-	 * @return
-	 */
-	public Element toXml(Document doc, Stack stack);
-	
-}	// interface Copyright
+
+}
