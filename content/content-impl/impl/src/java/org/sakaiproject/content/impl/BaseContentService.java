@@ -460,6 +460,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public void setPrioritySortEnabled(String value)
 	{
 		m_prioritySortEnabled = value != null && Boolean.TRUE.toString().equalsIgnoreCase(value);
+		M_log.info("setPrioritySortEnabled m_prioritySortEnabled == " + m_prioritySortEnabled);
 	}
 
 	/**
@@ -479,6 +480,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */ 
 	public boolean isSortByPriorityEnabled()
 	{
+		M_log.info("isSortByPriorityEnabled m_prioritySortEnabled == " + m_prioritySortEnabled);
 		return m_prioritySortEnabled;
 	}
 	
@@ -8945,6 +8947,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		public void setPriorityMap(Map priorities) 
 		{
+			M_log.info("setPriorityMap m_prioritySortEnabled == " + m_prioritySortEnabled);
 			if(m_prioritySortEnabled)
 			{
 				ResourcePropertiesEdit myProps = getPropertiesEdit();
@@ -8955,6 +8958,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 					String name = (String) nameIt.next();
 					Integer priority = (Integer) priorities.get(name);
 					
+					M_log.info("setPriorityMap name == " + name + " priority = " + priority);
 					try
 					{
 						if(name.endsWith(Entity.SEPARATOR))
@@ -8963,6 +8967,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 							ResourcePropertiesEdit props = entity.getPropertiesEdit();
 							props.addProperty(ResourceProperties.PROP_CONTENT_PRIORITY, priority.toString());
 							commitCollection(entity);
+							M_log.info("setPriorityMap          committed collection " + entity.getId());
 						}
 						else
 						{
@@ -8970,6 +8975,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 							ResourcePropertiesEdit props = entity.getPropertiesEdit();
 							props.addProperty(ResourceProperties.PROP_CONTENT_PRIORITY, priority.toString());
 							commitResource((ContentResourceEdit) entity);
+							M_log.info("setPriorityMap            committed resource " + entity.getId());
 						}
 					}
 					catch(TypeException e)
@@ -9005,6 +9011,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				}
 				
 			}
+			M_log.info("setPriorityMap done");
 		}
 
 	} // class BaseCollection
