@@ -10538,6 +10538,7 @@ public class ResourcesAction
 						BrowseItem newItem = new BrowseItem(itemId, itemName, itemType);
 						
 						boolean isLocked = contentService.isLocked(itemId);
+						newItem.setLocked(isLocked);
 						
 						boolean isAvailable = folder.isAvailable();
 						if(isAvailable)
@@ -11066,6 +11067,7 @@ public class ResourcesAction
 						BrowseItem newItem = new BrowseItem(itemId, itemName, itemType);
 						
 						boolean isLocked = contentService.isLocked(itemId);
+						newItem.setLocked(isLocked);
 						
 						boolean isAvailable = folder.isAvailable();
 						if(isAvailable)
@@ -12074,6 +12076,7 @@ public class ResourcesAction
 		protected boolean m_pubview_inherited;
 		protected boolean m_pubview_possible;
 		protected boolean m_sortable;
+		protected boolean m_locked = false;
 		
 		/**
 		 * @param id
@@ -12154,6 +12157,17 @@ public class ResourcesAction
 			m_access = AccessMode.INHERITED.toString();
 			m_groups = new Vector();
 		
+		}
+
+		public void setLocked(boolean isLocked) 
+		{
+			m_locked  = isLocked;
+			
+		}
+		
+		public boolean isLocked()
+		{
+			return m_locked;
 		}
 
 		public String getItemNum()

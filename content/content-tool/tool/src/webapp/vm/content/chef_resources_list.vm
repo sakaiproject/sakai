@@ -497,6 +497,9 @@
 											#end
 											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($member.type))" border= "0" alt ="" hspace="0" />
 											</a>
+											#if($member.isLocked())
+												<img src="#imageLink("sakai/lock.gif")" border="0"  alt="locked" />
+											#end
 											#if ($member.hasCopyrightAlert())
 												## if there is a copyright alert, show the alert page first
 												<a href="#"
@@ -516,6 +519,9 @@
 											#end
 										#else
 											 <img src = "#imageLink($contentTypeImageService.getContentTypeImage($member.type))" border="0" alt ="" hspace="0" />
+											 #if($member.isLocked())
+												<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="locked" />
+											#end
 											$validator.escapeHtml($member.name)
 											#if ($member.hasCopyrightAlert())
 												&#169;
@@ -990,6 +996,9 @@
 													#end
 													<img src = "#imageLink($contentTypeImageService.getContentTypeImage($member.type))" border= "0" alt ="" hspace="0" />
 													</a>
+													#if($member.isLocked())
+														<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="locked" />
+													#end
 													#if ($member.hasCopyrightAlert())
 														## if there is a copyright alert, show the alert page first
 														<a href="#" 
@@ -1009,6 +1018,9 @@
 													#end
 												#else
 													 <img src = "#imageLink($contentTypeImageService.getContentTypeImage($member.type))" border="0" alt ="" hspace="0" />
+													#if($member.isLocked())
+														<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="locked" />
+													#end
 													$validator.escapeHtml($member.name)
 													#if ($member.hasCopyrightAlert())
 														&#169;
