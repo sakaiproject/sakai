@@ -148,6 +148,12 @@ public class ContentHostingComparator implements Comparator
 		return rv;
 
 	} // compare
+	
+	public String toString()
+	{
+		return this.getClass().getName() + ": property(" + m_property  + ") ascending(" + m_ascending + ")";
+		
+	}
 
 } // ClassResourcesComparator
 

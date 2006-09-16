@@ -721,7 +721,9 @@ public class ResourcesAction
 		List all_roots = new Vector();
 		List this_site = new Vector();
 
+		logger.info("ResourcesAction.buildReorderContext  calling getListView (" + folderId + ")");
 		List members = getListView(folderId, highlightedItems, (BrowseItem) null, true, state);
+		logger.info("ResourcesAction.buildReorderContext     done getListView (" + folderId + ")");
 		String rootTitle = (String) state.getAttribute (STATE_SITE_TITLE);
 		if (folderId.equals(homeCollectionId))
 		{
@@ -932,7 +934,9 @@ public class ResourcesAction
 
 			List all_roots = new Vector();
 			List this_site = new Vector();
+			logger.info("ResourcesAction.buildListContext  calling getListView (" + collectionId + ")");
 			List members = getListView(collectionId, highlightedItems, (BrowseItem) null, navRoot.equals(homeCollectionId), state);
+			logger.info("ResourcesAction.buildListContext     done getListView (" + collectionId + ")");
 			// List members = getBrowseItems(collectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (BrowseItem) null, navRoot.equals(homeCollectionId), state);
 			if(members != null && members.size() > 0)
 			{
@@ -11019,7 +11023,12 @@ public class ResourcesAction
 					}
 				}
 
+				logger.info("ResourcesAction.getListView  sorting members, " + comparator.toString());
+
 				Collections.sort(newMembers, comparator);
+				
+				logger.info("ResourcesAction.getListView   sort completed, " + comparator.toString());
+
 				// loop thru the (possibly) new members and add to the list
 				Iterator it = newMembers.iterator();
 				while(it.hasNext())
@@ -11036,7 +11045,11 @@ public class ResourcesAction
 
 					if(resource.isCollection())
 					{
+						logger.info("ResourcesAction.getListView  calling getListView (" + itemId + ")");
+
 						List offspring = getListView(itemId, highlightedItems, folder, isLocal, state);
+						logger.info("ResourcesAction.getListView     done getListView (" + itemId + ")");
+
 						if(! offspring.isEmpty())
 						{
 							BrowseItem child = (BrowseItem) offspring.get(0);
@@ -14843,7 +14856,9 @@ public class ResourcesAction
 		String wsCollectionId = ContentHostingService.getSiteCollection(wsId);
 		if(! collectionId.equals(wsCollectionId))
 		{
+			logger.info("ResourcesAction.getAllResources  calling getListView (" + wsCollectionId + ")");
 			List members = getListView(wsCollectionId, highlightedItems, (BrowseItem) null, false, state);
+			logger.info("ResourcesAction.getAllResources     done getListView (" + wsCollectionId + ")");
 
             //List members = getBrowseItems(wsCollectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (BrowseItem) null, false, state);
             if(members != null && members.size() > 0)
@@ -14883,7 +14898,9 @@ public class ResourcesAction
 			String collId = item.substring(item.lastIndexOf(DELIM) + 1);
 			if(! collectionId.equals(collId) && ! wsCollectionId.equals(collId))
 			{
+				logger.info("ResourcesAction.getAllResources  calling getListView (" + collId + ")");
 				List members = getListView(collId, highlightedItems, (BrowseItem) null, false, state);
+				logger.info("ResourcesAction.getAllResources     done getListView (" + collId + ")");
 				// List members = getBrowseItems(collId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (BrowseItem) null, false, state);
 				if(members != null && members.size() > 0)
 				{
