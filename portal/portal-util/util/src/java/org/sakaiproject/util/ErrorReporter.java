@@ -33,8 +33,11 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.Placement;
 
 /**
  * <p>
@@ -167,6 +170,17 @@ public class ErrorReporter
 
 		// mail
 		String emailAddr = ServerConfigurationService.getString("portal.error.email");
+		
+		UsageSession usageSession = UsageSessionService.getSession();
+		String uSessionInfo = "";
+		if (usageSession != null )
+		{
+			uSessionInfo = "UserAgent: " +  usageSession.getUserAgent() + "\n"
+			+ "BrowserId: " + usageSession.getBrowserId()+ "\n"
+			+ "IP:" + usageSession.getIpAddress() + "\n";
+		} else {
+			uSessionInfo = "No Usage session Information is available \n";
+		}
 		if (emailAddr != null)
 		{
 			String from = "\"" + ServerConfigurationService.getString("ui.service", "Sakai") + "\"<no-reply@"
@@ -174,6 +188,9 @@ public class ErrorReporter
 			String subject = rb.getString("bugreport.bugreport") + ": " + usageSessionId;
 			String body = rb.getString("bugreport.user") + ": " + userId + "\n"
 					+ rb.getString("bugreport.usagesession") + ": " + usageSessionId + "\n"
+					+ "Application Server: "+ ServerConfigurationService.getServerId() + "\n"
+					+ uSessionInfo
+					+ "Context: " + ToolManager.getCurrentPlacement().getContext() + "\n"
 					+ rb.getString("bugreport.time") + ": " + time + "\n\n\n" + rb.getString("bugreport.usercomment")
 					+ ":\n\n" + userReport + "\n\n\n" + rb.getString("bugreport.stacktrace") + ":\n\n" + problem;
 
