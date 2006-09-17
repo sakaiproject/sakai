@@ -721,9 +721,8 @@ public class ResourcesAction
 		List all_roots = new Vector();
 		List this_site = new Vector();
 
-		logger.info("ResourcesAction.buildReorderContext  calling getListView (" + folderId + ")");
 		List members = getListView(folderId, highlightedItems, (BrowseItem) null, true, state);
-		logger.info("ResourcesAction.buildReorderContext     done getListView (" + folderId + ")");
+
 		String rootTitle = (String) state.getAttribute (STATE_SITE_TITLE);
 		if (folderId.equals(homeCollectionId))
 		{
@@ -934,9 +933,9 @@ public class ResourcesAction
 
 			List all_roots = new Vector();
 			List this_site = new Vector();
-			logger.info("ResourcesAction.buildListContext  calling getListView (" + collectionId + ")");
+			
 			List members = getListView(collectionId, highlightedItems, (BrowseItem) null, navRoot.equals(homeCollectionId), state);
-			logger.info("ResourcesAction.buildListContext     done getListView (" + collectionId + ")");
+
 			// List members = getBrowseItems(collectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (BrowseItem) null, navRoot.equals(homeCollectionId), state);
 			if(members != null && members.size() > 0)
 			{
@@ -1076,7 +1075,7 @@ public class ResourcesAction
 		}
 		catch (IdUnusedException e)
 		{
-			// logger.warn(this + e.toString());
+			logger.debug(this + e.toString());
 		}
 
 		context.put("expandallflag", state.getAttribute(STATE_EXPAND_ALL_FLAG));
@@ -3534,7 +3533,7 @@ public class ResourcesAction
 				}
 				catch(RuntimeException e)
 				{
-					logger.warn("ResourcesAction.createStructuredArtifacts ***** Unknown Exception ***** " + e.getMessage());
+					logger.debug("ResourcesAction.createStructuredArtifacts ***** Unknown Exception ***** " + e.getMessage());
 					alerts.add(rb.getString("failed"));
 				}
 
@@ -4372,7 +4371,7 @@ public class ResourcesAction
 				}
 				catch(RuntimeException e)
 				{
-					logger.warn("ResourcesAction.doAttachupload ***** Unknown Exception ***** " + e.getMessage());
+					logger.debug("ResourcesAction.doAttachupload ***** Unknown Exception ***** " + e.getMessage());
 					addAlert(state, rb.getString("failed"));
 				}
 			}
@@ -4475,7 +4474,7 @@ public class ResourcesAction
 		}
 		catch(RuntimeException e)
 		{
-			logger.warn("ResourcesAction.doAttachurl ***** Unknown Exception ***** " + e.getMessage());
+			logger.debug("ResourcesAction.doAttachurl ***** Unknown Exception ***** " + e.getMessage());
 			addAlert(state, rb.getString("failed"));
 		}
 
@@ -4777,7 +4776,7 @@ public class ResourcesAction
 			}
 			catch(RuntimeException e)
 			{
-				logger.warn("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
+				logger.debug("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
 				addAlert(state, rb.getString("failed"));
 			}
 		}
@@ -4869,7 +4868,7 @@ public class ResourcesAction
 			}
 			catch(RuntimeException e)
 			{
-				logger.warn("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
+				logger.debug("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
 				addAlert(state, rb.getString("failed"));
 			}
 		}
@@ -5063,7 +5062,7 @@ public class ResourcesAction
 			}
 			catch(RuntimeException e)
 			{
-				logger.warn("ResourcesAction.createFiles ***** Unknown Exception ***** " + e.getMessage());
+				logger.debug("ResourcesAction.createFiles ***** Unknown Exception ***** " + e.getMessage());
 				alerts.add(rb.getString("failed"));
 				continue outerloop;
 			}
@@ -5523,7 +5522,7 @@ public class ResourcesAction
 				}// try - catch
 				catch(RuntimeException e)
 				{
-					logger.warn("ResourcesAction.doDelete ***** Unknown Exception ***** " + e.getMessage());
+					logger.debug("ResourcesAction.doDelete ***** Unknown Exception ***** " + e.getMessage());
 					addAlert(state, rb.getString("failed"));
 				}
 			}	// for
@@ -5688,7 +5687,7 @@ public class ResourcesAction
 						}	// try-catch
 						catch(RuntimeException e)
 						{
-							logger.warn("ResourcesAction.doHandlepaste ***** Unknown Exception ***** " + e.getMessage());
+							logger.debug("ResourcesAction.doHandlepaste ***** Unknown Exception ***** " + e.getMessage());
 							addAlert(state, rb.getString("failed"));
 						}
 
@@ -5718,7 +5717,7 @@ public class ResourcesAction
 				}	// try-catch
 				catch(RuntimeException e)
 				{
-					logger.warn("ResourcesAction.doHandlepaste ***** Unknown Exception ***** " + e.getMessage());
+					logger.debug("ResourcesAction.doHandlepaste ***** Unknown Exception ***** " + e.getMessage());
 					addAlert(state, rb.getString("failed"));
 				}
 
@@ -5812,7 +5811,7 @@ public class ResourcesAction
 						}	// try-catch
 						catch(RuntimeException e)
 						{
-							logger.warn("ResourcesAction.doHandlepaste ***** Unknown Exception ***** " + e.getMessage());
+							logger.debug("ResourcesAction.doHandlepaste ***** Unknown Exception ***** " + e.getMessage());
 							addAlert(state, rb.getString("failed"));
 						}
 
@@ -5964,7 +5963,7 @@ public class ResourcesAction
 						}	// try-catch
 						catch(RuntimeException e)
 						{
-							logger.warn("ResourcesAction.doHandlepasteshortcut ***** Unknown Exception ***** " + e.getMessage());
+							logger.debug("ResourcesAction.doHandlepasteshortcut ***** Unknown Exception ***** " + e.getMessage());
 							addAlert(state, rb.getString("failed"));
 						}
 					}	// if-else
@@ -6517,7 +6516,7 @@ public class ResourcesAction
 		}
 		catch(RuntimeException e)
 		{
-			logger.warn("ResourcesAction.getEditItem ***** Unknown Exception ***** " + e.getMessage());
+			logger.debug("ResourcesAction.getEditItem ***** Unknown Exception ***** " + e.getMessage());
 			addAlert(state, rb.getString("failed"));
 		}
 
@@ -8391,7 +8390,7 @@ public class ResourcesAction
 				catch(InconsistentException e)
 				{
 					// TODO: Should this be reported to user??
-					logger.warn("ResourcesAction.doSavechanges ***** InconsistentException changing groups ***** " + e.getMessage());
+					logger.debug("ResourcesAction.doSavechanges ***** InconsistentException changing groups ***** " + e.getMessage());
 				}
 								
 				if(ContentHostingService.isAvailabilityEnabled())
@@ -8553,8 +8552,8 @@ public class ResourcesAction
 			}
 			catch(RuntimeException e)
 			{
-				logger.warn("ResourcesAction.doSavechanges ***** Unknown Exception ***** " + e.getMessage());
-				logger.warn("ResourcesAction.doSavechanges ***** Unknown Exception ***** ", e);
+				logger.debug("ResourcesAction.doSavechanges ***** Unknown Exception ***** " + e.getMessage());
+				logger.debug("ResourcesAction.doSavechanges ***** Unknown Exception ***** ", e);
 				alerts.add(rb.getString("failed"));
 			}
 		}	// if - else
@@ -11023,11 +11022,7 @@ public class ResourcesAction
 					}
 				}
 
-				logger.info("ResourcesAction.getListView  sorting members, " + comparator.toString());
-
 				Collections.sort(newMembers, comparator);
-				
-				logger.info("ResourcesAction.getListView   sort completed, " + comparator.toString());
 
 				// loop thru the (possibly) new members and add to the list
 				Iterator it = newMembers.iterator();
@@ -11045,10 +11040,7 @@ public class ResourcesAction
 
 					if(resource.isCollection())
 					{
-						logger.info("ResourcesAction.getListView  calling getListView (" + itemId + ")");
-
 						List offspring = getListView(itemId, highlightedItems, folder, isLocal, state);
-						logger.info("ResourcesAction.getListView     done getListView (" + itemId + ")");
 
 						if(! offspring.isEmpty())
 						{
@@ -11409,7 +11401,7 @@ public class ResourcesAction
 			}	// try-catch
 			catch(RuntimeException e)
 			{
-				logger.warn("ResourcesAction.doPasteitems ***** Unknown Exception ***** " + e.getMessage());
+				logger.debug("ResourcesAction.doPasteitems ***** Unknown Exception ***** " + e.getMessage());
 				addAlert(state, rb.getString("failed"));
 			}
 
@@ -11526,7 +11518,7 @@ public class ResourcesAction
 			}	// try-catch
 			catch(RuntimeException e)
 			{
-				logger.warn("ResourcesAction.doMoveitems ***** Unknown Exception ***** " + e.getMessage());
+				logger.debug("ResourcesAction.doMoveitems ***** Unknown Exception ***** " + e.getMessage());
 				addAlert(state, rb.getString("failed"));
 			}
 
@@ -14856,9 +14848,7 @@ public class ResourcesAction
 		String wsCollectionId = ContentHostingService.getSiteCollection(wsId);
 		if(! collectionId.equals(wsCollectionId))
 		{
-			logger.info("ResourcesAction.getAllResources  calling getListView (" + wsCollectionId + ")");
 			List members = getListView(wsCollectionId, highlightedItems, (BrowseItem) null, false, state);
-			logger.info("ResourcesAction.getAllResources     done getListView (" + wsCollectionId + ")");
 
             //List members = getBrowseItems(wsCollectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (BrowseItem) null, false, state);
             if(members != null && members.size() > 0)
@@ -14898,9 +14888,8 @@ public class ResourcesAction
 			String collId = item.substring(item.lastIndexOf(DELIM) + 1);
 			if(! collectionId.equals(collId) && ! wsCollectionId.equals(collId))
 			{
-				logger.info("ResourcesAction.getAllResources  calling getListView (" + collId + ")");
 				List members = getListView(collId, highlightedItems, (BrowseItem) null, false, state);
-				logger.info("ResourcesAction.getAllResources     done getListView (" + collId + ")");
+
 				// List members = getBrowseItems(collId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (BrowseItem) null, false, state);
 				if(members != null && members.size() > 0)
 				{
