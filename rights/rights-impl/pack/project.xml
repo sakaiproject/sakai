@@ -3,57 +3,73 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../../master/project.xml</extend>
-	<name>sakai-rights-impl</name>
+	<name>sakai-rights-pack</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-rights-impl</id>
+	<id>sakai-rights-pack</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
-		<name>The Sakai Foundation</name>
+		<name>University of Michigan</name>
 		<url>http://sakaiproject.org/</url>
 	</organization>
 	<inceptionYear>2003</inceptionYear>
 
 	<properties>
-		<!-- deploy as a jar -->
-		<deploy.type>jar</deploy.type>
+		<!-- deploy as a components -->
+		<deploy.type>components</deploy.type>
 	</properties>
 
 	<dependencies>
-	
+
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-rights-api</artifactId>
+			<artifactId>sakai-rights-impl</artifactId>
 			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-component</artifactId>
+			<artifactId>sakai-util</artifactId>
 			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-entity-api</artifactId>
+			<artifactId>sakai-db-storage</artifactId>
 			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-api</artifactId>
+			<artifactId>sakai-entity-util</artifactId>
 			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
 		</dependency>
 
 		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.0.4</version>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-event-util</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
 		</dependency>
 
 	</dependencies>
 
 	<build>
 
+		<!-- java source -->
 		<sourceDirectory>src/java</sourceDirectory>
 
 	</build>

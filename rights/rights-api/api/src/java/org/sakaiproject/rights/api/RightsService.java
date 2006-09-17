@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/content/trunk/content-tool/tool/src/java/org/sakaiproject/content/tool/ResourcesAction.java $
- * $Id: ResourcesAction.java 13885 2006-08-21 16:03:28Z jimeng@umich.edu $
+ * $URL:  $
+ * $Id:  $
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
@@ -21,20 +21,10 @@
 
 package org.sakaiproject.rights.api;
 
+import org.sakaiproject.exception.IdUnusedException;
+
 public interface RightsService 
 {
-	/**
-	 * @param entityRef
-	 * @param rights
-	 */
-	public void setRightsAssignment(String entityRef, RightsAssignment rights);
-	
-	/**
-	 * @param entityRef
-	 * @return
-	 */
-	public RightsAssignment getRightsAssignment(String entityRef);
-	
 	/**
 	 * @param entityRef
 	 * @return
@@ -42,14 +32,51 @@ public interface RightsService
 	public RightsAssignment addRightsAssignment(String entityRef);
 	
 	/**
+	 * @param context
+	 * @return
+	 */
+	public SiteRightsPolicy addSiteRightsPolicy(String context);
+	
+	/**
+	 * @param context
+	 * @param userId
+	 * @return
+	 */
+	public UserRightsPolicy addUserRightsPolicy(String context, String userId);
+	
+	/**
+	 * @param entityRef
+	 * @return
+	 */
+	public RightsAssignment getRightsAssignment(String entityRef) throws IdUnusedException;
+	
+	/**
+	 * @param context
+	 * @return
+	 */
+	public SiteRightsPolicy getSiteRightsPolicy(String context);
+	
+	/**
+	 * @param context
+	 * @param userId
+	 * @return
+	 */
+	public UserRightsPolicy getUserRightsPolicy(String context, String userId);
+	
+	/**
 	 * @param rights
 	 */
 	public void save(RightsAssignment rights);
 	
-	public UserRightsPolicy addUserRightsPolicy(String context, String userId);
-	public SiteRightsPolicy addSiteRightsPolicy(String context);
-	public UserRightsPolicy getUserRightsPolicy(String context, String userId);
-	public SiteRightsPolicy getSiteRightsPolicy(String context);
+	/**
+	 * @param policy
+	 */
 	public void save(RightsPolicy policy);
+	
+	/**
+	 * @param entityRef
+	 * @param rights
+	 */
+	public void setRightsAssignment(String entityRef, RightsAssignment rights);
 		
 }	// interface CopyrightService

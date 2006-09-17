@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/content/trunk/content-tool/tool/src/java/org/sakaiproject/content/tool/ResourcesAction.java $
- * $Id: ResourcesAction.java 13885 2006-08-21 16:03:28Z jimeng@umich.edu $
+ * $URL:  $
+ * $Id:  $
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.

@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/content/trunk/content-tool/tool/src/java/org/sakaiproject/content/tool/ResourcesAction.java $
- * $Id: ResourcesAction.java 13885 2006-08-21 16:03:28Z jimeng@umich.edu $
+ * $URL:  $
+ * $Id: $
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
@@ -31,6 +31,10 @@ import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.rights.api.Copyright;
 import org.sakaiproject.rights.api.RightsPolicy;
@@ -104,7 +108,7 @@ public abstract class BaseRightsService implements RightsService
 		}
 
 	}	// class BasicCopyright
-	
+
 	public class BasicCreativeCommonsLicense implements CreativeCommonsLicense
 	{
 		protected String m_id;
@@ -351,6 +355,10 @@ public abstract class BaseRightsService implements RightsService
 		}
 
 	}	// class BasicCreativeCommonsLicense
+		
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Init and Destroy
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	public class BasicRightsAssignment implements RightsAssignment
 	{
@@ -436,21 +444,36 @@ public abstract class BaseRightsService implements RightsService
 
 	public interface Storage
 	{
-		public Copyright getCopyright(String copyrightId);
-		public CreativeCommonsLicense getLicense(String licenseId);
-		public RightsAssignment getRightsAssignment(String entityRef);
-		public RightsPolicy getRightsPolicy(String context, String userId);
+		public void close();
+		public Copyright getCopyright(String copyrightId) throws IdUnusedException;
+		
+		public CreativeCommonsLicense getLicense(String licenseId) throws IdUnusedException;
+		public RightsAssignment getRightsAssignment(String entityRef) throws IdUnusedException;
+		public RightsPolicy getRightsPolicy(String context, String userId) throws IdUnusedException;
 		public Copyright newCopyright(String rightsId);
+		
 		public CreativeCommonsLicense newLicense(String rightsId);
 		public RightsAssignment newRightsAssignment(String entityRef);
 		public RightsPolicy newRightsPolicy(String context, String userId);
-		public String save(Copyright copyright);
+		public void open();
 		
+		public void remove(Copyright copyright);
+		public void remove(CreativeCommonsLicense license);
+		public void remove(RightsAssignment rights);
+		public void remove(RightsPolicy policy);
+		
+		public String save(Copyright copyright);
 		public String save(CreativeCommonsLicense license);
 		public String save(RightsAssignment rights);
 		public String save(RightsPolicy policy);
 		
 	}
+
+		
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(BaseRightsService.class);
+	
+	protected Storage m_storage = null;
 
 	/**
 	 * @param entityRef
@@ -458,9 +481,9 @@ public abstract class BaseRightsService implements RightsService
 	 */
 	public RightsAssignment addRightsAssignment(String entityRef)
 	{
-		return new BasicRightsAssignment(entityRef);
+		return m_storage.newRightsAssignment(entityRef);
 	}
-	
+
 	public SiteRightsPolicy addSiteRightsPolicy(String context) 
 	{
 		// TODO Auto-generated method stub
@@ -472,19 +495,32 @@ public abstract class BaseRightsService implements RightsService
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	public RightsAssignment getRightsAssignment(String entityRef) 
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
 
+
+
+	/**
+	 * Returns to uninitialized state.
+	 */
+	public void destroy()
+	{
+		m_storage.close();
+		m_storage = null;
+
+		M_log.info("destroy()");
+
+	}
+	
+	public RightsAssignment getRightsAssignment(String entityRef) throws IdUnusedException 
+	{
+		return m_storage.getRightsAssignment(entityRef);
+	}
+	
 	public SiteRightsPolicy getSiteRightsPolicy(String context) 
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 	public UserRightsPolicy getUserRightsPolicy(String context, String userId) 
 	{
 		// TODO Auto-generated method stub
@@ -492,23 +528,48 @@ public abstract class BaseRightsService implements RightsService
 	}
 
 	/**
+	 * Final initialization, once all dependencies are set.
+	 */
+	public void init()
+	{
+		try
+		{
+			// construct a storage helper and read
+			m_storage = newStorage();
+			m_storage.open();
+
+			M_log.info("init()");
+		}
+		catch (Throwable t)
+		{
+			M_log.warn("init(): ", t);
+		}
+
+	} // init
+
+	/**
+	 * Construct a Storage object.
+	 * 
+	 * @return The new storage object.
+	 */
+	protected abstract Storage newStorage();
+
+	/**
 	 * @param rights
 	 */
 	public void save(RightsAssignment rights)
 	{
-		// TODO 
+		m_storage.save(rights);
 	}
 
 	public void save(RightsPolicy policy) 
 	{
-		// TODO Auto-generated method stub
-		
+		m_storage.save(policy);
 	}
 
 	public void setRightsAssignment(String entityRef, RightsAssignment rights) 
 	{
-		// TODO Auto-generated method stub
-
+		// m_storage
 	}
 
 }	// class BaseCopyrightService
