@@ -3,12 +3,36 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 		<title>Web Content Instructions</title>
-		<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
-		<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all"/>
+		<script language="JavaScript" type="text/JavaScript">
+			var i, a, href
+			for(i=0; (a = top.document.getElementsByTagName("link")[i]); i++) 
+			{
+				if(a.getAttribute("rel").indexOf("style") != -1)
+				{
+					if(a.getAttribute("href").indexOf("portal") != -1)
+					{
+						//normal - top is portal
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href").substring(0,a.getAttribute("href").indexOf("portal")));
+						document.write ('tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href").substring(0,(a.getAttribute("href").indexOf("skin") + 5 )));
+						document.write ('tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+					else
+					{
+						//not normal - top is something else - use it's stylesheets
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href"));
+						document.write ('" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+				}
+			}
+		</script>
 	</head>
 	<body>
 		<div class="portletBody">
-			<h3 style="text-align:center">Web Content Setup</h3>
+			<h3>Web Content Setup</h3>
 			<p>Use this tool to point to a web page of your choice.</p>
 			<p>Click the <strong>Options</strong> button, and enter the web
 				page address in the URL field.</p>
