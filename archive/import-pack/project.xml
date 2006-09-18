@@ -77,6 +77,14 @@
 			</properties>
 		</dependency>
 		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		<dependency>
 			<groupId>activation</groupId>
 			<artifactId>activation</artifactId>
 			<version>1.0.2</version>
