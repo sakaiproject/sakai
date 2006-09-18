@@ -23,6 +23,7 @@ package org.sakaiproject.util;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.MessageDigest;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -34,10 +35,11 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 /**
  * <p>
@@ -56,6 +58,55 @@ public class ErrorReporter
 	{
 	}
 
+	/** Following two methods borrowed from RWikiObjectImpl.java **/
+	
+	private static MessageDigest shatemplate = null;
+
+	public static String computeSha1(String content)
+	{
+		String digest = "";
+		try
+		{
+			if (shatemplate == null)
+			{
+				shatemplate = MessageDigest.getInstance("SHA");
+			}
+
+			MessageDigest shadigest = (MessageDigest) shatemplate.clone();
+			byte[] bytedigest = shadigest.digest(content.getBytes("UTF8"));
+			digest = byteArrayToHexStr(bytedigest);
+		}
+		catch (Exception ex)
+		{
+			System.err.println("Unable to create SHA hash of content");
+			ex.printStackTrace();
+		}
+		return digest;
+	}
+
+	private static String byteArrayToHexStr(byte[] data)
+	{
+		String output = "";
+		String tempStr = "";
+		int tempInt = 0;
+		for (int cnt = 0; cnt < data.length; cnt++)
+		{
+			// Deposit a byte into the 8 lsb of an int.
+			tempInt = data[cnt] & 0xFF;
+			// Get hex representation of the int as a
+			// string.
+			tempStr = Integer.toHexString(tempInt);
+			// Append a leading 0 if necessary so that
+			// each hex string will contain two
+			// characters.
+			if (tempStr.length() == 1) tempStr = "0" + tempStr;
+			// Concatenate the two characters to the
+			// output string.
+			output = output + tempStr;
+		}// end for loop
+		return output.toUpperCase();
+	}// end byteArrayToHexStr
+	
 	/**
 	 * Format the full stack trace.
 	 * 
@@ -158,10 +209,14 @@ public class ErrorReporter
 	 *        The time of the error.
 	 * @param problem
 	 *        The stacktrace of the error.
+	 * @param problemdigest
+	 *        The sha1 digest of the stacktrace.
+	 * @param requestURI
+	 *        The request URI.
 	 * @param userReport
 	 *        The end user comments.
 	 */
-	protected void logAndMail(String usageSessionId, String userId, String time, String problem, String userReport)
+	protected void logAndMail(String usageSessionId, String userId, String time, String problem, String problemdigest, String requestURI, String userReport)
 	{
 		// log
 		M_log.warn(rb.getString("bugreport.bugreport") + " " + rb.getString("bugreport.user") + ": " + userId + " "
@@ -171,28 +226,63 @@ public class ErrorReporter
 		// mail
 		String emailAddr = ServerConfigurationService.getString("portal.error.email");
 		
-		UsageSession usageSession = UsageSessionService.getSession();
-		String uSessionInfo = "";
-		if (usageSession != null )
-		{
-			uSessionInfo = "UserAgent: " +  usageSession.getUserAgent() + "\n"
-			+ "BrowserId: " + usageSession.getBrowserId()+ "\n"
-			+ "IP:" + usageSession.getIpAddress() + "\n";
-		} else {
-			uSessionInfo = "No Usage session Information is available \n";
-		}
 		if (emailAddr != null)
 		{
+			String uSessionInfo = "";
+			UsageSession usageSession = UsageSessionService.getSession();
+			
+			if (usageSession != null )
+			{
+				uSessionInfo = rb.getString("bugreport.useragent") + ": " +  usageSession.getUserAgent() + "\n"
+				+ rb.getString("bugreport.browserid") + ": " + usageSession.getBrowserId()+ "\n"
+				+ rb.getString("bugreport.ip") + ": " + usageSession.getIpAddress() + "\n";
+			}
+			
+			String pathInfo = "";
+			if (requestURI != null)
+			{
+				pathInfo = rb.getString("bugreport.path") + ": " + requestURI + "\n"; 
+			}
+						
+			User user = null;
+			String userName = null;
+			String userMail = null;
+			String userEid = null;
+			if (userId != null) {
+				try {
+					user = UserDirectoryService.getUser(userId);
+					userName = user.getDisplayName();
+					userMail = user.getEmail();
+					userEid = user.getEid();
+				}
+				catch (Exception e) {
+					// nothing
+				}
+			}
+			
+			String userComment = "";
+			if (userReport != null)
+			{
+				userComment = rb.getString("bugreport.usercomment")	+ ":\n\n" + userReport + "\n\n\n"; 
+			} 
+	
 			String from = "\"" + ServerConfigurationService.getString("ui.service", "Sakai") + "\"<no-reply@"
 					+ ServerConfigurationService.getServerName() + ">";
-			String subject = rb.getString("bugreport.bugreport") + ": " + usageSessionId;
-			String body = rb.getString("bugreport.user") + ": " + userId + "\n"
+			
+			String subject = rb.getString("bugreport.bugreport") + ": " + problemdigest + " / " + usageSessionId;
+			
+			String body = rb.getString("bugreport.user") + ": " + userEid + " (" + userName + ")\n"
+					+ rb.getString("bugreport.email") + ": " + userMail + "\n"		
 					+ rb.getString("bugreport.usagesession") + ": " + usageSessionId + "\n"
-					+ "Application Server: "+ ServerConfigurationService.getServerId() + "\n"
+					+ rb.getString("bugreport.digest") + ": " + problemdigest + "\n"
+					+ rb.getString("bugreport.version-sakai") + ": " + ServerConfigurationService.getString("version.sakai") + "\n"
+					+ rb.getString("bugreport.version-service") + ": " + ServerConfigurationService.getString("version.service") + "\n"
+					+ rb.getString("bugreport.appserver") + ": " + ServerConfigurationService.getServerId() + "\n"
 					+ uSessionInfo
-					+ "Context: " + ToolManager.getCurrentPlacement().getContext() + "\n"
-					+ rb.getString("bugreport.time") + ": " + time + "\n\n\n" + rb.getString("bugreport.usercomment")
-					+ ":\n\n" + userReport + "\n\n\n" + rb.getString("bugreport.stacktrace") + ":\n\n" + problem;
+					+ pathInfo
+					+ rb.getString("bugreport.time") + ": " + time + "\n\n\n" 
+					+ userComment 
+					+ rb.getString("bugreport.stacktrace") + ":\n\n" + problem;
 
 			EmailService.send(from, emailAddr, subject, body, null, null, null);
 		}
@@ -212,11 +302,14 @@ public class ErrorReporter
 	{
 		String headInclude = (String) req.getAttribute("sakai.html.head");
 		String bodyOnload = (String) req.getAttribute("sakai.html.body.onload");
-		String time = TimeService.newTime().toStringLocalFullZ();
+		Time reportTime = TimeService.newTime();
+		String time = reportTime.toStringLocalDate() + " " + reportTime.toStringLocalTime24(); 
 		String usageSessionId = UsageSessionService.getSessionId();
 		String userId = SessionManager.getCurrentSessionUserId();
 		String problem = throwableDisplay(t);
+		String problemdigest = computeSha1(problem);
 		String postAddr = ServerConfigurationService.getPortalUrl() + "/error-report";
+		String requestURI = req.getRequestURI();
 
 		if (bodyOnload == null)
 		{
@@ -258,6 +351,7 @@ public class ErrorReporter
 			out.println("<input type=\"hidden\" name=\"problem\" value=\"");
 			out.println(problem);
 			out.println("\">");
+			out.println("<input type=\"hidden\" name=\"problemdigest\" value=\"" + problemdigest + "\">");
 			out.println("<input type=\"hidden\" name=\"session\" value=\"" + usageSessionId + "\">");
 			out.println("<input type=\"hidden\" name=\"user\" value=\"" + userId + "\">");
 			out.println("<input type=\"hidden\" name=\"time\" value=\"" + time + "\">");
@@ -294,7 +388,7 @@ public class ErrorReporter
 			out.println("</html>");
 
 			// log and send the preliminary email
-			logAndMail(usageSessionId, userId, time, problem, null);
+			logAndMail(usageSessionId, userId, time, problem, problemdigest, requestURI, null);
 		}
 		catch (Throwable any)
 		{
@@ -317,9 +411,10 @@ public class ErrorReporter
 		String time = req.getParameter("time");
 		String comment = req.getParameter("comment");
 		String problem = req.getParameter("problem");
+		String problemdigest = req.getParameter("problemdigest");
 
-		// log and send the preliminary email
-		logAndMail(session, user, time, problem, comment);
+		// log and send the followup email
+		logAndMail(session, user, time, problem, problemdigest, null, comment);
 
 		// always redirect from a post
 		try

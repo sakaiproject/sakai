@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../../master/project.xml</extend>
@@ -41,6 +40,18 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-tool-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-user-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-entity-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
