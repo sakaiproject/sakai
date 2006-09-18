@@ -686,6 +686,10 @@ public class CharonPortal extends HttpServlet
 			HttpServletResponse res, ToolConfiguration placement, String skin,
 			String toolContextPath, String toolPathInfo) throws IOException
 	{
+
+		// TODO: After 2.3 and the background document is modified - this may no longer be needed
+		// as the title is simply in the background document
+
 		res.setContentType("text/html; charset=UTF-8");
 		res.addDateHeader("Expires", System.currentTimeMillis()
 				- (1000L * 60L * 60L * 24L * 365L));
@@ -771,24 +775,20 @@ public class CharonPortal extends HttpServlet
 		out.write("\t<div class=\"title\">\n");
 		if (showResetButton)
 		{
-			out
-					.write("\t\t<a href=\""
-							+ resetActionUrl
-							+ "\" title=\"Reset\"><img src=\"/library/image/transparent.gif\" alt=\"Reset\" border=\"1\" /></a>");
+			out.write("\t\t<a href=\""
+				+ resetActionUrl
+				+ "\" title=\"" + Web.escapeHtml(rb.getString("sit.reset")) 
+				+ "\"><img src=\"/library/image/transparent.gif\" alt=\"" 
+				+ Web.escapeHtml(rb.getString("sit.reset")) + "\" border=\"1\" /></a>");
 		}
+
 		out.write("<h2>" + toolTitle + "\n" + "\t</h2></div>\n");
 		out.write("\t<div class=\"action\">\n");
 		if (showHelpButton)
 		{
-			out
-					.write("\t\t<a accesskey=\"h\" href=\""
-							+ helpActionUrl
-							+ "\" target=\"_blank\" "
-							+ "onclick=\"openWindow('"
-							+ helpActionUrl
-							+ "', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
-							+ "<img src=\"/library/image/transparent.gif\" alt=\"Help\" border=\"0\" /></a>\n");
-		}
+			out.write(makeHelpButton(helpActionUrl));
+ 		}
+
 		out.write("\t</div>\n");
 		out.write("</div>\n");
 
@@ -838,6 +838,19 @@ public class CharonPortal extends HttpServlet
 		}
 
 		out.write(tailHtml);
+	}
+
+	private String makeHelpButton(String helpActionUrl)
+	{
+		return ("\t\t<a accesskey=\"h\""
+			+ " href=\"" + helpActionUrl + "\" "
+ 			+ " title=\"" + Web.escapeHtml(rb.getString("sit.help")) + "\" "
+			+ " target=\"_blank\" "
+			+ " onclick=\"openWindow('" + helpActionUrl + "', 'Help'"
+			+ ", 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
+			+ "<img src=\"/library/image/transparent.gif\""
+			+ " alt=\"" + Web.escapeHtml(rb.getString("sit.help")) + "\""
+			+ " border=\"0\" /></a>\n");
 	}
 
 	protected void doLogin(HttpServletRequest req, HttpServletResponse res,
@@ -2341,8 +2354,7 @@ public class CharonPortal extends HttpServlet
 			out.println("			<li>");
 
 			// help gets its own accesskey - 6
-			out
-					.println("				<a  accesskey=\"6\" href=\""
+			out .println("				<a  accesskey=\"6\" href=\""
 							+ helpUrl
 							+ "\" target=\"_blank\" "
 							+ "onclick=\"openWindow('"
@@ -2779,17 +2791,6 @@ public class CharonPortal extends HttpServlet
 	protected void includeTool(PrintWriter out, HttpServletRequest req,
 			ToolConfiguration placement) throws IOException
 	{
-		// Note: at present (sakai 2.0), we don't fully support aggregation -
-		// tools, such as
-		// velocity based tools, might do some things to the response object to
-		// interfere
-		// with subsequent tool use of the object. We will have to have more
-		// protective
-		// response objects for each tool. For now, tools get forwarded, not
-		// included.
-		// This means that Charon will cheat about placing the tool's initial
-		// (aggregated)
-		// display; the title and main iframes. Varuna did, too! -ggolden
 
 		// find the tool registered for this
 		ActiveTool tool = ActiveToolManager
@@ -2857,24 +2858,21 @@ public class CharonPortal extends HttpServlet
 
 		out.write("<div class=\"portletTitle\">\n");
 		out.write("\t<div class=\"title\">\n");
+
+		// This is a new-style reset where the button is in the background document
 		if (showResetButton)
 		{
 			out.write("\t\t<a href=\"" + toolUrl + "?" + PARM_STATE_RESET + "=true" + "\" "
 					+ " target=\"" + Web.escapeJavascript("Main" + placement.getId()) + "\""
-					+ " title=\"Reset\"><img src=\"/library/image/transparent.gif\" alt=\"Reset\" border=\"1\" /></a>");
+					+ " title=\"" + Web.escapeHtml(rb.getString("sit.reset")) 
+					+ "\"><img src=\"/library/image/transparent.gif\" alt=\"" 
+					+ Web.escapeHtml(rb.getString("sit.reset")) + "\" border=\"1\" /></a>");
 		}
 		out.write("<h2>" + titleString + "\n" + "\t</h2></div>\n");
 		out.write("\t<div class=\"action\">\n");
 		if (showHelpButton)
 		{
-			out
-					.write("\t\t<a accesskey=\"h\" href=\""
-							+ helpActionUrl
-							+ "\" target=\"_blank\" "
-							+ "onclick=\"openWindow('"
-							+ helpActionUrl
-							+ "', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
-							+ "<img src=\"/library/image/transparent.gif\" alt=\"Help\" border=\"0\" /></a>\n");
+			out.write(makeHelpButton(helpActionUrl));
 		}
 		out.write("\t</div><!--gsilver end of the action-->\n");
 		out.write("</div><!--gsilver end of the portletTitle-->\n");
