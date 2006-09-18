@@ -1,9 +1,13 @@
 package org.sakaiproject.importer.impl.handlers;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUsedException;
@@ -23,15 +27,15 @@ import org.sakaiproject.importer.impl.importables.HtmlDocument;
 import org.sakaiproject.importer.impl.importables.TextDocument;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.util.Validator;
 
 import javax.activation.MimetypesFileTypeMap;
+
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 
@@ -41,7 +45,9 @@ public class ResourcesHandler implements HandlesImportable {
 	private Log m_log = LogFactory.getLog(org.sakaiproject.importer.impl.handlers.ResourcesHandler.class);
 
 	public boolean canHandleType(String typeName) {
-		return (("sakai-file-resource".equals(typeName) || ("sakai-folder".equals(typeName)) || ("sakai-text-document".equals(typeName)) || ("sakai-html-document".equals(typeName)) || ("sakai-web-link".equals(typeName))));
+		return (("sakai-file-resource".equals(typeName) || ("sakai-folder".equals(typeName)) || 
+				("sakai-text-document".equals(typeName)) || ("sakai-html-document".equals(typeName)) || 
+				("sakai-web-link".equals(typeName)) || ("sakai-learning-module".equals(typeName))));
 	}
 
 	public void handle(Importable thing, String siteId) {
@@ -59,29 +65,48 @@ public class ResourcesHandler implements HandlesImportable {
 				//title = ((FileResource)thing).getTitle();
 				description = ((FileResource)thing).getDescription();
 				String fileName = ((FileResource)thing).getFileName();
-				id = "/group/" + siteId + "/" + ((FileResource)thing).getDestinationResourcePath();
+				id = ContentHostingService.getSiteCollection(siteId) + ((FileResource)thing).getDestinationResourcePath();
 				contentType = new MimetypesFileTypeMap().getContentType(fileName);
 				contents = ((FileResource)thing).getFileBytes();
 //				if((title == null) || (title.equals(""))) {
 //					title = fileName;
 //				}
 				title = fileName;
-				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
 				resourceProps.put(ResourceProperties.PROP_DESCRIPTION, description);
-				if(m_log.isDebugEnabled()) {
-					m_log.debug("import ResourcesHandler about to add file entitled '" + title + "'");
+
+				
+				if (title.endsWith(".zip")) {
+					
+					//create a folder with the name of the zip, minus the .zip
+					String container = title.substring(0, title.length() - 4);
+					resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, container);
+
+					//get the full path to the current folder
+					String path = id.substring(0, id.length() - title.length());
+
+					addContentCollection(path + container, resourceProps);
+		  			addAllResources(contents, path + container, notifyOption);
+						
 				}
-				addContentResource(id, contentType, contents, resourceProps, notifyOption);
+				else {
+					if(m_log.isDebugEnabled()) {
+						m_log.debug("import ResourcesHandler about to add file entitled '" + title + "'");
+					}
+					resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
+					addContentResource(id, contentType, contents, resourceProps, notifyOption);
+				}				
+	  			
 			} else if ("sakai-web-link".equals(thing.getTypeName())) {
 				title = ((WebLink)thing).getTitle();
 				description = ((WebLink)thing).getDescription();
-				id = "/group/" + siteId + "/"+ thing.getContextPath();
+				id = ContentHostingService.getSiteCollection(siteId) + thing.getContextPath();
 				contentType = ResourceProperties.TYPE_URL;
 				String absoluteUrl = "";
 				if (((WebLink)thing).isAbsolute()) {
 					absoluteUrl = ((WebLink)thing).getUrl();
 				} else {
-					absoluteUrl = ServerConfigurationService.getServerUrl() + "/access/content/group/" + siteId + "/" + ((WebLink)thing).getUrl();
+					absoluteUrl = ServerConfigurationService.getServerUrl() + "/access/content" + 
+						ContentHostingService.getSiteCollection(siteId) + ((WebLink)thing).getUrl();
 				}
 				contents = absoluteUrl.getBytes();
 				if((title == null) || (title.equals(""))) {
@@ -96,7 +121,7 @@ public class ResourcesHandler implements HandlesImportable {
 			} else if ("sakai-html-document".equals(thing.getTypeName())) {
 				title = ((HtmlDocument)thing).getTitle();
 				contents = ((HtmlDocument)thing).getContent().getBytes();
-				id = "/group/" + siteId + "/"+ thing.getContextPath();
+				id = ContentHostingService.getSiteCollection(siteId) + thing.getContextPath();
 				contentType = "text/html";
 				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
 				if(m_log.isDebugEnabled()){ 
@@ -106,33 +131,97 @@ public class ResourcesHandler implements HandlesImportable {
 			} else if ("sakai-text-document".equals(thing.getTypeName())) {
 				title = ((TextDocument)thing).getTitle();
 				contents = ((TextDocument)thing).getContent().getBytes();
-				id = "/group/" + siteId + "/"+ thing.getContextPath();
+				id = ContentHostingService.getSiteCollection(siteId) + thing.getContextPath();
 				contentType = "text/plain";
 				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
 				if(m_log.isDebugEnabled()){ 
 					m_log.debug("import ResourcesHandler about to add text document entitled '" + title + "'");
 				}
 				addContentResource(id, contentType, contents, resourceProps, notifyOption);
-				} // else if ("sakai-folder".equals(thing.getTypeName())) {
-//				title = ((Folder)thing).getTitle();
-//				description = ((Folder)thing).getDescription();
-//				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
-//	  			resourceProps.put(ResourceProperties.PROP_DESCRIPTION, description);
-//	  			resourceProps.put(ResourceProperties.PROP_COPYRIGHT, COPYRIGHT);
-//	  			/*
-//	  			 * Added title to the end of the path. Otherwise, we're setting the props on the 
-//	  			 * containing folder rather than the folder itself.
-//	  			 */
-//	  			String path = "/group/" + siteId + "/" + ((Folder)thing).getPath()+ title;
-//	  			addContentCollection(path,resourceProps);
-//	  			
-//			}
+			} 
+		    else if ("sakai-folder".equals(thing.getTypeName())) {
+		    	title = ((Folder)thing).getTitle();
+				description = ((Folder)thing).getDescription();
+				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
+	  			resourceProps.put(ResourceProperties.PROP_DESCRIPTION, description);
+	  			resourceProps.put(ResourceProperties.PROP_COPYRIGHT, COPYRIGHT);
+	  			/*
+	  			 * Added title to the end of the path. Otherwise, we're setting the props on the 
+	  			 * containing folder rather than the folder itself.
+	  			 */
+	  			String path = ContentHostingService.getSiteCollection(siteId) + ((Folder)thing).getPath();
+	    		addContentCollection(path,resourceProps);
+
+			}
 			SessionManager.getCurrentSession().setUserId(currentUser);
 		}
 
 	}
+	
+	protected void addAllResources(byte[] archive, String path, int notifyOption) {
+		ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(archive));
+		ZipEntry entry;
+		String contentType;
+		if (path.charAt(0) == '/') {
+			path = path.substring(1);
+		}
+		if (!path.endsWith("/")) {
+			path = path + "/";
+		}
+		try {
+			entry = (ZipEntry) zipStream.getNextEntry();
+			while (entry != null) {
+				Map resourceProps = new HashMap();
+				contentType = new MimetypesFileTypeMap().getContentType(entry.getName());
+				String title = entry.getName();
+				if (title.lastIndexOf("/") > 0) {
+					title = title.substring(title.lastIndexOf("/") + 1);
+				}
+				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
+				resourceProps.put(ResourceProperties.PROP_COPYRIGHT, COPYRIGHT);
+				if(m_log.isDebugEnabled()) {
+					m_log.debug("import ResourcesHandler about to add file entitled '" + title + "'");
+				}
+
+				int size = (int) entry.getSize();
+				// -1 means unknown size.
+				if (size != -1) {
+
+					byte[] contents = new byte[(int) size];
+					int returnBytes = 0;
+					int chunk = 0;
+					while (((int)size - returnBytes) > 0) {
+						chunk = zipStream.read(contents,returnBytes,(int)size - returnBytes);
+						if (chunk == -1) {
+							break;
+						}
+						returnBytes += chunk;
+					}
+
+					if (entry.isDirectory()) {
+
+						addContentCollection(path + entry.getName(), resourceProps);
+						addAllResources(contents, path + entry.getName(), notifyOption);
+					}
+					else {
+						addContentResource(path + entry.getName(), contentType, contents, resourceProps, notifyOption);
+					}
+					entry = (ZipEntry) zipStream.getNextEntry();
+				}
+				else {
+					if(m_log.isWarnEnabled()) {
+						m_log.warn("Zip file is of unknown size... giving up");
+					}					
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+	}
+	
 	protected void addContentResource(String id, String contentType, byte[] contents, Map properties, int notifyOption) {
 		try {
+			id = makeIdClean(id);
 			ResourcePropertiesEdit resourceProps = ContentHostingService.newResourceProperties();
 			Set keys = properties.keySet();
 			for (Iterator i = keys.iterator();i.hasNext();) {
@@ -183,46 +272,54 @@ public class ResourcesHandler implements HandlesImportable {
 	}
 
 	protected void addContentCollection(String path, Map properties) {
-//			ResourcePropertiesEdit resourceProps = ContentHostingService.newResourceProperties();
-//			Set keys = properties.keySet();
-//			for (Iterator i = keys.iterator();i.hasNext();) {
-//				String key = (String)i.next();
-//				String value = (String)properties.get(key);
-//				resourceProps.addProperty(key, value);
-//			}
+			path = makeIdClean(path);
+			ResourcePropertiesEdit resourceProps = ContentHostingService.newResourceProperties();
+			Set keys = properties.keySet();
+			for (Iterator i = keys.iterator();i.hasNext();) {
+				String key = (String)i.next();
+				String value = (String)properties.get(key);
+				resourceProps.addProperty(key, value);
+			}
+//			ContentCollectionEdit coll = null;
 			try {
 //				String enclosingDirectory = path.substring(0, path.lastIndexOf('/', path.length() - 2) + 1);
 //				if(!existsDirectory(enclosingDirectory)) {
-//					ContentCollectionEdit coll = ContentHostingService.addCollection(enclosingDirectory);
-//					ContentHostingService.commitCollection(coll);
+//					ResourcePropertiesEdit enclosingProps = ContentHostingService.newResourceProperties();
+//					enclosingProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, );
+//					ContentHostingService.addCollection(enclosingDirectory, enclosingProps);
+//
 //				}
-				ContentCollectionEdit coll = ContentHostingService.addCollection(path);
-				ContentHostingService.commitCollection(coll);
+
+				ContentHostingService.addCollection(path, resourceProps);
+				//coll = ContentHostingService.addCollection(path);
+                //ContentHostingService.commitCollection(coll);
+				
 			} catch (IdUsedException e) {
-				// if this thing already exists (which it probably does), 
-				// we'll do an update on the properties rather than creating the folder
-	            try {
-	                ContentHostingService.addProperty
-	                    (path, ResourceProperties.PROP_DISPLAY_NAME, (String)properties.get(ResourceProperties.PROP_DISPLAY_NAME));
-	                ContentHostingService.addProperty
-                    (path, ResourceProperties.PROP_COPYRIGHT, (String)properties.get(ResourceProperties.PROP_COPYRIGHT));
-                ContentHostingService.addProperty
-	                (path, ResourceProperties.PROP_DESCRIPTION, (String)properties.get(ResourceProperties.PROP_DESCRIPTION));
-	            } catch (PermissionException e1) {
-	            	m_log.error("ResourcesHandler.addContentCollection: " + e.toString());
-	            } catch (IdUnusedException e1) {
-	                // TODO Auto-generated catch block
-	                e1.printStackTrace();
-	            } catch (TypeException e1) {
-	                // TODO Auto-generated catch block
-	                e1.printStackTrace();
-	            } catch (InUseException e1) {
-	                // TODO Auto-generated catch block
-	                e1.printStackTrace();
-	            } catch (ServerOverloadException e1) {
-	                // TODO Auto-generated catch block
-	                e1.printStackTrace();
-	            }
+                // if this thing already exists (which it probably does), 
+                // we'll do an update on the properties rather than creating the folder
+//				try {
+//					ContentHostingService.addProperty
+//						(path, ResourceProperties.PROP_DISPLAY_NAME, (String)properties.get(ResourceProperties.PROP_DISPLAY_NAME));
+//					ContentHostingService.addProperty
+//						(path, ResourceProperties.PROP_COPYRIGHT, (String)properties.get(ResourceProperties.PROP_COPYRIGHT));
+//					ContentHostingService.addProperty
+//						(path, ResourceProperties.PROP_DESCRIPTION, (String)properties.get(ResourceProperties.PROP_DESCRIPTION));
+//				} catch (PermissionException e1) {
+//					m_log.error("ResourcesHandler.addContentCollection: " + e.toString());
+//				} catch (IdUnusedException e1) {
+//		           // TODO Auto-generated catch block
+//		           e1.printStackTrace();
+//				} catch (TypeException e1) {
+//		           // TODO Auto-generated catch block
+//		           e1.printStackTrace();
+//				} catch (InUseException e1) {
+//		           // TODO Auto-generated catch block
+//		           e1.printStackTrace();
+//				} catch (ServerOverloadException e1) {
+//		           // TODO Auto-generated catch block
+//		           e1.printStackTrace();
+//				}
+
 			} catch (IdInvalidException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -232,7 +329,20 @@ public class ResourcesHandler implements HandlesImportable {
 			} catch (InconsistentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} 
+	}
+	
+	private String makeIdClean (String path) {
+		String [] parts = path.split("/");
+		String rv = "";
+		
+		for (int i = 0; i < parts.length; i++) {
+			if (parts[i].length() > 0) {
+				rv += "/" + Validator.escapeResourceName(parts[i]);
 			}
+		}
+		
+		return rv;
 	}
 
 }
