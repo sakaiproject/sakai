@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -531,11 +533,18 @@ public class BasicPodfeedService implements PodfeedService {
 
 		// Need to replace all spaces with their HEX equiv
 		// so podcatchers (iTunes) recognize it
-		mp3link = mp3link.replaceAll(" ", "%20");
+//		mp3link = mp3link.replaceAll(" ", "%20");
 
+        // Compile regular expression
+        Pattern pattern = Pattern.compile(" ");
+
+        // Replace all occurrences of pattern in input
+        Matcher matcher = pattern.matcher(mp3link);
+        mp3link = matcher.replaceAll("%20");
+        item.setLink(mp3link);
+        
 		date = new Date(date.toGMTString());
 		item.setPubDate(date);
-		item.setLink(mp3link);
 
 		final Description itemDescription = new Description();
 		itemDescription.setType(DESCRIPTION_CONTENT_TYPE);
@@ -684,7 +693,14 @@ public class BasicPodfeedService implements PodfeedService {
 	 * 			The changed URL that points to the dav servlet.
 	 */
 	private String convertToDavUrl(String fileUrl) {
-		return fileUrl.replace("access/content/group", "dav");
+        // Compile regular expression
+        Pattern pattern = Pattern.compile("access/content/group");
+
+        // Replace all occurrences of pattern in input
+        Matcher matcher = pattern.matcher(fileUrl);
+        fileUrl = matcher.replaceAll("dav");
+
+		return fileUrl;
 
 	}
 
