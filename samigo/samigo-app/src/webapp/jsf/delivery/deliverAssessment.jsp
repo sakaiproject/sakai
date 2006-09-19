@@ -288,7 +288,7 @@ function saveTime()
     action="#{delivery.saveAndExit}" id="saveAndExit"
     rendered="#{(delivery.actionString=='previewAssessment'  
                  || delivery.actionString=='takeAssessment')
-              && delivery.navigation ne '1' && delivery.continue}"  
+              && delivery.navigation ne '1'}"  
     onclick="pauseTiming='false'; disableSave();" onkeypress="pauseTiming='false'; disableSave();" 
     disabled="#{delivery.actionString=='previewAssessment'}" />
 
