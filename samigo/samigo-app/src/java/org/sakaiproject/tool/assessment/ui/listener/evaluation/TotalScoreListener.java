@@ -62,6 +62,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
@@ -107,6 +108,7 @@ public class TotalScoreListener
     TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
     QuestionScoresBean questionbean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
     HistogramScoresBean histobean = (HistogramScoresBean) ContextUtil.lookupBean("histogramScores");
+    SubmissionStatusBean submissionbean = (SubmissionStatusBean) cu.lookupBean("submissionStatus");
     
     // we probably want to change the poster to be consistent
     String publishedId = ContextUtil.lookupParam("publishedId");
@@ -159,6 +161,8 @@ public class TotalScoreListener
     // if comes from scores link in auther index (means to view the score of a different assessment)
     // we reset the following values for paging (for audio, displays 5 records; for others, display all)
     if (ae.getComponent().getId().indexOf("authorIndexToScore") > -1) {
+    	submissionbean.setMaxDisplayedRows(0);
+    	bean.setMaxDisplayedRows(0);
     	questionbean.setHasAudioMaxDisplayedScoreRowsChanged(false);
     	questionbean.setMaxDisplayedRows(0);
     	questionbean.setOtherMaxDisplayedScoreRows(0);
