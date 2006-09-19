@@ -12,6 +12,8 @@
 		<configuration name="special" value="worksite" type="final" />
 		<configuration name="reset.button" value="false" type="final" />
 
+		<!-- Allow this to be set -->
+		<configuration name="functions.require" /> 
 	</tool>
 
 </registration>

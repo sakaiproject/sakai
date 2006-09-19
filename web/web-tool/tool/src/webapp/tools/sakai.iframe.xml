@@ -17,6 +17,8 @@
       <category name="portfolio" />
 		<category name="myworkspace" />
 
+		<!-- Allow this to be set -->
+		<configuration name="functions.require" /> 
 	</tool>
 
 </registration>
