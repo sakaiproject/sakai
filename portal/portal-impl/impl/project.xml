@@ -98,6 +98,36 @@
 			<version>1.0.4</version>
 		</dependency>
 
+		<dependency>
+			<groupId>velocity</groupId>
+			<artifactId>velocity</artifactId>
+			<version>1.4</version>
+		</dependency>
+
+<!-- required for unit tests -->
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.9</version>
+		</dependency>
+		<dependency>
+			<groupId>jtidy</groupId>
+			<artifactId>jtidy</artifactId>
+			<version>4aug2000r7-dev</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+		</dependency>
+
+
+
 	</dependencies>
 
 	<build>
@@ -110,11 +140,33 @@
 				<directory>${basedir}/src/bundle</directory>
 				<includes>
 					<include>**/*.properties</include>
+					<include>**/*.vm</include>
 				</includes>
 			</resource>
-
 		</resources>
-
+<!--
+ 		<unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+    		<unitTest>
+      	<includes>**/*Test</includes>
+      	<resources>
+    	  		<resource>
+      			<directory>${basedir}/src/testBundle</directory>
+	  			<includes>
+	    				<include>**/*.*</include>
+	  			</includes>
+	  			<filtering>false</filtering>
+	   		</resource>
+			<resource>
+	  			<directory>${basedir}/src/bundle</directory>
+	  			<includes>
+					<include>**/*.properties</include>
+					<include>**/*.vm</include>
+	  			</includes>
+	  			<filtering>false</filtering>
+			</resource>
+      	</resources>
+    </unitTest>
+-->
 	</build>
 
 </project>
