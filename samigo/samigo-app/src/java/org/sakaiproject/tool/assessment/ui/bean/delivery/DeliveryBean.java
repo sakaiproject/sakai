@@ -1718,7 +1718,7 @@ public class DeliveryBean
     String fullname = media.getName();
     int underscore_index = fullname.lastIndexOf("_"); 
     int dot_index = fullname.lastIndexOf("."); 
-    String filename = fullname.substring(0,underscore_index-1);
+    String filename = fullname.substring(0,underscore_index);
     filename = filename + fullname.substring(dot_index);
     log.debug("**** filename="+filename);
     
@@ -1736,7 +1736,7 @@ public class DeliveryBean
       mediaData = new MediaData(itemGradingData, null,
                                 new Long(mediaByte.length + ""),
                                 mimeType, "description", mediaLocation,
-                                media.getName(), false, false, new Integer(1),
+                                filename, false, false, new Integer(1),
                                 agent, new Date(),
                                 agent, new Date(), null);
 

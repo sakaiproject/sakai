@@ -106,10 +106,11 @@ public class UploadRenderer extends Renderer {
       if (!dir.exists())
         dir.mkdirs();
       if (item!= null && !("").equals(item.getName())){
-        String filename = item.getName();
-        filename = filename.replace('\\','/'); // replace c:\filename to c:/filename
-        filename = filename.substring(filename.lastIndexOf("/")+1);
-        filename = filename + "_" + (new Date()).getTime(); 
+        String fullname = item.getName();
+        fullname = fullname.replace('\\','/'); // replace c:\fullname to c:/fullname
+        fullname = fullname.substring(fullname.lastIndexOf("/")+1);
+	int dot_index = fullname.lastIndexOf("."); 
+        String filename = fullname.substring(0, dot_index) + "_" + (new Date()).getTime() + fullname.substring(dot_index);
         File file = new File(dir.getPath()+"/"+filename);
         log.debug("**1. filename="+file.getPath());
         try {
