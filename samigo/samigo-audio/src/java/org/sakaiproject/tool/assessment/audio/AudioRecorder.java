@@ -163,7 +163,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
     // load images
     imageUrl = params.getImageUrl();
-    System.out.println("**** imageUrl="+imageUrl);
+    //System.out.println("**** imageUrl="+imageUrl);
     try{
       recordIcon = new ImageIcon(new URL(imageUrl+"/audio_record.gif"));
       playIcon = new ImageIcon(new URL(imageUrl+"/audio_play.gif"));
@@ -173,17 +173,19 @@ public class AudioRecorder extends JPanel implements ActionListener,
       reportStatus("**** cannot create image icons for applet:"+ex.toString());
     }
 
-    formatControls = new FormatControls(params);
-    setLayout(new BorderLayout());
     EmptyBorder eb = new EmptyBorder(5, 5, 5, 5);
     SoftBevelBorder sbb = new SoftBevelBorder(SoftBevelBorder.LOWERED);
     Border b = new CompoundBorder(eb, sbb);
 
-    setBorder(new EmptyBorder(5, 5, 5, 5));
+    formatControls = new FormatControls(params);
 
+    /* Samigo 2.2 does not required Advanced Settings, so comment it out
+    setLayout(new BorderLayout());
+    setBorder(new EmptyBorder(5, 5, 5, 5));
     JPanel p1 = new JPanel();
     p1.setLayout(new BoxLayout(p1, BoxLayout.X_AXIS));
     p1.add(formatControls);
+    */
 
     JPanel p2 = new JPanel();
     p2.setLayout(new BoxLayout(p2, BoxLayout.Y_AXIS));
@@ -198,9 +200,10 @@ public class AudioRecorder extends JPanel implements ActionListener,
     JPanel saveTFpanel = makeSaveTFPanel();
     savePanel.add(saveTFpanel);
     p2.add(savePanel);
+    add(p2);
 
-    p1.add(p2);
-    add(p1);
+    //p1.add(p2);
+    //add(p1);
   }
 
   private JPanel makeSaveTFPanel()
