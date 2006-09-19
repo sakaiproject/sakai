@@ -1201,7 +1201,13 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("value_CheckAddDueDate", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
 		context.put("value_CheckAutoAnnounce", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
 		context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
-		context.put("value_AddToGradebook", state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
+		
+		// get all available assignments from Gradebook tool except for those created from
+		if (isGradebookDefined())
+		{
+			context.put("gradebookChoice", state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
+			context.put("associateGradebookAssignment", state.getAttribute(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+		}
 
 		context.put("monthTable", monthTable());
 		context.put("gradeTypeTable", gradeTypeTable());

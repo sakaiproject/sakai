@@ -386,63 +386,61 @@
 				</label>
 			</p>
 			#if ($!withGrade && $!withGradebook)
-				#if(!$!allowGroupAssignmentsInGradebook && $!range=="groups")
-					#set ($listDisplay="none")
+				## show the "Add to Gradebook" choices or not
+				#if(!$!allowGroupAssignmentsInGradebook)
+					#set ($addToGBDisplay="none")
 				#else
-					#set ($listDisplay="block")
+					#set ($addToGBDisplay="block")
 				#end
-				<p id="addToGradebook" class="checkbox  indnt1" style="display:$listDisplay">
+				<p style="display:$!addToGBDisplay">
 					$!tlang.getString('grading')
-					<table id="gradebookTable" style="width:80%;" class="listHier lines indnt3" border="0" cellspacing="0" summary="">
-						<tr>
-							<td>
-								<input type="radio" name="$!name_Addtogradebook" id="$!name_Addtogradebook" value="no" #if($!gradebookChoice.equals("no"))checked#end>
-							</td>
-							<td>
-								$tlang.getString("grading.no")
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<input type="radio" name="$!name_Addtogradebook" id="$!name_Addtogradebook" value="add" #if($!gradebookChoice.equals("add"))checked#end>
-							</td>
-							<td>
-								$tlang.getString("grading.add")
-							</td>
-						</tr>
+					<div class="checkbox  indnt2" style="display:$!addToGBDisplay">
+						## hide the assignment list from Gradebook when clicked
+						<input type="radio" name="$!name_Addtogradebook" id="no" value="no" #if($!gradebookChoice.equals("no"))checked#end onclick="document.getElementById('$!name_AssociateGradebookAssignment').style.display = 'none';" onkeypress="document.getElementById('$!name_AssociateGradebookAssignment').style.display = 'none';">
+						<label for="no">$tlang.getString("grading.no")</label>
+						<br/>
+						## hide the assignment list from Gradebook when clicked
+						<input type="radio" name="$!name_Addtogradebook" id="add" value="add" #if($!gradebookChoice.equals("add"))checked#end onclick="document.getElementById('$!name_AssociateGradebookAssignment').style.display = 'none';" onkeypress="document.getElementById('$!name_AssociateGradebookAssignment').style.display = 'none';">
+						<label for="add">$tlang.getString("grading.add")</label>
+						<br/>
 						## if there exists properiate assignment entries in Gradebook
 						#if ($!gradebookAssignments.size() > 0) 
-							<tr>
-								<td>
-									<input type="radio" name="$!name_Addtogradebook" id="$!name_Addtogradebook" value="associate" #if($!gradebookChoice.equals("associate"))checked#end>
-								</td>
-								<td>
-									$tlang.getString("grading.associate")
-									<br />
-									<select name="$!name_AssociateGradebookAssignment" id="$!name_AssociateGradebookAssignment">
-										<option  value="">$tlang.getString("grading.select")</option>
-										#foreach ($aAssignment in $!gradebookAssignments)
-											#if ($aAssignment.isExternallyMaintained())
-												## for external assignment
-												<option  value="$aAssignment.getExternalId()" #if($!associateGradebookAssignment.equals($aAssignment.Name))selected="selected"#end)>$aAssignment.Name</option>
-											#else
-												## for internal assignment
-												<option  value="$aAssignment.Name" #if($!associateGradebookAssignment.equals($aAssignment.Name))selected="selected"#end)>$aAssignment.Name</option>
-											#end
-										#end
-									</select>
-									
-								</td>
-							</tr>
+							## show the assignment list from Gradebook when clicked
+							<input type="radio" name="$!name_Addtogradebook" id="associate" value="associate" #if($!gradebookChoice.equals("associate"))checked#end onclick="document.getElementById('$!name_AssociateGradebookAssignment').style.display = 'block';" onkeypress="document.getElementById('$!name_AssociateGradebookAssignment').style.display = 'block';">
+							<label for="associate">$tlang.getString("grading.associate")</label>
 						#end
-					</table>
-				</p>
+					</div>
+				</p>	
+				## if there exists properiate assignment entries in Gradebook
+				#if ($!gradebookAssignments.size() > 0) 
+					## show the "Gradebook Assignment list" choices or not
+					#if($!allowGroupAssignmentsInGradebook && $!gradebookChoice.equals("associate"))
+						#set ($gbListDisplay="block")
+					#else
+						#set ($gbListDisplay="none")
+					#end
+					<p id="$!name_AssociateGradebookAssignment" class="checkbox  indnt2" style="display:$gbListDisplay">
+						<select name="$!name_AssociateGradebookAssignment" >
+							<option  value="">$tlang.getString("grading.select")</option>
+							#foreach ($aAssignment in $!gradebookAssignments)
+								#if ($aAssignment.isExternallyMaintained())
+									## for external assignment
+									<option  value="$aAssignment.getExternalId()" #if($!associateGradebookAssignment.equals($aAssignment.getExternalId()))selected="selected"#end)>$aAssignment.Name</option>
+								#else
+									## for internal assignment
+									<option  value="$aAssignment.Name" #if($!associateGradebookAssignment.equals($aAssignment.Name))selected="selected"#end)>$aAssignment.Name</option>
+								#end
+							#end
+						</select>
+					</p>
+				#end
 			#end
 			## group/section support
 			<br />
+			$!tlang.getString('access')
 			#if ($allowAddSiteAssignment)
 				#if ($!groups)
-					<p class="checkbox  indnt1">
+					<p class="checkbox  indnt2">
 						#if (!$!allowGroupAssignmentsInGradebook)
 							<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end onclick="if (document.getElementById('addToGradebook') !=null){document.getElementById('addToGradebook').style.display = 'block'};document.getElementById('groupTable').style.display = 'none';" onkeypress="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'block'};document.getElementById('groupTable').style.display = 'none';"/>
 						#else
@@ -463,7 +461,7 @@
 			#end
 			#if ($!groups)
 				## added group awareness
-				<p class="checkbox indnt1">
+				<p class="checkbox indnt2">
 					#if (!$!allowGroupAssignmentsInGradebook)
 						<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';" onkeypress="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('addToGradebook').checked=false};document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';" />
 					#else

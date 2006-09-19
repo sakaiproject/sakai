@@ -143,8 +143,16 @@
 												$!tlang.getString('addtogradebook')
 										</th>
 										<td>
-											## if honor pledge is required
-											$!value_AddToGradebook
+											#if($!gradebookChoice.equals("no"))
+												## not associating with gradebook
+												$tlang.getString("grading.no")
+											#elseif($!gradebookChoice.equals("add"))
+												## add new entry to gradebook
+												$tlang.getString("grading.add")
+											#elseif($!gradebookChoice.equals("associate"))
+												## associated with one existing entry in Gradebook
+												$tlang.getString("grading.associate"):$!associateGradebookAssignment
+											#end
 										</td>
 									</tr>
 								#end
