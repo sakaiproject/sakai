@@ -309,8 +309,11 @@ $Id$
     </h:panelGrid>
   </h:panelGroup>
   
+            <h:outputText value="aa..#{questionScores.maxDisplayedRows}" />
   <h:panelGroup>
-	<sakai:pager id="pager2" totalItems="#{questionScores.dataRows}" firstItem="#{questionScores.firstRow}" pageSize="#{questionScores.maxDisplayedRows}" textStatus="#{msg.paging_status}" />
+	<sakai:pager id="pager2" totalItems="#{questionScores.dataRows}" firstItem="#{questionScores.firstRow}" pageSize="#{questionScores.maxDisplayedRows}" textStatus="#{msg.paging_status}" >
+	  <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+	</sakai:pager>
   </h:panelGroup>
 </h:panelGrid>
 

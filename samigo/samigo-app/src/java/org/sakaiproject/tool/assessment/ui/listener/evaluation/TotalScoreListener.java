@@ -156,6 +156,15 @@ public class TotalScoreListener
     questionbean.setDeliveryItem(new ArrayList());
     questionbean.setSelectedSARationaleView(QuestionScoresBean.SHOW_SA_RATIONALE_RESPONSES_POPUP);
     
+    // if comes from scores link in auther index (means to view the score of a different assessment)
+    // we reset the following values for paging (for audio, displays 5 records; for others, display all)
+    if (ae.getComponent().getId().indexOf("authorIndexToScore") > -1) {
+    	questionbean.setHasAudioMaxDisplayedScoreRowsChanged(false);
+    	questionbean.setMaxDisplayedRows(0);
+    	questionbean.setOtherMaxDisplayedScoreRows(0);
+    	questionbean.setAudioMaxDisplayedScoreRows(5);
+    }
+    
     if (!totalScores(pubAssessment, bean, false))
     {
       throw new RuntimeException("failed to call totalScores.");

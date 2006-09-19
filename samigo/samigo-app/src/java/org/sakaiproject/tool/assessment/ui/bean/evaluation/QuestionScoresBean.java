@@ -93,6 +93,9 @@ public class QuestionScoresBean
   private int firstScoreRow;
   private int maxDisplayedScoreRows;
   private int scoreDataRows;
+  private int audioMaxDisplayedScoreRows;
+  private int othersMaxDisplayedScoreRows;
+  private boolean hasAudioMaxDisplayedScoreRowsChanged;
   
   //Searching
   private String searchString;
@@ -758,12 +761,35 @@ public int getFirstRow() {
 public void setFirstRow(int firstRow) {
     firstScoreRow = firstRow;
 }
+
 public int getMaxDisplayedRows() {
     return maxDisplayedScoreRows;
 }
 public void setMaxDisplayedRows(int maxDisplayedRows) {
     maxDisplayedScoreRows = maxDisplayedRows;
 }
+
+public int getAudioMaxDisplayedScoreRows() {
+    return audioMaxDisplayedScoreRows;
+}
+public void setAudioMaxDisplayedScoreRows(int audioMaxDisplayedRows) {
+	audioMaxDisplayedScoreRows = audioMaxDisplayedRows;
+}
+
+public int getOtherMaxDisplayedScoreRows() {
+    return othersMaxDisplayedScoreRows;
+}
+public void setOtherMaxDisplayedScoreRows(int otherMaxDisplayedRows) {
+	othersMaxDisplayedScoreRows = otherMaxDisplayedRows;
+}
+
+public boolean getHasAudioMaxDisplayedScoreRowsChanged() {
+    return hasAudioMaxDisplayedScoreRowsChanged;
+}
+public void setHasAudioMaxDisplayedScoreRowsChanged(boolean hasAudioMaxDisplayedRowsChanged) {
+	hasAudioMaxDisplayedScoreRowsChanged = hasAudioMaxDisplayedRowsChanged;
+}
+
 public int getDataRows() {
     return scoreDataRows;
 }
