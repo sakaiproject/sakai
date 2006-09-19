@@ -348,7 +348,7 @@ public class PublishedAssessmentService {
 
   }
 
-  public Integer getItemType(String publishedItemId){
+  public Long getItemType(String publishedItemId){
     return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
       getItemType(new Long(publishedItemId));
   }

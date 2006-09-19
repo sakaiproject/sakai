@@ -1512,7 +1512,7 @@ public class PublishedAssessmentFacadeQueries
 //         new org.hibernate.type.Type[] { Hibernate.LONG });
   }
 
-  public Integer getItemType(final Long publishedItemId){
+  public Long getItemType(final Long publishedItemId){
     final String query = "select p.typeId "+
                    " from PublishedItemData p "+
 	" where p.publishedItemId=?";
@@ -1530,7 +1530,7 @@ public class PublishedAssessmentFacadeQueries
 //					    new Object[] { publishedItemId },
 //					    new org.hibernate.type.Type[] { Hibernate.LONG });
     if (list.size()>0)
-	return (Integer)list.get(0);
+	return (Long)list.get(0);
     else
 	return null;
     }
