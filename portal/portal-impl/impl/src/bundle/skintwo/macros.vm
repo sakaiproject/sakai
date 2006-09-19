@@ -1,0 +1,55 @@
+
+#macro( includeSiteNavSkinTwo  )
+<!-- start includeSiteNavTwo -->
+<div id="portalOuterContainer">
+	<div id="portalContainer">
+		<div id="skipNav">
+#if ($siteNavHasAccessibilityURL)
+			<a href="$siteNavAccessibilityURL" class="skip" title="$siteNavSitAccessability" accesskey="0">
+				$siteNavSitAccessability
+			</a>
+#end
+
+			<a href="#tocontent"  class="skip" title="$siteNavSitJumpContent" accesskey="c">
+			$siteNavSitJumpContent
+			</a>
+			<a href="#totoolmenu"  class="skip" title="$siteNavSitJumpTools" accesskey="l">
+				$siteNavSitJumpTools
+			</a>
+			<a href="#sitetabs" class="skip" title="$siteNavSitJumpWorksite" accesskey="w">
+				$siteNavSitJumpWorksite
+			</a>
+		</div>
+#if (${siteNavLoggedIn})
+		<div id="headerMax">
+#includeLogo()
+		</div>
+#else
+		<div id="headerMin">
+#includeLogo()
+			<div class="divColor" id="tabBottom">
+				<br />
+			</div>
+		</div>
+#end
+	</div>
+</div>
+<!-- end includeSiteNavTwo -->
+#end
+
+#macro( includeSiteNavSkinTwoEnd  )
+<!-- start includeSiteNavTwoEnd -->
+<div id="portalOuterContainer">
+	<div id="portalContainer">
+#if (${siteNavLoggedIn})
+		<div id="headerMax">
+#includeTabs()
+		</div>
+#else
+		<div id="headerMin">
+		</div>
+#end
+	</div>
+</div>
+<!-- end includeSiteNavTwoEnd -->
+#end

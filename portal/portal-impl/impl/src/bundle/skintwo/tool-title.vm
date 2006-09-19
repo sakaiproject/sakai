@@ -1,0 +1,45 @@
+#start_response()
+<!-- tool-title.vm -->
+<div class="portletTitle">
+	<div class="title">
+#if ($titleShowResetButton)
+		<a href="$titleResetActionUrl" title="Reset">
+			<img src="/library/image/transparent.gif" alt="Reset" border="1" />
+		</a>
+#end	
+		<h2>$pageTitle</h2>
+	</div>
+	<div class="action">
+#if ($titleShowHelpButton)
+		<a accesskey="h" href="$titleHelpActionUrl" target="_blank" onclick="openWindow('$titleHelpActionUrl', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+			<img src="/library/image/transparent.gif" alt="Help" border="0" />
+		</a>
+#end
+	</div>
+</div>
+
+#if ($titleResetToolNow)
+<script type="text/javascript" language="JavaScript">
+try
+{
+	if (parent.$titleMainFrameId.location.toString().length > 1)
+	{
+		parent.$titleMainFrameId.location = '$titleMainFrameUrl';
+	}
+}
+catch (e1)
+{
+	try
+	{
+		if (parent.parent.$titleMainFrameId.location.toString().length > 1 )
+		{
+			parent.parent.$titleMainFrameId.location = '$titleMainFrameUrl';
+		}
+	}
+	catch (e2)
+	{
+	}
+}</script>
+#end
+<!-- end tool-title.vm -->
+#end_response()

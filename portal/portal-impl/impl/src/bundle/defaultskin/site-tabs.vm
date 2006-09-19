@@ -1,0 +1,6 @@
+#start_response()
+<!-- site-tabs.vm -->
+#includeLogo()
+#includeTabs()
+<!-- end site-tabs.vm -->
+#end_response()
