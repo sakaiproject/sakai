@@ -28,6 +28,7 @@ package com.corejsf;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 import javax.servlet.ServletContext;
 import javax.faces.FacesException;
@@ -108,6 +109,7 @@ public class UploadRenderer extends Renderer {
         String filename = item.getName();
         filename = filename.replace('\\','/'); // replace c:\filename to c:/filename
         filename = filename.substring(filename.lastIndexOf("/")+1);
+        filename = filename + "_" + (new Date()).getTime(); 
         File file = new File(dir.getPath()+"/"+filename);
         log.debug("**1. filename="+file.getPath());
         try {
