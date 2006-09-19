@@ -35,11 +35,14 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationAction;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.SiteEmailNotification;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
@@ -257,4 +260,103 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 		 */
 		return rv;
 	}
+	
+	protected int getOption(User user, Notification notification, Event event)
+	{
+
+		// FIXME I don't think this should be here, but it certainly shouldn't
+		// be in preferenceService
+		// We really want a entity reference to page name, without going via the
+		// db!
+		String resourceReference = event.getResource();
+
+		if (resourceReference == null
+				|| !resourceReference
+						.startsWith(RWikiObjectService.REFERENCE_ROOT)
+				|| resourceReference.length() == RWikiObjectService.REFERENCE_ROOT
+						.length())
+		{
+			return NotificationService.PREF_IGNORE;
+		}
+
+		resourceReference = resourceReference.substring(
+				RWikiObjectService.REFERENCE_ROOT.length(), resourceReference
+						.lastIndexOf('.'));
+
+		String preference = preferenceService.findPreferenceAt(user.getId(),
+				resourceReference, PreferenceService.MAIL_NOTIFCIATION);
+
+		if (preference == null || "".equals(preference))
+		{
+			return NotificationService.PREF_IGNORE;
+		}
+
+		if (PreferenceService.NONE_PREFERENCE.equals(preference))
+		{
+			return NotificationService.PREF_IGNORE;
+		}
+
+		if (PreferenceService.DIGEST_PREFERENCE.equals(preference))
+		{
+			return NotificationService.PREF_DIGEST;
+		}
+
+		if (PreferenceService.SEPARATE_PREFERENCE.equals(preference))
+		{
+			return NotificationService.PREF_IMMEDIATE;
+		}
+
+		return NotificationService.PREF_IGNORE;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected List getRecipients(Event event)
+	{
+		// get the resource reference
+		Reference ref = entityManager.newReference(event.getResource());
+
+		// use either the configured site, or if not configured, the site (context) of the resource
+		String siteId = getSite(); 
+			
+		if (siteId == null) {
+			siteId = getSiteId(ref.getContext());
+		}
+
+		// if the site is published, use the list of users who can SITE_VISIT the site,
+		// else use the list of users who can SITE_VISIT_UNP the site.
+		try
+		{
+			Site site = siteService.getSite(siteId);
+			String ability = SiteService.SITE_VISIT;
+			if (!site.isPublished())
+			{
+				ability = SiteService.SITE_VISIT_UNPUBLISHED;
+			}
+
+			// get the list of users who can do the right kind of visit
+			List users = securityService.unlockUsers(ability, ref.getReference());
+
+			// get the list of users who have the appropriate access to the resource
+			if (getResourceAbility() != null)
+			{
+				List users2 = securityService.unlockUsers(getResourceAbility(), ref.getReference());
+
+				// find intersection of users and user2
+				users.retainAll(users2);
+			}
+
+			// add any other users
+			addSpecialRecipients(users, ref);
+
+			return users;
+		}
+		catch (Exception any)
+		{
+			log.error("Exception in getRecipients()", any);
+			return new Vector();
+		}
+	}
+	
 }
