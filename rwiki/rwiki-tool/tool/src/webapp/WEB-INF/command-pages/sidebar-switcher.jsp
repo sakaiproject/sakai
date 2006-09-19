@@ -21,15 +21,15 @@
  *
  **********************************************************************************/
 -->
-<jspi:root xmlns:jspi="http://java.sun.com/JSP/Page" version="2.0">
-  <jspi:directive.page language="java"
+<jspiii:root xmlns:jspiii="http://java.sun.com/JSP/Page" version="2.0">
+  <jspiii:directive.page language="java"
     contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" />
 <div id="sidebar_switcher">
   <div id="sidebar_switch_on">
-    <jspi:element name="a"><jspi:attribute name="href">#</jspi:attribute><jspi:attribute name="onclick">showSidebar('<jspi:expression>request.getAttribute("sakai.tool.placement.id")</jspi:expression>')</jspi:attribute>show the help sidebar</jspi:element>
+    <jspiii:element name="a"><jspiii:attribute name="href">#</jspiii:attribute><jspiii:attribute name="onclick">showSidebar('<jspiii:expression>request.getAttribute("sakai.tool.placement.id")</jspiii:expression>')</jspiii:attribute>show the help sidebar</jspiii:element>
   </div>
   <div id="sidebar_switch_off">
-    <jspi:element name="a"><jspi:attribute name="href">#</jspi:attribute><jspi:attribute name="onclick">hideSidebar('<jspi:expression>request.getAttribute("sakai.tool.placement.id")</jspi:expression>')</jspi:attribute>hide the help sidebar</jspi:element>
+    <jspiii:element name="a"><jspiii:attribute name="href">#</jspiii:attribute><jspiii:attribute name="onclick">hideSidebar('<jspiii:expression>request.getAttribute("sakai.tool.placement.id")</jspiii:expression>')</jspiii:attribute>hide the help sidebar</jspiii:element>
   </div>
 </div>
-</jspi:root>
+</jspiii:root>
