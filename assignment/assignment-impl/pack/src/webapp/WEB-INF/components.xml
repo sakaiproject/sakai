@@ -24,7 +24,7 @@
  		
  		<!--use to hide or show the Assignments 'Add to Gradebook' option for group particular assignments.
  			By default this is false -->
- 		<property name="allowGroupAssignmentsInGradebook"><value>true</value></property>
+ 		<property name="allowGroupAssignmentsInGradebook"><value>false</value></property>
 	</bean>
 
 </beans>
