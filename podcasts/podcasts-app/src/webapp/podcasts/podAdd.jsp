@@ -68,7 +68,6 @@
     </div>
     <br />
 
-
     <sakai:button_bar>
         <sakai:button_bar_item action="#{podHomeBean.processAdd}" value="#{msgs.add}"
             accesskey="a" title="Add a Podcast" styleClass="active" />

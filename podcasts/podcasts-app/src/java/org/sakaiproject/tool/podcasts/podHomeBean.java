@@ -350,7 +350,7 @@ public class podHomeBean {
 	private String title;
 	private String description;
 	private String email;
-	private long fileSize;
+	private long fileSize = 0;
 	private String fileContentType;
 	BufferedInputStream fileAsStream;
 
@@ -534,6 +534,11 @@ public class podHomeBean {
 		final String filename = podcastProperties
 				.getProperty(ResourceProperties.PROP_ORIGINAL_FILENAME);
 
+		// if user puts URL instead of file, this is result
+		// of retrieving filename
+		if (filename == null)
+			return null;
+		
 		podcastInfo.setFilename(filename);
 
 		// get content type
@@ -557,7 +562,15 @@ public class podHomeBean {
 		}
 		podcastInfo.setSize(sizeString);
 
-		podcastInfo.setType(Validator.getFileExtension(filename).toUpperCase());
+		final String extn = Validator.getFileExtension(filename);
+		if (extn != "") {
+			podcastInfo.setType(Validator.getFileExtension(filename).toUpperCase());
+
+		}
+		else {
+			podcastInfo.setType("UNK");
+
+		}
 
 		// get and format last modified time
 		formatter.applyPattern(LAST_MODIFIED_TIME_FORMAT);
@@ -653,7 +666,9 @@ public class podHomeBean {
 							podcastProperties, podcastResource.getId());
 
 					// add it to the List to send to the page
-					decoratedPodcasts.add(podcastInfo);
+					// if URL, will return null so skip it
+					if (podcastInfo != null)
+						decoratedPodcasts.add(podcastInfo);
 
 					// get the next podcast if it exists
 				} 
