@@ -160,9 +160,9 @@
           			<h:outputText value="#{msgs.pvt_from} "/>		
              </td>
              <td>   
-          			<h:outputText value="#{PrivateMessagesTool.userId}" />  
+          			<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.author}" />  
               	<h:outputText value=" #{msgs.pvt_openb}" />  
-              	<h:outputText value="#{PrivateMessagesTool.time}">
+              	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.created}">
   	            	  <f:convertDateTime pattern="#{msgs.pvt_time_format}"/>
   	          	  </h:outputText>
               	<h:outputText value="#{msgs.pvt_closeb}" />   
