@@ -158,6 +158,8 @@ public abstract class BaseEntityHandlerImpl implements EntityHandler
 			if (versionSeparator != -1 && versionSeparator < filename.length() - 1)
 			{
 				try { 
+					Integer.parseInt(filename.substring(versionSeparator + 1));
+					
 					decoded.setPage(filename.substring(0, versionSeparator));
 					decoded.setVersion(filename.substring(versionSeparator + 1));
 				} catch (NumberFormatException e) {
