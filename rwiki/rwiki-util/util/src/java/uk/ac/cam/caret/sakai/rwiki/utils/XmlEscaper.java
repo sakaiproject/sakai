@@ -36,8 +36,8 @@ public class XmlEscaper
 		specialChars['>'] = "&gt;".toCharArray();
 		specialChars['<'] = "&lt;".toCharArray();
 		specialChars['&'] = "&amp;".toCharArray();
-		specialChars['"'] = "&#034;".toCharArray();
-		specialChars['\''] = "&#039;".toCharArray();
+		specialChars['"'] = "&#34;".toCharArray();
+		specialChars['\''] = "&#39;".toCharArray();
 	}
 
 	public static String xmlEscape(String toEscape)
