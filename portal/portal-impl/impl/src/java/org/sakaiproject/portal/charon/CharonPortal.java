@@ -2161,8 +2161,7 @@ public class CharonPortal extends HttpServlet
 
 			if ( site != null ) 
 			{
-				Tool tool = placement.getTool() ; 
-				boolean thisTool = allowTool(site, tool) ;
+				boolean thisTool = allowTool(site, placement) ;
 				// System.out.println(" Allow Tool Display -" + placement.getTitle() + " retval = " + thisTool);
 				if ( ! thisTool ) continue;  // Skip this tool if not allowed
 			}
@@ -2201,18 +2200,21 @@ public class CharonPortal extends HttpServlet
 		out.println("</div>");
 	}
 
-	private boolean allowTool(Site site, Tool tool)
+	private boolean allowTool(Site site, Placement placement)
 	{
+		if ( placement == null || site == null ) return true;  // No way to render an opinion
+
 		boolean retval = true;
+
 		String TOOL_CFG_FUNCTIONS = "functions.require";
-		Properties roleConfig = tool.getRegisteredConfig();
-		boolean requreSpecified = roleConfig.containsKey(TOOL_CFG_FUNCTIONS);
+		Properties roleConfig = placement.getConfig();
+		String roleList = roleConfig.getProperty(TOOL_CFG_FUNCTIONS);
 
 		// allow by default, when no config keys are present
-		if(requreSpecified) {
+		if(roleList != null && roleList.trim().length() > 0 ) {
 			String[] result = roleConfig.getProperty(TOOL_CFG_FUNCTIONS).split("\\,");
 			for (int x=0; x<result.length; x++){
-				if ( ! SecurityService.unlock(result[x],site.getReference()) ) retval = false;
+				if ( ! SecurityService.unlock(result[x].trim(),site.getReference()) ) retval = false;
 			}
 		}
 		return retval;
@@ -2291,9 +2293,9 @@ public class CharonPortal extends HttpServlet
 			boolean allowPage = false;
 			while( iPt.hasNext() ) 
 			{
-				Tool tool = ((ToolConfiguration) iPt.next()).getTool();
+				ToolConfiguration placement = (ToolConfiguration) iPt.next();
 
-				boolean thisTool = allowTool(site,tool) ;
+				boolean thisTool = allowTool(site, placement) ;
 				if ( thisTool ) allowPage = true;
 				// System.out.println(" Allow Tool -" + tool.getTitle() + " retval = " + thisTool + " page=" + allowPage);
 			}
