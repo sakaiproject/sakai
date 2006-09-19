@@ -346,7 +346,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         if(logger.isDebugEnabled()) logger.debug("check if upFile is intialized");
         if(upFile == null){
             if(logger.isDebugEnabled()) logger.debug("upFile not initialized");
-            FacesUtil.addErrorMessage(getLocalizedString("Upload_view_failure"));
+            FacesUtil.addErrorMessage(getLocalizedString("upload_view_failure"));
             return null;
         }
 
