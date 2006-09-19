@@ -1515,7 +1515,7 @@ public class PublishedAssessmentFacadeQueries
   public Long getItemType(final Long publishedItemId){
     final String query = "select p.typeId "+
                    " from PublishedItemData p "+
-	" where p.publishedItemId=?";
+	" where p.itemId=?";
 
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
