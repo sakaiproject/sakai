@@ -56,7 +56,9 @@ public class RenderCacheImpl implements RenderCache
 		}
 		catch (Exception ex)
 		{
-		}
+			log.error("RenderCache threw Exception for key: " + key, ex);
+		} 
+
 		if (cacheValue != null)
 			log.debug("Cache hit for " + key + " size " + cacheValue.length());
 		else
