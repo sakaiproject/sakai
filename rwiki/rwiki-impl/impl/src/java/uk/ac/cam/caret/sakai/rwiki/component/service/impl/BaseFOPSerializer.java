@@ -198,20 +198,14 @@ public class BaseFOPSerializer implements Serializer
 					}
 
 				});
-				try
-				{
-					userAgent.setBaseURL(ServerConfigurationService
+				userAgent.setBaseURL(ServerConfigurationService
 							.getString("serverUrl"));
-				}
-				catch (Throwable ex)
-				{
-				}
 
 				fop = ff.newFop(mimeType, userAgent, outputStream);
 			}
 			catch (Exception e)
 			{
-				new IOException("Failed to create " + mimeType
+				throw new IOException("Failed to create " + mimeType
 						+ " Serializer: " + e.getMessage());
 			}
 		}
