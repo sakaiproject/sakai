@@ -119,18 +119,9 @@ public class ImageMacro extends BaseMacro
 
 			String link = params.get("link");
 
-			String siteType = null;
-			try
-			{
-				Site s = SiteService.getSite(siteId);
-				siteType = s.getType();
-			}
-			catch (IdUnusedException e)
-			{
-			}
 			if (link != null)
 			{
-				link = convertLink(link, siteType, siteId);
+				link = convertLink(link, siteId);
 
 				writer.write("<a href=\"" + Encoder.escape(link) + "\"");
 				if (target != null)
@@ -149,7 +140,7 @@ public class ImageMacro extends BaseMacro
 				throw new IllegalArgumentException(
 						"External URLs are not allowed, only relative or absolute");
 
-			imageName = convertLink(imageName, siteType, siteId);
+			imageName = convertLink(imageName, siteId);
 			writer.write("<img src=\"");
 			writer.write(imageName);
 			writer.write("\" ");
@@ -183,7 +174,7 @@ public class ImageMacro extends BaseMacro
 
 	}
 
-	private String convertLink(String link, String siteType, String siteId)
+	private String convertLink(String link, String siteId)
 	{
 
 		if (link.startsWith("sakai:/"))
@@ -198,18 +189,10 @@ public class ImageMacro extends BaseMacro
 				return "Link Cant be resolved";
 			}
 
-			String regSiteId = parts[0];
-			String regSiteType = "group";
-			try
-			{
-				Site s = SiteService.getSite(regSiteId);
-				regSiteType = s.getType();
-
-			}
-			catch (IdUnusedException e)
-			{
-			}
-			if ((regSiteId != null && regSiteId.startsWith("~")) || regSiteType == null)
+			String refSiteId = parts[0];
+			String refSiteType = getSiteType(refSiteId, "group");
+			
+			if ((refSiteId != null && refSiteId.startsWith("~")) || refSiteType == null)
 			{
 				String remLink = link.substring("sakai:/".length());
 				if ( remLink.startsWith("/") ) {
@@ -231,7 +214,7 @@ public class ImageMacro extends BaseMacro
 		else if (link.startsWith("worksite:/"))
 		{
 			// need to check siteid
-
+			String siteType = getSiteType(siteId, null);
 			
 			if ((siteId != null && siteId.startsWith("~")) || siteType == null)
 			{
@@ -252,6 +235,20 @@ public class ImageMacro extends BaseMacro
 		return link;
 	}
 
+	
+	private String getSiteType(String siteId, String defaultType) {
+		try
+		{
+			Site s = SiteService.getSite(siteId);
+			return s.getType();
+		}
+		catch (IdUnusedException e)
+		{
+			
+			return defaultType;
+		}
+	}
+	
 }
 
 /*******************************************************************************
