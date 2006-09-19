@@ -23,6 +23,7 @@ package uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl;
 
 import org.radeox.engine.context.BaseRenderContext;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 
@@ -67,6 +68,12 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 		this.objectService = objectService;
 		this.securityService = securityService;
 		this.siteService = siteService;
+		
+		this.set(RWikiObject.class.getName(), rwikiObject);
+		this.set(RWikiObject.class.getName().concat(".name"), rwikiObject.getName());
+		this.set(RWikiObjectService.class.getName(), objectService);
+		this.set(RWikiSecurityService.class.getName(), securityService);
+		this.set(SiteService.class.getName(), siteService);
 	}
 
 	public RWikiObject getRWikiObject()
@@ -112,25 +119,20 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 
 	public Site getSite()
 	{
-
-		RWikiObjectService rwobjService = getObjectService();
-		RWikiObject rwobj = getRWikiObject();
-		Reference ref = rwobjService.getReference(rwobj);
-
-		Site s = null;
 		String siteId = getSiteId();
-		if (siteId != null)
+		if (siteId == null)
 		{
-			try
-			{
-				s = siteService.getSite(siteId);
-			}
-			catch (Exception ex)
-			{
-			}
+			return null;
 		}
-		return s;
-
+		
+		try
+		{
+			return siteService.getSite(siteId);
+		}
+		catch (IdUnusedException ex)
+		{
+			return null;
+		}
 	}
 
 	public String getSiteId()
