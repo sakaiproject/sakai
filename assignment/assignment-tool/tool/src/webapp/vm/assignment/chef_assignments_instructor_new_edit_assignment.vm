@@ -392,14 +392,50 @@
 					#set ($listDisplay="block")
 				#end
 				<p id="addToGradebook" class="checkbox  indnt1" style="display:$listDisplay">
-					#if ($!value_AddToGradebook.equalsIgnoreCase("true"))
-						<input id="$!name_Addtogradebook" name="$name_Addtogradebook" type="checkbox" value="true" checked="checked"/>
-					#else
-						<input id="$!name_Addtogradebook" name="$name_Addtogradebook" type="checkbox" value="true"/>
-					#end
-					<label for="$name_Addtogradebook">
-						$!tlang.getString('addtogradebook')
-					</label>
+					$!tlang.getString('grading')
+					<table id="gradebookTable" style="width:80%;" class="listHier lines indnt3" border="0" cellspacing="0" summary="">
+						<tr>
+							<td>
+								<input type="radio" name="$!name_Addtogradebook" id="$!name_Addtogradebook" value="no" #if($!gradebookChoice.equals("no"))checked#end>
+							</td>
+							<td>
+								$tlang.getString("grading.no")
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<input type="radio" name="$!name_Addtogradebook" id="$!name_Addtogradebook" value="add" #if($!gradebookChoice.equals("add"))checked#end>
+							</td>
+							<td>
+								$tlang.getString("grading.add")
+							</td>
+						</tr>
+						## if there exists properiate assignment entries in Gradebook
+						#if ($!gradebookAssignments.size() > 0) 
+							<tr>
+								<td>
+									<input type="radio" name="$!name_Addtogradebook" id="$!name_Addtogradebook" value="associate" #if($!gradebookChoice.equals("associate"))checked#end>
+								</td>
+								<td>
+									$tlang.getString("grading.associate")
+									<br />
+									<select name="$!name_AssociateGradebookAssignment" id="$!name_AssociateGradebookAssignment">
+										<option  value="">$tlang.getString("grading.select")</option>
+										#foreach ($aAssignment in $!gradebookAssignments)
+											#if ($aAssignment.isExternallyMaintained())
+												## for external assignment
+												<option  value="$aAssignment.getExternalId()" #if($!associateGradebookAssignment.equals($aAssignment.Name))selected="selected"#end)>$aAssignment.Name</option>
+											#else
+												## for internal assignment
+												<option  value="$aAssignment.Name" #if($!associateGradebookAssignment.equals($aAssignment.Name))selected="selected"#end)>$aAssignment.Name</option>
+											#end
+										#end
+									</select>
+									
+								</td>
+							</tr>
+						#end
+					</table>
 				</p>
 			#end
 			## group/section support
