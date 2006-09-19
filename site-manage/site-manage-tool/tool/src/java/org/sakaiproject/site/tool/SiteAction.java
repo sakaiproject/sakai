@@ -9968,6 +9968,24 @@ public class SiteAction extends PagedResourceActionII
 		}
 
 	}// commitSite
+   
+   private boolean isValidDomain(String email)
+   {
+      String invalidEmailInIdAccountString = ServerConfigurationService.getString("invalidEmailInIdAccountString", null);
+      
+      if(invalidEmailInIdAccountString != null) {
+         String[] invalidDomains = invalidEmailInIdAccountString.split(",");
+         
+         for(int i = 0; i < invalidDomains.length; i++) {
+            String domain = invalidDomains[i].trim();
+            
+            if(email.toLowerCase().indexOf(domain.toLowerCase()) != -1) {
+               return false;
+            }
+         }
+      }
+      return true;
+   }
 	
 	private void checkAddParticipant(ParameterParser params, SessionState state)
 	{
@@ -9986,8 +10004,6 @@ public class SiteAction extends PagedResourceActionII
 		{
 			addAlert(state, rb.getString("java.specif") + " " + siteId);
 		}
-		
-		String invalidEmailInIdAccountString = ServerConfigurationService.getString("invalidEmailInIdAccountString", null);
 		
 		//accept noEmailInIdAccounts and/or emailInIdAccount account names
 		String noEmailInIdAccounts = "";
@@ -10080,7 +10096,7 @@ public class SiteAction extends PagedResourceActionII
 					{
 						addAlert(state, emailInIdAccount + " "+rb.getString("java.emailaddress") + INVALID_EMAIL);
 					}
-					else if (invalidEmailInIdAccountString != null && emailInIdAccount.indexOf(invalidEmailInIdAccountString) != -1)
+					else if (emailInIdAccount != null && !isValidDomain(emailInIdAccount))
 					{
 						// wrong string inside emailInIdAccount id
 						addAlert(state, emailInIdAccount + " "+rb.getString("java.emailaddress")+" ");
