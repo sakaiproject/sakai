@@ -41,6 +41,8 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentD
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
@@ -119,11 +121,13 @@ public class SavePublishedSettingsListener
 
     if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g)){ // => something to do
       PublishedEvaluationModel evaluation = (PublishedEvaluationModel)assessment.getEvaluationModel();
+      Integer scoringType = EvaluationModelIfc.HIGHEST_SCORE;
       if (evaluation == null){
         evaluation = new PublishedEvaluationModel();
         evaluation.setAssessmentBase(assessment.getData());
       }
       evaluation.setToGradeBook(assessmentSettings.getToDefaultGradebook());
+      scoringType = evaluation.getScoringType();
       if (evaluation.getToGradeBook()!=null && 
         evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
         //add and copy scores over if any
@@ -135,9 +139,23 @@ public class SavePublishedSettingsListener
          gbsHelper.updateGradebook((PublishedAssessmentData)assessment.getData(), g);
           // any score to copy over? get all the assessmentGradingData and copy over
           GradingService gradingService = new GradingService();
-          ArrayList list = gradingService.getAllSubmissions(assessment.getPublishedAssessmentId().toString());
+          
+           // need to decide what to tell gradebook
+          ArrayList list = null;
+          
+          if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)){
+        	  list = gradingService.getHighestAssessmentGradingList(assessment.getPublishedAssessmentId());
+          }
+          else {
+           list = gradingService.getLastAssessmentGradingList(assessment.getPublishedAssessmentId());
+          }
+          
+          //ArrayList list = gradingService.getAllSubmissions(assessment.getPublishedAssessmentId().toString());
+          log.debug("list size =" + list.size()	);
           for (int i=0; i<list.size();i++){
+         	   
             AssessmentGradingData ag = (AssessmentGradingData)list.get(i);
+            log.debug("ag.scores " + ag.getTotalAutoScore());
             gbsHelper.updateExternalAssessmentScore(ag, g);
           }
         }

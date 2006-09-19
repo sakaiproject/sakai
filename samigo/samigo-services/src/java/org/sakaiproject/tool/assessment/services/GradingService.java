@@ -99,7 +99,7 @@ public class GradingService
     return results;
   }
 
-  private ArrayList getHighestAssessmentGradingList(Long publishedId)
+  public ArrayList getHighestAssessmentGradingList(Long publishedId)
   {
     ArrayList results = null;
     try {
@@ -215,7 +215,7 @@ public class GradingService
     return l;
   }
 
-  private Integer getScoringType(PublishedAssessmentIfc pub){
+  public Integer getScoringType(PublishedAssessmentIfc pub){
     Integer scoringType = null;
     EvaluationModelIfc e = pub.getEvaluationModel();
     if ( e!=null ){
@@ -734,7 +734,7 @@ public class GradingService
                                        Long itemType, HashMap publishedItemTextHash, 
                                        HashMap totalItems, HashMap fibAnswersMap,
                                        HashMap publishedAnswerHash, HashMap finAnswersMap){
-    float score = (float) 0;
+    //float score = (float) 0;
     float initScore = (float) 0;
     float autoScore = (float) 0;
     float accumelateScore = (float) 0;
@@ -901,7 +901,7 @@ public class GradingService
       catch (Exception e) {
         log.warn("problem sending grades to gradebook: "+e.getMessage());
         log.warn("retrying...sending grades to gradebook. ");
-        String errorMessage = e.getMessage();
+        //String errorMessage = e.getMessage();
           log.warn("retry....");
           retryCount--;
           try {
