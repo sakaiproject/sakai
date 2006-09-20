@@ -749,26 +749,18 @@ public abstract class RWikiObjectImpl implements RWikiObject
 
 	private static String byteArrayToHexStr(byte[] data)
 	{
-		String output = "";
-		String tempStr = "";
-		int tempInt = 0;
-		for (int cnt = 0; cnt < data.length; cnt++)
+		char[] chars = new char[data.length * 2];
+		for (int i = 0; i < data.length; i++) 
 		{
-			// Deposit a byte into the 8 lsb of an int.
-			tempInt = data[cnt] & 0xFF;
-			// Get hex representation of the int as a
-			// string.
-			tempStr = Integer.toHexString(tempInt);
-			// Append a leading 0 if necessary so that
-			// each hex string will contain two
-			// characters.
-			if (tempStr.length() == 1) tempStr = "0" + tempStr;
-			// Concatenate the two characters to the
-			// output string.
-			output = output + tempStr;
-		}// end for loop
-		return output.toUpperCase();
-	}// end byteArrayToHexStr
+			byte current = data[i];
+			int hi = (current & 0xF0) >> 4;
+			int lo = current & 0x0F; 
+			chars[2*i] =  (char) (hi < 10 ? ('0' + hi) : ('A' + hi - 10));
+			chars[2*i+1] =  (char) (lo < 10 ? ('0' + lo) : ('A' + lo - 10));
+		}
+		return new String(chars);
+	}
+
 }
 
 /*******************************************************************************
