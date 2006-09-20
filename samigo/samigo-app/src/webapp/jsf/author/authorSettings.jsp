@@ -57,8 +57,12 @@
 function validateUrl(){
   var list =document.getElementsByTagName("input");
   for (var i=0; i<list.length; i++){
-    if (list[i].id.indexOf("finalPageUrl") >=0){
+    if (list[i].id.indexOf("finalPageUrl") >=0){			
       var finalPageUrl = list[i].value;
+	  if (finalPageUrl.substring(0,7).toLowerCase().indexOf("http://") == -1)
+	  {
+		finalPageUrl = "http://" + finalPageUrl;
+	  }
       window.open(finalPageUrl,'validateUrl');
     }
   }
