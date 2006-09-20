@@ -158,6 +158,8 @@ function saveTime()
   <%@ include file="/jsf/delivery/part_attachment.jsp" %>
    <f:verbatim><div class="tier2"></f:verbatim>
 
+   <h:outputText value="#{msg.noQuestion}" escape="false" rendered="#{part.noQuestion}"/>
+
       <h:dataTable width="100%" value="#{part.itemContents}" var="question">
         <h:column>
 <f:verbatim><h5></f:verbatim>
@@ -175,9 +177,6 @@ function saveTime()
 </h:panelGrid>
         
           <f:verbatim><div class="tier3"></f:verbatim>
-<%--
-          <h:outputText value="#{question.itemData.description}" escape="false"/>
---%>
           <h:panelGroup rendered="#{question.itemData.typeId == 7}">
            <f:subview id="deliverAudioRecording">
            <%@ include file="/jsf/delivery/item/deliverAudioRecording.jsp" %>

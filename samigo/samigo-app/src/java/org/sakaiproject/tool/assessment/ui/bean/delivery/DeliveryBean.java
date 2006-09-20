@@ -204,6 +204,7 @@ public class DeliveryBean
   private String display_dateFormat= "yyyy-MMM-dd hh:mm aaa";
   private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat);
 
+  private boolean isNoQuestion = false;
 
 
   /**
@@ -2369,4 +2370,13 @@ public class DeliveryBean
     return hasAttachment;
   }
  
+  public boolean getIsNoQuestion() {
+	  return isNoQuestion;
+  }
+
+  public void setIsNoQuestion(boolean isNoQuestion)
+  {
+	  this.isNoQuestion = isNoQuestion;
+  }
+
 }

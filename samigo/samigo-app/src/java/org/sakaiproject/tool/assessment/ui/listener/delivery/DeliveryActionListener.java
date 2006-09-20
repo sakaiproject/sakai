@@ -247,6 +247,18 @@ public class DeliveryActionListener
 
       default: break;
       }
+	  // If it comes from Begin Assessment button clicks, reset isNoQuestion to false
+	  // because we want to always display the first page
+	  // Otherwise, if isNoQuestion set to true in the last delivery and 
+	  // if the first part has no question, it will not be rendered
+	  // See getPageContentsByQuestion() for more details
+	  // Of course it is better to do this inside getPageContentsByQuestion()
+	  // However, ae is not passed in getPageContentsByQuestion()
+	  // and there are multiple places to modify if I want to get ae inside getPageContentsByQuestion()
+      if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
+    	  log.debug("From Begin Assessment button clicks");
+    	  delivery.setIsNoQuestion(false);
+      }
 
       // overload itemGradingHash with the sequence in case renumbering is turned off.
       overloadItemData(delivery, itemGradingHash, publishedAssessment);
@@ -494,6 +506,10 @@ public class DeliveryActionListener
                                                  itemGradingHash, delivery,
                                                  publishedAnswerHash);
       partBean.setNumParts(new Integer(partSet.size()).toString());
+      if (partBean.getItemContentsSize().equals("0")) {
+    	  log.debug("getPageContentsByAssessment(): no question");
+    	  partBean.setNoQuestion(true);
+      }
       currentScore += partBean.getPoints();
       maxScore += partBean.getMaxPoints();
       partsContents.add(partBean);
@@ -536,6 +552,10 @@ public class DeliveryActionListener
                                                  itemGradingHash, delivery,
                                                  publishedAnswerHash);
       partBean.setNumParts(new Integer(partSet.size()).toString());
+      if (partBean.getItemContentsSize().equals("0")) {
+    	  log.debug("getPageContentsByPart(): no question");
+    	  partBean.setNoQuestion(true);
+      }
       currentScore += partBean.getPoints();
       maxScore += partBean.getMaxPoints();
       if (sectionCount++ == sectionIndex)
@@ -611,12 +631,12 @@ public class DeliveryActionListener
       ArrayList sortedlist = getItemArraySortedWithRandom(secFacade, itemlist, seed); 
       questionCount = sortedlist.size();
 
-      if (itemIndex > (questionCount - 1) && sectionCount == sectionIndex)
-      {
+      if ((delivery.getIsNoQuestion() || questionCount != 0) && itemIndex > (questionCount - 1) && sectionCount == sectionIndex) {
         sectionIndex++;
         delivery.setPartIndex(sectionIndex);
         itemIndex = 0;
         delivery.setQuestionIndex(itemIndex);
+        delivery.setIsNoQuestion(false);
       }
       if (itemIndex < 0 && sectionCount == sectionIndex)
       {
@@ -626,12 +646,21 @@ public class DeliveryActionListener
 
       if (sectionCount++ == sectionIndex)
       {
-        SectionContentsBean partBeanWithQuestion =
-          this.getPartBeanWithOneQuestion(secFacade, itemIndex, itemGradingHash,
-                                          delivery, publishedAnswerHash);
-        partBeanWithQuestion.setNumParts(new Integer(partSet.size()).toString());
-        partsContents.add(partBeanWithQuestion);
-
+   		SectionContentsBean partBeanWithQuestion = 
+     			this.getPartBeanWithOneQuestion(secFacade, itemIndex, itemGradingHash,
+     					delivery, publishedAnswerHash);
+      	partBeanWithQuestion.setNumParts(new Integer(partSet.size()).toString());
+      	partsContents.add(partBeanWithQuestion);
+      	
+      	if (questionCount == 0) {
+      		partBeanWithQuestion.setNoQuestion(true);
+      		delivery.setIsNoQuestion(true);
+      	}
+      	else {
+      		partBeanWithQuestion.setNoQuestion(false);
+      		delivery.setIsNoQuestion(false);
+      	}
+      	
         if (iter.hasNext() || itemIndex < (questionCount - 1))
         {
           delivery.setContinue(true);

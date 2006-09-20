@@ -66,6 +66,7 @@ public class SectionContentsBean
   private Long poolIdToBeDrawn;
   private String poolNameToBeDrawn;
   private List attachmentList;
+  private boolean noQuestion;
 
   public SectionContentsBean()
   {
@@ -615,4 +616,12 @@ public class SectionContentsBean
     return hasAttachment;
   }
 
+  public boolean getNoQuestion() {
+	  return noQuestion;
+  }
+
+  public void setNoQuestion(boolean noQuestion)
+  {
+	  this.noQuestion = noQuestion;
+  }
 }
