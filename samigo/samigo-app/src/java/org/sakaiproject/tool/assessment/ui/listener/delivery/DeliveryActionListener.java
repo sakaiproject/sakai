@@ -228,8 +228,8 @@ public class DeliveryActionListener
                 	  ag = service.getLastSavedAssessmentGradingByAgentId(id, agent);
                 	  if (ag == null) {
                 		  ag = createAssessmentGrading(publishedAssessment);
-                          	  delivery.setAssessmentGrading(ag);
                 	  }
+                       	  delivery.setAssessmentGrading(ag);
                   }
               }
               log.debug("**** DeliveryAction, itemgrading size="+ag.getItemGradingSet().size());
