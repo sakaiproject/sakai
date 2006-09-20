@@ -375,7 +375,7 @@ public class FCKConnectorServlet extends HttpServlet
                {
                     try 
                     {
-                    	ContentResource current = (ContentResource)iterator.next();
+                    	 ContentResource current = (ContentResource)iterator.next();
 
                          String ext = current.getProperties().getProperty(
                                    current.getProperties().getNamePropContentType());
@@ -385,10 +385,12 @@ public class FCKConnectorServlet extends HttpServlet
                               (type.equals("Image") && ext.startsWith("image") ) ||
                               type.equals("Link")) 
                          {
-                         
+                              String id = current.getId();
+                             
                               Element element=doc.createElement("File");
-                              element.setAttribute("name", current.getProperties().getProperty(
-                                      current.getProperties().getNamePropDisplayName()));
+                              // displaying the id instead of the display name because the url used
+                              // for linking in the FCK editor uses what is returned...
+                              element.setAttribute("name", id.substring(id.lastIndexOf("/") + 1));
                               
                               if (current.getProperties().getProperty(
                                             current.getProperties().getNamePropContentLength()) != null)
