@@ -27,9 +27,6 @@ import java.io.Writer;
 import org.radeox.macro.BaseMacro;
 import org.radeox.macro.parameter.MacroParameter;
 import org.radeox.util.Encoder;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
 
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderContext;
 
@@ -85,20 +82,19 @@ public class ImageMacro extends BaseMacro
 		SpecializedRenderContext context = (SpecializedRenderContext) params
 				.getContext();
 
-		String siteId = context.getSiteId();
 		// This code is informed by SnipSnap image Macro, we have used it
 		// so that the markup is the same.
 
 		if (params.getLength() > 0)
 		{
 			String img = params.get("img");
-			String alt = null, ext = null, cssclass = null, target = null, title = null;
+			String alt = null, cssclass = null, target = null, title = null;
 			boolean qualifiedParams = img != null;
 			if (qualifiedParams)
 			{
 				alt = params.get("alt");
 				title = params.get("title");
-				ext = params.get("ext");
+				//ext = params.get("ext");
 				cssclass = params.get("class");
 				target = params.get("target");
 			}
@@ -106,7 +102,7 @@ public class ImageMacro extends BaseMacro
 			{
 				img = params.get(0);
 				alt = params.get(1);
-				ext = params.get(2);
+				//ext = params.get(2);
 				cssclass = params.get(3);
 				target = params.get(4);
 				title = params.get(5);
@@ -121,7 +117,7 @@ public class ImageMacro extends BaseMacro
 
 			if (link != null)
 			{
-				link = convertLink(link, siteId);
+				link = context.convertLink(link);
 
 				writer.write("<a href=\"" + Encoder.escape(link) + "\"");
 				if (target != null)
@@ -136,11 +132,13 @@ public class ImageMacro extends BaseMacro
 			// do more processing and perhapse only allow resources
 			if (imageName.startsWith("http://")
 					|| imageName.startsWith("https://")
-					|| imageName.startsWith("ftp://"))
+					|| imageName.startsWith("ftp://")) 
+			{
 				throw new IllegalArgumentException(
 						"External URLs are not allowed, only relative or absolute");
+			}
 
-			imageName = convertLink(imageName, siteId);
+			imageName = context.convertLink(imageName);
 			writer.write("<img src=\"");
 			writer.write(imageName);
 			writer.write("\" ");
@@ -173,82 +171,6 @@ public class ImageMacro extends BaseMacro
 		return;
 
 	}
-
-	private String convertLink(String link, String siteId)
-	{
-
-		if (link.startsWith("sakai:/"))
-		{
-			String refSiteUrl = link.substring("sakai:/".length());
-			if ( refSiteUrl.startsWith("/") ) {
-				refSiteUrl = refSiteUrl.substring(1);
-			}
-			String[] parts = refSiteUrl.split("/");
-			if (parts == null || parts.length < 1)
-			{
-				return "Link Cant be resolved";
-			}
-
-			String refSiteId = parts[0];
-			String refSiteType = getSiteType(refSiteId, "group");
-			
-			if ((refSiteId != null && refSiteId.startsWith("~")) || refSiteType == null)
-			{
-				String remLink = link.substring("sakai:/".length());
-				if ( remLink.startsWith("/") ) {
-					remLink = remLink.substring(1);
-				}
-				if ( remLink.startsWith("~") ) {
-					remLink = remLink.substring(1);
-				}
-				link = "/access/content/user/"
-						+ remLink;
-
-			}
-			else
-			{
-				link = "/access/content/group/"
-						+ link.substring("sakai:/".length());
-			}
-		}
-		else if (link.startsWith("worksite:/"))
-		{
-			// need to check siteid
-			String siteType = getSiteType(siteId, null);
-			
-			if ((siteId != null && siteId.startsWith("~")) || siteType == null)
-			{
-				if ( siteId.startsWith("~") ) {
-					siteId = siteId.substring(1);
-				}
-				link = "/access/content/user/" + siteId + "/"
-						+ link.substring("worksite:/".length());
-
-			}
-			else
-			{
-				link = "/access/content/group/" + siteId + "/"
-						+ link.substring("worksite:/".length());
-			}
-
-		}
-		return link;
-	}
-
-	
-	private String getSiteType(String siteId, String defaultType) {
-		try
-		{
-			Site s = SiteService.getSite(siteId);
-			return s.getType();
-		}
-		catch (IdUnusedException e)
-		{
-			
-			return defaultType;
-		}
-	}
-	
 }
 
 /*******************************************************************************

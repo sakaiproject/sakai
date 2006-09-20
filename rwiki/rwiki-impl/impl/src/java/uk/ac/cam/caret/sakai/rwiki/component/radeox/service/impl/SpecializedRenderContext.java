@@ -155,5 +155,79 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 		}
 		return null;
 	}
+	
+	public String convertLink(String link) {
+		if (link.startsWith("sakai:/"))
+		{
+			String refSiteUrl = link.substring("sakai:/".length());
+			if ( refSiteUrl.startsWith("/") ) {
+				refSiteUrl = refSiteUrl.substring(1);
+			}
+			String[] parts = refSiteUrl.split("/");
+			if (parts == null || parts.length < 1)
+			{
+				return "Link Cant be resolved";
+			}
+
+			String refSiteId = parts[0];
+			String refSiteType = getSiteType(refSiteId, "group");
+			
+			if ((refSiteId != null && refSiteId.startsWith("~")) || refSiteType == null)
+			{
+				String remLink = link.substring("sakai:/".length());
+				if ( remLink.startsWith("/") ) {
+					remLink = remLink.substring(1);
+				}
+				if ( remLink.startsWith("~") ) {
+					remLink = remLink.substring(1);
+				}
+				link = "/access/content/user/"
+						+ remLink;
+
+			}
+			else
+			{
+				link = "/access/content/group/"
+						+ link.substring("sakai:/".length());
+			}
+		}
+		else if (link.startsWith("worksite:/"))
+		{
+			String siteId = getSiteId();
+			// need to check siteid
+			String siteType = getSiteType(siteId, null);
+			
+			if ((siteId != null && siteId.startsWith("~")) || siteType == null)
+			{
+				if ( siteId.startsWith("~") ) {
+					siteId = siteId.substring(1);
+				}
+				link = "/access/content/user/" + siteId + "/"
+						+ link.substring("worksite:/".length());
+
+			}
+			else
+			{
+				link = "/access/content/group/" + siteId + "/"
+						+ link.substring("worksite:/".length());
+			}
+
+		}
+		return link;
+	}
+	
+	public String getSiteType(String siteId, String defaultType) {
+		try
+		{
+			Site s = siteService.getSite(siteId);
+			return s.getType();
+		}
+		catch (IdUnusedException e)
+		{
+			
+			return defaultType;
+		}
+	}
+	
 
 }
