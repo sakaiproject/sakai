@@ -730,10 +730,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   private byte[] getMediaStream(Long mediaId){
     byte[] b = new byte[4000];
     Session session = null;
+    Connection conn = null;
     InputStream in = null; 
     try{
       session = getSessionFactory().openSession();
-      Connection conn = session.connection();
+      conn = session.connection();
       log.debug("****Connection="+conn);
       String query="select MEDIA from SAM_MEDIA_T where MEDIAID=?";
       PreparedStatement statement = conn.prepareStatement(query);
@@ -762,6 +763,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       try{
         if (session !=null) session.close();
         if (in !=null) in.close();
+        if (conn !=null) conn.close();
       }
       catch(Exception ex){
         log.warn(ex.getMessage());
