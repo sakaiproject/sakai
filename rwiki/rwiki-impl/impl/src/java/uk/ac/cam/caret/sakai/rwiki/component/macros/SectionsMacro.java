@@ -26,7 +26,6 @@ import java.io.Writer;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.radeox.api.engine.RenderEngine;
 import org.radeox.macro.BaseMacro;
 import org.radeox.macro.parameter.MacroParameter;
 import org.sakaiproject.exception.IdUnusedException;
