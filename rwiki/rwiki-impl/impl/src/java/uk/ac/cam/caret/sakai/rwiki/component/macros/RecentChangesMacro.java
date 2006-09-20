@@ -32,10 +32,8 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 
-import org.radeox.api.engine.RenderEngine;
 import org.radeox.macro.BaseMacro;
 import org.radeox.macro.parameter.MacroParameter;
-import org.radeox.util.Encoder;
 
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderContext;
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderEngine;
@@ -45,7 +43,6 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 import uk.ac.cam.caret.sakai.rwiki.utils.UserDisplayHelper;
-import uk.ac.cam.caret.sakai.rwiki.utils.XmlEscaper;
 
 /**
  * FIXME needs localisation

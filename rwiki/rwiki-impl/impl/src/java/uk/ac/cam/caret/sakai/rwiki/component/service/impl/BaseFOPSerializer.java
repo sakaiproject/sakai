@@ -227,7 +227,7 @@ public class BaseFOPSerializer implements Serializer
 	/**
 	 * {@inheritDoc}
 	 */
-	public DOMSerializer asDOMSerializer() throws IOException
+	public DOMSerializer asDOMSerializer()
 	{
 		return null;
 	}

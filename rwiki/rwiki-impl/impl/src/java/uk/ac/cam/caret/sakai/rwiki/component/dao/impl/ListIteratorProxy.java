@@ -60,7 +60,7 @@ public class ListIteratorProxy implements ListIterator
 
 	public Object previous()
 	{
-		return lop.proxyObject(previous());
+		return lop.proxyObject(li.previous());
 	}
 
 	public int nextIndex()

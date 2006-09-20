@@ -76,7 +76,6 @@ public class SectionsMacro extends BaseMacro
 
 		SpecializedRenderContext context = (SpecializedRenderContext) params
 				.getContext();
-		RenderEngine engine = context.getRenderEngine();
 
 		String useids = params.get("useids", 0);
 

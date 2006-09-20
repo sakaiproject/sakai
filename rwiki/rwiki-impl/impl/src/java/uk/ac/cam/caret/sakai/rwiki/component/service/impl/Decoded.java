@@ -32,7 +32,7 @@ public class Decoded
 {
 	public Decoded()
 	{
-
+		// Default Constructor
 	}
 
 	public Decoded(String context, String container, String page, String version)
@@ -95,7 +95,7 @@ public class Decoded
 	{
 		if (id == null)
 		{
-			if (container.equals("/"))
+			if (container != null && container.equals("/"))
 			{
 				id = context + container + page;
 			}
@@ -149,6 +149,8 @@ public class Decoded
 		if (o instanceof Decoded)
 		{
 			Decoded d = (Decoded) o;
+			// What's wrong with using this.toString().equals(d.toString()) ?
+			
 			String dcontainer = d.getContainer();
 			String dcontext = d.getContext();
 			String dpage = d.getPage();
@@ -167,6 +169,10 @@ public class Decoded
 		return false;
 	}
 
+	public int hashCode() {
+		return toString().hashCode();
+	}
+	
 	public String toString()
 	{
 		return getId() + "@" + version;
