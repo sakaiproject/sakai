@@ -110,46 +110,53 @@ $Id$
 
 <!--h:panelGrid styleClass="navModeQuestion" columns="2" columnClasses="alignLeft,alignCenter" width="100%" -->
 
-<h:panelGrid styleClass="navModeAction" columns="2" columnClasses="navView,navList" width="100%">
+  <h:dataTable value="#{questionScores.deliveryItem}" var="question" border="0" >
+    <h:column>
 
      <h:panelGroup rendered="#{questionScores.typeId == '7'}">
-         <h:outputText value="#{msg.q_aud}"/>
+         <h:outputText value="#{msg.question}#{question.sequence} - #{msg.q_aud}"/>
      </h:panelGroup>
       <h:panelGroup rendered="#{questionScores.typeId == '6'}">
-         <h:outputText value="#{msg.q_fu}"/>
+         <h:outputText value="#{msg.question}#{question.sequence} - #{msg.q_fu}"/>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '8'}">
-         <h:outputText value="#{msg.q_fib}"/>
+         <h:outputText value="#{msg.question}#{question.sequence} - #{msg.q_fib}"/>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '11'}">
-         <h:outputText value="#{msg.q_fin}"/>
+         <h:outputText value="#{msg.question}#{question.sequence} - #{msg.q_fin}"/>
      </h:panelGroup>
      
       <h:panelGroup rendered="#{questionScores.typeId == '9'}">
-         <h:outputText value="#{msg.q_match}"/>
+         <h:outputText value="#{msg.question}#{question.sequence} - #{msg.q_match}"/>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '2'}">
-         <h:outputText value="#{msg.q_mult_mult}"/>
+         <h:outputText value="#{msg.question}#{question.sequence} - #{msg.q_mult_mult}"/>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '4'}">
-         <h:outputText value="#{msg.q_tf}"/>
+         <h:outputText value="#{msg.question}#{question.sequence} - #{msg.q_tf}"/>
      </h:panelGroup>
 
      <h:panelGroup rendered="#{questionScores.typeId == '5'}">
-         <h:outputText value="#{msg.q_short_ess}"/>
+         <h:outputText value="#{msg.question}#{question.sequence} - #{msg.q_short_ess}"/>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '3'}">
-         <h:outputText value="#{msg.q_mult_surv}"/>
+         <h:outputText value="#{msg.question}#{question.sequence} - #{msg.q_mult_surv}"/>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '1'}">
-    <h:outputText value="#{msg.q_mult_sing}"/>
+    <h:outputText value="#{msg.question}#{question.sequence} - #{msg.q_mult_sing}"/>
       </h:panelGroup>
+ </h:column>
 
+  <!-- following columns are for formatting -->
+  <h:column></h:column>
+  <h:column></h:column>
+  <h:column></h:column>
+  <h:column></h:column>
 
+  <h:column>
      <h:outputText value="#{questionScores.maxPoint}" style="instruction"/>
-
- </h:panelGrid>
-
+  </h:column>
+  </h:dataTable>
 
   <h:dataTable value="#{questionScores.deliveryItem}" var="question">
   <h:column>
