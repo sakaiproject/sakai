@@ -241,7 +241,7 @@ public class Table
 		}
 
 		writer.write(">");
-		List[] outputRows = (List[]) rows.toArray(new List[0]);
+		List[] outputRows = (List[]) rows.toArray(new List[rows.size()]);
 		int rowSize = outputRows.length;
 		boolean odd = true;
 		for (int i = 0; i < rowSize; i++)
@@ -262,7 +262,7 @@ public class Table
 				odd = true;
 			}
 			String[] outputCols = (String[]) outputRows[i]
-					.toArray(new String[0]);
+					.toArray(new String[outputRows[i].size()]);
 			int colSize = outputCols.length;
 			for (int j = 0; j < colSize; j++)
 			{

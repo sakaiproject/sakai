@@ -106,7 +106,7 @@ public class SQLScriptMigration implements DataMigrationAgent
 			}
 			line = br.readLine();
 		}
-		final String[] sql = (String[]) lines.toArray(new String[0]);
+		final String[] sql = (String[]) lines.toArray(new String[lines.size()]);
 
 		HibernateTemplate hibernateTemplate = new HibernateTemplate(
 				sessionFactory);
