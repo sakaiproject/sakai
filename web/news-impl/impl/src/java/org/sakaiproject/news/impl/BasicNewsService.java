@@ -62,7 +62,7 @@ public class BasicNewsService implements NewsService
 	private static Log M_log = LogFactory.getLog(BasicNewsService.class);
 
 	// default expiration is 10 minutes (expressed in seconds)
-	protected static int DEFAULT_EXPIRATION = 10 * 60;
+	protected static final int DEFAULT_EXPIRATION = 10 * 60;
 
 	// The cache in which channels and news-items are held
 	protected Cache m_storage = null;
@@ -666,7 +666,7 @@ public class BasicNewsService implements NewsService
 			m_lastbuilddate = builddate;
 		}
 
-		public void SetImageUrl(String imageUrl)
+		public void setImageUrl(String imageUrl)
 		{
 			m_imageUrl = imageUrl;
 		}

@@ -55,9 +55,9 @@ public class NewsService
 
 	private static org.sakaiproject.news.api.NewsService m_instance = null;
 
-	public static java.lang.String SERVICE_NAME = org.sakaiproject.news.api.NewsService.SERVICE_NAME;
+	public static final java.lang.String SERVICE_NAME = org.sakaiproject.news.api.NewsService.SERVICE_NAME;
 
-	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.news.api.NewsService.REFERENCE_ROOT;
+	public static final java.lang.String REFERENCE_ROOT = org.sakaiproject.news.api.NewsService.REFERENCE_ROOT;
 
 	public static java.util.List getChannels()
 	{
