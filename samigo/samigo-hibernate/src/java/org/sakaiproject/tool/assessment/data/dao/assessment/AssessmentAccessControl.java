@@ -39,7 +39,11 @@ public class AssessmentAccessControl
   // This depends on the AssessmentBase object (superclass of AssessmentData and
   // AssessmentTemplateData) that is associated with it.
 
-  // flag it when no editing on the property is desire
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8330416434678491916L;
+// flag it when no editing on the property is desire
   public static final Integer NO_EDIT = new Integer(-1);
   // timedAssessment
   public static final Integer TIMED_ASSESSMENT = new Integer(1);

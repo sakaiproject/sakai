@@ -60,7 +60,11 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class LoginServlet
     extends HttpServlet
 {
-  private static Log log = LogFactory.getLog(LoginServlet.class);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5495078878170443939L;
+private static Log log = LogFactory.getLog(LoginServlet.class);
 
   public LoginServlet()
   {

@@ -41,7 +41,11 @@ public class AssessmentGradingSummaryData
 // need to implement org.osid.assessment.ItemTaken in the future
 // - daisyf 10/11/04
 {
-  private Long assessmentGradingSummaryId;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7857133156727718632L;
+private Long assessmentGradingSummaryId;
   private PublishedAssessmentIfc publishedAssessment;
   private String agentId;
   private Integer totalSubmitted;

@@ -55,7 +55,13 @@ public class QuestionPoolTreeImpl
   implements Tree
 {
 
-  private static Log log = LogFactory.getLog(QuestionPoolTreeImpl.class);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2173986944623441011L;
+
+
+private static Log log = LogFactory.getLog(QuestionPoolTreeImpl.class);
 
 
   private HashMap poolMap;

@@ -27,7 +27,11 @@ import java.io.Serializable;
 
 public class AuthorizationData implements AuthorizationIfc, Serializable
 {
-  private String agentId;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1460106795359785530L;
+private String agentId;
   private String functionId;
   private String qualifierId;
   private Date effectiveDate;

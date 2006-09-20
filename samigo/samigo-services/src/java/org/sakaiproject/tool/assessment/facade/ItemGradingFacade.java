@@ -21,11 +21,11 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
+//import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+//import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+//import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import java.util.Date;
 import java.lang.Float;
 
@@ -35,7 +35,11 @@ public class ItemGradingFacade
 // need to implement org.osid.assessment.ItemTaken in the future
 // - daisyf 10/11/04
 {
-  private Long itemGradingId;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6779809228748217781L;
+private Long itemGradingId;
   private Long assessmentGradingId;
   private Long publishedItemId;
   private Long publishedItemTextId;

@@ -31,11 +31,11 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.log4j.Category;
-import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
+
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+//import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -85,7 +85,7 @@ public class PublishedAssessmentData
   private Integer feedbackDelivery;
   private Integer feedbackAuthoring;
   private Date feedbackDate;
-  private String ownerSiteName;
+  //private String ownerSiteName;
   private Set assessmentAttachmentSet;
 
   public PublishedAssessmentData() {}

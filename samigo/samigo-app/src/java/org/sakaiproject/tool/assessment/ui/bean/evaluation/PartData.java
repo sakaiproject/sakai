@@ -40,7 +40,11 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 public class PartData
   implements Serializable
 {
-  private ArrayList questionNumberList;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6113822805534954287L;
+private ArrayList questionNumberList;
   private String partNumber;
   private String id;
   private boolean linked;

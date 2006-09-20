@@ -66,7 +66,12 @@ import org.w3c.dom.Element;
 public class RecordingData
   implements Serializable
 {
-  private static Log log = LogFactory.getLog(RecordingData.class);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4398684269227144959L;
+
+private static Log log = LogFactory.getLog(RecordingData.class);
 
   //properties
   private String agentName;

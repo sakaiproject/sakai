@@ -32,7 +32,11 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 public class PublishedEvaluationModel
     implements java.io.Serializable, EvaluationModelIfc
 {
-  private Long id;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6919530379488261271L;
+private Long id;
   private AssessmentIfc assessment;
   private String evaluationComponents;
   private Integer scoringType;

@@ -29,7 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import javax.faces.context.FacesContext;
+
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -93,7 +93,7 @@ public class SelectActionListener
     if (!deliveryBean.getAnonymousLogin() && !authzBean.getTakeAssessment())
       return;
 
-    deliveryBean = new DeliveryBean();
+    //deliveryBean = new DeliveryBean();
 
     // get service and managed bean
     PublishedAssessmentService publishedAssessmentService = new
@@ -462,7 +462,7 @@ public class SelectActionListener
 	hasStats = "true";
        }
     }
-    log.debug("hasStats == " + hasStats);
+    //log.debug("hasStats == " + hasStats);
     return hasStats;
   }
 

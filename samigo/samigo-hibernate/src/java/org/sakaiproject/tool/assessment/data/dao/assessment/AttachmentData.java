@@ -25,12 +25,16 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.ResourceBundle;
+
 
 public class AttachmentData
     implements Serializable, AttachmentIfc
 {
-  private Long attachmentId;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6418622221846466766L;
+private Long attachmentId;
   private ItemDataIfc item;
   private String resourceId;
   private String filename;

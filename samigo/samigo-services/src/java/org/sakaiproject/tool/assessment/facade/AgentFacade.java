@@ -50,7 +50,12 @@ import org.sakaiproject.tool.assessment.integration.context.
 public class AgentFacade implements Serializable, AgentDataIfc
 {
 
-  private static Log log = LogFactory.getLog(AgentFacade.class);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+private static Log log = LogFactory.getLog(AgentFacade.class);
 
   private static final AgentHelper helper =
     IntegrationContextFactory.getInstance().getAgentHelper();
@@ -79,10 +84,10 @@ public class AgentFacade implements Serializable, AgentDataIfc
   public AgentFacade()
   {
     // If an agent string is available, UNASSIGNED_AGENT_STRING willbe replaced
-    String agentId = helper.getAgentString(helper.UNASSIGNED_AGENT_STRING);
+    String agentId = helper.getAgentString(AgentHelper.UNASSIGNED_AGENT_STRING);
     agent = new AgentImpl(agentId, null, new IdImpl(agentId));
     agentString = agentId;
-    eid = helper.getEid(helper.UNASSIGNED_AGENT_STRING); 
+    eid = helper.getEid(AgentHelper.UNASSIGNED_AGENT_STRING); 
   }
 
   /**
@@ -344,6 +349,7 @@ log.debug("agentfacade.getEid(agentS) agentString = " + agentString);
   {
     this.accessViaUrl = accessViaUrl;
   }
+  
   public void setAgentInstanceString(String agentInstanceString)
   {
     this.agentString = agentInstanceString;

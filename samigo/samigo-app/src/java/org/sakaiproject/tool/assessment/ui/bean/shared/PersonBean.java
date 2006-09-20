@@ -43,7 +43,11 @@ import org.apache.commons.logging.Log;
 
 public class PersonBean implements Serializable
 {
-  private static Log log = LogFactory.getLog(PersonBean.class);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1884634498046475698L;
+private static Log log = LogFactory.getLog(PersonBean.class);
   private String anonymousId;
  
   public PersonBean(){}

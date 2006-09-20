@@ -30,7 +30,11 @@ import org.osid.assessment.Item;
 
 public class ItemIteratorImpl implements Serializable, org.osid.assessment.ItemIterator
 {
-  private Iterator items;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2167985085297166661L;
+private Iterator items;
 
   /**
    * Creates a new ItemIteratorImpl object.

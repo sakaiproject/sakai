@@ -26,7 +26,11 @@ import java.io.Serializable;
 
 public class PagingModel implements Serializable
 {
-  private int firstItem;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8166345520085915986L;
+private int firstItem;
   private int lastItem;
   private int numItems;
   private int totalItems;

@@ -34,7 +34,11 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 public class HistogramBarBean
   implements Serializable
 {
-  private int numStudents;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4501893986013465144L;
+private int numStudents;
   private String numStudentsText;
   private String columnHeight;
   private String rangeInfo;

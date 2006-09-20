@@ -35,7 +35,11 @@ import java.util.ArrayList;
 
 public class MetaDataBean implements Serializable
 {
-  private boolean considerUserId;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1329360369551821799L;
+private boolean considerUserId;
   private boolean collectItemMetadata;
   private boolean considerAllowIP;
   private boolean autoSubmit;

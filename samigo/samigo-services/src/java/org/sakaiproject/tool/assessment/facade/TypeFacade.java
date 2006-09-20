@@ -34,7 +34,11 @@ public class TypeFacade implements Serializable, TypeIfc{
   // 02_TypeData.sql when generate the table
   // these are qestion type available in this site,
 
-  public static final Long MULTIPLE_CHOICE = new Long(1);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3400550482739705371L;
+public static final Long MULTIPLE_CHOICE = new Long(1);
   public static final Long MULTIPLE_CORRECT = new Long(2);
   public static final Long MULTIPLE_CHOICE_SURVEY = new Long(3);
   public static final Long TRUE_FALSE = new Long(4);

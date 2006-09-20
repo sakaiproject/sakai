@@ -24,56 +24,15 @@
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.text.NumberFormat;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ExternalContext;
-import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSecuredIPAddress;
-import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
-import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
-import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
-import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
-import org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener;
-import org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener;
-import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
-import org.sakaiproject.spring.SpringBeanLocator;
-import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
-import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
-import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
-import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 
-//cwen
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.api.Placement; 
-// note: we should wrap above dependency in a backend service--esmiley
 
 import java.text.SimpleDateFormat;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
@@ -89,7 +48,12 @@ import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 public class DeliveryBeanie
   implements Serializable
 {
-  private static Log log = LogFactory.getLog(DeliveryBeanie.class);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3740101653033385370L;
+
+private static Log log = LogFactory.getLog(DeliveryBeanie.class);
 
   private String assessmentId;
   private String assessmentTitle;

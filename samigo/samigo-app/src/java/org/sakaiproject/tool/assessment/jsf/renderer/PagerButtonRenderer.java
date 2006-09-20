@@ -43,14 +43,14 @@ import javax.faces.render.Renderer;
 public class PagerButtonRenderer extends Renderer
 {
   // some IO stuff
-  private final String numberValues[] = {"10", "20", "30", "50", "100" };
-  private final String DISABLED_ATTRIB = " disabled=\"disabled\"";
+  private static final String numberValues[] = {"10", "20", "30", "50", "100" };
+  private static final String DISABLED_ATTRIB = " disabled=\"disabled\"";
   // this needs to be internationalized, tricky because of fragments
-  private final String OF = "of";
-  private final String VIEWING = "Viewing";
-  private final String SHOW = "Show";
-  private final String ITEMS = "items";
-  private final String ITEMS_PER = "items per page";
+  private static final String OF = "of";
+  private static final String VIEWING = "Viewing";
+  private static final String SHOW = "Show";
+  private static final String ITEMS = "items";
+  private static final String ITEMS_PER = "items per page";
 
 
   public boolean supportsComponentType(UIComponent component)

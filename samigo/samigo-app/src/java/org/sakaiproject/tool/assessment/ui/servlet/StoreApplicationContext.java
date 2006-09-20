@@ -35,7 +35,11 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class StoreApplicationContext extends HttpServlet{
 
-  private static Log log = LogFactory.getLog(StoreApplicationContext.class);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -930231313808212406L;
+private static Log log = LogFactory.getLog(StoreApplicationContext.class);
   private WebApplicationContext ctx = null;
 
   public void init (ServletConfig config) throws ServletException {

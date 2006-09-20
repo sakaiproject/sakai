@@ -31,7 +31,11 @@ import org.sakaiproject.tool.assessment.facade.DataFacadeException;
 public class QualifierIteratorFacade
   implements QualifierIteratorIfc
 {
-  private Iterator qualifierIter;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8412047177198953937L;
+private Iterator qualifierIter;
 
   public QualifierIteratorFacade(Collection c)
   {

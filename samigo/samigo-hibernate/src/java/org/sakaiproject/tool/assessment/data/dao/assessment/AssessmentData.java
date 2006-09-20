@@ -35,7 +35,11 @@ public class AssessmentData extends org.sakaiproject.tool.assessment.data.dao.as
     implements java.io.Serializable, AssessmentIfc
 {
 
-  // both Assessment and AssessmentTemplate inherits all the properties & methods from
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2260656620640273214L;
+// both Assessment and AssessmentTemplate inherits all the properties & methods from
   // AssessmentBaseData.
   // These are the properties that an assessment has and an assessmentTemplate don't
   private Long assessmentTemplateId;

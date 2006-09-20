@@ -26,7 +26,11 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class AttachmentBean implements Serializable{
-  private Long attachmentId;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4912478649252175081L;
+private Long attachmentId;
   private String resourceId;
   private String filename;
   private String mimeType;

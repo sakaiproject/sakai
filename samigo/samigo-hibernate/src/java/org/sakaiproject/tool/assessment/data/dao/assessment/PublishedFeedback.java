@@ -28,7 +28,11 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 public class PublishedFeedback
     implements java.io.Serializable, AssessmentFeedbackIfc
 {
-  private Long id;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6725754767789047244L;
+private Long id;
   private AssessmentIfc assessment;
   private Integer feedbackDelivery; // 0 = cannot edit, 1=immediate, 2=on specific date , 3= no feedback
   private Integer feedbackAuthoring; // 0 = cannot edit, 1=questionlevel, 2=sectionlevel, 3= both feedback

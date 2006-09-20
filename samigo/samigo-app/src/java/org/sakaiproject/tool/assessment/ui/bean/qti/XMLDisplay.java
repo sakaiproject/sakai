@@ -34,7 +34,11 @@ import java.io.Serializable;
 
 public class XMLDisplay implements Serializable
 {
-  private String name;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 40775142933316177L;
+private String name;
   private String description;
   private String xml;
   private String id;

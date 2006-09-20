@@ -26,16 +26,21 @@ package org.sakaiproject.tool.assessment.ui.bean.authz;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.spring.SpringBeanLocator;
+//import org.sakaiproject.spring.SpringBeanLocator;
 import java.io.Serializable;
 import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+//import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class AuthorizationBean implements Serializable {
-  private static Log log = LogFactory.getLog(AuthorizationBean.class);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2782949557257727817L;
+
+private static Log log = LogFactory.getLog(AuthorizationBean.class);
 
   private HashMap map = new HashMap();
   private boolean adminPrivilege = false;
@@ -104,8 +109,8 @@ public class AuthorizationBean implements Serializable {
     boolean p16 = canDeleteOwnTemplate(siteId);
 
     // non admin functions
-    boolean p21 = canTakeAssessment(siteId);
-    boolean p22 = canSubmitAssessmentForGrade(siteId);
+    //boolean p21 = canTakeAssessment(siteId);
+    //boolean p22 = canSubmitAssessmentForGrade(siteId);
 
     // set adminPrivilege
     adminNewAssessmentPrivilege = p1;

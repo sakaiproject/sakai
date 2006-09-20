@@ -36,7 +36,11 @@ import java.io.Serializable;
 public class MediaBean
   implements Serializable
 {
-  private String mediaId;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3080542880089498490L;
+private String mediaId;
   private String mediaUrl;
   private String filename;
 

@@ -27,11 +27,16 @@ public class AssessmentTemplateData
     implements java.io.Serializable,
                org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentTemplateIfc
 {
-  public static String AUTHORS = "ASSESSMENTTEMPLATE_AUTHORS";
-  public static String KEYWORDS = "ASSESSMENTTEMPLATE_KEYWORDS";
-  public static String OBJECTIVES = "ASSESSMENTTEMPLATE_OBJECTIVES";
-  public static String BGCOLOR = "ASSESSMENTTEMPLATE_BGCOLOR";
-  public static String BGIMAGE = "ASSESSMENTTEMPLATE_BGIMAGE";
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 9050408582352928295L;
+	
+  public static final String AUTHORS = "ASSESSMENTTEMPLATE_AUTHORS";
+  public static final String KEYWORDS = "ASSESSMENTTEMPLATE_KEYWORDS";
+  public static final String OBJECTIVES = "ASSESSMENTTEMPLATE_OBJECTIVES";
+  public static final String BGCOLOR = "ASSESSMENTTEMPLATE_BGCOLOR";
+  public static final String BGIMAGE = "ASSESSMENTTEMPLATE_BGIMAGE";
 
   /* AssessmentTemplate also has AssessmentAccessControl and EvaluationModel
    * but it does not have section

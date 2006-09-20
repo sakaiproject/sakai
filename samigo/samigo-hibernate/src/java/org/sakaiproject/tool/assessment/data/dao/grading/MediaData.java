@@ -25,12 +25,16 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.ResourceBundle;
+
 
 public class MediaData
     implements Serializable, MediaIfc
 {
-  private Long mediaId;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -437737678404198607L;
+private Long mediaId;
   private ItemGradingIfc itemGradingData;
   private byte[] media;
   private Long fileSize; // in kilobyte

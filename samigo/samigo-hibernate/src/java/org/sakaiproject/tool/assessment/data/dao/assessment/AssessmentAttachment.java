@@ -25,13 +25,17 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachment
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.ResourceBundle;
+
 
 public class AssessmentAttachment
     extends AttachmentData
-    implements java.io.Serializable, AssessmentAttachmentIfc
+    implements Serializable, AssessmentAttachmentIfc
 {
-  private AssessmentIfc assessment;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5236325714234687092L;
+private AssessmentIfc assessment;
 
   public AssessmentAttachment()  { }
 

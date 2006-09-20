@@ -32,7 +32,12 @@ public class EvaluationModel
     implements java.io.Serializable, EvaluationModelIfc
 {
 
-  // keep in mind that this id can be an assesmentId or assessmentTemplateId.
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2592581779541143409L;
+
+// keep in mind that this id can be an assesmentId or assessmentTemplateId.
   // This depends on the AssessmentBase object (superclass of AssessmentData and
   // AssessmentTemplateData) that is associated with it.
   private Long id;

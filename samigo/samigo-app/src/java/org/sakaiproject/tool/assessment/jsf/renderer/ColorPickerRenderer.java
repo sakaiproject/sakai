@@ -47,14 +47,14 @@ import org.sakaiproject.tool.assessment.jsf.renderer.util.RendererUtil;
 public class ColorPickerRenderer extends Renderer
 {
   // icon height and width
-  private final String HEIGHT = "13";
-  private final String WIDTH = "15";
+  private static final String HEIGHT = "13";
+  private static final String WIDTH = "15";
   // later we may want to support hidden
-  private final String TYPE = "text";
-  private final String CURSORSTYLE = "cursor:pointer;";
-  private final String CLICKALT = "Click Here to Pick Color";
+  private static final String TYPE = "text";
+  private static final String CURSORSTYLE = "cursor:pointer;";
+  private static final String CLICKALT = "Click Here to Pick Color";
 
-  private RendererUtil rUtil;
+  //private RendererUtil rUtil;
 
   public boolean supportsComponentType(UIComponent component)
   {
@@ -69,7 +69,7 @@ public class ColorPickerRenderer extends Renderer
   public void decode(FacesContext context, UIComponent component)
   {
     // we haven't added these attributes--yet--defensive programming...
-    if(rUtil.isDisabledOrReadonly(component))
+    if(RendererUtil.isDisabledOrReadonly(component))
     {
       return;
     }

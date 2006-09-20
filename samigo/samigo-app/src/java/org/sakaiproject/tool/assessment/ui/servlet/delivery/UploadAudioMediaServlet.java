@@ -66,7 +66,11 @@ import java.util.ArrayList;
 
 public class UploadAudioMediaServlet extends HttpServlet
 {
-  private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8389831837152012411L;
+private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
 
   public UploadAudioMediaServlet()
   {
@@ -242,11 +246,11 @@ public class UploadAudioMediaServlet extends HttpServlet
     int assessmentIndex = mediaLocation.indexOf("assessment");
     int questionIndex = mediaLocation.indexOf("question");
     int agentIndex = mediaLocation.indexOf("/", questionIndex + 8);
-    int myfileIndex = mediaLocation.lastIndexOf("/");
+    //int myfileIndex = mediaLocation.lastIndexOf("/");
     String pubAssessmentId = mediaLocation.substring(assessmentIndex + 10,
 						     questionIndex - 1);
     String questionId = mediaLocation.substring(questionIndex + 8, agentIndex);
-    String agentEid = mediaLocation.substring(agentIndex+1, myfileIndex);
+    //String agentEid = mediaLocation.substring(agentIndex+1, myfileIndex);
     //log.debug("****pubAss="+pubAssessmentId);
     //log.debug("****questionId="+questionId);
     //log.debug("****agent="+agentId);

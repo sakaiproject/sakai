@@ -64,7 +64,11 @@ import org.apache.commons.logging.LogFactory;
 
 public class DownloadAllMediaServlet extends HttpServlet
 {
-  private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1465451058167004991L;
+private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
   private GradingService gradingService = new GradingService();
   
   public DownloadAllMediaServlet()

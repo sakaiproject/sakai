@@ -39,7 +39,11 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingSummar
 public class AssessmentGradingSummaryFacade
     implements AssessmentGradingSummaryIfc
 {
-  private Long assessmentGradingSummaryId;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 287820089189885224L;
+private Long assessmentGradingSummaryId;
   private PublishedAssessmentIfc publishedAssessment;
   private String agentId;
   private Integer totalSubmitted;

@@ -30,7 +30,11 @@ public class AssessmentFeedback
     implements java.io.Serializable, AssessmentFeedbackIfc
 {
 
-  private Long id;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 711760492880980393L;
+private Long id;
   private AssessmentBaseIfc assessmentBase;
   private Integer feedbackDelivery; // immediate, on specific date , no feedback
    private Integer feedbackAuthoring; //questionlevel, sectionlevel, both, 

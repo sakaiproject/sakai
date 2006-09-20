@@ -30,7 +30,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+//import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
@@ -46,6 +46,11 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  */
 
 public class ItemContentsBean implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6270034338280029897L;
+
 	private static Log log = LogFactory.getLog(ItemContentsBean.class);
 
 	// private static ContextUtil cu;

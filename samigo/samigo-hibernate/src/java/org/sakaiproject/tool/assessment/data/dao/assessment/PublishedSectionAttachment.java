@@ -25,13 +25,17 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.ResourceBundle;
+
 
 public class PublishedSectionAttachment
     extends PublishedAttachmentData
-    implements java.io.Serializable, SectionAttachmentIfc
+    implements Serializable, SectionAttachmentIfc
 {
-  private SectionDataIfc section;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3811461383814780684L;
+private SectionDataIfc section;
 
   public PublishedSectionAttachment()  { }
 

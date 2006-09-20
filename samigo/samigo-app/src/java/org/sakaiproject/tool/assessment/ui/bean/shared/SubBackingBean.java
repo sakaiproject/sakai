@@ -36,7 +36,11 @@ import java.util.HashMap;
 
 public class SubBackingBean implements Serializable
 {
-  private String title;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -116744576891046455L;
+private String title;
   private String name;
   private String address;
   private Date date;

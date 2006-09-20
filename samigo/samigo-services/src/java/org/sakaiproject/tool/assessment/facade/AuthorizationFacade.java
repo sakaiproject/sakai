@@ -32,7 +32,12 @@ import java.io.Serializable;
  */
 public class AuthorizationFacade implements Serializable {
 
-  public static boolean isAuthorized
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4982008711609686144L;
+
+public static boolean isAuthorized
     (String agentId, String function, String qualifier)
   {
     return true;

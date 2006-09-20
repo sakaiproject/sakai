@@ -45,7 +45,11 @@ import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 public class SectionContentsBean
   implements Serializable
 {
-  private String text;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5959692528847396966L;
+private String text;
   private String nonDefaultText;
   private java.util.ArrayList itemContents;
   private String sectionId;

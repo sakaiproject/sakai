@@ -51,7 +51,11 @@ import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 
 public class InitAction extends HttpServlet{
 
-  private static Log log = LogFactory.getLog(InitAction.class);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8101462284850616249L;
+private static Log log = LogFactory.getLog(InitAction.class);
 
   public void init(){
     // store all types in memory

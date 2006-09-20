@@ -31,7 +31,11 @@ import org.sakaiproject.tool.assessment.facade.DataFacadeException;
 public class AuthorizationIteratorFacade
   implements AuthorizationIteratorIfc
 {
-  private Iterator authorizationIter;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 941272870128424454L;
+private Iterator authorizationIter;
 
   public AuthorizationIteratorFacade(Collection c)
   {

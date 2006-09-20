@@ -43,7 +43,12 @@ import org.apache.commons.logging.Log;
 
 public class BackingBean implements Serializable
 {
-  private static Log log = LogFactory.getLog(BackingBean.class);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1137408628089300518L;
+
+private static Log log = LogFactory.getLog(BackingBean.class);
 
   private String prop1;
   private String prop2;

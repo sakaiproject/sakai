@@ -26,7 +26,11 @@ import org.sakaiproject.tool.assessment.data.ifc.authz.FunctionIfc;
 public class FunctionData
   implements FunctionIfc
 {
-  private long functionId;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8873492307746711610L;
+private long functionId;
   private String referenceName;
   private String displayName;
   private String description;

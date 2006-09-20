@@ -35,7 +35,12 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 public class PublishedAccessControl
     implements java.io.Serializable, AssessmentAccessControlIfc
 {
-  // keep in mind that this id can be an assesmentId or assessmentTemplateId.
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -221497966468066618L;
+
+// keep in mind that this id can be an assesmentId or assessmentTemplateId.
   // This depends on the AssessmentBase object (superclass of AssessmentData and
   // AssessmentTemplateData) that is associated with it.
   private Long id;

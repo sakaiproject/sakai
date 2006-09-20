@@ -25,16 +25,12 @@ import java.util.Date;
 import java.util.Set;
 
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+//import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2004</p>
- * <p>Company: </p>
- * @author not attributable
- * @version 1.0
+ * Wrapper for AssessmentGradingData.
+ * 
  */
 
 public class AssessmentGradingFacade
@@ -43,7 +39,11 @@ public class AssessmentGradingFacade
 // - daisyf 10/11/04
 {
 
-  private Long assessmentGradingId;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5715276464051399008L;
+private Long assessmentGradingId;
   private String agentId;
   private Date submittedDate;
   private Boolean isLate;

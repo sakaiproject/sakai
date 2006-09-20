@@ -27,7 +27,7 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+//import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -52,7 +52,11 @@ import org.apache.commons.logging.LogFactory;
 
 public class ShowMediaServlet extends HttpServlet
 {
-  private static Log log = LogFactory.getLog(ShowMediaServlet.class);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2203681863823855810L;
+private static Log log = LogFactory.getLog(ShowMediaServlet.class);
 
   public ShowMediaServlet()
   {

@@ -34,7 +34,11 @@
 package org.sakaiproject.tool.assessment.ws;
 
 public class Item  implements java.io.Serializable {
-    private java.lang.String itemid;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4561525116839644989L;
+	private java.lang.String itemid;
     private java.lang.String itemtext;
     private java.lang.String url;
 

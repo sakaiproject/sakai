@@ -29,7 +29,11 @@ import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class FunctionFacade implements FunctionIfc {
-  private Id id;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2610431044785097038L;
+private Id id;
   private String referenceName;
   private String description;
   private Type functionType;

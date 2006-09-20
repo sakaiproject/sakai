@@ -27,26 +27,15 @@ import java.io.Serializable;
 
 /**
  * <p>
- * Title: sakaiproject.org
- * </p>
- *
- * <p>
- * Description: AAM - form for confirming delete media.
- * </p>
- *
- * <p>
- * Copyright: Copyright (c) 2003
- * </p>
- *
- * Used to be org.navigoproject.ui.web.form.edit.DeleteConfirmForm.java
- *
- * @author Qingru Zhang
- * @version 1.0
- */
+  */
 public class DeleteConfirmBean
   implements Serializable
 {
-  private String name;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1028400984124650211L;
+private String name;
 
   /**
    * Creates a new DeleteConfirmBean object.

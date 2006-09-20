@@ -33,7 +33,11 @@ import org.sakaiproject.tool.assessment.data.ifc.authz.AuthorizationIfc;
 
 public class AuthorizationFacade
     implements AuthorizationIfc {
-  private Id agentId;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -262696599577971352L;
+private Id agentId;
   private Function function;
   private Qualifier qualifier;
   private long effectiveDate;

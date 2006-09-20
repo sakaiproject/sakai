@@ -51,7 +51,11 @@ import org.apache.struts.upload.FormFile;
 public class FileUploadBean
   implements Serializable
 {
-  private String source;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6101267878345384445L;
+private String source;
   private FormFile newfile;
   private String link;
   private String name;

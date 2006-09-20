@@ -24,7 +24,7 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+
 import javax.faces.model.SelectItem;
 import java.util.ResourceBundle;
 import java.util.Locale;
@@ -43,7 +43,12 @@ import java.util.Locale;
  */
 public class ItemConfigBean implements Serializable
 {
-  private static final String msgResource =
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5017545754149103817L;
+
+private static final String msgResource =
     "org.sakaiproject.tool.assessment.bundle.AuthorMessages";
 
   private boolean showFileUpload;

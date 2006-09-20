@@ -33,7 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
-import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
+//import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
@@ -48,7 +48,12 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 
 public class XMLController implements Serializable
 {
-  private static Log log = LogFactory.getLog(XMLController.class);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7064783681056628447L;
+
+private static Log log = LogFactory.getLog(XMLController.class);
 
   private static final String XML_DECL =
     "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + "\n";
@@ -81,19 +86,19 @@ public class XMLController implements Serializable
   {
     log.debug(
       "XMLController debug getQtiVersion(): " + this.getQtiVersion());
-    documentType = getAuthoringXml().ASSESSMENT;
+    documentType = AuthoringXml.ASSESSMENT;
     return display();
   }
 
   public String displaySectionXmlTemplate()
   {
-    documentType = getAuthoringXml().SECTION;
+    documentType = AuthoringXml.SECTION;
     return display();
   }
 
   public String displayItemXml()
   {
-    documentType = getAuthoringXml().ITEM_MCSC; // this is just a default, we will override
+    documentType = AuthoringXml.ITEM_MCSC; // this is just a default, we will override
     item();
     return "xmlDisplay";
   }
@@ -184,12 +189,12 @@ public class XMLController implements Serializable
     else // return  xml template, for testing
     {
       xmlBean.setDescription("assessment template");
-      AuthoringHelper authHelper = new AuthoringHelper(qtiVersion);
+      //AuthoringHelper authHelper = new AuthoringHelper(qtiVersion);
       AuthoringXml ax = getAuthoringXml();
 
       String xml =
         ax.getTemplateAsString(
-        ax.getTemplateInputStream(ax.ASSESSMENT));
+        ax.getTemplateInputStream(AuthoringXml.ASSESSMENT));
       setUpXmlNoDecl(xml);
     }
   }
@@ -252,14 +257,14 @@ public class XMLController implements Serializable
     {
       xmlBean.setDescription("section fragment id=" + id);
       xmlBean.setName(documentType); // get from document later
-      InputStream is = ax.getTemplateInputStream(ax.SECTION);
+      InputStream is = ax.getTemplateInputStream(AuthoringXml.SECTION);
       setUpXmlNoDecl(ax.getTemplateAsString(is));
     }
     else
     {
       xmlBean.setDescription("section template");
       xmlBean.setName(documentType); // get from document later
-      InputStream is = ax.getTemplateInputStream(ax.SECTION);
+      InputStream is = ax.getTemplateInputStream(AuthoringXml.SECTION);
       setUpXmlNoDecl(ax.getTemplateAsString(is));
     }
   }
@@ -281,7 +286,7 @@ public class XMLController implements Serializable
     }
     else // for testing
     {
-      AuthoringHelper ah = new AuthoringHelper(qtiVersion);
+      //AuthoringHelper ah = new AuthoringHelper(qtiVersion);
       AuthoringXml ax = getAuthoringXml();
       xmlBean.setDescription("item template");
       xmlBean.setName(documentType); // get from document later

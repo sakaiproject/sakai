@@ -47,8 +47,12 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class ShowQTIServlet extends HttpServlet
 {
-  private static Log log = LogFactory.getLog(ShowQTIServlet.class);
-  private String xmlData;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3855448630209417469L;
+private static Log log = LogFactory.getLog(ShowQTIServlet.class);
+  //private String xmlData;
 
   /**
    * passthu to post

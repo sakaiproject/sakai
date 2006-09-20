@@ -24,7 +24,11 @@ import java.util.Date;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
 public class TypeD implements TypeIfc{
-  // This has the exact same list as TypeFacade. Please keep both list updated
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3957338190425982508L;
+// This has the exact same list as TypeFacade. Please keep both list updated
   public static final Long MULTIPLE_CHOICE = new Long(1);
   public static final Long MULTIPLE_CORRECT = new Long(2);
   public static final Long MULTIPLE_CHOICE_SURVEY = new Long(3);

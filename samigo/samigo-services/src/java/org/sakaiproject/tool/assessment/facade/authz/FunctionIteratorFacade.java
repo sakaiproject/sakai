@@ -37,7 +37,11 @@ import org.sakaiproject.tool.assessment.facade.DataFacadeException;
 public class FunctionIteratorFacade
   implements FunctionIteratorIfc
 {
-  private Iterator functionIter;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4895452221530343774L;
+private Iterator functionIter;
   public FunctionIteratorFacade(Collection functions)
     throws DataFacadeException
   {

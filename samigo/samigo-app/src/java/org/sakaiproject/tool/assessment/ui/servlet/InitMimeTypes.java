@@ -36,7 +36,11 @@ import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 
 public class InitMimeTypes extends HttpServlet{
 
-  private static Log log = LogFactory.getLog(InitMimeTypes.class);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6032485774950035961L;
+private static Log log = LogFactory.getLog(InitMimeTypes.class);
   protected static ServletContext context;
 
   public void init (ServletConfig config) throws ServletException {

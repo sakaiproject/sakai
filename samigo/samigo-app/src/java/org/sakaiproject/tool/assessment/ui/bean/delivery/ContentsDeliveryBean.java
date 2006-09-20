@@ -35,7 +35,11 @@ import java.io.Serializable;
 public class ContentsDeliveryBean
   implements Serializable
 {
-  private java.util.ArrayList partsContents;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4619361961662881387L;
+private java.util.ArrayList partsContents;
   private float currentScore;
   private float maxScore; // SectionContentsBeans
   // for display/hide score

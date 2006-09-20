@@ -35,7 +35,11 @@ import java.util.ArrayList;
 public class HistogramSectionBean
   implements Serializable
 {
-  private ArrayList itemBeans; // The items for this section
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7669608870369454294L;
+private ArrayList itemBeans; // The items for this section
   private String partName; // Part name
   private String sequence; // The number indicating order (1, 2, 3...)
 

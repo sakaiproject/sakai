@@ -30,7 +30,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 import java.util.ArrayList;
-import java.text.NumberFormat;
+
 
 /**
  * A set of information for an agent.  This contains both totalScores
@@ -40,7 +40,11 @@ import java.text.NumberFormat;
 public class AgentResults
     implements Serializable
 {
-  private Long assessmentGradingId;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2820488402465439395L;
+private Long assessmentGradingId;
   private Long itemGradingId;
   private String agentId;
   private String agentEid;
@@ -285,7 +289,7 @@ public class AgentResults
 
 
   public String getFullAnswer() {
-    String unicodeFullAnswer = ContextUtil.getStringInUnicode(fullAnswer);
+    //String unicodeFullAnswer = ContextUtil.getStringInUnicode(fullAnswer);
     //System.out.println("UNICODEFULLANSWER "+unicodeFullAnswer);
     // System.out.println("FULL ANSWER: "+fullAnswer);
     return Validator.check(fullAnswer,"");

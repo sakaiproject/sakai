@@ -33,7 +33,11 @@ import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class QualifierFacade implements QualifierIfc {
-  private Id id;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3908822740713745290L;
+private Id id;
   private QualifierIteratorFacade childrenIter;
   private QualifierIteratorFacade parentIter;
   private String referenceName;

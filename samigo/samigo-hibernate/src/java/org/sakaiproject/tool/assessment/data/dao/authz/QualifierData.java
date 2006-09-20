@@ -27,6 +27,10 @@ import org.sakaiproject.tool.assessment.data.ifc.authz.QualifierIteratorIfc;
 public class QualifierData
   implements QualifierIfc
 {
+/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8657439480162351350L;
 //  private String qualifierId;
   private long qualifierId;
   private String referenceName;
