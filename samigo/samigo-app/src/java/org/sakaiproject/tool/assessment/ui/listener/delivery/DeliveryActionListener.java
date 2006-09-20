@@ -228,8 +228,8 @@ public class DeliveryActionListener
                 	  ag = service.getLastSavedAssessmentGradingByAgentId(id, agent);
                 	  if (ag == null) {
                 		  ag = createAssessmentGrading(publishedAssessment);
+                          	  delivery.setAssessmentGrading(ag);
                 	  }
-                	  delivery.setAssessmentGrading(ag);
                   }
               }
               log.debug("**** DeliveryAction, itemgrading size="+ag.getItemGradingSet().size());
@@ -260,11 +260,13 @@ public class DeliveryActionListener
       log.debug("**** resetPageContents="+this.resetPageContents);
       // If it comes from Show Feedback link clicks, call getShowFeedbackPageContents() to 
       // reset the partIndex and questionIndex (the last part of SAK-5750)
-      if (ae != null && ae.getComponent().getId().equals("showFeedback")) {
-    	  delivery.setPageContents(getShowFeedbackPageContents(publishedAssessment, delivery, itemGradingHash, publishedAnswerHash));
-      }
-      else {
+      if (this.resetPageContents){
+        if (ae != null && ae.getComponent().getId().equals("showFeedback")) {
+      	  delivery.setPageContents(getShowFeedbackPageContents(publishedAssessment, delivery, itemGradingHash, publishedAnswerHash));
+        }
+        else {
     	  delivery.setPageContents(getPageContents(publishedAssessment, delivery, itemGradingHash, publishedAnswerHash));
+	}
       }
     }
     catch (Exception e)

@@ -105,19 +105,21 @@ public class UploadFilter implements Filter {
       ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
 
+      System.out.println("**** doFilter #1");
       if (!(request instanceof HttpServletRequest)) {
          chain.doFilter(request, response);
          return;
       }
 
+      System.out.println("**** doFilter #2");
       HttpServletRequest httpRequest = (HttpServletRequest) request;
-
       boolean isMultipartContent = FileUpload.isMultipartContent(httpRequest);
       if (!isMultipartContent) {
          chain.doFilter(request, response);
          return;
       }
 
+      System.out.println("**** doFilter #3");
       DiskFileUpload upload = new DiskFileUpload();
       if (repositoryPath != null)
          upload.setRepositoryPath(repositoryPath);
@@ -128,6 +130,7 @@ public class UploadFilter implements Filter {
          for (int i = 0; i < list.size(); i ++) {
             FileItem item = (FileItem) list.get(i);
             String str = item.getString();
+            System.out.println("form filed="+item.getFieldName()+" : "+str);
             if (item.isFormField()){
               map.put(item.getFieldName(), new String[] {str});
             }
@@ -144,15 +147,18 @@ public class UploadFilter implements Filter {
                // busywork follows ... should have been part of the wrapper
                public String[] getParameterValues(String name) {
                   Map map = getParameterMap();
+      System.out.println("**** map="+map.get(name));
                   return (String[]) map.get(name);
                }
                public String getParameter(String name) {
                   String[] params = getParameterValues(name);
                   if (params == null) return null;
+      System.out.println("**** params[0]="+params[0]);
                   return params[0];
                }
                public Enumeration getParameterNames() {
                   Map map = getParameterMap();
+      System.out.println("**** map keySet="+map.keySet());
                   return Collections.enumeration(map.keySet());
                }
             }, response);
