@@ -372,7 +372,13 @@ public class NewsAction extends VelocityPortletPaneledAction
 		String newChannelTitle = data.getParameters().getString(FORM_CHANNEL_TITLE);
 		String currentChannelTitle = (String) state.getAttribute(STATE_CHANNEL_TITLE);
 
-		if (StringUtil.trimToNull(newChannelTitle) != null && !newChannelTitle.equals(currentChannelTitle))
+		if (StringUtil.trimToNull(newChannelTitle) == null) 
+		{
+			//TODO: add more verbose message; requires language pack addition
+			addAlert(state, rb.getString("cus.franam"));
+			return;			
+		}
+		else if (!newChannelTitle.equals(currentChannelTitle))
 		{
 			state.setAttribute(STATE_CHANNEL_TITLE, newChannelTitle);
 			if (Log.getLogger("chef").isDebugEnabled())
@@ -390,7 +396,13 @@ public class NewsAction extends VelocityPortletPaneledAction
 		String newPageTitle = data.getParameters().getString(FORM_PAGE_TITLE);
 		String currentPageTitle = (String) state.getAttribute(STATE_PAGE_TITLE);
 		
-		if (StringUtil.trimToNull(newPageTitle) !=null && !newPageTitle.equals(currentPageTitle))
+		if (StringUtil.trimToNull(newPageTitle) == null)
+		{
+			//TODO: add more verbose message; requires language pack addition
+			addAlert(state, rb.getString("cus.pagnam"));
+			return;			
+		}
+		else if (!newPageTitle.equals(currentPageTitle))	
 		{
 			SitePage p = SiteService.findPage(getCurrentSitePageId());
 			if (p.getTools() != null && p.getTools().size() == 1)
