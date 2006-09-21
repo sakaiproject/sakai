@@ -5,7 +5,7 @@
 	<extend>../../master/project.xml</extend>
 	<name>sakai-allhands-provider</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-sample-provider</id>
+	<id>sakai-allhands-provider</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>
