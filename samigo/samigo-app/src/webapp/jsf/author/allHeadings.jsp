@@ -1,7 +1,7 @@
 <p class="navIntraTool">
   <h:panelGroup rendered="#{authorization.adminAssessment or authorization.adminQuestionPool or authorization.adminTemplate}">
     <h:commandLink accesskey="#{genMsg.a_assessment}" title="#{genMsg.t_assessment}" action="author" immediate="true" rendered="#{authorization.adminAssessment}">
-       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AssessmentListener" />
+       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
 	  <h:outputText value="#{genMsg.assessment}" />
     </h:commandLink>
     <h:outputText value=" #{genMsg.separator} " rendered="#{authorization.adminAssessment}"/>
