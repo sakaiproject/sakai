@@ -457,9 +457,18 @@ tr td.arrowHere{
 }
 
 tr#selectedReorder td.arrowHere{
-	background: url(images/arrowhere.gif) center .5em no-repeat
+/*	can give this an image if needed*/
+/*	background: url(images/arrowhere.gif) center .5em no-repeat*/
 }
 
+.moveUp, .moveDown{
+	width:14px;
+}
+.moveUp img, .moveDown img{
+	vertical-align: bottom;
+	padding-top:.5em;
+	width:13px
+}
 /*skinned info for disclosure toggle*/
 /*see: assignment*/
 .discTria{
