@@ -81,7 +81,8 @@ should be included in file importing DeliveryMessages
         </h:column>
         <h:column rendered="#{delivery.actionString=='takeAssessment' 
                            || delivery.actionString=='takeAssessmentViaUrl'}">
-          <h:commandLink title="#{msg.t_removeMedia}" action="confirmRemoveMedia" immediate="true">
+          <h:commandLink title="#{msg.t_removeMedia}" action="confirmRemoveMedia"
+            id="removeMedia" onmouseup="saveTime();">
             <h:outputText value="#{msg.remove}" />
             <f:param name="mediaId" value="#{media.mediaId}"/>
             <f:param name="mediaUrl" value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}"/>
