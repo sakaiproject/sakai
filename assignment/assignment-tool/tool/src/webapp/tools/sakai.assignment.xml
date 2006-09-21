@@ -6,6 +6,8 @@
 			id="sakai.assignment"
 			title="Assignments"
 			description="For posting and submitting assignment(s) online.">
+		
+		<configuration name="pagesize" value="200" />
 		<configuration name="withGrades" value="FALSE" />
 
 		<category name="course" />
