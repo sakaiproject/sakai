@@ -109,8 +109,8 @@ private static Log log = LogFactory.getLog(AuthorizationBean.class);
     boolean p16 = canDeleteOwnTemplate(siteId);
 
     // non admin functions
-    boolean p21 = canTakeAssessment(siteId);
-    boolean p22 = canSubmitAssessmentForGrade(siteId);
+    canTakeAssessment(siteId);
+    canSubmitAssessmentForGrade(siteId);
 
     // set adminPrivilege
     adminNewAssessmentPrivilege = p1;

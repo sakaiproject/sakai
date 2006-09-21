@@ -93,7 +93,7 @@ public class SelectActionListener
     if (!deliveryBean.getAnonymousLogin() && !authzBean.getTakeAssessment())
       return;
 
-    //deliveryBean = new DeliveryBean();
+    deliveryBean = new DeliveryBean();
 
     // get service and managed bean
     PublishedAssessmentService publishedAssessmentService = new
