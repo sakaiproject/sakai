@@ -19,7 +19,7 @@
 		<div class="instruction">
 			$tlang.getString("sort.instruct")
 		</div>
-		<table class="listHier lines nolines" summary="$tlang.getString("sort.summary")" border="0" cellspacing="0">
+		<table class="listHier lines nolines" summary="$tlang.getString("sort.summary")" border="0" cellspacing="0" cellpadding="0">
 			<caption class="skip" style="display: none;">$tlang.getString("sort.caption")</caption>
 			<tbody>
 			<tr>
@@ -33,9 +33,10 @@
 					$tlang.getString("gen.title1")
 				</a>
 				</th>
-				<th id="access">
-					$tlang.getString("gen.access")
-				</th>
+## gsilver - take out access column				
+##				<th id="access">
+##					$tlang.getString("gen.access")
+##				</th>
 
 				<th id="creator">
 					$tlang.getString("gen.created")
@@ -43,9 +44,10 @@
 				<th id="modified">
 					$tlang.getString("gen.last1")
 				</th>
-				<th id="size">
-					$tlang.getString("gen.size")
-				</th>
+## gsilver - take out size column
+##				<th id="size">
+##					$tlang.getString("gen.size")
+##			</th>
 				<th id="postion">
 					$tlang.getString("gen.position")
 				</th>
@@ -64,9 +66,11 @@
 							$root.name
 						</h3>	
 					</td>
-					<td headers="actions">
-					</td>
-					<td colspan="4">
+## gsilver - take out action column					
+##					<td headers="actions">
+##					</td>
+## gsilver - adjust colspan to account for new col number
+					<td colspan="5">
 					</td>
 				</tr>	
 				#set($collectionMembers = $root.members)
@@ -95,6 +99,7 @@
 								$member.name
 							</h4>	
 						</td>
+#* gsilver - take out access column
 						#set($effectiveAccess = $member.effectiveAccess)
 						<td headers="access" title="$member.effectiveGroups">
 							#if($member.isPubviewInherited() || $member.isPubview())
@@ -107,15 +112,17 @@
 								$tlang.getString("access.group")
 							#end
 						</td>
+*#
 						<td headers="creator">
 							$member.createdBy
 						</td>
 						<td headers="modified">
 							$member.ModifiedTime
 						</td>
-						<td headers="size">
-							$member.size
-						</td>
+## gsilver - take out  size  column						
+##						<td headers="size">
+##							$member.size
+##						</td>
 						
 						<td headers="position">
 							<select name="position_$validator.escapeUrl("$member.id")" onChange="moveRow(this,this.value);">
@@ -132,7 +139,7 @@
 		</table>
 		<br>
 		<p class="act">
-			<input name="flow" id="save" value="Save" type="submit" /> 
+			<input name="flow" id="save" value="Save" type="submit" class="active"/> 
 			<input name="flow" id="cancel" value="Cancel" type="submit" />																			
 		</p>
 	</form>						
@@ -286,7 +293,7 @@
 				}
 			}
 		}
-	
+#*	gsilver - comment this out - leave here for later (makes reference to elements that do not exist in this context)
 		function setVisibility(thisInt) {
 			var radioElements = document.getElementsByName("selectedMembers");
 			
@@ -424,5 +431,6 @@
 				}			
 			}
 		}
+	*#	
 	//-->
 </script>
