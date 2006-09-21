@@ -503,7 +503,7 @@
     <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
-      <version>1.7.3.0</version>
+      <version>1.8.0.5</version>
       <properties>
         <war.bundle>standalone</war.bundle>
       </properties>
