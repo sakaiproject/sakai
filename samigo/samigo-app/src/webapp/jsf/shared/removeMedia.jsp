@@ -56,7 +56,6 @@
    <p class="act">
       <h:commandButton id="remove" accesskey="#{msg.a_remove}" type="submit" value="#{msg.button_remove}" action="#{delivery.getOutcome}" styleClass="active">
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.shared.RemoveMediaListener" />
-        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
       </h:commandButton>
       <h:commandButton accesskey="#{msg.a_cancel}" id="cancel" value="#{msg.button_cancel}" type="submit" action="takeAssessment">
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener" />
