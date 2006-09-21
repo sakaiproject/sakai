@@ -152,19 +152,22 @@ public class ClusterPresenceService extends BasePresenceService
 		 */
 		public List getSessions(String locationId)
 		{
-			// TODO: Note: this assumes
+			// Note: this assumes
 			// 1) the UsageSessionService has a db component selected.
 			// 2) the presence table and the session table are in the same db.
 
-			// form a SQL query to select session ids for this location
-			String statement = "select SESSION_ID from SAKAI_PRESENCE where LOCATION_ID = ?";
+			// to join the presence table to the session
+			String joinTable = "SAKAI_PRESENCE";
+			String joinAlias = "A";
+			String joinColumn = "SESSION_ID";
+			String joinCriteria = "A.LOCATION_ID = ?";
 
 			// send in the locationId
 			Object[] fields = new Object[1];
 			fields[0] = locationId;
 
 			// get these from usage session
-			List sessions = m_usageSessionService.getSessions(statement, fields);
+			List sessions = m_usageSessionService.getSessions(joinTable, joinAlias, joinColumn, joinCriteria, fields);
 
 			return sessions;
 		}
