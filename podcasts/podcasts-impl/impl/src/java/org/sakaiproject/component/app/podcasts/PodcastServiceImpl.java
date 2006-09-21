@@ -809,6 +809,13 @@ public class PodcastServiceImpl implements PodcastService {
 					
 					contentHostingService.commitResource(aResourceEdit, NotificationService.NOTI_NONE);
 					
+					// add entry for event tracking
+					final Event event = EventTrackingService.newEvent(EVENT_REVISE_PODCAST,
+							getEventMessage(
+									aResourceEdit.getProperties().getProperty(ResourceProperties.PROP_ORIGINAL_FILENAME)),
+									true, NotificationService.NOTI_NONE);
+					EventTrackingService.post(event);
+
 					revisedList.add(aResourceEdit);
 					
 				} catch (Exception e1) {
