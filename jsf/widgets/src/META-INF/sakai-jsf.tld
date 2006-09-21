@@ -3634,6 +3634,50 @@ If the value in the<code>Map</code> for the value of the "clientId" property of 
 			<rtexprvalue>false</rtexprvalue>
 		</attribute>
 	</tag>
+	
+	<tag>
+     <name>contentTypeMap</name>
+     <tag-class>org.sakaiproject.jsf.tag.JsfContentTypeMapTag</tag-class>
+     <body-content>empty</body-content>
+     <description>
+    		Exposes a map of the file types: images, names and extensions.
+    		If image is the mapType, the returned value will be the file name for the fileType icon.
+    		If name is the mapType, the returned value will be the display name for the fileType.
+    		If extension is the mapType, the returned value will be the extension for the fileType
+     </description>
+     <attribute>
+         <name>fileType</name>
+         <required>false</required>
+         <rtexprvalue>false</rtexprvalue>
+         <description>
+         	String representation of the mime type (like "text/xml")
+         </description>
+     </attribute>
+     <attribute>
+         <name>mapType</name>
+         <required>false</required>
+         <rtexprvalue>false</rtexprvalue>
+         <description>
+         	Accepted values are image, name, extension
+         </description>
+     </attribute>
+     <attribute>
+         <name>pathPrefix</name>
+         <required>false</required>
+         <rtexprvalue>false</rtexprvalue>
+         <description>
+         	Path prefix for where the image lives (only needed if mapType is image)
+         </description>
+     </attribute>
+     <attribute>
+         <name>var</name>
+         <required>true</required>
+         <rtexprvalue>false</rtexprvalue>
+         <description>
+             Name of a request-scope attribute under which the return value will be exposed.
+         </description>
+    </attribute>
+   </tag>
 
 </taglib>
 
