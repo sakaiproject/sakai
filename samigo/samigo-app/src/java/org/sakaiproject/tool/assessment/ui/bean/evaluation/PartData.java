@@ -49,6 +49,7 @@ private ArrayList questionNumberList;
   private String id;
   private boolean linked;
   private boolean isRandomDrawPart;
+  private boolean noQuestions;
 
   /**
    * Returns a list of the question numbers as Strings.
@@ -111,4 +112,13 @@ private ArrayList questionNumberList;
   public void setIsRandomDrawPart(boolean isRandomDrawPart) {
 	  this.isRandomDrawPart = isRandomDrawPart;
   }
+  
+  public boolean getNoQuestions() {
+	  noQuestions = false;
+	  if (questionNumberList.size() == 0) {
+		  noQuestions = true;
+	  }
+	  return noQuestions;
+  }
+  
 }

@@ -97,6 +97,7 @@ $Id$
 		          </h:column>
 
       </samigo:dataLine>
+
   	      <h:outputText value="#{msg.random_drow_part} " rendered="#{partinit.isRandomDrawPart}"/>
 		  <h:commandLink title="#{msg.t_totalScores}" action="totalScores" immediate="true" rendered="#{partinit.isRandomDrawPart}">
 		    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
@@ -104,7 +105,7 @@ $Id$
 		    <h:outputText value="#{msg.grade_by_student}" />
 	      </h:commandLink>
 
-
+  	      <h:outputText value="#{msg.no_questions} " rendered="#{partinit.noQuestions}"/>
     </h:column>
   </h:dataTable>
 

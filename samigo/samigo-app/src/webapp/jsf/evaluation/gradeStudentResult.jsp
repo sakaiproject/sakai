@@ -162,6 +162,10 @@ $Id$
       <f:verbatim></h4><div class="tier1"></f:verbatim>
       <h:outputText value="#{part.text}" escape="false" rendered="#{part.numParts ne '1'}" />
       <f:verbatim></div></f:verbatim>
+      <f:verbatim></h4><div class="tier2"></f:verbatim>
+     <h:outputText value="#{msg.no_questions}" escape="false" rendered="#{part.noQuestions}"/>
+      <f:verbatim></div></f:verbatim>
+
       <h:dataTable value="#{part.itemContents}" columnClasses="tier2"
           var="question">
         <h:column>

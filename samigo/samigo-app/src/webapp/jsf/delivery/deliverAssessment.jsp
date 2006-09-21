@@ -158,7 +158,7 @@ function saveTime()
   <%@ include file="/jsf/delivery/part_attachment.jsp" %>
    <f:verbatim><div class="tier2"></f:verbatim>
 
-   <h:outputText value="#{msg.noQuestion}" escape="false" rendered="#{part.noQuestion}"/>
+   <h:outputText value="#{msg.no_question}" escape="false" rendered="#{part.noQuestions}"/>
 
       <h:dataTable width="100%" value="#{part.itemContents}" var="question">
         <h:column>
