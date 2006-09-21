@@ -72,10 +72,21 @@ public class DifferentiationFailedException extends DiffException
 
 	public DifferentiationFailedException()
 	{
+		super();
 	}
 
 	public DifferentiationFailedException(String msg)
 	{
 		super(msg);
+	}
+
+	public DifferentiationFailedException(String message, Throwable cause)
+	{
+		super(message, cause);
+	}
+
+	public DifferentiationFailedException(Throwable cause)
+	{
+		super(cause);
 	}
 }

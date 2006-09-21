@@ -84,17 +84,10 @@ public abstract class Delta extends org.apache.commons.jrcs.util.ToString
 	static
 	{
 		DeltaClass = new Class[2][2];
-		try
-		{
-			DeltaClass[0][0] = org.apache.commons.jrcs.diff.ChangeDelta.class;
-			DeltaClass[0][1] = org.apache.commons.jrcs.diff.AddDelta.class;
-			DeltaClass[1][0] = org.apache.commons.jrcs.diff.DeleteDelta.class;
-			DeltaClass[1][1] = org.apache.commons.jrcs.diff.ChangeDelta.class;
-		}
-		catch (Throwable o)
-		{
-
-		}
+		DeltaClass[0][0] = org.apache.commons.jrcs.diff.ChangeDelta.class;
+		DeltaClass[0][1] = org.apache.commons.jrcs.diff.AddDelta.class;
+		DeltaClass[1][0] = org.apache.commons.jrcs.diff.DeleteDelta.class;
+		DeltaClass[1][1] = org.apache.commons.jrcs.diff.ChangeDelta.class;
 	}
 
 	/**
@@ -114,7 +107,11 @@ public abstract class Delta extends org.apache.commons.jrcs.util.ToString
 		{
 			result = (Delta) c.newInstance();
 		}
-		catch (Throwable e)
+		catch (InstantiationException e)
+		{
+			return null;
+		}
+		catch (IllegalAccessException e)
 		{
 			return null;
 		}
@@ -127,6 +124,7 @@ public abstract class Delta extends org.apache.commons.jrcs.util.ToString
 	 */
 	protected Delta()
 	{
+		// default constructor
 	}
 
 	/**
@@ -175,7 +173,7 @@ public abstract class Delta extends org.apache.commons.jrcs.util.ToString
 		}
 		catch (Exception e)
 		{
-			throw new PatchFailedException(e.getMessage());
+			throw new PatchFailedException(e.getMessage(), e);
 		}
 	}
 

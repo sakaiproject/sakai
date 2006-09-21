@@ -69,10 +69,22 @@ public class DiffException extends Exception
 
 	public DiffException()
 	{
+		super();
 	}
 
 	public DiffException(String msg)
 	{
 		super(msg);
 	}
+
+	public DiffException(String message, Throwable cause)
+	{
+		super(message, cause);
+	}
+
+	public DiffException(Throwable cause)
+	{
+		super(cause);
+	}
+	
 }

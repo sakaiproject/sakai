@@ -58,6 +58,7 @@
 package org.apache.commons.jrcs.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.StringReader;
 import java.util.List;
 import java.util.LinkedList;
@@ -72,6 +73,7 @@ public class ToString
 {
     public ToString()
     {
+    	//default constructor
     }
 
     /**
@@ -106,20 +108,7 @@ public class ToString
      */
     public static String[] stringToArray(String value)
     {
-        BufferedReader reader = new BufferedReader(new StringReader(value));
-        List l = new LinkedList();
-        String s;
-        try
-        {
-            while ((s = reader.readLine()) != null)
-            {
-                l.add(s);
-            }
-        }
-        catch (java.io.IOException e)
-        {
-        }
-        return (String[]) l.toArray(new String[l.size()]);
+    	return (value != null) ? value.split("(\r\n?)|\n") : new String[0];
     }
 
     /**
