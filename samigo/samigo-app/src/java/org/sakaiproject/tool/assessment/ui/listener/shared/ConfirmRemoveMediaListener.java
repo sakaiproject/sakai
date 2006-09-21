@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.ui.bean.shared.MediaBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 
 /**
  * <p>Title: Samigo</p>
@@ -70,6 +71,13 @@ public class ConfirmRemoveMediaListener implements ActionListener
     mediaBean.setMediaId(mediaId);
     mediaBean.setMediaUrl(mediaUrl);
     mediaBean.setFilename(mediaFilename);
+
+    // #1. do whatever need doing before returning to take assessment
+    DeliveryActionListener dlistener = new DeliveryActionListener();
+    // false => do not reset the entire current delivery.pageContents.
+    // we will do it ourselves and only update the question that this media
+    // is attached to
+    dlistener.processAction(null, false);
   }
 
 }
