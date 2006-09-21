@@ -29,11 +29,12 @@
 		<pathelement location="../../.maven/repository/log4j/jars/log4j-1.2.9.jar"/>
 	  </classpath>
 	</taskdef>
-        <copy file="hibernate.properties"
-          tofile="${basedir}/samigo-hibernate/target/classes/hibernate.properties"
-          overwrite="true"
-          verbose="true" 
-        />
+
+        <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" /> 
+<!--
+        <property name="hibernate.dialect" value="org.hibernate.dialect.Oracle9Dialect" /> 
+        <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" /> 
+-->
 	<schemaexport     quiet="no"
 		  	  text="yes"
 		  	  drop="no"
