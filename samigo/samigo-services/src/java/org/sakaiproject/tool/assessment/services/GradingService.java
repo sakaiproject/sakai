@@ -1124,7 +1124,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     	    	studentAnswerNum = Float.valueOf(studentanswer).floatValue();   	    	
             }catch(NumberFormatException ex){
             	studentAnswerNum =  Float.NaN;
-            	//Temporal. Directamente contará como mala.
+            	//Temporal. Directamente contar\? como mala.
             }
             log.info("studentAnswerNum= " + studentAnswerNum);  	   
             if (!(studentAnswerNum ==  Float.NaN || answer1Num ==  Float.NaN|| answer2Num ==  Float.NaN)){ 	   
