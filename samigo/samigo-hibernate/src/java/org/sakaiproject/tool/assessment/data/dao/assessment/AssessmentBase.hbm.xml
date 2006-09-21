@@ -289,7 +289,7 @@
       </generator>
     </id>
     <many-to-one name="assessment"
-      class="org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData"
+      class="org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData"
       column="ASSESSMENTID" not-null="true" />
     <property name="duration">
       <column name="DURATION" not-null="false" sql-type="integer" />
