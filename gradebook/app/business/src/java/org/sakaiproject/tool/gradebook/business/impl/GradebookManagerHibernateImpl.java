@@ -558,10 +558,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 				public Object doInHibernate(Session session) throws HibernateException {
 					// TODO Combine queries for efficiency.
 					Query q = session.createQuery(
-						"from AbstractGradeRecord as gr where gr.gradableObject.gradebook.id=:gradebookId and gr.gradableObject.removed=false and gr.studentId in (:studentUids)");
+						"from AbstractGradeRecord as gr where gr.gradableObject.gradebook.id=:gradebookId and gr.gradableObject.removed=false");
 					q.setLong("gradebookId", gradebookId.longValue());
-					q.setParameterList("studentUids", studentUids);
-					List gradeRecords = q.list();
+					List gradeRecords = filterGradeRecordsByStudents(q.list(), studentUids);
 
 					List assignments = getAssignments(gradebookId, sortBy, ascending);
 
@@ -637,10 +636,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 					gradeRecords = new ArrayList();
 				} else {
 					Query q = session.createQuery(
-						"from AbstractGradeRecord as gr where gr.gradableObject.id=:gradableObjectId and gr.gradableObject.removed=false and gr.studentId in (:studentUids)");
+						"from AbstractGradeRecord as gr where gr.gradableObject.id=:gradableObjectId and gr.gradableObject.removed=false");
 					q.setLong("gradableObjectId", gradableObject.getId().longValue());
-					q.setParameterList("studentUids", studentUids);
-					gradeRecords = q.list();
+					gradeRecords = filterGradeRecordsByStudents(q.list(), studentUids);
 				}
 
 				// Calculate the total points possible, along with the auto-calculated grade percentage for each grade record
