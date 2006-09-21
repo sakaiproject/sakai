@@ -70,7 +70,7 @@ private String text;
   private Long poolIdToBeDrawn;
   private String poolNameToBeDrawn;
   private List attachmentList;
-  private boolean noQuestion;
+  private boolean noQuestions;
 
   public SectionContentsBean()
   {
@@ -620,12 +620,12 @@ private String text;
     return hasAttachment;
   }
 
-  public boolean getNoQuestion() {
-	  return noQuestion;
+  public boolean getNoQuestions() {
+	  return noQuestions;
   }
 
-  public void setNoQuestion(boolean noQuestion)
+  public void setNoQuestions(boolean noQuestions)
   {
-	  this.noQuestion = noQuestion;
+	  this.noQuestions = noQuestions;
   }
 }

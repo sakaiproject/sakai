@@ -257,7 +257,7 @@ public class DeliveryActionListener
 	  // and there are multiple places to modify if I want to get ae inside getPageContentsByQuestion()
       if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
     	  log.debug("From Begin Assessment button clicks");
-    	  delivery.setIsNoQuestion(false);
+    	  delivery.setNoQuestions(false);
       }
 
       // overload itemGradingHash with the sequence in case renumbering is turned off.
@@ -508,7 +508,7 @@ public class DeliveryActionListener
       partBean.setNumParts(new Integer(partSet.size()).toString());
       if (partBean.getItemContentsSize().equals("0")) {
     	  log.debug("getPageContentsByAssessment(): no question");
-    	  partBean.setNoQuestion(true);
+    	  partBean.setNoQuestions(true);
       }
       currentScore += partBean.getPoints();
       maxScore += partBean.getMaxPoints();
@@ -554,7 +554,7 @@ public class DeliveryActionListener
       partBean.setNumParts(new Integer(partSet.size()).toString());
       if (partBean.getItemContentsSize().equals("0")) {
     	  log.debug("getPageContentsByPart(): no question");
-    	  partBean.setNoQuestion(true);
+    	  partBean.setNoQuestions(true);
       }
       currentScore += partBean.getPoints();
       maxScore += partBean.getMaxPoints();
@@ -631,12 +631,12 @@ public class DeliveryActionListener
       ArrayList sortedlist = getItemArraySortedWithRandom(secFacade, itemlist, seed); 
       questionCount = sortedlist.size();
 
-      if ((delivery.getIsNoQuestion() || questionCount != 0) && itemIndex > (questionCount - 1) && sectionCount == sectionIndex) {
+      if ((delivery.getNoQuestions() || questionCount != 0) && itemIndex > (questionCount - 1) && sectionCount == sectionIndex) {
         sectionIndex++;
         delivery.setPartIndex(sectionIndex);
         itemIndex = 0;
         delivery.setQuestionIndex(itemIndex);
-        delivery.setIsNoQuestion(false);
+        delivery.setNoQuestions(false);
       }
       if (itemIndex < 0 && sectionCount == sectionIndex)
       {
@@ -653,12 +653,12 @@ public class DeliveryActionListener
       	partsContents.add(partBeanWithQuestion);
       	
       	if (questionCount == 0) {
-      		partBeanWithQuestion.setNoQuestion(true);
-      		delivery.setIsNoQuestion(true);
+      		partBeanWithQuestion.setNoQuestions(true);
+      		delivery.setNoQuestions(true);
       	}
       	else {
-      		partBeanWithQuestion.setNoQuestion(false);
-      		delivery.setIsNoQuestion(false);
+      		partBeanWithQuestion.setNoQuestions(false);
+      		delivery.setNoQuestions(false);
       	}
       	
         if (iter.hasNext() || itemIndex < (questionCount - 1))
