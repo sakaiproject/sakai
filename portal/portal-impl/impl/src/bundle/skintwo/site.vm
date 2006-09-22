@@ -2,6 +2,5 @@
 <!-- site.vm -->
 #includeSiteNavSkinTwo()
 #includeWorksite()
-#includeSiteNavSkinTwoEnd()
 <!-- end site.vm -->
 #end_response()

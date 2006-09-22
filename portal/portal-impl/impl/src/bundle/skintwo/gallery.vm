@@ -1,6 +1,6 @@
 #start_response()
 <!-- gallery.vm -->
-#includeGalleryNav()
+#includeGalleryNavSkinTwo()
 #includeWorksite()
 <!-- end gallery.vm -->
 #end_response()
