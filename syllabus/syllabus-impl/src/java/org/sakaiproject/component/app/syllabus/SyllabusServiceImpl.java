@@ -292,30 +292,37 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 
 		try
 		{
-			Site site = SiteService.getSite(ref.getContext());
-			Collection groups = site.getGroups();
-
-			if ((SecurityService.isSuperUser()))
+//for 2.3
+//			Site site = SiteService.getSite(ref.getContext());
+//			Collection groups = site.getGroups();
+//
+//			if ((SecurityService.isSuperUser()))
+//			{
+//				return groups;
+//			}
+//
+//			Collection groupRefs = new Vector();
+//			for (Iterator i = groups.iterator(); i.hasNext();)
+//			{
+//				Group group = (Group) i.next();
+//				groupRefs.add(group.getReference());
+//			}
+//		
+//			for (Iterator i = groups.iterator(); i.hasNext();)
+//			{
+//				Group group = (Group) i.next();
+//				rv.add(group);
+//			}
+//			
+//			ref.addSiteContextAuthzGroup(rv);
+			if (SYLLABUS.equals(ref.getSubType()))
 			{
-				return groups;
+				rv.add(ref.getReference());
+				
+				ref.addSiteContextAuthzGroup(rv);
 			}
-
-			Collection groupRefs = new Vector();
-			for (Iterator i = groups.iterator(); i.hasNext();)
-			{
-				Group group = (Group) i.next();
-				groupRefs.add(group.getReference());
-			}
-		
-			for (Iterator i = groups.iterator(); i.hasNext();)
-			{
-				Group group = (Group) i.next();
-				rv.add(group);
-			}
-			
-			ref.addSiteContextAuthzGroup(rv);
 		}
-		catch (IdUnusedException e) 
+		catch (Exception e) 
 		{
 			logger.error("SyllabusServiceImpl:getEntityAuthzGroups - " + e);
 			e.printStackTrace();
