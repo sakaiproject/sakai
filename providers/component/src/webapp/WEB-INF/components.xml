@@ -148,7 +148,12 @@
 							</map>
 						</property>
 						<property name="officialInstructorRole" value="Instructor" />
-						<property name="enrollmentRole" value="Student" />
+						<property name="enrollmentStatusRoleMap">
+							<map>
+								<entry key="enrolled" value="Student" />
+								<entry key="waitlisted" value="Student" />
+							</map>
+						</property>
 					</bean>
 					<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseOfferingRoleResolver">
 						<property name="roleMap">

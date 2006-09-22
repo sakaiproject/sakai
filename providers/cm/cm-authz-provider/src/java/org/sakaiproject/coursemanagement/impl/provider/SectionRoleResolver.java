@@ -38,13 +38,13 @@ public class SectionRoleResolver implements RoleResolver {
 	private static final Log log = LogFactory.getLog(SectionRoleResolver.class);
 
 	/** Map of CM section roles to Sakai roles */
-	Map roleMap;
+	protected Map roleMap;
 
 	/** The Sakai role to use for official instructors of EnrollmentSets */
-	String officialInstructorRole;
+	protected String officialInstructorRole;
 
-	/** The Sakai role to use for official enrollments in EnrollmentSets */
-	String enrollmentRole;
+	/** The Sakai roles to use for official enrollments in EnrollmentSets,keyed on the enrollment status */
+	protected Map enrollmentStatusRoleMap;
 
 	/**
 	 * {@inheritDoc}
@@ -65,9 +65,12 @@ public class SectionRoleResolver implements RoleResolver {
 			Set enrollments = cmService.getEnrollments(section.getEnrollmentSet().getEid());
 			for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
 				Enrollment enr = (Enrollment)iter.next();
-				if( ! userRoleMap.containsKey(enr.getUserId())) {
-					// If they are an official instructor and also enrolled (huh?), defer to the instructor status
-					userRoleMap.put(enr.getUserId(), enrollmentRole);
+				String roleFromEnrollmentStatus = (String)enrollmentStatusRoleMap.get(enr.getEnrollmentStatus());
+
+				// Only add the enrollment if it's not dropped and it has an enrollment role mapping
+				// Defer to the official instructor status
+				if( ! userRoleMap.containsKey(enr.getUserId()) && roleFromEnrollmentStatus != null &&  ! enr.isDropped()) {
+					userRoleMap.put(enr.getUserId(), roleFromEnrollmentStatus);
 				}
 			}
 		}
@@ -104,7 +107,14 @@ public class SectionRoleResolver implements RoleResolver {
 		for(Iterator secIter = enrolledSections.iterator(); secIter.hasNext();) {
 			Section section = (Section)secIter.next();
 			if(log.isDebugEnabled()) log.debug(userEid + " is enrolled in an enrollment set attached to section " + section.getEid());
-			groupRoleMap.put(section.getEid(), enrollmentRole);
+			// TODO Calling this for every section  is inefficient -- add new method to CM service?
+			Enrollment enr = cmService.findEnrollment(userEid, section.getEnrollmentSet().getEid());
+			String roleFromEnrollmentStatus = (String)enrollmentStatusRoleMap.get(enr.getEnrollmentStatus());
+			
+			// Only add the enrollment if it's not dropped and it has an enrollment role mapping
+			if(roleFromEnrollmentStatus != null && ! enr.isDropped()) {
+				groupRoleMap.put(section.getEid(), roleFromEnrollmentStatus);
+			}
 		}
 
 		// Finally, add the official instructors, overriding any other roles if necessary
@@ -147,8 +157,8 @@ public class SectionRoleResolver implements RoleResolver {
 		this.officialInstructorRole = officialInstructorRole;
 	}
 
-	public void setEnrollmentRole(String enrollmentRole) {
-		this.enrollmentRole = enrollmentRole;
+	public void setEnrollmentStatusRoleMap(Map enrollmentStatusRoleMap) {
+		this.enrollmentStatusRoleMap = enrollmentStatusRoleMap;
 	}
 
 }
