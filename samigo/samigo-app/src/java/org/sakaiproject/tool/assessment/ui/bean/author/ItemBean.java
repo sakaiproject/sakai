@@ -1064,13 +1064,13 @@ public class ItemBean
 
     // get existing list
     ArrayList list = getMatchItemBeanList();
-
+    /*
     Iterator biter = this.getMatchItemBeanList().iterator();
     while(biter.hasNext())
     {
       MatchItemBean apair = (MatchItemBean) biter.next();
     }
-
+    */
 
     MatchItemBean currpair = this.getCurrentMatchPair();
     if (!currpair.getSequence().equals(new Long(-1))) {
@@ -1148,13 +1148,13 @@ public class ItemBean
     }
 
 // debugging
-
+    /*
     iter = this.getMatchItemBeanList().iterator();
     while(iter.hasNext())
     {
       MatchItemBean apair = (MatchItemBean) iter.next();
     }
-
+    */
 
     MatchItemBean matchitem = new MatchItemBean();
     this.setCurrentMatchPair(matchitem);

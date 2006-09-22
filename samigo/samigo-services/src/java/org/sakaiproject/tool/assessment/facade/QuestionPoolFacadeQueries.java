@@ -33,19 +33,15 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.Collections;
 
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osid.OsidException;
 import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccessData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
@@ -425,11 +421,13 @@ public class QuestionPoolFacadeQueries
         while (i.hasNext()) {
           QuestionPoolItemData questionPoolItem = (QuestionPoolItemData) i.next();
           ItemData itemData_0 = (ItemData) h.get(questionPoolItem.getItemId());
+          /*
           Set itemTextSet = itemData_0.getItemTextSet();
           Iterator k = itemTextSet.iterator();
           while (k.hasNext()) {
             ItemText itemText = (ItemText) k.next();
           }
+          */
           itemArrayList.add(itemData_0);
         }
         qpp.setQuestions(itemArrayList);
@@ -1076,6 +1074,7 @@ public class QuestionPoolFacadeQueries
     }
   }
 
+  /*
   public static void main(String[] args) throws DataFacadeException {
     QuestionPoolFacadeQueriesAPI instance = new QuestionPoolFacadeQueries();
     // add an item
@@ -1086,12 +1085,12 @@ public class QuestionPoolFacadeQueries
       List items = instance.getAllItems(new Long(args[1])); // poolId
       for (int i = 0; i < items.size(); i++) {
         ItemData item = (ItemData) items.get(i);
-
       }
     }
     System.exit(0);
   }
-
+  */
+  
   public Long add() {
     QuestionPoolData questionPool = new QuestionPoolData();
     questionPool.setTitle("Daisy Happy Pool");

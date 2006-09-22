@@ -28,7 +28,6 @@ import java.util.List;
 
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -104,7 +103,7 @@ public class AuthorizationFacadeQueries
 
   public void showQualifiers(QualifierIteratorFacade iter){
     while (iter.hasNextQualifier()){
-      QualifierFacade q = (QualifierFacade)iter.nextQualifier();
+      //QualifierFacade q = (QualifierFacade)iter.nextQualifier();
     }
   }
 

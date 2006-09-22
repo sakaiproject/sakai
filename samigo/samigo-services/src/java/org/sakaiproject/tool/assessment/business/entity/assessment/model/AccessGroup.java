@@ -438,7 +438,7 @@ public class AccessGroup implements Serializable
     }
 
     releaseDate.set(Calendar.SECOND, 0);
-    int tempYear = releaseDate.get(Calendar.YEAR);
+    //int tempYear = releaseDate.get(Calendar.YEAR);
     setReleaseDay(
       new Integer(releaseDate.get(Calendar.DAY_OF_MONTH)).toString());
     setReleaseMonth(
@@ -804,7 +804,7 @@ public class AccessGroup implements Serializable
 
     retractDate.set(Calendar.SECOND, 0);
 
-    int tempYear = retractDate.get(Calendar.YEAR);
+    //int tempYear = retractDate.get(Calendar.YEAR);
     setRetractDay(
       new Integer(retractDate.get(Calendar.DAY_OF_MONTH)).toString());
     setRetractMonth(
@@ -1130,7 +1130,7 @@ public class AccessGroup implements Serializable
     }
 
     dueDate.set(Calendar.SECOND, 0);
-    int tempYear = dueDate.get(Calendar.YEAR);
+    //int tempYear = dueDate.get(Calendar.YEAR);
     setDueDay(new Integer(dueDate.get(Calendar.DAY_OF_MONTH)).toString());
     setDueMonth(new Integer(dueDate.get(Calendar.MONTH) + 1).toString());
     setDueYear(new Integer(dueDate.get(Calendar.YEAR)).toString());

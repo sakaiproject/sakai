@@ -72,8 +72,8 @@ public class ItemService
   {
     try
     {
-      ItemFacade item= PersistenceService.getInstance().
-        getItemFacadeQueries().getItem(itemId, agentId);
+      //ItemFacade item= PersistenceService.getInstance().
+        //getItemFacadeQueries().getItem(itemId, agentId);
 
 /*  do not check for owner, anyone who has maintain role can modify items see SAK-2214
       // you are not allowed to delete item if you are not the owner
@@ -97,8 +97,8 @@ public class ItemService
   {
     try
     {
-      ItemFacade item= PersistenceService.getInstance().
-        getItemFacadeQueries().getItem(itemId, agentId);
+      //ItemFacade item= PersistenceService.getInstance().
+        //getItemFacadeQueries().getItem(itemId, agentId);
 
 /*  do not check for owner, anyone who has maintain role can modify items see SAK-2214
       // you are not allowed to delete item if you are not the owner
@@ -123,8 +123,8 @@ public class ItemService
   {
     try
     {
-      ItemFacade item= PersistenceService.getInstance().
-        getItemFacadeQueries().getItem(itemId, agentId);
+      //ItemFacade item= PersistenceService.getInstance().
+        //getItemFacadeQueries().getItem(itemId, agentId);
 
 /*  do not check for owner, anyone who has maintain role can modify items see SAK-2214
       // you are not allowed to delete item if you are not the owner
@@ -148,8 +148,8 @@ public class ItemService
   {
     try
     {
-      ItemFacade item= PersistenceService.getInstance().
-        getItemFacadeQueries().getItem(itemId, agentId);
+      //ItemFacade item= PersistenceService.getInstance().
+        //getItemFacadeQueries().getItem(itemId, agentId);
 
 /*  do not check for owner, anyone who has maintain role can modify items see SAK-2214
       // you are not allowed to delete item if you are not the owner

@@ -86,7 +86,7 @@ public class DeliveryActionListener
 
   static String alphabet = new String("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
   private static Log log = LogFactory.getLog(DeliveryActionListener.class);
-  private static ContextUtil cu;
+  //private static ContextUtil cu;
   private boolean resetPageContents = true;
 
   /**
@@ -104,7 +104,7 @@ public class DeliveryActionListener
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
     System.out.println("**** MacNetscape="+person.getIsMacNetscapeBrowser());
       // 1. get managed bean
-      DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
+      DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
       //log.debug("***DeliveryBean in deliveryListener = "+delivery);
       // a. set publishedId, note that id can be changed by isPreviewingMode()
       String id = getPublishedAssessmentId(delivery);
@@ -184,7 +184,7 @@ public class DeliveryActionListener
               break;
  
       case 4: // Grade assessment
-              itemGradingHash = service.getStudentGradingData(cu.lookupParam("gradingData"));
+              itemGradingHash = service.getStudentGradingData(ContextUtil.lookupParam("gradingData"));
               ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, false);
               delivery.setAssessmentGrading(ag);
               setDisplayByAssessment(delivery);
@@ -353,15 +353,15 @@ public class DeliveryActionListener
   private void goToRightQuestionFromTOC(DeliveryBean delivery) throws
     NumberFormatException
   {
-    if (cu.lookupParam("partnumber") != null &&
-          !cu.lookupParam("partnumber").trim().equals("") && 
-        cu.lookupParam("questionnumber") != null &&
-          !cu.lookupParam("questionnumber").trim().equals(""))
+    if (ContextUtil.lookupParam("partnumber") != null &&
+          !ContextUtil.lookupParam("partnumber").trim().equals("") && 
+          ContextUtil.lookupParam("questionnumber") != null &&
+          !ContextUtil.lookupParam("questionnumber").trim().equals(""))
     {
         delivery.setPartIndex(new Integer
-                (cu.lookupParam("partnumber")).intValue() - 1);
+                (ContextUtil.lookupParam("partnumber")).intValue() - 1);
         delivery.setQuestionIndex(new Integer
-                (cu.lookupParam("questionnumber")).intValue() - 1);
+                (ContextUtil.lookupParam("questionnumber")).intValue() - 1);
     }
   }
 
@@ -709,8 +709,8 @@ public class DeliveryActionListener
     ArrayList itemSet = null;
     ArrayList itemlist = part.getItemArray();
     long seed = 0;
-    if (delivery.getActionMode()==delivery.GRADE_ASSESSMENT) {
-      StudentScoresBean studentscorebean = (StudentScoresBean) cu.lookupBean("studentScores");
+    if (delivery.getActionMode()==DeliveryBean.GRADE_ASSESSMENT) {
+      StudentScoresBean studentscorebean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
       seed = (long) studentscorebean.getStudentId().hashCode();
     }
     else {
@@ -1347,6 +1347,7 @@ public class DeliveryActionListener
             while (st2.hasMoreTokens())
             {
               String nextT = st2.nextToken();
+              log.debug("nextT = " + nextT);
 //  mark answer as correct if autoscore > 0
  
 /*
@@ -1503,6 +1504,7 @@ public class DeliveryActionListener
             while (st2.hasMoreTokens())
             {
               String nextT = st2.nextToken();
+              log.debug("nextT = " + nextT);
 //  mark answer as correct if autoscore > 0
  
 /*
@@ -1637,7 +1639,7 @@ public class DeliveryActionListener
   }
 
   public String getPublishedAssessmentId(DeliveryBean delivery){
-    String id = cu.lookupParam("publishedId");
+    String id = ContextUtil.lookupParam("publishedId");
     if (id == null){
       id = delivery.getAssessmentId();
     }
@@ -1657,7 +1659,7 @@ public class DeliveryActionListener
 
   protected void setFeedbackMode(DeliveryBean delivery){
     int action = delivery.getActionMode();
-    String showfeedbacknow = cu.lookupParam("showfeedbacknow");
+    String showfeedbacknow = ContextUtil.lookupParam("showfeedbacknow");
     delivery.setFeedback("false");
     delivery.setNoFeedback("false");
     switch (action){
@@ -1684,7 +1686,7 @@ public class DeliveryActionListener
     default:break;
     }
 
-    String nofeedback = cu.lookupParam("nofeedback");
+    String nofeedback = ContextUtil.lookupParam("nofeedback");
     if (nofeedback != null && nofeedback.equals("true")) {
       delivery.setNoFeedback("true");
     }
@@ -1768,8 +1770,8 @@ public class DeliveryActionListener
 
       ArrayList itemlist = section.getItemArray();
       long seed = 0;
-      if (delivery.getActionMode()==delivery.GRADE_ASSESSMENT) {
-        StudentScoresBean studentscorebean = (StudentScoresBean) cu.lookupBean("studentScores");
+      if (delivery.getActionMode()==DeliveryBean.GRADE_ASSESSMENT) {
+        StudentScoresBean studentscorebean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
         seed = (long) studentscorebean.getStudentId().hashCode();
       }
       else {

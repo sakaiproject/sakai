@@ -286,7 +286,7 @@ if (showFillInNumeric)
     return list;
   }
 
-
+  /*
   // test the item accessors and mutators and the selectItem list
   public static void main (String[] args)
   {
@@ -320,9 +320,8 @@ if (showFillInNumeric)
     {
       SelectItem sitem = (SelectItem)list.get(i);
     }
-
-
   }
+  */
 
   /**
    * Can we select items from a question pool?

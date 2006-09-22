@@ -66,7 +66,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     return new IdImpl(id);
   }
 
-
+  /*
   public static void main(String[] args) throws DataFacadeException {
     ItemFacadeQueriesAPI instance = new ItemFacadeQueries();
     // add an item
@@ -98,21 +98,22 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
       List items = instance.list();
       for (int i = 0; i < items.size(); i++) {
         ItemData item = (ItemData) items.get(i);
-        //log.debug("Item #" + item.getItemId() + " has rationale= " +
-        //                   item.getHasRationale());
+        log.debug("Item #" + item.getItemId() + " has rationale= " +
+                           item.getHasRationale());
       }
     }
     if (args[0].equals("getQPItems")) {
       List items = instance.getQPItems(new Long(args[1])); // poolId
       for (int i = 0; i < items.size(); i++) {
         ItemData item = (ItemData) items.get(i);
-        //log.debug("Item #" + item.getItemId() + " has rationale= " +
-        //                   item.getHasRationale());
+        log.debug("Item #" + item.getItemId() + " has rationale= " +
+                           item.getHasRationale());
       }
     }
     System.exit(0);
   }
-
+  */
+  
   public Long add() {
     ItemData item = new ItemData();
     item.setInstruction("Matching game");

@@ -37,11 +37,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.type.Type;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -82,7 +80,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -642,7 +639,7 @@ public class PublishedAssessmentFacadeQueries
     // because it will be deleted after preview is done, and shouldn't talk to gradebook.
   public PublishedAssessmentFacade publishPreviewAssessment(AssessmentFacade
       assessment, String protocol) {
-    boolean addedToGradebook = false;
+    //boolean addedToGradebook = false;
     PublishedAssessmentData publishedAssessment = preparePublishedAssessment( (
         AssessmentData) assessment.getData(), protocol);
     publishedAssessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);

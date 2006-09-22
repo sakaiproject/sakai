@@ -24,7 +24,6 @@
 package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -37,8 +36,6 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
@@ -53,8 +50,8 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class ReviewActionListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(ReviewActionListener.class);
-  private static ContextUtil cu;
+  //private static Log log = LogFactory.getLog(ReviewActionListener.class);
+  //private static ContextUtil cu;
 
   /**
    * ACTION.
@@ -68,9 +65,9 @@ public class ReviewActionListener implements ActionListener
 
     try {
       // get managed bean
-      DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
+      DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
 
-      String reviewAssessmentId = cu.lookupParam("reviewAssessmentId");
+      String reviewAssessmentId = ContextUtil.lookupParam("reviewAssessmentId");
 
       // get service
       PublishedAssessmentService publishedAssessmentService = new
@@ -93,15 +90,16 @@ public class ReviewActionListener implements ActionListener
         itemData, publishedAnswerHash));
       }
 
+      /*
       Iterator iter = delivery.getPageContents().getPartsContents().iterator();
       while (iter.hasNext()) {
-
         SectionContentsBean sectbean = (SectionContentsBean) iter.next();
         Iterator itemiter = sectbean.getItemContents().iterator();
         while (itemiter.hasNext()) {
           ItemContentsBean itembean = (ItemContentsBean) itemiter.next();
         }
       }
+      */
 
     } catch (Exception e) {
       e.printStackTrace();

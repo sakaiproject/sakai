@@ -38,7 +38,6 @@ import org.sakaiproject.tool.assessment.qti.asi.Item;
 import org.sakaiproject.tool.assessment.qti.asi.Section;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.ExtractionHelper;
-import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 
 /**
@@ -86,7 +85,7 @@ public class AuthoringHelperTest {
 
   public static void testAssessments(String myPath, String[] myDocs) {
     AuthoringHelperTest ah = new AuthoringHelperTest();
-    String sep = "\\";
+    //String sep = "\\";
     for (int i = 0; i < myDocs.length; i++) {
       String path = myPath + File.separator + myDocs[i];
       log.info("Testing XML file:" + path);
@@ -104,7 +103,7 @@ public class AuthoringHelperTest {
 
   public static void testItems(String myPath, String[] myDocs) {
     AuthoringHelperTest ah = new AuthoringHelperTest();
-    String sep = "\\";
+    //String sep = "\\";
     for (int i = 0; i < myDocs.length; i++) {
       String path = myPath + File.separator + myDocs[i];
       log.info("Testing XML file:" + path);
@@ -114,7 +113,7 @@ public class AuthoringHelperTest {
       if (document != null) log.info("DOCUMENT EXISTS.");
       log.info("Created doc.");
       ItemFacade it = ah.createImportedItem(document);
-//      log.info("Created item: " + it.getItemTextArray());
+      log.info("Created item: " + it.getItemTextArray());
     }
   }
 

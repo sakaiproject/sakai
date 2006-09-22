@@ -78,7 +78,7 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
     MediaData mediaData = gradingService.getMedia(mediaId);
     String mediaLocation = mediaData.getLocation();
     int fileSize = mediaData.getFileSize().intValue();
-    log.info("****1. media file size="+mediaData.getFileSize());
+    log.info("****1. media file size="+fileSize);
 
     //if setMimeType="false" in query string, implies, we want to do a forced download
     //in this case, we set contentType='application/octet-stream'

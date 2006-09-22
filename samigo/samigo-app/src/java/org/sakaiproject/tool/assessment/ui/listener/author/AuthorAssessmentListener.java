@@ -40,7 +40,6 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
@@ -60,8 +59,8 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class AuthorAssessmentListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(AuthorAssessmentListener.class);
-  private static ContextUtil cu;
+  //private static Log log = LogFactory.getLog(AuthorAssessmentListener.class);
+  //private static ContextUtil cu;
 
   public AuthorAssessmentListener()
   {
@@ -75,9 +74,9 @@ public class AuthorAssessmentListener
     AssessmentService assessmentService = new AssessmentService();
     PublishedAssessmentService publishedService= new PublishedAssessmentService();
     //#0 - permission checking before proceeding - daisyf
-    AuthorBean author = (AuthorBean) cu.lookupBean(
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean(
                          "author");
-AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
+AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.
     lookupBean("assessmentSettings");
     author.setOutcome("createAssessment");
     if (!passAuthz(context)){
@@ -86,11 +85,11 @@ AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
     }
 
     // pass authz test, move on
-    AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
+    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
                                                       "assessmentBean");
 
-    ItemAuthorBean itemauthorBean = (ItemAuthorBean) cu.lookupBean("itemauthor");
-    itemauthorBean.setTarget(itemauthorBean.FROM_ASSESSMENT); // save to assessment
+    ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
+    itemauthorBean.setTarget(ItemAuthorBean.FROM_ASSESSMENT); // save to assessment
 
 
     // create an assessment based on the title entered and the assessment
@@ -101,7 +100,7 @@ AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
     //HUONG's EDIT
     //check assessmentTitle and see if it is duplicated, if is not then proceed, else throw error
     boolean isUnique = assessmentService.assessmentTitleIsUnique("0", assessmentTitle, false);
-    boolean isUniquePublish= publishedService.publishedAssessmentTitleIsUnique("0", assessmentTitle);
+    //boolean isUniquePublish= publishedService.publishedAssessmentTitleIsUnique("0", assessmentTitle);
     if (assessmentTitle!=null && (assessmentTitle.trim()).equals("")){
       String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
       context.addMessage(null,new FacesMessage(err1));
@@ -168,11 +167,11 @@ AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
   }
 
   public boolean passAuthz(FacesContext context){
-    AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean(
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean(
                          "authorization");
     boolean hasPrivilege = authzBean.getCreateAssessment();
     if (!hasPrivilege){
-      String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+      String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
                   "denied_create_assessment_error");
       context.addMessage(null,new FacesMessage(err));
     }
