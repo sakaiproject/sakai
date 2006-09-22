@@ -149,12 +149,14 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	protected static final String MACRO_USER_LAST_NAME      = "${USER_LAST_NAME}";
 	/** Macro name: Role */
 	protected static final String MACRO_USER_ROLE           = "${USER_ROLE}";
+	/** Macro name: Session */
+	protected static final String MACRO_SESSION_ID          = "${SESSION_ID}";
 
 	private static final String MACRO_CLASS_SITE_PROP = "SITE_PROP:";
 	
 	private static final String IFRAME_ALLOWED_MACROS_PROPERTY = "iframe.allowed.macros";
 	
-	private static final String MACRO_DEFAULT_ALLOWED = "${USER_ID},${USER_EID},${USER_FIRST_NAME},${USER_LAST_NAME},${SITE_ID},${USER_ROLE}";
+	private static final String MACRO_DEFAULT_ALLOWED = "${USER_ID},${USER_EID},${USER_FIRST_NAME},${USER_LAST_NAME},${SITE_ID},${USER_ROLE},${SESSION_ID}";
 	
 	private static ArrayList allowedMacrosList;
 	
@@ -419,6 +421,22 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		return session.getUserId();
 	}
 	
+	/**
+	 * Get the current session id
+	 * @throws SessionDataException
+	 * @return Session id
+	 */
+	private String getSessionId() throws SessionDataException
+	{
+		Session session = SessionManager.getCurrentSession();
+
+		if (session == null)
+		{
+			throw new SessionDataException("No current user session");
+		}
+		return session.getId();
+	}
+	
 
 	/**
 	 * Get the current user eid
@@ -536,6 +554,10 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			if (macroName.equals(MACRO_USER_ROLE))
 			{
 				return this.getUserRole();
+			}
+			if (macroName.equals(MACRO_SESSION_ID))
+			{
+				return this.getSessionId();
 			}
 
 			if (macroName.startsWith("${"+MACRO_CLASS_SITE_PROP)) 
