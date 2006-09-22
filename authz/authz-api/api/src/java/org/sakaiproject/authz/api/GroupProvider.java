@@ -52,10 +52,6 @@ public interface GroupProvider
 
 	/**
 	 * Access the external group id - role name map for this user in all external groups.
-	 * <p>
-	 * If the provider supports compound external ids, the get() of this Map needs to accept a compount external id<br />
-	 * and return the single role (if any) resolved from any individual external realm ids in the map.
-	 * </p>
 	 * 
 	 * @param userId
 	 *        The user id.
@@ -71,4 +67,15 @@ public interface GroupProvider
 	 * @return a String array of one or more ids upacked from this possibly compound id.
 	 */
 	String[] unpackId(String id);
+	
+	/**
+	 * Return one or the other of these role names - pick the one that if a user has both, is the more powerful one to give the user as their single role.
+	 * 
+	 * @param one
+	 *        A role name. May be null!
+	 * @param other
+	 *        Another role name. May be null!
+	 * @return The better role.
+	 */
+	String preferredRole(String one, String other);
 }
