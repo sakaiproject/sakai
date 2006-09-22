@@ -1204,7 +1204,7 @@ public class PublishedAssessmentFacadeQueries
     		return q.list();
     	};
     };
-    ArrayList list = (ArrayList) getHibernateTemplate().executeFind(hcb);
+    List list = getHibernateTemplate().executeFind(hcb);
     
 //    ArrayList list = (ArrayList) getHibernateTemplate().find(query,
 //        new Object[] {agentId}

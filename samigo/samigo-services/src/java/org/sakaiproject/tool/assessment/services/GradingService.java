@@ -74,9 +74,9 @@ public class GradingService
     ArrayList results = null;
     try {
       results =
-        (ArrayList) PersistenceService.getInstance().
+        new ArrayList(PersistenceService.getInstance().
            getAssessmentGradingFacadeQueries().getTotalScores(publishedId,
-             which);
+             which));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -86,12 +86,11 @@ public class GradingService
  /**
   * Get all submissions for a published assessment from the back end.
   */
-  public ArrayList getAllSubmissions(String publishedId)
+  public List getAllSubmissions(String publishedId)
   {
-    ArrayList results = null;
+    List results = null;
     try {
-      results =
-        (ArrayList) PersistenceService.getInstance().
+      results = PersistenceService.getInstance().
            getAssessmentGradingFacadeQueries().getAllSubmissions(publishedId);
     } catch (Exception e) {
       e.printStackTrace();
@@ -104,8 +103,8 @@ public class GradingService
     ArrayList results = null;
     try {
       results =
-        (ArrayList) PersistenceService.getInstance().
-           getAssessmentGradingFacadeQueries().getHighestAssessmentGradingList(publishedId);
+        new ArrayList(PersistenceService.getInstance().
+           getAssessmentGradingFacadeQueries().getHighestAssessmentGradingList(publishedId));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -117,20 +116,20 @@ public class GradingService
     ArrayList results = null;
     try {
       results =
-        (ArrayList) PersistenceService.getInstance().
-           getAssessmentGradingFacadeQueries().getLastAssessmentGradingList(publishedId);
+        new ArrayList(PersistenceService.getInstance().
+           getAssessmentGradingFacadeQueries().getLastAssessmentGradingList(publishedId));
     } catch (Exception e) {
       e.printStackTrace();
     }
     return results;
   }
 
-  public ArrayList getLastSubmittedAssessmentGradingList(Long publishedId)
+  public List getLastSubmittedAssessmentGradingList(Long publishedId)
   {
-    ArrayList results = null;
+    List results = null;
     try {
-      results =
-        (ArrayList) PersistenceService.getInstance().
+      results = 
+    	  PersistenceService.getInstance().
            getAssessmentGradingFacadeQueries().getLastSubmittedAssessmentGradingList(publishedId);
     } catch (Exception e) {
       e.printStackTrace();

@@ -176,8 +176,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   public HashMap getItemScores(Long publishedId, final Long itemId, String which)
   {
     try {
-      ArrayList scores = (ArrayList)
-        getTotalScores(publishedId.toString(), which);
+      List scores = getTotalScores(publishedId.toString(), which);
       HashMap map = new HashMap();
       //List list = new ArrayList();
 
@@ -274,7 +273,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       		return q.list();
       	};
       };
-      ArrayList scores = (ArrayList) getHibernateTemplate().executeFind(hcb);
+      List scores = getHibernateTemplate().executeFind(hcb);
 
 //      ArrayList scores = (ArrayList) getHibernateTemplate().find("from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? order by submittedDate DESC", objects, types);
       HashMap map = new HashMap();
@@ -355,7 +354,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       		return q.list();
       	};
       };
-      ArrayList scores = (ArrayList) getHibernateTemplate().executeFind(hcb);
+      List scores = getHibernateTemplate().executeFind(hcb);
 
 //      ArrayList scores = (ArrayList) getHibernateTemplate().find("from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? order by submittedDate DESC", objects, types);
       HashMap map = new HashMap();
@@ -1163,7 +1162,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				  return q.list();
 			  };
 		  };
-		  ArrayList list = (ArrayList) getHibernateTemplate().executeFind(hcb);
+		  List list = getHibernateTemplate().executeFind(hcb);
 		  if ( list.size() == 0) {
 			  position.add(new Integer(0));
 			  position.add(new Integer(0));

@@ -256,8 +256,8 @@ public class QuestionPoolService
       }
       else if ("keyword".equals(orderBy)) {
         
- results = (ArrayList) PersistenceService.getInstance().
-     getQuestionPoolFacadeQueries().getAllItemFacadesOrderByItemType(poolId, orderBy, ascending);
+     results = new ArrayList(PersistenceService.getInstance().
+     getQuestionPoolFacadeQueries().getAllItemFacadesOrderByItemType(poolId, orderBy, ascending));
 	
       }
     } catch (Exception e) {
@@ -275,8 +275,8 @@ public class QuestionPoolService
     ArrayList results = null;
     try {
       results =
-        (ArrayList) PersistenceService.getInstance().
-           getQuestionPoolFacadeQueries().getAllItemFacades(poolId);
+        new ArrayList(PersistenceService.getInstance().
+           getQuestionPoolFacadeQueries().getAllItemFacades(poolId));
     } catch (Exception e) {
       e.printStackTrace();
     }

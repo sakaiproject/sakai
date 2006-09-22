@@ -1237,7 +1237,7 @@ public String getAddOrEdit()
        delegate.removeQuestionFromPool(itemid, new Long(sourceId));
 
        // check to see if any pools are linked to this item
-       ArrayList poollist = (ArrayList) delegate.getPoolIdsByItem(itemfacade.getItemIdString());
+       List poollist = delegate.getPoolIdsByItem(itemfacade.getItemIdString());
        if (poollist.isEmpty()) {
 
 	 if (itemfacade.getSection() == null) {
