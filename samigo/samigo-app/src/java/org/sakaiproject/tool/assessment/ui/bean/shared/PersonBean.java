@@ -90,4 +90,13 @@ private static Log log = LogFactory.getLog(PersonBean.class);
     return SecurityService.unlock("site.upd", "/site/"+context);
   }
 
+  private boolean isMacNetscapeBrowser = false;
+  public void setIsMacNetscapeBrowser(boolean isMacNetscapeBrowser){
+      this.isMacNetscapeBrowser = isMacNetscapeBrowser;
+  }  
+
+  public boolean getIsMacNetscapeBrowser(){
+    return isMacNetscapeBrowser;
+  }
+
 }

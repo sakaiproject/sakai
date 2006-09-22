@@ -26,6 +26,7 @@ should be included in file importing DeliveryMessages
 **********************************************************************************/
 --%>
 -->
+
 <f:verbatim><br /></f:verbatim>
 
 <%-- this invisible text is a trick to get the value set in the component tree
@@ -80,87 +81,9 @@ should be included in file importing DeliveryMessages
   </h:dataTable>
 </h:panelGroup>
 
-<f:verbatim>
-<object
-  classid = "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"
-  codebase = "http://java.sun.com/update/1.5.0/jinstall-1_5-windows-i586.cab#Version=1,5,0,0"
-  WIDTH = "500" HEIGHT = "350" NAME = "Test Audio Applet" ALIGN = "middle" VSPACE = "2" HSPACE = "2" >
-  <PARAM NAME = CODE VALUE = "org.sakaiproject.tool.assessment.audio.AudioRecorderApplet.class" >
-  <PARAM NAME = ARCHIVE VALUE = "sakai-samigo-audio-dev.jar" >
-  <PARAM NAME = CODEBASE VALUE = "/samigo/applets/" >
-  <PARAM NAME = NAME VALUE = "Record Audio" >
-  <PARAM NAME = "type" VALUE = "application/x-java-applet;version=1.5">
-  <PARAM NAME = "scriptable" VALUE = "false">
-  <PARAM NAME = "saveAu" VALUE="true">
-  <PARAM NAME = "saveWave" VALUE="false">
-  <PARAM NAME = "saveAiff" VALUE="false">
-  <PARAM NAME = "saveToUrl" VALUE="</f:verbatim><h:outputText value="true" rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}"/><h:outputText value="false" rendered="#{delivery.actionString!='takeAssessment' && delivery.actionString!='takeAssessmentViaUrl'}"/><f:verbatim>">
-  <PARAM NAME = "fileName" VALUE="audio_#{delivery.assessmentGrading.assessmentGradingId}">
-  <PARAM NAME = "url" VALUE="</f:verbatim><h:outputText
-     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}" /><f:verbatim>">
-  <PARAM NAME = "imageUrl" VALUE="</f:verbatim><h:outputText value="#{delivery.protocol}/samigo/images/" /><f:verbatim>">
-  <PARAM NAME = "compression" VALUE="linear">
-  <PARAM NAME = "frequency" VALUE="44100">
-  <PARAM NAME = "bits" VALUE="16">
-  <PARAM NAME = "signed" VALUE="true">
-  <PARAM NAME = "bigendian" VALUE="true">
-  <PARAM NAME = "stereo" VALUE="false">
-  <PARAM NAME = "agentId" VALUE="</f:verbatim><h:outputText
-     value="#{person.id}" escape="false"/><f:verbatim>">
-  <PARAM NAME = "maxSeconds" VALUE="</f:verbatim><h:outputText
-     value="#{question.duration}" escape="false"/><f:verbatim>">
-  <PARAM NAME = "attemptsAllowed" VALUE="</f:verbatim><h:outputText
-     value="#{question.triesAllowed}" escape="false"/><f:verbatim>">
-  <PARAM NAME = "attemptsRemaining" VALUE="</f:verbatim><h:outputText
-     value="#{question.attemptsRemaining}" escape="false"/><f:verbatim>">
-  <PARAM NAME = "assessmentGrading" VALUE="</f:verbatim><h:outputText
-     value="#{delivery.assessmentGrading.assessmentGradingId}" escape="false"/><f:verbatim>">
-  <comment>
-   <embed
-      type = "application/x-java-applet;version=1.5" \
-      CODE = "org.sakaiproject.tool.assessment.audio.AudioRecorderApplet.class" \
-      JAVA_CODEBASE = "/samigo/applets/" \
-      ARCHIVE = "sakai-samigo-audio-dev.jar"
-      NAME = "Record Audio" \
-      WIDTH = "500" \
-      HEIGHT = "350" \
-      ALIGN = "middle" \
-      VSPACE = "2" \
-      HSPACE = "2" \
-      saveAu ="true" \
-      saveWave ="false" \
-      saveAiff ="false" \
-      saveToUrl ="</f:verbatim><h:outputText value="true" rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}"/><h:outputText value="false" rendered="#{delivery.actionString!='takeAssessment' && delivery.actionString!='takeAssessmentViaUrl'}"/><f:verbatim>" \
-      fileName ="audio_#{delivery.assessmentGrading.assessmentGradingId}" \
-      url ="</f:verbatim><h:outputText
-     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}" /><f:verbatim>" \
-      imageUrl ="</f:verbatim><h:outputText value="#{delivery.protocol}/samigo/images/" /><f:verbatim>" \
-      compression ="linear" \
-      frequency ="44100" \
-      bits ="16" \
-      signed ="true" \
-      bigendian ="true6" \
-      stereo ="false" \
-      agentId ="</f:verbatim><h:outputText
-         value="#{person.id}" escape="false"/><f:verbatim>" \
-      maxSeconds ="</f:verbatim><h:outputText
-         value="#{question.duration}" escape="false"/><f:verbatim>" \
-      attemptsAllowed ="</f:verbatim><h:outputText
-         value="#{question.triesAllowed}" escape="false"/><f:verbatim>" \
-      attemptsRemaining ="</f:verbatim><h:outputText
-         value="#{question.attemptsRemaining}" escape="false"/><f:verbatim>" \
-      aassessmentGrading ="</f:verbatim><h:outputText
-         value="#{delivery.assessmentGrading.assessmentGradingId}" escape="false"/><f:verbatim>" \
-      scriptable = false
-      pluginspage = "http://java.sun.com/products/plugin/index.html#download">
-      <noembed>
+<%@ include file="/jsf/delivery/item/audioObject.jsp" %>
+<%@ include file="/jsf/delivery/item/audioApplet.jsp" %>
 
-      </noembed>
-   </embed>
-  </comment>
-</object>
-
-</f:verbatim>
 <f:verbatim><br /></f:verbatim>
 
 <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"

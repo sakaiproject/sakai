@@ -45,13 +45,19 @@
 
       </title>
       </head>
-      <body onload="<%= request.getAttribute("html.body.onload") %>">
+      <body onload="<%= request.getAttribute("html.body.onload") %>; isMacintosh_Netscape();">
  <!--h:outputText value="<body #{delivery.settings.bgcolor} #{delivery.settings.background}>" escape="false" /-->
 <!--div class="portletBody"-->
  <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
- <!-- content... -->
 
+<!--JAVASCRIPT -->
+<script language="javascript" type="text/JavaScript">
+<%@ include file="/js/browser.js" %>
+</script>
+
+ <!-- content... -->
 <h:form id="takeAssessmentForm">
+<h:inputHidden id="isMacNetscapeBrowser" value="#{person.isMacNetscapeBrowser}" />
 
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
