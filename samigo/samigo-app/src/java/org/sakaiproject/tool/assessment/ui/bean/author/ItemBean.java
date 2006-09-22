@@ -33,8 +33,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -46,7 +44,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class ItemBean
   implements Serializable
 {
-  private static Log log = LogFactory.getLog(ItemBean.class);
+  //private static Log log = LogFactory.getLog(ItemBean.class);
 
   // internal use
   private static final String answerNumbers =
@@ -910,7 +908,7 @@ public class ItemBean
 	for (int i=0; i<defaultlength; i++){
 		AnswerBean answerbean = new AnswerBean();
        		answerbean.setSequence(new Long(i+1));
-       		answerbean.setLabel(AnswerBean.choiceLabels[i]);
+       		answerbean.setLabel(AnswerBean.getChoiceLabels()[i]);
                 
       		list.add(answerbean);
              
@@ -924,7 +922,7 @@ public class ItemBean
 
   public void toggleChoiceTypes(ValueChangeEvent event) {
 
-	FacesContext context = FacesContext.getCurrentInstance();
+	//FacesContext context = FacesContext.getCurrentInstance();
 	String type = (String) event.getNewValue();
 	if ((type == null) || type.equals(TypeFacade.MULTIPLE_CHOICE.toString())) {
 	  setMultipleCorrect(false);
@@ -979,7 +977,7 @@ public class ItemBean
               for (int i=currentsize; i<newlength; i++){
                   AnswerBean answerbean = new AnswerBean();
                   answerbean.setSequence(new Long(i+1));
-                  answerbean.setLabel(AnswerBean.choiceLabels[i]);
+                  answerbean.setLabel(AnswerBean.getChoiceLabels()[i]);
                   list.add(answerbean);
 
                 }
@@ -1032,7 +1030,7 @@ public class ItemBean
 		currentindex=currentindex+1;
 		// reset sequence and labels , shift the seq/labels after a choice is deleted
               		answerbean.setSequence(new Long(currentindex));
-                	answerbean.setLabel(AnswerBean.choiceLabels[currentindex-1]);
+                	answerbean.setLabel(AnswerBean.getChoiceLabels()[currentindex-1]);
 		}
           }
 

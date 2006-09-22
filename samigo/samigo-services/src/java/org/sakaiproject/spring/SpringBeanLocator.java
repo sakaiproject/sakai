@@ -23,15 +23,13 @@
 
 package org.sakaiproject.spring;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 
 public class SpringBeanLocator
 {
 
-  private static Log log = LogFactory.getLog(SpringBeanLocator.class);
+  //private static Log log = LogFactory.getLog(SpringBeanLocator.class);
   private static WebApplicationContext waCtx = null;
   private static ConfigurableApplicationContext caCtx = null;
   private static boolean inWebContext = false;
@@ -55,8 +53,8 @@ public class SpringBeanLocator
    */
   public void setApplicationContext(WebApplicationContext context)
   {
-    this.waCtx = context;
-    inWebContext = true;
+	  SpringBeanLocator.waCtx = context;
+	  SpringBeanLocator.inWebContext = true;
   }
 
   /**
@@ -67,8 +65,8 @@ public class SpringBeanLocator
   public void setConfigurableApplicationContext(ConfigurableApplicationContext
                                                 ca)
   {
-    this.caCtx = ca;
-    inWebContext = false;
+    SpringBeanLocator.caCtx = ca;
+    SpringBeanLocator.inWebContext = false;
   }
 
   public Object getBean(String name)

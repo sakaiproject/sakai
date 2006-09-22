@@ -66,7 +66,6 @@ public class XMLImportBean implements Serializable
   private AuthorBean authorBean;
   private AssessmentBean assessmentBean;
   private ItemAuthorBean itemAuthorBean;
-  private ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
 
   public XMLImportBean()
   {
@@ -93,6 +92,7 @@ public class XMLImportBean implements Serializable
     }
     catch (Exception ex)
     {
+      ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
       FacesMessage message = new FacesMessage( rb.getString("import_err") + ex );
       FacesContext.getCurrentInstance().addMessage(null, message);
     }

@@ -732,7 +732,7 @@ public class PublishedAssessmentSettingsBean
   }
 
   public void setHours(SelectItem[] hours) {
-    this.hours =  hours;
+    PublishedAssessmentSettingsBean.hours =  hours;
   }
 
   public SelectItem[] getMins() {
@@ -740,7 +740,7 @@ public class PublishedAssessmentSettingsBean
   }
 
   public void setMins(SelectItem[] mins) {
-    this.mins =  mins;
+    PublishedAssessmentSettingsBean.mins =  mins;
   }
 
   private static List months;

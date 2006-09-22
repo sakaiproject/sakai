@@ -22,14 +22,12 @@
 
 package org.sakaiproject.tool.assessment.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import javax.activation.MimetypesFileTypeMap;
 import java.io.File;
  
 public class MimeTypesLocator{
 
-  private static Log log = LogFactory.getLog(MimeTypesLocator.class);
+  //private static Log log = LogFactory.getLog(MimeTypesLocator.class);
   private static MimeTypesLocator instance = null;
   private static MimetypesFileTypeMap map = null;
 
@@ -41,7 +39,7 @@ public class MimeTypesLocator{
   }
 
   public void setMimetypesFileTypeMap(MimetypesFileTypeMap map){
-    this.map = map;
+    MimeTypesLocator.map = map;
   } 
 
   public MimetypesFileTypeMap getMimetypesFileTypeMap(){

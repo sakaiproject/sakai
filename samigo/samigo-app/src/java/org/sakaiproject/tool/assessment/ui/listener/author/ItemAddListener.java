@@ -30,15 +30,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import java.util.ResourceBundle;
 import javax.faces.context.FacesContext;
 import javax.faces.application.FacesMessage;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
@@ -70,9 +67,9 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class ItemAddListener
     implements ActionListener {
 
-  private static Log log = LogFactory.getLog(ItemAddListener.class);
-  private static ContextUtil cu;
-  private String scalename; // used for multiple choice Survey
+  //private static Log log = LogFactory.getLog(ItemAddListener.class);
+  //private static ContextUtil cu;
+  //private String scalename; // used for multiple choice Survey
   private boolean error=false;
   /**
    * Standard process action method.
@@ -80,18 +77,18 @@ public class ItemAddListener
    * @throws AbortProcessingException
    */
   public void processAction(ActionEvent ae) throws AbortProcessingException {
-      boolean correct=false;
+    //boolean correct=false;
     //log.info("ItemAdd LISTENER.");
-    ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
-    ItemBean item =itemauthorbean.getCurrentItem();
-    String iText=cu.stringWYSIWYG(item.getItemText());
-    String iInstruction=cu.stringWYSIWYG(item.getInstruction());
-    String iType=item.getItemType();
+    ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
+    ItemBean item = itemauthorbean.getCurrentItem();
+    String iText = ContextUtil.stringWYSIWYG(item.getItemText());
+    String iInstruction = ContextUtil.stringWYSIWYG(item.getInstruction());
+    String iType = item.getItemType();
     String err="";
     FacesContext context=FacesContext.getCurrentInstance();
    
     if((!iType.equals(TypeFacade.MATCHING.toString())&&((iText==null)||(iText.replaceAll("<.*?>", "").trim().equals(""))))|| (iType.equals(TypeFacade.MATCHING.toString()) && ((iInstruction==null)||(iInstruction.replaceAll("<.*?>", "").trim().equals(""))))){
-	String emptyText_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","emptyText_error");     
+	String emptyText_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","emptyText_error");     
 	context.addMessage(null,new FacesMessage(emptyText_err));
 	return;
 
@@ -106,7 +103,7 @@ public class ItemAddListener
         {   
             ArrayList l=item.getMatchItemBeanList();
 	    if (l==null || l.size()==0){
-		String noPairMatching_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","noMatchingPair_error");
+		String noPairMatching_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","noMatchingPair_error");
 		context.addMessage(null,new FacesMessage(noPairMatching_err));
 		error=true;
 	    }
@@ -117,7 +114,7 @@ public class ItemAddListener
     if(iType.equals(TypeFacade.FILL_IN_BLANK.toString())){
 	
 	if(isErrorFIB()){
-	    err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","pool_missingBracket_error");
+	    err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","pool_missingBracket_error");
 	    context.addMessage(null,new FacesMessage(err));
 	    item.setOutcome("fillInBlackItem");
 	    item.setPoolOutcome("fillInBlackItem");
@@ -128,7 +125,7 @@ public class ItemAddListener
     if(iType.equals(TypeFacade.FILL_IN_NUMERIC.toString())){
     	
     	if(isErrorFIN()){
-    	    err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","pool_missingBracket_error");
+    	    err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","pool_missingBracket_error");
     	    context.addMessage(null,new FacesMessage(err));
     	    item.setOutcome("fillInNumericItem");
     	    item.setPoolOutcome("fillInNumericItem");
@@ -149,7 +146,7 @@ public class ItemAddListener
     
 	
     public void checkMC(boolean isSingleSelect){
-	ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
+	ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 	ItemBean item =itemauthorbean.getCurrentItem();
         boolean correct=false;
         int countAnswerText=0;
@@ -164,14 +161,14 @@ public class ItemAddListener
 	FacesContext context=FacesContext.getCurrentInstance();
         int corrsize = item.getMultipleChoiceAnswers().size();
 	String[] corrChoices = new String[corrsize];
-	boolean correctChoice=false;
+	//boolean correctChoice=false;
         int counter=0;
        
 
 	if(item.getMultipleChoiceAnswers()!=null){
 	    while (iter.hasNext()) {
 		AnswerBean answerbean = (AnswerBean) iter.next();
-                String answerTxt=cu.stringWYSIWYG(answerbean.getText());
+                String answerTxt=ContextUtil.stringWYSIWYG(answerbean.getText());
 		if(answerTxt.replaceAll("<.*?>", "").trim().equals(""))
                     answerbean.setText("");
 		label = answerbean.getLabel();
@@ -180,7 +177,7 @@ public class ItemAddListener
 		corrChoices[counter]=label;
 		if(isCorrectChoice(item,label)&&((txt==null) ||(txt.equals("")))){          
                     error=true;
-		    String empty_correct_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","empty_correct_error");
+		    String empty_correct_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","empty_correct_error");
 		    context.addMessage(null,new FacesMessage(empty_correct_err+label));
 
 		}
@@ -197,14 +194,14 @@ public class ItemAddListener
 			    counter++;
                      
 			}
-	      
-			if(!label.equals(AnswerBean.choiceLabels[indexLabel])){
+	        
+			if(!label.equals(AnswerBean.getChoiceLabels()[indexLabel])){
 		
 			    missingchoices= true;
 			    if( missingLabel.equals(""))
-				missingLabel=missingLabel+" "+AnswerBean.choiceLabels[indexLabel];
+				missingLabel=missingLabel+" "+AnswerBean.getChoiceLabels()[indexLabel];
 			    else
-				missingLabel=missingLabel+", "+AnswerBean.choiceLabels[indexLabel];           
+				missingLabel=missingLabel+", "+AnswerBean.getChoiceLabels()[indexLabel];           
 			    indexLabel++;
 			}
 			indexLabel++;
@@ -216,26 +213,26 @@ public class ItemAddListener
         
 	    if(correct==false){
                 if(isSingleSelect){
-		    String singleCorrect_error=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","singleCorrect_error");
+		    String singleCorrect_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","singleCorrect_error");
                     context.addMessage(null,new FacesMessage(singleCorrect_error));
 	
 		}
                 else{
-		    String multiCorrect_error=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","multiCorrect_error");
+		    String multiCorrect_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","multiCorrect_error");
 		    context.addMessage(null,new FacesMessage(multiCorrect_error));
                 
 		}
 		error=true;
 
 	    } else if(countAnswerText<=1){
-		String answerList_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","answerList_error");
+		String answerList_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","answerList_error");
 		context.addMessage(null,new FacesMessage(answerList_err));
 		error=true;
 
 	    }
 	    else if(missingchoices){
       
-            	String selectionError=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","missingChoices_error");
+            	String selectionError=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","missingChoices_error");
 		context.addMessage(null,new FacesMessage(selectionError+missingLabel));
 		error=true;
 	
@@ -253,7 +250,7 @@ public class ItemAddListener
     }
 
     public boolean isErrorFIB() {
-	ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
+	ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 	ItemBean item =itemauthorbean.getCurrentItem();
 	int index=0;
 	boolean FIBerror=false;
@@ -316,11 +313,11 @@ public class ItemAddListener
 }
 	
     public boolean isErrorFIN() {
-    	ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
+    	ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
     	ItemBean item =itemauthorbean.getCurrentItem();
     	int index=0;
     	boolean FINerror=false;
-    	String err="";
+    	//String err="";
     	boolean hasOpen=false;
     	int opencount=0;
     	int closecount=0;
@@ -507,7 +504,7 @@ public class ItemAddListener
 
         }
 
-        QuestionPoolBean qpoolbean = (QuestionPoolBean) cu.lookupBean(
+        QuestionPoolBean qpoolbean = (QuestionPoolBean) ContextUtil.lookupBean(
             "questionpool");
 
         qpoolbean.buildTree();
@@ -532,7 +529,7 @@ public class ItemAddListener
           SectionFacade section;
 
 	  if ("-1".equals(bean.getSelectedSection())) {
-	    AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean("assessmentBean");
+	    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
 // add a new section
       	    section = assessdelegate.addSection(assessmentBean.getAssessmentId());
           }
@@ -615,7 +612,7 @@ public class ItemAddListener
         }
 
         // #1a - goto editAssessment.jsp, so reset assessmentBean
-        AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
+        AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
             "assessmentBean");
         AssessmentFacade assessment = assessdelegate.getAssessment(
             assessmentBean.getAssessmentId());
@@ -664,7 +661,7 @@ public class ItemAddListener
         if (answerbean.getSequence().equals(choicebean.getSequence())) {
           answer = new Answer(choicetext, stripPtags(answerbean.getMatch()),
                               answerbean.getSequence(),
-			      AnswerBean.choiceLabels[answerbean.getSequence().intValue()-1],
+			      AnswerBean.getChoiceLabels()[answerbean.getSequence().intValue()-1],
                               Boolean.TRUE, null,
                               new Float(bean.getItemScore()));
 
@@ -684,7 +681,7 @@ public class ItemAddListener
         else {
           answer = new Answer(choicetext, stripPtags(answerbean.getMatch()),
                               answerbean.getSequence(),
-			      AnswerBean.choiceLabels[answerbean.getSequence().intValue()-1],
+			      AnswerBean.getChoiceLabels()[answerbean.getSequence().intValue()-1],
                               Boolean.FALSE, null, new Float(bean.getItemScore()));
         }
 
@@ -792,44 +789,44 @@ public class ItemAddListener
       // label is null because we don't use labels in survey
       if (ItemMetaDataIfc.SURVEY_YES.equals(scalename)) {
         choices = new String[2];
-        choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","no");
-        choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","yes");
+        choices[0] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","no");
+        choices[1] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","yes");
       }
 
       if (ItemMetaDataIfc.SURVEY_AGREE.equals(scalename)) {
         choices = new String[2];
-        choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","disagree");
-        choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","agree");
+        choices[0] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","disagree");
+        choices[1] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","agree");
       }
       if (ItemMetaDataIfc.SURVEY_UNDECIDED.equals(scalename)) {
         choices = new String[3];
-        choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","disagree");
-        choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","undecided");
-        choices[2] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","agree");
+        choices[0] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","disagree");
+        choices[1] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","undecided");
+        choices[2] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","agree");
       }
 
       if (ItemMetaDataIfc.SURVEY_AVERAGE.equals(scalename)) {
         choices = new String[3];
-        choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","below_average");
-        choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","average");
-        choices[2] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","above_average");
+        choices[0] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","below_average");
+        choices[1] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","average");
+        choices[2] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","above_average");
       }
       if (ItemMetaDataIfc.SURVEY_STRONGLY_AGREE.equals(scalename)) {
         choices = new String[5];
-        choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","strongly_disagree");
-        choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","disagree");
-        choices[2] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","undecided");
-        choices[3] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","agree");
-        choices[4] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","strongly_agree");
+        choices[0] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","strongly_disagree");
+        choices[1] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","disagree");
+        choices[2] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","undecided");
+        choices[3] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","agree");
+        choices[4] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","strongly_agree");
       }
 
       if (ItemMetaDataIfc.SURVEY_EXCELLENT.equals(scalename)) {
         choices = new String[5];
-        choices[0] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","unacceptable");
-        choices[1] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","below_average");
-        choices[2] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","average");
-        choices[3] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","above_average");
-        choices[4] = cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","excellent");
+        choices[0] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","unacceptable");
+        choices[1] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","below_average");
+        choices[2] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","average");
+        choices[3] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","above_average");
+        choices[4] = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","excellent");
       }
       if (ItemMetaDataIfc.SURVEY_5.equals(scalename)) {
         choices = new String[5];
@@ -1131,7 +1128,7 @@ public class ItemAddListener
   public boolean isCorrectChoice(ItemBean bean, String label) {
     boolean returnvalue = false;
     if (!bean.getMultipleCorrect()) {
-      String corranswer = cu.lookupParam("itemForm:selectedRadioBtn");
+      String corranswer = ContextUtil.lookupParam("itemForm:selectedRadioBtn");
       if (corranswer.equals(label)) {
         returnvalue = true;
       }
@@ -1140,7 +1137,7 @@ public class ItemAddListener
       }
     }
     else {
-      ArrayList corranswersList = cu.paramArrayValueLike(
+      ArrayList corranswersList = ContextUtil.paramArrayValueLike(
           "mccheckboxes");
       Iterator iter = corranswersList.iterator();
       while (iter.hasNext()) {
@@ -1249,6 +1246,7 @@ Object[] fibanswers = getFIBanswers(entiretext).toArray();
   } 
 
   //This is not in use
+  /*
   private boolean isValidMutualExclusiveFIN(ItemBean bean){
 	    // all answer sets have to be identical, case insensitive
 
@@ -1284,5 +1282,5 @@ Object[] fibanswers = getFIBanswers(entiretext).toArray();
 
 	    return !invalid; 
 	  } 
-  
+  */
 }

@@ -65,7 +65,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entity.impl.ReferenceComponent;
 
 import org.sakaiproject.content.api.ContentResource;
@@ -144,7 +143,7 @@ public class AssessmentSettingsBean
 
   // properties of AssesmentFeedback
   private String feedbackDelivery; // immediate, on specific date , no feedback
-  private String editComponents; // 0 = cannot
+  //private String editComponents; // 0 = cannot
   private boolean showQuestionText = true;
   private boolean showStudentResponse = false;
   private boolean showCorrectResponse = false;
@@ -888,7 +887,7 @@ public class AssessmentSettingsBean
   }
 
   public void setHours(SelectItem[] hours) {
-    this.hours =  hours;
+    AssessmentSettingsBean.hours =  hours;
   }
 
   public SelectItem[] getMins() {
@@ -896,7 +895,7 @@ public class AssessmentSettingsBean
   }
 
   public void setMins(SelectItem[] mins) {
-    this.mins =  mins;
+    AssessmentSettingsBean.mins =  mins;
   }
 
   private static List months;

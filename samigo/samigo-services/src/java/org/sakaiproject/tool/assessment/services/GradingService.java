@@ -1079,12 +1079,12 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
     
     String answertext = ((AnswerIfc)publishedAnswerHash.get(data.getPublishedAnswerId())).getText();
-    Long itemId = itemdata.getItemId();
+    //Long itemId = itemdata.getItemId();
 
     // not used for now
     //String mutuallyexclusive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIN);
     
-    Set answerSet = new HashSet();
+    //Set answerSet = new HashSet();
 
     float totalScore = (float) 0;
 
