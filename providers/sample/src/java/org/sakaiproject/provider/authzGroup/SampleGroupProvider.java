@@ -237,8 +237,7 @@ public class SampleGroupProvider implements GroupProvider
 	{
 		update();
 
-		// use our special map that resolves compound id keys
-		Map rv = new MyMap();
+		Map rv = new HashMap();
 
 		if (m_usersa.contains(userId))
 		{
@@ -282,32 +281,19 @@ public class SampleGroupProvider implements GroupProvider
 		return rv;
 	}
 
-	public class MyMap extends HashMap
+	/**
+	 * {@inheritDoc}
+	 */
+	public String preferredRole(String one, String other)
 	{
-		/**
-		 * {@inheritDoc}
-		 */
-		public Object get(Object key)
-		{
-			// if we have this key exactly, use it
-			Object value = super.get(key);
-			if (value != null) return value;
-
-			// otherwise break up key as a compound id and find what values we have for these
-			// the values are roles, and we prefer "maintain" to "access"
-			String rv = null;
-			String[] ids = unpackId((String) key);
-			for (int i = 0; i < ids.length; i++)
-			{
-				value = super.get(ids[i]);
-				if ((value != null) && !("maintain".equals(rv)))
-				{
-					rv = (String) value;
-				}
-			}
-
-			return rv;
-		}
+		// maintain is better than access
+		if ("maintain".equals(one) || ("maintain".equals(other))) return "maintain";
+		
+		// access is better than nothing
+		if ("access".equals(one) || ("access".equals(other))) return "access";
+		
+		// something we don't know, so we just return the latest role found
+		return one;
 	}
 
 	protected void update()

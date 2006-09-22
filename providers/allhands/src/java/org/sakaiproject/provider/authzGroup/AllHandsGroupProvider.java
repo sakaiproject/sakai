@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2006 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -21,13 +21,8 @@
 
 package org.sakaiproject.provider.authzGroup;
 
-import java.io.FileInputStream;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.List;
-import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -133,7 +128,7 @@ public class AllHandsGroupProvider implements GroupProvider
 	 *    h23.groups.ruk.dk+course.eecs280 
 	 *
 	 * to indicate thatr membership in either group is OK.
-         *
+     *
 	 * To indicate membership in multiple groups in *this routine* add 
 	 * additional entries in the hash map (i.e. do not use the + notation
 	 * in this routine).
@@ -171,4 +166,18 @@ public class AllHandsGroupProvider implements GroupProvider
 		return rv;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public String preferredRole(String one, String other)
+	{
+		// maintain is better than access
+		if ("maintain".equals(one) || ("maintain".equals(other))) return "maintain";
+		
+		// access is better than nothing
+		if ("access".equals(one) || ("access".equals(other))) return "access";
+		
+		// something we don't know, so we just return the latest role found
+		return one;
+	}
 }

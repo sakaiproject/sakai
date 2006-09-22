@@ -69,7 +69,7 @@ public class CourseManagementGroupProvider implements GroupProvider {
 	 */
 	public Map getUserRolesForGroup(String id) {
 		if(log.isDebugEnabled()) log.debug("------------------CMGP.getUserRolesForGroup(" + id + ")");
-		Map userRoleMap = new KeySplittingMap();
+		Map userRoleMap = new HashMap();
 		
 		String[] sectionEids = unpackId(id);
 		if(log.isDebugEnabled()) log.debug(id + " is mapped to " + sectionEids.length + " sections");
@@ -102,7 +102,7 @@ public class CourseManagementGroupProvider implements GroupProvider {
 	 */
 	public Map getGroupRolesForUser(String userEid) {
 		if(log.isDebugEnabled()) log.debug("------------------CMGP.getGroupRolesForUser(" + userEid + ")");
-		Map groupRoleMap = new KeySplittingMap();
+		Map groupRoleMap = new HashMap();
 		
 		for(Iterator rrIter = roleResolvers.iterator(); rrIter.hasNext();) {
 			RoleResolver rr = (RoleResolver)rrIter.next();
@@ -156,30 +156,11 @@ public class CourseManagementGroupProvider implements GroupProvider {
 	}
 	
 	/**
-	 * A custom map implementation, required by the authz / group provider architecture,
-	 * that checks inside compound IDs when looking up keys.
-	 *
+	 * {@inheritDoc}
 	 */
-	public class KeySplittingMap extends HashMap {
-		private static final long serialVersionUID = -6810251970110503758L;
-
-		public Object get(Object key) {
-			// if we have this key exactly, use it
-			Object value = super.get(key);
-			if (value != null) return (String)value;
-
-			// If the key wasn't found, break it up as a compound id
-			// The role resolvers ensure that we have only one role per key, so just return the first one we find
-			String[] ids = unpackId((String) key);
-			for (int i = 0; i < ids.length; i++) {
-				value = super.get(ids[i]);
-				if ((value != null)) {
-					return value;
-				}
-			}
-			
-			// If even the exploded keys can't be located, return null
-			return null;
-		}
+	public String preferredRole(String one, String other) {
+		// pick the first one found - that would be 'other' if not null, otherwise 'one'
+		if (other != null) return other;
+		return one;
 	}
 }
