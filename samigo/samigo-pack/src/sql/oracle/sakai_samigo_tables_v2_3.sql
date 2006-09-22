@@ -168,7 +168,6 @@ alter table SAM_PUBLISHEDSECUREDIP_T add constraint FK1EDEA25B9482C945 foreign k
 alter table SAM_QUESTIONPOOLITEM_T add constraint FKF0FAAE2A39ED26BB foreign key (QUESTIONPOOLID) references SAM_QUESTIONPOOL_T;
 alter table SAM_SECTIONMETADATA_T add constraint FK762AD74970CE2BD foreign key (SECTIONID) references SAM_SECTION_T;
 alter table SAM_SECTION_T add constraint FK364450DACAC2365B foreign key (ASSESSMENTID) references SAM_ASSESSMENTBASE_T;
-alter table SAM_SECTION_T add constraint FK364450DA694216CC foreign key (ASSESSMENTID) references SAM_ASSESSMENTBASE_T;
 alter table SAM_SECUREDIP_T add constraint FKE8C55FE9694216CC foreign key (ASSESSMENTID) references SAM_ASSESSMENTBASE_T;
 create sequence SAM_ANSWERFEEDBACK_ID_S;
 create sequence SAM_ANSWER_ID_S;
