@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.faces.context.FacesContext;
@@ -40,19 +41,11 @@ import javax.faces.event.ValueChangeListener;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.business.entity.RecordingData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
-import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
-import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
@@ -72,9 +65,9 @@ public class SubmissionStatusListener
   implements ActionListener, ValueChangeListener
 {
   private static Log log = LogFactory.getLog(SubmissionStatusListener.class);
-  private static EvaluationListenerUtil util;
+  //private static EvaluationListenerUtil util;
   private static BeanSort bs;
-  private static ContextUtil cu;
+  //private static ContextUtil cu;
 
   /**
    * Standard process action method.
@@ -89,11 +82,11 @@ public class SubmissionStatusListener
     Map requestParams = context.getExternalContext().
                         getRequestParameterMap();
     //log.info("Submission Status LISTENER.");
-    SubmissionStatusBean bean = (SubmissionStatusBean) cu.lookupBean("submissionStatus");
-    TotalScoresBean totalScoresBean = (TotalScoresBean) cu.lookupBean("totalScores");
+    SubmissionStatusBean bean = (SubmissionStatusBean) ContextUtil.lookupBean("submissionStatus");
+    TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 
     // we probably want to change the poster to be consistent
-    String publishedId = cu.lookupParam("publishedId");
+    String publishedId = ContextUtil.lookupParam("publishedId");
     //log.info("Got publishedId " + publishedId);
 
     // Reset the search field
@@ -112,11 +105,11 @@ public class SubmissionStatusListener
   public void processValueChange(ValueChangeEvent event)
   {
     log.debug("QuestionScore CHANGE LISTENER.");
-    SubmissionStatusBean bean = (SubmissionStatusBean) cu.lookupBean("submissionStatus");
-    TotalScoresBean totalScoresBean = (TotalScoresBean) cu.lookupBean("totalScores");
+    SubmissionStatusBean bean = (SubmissionStatusBean) ContextUtil.lookupBean("submissionStatus");
+    TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 
     // we probably want to change the poster to be consistent
-    String publishedId = cu.lookupParam("publishedId");
+    String publishedId = ContextUtil.lookupParam("publishedId");
 
     String selectedvalue= (String) event.getNewValue();
     if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
@@ -168,7 +161,7 @@ public class SubmissionStatusListener
       bean.setPublishedId(publishedId);
       // we are only interested in showing last submissions
 
-      ArrayList scores = delegate.getLastSubmittedAssessmentGradingList(new Long(publishedId));
+      List scores = delegate.getLastSubmittedAssessmentGradingList(new Long(publishedId));
       ArrayList agents = new ArrayList();
       Iterator iter = scores.iterator();
       if (!iter.hasNext())
@@ -176,7 +169,7 @@ public class SubmissionStatusListener
         // this section has no students
       bean.setAgents(agents);
       bean.setAllAgents(agents);
-      bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
+      bean.setTotalPeople(Integer.toString(bean.getAgents().size()));
       return true;
       }
 
@@ -203,9 +196,9 @@ public class SubmissionStatusListener
         bean.setAssessmentName(pub.getTitle());
       }
 
-      if (cu.lookupParam("roleSelection") != null)
+      if (ContextUtil.lookupParam("roleSelection") != null)
       {
-        bean.setRoleSelection(cu.lookupParam("roleSelection"));
+        bean.setRoleSelection(ContextUtil.lookupParam("roleSelection"));
       }
 
       if (bean.getSortType() == null)
