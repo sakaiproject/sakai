@@ -23,6 +23,16 @@ body {
     left : 37px;
 }
 
+.indnt4 {
+	position: relative;
+	left: 59px;
+}
+
+.indnt6 {
+	position : relative;
+	left : -18px;
+}
+
 .podcatcher_popup {
   margin-top: 4px;
   margin-bottom: 4px;

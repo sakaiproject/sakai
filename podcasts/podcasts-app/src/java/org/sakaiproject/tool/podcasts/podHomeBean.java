@@ -345,7 +345,7 @@ public class podHomeBean {
 	private DecoratedPodcastBean selectedPodcast;
 
 	// used by podAdd.jsp for adding a podcast
-	private String filename;
+	private String filename = "";
 	private String date = "";
 	private String title;
 	private String description;
@@ -360,10 +360,10 @@ public class podHomeBean {
 			new SelectItem("high", "High - All participants") };
 
 	// error handling variables
-	private boolean displayNoFileErrMsg;
-	private boolean displayNoDateErrMsg;
-	private boolean displayNoTitleErrMsg;
-	private boolean displayInvalidDateErrMsg;
+	private boolean displayNoFileErrMsg = false;
+	private boolean displayNoDateErrMsg = false;
+	private boolean displayNoTitleErrMsg = false;
+	private boolean displayInvalidDateErrMsg = false;
 
 	public podHomeBean() {
 	}
@@ -1323,6 +1323,11 @@ public class podHomeBean {
 	public String processCancelRevise() {
 		selectedPodcast = null;
 		displayInvalidDateErrMsg = false;
+		date = null;
+		title = "";
+		description = "";
+		fileAsStream = null;
+		filename = "";
 
 		return "cancel";
 	}
