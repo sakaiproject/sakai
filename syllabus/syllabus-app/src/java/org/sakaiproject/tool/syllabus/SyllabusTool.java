@@ -1251,7 +1251,8 @@ public String processDeleteCancel()
       }
       else
       {
-    	syllabusItem.setRedirectURL(currentRediredUrl);
+      	currentRediredUrl = currentRediredUrl.replaceAll("\"", ""); 
+    	  syllabusItem.setRedirectURL(currentRediredUrl);
         syllabusManager.saveSyllabusItem(syllabusItem);
 
         entries.clear();
