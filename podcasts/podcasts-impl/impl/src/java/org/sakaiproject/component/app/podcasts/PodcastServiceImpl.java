@@ -298,7 +298,7 @@ public class PodcastServiceImpl implements PodcastService {
 
 				 aResource = (ContentResource) podcastIter.next();
 				
-				if (aResource.isResource()) {
+				if (aResource.isResource() && aResource.getProperties().getProperty(ResourceProperties.PROP_ORIGINAL_FILENAME) != null) {
 					filteredResources.add(aResource);
 				
 				}
