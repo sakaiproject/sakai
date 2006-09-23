@@ -157,7 +157,6 @@ public interface DavManager
 	/**
 	 * 
 	 * @param entityId
-	 * @param propertyName
 	 * 
 	 * @return
 	 * 
@@ -242,6 +241,23 @@ public interface DavManager
 	public void davRename(String oldId, String newId, boolean overwrite) 
 			throws PermissionException, IdUsedException, InconsistentException, IdLengthException, 
 					InUseException, TypeException, ServerOverloadException;
+	
+	/**
+	 * 
+	 * @param entityId
+	 * @param contentType
+	 * 
+	 * @return
+	 * 
+	 * @throws PermissionException
+	 *            if the user does not have permission to access this entity.
+	 * @throws IdUnusedException
+	 *            if the entity specified by the id does not exist.
+	 * @throws TypeException
+	 *            if the entity specified by the id exists and is a collection.
+	 */
+	public String davSetContentType(String entityId, String contentType) 
+			throws PermissionException, IdUnusedException, TypeException;
 	
 	/**
 	 * 
