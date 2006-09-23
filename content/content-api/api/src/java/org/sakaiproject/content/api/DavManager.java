@@ -12,10 +12,39 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 
+/**
+ * 
+ * 
+ *
+ */
 public interface DavManager 
 {
 	/**
+	 * Copies a resource or collection along with all attributes and properties.  
+	 * If the parameter overwrite is true, replace existing entity (or entities).  
+	 * If the parameter oldId identifies a collection and the parameter recursive
+	 * is true, copy the entire hierarchy of collections and resources rooted at
+	 * oldId. If the parameter oldId identifies a collection and the parameter 
+	 * recursive is false, copy only the entity oldId. The copy succeeds unless 
+	 * one of these errors occurs:
+	 * <ul>
+	 *  <li>no entity exists with the identifier oldId</li>
+	 *  <li>the user does not have permission to access the entity oldId</li>
+	 *  <li>the user does not have permission to create the entity newId</li>
+	 *  <li>overwrite is true, the entity newId exists, and the user does not have permission to modify/delete oldId</li>
+	 *  <li>overwrite is true, the entity newId exists, and the entity newId (or one of its members) is in use by another user</li>
+	 *  <li>overwrite is false and the entity newId already exists</li>
+	 *  <li>the containing collection for newId does not exist</li>
+	 *  <li>newId is too long to be used as a resource-id or collection-id</li>
+	 *  <li>either oldId or newId identifies a collection and the other identifies a resource</li>
+	 *  <li>the server is configured to write the resource body to the filesystem and an attempt to save the resource body fails</li>
+	 * </ul>
+	 * TODO: if overwrite is true, recursive is false and newId exists, is it an error if newId is not empty? 
+	 * what should happen to items contained by newId if recursive is false or if there are not entities with 
+	 * corresponding id's in oldId?
+	 * TODO: when replacing an existing entity, does user need permission to 'modify' or 'delete' the existing entity?
 	 * 
 	 * @param oldId
 	 * @param newId
@@ -26,7 +55,9 @@ public interface DavManager
 	 *            if the user does not have permission to delete 
 	 *            the existing entity or create the new entity.
 	 * @throws IdUsedException
-	 *            if overwrite is false and the id is already in use.
+	 *            if overwrite is false and the newId is already in use.
+	 * @throws IdUnusedException
+	 *            if oldIdd does not exist.
 	 * @throws InconsistentException
 	 *            if the containing collection (for newId) does not exist.
 	 * @throws IdLengthException
@@ -35,6 +66,10 @@ public interface DavManager
 	 *            if the entity specified by oldId is currently in use 
 	 *            by another user or, if overwrite is true, the entity 
 	 *            identified by newId exists and is in use by another user.
+	 * @throws TypeException
+	 *            if newId and oldId do not identify the same kind of entities 
+	 *            (must both be identifiers for collections OR must both
+	 *            be identifiers for collections)
 	 * @throws ServerOverloadException
 	 *            if the server is configured to write the resource body to the 
 	 *            filesystem and an attempt to save the resource body fails. 
@@ -67,13 +102,14 @@ public interface DavManager
 	 * if newid exists and is resource, update its contents, retaining properities; 
 	 * however delete followed by create is  OK as long as it preserves the  old
 	 * properties
+	 * 
 	 * @param newId
 	 * @param content
 	 * @param contenttype
 	 * 
 	 * @throws PermissionException
 	 *            if the user does not have permission to create this entity.
-	 * @throws IdUsedException
+	 * @throws TypeException
 	 *            if the id is already in use and identifies a collection. 
 	 *            TODO: Is this the right exception in that case?
 	 * @throws InconsistentException
@@ -87,11 +123,12 @@ public interface DavManager
 	 *            filesystem and an attempt to save the resource body fails.
 	 */
 	public void davCreateResource(String newId, InputStream content, String contentType) 
-			throws PermissionException, InconsistentException, IdLengthException, 
+			throws PermissionException, TypeException, InconsistentException, IdLengthException, 
 					InUseException, ServerOverloadException;
 	
 	/**
-	 * Delete a collection or resource.
+	 * Delete a collection or resource. If entity is a non-empty collection,
+	 * remove it and everything it contains.
 	 * 
 	 * @param entityId
 	 * @throws PermissionException
@@ -128,11 +165,52 @@ public interface DavManager
 	 *            if the user does not have permission to access this entity.
 	 * @throws IdUnusedException
 	 *            if the entity specified by the id does not exist.
+	 * @throws TypeException
+	 *            if the entity specified by the id exists and is a collection.
+	 */
+	public String davGetContentType(String entityId) 
+			throws PermissionException, IdUnusedException, TypeException;
+	
+	/**
+	 * 
+	 * @param entityId
+	 * @param propertyName
+	 * 
+	 * @return
+	 * 
+	 * @throws PermissionException
+	 *            if the user does not have permission to access this entity.
+	 * @throws IdUnusedException
+	 *            if the entity specified by the id does not exist.
 	 */
 	public String davGetProperty(String entityId, String propertyName) 
 			throws PermissionException, IdUnusedException;
-	
+
 	/**
+	 * Moves a resource or collection along with all attributes and properties,
+	 * unless the entity identified by newId exists, in which case certain 
+	 * properties and attributes are retained for existing entities that are 
+	 * being replaced.   
+	 * If the parameter overwrite is true, replace existing entity (or entities).  
+	 * If the parameter oldId identifies a collection, move the entire hierarchy 
+	 * of collections and resources rooted at oldId. The copy succeeds unless 
+	 * one of these errors occurs:
+	 * <ul>
+	 *  <li>no entity exists with the identifier oldId</li>
+	 *  <li>the user does not have permission to access the entity oldId</li>
+	 *  <li>the user does not have permission to create the entity newId</li>
+	 *  <li>overwrite is true, the entity newId exists, and the user does not have permission to modify/delete oldId</li>
+	 *  <li>overwrite is true, the entity newId exists, and the entity newId (or one of its members) is in use by another user</li>
+	 *  <li>overwrite is false and the entity newId already exists</li>
+	 *  <li>the containing collection for newId does not exist</li>
+	 *  <li>newId is too long to be used as a resource-id or collection-id</li>
+	 *  <li>either oldId or newId identifies a collection and the other identifies a resource</li>
+	 *  <li>the server is configured to write the resource body to the filesystem and an attempt to save the resource body fails</li>
+	 * </ul>
+	 * TODO: if overwrite is true and newId exists, is it an error if newId is not empty? 
+	 * what should happen to items contained by newId if there are not entities with 
+	 * corresponding id's in oldId?
+	 * TODO: when replacing an existing entity, does user need permission to 'modify' or 'delete' the existing entity?
 	 * 
 	 * @param oldId
 	 * @param newId
@@ -142,7 +220,9 @@ public interface DavManager
 	 *            if the user does not have permission to delete 
 	 *            the existing entity or create the new entity.
 	 * @throws IdUsedException
-	 *            if overwrite is false and the id is already in use.
+	 *            if overwrite is false and the newId is already in use.
+	 * @throws IdUnusedException
+	 *            if oldIdd does not exist.
 	 * @throws InconsistentException
 	 *            if the containing collection (for newId) does not exist.
 	 * @throws IdLengthException
@@ -151,15 +231,17 @@ public interface DavManager
 	 *            if the entity specified by oldId is currently in use 
 	 *            by another user or, if overwrite is true, the entity 
 	 *            identified by newId exists and is in use by another user.
+	 * @throws TypeException
+	 *            if newId and oldId do not identify the same kind of entities 
+	 *            (must both be identifiers for collections OR must both
+	 *            be identifiers for collections)
 	 * @throws ServerOverloadException
 	 *            if the server is configured to write the resource body to the 
 	 *            filesystem and an attempt to save the resource body fails. 
-	 *            (May be avoidable if rename does not actually require moving
-	 *            the bytes around).
 	 */
 	public void davRename(String oldId, String newId, boolean overwrite) 
-			throws PermissionException, InconsistentException, IdLengthException, 
-					InUseException, ServerOverloadException;
+			throws PermissionException, IdUsedException, InconsistentException, IdLengthException, 
+					InUseException, TypeException, ServerOverloadException;
 	
 	/**
 	 * 
@@ -199,49 +281,5 @@ public interface DavManager
 	 *            if the entity specified by the id does not exist.
 	 */
 	public OutputStream davStreamContent(String entityId) throws PermissionException, IdUnusedException;
-	
-	/*
-create(newid, contentstream, contenttype)
-   error if newid exists and is collection
-   if newid exists and is resource, ideally you just update its    contents, retaining
-properities; however delete followed by create   is  OK as long as you preserve the  old
-properties
-   error if file name is too long
-   ancestors must exist, or error
-   If resource did not exist, use specified content type, if  any.  If contenttype is
-null, look at the extension. If no extension or  unknown, I'd probably call it
-text/plain,  though  if you feel  strongly about application/binary I'll accept  that as 
-long as you  don't add .bin
-
-The DAV operation will often get a MIME type from the client. If it's  specified, you
-should use it.
-
-If you'd prefer for your code not to know about extensions and mime  types, you can ask
-me to pass the contenttype in all cases.
-
-rename(oldid, newid, boolean overwrite)
-    works for resources or collections
-    may change name, move to new location, or both
-    error if file name is too long
-    if newid exists, delete it if overwrite set, else error
-    ancestors must exist, or error
-    all properties should be retained, where possible.
-       there's some question about mime type. According to the  spec,  renaming foo.pdf
-to foo.xls should leave it as mime type  pdf. That  seems highly counterintuitive. I
-would recommend  resetting mime type,  with missing or unrecognized extensions  using
-text/plain.
-
-copy(oldid, newid, boolean overwrite, boolean recursive)
-    works for resources or collections
-    if newid exists, delete it if overwrite set, else error
-    error if file name is too long
-    ancestors must exist, or error
-    all properties should be retained, where possible.
-       there's some question about mime type. see rename
-    if old is a collection, if recursive is set, copy all members   recursively with
-infinite depth. otherwise copy only the  collection  and any properties
-
-	 */
-	
 	
 }
