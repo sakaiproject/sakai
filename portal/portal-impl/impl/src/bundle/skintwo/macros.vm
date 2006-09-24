@@ -158,7 +158,7 @@
 				<li class="makeMenu"><a href="#"><span>${path.name}</span></a>
 					<ul class="hierarchyDropDown" >
 #foreach ( $child in $path.children )
-				<li class="hierarchyDropDown"><a href="${child.url}" >${child.name}</a></li>
+				<li class="hierarchyDropDown">&nbsp;&nbsp;&nbsp;&nbsp;<a href="${child.url}" >&gt;&gt;${child.name}</a></li>
 #end				
 					</ul>
 				</li>
@@ -167,7 +167,7 @@
 				<li class="makeMenu" ><a href="${path.url}" >${path.name}</a>
 					<ul  class="hierarchyDropDown"  >
 #foreach ( $child in $path.children )
-				<li class="hierarchyDropDown"><a href="${child.url}" >${child.name}</a></li>
+				<li class="hierarchyDropDown">&nbsp;&nbsp;&nbsp;&nbsp;<a href="${child.url}" >&gt;&gt;${child.name}</a></li>
 #end				
 					</ul>
 				</li>

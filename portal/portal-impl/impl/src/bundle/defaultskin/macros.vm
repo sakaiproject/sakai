@@ -17,14 +17,6 @@
     <title>${pageTitle}</title>
     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}/headscripts.js"></script>
     <script type="text/javascript" language="JavaScript" src="/library/scripts/portalscripts.js"></script>
-    <style type="text/css" >
-div.skinselection {
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    z-index: 1;
-}
-    </style>
 </head>
 <body class="portalBody">
 <div class="skinselection" >

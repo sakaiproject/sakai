@@ -61,6 +61,22 @@ ul.makeMenu li.makeMenu:hover > ul.hierarchyDropDown {    /* one of the most imp
   display: block;              /* makes the child block visible - one of the most important declarations */
 }
 /* and some link styles */
-ul.makeMenu li a { color: #fff; display: inline; width: 100%; text-decoration: underline; }
-ul.makeMenu li a:hover, ul.makeMenu li a.CSStoHighLink { color: #000; }
-ul.makeMenu li:hover > a { color: #000; } /* supports links in branch headings - must not be display: block; */
+ul.makeMenu li.makeMenu a { color: #fff; display: inline; width: 100%; text-decoration: underline; }
+ul.makeMenu li.makeMenu a:hover, ul.makeMenu li a.CSStoHighLink { color: #000; }
+ul.makeMenu li.makeMenu:hover > a { color: #000; } /* supports links in branch headings - must not be display: block; */
+
+ul.makeMenu li.hierarchyDropDown a { color: #fff; display: inline; width: 100%; text-decoration: none; }
+ul.makeMenu li.hierarchyDropDown a:hover, ul.makeMenu li a.CSStoHighLink { color: #000; }
+ul.makeMenu li.hierarchyDropDown:hover > a { color: #000; } /* supports links in branch headings - must not be display: block; */
+
+
+#headerMax{
+	overflow:visible;
+}
+
+div.skinselection {
+    position: absolute;
+    top: 400px;
+    left: 2px;
+    z-index: 1;
+}
