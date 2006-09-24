@@ -150,14 +150,27 @@
 	<div id="siteNav">
 		<div id="linkNav">
 			<a id="sitetabs" class="skip" name="sitetabs"></a>
-			<ul id="siteLinkList" >
+			<ul idx="siteLinkList" class="makeMenu" >
 			    <li>Hierarchy Path</li>
 			    
 #foreach ( $path in $portalPath )
 #if ( ${path.current} )
-				<li class="selectedTab"><a href="#"><span>${path.name}</span></a></li>
+				<li class="selectedTab"><a href="#"><span>${path.name}</span></a>
+					<ul>
+#foreach ( $child in $path.children )
+				<li><a href="${child.url}" >${child.name}</a></li>
+#end				
+					</ul>
+				</li>
+				
 #else
-				<li><a href="${path.url}" >${path.name}</a></li>
+				<li><a href="${path.url}" >${path.name}</a>
+					<ul>
+#foreach ( $child in $path.children )
+				<li><a href="${child.url}" >${child.name}</a></li>
+#end				
+					</ul>
+				</li>
 #end
 #end
 				<li style="border-width: 0pt; display: none;" class="fixTabsIE">
@@ -165,14 +178,6 @@
 					<a href="javascript:void(0);">#x20;</a>
 				</li>
 			</ul>
-		</div>
-		<div id="selectNav">
-			<select onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">
-				<option value="" selected="selected">${tabsSitMore}</option>
-#foreach ( $child in $portalPathChildren ) 
-				<option title="${child.name}" value="${child.url}">${child.name}</option> 
-#end
-			</select>
 		</div>
 	</div>
 </div>

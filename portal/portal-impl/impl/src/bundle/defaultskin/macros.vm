@@ -9,9 +9,14 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
+    <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
+<!--[if gte IE 5]><![if lt IE 7]>
+    <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
+<![endif]><![endif]-->
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <title>${pageTitle}</title>
     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}/headscripts.js"></script>
+    <script type="text/javascript" language="JavaScript" src="/library/scripts/portalscripts.js"></script>
     <style type="text/css" >
 div.skinselection {
     position: absolute;

@@ -1,0 +1,6 @@
+ul.makeMenu li {  /* the behaviour to mimic the li:hover rules in IE 5+ */
+	behavior: url( ../scripts/IEmen.htc );
+}
+ul.makeMenu ul {  /* copy of above declaration without the > selector */
+	display: none; position: absolute; top: 2px; left: 78px;
+}

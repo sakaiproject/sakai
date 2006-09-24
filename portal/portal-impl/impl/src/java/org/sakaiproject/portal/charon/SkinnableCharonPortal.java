@@ -21,7 +21,10 @@
 // Base version: CharonPortal.java 14784 -- this must be updated to map changes in Charon 
 package org.sakaiproject.portal.charon;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -136,6 +139,10 @@ public class SkinnableCharonPortal extends HttpServlet
 	private boolean enableDirect = false;
 
 	private PortalRenderEngine rengine;
+
+	private Properties contentTypes = null;
+
+	private static final ThreadLocal staticCacheHolder = new ThreadLocal();
 
 	/**
 	 * Shutdown the servlet.
@@ -691,6 +698,15 @@ public class SkinnableCharonPortal extends HttpServlet
 			else if ((parts.length >= 2) && (parts[1].equals("error-reported")))
 			{
 				doErrorDone(req, res);
+			}
+
+			else if ((parts.length >= 2) && (parts[1].equals("styles")))
+			{
+				doStatic(req, res, parts);
+			}
+			else if ((parts.length >= 2) && (parts[1].equals("scripts")))
+			{
+				doStatic(req, res, parts);
 			}
 
 			// handle an unrecognized request
@@ -2125,7 +2141,7 @@ public class SkinnableCharonPortal extends HttpServlet
 	private boolean allowTool(Site site, Placement placement)
 	{
 		if (placement == null || site == null) return true; // No way to render
-															// an opinion
+		// an opinion
 
 		boolean retval = true;
 
@@ -2696,6 +2712,19 @@ public class SkinnableCharonPortal extends HttpServlet
 		{
 			throw new ServletException("Failed to start velocity ", e);
 		}
+
+		contentTypes = new Properties();
+		try
+		{
+			contentTypes.load(this.getClass().getResourceAsStream(
+					"staticcontenttypes.properties"));
+		}
+		catch (IOException e)
+		{
+			throw new ServletException(
+					"Failed to load Static Content Types (staticcontenttypes.properties) ",
+					e);
+		}
 	}
 
 	/**
@@ -2955,86 +2984,362 @@ public class SkinnableCharonPortal extends HttpServlet
 	protected void includeHierarchy(PortalRenderContext rcontext,
 			HttpServletRequest request)
 	{
-		System.err.println("In include Hierarch");
-		HttpSession session = request.getSession();
-		String portalPath = (String) session
-				.getAttribute("portal-hierarchy-path");
-		if (portalPath == null)
+		try
 		{
-			portalPath = "";
-		}
-		String newPath = request.getParameter("portal-hierarchy-path");
-		M_log.info("Path Param " + newPath);
-
-		Hierarchy h = null;
-		if (newPath != null && newPath.length() > 0)
-		{
-			if ( newPath.endsWith("/") ) {
-				newPath = newPath.substring(0,newPath.length()-1);
+			System.err.println("In include Hierarch");
+			HttpSession session = request.getSession();
+			String portalPath = (String) session
+					.getAttribute("portal-hierarchy-path");
+			if (portalPath == null)
+			{
+				portalPath = "";
 			}
-			h = HierarchyService.getNode("/portal" + newPath);
+			String newPath = request.getParameter("portal-hierarchy-path");
+			M_log.info("Path Param " + newPath);
+
+			Hierarchy h = null;
+			if (newPath != null && newPath.length() > 0)
+			{
+				if (newPath.endsWith("/"))
+				{
+					newPath = newPath.substring(0, newPath.length() - 1);
+				}
+				h = HierarchyService.getNode("/portal" + newPath);
+				if (h != null)
+				{
+					portalPath = newPath;
+					session.setAttribute("portal-hierarchy-path", portalPath);
+				}
+				else
+				{
+					M_log.warn("Didnt find node for /portal" + newPath);
+				}
+			}
+			else
+			{
+				if (portalPath.endsWith("/"))
+				{
+					portalPath = newPath.substring(0, portalPath.length() - 1);
+				}
+				h = HierarchyService.getNode("/portal" + portalPath);
+				if (h == null)
+				{
+					M_log.warn("Didnt find node for /portal" + portalPath);
+				}
+			}
+			Hierarchy rootNode = HierarchyService.getNode("/portal");
+			{
+				M_log.info("Portal Path is " + portalPath);
+				String[] path = portalPath.split("/");
+				M_log.info("Portal Path is " + portalPath + " split into "
+						+ path.length + " elements ");
+				List l = new ArrayList();
+				String currentPath = "";
+				String nextPath = null;
+				if (1 < path.length - 1)
+				{
+					nextPath = "/" + path[1];
+				}
+				Map m = new HashMap();
+				m.put("url", "?portal-hierarchy-path=" + Web.escapeUrl("/"));
+				m.put("name", "Home");
+
+				Hierarchy currentNode = rootNode;
+				Map children = currentNode.getChildren();
+				List lc = new ArrayList();
+				for (Iterator ic = children.values().iterator(); ic.hasNext();)
+				{
+					Hierarchy child = (Hierarchy) ic.next();
+					Map mchild = new HashMap();
+					String childPath = child.getPath().substring(
+							"/portal".length());
+					String[] pathElements = childPath.split("/");
+					mchild.put("url", "?portal-hierarchy-path="
+							+ Web.escapeUrl(childPath));
+					mchild.put("name", pathElements[pathElements.length - 1]);
+					lc.add(mchild);
+
+					if (nextPath != null && nextPath.equals(childPath))
+					{
+						currentNode = child;
+					}
+				}
+				m.put("children", lc);
+				l.add(m);
+				M_log.info("Added Root node with children");
+
+				for (int i = 1; i < path.length; i++)
+				{
+					m = new HashMap();
+					currentPath = currentPath + "/" + path[i];
+					M_log.info("Checking " + currentPath);
+					if (i < path.length - 1)
+					{
+						nextPath = currentPath + "/" + path[i + 1];
+					}
+					else
+					{
+						nextPath = null;
+					}
+					currentNode = currentNode.getChild("/portal" + currentPath);
+					m.put("url", "?portal-hierarchy-path="
+							+ Web.escapeUrl(currentPath));
+					m.put("name", path[i]);
+					m.put("current", Boolean.valueOf(i == (path.length - 1)));
+
+					children = currentNode.getChildren();
+					lc = new ArrayList();
+					for (Iterator ic = children.values().iterator(); ic
+							.hasNext();)
+					{
+						Hierarchy child = (Hierarchy) ic.next();
+						Map mchild = new HashMap();
+						String childPath = child.getPath().substring(
+								"/portal".length());
+						String[] pathElements = childPath.split("/");
+						mchild.put("url", "?portal-hierarchy-path="
+								+ Web.escapeUrl(childPath));
+						mchild.put("name",
+								pathElements[pathElements.length - 1]);
+						lc.add(mchild);
+
+						if (nextPath != null && nextPath.equals(childPath))
+						{
+							currentNode = child;
+						}
+					}
+					m.put("children", lc);
+					l.add(m);
+				}
+				rcontext.put("portalPath", l);
+			}
 			if (h != null)
 			{
-				portalPath = newPath;
-				session.setAttribute("portal-hierarchy-path", portalPath);
-			} else {
-				M_log.warn("Didnt find node for /portal"+newPath);
-			}
-		}
-		else
-		{
-			if ( portalPath.endsWith("/") ) {
-				portalPath = newPath.substring(0,portalPath.length()-1);
-			}
-			h = HierarchyService.getNode("/portal" + portalPath);
-			if ( h== null ) {
-				M_log.warn("Didnt find node for /portal"+portalPath);
-			}
-		}
-		{
-			M_log.info("Portal Path is " + portalPath);
-			String[] path = portalPath.split("/");
-			M_log.info("Portal Path is " + portalPath + " split into "
-					+ path.length + " elements ");
-			List l = new ArrayList();
-			String currentPath = "";
-			Map m = new HashMap();
-			m.put("url", "?portal-hierarchy-path=" + Web.escapeUrl("/"));
-			m.put("name", "Home");
-			l.add(m);
-			for (int i = 1; i < path.length; i++)
-			{
-				m = new HashMap();
-				currentPath = currentPath + "/" + path[i];
-				m.put("url", "?portal-hierarchy-path="
-						+ Web.escapeUrl(currentPath));
-				m.put("name", path[i]);
-				m.put("current",Boolean.valueOf(i==(path.length-1)));
-				l.add(m);
-			}
-			rcontext.put("portalPath", l);
-		}
-		if (h != null)
-		{
-			Map m = h.getChildren();
-			List l = new ArrayList();
-			for (Iterator i = m.values().iterator(); i.hasNext();)
-			{
-				Hierarchy child = (Hierarchy) i.next();
+				Map m = h.getChildren();
+				List l = new ArrayList();
+				for (Iterator i = m.values().iterator(); i.hasNext();)
+				{
+					Hierarchy child = (Hierarchy) i.next();
 
-				Map mchild = new HashMap();
-				String childPath = child.getPath().substring("/portal".length());
-				String[] pathElements = childPath.split("/");
-				M_log.info("Child " + childPath + " name "
-						+ pathElements.length + " "
-						+ pathElements[pathElements.length - 1]);
-				mchild.put("url", "?portal-hierarchy-path="
-						+ Web.escapeUrl(childPath));
-				mchild.put("name", pathElements[pathElements.length - 1]);
-				l.add(mchild);
-			}
-			rcontext.put("portalPathChildren", l);
+					Map mchild = new HashMap();
+					String childPath = child.getPath().substring(
+							"/portal".length());
+					String[] pathElements = childPath.split("/");
+					M_log.info("Child " + childPath + " name "
+							+ pathElements.length + " "
+							+ pathElements[pathElements.length - 1]);
+					mchild.put("url", "?portal-hierarchy-path="
+							+ Web.escapeUrl(childPath));
+					mchild.put("name", pathElements[pathElements.length - 1]);
+					l.add(mchild);
+				}
+				rcontext.put("portalPathChildren", l);
 
+			}
+			M_log.info("All Done ");
+		}
+		catch (Exception ex)
+		{
+			M_log.error("Ooops ", ex);
 		}
 	}
+
+	/**
+	 * serve a registered static file
+	 * 
+	 * @param req
+	 * @param res
+	 * @param parts
+	 * @throws IOException
+	 */
+	private void doStatic(HttpServletRequest req, HttpServletResponse res,
+			String[] parts) throws IOException
+	{
+		try
+		{
+			StaticCache[] staticCache = (StaticCache[]) staticCacheHolder.get();
+			if (staticCache == null)
+			{
+				staticCache = new StaticCache[100];
+				staticCacheHolder.set(staticCache);
+			}
+			String path = req.getPathInfo();
+			if (path.indexOf("..") >= 0)
+			{
+				res.sendError(404);
+				return;
+			}
+			String realPath = this.getServletContext().getRealPath(path);
+			File f = new File(realPath);
+			if (f.length() < 100 * 1024)
+			{
+				for (int i = 0; i < staticCache.length; i++)
+				{
+					StaticCache sc = staticCache[i];
+					if (sc != null && path.equals(sc.path))
+					{
+						if (f.lastModified() > sc.lastModified)
+						{
+							sc.buffer = loadFileBuffer(f);
+							sc.path = path;
+							sc.lastModified = f.lastModified();
+							sc.contenttype = getContentType(f);
+							sc.added = System.currentTimeMillis();
+						}
+						// send the output
+						sendContent(res, sc);
+						return;
+					}
+				}
+				// not found in cache, find the oldest or null and evict
+				// this is thread Safe, since the cache is per thread.
+				StaticCache sc = null;
+				for (int i = 1; i < staticCache.length; i++)
+				{
+					StaticCache current = staticCache[i];
+					if (sc == null)
+					{
+						sc = current;
+					}
+					if (current == null)
+					{
+						sc = new StaticCache();
+						staticCache[i] = sc;
+						break;
+					}
+					if (sc.added < current.added)
+					{
+						sc = current;
+					}
+				}
+				sc.buffer = loadFileBuffer(f);
+				sc.path = path;
+				sc.lastModified = f.lastModified();
+				sc.contenttype = getContentType(f);
+				sc.added = System.currentTimeMillis();
+				sendContent(res, sc);
+				return;
+
+			}
+			else
+			{
+				res.setContentType(getContentType(f));
+				res.addDateHeader("Last-Modified", f.lastModified());
+				res.setContentLength((int) f.length());
+				sendContent(res, f);
+				return;
+
+			}
+
+		}
+		catch (IOException ex)
+		{
+			M_log.error("Failed to send portal content ", ex);
+			res.sendError(404, ex.getMessage());
+		}
+
+	}
+
+	private String getContentType(File f)
+	{
+		String name = f.getName();
+		int dot = name.lastIndexOf(".");
+		String contentType = "application/octet-stream";
+		if (dot >= 0)
+		{
+			String ext = name.substring(dot);
+			contentType = contentTypes.getProperty(ext);
+		}
+		return contentType;
+	}
+
+	private void sendContent(HttpServletResponse res, StaticCache sc)
+			throws IOException
+	{
+		res.setContentType(sc.contenttype);
+		res.addDateHeader("Last-Modified", sc.lastModified);
+		res.setContentLength(sc.buffer.length);
+		res.getOutputStream().write(sc.buffer);
+
+	}
+
+	protected class StaticCache
+	{
+
+		public Object path;
+
+		public long added;
+
+		public byte[] buffer;
+
+		public long lastModified;
+
+		public String contenttype;
+
+	}
+
+	private void sendContent(HttpServletResponse res, File f)
+			throws IOException
+	{
+		FileInputStream fin = null;
+		try
+		{
+			fin = new FileInputStream(f);
+			res.setContentType(getContentType(f));
+			res.addDateHeader("Last-Modified", f.lastModified());
+			res.setContentLength((int) f.length());
+			byte[] buffer = new byte[4096];
+			int pos = 0;
+			int bsize = buffer.length;
+			int nr = fin.read(buffer, 0, bsize);
+			OutputStream out = res.getOutputStream();
+			while (nr > 0)
+			{
+				out.write(buffer, 0, nr);
+			}
+
+		}
+		finally
+		{
+			try
+			{
+				fin.close();
+			}
+			catch (Exception ex)
+			{
+			}
+		}
+
+	}
+
+	private byte[] loadFileBuffer(File f) throws IOException
+	{
+		FileInputStream fin = null;
+		try
+		{
+			fin = new FileInputStream(f);
+			byte[] buffer = new byte[(int) f.length()];
+			int pos = 0;
+			int remaining = buffer.length;
+			int nr = fin.read(buffer, pos, remaining);
+			while (nr > 0)
+			{
+				pos = pos + nr;
+				remaining = remaining - nr;
+				nr = fin.read(buffer, pos, remaining);
+			}
+			return buffer;
+		}
+		finally
+		{
+			try
+			{
+				fin.close();
+			}
+			catch (Exception ex)
+			{
+			}
+		}
+	}
+
 }
