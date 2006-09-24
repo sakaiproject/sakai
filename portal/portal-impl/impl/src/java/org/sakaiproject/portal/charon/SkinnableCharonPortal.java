@@ -144,6 +144,8 @@ public class SkinnableCharonPortal extends HttpServlet
 
 	private static final ThreadLocal staticCacheHolder = new ThreadLocal();
 
+	private static final String PADDING = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+
 	/**
 	 * Shutdown the servlet.
 	 */
@@ -3036,10 +3038,11 @@ public class SkinnableCharonPortal extends HttpServlet
 				List l = new ArrayList();
 				String currentPath = "";
 				String nextPath = null;
-				if (1 < path.length - 1)
+				if (1 < path.length)
 				{
 					nextPath = "/" + path[1];
 				}
+				M_log.info("Looking for Root Child Path "+nextPath);
 				Map m = new HashMap();
 				m.put("url", "?portal-hierarchy-path=" + Web.escapeUrl("/"));
 				m.put("name", "Home");
@@ -3047,6 +3050,7 @@ public class SkinnableCharonPortal extends HttpServlet
 				Hierarchy currentNode = rootNode;
 				Map children = currentNode.getChildren();
 				List lc = new ArrayList();
+				currentNode = null;
 				for (Iterator ic = children.values().iterator(); ic.hasNext();)
 				{
 					Hierarchy child = (Hierarchy) ic.next();
@@ -3056,23 +3060,30 @@ public class SkinnableCharonPortal extends HttpServlet
 					String[] pathElements = childPath.split("/");
 					mchild.put("url", "?portal-hierarchy-path="
 							+ Web.escapeUrl(childPath));
-					mchild.put("name", pathElements[pathElements.length - 1]);
+					String name = pathElements[pathElements.length - 1];
+					if ( name.length() < 15 ) {
+						name = name+PADDING.substring(name.length()*6);
+					}
+					mchild.put("name", name);
 					lc.add(mchild);
 
+					M_log.info("Checking ChildPath "+childPath);
 					if (nextPath != null && nextPath.equals(childPath))
 					{
 						currentNode = child;
+						M_log.info("Matched ");
 					}
 				}
 				m.put("children", lc);
 				l.add(m);
-				M_log.info("Added Root node with children");
+				M_log.info("Added Root node with children, next node is  "+currentNode);
 
-				for (int i = 1; i < path.length; i++)
+				for (int i = 1; i < path.length && currentNode != null; i++)
 				{
 					m = new HashMap();
 					currentPath = currentPath + "/" + path[i];
-					M_log.info("Checking " + currentPath);
+					M_log.info("Current Node " + currentNode.getPath() + " should be  /portal"+
+							 currentPath);
 					if (i < path.length - 1)
 					{
 						nextPath = currentPath + "/" + path[i + 1];
@@ -3081,35 +3092,51 @@ public class SkinnableCharonPortal extends HttpServlet
 					{
 						nextPath = null;
 					}
-					currentNode = currentNode.getChild("/portal" + currentPath);
-					m.put("url", "?portal-hierarchy-path="
-							+ Web.escapeUrl(currentPath));
-					m.put("name", path[i]);
-					m.put("current", Boolean.valueOf(i == (path.length - 1)));
-
-					children = currentNode.getChildren();
-					lc = new ArrayList();
-					for (Iterator ic = children.values().iterator(); ic
-							.hasNext();)
+					M_log.info("Looking for child path "+nextPath);
+					// currentNode = currentNode.getChild("/portal" +
+					// currentPath);
+					if (currentNode != null)
 					{
-						Hierarchy child = (Hierarchy) ic.next();
-						Map mchild = new HashMap();
-						String childPath = child.getPath().substring(
-								"/portal".length());
-						String[] pathElements = childPath.split("/");
-						mchild.put("url", "?portal-hierarchy-path="
-								+ Web.escapeUrl(childPath));
-						mchild.put("name",
-								pathElements[pathElements.length - 1]);
-						lc.add(mchild);
+						m.put("url", "?portal-hierarchy-path="
+								+ Web.escapeUrl(currentPath));
+						m.put("name", path[i]);
+						m.put("current", Boolean
+								.valueOf(i == (path.length - 1)));
 
-						if (nextPath != null && nextPath.equals(childPath))
+						children = currentNode.getChildren();
+						currentNode = null;
+						lc = new ArrayList();
+						for (Iterator ic = children.values().iterator(); ic
+								.hasNext();)
 						{
-							currentNode = child;
+							Hierarchy child = (Hierarchy) ic.next();
+							Map mchild = new HashMap();
+							String childPath = child.getPath().substring(
+									"/portal".length());
+							String[] pathElements = childPath.split("/");
+							mchild.put("url", "?portal-hierarchy-path="
+									+ Web.escapeUrl(childPath));
+							String name = pathElements[pathElements.length - 1];
+							if ( name.length() < 15 ) {
+								name = name+PADDING.substring(name.length()*6);
+							}
+							mchild.put("name", name);
+							lc.add(mchild);
+
+							M_log.info("Checking child path "+childPath);
+							if (nextPath != null && nextPath.equals(childPath))
+							{
+								currentNode = child;
+								M_log.info("Found "+childPath);
+							}
 						}
+						m.put("children", lc);
+						l.add(m);
 					}
-					m.put("children", lc);
-					l.add(m);
+					else
+					{
+						M_log.warn("Cant Locate Node " + currentPath);
+					}
 				}
 				rcontext.put("portalPath", l);
 			}

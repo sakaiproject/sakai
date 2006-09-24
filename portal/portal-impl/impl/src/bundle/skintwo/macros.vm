@@ -150,24 +150,24 @@
 	<div id="siteNav">
 		<div id="linkNav">
 			<a id="sitetabs" class="skip" name="sitetabs"></a>
-			<ul idx="siteLinkList" class="makeMenu" >
-			    <li>Hierarchy Path</li>
+			<ul class="makeMenu" >
+			    <li class="makeMenu" >Hierarchy Path</li>
 			    
 #foreach ( $path in $portalPath )
 #if ( ${path.current} )
-				<li class="selectedTab"><a href="#"><span>${path.name}</span></a>
-					<ul>
+				<li class="makeMenu"><a href="#"><span>${path.name}</span></a>
+					<ul class="hierarchyDropDown" >
 #foreach ( $child in $path.children )
-				<li><a href="${child.url}" >${child.name}</a></li>
+				<li class="hierarchyDropDown"><a href="${child.url}" >${child.name}</a></li>
 #end				
 					</ul>
 				</li>
 				
 #else
-				<li><a href="${path.url}" >${path.name}</a>
-					<ul>
+				<li class="makeMenu" ><a href="${path.url}" >${path.name}</a>
+					<ul  class="hierarchyDropDown"  >
 #foreach ( $child in $path.children )
-				<li><a href="${child.url}" >${child.name}</a></li>
+				<li class="hierarchyDropDown"><a href="${child.url}" >${child.name}</a></li>
 #end				
 					</ul>
 				</li>
