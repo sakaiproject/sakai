@@ -22,7 +22,9 @@ import org.sakaiproject.exception.TypeException;
  */
 public interface DavManager 
 {
-        /* General question on locks:
+    /* 
+     * TODO: Locks
+     * General question on locks:
 	 * DAV has a locking scheme. Currently it is implemented entirely within DavServlet.
 	 * Since Sakai also has locking, we end up with two locking systems that
 	 * don't talk. If we do things like copying collections in Content, it also
@@ -32,9 +34,11 @@ public interface DavManager
 	 * I believe that is legal. I am also skeptical about the ability of clients
 	 * to cope with partial success. However to produce a maximally compliant DAV,
 	 * we would probably need to move DAV locking into Content.
+	 * (hedrick at rutgers dot edu)
 	 */
 
-        /* General comment on error handling:
+    /* 
+     * General comment on error handling:
 	 * DAV has the possibility to return an XML structure listing items and error codes. 
 	 * If an operation on a collection fails for some items in the collection, the spec requires
 	 * us to return a list of all items indicating where it succeeded and where it failed.
@@ -44,9 +48,11 @@ public interface DavManager
 	 * failure. E.g. in copying collections where an existing one will be deleted, it
 	 * would be prudent to copy to a new name, verify that the copy worked, and then
 	 * delete the old one and rename the new one.
+	 * (hedrick at rutgers dot edu)
 	 */
 
-        /* General comment on return values:
+    /* 
+     * General comment on return values:
 	 * These operations all return boolean. The reason is that DAV has two different
 	 * success codes: 201 Created and 204 No content. We must distinguish between
 	 * cases where new content was created and where it was not. E.g. the spec for
@@ -59,6 +65,13 @@ public interface DavManager
 	 * If we wanted to do that, then these functions would return null or a
 	 * String. However because clients will typically use these functions to
 	 * model a Unix file system, I strongly recommend against doing this.
+	 * (hedrick at rutgers dot edu)
+	 * 
+	 * Maybe the return value should be a List of id's for entities for which 
+	 * the operation succeeded/failed?  Or a Map (hashtable) with keys for each
+	 * item involved in the operation and values indicating whether the operation
+	 * succeeded or failed?
+	 * (jimeng at umich dot edu)
 	 */
 
 	/**
