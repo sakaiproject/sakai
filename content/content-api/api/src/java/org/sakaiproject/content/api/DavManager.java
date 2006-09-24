@@ -67,11 +67,44 @@ public interface DavManager
 	 * model a Unix file system, I strongly recommend against doing this.
 	 * (hedrick at rutgers dot edu)
 	 * 
-	 * Maybe the return value should be a List of id's for entities for which 
+	 * Maybe the return value should be a List of id's indicating entities for which 
 	 * the operation succeeded/failed?  Or a Map (hashtable) with keys for each
 	 * item involved in the operation and values indicating whether the operation
 	 * succeeded or failed?
 	 * (jimeng at umich dot edu)
+	 * 
+	 * Sure, if you want to do that. it would map nicely into what DAV is supposed to 
+	 * return. Note that the DAV protocol requires minimization  of exceptions. So if 
+	 * a whole tree fails in the same way, you mention  only the top of the tree. While 
+	 * it isn't clear in the text, it  appears that if there is partial success, you 
+	 * return a multistatus  XML structure that lists only the things that failed. And 
+	 * for them  you list only the top of any tree for which all elements failed with  
+	 * the same error code.
+	 * 
+	 * As I read it, most operations return either 201 or 204. I believe the  only ones 
+	 * where partial success is possible are ones where a whole  tree is manipulated at 
+	 * once.
+	 * 
+	 * Copy certainly has this issue, since one could run into a lock or a  quota problem 
+	 * during the recursive copy.
+	 * 
+	 * Delete can succeed partially if elements are locked. Whether other  types of 
+	 * failure are possible depends upon the implementation. I'm  guessing that a failure 
+	 * to delete an item other than because of a  lock would indicate a serious problem 
+	 * with the db or file system.
+	 * 
+	 * Move can have partial success due to system failures. Is anything  else possible? 
+	 * I'm not so sure. If overwrite is on, the implied  delete could partially fail, 
+	 * but in that case the move can't occur at  all, so optimally you'd not do the delete 
+	 * and fail the whole operation. In theory if you're copying to a different file 
+	 * system you  could get a quota problem, but in Sakai I suspect quotas are on a  
+	 * sakai-wide basis so that wouldn't happen.
+	 * 
+	 * Lock can have partial success, but I'm not currently dealing with the  details of 
+	 * locking unless you tell me you're sure you can implement  DAV compatibility. 
+	 * Otherwise I'd rather maintain the locks myself,  and checking for locks before 
+	 * calling you.
+	 * (hedrick at rutgers dot edu)
 	 */
 
 	/**
@@ -105,6 +138,8 @@ public interface DavManager
 	 * @param overwrite
 	 * @param recursive
 	 * 
+	 * @return true if a new collection or resource was created, i.e. newId did not exist previously
+	 * 
 	 * @throws PermissionException
 	 *            if the user does not have permission to access the old entity, delete 
 	 *            the existing entity or create the new entity.
@@ -137,7 +172,7 @@ public interface DavManager
 	 * 
 	 * Make a new collection.
 	 * The new collection is empty.
-         * The operation succeeds unless one of the following occurs:
+     * The operation succeeds unless one of the following occurs:
 	 * <ul>
 	 *  <li>the user does not have permission to create the entity newId</li>
 	 *  <li>an entity newId exists
@@ -148,6 +183,8 @@ public interface DavManager
 	 * If successful, always returns true, because a new collection is always created
 	 *
 	 * @param newId
+	 * 
+	 * @return true if a new collection is created (which is always true unless an exception is thrown).
 	 *            
 	 * @throws PermissionException
 	 *            if the user does not have permission to add this entity.
@@ -314,6 +351,8 @@ public interface DavManager
 	 * @param newId
 	 * @param overwrite
 	 * 
+	 * @return true if a new entity is created, i.e. newId did not exist
+	 * 
 	 * @throws PermissionException
 	 *            if the user does not have permission to delete 
 	 *            the existing entity, or delete/create the new entity.
@@ -387,7 +426,9 @@ public interface DavManager
 	/**
 	 * 
 	 * @param entityId
-	 * @return
+	 * 
+	 * @return 
+	 * 
 	 * @throws PermissionException
 	 *            if the user does not have permission to access this entity.
 	 * @throws IdUnusedException
