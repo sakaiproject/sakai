@@ -250,9 +250,9 @@ private static Log log = LogFactory.getLog(QuestionPoolTreeImpl.class);
       {
         Collection childList = getChildList(new Long("0"));
 
-        return new Integer(
+        return Integer.toString(
           ((ArrayList) childList).indexOf(
-            ((QuestionPoolFacade) getCurrentObject()).getQuestionPoolId()) + 1).toString();
+            ((QuestionPoolFacade) getCurrentObject()).getQuestionPoolId()) + 1);
       }
       else
       {
@@ -305,7 +305,7 @@ private static Log log = LogFactory.getLog(QuestionPoolTreeImpl.class);
       return "0";
     }
 
-    return new Integer(index1).toString();
+    return Integer.toString(index1);
   }
 
 

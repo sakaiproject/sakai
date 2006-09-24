@@ -807,7 +807,7 @@ publishedId = ppublishedId;
 
     for (int i = 0; i < length; i++) {
       histogramBars[i] = new HistogramBarBean();
-      histogramBars[i].setColumnHeight(new Integer(height[i]).toString());
+      histogramBars[i].setColumnHeight(Integer.toString(height[i]));
       histogramBars[i].setNumStudents(nums[i]);
       histogramBars[i].setRangeInfo(range[i]);
     }

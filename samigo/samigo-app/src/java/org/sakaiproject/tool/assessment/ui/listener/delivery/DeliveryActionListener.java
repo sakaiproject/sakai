@@ -389,7 +389,7 @@ public class DeliveryActionListener
       SectionContentsBean partBean = getPartBean( (SectionDataIfc) iter.next(),
                                                  itemGradingHash, delivery,
                                                  publishedAnswerHash);
-      partBean.setNumParts(new Integer(partSet.size()).toString());
+      partBean.setNumParts(Integer.toString(partSet.size()));
       currentScore += partBean.getPoints();
       maxScore += partBean.getMaxPoints();
       partsContents.add(partBean);
@@ -507,7 +507,7 @@ public class DeliveryActionListener
       SectionContentsBean partBean = getPartBean( (SectionDataIfc) iter.next(),
                                                  itemGradingHash, delivery,
                                                  publishedAnswerHash);
-      partBean.setNumParts(new Integer(partSet.size()).toString());
+      partBean.setNumParts(Integer.toString(partSet.size()));
       if (partBean.getItemContentsSize().equals("0")) {
     	  log.debug("getPageContentsByAssessment(): no question");
     	  partBean.setNoQuestions(true);
@@ -553,7 +553,7 @@ public class DeliveryActionListener
       SectionContentsBean partBean = getPartBean( (SectionDataIfc) iter.next(),
                                                  itemGradingHash, delivery,
                                                  publishedAnswerHash);
-      partBean.setNumParts(new Integer(partSet.size()).toString());
+      partBean.setNumParts(Integer.toString(partSet.size()));
       if (partBean.getItemContentsSize().equals("0")) {
     	  log.debug("getPageContentsByPart(): no question");
     	  partBean.setNoQuestions(true);
@@ -622,7 +622,7 @@ public class DeliveryActionListener
       SectionDataIfc secFacade = (SectionDataIfc) iter.next();
       SectionContentsBean partBean = getPartBean(secFacade, itemGradingHash, delivery, 
                                                  publishedAnswerHash);
-      partBean.setNumParts(new Integer(partSet.size()).toString());
+      partBean.setNumParts(Integer.toString(partSet.size()));
       currentScore += partBean.getPoints();
       maxScore += partBean.getMaxPoints();
 
@@ -651,7 +651,7 @@ public class DeliveryActionListener
    		SectionContentsBean partBeanWithQuestion = 
      			this.getPartBeanWithOneQuestion(secFacade, itemIndex, itemGradingHash,
      					delivery, publishedAnswerHash);
-      	partBeanWithQuestion.setNumParts(new Integer(partSet.size()).toString());
+      	partBeanWithQuestion.setNumParts(Integer.toString(partSet.size()));
       	partsContents.add(partBeanWithQuestion);
       	
       	if (questionCount == 0) {
@@ -752,7 +752,7 @@ public class DeliveryActionListener
       if (delivery.getSettings().getItemNumbering().equals
           (AssessmentAccessControl.RESTART_NUMBERING_BY_PART.toString()))
       {
-        itemBean.setSequence(new Integer(itemBean.getNumber()).toString());
+        itemBean.setSequence(Integer.toString(itemBean.getNumber()));
       }
       else
       {
@@ -834,7 +834,7 @@ public class DeliveryActionListener
       if (delivery.getSettings().getItemNumbering().equals
           (AssessmentAccessControl.RESTART_NUMBERING_BY_PART.toString()))
       {
-        itemBean.setSequence(new Integer(itemBean.getNumber()).toString());
+        itemBean.setSequence(Integer.toString(itemBean.getNumber()));
       }
       else
       {
@@ -1031,14 +1031,14 @@ public class DeliveryActionListener
               item.getTypeId().toString().equals("2") ||
               item.getTypeId().toString().equals("9"))
           {
-            answer.setLabel(new Character(alphabet.charAt(k++)).toString());
+            answer.setLabel(Character.toString(alphabet.charAt(k++)));
             if (answer.getIsCorrect() != null &&
                 answer.getIsCorrect().booleanValue())
             {
               String addition = "";
               if (item.getTypeId().toString().equals("9"))
               {
-                addition = new Integer(j++).toString() + ":";
+                addition = Integer.toString(j++) + ":";
               }
               if (key.equals(""))
               {
@@ -1229,7 +1229,7 @@ public class DeliveryActionListener
       ItemTextIfc text = (ItemTextIfc) iter.next();
       MatchingBean mbean = new MatchingBean();
       newAnswers = new ArrayList();
-      mbean.setText(new Integer(j++).toString() + ". " + text.getText());
+      mbean.setText(Integer.toString(j++) + ". " + text.getText());
       mbean.setItemText(text);
       mbean.setItemContentsBean(bean);
 
@@ -1256,10 +1256,10 @@ public class DeliveryActionListener
       while (iter2.hasNext())
       {
         AnswerIfc answer = (AnswerIfc) iter2.next();
-        newAnswers.add(new Character(alphabet.charAt(i)).toString() +
+        newAnswers.add(Character.toString(alphabet.charAt(i)) +
                        ". " + answer.getText());
         choices.add(new SelectItem(answer.getId().toString(),
-                                   new Character(alphabet.charAt(i++)).toString(),
+                                   Character.toString(alphabet.charAt(i++)),
                                    ""));
       }
 

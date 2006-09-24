@@ -268,7 +268,7 @@ public class SubmissionStatusListener
       
       bean.setAgents(agents);
       bean.setAllAgents(agents);
-      bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
+      bean.setTotalPeople(Integer.toString(bean.getAgents().size()));
     }
 
     catch (Exception e)

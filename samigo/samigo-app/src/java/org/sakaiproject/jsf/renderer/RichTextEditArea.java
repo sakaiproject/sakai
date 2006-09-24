@@ -38,7 +38,6 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.content.cover.ContentHostingService; 
 import org.sakaiproject.util.FormattedText;
 
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
 
 /**
  *
@@ -126,29 +125,29 @@ public class RichTextEditArea extends Renderer
     else
     if ( (row >= 80) && (col < 450))
     {
-      outRow = new Integer(row).toString();
+      outRow = Integer.toString(row);
       outCol = "450";
       lineOfToolBar = 3;
     }
     else
     if ( (row >= 80) && (col >= 450) && (col < 630))
     {
-      outRow = new Integer(row).toString();
-      outCol = new Integer(col).toString();
+      outRow = Integer.toString(row);
+      outCol = Integer.toString(col);
       lineOfToolBar = 3;
     }
     else
     if ( (row >= 80) && (col >= 630))
     {
-      outRow = new Integer(row).toString();
-      outCol = new Integer(col).toString();
+      outRow = Integer.toString(row);
+      outCol = Integer.toString(col);
       lineOfToolBar = 2;
     }
     else
     if ( (row < 80) && (col >= 630))
     {
       outRow = "80";
-      outCol = new Integer(col).toString();
+      outCol = Integer.toString(col);
       lineOfToolBar = 2;
     }
     else

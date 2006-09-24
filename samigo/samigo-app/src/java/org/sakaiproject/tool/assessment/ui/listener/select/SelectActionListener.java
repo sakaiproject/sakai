@@ -196,8 +196,8 @@ public class SelectActionListener
           long remainder = time - (hours * 1000 * 60 * 60);
           long minutes = remainder / (1000 * 60);
           delivery.setSubTime(time);
-          delivery.setSubmissionHours(new Long(hours).toString());
-          delivery.setSubmissionMinutes(new Long(minutes).toString());
+          delivery.setSubmissionHours(Long.toString(hours));
+          delivery.setSubmissionMinutes(Long.toString(minutes));
         }
         else {
           delivery.setSubmissionHours("n/a");

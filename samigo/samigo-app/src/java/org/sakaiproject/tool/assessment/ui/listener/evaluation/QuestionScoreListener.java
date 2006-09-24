@@ -290,7 +290,7 @@ public class QuestionScoreListener
     log.debug("questionScores(): this section has no students");
       bean.setAgents(agents);
       bean.setAllAgents(agents);
-      bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
+      bean.setTotalPeople(Integer.toString(bean.getAgents().size()));
       bean.setAnonymous(totalBean.getAnonymous());
       return true;
       }
@@ -395,7 +395,7 @@ public class QuestionScoreListener
               score = idata.getScore().floatValue();
           }
         }
-        bean.setMaxScore(new Float(score).toString());
+        bean.setMaxScore(Float.toString(score));
       }
 
 // need to get id from somewhere else, not from data.  data only contains answered items , we want to return all items. 
@@ -538,9 +538,9 @@ log.debug("item==null ");
           if (!answerList.get(0).equals(gdata))
           { // We already have an agentResults for this one
             results.setAnswer(results.getAnswer() + "<br/>" + answerText);
-            results.setTotalAutoScore(new Float
+            results.setTotalAutoScore(Float.toString
               ((new Float(results.getExactTotalAutoScore())).floatValue() +
-               gdata.getAutoScore().floatValue()).toString());
+               gdata.getAutoScore().floatValue()));
           }
           else
           {
@@ -551,7 +551,7 @@ log.debug("item==null ");
               results.setTotalAutoScore(gdata.getAutoScore().toString());
             }
 	    else {
-              results.setTotalAutoScore(new Float(0).toString());
+              results.setTotalAutoScore(Float.toString(0));
             }
             results.setComments(gdata.getComments());
             results.setAnswer(answerText);

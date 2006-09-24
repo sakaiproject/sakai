@@ -258,14 +258,14 @@ public class HistogramListener
           bean.setQ3( (String) assessmentMap.get("q3"));
           bean.setQ4( (String) assessmentMap.get("q4"));
           bean.setTotalScore( (String) assessmentMap.get("totalScore"));
-          bean.setTotalPossibleScore(new Double(totalpossible).toString());
+          bean.setTotalPossibleScore(Double.toString(totalpossible));
           HistogramBarBean[] bars =
             new HistogramBarBean[bean.getColumnHeight().length];
           for (int i=0; i<bean.getColumnHeight().length; i++)
           {
             bars[i] = new HistogramBarBean();
             bars[i].setColumnHeight
-              (new Integer(bean.getColumnHeight()[i]).toString());
+              (Integer.toString(bean.getColumnHeight()[i]));
             bars[i].setNumStudents(bean.getNumStudentCollection()[i]);
             bars[i].setRangeInfo(bean.getRangeCollection()[i]);
             //log.info("Set bar " + i + ": " + bean.getColumnHeight()[i] + ", " + bean.getNumStudentCollection()[i] + ", " + bean.getRangeCollection()[i]);
@@ -549,11 +549,11 @@ public class HistogramListener
     int[] heights = calColumnHeight(numarray,responses);
     // int[] heights = calColumnHeight(numarray);
     for (i=0; i<bars.length; i++)
-      bars[i].setColumnHeight(new Integer(heights[i]).toString());
+      bars[i].setColumnHeight(Integer.toString(heights[i]));
     qbean.setHistogramBars(bars);
     qbean.setNumResponses(responses);
     if (responses > 0)
-      qbean.setPercentCorrect(new Integer((int)(((float) correctresponses/(float) responses) * 100)).toString());
+      qbean.setPercentCorrect(Integer.toString((int)(((float) correctresponses/(float) responses) * 100)));
   }
 
   public void getFINMCMCScores(HashMap publishedItemHash, HashMap publishedAnswerHash, 
@@ -716,11 +716,11 @@ public class HistogramListener
 		    int[] heights = calColumnHeight(numarray,responses);
 		    // int[] heights = calColumnHeight(numarray);
 		    for (i=0; i<bars.length; i++)
-		      bars[i].setColumnHeight(new Integer(heights[i]).toString());
+		      bars[i].setColumnHeight(Integer.toString(heights[i]));
 		    qbean.setHistogramBars(bars);
 		    qbean.setNumResponses(responses);
 		    if (responses > 0)
-		      qbean.setPercentCorrect(new Integer((int)(((float) correctresponses/(float) responses) * 100)).toString());
+		      qbean.setPercentCorrect(Integer.toString((int)(((float) correctresponses/(float) responses) * 100)));
 		  }
   
 
@@ -802,11 +802,11 @@ public class HistogramListener
     int[] heights = calColumnHeight(numarray,responses);
     // int[] heights = calColumnHeight(numarray);
     for (i=0; i<bars.length; i++)
-      bars[i].setColumnHeight(new Integer(heights[i]).toString());
+      bars[i].setColumnHeight(Integer.toString(heights[i]));
     qbean.setHistogramBars(bars);
     qbean.setNumResponses(responses);
     if (responses > 0)
-      qbean.setPercentCorrect(new Integer((int)(((float) correctresponses/(float) responses) * 100)).toString());
+      qbean.setPercentCorrect(Integer.toString((int)(((float) correctresponses/(float) responses) * 100)));
   }
 
 
@@ -930,11 +930,11 @@ if (answer != null)
     int[] heights = calColumnHeight(numarray,responses);
     //  int[] heights = calColumnHeight(numarray);
     for (i=0; i<bars.length; i++)
-      bars[i].setColumnHeight(new Integer(heights[i]).toString());
+      bars[i].setColumnHeight(Integer.toString(heights[i]));
     qbean.setHistogramBars(bars);
     qbean.setNumResponses(responses);
     if (responses > 0)
-      qbean.setPercentCorrect(new Integer((int)(((float) correctresponses/(float) responses) * 100)).toString());
+      qbean.setPercentCorrect(Integer.toString((int)(((float) correctresponses/(float) responses) * 100)));
   }
 
 
@@ -980,7 +980,7 @@ if (answer != null)
       {
         bars[i] = new HistogramBarBean();
         bars[i].setColumnHeight
-          (new Integer(qbean.getColumnHeight()[i]).toString());
+          (Integer.toString(qbean.getColumnHeight()[i]));
         bars[i].setNumStudents(qbean.getNumStudentCollection()[i]);
         if (qbean.getNumStudentCollection()[i]>1)
 	  {

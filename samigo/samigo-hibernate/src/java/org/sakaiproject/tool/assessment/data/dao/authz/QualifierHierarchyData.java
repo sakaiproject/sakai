@@ -140,8 +140,7 @@ public class QualifierHierarchyData
 
   public int hashCode(){
     //String s = this.childId+":"+(this.parentId).toString();
-    String s = new Long(this.childId).toString() + ":" +
-    	new Long(this.parentId).toString();
+    String s = Long.toString(this.childId) + ":" + Long.toString(this.parentId);
     return (s.hashCode());
   }
 }

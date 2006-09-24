@@ -439,13 +439,11 @@ public class AccessGroup implements Serializable
 
     releaseDate.set(Calendar.SECOND, 0);
     //int tempYear = releaseDate.get(Calendar.YEAR);
-    setReleaseDay(
-      new Integer(releaseDate.get(Calendar.DAY_OF_MONTH)).toString());
-    setReleaseMonth(
-      new Integer(releaseDate.get(Calendar.MONTH) + 1).toString());
-    setReleaseYear(new Integer(releaseDate.get(Calendar.YEAR)).toString());
-    setReleaseHour(new Integer(releaseDate.get(Calendar.HOUR)).toString());
-    setReleaseMinute(new Integer(releaseDate.get(Calendar.MINUTE)).toString());
+    setReleaseDay(Integer.toString(releaseDate.get(Calendar.DAY_OF_MONTH)));
+    setReleaseMonth(Integer.toString(releaseDate.get(Calendar.MONTH) + 1));
+    setReleaseYear(Integer.toString(releaseDate.get(Calendar.YEAR)));
+    setReleaseHour(Integer.toString(releaseDate.get(Calendar.HOUR)));
+    setReleaseMinute(Integer.toString(releaseDate.get(Calendar.MINUTE)));
     int tempAmPm = releaseDate.get(Calendar.AM_PM);
     setReleaseAmPm((tempAmPm == Calendar.AM) ? "AM" : "PM");
   }
@@ -805,13 +803,11 @@ public class AccessGroup implements Serializable
     retractDate.set(Calendar.SECOND, 0);
 
     //int tempYear = retractDate.get(Calendar.YEAR);
-    setRetractDay(
-      new Integer(retractDate.get(Calendar.DAY_OF_MONTH)).toString());
-    setRetractMonth(
-      new Integer(retractDate.get(Calendar.MONTH) + 1).toString());
-    setRetractYear(new Integer(retractDate.get(Calendar.YEAR)).toString());
-    setRetractHour(new Integer(retractDate.get(Calendar.HOUR)).toString());
-    setRetractMinute(new Integer(retractDate.get(Calendar.MINUTE)).toString());
+    setRetractDay(Integer.toString(retractDate.get(Calendar.DAY_OF_MONTH)));
+    setRetractMonth(Integer.toString(retractDate.get(Calendar.MONTH) + 1));
+    setRetractYear(Integer.toString(retractDate.get(Calendar.YEAR)));
+    setRetractHour(Integer.toString(retractDate.get(Calendar.HOUR)));
+    setRetractMinute(Integer.toString(retractDate.get(Calendar.MINUTE)));
     int tempAmPm = retractDate.get(Calendar.AM_PM);
     setRetractAmPm((tempAmPm == Calendar.AM) ? "AM" : "PM");
   }
@@ -1131,11 +1127,11 @@ public class AccessGroup implements Serializable
 
     dueDate.set(Calendar.SECOND, 0);
     //int tempYear = dueDate.get(Calendar.YEAR);
-    setDueDay(new Integer(dueDate.get(Calendar.DAY_OF_MONTH)).toString());
-    setDueMonth(new Integer(dueDate.get(Calendar.MONTH) + 1).toString());
-    setDueYear(new Integer(dueDate.get(Calendar.YEAR)).toString());
-    setDueHour(new Integer(dueDate.get(Calendar.HOUR)).toString());
-    setDueMinute(new Integer(dueDate.get(Calendar.MINUTE)).toString());
+    setDueDay(Integer.toString(dueDate.get(Calendar.DAY_OF_MONTH)));
+    setDueMonth(Integer.toString(dueDate.get(Calendar.MONTH) + 1));
+    setDueYear(Integer.toString(dueDate.get(Calendar.YEAR)));
+    setDueHour(Integer.toString(dueDate.get(Calendar.HOUR)));
+    setDueMinute(Integer.toString(dueDate.get(Calendar.MINUTE)));
     int tempAmPm = dueDate.get(Calendar.AM_PM);
     setDueAmPm((tempAmPm == Calendar.AM) ? "AM" : "PM");
   }

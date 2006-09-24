@@ -270,7 +270,7 @@ private String text;
     {
       return "0";
     }
-    return new Integer(itemContents.size()).toString();
+    return Integer.toString(itemContents.size());
   }
 
   /**

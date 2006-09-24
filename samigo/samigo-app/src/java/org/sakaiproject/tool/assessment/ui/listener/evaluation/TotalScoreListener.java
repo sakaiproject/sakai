@@ -318,7 +318,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       prepareNotSubmittedAgentResult(students_not_submitted.iterator(), agents, userRoles);
       bean.setAgents(agents);
       bean.setAllAgents(agents);
-      bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
+      bean.setTotalPeople(Integer.toString(bean.getAgents().size()));
 
       //#5 - set role & sort selection
       setRoleAndSortSelection(bean, agents, sortAscending);

@@ -35,7 +35,7 @@ public class IdImpl implements Id {
   }
 
   public IdImpl(long internalId) {
-    this.id = (new Long(internalId)).toString();
+    this.id = Long.toString(internalId);
   }
 
   public String getIdString() throws org.osid.shared.SharedException{

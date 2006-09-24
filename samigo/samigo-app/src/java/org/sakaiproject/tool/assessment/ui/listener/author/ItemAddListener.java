@@ -990,7 +990,7 @@ public class ItemAddListener
 
     // save settings for case sensitive for FIB.  Default=false  
       set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB,
-                               new Boolean(bean.getCaseSensitiveForFib()).toString()));
+                               Boolean.toString(bean.getCaseSensitiveForFib())));
 
     // save settings for mutually exclusive for FIB. Default=false
     // first check to see if it's a valid mutually exclusive mutiple answers FIB
@@ -1000,7 +1000,7 @@ public class ItemAddListener
       }
 
       set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB,
-                               new Boolean(wellformatted).toString()));
+                               Boolean.toString(wellformatted)));
 
       
         
@@ -1019,7 +1019,7 @@ public class ItemAddListener
 	      */
 	      
 	      set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIN,
-	                               new Boolean(wellformattedFIN).toString()));
+	                               Boolean.toString(wellformattedFIN)));
 
    
       
