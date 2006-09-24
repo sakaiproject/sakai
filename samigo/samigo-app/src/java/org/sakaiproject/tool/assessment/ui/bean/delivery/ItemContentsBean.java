@@ -157,6 +157,7 @@ public class ItemContentsBean implements Serializable {
 	}
 
 	// Huong added to test empty feedback
+	/*
 	public boolean getModelAnswerIsNotEmpty() {
 		String k = getKey();
 		if (k != "null")
@@ -164,7 +165,8 @@ public class ItemContentsBean implements Serializable {
 		else
 			return false;
 	}
-
+	*/
+	
 	public boolean getFeedbackIsNotEmpty() {
 		return isNotEmpty(strip(ContextUtil.stringWYSIWYG(getFeedback())));
 	}

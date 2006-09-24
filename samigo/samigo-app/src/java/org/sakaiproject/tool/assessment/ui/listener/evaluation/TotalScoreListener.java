@@ -119,7 +119,7 @@ public class TotalScoreListener
 
     // reset scoringType based on evaluationModel,scoringType if coming from authorIndex
     log.debug("ae.getComponent().getId() = " + ae.getComponent().getId());
-    if (ae != null && ae.getComponent().getId() == "authorIndexToScore") {
+    if (ae != null && ae.getComponent().getId().startsWith("authorIndexToScore")) {
     	log.debug("coming from authorIndex");
     	EvaluationModelIfc model = pubAssessment.getEvaluationModel();
     	if (model != null && model.getScoringType()!=null){

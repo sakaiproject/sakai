@@ -73,7 +73,7 @@ public class HistogramListener
                                "histogramScores");
     String publishedId = totalBean.getPublishedId();
 
-    if (publishedId == "0")
+    if (publishedId.equals("0"))
     {
 	publishedId = (String) cu.lookupParam("publishedId");
     }

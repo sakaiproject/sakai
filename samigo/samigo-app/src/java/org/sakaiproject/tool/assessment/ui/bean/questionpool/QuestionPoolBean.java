@@ -1467,7 +1467,7 @@ public String getAddOrEdit()
 
 
           String qpid = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("qpid");
-	if((qpid != "0") && (qpid !=null))
+	if((!qpid.equals("0")) && (qpid !=null))
 // qpid = 0 if creating a new pool at root level
           {
             pool.setParentPoolId(new Long(qpid));
