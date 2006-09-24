@@ -10,6 +10,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
@@ -98,11 +99,11 @@ public interface DavManager
 	 *            if oldIdd does not exist.
 	 * @throws InconsistentException
 	 *            if the containing collection (for newId) does not exist.
-         * @throws TypeException
-         *            if overwrite is false, and 
+     * @throws TypeException
+     *            if overwrite is false, and 
 	 *            newId and oldId do not identify the same kind of entities 
-         *            (must both be identifiers for collections OR must both
-         *            be identifiers for collections)
+	 *            (must both be identifiers for collections OR must both
+     *            be identifiers for collections)
 	 * @throws IdLengthException
 	 *            if the newId is too long.
 	 * @throws InUseException
@@ -115,7 +116,7 @@ public interface DavManager
 	 * @throws OverQuotaException
 	 *            if writing the new resource puts the user over quota
 	 */
-	public boolean davCopy(String oldId, String newId, boolean overwrite, boolean recursive)  
+	public boolean copy(String oldId, String newId, boolean overwrite, boolean recursive)  
 			throws PermissionException, InconsistentException, IdLengthException, 
 					InUseException, ServerOverloadException;
 	
@@ -151,7 +152,7 @@ public interface DavManager
 	 * @throws OverQuotaException
 	 *            if writing the new collection puts the user over quota
 	 */
-	public boolean davCreateCollection(String newId) 
+	public boolean createCollection(String newId) 
 			throws PermissionException, IdUsedException, InconsistentException, 
 					IdLengthException, IdInvalidException;
 	
@@ -189,15 +190,17 @@ public interface DavManager
 	 *            if the newId is too long.
 	 * @throws InUseException
 	 *            if the entity exists and is currently in use by another user.
+	 * @throws OverQuotaException
+	 *            if the entity cannot be added without exceeding the quota.
 	 * @throws ServerOverloadException
 	 *            if the server is configured to write the resource body to the 
 	 *            filesystem and an attempt to save the resource body fails.
 	 * @throws OverQuotaException
 	 *            if writing the new collection puts the user over quota
 	 */
-	public boolean davCreateResource(String newId, InputStream content, String contentType) 
+	public boolean createResource(String newId, InputStream content, String contentType) 
 			throws PermissionException, TypeException, InconsistentException, IdLengthException, 
-					InUseException, ServerOverloadException;
+					InUseException, OverQuotaException, ServerOverloadException;
 	
 	/**
 	 * Delete a collection or resource. If entity is a non-empty collection,
@@ -222,7 +225,7 @@ public interface DavManager
 	 *            if the server is configured to write the resource body to the 
 	 *            filesystem and an attempt to delete it fails. 
 	 */
-	public boolean davDelete(String entityId) 
+	public boolean delete(String entityId) 
 			throws PermissionException, IdUnusedException, InUseException;
 	
 	/**
@@ -236,7 +239,7 @@ public interface DavManager
 	 * @throws IdUnusedException
 	 *            if the entity specified by the id does not exist.
 	 */
-	public ResourceProperties davGetProperties(String entityId) 
+	public ResourceProperties getProperties(String entityId) 
 			throws PermissionException, IdUnusedException;
 	
 	/**
@@ -252,7 +255,7 @@ public interface DavManager
 	 * @throws TypeException
 	 *            if the entity specified by the id exists and is a collection.
 	 */
-	public String davGetContentType(String entityId) 
+	public String getContentType(String entityId) 
 			throws PermissionException, IdUnusedException, TypeException;
 	
 	/**
@@ -267,7 +270,7 @@ public interface DavManager
 	 * @throws IdUnusedException
 	 *            if the entity specified by the id does not exist.
 	 */
-	public String davGetProperty(String entityId, String propertyName) 
+	public String getProperty(String entityId, String propertyName) 
 			throws PermissionException, IdUnusedException;
 
 	/**
@@ -319,7 +322,7 @@ public interface DavManager
 	 * @throws OverQuotaException
 	 *            if writing the new resource puts the user over quota
 	 */
-	public boolean davRename(String oldId, String newId, boolean overwrite) 
+	public boolean rename(String oldId, String newId, boolean overwrite) 
 			throws PermissionException, IdUsedException, InconsistentException, IdLengthException, 
 					InUseException, TypeException, ServerOverloadException;
 	
@@ -337,7 +340,7 @@ public interface DavManager
 	 * @throws TypeException
 	 *            if the entity specified by the id exists and is a collection.
 	 */
-	public String davSetContentType(String entityId, String contentType) 
+	public String setContentType(String entityId, String contentType) 
 			throws PermissionException, IdUnusedException, TypeException;
 	
 	/**
@@ -350,7 +353,7 @@ public interface DavManager
 	 * @throws IdUnusedException
 	 *            if the entity specified by the id does not exist.
 	 */
-	public void davSetProperties(String entityId, ResourceProperties properties) 
+	public void setProperties(String entityId, ResourceProperties properties) 
 			throws PermissionException, IdUnusedException;
 	
 	
@@ -365,7 +368,7 @@ public interface DavManager
 	 * @throws IdUnusedException
 	 *            if the entity specified by the id does not exist.
 	 */
-	public void davSetProperty(String entityId, String propertyName, String propertyValue) 
+	public void setProperty(String entityId, String propertyName, String propertyValue) 
 			throws PermissionException, IdUnusedException;
 
 	/**
@@ -377,6 +380,6 @@ public interface DavManager
 	 * @throws IdUnusedException
 	 *            if the entity specified by the id does not exist.
 	 */
-	public OutputStream davStreamContent(String entityId) throws PermissionException, IdUnusedException;
+	public OutputStream streamContent(String entityId) throws PermissionException, IdUnusedException;
 	
 }
