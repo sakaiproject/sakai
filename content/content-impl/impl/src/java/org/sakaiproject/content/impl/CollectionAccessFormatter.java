@@ -90,10 +90,19 @@ public class CollectionAccessFormatter
 			// we will need resources. getting them once makes the sort a whole lot faster
 			// System.out.println("before sort have " + members.size());
 
+			boolean hasCustomSort = false;
+			try {
+			    hasCustomSort = x.getProperties().getBooleanProperty(ResourceProperties.PROP_HAS_CUSTOM_SORT);
+			} catch (Exception e) {
+			    // use false that's already there
+			}
+
 			if (sferyx || basedir != null)
-				Collections.sort(members, new ContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true));
+			    Collections.sort(members, new ContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true));
+			else if (hasCustomSort)
+			    Collections.sort(members, new ContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true));
 			else
-				Collections.sort(members, new RuComparator());
+			    Collections.sort(members, new ContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true));
 
 			// System.out.println("after sort have " + members.size());
 
