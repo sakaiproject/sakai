@@ -3,6 +3,8 @@ package org.sakaiproject.content.api;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
@@ -22,6 +24,44 @@ import org.sakaiproject.exception.TypeException;
  */
 public interface DavManager 
 {
+	/** Status code (201) indicating the request succeeded and created a new resource on the server. */
+	public final static Integer STATUS_CREATED = new Integer(HttpServletResponse.SC_CREATED);
+	
+	/** Status reporting an operation succeeded without creation of a new resource */
+	public final static Integer STATUS_NO_CONTENT = new Integer(HttpServletResponse.SC_NO_CONTENT);
+	
+	/** Status code (401) indicating that the request requires HTTP authentication. */
+	public final static Integer STATUS_UNAUTHORIZED = new Integer(HttpServletResponse.SC_UNAUTHORIZED);
+	
+	/** Status code (403) indicating the server understood the request but refused to fulfill it. */
+	public final static Integer STATUS_FORBIDDEN = new Integer(HttpServletResponse.SC_FORBIDDEN);
+	
+	/** Status code (409) indicating requested action cannot be executed on an existing resource. */
+	public final static Integer STATUS_METHOD_NOT_ALLOWED = new Integer(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+	
+	/** Status code (409) indicating a resource cannot be created at the destination until one or more intermediate collections have been created. */
+	public final static Integer STATUS_CONFLICT = new Integer(HttpServletResponse.SC_CONFLICT);
+	
+	
+	/*
+	 * 
+412 (Precondition Failed) - The server was unable to maintain the liveness of the properties listed in the propertybehavior XML element or the Overwrite header is "F" and the state of the destination resource is non-null.
+412 (Precondition Failed) - The server was unable to maintain the liveness of the properties listed in the propertybehavior XML element or the Overwrite header is "F" and the state of the destination resource is non-null.
+
+415 (Unsupported Media Type)- The server does not support the request type of the body. (MKCOL)
+
+423 (Locked) - The destination resource was locked.
+423 (Locked) - The source or the destination resource was locked.
+
+502 (Bad Gateway) - This may occur when the destination is on another server and the destination server refuses to accept the resource.
+502 (Bad Gateway) - This may occur when the destination is on another server and the destination server refuses to accept the resource.
+
+507 (Insufficient Storage) - The destination resource does not have sufficient space to record the state of the resource after the execution of this method.
+507 (Insufficient Storage) - The resource does not have sufficient space to record the state of the resource after the execution of this method.
+
+	 */
+	
+	
     /* 
      * TODO: Locks
      * General question on locks:
