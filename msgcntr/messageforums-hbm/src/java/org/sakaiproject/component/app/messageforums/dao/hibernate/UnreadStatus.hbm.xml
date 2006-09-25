@@ -31,13 +31,13 @@
       not-null="false" index="MFR_UNREAD_PARENT_I1" cascade="none" />
     -->
     
-    <property name="topicId">
+    <property name="topicId" unique-key="uniqueUserTopicMessage">
       <column name="TOPIC_C" not-null="true" index="MFR_UNREAD_STATUS_I1"/>
     </property>
-    <property name="messageId">
+    <property name="messageId" unique-key="uniqueUserTopicMessage">
       <column name="MESSAGE_C" not-null="true" index="MFR_UNREAD_STATUS_I1"/>
     </property>
-    <property name="userId">
+    <property name="userId" unique-key="uniqueUserTopicMessage">
       <column name="USER_C" length="255" not-null="true" index="MFR_UNREAD_STATUS_I1"/>
     </property>
     <property name="read">
