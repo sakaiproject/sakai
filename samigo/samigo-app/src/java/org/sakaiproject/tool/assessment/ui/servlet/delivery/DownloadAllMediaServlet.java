@@ -145,19 +145,30 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 
 	  MediaIfc mediaData;
 	  log.debug("mediaList.size() = " + mediaList.size());
+
+	  ZipOutputStream zos = null;
       try{
     	  ServletOutputStream outputStream = res.getOutputStream();
-    	  ZipOutputStream zos = new ZipOutputStream(outputStream);
+    	  zos = new ZipOutputStream(outputStream);
     	  for (int i = 0; i < mediaList.size(); i++){
     		  mediaData = (MediaIfc) mediaList.get(i);
     		  processOneMediaData(zos, mediaData, true, -1); 
     	  }  
-    	  zos.close();
       }
-	  catch(Exception e){
+	  catch(IOException e){
 		  log.error(e.getMessage());
 		  e.printStackTrace();
 	  }
+	  finally {
+		  if (zos != null) {
+			  try {
+				  zos.close();
+			  }
+			  catch(IOException e) {
+				  log.error(e.getMessage());
+			  }
+		  }
+	  }	  
   }
   
   private void processNonAnonymous(HttpServletRequest req, HttpServletResponse res){
@@ -212,10 +223,10 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 		  }
 	  }
 	  log.debug("HashMap built successfully");
-
+	  ZipOutputStream zos = null;
 	  try {
 		  ServletOutputStream outputStream = res.getOutputStream();
-		  ZipOutputStream zos = new ZipOutputStream(outputStream);			  
+		  zos = new ZipOutputStream(outputStream);			  
           
 		  HashMap hashMap;
 		  Iterator iter = hashByAgentId.values().iterator();
@@ -274,45 +285,70 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
    				  }
    			  }
    		  }
-   		  zos.close();
 	  }
 	  catch(Exception e){
    		  log.error(e.getMessage());
    		  e.printStackTrace();
 	  }	  
+	  finally {
+		  if (zos != null) {
+			  try {
+				  zos.close();
+			  }
+			  catch(IOException e) {
+				  log.error(e.getMessage());
+			  }
+		  }
+	  }	  
   }
   
   private void processOneMediaData(ZipOutputStream zos, MediaIfc mediaData, boolean anonymous, int numberSubmission) 
-  throws IOException{
+  throws IOException {
 	  int BUFFER_SIZE = 2048;
 	  byte data[] = new byte[ BUFFER_SIZE ];
 	  int count = 0;
 	  BufferedInputStream bufInputStream = null;
+	  ZipEntry ze = null;
 	  String mediaLocation = mediaData.getLocation();
 	  log.debug("mediaLocation = " + mediaLocation);
 	  String filename = getFilename(mediaData, anonymous, numberSubmission);
 	  if (mediaLocation == null || (mediaLocation.trim()).equals("")){          		  
 		  byte[] media = mediaData.getMedia();
 		  log.debug("media.length = " + media.length);
-		  bufInputStream = new BufferedInputStream(new ByteArrayInputStream(media));		  
-		  ZipEntry ze = new ZipEntry(filename);
-		  zos.putNextEntry(ze);
-		  while( (count = bufInputStream.read(data, 0, BUFFER_SIZE)) != -1 ) {
-			  zos.write(data, 0, count);
-		  }   	  
-		  bufInputStream.close();  
-			  zos.closeEntry();
+		  bufInputStream = new BufferedInputStream(new ByteArrayInputStream(media));
 	  }
 	  else {
 		  bufInputStream = new BufferedInputStream(getFileStream(mediaLocation));
-		  ZipEntry entry = new ZipEntry(filename);
-		  zos.putNextEntry(entry);
-		  while((count = bufInputStream.read(data, 0, BUFFER_SIZE)) != -1) {
- 			  zos.write(data, 0, count);
-  		  }
-  		  bufInputStream.close();
-  		  zos.closeEntry();
-  	  }
+	  }
+	  ze = new ZipEntry(filename);
+	  try {
+		  zos.putNextEntry(ze);
+		  while( (count = bufInputStream.read(data, 0, BUFFER_SIZE)) != -1 ) {
+			  zos.write(data, 0, count);
+		  }
+	  }
+	  catch(IOException e){
+		  log.error(e.getMessage());
+		  throw e;
+	  }
+	  finally {
+		  if (bufInputStream != null) {
+			  try {
+				  bufInputStream.close();
+			  }
+			  catch(IOException e) {
+				  log.error(e.getMessage());
+			  }
+		  }
+		  if (zos != null) {
+			  try {
+				  zos.closeEntry();
+			  }
+			  catch(IOException e) {
+				  log.error(e.getMessage());
+			  }
+		  }
+	  }	  
   }
   
   private FileInputStream getFileStream(String mediaLocation){

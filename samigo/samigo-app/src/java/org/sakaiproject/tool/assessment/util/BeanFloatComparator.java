@@ -22,6 +22,9 @@
 
 package org.sakaiproject.tool.assessment.util;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -72,29 +75,37 @@ public class BeanFloatComparator
     String s2 = (String) m2.get(propertyName);
     Float i1 = null;
     Float i2 = null;
-    boolean firstFloat = true;
+    boolean firstFloatValid = true;
+    boolean secondFloatValid = true;
 
     try
     {
-      i1 = new Float(s1);
+    	i1 = new Float(s1);
     }
-    catch (Exception e)
+    catch (NumberFormatException e)
     {
-      firstFloat = false;
+    	firstFloatValid = false;
     }
 
     try
     {
-      i2 = new Float(s2);
-      if (!firstFloat)
-        return 1;
+    	i2 = new Float(s2);
     }
-    catch(Exception e)
+    catch (NumberFormatException e)
     {
-      if (!firstFloat)
-       return s1.toLowerCase().compareTo(s2.toLowerCase());
+    	secondFloatValid = false;
     }
 
-    return i1.compareTo(i2);
+    int returnValue=0;
+    if (firstFloatValid && secondFloatValid) {
+    	if (i1 != null) {
+    		returnValue = i1.compareTo(i2);
+    	}
+    }
+    if (firstFloatValid && !secondFloatValid) returnValue = 1;
+    if (!firstFloatValid && secondFloatValid) returnValue = -1;
+    if (!firstFloatValid && !secondFloatValid) returnValue = 0;
+
+    return returnValue;
   }
 }

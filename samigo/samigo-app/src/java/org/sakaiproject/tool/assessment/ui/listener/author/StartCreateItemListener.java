@@ -25,7 +25,6 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -54,8 +53,8 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
 {
 
   private static Log log = LogFactory.getLog(StartCreateItemListener.class);
-  private static ContextUtil cu;
-  private String scalename;  // used for multiple choice Survey
+  //private static ContextUtil cu;
+  //private String scalename;  // used for multiple choice Survey
 
 
   // both actionListener and valueChangeListener methods are used,
@@ -69,10 +68,9 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
   public void processValueChange(ValueChangeEvent ae) throws AbortProcessingException
   {
     log.debug("StartCreateItemListener valueChangeLISTENER.");
-    ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
+    ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 
-    FacesContext context = FacesContext.getCurrentInstance();
-
+    //FacesContext context = FacesContext.getCurrentInstance();
 
     String selectedvalue= (String) ae.getNewValue();
     if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
@@ -82,14 +80,15 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
     String curritemid = null;
     // check if it is coming from Item Modify page.
     ItemBean curritem = itemauthorbean.getCurrentItem();
+    log.debug("itemid = " + curritemid);
     if (curritem!=null) {
       curritemid = curritem.getItemId();
       update = true;
 
-      log.debug("change question type , itemid  (not null) = " + curritemid);
+      log.debug("change question type , itemid is not null");
     }
     else {
-      log.debug("didn't change question type, itemid  (should be null) = " + curritemid);
+      log.debug("didn't change question type, itemid is null");
     }
 
     if (!startCreateItem(itemauthorbean))
@@ -117,7 +116,7 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
   // used by question pool's selectQuestionType.jsp
   {
     log.debug("StartCreateItemListener actionLISTENER.");
-    ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
+    ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 
     if (!startCreateItem(itemauthorbean))
     {
@@ -211,7 +210,7 @@ log.debug("after getting item.getItemType() ");
                         nextpage = "matchingItem";
                         break;
                 case 10:
-    			QuestionPoolBean qpoolBean= (QuestionPoolBean) cu.lookupBean("questionpool");
+    			QuestionPoolBean qpoolBean= (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
 			qpoolBean.setImportToAuthoring(true);
                         nextpage = "poolList";
                         break;
@@ -226,7 +225,7 @@ log.debug("after getting item.getItemType() ");
 // check for metadata settings
     if ("assessment".equals(itemauthorbean.getTarget())) {
       AssessmentService assessdelegate = new AssessmentService();
-      AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean("assessmentBean");
+      AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
       AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
       itemauthorbean.setShowMetadata(assessment.getHasMetaDataForQuestions());
       itemauthorbean.setShowFeedbackAuthoring(assessment.getShowFeedbackAuthoring());
@@ -268,11 +267,4 @@ log.debug("after getting item.getItemType() ");
     return true;
 
   }
-
-
-
-
-
-
-
 }

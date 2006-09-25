@@ -399,6 +399,10 @@ public Document getXMLDataModel()
     log.error(e.getMessage(), e);
   }
 
+  if (document == null) {
+	  log.error("document is null");
+	  return null;
+  }
   //add audio setup data to  XML document
   //root
   Element recordingData = document.createElement("RecordingData");

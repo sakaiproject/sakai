@@ -80,7 +80,7 @@ public class BeanIntegerComparator
     catch(Throwable t)
     {
       throw new java.lang.UnsupportedOperationException(
-        "Error in comparing integer objects:" + i1 + ", " + i2 + ".  " + t);
+        "Error in comparing integer objects:" + t);
     }
 
     return i1.compareTo(i2);

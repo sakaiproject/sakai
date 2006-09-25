@@ -133,14 +133,19 @@ private static Log log = LogFactory.getLog(QuestionPoolTreeImpl.class);
           QuestionPoolData next = null;
           try {
             next = (QuestionPoolData) siblings.next();
-            // Add at 0 because we want a reverse list.
-            if (sortString.equals("lastModified")){
-              ids.add(0, ((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
+            if (poolMap != null) {
+            	// Add at 0 because we want a reverse list.
+            	if (sortString.equals("lastModified")){
+            		ids.add(0, ((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
+            	}
+            	// Add to the end of list if not sorted by lastModified.
+            	else {
+            		ids.add(((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
+            	}
             }
-            // Add to the end of list if not sorted by lastModified.
-	    else {
-              ids.add(((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
-	    }
+            else {
+            	log.error("poolMap is null");
+            }
           } catch (Exception e) {
             log.error("Couldn't get ID " + next.getQuestionPoolId());
           }
@@ -621,14 +626,19 @@ private static Log log = LogFactory.getLog(QuestionPoolTreeImpl.class);
           QuestionPoolData next = null;
           try {
             next = (QuestionPoolData) siblings.next();
-            // Add at 0 because we want a reverse list.
-            if (sortProperty.equals("lastModified")){
-              ids.add(0, ((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
-	    }
-	    else {
-            // Add at the end , if not sorted by lastModified.
-              ids.add(((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
-  	    }
+            if (next != null) {
+            	// Add at 0 because we want a reverse list.
+            	if (sortProperty.equals("lastModified")){
+            		ids.add(0, ((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
+            	}
+            	else {
+            		// Add at the end , if not sorted by lastModified.
+            		ids.add(((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
+            	}
+            }
+            else {
+            	log.error("next is null");
+            }
           } catch (Exception e) {
             log.error("Couldn't get ID " + next.getQuestionPoolId());
           }

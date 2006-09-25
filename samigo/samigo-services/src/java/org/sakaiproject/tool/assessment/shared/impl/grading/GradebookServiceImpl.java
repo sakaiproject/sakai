@@ -22,9 +22,6 @@
 
 package org.sakaiproject.tool.assessment.shared.impl.grading;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
@@ -44,16 +41,14 @@ import org.sakaiproject.tool.assessment.services.GradingServiceException;
  */
 public class GradebookServiceImpl implements GradebookServiceAPI
 {
-  private static Log log = LogFactory.getLog(GradebookServiceImpl.class);
-
-  private static final GradebookServiceHelper helper = new GradebookServiceHelper();
+  //private static Log log = LogFactory.getLog(GradebookServiceImpl.class);
 
 
   public boolean isAssignmentDefined(String assessmentTitle)
   {
     try
     {
-      return helper.isAssignmentDefined(assessmentTitle);
+      return GradebookServiceHelper.isAssignmentDefined(assessmentTitle);
     }
     catch (Exception ex)
     {
@@ -80,7 +75,7 @@ public class GradebookServiceImpl implements GradebookServiceAPI
       PublishedAssessmentFacade pubFacade =
         pubService.getPublishedAssessment(id.toString());
       PublishedAssessmentIfc data = pubFacade.getData();
-      return helper.addToGradebook((PublishedAssessmentData) data);
+      return GradebookServiceHelper.addToGradebook((PublishedAssessmentData) data);
     }
     catch (Exception ex)
     {
@@ -97,7 +92,7 @@ public class GradebookServiceImpl implements GradebookServiceAPI
   {
     try
     {
-      helper.removeExternalAssessment(siteId, publishedAssessmentId);
+    	GradebookServiceHelper.removeExternalAssessment(siteId, publishedAssessmentId);
     }
     catch (Exception ex)
     {
@@ -134,7 +129,7 @@ public class GradebookServiceImpl implements GradebookServiceAPI
   {
     try
     {
-      return helper.gradebookExists(siteId);
+      return GradebookServiceHelper.gradebookExists(siteId);
     }
     catch (Exception ex)
     {
@@ -150,7 +145,7 @@ public class GradebookServiceImpl implements GradebookServiceAPI
   {
     try
     {
-      helper.updateExternalAssessmentScore(ag);
+    	GradebookServiceHelper.updateExternalAssessmentScore(ag);
     }
     catch (Exception ex)
     {

@@ -1577,8 +1577,9 @@ public class DeliveryBean
       }
       mediaStream2 = new FileInputStream(mediaLocation);
       mediaByte = new byte[size];
-      mediaStream2.read(mediaByte, 0, size);
-
+      if (mediaStream2 != null) {
+    	  mediaStream2.read(mediaByte, 0, size);
+      }
     }
     catch (FileNotFoundException ex)
     {

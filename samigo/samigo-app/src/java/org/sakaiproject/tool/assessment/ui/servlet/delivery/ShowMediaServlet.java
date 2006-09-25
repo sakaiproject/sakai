@@ -166,19 +166,27 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
             count++;
           }
         }
+        log.debug("**** mediaLocation="+mediaLocation);
+        res.setContentLength(count);
+        res.flushBuffer();
       }
       catch(Exception e){
         log.warn(e.getMessage());
       }
-
-      log.debug("**** mediaLocation="+mediaLocation);
-      res.setContentLength(count);
-      res.flushBuffer();
-      buf_outputStream.close();
-      buf_inputStream.close();
-      if (inputStream != null)
-        inputStream.close();
-      outputStream.close();
+      finally {
+    	  if (buf_outputStream != null) {
+    		  buf_outputStream.close();
+    	  }
+    	  if (buf_inputStream != null) {
+    		  buf_inputStream.close();
+    	  }
+          if (inputStream != null) {
+            inputStream.close();
+          }
+          if (outputStream != null) {
+        	  outputStream.close();
+          }
+      }
     }
   }
 

@@ -165,6 +165,7 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
       }
       bufOutputStream.flush();
 
+      /* Move following clean up code to finally block
       // clean up
       bufOutputStream.close();
       bufInputStream.close();
@@ -172,6 +173,7 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
         inputStream.close();
       }
       fileOutputStream.close();
+      */
       status = "Acknowleged: " +mediaLocation+"-> "+count+" bytes.";
       if (count > 0) 
         mediaIsValid = true;
@@ -179,6 +181,40 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     catch (Exception ex){
       log.info(ex.getMessage());
       status = "Upload failure: "+ mediaLocation;
+    }
+    finally {
+    	if (bufOutputStream != null) {
+    		try {
+    			bufOutputStream.close();
+    		}
+    		catch(IOException e) {
+    			log.error(e.getMessage());
+    		}
+    	}
+    	if (bufInputStream != null) {
+    		try {
+    			bufInputStream.close();
+    		}
+    		catch(IOException e) {
+    			log.error(e.getMessage());
+    		}
+    	}
+    	if (inputStream != null) {
+    		try {
+    			inputStream.close();
+    		}
+    		catch(IOException e) {
+    			log.error(e.getMessage());
+    		}
+    	}
+    	if (fileOutputStream != null) {
+    		try {
+    			fileOutputStream.close();
+    		}
+    		catch(IOException e) {
+    			log.error(e.getMessage());
+    		}
+    	}
     }
     log.info(status);
     return mediaIsValid;
@@ -190,32 +226,54 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     String fileName=file.getName();
     byte[] buf = new byte[1024];
     String zip_mediaLocation = mediaDirString+"/"+fileName+".zip";
-
+    ZipOutputStream zip = null;
+    FileInputStream in = null;
     try {
       // Create the ZIP file
       log.debug("*** zip file="+zip_mediaLocation);
-      ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(zip_mediaLocation));
+      zip = new ZipOutputStream(new FileOutputStream(zip_mediaLocation));
     
       // Add ZIP entry to output stream.
       zip.putNextEntry(new ZipEntry(fileName));
     
       // Transfer bytes from the file to the ZIP file
-      FileInputStream in = new FileInputStream(mediaLocation);
+      in = new FileInputStream(mediaLocation);
       int len;
       while ((len = in.read(buf)) > 0) {
         zip.write(buf, 0, len);
       }
     
+      /* Move following clean up code to finally block
       // Complete the entry
-      zip.closeEntry();
-      in.close();
+      //zip.closeEntry();
+      //in.close();
 
       // Complete the ZIP file
-      zip.close();
+      //zip.close();
+      */
     } 
     catch (IOException e) {
       zip_mediaLocation=null;
       log.error("problem zipping file at "+mediaLocation);
+    }
+    finally {
+    	if (zip != null) {
+    		try {
+    			zip.closeEntry();
+    			zip.close();
+    		}
+    		catch (IOException e) {
+    			log.error(e.getMessage());
+    		}
+    	}
+    	if (in != null) {
+    		try {
+    			in.close();
+    		}
+    		catch (IOException e) {
+    			log.error(e.getMessage());
+    		}
+    	}
     }
     return zip_mediaLocation;
   }
@@ -399,8 +457,9 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
       }
       mediaStream2 = new FileInputStream(mediaLocation);
       mediaByte = new byte[size];
-      mediaStream2.read(mediaByte, 0, size);
-
+      if (mediaStream2 != null) {
+    	  mediaStream2.read(mediaByte, 0, size);
+      }
     }
     catch (FileNotFoundException ex)
     {

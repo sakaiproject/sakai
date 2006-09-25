@@ -87,7 +87,7 @@ public class BeanDateComparator
     {
       i1 = dateFormat.parse(s1);
     }
-    catch (Exception e)
+    catch (ParseException e)
     {
       firstDateValid = false;
     }
@@ -96,13 +96,17 @@ public class BeanDateComparator
     {
       i2 = dateFormat.parse(s2);
     }
-    catch (Exception e)
+    catch (ParseException e)
     {
       secondDateValid = false;
     }
 
     int returnValue=0;
-    if (firstDateValid && secondDateValid) returnValue = i1.compareTo(i2);
+   	if (firstDateValid && secondDateValid) {
+   		if (i1 != null) {
+   			returnValue = i1.compareTo(i2);
+   		}
+    }
     if (firstDateValid && !secondDateValid) returnValue = 1;
     if (!firstDateValid && secondDateValid) returnValue = -1;
     if (!firstDateValid && !secondDateValid) returnValue = 0;
