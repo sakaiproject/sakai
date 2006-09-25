@@ -872,7 +872,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
     public void start()
     {
       thread = new Thread(this);
-      thread.setName(res.getString("thread_Name2"));
+      thread.setName(this.res.getString("thread_Name2"));
       thread.start();
       seconds = 0;
     }
