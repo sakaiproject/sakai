@@ -233,7 +233,7 @@ public class AuthorBean implements Serializable
 
       }
     }
-    catch (Exception ex)
+    catch (RuntimeException ex)
     {
       return false;
     }

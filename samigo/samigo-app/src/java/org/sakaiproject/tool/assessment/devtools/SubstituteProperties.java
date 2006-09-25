@@ -25,7 +25,9 @@ package org.sakaiproject.tool.assessment.devtools;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -70,9 +72,15 @@ public class SubstituteProperties
     try {
       properties.load(new FileInputStream(propFileName));
     }
-    catch (Exception ex) {
-      log.warn("oops " + propFileName);
-    }
+    catch (FileNotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		log.warn("oops " + propFileName);
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		log.warn("oops " + propFileName);
+	}
   }
 
   /**

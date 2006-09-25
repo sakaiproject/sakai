@@ -25,7 +25,9 @@ package org.sakaiproject.tool.assessment.devtools;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
@@ -100,7 +102,7 @@ public class GetTextFromXML
       }
 
     }
-    catch (Exception ex) {
+    catch (RuntimeException ex) {
       //log.info(ex);
       System.exit(0);
     }
@@ -133,11 +135,11 @@ private static String getContents(File file)
       contents += line + "\n";
     }
   }
-  catch (Exception ex) {
-    log.warn(ex.getMessage());
+  catch (FileNotFoundException e) {
+	  log.warn(e.getMessage());
+  } catch (IOException e) {
+	log.warn(e.getMessage());
   }
-
-
   return contents;
 
 }

@@ -283,9 +283,9 @@ public class DeliveryActionListener
 	}
       }
     }
-    catch (Exception e)
+    catch (RuntimeException e)
     {
-      throw new RuntimeException(e);
+      throw e;
     }
 
   }
