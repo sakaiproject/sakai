@@ -67,15 +67,12 @@ public class PathInfoInitListener
         throw new IllegalStateException("PathToSettings is invalid!");
       }
 
-      if((pathToSecurity != null) && (pathToSettings != null))
-      {
-        pathInfo.setBasePathToSecurity(pathToSecurity);
-        pathInfo.setBasePathToSettings(pathToSettings);
-      }
+      pathInfo.setBasePathToSecurity(pathToSecurity);
+      pathInfo.setBasePathToSettings(pathToSettings);
 
       log.debug("PathInfoInitListener initialized successfully!");
     }
-    catch(Exception ex)
+    catch(RuntimeException ex)
     {
       log.error(ex);
       throw new RuntimeException(ex);

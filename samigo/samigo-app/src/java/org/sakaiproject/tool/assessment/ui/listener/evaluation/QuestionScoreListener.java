@@ -359,7 +359,7 @@ public class QuestionScoreListener
 
       try {
         bean.setAnonymous(publishedAssessment.getEvaluationModel(). getAnonymousGrading().equals(EvaluationModel.ANONYMOUS_GRADING)?"true":"false");
-      } catch (Exception e) {
+      } catch (RuntimeException e) {
         //log.info("No evaluation model.");
         bean.setAnonymous("false");
       }
@@ -374,14 +374,14 @@ public class QuestionScoreListener
       try {
         bean.setDueDate(publishedAssessment.getAssessmentAccessControl().getDueDate().toString());
         dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
-      } catch (Exception e) {
+      } catch (RuntimeException e) {
         //log.info("No due date.");
         bean.setDueDate(new Date().toString());
       }
       try {
         bean.setMaxScore(publishedAssessment.getEvaluationModel().getFixedTotalScore().toString());
       } 
-      catch (Exception e) {
+      catch (RuntimeException e) {
         float score = (float) 0.0;
         Iterator iter2 = publishedAssessment.getSectionArraySorted().iterator();
         while (iter2.hasNext())
@@ -615,7 +615,7 @@ log.debug("item==null ");
       bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
     }
 
-    catch (Exception e)
+    catch (RuntimeException e)
     {
       e.printStackTrace();
       return false;

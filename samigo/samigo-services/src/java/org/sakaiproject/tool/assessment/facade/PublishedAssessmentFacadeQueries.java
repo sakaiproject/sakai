@@ -92,6 +92,14 @@ import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
 import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.OverQuotaException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 
 
 public class PublishedAssessmentFacadeQueries
@@ -462,8 +470,29 @@ public class PublishedAssessmentFacadeQueries
           itemAttachment.getLastModifiedDate());
         h.add(publishedItemAttachment);
       }
-      catch (Exception e){
+      catch (IdInvalidException e){
         log.warn(e.getMessage());
+      } 
+      catch (PermissionException e) {
+    	  log.warn(e.getMessage());
+      }
+      catch (IdUnusedException e) {
+		log.warn(e.getMessage());
+      }
+      catch (TypeException e) {
+		log.warn(e.getMessage());
+	  }
+      catch (InconsistentException e) {
+		log.warn(e.getMessage());
+	  }
+      catch (IdUsedException e) {
+		log.warn(e.getMessage());
+	  }
+      catch (OverQuotaException e) {
+		log.warn(e.getMessage());
+  	  }
+      catch (ServerOverloadException e) {
+		log.warn(e.getMessage());
       }
     }
     return h;
@@ -530,9 +559,31 @@ public class PublishedAssessmentFacadeQueries
           assessmentAttachment.getLastModifiedDate());
         h.add(publishedAssessmentAttachment);
       }
-      catch (Exception e){
-        log.warn(e.getMessage());
+      catch(PermissionException e){
+    	  log.warn(e.getMessage());
       }
+      catch(IdUnusedException e){
+    	  log.warn(e.getMessage());
+      }
+      catch(TypeException e){
+    	  log.warn(e.getMessage());
+      } 
+      catch (IdInvalidException e) {
+    	  log.warn(e.getMessage());
+      }
+      catch (InconsistentException e) {
+		log.warn(e.getMessage());
+      }
+      catch (IdUsedException e) {
+		log.warn(e.getMessage());
+      }
+      catch (OverQuotaException e) {
+		log.warn(e.getMessage());
+      }
+      catch (ServerOverloadException e) {
+		log.warn(e.getMessage());
+      }
+
     }
     return h;
   }

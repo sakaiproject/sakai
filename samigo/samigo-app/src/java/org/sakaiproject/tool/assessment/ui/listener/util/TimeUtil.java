@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Date;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import org.apache.commons.logging.Log;
@@ -114,9 +115,9 @@ public class TimeUtil
         serverDate= ndf.parse(clientString);
       }
     }
-    catch (Exception e){
-      log.warn("can not parse the string into a Date");
-    }
+    catch (ParseException e) {
+    	log.warn("can not parse the string into a Date");
+	}
     return serverDate;
   }
 
@@ -138,7 +139,7 @@ public class TimeUtil
         displayDate= ndf.format(serverDate);
       }
     }
-    catch (Exception e){
+    catch (RuntimeException e){
       log.warn("can not format the Date to a string");
     }
     return displayDate;

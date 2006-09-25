@@ -23,6 +23,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
@@ -292,11 +293,15 @@ public class TemplateUpdateListener
       delegate.save((AssessmentTemplateData)template);
 
     }
-    catch (Exception ex)
+    catch (RuntimeException ex)
     {
       log.error(ex.getMessage(), ex);
       return false;
-    }
+    } 
+    catch (ParseException e) {
+    	log.error(e.getMessage(), e);
+        return false;
+	}
 
     return true;
   }

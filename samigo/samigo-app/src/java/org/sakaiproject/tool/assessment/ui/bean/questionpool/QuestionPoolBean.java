@@ -1344,10 +1344,10 @@ public String getAddOrEdit()
 
       this.setCurrentPool(pool);
     }
-    catch(Exception e)
+    catch(RuntimeException e)
     {
       e.printStackTrace();
-      throw new RuntimeException(e);
+      throw e;
     }
 
   }

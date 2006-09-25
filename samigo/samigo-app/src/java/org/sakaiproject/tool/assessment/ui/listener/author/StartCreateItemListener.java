@@ -216,10 +216,10 @@ log.debug("after getting item.getItemType() ");
                         break;
         }
    }
-    catch(Exception e)
+    catch(RuntimeException e)
     {
       e.printStackTrace();
-      throw new RuntimeException(e);
+      throw e;
     }
 
 // check for metadata settings

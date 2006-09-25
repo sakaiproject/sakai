@@ -284,7 +284,7 @@ public class BeginDeliveryActionListener implements ActionListener
         delivery.setTimeLimit_hour(hour);
         delivery.setTimeLimit_minute(minute);
       }
-    } catch (Exception e)
+    } catch (RuntimeException e)
     {
       delivery.setTimeLimit("");
     }

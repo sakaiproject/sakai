@@ -286,10 +286,10 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
    			  }
    		  }
 	  }
-	  catch(Exception e){
-   		  log.error(e.getMessage());
-   		  e.printStackTrace();
-	  }	  
+	  catch (IOException e) {
+		  log.error(e.getMessage());
+		e.printStackTrace();
+	  }
 	  finally {
 		  if (zos != null) {
 			  try {

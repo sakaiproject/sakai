@@ -46,6 +46,7 @@ import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccess
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
+import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -562,7 +563,7 @@ public class QuestionPoolFacadeQueries
           getHibernateTemplate().deleteAll(itemList); // delete all AssetBeanie
           retryCount = 0;
         }
-        catch (Exception e) {
+        catch (DataAccessException e) {
           log.warn("problem delete all items in pool: "+e.getMessage());
           retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
         }
@@ -599,7 +600,7 @@ public class QuestionPoolFacadeQueries
             getHibernateTemplate().saveOrUpdateAll(metaList);
             retryCount = 0;
 	  }
-          catch (Exception e) {
+          catch (DataAccessException e) {
             log.warn("problem delete question and questionpool map inside itemMetaData: "+e.getMessage());
             retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
           }
@@ -612,7 +613,7 @@ public class QuestionPoolFacadeQueries
           }
           else retryCount = 0;
         }
-        catch (Exception e) {
+        catch (DataAccessException e) {
           log.warn("problem delete question and questionpool map: "+e.getMessage());
           retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
         }
@@ -636,7 +637,7 @@ public class QuestionPoolFacadeQueries
           getHibernateTemplate().deleteAll(qpaList);
           retryCount = 0;
         }
-        catch (Exception e) {
+        catch (DataAccessException e) {
           log.warn("problem delete question pool access data: "+e.getMessage());
           retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
         }
@@ -657,7 +658,7 @@ public class QuestionPoolFacadeQueries
           getHibernateTemplate().deleteAll(qppList);
           retryCount = 0;
         }
-        catch (Exception e) {
+        catch (DataAccessException e) {
           log.warn("problem delete all pools: "+e.getMessage());
           retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
         }
@@ -669,7 +670,7 @@ public class QuestionPoolFacadeQueries
         deletePool( (Long) citer.next(), agent, tree);
       }
     }
-    catch (Exception e) {
+    catch (DataAccessException e) {
       log.warn("error deleting pool. " + e.getMessage());
     }
   }
@@ -680,7 +681,6 @@ public class QuestionPoolFacadeQueries
    */
   public void movePool(String agentId, Long sourcePoolId, Long destPoolId) {
     try {
-
       QuestionPoolFacade sourcePool = getPool(sourcePoolId, agentId);
       if (destPoolId.equals(QuestionPoolFacade.ROOT_POOL) &&
           !sourcePoolId.equals(QuestionPoolFacade.ROOT_POOL)) {
@@ -691,7 +691,7 @@ public class QuestionPoolFacadeQueries
         getHibernateTemplate().update( (QuestionPoolData) sourcePool.getData());
         retryCount = 0;
       }
-      catch (Exception e) {
+      catch (DataAccessException e) {
         log.warn("problem moving pool: "+e.getMessage());
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
       }
@@ -706,14 +706,14 @@ public class QuestionPoolFacadeQueries
         getHibernateTemplate().update( (QuestionPoolData) sourcePool.getData());
         retryCount = 0;
       }
-      catch (Exception e) {
+      catch (DataAccessException e) {
         log.warn("problem update source pool: "+e.getMessage());
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
       }
     }
       }
     }
-    catch (Exception e) {
+    catch (RuntimeException e) {
       log.warn(e.getMessage());
     }
   }
@@ -818,7 +818,7 @@ public class QuestionPoolFacadeQueries
           getHibernateTemplate().saveOrUpdate(qpp);
           retryCount = 0;
         }
-        catch (Exception e) {
+        catch (DataAccessException e) {
           log.warn("problem saving Or Update pool: "+e.getMessage());
           retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
         }
@@ -834,7 +834,7 @@ public class QuestionPoolFacadeQueries
             getHibernateTemplate().save(qpa);
             retryCount = 0;
           }
-          catch (Exception e) {
+          catch (DataAccessException e) {
             log.warn("problem saving pool: "+e.getMessage());
             retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
           }
@@ -842,7 +842,7 @@ public class QuestionPoolFacadeQueries
       }
       return pool;
     }
-    catch (Exception e) {
+    catch (RuntimeException e) {
       log.warn(e.getMessage());
       return null;
     }
@@ -966,7 +966,7 @@ public class QuestionPoolFacadeQueries
       }
       return idList;
     }
-    catch (Exception e) {
+    catch (RuntimeException e) {
       return null;
     }
   }

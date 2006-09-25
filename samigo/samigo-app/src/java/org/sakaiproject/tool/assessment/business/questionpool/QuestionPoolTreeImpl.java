@@ -146,7 +146,7 @@ private static Log log = LogFactory.getLog(QuestionPoolTreeImpl.class);
             else {
             	log.error("poolMap is null");
             }
-          } catch (Exception e) {
+          } catch (RuntimeException e) {
             log.error("Couldn't get ID " + next.getQuestionPoolId());
           }
         }
@@ -157,7 +157,7 @@ private static Log log = LogFactory.getLog(QuestionPoolTreeImpl.class);
     {
       se.printStackTrace();
     }
-    catch(Exception e)
+    catch(RuntimeException e)
     {
       e.printStackTrace();
     }
@@ -274,7 +274,7 @@ private static Log log = LogFactory.getLog(QuestionPoolTreeImpl.class);
       }
     }
 
-    catch(Exception e)
+    catch(RuntimeException e)
     {
       e.printStackTrace();
       return "0";
@@ -639,7 +639,7 @@ private static Log log = LogFactory.getLog(QuestionPoolTreeImpl.class);
             else {
             	log.error("next is null");
             }
-          } catch (Exception e) {
+          } catch (RuntimeException e) {
             log.error("Couldn't get ID " + next.getQuestionPoolId());
           }
         }

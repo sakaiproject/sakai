@@ -185,7 +185,7 @@ public class TemplateLoadListener
        templateBean.setValueMap(template.getAssessmentMetaDataMap
          (template.getAssessmentMetaDataSet()));
     }
-    catch (Exception ex)
+    catch (RuntimeException ex)
     {
       log.error(ex.getMessage(), ex);
       return false;

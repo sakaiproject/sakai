@@ -57,6 +57,9 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entity.impl.ReferenceComponent;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -729,8 +732,14 @@ private List attachmentList;
           if (ref !=null ) list.add(ref);
         }
       }
-      catch(Exception e){
-        log.warn(e.getMessage());
+      catch (PermissionException e) {
+    	  log.warn(e.getMessage());
+      }
+      catch (IdUnusedException e) {
+    	  log.warn(e.getMessage());
+      }
+      catch (TypeException e) {
+    	  log.warn(e.getMessage());
       }
     }
     return list;

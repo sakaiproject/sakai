@@ -285,7 +285,7 @@ public class PublishedAssessmentSettingsBean
       String url = server + extContext.getRequestContextPath();
       this.publishedUrl = url + "/servlet/Login?id=" + this.alias;
     }
-    catch (Exception ex) {
+    catch (RuntimeException ex) {
       log.warn(ex.getMessage());
     }
   }

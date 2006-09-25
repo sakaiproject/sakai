@@ -502,7 +502,7 @@ public class ItemContentsBean implements Serializable {
 				}
 			}
 			return;
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			// True/false
 			log.debug("ClassCastException is okay, the question might be true/false. ");
 		}
@@ -536,7 +536,7 @@ public class ItemContentsBean implements Serializable {
 					break;
 				}
 			}
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			e.printStackTrace();
 		}
 	}

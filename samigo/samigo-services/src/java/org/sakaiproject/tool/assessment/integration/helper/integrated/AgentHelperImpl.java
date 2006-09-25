@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.cover.ToolManager; 
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -446,7 +447,7 @@ log.debug("getEidById agentString s = " + s);
         role = userRole.getId();
       log.debug(realmName + ":" + role);
     }
-    catch(Exception e)
+    catch(GroupNotDefinedException e)
     {
       log.error("error in:" + this + "-getRoleForAgnetAndSite");
     }

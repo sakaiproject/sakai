@@ -2,6 +2,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -301,11 +302,14 @@ public class HistogramListener
           // END DEBUGGING CODE
           ///////////////////////////////////////////////////////////
         }
-        catch (Exception e)
-        {
-          e.printStackTrace();
-          log.warn("unable to populate bean" + e);
-        }
+        catch (IllegalAccessException e) {
+			e.printStackTrace();
+			log.warn("unable to populate bean" + e);
+		}
+        catch (InvocationTargetException e) {
+			e.printStackTrace();
+			log.warn("unable to populate bean" + e);
+		}
 
         bean.setAssessmentName(assessmentName);
       }
@@ -315,7 +319,7 @@ public class HistogramListener
       }
 
     }
-    catch (Exception e)
+    catch (RuntimeException e)
     {
       e.printStackTrace();
       return false;
@@ -1000,9 +1004,12 @@ if (answer != null)
       }
     }
       qbean.setHistogramBars(bars);
-    } catch (Exception e) {
-      e.printStackTrace();
     }
+      catch (IllegalAccessException e) {
+		e.printStackTrace();
+	} catch (InvocationTargetException e) {
+		e.printStackTrace();
+	}
   }
 
   public Map getAssessmentStatisticsMap(ArrayList scoreList)

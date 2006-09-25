@@ -143,7 +143,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         }
         return newlist;
       }
-
     } catch (Exception e) {
       e.printStackTrace();
       return new ArrayList();

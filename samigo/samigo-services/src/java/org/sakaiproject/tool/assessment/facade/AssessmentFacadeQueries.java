@@ -78,6 +78,9 @@ import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.ResourceProperties; 
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 
 public class AssessmentFacadeQueries
     extends HibernateDaoSupport implements AssessmentFacadeQueriesAPI {
@@ -1388,8 +1391,14 @@ public class AssessmentFacadeQueries
         getHibernateTemplate().save(attach);
       }
     }
-    catch(Exception e){
-      e.printStackTrace();
+    catch(PermissionException pe){
+        pe.printStackTrace();
+    }
+    catch(IdUnusedException ie){
+        ie.printStackTrace();
+    }
+    catch(TypeException te){
+        te.printStackTrace();
     }
     return attach;
   }
@@ -1491,9 +1500,16 @@ public class AssessmentFacadeQueries
         getHibernateTemplate().save(attach);
       }
     }
-    catch(Exception e){
-      e.printStackTrace();
+    catch(PermissionException pe){
+        pe.printStackTrace();
     }
+    catch(IdUnusedException ie){
+        ie.printStackTrace();
+    }
+    catch(TypeException te){
+        te.printStackTrace();
+    }
+
     return attach;
   }
 
@@ -1545,8 +1561,14 @@ public class AssessmentFacadeQueries
         getHibernateTemplate().save(attach);
       }
     }
-    catch(Exception e){
-      e.printStackTrace();
+    catch(PermissionException pe){
+      pe.printStackTrace();
+    }
+    catch(IdUnusedException ie){
+        ie.printStackTrace();
+    }
+    catch(TypeException te){
+        te.printStackTrace();
     }
     return attach;
   }

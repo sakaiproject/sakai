@@ -140,9 +140,6 @@ public class PoolSaveListener implements ActionListener
   }
 
   public boolean savePool(QuestionPoolBean qpbean) {
-
-    try
-    {
       QuestionPoolDataBean bean = qpbean.getCurrentPool();
       Long beanid = new Long ("0");
       if(bean.getId() != null)
@@ -200,14 +197,6 @@ public class PoolSaveListener implements ActionListener
 	  qpbean.setOutcomeEdit("poolList");
 	qpbean.setOutcome("poolList");
       }
-   }
-    catch(Exception e)
-    {
-      e.printStackTrace();
-      return false;
-    }
-
-
 	// set outcome for action
 	return true;
   }

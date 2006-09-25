@@ -23,10 +23,10 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.HashMap;
 
@@ -49,8 +49,6 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 
 /**
  * <p>
@@ -176,11 +174,13 @@ public class TotalScoreUpdateListener
       }
 
 
-    catch (Exception e)
-    {
-      e.printStackTrace();
-      return false;
-    }
+    catch (IllegalAccessException e) {
+		e.printStackTrace();
+		return false;
+	} catch (InvocationTargetException e) {
+		e.printStackTrace();
+		return false;
+	}
     return true;
   }
 
