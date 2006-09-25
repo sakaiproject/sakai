@@ -55,14 +55,23 @@ public class BasicRightsService extends BaseRightsService
 
 		public void close() 
 		{
-			m_copyrights.clear();
-			m_copyrights = null;
+			if(m_copyrights != null)
+			{
+				m_copyrights.clear();
+				m_copyrights = null;
+			}
 			
-			m_licenses.clear();
-			m_licenses = null;
+			if(m_licenses != null)
+			{
+				m_licenses.clear();
+				m_licenses = null;
+			}
 			
-			m_rightsAssignments.clear();
-			m_rightsAssignments = null;
+			if(m_rightsAssignments != null)
+			{
+				m_rightsAssignments.clear();
+				m_rightsAssignments = null;
+			}
 		}
 
 		public Copyright getCopyright(String copyrightId) throws IdUnusedException
