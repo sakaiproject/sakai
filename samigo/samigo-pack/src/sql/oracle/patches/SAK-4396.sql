@@ -1,4 +1,3 @@
-# add two new tables to support attachments in v2.3
 drop table SAM_ATTACHMENT_T cascade constraints;
 drop table SAM_PUBLISHEDATTACHMENT_T cascade constraints;
 drop sequence SAM_ATTACHMENT_ID_S;
