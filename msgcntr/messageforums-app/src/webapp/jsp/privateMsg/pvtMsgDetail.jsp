@@ -23,10 +23,10 @@
         <table class="msgDetails">
           <tr>
             <td class="msgDetailsCol">
-            	 <h:outputText value="#{msgs.pvt_to}" rendered="#{PrivateMessagesTool.msgNavMode == 'Sent'}"/>
+            	 <h:outputText value="#{msgs.pvt_to}" />
             </td>
             <td>
-            	 <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.recipientsAsText}" rendered="#{PrivateMessagesTool.msgNavMode == 'Sent'}"/>
+            	 <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.recipientsAsText}" />
             </td>  
             <td class="msgNav">         			
 								<h:outputText value="#{msgs.pvt_prev_msg}"  rendered="#{!PrivateMessagesTool.detailMsg.hasPre}" />

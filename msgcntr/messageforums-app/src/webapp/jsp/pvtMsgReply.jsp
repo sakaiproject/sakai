@@ -169,6 +169,14 @@
              </td>                           
            </tr>
            <tr>
+           	<td class="msgDetailsCol">
+            	 <h:outputText value="#{msgs.pvt_to}" />
+            </td>
+            <td>
+            	 <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.recipientsAsText}" />
+            </td> 
+           </tr>
+           <tr>
              <td class="msgDetailsCol"> 
           			<h:outputText value="#{msgs.pvt_subject}"/>		
              </td>

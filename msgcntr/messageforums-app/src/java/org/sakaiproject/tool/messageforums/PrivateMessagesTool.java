@@ -1194,33 +1194,7 @@ public class PrivateMessagesTool
       //aMsg.setCreatedBy(getUserId());
       //aMsg.setCreated(getTime()) ;
       
-      String authorString = "";
-      if(!"false".equalsIgnoreCase(ServerConfigurationService.getString
-  			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
-  	  {
-  	    try
-  	    {
-  	      if((UserDirectoryService.getUser(getUserId()).getLastName() == null || 
-  	      		UserDirectoryService.getUser(getUserId()).getLastName().length() < 1) 
-  	      		&& (UserDirectoryService.getUser(getUserId()).getFirstName() == null ||
-  	      				UserDirectoryService.getUser(getUserId()).getFirstName().length() < 1))
-  	      {
-  	      	authorString = UserDirectoryService.getUserEid(UserDirectoryService.getCurrentUser().getId());
-  	      }
-  	      else
-  	      {
-  	      	authorString += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
-  	      	authorString += UserDirectoryService.getUser(getUserId()).getFirstName();
-  	      }
-  	    }
-  	    catch(Exception e)
-  	    {
-  	    	e.printStackTrace();
-  	    }
-  	  }
-      else
-      	authorString = getUserId();
-      aMsg.setAuthor(authorString);
+      aMsg.setAuthor(getAuthorString());
       aMsg.setDraft(Boolean.FALSE);      
       aMsg.setApproved(Boolean.FALSE);     
       aMsg.setLabel(getSelectedLabel());
@@ -1232,10 +1206,10 @@ public class PrivateMessagesTool
         MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(i));  
         if(membershipItem != null)
         {
-          sendToString +=membershipItem.getName()+";" ;
+          sendToString +=membershipItem.getName()+"; " ;
         }          
       }
-      sendToString=sendToString.substring(0, sendToString.length()-1); //remove last comma
+      sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space
       aMsg.setRecipientsAsText(sendToString);
       
     }
@@ -1596,23 +1570,8 @@ public class PrivateMessagesTool
        
     rrepMsg.setTitle(getReplyToSubject()) ; //rrepMsg.setTitle(rMsg.getTitle()) ;
     rrepMsg.setDraft(Boolean.FALSE);
-    String authorString = "";
-    if("true".equalsIgnoreCase(ServerConfigurationService.getString
-  			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
-  	{
-  	  try
-  	  {
-  		authorString += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
-  		authorString += UserDirectoryService.getUser(getUserId()).getFirstName();
-  	  }
-  	  catch(Exception e)
-  	  {
-  		e.printStackTrace();
-  	  }
-  	}
-    else
-      authorString += getUserId();
-    rrepMsg.setAuthor(authorString);
+    
+    rrepMsg.setAuthor(getAuthorString());
     rrepMsg.setApproved(Boolean.FALSE);
     rrepMsg.setBody(getReplyToBody()) ;
     
@@ -1627,10 +1586,10 @@ public class PrivateMessagesTool
       MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(i));  
       if(membershipItem != null)
       {
-        sendToString +=membershipItem.getName()+";" ;
+        sendToString +=membershipItem.getName()+"; " ;
       }          
     }
-    sendToString=sendToString.substring(0, sendToString.length()-1); //remove last comma
+    sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space
     rrepMsg.setRecipientsAsText(sendToString);
     
     
@@ -1683,23 +1642,8 @@ public class PrivateMessagesTool
     PrivateMessage drrepMsg = messageManager.createPrivateMessage() ;
     drrepMsg.setTitle(getReplyToSubject()) ;
     drrepMsg.setDraft(Boolean.TRUE);
-    String authorString = "";
-    if("true".equalsIgnoreCase(ServerConfigurationService.getString
-  			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
-  	{
-  	  try
-  	  {
-  		authorString += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
-  		authorString += UserDirectoryService.getUser(getUserId()).getFirstName();
-  	  }
-  	  catch(Exception e)
-  	  {
-  		e.printStackTrace();
-  	  }
-  	}
-    else
-      authorString = getUserId();
-    drrepMsg.setAuthor(authorString);
+
+    drrepMsg.setAuthor(getAuthorString());
     drrepMsg.setApproved(Boolean.FALSE);
     drrepMsg.setBody(getReplyToBody()) ;
     
@@ -3090,5 +3034,20 @@ public class PrivateMessagesTool
     }
 
 
+    private String getAuthorString() {
+       String authorString = getUserId();
+       
+       try
+       {
+         authorString = UserDirectoryService.getUser(getUserId()).getSortName();
+
+       }
+       catch(Exception e)
+       {
+         e.printStackTrace();
+       }
+       
+       return authorString;
+    }
 
 }
