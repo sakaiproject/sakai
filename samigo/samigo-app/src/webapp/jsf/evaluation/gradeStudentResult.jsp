@@ -233,7 +233,7 @@ $Id$
 
             <h:panelGroup rendered="#{question.itemData.typeId == 5}">
               <f:subview id="deliverShortAnswer">
-                <%@ include file="/jsf/delivery/item/deliverShortAnswer.jsp" %>
+                <%@ include file="/jsf/delivery/item/deliverShortAnswerLink.jsp" %>
               </f:subview>
             </h:panelGroup>
 
