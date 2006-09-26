@@ -6,7 +6,7 @@
       <value>wiki_content1</value>
     </property>
     <property name="name">
-      <value>Wiki: Overview</value>
+      <value>Wiki Overview</value>
     </property>
     <property name="location">
       <value>/sakai_rwiki/overview.htm</value>
