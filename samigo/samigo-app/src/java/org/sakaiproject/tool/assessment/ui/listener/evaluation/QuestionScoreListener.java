@@ -42,6 +42,7 @@ import org.apache.commons.logging.LogFactory;
 //import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 //import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -408,6 +409,20 @@ log.debug("item!=null steting type id = " + item.getTypeId().toString());
 	bean.setPartName(item.getSection().getSequence().toString()); 
         bean.setItemName(item.getSequence().toString());
         item.setHint("***"); // Keyword to not show student answer
+        // for short answer/ essey question, if there is a model short answer for this question
+        // set haveModelShortAnswer to true
+        if (item.getTypeId().equals(new Long(5))) {
+        	Iterator iterator = publishedAnswerHash.values().iterator();
+            while (iterator.hasNext()) {
+            	PublishedAnswer publishedAnswer = (PublishedAnswer) iterator.next();
+            	if (publishedAnswer.getText() == null || publishedAnswer.getText().equals("")) {
+            		bean.setHaveModelShortAnswer(false);
+            	}
+            	else {
+            		bean.setHaveModelShortAnswer(true);
+            	}
+            }
+        }
       }
       else {
 log.debug("item==null "); 

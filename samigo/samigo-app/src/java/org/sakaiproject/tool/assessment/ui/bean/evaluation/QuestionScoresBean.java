@@ -88,6 +88,7 @@ public class QuestionScoresBean
   private String selectedSectionFilterValue = TotalScoresBean.ALL_SECTIONS_SELECT_VALUE;
   private String selectedSARationaleView =SHOW_SA_RATIONALE_RESPONSES_POPUP;
   private ArrayList allAgents;
+  private boolean haveModelShortAnswer;
   
   //Paging.
   private int firstScoreRow;
@@ -849,4 +850,15 @@ public void clear(ActionEvent event) {
 		}
 		return filteredList;
 	}
+	
+	public boolean getHaveModelShortAnswer()
+	{
+		return haveModelShortAnswer;
+	}
+
+	public void setHaveModelShortAnswer(boolean haveModelShortAnswer)
+	{
+		this.haveModelShortAnswer = haveModelShortAnswer;
+	}
+	
 }
