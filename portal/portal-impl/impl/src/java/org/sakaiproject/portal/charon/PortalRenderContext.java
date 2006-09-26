@@ -45,4 +45,11 @@ public interface PortalRenderContext
 	 */
 	String dump();
 
+	/**
+	 * Return true if the context needs this part of the portal
+	 * @param includeOption
+	 * @return
+	 */
+	boolean uses(String includeOption);
+
 }

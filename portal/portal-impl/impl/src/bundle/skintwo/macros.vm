@@ -173,8 +173,8 @@
 				</li>
 #end
 #end
-				<li style="border-width: 0pt; display: none;" class="fixTabsIE">
 
+				<li style="border-width: 0pt; display: none;" class="fixTabsIE">
 					<a href="javascript:void(0);">#x20;</a>
 				</li>
 			</ul>

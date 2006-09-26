@@ -19,6 +19,15 @@
  *
  **********************************************************************************/
 // Base version: CharonPortal.java 14784 -- this must be updated to map changes in Charon 
+/* progress comments,
+ * Use of hierarchy is controlled by the skin in the options.properties file in the
+ * skin bundle.
+ * Where hierarchy is enabled, Worksites are filtered by the Hierarchy.
+ * There is also a Management site for the node. For the user be able 
+ * to do anything to the node, the user needs to be a member of the management
+ * site for the node.
+ */
+
 package org.sakaiproject.portal.charon;
 
 import java.io.File;
@@ -40,7 +49,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,6 +58,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
+import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
 import org.sakaiproject.hierarchy.cover.HierarchyService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -145,6 +154,30 @@ public class SkinnableCharonPortal extends HttpServlet
 	private static final ThreadLocal staticCacheHolder = new ThreadLocal();
 
 	private static final String PADDING = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+
+	private static final String INCLUDE_BOTTOM = "include-bottom";
+
+	private static final String INCLUDE_HIERARCHY = "include-hierarchy";
+
+	private static final String INCLUDE_WORKSITE = "include-worksite";
+
+	private static final String INCLUDE_TABS = "include-tabs";
+
+	private static final String INCLUDE_SITE_NAV = "include-site-nav";
+
+	private static final String INCLUDE_PAGE_NAV = "include-page-nav";
+
+	private static final String INCLUDE_PAGE = "include-page";
+
+	private static final String INCLUDE_LOGIN = "include-login";
+
+	private static final String INCLUDE_LOGO = "include-logo";
+
+	private static final String INCLUDE_GALLERY_NAV = "include-gallery-nav";
+
+	private static final String INCLUDE_GALLERY_LOGIN = "include-gallery-login";
+
+	private static final String INCLUDE_TITLE = "include-title";
 
 	/**
 	 * Shutdown the servlet.
@@ -763,7 +796,8 @@ public class SkinnableCharonPortal extends HttpServlet
 			String toolContextPath, String toolPathInfo) throws IOException
 	{
 
-		// TODO: After 2.3 and the background document is modified - this may no
+		// TODO: After 2.3 and the background document is modified - this
+		// may no
 		// longer be needed
 		// as the title is simply in the background document
 
@@ -826,7 +860,8 @@ public class SkinnableCharonPortal extends HttpServlet
 		{
 			// cause main tool frame to be reset
 
-			// clear the session data associated with the tool - should reset
+			// clear the session data associated with the tool - should
+			// reset
 			// the tool
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placement.getId());
@@ -1799,133 +1834,148 @@ public class SkinnableCharonPortal extends HttpServlet
 
 	protected void includeBottom(PortalRenderContext rcontext)
 	{
-		String copyright = ServerConfigurationService
-				.getString("bottom.copyrighttext");
-		String service = ServerConfigurationService.getString("ui.service",
-				"Sakai");
-		String serviceVersion = ServerConfigurationService.getString(
-				"version.service", "?");
-		String sakaiVersion = ServerConfigurationService.getString(
-				"version.sakai", "?");
-		String server = ServerConfigurationService.getServerId();
-		String[] bottomNav = ServerConfigurationService.getStrings("bottomnav");
-		String[] poweredByUrl = ServerConfigurationService
-				.getStrings("powered.url");
-		String[] poweredByImage = ServerConfigurationService
-				.getStrings("powered.img");
-		String[] poweredByAltText = ServerConfigurationService
-				.getStrings("powered.alt");
-
+		if (rcontext.uses(INCLUDE_BOTTOM))
 		{
-			List l = new ArrayList();
-			if ((bottomNav != null) && (bottomNav.length > 0))
-			{
-				for (int i = 0; i < bottomNav.length; i++)
-				{
-					l.add(bottomNav[i]);
-				}
-			}
-			rcontext.put("bottomNav", l);
-		}
+			String copyright = ServerConfigurationService
+					.getString("bottom.copyrighttext");
+			String service = ServerConfigurationService.getString("ui.service",
+					"Sakai");
+			String serviceVersion = ServerConfigurationService.getString(
+					"version.service", "?");
+			String sakaiVersion = ServerConfigurationService.getString(
+					"version.sakai", "?");
+			String server = ServerConfigurationService.getServerId();
+			String[] bottomNav = ServerConfigurationService
+					.getStrings("bottomnav");
+			String[] poweredByUrl = ServerConfigurationService
+					.getStrings("powered.url");
+			String[] poweredByImage = ServerConfigurationService
+					.getStrings("powered.img");
+			String[] poweredByAltText = ServerConfigurationService
+					.getStrings("powered.alt");
 
-		rcontext.put("bottomNavSitNewWindow", Web.escapeHtml(rb
-				.getString("site.newwindow")));
-
-		if ((poweredByUrl != null) && (poweredByImage != null)
-				&& (poweredByAltText != null)
-				&& (poweredByUrl.length == poweredByImage.length)
-				&& (poweredByUrl.length == poweredByAltText.length))
-		{
 			{
 				List l = new ArrayList();
-				for (int i = 0; i < poweredByUrl.length; i++)
+				if ((bottomNav != null) && (bottomNav.length > 0))
 				{
-					Map m = new HashMap();
-					m.put("powerdByUrl", poweredByUrl[i]);
-					m.put("powerdByImage", poweredByImage[i]);
-					m.put("powerdByAltText", poweredByAltText[i]);
-					l.add(m);
+					for (int i = 0; i < bottomNav.length; i++)
+					{
+						l.add(bottomNav[i]);
+					}
 				}
-				rcontext.put("bottomNavPoweredBy", l);
-
+				rcontext.put("bottomNav", l);
 			}
-		}
-		else
-		{
-			List l = new ArrayList();
-			Map m = new HashMap();
-			m.put("powerdByUrl", "http://sakaiproject.org");
-			m.put("powerdByImage", "/library/image/sakai_powered.gif");
-			m.put("powerdByAltText", "Powered by Sakai");
-			l.add(m);
-			rcontext.put("bottomNavPoweredBy", l);
-		}
 
-		rcontext.put("bottomNavService", service);
-		rcontext.put("bottomNavCopyright", copyright);
-		rcontext.put("bottomNavServiceVersion", serviceVersion);
-		rcontext.put("bottomNavSakaiVersion", sakaiVersion);
-		rcontext.put("bottomNavServer", server);
+			rcontext.put("bottomNavSitNewWindow", Web.escapeHtml(rb
+					.getString("site.newwindow")));
+
+			if ((poweredByUrl != null) && (poweredByImage != null)
+					&& (poweredByAltText != null)
+					&& (poweredByUrl.length == poweredByImage.length)
+					&& (poweredByUrl.length == poweredByAltText.length))
+			{
+				{
+					List l = new ArrayList();
+					for (int i = 0; i < poweredByUrl.length; i++)
+					{
+						Map m = new HashMap();
+						m.put("powerdByUrl", poweredByUrl[i]);
+						m.put("powerdByImage", poweredByImage[i]);
+						m.put("powerdByAltText", poweredByAltText[i]);
+						l.add(m);
+					}
+					rcontext.put("bottomNavPoweredBy", l);
+
+				}
+			}
+			else
+			{
+				List l = new ArrayList();
+				Map m = new HashMap();
+				m.put("powerdByUrl", "http://sakaiproject.org");
+				m.put("powerdByImage", "/library/image/sakai_powered.gif");
+				m.put("powerdByAltText", "Powered by Sakai");
+				l.add(m);
+				rcontext.put("bottomNavPoweredBy", l);
+			}
+
+			rcontext.put("bottomNavService", service);
+			rcontext.put("bottomNavCopyright", copyright);
+			rcontext.put("bottomNavServiceVersion", serviceVersion);
+			rcontext.put("bottomNavSakaiVersion", sakaiVersion);
+			rcontext.put("bottomNavServer", server);
+		}
 	}
 
 	protected void includeGalleryLogin(PortalRenderContext rcontext,
 			HttpServletRequest req, Session session, String siteId)
 			throws IOException
 	{
-		includeLogin(rcontext, req, session);
+		if (rcontext.uses(INCLUDE_GALLERY_LOGIN))
+		{
+			includeLogin(rcontext, req, session);
+		}
 	}
 
 	protected void includeGalleryNav(PortalRenderContext rcontext,
 			HttpServletRequest req, Session session, String siteId)
 	{
-		boolean loggedIn = session.getUserId() != null;
-		boolean topLogin = ServerConfigurationService.getBoolean("top.login",
-				true);
-
-		String siteNavUrl = null;
-
-		if (loggedIn)
+		if (rcontext.uses(INCLUDE_GALLERY_NAV))
 		{
-			siteNavUrl = Web.returnUrl(req, "/gallery_tabs/"
-					+ Web.escapeUrl(siteId));
-		}
-		else
-		{
-			siteNavUrl = Web.returnUrl(req, "/nav_login_gallery/"
-					+ Web.escapeUrl(siteId));
-		}
 
-		// outer blocks and jump-to links
-		String accessibilityURL = ServerConfigurationService
-				.getString("accessibility.url");
-		rcontext.put("galleryHasAccessibilityURL", Boolean
-				.valueOf((accessibilityURL != null && accessibilityURL != "")));
+			boolean loggedIn = session.getUserId() != null;
+			boolean topLogin = ServerConfigurationService.getBoolean(
+					"top.login", true);
 
-		rcontext.put("galleryAccessibilityURL", accessibilityURL);
-		rcontext.put("gallarySitAccessibility", Web.escapeHtml(rb
-				.getString("sit.accessibility")));
-		rcontext.put("gallarySitJumpcontent", Web.escapeHtml(rb
-				.getString("sit.jumpcontent")));
-		rcontext.put("gallarySitJumptools", Web.escapeHtml(rb
-				.getString("sit.jumptools")));
-		rcontext.put("gallarySitJumpworksite", Web.escapeHtml(rb
-				.getString("sit.jumpworksite")));
-		rcontext.put("gallaryLoggedIn", Boolean.valueOf(loggedIn));
+			String siteNavUrl = null;
 
-		try
-		{
 			if (loggedIn)
 			{
-				includeHierarchy(rcontext, req);
-				includeTabs(rcontext, req, session, siteId, "gallery", false);
+				siteNavUrl = Web.returnUrl(req, "/gallery_tabs/"
+						+ Web.escapeUrl(siteId));
 			}
 			else
 			{
-				includeGalleryLogin(rcontext, req, session, siteId);
+				siteNavUrl = Web.returnUrl(req, "/nav_login_gallery/"
+						+ Web.escapeUrl(siteId));
 			}
-		}
-		catch (Exception any)
-		{
+
+			// outer blocks and jump-to links
+			String accessibilityURL = ServerConfigurationService
+					.getString("accessibility.url");
+			rcontext
+					.put(
+							"galleryHasAccessibilityURL",
+							Boolean
+									.valueOf((accessibilityURL != null && accessibilityURL != "")));
+
+			rcontext.put("galleryAccessibilityURL", accessibilityURL);
+			rcontext.put("gallarySitAccessibility", Web.escapeHtml(rb
+					.getString("sit.accessibility")));
+			rcontext.put("gallarySitJumpcontent", Web.escapeHtml(rb
+					.getString("sit.jumpcontent")));
+			rcontext.put("gallarySitJumptools", Web.escapeHtml(rb
+					.getString("sit.jumptools")));
+			rcontext.put("gallarySitJumpworksite", Web.escapeHtml(rb
+					.getString("sit.jumpworksite")));
+			rcontext.put("gallaryLoggedIn", Boolean.valueOf(loggedIn));
+
+			try
+			{
+				if (loggedIn)
+				{
+					includeHierarchy(rcontext, req);
+					includeTabs(rcontext, req, session, siteId, "gallery",
+							false);
+				}
+				else
+				{
+					includeGalleryLogin(rcontext, req, session, siteId);
+				}
+			}
+			catch (Exception any)
+			{
+			}
 		}
 
 	}
@@ -1934,143 +1984,159 @@ public class SkinnableCharonPortal extends HttpServlet
 			HttpServletRequest req, Session session, String siteId)
 			throws IOException
 	{
-		String skin = SiteService.getSiteSkin(siteId);
-		if (skin == null)
+		if (rcontext.uses(INCLUDE_LOGO))
 		{
-			skin = ServerConfigurationService.getString("skin.default");
+
+			String skin = SiteService.getSiteSkin(siteId);
+			if (skin == null)
+			{
+				skin = ServerConfigurationService.getString("skin.default");
+			}
+			String skinRepo = ServerConfigurationService.getString("skin.repo");
+			rcontext.put("logoSkin", skin);
+			rcontext.put("logoSkinRepo", skinRepo);
+			String siteType = calcSiteType(siteId);
+			String cssClass = (siteType != null) ? siteType
+					: "undeterminedSiteType";
+			rcontext.put("logoSiteType", siteType);
+			rcontext.put("logoSiteClass", cssClass);
+			includeLogin(rcontext, req, session);
 		}
-		String skinRepo = ServerConfigurationService.getString("skin.repo");
-		rcontext.put("logoSkin", skin);
-		rcontext.put("logoSkinRepo", skinRepo);
-		String siteType = calcSiteType(siteId);
-		String cssClass = (siteType != null) ? siteType
-				: "undeterminedSiteType";
-		rcontext.put("logoSiteType", siteType);
-		rcontext.put("logoSiteClass", cssClass);
-		includeLogin(rcontext, req, session);
 	}
 
 	protected void includeLogin(PortalRenderContext rcontext,
 			HttpServletRequest req, Session session)
 	{
-		// for the main login/out link
-		String logInOutUrl = Web.serverUrl(req);
-		String message = null;
-		String image1 = null;
-
-		// for a possible second link
-		String logInOutUrl2 = null;
-		String message2 = null;
-		String image2 = null;
-
-		// check for the top.login (where the login fields are present instead
-		// of a login link, but ignore it if container.login is set
-		boolean topLogin = Boolean.TRUE.toString().equalsIgnoreCase(
-				ServerConfigurationService.getString("top.login"));
-		boolean containerLogin = Boolean.TRUE.toString().equalsIgnoreCase(
-				ServerConfigurationService.getString("container.login"));
-		if (containerLogin) topLogin = false;
-
-		// if not logged in they get login
-		if (session.getUserId() == null)
+		if (rcontext.uses(INCLUDE_LOGIN))
 		{
-			// we don't need any of this if we are doing top login
-			if (!topLogin)
+
+			// for the main login/out link
+			String logInOutUrl = Web.serverUrl(req);
+			String message = null;
+			String image1 = null;
+
+			// for a possible second link
+			String logInOutUrl2 = null;
+			String message2 = null;
+			String image2 = null;
+
+			// check for the top.login (where the login fields are present
+			// instead
+			// of a login link, but ignore it if container.login is set
+			boolean topLogin = Boolean.TRUE.toString().equalsIgnoreCase(
+					ServerConfigurationService.getString("top.login"));
+			boolean containerLogin = Boolean.TRUE.toString().equalsIgnoreCase(
+					ServerConfigurationService.getString("container.login"));
+			if (containerLogin) topLogin = false;
+
+			// if not logged in they get login
+			if (session.getUserId() == null)
+			{
+				// we don't need any of this if we are doing top login
+				if (!topLogin)
+				{
+					logInOutUrl += ServerConfigurationService
+							.getString("portalPath")
+							+ "/login";
+
+					// let the login url be overridden by configuration
+					String overrideLoginUrl = StringUtil
+							.trimToNull(ServerConfigurationService
+									.getString("login.url"));
+					if (overrideLoginUrl != null)
+						logInOutUrl = overrideLoginUrl;
+
+					// check for a login text override
+					message = StringUtil.trimToNull(ServerConfigurationService
+							.getString("login.text"));
+					if (message == null) message = rb.getString("log.login");
+
+					// check for an image for the login
+					image1 = StringUtil.trimToNull(ServerConfigurationService
+							.getString("login.icon"));
+
+					// check for a possible second, xlogin link
+					if (Boolean.TRUE.toString().equalsIgnoreCase(
+							ServerConfigurationService
+									.getString("xlogin.enabled")))
+					{
+						// get the text and image as configured
+						message2 = StringUtil
+								.trimToNull(ServerConfigurationService
+										.getString("xlogin.text"));
+						image2 = StringUtil
+								.trimToNull(ServerConfigurationService
+										.getString("xlogin.icon"));
+						logInOutUrl2 = ServerConfigurationService
+								.getString("portalPath")
+								+ "/xlogin";
+					}
+				}
+			}
+
+			// if logged in they get logout
+			else
 			{
 				logInOutUrl += ServerConfigurationService
 						.getString("portalPath")
-						+ "/login";
+						+ "/logout";
 
-				// let the login url be overridden by configuration
-				String overrideLoginUrl = StringUtil
-						.trimToNull(ServerConfigurationService
-								.getString("login.url"));
-				if (overrideLoginUrl != null) logInOutUrl = overrideLoginUrl;
-
-				// check for a login text override
+				// check for a logout text override
 				message = StringUtil.trimToNull(ServerConfigurationService
-						.getString("login.text"));
-				if (message == null) message = rb.getString("log.login");
+						.getString("logout.text"));
+				if (message == null) message = rb.getString("sit.log");
 
-				// check for an image for the login
+				// check for an image for the logout
 				image1 = StringUtil.trimToNull(ServerConfigurationService
-						.getString("login.icon"));
+						.getString("logout.icon"));
 
-				// check for a possible second, xlogin link
-				if (Boolean.TRUE.toString().equalsIgnoreCase(
-						ServerConfigurationService.getString("xlogin.enabled")))
-				{
-					// get the text and image as configured
-					message2 = StringUtil.trimToNull(ServerConfigurationService
-							.getString("xlogin.text"));
-					image2 = StringUtil.trimToNull(ServerConfigurationService
-							.getString("xlogin.icon"));
-					logInOutUrl2 = ServerConfigurationService
-							.getString("portalPath")
-							+ "/xlogin";
-				}
+				// since we are doing logout, cancel top.login
+				topLogin = false;
 			}
-		}
+			rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
 
-		// if logged in they get logout
-		else
-		{
-			logInOutUrl += ServerConfigurationService.getString("portalPath")
-					+ "/logout";
+			if (!topLogin)
+			{
 
-			// check for a logout text override
-			message = StringUtil.trimToNull(ServerConfigurationService
-					.getString("logout.text"));
-			if (message == null) message = rb.getString("sit.log");
+				rcontext.put("loginLogInOutUrl", logInOutUrl);
+				rcontext.put("loginMessage", message);
+				rcontext.put("loginImage1", image1);
+				rcontext
+						.put("image1HasImage1", Boolean.valueOf(image1 != null));
+				rcontext.put("loginLogInOutUrl2", logInOutUrl2);
+				rcontext.put("loginHasLogInOutUrl2", Boolean
+						.valueOf(logInOutUrl2 != null));
+				rcontext.put("loginMessage2", message2);
+				rcontext.put("loginImage2", image2);
+				rcontext
+						.put("image1HasImage2", Boolean.valueOf(image2 != null));
+				// put out the links version
 
-			// check for an image for the logout
-			image1 = StringUtil.trimToNull(ServerConfigurationService
-					.getString("logout.icon"));
+				// else put out the fields that will send to the login interface
+			}
+			else
+			{
+				// find the login tool
+				Tool loginTool = ToolManager.getTool("sakai.login");
+				String eidWording = null;
+				String pwWording = null;
+				eidWording = StringUtil.trimToNull(rb.getString("log.userid"));
+				pwWording = StringUtil.trimToNull(rb.getString("log.pass"));
 
-			// since we are doing logout, cancel top.login
-			topLogin = false;
-		}
-		rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
+				if (eidWording == null) eidWording = "eid";
+				if (pwWording == null) pwWording = "pw";
+				String loginWording = rb.getString("log.login");
 
-		if (!topLogin)
-		{
+				rcontext.put("loginPortalPath", ServerConfigurationService
+						.getString("portalPath"));
+				rcontext.put("loginEidWording", eidWording);
+				rcontext.put("loginPwWording", pwWording);
+				rcontext.put("loginWording", loginWording);
 
-			rcontext.put("loginLogInOutUrl", logInOutUrl);
-			rcontext.put("loginMessage", message);
-			rcontext.put("loginImage1", image1);
-			rcontext.put("image1HasImage1", Boolean.valueOf(image1 != null));
-			rcontext.put("loginLogInOutUrl2", logInOutUrl2);
-			rcontext.put("loginHasLogInOutUrl2", Boolean
-					.valueOf(logInOutUrl2 != null));
-			rcontext.put("loginMessage2", message2);
-			rcontext.put("loginImage2", image2);
-			rcontext.put("image1HasImage2", Boolean.valueOf(image2 != null));
-			// put out the links version
-
-			// else put out the fields that will send to the login interface
-		}
-		else
-		{
-			// find the login tool
-			Tool loginTool = ToolManager.getTool("sakai.login");
-			String eidWording = null;
-			String pwWording = null;
-			eidWording = StringUtil.trimToNull(rb.getString("log.userid"));
-			pwWording = StringUtil.trimToNull(rb.getString("log.pass"));
-
-			if (eidWording == null) eidWording = "eid";
-			if (pwWording == null) pwWording = "pw";
-			String loginWording = rb.getString("log.login");
-
-			rcontext.put("loginPortalPath", ServerConfigurationService
-					.getString("portalPath"));
-			rcontext.put("loginEidWording", eidWording);
-			rcontext.put("loginPwWording", pwWording);
-			rcontext.put("loginWording", loginWording);
-
-			// setup for the redirect after login
-			session.setAttribute(Tool.HELPER_DONE_URL,
-					ServerConfigurationService.getPortalUrl());
+				// setup for the redirect after login
+				session.setAttribute(Tool.HELPER_DONE_URL,
+						ServerConfigurationService.getPortalUrl());
+			}
 		}
 	}
 
@@ -2078,65 +2144,72 @@ public class SkinnableCharonPortal extends HttpServlet
 			HttpServletRequest req, SitePage page, String toolContextPath,
 			String wrapperClass) throws IOException
 	{
-		// divs to wrap the tools
-		rcontext.put("pageWrapperClass", wrapperClass);
-		rcontext.put("pageColumnLayout",
-				(page.getLayout() == SitePage.LAYOUT_DOUBLE_COL) ? "col1of2"
-						: "col1");
-		Site site = null;
-		try
+		if (rcontext.uses(INCLUDE_PAGE))
 		{
-			site = SiteService.getSite(page.getSiteId());
-		}
-		catch (Exception ignoreMe)
-		{
-			// Non fatal - just assume null
-			if (M_log.isTraceEnabled())
-				M_log.trace("includePage unable to find site for page "
-						+ page.getId());
-		}
-		{
-			List toolList = new ArrayList();
-			List tools = page.getTools(0);
-			for (Iterator i = tools.iterator(); i.hasNext();)
+
+			// divs to wrap the tools
+			rcontext.put("pageWrapperClass", wrapperClass);
+			rcontext
+					.put(
+							"pageColumnLayout",
+							(page.getLayout() == SitePage.LAYOUT_DOUBLE_COL) ? "col1of2"
+									: "col1");
+			Site site = null;
+			try
 			{
-				ToolConfiguration placement = (ToolConfiguration) i.next();
-
-				if (site != null)
-				{
-					boolean thisTool = allowTool(site, placement);
-					// System.out.println(" Allow Tool Display -" +
-					// placement.getTitle() + " retval = " + thisTool);
-					if (!thisTool) continue; // Skip this tool if not allowed
-				}
-
-				Map m = includeTool(req, placement);
-				if (m != null)
-				{
-					toolList.add(m);
-				}
+				site = SiteService.getSite(page.getSiteId());
 			}
-			rcontext.put("pageColumn0Tools", toolList);
-		}
-
-		rcontext.put("pageTwoColumn", Boolean
-				.valueOf(page.getLayout() == SitePage.LAYOUT_DOUBLE_COL));
-
-		// do the second column if needed
-		if (page.getLayout() == SitePage.LAYOUT_DOUBLE_COL)
-		{
-			List toolList = new ArrayList();
-			List tools = page.getTools(1);
-			for (Iterator i = tools.iterator(); i.hasNext();)
+			catch (Exception ignoreMe)
 			{
-				ToolConfiguration placement = (ToolConfiguration) i.next();
-				Map m = includeTool(req, placement);
-				if (m != null)
-				{
-					toolList.add(m);
-				}
+				// Non fatal - just assume null
+				if (M_log.isTraceEnabled())
+					M_log.trace("includePage unable to find site for page "
+							+ page.getId());
 			}
-			rcontext.put("pageColumn1Tools", toolList);
+			{
+				List toolList = new ArrayList();
+				List tools = page.getTools(0);
+				for (Iterator i = tools.iterator(); i.hasNext();)
+				{
+					ToolConfiguration placement = (ToolConfiguration) i.next();
+
+					if (site != null)
+					{
+						boolean thisTool = allowTool(site, placement);
+						// System.out.println(" Allow Tool Display -" +
+						// placement.getTitle() + " retval = " + thisTool);
+						if (!thisTool) continue; // Skip this tool if not
+						// allowed
+					}
+
+					Map m = includeTool(req, placement);
+					if (m != null)
+					{
+						toolList.add(m);
+					}
+				}
+				rcontext.put("pageColumn0Tools", toolList);
+			}
+
+			rcontext.put("pageTwoColumn", Boolean
+					.valueOf(page.getLayout() == SitePage.LAYOUT_DOUBLE_COL));
+
+			// do the second column if needed
+			if (page.getLayout() == SitePage.LAYOUT_DOUBLE_COL)
+			{
+				List toolList = new ArrayList();
+				List tools = page.getTools(1);
+				for (Iterator i = tools.iterator(); i.hasNext();)
+				{
+					ToolConfiguration placement = (ToolConfiguration) i.next();
+					Map m = includeTool(req, placement);
+					if (m != null)
+					{
+						toolList.add(m);
+					}
+				}
+				rcontext.put("pageColumn1Tools", toolList);
+			}
 		}
 	}
 
@@ -2169,154 +2242,170 @@ public class SkinnableCharonPortal extends HttpServlet
 			HttpServletRequest req, Session session, Site site, SitePage page,
 			String toolContextPath, String portalPrefix) throws IOException
 	{
-		String presenceUrl = Web.returnUrl(req, "/presence/"
-				+ Web.escapeUrl(site.getId()));
-
-		// If we have turned on auto-state reset on navigation, we generate the
-		// "site-reset" "worksite-reset" and "gallery-reset" urls
-		if ("true".equals(ServerConfigurationService
-				.getString(CONFIG_AUTO_RESET)))
+		if (rcontext.uses(INCLUDE_PAGE_NAV))
 		{
-			portalPrefix = portalPrefix + "-reset";
-		}
 
-		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
-				+ Web.escapeUrl(getSiteEffectiveId(site)) + "/page/");
-		String pagePopupUrl = Web.returnUrl(req, "/page/");
-		boolean showPresence = ServerConfigurationService.getBoolean(
-				"display.users.present", true);
-		boolean showHelp = ServerConfigurationService.getBoolean(
-				"display.help.menu", true);
-		boolean loggedIn = session.getUserId() != null;
-		String iconUrl = site.getIconUrlFull();
-		boolean published = site.isPublished();
-		String type = site.getType();
+			String presenceUrl = Web.returnUrl(req, "/presence/"
+					+ Web.escapeUrl(site.getId()));
 
-		rcontext.put("pageNavPublished", Boolean.valueOf(published));
-		rcontext.put("pageNavType", type);
-		rcontext.put("pageNavIconUrl", iconUrl);
-		rcontext.put("pageNavSitToolsHead", Web.escapeHtml(rb
-				.getString("sit.toolshead")));
-
-		// order the pages based on their tools and the tool order for the site
-		// type
-		List pages = site.getOrderedPages();
-
-		// gsilver - counter for tool accesskey attributes of <a>
-		// int count = 0;
-
-		List l = new ArrayList();
-		for (Iterator i = pages.iterator(); i.hasNext();)
-		{
-			Map m = new HashMap();
-
-			SitePage p = (SitePage) i.next();
-			// check if current user has permission to see page
-			// will draw page button if it have permission to see at least one
-			// tool
-			List pTools = p.getTools();
-			Iterator iPt = pTools.iterator();
-
-			boolean allowPage = false;
-			while (iPt.hasNext())
+			// If we have turned on auto-state reset on navigation, we generate
+			// the
+			// "site-reset" "worksite-reset" and "gallery-reset" urls
+			if ("true".equals(ServerConfigurationService
+					.getString(CONFIG_AUTO_RESET)))
 			{
-				ToolConfiguration placement = (ToolConfiguration) iPt.next();
-
-				boolean thisTool = allowTool(site, placement);
-				if (thisTool) allowPage = true;
-				// System.out.println(" Allow Tool -" + tool.getTitle() + "
-				// retval = " + thisTool + " page=" + allowPage);
+				portalPrefix = portalPrefix + "-reset";
 			}
 
-			if (!allowPage) continue;
+			String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
+					+ Web.escapeUrl(getSiteEffectiveId(site)) + "/page/");
+			String pagePopupUrl = Web.returnUrl(req, "/page/");
+			boolean showPresence = ServerConfigurationService.getBoolean(
+					"display.users.present", true);
+			boolean showHelp = ServerConfigurationService.getBoolean(
+					"display.help.menu", true);
+			boolean loggedIn = session.getUserId() != null;
+			String iconUrl = site.getIconUrlFull();
+			boolean published = site.isPublished();
+			String type = site.getType();
 
-			boolean current = (p.getId().equals(page.getId()) && !p.isPopUp());
-			String pagerefUrl = pageUrl + Web.escapeUrl(p.getId());
+			rcontext.put("pageNavPublished", Boolean.valueOf(published));
+			rcontext.put("pageNavType", type);
+			rcontext.put("pageNavIconUrl", iconUrl);
+			rcontext.put("pageNavSitToolsHead", Web.escapeHtml(rb
+					.getString("sit.toolshead")));
 
-			m.put("current", Boolean.valueOf(current));
-			m.put("ispopup", Boolean.valueOf(p.isPopUp()));
-			m.put("pagePopupUrl", pagePopupUrl);
-			m.put("pageIdWeb", Web.escapeUrl(p.getId()));
-			m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
-			m.put("htmlPageTitle", Web.escapeHtml(p.getTitle()));
-			m.put("pagerefUrl", pagerefUrl);
-			l.add(m);
+			// order the pages based on their tools and the tool order for the
+			// site
+			// type
+			List pages = site.getOrderedPages();
+
+			// gsilver - counter for tool accesskey attributes of <a>
+			// int count = 0;
+
+			List l = new ArrayList();
+			for (Iterator i = pages.iterator(); i.hasNext();)
+			{
+				Map m = new HashMap();
+
+				SitePage p = (SitePage) i.next();
+				// check if current user has permission to see page
+				// will draw page button if it have permission to see at least
+				// one
+				// tool
+				List pTools = p.getTools();
+				Iterator iPt = pTools.iterator();
+
+				boolean allowPage = false;
+				while (iPt.hasNext())
+				{
+					ToolConfiguration placement = (ToolConfiguration) iPt
+							.next();
+
+					boolean thisTool = allowTool(site, placement);
+					if (thisTool) allowPage = true;
+					// System.out.println(" Allow Tool -" + tool.getTitle() + "
+					// retval = " + thisTool + " page=" + allowPage);
+				}
+
+				if (!allowPage) continue;
+
+				boolean current = (p.getId().equals(page.getId()) && !p
+						.isPopUp());
+				String pagerefUrl = pageUrl + Web.escapeUrl(p.getId());
+
+				m.put("current", Boolean.valueOf(current));
+				m.put("ispopup", Boolean.valueOf(p.isPopUp()));
+				m.put("pagePopupUrl", pagePopupUrl);
+				m.put("pageIdWeb", Web.escapeUrl(p.getId()));
+				m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
+				m.put("htmlPageTitle", Web.escapeHtml(p.getTitle()));
+				m.put("pagerefUrl", pagerefUrl);
+				l.add(m);
+			}
+			rcontext.put("pageNavTools", l);
+
+			String helpUrl = ServerConfigurationService.getHelpUrl(null);
+			rcontext.put("pageNavShowHelp", Boolean.valueOf(showHelp));
+			rcontext.put("pageNavHelpUrl", helpUrl);
+
+			rcontext.put("pageNavSitPresenceTitle", Web.escapeHtml(rb
+					.getString("sit.presencetitle")));
+			rcontext.put("pageNavSitPresenceFrameTitle", Web.escapeHtml(rb
+					.getString("sit.presenceiframetit")));
+			rcontext.put("pageNavShowPresenceLoggedIn", Boolean
+					.valueOf(showPresence && loggedIn));
+			rcontext.put("pageNavPresenceUrl", presenceUrl);
+			rcontext.put("pageNavSitContentshead", Web.escapeHtml(rb
+					.getString("sit.contentshead")));
 		}
-		rcontext.put("pageNavTools", l);
-
-		String helpUrl = ServerConfigurationService.getHelpUrl(null);
-		rcontext.put("pageNavShowHelp", Boolean.valueOf(showHelp));
-		rcontext.put("pageNavHelpUrl", helpUrl);
-
-		rcontext.put("pageNavSitPresenceTitle", Web.escapeHtml(rb
-				.getString("sit.presencetitle")));
-		rcontext.put("pageNavSitPresenceFrameTitle", Web.escapeHtml(rb
-				.getString("sit.presenceiframetit")));
-		rcontext.put("pageNavShowPresenceLoggedIn", Boolean
-				.valueOf(showPresence && loggedIn));
-		rcontext.put("pageNavPresenceUrl", presenceUrl);
-		rcontext.put("pageNavSitContentshead", Web.escapeHtml(rb
-				.getString("sit.contentshead")));
 
 	}
 
 	protected void includeSiteNav(PortalRenderContext rcontext,
 			HttpServletRequest req, Session session, String siteId)
 	{
-		boolean loggedIn = session.getUserId() != null;
-		boolean topLogin = ServerConfigurationService.getBoolean("top.login",
-				true);
-
-		String siteNavUrl = null;
-		int height = 0;
-		String siteNavClass = null;
-
-		if (loggedIn)
+		if (rcontext.uses(INCLUDE_SITE_NAV))
 		{
-			siteNavUrl = Web.returnUrl(req, "/site_tabs/"
-					+ Web.escapeUrl(siteId));
-			height = 104;
-			siteNavClass = "sitenav-max";
-		}
-		else
-		{
-			siteNavUrl = Web.returnUrl(req, "/nav_login/"
-					+ Web.escapeUrl(siteId));
-			height = 80;
-			siteNavClass = "sitenav-log";
-		}
 
-		String accessibilityURL = ServerConfigurationService
-				.getString("accessibility.url");
-		rcontext.put("siteNavHasAccessibilityURL", Boolean
-				.valueOf((accessibilityURL != null && accessibilityURL != "")));
-		rcontext.put("siteNavAccessibilityURL", accessibilityURL);
-		rcontext.put("siteNavSitAccessability", Web.escapeHtml(rb
-				.getString("sit.accessibility")));
-		rcontext.put("siteNavSitJumpContent", Web.escapeHtml(rb
-				.getString("sit.jumpcontent")));
-		rcontext.put("siteNavSitJumpTools", Web.escapeHtml(rb
-				.getString("sit.jumptools")));
-		rcontext.put("siteNavSitJumpWorksite", Web.escapeHtml(rb
-				.getString("sit.jumpworksite")));
+			boolean loggedIn = session.getUserId() != null;
+			boolean topLogin = ServerConfigurationService.getBoolean(
+					"top.login", true);
 
-		rcontext.put("siteNavLoggedIn", Boolean.valueOf(loggedIn));
+			String siteNavUrl = null;
+			int height = 0;
+			String siteNavClass = null;
 
-		try
-		{
 			if (loggedIn)
 			{
-				includeLogo(rcontext, req, session, siteId);
-				includeHierarchy(rcontext, req);
-				includeTabs(rcontext, req, session, siteId, "site", false);
+				siteNavUrl = Web.returnUrl(req, "/site_tabs/"
+						+ Web.escapeUrl(siteId));
+				height = 104;
+				siteNavClass = "sitenav-max";
 			}
 			else
 			{
-				includeLogo(rcontext, req, session, siteId);
+				siteNavUrl = Web.returnUrl(req, "/nav_login/"
+						+ Web.escapeUrl(siteId));
+				height = 80;
+				siteNavClass = "sitenav-log";
 			}
-		}
-		catch (Exception any)
-		{
+
+			String accessibilityURL = ServerConfigurationService
+					.getString("accessibility.url");
+			rcontext
+					.put(
+							"siteNavHasAccessibilityURL",
+							Boolean
+									.valueOf((accessibilityURL != null && accessibilityURL != "")));
+			rcontext.put("siteNavAccessibilityURL", accessibilityURL);
+			rcontext.put("siteNavSitAccessability", Web.escapeHtml(rb
+					.getString("sit.accessibility")));
+			rcontext.put("siteNavSitJumpContent", Web.escapeHtml(rb
+					.getString("sit.jumpcontent")));
+			rcontext.put("siteNavSitJumpTools", Web.escapeHtml(rb
+					.getString("sit.jumptools")));
+			rcontext.put("siteNavSitJumpWorksite", Web.escapeHtml(rb
+					.getString("sit.jumpworksite")));
+
+			rcontext.put("siteNavLoggedIn", Boolean.valueOf(loggedIn));
+
+			try
+			{
+				if (loggedIn)
+				{
+					includeLogo(rcontext, req, session, siteId);
+					includeHierarchy(rcontext, req);
+					includeTabs(rcontext, req, session, siteId, "site", false);
+				}
+				else
+				{
+					includeLogo(rcontext, req, session, siteId);
+				}
+			}
+			catch (Exception any)
+			{
+			}
 		}
 	}
 
@@ -2324,266 +2413,310 @@ public class SkinnableCharonPortal extends HttpServlet
 			HttpServletRequest req, Session session, String siteId,
 			String prefix, boolean addLogout) throws IOException
 	{
-		// for skinning
-		String siteType = calcSiteType(siteId);
-
-		// If we have turned on auto-state reset on navigation, we generate the
-		// "site-reset" "worksite-reset" and "gallery-reset" urls
-		if ("true".equals(ServerConfigurationService
-				.getString(CONFIG_AUTO_RESET)))
+		if (rcontext.uses(INCLUDE_TABS))
 		{
-			prefix = prefix + "-reset";
-		}
 
-		// is the current site the end user's My Workspace?
-		// Note: the site id can match the user's id or eid
-		String curUserId = session.getUserId();
-		String curUserEid = curUserId;
-		if (siteId != null)
-		{
-			try
-			{
-				curUserEid = UserDirectoryService.getUserEid(curUserId);
-			}
-			catch (UserNotDefinedException e)
-			{
-			}
-		}
-		boolean curMyWorkspace = ((siteId == null) || (SiteService
-				.isUserSite(siteId) && ((SiteService.getSiteUserId(siteId)
-				.equals(curUserId) || SiteService.getSiteUserId(siteId).equals(
-				curUserEid)))));
+			// for skinning
+			String siteType = calcSiteType(siteId);
 
-		// if this is a My Workspace, it gets its own tab and should not be
-		// considered in the other tab logic
-		if (curMyWorkspace) siteId = null;
-
-		// collect the user's sites
-		List mySites = SiteService.getSites(
-				org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-				null, null, null,
-				org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
-
-		// collect the user's preferences
-		int prefTabs = 4;
-		List prefExclude = new Vector();
-		List prefOrder = new Vector();
-		if (session.getUserId() != null)
-		{
-			Preferences prefs = PreferencesService.getPreferences(session
-					.getUserId());
-			ResourceProperties props = prefs
-					.getProperties("sakai:portal:sitenav");
-			try
+			// If we have turned on auto-state reset on navigation, we generate
+			// the
+			// "site-reset" "worksite-reset" and "gallery-reset" urls
+			if ("true".equals(ServerConfigurationService
+					.getString(CONFIG_AUTO_RESET)))
 			{
-				prefTabs = (int) props.getLongProperty("tabs");
-			}
-			catch (Exception any)
-			{
+				prefix = prefix + "-reset";
 			}
 
-			List l = props.getPropertyList("exclude");
-			if (l != null)
-			{
-				prefExclude = l;
-			}
-
-			l = props.getPropertyList("order");
-			if (l != null)
-			{
-				prefOrder = l;
-			}
-		}
-
-		// the number of tabs to display
-		int tabsToDisplay = prefTabs;
-
-		// remove all in exclude from mySites
-		mySites.removeAll(prefExclude);
-
-		// re-order mySites to have order first, the rest later
-		List ordered = new Vector();
-		for (Iterator i = prefOrder.iterator(); i.hasNext();)
-		{
-			String id = (String) i.next();
-
-			// find this site in the mySites list
-			int pos = indexOf(id, mySites);
-			if (pos != -1)
-			{
-				// move it from mySites to order
-				Site s = (Site) mySites.get(pos);
-				ordered.add(s);
-				mySites.remove(pos);
-			}
-		}
-
-		// pick up the rest of the sites
-		ordered.addAll(mySites);
-		mySites = ordered;
-
-		// split into 2 lists - the first n, and the rest
-		List moreSites = new Vector();
-		if (mySites.size() > tabsToDisplay)
-		{
-			int remove = mySites.size() - tabsToDisplay;
-			for (int i = 0; i < remove; i++)
-			{
-				Site site = (Site) mySites.get(tabsToDisplay);
-
-				// add to more unless it's the current site (it will get an
-				// extra tag)
-				if (!site.getId().equals(siteId))
-				{
-					moreSites.add(site);
-				}
-
-				// remove from the display list
-				mySites.remove(tabsToDisplay);
-			}
-		}
-
-		// if more has just one, put it back on the main list
-		if (moreSites.size() == 1)
-		{
-			mySites.add(moreSites.get(0));
-			moreSites.clear();
-		}
-
-		// check if the current site is missing from the main list
-		String extraTitle = null;
-		if (siteId != null)
-		{
-			boolean extra = true;
-			for (Iterator i = mySites.iterator(); i.hasNext();)
-			{
-				Site site = (Site) i.next();
-				if (site.getId().equals(siteId))
-				{
-					extra = false;
-					break;
-				}
-			}
-			if (extra)
+			// is the current site the end user's My Workspace?
+			// Note: the site id can match the user's id or eid
+			String curUserId = session.getUserId();
+			String curUserEid = curUserId;
+			if (siteId != null)
 			{
 				try
 				{
-					Site site = SiteService.getSite(siteId);
-					extraTitle = site.getTitle();
+					curUserEid = UserDirectoryService.getUserEid(curUserId);
 				}
-				catch (IdUnusedException e)
+				catch (UserNotDefinedException e)
 				{
-					// check for another user's myWorkspace by eid
-					if (SiteService.isUserSite(siteId))
+				}
+			}
+			boolean curMyWorkspace = ((siteId == null) || (SiteService
+					.isUserSite(siteId) && ((SiteService.getSiteUserId(siteId)
+					.equals(curUserId) || SiteService.getSiteUserId(siteId)
+					.equals(curUserEid)))));
+
+			// if this is a My Workspace, it gets its own tab and should not be
+			// considered in the other tab logic
+			if (curMyWorkspace) siteId = null;
+
+			// collect the user's sites
+			List mySites = SiteService.getSites(
+					org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
+					null, null, null,
+					org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC,
+					null);
+
+			// collect the user's preferences
+			int prefTabs = 4;
+			List prefExclude = new Vector();
+			List prefOrder = new Vector();
+			if (session.getUserId() != null)
+			{
+				Preferences prefs = PreferencesService.getPreferences(session
+						.getUserId());
+				ResourceProperties props = prefs
+						.getProperties("sakai:portal:sitenav");
+				try
+				{
+					prefTabs = (int) props.getLongProperty("tabs");
+				}
+				catch (Exception any)
+				{
+				}
+
+				List l = props.getPropertyList("exclude");
+				if (l != null)
+				{
+					prefExclude = l;
+				}
+
+				l = props.getPropertyList("order");
+				if (l != null)
+				{
+					prefOrder = l;
+				}
+			}
+
+			// the number of tabs to display
+			int tabsToDisplay = prefTabs;
+
+			// remove all in exclude from mySites
+			mySites.removeAll(prefExclude);
+
+			// get a list of sites at this location
+			// is there are none, null will come back
+			// its not absolutely clear if a non hierarchy portal
+			// should include hierarchy filtering
+			try
+			{
+				if (rcontext.uses(INCLUDE_HIERARCHY))
+				{
+					String hierarchySites = getHierarchySites();
+
+					List removeSites = new ArrayList();
+					if (hierarchySites != null)
 					{
-						String userEid = SiteService.getSiteUserId(siteId);
-						try
+						for (Iterator ih = mySites.iterator(); ih.hasNext();)
 						{
-							String userId = UserDirectoryService
-									.getUserId(userEid);
-							Site site = SiteService.getSite(SiteService
-									.getUserSiteId(userId));
-							extraTitle = site.getTitle();
-						}
-						catch (UserNotDefinedException ee)
-						{
-							M_log
-									.warn("includeTabs: cur site not found (not ~eid): "
-											+ siteId);
-						}
-						catch (IdUnusedException ee)
-						{
-							M_log
-									.warn("includeTabs: cur site not found (assumed ~eid, didn't find site): "
-											+ siteId);
+							String site = (String) ih.next();
+							if (hierarchySites.indexOf(site) != -1)
+							{
+								removeSites.add(site);
+							}
 						}
 					}
-					else
+					if (removeSites.size() > 0)
 					{
-						M_log
-								.warn("includeTabs: cur site not found: "
-										+ siteId);
+						mySites.removeAll(removeSites);
 					}
 				}
 			}
-		}
+			catch (Exception ex)
+			{
+				M_log.info(" Failed ", ex);
+			}
 
-		String cssClass = (siteType != null) ? "siteNavWrap " + siteType
-				: "siteNavWrap";
+			// re-order mySites to have order first, the rest later
+			List ordered = new Vector();
+			for (Iterator i = prefOrder.iterator(); i.hasNext();)
+			{
+				String id = (String) i.next();
 
-		rcontext.put("tabsCssClass", cssClass);
-		rcontext.put("tabsSitWorksiteHead", Web.escapeHtml(rb
-				.getString("sit.worksiteshead")));
-		rcontext.put("tabsCurMyWorkspace", Boolean.valueOf(curMyWorkspace));
-		rcontext.put("tabsSitMyWorkspace", rb.getString("sit.mywor"));
-		String mySiteUrl = Web.serverUrl(req)
-				+ ServerConfigurationService.getString("portalPath") + "/"
-				+ prefix + "/"
-				+ Web.escapeUrl(getUserEidBasedSiteId(session.getUserId()));
-		rcontext.put("tabsSiteUrl", mySiteUrl);
+				// find this site in the mySites list
+				int pos = indexOf(id, mySites);
+				if (pos != -1)
+				{
+					// move it from mySites to order
+					Site s = (Site) mySites.get(pos);
+					ordered.add(s);
+					mySites.remove(pos);
+				}
+			}
 
-		rcontext.put("tabsSitWorksite", Web.escapeHtml(rb
-				.getString("sit.worksite")));
+			// pick up the rest of the sites
+			ordered.addAll(mySites);
+			mySites = ordered;
 
-		List l = new ArrayList();
-		// first n tabs
-		for (Iterator i = mySites.iterator(); i.hasNext();)
-		{
-			Map m = new HashMap();
-			Site s = (Site) i.next();
-			m.put("isCurrentSite", Boolean.valueOf(s.getId().equals(siteId)));
-			m.put("siteTitle", Web.escapeHtml(s.getTitle()));
-			String siteUrl = Web.serverUrl(req)
+			// split into 2 lists - the first n, and the rest
+			List moreSites = new Vector();
+			if (mySites.size() > tabsToDisplay)
+			{
+				int remove = mySites.size() - tabsToDisplay;
+				for (int i = 0; i < remove; i++)
+				{
+					Site site = (Site) mySites.get(tabsToDisplay);
+
+					// add to more unless it's the current site (it will get an
+					// extra tag)
+					if (!site.getId().equals(siteId))
+					{
+						moreSites.add(site);
+					}
+
+					// remove from the display list
+					mySites.remove(tabsToDisplay);
+				}
+			}
+
+			// if more has just one, put it back on the main list
+			if (moreSites.size() == 1)
+			{
+				mySites.add(moreSites.get(0));
+				moreSites.clear();
+			}
+
+			// check if the current site is missing from the main list
+			String extraTitle = null;
+			if (siteId != null)
+			{
+				boolean extra = true;
+				for (Iterator i = mySites.iterator(); i.hasNext();)
+				{
+					Site site = (Site) i.next();
+					if (site.getId().equals(siteId))
+					{
+						extra = false;
+						break;
+					}
+				}
+				if (extra)
+				{
+					try
+					{
+						Site site = SiteService.getSite(siteId);
+						extraTitle = site.getTitle();
+					}
+					catch (IdUnusedException e)
+					{
+						// check for another user's myWorkspace by eid
+						if (SiteService.isUserSite(siteId))
+						{
+							String userEid = SiteService.getSiteUserId(siteId);
+							try
+							{
+								String userId = UserDirectoryService
+										.getUserId(userEid);
+								Site site = SiteService.getSite(SiteService
+										.getUserSiteId(userId));
+								extraTitle = site.getTitle();
+							}
+							catch (UserNotDefinedException ee)
+							{
+								M_log
+										.warn("includeTabs: cur site not found (not ~eid): "
+												+ siteId);
+							}
+							catch (IdUnusedException ee)
+							{
+								M_log
+										.warn("includeTabs: cur site not found (assumed ~eid, didn't find site): "
+												+ siteId);
+							}
+						}
+						else
+						{
+							M_log.warn("includeTabs: cur site not found: "
+									+ siteId);
+						}
+					}
+				}
+			}
+
+			String cssClass = (siteType != null) ? "siteNavWrap " + siteType
+					: "siteNavWrap";
+
+			rcontext.put("tabsCssClass", cssClass);
+			rcontext.put("tabsSitWorksiteHead", Web.escapeHtml(rb
+					.getString("sit.worksiteshead")));
+			rcontext.put("tabsCurMyWorkspace", Boolean.valueOf(curMyWorkspace));
+			rcontext.put("tabsSitMyWorkspace", rb.getString("sit.mywor"));
+			String mySiteUrl = Web.serverUrl(req)
 					+ ServerConfigurationService.getString("portalPath") + "/"
-					+ prefix + "/" + Web.escapeUrl(getSiteEffectiveId(s));
-			m.put("siteUrl", siteUrl);
-			l.add(m);
+					+ prefix + "/"
+					+ Web.escapeUrl(getUserEidBasedSiteId(session.getUserId()));
+			rcontext.put("tabsSiteUrl", mySiteUrl);
 
-		}
-		rcontext.put("tabsSites", l);
+			rcontext.put("tabsSitWorksite", Web.escapeHtml(rb
+					.getString("sit.worksite")));
 
-		rcontext.put("tabsHasExtraTitle", Boolean.valueOf(extraTitle != null));
-
-		// current site, if not in the list of first n tabs
-		if (extraTitle != null)
-		{
-			rcontext.put("tabsExtraTitle", Web.escapeHtml(extraTitle));
-		}
-
-		rcontext
-				.put("tabsMoreSitesShow", Boolean.valueOf(moreSites.size() > 0));
-		rcontext.put("tabsSitMore", Web.escapeHtml(rb.getString("sit.more")));
-		rcontext.put("tabsSitSelectMessage", Web.escapeHtml(rb
-				.getString("sit.selectmessage")));
-		// more dropdown
-		if (moreSites.size() > 0)
-		{
-
-			l = new ArrayList();
-
-			for (Iterator i = moreSites.iterator(); i.hasNext();)
+			List l = new ArrayList();
+			// first n tabs
+			for (Iterator i = mySites.iterator(); i.hasNext();)
 			{
 				Map m = new HashMap();
-
 				Site s = (Site) i.next();
+				m.put("isCurrentSite", Boolean
+						.valueOf(s.getId().equals(siteId)));
+				m.put("siteTitle", Web.escapeHtml(s.getTitle()));
 				String siteUrl = Web.serverUrl(req)
 						+ ServerConfigurationService.getString("portalPath")
-						+ "/" + prefix + "/" + getSiteEffectiveId(s);
-				m.put("siteTitle", Web.escapeHtml(s.getTitle()));
+						+ "/" + prefix + "/"
+						+ Web.escapeUrl(getSiteEffectiveId(s));
 				m.put("siteUrl", siteUrl);
 				l.add(m);
-			}
-			rcontext.put("tabsMoreSites", l);
-		}
 
-		rcontext.put("tabsAddLogout", Boolean.valueOf(addLogout));
-		if (addLogout)
-		{
-			String logoutUrl = Web.serverUrl(req)
-					+ ServerConfigurationService.getString("portalPath")
-					+ "/logout_gallery";
-			rcontext.put("tabsLogoutUrl", logoutUrl);
-			rcontext.put("tabsSitLog", Web.escapeHtml(rb.getString("sit.log")));
+			}
+			rcontext.put("tabsSites", l);
+
+			rcontext.put("tabsHasExtraTitle", Boolean
+					.valueOf(extraTitle != null));
+
+			// current site, if not in the list of first n tabs
+			if (extraTitle != null)
+			{
+				rcontext.put("tabsExtraTitle", Web.escapeHtml(extraTitle));
+			}
+
+			rcontext.put("tabsMoreSitesShow", Boolean
+					.valueOf(moreSites.size() > 0));
+			rcontext.put("tabsSitMore", Web
+					.escapeHtml(rb.getString("sit.more")));
+			rcontext.put("tabsSitSelectMessage", Web.escapeHtml(rb
+					.getString("sit.selectmessage")));
+			// more dropdown
+			if (moreSites.size() > 0)
+			{
+
+				l = new ArrayList();
+
+				for (Iterator i = moreSites.iterator(); i.hasNext();)
+				{
+					Map m = new HashMap();
+
+					Site s = (Site) i.next();
+					String siteUrl = Web.serverUrl(req)
+							+ ServerConfigurationService
+									.getString("portalPath") + "/" + prefix
+							+ "/" + getSiteEffectiveId(s);
+					m.put("siteTitle", Web.escapeHtml(s.getTitle()));
+					m.put("siteUrl", siteUrl);
+					l.add(m);
+				}
+				rcontext.put("tabsMoreSites", l);
+			}
+
+			rcontext.put("tabsAddLogout", Boolean.valueOf(addLogout));
+			if (addLogout)
+			{
+				String logoutUrl = Web.serverUrl(req)
+						+ ServerConfigurationService.getString("portalPath")
+						+ "/logout_gallery";
+				rcontext.put("tabsLogoutUrl", logoutUrl);
+				rcontext.put("tabsSitLog", Web.escapeHtml(rb
+						.getString("sit.log")));
+			}
 		}
 	}
 
@@ -2600,6 +2733,11 @@ public class SkinnableCharonPortal extends HttpServlet
 			return null;
 		}
 
+		// FIXME: This does not look absolutely right,
+		// this appears to say, reset all tools on the page since there
+		// is no filtering of the tool that is bing reset, surely there
+		// should be a check which tool is being reset, rather than all
+		// tools on the page.
 		// let the tool do some the work (include) (see note above)
 		String toolUrl = ServerConfigurationService.getToolUrl() + "/"
 				+ Web.escapeUrl(placement.getId()) + "/";
@@ -2669,12 +2807,16 @@ public class SkinnableCharonPortal extends HttpServlet
 			HttpServletRequest req, Session session, Site site, SitePage page,
 			String toolContextPath, String portalPrefix) throws IOException
 	{
-		// add the page navigation with presence
-		includePageNav(rcontext, req, session, site, page, toolContextPath,
-				portalPrefix);
+		if (rcontext.uses(INCLUDE_WORKSITE))
+		{
 
-		// add the page
-		includePage(rcontext, req, page, toolContextPath, "content");
+			// add the page navigation with presence
+			includePageNav(rcontext, req, session, site, page, toolContextPath,
+					portalPrefix);
+
+			// add the page
+			includePage(rcontext, req, page, toolContextPath, "content");
+		}
 	}
 
 	/**
@@ -2982,195 +3124,265 @@ public class SkinnableCharonPortal extends HttpServlet
 	}
 
 	// hierarchy code
+	/**
+	 * What is the current portal path, bound to session
+	 */
+	protected String getCurrentPortalPath()
+	{
+		Session session = SessionManager.getCurrentSession();
+		return (String) session.getAttribute("portal-hierarchy-path");
+	}
 
+	/**
+	 * set the current portal path, bound to session
+	 * 
+	 * @param portalPath
+	 */
+	protected void setCurrentPortalPath(String portalPath)
+	{
+		Session session = SessionManager.getCurrentSession();
+		session.setAttribute("portal-hierarchy-path", portalPath);
+	}
+
+	/**
+	 * get the current portal hierarchy nodes
+	 * 
+	 * @return
+	 */
+	private Hierarchy getCurrentPortalNode()
+	{
+		String portalPath = getCurrentPortalPath();
+		if (portalPath == null)
+		{
+			portalPath = "/";
+		}
+		return HierarchyService.getNode(portalPath);
+	}
+
+	/**
+	 * get a string containing ; seperated sites at the node if null there is no
+	 * oppinion
+	 * 
+	 * @return
+	 */
+	private String getHierarchySites()
+	{
+		Hierarchy h = getCurrentPortalNode();
+		if (h != null)
+		{
+			String portalSites = null;
+			HierarchyProperty hp = h.getProperty("portal:sites");
+			if (hp != null)
+			{
+				portalSites = hp.getPropvalue();
+			}
+			if (portalSites == null)
+			{
+				portalSites = "";
+			}
+			// get the management site for the node
+			hp = h.getProperty("portal:management-site");
+			String managementSite = null;
+			if (hp != null)
+			{
+				managementSite = hp.getPropvalue();
+			}
+			if (managementSite == null)
+			{
+				managementSite = "";
+			}
+			return portalSites + ";" + managementSite;
+		}
+		else
+		{
+			return null;
+		}
+
+	}
+
+	/**
+	 * include hierarchy information into the portal context
+	 * 
+	 * @param rcontext
+	 * @param request
+	 */
 	protected void includeHierarchy(PortalRenderContext rcontext,
 			HttpServletRequest request)
 	{
-		try
+		if (rcontext.uses(INCLUDE_HIERARCHY))
 		{
-			System.err.println("In include Hierarch");
-			HttpSession session = request.getSession();
-			String portalPath = (String) session
-					.getAttribute("portal-hierarchy-path");
-			if (portalPath == null)
-			{
-				portalPath = "";
-			}
-			String newPath = request.getParameter("portal-hierarchy-path");
-			M_log.info("Path Param " + newPath);
 
-			Hierarchy h = null;
-			if (newPath != null && newPath.length() > 0)
+			try
 			{
-				if (newPath.endsWith("/"))
+				String portalPath = getCurrentPortalPath();
+				if (portalPath == null)
 				{
-					newPath = newPath.substring(0, newPath.length() - 1);
+					portalPath = "";
 				}
-				h = HierarchyService.getNode("/portal" + newPath);
-				if (h != null)
+				String newPath = request.getParameter("portal-hierarchy-path");
+				M_log.debug("Path Param " + newPath);
+
+				Hierarchy h = null;
+				if (newPath != null && newPath.length() > 0)
 				{
-					portalPath = newPath;
-					session.setAttribute("portal-hierarchy-path", portalPath);
+					if (newPath.endsWith("/"))
+					{
+						newPath = newPath.substring(0, newPath.length() - 1);
+					}
+					h = HierarchyService.getNode("/portal" + newPath);
+					if (h != null)
+					{
+						portalPath = newPath;
+						setCurrentPortalPath(portalPath);
+					}
+					else
+					{
+						M_log.warn("Didnt find node for /portal" + newPath);
+					}
 				}
 				else
 				{
-					M_log.warn("Didnt find node for /portal" + newPath);
-				}
-			}
-			else
-			{
-				if (portalPath.endsWith("/"))
-				{
-					portalPath = newPath.substring(0, portalPath.length() - 1);
-				}
-				h = HierarchyService.getNode("/portal" + portalPath);
-				if (h == null)
-				{
-					M_log.warn("Didnt find node for /portal" + portalPath);
-				}
-			}
-			Hierarchy rootNode = HierarchyService.getNode("/portal");
-			{
-				M_log.info("Portal Path is " + portalPath);
-				String[] path = portalPath.split("/");
-				M_log.info("Portal Path is " + portalPath + " split into "
-						+ path.length + " elements ");
-				List l = new ArrayList();
-				String currentPath = "";
-				String nextPath = null;
-				if (1 < path.length)
-				{
-					nextPath = "/" + path[1];
-				}
-				M_log.info("Looking for Root Child Path "+nextPath);
-				Map m = new HashMap();
-				m.put("url", "?portal-hierarchy-path=" + Web.escapeUrl("/"));
-				m.put("name", "Home");
-
-				Hierarchy currentNode = rootNode;
-				Map children = currentNode.getChildren();
-				List lc = new ArrayList();
-				currentNode = null;
-				for (Iterator ic = children.values().iterator(); ic.hasNext();)
-				{
-					Hierarchy child = (Hierarchy) ic.next();
-					Map mchild = new HashMap();
-					String childPath = child.getPath().substring(
-							"/portal".length());
-					String[] pathElements = childPath.split("/");
-					mchild.put("url", "?portal-hierarchy-path="
-							+ Web.escapeUrl(childPath));
-					String name = pathElements[pathElements.length - 1];
-					if ( name.length() < 15 ) {
-						name = name+PADDING.substring(name.length()*6);
-					}
-					mchild.put("name", name);
-					lc.add(mchild);
-
-					M_log.info("Checking ChildPath "+childPath);
-					if (nextPath != null && nextPath.equals(childPath))
+					if (portalPath.endsWith("/"))
 					{
-						currentNode = child;
-						M_log.info("Matched ");
+						portalPath = newPath.substring(0,
+								portalPath.length() - 1);
+					}
+					h = HierarchyService.getNode("/portal" + portalPath);
+					if (h == null)
+					{
+						M_log.warn("Didnt find node for /portal" + portalPath);
 					}
 				}
-				m.put("children", lc);
-				l.add(m);
-				M_log.info("Added Root node with children, next node is  "+currentNode);
-
-				for (int i = 1; i < path.length && currentNode != null; i++)
+				Hierarchy rootNode = HierarchyService.getNode("/portal");
 				{
-					m = new HashMap();
-					currentPath = currentPath + "/" + path[i];
-					M_log.info("Current Node " + currentNode.getPath() + " should be  /portal"+
-							 currentPath);
-					if (i < path.length - 1)
+					M_log.debug("Portal Path is " + portalPath);
+					String[] path = portalPath.split("/");
+					M_log.debug("Portal Path is " + portalPath + " split into "
+							+ path.length + " elements ");
+					List l = new ArrayList();
+					String currentPath = "";
+					String nextPath = null;
+					if (1 < path.length)
 					{
-						nextPath = currentPath + "/" + path[i + 1];
+						nextPath = "/" + path[1];
 					}
-					else
-					{
-						nextPath = null;
-					}
-					M_log.info("Looking for child path "+nextPath);
-					// currentNode = currentNode.getChild("/portal" +
-					// currentPath);
-					if (currentNode != null)
-					{
-						m.put("url", "?portal-hierarchy-path="
-								+ Web.escapeUrl(currentPath));
-						m.put("name", path[i]);
-						m.put("current", Boolean
-								.valueOf(i == (path.length - 1)));
+					M_log.debug("Looking for Root Child Path " + nextPath);
+					Map m = new HashMap();
+					m
+							.put("url", "?portal-hierarchy-path="
+									+ Web.escapeUrl("/"));
+					m.put("name", "Home");
 
-						children = currentNode.getChildren();
-						currentNode = null;
-						lc = new ArrayList();
-						for (Iterator ic = children.values().iterator(); ic
-								.hasNext();)
+					Hierarchy currentNode = rootNode;
+					Map children = currentNode.getChildren();
+					List lc = new ArrayList();
+					currentNode = null;
+					for (Iterator ic = children.values().iterator(); ic
+							.hasNext();)
+					{
+						Hierarchy child = (Hierarchy) ic.next();
+						Map mchild = new HashMap();
+						String childPath = child.getPath().substring(
+								"/portal".length());
+						String[] pathElements = childPath.split("/");
+						mchild.put("url", "?portal-hierarchy-path="
+								+ Web.escapeUrl(childPath));
+						String name = pathElements[pathElements.length - 1];
+						if (name.length() < 15)
 						{
-							Hierarchy child = (Hierarchy) ic.next();
-							Map mchild = new HashMap();
-							String childPath = child.getPath().substring(
-									"/portal".length());
-							String[] pathElements = childPath.split("/");
-							mchild.put("url", "?portal-hierarchy-path="
-									+ Web.escapeUrl(childPath));
-							String name = pathElements[pathElements.length - 1];
-							if ( name.length() < 15 ) {
-								name = name+PADDING.substring(name.length()*6);
-							}
-							mchild.put("name", name);
-							lc.add(mchild);
-
-							M_log.info("Checking child path "+childPath);
-							if (nextPath != null && nextPath.equals(childPath))
-							{
-								currentNode = child;
-								M_log.info("Found "+childPath);
-							}
+							name = name + PADDING.substring(name.length() * 6);
 						}
-						m.put("children", lc);
-						l.add(m);
+						mchild.put("name", name);
+						lc.add(mchild);
+
+						M_log.debug("Checking ChildPath " + childPath);
+						if (nextPath != null && nextPath.equals(childPath))
+						{
+							currentNode = child;
+							M_log.debug("Matched ");
+						}
 					}
-					else
+					m.put("children", lc);
+					l.add(m);
+					M_log.debug("Added Root node with children, next node is  "
+							+ currentNode);
+
+					for (int i = 1; i < path.length && currentNode != null; i++)
 					{
-						M_log.warn("Cant Locate Node " + currentPath);
+						m = new HashMap();
+						currentPath = currentPath + "/" + path[i];
+						M_log.debug("Current Node " + currentNode.getPath()
+								+ " should be  /portal" + currentPath);
+						if (i < path.length - 1)
+						{
+							nextPath = currentPath + "/" + path[i + 1];
+						}
+						else
+						{
+							nextPath = null;
+						}
+						M_log.debug("Looking for child path " + nextPath);
+						if (currentNode != null)
+						{
+							m.put("url", "?portal-hierarchy-path="
+									+ Web.escapeUrl(currentPath));
+							m.put("name", path[i]);
+							m.put("current", Boolean
+									.valueOf(i == (path.length - 1)));
+
+							children = currentNode.getChildren();
+							currentNode = null;
+							lc = new ArrayList();
+							for (Iterator ic = children.values().iterator(); ic
+									.hasNext();)
+							{
+								Hierarchy child = (Hierarchy) ic.next();
+								Map mchild = new HashMap();
+								String childPath = child.getPath().substring(
+										"/portal".length());
+								String[] pathElements = childPath.split("/");
+								mchild.put("url", "?portal-hierarchy-path="
+										+ Web.escapeUrl(childPath));
+								String name = pathElements[pathElements.length - 1];
+								if (name.length() < 15)
+								{
+									name = name
+											+ PADDING
+													.substring(name.length() * 6);
+								}
+								mchild.put("name", name);
+								lc.add(mchild);
+
+								M_log.debug("Checking child path " + childPath);
+								if (nextPath != null
+										&& nextPath.equals(childPath))
+								{
+									currentNode = child;
+									M_log.debug("Found " + childPath);
+								}
+							}
+							m.put("children", lc);
+							l.add(m);
+						}
+						else
+						{
+							M_log.warn("Cant Locate Node " + currentPath);
+						}
 					}
+					rcontext.put("portalPath", l);
 				}
-				rcontext.put("portalPath", l);
+
+				M_log.debug("All Done ");
 			}
-			if (h != null)
+			catch (Exception ex)
 			{
-				Map m = h.getChildren();
-				List l = new ArrayList();
-				for (Iterator i = m.values().iterator(); i.hasNext();)
-				{
-					Hierarchy child = (Hierarchy) i.next();
-
-					Map mchild = new HashMap();
-					String childPath = child.getPath().substring(
-							"/portal".length());
-					String[] pathElements = childPath.split("/");
-					M_log.info("Child " + childPath + " name "
-							+ pathElements.length + " "
-							+ pathElements[pathElements.length - 1]);
-					mchild.put("url", "?portal-hierarchy-path="
-							+ Web.escapeUrl(childPath));
-					mchild.put("name", pathElements[pathElements.length - 1]);
-					l.add(mchild);
-				}
-				rcontext.put("portalPathChildren", l);
-
+				M_log.error("Ooops ", ex);
 			}
-			M_log.info("All Done ");
-		}
-		catch (Exception ex)
-		{
-			M_log.error("Ooops ", ex);
 		}
 	}
 
+	// Static registered files
+	// -------------------------------------------------------------
 	/**
 	 * serve a registered static file
 	 * 
@@ -3267,6 +3479,12 @@ public class SkinnableCharonPortal extends HttpServlet
 
 	}
 
+	/**
+	 * get the content type of the file
+	 * 
+	 * @param f
+	 * @return
+	 */
 	private String getContentType(File f)
 	{
 		String name = f.getName();
@@ -3280,6 +3498,13 @@ public class SkinnableCharonPortal extends HttpServlet
 		return contentType;
 	}
 
+	/**
+	 * send the content from the static cache.
+	 * 
+	 * @param res
+	 * @param sc
+	 * @throws IOException
+	 */
 	private void sendContent(HttpServletResponse res, StaticCache sc)
 			throws IOException
 	{
@@ -3290,6 +3515,11 @@ public class SkinnableCharonPortal extends HttpServlet
 
 	}
 
+	/**
+	 * a simple static cache holder
+	 * 
+	 * @author ieb
+	 */
 	protected class StaticCache
 	{
 
@@ -3305,6 +3535,13 @@ public class SkinnableCharonPortal extends HttpServlet
 
 	}
 
+	/**
+	 * send the static content from the file
+	 * 
+	 * @param res
+	 * @param f
+	 * @throws IOException
+	 */
 	private void sendContent(HttpServletResponse res, File f)
 			throws IOException
 	{
@@ -3339,6 +3576,13 @@ public class SkinnableCharonPortal extends HttpServlet
 
 	}
 
+	/**
+	 * load a file into a byte[]
+	 * 
+	 * @param f
+	 * @return
+	 * @throws IOException
+	 */
 	private byte[] loadFileBuffer(File f) throws IOException
 	{
 		FileInputStream fin = null;

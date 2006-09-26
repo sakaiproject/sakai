@@ -46,7 +46,8 @@ import org.sakaiproject.portal.charon.PortalRenderEngine;
  */
 public class VelocityPortalRenderEngine implements PortalRenderEngine
 {
-	private static final Log log = LogFactory.getLog(VelocityPortalRenderEngine.class);
+	private static final Log log = LogFactory
+			.getLog(VelocityPortalRenderEngine.class);
 
 	private VelocityEngine vengine;
 
@@ -70,12 +71,12 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		vengine.init(p);
 		availablePortalSkins = new ArrayList();
 		Map m = new HashMap();
-		m.put("name","defaultskin");
-		m.put("display","Default");
+		m.put("name", "defaultskin");
+		m.put("display", "Default");
 		availablePortalSkins.add(m);
 		m = new HashMap();
-		m.put("name","skintwo");
-		m.put("display","Skin Two");
+		m.put("name", "skintwo");
+		m.put("display", "Skin Two");
 		availablePortalSkins.add(m);
 
 	}
@@ -86,34 +87,53 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		rc.setDebug(debug);
 		// this is just for testing, it should be in the path or portal to
 		// ensure that the skin remains.
-		
-		
-		rc.put("pageSkins",availablePortalSkins);
+
+		rc.put("pageSkins", availablePortalSkins);
+		String portalSkin = "defaultskin";
 
 		if (request != null)
 		{
-			
+
 			HttpSession session = request.getSession();
-			String portalSkin = (String) session.getAttribute("portalskin");
+			portalSkin = (String) session.getAttribute("portalskin");
 			String newPortalSkin = request.getParameter("portalskin");
 			if (newPortalSkin != null && newPortalSkin.length() > 0)
 			{
-				session.setAttribute("portalskin",newPortalSkin);
+				session.setAttribute("portalskin", newPortalSkin);
 				portalSkin = newPortalSkin;
-				log.debug("Set Skin To "+portalSkin);
-			} else {
-				if ( portalSkin == null || portalSkin.length() == 0 ) {
+				log.debug("Set Skin To " + portalSkin);
+			}
+			else
+			{
+				if (portalSkin == null || portalSkin.length() == 0)
+				{
 					portalSkin = "defaultskin";
-					session.setAttribute("portalskin",portalSkin);
-					
-				}				
+					session.setAttribute("portalskin", portalSkin);
+
+				}
 			}
 			rc.put("pageCurrentSkin", portalSkin);
-			log.debug("Current Skin is "+portalSkin);
-		} else {
+			log.debug("Current Skin is " + portalSkin);
+		}
+		else
+		{
 			log.debug("No Request Object Skin is default");
 			rc.put("pageCurrentSkin", "defaultskin");
 		}
+
+		try
+		{
+			Properties p = new Properties();
+			p.load(this.getClass().getResourceAsStream(
+					"/"+portalSkin + "/options.properties"));
+			rc.setOptions(p);
+		}
+		catch (Exception ex)
+		{
+			log.info("No options loaded ",ex);
+
+		}
+
 		return rc;
 	}
 

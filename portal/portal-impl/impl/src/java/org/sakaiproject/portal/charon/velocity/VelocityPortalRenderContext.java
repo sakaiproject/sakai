@@ -25,19 +25,26 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
 import org.sakaiproject.portal.charon.PortalRenderContext;
 
 /**
  * A render context based on the velocity context
+ * 
  * @author ieb
  */
 public class VelocityPortalRenderContext implements PortalRenderContext
 {
+	private static final Log log = LogFactory.getLog(VelocityPortalRenderContext.class);
 
 	private Context vcontext = new VelocityContext();
+
 	private boolean debug = false;
+
+	private Map options = null;
 
 	public boolean isDebug()
 	{
@@ -61,7 +68,7 @@ public class VelocityPortalRenderContext implements PortalRenderContext
 
 	public String dump()
 	{
-		if (debug )
+		if (debug)
 		{
 			Object[] keys = vcontext.getKeys();
 			StringBuffer sb = new StringBuffer();
@@ -118,6 +125,26 @@ public class VelocityPortalRenderContext implements PortalRenderContext
 			Object keyn = i.next();
 			dumpObject(sb, key + "." + keyn, map.get(keyn));
 		}
+	}
+
+	public boolean uses(String includeOption)
+	{
+		
+		if (options == null || includeOption == null )
+		{
+			return true;
+		}
+		return "true".equals(options.get(includeOption));
+	}
+
+	public Map getOptions()
+	{
+		return options;
+	}
+
+	public void setOptions(Map options)
+	{
+		this.options = options;
 	}
 
 }
