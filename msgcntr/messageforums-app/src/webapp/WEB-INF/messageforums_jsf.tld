@@ -888,6 +888,12 @@
     <name>htmlShowArea</name>
     <tag-class>org.sakaiproject.tool.messageforums.jsf.ShowAreaTag</tag-class>
     <body-content>JSP</body-content>
+    <description>
+    	This tag replaces the strong tags with b and attempts to add target="_new" to all a tags.
+    	
+    	It will also place a border around the text if requested.  Lastly, it will place the text
+    	in a textarea if requested.
+    </description>
      <attribute>
       <name>id</name>
       <required>false</required>
@@ -896,7 +902,7 @@
     <attribute>
       <name>value</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
     </attribute>
     <attribute>
       <name>hideBorder</name>
@@ -907,12 +913,12 @@
     <attribute>
       <name>showInputTextArea</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
     </attribute>
     <attribute>
       <name>rendered</name>
       <required>false</required>
-      <rtexprvalue>false</rtexprvalue>
+      <rtexprvalue>true</rtexprvalue>
     </attribute>
     
   </tag>

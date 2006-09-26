@@ -45,8 +45,8 @@
 				  <f:param value="#{forum.forum.id}" name="forumId_displayExtended"/>
 				  <f:param value="displayHome" name="redirectToProcessAction"/>
 		    </h:commandLink>
-	 	    <sakai:inputRichText rows="5" cols="110" buttonSet="none" readonly="true" showXPath="false" id="forum_extended_description" value="#{forum.forum.extendedDescription}" rendered="#{forum.readFullDesciption}"/>
-		    <f:verbatim><br /></f:verbatim>
+		    <h:outputText styleClass="indnt2" id="forum_extended_description_html" escape="false" value="#{forum.forum.extendedDescription}" rendered="#{forum.readFullDesciption}" />
+	 	    <f:verbatim><br /></f:verbatim>
 		    <h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayForumExtendedDescription}" id="forum_extended_hide"
 				               value="#{msgs.cdfm_hide_full_description}" rendered="#{forum.readFullDesciption}" title="#{msgs.cdfm_hide_full_description}">
 				  <f:param value="#{forum.forum.id}" name="forumId_hideExtended"/>
@@ -112,8 +112,9 @@
 							   <f:param value="#{topic.topic.id}" name="topicId_displayExtended"/>
 							   <f:param value="displayHome" name="redirectToProcessAction"/>
 						   </h:commandLink>
-		 				   <sakai:inputRichText styleClass="indnt2" rows="5" cols="110" buttonSet="none"  readonly="true" showXPath="false" id="topic_extended_description" value="#{topic.topic.extendedDescription}" rendered="#{topic.readFullDesciption}"/>
-						   <f:verbatim><br /></f:verbatim>
+						   <h:outputText styleClass="indnt2" id="topic_extended_description_html" escape="false" value="#{topic.topic.extendedDescription}" rendered="#{topic.readFullDesciption}" />
+	 	    
+		 				   <f:verbatim><br /></f:verbatim>
 						   <h:commandLink styleClass="indnt2" immediate="true" action="#{ForumTool.processActionToggleDisplayExtendedDescription}" id="topic_extended_hide"
 							                value="#{msgs.cdfm_hide_full_description}" rendered="#{topic.readFullDesciption}" title="#{msgs.cdfm_hide_full_description}">
 							   <f:param value="#{topic.topic.id}" name="topicId_hideExtended"/>
