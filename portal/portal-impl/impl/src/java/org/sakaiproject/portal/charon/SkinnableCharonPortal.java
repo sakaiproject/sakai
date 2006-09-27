@@ -3129,8 +3129,7 @@ public class SkinnableCharonPortal extends HttpServlet
 	 */
 	protected String getCurrentPortalPath()
 	{
-		Session session = SessionManager.getCurrentSession();
-		return (String) session.getAttribute("portal-hierarchy-path");
+		return HierarchyService.getCurrentPortalPath();
 	}
 
 	/**
@@ -3140,8 +3139,7 @@ public class SkinnableCharonPortal extends HttpServlet
 	 */
 	protected void setCurrentPortalPath(String portalPath)
 	{
-		Session session = SessionManager.getCurrentSession();
-		session.setAttribute("portal-hierarchy-path", portalPath);
+		HierarchyService.setCurrentPortalPath(portalPath);
 	}
 
 	/**
@@ -3151,12 +3149,7 @@ public class SkinnableCharonPortal extends HttpServlet
 	 */
 	private Hierarchy getCurrentPortalNode()
 	{
-		String portalPath = getCurrentPortalPath();
-		if (portalPath == null)
-		{
-			portalPath = "/";
-		}
-		return HierarchyService.getNode(portalPath);
+		return HierarchyService.getCurrentPortalNode();
 	}
 
 	/**
@@ -3171,7 +3164,7 @@ public class SkinnableCharonPortal extends HttpServlet
 		if (h != null)
 		{
 			String portalSites = null;
-			HierarchyProperty hp = h.getProperty("portal:sites");
+			HierarchyProperty hp = h.getProperty(HierarchyProperty.PORTAL_SITES);
 			if (hp != null)
 			{
 				portalSites = hp.getPropvalue();
@@ -3181,7 +3174,7 @@ public class SkinnableCharonPortal extends HttpServlet
 				portalSites = "";
 			}
 			// get the management site for the node
-			hp = h.getProperty("portal:management-site");
+			hp = h.getProperty(HierarchyProperty.MANAGEMENT_SITE);
 			String managementSite = null;
 			if (hp != null)
 			{
