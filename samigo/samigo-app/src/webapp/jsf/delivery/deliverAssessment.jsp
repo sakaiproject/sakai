@@ -111,6 +111,7 @@ function saveTime()
 <h:inputHidden id="questionIndex" value="#{delivery.questionIndex}"/>
 <h:inputHidden id="formatByPart" value="#{delivery.settings.formatByPart}"/>
 <h:inputHidden id="formatByAssessment" value="#{delivery.settings.formatByAssessment}"/>
+<h:inputHidden id="lastSubmittedDate" value="#{delivery.assessmentGrading.submittedDate.time}"/>
 
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>

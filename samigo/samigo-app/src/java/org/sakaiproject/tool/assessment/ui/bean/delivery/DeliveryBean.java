@@ -2404,10 +2404,17 @@ public class DeliveryBean
       return "error";
     }
 
+    // check 0: check for multiple window & browser trick 
+    GradingService service = new GradingService();
+    AssessmentGradingData assessmentGrading = service.load(adata.getAssessmentGradingId().toString());
+    if (!checkDataIntegrity(assessmentGrading)){
+	return ("discrepancyInData");
+    }
+
     // check 1: if workingassessment has been submiited?
     // this is to prevent student submit assessment and use a 2nd window to 
     // continue working on the submitted work.
-    if (getAssessmentHasBeenSubmitted()){
+    if (getAssessmentHasBeenSubmitted(assessmentGrading)){
       return "assessmentHasBeenSubmitted";
     }
 
@@ -2466,9 +2473,33 @@ public class DeliveryBean
     return dateIsCurrent;
   }
 
-  private boolean getAssessmentHasBeenSubmitted(){
-    if (adata !=null){
-      return adata.getForGrade().booleanValue();
+  private boolean checkDataIntegrity(AssessmentGradingData assessmentGrading){
+    // get assessmentGrading from DB, this is to avoid same assessment being
+    // opened in the differnt browser
+    if (assessmentGrading !=null){
+      long DBdate = assessmentGrading.getSubmittedDate().getTime();
+      String browserDateString = ContextUtil.lookupParam("lastSubmittedDate"); 
+      long browserDate=0;
+      try{
+        browserDate = Long.parseLong(browserDateString);
+      }
+      catch(Exception e){
+	  log.warn(e.getMessage());
+      }
+      
+      System.out.println("last modified date in DB="+DBdate);
+      System.out.println("last modified date in browser="+browserDate);
+      System.out.println("date is equal="+(DBdate==browserDate));
+      return (DBdate==browserDate);
+    }
+    else return false;
+  }
+
+  private boolean getAssessmentHasBeenSubmitted(AssessmentGradingData assessmentGrading){
+    // get assessmentGrading from DB, this is to avoid same assessment being
+    // opened in the differnt browser
+    if (assessmentGrading !=null){
+      return assessmentGrading.getForGrade().booleanValue();
     }
     else return false;
   }

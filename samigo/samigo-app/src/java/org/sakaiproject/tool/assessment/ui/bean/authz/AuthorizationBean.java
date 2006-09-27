@@ -230,14 +230,14 @@ private static Log log = LogFactory.getLog(AuthorizationBean.class);
      String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthzPermissions", functionKey);
      boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
      map.put(functionName+"_"+siteId, new Boolean(privilege));
-     log.debug(functionName+"_"+siteId+"="+privilege);
+     //log.debug(functionName+"_"+siteId+"="+privilege);
      return privilege;
   }
 
   public void addAdminPrivilege(boolean privilege, String functionKey, String siteId){
      String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthzPermissions", functionKey);
      map.put(functionName+"_"+siteId, new Boolean(privilege));
-     log.debug(functionName+"_"+siteId+"="+privilege);
+     //log.debug(functionName+"_"+siteId+"="+privilege);
   }
 
   public boolean getTakeAssessment(){

@@ -371,6 +371,10 @@
       <from-outcome>timeExpired</from-outcome>
       <to-view-id>/jsf/delivery/timeExpired.jsp</to-view-id>
     </navigation-case>
+    <navigation-case>
+      <from-outcome>discrepancyInData</from-outcome>
+      <to-view-id>/jsf/delivery/discrepancyInData.jsp</to-view-id>
+    </navigation-case>
   </navigation-rule>
 
   <!-- INDEX -->
