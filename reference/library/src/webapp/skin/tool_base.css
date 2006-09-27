@@ -281,6 +281,11 @@ ul.attachList li{
 	line-height: 2em;
 	clear: both;
 	margin: .5em;
+	white-space: nowrap;
+}
+
+.itemNav a{
+	white-space: nowrap;
 }
 
 * html body .itemNav input{
@@ -323,6 +328,25 @@ span.abc a,span.abc a:link{
 	padding: .3em;
 	vertical-align: middle;
 }
+
+table.discTria img, .topicHeadings img,  .msgHeadings img{
+	vertical-align: text-top;
+	margin:0 .3em;
+}
+.discTria h4{
+	display:inline;
+}
+.discTria .itemAction a{
+	border:1px solid #555 !important;
+	padding:.3em .6em !important;
+	background:#eee;
+	
+}
+.discTria .itemAction a:hover{
+	border:1px solid #555 !important;
+	background:#fff;
+}
+
 
 /*a block that contains a twistie and a title - used to hide then reveal optional elements*/
 /*see or preview an assignment*/
@@ -736,6 +760,7 @@ order to display them in the same cell they need to be wrapped in a h:panelGroup
 
 .jsfFormTable td{
 	padding: .3em 0;
+	vertical-align: top;
 }
 
 .jsfFormTable td .reqStar{
@@ -793,3 +818,22 @@ table.checkbox label input {
 	width: 18em;
 }
 
+/*messagecenter stuff*/
+.msgAdvSearch {
+	float:right;
+}
+.msgAdvSearch td{
+}
+.msgNav{
+float:right;
+text-align: right;
+white-space: nowrap;
+}
+.unreadMsg{
+font-weight: bold;
+}
+
+.bordered{
+	border: 1px solid #000000;
+	padding: 0.5em;
+}

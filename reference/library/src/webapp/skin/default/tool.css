@@ -691,17 +691,44 @@ you loose the native buttonishness affordance of the os/browser */
 	color: #ffd;
 }
 /*see: topic content in discussion*/
-.hierItemBlock{
+.hierItemBlock, .hierItemBlockWrapper{
 	padding: 0 .5em .5em .5em;
 	border: 1px solid silver;
 	margin-top: .5em;
+	margin-bottom: .5em;
+	width:auto;
+	background: #fff;
+}
+
+table.hierItemBlock td{
+	width:100%;
+}
+table.hierItemBlock td h4,table.hierItemBlock td h5,table.hierItemBlock td h6,
+.hierItemBlockChild h4,.hierItemBlockChild h5,.hierItemBlockChild h6{
+	display:inline;
+}
+
+.hierItemBlockWrapper {
+	background: #FFFFF1;
+	padding-top: 0.5em;
 }
 
 .hierItemBlock h4.textPanelHeader, .hierItemBlock h5.textPanelHeader, .hierItemBlock h6.textPanelHeader{
-	border-bottom: 1px solid silver;
-	margin: 0 -.4em;
+	border-bottom: 1px solid silver;	
+	margin: 0 -.4em 1.0em -.4em;
 	padding:.5em;
 	background: #ffd !important;
+}
+
+.hierItemBlockChild{
+	margin:.5em 0;
+	margin-left:0.5em;
+	padding:.5em;
+	border-top:1px solid silver;
+}
+
+.hierItemBlockChild td{
+	padding:.3em;
 }
 
 /*SECTION 11 LAYOUT REQUIRED IN SPECIFIC TOOLS*/
