@@ -101,8 +101,6 @@ public class QuestionScoreListener
     String defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
     bean.setSearchString(defaultSearchString);
     
-    setMaxDisplayedScoreRows(bean, false);
-    
     // we probably want to change the poster to be consistent
     String publishedId = ContextUtil.lookupParam("publishedId");
 
@@ -141,10 +139,6 @@ public class QuestionScoreListener
         totalBean.setAllSubmissions(selectedvalue);    // changed for total score bean
         histogramBean.setAllSubmissions(selectedvalue); // changed for histogram score bean
         toggleSubmissionSelection = true;
-      }
-      else if (event.getComponent().getId().indexOf("page")>-1) {
-    	  log.debug("Paging");
-    	  setMaxDisplayedScoreRows(bean, true);
       }
       else  // inline or popup
       {
@@ -730,38 +724,5 @@ log.debug("item==null ");
       }
       log.debug("questionScores(): sections size = " + sections.size());
       bean.setSections(sections);
-  }
-
-  private void setMaxDisplayedScoreRows(QuestionScoresBean bean, boolean isValueChange) {
-	  PublishedAssessmentService pubService  = new PublishedAssessmentService();
-      String itemId = ContextUtil.lookupParam("itemId");
-      if (ContextUtil.lookupParam("newItemId") != null && !ContextUtil.lookupParam("newItemId").trim().equals("")) {
-    	  itemId = ContextUtil.lookupParam("newItemId");
-      }
-      Long itemType = pubService.getItemType(itemId);
-      // For audiio question, default the paging number to 5
-	  if (isValueChange) {
-		  if (itemType.equals(Long.valueOf("7"))){
-			  bean.setAudioMaxDisplayedScoreRows(bean.getMaxDisplayedRows());
-			  bean.setHasAudioMaxDisplayedScoreRowsChanged(true);
-		  }
-		  else {
-			  bean.setOtherMaxDisplayedScoreRows(bean.getMaxDisplayedRows());
-		  }
-	  }
-	  else {
-		  if (itemType.equals(Long.valueOf("7"))){
-			  if (bean.getHasAudioMaxDisplayedScoreRowsChanged()) {
-				  bean.setMaxDisplayedRows(bean.getAudioMaxDisplayedScoreRows());
-			  }
-			  else {
-				  bean.setMaxDisplayedRows(5);
-				  bean.setAudioMaxDisplayedScoreRows(5);
-			  }
-		  }
-		  else {
-			  bean.setMaxDisplayedRows(bean.getOtherMaxDisplayedScoreRows());
-		  }
-	  }
   }
 }

@@ -281,7 +281,9 @@ $Id$
   </h:panelGroup>
    
    <h:panelGroup>
-	<sakai:pager id="pager1" totalItems="#{questionScores.dataRows}" firstItem="#{questionScores.firstRow}" pageSize="#{questionScores.maxDisplayedRows}" textStatus="#{msg.paging_status}" />
+	<sakai:pager id="pager1" totalItems="#{questionScores.dataRows}" firstItem="#{questionScores.firstRow}" pageSize="#{questionScores.maxDisplayedRows}" textStatus="#{msg.paging_status}" >
+		  <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
+	</sakai:pager>
   </h:panelGroup>
 </h:panelGrid>
 
@@ -319,7 +321,7 @@ $Id$
   
   <h:panelGroup>
 	<sakai:pager id="pager2" totalItems="#{questionScores.dataRows}" firstItem="#{questionScores.firstRow}" pageSize="#{questionScores.maxDisplayedRows}" textStatus="#{msg.paging_status}" >
-	  <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+	  <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
 	</sakai:pager>
   </h:panelGroup>
 </h:panelGrid>
