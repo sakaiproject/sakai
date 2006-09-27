@@ -36,6 +36,9 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
@@ -67,7 +70,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class ItemAddListener
     implements ActionListener {
 
-  //private static Log log = LogFactory.getLog(ItemAddListener.class);
+  private static Log log = LogFactory.getLog(ItemAddListener.class);
   //private static ContextUtil cu;
   //private String scalename; // used for multiple choice Survey
   private boolean error=false;
@@ -77,8 +80,11 @@ public class ItemAddListener
    * @throws AbortProcessingException
    */
   public void processAction(ActionEvent ae) throws AbortProcessingException {
+
     //boolean correct=false;
-    //log.info("ItemAdd LISTENER.");
+
+    log.debug("ItemAdd LISTENER.");
+
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
     ItemBean item = itemauthorbean.getCurrentItem();
     String iText = ContextUtil.stringWYSIWYG(item.getItemText());

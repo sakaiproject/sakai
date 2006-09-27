@@ -607,7 +607,7 @@ public class GradingService
       // so if the first blank has an answer 'red', the 'red' answer should 
       // not be included in the answers for the other mutually exclusive blanks. 
       HashMap fibAnswersMap= new HashMap();
-      HashMap finAnswersMap= new HashMap();
+      
       
       //change algorithm based on each question (SAK-1930 & IM271559) -cwen
       HashMap totalItems = new HashMap();
@@ -627,7 +627,7 @@ public class GradingService
           itemGrading.setOverrideScore(new Float(0));
           // note that totalItems & fibAnswersMap would be modified by the following method
           autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
-                                 totalItems, fibAnswersMap, publishedAnswerHash, finAnswersMap);
+                                 totalItems, fibAnswersMap, publishedAnswerHash);
           log.debug("**!regrade, autoScore="+autoScore);
           if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType))
             totalItems.put(itemId, new Float(autoScore));
@@ -732,7 +732,7 @@ public class GradingService
   private float getScoreByQuestionType(ItemGradingIfc itemGrading, ItemDataIfc item,
                                        Long itemType, HashMap publishedItemTextHash, 
                                        HashMap totalItems, HashMap fibAnswersMap,
-                                       HashMap publishedAnswerHash, HashMap finAnswersMap){
+                                       HashMap publishedAnswerHash){
     //float score = (float) 0;
     float initScore = (float) 0;
     float autoScore = (float) 0;
@@ -817,7 +817,7 @@ public class GradingService
               }
               break;
       case 11: // FIN
-          autoScore = getFINScore(itemGrading, finAnswersMap, item, publishedAnswerHash) / (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
+          autoScore = getFINScore(itemGrading, item, publishedAnswerHash) / (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
           //overridescore - cwen
           if (itemGrading.getOverrideScore() != null)
             autoScore += itemGrading.getOverrideScore().floatValue();
@@ -985,7 +985,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 -. multiple answer, mutually exclusive, wildcard , case insensitive
 
   */
-  private float getFIBScore(ItemGradingIfc data, HashMap fibmap, ItemDataIfc itemdata, HashMap publishedAnswerHash)
+  
+  public float getFIBScore(ItemGradingIfc data, HashMap fibmap,  ItemDataIfc itemdata, HashMap publishedAnswerHash)
   {
     String studentanswer = "";
     String REGEX;
@@ -1069,8 +1070,106 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     return totalScore;
   }
 
-  private float getFINScore(ItemGradingIfc data, HashMap finmap, ItemDataIfc itemdata, HashMap publishedAnswerHash)
+  public boolean getFIBResult(ItemGradingIfc data, HashMap fibmap,  ItemDataIfc itemdata, HashMap publishedAnswerHash)
   {
+	  // this method is similiar to getFIBScore(), except it returns true/false for the answer, not scores.  
+	  // may be able to refactor code out to be reused, but totalscores for mutually exclusive case is a bit tricky. 
+    String studentanswer = "";
+    String REGEX;
+    Pattern p;
+    Matcher m;
+    boolean matchresult = false;
+
+    if (data.getPublishedAnswerId() == null) {
+    	return false;
+    }
+    
+    String answertext = ((AnswerIfc)publishedAnswerHash.get(data.getPublishedAnswerId())).getText();
+    Long itemId = itemdata.getItemId();
+
+    String casesensitive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB);
+    String mutuallyexclusive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB);
+    //Set answerSet = new HashSet();
+
+
+    if (answertext != null)
+    {
+      StringTokenizer st = new StringTokenizer(answertext, "|");
+      while (st.hasMoreTokens())
+      {
+        String answer = st.nextToken().trim();
+        if ("true".equalsIgnoreCase(casesensitive)) {
+          if (data.getAnswerText() != null){
+            studentanswer= data.getAnswerText().trim();
+    	    REGEX = answer.replaceAll("\\*", ".+");
+            p = Pattern.compile(REGEX);   // by default it's case sensitive
+            m = p.matcher(studentanswer);
+            matchresult = m.matches();
+          }
+        }  // if case sensitive 
+        else {
+        // case insensitive , if casesensitive is false, or null, or "".
+          if (data.getAnswerText() != null){
+    	    studentanswer= data.getAnswerText().trim();
+            REGEX = answer.replaceAll("\\*", ".+");
+	    p = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE);
+            m = p.matcher(studentanswer);
+            matchresult= m.matches();
+          }
+        }  // else , case insensitive
+ 
+        if (matchresult){
+
+            boolean alreadyused=false;
+// add check for mutual exclusive
+            if ("true".equalsIgnoreCase(mutuallyexclusive))
+            {
+              // check if answers are already used.
+              Set answer_used_sofar = (HashSet) fibmap.get(itemId);
+              if ((answer_used_sofar!=null) && ( answer_used_sofar.contains(studentanswer.toLowerCase()))){
+                // already used, so it's a wrong answer for mutually exclusive questions
+                alreadyused=true;
+              }
+              else {
+                // not used, it's a good answer, now add this to the already_used list.
+                // we only store lowercase strings in the fibmap.
+                if (answer_used_sofar==null) {
+                  answer_used_sofar = new HashSet();
+                }
+
+                answer_used_sofar.add(studentanswer.toLowerCase());
+                fibmap.put(itemId, answer_used_sofar);
+              }
+            }
+
+            if (alreadyused) {
+              matchresult = false;
+            }
+
+             break;
+          }
+      
+     }
+    }
+    return matchresult;
+  }
+  
+  
+  public float getFINScore(ItemGradingIfc data,  ItemDataIfc itemdata, HashMap publishedAnswerHash)
+  {
+	  float totalScore = (float) 0;
+	  boolean matchresult = getFINResult(data, itemdata, publishedAnswerHash);
+	  if (matchresult){
+		  totalScore += ((AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId())).getScore().floatValue();
+		  
+	  }	
+	  return totalScore;
+	  
+  }
+	  
+  public boolean getFINResult(ItemGradingIfc data,  ItemDataIfc itemdata, HashMap publishedAnswerHash)
+  {
+	  // this method checks if the FIN answer is correct.  
     String studentanswer = "";
     boolean range;
     boolean matchresult = false;
@@ -1085,7 +1184,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     
     //Set answerSet = new HashSet();
 
-    float totalScore = (float) 0;
+    
 
     if (answertext != null)
     {
@@ -1157,46 +1256,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         }
       }
       
-      if (matchresult){
-          totalScore += ((AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId())).getScore().floatValue();
-
-      }
-       // commenting this out for now, until we see a use case for numeric responses to have mutually exclusive.
-       /*
-        if (matchresult){
-
-            boolean alreadyused=false;
-// add check for mutual exclusive
-            if ("true".equalsIgnoreCase(mutuallyexclusive))
-            {
-              // check if answers are already used.
-              Set answer_used_sofar = (HashSet) finmap.get(itemId);
-              if ((answer_used_sofar!=null) && ( answer_used_sofar.contains(studentanswer.toLowerCase()))){
-                // already used, so it's a wrong answer for mutually exclusive questions
-                alreadyused=true;
-              }
-              else {
-                // not used, it's a good answer, now add this to the already_used list.
-                // we only store lowercase strings in the fibmap.
-                if (answer_used_sofar==null) {
-                  answer_used_sofar = new HashSet();
-                }
-
-                answer_used_sofar.add(studentanswer.toLowerCase());
-                finmap.put(itemId, answer_used_sofar);
-              }
-            }
-
-            if (!alreadyused) {
-              totalScore += ((AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId())).getScore().floatValue();
-            }
-          
-          }
-      */
-      
+       
      
     }
-    return totalScore;
+    return matchresult;
   }
   
   

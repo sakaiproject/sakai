@@ -49,6 +49,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 //import org.sakaiproject.tool.assessment.integration.delivery.SessionUtil;
@@ -916,26 +918,130 @@ public class DeliveryActionListener
     }
 
     // set question feedback.
-    if (item.getTypeId().toString().equals("5") ||
-        item.getTypeId().toString().equals("6") ||
-        item.getTypeId().toString().equals("3") ||
-        item.getTypeId().toString().equals("7"))
+    if (item.getTypeId().equals(TypeIfc.ESSAY_QUESTION) ||
+        item.getTypeId().equals(TypeIfc.FILE_UPLOAD) ||
+        item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY) ||
+        item.getTypeId().equals(TypeIfc.AUDIO_RECORDING))
     {
       itemBean.setFeedback(item.getGeneralItemFeedback());
     }
-    
-    // below doesn't work for questions with 0 points. see SAK-5669
-    // will need to set Feedback later based on answer.isCorrect(). 
-    // but I'm leaving this part here, in case we (will) have a question 
-    // type that don't have answer.isCorrect() set.
  
-    else if (itemBean.getExactPoints() >= itemBean.getMaxPoints())
-    {
-      itemBean.setFeedback(item.getCorrectItemFeedback());
+    else if ( itemBean.getMaxPoints()>0) {
+        // 
+        // This is not really needed because the next Else{} will cover all other question types. 
+    	// However it's much cheaper to check scores rather than looping through and check each answers. 
+    	// I'm keeping it here.  In most cases, this condition will be met. 
+   	
+    	if (itemBean.getExactPoints() >= itemBean.getMaxPoints())
+    	{
+    		
+    		itemBean.setFeedback(item.getCorrectItemFeedback());
+    	}
+    	else
+    	{
+    		itemBean.setFeedback(item.getInCorrectItemFeedback());
+    	}
     }
-    else
-    {
-      itemBean.setFeedback(item.getInCorrectItemFeedback());
+    else {
+    	// run this check if the question is worth 0 points.  see SAK-5669
+    	// In this case, we can't just check the scores to determine which feedback to show.
+    	// this doesn't happen very often. 
+    	
+    	
+    	ArrayList itemgradingList = itemBean.getItemGradingDataArray();
+    	Iterator iterAnswer = itemgradingList.iterator();
+    	boolean haswronganswer =true;
+    	HashMap fibmap = new HashMap();
+    	int mcmc_match_counter = 0;
+    	// if no answers yet, then display incorrect feedback. 
+    	// if there are answers, then initialize haswronganswer =false;  // correct feedback
+    	if (iterAnswer.hasNext()){
+    		haswronganswer =false;
+    	}
+    	
+    	//calculate total # of correct answers. 
+    	int correctAnswers = 0;
+    	if ((item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )||(item.getTypeId().equals(TypeIfc.MATCHING) )){
+    		Iterator itemTextIter = item.getItemTextArray().iterator();
+    		while (itemTextIter.hasNext()){
+    			ItemTextIfc itemText = (ItemTextIfc) itemTextIter.next();
+    			ArrayList answerArray = itemText.getAnswerArray();
+    			
+    			if (answerArray != null){
+    				for (int indexAnswer =0; indexAnswer<answerArray.size(); indexAnswer++){
+    					AnswerIfc a = (AnswerIfc) answerArray.get(indexAnswer);
+    					if (a.getIsCorrect().booleanValue())
+    						correctAnswers++;
+    				}
+    			}
+    		}
+    	}
+    	//log.debug("correctAnswers: " + correctAnswers);
+    	
+    	while (iterAnswer.hasNext())
+    	{
+    		
+    		ItemGradingIfc data = (ItemGradingIfc) iterAnswer.next();
+    		
+    		  AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
+    		  
+    		  if (item.getTypeId().equals(TypeIfc.FILL_IN_BLANK)) {
+       			  GradingService gs = new GradingService();
+    			  boolean correctanswer = gs.getFIBResult( data, fibmap,  item,  publishedAnswerHash);
+    			  if (!correctanswer){
+    				  haswronganswer =true;
+      		    	break;
+    			  }
+    			  
+    		  }
+    		  else if (item.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC)) {
+    			  GradingService gs = new GradingService();
+    			  boolean correctanswer = gs.getFINResult( data,   item,  publishedAnswerHash);
+    			  if (!correctanswer){
+    				  haswronganswer =true;
+      		    	break;
+    			  }
+    		  }
+    		  else if  ((item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )||(item.getTypeId().equals(TypeIfc.MATCHING) )){
+      		    if ((answer !=null) && (answer.getIsCorrect() == null || !answer.getIsCorrect().booleanValue())){
+    		    	haswronganswer =true;
+    		    	
+    		    	break;
+    		    }
+      		    else if (answer !=null) {  
+      		    	// for matching, if no selection has been made, answer = null.  we dont want to increment mcmc_match_counter if answer is null
+      		    	
+      		    	mcmc_match_counter++;
+      		    }
+    			  	
+ 
+    		  }
+    		  else {
+    			  // for other question types, tf, mcsc, mcmc and matching
+     		    if ((answer !=null) && (answer.getIsCorrect() == null || !answer.getIsCorrect().booleanValue())){
+    		    	haswronganswer =true;
+    		    	break;
+    		    }
+    		  }
+    		   
+    	}
+    	if ((item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )||(item.getTypeId().equals(TypeIfc.MATCHING) )){
+    		if (mcmc_match_counter==correctAnswers){
+    			haswronganswer=false;
+    		}
+    		else {
+    			haswronganswer=true;
+    		}
+    	}
+    	
+    	if (haswronganswer) {
+    		itemBean.setFeedback(item.getInCorrectItemFeedback());
+    	}
+    	else {
+    		
+    		itemBean.setFeedback(item.getCorrectItemFeedback());
+    	}
+    	
     }
     
     
@@ -974,7 +1080,7 @@ public class DeliveryActionListener
       Iterator key2 = null;
 
       // Never randomize Fill-in-the-blank or Numeric Response, always randomize matching
-      if (randomize && !(item.getTypeId().toString().equals("8")||item.getTypeId().toString().equals("11")) || item.getTypeId().toString().equals("9"))
+      if (randomize && !(item.getTypeId().equals(TypeIfc.FILL_IN_BLANK)||item.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC)) || item.getTypeId().equals(TypeIfc.MATCHING))
           {
             ArrayList shuffled = new ArrayList();
             Iterator i1 = text.getAnswerArraySorted().iterator();
@@ -985,7 +1091,7 @@ public class DeliveryActionListener
 
           // Randomize matching the same way for each
         }
-        if (item.getTypeId().toString().equals("9"))
+        if (item.getTypeId().equals(TypeIfc.MATCHING))
         {
 /*
           Collections.shuffle(shuffled,
@@ -1018,25 +1124,25 @@ public class DeliveryActionListener
 
         // Don't save the answer if it has no text
         if ( (answer.getText() == null || answer.getText().trim().equals(""))
-            && (item.getTypeId().toString().equals("1") ||
-                item.getTypeId().toString().equals("2") ||
-                item.getTypeId().toString().equals("3")))
+            && (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) ||
+                item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||
+                item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY)))
         {
           // Ignore, it's a null answer
         }
         else
         {
           // Set the label and key
-          if (item.getTypeId().toString().equals("1") ||
-              item.getTypeId().toString().equals("2") ||
-              item.getTypeId().toString().equals("9"))
+          if (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) ||
+              item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||
+              item.getTypeId().equals(TypeIfc.MATCHING))
           {
             answer.setLabel(Character.toString(alphabet.charAt(k++)));
             if (answer.getIsCorrect() != null &&
                 answer.getIsCorrect().booleanValue())
             {
               String addition = "";
-              if (item.getTypeId().toString().equals("9"))
+              if (item.getTypeId().equals(TypeIfc.MATCHING))
               {
                 addition = Integer.toString(j++) + ":";
               }
@@ -1050,19 +1156,19 @@ public class DeliveryActionListener
               }
             }
           }
-          if (item.getTypeId().toString().equals("4") &&
+          if (item.getTypeId().equals(TypeIfc.TRUE_FALSE) &&
               answer.getIsCorrect() != null &&
               answer.getIsCorrect().booleanValue())
           {
             key = (answer.getText().equalsIgnoreCase("true") ? "True" : "False");
           }
-          if (item.getTypeId().toString().equals("5") ||
-              item.getTypeId().toString().equals("6") ||
-              item.getTypeId().toString().equals("7"))
+          if (item.getTypeId().equals(TypeIfc.FILE_UPLOAD) ||
+              item.getTypeId().equals(TypeIfc.ESSAY_QUESTION) ||
+              item.getTypeId().equals(TypeIfc.AUDIO_RECORDING))
           {
             key += answer.getText();
           }
-          if (item.getTypeId().toString().equals("8")||item.getTypeId().toString().equals("11"))
+          if (item.getTypeId().equals(TypeIfc.FILL_IN_BLANK)||item.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC))
           {
             if (key.equals(""))
             {
@@ -1084,11 +1190,11 @@ public class DeliveryActionListener
 
     // This creates the list of answers for an item
     ArrayList answers = new ArrayList();
-    if (item.getTypeId().toString().equals("1") ||
-        item.getTypeId().toString().equals("2") ||
-        item.getTypeId().toString().equals("3") ||
-        item.getTypeId().toString().equals("4") ||
-        item.getTypeId().toString().equals("9"))
+    if (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) ||
+        item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||
+        item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY) ||
+        item.getTypeId().equals(TypeIfc.TRUE_FALSE) ||
+        item.getTypeId().equals(TypeIfc.MATCHING))
     {
       Iterator iter = myanswers.iterator();
       while (iter.hasNext())
@@ -1099,12 +1205,12 @@ public class DeliveryActionListener
         selectionBean.setAnswer(answer);
 
         // It's saved lower case in the db -- this is a kludge
-        if (item.getTypeId().toString().equals("4") && // True/False
+        if (item.getTypeId().equals(TypeIfc.TRUE_FALSE) && // True/False
             answer.getText().equals("true"))
         {
           answer.setText("True");
         }
-        if (item.getTypeId().toString().equals("4") && // True/False
+        if (item.getTypeId().equals(TypeIfc.TRUE_FALSE) && // True/False
             answer.getText().equals("false"))
         {
           answer.setText("False");
@@ -1179,7 +1285,7 @@ public class DeliveryActionListener
         SelectItem newItem =
           new SelectItem(answer.getId().toString(), label, description);
 
-        if (item.getTypeId().toString().equals("4"))
+        if (item.getTypeId().equals(TypeIfc.TRUE_FALSE))
         {
           answers.add(newItem);
         }
@@ -1193,12 +1299,12 @@ public class DeliveryActionListener
     itemBean.setAnswers(answers);
     itemBean.setSelectionArray(answers);
 
-    if (item.getTypeId().toString().equals("9")) // matching
+    if (item.getTypeId().equals(TypeIfc.MATCHING)) // matching
     {
       populateMatching(item, itemBean, publishedAnswerHash);
 
     }
-    if (item.getTypeId().toString().equals("8")) // fill in the blank
+    if (item.getTypeId().equals(TypeIfc.FILL_IN_BLANK)) // fill in the blank
     {
       populateFib(item, itemBean);
 
@@ -1206,7 +1312,7 @@ public class DeliveryActionListener
 
     }
     
-    if (item.getTypeId().toString().equals("11")) //numeric response
+    if (item.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC)) //numeric response
     {
       populateFin(item, itemBean);
 
