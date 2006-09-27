@@ -5048,37 +5048,12 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, "true");
 			}
-			state.setAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT, rb.getString("thenewass"));
-
 			// TODO: file picker to save in dropbox? -ggolden
 			// User[] users = { UserDirectoryService.getCurrentUser() };
 			// state.setAttribute(ResourcesAction.STATE_SAVE_ATTACHMENT_IN_DROPBOX, users);
 		}
 		else if (mode.equals(MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT))
 		{
-			String stateFromText = "";
-			String title = "";
-
-			if (state.getAttribute(EDIT_ASSIGNMENT_ID) != null)
-			{
-				stateFromText = rb.getString("thenewass");
-				title = (String) state.getAttribute(NEW_ASSIGNMENT_TITLE);
-				if (title != null && title.length() > 0)
-				{
-					stateFromText = rb.getString("newass") + " " + '"' + title + '"';
-				}
-			}
-			else
-			{
-				stateFromText = rb.getString("theassi");
-				title = (String) state.getAttribute(NEW_ASSIGNMENT_TITLE);
-				if (title != null && title.length() > 0)
-				{
-					stateFromText = rb.getString("assig2") + " " + '"' + title + '"';
-				}
-			}
-
-			state.setAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT, stateFromText);
 			setNewAssignmentParameters(data, false);
 		}
 		else if (mode.equals(MODE_INSTRUCTOR_GRADE_SUBMISSION))
@@ -5106,6 +5081,8 @@ public class AssignmentAction extends PagedResourceActionII
 			// get into helper mode with this helper tool
 			startHelper(data.getRequest(), "sakai.filepicker");
 
+			state.setAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT, rb.getString("gen.addatt"));
+			
 			// use the real attachment list
 			state.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, state.getAttribute(ATTACHMENTS));
 		}
@@ -7183,7 +7160,7 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, "true");
 					}
-					state.setAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT, rb.getString("thenewass"));
+					state.setAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT, rb.getString("gen.addatt"));
 
 					// TODO: file picker to save in dropbox? -ggolden
 					// User[] users = { UserDirectoryService.getCurrentUser() };
