@@ -4911,6 +4911,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// null means don't do this
 		if (rootProperty == null) return "";
 
+		// if id is missing or blank or root, skip as well
+		if ((id == null) || id.equals("/") || id.equals("")) return "";
+
 		// find the property - "" if not found
 		String alternateRoot = null;
 		try
@@ -6341,6 +6344,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				}
 			}
 		}
+
+		// if we end up with no id, or blank, use the root
+		if ((id == null) || (id.length() == 0)) id = "/";
 
 		ref.set(APPLICATION_ID, null, id, null, context);
 
