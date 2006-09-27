@@ -46,7 +46,7 @@ public class BaseExtensionResourceFilter implements ContentResourceFilter
 		String[] parts = mimeType.split("/");
 		String primaryType = parts[0];
 
-		if (!getMimeTypes().contains(primaryType) && !getMimeTypes().contains(mimeType))
+		if (!getMimeTypes().isEmpty() && !getMimeTypes().contains(primaryType) && !getMimeTypes().contains(mimeType))
 		{
 			return false;
 		}
