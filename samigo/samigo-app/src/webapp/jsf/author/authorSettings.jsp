@@ -120,8 +120,9 @@ function disableAllFeedbackCheck(feedbackType)
   document.forms[0].submit();
 }
 
-var autoSubmitId;
 function checkTimeSelect(){
+  var autoSubmitId;
+  var timedAssessmentId;
   var inputList= document.getElementsByTagName("INPUT");
   for (i = 0; i <inputList.length; i++) {
     if(inputList[i].type=='checkbox'){
