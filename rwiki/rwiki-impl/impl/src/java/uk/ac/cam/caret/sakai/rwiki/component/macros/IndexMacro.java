@@ -248,7 +248,7 @@ public class IndexMacro extends BaseMacro
 		writer.write("<li>");
 		StringBuffer sb = new StringBuffer(chars.length * 3);
 		plr.appendLink(sb, new String(chars), new String(chars, start,
-				chars.length - start));
+				chars.length - start), null, true);
 		writer.write(sb.toString());
 		writer.write("</li>\n");
 	}
