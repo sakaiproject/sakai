@@ -433,7 +433,6 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 		  filename.append(firstName);
 		  filename.append("_");
 		  filename.append(eid);
-		  filename.append("_");
 		  log.debug("filename = " + filename);
 		  if (numberSubmission == -1) {
 			  filename.append(mediaData.getFilename());
