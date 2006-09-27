@@ -81,6 +81,8 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
   {
     HttpSession httpSession = req.getSession(true);
     httpSession.setMaxInactiveInterval(3600); // one hour
+    PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet(
+                        "person", req, res);
     // we are going to use the delivery bean to flag that this access is via url
     // this is the flag that we will use in deliverAssessment.jsp to decide what
     // button to display - daisyf
@@ -129,8 +131,6 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
         isAuthenticated = true;
         isAuthorized = true;
         delivery.setAnonymousLogin(true);
-        PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet(
-                              "person", req, res);
         person.setAnonymousId(agentIdString);
       }
       else { // check membership
@@ -145,7 +145,8 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
       // check if assessment is available
       // We are getting the total no. of submission (for grade) per assessment
       // by the given agent at the same time
-      boolean assessmentIsAvailable = assessmentIsAvailable(service, agentIdString, pub);
+      boolean assessmentIsAvailable = assessmentIsAvailable(service, agentIdString, pub,
+                                      delivery, person);
       if (isAuthorized){
         if (!assessmentIsAvailable) {
           path = "/jsf/delivery/assessmentNotAvailable.faces";
@@ -204,39 +205,14 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
     return isMember;
   }
 
-  private boolean isAvailable(PublishedAssessmentFacade f, HashMap h) {
+  private boolean isAvailable(DeliveryBean delivery, PersonBean person, HashMap h) {
+    log.debug("inside isAvaialbel");
     boolean returnValue = false;
-    //1. prepare our significant parameters
-    Date currentDate = new Date();
-    Date startDate = f.getAssessmentAccessControl().getStartDate();
-    Date retractDate = f.getAssessmentAccessControl().getRetractDate();
-    Date dueDate = f.getAssessmentAccessControl().getDueDate();
-    boolean acceptLateSubmission = AssessmentAccessControlIfc.
-        ACCEPT_LATE_SUBMISSION.equals(
-        f.getAssessmentAccessControl().getLateHandling());
-    int maxSubmissionsAllowed = 9999;
-    if ( (Boolean.FALSE).equals(f.getAssessmentAccessControl().getUnlimitedSubmissions()))
-      maxSubmissionsAllowed = f.getAssessmentAccessControl().getSubmissionsAllowed().intValue();
-    boolean notSubmitted = false;
-    int totalSubmitted = 0;
-    if (h.get(f.getPublishedAssessmentId()) == null)
-      notSubmitted = true;
-    else
-      totalSubmitted = ( (Integer) h.get(f.getPublishedAssessmentId())).
-          intValue();
-
-      //2. time to go through all the criteria
-    if (retractDate == null || retractDate.after(currentDate)) {
-      if (dueDate == null || dueDate.after(currentDate) ||
-          (dueDate.before(currentDate) && notSubmitted &&
-           acceptLateSubmission)) {
-        if (totalSubmitted < maxSubmissionsAllowed) {
-          if (startDate == null ||
-              (startDate != null && startDate.before(currentDate))){
-            returnValue = true;
-          }
-        }
-      }
+    person.setTotalSubmissionPerAssessmentHash(h);
+    String nextAction = delivery.checkBeforeProceed();
+    log.debug("nextAction="+nextAction);
+    if (("safeToProceed").equals(nextAction)){
+      returnValue = true;
     }
     return returnValue;
   }
@@ -244,7 +220,8 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
   // check if assessment is available based on criteria like
   // dueDate
   public boolean assessmentIsAvailable(PublishedAssessmentService service,
-      String agentIdString, PublishedAssessmentFacade pub){
+      String agentIdString, PublishedAssessmentFacade pub,
+      DeliveryBean delivery, PersonBean person){
     boolean assessmentIsAvailable = false;
     Integer submissions = new Integer(0);
     submissions = service.getTotalSubmission(agentIdString,
@@ -252,7 +229,7 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
     HashMap h = new HashMap();
     if (submissions.intValue()>0)
       h.put(pub.getPublishedAssessmentId(), submissions);
-    assessmentIsAvailable = isAvailable(pub, h);
+    assessmentIsAvailable = isAvailable(delivery, person, h);
     log.debug("**** assessmentIsAvailable="+assessmentIsAvailable);
     log.debug("pub assessmentId="+pub.getPublishedAssessmentId());
     log.debug("pub assessment relaeseTo="+pub.getAssessmentAccessControl().getReleaseTo());

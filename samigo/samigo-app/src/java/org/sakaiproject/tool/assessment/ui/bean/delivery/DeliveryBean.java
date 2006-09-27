@@ -2400,7 +2400,7 @@ public class DeliveryBean
   public String checkBeforeProceed(){
     // public method, who know if publishedAssessment is set, so check
     // to be sure
-    if (publishedAssessment == null){
+    if (getPublishedAssessment() == null){
       return "error";
     }
 
@@ -2467,6 +2467,9 @@ public class DeliveryBean
   }
 
   private boolean getAssessmentHasBeenSubmitted(){
-    return adata.getForGrade().booleanValue();
+    if (adata !=null){
+      return adata.getForGrade().booleanValue();
+    }
+    else return false;
   }
 }
