@@ -96,7 +96,6 @@ public class SelectActionListener
       return;
 
     deliveryBean = new DeliveryBean();
-    System.out.println("**** Select deliveryBean="+deliveryBean);
 
     // get service and managed bean
     PublishedAssessmentService publishedAssessmentService = new
