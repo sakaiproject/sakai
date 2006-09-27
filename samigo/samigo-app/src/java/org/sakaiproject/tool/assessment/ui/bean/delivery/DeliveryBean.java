@@ -2477,19 +2477,24 @@ public class DeliveryBean
     // get assessmentGrading from DB, this is to avoid same assessment being
     // opened in the differnt browser
     if (assessmentGrading !=null){
-      long DBdate = assessmentGrading.getSubmittedDate().getTime();
+      long DBdate = 0;
+      if (assessmentGrading.getSubmittedDate()!=null){
+         DBdate = assessmentGrading.getSubmittedDate().getTime();
+      }
       String browserDateString = ContextUtil.lookupParam("lastSubmittedDate"); 
       long browserDate=0;
       try{
-        browserDate = Long.parseLong(browserDateString);
+        if (browserDateString!=null){
+          browserDate = Long.parseLong(browserDateString);
+	}
       }
       catch(Exception e){
 	  log.warn(e.getMessage());
       }
       
-      System.out.println("last modified date in DB="+DBdate);
-      System.out.println("last modified date in browser="+browserDate);
-      System.out.println("date is equal="+(DBdate==browserDate));
+      log.debug("last modified date in DB="+DBdate);
+      log.debug("last modified date in browser="+browserDate);
+      log.debug("date is equal="+(DBdate==browserDate));
       return (DBdate==browserDate);
     }
     else return false;
