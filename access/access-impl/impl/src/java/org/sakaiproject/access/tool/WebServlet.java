@@ -29,6 +29,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,7 +50,6 @@ import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.FileItem;
 
 /**
  * <p>
@@ -142,7 +142,7 @@ public class WebServlet extends AccessServlet
 			{
 				FileItem fi = (FileItem) o;
 				// System.out.println("found file " + fi.getName());
-				if (!writeFile(fi.getFileName(), fi.getContentType(), fi.get(), path, req, res, true)) return;
+				if (!writeFile(fi.getName(), fi.getContentType(), fi.get(), path, req, res, true)) return;
 			}
 		}
 	}
