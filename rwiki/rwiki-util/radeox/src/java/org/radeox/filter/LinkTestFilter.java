@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.WikiRenderEngine;
+import org.radeox.api.engine.context.RenderContext;
 import org.radeox.filter.context.FilterContext;
 import org.radeox.filter.interwiki.InterWiki;
 import org.radeox.filter.regex.LocaleRegexTokenFilter;
@@ -191,12 +192,17 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 					// internal link
 
 					name = Encoder.unescape(name);
+					
 					if (name.indexOf('@') > -1) 
 					{
 						addAtSignError(buffer);
 					} 
-					else if (wikiEngine.exists(name))
+					else if (wikiEngine.exists(name) || ("".equals(name) && !("".equals(hash))))
 					{
+						if ("".equals(name) && !("".equals(hash))) {
+							name = (String) context.getRenderContext().get("uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject.name");
+						}
+						
 						String view = getWikiView(name, hash);
 						if (-1 != pipeIndex)
 						{
