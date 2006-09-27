@@ -102,7 +102,7 @@ public class DeliveryActionListener
     try
     {
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
-    System.out.println("**** MacNetscape="+person.getIsMacNetscapeBrowser());
+    log.debug("**** MacNetscape="+person.getIsMacNetscapeBrowser());
       // 1. get managed bean
       DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
       //log.debug("***DeliveryBean in deliveryListener = "+delivery);
@@ -1488,7 +1488,7 @@ public class DeliveryActionListener
           ItemGradingData data = (ItemGradingData) iter2.next();
           
           
-          System.out.println(" " + data.getPublishedAnswerId() + " = " + answer.getId());
+          log.debug(" " + data.getPublishedAnswerId() + " = " + answer.getId());
           
           if (data.getPublishedAnswerId().equals(answer.getId()))
           {
@@ -1582,10 +1582,10 @@ public class DeliveryActionListener
         testResult = extractFINTextArray(testsuite[i]);
         if (verbose)
         {
-          System.out.println("Extracting: " + testsuite[i]);
+          log.debug("Extracting: " + testsuite[i]);
           for (int j = 0; j < testResult.size(); j++)
           {
-            System.out.println("testResult.get(" + j +
+            log.debug("testResult.get(" + j +
                                ")="+testResult.get(j));
           }
         }
@@ -1593,7 +1593,7 @@ public class DeliveryActionListener
         {
           if (verbose)
           {
-            System.out.println("Extraction failed: exceeded reasonable size.");
+            log.debug("Extraction failed: exceeded reasonable size.");
           }
           return false;
         }
@@ -1603,7 +1603,7 @@ public class DeliveryActionListener
     {
       if (verbose)
       {
-        System.out.println("Extraction failed: " + ex);
+        log.debug("Extraction failed: " + ex);
       }
       return false;
     }
