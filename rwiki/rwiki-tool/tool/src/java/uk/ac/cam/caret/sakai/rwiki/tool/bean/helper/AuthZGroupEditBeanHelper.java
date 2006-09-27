@@ -39,7 +39,7 @@ public class AuthZGroupEditBeanHelper
 	{
 		HttpSession session = request.getSession();
 
-		AuthZGroupEditBean rb = null;
+		AuthZGroupEditBean rb;
 		try
 		{
 			rb = (AuthZGroupEditBean) session
@@ -47,6 +47,7 @@ public class AuthZGroupEditBeanHelper
 		}
 		catch (ClassCastException ex)
 		{
+			rb = null;
 		}
 
 		if (rb == null)
