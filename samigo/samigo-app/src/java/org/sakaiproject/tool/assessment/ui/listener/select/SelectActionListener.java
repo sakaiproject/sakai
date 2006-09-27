@@ -47,6 +47,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBeanie;
+import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.bean.select.SelectAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
@@ -89,11 +90,13 @@ public class SelectActionListener
     // if it is anonymos login, let it pass 'cos there is no site and authz is 
     // about permission in a site
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+    PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
     DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
     if (!deliveryBean.getAnonymousLogin() && !authzBean.getTakeAssessment())
       return;
 
     deliveryBean = new DeliveryBean();
+    System.out.println("**** Select deliveryBean="+deliveryBean);
 
     // get service and managed bean
     PublishedAssessmentService publishedAssessmentService = new
@@ -108,6 +111,10 @@ public class SelectActionListener
     // 1a. get total no. of submission (for grade) per assessment by the given agent
     HashMap h = publishedAssessmentService.getTotalSubmissionPerAssessment(
         AgentFacade.getAgentString());
+    // store it in personBean 'cos we would be using it to check if the total submisison
+    // allowed is met later - extra protection to avoid students being too enterprising
+    // e.g. open multiple windows so they can ride on the last attempt multiple times.
+    personBean.setTotalSubmissionPerAssessmentHash(h);
 
     // 1b. get all the published assessmnet available in the site
     // note that agentId is not really used
@@ -400,15 +407,18 @@ public class SelectActionListener
         ACCEPT_LATE_SUBMISSION.equals(
         f.getLateHandling());
     int maxSubmissionsAllowed = 9999;
-    if ( (Boolean.FALSE).equals(f.getUnlimitedSubmissions()))
+    if ( (Boolean.FALSE).equals(f.getUnlimitedSubmissions())){
       maxSubmissionsAllowed = f.getSubmissionsAllowed().intValue();
+    }
     boolean notSubmitted = false;
     int totalSubmitted = 0;
-    if (h.get(f.getPublishedAssessmentId()) == null)
+    if (h.get(f.getPublishedAssessmentId()) == null){
       notSubmitted = true;
-    else
+    }
+    else{
       totalSubmitted = ( (Integer) h.get(f.getPublishedAssessmentId())).
           intValue();
+    }
 
       //2. time to go through all the criteria
     if (retractDate == null || retractDate.after(currentDate)) {

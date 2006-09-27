@@ -23,6 +23,7 @@
 package org.sakaiproject.tool.assessment.ui.bean.shared;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 //import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -97,6 +98,15 @@ private static Log log = LogFactory.getLog(PersonBean.class);
 
   public boolean getIsMacNetscapeBrowser(){
     return isMacNetscapeBrowser;
+  }
+
+  private HashMap totalSubmissionPerAssessmentHash = new HashMap();
+  public HashMap getTotalSubmissionPerAssessmentHash(){
+    return totalSubmissionPerAssessmentHash;
+  }
+
+  public void setTotalSubmissionPerAssessmentHash(HashMap totalSubmissionPerAssessmentHash){
+    this.totalSubmissionPerAssessmentHash = totalSubmissionPerAssessmentHash;
   }
 
 }

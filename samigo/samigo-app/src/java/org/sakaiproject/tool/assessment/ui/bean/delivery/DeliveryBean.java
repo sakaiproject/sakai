@@ -50,6 +50,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSecuredIPAd
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -1256,14 +1257,21 @@ public class DeliveryBean
 
   public String submitForGrade()
   {
+    String nextAction = checkBeforeProceed();
+    log.debug("***** next Action="+nextAction);
+    if (!("safeToProceed").equals(nextAction)){
+      return nextAction;
+    }
+
     setForGrade(true);
-    if (isTimeRunning() && timeExpired()) // is timed assessment? and time has expired?
-      return "timeExpired";
     SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), this, false);
 
+    // submission remaining and totalSubmissionPerAssessmentHash is updated inside 
+    // SubmitToGradingListener
     SubmitToGradingActionListener listener =
       new SubmitToGradingActionListener();
     listener.processAction(null);
+
     // We don't need to call completeItemGradingData to create new ItemGradingData for linear access
     // because each ItemGradingData is created when it is viewed/answered 
     if (!navigation.equals("1")) {
@@ -1288,8 +1296,11 @@ public class DeliveryBean
 
   public String saveAndExit()
   {
-    if (isTimeRunning() && timeExpired())
-      return "timeExpired";
+    String nextAction = checkBeforeProceed();
+    log.debug("***** next Action="+nextAction);
+    if (!("safeToProceed").equals(nextAction)){
+      return nextAction;
+    }
 
     FacesContext context = FacesContext.getCurrentInstance();
     SessionUtil.setSessionTimeout(context, this, false);
@@ -1319,8 +1330,11 @@ public class DeliveryBean
 
   public String next_page()
   {
-    if (isTimeRunning() && timeExpired())
-      return "timeExpired";
+    String nextAction = checkBeforeProceed();
+    log.debug("***** next Action="+nextAction);
+    if (!("safeToProceed").equals(nextAction)){
+      return nextAction;
+    }
 
     if (getSettings().isFormatByPart())
     {
@@ -1351,8 +1365,11 @@ public class DeliveryBean
 
   public String previous()
   {
-    if (isTimeRunning() && timeExpired())
-      return "timeExpired";
+    String nextAction = checkBeforeProceed();
+    log.debug("***** next Action="+nextAction);
+    if (!("safeToProceed").equals(nextAction)){
+      return nextAction;
+    }
 
     if (getSettings().isFormatByPart())
     {
@@ -2380,4 +2397,74 @@ public class DeliveryBean
 	  this.noQuestions = noQuestions;
   }
 
+  public String checkBeforeProceed(){
+    // check if workingassessment has been submiited?
+    // this is to prevent student submit assessment and use a 2nd window to 
+    // continue working on the submitted work.
+    if (publishedAssessment == null){
+      return "error";
+    }
+
+    if (getAssessmentHasBeenSubmitted()){
+      return "assessmentHasBeenSubmitted";
+    }
+
+    // check 2: any submission attempt left?
+    if (!getHasSubmissionLeft()){
+      return "noSubmissionLeft";
+    }
+
+    // check 3: accept late submission?
+    boolean acceptLateSubmission = AssessmentAccessControlIfc.
+        ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getLateHandling());
+
+    // check 4: has dueDate arrived? if so, does it allow late submission?
+    if (!getDateIsCurrent() && !acceptLateSubmission){
+     return "noLateSubmission";
+    }
+
+    // check 5: is timed assessment? and time has expired?
+    if (isTimeRunning() && timeExpired()){ 
+      return "timeExpired";
+    }
+    else return "safeToProceed";
+  }
+
+  private boolean getHasSubmissionLeft(){
+    boolean hasSubmissionLeft = false;
+    int maxSubmissionsAllowed = 9999;
+    PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
+    HashMap h = personBean.getTotalSubmissionPerAssessmentHash();
+    if ( (Boolean.FALSE).equals(publishedAssessment.getUnlimitedSubmissions())){
+      maxSubmissionsAllowed = publishedAssessment.getSubmissionsAllowed().intValue();
+    }
+    boolean notSubmitted = false;
+    int totalSubmitted = 0;
+    if (h.get(publishedAssessment.getPublishedAssessmentId()) == null){
+      notSubmitted = true;
+    }
+    else{
+      totalSubmitted = ( (Integer) h.get(publishedAssessment.getPublishedAssessmentId())).intValue();
+    }
+    if (totalSubmitted < maxSubmissionsAllowed){
+      hasSubmissionLeft = true;
+    } 
+    return hasSubmissionLeft;
+  }
+
+  private boolean getDateIsCurrent(){
+    boolean dateIsCurrent = false;
+    Date currentDate = new Date();
+    Date retractDate = publishedAssessment.getAssessmentAccessControl().getRetractDate();
+    Date dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
+    if ((retractDate == null || retractDate.after(currentDate)) 
+      && (dueDate == null || dueDate.after(currentDate))){
+        dateIsCurrent = true;
+    }
+    return dateIsCurrent;
+  }
+
+  private boolean getAssessmentHasBeenSubmitted(){
+    return adata.getForGrade().booleanValue();
+  }
 }

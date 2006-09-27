@@ -356,6 +356,18 @@
       <to-view-id>/jsf/delivery/deliverAssessment.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
+      <from-outcome>assessmentHasBeenSubmitted</from-outcome>
+      <to-view-id>/jsf/delivery/assessmentHasBeenSubmitted.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>noSubmissionleft</from-outcome>
+      <to-view-id>/jsf/delivery/noSubmissionLeft.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>noLateSubmission</from-outcome>
+      <to-view-id>/jsf/delivery/noLateSubmission.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>timeExpired</from-outcome>
       <to-view-id>/jsf/delivery/timeExpired.jsp</to-view-id>
     </navigation-case>

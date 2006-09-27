@@ -66,8 +66,9 @@ public class TableOfContentsActionListener implements ActionListener
 
     // get managed bean and set its action accordingly
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
-    if (delivery.isTimeRunning() && delivery.timeExpired()){
-      delivery.setOutcome("timeExpired");
+    String nextAction = delivery.checkBeforeProceed();
+    if (!("safeToProceed").equals(nextAction)) {
+      delivery.setOutcome(nextAction);
     }
     else{
       SubmitToGradingActionListener s = new SubmitToGradingActionListener();
