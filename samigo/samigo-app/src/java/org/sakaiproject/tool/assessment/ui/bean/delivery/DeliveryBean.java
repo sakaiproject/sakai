@@ -2398,13 +2398,15 @@ public class DeliveryBean
   }
 
   public String checkBeforeProceed(){
-    // check if workingassessment has been submiited?
-    // this is to prevent student submit assessment and use a 2nd window to 
-    // continue working on the submitted work.
+    // public method, who know if publishedAssessment is set, so check
+    // to be sure
     if (publishedAssessment == null){
       return "error";
     }
 
+    // check 1: if workingassessment has been submiited?
+    // this is to prevent student submit assessment and use a 2nd window to 
+    // continue working on the submitted work.
     if (getAssessmentHasBeenSubmitted()){
       return "assessmentHasBeenSubmitted";
     }
