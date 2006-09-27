@@ -5,6 +5,7 @@
 <% response.setContentType("text/html; charset=UTF-8"); %>
 <f:view>
 	<sakai:view_container title="Attachment">
+<!--jsp/privateMsg/removeAttachConfirm.jsp-->
 		<sakai:view_content>
 			<h:form id="removeAttachConfirm">
 

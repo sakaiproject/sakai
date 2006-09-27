@@ -18,12 +18,13 @@
 
 <f:view>
   <sakai:view title="#{msgs.cdfm_message_forums}">
-    <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
+<!--jsp/main.jsp-->
        <h:form id="msgForum">
 				<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
-  			<h:messages styleClass="alertMessage" id="errorMessages" layout="table" />  		
-  		  
-  		  <%-- include hide division here so that pvtArea can be used w/o div in isolated view --%>
+				<%--gsilver:if layout="table" is needed,  need rendered attr here so that no empty tables  are put in the response - leaving undefined here so that it reverts to layout="list" --%> 
+				<h:messages styleClass="alertMessage" id="errorMessages"/>  		
+  		 
+  		  <%-- include hide division here so that pvtArea can be used w/o div in isolated view --%>	
   		  <mf:forumHideDivision title="#{msgs.pvtarea_name}" id="_test_div" 
                         rendered="#{PrivateMessagesTool.pvtAreaEnabled || PrivateMessagesTool.instructor}">
 <%

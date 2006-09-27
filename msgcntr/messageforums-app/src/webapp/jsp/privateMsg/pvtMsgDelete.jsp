@@ -6,19 +6,22 @@
 
 <f:view>
 	<sakai:view title="#{msgs.pvt_delcon}">
+<!--Y:\msgcntr\messageforums-app\src\webapp\jsp\privateMsg\pvtMsgDelete.jsp-->
     <h:form id="pvtMsgDelete">
-    <div class="breadCrumb">
-  	    <h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/> /
+    <div class="breadCrumb specialLink">
+    	<h3>
+	 	    <h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/> /
   	    <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.cdfm_message_pvtarea}" title=" #{msgs.cdfm_message_pvtarea}"/> /
 		  <h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" title=" #{PrivateMessagesTool.msgNavMode}" /> /
 		  <h:outputText value="#{msgs.pvt_delcon}" />
+		  </h3>
 		</div>	
 		<sakai:tool_bar_message value="#{msgs.pvt_delcon}" />
 		
 		<h:messages styleClass="alertMessage" id="errorMessages" /> 
 
     <sakai:panel_titled title="">
-	  <h:dataTable styleClass="listHier" id="pvtmsgdel" width="100%"  value="#{PrivateMessagesTool.selectedDeleteItems}" var="delItems">   
+	  <h:dataTable styleClass="listHier line nolines" id="pvtmsgdel" width="100%"  value="#{PrivateMessagesTool.selectedDeleteItems}" var="delItems" cellspacing="0" cellpadding="0">   
 		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_subject}"/>
@@ -49,8 +52,8 @@
 		</sakai:panel_titled>
 
     <sakai:button_bar>
-      <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMultiDelete}" value="#{msgs.pvt_delmsgs}" accesskey="x" />
-      <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="#{msgs.pvt_cancel}" accesskey="c" />
+      <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMultiDelete}" value="#{msgs.pvt_delmsgs}" accesskey="s" styleClass="active"/>
+      <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="#{msgs.pvt_cancel}" accesskey="x" />
     </sakai:button_bar>
     
 		 </h:form>

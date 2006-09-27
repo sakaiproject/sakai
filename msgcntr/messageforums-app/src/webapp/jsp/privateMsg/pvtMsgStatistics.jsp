@@ -6,7 +6,7 @@
 	<sakai:view_container title="Received Private Messages">
 	<sakai:view_content>
 		<h:form id="pvtMsgStatistics">
-
+<!--jsp/privateMsg/pvtMsgStatistics.jsp-->
 <hr />
 <h2>Private Messgae- Statistics</h2>
 <hr />

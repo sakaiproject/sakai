@@ -3,19 +3,21 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
-<link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
+
 
 <f:view>
 	<sakai:view title="#{msgs.pvt_rcvd_msgs}">
-
+<!--jsp/privateMsg/pvtMsgEx.jsp-->
 		<h:form id="prefs_form_search">
 			<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>		
 			
 			<div class="breadCrumb">
+				<h3>
 				<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/> /
 	  		  <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.cdfm_message_pvtarea}" title=" #{msgs.cdfm_message_forums}"/> /
 				<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" title=" #{msgs.cdfm_message_forums}"/> /
-				<h:outputText value="#{msgs.pvt_search}" />	
+				<h:outputText value="#{msgs.pvt_search}" />
+				</h3>
 		  </div>
 
 			<h:messages styleClass="alertMessage" id="errorMessages" />
@@ -67,7 +69,7 @@
 --%>
 
 
-	  <h:dataTable styleClass="listHier" id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.searchPvtMsgs}" var="rcvdItems" 
+	  <h:dataTable styleClass="listHier lines nolines" cellpadding="0" cellspacing="0"  id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.searchPvtMsgs}" var="rcvdItems" 
 	  	rendered="#{PrivateMessagesTool.selectView != 'threaded'}">   
 		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
 		    <f:facet name="header">
@@ -127,7 +129,7 @@
 		  </h:column>
 		</h:dataTable>
 		
-	  <mf:hierPvtMsgDataTable styleClass="listHier" id="threaded_pvtmsgs" width="100%" 
+	  <mf:hierPvtMsgDataTable  styleClass="listHier lines nolines" cellpadding="0" cellspacing="0"  id="threaded_pvtmsgs" width="100%" 
 	  	value="#{PrivateMessagesTool.searchPvtMsgs}" 
 	  	var="rcvdItems" 
 	  	rendered="#{PrivateMessagesTool.selectView == 'threaded'}"

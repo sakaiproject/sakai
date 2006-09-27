@@ -4,12 +4,9 @@
 <f:loadBundle
 	basename="org.sakaiproject.tool.messageforums.bundle.Messages"
 	var="msgs" />
-<link href='/sakai-messageforums-tool/css/msgForums.css'
-	rel='stylesheet' type='text/css' />
-
 <f:view>
 	<sakai:view title="#{msgs.pvt_msgs_label} #{msgs.pvt_organize}">
-
+<!--jsp/privateMsg/pvtMsgOrganize.jsp-->
 			<h:form id="pvtMsgOrganize">
 
 				<hr />

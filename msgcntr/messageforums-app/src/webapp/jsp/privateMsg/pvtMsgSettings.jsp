@@ -3,61 +3,58 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai"%>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf"%>
 <f:loadBundle	basename="org.sakaiproject.tool.messageforums.bundle.Messages"	var="msgs" />
-<link href="/sakai-messageforums-tool/css/msgForums.css"	'	rel='stylesheet' type='text/css' />
-
-<script language="Javascript" type="text/javascript">
-	function displayEmail() {
-
-	    document.forms[0].email.disabled = false
-	}
-</script>
-
 <f:view>
 	<sakai:view title="#{msgs.pvt_msgs_label} #{msgs.pvt_settings}">
-
-		<h:form id="pvtMsgSettings">
+<!--jsp/privateMsg/pvtMsgSettings.jsp-->
+	<%-- gsilver:moved this function here from the top  to avoid validation errors (content before the DOCTYPE)--%>
+	<script language="Javascript" type="text/javascript">
+		function displayEmail() {
+	
+			document.forms[0].email.disabled = false
+		}
+	</script>
+<h:form id="pvtMsgSettings">
 			<sakai:tool_bar_message 	value="#{msgs.pvt_msgs_label} #{msgs.pvt_settings}" />
 			<h:messages styleClass="alertMessage" id="errorMessages" />
-
-			<sakai:panel_titled title="">
+<!--
 			
 				<h:panelGrid styleClass="msgHeadings" rendered="#{PrivateMessagesTool.instructor}">
 		      <h:outputText value="#{msgs.pvt_actpvtmsg}"/>
 		    </h:panelGrid>
-				
+-->				
 				<h:panelGroup rendered="#{PrivateMessagesTool.validEmail}">
 				</h:panelGroup>
 	
-			  <h:panelGrid styleClass="jsfFormTable" columns="2" summary="" rendered="#{PrivateMessagesTool.instructor}">
+			  <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout" rendered="#{PrivateMessagesTool.instructor}">
 			    <h:panelGroup styleClass="shorttext">
-					  <h:outputLabel for="activate" ><h:outputText value="#{msgs.pvt_actpvtmsg1}"/></h:outputLabel>
+					  <h:outputLabel for="" ><h:outputText value="#{msgs.pvt_actpvtmsg1}"/></h:outputLabel>
 					</h:panelGroup>
-					<h:panelGroup styleClass="checkbox inlineForm">
+					<h:panelGroup >
 					  <h:selectOneRadio id="activate"	value="#{PrivateMessagesTool.activatePvtMsg}"
-							                              layout="pageDirection" >
+							                              layout="pageDirection"  styleClass="checkbox inlineForm">
 							  <f:selectItem itemValue="yes" itemLabel="#{msgs.pvt_yes}" />
 							  <f:selectItem itemValue="no" itemLabel="#{msgs.pvt_no}" />
 						</h:selectOneRadio>
 				  </h:panelGroup>
 			  </h:panelGrid>
 
-			</sakai:panel_titled>
-
-			<sakai:panel_titled title="">
+<!--
 		    <h:panelGrid styleClass="msgHeadings">
 		      <h:outputText value="#{msgs.pvt_autofor}" />
 		    </h:panelGrid>
-	
-	      <h:panelGrid styleClass="jsfFormTable" columns="2" summary="" >
+-->	
+	      <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout" >
 			    <h:panelGroup styleClass="shorttext">
-					  <h:outputLabel for="fwd_msg"><h:outputText	value="#{msgs.pvt_autofor1}" /></h:outputLabel>
+					  <h:outputLabel for=""><h:outputText	value="#{msgs.pvt_autofor1}" /></h:outputLabel>
 					</h:panelGroup>
-					<h:panelGroup styleClass="checkbox inlineForm">
+					<h:panelGroup>
 					  <h:selectOneRadio immediate="true" id="fwd_msg"
 				    	                  value="#{PrivateMessagesTool.forwardPvtMsg}"
 						                  onchange="this.form.submit();"
 						                  valueChangeListener="#{PrivateMessagesTool.processPvtMsgSettingsRevise}"
-						                  layout="pageDirection">
+						                  layout="pageDirection"
+										   styleClass="checkbox inlineForm"
+										   >
 						  <f:selectItem itemValue="yes" itemLabel="#{msgs.pvt_yes}" />
 						  <f:selectItem itemValue="no" itemLabel="#{msgs.pvt_no}" />
 					  </h:selectOneRadio> 
@@ -79,14 +76,14 @@
   							</h:selectOneRadio>
   				      --%>
   				 
-			</sakai:panel_titled>
+
 
 
 			<sakai:button_bar>
 				<sakai:button_bar_item	action="#{PrivateMessagesTool.processPvtMsgSettingsSave}"
-					                     value="#{msgs.pvt_saveset}" accesskey="s" />
+					                     value="#{msgs.pvt_saveset}" accesskey="s" styleClass="active" />
 				<sakai:button_bar_item	action="#{PrivateMessagesTool.processPvtMsgCancel}"
-					                     value="#{msgs.pvt_cancel}" accesskey="c" />
+					                     value="#{msgs.pvt_cancel}" accesskey="x" />
 			</sakai:button_bar>
 
 		</h:form>

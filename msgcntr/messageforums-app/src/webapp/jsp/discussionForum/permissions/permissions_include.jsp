@@ -9,13 +9,12 @@
 
 <sakai:script contextBase="/sakai-messageforums-tool" path="/js/permissions_header.js"/>
 <sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
-
+<!--jsp/discussionForum/permissions/permissions_include.jsp-->
 <mf:forumHideDivision title="#{msgs.cdfm_permissions}" id="cntrl_perm" hideByDefault="true" >
 
-  <h:panelGrid styleClass="jsfFormTable" columns="2" summary="">
-	  <h:panelGroup>
-	    <h:outputLabel for="role"><h:outputText value="#{msgs.perm_role_label}" /></h:outputLabel>
-	    <f:verbatim>&nbsp;&nbsp;</f:verbatim>
+  <h:panelGrid  columns="2" summary="layout">
+	  <h:panelGroup styleClass="shorttext">
+	    <h:outputLabel for="role" ><h:outputText value="#{msgs.perm_role_label}" /></h:outputLabel>
 	  </h:panelGroup>
 	  <h:panelGroup>
 	    <h:selectOneListbox size="4" id="role" value ="#{ForumTool.selectedRole}" onchange="javascript:displayRelevantBlock();">
@@ -40,11 +39,10 @@
   setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
 </script>   
 
-  <h:dataTable id="perm" value="#{ForumTool.permissions}" var="permission">
+  <h:dataTable id="perm" value="#{ForumTool.permissions}" var="permission" cellpadding="0" cellspacing="0" >
     <h:column>
-      <h:panelGrid id="permissionSet" styleClass="jsfFormTable" columns="2" summary="">   
-    
-        <h:panelGroup>
+      <h:panelGrid id="permissionSet"  columns="2" summary="layout">   
+        <h:panelGroup styleClass="shorttext">
           <h:outputLabel for="level"><h:outputText value="#{msgs.perm_level}" /></h:outputLabel>
         </h:panelGroup> 
         <h:panelGroup> 
@@ -53,7 +51,7 @@
           </h:selectOneMenu>
         </h:panelGroup>
                 
-        <h:panelGroup styleClass="checkbox">
+        <h:panelGroup styleClass="checkbox" >
           <h:selectBooleanCheckbox id="newForum" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.newForum}" disabled="#{not ForumTool.editMode || ForumTool.permissionMode != 'template'}"/>
           <h:outputLabel for="newForum"><h:outputText  value="#{msgs.perm_new_forum}" /></h:outputLabel>    
         </h:panelGroup>
@@ -92,8 +90,8 @@
         <h:panelGroup>
           <h:outputLabel for="revisePostings"><h:outputText value="#{msgs.perm_revise_postings}" /></h:outputLabel>
         </h:panelGroup>       
-        <h:panelGroup styleClass="checkbox">
-          <h:selectOneRadio id="revisePostings" value="#{permission.revisePostings}"  layout="pageDirection"  onclick="setCorrespondingLevel(this.name);"  disabled="#{not ForumTool.editMode}">
+        <h:panelGroup>
+          <h:selectOneRadio id="revisePostings" value="#{permission.revisePostings}"  layout="pageDirection"  onclick="setCorrespondingLevel(this.name);"  disabled="#{not ForumTool.editMode}"  style="margin:0" styleClass="checkbox inlineForm">
 		        <f:selectItems   value="#{ForumTool.postingOptions}" />
 		      </h:selectOneRadio>
         </h:panelGroup>        
@@ -119,18 +117,21 @@
     </h:column>
   </h:dataTable>
   
-  <h:panelGrid styleClass="jsfFormTable" columns="1" summary="">
-    <h:panelGroup>
+  <h:panelGrid columns="2" summary="layout">
+    <h:panelGroup styleClass="shorttext">
       <h:outputLabel for="forum_assignments" rendered="#{ ForumTool.permissionMode == 'forum'}" value="#{msgs.perm_choose_assignment}"></h:outputLabel>  
-      <f:verbatim><h:outputText value=" " /></f:verbatim>
+      </h:panelGroup>
+	  <h:panelGroup>
   	    <h:selectOneMenu id="forum_assignments" value="#{ForumTool.selectedForum.gradeAssign}" rendered="#{ ForumTool.permissionMode == 'forum'}" disabled="#{not ForumTool.editMode}">
    	    <f:selectItems value="#{ForumTool.assignments}" />
       </h:selectOneMenu>
     </h:panelGroup>
-    
+    </h:panelGrid>
+	<h:panelGrid columns="2" summary="layout">
     <h:panelGroup>  	
-  	    <h:outputLabel for="topic_assignments" rendered="#{ ForumTool.permissionMode == 'topic'}" value="#{msgs.perm_choose_assignment}"  ></h:outputLabel> 
-  	    <f:verbatim><h:outputText value=" " /></f:verbatim>
+  	    <h:outputLabel for="topic_assignments" rendered="#{ ForumTool.permissionMode == 'topic'}" value="#{msgs.perm_choose_assignment}"  ></h:outputLabel>
+	</h:panelGroup>		
+  	<h:panelGroup>
   	    <h:selectOneMenu value="#{ForumTool.selectedTopic.gradeAssign}" id="topic_assignments" rendered="#{ ForumTool.permissionMode == 'topic'}" disabled="#{not ForumTool.editMode}">
    	    <f:selectItems value="#{ForumTool.assignments}" />
   	    </h:selectOneMenu>

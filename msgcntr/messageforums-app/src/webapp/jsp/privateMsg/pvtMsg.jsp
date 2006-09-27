@@ -3,47 +3,47 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
-<link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
-
 <f:view>
 	<sakai:view title="#{msgs.pvtarea_name}">
-
+<!--jsp/privateMsg/pvtMsg.jsp-->
 		<h:form id="prefs_pvt_form">
-			<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>		
+			<sakai:script contextBase="pvtareasakai-messageforums-tool" path="/js/forum.js"/>		
 			
 			<%--<sakai:tool_bar_message value="#{msgs.pvt_pvtmsg}- #{PrivateMessagesTool.msgNavMode}" /> --%>
-			<h:panelGrid columns="2" summary="" width="100%">
+			<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel">
         <h:panelGroup>
-          	<f:verbatim><div class="breadCrumb"></f:verbatim>
+          	<f:verbatim><div class="breadCrumb specialLink"><h3></f:verbatim>
 			      <h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/>
             <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
 	  		      <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.pvt_message_nav}" title=" #{msgs.cdfm_message_forums}"/>
             <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
 	 		      <h:outputText value="#{PrivateMessagesTool.msgNavMode}"/>
-			    <f:verbatim></div></f:verbatim>
+			    <f:verbatim></h3></div></f:verbatim>
         </h:panelGroup>
-        <h:panelGroup styleClass="msgNav">
-          <h:outputText   value="#{msgs.pvt_prev_folder}"  rendered="#{!PrivateMessagesTool.selectedTopic.hasPreviousTopic}" />
+        <h:panelGroup styleClass="itemNav specialLink">
+		<%-- gsilver:huh? renders anyway - because it is looking at topics instead of at folders?--%>
 				 <h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousTopic}" value="#{msgs.pvt_prev_folder}"  
 				                rendered="#{PrivateMessagesTool.selectedTopic.hasPreviousTopic}" title=" #{msgs.pvt_prev_folder}">
 	  			   <f:param value="#{PrivateMessagesTool.selectedTopic.previousTopicTitle}" name="previousTopicTitle"/>
 	  		   </h:commandLink>
-				  <f:verbatim><h:outputText value=" " /></f:verbatim>
-				 <h:outputText   value="#{msgs.pvt_next_folder}" rendered="#{!PrivateMessagesTool.selectedTopic.hasNextTopic}" />
+				<h:outputText 	value="#{msgs.pvt_prev_folder}"  rendered="#{!PrivateMessagesTool.selectedTopic.hasPreviousTopic}" />
+				  <f:verbatim><h:outputText value=" | " /></f:verbatim>
 	  		   <h:commandLink action="#{PrivateMessagesTool.processDisplayNextTopic}" value="#{msgs.pvt_next_folder}" 
 	  		                  rendered="#{PrivateMessagesTool.selectedTopic.hasNextTopic}" title=" #{msgs.pvt_next_folder}">
 	  			  <f:param value="#{PrivateMessagesTool.selectedTopic.nextTopicTitle}" name="nextTopicTitle"/>
 	  		   </h:commandLink>
+			   				<h:outputText 	 value="#{msgs.pvt_next_folder}"  rendered="#{!PrivateMessagesTool.selectedTopic.hasNextTopic}" />
         </h:panelGroup>
       </h:panelGrid>
  
  			<h:messages styleClass="alertMessage" id="errorMessages" /> 
   	
   		<%@include file="msgHeader.jsp"%>
-			
-	  <h:dataTable styleClass="listHier" id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" 
+		<%-- gsilver:this table needs a render atrtibute that will make it not display if there are no messages - and a companion text block classed as "instruction" that will render instead--%>	
+	  <h:dataTable styleClass="listHier lines nolines"cellpadding="0" cellspacing="0"  id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" 
 	  	             rendered="#{PrivateMessagesTool.selectView != 'threaded'}"
-	  	             summary="#{msgs.pvtMsgListSummary}">
+	  	             summary="#{msgs.pvtMsgListSummary}"
+					 columnClasses="attach,attach,specialLink,bogus,bogus,bogus">
 	  	                
 		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'} && #{PrivateMessagesTool.msgNavMode == 'Deleted'}">
 		    <f:facet name="header">
@@ -83,11 +83,15 @@
     	         <f:param name="sortColumn" value="subject"/>
     	       </h:commandLink>
 		    </f:facet>
-		      <h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" title="#{rcvdItems.msg.title}" immediate="true">
+			  <f:verbatim><h4></f:verbatim>
+			<h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" title="#{rcvdItems.msg.title}" immediate="true">
+
             <h:outputText value=" #{rcvdItems.msg.title}" rendered="#{rcvdItems.hasRead}"/>
             <h:outputText styleClass="unreadMsg" value=" #{rcvdItems.msg.title}" rendered="#{!rcvdItems.hasRead}"/>
+			<h:outputText styleClass="skip" value="#{msgs.pvt_openb}#{msgs.pvt_unread}#{msgs.pvt_closeb}" rendered="#{!rcvdItems.hasRead}"/>
             <f:param value="#{rcvdItems.msg.id}" name="current_msg_detail"/>
           </h:commandLink>
+		  			<f:verbatim></h4></f:verbatim>
 		  </h:column>			
 		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded' && PrivateMessagesTool.msgNavMode != 'Sent'}">
 		    <f:facet name="header">
@@ -162,11 +166,12 @@
 		  </h:column>
 		</h:dataTable>
 		
-	  <mf:hierPvtMsgDataTable styleClass="listHier" id="threaded_pvtmsgs" width="100%" 
+	  <mf:hierPvtMsgDataTable styleClass="listHier lines nolines" id="threaded_pvtmsgs" width="100%" 
 	                          value="#{PrivateMessagesTool.decoratedPvtMsgs}" 
 	  	                        var="rcvdItems" 
 	  	                        rendered="#{PrivateMessagesTool.selectView == 'threaded'}"
-	                        	 expanded="true">
+	                        	 expanded="true"
+								 columnClasses="attach,attach,specialLink,bogus,bogus,bogus">
 		  <h:column rendered="#{PrivateMessagesTool.selectView == 'threaded'}">
 		    <f:facet name="header">
 		    </f:facet>

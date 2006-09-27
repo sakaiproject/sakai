@@ -1,23 +1,25 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
-<link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
-
 <f:view>
 
   <sakai:view title="#{msgs.cdfm_reply_to_topic}">
      <h:form id="dfCompose">
-        <sakai:tool_bar_message value="#{msgs.cdfm_reply_to_topic}" /> 
-
-        <div class="breadCrumb">
-          <h:outputText value="#{ForumTool.selectedForum.forum.title}" />
+<!--jsp/dfTopicReply.jsp-->
+                
+			<h3><h:outputText value="#{msgs.cdfm_reply_to_topic}" /></h3>
+			<h4> 
+			    <h:outputText value="#{ForumTool.selectedForum.forum.title}" />
 		      <h:outputText value=" - "/>
 	        <h:outputText value="#{ForumTool.selectedTopic.topic.title}"/>        
-        </div>
-          
-        <sakai:instruction_message value="#{ForumTool.selectedTopic.topic.shortDescription}" />  
-          
+        </h4>
+
+       <p class="textPanel"> 
+         <h:outputText value="#{ForumTool.selectedTopic.topic.shortDescription}" />
+		   </p>
+         <p class="textPanelFooter"> 
         <h:commandLink immediate="true" 
 		                   action="#{ForumTool.processDfComposeToggle}" 
  				               onmousedown="document.forms[0].onsubmit();"
@@ -27,12 +29,6 @@
 			  	  <f:param value="dfTopicReply" name="redirectToProcessAction"/>
 				  <f:param value="true" name="composeExpand"/>
   			 </h:commandLink>
-	  		 <h:inputTextarea rows="5" cols="100" 
-		  		                id="topic_extended_description" 
-		  		                disabled="true" 
-			  	                value="#{ForumTool.selectedTopic.topic.extendedDescription}" 
-				                rendered="#{ForumTool.selectedTopic.readFullDesciption}"/>
-  			<f:verbatim><br /></f:verbatim>
 	  		<h:commandLink immediate="true" 
 		  		             action="#{ForumTool.processDfComposeToggle}" 
 			               onmousedown="document.forms[0].onsubmit();"
@@ -40,58 +36,50 @@
  				             rendered="#{ForumTool.selectedTopic.readFullDesciption}"
  				             title="#{msgs.cdfm_read_full_description}">
   				<f:param value="dfTopicReply" name="redirectToProcessAction"/>
-	  		</h:commandLink>					
-          
-      <div class="msgHeadings">
-	      <h:outputText value="#{msgs.cdfm_your_message}"/>
-      </div>
+	  		</h:commandLink>
+			</p>
+			
+			<mf:htmlShowArea value="#{ForumTool.selectedTopic.topic.extendedDescription}" 
+		                   rendered="#{ForumTool.selectedTopic.readFullDesciption}"
+		                   id="topic_extended_description" 
+		                   hideBorder="false" />
 
-        <sakai:panel_titled title="" >
-          <h:panelGrid styleClass="jsfFormTable" columns="1" width="100%">
-            <h:panelGroup styleClass="shorttext">
-              <h:outputText value="#{msgs.cdfm_required}"/>
+					<br />
+					
+					<p class="instruction">
+							<h:outputText value="#{msgs.cdfm_required}"/>
               <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" />
-            </h:panelGroup>
-            <h:panelGroup>
+          </p>
+          <h:panelGrid styleClass="jsfFormTable" columns="2">
+            <h:panelGroup styleClass="shorttext">
 				     <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStar"/>
 					   <h:outputLabel for="df_compose_title"><h:outputText value="#{msgs.cdfm_title}" /></h:outputLabel>
+			  </h:panelGroup>
+            <h:panelGroup styleClass="shorttext">
 					   <f:verbatim><h:outputText value=" " /></f:verbatim>
-					   <h:inputText value="#{ForumTool.composeTitle}" style="width:30em;" required="true" id="df_compose_title" />
+					   <h:inputText value="#{ForumTool.composeTitle}"  required="true" id="df_compose_title" size="40" />
+					   
 				   </h:panelGroup>
           </h:panelGrid>
-	
-	        <br />
-	        
-	        <sakai:panel_edit>
-	          <sakai:doc_section>       
-	            <h:outputLabel value="#{msgs.cdfm_message}" for="" />  
-	            <sakai:rich_text_area value="#{ForumTool.composeBody}" rows="17" columns="70"/>
-	          </sakai:doc_section>    
-	        </sakai:panel_edit>
-	      </sakai:panel_titled>
+		  <f:verbatim><h4></f:verbatim>
+	            <h:outputText value="#{msgs.cdfm_message}" />
+			<f:verbatim></h4></f:verbatim>	
+            <sakai:rich_text_area value="#{ForumTool.composeBody}" rows="17" columns="70"/>
 	      
 <%--********************* Attachment *********************--%>	
-	      <sakai:panel_titled title="">
-	        <div class="msgHeadings">
+
+	        <h4>
 	          <h:outputText value="#{msgs.cdfm_att}"/>
-	        </div>
-	        <sakai:doc_section>
+	        </h4>
+		        
+			<h:outputText value="#{msgs.cdfm_no_attachments}" rendered="#{empty ForumTool.attachments}" styleClass="instruction"/>
 	          <sakai:button_bar>
 	          	<sakai:button_bar_item action="#{ForumTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" immediate="true"
 	          	                       accesskey="a" />
 	          </sakai:button_bar>
-	        </sakai:doc_section>
 
-	        <sakai:doc_section>	        
-		        <h:outputText value="#{msgs.cdfm_no_attachments}" rendered="#{empty ForumTool.attachments}"/>
-	        </sakai:doc_section>
-	        
-					<h:dataTable styleClass="listHier" id="attmsg" width="100%" value="#{ForumTool.attachments}" var="eachAttach" >
+					<h:dataTable styleClass="listHier lines nolines" cellpadding="0" cellspacing="0" id="attmsg" width="100%" value="#{ForumTool.attachments}" var="eachAttach" columnClasses="bogus,itemAction,bogus,bogus" rendered="#{!empty ForumTool.attachments}">
 					  <h:column rendered="#{!empty ForumTool.attachments}">
-							<f:facet name="header">
-								<h:outputText value="#{msgs.cdfm_title}"/>
-							</f:facet>
-							<sakai:doc_section>
 								<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}" alt="" />
 								<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}" alt="" />
 								<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}" alt="" />
@@ -100,9 +88,8 @@
 								<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}" alt="" />
 							
 								<h:outputText value="#{eachAttach.attachmentName}"/>
-							</sakai:doc_section>
-							
-							<sakai:doc_section>
+								</h:column>
+								<h:column>
 								<h:commandLink action="#{ForumTool.processDeleteAttach}" 
 									immediate="true"
 									onfocus="document.forms[0].onsubmit();"
@@ -111,7 +98,6 @@
 <%--									<f:param value="#{eachAttach.attachmentId}" name="dfmsg_current_attach"/>--%>
 									<f:param value="#{eachAttach.attachmentId}" name="dfmsg_current_attach"/>
 								</h:commandLink>
-							</sakai:doc_section>
 						
 						</h:column>
 					  <h:column rendered="#{!empty ForumTool.attachments}">
@@ -127,7 +113,6 @@
 							<h:outputText value="#{eachAttach.attachmentType}"/>
 						</h:column>
 						</h:dataTable>   
-					</sakai:panel_titled>   
         		
 <%--********************* Label *********************
 				<sakai:panel_titled>
@@ -146,9 +131,9 @@
         </sakai:panel_titled>
 --%>
       <sakai:button_bar>
-        <sakai:button_bar_item action="#{ForumTool.processDfReplyTopicPost}" value="#{msgs.cdfm_button_bar_post_message}" accesskey="p" />
+        <sakai:button_bar_item action="#{ForumTool.processDfReplyTopicPost}" value="#{msgs.cdfm_button_bar_post_message}" accesskey="s" styleClass="active"/>
    <%--     <sakai:button_bar_item action="#{ForumTool.processDfReplyTopicSaveDraft}" value="#{msgs.cdfm_button_bar_save_draft}" /> --%>
-        <sakai:button_bar_item action="#{ForumTool.processDfReplyTopicCancel}" value="#{msgs.cdfm_button_bar_cancel}" immediate="true" accesskey="c" />
+        <sakai:button_bar_item action="#{ForumTool.processDfReplyTopicCancel}" value="#{msgs.cdfm_button_bar_cancel}" immediate="true" accesskey="x" />
       </sakai:button_bar>
     </h:form>
 

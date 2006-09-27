@@ -4,17 +4,17 @@
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
- * 
- * Licensed under the Educational Community License, Version 1.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.opensource.org/licenses/ecl1.php
- * 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  **********************************************************************************/
@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * @author Chen Wen
  * @version $Id$
- * 
+ *
  */
 public class HideDivisionRenderer extends Renderer
 {
@@ -55,24 +55,24 @@ public class HideDivisionRenderer extends Renderer
      BARIMG = RESOURCE_PATH + "/" +cr.get("hideDivisionRight");
      CURSOR = cr.get("picker_style");*/
   }
-  
+
   public boolean supportsComponentType(UIComponent component)
   {
     return (component instanceof org.sakaiproject.tool.messageforums.jsf.HideDivisionComponent);
   }
-  
+
   public void decode(FacesContext context, UIComponent component)
   {
   }
-  
-  public void encodeChildren(FacesContext context, UIComponent component) 
-  	throws IOException 
+
+  public void encodeChildren(FacesContext context, UIComponent component)
+  	throws IOException
   {
-    if (!component.isRendered()) 
+    if (!component.isRendered())
     {
       return;
     }
-    
+
     Iterator children = component.getChildren().iterator();
     while (children.hasNext()) {
       UIComponent child = (UIComponent) children.next();
@@ -85,42 +85,42 @@ public class HideDivisionRenderer extends Renderer
       }
     }
   }
-  
+
   public void encodeBegin(FacesContext context, UIComponent component)
   throws IOException {
-    
+
     if (!component.isRendered()) {
       return;
     }
-    
+
     ResponseWriter writer = context.getResponseWriter();
     String jsfId = (String) RendererUtil.getAttribute(context, component, "id");
     String id = jsfId;
-    
+
     if (component.getId() != null &&
         !component.getId().startsWith(UIViewRoot.UNIQUE_ID_PREFIX))
     {
       id = component.getClientId(context);
     }
-    
+
     String title = (String) RendererUtil.getAttribute(context, component, "title");
     Object tmpFoldStr = RendererUtil.getAttribute(context, component, "hideByDefault");
     boolean foldDiv = tmpFoldStr != null && tmpFoldStr.equals("true");
     String foldImage = foldDiv ? FOLD_IMG_HIDE : FOLD_IMG_SHOW;
     writer.write("<" + BARTAG + " class=\"" + BARSTYLE + "\">");
-    writer.write("<table style=\"width: 100%;\">");
-    writer.write("<tr><td class=\"breadCrumb\">");
+    writer.write("<table style=\"width: 100%;\" class=\"discTria\" cellpadding=\"0\" cellspacing=\"0\" summary=\"layout\">");
+    writer.write("<tr><td  class=\"discTria\">");
     writer.write("  <img id=\"" + id + "__img_hide_division_" + "\" alt=\"" +
         title + "\"" + " onclick=\"javascript:showHideDivBlock('" + id +
         "', '" +  RESOURCE_PATH + "');\"");
     writer.write("    src=\""   + foldImage + "\" style=\"" + CURSOR + "\" />");
-    writer.write(" " + title);
-    writer.write("</td><td>&nbsp;</td>");
-    writer.write("<td style=\"text-align: right;\">");
+    writer.write("<h4>"  + title + "</h4>");
+    writer.write("</td><td class=\"discTria\">&nbsp;</td>");
+    writer.write("<td  class=\"itemAction\" style=\"text-align: right;\">");
     List childrenList = component.getChildren();
     for(int i=0; i<childrenList.size(); i++)
-    {
-      UIComponent thisComponent = (UIComponent)childrenList.get(i);
+    	{
+			UIComponent thisComponent = (UIComponent)childrenList.get(i);
       if(thisComponent instanceof org.sakaiproject.tool.messageforums.jsf.BarLinkComponent
          ||thisComponent instanceof HtmlOutputText)
       {
@@ -139,27 +139,27 @@ public class HideDivisionRenderer extends Renderer
                         " id=\"" + id + "__hide_division_" + "\">");
             }
   }
-  
-  
+
+
   public void encodeEnd(FacesContext context, UIComponent component) throws
   IOException {
     if (!component.isRendered()) {
       return;
     }
-    
+
     ResponseWriter writer = context.getResponseWriter();
-    
+
     String jsfId = (String) RendererUtil.getAttribute(context, component, "id");
     String id = jsfId;
-    
+
     if (component.getId() != null &&
         !component.getId().startsWith(UIViewRoot.UNIQUE_ID_PREFIX))
     {
       id = component.getClientId(context);
     }
-    
+
     writer.write("</div>");
-    
+
 //    writer.write("<script type=\"text/javascript\">");
 //    writer.write("  showHideDiv('" + id +
 //        "', '" +  RESOURCE_PATH + "');");

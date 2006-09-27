@@ -9,7 +9,7 @@
 
 <f:view>
    <sakai:view>
-     <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' /> 
+     
     <%  
     /** initialize user's private message area per request **/
     FacesContext context = FacesContext.getCurrentInstance();
@@ -18,7 +18,7 @@
     DiscussionForumTool dft = (DiscussionForumTool) binding.getValue(context);
     out.print(dft.generatePermissionScript());
     %>
-    
+<!--jsp/permissions_test.jsp-->    
        <h:form id="msgForum">
   	   <h:selectManyListbox id="list1">
   	     <f:selectItem id="id1" itemValue="id1 test" itemLabel="id1 test"/>

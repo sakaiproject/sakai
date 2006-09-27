@@ -3,13 +3,11 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
-<link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
-
 <f:view>
 
   <sakai:view title="#{msgs.cdfm_container_title}">
     <h:form id="addGroupsUsers"> 
-                
+<!--jsp/discussionForum/permissions/addGroupsUsers.jsp-->                
       <sakai:tool_bar_message value="#{msgs.cdfm_button_bar_add_groups_users}" />
       <sakai:instruction_message value="#{msgs.cdfm_add_users}" />
       

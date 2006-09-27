@@ -6,32 +6,33 @@
 
 <f:view>
 <sakai:view>
-  <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 	<h:form id="DF-1">
-		<sakai:panel_titled title="">
-		  <h:panelGrid columns="2" summary="" width="100%">
+<!--jsp/discussionForum/message/dfViewMessage.jsp-->
+		  <h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel">
 		    <h:panelGroup styleClass="breadCrumb">
-		      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/> 
-          <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
-          <h:commandLink action="#{ForumTool.processActionDisplayForum}" value="#{ForumTool.selectedForum.forum.title}" 
+				<f:verbatim><h3></f:verbatim>
+				<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/> 
+				<f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+				<h:commandLink action="#{ForumTool.processActionDisplayForum}" value="#{ForumTool.selectedForum.forum.title}" 
                          title=" #{ForumTool.selectedForum.forum.title}">
 			      <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-				  </h:commandLink>
+			  </h:commandLink>
           <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
           <h:commandLink action="#{ForumTool.processActionDisplayTopic}" value="#{ForumTool.selectedTopic.topic.title}" 
                          title=" #{ForumTool.selectedForum.forum.title}">
 				    <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				    <f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 				  </h:commandLink>
+				  <f:verbatim></h3></f:verbatim>
 			 </h:panelGroup>
-			 <h:panelGroup styleClass="msgNav">
+			 <h:panelGroup styleClass="itemNav">
 			   <h:outputText   value="#{msgs.cdfm_previous_topic}   "  rendered="#{!ForumTool.selectedTopic.hasPreviousTopic}" />
 				 <h:commandLink action="#{ForumTool.processActionDisplayPreviousTopic}" value="#{msgs.cdfm_previous_topic}   "  
 				                rendered="#{ForumTool.selectedTopic.hasPreviousTopic}" title=" #{msgs.cdfm_previous_topic}">
 					<f:param value="#{ForumTool.selectedTopic.previousTopicId}" name="previousTopicId"/>
 					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				 </h:commandLink>
-				 <f:verbatim><h:outputText value=" " /></f:verbatim>
+				 <f:verbatim><h:outputText value=" | " /></f:verbatim>
 				 <h:outputText   value="#{msgs.cdfm_next_topic}   " rendered="#{!ForumTool.selectedTopic.hasNextTopic}" />
 				 <h:commandLink action="#{ForumTool.processActionDisplayNextTopic}" value="#{msgs.cdfm_next_topic}   " 
 				                rendered="#{ForumTool.selectedTopic.hasNextTopic}" title=" #{msgs.cdfm_next_topic}">
@@ -40,9 +41,11 @@
 				 </h:commandLink>
 			 </h:panelGroup>
 		  </h:panelGrid>
-		  
-		  <sakai:instruction_message value="#{ForumTool.selectedTopic.topic.shortDescription}" />
-			  <h:commandLink immediate="true" 
+		<p class="textPanel">
+		  <h:outputText value="#{ForumTool.selectedTopic.topic.shortDescription}" />
+		  </p>
+		<p class="textPanelFooter">
+			<h:commandLink immediate="true" 
 		                   action="#{ForumTool.processDfComposeToggle}" 
 				               onmousedown="document.forms[0].onsubmit();"
 			                 rendered="#{ForumTool.selectedTopic.hasExtendedDesciption}" 
@@ -50,15 +53,7 @@
 			                 title="#{msgs.cdfm_read_full_description}">
 			  <f:param value="dfViewMessage" name="redirectToProcessAction"/>
 			  <f:param value="true" name="composeExpand"/>
-		  </h:commandLink> 
-		   <!--<sakai:inputRichText rows="5" cols="110" buttonSet="none" 
-		   readonly="true" showXPath="false" id="topic_extended_description" 
-		   value="#{ForumTool.selectedTopic.topic.extendedDescription}" 
-		   rendered="#{ForumTool.selectedTopic.readFullDesciption}"/>-->
-		  <mf:htmlShowArea value="#{ForumTool.selectedTopic.topic.extendedDescription}" 
-		                   rendered="#{ForumTool.selectedTopic.readFullDesciption}"/>
-		
-		  <f:verbatim><br /></f:verbatim>
+		  </h:commandLink>
 		  <h:commandLink immediate="true" 
 				  action="#{ForumTool.processDfComposeToggle}" 
 				  onmousedown="document.forms[0].onsubmit();"
@@ -67,80 +62,21 @@
 					title="#{msgs.cdfm_hide_full_description}">
 				<f:param value="dfViewMessage" name="redirectToProcessAction"/>
 		  </h:commandLink>					
-
-	  </sakai:panel_titled>	
-
-	<br />
-		
-	
-		<h:panelGrid styleClass="msgDetails" columns="3" summary="">
-      <h:panelGroup styleClass="msgDetailsCol">
-        <h:outputText value="#{msgs.cdfm_subject}"/>
-      </h:panelGroup>
-      <h:panelGroup>
-        <h:outputText value="#{ForumTool.selectedMessage.message.title}" /> 
-      </h:panelGroup>
-      <h:panelGroup styleClass="msgNav">
-        <h:commandLink action="#{ForumTool.processDisplayPreviousMsg}" rendered="#{ForumTool.selectedMessage.hasPre}" 
-                       title=" #{msgs.cdfm_prev_msg}">
-			    <h:outputText value="#{msgs.cdfm_prev_msg}" />
- 			  </h:commandLink>
-			  <h:outputText value="#{msgs.cdfm_prev_msg}"  rendered="#{!ForumTool.selectedMessage.hasPre}" />
-			  <f:verbatim><h:outputText value=" " /></f:verbatim>
-			  <h:commandLink action="#{ForumTool.processDfDisplayNextMsg}" rendered="#{ForumTool.selectedMessage.hasNext}" 
-			                 title=" #{msgs.cdfm_next_msg}">
-	 		    <h:outputText value="#{msgs.cdfm_next_msg}" />
-			  </h:commandLink>
-			  <h:outputText value="#{msgs.cdfm_next_msg}" rendered="#{!ForumTool.selectedMessage.hasNext}" />
-      </h:panelGroup>
-      
-      <h:panelGroup styleClass="msgDetailsCol">
-        <h:outputText value="#{msgs.cdfm_authoredby}"/>
-      </h:panelGroup>
-      <h:panelGroup>
-        <h:outputText value="#{ForumTool.selectedMessage.message.author} #{msgs.cdfm_openb} #{ForumTool.selectedMessage.message.created} #{msgs.cdfm_closeb}" /> 
-      </h:panelGroup>
-      <h:panelGroup>
-        <h:outputText value="" />
-      </h:panelGroup>
-       
-      <h:panelGroup styleClass="msgDetailsCol"  >
-        <h:outputText value="#{msgs.cdfm_att}"/>
-      </h:panelGroup>
-      <h:panelGroup>
-        <%-- Attachments --%>
-          <h:dataTable value="#{ForumTool.selectedMessage.message.attachments}" var="eachAttach" >
-					  <h:column rendered="#{!empty ForumTool.selectedMessage.message.attachments}">
-				      <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}" alt="" />
-				      <h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}" alt="" />
-				      <h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}" alt="" />
-				      <h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
-				      <h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}" alt="" />
-				      <h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}" alt="" />
-								  
-				      <h:outputLink value="#{eachAttach.attachmentUrl}" target="_new_window">
-				  	    <h:outputText value="#{eachAttach.attachmentName}"/>
-					    </h:outputLink>
-							
-				    </h:column>
-			    </h:dataTable>
-        <%-- Attachments --%>
-      </h:panelGroup>
-      <h:panelGroup>
-        <h:outputText value="" />
-      </h:panelGroup>
-    </h:panelGrid>
-		<br />
-
-    <sakai:button_bar rendered="#{!ForumTool.deleteMsg}">
+		  </p>
+		   
+		  <mf:htmlShowArea value="#{ForumTool.selectedTopic.topic.extendedDescription}" 
+		                   rendered="#{ForumTool.selectedTopic.readFullDesciption}" 
+		                   hideBorder="false" />
+			
+		<sakai:button_bar rendered="#{!ForumTool.deleteMsg}">
 	    <sakai:button_bar_item action="#{ForumTool.processDfMsgReplyMsg}" value="#{msgs.cdfm_button_bar_reply_to_msg}" 
-	                           rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}" accesskey="m" />
+	                           rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}" />
 	    <sakai:button_bar_item action="#{ForumTool.processDfMsgReplyTp}" value="#{msgs.cdfm_button_bar_reply_to_topic}" 
-		                         rendered="#{ForumTool.selectedTopic.isNewResponse}" accesskey="t" />
+		                         rendered="#{ForumTool.selectedTopic.isNewResponse}" />
       <sakai:button_bar_item action="#{ForumTool.processDfMsgGrd}" value="#{msgs.cdfm_button_bar_grade}" 
-                             rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}" accesskey="g"/> 
+                             rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}"  /> 
       <sakai:button_bar_item action="#{ForumTool.processDfMsgRvs}" value="#{msgs.cdfm_button_bar_revise}"
-		                         rendered="#{ForumTool.selectedTopic.isReviseAny}" accesskey="n" />
+		                         rendered="#{ForumTool.selectedTopic.isReviseAny}" accesskey="r" />
       <sakai:button_bar_item action="#{ForumTool.processDfMsgRvs}" value="#{msgs.cdfm_button_bar_revise}"
 		    rendered="#{!ForumTool.selectedTopic.isReviseAny && 
 		    	ForumTool.selectedTopic.isReviseOwn && ForumTool.selectedMessage.isOwn}" accesskey="r" />
@@ -157,9 +93,83 @@
       		ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn
       		&& ForumTool.selectedMessage.hasChild}"/>--%>
     </sakai:button_bar>
-	<div class="informational">
-	  <h:messages styleClass="alertMessage" id="errorMessages"  />
-	</div>
+    
+    <h:panelGrid columns="3" styleClass="itemSummary" style="width: 100%;">
+    	<h:outputText value="#{msgs.cdfm_subject}"/>
+    	<h:outputText value="#{msgs.cdfm_subject}"/>
+    	<h:panelGroup styleClass="msgNav">
+    		<h:commandLink action="#{ForumTool.processDisplayPreviousMsg}" rendered="#{ForumTool.selectedMessage.hasPre}" 
+                       title=" #{msgs.cdfm_prev_msg}">
+			      <h:outputText value="#{msgs.cdfm_prev_msg}" />
+ 			    </h:commandLink>
+			    <h:outputText value="#{msgs.cdfm_prev_msg}"  rendered="#{!ForumTool.selectedMessage.hasPre}" />
+			    <f:verbatim><h:outputText value=" | " /></f:verbatim>
+			    <h:commandLink action="#{ForumTool.processDfDisplayNextMsg}" rendered="#{ForumTool.selectedMessage.hasNext}" 
+			                   title=" #{msgs.cdfm_next_msg}">
+	 		      <h:outputText value="#{msgs.cdfm_next_msg}" />
+			    </h:commandLink>
+			    <h:outputText value="#{msgs.cdfm_next_msg}" rendered="#{!ForumTool.selectedMessage.hasNext}" />
+    	</h:panelGroup>
+    	
+    	<h:outputText value="#{msgs.cdfm_authoredby}"/>
+    	<h:outputText value="#{ForumTool.selectedMessage.message.author} #{msgs.cdfm_openb} #{ForumTool.selectedMessage.message.created} #{msgs.cdfm_closeb}" />  
+      <h:outputText value="" />
+      
+      <h:outputText value="#{msgs.cdfm_att}" rendered="#{!empty ForumTool.selectedMessage.message.attachments}" />
+      <h:panelGroup rendered="#{!empty ForumTool.selectedMessage.message.attachments}">
+      	<h:dataTable value="#{ForumTool.selectedMessage.message.attachments}" var="eachAttach"  styleClass="attachListJSF"  rendered="#{!empty ForumTool.selectedMessage.message.attachments}">
+			  		<h:column rendered="#{!empty ForumTool.selectedMessage.message.attachments}">
+				      <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}" alt="" />
+						  <h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}" alt="" />
+							<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}" alt="" />
+							<h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
+							<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}" alt="" />
+							<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}" alt="" />
+								  
+							<h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
+							 	<h:outputText value="#{eachAttach.attachmentName}"/>
+							  </h:outputLink>
+					  </h:column>
+					</h:dataTable>
+      </h:panelGroup>
+      <h:outputText value="" rendered="#{!empty ForumTool.selectedMessage.message.attachments}" />
+      
+      
+    </h:panelGrid>
+    
+		
+		<hr class="itemSeparator" />
+		
+    
+			<mf:htmlShowArea value="#{ForumTool.selectedMessage.message.body}" hideBorder="true" />
+			
+    <sakai:button_bar rendered="#{!ForumTool.deleteMsg}">
+	    <sakai:button_bar_item action="#{ForumTool.processDfMsgReplyMsg}" value="#{msgs.cdfm_button_bar_reply_to_msg}" 
+	                           rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}" />
+	    <sakai:button_bar_item action="#{ForumTool.processDfMsgReplyTp}" value="#{msgs.cdfm_button_bar_reply_to_topic}" 
+		                         rendered="#{ForumTool.selectedTopic.isNewResponse}" />
+      <sakai:button_bar_item action="#{ForumTool.processDfMsgGrd}" value="#{msgs.cdfm_button_bar_grade}" 
+                             rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}"  /> 
+      <sakai:button_bar_item action="#{ForumTool.processDfMsgRvs}" value="#{msgs.cdfm_button_bar_revise}"
+		                         rendered="#{ForumTool.selectedTopic.isReviseAny}" accesskey="r" />
+      <sakai:button_bar_item action="#{ForumTool.processDfMsgRvs}" value="#{msgs.cdfm_button_bar_revise}"
+		    rendered="#{!ForumTool.selectedTopic.isReviseAny && 
+		    	ForumTool.selectedTopic.isReviseOwn && ForumTool.selectedMessage.isOwn}" accesskey="r" />
+<%--      <sakai:button_bar_item action="#{ForumTool.processDfMsgMove}" value="Move" rendered="#{ForumTool.fullAccess}"/>--%>
+<%--      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirm}" value="Delete" 
+      	rendered="#{ForumTool.selectedTopic.isDeleteAny}"/>
+      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirm}" value="Delete" 
+      	rendered="#{!ForumTool.selectedTopic.isDeleteAny && 
+      		ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn
+      		&& !ForumTool.selectedMessage.hasChild}"/>
+      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirm}" 
+        value="Delete Unavailable" disabled="true"
+      	rendered="#{!ForumTool.selectedTopic.isDeleteAny && 
+      		ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn
+      		&& ForumTool.selectedMessage.hasChild}"/>--%>
+    </sakai:button_bar>
+
+		  <h:messages styleClass="alertMessage" id="errorMessages"  />
 <%--		<h:panelGroup rendered="#{ForumTool.deleteMsg && ForumTool.fullAccess}">--%>
 		<h:panelGroup rendered="#{!ForumTool.errorSynch && ForumTool.deleteMsg && ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn}">
 			<h:outputText styleClass="alertMessage" 
@@ -187,7 +197,7 @@
       <sakai:panel_edit>
         <sakai:doc_section>            
          <h:inputTextarea value="#{ForumTool.selectedMessage.message.body}" cols="100" rows="5" />--%>
-					<mf:htmlShowArea value="#{ForumTool.selectedMessage.message.body}"/>
+			
 <%--        </sakai:doc_section>    
       </sakai:panel_edit>
     </sakai:group_box>--%>

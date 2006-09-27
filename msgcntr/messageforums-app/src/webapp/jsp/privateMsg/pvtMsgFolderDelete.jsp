@@ -4,21 +4,21 @@
 
 <f:view>
   <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs" />
-  <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
-	<sakai:view title="#{msgs.pvt_delcon}">
 
+	<sakai:view title="#{msgs.pvt_delcon}">
+<!--jsp/privateMsg/pvtMsgFolderDelete.jsp-->
 		<h:form id="pvtMsgFolderDelete">
 			<sakai:tool_bar_message value="#{msgs.pvt_delcon}" /> 
 			<h:messages styleClass="alertMessage" id="errorMessages" /> 
  
- 			<table width="100%">
- 			  <tr class="msgHeadings">
- 			    <td>
+ 			<table width="100%" class="listHier lines nolines" cellpadding="0" cellspacing="0">
+ 			  <tr>
+ 			    <th>
  			      <h:outputText value="#{msgs.pvt_folder_title}" />
- 			    </td>
- 			    <td>
+ 			    </th>
+ 			    <th>
  			      <h:outputText value="#{msgs.pvt_num_messages}" />
- 			    </td>
+ 			    </th>
  			  </tr>
  			  <tr>
  			    <td>
@@ -31,8 +31,8 @@
  			</table>
           
 			<sakai:button_bar>
-        <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFldDelete}" value="#{msgs.pvt_delete}" accesskey="x" />
-		    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFldAddCancel}" value="#{msgs.pvt_cancel}" accesskey="c" />
+        <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFldDelete}" value="#{msgs.pvt_delete}" accesskey="s" styleClass="active"/>
+		    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFldAddCancel}" value="#{msgs.pvt_cancel}" accesskey="x" />
 		  </sakai:button_bar>   
            
 		 </h:form>

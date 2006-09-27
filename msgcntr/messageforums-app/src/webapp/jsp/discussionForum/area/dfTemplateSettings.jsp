@@ -9,6 +9,7 @@
 <f:view>
    <sakai:view title="#{msgs.cdfm_default_template_settings}">           
       <h:form id="revise">
+<!--jsp/discussionForum/area/dfTemplateSettings.jsp-->
         <sakai:tool_bar_message value="#{msgs.cdfm_default_template_settings}" />
 		 		<div class="instruction">
 		  		  <h:outputText id="instruction" value="#{msgs.cdfm_default_template_settings_instruction}"/>
@@ -18,16 +19,18 @@
           <h:commandButton action="#{ForumTool.processActionReviseTemplateSettings}" 
                            value="#{msgs.cdfm_button_bar_revise}" 
                            rendered="#{not ForumTool.editMode}"
-                           accesskey="r"/>            
+                           accesskey="r"
+						   styleClass="active"/>            
           <h:commandButton action="#{ForumTool.processActionSaveTemplateSettings}" 
                            onclick="form.submit;" value="#{msgs.cdfm_button_bar_save_setting}" 
                            rendered="#{ForumTool.editMode}"
-                           accesskey="s" />
+                           accesskey="s" 
+						   styleClass="active"/>
 <%--          <h:commandButton action="#{ForumTool.processActionRestoreDefaultTemplate}" value="Restore Defaults" rendered="#{ForumTool.editMode}"/>--%>
           <h:commandButton immediate="true" 
                            action="#{ForumTool.processActionHome}" 
                            value="#{msgs.cdfm_button_bar_cancel}"
-                           accesskey="c" />
+                           accesskey="x" />
        </div>
 	  </h:form>
     </sakai:view>

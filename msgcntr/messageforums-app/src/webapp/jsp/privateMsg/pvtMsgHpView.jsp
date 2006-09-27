@@ -6,12 +6,13 @@
 
 <f:view>
   <sakai:view title="#{msgs.cdfm_message_pvtarea}">
-    <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />  
-    
+<!--jsp/privateMsg/pvtMsgHpView.jsp-->    
       <h:form id="msgForum">
-        <div class="breadCrumb">
-          <h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/> /
-          <h:outputText value="#{msgs.pvt_message_nav}"/>
+        <div class="breadCrumb specialLinks">
+			<h3>
+			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/> /
+			<h:outputText value="#{msgs.pvt_message_nav}"/>
+		  </h3>
         </div>
         <%@include file="pvtArea.jsp"%>
       </h:form>

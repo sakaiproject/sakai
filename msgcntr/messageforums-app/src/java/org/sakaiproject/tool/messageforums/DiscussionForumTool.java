@@ -110,6 +110,7 @@ public class DiscussionForumTool
   private static final String ALL_MESSAGES = "dfAllMessages";
   private static final String THREADED_VIEW = "dfThreadedView";
   private static final String UNREAD_VIEW = "dfUnreadView";
+  private static final String GRADE_MESSAGE = "dfMsgGrade";
   
   private static final String PERMISSION_MODE_TEMPLATE = "template";
   private static final String PERMISSION_MODE_FORUM = "forum";
@@ -964,7 +965,7 @@ public class DiscussionForumTool
         (selectedTopic.getTopic().getTitle()==null 
           ||selectedTopic.getTopic().getTitle().trim().length()<1  ))
     {
-      setErrorMessage(getResourceBundleString(VALID_FORUM_TITLE_WARN));
+      setErrorMessage(getResourceBundleString(VALID_TOPIC_TITLE_WARN));
       return TOPIC_SETTING_REVISE;
     }
     saveTopicSettings(false);    
@@ -1223,6 +1224,18 @@ public class DiscussionForumTool
         selectedTopic.setReadFullDesciption(true);
       }
       return MESSAGE_VIEW;
+    }
+    if (redirectTo.equals("processActionGradeMessage"))
+    {
+      if (selectedTopic.isReadFullDesciption())
+      {
+        selectedTopic.setReadFullDesciption(false);
+      }
+      else
+      {
+        selectedTopic.setReadFullDesciption(true);
+      }
+      return GRADE_MESSAGE;
     }
 
     return MAIN;
