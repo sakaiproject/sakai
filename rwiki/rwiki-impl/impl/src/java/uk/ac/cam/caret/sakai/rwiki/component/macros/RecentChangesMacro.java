@@ -166,7 +166,7 @@ public class RecentChangesMacro extends BaseMacro
 					
 					StringBuffer buffer = new StringBuffer();
 					
-					spRe.appendLink(buffer, linkName, linkName);
+					spRe.appendLink(buffer, linkName, linkName, null, true);
 					
 					writer.write("\n* ");
 					writer.write(buffer.toString());
