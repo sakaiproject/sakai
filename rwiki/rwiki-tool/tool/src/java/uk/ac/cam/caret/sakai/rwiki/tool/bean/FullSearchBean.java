@@ -97,12 +97,13 @@ public class FullSearchBean
 		this.realm = realm;
 		this.searchService = searchService;
 		this.toolManager = toolManager;
-		try
+		try 
 		{
 			this.requestPage = Integer.parseInt(requestPage);
-		}
-		catch (Exception ex)
+		} 
+		catch (NumberFormatException e) 
 		{
+			this.requestPage = 0;
 		}
 	}
 
