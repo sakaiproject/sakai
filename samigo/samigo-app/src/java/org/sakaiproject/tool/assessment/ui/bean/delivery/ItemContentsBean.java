@@ -209,6 +209,29 @@ public class ItemContentsBean implements Serializable {
 	 * 
 	 * @return true if it is marked for review
 	 */
+	
+	/**
+	 * String representation of the rounded points.
+	 * 
+	 * @return String representation of the points.
+	 */
+	public String getPointsForEdit() {
+		return Float.toString(getPoints());
+	}
+
+	/**
+	 * String representation of the points.
+	 * 
+	 * @param points
+	 *            String representation of the points.
+	 */
+	public void setPointsForEdit(String pointsForEdit) {
+		if (pointsForEdit == null || pointsForEdit.equals("")) {
+			pointsForEdit = "0";
+		}
+		setPoints(Float.parseFloat(pointsForEdit));
+	}
+	
 	public boolean getReview() {
 		if (getItemGradingDataArray().isEmpty()) {
 			return false;
