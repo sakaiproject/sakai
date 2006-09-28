@@ -44,16 +44,16 @@
 
 <div class="portletBody">
   <!-- content... -->
-  <h3><h:outputText value="#{msg.no_late_submission_title}"/></h3>
-  <h:outputText value="#{msg.no_late_submission}"/>
-  <p></p>
-  <h:panelGroup  rendered="#{delivery.publishedAssessment.assessmentAccessControl.dueDate!=null}">
-    <h:outputLabel value="#{msg.due_date}" />
-    <h:outputText value="#{delivery.publishedAssessment.assessmentAccessControl.dueDate}" />
+  <h3><h:outputText value="#{msg.is_retracted_title}"/></h3>
+  <h:outputText value="#{msg.isRetracted}"/>
+  <p></p> 
+  <h:panelGroup  rendered="#{delivery.publishedAssessment.assessmentAccessControl.retractDate!=null}">
+    <h:outputLabel value="#{msg.retract_date}:" />
+    <h:outputText value="#{delivery.publishedAssessment.assessmentAccessControl.retractDate}" />
   </h:panelGroup> 
 
 
- <h:form id="noLateSubmission">
+ <h:form id="isRetracted">
  <p class="act">
        <h:commandButton accesskey="#{msg.a_return}" value="#{msg.button_return}" type="submit"
          styleClass="active" action="select" >

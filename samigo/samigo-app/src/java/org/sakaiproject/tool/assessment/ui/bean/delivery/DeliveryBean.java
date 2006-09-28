@@ -2404,35 +2404,40 @@ public class DeliveryBean
       return "error";
     }
 
-    // check 0: check for multiple window & browser trick 
+    // check 1: check for multiple window & browser trick 
     GradingService service = new GradingService();
     AssessmentGradingData assessmentGrading = service.load(adata.getAssessmentGradingId().toString());
     if (!checkDataIntegrity(assessmentGrading)){
 	return ("discrepancyInData");
     }
 
-    // check 1: if workingassessment has been submiited?
+    // check 2: if workingassessment has been submiited?
     // this is to prevent student submit assessment and use a 2nd window to 
     // continue working on the submitted work.
     if (getAssessmentHasBeenSubmitted(assessmentGrading)){
       return "assessmentHasBeenSubmitted";
     }
 
-    // check 2: any submission attempt left?
+    // check 3: any submission attempt left?
     if (!getHasSubmissionLeft()){
       return "noSubmissionLeft";
     }
 
-    // check 3: accept late submission?
+    // check 4: accept late submission?
     boolean acceptLateSubmission = AssessmentAccessControlIfc.
         ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getLateHandling());
 
-    // check 4: has dueDate arrived? if so, does it allow late submission?
-    if (!getDateIsCurrent() && !acceptLateSubmission){
+    // check 5: has dueDate arrived? if so, does it allow late submission?
+    if (pastDueDate() && !acceptLateSubmission){
      return "noLateSubmission";
     }
 
-    // check 5: is timed assessment? and time has expired?
+    // check 6: is it still available?
+    if (isRetracted()){
+     return "isRetracted";
+    }
+
+    // check 7: is timed assessment? and time has expired?
     if (isTimeRunning() && timeExpired()){ 
       return "timeExpired";
     }
@@ -2461,16 +2466,24 @@ public class DeliveryBean
     return hasSubmissionLeft;
   }
 
-  private boolean getDateIsCurrent(){
-    boolean dateIsCurrent = false;
+  private boolean pastDueDate(){
+    boolean pastDue = true;
+    Date currentDate = new Date();
+    Date dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
+    if (dueDate == null || dueDate.after(currentDate)){
+        pastDue = false;
+    }
+    return pastDue;
+  }
+
+  private boolean isRetracted(){
+    boolean isRetracted = true;
     Date currentDate = new Date();
     Date retractDate = publishedAssessment.getAssessmentAccessControl().getRetractDate();
-    Date dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
-    if ((retractDate == null || retractDate.after(currentDate)) 
-      && (dueDate == null || dueDate.after(currentDate))){
-        dateIsCurrent = true;
+    if (retractDate == null || retractDate.after(currentDate)){
+        isRetracted = false;
     }
-    return dateIsCurrent;
+    return isRetracted;
   }
 
   private boolean checkDataIntegrity(AssessmentGradingData assessmentGrading){
