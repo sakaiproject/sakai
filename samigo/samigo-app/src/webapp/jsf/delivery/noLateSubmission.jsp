@@ -48,7 +48,7 @@
   <h:outputText value="#{msg.no_late_submission}"/>
   <p></p>
   <h:panelGroup  rendered="#{delivery.publishedAssessment.assessmentAccessControl.dueDate!=null}">
-    <h:outputLabel value="#{msg.due_date}" />
+    <h:outputLabel value="#{msg.due_date}: " />
     <h:outputText value="#{delivery.publishedAssessment.assessmentAccessControl.dueDate}" />
   </h:panelGroup> 
 

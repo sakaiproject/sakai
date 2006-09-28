@@ -46,7 +46,7 @@
   <!-- content... -->
   <h3><h:outputText value="#{msg.discrepancy_in_data_title}"/></h3>
   <h:outputText value="#{msg.discrepancy_in_data}"/>
-  <h:outputLabel value="#{msg.num_subs}" />
+
  <h:form id="discrepancyInData">
  <p class="act">
        <h:commandButton accesskey="#{msg.a_return}" value="#{msg.button_return}" type="submit"
