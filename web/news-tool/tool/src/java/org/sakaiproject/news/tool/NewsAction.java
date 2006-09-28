@@ -391,7 +391,7 @@ public class NewsAction extends VelocityPortletPaneledAction
 
 		}
 
-		if (newChannelUrl != null && !newChannelUrl.equals(currentChannelUrl))
+		if (newChannelUrl != null)
 		{
 			state.setAttribute(STATE_CHANNEL_URL, newChannelUrl);
 			try
@@ -399,13 +399,16 @@ public class NewsAction extends VelocityPortletPaneledAction
 				URL url = new URL(newChannelUrl);
 				NewsService.getChannel(url.toExternalForm());
 
-				if (Log.getLogger("chef").isDebugEnabled())
-					Log.debug("chef", this + ".doUpdate(): newChannelUrl: " + newChannelUrl);
-				state.setAttribute(STATE_CHANNEL_URL, url.toExternalForm());
+				if (!newChannelUrl.equals(currentChannelUrl)) {
+					if (Log.getLogger("chef").isDebugEnabled())
+						Log.debug("chef", this + ".doUpdate(): newChannelUrl: " + newChannelUrl);
+					state.setAttribute(STATE_CHANNEL_URL, url.toExternalForm());
+	
+					// update the tool config
+					Placement placement = ToolManager.getCurrentPlacement();
+					placement.getPlacementConfig().setProperty(PARAM_CHANNEL_URL, url.toExternalForm());
 
-				// update the tool config
-				Placement placement = ToolManager.getCurrentPlacement();
-				placement.getPlacementConfig().setProperty(PARAM_CHANNEL_URL, url.toExternalForm());
+				}
 			}
 			catch (NewsConnectionException e)
 			{
