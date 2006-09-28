@@ -731,7 +731,7 @@ public class PublishedAssessmentSettingsBean
     return hours;
   }
 
-  public void setHours(SelectItem[] hours) {
+  public static void setHours(SelectItem[] hours) {
     PublishedAssessmentSettingsBean.hours =  hours;
   }
 
@@ -739,7 +739,7 @@ public class PublishedAssessmentSettingsBean
     return mins;
   }
 
-  public void setMins(SelectItem[] mins) {
+  public static void setMins(SelectItem[] mins) {
     PublishedAssessmentSettingsBean.mins =  mins;
   }
 

@@ -89,7 +89,7 @@ public class TestIntegrationContextFactory extends
     }
     FileSystemXmlApplicationContext context =
       new FileSystemXmlApplicationContext(fileConfigs);
-    SpringBeanLocator.getInstance().setConfigurableApplicationContext(context);
+    SpringBeanLocator.setConfigurableApplicationContext(context);
     TestIntCtxtFactoryMethods testMethods = new TestIntCtxtFactoryMethods(
       integrationContextFactory);
     System.out.println("testIsIntegrated");

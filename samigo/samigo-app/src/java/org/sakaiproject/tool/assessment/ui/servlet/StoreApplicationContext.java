@@ -48,8 +48,7 @@ private static Log log = LogFactory.getLog(StoreApplicationContext.class);
       ctx = WebApplicationContextUtils
 	 .getRequiredWebApplicationContext(config.getServletContext());
       //log.log("***context="+ctx);
-      SpringBeanLocator locator = SpringBeanLocator.getInstance();
-      locator.setApplicationContext(ctx);
+      SpringBeanLocator.setApplicationContext(ctx);
 
       ContextUtil.setServletContext(config.getServletContext());
     }

@@ -38,7 +38,7 @@ public class MimeTypesLocator{
       return new MimeTypesLocator();
   }
 
-  public void setMimetypesFileTypeMap(MimetypesFileTypeMap map){
+  public static void setMimetypesFileTypeMap(MimetypesFileTypeMap map){
     MimeTypesLocator.map = map;
   } 
 

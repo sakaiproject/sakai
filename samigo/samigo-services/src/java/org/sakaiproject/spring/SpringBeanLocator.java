@@ -51,7 +51,7 @@ public class SpringBeanLocator
    * For integration inside a web context
    * @param context the WebApplicationContext
    */
-  public void setApplicationContext(WebApplicationContext context)
+  public static void setApplicationContext(WebApplicationContext context)
   {
 	  SpringBeanLocator.waCtx = context;
 	  SpringBeanLocator.inWebContext = true;
@@ -62,7 +62,7 @@ public class SpringBeanLocator
    * such as FileSystemXmlApplicationContext
    * @param ca
    */
-  public void setConfigurableApplicationContext(ConfigurableApplicationContext
+  public static void setConfigurableApplicationContext(ConfigurableApplicationContext
                                                 ca)
   {
     SpringBeanLocator.caCtx = ca;

@@ -45,8 +45,7 @@ private static Log log = LogFactory.getLog(InitMimeTypes.class);
 
   public void init (ServletConfig config) throws ServletException {
     super.init(config);
-    InitMimeTypes.context = config.getServletContext();
-    String path = InitMimeTypes.context.getRealPath("WEB-INF/mime.types");
+    String path = config.getServletContext().getRealPath("WEB-INF/mime.types");
     log.debug("**** mimetypes path="+path);
     MimetypesFileTypeMap mimeTypeMap = null;
     FileInputStream input = null;
@@ -55,7 +54,7 @@ private static Log log = LogFactory.getLog(InitMimeTypes.class);
 	log.debug("**** input="+input);
 	mimeTypeMap = new MimetypesFileTypeMap(input);
 	log.debug("**** mimeTypeMap="+mimeTypeMap);
-        MimeTypesLocator.getInstance().setMimetypesFileTypeMap(mimeTypeMap);
+    MimeTypesLocator.setMimetypesFileTypeMap(mimeTypeMap);
     }
     catch(Exception ex){
 	log.warn(ex.getMessage());

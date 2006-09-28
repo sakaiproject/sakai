@@ -889,7 +889,7 @@ public class AssessmentSettingsBean
     return hours;
   }
 
-  public void setHours(SelectItem[] hours) {
+  public static void setHours(SelectItem[] hours) {
     AssessmentSettingsBean.hours =  hours;
   }
 
@@ -897,7 +897,7 @@ public class AssessmentSettingsBean
     return mins;
   }
 
-  public void setMins(SelectItem[] mins) {
+  public static void setMins(SelectItem[] mins) {
     AssessmentSettingsBean.mins =  mins;
   }
 
