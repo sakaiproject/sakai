@@ -58,7 +58,7 @@
       <h:outputText value="#{msgs.title_prompt}" styleClass="reqPrompt" />
  	  <h:inputText id="podtitle" value="#{podHomeBean.selectedPodcast.title}" styleClass="indnt3" size="35" maxlength="255" />
 
-      <h:message for="podtitle" styleClass="alertMessage" />
+	  <h:outputText value="#{msgs.notitle_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayNoTitleErrMsg}" />
     </div>
     <br /><br />
 

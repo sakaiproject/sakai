@@ -1167,6 +1167,12 @@ public class podHomeBean {
 		boolean filenameChange = false;
 		byte[] fileContents = null;
 
+		// if they blank out the title, stay here since
+		// a title is a requirement
+		if ("".equals(selectedPodcast.title.trim())) {
+			displayNoTitleErrMsg = true;
+			return "revise";
+		}
 
 		// If file has changed, change it in the resource
 		if (filename != null) {
@@ -1311,6 +1317,7 @@ public class podHomeBean {
 		description = "";
 		fileAsStream = null;
 		filename = "";
+		displayNoTitleErrMsg = false;
 
 		return whereToGo;
 	}
@@ -1322,12 +1329,13 @@ public class podHomeBean {
 	 */
 	public String processCancelRevise() {
 		selectedPodcast = null;
-		displayInvalidDateErrMsg = false;
 		date = null;
 		title = "";
 		description = "";
 		fileAsStream = null;
 		filename = "";
+		displayInvalidDateErrMsg = false;
+		displayNoTitleErrMsg = false;
 
 		return "cancel";
 	}
