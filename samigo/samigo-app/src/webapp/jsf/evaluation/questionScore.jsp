@@ -90,6 +90,8 @@ $Id$
         <h:column>
           <h:commandLink title="#{msg.t_questionScores}"action="questionScores" immediate="true" >
             <h:outputText value="#{msg.q} #{iteminit.partNumber} "/>
+			<f:actionListener
+              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
             <f:actionListener
               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
             <f:param name="newItemId" value="#{iteminit.id}" />

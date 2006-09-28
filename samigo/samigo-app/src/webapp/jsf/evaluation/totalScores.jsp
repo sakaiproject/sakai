@@ -80,6 +80,8 @@
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetQuestionScoreListener" />
       <f:actionListener
+        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
+      <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
     </h:commandLink>
     <h:outputText value=" #{msg.separator} " rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" />
