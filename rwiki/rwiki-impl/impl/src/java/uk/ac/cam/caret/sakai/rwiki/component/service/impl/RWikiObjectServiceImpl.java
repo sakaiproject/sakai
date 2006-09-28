@@ -486,7 +486,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			RWikiHistoryObject rwho = hdao.createRWikiHistoryObject(rwo);
 
 			// set the content and increment the revision
-			rwo.setContent(content);
+			rwo.setContent(content.replaceAll("\r\n?", "\n"));
 			rwo.setRevision(new Integer(rwo.getRevision().intValue() + 1));
 
 			// render to get a list of links
