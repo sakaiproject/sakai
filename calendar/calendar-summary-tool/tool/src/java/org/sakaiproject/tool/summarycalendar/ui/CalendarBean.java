@@ -429,7 +429,7 @@ public class CalendarBean extends InitializableBean implements Serializable {
 				selectedEvent.setSite(M_ss.getSite(calendar.getContext()).getTitle());
 				selectedEvent.setUrl(event.getUrl());
 				// groups
-				if(M_as.unlock("calendar.all.groups", "/site/"+getSiteId())){
+				if(M_as.unlock("calendar.all.groups", "/site/"+calendar.getContext())){
 					Collection grps = event.getGroupObjects();
 					if(grps.size() > 0){
 						StringBuffer sb = new StringBuffer();
