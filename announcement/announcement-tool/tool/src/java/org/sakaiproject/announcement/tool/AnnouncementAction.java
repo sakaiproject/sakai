@@ -1008,6 +1008,14 @@ public class AnnouncementAction extends PagedResourceActionII
 				context.put("groups", groups);
 			}
 		}
+		
+		// if there is a display limit on the number of announcement message, and the user can set option choice
+		int displayLimit = state.getDisplayOptions().getNumberOfAnnouncements();
+		if (!(displayLimit == AnnouncementActionState.DEFAULT_DISPLAY_NUMBER_OPTION) && isOkToShowOptionsButton(state.getStatus()))
+		{
+			context.put("displayLimit", new Integer(displayLimit));
+		}
+		
 
 		if (sstate.getAttribute(STATE_SELECTED_VIEW) != null)
 		{

@@ -52,6 +52,8 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 {
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("announcement");
+	
+	public static int DEFAULT_DISPLAY_NUMBER_OPTION = 100;
 
 	/**
 	 * Holds the display options for the Announcements tool
@@ -88,7 +90,7 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 
 		boolean enforceNumberOfDaysInThePastLimit;
 
-		int numberOfAnnouncements = 100;
+		int numberOfAnnouncements = DEFAULT_DISPLAY_NUMBER_OPTION;
 
 		boolean enforceNumberOfAnnouncementsLimit;
 

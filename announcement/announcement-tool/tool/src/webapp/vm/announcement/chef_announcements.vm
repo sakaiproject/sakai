@@ -26,6 +26,11 @@
 	#end
 	#end
 	
+	## show the reminder message about display limit
+	#if ($!displayLimit)
+		$tlang.getString("displayLimitWarning_1")$!displayLimit $tlang.getString("displayLimitWarning_2")$displayLimit$tlang.getString("displayLimitWarning_3")
+	#end
+	
 	#if ($isOnWorkspaceTab.equals("true")) ##in workspace
 		<h3>$tlang.getString("gen.announcements")</h3>
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
