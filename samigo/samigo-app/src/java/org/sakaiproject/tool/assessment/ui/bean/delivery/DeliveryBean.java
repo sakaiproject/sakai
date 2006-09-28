@@ -2425,7 +2425,7 @@ public class DeliveryBean
 
     // check 4: accept late submission?
     boolean acceptLateSubmission = AssessmentAccessControlIfc.
-        ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getLateHandling());
+        ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
 
     // check 5: has dueDate arrived? if so, does it allow late submission?
     if (pastDueDate() && !acceptLateSubmission){
