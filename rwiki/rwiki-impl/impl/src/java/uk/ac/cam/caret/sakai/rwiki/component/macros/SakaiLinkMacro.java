@@ -118,7 +118,7 @@ public class SakaiLinkMacro extends BaseLocaleMacro
 			writer.write("<a href=\"" + Encoder.escape(url) + "\"");
 			if (!"none".equals(target))
 			{
-				writer.write("target=\"" + Encoder.escape(target) + "\"");
+				writer.write(" target=\"" + Encoder.escape(target) + "\"");
 			}
 			writer.write(">");
 			writer.write(text);
