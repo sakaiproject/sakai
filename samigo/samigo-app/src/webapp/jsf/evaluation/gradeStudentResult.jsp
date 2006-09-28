@@ -175,7 +175,7 @@ $Id$
           <f:verbatim><h4 class="tier2"></f:verbatim>
             <h:outputText value="#{dmsg.q} #{question.number} #{dmsg.of} " />
             <h:outputText value="#{part.questions}#{dmsg.column}  " />
-            <h:inputText id="adjustedScore" value="#{question.points}" >
+            <h:inputText id="adjustedScore" value="#{question.pointsForEdit}" >
 <f:validateDoubleRange/>
 <%--SAK-3776    <f:convertNumber maxFractionDigits="2"/> --%>
             </h:inputText>
