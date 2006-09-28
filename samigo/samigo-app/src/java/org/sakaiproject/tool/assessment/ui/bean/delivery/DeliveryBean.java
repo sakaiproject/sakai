@@ -2404,39 +2404,50 @@ public class DeliveryBean
       return "error";
     }
 
-    // check 1: check for multiple window & browser trick 
     GradingService service = new GradingService();
-    AssessmentGradingData assessmentGrading = service.load(adata.getAssessmentGradingId().toString());
-    if (!checkDataIntegrity(assessmentGrading)){
-	return ("discrepancyInData");
+    AssessmentGradingData assessmentGrading=null;
+    if (adata!=null){
+      assessmentGrading = service.load(adata.getAssessmentGradingId().toString());
     }
 
+    log.debug("check 1");
+    // check 1: check for multiple window & browser trick 
+    if (assessmentGrading!=null && !checkDataIntegrity(assessmentGrading)){
+      return ("discrepancyInData");
+    }
+
+    log.debug("check 2");
     // check 2: if workingassessment has been submiited?
     // this is to prevent student submit assessment and use a 2nd window to 
     // continue working on the submitted work.
-    if (getAssessmentHasBeenSubmitted(assessmentGrading)){
+    if (assessmentGrading!=null && getAssessmentHasBeenSubmitted(assessmentGrading)){
       return "assessmentHasBeenSubmitted";
     }
 
+    log.debug("check 3");
     // check 3: any submission attempt left?
     if (!getHasSubmissionLeft()){
       return "noSubmissionLeft";
     }
 
+    log.debug("check 4");
     // check 4: accept late submission?
     boolean acceptLateSubmission = AssessmentAccessControlIfc.
         ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
 
+    log.debug("check 5");
     // check 5: has dueDate arrived? if so, does it allow late submission?
     if (pastDueDate() && !acceptLateSubmission){
      return "noLateSubmission";
     }
 
+    log.debug("check 6");
     // check 6: is it still available?
     if (isRetracted()){
      return "isRetracted";
     }
 
+    log.debug("check 7");
     // check 7: is timed assessment? and time has expired?
     if (isTimeRunning() && timeExpired()){ 
       return "timeExpired";
@@ -2510,7 +2521,7 @@ public class DeliveryBean
       log.debug("date is equal="+(DBdate==browserDate));
       return (DBdate==browserDate);
     }
-    else return false;
+    else return true;
   }
 
   private boolean getAssessmentHasBeenSubmitted(AssessmentGradingData assessmentGrading){
