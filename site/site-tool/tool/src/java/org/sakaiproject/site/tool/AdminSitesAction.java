@@ -24,8 +24,10 @@ package org.sakaiproject.site.tool;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -654,14 +656,38 @@ public class AdminSitesAction extends PagedResourceActionII
 		context.put("page", page);
 		context.put("tool", tool);
 
-		List features = new Vector();
-		features.addAll(ToolManager.findTools(null, null));
-		Collections.sort(features);
+		List features = findNonHelperTools();
 		context.put("features", features);
 
 		return "_edit_tool";
 
 	} // buildNewToolContext
+
+	/**
+	 * Get the list of all tools that are not helper tools.
+	 * 
+	 * @return The list of all tools that are not helper to.
+	 */
+	private List findNonHelperTools()
+	{
+		// get all tools
+		Set all = ToolManager.findTools(null, null);
+
+		// get the helpers
+		Set categories = new HashSet();
+		categories.add("sakai.helper");
+		Set helpers = ToolManager.findTools(categories, null);
+
+		// remove the helpers from all
+		all.removeAll(helpers);
+
+		// make a list for sorting
+		List features = new Vector();
+		features.addAll(all);
+		Collections.sort(features);
+
+		return features;
+	}
 
 	/**
 	 * Build the context for the edit tool mode.
@@ -680,9 +706,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		context.put("page", page);
 		context.put("tool", tool);
 
-		List features = new Vector();
-		features.addAll(ToolManager.findTools(null, null));
-		Collections.sort(features);
+		List features = findNonHelperTools();
 		context.put("features", features);
 
 		context.put("toolReg", tool.getTool());
