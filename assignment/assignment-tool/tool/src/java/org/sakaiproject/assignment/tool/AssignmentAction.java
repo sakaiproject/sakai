@@ -3149,17 +3149,18 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		// only when choose to associate with assignment in Gradebook
 		String associateAssignment = params.getString(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-		if (grading.equals(GRADEBOOK_INTEGRATION_ASSOCIATE))
-		{
-			state.setAttribute(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associateAssignment);
-		}
-		else
-		{
-			state.setAttribute(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, "");
-		}
 		
 		if (grading != null)
 		{
+			if (grading.equals(GRADEBOOK_INTEGRATION_ASSOCIATE))
+			{
+				state.setAttribute(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associateAssignment);
+			}
+			else
+			{
+				state.setAttribute(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, "");
+			}
+			
 			if (!grading.equals(GRADEBOOK_INTEGRATION_NO))
 			{
 				// gradebook integration only available to point-grade assignment
@@ -3505,7 +3506,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 			String checkAddHonorPledge = (String) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
 
-			String addtoGradebook = (String) state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
+			String addtoGradebook = (String) state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK) != null?(String) state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK):"" ;
 			
 			String associateGradebookAssignment = (String) state.getAttribute(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 
