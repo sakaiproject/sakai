@@ -8994,6 +8994,16 @@ public class SiteAction extends PagedResourceActionII
 		return roles;
 		
 	} // getRoles
+	
+	private void addSynopticTool(SitePage page, String toolId, String toolTitle, String layoutHint)
+	{
+		// Add synoptic announcements tool
+		ToolConfiguration tool = page.addTool();
+		Tool reg = ToolManager.getTool(toolId);
+		tool.setTool(toolId, reg);	
+		tool.setTitle(toolTitle);
+		tool.setLayoutHints(layoutHint);
+	}
 
 	private void getRevisedFeatures(ParameterParser params, SessionState state)
 	{	
@@ -9092,6 +9102,9 @@ public class SiteAction extends PagedResourceActionII
 		if (homeInChosenList)
 		{
 			SitePage page = null;
+			// Were the synoptic views of Announcement, Discussioin, Chat existing before the editing
+			boolean hadAnnouncement=false,hadDiscussion=false,hadChat=false;
+			
 			if (homeInWSetupPageList)
 			{
 				if (!SiteService.isUserSite(site.getId()))
@@ -9110,11 +9123,29 @@ public class SiteAction extends PagedResourceActionII
 					for (ListIterator iToolList = toolList.listIterator(); iToolList.hasNext(); )
 					{
 						ToolConfiguration tool = (ToolConfiguration) iToolList.next();
-						if (tool.getTool().getId().equals("sakai.synoptic.announcement")
-							|| tool.getTool().getId().equals("sakai.synoptic.discussion")
-							|| tool.getTool().getId().equals("sakai.synoptic.chat"))
+						if (tool.getTool().getId().equals("sakai.synoptic.announcement"))
 						{
-							removeToolList.add(tool);
+							hadAnnouncement = true;
+							if (!hasAnnouncement)
+							{
+								removeToolList.add(tool);// if Announcement tool isn't selected, remove the synotic Announcement
+							}
+						}
+						if (tool.getTool().getId().equals("sakai.synoptic.discussion"))
+						{
+							hadDiscussion = true;
+							if (!hasDiscussion)
+							{
+								removeToolList.add(tool);// if Discussion tool isn't selected, remove the synoptic Discussion
+							}
+						}
+						if (tool.getTool().getId().equals("sakai.synoptic.chat"))
+						{
+							hadChat = true;
+							if (!hasChat)
+							{
+								removeToolList.add(tool);// if Chat tool isn't selected, remove the synoptic Chat
+							}
 						}
 					}
 					// remove those synoptic tools
@@ -9149,34 +9180,20 @@ public class SiteAction extends PagedResourceActionII
 				//add synoptical tools to home tool in non-myworkspace site
 				try
 				{
-					if (hasAnnouncement)
+					if (hasAnnouncement && !hadAnnouncement)
 					{
 						//Add synoptic announcements tool
-						ToolConfiguration tool = page.addTool();
-						Tool reg = ToolManager.getTool("sakai.synoptic.announcement");
-						tool.setTool("sakai.synoptic.announcement", reg);	
-						tool.setTitle(rb.getString("java.recann"));
-						tool.setLayoutHints("0,1");
+						addSynopticTool(page, "sakai.synoptic.announcement", rb.getString("java.recann"), "0,1");
 					}
-					
-					if (hasDiscussion)
+					if (hasDiscussion && !hadDiscussion)
 					{			
 						//Add synoptic discussion tool
-						ToolConfiguration tool = page.addTool();
-						Tool reg = ToolManager.getTool("sakai.synoptic.discussion");
-						tool.setTool("sakai.synoptic.discussion", reg);
-						tool.setTitle(rb.getString("java.recdisc"));
-						tool.setLayoutHints("1,1");
-					}
-								
-					if (hasChat)
+						addSynopticTool(page, "sakai.synoptic.discussion", rb.getString("java.recdisc"), "1,1");
+					}			
+					if (hasChat&& !hadChat)
 					{
 						//Add synoptic chat tool
-						ToolConfiguration tool = page.addTool();
-						Tool reg = ToolManager.getTool("sakai.synoptic.chat");
-						tool.setTool("sakai.synoptic.chat", reg);
-						tool.setTitle(rb.getString("java.recent"));
-						tool.setLayoutHints("2,1");
+						addSynopticTool(page, "sakai.synoptic.chat", rb.getString("java.recent"), "2,1");
 					}
 					if (hasAnnouncement || hasDiscussion || hasChat )
 					{
