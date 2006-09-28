@@ -60,11 +60,6 @@ public class NewsAction extends VelocityPortletPaneledAction
 {
 	private static ResourceLoader rb = new ResourceLoader("news");
 
-	/** names and values of request parameters to select sub-panels */
-	private static final String MONITOR_PANEL = "List";
-
-	private static final String CONTROL_PANEL = "Control";
-
 	/** portlet configuration parameter names. */
 	protected static final String PARAM_CHANNEL_URL = "channel-url";
 
@@ -197,9 +192,6 @@ public class NewsAction extends VelocityPortletPaneledAction
 			return buildOptionsPanelContext(portlet, context, rundata, state);
 		}
 
-		context.put("panel-control", CONTROL_PANEL);
-		context.put("panel-monitor", MONITOR_PANEL);
-
 		context.put(GRAPHIC_VERSION_TEXT, state.getAttribute(GRAPHIC_VERSION_TEXT));
 		context.put(FULL_STORY_TEXT, state.getAttribute(FULL_STORY_TEXT));
 
@@ -239,32 +231,14 @@ public class NewsAction extends VelocityPortletPaneledAction
 		}
 
 		context.put("channel", channel);
-
-		return (String) getContext(rundata).get("template") + "-Layout";
-
-	} // buildMainPanelContext
-
-	/**
-	 * build the context for the List panel
-	 * 
-	 * @return (optional) template name for this panel
-	 */
-	public String buildListPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
-	{
-		context.put("tlang", rb);
-		// put this pannel's name for the return url
-		context.put("panel-control", CONTROL_PANEL);
-		context.put("panel-monitor", MONITOR_PANEL);
-
+		
 		context.put(GRAPHIC_VERSION_TEXT, state.getAttribute(GRAPHIC_VERSION_TEXT));
 		context.put(FULL_STORY_TEXT, state.getAttribute(FULL_STORY_TEXT));
-
-		String channel = (String) state.getAttribute(STATE_CHANNEL_URL);
 
 		List items = new Vector();
 		try
 		{
-			items = NewsService.getNewsitems(channel);
+			items = NewsService.getNewsitems(url);
 		}
 		catch (NewsConnectionException e)
 		{
@@ -284,37 +258,9 @@ public class NewsAction extends VelocityPortletPaneledAction
 
 		context.put("news_items", items);
 
-		return (String) getContext(rundata).get("template") + "-List";
+		return (String) getContext(rundata).get("template") + "-Layout";
 
-	} // buildListPanelContext
-
-	/**
-	 * build the context for the Control panel (has a send field)
-	 * 
-	 * @return (optional) template name for this panel
-	 */
-	public String buildControlPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
-	{
-		context.put("tlang", rb);
-		// put this pannel's name for the return url
-		context.put("panel-control", CONTROL_PANEL);
-		context.put("panel-monitor", MONITOR_PANEL);
-
-		// set the action for form processing
-		context.put(Menu.CONTEXT_ACTION, state.getAttribute(STATE_ACTION));
-
-		// set the form field name for the send button
-		context.put("form-submit", BUTTON + "doGet_update");
-
-		// is an update available?
-		boolean updateAvailable = false;
-
-		context.put("update_available", Boolean.valueOf(updateAvailable));
-
-		return (String) getContext(rundata).get("template") + "-Control";
-		// return null;
-
-	} // buildControlPanelContext
+	} // buildMainPanelContext
 
 	/**
 	 * Setup for the options panel.

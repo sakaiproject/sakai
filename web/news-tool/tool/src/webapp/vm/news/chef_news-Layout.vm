@@ -28,45 +28,44 @@
 				$channel.Description 
 			</p>
 		#end
-			<p class="textPanelFooter">
-				#if($channel.Link)
-						<a href="$validator.escapeHtml($channel.Link)" target="_blank" title="$channel.Title">($graphic_version)</a>
-				#end
-				#if($channel.Copyright)
-						- $channel.Copyright
-				#end
-				#if($channel.Lastbuilddate)
-						 - $channel.Lastbuilddate
-				#end
-			</p>
+		<p class="textPanelFooter">
+		#if($channel.Link)
+			<a href="$validator.escapeHtml($channel.Link)" target="_blank" title="$channel.Title">($graphic_version)</a>
+		#end
+		#if($channel.Copyright)
+			- $channel.Copyright
+		#end
+		#if($channel.Lastbuilddate)
+			 - $channel.Lastbuilddate
+		#end
+		</p>
 
 		<hr class="itemSeparator" />
-		<iframe
-			name="$validator.escapeJavascript("$panel-monitor")"
-			id="$validator.escapeJavascript("$panel-monitor")"
-			title="$panel-monitor"
-			width="97%"
-			height="350"
-			frameborder="0"
-			marginwidth="0"
-			marginheight="0"
-			scrolling="auto"
-			align="middle"
-			src="#contentLink("$panel-monitor")">
-		</iframe>
-		<br />
-		<iframe
-			name="$validator.escapeJavascript("$panel-control")"
-			id="$validator.escapeJavascript("$panel-control")"
-			title="$panel-control"
-			width="100%"
-			height="50"
-			frameborder="0"
-			marginwidth="0"
-			marginheight="0"
-			scrolling="no"
-			align="middle"
-			src="#contentCourierLink("$panel-control")">
-		</iframe>
+		
+		## List of feed items
+		<div class="portletBody">
+		#foreach ($item in $news_items)
+			#if($item.Title)
+				<h4 class="textPanelHeader">
+				#set($title="$validator.escapeHtml($item.Title)")
+					$validator.escapeHtml($item.Title)
+				</h4>
+			#end
+			#if($item.Description)
+				<div class="textPanel">
+					$item.Description
+				</div>	
+				<p class="textPanelFooter">
+			#if($item.Link)
+				 <a href="$validator.escapeHtml($item.Link)" target="_blank" title="$tlang.getString("goto.item")">($full_story)</a>
+			 #end
+			 #if($item.Pubdate && !($item.Pubdate == ""))
+				($item.Pubdate)
+			#end
+			</p>
+
+		#end	
+		#end
+	</div>
 </div>
 
