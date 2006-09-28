@@ -95,7 +95,7 @@ code {
 	padding: 0 1em 1em 1em
 	} 
 /*for web content - 2 states of the body > div that used instead of div.portletBody in web content), with toolbar, without*/
-/*see  a course site web contentn tool  - as instructor and as student*/
+/*see  a course site web contentn tool  - as instructor and as student - ends with a IE hack needed to make the make the bottom scrolbar (when present) behave.*/
 .wcwmenu{
 	padding: 0;
 	margin: 3px 0 -1em  0;
@@ -104,6 +104,10 @@ code {
 .wcwomenu{
 	padding: 0;
 	margin: -.3em 0 -1em 0;
+}
+
+*html #wciframe{
+	margin-bottom:1em
 }
 
 /* SECTION 3 - TABULAR DATA LAYOUTS*/
