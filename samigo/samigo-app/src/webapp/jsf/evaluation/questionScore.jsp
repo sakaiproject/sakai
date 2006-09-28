@@ -112,10 +112,9 @@ $Id$
   </h:dataTable>
 
 <!--h:panelGrid styleClass="navModeQuestion" columns="2" columnClasses="alignLeft,alignCenter" width="100%" -->
-
+<h4>
   <h:dataTable value="#{questionScores.deliveryItem}" var="question" border="0" >
     <h:column>
-
      <h:panelGroup rendered="#{questionScores.typeId == '7'}">
          <h:outputText value="#{msg.question}#{question.sequence} - #{msg.q_aud}"/>
      </h:panelGroup>
@@ -160,6 +159,7 @@ $Id$
      <h:outputText value="#{questionScores.maxPoint}" style="instruction"/>
   </h:column>
   </h:dataTable>
+</h4>
 
   <h:dataTable value="#{questionScores.deliveryItem}" var="question">
   <h:column>
@@ -213,6 +213,7 @@ $Id$
   </h:column>
   </h:dataTable>
 
+<h4>
 <h:panelGrid columns="2" columnClasses="navView,navList" width="100%">	
 	<h:panelGroup>
 	 <p class=" navView navModeAction">
@@ -225,6 +226,7 @@ $Id$
 		</h:outputLink>
 	 </h:panelGroup>
 </h:panelGrid>
+</h4>
 
 <sakai:flowState bean="#{questionScores}" />
 <h:panelGrid columns="2" columnClasses="samLeftNav,samRightNav" width="100%" rendered="#{totalScores.anonymous eq 'false'}">
