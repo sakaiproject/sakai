@@ -38,6 +38,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationAction;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -169,14 +170,15 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 		String siteId = (getSite() != null) ? getSite() : getSiteId(ref.getContext());
 
 		// get a site title
-		String title = siteId;
+		String title;
 		try
 		{
 			Site site = siteService.getSite(siteId);
 			title = site.getTitle();
 		}
-		catch (Exception ignore)
+		catch (IdUnusedException e)
 		{
+			title = siteId;
 		}
 
 		// get the URL and resource name.
