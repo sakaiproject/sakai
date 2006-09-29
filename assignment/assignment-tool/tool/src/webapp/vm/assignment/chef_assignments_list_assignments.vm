@@ -443,16 +443,26 @@
 									#set ($totalNumber = 0)
 									#set ($ungradedNumber = 0)
 									#foreach ($s in $totalSubmission)
-										#if ($s.Submitted)
-											#set ($totalNumber = $totalNumber + 1)
-											#if (!$s.Graded)
-												#set ($ungradedNumber = $ungradedNumber + 1)
-											#elseif ($s.Returned)
-												#set ($returnedTime = $s.getTimeReturned())
-												#set ($submitTime = $s.getTimeSubmitted())
-												#if ($!returnedTime && $returnedTime.before($submitTime))
-													## has been resubmitted, and ungraded
+										## if the submitter is a current active user in the site
+										#set($submitterIdList = $s.getSubmitterIds())
+										#set($existUser=false)
+										#foreach($submitterId in $submitterIdList)
+											#if ($!activeUserIds.contains($submitterId))
+												#set($existUser=true)
+											#end
+										#end
+										#if ($existUser)
+											#if ($s.Submitted)
+												#set ($totalNumber = $totalNumber + 1)
+												#if (!$s.Graded)
 													#set ($ungradedNumber = $ungradedNumber + 1)
+												#elseif ($s.Returned)
+													#set ($returnedTime = $s.getTimeReturned())
+													#set ($submitTime = $s.getTimeSubmitted())
+													#if ($!returnedTime && $returnedTime.before($submitTime))
+														## has been resubmitted, and ungraded
+														#set ($ungradedNumber = $ungradedNumber + 1)
+													#end
 												#end
 											#end
 										#end

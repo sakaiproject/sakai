@@ -888,14 +888,22 @@ public class AssignmentAction extends PagedResourceActionII
 		try
 		{
 			// get current site
-			Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+			Site site = SiteService.getSite(contextString);
 			context.put("site", site);
 			// any group in the site?
 			Collection groups = site.getGroups();
 			context.put("groups", (groups != null && groups.size()>0)?Boolean.TRUE:Boolean.FALSE);
+			
+			// add active user list
+			AuthzGroup realm = AuthzGroupService.getAuthzGroup(SiteService.siteReference(contextString));
+			if (realm != null)
+			{
+				context.put("activeUserIds", realm.getUsers());
+			}
 		}
 		catch (Exception ignore)
 		{
+			Log.warn("chef", this + ignore.getMessage() + " siteId= " + contextString);
 		}
 		
 		boolean allowSubmit = AssignmentService.allowAddSubmission(contextString);
