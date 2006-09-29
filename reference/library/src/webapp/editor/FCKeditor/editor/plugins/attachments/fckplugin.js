@@ -32,7 +32,14 @@ FCKToolbarAttachmentSelectCommand.prototype.Execute = function (itemId, item) {
 
 FCKToolbarAttachmentSelectCommand.prototype.GetState = function()
 {
-	return this.combo.currentItem.FCKItemID;
+	if(this.combo.currrentItem) 
+	{
+		return this.combo.currentItem.FCKItemID;
+	}
+	else {
+		//nothing selected
+		return FCK_TRISTATE_OFF;
+	}
 }
 
 var FCKToolbarAttachmentsCombo = function( commandName )
