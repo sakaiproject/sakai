@@ -171,7 +171,7 @@ public class ExtractionHelper
    */
   public Document getTransformDocument(String template)
   {
-    Document document = null;
+    //Document document = null;
 
     if (!isOKtransform(template))
     {

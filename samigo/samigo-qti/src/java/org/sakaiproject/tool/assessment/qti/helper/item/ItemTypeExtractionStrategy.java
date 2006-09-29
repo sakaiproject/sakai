@@ -154,6 +154,7 @@ public class ItemTypeExtractionStrategy
    */
   private static String matchGuess(String toGuess)
   {
+	  // not sure how well this works for i18n.  
     String itemType = null;
     if (toGuess.indexOf("multiple") != -1 &&
         toGuess.indexOf("response") != -1)
@@ -200,6 +201,14 @@ public class ItemTypeExtractionStrategy
     {
       itemType = AuthoringConstantStrings.FIB;
     }
+    // place holder for numerical responses questions
+    else if (toGuess.indexOf("numerical") != -1 ||
+            toGuess.indexOf("calculate") != -1 ||
+            toGuess.indexOf("math") != -1
+            )
+   {
+     itemType = AuthoringConstantStrings.FIN;
+   }
     else if (toGuess.indexOf("essay") != -1 ||
              toGuess.indexOf("short") != -1)
     {

@@ -35,7 +35,7 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
+//import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -471,7 +471,9 @@ public class ItemHelper12Impl extends ItemHelperBase
           if ( (valueMap != null) && (valueMap.size() > 0))
           {
             mattext = (String) valueMap.get("text");
-
+//wrap mattext with cdata
+            mattext =  "<![CDATA[" + mattext + "]]>";
+  
             if (mattext != null)
             {
               //add mattext
@@ -581,7 +583,9 @@ public class ItemHelper12Impl extends ItemHelperBase
 
       updateItemXml(
         itemXml, varequal + "/@respident", respIdent);
-      updateItemXml(itemXml, varequal, responses[i]);
+      // need to wrap CDATA for responses[i]  .  
+      String wrapcdata_response =  "<![CDATA[" + responses[i] + "]]>";
+      updateItemXml(itemXml, varequal, wrapcdata_response);
     }
 
     //Add setvar
@@ -771,6 +775,8 @@ public class ItemHelper12Impl extends ItemHelperBase
           if ( (valueMap != null) && (valueMap.size() > 0))
           {
             mattext = (String) valueMap.get("text");
+//          wrap mattext with cdata
+            mattext =  "<![CDATA[" + mattext + "]]>";
 
             if (mattext != null)
             {
@@ -881,7 +887,10 @@ public class ItemHelper12Impl extends ItemHelperBase
 
       updateItemXml(
         itemXml, varequal + "/@respident", respIdent);
-      updateItemXml(itemXml, varequal, responses[i]);
+      // need to wrap CDATA for responses[i]  .  
+      String wrapcdata_response =  "<![CDATA[" + responses[i] + "]]>";
+
+      updateItemXml(itemXml, varequal, wrapcdata_response);
     }
 
     //Add setvar

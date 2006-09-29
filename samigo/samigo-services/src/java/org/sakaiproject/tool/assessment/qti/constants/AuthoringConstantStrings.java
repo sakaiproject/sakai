@@ -75,9 +75,13 @@ public class AuthoringConstantStrings
   public static final String FILE = rb.getString("file"); // "File Upload"
 
   // "Unknown Type" is a placeholder for the invalid '0' , "Unused Type" is an alternate MCMC
+  
+  // Lydia 9/29/2006 : added "" before FIN, because Diego used 11 as the type.  Rather than changing the conversion script for SAM_TYPE_D table, 
+  // I'm just adding an "" to make FIN the itemTypes[11].  This is used in ItemTypeExtractionStrategy.getValidType()
+  
   public static String[] itemTypes =
-  { "Unknown Type", MCSC, MCMC, SURVEY, TF, ESSAY, FILE, AUDIO, FIB, MATCHING, FIN };
-
+  { "Unknown Type", MCSC, MCMC, SURVEY, TF, ESSAY, FILE, AUDIO, FIB, MATCHING,"", FIN };
+  
 
   // Feedback Type
   public static final String FEEDBACKTYPE_IMMEDIATE = "IMMEDIATE";
