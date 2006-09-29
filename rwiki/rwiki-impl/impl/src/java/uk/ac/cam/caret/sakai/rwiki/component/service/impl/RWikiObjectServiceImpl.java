@@ -1100,15 +1100,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 					.debug("===================Source and Target Context are identical, transfer ignored");
 			return;
 		}
-		if (!fromContext.endsWith("/"))
-		{
-			fromContext = fromContext + "/";
-		}
-		if (!toContext.endsWith("/"))
-		{
-			toContext = toContext + "/";
-		}
-
+		
+		// FIXME this needs to be moved out to a method!
 		if (!fromContext.startsWith("/"))
 		{
 			fromContext = "/site/" + fromContext;
@@ -1117,10 +1110,17 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		{
 			toContext = "/site/" + toContext;
 		}
+		if (fromContext.endsWith("/") && fromContext.length() > 1) {
+			fromContext = fromContext.substring(0, fromContext.length() - 1);
+		}
+		if (toContext.endsWith("/") && toContext.length() > 1) {
+			toContext = toContext.substring(0, toContext.length() - 1);
+		}
+
 
 		log.debug("=================Locating Pages in from Content of "
 				+ fromContext);
-		List pages = findRWikiSubPages(fromContext);
+		List pages = findRWikiSubPages(fromContext.length() > 1 ? fromContext + "/" : fromContext);
 		log.debug("=================Found " + pages.size() + " Pages");
 
 		for (Iterator i = pages.iterator(); i.hasNext();)
