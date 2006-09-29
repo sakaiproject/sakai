@@ -220,6 +220,7 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     return mediaIsValid;
   }
 
+  /*
   private String createZipFile(String mediaDirString, String mediaLocation){
     // Create a buffer for reading the files
     File file = new File(mediaLocation);
@@ -244,15 +245,6 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
       while ((len = in.read(buf)) > 0) {
         zip.write(buf, 0, len);
       }
-    
-      /* Move following clean up code to finally block
-      // Complete the entry
-      //zip.closeEntry();
-      //in.close();
-
-      // Complete the ZIP file
-      //zip.close();
-      */
     } 
     catch (IOException e) {
       zip_mediaLocation=null;
@@ -287,7 +279,8 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     }
     return zip_mediaLocation;
   }
-
+  */
+  
   private FileOutputStream getFileOutputStream(String mediaLocation){
     FileOutputStream outputStream=null;
     try{
@@ -481,13 +474,15 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     }
     finally
     {
-      try
-      {
-        mediaStream.close();
-      }
-      catch (IOException ex1)
-      {
-        log.warn(ex1.getMessage());
+      if (mediaStream != null) {
+    	  try
+    	  {
+    		  mediaStream.close();
+    	  }
+    	  catch (IOException ex1)
+    	  {
+    		  log.warn(ex1.getMessage());
+    	  }
       }
     }
     return mediaByte;

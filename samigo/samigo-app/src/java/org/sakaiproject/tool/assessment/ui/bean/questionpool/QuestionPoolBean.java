@@ -1843,6 +1843,7 @@ String poolid = ContextUtil.lookupParam("poolId");
     }
   }
 
+  /*
   private void printTree(Collection objects){
     Iterator iter = objects.iterator();
     String stars="********";
@@ -1854,6 +1855,6 @@ String poolid = ContextUtil.lookupParam("poolId");
       printChildrenPool(tree, pool, stars);
     }
   }
-
+  */
 
 }

@@ -129,6 +129,7 @@ public class ItemManager {
     return set;
   }
 
+  /*
   private void printItem(ItemData item) {
     log.debug("**Id = " + item.getItemId());
     log.debug("**score = " + item.getScore());
@@ -138,8 +139,6 @@ public class ItemManager {
     log.debug("**Objective not lazy = " +
                        item.getItemMetaDataByLabel("ITEM_OBJECTIVE"));
   }
-
-
 
   private void printIfcItem(ItemDataIfc item) {
     log.debug("**Id = " + item.getItemId());
@@ -167,8 +166,9 @@ public class ItemManager {
     log.debug("****ItemType = " +
                        f.getItemType().getKeyword());
   }
-
-    /**
+  */
+  
+    /*
   private void exportXml(ItemDataIfc item) {
     XStream xstream = new XStream();
     xstream = new XStream(new DomDriver());

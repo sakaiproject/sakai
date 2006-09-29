@@ -162,13 +162,11 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
       int count=0;
       try{
         int i=0;
-        if (buf_inputStream !=null){
-          while ((i=buf_inputStream.read()) != -1){
+        while ((i=buf_inputStream.read()) != -1){
             //System.out.print(i);
             buf_outputStream.write(i);
             count++;
           }
-        }
         log.debug("**** mediaLocation="+mediaLocation);
         res.setContentLength(count);
         res.flushBuffer();

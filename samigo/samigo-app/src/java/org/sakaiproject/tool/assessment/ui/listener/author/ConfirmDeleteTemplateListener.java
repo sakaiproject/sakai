@@ -77,6 +77,7 @@ public class ConfirmDeleteTemplateListener
    * @param requestParams params passed
    * @return true if we have no id parameter
    */
+  /*
   private String lookupKey(String key, Map requestParams)
   {
     Iterator iter = requestParams.keySet().iterator();
@@ -90,5 +91,5 @@ public class ConfirmDeleteTemplateListener
     }
     return null;
   }
-
+  */
 }

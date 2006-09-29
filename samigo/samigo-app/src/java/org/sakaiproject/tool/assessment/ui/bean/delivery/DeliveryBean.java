@@ -1608,13 +1608,15 @@ public class DeliveryBean
     }
     finally
     {
-      try
-      {
-        mediaStream.close();
-      }
-      catch (IOException ex1)
-      {
-        log.warn(ex1.getMessage());
+      if (mediaStream != null) {
+    	  try
+    	  {
+    		  mediaStream.close();
+    	  }
+    	  catch (IOException ex1)
+    	  {
+    		  log.warn(ex1.getMessage());
+    	  }
       }
     }
     return mediaByte;

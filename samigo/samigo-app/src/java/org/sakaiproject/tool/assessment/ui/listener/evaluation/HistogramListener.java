@@ -1236,6 +1236,7 @@ if (answer != null)
    *
    * @return array of number giving each answer.
    */
+  /*
   private static int[] calNum(String[] answers, String[] choices, String type)
   {
     int[] num = new int[choices.length];
@@ -1258,14 +1259,6 @@ if (answer != null)
             }
           }
 
-          /*
-             String[] answerArray = answers[i].split("|");
-             for(int k=0;i<answerArray.length ; k++)  {
-               if ( (answerArray[k].trim()).equals(choices[j].trim())) {
-                 num[j] = num[j] + 1;
-               }
-             }
-           */
         }
         else
         {
@@ -1279,6 +1272,7 @@ if (answer != null)
 
     return num;
   }
+  */
 
   /**
    * Calculate the number correct answer
@@ -1288,6 +1282,7 @@ if (answer != null)
    *
    * @return the number correct
    */
+  /*
   private int calCorrect(String[] answers, String correct)
   {
     int cal = 0;
@@ -1301,6 +1296,7 @@ if (answer != null)
 
     return cal;
   }
+  */
 
   /**
    * Calculate the number of students per interval for histograms.
@@ -1439,6 +1435,7 @@ if (answer != null)
    *
    * @return array of column heights
    */
+  /*
   private static int[] calColumnHeightold(int[] numStudents)
   {
     int length = numStudents.length;
@@ -1471,7 +1468,8 @@ if (answer != null)
 
     return height;
   }
-
+  */
+  
     private static int[] calColumnHeight(int[] numStudents, int totalResponse)
   {
     int[] height = new int[numStudents.length];

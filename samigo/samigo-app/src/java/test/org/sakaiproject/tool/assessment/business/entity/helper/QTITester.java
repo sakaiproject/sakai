@@ -61,7 +61,8 @@ public class QTITester {
     testAuthoringXmlRoutines();
 
     }
-
+  
+  /*
   private static void testAuthoringHelper()
   {
     AuthoringHelper authHelper = new AuthoringHelper(QTIVersion.VERSION_1_2);
@@ -83,8 +84,8 @@ public class QTITester {
       log.debug(
         "=======================================================");
     }
-
   }
+  
   private static void testAuthoringXmlTemplates()
   {
     AuthoringXml ax = new AuthoringXml(version);
@@ -134,7 +135,8 @@ public class QTITester {
     }
 
   }
-
+  */
+  
   public static void testAuthoringXmlRoutines()
   {
     AuthoringXml ax = new AuthoringXml(version);

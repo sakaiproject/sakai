@@ -101,6 +101,7 @@ public class SubstituteProperties
    * return a String containing the modified file
    * @return String
    */
+  /*
   private static String getReplaced()
   {
     String contents = "";
@@ -137,8 +138,9 @@ public class SubstituteProperties
 
     return contents;
 
-  }
-
+  }	
+  */
+  
   /**
    * assumes that your resource file has a loadBundle with a var="msg"
    * @param s String

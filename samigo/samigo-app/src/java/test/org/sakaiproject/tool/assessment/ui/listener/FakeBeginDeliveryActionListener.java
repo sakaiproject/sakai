@@ -276,6 +276,7 @@ public class FakeBeginDeliveryActionListener implements ActionListener
    * @param pubAssessment the assessment
    * @return newline delimited String of IP addresses
    */
+  /*
   private String constructIpLines(PublishedAssessmentIfc pubAssessment)
   {
     String ipLines = "";
@@ -293,6 +294,6 @@ public class FakeBeginDeliveryActionListener implements ActionListener
     }
     return ipLines;
   }
-
+  */
 
 }

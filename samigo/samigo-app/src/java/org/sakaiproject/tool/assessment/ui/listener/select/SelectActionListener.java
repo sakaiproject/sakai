@@ -425,8 +425,7 @@ public class SelectActionListener
           (dueDate.before(currentDate) && notSubmitted &&
            acceptLateSubmission)) {
         if (totalSubmitted < maxSubmissionsAllowed) {
-          if (startDate == null ||
-              (startDate != null && startDate.before(currentDate)))
+          if (startDate == null || startDate.before(currentDate))
             returnValue = true;
         }
       }

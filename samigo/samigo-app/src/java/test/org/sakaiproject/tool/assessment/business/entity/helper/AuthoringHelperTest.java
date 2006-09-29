@@ -256,7 +256,7 @@ public class AuthoringHelperTest {
       log.debug("ASSESSMENT DEBUG title " + assessment.getTitle());
 //      assessmentService.saveAssessment(assessment);
     }
-    catch(Exception e)
+    catch(RuntimeException e)
     {
       log.error(e.getMessage(), e);
       throw new RuntimeException(e);

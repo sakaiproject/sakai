@@ -1512,6 +1512,7 @@ public class DeliveryActionListener
    * @param verbose
    * @return
    */
+  /*
   private static boolean testExtractFIBTextArray(boolean verbose)
   {
     boolean status = true;
@@ -1559,6 +1560,7 @@ public class DeliveryActionListener
 
     return status;
   }
+  */
 
   public void populateFin(ItemDataIfc item, ItemContentsBean bean)
   {
@@ -1669,6 +1671,7 @@ public class DeliveryActionListener
    * @param verbose
    * @return
    */
+  /*
   private static boolean testExtractFINTextArray(boolean verbose)
   {
     boolean status = true;
@@ -1716,6 +1719,7 @@ public class DeliveryActionListener
 
     return status;
   }
+  */
   
   
   public static void main (String args[])
