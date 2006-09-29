@@ -32,6 +32,7 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import java.io.*;
+
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
@@ -141,10 +142,12 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
       BufferedInputStream buf_inputStream = null;
       ServletOutputStream outputStream = res.getOutputStream();
       BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream);
+      ByteArrayInputStream byteArrayInputStream = null;
       if (mediaLocation == null || (mediaLocation.trim()).equals("")){
         try{
           byte[] media = mediaData.getMedia();
-          buf_inputStream = new BufferedInputStream(new ByteArrayInputStream(media));
+          byteArrayInputStream = new ByteArrayInputStream(media);
+          buf_inputStream = new BufferedInputStream(byteArrayInputStream);
           log.debug("**** media.length="+media.length);
         }
         catch(Exception e){
@@ -175,16 +178,44 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
       }
       finally {
     	  if (buf_outputStream != null) {
-    		  buf_outputStream.close();
+			  try {
+				  buf_outputStream.close();
+			  }
+			  catch(IOException e) {
+				  log.error(e.getMessage());
+			  }
     	  }
     	  if (buf_inputStream != null) {
-    		  buf_inputStream.close();
+			  try {
+				  buf_inputStream.close();
+			  }
+			  catch(IOException e) {
+				  log.error(e.getMessage());
+			  }
     	  }
           if (inputStream != null) {
-            inputStream.close();
+			  try {
+				  inputStream.close();
+			  }
+			  catch(IOException e) {
+				  log.error(e.getMessage());
+			  }
           }
           if (outputStream != null) {
-        	  outputStream.close();
+			  try {
+				  outputStream.close();
+			  }
+			  catch(IOException e) {
+				  log.error(e.getMessage());
+			  }
+          }
+          if (byteArrayInputStream != null) {
+			  try {
+				  byteArrayInputStream.close();
+			  }
+			  catch(IOException e) {
+				  log.error(e.getMessage());
+			  }
           }
       }
     }

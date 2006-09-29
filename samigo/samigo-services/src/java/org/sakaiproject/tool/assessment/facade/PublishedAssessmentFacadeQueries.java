@@ -642,7 +642,6 @@ public class PublishedAssessmentFacadeQueries
 
   public PublishedAssessmentFacade publishAssessment(AssessmentFacade
       assessment, String protocol) throws Exception {
-    boolean addedToGradebook = false;
     PublishedAssessmentData publishedAssessment = preparePublishedAssessment( (
         AssessmentData) assessment.getData(), protocol);
 
@@ -671,8 +670,8 @@ public class PublishedAssessmentFacadeQueries
       if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g) &&
           toGradebook !=null &&
           toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
-        try {
-            addedToGradebook = gbsHelper.addToGradebook(publishedAssessment, g);
+        try { 
+            gbsHelper.addToGradebook(publishedAssessment, g);
         } catch (Exception e) {
             log.error("Removing published assessment: " + e);
             delete(publishedAssessment);
@@ -1055,8 +1054,6 @@ public class PublishedAssessmentFacadeQueries
   public ArrayList getBasicInfoOfAllInActivePublishedAssessments(String
       sortString, final String siteAgentId, boolean ascending) {
     String orderBy = getOrderBy(sortString);
-    Date currentDate = new Date();
-    long currentTime = currentDate.getTime();
     String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title,"+
                    " c.releaseTo, c.startDate, c.dueDate, c.retractDate) from PublishedAssessmentData p,"+
                    " PublishedAccessControl c, AuthorizationData z  " +

@@ -248,17 +248,10 @@ public class QuestionPoolService
     ArrayList results = null;
     try {
       if ("text".equals(orderBy)) {
-      
-	   
-	    results = (ArrayList) PersistenceService.getInstance().getQuestionPoolFacadeQueries().getAllItemFacadesOrderByItemText(poolId, "instruction", ascending);
-	 
-
+    	  results = new ArrayList(PersistenceService.getInstance().getQuestionPoolFacadeQueries().getAllItemFacadesOrderByItemText(poolId, "instruction", ascending));
       }
       else if ("keyword".equals(orderBy)) {
-        
-     results = new ArrayList(PersistenceService.getInstance().
-     getQuestionPoolFacadeQueries().getAllItemFacadesOrderByItemType(poolId, orderBy, ascending));
-	
+    	  results = new ArrayList(PersistenceService.getInstance().getQuestionPoolFacadeQueries().getAllItemFacadesOrderByItemType(poolId, orderBy, ascending));
       }
     } catch (Exception e) {
       e.printStackTrace();

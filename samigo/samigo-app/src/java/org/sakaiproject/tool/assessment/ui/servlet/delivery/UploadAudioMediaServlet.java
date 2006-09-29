@@ -228,10 +228,12 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     String zip_mediaLocation = mediaDirString+"/"+fileName+".zip";
     ZipOutputStream zip = null;
     FileInputStream in = null;
+    FileOutputStream out = null;
     try {
       // Create the ZIP file
       log.debug("*** zip file="+zip_mediaLocation);
-      zip = new ZipOutputStream(new FileOutputStream(zip_mediaLocation));
+      out = new FileOutputStream(zip_mediaLocation);
+      zip = new ZipOutputStream(out);
     
       // Add ZIP entry to output stream.
       zip.putNextEntry(new ZipEntry(fileName));
@@ -269,6 +271,14 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     	if (in != null) {
     		try {
     			in.close();
+    		}
+    		catch (IOException e) {
+    			log.error(e.getMessage());
+    		}
+    	}
+    	if (out != null) {
+    		try {
+    			out.close();
     		}
     		catch (IOException e) {
     			log.error(e.getMessage());

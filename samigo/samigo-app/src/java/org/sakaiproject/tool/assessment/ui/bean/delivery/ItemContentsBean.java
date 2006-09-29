@@ -158,7 +158,7 @@ public class ItemContentsBean implements Serializable {
 
 	public boolean getModelAnswerIsNotEmpty() {
 		String k = getKey();
-		if (k != "null")
+		if (k != null)
 			return isNotEmpty(strip(ContextUtil.stringWYSIWYG(k)));
 		else
 			return false;
@@ -601,7 +601,7 @@ public class ItemContentsBean implements Serializable {
     catch (Exception e)
     {
       e.printStackTrace();
-      return null;
+      return new String[0];
     }
   }
 

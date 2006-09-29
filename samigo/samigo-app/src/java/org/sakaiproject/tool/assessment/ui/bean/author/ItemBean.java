@@ -1062,8 +1062,6 @@ public class ItemBean
   public String addMatchPair() {
       if (!isMatchError()){
 
-    // get existing list
-    ArrayList list = getMatchItemBeanList();
     /*
     Iterator biter = this.getMatchItemBeanList().iterator();
     while(biter.hasNext())
@@ -1072,6 +1070,8 @@ public class ItemBean
     }
     */
 
+    // get existing list
+    ArrayList list = getMatchItemBeanList();
     MatchItemBean currpair = this.getCurrentMatchPair();
     if (!currpair.getSequence().equals(new Long(-1))) {
       // for modify
@@ -1101,14 +1101,15 @@ public class ItemBean
 
     this.setMatchItemBeanList(list); // get existing list
 
-
-//debugging
+    //debugging
+    /*
     Iterator iter = list.iterator();
     while(iter.hasNext())
     {
       MatchItemBean apair = (MatchItemBean) iter.next();
     }
-
+    */
+    
     MatchItemBean matchitem = new MatchItemBean();
     this.setCurrentMatchPair(matchitem);
       }

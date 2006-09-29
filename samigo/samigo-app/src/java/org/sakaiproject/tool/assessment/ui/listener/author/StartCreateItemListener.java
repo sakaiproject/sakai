@@ -80,7 +80,6 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
     String curritemid = null;
     // check if it is coming from Item Modify page.
     ItemBean curritem = itemauthorbean.getCurrentItem();
-    log.debug("itemid = " + curritemid);
     if (curritem!=null) {
       curritemid = curritem.getItemId();
       update = true;

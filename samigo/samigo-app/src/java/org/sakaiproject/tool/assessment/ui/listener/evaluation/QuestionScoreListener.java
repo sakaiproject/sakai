@@ -227,7 +227,7 @@ public class QuestionScoreListener
       bean.setPublishedId(publishedId);
       Date dueDate = null;
 
-      HashMap map = getItemScores(new Long(publishedId), new Long(itemId), which, isValueChange);
+      HashMap map = getItemScores(Long.valueOf(publishedId), Long.valueOf(itemId), which, isValueChange);
     log.debug("questionScores(): map .size = " + map.size());
       ArrayList allscores = new ArrayList();
       Iterator keyiter = map.keySet().iterator();
