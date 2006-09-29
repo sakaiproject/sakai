@@ -6,6 +6,10 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.AreaManager;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
@@ -13,6 +17,7 @@ import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
@@ -77,6 +82,7 @@ public class MessageForumSynopticBean {
 	}
 	
 	private final String UNREAD_STRING = " unread";
+	private final String MF_TITLE = "Message Center";
 	
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("messageforums");
@@ -99,6 +105,9 @@ public class MessageForumSynopticBean {
 	/** Needed to get site name if tool within a site */
 	private ToolManager toolManager;
 
+	/** Needed to set up the counts for the private messages and forums */
+	private AreaManager areaManager;
+	
 	/**
 	 * 
 	 * @param messageManager
@@ -140,11 +149,19 @@ public class MessageForumSynopticBean {
 	}
 
 	/**
+	 * 
+	 * @param areaManager
+	 */
+	public void setAreaManager(AreaManager areaManager) {
+		this.areaManager = areaManager;
+	}
+
+	/**
 	 * Returns TRUE if on specific site, FALSE if on MyWorkspace
 	 * 
 	 * @return
 	 */
-	public boolean isWithinSite() {
+	public boolean isMyWorkspace() {
 		
 		// get Site id
 		String siteId = ToolManager.getCurrentPlacement().getContext();
@@ -155,7 +172,7 @@ public class MessageForumSynopticBean {
 		
 		final boolean where = SiteService.isUserSite(siteId);
 
-		LOG.info("Result of determinig if within a site: " + where);
+		LOG.info("Result of determinig if My Workspace: " + where);
 		
 		return where;
 	}
@@ -170,7 +187,7 @@ public class MessageForumSynopticBean {
 		List contents = new ArrayList();
 		
 		// TODO: Actually generate the list of messages
-		if (! isWithinSite() ) {
+		if (isMyWorkspace() ) {
 			// Get stats for "all" sites this user is a member of
 			// TODO:
 			//	1. query db for all sites and unread messages for this user
@@ -203,33 +220,54 @@ public class MessageForumSynopticBean {
 		else {
 			// Get stats for just this site
 			
-			//TODO: determine if Message Center itself is part of site
-			DecoratedCompiledMessageStats dcms = new DecoratedCompiledMessageStats();
+			if (isMessageForumsPageInSite()) {
+				DecoratedCompiledMessageStats dcms = new DecoratedCompiledMessageStats();
 			
-			dcms.setSiteName(getSiteName());
-			
-			List topicsList = forumManager.getDiscussionForums();
-			long unreadForum = 0;
-			
-			final Iterator forumIter = topicsList.iterator();
-			
-			while (forumIter.hasNext()) {
-				final Topic topic = (Topic) forumIter.next();
+				dcms.setSiteName(getSiteName());
 
-				if (topic.getTypeUuid().equals(typeManager.getPrivateMessageAreaType())) {
-					dcms.setUnreadPrivate(pvtMessageManager.getUnreadNoMessages(topic) + UNREAD_STRING);
-										
+				// Get private message area so we can determine number of
+				// unread messages
+				// Already done so we just need to copy
+				final Area area = pvtMessageManager.getPrivateMessageArea();
+				PrivateForum pf = pvtMessageManager.initializePrivateMessageArea(area);
+
+				final List pt = pf.getTopics();
+				final Topic privateTopic = (Topic) pt.iterator().next();
+
+				int unreadPrivate = messageManager.findUnreadMessageCountByTopicId(privateTopic.getId());
+			
+				dcms.setUnreadPrivate(unreadPrivate + " private" );
+
+				// Number of unread forum messages is a little harder
+				// need to loop through all topics and add them up
+				List topicsList = forumManager.getDiscussionForums();
+				long unreadForum = 0;
+			
+				final Iterator forumIter = topicsList.iterator();
+			
+				while (forumIter.hasNext()) {
+					final DiscussionForum df = (DiscussionForum) forumIter.next();
+					
+					final List topics = df.getTopics();
+					final Iterator topicIter = topics.iterator();
+					
+					while (topicIter.hasNext()) {
+						final Topic topic = (Topic) topicIter.next();
+
+						unreadForum += messageManager.findUnreadMessageCountByTopicId(topic.getId());
+					
+					}
 				}
-				else {
-					unreadForum += messageManager.findUnreadMessageCountByTopicId(topic.getId());
-				}
+				dcms.setUnreadForums(unreadForum + " forum");
+			
+				contents.add(dcms);
 			}
-			
-			dcms.setUnreadForums(unreadForum + UNREAD_STRING);
-			
-			contents.add(dcms);
-		}
 
+			else {
+				// TODO: what to put on page? Alert? Leave Blank?
+			}
+		}
+		
 		return contents;
 	}
 
@@ -265,6 +303,35 @@ public class MessageForumSynopticBean {
 	 */
 	public String processOptionsCancel() {
 		return "synMain";
+	}
+
+	private boolean isMessageForumsPageInSite() {
+		boolean mfToolExists = false;
+		
+		try {
+			// loop thru tools on this site looking for
+			// Message Center tool
+			Site thisSite = SiteService.getSite(ToolManager
+					.getCurrentPlacement().getContext());
+			List pageList = thisSite.getPages();
+
+			Iterator iterator = pageList.iterator();
+			while (iterator.hasNext()) {
+				SitePage pgelement = (SitePage) iterator.next();
+
+				if (pgelement.getTitle().equals(MF_TITLE)) {
+					mfToolExists = true;
+					break;
+				}
+			}
+		} 
+		catch (IdUnusedException e) {
+			LOG.error("No Site found while trying to check if site has MF tool.");
+			
+			// TODO: if we are in My Workspace, do we go here?
+		}
+		
+		return mfToolExists;
 	}
 
 }

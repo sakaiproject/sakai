@@ -361,22 +361,22 @@
         	<property-name>messageManager</property-name>
         	<value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"]}</value>
         </managed-property>
- <!--        <managed-property>
-        	<description>Forum Manager</description>
-        	<property-name>forumManager</property-name>
-        	<value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsForumManager"]}</value>
-        </managed-property>
         <managed-property>
-        	<description>Tool Manager</description>
-        	<property-name>toolManager</property-name>
-        	<value>#{Components["org.sakaiproject.tool.api.ActiveToolManager"]}</value>
-        </managed-property>
-       <managed-property>
         	<description>Private Message Manager</description>
         	<property-name>pvtMessageManager</property-name>
         	<value>#{Components["org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"]}</value>
-        </managed-property> -->
-	</managed-bean>
+        </managed-property>
+         <managed-property>
+        	<description>Forum Manager</description>
+        	<property-name>forumManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Area Manager</description>
+            <property-name>areaManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.AreaManager"]}</value>
+        </managed-property>  
+ 	</managed-bean>
  
     <!-- =================== Application Objects ============== -->
 
