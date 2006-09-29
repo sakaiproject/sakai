@@ -270,8 +270,11 @@
 						#set($submissionSubmitted=$!submission.submitted)
 						#set($submissionProperties=$!submission.getProperties())
 					#end
-					#set ($assignmentCount = $assignmentCount + 1)
-					#if ((!$assignment.draft) || ($assignment.draft && $!allowUpdateAssignment))
+					## who can see the assignment?
+					## for instructor(one can add or update assignment), show all non-draft assignment, plus those draft assignment he can update
+					## for student(one cann't add nor update assignment, but can submit to an assignment), show all non-draft, pass-open-date assignment
+					#if ((($!allowAddAssignment || $!allowUpdateAssignment) && ((!$assignment.draft) || ($assignment.draft && $!allowUpdateAssignment))) || (!$!allowAddAssignment && !$!allowUpdateAssignment && $allowSubmit && !$assignment.draft && $currentTime.after($!assignment.getOpenTime())))
+						#set ($assignmentCount = $assignmentCount + 1)
 						<tr> 
 							<td headers="attachments" class="attach">
 								#set ($attachments = $assignment.getContent().getAttachments())
