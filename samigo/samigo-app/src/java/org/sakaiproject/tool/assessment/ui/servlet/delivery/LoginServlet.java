@@ -136,8 +136,11 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
       else { // check membership
 	agentIdString = req.getRemoteUser();
         isAuthenticated = ( agentIdString!= null && !("").equals(agentIdString));
-        if (isAuthenticated)
+        if (isAuthenticated){
           isAuthorized = checkMembership(pub, req, res);
+          // in 2.2, agentId is differnt from req.getRemoteUser()
+          agentIdString = AgentFacade.getAgentString();
+	}
       }
 
       log.debug("*** agentIdString: "+agentIdString);
@@ -225,7 +228,7 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
     boolean assessmentIsAvailable = false;
     Integer submissions = new Integer(0);
     submissions = service.getTotalSubmission(agentIdString,
-    pub.getPublishedAssessmentId().toString());
+      pub.getPublishedAssessmentId().toString());
     HashMap h = new HashMap();
     if (submissions.intValue()>0)
       h.put(pub.getPublishedAssessmentId(), submissions);

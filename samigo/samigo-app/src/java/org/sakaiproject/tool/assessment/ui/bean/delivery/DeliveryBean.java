@@ -2462,8 +2462,8 @@ public class DeliveryBean
     int maxSubmissionsAllowed = 9999;
     PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
     HashMap h = personBean.getTotalSubmissionPerAssessmentHash();
-    if ( (Boolean.FALSE).equals(publishedAssessment.getUnlimitedSubmissions())){
-      maxSubmissionsAllowed = publishedAssessment.getSubmissionsAllowed().intValue();
+    if ( (Boolean.FALSE).equals(publishedAssessment.getAssessmentAccessControl().getUnlimitedSubmissions())){
+      maxSubmissionsAllowed = publishedAssessment.getAssessmentAccessControl().getSubmissionsAllowed().intValue();
     }
     boolean notSubmitted = false;
     int totalSubmitted = 0;
