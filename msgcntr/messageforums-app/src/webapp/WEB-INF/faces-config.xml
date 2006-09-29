@@ -255,6 +255,18 @@
             <to-view-id>/jsp/discussionForum/message/dfMsgGrade.jsp</to-view-id> 
             <redirect/> 
         </navigation-case>
+ 
+        <!--******************* navigation cases for synoptic ***************************-->
+        <navigation-case>
+        	<from-outcome>synOptions</from-outcome>
+        	<to-view-id>/jsp/synoptic/synOptions.jsp</to-view-id>
+        	<redirect />
+        </navigation-case>
+        <navigation-case>
+        	<from-outcome>synMain</from-outcome>
+        	<to-view-id>/jsp/synoptic/synMain.jsp</to-view-id>
+        	<redirect />
+        </navigation-case>
     </navigation-rule>
   
     <!-- =================== Tool Beans ============== -->
@@ -337,6 +349,35 @@
         </managed-property>                          
     </managed-bean>
     
+    <!-- =================== Synoptic Managed Bean ============== -->
+
+    <managed-bean>
+        <description>Synoptic Message Bean</description>
+        <managed-bean-name>mfSynopticBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.messageforums.ui.MessageForumSynopticBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+        <managed-property>
+        	<description>Message Manager</description>
+        	<property-name>messageManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"]}</value>
+        </managed-property>
+ <!--        <managed-property>
+        	<description>Forum Manager</description>
+        	<property-name>forumManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsForumManager"]}</value>
+        </managed-property>
+        <managed-property>
+        	<description>Tool Manager</description>
+        	<property-name>toolManager</property-name>
+        	<value>#{Components["org.sakaiproject.tool.api.ActiveToolManager"]}</value>
+        </managed-property>
+       <managed-property>
+        	<description>Private Message Manager</description>
+        	<property-name>pvtMessageManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"]}</value>
+        </managed-property> -->
+	</managed-bean>
+ 
     <!-- =================== Application Objects ============== -->
 
     <!-- 

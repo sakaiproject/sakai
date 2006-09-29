@@ -64,6 +64,15 @@
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
+ 
+	<!-- filter for synoptic tool -->       
+    <filter-mapping>
+        <filter-name>org.sakaiproject.util.RequestFilter</filter-name>
+        <servlet-name>sakai.synoptic.messagecenter</servlet-name>
+        <dispatcher>REQUEST</dispatcher> 
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
         
     <!-- Faces Servlet -->
     <!-- 
@@ -85,6 +94,25 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
     -->
+
+	<!-- Dispatcher for synpotic tool -->    
+    <servlet>
+        <servlet-name>sakai.synoptic.messagecenter</servlet-name>
+        <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
+        <init-param>
+            <param-name>default</param-name>
+            <param-value>synMain</param-value>
+        </init-param>
+        <init-param>
+            <param-name>path</param-name>
+            <param-value>/jsp/synoptic</param-value>
+        </init-param>
+        <init-param>
+            <param-name>default.last.view</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
     
     <!-- Faces Servlet -->
     <servlet>
