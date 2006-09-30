@@ -13,54 +13,22 @@
     <many-to-one name="section"
       class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData"
       column="SECTIONID" not-null="true" index="SAM_PUBITEM_SECTION_I" />
-    <property name="itemIdString">
-      <column name="ITEMIDSTRING" not-null="false" sql-type="varchar(36)" />
-    </property>
-    <property name="sequence">
-      <column name="SEQUENCE" not-null="false" sql-type="integer" />
-    </property>
-    <property name="duration">
-      <column name="DURATION" not-null="false" sql-type="integer" />
-    </property>
-    <property name="triesAllowed">
-      <column name="TRIESALLOWED" not-null="false" sql-type="integer" />
-    </property>
-    <property name="instruction">
-      <column name="INSTRUCTION" not-null="false" sql-type="varchar(4000)" />
-    </property>
-    <property name="description">
-      <column name="DESCRIPTION" not-null="false" sql-type="varchar(4000)" />
-    </property>
-    <property name="typeId">
-      <column name="TYPEID" not-null="true" sql-type="varchar(36)" />
-    </property>
-    <property name="grade">
-      <column name="GRADE" not-null="false" sql-type="varchar(80)" />
-    </property>
-    <property name="score">
-      <column name="SCORE" not-null="false" sql-type="float" />
-    </property>
-    <property name="hint">
-      <column name="HINT" not-null="false" sql-type="varchar(4000)" />
-    </property>
-    <property name="hasRationale">
-      <column name="HASRATIONALE" not-null="false" sql-type="varchar(1)" />
-    </property>
-    <property name="status">
-      <column name="STATUS" not-null="true" sql-type="integer" />
-    </property>
-    <property name="createdBy">
-      <column name="CREATEDBY" not-null="true" sql-type="varchar(36)" />
-    </property>
-    <property name="createdDate" type="timestamp">
-      <column name="CREATEDDATE" not-null="true" />
-    </property>
-    <property name="lastModifiedBy">
-      <column name="LASTMODIFIEDBY" not-null="true" sql-type="varchar(36)" />
-    </property>
-    <property name="lastModifiedDate" type="timestamp">
-      <column name="LASTMODIFIEDDATE" not-null="true" />
-    </property>
+    <property name="itemIdString" type="string" length="36" column="ITEMIDSTRING" not-null="false"/>
+    <property name="sequence" type="integer" column="SEQUENCE" not-null="false" />
+    <property name="duration" type="integer" column="DURATION" not-null="false"/>
+    <property name="triesAllowed" type="integer" column="TRIESALLOWED" not-null="false" />
+    <property name="instruction" type="string" length="4000" column="INSTRUCTION" not-null="false" />
+    <property name="description" type="string" length="4000" column="DESCRIPTION" not-null="false" />
+    <property name="typeId" type="long" column="TYPEID" not-null="true" />
+    <property name="grade" type="string" length="80" column="GRADE" not-null="false" />
+    <property name="score" type="float" column="SCORE" not-null="false" />
+    <property name="hint" type="string" length="4000" column="HINT" not-null="false" />
+    <property name="hasRationale" type="boolean" column="HASRATIONALE" not-null="false" />
+    <property name="status" type="integer" column="STATUS" not-null="true" />
+    <property name="createdBy" type="string" length="36" column="CREATEDBY" not-null="true" />
+    <property name="createdDate" type="timestamp" column="CREATEDDATE" not-null="true" />
+    <property name="lastModifiedBy" type="string" length="36" column="LASTMODIFIEDBY" not-null="true" />
+    <property name="lastModifiedDate" type="timestamp" column="LASTMODIFIEDDATE" not-null="true" />
     <set name="itemTextSet" table="SAM_PUBLISHEDITEMTEXT_T" cascade="all" order-by="sequence asc" inverse="true" lazy="false">
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText"/>
@@ -88,12 +56,8 @@
     </id>
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"
       column="ITEMID" not-null="true" index="SAM_PUBITEMTEXT_ITEM_I" />
-    <property name="sequence">
-      <column name="SEQUENCE" not-null="true" sql-type="integer" />
-    </property>
-    <property name="text">
-      <column name="TEXT" not-null="false" sql-type="varchar(4000)" />
-    </property>
+    <property name="sequence" type="long" column="SEQUENCE" not-null="true" />
+    <property name="text" type="string" length="4000" column="TEXT" not-null="false" />
     <set name="answerSet" table="SAM_PUBLISHEDANSWER_T" cascade="all" inverse="true" lazy="false">
        <key column="ITEMTEXTID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer"/>
@@ -108,12 +72,8 @@
     </id>
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"
       column="ITEMID" not-null="true" index="SAM_PUBITEMMETA_ITEM_I" />
-    <property name="label">
-      <column name="LABEL" not-null="true" sql-type="varchar(255)" />
-    </property>
-    <property name="entry">
-      <column name="ENTRY" not-null="false" sql-type="varchar(255)" />
-    </property>
+    <property name="label" type="string" length="255" column="LABEL" not-null="true" />
+    <property name="entry" type="string" length="255" column="ENTRY" not-null="false" />
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedback" table="SAM_PUBLISHEDITEMFEEDBACK_T">
@@ -124,12 +84,8 @@
     </id>
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"
       column="ITEMID" not-null="true" index="SAM_PUBITEMFB_ITEM_I" />
-    <property name="typeId">
-      <column name="TYPEID" not-null="true" sql-type="varchar(36)" />
-    </property>
-    <property name="text">
-      <column name="TEXT" not-null="false" sql-type="varchar(4000)" />
-    </property>
+    <property name="typeId" type="string" length="36" column="TYPEID" not-null="true" />
+    <property name="text" type="string" length="4000" column="TEXT" not-null="false" />
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer" table="SAM_PUBLISHEDANSWER_T">
@@ -142,24 +98,12 @@
       column="ITEMTEXTID" not-null="true" index="SAM_PUBANSWER_ITEMTEXT_I" />
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"
       column="ITEMID" not-null="true" index="SAM_PUBANSWER_ITEM_I" />
-    <property name="text">
-      <column name="TEXT" not-null="false" sql-type="varchar(4000)" />
-    </property>
-    <property name="sequence">
-      <column name="SEQUENCE" not-null="true" sql-type="integer" />
-    </property>
-    <property name="label">
-      <column name="LABEL" not-null="false" sql-type="varchar(20)" />
-    </property>
-    <property name="isCorrect">
-      <column name="ISCORRECT" not-null="false" sql-type="varchar(1)" />
-    </property>
-    <property name="grade">
-      <column name="GRADE" not-null="false" sql-type="varchar(80)" />
-    </property>
-    <property name="score">
-      <column name="SCORE" not-null="false" sql-type="float" />
-    </property>
+    <property name="text" type="string" length="4000" column="TEXT" not-null="false" />
+    <property name="sequence" type="long" column="SEQUENCE" not-null="true" />
+    <property name="label" type="string" length="20" column="LABEL" not-null="false" />
+    <property name="isCorrect" column="ISCORRECT" not-null="false" />
+    <property name="grade" type="string" length="80" column="GRADE" not-null="false" />
+    <property name="score" type="float" column="SCORE" not-null="false" />
     <set name="answerFeedbackSet" table="SAM_PUBLISHEDANSWERFEEDBACK_T" cascade="all" inverse="true" lazy="false">
       <key column="ANSWERID" />
       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswerFeedback" />
@@ -174,12 +118,8 @@
     </id>
     <many-to-one name="answer" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer"
        column="ANSWERID" not-null="true" index="SAM_PUBANSWERFB_ANSWER_I"/>
-    <property name="typeId">
-      <column name="TYPEID" not-null="false" sql-type="varchar(36)" />
-    </property>
-    <property name="text">
-      <column name="TEXT" not-null="false" sql-type="varchar(4000)" />
-    </property>
+    <property name="typeId" type="string" length="36" column="TYPEID" not-null="false" />
+    <property name="text" type="string" length="4000" column="TEXT" not-null="false" />
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData" table="SAM_PUBLISHEDATTACHMENT_T">
@@ -191,42 +131,18 @@
 
     <discriminator column="ATTACHMENTTYPE" />
 
-    <property name="resourceId">
-      <column name="RESOURCEID" not-null="false" sql-type="varchar(255)" />
-    </property>
-    <property name="filename">
-      <column name="FILENAME" not-null="false" sql-type="varchar(255)" />
-    </property>
-    <property name="mimeType">
-      <column name="MIMETYPE" not-null="false" sql-type="varchar(80)" />
-    </property>
-    <property name="fileSize">
-      <column name="FILESIZE" not-null="false" sql-type="integer"/>
-    </property>
-    <property name="description">
-      <column name="DESCRIPTION" not-null="false" sql-type="varchar(4000)" />
-    </property>
-    <property name="location">
-      <column name="LOCATION" not-null="false" sql-type="varchar(4000)" />
-    </property>
-    <property name="isLink">
-      <column name="ISLINK" not-null="false" sql-type="integer" />
-    </property>
-    <property name="status">
-      <column name="STATUS" not-null="true" sql-type="integer" />
-    </property>
-    <property name="createdBy">
-      <column name="CREATEDBY" not-null="true" sql-type="varchar(36)" />
-    </property>
-    <property name="createdDate" type="timestamp">
-      <column name="CREATEDDATE" not-null="true" />
-    </property>
-    <property name="lastModifiedBy">
-      <column name="LASTMODIFIEDBY" not-null="true" sql-type="varchar(36)" />
-    </property>
-    <property name="lastModifiedDate" type="timestamp">
-      <column name="LASTMODIFIEDDATE" not-null="true" />
-    </property>
+    <property name="resourceId" type="string" length="255" column="RESOURCEID" not-null="false" />
+    <property name="filename" type="string" length="255" column="FILENAME" not-null="false" />
+    <property name="mimeType" type="string" length="80"  column="MIMETYPE" not-null="false" />
+    <property name="fileSize" type="integer" column="FILESIZE" not-null="false" />
+    <property name="description" type="string" length="4000" column="DESCRIPTION" not-null="false" />
+    <property name="location" type="string" length="4000" column="LOCATION" not-null="false" />
+    <property name="isLink" type="integer" column="ISLINK" not-null="false" />
+    <property name="status" type="integer" column="STATUS" not-null="true" />
+    <property name="createdBy" type="string" length="36" column="CREATEDBY" not-null="true" />
+    <property name="createdDate" type="timestamp" column="CREATEDDATE" not-null="true" />
+    <property name="lastModifiedBy" type="string" length="4000" column="LASTMODIFIEDBY" not-null="true" />
+    <property name="lastModifiedDate" type="timestamp" column="LASTMODIFIEDDATE" not-null="true" />
 
     <subclass name="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentAttachment"
       discriminator-value="1" lazy="false" > 

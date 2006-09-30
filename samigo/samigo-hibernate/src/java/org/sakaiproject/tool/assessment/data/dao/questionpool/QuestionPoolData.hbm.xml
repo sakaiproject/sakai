@@ -1,57 +1,29 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
   "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
-  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+  "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<hibernate-mapping default-lazy="false">
+<hibernate-mapping>
   <class name="org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData" table="SAM_QUESTIONPOOL_T">
     <id name="questionPoolId" column="QUESTIONPOOLID" type="java.lang.Long" unsaved-value="0">
       <generator class="native">
         <param name="sequence">SAM_QUESTIONPOOL_ID_S</param>
       </generator>
     </id>
-    <property name="title">
-      <column name="TITLE" not-null="false" sql-type="varchar(255)" />
-    </property>
-    <property name="description">
-      <column name="DESCRIPTION" not-null="false" sql-type="varchar(255)" />
-    </property>
-    <property name="parentPoolId">
-      <column name="PARENTPOOLID" not-null="false" sql-type="integer" />
-    </property>
-    <property name="ownerId">
-      <column name="OWNERID" not-null="false" sql-type="varchar(255)" />
-    </property>
-    <property name="organizationName">
-      <column name="ORGANIZATIONNAME" not-null="false" sql-type="varchar(255)" />
-    </property>
-    <property name="dateCreated" type="timestamp">
-      <column name="DATECREATED" not-null="false" />
-    </property>
-    <property name="lastModified" type="timestamp">
-      <column name="LASTMODIFIEDDATE" not-null="false" />
-    </property>
-    <property name="lastModifiedById">
-      <column name="LASTMODIFIEDBY" not-null="false" sql-type="varchar(255)" />
-    </property>
-    <property name="accessTypeId">
-      <column name="DEFAULTACCESSTYPEID" not-null="false" sql-type="integer" />
-    </property>
-    <property name="objectives">
-      <column name="OBJECTIVE" not-null="false" sql-type="varchar(255)" />
-    </property>
-    <property name="keywords">
-      <column name="KEYWORDS" not-null="false" sql-type="varchar(255)" />
-    </property>
-    <property name="rubric">
-      <column name="RUBRIC" not-null="false" sql-type="varchar(4000)" />
-    </property>
-    <property name="typeId">
-      <column name="TYPEID" not-null="false" sql-type="integer" />
-    </property>
-    <property name="intellectualPropertyId">
-      <column name="INTELLECTUALPROPERTYID" not-null="false" sql-type="integer" />
-    </property>
+    <property name="title" type="string" length="255" column="TITLE" not-null="false" />
+    <property name="description" type="string" length="255" column="DESCRIPTION" not-null="false" />
+    <property name="parentPoolId" type="long" column="PARENTPOOLID" not-null="false" />
+    <property name="ownerId" type="string" length="255" column="OWNERID" not-null="false" />
+    <property name="organizationName" type="string" length="255" column="ORGANIZATIONNAME" not-null="false" />
+    <property name="dateCreated" type="timestamp" column="DATECREATED" not-null="false" />
+    <property name="lastModified" type="timestamp" column="LASTMODIFIEDDATE" not-null="false" />
+    <property name="lastModifiedById" type="string" length="255" column="LASTMODIFIEDBY" not-null="false" />
+    <property name="accessTypeId" type="long" column="DEFAULTACCESSTYPEID" not-null="false" />
+    <property name="objectives" type="string" length="255" column="OBJECTIVE" not-null="false" />
+    <property name="keywords" type="string" length="255" column="KEYWORDS" not-null="false" />
+    <property name="rubric" type="string" length="4000" column="RUBRIC" not-null="false" />
+    <property name="typeId" type="long" column="TYPEID" not-null="false" />
+    <property name="intellectualPropertyId" type="long" column="INTELLECTUALPROPERTYID" not-null="false" />
     <set name="questionPoolItems" table="SAM_QUESTIONPOOLITEM_T" cascade="all" inverse="true" lazy="false">
       <key column="QUESTIONPOOLID"/>
       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData" />

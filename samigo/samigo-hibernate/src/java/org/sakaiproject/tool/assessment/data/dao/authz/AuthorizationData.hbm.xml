@@ -2,9 +2,9 @@
 
 <!DOCTYPE hibernate-mapping PUBLIC
     "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
-    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 
-<hibernate-mapping default-lazy="false">
+<hibernate-mapping>
     <class name="org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData"
         table="SAM_AUTHZDATA_T">
       <id name="surrogateKey" type="long">
@@ -27,65 +27,38 @@
       <property name="qualifierId">
         <column name="QUALIFIERID" unique-key="uniqueAuthz" length="36"
                 not-null="true" index="sam_authz_qualifierId_idx" />
-      </property>
+      </property>  
       
-      
-      <property  name="authorizationEffectiveDate">
-        <column name="EFFECTIVEDATE" sql-type="date" not-null="false" />
-      </property>
-      <property  name="authorizationExpirationDate">
-        <column name="EXPIRATIONDATE" sql-type="date" not-null="false" />
-      </property>
-      <property  name="lastModifiedBy">
-        <column name="LASTMODIFIEDBY" sql-type="varchar(36)"  not-null="true" />
-      </property>
-      <property  name="lastModifiedDate">
-        <column name="LASTMODIFIEDDATE" sql-type="date" not-null="true" />
-      </property>
-      <property  name="isExplicitBoolean">
-        <column name="ISEXPLICIT" sql-type="integer" />
-      </property>
+      <property  name="authorizationEffectiveDate" type="date" column="EFFECTIVEDATE" not-null="false" />
+      <property  name="authorizationExpirationDate" type="date" column="EXPIRATIONDATE" not-null="false" />
+      <property  name="lastModifiedBy" type="string" length="36" column="LASTMODIFIEDBY" not-null="true" />
+      <property  name="lastModifiedDate" type="date" column="LASTMODIFIEDDATE" not-null="true" />
+      <property  name="isExplicitBoolean" type="boolean" column="ISEXPLICIT" />
     </class>
     
-    <class  name="org.sakaiproject.tool.assessment.data.dao.authz.FunctionData"
+    <class name="org.sakaiproject.tool.assessment.data.dao.authz.FunctionData"
       table="SAM_FUNCTIONDATA_T">
       <id  name="functionId" column="FUNCTIONID"  type="long">
         <generator class="native">
           <param name="sequence">SAM_FUNCTIONID_S</param>
         </generator>
       </id>
-      <property  name="referenceName">
-        <column name="REFERENCENAME" sql-type="varchar(255)" not-null="true" />
-      </property>
-      <property  name="displayName">
-        <column name="DISPLAYNAME" sql-type="varchar(255)" />
-      </property>
-      <property  name="description">
-        <column name="DESCRIPTION" sql-type="varchar(4000)" />
-      </property>
-      <property  name="functionTypeId">
-        <column name="FUNCTIONTYPEID" sql-type="varchar(4000)" />
-      </property>
+      <property  name="referenceName" type="string" length="255" column="REFERENCENAME" not-null="true" />
+      <property  name="displayName" type="string" length="255" column="DISPLAYNAME" />
+      <property  name="description" type="string" length="4000" column="DESCRIPTION" />
+      <property  name="functionTypeId" type="string" length="4000" column="FUNCTIONTYPEID" />
     </class>
 
-    <class  name="org.sakaiproject.tool.assessment.data.dao.authz.QualifierData"
+    <class name="org.sakaiproject.tool.assessment.data.dao.authz.QualifierData"
         table="SAM_QUALIFIERDATA_T">
         <id  name="qualifierId" column="QUALIFIERID"  type="long">
           <generator class="assigned">
             <param name="sequence">SAM_QUALIFIERID_S</param>
           </generator>
         </id>
-        <property  name="referenceName">
-          <column name="REFERENCENAME" sql-type="varchar(255)" not-null="true" />
-        </property>
-        <property  name="displayName">
-          <column name="DISPLAYNAME" sql-type="varchar(255)" />
-        </property>
-        <property  name="description">
-          <column name="DESCRIPTION" sql-type="varchar(4000)" />
-        </property>
-        <property  name="qualifierTypeId">
-          <column name="QUALIFIERTYPEID" sql-type="varchar(4000)" />
-        </property>
+        <property  name="referenceName" type="string" length="255" column="REFERENCENAME" not-null="true" />
+        <property  name="displayName" type="string" length="255" column="DISPLAYNAME" />
+        <property  name="description" type="string" length="4000" column="DESCRIPTION" />
+        <property  name="qualifierTypeId" type="string" length="4000" column="QUALIFIERTYPEID" />
     </class>
 </hibernate-mapping>

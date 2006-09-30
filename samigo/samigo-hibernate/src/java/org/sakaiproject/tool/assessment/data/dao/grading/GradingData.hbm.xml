@@ -10,62 +10,22 @@
         <param name="sequence">SAM_ITEMGRADING_ID_S</param>
       </generator>
     </id>
-<!--
-    <many-to-one name="assessmentGrading" class="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData"
-       column="ASSESSMENTGRADINGID" index="SAM_ASSESSMENTGRADING_I" not-null="true"/>
--->
-    <property name="assessmentGradingId">
-      <column name="ASSESSMENTGRADINGID" not-null="true" index="SAM_ASSESSMENTGRADING_I" />
-    </property>
-    <property name="publishedItemId">
-      <column name="PUBLISHEDITEMID" not-null="true" sql-type="integer" index="SAM_ITEMGRADING_ITEM_I" />
-    </property>
-    <property name="publishedItemTextId">
-      <column name="PUBLISHEDITEMTEXTID" not-null="true" sql-type="integer" index="SAM_ITEMGRADING_ITEMTEXT_I" />
-    </property>
-    <property name="agentId">
-      <column name="AGENTID" not-null="true" sql-type="varchar(36)" />
-    </property>
-    <property name="submittedDate" type="timestamp">
-      <column name="SUBMITTEDDATE" not-null="false" />
-    </property>
-<!--
-    <many-to-one name="publishedAnswer" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer"
-       column="PUBLISHEDANSWERID" not-null="false"/>
--->
-    <property name="publishedAnswerId">
-      <column name="PUBLISHEDANSWERID" not-null="false" sql-type="integer" index="SAM_ITEMGRADING_PUBANS_I" />
-    </property>
-    <property name="rationale">
-      <column name="RATIONALE" not-null="false" sql-type="varchar(4000)" />
-    </property>
-    <property name="answerText">
-      <column name="ANSWERTEXT" not-null="false" sql-type="varchar(4000)" />
-    </property>
-    <property name="autoScore">
-      <column name="AUTOSCORE" not-null="false" sql-type="float" />
-    </property>
-    <property name="overrideScore">
-      <column name="OVERRIDESCORE" not-null="false" sql-type="float" />
-    </property>
-    <property name="comments">
-      <column name="COMMENTS" not-null="false" sql-type="varchar(4000)" />
-    </property>
-    <property name="gradedBy">
-      <column name="GRADEDBY" not-null="false" sql-type="varchar(36)" />
-    </property>
-    <property name="gradedDate" type="timestamp">
-      <column name="GRADEDDATE" not-null="false" />
-    </property>
-    <property name="review">
-      <column name="REVIEW" not-null="false" sql-type="integer" />
-    </property>
-    <property name="attemptsRemaining">
-      <column name="ATTEMPTSREMAINING" not-null="false" sql-type="integer" />
-    </property>
-    <property name="lastDuration">
-      <column name="LASTDURATION" not-null="false" sql-type="varchar(36)" />
-    </property>
+    <property name="assessmentGradingId" type="long" column="ASSESSMENTGRADINGID" not-null="true" index="SAM_ASSESSMENTGRADING_I" />
+    <property name="publishedItemId" type="long" column="PUBLISHEDITEMID" not-null="true" index="SAM_ITEMGRADING_ITEM_I" />
+    <property name="publishedItemTextId" type="long" column="PUBLISHEDITEMTEXTID" not-null="true" index="SAM_ITEMGRADING_ITEMTEXT_I" />
+    <property name="agentId" type="string" length="36" column="AGENTID" not-null="true" />
+    <property name="submittedDate" type="timestamp" column="SUBMITTEDDATE" not-null="true" />
+    <property name="publishedAnswerId" type="long" column="PUBLISHEDANSWERID" not-null="false" index="SAM_ITEMGRADING_PUBANS_I" />
+    <property name="rationale" type="string" length="4000" column="RATIONALE" not-null="false" />
+    <property name="answerText" type="string" length="4000" column="ANSWERTEXT" not-null="false" />
+    <property name="autoScore" type="float" column="AUTOSCORE" not-null="false" />
+    <property name="overrideScore" type="float" column="OVERRIDESCORE" not-null="false" />
+    <property name="comments" type="string" length="4000" column="COMMENTS" not-null="false" />
+    <property name="gradedBy" type="string" length="36" column="GRADEDBY" not-null="false" />
+    <property name="gradedDate" type="timestamp" column="GRADEDDATE" not-null="false" />
+    <property name="review" type="boolean" column="REVIEW" not-null="false" />
+    <property name="attemptsRemaining" type="integer" column="ATTEMPTSREMAINING" not-null="false" />
+    <property name="lastDuration" type="string" length="36" column="LASTDURATION" not-null="false" />
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData" table="SAM_ASSESSMENTGRADING_T">
@@ -74,53 +34,20 @@
         <param name="sequence">SAM_ASSESSMENTGRADING_ID_S</param>
       </generator>
     </id>
-<!--
-    <many-to-one name="publishedAssessment" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"
-       column="PUBLISHEDASSESSMENTID" index="SAM_PUBLISHEDASSESSMENT_I" not-null="true"/>
--->
-    <property name="publishedAssessmentId">
-      <column name="PUBLISHEDASSESSMENTID" not-null="true" 
-              sql-type="integer" index="SAM_PUBLISHEDASSESSMENT_I" />
-    </property>
-    <property name="agentId">
-      <column name="AGENTID" not-null="true" sql-type="varchar(36)" />
-    </property>
-    <property name="submittedDate" type="timestamp">
-      <column name="SUBMITTEDDATE" not-null="false" />
-    </property>
-    <property name="isLate">
-      <column name="ISLATE" not-null="true" sql-type="varchar(1)" />
-    </property>
-    <property name="forGrade">
-      <column name="FORGRADE" not-null="true" sql-type="integer" />
-    </property>
-    <property name="totalAutoScore">
-      <column name="TOTALAUTOSCORE" not-null="false" sql-type="float" />
-    </property>
-    <property name="totalOverrideScore">
-      <column name="TOTALOVERRIDESCORE" not-null="false" sql-type="float" />
-    </property>
-    <property name="finalScore">
-      <column name="FINALSCORE" not-null="false" sql-type="float" />
-    </property>
-    <property name="comments">
-      <column name="COMMENTS" not-null="false" sql-type="varchar(4000)" />
-    </property>
-    <property name="gradedBy">
-      <column name="GRADEDBY" not-null="false" sql-type="varchar(36)" />
-    </property>
-    <property name="gradedDate" type="timestamp">
-      <column name="GRADEDDATE" not-null="false" />
-    </property>
-    <property name="status">
-      <column name="STATUS" not-null="true" sql-type="integer" />
-    </property>
-    <property name="attemptDate" type="timestamp">
-      <column name="ATTEMPTDATE" not-null="false" />
-    </property>
-    <property name="timeElapsed">
-      <column name="TIMEELAPSED" not-null="false" sql-type="integer" />
-    </property>
+    <property name="publishedAssessmentId" column="PUBLISHEDASSESSMENTID" not-null="true" type="long" index="SAM_PUBLISHEDASSESSMENT_I" />
+    <property name="agentId" type="string" length="36" column="AGENTID" not-null="true" />
+    <property name="submittedDate" type="timestamp" column="SUBMITTEDDATE" not-null="false" />
+    <property name="isLate" type="boolean" column="ISLATE" not-null="true" />
+    <property name="forGrade" type="boolean" column="FORGRADE" not-null="true" />
+    <property name="totalAutoScore" type="float" column="TOTALAUTOSCORE" not-null="false" />
+    <property name="totalOverrideScore" type="float" column="TOTALOVERRIDESCORE" not-null="false" />
+    <property name="finalScore" type="float" column="FINALSCORE" not-null="false" />
+    <property name="comments" type="string" length="4000" column="COMMENTS" not-null="false" />
+    <property name="gradedBy" type="string" length="36" column="GRADEDBY" not-null="false" />
+    <property name="gradedDate" type="timestamp" column="GRADEDDATE" not-null="false" />
+    <property name="status" type="integer" column="STATUS" not-null="true" />
+    <property name="attemptDate" type="timestamp" column="ATTEMPTDATE" not-null="false" />
+    <property name="timeElapsed" type="integer" column="TIMEELAPSED" not-null="false" />
     <set name="itemGradingSet" table="SAM_ITEMGRADING_T" cascade="all" order-by="itemGradingId asc"
       inverse="true" lazy="true">
       <key column="ASSESSMENTGRADINGID"/>
@@ -136,68 +63,30 @@
     </id>
     <many-to-one name="publishedAssessment" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"
        column="PUBLISHEDASSESSMENTID" not-null="true"/>
-    <property name="agentId">
-      <column name="AGENTID" not-null="true" sql-type="varchar(36)" />
-    </property>
-    <property name="totalSubmitted">
-      <column name="TOTALSUBMITTED" not-null="false" sql-type="integer" />
-    </property>
-    <property name="totalSubmittedForGrade">
-      <column name="TOTALSUBMITTEDFORGRADE" not-null="false" sql-type="integer" />
-    </property>
+    <property name="agentId" type="string" length="36" column="AGENTID" not-null="true" />
+    <property name="totalSubmitted" type="integer" column="TOTALSUBMITTED" not-null="false" />
+    <property name="totalSubmittedForGrade" type="integer" column="TOTALSUBMITTEDFORGRADE" not-null="false" />
     <one-to-one name="lastSubmittedAssessmentGrading"
       class="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData"
        />
-    <property name="lastSubmittedDate" type="timestamp">
-      <column name="LASTSUBMITTEDDATE" not-null="false" />
-    </property>
-    <property name="lastSubmittedAssessmentIsLate">
-      <column name="LASTSUBMITTEDASSESSMENTISLATE" not-null="true" sql-type="integer" />
-    </property>
-    <property name="sumOf_autoScoreForGrade">
-      <column name="SUMOF_AUTOSCOREFORGRADE" not-null="false" sql-type="float" />
-    </property>
-    <property name="average_autoScoreForGrade">
-      <column name="AVERAGE_AUTOSCOREFORGRADE" not-null="false" sql-type="float" />
-    </property>
-    <property name="highest_autoScoreForGrade">
-      <column name="HIGHEST_AUTOSCOREFORGRADE" not-null="false" sql-type="float" />
-    </property>
-    <property name="lowest_autoScoreForGrade">
-      <column name="LOWEST_AUTOSCOREFORGRADE" not-null="false" sql-type="float" />
-    </property>
-    <property name="last_autoScoreForGrade">
-      <column name="LAST_AUTOSCOREFORGRADE" not-null="false" sql-type="float" />
-    </property>
-    <property name="sumOf_overrideScoreForGrade">
-      <column name="SUMOF_OVERRIDESCOREFORGRADE" not-null="false" sql-type="float" />
-    </property>
-    <property name="average_overrideScoreForGrade">
-      <column name="AVERAGE_OVERRIDESCOREFORGRADE" not-null="false" sql-type="float" />
-    </property>
-    <property name="highest_overrideScoreForGrade">
-      <column name="HIGHEST_OVERRIDESCOREFORGRADE" not-null="false" sql-type="float" />
-    </property>
-    <property name="lowest_overrideScoreForGrade">
-      <column name="LOWEST_OVERRIDESCOREFORGRADE" not-null="false" sql-type="float" />
-    </property>
-    <property name="last_overrideScoreForGrade">
-      <column name="LAST_OVERRIDESCOREFORGRADE" not-null="false" sql-type="float" />
-    </property>
-    <property name="scoringType">
-      <column name="SCORINGTYPE" not-null="false" sql-type="integer" />
-    </property>
+    <property name="lastSubmittedDate" type="timestamp" column="LASTSUBMITTEDDATE" not-null="false" />
+    <property name="lastSubmittedAssessmentIsLate" type="boolean" column="LASTSUBMITTEDASSESSMENTISLATE" not-null="true" />
+    <property name="sumOf_autoScoreForGrade" type="float" column="SUMOF_AUTOSCOREFORGRADE" not-null="false" />
+    <property name="average_autoScoreForGrade" type="float" column="AVERAGE_AUTOSCOREFORGRADE" not-null="false" />
+    <property name="highest_autoScoreForGrade" type="float" column="HIGHEST_AUTOSCOREFORGRADE" not-null="false" />
+    <property name="lowest_autoScoreForGrade" type="float" column="LOWEST_AUTOSCOREFORGRADE" not-null="false" />
+    <property name="last_autoScoreForGrade" type="float" column="LAST_AUTOSCOREFORGRADE" not-null="false" />
+    <property name="sumOf_overrideScoreForGrade" type="float" column="SUMOF_OVERRIDESCOREFORGRADE" not-null="false" />
+    <property name="average_overrideScoreForGrade" type="float" column="AVERAGE_OVERRIDESCOREFORGRADE" not-null="false" />
+    <property name="highest_overrideScoreForGrade" type="float" column="HIGHEST_OVERRIDESCOREFORGRADE" not-null="false" />
+    <property name="lowest_overrideScoreForGrade" type="float" column="LOWEST_OVERRIDESCOREFORGRADE" not-null="false" />
+    <property name="last_overrideScoreForGrade" type="float" column="LAST_OVERRIDESCOREFORGRADE" not-null="false" />
+    <property name="scoringType" type="integer" column="SCORINGTYPE" not-null="false" />
     <one-to-one name="acceptedAssessmentGrading"
       class="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData"
        />
-    <property name="acceptedAssessmentIsLate">
-      <column name="ACCEPTEDASSESSMENTISLATE" not-null="false" sql-type="integer" />
-    </property>
-    <property name="finalAssessmentScore">
-      <column name="FINALASSESSMENTSCORE" not-null="false" sql-type="float" />
-    </property>
-    <property name="feedToGradeBook">
-      <column name="FEEDTOGRADEBOOK" not-null="false" sql-type="integer" />
-    </property>
+    <property name="acceptedAssessmentIsLate" type="boolean" column="ACCEPTEDASSESSMENTISLATE" not-null="false" />
+    <property name="finalAssessmentScore" type="float" column="FINALASSESSMENTSCORE" not-null="false" />
+    <property name="feedToGradeBook" type="boolean" column="FEEDTOGRADEBOOK" not-null="false" />
   </class>
 </hibernate-mapping>
