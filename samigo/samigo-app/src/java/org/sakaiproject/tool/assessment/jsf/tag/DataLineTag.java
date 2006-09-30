@@ -26,7 +26,6 @@ package org.sakaiproject.tool.assessment.jsf.tag;
 
 import javax.faces.component.UIComponent;
 import javax.faces.webapp.UIComponentTag;
-import javax.faces.context.FacesContext;
 
 /**
  * <p> </p>
@@ -42,7 +41,7 @@ import javax.faces.context.FacesContext;
 
 public class DataLineTag extends UIComponentTag
 {
-  private TagUtil util;
+  //private TagUtil util;
 
   private String first;
   private String rows;
@@ -77,12 +76,12 @@ public class DataLineTag extends UIComponentTag
 
     super.setProperties(component);
 
-    FacesContext context = getFacesContext();
-    util.setInteger(component, "first", first);
-    util.setInteger(component, "rows", rows);
-    util.setString(component, "value", value);
-    util.setString(component, "var", var);
-    util.setString(component, "separator", separator);
+    //FacesContext context = getFacesContext();
+    TagUtil.setInteger(component, "first", first);
+    TagUtil.setInteger(component, "rows", rows);
+    TagUtil.setString(component, "value", value);
+    TagUtil.setString(component, "var", var);
+    TagUtil.setString(component, "separator", separator);
   }
   /**
    *

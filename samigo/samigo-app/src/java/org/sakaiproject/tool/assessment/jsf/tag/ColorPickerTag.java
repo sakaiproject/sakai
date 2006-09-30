@@ -25,7 +25,6 @@
 package org.sakaiproject.tool.assessment.jsf.tag;
 
 import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
 import javax.faces.webapp.UIComponentTag;
 
 
@@ -45,7 +44,7 @@ import javax.faces.webapp.UIComponentTag;
 
 public class ColorPickerTag extends UIComponentTag
 {
-  private TagUtil util;
+  //private TagUtil util;
 
 //  private String type = "text";//later on we may want to allow hidden
 //  private String cursorStyle = "cursor:pointer;";
@@ -108,9 +107,9 @@ public class ColorPickerTag extends UIComponentTag
   {
     super.setProperties(component);
 
-    FacesContext context = getFacesContext();
-    util.setString(component, "value", value);
-    util.setString(component, "size", size);
+    //FacesContext context = getFacesContext();
+    TagUtil.setString(component, "value", value);
+    TagUtil.setString(component, "size", size);
   }
 
   /**

@@ -301,7 +301,7 @@ private static Log log = LogFactory.getLog(QuestionPoolTreeImpl.class);
         index1++;
       }
 
-      QuestionPoolFacade parent = (QuestionPoolFacade) getParent();
+      //QuestionPoolFacade parent = (QuestionPoolFacade) getParent();
     }
 
     catch(Exception e)

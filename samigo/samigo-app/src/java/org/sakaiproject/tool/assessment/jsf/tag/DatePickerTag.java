@@ -26,7 +26,6 @@ package org.sakaiproject.tool.assessment.jsf.tag;
 
 import javax.faces.webapp.UIComponentTag;
 import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
 
 /**
  *
@@ -42,7 +41,7 @@ import javax.faces.context.FacesContext;
 
 public class DatePickerTag extends UIComponentTag
 {
-  private TagUtil util;
+  //private TagUtil util;
 
   private String size;
   private String value;
@@ -88,9 +87,9 @@ public class DatePickerTag extends UIComponentTag
 
     super.setProperties(component);
 
-    FacesContext context = getFacesContext();
-    util.setString(component, "value", value);
-    util.setString(component, "size", size);
+    //FacesContext context = getFacesContext();
+    TagUtil.setString(component, "value", value);
+    TagUtil.setString(component, "size", size);
   }
 
   /**

@@ -1091,26 +1091,22 @@ public class DeliveryActionListener
 
           // Randomize matching the same way for each
         }
+        Collections.shuffle(shuffled, 
+        					new Random( (long) item.getText().hashCode() + getAgentString().hashCode()));
+        /*
         if (item.getTypeId().equals(TypeIfc.MATCHING))
         {
-/*
-          Collections.shuffle(shuffled,
-                              new Random( (long) item.getText().hashCode()));
-*/
           Collections.shuffle(shuffled,
                               new Random( (long) item.getText().hashCode() +
                 getAgentString().hashCode()));
         }
         else
         {
-/*
-          Collections.shuffle(shuffled,
-                              new Random( (long) item.getText().hashCode()));
-*/
           Collections.shuffle(shuffled,
                               new Random( (long) item.getText().hashCode() +
                                          getAgentString().hashCode()));
         }
+        */
         key2 = shuffled.iterator();
       }
       else

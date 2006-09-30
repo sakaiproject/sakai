@@ -185,7 +185,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
   public void listType() {
     TypeFacadeQueriesAPI typeFacadeQueries = PersistenceService.getInstance().getTypeFacadeQueries();
     TypeFacade f = typeFacadeQueries.getTypeFacadeById(new Long(1));
-    //log.debug("***facade: "+f.getAuthority());
+    log.debug("***facade: "+f.getAuthority());
   }
 
 // DELETEME

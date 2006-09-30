@@ -1230,7 +1230,7 @@ public class PublishedAssessmentFacadeQueries
   public ArrayList getBasicInfoOfLastSubmittedAssessments(final String agentId,
       String orderBy, boolean ascending) {
     // 1. get total no. of submission per assessment by the given agent
-    HashMap h = getTotalSubmissionPerAssessment(agentId);
+    //HashMap h = getTotalSubmissionPerAssessment(agentId);
     final String query = "select new AssessmentGradingData(" +
         " a.assessmentGradingId, p.publishedAssessmentId, p.title, a.agentId," +
         " a.submittedDate, a.isLate," +

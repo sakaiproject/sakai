@@ -151,8 +151,7 @@ public class HideDivisionRenderer extends Renderer
       String jsfId = (String) component.getAttributes().get("id");
       if(((String)session.getAttribute("sam_expande_hide_div_id")).equalsIgnoreCase(jsfId))
       {
-      	String contextPath = context.getExternalContext()
-				.getRequestContextPath();
+      	//String contextPath = context.getExternalContext().getRequestContextPath();
       	
       	writer.write("<script type=\"text/javascript\">");
       	writer.write("  setExceptionId('" + session.getAttribute("sam_expande_hide_div_id") +"');");

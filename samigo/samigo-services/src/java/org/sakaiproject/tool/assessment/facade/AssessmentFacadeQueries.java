@@ -1172,7 +1172,7 @@ public class AssessmentFacadeQueries
         }
     }
     // need to reload the section again.
-    section= loadSection(sourceSectionId);
+    //section= loadSection(sourceSectionId);
     //section.setItemSet(newItemSet);
     //getHibernateTemplate().update(section);
   }
@@ -1434,7 +1434,7 @@ public class AssessmentFacadeQueries
     ItemAttachment itemAttachment = (ItemAttachment)
         getHibernateTemplate().load(ItemAttachment.class, itemAttachmentId);
     ItemDataIfc item = itemAttachment.getItem(); 
-    String resourceId = itemAttachment.getResourceId();
+    //String resourceId = itemAttachment.getResourceId();
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
@@ -1517,7 +1517,7 @@ public class AssessmentFacadeQueries
     SectionAttachment sectionAttachment = (SectionAttachment)
         getHibernateTemplate().load(SectionAttachment.class, sectionAttachmentId);
     SectionDataIfc section = sectionAttachment.getSection(); 
-    String resourceId = sectionAttachment.getResourceId();
+    //String resourceId = sectionAttachment.getResourceId();
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
@@ -1577,7 +1577,7 @@ public class AssessmentFacadeQueries
     AssessmentAttachment assessmentAttachment = (AssessmentAttachment)
         getHibernateTemplate().load(AssessmentAttachment.class, assessmentAttachmentId);
     AssessmentIfc assessment = assessmentAttachment.getAssessment(); 
-    String resourceId = assessmentAttachment.getResourceId();
+    //String resourceId = assessmentAttachment.getResourceId();
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {

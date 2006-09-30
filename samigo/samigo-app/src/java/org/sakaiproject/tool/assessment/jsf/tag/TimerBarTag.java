@@ -27,7 +27,6 @@ package org.sakaiproject.tool.assessment.jsf.tag;
 
 import javax.faces.component.UIComponent;
 import javax.faces.webapp.UIComponentTag;
-import javax.faces.context.FacesContext;
 
 /**
  * <p> </p>
@@ -48,7 +47,7 @@ public class TimerBarTag
   private String expireScript;
   private String expireMessage;
 
-  private TagUtil util;
+  //private TagUtil util;
   private String elapsed;
   private String height;
   private String wait;
@@ -89,13 +88,13 @@ public class TimerBarTag
   {
     super.setProperties(component);
 
-    FacesContext context = getFacesContext();
-    util.setInteger(component, "height", height);
-    util.setInteger(component, "width", width);
-    util.setInteger(component, "wait", wait);
-    util.setInteger(component, "elapsed", elapsed);
-    util.setString(component, "expireScript", expireScript);
-    util.setString(component, "expireMessage", expireMessage);
+    //FacesContext context = getFacesContext();
+    TagUtil.setInteger(component, "height", height);
+    TagUtil.setInteger(component, "width", width);
+    TagUtil.setInteger(component, "wait", wait);
+    TagUtil.setInteger(component, "elapsed", elapsed);
+    TagUtil.setString(component, "expireScript", expireScript);
+    TagUtil.setString(component, "expireMessage", expireMessage);
   }
   public String getWidth()
   {

@@ -366,15 +366,17 @@ public class AuthorBean implements Serializable
   }
 
   public String editAssessmentSettings(){
-    startEditAssessmentSettings();
+    //startEditAssessmentSettings();
     return "editAccessmentSettings";
   }
 
+  /*
   public void startEditAssessmentSettings(){
     String assessmentId = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("assessmentId");
 
   }
+  */
 
   public String getCoreAssessmentOrderBy() {
     return this.coreAssessmentOrderBy;

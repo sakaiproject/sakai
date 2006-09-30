@@ -39,7 +39,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.data.model.Tree;
-import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -51,11 +50,9 @@ import org.sakaiproject.tool.assessment.ui.listener.author.SavePartAttachmentLis
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
-import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entity.impl.ReferenceComponent;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -318,7 +315,7 @@ private List attachmentList;
   
     ArrayList resultPoolList= new ArrayList();
     AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
-    ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
+    //ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 
     QuestionPoolService delegate = new QuestionPoolService();
     
@@ -639,7 +636,7 @@ private List attachmentList;
   public void toggleAuthorType(ValueChangeEvent event) {
 
 // need to update metadata in db.
-        FacesContext context = FacesContext.getCurrentInstance();
+        //FacesContext context = FacesContext.getCurrentInstance();
         String type = (String) event.getNewValue();
 
 

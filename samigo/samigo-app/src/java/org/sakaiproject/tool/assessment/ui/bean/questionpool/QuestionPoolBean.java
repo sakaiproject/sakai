@@ -303,7 +303,8 @@ public class QuestionPoolBean implements Serializable
         new QuestionPoolTreeImpl(
           (QuestionPoolIteratorFacade) delegate.getAllPools(AgentFacade.getAgentString()));
 
-      Collection objects = tree.getSortedObjects();
+      tree.getSortedObjects();
+      //Collection objects = tree.getSortedObjects();
       //printTree(objects);
     }
     catch(Exception e)
@@ -1181,12 +1182,12 @@ public String getAddOrEdit()
 
   public String copyQuestion(){
 
-      Long sourceId = new Long(0);
+      //Long sourceId = new Long(0);
       String destId= "";
       String sourceItemId = this.getCurrentItemId();
 
         ArrayList destpools= ContextUtil.paramArrayValueLike("checkboxes");
-        sourceId = this.getCurrentPool().getId();
+        //sourceId = this.getCurrentPool().getId();
 
         Iterator iter = destpools.iterator();
       while(iter.hasNext())
@@ -1493,7 +1494,7 @@ public String getAddOrEdit()
 // used by the editpool.jsp to remove one subpool at a time
 	this.setDeletePoolSource("editpool");
 
-ItemAuthorBean itemauthorbean= (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
+//ItemAuthorBean itemauthorbean= (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 String poolId = ContextUtil.lookupParam("qpid");
 
 

@@ -25,9 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -36,13 +34,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
-import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.services.gradebook.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -59,7 +55,7 @@ public class AuthorActionListener
     implements ActionListener
 {
   private static Log log = LogFactory.getLog(AuthorActionListener.class);
-  private static ContextUtil cu;
+  //private static ContextUtil cu;
 
   public AuthorActionListener()
   {
@@ -67,9 +63,9 @@ public class AuthorActionListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
+    //FacesContext context = FacesContext.getCurrentInstance();
+    //Map reqMap = context.getExternalContext().getRequestMap();
+    //Map requestParams = context.getExternalContext().getRequestParameterMap();
     //log.debug("debugging ActionEvent: " + ae);
     //log.debug("debug requestParams: " + requestParams);
     //log.debug("debug reqMap: " + reqMap);
@@ -79,7 +75,7 @@ public class AuthorActionListener
     AssessmentService assessmentService = new AssessmentService();
     PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     GradingService gradingService = new GradingService();
-    AuthorBean author = (AuthorBean) cu.lookupBean(
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean(
                        "author");
 
     //#1 - prepare active template list. Note that we only need the title. We don't need the

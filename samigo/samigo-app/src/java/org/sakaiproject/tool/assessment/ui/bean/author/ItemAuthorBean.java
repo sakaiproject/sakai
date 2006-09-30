@@ -45,7 +45,6 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
-import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -55,7 +54,6 @@ import org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entity.impl.ReferenceComponent;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -904,7 +902,7 @@ ItemService delegate = new ItemService();
 
   public void selectItemType(ValueChangeEvent event) {
 
-        FacesContext context = FacesContext.getCurrentInstance();
+        //FacesContext context = FacesContext.getCurrentInstance();
         String type = (String) event.getNewValue();
           setItemType(type);
 
