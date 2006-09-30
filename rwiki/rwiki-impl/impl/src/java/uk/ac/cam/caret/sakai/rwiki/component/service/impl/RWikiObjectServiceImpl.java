@@ -164,7 +164,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 		entityManager.registerEntityProducer(this,
 				RWikiObjectService.REFERENCE_ROOT);
-		if (ServerConfigurationService.getBoolean("wiki.notification", false))
+		if (ServerConfigurationService.getBoolean("wiki.notification", true))
 		{
 			// Email notification
 			// register a transient notification for resources
