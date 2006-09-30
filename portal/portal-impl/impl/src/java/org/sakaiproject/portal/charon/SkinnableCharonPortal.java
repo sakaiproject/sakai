@@ -1879,9 +1879,9 @@ public class SkinnableCharonPortal extends HttpServlet
 					for (int i = 0; i < poweredByUrl.length; i++)
 					{
 						Map m = new HashMap();
-						m.put("powerdByUrl", poweredByUrl[i]);
-						m.put("powerdByImage", poweredByImage[i]);
-						m.put("powerdByAltText", poweredByAltText[i]);
+						m.put("poweredByUrl", poweredByUrl[i]);
+						m.put("poweredByImage", poweredByImage[i]);
+						m.put("poweredByAltText", poweredByAltText[i]);
 						l.add(m);
 					}
 					rcontext.put("bottomNavPoweredBy", l);
@@ -1892,9 +1892,9 @@ public class SkinnableCharonPortal extends HttpServlet
 			{
 				List l = new ArrayList();
 				Map m = new HashMap();
-				m.put("powerdByUrl", "http://sakaiproject.org");
-				m.put("powerdByImage", "/library/image/sakai_powered.gif");
-				m.put("powerdByAltText", "Powered by Sakai");
+				m.put("poweredByUrl", "http://sakaiproject.org");
+				m.put("poweredByImage", "/library/image/sakai_powered.gif");
+				m.put("poweredByAltText", "Powered by Sakai");
 				l.add(m);
 				rcontext.put("bottomNavPoweredBy", l);
 			}
@@ -2795,8 +2795,7 @@ public class SkinnableCharonPortal extends HttpServlet
 		toolMap.put("toolPlacementIDJS", Web.escapeJavascript("Main"
 				+ placement.getId()));
 		toolMap.put("toolParamResetState", PARM_STATE_RESET);
-		toolMap.put("toolTitle", titleString + " "
-				+ Web.escapeHtml(rb.getString("sit.contentporttit")));
+		toolMap.put("toolTitle", titleString);
 		toolMap.put("toolShowResetButton", Boolean.valueOf(showResetButton));
 		toolMap.put("toolShowHelpButton", Boolean.valueOf(showHelpButton));
 		toolMap.put("toolHelpActionUrl", helpActionUrl);

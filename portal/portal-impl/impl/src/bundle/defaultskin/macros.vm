@@ -9,6 +9,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
+<!-- this caises problems for layout nneds investihating -->
     <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
 <!--[if gte IE 5]><![if lt IE 7]>
     <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
@@ -261,7 +262,6 @@
 ##
 ##------------------------------------------------------------------------------------------
 #macro( includeWorksite  ) 
-#includePageNav()
 #includePage()
 #end
 ##------------------------------------------------------------------------------------------
@@ -312,9 +312,9 @@
 				<li class="selectedTool"><a class="selected" href="#">
 #else
 #if (${page.ispopup})
-				<li><a class="selected" href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageIdWeb}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+				<li><a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageIdWeb}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
 #else
-				<li><a class="selected" href="${page.pagerefUrl}" >
+				<li><a href="${page.pagerefUrl}" >
 #end
 #end
 						<span>${page.htmlPageTitle}</span>
@@ -357,6 +357,7 @@
 #macro( includePage   ) 	
 <!-- start includePage -->		
 <div id="container" $pageSiteType >
+#includePageNav()
 	<div id="$pageWrapperClass">
 		<div id="$pageColumnLayout">
 #foreach ( $tool in $pageColumn0Tools ) 
@@ -370,6 +371,9 @@
 #end
 		</div>
 #end
+	</div>
+	<div>
+#includeBottom()
 	</div>
 </div>
 <!-- end includePage -->		
@@ -413,6 +417,7 @@
 			</div>
 		</div>
 #end
+#includePage()
 	</div>
 </div>
 <!-- end includeGalleryNav -->
@@ -480,7 +485,31 @@
 			</div>
 		</div>
 #end
+#includePage()
 	</div>
 </div>
 <!-- end includeSiteNav -->
+#end
+
+
+
+#macro( includeBottom )
+<div id="footer">
+	<div class="footerExtNav" align="center">
+		|
+#foreach ( $bn in $bottomNav )
+		${bn}  | 
+#end
+	</div>
+	<div id="footerInfo">
+#foreach ( $pb in $bottomNavPoweredBy )
+		<span class="skip">${bottomNavSitNewWindow}</span>	
+		<a href="${pb.powerdByUrl}" target="_blank">
+				<img border="0" src="${pb.poweredByImage}" alt="${pb.poweredByAltText}" /></a>
+#end
+	</div>
+	<div class="sakaiCopyrightInfo">${bottomNavCopyright}<br />
+	${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} - Server ${bottomNavServer}
+	</div>
+</div>
 #end

@@ -1,6 +1,5 @@
 #start_response()
 <!-- site.vm -->
 #includeSiteNavSkinTwo()
-#includeWorksite()
 <!-- end site.vm -->
 #end_response()
