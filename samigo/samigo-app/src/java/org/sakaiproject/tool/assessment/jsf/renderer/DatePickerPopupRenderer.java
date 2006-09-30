@@ -106,7 +106,7 @@ public class DatePickerPopupRenderer extends Renderer
       String wed = days[Calendar.WEDNESDAY];
       String thu = days[Calendar.THURSDAY];
       String fri = days[Calendar.FRIDAY];
-      String sat = days[Calendar.SATURDAY];
+      //String sat = days[Calendar.SATURDAY];
       String sun = days[Calendar.SUNDAY];
 
       String contextPath = context.getExternalContext().getRequestContextPath();
