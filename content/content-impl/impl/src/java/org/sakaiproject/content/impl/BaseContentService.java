@@ -9465,14 +9465,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			if (content == null)
 			{
-				try
-				{
-					throw new Exception();
-				}
-				catch (Exception e)
-				{
-					M_log.warn("setContent(): null content", e);
-				}
+				M_log.warn("setContent(): null content");
 				return;
 			}
 
