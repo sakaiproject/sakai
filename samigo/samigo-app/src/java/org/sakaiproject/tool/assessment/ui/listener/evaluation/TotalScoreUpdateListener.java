@@ -46,6 +46,7 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
@@ -207,7 +208,13 @@ public class TotalScoreUpdateListener
       log.debug("***oldComments = " + oldComments);
       log.debug("***newComments = " + newComments);
       if (oldScore==newScore && newIsLate.equals(oldIsLate) && 
-           ((newComments!=null && newComments.equals(oldComments)) || (newComments==null && oldComments==null))) {
+    		  ((newComments!=null && newComments.equals(oldComments)) 
+        		   || (newComments==null && oldComments==null)
+        		   // following condition will happen when there is no comments (null) and user clicks on SubmissionId.
+        		   // getComments() in AgentResults calls Validator.check(comments, "") so the null comment gets set to ""
+        		   // there is nothing updated. update flag should be false
+        		   || (newComments.equals("") && oldComments==null)) 
+        		   ) {
         update = false;
       }
     }
