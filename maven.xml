@@ -37,7 +37,6 @@
 				<include name="**/sakai.db.*" />
 			</fileset>
 		</copy>
-		<copy file="${basedir}/reference/demo/toolOrder.xml" tofile="${maven.tomcat.home}sakai/toolOrder.xml" />
 		<copy file="${basedir}/reference/demo/readme.txt" tofile="${maven.tomcat.home}demo_readme.txt" />
 		<copy file="${basedir}/reference/docs/readme.txt" tofile="${maven.tomcat.home}sakai_readme.txt" />
 		<copy todir="${maven.tomcat.home}/licenses/">
