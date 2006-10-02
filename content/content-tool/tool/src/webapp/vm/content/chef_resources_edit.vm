@@ -1268,7 +1268,8 @@
 	<p class="instruction">
 		$tlang.getString("edit.instr") <span class="reqStarInline">*</span>
 	</p>
-	<div class ="chefBreadCrumb">
+	<div class ="breadCrumb">
+		<h3>
 		$tlang.getString("gen.location")
 		<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="" />
 		#foreach ($element in $collectionPath)
@@ -1283,6 +1284,7 @@
 				/
 			#end
 		#end
+		</h3>
 	</div>	
 	#if($item.isFileUpload() || "$REPLACE" == "$intent")
    		<form name="propertyForm" id="propertyForm" action="#toolLinkParam("ResourcesAction" "doSavechanges" "special=upload&flow=update")" method="post" enctype="multipart/form-data">
@@ -1473,7 +1475,7 @@
 		#end
 		
 		######### begin availability section ##########
-		#if($availability_is_enabled && !$item.isInWorkspace())
+		#if($availability_is_enabled && !$item.isInWorkspace() && !$dropboxMode)
 		<h4>$tlang.getString("avail.title")</h4>
 		<div  class="labelindnt">
 			<table>

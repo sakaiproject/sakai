@@ -1463,7 +1463,7 @@
 				
 			#end
 			######### begin availability section ##########
-			#if($availability_is_enabled &&  !$item.isInWorkspace())
+			#if($availability_is_enabled &&  !$item.isInWorkspace() && !$dropboxMode)
 			<h4>$tlang.getString("avail.title")</h4>
 			<div  class="labelindnt">
 				<table>

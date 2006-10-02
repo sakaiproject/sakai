@@ -69,7 +69,8 @@
 	<p class="instruction">
 		$tlang.getString("gen.instr2") <span class="reqStarInline">*</span>
 	</p>	
-	<div class ="chefBreadCrumb">
+	<div class ="breadCrumb">
+		<h3>	
 		$tlang.getString("gen.location")
 		<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="" />
 		#foreach ($element in $collectionPath)
@@ -84,6 +85,7 @@
 				/
 			#end
 		#end
+		</h3>
 	</div>
 	######################## ================ Change Item Type, Number of Items ================ ########################
 	<form name="addItemForm" id="addItemForm" method="post" action="#toolForm("ResourcesAction")" >
