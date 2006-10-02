@@ -260,7 +260,7 @@ public class ItemAddListener
 	ItemBean item =itemauthorbean.getCurrentItem();
 	int index=0;
 	boolean FIBerror=false;
-	String err="";
+//	String err="";
 	boolean hasOpen=false;
 	int opencount=0;
 	int closecount=0;
@@ -497,7 +497,7 @@ public class ItemAddListener
       //ItemFacade savedItem =  null;
 
       if ( (itemauthor.getTarget() != null) &&
-          (itemauthor.getTarget().equals(itemauthor.FROM_QUESTIONPOOL))) {
+          (itemauthor.getTarget().equals(ItemAuthorBean.FROM_QUESTIONPOOL))) {
         // Came from Pool manager
 
         delegate.saveItem(item);
