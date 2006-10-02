@@ -376,6 +376,11 @@
             <property-name>areaManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.AreaManager"]}</value>
         </managed-property>  
+        <managed-property>
+            <description>Message Type Manager</description>
+            <property-name>typeManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"]}</value>
+        </managed-property>
  	</managed-bean>
  
     <!-- =================== Application Objects ============== -->

@@ -166,13 +166,11 @@ public class MessageForumSynopticBean {
 		// get Site id
 		String siteId = ToolManager.getCurrentPlacement().getContext();
 
-		// TODO: determine if tool in My Workspace (ie, need global) or 
-		// within site (just get this imformation
 		if (SiteService.getUserSiteId("admin").equals(siteId)) return false;
 		
 		final boolean where = SiteService.isUserSite(siteId);
 
-		LOG.info("Result of determinig if My Workspace: " + where);
+		LOG.debug("Result of determinig if My Workspace: " + where);
 		
 		return where;
 	}
@@ -218,25 +216,29 @@ public class MessageForumSynopticBean {
 
 		}
 		else {
-			// Get stats for just this site
+			// Tool within site, get stats for just this site
 			
 			if (isMessageForumsPageInSite()) {
+				int unreadPrivate = 0;
+				
 				DecoratedCompiledMessageStats dcms = new DecoratedCompiledMessageStats();
 			
 				dcms.setSiteName(getSiteName());
 
-				// Get private message area so we can determine number of
-				// unread messages
-				// Already done so we just need to copy
+				// Get private message area so we can get the
+				// private messasge forum so we can get the
+				// List of topics so we can get the Received topic
+				// to finally determine number of unread messages
 				final Area area = pvtMessageManager.getPrivateMessageArea();
 				PrivateForum pf = pvtMessageManager.initializePrivateMessageArea(area);
-
 				final List pt = pf.getTopics();
 				final Topic privateTopic = (Topic) pt.iterator().next();
+				
+				String typeUuid = typeManager.getReceivedPrivateMessageType();
 
-				int unreadPrivate = messageManager.findUnreadMessageCountByTopicId(privateTopic.getId());
-			
-				dcms.setUnreadPrivate(unreadPrivate + " private" );
+				unreadPrivate = pvtMessageManager.findUnreadMessageCount(typeUuid);
+								
+				dcms.setUnreadPrivate(unreadPrivate + " Private" );
 
 				// Number of unread forum messages is a little harder
 				// need to loop through all topics and add them up
@@ -249,7 +251,7 @@ public class MessageForumSynopticBean {
 					final DiscussionForum df = (DiscussionForum) forumIter.next();
 					
 					final List topics = df.getTopics();
-					final Iterator topicIter = topics.iterator();
+					Iterator topicIter = topics.iterator();
 					
 					while (topicIter.hasNext()) {
 						final Topic topic = (Topic) topicIter.next();
@@ -258,7 +260,7 @@ public class MessageForumSynopticBean {
 					
 					}
 				}
-				dcms.setUnreadForums(unreadForum + " forum");
+				dcms.setUnreadForums(unreadForum + " Forum");
 			
 				contents.add(dcms);
 			}
