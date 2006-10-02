@@ -25,7 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+//import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -69,7 +69,7 @@ public class PublishAssessmentListener
 
 
   private static Log log = LogFactory.getLog(PublishAssessmentListener.class);
-  private static ContextUtil cu;
+  //private static ContextUtil cu;
   private static final GradebookServiceHelper gbsHelper =
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();
   private static final boolean integrated =
@@ -82,7 +82,7 @@ public class PublishAssessmentListener
   public void processAction(ActionEvent ae) throws AbortProcessingException {
   	synchronized(repeatedPublish)
 		{
-  		FacesContext context = FacesContext.getCurrentInstance();
+  		//FacesContext context = FacesContext.getCurrentInstance();
   		
   		UIComponent eventSource = (UIComponent) ae.getSource();
   		ValueBinding vb = eventSource.getValueBinding("value");
@@ -95,14 +95,12 @@ public class PublishAssessmentListener
   		
   		if(!repeatedPublish.booleanValue())
   		{
-  			Map reqMap = context.getExternalContext().getRequestMap();
-  			Map requestParams = context.getExternalContext().getRequestParameterMap();
-  			AuthorBean author = (AuthorBean) cu.lookupBean(
+  			//Map reqMap = context.getExternalContext().getRequestMap();
+  			//Map requestParams = context.getExternalContext().getRequestParameterMap();
+  			AuthorBean author = (AuthorBean) ContextUtil.lookupBean(
   			"author");
   			
-  			AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
-				lookupBean(
-				"assessmentSettings");
+  			AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
   			
   			AssessmentService assessmentService = new AssessmentService();
   			PublishedAssessmentService publishedAssessmentService = new
@@ -165,7 +163,7 @@ public class PublishAssessmentListener
        log.warn(gbe);
         gbe.printStackTrace();
         // Add a global message (not bound to any component) to the faces context indicating the failure
-        String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+        String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
                                                  "gradebook_exception_min_points");
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(err));
         throw new AbortProcessingException(gbe);
@@ -175,7 +173,7 @@ public class PublishAssessmentListener
         log.warn(e);
         e.printStackTrace();
         // Add a global message (not bound to any component) to the faces context indicating the failure
-        String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+        String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
                                                  "gradebook_exception_error");
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(err));
         throw new AbortProcessingException(e);
@@ -232,7 +230,7 @@ public class PublishAssessmentListener
       if (toGradebook!=null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
           gbsHelper.isAssignmentDefined(assessmentName, g)){
         error=true;
-        String gbConflict_error=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
+        String gbConflict_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
         FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(gbConflict_error));
       }
     }
