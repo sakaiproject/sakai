@@ -244,7 +244,7 @@ $Id$
 
 	
         <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsL1"
-         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
+         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'  && totalScores.multipleSubmissionsAllowed eq 'true'  }">
           <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
           <f:selectItem itemValue="2" itemLabel="#{msg.last_sub}" />
           <f:valueChangeListener
@@ -252,7 +252,7 @@ $Id$
         </h:selectOneMenu>
 
         <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsH1"
-         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
+         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'  && totalScores.multipleSubmissionsAllowed eq 'true' }">
           <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
           <f:selectItem itemValue="1" itemLabel="#{msg.highest_sub}" />
           <f:valueChangeListener
@@ -296,7 +296,7 @@ $Id$
     <h:panelGrid columns="1" columnClasses="samLeftNav" width="100%">
       <h:panelGroup>
         <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsL2"
-         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
+         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'  && totalScores.multipleSubmissionsAllowed eq 'true' }">
         <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
         <f:selectItem itemValue="2" itemLabel="#{msg.last_sub}" />
         <f:valueChangeListener
@@ -304,7 +304,7 @@ $Id$
         </h:selectOneMenu>
 
         <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsH2"
-         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
+         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'  && totalScores.multipleSubmissionsAllowed eq 'true' }">
           <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
           <f:selectItem itemValue="1" itemLabel="#{msg.highest_sub}" />
           <f:valueChangeListener

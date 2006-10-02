@@ -113,7 +113,7 @@ public class TotalScoresBean
   private String searchString;
   private String defaultSearchString;
   
-  
+  private boolean multipleSubmissionsAllowed = false;
   
   private static Log log = LogFactory.getLog(TotalScoresBean.class);
 
@@ -797,6 +797,8 @@ public class TotalScoresBean
       // set evaluation model properties
       PublishedEvaluationModel eval = (PublishedEvaluationModel) publishedAssessment.getEvaluationModel();
       setEvaluationModelProperties(eval);
+      
+
     }
   }
 
@@ -810,6 +812,20 @@ public class TotalScoresBean
         setReleaseToAnonymous(false);
       }
       else setReleaseToAnonymous(true);
+      
+      // set submission allowed
+      
+      if (ac.getSubmissionsAllowed()!=null){
+      	if (ac.getSubmissionsAllowed().intValue()> 1){
+      		setMultipleSubmissionsAllowed(true);
+      	}
+      	else {
+      		setMultipleSubmissionsAllowed(false);
+      	}
+      }
+      else {
+    	  setMultipleSubmissionsAllowed(true);
+      }
     }
   }
 
@@ -822,7 +838,7 @@ public class TotalScoresBean
                     EvaluationModelIfc.ANONYMOUS_GRADING)?"true":"false";
       setAnonymous(anon);
     }
-
+ 
     if (eval != null && eval.getFixedTotalScore()!=null )
       setMaxScore(eval.getFixedTotalScore().toString());
     else if (publishedAssessment.getTotalScore()!=null)
@@ -929,4 +945,20 @@ public class TotalScoresBean
 		}
 		return filteredList;
 	}
+
+	/**
+	 * @return Returns the multipleSubmissionsAllowed.
+	 */
+	public boolean isMultipleSubmissionsAllowed() {
+		return multipleSubmissionsAllowed;
+	}
+
+	/**
+	 * @param multipleSubmissionsAllowed The multipleSubmissionsAllowed to set.
+	 */
+	public void setMultipleSubmissionsAllowed(boolean multipleSubmissionsAllowed) {
+		this.multipleSubmissionsAllowed = multipleSubmissionsAllowed;
+	}
+
+
 }
