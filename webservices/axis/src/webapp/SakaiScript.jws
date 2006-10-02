@@ -28,62 +28,20 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.SiteService.SortType;
+
 import java.util.Properties;
 import org.apache.axis.AxisFault;
 
 import org.sakaiproject.util.Xml;
-//import org.w3c.dom.Document;
-//import org.w3c.dom.Element;
-//import org.w3c.dom.Node;
-//import org.w3c.dom.NodeList;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 public class SakaiScript {
 	
 	private static final Log LOG = LogFactory.getLog(SakaiScript.class);
 	
-	/*
-	private String makeStringListDom(Collection strings)
-	{
-		Document dom = Xml.createDocument();
-		Node list = dom.createElement("list");
-		dom.appendChild(list);
-		
-		if (strings == null)
-		{
-			return "<list/>";
-		}
-		
-		for (Iterator i = strings.iterator(); i.hasNext();)
-		{
-			Node item = dom.createElement("item");
-			item.appendChild(dom.createTextNode((String) i.next()));
-			list.appendChild(item);
-		}
-		
-		return Xml.writeDocumentToString(dom);
-	}
-	*/
-
-	/*
-public String login(String id,String pw) {
-	User user = UserDirectoryService.authenticate(id,pw);
-	if ( user != null ) {
-		Session s = SessionManager.startSession();
-		if (s == null)
-		{
-			return "sessionnull";
-		}
-		else
-		{
-                        s.setUserId(user.getId());
-			s.setUserEid(id);
-			return s.getId();
-		}
-	}
-	return "usernull";
-}
-	*/
-
 private Session establishSession(String id) throws AxisFault 
 {
 	Session s = SessionManager.getSession(id);
@@ -772,33 +730,50 @@ public boolean checkForMemberInAuthzGroupWithRole(String sessionid, String eid, 
 	}
 }
 
-/*
-public String getSitesUserCanAccess(String sessionid, String userid) throws AxisFault
+// Return XML document listing all sites user has read or write access
+public String getSitesUserCanAccess(String sessionid)
+	throws AxisFault
 {
 	Session s = establishSession(sessionid);
-	try {
-		Set realms = AuthzGroupService.isAllowed(userid, "site.visit", null);
-		if (realms == null)
-			return "<list/>";
+	
+	try 
+	{
+		List allSites = SiteService.getSites(SelectionType.ACCESS, null, null,
+														  null, SortType.TITLE_ASC, null);
+		List moreSites = SiteService.getSites(SelectionType.UPDATE, null, null,
+															null, SortType.TITLE_ASC, null);
 		
-		List worksites = new ArrayList();
-		for (Iterator i = realms.iterator(); i.hasNext();) {
-			String ref = (String) i.next();
-			if ((SiteService.isSpecialSite(ref) == false) &&
-				(SiteService.isUserSite(ref) == false))
-			{
-				//TODO: This is probably not the right way to get 
-				// the SiteID from a Site Reference
-				worksites.add(ref.substring(6));
-			}
+		if ( (allSites == null || moreSites == null) ||
+			  (allSites.size() == 0 && moreSites.size() == 0) )
+			return "<list/>";
+
+		// combine two lists
+		allSites.addAll( moreSites );
+		
+		Document dom = Xml.createDocument();
+		Node list = dom.createElement("list");
+		dom.appendChild(list);
+		
+		for (Iterator i = allSites.iterator(); i.hasNext();)
+		{
+		   Site site = (Site)i.next();
+			Node item = dom.createElement("item");
+			Node siteId = dom.createElement("siteId");
+			siteId.appendChild( dom.createTextNode(site.getId()) );
+			Node siteTitle = dom.createElement("siteTitle");
+			siteTitle.appendChild( dom.createTextNode(site.getTitle()) );
+			
+			item.appendChild(siteId);
+			item.appendChild(siteTitle);
+			list.appendChild(item);
 		}
 		
-		return makeStringListDom(worksites);
+		return Xml.writeDocumentToString(dom);
 	}
-	catch (Exception e) {
+	catch (Exception e) 
+	{
 		return "<exception/>";
 	}
 }
-*/
 
 }
