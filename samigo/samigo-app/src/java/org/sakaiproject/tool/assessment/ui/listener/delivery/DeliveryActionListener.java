@@ -1555,9 +1555,9 @@ public class DeliveryActionListener
     }
 
     return status;
-  }
+  } 
   */
-
+   
   public void populateFin(ItemDataIfc item, ItemContentsBean bean)
   {
     // Only one text in FIN
@@ -1594,7 +1594,7 @@ public class DeliveryActionListener
           
           log.debug(" " + data.getPublishedAnswerId() + " = " + answer.getId());
           
-          if (data.getPublishedAnswerId().equals(answer.getId()))
+          if ((data.getPublishedAnswerId()!=null) && (data.getPublishedAnswerId().equals(answer.getId())))
           {
         	  
             fbean.setItemGradingData(data);
@@ -1667,7 +1667,9 @@ public class DeliveryActionListener
    * @param verbose
    * @return
    */
+
   /*
+
   private static boolean testExtractFINTextArray(boolean verbose)
   {
     boolean status = true;
@@ -1718,6 +1720,7 @@ public class DeliveryActionListener
   */
   
   
+  /*
   public static void main (String args[])
   {
     boolean verbose = true;
@@ -1729,7 +1732,9 @@ public class DeliveryActionListener
     //log.debug("testExtractFIBTextArray result="+testExtractFIBTextArray(verbose));;
 
   }
-
+*/
+  
+  
   public String getAgentString(){
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
     String agentString = person.getId();
