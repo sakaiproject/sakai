@@ -145,10 +145,10 @@
     <property name="resourceId" type="string" length="255" column="RESOURCEID" not-null="false" />
     <property name="filename" type="string" length="255" column="FILENAME" not-null="false" />
     <property name="mimeType" type="string" length="80"  column="MIMETYPE" not-null="false" />
-    <property name="fileSize" type="integer" column="FILESIZE" not-null="false" />
+    <property name="fileSize" type="long" column="FILESIZE" not-null="false" />
     <property name="description" type="string" length="4000" column="DESCRIPTION" not-null="false" />
     <property name="location" type="string" length="4000" column="LOCATION" not-null="false" />
-    <property name="isLink" type="integer" column="ISLINK" not-null="false" />
+    <property name="isLink" type="boolean" column="ISLINK" not-null="false" />
     <property name="status" type="integer" column="STATUS" not-null="true" />
     <property name="createdBy" type="string" length="36" column="CREATEDBY" not-null="true" />
     <property name="createdDate" type="timestamp" column="CREATEDDATE" not-null="true" />
