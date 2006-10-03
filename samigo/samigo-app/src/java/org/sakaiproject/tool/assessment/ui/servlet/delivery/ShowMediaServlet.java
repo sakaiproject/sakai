@@ -113,7 +113,7 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
     boolean hasPrevileage = agentIdString !=null && mediaData != null &&
     	(agentIdString.equals(mediaData.getCreatedBy()) // user is creator
     	 || canGrade(req, res, agentIdString, currentSiteId, assessmentCreatedBy));
-    boolean isFromLink = true;
+    boolean isFromLink = false;
     if (fromLink != null) {
     	isFromLink = (new Boolean(fromLink)).booleanValue();
     }
