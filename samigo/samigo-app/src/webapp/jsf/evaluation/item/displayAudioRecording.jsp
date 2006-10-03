@@ -33,7 +33,7 @@ should be included in file importing DeliveryMessages
     <h:column>
 
       <h:outputText escape="false" value="
-         <embed src=\"/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}&fromLink=true\"
+         <embed src=\"/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}\"
                 volume=\"50\" height=\"25\" width=\"300\" autostart=\"false\"/>
          " />
 

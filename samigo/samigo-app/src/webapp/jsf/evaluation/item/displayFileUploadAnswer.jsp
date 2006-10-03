@@ -32,7 +32,7 @@ should be included in file importing DeliveryMessages
 	  <h:outputText value="#{description.answer}" escape="false" rendered="#{itemGradingArrayList.mediaSize == 0}" />
       <h:dataTable value="#{itemGradingArrayList.mediaArray}" var="media">
         <h:column>
-          <h:outputLink title="#{msg.t_fileUpload}" value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}&sam_fileupload_siteId=#{delivery.siteId}&createdBy=#{question.itemData.createdBy}" target="new_window">
+          <h:outputLink title="#{msg.t_fileUpload}" value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}" target="new_window">
              <h:outputText escape="false" value="#{media.filename}" />
           </h:outputLink>
         </h:column>

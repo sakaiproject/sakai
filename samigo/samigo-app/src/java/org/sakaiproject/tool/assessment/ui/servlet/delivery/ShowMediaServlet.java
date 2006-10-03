@@ -26,6 +26,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 //import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
@@ -74,7 +75,6 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
   {
     // get media
     String mediaId = req.getParameter("mediaId");
-    String fromLink = req.getParameter("fromLink");
     GradingService gradingService = new GradingService();
     MediaData mediaData = gradingService.getMedia(mediaId);
     String mediaLocation = mediaData.getLocation();
@@ -87,7 +87,7 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
     log.info("****2. setMimeType="+setMimeType);
 
     // get assessment's ownerId
-    String assessmentCreatedBy = req.getParameter("createdBy");
+    // String assessmentCreatedBy = req.getParameter("createdBy");
 
     // who can access the media? You can,
     // a. if you are the creator.
@@ -95,12 +95,17 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
     boolean accessDenied = true;
     String agentIdString = getAgentString(req, res);
     String currentSiteId="";
+    boolean isAudio = false;
     if (mediaData != null){
       Long assessmentGradingId = mediaData.getItemGradingData().getAssessmentGradingId();
       PublishedAssessmentIfc pub = gradingService.getPublishedAssessmentByAssessmentGradingId(assessmentGradingId.toString()); 
       if (pub!=null){
         PublishedAssessmentService service = new PublishedAssessmentService();
         currentSiteId = service.getPublishedAssessmentOwner(pub.getPublishedAssessmentId());
+      }
+      Long typeId = gradingService.getTypeId(mediaData.getItemGradingData().getItemGradingId());
+      if (typeId.equals(TypeIfc.AUDIO_RECORDING)) {
+    	  isAudio = true;
       }
     }
 
@@ -110,14 +115,12 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
     
     // We only need to verify the Previleage if we display the media as a hyperlink
     // If we display them in line, the previleage has been checked during rendering
-    boolean hasPrevileage = agentIdString !=null && mediaData != null &&
+    // For SAK-6294, we want to display audio player in line. So we set isAudio to true above
+    // and skip the privilege checking
+    boolean hasPrivilege = agentIdString !=null && mediaData != null &&
     	(agentIdString.equals(mediaData.getCreatedBy()) // user is creator
-    	 || canGrade(req, res, agentIdString, currentSiteId, assessmentCreatedBy));
-    boolean isFromLink = false;
-    if (fromLink != null) {
-    	isFromLink = (new Boolean(fromLink)).booleanValue();
-    }
-    if (hasPrevileage || isFromLink) {
+    	 || canGrade(req, res, agentIdString, currentSiteId));
+    if (hasPrivilege || isAudio) {
       accessDenied = false;
     }
     if (accessDenied){
@@ -243,11 +246,10 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
   }
 
   public boolean canGrade(HttpServletRequest req,  HttpServletResponse res,
-                          String agentId, String currentSiteId, String assessmentCreatedBy){
+                          String agentId, String currentSiteId){
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet("authorization", req, res);
     boolean hasPrivilege_any = authzBean.getGradeAnyAssessment(req, currentSiteId);
-    boolean hasPrivilege_own0 = authzBean.getGradeOwnAssessment(req, currentSiteId);
-    boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(agentId, assessmentCreatedBy));
+    boolean hasPrivilege_own = authzBean.getGradeOwnAssessment(req, currentSiteId);
     boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
     return hasPrivilege;    
   }
