@@ -3691,7 +3691,9 @@ public class DiscussionForumTool
   }
   public List getSiteRoles()
   {
-    return getSiteMembers(false);
+    //for group awareness
+    //return getSiteMembers(false);
+  	return getSiteMembers(true);
   }
 
   public List getSiteMembers(boolean includeGroup)
@@ -3949,7 +3951,9 @@ public class DiscussionForumTool
       while (iter.hasNext())
       {
         PermissionBean permBean = (PermissionBean) iter.next();
-        DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), permBean.getSelectedLevel(), DBMembershipItem.TYPE_ROLE);
+        //for group awareness
+        //DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), permBean.getSelectedLevel(), DBMembershipItem.TYPE_ROLE);
+        DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), permBean.getSelectedLevel(), permBean.getItem().getType());
         
         
         if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM.equals(membershipItem.getPermissionLevelName())){

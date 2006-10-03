@@ -44,6 +44,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
@@ -893,11 +894,37 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     Set membershipItems = topic.getMembershipItemSet();
     DBMembershipItem item = forumManager.getDBMember(membershipItems, getCurrentUserRole(),
         DBMembershipItem.TYPE_ROLE);
-    
+
     if (item != null){
       topicItems.add(item);
     }
 
+    //for group awareness
+    try
+    {
+    	Site currentSite = SiteService.getSite(toolManager.getCurrentPlacement().getContext());   
+
+    	Collection groups = currentSite.getGroups();    
+    	for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
+    	{
+    		Group currentGroup = (Group) groupIterator.next();  
+    		currentGroup.getTitle();
+
+    		if(currentGroup.getMember(getCurrentUserId()) != null)
+    		{
+    			DBMembershipItem groupItem = forumManager.getDBMember(membershipItems, currentGroup.getTitle(),
+    					DBMembershipItem.TYPE_GROUP);
+    			if (groupItem != null){
+    				topicItems.add(groupItem);
+    			}
+    		}
+    	}
+    }
+    catch(IdUnusedException iue)
+    {
+    	iue.printStackTrace();
+    }
+    
 //    Iterator iter = membershipItems.iterator();
 //    while (iter.hasNext())
 //    {

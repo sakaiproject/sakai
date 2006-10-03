@@ -1776,7 +1776,8 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     
     if (membershipItem == null || membershipItem.getPermissionLevel() == null){    	
     	PermissionLevel level = null;
-    	if (type.equals(DBMembershipItem.TYPE_ROLE))
+    	//for groups awareness
+    	if (type.equals(DBMembershipItem.TYPE_ROLE) || type.equals(DBMembershipItem.TYPE_GROUP))
       { 
     		
     		String levelName = null;
@@ -1803,6 +1804,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
         	if (AuthzGroupService.getAllowedFunctions(name, siteIds)
         			.contains(SiteService.SECURE_UPDATE_SITE)){        			        	        	
         		level = permissionLevelManager.getDefaultOwnerPermissionLevel();
+        	}
+        	else if(type.equals(DBMembershipItem.TYPE_GROUP))
+        	{
+        	  level = permissionLevelManager.getDefaultNonePermissionLevel();
         	}
         	else{
         		level = permissionLevelManager.getDefaultContributorPermissionLevel();

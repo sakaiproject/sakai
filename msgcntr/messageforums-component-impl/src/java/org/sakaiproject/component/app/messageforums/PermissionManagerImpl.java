@@ -867,7 +867,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setReviseOwn(permission.getReviseOwn());
         permissions.setMarkAsRead(permission.getMarkAsRead());
         permissions.setRole(permission.getRole());
-        getHibernateTemplate().saveOrUpdate(permissions);                
+        getHibernateTemplate().saveOrUpdate(permissions);
         
         if (isNew) {
             eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(topic, permissions), false));

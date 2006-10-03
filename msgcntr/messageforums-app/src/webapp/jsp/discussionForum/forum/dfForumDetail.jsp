@@ -60,8 +60,8 @@
 						  <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					  </h:commandLink>
 					 <f:verbatim></h4></f:verbatim> 
-				  	  <h:outputText styleClass="textPanelFooter" id="topic_msg_count" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msg} - #{topic.unreadNoMessages} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" rendered="#{topic.totalNoMessages < 2}"/>
-					  <h:outputText styleClass="textPanelFooter" id="topic_msgs_count" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msgs} - #{topic.unreadNoMessages} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" rendered="#{topic.totalNoMessages > 1}"/>
+						<h:outputText styleClass="textPanelFooter" id="topic_msg_count" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msg} - #{topic.unreadNoMessages} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" rendered="#{topic.isRead && topic.totalNoMessages < 2}"/>
+						<h:outputText styleClass="textPanelFooter" id="topic_msgs_count" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msgs} - #{topic.unreadNoMessages} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" rendered="#{topic.isRead && topic.totalNoMessages > 1}"/>
 				  </h:panelGroup>
 				  <h:panelGroup styleClass="msgNav">
 						<h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}"
