@@ -8975,7 +8975,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 							ContentResourceEdit entity = editResource(name);
 							ResourcePropertiesEdit props = entity.getPropertiesEdit();
 							props.addProperty(ResourceProperties.PROP_CONTENT_PRIORITY, priority.toString());
-							commitResource((ContentResourceEdit) entity);
+							// Soo Il Kim (kimsooil@bu.edu): added parameter to eliminate notifications
+							commitResource(entity, NotificationService.NOTI_NONE);
 						}
 					}
 					catch(TypeException e)
