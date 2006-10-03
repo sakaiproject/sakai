@@ -45,18 +45,34 @@ public class OneWayHash
 	 * 
 	 * @param clear
 	 *        The text to encode.
-	 * @return The encoded text.
+	 * @param truncated
+	 *        return a value truncated as we used to be before fixing SAK-5922 (works only with MD5 algorithm base64'ed)
+	 * @return The encoded and base64'ed text.
 	 */
-	public static String encode(String clear)
+	public static String encode(String clear, boolean truncated)
 	{
 		try
 		{
+			// compute the digest using the MD5 algorithm
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			byte[] digest = md.digest(clear.getBytes("UTF-8"));
+
+			// encode as base64
 			ByteArrayOutputStream bas = new ByteArrayOutputStream(digest.length + digest.length / 3 + 1);
 			OutputStream encodedStream = MimeUtility.encode(bas, "base64");
 			encodedStream.write(digest);
-			return bas.toString();
+
+			// we used to pick up the encoding before it was complete, leaving off the last 4 characters of the encoded value
+			String truncatedValue = bas.toString();
+
+			// close the stream to complete the encoding
+			encodedStream.close();
+			String rv = bas.toString();
+
+			// if we are asking for the truncated value, return that
+			if (truncated) return truncatedValue;
+
+			return rv;
 		}
 		catch (Exception e)
 		{

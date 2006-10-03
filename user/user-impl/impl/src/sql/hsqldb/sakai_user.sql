@@ -66,7 +66,7 @@ CREATE UNIQUE INDEX AK_SAKAI_USER_ID_MAP_EID ON SAKAI_USER_ID_MAP
 
 -- populate with the admin and postmaster users
 
-INSERT INTO SAKAI_USER VALUES ('admin', '', '', 'Sakai', 'Administrator', '', 'ISMvKXpXpadDiUoOSoAf', 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO SAKAI_USER VALUES ('admin', '', '', 'Sakai', 'Administrator', '', 'ISMvKXpXpadDiUoOSoAfww==', 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 INSERT INTO SAKAI_USER VALUES ('postmaster', '', '', 'Sakai', 'Postmaster', '', '', '1', '1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO SAKAI_USER_ID_MAP VALUES ('admin', 'admin');

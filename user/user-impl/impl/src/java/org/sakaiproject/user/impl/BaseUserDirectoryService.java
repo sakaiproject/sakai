@@ -2294,10 +2294,23 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			// if we have no password, or none is given, we fail
 			if ((m_pw == null) || (pw == null)) return false;
 
-			// encode this password
-			String encoded = OneWayHash.encode(pw);
+			// if we have a truncated (i.e. pre SAK-5922) password, deal with it
+			if (m_pw.length() == 20)
+			{
+				// encode this password truncated
+				String encoded = OneWayHash.encode(pw, true);
 
-			if (m_pw.equals(encoded)) return true;
+				if (m_pw.equals(encoded)) return true;
+			}
+			
+			// otherwise deal with the full encoding
+			else
+			{
+				// encode this password
+				String encoded = OneWayHash.encode(pw, false);
+
+				if (m_pw.equals(encoded)) return true;
+			}
 
 			return false;
 		}
@@ -2421,7 +2434,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				// else encode the new one
 				else
 				{
-					String encoded = OneWayHash.encode(pw);
+					// encode this password
+					String encoded = OneWayHash.encode(pw, false);
 					m_pw = encoded;
 				}
 			}
