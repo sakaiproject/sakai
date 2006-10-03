@@ -5062,7 +5062,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	/**
 	 * Return a map of Worksite collections roots that the user has access to.
 	 * 
-	 * @return Map of worksite resource root id (String) to worksite title (String) 
+	 * @return Map of worksite resource root id (String) to worksite title (String)
 	 */
 	public Map getCollectionMap()
 	{
@@ -5072,6 +5072,15 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// get the sites the user has access to
 		List mySites = m_siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null, null,
 				org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
+
+		// add in the user's myworkspace site, if we can find it
+		try
+		{
+			mySites.add(m_siteService.getSite(m_siteService.getUserSiteId(SessionManager.getCurrentSessionUserId())));
+		}
+		catch (IdUnusedException e)
+		{
+		}
 
 		// check each one for dropbox and resources
 		for (Iterator i = mySites.iterator(); i.hasNext();)
@@ -5089,7 +5098,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// test resources
 			if (site.getToolForCommonId("sakai.resources") != null)
 			{
-			
+
 				String collectionId = getSiteCollection(site.getId());
 				String title = site.getTitle() + " " + rb.getString("gen.reso");
 				rv.put(collectionId, title);
