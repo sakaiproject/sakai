@@ -103,7 +103,8 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
         PublishedAssessmentService service = new PublishedAssessmentService();
         currentSiteId = service.getPublishedAssessmentOwner(pub.getPublishedAssessmentId());
       }
-      Long typeId = gradingService.getTypeId(mediaData.getItemGradingData().getItemGradingId());
+      //Long typeId = gradingService.getTypeId(mediaData.getItemGradingData().getItemGradingId());
+      Long typeId = TypeIfc.AUDIO_RECORDING;
       if (typeId.equals(TypeIfc.AUDIO_RECORDING)) {
     	  isAudio = true;
       }
