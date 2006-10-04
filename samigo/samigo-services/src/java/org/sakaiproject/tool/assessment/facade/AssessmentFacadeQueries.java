@@ -483,7 +483,7 @@ public class AssessmentFacadeQueries
         AssessmentService s = new AssessmentService();
         List resourceIdList = s.getResourceIdList(assessment);
         getHibernateTemplate().delete(assessment);
-        deleteResources(resourceIdList);
+        s.deleteResources(resourceIdList);
         retryCount = 0;
       }
       catch (Exception e) {
@@ -1595,22 +1595,6 @@ public class AssessmentFacadeQueries
       catch (Exception e) {
         log.warn("problem delete assessmentAttachment: "+e.getMessage());
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
-      }
-    }
-  }
-
-  public void deleteResources(List resourceIdList){
-    if (resourceIdList == null) return;
-    for (int i=0;i<resourceIdList.size(); i++){
-      String resourceId = (String)resourceIdList.get(i);
-      resourceId = resourceId.trim();
-      if (resourceId.toLowerCase().startsWith("/attachment")){
-        try{
-          ContentHostingService.removeResource(resourceId);
-        }
-        catch(Exception e){
-          log.warn(e.getMessage());
-        }
       }
     }
   }

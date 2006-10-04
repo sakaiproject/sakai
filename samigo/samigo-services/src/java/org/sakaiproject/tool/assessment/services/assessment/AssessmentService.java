@@ -46,7 +46,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-
+import org.sakaiproject.content.cover.ContentHostingService;
 
 /**
  * The AssessmentService calls the service locator to reach the
@@ -461,11 +461,6 @@ public void deleteAssessment(Id assessmentId)
           removeAssessmentAttachment(new Long(attachmentId));
   }
 
-  public void deleteResources(List resourceIdList){
-    PersistenceService.getInstance().getAssessmentFacadeQueries().
-      deleteResources(resourceIdList);
-  }
-
   public List getResourceIdList(AssessmentIfc pub){
     List resourceIdList = new ArrayList();
     List list = pub.getAssessmentAttachmentList();
@@ -496,6 +491,22 @@ public void deleteAssessment(Id assessmentId)
       log.debug("*** resourceId ="+attach.getResourceId());
     } 
     return resourceIdList;
+  }
+
+  public void deleteResources(List resourceIdList){
+    if (resourceIdList == null) return;
+      for (int i=0;i<resourceIdList.size(); i++){
+        String resourceId = (String)resourceIdList.get(i);
+        resourceId = resourceId.trim();
+        if (resourceId.toLowerCase().startsWith("/attachment")){
+          try{
+            ContentHostingService.removeResource(resourceId);
+          }
+          catch(Exception e){
+            log.warn(e.getMessage());
+          }
+	}
+      }
   }
 
 }

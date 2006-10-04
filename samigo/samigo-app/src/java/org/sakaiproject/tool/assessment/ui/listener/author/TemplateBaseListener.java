@@ -42,8 +42,6 @@ import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
  * <p>Title: Sakai Project</p>
  * <p>Description:  Samigo Assessment Manager.  This is a base class with some common methods used by
  *  template action listerners.</p>
- * <p>Copyright: * * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University, \n*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation \n* \n* Licensed under the Educational Community License Version 1.0 (the "License"); \n* By obtaining, using and/or copying this Original Work, you agree that you have read,\n * understand, and will comply with the terms and conditions of the Educational Community License. \n* You may obtain a copy of the License at: \n*\n *      \nhttp://cvs.sakaiproject.org/licenses/license_1_0.html * * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, n* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING \n* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
- * <p>Company: Trustees of Indiana University, The Regents of the University of Michigan, and Stanford University, all rights reserved. </p>
  * @author <a href="mailto:esmiley@stanford.edu">Ed Smiley</a>
  * @version $Id$
  */
