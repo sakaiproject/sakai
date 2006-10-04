@@ -47,6 +47,7 @@ import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentResourceEdit;
 
 /**
  * The AssessmentService calls the service locator to reach the
@@ -488,25 +489,25 @@ public void deleteAssessment(Id assessmentId)
     for (int i=0; i<list.size(); i++){
       AttachmentIfc attach = (AttachmentIfc) list.get(i);
       resourceIdList.add(attach.getResourceId());
-      log.debug("*** resourceId ="+attach.getResourceId());
     } 
     return resourceIdList;
   }
 
   public void deleteResources(List resourceIdList){
     if (resourceIdList == null) return;
-      for (int i=0;i<resourceIdList.size(); i++){
-        String resourceId = (String)resourceIdList.get(i);
-        resourceId = resourceId.trim();
-        if (resourceId.toLowerCase().startsWith("/attachment")){
-          try{
-            ContentHostingService.removeResource(resourceId);
-          }
-          catch(Exception e){
-            log.warn(e.getMessage());
-          }
-	}
-      }
+    for (int i=0;i<resourceIdList.size(); i++){
+      String resourceId = (String)resourceIdList.get(i);
+      resourceId = resourceId.trim();
+      if (resourceId.toLowerCase().startsWith("/attachment")){
+        try{
+          log.debug("removing="+resourceId);
+          ContentHostingService.removeResource(resourceId);
+        }
+        catch(Exception e){
+          log.warn("cannot remove resourceId="+resourceId+":"+e.getMessage());
+        }
+      }      
+    }
   }
 
 }

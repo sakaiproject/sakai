@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.List;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -37,6 +38,8 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 
 /**
  * <p>Title: Samigo</p>
@@ -60,14 +63,22 @@ public class RemoveAssessmentListener implements ActionListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
+    AssessmentService s = new AssessmentService();
 
     AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
                                                            "assessmentBean");
 
     // #1 - remove selected assessment on a separate thread
     String assessmentId = (String) assessmentBean.getAssessmentId();
+    AssessmentIfc assessment = s.getAssessment(assessmentId); 
     RemoveAssessmentThread thread = new RemoveAssessmentThread(assessmentId);
     thread.start();
+
+    /* TO BE DETERMINED 10/3/06
+    // #2 - even if assessment is set to dead, we intend to remove any resources
+    List resourceIdList = s.getResourceIdList(assessment);
+    s.deleteResources(resourceIdList);
+    */
 
     //#3 - goto authorIndex.jsp so fix the assessment List in author bean by
     // removing an assessment from the list
