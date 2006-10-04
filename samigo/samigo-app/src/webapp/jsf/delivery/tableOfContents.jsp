@@ -67,7 +67,9 @@ function saveTime()
   if((typeof (document.forms[0].elements['tableOfContentsForm:elapsed'])!=undefined) && ((document.forms[0].elements['tableOfContentsForm:elapsed'])!=null) ){
   pauseTiming = 'true';
   // loaded is in 1/10th sec and elapsed is in sec, so need to divide by 10
-  document.forms[0].elements['tableOfContentsForm:elapsed'].value=loaded/10;
+  if (self.loaded) {
+	document.forms[0].elements['tableOfContentsForm:elapsed'].value=loaded/10;
+  }
  }
 }
 
