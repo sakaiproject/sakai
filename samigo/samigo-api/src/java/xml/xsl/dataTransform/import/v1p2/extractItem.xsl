@@ -44,17 +44,11 @@
    </xsl:if>
   </xsl:for-each>
  </itemText>
-  <!-- FIB item text-->
+  <!-- FIB item text, also used for numerical response questions (FIN) -->
   <xsl:for-each select="//presentation//material/mattext">
     <itemFibText type="list">
       <xsl:apply-templates mode="itemRichText" />
     </itemFibText>
-  </xsl:for-each>
-  <!-- FIN item text-->
-    <xsl:for-each select="//presentation//material/mattext">
-      <itemFinText type="list">
-        <xsl:apply-templates mode="itemRichText" />
-      </itemFinText>
   </xsl:for-each>
   <!-- MATCHING item text, answers-->
   <xsl:for-each select="//presentation//response_grp//material/mattext">

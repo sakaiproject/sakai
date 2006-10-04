@@ -1015,19 +1015,13 @@ public class ItemAddListener
       
       //    save settings for mutually exclusive for FIN. Default=false
 	    // first check to see if it's a valid mutually exclusive mutiple answers FIN
+      /*
 	      boolean wellformattedFIN = false;
-	      
-	      /*  
-	       // commenting this out 'cuz this is not in the UI
-	      if (bean.getMutuallyExclusiveForFin()) {
-	        wellformattedFIN = isValidMutualExclusiveFIN(bean);
-	      }
-	      */
-	      
+ 	      
 	      set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIN,
 	                               Boolean.toString(wellformattedFIN)));
 
-   
+   */
       
      
     // save part id

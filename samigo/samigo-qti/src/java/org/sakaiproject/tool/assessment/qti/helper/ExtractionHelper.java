@@ -998,7 +998,8 @@ public class ExtractionHelper
 
   else if (TypeIfc.FILL_IN_NUMERIC.longValue() == typeId.longValue())
 	    {
-	      addFinTextAndAnswers(item, itemMap);
+	  		addFibTextAndAnswers(item, itemMap);
+	      //addFinTextAndAnswers(item, itemMap);  // 10/3/2006: Diego's code, duplicate of addFibTextAndAnswers
 	    }
 
     
@@ -1411,130 +1412,7 @@ public class ExtractionHelper
     item.setItemTextSet(itemTextSet);
   }
 
-  /**
-   * FIB questions ONLY
-   * @param item
-   * @param itemMap
-   */
-  private void addFinTextAndAnswers(ItemFacade item, Map itemMap)
-  {
-    List itemTextList = new ArrayList();
-    List iList = (List) itemMap.get("itemFinText");
-    itemTextList = iList == null ? itemTextList : iList;
-
-    List itemTList = new ArrayList();
-    List tList = (List) itemMap.get("itemText");
-    itemTList = iList == null ? itemTList : tList;
-
-    HashSet itemTextSet = new HashSet();
-    ItemText itemText = new ItemText();
-    String itemTextString = "";
-    List answerFeedbackList = (List) itemMap.get("itemFeedback");
-
-    List answerList = new ArrayList();
-    List aList = (List) itemMap.get("itemFinAnswer");
-    answerList = aList == null ? answerList : aList;
-
-    // handle FIn with instructional text
-    // sneak it into first text
-    if (   !itemTList.isEmpty()
-        && !itemTextList.isEmpty()
-        && !(itemTextList.size()>1))
-    {
-      try
-      {
-        String firstFin = (String) itemTextList.get(0);
-        String firstText = (String) itemTList.get(0);
-        if (firstFin.equals(firstText))
-        {
-          log.debug("Setting FIN instructional text.");
-//          itemTextList.remove(0);
-          String newFirstFin
-            = firstFin + "<br />" + itemTextList.get(0);
-          itemTextList.set(0, newFirstFin);
-        }
-      }
-      catch (Exception ex)
-      {
-        log.warn("Thought we found an instructional text but couldn't put it in."
-                + " " + ex);
-      }
-    }
-    // loop through all our extracted FIN texts interposing FIN_NUMERIC_INDICATOR
-    for (int i = 0; i < itemTextList.size(); i++)
-    {
-      String text = (String) itemTextList.get(i);
-      // we are assuming non-empty text/answer/non-empty text/answer etc.
-      if (text == null || text=="")
-      {
-        continue;
-      }
-      itemTextString += text;
-      if (i < answerList.size())
-      {
-        itemTextString += FIN_NUMERIC_INDICATOR;
-      }
-    }
-    itemTextString=itemTextString.replaceAll("\\?\\?"," ");//SAK-2298
-    log.debug("itemTextString="+itemTextString);
-    itemText.setText(itemTextString);
-    itemText.setItem(item.getData());
-    itemText.setSequence(new Long(0));
-    HashSet answerSet = new HashSet();
-    char answerLabel = 'A';
-    for (int a = 0; a < answerList.size(); a++)
-    {
-      Answer answer = new Answer();
-      String answerText = (String) answerList.get(a);
-      // these are not supposed to be empty
-      if (notNullOrEmpty(answerText))
-      {
-        answerText=answerText.replaceAll("\\?\\?"," ");//SAK-2298
-        log.debug("answerText="+answerText);
-
-        String label = "" + answerLabel++;
-        answer.setLabel(label); // up to 26, is this a problem?
-        answer.setText(answerText);
-        answer.setItemText(itemText);
-
-        // correct answer and score
-        answer.setIsCorrect(Boolean.TRUE);
-        // manual authoring disregards the number of partial answers
-        // so we will do the same.
-        float score = getCorrectScore(item, 1);
-//        float score = getCorrectScore(item, answerList.size());
-
-        log.debug("setting answer " + label + " score to:" + score);
-        answer.setScore(new Float(score));
-
-        answer.setItem(item.getData());
-        int sequence = a + 1;
-        answer.setSequence(new Long(sequence));
-        HashSet set = new HashSet();
-        if (answerFeedbackList != null)
-        {
-          AnswerFeedback answerFeedback = new AnswerFeedback();
-          answerFeedback.setAnswer(answer);
-          answerFeedback.setTypeId(AnswerFeedbackIfc.GENERAL_FEEDBACK);
-          if (answerFeedbackList.get(sequence - 1) != null)
-          {
-            answerFeedback.setText( (String) answerFeedbackList.get(
-                sequence - 1));
-            set.add(answerFeedback);
-            answer.setAnswerFeedbackSet(set);
-          }
-        }
-        answerSet.add(answer);
-      }
-    }
-
-    itemText.setAnswerSet(answerSet);
-    itemTextSet.add(itemText);
-    item.setItemTextSet(itemTextSet);
-  }
-
-  
-  
+   
   /**
    * MATCHING questions ONLY
    * @param item

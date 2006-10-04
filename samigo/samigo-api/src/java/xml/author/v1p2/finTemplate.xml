@@ -10,11 +10,7 @@
         <fieldlabel>TEXT_FORMAT</fieldlabel>
         <fieldentry>HTML</fieldentry>
       </qtimetadatafield>
-      <qtimetadatafield>
-        <fieldlabel>MUTUALLY_EXCLUSIVE</fieldlabel>
-        <fieldentry>True</fieldentry>
-      </qtimetadatafield>
-      <qtimetadatafield>
+       <qtimetadatafield>
         <fieldlabel>ITEM_OBJECTIVE</fieldlabel>
         <fieldentry/>
       </qtimetadatafield>

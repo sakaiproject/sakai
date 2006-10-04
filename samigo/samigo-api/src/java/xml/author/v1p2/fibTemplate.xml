@@ -12,8 +12,12 @@
       </qtimetadatafield>
       <qtimetadatafield>
         <fieldlabel>MUTUALLY_EXCLUSIVE</fieldlabel>
-        <fieldentry>True</fieldentry>
+        <fieldentry>False</fieldentry>
       </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>CASE_SENSITIVE</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>      
       <qtimetadatafield>
         <fieldlabel>ITEM_OBJECTIVE</fieldlabel>
         <fieldentry/>

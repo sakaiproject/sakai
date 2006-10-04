@@ -558,17 +558,6 @@ public class ItemModifyListener implements ActionListener
        }
        
        
-//     get settings for case sensitivity for fin
-       // If metadata doesn't exist, by default it is false. 
-      if (meta.getLabel().equals(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIN)){
-	 bean.setCaseSensitiveForFin((new Boolean(meta.getEntry())).booleanValue());
-      }
-
-	// get settings for mutually exclusive for fin. 
-       // If metadata doesn't exist, by default it is false. 
-      if (meta.getLabel().equals(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIN)){
-	 bean.setMutuallyExclusiveForFin((new Boolean(meta.getEntry())).booleanValue());
-      }
 
 	// get part id for the item
        if (meta.getLabel().equals(ItemMetaDataIfc.PARTID)){

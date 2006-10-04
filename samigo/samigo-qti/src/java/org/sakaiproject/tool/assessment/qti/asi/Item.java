@@ -155,7 +155,7 @@ public class Item extends ASIBaseClass
     setFieldentry("ITEM_KEYWORD",
       item.getItemMetaDataByLabel(ItemMetaDataIfc.KEYWORD));
     setFieldentry("ITEM_RUBRIC", item.getItemMetaDataByLabel(ItemMetaDataIfc.RUBRIC ));
-  
+ 
     // set TIMEALLOWED and NUM_OF_ATTEMPTS for audio recording questions:
     if (item.getDuration()!=null){
     	setFieldentry("TIMEALLOWED",
@@ -181,6 +181,11 @@ public class Item extends ASIBaseClass
       helper.addMinScore(item.getScore(), this);
     }
 
+    if(item !=null &&(item.getTypeId().equals(TypeIfc.FILL_IN_BLANK))) {
+    	setFieldentry("MUTUALLY_EXCLUSIVE", item.getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB ));
+       	setFieldentry("CASE_SENSITIVE", item.getItemMetaDataByLabel(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB ));
+    }
+    
     String instruction = item.getInstruction();
     if (this.isMatching() || this.isFIB() || this.isFIN())
     {

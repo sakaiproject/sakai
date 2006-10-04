@@ -48,13 +48,12 @@ import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 
 /**
- * <p>Copyright: Copyright (c) 2004</p>
- * <p>Organization: Sakai Project</p>
  * <p>Version for QTI 1.2 item XML, significant differences between 1.2 and 2.0</p>
- * @author Ed Smiley esmiley@stanford.edu
- * <p>Originally ItemHelper.java</p>
- * @author Shastri, Rashmi <rshastri@iupui.edu>
- * @version $Id: ItemHelper12Impl.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * * @version $Id: ItemHelper12Impl.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
+ * 
+ * Many methods in Fill in Blank and Numerical Responses(FIN) are identical for now.  
+ * This might change if we want to add random variable, parameterized calculation....
+ * 
  */
 
 public class ItemHelper12Impl extends ItemHelperBase
