@@ -23,7 +23,9 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.Date;
 import javax.faces.event.AbortProcessingException;
@@ -38,6 +40,9 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -309,9 +314,11 @@ public class BeginDeliveryActionListener implements ActionListener
           publishedId = tempPub.getPublishedAssessmentId().toString();
           // clone pub from tempPub, clone is not in anyway bound to the DB session
           pub = tempPub.clonePublishedAssessment();
+          //get list of resources attached to the published Assessment
+          List resourceIdList = getResourceIdList(pub);
           //log.info("****publishedId="+publishedId);
           //log.info("****clone publishedId="+pub.getPublishedAssessmentId());
-          RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(publishedId);
+          RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(publishedId, resourceIdList);
           thread.start();
         } 
         catch (Exception e) {
@@ -341,4 +348,35 @@ public class BeginDeliveryActionListener implements ActionListener
     return pub;
   }
 
+  public List getResourceIdList(PublishedAssessmentIfc pub){
+    List resourceIdList = new ArrayList();
+    List list = pub.getAssessmentAttachmentList();
+    if (list == null){
+      list = new ArrayList();
+    }
+    Set sectionSet = pub.getSectionSet();
+    Iterator iter = sectionSet.iterator();
+    while (iter.hasNext()){
+      SectionDataIfc section = (SectionDataIfc) iter.next();
+      List sectionAttachments = section.getSectionAttachmentList();
+      if (sectionAttachments!=null){ 
+        list.addAll(sectionAttachments);
+      }
+      Set itemSet = section.getItemSet();
+      Iterator iter1 = itemSet.iterator();
+      while (iter1.hasNext()){
+	ItemDataIfc item = (ItemDataIfc) iter1.next();
+        List itemAttachments = item.getItemAttachmentList();
+        if (itemAttachments != null){
+          list.addAll(itemAttachments);
+	}
+      } 
+    }
+    for (int i=0; i<list.size(); i++){
+      AttachmentIfc attach = (AttachmentIfc) list.get(i);
+      resourceIdList.add(attach.getResourceId());
+      System.out.println("*** resourceId ="+attach.getResourceId());
+    } 
+    return resourceIdList;
+  }
 }

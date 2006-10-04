@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.faces.context.FacesContext;
@@ -32,8 +33,10 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 /**
  * <p>Title: Samigo</p>
@@ -57,7 +60,7 @@ public class RemovePublishedAssessmentListener
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-
+    PublishedAssessmentService service = new PublishedAssessmentService();
     // #1 - remove selected assessment
     String assessmentId = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("publishedAssessmentId");
@@ -66,31 +69,36 @@ public class RemovePublishedAssessmentListener
     {
        DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
        assessmentId = delivery.getAssessmentId();
-       RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(assessmentId);
+       PublishedAssessmentIfc pub = service.getPublishedAssessment(assessmentId.toString());
+       RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(assessmentId, getResourceIdList(pub));
        thread.start();
     }
     else
     {
+      PublishedAssessmentIfc pub = service.getPublishedAssessment(assessmentId.toString());
+      RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(assessmentId, getResourceIdList(pub));
+      thread.start();
+      PublishedAssessmentService assessmentService = new PublishedAssessmentService();
 
-    RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(assessmentId);
-    thread.start();
-    PublishedAssessmentService assessmentService = new PublishedAssessmentService();
+      //#3 - goto authorIndex.jsp so fix the assessment List in author bean after
+      // removing an assessment
+      AuthorBean author = (AuthorBean) cu.lookupBean("author");
+      ArrayList assessmentList = assessmentService.getBasicInfoOfAllActivePublishedAssessments(
+        author.getPublishedAssessmentOrderBy(),author.isPublishedAscending());
+      // get the managed bean, author and set the list
+      author.setPublishedAssessments(assessmentList);
 
-    //#3 - goto authorIndex.jsp so fix the assessment List in author bean after
-    // removing an assessment
-    AuthorBean author = (AuthorBean) cu.lookupBean(
-                       "author");
-    ArrayList assessmentList = assessmentService.getBasicInfoOfAllActivePublishedAssessments(
-      author.getPublishedAssessmentOrderBy(),author.isPublishedAscending());
-    // get the managed bean, author and set the list
-    author.setPublishedAssessments(assessmentList);
-
-    ArrayList inactivePublishedList = assessmentService.getBasicInfoOfAllInActivePublishedAssessments(
+      ArrayList inactivePublishedList = assessmentService.getBasicInfoOfAllInActivePublishedAssessments(
         author.getInactivePublishedAssessmentOrderBy(),author.isInactivePublishedAscending());
-     // get the managed bean, author and set the list
-     author.setInactivePublishedAssessments(inactivePublishedList);
+       // get the managed bean, author and set the list
+       author.setInactivePublishedAssessments(inactivePublishedList);
     }
 
   }
 
+  private List getResourceIdList(PublishedAssessmentIfc pub){
+    BeginDeliveryActionListener lis = new BeginDeliveryActionListener();
+    List resourceIdList = lis.getResourceIdList(pub);
+    return resourceIdList;
+  }
 }
