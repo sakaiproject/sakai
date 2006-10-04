@@ -894,7 +894,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       StringBuffer body = new StringBuffer(message.getBody());
       
       body.insert(0, "From: " + currentUser.getDisplayName() + "<p/>");      
-      body.insert(0, "To:" + message.getRecipientsAsText() + "<p/>");
+      body.insert(0, "To: " + message.getRecipientsAsText() + "<p/>");
       
       if (message.getAttachments() != null && message.getAttachments().size() > 0) {
                            
