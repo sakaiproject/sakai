@@ -4316,7 +4316,7 @@ public class ResourcesAction
 						toolName = (String) state.getAttribute(STATE_ATTACH_TOOL_NAME);
 						if(toolName == null)
 						{
-							toolName = ToolManager.getCurrentTool().getTitle();
+							toolName = ToolManager.getCurrentPlacement().getTitle();
 						}
 						current_stack_frame.put(STATE_ATTACH_TOOL_NAME, toolName);
 					}
