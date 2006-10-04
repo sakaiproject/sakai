@@ -24,8 +24,10 @@ package org.sakaiproject.tool.assessment.ui.bean.shared;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 
 //import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
@@ -109,4 +111,23 @@ private static Log log = LogFactory.getLog(PersonBean.class);
     this.totalSubmissionPerAssessmentHash = totalSubmissionPerAssessmentHash;
   }
 
+  private List resourceIdList;
+  public void setResourceIdListInPreview(List resourceIdList){
+    if (this.resourceIdList !=null && this.resourceIdList.size()>0){
+      // they maybe left over from last preview, delete them
+      AssessmentService service = new AssessmentService();
+      service.deleteResources(this.resourceIdList); 
+    }
+    this.resourceIdList = resourceIdList;
+  }
+
+  public List getResourceIdListInPreview(){
+    return resourceIdList;
+  }
+
+  public String cleanResourceIdListInPreview(){
+    AssessmentService service = new AssessmentService();
+    service.deleteResources(resourceIdList);
+    return "editAssessment";
+  }  
 }

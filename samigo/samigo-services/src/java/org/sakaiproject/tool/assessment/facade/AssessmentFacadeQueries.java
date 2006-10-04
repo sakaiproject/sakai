@@ -42,6 +42,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -479,7 +480,10 @@ public class AssessmentFacadeQueries
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
+        AssessmentService s = new AssessmentService();
+        List resourceIdList = s.getResourceIdList(assessment);
         getHibernateTemplate().delete(assessment);
+        deleteResources(resourceIdList);
         retryCount = 0;
       }
       catch (Exception e) {
@@ -1594,5 +1598,22 @@ public class AssessmentFacadeQueries
       }
     }
   }
+
+  public void deleteResources(List resourceIdList){
+    if (resourceIdList == null) return;
+    for (int i=0;i<resourceIdList.size(); i++){
+      String resourceId = (String)resourceIdList.get(i);
+      resourceId = resourceId.trim();
+      if (resourceId.toLowerCase().startsWith("/attachment")){
+        try{
+          ContentHostingService.removeResource(resourceId);
+        }
+        catch(Exception e){
+          log.warn(e.getMessage());
+        }
+      }
+    }
+  }
+
 
 }

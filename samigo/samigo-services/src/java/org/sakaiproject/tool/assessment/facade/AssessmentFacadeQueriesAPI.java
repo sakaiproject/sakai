@@ -186,5 +186,6 @@ public interface AssessmentFacadeQueriesAPI
 
   public void removeAssessmentAttachment(Long assessmentAttachmentId);
 
+  public void deleteResources(List resourceIdList);
 
 }

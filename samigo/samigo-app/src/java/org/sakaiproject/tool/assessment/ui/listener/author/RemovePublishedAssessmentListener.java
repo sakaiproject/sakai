@@ -32,11 +32,13 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
-import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 /**
  * <p>Title: Samigo</p>
@@ -70,13 +72,15 @@ public class RemovePublishedAssessmentListener
        DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
        assessmentId = delivery.getAssessmentId();
        PublishedAssessmentIfc pub = service.getPublishedAssessment(assessmentId.toString());
-       RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(assessmentId, getResourceIdList(pub));
+       storeResourceIdListInPersonBean(pub);
+       RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(assessmentId);
        thread.start();
     }
     else
     {
       PublishedAssessmentIfc pub = service.getPublishedAssessment(assessmentId.toString());
-      RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(assessmentId, getResourceIdList(pub));
+      storeResourceIdListInPersonBean(pub);
+      RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(assessmentId);
       thread.start();
       PublishedAssessmentService assessmentService = new PublishedAssessmentService();
 
@@ -96,9 +100,10 @@ public class RemovePublishedAssessmentListener
 
   }
 
-  private List getResourceIdList(PublishedAssessmentIfc pub){
-    BeginDeliveryActionListener lis = new BeginDeliveryActionListener();
-    List resourceIdList = lis.getResourceIdList(pub);
-    return resourceIdList;
+  private void storeResourceIdListInPersonBean(AssessmentIfc pub){
+    AssessmentService s = new AssessmentService();
+    List resourceIdList = s.getResourceIdList(pub);
+    PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
+    personBean.setResourceIdListInPreview(resourceIdList);
   }
 }

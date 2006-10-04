@@ -53,8 +53,11 @@ import org.sakaiproject.tool.assessment.ui.bean.cms.CourseManagementBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FeedbackComponent;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SettingsDeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentThread;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+
 /**
  * <p>Title: Samigo</p>
  * <p>Purpose:  this module handles the beginning of the assessment
@@ -315,10 +318,12 @@ public class BeginDeliveryActionListener implements ActionListener
           // clone pub from tempPub, clone is not in anyway bound to the DB session
           pub = tempPub.clonePublishedAssessment();
           //get list of resources attached to the published Assessment
-          List resourceIdList = getResourceIdList(pub);
+          List resourceIdList = assessmentService.getResourceIdList(pub);
+	  PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
+	  personBean.setResourceIdListInPreview(resourceIdList);
           //log.info("****publishedId="+publishedId);
           //log.info("****clone publishedId="+pub.getPublishedAssessmentId());
-          RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(publishedId, resourceIdList);
+          RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(publishedId);
           thread.start();
         } 
         catch (Exception e) {
@@ -348,35 +353,4 @@ public class BeginDeliveryActionListener implements ActionListener
     return pub;
   }
 
-  public List getResourceIdList(PublishedAssessmentIfc pub){
-    List resourceIdList = new ArrayList();
-    List list = pub.getAssessmentAttachmentList();
-    if (list == null){
-      list = new ArrayList();
-    }
-    Set sectionSet = pub.getSectionSet();
-    Iterator iter = sectionSet.iterator();
-    while (iter.hasNext()){
-      SectionDataIfc section = (SectionDataIfc) iter.next();
-      List sectionAttachments = section.getSectionAttachmentList();
-      if (sectionAttachments!=null){ 
-        list.addAll(sectionAttachments);
-      }
-      Set itemSet = section.getItemSet();
-      Iterator iter1 = itemSet.iterator();
-      while (iter1.hasNext()){
-	ItemDataIfc item = (ItemDataIfc) iter1.next();
-        List itemAttachments = item.getItemAttachmentList();
-        if (itemAttachments != null){
-          list.addAll(itemAttachments);
-	}
-      } 
-    }
-    for (int i=0; i<list.size(); i++){
-      AttachmentIfc attach = (AttachmentIfc) list.get(i);
-      resourceIdList.add(attach.getResourceId());
-      System.out.println("*** resourceId ="+attach.getResourceId());
-    } 
-    return resourceIdList;
-  }
 }

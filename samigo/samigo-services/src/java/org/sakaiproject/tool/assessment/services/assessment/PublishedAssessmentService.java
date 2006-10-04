@@ -462,4 +462,5 @@ public class PublishedAssessmentService {
 	    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
 	    isRandomDrawPart(publishedAssessmentId, publishedSectionId);
   }
+
 }

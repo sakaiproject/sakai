@@ -59,10 +59,11 @@
 <h:form id="takeAssessmentForm">
 <h:inputHidden id="isMacNetscapeBrowser" value="#{person.isMacNetscapeBrowser}" />
 
+<!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton accesskey="#{msg.a_done}" value="#{msg.done}" action="editAssessment" type="submit"/>
+     <h:commandButton accesskey="#{msg.a_done}" value="#{msg.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
@@ -191,7 +192,7 @@ onkeypress="javascript:window.open('/portal/login','_top')"
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton accesskey="#{msg.a_done}" value="#{msg.done}" action="editAssessment" type="submit"/>
+     <h:commandButton accesskey="#{msg.a_done}" value="#{msg.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 

@@ -116,10 +116,11 @@ function saveTime()
 <h:inputHidden id="lastSubmittedDate" value="0"
    rendered ="#{delivery.assessmentGrading.submittedDate==null}"/>
 
+<!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton id="done" accesskey="#{msg.a_done}" value="#{msg.done}" action="editAssessment" type="submit"/>
+     <h:commandButton id="done" accesskey="#{msg.a_done}" value="#{msg.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
@@ -311,10 +312,11 @@ function saveTime()
 
 </p>
 
+<!-- DONE BUTTON IN PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton accesskey="#{msg.a_done}" value="#{msg.done}" action="editAssessment" type="submit"/>
+     <h:commandButton accesskey="#{msg.a_done}" value="#{msg.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
 <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 

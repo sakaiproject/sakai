@@ -23,7 +23,9 @@
 package org.sakaiproject.tool.assessment.services.assessment;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,6 +35,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -457,5 +460,42 @@ public void deleteAssessment(Id assessmentId)
     PersistenceService.getInstance().getAssessmentFacadeQueries().
           removeAssessmentAttachment(new Long(attachmentId));
   }
-  
+
+  public void deleteResources(List resourceIdList){
+    PersistenceService.getInstance().getAssessmentFacadeQueries().
+      deleteResources(resourceIdList);
+  }
+
+  public List getResourceIdList(AssessmentIfc pub){
+    List resourceIdList = new ArrayList();
+    List list = pub.getAssessmentAttachmentList();
+    if (list == null){
+      list = new ArrayList();
+    }
+    Set sectionSet = pub.getSectionSet();
+    Iterator iter = sectionSet.iterator();
+    while (iter.hasNext()){
+      SectionDataIfc section = (SectionDataIfc) iter.next();
+      List sectionAttachments = section.getSectionAttachmentList();
+      if (sectionAttachments!=null){ 
+        list.addAll(sectionAttachments);
+      }
+      Set itemSet = section.getItemSet();
+      Iterator iter1 = itemSet.iterator();
+      while (iter1.hasNext()){
+	ItemDataIfc item = (ItemDataIfc) iter1.next();
+        List itemAttachments = item.getItemAttachmentList();
+        if (itemAttachments != null){
+          list.addAll(itemAttachments);
+	}
+      } 
+    }
+    for (int i=0; i<list.size(); i++){
+      AttachmentIfc attach = (AttachmentIfc) list.get(i);
+      resourceIdList.add(attach.getResourceId());
+      log.debug("*** resourceId ="+attach.getResourceId());
+    } 
+    return resourceIdList;
+  }
+
 }
