@@ -21,7 +21,7 @@
     </bean>
 	   
     <bean id="org.sakaiproject.api.app.messageforums.DiscussionForumService" 
-        class="org.sakaiproject.component.app.messageforums.DiscussionForumServiceImpl">
+        class="org.sakaiproject.component.app.messageforums.DiscussionForumServiceImpl" init-method="init">
         <property name="forumManager">
      		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
         </property>		       
@@ -31,6 +31,12 @@
         <property name="messageManager">
             <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
         </property>
+        <property name="typeManager">
+          <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+		    </property>
+		    <property name="dfManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
+        </property> 
     </bean>
 	    
     <bean id="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager" 

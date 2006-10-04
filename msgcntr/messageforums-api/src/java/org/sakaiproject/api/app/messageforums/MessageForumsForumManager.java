@@ -38,6 +38,8 @@ public interface MessageForumsForumManager {
     public BaseForum getForumByIdWithTopics(final Long forumId);
   
     public List getForumByTypeAndContext(final String typeUuid);
+    
+    public List getForumByTypeAndContext(final String typeUuid, final String contextId);
       
     /**
      * get forum by owner

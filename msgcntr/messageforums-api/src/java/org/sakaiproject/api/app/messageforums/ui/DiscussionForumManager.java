@@ -98,6 +98,11 @@ public interface DiscussionForumManager
   public List getDiscussionForums();
 
   /**
+   * @return
+   */
+  public List getDiscussionForumsByContextId(String contextId);
+  
+  /**
    * @param topicId
    * @return
    */

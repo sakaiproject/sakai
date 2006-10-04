@@ -32,6 +32,7 @@ public interface AreaManager
   public Area createArea(String typeId, String contextId);
   public void deleteArea(Area area);
   public Area getAreaByContextIdAndTypeId(String typeId);
+  public Area getAreaByContextIdAndTypeId(String contextId, String typeId);
   public Area getAreaByType(final String typeId);  
   public Area getPrivateArea();
   public Area getDiscusionArea();

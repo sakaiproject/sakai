@@ -401,6 +401,19 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
         .getDiscussionForumType());
     // return getDiscussionForumArea().getDiscussionForums();
   }
+  
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getDiscussionForumsByContextId()
+   */
+  public List getDiscussionForumsByContextId(String contextId)
+  {
+    LOG.debug("getDiscussionForumsByContextId(String contextId)");
+    
+    return forumManager.getForumByTypeAndContext(typeManager
+        .getDiscussionForumType(), contextId);
+  }
 
   /*
    * (non-Javadoc)

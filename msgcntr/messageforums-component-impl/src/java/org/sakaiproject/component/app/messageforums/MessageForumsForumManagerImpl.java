@@ -343,6 +343,47 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
       
       return resultList;      
     }
+    
+    public List getForumByTypeAndContext(final String typeUuid, final String contextId) {
+
+        if (typeUuid == null || contextId == null) {
+            throw new IllegalArgumentException("Null Argument");
+        }      
+
+       HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_BY_TYPE_AND_CONTEXT);
+                q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
+                q.setParameter("contextId", contextId, Hibernate.STRING);
+                return q.list();
+            }
+        };
+
+        BaseForum tempForum = null;
+        Set resultSet = new HashSet();
+        List temp = (ArrayList) getHibernateTemplate().execute(hcb);
+              
+        for (Iterator i = temp.iterator(); i.hasNext();)
+        {
+          Object[] results = (Object[]) i.next();        
+              
+          if (results != null) {
+            if (results[0] instanceof BaseForum) {
+              tempForum = (BaseForum)results[0];
+              tempForum.setArea((Area)results[1]);            
+            } else {
+              tempForum = (BaseForum)results[1];
+              tempForum.setArea((Area)results[0]);
+            }
+            resultSet.add(tempForum);
+          }
+        }
+        
+        List resultList = Util.setToList(resultSet);
+        Collections.sort(resultList, FORUM_CREATED_DATE_COMPARATOR_DESC);
+        
+        return resultList;      
+      }
 
     public Topic getTopicByIdWithAttachments(final Long topicId) {
 
