@@ -161,8 +161,8 @@ public class BasicNewsService implements NewsService
 		// synchronize this part??? %%%%%%
 		if (!m_storage.containsKey(source))
 		{
-			m_storage.put(source, new BasicNewsChannel(source), DEFAULT_EXPIRATION);
-
+			BasicNewsChannel channel = new BasicNewsChannel(source);
+			m_storage.put(source, channel, DEFAULT_EXPIRATION);
 		}
 
 	}
