@@ -7,9 +7,9 @@
 			title="Synoptic Message Center"
 			description="Display unread discussion and forum topic messages for all sites or a site">
 
-			<category name="course" />
+<!-- 			<category name="course" />
 			<category name="project" />	
-
+-->
 <!--		<configuration name="help.id" value="sakai.messagecenter" type="final" /> -->
 
 	</tool>
