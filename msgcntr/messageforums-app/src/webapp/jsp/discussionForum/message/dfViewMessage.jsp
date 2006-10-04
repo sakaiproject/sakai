@@ -96,7 +96,7 @@
     
     <h:panelGrid columns="3" styleClass="itemSummary" style="width: 100%;">
     	<h:outputText value="#{msgs.cdfm_subject}"/>
-    	<h:outputText value="#{msgs.cdfm_subject}"/>
+    	<h:outputText value="#{ForumTool.selectedMessage.message.title}"/>
     	<h:panelGroup styleClass="msgNav">
     		<h:commandLink action="#{ForumTool.processDisplayPreviousMsg}" rendered="#{ForumTool.selectedMessage.hasPre}" 
                        title=" #{msgs.cdfm_prev_msg}">
