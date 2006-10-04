@@ -1,7 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/samigo-app/src/java/org/sakaiproject/tool/assessment/ui/listener/deli\
-very/UpdateTimerListener.java $
-* $Id: UpdateTimerListener.java 13802 2006-08-16 23:13:50Z ktsao@stanford.edu $
+* $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/spring/DataSourceWrapperAutoCommit.java $
+* $Id: DataSourceWrapperAutoCommit.java 13802 2006-08-16 23:13:50Z ktsao@stanford.edu $
 ***********************************************************************************
 *
 * Copyright (c) 2005, 2006 The Sakai Foundation.
