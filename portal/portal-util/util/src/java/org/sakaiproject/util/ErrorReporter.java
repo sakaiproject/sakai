@@ -581,9 +581,11 @@ public class ErrorReporter
 		String comment = req.getParameter("comment");
 		String problem = req.getParameter("problem");
 		String problemdigest = req.getParameter("problemdigest");
+		String problemRequest = req.getParameter("problemRequest");
+		String problemPlacement = req.getParameter("problemPlacement");
 
 		// log and send the followup email
-		logAndMail(session, user, time, problem, problemdigest, null, comment, problemdigest, problemdigest);
+		logAndMail(session, user, time, problem, problemdigest, null, problemRequest, problemPlacement, comment);
 
 		// always redirect from a post
 		try
