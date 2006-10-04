@@ -25,7 +25,7 @@ languages, as follows:
    Local ID: ja_JP
    
 4) Dutch
-   Status: Completed for Sakai 2.1
+   Status: Completed for Sakai 2.2
    Translated by: n/a
    Contact: Jim Doherty   jim.doherty@gmail.com 
    Local ID: nl_NL
@@ -45,11 +45,12 @@ languages, as follows:
 7) Brazilian Portugese 
    Status: ??
    Translated by: n/a
-   Contact: Alceu Fernandes Filho   alceu@unisinos.br
+   Contact: Nilton Lessa		  nlessa@moleque.com.br
+				Alceu Fernandes Filho   alceu@unisinos.br
    Local ID: pt_BR
    
 8) Portugese
-   Status: ??
+   Status: in progress (see http://elearning.ufp.pt)
    Translated by: n/a
    Contact:  Feliz Gouveia    fribeiro@ufp.pt
    Local ID: pt_PT
