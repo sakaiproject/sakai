@@ -47,6 +47,7 @@ public class DiscussionForumBean
   private ArrayList contributorsList = new ArrayList();
   private ArrayList accessorList = new ArrayList();
   private String gradeAssign;
+  private boolean nonePermission = true;
    
    
   /**
@@ -278,6 +279,33 @@ public class DiscussionForumBean
     this.gradeAssign = gradeAssign;
   }
 
- 
-  
+	public boolean getNonePermission()
+	{
+		nonePermission = true;
+		
+		if(uiPermissionsManager.isChangeSettings(forum) ||  uiPermissionsManager.isNewTopic(forum))
+		{
+			nonePermission = false;
+			return nonePermission;
+		}
+		
+		if(topics != null)
+		{
+			for(int i=0; i<topics.size(); i++)
+			{
+				DiscussionTopicBean dtb = (DiscussionTopicBean) topics.get(i);
+				if(!dtb.getNonePermission())
+				{
+					nonePermission = false;
+					break;
+				}
+			}
+		}
+		return nonePermission;
+	}
+
+	public void setNonePermission(boolean nonePermission)
+	{
+		this.nonePermission = nonePermission;
+	}
 }

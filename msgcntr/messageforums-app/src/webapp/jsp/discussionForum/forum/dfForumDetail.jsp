@@ -50,7 +50,7 @@
 		                     hideBorder="false" />
 
 		<h:dataTable id="topics" styleClass="topicBloc" value="#{ForumTool.selectedForum.topics}" var="topic" width="100%"  cellspacing="0" cellpadding="0">
-			<h:column>
+			<h:column rendered="#{! topic.nonePermission}">
 			<f:verbatim><div class="hierItemBlockChild"></f:verbatim>	
         <h:panelGrid columns="2" summary="layout" width="100%"  styleClass="topicHeadings specialLink" columnClasses="bogus,itemAction" cellspacing="0" cellpadding="0">
           <h:panelGroup>

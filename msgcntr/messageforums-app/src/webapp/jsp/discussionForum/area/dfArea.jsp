@@ -9,7 +9,7 @@
 
 <!--jsp/discussionForum/area/dfArea.jsp-->
   <h:dataTable id="forums" value="#{ForumTool.forums}" width="100%" var="forum" cellpadding="0" cellspacing="0" summary="layout">
-    <h:column>
+    <h:column rendered="#{! forum.nonePermission}">
     <f:verbatim><div class="hierItemBlockWrapper"></f:verbatim>
     <h:panelGrid columns="2" styleClass="hierItemBlock specialLink" columnClasses="bogus,itemAction" summary="layout" style="width:100%;">
   	    <h:panelGroup>
@@ -90,7 +90,7 @@
 	  
 	  	<%--gsilver: need a rendered atttrib for the folowing predicated on the existence of topics in this forum--%>
 		 <h:dataTable id="topics" value="#{forum.topics}" var="topic" width="100%" styleClass="topicBloc"  cellspacing="0" cellpadding="0" summary="layout">
-		   <h:column>
+		   <h:column rendered="#{! topic.nonePermission}">
 				<f:verbatim><div class="hierItemBlockChild"></f:verbatim>
 		      <h:panelGrid columns="2" summary="layout" width="100%" styleClass="specialLink" cellpadding="0" cellspacing="0" columnClasses="bogus,itemAction">
 		      	<h:panelGroup>

@@ -53,6 +53,7 @@ public class DiscussionTopicBean
   private ArrayList contributorsList = new ArrayList();
   private ArrayList accessorList = new ArrayList();
   private String gradeAssign;
+  private boolean nonePermission = true;
   
 
   private List messages = new ArrayList();
@@ -560,5 +561,30 @@ public class DiscussionTopicBean
   {
     this.gradeAssign = gradeAssign;
   }
+
+	public boolean getNonePermission()
+	{
+		nonePermission = true;
+		if(uiPermissionsManager.isChangeSettings(topic, (DiscussionForum)topic.getBaseForum()) 
+				|| uiPermissionsManager.isDeleteAny(topic, (DiscussionForum)topic.getBaseForum())
+				|| uiPermissionsManager.isDeleteOwn(topic, (DiscussionForum)topic.getBaseForum())
+				|| uiPermissionsManager.isMarkAsRead(topic, (DiscussionForum)topic.getBaseForum())
+				|| uiPermissionsManager.isMovePostings(topic, (DiscussionForum)topic.getBaseForum())
+				|| uiPermissionsManager.isNewResponse(topic, (DiscussionForum)topic.getBaseForum())
+				|| uiPermissionsManager.isNewResponseToResponse(topic, (DiscussionForum)topic.getBaseForum())
+				|| uiPermissionsManager.isPostToGradebook(topic, (DiscussionForum)topic.getBaseForum())
+				|| uiPermissionsManager.isRead(topic, (DiscussionForum)topic.getBaseForum())
+				|| uiPermissionsManager.isReviseAny(topic, (DiscussionForum)topic.getBaseForum())
+				|| uiPermissionsManager.isReviseOwn(topic, (DiscussionForum)topic.getBaseForum()))
+		{
+			nonePermission = false;
+		}
+		return nonePermission;
+	}
+
+	public void setNonePermission(boolean nonePermission)
+	{
+		this.nonePermission = nonePermission;
+	}
   
 }
