@@ -365,7 +365,7 @@ public class CharonPortal extends HttpServlet
 
 			// recognize and dispatch the 'tool' option: [1] = "tool", [2] =
 			// placement id (of a site's tool placement), rest for the tool
-			if ((parts.length >= 2) && (parts[1].equals("tool")))
+			if ((parts.length > 2) && (parts[1].equals("tool")))
 			{
 				// Resolve the placements of the form
 				// /portal/tool/sakai.resources?sakai.site=~csev
@@ -381,7 +381,7 @@ public class CharonPortal extends HttpServlet
 						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web
 						.makePath(parts, 3, parts.length));
 			}
-			else if (enableDirect && (parts.length >= 2)
+			else if (enableDirect && (parts.length > 2)
 					&& (parts[1].equals("directtool")))
 			{
 				// Resolve the placements of the form
@@ -425,7 +425,7 @@ public class CharonPortal extends HttpServlet
 				res.sendRedirect(siteUrl);
 			}
 
-			else if ((parts.length >= 2) && (parts[1].equals("title")))
+			else if ((parts.length > 2) && (parts[1].equals("title")))
 			{
 				// Resolve the placements of the form
 				// /portal/title/sakai.resources?sakai.site=~csev
@@ -1058,13 +1058,13 @@ public class CharonPortal extends HttpServlet
 
 			// recognize and dispatch the 'tool' option: [1] = "tool", [2] =
 			// placement id (of a site's tool placement), rest for the tool
-			if ((parts.length >= 2) && (parts[1].equals("tool")))
+			if ((parts.length > 2) && (parts[1].equals("tool")))
 			{
 				doTool(req, res, session, parts[2], req.getContextPath()
 						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web
 						.makePath(parts, 3, parts.length));
 			}
-			else if (enableDirect && (parts.length >= 2)
+			else if (enableDirect && (parts.length > 2)
 					&& (parts[1].equals("directtool")))
 			{
 				// Resolve the placements of the form
@@ -1082,7 +1082,7 @@ public class CharonPortal extends HttpServlet
 						.makePath(parts, 3, parts.length));
 			}
 
-			else if ((parts.length >= 2) && (parts[1].equals("title")))
+			else if ((parts.length > 2) && (parts[1].equals("title")))
 			{
 				doTitle(req, res, session, parts[2], req.getContextPath()
 						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web
