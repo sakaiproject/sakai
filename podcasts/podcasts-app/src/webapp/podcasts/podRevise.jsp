@@ -28,25 +28,24 @@
 
     <div class="indnt1">  <!-- Choose a file -->
       <h:outputText value="#{msgs.current_file}" />
-      <b><h:outputText value="#{podHomeBean.selectedPodcast.filename}" styleClass="indnt2" /></b>
+      <b><h:outputText value="#{podHomeBean.selectedPodcast.filename}" styleClass="indnt35" /></b>
       <br />
       
  	  <h:outputText value="#{msgs.file_prompt}" styleClass="reqPrompt" />
  	  <sakai:inputFileUpload id="podfile" valueChangeListener="#{podHomeBean.processFileUpload}" 
- 	     styleClass="indnt2" size="35" />
+ 	     styleClass="indnt6" size="35" />
 
       <h:message for="podfile" styleClass="alertMessage" />
     </div>
     <br /><br />
 
-    <div class="indnt1">  <!-- Date -->
-<!--     <h:outputText value="#{msgs.current_date}" />
-     <b><h:outputText value="#{podHomeBean.selectedPodcast.displayDate}" /></b>
-	<br />
--->	 
+    <div class="indnt1">  <!-- Date --> 
       <h:outputText value="#{msgs.date_prompt}" styleClass="reqPrompt" />
-      <podcasts:datePicker value="#{podHomeBean.selectedPodcast.displayDateRevise}" id="poddate" size="28" />
-	  <h:outputText value="#{msgs.date_picker_format_string}" />
+      
+      <span class="indnt1">
+	      <podcasts:datePicker value="#{podHomeBean.selectedPodcast.displayDateRevise}" id="poddate" size="28" />
+		  <h:outputText value="#{msgs.date_picker_format_string}" />
+     </span>
      
       <h:message for="poddate" styleClass="alertMessage" />
       <h:outputText value="#{msgs.invalid_date_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayInvalidDateErrMsg}" />
@@ -56,7 +55,7 @@
      
     <div class="indnt1">  <!-- Title -->
       <h:outputText value="#{msgs.title_prompt}" styleClass="reqPrompt" />
- 	  <h:inputText id="podtitle" value="#{podHomeBean.selectedPodcast.title}" styleClass="indnt3" size="35" maxlength="255" />
+ 	  <h:inputText id="podtitle" value="#{podHomeBean.selectedPodcast.title}" styleClass="indnt4" size="35" maxlength="255" />
 
 	  <h:outputText value="#{msgs.notitle_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayNoTitleErrMsg}" />
     </div>

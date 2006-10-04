@@ -90,6 +90,12 @@ public class podHomeBean {
 	private static final String LAST_MODIFIED_TIME_FORMAT = "hh:mm a z";
 	private static final String LAST_MODIFIED_DATE_FORMAT = "MM/dd/yyyy";
 
+	// error handling variables
+	private boolean displayNoFileErrMsg = false;
+	private boolean displayNoDateErrMsg = false;
+	private boolean displayNoTitleErrMsg = false;
+	private boolean displayInvalidDateErrMsg = false;
+
 	public class DecoratedPodcastBean {
 
 		private String resourceId;
@@ -136,20 +142,28 @@ public class podHomeBean {
 
 		/** Returns the revised display date for this podcast **/
 		public String getDisplayDateRevise() {
+			String dispDate = null;
+			
+			if (displayDateRevise == null) {
+				dispDate = displayDate;
+			}
+			else {
+				dispDate = displayDateRevise;
+			}
+				
 			SimpleDateFormat formatter = new SimpleDateFormat(getErrorMessageString(DATE_BY_HAND_FORMAT));
 			
 			try {
-				Date tempDate = convertDateString(selectedPodcast.displayDate,
+				Date tempDate = convertDateString(dispDate,
 						getErrorMessageString(PUBLISH_DATE_FORMAT));
 				
 				return formatter.format(tempDate);
-				
+			
 			} catch (ParseException e) {
-				// TODO Auto-generated catch block
 				LOG.error("ParseException while rendering Revise Podcast page. ");
 			}
 			
-			return "";
+			return dispDate;
 
 		}
 		/** Sets the display date for this podcast **/
@@ -358,12 +372,6 @@ public class podHomeBean {
 			new SelectItem("none", "None - No notification"),
 			new SelectItem("low", "Low - Only participants who have opted in"),
 			new SelectItem("high", "High - All participants") };
-
-	// error handling variables
-	private boolean displayNoFileErrMsg = false;
-	private boolean displayNoDateErrMsg = false;
-	private boolean displayNoTitleErrMsg = false;
-	private boolean displayInvalidDateErrMsg = false;
 
 	public podHomeBean() {
 	}
@@ -1223,7 +1231,6 @@ public class podHomeBean {
 				catch (ParseException e1) {
 					LOG.error("ParseException attempting to convert date for " + selectedPodcast.title
 									+ " for site " + podcastService.getSiteId() + ". " + e1.getMessage());
-					selectedPodcast.displayDateRevise = "";
 					displayInvalidDateErrMsg = true;
 					return "podcastRevise";
 

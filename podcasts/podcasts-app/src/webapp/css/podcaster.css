@@ -3,34 +3,39 @@ body {
 }
 
 .reqPrompt {
-    position : relative;
-    top : 4px;
-    left : 2px;
+    position: relative;
+    top: 4px;
+    left: 2px;
 }
 
 .indnt1 {
-    position : relative;
-    left : 15px;
+    position: relative;
+    left: 15px;
 }
 
 .indnt2 {
-    position : relative;
-    left : 18px;
+    position: relative;
+    left: 18px;
 }
 
 .indnt3 {
-    position : relative;
-    left : 37px;
+    position: relative;
+    left: 37px;
+}
+
+.indnt35 {
+	position: relative;
+	left: 64px;
 }
 
 .indnt4 {
 	position: relative;
-	left: 59px;
+	left: 58px;
 }
 
 .indnt6 {
-	position : relative;
-	left : -18px;
+	position: relative;
+	left: -18px;
 }
 
 .podcatcher_popup {
