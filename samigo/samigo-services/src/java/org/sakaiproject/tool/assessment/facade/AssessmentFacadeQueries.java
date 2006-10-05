@@ -1366,6 +1366,15 @@ public class AssessmentFacadeQueries
 
   }
 
+  private String fileSizeInKB(int fileSize){
+    String fileSizeString = "1";
+    int size = Math.round(fileSize / 1000);
+    if (size > 0){
+      fileSizeString = size+"";
+    }
+    return fileSizeString;
+  }
+
   public ItemAttachmentIfc createItemAttachment(ItemDataIfc item,
          String resourceId, String filename, String protocol){
     ItemAttachment attach = null;
@@ -1379,7 +1388,8 @@ public class AssessmentFacadeQueries
         attach.setResourceId(resourceId);
         attach.setFilename(filename);
 	attach.setMimeType(cr.getContentType());
-	attach.setFileSize(new Long(cr.getContentLength()));
+        // we want to display kb, so divide by 1000 and round the result
+	attach.setFileSize(new Long(fileSizeInKB(cr.getContentLength())));
         if (cr.getContentType().lastIndexOf("url") > -1)
           isLink = Boolean.TRUE;
         attach.setIsLink(isLink);
@@ -1488,7 +1498,8 @@ public class AssessmentFacadeQueries
         attach.setResourceId(resourceId);
         attach.setFilename(filename);
 	attach.setMimeType(cr.getContentType());
-	attach.setFileSize(new Long(cr.getContentLength()));
+        // we want to display kb, so divide by 1000 and round the result
+	attach.setFileSize(new Long(fileSizeInKB(cr.getContentLength())));
         if (cr.getContentType().lastIndexOf("url") > -1)
           isLink = Boolean.TRUE;
         attach.setIsLink(isLink);
@@ -1549,7 +1560,8 @@ public class AssessmentFacadeQueries
         attach.setResourceId(resourceId);
         attach.setFilename(filename);
 	attach.setMimeType(cr.getContentType());
-	attach.setFileSize(new Long(cr.getContentLength()));
+        // we want to display kb, so divide by 1000 and round the result
+	attach.setFileSize(new Long(fileSizeInKB(cr.getContentLength())));
         if (cr.getContentType().lastIndexOf("url") > -1)
           isLink = Boolean.TRUE;
         attach.setIsLink(isLink);
