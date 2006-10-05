@@ -2759,15 +2759,15 @@ public class ResourcesAction
 			inherited_access_groups = new Vector();
 		}
 
-		Collection allowedAddGroups = null;
-		if(AccessMode.GROUPED == inheritedAccess)
-		{
-			allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(collectionId);
-		}
-		else
-		{
-			allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(ContentHostingService.getSiteCollection(site.getId()));
-		}
+		Collection allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(collectionId); // null;
+//		if(AccessMode.GROUPED == inheritedAccess)
+//		{
+//			allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(collectionId);
+//		}
+//		else
+//		{
+//			allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(ContentHostingService.getSiteCollection(site.getId()));
+//		}
 		if(allowedAddGroups == null)
 		{
 			allowedAddGroups = new Vector();
