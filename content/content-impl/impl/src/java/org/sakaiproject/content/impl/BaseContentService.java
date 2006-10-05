@@ -6521,33 +6521,34 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				}
 				catch (IdUsedException e)
 				{
-					M_log.warn("enableResources: " + e);
+					M_log.warn("enableResources: ", e);
 				}
 				catch (IdInvalidException e)
 				{
-					M_log.warn("enableResources: " + e);
+					M_log.warn("enableResources: ", e);
 				}
 				catch (PermissionException e)
 				{
-					M_log.warn("enableResources: " + e);
+					M_log.warn("enableResources: ", e);
 				}
 				catch (InconsistentException e)
 				{
-					M_log.warn("enableResources: " + e);
+					M_log.warn("enableResources: ", e);
 				}
 			}
 			catch (TypeException e)
 			{
-				M_log.warn("enableResources: " + e);
+				M_log.warn("enableResources: ", e);
 			}
 			catch (PermissionException e)
 			{
-				M_log.warn("enableResources: " + e);
+				M_log.warn("enableResources: ", e);
 			}
 		}
 		catch (IdUnusedException e)
 		{
 			// TODO: -ggolden
+			M_log.warn("enableResources: ", e);
 		}
 	}
 
