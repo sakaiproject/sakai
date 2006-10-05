@@ -151,12 +151,13 @@ public interface Calendar
 	* Return a specific calendar event, as specified by event name, locked for update.
 	* Must commitEvent() to make official, or cancelEvent(), or removeEvent() when done!
 	* @param eventId The id of the event to get.
+	* @param editType add, remove or modifying calendar?
 	* @return the Event that has the specified id.
 	* @exception IdUnusedException If this name is not a defined event in this calendar.
 	* @exception PermissionException If the user does not have any permissions to edit the event.
 	* @exception InUseException if the event is locked for edit by someone else.
 	*/
-	public CalendarEventEdit editEvent(String eventId)
+	public CalendarEventEdit getEditEvent(String eventId, String editType)
 		throws IdUnusedException, PermissionException, InUseException;
 
 	/**

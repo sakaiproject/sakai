@@ -1689,7 +1689,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 						try
 						{
-							BaseCalendarEventEdit eEdit = (BaseCalendarEventEdit) nCalendar.editEvent(e.getId());
+							BaseCalendarEventEdit eEdit = (BaseCalendarEventEdit) nCalendar.getEditEvent(e.getId(),EVENT_ADD_CALENDAR );
 							// properties
 							ResourcePropertiesEdit p = eEdit.getPropertiesEdit();
 							p.clear();
@@ -1772,7 +1772,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 							try
 							{
-								BaseCalendarEventEdit oEdit = (BaseCalendarEventEdit) oCalendar.editEvent(oEvent.getId());
+								BaseCalendarEventEdit oEdit = (BaseCalendarEventEdit) oCalendar.getEditEvent(oEvent.getId(),EVENT_ADD_CALENDAR);
 								RecurrenceRule exRule = oEdit.getExclusionRule();
 								eEdit.setExclusionRule(exRule);
 							}
@@ -2685,10 +2685,11 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		} // allowEditEvent
 
 		/**
-		 * Return a specific calendar event, as specified by event name, locked for update. Must commitEvent() to make official, or cancelEvent(), or removeEvent() when done!
+		 * Return a specific calendar event, as specified by event name, locked for update. 
+		 * Must commitEvent() to make official, or cancelEvent(), or removeEvent() when done!
 		 * 
-		 * @param eventId
-		 *        The id of the event to get.
+		 * @param eventId  The id of the event to get.
+		 * @param editType add, remove or modifying calendar?
 		 * @return the Event that has the specified id.
 		 * @exception IdUnusedException
 		 *            If this name is not a defined event in this calendar.
@@ -2697,7 +2698,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 * @exception InUseException
 		 *            if the event is locked for edit by someone else.
 		 */
-		public CalendarEventEdit editEvent(String eventId) throws IdUnusedException, PermissionException, InUseException
+		public CalendarEventEdit getEditEvent(String eventId, String editType)
+			throws IdUnusedException, PermissionException, InUseException
 		{
 			// if the id has a time range encoded, as for one of a sequence of recurring events, separate that out
 			TimeRange timeRange = null;
@@ -2713,7 +2715,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				}
 				catch (Exception ex)
 				{
-					M_log.warn("editEvent: exception parsing eventId: " + eventId + " : " + ex);
+					M_log.warn("getEditEvent: exception parsing eventId: " + eventId + " : " + ex);
 				}
 			}
 
@@ -2721,7 +2723,13 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			if (e == null) throw new IdUnusedException(eventId);
 
 			// check security 
-         if ( ! allowEditEvent( eventId ) )
+         if ( editType.equals(EVENT_ADD_CALENDAR) && ! allowAddEvent() )
+			   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+                                          AUTH_ADD_CALENDAR, getReference());
+         else if ( editType.equals(EVENT_REMOVE_CALENDAR) && ! allowRemoveEvent(e) )
+			   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+                                          AUTH_REMOVE_CALENDAR_ANY, getReference());
+         else if ( editType.equals(EVENT_MODIFY_CALENDAR) && ! allowEditEvent(eventId) )
 			   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
                                           AUTH_MODIFY_CALENDAR_ANY, getReference());
 
@@ -2744,7 +2752,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 			return edit;
 
-		} // editEvent
+		} // getEditEvent
 
 		/**
 		 * Commit the changes made to a CalendarEventEdit object, and release the lock. The CalendarEventEdit is disabled, and not to be used after this call. Note: if the event is a recurring event, the entire sequence is modified by this commit

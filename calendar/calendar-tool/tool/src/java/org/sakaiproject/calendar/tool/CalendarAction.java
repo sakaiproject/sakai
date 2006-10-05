@@ -2307,9 +2307,6 @@ extends VelocityPortletStateAction
 						getEventsFlag = true;
 						context.put("selectedGroupRefsCollection", calEvent.getGroups());
 
-						// is the user allowed to do a calendar / site level add?
-						context.put("allowedToSite", Boolean.valueOf(calendarObj.allowAddCalendarEvent()));
-						
 						// all the groups the user is allowed to do remove from
 						context.put("allowedRemoveGroups", calendarObj.getGroupsAllowRemoveEvent(calEvent.isUserOwner()));
 					}
@@ -3253,7 +3250,7 @@ extends VelocityPortletStateAction
 		
 		StringBuffer exceptionMessage = new StringBuffer();
 		
-		// this loop will move the calender to the begining of the week
+		// this loop will move the calendar to the begining of the week
 		
 		if (CalendarService.allowGetCalendar(calId)== false)
 		{
@@ -3523,9 +3520,6 @@ extends VelocityPortletStateAction
 				
 				context.put("groups", groups);
 			}
-
-			// is the user allowed to do a calendar / site level add?
-			context.put("allowedToSite", Boolean.valueOf(calendarObj.allowAddCalendarEvent()));
 		}
 		catch(IdUnusedException e)
 		{
@@ -4114,7 +4108,8 @@ extends VelocityPortletStateAction
 			{
 				String eventId = state.getCalendarEventId();
 				// get the edit object, and lock the event for the furthur revise
-				CalendarEventEdit edit = calendarObj.editEvent(eventId);
+				CalendarEventEdit edit = calendarObj.getEditEvent(eventId,
+																				  org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR);
 				state.setEdit(edit);
 				state.setPrimaryCalendarEdit(edit);
 				calendarEventObj = calendarObj.getEvent(eventId);
@@ -4651,7 +4646,8 @@ extends VelocityPortletStateAction
 			{
 				String eventId = state.getCalendarEventId();
 				// get the edit object, and lock the event for the furthur revise
-				CalendarEventEdit edit = calendarObj.editEvent(eventId);
+				CalendarEventEdit edit = calendarObj.getEditEvent(eventId,
+																				  org.sakaiproject.calendar.api.CalendarService.EVENT_REMOVE_CALENDAR);
 				state.setEdit(edit);
 				state.setPrimaryCalendarEdit(edit);
 				calendarEventObj = calendarObj.getEvent(eventId);
@@ -5490,7 +5486,8 @@ extends VelocityPortletStateAction
 				CalendarEvent event = calendarObj.addEvent(range, title, "", type, location, access, groups, attachments);
 				
 				// edit it further
-				CalendarEventEdit edit = calendarObj.editEvent(event.getId());
+				CalendarEventEdit edit = calendarObj.getEditEvent(event.getId(),
+																				  org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
 				edit.setDescriptionFormatted(description);
 				edit.setCreator();
 				setFields(edit, addfieldsMap);

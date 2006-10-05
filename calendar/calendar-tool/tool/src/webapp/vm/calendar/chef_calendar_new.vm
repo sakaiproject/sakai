@@ -443,18 +443,9 @@ function ampmChange(FieldName)
 		</div>
 		
 		<p class="checkbox indnt1">
-			#if($allowedToSite)
 			<input type="radio" name="scheduleTo" id="site" value="site" #if($!scheduleTo == "site" || $!event.Access == $siteAccess)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';"/>
 			<label for="site">$tlang.getString("displayto.site")</label>
-			#end
 		</p>	
-		#*
-		#if ($!groups.size() >1)
-			<label for="$tlang.getString('groups')">$tlang.getString("groups")</label>
-		#else
-			<label for="$tlang.getString('group')">$tlang.getString("group")</label>
-		#end
-		*#
 		#if ($!groups)
 			## added group awareness
 			<p class="checkbox indnt1">
