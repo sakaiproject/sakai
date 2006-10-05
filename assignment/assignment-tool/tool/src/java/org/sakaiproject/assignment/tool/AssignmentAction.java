@@ -1469,8 +1469,7 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("assignment", a);
 			state.setAttribute(EXPORT_ASSIGNMENT_ID, a.getId());
 
-			List siteUsers = prepPage(state);
-			context.put("siteUsers", siteUsers);
+			context.put("userSubmissions", prepPage(state));
 		}
 		catch (IdUnusedException e)
 		{
@@ -5671,6 +5670,44 @@ public class AssignmentAction extends PagedResourceActionII
 	} // doSort_grade_submission
 
 	/**
+	 * the UserSubmission clas
+	 */
+	public class UserSubmission
+	{
+		/**
+		 * the User object
+		 */
+		User m_user = null;
+		
+		/**
+		 * the AssignmentSubmission object
+		 */
+		AssignmentSubmission m_submission = null;
+		
+		public UserSubmission(User u, AssignmentSubmission s)
+		{
+			m_user = u;
+			m_submission = s;
+		}
+		
+		/**
+		 * Returns the AssignmentSubmission object
+		 */
+		public AssignmentSubmission getSubmission()
+		{
+			return m_submission;
+		}
+		
+		/**
+		 * Returns the User object
+		 */
+		public User getUser()
+		{
+			return m_user;
+		}
+	}
+	
+	/**
 	 * the AssignmentComparator clas
 	 */
 	private class AssignmentComparator implements Comparator
@@ -5997,28 +6034,36 @@ public class AssignmentAction extends PagedResourceActionII
 			else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_LASTNAME))
 			{
 				// sorted by the submitters sort name
-				User u1 = (User) o1;
-				User u2 = (User) o2;
+				UserSubmission u1 = (UserSubmission) o1;
+				UserSubmission u2 = (UserSubmission) o2;
 
-				if (u1 == null || u2 == null)
+				if (u1 == null || u2 == null || u1.getUser() == null || u2.getUser() == null )
 				{
 					result = 1;
 				}
 				else
 				{
-					String lName1 = u1.getLastName();
-					String lName2 = u2.getLastName();
+					String lName1 = u1.getUser().getLastName();
+					String lName2 = u2.getUser().getLastName();
 					result = lName1.toLowerCase().compareTo(lName2.toLowerCase());
 				}
 			}
 			else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_SUBMIT_TIME))
 			{
 				// sorted by submission time
-				try
+				UserSubmission u1 = (UserSubmission) o1;
+				UserSubmission u2 = (UserSubmission) o2;
+				
+				if (u1 == null || u2 == null)
 				{
-					AssignmentSubmission s1 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o1);
-					AssignmentSubmission s2 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o2);
+					result = -1;
+				}
+				else
+				{
+					AssignmentSubmission s1 = u1.getSubmission();
+					AssignmentSubmission s2 = u2.getSubmission();
 	
+					
 					if (s1 == null || s1.getTimeSubmitted() == null)
 					{
 						result = -1;
@@ -6036,19 +6081,22 @@ public class AssignmentAction extends PagedResourceActionII
 						result = 1;
 					}
 				}
-				catch (Exception e)
-				{
-					Log.warn("chef", this + e.getMessage() + o1 + o2);
-				}
 			}
 			else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_STATUS))
 			{
 				// sort by submission status
-				try
+				UserSubmission u1 = (UserSubmission) o1;
+				UserSubmission u2 = (UserSubmission) o2;
+				
+				if (u1 == null || u2 == null)
 				{
-					AssignmentSubmission s1 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o1);
-					AssignmentSubmission s2 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o2);
-	
+					result = -1;
+				}
+				else
+				{
+					AssignmentSubmission s1 = u1.getSubmission();
+					AssignmentSubmission s2 = u2.getSubmission();
+					
 					if (s1 == null)
 					{
 						result = -1;
@@ -6065,19 +6113,22 @@ public class AssignmentAction extends PagedResourceActionII
 						result = status1.compareTo(status2);
 					}
 				}
-				catch (Exception e)
-				{
-					Log.warn("chef", this + e.getMessage() + o1 + o2);
-				}
 			}
 			else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_GRADE))
 			{
 				// sort by submission status
-				try
+				UserSubmission u1 = (UserSubmission) o1;
+				UserSubmission u2 = (UserSubmission) o2;
+				
+				if (u1 == null || u2 == null)
 				{
-					AssignmentSubmission s1 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o1);
-					AssignmentSubmission s2 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o2);
-	
+					result = -1;
+				}
+				else
+				{
+					AssignmentSubmission s1 = u1.getSubmission();
+					AssignmentSubmission s2 = u2.getSubmission();
+					
 					//sort by submission grade
 					if (s1 == null)
 					{
@@ -6101,8 +6152,8 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 	
 						// if scale is points
-						if ((((AssignmentSubmission) s1).getAssignment().getContent().getTypeOfGrade() == 3)
-								&& ((((AssignmentSubmission) s2).getAssignment().getContent().getTypeOfGrade() == 3)))
+						if ((s1.getAssignment().getContent().getTypeOfGrade() == 3)
+								&& ((s2.getAssignment().getContent().getTypeOfGrade() == 3)))
 						{
 							if (grade1.equals(""))
 							{
@@ -6124,19 +6175,22 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 					}
 				}
-				catch (Exception e)
-				{
-					Log.warn("chef", this + e.getMessage() + o1 + o2);
-				}
 			}
 			else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_RELEASED))
 			{
 				// sort by submission status
-				try
+				UserSubmission u1 = (UserSubmission) o1;
+				UserSubmission u2 = (UserSubmission) o2;
+				
+				if (u1 == null || u2 == null)
 				{
-					AssignmentSubmission s1 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o1);
-					AssignmentSubmission s2 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o2);
-	
+					result = -1;
+				}
+				else
+				{
+					AssignmentSubmission s1 = u1.getSubmission();
+					AssignmentSubmission s2 = u2.getSubmission();
+					
 					if (s1 == null)
 					{
 						result = -1;
@@ -6153,10 +6207,6 @@ public class AssignmentAction extends PagedResourceActionII
 	
 						result = released1.compareTo(released2);
 					}
-				}
-				catch (Exception e)
-				{
-					Log.warn("chef", this + e.getMessage() + o1 + o2);
 				}
 			}
 			/****** for other sort on submissions **/
@@ -6660,37 +6710,72 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		else if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_GRADE_ASSIGNMENT))
 		{
-			//	get all active site users
-			String authzGroupId = SiteService.siteReference(contextString);
-			
-			// all users that can submit
-			List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
-			
 			try
 			{
-				AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupId);
-				Set grants = group.getUsers();
-				for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
+				Assignment a = AssignmentService.getAssignment((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
+				Iterator submissionsIterator = AssignmentService.getSubmissions(a);
+				List submissions = new Vector();
+				while (submissionsIterator.hasNext())
 				{
-					String userId = (String) iUserIds.next();
-					try
+					submissions.add(submissionsIterator.next());
+				}
+				
+				//	get all active site users
+				String authzGroupId = SiteService.siteReference(contextString);
+				
+				// all users that can submit
+				List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
+				
+				try
+				{
+					AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupId);
+					Set grants = group.getUsers();
+					for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
 					{
-						User u = UserDirectoryService.getUser(userId);
-						// only include those users that can submit to this assignment
-						if (allowAddSubmissionUsers.contains(u))
+						String userId = (String) iUserIds.next();
+						try
 						{
-							returnResources.add(u);
+							User u = UserDirectoryService.getUser(userId);
+							// only include those users that can submit to this assignment
+							if (allowAddSubmissionUsers.contains(u))
+							{
+								boolean found = false;
+								for (int i = 0; !found && i<submissions.size();i++)
+								{
+									AssignmentSubmission s = (AssignmentSubmission) submissions.get(i);
+									if (s.getSubmitterIds().contains(userId))
+									{
+										returnResources.add(new UserSubmission(u, s));
+										found = true;
+									}
+								}
+								
+								// add those users who haven't made any submissions
+								if (!found)
+								{
+									returnResources.add(new UserSubmission(u, null));
+								}
+							}
+						}
+						catch (Exception e)
+						{
+							Log.warn("chef", this + e.getMessage() + " userId = " + userId);
 						}
 					}
-					catch (Exception e)
-					{
-						Log.warn("chef", this + e.getMessage() + " userId = " + userId);
-					}
 				}
+				catch (Exception e)
+				{
+					Log.warn("chef", e.getMessage() + " authGroupId=" + authzGroupId);
+				}
+				
 			}
-			catch (Exception e)
+			catch (IdUnusedException e)
 			{
-				Log.warn("chef", e.getMessage() + " authGroupId=" + authzGroupId);
+				addAlert(state, rb.getString("cannotfin3"));
+			}
+			catch (PermissionException e)
+			{
+				addAlert(state, rb.getString("youarenot14"));
 			}
 			
 		}
