@@ -52,7 +52,9 @@ should be included in file importing DeliveryMessages
     </h:column>
     <h:column>
       <h:panelGroup rendered="#{delivery.feedback eq 'true' &&
-       delivery.feedbackComponent.showSelectionLevel}" >
+       delivery.feedbackComponent.showSelectionLevel &&
+	   selection.answer.generalAnswerFeedback != 'null' && selection.answer.generalAnswerFeedback != ''}" > 
+	   <!-- The above != 'null' is for SAK-5475. Once it gets fixed, we can remove this condition -->
        <f:verbatim><br /></f:verbatim>
        <h:outputText value="#{msg.feedback}#{msg.column} " />
        <h:outputText value="#{selection.answer.generalAnswerFeedback}" escape="false" />

@@ -61,7 +61,7 @@ should be included in file importing DeliveryMessages
      <h:panelGroup rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showSelectionLevel}" >
        <f:verbatim><br /></f:verbatim>
-       <h:outputText value="#{msg.feedback}#{msg.column} " rendered="#{matching.feedback ne ''}" />
+       <h:outputText value="#{msg.feedback}#{msg.column} " rendered="#{matching.feedback ne '' && matching.feedback != null}" />
        <h:outputText value="#{matching.feedback}" escape="false" />
      </h:panelGroup>
   </h:column>
