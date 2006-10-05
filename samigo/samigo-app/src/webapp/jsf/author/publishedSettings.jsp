@@ -92,21 +92,15 @@
   <!-- *** DELIVERY DATES *** -->
   <samigo:hideDivision id="div2" title="#{msg.t_deliveryDates}" >
     <div class="tier2">
-    <h:panelGrid columns="3" columnClasses="shorttext"
+    <h:panelGrid columns="2" columnClasses="shorttext"
       summary="#{summary_msg.delivery_dates_sec}">
 
-      <h:selectBooleanCheckbox
-        value="#{publishedSettings.valueMap.hasAvailableDate}"/>
       <h:outputText value="#{msg.assessment_available_date}" />
       <samigo:datePicker value="#{publishedSettings.startDateString}" size="25" id="startDate" />
 
-      <h:selectBooleanCheckbox
-        value="#{publishedSettings.valueMap.dueDate}"/>
       <h:outputText value="#{msg.assessment_due_date}" />
       <samigo:datePicker value="#{publishedSettings.dueDateString}" size="25" id="endDate" />
 
-      <h:selectBooleanCheckbox
-        value="#{publishedSettings.valueMap.hasRetractDate}"/>
       <h:outputText value="#{msg.assessment_retract_date}" />
       <samigo:datePicker value="#{publishedSettings.retractDateString}" size="25" id="retractDate" />
     </h:panelGrid>
