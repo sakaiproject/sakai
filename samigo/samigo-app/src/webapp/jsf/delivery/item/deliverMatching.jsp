@@ -59,9 +59,11 @@ should be included in file importing DeliveryMessages
    <h:column>
      <h:outputText value="#{matching.text}" escape="false"/>
      <h:panelGroup rendered="#{delivery.feedback eq 'true' &&
-       delivery.feedbackComponent.showSelectionLevel}" >
+       delivery.feedbackComponent.showSelectionLevel && 
+	   matching.feedback ne '' && matching.feedback != 'null' && matching.feedback != null}" >
+	   <!-- The above != 'null' is for SAK-5475. Once it gets fixed, we can remove this condition -->
        <f:verbatim><br /></f:verbatim>
-       <h:outputText value="#{msg.feedback}#{msg.column} " rendered="#{matching.feedback ne '' && matching.feedback != null}" />
+       <h:outputText value="#{msg.feedback}#{msg.column} " />
        <h:outputText value="#{matching.feedback}" escape="false" />
      </h:panelGroup>
   </h:column>
