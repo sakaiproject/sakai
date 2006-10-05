@@ -87,6 +87,7 @@ public class ItemModifyListener implements ActionListener
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
 
     String itemId= cu.lookupParam("itemid");
+    System.out.println("****itemId="+itemId); 
     if (itemId != null){
       itemauthorbean.setItemId(itemId);
     }
@@ -97,6 +98,7 @@ public class ItemModifyListener implements ActionListener
       // so i can't read itemId from a form. - daisyf
       itemId = itemauthorbean.getItemId();
     }
+    System.out.println("****itemId="+itemId); 
  
     String poolid = cu.lookupParam("poolId");
     if(poolid!=null) {

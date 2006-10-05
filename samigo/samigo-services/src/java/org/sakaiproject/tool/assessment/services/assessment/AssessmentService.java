@@ -462,30 +462,54 @@ public void deleteAssessment(Id assessmentId)
           removeAssessmentAttachment(new Long(attachmentId));
   }
 
-  public List getResourceIdList(AssessmentIfc pub){
+  public List getAssessmentResourceIdList(AssessmentIfc pub){
     List resourceIdList = new ArrayList();
     List list = pub.getAssessmentAttachmentList();
-    if (list == null){
-      list = new ArrayList();
+    if (list != null){
+      resourceIdList = getResourceIdList(list);
     }
     Set sectionSet = pub.getSectionSet();
     Iterator iter = sectionSet.iterator();
     while (iter.hasNext()){
       SectionDataIfc section = (SectionDataIfc) iter.next();
-      List sectionAttachments = section.getSectionAttachmentList();
+      List sectionAttachments = getSectionResourceIdList(section);
       if (sectionAttachments!=null){ 
-        list.addAll(sectionAttachments);
+        resourceIdList.addAll(sectionAttachments);
       }
-      Set itemSet = section.getItemSet();
-      Iterator iter1 = itemSet.iterator();
-      while (iter1.hasNext()){
-	ItemDataIfc item = (ItemDataIfc) iter1.next();
-        List itemAttachments = item.getItemAttachmentList();
-        if (itemAttachments != null){
-          list.addAll(itemAttachments);
-	}
+    }
+    return resourceIdList;
+  }
+
+
+  public List getSectionResourceIdList(SectionDataIfc section){
+    List resourceIdList = new ArrayList();
+    List list = section.getSectionAttachmentList();
+    if (list!=null){
+      resourceIdList = getResourceIdList(list);
+    }
+    Set itemSet = section.getItemSet();
+    Iterator iter1 = itemSet.iterator();
+    while (iter1.hasNext()){
+      ItemDataIfc item = (ItemDataIfc) iter1.next();
+      List itemAttachments = getItemResourceIdList(item);
+      if (itemAttachments != null){
+        resourceIdList.addAll(itemAttachments);
       } 
     }
+    return resourceIdList;
+  }
+
+  public List getItemResourceIdList(ItemDataIfc item){
+    List resourceIdList = new ArrayList();
+    List list = item.getItemAttachmentList();
+    if (list != null){
+      resourceIdList = getResourceIdList(list);
+    }
+    return resourceIdList;
+  }
+
+  private List getResourceIdList(List list){
+    List resourceIdList = new ArrayList();
     for (int i=0; i<list.size(); i++){
       AttachmentIfc attach = (AttachmentIfc) list.get(i);
       resourceIdList.add(attach.getResourceId());

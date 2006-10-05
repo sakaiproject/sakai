@@ -141,6 +141,8 @@ public class StartInsertItemListener implements ValueChangeListener
       itemauthorbean.setInsertPosition(insertItemPosition);
       itemauthorbean.setInsertType(newitemtype);
       itemauthorbean.setItemNo(String.valueOf(Integer.parseInt(insertItemPosition) +1));
+      // clean up before new question SAK-6506  
+      itemauthorbean.setAttachmentList(null);
 
     log.debug("new itemtype." + newitemtype);
     log.debug("new insert to secction." + insertToSection);

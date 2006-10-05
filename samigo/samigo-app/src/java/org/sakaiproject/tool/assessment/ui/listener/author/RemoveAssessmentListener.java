@@ -74,11 +74,10 @@ public class RemoveAssessmentListener implements ActionListener
     RemoveAssessmentThread thread = new RemoveAssessmentThread(assessmentId);
     thread.start();
 
-    /* TO BE DETERMINED 10/3/06
     // #2 - even if assessment is set to dead, we intend to remove any resources
-    List resourceIdList = s.getResourceIdList(assessment);
+    List resourceIdList = s.getAssessmentResourceIdList(assessment);
     s.deleteResources(resourceIdList);
-    */
+
 
     //#3 - goto authorIndex.jsp so fix the assessment List in author bean by
     // removing an assessment from the list

@@ -102,7 +102,7 @@ public class RemovePublishedAssessmentListener
 
   private void storeResourceIdListInPersonBean(AssessmentIfc pub){
     AssessmentService s = new AssessmentService();
-    List resourceIdList = s.getResourceIdList(pub);
+    List resourceIdList = s.getAssessmentResourceIdList(pub);
     PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
     personBean.setResourceIdListInPreview(resourceIdList);
   }

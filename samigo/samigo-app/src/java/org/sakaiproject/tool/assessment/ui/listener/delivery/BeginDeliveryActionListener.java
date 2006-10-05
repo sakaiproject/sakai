@@ -318,7 +318,7 @@ public class BeginDeliveryActionListener implements ActionListener
           // clone pub from tempPub, clone is not in anyway bound to the DB session
           pub = tempPub.clonePublishedAssessment();
           //get list of resources attached to the published Assessment
-          List resourceIdList = assessmentService.getResourceIdList(pub);
+          List resourceIdList = assessmentService.getAssessmentResourceIdList(pub);
 	  PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
 	  personBean.setResourceIdListInPreview(resourceIdList);
           //log.info("****publishedId="+publishedId);

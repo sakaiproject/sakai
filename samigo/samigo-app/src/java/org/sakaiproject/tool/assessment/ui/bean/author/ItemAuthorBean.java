@@ -137,7 +137,8 @@ public class ItemAuthorBean
 
   public void setItem(ItemDataIfc item)
    {
-	this.item=item;
+     this.item=item;
+     this.attachmentList = item.getItemAttachmentList();
    }
 
   public ItemDataIfc getItem()

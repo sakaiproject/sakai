@@ -47,6 +47,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -188,12 +189,14 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     log.debug("***facade: "+f.getAuthority());
   }
 
-// DELETEME
   public void remove(Long itemId) {
-      ItemData item = (ItemData)getHibernateTemplate().load(ItemData.class, itemId);
-      if (item != null) {
-        printItem(item);
-      }
+    ItemData item = (ItemData)getHibernateTemplate().load(ItemData.class, itemId);
+
+    // get list of attachment in section
+    AssessmentService service = new AssessmentService();
+    List itemAttachmentList = service.getItemResourceIdList(item);
+    service.deleteResources(itemAttachmentList);
+
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
@@ -212,12 +215,11 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 
   public void deleteItem(Long itemId, String agent) {
     ItemData item = (ItemData)getHibernateTemplate().load(ItemData.class, itemId);
-/*
-    // for debugging
-    if (item != null) {
-      printItem(item);
-    }
-*/
+    // get list of attachment in item
+    AssessmentService service = new AssessmentService();
+    List itemAttachmentList = service.getItemResourceIdList(item);
+    service.deleteResources(itemAttachmentList);
+
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
@@ -235,15 +237,11 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
       }
     }
-/*
-      if (item != null) {
-        printItem(item);
-      }
-*/
   }
 
 
 
+  // is this used by ItemAddListener to save item? -daisyf
   public void deleteItemContent(Long itemId, String agent) {
     ItemData item = (ItemData)getHibernateTemplate().load(ItemData.class, itemId);
 

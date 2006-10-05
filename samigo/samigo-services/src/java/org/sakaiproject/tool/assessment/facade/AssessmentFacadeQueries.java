@@ -75,6 +75,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.ResourceProperties; 
@@ -1026,41 +1027,41 @@ public class AssessmentFacadeQueries
       int count = 1;
       for (int i = 0; i < sections.size(); i++) {
         SectionData s = (SectionData) sections.get(i);
-        /*
-        log.debug("** s Section no: " + s.getSequence() + ":" +
-                           s.getSectionId());
-        log.debug("** section Section no: " + section.getSequence() +
-                           ":" + section.getSectionId());
-  */
         if (! (s.getSectionId()).equals(section.getSectionId())) {
           s.setSequence(new Integer(count++));
           set.add(s);
         }
       }
       assessment.setSectionSet(set);
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
-    while (retryCount > 0){
-      try {
-        getHibernateTemplate().update(assessment); // sections reordered
-        retryCount = 0;
+      int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+      while (retryCount > 0){
+        try {
+          getHibernateTemplate().update(assessment); // sections reordered
+          retryCount = 0;
+        }
+        catch (Exception e) {
+          log.warn("problem updating asssessment: "+e.getMessage());
+          retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        }
       }
-      catch (Exception e) {
-        log.warn("problem updating asssessment: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
-      }
-    }
 
-    retryCount = PersistenceService.getInstance().getRetryCount().intValue();
-    while (retryCount > 0){
-      try {
-        getHibernateTemplate().delete(section);
-        retryCount = 0;
+      // get list of attachment in section
+      AssessmentService service = new AssessmentService();
+      List sectionAttachmentList = service.getSectionResourceIdList(section);
+      service.deleteResources(sectionAttachmentList);
+
+      // remove assessment
+      retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+      while (retryCount > 0){
+        try {
+          getHibernateTemplate().delete(section);
+          retryCount = 0;
+        }
+        catch (Exception e) {
+          log.warn("problem deletint section: "+e.getMessage());
+          retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        }
       }
-      catch (Exception e) {
-        log.warn("problem deletint section: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
-      }
-    }
     }
   }
 
