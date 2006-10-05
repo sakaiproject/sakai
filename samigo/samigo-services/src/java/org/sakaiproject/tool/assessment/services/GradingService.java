@@ -1387,6 +1387,18 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    }
 	    return results;
   }
+  
+  public Long getTypeId(Long itemGradingId) {
+	  	Long typeId = null;
+	    try {
+	    	typeId = PersistenceService.getInstance().
+	        getAssessmentGradingFacadeQueries().getTypeId(itemGradingId);
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	    }
+	    return typeId;
+  }
+
 }
 
 

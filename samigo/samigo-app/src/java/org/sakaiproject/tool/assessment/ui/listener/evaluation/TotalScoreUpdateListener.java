@@ -145,7 +145,7 @@ public class TotalScoreUpdateListener
 
             data.setAgentId(agentResults.getIdString());
   	    data.setForGrade(new Boolean(true));
-	    data.setStatus(new Integer(1));
+	    //data.setStatus(new Integer(1));
             data.setIsLate(new Boolean(false));
    	    data.setItemGradingSet(new HashSet());
     	    data.setPublishedAssessmentId(bean.getPublishedAssessment().getPublishedAssessmentId());

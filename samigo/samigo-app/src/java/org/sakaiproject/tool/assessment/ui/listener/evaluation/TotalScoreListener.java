@@ -43,16 +43,14 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
-//import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
-//import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
-//import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-//import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -461,7 +459,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
         
         // get the Map of all users(keyed on userid) belong to the selected sections 
         // now we only include scores of users belong to the selected sections
-        if (useridMap.containsKey(agentid) ) {
+        if (useridMap.containsKey(agentid)) {
           scores.add(data); // daisyf: #1b - what is the min set of info needed for data?
           students_submitted.add(agentid);
         }
@@ -500,7 +498,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
 
   /* Dump the grading and agent information into AgentResults */
   public void prepareAgentResult(PublishedAssessmentData p, Iterator iter, ArrayList agents, Map userRoles){
-	  //GradingService gradingService = new GradingService();
+	GradingService gradingService = new GradingService();
     while (iter.hasNext())
     {
       AgentResults results = new AgentResults();
@@ -508,8 +506,8 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       
       // no need to initialize itemSet 'cos we don't need to use it in totalScoresPage. So I am
       // stuffing it with an empty HashSet - daisyf
-      //gdata.setItemGradingSet(gradingService.getItemGradingSet(gdata.getAssessmentGradingId().toString()));
-      gdata.setItemGradingSet(new HashSet());
+      gdata.setItemGradingSet(gradingService.getItemGradingSet(gdata.getAssessmentGradingId().toString()));
+      //gdata.setItemGradingSet(new HashSet());
       try{
         BeanUtils.copyProperties(results, gdata);
       }
@@ -530,15 +528,32 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       
       results.setComments(gdata.getComments());
 
-      int graded=0;
       Iterator i3 = gdata.getItemGradingSet().iterator();
+      Long typeId = new Long(-1);
+      boolean autoGrade = true;
+      // Go through all itemGrading data, if there is at least one cannot be auto graded,
+      // ie, file upload, short answer/essay, or audio question,
+      // we set the autoGrade to false
+      // That is, this assessment grading record cannot be auto grade.
+      // We update the status to 3.
       while (i3.hasNext())
       {
         ItemGradingData igd = (ItemGradingData) i3.next();
-        if (igd.getAutoScore() != null)
-          graded++;
+        typeId = gradingService.getTypeId(igd.getItemGradingId());
+        if (typeId.equals(TypeIfc.FILE_UPLOAD) 
+        		|| typeId.equals(TypeIfc.ESSAY_QUESTION) 
+        		|| typeId.equals(TypeIfc.AUDIO_RECORDING)) {
+        	autoGrade = false;
+        	break;
+        }        
       }
-        
+      
+      if (autoGrade) {
+          results.setStatus(AssessmentGradingIfc.AUTO_GRADED);
+      }
+      else {
+          results.setStatus(AssessmentGradingIfc.NEED_HUMAN_ATTENTION);
+      }
       Date dueDate = null;
       PublishedAccessControl ac = (PublishedAccessControl) p.getAssessmentAccessControl();
       if (ac!=null)
@@ -546,14 +561,13 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       if (dueDate == null || gdata.getSubmittedDate() == null || gdata.getSubmittedDate().before(dueDate)) {   // SAK-5504
       //if (dueDate == null || gdata.getSubmittedDate().before(dueDate)) {
         results.setIsLate(new Boolean(false));
-        if (gdata.getItemGradingSet().size()==graded)
-          results.setStatus(new Integer(2));
-        else
-          results.setStatus(new Integer(3));
       }
       else {
         results.setIsLate(new Boolean(true));
-        results.setStatus(new Integer(4));
+        // The mock up has been updated. For a late submission, the "LATE" will be displayed
+        // under Submission Date column instead of Status column. Therefore, we will not treat
+        // LATE_SUBMISSION as a status. Comment out the following line for this reason.
+        //results.setStatus(AssessmentGradingIfc.LATE_SUBMISSION);
       }
       AgentFacade agent = new AgentFacade(gdata.getAgentId());
       results.setLastName(agent.getLastName());
@@ -692,7 +706,7 @@ log.debug("testing agent getEid agent.geteid = " + agent.getEidString());
       results.setSubmittedDate(null);
       results.setFinalScore("0");
       results.setComments("");
-      results.setStatus(new Integer(5));  //  no submission
+      results.setStatus(AssessmentGradingIfc.NO_SUBMISSION);  //  no submission
       agents.add(results);
     }
   }

@@ -28,6 +28,15 @@ import java.util.Set;
 public interface AssessmentGradingIfc
     extends java.io.Serializable{
 
+	public static final Integer AUTO_GRADED = new Integer(2);
+
+	public static final Integer NEED_HUMAN_ATTENTION = new Integer(3);
+
+	public static final Integer LATE_SUBMISSION = new Integer(4);
+
+	public static final Integer NO_SUBMISSION = new Integer(5);
+
+
   Long getAssessmentGradingId();
 
   void setAssessmentGradingId(Long assessmentGradingId);

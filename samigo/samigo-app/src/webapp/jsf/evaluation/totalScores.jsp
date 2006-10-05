@@ -486,46 +486,70 @@
     <h:column rendered="#{totalScores.sortType!='submittedDate'}">
      <f:facet name="header">
         <h:commandLink title="#{msg.t_sortSubmittedDate}" id="submittedDate" action="totalScores">
-          <h:outputText value="#{msg.date}" />
+          <h:outputText value="#{msg.submit_date}" />
         <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <f:param name="sortBy" value="submittedDate" />
         <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
-        <h:outputText value="#{description.submittedDate}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
+        <h:outputText value="#{description.submittedDate}" rendered="#{description.attemptDate != null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}" >
           <f:convertDateTime pattern="#{genMsg.output_data_picker_w_sec}"/>
         </h:outputText>
+		<h:panelGroup rendered="#{description.isLate == 'true' && description.attemptDate != null
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}">
+			<f:verbatim><br/></f:verbatim>
+			<h:outputText style="color:red" value="#{msg.late}"/>
+		</h:panelGroup>
+		
+      <h:outputText value="#{msg.no_submission}"
+         rendered="#{description.attemptDate == null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='submittedDate' && totalScores.sortAscending}">
       <f:facet name="header">
         <h:commandLink title="#{msg.t_sortSubmittedDate}" action="totalScores">
-          <h:outputText value="#{msg.date}" />
+          <h:outputText value="#{msg.submit_date}" />
           <f:param name="sortAscending" value="false" />
           <h:graphicImage alt="#{msg.alt_sortSubmittedDateDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif"/>
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
           </h:commandLink>    
       </f:facet>
-        <h:outputText value="#{description.submittedDate}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
+        <h:outputText value="#{description.submittedDate}" rendered="#{description.attemptDate != null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}" >
           <f:convertDateTime pattern="#{genMsg.output_data_picker_w_sec}"/>
         </h:outputText>
+		<h:panelGroup rendered="#{description.isLate == 'true' && description.attemptDate != null
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}">
+			<f:verbatim><br/></f:verbatim>
+			<h:outputText style="color:red" value="#{msg.late}"/>
+		</h:panelGroup>
+
+        <h:outputText value="#{msg.no_submission}"
+         rendered="#{description.attemptDate == null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+
     </h:column>
     
     <h:column rendered="#{totalScores.sortType=='submittedDate'  && !totalScores.sortAscending}">
       <f:facet name="header">
       <h:commandLink title="#{msg.t_sortSubmittedDate}" action="totalScores">
-        <h:outputText value="#{msg.date}" />
+        <h:outputText value="#{msg.submit_date}" />
         <f:param name="sortAscending" value="true"/>
         <h:graphicImage alt="#{msg.alt_sortSubmittedDateAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
         <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       </h:commandLink> 
       </f:facet>
-        <h:outputText value="#{description.submittedDate}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
+        <h:outputText value="#{description.submittedDate}" rendered="#{description.attemptDate != null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}" >
           <f:convertDateTime pattern="#{genMsg.output_data_picker_w_sec}"/>
         </h:outputText>
+		<h:panelGroup rendered="#{description.isLate eq 'true' && description.attemptDate != null
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}">
+			<f:verbatim><br/></f:verbatim>
+			<h:outputText style="color:red" value="#{msg.late}"/>
+		</h:panelGroup>
+        <h:outputText value="#{msg.no_submission}"
+         rendered="#{description.attemptDate == null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
     </h:column>
     
 
@@ -540,19 +564,11 @@
         <f:param name="sortAscending" value="true"/>
         </h:commandLink>
       </f:facet>
-      <h:outputText value="#{msg.submitted}" 
+      <h:outputText value="#{msg.auto_scored}" 
          rendered="#{description.status == 2 && description.attemptDate != null 
                     && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
       <h:outputText value=" " 
          rendered="#{description.status == 3 && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
-<h:panelGroup rendered="#{description.status == 4 && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}">
-<f:verbatim><br/></f:verbatim>
-      <h:outputText style="color:red" value="#{msg.late}"/>
-</h:panelGroup>
-      <h:outputText value="#{msg.no_submission}"
-         rendered="#{description.attemptDate == null
                     && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
     </h:column>
 
@@ -566,19 +582,11 @@
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
           </h:commandLink>    
       </f:facet>
-<h:outputText value="#{msg.submitted}" 
+<h:outputText value="#{msg.auto_scored}" 
          rendered="#{description.status == 2 && description.attemptDate != null 
                     && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
       <h:outputText value=" " 
          rendered="#{description.status == 3 && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
-<h:panelGroup rendered="#{description.status == 4 && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}">
-<f:verbatim><br/></f:verbatim>
-      <h:outputText style="color:red" value="#{msg.late}"/>
-</h:panelGroup>
-      <h:outputText value="#{msg.no_submission}"
-         rendered="#{description.attemptDate == null
                     && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
     </h:column>
     
@@ -592,19 +600,11 @@
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       </h:commandLink> 
       </f:facet>
-      <h:outputText value="#{msg.submitted}" 
+      <h:outputText value="#{msg.auto_scored}" 
          rendered="#{description.status == 2 && description.attemptDate != null 
                     && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
       <h:outputText value=" " 
          rendered="#{description.status == 3 && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
-<h:panelGroup rendered="#{description.status == 4 && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}">
-<f:verbatim><br/></f:verbatim>
-      <h:outputText style="color:red" value="#{msg.late}"/>
-</h:panelGroup>
-      <h:outputText value="#{msg.no_submission}"
-         rendered="#{description.attemptDate == null
                     && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
     </h:column>
 

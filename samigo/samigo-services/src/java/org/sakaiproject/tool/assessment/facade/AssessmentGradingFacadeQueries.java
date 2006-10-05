@@ -1237,5 +1237,27 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    return itemSet;
   }
 
-  
+  public Long getTypeId(final Long itemGradingId) {
+	  Long typeId = new Long(-1);
+
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(
+	    				"select p.typeId " +
+	    				"from PublishedItemData p, ItemGradingData i " +
+	    				"where i.itemGradingId=? " +
+	    				"and p.itemId = i.publishedItemId ");
+	    		q.setLong(0, itemGradingId.longValue());
+	    		return q.list();
+	    	};
+	    };
+	    List typeIdList = getHibernateTemplate().executeFind(hcb);
+
+	    Iterator iter = typeIdList.iterator();
+	    while(iter.hasNext()) {
+	    	typeId = (Long) iter.next();
+	    	log.debug("typeId = " + typeId);
+	    }
+	    return typeId;
+  }
 }
