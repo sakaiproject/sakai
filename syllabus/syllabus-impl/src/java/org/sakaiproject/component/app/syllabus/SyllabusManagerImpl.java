@@ -38,6 +38,9 @@ import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.User;
+
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -405,8 +408,10 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
 
       ContentResource cr = ContentHostingService.getResource(attachId);
       attach.setSize((new Integer(cr.getContentLength())).toString());
-      attach.setCreatedBy(cr.getProperties().getProperty(cr.getProperties().getNamePropCreator()));
-      attach.setLastModifiedBy(cr.getProperties().getProperty(cr.getProperties().getNamePropModifiedBy()));
+      User creator = UserDirectoryService.getUser(cr.getProperties().getProperty(cr.getProperties().getNamePropCreator()));
+      attach.setCreatedBy(creator.getDisplayName());
+      User modifier = UserDirectoryService.getUser(cr.getProperties().getProperty(cr.getProperties().getNamePropModifiedBy()));
+      attach.setLastModifiedBy(modifier.getDisplayName());
       attach.setType(cr.getContentType());
       String tempString = cr.getUrl();
       String newString = new String();
