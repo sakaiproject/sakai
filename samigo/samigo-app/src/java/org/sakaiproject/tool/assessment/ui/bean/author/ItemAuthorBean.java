@@ -948,7 +948,6 @@ ItemService delegate = new ItemService();
   public String addAttachmentsRedirect() {
     // 1. first save any question text and stuff
     saveItem();
-
     // 2. load resources into session for resources mgmt page
     //    then redirect to resources mgmt page
     try	{
@@ -976,6 +975,9 @@ ItemService delegate = new ItemService();
 
   private List prepareReferenceList(List attachmentList){
     List list = new ArrayList();
+    if (attachmentList == null){
+      return list;
+    }
     for (int i=0; i<attachmentList.size(); i++){
       AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
       try{
