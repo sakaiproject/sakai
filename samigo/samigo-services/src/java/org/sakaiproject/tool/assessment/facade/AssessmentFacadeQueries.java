@@ -1368,7 +1368,7 @@ public class AssessmentFacadeQueries
 
   private String fileSizeInKB(int fileSize){
     String fileSizeString = "1";
-    int size = Math.round(fileSize / 1000);
+    int size = Math.round(fileSize / 1024);
     if (size > 0){
       fileSizeString = size+"";
     }
