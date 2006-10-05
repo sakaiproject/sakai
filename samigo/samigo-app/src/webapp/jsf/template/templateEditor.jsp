@@ -161,19 +161,12 @@
   <samigo:hideDivision title="#{msg.released_to}" id="div4">
    <div class="tier2">
   <div class="longtext">
-    <h:outputLabel value="#{msg.template_canbeedited}"/></div>
+    <h:outputLabel value="#{msg.template_canedit}"/></div>
    <div class="tier3">
-    <h:panelGrid columns="2"
+    <h:panelGrid columns="1"
       summary="#{msg.released_to_info_sec}">
-
-      <h:selectBooleanCheckbox id="anononymous"
-        value="#{template.valueMap.anonymousRelease_isInstructorEditable}"/>
       <h:outputLabel for="anononymous" value="#{msg.anon}"/>
-
-      <h:selectBooleanCheckbox id="auth_users"
-        value="#{template.valueMap.authenticatedRelease_isInstructorEditable}"/>
       <h:outputLabel for="auth_users" value="#{msg.auth_users}"/>
-
     </h:panelGrid>
   </div></div>
   </samigo:hideDivision>
