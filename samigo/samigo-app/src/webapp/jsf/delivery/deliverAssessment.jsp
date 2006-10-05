@@ -269,6 +269,7 @@ function saveTime()
 
   <!-- check for submit for grade permission to determine if button can be displayed -->
   <%-- SUBMIT FOR GRADE --%>
+<%-- not sure what this is for - comment it out for now - SAK-6655
   <h:panelGroup rendered="#{delivery.actionString=='takeAssessmentViaUrl' 
                         || (authorization!=null && authorization.takeAssessment 
                             && authorization.submitAssessmentForGrade)}">
@@ -280,6 +281,7 @@ function saveTime()
       disabled="#{delivery.actionString=='previewAssessment'}"
       onclick="pauseTiming='false'; disableSubmit()" onkeypress="pauseTiming='false'; disableSubmit()"/>
   </h:panelGroup>
+--%>
 
   <%-- SUBMIT FOR GRADE DURING PAU --%>
   <h:commandButton type="submit" value="#{msg.button_submit}"
