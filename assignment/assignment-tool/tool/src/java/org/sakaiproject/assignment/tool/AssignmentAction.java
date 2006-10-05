@@ -4221,8 +4221,25 @@ public class AssignmentAction extends PagedResourceActionII
 			Iterator submissions = AssignmentService.getSubmissions(a);
 			if (submissions.hasNext())
 			{
-				// if there is submission to the assignment, show the alert
-				addAlert(state, rb.getString("assig1") + " " + a.getTitle() + " " + rb.getString("hassum"));
+				boolean anySubmitted = false;
+				for (;submissions.hasNext() && !anySubmitted;)
+				{
+					AssignmentSubmission s = (AssignmentSubmission) submissions.next();
+					if (s.getSubmitted())
+					{
+						anySubmitted = true;
+					}
+				}
+				if (anySubmitted)
+				{
+					// if there is any submitted submission to this assignment, show alert
+					addAlert(state, rb.getString("assig1") + " " + a.getTitle() + " " + rb.getString("hassum"));
+				}
+				else
+				{
+					// otherwise, show alert about someone has started working on the assignment, not necessarily submitted
+					addAlert(state, rb.getString("hasDraftSum"));
+				}
 			}
 
 			// SECTION MOD
