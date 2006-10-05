@@ -82,6 +82,9 @@ public class AuthorPartListener implements ActionListener
     sectionBean.setHideRandom(false);
     sectionBean.setNumberSelected("");
     sectionBean.setSelectedPool("");
+    // new part has no attachment 
+    sectionBean.setAttachmentList(null);
+    sectionBean.setHasAttachment(false);
     // set default
     sectionBean.setType(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString());
     sectionBean.setQuestionOrdering(SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE.toString());
