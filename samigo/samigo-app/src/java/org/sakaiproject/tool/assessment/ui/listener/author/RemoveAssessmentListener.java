@@ -74,10 +74,13 @@ public class RemoveAssessmentListener implements ActionListener
     RemoveAssessmentThread thread = new RemoveAssessmentThread(assessmentId);
     thread.start();
 
+    // This should have been done inside AssessmentFacadeQueries.removeAssessment()
+    // but it didn't work there nor inside RemoveAssessmentThread. 
+    // Debugging log in Conntent Hosting doesn't show anything.
+    // So I have to do it here
     // #2 - even if assessment is set to dead, we intend to remove any resources
     List resourceIdList = s.getAssessmentResourceIdList(assessment);
     s.deleteResources(resourceIdList);
-
 
     //#3 - goto authorIndex.jsp so fix the assessment List in author bean by
     // removing an assessment from the list

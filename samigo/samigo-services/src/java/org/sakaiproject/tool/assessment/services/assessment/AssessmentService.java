@@ -477,6 +477,7 @@ public void deleteAssessment(Id assessmentId)
         resourceIdList.addAll(sectionAttachments);
       }
     }
+    log.debug("*** resource size="+resourceIdList.size());
     return resourceIdList;
   }
 

@@ -95,9 +95,10 @@ public class AssessmentFacade extends AssessmentBaseFacade
     catch (AssessmentException ex) {
       throw new DataFacadeException(ex.getMessage());
     }
-    // super class does not have assessmentTemplateId nor sectionSet,
+    // super class does not have assessmentTemplateId nor sectionSet and assessmentAttachmentSet,
     // so we need to set it here
     this.assessmentTemplateId = data.getAssessmentTemplateId();
+    this.assessmentAttachmentSet = data.getAssessmentAttachmentSet();
     // sectionSet is a set of SectionFacade
     this.sectionSet = new HashSet();
 
@@ -122,9 +123,10 @@ public class AssessmentFacade extends AssessmentBaseFacade
     catch (AssessmentException ex) {
       throw new DataFacadeException(ex.getMessage());
     }
-    // super class does not have assessmentTemplateId nor sectionSet,
+    // super class does not have assessmentTemplateId nor sectionSet and AssessmentAttachemntSet,
     // so we need to set it here
     this.assessmentTemplateId = data.getAssessmentTemplateId();
+    this.assessmentAttachmentSet = data.getAssessmentAttachmentSet();
     // sectionSet is a set of SectionFacade
     this.sectionSet = new HashSet();
     Set dataSet = data.getSectionSet();
