@@ -22,6 +22,7 @@
 package org.sakaiproject.jsf.util;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,6 +36,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.el.ValueBinding;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Common static utility methods that help in implementing JSF tags.
@@ -478,6 +480,65 @@ public class RendererUtil
         if (component instanceof UIForm)
             return ((UIForm) component).getId();
         return null;
+    }
+    
+    
+    /**
+     * @param context FacesContext for the request we are processing
+     * @param writer ResponseWriter to be used
+     * @param key key to use to look up the value in the request
+     * @param path path to the file
+     * @exception IOException if an input/output error occurs while rendering
+     */
+    public static void writeExternalJSDependencies(FacesContext context, 
+          ResponseWriter writer, String key, String path) throws IOException
+    {
+       HttpServletRequest req = (HttpServletRequest) context.getExternalContext().getRequest();
+       String jsInclude= (String) req.getAttribute(key);
+       
+       if (jsInclude == null || jsInclude.length() == 0)
+       {
+          // include default stylesheet
+          jsInclude = "<script type=\"text/javascript\" src=\"" + path + "\"></script>\n";
+          req.setAttribute(key, jsInclude);
+          writer.write(jsInclude);
+       }
+    }
+    
+    
+    /**
+     * @param context FacesContext for the request we are processing
+     * @param writer ResponseWriter to be used
+     * @param key key to use to look up the value in the request
+     * @param path path to the file
+     * @exception IOException if an input/output error occurs while rendering
+     */
+    public static void writeExternalCSSDependencies(FacesContext context, 
+          ResponseWriter writer, String key, String path) throws IOException
+    {
+       HttpServletRequest req = (HttpServletRequest) context.getExternalContext().getRequest();
+       String cssInclude = (String) req.getAttribute(key);
+       
+       if (cssInclude == null || cssInclude.length() == 0)
+       {
+          // include default stylesheet
+          cssInclude = "<link href=\"" + path + "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+          req.setAttribute(key, cssInclude);
+          writer.write(cssInclude);
+       }
+    }
+    
+    public static void writeAttr(Writer inWriter, String inAttr, String inAttrValue)
+    throws IOException
+    {
+       if(inWriter == null || inAttr == null || inAttrValue == null)
+          return;
+
+       inWriter.write(" ");
+       inWriter.write(inAttr);
+       inWriter.write("=\"");
+       inWriter.write(inAttrValue);
+       inWriter.write("\" ");
     }
 
 }

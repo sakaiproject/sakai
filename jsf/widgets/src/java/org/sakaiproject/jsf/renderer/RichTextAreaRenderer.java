@@ -350,7 +350,8 @@ public class RichTextAreaRenderer extends Renderer
         	writer.write((String) value);
         	writer.write("</textarea>");
         	
-        	writer.write("<script type=\"text/javascript\" src=\"/library/editor/FCKeditor/fckeditor.js\"></script>\n");
+         RendererUtil.writeExternalJSDependencies(context, writer, "richtextarea.jsf.fckeditor.js", "/library/editor/FCKeditor/fckeditor.js");
+         //writer.write("<script type=\"text/javascript\" src=\"/library/editor/FCKeditor/fckeditor.js\"></script>\n");
         	writer.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");
         	writer.write("function chef_setupformattedtextarea(textarea_id){\n");
         	writer.write("var oFCKeditor = new FCKeditor(textarea_id);\n");

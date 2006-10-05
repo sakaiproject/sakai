@@ -240,10 +240,11 @@ public class InputRichTextRenderer extends Renderer
           writer.write((String) value);
        writer.write("</textarea>");
 
-       writer.write("<script type=\"text/javascript\" src=\"/library/editor/FCKeditor/fckeditor.js\"></script>\n");
+       RendererUtil.writeExternalJSDependencies(context, writer, "inputrichtext.jsf.fckeditor.js", "/library/editor/FCKeditor/fckeditor.js");
+       //writer.write("<script type=\"text/javascript\" src=\"/library/editor/FCKeditor/fckeditor.js\"></script>\n");
        writer.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");
 
-       String attachmentVar = "attachment" + ("" + Math.random()).substring(2);
+       String attachmentVar = "attachment" + createSafeRandomNumber();
 
        boolean hasAttachments = false;
 
@@ -435,7 +436,7 @@ public class InputRichTextRenderer extends Renderer
     throws IOException
   {
     // script creates unique Config object
-    String configVar = "config" + ("" + Math.random()).substring(2);
+    String configVar = "config" + createSafeRandomNumber();
 
     writer.write("<script type=\"text/javascript\">\n");
     writer.write("  sakaiSetLanguage(\"" + locale.getDisplayLanguage() + "\");");
@@ -635,6 +636,10 @@ public class InputRichTextRenderer extends Renderer
 
     script.append("]]");
     return script.toString();
+  }
+  
+  private String createSafeRandomNumber() {
+     return "" + (long)(Math.floor(Math.random() * 1000000000));
   }
 
 }
