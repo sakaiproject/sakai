@@ -99,31 +99,6 @@ public class NewsAction extends VelocityPortletPaneledAction
 			{
 				channelUrl = "";
 			}
-			else
-			{
-				try
-				{
-					NewsService.getChannel(channelUrl);
-				}
-				catch (NewsConnectionException e)
-				{
-					// display message
-					addAlert(state, e.getMessage());
-					return;
-				}
-				catch (NewsFormatException e)
-				{
-					// deal with it...
-					addAlert(state, e.getMessage());
-					return;
-				}
-				catch (Exception e)
-				{
-					if(Log.getLogger("chef").isDebugEnabled()) {
-						Log.debug("chef", "NewsAction.initState() caught Exception " + e);
-					}
-				}
-			}
 			state.setAttribute(STATE_CHANNEL_URL, channelUrl);
 
 		}
@@ -204,58 +179,38 @@ public class NewsAction extends VelocityPortletPaneledAction
 		{
 			context.put(Menu.CONTEXT_MENU, bar);
 		}
-
+		
 		context.put(Menu.CONTEXT_ACTION, state.getAttribute(STATE_ACTION));
+		context.put(GRAPHIC_VERSION_TEXT, state.getAttribute(GRAPHIC_VERSION_TEXT));
+		context.put(FULL_STORY_TEXT, state.getAttribute(FULL_STORY_TEXT));
 
 		String url = (String) state.getAttribute(STATE_CHANNEL_URL);
 
 		NewsChannel channel = null;
+		List items = new Vector();		
+		
 		try
 		{
 			channel = NewsService.getChannel(url);
-		}
-		catch (NewsConnectionException e)
-		{
-			// display message
-			addAlert(state, e.getMessage());
-		}
-		catch (NewsFormatException e)
-		{
-			// display message
-			addAlert(state, e.getMessage());
-		}
-		catch (Exception e)
-		{
-			// display message
-			addAlert(state, e.getMessage());
-		}
-
-		context.put("channel", channel);
-		
-		context.put(GRAPHIC_VERSION_TEXT, state.getAttribute(GRAPHIC_VERSION_TEXT));
-		context.put(FULL_STORY_TEXT, state.getAttribute(FULL_STORY_TEXT));
-
-		List items = new Vector();
-		try
-		{
 			items = NewsService.getNewsitems(url);
 		}
 		catch (NewsConnectionException e)
 		{
 			// display message
-			addAlert(state, e.getMessage());
+			addAlert(state, rb.getString("unavailable") + "\n\n[" + e.getLocalizedMessage() + "]");
 		}
 		catch (NewsFormatException e)
 		{
 			// display message
-			addAlert(state, e.getMessage());
+			addAlert(state, rb.getString("unavailable") + "\n\n[" + e.getLocalizedMessage() + "]");
 		}
 		catch (Exception e)
 		{
 			// display message
-			addAlert(state, e.getMessage());
+			addAlert(state, rb.getString("unavailable") + "\n\n[" + e.getLocalizedMessage() + "]");
 		}
 
+		context.put("channel", channel);
 		context.put("news_items", items);
 
 		return (String) getContext(rundata).get("template") + "-Layout";
