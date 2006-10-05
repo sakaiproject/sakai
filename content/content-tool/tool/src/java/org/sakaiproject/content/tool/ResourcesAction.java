@@ -695,10 +695,29 @@ public class ResourcesAction
 		String folderId = (String) state.getAttribute(STATE_REORDER_FOLDER);
 		context.put("folderId", folderId);
 		
+		// save expanded folder lists
 		SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-		
-		//ContentCollection coll = contentService.getCollection(collectionId);
-		expandedCollections.add(folderId);
+		Map expandedFolderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
+		String need_to_expand_all = (String) state.getAttribute(STATE_NEED_TO_EXPAND_ALL);
+
+		// create temporary expanded folder lists for this invocation of getListView
+		Map tempExpandedFolderSortMap = new Hashtable();
+		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, tempExpandedFolderSortMap);
+		SortedSet tempExpandedCollections = new TreeSet();
+		tempExpandedCollections.add(folderId);
+		state.setAttribute(STATE_EXPANDED_COLLECTIONS, tempExpandedCollections);
+
+		Set highlightedItems = new TreeSet();
+		// List all_roots = new Vector();
+		List this_site = new Vector();
+
+		List members = getListView(folderId, highlightedItems, (BrowseItem) null, true, state);
+
+		// restore expanded folder lists 
+		expandedCollections.addAll(tempExpandedCollections);
+		state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+		expandedFolderSortMap.putAll(tempExpandedFolderSortMap);
+		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, expandedFolderSortMap);
 
 		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
 		String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
@@ -715,13 +734,7 @@ public class ResourcesAction
 		context.put("sortBy", sortBy);
 		String sortAsc = (String) state.getAttribute(STATE_REORDER_SORT_ASC);
 		context.put("sortAsc", sortAsc);
-		Comparator comparator = (Comparator) state.getAttribute(STATE_REORDER_SORT);
-
-		Set highlightedItems = new TreeSet();
-		List all_roots = new Vector();
-		List this_site = new Vector();
-
-		List members = getListView(folderId, highlightedItems, (BrowseItem) null, true, state);
+		// Comparator comparator = (Comparator) state.getAttribute(STATE_REORDER_SORT);
 
 		String rootTitle = (String) state.getAttribute (STATE_SITE_TITLE);
 		if (folderId.equals(homeCollectionId))
@@ -747,7 +760,7 @@ public class ResourcesAction
 			root.addMembers(members);
 			root.setName(rootTitle);
 			this_site.add(root);
-			all_roots.add(root);
+			// all_roots.add(root);
 		}
 		context.put ("this_site", this_site);
 		
@@ -10254,6 +10267,7 @@ public class ResourcesAction
 			expandedCollections = new TreeSet();
 			state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
 		}
+		String mode = (String) state.getAttribute (STATE_MODE);
 
 		List newItems = new LinkedList();
 		try
