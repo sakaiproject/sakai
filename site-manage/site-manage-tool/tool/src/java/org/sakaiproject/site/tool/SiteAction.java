@@ -7493,24 +7493,14 @@ public class SiteAction extends PagedResourceActionII
 				state.setAttribute(STATE_SITE_INFO, siteInfo);
 				updateSiteInfo(params, state);
 				
-				String siteType = (String) state.getAttribute(STATE_SITE_TYPE);
-				if (!siteType.equalsIgnoreCase("course"))
+				// alerts after clicking Continue but not Back
+				if(forward)
 				{
-					String form_title = params.getString ("title");
-					// alerts after clicking Continue but not Back
-					if(forward)
+					if (StringUtil.trimToNull(siteInfo.title) == null)
 					{
-						if ((form_title == null) || (form_title.trim().length() == 0))
-						{
-							addAlert(state, rb.getString("java.reqfields"));
-							state.setAttribute(STATE_TEMPLATE_INDEX, "2");
-							return;
-						}
-						if (!SiteService.allowAddSite(form_title))
-						{
-							addAlert(state, rb.getString("java.haveadd")+" " + form_title + ".");
-							return;
-						}
+						addAlert(state, rb.getString("java.reqfields"));
+						state.setAttribute(STATE_TEMPLATE_INDEX, "2");
+						return;
 					}
 				}
 				updateSiteAttributes(state);
