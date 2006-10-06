@@ -137,10 +137,9 @@
 			#end
 			</tbody>
 		</table>
-		<br>
-		<p class="act">
-			<input name="flow" id="save" value="Save" type="submit" class="active"/> 
-			<input name="flow" id="cancel" value="Cancel" type="submit" />																			
+		<p class="act" style="margin:0;padding:.3em 0;">
+			<input name="flow" id="save" value="$tlang.getString("sort.save")" type="submit" class="active"/> 
+			<input name="flow" id="cancel" value="$tlang.getString("sort.cancel")" type="submit" />																			
 		</p>
 	</form>						
 
