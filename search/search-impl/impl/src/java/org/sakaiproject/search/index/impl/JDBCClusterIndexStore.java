@@ -21,7 +21,6 @@
 
 package org.sakaiproject.search.index.impl;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -41,9 +40,6 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 import javax.sql.DataSource;
 
@@ -76,8 +72,6 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	private static final String TIMESTAMP_FILE = "_sakaicluster";
 
-	private static final String PACKFILE = "packet";
-
 	private static final String TEMP_INDEX_NAME = "tempindex";
 
 	private static final String INDEX_PATCHNAME = "indexpatch";;
@@ -106,9 +100,27 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	private boolean debug = false;
 
+	/**
+	 * locatStructuredStorage causes local segments to be placed into structured
+	 * storage on the local disk
+	 */
+	private boolean localStructuredStorage = false;
+
+	/**
+	 * sharedStructuredStorage causes the shared segments to be placed into
+	 * shared structured storage in the shared location
+	 */
+	private boolean sharedStructuredStorage = false;
+	
+	
+	private ClusterSegmentsStorage clusterStorage = null;
+
+
 	public void init()
 	{
 		log.info(this + ":init() ");
+		clusterStorage = new ClusterSegmentsStorage(searchIndexDirectory, this,
+				localStructuredStorage, debug);
 		/*
 		 * The storage is created by hibernate now try { if (autoDdl) {
 		 * SqlService.getInstance().ddl(this.getClass().getClassLoader(),
@@ -265,7 +277,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			for (Iterator i = dbSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo si = (SegmentInfo) i.next();
-				File f = new File(searchIndexDirectory, si.getName());
+				File f = getSegmentLocation(si.getName(),localStructuredStorage);
 				if ( f.exists() ) {
 					// only add those segments that exist after the sync
 					segmentList.add(f.getPath());
@@ -466,7 +478,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			for (Iterator i = updateDBSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo si = (SegmentInfo) i.next();
-				File f = new File(searchIndexDirectory, si.getName());
+				File f = getSegmentLocation(si.getName(),localStructuredStorage);
 				segmentList.add(f.getPath());
 				log.debug("Segments saved " + f.getName());
 
@@ -498,6 +510,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		}
 		return segmentList;
 	}
+
 
 	public List saveAllSegments()
 	{
@@ -579,7 +592,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			for (Iterator i = updateDBSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo si = (SegmentInfo) i.next();
-				File f = new File(searchIndexDirectory, si.getName());
+				File f = getSegmentLocation(si.getName(),localStructuredStorage);
 				segmentList.add(f.getPath());
 			}
 			connection.commit();
@@ -651,7 +664,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					long version = resultSet.getLong(1);
 					packetStream = resultSet.getBinaryStream(2);
 					checked.remove(addsi.getName()); // force revalidation
-					unpackSegment(addsi, packetStream, version);
+					clusterStorage.unpackSegment(addsi, packetStream, version);
 					log.debug("Updated Packet from DB to versiob " + version);
 				}
 				finally
@@ -697,7 +710,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	 */
 	private void removeLocalSegment(SegmentInfo rmsi)
 	{
-		File f = new File(searchIndexDirectory, rmsi.getName());
+		File f = getSegmentLocation( rmsi.getName(), localStructuredStorage);
 		deleteAll(f);
 		log.debug("LO Removed " + rmsi);
 	}
@@ -784,7 +797,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					.prepareStatement("update search_segments set packet_ = ?, version_ = ?, size_ = ? where name_ = ?");
 			segmentInsert = connection
 					.prepareStatement("insert into search_segments (packet_, name_, version_, size_ ) values ( ?,?,?,?)");
-			packetFile = packPatch();
+			packetFile = clusterStorage.packPatch();
 			packetStream = new FileInputStream(packetFile);
 			segmentUpdate.clearParameters();
 			segmentUpdate.setBinaryStream(1, packetStream, (int) packetFile
@@ -863,7 +876,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		{
 			sharedTempFile = new File(getSharedTempFileName(INDEX_PATCHNAME));
 			sharedFinalFile = new File(getSharedFileName(INDEX_PATCHNAME));
-			packetFile = packPatch();
+			packetFile = clusterStorage.packPatch();
 			packetStream = new FileInputStream(packetFile);
 			sharedStream = new FileOutputStream(sharedTempFile);
 
@@ -984,7 +997,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					.prepareStatement("update search_segments set packet_ = ?, version_ = ?, size_ = ? where name_ = ? and version_ = ?");
 			segmentInsert = connection
 					.prepareStatement("insert into search_segments (packet_, name_, version_, size_ ) values ( ?,?,?,?)");
-			packetFile = packSegment(addsi, newVersion);
+			packetFile = clusterStorage.packSegment(addsi, newVersion);
 			packetStream = new FileInputStream(packetFile);
 			if (addsi.isInDb())
 			{
@@ -1114,8 +1127,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		File f = null;
 		for (;;)
 		{
-			f = new File(searchIndexDirectory, String.valueOf(System
-					.currentTimeMillis()));
+			f = getSegmentLocation( String.valueOf(System
+					.currentTimeMillis()), localStructuredStorage);
 			if (!f.exists())
 			{
 				break;
@@ -1127,7 +1140,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		return f;
 	}
 
-	private void setCheckSum(File segmentdir) throws IOException
+	/**
+	 * set the checksum file up
+	 * @param segmentdir
+	 * @throws IOException
+	 */
+	void setCheckSum(File segmentdir) throws IOException
 	{
 		File timestamp = new File(segmentdir, TIMESTAMP_FILE);
 		String[] fields = getTimeStampFields(timestamp);
@@ -1171,12 +1189,24 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		checked.put(segmentdir.getName(), fields[1]);
 	}
 
+	/**
+	 * get the checksum out of the segment by the segment name
+	 * @param segmentName
+	 * @return
+	 * @throws IOException
+	 */
 	private String getCheckSum(String segmentName) throws IOException
 	{
-		File segmentdir = new File(searchIndexDirectory, segmentName);
+		File segmentdir = getSegmentLocation( segmentName, localStructuredStorage);
 		return getCheckSum(segmentdir);
 	}
 
+	/**
+	 * get the checksum using the segment name as a File
+	 * @param segmentdir
+	 * @return
+	 * @throws IOException
+	 */
 	private String getCheckSum(File segmentdir) throws IOException
 	{
 
@@ -1193,7 +1223,13 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		}
 	}
 
-	private void setTimeStamp(File segmentdir, long l) throws IOException
+	/**
+	 * set the timestamp in the segment
+	 * @param segmentdir
+	 * @param l
+	 * @throws IOException
+	 */
+	void setTimeStamp(File segmentdir, long l) throws IOException
 	{
 
 		File timestamp = new File(segmentdir, TIMESTAMP_FILE);
@@ -1216,6 +1252,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		timestamp.setLastModified(l);
 	}
 
+	/**
+	 * get the timestam associated with the segment dir
+	 * @param segmentdir
+	 * @return
+	 * @throws IOException
+	 */
 	private long getTimeStamp(File segmentdir) throws IOException
 	{
 
@@ -1234,6 +1276,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		return ts;
 	}
 
+	/**
+	 * get the timestamp fields
+	 * @param timestamp
+	 * @return
+	 * @throws IOException
+	 */
 	private String[] getTimeStampFields(File timestamp) throws IOException
 	{
 		if (!timestamp.exists())
@@ -1251,6 +1299,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		}
 	}
 
+	/**
+	 * set the timestamp fields
+	 * @param fields
+	 * @param timestamp
+	 * @throws IOException
+	 */
 	private void setTimeStampFields(String[] fields, File timestamp)
 			throws IOException
 	{
@@ -1269,10 +1323,23 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	 * @return
 	 * @throws IOException
 	 */
-	private List getLocalSegments() throws IOException
+	List getLocalSegments() throws IOException
 	{
 		List l = new ArrayList();
 		File searchDir = new File(searchIndexDirectory);
+		return getLocalSegments(searchDir,l);
+	}
+	
+	/**
+	 * recurse into a list of segments
+	 * @param searchDir
+	 * @param l
+	 * @return
+	 * @throws IOException
+	 */
+	private List getLocalSegments(File searchDir, List l) throws IOException
+	{
+	
 		File[] files = searchDir.listFiles();
 		if (files != null)
 		{
@@ -1299,6 +1366,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 											+ files[i]);
 						}
 
+					} else {
+						l = getLocalSegments(files[i],l);
 					}
 				}
 			}
@@ -1306,10 +1375,26 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		return l;
 	}
 
+	/**
+	 * get a list of bad segmetns with brokenindexes
+	 * @return
+	 * @throws IOException
+	 */
 	private List getBadLocalSegments() throws IOException
 	{
 		List l = new ArrayList();
 		File searchDir = new File(searchIndexDirectory);
+		return getBadLocalSegments(searchDir,l);
+	}
+	/**
+	 * recurse into a list of bad local segments
+	 * @param searchDir
+	 * @param l
+	 * @return
+	 * @throws IOException
+	 */
+	private List getBadLocalSegments(File searchDir, List l) throws IOException
+	{
 		File[] files = searchDir.listFiles();
 		if (files != null)
 		{
@@ -1326,6 +1411,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 							l.add(files[i]);
 						}
 
+					} else {
+						l = getBadLocalSegments(files[i],l);
 					}
 				}
 			}
@@ -1399,301 +1486,10 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	}
 
-	/**
-	 * unpack a segment from a zip
-	 * 
-	 * @param addsi
-	 * @param packetStream
-	 * @param version
-	 */
-	protected void unpackSegment(SegmentInfo addsi, InputStream packetStream,
-			long version) throws IOException
-	{
-		ZipInputStream zin = new ZipInputStream(packetStream);
-		ZipEntry zipEntry = null;
-		FileOutputStream fout = null;
-		try
-		{
-			log.debug("Starting Patch ");
-			byte[] buffer = new byte[4096];
-			while ((zipEntry = zin.getNextEntry()) != null)
-			{
 
-				long ts = zipEntry.getTime();
-				File f = new File(searchIndexDirectory, zipEntry.getName());
-				log.debug("Patching " + f.getAbsolutePath());
-				f.getParentFile().mkdirs();
-				fout = new FileOutputStream(f);
-				int len;
-				while ((len = zin.read(buffer)) > 0)
-				{
-					fout.write(buffer, 0, len);
-				}
-				zin.closeEntry();
-				fout.close();
-				f.setLastModified(ts);
-			}
-			log.debug("Finished Patch");
 
-			try
-			{
-				checkSegmentValidity(addsi.getName(), true);
-			}
-			catch (Exception ex)
-			{
-				throw new RuntimeException("Segment " + addsi.getName()
-						+ " is corrupted ");
-			}
 
-			addsi.setVersion(version);
-			log.debug("Synced " + addsi);
 
-		}
-		finally
-		{
-			try
-			{
-				fout.close();
-			}
-			catch (Exception ex)
-			{
-			}
-		}
-
-	}
-
-	/**
-	 * unpack a segment from a zip
-	 * 
-	 * @param addsi
-	 * @param packetStream
-	 * @param version
-	 */
-	protected void unpackPatch(InputStream packetStream) throws IOException
-	{
-		ZipInputStream zin = new ZipInputStream(packetStream);
-		ZipEntry zipEntry = null;
-		FileOutputStream fout = null;
-		try
-		{
-			log.debug("Starting Patch ");
-			byte[] buffer = new byte[4096];
-			while ((zipEntry = zin.getNextEntry()) != null)
-			{
-
-				long ts = zipEntry.getTime();
-				File f = new File(searchIndexDirectory, zipEntry.getName());
-				log.debug("Patching " + f.getAbsolutePath());
-				f.getParentFile().mkdirs();
-				fout = new FileOutputStream(f);
-
-				int len;
-				while ((len = zin.read(buffer)) > 0)
-				{
-					fout.write(buffer, 0, len);
-				}
-				zin.closeEntry();
-				fout.close();
-				f.setLastModified(ts);
-			}
-			log.debug("Finished Patch");
-
-		}
-		finally
-		{
-			try
-			{
-				fout.close();
-			}
-			catch (Exception ex)
-			{
-			}
-		}
-
-	}
-
-	/**
-	 * pack a segment into the zip
-	 * 
-	 * @param addsi
-	 * @return
-	 * @throws IOException
-	 */
-	protected File packSegment(SegmentInfo addsi, long newVersion)
-			throws IOException
-	{
-
-		File tmpFile = new File(searchIndexDirectory, PACKFILE
-				+ String.valueOf(System.currentTimeMillis()) + ".zip");
-		ZipOutputStream zout = new ZipOutputStream(
-				new FileOutputStream(tmpFile));
-		File segmentFile = new File(searchIndexDirectory, addsi.getName());
-		setCheckSum(segmentFile);
-		setTimeStamp(segmentFile, newVersion);
-
-		byte[] buffer = new byte[4096];
-		if (segmentFile.isDirectory())
-		{
-			addFile(segmentFile, zout, buffer, 0);
-		}
-		zout.close();
-		// touch the version
-
-		try
-		{
-			log.debug("Packed " + tmpFile.getName() + "|"
-					+ getNewCheckSum(addsi.getName()) + "|" + tmpFile.length()
-					+ "|" + addsi);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		return tmpFile;
-	}
-
-	/**
-	 * pack a segment into the zip
-	 * 
-	 * @param addsi
-	 * @return
-	 * @throws IOException
-	 */
-	protected File packPatch() throws IOException
-	{
-		File tmpFile = new File(searchIndexDirectory, PACKFILE
-				+ String.valueOf(System.currentTimeMillis()) + ".zip");
-		ZipOutputStream zout = new ZipOutputStream(
-				new FileOutputStream(tmpFile));
-		byte[] buffer = new byte[4096];
-
-		ZipEntry ze = new ZipEntry("lastpatchmarker");
-		ze.setTime(System.currentTimeMillis());
-		zout.putNextEntry(ze);
-		try
-		{
-			ByteArrayInputStream fin = new ByteArrayInputStream(
-					"--PATCH MARKER--".getBytes());
-			try
-			{
-				int len = 0;
-				while ((len = fin.read(buffer)) > 0)
-				{
-					zout.write(buffer, 0, len);
-				}
-			}
-			finally
-			{
-				fin.close();
-			}
-		}
-		finally
-		{
-			zout.closeEntry();
-		}
-		// itertate over all segments present locally
-
-		List l = getLocalSegments();
-		for (Iterator li = l.iterator(); li.hasNext();)
-		{
-			SegmentInfo sgi = (SegmentInfo) li.next();
-			File f = new File(searchIndexDirectory, sgi.getName());
-			addFile(f, zout, buffer, sgi.getVersion());
-		}
-		zout.close();
-		return tmpFile;
-	}
-
-	/**
-	 * add a file to the zout stream
-	 * 
-	 * @param f
-	 * @param zout
-	 * @param buffer
-	 * @throws IOException
-	 */
-	private void addFile(File f, ZipOutputStream zout, byte[] buffer,
-			long modtime) throws IOException
-	{
-		FileInputStream fin = null;
-		try
-		{
-			if (f.isDirectory())
-			{
-				File[] files = f.listFiles();
-				if (files != null)
-				{
-					for (int i = 0; i < files.length; i++)
-					{
-						if (files[i].isDirectory())
-						{
-							addFile(files[i], zout, buffer, modtime);
-						}
-						else
-						{
-							if (files[i].lastModified() > modtime)
-							{
-								dolog("Adding " + files[i].getPath());
-								addSingleFile(files[i], zout, buffer);
-							}
-							else
-							{
-								dolog("Skipping " + files[i].getPath());
-							}
-						}
-					}
-				}
-			}
-			else
-			{
-				addSingleFile(f, zout, buffer);
-			}
-		}
-		finally
-		{
-			try
-			{
-				fin.close();
-			}
-			catch (Exception e)
-			{
-			}
-		}
-	}
-
-	private void addSingleFile(File file, ZipOutputStream zout, byte[] buffer)
-			throws IOException
-	{
-		String path = file.getPath();
-		if (path.startsWith(searchIndexDirectory))
-		{
-			path = path.substring(searchIndexDirectory.length());
-		}
-		ZipEntry ze = new ZipEntry(path);
-		ze.setTime(file.lastModified());
-		zout.putNextEntry(ze);
-		try
-		{
-			InputStream fin = new FileInputStream(file);
-			try
-			{
-				int len = 0;
-				while ((len = fin.read(buffer)) > 0)
-				{
-					zout.write(buffer, 0, len);
-				}
-			}
-			finally
-			{
-				fin.close();
-			}
-		}
-		finally
-		{
-			zout.closeEntry();
-		}
-
-	}
 
 	/**
 	 * delete all files under this file and including this file
@@ -1791,7 +1587,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	public void recoverSegment(String segmentName)
 	{
 
-		File f = new File(searchIndexDirectory, segmentName);
+		File f = getSegmentLocation(segmentName, localStructuredStorage);
 		deleteAll(f);
 		SegmentInfo recoverSegInfo = new SegmentInfo(f.getName(), 0, true);
 		Connection connection = null;
@@ -1864,7 +1660,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					long version = resultSet.getLong(1);
 					File f = new File(getSharedFileName(INDEX_PATCHNAME));
 					packetStream = new FileInputStream(f);
-					unpackPatch(packetStream);
+					clusterStorage.unpackPatch(packetStream);
 					log.debug("Updated Patch ");
 				}
 				finally
@@ -1923,7 +1719,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				{
 					long version = resultSet.getLong(1);
 					packetStream = resultSet.getBinaryStream(2);
-					unpackPatch(packetStream);
+					clusterStorage.unpackPatch(packetStream);
 					log.debug("Updated Patch from DB " + version);
 				}
 				finally
@@ -2032,7 +1828,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	public String getNewCheckSum(String segmentName)
 			throws NoSuchAlgorithmException, IOException
 	{
-		File segmentFile = new File(searchIndexDirectory, segmentName);
+		File segmentFile = getSegmentLocation(segmentName,localStructuredStorage);
 		File[] files = segmentFile.listFiles();
 		MessageDigest md5 = MessageDigest.getInstance("MD5");
 		String ignore = ":" + TIMESTAMP_FILE + ":";
@@ -2114,7 +1910,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		{
 			sharedTempFile = new File(getSharedTempFileName(addsi.getName()));
 			sharedFinalFile = new File(getSharedFileName(addsi.getName()));
-			packetFile = packSegment(addsi, newVersion);
+			packetFile = clusterStorage.packSegment(addsi, newVersion);
 			packetStream = new FileInputStream(packetFile);
 			sharedStream = new FileOutputStream(sharedTempFile);
 
@@ -2264,7 +2060,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					File f = new File(getSharedFileName(addsi.getName()));
 					packetStream = new FileInputStream(f);
 					checked.remove(addsi.getName()); // force revalidation
-					unpackSegment(addsi, packetStream, version);
+					clusterStorage.unpackSegment(addsi, packetStream, version);
 					log.debug("Updated Local " + addsi);
 				}
 				finally
@@ -2386,47 +2182,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		try
 		{
 
-			List l = new ArrayList();
 			File searchDir = new File(searchIndexDirectory);
-			File[] files = searchDir.listFiles();
-			long tsize = 0;
-			if (files != null)
-			{
-				for (int i = 0; i < files.length; i++)
-				{
-					if (files[i].isDirectory())
-					{
-						File timestamp = new File(files[i], TIMESTAMP_FILE);
-						if (timestamp.exists())
-						{
-							String name = files[i].getName();
-							long lsize = getLocalSegmentSize(files[i]);
-							tsize += lsize;
-							long ts = getLocalSegmentLastModified(files[i]);
-							String lastup = (new Date(ts)).toString();
-
-							String size = null;
-							if (lsize > 1024 * 1024 * 10)
-							{
-								size = String.valueOf(lsize / (1024 * 1024))
-										+ "MB";
-							}
-							else if (lsize >= 1024 * 1024)
-							{
-								size = String.valueOf(lsize / (1024 * 1024))
-										+ "."
-										+ String.valueOf(lsize / (102 * 1024)
-												+ "MB");
-							}
-							else
-							{
-								size = String.valueOf(lsize / (1024)) + "KB";
-							}
-							seginfo.add(new Object[] { name, size, lastup });
-						}
-					}
-				}
-			}
+			long tsize = getSegmentInfoList(searchDir, seginfo);
 			String size = null;
 			if (tsize > 1024 * 1024 * 10)
 			{
@@ -2442,6 +2199,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				size = String.valueOf(tsize / (1024)) + "KB";
 			}
 			seginfo.add(new Object[] { "Total", size, "" });
+
 		}
 		catch (Exception ex)
 		{
@@ -2450,6 +2208,66 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		}
 		return seginfo;
 
+	}
+
+	public long getSegmentInfoList(File searchDir, List seginfo)
+	{
+
+		File[] files = searchDir.listFiles();
+		long tsize = 0;
+		if (files != null)
+		{
+			for (int i = 0; i < files.length; i++)
+			{
+				if (files[i].isDirectory())
+				{
+					File timestamp = new File(files[i], TIMESTAMP_FILE);
+					if (timestamp.exists())
+					{
+						String name = files[i].getName();
+						long lsize = getLocalSegmentSize(files[i]);
+						tsize += lsize;
+						long ts = getLocalSegmentLastModified(files[i]);
+						String lastup = (new Date(ts)).toString();
+
+						String size = null;
+						if (lsize > 1024 * 1024 * 10)
+						{
+							size = String.valueOf(lsize / (1024 * 1024)) + "MB";
+						}
+						else if (lsize >= 1024 * 1024)
+						{
+							size = String.valueOf(lsize / (1024 * 1024))
+									+ "."
+									+ String.valueOf(lsize / (102 * 1024)
+											+ "MB");
+						}
+						else
+						{
+							size = String.valueOf(lsize / (1024)) + "KB";
+						}
+						seginfo.add(new Object[] { name, size, lastup });
+					}
+					else
+					{
+						tsize += getSegmentInfoList(files[i], seginfo);
+					}
+				}
+			}
+		}
+		return tsize;
+
+	}
+
+	File getSegmentLocation(String name, boolean structured)
+	{
+		if ( structured ) {
+			String hashName = name.substring(name.length()-4,2);
+			File hash = new File(searchIndexDirectory,hashName);
+			return new File(hash,name);
+		} else {
+			return new File(searchIndexDirectory,name);
+		}		
 	}
 
 	private long getLocalSegmentLastModified(File file)
@@ -2519,5 +2337,37 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	public void setParallelIndex(boolean parallelIndex)
 	{
 		this.parallelIndex = parallelIndex;
+	}
+
+	/**
+	 * @return Returns the localStructuredStorage.
+	 */
+	public boolean isLocalStructuredStorage()
+	{
+		return localStructuredStorage;
+	}
+
+	/**
+	 * @param localStructuredStorage The localStructuredStorage to set.
+	 */
+	public void setLocalStructuredStorage(boolean localStructuredStorage)
+	{
+		this.localStructuredStorage = localStructuredStorage;
+	}
+
+	/**
+	 * @return Returns the sharedStructuredStorage.
+	 */
+	public boolean isSharedStructuredStorage()
+	{
+		return sharedStructuredStorage;
+	}
+
+	/**
+	 * @param sharedStructuredStorage The sharedStructuredStorage to set.
+	 */
+	public void setSharedStructuredStorage(boolean sharedStructuredStorage)
+	{
+		this.sharedStructuredStorage = sharedStructuredStorage;
 	}
 }
