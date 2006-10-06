@@ -136,7 +136,7 @@ public class SuTool
 		}
 
 		// set the session user from the value supplied in the form
-		message = "Username " + sakaiSession.getUserId() + " becoming " + validatedUserEid;
+		message = "Username " + sakaiSession.getUserEid() + " becoming " + validatedUserEid;
 		M_log.info("[SuTool] " + message);
 		fc.addMessage("su", new FacesMessage(FacesMessage.SEVERITY_INFO, message, message + ": Currently="
 				+ userinfo.getDisplayName()));
