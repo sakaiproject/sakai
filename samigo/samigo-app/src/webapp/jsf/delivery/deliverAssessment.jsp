@@ -113,8 +113,6 @@ function saveTime()
 <h:inputHidden id="formatByAssessment" value="#{delivery.settings.formatByAssessment}"/>
 <h:inputHidden id="lastSubmittedDate" value="#{delivery.assessmentGrading.submittedDate.time}" 
    rendered ="#{delivery.assessmentGrading.submittedDate!=null}"/>
-h:inputHidden id="lastSubmittedDate" value="0"
-   rendered ="#{delivery.assessmentGrading.submittedDate==null}"/>
 
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
