@@ -1175,7 +1175,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     boolean matchresult = false;
     float studentAnswerNum,answer1Num,answer2Num,answerNum;
 
-    
+    if (data.getPublishedAnswerId() == null) {
+    	return false;
+    }
+
     String answertext = ((AnswerIfc)publishedAnswerHash.get(data.getPublishedAnswerId())).getText();
     //Long itemId = itemdata.getItemId();
 
