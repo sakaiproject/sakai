@@ -47,7 +47,7 @@ public class DefaultPermissionsManagerImpl
   
   public void init()
   {
-    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_FORUM);
+/*    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_FORUM);
     functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_TOPIC);
     functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_RESPONSE);
     functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_RESPONSE_TO_RESPONSE);
@@ -59,7 +59,7 @@ public class DefaultPermissionsManagerImpl
     functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_REVISE_OWN);
     functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_DELETE_ANY);
     functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_DELETE_OWN);
-    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_MARK_AS_READ);
+    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_MARK_AS_READ);*/
   }
   /**
    * @param functionManager The functionManager to set.

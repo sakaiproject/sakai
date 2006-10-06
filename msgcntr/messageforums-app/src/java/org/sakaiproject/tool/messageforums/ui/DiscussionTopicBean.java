@@ -565,7 +565,7 @@ public class DiscussionTopicBean
 	public boolean getNonePermission()
 	{
 		nonePermission = true;
-		if(uiPermissionsManager.isChangeSettings(topic, (DiscussionForum)topic.getBaseForum()) 
+/*		if(uiPermissionsManager.isChangeSettings(topic, (DiscussionForum)topic.getBaseForum()) 
 				|| uiPermissionsManager.isDeleteAny(topic, (DiscussionForum)topic.getBaseForum())
 				|| uiPermissionsManager.isDeleteOwn(topic, (DiscussionForum)topic.getBaseForum())
 				|| uiPermissionsManager.isMarkAsRead(topic, (DiscussionForum)topic.getBaseForum())
@@ -575,7 +575,10 @@ public class DiscussionTopicBean
 				|| uiPermissionsManager.isPostToGradebook(topic, (DiscussionForum)topic.getBaseForum())
 				|| uiPermissionsManager.isRead(topic, (DiscussionForum)topic.getBaseForum())
 				|| uiPermissionsManager.isReviseAny(topic, (DiscussionForum)topic.getBaseForum())
-				|| uiPermissionsManager.isReviseOwn(topic, (DiscussionForum)topic.getBaseForum()))
+				|| uiPermissionsManager.isReviseOwn(topic, (DiscussionForum)topic.getBaseForum()))*/
+			if(uiPermissionsManager.isChangeSettings(topic, (DiscussionForum)topic.getBaseForum())
+					|| uiPermissionsManager.isNewResponse(topic, (DiscussionForum)topic.getBaseForum())
+					|| uiPermissionsManager.isRead(topic, (DiscussionForum)topic.getBaseForum()))
 		{
 			nonePermission = false;
 		}
