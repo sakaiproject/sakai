@@ -107,6 +107,10 @@ INSERT INTO SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY)
 -- Delete old functions
 --
 
+DELETE FROM SAKAI_REALM_RL_FN WHERE FUNCTION_KEY IN 
+    (SELECT FUNCTION_KEY FROM SAKAI_REALM_FUNCTION 
+     WHERE FUNCTION_NAME IN ('calendar.revise','calendar.delete','content.revise','content.delete'));
+     
 DELETE FROM SAKAI_REALM_FUNCTION WHERE FUNCTION_NAME IN ('calendar.revise','calendar.delete','content.revise','content.delete');
 
 ----------------------------------------------------------------------------------------------------------------------------------------
