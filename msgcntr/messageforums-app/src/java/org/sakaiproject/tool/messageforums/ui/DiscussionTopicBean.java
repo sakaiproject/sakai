@@ -586,5 +586,21 @@ public class DiscussionTopicBean
 	{
 		this.nonePermission = nonePermission;
 	}
-  
+	
+	public List getUnreadMessages() {
+
+		ArrayList unreadMessages = new ArrayList();
+
+		for(int i = 0; i < messages.size(); i++) {
+
+			if(!((DiscussionMessageBean) messages.get(i)).isRead()) {
+
+				unreadMessages.add(messages.get(i));
+
+			}
+		}
+
+		return unreadMessages;
+	}
+
 }

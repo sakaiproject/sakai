@@ -4254,5 +4254,15 @@ public class DiscussionForumTool
 	{
 		return disableLongDesc;
 	}
+	
+	public List getMessages() {
+
+		if(displayUnreadOnly) {
+			return selectedTopic.getUnreadMessages();
+		}
+		else {
+			return selectedTopic.getMessages();
+		}
+	}
 
 }

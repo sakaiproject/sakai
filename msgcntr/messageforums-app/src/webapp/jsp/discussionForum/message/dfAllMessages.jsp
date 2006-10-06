@@ -57,7 +57,7 @@
 	<mf:htmlShowArea  id="forum_fullDescription" hideBorder="false"	 value="#{ForumTool.selectedTopic.topic.extendedDescription}" rendered="#{ForumTool.selectedTopic.readFullDesciption}"/> 
 				 <%@include file="dfViewSearchBar.jsp"%>
      <%-- gsilver:need a rendered attribute here that will toggle the display of the table (if messages) or a textblock (class="instruction") if there are no messages--%> 				
-   	<h:dataTable styleClass="listHier lines nolines" id="messages" value="#{ForumTool.selectedTopic.messages}" var="message" rendered="#{!ForumTool.threaded}"
+   	<h:dataTable styleClass="listHier lines nolines" id="messages" value="#{ForumTool.messages}" var="message" rendered="#{!ForumTool.threaded}"
    	 columnClasses="attach,attach,specialLink,bogus,bogus" cellpadding="0" cellspacing="0">
 			<h:column rendered="#{!ForumTool.threaded}">
 				<f:facet name="header">
