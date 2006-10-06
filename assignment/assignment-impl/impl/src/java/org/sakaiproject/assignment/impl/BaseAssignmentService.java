@@ -79,8 +79,10 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
+import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -2740,209 +2742,228 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			// ignore exception
 		}
-
-		short rowNum = 0;
-		HSSFWorkbook wb = new HSSFWorkbook();
-		HSSFSheet sheet = wb.createSheet(siteTitle);
-
-		// Create a row and put some cells in it. Rows are 0 based.
-		HSSFRow row = sheet.createRow(rowNum++);
-
-		row.createCell((short) 0).setCellValue(rb.getString("download.spreadsheet.title"));
-
-		// empty line
-		row = sheet.createRow(rowNum++);
-		row.createCell((short) 0).setCellValue("");
-
-		// site title
-		row = sheet.createRow(rowNum++);
-		row.createCell((short) 0).setCellValue(rb.getString("download.spreadsheet.site") + siteTitle);
-
-		// download time
-		row = sheet.createRow(rowNum++);
-		row.createCell((short) 0).setCellValue(
-				rb.getString("download.spreadsheet.date") + TimeService.newTime().toStringLocalFull());
-
-		// empty line
-		row = sheet.createRow(rowNum++);
-		row.createCell((short) 0).setCellValue("");
-
-		// the bold font
-		HSSFFont font = wb.createFont();
-		font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-
-		// the cell style with bold font
-		HSSFCellStyle style = wb.createCellStyle();
-		style.setFont(font);
-
-		// this is the header row number
-		short headerRowNumber = rowNum;
-		// set up the header cells
-		row = sheet.createRow(rowNum++);
-		short cellNum = 0;
 		
-		// user enterprise id column
-		HSSFCell cell = row.createCell(cellNum++);
-		cell.setCellStyle(style);
-		cell.setCellValue(rb.getString("download.spreadsheet.column.userid"));
-
-		// user name column
-		cell = row.createCell(cellNum++);
-		cell.setCellStyle(style);
-		cell.setCellValue(rb.getString("download.spreadsheet.column.name"));
-		
-		// starting from this row, going to input user data
-		Iterator assignments = (getListAssignmentsForContext(context)).iterator();
-
-		// allow add assignment members
-		List allowAddAssignmentUsers = allowAddAssignmentUsers(context);
-		// site members excluding those who can add assignments
-		List members = new Vector();
-		// hashtable which stores the Excel row number for particular user
-		Hashtable user_row = new Hashtable();
-		
-		try
+		// does current user allowed to grade any assignment?
+		boolean allowGradeAny = false;
+		List assignmentsList = getListAssignmentsForContext(context);
+		for (int iAssignment = 0; !allowGradeAny && iAssignment<assignmentsList.size(); iAssignment++)
 		{
-			AuthzGroup group = AuthzGroupService.getAuthzGroup(SiteService.siteReference(context));
-			Set grants = group.getUsers();
-			for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
+			if (allowGradeSubmission(((Assignment) assignmentsList.get(iAssignment)).getReference()))
 			{
-				String userId = (String) iUserIds.next();
-				try
-				{
-					User u = UserDirectoryService.getUser(userId);
-					// only return student
-					if (!allowAddAssignmentUsers.contains(u))
-					{
-						members.add(u);
-						// create the column for user first
-						row = sheet.createRow(rowNum);
-						// update user_row Hashtable
-						user_row.put(u.getId(), new Integer(rowNum));
-						// increase row
-						rowNum++;
-						// put user displayid and sortname in the first two cells
-						cellNum = 0;
-						row.createCell(cellNum++).setCellValue(u.getDisplayId());
-						row.createCell(cellNum).setCellValue(u.getSortName());
-					}
-				}
-				catch (Exception e)
-				{
-					M_log.warn(this + e.getMessage() + " userId = " + userId);
-				}
+				allowGradeAny = true;
 			}
+		}
+		
+		if (!allowGradeAny)
+		{
+			// not permitted to download the spreadsheet
+			return null;
+		}
+		else
+		{
+			short rowNum = 0;
+			HSSFWorkbook wb = new HSSFWorkbook();
+			HSSFSheet sheet = wb.createSheet(siteTitle);
+	
+			// Create a row and put some cells in it. Rows are 0 based.
+			HSSFRow row = sheet.createRow(rowNum++);
+	
+			row.createCell((short) 0).setCellValue(rb.getString("download.spreadsheet.title"));
+	
+			// empty line
+			row = sheet.createRow(rowNum++);
+			row.createCell((short) 0).setCellValue("");
+	
+			// site title
+			row = sheet.createRow(rowNum++);
+			row.createCell((short) 0).setCellValue(rb.getString("download.spreadsheet.site") + siteTitle);
+	
+			// download time
+			row = sheet.createRow(rowNum++);
+			row.createCell((short) 0).setCellValue(
+					rb.getString("download.spreadsheet.date") + TimeService.newTime().toStringLocalFull());
+	
+			// empty line
+			row = sheet.createRow(rowNum++);
+			row.createCell((short) 0).setCellValue("");
+	
+			// the bold font
+			HSSFFont font = wb.createFont();
+			font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+	
+			// the cell style with bold font
+			HSSFCellStyle style = wb.createCellStyle();
+			style.setFont(font);
+	
+			// this is the header row number
+			short headerRowNumber = rowNum;
+			// set up the header cells
+			row = sheet.createRow(rowNum++);
+			short cellNum = 0;
 			
-			int index = 0;
-			// the grade data portion starts from the third column, since the first two are used for user's display id and sort name
-			while (assignments.hasNext())
+			// user enterprise id column
+			HSSFCell cell = row.createCell(cellNum++);
+			cell.setCellStyle(style);
+			cell.setCellValue(rb.getString("download.spreadsheet.column.userid"));
+	
+			// user name column
+			cell = row.createCell(cellNum++);
+			cell.setCellStyle(style);
+			cell.setCellValue(rb.getString("download.spreadsheet.column.name"));
+			
+			// starting from this row, going to input user data
+			Iterator assignments = assignmentsList.iterator();
+	
+			// allow add assignment members
+			List allowAddAssignmentUsers = allowAddAssignmentUsers(context);
+			// site members excluding those who can add assignments
+			List members = new Vector();
+			// hashtable which stores the Excel row number for particular user
+			Hashtable user_row = new Hashtable();
+			
+			try
 			{
-				Assignment a = (Assignment) assignments.next();
-				
-				int assignmentType = a.getContent().getTypeOfGrade();
-				
-				// for column header, check allow grade permission based on each assignment
-				if(!a.getDraft())
+				AuthzGroup group = AuthzGroupService.getAuthzGroup(SiteService.siteReference(context));
+				Set grants = group.getUsers();
+				for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
 				{
-					// put in assignment title as the column header
-					rowNum = headerRowNumber;
-					row = sheet.getRow(rowNum++);
-					cellNum = (short) (index + 2);
-					cell = row.createCell(cellNum); // since the first two column is taken by student id and name
-					cell.setCellStyle(style);
-					cell.setCellValue(a.getTitle());
-					
-					for (int loopNum = 0; loopNum < members.size(); loopNum++)
+					String userId = (String) iUserIds.next();
+					try
 					{
-						// prepopulate the column with the "no submission" string
-						row = sheet.getRow(rowNum++);
-						cell = row.createCell(cellNum);
-						cell.setCellType(1);
-						cell.setCellValue(rb.getString("listsub.nosub"));
+						User u = UserDirectoryService.getUser(userId);
+						// only return student
+						if (!allowAddAssignmentUsers.contains(u))
+						{
+							members.add(u);
+							// create the column for user first
+							row = sheet.createRow(rowNum);
+							// update user_row Hashtable
+							user_row.put(u.getId(), new Integer(rowNum));
+							// increase row
+							rowNum++;
+							// put user displayid and sortname in the first two cells
+							cellNum = 0;
+							row.createCell(cellNum++).setCellValue(u.getDisplayId());
+							row.createCell(cellNum).setCellValue(u.getSortName());
+						}
 					}
-
-					// begin to populate the column for this assignment, iterating through student list
-					for (Iterator sIterator=getSubmissions(a); sIterator.hasNext();)
+					catch (Exception e)
 					{
-						AssignmentSubmission submission = (AssignmentSubmission) sIterator.next();
+						M_log.warn(this + e.getMessage() + " userId = " + userId);
+					}
+				}
+				
+				int index = 0;
+				// the grade data portion starts from the third column, since the first two are used for user's display id and sort name
+				while (assignments.hasNext())
+				{
+					Assignment a = (Assignment) assignments.next();
+					
+					int assignmentType = a.getContent().getTypeOfGrade();
+					
+					// for column header, check allow grade permission based on each assignment
+					if(!a.getDraft())
+					{
+						// put in assignment title as the column header
+						rowNum = headerRowNumber;
+						row = sheet.getRow(rowNum++);
+						cellNum = (short) (index + 2);
+						cell = row.createCell(cellNum); // since the first two column is taken by student id and name
+						cell.setCellStyle(style);
+						cell.setCellValue(a.getTitle());
 						
-						String userId = (String) submission.getSubmitterIds().get(0);
-						
-						if (user_row.containsKey(userId))
-						{	
-							// find right row
-							row = sheet.getRow(((Integer)user_row.get(userId)).intValue());
-						
-							if (submission.getGraded() && submission.getGradeReleased() && submission.getGrade() != null)
-							{
-								// graded and released
-								if (assignmentType == 3)
+						for (int loopNum = 0; loopNum < members.size(); loopNum++)
+						{
+							// prepopulate the column with the "no submission" string
+							row = sheet.getRow(rowNum++);
+							cell = row.createCell(cellNum);
+							cell.setCellType(1);
+							cell.setCellValue(rb.getString("listsub.nosub"));
+						}
+	
+						// begin to populate the column for this assignment, iterating through student list
+						for (Iterator sIterator=getSubmissions(a); sIterator.hasNext();)
+						{
+							AssignmentSubmission submission = (AssignmentSubmission) sIterator.next();
+							
+							String userId = (String) submission.getSubmitterIds().get(0);
+							
+							if (user_row.containsKey(userId))
+							{	
+								// find right row
+								row = sheet.getRow(((Integer)user_row.get(userId)).intValue());
+							
+								if (submission.getGraded() && submission.getGradeReleased() && submission.getGrade() != null)
 								{
-									try
+									// graded and released
+									if (assignmentType == 3)
 									{
-										// numeric cell type?
-										String grade = submission.getGradeDisplay();
-										Float.parseFloat(grade);
-			
-										// remove the String-based cell first
-										cell = row.getCell(cellNum);
-										row.removeCell(cell);
-										// add number based cell
-										cell=row.createCell(cellNum);
-										cell.setCellType(0);
-										cell.setCellValue(Float.parseFloat(grade));
-			
-										style = wb.createCellStyle();
-										style.setDataFormat(wb.createDataFormat().getFormat("#,##0.0"));
-										cell.setCellStyle(style);
+										try
+										{
+											// numeric cell type?
+											String grade = submission.getGradeDisplay();
+											Float.parseFloat(grade);
+				
+											// remove the String-based cell first
+											cell = row.getCell(cellNum);
+											row.removeCell(cell);
+											// add number based cell
+											cell=row.createCell(cellNum);
+											cell.setCellType(0);
+											cell.setCellValue(Float.parseFloat(grade));
+				
+											style = wb.createCellStyle();
+											style.setDataFormat(wb.createDataFormat().getFormat("#,##0.0"));
+											cell.setCellStyle(style);
+										}
+										catch (Exception e)
+										{
+											// if the grade is not numeric, let's make it as String type
+											row.removeCell(cell);
+											cell=row.createCell(cellNum);
+											cell.setCellType(1);
+											cell.setCellValue(submission.getGrade());
+										}
 									}
-									catch (Exception e)
+									else
 									{
-										// if the grade is not numeric, let's make it as String type
-										row.removeCell(cell);
-										cell=row.createCell(cellNum);
-										cell.setCellType(1);
+										// String cell type
+										cell = row.getCell(cellNum);
 										cell.setCellValue(submission.getGrade());
 									}
 								}
 								else
 								{
-									// String cell type
+									// no grade available yet
 									cell = row.getCell(cellNum);
-									cell.setCellValue(submission.getGrade());
+									cell.setCellValue("");
 								}
-							}
-							else
-							{
-								// no grade available yet
-								cell = row.getCell(cellNum);
-								cell.setCellValue("");
-							}
-						} // if
+							} // if
+						}
 					}
+					
+					index++;
+					
 				}
-				
-				index++;
-				
 			}
+			catch (Exception e)
+			{
+				M_log.warn(e.getMessage() + " context=" + context);
+			}
+			
+			// output
+			Blob b = new Blob();
+			try
+			{
+				wb.write(b.outputStream());
+			}
+			catch (IOException e)
+			{
+				M_log.debug(this + "Can not output the grade spread sheet. ");
+			}
+			
+			return b.getBytes();
 		}
-		catch (Exception e)
-		{
-			M_log.warn(e.getMessage() + " context=" + context);
-		}
-		
-		// output
-		Blob b = new Blob();
-		try
-		{
-			wb.write(b.outputStream());
-		}
-		catch (IOException e)
-		{
-			M_log.debug(this + "Can not output the grade spread sheet. ");
-		}
-		
-		return b.getBytes();
 
 	} // getGradesSpreadsheet
 
@@ -3212,95 +3233,97 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException,
 					EntityAccessOverloadException, EntityCopyrightException
 			{
-				// need update permission for any of these accesses
-				/*if (!allowUpdateAssignment(ref.getReference()) && !allowGradeSubmission(ref.getContext()))
-					throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, ref
-							.getReference());
-*/
-				try
+				UsageSession session = UsageSessionService.getSession();
+				if (session.getUserId() == null)
 				{
-					if (REF_TYPE_SUBMISSIONS.equals(ref.getSubType()))
-					{
-						// get the submissions zip blob
-						byte[] zip = getSubmissionsZip(ref.getReference());
-
-						if (zip != null)
-						{
-							res.setContentType("application/zip");
-							res.setHeader("Content-Disposition", "attachment; filename = bulk_download.zip");
-
-							OutputStream out = null;
-							try
-							{
-								out = res.getOutputStream();
-								out.write(zip);
-								out.flush();
-								out.close();
-							}
-							catch (Throwable ignore)
-							{
-							}
-							finally
-							{
-								if (out != null)
-								{
-									try
-									{
-										out.close();
-									}
-									catch (Throwable ignore)
-									{
-									}
-								}
-							}
-						}
-					}
-
-					else if (REF_TYPE_GRADES.equals(ref.getSubType()))
-					{
-						// get the grades spreadsheet blob
-						byte[] spreadsheet = getGradesSpreadsheet(ref.getReference());
-
-						if (spreadsheet != null)
-						{
-							res.setContentType("application/vnd.ms-excel");
-							res.setHeader("Content-Disposition", "attachment; filename = export_grades_file.xls");
-
-							OutputStream out = null;
-							try
-							{
-								out = res.getOutputStream();
-								out.write(spreadsheet);
-								out.flush();
-								out.close();
-							}
-							catch (Throwable ignore)
-							{
-							}
-							finally
-							{
-								if (out != null)
-								{
-									try
-									{
-										out.close();
-									}
-									catch (Throwable ignore)
-									{
-									}
-								}
-							}
-						}
-					}
-
-					else
-					{
-						throw new IdUnusedException(ref.getReference());
-					}
+					// fail the request, user not logged in yet.
 				}
-				catch (Throwable t)
+				else
 				{
-					throw new EntityNotDefinedException(ref.getReference());
+					try
+					{
+						if (REF_TYPE_SUBMISSIONS.equals(ref.getSubType()))
+						{
+							// get the submissions zip blob
+							byte[] zip = getSubmissionsZip(ref.getReference());
+	
+							if (zip != null)
+							{
+								res.setContentType("application/zip");
+								res.setHeader("Content-Disposition", "attachment; filename = bulk_download.zip");
+	
+								OutputStream out = null;
+								try
+								{
+									out = res.getOutputStream();
+									out.write(zip);
+									out.flush();
+									out.close();
+								}
+								catch (Throwable ignore)
+								{
+								}
+								finally
+								{
+									if (out != null)
+									{
+										try
+										{
+											out.close();
+										}
+										catch (Throwable ignore)
+										{
+										}
+									}
+								}
+							}
+						}
+	
+						else if (REF_TYPE_GRADES.equals(ref.getSubType()))
+						{
+							// get the grades spreadsheet blob
+							byte[] spreadsheet = getGradesSpreadsheet(ref.getReference());
+	
+							if (spreadsheet != null)
+							{
+								res.setContentType("application/vnd.ms-excel");
+								res.setHeader("Content-Disposition", "attachment; filename = export_grades_file.xls");
+	
+								OutputStream out = null;
+								try
+								{
+									out = res.getOutputStream();
+									out.write(spreadsheet);
+									out.flush();
+									out.close();
+								}
+								catch (Throwable ignore)
+								{
+								}
+								finally
+								{
+									if (out != null)
+									{
+										try
+										{
+											out.close();
+										}
+										catch (Throwable ignore)
+										{
+										}
+									}
+								}
+							}
+						}
+						else
+						{
+							throw new IdUnusedException(ref.getReference());
+						}
+					}
+					catch (Throwable t)
+					{
+						throw new EntityNotDefinedException(ref.getReference());
+					}
 				}
 			}
 		};
