@@ -340,8 +340,10 @@ public class FCKConnectorServlet extends HttpServlet
                          current = (String)iterator.next();
                          ContentCollection myCollection = ContentHostingService.getCollection(current);
                          Element element=doc.createElement("Folder");
-                         element.setAttribute("name", current.substring( ( 
+                         element.setAttribute("id", current.substring( ( 
                                 current.substring(0, current.length()-1) ).lastIndexOf("/")+1, current.length()-1) );
+                         element.setAttribute("name", myCollection.getProperties().getProperty(
+                        		 myCollection.getProperties().getNamePropDisplayName()));
                          folders.appendChild(element);
                     }
                     catch (Exception e) 
@@ -390,7 +392,9 @@ public class FCKConnectorServlet extends HttpServlet
                               Element element=doc.createElement("File");
                               // displaying the id instead of the display name because the url used
                               // for linking in the FCK editor uses what is returned...
-                              element.setAttribute("name", id.substring(id.lastIndexOf("/") + 1));
+                              element.setAttribute("name", current.getProperties().getProperty(
+                            		  current.getProperties().getNamePropDisplayName()));
+                              element.setAttribute("id", id.substring(id.lastIndexOf("/") + 1));
                               
                               if (current.getProperties().getProperty(
                                             current.getProperties().getNamePropContentLength()) != null)
