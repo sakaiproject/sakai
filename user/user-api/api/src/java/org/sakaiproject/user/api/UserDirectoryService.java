@@ -53,16 +53,16 @@ public interface UserDirectoryService extends EntityProducer
 	/** Name for the event of updating one's own user info. */
 	static final String SECURE_UPDATE_USER_OWN = "user.upd.own";
 	
-	/** Name for the event of updating one's own name. */
+	/** Name for the ability for updating one's own name. */
 	static final String SECURE_UPDATE_USER_OWN_NAME = "user.upd.own.name";
 	
-	/** Name for the event of updating one's own email. */
+	/** Name for the ability for updating one's own email. */
 	static final String SECURE_UPDATE_USER_OWN_EMAIL = "user.upd.own.email";
 
-	/** Name for the event of updating one's own password. */
+	/** Name for the ability for updating one's own password. */
 	static final String SECURE_UPDATE_USER_OWN_PASSWORD = "user.upd.own.passwd";
 
-	/** Name for the event of updating one's own type. */
+	/** Name for the ability for updating one's own type. */
 	static final String SECURE_UPDATE_USER_OWN_TYPE = "user.upd.own.type";
 
 	
