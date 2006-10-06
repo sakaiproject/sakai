@@ -137,7 +137,6 @@
     <property name="currentStores">
       <map>
         <entry key="filesystem"><ref bean="filesystemSearchStorageImpl"/></entry>
-        <entry key="db"><ref bean="jdbcSearchStorageImpl"/></entry>
         <entry key="cluster"><ref bean="clusterSearchStorageImpl"/></entry>
       </map>
     </property>
@@ -171,14 +170,6 @@
     <property name="autoDdl"><value>${auto.ddl}</value></property>
   </bean>
   
-  
-  <bean id="jdbcSearchStorageImpl" 
-    class="org.sakaiproject.search.index.impl.JDBCIndexStorage" 
-    >
-    <property name="searchTableName" ><value>search_index_store</value></property>
-    <property name="dataSource"><ref bean="javax.sql.DataSource"/></property>
-    <property name="analyzerFactory" ><ref bean="org.sakaiproject.search.index.AnalyzerFactory" /></property>    
-  </bean>
   
   
   <!--
