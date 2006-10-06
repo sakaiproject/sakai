@@ -3655,8 +3655,6 @@ public class AssignmentAction extends PagedResourceActionII
 
 				}
 				
-				try
-				{
 					a.setTitle(title);
 					a.setContent(ac);
 					a.setContext((String) state.getAttribute(STATE_CONTEXT_STRING));
@@ -3831,7 +3829,7 @@ public class AssignmentAction extends PagedResourceActionII
 										// remove the founded old event
 										try
 										{
-											c.removeEvent(c.editEvent(e.getId()));
+											c.removeEvent(c.getEditEvent(e.getId(), CalendarService.EVENT_REMOVE_CALENDAR));
 										}
 										catch (PermissionException ee)
 										{
@@ -3840,6 +3838,10 @@ public class AssignmentAction extends PagedResourceActionII
 										catch (InUseException ee)
 										{
 											Log.warn("chef", rb.getString("somelsis") + " " + rb.getString("calen"));
+										}
+										catch (IdUnusedException ee)
+										{
+											Log.warn("chef", rb.getString("cannotfin6") + e.getId());
 										}
 									}
 								}
@@ -4104,11 +4106,6 @@ public class AssignmentAction extends PagedResourceActionII
 						}	// if post
 						
 					} // if
-				}
-				catch (IdUnusedException e)
-				{
-					addAlert(state, rb.getString("cannotfin3"));
-				} // try-catch
 
 			} // if
 
@@ -4482,17 +4479,21 @@ public class AssignmentAction extends PagedResourceActionII
 							// found the old event delete it
 							try
 							{
-								c.removeEvent(c.editEvent(e.getId()));
+								c.removeEvent(c.getEditEvent(e.getId(), CalendarService.EVENT_REMOVE_CALENDAR));
 								pEdit.removeProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
 								pEdit.removeProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
 							}
 							catch (PermissionException ee)
 							{
-								// ignore exception
+								Log.warn("chef", rb.getString("cannotrem") + " " + title + ". ");
 							}
 							catch (InUseException ee)
 							{
-								// ignore exception
+								Log.warn("chef", rb.getString("somelsis") + " " + rb.getString("calen"));
+							}
+							catch (IdUnusedException ee)
+							{
+								Log.warn("chef", rb.getString("cannotfin6") + e.getId());
 							}
 						}
 					}
