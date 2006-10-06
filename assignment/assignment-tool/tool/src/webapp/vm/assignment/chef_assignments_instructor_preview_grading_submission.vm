@@ -202,8 +202,8 @@
 					#end	
 			</div>	
 			<p class="act">
-				<input accesskey="s" name="eventSubmit_doRelease_grade_submission" type="submit" value="$tlang.getString("gen.retu")" />
-				<input accesskey="d" name="eventSubmit_doSave_grade_submission" type="submit" value="$tlang.getString("gen.savdra")" />
+				<input accesskey="s" name="eventSubmit_doReturn_preview_grade_submission" type="submit" value="$tlang.getString("gen.retu")" />
+				<input accesskey="d" name="eventSubmit_doSave_preview_grade_submission" type="submit" value="$tlang.getString("gen.savdra")" />
 				<input accesskey="r" name="eventSubmit_doCancel_preview_grade_submission" type="submit" value="$tlang.getString("gen.revi")" />
 				<input accesskey="x" name="eventSubmit_doCancel_preview_grade_submission" type="submit" value="$tlang.getString("gen.don")" />
 			</p>

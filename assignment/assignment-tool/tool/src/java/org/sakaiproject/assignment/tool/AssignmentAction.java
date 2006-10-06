@@ -2023,88 +2023,12 @@ public class AssignmentAction extends PagedResourceActionII
 	public void doPreview_grade_submission(RunData data)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		ParameterParser params = data.getParameters();
-
-		String feedbackText = processAssignmentFeedbackFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_TEXT));
-		String grade = params.getString(GRADE_SUBMISSION_GRADE);
-		state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
-		boolean checkForFormattingErrors = false; // so that grading isn't held up by formatting errors
-		String feedbackComment = processFormattedTextFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_COMMENT),
-				checkForFormattingErrors);
-		state.setAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT, feedbackComment);
-		state.setAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT, feedbackText);
-		state.setAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT, state.getAttribute(ATTACHMENTS));
-
-		if (params.getString("allowResubmit") != null)
-		{
-			state.setAttribute(GRADE_SUBMISSION_ALLOW_RESUBMIT, Boolean.TRUE);
-		}
-		else
-		{
-			state.setAttribute(GRADE_SUBMISSION_ALLOW_RESUBMIT, Boolean.FALSE);
-		}
-
-		boolean withGrade = ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue();
-
-		if (withGrade)
-		{
-			if (grade != null && !grade.equals(""))
-			{
-				state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
-			}
-			else
-			{
-				addAlert(state, rb.getString("plespethe2"));
-			}
-		}
-
+		
+		// read user input
+		readGradeForm(data, state, "read");
+		
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
-			String sId = (String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
-			try
-			{
-				AssignmentSubmission s = AssignmentService.getSubmission(sId);
-				Assignment a = s.getAssignment();
-				if (a.getContent().getTypeOfGrade() == 3)
-				{
-					if ((grade != null) && (grade.length() != 0))
-					{
-						validPointGrade(state, grade);
-						state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
-						if (state.getAttribute(STATE_MESSAGE) == null)
-						{
-							grade = scalePointGrade(state, grade);
-						}
-						if (state.getAttribute(STATE_MESSAGE) == null)
-						{
-							try
-							{
-								int l = Integer.parseInt(grade);
-								if (l > a.getContent().getMaxGradePoint())
-								{
-									addAlert(state, rb.getString("grad2"));
-								}
-							}
-							catch (NumberFormatException e)
-							{
-								alertInvalidPoint(state, grade);
-							}
-						}
-					}
-				}
-			}
-			catch (IdUnusedException e)
-			{
-				addAlert(state, rb.getString("cannotfin3"));
-			}
-			catch (PermissionException e)
-			{
-				addAlert(state, "You are not allowed to view the assignment submission. ");
-			}
-		}
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
 			state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION);
 		}
 
@@ -2290,6 +2214,8 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doSave_grade_submission(RunData data)
 	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		readGradeForm(data, state, "save");
 		grade_submission_option(data, "save");
 
 	} // doSave_grade_submission
@@ -2299,6 +2225,8 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doRelease_grade_submission(RunData data)
 	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		readGradeForm(data, state, "release");
 		grade_submission_option(data, "release");
 
 	} // doRelease_grade_submission
@@ -2308,9 +2236,29 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doReturn_grade_submission(RunData data)
 	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		readGradeForm(data, state, "return");
 		grade_submission_option(data, "return");
 
 	} // doReturn_grade_submission
+	
+	/**
+	 * Action is to return submission with or without grade from preview
+	 */
+	public void doReturn_preview_grade_submission(RunData data)
+	{
+		grade_submission_option(data, "return");
+
+	} // doReturn_grade_preview_submission
+	
+	/**
+	 * Action is to save submission with or without grade from preview
+	 */
+	public void doSave_preview_grade_submission(RunData data)
+	{
+		grade_submission_option(data, "save");
+
+	} // doSave_grade_preview_submission
 
 	/**
 	 * Common grading routine plus specific operation to differenciate cases when saving, releasing or returning grade.
@@ -2318,42 +2266,9 @@ public class AssignmentAction extends PagedResourceActionII
 	private void grade_submission_option(RunData data, String gradeOption)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		ParameterParser params = data.getParameters();
-
-		boolean withGrade = state.getAttribute(WITH_GRADES) != null ? ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue()
-				: false;
-
-		if (params.getString("allowResubmit") != null)
-		{
-			state.setAttribute(GRADE_SUBMISSION_ALLOW_RESUBMIT, Boolean.TRUE);
-		}
-		else
-		{
-			state.setAttribute(GRADE_SUBMISSION_ALLOW_RESUBMIT, Boolean.FALSE);
-		}
-
-		boolean checkForFormattingErrors = false; // so that grading isn't held up by formatting errors
-		String feedbackComment = processFormattedTextFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_COMMENT),
-				checkForFormattingErrors);
-		if (feedbackComment != null)
-		{
-			state.setAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT, feedbackComment);
-		}
-
-		String feedbackText = processAssignmentFeedbackFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_TEXT));
-		if (feedbackText != null)
-		{
-			state.setAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT, feedbackText);
-		}
-
-		state.setAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT, state.getAttribute(ATTACHMENTS));
-
-		String g = params.getCleanString(GRADE_SUBMISSION_GRADE);
-		if (g != null)
-		{
-			state.setAttribute(GRADE_SUBMISSION_GRADE, g);
-		}
-
+		
+		boolean withGrade = state.getAttribute(WITH_GRADES) != null ? ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue(): false;
+		
 		String sId = (String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
 
 		try
@@ -2361,181 +2276,124 @@ public class AssignmentAction extends PagedResourceActionII
 			// for points grading, one have to enter number as the points
 			String grade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE);
 
-			Assignment a = AssignmentService.getSubmission(sId).getAssignment();
+			AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(sId);
+			Assignment a = sEdit.getAssignment();
 			int typeOfGrade = a.getContent().getTypeOfGrade();
 
-			if (withGrade)
+			if (!withGrade)
 			{
-				// do grade validation only for Assignment with Grade tool
-				if (typeOfGrade == 3)
+				// no grade input needed for the without-grade version of assignment tool
+				sEdit.setGraded(true);
+				if (gradeOption.equals("return") || gradeOption.equals("release"))
 				{
-					if ((grade.length() == 0))
-					{
-						if (gradeOption.equals("release"))
-						{
-							// in case of releasing grade, user must specify a grade
-							addAlert(state, rb.getString("plespethe2"));
-						}
-					}
-					else
-					{
-						// the preview grade process might already scaled up the grade by 10
-						if (!((String) state.getAttribute(STATE_MODE)).equals(MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION))
-						{
-							validPointGrade(state, grade);
-							state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
-							if (state.getAttribute(STATE_MESSAGE) == null)
-							{
-								grade = scalePointGrade(state, grade);
-							}
-						}
-
-						if (state.getAttribute(STATE_MESSAGE) == null)
-						{
-							int maxGrade = a.getContent().getMaxGradePoint();
-							try
-							{
-								if (Integer.parseInt(grade) > maxGrade)
-								{
-									addAlert(state, rb.getString("grad2"));
-								}
-							}
-							catch (NumberFormatException e)
-							{
-								alertInvalidPoint(state, grade);
-							}
-						}
-					}
+					sEdit.setGradeReleased(true);
 				}
-
-				// if ungraded and grade type is not "ungraded" type
-				if ((grade == null || grade.equals("ungraded")) && (typeOfGrade != 1) && gradeOption.equals("release"))
+			}
+			else if (grade == null)
+			{
+				sEdit.setGrade("");
+				sEdit.setGraded(false);
+				sEdit.setGradeReleased(false);
+			}
+			else
+			{
+				if (typeOfGrade == 1)
 				{
-					addAlert(state, rb.getString("plespethe2"));
+					sEdit.setGrade("no grade");
+					sEdit.setGraded(true);
+				}
+				else
+				{
+					if (!grade.equals(""))
+					{
+						if (typeOfGrade == 3)
+						{
+							sEdit.setGrade(grade);
+						}
+						else
+						{
+							sEdit.setGrade(grade);
+						}
+						sEdit.setGraded(true);
+					}
 				}
 			}
 
-			if (state.getAttribute(STATE_MESSAGE) == null)
+			if (gradeOption.equals("release"))
 			{
-				state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
-				AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(sId);
-
-				if (!withGrade)
-				{
-					// no grade input needed for the without-grade version of assignment tool
-					sEdit.setGraded(true);
-					if (gradeOption.equals("return") || gradeOption.equals("release"))
-					{
-						sEdit.setGradeReleased(true);
-					}
-				}
-				else if (grade == null)
-				{
-					sEdit.setGrade("");
-					sEdit.setGraded(false);
-					sEdit.setGradeReleased(false);
-				}
-				else
-				{
-					if (typeOfGrade == 1)
-					{
-						sEdit.setGrade("no grade");
-						sEdit.setGraded(true);
-					}
-					else
-					{
-						if (!grade.equals(""))
-						{
-							if (typeOfGrade == 3)
-							{
-								sEdit.setGrade(grade);
-							}
-							else
-							{
-								sEdit.setGrade(grade);
-							}
-							sEdit.setGraded(true);
-						}
-					}
-				}
-
-				if (gradeOption.equals("release"))
+				sEdit.setGradeReleased(true);
+				sEdit.setGraded(true);
+				// clear the returned flag
+				sEdit.setReturned(false);
+				sEdit.setTimeReturned(null);
+			}
+			else if (gradeOption.equals("return"))
+			{
+				if (StringUtil.trimToNull(grade) != null)
 				{
 					sEdit.setGradeReleased(true);
 					sEdit.setGraded(true);
-					// clear the returned flag
-					sEdit.setReturned(false);
-					sEdit.setTimeReturned(null);
 				}
-				else if (gradeOption.equals("return"))
-				{
-					if (StringUtil.trimToNull(grade) != null)
-					{
-						sEdit.setGradeReleased(true);
-						sEdit.setGraded(true);
-					}
-					sEdit.setReturned(true);
-					sEdit.setTimeReturned(TimeService.newTime());
-					sEdit.setHonorPledgeFlag(Boolean.FALSE.booleanValue());
-				}
+				sEdit.setReturned(true);
+				sEdit.setTimeReturned(TimeService.newTime());
+				sEdit.setHonorPledgeFlag(Boolean.FALSE.booleanValue());
+			}
 
-				if (state.getAttribute(GRADE_SUBMISSION_ALLOW_RESUBMIT) != null && ((Boolean)state.getAttribute(GRADE_SUBMISSION_ALLOW_RESUBMIT)).booleanValue())
-				{
-					sEdit.getPropertiesEdit().addProperty(GRADE_SUBMISSION_ALLOW_RESUBMIT, Boolean.TRUE.toString());
-					state.removeAttribute(GRADE_SUBMISSION_ALLOW_RESUBMIT);
-				}
-				else
-				{
-					sEdit.getPropertiesEdit().removeProperty(GRADE_SUBMISSION_ALLOW_RESUBMIT);
-				}
-				
-				// the instructor comment
-				String feedbackCommentString = StringUtil
-						.trimToNull((String) state.getAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT));
-				if (feedbackCommentString != null)
-				{
-					sEdit.setFeedbackComment(feedbackCommentString);
-				}
+			if (state.getAttribute(GRADE_SUBMISSION_ALLOW_RESUBMIT) != null && ((Boolean)state.getAttribute(GRADE_SUBMISSION_ALLOW_RESUBMIT)).booleanValue())
+			{
+				sEdit.getPropertiesEdit().addProperty(GRADE_SUBMISSION_ALLOW_RESUBMIT, Boolean.TRUE.toString());
+				state.removeAttribute(GRADE_SUBMISSION_ALLOW_RESUBMIT);
+			}
+			else
+			{
+				sEdit.getPropertiesEdit().removeProperty(GRADE_SUBMISSION_ALLOW_RESUBMIT);
+			}
+			
+			// the instructor comment
+			String feedbackCommentString = StringUtil
+					.trimToNull((String) state.getAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT));
+			if (feedbackCommentString != null)
+			{
+				sEdit.setFeedbackComment(feedbackCommentString);
+			}
 
-				// the instructor inline feedback
-				String feedbackTextString = (String) state.getAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT);
-				if (feedbackTextString != null)
+			// the instructor inline feedback
+			String feedbackTextString = (String) state.getAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT);
+			if (feedbackTextString != null)
+			{
+				sEdit.setFeedbackText(feedbackTextString);
+			}
+
+			List v = (List) state.getAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT);
+			if (v != null)
+			{
+				// clear the old attachments first
+				sEdit.clearFeedbackAttachments();
+
+				for (int i = 0; i < v.size(); i++)
 				{
-					sEdit.setFeedbackText(feedbackTextString);
+					sEdit.addFeedbackAttachment((Reference) v.get(i));
 				}
+			}
 
-				List v = (List) state.getAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT);
-				if (v != null)
-				{
-					// clear the old attachments first
-					sEdit.clearFeedbackAttachments();
+			String sReference = sEdit.getReference();
 
-					for (int i = 0; i < v.size(); i++)
-					{
-						sEdit.addFeedbackAttachment((Reference) v.get(i));
-					}
-				}
+			AssignmentService.commitEdit(sEdit);
 
-				String sReference = sEdit.getReference();
-
-				AssignmentService.commitEdit(sEdit);
-
-				// update grades in gradebook
-				String aReference = a.getReference();
-				String associateGradebookAssignment = StringUtil.trimToNull(a.getProperties().getProperty(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
-				
-				if (gradeOption.equals("release") || gradeOption.equals("return"))
-				{
-					// update grade in gradebook
-					integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "update");
-				}
-				else
-				{
-					// remove grade from gradebook
-					integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "remove");
-				}
-
-			} // if
+			// update grades in gradebook
+			String aReference = a.getReference();
+			String associateGradebookAssignment = StringUtil.trimToNull(a.getProperties().getProperty(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+			
+			if (gradeOption.equals("release") || gradeOption.equals("return"))
+			{
+				// update grade in gradebook
+				integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "update");
+			}
+			else
+			{
+				// remove grade from gradebook
+				integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "remove");
+			}
 		}
 		catch (IdUnusedException e)
 		{
@@ -3280,7 +3138,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG, new Boolean(false));
 		
 		// save user input
-		readGradeForm(data, state);
+		readGradeForm(data, state, "read");
 
 	} // doHide_preview_assignment_student_view
 
@@ -3293,7 +3151,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG, new Boolean(true));
 		
 		// save user input
-		readGradeForm(data, state);
+		readGradeForm(data, state, "read");
 
 	} // doShow_submission_assignment_instruction
 
@@ -4734,9 +4592,10 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 				}
 
-				// clear the returned flag
-				sEdit.setReturned(false);
-				sEdit.setTimeReturned(null);
+				// also set the return status
+				sEdit.setReturned(true);
+				sEdit.setTimeReturned(TimeService.newTime());
+				sEdit.setHonorPledgeFlag(Boolean.FALSE.booleanValue());
 
 				AssignmentService.commitEdit(sEdit);
 			} // while
@@ -5084,22 +4943,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		else if (mode.equals(MODE_INSTRUCTOR_GRADE_SUBMISSION))
 		{
-			readGradeForm(data, state);
-
-			try
-			{
-				AssignmentSubmission s = AssignmentService.getSubmission((String) state
-						.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID));
-				if (s != null)
-				{
-					// TODO: file picker to save in dropbox? -ggolden
-					// User[] users = s.getSubmitters();
-					// state.setAttribute(ResourcesAction.STATE_SAVE_ATTACHMENT_IN_DROPBOX, users);
-				}
-			}
-			catch (Exception ignore)
-			{
-			}
+			readGradeForm(data, state, "read");
 		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -5117,16 +4961,13 @@ public class AssignmentAction extends PagedResourceActionII
 	/**
 	 * readGradeForm
 	 */
-	public void readGradeForm(RunData data, SessionState state)
+	public void readGradeForm(RunData data, SessionState state, String gradeOption)
 	{
+		
 		ParameterParser params = data.getParameters();
-		boolean checkForFormattingErrors = false; // so that grading isn't held up by formatting errors
-		String feedbackComment = processFormattedTextFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_COMMENT),
-				checkForFormattingErrors);
-		state.setAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT, feedbackComment);
-		String feedbackText = processAssignmentFeedbackFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_TEXT));
-		state.setAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT, feedbackText);
-		state.setAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT, params.getString(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT));
+
+		boolean withGrade = state.getAttribute(WITH_GRADES) != null ? ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue()
+				: false;
 
 		if (params.getString("allowResubmit") != null)
 		{
@@ -5137,44 +4978,96 @@ public class AssignmentAction extends PagedResourceActionII
 			state.setAttribute(GRADE_SUBMISSION_ALLOW_RESUBMIT, Boolean.FALSE);
 		}
 
-		String grade = params.getString(GRADE_SUBMISSION_GRADE);
-		state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
+		boolean checkForFormattingErrors = false; // so that grading isn't held up by formatting errors
+		String feedbackComment = processFormattedTextFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_COMMENT),
+				checkForFormattingErrors);
+		if (feedbackComment != null)
+		{
+			state.setAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT, feedbackComment);
+		}
+
+		String feedbackText = processAssignmentFeedbackFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_TEXT));
+		if (feedbackText != null)
+		{
+			state.setAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT, feedbackText);
+		}
+
+		state.setAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT, state.getAttribute(ATTACHMENTS));
+
+		String g = params.getCleanString(GRADE_SUBMISSION_GRADE);
+		if (g != null)
+		{
+			state.setAttribute(GRADE_SUBMISSION_GRADE, g);
+		}
+
+		String sId = (String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
+
 		try
 		{
-			Assignment a = AssignmentService.getAssignment((String) state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID));
+			// for points grading, one have to enter number as the points
+			String grade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE);
 
-			if (a.getContent().getTypeOfGrade() == 3)
+			Assignment a = AssignmentService.getSubmission(sId).getAssignment();
+			int typeOfGrade = a.getContent().getTypeOfGrade();
+
+			if (withGrade)
 			{
-				// for point grades, scale the point grade by 10
-				state.setAttribute(GRADE_SUBMISSION_GRADE, scalePointGrade(state, grade));
-			}
-			else
-			{
-				// for other grade type, do not scale.
-				state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
+				// do grade validation only for Assignment with Grade tool
+				if (typeOfGrade == 3)
+				{
+					if ((grade.length() == 0))
+					{
+						if (gradeOption.equals("release"))
+						{
+							// in case of releasing grade, user must specify a grade
+							addAlert(state, rb.getString("plespethe2"));
+						}
+					}
+					else
+					{
+						// the preview grade process might already scaled up the grade by 10
+						if (!((String) state.getAttribute(STATE_MODE)).equals(MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION))
+						{
+							validPointGrade(state, grade);
+							if (state.getAttribute(STATE_MESSAGE) == null)
+							{
+								grade = scalePointGrade(state, grade);
+							}
+							state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
+						}
+
+						if (state.getAttribute(STATE_MESSAGE) == null)
+						{
+							int maxGrade = a.getContent().getMaxGradePoint();
+							try
+							{
+								if (Integer.parseInt(grade) > maxGrade)
+								{
+									addAlert(state, rb.getString("grad2"));
+								}
+							}
+							catch (NumberFormatException e)
+							{
+								alertInvalidPoint(state, grade);
+							}
+						}
+					}
+				}
+
+				// if ungraded and grade type is not "ungraded" type
+				if ((grade == null || grade.equals("ungraded")) && (typeOfGrade != 1) && gradeOption.equals("release"))
+				{
+					addAlert(state, rb.getString("plespethe2"));
+				}
 			}
 		}
 		catch (IdUnusedException e)
 		{
-			addAlert(state, rb.getString("cannotfin3"));
+			addAlert(state, rb.getString("cannotfin5"));
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, rb.getString("youarenot14"));
-		}
-
-		try
-		{
-			AssignmentSubmission s = AssignmentService.getSubmission((String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID));
-			if (s != null)
-			{
-				// TODO: file picker to save in dropbox? -ggolden
-				// User[] users = s.getSubmitters();
-				// state.setAttribute(ResourcesAction.STATE_SAVE_ATTACHMENT_IN_DROPBOX, users);
-			}
-		}
-		catch (Exception ignore)
-		{
+			addAlert(state, "You are not allowed to view the assignment submission. ");
 		}
 	}
 
@@ -7287,7 +7180,7 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				else if (mode.equals(MODE_INSTRUCTOR_GRADE_SUBMISSION))
 				{
-					readGradeForm(data, state);
+					readGradeForm(data, state, "read");
 				}
 
 				return true;
