@@ -605,7 +605,10 @@ textarea:focus{
 	background: transparent;
 }
 
-
+.navIntraToolLink input.enabled:hover{
+	color:#33f;
+	cursor: pointer;
+}
 
 /*SECTION 9 MESSAGES*/
 /*see: create any item*/
