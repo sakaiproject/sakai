@@ -137,7 +137,8 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     }
 
     public String toString() {
-        return "Forum.id:" + id;
+    	return "Forum/" + id;
+        //return "Forum.id:" + id;
     }
     
     public boolean equals(Object obj) {

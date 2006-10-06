@@ -201,7 +201,8 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
 //    }
     
     public String toString() {
-        return "Topic.id:" + id;
+    	return "Topic/" + id;
+        //return "Topic.id:" + id;
     }
 
     public boolean equals(Object obj) {

@@ -34,6 +34,8 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsU
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -138,7 +140,17 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
   }
     
   private String getEventMessage(Object object) {
-      return "MessageCenter::" + object.toString();
+  	return "MessageCenter/site/" + getContextId() + "/" + object.toString() ; 
+      //return "MessageCenter::" + object.toString();
   }
-  
+
+  private String getContextId() {
+    if (TestUtil.isRunningTests()) {
+        return "test-context";
+    }
+    Placement placement = ToolManager.getCurrentPlacement();
+    String presentSiteId = placement.getContext();
+    return presentSiteId;
+  }
+
 }

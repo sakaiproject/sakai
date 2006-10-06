@@ -213,7 +213,8 @@ public class MessageImpl extends MutableEntityImpl implements Message
 
   public String toString()
   {
-    return "Message.id:" + id;
+  	return "Message/" + id;
+    //return "Message.id:" + id;
   }
   
   public boolean equals(Object obj) {

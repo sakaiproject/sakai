@@ -169,7 +169,8 @@ public class MessageForumsUserImpl implements MessageForumsUser {
     }
     
     public String toString() {
-        return "User.id:" + id;
+    	return "User/" + id;
+        //return "User.id:" + id;
     }
 
     /**

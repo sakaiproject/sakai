@@ -198,7 +198,8 @@ public class MessagePermissionsImpl implements MessagePermissions {
 //    }
 
     public String toString() {
-        return "MessagePermissions.id:" + id;
+    	return "MessagePermissions/" + id;
+        //return "MessagePermissions.id:" + id;
     }
 
     public Boolean getDefaultValue() {

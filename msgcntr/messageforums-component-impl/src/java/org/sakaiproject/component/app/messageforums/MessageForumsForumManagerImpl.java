@@ -959,7 +959,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     }
 
     private String getEventMessage(Object object) {
-        return "MessageCenter::" + getCurrentUser() + "::" + object.toString();
+    	return "MessageCenter/site/" + getContextId() + "/" + object.toString() + "/" + getCurrentUser(); 
+        //return "MessageCenter::" + getCurrentUser() + "::" + object.toString();
     }
 
 }

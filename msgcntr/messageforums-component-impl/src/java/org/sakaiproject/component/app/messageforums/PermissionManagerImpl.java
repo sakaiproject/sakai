@@ -48,7 +48,9 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicControlPe
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -936,6 +938,17 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     private String getEventMessage(Object parent, Object child) {
-        return "MessageCenter::" + getCurrentUser() + "::" + parent.toString() + "::" + child.toString();
+    	return "MessageCenter/site/" + getContextId() + "/" + parent.toString() + "/" + child.toString() + "/" + getCurrentUser();
+        //return "MessageCenter::" + getCurrentUser() + "::" + parent.toString() + "::" + child.toString();
     }  
+    
+    private String getContextId() {
+      if (TestUtil.isRunningTests()) {
+          return "test-context";
+      }
+      Placement placement = ToolManager.getCurrentPlacement();
+      String presentSiteId = placement.getContext();
+      return presentSiteId;
+    }
+
 }

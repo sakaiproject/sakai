@@ -143,7 +143,8 @@ public class AreaImpl extends MutableEntityImpl implements Area
   }
          
   public String toString() {
-      return "Area.id:" + id;
+      //return "Area.id:" + id;
+  	return "Area/" + id; 
   }
   
   public Boolean getLocked() {

@@ -41,6 +41,7 @@ import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
@@ -531,7 +532,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     }
 
     private String getEventMessage(Object object) {
-        return "MessageCenter::" + getCurrentUser() + "::" + object.toString();
+    	return "MessageCenter/site/" + getContextId() + "/" + object.toString() + "/" + getCurrentUser(); 
+        //return "MessageCenter::" + getCurrentUser() + "::" + object.toString();
     }
     
     public List getAllRelatedMsgs(final Long messageId)
@@ -584,5 +586,15 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
       };
 
       return (List) getHibernateTemplate().execute(hcb);
-  }    
+  }
+    
+    private String getContextId() {
+      if (TestUtil.isRunningTests()) {
+          return "test-context";
+      }
+      Placement placement = ToolManager.getCurrentPlacement();
+      String presentSiteId = placement.getContext();
+      return presentSiteId;
+  }
+
 }

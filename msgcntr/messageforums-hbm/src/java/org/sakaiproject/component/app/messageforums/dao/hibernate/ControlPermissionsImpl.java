@@ -214,7 +214,8 @@ public class ControlPermissionsImpl implements ControlPermissions {
 //    }
 
     public String toString() {
-        return "ControlPermissions.id:" + id;
+    	return "ControlPermissions/" + id;
+        //return "ControlPermissions.id:" + id;
     }
 
 }
