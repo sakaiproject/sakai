@@ -173,7 +173,7 @@ public class PostemTool {
 			gradebooks = null;
 		}
 		
-		if (gradebooks.size() > 0)
+		if (gradebooks != null && gradebooks.size() > 0)
 			gradebooksExist = true;
 		else
 			gradebooksExist = false;
