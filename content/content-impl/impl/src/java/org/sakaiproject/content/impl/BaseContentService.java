@@ -1881,14 +1881,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// check for closed edit
 		if (!edit.isActiveEdit())
 		{
-			try
-			{
-				throw new Exception();
-			}
-			catch (Exception e)
-			{
-				M_log.warn("removeCollection(): closed ContentCollectionEdit", e);
-			}
+			Exception e = new Exception();
+			M_log.warn("removeCollection(): closed ContentCollectionEdit", e);
 			return;
 		}
 
@@ -1924,6 +1918,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 		catch (GroupNotDefinedException ignore)
 		{
+			M_log.warn("removeCollection: removing realm for : " + edit.getReference() + " : " + ignore);
 		}
 
 		// track it (no notification)
@@ -2174,14 +2169,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// check for closed edit
 		if (!edit.isActiveEdit())
 		{
-			try
-			{
-				throw new Exception();
-			}
-			catch (Exception e)
-			{
-				M_log.warn("cancelCollection(): closed ContentCollectionEdit", e);
-			}
+			Exception e = new Exception();
+			M_log.warn("cancelCollection(): closed ContentCollectionEdit", e);
 			return;
 		}
 
@@ -3415,14 +3404,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// check for closed edit
 		if (!edit.isActiveEdit())
 		{
-			try
-			{
-				throw new Exception();
-			}
-			catch (Exception e)
-			{
-				M_log.warn("removeResource(): closed ContentResourceEdit", e);
-			}
+			Exception e = new Exception();
+			M_log.warn("removeResource(): closed ContentResourceEdit", e);
 			return;
 		}
 
@@ -3464,6 +3447,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 		catch (GroupNotDefinedException ignore)
 		{
+			M_log.warn("removeResource: removing realm for : " + edit.getReference() + " : " + ignore);
 		}
 
 		// track it (no notification)
@@ -4498,14 +4482,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// check for closed edit
 		if (!edit.isActiveEdit())
 		{
-			try
-			{
-				throw new Exception();
-			}
-			catch (Exception e)
-			{
-				M_log.warn("commitResource(): closed ContentResourceEdit", e);
-			}
+			Exception e = new Exception();
+			M_log.warn("commitResource(): closed ContentResourceEdit", e);
 			return;
 		}
 
@@ -4534,14 +4512,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// check for closed edit
 		if (!edit.isActiveEdit())
 		{
-			try
-			{
-				throw new Exception();
-			}
-			catch (Exception e)
-			{
-				M_log.warn("commitResourceEdit(): closed ContentResourceEdit", e);
-			}
+			Exception e = new Exception();
+			M_log.warn("commitResourceEdit(): closed ContentResourceEdit", e);
 			return;
 		}
 		
@@ -4600,14 +4572,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// check for closed edit
 		if (!edit.isActiveEdit())
 		{
-			try
-			{
-				throw new Exception();
-			}
-			catch (Exception e)
-			{
-				M_log.warn("cancelResource(): closed ContentResourceEdit", e);
-			}
+			Exception e = new Exception();
+			M_log.warn("cancelResource(): closed ContentResourceEdit", e);
 			return;
 		}
 
@@ -6508,7 +6474,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 					{
 						// Because the id is coming from getSiteCollection(), this will never occur.
 						// If it does, we better get alerted to it.
-						M_log.warn("enableResources: ", e);
+						M_log.warn("enableResources: " + e);
 						throw new RuntimeException(e);
 					}
 				}
@@ -6541,14 +6507,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 			catch (TypeException e)
 			{
-				M_log.warn("enableResources: ", e);
+				M_log.warn("enableResources: " + e);
 				throw new RuntimeException(e);
 			}
 		}
 		catch (IdUnusedException e)
 		{
 			// TODO: -ggolden
-			M_log.warn("enableResources: ", e);
+			M_log.warn("enableResources: " + e);
 			throw new RuntimeException(e);
 		}
 	}
