@@ -205,7 +205,7 @@
 					#if ( $newAnn =="true")				
 						"$tlang.getString("revise.add")"
 					#else
-						"$tlang.getString("revise.add")"
+						"$tlang.getString("revise.savechanges")"
 					#end
 				 onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='post';document.reviseForm.submit();return false;" />
 				<input type="button" accesskey="v" name="preview" value="$tlang.getString("revise.preview")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='preview';document.reviseForm.submit();return false;" />
