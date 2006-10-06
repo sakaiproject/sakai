@@ -72,7 +72,7 @@ should be included in file importing DeliveryMessages
     <h:column>
       <h:panelGroup rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showSelectionLevel && question.itemData.typeId != 3 &&
-	   selection.answer.generalAnswerFeedback != 'null' && selection.answer.generalAnswerFeedback != ''}" >
+	   selection.answer.generalAnswerFeedback != 'null' && selection.answer.generalAnswerFeedback != null && selection.answer.generalAnswerFeedback != ''}" >
    	   <!-- The above != 'null' is for SAK-5475. Once it gets fixed, we can remove this condition -->
        <f:verbatim><br /></f:verbatim>
        <h:outputText value="#{msg.feedback}#{msg.column} " />
