@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="podcastsOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aucy</value></property>
+      <property name="name"><value>Podcasts Overview</value></property>
+      <property name="location"><value>/sakai_podcasts/aucy.html</value></property>
+      <property name="defaultForTool"><value>sakai.podcasts</value></property>
+   </bean>
+   
+   <bean id="editAPodcast" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>audb</value></property>
+      <property name="name"><value>Add/Edit/Delete A Podcast</value></property>
+      <property name="location"><value>/sakai_podcasts/audb.html</value></property>
+      <property name="defaultForTool"><value>sakai.podcasts</value></property>
+   </bean>
+   
+   <bean id="downloadSubscribePodcasts" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>audn</value></property>
+      <property name="name"><value>Download/Subscribe to Podcasts</value></property>
+      <property name="location"><value>/sakai_podcasts/audn.html</value></property>
+      <property name="defaultForTool"><value>sakai.podcasts</value></property>
+   </bean>
+   
+   <bean id="editRSSFeedInfo" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>audo</value></property>
+      <property name="name"><value>Edit Podcasts RSS Feed Information</value></property>
+      <property name="location"><value>/sakai_podcasts/audo.html</value></property>
+      <property name="defaultForTool"><value>sakai.podcasts</value></property>
+   </bean>
+   
+   <bean id="manageFeedAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>audp</value></property>
+      <property name="name"><value>Manage Access to Podcasts RSS Feed</value></property>
+      <property name="location"><value>/sakai_podcasts/audp.html</value></property>
+      <property name="defaultForTool"><value>sakai.podcasts</value></property>
+   </bean>
+      
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="podcastsCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Podcasts</value></property>
+               <property name="resources">
+                  <list>
+                    <ref bean="podcastsOverview"/>
+					<ref bean="editAPodcast"/>
+					<ref bean="downloadSubscribePodcasts"/>
+					<ref bean="editRSSFeedInfo"/>
+					<ref bean="manageFeedAccess"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
