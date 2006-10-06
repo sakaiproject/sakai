@@ -6476,6 +6476,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	protected void enableResources(String context)
 	{
+		unlockCheck(SITE_UPDATE_ACCESS, context);
+		
 		// it would be called
 		String id = getSiteCollection(context);
 
@@ -6485,7 +6487,31 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			Site site = m_siteService.getSite(context);
 			try
 			{
-				ContentCollection collection = getCollection(id);
+				ContentCollection collection = findCollection(id);	// getCollection(id);	// 
+				
+				if(collection == null)
+				{
+					// make it
+					try
+					{
+						ContentCollectionEdit edit = addValidPermittedCollection(id);
+						edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, site.getTitle());
+						commitCollection(edit);
+						collection = findCollection(id);
+					}
+					catch (IdUsedException e)
+					{
+						M_log.warn("enableResources: " + e);
+						collection = findCollection(id);
+					}
+					catch (InconsistentException e)
+					{
+						// Because the id is coming from getSiteCollection(), this will never occur.
+						// If it does, we better get alerted to it.
+						M_log.warn("enableResources: ", e);
+						throw new RuntimeException(e);
+					}
+				}
 	
 				// do we need to update the title?
 				if (!site.getTitle().equals(collection.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)))
@@ -6499,56 +6525,31 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 					catch (IdUnusedException e)
 					{
 						M_log.warn("enableResources: " + e);
+						throw new RuntimeException(e);
 					}
 					catch (PermissionException e)
 					{
 						M_log.warn("enableResources: " + e);
+						throw new RuntimeException(e);
 					}
 					catch (InUseException e)
 					{
 						M_log.warn("enableResources: " + e);
+						throw new RuntimeException(e);
 					}
-				}
-			}
-			catch (IdUnusedException un)
-			{
-				// make it
-				try
-				{
-					ContentCollectionEdit collection = addCollection(id);
-					collection.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, site.getTitle());
-					commitCollection(collection);
-				}
-				catch (IdUsedException e)
-				{
-					M_log.warn("enableResources: ", e);
-				}
-				catch (IdInvalidException e)
-				{
-					M_log.warn("enableResources: ", e);
-				}
-				catch (PermissionException e)
-				{
-					M_log.warn("enableResources: ", e);
-				}
-				catch (InconsistentException e)
-				{
-					M_log.warn("enableResources: ", e);
 				}
 			}
 			catch (TypeException e)
 			{
 				M_log.warn("enableResources: ", e);
-			}
-			catch (PermissionException e)
-			{
-				M_log.warn("enableResources: ", e);
+				throw new RuntimeException(e);
 			}
 		}
 		catch (IdUnusedException e)
 		{
 			// TODO: -ggolden
 			M_log.warn("enableResources: ", e);
+			throw new RuntimeException(e);
 		}
 	}
 
