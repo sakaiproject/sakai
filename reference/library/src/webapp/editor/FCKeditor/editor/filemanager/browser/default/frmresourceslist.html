@@ -114,7 +114,8 @@ function GetFoldersAndFilesCallBack( fckXml )
 	for ( var i = 0 ; i < oNodes.length ; i++ )
 	{
 		var sFolderName = oNodes[i].attributes.getNamedItem('name').value ;
-		sHTML += oListManager.GetFolderRowHtml( sFolderName, sCurrentFolderPath + sFolderName + "/" ) ;
+		var sFolderId = oNodes[i].attributes.getNamedItem('id').value ;
+		sHTML += oListManager.GetFolderRowHtml( sFolderName, sCurrentFolderPath + sFolderId + "/" ) ;
 	}
 
 	// Add the Files.	
@@ -122,8 +123,9 @@ function GetFoldersAndFilesCallBack( fckXml )
 	for ( var i = 0 ; i < oNodes.length ; i++ )
 	{
 		var sFileName = oNodes[i].attributes.getNamedItem('name').value ;
+		var sFileId = oNodes[i].attributes.getNamedItem('id').value ;
 		var sFileSize = oNodes[i].attributes.getNamedItem('size').value ;
-		sHTML += oListManager.GetFileRowHtml( sFileName, sCurrentFolderUrl + sFileName, sFileSize ) ;
+		sHTML += oListManager.GetFileRowHtml( sFileName, sCurrentFolderUrl + sFileId, sFileSize ) ;
 	}
 
 	sHTML += '</table>' ;
