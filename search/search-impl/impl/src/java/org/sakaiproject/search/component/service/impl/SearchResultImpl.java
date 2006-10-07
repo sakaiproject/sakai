@@ -39,6 +39,11 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.Scorer;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.util.FormattedText;
@@ -63,14 +68,20 @@ public class SearchResultImpl implements SearchResult
 
 	private Analyzer analyzer = null;
 
+	private EntityManager entityManager;
 
-	public SearchResultImpl(Hits h, int index, Query query, Analyzer analyzer) throws IOException
+	private SearchIndexBuilder searchIndexBuilder;
+
+
+	public SearchResultImpl(Hits h, int index, Query query, Analyzer analyzer, EntityManager entityManager, SearchIndexBuilder searchIndexBuilder) throws IOException
 	{
 		this.h = h;
 		this.index = index;
 		this.doc = h.doc(index);
 		this.query = query;
 		this.analyzer = analyzer;
+		this.entityManager = entityManager;
+		this.searchIndexBuilder = searchIndexBuilder;
 	}
 
 	public float getScore()
@@ -155,13 +166,23 @@ doc.get(SearchService.FIELD_TOOL) + ": "
 			Highlighter hightlighter = new Highlighter(scorer);
 			StringBuffer sb = new StringBuffer();
 			// contents no longer contains the digested contents, so we need to
-			String[] contents = doc.getValues(SearchService.FIELD_CONTENTS);
-			if ( contents != null ) {
-				for (int i = 0; i < contents.length; i++)
+			// fetch it from the EntityContentProducer
+			
+			String[] references = doc.getValues(SearchService.FIELD_REFERENCE);
+	
+			if ( references != null && references.length > 0 ) {
+				
+				for (int i = 0; i < references.length; i++)
 				{
-					sb.append(contents[i]);
+					Reference ref = entityManager.newReference(references[i]);
+					Entity entity = ref.getEntity();
+					EntityContentProducer sep = searchIndexBuilder
+					.newEntityContentProducer(ref);
+					sb.append(sep.getContent(entity));
 				}
 			}
+			
+			
 			String text = FormattedText.escapeHtml(sb.toString(),false);			
 			TokenStream tokenStream = analyzer.tokenStream(
 					SearchService.FIELD_CONTENTS, new StringReader(text));

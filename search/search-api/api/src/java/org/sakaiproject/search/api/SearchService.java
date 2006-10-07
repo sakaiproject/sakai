@@ -41,6 +41,10 @@ public interface SearchService
 	 */
 	public static final String EVENT_TRIGGER_INDEX_RELOAD = "search.index.reload";
 
+	public static final String EVENT_SEARCH = "search.query";
+
+	public static final String EVENT_SEARCH_REF = "/search/query/";
+
 	/*
 	 * The search fields being stored in the index
 	 */

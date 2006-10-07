@@ -46,6 +46,8 @@ import org.apache.lucene.search.TermQuery;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
@@ -63,6 +65,7 @@ import org.sakaiproject.search.model.SearchWriterLock;
  */
 public class SearchServiceImpl implements SearchService
 {
+
 
 	private static Log log = LogFactory.getLog(SearchServiceImpl.class);
 
@@ -109,6 +112,10 @@ public class SearchServiceImpl implements SearchService
 
 	private String defaultSorter = null;
 
+	private EntityManager entityManager = null;
+
+	private EventTrackingService eventTrackingService;
+
 	/**
 	 * Register a notification action to listen to events and modify the search
 	 * index
@@ -122,6 +129,11 @@ public class SearchServiceImpl implements SearchService
 				NotificationService.class.getName());
 		searchIndexBuilder = (SearchIndexBuilder) load(cm,
 				SearchIndexBuilder.class.getName());
+		entityManager = (EntityManager) load(cm,
+				EntityManager.class.getName());
+		eventTrackingService = (EventTrackingService) load(cm,
+				EventTrackingService.class.getName());
+
 		try
 		{
 			log.debug("init start");
@@ -142,6 +154,16 @@ public class SearchServiceImpl implements SearchService
 			{
 				log.error("filter must be set, even if its a null filter");
 				throw new RuntimeException("Must set filter");
+			}
+			if (entityManager == null)
+			{
+				log.error("Entity Manager was not found");
+				throw new RuntimeException("Entity Manager was not found");
+			}
+			if (entityManager == null)
+			{
+				log.error("Event Tracking Service was not found");
+				throw new RuntimeException("Event Tracking Service was not found");
 			}
 
 			// register a transient notification for resources
@@ -274,9 +296,11 @@ public class SearchServiceImpl implements SearchService
 					h = indexSearcher.search(query);
 				}
 				log.debug("Got " + h.length() + " hits");
-
+				eventTrackingService.post(eventTrackingService.newEvent(
+						EVENT_SEARCH, EVENT_SEARCH_REF+textQuery.toString(), true,
+						NotificationService.PREF_IMMEDIATE));
 				return new SearchListImpl(h, textQuery, start, end,
-						indexStorage.getAnalyzer(), filter);
+						indexStorage.getAnalyzer(), filter, entityManager ,searchIndexBuilder);
 			}
 			else
 			{

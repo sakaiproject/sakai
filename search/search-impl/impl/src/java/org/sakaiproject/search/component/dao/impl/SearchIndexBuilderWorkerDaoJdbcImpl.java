@@ -301,38 +301,38 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 									SearchService.DATE_STAMP,
 									String.valueOf(System
 											.currentTimeMillis()),
-									Field.Store.YES,
+									Field.Store.COMPRESS,
 									Field.Index.UN_TOKENIZED));
 							doc.add(new Field(
 									SearchService.FIELD_CONTAINER,
-									container, Field.Store.YES,
+									container, Field.Store.COMPRESS,
 									Field.Index.UN_TOKENIZED));
 							doc
 									.add(new Field(
 											SearchService.FIELD_ID,
 											ref.getId(),
-											Field.Store.YES,
+											Field.Store.COMPRESS,
 											Field.Index.NO));
 							doc.add(new Field(
 									SearchService.FIELD_TYPE, ref
 											.getType(),
-									Field.Store.YES,
+									Field.Store.COMPRESS,
 									Field.Index.UN_TOKENIZED));
 							doc.add(new Field(
 									SearchService.FIELD_SUBTYPE,
 									ref.getSubType(),
-									Field.Store.YES,
+									Field.Store.COMPRESS,
 									Field.Index.UN_TOKENIZED));
 							doc.add(new Field(
 									SearchService.FIELD_REFERENCE,
 									ref.getReference(),
-									Field.Store.YES,
+									Field.Store.COMPRESS,
 									Field.Index.UN_TOKENIZED));
 
 							doc.add(new Field(
 									SearchService.FIELD_CONTEXT,
 									sep.getSiteId(ref),
-									Field.Store.YES,
+									Field.Store.COMPRESS,
 									Field.Index.UN_TOKENIZED));
 							if (sep.isContentFromReader(entity))
 							{
@@ -351,30 +351,30 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 												SearchService.FIELD_CONTENTS,
 												sep
 														.getContent(entity),
-												Field.Store.COMPRESS,
+												Field.Store.NO,
 												Field.Index.TOKENIZED,
 												Field.TermVector.YES));
 							}
 							doc.add(new Field(
 									SearchService.FIELD_TITLE, sep
 											.getTitle(entity),
-									Field.Store.YES,
+									Field.Store.COMPRESS,
 									Field.Index.TOKENIZED,
 									Field.TermVector.YES));
 							doc.add(new Field(
 									SearchService.FIELD_TOOL, sep
 											.getTool(),
-									Field.Store.YES,
+									Field.Store.COMPRESS,
 									Field.Index.UN_TOKENIZED));
 							doc.add(new Field(
 									SearchService.FIELD_URL, sep
 											.getUrl(entity),
-									Field.Store.YES,
+									Field.Store.COMPRESS,
 									Field.Index.UN_TOKENIZED));
 							doc.add(new Field(
 									SearchService.FIELD_SITEID, sep
 											.getSiteId(ref),
-									Field.Store.YES,
+									Field.Store.COMPRESS,
 									Field.Index.UN_TOKENIZED));
 
 							// add the custom properties
@@ -415,7 +415,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 													.add(new Field(
 															key,
 															values[i],
-															Field.Store.YES,
+															Field.Store.COMPRESS,
 															Field.Index.UN_TOKENIZED));
 										}
 									}

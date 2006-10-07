@@ -32,6 +32,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.Query;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.filter.SearchItemFilter;
@@ -55,9 +57,13 @@ public class SearchListImpl implements SearchList
 	private Analyzer analyzer;
 
 	private SearchItemFilter filter;
+	
+	private SearchIndexBuilder searchIndexBuilder;
+	private EntityManager entityManager;
+
 
 	public SearchListImpl(Hits h, Query query, int start, int end,
-			Analyzer analyzer, SearchItemFilter filter)
+			Analyzer analyzer, SearchItemFilter filter, EntityManager entityManager, SearchIndexBuilder searchIndexBuilder)
 	{
 		this.h = h;
 		this.query = query;
@@ -65,6 +71,9 @@ public class SearchListImpl implements SearchList
 		this.end = end;
 		this.analyzer = analyzer;
 		this.filter = filter;
+		this.entityManager = entityManager;
+		this.searchIndexBuilder = searchIndexBuilder;
+
 
 	}
 
@@ -90,7 +99,7 @@ public class SearchListImpl implements SearchList
 					final int thisHit = counter;
 					counter++;
 					return filter.filter(new SearchResultImpl(h, thisHit,
-							query, analyzer));
+							query, analyzer,entityManager,searchIndexBuilder));
 				}
 				catch (IOException e)
 				{
@@ -142,7 +151,7 @@ public class SearchListImpl implements SearchList
 			{
 
 				o[i + start] = filter.filter(new SearchResultImpl(h, i + start,
-						query, analyzer));
+						query, analyzer,entityManager,searchIndexBuilder));
 			}
 		}
 		catch (IOException e)
@@ -206,7 +215,7 @@ public class SearchListImpl implements SearchList
 		try
 		{
 			return filter
-					.filter(new SearchResultImpl(h, arg0, query, analyzer));
+					.filter(new SearchResultImpl(h, arg0, query, analyzer,entityManager,searchIndexBuilder));
 		}
 		catch (IOException e)
 		{
