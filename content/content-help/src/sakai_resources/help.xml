@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="resourceOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>area</value></property>
+      <property name="name"><value>Resources Overview</value></property>
+      <property name="location"><value>/sakai_resources/area.html</value></property>
+      <property name="defaultForTool"><value>sakai.resources</value></property>      
+   </bean>
+
+   <bean id="createResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>arcg</value></property>
+      <property name="name"><value>Create/Add/Edit/Delete Resource</value></property>
+      <property name="location"><value>/sakai_resources/arcg.html</value></property>
+   </bean>
+      <bean id="moveResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>arex</value></property>
+      <property name="name"><value>Move Resource</value></property>
+      <property name="location"><value>/sakai_resources/arex.html</value></property>
+   </bean>
+      <bean id="reviseResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>arbe</value></property>
+      <property name="name"><value>View/Open Resource</value></property>
+      <property name="location"><value>/sakai_resources/arbe.html</value></property>
+   </bean>
+      <bean id="deleteResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>aqyf</value></property>
+      <property name="name"><value>Copy Resource</value></property>
+      <property name="location"><value>/sakai_resources/aqyf.html</value></property>
+      </bean>
+    
+          <bean id="replaceResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>arfd</value></property>
+      <property name="name"><value>View Resource Metadata</value></property>
+      <property name="location"><value>/sakai_resources/arfd.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="resourceCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Resources</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="resourceOverview"/>
+                     <ref bean="createResource"/>
+                     <ref bean="reviseResource"/>
+                      <ref bean="replaceResource"/>
+                      <ref bean="moveResource"/>
+                     <ref bean="deleteResource"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
