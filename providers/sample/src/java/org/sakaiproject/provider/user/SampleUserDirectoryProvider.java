@@ -49,6 +49,20 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	 * Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
+	/** how many students to recognize (1.. this). */
+	protected int m_courseStudents = 22;
+
+	/**
+	 * Set how many students to recognize.
+	 * 
+	 * @param count
+	 *        How many students to recognize.
+	 */
+	public void setCourseStudents(String count)
+	{
+		m_courseStudents = Integer.parseInt(count);
+	}
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -60,14 +74,30 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	{
 		try
 		{
+			// fill a set of users
+			m_info = new Hashtable();
+			m_info.put("user1", new Info("user1", "One", "User", "user1@local.host"));
+			m_info.put("user2", new Info("user2", "Two", "User", "user2@local.host"));
+			m_info.put("user3", new Info("user3", "Three", "User", "user3@local.host"));
+
+			if (m_courseStudents > 0)
+			{
+				for (int i = 1; i <= m_courseStudents; i++)
+				{
+					m_info.put("student" + i, new Info("student" + i, "" + i, "Student", "student" + i + "@local.host"));
+				}
+			}
+
+			m_info.put("instructor", new Info("instructor", "The", "Instructor", "instructor@local.host"));
+			m_info.put("ta", new Info("ta", "The", "Teaching-Assistant", "ta@local.host"));
+
 			M_log.info("init()");
 		}
 		catch (Throwable t)
 		{
 			M_log.warn(".init(): ", t);
 		}
-
-	} // init
+	}
 
 	/**
 	 * Returns to uninitialized state. You can use this method to release resources thet your Service allocated when Turbine shuts down.
@@ -111,13 +141,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	 */
 	public SampleUserDirectoryProvider()
 	{
-		// fill a set of users
-		m_info = new Hashtable();
-		m_info.put("user1", new Info("user1", "One", "User", "user1@sakaiproject.org"));
-		m_info.put("user2", new Info("user2", "Two", "User", "user2@sakaiproject.org"));
-		m_info.put("user3", new Info("user3", "Three", "User", "user3@sakaiproject.org"));
-
-	} // SampleUserDirectoryProvider
+	}
 
 	/**
 	 * See if a user by this id exists.
@@ -155,6 +179,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 			edit.setLastName(edit.getEid());
 			edit.setEmail(edit.getEid());
 			edit.setPassword(edit.getEid());
+			edit.setType("registered");
 		}
 		else
 		{
@@ -162,6 +187,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 			edit.setLastName(info.lastName);
 			edit.setEmail(info.email);
 			edit.setPassword("sakai");
+			edit.setType("registered");
 		}
 
 		return true;
@@ -199,8 +225,8 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	{
 		if ((edit == null) || (email == null)) return false;
 
-		// assume a "@sakaiproject.org"
-		int pos = email.indexOf("@sakaiproject.org");
+		// assume a "@local.host"
+		int pos = email.indexOf("@local.host");
 		if (pos != -1)
 		{
 			String id = email.substring(0, pos);
@@ -228,8 +254,8 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 		// get a UserEdit to populate
 		UserEdit edit = factory.newUser();
 
-		// assume a "@sakaiproject.org"
-		int pos = email.indexOf("@sakaiproject.org");
+		// assume a "@local.host"
+		int pos = email.indexOf("@local.host");
 		if (pos != -1)
 		{
 			String id = email.substring(0, pos);

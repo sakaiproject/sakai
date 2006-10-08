@@ -78,6 +78,34 @@ public class SampleGroupProvider implements GroupProvider
 		m_xFile = value;
 	}
 
+	/** The external id for the "course" group. */
+	protected String m_courseExternalId = "2005,FALL,SMPL,001,001";
+
+	/**
+	 * Dependency - set the external id for the "course" group.
+	 * 
+	 * @param value
+	 *        The external id for the "course" site.
+	 */
+	public void setCourseExternalId(String value)
+	{
+		m_courseExternalId = value;
+	}
+
+	/** how many students in the "course" group. */
+	protected int m_courseStudents = 22;
+
+	/**
+	 * Set how many students in the "course" group
+	 * 
+	 * @param count
+	 *        How many students in the "course" group
+	 */
+	public void setCourseStudents(String count)
+	{
+		m_courseStudents = Integer.parseInt(count);
+	}
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -89,6 +117,28 @@ public class SampleGroupProvider implements GroupProvider
 	{
 		try
 		{
+			// users: 1 is 'a', 2 is both, 3 is 'm'
+			m_usersa = new HashSet();
+			m_usersa.add("user1");
+			m_usersa.add("user2");
+
+			m_usersm = new HashSet();
+			m_usersm.add("user2");
+			m_usersm.add("user3");
+			
+			// the instructor and ta and some students
+			m_usersc = new HashSet();
+			if ((m_courseStudents > 0) && (m_courseExternalId != null))
+			{
+				m_usersc.add("instructor");
+				m_usersc.add("ta");
+
+				for (int i = 1; i <= m_courseStudents; i++)
+				{
+					m_usersc.add("student" + i);
+				}
+			}
+
 			M_log.info("init()");
 		}
 		catch (Throwable t)
@@ -115,20 +165,14 @@ public class SampleGroupProvider implements GroupProvider
 	protected HashSet m_usersm = null;
 
 	protected Properties m_usersx = null;
+	
+	protected HashSet m_usersc = null;
 
 	/**
 	 * Construct.
 	 */
 	public SampleGroupProvider()
 	{
-		// users: 1 is 'a', 2 is both, 3 is 'm'
-		m_usersa = new HashSet();
-		m_usersa.add("user1");
-		m_usersa.add("user2");
-
-		m_usersm = new HashSet();
-		m_usersm.add("user2");
-		m_usersm.add("user3");
 	}
 
 	/**
@@ -167,6 +211,22 @@ public class SampleGroupProvider implements GroupProvider
 				if (!("maintain".equals(rv)))
 				{
 					rv = m_usersx.getProperty(user);
+				}
+			}
+			
+			if ((m_usersc.contains(user)) && (m_courseExternalId.equals(ids[i])))
+			{
+				if ("instructor".equals(user))
+				{
+					rv = "Instructor";
+				}
+				else if ("ta".equals(user))
+				{
+					rv = "Teaching Assistant";
+				}
+				else
+				{
+					rv = "Student";
 				}
 			}
 		}
@@ -225,6 +285,26 @@ public class SampleGroupProvider implements GroupProvider
 					}
 				}
 			}
+			
+			if ((m_courseExternalId != null) && (m_courseExternalId.equals(ids[i])))
+			{
+				for (Iterator it = m_usersc.iterator(); it.hasNext();)
+				{
+					String userId = (String) it.next();
+					if ("instructor".equals(userId))
+					{
+						rv.put(userId, "Instructor");
+					}
+					else if ("ta".equals(userId))
+					{
+						rv.put(userId, "Teaching Assistant");
+					}
+					else
+					{
+						rv.put(userId, "Student");
+					}
+				}
+			}
 		}
 
 		return rv;
@@ -252,6 +332,22 @@ public class SampleGroupProvider implements GroupProvider
 		if (m_usersx.keySet().contains(userId))
 		{
 			rv.put("sakai.x", m_usersx.getProperty(userId));
+		}
+		
+		if (m_usersc.contains(userId))
+		{
+			if ("instructor".equals(userId))
+			{
+				rv.put(m_courseExternalId, "Instructor");
+			}
+			else if ("ta".equals(userId))
+			{
+				rv.put(m_courseExternalId, "Teaching Assistant");
+			}
+			else
+			{
+				rv.put(m_courseExternalId, "Student");
+			}
 		}
 
 		return rv;
@@ -286,12 +382,19 @@ public class SampleGroupProvider implements GroupProvider
 	 */
 	public String preferredRole(String one, String other)
 	{
-		// maintain is better than access
+		// maintain and Instructor first
 		if ("maintain".equals(one) || ("maintain".equals(other))) return "maintain";
-		
-		// access is better than nothing
+
+		if ("Instructor".equals(one) || ("Instructor".equals(other))) return "Instructor";
+
+		// ta next
+		if ("Teaching Assistant".equals(one) || ("Teaching Assistant".equals(other))) return "Teaching Assistant";
+
+		// access and Student next
 		if ("access".equals(one) || ("access".equals(other))) return "access";
 		
+		if ("Student".equals(one) || ("Student".equals(other))) return "Student";
+
 		// something we don't know, so we just return the latest role found
 		return one;
 	}
