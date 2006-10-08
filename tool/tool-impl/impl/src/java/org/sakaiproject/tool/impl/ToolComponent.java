@@ -24,11 +24,13 @@ package org.sakaiproject.tool.impl;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -64,6 +66,9 @@ public abstract class ToolComponent implements ToolManager
 	/** The registered tools. */
 	protected Map m_tools = new ConcurrentReaderHashMap();
 
+	/** tool ids to be hidden - their catagories don't matter, they don't show up on any catagorized listing. */
+	protected String[] m_toolIdsToHide = null;
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -77,8 +82,8 @@ public abstract class ToolComponent implements ToolManager
 	 * Configuration
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/** tool ids to be stealthed. */
-	protected String[] m_stealthToolIds = null;
+	/** tool ids to be stealthed (hidden). */
+	protected Collection m_stealthToolIds = null;
 
 	/**
 	 * Configuration - set the list of tool ids to be "stealthed". A stealthed tool does not show up in a category list of tools.
@@ -94,8 +99,64 @@ public abstract class ToolComponent implements ToolManager
 		}
 		else
 		{
-			m_stealthToolIds = StringUtil.split(toolIds, ",");
-			Arrays.sort(m_stealthToolIds);
+			m_stealthToolIds = new Vector();
+			String[] items = StringUtil.split(toolIds, ",");
+			for (int i = 0; i < items.length; i++)
+			{
+				m_stealthToolIds.add(items[i]);
+			}
+		}
+	}
+
+	/** tool ids to be visible, not hidden, even if marked hidden or stealthed. */
+	protected Collection m_visibleToolIds = null;
+
+	/**
+	 * Configuration - set the list of tool ids to be visible, not hidden, even if marked hidden or stealthed.
+	 * 
+	 * @param toolIds
+	 *        The comma-separated list of tool ids to be visible.
+	 */
+	public void setVisibleTools(String toolIds)
+	{
+		if ((toolIds == null) || (toolIds.length() == 0))
+		{
+			m_visibleToolIds = null;
+		}
+		else
+		{
+			m_visibleToolIds = new Vector();
+			String[] items = StringUtil.split(toolIds, ",");
+			for (int i = 0; i < items.length; i++)
+			{
+				m_visibleToolIds.add(items[i]);
+			}
+		}
+	}
+
+	/** tool ids to be hidden, adding to the stealth list (but not trumping the visible list) */
+	protected Collection m_hiddenToolIds = null;
+
+	/**
+	 * Configuration - set the list of tool ids to be visible, not hidden, even if marked hidden or stealthed.
+	 * 
+	 * @param toolIds
+	 *        The comma-separated list of tool ids to be visible.
+	 */
+	public void setHiddenTools(String toolIds)
+	{
+		if ((toolIds == null) || (toolIds.length() == 0))
+		{
+			m_hiddenToolIds = null;
+		}
+		else
+		{
+			m_hiddenToolIds = new Vector();
+			String[] items = StringUtil.split(toolIds, ",");
+			for (int i = 0; i < items.length; i++)
+			{
+				m_hiddenToolIds.add(items[i]);
+			}
 		}
 	}
 
@@ -108,7 +169,44 @@ public abstract class ToolComponent implements ToolManager
 	 */
 	public void init()
 	{
-		M_log.info("init()");
+		// compute the tools to hide: these are the stealth tools plus the hidden tools, minus the visible ones
+		Collection toHide = new HashSet();
+
+		if (m_stealthToolIds != null)
+		{
+			toHide.addAll(m_stealthToolIds);
+		}
+		
+		if (m_hiddenToolIds!= null)
+		{
+			toHide.addAll(m_hiddenToolIds);
+		}
+		
+		if (m_visibleToolIds != null)
+		{
+			toHide.removeAll(m_visibleToolIds);
+		}
+		
+		// collect the hiddens for logging
+		StringBuffer hidden = new StringBuffer();
+
+		if (!toHide.isEmpty())
+		{
+			m_toolIdsToHide = new String[toHide.size()];
+			int pos = 0;
+			for (Iterator i = toHide.iterator(); i.hasNext();)
+			{
+				m_toolIdsToHide[pos] = (String) i.next();
+
+				hidden.append(m_toolIdsToHide[pos]);
+				hidden.append(" ");
+
+				pos++;
+			}
+			Arrays.sort(m_toolIdsToHide);
+		}
+
+		M_log.info("init(): hidden tools: " + hidden.toString());
 	}
 
 	/**
@@ -135,8 +233,8 @@ public abstract class ToolComponent implements ToolManager
 			Tool tool = (Tool) i.next();
 			if (matchCriteria(categories, tool.getCategories()) && matchCriteria(keywords, tool.getKeywords()))
 			{
-				// add if not stealthed (requests for any category include all (even stealthed) items)
-				if ((categories == null) || (m_stealthToolIds == null) || (Arrays.binarySearch(m_stealthToolIds, tool.getId()) < 0))
+				// add if not hidden (requests for no (null) category include all, even hidden items)
+				if ((categories == null) || (m_toolIdsToHide == null) || (Arrays.binarySearch(m_toolIdsToHide, tool.getId()) < 0))
 				{
 					rv.add(tool);
 				}
