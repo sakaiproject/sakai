@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="dropBoxOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfc</value></property>
+      <property name="name"><value>Drop Box Overview</value></property>
+      <property name="location"><value>/sakai_dropbox/arfc.html</value></property>
+      <property name="defaultForTool"><value>sakai.dropbox</value></property>
+   </bean>
+   
+   <bean id="addDropboxFolder" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzb</value></property>
+      <property name="name"><value>Add/Edit/Delete Dropbox Folder</value></property>
+      <property name="location"><value>/sakai_dropbox/aqzb.html</value></property>
+   </bean>
+   
+   <bean id="addDropboxItem" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyu</value></property>
+      <property name="name"><value>Add/Edit/Delete Dropbox Item</value></property>
+      <property name="location"><value>/sakai_dropbox/aqyu.html</value></property>
+   </bean>
+   
+   <bean id="reviseDropbox" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzl</value></property>
+      <property name="name"><value>Revise Dropbox Information</value></property>
+      <property name="location"><value>/sakai_dropbox/aqzl.html</value></property>
+   </bean>
+   
+   <bean id="viewDropbox" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzd</value></property>
+      <property name="name"><value>View Dropboxes</value></property>
+      <property name="location"><value>/sakai_dropbox/aqzd.html</value></property>
+   </bean>
+   
+   <bean id="copyDropbox" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardv</value></property>
+      <property name="name"><value>Copy Dropbox Items</value></property>
+      <property name="location"><value>/sakai_dropbox/ardv.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="dropBoxCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Drop Box</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="dropBoxOverview"/>
+					<ref bean="addDropboxFolder"/>
+					<ref bean="addDropboxItem"/>
+					<ref bean="reviseDropbox"/>
+					<ref bean="viewDropbox"/>
+					<ref bean="copyDropbox"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
