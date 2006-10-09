@@ -28,10 +28,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -61,20 +59,13 @@ public class SavePartAttachmentListener
     implements ActionListener
 {
   private static Log log = LogFactory.getLog(SavePartAttachmentListener.class);
-  private static ContextUtil cu;
 
   public SavePartAttachmentListener()
   {
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException {
-
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
-
-    SectionBean sectionBean = (SectionBean) cu.lookupBean("sectionBean");
-    String sectionId = sectionBean.getSectionId();
+    SectionBean sectionBean = (SectionBean) ContextUtil.lookupBean("sectionBean");
 
     // attach item attachemnt to sectionBean
     List attachmentList = prepareSectionAttachment(sectionBean.getSection().getData());

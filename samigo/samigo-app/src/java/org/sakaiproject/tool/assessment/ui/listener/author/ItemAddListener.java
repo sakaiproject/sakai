@@ -742,7 +742,7 @@ public class ItemAddListener
       Answer newanswer = null;
       for (int i = 0; i < bean.getAnswers().length; i++) {
         String theanswer = bean.getAnswers()[i];
-        String thelabel = bean.getAnswerLabels()[i]; // store thelabel as the answer text
+        //String thelabel = bean.getAnswerLabels()[i]; // store thelabel as the answer text
         if (theanswer.equals(bean.getCorrAnswer())) {
           // label is null because we don't use labels in true/false questions
           // labels are like a, b, c, or i, ii, iii, in multiple choice type
@@ -1213,7 +1213,8 @@ public class ItemAddListener
     // all answer sets have to be identical, case insensitive
 
      String entiretext = bean.getItemText();
-      String fibtext = entiretext.replaceAll("[\\{][^\\}]*[\\}]", "{}");
+     //String fibtext = 
+     entiretext.replaceAll("[\\{][^\\}]*[\\}]", "{}");
 
 Object[] fibanswers = getFIBanswers(entiretext).toArray();
       List blanklist = new  ArrayList();

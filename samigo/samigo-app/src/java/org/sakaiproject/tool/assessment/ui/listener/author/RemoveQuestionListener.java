@@ -23,15 +23,9 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.Map;
-
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * <p>Title: Samigo</p>
@@ -44,16 +38,13 @@ import org.apache.commons.logging.LogFactory;
 
 public class RemoveQuestionListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(RemoveQuestionListener.class);
+  //private static Log log = LogFactory.getLog(RemoveQuestionListener.class);
   public RemoveQuestionListener()
   {
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
   }
 
 }

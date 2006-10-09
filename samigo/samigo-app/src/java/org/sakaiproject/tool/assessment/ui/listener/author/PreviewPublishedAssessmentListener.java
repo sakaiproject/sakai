@@ -23,15 +23,11 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.Map;
-
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentBeanie;
@@ -49,8 +45,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class PreviewPublishedAssessmentListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(PreviewPublishedAssessmentListener.class);
-  private static ContextUtil cu;
+  //private static Log log = LogFactory.getLog(PreviewPublishedAssessmentListener.class);
 
   public PreviewPublishedAssessmentListener()
   {
@@ -58,11 +53,7 @@ public class PreviewPublishedAssessmentListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
-
-    PublishedAssessmentBeanie assessmentBean = (PublishedAssessmentBeanie) cu.lookupBean(
+    PublishedAssessmentBeanie assessmentBean = (PublishedAssessmentBeanie) ContextUtil.lookupBean(
                                           "publishedAssessmentBean");
 
     // #1a - load the assessment

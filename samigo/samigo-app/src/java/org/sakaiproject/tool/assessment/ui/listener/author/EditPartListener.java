@@ -19,35 +19,23 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
-import java.util.ArrayList;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
-import javax.faces.model.SelectItem;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
-import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
-import org.sakaiproject.tool.assessment.services.QuestionPoolService;
-
 
 /**
  * <p>Title: Samigo</p>
@@ -61,8 +49,7 @@ import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 public class EditPartListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(EditPartListener.class);
-  private static ContextUtil cu;
+  //private static Log log = LogFactory.getLog(EditPartListener.class);
 
   public EditPartListener()
   {
@@ -70,15 +57,9 @@ public class EditPartListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
-
-    AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
+    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
                                                            "assessmentBean");
-    SectionBean sectionBean = (SectionBean) cu.lookupBean("sectionBean");
-    ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
+    SectionBean sectionBean = (SectionBean) ContextUtil.lookupBean("sectionBean");
     String sectionId = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("sectionId");
 

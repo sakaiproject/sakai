@@ -23,7 +23,6 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.Map;
 import java.util.List;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
@@ -35,8 +34,6 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
 
@@ -51,13 +48,12 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 public class DeleteTemplateListener extends TemplateBaseListener implements ActionListener
 {
   boolean isTemplate = true;
-  private static Log log = LogFactory.getLog(DeleteTemplateListener.class);
+  //private static Log log = LogFactory.getLog(DeleteTemplateListener.class);
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
+
     //log.info("DELETE TEMPLATE LISTENER.");
 //    log.info("debugging ActionEvent: " + ae);
 //    log.info("debug requestParams: " + requestParams);

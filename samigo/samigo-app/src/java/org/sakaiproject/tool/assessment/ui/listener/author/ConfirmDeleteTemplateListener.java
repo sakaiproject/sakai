@@ -23,16 +23,11 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.Iterator;
-import java.util.Map;
-
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
@@ -50,15 +45,14 @@ public class ConfirmDeleteTemplateListener
   extends TemplateBaseListener
   implements ActionListener
 {
-  private static Log log = LogFactory.getLog(ConfirmDeleteTemplateListener.class);
+  //private static Log log = LogFactory.getLog(ConfirmDeleteTemplateListener.class);
 
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
     FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().
-                        getRequestParameterMap();
+    //Map reqMap = context.getExternalContext().getRequestMap();
+    //Map requestParams = context.getExternalContext().getRequestParameterMap();
     //log.info("CONFIRM DELETE TEMPLATE LISTENER.");
 
     String templateId = (String) FacesContext.getCurrentInstance().

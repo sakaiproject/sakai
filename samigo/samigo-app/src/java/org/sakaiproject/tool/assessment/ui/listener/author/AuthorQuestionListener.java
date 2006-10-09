@@ -30,9 +30,6 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
@@ -44,7 +41,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class AuthorQuestionListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(AuthorQuestionListener.class);
+  //private static Log log = LogFactory.getLog(AuthorQuestionListener.class);
 
   public AuthorQuestionListener()
   {
@@ -52,10 +49,6 @@ public class AuthorQuestionListener implements ActionListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
-
   }
 
 }

@@ -22,15 +22,10 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.Map;
-
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AttachmentBean;
@@ -46,8 +41,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class RemoveAttachmentListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(RemoveAttachmentListener.class);
-  private static ContextUtil cu;
+  //private static Log log = LogFactory.getLog(RemoveAttachmentListener.class);
 
   public RemoveAttachmentListener()
   {
@@ -55,11 +49,7 @@ public class RemoveAttachmentListener implements ActionListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
-
-    AttachmentBean attachmentBean = (AttachmentBean) cu.lookupBean(
+    AttachmentBean attachmentBean = (AttachmentBean) ContextUtil.lookupBean(
         "attachmentBean");
     AssessmentService assessmentService = new AssessmentService();
 

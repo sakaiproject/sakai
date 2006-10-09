@@ -23,20 +23,14 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.Map;
-
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
@@ -50,7 +44,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class ReorderPartsListener
     implements ValueChangeListener
 {
-    private static Log log = LogFactory.getLog(ReorderPartsListener.class);
+    //private static Log log = LogFactory.getLog(ReorderPartsListener.class);
 
   /**
    * Standard process action method.
@@ -60,13 +54,8 @@ public class ReorderPartsListener
   public void processValueChange(ValueChangeEvent ae) throws AbortProcessingException
   {
     //log.info("ReorderQuestionsListener valueChangeLISTENER.");
-    SectionContentsBean partBean  = (SectionContentsBean) ContextUtil.lookupBean("partBean");
+    //SectionContentsBean partBean  = (SectionContentsBean) ContextUtil.lookupBean("partBean");
     AssessmentBean assessmentBean  = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
-
-    FacesContext context = FacesContext.getCurrentInstance();
-
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
 
     String oldPos= ae.getOldValue().toString();
     //log.info("**** ae.getOldValue : " + oldPos);

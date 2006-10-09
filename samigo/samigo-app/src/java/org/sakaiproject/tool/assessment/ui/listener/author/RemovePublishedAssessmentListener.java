@@ -25,7 +25,6 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -52,16 +51,12 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class RemovePublishedAssessmentListener
     implements ActionListener
 {
-  private static ContextUtil cu;
   public RemovePublishedAssessmentListener()
   {
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
     PublishedAssessmentService service = new PublishedAssessmentService();
     // #1 - remove selected assessment
     String assessmentId = (String) FacesContext.getCurrentInstance().
@@ -69,7 +64,7 @@ public class RemovePublishedAssessmentListener
 
     if (assessmentId == null)  // means from the preview assessment button in delivery
     {
-       DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
+       DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
        assessmentId = delivery.getAssessmentId();
        PublishedAssessmentIfc pub = service.getPublishedAssessment(assessmentId.toString());
        storeResourceIdListInPersonBean(pub);
@@ -86,7 +81,7 @@ public class RemovePublishedAssessmentListener
 
       //#3 - goto authorIndex.jsp so fix the assessment List in author bean after
       // removing an assessment
-      AuthorBean author = (AuthorBean) cu.lookupBean("author");
+      AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
       ArrayList assessmentList = assessmentService.getBasicInfoOfAllActivePublishedAssessments(
         author.getPublishedAssessmentOrderBy(),author.isPublishedAscending());
       // get the managed bean, author and set the list

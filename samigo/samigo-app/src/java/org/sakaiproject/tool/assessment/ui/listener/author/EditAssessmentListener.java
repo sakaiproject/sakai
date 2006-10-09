@@ -23,8 +23,6 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.Map;
-
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -63,7 +61,6 @@ public class EditAssessmentListener
     implements ActionListener
 {
   private static Log log = LogFactory.getLog(EditAssessmentListener.class);
-  private static ContextUtil cu;
 
   public EditAssessmentListener()
   {
@@ -72,15 +69,12 @@ public class EditAssessmentListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
 
-
-    AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
+    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
                                           "assessmentBean");
    
 
-    ItemAuthorBean itemauthorBean = (ItemAuthorBean) cu.lookupBean(
+    ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean(
                                           "itemauthor");
 
     // #1a - come from authorIndex.jsp, load the assessment
@@ -88,7 +82,7 @@ public class EditAssessmentListener
     String assessmentId = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("assessmentId");
     AssessmentService assessmentService = new AssessmentService();
-    AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
+    AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.
 	    lookupBean("assessmentSettings");
 
     if (assessmentId == null){
@@ -123,7 +117,7 @@ public class EditAssessmentListener
     } 
 
     //#1b - permission checking before proceeding - daisyf
-    AuthorBean author = (AuthorBean) cu.lookupBean("author");
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     author.setOutcome("editAssessment");
     if (!passAuthz(context, assessment.getCreatedBy())){
       author.setOutcome("author");
@@ -132,7 +126,7 @@ public class EditAssessmentListener
 
     // pass authz, move on
     assessmentBean.setAssessment(assessment);
-    itemauthorBean.setTarget(itemauthorBean.FROM_ASSESSMENT); // save to assessment
+    itemauthorBean.setTarget(ItemAuthorBean.FROM_ASSESSMENT); // save to assessment
     // initalize the itemtype
     itemauthorBean.setItemType("");
     itemauthorBean.setItemTypeString("");
@@ -140,13 +134,13 @@ public class EditAssessmentListener
   }
 
   public boolean passAuthz(FacesContext context, String ownerId){
-    AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean("authorization");
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     boolean hasPrivilege_any = authzBean.getEditAnyAssessment();
     boolean hasPrivilege_own0 = authzBean.getEditOwnAssessment();
     boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
     boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
     if (!hasPrivilege){
-       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+       String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
 						 "denied_edit_assessment_error");
        context.addMessage(null,new FacesMessage(err));
     }

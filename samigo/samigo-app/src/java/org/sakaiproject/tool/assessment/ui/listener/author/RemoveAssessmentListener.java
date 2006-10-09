@@ -24,16 +24,12 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.List;
 
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
@@ -52,20 +48,17 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 
 public class RemoveAssessmentListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(RemoveAssessmentListener.class);
-  private static ContextUtil cu;
+  //rivate static Log log = LogFactory.getLog(RemoveAssessmentListener.class);
+	
   public RemoveAssessmentListener()
   {
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
     AssessmentService s = new AssessmentService();
 
-    AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
+    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
                                                            "assessmentBean");
 
     // #1 - remove selected assessment on a separate thread
@@ -84,10 +77,10 @@ public class RemoveAssessmentListener implements ActionListener
 
     //#3 - goto authorIndex.jsp so fix the assessment List in author bean by
     // removing an assessment from the list
-    AuthorBean author = (AuthorBean) cu.lookupBean(
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean(
                        "author");
-    int pageSize = 10;
-    int pageNumber = 1;
+    //int pageSize = 10;
+    //int pageNumber = 1;
     ArrayList assessmentList = author.getAssessments();
     ArrayList l = new ArrayList();
     for (int i=0; i<assessmentList.size();i++){

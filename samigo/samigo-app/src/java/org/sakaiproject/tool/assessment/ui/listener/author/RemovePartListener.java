@@ -23,15 +23,10 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.Map;
-
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
@@ -49,8 +44,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class RemovePartListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(RemovePartListener.class);
-  private static ContextUtil cu;
+  //private static Log log = LogFactory.getLog(RemovePartListener.class);
 
   public RemovePartListener()
   {
@@ -58,13 +52,9 @@ public class RemovePartListener implements ActionListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
-
-    AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
+    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
         "assessmentBean");
-    SectionBean sectionBean = (SectionBean) cu.lookupBean(
+    SectionBean sectionBean = (SectionBean) ContextUtil.lookupBean(
         "sectionBean");
 
     // #1. get all the info need from bean

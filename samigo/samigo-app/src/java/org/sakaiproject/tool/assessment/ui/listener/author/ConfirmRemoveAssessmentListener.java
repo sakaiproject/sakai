@@ -52,8 +52,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class ConfirmRemoveAssessmentListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(ConfirmRemoveAssessmentListener.class);
-  private static ContextUtil cu;
+  //private static Log log = LogFactory.getLog(ConfirmRemoveAssessmentListener.class);
 
   public ConfirmRemoveAssessmentListener()
   {
@@ -62,22 +61,20 @@ public class ConfirmRemoveAssessmentListener implements ActionListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
 
     // #1 - read the assessmentId from the form
     String assessmentId = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("assessmentId");
 
     // #2 -  and use it to set author bean, goto removeAssessment.jsp
-    AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
+    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
                                                            "assessmentBean");
     AssessmentService assessmentService = new AssessmentService();
     AssessmentFacade assessment = assessmentService.getBasicInfoOfAnAssessment(
         assessmentId.toString());
 
     // #3 - permission checking before proceeding - daisyf
-    AuthorBean author = (AuthorBean) cu.lookupBean("author");
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     author.setOutcome("confirmRemoveAssessment");
     if (!passAuthz(context, assessment.getCreatedBy())){
 	author.setOutcome("author");
@@ -89,13 +86,13 @@ public class ConfirmRemoveAssessmentListener implements ActionListener
   }
 
   public boolean passAuthz(FacesContext context, String ownerId){
-    AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean("authorization");
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     boolean hasPrivilege_any = authzBean.getDeleteAnyAssessment();
     boolean hasPrivilege_own0 = authzBean.getDeleteOwnAssessment();
     boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
     boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
     if (!hasPrivilege){
-      String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+      String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
 				     "denied_delete_assessment_error");
       context.addMessage(null,new FacesMessage(err));
     }

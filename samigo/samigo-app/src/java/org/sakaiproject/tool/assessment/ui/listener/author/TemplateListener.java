@@ -26,7 +26,6 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -50,7 +49,6 @@ public class TemplateListener extends TemplateBaseListener
     implements ActionListener
 {
   private static Log log = LogFactory.getLog(TemplateListener.class);
-  private static ContextUtil cu;
   private static BeanSort bs;
 
   public TemplateListener()
@@ -59,16 +57,13 @@ public class TemplateListener extends TemplateBaseListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
     //log.info("debugging ActionEvent: " + ae);
     //log.info("debug requestParams: " + requestParams);
     //log.info("debug reqMap: " + reqMap);
 
     // get service and managed bean
     AssessmentService assessmentService = new AssessmentService();
-    IndexBean templateIndex = (IndexBean) cu.lookupBean(
+    IndexBean templateIndex = (IndexBean) ContextUtil.lookupBean(
                        "templateIndex");
 
     // look for some sort information passed as parameters
@@ -133,8 +128,8 @@ public class TemplateListener extends TemplateBaseListener
   private void processSortInfo(IndexBean bean) {
     bean.setTemplateOrderBy("templateName");
     bean.setTemplateAscending(true);
-    String templateOrder = cu.lookupParam("templateSortType");
-    String tempAscending = cu.lookupParam("templateAscending");
+    String templateOrder = ContextUtil.lookupParam("templateSortType");
+    String tempAscending = ContextUtil.lookupParam("templateAscending");
 
     if (templateOrder != null && !templateOrder.trim().equals("")) {
       bean.setTemplateOrderBy(templateOrder);

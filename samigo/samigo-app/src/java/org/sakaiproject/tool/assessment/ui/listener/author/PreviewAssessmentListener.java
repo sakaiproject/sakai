@@ -23,21 +23,16 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.Map;
-
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
-import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -53,8 +48,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class PreviewAssessmentListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(PreviewAssessmentListener.class);
-  private static ContextUtil cu;
+  //private static Log log = LogFactory.getLog(PreviewAssessmentListener.class);
 
   public PreviewAssessmentListener()
   {
@@ -62,17 +56,10 @@ public class PreviewAssessmentListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
-
-    AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
+    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
                                           "assessmentBean");
 
-    ItemAuthorBean itemauthorBean = (ItemAuthorBean) cu.lookupBean(
-                                          "itemauthor");
-
-    ItemContentsBean itemContentsBean = (ItemContentsBean) cu.lookupBean("itemContents");
+    ItemContentsBean itemContentsBean = (ItemContentsBean) ContextUtil.lookupBean("itemContents");
 
     // goto previewAssessment.jsp
     String assessmentId = (String) FacesContext.getCurrentInstance().

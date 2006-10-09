@@ -41,13 +41,8 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
-import org.sakaiproject.tool.assessment.ui.bean.qti.XMLImportBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
-import java.util.ResourceBundle;
-import javax.faces.context.FacesContext;
-import javax.faces.application.FacesMessage;
 
 /**
  * <p>Title: Samigo</p>
@@ -65,9 +60,7 @@ public class ImportAssessmentListener implements ActionListener
 //  private static final String f = "sample12Assessment2.xml";
 //  private static final String f = "respondus_IMS_QTI_sample12Assessment.xml";
 
-  private static final String testFileName =
-    "/tmp/jsf/upload_tmp/testImport/" + f;
-  private static ContextUtil cu;
+  private static final String testFileName = "/tmp/jsf/upload_tmp/testImport/" + f;
 
   public ImportAssessmentListener()
   {
@@ -77,13 +70,13 @@ public class ImportAssessmentListener implements ActionListener
     AbortProcessingException
   {
     //Get the beans
-    AuthorBean author = (AuthorBean) cu.lookupBean("author");
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     AssessmentBean assessmentBean =
-      (AssessmentBean) cu.lookupBean("assessmentBean");
-    ItemAuthorBean itemauthorBean = (ItemAuthorBean) cu.lookupBean(
+      (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+    ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean(
       "itemauthor");
-    itemauthorBean.setTarget(itemauthorBean.FROM_ASSESSMENT); // save to assessment
-    XMLImportBean xmlImport = (XMLImportBean) cu.lookupBean("xmlImport");
+    itemauthorBean.setTarget(ItemAuthorBean.FROM_ASSESSMENT); // save to assessment
+    //XMLImportBean xmlImport = (XMLImportBean) ContextUtil.lookupBean("xmlImport");
 
     // Get the file name
 //    String fileName = xmlImport.getUploadFileName();

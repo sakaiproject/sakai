@@ -25,8 +25,6 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -41,8 +39,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentD
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
@@ -66,7 +62,6 @@ public class SavePublishedSettingsListener
     implements ActionListener
 {
   private static Log log = LogFactory.getLog(SavePublishedSettingsListener.class);
-  private static ContextUtil cu;
   private static final GradebookServiceHelper gbsHelper =
     IntegrationContextFactory.getInstance().getGradebookServiceHelper();
   private static final boolean integrated =
@@ -78,11 +73,7 @@ public class SavePublishedSettingsListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
-
-    PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) cu.lookupBean(
+    PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean(
                          "publishedSettings");
     // create an assessment based on the title entered and the assessment
     // template selected
@@ -184,7 +175,7 @@ public class SavePublishedSettingsListener
     // dates and turning an inactive pub to active pub
     GradingService gradingService = new GradingService();
     HashMap map = gradingService.getSubmissionSizeOfAllPublishedAssessments();
-    AuthorBean author = (AuthorBean) cu.lookupBean(
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean(
                        "author");
     ArrayList publishedList = assessmentService.
         getBasicInfoOfAllActivePublishedAssessments(author.getPublishedAssessmentOrderBy(),author.isPublishedAscending());

@@ -30,8 +30,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
@@ -50,7 +48,7 @@ public abstract class TemplateBaseListener implements ActionListener
 {
   // forces you to implement your own processAction
   abstract public void processAction(ActionEvent parm1) throws javax.faces.event.AbortProcessingException;
-  private static Log log = LogFactory.getLog(TemplateBaseListener.class);
+  //private static Log log = LogFactory.getLog(TemplateBaseListener.class);
 
   /**
    * Get a template from the template id
@@ -85,7 +83,7 @@ public abstract class TemplateBaseListener implements ActionListener
       FacesException
   {
     TemplateBean templateBean;
-    FacesContext facesContext = FacesContext.getCurrentInstance();
+    //FacesContext facesContext = FacesContext.getCurrentInstance();
     ApplicationFactory factory = (ApplicationFactory) FactoryFinder.getFactory(
         FactoryFinder.APPLICATION_FACTORY);
     Application application = factory.getApplication();

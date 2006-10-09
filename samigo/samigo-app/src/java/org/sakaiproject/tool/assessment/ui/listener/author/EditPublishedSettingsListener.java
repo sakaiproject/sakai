@@ -23,16 +23,12 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.Map;
-
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -53,8 +49,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class EditPublishedSettingsListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(EditPublishedSettingsListener.class);
-  private static ContextUtil cu;
+  //private static Log log = LogFactory.getLog(EditPublishedSettingsListener.class);
 
   public EditPublishedSettingsListener()
   {
@@ -63,13 +58,11 @@ public class EditPublishedSettingsListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
     //log.info("**debugging ActionEvent: " + ae);
     //log.info("**debug requestParams: " + requestParams);
     //log.info("**debug reqMap: " + reqMap);
 
-    PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) cu.lookupBean(
+    PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean(
                                           "publishedSettings");
     // #1a - load the assessment
     String assessmentId = (String) FacesContext.getCurrentInstance().
@@ -79,7 +72,7 @@ public class EditPublishedSettingsListener
         assessmentId);
 
     //## - permission checking before proceeding - daisyf
-    AuthorBean author = (AuthorBean) cu.lookupBean("author");
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     author.setOutcome("editPublishedAssessmentSettings");
     if (!passAuthz(context, assessment.getCreatedBy())){
       author.setOutcome("author");
@@ -89,13 +82,13 @@ public class EditPublishedSettingsListener
   }
 
   public boolean passAuthz(FacesContext context, String ownerId){
-    AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean("authorization");
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     boolean hasPrivilege_any = authzBean.getPublishAnyAssessment();
     boolean hasPrivilege_own0 = authzBean.getPublishOwnAssessment();
     boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
     boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
     if (!hasPrivilege){
-      String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+      String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
                                                "denied_edit_publish_assessment_settings_error");
       context.addMessage(null,new FacesMessage(err));
     }

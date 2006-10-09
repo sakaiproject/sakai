@@ -24,7 +24,6 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import javax.faces.context.FacesContext;
@@ -69,15 +68,6 @@ public class ReorderQuestionsListener implements ValueChangeListener
 
     FacesContext context = FacesContext.getCurrentInstance();
 
-//debugging
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
-
-//debugging
-
-
-
-
     String oldPos= ae.getOldValue().toString();
     String newPos= ae.getNewValue().toString();
 
@@ -88,17 +78,11 @@ public class ReorderQuestionsListener implements ValueChangeListener
 
     if (itemId !=null) {
       // somehow ae.getOldValue() keeps the old value, thus we get itemId==null
-
-    ItemFacade itemf = new ItemFacade();
     ItemService delegate = new ItemService();
-    itemf = delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
+    ItemFacade itemf = delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
 
     SectionFacade  sectFacade = (SectionFacade) itemf.getSection();
     reorderSequences(sectFacade, new Integer(oldPos), new Integer(newPos));
-
-
-
-
 
    // goto editAssessment.jsp, so reset assessmentBean
     AssessmentService assessdelegate = new AssessmentService();

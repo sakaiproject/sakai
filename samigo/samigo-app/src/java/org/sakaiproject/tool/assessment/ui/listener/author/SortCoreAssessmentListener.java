@@ -24,9 +24,6 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
-import java.util.Map;
-
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -46,7 +43,6 @@ public class SortCoreAssessmentListener
     implements ActionListener
 {
   private static Log log = LogFactory.getLog(SortCoreAssessmentListener.class);
-  private static ContextUtil cu;
 
   public SortCoreAssessmentListener()
   {
@@ -54,13 +50,9 @@ public class SortCoreAssessmentListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
-
     // get service and managed bean
     AssessmentService assessmentService = new AssessmentService();
-    AuthorBean author = (AuthorBean) cu.lookupBean(
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean(
                        "author");
 
     // look for some sort information passed as parameters
@@ -101,8 +93,8 @@ public class SortCoreAssessmentListener
    * @param bean the select index managed bean
    */
   private void processSortInfo(AuthorBean bean) {
-    String coreOrder = cu.lookupParam("coreSortType");
-    String coreAscending = cu.lookupParam("coreAscending");
+    String coreOrder = ContextUtil.lookupParam("coreSortType");
+    String coreAscending = ContextUtil.lookupParam("coreAscending");
 
     if (coreOrder != null && !coreOrder.trim().equals("")) {
       bean.setCoreAssessmentOrderBy(coreOrder);

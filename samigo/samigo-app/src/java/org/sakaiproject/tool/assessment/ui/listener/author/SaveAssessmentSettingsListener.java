@@ -24,8 +24,6 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -35,16 +33,12 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.spring.SpringBeanLocator;
 
 /**
  * <p>Title: Samigo</p>2
@@ -59,7 +53,6 @@ public class SaveAssessmentSettingsListener
     implements ActionListener
 {
   private static Log log = LogFactory.getLog(SaveAssessmentSettingsListener.class);
-  private static ContextUtil cu;
   private static final GradebookServiceHelper gbsHelper =
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();
   private static final boolean integrated =
@@ -72,10 +65,8 @@ public class SaveAssessmentSettingsListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
 
-    AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
+    AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.
         lookupBean("assessmentSettings");
     boolean error=false;
     String assessmentId=String.valueOf(assessmentSettings.getAssessmentId()); 
@@ -85,14 +76,14 @@ public class SaveAssessmentSettingsListener
  
     // check if name is empty
     if(assessmentName!=null &&(assessmentName.trim()).equals("")){
-     	String nameEmpty_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
+     	String nameEmpty_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
 	context.addMessage(null,new FacesMessage(nameEmpty_err));
 	error=true;
     }
 
     // check if name is unique 
     if(!assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false)){
-	String nameUnique_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
+	String nameUnique_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
 	context.addMessage(null,new FacesMessage(nameUnique_err));
 	error=true;
     }
@@ -133,7 +124,7 @@ public class SaveAssessmentSettingsListener
 
     }
     if((isTime) &&((assessmentSettings.getTimeLimit().intValue())==0)){
-	String time_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
+	String time_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
 	context.addMessage(null,new FacesMessage(time_err));
         error=true;
     }
@@ -203,7 +194,7 @@ public class SaveAssessmentSettingsListener
      }
 	if(ipErr){
 	    error=true;
-	    String  ip_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");
+	    String  ip_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");
 	    context.addMessage(null,new FacesMessage(ip_err));
 
 	}
@@ -213,7 +204,7 @@ public class SaveAssessmentSettingsListener
    
     if((assessmentSettings.getFeedbackDelivery()).equals("2") && ((assessmentSettings.getFeedbackDateString()==null) || (assessmentSettings.getFeedbackDateString().equals("")))){
 	error=true;
-	String  date_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
+	String  date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
 	context.addMessage(null,new FacesMessage(date_err));
 
     }
@@ -226,7 +217,7 @@ public class SaveAssessmentSettingsListener
     assessmentSettings.setOutcomeSave("author");
     s.save(assessmentSettings);
     // reset the core listing in case assessment title changes
-    AuthorBean author = (AuthorBean) cu.lookupBean(
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean(
                        "author");
  
     ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(

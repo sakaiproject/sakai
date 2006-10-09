@@ -25,7 +25,6 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -33,8 +32,6 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -52,27 +49,22 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 
 public class ConfirmRemovePartListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(ConfirmRemovePartListener.class);
-  private static ContextUtil cu;
+  //private static Log log = LogFactory.getLog(ConfirmRemovePartListener.class);
 
   public ConfirmRemovePartListener()
   {
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
-  {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
-
-    SectionBean sectionBean = (SectionBean) cu.lookupBean(
+  { 
+    SectionBean sectionBean = (SectionBean) ContextUtil.lookupBean(
         "sectionBean");
     String sectionId = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("sectionId");
 
     sectionBean.setSectionId(sectionId);
 
-    AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
+    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
         "assessmentBean");
     AssessmentService assessdelegate = new AssessmentService();
     List sectionList = assessmentBean.getSectionList();

@@ -25,9 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -49,7 +47,6 @@ public class SortPublishedAssessmentListener
     implements ActionListener
 {
   private static Log log = LogFactory.getLog(SortPublishedAssessmentListener.class);
-  private static ContextUtil cu;
 
   public SortPublishedAssessmentListener()
   {
@@ -57,13 +54,9 @@ public class SortPublishedAssessmentListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
-
     // get service and managed bean
     PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-    AuthorBean author = (AuthorBean) cu.lookupBean(
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean(
                        "author");
 
     processSortInfo(author);
@@ -109,8 +102,8 @@ public class SortPublishedAssessmentListener
    * @param bean the select index managed bean
    */
   private void processSortInfo(AuthorBean bean) {
-    String pubOrder = cu.lookupParam("pubSortType");
-    String publishedAscending = cu.lookupParam("publishedAscending");
+    String pubOrder = ContextUtil.lookupParam("pubSortType");
+    String publishedAscending = ContextUtil.lookupParam("publishedAscending");
 
     if (pubOrder != null && !pubOrder.trim().equals("")) {
       bean.setPublishedAssessmentOrderBy(pubOrder);

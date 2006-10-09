@@ -22,9 +22,7 @@
 
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
-import java.util.Map;
 
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -32,10 +30,7 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.facade.SectionFacade;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
-import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -51,7 +46,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class AuthorPartListener implements ActionListener
 {
   private static Log log = LogFactory.getLog(AuthorPartListener.class);
-  private static ContextUtil cu;
 
   public AuthorPartListener()
   {
@@ -59,23 +53,16 @@ public class AuthorPartListener implements ActionListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
-
     // #1a. prepare sectionBean
-    AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
+    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
                          "assessmentBean");
-    ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
-
-    SectionBean sectionBean = (SectionBean) cu.lookupBean(
+    SectionBean sectionBean = (SectionBean) ContextUtil.lookupBean(
                                           "sectionBean");
     // clean it
     sectionBean.setSectionTitle("");
     sectionBean.setAssessmentTitle(assessmentBean.getTitle());
     sectionBean.setSectionDescription("");
     sectionBean.setSectionId("");
-    String assessmentId = assessmentBean.getAssessmentId();
 
     // #1b. goto editPart.jsp
     //sectionBean.setPoolsAvailable(itemauthorbean.getPoolSelectList());

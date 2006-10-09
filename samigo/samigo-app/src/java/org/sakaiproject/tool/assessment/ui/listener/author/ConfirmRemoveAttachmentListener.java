@@ -22,15 +22,11 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.Map;
-
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.ui.bean.author.AttachmentBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -45,8 +41,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class ConfirmRemoveAttachmentListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(ConfirmRemoveAttachmentListener.class);
-  private static ContextUtil cu;
+  //private static Log log = LogFactory.getLog(ConfirmRemoveAttachmentListener.class);
 
   public ConfirmRemoveAttachmentListener()
   {
@@ -54,10 +49,6 @@ public class ConfirmRemoveAttachmentListener implements ActionListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
-
     String attachmentId = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("attachmentId");
     String attachmentLocation = (String) FacesContext.getCurrentInstance().
@@ -67,7 +58,7 @@ public class ConfirmRemoveAttachmentListener implements ActionListener
     String attachmentType = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("attachmentType");
 
-    AttachmentBean attachmentBean = (AttachmentBean) cu.lookupBean(
+    AttachmentBean attachmentBean = (AttachmentBean) ContextUtil.lookupBean(
         "attachmentBean");
     attachmentBean.setAttachmentId(new Long(attachmentId));
     attachmentBean.setLocation(attachmentLocation);
