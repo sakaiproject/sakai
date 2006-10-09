@@ -986,12 +986,12 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			clearLock.setString(4, LOCKKEY);
 			if (clearLock.executeUpdate() == 1)
 			{
-				log.debug("UNLOCK - OK    ?::" + nodeID + "::now");
+				log.debug("UNLOCK - OK::" + nodeID + "::now");
 
 			}
 			else
 			{
-				log.debug("UNLOCK - Failed?::" + nodeID + "::now");
+				log.debug("UNLOCK - no-lock::" + nodeID + "::now");
 			}
 			connection.commit();
 

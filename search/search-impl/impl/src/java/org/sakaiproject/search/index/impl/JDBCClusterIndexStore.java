@@ -121,6 +121,15 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		log.info(this + ":init() ");
 		clusterStorage = new ClusterSegmentsStorage(searchIndexDirectory, this,
 				localStructuredStorage, debug);
+		
+		// TODO: We should migrate to the correct storage format, on the local 
+		// and shared space, by looking at the DB and then checking what is there 
+		// followed by a move.
+		// Since we are doing a move, it should be ok to have this happend on the fly.
+		
+		
+		
+		
 		/*
 		 * The storage is created by hibernate now try { if (autoDdl) {
 		 * SqlService.getInstance().ddl(this.getClass().getClassLoader(),
@@ -875,7 +884,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		try
 		{
 			sharedTempFile = new File(getSharedTempFileName(INDEX_PATCHNAME));
-			sharedFinalFile = new File(getSharedFileName(INDEX_PATCHNAME));
+			sharedFinalFile = new File(getSharedFileName(INDEX_PATCHNAME, sharedStructuredStorage));
 			packetFile = clusterStorage.packPatch();
 			packetStream = new FileInputStream(packetFile);
 			sharedStream = new FileOutputStream(sharedTempFile);
@@ -1094,7 +1103,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				segmentDelete.setLong(2, rmsi.getVersion());
 				segmentDelete.execute();
 
-				String sharedSegment = getSharedFileName(rmsi.getName());
+				String sharedSegment = getSharedFileName(rmsi.getName(), sharedStructuredStorage);
 				if (sharedSegment != null)
 				{
 					File f = new File(sharedSegment);
@@ -1658,7 +1667,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				try
 				{
 					long version = resultSet.getLong(1);
-					File f = new File(getSharedFileName(INDEX_PATCHNAME));
+					File f = new File(getSharedFileName(INDEX_PATCHNAME,sharedStructuredStorage));
 					packetStream = new FileInputStream(f);
 					clusterStorage.unpackPatch(packetStream);
 					log.debug("Updated Patch ");
@@ -1909,7 +1918,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		try
 		{
 			sharedTempFile = new File(getSharedTempFileName(addsi.getName()));
-			sharedFinalFile = new File(getSharedFileName(addsi.getName()));
+			sharedFinalFile = new File(getSharedFileName(addsi.getName(), sharedStructuredStorage));
 			packetFile = clusterStorage.packSegment(addsi, newVersion);
 			packetStream = new FileInputStream(packetFile);
 			sharedStream = new FileOutputStream(sharedTempFile);
@@ -1953,6 +1962,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				}
 			}
 			addsi.setVersion(newVersion);
+			sharedFinalFile.getParentFile().mkdirs();
 			sharedTempFile.renameTo(sharedFinalFile);
 			log.info("DB Updated " + addsi);
 
@@ -2005,7 +2015,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	}
 
-	private String getSharedFileName(String name)
+	private String getSharedFileName(String name, boolean structured)
 	{
 		if (sharedSegments != null && sharedSegments.length() > 0)
 		{
@@ -2013,7 +2023,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			{
 				sharedSegments = sharedSegments + "/";
 			}
-			return sharedSegments + name + ".zip";
+			if ( structured && !INDEX_PATCHNAME.equals(name) ) {
+				String hashName = name.substring(name.length()-4,name.length()-2);
+				return sharedSegments + hashName + "/" + name +".zip";
+			} else {
+				return sharedSegments + name + ".zip";
+			}
 		}
 		return null;
 	}
@@ -2057,7 +2072,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				try
 				{
 					long version = resultSet.getLong(1);
-					File f = new File(getSharedFileName(addsi.getName()));
+					File f = new File(getSharedFileName(addsi.getName(),sharedStructuredStorage));
 					packetStream = new FileInputStream(f);
 					checked.remove(addsi.getName()); // force revalidation
 					clusterStorage.unpackSegment(addsi, packetStream, version);
@@ -2262,7 +2277,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	File getSegmentLocation(String name, boolean structured)
 	{
 		if ( structured ) {
-			String hashName = name.substring(name.length()-4,2);
+			
+			String hashName = name.substring(name.length()-4,name.length()-2);
 			File hash = new File(searchIndexDirectory,hashName);
 			return new File(hash,name);
 		} else {
