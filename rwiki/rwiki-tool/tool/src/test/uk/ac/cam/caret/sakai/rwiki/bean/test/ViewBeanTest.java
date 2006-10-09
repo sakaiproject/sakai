@@ -8,17 +8,17 @@ public class ViewBeanTest extends TestCase
 
 	String localPageName = "Foo";
 
-	String globalPageName = "/bar/foo";
+	String globalPageName = "/bar/bar/foo";
 
-	String realm = "/bar";
+	String realm = "/bar/bar";
 
 	String otherRealm = "/realm";
 
-	String viewUrl = "?pageName=%2Fbar%2Ffoo&action=view&panel=Main&realm=%2Fbar";
+	String viewUrl = "?pageName=%2Fbar%2Fbar%2Ffoo&action=view&panel=Main&realm=%2Fbar%2Fbar";
 
-	String editUrl = "?pageName=%2Fbar%2Ffoo&action=edit&panel=Main&realm=%2Fbar";
+	String editUrl = "?pageName=%2Fbar%2Fbar%2Ffoo&action=edit&panel=Main&realm=%2Fbar%2Fbar";
 
-	String infoUrl = "?pageName=%2Fbar%2Ffoo&action=info&panel=Main&realm=%2Fbar";
+	String infoUrl = "?pageName=%2Fbar%2Fbar%2Ffoo&action=info&panel=Main&realm=%2Fbar%2Fbar";
 
 	public ViewBeanTest(String test)
 	{

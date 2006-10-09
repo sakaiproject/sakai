@@ -50,6 +50,10 @@ public class NameHelperTest extends TestCase
 
 	private final String similarLocalName = "/site/Testa";
 
+	private final String[] shouldGlobaliseToEachOther = new String[] { "/site/test/Page Name", "/site/test/Page NAme", "/site/test/PAge Name", "/site/test/page name" };
+
+	private final String[] shouldNotGlobaliseToEachOther = new String[] { "/site/tEst/Page Name", "/site/test/Page NAme", "/site/tesT/PAge Name", "/site/TEST/page name" };
+	
 	private final String defaultName = "/site/test"
 			+ NameHelper.SPACE_SEPARATOR + NameHelper.DEFAULT_PAGE;
 
@@ -177,8 +181,8 @@ public class NameHelperTest extends TestCase
 		testLocalName = NameHelper.localizeName(similarGlobalName, space);
 		System.out.println(testLocalName);
 		assertTrue("LocalizeName(\"" + similarGlobalName + "\", \"" + space
-				+ "\")  should equal " + similarLocalName + " but equals "
-				+ testLocalName, similarLocalName.equals(testLocalName));
+				+ "\")  should not equal " + similarLocalName + " but equals "
+				+ testLocalName, !similarLocalName.equals(testLocalName));
 		ArrayList tests = (ArrayList) allTests.get("localizeName");
 		if (tests != null)
 		{
@@ -229,6 +233,21 @@ public class NameHelperTest extends TestCase
 						.equals(actualResult));
 			}
 		}
+		
 	}
 
+	public void testGlobaliseToEachOther() {
+		for (int i = 0; i < shouldGlobaliseToEachOther.length; i++) {
+			assertEquals(NameHelper.globaliseName(shouldGlobaliseToEachOther[0], space), NameHelper.globaliseName(shouldGlobaliseToEachOther[i], space));
+		}
+		
+		HashMap map = new HashMap();
+		for (int i = 0; i < shouldNotGlobaliseToEachOther.length; i++) {
+			String unglobalName = shouldNotGlobaliseToEachOther[i];
+			String globalName = NameHelper.globaliseName(unglobalName, space);
+			assertNull(unglobalName + " globalises to the same global name as  " + map.get(globalName), map.get(globalName));
+			map.put(globalName, unglobalName);
+		}
+	}
+	
 }

@@ -40,7 +40,7 @@ public class NameHelper
 	public static boolean isGlobalised(final String name)
 	{
 
-		// This should be a RE
+		// This should be a RE but RE is too slow
 
 		if (name == null)
 		{
@@ -49,6 +49,7 @@ public class NameHelper
 
 		char[] chars = name.toCharArray();
 		boolean allowedSpaceOrSeparator = false;
+		int numberOfSeparators = 1;
 
 		if (chars[0] != SPACE_SEPARATOR)
 		{
@@ -59,6 +60,10 @@ public class NameHelper
 		{
 			if (chars[i] == ' ' || chars[i] == SPACE_SEPARATOR)
 			{
+			  	if (chars[i] == SPACE_SEPARATOR) 
+				{
+					numberOfSeparators++;
+				}
 				if (!allowedSpaceOrSeparator)
 				{
 					return false;
@@ -68,8 +73,11 @@ public class NameHelper
 					allowedSpaceOrSeparator = false;
 				}
 			}
-			else if (Character.isUpperCase(chars[i])
-					|| Character.isWhitespace(chars[i]))
+			else if (Character.isWhitespace(chars[i]))
+			{
+				return false;
+			}
+			else if (Character.isUpperCase(chars[i]) && numberOfSeparators < 3)
 			{
 				return false;
 			}
@@ -124,20 +132,22 @@ public class NameHelper
 
 		char[] chars = name.toCharArray();
 		int lastSeparator = findLastSeparator(chars, nameLength);
-
-		boolean capitalise = true;
-		for (int i = lastSeparator; i < nameLength; i++)
+		if (lastSeparator >= findThirdSeparator(chars, nameLength)) 
 		{
-			if (chars[i] == SPACE_SEPARATOR || chars[i] == ' ')
+			boolean capitalise = true;
+			for (int i = lastSeparator; i < nameLength; i++)
 			{
-				capitalise = true;
+				if (chars[i] == SPACE_SEPARATOR || chars[i] == ' ')
+				{
+					capitalise = true;
+				}
+				else if (capitalise)
+				{
+					chars[i] = Character.toUpperCase(chars[i]);
+					capitalise = false;
+				}
 			}
-			else if (capitalise)
-			{
-				chars[i] = Character.toUpperCase(chars[i]);
-				capitalise = false;
-			}
-		}
+		} 
 
 		if (nameLength <= spaceLength + 1)
 		{
@@ -176,6 +186,23 @@ public class NameHelper
 		return 0;
 	}
 
+	private static int findThirdSeparator(char[] chars, int nameLength) {
+	  	int numberOfSeparators = 0;
+	  	for (int i = 0; i < nameLength; i++) 
+		{
+		  	if (chars[i] == SPACE_SEPARATOR)
+			{
+			  	numberOfSeparators++;
+				if (numberOfSeparators == 3) 
+				{
+				  	return i;
+				}
+
+			}
+		}
+		return nameLength;
+	}
+
 	private static String normalize(final String nameToNormalize,
 			final boolean isPageName)
 	{
@@ -188,6 +215,7 @@ public class NameHelper
 
 		boolean addSeparator = true;
 		boolean addWhiteSpaceOrSeparator = true;
+		int numberOfSeparators = 0;
 
 		for (int i = 0; i < chars.length; i++)
 		{
@@ -214,7 +242,10 @@ public class NameHelper
 			else if (addSeparator)
 			{
 				name.put(SPACE_SEPARATOR);
-				chars[i] = Character.toLowerCase(c);
+				if (++numberOfSeparators > 2) 
+				{ 
+					chars[i] = Character.toLowerCase(c);
+				}
 				wordStart = i;
 				addSeparator = false;
 				addWhiteSpaceOrSeparator = false;
@@ -224,11 +255,17 @@ public class NameHelper
 				addWhiteSpaceOrSeparator = false;
 				wordStart = i;
 				name.put(' ');
-				chars[i] = Character.toLowerCase(c);
+				if (numberOfSeparators > 2) 
+				{ 
+					chars[i] = Character.toLowerCase(c);
+				}
 			}
 			else
 			{
-				chars[i] = Character.toLowerCase(c);
+				if (numberOfSeparators > 2) 
+				{ 
+				  chars[i] = Character.toLowerCase(c);
+				}
 			}
 
 		}
