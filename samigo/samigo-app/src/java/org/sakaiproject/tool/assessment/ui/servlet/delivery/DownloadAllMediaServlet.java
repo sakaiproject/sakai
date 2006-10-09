@@ -180,7 +180,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 	  log.debug("scoringType = " + scoringType);
 	  
       HashMap hashByAgentId = new HashMap();
-      HashMap subHashByAssessmentGradingId = new HashMap();
+      HashMap subHashByAssessmentGradingId;
       MediaIfc mediaData;
       ArrayList list = new ArrayList();
       ItemGradingData itemGradingData;
