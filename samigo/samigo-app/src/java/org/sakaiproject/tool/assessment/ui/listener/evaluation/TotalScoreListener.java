@@ -86,7 +86,6 @@ public class TotalScoreListener
 {
   private static Log log = LogFactory.getLog(TotalScoreListener.class);
   private static BeanSort bs;
-  private static ContextUtil cu;
 
   //private SectionAwareness sectionAwareness;
   // private List availableSections;
@@ -106,7 +105,7 @@ public class TotalScoreListener
     TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
     QuestionScoresBean questionbean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
     HistogramScoresBean histobean = (HistogramScoresBean) ContextUtil.lookupBean("histogramScores");
-    SubmissionStatusBean submissionbean = (SubmissionStatusBean) cu.lookupBean("submissionStatus");
+    SubmissionStatusBean submissionbean = (SubmissionStatusBean) ContextUtil.lookupBean("submissionStatus");
     
     // we probably want to change the poster to be consistent
     String publishedId = ContextUtil.lookupParam("publishedId");
@@ -240,7 +239,7 @@ public class TotalScoreListener
     boolean sortAscending = true;
     if (ContextUtil.lookupParam("sortAscending") != null &&
     		!ContextUtil.lookupParam("sortAscending").trim().equals("")){
-    	sortAscending = Boolean.valueOf(cu.lookupParam("sortAscending")).booleanValue();
+    	sortAscending = Boolean.valueOf(ContextUtil.lookupParam("sortAscending")).booleanValue();
     	bean.setSortAscending(sortAscending);
     	log.debug("TotalScoreListener: totalScores() :: sortAscending = " + sortAscending);
     }
@@ -715,7 +714,7 @@ log.debug("testing agent getEid agent.geteid = " + agent.getEidString());
   // containing the last/highest item submission 
   // (regardless of users who submitted it) of a given published assessment
   public HashMap getPublishedItemIdHash(PublishedAssessmentData pub){
-    HashMap publishedItemIdHash = new HashMap();
+    HashMap publishedItemIdHash;
     Integer scoringType = getScoringType(pub);
     if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)){
 	publishedItemIdHash = PersistenceService.getInstance().

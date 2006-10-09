@@ -78,12 +78,11 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       // (Long publishedItemId, ArrayList itemGradingDatas) and
       // (String "sequence"+itemId, Integer sequence) and
       // (String "items", Long itemscount)
-      HashMap itemGradingHash = new HashMap();
       GradingService service = new GradingService();
       AssessmentGradingData ag = null;
       
       // this returns a HashMap with (publishedItemId, itemGrading)
-      itemGradingHash = service.getLastItemGradingData(id, agent); 
+      HashMap itemGradingHash = service.getLastItemGradingData(id, agent); 
       
       if (itemGradingHash!=null && itemGradingHash.size()>0){
     	  log.debug("itemGradingHash!=null && itemGradingHash.size()>0");

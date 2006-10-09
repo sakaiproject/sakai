@@ -23,10 +23,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Date;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -39,10 +36,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -56,7 +49,6 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SettingsDeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentThread;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>Title: Samigo</p>
@@ -71,7 +63,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class BeginDeliveryActionListener implements ActionListener
 {
   private static Log log = LogFactory.getLog(BeginDeliveryActionListener.class);
-  private static ContextUtil cu;
 
   /**
    * ACTION.
@@ -84,9 +75,9 @@ public class BeginDeliveryActionListener implements ActionListener
     log.debug("BeginDeliveryActionListener.processAction() ");
 
     // get managed bean and set its action accordingly
-    DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
+    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
     log.info("****DeliveryBean= "+delivery);
-    String actionString = cu.lookupParam("actionString");
+    String actionString = ContextUtil.lookupParam("actionString");
     if (actionString != null) {
       // if actionString is null, likely that action & actionString has been set already, 
       // e.g. take assessment via url, actionString is set by LoginServlet.
@@ -109,7 +100,7 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setTimeStamp((new Date()).getTime());
 
     // protocol = http://servername:8080/; deliverAudioRecording.jsp needs it
-    delivery.setProtocol(cu.getProtocol());
+    delivery.setProtocol(ContextUtil.getProtocol());
 
     PublishedAssessmentFacade pub = getPublishedAssessmentBasedOnAction(action, delivery);
     delivery.setPublishedAssessment(pub);
@@ -118,7 +109,7 @@ public class BeginDeliveryActionListener implements ActionListener
     populateBeanFromPub(delivery, pub);
 
     // add in course management system info
-    CourseManagementBean course = (CourseManagementBean) cu.lookupBean("course");
+    CourseManagementBean course = (CourseManagementBean) ContextUtil.lookupBean("course");
     populateBeanFromCourse(pub, delivery, course);
 
   }
@@ -302,8 +293,8 @@ public class BeginDeliveryActionListener implements ActionListener
     AssessmentService assessmentService = new AssessmentService();
     PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade pub = null;
-    String publishedId = cu.lookupParam("publishedId");
-    String assessmentId = (String)cu.lookupParam("assessmentId");
+    String publishedId = ContextUtil.lookupParam("publishedId");
+    String assessmentId = (String)ContextUtil.lookupParam("assessmentId");
 
     switch (action){
     case 2: // delivery.PREVIEW_ASSESSMENT

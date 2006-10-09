@@ -24,14 +24,11 @@
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -49,7 +46,6 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
-import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
@@ -77,10 +73,6 @@ public class SubmissionStatusListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().
-                        getRequestParameterMap();
     //log.info("Submission Status LISTENER.");
     SubmissionStatusBean bean = (SubmissionStatusBean) ContextUtil.lookupBean("submissionStatus");
     TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
@@ -174,7 +166,7 @@ public class SubmissionStatusListener
       }
 
       Object next = iter.next();
-      Date dueDate = null;
+      //Date dueDate = null;
 
       // Collect a list of all the users in the scores list
       Map useridMap= totalScoresBean.getUserIdMap();

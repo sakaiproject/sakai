@@ -24,7 +24,6 @@ package org.sakaiproject.tool.assessment.ui.listener.questionpool;
 
 import java.util.ArrayList;
 
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -47,21 +46,17 @@ public class SortQuestionListListener
     implements ActionListener
 {
   private static Log log = LogFactory.getLog(SortQuestionListListener.class);
-  private static ContextUtil cu;
-
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-   
     // get service and managed bean
-    QuestionPoolBean questionpoolbean = (QuestionPoolBean) cu.lookupBean("questionpool");
+    QuestionPoolBean questionpoolbean = (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
     
-    String orderBy = cu.lookupParam("orderBy");
-    String ascending =cu.lookupParam("ascending");
+    String orderBy = ContextUtil.lookupParam("orderBy");
+    String ascending =ContextUtil.lookupParam("ascending");
     if (orderBy != null &&!orderBy.trim().equals("")){
     	questionpoolbean.setSortQuestionProperty(orderBy);
-    	log.debug("orderBy = " + cu.lookupParam("orderBy"));
+    	log.debug("orderBy = " + ContextUtil.lookupParam("orderBy"));
     }
     
     if (ascending != null && ascending.trim().equals("")){
@@ -69,11 +64,11 @@ public class SortQuestionListListener
     	log.debug("ascending = " + ascending);
     }
     
-    questionpoolbean.setSortQuestionAscending(Boolean.valueOf(cu.lookupParam("ascending")).booleanValue());
+    questionpoolbean.setSortQuestionAscending(Boolean.valueOf(ContextUtil.lookupParam("ascending")).booleanValue());
     
-    String qpid=cu.lookupParam("qpid");
+    String qpid=ContextUtil.lookupParam("qpid");
     QuestionPoolService delegate = new QuestionPoolService();
-    ArrayList list= new ArrayList();
+    ArrayList list= null;
     if (qpid==null ||("").equals(qpid)){
      list = delegate.getAllItemsSorted(questionpoolbean.getCurrentPool().getId(), orderBy, ascending);
     }

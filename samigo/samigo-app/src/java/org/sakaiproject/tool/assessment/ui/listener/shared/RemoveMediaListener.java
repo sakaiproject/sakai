@@ -22,15 +22,10 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.shared;
 
-import java.util.Map;
-
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.services.shared.MediaService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.MediaBean;
@@ -48,8 +43,7 @@ import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListe
 
 public class RemoveMediaListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(RemoveMediaListener.class);
-  private static ContextUtil cu;
+  //private static Log log = LogFactory.getLog(RemoveMediaListener.class);
 
   public RemoveMediaListener()
   {
@@ -57,12 +51,8 @@ public class RemoveMediaListener implements ActionListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
-
-    DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
-    MediaBean mediaBean = (MediaBean) cu.lookupBean(
+    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+    MediaBean mediaBean = (MediaBean) ContextUtil.lookupBean(
         "mediaBean");
     MediaService mediaService = new MediaService();
 

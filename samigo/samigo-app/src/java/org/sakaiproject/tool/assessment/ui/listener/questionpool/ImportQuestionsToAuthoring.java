@@ -24,7 +24,6 @@ package org.sakaiproject.tool.assessment.ui.listener.questionpool;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -56,7 +55,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class ImportQuestionsToAuthoring implements ActionListener
 {
-  private static Log log = LogFactory.getLog(ImportQuestionsToAuthoring.class);
+  //private static Log log = LogFactory.getLog(ImportQuestionsToAuthoring.class);
   //private static ContextUtil cu;
 
 
@@ -87,7 +86,7 @@ public class ImportQuestionsToAuthoring implements ActionListener
       ItemAuthorBean itemauthor = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
       int itempos= 0;
       SectionFacade section = null;
-      ItemFacade itemfacade = new ItemFacade();
+      ItemFacade itemfacade = null;
 
       String itemId= "";
 
