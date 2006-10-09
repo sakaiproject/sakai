@@ -166,6 +166,27 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	/** Collection id for the non-user sites. */
 	public static final String COLLECTION_SITE = "/group/";
+	
+	/** The content root collection for dropboxes. */
+	public static final String COLLECTION_DROPBOX = "/group-user/";
+
+	/** The content root collection for items that are public. */
+	public static final String COLLECTION_PUBLIC = "/public/";
+	
+	/** The content root collection for meleteDocs */
+	public static final String COLLECTION_MELETE_DOCS = "/meleteDocs/";
+
+	/** A "list" of all root-level collections */
+	protected static final Set ROOT_COLLECTIONS = new TreeSet();
+	static
+	{
+		ROOT_COLLECTIONS.add(COLLECTION_SITE);
+		ROOT_COLLECTIONS.add(COLLECTION_USER);
+		ROOT_COLLECTIONS.add(COLLECTION_DROPBOX);
+		ROOT_COLLECTIONS.add(COLLECTION_PUBLIC);
+		ROOT_COLLECTIONS.add(ATTACHMENTS_COLLECTION);
+		ROOT_COLLECTIONS.add(COLLECTION_MELETE_DOCS);
+	}
 
 	/** Optional path to external file system file store for body binary. */
 	protected String m_bodyPath = null;
@@ -877,7 +898,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	protected String convertLockIfDropbox(String lock, String id)
 	{
 		// if this resource is a dropbox, you need dropbox maintain permission
-		if (id.startsWith("/group-user"))
+		if (id.startsWith(COLLECTION_DROPBOX))
 		{
 			// only for /group-user/SITEID/USERID/ refs.
 			String[] parts = StringUtil.split(id, "/");
@@ -907,76 +928,73 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	protected boolean availabilityCheck(String id) throws IdUnusedException
 	{
-		if(isAttachmentResource(id))
-		{
-			return true;
-		}
+		// item is available if avaialability checks are <b>NOT</b> enabled OR if it's in /attachment
+		boolean available = (! m_availabilityChecksEnabled) || isAttachmentResource(id);
 		
-		// assume it's blocked
-		boolean available = false;
-		
-		
-		boolean first_try = true;
 		GroupAwareEntity entity = null;
 		boolean isCollection = id.endsWith(Entity.SEPARATOR);
-		while(entity == null)
+		while(!available && entity == null)
 		{
-			try
+			if(ROOT_COLLECTIONS.contains(id))
 			{
-				if (isCollection)
-				{
-					entity = findCollection(id);
-				}
-				else
-				{
-					entity = findResource(id);
-				}
+				available = true;
 			}
-			catch (TypeException ignore)
+			else
 			{
-			}
-			
-			if (entity == null)
-			{
-				// this deals with case where we're creating a new entity
-				if(first_try)
+				try
 				{
-					first_try = false;
+					if (isCollection)
+					{
+						entity = findCollection(id);
+					}
+					else
+					{
+						entity = findResource(id);
+					}
+				}
+				catch (TypeException ignore)
+				{
+					if(isCollection)
+					{
+						M_log.warn("trying to get collection, found resource: " + id);
+					}
+					else
+					{
+						M_log.warn("trying to get resource, found collection: " + id);
+					}
+				}
+				
+				if (entity == null)
+				{
 					id = isolateContainingId(id);
 					isCollection = true;
 				}
-				else
-				{
-					throw new IdUnusedException(id);
-				}
 			}
 		}
 		
-		String creator = entity.getProperties().getProperty(ResourceProperties.PROP_CREATOR);
-		String userId = SessionManager.getCurrentSessionUserId();
-		
-		// available if user is creator
-		available = creator != null && userId != null && creator.equals(userId);
-		
-		if(! available)
+		if(!available)
 		{
-			// available if user has permission to view hidden entities
-			String lock = AUTH_RESOURCE_HIDDEN;
-			lock = convertLockIfDropbox(lock, id);
-			available = SecurityService.unlock(lock, entity.getReference());
+			String creator = entity.getProperties().getProperty(ResourceProperties.PROP_CREATOR);
+			String userId = SessionManager.getCurrentSessionUserId();
+			
+			// available if user is creator
+			available = creator != null && userId != null && creator.equals(userId);
+			
+			if(! available)
+			{
+				// available if user has permission to view hidden entities
+				String lock = AUTH_RESOURCE_HIDDEN;
+				available = SecurityService.unlock(lock, entity.getReference());
+				
+				if(! available)
+				{
+					// available if not hidden or in a hidden collection
+					available = entity.isAvailable();
+				}
+				
+			}
 		}
 
-		if(! available && m_availabilityChecksEnabled)
-		{
-			// available if not hidden or in a hidden collection
-			available = entity.isAvailable();
-			
-			// TODO: reevaluate 
-			// suppose user does not have adequate permission 
-			// higher in hierarchy where folder is hidden
-			// but does have it here???
-		}
-		
 		return available;
 		
 	}
@@ -7353,9 +7371,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	private static ResourceBundle rb = ResourceBundle.getBundle("content");
-
-	/** The content root collection for dropboxes. */
-	protected static final String COLLECTION_DROPBOX = "/group-user/";
 
 	protected static final String PROP_MEMBER_DROPBOX_DESCRIPTION = rb.getString("use1");
 

@@ -1798,7 +1798,10 @@ public class ResourcesAction
 			}
 			catch(IdUnusedException ex)
 			{
-				logger.warn("ResourcesAction.buildSelectAttachment (static) : IdUnusedException: " + collectionId);
+				if(logger.isDebugEnabled())
+				{
+					logger.debug("ResourcesAction.buildSelectAttachment (static) : IdUnusedException: " + collectionId);
+				}
 				try
 				{
 					ContentCollectionEdit coll = contentService.addCollection(collectionId);
