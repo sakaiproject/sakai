@@ -73,8 +73,7 @@ import org.sakaiproject.entity.api.Reference;
 public class ItemModifyListener implements ActionListener
 {
   private static Log log = LogFactory.getLog(ItemModifyListener.class);
-  private static ContextUtil cu;
-  private String scalename;  // used for multiple choice Survey
+  //private String scalename;  // used for multiple choice Survey
 
   /**
    * Standard process action method.
@@ -84,9 +83,9 @@ public class ItemModifyListener implements ActionListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     //log.info("ItemModify LISTENER.");
-    ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
+    ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 
-    String itemId= cu.lookupParam("itemid");
+    String itemId= ContextUtil.lookupParam("itemid");
     System.out.println("****itemId="+itemId); 
     if (itemId != null){
       itemauthorbean.setItemId(itemId);
@@ -100,12 +99,12 @@ public class ItemModifyListener implements ActionListener
     }
     System.out.println("****itemId="+itemId); 
  
-    String poolid = cu.lookupParam("poolId");
+    String poolid = ContextUtil.lookupParam("poolId");
     if(poolid!=null) {
        itemauthorbean.setQpoolId(poolid);
     }
 
-    String target= cu.lookupParam("target");
+    String target= ContextUtil.lookupParam("target");
     if (target!=null){
       itemauthorbean.setTarget(target);
     }
@@ -247,7 +246,7 @@ public class ItemModifyListener implements ActionListener
     if ("assessment".equals(itemauthorbean.getTarget())) {
 // check for metadata settings
       AssessmentService assessdelegate = new AssessmentService();
-      AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean("assessmentBean");
+      AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
       AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
       itemauthorbean.setShowMetadata(assessment.getHasMetaDataForQuestions());
     }
@@ -614,7 +613,7 @@ public class ItemModifyListener implements ActionListener
 
       List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
       if (refs!=null && refs.size() > 0){
-        Reference ref = (Reference)refs.get(0);
+        Reference ref;
 
         for(int i=0; i<refs.size(); i++) {
           ref = (Reference) refs.get(i);
@@ -631,14 +630,14 @@ public class ItemModifyListener implements ActionListener
                                         protocol);
             newAttachmentList.add(newAttach);
             newAttachmentSet.add(newAttach);
-	  }
+          }
           else{ 
             // attachment already exist, let's add it to new list and
 	    // check it off from map
             newAttachmentList.add((ItemAttachmentIfc)map.get(resourceId));
             newAttachmentSet.add((ItemAttachmentIfc)map.get(resourceId));
             map.remove(resourceId);
-	  }
+          }
         }
       }
 

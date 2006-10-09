@@ -112,13 +112,13 @@ public class SavePublishedSettingsListener
 
     if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g)){ // => something to do
       PublishedEvaluationModel evaluation = (PublishedEvaluationModel)assessment.getEvaluationModel();
-      Integer scoringType = EvaluationModelIfc.HIGHEST_SCORE;
+      //Integer scoringType = EvaluationModelIfc.HIGHEST_SCORE;
       if (evaluation == null){
         evaluation = new PublishedEvaluationModel();
         evaluation.setAssessmentBase(assessment.getData());
       }
       evaluation.setToGradeBook(assessmentSettings.getToDefaultGradebook());
-      scoringType = evaluation.getScoringType();
+      Integer scoringType = evaluation.getScoringType();
       if (evaluation.getToGradeBook()!=null && 
         evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
         //add and copy scores over if any

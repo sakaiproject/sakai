@@ -158,7 +158,7 @@ public class TotalScoresBean
 			matchingAgents = allAgents;
 		}
 		scoreDataRows = matchingAgents.size();
-		ArrayList newAgents = new ArrayList();
+		ArrayList newAgents;
 		if (maxDisplayedScoreRows == 0) {
 			newAgents = matchingAgents;
 		} else {

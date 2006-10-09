@@ -35,8 +35,6 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -448,12 +446,13 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     byte[] mediaByte = new byte[0];
     try
     {
-      int i = 0;
+      //int i = 0;
       int size = 0;
       mediaStream = new FileInputStream(mediaLocation);
       if (mediaStream != null)
       {
-        while ( (i = mediaStream.read()) != -1)
+        //while ( (i = mediaStream.read()) != -1)
+        while (mediaStream.read() != -1)
         {
           size++;
         }

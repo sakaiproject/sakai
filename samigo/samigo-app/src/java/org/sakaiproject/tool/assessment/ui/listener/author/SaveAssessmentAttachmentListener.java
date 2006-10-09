@@ -100,7 +100,7 @@ public class SaveAssessmentAttachmentListener
 
       List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
       if (refs!=null && refs.size() > 0){
-        Reference ref = (Reference)refs.get(0);
+        Reference ref;
 
         for(int i=0; i<refs.size(); i++) {
           ref = (Reference) refs.get(i);

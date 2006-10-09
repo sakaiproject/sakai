@@ -182,7 +182,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
       HashMap hashByAgentId = new HashMap();
       HashMap subHashByAssessmentGradingId;
       MediaIfc mediaData;
-      ArrayList list = new ArrayList();
+      ArrayList list;
       ItemGradingData itemGradingData;
 
 	  List mediaList;
