@@ -60,17 +60,17 @@ public class DateHandlerWithNull
   { "--", "1", "2", "3", "4", "5", "6", "7", "8", "9", " 10", "11", "12" };
   private String[] hourArray =
   {
-    new String("01"), new String("02"), new String("03"), new String("04"),
-    new String("05"), new String("06"), new String("07"), new String("08"),
-    new String("09"), new String("10"), new String("11"), new String("12")
+    "01", "02", "03", "04",
+    "05", "06", "07", "08",
+    "09", "10", "11", "12"
   };
   private String[] minArray =
   {
-    new String("00"), new String("05"), new String("10"), new String("15"),
-    new String("20"), new String("25"), new String("30"), new String("35"),
-    new String("40"), new String("45"), new String("50"), new String("55")
+    "00", "05", "10", "15",
+    "20", "25", "30", "35",
+    "40", "45", "50", "55"
   };
-  private String[] ampmArray = { new String("AM"), new String("PM") };
+  private String[] ampmArray = { "AM", "PM" };
   private List day = Arrays.asList(dayArray);
   private List month = Arrays.asList(monthArray);
   private List year = Arrays.asList(yearArray);
