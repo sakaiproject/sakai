@@ -70,8 +70,7 @@ public class ConfirmRemoveAssessmentListener implements ActionListener
     AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
                                                            "assessmentBean");
     AssessmentService assessmentService = new AssessmentService();
-    AssessmentFacade assessment = assessmentService.getBasicInfoOfAnAssessment(
-        assessmentId.toString());
+    AssessmentFacade assessment = assessmentService.getBasicInfoOfAnAssessment(assessmentId);
 
     // #3 - permission checking before proceeding - daisyf
     AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");

@@ -86,7 +86,7 @@ public class DeliveryActionListener
   implements ActionListener
 {
 
-  static String alphabet = new String("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  static String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   private static Log log = LogFactory.getLog(DeliveryActionListener.class);
   //private static ContextUtil cu;
   private boolean resetPageContents = true;
@@ -1409,7 +1409,7 @@ public class DeliveryActionListener
     // Only one text in FIB
     ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
     ArrayList fibs = new ArrayList();
-    String alltext = new String(text.getText());
+    String alltext = text.getText();
     ArrayList texts = extractFIBTextArray(alltext);
     int i = 0;
     Iterator iter = text.getAnswerArraySorted().iterator();
@@ -1563,7 +1563,7 @@ public class DeliveryActionListener
     // Only one text in FIN
     ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
     ArrayList fins = new ArrayList();
-    String alltext = new String(text.getText());
+    String alltext = text.getText();
     ArrayList texts = extractFINTextArray(alltext);
     int i = 0;
     Iterator iter = text.getAnswerArraySorted().iterator();

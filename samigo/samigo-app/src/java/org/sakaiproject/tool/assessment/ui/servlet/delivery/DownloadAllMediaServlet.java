@@ -115,7 +115,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
     	String assessmentName = req.getParameter("assessmentName");
   	    StringBuffer zipFilename = new StringBuffer();
   	    zipFilename.append(assessmentName);
-  	    String partAndQues = getPartNumAndQuestionNum(publishedItemId.toString());
+  	    String partAndQues = getPartNumAndQuestionNum(publishedItemId);
 	    log.debug("partAndQues = " + partAndQues);
 	    zipFilename.append(partAndQues);
   	    zipFilename.append((".zip"));

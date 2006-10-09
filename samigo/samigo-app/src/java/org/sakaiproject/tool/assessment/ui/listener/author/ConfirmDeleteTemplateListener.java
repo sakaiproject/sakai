@@ -58,8 +58,7 @@ public class ConfirmDeleteTemplateListener
     String templateId = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("templateId");
     AssessmentService assessmentService = new AssessmentService();
-    AssessmentTemplateFacade template = assessmentService.getAssessmentTemplate(
-        templateId.toString());
+    AssessmentTemplateFacade template = assessmentService.getAssessmentTemplate(templateId);
 
     TemplateBean templateBean = lookupTemplateBean(context);
     templateBean.setIdString(templateId);

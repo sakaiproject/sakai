@@ -264,7 +264,7 @@ public class PublishedAssessmentSettingsBean
         if (evaluation.getAnonymousGrading()!=null)
           this.anonymousGrading = evaluation.getAnonymousGrading().toString();
         if (evaluation.getToGradeBook()!=null )
-          this.toDefaultGradebook = evaluation.getToGradeBook().toString();
+          this.toDefaultGradebook = evaluation.getToGradeBook();
         if (evaluation.getScoringType()!=null)
           this.scoringType = evaluation.getScoringType().toString();
       }
