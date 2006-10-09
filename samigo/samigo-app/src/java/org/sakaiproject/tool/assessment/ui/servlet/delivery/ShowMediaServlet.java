@@ -27,11 +27,12 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import java.io.*;
+
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
@@ -52,7 +53,11 @@ import org.apache.commons.logging.LogFactory;
 
 public class ShowMediaServlet extends HttpServlet
 {
-  private static Log log = LogFactory.getLog(ShowMediaServlet.class);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2203681863823855810L;
+private static Log log = LogFactory.getLog(ShowMediaServlet.class);
 
   public ShowMediaServlet()
   {
@@ -73,7 +78,7 @@ public class ShowMediaServlet extends HttpServlet
     MediaData mediaData = gradingService.getMedia(mediaId);
     String mediaLocation = mediaData.getLocation();
     int fileSize = mediaData.getFileSize().intValue();
-    log.info("****1. media file size="+mediaData.getFileSize());
+    log.info("****1. media file size="+fileSize);
 
     //if setMimeType="false" in query string, implies, we want to do a forced download
     //in this case, we set contentType='application/octet-stream'
@@ -81,16 +86,15 @@ public class ShowMediaServlet extends HttpServlet
     log.info("****2. setMimeType="+setMimeType);
 
     // get assessment's ownerId
-    String assessmentCreatedBy = req.getParameter("createdBy");
+    // String assessmentCreatedBy = req.getParameter("createdBy");
 
     // who can access the media? You can,
     // a. if you are the creator.
     // b. if you have a assessment.grade.any or assessment.grade.own permission
     boolean accessDenied = true;
     String agentIdString = getAgentString(req, res);
-    log.debug("agentIdString ="+agentIdString);
-
     String currentSiteId="";
+    boolean isAudio = false;
     if (mediaData != null){
       Long assessmentGradingId = mediaData.getItemGradingData().getAssessmentGradingId();
       PublishedAssessmentIfc pub = gradingService.getPublishedAssessmentByAssessmentGradingId(assessmentGradingId.toString()); 
@@ -98,16 +102,26 @@ public class ShowMediaServlet extends HttpServlet
         PublishedAssessmentService service = new PublishedAssessmentService();
         currentSiteId = service.getPublishedAssessmentOwner(pub.getPublishedAssessmentId());
       }
+      Long typeId = gradingService.getTypeId(mediaData.getItemGradingData().getItemGradingId());
+      if (typeId.equals(TypeIfc.AUDIO_RECORDING)) {
+    	  isAudio = true;
+      }
     }
 
     // some log checking
-    log.debug("****current site Id ="+currentSiteId);
-    log.debug("**** creator?"+agentIdString.equals(mediaData.getCreatedBy()));
-
-    if (agentIdString !=null && mediaData != null &&
-         (agentIdString.equals(mediaData.getCreatedBy()) // user is creator
-	  || canGrade(req, res, agentIdString, currentSiteId, assessmentCreatedBy)))  
+    //log.debug("agentIdString ="+agentIdString);
+    //log.debug("****current site Id ="+currentSiteId);
+    
+    // We only need to verify the Previleage if we display the media as a hyperlink
+    // If we display them in line, the previleage has been checked during rendering
+    // For SAK-6294, we want to display audio player in line. So we set isAudio to true above
+    // and skip the privilege checking
+    boolean hasPrivilege = agentIdString !=null && mediaData != null &&
+    	(agentIdString.equals(mediaData.getCreatedBy()) // user is creator
+    	 || canGrade(req, res, agentIdString, currentSiteId));
+    if (hasPrivilege || isAudio) {
       accessDenied = false;
+    }
     if (accessDenied){
       String path = "/jsf/delivery/mediaAccessDenied.faces";
       RequestDispatcher dispatcher = req.getRequestDispatcher(path);
@@ -130,10 +144,12 @@ public class ShowMediaServlet extends HttpServlet
       BufferedInputStream buf_inputStream = null;
       ServletOutputStream outputStream = res.getOutputStream();
       BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream);
+      ByteArrayInputStream byteArrayInputStream = null;
       if (mediaLocation == null || (mediaLocation.trim()).equals("")){
         try{
           byte[] media = mediaData.getMedia();
-          buf_inputStream = new BufferedInputStream(new ByteArrayInputStream(media));
+          byteArrayInputStream = new ByteArrayInputStream(media);
+          buf_inputStream = new BufferedInputStream(byteArrayInputStream);
           log.debug("**** media.length="+media.length);
         }
         catch(Exception e){
@@ -148,26 +164,60 @@ public class ShowMediaServlet extends HttpServlet
       int count=0;
       try{
         int i=0;
-        if (buf_inputStream !=null){
-          while ((i=buf_inputStream.read()) != -1){
+        while ((i=buf_inputStream.read()) != -1){
             //System.out.print(i);
             buf_outputStream.write(i);
             count++;
           }
-        }
+        log.debug("**** mediaLocation="+mediaLocation);
+        res.setContentLength(count);
+        res.flushBuffer();
       }
       catch(Exception e){
         log.warn(e.getMessage());
       }
-
-      log.debug("**** mediaLocation="+mediaLocation);
-      res.setContentLength(count);
-      res.flushBuffer();
-      buf_outputStream.close();
-      buf_inputStream.close();
-      if (inputStream != null)
-        inputStream.close();
-      outputStream.close();
+      finally {
+    	  if (buf_outputStream != null) {
+			  try {
+				  buf_outputStream.close();
+			  }
+			  catch(IOException e) {
+				  log.error(e.getMessage());
+			  }
+    	  }
+    	  if (buf_inputStream != null) {
+			  try {
+				  buf_inputStream.close();
+			  }
+			  catch(IOException e) {
+				  log.error(e.getMessage());
+			  }
+    	  }
+          if (inputStream != null) {
+			  try {
+				  inputStream.close();
+			  }
+			  catch(IOException e) {
+				  log.error(e.getMessage());
+			  }
+          }
+          if (outputStream != null) {
+			  try {
+				  outputStream.close();
+			  }
+			  catch(IOException e) {
+				  log.error(e.getMessage());
+			  }
+          }
+          if (byteArrayInputStream != null) {
+			  try {
+				  byteArrayInputStream.close();
+			  }
+			  catch(IOException e) {
+				  log.error(e.getMessage());
+			  }
+          }
+      }
     }
   }
 
@@ -195,16 +245,14 @@ public class ShowMediaServlet extends HttpServlet
   }
 
   public boolean canGrade(HttpServletRequest req,  HttpServletResponse res,
-                          String agentId, String currentSiteId, String assessmentCreatedBy){
-    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet(
-			   "authorization", req, res);
+                          String agentId, String currentSiteId){
     boolean hasPrivilege_any = hasPrivilege(req, "grade_any_assessment", currentSiteId);
-    boolean hasPrivilege_own0 = hasPrivilege(req, "grade_own_assessment", currentSiteId);
+    boolean hasPrivilege_own = hasPrivilege(req, "grade_own_assessment", currentSiteId);
     log.debug("hasPrivilege_any="+hasPrivilege_any);
-    log.debug("hasPrivilege_own0="+hasPrivilege_own0);
-    boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(agentId, assessmentCreatedBy));
+    log.debug("hasPrivilege_own="+hasPrivilege_own);
     boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
     return hasPrivilege;    
+
   }
 
 
@@ -213,11 +261,10 @@ public class ShowMediaServlet extends HttpServlet
     isOwner = agentId.equals(ownerId);
     return isOwner;
   }
-
-    public boolean hasPrivilege(HttpServletRequest req, String functionKey, String context){
-    String functionName=(String)ContextUtil.getLocalizedString(req,"org.sakaiproject.tool.assessment.bundle.AuthzPermissions", functionKey);
-    boolean privilege = SecurityService.unlock(functionName, "/site/"+context);
-    return privilege;
+  
+  public boolean hasPrivilege(HttpServletRequest req, String functionKey, String context){
+	  String functionName=(String)ContextUtil.getLocalizedString(req,"org.sakaiproject.tool.assessment.bundle.AuthzPermissions", functionKey);
+	  boolean privilege = SecurityService.unlock(functionName, "/site/"+context);
+	  return privilege;
   }
-
 }
