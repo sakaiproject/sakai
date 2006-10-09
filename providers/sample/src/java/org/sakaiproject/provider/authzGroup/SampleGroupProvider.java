@@ -79,7 +79,7 @@ public class SampleGroupProvider implements GroupProvider
 	}
 
 	/** The external id for the "course" group. */
-	protected String m_courseExternalId = "2005,FALL,SMPL,001,001";
+	protected String m_courseExternalId = "2006,FALL,SMPL,001,001";
 
 	/**
 	 * Dependency - set the external id for the "course" group.
