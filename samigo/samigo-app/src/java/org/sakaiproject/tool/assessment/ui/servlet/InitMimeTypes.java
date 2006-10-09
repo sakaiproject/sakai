@@ -25,7 +25,6 @@ package org.sakaiproject.tool.assessment.ui.servlet;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,8 +39,7 @@ public class InitMimeTypes extends HttpServlet{
 	 * 
 	 */
 	private static final long serialVersionUID = 6032485774950035961L;
-private static Log log = LogFactory.getLog(InitMimeTypes.class);
-  protected static ServletContext context;
+    private static Log log = LogFactory.getLog(InitMimeTypes.class);
 
   public void init (ServletConfig config) throws ServletException {
     super.init(config);
