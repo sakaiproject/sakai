@@ -23,14 +23,11 @@
 
 package org.sakaiproject.tool.assessment.devtools;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -146,9 +143,10 @@ public class SubstituteProperties
    * @param s String
    * @return String
    */
+  /*
   private static String makeTag(String s)
   {
     return "#{msg." + s + "}";
   }
-
+  */
 }
