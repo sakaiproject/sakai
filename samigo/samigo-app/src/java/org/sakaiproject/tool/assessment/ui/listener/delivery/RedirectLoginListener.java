@@ -27,9 +27,6 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -48,9 +45,8 @@ public class RedirectLoginListener
     implements ActionListener
 {
 
-  static String alphabet = new String("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-  private static Log log = LogFactory.getLog(RedirectLoginListener.class);
-  private static ContextUtil cu;
+  static String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  //private static Log log = LogFactory.getLog(RedirectLoginListener.class);
 
   /**
    * ACTION.
@@ -70,7 +66,7 @@ public class RedirectLoginListener
       //log.info("agentId="+AgentFacade.getAgentString());
       if (AgentFacade.getAgentString()==null || ("").equals(AgentFacade.getAgentString()))
         outcome = "index";
-      DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
+      DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
       delivery.setOutcome(outcome);
     }
     catch (Exception e) {
