@@ -121,6 +121,8 @@ set foreign_key_checks=1;
 UPDATE osp_guidance SET securityViewFunction='osp.wizard.operate' WHERE
 securityViewFunction='osp.wizard.view';
 
+alter table osp_style add column style_hash varchar(255);
+
 ----------------------------------------------------------------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------------------------------------------------------------

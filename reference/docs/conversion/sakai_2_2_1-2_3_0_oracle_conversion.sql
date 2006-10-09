@@ -121,6 +121,8 @@ DELETE FROM SAKAI_REALM_FUNCTION WHERE FUNCTION_NAME IN ('calendar.revise','cale
 UPDATE osp_guidance SET securityViewFunction='osp.wizard.operate' WHERE
 securityViewFunction='osp.wizard.view';
 
+alter table osp_style add style_hash varchar2(255);
+
 ----------------------------------------------------------------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------------------------------------------------------------
