@@ -36,6 +36,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * <p>Title: Samigo</p>
@@ -64,7 +65,7 @@ public class RemoveAssessmentListener implements ActionListener
     // #1 - remove selected assessment on a separate thread
     String assessmentId = (String) assessmentBean.getAssessmentId();
     AssessmentIfc assessment = s.getAssessment(assessmentId); 
-    RemoveAssessmentThread thread = new RemoveAssessmentThread(assessmentId);
+    RemoveAssessmentThread thread = new RemoveAssessmentThread(assessmentId, SessionManager.getCurrentSessionUserId());
     thread.start();
 
     // This should have been done inside AssessmentFacadeQueries.removeAssessment()

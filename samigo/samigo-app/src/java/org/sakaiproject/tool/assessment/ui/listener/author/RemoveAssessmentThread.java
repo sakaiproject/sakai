@@ -19,36 +19,57 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
- * <p>Title: Samigo</p>
- * <p>Description: Sakai Assessment Manager</p>
- * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
- * <p>Organization: Sakai Project</p>
+ * Remove an assessment on a background thread so it's not taking time from the initiating end-user request thread.
+ * 
  * @author Ed Smiley
- * @version $Id$
  */
-
 public class RemoveAssessmentThread extends Thread
 {
+	private static Log log = LogFactory.getLog(RemoveAssessmentThread.class);
 
-  private static Log log = LogFactory.getLog(RemoveAssessmentThread.class);
-  private String assessmentId;
-  public RemoveAssessmentThread(String assessmentId)
-  {
-    this.assessmentId = assessmentId;
-  }
+	private String assessmentId;
 
-  public void run(){
-    AssessmentService assessmentService = new AssessmentService();
-    log.info("** remove assessmentId= "+this.assessmentId);
-    assessmentService.removeAssessment(this.assessmentId);
-  }
+	private String userId;
 
+	public RemoveAssessmentThread(String assessmentId, String userId)
+	{
+		this.assessmentId = assessmentId;
+		this.userId = userId;
+	}
+
+	public void run()
+	{
+		try
+		{
+			// bind the current user to the thread's session (created if needed) so security etc. works if called
+			Session s = SessionManager.getCurrentSession();
+			if (s != null)
+			{
+				s.setUserId(userId);
+			}
+			else
+			{
+				log.warn("run - no SessionManager.getCurrentSession, cannot set user");
+			}
+
+			AssessmentService assessmentService = new AssessmentService();
+			log.info("** remove assessmentId= " + this.assessmentId);
+			assessmentService.removeAssessment(this.assessmentId);
+		}
+		finally
+		{
+			// clear out any current thread bound objects
+			ThreadLocalManager.clear();
+		}
+	}
 }
