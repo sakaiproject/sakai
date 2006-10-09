@@ -49,7 +49,7 @@ public class SampleCourseManagementProvider implements CourseManagementProvider
 	private static Log M_log = LogFactory.getLog(SampleCourseManagementProvider.class);
 
 	/** Sample coursed. */
-	protected Course[] m_courses = null;
+	protected List m_courses = new Vector();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods
@@ -72,15 +72,6 @@ public class SampleCourseManagementProvider implements CourseManagementProvider
 		{
 			M_log.warn("init(): ", t);
 		}
-
-		// make sample courses
-		Course c = new Course();
-		c.setId("2005,FALL,SMPL,001,001");
-		c.setTermId("FALL 2005");
-		c.setTitle("Sample Course");
-		
-		m_courses = new Course[1];
-		m_courses[0] = c;
 
 	} // init
 
@@ -172,11 +163,12 @@ public class SampleCourseManagementProvider implements CourseManagementProvider
 	 */
 	public Course getCourse(String courseId)
 	{
-		for (int i = 0; i < m_courses.length; i++)
+		for (int i = 0; i < m_courses.size(); i++)
 		{
-			if (m_courses[i].getId().equals(courseId))
+			Course c = (Course)m_courses.get(i);
+			if (c.getId().equals(courseId))
 			{
-				return m_courses[i];
+				return c;
 			}
 		}
 		return null;
@@ -187,9 +179,10 @@ public class SampleCourseManagementProvider implements CourseManagementProvider
 	 */
 	public List getCourseMembers(String courseId)
 	{
-		for (int i = 0; i < m_courses.length; i++)
+		for (int i = 0; i < m_courses.size(); i++)
 		{
-			if (m_courses[i].getId().equals(courseId))
+			Course c = (Course)m_courses.get(i);
+			if (c.getId().equals(courseId))
 			{
 				List members = new Vector();
 				
@@ -217,10 +210,13 @@ public class SampleCourseManagementProvider implements CourseManagementProvider
 	public List getInstructorCourses(String instructorId, String termYear, String termTerm)
 	{
 		List rv = new Vector();
-		for (int i = 0; i < m_courses.length; i++)
-		{
-			rv.add(m_courses[i]);
-		}
+		Course c = new Course();
+		c.setTermId(termTerm + " " + termYear);
+		c.setId(termYear + "," + termTerm + ",SMPL,001,001");
+		c.setTitle("Sample Course");
+		m_courses.add(c);
+		rv.add(c);
+		
 		return rv;
 	}
 	
