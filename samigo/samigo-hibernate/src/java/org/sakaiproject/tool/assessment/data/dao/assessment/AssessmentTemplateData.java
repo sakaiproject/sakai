@@ -45,7 +45,7 @@ public class AssessmentTemplateData
    */
 
   public AssessmentTemplateData(){
-    setIsTemplate(new Boolean("true"));
+    setIsTemplate(Boolean.TRUE);
   }
 
   public AssessmentTemplateData(Long assessmentTemplateId, String title){
@@ -68,7 +68,7 @@ public class AssessmentTemplateData
                   Integer multipartAllowed, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate) {
-    super(new Boolean("true"),parentId,
+    super(Boolean.TRUE,parentId,
                title, description, comments,
                typeId,
                instructorNotification, testeeNotification,

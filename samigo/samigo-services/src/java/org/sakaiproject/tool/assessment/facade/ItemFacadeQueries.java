@@ -120,7 +120,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     item.setInstruction("Matching game");
     item.setTypeId(TypeFacade.MATCHING);
     item.setScore(new Float(10));
-    item.setHasRationale(new Boolean("false"));
+    item.setHasRationale(Boolean.FALSE);
     item.setStatus(new Integer(1));
     item.setCreatedBy("1");
     item.setCreatedDate(new Date());
@@ -369,14 +369,14 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     HashSet answerSet1 = new HashSet();
     HashSet answerFeedbackSet1 = new HashSet();
     Answer answer1 = new Answer(text1, "2 legs", new Long(1), "i",
-                                new Boolean("false"), null, new Float(0));
+    		Boolean.FALSE, null, new Float(0));
     answerFeedbackSet1.add(new AnswerFeedback(answer1, "incorrect", "sorry"));
     answer1.setAnswerFeedbackSet(answerFeedbackSet1);
     answerSet1.add(answer1);
     answerSet1.add(new Answer(text1, "3 legs", new Long(2), "ii",
-                              new Boolean("false"), null, new Float(0)));
+    		Boolean.FALSE, null, new Float(0)));
     answerSet1.add(new Answer(text1, "4 legs", new Long(3), "iii",
-                              new Boolean("true"), null, new Float(5)));
+    		Boolean.TRUE, null, new Float(5)));
     text1.setAnswerSet(answerSet1);
 
     textSet.add(text1);
@@ -387,11 +387,11 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     text2.setText("chicken has");
     HashSet answerSet2 = new HashSet();
     answerSet2.add(new Answer(text2, "2 legs", new Long(1), "i",
-                              new Boolean("true"), null, new Float(5)));
+    		Boolean.TRUE, null, new Float(5)));
     answerSet2.add(new Answer(text2, "3 legs", new Long(2), "ii",
-                              new Boolean("false"), null, new Float(0)));
+    		Boolean.FALSE, null, new Float(0)));
     answerSet2.add(new Answer(text2, "4 legs", new Long(3), "iii",
-                              new Boolean("false"), null, new Float(0)));
+    		Boolean.FALSE, null, new Float(0)));
     text2.setAnswerSet(answerSet2);
     textSet.add(text2);
 
@@ -401,11 +401,11 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     text3.setText("baby has");
     HashSet answerSet3 = new HashSet();
     answerSet3.add(new Answer(text3, "2 legs", new Long(1), "i",
-                              new Boolean("false"), null, new Float(0)));
+    		Boolean.FALSE, null, new Float(0)));
     answerSet3.add(new Answer(text3, "3 legs", new Long(2), "ii",
-                              new Boolean("false"), null, new Float(0)));
+    		Boolean.FALSE, null, new Float(0)));
     answerSet3.add(new Answer(text3, "4 legs", new Long(3), "iii",
-                              new Boolean("true"), null, new Float(5)));
+    		Boolean.TRUE, null, new Float(5)));
     text3.setAnswerSet(answerSet3);
     textSet.add(text3);
     return textSet;
@@ -434,7 +434,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
       item.setInstruction("Matching game");
       item.setTypeId(new Long(9));
       item.setScore(new Float(10));
-      item.setHasRationale(new Boolean("false"));
+      item.setHasRationale(Boolean.FALSE);
       item.setStatus(new Integer(1));
       item.setCreatedBy("1");
       item.setCreatedDate(new Date());
