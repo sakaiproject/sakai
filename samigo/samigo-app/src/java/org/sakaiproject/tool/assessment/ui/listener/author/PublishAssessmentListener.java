@@ -149,8 +149,7 @@ public class PublishAssessmentListener
 
   private void publish(AssessmentFacade assessment,
                        AssessmentSettingsBean assessmentSettings) {
-    String publishAssessment = (String) FacesContext.getCurrentInstance().
-        getExternalContext().getRequestParameterMap().get("publishAssessment");
+    //String publishAssessment = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("publishAssessment");
     //log.info("***** PUBLISHING ***");
     PublishedAssessmentService publishedAssessmentService = new
         PublishedAssessmentService();
