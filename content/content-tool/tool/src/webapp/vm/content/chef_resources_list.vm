@@ -163,13 +163,13 @@
 					<a href="#"
 						onclick="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='created by';document.getElementById('showForm').submit();"
 						onkeypress="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='created by';document.getElementById('showForm').submit();"
-						title= "$tlang.getString('sh.sortcrea')">
+						title= "$tlang.getString('sh.sortaut')">
 						$tlang.getString("gen.created")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropCreator)) 
 							#if ($currentSortAsc.equals("true")) 
-								<img src = "#imageLink("sakai/sortascending.gif")" border="0"  title ="$tlang.getString('sh.sortcreaas')"  alt ="$tlang.getString('sh.sortdateas')" /> 
+								<img src = "#imageLink("sakai/sortascending.gif")" border="0"  title ="$tlang.getString('sh.sortautas')"  alt ="$tlang.getString('sh.sortautas')" /> 
 							#else 
-								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('sh.sortcreadesc')"  alt ="$tlang.getString('sh.sortdatedesc')" /> 
+								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('sh.sortautdesc')"  alt ="$tlang.getString('sh.sortautdesc')" /> 
 							#end 
 						#end 
 					</a>
