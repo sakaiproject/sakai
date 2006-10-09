@@ -45,7 +45,7 @@ public class TextFormat
   private static final String SMART;
   private static final String PLAIN;
   private static final Vector vProtocols;
-  private String upperText;
+  //private String upperText;
   private StringBuffer returnText;
   private StringBuffer resource;
   private ArrayList arrLst;
@@ -108,7 +108,7 @@ public class TextFormat
 
         // traverse vector of protocol strings
         Iterator i = vProtocols.iterator();
-        Integer retVal = new Integer(0);
+        Integer retVal;
         while(i.hasNext())
         {
           String str = (String) i.next();

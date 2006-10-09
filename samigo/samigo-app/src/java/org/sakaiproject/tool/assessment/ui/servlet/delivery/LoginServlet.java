@@ -24,7 +24,6 @@
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -38,7 +37,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -112,7 +110,6 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
     delivery.setPublishedAssessment(pub);
 
     RequestDispatcher dispatcher = null;
-    String contextPath = req.getContextPath();
     String path = "/jsf/delivery/invalidAssessment.faces";
     boolean relativePath = true;
 
@@ -226,8 +223,7 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
       String agentIdString, PublishedAssessmentFacade pub,
       DeliveryBean delivery, PersonBean person){
     boolean assessmentIsAvailable = false;
-    Integer submissions = new Integer(0);
-    submissions = service.getTotalSubmission(agentIdString,
+    Integer submissions = service.getTotalSubmission(agentIdString,
       pub.getPublishedAssessmentId().toString());
     HashMap h = new HashMap();
     if (submissions.intValue()>0)
