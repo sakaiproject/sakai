@@ -46,10 +46,7 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
-import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
-import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.BeanSort;
 
 /**
  * <p>
@@ -66,9 +63,6 @@ public class TotalScoreUpdateListener
   implements ActionListener
 {
   private static Log log = LogFactory.getLog(TotalScoreUpdateListener.class);
-  private static EvaluationListenerUtil util;
-  private static BeanSort bs;
-  private static ContextUtil cu;
 
   /**
    * Standard process action method.
@@ -79,7 +73,7 @@ public class TotalScoreUpdateListener
     AbortProcessingException
   {
     log.debug("Total Score Update LISTENER.");
-    TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
+    TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
     log.debug("Calling saveTotalScores.");
     if (!saveTotalScores(bean))
     {
@@ -144,9 +138,9 @@ public class TotalScoreUpdateListener
             BeanUtils.copyProperties(data, agentResults);
 
             data.setAgentId(agentResults.getIdString());
-  	    data.setForGrade(new Boolean(true));
+  	    data.setForGrade(Boolean.TRUE);
 	    //data.setStatus(new Integer(1));
-            data.setIsLate(new Boolean(false));
+            data.setIsLate(Boolean.FALSE);
    	    data.setItemGradingSet(new HashSet());
     	    data.setPublishedAssessmentId(bean.getPublishedAssessment().getPublishedAssessmentId());
 	    // tell hibernate this is a new record
@@ -168,7 +162,7 @@ public class TotalScoreUpdateListener
       log.debug("Saved total scores.");
       } catch (GradebookServiceException ge) {
        FacesContext context = FacesContext.getCurrentInstance();
-       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
+       String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
        context.addMessage(null, new FacesMessage(err));
        // scores are saved in Samigo, still return true, but display error to user.
        return true;

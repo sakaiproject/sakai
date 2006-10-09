@@ -510,7 +510,7 @@ public class ItemData
     // if not true false, done.
     if (!this.getTypeId().equals(TypeD.TRUE_FALSE))
     {
-      return new Boolean(false);
+      return Boolean.FALSE;
     }
 
     Set answerSet = null;
@@ -534,7 +534,7 @@ public class ItemData
       }
     }
 
-    return new Boolean(false);
+    return Boolean.FALSE;
 
   }
 

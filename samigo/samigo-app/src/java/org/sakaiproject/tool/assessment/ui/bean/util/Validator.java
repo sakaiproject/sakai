@@ -38,7 +38,7 @@ public class Validator {
   public static Boolean bcheck(Boolean mytest, boolean mydefault)
   {
     if (mytest == null)
-      return new Boolean(mydefault);
+      return Boolean.valueOf(mydefault);
     return mytest;
   }
 }

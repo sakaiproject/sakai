@@ -81,7 +81,6 @@ public class QuestionScoreListener
   private static Log log = LogFactory.getLog(QuestionScoreListener.class);
   //private static EvaluationListenerUtil util;
   private static BeanSort bs;
-  private static ContextUtil cu;
   private static final String noAnswer = (String) ContextUtil.getLocalizedString(
 										"org.sakaiproject.tool.assessment.bundle.EvaluationMessages",
 										"no_answer");
@@ -569,9 +568,9 @@ log.debug("item==null ");
             results.setSubmittedDate(gdata.getSubmittedDate());
 
             if (dueDate == null || gdata.getSubmittedDate().before(dueDate))
-              results.setIsLate(new Boolean(false));
+              results.setIsLate(Boolean.FALSE);
             else
-              results.setIsLate(new Boolean(true));
+              results.setIsLate(Boolean.TRUE);
 
             AgentFacade agent = new AgentFacade(gdata.getAgentId());
             //log.info("Rachel: agentid = " + gdata.getAgentId());

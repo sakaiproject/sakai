@@ -133,7 +133,7 @@ public class TagUtil
     else
     {
       component.getAttributes().put(attributeName,
-        new Boolean(attributeValue));
+        Boolean.valueOf(attributeValue));
     }
   }
 
@@ -313,7 +313,7 @@ public class TagUtil
       }
       else
       {
-        return new Boolean(r.toString());
+        return Boolean.valueOf(r.toString());
       }
     }
     else

@@ -23,10 +23,7 @@
 
 package test.org.sakaiproject.tool.assessment.ui.listener;
 
-import java.util.Iterator;
-import java.util.Set;
 import java.util.Date;
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -35,8 +32,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SecuredIPAddressIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.cms.CourseManagementBean;
@@ -58,8 +55,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class FakeBeginDeliveryActionListener implements ActionListener
 {
   private static Log log = LogFactory.getLog(FakeBeginDeliveryActionListener.class);
-
-  private static ContextUtil cu;
   private static String ID_TO_TEST = "3";
 
   /**
@@ -70,13 +65,11 @@ public class FakeBeginDeliveryActionListener implements ActionListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-
     // get service
     PublishedAssessmentService publishedAssessmentService = new
       PublishedAssessmentService();
     // get managed bean
-    DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
+    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
     // get assessment
     PublishedAssessmentFacade pub = null;
     pub = lookupPublishedAssessment(ID_TO_TEST, publishedAssessmentService);
@@ -87,7 +80,7 @@ public class FakeBeginDeliveryActionListener implements ActionListener
     populateBeanFromPub(delivery, pub);
 
     // add in course management system info
-    CourseManagementBean course = (CourseManagementBean) cu.lookupBean("course");
+    CourseManagementBean course = (CourseManagementBean) ContextUtil.lookupBean("course");
     populateBeanFromCourse(delivery, course);
   }
 
@@ -114,16 +107,16 @@ public class FakeBeginDeliveryActionListener implements ActionListener
       pub.setCreatedBy("A wizard.");
     */
       AssessmentFeedback feed = new AssessmentFeedback();
-      feed.setShowCorrectResponse(new Boolean(true));
-      feed.setShowGraderComments(new Boolean(true));
-      feed.setShowQuestionLevelFeedback(new Boolean(true));
-      feed.setShowQuestionText(new Boolean(true));
-      feed.setShowSelectionLevelFeedback(new Boolean(true));
-      feed.setShowStatistics(new Boolean(true));
-      feed.setShowStudentScore(new Boolean(true));
-      feed.setShowStudentQuestionScore(new Boolean(true));
-      feed.setFeedbackDelivery(feed.FEEDBACK_BY_DATE);
-      feed.setFeedbackAuthoring(feed.QUESTIONLEVEL_FEEDBACK);
+      feed.setShowCorrectResponse(Boolean.TRUE);
+      feed.setShowGraderComments(Boolean.TRUE);
+      feed.setShowQuestionLevelFeedback(Boolean.TRUE);
+      feed.setShowQuestionText(Boolean.TRUE);
+      feed.setShowSelectionLevelFeedback(Boolean.TRUE);
+      feed.setShowStatistics(Boolean.TRUE);
+      feed.setShowStudentScore(Boolean.TRUE);
+      feed.setShowStudentQuestionScore(Boolean.TRUE);
+      feed.setFeedbackDelivery(AssessmentFeedbackIfc.FEEDBACK_BY_DATE);
+      feed.setFeedbackAuthoring(AssessmentFeedbackIfc.QUESTIONLEVEL_FEEDBACK);
       pub.setAssessmentFeedback(feed);
       /*
       PublishedAccessControl control = new PublishedAccessControl();
@@ -226,9 +219,9 @@ public class FakeBeginDeliveryActionListener implements ActionListener
     feedback.setShowStudentScore(info.getShowStudentScore().booleanValue());
     feedback.setShowStudentQuestionScore(info.getShowStudentQuestionScore().booleanValue());
     Integer feedbackDelivery = info.getFeedbackDelivery();
-    feedback.setShowDateFeedback(info.FEEDBACK_BY_DATE.equals(feedbackDelivery));
-    feedback.setShowImmediate(info.IMMEDIATE_FEEDBACK.equals(feedbackDelivery));
-    feedback.setShowNoFeedback(info.NO_FEEDBACK.equals(feedbackDelivery));
+    feedback.setShowDateFeedback(AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(feedbackDelivery));
+    feedback.setShowImmediate(AssessmentFeedbackIfc.IMMEDIATE_FEEDBACK.equals(feedbackDelivery));
+    feedback.setShowNoFeedback(AssessmentFeedbackIfc.NO_FEEDBACK.equals(feedbackDelivery));
   }
 
   /**
@@ -255,18 +248,18 @@ public class FakeBeginDeliveryActionListener implements ActionListener
   private void constructControlSettings(SettingsDeliveryBean settings,
     AssessmentAccessControlIfc  control )
   {
-    settings.setAutoSubmit(control.AUTO_SUBMIT.equals(control.getAutoSubmit()));
-    settings.setAutoSave(control.AUTO_SAVE.equals(control.getSubmissionsSaved()));
+    settings.setAutoSubmit(AssessmentAccessControlIfc.AUTO_SUBMIT.equals(control.getAutoSubmit()));
+    settings.setAutoSave(AssessmentAccessControlIfc.AUTO_SAVE.equals(control.getSubmissionsSaved()));
     settings.setDueDate(control.getDueDate());
     settings.setMaxAttempts(control.getRetryAllowed().intValue());
     settings.setSubmissionMessage(control.getSubmissionMessage());
     settings.setUnlimitedAttempts(
-      control.UNLIMITED_SUBMISSIONS_ALLOWED.equals(control.getSubmissionsAllowed()));
+      AssessmentAccessControlIfc.UNLIMITED_SUBMISSIONS_ALLOWED.equals(control.getSubmissionsAllowed()));
     settings.setFeedbackDate(control.getFeedbackDate());
     Integer format = control.getAssessmentFormat();
-    settings.setFormatByAssessment(control.BY_ASSESSMENT.equals(format));
-    settings.setFormatByPart(control.BY_PART.equals(format));
-    settings.setFormatByQuestion(control.BY_QUESTION.equals(format));
+    settings.setFormatByAssessment(AssessmentAccessControlIfc.BY_ASSESSMENT.equals(format));
+    settings.setFormatByPart(AssessmentAccessControlIfc.BY_PART.equals(format));
+    settings.setFormatByQuestion(AssessmentAccessControlIfc.BY_QUESTION.equals(format));
     settings.setUsername(control.getUsername());
     settings.setPassword(control.getPassword());
   }

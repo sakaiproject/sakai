@@ -163,15 +163,15 @@ public class SaveAssessmentSettings
      feedback.setFeedbackDelivery(new Integer(assessmentSettings.getFeedbackDelivery()));
     if (assessmentSettings.getFeedbackAuthoring()!=null)
      feedback.setFeedbackAuthoring(new Integer(assessmentSettings.getFeedbackAuthoring()));
-    feedback.setShowQuestionText(new Boolean(assessmentSettings.getShowQuestionText()));
-    feedback.setShowStudentResponse(new Boolean(assessmentSettings.getShowStudentResponse()));
-    feedback.setShowCorrectResponse(new Boolean(assessmentSettings.getShowCorrectResponse()));
-    feedback.setShowStudentScore(new Boolean(assessmentSettings.getShowStudentScore()));
-    feedback.setShowStudentQuestionScore(new Boolean(assessmentSettings.getShowStudentQuestionScore()));
-    feedback.setShowQuestionLevelFeedback(new Boolean(assessmentSettings.getShowQuestionLevelFeedback()));
-    feedback.setShowSelectionLevelFeedback(new Boolean(assessmentSettings.getShowSelectionLevelFeedback()));
-    feedback.setShowGraderComments(new Boolean(assessmentSettings.getShowGraderComments()));
-    feedback.setShowStatistics(new Boolean(assessmentSettings.getShowStatistics()));
+    feedback.setShowQuestionText(Boolean.valueOf(assessmentSettings.getShowQuestionText()));
+    feedback.setShowStudentResponse(Boolean.valueOf(assessmentSettings.getShowStudentResponse()));
+    feedback.setShowCorrectResponse(Boolean.valueOf(assessmentSettings.getShowCorrectResponse()));
+    feedback.setShowStudentScore(Boolean.valueOf(assessmentSettings.getShowStudentScore()));
+    feedback.setShowStudentQuestionScore(Boolean.valueOf(assessmentSettings.getShowStudentQuestionScore()));
+    feedback.setShowQuestionLevelFeedback(Boolean.valueOf(assessmentSettings.getShowQuestionLevelFeedback()));
+    feedback.setShowSelectionLevelFeedback(Boolean.valueOf(assessmentSettings.getShowSelectionLevelFeedback()));
+    feedback.setShowGraderComments(Boolean.valueOf(assessmentSettings.getShowGraderComments()));
+    feedback.setShowStatistics(Boolean.valueOf(assessmentSettings.getShowStatistics()));
     assessment.setAssessmentFeedback(feedback);
 
     // g. set Grading

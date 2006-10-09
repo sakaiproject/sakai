@@ -92,7 +92,8 @@ public class SakaiBootStrap
       LOG.debug("setAutoDdl(String " + value + ")");
     }
 
-    autoDdl = new Boolean(value).booleanValue();
+    //autoDdl = new Boolean(value).booleanValue();
+    autoDdl = Boolean.parseBoolean(value);
   }
 
 }

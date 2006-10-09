@@ -419,7 +419,7 @@ public class ItemAddListener
       }
       // update hasRationale
       if (bean.getRationale() != null) {
-        item.setHasRationale(new Boolean(bean.getRationale()));
+        item.setHasRationale(Boolean.valueOf(bean.getRationale()));
       }
       else {
         item.setHasRationale(Boolean.FALSE);

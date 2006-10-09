@@ -155,7 +155,7 @@ public class AuthorizationFacadeQueries
     }
     if (args[0].equals("addAuthz")) {
       AuthorizationFacade a = new AuthorizationFacade(args[1], args[2], args[3], new Date(),
-        null,"2",new Date(),new Boolean("true"));
+        null,"2",new Date(),Boolean.TRUE);
       instance.addAuthz(a);
     }
     System.exit(0);

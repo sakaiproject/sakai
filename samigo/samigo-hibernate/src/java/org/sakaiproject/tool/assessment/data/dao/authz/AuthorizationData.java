@@ -191,7 +191,7 @@ private String agentId;
           returnVal = false;
         break;
     }
-    return new Boolean(returnVal);
+    return Boolean.valueOf(returnVal);
   }
 
   /**

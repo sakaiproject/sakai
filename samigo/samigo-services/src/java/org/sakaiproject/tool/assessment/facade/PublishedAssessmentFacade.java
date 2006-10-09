@@ -56,7 +56,7 @@ public class PublishedAssessmentFacade
   private AssessmentFacade assessment;
   private Long publishedAssessmentId;
   private Long assessmentId;
-  private Boolean isTemplate = new Boolean("false");
+  private Boolean isTemplate = Boolean.FALSE;
   private Long parentId;
   private String title;
   private String description;

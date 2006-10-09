@@ -271,7 +271,7 @@ public class ItemContentsBean implements Serializable {
 		while (iter.hasNext()) {
 			ItemGradingData data = (ItemGradingData) iter.next();
 			log.debug("setReview():  setreview at the end = " + preview);
-			data.setReview(new Boolean(preview));
+			data.setReview(Boolean.valueOf(preview));
 		}
 	}
 

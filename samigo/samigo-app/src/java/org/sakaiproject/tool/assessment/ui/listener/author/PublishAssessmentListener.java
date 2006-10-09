@@ -74,7 +74,7 @@ public class PublishAssessmentListener
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();
   private static final boolean integrated =
       IntegrationContextFactory.getInstance().isIntegrated();
-  private static Boolean repeatedPublish = new Boolean(false);
+  private static Boolean repeatedPublish = Boolean.FALSE;
 
   public PublishAssessmentListener() {
   }
@@ -89,7 +89,7 @@ public class PublishAssessmentListener
   		String buttonValue = (String) vb.getExpressionString(); 
   		if(buttonValue.endsWith("#{msg.button_unique_save_and_publish}"))
   		{
-  			repeatedPublish = new Boolean(false);
+  			repeatedPublish = Boolean.FALSE;
   			return;
   		}
   		
@@ -142,7 +142,7 @@ public class PublishAssessmentListener
   			// get the managed bean, author and set the list
   			author.setAssessments(assessmentList);
   			
-  			repeatedPublish = new Boolean(true);
+  			repeatedPublish = Boolean.TRUE;
   		}
 		}
   }

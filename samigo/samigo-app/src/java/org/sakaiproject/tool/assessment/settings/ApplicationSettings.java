@@ -69,77 +69,77 @@ public class ApplicationSettings
 
       Boolean b = null;
       // disableMultipleChoiceSingle
-      b = new Boolean(p.getProperty("disableMultipleChoiceSingle", "false"));
+      b = Boolean.valueOf(p.getProperty("disableMultipleChoiceSingle", "false"));
       if (b.booleanValue())
       {
         log.info("disableMultipleChoiceSingle = true");
         disableMultipleChoiceSingle = true;
       }
       // disableMultipleChoiceMultiple
-      b = new Boolean(p.getProperty("disableMultipleChoiceMultiple", "false"));
+      b = Boolean.valueOf(p.getProperty("disableMultipleChoiceMultiple", "false"));
       if (b.booleanValue())
       {
         log.info("disableMultipleChoiceMultiple = true");
         disableMultipleChoiceMultiple = true;
       }
       // disableMultipleChoiceSurvey
-      b = new Boolean(p.getProperty("disableMultipleChoiceSurvey", "false"));
+      b = Boolean.valueOf(p.getProperty("disableMultipleChoiceSurvey", "false"));
       if (b.booleanValue())
       {
         log.info("disableMultipleChoiceSurvey = true");
         disableMultipleChoiceSurvey = true;
       }
       // disableShortAnswerEssay
-      b = new Boolean(p.getProperty("disableShortAnswerEssay", "false"));
+      b = Boolean.valueOf(p.getProperty("disableShortAnswerEssay", "false"));
       if (b.booleanValue())
       {
         log.info("disableShortAnswerEssay = true");
         disableShortAnswerEssay = true;
       }
       // disableFillInTheBlank
-      b = new Boolean(p.getProperty("disableFillInTheBlank", "false"));
+      b = Boolean.valueOf(p.getProperty("disableFillInTheBlank", "false"));
       if (b.booleanValue())
       {
         log.info("disableFillInTheBlank = true");
         disableFillInTheBlank = true;
       }
       // disableFillInNumeric
-      b = new Boolean(p.getProperty("disableFillInNumeric", "false"));
+      b = Boolean.valueOf(p.getProperty("disableFillInNumeric", "false"));
       if (b.booleanValue())
       {
         log.info("disableFillInNumeric = true");
         disableFillInNumeric = true;
       }
       // disableMatching
-      b = new Boolean(p.getProperty("disableMatching", "false"));
+      b = Boolean.valueOf(p.getProperty("disableMatching", "false"));
       if (b.booleanValue())
       {
         log.info("disableMatching = true");
         disableMatching = true;
       }
       // disableTrueFalse
-      b = new Boolean(p.getProperty("disableTrueFalse", "false"));
+      b = Boolean.valueOf(p.getProperty("disableTrueFalse", "false"));
       if (b.booleanValue())
       {
         log.info("disableTrueFalse = true");
         disableTrueFalse = true;
       }
       // disableAudioRecording
-      b = new Boolean(p.getProperty("disableAudioRecording", "false"));
+      b = Boolean.valueOf(p.getProperty("disableAudioRecording", "false"));
       if (b.booleanValue())
       {
         log.info("disableAudioRecording = true");
         disableAudioRecording = true;
       }
       // disableFileUpload
-      b = new Boolean(p.getProperty("disableFileUpload", "false"));
+      b = Boolean.valueOf(p.getProperty("disableFileUpload", "false"));
       if (b.booleanValue())
       {
         log.info("disableFileUpload = true");
         disableFileUpload = true;
       }
       // poolingUserAdminDisabled
-      b = new Boolean(p.getProperty("poolingUserAdminDisabled", "false"));
+      b = Boolean.valueOf(p.getProperty("poolingUserAdminDisabled", "false"));
       if (b.booleanValue())
       {
         log.info("poolingUserAdminDisabled = true");
@@ -147,7 +147,7 @@ public class ApplicationSettings
       }
 
       // enableAutoSaveForGrading
-      b = new Boolean(p.getProperty("enableAutoSaveForGrading", "false"));
+      b = Boolean.valueOf(p.getProperty("enableAutoSaveForGrading", "false"));
       if (b.booleanValue())
       {
         log.info("enableAutoSaveForGrading= true");

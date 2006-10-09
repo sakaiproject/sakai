@@ -53,7 +53,7 @@ public class AssessmentData extends org.sakaiproject.tool.assessment.data.dao.as
    */
 
   public AssessmentData(){
-    setIsTemplate(new Boolean("false"));
+    setIsTemplate(Boolean.FALSE);
   }
 
   public AssessmentData(Long assessmentTemplateId, String title, Date lastModifiedDate){
@@ -68,7 +68,7 @@ public class AssessmentData extends org.sakaiproject.tool.assessment.data.dao.as
                   Integer multipartAllowed, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate) {
-    super(new Boolean("false"),parentId,
+    super(Boolean.FALSE,parentId,
                title, description, comments,
                typeId,
                instructorNotification, testeeNotification,

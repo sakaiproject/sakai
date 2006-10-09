@@ -559,10 +559,10 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
         dueDate = ac.getDueDate();
       if (dueDate == null || gdata.getSubmittedDate() == null || gdata.getSubmittedDate().before(dueDate)) {   // SAK-5504
       //if (dueDate == null || gdata.getSubmittedDate().before(dueDate)) {
-        results.setIsLate(new Boolean(false));
+        results.setIsLate(Boolean.FALSE);
       }
       else {
-        results.setIsLate(new Boolean(true));
+        results.setIsLate(Boolean.TRUE);
         // The mock up has been updated. For a late submission, the "LATE" will be displayed
         // under Submission Date column instead of Status column. Therefore, we will not treat
         // LATE_SUBMISSION as a status. Comment out the following line for this reason.

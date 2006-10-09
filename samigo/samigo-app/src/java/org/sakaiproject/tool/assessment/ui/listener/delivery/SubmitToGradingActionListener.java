@@ -326,7 +326,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		}
 
 		adata.setIsLate(isLate(publishedAssessment));
-		adata.setForGrade(new Boolean(delivery.getForGrade()));
+		adata.setForGrade(Boolean.valueOf(delivery.getForGrade()));
 		log.debug("*** 2b. before storingGrades, did all the removes and adds "
 				+ (new Date()));
 		
@@ -458,7 +458,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		adata.setAgentId(person.getId());
 		adata.setPublishedAssessmentId(publishedAssessment
 				.getPublishedAssessmentId());
-		adata.setForGrade(new Boolean(delivery.getForGrade()));
+		adata.setForGrade(Boolean.valueOf(delivery.getForGrade()));
 		adata.setItemGradingSet(itemGradingHash);
 		adata.setAttemptDate(new Date());
 		adata.setIsLate(Boolean.FALSE);

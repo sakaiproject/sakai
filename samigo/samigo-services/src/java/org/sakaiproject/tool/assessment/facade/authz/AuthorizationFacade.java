@@ -159,7 +159,7 @@ private Id agentId;
 
   public void setIsExplicit(boolean type) {
     this.isExplicit = type;
-    data.setIsExplicitBoolean(new Boolean(type));
+    data.setIsExplicitBoolean(Boolean.valueOf(type));
   }
 
 

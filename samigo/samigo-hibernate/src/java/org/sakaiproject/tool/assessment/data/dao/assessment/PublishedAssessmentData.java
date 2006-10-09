@@ -443,7 +443,7 @@ public class PublishedAssessmentData
   }
 
   public Boolean getIsTemplate() {
-    return new Boolean("false");
+    return Boolean.FALSE;
   }
 
   public void setIsTemplate(Boolean isTemplate) {

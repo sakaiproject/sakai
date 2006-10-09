@@ -1275,7 +1275,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     if (pub.getAssessmentAccessControl() != null
       && pub.getAssessmentAccessControl().getDueDate() != null &&
           pub.getAssessmentAccessControl().getDueDate().before(new Date()))
-          data.setIsLate(new Boolean(true));
+          data.setIsLate(Boolean.TRUE);
     else
       data.setIsLate(new Boolean(false));
     if (data.getForGrade().booleanValue())
