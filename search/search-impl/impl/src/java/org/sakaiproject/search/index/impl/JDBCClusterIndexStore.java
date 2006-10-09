@@ -111,25 +111,36 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	 * shared structured storage in the shared location
 	 */
 	private boolean sharedStructuredStorage = false;
-	
-	
-	private ClusterSegmentsStorage clusterStorage = null;
 
+	private ClusterSegmentsStorage clusterStorage = null;
 
 	public void init()
 	{
 		log.info(this + ":init() ");
 		clusterStorage = new ClusterSegmentsStorage(searchIndexDirectory, this,
 				localStructuredStorage, debug);
-		
-		// TODO: We should migrate to the correct storage format, on the local 
-		// and shared space, by looking at the DB and then checking what is there 
+
+		// TODO: We should migrate to the correct storage format, on the local
+		// and shared space, by looking at the DB and then checking what is
+		// there
 		// followed by a move.
-		// Since we are doing a move, it should be ok to have this happend on the fly.
-		
-		
-		
-		
+		// Since we are doing a move, it should be ok to have this happend on
+		// the fly.
+
+		try
+		{
+			migrateLocalSegments();
+			migrateSharedSegments();
+		}
+		catch (IOException ex)
+		{
+			log
+					.error(
+							"Failed to migrate search content to new format, the instance should not continue to run ",
+							ex);
+			System.exit(-1);
+		}
+
 		/*
 		 * The storage is created by hibernate now try { if (autoDdl) {
 		 * SqlService.getInstance().ddl(this.getClass().getClassLoader(),
@@ -267,12 +278,17 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			for (Iterator i = updateLocalSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo addsi = (SegmentInfo) i.next();
-				try {
+				try
+				{
 					updateLocalSegment(connection, addsi);
-				} catch ( Exception ex ) {
-					// ignore failures to unpack a local segment. It may have been removed by
+				}
+				catch (Exception ex)
+				{
+					// ignore failures to unpack a local segment. It may have
+					// been removed by
 					// annother node
-					log.info("Segment was not unpacked "+ex.getClass().getName()+":"+ex.getMessage());
+					log.info("Segment was not unpacked "
+							+ ex.getClass().getName() + ":" + ex.getMessage());
 				}
 
 			}
@@ -286,8 +302,10 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			for (Iterator i = dbSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo si = (SegmentInfo) i.next();
-				File f = getSegmentLocation(si.getName(),localStructuredStorage);
-				if ( f.exists() ) {
+				File f = getSegmentLocation(si.getName(),
+						localStructuredStorage);
+				if (f.exists())
+				{
 					// only add those segments that exist after the sync
 					segmentList.add(f.getPath());
 				}
@@ -487,7 +505,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			for (Iterator i = updateDBSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo si = (SegmentInfo) i.next();
-				File f = getSegmentLocation(si.getName(),localStructuredStorage);
+				File f = getSegmentLocation(si.getName(),
+						localStructuredStorage);
 				segmentList.add(f.getPath());
 				log.debug("Segments saved " + f.getName());
 
@@ -519,7 +538,6 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		}
 		return segmentList;
 	}
-
 
 	public List saveAllSegments()
 	{
@@ -601,7 +619,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			for (Iterator i = updateDBSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo si = (SegmentInfo) i.next();
-				File f = getSegmentLocation(si.getName(),localStructuredStorage);
+				File f = getSegmentLocation(si.getName(),
+						localStructuredStorage);
 				segmentList.add(f.getPath());
 			}
 			connection.commit();
@@ -719,7 +738,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	 */
 	private void removeLocalSegment(SegmentInfo rmsi)
 	{
-		File f = getSegmentLocation( rmsi.getName(), localStructuredStorage);
+		File f = getSegmentLocation(rmsi.getName(), localStructuredStorage);
 		deleteAll(f);
 		log.debug("LO Removed " + rmsi);
 	}
@@ -884,7 +903,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		try
 		{
 			sharedTempFile = new File(getSharedTempFileName(INDEX_PATCHNAME));
-			sharedFinalFile = new File(getSharedFileName(INDEX_PATCHNAME, sharedStructuredStorage));
+			sharedFinalFile = new File(getSharedFileName(INDEX_PATCHNAME,
+					sharedStructuredStorage));
 			packetFile = clusterStorage.packPatch();
 			packetStream = new FileInputStream(packetFile);
 			sharedStream = new FileOutputStream(sharedTempFile);
@@ -1103,7 +1123,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				segmentDelete.setLong(2, rmsi.getVersion());
 				segmentDelete.execute();
 
-				String sharedSegment = getSharedFileName(rmsi.getName(), sharedStructuredStorage);
+				String sharedSegment = getSharedFileName(rmsi.getName(),
+						sharedStructuredStorage);
 				if (sharedSegment != null)
 				{
 					File f = new File(sharedSegment);
@@ -1136,8 +1157,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		File f = null;
 		for (;;)
 		{
-			f = getSegmentLocation( String.valueOf(System
-					.currentTimeMillis()), localStructuredStorage);
+			f = getSegmentLocation(String.valueOf(System.currentTimeMillis()),
+					localStructuredStorage);
 			if (!f.exists())
 			{
 				break;
@@ -1151,6 +1172,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	/**
 	 * set the checksum file up
+	 * 
 	 * @param segmentdir
 	 * @throws IOException
 	 */
@@ -1200,18 +1222,21 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	/**
 	 * get the checksum out of the segment by the segment name
+	 * 
 	 * @param segmentName
 	 * @return
 	 * @throws IOException
 	 */
 	private String getCheckSum(String segmentName) throws IOException
 	{
-		File segmentdir = getSegmentLocation( segmentName, localStructuredStorage);
+		File segmentdir = getSegmentLocation(segmentName,
+				localStructuredStorage);
 		return getCheckSum(segmentdir);
 	}
 
 	/**
 	 * get the checksum using the segment name as a File
+	 * 
 	 * @param segmentdir
 	 * @return
 	 * @throws IOException
@@ -1234,6 +1259,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	/**
 	 * set the timestamp in the segment
+	 * 
 	 * @param segmentdir
 	 * @param l
 	 * @throws IOException
@@ -1263,6 +1289,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	/**
 	 * get the timestam associated with the segment dir
+	 * 
 	 * @param segmentdir
 	 * @return
 	 * @throws IOException
@@ -1287,6 +1314,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	/**
 	 * get the timestamp fields
+	 * 
 	 * @param timestamp
 	 * @return
 	 * @throws IOException
@@ -1310,6 +1338,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	/**
 	 * set the timestamp fields
+	 * 
 	 * @param fields
 	 * @param timestamp
 	 * @throws IOException
@@ -1332,23 +1361,24 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	 * @return
 	 * @throws IOException
 	 */
-	List getLocalSegments() throws IOException
+	public List getLocalSegments() throws IOException
 	{
 		List l = new ArrayList();
 		File searchDir = new File(searchIndexDirectory);
-		return getLocalSegments(searchDir,l);
+		return getLocalSegments(searchDir, l);
 	}
-	
+
 	/**
 	 * recurse into a list of segments
+	 * 
 	 * @param searchDir
 	 * @param l
 	 * @return
 	 * @throws IOException
 	 */
-	private List getLocalSegments(File searchDir, List l) throws IOException
+	public List getLocalSegments(File searchDir, List l) throws IOException
 	{
-	
+
 		File[] files = searchDir.listFiles();
 		if (files != null)
 		{
@@ -1375,8 +1405,10 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 											+ files[i]);
 						}
 
-					} else {
-						l = getLocalSegments(files[i],l);
+					}
+					else
+					{
+						l = getLocalSegments(files[i], l);
 					}
 				}
 			}
@@ -1386,6 +1418,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	/**
 	 * get a list of bad segmetns with brokenindexes
+	 * 
 	 * @return
 	 * @throws IOException
 	 */
@@ -1393,10 +1426,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	{
 		List l = new ArrayList();
 		File searchDir = new File(searchIndexDirectory);
-		return getBadLocalSegments(searchDir,l);
+		return getBadLocalSegments(searchDir, l);
 	}
+
 	/**
 	 * recurse into a list of bad local segments
+	 * 
 	 * @param searchDir
 	 * @param l
 	 * @return
@@ -1420,8 +1455,10 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 							l.add(files[i]);
 						}
 
-					} else {
-						l = getBadLocalSegments(files[i],l);
+					}
+					else
+					{
+						l = getBadLocalSegments(files[i], l);
 					}
 				}
 			}
@@ -1494,11 +1531,6 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				+ "reload from the database");
 
 	}
-
-
-
-
-
 
 	/**
 	 * delete all files under this file and including this file
@@ -1667,7 +1699,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				try
 				{
 					long version = resultSet.getLong(1);
-					File f = new File(getSharedFileName(INDEX_PATCHNAME,sharedStructuredStorage));
+					File f = new File(getSharedFileName(INDEX_PATCHNAME,
+							sharedStructuredStorage));
 					packetStream = new FileInputStream(f);
 					clusterStorage.unpackPatch(packetStream);
 					log.debug("Updated Patch ");
@@ -1837,7 +1870,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	public String getNewCheckSum(String segmentName)
 			throws NoSuchAlgorithmException, IOException
 	{
-		File segmentFile = getSegmentLocation(segmentName,localStructuredStorage);
+		File segmentFile = getSegmentLocation(segmentName,
+				localStructuredStorage);
 		File[] files = segmentFile.listFiles();
 		MessageDigest md5 = MessageDigest.getInstance("MD5");
 		String ignore = ":" + TIMESTAMP_FILE + ":";
@@ -1918,7 +1952,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		try
 		{
 			sharedTempFile = new File(getSharedTempFileName(addsi.getName()));
-			sharedFinalFile = new File(getSharedFileName(addsi.getName(), sharedStructuredStorage));
+			sharedFinalFile = new File(getSharedFileName(addsi.getName(),
+					sharedStructuredStorage));
 			packetFile = clusterStorage.packSegment(addsi, newVersion);
 			packetStream = new FileInputStream(packetFile);
 			sharedStream = new FileOutputStream(sharedTempFile);
@@ -2023,10 +2058,14 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			{
 				sharedSegments = sharedSegments + "/";
 			}
-			if ( structured && !INDEX_PATCHNAME.equals(name) ) {
-				String hashName = name.substring(name.length()-4,name.length()-2);
-				return sharedSegments + hashName + "/" + name +".zip";
-			} else {
+			if (structured && !INDEX_PATCHNAME.equals(name))
+			{
+				String hashName = name.substring(name.length() - 4, name
+						.length() - 2);
+				return sharedSegments + hashName + "/" + name + ".zip";
+			}
+			else
+			{
 				return sharedSegments + name + ".zip";
 			}
 		}
@@ -2072,7 +2111,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				try
 				{
 					long version = resultSet.getLong(1);
-					File f = new File(getSharedFileName(addsi.getName(),sharedStructuredStorage));
+					File f = new File(getSharedFileName(addsi.getName(),
+							sharedStructuredStorage));
 					packetStream = new FileInputStream(f);
 					checked.remove(addsi.getName()); // force revalidation
 					clusterStorage.unpackSegment(addsi, packetStream, version);
@@ -2274,16 +2314,108 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	}
 
-	File getSegmentLocation(String name, boolean structured)
+	private void migrateSharedSegments()
 	{
-		if ( structured ) {
-			
-			String hashName = name.substring(name.length()-4,name.length()-2);
-			File hash = new File(searchIndexDirectory,hashName);
-			return new File(hash,name);
-		} else {
-			return new File(searchIndexDirectory,name);
-		}		
+		if (sharedSegments != null && sharedSegments.length() > 0)
+		{
+			Connection connection = null;
+			try
+			{
+				connection = dataSource.getConnection();
+
+				List l = getDBSegments(connection);
+				for (Iterator li = l.iterator(); li.hasNext();)
+				{
+					SegmentInfo si = (SegmentInfo) li.next();
+					String shared = getSharedFileName(si.getName(),
+							!sharedStructuredStorage);
+					File f = new File(shared);
+					if (f.exists())
+					{
+						File fnew = new File(getSharedFileName(si.getName(),
+								sharedStructuredStorage));
+						fnew.getParentFile().mkdirs();
+						log.info("Moving " + f.getPath() + " to "
+								+ fnew.getPath());
+						try
+						{
+							f.renameTo(fnew);
+						}
+						catch (Exception ex)
+						{
+							log.warn("Failed " + ex.getMessage());
+							log.debug("Debug Failure ", ex);
+						}
+					}
+				}
+				connection.commit();
+			}
+			catch (Exception ex)
+			{
+				try
+				{
+					connection.rollback();
+				}
+				catch (Exception ex1)
+				{
+
+				}
+
+			}
+			finally
+			{
+				try
+				{
+					connection.close();
+				}
+				catch (Exception ex)
+				{
+				}
+			}
+		}
+
+	}
+
+	private void migrateLocalSegments() throws IOException
+	{
+		List l = getLocalSegments();
+		for (Iterator li = l.iterator(); li.hasNext();)
+		{
+			SegmentInfo si = (SegmentInfo) li.next();
+			File f = getSegmentLocation(si.getName(), !localStructuredStorage);
+			if (f.exists())
+			{
+				File fnew = getSegmentLocation(si.getName(),
+						localStructuredStorage);
+				fnew.getParentFile().mkdirs();
+				log.info("Moving " + f.getPath() + " to " + fnew.getPath());
+				try
+				{
+					f.renameTo(fnew);
+				}
+				catch (Exception ex)
+				{
+					log.warn("Failed " + ex.getMessage());
+					log.debug("Debug Failure ", ex);
+				}
+			}
+		}
+	}
+
+	public File getSegmentLocation(String name, boolean structured)
+	{
+		if (structured)
+		{
+
+			String hashName = name.substring(name.length() - 4,
+					name.length() - 2);
+			File hash = new File(searchIndexDirectory, hashName);
+			return new File(hash, name);
+		}
+		else
+		{
+			return new File(searchIndexDirectory, name);
+		}
 	}
 
 	private long getLocalSegmentLastModified(File file)
@@ -2364,7 +2496,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	}
 
 	/**
-	 * @param localStructuredStorage The localStructuredStorage to set.
+	 * @param localStructuredStorage
+	 *        The localStructuredStorage to set.
 	 */
 	public void setLocalStructuredStorage(boolean localStructuredStorage)
 	{
@@ -2380,7 +2513,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	}
 
 	/**
-	 * @param sharedStructuredStorage The sharedStructuredStorage to set.
+	 * @param sharedStructuredStorage
+	 *        The sharedStructuredStorage to set.
 	 */
 	public void setSharedStructuredStorage(boolean sharedStructuredStorage)
 	{
