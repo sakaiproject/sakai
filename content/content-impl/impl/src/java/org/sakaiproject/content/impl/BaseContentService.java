@@ -3461,11 +3461,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 		catch (AuthzPermissionException e)
 		{
-			M_log.warn("removeResource: removing realm for : " + edit.getReference() + " : " + e);
+			M_log.debug("removeResource: removing realm for : " + edit.getReference() + " : " + e);
 		}
 		catch (GroupNotDefinedException ignore)
 		{
-			M_log.warn("removeResource: removing realm for : " + edit.getReference() + " : " + ignore);
+			M_log.debug("removeResource: removing realm for : " + edit.getReference() + " : " + ignore);
 		}
 
 		// track it (no notification)
