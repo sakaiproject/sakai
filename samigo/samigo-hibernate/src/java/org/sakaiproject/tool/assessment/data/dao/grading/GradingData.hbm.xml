@@ -14,7 +14,7 @@
     <property name="publishedItemId" type="long" column="PUBLISHEDITEMID" not-null="true" index="SAM_ITEMGRADING_ITEM_I" />
     <property name="publishedItemTextId" type="long" column="PUBLISHEDITEMTEXTID" not-null="true" index="SAM_ITEMGRADING_ITEMTEXT_I" />
     <property name="agentId" type="string" length="36" column="AGENTID" not-null="true" />
-    <property name="submittedDate" type="timestamp" column="SUBMITTEDDATE" not-null="true" />
+    <property name="submittedDate" type="timestamp" column="SUBMITTEDDATE" not-null="false" />
     <property name="publishedAnswerId" type="long" column="PUBLISHEDANSWERID" not-null="false" index="SAM_ITEMGRADING_PUBANS_I" />
     <property name="rationale" type="string" length="4000" column="RATIONALE" not-null="false" />
     <property name="answerText" type="string" length="4000" column="ANSWERTEXT" not-null="false" />
