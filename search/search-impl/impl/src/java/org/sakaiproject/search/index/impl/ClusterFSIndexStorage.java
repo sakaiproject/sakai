@@ -68,13 +68,21 @@ public class ClusterFSIndexStorage implements IndexStorage
 	private AnalyzerFactory analyzerFactory = null;
 
 	/**
-	 * Maximum size of a segment
+	 * Maximum size of a segment on write
 	 */
 	private long segmentThreshold = 1024 * 1024 * 2; // Maximum Segment size
 
 	// is 2M
 
 	private ClusterFilesystem clusterFS = null;
+	
+	
+	// maximum size of a segment during merge
+
+	private long maxSegmentSize = 1024L * 1024L * 1500L ; // just short of 1.5G
+
+	// maximum size of a segment considered for merge operations
+	private long maxMegeSegmentSize = 1024L * 1024L * 1200L; // 1.2G
 
 	public void init()
 	{
@@ -376,34 +384,40 @@ public class ClusterFSIndexStorage implements IndexStorage
 					int j = 0;
 					for (int i = 0; i < segmentSize.length; i++)
 					{
-						groupstomerge[i] = 0;
-						if (ninblock == 0)
+						if (segmentSize[i] < maxMegeSegmentSize)
 						{
-							sizeBlock = segmentSize[0];
-							ninblock = 1;
-						}
-						if (segmentSize[i] > sizeBlock / 10)
-						{
-							ninblock++;
-						}
-						else
-						{
-							ninblock = 1;
-							mergegroupno++;
-							sizeBlock = segmentSize[i];
-						}
-						mergegroup[i] = mergegroupno;
-						if (ninblock >= 10)
-						{
-							if (sizeBlock < 200L * 1024L * 1024L)
+							groupstomerge[i] = 0;
+							if (ninblock == 0)
 							{
+								sizeBlock = segmentSize[0];
+								ninblock = 1;
+							}
+							if (segmentSize[i] > sizeBlock / 10)
+							{
+								ninblock++;
+							}
+							else
+							{
+								ninblock = 1;
+								mergegroupno++;
+								sizeBlock = segmentSize[i];
+							}
+							mergegroup[i] = mergegroupno;
+							if (ninblock >= 10)
+							{
+								// if (sizeBlock < 200L * 1024L * 1024L)
+								// {
+								// We will use a cumulative sum to avoid going
+
+								// over 2G when we merge
 								// only perform merge for segments < 200M
 								// oterwise we risk a 2G segment.
 								groupstomerge[j++] = mergegroupno;
-							}
-							mergegroupno++;
-							ninblock = 0;
+								// }
+								mergegroupno++;
+								ninblock = 0;
 
+							}
 						}
 					}
 					if (j > 0)
@@ -451,20 +465,41 @@ public class ClusterFSIndexStorage implements IndexStorage
 							mergeIndexWriter.setMaxMergeDocs(50);
 							mergeIndexWriter.setMergeFactor(50);
 							ArrayList indexes = new ArrayList();
+							long currentSize = 0L;
 							for (int j = 0; j < mergegroup.length; j++)
 							{
 								if (mergegroup[j] == groupstomerge[i])
 								{
-									Directory d = FSDirectory.getDirectory(
-											segmentName[j], false);
-									if (d.fileExists("segments"))
+									// if we merge this segment will the result probably remain small enough
+									if ((currentSize+segmentSize[j]) < maxSegmentSize)
 									{
-										status.append("   Merge ").append(
-												segmentName[j].getName())
-												.append(" >> ").append(
-														mergeSegment.getName())
-												.append("\n");
-										indexes.add(d);
+										currentSize += segmentSize[j];
+
+										Directory d = FSDirectory.getDirectory(
+												segmentName[j], false);
+										if (d.fileExists("segments"))
+										{
+											status.append("   Merge ").append(
+													segmentName[j].getName())
+													.append(" >> ").append(
+															mergeSegment
+																	.getName())
+													.append("\n");
+											indexes.add(d);
+										}
+										else
+										{
+											status.append(
+													"   Skipped, size >  ")
+													.append(maxSegmentSize)
+													.append(" ").append(
+															segmentName[j]
+																	.getName())
+													.append(" >> ").append(
+															mergeSegment
+																	.getName())
+													.append("\n");
+										}
 									}
 								}
 							}
