@@ -190,6 +190,14 @@ public class BasicRightsService extends BaseRightsService
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
+	 * Shutdown cleanly
+	 */
+	public void destroy()
+	{
+		
+	}
+	
+	/**
 	 * Final initialization, once all dependencies are set.
 	 */
 	public void init()
