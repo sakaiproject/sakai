@@ -238,3 +238,11 @@ alter table SAKAI_SYLLABUS_DATA change position position_c integer not null;
 create table SAKAI_PRIVACY_RECORD (id bigint not null auto_increment, lockId integer not null, contextId varchar(255) not null, recordType varchar(255) not null, userId varchar(255) not null, viewable bit not null, primary key (id), unique (contextId, recordType, userId)) default charset=latin1;
 
 ----------------------------------------------------------------------------------------------------------------------------------------
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+-- events
+
+ALTER TABLE SAKAI_EVENT CHANGE SESSION_ID SESSION_ID VARCHAR (163);
+
+----------------------------------------------------------------------------------------------------------------------------------------
