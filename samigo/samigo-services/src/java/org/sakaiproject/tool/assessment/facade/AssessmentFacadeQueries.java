@@ -477,7 +477,7 @@ public class AssessmentFacadeQueries
       Set sectionSet = getSectionSetForAssessment(assessment);
       assessment.setSectionSet(sectionSet);
 
-      /* removal of resource should be done here but for some reason it doesn't work.
+      // removal of resource should be done here but for some reason it doesn't work.
       // Debugging log in Content doesn't show anything.
       // So I am doing it in RemoveAssessmentListener
       // #2 - remove any resources attachment
@@ -485,7 +485,6 @@ public class AssessmentFacadeQueries
       List resourceIdList = s.getAssessmentResourceIdList(assessment);
       log.debug("*** we have no. of resource in assessment="+resourceIdList.size());
       s.deleteResources(resourceIdList);
-      */
 
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){

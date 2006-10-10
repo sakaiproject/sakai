@@ -456,9 +456,6 @@ public class PublishedAssessmentFacadeQueries
                                   itemAttachment.getFilename(), cr.getContentType(), cr.getContent(),
                                   cr.getProperties());
 
-        System.out.println("****resourceId="+itemAttachment.getResourceId());
-        System.out.println("****cr.id="+cr.getId());
-        System.out.println("****cr_copy.id="+cr_copy.getId());
         //get relative path
         String url = getRelativePath(cr_copy.getUrl(), protocol);
         
@@ -511,9 +508,6 @@ public class PublishedAssessmentFacadeQueries
                                   sectionAttachment.getFilename(), cr.getContentType(), cr.getContent(),
                                   cr.getProperties());
 
-        System.out.println("****resourceId="+sectionAttachment.getResourceId());
-        System.out.println("****cr.id="+cr.getId());
-        System.out.println("****cr_copy.id="+cr_copy.getId());
         //get relative path
         String url = getRelativePath(cr_copy.getUrl(), protocol);
 
@@ -566,9 +560,6 @@ public class PublishedAssessmentFacadeQueries
                                   assessmentAttachment.getFilename(), cr.getContentType(), cr.getContent(),
                                   cr.getProperties());
 
-        System.out.println("****resourceId="+assessmentAttachment.getResourceId());
-        System.out.println("****cr.id="+cr.getId());
-        System.out.println("****cr_copy.id="+cr_copy.getId());
         //get relative path
         String url = getRelativePath(cr_copy.getUrl(), protocol);
 
@@ -1447,7 +1438,6 @@ public class PublishedAssessmentFacadeQueries
             " a.title=? and a.publishedAssessmentId!=? and a.status!=2 and "+
             " z.functionId='OWN_PUBLISHED_ASSESSMENT' and " +
             " a.publishedAssessmentId=z.qualifierId and z.agentIdString=?";
-    //System.out.println("query" + query);
 
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -1465,7 +1455,6 @@ public class PublishedAssessmentFacadeQueries
 //           new org.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
     if (list.size()>0)
       isUnique = false;
-    //System.out.println("*** list size="+list.size());
     return isUnique;
   }
 

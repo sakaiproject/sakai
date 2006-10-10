@@ -703,7 +703,6 @@ private List attachmentList;
     catch(Exception e){
       log.error("fail to redirect to attachment page: " + e.getMessage());
     }
-    System.out.println("**** outcome="+getOutcome());
     return getOutcome();
   }
 
@@ -725,7 +724,6 @@ private List attachmentList;
         ContentResource cr = ContentHostingService.getResource(attach.getResourceId());
         if (cr!=null){
           ReferenceComponent ref = new ReferenceComponent(cr.getReference());
-          System.out.println("**** ref="+ref);
           if (ref !=null ) list.add(ref);
         }
       }

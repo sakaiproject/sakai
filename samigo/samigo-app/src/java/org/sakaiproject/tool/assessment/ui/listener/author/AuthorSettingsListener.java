@@ -94,7 +94,6 @@ public class AuthorSettingsListener implements ActionListener
     assessmentSettings.setAssessmentId(assessment.getAssessmentId());
     assessmentSettings.setAttachmentList(((AssessmentIfc)assessment.getData()).getAssessmentAttachmentList());
 
-    System.out.println("***assessment Setting .attachmentList="+assessmentSettings.getAttachmentList());
     // else throw error
 
     // #1c - get question size

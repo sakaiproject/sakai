@@ -985,7 +985,6 @@ ItemService delegate = new ItemService();
         ContentResource cr = ContentHostingService.getResource(attach.getResourceId());
         if (cr!=null){
           ReferenceComponent ref = new ReferenceComponent(cr.getReference());
-          System.out.println("**** ref="+ref);
           if (ref !=null ) list.add(ref);
         }
       }

@@ -73,8 +73,8 @@ public class RemoveAssessmentListener implements ActionListener
     // Debugging log in Conntent Hosting doesn't show anything.
     // So I have to do it here
     // #2 - even if assessment is set to dead, we intend to remove any resources
-    List resourceIdList = s.getAssessmentResourceIdList(assessment);
-    s.deleteResources(resourceIdList);
+    //    List resourceIdList = s.getAssessmentResourceIdList(assessment);
+    // s.deleteResources(resourceIdList);
 
     //#3 - goto authorIndex.jsp so fix the assessment List in author bean by
     // removing an assessment from the list
