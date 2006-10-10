@@ -2051,6 +2051,7 @@ public class SiteAction extends PagedResourceActionII
 			* 
 			*/
 			context.put("title", site.getTitle());
+			context.put("sitePublished", Boolean.valueOf(site.isPublished()));
 			if (state.getAttribute("form_selectedNotify") == null)
 			{
 				state.setAttribute("form_selectedNotify", Boolean.FALSE);

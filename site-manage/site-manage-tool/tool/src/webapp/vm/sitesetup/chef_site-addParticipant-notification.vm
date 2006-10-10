@@ -5,30 +5,38 @@
 		$tlang.getString("add.addpart") $validator.escapeHtml($title)...
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-	<p class="instruction">
-		$tlang.getString("addnoti.anemail")
-	</p>
 	<form action="#toolForm("SiteAction")" method="post">
-		<p class="checkbox">
-			<input type="radio" name="notify" value="true" id="notify_yes" 
-				#if ($notify)
-					checked="checked"
-				#end
-			/>
-			<label for="notify_yes">
-				$tlang.getString("addnoti.sendnow")
-			</label>
-		</p>
-		<p class="checkbox">
-			<input type="radio" name="notify" value="false" id="notify_no"
-				#if (!$notify)
-					checked="checked"
-				#end
-			/>
-			<label for="notify_no">
-				$tlang.getString("addnoti.dontsend")
-			</label>
-		</p>
+		#if ($!sitePublished)
+			<p class="instruction">
+				$tlang.getString("addnoti.anemail")
+			</p>
+			<p class="checkbox">
+				<input type="radio" name="notify" value="true" id="notify_yes" 
+					#if ($notify)
+						checked="checked"
+					#end
+				/>
+				<label for="notify_yes">
+					$tlang.getString("addnoti.sendnow")
+				</label>
+			</p>
+			<p class="checkbox">
+				<input type="radio" name="notify" value="false" id="notify_no"
+					#if (!$notify)
+						checked="checked"
+					#end
+				/>
+				<label for="notify_no">
+					$tlang.getString("addnoti.dontsend")
+				</label>
+			</p>
+		#else
+			## if the site hasn't been published yet, show instruction, don't allow sending emails to added users
+			<p class="instruction">
+				$tlang.getString("addnoti.toUnpublishedSite")
+			</p>
+			<input type="hidden" name="notify" value="false" />
+		#end
 
 		<input type="hidden" name="continue" value="22" />
 		<input type="hidden" name="back" value="$backIndex" />
