@@ -10035,13 +10035,12 @@ public class SiteAction extends PagedResourceActionII
 		if (noEmailInIdAccounts != null)
 		{
 			// adding noEmailInIdAccounts
-			String[] noEmailInIdAccountArray = noEmailInIdAccounts.replaceAll(",","\r\n").split("\r\n");
+			String[] noEmailInIdAccountArray = noEmailInIdAccounts.split("\r\n");
 			
 			for (i = 0; i < noEmailInIdAccountArray.length; i++)
 			{
-				String noEmailInIdAccount = StringUtil.trimToNull(noEmailInIdAccountArray[i]);
+				String noEmailInIdAccount = StringUtil.trimToNull(noEmailInIdAccountArray[i].replaceAll("[\t\r\n]",""));
 				//if there is some text, try to use it
-				noEmailInIdAccount.replaceAll("[\t\r\n]","");
 				if(noEmailInIdAccount != null)
 				{
 					//automaticially add emailInIdAccount account
