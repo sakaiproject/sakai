@@ -3028,94 +3028,98 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								}
 								submittersString = submittersString.concat(submitters[i].getLastName()+","+submitters[i].getFirstName());
 							}
-							submittersName = submittersName.concat(submittersString);
-							submittedText = s.getSubmittedText();
-
-							boolean added = false;
-							while (!added)
+							
+							if (StringUtil.trimToNull(submittersString) != null)
 							{
-								try
+								submittersName = submittersName.concat(StringUtil.trimToNull(submittersString));
+								submittedText = s.getSubmittedText();
+	
+								boolean added = false;
+								while (!added)
 								{
-									submittersName = submittersName.concat("/");
-									// create the folder structure - named after the submitter's name
-									AssignmentContent ac = a.getContent();
-									if (ac.getTypeOfSubmission() != Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION)
+									try
 									{
-										// create the text file only when a text submission is allowed
-										ZipEntry textEntry = new ZipEntry(submittersName + submittersString + "_submissionText.txt");
-										out.putNextEntry(textEntry);
-										out.write(FormattedText.convertFormattedTextToPlaintext(submittedText).getBytes());
-										out.closeEntry();
-									}
-
-									// create the attachment file(s)
-									List attachments = s.getSubmittedAttachments();
-									int attachedUrlCount = 0;
-									for (int j = 0; j < attachments.size(); j++)
-									{
-										Reference r = (Reference) attachments.get(j);
-										try
+										submittersName = submittersName.concat("/");
+										// create the folder structure - named after the submitter's name
+										AssignmentContent ac = a.getContent();
+										if (ac.getTypeOfSubmission() != Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION)
 										{
-											ContentResource resource = ContentHostingService.getResource(r.getId());
-
-											String contentType = resource.getContentType();
-											byte[] content = resource.getContent();
-											ResourceProperties props = r.getProperties();
-											String displayName = props.getPropertyFormatted(props.getNamePropDisplayName());
-
-											// for URL content type, encode a redirect to the body URL
-											if (contentType.equalsIgnoreCase(ResourceProperties.TYPE_URL))
-											{
-												displayName = "attached_URL_" + attachedUrlCount;
-												attachedUrlCount++;
-											}
-
-											ZipEntry attachmentEntry = new ZipEntry(submittersName + displayName);
-
-											out.putNextEntry(attachmentEntry);
-											out.write(content);
+											// create the text file only when a text submission is allowed
+											ZipEntry textEntry = new ZipEntry(submittersName + submittersString + "_submissionText.txt");
+											out.putNextEntry(textEntry);
+											out.write(FormattedText.convertFormattedTextToPlaintext(submittedText).getBytes());
 											out.closeEntry();
 										}
-										catch (PermissionException e)
+	
+										// create the attachment file(s)
+										List attachments = s.getSubmittedAttachments();
+										int attachedUrlCount = 0;
+										for (int j = 0; j < attachments.size(); j++)
 										{
-											M_log.debug(this + ": getSubmissionsZip--PermissionException submittersName="
-													+ submittersName + " attachment reference=" + r);
-										}
-										catch (IdUnusedException e)
-										{
-											M_log.debug(this + ": getSubmissionsZip--IdUnusedException submittersName="
-													+ submittersName + " attachment reference=" + r);
-										}
-										catch (TypeException e)
-										{
-											M_log.debug(this + ": getSubmissionsZip--TypeException: submittersName="
-													+ submittersName + " attachment reference=" + r);
-										}
-										catch (IOException e)
-										{
-											M_log
-													.debug(this
-															+ ": getSubmissionsZip--IOException: Problem in creating the attachment file: submittersName="
-															+ submittersName + " attachment reference=" + r);
-										}
-										catch (ServerOverloadException e)
-										{
-											M_log.debug(this + ": getSubmissionsZip--ServerOverloadException: submittersName="
-													+ submittersName + " attachment reference=" + r);
-										}
-									} // for
-
-									added = true;
-								}
-								catch (IOException e)
-								{
-									exceptionMessage.append("Can not establish the IO to create zip file for user "
-											+ submittersName);
-									M_log.debug(this + ": getSubmissionsZip--IOException unable to create the zip file for user"
-											+ submittersName);
-									submittersName = submittersName.substring(0, submittersName.length() - 1) + "_" + count++;
-								}
-							} // while
+											Reference r = (Reference) attachments.get(j);
+											try
+											{
+												ContentResource resource = ContentHostingService.getResource(r.getId());
+	
+												String contentType = resource.getContentType();
+												byte[] content = resource.getContent();
+												ResourceProperties props = r.getProperties();
+												String displayName = props.getPropertyFormatted(props.getNamePropDisplayName());
+	
+												// for URL content type, encode a redirect to the body URL
+												if (contentType.equalsIgnoreCase(ResourceProperties.TYPE_URL))
+												{
+													displayName = "attached_URL_" + attachedUrlCount;
+													attachedUrlCount++;
+												}
+	
+												ZipEntry attachmentEntry = new ZipEntry(submittersName + displayName);
+	
+												out.putNextEntry(attachmentEntry);
+												out.write(content);
+												out.closeEntry();
+											}
+											catch (PermissionException e)
+											{
+												M_log.debug(this + ": getSubmissionsZip--PermissionException submittersName="
+														+ submittersName + " attachment reference=" + r);
+											}
+											catch (IdUnusedException e)
+											{
+												M_log.debug(this + ": getSubmissionsZip--IdUnusedException submittersName="
+														+ submittersName + " attachment reference=" + r);
+											}
+											catch (TypeException e)
+											{
+												M_log.debug(this + ": getSubmissionsZip--TypeException: submittersName="
+														+ submittersName + " attachment reference=" + r);
+											}
+											catch (IOException e)
+											{
+												M_log
+														.debug(this
+																+ ": getSubmissionsZip--IOException: Problem in creating the attachment file: submittersName="
+																+ submittersName + " attachment reference=" + r);
+											}
+											catch (ServerOverloadException e)
+											{
+												M_log.debug(this + ": getSubmissionsZip--ServerOverloadException: submittersName="
+														+ submittersName + " attachment reference=" + r);
+											}
+										} // for
+	
+										added = true;
+									}
+									catch (IOException e)
+									{
+										exceptionMessage.append("Can not establish the IO to create zip file for user "
+												+ submittersName);
+										M_log.debug(this + ": getSubmissionsZip--IOException unable to create the zip file for user"
+												+ submittersName);
+										submittersName = submittersName.substring(0, submittersName.length() - 1) + "_" + count++;
+									}
+								} // while
+							}	// if
 						} // submitted
 
 					} // while -- there is submission
@@ -6589,18 +6593,29 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public User[] getSubmitters()
 		{
-			User[] retVal = new User[m_submitters.size()];
+			List retVal = new Vector();
 			for (int x = 0; x < m_submitters.size(); x++)
 			{
+				String userId = (String) m_submitters.get(x);
 				try
 				{
-					retVal[x] = UserDirectoryService.getUser((String) m_submitters.get(x));
+					retVal.add(UserDirectoryService.getUser(userId));
 				}
 				catch (Exception e)
 				{
+					M_log.warn(this + e.getMessage() + userId);
 				}
 			}
-			return retVal;
+			
+			// get the User[] array
+			int size = retVal.size();
+			User[] rv = new User[size];
+			for(int k = 0; k<size; k++)
+			{
+				rv[k] = (User) retVal.get(k);
+			}
+			
+			return rv;
 		}
 
 		/**
