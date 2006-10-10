@@ -224,8 +224,15 @@ sorting actions for table:
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
-        <h:outputText value="#{reviewable.assessmentTitle}" />
+
+        <h:outputText value="#{reviewable.assessmentTitle}"/> 
+
+  
+<h:outputText value="#{msg.asterisk}" rendered="#{reviewable.multipleSubmissions eq 'true' && reviewable.scoringOption eq '1'}"/>
+
+
        </h:commandLink>
+
 
   <f:verbatim><br /></f:verbatim>
        <h:commandLink title="#{msg.t_histogram}" action="histogramScores" immediate="true"  
@@ -476,6 +483,9 @@ sorting actions for table:
       </h:outputText>
     </h:column>
   </h:dataTable>
+   
+  <h:outputText value="#{msg.asterisk}#{msg.highest_note}" rendered="#{select.hasHighestMultipleSubmission}"/>
+   
   </div></div>
   </h:form>
 </div>

@@ -55,7 +55,7 @@ public class SelectAssessmentBean
   private boolean reviewableAscending = true;
   private org.sakaiproject.tool.assessment.ui.model.PagingModel reviewPager;
   private org.sakaiproject.tool.assessment.ui.model.PagingModel takePager;
-
+  private boolean hasHighestMultipleSubmission=false;  // this is used to display the message on the bottom if there are any highest multiple submissions. 
   /**
    * ArrayLists should be lists of DeliveryBean objects
    *
@@ -243,4 +243,18 @@ public class SelectAssessmentBean
       else
 	   return true;
   }
+
+/**
+ * @return Returns the hasHighestMultipleSubmission.
+ */
+public boolean isHasHighestMultipleSubmission() {
+	return hasHighestMultipleSubmission;
+}
+
+/**
+ * @param hasHighestMultipleSubmission The hasHighestMultipleSubmission to set.
+ */
+public void setHasHighestMultipleSubmission(boolean hasHighestMultipleSubmission) {
+	this.hasHighestMultipleSubmission = hasHighestMultipleSubmission;
+}
 }

@@ -75,6 +75,10 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
   private boolean pastDue;
   private boolean timeRunning;
 
+  // display * and notes for multiple submissions 
+  private boolean multipleSubmissions;
+  private String scoringOption;
+   
   // lydial added for timezone conversion 
   //private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_date_no_sec");
   private String display_dateFormat= "yyyy-MMM-dd hh:mm aaa";
@@ -355,5 +359,33 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
     }
     return dateString;
   }
+
+/**
+ * @return Returns the multipleSubmissions.
+ */
+public boolean isMultipleSubmissions() {
+	return multipleSubmissions;
+}
+
+/**
+ * @param multipleSubmissions The multipleSubmissions to set.
+ */
+public void setMultipleSubmissions(boolean multipleSubmissions) {
+	this.multipleSubmissions = multipleSubmissions;
+}
+
+/**
+ * @return Returns the scoringOption.
+ */
+public String getScoringOption() {
+	return scoringOption;
+}
+
+/**
+ * @param scoringOption The scoringOption to set.
+ */
+public void setScoringOption(String scoringOption) {
+	this.scoringOption = scoringOption;
+}
 
 }
