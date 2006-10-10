@@ -4453,6 +4453,24 @@ public class SiteAction extends PagedResourceActionII
 			{
 				addAlert(state, rb.getString("editgroup.titlemissing"));
 			}
+			else
+			{
+				// check whether the group title has been used already
+				boolean titleExist = false;
+				for (Iterator iGroups = site.getGroups().iterator(); !titleExist && iGroups.hasNext(); )
+				{
+					Group iGroup = (Group) iGroups.next();
+					if (iGroup.getTitle().equals(title))
+					{
+						// found same title
+						titleExist = true;
+					}
+				}
+				if (titleExist)
+				{
+					addAlert(state, rb.getString("group.title.same"));
+				}
+			}
 			
 			if (state.getAttribute(STATE_MESSAGE) == null)
 			{	
