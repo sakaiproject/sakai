@@ -246,3 +246,22 @@ create table SAKAI_PRIVACY_RECORD (id bigint not null auto_increment, lockId int
 ALTER TABLE SAKAI_EVENT CHANGE SESSION_ID SESSION_ID VARCHAR (163);
 
 ----------------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------------------------------------------
+-- rwiki (SAK-5674)
+ 
+ UPDATE rwikiobject r , sakai_site s
+     SET r.name = replace(r.name, concat('/site/',lower(s.site_id)), concat('/site/', s.site_id)),
+     r.referenced = replace(r.referenced, concat('/site/',lower(s.site_id)), concat('/site/', s.site_id)),
+     r.realm = replace(r.realm,  concat('/site/',lower(s.site_id)), concat('/site/', s.site_id))
+     WHERE r.name LIKE concat('/site/',concat(s.site_id, '/%'));
+ 
+ UPDATE rwikihistory r , sakai_site s
+     SET r.name = replace(r.name, concat('/site/',lower(s.site_id)), concat('/site/', s.site_id)),
+     r.referenced = replace(r.referenced, concat('/site/',lower(s.site_id)), concat('/site/', s.site_id)),
+     r.realm = replace(r.realm,  concat('/site/',lower(s.site_id)), concat('/site/', s.site_id))
+     WHERE r.name LIKE concat('/site/',concat(s.site_id, '/%'));
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
