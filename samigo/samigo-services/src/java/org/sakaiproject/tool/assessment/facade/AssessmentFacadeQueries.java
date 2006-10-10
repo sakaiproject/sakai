@@ -1435,7 +1435,7 @@ public class AssessmentFacadeQueries
   }
 
   private String replaceSpace(String tempString){
-    String newString = new String();
+    String newString = "";
     char[] oneChar = new char[1];
     for(int i=0; i<tempString.length(); i++){
       if (tempString.charAt(i) != ' '){
