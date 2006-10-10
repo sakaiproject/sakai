@@ -200,7 +200,7 @@ public abstract class SakaiSecurity implements SecurityService
 	 */
 	public boolean unlock(String lock, String resource)
 	{
-		return unlock(null, lock, resource);
+		return unlock(userDirectoryService().getCurrentUser(), lock, resource);
 	}
 
 	/**
@@ -214,16 +214,23 @@ public abstract class SakaiSecurity implements SecurityService
 		{
 			user = userDirectoryService().getCurrentUser();
 		}
+		return unlock(user.getId(), function, entityRef);
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean unlock(String userId, String function, String entityRef)
+	{
 		// make sure we have complete parameters
-		if (user == null || function == null || entityRef == null)
+		if (userId == null || function == null || entityRef == null)
 		{
-			M_log.warn("unlock(): null: " + user + " " + function + " " + entityRef);
+			M_log.warn("unlock(): null: " + userId + " " + function + " " + entityRef);
 			return false;
 		}
 
 		// if super, grant
-		if (isSuperUser(user.getId()))
+		if (isSuperUser(userId))
 		{
 			return true;
 		}
@@ -232,7 +239,7 @@ public abstract class SakaiSecurity implements SecurityService
 		// Note: this cannot be cached without taking into consideration the exact advisor configuration -ggolden
 		if (hasAdvisors())
 		{
-			SecurityAdvisor.SecurityAdvice advice = adviseIsAllowed(user.getId(), function, entityRef);
+			SecurityAdvisor.SecurityAdvice advice = adviseIsAllowed(userId, function, entityRef);
 			if (advice != SecurityAdvisor.SecurityAdvice.PASS)
 			{
 				return advice == SecurityAdvisor.SecurityAdvice.ALLOWED;
@@ -240,7 +247,7 @@ public abstract class SakaiSecurity implements SecurityService
 		}
 
 		// check with the AuthzGroups appropriate for this entity
-		return checkAuthzGroups(user.getId(), function, entityRef);
+		return checkAuthzGroups(userId, function, entityRef);
 	}
 
 	/**

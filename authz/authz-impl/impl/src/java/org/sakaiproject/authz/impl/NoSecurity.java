@@ -141,6 +141,16 @@ public abstract class NoSecurity implements SecurityService
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public boolean unlock(String userId, String lock, String resource)
+	{
+		if (M_log.isDebugEnabled())
+			M_log.debug("unlock() true user: " + userId+ " lock: " + lock + " resource: " + resource);
+		return true;
+	}
+
+	/**
 	 * Access the List of Users who can unlock the lock for use with this resource.
 	 * 
 	 * @param lock

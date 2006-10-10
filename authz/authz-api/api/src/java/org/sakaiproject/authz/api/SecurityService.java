@@ -60,6 +60,19 @@ public interface SecurityService
 	boolean unlock(User user, String lock, String reference);
 
 	/**
+	 * Can the specificed user id unlock the lock for use with this resource?
+	 * 
+	 * @param userId
+	 *        The user id.
+	 * @param lock
+	 *        The lock id string.
+	 * @param reference
+	 *        The resource reference string.
+	 * @return true, if the user can unlock the lock, false otherwise.
+	 */
+	boolean unlock(String userId, String lock, String reference);
+
+	/**
 	 * Access the List of Users who can unlock the lock for use with this resource.
 	 * 
 	 * @param lock
