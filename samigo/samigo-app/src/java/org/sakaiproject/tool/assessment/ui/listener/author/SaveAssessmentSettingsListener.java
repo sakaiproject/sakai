@@ -53,10 +53,8 @@ public class SaveAssessmentSettingsListener
     implements ActionListener
 {
   private static Log log = LogFactory.getLog(SaveAssessmentSettingsListener.class);
-  private static final GradebookServiceHelper gbsHelper =
-      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-  private static final boolean integrated =
-      IntegrationContextFactory.getInstance().isIntegrated();
+  //private static final GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+  //private static final boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
 
   public SaveAssessmentSettingsListener()
   {
@@ -199,7 +197,19 @@ public class SaveAssessmentSettingsListener
 
 	}
 
-
+	String submissionsAllowed = assessmentSettings.getSubmissionsAllowed().trim();
+	try {
+		int submissionAllowed = Integer.parseInt(submissionsAllowed);
+		if (submissionAllowed < 0) {
+			throw new RuntimeException();
+		}
+	}
+	catch (RuntimeException e){
+		error=true;
+	    String  submission_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","submissions_allowed_error");
+	    context.addMessage(null,new FacesMessage(submission_err));
+	}
+	
     //check feedback - if at specific time then time should be defined.
    
     if((assessmentSettings.getFeedbackDelivery()).equals("2") && ((assessmentSettings.getFeedbackDateString()==null) || (assessmentSettings.getFeedbackDateString().equals("")))){
