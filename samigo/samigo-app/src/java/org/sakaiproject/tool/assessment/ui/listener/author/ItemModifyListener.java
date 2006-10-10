@@ -548,14 +548,14 @@ public class ItemModifyListener implements ActionListener
         // If metadata doesn't exist, by default it is false. 
        if (meta.getLabel().equals(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB)){
 	 //bean.setCaseSensitiveForFib((new Boolean(meta.getEntry())).booleanValue());
-	 bean.setCaseSensitiveForFib(Boolean.parseBoolean(meta.getEntry()));
+	 bean.setCaseSensitiveForFib(Boolean.valueOf(meta.getEntry()).booleanValue());
        }
 
 	// get settings for mutually exclusive for fib. 
         // If metadata doesn't exist, by default it is false. 
        if (meta.getLabel().equals(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB)){
 	 //bean.setMutuallyExclusiveForFib((new Boolean(meta.getEntry())).booleanValue());
-	 bean.setMutuallyExclusiveForFib(Boolean.parseBoolean(meta.getEntry()));
+	 bean.setMutuallyExclusiveForFib(Boolean.valueOf(meta.getEntry()).booleanValue());
        }
        
        
