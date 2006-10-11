@@ -262,3 +262,24 @@ ALTER TABLE SAKAI_EVENT MODIFY SESSION_ID VARCHAR2 (163);
 ----------------------------------------------------------------------------------------------------------------------------------------
 
 
+-- SAK-6780 added SQL update scripts to add new tables and alter existing tables to support selective release and spreadsheet upload
+
+-- Gradebook table changes between Sakai 2.2.* and 2.3.
+
+-- Add spreadsheet upload support.
+create table GB_SPREADSHEET_T ( 
+    ID          	NUMBER(19,0) NOT NULL,
+    VERSION     	NUMBER(10,0) NOT NULL,
+    CREATOR     	VARCHAR2(255) NOT NULL,
+    NAME        	VARCHAR2(255) NOT NULL,
+    CONTENT     	CLOB NOT NULL,
+    DATE_CREATED	DATE NOT NULL,
+    GRADEBOOK_ID	NUMBER(19,0) NOT NULL,
+    PRIMARY KEY(ID)
+);
+
+create sequence GB_SPREADSHEET_S;
+
+alter table GB_GRADABLE_OBJECT_T add (RELEASED NUMBER(1,0) DEFAULT 1);
+
+----------------------------------------------------------------------------------------------------------------------------------------
