@@ -223,7 +223,7 @@ $Id$
         <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
-        <h:outputText value="#{description.idString}" />
+        <h:outputText value="#{description.agentEid}" />
     </h:column>
 
 	<h:column rendered="#{submissionStatus.sortType eq 'idString' && submissionStatus.sortAscending}">
@@ -236,7 +236,7 @@ $Id$
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
           </h:commandLink>    
       </f:facet>
-       <h:outputText value="#{description.idString}" />
+       <h:outputText value="#{description.agentEid}" />
     </h:column>
 
 	<h:column rendered="#{submissionStatus.sortType eq 'idString' && !submissionStatus.sortAscending}">
@@ -249,7 +249,7 @@ $Id$
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
           </h:commandLink>    
       </f:facet>
-       <h:outputText value="#{description.idString}" />
+       <h:outputText value="#{description.agentEid}" />
     </h:column>
 
 
