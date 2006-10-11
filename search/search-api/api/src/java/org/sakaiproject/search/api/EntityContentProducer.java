@@ -22,6 +22,7 @@
 package org.sakaiproject.search.api;
 
 import java.io.Reader;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -91,7 +92,7 @@ public interface EntityContentProducer
 	/**
 	 * Gets a list of Entity resource as a String to represent all indexable
 	 * content
-	 * 
+	 * @deprecated
 	 * @return
 	 */
 	List getAllContent();
@@ -132,10 +133,18 @@ public interface EntityContentProducer
 
 	/**
 	 * get all the content associated with a site managed by this EntityContentProducer
+	 * @deprecated
 	 * @param context
 	 * @return
 	 */
 	List getSiteContent(String context);
+	
+	/**
+	 * Get the site content as an iterator
+	 * @param context
+	 * @return
+	 */
+	Iterator getSiteContentIterator(String context);
 
 	/**
 	 * If the reference should be indexed, return true

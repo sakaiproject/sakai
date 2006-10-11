@@ -23,7 +23,7 @@ package org.sakaiproject.search.component.adapter.contenthosting;
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.ArrayList; 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +92,7 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	private ContentDigester defaultDigester;
 
 	private int readerSizeLimit = 1024 * 1024 * 2; // (2M)
-	
+
 	private int digesterSizeLimit = 1024 * 1024 * 5; // (5M)
 
 	public void init()
@@ -165,7 +165,7 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException("Failed to resolve resource "+cr, e);
+			throw new RuntimeException("Failed to resolve resource " + cr, e);
 		}
 		if (contentResource.getContentLength() > readerSizeLimit) return true;
 		return false;
@@ -180,12 +180,13 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException("Failed to resolve resource "+cr, e);
+			throw new RuntimeException("Failed to resolve resource " + cr, e);
 		}
-		if ( contentResource.getContentLength() <= 0 ) {
+		if (contentResource.getContentLength() <= 0)
+		{
 			return new StringReader("");
-		}		
-		
+		}
+
 		ContentDigester digester = getDigester(contentResource);
 		Reader reader = null;
 		try
@@ -232,7 +233,8 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		{
 			throw new RuntimeException("Failed to resolve resource ", e);
 		}
-		if ( contentResource.getContentLength() <= 0 ) {
+		if (contentResource.getContentLength() <= 0)
+		{
 			return "";
 		}
 		ContentDigester digester = getDigester(contentResource);
@@ -273,7 +275,8 @@ public class ContentHostingContentProducer implements EntityContentProducer
 
 	public ContentDigester getDigester(ContentResource cr)
 	{
-		if ( cr.getContentLength() > digesterSizeLimit ) {
+		if (cr.getContentLength() > digesterSizeLimit)
+		{
 			return defaultDigester;
 		}
 		String mimeType = cr.getContentType();
@@ -388,6 +391,45 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		return l;
 	}
 
+	public Iterator getSiteContentIterator(String context)
+	{
+
+		String siteCollection = contentHostingService
+				.getSiteCollection(context);
+		log.debug("Getting content for site info " + siteCollection);
+		List siteContent = null;
+		if ("/".equals(siteCollection))
+		{
+			siteContent = new ArrayList();
+		}
+		else
+		{
+			siteContent = contentHostingService.getAllResources(siteCollection);
+		}
+		final Iterator scIterator = siteContent.iterator();
+		return new Iterator()
+		{
+
+			public boolean hasNext()
+			{
+				return scIterator.hasNext();
+			}
+
+			public Object next()
+			{
+				ContentResource resource = (ContentResource) scIterator.next();
+				return resource.getReference();
+			}
+
+			public void remove()
+			{
+				throw new UnsupportedOperationException(
+						"Remove is not implimented ");
+			}
+
+		};
+	}
+
 	/**
 	 * @return Returns the readerSizeLimit.
 	 */
@@ -443,10 +485,13 @@ public class ContentHostingContentProducer implements EntityContentProducer
 
 	public boolean canRead(Reference ref)
 	{
-		try {
+		try
+		{
 			contentHostingService.checkResource(ref.getId());
 			return true;
-		} catch ( Exception ex ) {
+		}
+		catch (Exception ex)
+		{
 			return false;
 		}
 	}
@@ -470,13 +515,12 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	}
 
 	/**
-	 * @param digesterSizeLimit The digesterSizeLimit to set.
+	 * @param digesterSizeLimit
+	 *        The digesterSizeLimit to set.
 	 */
 	public void setDigesterSizeLimit(int digesterSizeLimit)
 	{
 		this.digesterSizeLimit = digesterSizeLimit;
 	}
-
-
 
 }

@@ -226,6 +226,31 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		}
 		return l;
 	}
+	public Iterator getSiteContentIterator(String context)
+	{
+		List allPages = objectService.findRWikiSubPages("/site/" + context);
+		List l = new ArrayList();
+		final Iterator allPagesIterator = allPages.iterator();
+		return new Iterator() {
+
+			public boolean hasNext()
+			{
+				return allPagesIterator.hasNext();
+			}
+
+			public Object next()
+			{
+				RWikiObject page = (RWikiObject) allPagesIterator.next();
+				return objectService.createReference(page.getName());
+			}
+
+			public void remove()
+			{
+				throw new UnsupportedOperationException("Remove not supported");				
+			}
+			
+		};
+	}
 
 	public boolean isForIndex(Reference ref)
 	{

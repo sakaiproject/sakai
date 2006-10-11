@@ -150,13 +150,17 @@ public class MessageContentProducer implements EntityContentProducer
 				MessageHeader mh = m.getHeader();
 				StringBuffer sb = new StringBuffer();
 				Class c = mh.getClass();
-				try {
-					Method getSubject = c.getMethod("getSubject",new Class[] {} );
-					Object o = getSubject.invoke(mh,new Object[]{});
+				try
+				{
+					Method getSubject = c.getMethod("getSubject",
+							new Class[] {});
+					Object o = getSubject.invoke(mh, new Object[] {});
 					sb.append("Subject: ").append(o.toString()).append("\n");
-				} catch ( Exception ex ) {
+				}
+				catch (Exception ex)
+				{
 					// no subject, and I dont mind
-					log.debug("Didnt get Subject  from "+mh,ex);
+					log.debug("Didnt get Subject  from " + mh, ex);
 				}
 
 				sb.append("Message Headers\n");
@@ -164,35 +168,42 @@ public class MessageContentProducer implements EntityContentProducer
 						.append("\n");
 				sb.append("Message Body\n");
 				String mBody = m.getBody();
-				
-				mBody = mBody.replaceAll("\\s+"," ");
-				mBody = mBody.replaceAll("<!--.*?-->","");
-				mBody = mBody.replaceAll("&.*?;","");
-				mBody = mBody.replaceAll("<.*?>","");
-				
+
+				mBody = mBody.replaceAll("\\s+", " ");
+				mBody = mBody.replaceAll("<!--.*?-->", "");
+				mBody = mBody.replaceAll("&.*?;", "");
+				mBody = mBody.replaceAll("<.*?>", "");
+
 				sb.append(mBody).append("\n");
 				log.debug("Message Content for " + cr.getReference() + " is "
 						+ sb.toString());
 
 				// resolve attachments
 				List attachments = mh.getAttachments();
-				for ( Iterator atti = attachments.iterator(); atti.hasNext(); ) {
-					try {
+				for (Iterator atti = attachments.iterator(); atti.hasNext();)
+				{
+					try
+					{
 						Reference attr = (Reference) atti.next();
-						EntityContentProducer ecp = searchIndexBuilder.newEntityContentProducer(attr);
-						String attachementDigest = ecp.getContent(attr.getEntity());
-						sb.append("Attachement: \n").append(attachementDigest).append("\n");
-					} catch ( Exception ex ) {
-						log.info(" Failed to digest attachement "+ex.getMessage());
+						EntityContentProducer ecp = searchIndexBuilder
+								.newEntityContentProducer(attr);
+						String attachementDigest = ecp.getContent(attr
+								.getEntity());
+						sb.append("Attachement: \n").append(attachementDigest)
+								.append("\n");
+					}
+					catch (Exception ex)
+					{
+						log.info(" Failed to digest attachement "
+								+ ex.getMessage());
 					}
 				}
-				
-				
-				
-				
-				
-				
-				return sb.toString().replaceAll("[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\ud800-\\udfff\\uffff\\ufffe]", "");
+
+				return sb
+						.toString()
+						.replaceAll(
+								"[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\ud800-\\udfff\\uffff\\ufffe]",
+								"");
 			}
 			catch (IdUnusedException e)
 			{
@@ -222,18 +233,22 @@ public class MessageContentProducer implements EntityContentProducer
 				MessageHeader mh = m.getHeader();
 				Class c = mh.getClass();
 				String subject = "Message ";
-				try {
-					Method getSubject = c.getMethod("getSubject",new Class[] {} );
-					Object o = getSubject.invoke(mh,new Object[]{});
-					subject = "Subject: "+o.toString()+" ";
-				} catch ( Exception ex ) {
-					log.debug("Didnt get Subject  from "+mh);
+				try
+				{
+					Method getSubject = c.getMethod("getSubject",
+							new Class[] {});
+					Object o = getSubject.invoke(mh, new Object[] {});
+					subject = "Subject: " + o.toString() + " ";
 				}
-				
-				
-				String title =  subject+"From " + mh.getFrom().getDisplayName();
+				catch (Exception ex)
+				{
+					log.debug("Didnt get Subject  from " + mh);
+				}
+
+				String title = subject + "From "
+						+ mh.getFrom().getDisplayName();
 				return SearchUtils.getCleanString(title);
-				
+
 			}
 			catch (IdUnusedException e)
 			{
@@ -280,7 +295,7 @@ public class MessageContentProducer implements EntityContentProducer
 		List l = messageService.getChannels();
 		for (Iterator i = l.iterator(); i.hasNext();)
 		{
-			
+
 			try
 			{
 				MessageChannel c = (MessageChannel) i.next();
@@ -298,7 +313,7 @@ public class MessageContentProducer implements EntityContentProducer
 			}
 			catch (Exception ex)
 			{
-				log.error("Got error on channel ",ex);
+				log.error("Got error on channel ", ex);
 
 			}
 		}
@@ -437,7 +452,8 @@ public class MessageContentProducer implements EntityContentProducer
 			try
 			{
 
-				MessageChannel c = messageService.getChannel(messageService.channelReference(context,chanellId));
+				MessageChannel c = messageService.getChannel(messageService
+						.channelReference(context, chanellId));
 
 				List messages = c.getMessages(null, true);
 				// WARNING: I think the implementation caches on thread, if this
@@ -458,6 +474,76 @@ public class MessageContentProducer implements EntityContentProducer
 			}
 		}
 		return all;
+	}
+
+	public Iterator getSiteContentIterator(final String context)
+	{
+		List l = messageService.getChannelIds(context);
+		final Iterator ci = l.iterator();
+		return new Iterator()
+		{
+			Iterator mi = null;
+
+			public boolean hasNext()
+			{
+				if (mi == null)
+				{
+					return nextIterator();
+				}
+				else
+				{
+					if (mi.hasNext())
+					{
+						return true;
+					}
+					else
+					{
+						return nextIterator();
+					}
+				}
+			}
+
+			private boolean nextIterator()
+			{
+				while (ci.hasNext())
+				{
+
+					String chanellId = (String) ci.next();
+					try
+					{
+						MessageChannel c = messageService
+								.getChannel(messageService.channelReference(
+										context, chanellId));
+						List messages = c.getMessages(null, true);
+						mi = messages.iterator();
+						if (mi.hasNext())
+						{
+							return true;
+						}
+					}
+					catch (Exception ex)
+					{
+						ex.printStackTrace();
+						log.warn("Failed to get channel " + chanellId);
+
+					}
+				}
+				return false;
+			}
+
+			public Object next()
+			{
+				Message m = (Message) mi.next();
+				return m.getReference();
+			}
+
+			public void remove()
+			{
+				throw new UnsupportedOperationException(
+						"Remove not implemented");
+			}
+
+		};
 	}
 
 	public boolean isForIndex(Reference ref)
