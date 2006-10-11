@@ -1,4 +1,3 @@
-
 /**********************************************************************************
  * $URL$
  * $Id$
@@ -26,6 +25,7 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Iterator;
 import java.util.HashMap;
@@ -689,12 +689,13 @@ private List attachmentList;
   }
 
   public String addAttachmentsRedirect() {
-    // 1. first save any part description and stuff
-    savePart();
-
-    // 2. then redirect to add attachment
+    // 1. then redirect to add attachment
     try	{
-      List filePickerList = prepareReferenceList(attachmentList);
+      List filePickerList = new ArrayList();
+      if (attachmentList != null){
+        filePickerList = prepareReferenceList(attachmentList);
+      }
+      log.debug("**filePicker list="+filePickerList.size());
       ToolSession currentToolSession = SessionManager.getCurrentToolSession();
       currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);
       ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
@@ -706,12 +707,7 @@ private List attachmentList;
     return getOutcome();
   }
 
-  private void savePart(){
-    SavePartListener lis = new SavePartListener();
-    lis.processAction(null);
-  }
-
-  public void savePartAttachment(){
+  public void setPartAttachment(){
     SavePartAttachmentListener lis = new SavePartAttachmentListener();
     lis.processAction(null);
   }
@@ -728,16 +724,26 @@ private List attachmentList;
         }
       }
       catch (PermissionException e) {
-    	  log.warn(e.getMessage());
+    	  log.warn("PermissionException:"+e.getMessage());
       }
       catch (IdUnusedException e) {
-    	  log.warn(e.getMessage());
+    	  log.warn("IdUnusedException"+e.getMessage());
       }
       catch (TypeException e) {
-    	  log.warn(e.getMessage());
+    	  log.warn("TypeException"+e.getMessage());
       }
     }
     return list;
+  }
+
+  private Collection oldAttachmentCollection;
+  public Collection getOldAttachmentCollection() {
+      return oldAttachmentCollection;
+  }
+
+  public void setOldAttachmentCollection(Collection oldAttachmentCollection)
+  {
+      this.oldAttachmentCollection = oldAttachmentCollection;
   }
 
 }

@@ -30,4 +30,8 @@ public interface SectionAttachmentIfc
 
   void setAttachmentType(Long attachmentType);
 
+  SectionDataIfc getSection();
+
+  void setSection(SectionDataIfc section);
+
 }

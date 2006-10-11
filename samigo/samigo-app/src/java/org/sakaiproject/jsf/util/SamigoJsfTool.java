@@ -1,3 +1,4 @@
+
 /**********************************************************************************
  * $URL$
  * $Id$
@@ -202,7 +203,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 	  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
 	 SectionBean bean = (SectionBean) ContextUtil.lookupBeanFromExternalServlet(
                                "sectionBean", req, res);
-         bean.savePartAttachment();
+         bean.setPartAttachment();
          toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
       }
 

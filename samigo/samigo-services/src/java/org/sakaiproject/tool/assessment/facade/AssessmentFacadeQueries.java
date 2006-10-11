@@ -1518,7 +1518,7 @@ public class AssessmentFacadeQueries
 	attach.setLastModifiedBy(p.getProperty(p.getNamePropModifiedBy()));
         attach.setLastModifiedDate(new Date());
         attach.setLocation(getRelativePath(cr.getUrl(), protocol));
-        getHibernateTemplate().save(attach);
+        //getHibernateTemplate().save(attach);
       }
     }
     catch(PermissionException pe){

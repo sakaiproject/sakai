@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -95,12 +96,9 @@ public class SavePartListener
     SectionFacade section;
     if (sectionId.equals("")){
       section = addPart(assessmentId);
-      log.debug("**** section="+section);
-      sectionBean.setSection(section);
       sectionId = section.getSectionId().toString();
     }
     else {
-
       section = assessmentService.getSection(sectionId);
     }
 
@@ -183,6 +181,7 @@ public class SavePartListener
           section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW, poolname);
         }
       }
+      /*
       // attach item attachemnt to sectionBean
       List attachmentList = section.getSectionAttachmentList();
       sectionBean.setAttachmentList(attachmentList);
@@ -192,6 +191,7 @@ public class SavePartListener
       else{
         sectionBean.setHasAttachment(false);
       }
+      */
     }
 
 
@@ -217,9 +217,13 @@ public class SavePartListener
     }
     }
 
+    assessmentService.saveOrUpdateSection(section);
 
-
-
+    // added by daisyf, 10/10/06
+    removeOldAttachment(section.getSectionAttachmentSet());
+    //sectionBean.setOldAttachmentCollection(null);
+    Set set = prepareSectionAttachmentSet(sectionBean.getAttachmentList(), section.getData());
+    section.setSectionAttachmentSet(set);
     assessmentService.saveOrUpdateSection(section);
 
     // #2 - goto editAssessment.jsp, so reset assessmentBean
@@ -268,44 +272,25 @@ public class SavePartListener
            
   }
 
-    /*
-  private ArrayList prepareSectionAttachment(SectionDataIfc section){
-    Set attachmentSet = section.getSectionAttachmentSet();
-    if (attachmentSet == null){
-	attachmentSet = new HashSet();
-    }
-    log.debug("*** attachment size="+attachmentSet.size());
-    AssessmentService assessmentService = new AssessmentService();
-    String protocol = ContextUtil.getProtocol();
-    ToolSession session = SessionManager.getCurrentToolSession();
-    if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
-        session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
-      List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-      if (refs!=null && refs.size() > 0){
-        Reference ref = (Reference)refs.get(0);
-
-        for(int i=0; i<refs.size(); i++) {
-          ref = (Reference) refs.get(i);
-          log.debug("**** ref.Id="+ref.getId());
-          log.debug("**** ref.name="+ref.getProperties().getProperty(									    ref.getProperties().getNamePropDisplayName()));
-          SectionAttachmentIfc newAttach = assessmentService.createSectionAttachment(
-                                        section,
-                                        ref.getId(), ref.getProperties().getProperty(
-                                                     ref.getProperties().getNamePropDisplayName()),
-                                        protocol);
-          attachmentSet.add(newAttach);
-        }
+  public Set  prepareSectionAttachmentSet(List attachmentList, SectionDataIfc section){
+    Set set = new HashSet();
+    if (attachmentList!=null && section!=null ){
+      for (int i=0; i<attachmentList.size(); i++){
+        SectionAttachmentIfc attach = (SectionAttachmentIfc) attachmentList.get(i);
+        attach.setSection(section);
+        set.add(attach);
       }
     }
-    session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-    session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
-    ArrayList list = new ArrayList();
-    Iterator iter = attachmentSet.iterator();
-    while (iter.hasNext()){
-      SectionAttachmentIfc a = (SectionAttachmentIfc)iter.next();
-      list.add(a);
-    }
-    return list;
+    return set;
   }
-    */
+
+  private void removeOldAttachment(Set oldAttachs){
+    if (oldAttachs == null) return;
+    AssessmentService assessmentService = new AssessmentService();
+    Iterator iter1 = oldAttachs.iterator();
+    while (iter1.hasNext()){
+      SectionAttachmentIfc oldAttach = (SectionAttachmentIfc)iter1.next();
+      assessmentService.removeSectionAttachment(oldAttach.getAttachmentId().toString());                                                             
+    }                                                                                                                                                
+  }
 }

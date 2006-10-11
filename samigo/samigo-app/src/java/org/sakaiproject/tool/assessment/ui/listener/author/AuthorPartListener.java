@@ -70,6 +70,7 @@ public class AuthorPartListener implements ActionListener
     sectionBean.setNumberSelected("");
     sectionBean.setSelectedPool("");
     // new part has no attachment 
+    sectionBean.setOldAttachmentCollection(null);
     sectionBean.setAttachmentList(null);
     sectionBean.setHasAttachment(false);
     // set default
