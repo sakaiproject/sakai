@@ -33,12 +33,11 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 
 /**
  * <p>Title: Samigo</p>2
@@ -197,21 +196,23 @@ public class SaveAssessmentSettingsListener
 
 	}
 
-	String submissionsAllowed = assessmentSettings.getSubmissionsAllowed().trim();
-	try {
-		int submissionAllowed = Integer.parseInt(submissionsAllowed);
-		if (submissionAllowed < 0) {
-			throw new RuntimeException();
+	String unlimitedSubmissions = assessmentSettings.getUnlimitedSubmissions();
+	if (unlimitedSubmissions != null && unlimitedSubmissions.equals(AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString())) {
+		String submissionsAllowed = assessmentSettings.getSubmissionsAllowed().trim();
+		try {
+			int submissionAllowed = Integer.parseInt(submissionsAllowed);
+			if (submissionAllowed < 1) {
+				throw new RuntimeException();
+			}
 		}
-	}
-	catch (RuntimeException e){
-		error=true;
-	    String  submission_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","submissions_allowed_error");
-	    context.addMessage(null,new FacesMessage(submission_err));
+		catch (RuntimeException e){
+			error=true;
+			String  submission_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","submissions_allowed_error");
+			context.addMessage(null,new FacesMessage(submission_err));
+		}
 	}
 	
     //check feedback - if at specific time then time should be defined.
-   
     if((assessmentSettings.getFeedbackDelivery()).equals("2") && ((assessmentSettings.getFeedbackDateString()==null) || (assessmentSettings.getFeedbackDateString().equals("")))){
 	error=true;
 	String  date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");

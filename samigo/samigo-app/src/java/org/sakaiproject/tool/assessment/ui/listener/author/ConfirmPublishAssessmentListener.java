@@ -38,6 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
@@ -213,10 +214,25 @@ public class ConfirmPublishAssessmentListener
 	    error=true;
 	    String  ip_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");
 	    context.addMessage(null,new FacesMessage(ip_err));
-
-       
     }
- //check feedback - if at specific time then time should be defined.
+	
+	String unlimitedSubmissions = assessmentSettings.getUnlimitedSubmissions();
+	if (unlimitedSubmissions != null && unlimitedSubmissions.equals(AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString())) {
+		String submissionsAllowed = assessmentSettings.getSubmissionsAllowed().trim();
+		try {
+			int submissionAllowed = Integer.parseInt(submissionsAllowed);
+			if (submissionAllowed < 1) {
+				throw new RuntimeException();
+			}
+		}
+		catch (RuntimeException e){
+			error=true;
+			String  submission_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","submissions_allowed_error");
+			context.addMessage(null,new FacesMessage(submission_err));
+		}
+	}
+	
+    //check feedback - if at specific time then time should be defined.
     if((assessmentSettings.getFeedbackDelivery()).equals("2") && ((assessmentSettings.getFeedbackDateString()==null) || (assessmentSettings.getFeedbackDateString().equals("")))){
 	error=true;
 	String  date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
