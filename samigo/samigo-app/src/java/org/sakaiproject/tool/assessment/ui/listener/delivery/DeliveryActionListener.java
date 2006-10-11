@@ -2020,7 +2020,11 @@ public class DeliveryActionListener
         numberToBeDrawn= new Integer(part.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
       }
 
-      int samplesize = numberToBeDrawn.intValue();
+      int samplesize = 0;
+      if (numberToBeDrawn != null) {
+    	  samplesize = numberToBeDrawn.intValue();
+      }
+
       for (int i=0; i<samplesize; i++){
         randomsample.add(list.get(i));
       }

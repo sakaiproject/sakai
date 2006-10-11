@@ -80,19 +80,23 @@ public class SortPublishedAssessmentListener
   private String getPublishedOrderBy(AuthorBean author) {
     String sort = author.getPublishedAssessmentOrderBy();
     String returnType =  PublishedAssessmentFacadeQueries.TITLE;
-    if (sort != null && sort.equals("releaseTo"))
-    {
-	returnType = PublishedAssessmentFacadeQueries.PUB_RELEASETO;
+    if (sort == null) {
+    	return returnType;
     }
-    else if (sort.equals("startDate"))
-    {
-    	returnType = PublishedAssessmentFacadeQueries.PUB_STARTDATE;
+    else {
+    	if(sort.equals("releaseTo"))
+    	{
+    		returnType = PublishedAssessmentFacadeQueries.PUB_RELEASETO;
+    	}
+    	else if (sort.equals("startDate"))
+    	{
+    		returnType = PublishedAssessmentFacadeQueries.PUB_STARTDATE;
+    	}
+    	else if (sort.equals("dueDate"))
+    	{
+    		returnType = PublishedAssessmentFacadeQueries.PUB_DUEDATE;
+    	}
     }
-    else if (sort.equals("dueDate"))
-    {
-    	returnType = PublishedAssessmentFacadeQueries.PUB_DUEDATE;
-    }
-
 
     return returnType;
   }

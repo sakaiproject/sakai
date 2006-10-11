@@ -62,7 +62,7 @@ public class AuthoringConstantStrings
   // Lydia 9/29/2006 : added "" before FIN, because Diego used 11 as the type.  Rather than changing the conversion script for SAM_TYPE_D table, 
   // I'm just adding an "" to make FIN the itemTypes[11].  This is used in ItemTypeExtractionStrategy.getValidType()
   
-  public static String[] itemTypes =
+  public static final String[] itemTypes =
   { "Unknown Type", MCSC, MCMC, SURVEY, TF, ESSAY, FILE, AUDIO, FIB, MATCHING,"", FIN };
   
 

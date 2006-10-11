@@ -457,14 +457,16 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   public void removeMediaById(Long mediaId){
     String mediaLocation = null;
     Session session = null;
+    Connection conn = null;
+    ResultSet rs = null;
     try{
       session = getSessionFactory().openSession();
-      Connection conn = session.connection();
+      conn = session.connection();
       log.debug("****Connection="+conn);
       String query0="select LOCATION from SAM_MEDIA_T where MEDIAID=?";
       PreparedStatement statement0 = conn.prepareStatement(query0);
       statement0.setLong(1, mediaId.longValue());
-      ResultSet rs =statement0.executeQuery();
+      rs =statement0.executeQuery();
       if (rs.next()){
         mediaLocation = rs.getString("LOCATION");
       }
@@ -481,6 +483,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     finally{
       try{
         if (session !=null) session.close();
+        if (conn !=null) conn.close();
+        if (rs !=null) rs.close();
       }
       catch(Exception ex){
         log.warn(ex.getMessage());
@@ -730,14 +734,16 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     Session session = null;
     Connection conn = null;
     InputStream in = null; 
+    ResultSet rs = null;
+    PreparedStatement statement = null;
     try{
       session = getSessionFactory().openSession();
       conn = session.connection();
       log.debug("****Connection="+conn);
       String query="select MEDIA from SAM_MEDIA_T where MEDIAID=?";
-      PreparedStatement statement = conn.prepareStatement(query);
+      statement = conn.prepareStatement(query);
       statement.setLong(1, mediaId.longValue());
-      ResultSet rs = statement.executeQuery();
+      rs = statement.executeQuery();
       if (rs.next()){
         java.lang.Object o = rs.getObject("MEDIA");
         if (o!=null){
@@ -762,6 +768,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         if (session !=null) session.close();
         if (in !=null) in.close();
         if (conn !=null) conn.close();
+        if (rs != null) rs.close();
+        if (statement != null) statement.close();
       }
       catch(Exception ex){
         log.warn(ex.getMessage());

@@ -648,14 +648,15 @@ log.debug("item==null ");
 	  log.debug("getItemScores: isValueChange ?" + isValueChange);
 	  
 	  if (itemScoresMap == null || isValueChange){
-		  log.debug("getItemScores: itemScoresMap ==null or isValueChange==true " + itemScoresMap );
+		  log.debug("getItemScores: itemScoresMap == null or isValueChange == true ");
+		  log.debug("getItemScores: isValueChange = " + isValueChange);
 		  itemScoresMap = new HashMap();
 		  questionScoresBean.setItemScoresMap(itemScoresMap);
 	  }
 	  log.debug("getItemScores: itemScoresMap.size() " + itemScoresMap.size() );
 	  HashMap map = (HashMap) itemScoresMap.get(itemId);
 	  if (map == null){
-		  log.debug("getItemScores: map == null " + map );
+		  log.debug("getItemScores: map == null ");
 		  map = delegate.getItemScores(publishedId, itemId, which);
 		  log.debug("getItemScores: map size " + map.size() );
 		  itemScoresMap.put(itemId, map);
