@@ -3274,6 +3274,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	private void postOrSaveAssignment(RunData data, String postOrSave)
 	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
+		
 		boolean post = (postOrSave != null && postOrSave.equals("post")) ? true : false;
 		
 		// assignment old title
@@ -3282,8 +3286,6 @@ public class AssignmentAction extends PagedResourceActionII
 		// assignment old associated Gradebook entry if any
 		String oAssociateGradebookAssignment = null;
 		
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
 		String mode = (String) state.getAttribute(STATE_MODE);
 		if (!mode.equals(MODE_INSTRUCTOR_PREVIEW_ASSIGNMENT))
 		{
@@ -3587,7 +3589,6 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 						else if (range.equals("groups"))
 						{
-							String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
 							try
 							{
 								Site site = SiteService.getSite(siteId);
@@ -3943,6 +3944,35 @@ public class AssignmentAction extends PagedResourceActionII
 											if (StringUtil.trimToNull(oAssociateGradebookAssignment) != null && !oAssociateGradebookAssignment.equals(associateGradebookAssignment))
 											{
 												integrateGradebook(state, aReference, oAssociateGradebookAssignment, null, null, null, -1, null, null, "remove");
+												
+												// if the old assoicated assignment entry in GB is an external one, but doesn't have anything assoicated with it in Assignment tool, remove it
+												boolean gradebookExists = isGradebookDefined();
+												if (gradebookExists)
+												{
+													GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+													String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+													boolean isExternalAssignmentDefined=g.isExternalAssignmentDefined(gradebookUid, oAssociateGradebookAssignment);
+													if (isExternalAssignmentDefined)
+													{
+														// iterate through all assignments currently in the site, see if any is associated with this GB entry
+														Iterator i = AssignmentService.getAssignmentsForContext(siteId);
+														boolean found = false;
+														while (!found && i.hasNext())
+														{
+															Assignment aI = (Assignment) i.next();
+															String gbEntry = aI.getProperties().getProperty(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+															if (gbEntry != null && gbEntry.equals(oAssociateGradebookAssignment))
+															{
+																found = true;
+															}
+														}
+														// so if none of the assignment in this site is associated with the entry, remove the entry
+														if (!found)
+														{
+															g.removeExternalAssessment(gradebookUid, oAssociateGradebookAssignment);
+														}
+													}
+												}
 											}
 										}
 										catch (NumberFormatException nE)
