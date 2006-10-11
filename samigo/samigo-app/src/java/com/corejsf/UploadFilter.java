@@ -129,7 +129,7 @@ public class UploadFilter implements Filter {
          final Map map = new HashMap();
          for (int i = 0; i < list.size(); i ++) {
             FileItem item = (FileItem) list.get(i);
-            String str = item.getString();
+            String str = item.getString("UTF-8");
             //System.out.println("form filed="+item.getFieldName()+" : "+str);
             if (item.isFormField()){
               map.put(item.getFieldName(), new String[] {str});
