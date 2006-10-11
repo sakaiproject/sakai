@@ -42,9 +42,11 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
@@ -500,6 +502,10 @@ public class ItemAddListener
           (itemauthor.getTarget().equals(ItemAuthorBean.FROM_QUESTIONPOOL))) {
         // Came from Pool manager
 
+        // added by daisyf, 10/10/06
+        Set set = prepareItemAttachmentSet(itemauthor.getAttachmentList(), item.getData());
+        item.setItemAttachmentSet(set);
+
         delegate.saveItem(item);
         QuestionPoolService qpdelegate = new QuestionPoolService();
 
@@ -586,6 +592,10 @@ public class ItemAddListener
               itemauthor.setInsertPosition("");
             }
           }
+
+          // added by daisyf, 10/10/06
+          Set set = prepareItemAttachmentSet(itemauthor.getAttachmentList(), item.getData());
+          item.setItemAttachmentSet(set);
 
           delegate.saveItem(item);
           /*
@@ -1284,4 +1294,17 @@ Object[] fibanswers = getFIBanswers(entiretext).toArray();
 	    return !invalid; 
 	  } 
   */
+
+   public Set  prepareItemAttachmentSet(List attachmentList, ItemDataIfc item){
+     Set set = new HashSet();
+     if (attachmentList!=null){
+       for (int i=0; i<attachmentList.size(); i++){
+         ItemAttachmentIfc attach = (ItemAttachmentIfc) attachmentList.get(i);
+         attach.setItem(item);
+         set.add(attach);
+       }
+     }
+    return set;
+  }
+
 }

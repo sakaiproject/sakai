@@ -191,7 +191,8 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 	  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
 	 ItemAuthorBean bean = (ItemAuthorBean) ContextUtil.lookupBeanFromExternalServlet(
                                "itemauthor", req, res);
-         bean.saveItemAttachment();
+         bean.setItemAttachment();
+         log.debug("**** done setItemAttachment()");
          toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
       }
 

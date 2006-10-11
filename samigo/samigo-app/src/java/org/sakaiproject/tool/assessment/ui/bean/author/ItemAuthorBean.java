@@ -25,7 +25,10 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +41,7 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -49,8 +53,6 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
-import org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener;
-import org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.tool.api.ToolSession;
@@ -63,6 +65,9 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.entity.api.Reference;
+
+
 
 //import org.osid.shared.*;
 
@@ -947,9 +952,7 @@ ItemService delegate = new ItemService();
   }
 
   public String addAttachmentsRedirect() {
-    // 1. first save any question text and stuff
-    saveItem();
-    // 2. load resources into session for resources mgmt page
+    // 1. load resources into session for resources mgmt page
     //    then redirect to resources mgmt page
     try	{
       List filePickerList = prepareReferenceList(attachmentList);
@@ -964,14 +967,25 @@ ItemService delegate = new ItemService();
     return getOutcome();
   }
 
-  private void saveItem(){
-    ItemAddListener lis = new ItemAddListener();
-    lis.processAction(null);
-  }
+  /* called by SamigoJsfTool.java on exit from file picker */
+  public void setItemAttachment(){
+    ItemService service = new ItemService();
+    ItemDataIfc itemData = null;
+    // itemId == null => new questiion
+    if (this.itemId!=null){
+      try{
+        itemData = service.getItem(this.itemId);
+      }
+      catch(Exception e){
+        log.warn(e.getMessage());
+      }
+    }
 
-  public void saveItemAttachment(){
-    ItemModifyListener lis = new ItemModifyListener();
-    lis.processAction(null);
+    // list returns contains modified list of attachments, i.e. new 
+    // and old attachments. This list will be 
+    // persisted to DB if user hit Save on the Item Modifying page.
+    List list = prepareItemAttachment(itemData);
+    setAttachmentList(list);
   }
 
   private List prepareReferenceList(List attachmentList){
@@ -982,24 +996,100 @@ ItemService delegate = new ItemService();
     for (int i=0; i<attachmentList.size(); i++){
       AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
       try{
+        log.debug("*** resourceId="+attach.getResourceId());
         ContentResource cr = ContentHostingService.getResource(attach.getResourceId());
+        log.debug("*** cr="+cr);
         if (cr!=null){
           ReferenceComponent ref = new ReferenceComponent(cr.getReference());
+          log.debug("*** ref="+ref);
           if (ref !=null ) list.add(ref);
         }
       }
       catch (PermissionException e) {
-    	  log.warn(e.getMessage());
+    	  log.warn("ContentHostingService.getResource() throws PermissionException="+e.getMessage());
       }
       catch (IdUnusedException e) {
-    	  log.warn(e.getMessage());
+    	  log.warn("ContentHostingService.getResource() throws IdUnusedException="+e.getMessage());
       }
       catch (TypeException e) {
-    	  log.warn(e.getMessage());
+    	  log.warn("ContentHostingService.getResource() throws TypeException="+e.getMessage());
       }
     }
     return list;
   }
 
+  private List prepareItemAttachment(ItemDataIfc item){
+    ToolSession session = SessionManager.getCurrentToolSession();
+    if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null  &&
+        session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
+
+      Set attachmentSet = new HashSet();
+      if (item != null){
+        attachmentSet = item.getItemAttachmentSet();
+      }
+      HashMap map = getResourceIdHash(attachmentSet);
+      ArrayList newAttachmentList = new ArrayList();
+      HashSet newAttachmentSet = new HashSet();
+
+      AssessmentService assessmentService = new AssessmentService();
+      String protocol = ContextUtil.getProtocol();
+
+      List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+      if (refs!=null && refs.size() > 0){
+        Reference ref;
+
+        for(int i=0; i<refs.size(); i++) {
+          ref = (Reference) refs.get(i);
+          String resourceId = ref.getId();
+          if (map.get(resourceId) == null){
+            // new attachment, add 
+            log.debug("**** ref.Id="+ref.getId());
+            log.debug("**** ref.name="+ref.getProperties().getProperty(
+                       ref.getProperties().getNamePropDisplayName()));
+            ItemAttachmentIfc newAttach = assessmentService.createItemAttachment(
+                                          item,
+                                          ref.getId(), ref.getProperties().getProperty(
+                                                       ref.getProperties().getNamePropDisplayName()),
+                                        protocol);
+            newAttachmentList.add(newAttach);
+            newAttachmentSet.add(newAttach);
+          }
+          else{ 
+            // attachment already exist, let's add it to new list and
+	    // check it off from map
+            newAttachmentList.add((ItemAttachmentIfc)map.get(resourceId));
+            newAttachmentSet.add((ItemAttachmentIfc)map.get(resourceId));
+            map.remove(resourceId);
+          }
+        }
+      }
+
+      // the resulting map should now contain attachment that has been removed
+      // inside filepicker, we will now get rid of its association with the item
+      Collection oldAttachs = map.values();
+      Iterator iter1 = oldAttachs.iterator();
+      while (iter1.hasNext()){
+        ItemAttachmentIfc oldAttach = (ItemAttachmentIfc)iter1.next();
+        assessmentService.removeItemAttachment(oldAttach.getAttachmentId().toString());
+      }
+
+      session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+      session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
+      return newAttachmentList;
+    }
+    else return item.getItemAttachmentList();
+  }
+
+  private HashMap getResourceIdHash(Set attachmentSet){
+    HashMap map = new HashMap();
+    if (attachmentSet !=null ){
+      Iterator iter = attachmentSet.iterator();
+      while (iter.hasNext()){
+        ItemAttachmentIfc attach = (ItemAttachmentIfc) iter.next();
+        map.put(attach.getResourceId(), attach);
+      }
+    }
+    return map;
+  }
 
 }

@@ -1384,45 +1384,6 @@ public class AssessmentFacadeQueries
     return fileSizeString;
   }
 
-  public ItemAttachmentIfc createItemAttachment(ItemDataIfc item,
-         String resourceId, String filename, String protocol){
-    ItemAttachment attach = null;
-    Boolean isLink = Boolean.FALSE;
-    try{
-      ContentResource cr = ContentHostingService.getResource(resourceId);
-      if (cr !=null){
-        ResourceProperties p = cr.getProperties();
-        attach = new ItemAttachment();
-        attach.setItem(item);
-        attach.setResourceId(resourceId);
-        attach.setFilename(filename);
-	attach.setMimeType(cr.getContentType());
-        // we want to display kb, so divide by 1000 and round the result
-	attach.setFileSize(new Long(fileSizeInKB(cr.getContentLength())));
-        if (cr.getContentType().lastIndexOf("url") > -1)
-          isLink = Boolean.TRUE;
-        attach.setIsLink(isLink);
-        attach.setStatus(ItemAttachmentIfc.ACTIVE_STATUS);
-	attach.setCreatedBy(p.getProperty(p.getNamePropCreator()));
-        attach.setCreatedDate(new Date());
-	attach.setLastModifiedBy(p.getProperty(p.getNamePropModifiedBy()));
-        attach.setLastModifiedDate(new Date());
-        attach.setLocation(getRelativePath(cr.getUrl(), protocol));
-        getHibernateTemplate().save(attach);
-      }
-    }
-    catch(PermissionException pe){
-        pe.printStackTrace();
-    }
-    catch(IdUnusedException ie){
-        ie.printStackTrace();
-    }
-    catch(TypeException te){
-        te.printStackTrace();
-    }
-    return attach;
-  }
-
   public String getRelativePath(String url, String protocol){
     // replace whitespace with %20
     url = replaceSpace(url);
@@ -1492,6 +1453,45 @@ public class AssessmentFacadeQueries
 	        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
 	      }
 	  }
+  }
+
+  public ItemAttachmentIfc createItemAttachment(ItemDataIfc item,
+         String resourceId, String filename, String protocol){
+    ItemAttachment attach = null;
+    Boolean isLink = Boolean.FALSE;
+    try{
+      ContentResource cr = ContentHostingService.getResource(resourceId);
+      if (cr !=null){
+        ResourceProperties p = cr.getProperties();
+        attach = new ItemAttachment();
+        attach.setItem(item);
+        attach.setResourceId(resourceId);
+        attach.setFilename(filename);
+	attach.setMimeType(cr.getContentType());
+        // we want to display kb, so divide by 1000 and round the result
+	attach.setFileSize(new Long(""+fileSizeInKB(cr.getContentLength())));
+        if (cr.getContentType().lastIndexOf("url") > -1)
+          isLink = Boolean.TRUE;
+        attach.setIsLink(isLink);
+        attach.setStatus(ItemAttachmentIfc.ACTIVE_STATUS);
+	attach.setCreatedBy(p.getProperty(p.getNamePropCreator()));
+        attach.setCreatedDate(new Date());
+	attach.setLastModifiedBy(p.getProperty(p.getNamePropModifiedBy()));
+        attach.setLastModifiedDate(new Date());
+        attach.setLocation(getRelativePath(cr.getUrl(), protocol));
+        //getHibernateTemplate().save(attach);
+      }
+    }
+    catch(PermissionException pe){
+        pe.printStackTrace();
+    }
+    catch(IdUnusedException ie){
+        ie.printStackTrace();
+    }
+    catch(TypeException te){
+        te.printStackTrace();
+    }
+    return attach;
   }
 
   public SectionAttachmentIfc createSectionAttachment(SectionDataIfc section,

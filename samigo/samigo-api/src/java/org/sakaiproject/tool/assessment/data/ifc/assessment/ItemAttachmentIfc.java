@@ -30,4 +30,7 @@ public interface ItemAttachmentIfc
 
   void setAttachmentType(Long attachmentType);
 
+  ItemDataIfc getItem();
+
+  void setItem(ItemDataIfc item);
 }

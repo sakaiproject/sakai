@@ -58,12 +58,6 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
-import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.entity.api.Reference;
-
-
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
@@ -174,7 +168,7 @@ public class ItemModifyListener implements ActionListener
       }
 
       // attach item attachemnt to itemAuthorBean
-      List attachmentList = prepareItemAttachment(itemfacade.getData());
+      List attachmentList = itemfacade.getData().getItemAttachmentList(); 
       itemauthorbean.setAttachmentList(attachmentList);
 
       int itype=0; // default to true/false
@@ -584,78 +578,6 @@ public class ItemModifyListener implements ActionListener
 
 
      }
-  }
-
-  private HashMap getResourceIdHash(Set attachmentSet){
-    HashMap map = new HashMap();
-    if (attachmentSet !=null ){
-      Iterator iter = attachmentSet.iterator();
-      while (iter.hasNext()){
-        ItemAttachmentIfc attach = (ItemAttachmentIfc) iter.next();
-        map.put(attach.getResourceId(), attach);
-      }
-    }
-    return map;
-  }
-
-  private List prepareItemAttachment(ItemDataIfc item){
-    ToolSession session = SessionManager.getCurrentToolSession();
-    if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null  &&
-        session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
-      
-      Set attachmentSet = item.getItemAttachmentSet();
-      HashMap map = getResourceIdHash(attachmentSet);
-      ArrayList newAttachmentList = new ArrayList();
-      HashSet newAttachmentSet = new HashSet();
-
-      AssessmentService assessmentService = new AssessmentService();
-      String protocol = ContextUtil.getProtocol();
-
-      List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-      if (refs!=null && refs.size() > 0){
-        Reference ref;
-
-        for(int i=0; i<refs.size(); i++) {
-          ref = (Reference) refs.get(i);
-          String resourceId = ref.getId();
-          if (map.get(resourceId) == null){
-            // new attachment, add 
-            log.debug("**** ref.Id="+ref.getId());
-            log.debug("**** ref.name="+ref.getProperties().getProperty(
-                       ref.getProperties().getNamePropDisplayName()));
-            ItemAttachmentIfc newAttach = assessmentService.createItemAttachment(
-                                          item,
-                                          ref.getId(), ref.getProperties().getProperty(
-                                                       ref.getProperties().getNamePropDisplayName()),
-                                        protocol);
-            newAttachmentList.add(newAttach);
-            newAttachmentSet.add(newAttach);
-          }
-          else{ 
-            // attachment already exist, let's add it to new list and
-	    // check it off from map
-            newAttachmentList.add((ItemAttachmentIfc)map.get(resourceId));
-            newAttachmentSet.add((ItemAttachmentIfc)map.get(resourceId));
-            map.remove(resourceId);
-          }
-        }
-      }
-
-      // the resulting map should now contain attachment that has been removed
-      // inside filepicker, we will now get rid of its association with the item
-      Collection oldAttachs = map.values();
-      Iterator iter1 = oldAttachs.iterator();
-      while (iter1.hasNext()){
-        ItemAttachmentIfc oldAttach = (ItemAttachmentIfc)iter1.next();
-        assessmentService.removeItemAttachment(oldAttach.getAttachmentId().toString());
-      }
-
-      session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-      session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
-      item.setItemAttachmentSet(newAttachmentSet);
-      return newAttachmentList;
-    }
-    else return item.getItemAttachmentList();
   }
 
 }
