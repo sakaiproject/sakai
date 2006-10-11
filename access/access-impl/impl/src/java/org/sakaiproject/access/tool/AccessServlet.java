@@ -273,8 +273,8 @@ public class AccessServlet extends VmServlet
 			setVmReference("props", props, req);
 			setVmReference("tlang", rb, req);
 
-			String acceptPath = Web.returnUrl(req, COPYRIGHT_ACCEPT + "?" + COPYRIGHT_ACCEPT_REF + "=" + aRef.getReference() + "&"
-					+ COPYRIGHT_ACCEPT_URL + "=" + returnPath);
+			String acceptPath = Web.returnUrl(req, COPYRIGHT_ACCEPT + "?" + COPYRIGHT_ACCEPT_REF + "=" + Validator.escapeUrl(aRef.getReference()) + "&"
+					+ COPYRIGHT_ACCEPT_URL + "=" + Validator.escapeUrl(returnPath));
 
 			setVmReference("accept", acceptPath, req);
 			res.setContentType("text/html; charset=UTF-8");
@@ -372,8 +372,8 @@ public class AccessServlet extends VmServlet
 			{
 				// TODO: send back using a form of the request URL, encoding the real reference, and the requested reference
 				// Note: refs / requests with servlet parameters (?x=y...) are NOT supported -ggolden
-				String redirPath = COPYRIGHT_REQUIRE + "?" + COPYRIGHT_ACCEPT_REF + "=" + e.getReference() + "&" + COPYRIGHT_ACCEPT_URL
-						+ "=" + req.getPathInfo();
+				String redirPath = COPYRIGHT_REQUIRE + "?" + COPYRIGHT_ACCEPT_REF + "=" + Validator.escapeUrl(e.getReference()) + "&" + COPYRIGHT_ACCEPT_URL
+						+ "=" + Validator.escapeUrl(req.getPathInfo());
 				res.sendRedirect(Web.returnUrl(req, redirPath));
 			}
 			catch (IOException ee)
