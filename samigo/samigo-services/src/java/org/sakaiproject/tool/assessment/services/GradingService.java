@@ -1015,22 +1015,17 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         String answer = st.nextToken().trim();
         if ("true".equalsIgnoreCase(casesensitive)) {
           if (data.getAnswerText() != null){
-            studentanswer= data.getAnswerText().trim();
-    	    REGEX = answer.replaceAll("\\*", ".+");
-            p = Pattern.compile(REGEX);   // by default it's case sensitive
-            m = p.matcher(studentanswer);
-            matchresult = m.matches();
+        	  studentanswer= data.getAnswerText().trim();
+            matchresult = fibmatch(answer, studentanswer, true);
+             
           }
         }  // if case sensitive 
         else {
         // case insensitive , if casesensitive is false, or null, or "".
           if (data.getAnswerText() != null){
-    	    studentanswer= data.getAnswerText().trim();
-            REGEX = answer.replaceAll("\\*", ".+");
-	    p = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE);
-            m = p.matcher(studentanswer);
-            matchresult= m.matches();
-          }
+        	  studentanswer= data.getAnswerText().trim();
+    	    matchresult = fibmatch(answer, studentanswer, false);
+           }
         }  // else , case insensitive
  
         if (matchresult){
@@ -1075,9 +1070,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  // this method is similiar to getFIBScore(), except it returns true/false for the answer, not scores.  
 	  // may be able to refactor code out to be reused, but totalscores for mutually exclusive case is a bit tricky. 
     String studentanswer = "";
-    String REGEX;
-    Pattern p;
-    Matcher m;
     boolean matchresult = false;
 
     if (data.getPublishedAnswerId() == null) {
@@ -1100,22 +1092,16 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         String answer = st.nextToken().trim();
         if ("true".equalsIgnoreCase(casesensitive)) {
           if (data.getAnswerText() != null){
-            studentanswer= data.getAnswerText().trim();
-    	    REGEX = answer.replaceAll("\\*", ".+");
-            p = Pattern.compile(REGEX);   // by default it's case sensitive
-            m = p.matcher(studentanswer);
-            matchresult = m.matches();
-          }
+        	  studentanswer= data.getAnswerText().trim();
+            matchresult = fibmatch(answer, studentanswer, true);
+           }
         }  // if case sensitive 
         else {
         // case insensitive , if casesensitive is false, or null, or "".
           if (data.getAnswerText() != null){
-    	    studentanswer= data.getAnswerText().trim();
-            REGEX = answer.replaceAll("\\*", ".+");
-	    p = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE);
-            m = p.matcher(studentanswer);
-            matchresult= m.matches();
-          }
+        	  studentanswer= data.getAnswerText().trim();
+    	    matchresult = fibmatch(answer, studentanswer, false);
+           }
         }  // else , case insensitive
  
         if (matchresult){
@@ -1401,6 +1387,63 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    }
 	    return typeId;
   }
+  
+  public boolean fibmatch(String answer, String input, boolean casesensitive) {
+
+	  
+		try {
+			
+		  	// comment this part out if using the jdk 1.5 version
+			
+		// /*
+		String REGEX = answer.replaceAll("\\*", ".+");
+		Pattern p;
+		if (casesensitive) {
+			p = Pattern.compile(REGEX);
+		} else {
+			p = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE);
+		}
+
+		Matcher m = p.matcher(input);
+		boolean matchresult = m.matches();
+		return matchresult;
+
+		/*
+		// requires jdk 1.5 for Pattern.quote(), allow metacharacters, such as a+b.
+		 
+		 
+		 String regex_quote = "";
+		 
+		 String REGEX = answer.replaceAll("\\*", "|*|");
+		 String[] oneblank = REGEX.split("\\|");
+		 for (int j = 0; j < oneblank.length; j++) {
+		 if ("*".equals(oneblank[j])) {
+		 regex_quote = regex_quote +".+";
+		 }
+		 else {
+		 regex_quote = regex_quote + Pattern.quote(oneblank[j]);
+
+		 }
+		 }
+
+		 Pattern p;
+		 if (casesensitive){
+		 p = Pattern.compile(regex_quote );
+		 }
+		 else {
+		 p = Pattern.compile(regex_quote,Pattern.CASE_INSENSITIVE );
+		 }
+		 Matcher m = p.matcher(input);
+		 boolean result = m.matches();
+ 		 return result;
+		 */
+		
+		}
+		catch (Exception e){
+			return false;
+		}
+
+	}
 
 }
 
