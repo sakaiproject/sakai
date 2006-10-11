@@ -15,6 +15,7 @@
 -- drop sequence GB_GRADING_EVENT_S;
 -- drop sequence GB_GRADING_SCALE_S;
 -- drop sequence GB_PROPERTY_S;
+-- drop sequence GB_SPREADSHEET_T
 
 create table GB_GRADABLE_OBJECT_T (
 	ID number(19,0) not null,
@@ -31,6 +32,7 @@ create table GB_GRADABLE_OBJECT_T (
 	EXTERNAL_INSTRUCTOR_LINK varchar2(255 char),
 	EXTERNAL_ID varchar2(255 char),
 	EXTERNAL_APP_NAME varchar2(255 char),
+	RELEASED number(1,0) default 0 not null,
 	primary key (ID));
 create table GB_GRADEBOOK_T (
 	ID number(19,0) not null,
@@ -100,6 +102,17 @@ create table GB_PROPERTY_T (
 	NAME varchar2(255 char) not null unique,
 	VALUE varchar2(255 char),
 	primary key (ID));
+create table GB_SPREADSHEET_T ( 
+    ID          	NUMBER(19,0) NOT NULL,
+    VERSION     	NUMBER(10,0) NOT NULL,
+    CREATOR     	VARCHAR2(255) NOT NULL,
+    NAME        	VARCHAR2(255) NOT NULL,
+    CONTENT     	CLOB NOT NULL,
+    DATE_CREATED	DATE NOT NULL,
+    GRADEBOOK_ID	NUMBER(19,0) NOT NULL,
+    PRIMARY KEY(ID)
+);
+	
 
 alter table GB_GRADABLE_OBJECT_T
 	add constraint FK759996A7325D7986 foreign key (GRADEBOOK_ID) references GB_GRADEBOOK_T;
@@ -126,6 +139,7 @@ create sequence GB_GRADE_RECORD_S;
 create sequence GB_GRADING_EVENT_S;
 create sequence GB_GRADING_SCALE_S;
 create sequence GB_PROPERTY_S;
+create sequence GB_SPREADSHEET_S;
 create index GRADEBOOK_ID on GB_GRADABLE_OBJECT_T (GRADEBOOK_ID);
 create index GB_GRADE_MAP_GB_IDX on GB_GRADE_MAP_T (GRADEBOOK_ID);
 create index GB_GRADE_RECORD_STUDENT_ID_IDX on GB_GRADE_RECORD_T (STUDENT_ID);
