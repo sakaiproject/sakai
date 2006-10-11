@@ -8,16 +8,15 @@
 
 ----------------------------------------------------------------------------------------------------------------------------------------
 -- Add new calendar & content permission function names
-
-INSERT INTO SAKAI_REALM_FUNCTION (FUNCTION_NAME) VALUES ('calendar.revise.any');
-INSERT INTO SAKAI_REALM_FUNCTION (FUNCTION_NAME) VALUES ('calendar.revise.own');
-INSERT INTO SAKAI_REALM_FUNCTION (FUNCTION_NAME) VALUES ('calendar.delete.any');
-INSERT INTO SAKAI_REALM_FUNCTION (FUNCTION_NAME) VALUES ('calendar.delete.own');
-INSERT INTO SAKAI_REALM_FUNCTION (FUNCTION_NAME) VALUES ('content.revise.any');
-INSERT INTO SAKAI_REALM_FUNCTION (FUNCTION_NAME) VALUES ('content.revise.own');
-INSERT INTO SAKAI_REALM_FUNCTION (FUNCTION_NAME) VALUES ('content.delete.any');
-INSERT INTO SAKAI_REALM_FUNCTION (FUNCTION_NAME) VALUES ('content.delete.own');
-
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'calendar.revise.any');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'calendar.revise.own');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'calendar.delete.any');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'calendar.delete.own');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'content.revise.any');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'content.revise.own');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'content.delete.any');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'content.delete.own');
+ 
 --
 -- Convert and expand calendar permissions: 
 --    calendar.revise becomes calendar.revise.own | calendar.revise.any | calendar.delete.own | calendar.delete.any
@@ -283,3 +282,5 @@ create sequence GB_SPREADSHEET_S;
 alter table GB_GRADABLE_OBJECT_T add (RELEASED NUMBER(1,0) DEFAULT 1);
 
 ----------------------------------------------------------------------------------------------------------------------------------------
+
+
