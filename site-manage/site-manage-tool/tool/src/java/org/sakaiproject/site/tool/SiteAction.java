@@ -4456,20 +4456,23 @@ public class SiteAction extends PagedResourceActionII
 			}
 			else
 			{
-				// check whether the group title has been used already
-				boolean titleExist = false;
-				for (Iterator iGroups = site.getGroups().iterator(); !titleExist && iGroups.hasNext(); )
+				if (group == null)
 				{
-					Group iGroup = (Group) iGroups.next();
-					if (iGroup.getTitle().equals(title))
+					// when adding a group, check whether the group title has been used already
+					boolean titleExist = false;
+					for (Iterator iGroups = site.getGroups().iterator(); !titleExist && iGroups.hasNext(); )
 					{
-						// found same title
-						titleExist = true;
+						Group iGroup = (Group) iGroups.next();
+						if (iGroup.getTitle().equals(title))
+						{
+							// found same title
+							titleExist = true;
+						}
 					}
-				}
-				if (titleExist)
-				{
-					addAlert(state, rb.getString("group.title.same"));
+					if (titleExist)
+					{
+						addAlert(state, rb.getString("group.title.same"));
+					}
 				}
 			}
 			
