@@ -50,7 +50,9 @@
       	<div class="portletBody">
       		<div class="navIntraTool">
 	  <form action="?#" method="get" class="rwiki_searchForm">
+	    <span id="viewLink" ><img border="0" src="/library/image/transparent.gif" /></span>		
 	    <jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.viewUrl}"/></jsp:attribute>View</jsp:element>
+	    <span id="infoLink" ><img border="0" src="/library/image/transparent.gif" /></span>		
 	    <jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.infoUrl}"/></jsp:attribute>Info</jsp:element>
 	    Search:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />
 	    <input type="hidden" name="panel" value="Main" />

@@ -52,8 +52,11 @@
 	  <form action="?#" method="get" class="rwiki_searchForm">
 	    <span class="rwiki_pageLinks">
 	      <!-- Home Link -->
-	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${homeBean.homeLinkUrl}"/></jsp:attribute><c:out value="${homeBean.homeLinkValue}"/></jsp:element>
+	    <span id="homeLink" ><img border="0" src="/library/image/transparent.gif" /></span>		
+	    <jsp:element name="a"><jsp:attribute name="href"><c:out value="${homeBean.homeLinkUrl}"/></jsp:attribute><c:out value="${homeBean.homeLinkValue}"/></jsp:element>
+	    <span id="viewLink" ><img border="0" src="/library/image/transparent.gif" /></span>		
 	    <jsp:element name="a"><jsp:attribute name="href"><c:out value="${historyBean.viewUrl}"/></jsp:attribute>View Current</jsp:element>
+	    <span id="historyLink" ><img border="0" src="/library/image/transparent.gif" /></span>		
 	    <jsp:element name="a"><jsp:attribute name="href"><c:out value="${historyBean.historyUrl}"/></jsp:attribute>History</jsp:element>
 	    </span>
 	    <span class="rwiki_searchBox">

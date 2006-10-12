@@ -51,11 +51,11 @@
 	    <!--<form action="?#" method="get" class="rwiki_searchForm">-->
 	      <!--<span class="rwiki_pageLinks">-->
 		<!-- Home Link -->
-		<!--<jsp:element name="a"><jsp:attribute name="href"><c:out value="${homeBean.homeLinkUrl}"/></jsp:attribute><c:out value="${homeBean.homeLinkValue}"/></jsp:element>-->
+		<!--<jsp:element name="a"><jsp:attribute name="id">homeLink</jsp:attribute><jsp:attribute name="href"><c:out value="${homeBean.homeLinkUrl}"/></jsp:attribute><img alt="Home" title="Home" border="0" src="/library/image/transparent.gif" /><c:out value="${homeBean.homeLinkValue}"/></jsp:element>-->
 		<!-- View Link -->
-		<!--<jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmEditBean.viewUrl}"/></jsp:attribute>View</jsp:element>-->
+		<!--<jsp:element name="a"><jsp:attribute name="id">viewLink</jsp:attribute><jsp:attribute name="href"><c:out value="${realmEditBean.viewUrl}"/></jsp:attribute><img alt="View" title="View" border="0" src="/library/image/transparent.gif" />View</jsp:element>-->
 		<!-- Info Link -->
-		<!--<jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmEditBean.infoUrl}"/></jsp:attribute><jsp:attribute name="class">rwiki_currentPage</jsp:attribute>Info</jsp:element>-->
+		<!--<jsp:element name="a"><jsp:attribute name="id">infoLink</jsp:attribute><jsp:attribute name="href"><c:out value="${realmEditBean.infoUrl}"/></jsp:attribute><jsp:attribute name="class">rwiki_currentPage</jsp:attribute><img alt="Info" title="Info" border="0" src="/library/image/transparent.gif" />Info</jsp:element>-->
 		<!--</span>-->
 	      <!--<span class="rwiki_searchBox">-->
 		<!--Search:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />-->

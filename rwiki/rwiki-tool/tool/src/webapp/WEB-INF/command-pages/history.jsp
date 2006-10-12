@@ -127,14 +127,19 @@ Page Owner Permissions Group
 	  <form action="?#" method="get" class="rwiki_searchForm">
 	    <span class="rwiki_pageLinks">
 	      <!-- Home Link -->
+	      <span id="homeLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${homeBean.homeLinkUrl}"/></jsp:attribute><c:out value="${homeBean.homeLinkValue}"/></jsp:element>
 	      <!-- View Link -->
+	      <span id="viewLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${historyBean.viewUrl}"/></jsp:attribute>View</jsp:element>
 	      <!-- Edit Link -->
+	      <span id="editLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${historyBean.editUrl}"/></jsp:attribute>Edit</jsp:element>
 	      <!-- Info Link -->
+	      <span id="infoLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${historyBean.infoUrl}"/></jsp:attribute>Info</jsp:element>
 	      <!-- History Link -->
+	      <span id="historyLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${historyBean.historyUrl}"/></jsp:attribute><jsp:attribute name="class">rwiki_currentPage</jsp:attribute>History</jsp:element>
 	    </span>
 	    <span class="rwiki_searchBox">

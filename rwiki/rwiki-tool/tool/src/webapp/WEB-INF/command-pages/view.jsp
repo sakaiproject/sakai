@@ -114,18 +114,22 @@
 	      </jsp:element>
 		  </jsp:element>
 	      <!-- Home Link -->
+	      <span id="homeLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${homeBean.homeLinkUrl}"/></jsp:attribute><c:out value="${homeBean.homeLinkValue}"/></jsp:element>
 	      <!-- View Link -->
+	      <span id="viewLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.viewUrl}"/></jsp:attribute><jsp:attribute name="class">rwiki_currentPage</jsp:attribute>View</jsp:element>
 	      <!-- Edit Link -->
-	      <jsp:element name="a"><!--
-		--><jsp:attribute name="href"><c:out value="${viewBean.editUrl}"/></jsp:attribute><!--
+	      <span id="editLink" ><img border="0" src="/library/image/transparent.gif" /></span>
+	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.editUrl}"/></jsp:attribute><!--
 		--><!--<c:if test="${not(permissionsBean.updateAllowed)}"><jsp:attribute name="class">rwiki_disabled</jsp:attribute></c:if>--><!-- 
 		-->Edit<!--
 		--></jsp:element>
 	      <!-- Info Link -->
+	      <span id="infoLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.infoUrl}"/></jsp:attribute>Info</jsp:element>
 	      <!-- History Link -->
+	      <span id="historyLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.historyUrl}"/></jsp:attribute>History</jsp:element>
 	    </span>
 	    <span class="rwiki_searchBox">

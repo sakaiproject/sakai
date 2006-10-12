@@ -27,6 +27,11 @@
 	clear: both;
 }
 
+.rwiki_searchBox input {
+      border: 1px solid #cccccc;
+}
+
+
 #rssLink {
 	float: right;
 	background: url(/sakai-rwiki-tool/images/feed.png) center right no-repeat;
@@ -49,6 +54,102 @@
 #printerFriendlyLink {
 	float: right;
 	background: url(/sakai-rwiki-tool/images/printer.png) center right no-repeat;
+}
+
+#homeLink {
+	background: url(/sakai-rwiki-tool/images/silk/icons/application_home.png) center left no-repeat;
+    padding: 3px;
+}
+#homeLink img {
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
+
+#viewLink {
+	background: url(/sakai-rwiki-tool/images/silk/icons/application_view_detail.png) center left no-repeat;
+    padding: 3px;
+}
+#viewLink img {
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
+#editLink {
+	background: url(/sakai-rwiki-tool/images/silk/icons/application_edit.png) center left no-repeat;
+    padding: 3px;
+}
+#editLink img {
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
+
+#infoLink {
+	background: url(/sakai-rwiki-tool/images/silk/icons/information.png) center left no-repeat;
+    padding: 3px;
+}
+#infoLink img {
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
+
+#historyLink {
+	background: url(/sakai-rwiki-tool/images/silk/icons/time.png) center left no-repeat;
+    padding: 3px;
+}
+#historyLink img {
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
+
+
+#toolbarButtonBold {
+	background: url(/sakai-rwiki-tool/images/silk/icons/text_bold.png) center center no-repeat;
+}
+#toolbarButtonItalic {
+	background: url(/sakai-rwiki-tool/images/silk/icons/text_italic.png) center center no-repeat;
+}
+#toolbarButtonSuper {
+	background: url(/sakai-rwiki-tool/images/silk/icons/text_superscript.png) center center no-repeat;
+}
+#toolbarButtonSub {
+	background: url(/sakai-rwiki-tool/images/silk/icons/text_subscript.png) center center no-repeat;
+}
+#toolbarButtonHeading {
+}
+#toolbarButtonTable {
+	background: url(/sakai-rwiki-tool/images/silk/icons/table.png) center center no-repeat;
+}
+#toolbarButtonLink {
+	background: url(/sakai-rwiki-tool/images/silk/icons/world_link.png) center center no-repeat;
+}
+#toolbarButtonImage {
+	background: url(/sakai-rwiki-tool/images/silk/icons/picture.png) center center no-repeat;
+}
+
+.editToolBar img {
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
+
+.editToolBarContainer {
+    background-color: #efefde;
+    width: 102%;
+}
+
+a.editToolBar, a:visited.editToolBar {
+	border: 1px solid #efefde;	
+    padding: 2px;	
+    cursor: default;    
+}
+
+.editToolBarContainer select {
+   border: 1px solid #efeffe;
+
+}
+
+
+a:hover.editToolBar, a:active.editToolBar {
+	border: 1px solid #316ac5;	
+	background-color: #c1d2ee;
 }
 
 a.anchorpoint {

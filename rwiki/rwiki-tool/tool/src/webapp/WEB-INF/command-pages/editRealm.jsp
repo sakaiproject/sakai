@@ -50,10 +50,13 @@
 	    <!--<form action="?#" method="get" class="rwiki_searchForm">-->
 	      <!--<span class="rwiki_pageLinks">-->
 		<!-- Home Link -->
+		<span id="homeLink" ><img border="0" src="/library/image/transparent.gif" /></span>	
 		<!--<jsp:element name="a"><jsp:attribute name="href"><c:out value="${homeBean.homeLinkUrl}"/></jsp:attribute><c:out value="${homeBean.homeLinkValue}"/></jsp:element>-->
 		<!-- View Link -->
+	      <span id="viewLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 		<!--<jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmEditBean.viewUrl}"/></jsp:attribute>View</jsp:element>-->
 		<!-- Info Link -->
+	      <span id="infoLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 		<!--<jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmEditBean.infoUrl}"/></jsp:attribute><jsp:attribute name="class">rwiki_currentPage</jsp:attribute>Info</jsp:element>-->
 		<!--</span>-->
 	      <!--<span class="rwiki_searchBox">-->

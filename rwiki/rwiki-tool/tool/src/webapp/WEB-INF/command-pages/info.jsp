@@ -213,19 +213,29 @@ both pages are identical. Any change in the page, will change the digest on the 
 	    <form action="?#" method="get" class="rwiki_searchForm">
 	      <span class="rwiki_pageLinks">
 		<!-- Home Link -->
+	      <span id="homeLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 		<jsp:element name="a"><jsp:attribute name="href"><c:out value="${homeBean.homeLinkUrl}"/></jsp:attribute><c:out value="${homeBean.homeLinkValue}"/></jsp:element>
 		<!-- View Link -->
+	      <span id="viewLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 		<jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmBean.viewUrl}"/></jsp:attribute>View</jsp:element>
 		<!-- Edit Link -->
+	      <span id="editLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 		<jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmBean.editUrl}"/></jsp:attribute>Edit</jsp:element>
 		<!-- Info Link -->
+	      <span id="infoLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 		<jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmBean.infoUrl}"/></jsp:attribute><jsp:attribute name="class">rwiki_currentPage</jsp:attribute>Info</jsp:element>
 		<!-- History Link -->
+	      <span id="historyLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 		<jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmBean.historyUrl}"/></jsp:attribute>History</jsp:element>
 	      </span>
+              <c:if test="${requestScope.rsacMap.withnotification}" >
+	        <span id="watchLink" ><img border="0" src="/library/image/transparent.gif" /></span>
+		<jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmBean.preferencesUrl}"/></jsp:attribute>Watch</jsp:element>
+              </c:if>
+
 	      
 	      <span class="rwiki_searchBox">
-		Search:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />
+			Search:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />
 		<input type="hidden" name="panel" value="Main" />
 		<input type="text" name="search" />
 	      </span>

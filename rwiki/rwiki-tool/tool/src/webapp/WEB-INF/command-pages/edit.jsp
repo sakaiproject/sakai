@@ -61,15 +61,25 @@
 	  <form action="?#" method="get" class="rwiki_searchForm">
 	    <span class="rwiki_pageLinks">
 	      <!-- Home Link -->
+	      <span id="homeLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${homeBean.homeLinkUrl}"/></jsp:attribute><c:out value="${homeBean.homeLinkValue}"/></jsp:element>
 	      <!-- View Link -->
+	      <span id="viewLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.viewUrl}"/></jsp:attribute>View</jsp:element>
 	      <!-- Edit Link -->
+	      <span id="editLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.editUrl}"/></jsp:attribute><jsp:attribute name="class">rwiki_currentPage</jsp:attribute>Edit</jsp:element>
 	      <!-- Info Link -->
+	      <span id="infoLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.infoUrl}"/></jsp:attribute>Info</jsp:element>
 	      <!-- History Link -->
+	      <span id="historyLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.historyUrl}"/></jsp:attribute>History</jsp:element>
+              <c:if test="${requestScope.rsacMap.withnotification}" >
+                <span id="watchLink" ><img border="0" src="/library/image/transparent.gif" /></span>
+                <jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmBean.preferencesUrl}"/></jsp:attribute>Watch</jsp:element>
+              </c:if>
+
 	    </span>
 	    <span class="rwiki_searchBox">
 	      Search:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />
@@ -144,7 +154,6 @@
 	      </c:if>
 	      
 	   <div class="longtext">
-	      <label for="content" class="block">New Content</label>
 		<div id="textarea_outer_sizing_div">
 		  <div id="textarea_inner_sizing_div">
 		    	<jsp:directive.include file="edittoolbar.jsp"/>
