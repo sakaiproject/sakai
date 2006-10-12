@@ -14,7 +14,7 @@
 
 .actionHeader{ 
   overflow: hidden;
-  width=100%;
+  width:100%;
   background:#eec;
   padding:0
 
@@ -33,15 +33,20 @@
 .navModeQuestion
 {background-color:#CCC;text-align:left;padding:.3em;vertical-align:middle font-size:1.2ems}
 */
-.navViewAction
-{background-color:#CCC;text-align:left;padding:.3em;vertical-align:right font-size:1.2ems}
+.navViewAction {
+background-color:#CCC;
+text-align:left;
+padding:.3em;
+vertical-align: bottom;
+font-size:1.2em
+}
 
 .textTable
 {vertical-align:top;margin-left:2em}
 
 .number {
-  width=23px;
-  height=23px;
+  width:23px;
+  height:23px;
         FONT-WEIGHT: bold;
         COLOR:#FFFFFF;
         background-image: url(../images/circle.gif);
@@ -56,16 +61,16 @@
 
 /* moved h#text,alignRight from main.css  */
 .h3text {
-        font-size: 1.2ems;
-        font-weight: bold;
+ font-size: 1.2em;
+ font-weight: bold;
 }
 .h4text {
-        font-size: 1.0ems;
-        font-weight: bold;
+ font-size: 1.0em;
+ font-weight: bold;
 }
 .h5text {
-        font-size: 0.8ems;
-        font-weight: bold;
+ font-size: 0.8em;
+ font-weight: bold;
 }
 .navList{
         text-align: right;
