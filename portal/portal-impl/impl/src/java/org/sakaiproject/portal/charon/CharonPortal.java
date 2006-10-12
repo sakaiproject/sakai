@@ -766,7 +766,7 @@ public class CharonPortal extends HttpServlet
 				+ toolTitle
 				+ "</title>\n"
 				+ "  </head>\n"
-				+ "  <body onload=\"document.forms[0].eid.focus();\">\n";
+				+ "  <body>\n";
 		final String tailHtml = "</body></html>\n";
 
 		out.write(headHtml);
@@ -2120,6 +2120,10 @@ public class CharonPortal extends HttpServlet
 					.println("<input name=\"submit\" type=\"submit\" id=\"submit\" value=\""
 							+ loginWording + "\" /> </form>");
 
+                        out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
+                        out.println("document.forms[0].eid.focus();");
+                        out.println("</script>");
+
 			// setup for the redirect after login
 			session.setAttribute(Tool.HELPER_DONE_URL,
 					ServerConfigurationService.getPortalUrl());
@@ -3053,7 +3057,7 @@ public class CharonPortal extends HttpServlet
 						+ "  </head>");
 
 		// start the body
-		out.println("<body class=\"portalBody\" onload=\"document.forms[0].eid.focus();\">");
+		out.println("<body class=\"portalBody\">");
 
 		// if top, mark this as the portal window
 		if (top)
