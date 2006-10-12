@@ -26,6 +26,8 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,6 +37,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -227,7 +230,13 @@ public class SaveAssessmentSettings
     assessment.setSecuredIPAddressSet(ipSet);
     // l. FINALLY: save the assessment
     assessmentService.saveAssessment(assessment);
-    //assessmentService.saveOrUpdate(template);
+
+    // added by daisyf, 10/10/06
+    removeOldAttachment(assessment.getAssessmentAttachmentSet());
+    Set set = prepareAssessmentAttachmentSet(assessmentSettings.getAttachmentList(), (AssessmentIfc)assessment.getData());
+    assessment.setAssessmentAttachmentSet(set);
+    assessmentService.saveAssessment(assessment);
+
     return assessment;
   }
 
@@ -292,6 +301,28 @@ public class SaveAssessmentSettings
     }
   
     
+
+  public Set  prepareAssessmentAttachmentSet(List attachmentList, AssessmentIfc assessment){
+    Set set = new HashSet();
+    if (attachmentList!=null && assessment!=null ){
+      for (int i=0; i<attachmentList.size(); i++){
+        AssessmentAttachmentIfc attach = (AssessmentAttachmentIfc) attachmentList.get(i);
+        attach.setAssessment(assessment);
+        set.add(attach);
+      }
+    }
+    return set;
+  }
+
+  private void removeOldAttachment(Set oldAttachs){
+    if (oldAttachs == null) return;
+    AssessmentService assessmentService = new AssessmentService();
+    Iterator iter1 = oldAttachs.iterator();
+    while (iter1.hasNext()){
+      AssessmentAttachmentIfc oldAttach = (AssessmentAttachmentIfc)iter1.next();
+      assessmentService.removeAssessmentAttachment(oldAttach.getAttachmentId().toString());                                                             
+    }                                                                                                                                                
+  }
 
 
 }

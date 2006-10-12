@@ -30,4 +30,8 @@ public interface AssessmentAttachmentIfc
 
   void setAttachmentType(Long attachmentType);
 
+  AssessmentIfc getAssessment();
+
+  void setAssessment(AssessmentIfc assessment);
+
 }

@@ -212,7 +212,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 	  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
 	 AssessmentSettingsBean bean = (AssessmentSettingsBean) ContextUtil.lookupBeanFromExternalServlet(
                                "assessmentSettings", req, res);
-         bean.saveAssessmentAttachment();
+         bean.setAssessmentAttachment();
          toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
       }
 

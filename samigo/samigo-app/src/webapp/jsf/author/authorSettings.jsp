@@ -776,6 +776,7 @@ function uncheckOther(field){
   </h:commandButton>
   <h:commandButton value="#{msg.button_cancel}" type="submit" action="editAssessment" >
       <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ResetAssessmentAttachmentListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
   </h:commandButton>
 </p>

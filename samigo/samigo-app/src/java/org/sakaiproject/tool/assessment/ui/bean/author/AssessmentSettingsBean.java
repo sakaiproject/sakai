@@ -366,6 +366,8 @@ public class AssessmentSettingsBean
             this.ipAddresses = ip.getIpAddress()+"\n"+this.ipAddresses;
         }
       }
+      // attachment
+      this.attachmentList = assessment.getAssessmentAttachmentList();
     }
     catch (RuntimeException ex) {
     	ex.printStackTrace();
@@ -1201,11 +1203,12 @@ public class AssessmentSettingsBean
   }
 
   public String addAttachmentsRedirect() {
-    // 1. save the assessment settings 1st
-    saveAssessmentSettings();
-    // 2. redirect to add attachment
+    // 1. redirect to add attachment
     try	{
-      List filePickerList = prepareReferenceList(attachmentList);
+      List filePickerList = new ArrayList();
+      if (attachmentList != null){
+        filePickerList = prepareReferenceList(attachmentList);
+      }
       ToolSession currentToolSession = SessionManager.getCurrentToolSession();
       currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);
       ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
@@ -1217,12 +1220,7 @@ public class AssessmentSettingsBean
     return "editAssessmentSettings";
   }
 
-  public void saveAssessmentSettings(){
-    SaveAssessmentSettings lis = new SaveAssessmentSettings();
-    lis.save(this);
-  }
-
-  public void saveAssessmentAttachment(){
+  public void setAssessmentAttachment(){
     SaveAssessmentAttachmentListener lis = new SaveAssessmentAttachmentListener();
     lis.processAction(null);
   }
@@ -1230,25 +1228,42 @@ public class AssessmentSettingsBean
   private List prepareReferenceList(List attachmentList){
     List list = new ArrayList();
     for (int i=0; i<attachmentList.size(); i++){
+      ContentResource cr = null;
       AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
       try{
-        ContentResource cr = ContentHostingService.getResource(attach.getResourceId());
-        if (cr!=null){
-          ReferenceComponent ref = new ReferenceComponent(cr.getReference());
-          if (ref !=null ) list.add(ref);
-        }
+        cr = ContentHostingService.getResource(attach.getResourceId());
       }
       catch (PermissionException e) {
-    	  log.warn(e.getMessage());
+    	  log.warn("PermissionException from ContentHostingService:"+e.getMessage());
       }
       catch (IdUnusedException e) {
-		log.warn(e.getMessage());
+    	  log.warn("IdUnusedException from ContentHostingService:"+e.getMessage());
+          // <-- bad sign, some left over association of assessment and resource, 
+          // use case: user remove resource in file picker, then exit modification without
+          // proper cancellation by clicking at the left nav instead of "cancel".
+          // Also in this use case, any added resource would be left orphan. 
+          AssessmentService assessmentService = new AssessmentService();
+          assessmentService.removeAssessmentAttachment(attach.getAttachmentId().toString());
       }
       catch (TypeException e) {
-		log.warn(e.getMessage());
+    	  log.warn("TypeException from ContentHostingService:"+e.getMessage());
+      }
+      if (cr!=null){
+        ReferenceComponent ref = new ReferenceComponent(cr.getReference());
+        if (ref !=null ) list.add(ref);
       }
     }
     return list;
+  }
+
+  private HashMap resourceHash = new HashMap();
+  public HashMap getResourceHash() {
+      return resourceHash;
+  }
+
+  public void setResourceHash(HashMap resourceHash)
+  {
+      this.resourceHash = resourceHash;
   }
 
 }

@@ -147,7 +147,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
     this.itemFeedbackSet = getItemFeedbackSet();
     this.itemFeedbackMap = getItemFeedbackMap(this.itemFeedbackSet);
     this.hasRationale= data.getHasRationale();//rshastri :SAK-1824
-    this.itemAttachmentSet = data.getItemAttachmentSet();
+    this.itemAttachmentSet = getItemAttachmentSet();
   }
 
   public Object clone() throws CloneNotSupportedException{
@@ -1012,7 +1012,13 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
   }
 
   public Set getItemAttachmentSet() {
-    return itemAttachmentSet;
+    try {
+      this.data = (ItemDataIfc) item.getData();
+    }
+    catch (AssessmentException ex) {
+      throw new DataFacadeException(ex.getMessage());
+    }
+    return this.data.getItemAttachmentSet();
   }
 
   public void setItemAttachmentSet(Set itemAttachmentSet) {
@@ -1022,8 +1028,9 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
 
   public List getItemAttachmentList() {
     ArrayList list = new ArrayList();
-    if (itemAttachmentSet !=null ){
-      Iterator iter = itemAttachmentSet.iterator();
+    Set set = getItemAttachmentSet(); 
+    if (set !=null ){
+      Iterator iter = set.iterator();
       while (iter.hasNext()){
         ItemAttachmentIfc a = (ItemAttachmentIfc)iter.next();
         list.add(a);

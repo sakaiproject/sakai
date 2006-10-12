@@ -754,5 +754,4 @@ private List attachmentList;
   {
       this.resourceHash = resourceHash;
   }
-
 }

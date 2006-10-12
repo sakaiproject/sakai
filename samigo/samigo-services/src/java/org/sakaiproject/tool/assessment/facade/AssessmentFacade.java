@@ -135,7 +135,6 @@ public class AssessmentFacade extends AssessmentBaseFacade
       SectionData s = (SectionData)iter.next();
       this.sectionSet.add(new SectionFacade(s));
     }
-    this.assessmentAttachmentSet = data.getAssessmentAttachmentSet();
   }
 
   public Long getAssessmentId(){
@@ -230,11 +229,12 @@ public class AssessmentFacade extends AssessmentBaseFacade
   public Set getAssessmentAttachmentSet() throws DataFacadeException {
     try {
       this.data = (AssessmentIfc) assessment.getData();
+      this.assessmentAttachmentSet = data.getAssessmentAttachmentSet();
     }
     catch (AssessmentException ex) {
       throw new DataFacadeException(ex.getMessage());
     }
-    return this.data.getAssessmentAttachmentSet();
+    return assessmentAttachmentSet;
   }
 
   public void setAssessmentAttachmentSet(Set assessmentAttachmentSet) {

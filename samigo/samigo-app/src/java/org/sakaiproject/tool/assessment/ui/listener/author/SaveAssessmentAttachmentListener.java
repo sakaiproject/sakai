@@ -66,10 +66,9 @@ public class SaveAssessmentAttachmentListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException {
     AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
-    //String assessmentId = assessmentSettings.getAssessmentId().toString();
 
     // attach item attachemnt to assessmentBean
-    List attachmentList = prepareAssessmentAttachment((AssessmentIfc)assessmentSettings.getAssessment().getData());
+    List attachmentList = prepareAssessmentAttachment(assessmentSettings);
     assessmentSettings.setAttachmentList(attachmentList);
   }
 
@@ -85,12 +84,22 @@ public class SaveAssessmentAttachmentListener
     return map;
   }
 
-  private List prepareAssessmentAttachment(AssessmentIfc assessment){
+  private List prepareAssessmentAttachment(AssessmentSettingsBean bean){
+    AssessmentIfc assessment = null;
+    // assessment == null => assessment does not exist yet
+    if (bean.getAssessment() != null){
+	assessment = bean.getAssessment();
+    }
+
     ToolSession session = SessionManager.getCurrentToolSession();
     if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null  &&
         session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
       
-      Set attachmentSet = assessment.getAssessmentAttachmentSet();
+      Set attachmentSet = new HashSet();
+      if (assessment!=null){
+        attachmentSet = assessment.getAssessmentAttachmentSet();
+        System.out.println("*** set="+attachmentSet);
+      } 
       HashMap map = getResourceIdHash(attachmentSet);
       ArrayList newAttachmentList = new ArrayList();
       HashSet newAttachmentSet = new HashSet();
@@ -128,21 +137,12 @@ public class SaveAssessmentAttachmentListener
         }
       }
 
-      // the resulting map should now contain attachment that has been removed
-      // inside filepicker, we will now get rid of its association with the assessment
-      Collection oldAttachs = map.values();
-      Iterator iter1 = oldAttachs.iterator();
-      while (iter1.hasNext()){
-        AssessmentAttachmentIfc oldAttach = (AssessmentAttachmentIfc)iter1.next();
-        assessmentService.removeAssessmentAttachment(oldAttach.getAttachmentId().toString());
-      }
-
       session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
       session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
       assessment.setAssessmentAttachmentSet(newAttachmentSet);
       return newAttachmentList;
     }
-    else return assessment.getAssessmentAttachmentList();
+    return new ArrayList();
   }
 
  }
