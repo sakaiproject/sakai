@@ -483,6 +483,16 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     		  log.warn(ex1.getMessage());
     	  }
       }
+      if (mediaStream2 != null) {
+    	  try
+    	  {
+    		  mediaStream2.close();
+    	  }
+    	  catch (IOException ex1)
+    	  {
+    		  log.warn(ex1.getMessage());
+    	  }
+      }
     }
     return mediaByte;
   }
