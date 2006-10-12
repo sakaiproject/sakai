@@ -1,4 +1,4 @@
-<h:panelGroup rendered="#{!person.isMacNetscapeBrowser}">
+<h:panelGroup rendered="#{!person.isMacNetscapeBrowser && delivery.actionString != 'reviewAssessment'}">
 <f:verbatim>
 <object
   classid = "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"

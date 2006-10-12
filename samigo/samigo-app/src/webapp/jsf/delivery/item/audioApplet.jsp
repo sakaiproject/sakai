@@ -1,4 +1,4 @@
-<h:panelGroup rendered="#{person.isMacNetscapeBrowser}">
+<h:panelGroup rendered="#{person.isMacNetscapeBrowser && delivery.actionString != 'reviewAssessment'}">
 <f:verbatim>
 <applet
   codebase = "/samigo/applets/"

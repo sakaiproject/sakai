@@ -267,12 +267,12 @@ function saveTime()
 
   <!-- check for submit for grade permission to determine if button can be displayed -->
   <%-- SUBMIT FOR GRADE --%>
-  <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='previewAssessment') 
-                        || (authorization!=null && authorization.takeAssessment 
-                            && authorization.submitAssessmentForGrade)}">
+  <h:panelGroup rendered="#{authorization!=null && authorization.takeAssessment && authorization.submitAssessmentForGrade}">
     <h:commandButton accesskey="#{msg.a_submit}" type="submit" value="#{msg.button_submit_grading}"
       action="#{delivery.submitForGrade}"  id="submitForm" styleClass="active"
-      rendered="#{delivery.navigation eq '1' && !delivery.continue}" 
+      rendered="#{(delivery.actionString=='takeAssessment'
+                   || delivery.actionString=='takeAssessmentViaUrl')
+				   && delivery.navigation eq '1' && !delivery.continue}" 
       disabled="#{delivery.actionString=='previewAssessment'}"
       onclick="pauseTiming='false'; disableSubmit()" onkeypress="pauseTiming='false'; disableSubmit()"/>
   </h:panelGroup>
