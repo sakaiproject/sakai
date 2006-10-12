@@ -648,7 +648,7 @@ public class ItemAddListener
       itemauthor.setItemId(item.getItemId().toString());
       return true;
     }
-    catch (Exception e) {
+    catch (RuntimeException e) {
       e.printStackTrace();
       return false;
     }

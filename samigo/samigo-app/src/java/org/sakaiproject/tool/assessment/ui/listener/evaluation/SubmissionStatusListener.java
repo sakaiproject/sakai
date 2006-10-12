@@ -23,6 +23,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -264,11 +265,17 @@ public class SubmissionStatusListener
       bean.setTotalPeople(Integer.toString(bean.getAgents().size()));
     }
 
-    catch (Exception e)
+    catch (RuntimeException e)
     {
       e.printStackTrace();
       return false;
-    }
+    } catch (IllegalAccessException e) {
+		e.printStackTrace();
+		return false;
+	} catch (InvocationTargetException e) {
+		e.printStackTrace();
+		return false;
+	}
 
     return true;
   }

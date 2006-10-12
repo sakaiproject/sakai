@@ -24,9 +24,6 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -43,8 +40,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
@@ -66,7 +61,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class ItemModifyListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(ItemModifyListener.class);
+  //private static Log log = LogFactory.getLog(ItemModifyListener.class);
   //private String scalename;  // used for multiple choice Survey
 
   /**
@@ -229,7 +224,7 @@ public class ItemModifyListener implements ActionListener
                         break;
         }
     }
-    catch(Exception e)
+    catch(RuntimeException e)
     {
       e.printStackTrace();
       return false;

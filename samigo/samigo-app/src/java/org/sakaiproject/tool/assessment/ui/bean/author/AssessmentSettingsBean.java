@@ -1043,7 +1043,7 @@ public class AssessmentSettingsBean
   }
 
   public void setTemplateTitle(String title) {
-    this.templateTitle = templateTitle;
+    this.templateTitle = title;
   }
 
   public String getTemplateAuthors() {

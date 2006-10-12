@@ -29,8 +29,6 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -168,10 +166,13 @@ public class ImportQuestionsToAuthoring implements ActionListener
       qpoolbean.setOutcome("editPool");
       }
     }
-    catch (Exception e) {
+    catch (RuntimeException e) {
 	e.printStackTrace();
 	return false;
-    }
+    } catch (CloneNotSupportedException e) {
+		e.printStackTrace();
+		return false;
+	}
 
     return true;
   }
