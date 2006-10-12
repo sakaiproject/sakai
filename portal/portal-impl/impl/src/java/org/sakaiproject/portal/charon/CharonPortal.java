@@ -2889,7 +2889,7 @@ public class CharonPortal extends HttpServlet
 
 			// Send the reset url through a redirect step so that any future 
 			// refresh of the tool's iframe do not cause a reset 
-			String resetUrl = toolUrl.replace("/tool/","/tool-reset/");
+			String resetUrl = PortalStringUtil.replaceFirst(toolUrl,"/tool/","/tool-reset/");
 			out.write("\t\t<a href=\"" + resetUrl + "?panel=Main\" "
 					+ " target=\"" + Web.escapeJavascript("Main" + placement.getId()) + "\""
 					+ " title=\"" + Web.escapeHtml(rb.getString("sit.reset")) 
