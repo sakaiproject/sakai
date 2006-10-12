@@ -307,13 +307,11 @@ public class PublishedAssessmentFacadeQueries
   public Set preparePublishedSecuredIPSet(PublishedAssessmentData p, Set ipSet) {
     HashSet h = new HashSet();
     Iterator i = ipSet.iterator();
-    if (ipSet != null) {
-      while (i.hasNext()) {
-        SecuredIPAddress ip = (SecuredIPAddress) i.next();
-        PublishedSecuredIPAddress publishedIP = new PublishedSecuredIPAddress(
-            p, ip.getHostname(), ip.getIpAddress());
-        h.add(publishedIP);
-      }
+    while (i.hasNext()) {
+      SecuredIPAddress ip = (SecuredIPAddress) i.next();
+      PublishedSecuredIPAddress publishedIP = new PublishedSecuredIPAddress(
+          p, ip.getHostname(), ip.getIpAddress());
+      h.add(publishedIP);
     }
     return h;
   }

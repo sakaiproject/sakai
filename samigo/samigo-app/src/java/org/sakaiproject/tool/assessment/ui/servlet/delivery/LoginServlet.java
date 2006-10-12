@@ -117,13 +117,12 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
     boolean isAuthorized = false;
     boolean isAuthenticated = false;
 
-    if (pub != null){
       // Determine if assessment accept Anonymous Users. If so, starting in version 2.0.1
       // all users will be authenticated as anonymous for the assessment in this case.
-      boolean anonymousAllowed = false;
+      //boolean anonymousAllowed = false;
       String releaseTo = pub.getAssessmentAccessControl().getReleaseTo();
       if (releaseTo != null && releaseTo.indexOf("Anonymous Users")> -1){
-        anonymousAllowed = true;
+        //anonymousAllowed = true;
         agentIdString = AgentFacade.createAnonymous();
         isAuthenticated = true;
         isAuthorized = true;
@@ -137,7 +136,7 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
           isAuthorized = checkMembership(pub, req, res);
           // in 2.2, agentId is differnt from req.getRemoteUser()
           agentIdString = AgentFacade.getAgentString();
-	}
+        }
       }
 
       log.debug("*** agentIdString: "+agentIdString);
@@ -171,7 +170,6 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
           path = "/jsf/delivery/accessDenied.faces";
         }
       }
-    }
 
     log.debug("***path"+path);
     if (relativePath){

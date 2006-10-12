@@ -127,8 +127,11 @@ private static String getContents(File file)
 {
   String contents = "";
   String line = "";
+  BufferedReader br = null;
+  FileReader fr = null;
   try {
-    BufferedReader br = new BufferedReader(new FileReader(file));
+	fr = new FileReader(file);
+    br = new BufferedReader(fr);
     while (line != null)
     {
       line = br.readLine() ;
@@ -139,6 +142,28 @@ private static String getContents(File file)
 	  log.warn(e.getMessage());
   } catch (IOException e) {
 	log.warn(e.getMessage());
+  }
+  finally {
+      if (br != null) {
+    	  try
+    	  {
+    		  br.close();
+    	  }
+    	  catch (IOException ex1)
+    	  {
+    		  log.warn(ex1.getMessage());
+    	  }
+      }
+      if (fr != null) {
+    	  try
+    	  {
+    		  fr.close();
+    	  }
+    	  catch (IOException ex1)
+    	  {
+    		  log.warn(ex1.getMessage());
+    	  }
+      }
   }
   return contents;
 

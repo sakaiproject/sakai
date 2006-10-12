@@ -790,15 +790,7 @@ public class AccessGroup implements Serializable
       retractDate = Calendar.getInstance();
     }
 
-    if(pretractDate == null)
-    {
-      retractDate.setTime(new Date());
-      retractDate.add(Calendar.YEAR, 1); // Retract a year from today.
-    }
-    else
-    {
-      retractDate.setTime(pretractDate);
-    }
+    retractDate.setTime(pretractDate);
 
     retractDate.set(Calendar.SECOND, 0);
 
@@ -1115,15 +1107,7 @@ public class AccessGroup implements Serializable
       dueDate = Calendar.getInstance();
     }
 
-    if(pdueDate == null)
-    {
-      dueDate.setTime(new Date());
-      dueDate.add(Calendar.YEAR, 1); // Due a year from today.
-    }
-    else
-    {
-      dueDate.setTime(pdueDate);
-    }
+    dueDate.setTime(pdueDate);
 
     dueDate.set(Calendar.SECOND, 0);
     //int tempYear = dueDate.get(Calendar.YEAR);

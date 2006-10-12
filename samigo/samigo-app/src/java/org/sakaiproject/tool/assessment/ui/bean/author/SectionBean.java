@@ -643,7 +643,7 @@ private List attachmentList;
         if ((type == null) || type.equals(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString())) {
           setType(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString());
         }
-        else if ((type != null) || type.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
+        else if (type.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
           setType(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString());
         }
         else {

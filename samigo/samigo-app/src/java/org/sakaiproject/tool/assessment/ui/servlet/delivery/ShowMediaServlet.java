@@ -95,17 +95,15 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
     String agentIdString = getAgentString(req, res);
     String currentSiteId="";
     boolean isAudio = false;
-    if (mediaData != null){
-      Long assessmentGradingId = mediaData.getItemGradingData().getAssessmentGradingId();
-      PublishedAssessmentIfc pub = gradingService.getPublishedAssessmentByAssessmentGradingId(assessmentGradingId.toString()); 
-      if (pub!=null){
-        PublishedAssessmentService service = new PublishedAssessmentService();
-        currentSiteId = service.getPublishedAssessmentOwner(pub.getPublishedAssessmentId());
-      }
-      Long typeId = gradingService.getTypeId(mediaData.getItemGradingData().getItemGradingId());
-      if (typeId.equals(TypeIfc.AUDIO_RECORDING)) {
-    	  isAudio = true;
-      }
+    Long assessmentGradingId = mediaData.getItemGradingData().getAssessmentGradingId();
+    PublishedAssessmentIfc pub = gradingService.getPublishedAssessmentByAssessmentGradingId(assessmentGradingId.toString()); 
+    if (pub!=null){
+      PublishedAssessmentService service = new PublishedAssessmentService();
+      currentSiteId = service.getPublishedAssessmentOwner(pub.getPublishedAssessmentId());
+    }
+    Long typeId = gradingService.getTypeId(mediaData.getItemGradingData().getItemGradingId());
+    if (typeId.equals(TypeIfc.AUDIO_RECORDING)) {
+    	isAudio = true;
     }
 
     // some log checking
