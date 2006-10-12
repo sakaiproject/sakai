@@ -68,6 +68,7 @@ should be included in file importing DeliveryMessages
       <h:outputText value="#{msg.can_you_hear_3}"  escape="false"/>
       </div>
     </h:column>
+
     <h:column rendered="#{delivery.actionString=='takeAssessment' 
                         || delivery.actionString=='takeAssessmentViaUrl'}">
       <h:commandLink title="#{msg.t_removeMedia}" action="confirmRemoveMedia" immediate="true">
