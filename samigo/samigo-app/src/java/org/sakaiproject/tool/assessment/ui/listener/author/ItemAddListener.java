@@ -95,7 +95,11 @@ public class ItemAddListener
     String err="";
     FacesContext context=FacesContext.getCurrentInstance();
    
-    if((!iType.equals(TypeFacade.MATCHING.toString())&&((iText==null)||(iText.replaceAll("<.*?>", "").trim().equals(""))))|| (iType.equals(TypeFacade.MATCHING.toString()) && ((iInstruction==null)||(iInstruction.replaceAll("<.*?>", "").trim().equals(""))))){
+    // SAK-6050
+    // if((!iType.equals(TypeFacade.MATCHING.toString())&&((iText==null)||(iText.replaceAll("<.*?>", "").trim().equals(""))))|| (iType.equals(TypeFacade.MATCHING.toString()) && ((iInstruction==null)||(iInstruction.replaceAll("<.*?>", "").trim().equals(""))))){
+    if((!iType.equals(TypeFacade.MATCHING.toString())&&((iText==null)||(iText.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim().equals(""))))|| (iType.equals(TypeFacade.MATCHING.toString()) && ((iInstruction==null)||(iInstruction.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim().equals(""))))){ 
+	
+ 
 	String emptyText_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","emptyText_error");     
 	context.addMessage(null,new FacesMessage(emptyText_err));
 	return;
@@ -177,7 +181,10 @@ public class ItemAddListener
 	    while (iter.hasNext()) {
 		AnswerBean answerbean = (AnswerBean) iter.next();
                 String answerTxt=ContextUtil.stringWYSIWYG(answerbean.getText());
-		if(answerTxt.replaceAll("<.*?>", "").trim().equals(""))
+ 		//  if(answerTxt.replaceAll("<.*?>", "").trim().equals(""))        
+        // SAK-6050
+		if(answerTxt.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim().equals("")) 
+
                     answerbean.setText("");
 		label = answerbean.getLabel();
                 txt=answerbean.getText();
