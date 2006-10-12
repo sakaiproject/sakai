@@ -290,4 +290,15 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public boolean isRandomDrawPart(Long publishedAssessmentId, Long sectionId);
 
+  /**
+   * return an array list of the AssessmentGradingFacade that
+* a user has submitted for grade. one per published assessment. 
+* If an assessment allows multiple submissions and its grading option
+*  is to send highest, then return only the highest submission.  If an assessment allows multiple submissions and its grading option
+*  is to send last, then return only the last submission.
+* @param agentId 
+* @return
+*/
+  public ArrayList getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(String agentId);
+ 
 }

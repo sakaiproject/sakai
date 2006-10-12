@@ -1684,4 +1684,151 @@ public class PublishedAssessmentFacadeQueries
 	    return isRandomDrawPart;
 	  }
 
+  /**
+   * return an array list of the AssessmentGradingFacade that
+* a user has submitted for grade. one per published assessment. 
+* If an assessment allows multiple submissions and its grading option
+*  is to send highest, then return only the submission with highest finalScore.  If an assessment allows multiple submissions and its grading option
+*  is to send last, then return only the last submission.
+* @param agentId 
+* @return
+*/
+	public ArrayList getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(
+			final String agentId) {
+		// Get total no. of submission per assessment by the given agent
+		// sorted by submittedData DESC
+		final String last_query = "select new AssessmentGradingData("
+				+ " a.assessmentGradingId, p.publishedAssessmentId, p.title, a.agentId,"
+				+ " a.submittedDate, a.isLate,"
+				+ " a.forGrade, a.totalAutoScore, a.totalOverrideScore,a.finalScore,"
+				+ " a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
+				+ " a.timeElapsed) "
+				+ " from AssessmentGradingData a, PublishedAssessmentData p"
+				+ " where a.publishedAssessmentId = p.publishedAssessmentId  and a.forGrade=1 and a.agentId=?"
+				+ " order by p.publishedAssessmentId DESC, a.submittedDate DESC";
+
+		// Get total no. of submission per assessment by the given agent
+		// sorted by finalScore DESC
+
+		final String highest_query = "select new AssessmentGradingData("
+			+ " a.assessmentGradingId, p.publishedAssessmentId, p.title, a.agentId,"
+			+ " a.submittedDate, a.isLate,"
+			+ " a.forGrade, a.totalAutoScore, a.totalOverrideScore,a.finalScore,"
+			+ " a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
+			+ " a.timeElapsed) "
+			+ " from AssessmentGradingData a, PublishedAssessmentData p"
+			+ " where a.publishedAssessmentId = p.publishedAssessmentId  and a.forGrade=1 and a.agentId=?"
+			+ " order by p.publishedAssessmentId DESC, a.finalScore DESC";
+
+
+		final HibernateCallback hcb_last = new HibernateCallback() {
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query q = session.createQuery(last_query);
+				q.setString(0, agentId);
+				return q.list();
+			};
+		};
+		
+		// this list is sorted by submittedDate desc.
+		List last_list = getHibernateTemplate().executeFind(hcb_last);
+
+		final HibernateCallback hcb_highest = new HibernateCallback() {
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query q = session.createQuery(highest_query);
+				q.setString(0, agentId);
+				return q.list();
+			};
+		};
+		
+		// this list is sorted by finalScore desc.
+
+		List highest_list = getHibernateTemplate().executeFind(hcb_highest);
+
+
+		// The sorting for each column will be done in the action listener.
+
+		ArrayList assessmentList = new ArrayList();
+		Long currentid = new Long("0");
+		Integer scoringOption = EvaluationModelIfc.LAST_SCORE; // use Last as
+		float currenthighest = 0; // all assessment should have at least 0.
+		boolean multiSubmissionAllowed = false;
+		
+		// now go through the last_list, and get the first entry in the list for each publishedAssessment, if 
+		// not 
+		
+		for (int i = 0; i < last_list.size(); i++) {
+			AssessmentGradingData a = (AssessmentGradingData) last_list.get(i);
+
+			// get the scoring option
+			PublishedAssessmentFacade paf = getPublishedAssessment(a
+					.getPublishedAssessmentId());
+			multiSubmissionAllowed = false;
+			if (paf != null) {
+				scoringOption = paf.getEvaluationModel().getScoringType();
+				AssessmentAccessControlIfc ac = paf.getAssessmentAccessControl();
+		         
+		        if (ac.getSubmissionsAllowed() != null) {
+					if (ac.getSubmissionsAllowed().intValue() > 1) {
+						multiSubmissionAllowed = true;
+					} else {
+						multiSubmissionAllowed = false;
+					}
+				} else {
+					multiSubmissionAllowed = true;
+				}
+
+			}
+
+
+			if ((!multiSubmissionAllowed )|| ((multiSubmissionAllowed)&& 
+					(EvaluationModelIfc.LAST_SCORE.equals(scoringOption)) && 
+					(!a.getPublishedAssessmentId().equals(currentid)))){
+					currentid = a.getPublishedAssessmentId();
+					AssessmentGradingFacade f = new AssessmentGradingFacade(a);
+					assessmentList.add(f);
+ 			}
+			
+  
+		}
+ 		
+		// now go through the highest_list ,and get the first entry in the list for each publishedAssessment. 
+
+		for (int i = 0; i < highest_list.size(); i++) {
+			AssessmentGradingData a = (AssessmentGradingData) highest_list.get(i);
+
+			// get the scoring option
+			PublishedAssessmentFacade paf = getPublishedAssessment(a
+					.getPublishedAssessmentId());
+			multiSubmissionAllowed = false;
+			if (paf != null) {
+				scoringOption = paf.getEvaluationModel().getScoringType();
+				AssessmentAccessControlIfc ac = paf.getAssessmentAccessControl();
+		         
+		         
+		        if (ac.getSubmissionsAllowed() != null) {
+					if (ac.getSubmissionsAllowed().intValue() > 1) {
+						multiSubmissionAllowed = true;
+					} else {
+						multiSubmissionAllowed = false;
+					}
+				} else {
+					multiSubmissionAllowed = true;
+				}
+
+			}
+			if ((multiSubmissionAllowed)&& 
+					(EvaluationModelIfc.HIGHEST_SCORE.equals(scoringOption))&& 
+					(!a.getPublishedAssessmentId().equals(currentid))) {
+					currentid = a.getPublishedAssessmentId();
+					AssessmentGradingFacade f = new AssessmentGradingFacade(a);
+					assessmentList.add(f);
+ 			}
+
+		}
+
+		return assessmentList;
+	}
+
 }

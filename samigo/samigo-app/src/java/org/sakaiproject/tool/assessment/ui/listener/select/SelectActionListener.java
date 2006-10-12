@@ -152,11 +152,25 @@ public class SelectActionListener
 
     // --------------- prepare Submitted assessment grading list --------------
     // 1. get the most recent submission of a user
+    /*
     ArrayList recentSubmittedList =
         publishedAssessmentService.getBasicInfoOfLastSubmittedAssessments(
         AgentFacade.getAgentString(), this.getSubmittedOrderBy(select),
         Boolean.getBoolean( (String) ContextUtil.lookupParam("reviewAscending")));
+        */
 
+    // 1. get the most recent submission, or the highest submissions of each assessment for a user, depending on grading option
+     
+    ArrayList recentSubmittedList =
+        publishedAssessmentService.getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(
+        AgentFacade.getAgentString());
+
+    // TODO: look into combining the above query with getAuthorizationToViewAssessments and getAllAssessmentsReleasedToAuthenticatedUsers
+    // so we don't have to go through all submitted assessemnts across all sites. 
+    
+    // it's implemented this way because this was first developed as person scoped, in standalone samigo. There was no concept of site.
+    
+    
     HashMap authorizationHash = PersistenceService.getInstance().getAuthzQueriesFacade().
         getAuthorizationToViewAssessments(AgentFacade.getCurrentSiteId()) ;
     //log.info("currentSiteId="+AgentFacade.getCurrentSiteId());
