@@ -93,7 +93,9 @@ public class SakaiBootStrap
     }
 
     //autoDdl = new Boolean(value).booleanValue();
-    autoDdl = Boolean.parseBoolean(value);
+    if (("true").equals(value)){
+	autoDdl = true;
+    }
   }
 
 }
