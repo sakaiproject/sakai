@@ -715,35 +715,45 @@ private List attachmentList;
   private List prepareReferenceList(List attachmentList){
     List list = new ArrayList();
     for (int i=0; i<attachmentList.size(); i++){
+      ContentResource cr = null;
       AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
       try{
-        ContentResource cr = ContentHostingService.getResource(attach.getResourceId());
-        if (cr!=null){
-          ReferenceComponent ref = new ReferenceComponent(cr.getReference());
-          if (ref !=null ) list.add(ref);
-        }
+        cr = ContentHostingService.getResource(attach.getResourceId());
       }
       catch (PermissionException e) {
-    	  log.warn("PermissionException:"+e.getMessage());
+    	  log.warn("PermissionException from ContentHostingService:"+e.getMessage());
       }
       catch (IdUnusedException e) {
-    	  log.warn("IdUnusedException"+e.getMessage());
+    	  log.warn("IdUnusedException from ContentHostingService:"+e.getMessage());
+          // <-- bad sign, some left over association of question and resource, 
+          // use case: user remove resource in file picker, then exit modification without
+          // proper cancellation by clicking at the left nav instead of "cancel".
+          // Also in this use case, any added resource would be left orphan. I am
+          // not sure how we can clean it up. -daisyf 
+          AssessmentService assessmentService = new AssessmentService();
+          assessmentService.removeSectionAttachment(attach.getAttachmentId().toString());
       }
       catch (TypeException e) {
-    	  log.warn("TypeException"+e.getMessage());
+    	  log.warn("TypeException from ContentHostingService:"+e.getMessage());
+      }
+      if (cr!=null){
+        if (this.resourceHash == null) this.resourceHash = new HashMap();
+        this.resourceHash.put(attach.getResourceId(),cr);
+        ReferenceComponent ref = new ReferenceComponent(cr.getReference());
+        if (ref !=null ) list.add(ref);
       }
     }
     return list;
   }
 
-  private Collection oldAttachmentCollection;
-  public Collection getOldAttachmentCollection() {
-      return oldAttachmentCollection;
+  private HashMap resourceHash = new HashMap();
+  public HashMap getResourceHash() {
+      return resourceHash;
   }
 
-  public void setOldAttachmentCollection(Collection oldAttachmentCollection)
+  public void setResourceHash(HashMap resourceHash)
   {
-      this.oldAttachmentCollection = oldAttachmentCollection;
+      this.resourceHash = resourceHash;
   }
 
 }

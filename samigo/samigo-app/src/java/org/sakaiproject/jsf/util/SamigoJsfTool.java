@@ -186,19 +186,18 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
       log.debug("***4. dispatch, dispatching path: " + req.getPathInfo() + " to: " + target + " context: "
 	+ getServletContext().getServletContextName());
       // if this is a return from the file picker and going back to 
-      // case 1: item mofification, then save the question now.
-      //         this will hook up the freshly uploaded file to the question.
+      // case 1: item mofification, then set 
+      //         itemAuthorbean.attachmentlist = filepicker list
       if (target.indexOf("/jsf/author/item/") > -1 
 	  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
 	 ItemAuthorBean bean = (ItemAuthorBean) ContextUtil.lookupBeanFromExternalServlet(
                                "itemauthor", req, res);
          bean.setItemAttachment();
-         log.debug("**** done setItemAttachment()");
          toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
       }
 
-      // case 2: part mofification, then save the part now.
-      //         this will hook up the freshly uploaded file to the part.
+      // case 2: part mofification, then set 
+      //         sectionBean.attachmentList = filepicker list
       if (target.indexOf("/jsf/author/editPart") > -1 
 	  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
 	 SectionBean bean = (SectionBean) ContextUtil.lookupBeanFromExternalServlet(
@@ -207,8 +206,8 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
          toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
       }
 
-      // case 3: assessment settings mofification, then save the settings now.
-      //         this will hook up the freshly uploaded file to the part.
+      // case 3: assessment settings mofification, then set 
+      //         assessmentSettingsBean.attachmentList = filepicker list
       if (target.indexOf("/jsf/author/authorSettings") > -1 
 	  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
 	 AssessmentSettingsBean bean = (AssessmentSettingsBean) ContextUtil.lookupBeanFromExternalServlet(

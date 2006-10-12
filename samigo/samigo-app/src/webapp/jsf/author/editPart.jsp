@@ -180,6 +180,8 @@
      </h:commandButton>
      <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_cancel}" style="act" immediate="true" action="editAssessment" >
         <f:actionListener
+          type="org.sakaiproject.tool.assessment.ui.listener.author.ResetPartAttachmentListener" />
+        <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
      </h:commandButton>
   </p>
