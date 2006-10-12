@@ -425,6 +425,20 @@ public class CharonPortal extends HttpServlet
 				res.sendRedirect(siteUrl);
 			}
 
+			else if ((parts.length >= 2) && (parts[1].equals("tool-reset")))
+			{
+				String toolUrl = req.getContextPath() + "/tool" + Web.makePath(parts, 2, parts.length);
+				// Make sure to add the parameters such as panel=Main
+				String queryString = req.getQueryString();
+				if ( queryString != null ) 
+				{
+					toolUrl = toolUrl + "?" + queryString;
+				}
+				setResetState("true");
+				resetDone = true;				
+				res.sendRedirect(toolUrl);
+			}
+
 			else if ((parts.length > 2) && (parts[1].equals("title")))
 			{
 				// Resolve the placements of the form
@@ -2868,7 +2882,15 @@ public class CharonPortal extends HttpServlet
 		// This is a new-style reset where the button is in the background document
 		if (showResetButton)
 		{
-			out.write("\t\t<a href=\"" + toolUrl + "?" + PARM_STATE_RESET + "=true" + "\" "
+			// Note: This is somewhat brittle code as it assumes that the url will
+			// always be /tool/ - as an example - one thing that might fail would 
+			// be if the /portal/ string were /tool/ so the right tool url would be
+			// http://localhost:8080/tool/tool/ - then this code would break
+
+			// Send the reset url through a redirect step so that any future 
+			// refresh of the tool's iframe do not cause a reset 
+			String resetUrl = toolUrl.replace("/tool/","/tool-reset/");
+			out.write("\t\t<a href=\"" + resetUrl + "?panel=Main\" "
 					+ " target=\"" + Web.escapeJavascript("Main" + placement.getId()) + "\""
 					+ " title=\"" + Web.escapeHtml(rb.getString("sit.reset")) 
 					+ "\"><img src=\"/library/image/transparent.gif\" alt=\"" 
