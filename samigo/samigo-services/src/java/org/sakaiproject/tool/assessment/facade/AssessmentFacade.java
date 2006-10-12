@@ -135,6 +135,7 @@ public class AssessmentFacade extends AssessmentBaseFacade
       SectionData s = (SectionData)iter.next();
       this.sectionSet.add(new SectionFacade(s));
     }
+    this.assessmentAttachmentSet = data.getAssessmentAttachmentSet();
   }
 
   public Long getAssessmentId(){

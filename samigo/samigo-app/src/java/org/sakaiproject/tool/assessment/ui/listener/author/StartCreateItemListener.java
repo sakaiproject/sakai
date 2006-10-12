@@ -154,6 +154,7 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
         itemauthorbean.setItemType("");
         itemauthorbean.setItemTypeString("");
         itemauthorbean.setAttachmentList(null);
+        itemauthorbean.setResourceHash(null);
 
         int itype=0; //
 log.debug("item.getItemType() = " + item.getItemType());

@@ -165,6 +165,7 @@ public class ItemModifyListener implements ActionListener
       // attach item attachemnt to itemAuthorBean
       List attachmentList = itemfacade.getData().getItemAttachmentList(); 
       itemauthorbean.setAttachmentList(attachmentList);
+      itemauthorbean.setResourceHash(null);
 
       int itype=0; // default to true/false
       if (itemauthorbean.getItemType()!=null) {

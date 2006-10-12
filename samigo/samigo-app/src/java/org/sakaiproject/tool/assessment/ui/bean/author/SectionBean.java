@@ -725,11 +725,10 @@ private List attachmentList;
       }
       catch (IdUnusedException e) {
     	  log.warn("IdUnusedException from ContentHostingService:"+e.getMessage());
-          // <-- bad sign, some left over association of question and resource, 
+          // <-- bad sign, some left over association of part and resource, 
           // use case: user remove resource in file picker, then exit modification without
           // proper cancellation by clicking at the left nav instead of "cancel".
-          // Also in this use case, any added resource would be left orphan. I am
-          // not sure how we can clean it up. -daisyf 
+          // Also in this use case, any added resource would be left orphan. 
           AssessmentService assessmentService = new AssessmentService();
           assessmentService.removeSectionAttachment(attach.getAttachmentId().toString());
       }

@@ -35,9 +35,10 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
+import org.sakaiproject.tool.assessment.services.ItemService;
+import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.exception.IdUnusedException;
@@ -55,33 +56,32 @@ import org.sakaiproject.content.cover.ContentHostingService;
  * @version $Id: EditPartListener.java 9268 2006-05-10 21:27:24Z daisyf@stanford.edu $
  */
 
-public class ResetPartAttachmentListener
+public class ResetItemAttachmentListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(ResetPartAttachmentListener.class);
+  private static Log log = LogFactory.getLog(ResetItemAttachmentListener.class);
 
-  public ResetPartAttachmentListener()
+  public ResetItemAttachmentListener()
   {
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException {
-    SectionBean sectionBean = (SectionBean) ContextUtil.lookupBean("sectionBean");
-    AssessmentService assessmentService = new AssessmentService();
-    String sectionId = sectionBean.getSectionId();
-    if (sectionId !=null && !("").equals(sectionId)){
-      SectionDataIfc section = assessmentService.getSection(sectionId);
-      resetSectionAttachment(sectionBean.getResourceHash(), section.getSectionAttachmentList());
+    ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
+    ItemService service = new ItemService();
+    String itemId = itemauthorBean.getItemId();
+    if (itemId !=null && !("").equals(itemId)){
+      ItemFacade item = service.getItem(itemId);
+      resetItemAttachment(itemauthorBean.getResourceHash(), item.getData().getItemAttachmentList());
     }
     else{
-	resetSectionAttachment(sectionBean.getResourceHash(), new ArrayList());
+      resetItemAttachment(itemauthorBean.getResourceHash(), new ArrayList());
     }
   }
 
-  public void resetSectionAttachment(HashMap resourceHash, List attachmentList){
-
+    public void resetItemAttachment(HashMap resourceHash, List attachmentList){
     // 1. we need to make sure that attachment removed/added by file picker 
     //    will be restored/remove when user cancels the entire modification
-    AssessmentService assessmentService = new AssessmentService();
+    AssessmentService service = new AssessmentService();
     if (attachmentList != null){
       for (int i=0; i<attachmentList.size(); i++){
          AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
@@ -92,6 +92,7 @@ public class ResetPartAttachmentListener
            log.warn("PermissionException from ContentHostingService:"+e.getMessage());
          }
          catch (IdUnusedException e) {
+           log.warn("IdUnusedException from ContentHostingService:"+e.getMessage());
            // <-- bad sign, 
            // use case: ContentHosting deleted the resource
            // and user cancel out all the modification
@@ -99,14 +100,13 @@ public class ResetPartAttachmentListener
            // according to Glenn , it is a bug in CHS.
            // so we would just do clean up to avoid having attachments
            // points to empty resources
-           log.warn("IdUnusedException from ContentHostingService:"+e.getMessage());
-           log.warn("***removing an empty section attachment association, attachmentId="+attach.getAttachmentId());
-           assessmentService.removeSectionAttachment(attach.getAttachmentId().toString());
+           log.warn("***2.removing an empty item attachment association, attachmentId="+attach.getAttachmentId());
+           service.removeItemAttachment(attach.getAttachmentId().toString());
 
            /* forget it #1
-           if (resourceHash != null){
+           if (resourceHash!=null){
              ContentResource old_cr = (ContentResource) resourceHash.get(attach.getResourceId());
-             if (old_cr!=null){
+             if (old_cr!=null){ 
                resourceHash.remove(attach.getResourceId());
 	     }
 	   }
@@ -119,22 +119,22 @@ public class ResetPartAttachmentListener
     }
 
     /* forget it #2
-       the fact that resources belongs to other section get deleted is too great if there is a
-       mistake in the code or sequence of users action that I haven't foreseen. So I am commenting 
-       this out. These resources shall remain in the DB as orphan. Let's leave the clean up for CHS.
-       Afterall, it shan't commit before the tool tell it to.
+       the fact that resources belongs to other item get deleted is too great if there is a
+        mistake in the code or sequence of users action that I haven't foreseen. So I am commenting 
+        this out. These resources shall remain in the DB as orphan. Let's leave the clean up for CHS.
+        Afterall, it shan't commit before the tool tell it to.
     // 2. any leftover in resourceHash are files that are uploaded
-    //    but has no association with the section and we should remove
+    //    but has no association with the item and we should remove
     //    it. use case: add attachment and cancel the entire modification
     removeLeftOverResources(resourceHash);
-    // VERY IMPORTANT to clean up sectionBean.resourceHash
-    sectionBean.setResourceHash(null); 
+    // VERY IMPORTANT to clean up itemauthorBean.resourceHash
+    itemauthorBean.setResourceHash(null); 
     */
   }
 
   /* forget it #3
   private void removeLeftOverResources(HashMap resourceHash){
-    AssessmentService assessmentService = new AssessmentService();
+    if (resourceHash == null) return;
     Set keys = resourceHash.keySet();
     Iterator iter1 = keys.iterator();
     while (iter1.hasNext()){

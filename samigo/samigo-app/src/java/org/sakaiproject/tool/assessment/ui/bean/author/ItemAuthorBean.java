@@ -994,25 +994,31 @@ ItemService delegate = new ItemService();
       return list;
     }
     for (int i=0; i<attachmentList.size(); i++){
+      ContentResource cr = null;
       AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
       try{
         log.debug("*** resourceId="+attach.getResourceId());
-        ContentResource cr = ContentHostingService.getResource(attach.getResourceId());
-        log.debug("*** cr="+cr);
-        if (cr!=null){
-          ReferenceComponent ref = new ReferenceComponent(cr.getReference());
-          log.debug("*** ref="+ref);
-          if (ref !=null ) list.add(ref);
-        }
+        cr = ContentHostingService.getResource(attach.getResourceId());
       }
       catch (PermissionException e) {
     	  log.warn("ContentHostingService.getResource() throws PermissionException="+e.getMessage());
       }
       catch (IdUnusedException e) {
     	  log.warn("ContentHostingService.getResource() throws IdUnusedException="+e.getMessage());
+          // <-- bad sign, some left over association of question and resource, 
+          // use case: user remove resource in file picker, then exit modification without
+          // proper cancellation by clicking at the left nav instead of "cancel".
+          // Also in this use case, any added resource would be left orphan.
+          AssessmentService assessmentService = new AssessmentService();
+          assessmentService.removeItemAttachment(attach.getAttachmentId().toString());
       }
       catch (TypeException e) {
     	  log.warn("ContentHostingService.getResource() throws TypeException="+e.getMessage());
+      }
+      if (cr!=null){
+        ReferenceComponent ref = new ReferenceComponent(cr.getReference());
+        log.debug("*** ref="+ref);
+        if (ref !=null ) list.add(ref);
       }
     }
     return list;
@@ -1089,6 +1095,16 @@ ItemService delegate = new ItemService();
       }
     }
     return map;
+  }
+
+  private HashMap resourceHash = new HashMap();
+  public HashMap getResourceHash() {
+      return resourceHash;
+  }
+
+  public void setResourceHash(HashMap resourceHash)
+  {
+      this.resourceHash = resourceHash;
   }
 
 }
