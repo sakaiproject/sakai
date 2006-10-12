@@ -1752,7 +1752,6 @@ public class PublishedAssessmentFacadeQueries
 		ArrayList assessmentList = new ArrayList();
 		Long currentid = new Long("0");
 		Integer scoringOption = EvaluationModelIfc.LAST_SCORE; // use Last as
-		float currenthighest = 0; // all assessment should have at least 0.
 		boolean multiSubmissionAllowed = false;
 		
 		// now go through the last_list, and get the first entry in the list for each publishedAssessment, if 

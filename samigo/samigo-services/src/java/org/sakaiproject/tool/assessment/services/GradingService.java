@@ -291,12 +291,12 @@ public class GradingService
   /**
    * Get the last submission for a student per assessment
    */
-  public HashMap getSubmitData(String publishedId, String agentId)
+  public HashMap getSubmitData(String publishedId, String agentId, Integer scoringoption)
   {
     try {
       return (HashMap) PersistenceService.getInstance().
         getAssessmentGradingFacadeQueries()
-          .getSubmitData(new Long(publishedId), agentId);
+          .getSubmitData(new Long(publishedId), agentId, scoringoption);
     } catch (Exception e) {
       e.printStackTrace();
       return new HashMap();

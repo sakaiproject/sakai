@@ -109,8 +109,8 @@ public class BeginDeliveryActionListener implements ActionListener
     populateBeanFromPub(delivery, pub);
 
     // add in course management system info
-    CourseManagementBean course = (CourseManagementBean) ContextUtil.lookupBean("course");
-    populateBeanFromCourse(pub, delivery, course);
+    //CourseManagementBean course = (CourseManagementBean) ContextUtil.lookupBean("course");
+    populateBeanFromCourse(pub, delivery);  //, course);
 
   }
 
@@ -166,8 +166,8 @@ public class BeginDeliveryActionListener implements ActionListener
    * @param delivery the delivery bean
    * @param course the course info bean
    */
-  private void populateBeanFromCourse(PublishedAssessmentIfc pub, DeliveryBean delivery,
-    CourseManagementBean course)
+  private void populateBeanFromCourse(PublishedAssessmentIfc pub, DeliveryBean delivery)
+  //    CourseManagementBean course)
   {
     PublishedAssessmentService service = new PublishedAssessmentService();
     String ownerSiteId = service.getPublishedAssessmentOwner(pub.getPublishedAssessmentId());

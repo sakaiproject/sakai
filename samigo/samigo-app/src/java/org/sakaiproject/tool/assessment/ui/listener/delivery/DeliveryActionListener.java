@@ -166,8 +166,9 @@ public class DeliveryActionListener
               setFeedbackMode(delivery); //this determine if we should gather the itemGrading
               if (("true").equals(delivery.getFeedback())){
                 itemGradingHash = new HashMap();
+                Integer scoringoption = publishedAssessment.getEvaluationModel().getScoringType();
                 if (delivery.getFeedbackComponent().getShowResponse())
-                  itemGradingHash = service.getSubmitData(id, agent);
+                  itemGradingHash = service.getSubmitData(id, agent, scoringoption);
                 ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, false);
                 delivery.setAssessmentGrading(ag);
 	      }

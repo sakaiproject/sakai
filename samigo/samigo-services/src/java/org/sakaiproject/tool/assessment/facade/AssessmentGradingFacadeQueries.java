@@ -332,7 +332,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
   }
 
-  public HashMap getSubmitData(final Long publishedId, final String agentId)
+ 
+  public HashMap getSubmitData(final Long publishedId, final String agentId, final Integer scoringoption)
   {
     try {
 //      Object[] objects = new Object[3];
@@ -343,14 +344,27 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 //      types[0] = Hibernate.LONG;
 //      types[1] = Hibernate.STRING;
 //      types[2] = Hibernate.BOOLEAN;
-
+    	
+    		
       final HibernateCallback hcb = new HibernateCallback(){
       	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+      		log.debug("scoringoption = " + scoringoption);
+      		if (EvaluationModelIfc.LAST_SCORE.equals(scoringoption)){
+      			// last submission
       		Query q = session.createQuery("from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? order by a.submittedDate DESC");
       		q.setLong(0, publishedId.longValue());
       		q.setString(1, agentId);
       		q.setBoolean(2, true);
       		return q.list();
+      		}
+      		else {
+      			//highest submission
+          		Query q1 = session.createQuery("from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? order by a.finalScore DESC");
+          		q1.setLong(0, publishedId.longValue());
+          		q1.setString(1, agentId);
+          		q1.setBoolean(2, true);
+          		return q1.list();     			
+      		}
       	};
       };
       List scores = getHibernateTemplate().executeFind(hcb);

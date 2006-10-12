@@ -173,12 +173,12 @@ public class GradingServiceImpl implements GradingServiceAPI
   /**
    * Get the last submission for a student per assessment
    */
-  public Map getSubmitData(String publishedId, String agentId)
+  public Map getSubmitData(String publishedId, String agentId,Integer scoringoption)
   {
     try
     {
       GradingService service = new GradingService();
-      return service.getSubmitData(publishedId, agentId);
+      return service.getSubmitData(publishedId, agentId,scoringoption );
     }
     catch (Exception ex)
     {

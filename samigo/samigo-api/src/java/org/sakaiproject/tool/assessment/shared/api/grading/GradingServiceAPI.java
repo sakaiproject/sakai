@@ -79,7 +79,7 @@ public interface GradingServiceAPI
   /**
    * Get the last submission for a student per assessment
    */
-  public Map getSubmitData(String publishedId, String agentId);
+  public Map getSubmitData(String publishedId, String agentId, Integer scoringoption);
 
   /**
    * Get the text for the type.
