@@ -606,7 +606,7 @@ public class ExtractionHelper
     }
 
     // highest or last
-    if ("HIGHEST".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    if ("HIGHEST_SCORE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
         "GRADE_SCORE")))
     {
       evaluationModel.setScoringType(EvaluationModel.HIGHEST_SCORE);
@@ -619,7 +619,7 @@ public class ExtractionHelper
       evaluationModel.setScoringType(EvaluationModel.AVERAGE_SCORE);
     }
     */
-    else if ("LAST".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    else if ("LAST_SCORE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
         "GRADE_SCORE")))
     {
       evaluationModel.setScoringType(EvaluationModel.LAST_SCORE);
