@@ -396,7 +396,7 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 			setNumberOfDaysInThePast(parameters.getInt(varNameNumberOfDaysInPast));
 			setEnforceNumberOfDaysInThePastLimit(StringUtil.trimToNull(parameters.get(varNameNumberOfDaysInPast)) != null);
 
-			setNumberOfAnnouncements(parameters.getInt(varNameNumberOfAnnouncements, numberOfAnnouncements));
+			setNumberOfAnnouncements(parameters.getInt(varNameNumberOfAnnouncements, DEFAULT_DISPLAY_NUMBER_OPTION));
 			setEnforceNumberOfAnnouncementsLimit(StringUtil.trimToNull(parameters.get(varNameNumberOfAnnouncements)) != null);
 
 			// setNumberOfCharsPerAnnouncement(parameters.getInt(varNameNumberCharsPerAnnouncement, numberOfCharsPerAnnouncement));
