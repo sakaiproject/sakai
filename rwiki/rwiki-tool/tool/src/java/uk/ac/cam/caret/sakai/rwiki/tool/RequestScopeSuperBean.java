@@ -712,9 +712,10 @@ public class RequestScopeSuperBean
 		String key = "realmBean";
 		if (map.get(key) == null)
 		{
+			String siteId = toolManager.getCurrentPlacement().getContext();
 			AuthZGroupBean rb = AuthZGroupBeanHelper.createRealmBean(
 					realmService, siteService,getCurrentRWikiObject(), getErrorBean(),
-					getViewBean());
+					getViewBean(),siteId);
 			map.put(key, rb);
 		}
 		return (AuthZGroupBean) map.get(key);
