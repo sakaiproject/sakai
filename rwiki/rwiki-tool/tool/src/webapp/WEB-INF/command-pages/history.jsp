@@ -42,6 +42,7 @@
   <c:set var="referencesBean"
     value="${requestScope.rsacMap.referencesBean}" />
   <c:set var="homeBean" value="${requestScope.rsacMap.homeBean}"/>
+  <c:set var="realmBean" value="${requestScope.rsacMap.realmBean}"/>
   <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
     <head>
       <title>Info: <c:out value="${historyBean.localName}" /></title>
@@ -141,6 +142,11 @@ Page Owner Permissions Group
 	      <!-- History Link -->
 	      <span id="historyLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${historyBean.historyUrl}"/></jsp:attribute><jsp:attribute name="class">rwiki_currentPage</jsp:attribute>History</jsp:element>
+              <c:if test="${requestScope.rsacMap.withnotification}" >
+                <span id="watchLink" ><img border="0" src="/library/image/transparent.gif" alt="Watch for changes" /></span>
+                <jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmBean.preferencesUrl}"/></jsp:attribute>Watch</jsp:element>
+              </c:if>
+
 	    </span>
 	    <span class="rwiki_searchBox">
 	      Search:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />

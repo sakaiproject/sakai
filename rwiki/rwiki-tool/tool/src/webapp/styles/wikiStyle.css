@@ -99,6 +99,14 @@
 	vertical-align: text-bottom;
 	width: 16px !important;
 }
+#watchLink {
+	background: url(/sakai-rwiki-tool/images/silk/icons/email_go.png) center left no-repeat;
+    padding: 3px;
+}
+#watchLink img {
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
 
 
 #toolbarButtonBold {

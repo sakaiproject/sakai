@@ -227,11 +227,11 @@ both pages are identical. Any change in the page, will change the digest on the 
 		<!-- History Link -->
 	      <span id="historyLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 		<jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmBean.historyUrl}"/></jsp:attribute>History</jsp:element>
-	      </span>
               <c:if test="${requestScope.rsacMap.withnotification}" >
-	        <span id="watchLink" ><img border="0" src="/library/image/transparent.gif" /></span>
+	        <span id="watchLink" ><img border="0" src="/library/image/transparent.gif" alt="Watch for changes" /></span>
 		<jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmBean.preferencesUrl}"/></jsp:attribute>Watch</jsp:element>
               </c:if>
+	      </span>
 
 	      
 	      <span class="rwiki_searchBox">

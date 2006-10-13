@@ -46,6 +46,7 @@
   <c:set var="editBean" value="${requestScope.rsacMap.editBean}"/>
   <c:set var="nameHelperBean" value="${requestScope.rsacMap.nameHelperBean}"/>
   <c:set var="homeBean" value="${requestScope.rsacMap.homeBean}"/>
+  <c:set var="realmBean" value="${requestScope.rsacMap.realmBean}"/>
   <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
     <head>
       <title>Edit: <c:out value="${viewBean.localName}"/></title>
@@ -76,7 +77,7 @@
 	      <span id="historyLink" ><img border="0" src="/library/image/transparent.gif" /></span>
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.historyUrl}"/></jsp:attribute>History</jsp:element>
               <c:if test="${requestScope.rsacMap.withnotification}" >
-                <span id="watchLink" ><img border="0" src="/library/image/transparent.gif" /></span>
+                <span id="watchLink" ><img border="0" src="/library/image/transparent.gif" alt="Watch for changes" /></span>
                 <jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmBean.preferencesUrl}"/></jsp:attribute>Watch</jsp:element>
               </c:if>
 

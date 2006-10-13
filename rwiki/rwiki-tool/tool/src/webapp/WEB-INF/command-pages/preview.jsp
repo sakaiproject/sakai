@@ -38,6 +38,7 @@
   <c:set var="rightRenderBean" value="${requestScope.rsacMap.previewRightRenderBean}"/>
   <c:set var="errorBean" value="${requestScope.rsacMap.errorBean}"/>
   <c:set var="editBean" value="${requestScope.rsacMap.editBean}"/>
+  <c:set var="realmBean" value="${requestScope.rsacMap.realmBean}"/>
   <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
     <head>
       <title>Preview Changes To: <c:out value="${viewBean.localName}"/></title>
@@ -54,6 +55,11 @@
 	    <jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.viewUrl}"/></jsp:attribute>View</jsp:element>
 	    <span id="infoLink" ><img border="0" src="/library/image/transparent.gif" /></span>		
 	    <jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.infoUrl}"/></jsp:attribute>Info</jsp:element>
+              <c:if test="${requestScope.rsacMap.withnotification}" >
+                <span id="watchLink" ><img border="0" src="/library/image/transparent.gif" alt="Watch for changes" /></span>
+                <jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmBean.preferencesUrl}"/></jsp:attribute>Watch</jsp:element>
+              </c:if>
+
 	    Search:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />
 	    <input type="hidden" name="panel" value="Main" />
 	    <input type="text" name="search" />

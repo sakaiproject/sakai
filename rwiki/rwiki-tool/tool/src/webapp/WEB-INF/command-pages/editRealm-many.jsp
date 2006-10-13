@@ -46,29 +46,8 @@
       <jsp:directive.include file="header.jsp"/>
       <div id="rwiki_container">
 	<div class="portletBody">
-	  <!--. No links out of the page except where there are cancel's or save's .-->
-	  <!--<div class="navIntraTool">-->
-	    <!--<form action="?#" method="get" class="rwiki_searchForm">-->
-	      <!--<span class="rwiki_pageLinks">-->
-		<!-- Home Link -->
-		<!--<jsp:element name="a"><jsp:attribute name="id">homeLink</jsp:attribute><jsp:attribute name="href"><c:out value="${homeBean.homeLinkUrl}"/></jsp:attribute><img alt="Home" title="Home" border="0" src="/library/image/transparent.gif" /><c:out value="${homeBean.homeLinkValue}"/></jsp:element>-->
-		<!-- View Link -->
-		<!--<jsp:element name="a"><jsp:attribute name="id">viewLink</jsp:attribute><jsp:attribute name="href"><c:out value="${realmEditBean.viewUrl}"/></jsp:attribute><img alt="View" title="View" border="0" src="/library/image/transparent.gif" />View</jsp:element>-->
-		<!-- Info Link -->
-		<!--<jsp:element name="a"><jsp:attribute name="id">infoLink</jsp:attribute><jsp:attribute name="href"><c:out value="${realmEditBean.infoUrl}"/></jsp:attribute><jsp:attribute name="class">rwiki_currentPage</jsp:attribute><img alt="Info" title="Info" border="0" src="/library/image/transparent.gif" />Info</jsp:element>-->
-		<!--</span>-->
-	      <!--<span class="rwiki_searchBox">-->
-		<!--Search:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />-->
-		<!--<input type="hidden" name="panel" value="Main" />-->
-		<!--<input type="text" name="search" />-->
-		<!--</span>-->
-	      <!--</form>-->
-	    <!--</div>-->
 	  <c:set var="rwikiContentStyle"  value="rwiki_content" />
 
-	  <!--<jsp:directive.include file="breadcrumb.jsp"/>-->
-	  <!-- Creates the right hand sidebar -->
-	  <!--<jsp:directive.include file="sidebar.jsp"/>-->
 	  <!-- Main page -->
 	  <div id="${rwikiContentStyle}" >
 

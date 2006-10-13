@@ -31,7 +31,9 @@
     /><jsp:text><![CDATA[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> ]]>
   </jsp:text>
   <c:set var="viewBean" value="${requestScope.rsacMap.viewBean}"/>
+  <c:set var="homeBean" value="${requestScope.rsacMap.homeBean}"/>
   <c:set var="preferencesBean" value="${requestScope.rsacMap.preferencesBean}"/>
+  <c:set var="realmBean" value="${requestScope.rsacMap.realmBean}"/>
   <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
     <head>
       <title>Info: <c:out value="${realmBean.localName}" /></title>
@@ -60,6 +62,11 @@
 		<!-- History Link -->
 	    <span id="historyLink" ><img border="0" src="/library/image/transparent.gif" /></span>		
 		<jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.historyUrl}"/></jsp:attribute>History</jsp:element>
+              <c:if test="${requestScope.rsacMap.withnotification}" >
+                <span id="watchLink" ><img border="0" src="/library/image/transparent.gif" alt="Watch for changes" /></span>
+                <jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmBean.preferencesUrl}"/></jsp:attribute>Watch</jsp:element>
+              </c:if>
+
 	      </span>
 	      <span class="rwiki_searchBox">
 		Search:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />
