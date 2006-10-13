@@ -619,11 +619,22 @@ public class AssessmentFacadeQueries
     if (control == null) {
       control = new AssessmentAccessControl();
     }
+
+    // set accessControl.releaseTo based on default setting in metaData
+    String defaultReleaseTo = template.getAssessmentMetaDataByLabel("releaseTo");
+    if (("ANONYMOUS_USERS").equals(defaultReleaseTo)){
+      control.setReleaseTo("Anonymous Users");
+    }
+    else{
+      control.setReleaseTo(AgentFacade.getCurrentSiteName());
+    }
+
+    /*
     if (AgentFacade.isStandaloneEnvironment())
       control.setReleaseTo("Authenticated Users");
     else
       control.setReleaseTo(AgentFacade.getCurrentSiteName());
-
+    */
     EvaluationModel evaluation = (EvaluationModel) assessment.
         getEvaluationModel();
     if (evaluation == null) {

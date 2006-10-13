@@ -158,14 +158,14 @@
   <!-- *** RELEASED TO  *** -->
   <samigo:hideDivision title="#{msg.released_to}" id="div4">
    <div class="tier2">
-  <div class="longtext">
-    <h:outputLabel value="#{msg.template_canedit}"/></div>
+   <div class="longtext">
    <div class="tier3">
-    <h:panelGrid columns="1"
-      summary="#{msg.released_to_info_sec}">
-      <h:outputLabel for="anononymous" value="#{msg.anon}"/>
-      <h:outputLabel for="auth_users" value="#{msg.auth_users}"/>
-    </h:panelGrid>
+     <h:selectOneRadio layout="pageDirection" value="#{template.valueMap.releaseTo}" required="true">
+       <f:selectItem itemValue="ANONYMOUS_USERS"
+          itemLabel="#{msg.anon}"/>
+       <f:selectItem itemValue="SITE_MEMBERS"
+          itemLabel="#{msg.auth_users}"/>
+     </h:selectOneRadio>
   </div></div>
   </samigo:hideDivision>
 

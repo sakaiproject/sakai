@@ -328,7 +328,7 @@ function uncheckOther(field){
   </samigo:hideDivision>
 
   <!-- *** RELEASED TO *** -->
-<h:panelGroup rendered="#{assessmentSettings.valueMap.anonymousRelease_isInstructorEditable==true or assessmentSettings.valueMap.authenticatedRelease_isInstructorEditable==true}" >
+<h:panelGroup> 
   <samigo:hideDivision title="#{msg.heading_released_to}">
     <f:verbatim><div class="tier2"></f:verbatim>
     <h:panelGrid summary="#{summary_msg.released_to_info_sec}">
