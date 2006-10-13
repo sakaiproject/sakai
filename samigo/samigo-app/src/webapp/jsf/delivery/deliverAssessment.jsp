@@ -265,7 +265,7 @@ function saveTime()
     onclick="disablePrevious()" onkeypress="disablePrevious()" />
 
   <!-- check for submit for grade permission to determine if button can be displayed -->
-  <%-- SUBMIT FOR GRADE --%>
+  <%-- SUBMIT FOR GRADE FOR LINEAR ACCESS --%>
   <h:panelGroup rendered="#{authorization!=null && authorization.takeAssessment && authorization.submitAssessmentForGrade}">
     <h:commandButton accesskey="#{msg.a_submit}" type="submit" value="#{msg.button_submit_grading}"
       action="#{delivery.submitForGrade}"  id="submitForm" styleClass="active"
@@ -276,12 +276,6 @@ function saveTime()
       onclick="pauseTiming='false'; disableSubmit()" onkeypress="pauseTiming='false'; disableSubmit()"/>
   </h:panelGroup>
 
-  <%-- SUBMIT FOR GRADE DURING PAU --%>
-  <h:commandButton type="submit" value="#{msg.button_submit}"
-    action="#{delivery.submitForGrade}"  id="submitForm2" styleClass="active"
-    rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
-    onclick="pauseTiming='false'; disableSubmit2();" onkeypress="pauseTiming='false'; disableSubmit2();"/>
-
   <%-- SAVE AND EXIT --%>
   <h:commandButton accesskey="#{msg.a_saveAndExit}" type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit"
@@ -291,13 +285,19 @@ function saveTime()
     onclick="pauseTiming='false'; disableSave();" onkeypress="pauseTiming='false'; disableSave();" 
     disabled="#{delivery.actionString=='previewAssessment'}" />
 
-  <%-- SAVE AND EXIT DURING PAU --%>
+  <%-- SUBMIT FOR GRADE DURING PAU --%>
+  <h:commandButton type="submit" value="#{msg.button_submit}"
+    action="#{delivery.submitForGrade}"  id="submitForm2" styleClass="active"
+    rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.anonymousLogin}"
+    onclick="pauseTiming='false'; disableSubmit2();" onkeypress="pauseTiming='false'; disableSubmit2();"/>
+
+  <%-- SAVE AND EXIT DURING PAU WITH ANONYMOUS LOGIN--%>
   <h:commandButton accesskey="#{msg.a_quit}" type="submit" value="#{msg.button_quit}"
     action="#{delivery.saveAndExit}" id="quit"
-    rendered="#{(delivery.actionString=='takeAssessmentViaUrl')}"
+    rendered="#{(delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin)}"
     onclick="pauseTiming='false'; disableQuit()" onkeypress="pauseTiming='false'; disableQuit()"  /> 
 
-  <%-- SAVE AND EXIT --%>
+  <%-- SAVE AND EXIT FOR LINEAR ACCESS --%>
   <h:commandButton accesskey="#{msg.a_saveAndExit}" type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit2"
     rendered="#{delivery.actionString=='takeAssessment'
