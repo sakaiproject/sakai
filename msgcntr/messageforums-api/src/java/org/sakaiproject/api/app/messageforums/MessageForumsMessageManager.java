@@ -57,6 +57,10 @@ public interface MessageForumsMessageManager {
 
     public int findReadMessageCountByTopicId(Long topicId);
 
+    public List findDiscussionForumMessageCountsForAllSites(List siteList);
+    
+    public List findDiscussionForumReadMessageCountsForAllSites();
+    
     public List findMessagesByTopicId(Long topicId);
 
     public Attachment getAttachmentById(Long attachmentId);

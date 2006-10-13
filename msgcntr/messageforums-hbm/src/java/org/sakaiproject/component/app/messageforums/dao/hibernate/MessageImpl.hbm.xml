@@ -183,7 +183,46 @@
   </query>
   -->
   
-  <query name="findAggregatePvtMsgCntForUserInContext">
+  <!-- ================ Gets count of all unread private messages ================= -->
+  <!--  NOTE: do not need site list since private message read status table only has entries for sites user is a part of -->
+  
+  <query name="findUnreadPvtMsgCntByUserForAllSites">
+    <![CDATA[select recipient.contextId, message.uuid, count(*) 
+             from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
+             left join message.recipients recipient
+             where recipient.userId = :userId and
+                   recipient.read = false
+             group by recipient.contextId
+    ]]>
+  </query>
+
+<query name="findDiscussionForumMessageCountsForAllSites">
+    <![CDATA[select a.contextId, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
+    		 join messages.topic as topic
+             join topic.openForum as f
+             join f.area as a
+             where a.contextId in ( :siteList )
+             group by a.contextId
+    ]]>
+    
+ </query>
+
+<query name="findDiscussionForumReadMessageCountsForAllSites">
+    <![CDATA[select a.contextId, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
+    		 org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us
+    		 join messages.topic as topic
+             join topic.openForum as f
+             join f.area as a
+             where us.userId = :userId and
+             messages.id = us.messageId
+             group by a.contextId
+    ]]>
+    
+ </query>
+
+ <query name="findAggregatePvtMsgCntForUserInContext">
     <![CDATA[select recipient.read, recipient.typeUuid, count(*) 
              from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
              left join message.recipients recipient
@@ -192,8 +231,6 @@
              group by recipient.read, recipient.typeUuid
     ]]>
   </query>
-  
-  
   
   <query name="findPrvtMsgsByUserTypeContext">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message

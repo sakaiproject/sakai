@@ -60,10 +60,14 @@ public interface PrivateMessageManager {
     public void saveForumSettings(PrivateForum forum);
     
     public void markMessageAsReadForUser(final PrivateMessage message);
+    public void markMessageAsReadForUser(final PrivateMessage message, final String contextId);
     
     public List getMessagesByType(final String typeUuid, final String orderField,
         final String order);
     
+    public List getMessagesByTypeByContext(final String typeUuid,
+			final String contextId);
+
     /**
      * check if private message area is enabled for the current user
      * @return boolean
@@ -137,7 +141,7 @@ public interface PrivateMessageManager {
     int getTotalNoMessages(Topic topic);
     int getUnreadNoMessages(Topic topic);    
     
-    
+    public List getPrivateMessageCountsForAllSites();
     
     //Topic Folder Setting
     public boolean isMutableTopicFolder(String parentTopicId);

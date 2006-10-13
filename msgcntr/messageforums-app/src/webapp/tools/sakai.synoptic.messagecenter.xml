@@ -10,7 +10,7 @@
 <!-- 			<category name="course" />
 			<category name="project" />	
 -->
-<!--		<configuration name="help.id" value="sakai.messagecenter" type="final" /> -->
+<!--		<configuration name="help.id" value="sakai.synoptic.messagecenter" type="final" /> -->
 
 	</tool>
 

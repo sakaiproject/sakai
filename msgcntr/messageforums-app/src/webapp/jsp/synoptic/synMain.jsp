@@ -7,23 +7,47 @@
 <f:view>
   <sakai:view>
 	<h:form>
-     <sakai:tool_bar>
+	 <h:panelGroup rendered="#{mfSynopticBean.myWorkspace}" > 
+       <sakai:tool_bar>
           <sakai:tool_bar_item action="synOptions" value="#{msgs.syn_options}" />
-      </sakai:tool_bar>
-   
-		<h:dataTable value="#{mfSynopticBean.contents}" var="eachSite" >
-        	<h:column>
-				<h:outputText value="#{eachSite.siteName}" />
-			</h:column>
-			<h:column>
-				<h:outputText value="#{eachSite.unreadPrivate}" />
-			</h:column>
-			<h:column>
-				<h:outputText value="#{eachSite.unreadForums}" />
-			</h:column>
-		</h:dataTable>
+       </sakai:tool_bar>
+     </h:panelGroup>
+
+	 <h:dataTable value="#{mfSynopticBean.contents}" var="eachSite" >
+       	<h:column>
+			<h:outputText value="#{eachSite.siteName}" />
+	   	</h:column>
+		<h:column>
+			<!-- === To create a link to Message Center home page === -->
+			<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
+			<h:outputText value="#{eachSite.privateMessagesURL}" />
+			<f:verbatim>'; return false;" ></f:verbatim>
+
+			<h:outputText value="#{eachSite.unreadPrivate}" />
+
+			<f:verbatim></a></f:verbatim>
+		</h:column>
+		<h:column>
+			<h:commandLink action="synMain"
+				actionListener="#{mfSynopticBean.processReadAll}"
+				rendered="#{eachSite.unreadPrivateAmt > 0}"
+				styleClass="active">
+				<h:outputText value="#{msgs.syn_mark_as_read}" />
+				<f:param name="contextId" value="#{eachSite.siteId}" />
+			</h:commandLink>
+		</h:column>
+		<h:column>
+			<!-- === To create a link to Message Center home page === -->
+			<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
+			<h:outputText value="#{eachSite.privateMessagesURL}" />
+			<f:verbatim>'; return false;" ></f:verbatim>
+
+			<h:outputText value="#{eachSite.unreadForums}" />
+
+			<f:verbatim></a></f:verbatim>
+		</h:column>
+	 </h:dataTable>
     </h:form>
   </sakai:view>
  </f:view>
- 
  

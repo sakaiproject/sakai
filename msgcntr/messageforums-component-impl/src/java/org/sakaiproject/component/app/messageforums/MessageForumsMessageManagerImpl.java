@@ -111,7 +111,54 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return sessionManager;
     }
     
-    public int findUnreadMessageCountByTopicId(final Long topicId) {
+    /**
+     * FOR SYNOPTIC TOOL:
+     * 		Returns the count of discussion forum messages grouped by site
+     * 
+     * @param siteList
+     * 			List of site ids user is a part of
+     * 
+     * @return List
+     */
+    public List findDiscussionForumMessageCountsForAllSites(final List siteList) {
+    	if (siteList == null) {
+            LOG.error("findDiscussionForumMessageCountsForAllSites failed with null site list.");
+            throw new IllegalArgumentException("Null Argument");
+    	}	
+        
+    	HibernateCallback hcb = new HibernateCallback() {
+               public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                   Query q = session.getNamedQuery("findDiscussionForumMessageCountsForAllSites");
+                    q.setParameterList("siteList", siteList);
+                   return q.list();
+               }
+    	};
+        
+        return (List) getHibernateTemplate().execute(hcb);        
+            
+    }
+
+    /**
+     * FOR SYNOPTIC TOOL:
+     * 		Returns the count of read discussion forum messages grouped by site
+     * 
+     * @return List
+     */
+    public List findDiscussionForumReadMessageCountsForAllSites() {
+        
+    	HibernateCallback hcb = new HibernateCallback() {
+               public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                   Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForAllSites");
+                   	q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   return q.list();
+               }
+    	};
+        
+        return (List) getHibernateTemplate().execute(hcb);        
+            
+    }
+
+   public int findUnreadMessageCountByTopicId(final Long topicId) {
         if (topicId == null) {
             LOG.error("findUnreadMessageCountByTopicId failed with topicId: " + topicId);
             throw new IllegalArgumentException("Null Argument");

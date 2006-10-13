@@ -657,6 +657,44 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   }
   
   /**
+   * FOR SYNOPTIC TOOL:
+   * 	helper method to get messages by type
+   * 	needed to pass contextId since could be in MyWorkspace
+   * 
+   * @param typeUuid
+   * 			The type of forum it is (Private or Topic)
+   * @param contextId
+   * 			The site id whose messages are needed
+   * 
+   * @return message list
+   */
+  public List getMessagesByTypeByContext(final String typeUuid, final String contextId)
+  {
+
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("getMessagesByTypeForASite(typeUuid:" + typeUuid + ")");
+    }
+
+    HibernateCallback hcb = new HibernateCallback()
+    {
+      public Object doInHibernate(Session session) throws HibernateException,
+          SQLException
+      {
+        Query q = session.getNamedQuery(QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT);
+
+        q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+        q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
+        q.setParameter("contextId", contextId, Hibernate.STRING);
+        return q.list();
+      }
+    };
+
+    return (List) getHibernateTemplate().execute(hcb);        
+  }
+  
+
+    /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#findMessageCount(java.lang.String)
    */
   public int findMessageCount(String typeUuid)
@@ -755,6 +793,29 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     aggregateList = (List) getHibernateTemplate().execute(hcb);        
   }
 
+
+  /**
+   * FOR SYNOPTIC TOOL:
+   * 	Returns a list of all sites this user is in along with a count of his/her
+   * 	unread messages
+   * 
+   * @return
+   * 	List of site id, count of unread message pairs
+   */
+  public List getPrivateMessageCountsForAllSites() {
+	  HibernateCallback hcb = new HibernateCallback() {
+		  public Object doInHibernate(Session session) throws HibernateException,
+	  	 	SQLException
+	  	 {
+			  Query q = session.getNamedQuery("findUnreadPvtMsgCntByUserForAllSites");
+			  q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+			  return q.list();
+	  	 }
+	  };
+  
+	  return (List) getHibernateTemplate().execute(hcb);
+	  
+  }
 
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#deletePrivateMessage(org.sakaiproject.api.app.messageforums.PrivateMessage, java.lang.String)
@@ -1015,6 +1076,52 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     /** create PrivateMessageRecipientImpl to search for recipient to update */
     PrivateMessageRecipientImpl searchRecipient = new PrivateMessageRecipientImpl(
         userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
+        Boolean.FALSE);
+
+    List recipientList = pvtMessage.getRecipients();
+
+    if (recipientList == null || recipientList.size() == 0)
+    {
+      LOG.error("markMessageAsReadForUser(message: " + message
+          + ") has empty recipient list");
+      throw new Error("markMessageAsReadForUser(message: " + message
+          + ") has empty recipient list");
+    }
+
+    int recordIndex = pvtMessage.getRecipients().indexOf(searchRecipient);
+
+    if (recordIndex != -1)
+    {
+      ((PrivateMessageRecipientImpl) recipientList.get(recordIndex))
+          .setRead(Boolean.TRUE);
+    }
+  }
+
+  /**
+   * FOR SYNOPTIC TOOL:
+   * 	Need to pass in contextId also
+   */
+  public void markMessageAsReadForUser(final PrivateMessage message, final String contextId)
+  {
+
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("markMessageAsReadForUser(message: " + message + ")");
+    }
+
+    if (message == null)
+    {
+      throw new IllegalArgumentException("Null Argument");
+    }
+
+    final String userId = getCurrentUser();
+
+    /** fetch recipients for message */
+    PrivateMessage pvtMessage = getPrivateMessageWithRecipients(message);
+
+    /** create PrivateMessageRecipientImpl to search for recipient to update */
+    PrivateMessageRecipientImpl searchRecipient = new PrivateMessageRecipientImpl(
+        userId, typeManager.getReceivedPrivateMessageType(), contextId,
         Boolean.FALSE);
 
     List recipientList = pvtMessage.getRecipients();
