@@ -158,10 +158,10 @@
 	<property name="wikiMarkupTemplates">
 		<map>
 			<entry key="image/*">
-				<value><![CDATA['{'image:{1}|{2}'}']]></value>
+				<value><![CDATA[' {'image:{1}|{2}'}']]></value>
 			</entry>
 			<entry key="*/*">
-				<value><![CDATA['{'link:{2}|{1}}]]></value>
+				<value><![CDATA[' {'link:{2}|{1}}]]></value>
 			</entry>
 		</map>
 	</property>
@@ -175,7 +175,7 @@
 	<property name="wikiMarkupTemplates">
 		<map>
 			<entry key="*/*">
-				<value><![CDATA['{'link:{2}|{1}}]]></value>
+				<value><![CDATA[' {'link:{2}|{1}}]]></value>
 			</entry>
 		</map>
 	</property>
