@@ -22,6 +22,8 @@
 
 package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -54,10 +56,22 @@ public class AuthzSakai2Impl extends AuthzSectionsImpl implements Authz {
      * Perform authorization-specific framework initializations for the Gradebook.
      */
     public void init() {
-    	FunctionManager.registerFunction(PERMISSION_GRADE_ALL);
-    	FunctionManager.registerFunction(PERMISSION_GRADE_SECTION);
-    	FunctionManager.registerFunction(PERMISSION_EDIT_ASSIGNMENTS);
-    	FunctionManager.registerFunction(PERMISSION_VIEW_OWN_GRADES);
+        Collection registered = FunctionManager.getInstance().getRegisteredFunctions("gradebook");
+        if(!registered.contains(PERMISSION_GRADE_ALL)) {
+            FunctionManager.registerFunction(PERMISSION_GRADE_ALL);
+        }
+
+        if(!registered.contains(PERMISSION_GRADE_SECTION)) {
+            FunctionManager.registerFunction(PERMISSION_GRADE_SECTION);
+        }
+
+        if(!registered.contains(PERMISSION_EDIT_ASSIGNMENTS)) {
+            FunctionManager.registerFunction(PERMISSION_EDIT_ASSIGNMENTS);
+        }
+
+        if(!registered.contains(PERMISSION_VIEW_OWN_GRADES)) {
+            FunctionManager.registerFunction(PERMISSION_VIEW_OWN_GRADES);
+        }
     }
 
 	public boolean isUserAbleToGrade(String gradebookUid) {
