@@ -536,4 +536,9 @@ public void deleteAssessment(Id assessmentId)
     }
   }
 
+  public void saveAttachments(List list){
+    PersistenceService.getInstance().getAssessmentFacadeQueries().
+        saveAttachments(list);
+  }
+
 }

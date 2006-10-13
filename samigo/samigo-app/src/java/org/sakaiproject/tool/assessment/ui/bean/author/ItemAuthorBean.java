@@ -1034,7 +1034,6 @@ ItemService delegate = new ItemService();
       }
       HashMap map = getResourceIdHash(attachmentSet);
       ArrayList newAttachmentList = new ArrayList();
-      HashSet newAttachmentSet = new HashSet();
 
       AssessmentService assessmentService = new AssessmentService();
       String protocol = ContextUtil.getProtocol();
@@ -1057,25 +1056,14 @@ ItemService delegate = new ItemService();
                                                        ref.getProperties().getNamePropDisplayName()),
                                         protocol);
             newAttachmentList.add(newAttach);
-            newAttachmentSet.add(newAttach);
           }
           else{ 
             // attachment already exist, let's add it to new list and
 	    // check it off from map
             newAttachmentList.add((ItemAttachmentIfc)map.get(resourceId));
-            newAttachmentSet.add((ItemAttachmentIfc)map.get(resourceId));
             map.remove(resourceId);
           }
         }
-      }
-
-      // the resulting map should now contain attachment that has been removed
-      // inside filepicker, we will now get rid of its association with the item
-      Collection oldAttachs = map.values();
-      Iterator iter1 = oldAttachs.iterator();
-      while (iter1.hasNext()){
-        ItemAttachmentIfc oldAttach = (ItemAttachmentIfc)iter1.next();
-        assessmentService.removeItemAttachment(oldAttach.getAttachmentId().toString());
       }
 
       session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);

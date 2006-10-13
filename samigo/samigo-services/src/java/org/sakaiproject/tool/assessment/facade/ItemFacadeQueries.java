@@ -300,6 +300,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     while (retryCount > 0){
       try {
         if (item!=null){ // need to dissociate with item before deleting in Hibernate 3
+	    log.debug("***** deleting item attachemnt");
           Set set = item.getItemAttachmentSet();
           item.setItemAttachmentSet(new HashSet());
           getHibernateTemplate().deleteAll(set);

@@ -38,6 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -85,7 +86,7 @@ public class SaveAssessmentAttachmentListener
   }
 
   private List prepareAssessmentAttachment(AssessmentSettingsBean bean){
-    AssessmentIfc assessment = null;
+    AssessmentFacade assessment = null;
     // assessment == null => assessment does not exist yet
     if (bean.getAssessment() != null){
 	assessment = bean.getAssessment();
@@ -102,7 +103,6 @@ public class SaveAssessmentAttachmentListener
       } 
       HashMap map = getResourceIdHash(attachmentSet);
       ArrayList newAttachmentList = new ArrayList();
-      HashSet newAttachmentSet = new HashSet();
 
       AssessmentService assessmentService = new AssessmentService();
       String protocol = ContextUtil.getProtocol();
@@ -120,18 +120,16 @@ public class SaveAssessmentAttachmentListener
             log.debug("**** ref.name="+ref.getProperties().getProperty(
                        ref.getProperties().getNamePropDisplayName()));
             AssessmentAttachmentIfc newAttach = assessmentService.createAssessmentAttachment(
-                                          assessment,
-                                          ref.getId(), ref.getProperties().getProperty(
-                                                       ref.getProperties().getNamePropDisplayName()),
-                                        protocol);
+                                                (AssessmentIfc)assessment.getData(),
+                                                ref.getId(), ref.getProperties().getProperty(
+                                                ref.getProperties().getNamePropDisplayName()),
+                                                protocol);
             newAttachmentList.add(newAttach);
-            newAttachmentSet.add(newAttach);
 	  }
           else{ 
             // attachment already exist, let's add it to new list and
 	    // check it off from map
             newAttachmentList.add((AssessmentAttachmentIfc)map.get(resourceId));
-            newAttachmentSet.add((AssessmentAttachmentIfc)map.get(resourceId));
             map.remove(resourceId);
 	  }
         }
@@ -139,7 +137,6 @@ public class SaveAssessmentAttachmentListener
 
       session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
       session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
-      assessment.setAssessmentAttachmentSet(newAttachmentSet);
       return newAttachmentList;
     }
     return new ArrayList();

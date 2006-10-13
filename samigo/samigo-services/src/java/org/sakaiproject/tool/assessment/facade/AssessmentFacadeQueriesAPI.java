@@ -22,8 +22,9 @@
 package org.sakaiproject.tool.assessment.facade;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
@@ -185,5 +186,7 @@ public interface AssessmentFacadeQueriesAPI
     String resourceId, String filename, String protocol);
 
   public void removeAssessmentAttachment(Long assessmentAttachmentId);
+
+  public void saveAttachments(List list);
 
 }

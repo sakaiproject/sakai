@@ -1617,5 +1617,7 @@ public class AssessmentFacadeQueries
     }
   }
 
-
+  public void saveAttachments(List list){
+    getHibernateTemplate().saveOrUpdateAll(list);
+  }
 }

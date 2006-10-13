@@ -101,17 +101,9 @@ public class EditAssessmentListener
       while (iter.hasNext()){
         ItemDataIfc item = (ItemDataIfc)iter.next();
         List attachSet = item.getItemAttachmentList();
-	/*
-        Set attachSet = item.getItemAttachmentSet();
-        log.debug("**** attach size="+attachSet.size());
-        Iterator iter_a = attachSet.iterator();
-	*/
         Iterator iter_a = attachSet.iterator();
         while (iter_a.hasNext()){
           ItemAttachmentIfc a = (ItemAttachmentIfc) iter_a.next();
-          log.debug("**** a = "+a);
-          log.debug("**** filename = "+a.getFilename());
-          log.debug("**** location = "+a.getLocation());
 	}
       }
     } 

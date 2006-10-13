@@ -106,7 +106,6 @@ public class SavePartAttachmentListener
       } 
       HashMap map = getResourceIdHash(attachmentSet);
       ArrayList newAttachmentList = new ArrayList();
-      HashSet newAttachmentSet = new HashSet();
 
       AssessmentService assessmentService = new AssessmentService();
       String protocol = ContextUtil.getProtocol();
@@ -128,30 +127,15 @@ public class SavePartAttachmentListener
                                                        ref.getProperties().getNamePropDisplayName()),
                                         protocol);
             newAttachmentList.add(newAttach);
-            newAttachmentSet.add(newAttach);
 	  }
           else{ 
             // attachment already exist, let's add it to new list and
 	    // check it off from map
             newAttachmentList.add((SectionAttachmentIfc)map.get(resourceId));
-            newAttachmentSet.add((SectionAttachmentIfc)map.get(resourceId));
             map.remove(resourceId);
 	  }
         }
       }
-
-
-      /*
-      // the resulting map should now contain attachment that has been removed
-      // inside filepicker, we will now get rid of its association with the section
-      Collection oldAttachs = map.values();
-      sectionBean.setOldAttachmentCollection(oldAttachs);
-      Iterator iter1 = oldAttachs.iterator();
-      while (iter1.hasNext()){
-        SectionAttachmentIfc oldAttach = (SectionAttachmentIfc)iter1.next();
-        assessmentService.removeSectionAttachment(oldAttach.getAttachmentId().toString());
-      }
-      */
 
       session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
       session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);

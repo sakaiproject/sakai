@@ -220,8 +220,9 @@ public class SavePartListener
     assessmentService.saveOrUpdateSection(section);
 
     // added by daisyf, 10/10/06
+    section = assessmentService.getSection(sectionId);
     removeOldAttachment(section.getSectionAttachmentSet());
-    //sectionBean.setOldAttachmentCollection(null);
+    section = assessmentService.getSection(sectionId);
     Set set = prepareSectionAttachmentSet(sectionBean.getAttachmentList(), section.getData());
     section.setSectionAttachmentSet(set);
     assessmentService.saveOrUpdateSection(section);

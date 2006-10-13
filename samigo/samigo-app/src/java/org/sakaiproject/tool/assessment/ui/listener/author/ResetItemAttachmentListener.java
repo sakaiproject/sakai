@@ -35,7 +35,7 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
-import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
@@ -70,8 +70,9 @@ public class ResetItemAttachmentListener
     ItemService service = new ItemService();
     String itemId = itemauthorBean.getItemId();
     if (itemId !=null && !("").equals(itemId)){
-      ItemFacade item = service.getItem(itemId);
-      resetItemAttachment(itemauthorBean.getResourceHash(), item.getData().getItemAttachmentList());
+      ItemDataIfc item = service.getItem(itemId);
+      log.debug("*** item attachment="+item.getItemAttachmentList());
+      resetItemAttachment(itemauthorBean.getResourceHash(), item.getItemAttachmentList());
     }
     else{
       resetItemAttachment(itemauthorBean.getResourceHash(), new ArrayList());
