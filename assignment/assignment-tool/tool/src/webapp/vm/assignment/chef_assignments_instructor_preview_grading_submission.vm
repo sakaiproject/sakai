@@ -2,7 +2,8 @@
 <div class="portletBody">
 	<div class="navIntraTool">
 		#if ($allowAddAssignment)
-			<span style="margin:.5em">$!tlang.getString("new")</span> | <a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title = "$!tlang.getString('lisofass1')">$!tlang.getString("lisofass1")</a>
+			<a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a> |
+			<a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title = "$!tlang.getString('lisofass1')">$!tlang.getString("lisofass1")</a>
 			#if ($withGrade && $!allowGradeSubmission)
 				| <a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a>
 			#end
@@ -203,7 +204,7 @@
 			</div>	
 			<p class="act">
 				<input accesskey="s" name="eventSubmit_doReturn_preview_grade_submission" type="submit" value="$tlang.getString("gen.retu")" />
-				<input accesskey="d" name="eventSubmit_doSave_preview_grade_submission" type="submit" value="$tlang.getString("gen.savdra")" />
+				<input accesskey="d" name="eventSubmit_doSave_preview_grade_submission" type="submit" value="$tlang.getString("gen.sav")" />
 				<input accesskey="r" name="eventSubmit_doCancel_preview_grade_submission" type="submit" value="$tlang.getString("gen.revi")" />
 				<input accesskey="x" name="eventSubmit_doCancel_preview_grade_submission" type="submit" value="$tlang.getString("gen.don")" />
 			</p>
