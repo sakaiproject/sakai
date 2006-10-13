@@ -49,6 +49,10 @@ import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.exception.InUseException;
 
 /**
  * The AssessmentService calls the service locator to reach the
@@ -529,9 +533,22 @@ public void deleteAssessment(Id assessmentId)
           log.debug("removing="+resourceId);
           ContentHostingService.removeResource(resourceId);
         }
-        catch(Exception e){
+	catch (PermissionException e) {                                                      
           log.warn("cannot remove resourceId="+resourceId+":"+e.getMessage());
-        }
+          log.warn("PermissionException from ContentHostingService:"+e.getMessage());        
+	}                                                                                    
+	catch (IdUnusedException e) {                                                        
+          log.warn("cannot remove resourceId="+resourceId+":"+e.getMessage());
+          log.warn("IdUnusedException from ContentHostingService:"+e.getMessage());          
+	}                                                                                    
+	catch (TypeException e) {                                                            
+          log.warn("cannot remove resourceId="+resourceId+":"+e.getMessage());
+          log.warn("TypeException from ContentHostingService:"+e.getMessage());              
+	}                                                                                    
+	catch (InUseException e) {                                                           
+          log.warn("cannot remove resourceId="+resourceId+":"+e.getMessage());
+          log.warn("InUseException from ContentHostingService:"+e.getMessage());             
+	}                                                                                    
       }      
     }
   }

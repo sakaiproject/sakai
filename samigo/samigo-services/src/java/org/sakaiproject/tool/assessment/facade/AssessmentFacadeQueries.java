@@ -1423,10 +1423,6 @@ public class AssessmentFacadeQueries
           Set set = item.getItemAttachmentSet();
           set.remove(itemAttachment);
           getHibernateTemplate().delete(itemAttachment);
-	  /*
-          if(resourceId.toLowerCase().startsWith("/attachment"))
-            ContentHostingService.removeResource(resourceId);
-	  */
           retryCount = 0;
 	}
       }
