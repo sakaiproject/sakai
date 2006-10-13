@@ -94,7 +94,7 @@ public class SavePartAttachmentListener
     SectionDataIfc section = null;
     // section == null => section does not exist yet
     if (sectionBean.getSection() != null){
-	section = sectionBean.getSection().getData();
+      section = sectionBean.getSection().getData();
     }
 
     ToolSession session = SessionManager.getCurrentToolSession();

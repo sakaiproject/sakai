@@ -63,6 +63,7 @@ public class AuthorPartListener implements ActionListener
     sectionBean.setAssessmentTitle(assessmentBean.getTitle());
     sectionBean.setSectionDescription("");
     sectionBean.setSectionId("");
+    sectionBean.setSection(null);
 
     // #1b. goto editPart.jsp
     //sectionBean.setPoolsAvailable(itemauthorbean.getPoolSelectList());

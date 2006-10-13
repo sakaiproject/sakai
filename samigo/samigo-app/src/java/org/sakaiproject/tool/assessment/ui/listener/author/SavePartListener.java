@@ -25,10 +25,11 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.HashSet;
 import java.util.Set;
 
 import java.util.ResourceBundle;
@@ -181,17 +182,6 @@ public class SavePartListener
           section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW, poolname);
         }
       }
-      /*
-      // attach item attachemnt to sectionBean
-      List attachmentList = section.getSectionAttachmentList();
-      sectionBean.setAttachmentList(attachmentList);
-      if (attachmentList != null && attachmentList.size() >0){
-        sectionBean.setHasAttachment(true);
-      }
-      else{
-        sectionBean.setHasAttachment(false);
-      }
-      */
     }
 
 
@@ -220,12 +210,7 @@ public class SavePartListener
     assessmentService.saveOrUpdateSection(section);
 
     // added by daisyf, 10/10/06
-    section = assessmentService.getSection(sectionId);
-    removeOldAttachment(section.getSectionAttachmentSet());
-    section = assessmentService.getSection(sectionId);
-    Set set = prepareSectionAttachmentSet(sectionBean.getAttachmentList(), section.getData());
-    section.setSectionAttachmentSet(set);
-    assessmentService.saveOrUpdateSection(section);
+    updateAttachment(section.getSectionAttachmentList(), sectionBean.getAttachmentList(), section.getData());
 
     // #2 - goto editAssessment.jsp, so reset assessmentBean
     AssessmentFacade assessment = assessmentService.getAssessment(
@@ -273,25 +258,44 @@ public class SavePartListener
            
   }
 
-  public Set  prepareSectionAttachmentSet(List attachmentList, SectionDataIfc section){
-    Set set = new HashSet();
-    if (attachmentList!=null && section!=null ){
-      for (int i=0; i<attachmentList.size(); i++){
-        SectionAttachmentIfc attach = (SectionAttachmentIfc) attachmentList.get(i);
-        attach.setSection(section);
-        set.add(attach);
+
+    private void updateAttachment(List oldList, List newList, SectionDataIfc section){
+    if (newList == null || newList.size()==0) return;
+    List list = new ArrayList();
+    HashMap map = getAttachmentIdHash(oldList);
+    for (int i=0; i<newList.size(); i++){
+      SectionAttachmentIfc a = (SectionAttachmentIfc)newList.get(i);
+      if (map.get(a.getAttachmentId())!=null){
+        // exist already, remove it from map
+        map.remove(a.getAttachmentId());
       }
+      else{
+        // new attachments
+        a.setSection(section);
+        list.add(a);
+      }
+    }      
+    // save new ones
+    AssessmentService assessmentService = new AssessmentService();
+    assessmentService.saveAttachments(list);
+
+    // remove old ones
+    Set set = map.keySet();
+    Iterator iter = set.iterator();
+    while (iter.hasNext()){
+      Long attachmentId = (Long)iter.next();
+      assessmentService.removeSectionAttachment(attachmentId.toString());
     }
-    return set;
   }
 
-  private void removeOldAttachment(Set oldAttachs){
-    if (oldAttachs == null) return;
-    AssessmentService assessmentService = new AssessmentService();
-    Iterator iter1 = oldAttachs.iterator();
-    while (iter1.hasNext()){
-      SectionAttachmentIfc oldAttach = (SectionAttachmentIfc)iter1.next();
-      assessmentService.removeSectionAttachment(oldAttach.getAttachmentId().toString());                                                             
-    }                                                                                                                                                
+  private HashMap getAttachmentIdHash(List list){
+    HashMap map = new HashMap();
+    for (int i=0; i<list.size(); i++){
+      SectionAttachmentIfc a = (SectionAttachmentIfc)list.get(i);
+      map.put(a.getAttachmentId(), a);
+    }
+    return map;
   }
+
+
 }

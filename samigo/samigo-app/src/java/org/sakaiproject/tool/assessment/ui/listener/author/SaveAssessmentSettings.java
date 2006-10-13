@@ -38,7 +38,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -236,7 +235,7 @@ public class SaveAssessmentSettings
     assessmentService.saveAssessment(assessment);
 
     // added by daisyf, 10/10/06
-    updateAttachment(assessment.getAssessmentAttachmentList(), assessmentSettings.getAttachmentList());
+    updateAttachment(assessment.getAssessmentAttachmentList(), assessmentSettings.getAttachmentList(),(AssessmentIfc)assessment.getData());
     assessment = assessmentService.getAssessment(assessmentId.toString());
     return assessment;
   }
@@ -301,33 +300,19 @@ public class SaveAssessmentSettings
 	return true;
     }
   
-    
-    /*
-  public Set  prepareAssessmentAttachmentSet(List attachmentList, AssessmentIfc assessment){
-    Set set = new HashSet();
-    if (attachmentList!=null && assessment!=null ){
-      for (int i=0; i<attachmentList.size(); i++){
-        AssessmentAttachmentIfc attach = (AssessmentAttachmentIfc) attachmentList.get(i);
-        attach.setAssessment(assessment);
-        set.add(attach);
-      }
-    }
-    return set;
-  }
-    */
-
-  private void updateAttachment(List oldList, List newList){
+    private void updateAttachment(List oldList, List newList, AssessmentIfc assessment){
     if (newList == null || newList.size()==0) return;
     List list = new ArrayList();
     HashMap map = getAttachmentIdHash(oldList);
     for (int i=0; i<newList.size(); i++){
-      AttachmentIfc a = (AttachmentIfc)newList.get(i);
+      AssessmentAttachmentIfc a = (AssessmentAttachmentIfc)newList.get(i);
       if (map.get(a.getAttachmentId())!=null){
         // exist already, remove it from map
         map.remove(a.getAttachmentId());
       }
       else{
         // new attachments
+        a.setAssessment(assessment);
         list.add(a);
       }
     }      
@@ -347,7 +332,7 @@ public class SaveAssessmentSettings
   private HashMap getAttachmentIdHash(List list){
     HashMap map = new HashMap();
     for (int i=0; i<list.size(); i++){
-      AttachmentIfc a = (AttachmentIfc)list.get(i);
+      AssessmentAttachmentIfc a = (AssessmentAttachmentIfc)list.get(i);
       map.put(a.getAttachmentId(), a);
     }
     return map;
