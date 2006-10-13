@@ -21,6 +21,9 @@
 
 package org.sakaiproject.content.viewer;
 
+import java.util.List;
+import java.util.Vector;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
