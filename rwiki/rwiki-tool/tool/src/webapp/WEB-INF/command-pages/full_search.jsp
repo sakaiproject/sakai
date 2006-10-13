@@ -24,6 +24,7 @@
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0" 
   xmlns:c="http://java.sun.com/jsp/jstl/core"
   xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+   xmlns:rwiki="urn:jsptld:/WEB-INF/rwiki.tld"
   ><jsp:directive.page language="java"
 		contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"
 		errorPage="/WEB-INF/command-pages/errorpage.jsp" 
@@ -48,10 +49,15 @@
     	<div class="portletBody">    		
       <div class="navIntraTool">
 	<form action="?#" method="get" class="rwiki_searchForm">
-	  <span class="rwiki_pageLinks">
-	    <!-- Home Link -->
-	    <jsp:element name="a"><jsp:attribute name="href"><c:out value="${homeBean.homeLinkUrl}"/></jsp:attribute><c:out value="${homeBean.homeLinkValue}"/></jsp:element>
-	  </span>
+		<rwiki:commandlinks 
+							useHomeLink="true"
+							useViewLink="false"
+							useEditLink="false"
+							useInfoLink="false"
+							useHistoryLink="false"
+							useWatchLink="false"
+							homeBean="${homeBean}"  
+						        />
 	  <span class="rwiki_searchBox">
 	    Search: 
 	    <input type="hidden" name="action" value="full_search" />

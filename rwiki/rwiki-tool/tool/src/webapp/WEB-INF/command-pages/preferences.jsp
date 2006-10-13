@@ -25,6 +25,7 @@
   xmlns:c="http://java.sun.com/jsp/jstl/core"
   xmlns:fn="http://java.sun.com/jsp/jstl/functions"
   xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+   xmlns:rwiki="urn:jsptld:/WEB-INF/rwiki.tld"
   ><jsp:directive.page language="java"
     contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"
     errorPage="/WEB-INF/command-pages/errorpage.jsp"
@@ -46,28 +47,18 @@
 	<div class="portletBody">
 	  <div class="navIntraTool">
 	    <form action="?#" method="get" class="rwiki_searchForm">
-	      <span class="rwiki_pageLinks">
-		<!-- Home Link -->
-	    <span id="homeLink" ><img border="0" src="/library/image/transparent.gif" /></span>		
-		<jsp:element name="a"><jsp:attribute name="href"><c:out value="${homeBean.homeLinkUrl}"/></jsp:attribute><c:out value="${homeBean.homeLinkValue}"/></jsp:element>
-		<!-- View Link -->
-	    <span id="viewLink" ><img border="0" src="/library/image/transparent.gif" /></span>		
-		<jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.viewUrl}"/></jsp:attribute>View</jsp:element>
-		<!-- Edit Link -->
-	    <span id="editLink" ><img border="0" src="/library/image/transparent.gif" /></span>		
-		<jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.editUrl}"/></jsp:attribute>Edit</jsp:element>
-		<!-- Info Link -->
-	    <span id="infoLink" ><img border="0" src="/library/image/transparent.gif" /></span>		
-		<jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.infoUrl}"/></jsp:attribute><jsp:attribute name="class">rwiki_currentPage</jsp:attribute>Info</jsp:element>
-		<!-- History Link -->
-	    <span id="historyLink" ><img border="0" src="/library/image/transparent.gif" /></span>		
-		<jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.historyUrl}"/></jsp:attribute>History</jsp:element>
-              <c:if test="${requestScope.rsacMap.withnotification}" >
-                <span id="watchLink" ><img border="0" src="/library/image/transparent.gif" alt="Watch for changes" /></span>
-                <jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmBean.preferencesUrl}"/></jsp:attribute>Watch</jsp:element>
-              </c:if>
-
-	      </span>
+	    	  	<rwiki:commandlinks 
+							useHomeLink="true"
+							useViewLink="true"
+							useEditLink="true"
+							useInfoLink="true"
+							useHistoryLink="true"
+							useWatchLink="true"
+							withNotification="${requestScope.rsacMap.withnotification}"
+							viewLinkName="View"
+							homeBean="${homeBean}"
+							viewBean="${viewBean}"
+						        />
 	      <span class="rwiki_searchBox">
 		Search:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />
 		<input type="hidden" name="panel" value="Main" />

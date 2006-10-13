@@ -59,5 +59,10 @@
     </attribute-->
   	<path>/WEB-INF/tags/InfoPageGranted.tag</path>
   </tag-file>
+
+  <tag-file>
+  	<name>commandlinks</name>
+  	<path>/WEB-INF/tags/CommandLinks.tag</path>
+  </tag-file>
   
  </taglib>

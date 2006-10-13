@@ -75,9 +75,7 @@
   </jsp:scriptlet>
   <c:set var="currentRWikiObject" value="${requestScope.rsacMap.currentRWikiObject}"/>
   
-  <c:set target="${recentlyVisitedBean}" property="viewPage" value="${viewBean}"/>
-  <c:set var="realmBean" value="${requestScope.rsacMap.realmBean}"/>
-  
+  <c:set target="${recentlyVisitedBean}" property="viewPage" value="${viewBean}"/>  
   <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
     <head>
       <title>View: <c:out value="${renderBean.localisedPageName}"/></title>
@@ -93,51 +91,19 @@
 	<div class="portletBody">
 	<div class="navIntraTool">
 	  <form action="?#" method="get" class="rwiki_searchForm">
-	    <span class="rwiki_pageLinks">
-	      <jsp:element name="a">
-	      <jsp:attribute name="href"><c:out value="${viewBean.rssAccessUrl}"/></jsp:attribute>
-	      <jsp:attribute name="target">rssfeed</jsp:attribute>
-	      <jsp:attribute name="id">rssLink</jsp:attribute>
-	      <jsp:element name="img" >
-	      <jsp:attribute name="src"><c:out value="/library/image/transparent.gif"/></jsp:attribute>
-	      <jsp:attribute name="alt">RSS</jsp:attribute>
-	      <jsp:attribute name="border">0</jsp:attribute>
-	      </jsp:element>
-   	      </jsp:element>
-	      <jsp:element name="a">
-	      <jsp:attribute name="href"><c:out value="${viewBean.publicViewUrl}"/></jsp:attribute>
-	      <jsp:attribute name="target">_blank</jsp:attribute>
-	      <jsp:attribute name="id">printerFriendlyLink</jsp:attribute>
-	      <jsp:element name="img" >
-	      <jsp:attribute name="src"><c:out value="/library/image/transparent.gif"/></jsp:attribute>
-	      <jsp:attribute name="alt">Printer Friendly</jsp:attribute>
-	      <jsp:attribute name="border">0</jsp:attribute>
-	      </jsp:element>
-		  </jsp:element>
-	      <!-- Home Link -->
-	      <span id="homeLink" ><img border="0" src="/library/image/transparent.gif" /></span>
-	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${homeBean.homeLinkUrl}"/></jsp:attribute><c:out value="${homeBean.homeLinkValue}"/></jsp:element>
-	      <!-- View Link -->
-	      <span id="viewLink" ><img border="0" src="/library/image/transparent.gif" /></span>
-	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.viewUrl}"/></jsp:attribute><jsp:attribute name="class">rwiki_currentPage</jsp:attribute>View</jsp:element>
-	      <!-- Edit Link -->
-	      <span id="editLink" ><img border="0" src="/library/image/transparent.gif" /></span>
-	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.editUrl}"/></jsp:attribute><!--
-		--><!--<c:if test="${not(permissionsBean.updateAllowed)}"><jsp:attribute name="class">rwiki_disabled</jsp:attribute></c:if>--><!-- 
-		-->Edit<!--
-		--></jsp:element>
-	      <!-- Info Link -->
-	      <span id="infoLink" ><img border="0" src="/library/image/transparent.gif" /></span>
-	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.infoUrl}"/></jsp:attribute>Info</jsp:element>
-	      <!-- History Link -->
-	      <span id="historyLink" ><img border="0" src="/library/image/transparent.gif" /></span>
-	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${viewBean.historyUrl}"/></jsp:attribute>History</jsp:element>
-              <c:if test="${requestScope.rsacMap.withnotification}" >
-                <span id="watchLink" ><img border="0" src="/library/image/transparent.gif" alt="Watch for changes" /></span>
-                <jsp:element name="a"><jsp:attribute name="href"><c:out value="${realmBean.preferencesUrl}"/></jsp:attribute>Watch</jsp:element>
-              </c:if>
-
-	    </span>
+	  	<rwiki:commandlinks 
+							useHomeLink="true"
+							usePrinterLink="true"
+							useViewLink="true"
+							useEditLink="true"
+							useInfoLink="true"
+							useHistoryLink="true"
+							useWatchLink="true"
+							withNotification="${requestScope.rsacMap.withnotification}"
+							viewLinkName="View"
+							homeBean="${homeBean}"
+							viewBean="${viewBean}"
+						        />
 	    <span class="rwiki_searchBox">
 	      Search:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />
 	      <input type="hidden" name="panel" value="Main" />

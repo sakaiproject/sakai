@@ -56,6 +56,10 @@ public class AuthZGroupBeanHelper
 			errorBean.addError("Realm: " + realmId
 					+ " is not recognised in the system.");
 		}
+		boolean update = realmService.allowUpdate(realmId);
+		boolean siteUpdate = realmService.allowUpdate(realmId);
+		
+		System.err.println(" Realm Update "+update+" site Update "+siteUpdate+" realmId "+realmId);
 
 		rb.setSiteUpdateAllowed(realmService.allowUpdate(realmId) && siteService.allowUpdateSite(realmId));
 

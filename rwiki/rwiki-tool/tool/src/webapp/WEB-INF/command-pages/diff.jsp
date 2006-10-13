@@ -47,15 +47,18 @@
       	<div class="portletBody">
       		<div class="navIntraTool">
 	  <form action="?#" method="get" class="rwiki_searchForm">
-	    <span class="rwiki_pageLinks">
-	      <!-- Home Link -->
-	     <span id="homeLink" ><img border="0" src="/library/image/transparent.gif" /></span>
-	    <jsp:element name="a"><jsp:attribute name="href"><c:out value="${homeBean.homeLinkUrl}"/></jsp:attribute><c:out value="${homeBean.homeLinkValue}"/></jsp:element>
-	     <span id="viewLink" ><img border="0" src="/library/image/transparent.gif" /></span>
-	    <jsp:element name="a"><jsp:attribute name="href"><c:out value="${historyBean.viewUrl}"/></jsp:attribute>View Current</jsp:element>
-	     <span id="historyLink" ><img border="0" src="/library/image/transparent.gif" /></span>
-	    <jsp:element name="a"><jsp:attribute name="href"><c:out value="${historyBean.historyUrl}"/></jsp:attribute>History</jsp:element>
-	    </span>
+	  				<rwiki:commandlinks 
+							useHomeLink="true"
+							useViewLink="true"
+							useEditLink="false"
+							useInfoLink="false"
+							useHistoryLink="true"
+							useWatchLink="false"
+							viewLinkName="View Current"
+							homeBean="${homeBean}"
+							viewBean="${historyBean}"  
+						        />
+	  
 	    <span class="rwiki_searchBox">
 	    Search:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />
 	    <input type="hidden" name="panel" value="Main" />

@@ -616,4 +616,10 @@ public class ViewBean
 		return ServerConfigurationService.getAccessUrl()
 				+ RWikiObjectService.REFERENCE_ROOT + getPageSpace() + "/.20.rss";
  	}
+	public String getPreferencesUrl()
+	{
+		return this.getPageUrl(getPageName(), WikiPageAction.PREFERENCES_ACTION
+				.getName());
+	}
+
 }
