@@ -58,7 +58,8 @@
 
 #homeLink {
 	background: url(/sakai-rwiki-tool/images/silk/icons/application_home.png) center left no-repeat;
-    padding: 3px;
+        margin-right: 0;
+        padding-bottom: 3px;
 }
 #homeLink img {
 	vertical-align: text-bottom;
@@ -67,7 +68,8 @@
 
 #viewLink {
 	background: url(/sakai-rwiki-tool/images/silk/icons/application_view_detail.png) center left no-repeat;
-    padding: 3px;
+        margin-right: 0;
+        padding-bottom: 3px;
 }
 #viewLink img {
 	vertical-align: text-bottom;
@@ -75,7 +77,8 @@
 }
 #editLink {
 	background: url(/sakai-rwiki-tool/images/silk/icons/application_edit.png) center left no-repeat;
-    padding: 3px;
+        margin-right: 0;
+        padding-bottom: 3px;
 }
 #editLink img {
 	vertical-align: text-bottom;
@@ -84,7 +87,8 @@
 
 #infoLink {
 	background: url(/sakai-rwiki-tool/images/silk/icons/information.png) center left no-repeat;
-    padding: 3px;
+        margin-right: 0;
+        padding-bottom: 3px;
 }
 #infoLink img {
 	vertical-align: text-bottom;
@@ -93,7 +97,8 @@
 
 #historyLink {
 	background: url(/sakai-rwiki-tool/images/silk/icons/time.png) center left no-repeat;
-    padding: 3px;
+        margin-right: 0;
+        padding-bottom: 3px;
 }
 #historyLink img {
 	vertical-align: text-bottom;
@@ -101,7 +106,8 @@
 }
 #watchLink {
 	background: url(/sakai-rwiki-tool/images/silk/icons/email_go.png) center left no-repeat;
-    padding: 3px;
+        margin-right: 0;
+        padding-bottom: 3px;
 }
 #watchLink img {
 	vertical-align: text-bottom;
