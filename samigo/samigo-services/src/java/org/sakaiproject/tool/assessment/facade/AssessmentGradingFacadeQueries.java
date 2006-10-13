@@ -685,7 +685,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return ag;
   }
 
-  public AssessmentGradingData getLastAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString) {
+  public AssessmentGradingIfc getLastAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString) {
     AssessmentGradingData ag = null;
 
     final HibernateCallback hcb = new HibernateCallback(){

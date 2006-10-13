@@ -45,6 +45,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -164,9 +165,10 @@ public class DeliveryActionListener
 
       case 3: // Review assessment
               setFeedbackMode(delivery); //this determine if we should gather the itemGrading
+              Integer scoringoption = publishedAssessment.getEvaluationModel().getScoringType();
+              
               if (("true").equals(delivery.getFeedback())){
                 itemGradingHash = new HashMap();
-                Integer scoringoption = publishedAssessment.getEvaluationModel().getScoringType();
                 if (delivery.getFeedbackComponent().getShowResponse())
                   itemGradingHash = service.getSubmitData(id, agent, scoringoption);
                 ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, false);
@@ -178,10 +180,16 @@ public class DeliveryActionListener
               FeedbackComponent component = new FeedbackComponent();
               AssessmentFeedbackIfc info =  (AssessmentFeedbackIfc) publishedAssessment.getAssessmentFeedback();
               if ( info != null) {
-		  component.setAssessmentFeedback(info);
+            	  	component.setAssessmentFeedback(info);
               }
               delivery.setFeedbackComponent(component);
-              AssessmentGradingData agData = service.getLastAssessmentGradingByAgentId(id, agent);
+              AssessmentGradingData agData = null;
+              if (EvaluationModelIfc.LAST_SCORE.equals(scoringoption)){
+            	  agData = (AssessmentGradingData) service.getLastAssessmentGradingByAgentId(id, agent);		// should return ifc also
+              }
+              else {
+            	  agData = (AssessmentGradingData) service.getHighestAssessmentGrading(id, agent);
+              }
               log.debug("GraderComments: getComments()" + agData.getComments());
               delivery.setGraderComment(agData.getComments());
               break;

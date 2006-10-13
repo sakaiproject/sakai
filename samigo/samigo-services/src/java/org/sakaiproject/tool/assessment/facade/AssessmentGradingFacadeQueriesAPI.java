@@ -118,7 +118,7 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public ItemGradingData getItemGrading(Long id);
 
-  public AssessmentGradingData getLastAssessmentGradingByAgentId(
+  public AssessmentGradingIfc getLastAssessmentGradingByAgentId(
       Long publishedAssessmentId, String agentIdString);
 
   public AssessmentGradingData getLastSavedAssessmentGradingByAgentId(

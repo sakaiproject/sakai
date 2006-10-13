@@ -403,7 +403,7 @@ public class GradingService
     }
   }
 
-  public AssessmentGradingData getLastAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString) {
+  public AssessmentGradingIfc getLastAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString) {
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
           getLastAssessmentGradingByAgentId(new Long(publishedAssessmentId), agentIdString);
