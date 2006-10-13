@@ -295,25 +295,6 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
       }
     }
-
-    retryCount = PersistenceService.getInstance().getRetryCount().intValue();
-    while (retryCount > 0){
-      try {
-        if (item!=null){ // need to dissociate with item before deleting in Hibernate 3
-	    log.debug("***** deleting item attachemnt");
-          Set set = item.getItemAttachmentSet();
-          item.setItemAttachmentSet(new HashSet());
-          getHibernateTemplate().deleteAll(set);
-          retryCount = 0;
-	}
-        else retryCount=0;
-      }
-      catch (Exception e) {
-        log.warn("problem deleteItemAttachmentSet: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
-      }
-    }
-
   }
 
   public void deleteItemMetaData(final Long itemId, final String label) {

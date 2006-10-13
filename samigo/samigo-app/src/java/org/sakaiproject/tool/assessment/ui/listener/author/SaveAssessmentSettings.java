@@ -300,7 +300,7 @@ public class SaveAssessmentSettings
 	return true;
     }
   
-    private void updateAttachment(List oldList, List newList, AssessmentIfc assessment){
+  private void updateAttachment(List oldList, List newList, AssessmentIfc assessment){
     if (newList == null || newList.size()==0) return;
     List list = new ArrayList();
     HashMap map = getAttachmentIdHash(oldList);
