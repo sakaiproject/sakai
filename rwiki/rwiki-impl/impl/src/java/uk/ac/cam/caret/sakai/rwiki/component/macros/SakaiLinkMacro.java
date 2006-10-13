@@ -95,7 +95,7 @@ public class SakaiLinkMacro extends BaseLocaleMacro
 			if (target == null)
 			{
 				// FIXME make the context have a method to do this check
-				if (url.startsWith("sakai:") || url.startsWith("worksite:/") || url.indexOf(":/") < 0 || url.indexOf(":/") > 10)
+				if (url.startsWith("sakai:") || url.startsWith("worksite:/") || url.startsWith("saka-dropbox:/") || url.startsWith("dropbox:/") || url.indexOf(":/") < 0 || url.indexOf(":/") > 10)
 				{
 					target = "none";
 				}

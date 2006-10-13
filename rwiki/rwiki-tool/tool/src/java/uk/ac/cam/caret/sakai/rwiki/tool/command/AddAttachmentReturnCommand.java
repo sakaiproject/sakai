@@ -349,6 +349,18 @@ public class AddAttachmentReturnCommand implements HttpCommand
 				url = "sakai:/" + url;
 			}
 		}
+		else if (referenceString.startsWith("/content/group-user/"))
+		{
+			url = referenceString.substring("/content/group-user/".length());
+			if (url.startsWith(currentSiteId))
+			{
+				url = "dropbox:/" + url.substring(currentSiteId.length()+1);
+			}
+			else
+			{
+				url = "sakai-dropbox:/" + url;
+			}
+		}
 		else if (referenceString.startsWith("/content/user/"))
 		{
 			url = referenceString.substring("/content/user/".length());

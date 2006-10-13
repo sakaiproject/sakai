@@ -191,6 +191,40 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 						+ link.substring("sakai:/".length());
 			}
 		}
+		else if (link.startsWith("sakai-dropbox:/"))
+		{
+			String refSiteUrl = link.substring("sakai-dropbox:/".length());
+			if ( refSiteUrl.startsWith("/") ) {
+				refSiteUrl = refSiteUrl.substring(1);
+			}
+			String[] parts = refSiteUrl.split("/");
+			if (parts == null || parts.length < 1)
+			{
+				return "Link Cant be resolved";
+			}
+
+			String refSiteId = parts[0];
+			String refSiteType = getSiteType(refSiteId, "group");
+			
+			if ((refSiteId != null && refSiteId.startsWith("~")) || refSiteType == null)
+			{
+				String remLink = link.substring("sakai-dropbox:/".length());
+				if ( remLink.startsWith("/") ) {
+					remLink = remLink.substring(1);
+				}
+				if ( remLink.startsWith("~") ) {
+					remLink = remLink.substring(1);
+				}
+				link = "/access/content/group-user/"
+						+ remLink;
+
+			}
+			else
+			{
+				link = "/access/content/group-user/"
+						+ link.substring("sakai-dropbox:/".length());
+			}
+		}
 		else if (link.startsWith("worksite:/"))
 		{
 			String siteId = getSiteId();
@@ -210,6 +244,28 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 			{
 				link = "/access/content/group/" + siteId + "/"
 						+ link.substring("worksite:/".length());
+			}
+
+		}
+		else if (link.startsWith("dropbox:/"))
+		{
+			String siteId = getSiteId();
+			// need to check siteid
+			String siteType = getSiteType(siteId, null);
+			
+			if ((siteId != null && siteId.startsWith("~")) || siteType == null)
+			{
+				if ( siteId.startsWith("~") ) {
+					siteId = siteId.substring(1);
+				}
+				link = "/access/content/group-user/" + siteId + "/"
+						+ link.substring("dropbox:/".length());
+
+			}
+			else
+			{
+				link = "/access/content/group-user/" + siteId + "/"
+						+ link.substring("dropbox:/".length());
 			}
 
 		}
