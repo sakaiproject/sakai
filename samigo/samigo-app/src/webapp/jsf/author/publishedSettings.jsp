@@ -140,15 +140,11 @@
   <!-- *** HIGH SECURITY *** -->
   <samigo:hideDivision title="#{msg.t_highSecurity}" id="div4">
 <div class="tier2">
-    <h:panelGrid border="0" columns="3" columnClasses="longtext"
+    <h:panelGrid border="0" columns="2" columnClasses="longtext"
         summary="#{summary_msg.high_security_sec}">
-      <h:selectBooleanCheckbox value="#{assessmentSettings.valueMap.hasSpecificIP}"
-         disabled="true"/>
       <h:outputText value="#{msg.high_security_allow_only_specified_ip}" />
       <h:inputTextarea value="#{publishedSettings.ipAddresses}" cols="40" rows="5"
         disabled="true"/>
-      <h:selectBooleanCheckbox  disabled="true"
-         value="#{publishedSettings.valueMap.hasUsernamePassword}"/>
       <h:outputText value="#{msg.high_security_secondary_id_pw}"/>
       <h:panelGrid border="0" columns="2"  >
         <h:outputLabel value="#{msg.high_security_username}"/>
