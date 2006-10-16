@@ -21,6 +21,8 @@
 
 package org.sakaiproject.assignment.impl;
 
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -3062,7 +3064,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 												ContentResource resource = ContentHostingService.getResource(r.getId());
 	
 												String contentType = resource.getContentType();
-												byte[] content = resource.getContent();
+												
 												ResourceProperties props = r.getProperties();
 												String displayName = props.getPropertyFormatted(props.getNamePropDisplayName());
 	
@@ -3073,11 +3075,20 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 													attachedUrlCount++;
 												}
 	
+												// buffered stream input
+												InputStream content = resource.streamContent();
+												byte data[] = new byte[1024 * 10];
+												BufferedInputStream bContent = new BufferedInputStream(content, data.length);
+												
 												ZipEntry attachmentEntry = new ZipEntry(submittersName + displayName);
-	
 												out.putNextEntry(attachmentEntry);
-												out.write(content);
+												int bCount = -1;
+												while ((bCount = bContent.read(data, 0, data.length)) != -1) 
+												{
+													out.write(data, 0, bCount);
+												}
 												out.closeEntry();
+												content.close();
 											}
 											catch (PermissionException e)
 											{
