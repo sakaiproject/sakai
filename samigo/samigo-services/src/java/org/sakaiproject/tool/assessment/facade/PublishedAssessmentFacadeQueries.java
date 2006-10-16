@@ -1718,7 +1718,7 @@ public class PublishedAssessmentFacadeQueries
 			+ " a.timeElapsed) "
 			+ " from AssessmentGradingData a, PublishedAssessmentData p"
 			+ " where a.publishedAssessmentId = p.publishedAssessmentId  and a.forGrade=1 and a.agentId=?"
-			+ " order by p.publishedAssessmentId DESC, a.finalScore DESC";
+			+ " order by p.publishedAssessmentId DESC, a.finalScore DESC, a.submittedDate DESC";
 
 
 		final HibernateCallback hcb_last = new HibernateCallback() {
