@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
+\<%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
@@ -180,8 +180,8 @@
   </h:commandButton>
 
   <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_cancel}" type="button"
-     style="act" onclick="javascript:window.open('/portal/login','_top')"
-onkeypress="javascript:window.open('/portal/login','_top')"
+     style="act" onclick="javascript:window.open('#{delivery.portal}/login','_top')"
+onkeypress="javascript:window.open('#{delivery.portal}/login','_top')"
      rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
      disabled="#{delivery.actionString=='previewAssessment'}"/>
 </p>

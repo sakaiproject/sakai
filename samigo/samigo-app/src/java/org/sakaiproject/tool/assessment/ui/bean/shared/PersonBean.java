@@ -130,4 +130,5 @@ private static Log log = LogFactory.getLog(PersonBean.class);
     service.deleteResources(resourceIdList);
     return "editAssessment";
   }  
+
 }

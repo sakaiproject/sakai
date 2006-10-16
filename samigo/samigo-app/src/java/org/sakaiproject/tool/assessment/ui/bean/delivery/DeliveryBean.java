@@ -73,6 +73,7 @@ import org.sakaiproject.tool.api.Placement;
 
 import java.text.SimpleDateFormat;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  *
@@ -2547,4 +2548,9 @@ public class DeliveryBean
     }
     else return false;
   }
+
+  public String getPortal(){
+   return ServerConfigurationService.getString("portalPath");
+  }
+
 }

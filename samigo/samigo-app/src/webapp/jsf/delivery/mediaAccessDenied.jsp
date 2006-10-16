@@ -47,7 +47,7 @@
   </div>
  <p class="act">
   <h:commandButton accesskey="#{msg.a_ok}" value="#{msg.button_ok}" type="button"
-     styleClass="active" onclick="javascript:window.open('/portal/login','_top')" onkeypress="javascript:window.open('/portal/login','_top')" />
+     styleClass="active" onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')" />
 
 <%--
   <h:commandButton accesskey="#{msg.a_ok}" value="#{msg.button_ok}" type="submit"
