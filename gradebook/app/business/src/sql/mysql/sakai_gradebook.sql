@@ -35,7 +35,7 @@ create table GB_GRADABLE_OBJECT_T (
 	EXTERNAL_ID varchar(255),
 	EXTERNAL_APP_NAME varchar(255),
 	RELEASED bit(1) default 1,
-	primary key (ID));
+	primary key (ID)) TYPE=InnoDB;
 create table GB_GRADEBOOK_T (
 	ID bigint not null auto_increment,
 	VERSION integer not null,
@@ -46,14 +46,14 @@ create table GB_GRADEBOOK_T (
 	COURSE_GRADE_DISPLAYED bit not null,
 	ALL_ASSIGNMENTS_ENTERED bit not null,
 	LOCKED bit not null,
-	primary key (ID));
+	primary key (ID)) TYPE=InnoDB;
 create table GB_GRADE_MAP_T (
 	ID bigint not null auto_increment,
 	OBJECT_TYPE_ID integer not null,
 	VERSION integer not null,
 	GRADEBOOK_ID bigint not null,
 	GB_GRADING_SCALE_T bigint,
-	primary key (ID));
+	primary key (ID)) TYPE=InnoDB;
 create table GB_GRADE_RECORD_T (
 	ID bigint not null auto_increment,
 	OBJECT_TYPE_ID integer not null,
@@ -66,12 +66,12 @@ create table GB_GRADE_RECORD_T (
 	ENTERED_GRADE varchar(255),
 	SORT_GRADE double precision,
 	primary key (ID),
-	unique (GRADABLE_OBJECT_ID, STUDENT_ID));
+	unique (GRADABLE_OBJECT_ID, STUDENT_ID)) TYPE=InnoDB;
 create table GB_GRADE_TO_PERCENT_MAPPING_T (
 	GRADE_MAP_ID bigint not null,
 	PERCENT double precision,
 	LETTER_GRADE varchar(255) not null,
-	primary key (GRADE_MAP_ID, LETTER_GRADE));
+	primary key (GRADE_MAP_ID, LETTER_GRADE)) TYPE=InnoDB;
 create table GB_GRADING_EVENT_T (
 	ID bigint not null auto_increment,
 	GRADABLE_OBJECT_ID bigint not null,
@@ -79,17 +79,17 @@ create table GB_GRADING_EVENT_T (
 	STUDENT_ID varchar(255) not null,
 	DATE_GRADED datetime not null,
 	GRADE varchar(255),
-	primary key (ID));
+	primary key (ID)) TYPE=InnoDB;
 create table GB_GRADING_SCALE_GRADES_T (
 	GRADING_SCALE_ID bigint not null,
 	LETTER_GRADE varchar(255),
 	GRADE_IDX integer not null,
-	primary key (GRADING_SCALE_ID, GRADE_IDX));
+	primary key (GRADING_SCALE_ID, GRADE_IDX)) TYPE=InnoDB;
 create table GB_GRADING_SCALE_PERCENTS_T (
 	GRADING_SCALE_ID bigint not null,
 	PERCENT double precision,
 	LETTER_GRADE varchar(255) not null,
-	primary key (GRADING_SCALE_ID, LETTER_GRADE));
+	primary key (GRADING_SCALE_ID, LETTER_GRADE)) TYPE=InnoDB;
 create table GB_GRADING_SCALE_T (
 	ID bigint not null auto_increment,
 	OBJECT_TYPE_ID integer not null,
@@ -97,13 +97,13 @@ create table GB_GRADING_SCALE_T (
 	SCALE_UID varchar(255) not null unique,
 	NAME varchar(255) not null,
 	UNAVAILABLE bit,
-	primary key (ID));
+	primary key (ID)) TYPE=InnoDB;
 create table GB_PROPERTY_T (
 	ID bigint not null auto_increment,
 	VERSION integer not null,
 	NAME varchar(255) not null unique,
 	VALUE varchar(255),
-	primary key (ID));
+	primary key (ID)) TYPE=InnoDB;
 create table GB_SPREADSHEET_T (
   ID bigint(20) NOT NULL auto_increment,
   VERSION int(11) NOT NULL,
@@ -113,7 +113,7 @@ create table GB_SPREADSHEET_T (
   DATE_CREATED datetime NOT NULL,
   GRADEBOOK_ID bigint(20) NOT NULL,
   PRIMARY KEY  (`ID`) 
-);
+) TYPE=InnoDB;
 	
 
 alter table GB_GRADABLE_OBJECT_T
