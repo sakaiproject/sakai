@@ -55,7 +55,7 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 	}
 
 	public StudentGradesImpl(String username, List grades) {
-		this.username = username;
+		this.username = username.trim();
 		this.grades = grades;
 	}
 
@@ -80,7 +80,7 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 	}
 
 	public void setUsername(String username) {
-		this.username = username;
+		this.username = username.trim();
 	}
 
 	public List getGrades() {
