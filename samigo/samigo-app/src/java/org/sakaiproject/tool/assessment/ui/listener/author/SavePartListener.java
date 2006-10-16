@@ -95,6 +95,7 @@ public class SavePartListener
     String sectionId = sectionBean.getSectionId();
     AssessmentService assessmentService = new AssessmentService();
     SectionFacade section;
+    /*
     if (sectionId.equals("")){
       section = addPart(assessmentId);
       sectionId = section.getSectionId().toString();
@@ -102,7 +103,7 @@ public class SavePartListener
     else {
       section = assessmentService.getSection(sectionId);
     }
-
+    */
     //Long assessmentId = section.getAssessmentId();
 
     boolean addItemsFromPool = false;
@@ -119,13 +120,12 @@ public class SavePartListener
     }
 
     if (!("".equals(sectionBean.getType()))  && ((SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()).equals(sectionBean.getType()))) {
-
       addItemsFromPool = true;
 
       if (validateItemsDrawn(sectionBean)) {
-      // if the author type was random draw type,  and the new type is random draw , then we need to disassociate sectionid with each items. Cannot delete items, 'cuz these items are linked in the pool
-
-        if( (section !=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
+        // if the author type was random draw type,  and the new type is random draw , then we need to disassociate sectionid with each items. Cannot delete items, 'cuz these items are linked in the pool
+    	  section = getOrAddSection(assessmentService, assessmentId, sectionId);
+    	  if( (section !=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
 
           assessmentService.removeAllItems(sectionId);
         // need to reload
@@ -136,7 +136,9 @@ public class SavePartListener
         sectionBean.setOutcome("editPart");
         return;
       }
-
+    }
+    else {
+    	section = getOrAddSection(assessmentService, assessmentId, sectionId);
     }
 
     log.debug("**** section title ="+section.getTitle());
@@ -226,7 +228,17 @@ public class SavePartListener
     return section;
   }
 
-
+  private SectionFacade getOrAddSection(AssessmentService assessmentService, String assessmentId, String sectionId) {
+	  SectionFacade section;
+	  if (sectionId.equals("")){
+		  section = assessmentService.addSection(assessmentId);
+		  sectionId = section.getSectionId().toString();
+	  }
+	  else {
+		  section = assessmentService.getSection(sectionId);
+	  }
+	  return section;
+  }
 
   public boolean validateItemsDrawn(SectionBean sectionBean){
      FacesContext context = FacesContext.getCurrentInstance();
