@@ -525,16 +525,22 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                  if(logger.isDebugEnabled())logger.debug("user "+ user + "is not known to the system");
                  userid = "";
              }
+             
              String points;
              try{
-                 points = (String) line.get(Integer.parseInt(selectedColumn));
+            	 int index = Integer.parseInt(selectedColumn);
+            	 if(line.size() > index) {
+                     points = (String) line.get(index);
+            	 } else {
+            		 logger.info("unable to find any points for " + userid + " in spreadsheet");
+            		 points = "";
+            	 }
              }catch(NumberFormatException e){
                  if(logger.isDebugEnabled())logger.error(e);
                  points = "";
-
              }
              if(logger.isDebugEnabled())logger.debug("user "+user + " userid " + userid +" points "+points);
-             if(!points.equals("") && (!userid.equals(""))){
+             if(!"".equals(points) && (!"".equals(userid))){
                  selectedAssignment.put(userid,points);
              }
              i++;
@@ -563,6 +569,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         if(logger.isDebugEnabled())logger.debug("create assignment and save grades");
         if(logger.isDebugEnabled()) logger.debug("first check if all variables are numeric");
 
+        logger.debug("********************" + scores);
+        
         Iterator iter = scores.entrySet().iterator();
         while(iter.hasNext()){
             Map.Entry entry  = (Map.Entry) iter.next();
@@ -811,14 +819,13 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                 if(logger.isDebugEnabled()) logger.debug("getuser name for "+ rowcontent.get(0));
                 //userDisplayName = getUserDirectoryService().getUserDisplayName(tokens[0]);
                 userId = (String) rowcontent.get(0);
-                userDisplayName = ((User)rosterMap.get(rowcontent.get(0))).getDisplayName();
-                userUid = ((User)rosterMap.get(rowcontent.get(0))).getUserUid();
+                userDisplayName = ((User)rosterMap.get(userId)).getDisplayName();
+                userUid = ((User)rosterMap.get(userId)).getUserUid();
                 isKnown  = true;
                 if(logger.isDebugEnabled())logger.debug("get userid "+ rowcontent.get(0) + "username is "+userDisplayName);
 
             } catch (NullPointerException e) {
-                if(logger.isDebugEnabled()) logger.debug("User " + rowcontent.get(0) + " is unknown to this gradebook ");
-                if(logger.isDebugEnabled()) logger.error(e);
+                logger.error("User " + rowcontent.get(0) + " is unknown to this gradebook: " + e);
                 userDisplayName = "unknown student";
                 userId = (String) rowcontent.get(0);
                 userUid = null;
@@ -944,8 +951,18 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                 list.add(sb.toString());
                 i++;
             } while (i < line.length());
-
+            if(logger.isDebugEnabled()) {
+                StringBuffer logBuffer = new StringBuffer("Parsed " + line + " as: ");
+                for(Iterator iter = list.iterator(); iter.hasNext();) {
+                	logBuffer.append(iter.next());
+                	if(iter.hasNext()) {
+                		logBuffer.append(", ");
+                	}
+                }
+                logger.debug("Parsed source string " + line + " as " + logBuffer.toString() + ", length=" + list.size());
+            }
             return list;
+
         }
 
         /** advQuoted: quoted field; return index of next separator */
