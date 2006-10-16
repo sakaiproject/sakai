@@ -447,7 +447,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	}
 	
 	/** flag indicating whether entities can be hidden (scheduled or otherwise) */
-	protected boolean m_availabilityChecksEnabled = false;
+	protected boolean m_availabilityChecksEnabled = true;
 	
 	/**
 	 * Configuration: set a flag indicating whether entities can be hidden (scheduled or otherwise)
@@ -457,7 +457,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public void setAvailabilityChecksEnabled(String value)
 	{
-		m_availabilityChecksEnabled = value != null && Boolean.TRUE.toString().equalsIgnoreCase(value);
+		m_availabilityChecksEnabled = value == null || ! Boolean.FALSE.toString().equalsIgnoreCase(value);
 	}
 	
 	/**
@@ -480,7 +480,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public void setPrioritySortEnabled(String value)
 	{
-		m_prioritySortEnabled = value != null && Boolean.TRUE.toString().equalsIgnoreCase(value);
+		m_prioritySortEnabled = value == null || ! Boolean.FALSE.toString().equalsIgnoreCase(value);
 	}
 
 	/**
