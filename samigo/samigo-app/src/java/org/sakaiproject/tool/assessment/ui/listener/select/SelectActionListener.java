@@ -165,18 +165,6 @@ public class SelectActionListener
         publishedAssessmentService.getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(
 			  AgentFacade.getAgentString(), AgentFacade.getCurrentSiteId());
 
-    // TODO: look into combining the above query with getAuthorizationToViewAssessments and getAllAssessmentsReleasedToAuthenticatedUsers
-    // so we don't have to go through all submitted assessemnts across all sites. 
-    
-    // it's implemented this way because this was first developed as person scoped, in standalone samigo. There was no concept of site.
-    
-    
-    /*
-    HashMap authorizationHash = PersistenceService.getInstance().getAuthzQueriesFacade().
-        getAuthorizationToViewAssessments(AgentFacade.getCurrentSiteId()) ;
-    HashMap authenticatedHash = publishedAssessmentService.getAllAssessmentsReleasedToAuthenticatedUsers() ;
-    */
-
     HashMap publishedAssessmentHash = getPublishedAssessmentHash(publishedAssessmentList);
     ArrayList submittedAssessmentGradingList = new ArrayList();
     //log.info("recentSubmittedList size="+recentSubmittedList.size());
@@ -189,19 +177,6 @@ public class SelectActionListener
 
       AssessmentGradingFacade g = (AssessmentGradingFacade)
           recentSubmittedList.get(k);
-      /*
-      // check
-      // 1. the assessment is released to any authenticated users. OR
-      // 2. if publishedAssessment belongs to the current site. If so,
-      // continue. This is really for the integrated
-      // environment when there is multiple site. In standalone, there is no
-      // concept of site - daisyf
-      boolean authorizedToSite= (authorizationHash.get(g.getPublishedAssessmentId().toString())!=null);
-      boolean authorizedToAuthenticated = (authenticatedHash.get(g.getPublishedAssessmentId())!=null);
-      */
-
-      //log.info("authorizedToSite="+authorizedToSite);
-      //log.info("authorizedToAuthenticated="+authorizedToAuthenticated);
 
         DeliveryBeanie delivery = new DeliveryBeanie();
         delivery.setAssessmentId(g.getPublishedAssessmentId().toString());
