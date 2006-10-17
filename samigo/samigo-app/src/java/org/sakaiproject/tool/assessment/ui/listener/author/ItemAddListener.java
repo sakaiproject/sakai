@@ -1321,7 +1321,7 @@ Object[] fibanswers = getFIBanswers(entiretext).toArray();
     }      
     // save new ones
     AssessmentService service = new AssessmentService();
-    service.saveAttachments(list);
+    service.saveOrUpdateAttachments(list);
 
     // remove old ones
     Set set = map.keySet();

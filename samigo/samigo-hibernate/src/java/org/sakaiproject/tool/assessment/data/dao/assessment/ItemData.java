@@ -112,6 +112,7 @@ public class ItemData
     this.triesAllowed = triesAllowed;
   }
 
+    /*
   public Object clone() throws CloneNotSupportedException{
 
     ItemData cloned= new ItemData(
@@ -125,14 +126,14 @@ public class ItemData
     Set newItemTextSet = copyItemTextSet(cloned, this.getItemTextSet());
     Set newItemMetaDataSet = copyItemMetaDataSet(cloned, this.getItemMetaDataSet());
     Set newItemFeedbackSet = copyItemFeedbackSet(cloned, this.getItemFeedbackSet());
+    Set newItemAttachmentSet = copyItemAttachmentSet(cloned, this.getItemAttachmentSet());
     cloned.setItemTextSet(newItemTextSet);
     cloned.setItemMetaDataSet(newItemMetaDataSet);
     cloned.setItemFeedbackSet(newItemFeedbackSet);
+    cloned.setItemAttachmentSet(newItemAttachmentSet);
 
     return (Object)cloned;
   }
-
-
 
   public Set copyItemTextSet(ItemData cloned, Set itemTextSet) {
     HashSet h = new HashSet();
@@ -200,9 +201,7 @@ public class ItemData
     return h;
   }
 
-
-
-
+    */
 
 
   public Long getItemId() {
@@ -742,5 +741,7 @@ public class ItemData
     }
     return list;
   }
+
+
 
 }

@@ -23,11 +23,28 @@
 package org.sakaiproject.tool.assessment.services;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
+
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.content.api.ContentResource;
+
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
 /**
  * The ItemService calls persistent service locator to reach the
@@ -215,4 +232,112 @@ public class ItemService
 	      log.error(e); throw new RuntimeException(e);
 	    }
   }
+
+  public ItemData cloneItem(ItemDataIfc item){
+    ItemData cloned= new ItemData(
+        item.getSection(),item.getSequence(), item.getDuration(), item.getInstruction(),
+	item.getDescription(),item.getTypeId(),item.getGrade(),item.getScore(),
+	item.getHint(),item.getHasRationale(),item.getStatus(),item.getCreatedBy(),
+	item.getCreatedDate(),item.getLastModifiedBy(),item.getLastModifiedDate(),
+        null, null, null, item.getTriesAllowed());
+
+    // perform deep copy, set ItemTextSet, itemMetaDataSet and itemFeedbackSet
+    Set newItemTextSet = copyItemTextSet(cloned, item.getItemTextSet());
+    Set newItemMetaDataSet = copyItemMetaDataSet(cloned, item.getItemMetaDataSet());
+    Set newItemFeedbackSet = copyItemFeedbackSet(cloned, item.getItemFeedbackSet());
+    Set newItemAttachmentSet = copyItemAttachmentSet(cloned, item.getItemAttachmentSet());
+    cloned.setItemTextSet(newItemTextSet);
+    cloned.setItemMetaDataSet(newItemMetaDataSet);
+    cloned.setItemFeedbackSet(newItemFeedbackSet);
+    cloned.setItemAttachmentSet(newItemAttachmentSet);
+
+    return cloned;
+  }
+
+  private Set copyItemTextSet(ItemData cloned, Set itemTextSet) {
+    HashSet h = new HashSet();
+    Iterator k = itemTextSet.iterator();
+    while (k.hasNext()) {
+      ItemText itemText = (ItemText) k.next();
+      ItemText newItemText = new ItemText(cloned, itemText.getSequence(), itemText.getText(), null);
+      Set newAnswerSet = copyAnswerSet(newItemText, itemText.getAnswerSet());
+      newItemText.setAnswerSet(newAnswerSet);
+      h.add(newItemText);
+    }
+    return h;
+  }
+
+  private Set copyAnswerSet(ItemText newItemText, Set answerSet) {
+    HashSet h = new HashSet();
+    Iterator l = answerSet.iterator();
+    while (l.hasNext()) {
+      Answer answer = (Answer) l.next();
+      Answer newAnswer = new Answer(
+          newItemText, answer.getText(), answer.getSequence(),
+          answer.getLabel(),
+          answer.getIsCorrect(), answer.getGrade(), answer.getScore(), null);
+      Set newAnswerFeedbackSet = copyAnswerFeedbackSet(
+          newAnswer, answer.getAnswerFeedbackSet());
+      newAnswer.setAnswerFeedbackSet(newAnswerFeedbackSet);
+      h.add(newAnswer);
+    }
+    return h;
+  }
+
+  private Set copyAnswerFeedbackSet(Answer newAnswer, Set answerFeedbackSet) {
+    HashSet h = new HashSet();
+    Iterator m = answerFeedbackSet.iterator();
+    while (m.hasNext()) {
+      AnswerFeedback answerFeedback = (AnswerFeedback) m.next();
+      AnswerFeedback newAnswerFeedback = new AnswerFeedback(
+          newAnswer, answerFeedback.getTypeId(), answerFeedback.getText());
+      h.add(newAnswerFeedback);
+    }
+    return h;
+  }
+
+  private Set copyItemMetaDataSet(ItemData cloned, Set itemMetaDataSet) {
+    HashSet h = new HashSet();
+    Iterator n = itemMetaDataSet.iterator();
+    while (n.hasNext()) {
+      ItemMetaData itemMetaData = (ItemMetaData) n.next();
+      ItemMetaData newItemMetaData = new ItemMetaData(
+          cloned, itemMetaData.getLabel(), itemMetaData.getEntry());
+      h.add(newItemMetaData);
+    }
+    return h;
+  }
+
+  private Set copyItemFeedbackSet(ItemData cloned, Set itemFeedbackSet) {
+    HashSet h = new HashSet();
+    Iterator o = itemFeedbackSet.iterator();
+    while (o.hasNext()) {
+      ItemFeedback itemFeedback = (ItemFeedback) o.next();
+      ItemFeedback newItemFeedback = new ItemFeedback(
+          cloned, itemFeedback.getTypeId(), itemFeedback.getText());
+      h.add(newItemFeedback);
+    }
+    return h;
+  }
+
+  private Set copyItemAttachmentSet(ItemData cloned, Set itemAttachmentSet) {
+    AssessmentService service = new AssessmentService();
+    HashSet h = new HashSet();
+    Iterator n = itemAttachmentSet.iterator();
+    while (n.hasNext()) {
+      ItemAttachmentIfc itemAttachment = (ItemAttachmentIfc) n.next();
+      ContentResource cr_copy = service.createCopyOfContentResource(
+                           itemAttachment.getResourceId(), itemAttachment.getFilename());
+      ItemAttachmentIfc newItemAttachment = new ItemAttachment(
+        null, cr_copy.getId(), itemAttachment.getFilename(),
+        itemAttachment.getMimeType(), itemAttachment.getFileSize(), itemAttachment.getDescription(),
+        cr_copy.getUrl(), itemAttachment.getIsLink(), itemAttachment.getStatus(),
+        itemAttachment.getCreatedBy(), itemAttachment.getCreatedDate(), itemAttachment.getLastModifiedBy(),
+        itemAttachment.getLastModifiedDate());
+      newItemAttachment.setItem(cloned);
+      h.add(newItemAttachment);
+    }
+    return h;
+  }
+
 }

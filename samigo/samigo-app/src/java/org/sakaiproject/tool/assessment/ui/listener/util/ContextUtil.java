@@ -369,6 +369,36 @@ public static ArrayList paramArrayValueLike(String paramPart)
     if((s!=null) && ("&nbsp;".equals(s.trim())))
         s="";
     return s;
-}
+  }
+
+
+  public static String getRelativePath(String url){
+    // replace whitespace with %20
+    String protocol = getProtocol();
+    url = replaceSpace(url);
+    String location = url;
+    int index = url.lastIndexOf(protocol);
+    if (index == 0){
+      location = url.substring(protocol.length());
+    }
+    return location;
+  }
+
+  private static  String replaceSpace(String tempString){
+    String newString = "";
+    char[] oneChar = new char[1];
+    for(int i=0; i<tempString.length(); i++){
+      if (tempString.charAt(i) != ' '){
+        oneChar[0] = tempString.charAt(i);
+        String concatString = new String(oneChar);
+        newString = newString.concat(concatString);
+      }
+      else {
+        newString = newString.concat("%20");
+      }
+    }
+    return newString;
+  }
+
 
 }

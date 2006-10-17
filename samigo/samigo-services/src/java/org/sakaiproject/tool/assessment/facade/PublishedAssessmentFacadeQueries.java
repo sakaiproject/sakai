@@ -88,6 +88,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
 import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.content.api.ContentResource;
@@ -449,11 +450,9 @@ public class PublishedAssessmentFacadeQueries
       ItemAttachment itemAttachment = (ItemAttachment) o.next();
       try{
         // create a copy of the resource
-        ContentResource cr = ContentHostingService.getResource(itemAttachment.getResourceId());
-        ContentResource cr_copy = ContentHostingService.addAttachmentResource(
-                                  itemAttachment.getFilename(), cr.getContentType(), cr.getContent(),
-                                  cr.getProperties());
-
+        AssessmentService service = new AssessmentService();
+        ContentResource cr_copy = service.createCopyOfContentResource(
+                                  itemAttachment.getResourceId(), itemAttachment.getFilename());
         //get relative path
         String url = getRelativePath(cr_copy.getUrl(), protocol);
         
@@ -465,32 +464,22 @@ public class PublishedAssessmentFacadeQueries
           itemAttachment.getLastModifiedDate());
         h.add(publishedItemAttachment);
       }
-      catch (IdInvalidException e){
+      catch (Exception e){
         log.warn(e.getMessage());
       } 
-      catch (PermissionException e) {
-    	  log.warn(e.getMessage());
-      }
-      catch (IdUnusedException e) {
-		log.warn(e.getMessage());
-      }
-      catch (TypeException e) {
-		log.warn(e.getMessage());
-	  }
-      catch (InconsistentException e) {
-		log.warn(e.getMessage());
-	  }
-      catch (IdUsedException e) {
-		log.warn(e.getMessage());
-	  }
-      catch (OverQuotaException e) {
-		log.warn(e.getMessage());
-  	  }
-      catch (ServerOverloadException e) {
-		log.warn(e.getMessage());
-      }
     }
     return h;
+  }
+
+  public String getRelativePath(String url, String protocol){
+    // replace whitespace with %20
+    url = replaceSpace(url);
+    String location = url;
+    int index = url.lastIndexOf(protocol);
+    if (index == 0){
+      location = url.substring(protocol.length());
+    }
+    return location;
   }
 
   public Set preparePublishedSectionAttachmentSet(PublishedSectionData publishedSection,
@@ -1645,17 +1634,6 @@ public class PublishedAssessmentFacadeQueries
       }
     }
     return newString;
-  }
-
-  public String getRelativePath(String url, String protocol){
-    // replace whitespace with %20
-    url = replaceSpace(url);
-    String location = url;
-    int index = url.lastIndexOf(protocol);
-    if (index == 0){
-      location = url.substring(protocol.length());
-    }
-    return location;
   }
 
   public boolean isRandomDrawPart(final Long publishedAssessmentId, final Long sectionId){

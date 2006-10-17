@@ -24,12 +24,15 @@ package org.sakaiproject.tool.assessment.ui.listener.questionpool;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
@@ -99,8 +102,13 @@ public class ImportQuestionsToAuthoring implements ActionListener
         itemId = (String) iter.next();
         ItemFacade poolitemfacade= delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
 
-        itemfacade = (ItemFacade) poolitemfacade.clone();
+        ItemData clonedItem = delegate.cloneItem(poolitemfacade.getData());
+        clonedItem.setItemId(new Long(0));
+        clonedItem.setItemIdString("0");
+        itemfacade = new ItemFacade(clonedItem);
 
+        // path instead. so we will fix it here
+        setRelativePathInAttachment(itemfacade.getItemAttachmentList());
 
         //AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
 
@@ -169,12 +177,18 @@ public class ImportQuestionsToAuthoring implements ActionListener
     catch (RuntimeException e) {
 	e.printStackTrace();
 	return false;
-    } catch (CloneNotSupportedException e) {
-		e.printStackTrace();
-		return false;
-	}
-
+    }
     return true;
   }
+
+  private void setRelativePathInAttachment(List attachmentList){
+    for (int i=0; i<attachmentList.size();i++){
+      AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
+      String url = ContextUtil.getRelativePath(attach.getLocation());
+      System.out.println("***attachemnt url ="+url);
+      attach.setLocation(url);
+    }
+  }
+
 
 }

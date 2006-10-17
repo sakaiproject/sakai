@@ -318,7 +318,7 @@ public class SaveAssessmentSettings
     }      
     // save new ones
     AssessmentService assessmentService = new AssessmentService();
-    assessmentService.saveAttachments(list);
+    assessmentService.saveOrUpdateAttachments(list);
 
     // remove old ones
     Set set = map.keySet();

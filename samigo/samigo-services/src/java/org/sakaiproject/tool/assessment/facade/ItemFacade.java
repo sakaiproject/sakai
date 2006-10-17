@@ -150,6 +150,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
     this.itemAttachmentSet = getItemAttachmentSet();
   }
 
+    /*
   public Object clone() throws CloneNotSupportedException{
         ItemData itemdataOrig = (ItemData) this.data;
   ItemData cloneditemdata = (ItemData) itemdataOrig.clone();
@@ -159,6 +160,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
         Object cloned = new ItemFacade(cloneditemdata);
         return cloned;
     }
+    */
 
   // the following method's signature has a one to one relationship to
   // org.sakaiproject.tool.assessment.osid.item.ItemImpl

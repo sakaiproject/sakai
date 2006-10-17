@@ -187,6 +187,6 @@ public interface AssessmentFacadeQueriesAPI
 
   public void removeAssessmentAttachment(Long assessmentAttachmentId);
 
-  public void saveAttachments(List list);
+  public void saveOrUpdateAttachments(List list);
 
 }
