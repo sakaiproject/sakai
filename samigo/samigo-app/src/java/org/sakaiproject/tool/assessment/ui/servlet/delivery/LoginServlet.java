@@ -145,7 +145,7 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
       // We are getting the total no. of submission (for grade) per assessment
       // by the given agent at the same time
       boolean assessmentIsAvailable = assessmentIsAvailable(service, agentIdString, pub,
-                                      delivery, person);
+                                      delivery);
       if (isAuthorized){
         if (!assessmentIsAvailable) {
           path = "/jsf/delivery/assessmentNotAvailable.faces";
@@ -203,33 +203,17 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
     return isMember;
   }
 
-  private boolean isAvailable(DeliveryBean delivery, PersonBean person, HashMap h) {
-    log.debug("inside isAvaialbel");
-    boolean returnValue = false;
-    person.setTotalSubmissionPerAssessmentHash(h);
-    String nextAction = delivery.checkBeforeProceed();
-    log.debug("nextAction="+nextAction);
-    if (("safeToProceed").equals(nextAction)){
-      returnValue = true;
-    }
-    return returnValue;
-  }
-
   // check if assessment is available based on criteria like
   // dueDate
   public boolean assessmentIsAvailable(PublishedAssessmentService service,
       String agentIdString, PublishedAssessmentFacade pub,
-      DeliveryBean delivery, PersonBean person){
+      DeliveryBean delivery){
     boolean assessmentIsAvailable = false;
-    Integer submissions = service.getTotalSubmission(agentIdString,
-      pub.getPublishedAssessmentId().toString());
-    HashMap h = new HashMap();
-    if (submissions.intValue()>0)
-      h.put(pub.getPublishedAssessmentId(), submissions);
-    assessmentIsAvailable = isAvailable(delivery, person, h);
-    log.debug("**** assessmentIsAvailable="+assessmentIsAvailable);
-    log.debug("pub assessmentId="+pub.getPublishedAssessmentId());
-    log.debug("pub assessment relaeseTo="+pub.getAssessmentAccessControl().getReleaseTo());
+    String nextAction = delivery.checkBeforeProceed();
+    log.debug("nextAction="+nextAction);
+    if (("safeToProceed").equals(nextAction)){
+      assessmentIsAvailable = true;
+    }
     return assessmentIsAvailable;
   }
 }

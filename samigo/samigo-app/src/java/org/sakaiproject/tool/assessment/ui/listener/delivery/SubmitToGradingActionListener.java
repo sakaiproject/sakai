@@ -122,7 +122,6 @@ public class SubmitToGradingActionListener implements ActionListener {
 			if (isForGrade(adata) && !isUnlimited(publishedAssessment)) {
 				delivery.setSubmissionsRemaining(delivery
 						.getSubmissionsRemaining() - 1);
-                                updateTotalSubmissionHash(publishedAssessment);
 			}
 
 
@@ -742,17 +741,5 @@ public class SubmitToGradingActionListener implements ActionListener {
 		GradingService gradingService = new GradingService();
 		gradingService.saveItemGrading(itemGradingData);
 	}
-
-    private void updateTotalSubmissionHash(PublishedAssessmentIfc publishedAssessment){
-      PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
-      HashMap h = personBean.getTotalSubmissionPerAssessmentHash();
-      int totalSubmitted = 1;
-      if (h.get(publishedAssessment.getPublishedAssessmentId()) != null){
-        totalSubmitted = ( (Integer) h.get(publishedAssessment.getPublishedAssessmentId())).intValue();
-        totalSubmitted++;
-      }
-      h.put(publishedAssessment.getPublishedAssessmentId(), new Integer(totalSubmitted));
-    }
-
 
 }

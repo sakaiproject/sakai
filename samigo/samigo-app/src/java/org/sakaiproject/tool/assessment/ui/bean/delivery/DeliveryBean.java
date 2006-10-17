@@ -1489,6 +1489,13 @@ public class DeliveryBean
 
   public String validate()
   {
+    // check before proceed
+    String nextAction = checkBeforeProceed();
+    log.debug("***** next Action="+nextAction);
+    if (!("safeToProceed").equals(nextAction)){
+      return nextAction;
+    }
+
     try
     {
       String results = "";
@@ -2472,18 +2479,14 @@ public class DeliveryBean
     boolean hasSubmissionLeft = false;
     int maxSubmissionsAllowed = 9999;
     PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
-    HashMap h = personBean.getTotalSubmissionPerAssessmentHash();
     if ( (Boolean.FALSE).equals(publishedAssessment.getAssessmentAccessControl().getUnlimitedSubmissions())){
       maxSubmissionsAllowed = publishedAssessment.getAssessmentAccessControl().getSubmissionsAllowed().intValue();
     }
-    boolean notSubmitted = false;
-    int totalSubmitted = 0;
-    if (h.get(publishedAssessment.getPublishedAssessmentId()) == null){
-      notSubmitted = true;
-    }
-    else{
-      totalSubmitted = ( (Integer) h.get(publishedAssessment.getPublishedAssessmentId())).intValue();
-    }
+
+    PublishedAssessmentService service = new PublishedAssessmentService();
+    int totalSubmitted = (service.getTotalSubmission(AgentFacade.getAgentString(), 
+                          getPublishedAssessment().getPublishedAssessmentId().toString())).intValue();
+    log.debug("***totalSubmitted="+totalSubmitted);
     if (totalSubmitted < maxSubmissionsAllowed){
       hasSubmissionLeft = true;
     } 

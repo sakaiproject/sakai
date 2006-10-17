@@ -360,7 +360,7 @@
       <to-view-id>/jsf/delivery/assessmentHasBeenSubmitted.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
-      <from-outcome>noSubmissionleft</from-outcome>
+      <from-outcome>noSubmissionLeft</from-outcome>
       <to-view-id>/jsf/delivery/noSubmissionLeft.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
