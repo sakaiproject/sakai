@@ -65,13 +65,13 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
   * @return the list.
   */
   public List getBasicInfoOfAllPublishedAssessments(String agentId, String orderBy,
-    boolean ascending)
+    boolean ascending, String siteId)
   {
     try
     {
       PublishedAssessmentService service = new PublishedAssessmentService();
       return service.getBasicInfoOfAllPublishedAssessments(
-       agentId, orderBy, ascending);
+       agentId, orderBy, ascending, siteId);
     }
     catch (Exception ex)
     {

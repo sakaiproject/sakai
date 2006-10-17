@@ -41,7 +41,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 public interface PublishedAssessmentServiceAPI {
 
   public List getBasicInfoOfAllPublishedAssessments(String agentId, String orderBy,
-                                             boolean ascending);
+                                             boolean ascending, String siteId);
 
   public List getAllActivePublishedAssessments(String orderBy);
 
