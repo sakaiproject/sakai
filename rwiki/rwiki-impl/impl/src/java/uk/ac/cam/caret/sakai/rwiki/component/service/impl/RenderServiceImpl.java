@@ -103,6 +103,10 @@ public class RenderServiceImpl implements RenderService
 			RenderContext renderContext = renderContextFactory
 					.getRenderContext(rwo, renderEngine);
 			renderedPage = renderEngine.render(rwo.getContent(), renderContext);
+			if ( renderedPage.indexOf("<p ") < 0 && renderedPage.indexOf("</p>") < 0   ) 
+			{
+				renderedPage = "<p class=\"paragraph\">"+renderedPage+"</p>";
+			}
 			boolean canCache = false;
 			if (renderContext instanceof CachableRenderContext)
 			{
