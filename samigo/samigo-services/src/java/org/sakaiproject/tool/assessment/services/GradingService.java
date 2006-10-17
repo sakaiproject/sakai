@@ -713,6 +713,9 @@ public class GradingService
 
     // save#3: itemGradingSet has been saved above so just need to update assessmentGrading
     // therefore setItemGradingSet as empty first - daisyf
+    // however, if we do not persit to DB, we want to keep itemGradingSet with data for later use
+    // Because if itemGradingSet is not saved to DB, we cannot go to DB to get it. We have to 
+    // get it through data.
     if (persistToDB) {
         data.setItemGradingSet(new HashSet());
     	saveOrUpdateAssessmentGrading(data);
