@@ -288,7 +288,7 @@ function saveTime()
   <%-- SUBMIT FOR GRADE DURING PAU --%>
   <h:commandButton type="submit" value="#{msg.button_submit}"
     action="#{delivery.submitForGrade}"  id="submitForm2" styleClass="active"
-    rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.anonymousLogin}"
+    rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
     onclick="pauseTiming='false'; disableSubmit2();" onkeypress="pauseTiming='false'; disableSubmit2();"/>
 
   <%-- SAVE AND EXIT DURING PAU WITH ANONYMOUS LOGIN--%>
