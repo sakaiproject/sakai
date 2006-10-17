@@ -404,7 +404,6 @@ function uncheckOther(field){
         <h:outputText value="#{msg.timed_minutes}. " />
        <f:verbatim><br/></f:verbatim>
         <h:outputText value="#{msg.auto_submit_description}" />
-		       <h:outputText value="#{assessmentSettings.itemNavigation}" />
       </h:panelGroup>
     </h:panelGrid>
 <%-- SAK-3578: auto submit will always be true for timed assessment,
