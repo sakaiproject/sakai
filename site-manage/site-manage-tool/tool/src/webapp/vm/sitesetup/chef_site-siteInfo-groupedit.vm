@@ -72,7 +72,7 @@
 								#end
 							#end
 							#if(!$found)
-    				<option  value="$member.Uniqname" >$member.Name</option>
+    				<option  value="$member.Uniqname" >$member.Name ($member.DisplayId)</option>
 							#end
     		#end
     	</select>
@@ -82,7 +82,7 @@
 						#foreach ($gmember in $groupMembers)
     			#set($gUser = $!userDirectoryService.getUser($gmember.UserId))
 							#if ($!gUser)
-    				<option  value="$gmember.UserId" >$gUser.SortName</option>
+    				<option  value="$gmember.UserId" >$gUser.SortName ($gUser.DisplayId)</option>
 							#end
     		#end
     	</select>
