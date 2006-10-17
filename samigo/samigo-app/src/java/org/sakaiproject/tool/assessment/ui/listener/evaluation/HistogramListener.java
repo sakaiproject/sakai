@@ -54,9 +54,9 @@ public class HistogramListener
   implements ActionListener, ValueChangeListener
 {
   private static Log log = LogFactory.getLog(HistogramListener.class);
-  private static BeanSort bs;
-  private static ContextUtil cu;
-  private static EvaluationListenerUtil util;
+  //private static BeanSort bs;
+  //private static ContextUtil cu;
+  //private static EvaluationListenerUtil util;
 
   /**
    * Standard process action method.
@@ -68,15 +68,15 @@ public class HistogramListener
   {
     log.debug("HistogramAggregate Statistics LISTENER.");
 
-    TotalScoresBean totalBean = (TotalScoresBean) cu.lookupBean(
+    TotalScoresBean totalBean = (TotalScoresBean) ContextUtil.lookupBean(
                                 "totalScores");
-    HistogramScoresBean bean = (HistogramScoresBean) cu.lookupBean(
+    HistogramScoresBean bean = (HistogramScoresBean) ContextUtil.lookupBean(
                                "histogramScores");
     String publishedId = totalBean.getPublishedId();
 
     if (publishedId.equals("0"))
     {
-	publishedId = (String) cu.lookupParam("publishedId");
+	publishedId = (String) ContextUtil.lookupParam("publishedId");
     }
 
     if (!histogramScores(publishedId, bean, totalBean))
@@ -92,9 +92,9 @@ public class HistogramListener
   {
     //log.info("HistogramAggregate Statistics Value Change LISTENER.");
 
-    TotalScoresBean totalBean = (TotalScoresBean) cu.lookupBean(
+    TotalScoresBean totalBean = (TotalScoresBean) ContextUtil.lookupBean(
                                 "totalScores");
-    HistogramScoresBean bean = (HistogramScoresBean) cu.lookupBean(
+    HistogramScoresBean bean = (HistogramScoresBean) ContextUtil.lookupBean(
                                "histogramScores");
     QuestionScoresBean questionBean = (QuestionScoresBean)
     ContextUtil.lookupBean("questionScores");
@@ -103,7 +103,7 @@ public class HistogramListener
 
     if (publishedId == "0")
     {
-	publishedId = (String) cu.lookupParam("publishedId");
+	publishedId = (String) ContextUtil.lookupParam("publishedId");
     }
 
     String selectedvalue= (String) event.getNewValue();
@@ -154,8 +154,8 @@ public class HistogramListener
         bean.setAllSubmissions(which);    // changed submission pulldown
       }
 
-      bean.setItemId(cu.lookupParam("itemId"));
-      bean.setHasNav(cu.lookupParam("hasNav"));
+      bean.setItemId(ContextUtil.lookupParam("itemId"));
+      bean.setHasNav(ContextUtil.lookupParam("hasNav"));
 
       GradingService delegate = new GradingService();
       PublishedAssessmentService pubService = new PublishedAssessmentService();
@@ -228,7 +228,7 @@ public class HistogramListener
             qbean.setQuestionText(item.getText());
             qbean.setQuestionType(item.getTypeId().toString());
             //totalpossible = totalpossible + item.getScore().doubleValue();
-            ArrayList responses = null;
+            //ArrayList responses = null;
             determineResults(pub, qbean, (ArrayList) itemscores.get
               (item.getItemId()));
             qbean.setTotalScore(item.getScore().toString());
@@ -329,7 +329,7 @@ public class HistogramListener
 
   }
 
-  public void determineResults(PublishedAssessmentIfc pub, HistogramQuestionScoresBean qbean,
+  private void determineResults(PublishedAssessmentIfc pub, HistogramQuestionScoresBean qbean,
     ArrayList itemScores)
   {
     if (itemScores == null)
@@ -349,7 +349,7 @@ public class HistogramListener
 
   }
 
-  public void doAnswerStatistics(PublishedAssessmentIfc pub, HistogramQuestionScoresBean qbean,
+  private void doAnswerStatistics(PublishedAssessmentIfc pub, HistogramQuestionScoresBean qbean,
     ArrayList scores)
   {
     if (scores.isEmpty())
@@ -366,7 +366,7 @@ public class HistogramListener
     HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(pub);
     HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(pub);
 
-    int numAnswers = 0;
+    //int numAnswers = 0;
     ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(((ItemGradingData) scores.toArray()[0]).getPublishedItemId());
     ArrayList text = item.getItemTextArraySorted();
     ArrayList answers = null;
@@ -384,16 +384,16 @@ public class HistogramListener
       getTFMCScores(publishedAnswerHash, scores, qbean, answers);
     else if (qbean.getQuestionType().equals("4"))
       getTFMCScores(publishedAnswerHash, scores, qbean, answers);
-    else if (qbean.getQuestionType().equals("8"))
+    else if ((qbean.getQuestionType().equals("8"))||(qbean.getQuestionType().equals("11")) )
       getFIBMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers);
-    else if (qbean.getQuestionType().equals("11"))
-        getFINMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers);
+    //else if (qbean.getQuestionType().equals("11"))
+    //    getFINMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers);
     else if (qbean.getQuestionType().equals("9"))
       getMatchingScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
   }
 
 
-  public void getFIBMCMCScores(HashMap publishedItemHash, HashMap publishedAnswerHash, 
+  private void getFIBMCMCScores(HashMap publishedItemHash, HashMap publishedAnswerHash, 
     ArrayList scores, HistogramQuestionScoresBean qbean, ArrayList answers)
   {
     HashMap texts = new HashMap();
@@ -435,7 +435,7 @@ public class HistogramListener
           studentResponseList.add(data);
           numStudentRespondedMap.put(data.getAssessmentGradingId(), studentResponseList);
         // we found a response, and got the  existing num , now update one
-        if (qbean.getQuestionType().equals("8"))
+        if ((qbean.getQuestionType().equals("8"))|| (qbean.getQuestionType().equals("11")))
         {
           // for fib we only count the number of correct responses 
           Float autoscore = data.getAutoScore();
@@ -466,7 +466,7 @@ public class HistogramListener
       	bars[i].setLabel(answer.getText());
 
       // this doens't not apply to fib , do not show checkmarks for FIB
-    	if (!qbean.getQuestionType().equals("8") && answer != null)
+    	if (!(qbean.getQuestionType().equals("8")) && !(qbean.getQuestionType().equals("11"))&& answer != null)
       	{
 	  bars[i].setIsCorrect(answer.getIsCorrect());
         }
@@ -497,10 +497,12 @@ public class HistogramListener
       while (listiter.hasNext())
       {
         ItemGradingData item = (ItemGradingData)listiter.next();
-	if (qbean.getQuestionType().equals("8"))
+ 		if ((qbean.getQuestionType().equals("8"))|| (qbean.getQuestionType().equals("11")))
 	{
+		// TODO: we are checking to see if the score is > 0,  this will not work if the question is worth 0 points. 
+		// will need to verify each answer individually. 
           Float autoscore = item.getAutoScore();
-          if (!(new Float(0)).equals(autoscore)) {
+          if ((new Float(0)).equals(autoscore)) {
             hasIncorrect = true;
             break;
           }
@@ -560,7 +562,8 @@ public class HistogramListener
       qbean.setPercentCorrect(Integer.toString((int)(((float) correctresponses/(float) responses) * 100)));
   }
 
-  public void getFINMCMCScores(HashMap publishedItemHash, HashMap publishedAnswerHash, 
+  /*
+  private void getFINMCMCScores(HashMap publishedItemHash, HashMap publishedAnswerHash, 
 		    ArrayList scores, HistogramQuestionScoresBean qbean, ArrayList answers)
 		  {
 		    HashMap texts = new HashMap();
@@ -726,9 +729,9 @@ public class HistogramListener
 		    if (responses > 0)
 		      qbean.setPercentCorrect(Integer.toString((int)(((float) correctresponses/(float) responses) * 100)));
 		  }
-  
+  */
 
-  public void getTFMCScores(HashMap publishedAnswerHash, ArrayList scores,
+  private void getTFMCScores(HashMap publishedAnswerHash, ArrayList scores,
     HistogramQuestionScoresBean qbean, ArrayList answers)
   {
     HashMap texts = new HashMap();
@@ -816,7 +819,7 @@ public class HistogramListener
 
 
 
-  public void getMatchingScores(HashMap publishedItemTextHash, HashMap publishedAnswerHash, 
+  private void getMatchingScores(HashMap publishedItemTextHash, HashMap publishedAnswerHash, 
     ArrayList scores, HistogramQuestionScoresBean qbean, ArrayList labels)
   {
     HashMap texts = new HashMap();
@@ -944,7 +947,7 @@ if (answer != null)
 
 
 
-  public void doScoreStatistics(HistogramQuestionScoresBean qbean,
+  private void doScoreStatistics(HistogramQuestionScoresBean qbean,
     ArrayList scores)
   {
     // here scores contain ItemGradingData
@@ -1012,7 +1015,7 @@ if (answer != null)
 	}
   }
 
-  public Map getAssessmentStatisticsMap(ArrayList scoreList)
+  private Map getAssessmentStatisticsMap(ArrayList scoreList)
   {
     // this function is used to calculate stats for an entire assessment
     // or for a non-autograded question
@@ -1361,6 +1364,8 @@ if (answer != null)
    *
    * @return array of range text strings for each interval
    */
+  
+  
   private static String[] calRange(String[] answers, String[] choices)
   {
     String[] range = new String[choices.length];
