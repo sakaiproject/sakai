@@ -567,7 +567,18 @@ public class GradingService
                           HashMap publishedAnswerHash) 
   {
 	  log.debug("storeGrades: data.getSubmittedDate()" + data.getSubmittedDate());
-    storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash);
+	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, true);
+  }
+  
+  /**
+   * Assume this is a new item.
+   */
+  public void storeGrades(AssessmentGradingIfc data, PublishedAssessmentIfc pub,
+                          HashMap publishedItemHash, HashMap publishedItemTextHash,
+                          HashMap publishedAnswerHash, boolean persistToDB) 
+  {
+	  log.debug("storeGrades (not persistToDB) : data.getSubmittedDate()" + data.getSubmittedDate());
+	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, false);
   }
 
   /**
@@ -580,12 +591,16 @@ public class GradingService
    */
   public void storeGrades(AssessmentGradingIfc data, boolean regrade, PublishedAssessmentIfc pub,
                           HashMap publishedItemHash, HashMap publishedItemTextHash,
-                          HashMap publishedAnswerHash) 
+                          HashMap publishedAnswerHash, boolean persistToDB) 
          throws GradebookServiceException {
     log.debug("****x1. regrade ="+regrade+" "+(new Date()).getTime());
     try {
       String agent = data.getAgentId();
-      if (!regrade)
+      
+      // Added persistToDB because if we don't save data to DB later, we shouldn't update the assessment
+      // submittedDate either. The date should be sync in delivery bean and DB
+      // This is for DeliveryBean.checkDataIntegrity()
+      if (!regrade && persistToDB)
       {
 	data.setSubmittedDate(new Date());
         setIsLate(data, pub);
@@ -675,7 +690,9 @@ public class GradingService
       // ones). we need to be cheap, we don't want to update record that hasn't been
       // changed. Yes, assessmentGrading's total score will be out of sync at this point, I am afraid. It
       // would be in sync again once the whole method is completed sucessfully. 
-      saveOrUpdateAll(itemGradingSet);
+      if (persistToDB) {
+    	  saveOrUpdateAll(itemGradingSet);
+      }
       log.debug("****x5. "+(new Date()).getTime());
 
       // save#2: now, we need to get the full set so we can calculate the total score accumulate for the
@@ -696,8 +713,10 @@ public class GradingService
 
     // save#3: itemGradingSet has been saved above so just need to update assessmentGrading
     // therefore setItemGradingSet as empty first - daisyf
-    data.setItemGradingSet(new HashSet());
-    saveOrUpdateAssessmentGrading(data);
+    if (persistToDB) {
+        data.setItemGradingSet(new HashSet());
+    	saveOrUpdateAssessmentGrading(data);
+    }
     log.debug("****x7. "+(new Date()).getTime());
 
     notifyGradebookByScoringType(data, pub);
