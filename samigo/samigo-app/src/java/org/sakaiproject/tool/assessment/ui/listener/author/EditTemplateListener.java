@@ -104,8 +104,12 @@ public class EditTemplateListener
     Iterator iter = service.getDefaultMetaDataSet().iterator();
     while (iter.hasNext()){
       String label = (String) ((AssessmentMetaData)iter.next()).getLabel();
-      //String value ="true";
-      h.put(label, "true");
+      if (("releaseTo").equals(label)){
+	  h.put(label,"SITE_MEMBERS");
+      }
+      else{
+        h.put(label, "true");
+      }
     }
     return h;
   }

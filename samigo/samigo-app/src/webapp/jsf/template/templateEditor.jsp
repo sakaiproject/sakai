@@ -157,7 +157,6 @@
 
   <!-- *** RELEASED TO  *** -->
   <samigo:hideDivision title="#{msg.released_to}" id="div4">
-   <div class="tier2">
    <div class="tier3">
      <h:selectOneRadio layout="pageDirection" value="#{template.valueMap.releaseTo}" required="true">
        <f:selectItem itemValue="ANONYMOUS_USERS"
@@ -165,7 +164,7 @@
        <f:selectItem itemValue="SITE_MEMBERS"
           itemLabel="#{msg.auth_users}"/>
      </h:selectOneRadio>
-  </div></div>
+  </div>
   </samigo:hideDivision>
 
   <!-- *** HIGH SECURITY *** -->
