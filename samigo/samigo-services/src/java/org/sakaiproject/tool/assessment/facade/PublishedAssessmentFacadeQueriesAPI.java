@@ -237,7 +237,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   // added by daisy - please check the logic - I based this on the getBasicInfoOfAllActiveAssessment
   public ArrayList getBasicInfoOfAllPublishedAssessments(String orderBy,
-      boolean ascending, Integer status);
+							 boolean ascending, Integer status, String siteId);
 
   /**
    * return an array list of the last AssessmentGradingFacade per assessment that
@@ -254,6 +254,8 @@ public interface PublishedAssessmentFacadeQueriesAPI
    * returns HashMap (Long publishedAssessmentId, Integer totalSubmittedForGrade);
    */
   public HashMap getTotalSubmissionPerAssessment(String agentId);
+
+    public HashMap getTotalSubmissionPerAssessment(String agentId, String siteId);
 
   public Integer getTotalSubmission(String agentId, Long publishedAssessmentId);
 

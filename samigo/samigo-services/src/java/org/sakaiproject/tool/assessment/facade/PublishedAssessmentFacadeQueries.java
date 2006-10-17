@@ -834,12 +834,6 @@ public class PublishedAssessmentFacadeQueries
         " a.publishedAssessmentId, count(a)) " +
         " from AssessmentGradingData as a where a.agentId=? and a.forGrade=?" +
         " group by a.publishedAssessmentId";
-//    Object[] objects = new Object[2];
-//    objects[0] = agentId;
-//    objects[1] = new Boolean(true);
-//    Type[] types = new Type[2];
-//    types[0] = Hibernate.STRING;
-//    types[1] = Hibernate.BOOLEAN;
 
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -850,9 +844,30 @@ public class PublishedAssessmentFacadeQueries
     	};
     };
     return getHibernateTemplate().executeFind(hcb);
-
-//    return getHibernateTemplate().find(query, objects, types);
   }
+
+
+  public List getNumberOfSubmissionsOfAllAssessmentsByAgent(final String agentId, final String siteId) {
+    final String query = "select new AssessmentGradingData(" +
+        " a.publishedAssessmentId, count(a)) " +
+        " from AssessmentGradingData as a, AuthorizationData as az "+
+        " where a.agentId=? and a.forGrade=? and az.agentIdString=? "+ 
+        " and az.functionId='TAKE_PUBLISHED_ASSESSMENT' and az.qualifierId=a.publishedAssessmentId" +
+        " group by a.publishedAssessmentId";
+
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setString(0, agentId);
+    		q.setBoolean(1, true);
+    		q.setString(2, siteId);
+    		return q.list();
+    	};
+    };
+    return getHibernateTemplate().executeFind(hcb);
+  }
+
+
 
   public ArrayList getAllPublishedAssessments(String sortString) {
     String orderBy = getOrderBy(sortString);
@@ -1137,7 +1152,7 @@ public class PublishedAssessmentFacadeQueries
 
   // added by daisy - please check the logic - I based this on the getBasicInfoOfAllActiveAssessment
   public ArrayList getBasicInfoOfAllPublishedAssessments(String orderBy,
-      boolean ascending, final Integer status) {
+                    boolean ascending, final Integer status, final String siteId) {
 
     String query =
         "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, " +
@@ -1145,10 +1160,12 @@ public class PublishedAssessmentFacadeQueries
         " c.feedbackDate, f.feedbackDelivery,  f.feedbackAuthoring, c.lateHandling, " +
         " c.unlimitedSubmissions, c.submissionsAllowed) " +
         " from PublishedAssessmentData as p, PublishedAccessControl as c," +
-        " PublishedFeedback as f" +
+        " PublishedFeedback as f, AuthorizationData as az" +
         " where c.assessment.publishedAssessmentId=p.publishedAssessmentId " +
         " and p.publishedAssessmentId = f.assessment.publishedAssessmentId " +
-        " and p.status=? order by ";
+        " and p.status=? and az.agentIdString=? "+
+        " and az.functionId='TAKE_PUBLISHED_ASSESSMENT' and az.qualifierId=p.publishedAssessmentId" +
+        " order by ";
 
     if (ascending == false) {
 
@@ -1173,16 +1190,11 @@ public class PublishedAssessmentFacadeQueries
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(hql);
     		q.setInteger(0, status.intValue());
+    		q.setString(1, siteId);
     		return q.list();
     	};
     };
     List list = getHibernateTemplate().executeFind(hcb);
-
-//    List list = getHibernateTemplate().find(query, new Object[] {status}
-//                                            ,
-//                                            new org.hibernate.type.Type[] {
-//                                            Hibernate.INTEGER});
-
     ArrayList pubList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       PublishedAssessmentData p = (PublishedAssessmentData) list.get(i);
@@ -1275,6 +1287,18 @@ public class PublishedAssessmentFacadeQueries
    */
   public HashMap getTotalSubmissionPerAssessment(String agentId) {
     List l = getNumberOfSubmissionsOfAllAssessmentsByAgent(agentId);
+    HashMap h = new HashMap();
+    for (int i = 0; i < l.size(); i++) {
+      AssessmentGradingData d = (AssessmentGradingData) l.get(i);
+      h.put(d.getPublishedAssessmentId(), new Integer(d.getTotalSubmitted()));
+      log.debug("pId=" + d.getPublishedAssessmentId() + " submitted=" +
+                         d.getTotalSubmitted());
+    }
+    return h;
+  }
+
+  public HashMap getTotalSubmissionPerAssessment(String agentId, String siteId) {
+    List l = getNumberOfSubmissionsOfAllAssessmentsByAgent(agentId, siteId);
     HashMap h = new HashMap();
     for (int i = 0; i < l.size(); i++) {
       AssessmentGradingData d = (AssessmentGradingData) l.get(i);

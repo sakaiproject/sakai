@@ -65,14 +65,14 @@ public class PublishedAssessmentService {
    * Marc said some of teh assessment do not have any due date, e.g. survey
    */
   public ArrayList getBasicInfoOfAllPublishedAssessments(String agentId, String orderBy,
-                                             boolean ascending) {
+							 boolean ascending, String siteId) {
 
     // 2. get all takeable assessment available
     return PersistenceService.getInstance().
         getPublishedAssessmentFacadeQueries().
         getBasicInfoOfAllPublishedAssessments(orderBy, ascending,
                                              PublishedAssessmentFacade.
-                                             ACTIVE_STATUS);
+					      ACTIVE_STATUS, siteId);
   }
 
 /**
@@ -294,6 +294,12 @@ public class PublishedAssessmentService {
     return PersistenceService.getInstance().
         getPublishedAssessmentFacadeQueries().
         getTotalSubmissionPerAssessment(agentId);
+  }
+
+    public HashMap getTotalSubmissionPerAssessment(String agentId, String siteId) {
+    return PersistenceService.getInstance().
+        getPublishedAssessmentFacadeQueries().
+        getTotalSubmissionPerAssessment(agentId, siteId);
   }
 
   public Integer getTotalSubmission(String agentId, String publishedAssessmentId) {
