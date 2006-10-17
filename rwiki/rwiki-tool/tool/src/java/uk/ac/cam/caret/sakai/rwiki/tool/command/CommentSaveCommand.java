@@ -63,6 +63,9 @@ public class CommentSaveCommand extends SaveCommand
 		}
 		globalName = NameHelper.globaliseName(baseName, vphb.getPageSpace());
 		vphb.setGlobalName(globalName);
+		// force a refresh
+		rssb.getCurrentPageName(true);
+		rssb.getCurrentRWikiObject(true);
 		super.successfulUpdateDispatch(request, response);
 	}
 

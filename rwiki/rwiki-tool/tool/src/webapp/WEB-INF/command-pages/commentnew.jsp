@@ -35,9 +35,7 @@
   <div class="rwiki_help_popup" >
 	    <form action="?#" method="post" >
 	    New Comment<br/>
-		<textarea cols="40" rows="10" name="content" id="content" >
-		add comment
-		</textarea>
+		<textarea cols="40" rows="10" name="content" id="content" >add comment</textarea>
 		<input type="hidden" name="action" value="commentnewsave"/>
 		<input type="hidden" name="panel" value="Main"/>
 		<input type="hidden" name="version" value="${currentRWikiObject.version.time}"/>

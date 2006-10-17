@@ -291,14 +291,18 @@ public class RequestScopeSuperBean
 		return (String) map.get(key);
 	}
 
-	public String getCurrentPageName()
+	public String getCurrentPageName(boolean refresh)
 	{
 		String key = "currentPageName";
-		if (map.get(key) == null)
+		if (map.get(key) == null || refresh )
 		{
 			map.put(key, getNameHelperBean().getGlobalName());
 		}
 		return (String) map.get(key);
+	}
+	public String getCurrentPageName()
+	{
+		return getCurrentPageName(false);
 	}
 
 	public String getCurrentPageSpace()
@@ -376,10 +380,10 @@ public class RequestScopeSuperBean
 		return (ViewBean) map.get(key);
 	}
 
-	public RWikiObject getCurrentRWikiObject()
+	public RWikiObject getCurrentRWikiObject(boolean refresh)
 	{
 		String key = "currentRWikiObject";
-		if (map.get(key) == null)
+		if (map.get(key) == null || refresh )
 		{
 
 			RWikiObject rwo = objectService.getRWikiObject(
@@ -387,6 +391,11 @@ public class RequestScopeSuperBean
 			map.put(key, rwo);
 		}
 		return (RWikiObject) map.get(key);
+	}
+
+	public RWikiObject getCurrentRWikiObject()
+	{
+		return getCurrentRWikiObject(false);
 	}
 
 	public RecentlyVisitedBean getRecentlyVisitedBean()
@@ -870,5 +879,6 @@ public class RequestScopeSuperBean
 		}
 		return configBean;
 	}
+
 	
 }
