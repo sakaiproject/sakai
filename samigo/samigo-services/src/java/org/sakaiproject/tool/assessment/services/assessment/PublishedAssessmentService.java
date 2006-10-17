@@ -478,10 +478,10 @@ public class PublishedAssessmentService {
 * @param agentId 
 * @return
 */
-  public ArrayList getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(String agentId){
+    public ArrayList getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(String agentId, String siteId){
     return PersistenceService.getInstance().
         getPublishedAssessmentFacadeQueries().
-        getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(agentId);
+        getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(agentId, siteId);
   }
 
 }

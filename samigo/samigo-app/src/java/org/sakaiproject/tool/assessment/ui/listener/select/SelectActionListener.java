@@ -163,7 +163,7 @@ public class SelectActionListener
      
     ArrayList recentSubmittedList =
         publishedAssessmentService.getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(
-        AgentFacade.getAgentString());
+			  AgentFacade.getAgentString(), AgentFacade.getCurrentSiteId());
 
     // TODO: look into combining the above query with getAuthorizationToViewAssessments and getAllAssessmentsReleasedToAuthenticatedUsers
     // so we don't have to go through all submitted assessemnts across all sites. 

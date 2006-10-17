@@ -1693,10 +1693,11 @@ public class PublishedAssessmentFacadeQueries
 *  is to send highest, then return only the submission with highest finalScore.  If an assessment allows multiple submissions and its grading option
 *  is to send last, then return only the last submission.
 * @param agentId 
+* @param siteId 
 * @return
 */
 	public ArrayList getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(
-			final String agentId) {
+		final String agentId, final String siteId) {
 		// Get total no. of submission per assessment by the given agent
 		// sorted by submittedData DESC
 		final String last_query = "select new AssessmentGradingData("
@@ -1705,8 +1706,10 @@ public class PublishedAssessmentFacadeQueries
 				+ " a.forGrade, a.totalAutoScore, a.totalOverrideScore,a.finalScore,"
 				+ " a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
 				+ " a.timeElapsed) "
-				+ " from AssessmentGradingData a, PublishedAssessmentData p"
-				+ " where a.publishedAssessmentId = p.publishedAssessmentId  and a.forGrade=1 and a.agentId=?"
+				+ " from AssessmentGradingData a, PublishedAssessmentData p, AuthorizationData az"
+				+ " where a.publishedAssessmentId = p.publishedAssessmentId"
+                                + " and a.forGrade=1 and a.agentId=? and az.agentIdString=? "
+                                + " and az.functionId='TAKE_PUBLISHED_ASSESSMENT' and az.qualifierId=p.publishedAssessmentId" 
 				+ " order by p.publishedAssessmentId DESC, a.submittedDate DESC";
 
 		// Get total no. of submission per assessment by the given agent
@@ -1718,16 +1721,18 @@ public class PublishedAssessmentFacadeQueries
 			+ " a.forGrade, a.totalAutoScore, a.totalOverrideScore,a.finalScore,"
 			+ " a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
 			+ " a.timeElapsed) "
-			+ " from AssessmentGradingData a, PublishedAssessmentData p"
-			+ " where a.publishedAssessmentId = p.publishedAssessmentId  and a.forGrade=1 and a.agentId=?"
+			+ " from AssessmentGradingData a, PublishedAssessmentData p, AuthorizationData az"
+			+ " where a.publishedAssessmentId = p.publishedAssessmentId"
+                        + " and a.forGrade=1 and a.agentId=? and az.agentIdString=? "
+                        + " and az.functionId='TAKE_PUBLISHED_ASSESSMENT' and az.qualifierId=p.publishedAssessmentId"
 			+ " order by p.publishedAssessmentId DESC, a.finalScore DESC, a.submittedDate DESC";
-
 
 		final HibernateCallback hcb_last = new HibernateCallback() {
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(last_query);
 				q.setString(0, agentId);
+				q.setString(1, siteId);
 				return q.list();
 			};
 		};
@@ -1740,6 +1745,7 @@ public class PublishedAssessmentFacadeQueries
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(highest_query);
 				q.setString(0, agentId);
+				q.setString(1, siteId);
 				return q.list();
 			};
 		};
