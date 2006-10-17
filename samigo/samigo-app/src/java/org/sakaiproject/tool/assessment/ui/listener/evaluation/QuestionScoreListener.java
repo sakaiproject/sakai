@@ -408,11 +408,13 @@ log.debug("item!=null steting type id = " + item.getTypeId().toString());
         	Iterator iterator = publishedAnswerHash.values().iterator();
             while (iterator.hasNext()) {
             	PublishedAnswer publishedAnswer = (PublishedAnswer) iterator.next();
-            	if (publishedAnswer.getText() == null || publishedAnswer.getText().equals("")) {
-            		bean.setHaveModelShortAnswer(false);
-            	}
-            	else {
-            		bean.setHaveModelShortAnswer(true);
+            	if (publishedAnswer.getItem().getItemId().equals(item.getItemId())) {
+            		if (publishedAnswer.getText() == null || publishedAnswer.getText().equals("")) {
+            			bean.setHaveModelShortAnswer(false);
+            		}
+            		else {
+            			bean.setHaveModelShortAnswer(true);
+            		}
             	}
             }
         }
