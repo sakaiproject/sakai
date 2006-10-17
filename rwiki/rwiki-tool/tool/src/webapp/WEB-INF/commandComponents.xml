@@ -29,12 +29,14 @@
   <bean id="uk.ac.cam.caret.sakai.rwiki.tool.RequestHelper"
     class="uk.ac.cam.caret.sakai.rwiki.tool.RequestHelper"
     init-method="init"  >
-    <property name="commandService"><ref bean="commandService"/></property>
+    <property name="commandService"><ref bean="uk.ac.cam.caret.sakai.rwiki.tool.service.api.CommandService"/></property>
   </bean>
   <!-- Service for creating commands in URL Processing -->
-  <bean id="commandService"
+  <bean id="uk.ac.cam.caret.sakai.rwiki.tool.service.api.CommandService"
     class="uk.ac.cam.caret.sakai.rwiki.tool.service.impl.CommandServiceImpl"
 	init-method="init" >
+    <property name="eventTrackingService" ><ref bean="org.sakaiproject.event.api.EventTrackingService" /></property>
+    <property name="trackReads" ><value>false</value></property>
     <property name="commandMap">
       <map>
 	<entry key="save"><ref bean="saveCommand"/></entry>

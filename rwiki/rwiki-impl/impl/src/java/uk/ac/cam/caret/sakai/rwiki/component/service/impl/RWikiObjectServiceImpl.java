@@ -174,6 +174,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			// set functions
 			edit.setFunction(RWikiObjectService.EVENT_RESOURCE_ADD);
 			edit.addFunction(RWikiObjectService.EVENT_RESOURCE_WRITE);
+			edit.addFunction(RWikiObjectService.EVENT_RESOURCE_READ);
 
 			// set the filter to any site related resource
 			edit.setResourceFilter(RWikiObjectService.REFERENCE_ROOT);
@@ -409,9 +410,26 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		{
 			cdao.update(rwo, rwho);
 			Entity e = getEntity(rwo);
-			eventTrackingService.post(eventTrackingService.newEvent(
+			int revision = 1;
+			try 
+			{
+				revision = rwo.getRevision().intValue();
+			}
+			catch ( Exception ex ) 
+			{
+			}
+			if ( revision == 1 ) 
+			{
+				eventTrackingService.post(eventTrackingService.newEvent(
+					EVENT_RESOURCE_ADD, e.getReference(), true,
+					NotificationService.PREF_IMMEDIATE));
+			}
+			else 
+			{
+				eventTrackingService.post(eventTrackingService.newEvent(
 					EVENT_RESOURCE_WRITE, e.getReference(), true,
 					NotificationService.PREF_IMMEDIATE));
+			}
 		}
 		catch (HibernateOptimisticLockingFailureException e)
 		{
@@ -450,9 +468,27 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 				cdao.update(rwo, rwho);
 				// track it
 				Entity e = getEntity(rwo);
-				eventTrackingService.post(eventTrackingService.newEvent(
-						EVENT_RESOURCE_WRITE, e.getReference(), true,
-						NotificationService.PREF_IMMEDIATE));
+                        	int revision = 1;
+                        	try
+                        	{
+                               	 	revision = rwo.getRevision().intValue();
+                        	}
+                        	catch ( Exception ex )
+                        	{
+                        	}
+                        	if ( revision == 1 )
+                        	{
+                               		 eventTrackingService.post(eventTrackingService.newEvent(
+                                       		 EVENT_RESOURCE_ADD, e.getReference(), true,
+                                       		 NotificationService.PREF_IMMEDIATE));
+                        	}
+                        	else
+                        	{
+                               		 eventTrackingService.post(eventTrackingService.newEvent(
+                                       		 EVENT_RESOURCE_WRITE, e.getReference(), true,
+                                       		 NotificationService.PREF_IMMEDIATE));
+                        	}
+
 			}
 			catch (HibernateOptimisticLockingFailureException e)
 			{

@@ -30,6 +30,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -396,6 +397,18 @@ public class RequestScopeSuperBean
 	public RWikiObject getCurrentRWikiObject()
 	{
 		return getCurrentRWikiObject(false);
+	}
+	
+	public String getCurrentRWikiObjectReference() 
+	{
+		String key = "currentRWikiObjectReference";
+		if ( map.get(key) == null ) 
+		{
+			RWikiObject rwo = getCurrentRWikiObject();
+			Entity e =  objectService.getEntity(rwo);
+			map.put(key,e.getReference());
+		}
+		return (String) map.get(key);
 	}
 
 	public RecentlyVisitedBean getRecentlyVisitedBean()

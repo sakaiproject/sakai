@@ -36,8 +36,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
+import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.CommandService;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
+import uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
+
 
 /**
  * Implementation of RWikiCommandService, that is initialised with a map of
@@ -57,6 +62,10 @@ public class CommandServiceImpl implements CommandService
 	private String permissionPath = "/WEB-INF/command-pages/permission.jsp";
 
 	public String errorPath = "/WEB-INF/command-pages/errorpage.jsp";
+
+	private boolean trackReads = false;
+
+	private EventTrackingService eventTrackingService = null;
 
 	private class WrappedCommand implements HttpCommand
 	{
@@ -112,6 +121,14 @@ public class CommandServiceImpl implements CommandService
 			try
 			{
 				rd.forward(request, response);
+				if ( trackReads && "view".equals(action) ) {
+					RequestScopeSuperBean rssb = RequestScopeSuperBean.getInstance();
+					String ref = rssb.getCurrentRWikiObjectReference();
+					eventTrackingService.post(eventTrackingService.newEvent(
+                                        	RWikiObjectService.EVENT_RESOURCE_READ, ref, true,
+                                        	NotificationService.PREF_IMMEDIATE));
+
+				}
 			}
 			catch (ServletException e)
 			{
@@ -215,6 +232,26 @@ public class CommandServiceImpl implements CommandService
 	public void setPermissionPath(String permissionPath)
 	{
 		this.permissionPath = permissionPath;
+	}
+
+	public boolean getTrackReads()
+	{
+		return trackReads;
+	}
+
+	public void setTrackReads(boolean trackReads)
+	{
+		this.trackReads = trackReads;
+	}
+
+	public EventTrackingService getEventTrackingService()
+	{
+		return eventTrackingService;
+	}
+
+	public void setEventTrackingService(EventTrackingService eventTrackingService)
+	{
+		this.eventTrackingService = eventTrackingService;
 	}
 
 }
