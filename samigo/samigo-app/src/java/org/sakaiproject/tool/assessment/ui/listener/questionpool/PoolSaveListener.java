@@ -25,11 +25,8 @@ package org.sakaiproject.tool.assessment.ui.listener.questionpool;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Collections;
 import java.util.Iterator;
-import org.osid.shared.Id;
-import org.osid.shared.SharedException;
-
+ 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -45,10 +42,10 @@ import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBean;
-import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
+//import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.data.model.Tree;
-import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
+//import org.sakaiproject.tool.assessment.data.model.Tree;
+//import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
@@ -61,7 +58,7 @@ public class PoolSaveListener implements ActionListener
 {
 
   private static Log log = LogFactory.getLog(PoolSaveListener.class);
-  private static ContextUtil cu;
+  //private static ContextUtil cu;
 
 
   /**
@@ -72,7 +69,7 @@ public class PoolSaveListener implements ActionListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     //log.info("PoolSaveListener :");
-    QuestionPoolBean  qpoolbean= (QuestionPoolBean) cu.lookupBean("questionpool");
+    QuestionPoolBean  qpoolbean= (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
     String currentName= qpoolbean.getCurrentPool().getDisplayName();
    
     boolean isUnique=true;

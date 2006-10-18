@@ -927,7 +927,7 @@ public class GradingService
           retryCount--;
           try {
             int deadlockInterval = PersistenceService.getInstance().getDeadlockInterval().intValue();
-            Thread.currentThread().sleep(deadlockInterval);
+            Thread.sleep(deadlockInterval);
           }
           catch(InterruptedException ex){
             log.warn(ex.getMessage());
@@ -1011,9 +1011,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   public float getFIBScore(ItemGradingIfc data, HashMap fibmap,  ItemDataIfc itemdata, HashMap publishedAnswerHash)
   {
     String studentanswer = "";
-    String REGEX;
-    Pattern p;
-    Matcher m;
     boolean matchresult = false;
 
     if (data.getPublishedAnswerId() == null) {
