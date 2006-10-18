@@ -27,7 +27,7 @@ include file for displaying multiple choice questions
   <h:dataTable value="#{question.itemTextArray}" var="itemText">
    <h:column>
    <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
-    <h:column>
+    <h:column rendered="#{answer.text!=null && answer.text!=''}">
       <h:graphicImage id="image6" rendered="#{answer.isCorrect}"
         alt="#{msg.alt_correct}" url="/images/delivery/checkmark.gif" >
        </h:graphicImage>
@@ -35,18 +35,18 @@ include file for displaying multiple choice questions
         alt=" " url="/images/delivery/spacer.gif" >
        </h:graphicImage>
     </h:column>
-    <h:column>
+    <h:column rendered="#{answer.text!=null && answer.text!=''}">
       <h:outputText value="#{answer.label}" escape="false"
         rendered="#{question.hint == '***'}" />
     </h:column>
-    <h:column><%-- checkbox or radio button, select answer --%>
+    <h:column rendered="#{answer.text!=null && answer.text!=''}"><%-- checkbox or radio button, select answer --%>
       <h:selectManyCheckbox value="#{question.hint}" disabled="true"
           rendered="#{question.hint != '***'}">
         <f:selectItem itemLabel="#{answer.label}"
           itemValue="#{answer.sequence}"/>
       </h:selectManyCheckbox>
     </h:column>
-    <h:column>
+    <h:column rendered="#{answer.text!=null && answer.text!=''}">
       <h:outputText value="#{answer.text}" escape="false" />
     </h:column>
    </h:dataTable>
