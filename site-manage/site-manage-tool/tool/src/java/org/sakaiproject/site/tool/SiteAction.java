@@ -21,12 +21,6 @@
 
 package org.sakaiproject.site.tool;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,7 +30,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -47,12 +40,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.Vector;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,7 +47,6 @@ import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.archive.api.ImportMetadata;
 import org.sakaiproject.archive.cover.ArchiveService;
-import org.sakaiproject.archive.cover.ImportMetadataService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -132,8 +118,6 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import org.sakaiproject.importer.api.ImportService;
 import org.sakaiproject.importer.api.ImportDataSource;
@@ -5107,7 +5091,6 @@ public class SiteAction extends PagedResourceActionII
 				}
 				
 				List providerCourseList = (List) state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
-				List fields = (List) state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS);
 				int manualAddNumber = 0;
 				if (state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null)
 				{
@@ -6751,7 +6734,12 @@ public class SiteAction extends PagedResourceActionII
 				String notAddedNames = null;
 				String notAddedEmailInIdAccounts = null;
 
+				// successfully added user accounts
 				Vector addedNames = new Vector();
+				
+				// hash table for eids and roles
+				Hashtable eidRoles = new Hashtable();
+				
 				if (noEmailInIdAccounts != null)
 				{
 					// adding noEmailInIdAccounts
@@ -6773,29 +6761,38 @@ public class SiteAction extends PagedResourceActionII
 								// if all added participants have different role
 								role = (String) selectedRoles.get(noEmailInIdAccount);
 							}
+							
+							eidRoles.put(noEmailInIdAccount, role);
+						}
+					}
 					
-							if (addUserRealm(state, noEmailInIdAccount, role))
-							{
-								// successfully added
-								addedNames.add(noEmailInIdAccount);
-							}
-							else
-							{
-								notAddedNames=notAddedNames.concat(noEmailInIdAccount);
-							}
+					// successfully added users
+					List addedEIds = addUsersRealm(state, eidRoles, false, false);
+					addedNames.addAll(addedEIds);
+					
+					// not added users
+					for (Iterator iEIds = eidRoles.keySet().iterator(); iEIds.hasNext();)
+					{
+						String noEmailInIdAccount = (String) iEIds.next();
+						if (!addedEIds.contains(noEmailInIdAccount))
+						{
+							notAddedNames=notAddedNames.concat(noEmailInIdAccount);
 						}
 					}
 				}	// noEmailInIdAccounts					
 
-				Vector addedEmailInIdAccounts = new Vector();
+				List addedEmailInIdAccounts = new Vector();
 				if (emailInIdAccounts != null)
 				{
+					eidRoles = new Hashtable();
+					
 					String[] emailInIdAccountArray = emailInIdAccounts.split("\r\n");
+					
+					List emailInIdAccountList = new Vector();
 	
 					for (i = 0; i < emailInIdAccountArray.length; i++)
 					{
 						String emailInIdAccount = StringUtil.trimToNull(emailInIdAccountArray[i].replaceAll("[ \t\r\n]",""));
-				
 						// remove the trailing dots and empty space
 						while (emailInIdAccount.endsWith(".") || emailInIdAccount.endsWith(" "))
 						{
@@ -6804,6 +6801,9 @@ public class SiteAction extends PagedResourceActionII
 
 						if(emailInIdAccount != null)
 						{	
+							// update the candidate list
+							emailInIdAccountList.add(emailInIdAccount);
+							
 							//is the emailInIdAccount account user already exists?
 							try
 							{
@@ -6861,19 +6861,24 @@ public class SiteAction extends PagedResourceActionII
 								// if all added participants have different role
 								role = (String) selectedRoles.get(emailInIdAccount);
 							}
-						
-							// add property role to the emailInIdAccount account
-							if (addUserRealm(state, emailInIdAccount, role))
-							{
-								// emailInIdAccount account has been added successfully
-								addedEmailInIdAccounts.add(emailInIdAccount);
-							}
-							else
-							{
-								notAddedEmailInIdAccounts = notAddedEmailInIdAccounts.concat(emailInIdAccount + "\n");
-							}
+							
+							eidRoles.put(emailInIdAccount, role);
 						}	// if
-					}	// 	
+					}// for
+					
+					// add those users to realm
+					// Update added list according to add result
+					// 1. emailInIdAccount account has been added successfully
+					addedEmailInIdAccounts = addUsersRealm(state, eidRoles, false, true);
+					// 2. emailInIdAccount account has not been added successfully
+					for (Iterator iList = eidRoles.keySet().iterator(); iList.hasNext(); )
+					{
+						String emailAccount = (String) iList.next();
+						if (!addedEmailInIdAccounts.contains(emailAccount))
+						{
+							notAddedEmailInIdAccounts = notAddedEmailInIdAccounts.concat(emailAccount + "\n");
+						}
+					}	
 				} // emailInIdAccounts
 
 				if (!(addedNames.size() == 0 && addedEmailInIdAccounts.size() == 0) && (notAddedNames != null || notAddedEmailInIdAccounts != null))
@@ -9919,7 +9924,6 @@ public class SiteAction extends PagedResourceActionII
 			{
 				String toolId = (String) toolIds.get(i);
 
-				Object contentHosting = (Object) ContentHostingService.getInstance();
 				if (toolId.equalsIgnoreCase("sakai.resources") && importTools.containsKey(toolId))
 				{
 					List importSiteIds = (List) importTools.get(toolId);
@@ -10302,10 +10306,12 @@ public class SiteAction extends PagedResourceActionII
 		boolean same_role = ((Boolean) state.getAttribute("form_same_role")).booleanValue();
 	
 		String pw = null;
-		String notAddedNames = null;
+		String notAddedNoEmailInIdAccounts = null;
 		String notAddedEmailInIdAccounts = null;
 
-		Vector addedNames = new Vector();
+		Vector addedNoEmailInIdAccounts = new Vector();
+		
+		Hashtable eIdRoles = new Hashtable();
 		if (noEmailInIdAccounts != null)
 		{
 			// adding noEmailInIdAccounts
@@ -10328,38 +10334,27 @@ public class SiteAction extends PagedResourceActionII
 						role = (String) selectedRoles.get(noEmailInIdAccount);
 					}
 					
-					if (addUserRealm(state, noEmailInIdAccount, role))
-					{
-						// successfully added
-						addedNames.add(noEmailInIdAccount);
-						
-						// send notification
-						if (notify)
-						{
-							String emailId = null;
-							String userName = null;
-							try
-							{
-								User u = UserDirectoryService.getUserByEid(noEmailInIdAccount);
-								emailId = u.getEmail();
-								userName = u.getDisplayName();
-							}
-							catch (UserNotDefinedException e)
-							{
-								M_log.warn("cannot find user " + noEmailInIdAccount + ". ");
-							}
-							// send notification email
-							notifyAddedParticipant(false, emailId, userName, siteTitle);
-						}
-					}
-					else
-					{
-						notAddedNames=notAddedNames.concat(noEmailInIdAccount);
-					}
+					// update the hashtable
+					eIdRoles.put(noEmailInIdAccount, role);
+				}
+			}
+			
+			// batch add and updates the successful added list
+			addedNoEmailInIdAccounts.addAll(addUsersRealm(state, eIdRoles, notify, false));
+			
+			for (Iterator iEIds = eIdRoles.keySet().iterator(); iEIds.hasNext();)
+			{
+				String iEId = (String) iEIds.next();
+				if (!addedNoEmailInIdAccounts.contains(iEId))
+				{
+					// not added eids
+					notAddedNoEmailInIdAccounts.concat(iEId + "\n");
 				}
 			}
 		}	// noEmailInIdAccounts					
 
+		// for those email in EId accounts
+		eIdRoles.clear();
 		Vector addedEmailInIdAccounts = new Vector();
 		if (emailInIdAccounts != null)
 		{
@@ -10442,47 +10437,40 @@ public class SiteAction extends PagedResourceActionII
 							// if all added participants have different role
 							role = (String) selectedRoles.get(emailInIdAccount);
 						}
-							
-						// add property role to the emailInIdAccount account
-						if (addUserRealm(state, emailInIdAccount, role))
-						{
-							// emailInIdAccount account has been added successfully
-							addedEmailInIdAccounts.add(emailInIdAccount);
-							
-							// send notification
-							if (notify)
-							{	
-								// send notification email
-								notifyAddedParticipant(true, emailInIdAccount, emailInIdAccount, siteTitle);
-							}
-						}
-						else
-						{
-							notAddedEmailInIdAccounts = notAddedEmailInIdAccounts.concat(emailInIdAccount + "\n");
-						}
-					}
-					else
-					{
-						notAddedEmailInIdAccounts = notAddedEmailInIdAccounts.concat(emailInIdAccount + "\n");
-					}
+						
+						eIdRoles.put(emailInIdAccount, role);
+					}	// if
 				}	// if
-			}	// 	
+			}	// for
+					
+			addedEmailInIdAccounts.addAll(addUsersRealm(state, eIdRoles, notify, true));
+			
+			// update the not added user list
+			for (Iterator iEIds = eIdRoles.keySet().iterator(); iEIds.hasNext();)
+			{
+				String iEId = (String) iEIds.next();
+				if (!addedEmailInIdAccounts.contains(iEId))
+				{
+					notAddedEmailInIdAccounts = notAddedEmailInIdAccounts.concat(iEId + "\n");
+				}
+			}
+			
 		} // emailInIdAccounts
 
-		if (!(addedNames.size() == 0 && addedEmailInIdAccounts.size() == 0) && (notAddedNames != null || notAddedEmailInIdAccounts != null))
+		if (!(addedNoEmailInIdAccounts.size() == 0 && addedEmailInIdAccounts.size() == 0) && (notAddedNoEmailInIdAccounts != null || notAddedEmailInIdAccounts != null))
 		{
 			// at lease one noEmailInIdAccount account or a emailInIdAccount account added
 			addAlert(state, rb.getString("java.allusers"));
 		}
 
-		if (notAddedNames == null && notAddedEmailInIdAccounts == null)
+		if (notAddedNoEmailInIdAccounts == null && notAddedEmailInIdAccounts == null)
 		{
 			// all account has been added successfully
 			removeAddParticipantContext(state);
 		}
 		else
 		{
-			state.setAttribute("noEmailInIdAccountValue", notAddedNames);
+			state.setAttribute("noEmailInIdAccountValue", notAddedNoEmailInIdAccounts);
 			state.setAttribute("emailInIdAccountValue", notAddedEmailInIdAccounts);
 		}
 		if (state.getAttribute(STATE_MESSAGE) != null)
@@ -10617,54 +10605,85 @@ public class SiteAction extends PagedResourceActionII
 	}	// notifyAddedParticipant
 	
 	/*
-	* If the user account does not exist yet inside the user directory, assign role to it
+	 * Given a list of user eids, add users to realm
+	 * If the user account does not exist yet inside the user directory, assign role to it
+	 * @return A list of eids for successfully added users
 	*/
-	private boolean addUserRealm (SessionState state, String id, String role)
+	private List addUsersRealm (SessionState state, Hashtable eIdRoles, boolean notify, boolean emailInIdAccount)
 	{
+		// return the list of user eids for successfully added user
+		List addedUserEIds = new Vector();
+		
 		StringBuffer message = new StringBuffer();
-		try
+		
+		if (eIdRoles != null && !eIdRoles.isEmpty())
 		{
-			User user = UserDirectoryService.getUserByEid(id);
+			// get the current site
 			Site sEdit = getStateSite(state);
-			String realmId = SiteService.siteReference(sEdit.getId());
-			if (AuthzGroupService.allowUpdate(realmId) || SiteService.allowUpdateSiteMembership(sEdit.getId()))
+			if (sEdit != null)
 			{
+				// get realm object
+				String realmId = sEdit.getReference();
 				try
 				{
 					AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realmId);
-					realmEdit.addMember(user.getId(), role, true, false);
-					AuthzGroupService.save(realmEdit);
+					for (Iterator eIds = eIdRoles.keySet().iterator(); eIds.hasNext();)
+					{
+						String eId = (String) eIds.next();
+						String role = (String) eIdRoles.get(eId);
+						
+						try
+						{
+							User user = UserDirectoryService.getUserByEid(eId);
+							if (AuthzGroupService.allowUpdate(realmId) || SiteService.allowUpdateSiteMembership(sEdit.getId()))
+							{
+								realmEdit.addMember(user.getId(), role, true, false);
+								addedUserEIds.add(eId);
+								
+								// send notification
+								if (notify)
+								{
+									String emailId = user.getEmail();
+									String userName = user.getDisplayName();
+									// send notification email
+									notifyAddedParticipant(emailInIdAccount, emailId, userName, sEdit.getTitle());
+								}
+							}
+						}
+						catch (UserNotDefinedException e)
+						{
+							message.append(eId + " " +rb.getString("java.account")+" \n");
+						}	// try
+					}	// for
+					
+					try
+					{
+						AuthzGroupService.save(realmEdit);
+					}
+					catch (GroupNotDefinedException ee)
+					{
+						message.append(rb.getString("java.realm") + realmId);
+					}
+					catch (AuthzPermissionException ee)
+					{
+						message.append(rb.getString("java.permeditsite") + realmId);
+					}
 				}
-				catch (GroupNotDefinedException e)
+				catch (GroupNotDefinedException eee)
 				{
-					message.append(id + " " +rb.getString("java.notvalidid")+" \n");
-				}
-//				catch( PermissionException e)
-//				{
-//					message.append(rb.getString("java.haveadd")+" " + sEdit.getTitle() + "(" + id + ") "+rb.getString("java.tothissite")+" \n");
-//				}
-				catch (Exception e)
-				{
-					message.append(rb.getString("java.unable")+ " "+ sEdit.getTitle() + "(" + id + ") "+rb.getString("java.tothissite")+" \n" + e.toString());
+					message.append(rb.getString("java.realm") + realmId);
 				}
 			}
 		}
-		catch (UserNotDefinedException ee)
-		{
-			message.append(id + " " +rb.getString("java.account")+" \n");
-		}	// try
-	
-		if (message.length() == 0)
-		{
-			return true;
-		}
-		else
+		
+		if (message.length() != 0)
 		{
 			addAlert(state, message.toString());
-			return false;
 		}	// if
+		
+		return addedUserEIds;
 	
-	}	// addUserRealm
+	}	// addUsersRealm
 	
 	/**
 	* addNewSite is called when the site has enough information to create a new site
@@ -12674,4 +12693,5 @@ public class SiteAction extends PagedResourceActionII
 
 		return rv;
 	}
+
 }
