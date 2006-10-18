@@ -10,12 +10,12 @@
 			singleton="true">
  		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
- 		<property name="storagePath"><value>${sakai.home}archive2/</value></property>
+ 		<property name="storagePath"><value>${sakai.home}archive/</value></property>
  		<property name="siteArchiver" ref="org_sakaiproject_archive_impl_SiteArchiver" />
  		<property name="siteMerger" ref="org_sakaiproject_archive_impl_SiteMerger" />
 	
-		<property name="mergeFilterSakaiServices" value="false" />
-		<property name="mergeFilterSakaiRoles" value="false" />
+		<property name="mergeFilterSakaiServices" value="true" />
+		<property name="mergeFilterSakaiRoles" value="true" />
 		<property name="mergeFilteredSakaiServices">
 			<list>
 				<value>AnnouncementService</value>
