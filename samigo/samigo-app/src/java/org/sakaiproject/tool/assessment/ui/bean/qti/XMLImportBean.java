@@ -85,7 +85,6 @@ public class XMLImportBean implements Serializable
   public void importFromQti(ValueChangeEvent e)
   {
     String uploadFile = (String) e.getNewValue();
-
     try
     {
       processFile(uploadFile);
@@ -95,6 +94,10 @@ public class XMLImportBean implements Serializable
       ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
       FacesMessage message = new FacesMessage( rb.getString("import_err") + ex );
       FacesContext.getCurrentInstance().addMessage(null, message);
+      // remove unsuccessful file
+      log.debug("****remove unsuccessful uplaodFile="+uploadFile);
+      File upload = new File(uploadFile);
+      upload.delete();
     }
   }
 
