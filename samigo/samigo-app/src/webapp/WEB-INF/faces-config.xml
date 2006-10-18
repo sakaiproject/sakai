@@ -350,7 +350,7 @@
   </managed-bean>
   <!-- Navigation Rules -->
   <navigation-rule>
-    <from-view-id>/jsf/delivery/deliverAssessment.jsp</from-view-id>
+    <from-view-id>*</from-view-id>
     <navigation-case>
       <from-outcome>takeAssessment</from-outcome>
       <to-view-id>/jsf/delivery/deliverAssessment.jsp</to-view-id>
