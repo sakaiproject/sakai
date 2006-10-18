@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -81,6 +82,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
@@ -113,6 +115,7 @@ import org.sakaiproject.util.EmptyIterator;
 import org.sakaiproject.util.EntityCollections;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
@@ -2814,7 +2817,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			cell.setCellValue(rb.getString("download.spreadsheet.column.name"));
 			
 			// starting from this row, going to input user data
-			Iterator assignments = assignmentsList.iterator();
+			Iterator assignments = new SortedIterator(assignmentsList.iterator(), new AssignmentComparator("duedate", "true"));
 	
 			// allow add assignment members
 			List allowAddAssignmentUsers = allowAddAssignmentUsers(context);
@@ -8422,6 +8425,81 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		} // refresh
 
 	}// AssignmentSubmissionCacheRefresher
+	
+	/**
+	 * the AssignmentComparator clas
+	 */
+	private class AssignmentComparator implements Comparator
+	{	
+		/**
+		 * the criteria
+		 */
+		String m_criteria = null;
+
+		/**
+		 * the criteria
+		 */
+		String m_asc = null;
+
+		/**
+		 * constructor
+		 * @param criteria
+		 *        The sort criteria string
+		 * @param asc
+		 *        The sort order string. TRUE_STRING if ascending; "false" otherwise.
+		 */
+		public AssignmentComparator(String criteria, String asc)
+		{
+			m_criteria = criteria;
+			m_asc = asc;
+		} // constructor
+
+		/**
+		 * implementing the compare function
+		 * 
+		 * @param o1
+		 *        The first object
+		 * @param o2
+		 *        The second object
+		 * @return The compare result. 1 is o1 < o2; -1 otherwise
+		 */
+		public int compare(Object o1, Object o2)
+		{
+			int result = -1;
+
+			/** *********** fo sorting assignments ****************** */
+			if (m_criteria.equals("duedate"))
+			{
+				// sorted by the assignment due date
+				Time t1 = ((Assignment) o1).getDueTime();
+				Time t2 = ((Assignment) o2).getDueTime();
+
+				if (t1 == null)
+				{
+					result = -1;
+				}
+				else if (t2 == null)
+				{
+					result = 1;
+				}
+				else if (t1.before(t2))
+				{
+					result = -1;
+				}
+				else
+				{
+					result = 1;
+				}
+			}
+			
+			// sort ascending or descending
+			if (m_asc.equals(Boolean.FALSE.toString()))
+			{
+				result = -result;
+			}
+			return result;
+		}
+	}
 
 } // BaseAssignmentService
 
