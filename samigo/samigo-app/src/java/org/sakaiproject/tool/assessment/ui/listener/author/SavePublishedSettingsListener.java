@@ -23,8 +23,12 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import java.awt.geom.Arc2D.Float;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -73,6 +77,8 @@ public class SavePublishedSettingsListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
+	FacesContext context = FacesContext.getCurrentInstance();
+
     PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean(
                          "publishedSettings");
     // create an assessment based on the title entered and the assessment
@@ -97,6 +103,26 @@ public class SavePublishedSettingsListener
     control.setDueDate(assessmentSettings.getDueDate());
     control.setRetractDate(assessmentSettings.getRetractDate());
     control.setFeedbackDate(assessmentSettings.getFeedbackDate());
+
+    // check if the score is > 0, Gradebook doesn't allow assessments with total
+	// point = 0.
+		boolean error = false;
+
+		if (assessmentSettings.getToDefaultGradebook().equals("1")) {
+			if (assessment.getTotalScore().floatValue() <= 0) {
+
+				String gb_err = (String) ContextUtil.getLocalizedString(
+								"org.sakaiproject.tool.assessment.bundle.AuthorMessages","gradebook_exception_min_points");
+				context.addMessage(null, new FacesMessage(gb_err));
+				error = true;
+			}
+		}
+
+		   if (error){
+			      assessmentSettings.setOutcome("editPublishedAssessmentSettings");
+			      return;
+			    }
+
 
     //#3 - add or remove external assessment to gradebook
     // a. if Gradebook does not exists, do nothing, 'cos setting should have been hidden
@@ -188,6 +214,8 @@ public class SavePublishedSettingsListener
     // get the managed bean, author and set the list
     author.setInactivePublishedAssessments(inactivePublishedList);
     setSubmissionSize(inactivePublishedList, map);
+    
+    assessmentSettings.setOutcome("saveSettings");
   }
 
   private void setSubmissionSize(ArrayList list, HashMap map){

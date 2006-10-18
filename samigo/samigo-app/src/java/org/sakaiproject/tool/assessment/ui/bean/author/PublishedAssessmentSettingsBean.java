@@ -62,9 +62,7 @@ public class PublishedAssessmentSettingsBean
     IntegrationContextFactory.getInstance();
   private static final PublishingTargetHelper ptHelper =
     integrationContextFactory.getPublishingTargetHelper();
-  private static final boolean integrated =
-    integrationContextFactory.isIntegrated();
-
+ 
   /**
    *  we use the calendar widget which uses 'MM/dd/yyyy hh:mm:ss a'
    *  used to take the internal format from calendar picker and move it
@@ -147,6 +145,7 @@ public class PublishedAssessmentSettingsBean
   private String publishedUrl;
   private String alias;
 
+  private String outcome;
   /*
    * Creates a new AssessmentBean object.
    */
@@ -955,6 +954,20 @@ public class PublishedAssessmentSettingsBean
     }
     return this.firstTargetSelected;
   }
+
+/**
+ * @return Returns the outcome.
+ */
+public String getOutcome() {
+	return outcome;
+}
+
+/**
+ * @param outcome The outcome to set.
+ */
+public void setOutcome(String outcome) {
+	this.outcome = outcome;
+}
 
 }
 

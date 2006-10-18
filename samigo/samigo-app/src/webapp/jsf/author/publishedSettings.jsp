@@ -56,6 +56,10 @@
   <!-- HEADINGS -->
   <%@ include file="/jsf/author/allHeadings.jsp" %>
 
+<p>
+  <h:messages styleClass="validation"/>
+</p>
+
     <h3>
      <h:outputText id="x1" value="#{msg.settings} #{msg.dash} #{publishedSettings.title}" />
     </h3>
@@ -495,7 +499,7 @@
 </div>
 
 <p class="act">
-  <h:commandButton accesskey="#{msg.a_saveSettings}" type="submit" value="#{msg.button_save_settings}" action="saveSettings"  styleClass="active">
+  <h:commandButton accesskey="#{msg.a_saveSettings}" type="submit" value="#{msg.button_save_settings}" action="#{publishedSettings.getOutcome}"  styleClass="active">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />
   </h:commandButton>
   <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_cancel}" type="submit" action="author"  />
