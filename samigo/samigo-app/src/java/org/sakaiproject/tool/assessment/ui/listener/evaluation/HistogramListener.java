@@ -5,11 +5,11 @@ package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -399,12 +399,14 @@ public class HistogramListener
     HashMap texts = new HashMap();
     Iterator iter = answers.iterator();
     HashMap results = new HashMap();
-    HashMap numStudentRespondedMap= new HashMap();   
+    HashMap numStudentRespondedMap= new HashMap(); 
+    HashMap sequenceMap = new HashMap();
     while (iter.hasNext())
     {
       AnswerIfc answer = (AnswerIfc) iter.next();
       texts.put(answer.getId(), answer);
       results.put(answer.getId(), new Integer(0));
+      sequenceMap.put(answer.getSequence(), answer.getId());
     }
     iter = scores.iterator();
     while (iter.hasNext())
@@ -451,13 +453,24 @@ public class HistogramListener
     }
     HistogramBarBean[] bars = new HistogramBarBean[results.keySet().size()];
     int[] numarray = new int[results.keySet().size()];
-    iter = results.keySet().iterator();
+    ArrayList sequenceList = new ArrayList();
+    iter = answers.iterator();
+    while (iter.hasNext())
+    {
+      AnswerIfc answer = (AnswerIfc) iter.next();
+      sequenceList.add(answer.getSequence());
+    }
+     
+    Collections.sort(sequenceList);
+    //iter = results.keySet().iterator();
+    iter = sequenceList.iterator();
     int i = 0;
     int responses = 0;
     int correctresponses = 0;
     while (iter.hasNext())
     {
-      Long answerId = (Long) iter.next();
+      Long sequenceId = (Long) iter.next();
+      Long answerId = (Long) sequenceMap.get(sequenceId);
       AnswerIfc answer = (AnswerIfc) texts.get(answerId);
       int num = ((Integer) results.get(answerId)).intValue();
       numarray[i] = num;
@@ -737,11 +750,13 @@ public class HistogramListener
     HashMap texts = new HashMap();
     Iterator iter = answers.iterator();
     HashMap results = new HashMap();
+    HashMap sequenceMap = new HashMap();
     while (iter.hasNext())
     {
       AnswerIfc answer = (AnswerIfc) iter.next();
       texts.put(answer.getId(), answer);
       results.put(answer.getId(), new Integer(0));
+      sequenceMap.put(answer.getSequence(), answer.getId());
     }
     iter = scores.iterator();
     while (iter.hasNext())
@@ -774,13 +789,24 @@ public class HistogramListener
     }
     HistogramBarBean[] bars = new HistogramBarBean[results.keySet().size()];
     int[] numarray = new int[results.keySet().size()];
-    iter = results.keySet().iterator();
+    ArrayList sequenceList = new ArrayList();
+    iter = answers.iterator();
+    while (iter.hasNext())
+    {
+      AnswerIfc answer = (AnswerIfc) iter.next();
+      sequenceList.add(answer.getSequence());
+    }
+     
+    Collections.sort(sequenceList);
+    iter = sequenceList.iterator();
+    //iter = results.keySet().iterator();
     int i = 0;
     int responses = 0;
     int correctresponses = 0;
     while (iter.hasNext())
     {
-      Long answerId = (Long) iter.next();
+      Long sequenceId = (Long) iter.next();
+      Long answerId = (Long) sequenceMap.get(sequenceId);
       AnswerIfc answer = (AnswerIfc) texts.get(answerId);
       int num =	((Integer) results.get(answerId)).intValue();
       // set i to be the sequence, so that the answer choices will be in the right order on Statistics page , see Bug SAM-440
@@ -826,11 +852,13 @@ public class HistogramListener
     Iterator iter = labels.iterator();
     HashMap results = new HashMap();
     HashMap numStudentRespondedMap= new HashMap();
+    HashMap sequenceMap = new HashMap();
     while (iter.hasNext())
     {
       ItemTextIfc label = (ItemTextIfc) iter.next();
       texts.put(label.getId(), label);
       results.put(label.getId(), new Integer(0));
+      sequenceMap.put(label.getSequence(), label.getId());
     }
     iter = scores.iterator();
 
@@ -864,13 +892,24 @@ if (answer != null)
 
     HistogramBarBean[] bars = new HistogramBarBean[results.keySet().size()];
     int[] numarray = new int[results.keySet().size()];
-    iter = results.keySet().iterator();
+    ArrayList sequenceList = new ArrayList();
+    iter = labels.iterator();
+    while (iter.hasNext())
+    {
+      ItemTextIfc label = (ItemTextIfc) iter.next();
+      sequenceList.add(label.getSequence());
+    }
+     
+    Collections.sort(sequenceList);
+    iter = sequenceList.iterator();
+    //iter = results.keySet().iterator();
     int i = 0;
     int responses = 0;
     int correctresponses = 0;
     while (iter.hasNext())
     {
-      Long textId = (Long) iter.next();
+      Long sequenceId = (Long) iter.next();
+      Long textId = (Long) sequenceMap.get(sequenceId);
       ItemTextIfc text = (ItemTextIfc) texts.get(textId);
       int num = ((Integer) results.get(textId)).intValue();
       numarray[i] = num;
