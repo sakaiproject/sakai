@@ -479,9 +479,9 @@
       </h:panelGroup>
 
       <h:panelGroup>
-        <h:selectBooleanCheckbox id="question_text" 
-          value="#{template.feedbackComponent_QuestionText}"/>
-        <h:outputLabel for="question_text" value="#{msg.student_questionscore}"/>
+        <h:selectBooleanCheckbox id="question_score" 
+          value="#{template.feedbackComponent_StudentQuestionScore}"/>
+        <h:outputLabel for="student_question_score" value="#{msg.student_questionscore}"/>
       </h:panelGroup>
    
       <h:panelGroup>
