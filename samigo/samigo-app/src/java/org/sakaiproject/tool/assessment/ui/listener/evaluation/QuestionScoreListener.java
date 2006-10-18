@@ -415,6 +415,7 @@ log.debug("item!=null steting type id = " + item.getTypeId().toString());
             		else {
             			bean.setHaveModelShortAnswer(true);
             		}
+            		break;
             	}
             }
         }
@@ -569,7 +570,7 @@ log.debug("item==null ");
             results.setRationale(rationale);
             results.setSubmittedDate(gdata.getSubmittedDate());
 
-            if (dueDate == null || gdata.getSubmittedDate().before(dueDate))
+            if (dueDate == null || gdata.getSubmittedDate() == null || gdata.getSubmittedDate().before(dueDate))
               results.setIsLate(Boolean.FALSE);
             else
               results.setIsLate(Boolean.TRUE);
