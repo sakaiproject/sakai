@@ -221,6 +221,48 @@ INSERT INTO SAM_TYPE_T ("TYPEID" ,"AUTHORITY" ,"DOMAIN" ,"KEYWORD",
     VALUES (11 , 'stanford.edu' , 'assessment.item' ,'Numeric Response' ,NULL ,1 ,1 ,
     SYSDATE ,1 ,SYSDATE);
 
+-- more SAM
+INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID",
+"ASSESSMENTID","LABEL", "ENTRY")
+  VALUES(sam_assessMetaData_id_s.nextVal, 1, 'releaseTo', 'SITE_MEMBERS')
+;
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+   ENTRY)
+   VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Formative Assessment'
+    AND TYPEID='142' AND ISTEMPLATE=1),
+     'releaseTo', 'SITE_MEMBERS')
+;
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+   ENTRY)
+   VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Quiz'
+    AND TYPEID='142' AND ISTEMPLATE=1),
+     'releaseTo', 'SITE_MEMBERS')
+;
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+   ENTRY)
+   VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Problem Set'
+    AND TYPEID='142' AND ISTEMPLATE=1),
+     'releaseTo', 'SITE_MEMBERS')
+;
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+   ENTRY)
+   VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Survey'
+    AND TYPEID='142' AND ISTEMPLATE=1),
+     'releaseTo', 'SITE_MEMBERS')
+;
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+   ENTRY)
+   VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Test'
+    AND TYPEID='142' AND ISTEMPLATE=1),
+     'releaseTo', 'SITE_MEMBERS')
+;
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
+   ENTRY)
+   VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Timed Test'
+    AND TYPEID='142' AND ISTEMPLATE=1),
+     'releaseTo', 'SITE_MEMBERS')
+;
+
 ----------------------------------------------------------------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------------------------------------------------------------
