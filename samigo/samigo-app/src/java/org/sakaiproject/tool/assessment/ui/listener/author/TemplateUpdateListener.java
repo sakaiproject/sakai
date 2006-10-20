@@ -104,6 +104,25 @@ public class TemplateUpdateListener
       templateIndex.setOutcome("editTemplate");
       return;
     }
+    
+    if (templateBean.getValueMap().get("submissionModel_isInstructorEditable") != null && ((Boolean) templateBean.getValueMap().get("submissionModel_isInstructorEditable")).booleanValue()) {
+    	if (templateBean.getSubmissionModel().equals(AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString())) {
+    		try {
+   	   			String submissionsAllowed = templateBean.getSubmissionNumber().trim();
+   	   			int submissionAllowed = Integer.parseInt(submissionsAllowed);
+   	   			if (submissionAllowed < 1) {
+   	   				throw new RuntimeException();
+   	   			}
+   			}
+    		catch (RuntimeException e){
+    			String error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.TemplateMessages","submissions_allowed_error");
+    			context.addMessage(null,new FacesMessage(error));
+    			templateIndex.setOutcome("editTemplate");
+    			return;
+    		}
+   		}
+   	}
+    
     updateAssessment(templateBean);
 
     // reset the sortedTemplateList in IndexBean - daisyf
@@ -183,15 +202,21 @@ public class TemplateUpdateListener
       aac.setAssessmentFormat(new Integer(templateBean.getDisplayChunking()));
       aac.setItemNumbering(new Integer(templateBean.getQuestionNumbering()));
       aac.setSubmissionsSaved(new Integer(templateBean.getSubmissionModel()));
-      if (templateBean.getSubmissionModel().equals(
-          AssessmentAccessControlIfc.UNLIMITED_SUBMISSIONS.toString()))
-      {
-        aac.setSubmissionsAllowed(null);
-        aac.setUnlimitedSubmissions(Boolean.TRUE);
+      
+      if (templateBean.getValueMap().get("submissionModel_isInstructorEditable") != null && ((Boolean) templateBean.getValueMap().get("submissionModel_isInstructorEditable")).booleanValue()) {
+    	  if (templateBean.getSubmissionModel().equals(AssessmentAccessControlIfc.UNLIMITED_SUBMISSIONS.toString()))
+    	  {
+    		  aac.setSubmissionsAllowed(null);
+    		  aac.setUnlimitedSubmissions(Boolean.TRUE);
+    	  }
+    	  else{
+    		  aac.setSubmissionsAllowed(new Integer(templateBean.getSubmissionNumber()));
+    		  aac.setUnlimitedSubmissions(Boolean.FALSE);
+    	  }
       }
-      else{
-        aac.setSubmissionsAllowed(new Integer(templateBean.getSubmissionNumber()));
-        aac.setUnlimitedSubmissions(Boolean.FALSE);
+      else { // if "Number of Submissions Allowed" is not editable, just default to unlimited
+		  aac.setSubmissionsAllowed(null);
+		  aac.setUnlimitedSubmissions(Boolean.TRUE);
       }
       aac.setLateHandling(new Integer(templateBean.getLateHandling()));
       aac.setAutoSubmit(new Integer(templateBean.getAutoSave()));

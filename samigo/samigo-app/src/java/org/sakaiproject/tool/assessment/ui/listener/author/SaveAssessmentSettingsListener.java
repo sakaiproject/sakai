@@ -198,8 +198,8 @@ public class SaveAssessmentSettingsListener
 
 	String unlimitedSubmissions = assessmentSettings.getUnlimitedSubmissions();
 	if (unlimitedSubmissions != null && unlimitedSubmissions.equals(AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString())) {
-		String submissionsAllowed = assessmentSettings.getSubmissionsAllowed().trim();
 		try {
+			String submissionsAllowed = assessmentSettings.getSubmissionsAllowed().trim();
 			int submissionAllowed = Integer.parseInt(submissionsAllowed);
 			if (submissionAllowed < 1) {
 				throw new RuntimeException();
