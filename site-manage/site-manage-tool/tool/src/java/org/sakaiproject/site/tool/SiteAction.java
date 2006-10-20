@@ -2952,7 +2952,7 @@ public class SiteAction extends PagedResourceActionII
    * @see case 46
    * @throws Exception
    */
-  public void doUploadMtrlFrmFile(RunData data)
+  public void doUpload_Mtrl_Frm_File(RunData data)
   {
     SessionState state =
     ((JetspeedRunData) data).getPortletSessionState(
@@ -2966,39 +2966,74 @@ public class SiteAction extends PagedResourceActionII
     FileItem fileFromUpload = null;
     String fileName = null;
     fileFromUpload = data.getParameters().getFileItem("file");
-    byte[] fileData = fileFromUpload.get();
-    if (importService.isValidArchive(fileData)) {
-	    ImportDataSource importDataSource = importService.parseFromFile(fileData);
-    	Log.info("chef","Getting import items from manifest.");
-	    List lst = importDataSource.getItemCategories();
-	      if (lst != null && lst.size() > 0)
-	      {
-	        Iterator iter = lst.iterator();
-	        while (iter.hasNext())
-	        {
-	          ImportMetadata importdata = (ImportMetadata) iter.next();
-	          // Log.info("chef","Preparing import item '" + importdata.getId() + "'");
-	          if ((!importdata.isMandatory())
-	                && (importdata.getFileName().endsWith(".xml")))
-	          {
-	            allzipList.add(importdata);
-	          }
-	          else
-	          {
-	            directcopyList.add(importdata);
-	          }
-	        }
-	      }
-	    //set Attributes
-	    state.setAttribute(ALL_ZIP_IMPORT_SITES, allzipList);
-	    state.setAttribute(FINAL_ZIP_IMPORT_SITES, finalzipList);
-	    state.setAttribute(DIRECT_ZIP_IMPORT_SITES, directcopyList);
-	    state.setAttribute(CLASSIC_ZIP_FILE_NAME, fileName);
-	    state.setAttribute(IMPORT_DATA_SOURCE, importDataSource);
-	
-	    state.setAttribute(STATE_TEMPLATE_INDEX, "46");
-    } else { // uploaded file is not a valid archive
-    	
+    
+    String max_file_size_mb = ServerConfigurationService.getString("content.upload.max", "1");
+	int max_bytes = 1024 * 1024;
+	try
+	{
+		max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
+	}
+	catch(Exception e)
+	{
+		// if unable to parse an integer from the value
+		// in the properties file, use 1 MB as a default
+		max_file_size_mb = "1";
+		max_bytes = 1024 * 1024;
+	}
+    if(fileFromUpload == null)
+	{
+		// "The user submitted a file to upload but it was too big!"
+		addAlert(state, rb.getString("importFile.size") + " " + max_file_size_mb + "MB " + rb.getString("importFile.exceeded"));
+	}
+	else if (fileFromUpload.getFileName() == null || fileFromUpload.getFileName().length() == 0)
+	{
+		addAlert(state, rb.getString("importFile.choosefile"));
+	}
+	else
+    {
+	    byte[] fileData = fileFromUpload.get();
+	    
+		if(fileData.length >= max_bytes)
+		{
+			addAlert(state, rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("importFile.exceeded"));
+		}
+		else if(fileData.length > 0)
+		{
+	    
+		    if (importService.isValidArchive(fileData)) {
+			    ImportDataSource importDataSource = importService.parseFromFile(fileData);
+		    	Log.info("chef","Getting import items from manifest.");
+			    List lst = importDataSource.getItemCategories();
+			      if (lst != null && lst.size() > 0)
+			      {
+			        Iterator iter = lst.iterator();
+			        while (iter.hasNext())
+			        {
+			          ImportMetadata importdata = (ImportMetadata) iter.next();
+			          // Log.info("chef","Preparing import item '" + importdata.getId() + "'");
+			          if ((!importdata.isMandatory())
+			                && (importdata.getFileName().endsWith(".xml")))
+			          {
+			            allzipList.add(importdata);
+			          }
+			          else
+			          {
+			            directcopyList.add(importdata);
+			          }
+			        }
+			      }
+			    //set Attributes
+			    state.setAttribute(ALL_ZIP_IMPORT_SITES, allzipList);
+			    state.setAttribute(FINAL_ZIP_IMPORT_SITES, finalzipList);
+			    state.setAttribute(DIRECT_ZIP_IMPORT_SITES, directcopyList);
+			    state.setAttribute(CLASSIC_ZIP_FILE_NAME, fileName);
+			    state.setAttribute(IMPORT_DATA_SOURCE, importDataSource);
+			
+			    state.setAttribute(STATE_TEMPLATE_INDEX, "46");
+		    } else { // uploaded file is not a valid archive
+		    	
+		    }
+		}
     }
   } // doImportMtrlFrmFile
 
