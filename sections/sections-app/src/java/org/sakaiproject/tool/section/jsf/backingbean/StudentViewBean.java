@@ -33,7 +33,6 @@ import javax.faces.event.ActionEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
@@ -71,14 +70,12 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	}
 	
 	public void init() {
-		Course course = getCourse();
-
 		// Determine whether this course is externally managed
-		externallyManaged = course.isExternallyManaged();
+		externallyManaged = getSectionManager().isExternallyManaged(getCourse().getUuid());
 		
 		// Determine whether the sections are joinable and/or switchable
-		joinAllowed = course.isSelfRegistrationAllowed();
-		switchAllowed = course.isSelfSwitchingAllowed();
+		joinAllowed = getSectionManager().isSelfRegistrationAllowed(getSiteContext());
+		switchAllowed = getSectionManager().isSelfSwitchingAllowed(getSiteContext());
 
 		// Keep track of whether there are joinable Sections
 		boolean joinableSectionsExist = false;

@@ -4,11 +4,9 @@
 
     <sakai:flowState bean="#{overviewBean}"/>
 
-    <h:panelGroup rendered="#{ ! overviewBean.externallyManaged}">
-        <x:aliasBean alias="#{viewName}" value="overview">
-            <%@include file="/inc/navMenu.jspf"%>
-        </x:aliasBean>
-    </h:panelGroup>
+    <x:aliasBean alias="#{viewName}" value="overview">
+        <%@include file="/inc/navMenu.jspf"%>
+    </x:aliasBean>
 
     <h3><h:outputText value="#{msgs.overview_page_header}"/></h3>
 

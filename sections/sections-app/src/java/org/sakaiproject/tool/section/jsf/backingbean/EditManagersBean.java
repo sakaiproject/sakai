@@ -79,7 +79,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 
 	protected CourseSectionDecorator initializeFields() {
 		// Determine whether this course is externally managed
-		externallyManaged = getCourse().isExternallyManaged();
+		externallyManaged = getSectionManager().isExternallyManaged(getCourse().getUuid());
 		
 		// Get the section to edit
 		String sectionUuidFromParam = (String)FacesContext.getCurrentInstance()

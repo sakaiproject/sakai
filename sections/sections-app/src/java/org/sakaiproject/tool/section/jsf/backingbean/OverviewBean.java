@@ -56,7 +56,7 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 
 	public void init() {
 		// Determine whether this course is externally managed
-		externallyManaged = getCourse().isExternallyManaged();
+		externallyManaged = getSectionManager().isExternallyManaged(getCourse().getUuid());
 
 		// Get all sections in the site
 		List sectionSet = getAllSiteSections();

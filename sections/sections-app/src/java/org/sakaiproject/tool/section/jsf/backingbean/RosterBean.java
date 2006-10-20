@@ -71,7 +71,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	
 	public void init() {
 		// Determine whether this course is externally managed
-		externallyManaged = getCourse().isExternallyManaged();
+		externallyManaged = getSectionManager().isExternallyManaged(getCourse().getUuid());
 
 		// Get the default search text
 		if(StringUtils.trimToNull(searchText) == null) {

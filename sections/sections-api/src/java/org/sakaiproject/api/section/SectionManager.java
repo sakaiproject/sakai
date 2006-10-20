@@ -330,8 +330,24 @@ public interface SectionManager {
      * @param allowed
      */
     public void setSelfSwitchingAllowed(String courseUuid, boolean allowed);
+
+    /**
+     * Determines whether a course is externally managed.
+     * 
+     * @param courseUuid
+     * @return
+     */
+    public boolean isExternallyManaged(String courseUuid);
     
     /**
+     * Sets a course as externally or internally managed.
+     * 
+     * @param courseUuid
+     * @param externallyManaged
+     */
+	public void setExternallyManaged(String courseUuid, boolean externallyManaged);
+
+	/**
      * The Section Manager tool could use more specific queries on membership,
      * such as this:  getting all students in a primary section that are not
      * enrolled in any secondary sections of a given type.  For instance, 'Who

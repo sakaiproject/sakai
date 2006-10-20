@@ -97,7 +97,6 @@ public class SectionManagerImpl implements SectionManager {
 	 * Filters out framework groups that do not have a category.  A section's
 	 * category is determined by 
 	 * 
-	 * @inheritDoc
 	 */
 	public List getSections(String siteContext) {
     	if(log.isDebugEnabled()) log.debug("Getting sections for context " + siteContext);
@@ -122,7 +121,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 	
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public List getSectionsInCategory(String siteContext, String categoryId) {
     	if(log.isDebugEnabled()) log.debug("Getting " + categoryId + " sections for context " + siteContext);
@@ -144,7 +143,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public CourseSection getSection(String sectionUuid) {
 		Group group;
@@ -157,7 +156,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public List getSiteInstructors(String siteContext) {
         CourseImpl course = (CourseImpl)getCourse(siteContext);
@@ -178,7 +177,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public List getSiteTeachingAssistants(String siteContext) {
         CourseImpl course = (CourseImpl)getCourse(siteContext);
@@ -199,7 +198,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 	
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public List getSiteEnrollments(String siteContext) {
         CourseImpl course = (CourseImpl)getCourse(siteContext);
@@ -220,7 +219,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public List getSectionTeachingAssistants(String sectionUuid) {
 		Group group = siteService.findGroup(sectionUuid);
@@ -248,7 +247,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public List getSectionEnrollments(String sectionUuid) {
 		Group group = siteService.findGroup(sectionUuid);
@@ -278,7 +277,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public List findSiteEnrollments(String siteContext, String pattern) {
 		List fullList = getSiteEnrollments(siteContext);
@@ -296,7 +295,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public String getCategoryName(String categoryId, Locale locale) {
 		ResourceBundle bundle = ResourceBundle.getBundle("org.sakaiproject.api.section.bundle.CourseSectionCategories", locale);
@@ -311,7 +310,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public List getSectionCategories(String siteContext) {
 		Enumeration keys = sectionCategoryBundle.getKeys();
@@ -324,7 +323,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public Course getCourse(String siteContext) {
     	if(log.isDebugEnabled()) log.debug("Getting course for context " + siteContext);
@@ -339,7 +338,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public SectionEnrollments getSectionEnrollmentsForStudents(String siteContext, Set studentUids) {
 		if(studentUids == null || studentUids.isEmpty()) {
@@ -378,7 +377,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 	
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
     public EnrollmentRecord joinSection(String sectionUuid) throws RoleConfigurationException {
     	Group group = siteService.findGroup(sectionUuid);
@@ -432,7 +431,7 @@ public class SectionManagerImpl implements SectionManager {
     }
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
     public void switchSection(String newSectionUuid) throws RoleConfigurationException {
     	CourseSection newSection = getSection(newSectionUuid);
@@ -490,7 +489,7 @@ public class SectionManagerImpl implements SectionManager {
     }
     
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
     public ParticipationRecord addSectionMembership(String userUid, Role role, String sectionUuid)
             throws MembershipException, RoleConfigurationException {
@@ -573,7 +572,7 @@ public class SectionManagerImpl implements SectionManager {
     }
     
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public void setSectionMemberships(Set userUids, Role role, String sectionUuid) throws RoleConfigurationException {
 		CourseSectionImpl section = (CourseSectionImpl)getSection(sectionUuid);
@@ -625,7 +624,7 @@ public class SectionManagerImpl implements SectionManager {
 
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public void dropSectionMembership(String userUid, String sectionUuid) {
 		CourseSectionImpl section = (CourseSectionImpl)getSection(sectionUuid);
@@ -642,7 +641,7 @@ public class SectionManagerImpl implements SectionManager {
     }
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public void dropEnrollmentFromCategory(String studentUid, String siteContext, String category) {
 		if(log.isDebugEnabled()) log.debug("Dropping " + studentUid + " from all sections in category " + category + " in site " + siteContext);
@@ -680,7 +679,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public int getTotalEnrollments(String learningContextUuid) {
 		AuthzGroup authzGroup;
@@ -702,7 +701,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
     public CourseSection addSection(String courseUuid, String title,
     		String category, Integer maxEnrollments,
@@ -744,7 +743,7 @@ public class SectionManagerImpl implements SectionManager {
     }
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
     public void updateSection(String sectionUuid, String title,
     		Integer maxEnrollments, String location, Time startTime,
@@ -777,7 +776,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
     public void disbandSection(String sectionUuid) {
         if(log.isDebugEnabled()) log.debug("Disbanding section " + sectionUuid);
@@ -803,8 +802,47 @@ public class SectionManagerImpl implements SectionManager {
 		}
     }
 
+	public boolean isExternallyManaged(String courseUuid) {
+    	Reference ref = entityManager.newReference(courseUuid);
+    	String siteId = ref.getId();
+    	Site site;
+    	try {
+    		site = siteService.getSite(siteId);
+    	} catch (IdUnusedException e) {
+    		throw new RuntimeException("Can not find site " + courseUuid, e);
+    	}
+		ResourceProperties props = site.getProperties();
+    	return Boolean.toString(true).equals(props.getProperty(CourseImpl.EXTERNALLY_MAINTAINED));
+	}
+
+	public void setExternallyManaged(String courseUuid, boolean externallyManaged) {
+    	Reference ref = entityManager.newReference(courseUuid);
+    	String siteId = ref.getId();
+    	Site site;
+    	try {
+    		site = siteService.getSite(siteId);
+    	} catch (IdUnusedException e) {
+    		throw new RuntimeException("Can not find site " + courseUuid, e);
+    	}
+		ResourceProperties props = site.getProperties();
+		props.addProperty(CourseImpl.EXTERNALLY_MAINTAINED, Boolean.toString(externallyManaged));
+		if(externallyManaged) {
+	    	// Also set the self join/switch to false
+			props.addProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED, Boolean.toString(false));
+			props.addProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED, Boolean.toString(false));
+		}
+    	try {
+        	siteService.save(site);
+			postEvent("section.external=" + externallyManaged, site.getReference());
+    	} catch (IdUnusedException ide) {
+    		log.error("Error saving site... could not find site " + site, ide);
+    	} catch (PermissionException pe) {
+    		log.error("Error saving site... permission denied for " + site, pe);
+    	}
+	}
+
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
     public boolean isSelfRegistrationAllowed(String courseUuid) {
     	Reference ref = entityManager.newReference(courseUuid);
@@ -820,7 +858,7 @@ public class SectionManagerImpl implements SectionManager {
     }
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
     public void setSelfRegistrationAllowed(String courseUuid, boolean allowed) {
     	Reference ref = entityManager.newReference(courseUuid);
@@ -844,7 +882,7 @@ public class SectionManagerImpl implements SectionManager {
     }
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
     public boolean isSelfSwitchingAllowed(String courseUuid) {
     	Reference ref = entityManager.newReference(courseUuid);
@@ -860,7 +898,7 @@ public class SectionManagerImpl implements SectionManager {
     }
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
     public void setSelfSwitchingAllowed(String courseUuid, boolean allowed) {
     	Reference ref = entityManager.newReference(courseUuid);
@@ -885,7 +923,7 @@ public class SectionManagerImpl implements SectionManager {
     }
     
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public List getUnsectionedEnrollments(String courseUuid, String category) {
 		Reference siteRef = entityManager.newReference(courseUuid);
@@ -923,7 +961,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public Set getSectionEnrollments(String userUid, String courseUuid) {
 		// Get the user
@@ -958,7 +996,7 @@ public class SectionManagerImpl implements SectionManager {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public User getSiteEnrollment(String siteContext, String studentUid) {
 		return SakaiUtil.getUserFromSakai(studentUid);

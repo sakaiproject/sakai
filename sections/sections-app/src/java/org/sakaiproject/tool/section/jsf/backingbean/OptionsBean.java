@@ -24,7 +24,7 @@ import java.io.Serializable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
@@ -36,29 +36,68 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
 public class OptionsBean extends CourseDependentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	private static final String EXTERNAL = "external";
+	private static final String INTERNAL = "internal";
 
 	private static final Log log = LogFactory.getLog(OptionsBean.class);
 	
 	private boolean selfRegister;
 	private boolean selfSwitch;
+	private String management;
+	private boolean confirmMode;
 
 	public void init() {
-		Course course = getCourse();
-		selfRegister = course.isSelfRegistrationAllowed();
-		selfSwitch = course.isSelfSwitchingAllowed();
+		// We don't need to initialize the bean when we're in confirm mode
+		if(confirmMode) {
+			return;
+		}
 		
+		if(log.isDebugEnabled()) log.debug("OptionsBean.init()");
+		String courseUuid = getCourse().getUuid();
+		SectionManager sm = getSectionManager();
+		this.selfRegister =  sm.isSelfRegistrationAllowed(courseUuid);
+		this.selfSwitch =  sm.isSelfSwitchingAllowed(courseUuid);
+		if(sm.isExternallyManaged(courseUuid)) {
+			management = EXTERNAL;
+		} else {
+			management = INTERNAL;
+		}
+	}
+
+	public String confirmExternallyManaged() {
+		return update(false);
 	}
 
 	public String update() {
+		return update(true);
+	}
+	
+	public String update(boolean checkForConfirmation) {
 		if(!isSectionOptionsManagementEnabled()) {
 			// This should never happen
 			log.warn("Updating section options not permitted for user " + getUserUid());
 			return "overview";
 		}
-		Course course = getCourse();
-		getSectionManager().setSelfRegistrationAllowed(course.getUuid(), selfRegister);
-		getSectionManager().setSelfSwitchingAllowed(course.getUuid(), selfSwitch);
 		
+		String courseUuid = getCourse().getUuid();
+
+		if(checkForConfirmation) {
+			boolean oldExternallyManagedSetting = getSectionManager().isExternallyManaged(courseUuid);
+			if(EXTERNAL.equals(management) && ! oldExternallyManagedSetting) {
+				// The user is switching from manual to automatic.  Switch to confirm mode.
+				confirmMode = true;
+				return null;
+			}
+		}
+		if(log.isInfoEnabled()) log.info("*** Persisting externallyManaged as " + management);
+		getSectionManager().setExternallyManaged(courseUuid, EXTERNAL.equals(management));
+		// If we're externally managed, these will automatically be set to false
+		if(INTERNAL.equals(management)) {
+			getSectionManager().setSelfRegistrationAllowed(courseUuid, selfRegister);
+			getSectionManager().setSelfSwitchingAllowed(courseUuid, selfSwitch);
+		}
+		
+		// TODO Customize the message depending on the action taken
 		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage("options_update_successful"));
 		return "overview";
 	}
@@ -77,6 +116,32 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 
 	public void setSelfSwitch(boolean selfSwitch) {
 		this.selfSwitch = selfSwitch;
+	}
+
+	/**
+	 * See http://issues.apache.org/jira/browse/MYFACES-570 for the reason for this boolean/String hack
+	 * @return
+	 */
+	public String getManagement() {
+		if(log.isDebugEnabled()) log.debug("---- management = " + management);
+		return management;
+	}
+
+	/**
+	 * See http://issues.apache.org/jira/browse/MYFACES-570 for the reason for this boolean/String hack
+	 * @return
+	 */
+	public void setManagement(String management) {
+		if(log.isDebugEnabled()) log.debug("---- setting management to " + management);
+		this.management = management;
+	}
+
+	public boolean isConfirmMode() {
+		return confirmMode;
+	}
+
+	public void setConfirmMode(boolean confirmMode) {
+		this.confirmMode = confirmMode;
 	}
 
 }
