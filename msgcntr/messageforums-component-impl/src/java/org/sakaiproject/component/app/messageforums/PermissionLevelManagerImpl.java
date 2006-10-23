@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -389,6 +390,66 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
     
     return returnedLevel;
   }	
+	
+	public Boolean getCustomPermissionByName(String customPermName, PermissionLevel permissionLevel) {
+    	if (customPermName == null) 
+    		throw new IllegalArgumentException("Null permissionLevelName passed");
+    	if (permissionLevel == null)
+    		throw new IllegalArgumentException("Null permissionLevel passed");
+    		  
+    	if (customPermName.equals(PermissionLevel.NEW_FORUM))
+    		return permissionLevel.getNewForum();
+    	else if (customPermName.equals(PermissionLevel.NEW_RESPONSE))
+    		return permissionLevel.getNewResponse();
+    	else if (customPermName.equals(PermissionLevel.NEW_RESPONSE_TO_RESPONSE))
+    		return permissionLevel.getNewResponseToResponse();
+    	else if (customPermName.equals(PermissionLevel.NEW_TOPIC))
+    		return permissionLevel.getNewTopic();
+    	else if (customPermName.equals(PermissionLevel.POST_TO_GRADEBOOK))
+    		return permissionLevel.getPostToGradebook();
+    	else if (customPermName.equals(PermissionLevel.DELETE_ANY))
+    		return permissionLevel.getDeleteAny();
+    	else if (customPermName.equals(PermissionLevel.DELETE_OWN))
+    		return permissionLevel.getDeleteOwn();
+    	else if (customPermName.equals(PermissionLevel.MARK_AS_READ))
+    		return permissionLevel.getMarkAsRead();
+    	else if (customPermName.equals(PermissionLevel.MODERATE_POSTINGS))
+    		return permissionLevel.getModeratePostings();
+    	else if (customPermName.equals(PermissionLevel.MOVE_POSTING))
+    		return permissionLevel.getMovePosting();
+    	else if (customPermName.equals(PermissionLevel.READ))
+    		return permissionLevel.getRead();
+    	else if (customPermName.equals(PermissionLevel.REVISE_ANY))
+    		return permissionLevel.getReviseAny();
+    	else if (customPermName.equals(PermissionLevel.REVISE_OWN))
+    		return permissionLevel.getReviseOwn();
+    	else if (customPermName.equals(PermissionLevel.CHANGE_SETTINGS))
+    		return permissionLevel.getChangeSettings();
+    	else 
+    		return null;
+    }
+	
+	public List getCustomPermissions() {
+		List customPerms = new ArrayList();
+		customPerms.add(PermissionLevel.NEW_FORUM);
+		customPerms.add(PermissionLevel.NEW_RESPONSE);
+		customPerms.add(PermissionLevel.NEW_RESPONSE_TO_RESPONSE);
+		customPerms.add(PermissionLevel.NEW_TOPIC);
+		customPerms.add(PermissionLevel.DELETE_ANY);
+		customPerms.add(PermissionLevel.DELETE_OWN);
+		customPerms.add(PermissionLevel.MARK_AS_READ);
+		customPerms.add(PermissionLevel.MODERATE_POSTINGS);
+		customPerms.add(PermissionLevel.MOVE_POSTING);
+		customPerms.add(PermissionLevel.POST_TO_GRADEBOOK);
+		customPerms.add(PermissionLevel.READ);
+		customPerms.add(PermissionLevel.REVISE_ANY);
+		customPerms.add(PermissionLevel.REVISE_OWN);
+		customPerms.add(PermissionLevel.CHANGE_SETTINGS);
+		
+		return customPerms;
+	}
+    
+    
 	
 	private String getCurrentUser() {    
 		String user = sessionManager.getCurrentSessionUserId();

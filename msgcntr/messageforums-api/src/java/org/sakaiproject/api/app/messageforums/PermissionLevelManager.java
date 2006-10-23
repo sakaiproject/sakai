@@ -43,6 +43,8 @@ public interface PermissionLevelManager {
 	public PermissionLevel getDefaultNonePermissionLevel();
     public DBMembershipItem createDBMembershipItem(String name, String permissionLevelName, Integer type);
     public void saveDBMembershipItem(DBMembershipItem item);
-    public  List getOrderedPermissionLevelNames(); 	
+    public  List getOrderedPermissionLevelNames(); 
+    public Boolean getCustomPermissionByName(String customPermissionName, PermissionLevel permissionLevel);
+    public List getCustomPermissions();
 	 
 }

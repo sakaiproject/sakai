@@ -37,6 +37,9 @@
 		    <property name="dfManager">
             <ref bean="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
         </property> 
+        <property name="permissionManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.PermissionLevelManager"/>
+        </property> 
     </bean>
 	    
     <bean id="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager" 

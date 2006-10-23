@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
+import java.util.HashSet;
 import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
@@ -41,8 +42,15 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.PermissionLevel;
+import org.sakaiproject.api.app.messageforums.PermissionsMask;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
+import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
@@ -52,6 +60,7 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.Validator;
@@ -81,17 +90,20 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 	private static final String BASE64 = "BASE64";
 	private static final String VALUE = "value";
 	private static final String ATTACHMENT = "attachment";
-	private static final String ATTACH_URL = "relative_url";
-
-	private static final String SITE_NAME = "siteName";
-	private static final String SITE_ID = "siteId";
-	private static final String SITE_ARCHIVE = "siteArchive";
+	private static final String ATTACH_ID = "relative-url";
+	private static final String PERMISSIONS = "permissions";
+	private static final String PERMISSION = "permission";
+	private static final String PERMISSION_TYPE = "permission_type";
+	private static final String PERMISSION_NAME = "permission_name";
+	private static final String PERMISSION_LEVEL_NAME = "permission_level_name";
+	private static final String CUSTOM_PERMISSIONS = "permission_levels";
 
 	private MessageForumsForumManager forumManager;
 	private AreaManager areaManager;
 	private MessageForumsMessageManager messageManager;
 	private MessageForumsTypeManager typeManager;
 	private DiscussionForumManager dfManager;
+	private PermissionLevelManager permissionManager;
 
 	private static final Log LOG = LogFactory.getLog(DiscussionForumService.class);
 
@@ -115,11 +127,6 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 			stack.push(element);
 
 			if (siteId != null && siteId.trim().length() > 0) {
-				Element siteElement = doc.createElement(SITE_ARCHIVE);
-				siteElement.setAttribute(SITE_ID, SiteService.getSite(siteId).getId());
-				siteElement.setAttribute(SITE_NAME, SiteService.getSite(siteId)
-						.getTitle());
-
 				Area dfArea = areaManager.getAreaByContextIdAndTypeId(siteId, typeManager.getDiscussionForumType());
 
 				if (dfArea != null)
@@ -162,24 +169,44 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 									df_data.setAttribute(DISCUSSION_FORUM_SHORT_DESC, "");
 								}
 
-
-								//TODO archive attachments
-								// need to use Reference
-								/*List atts = forumManager.getForumById(true, forum.getId()).getAttachments();
+								List atts = forumManager.getForumById(true, forum.getId()).getAttachments();
 								for (int i = 0; i < atts.size(); i++)
 								{
 									Element forum_attachment = doc.createElement(ATTACHMENT);
-									String attachUrl = ((Attachment)atts.get(i)).getAttachmentUrl();
-
-									// if it's in the attachment area, and not already in the list
-									if ((attachUrl.startsWith("/content/attachment/")) && (!attachments.contains(attachUrl)))
-									{
-										attachments.add(attachUrl);
-									}
-									forum_attachment.setAttribute(ATTACH_URL, attachUrl);
+									String attachId = ((Attachment)atts.get(i)).getAttachmentId();
+									
+									forum_attachment.setAttribute(ATTACH_ID, attachId);
 									df_data.appendChild(forum_attachment);
-								}*/
-
+								}
+								
+								Set forumMembershipItems = forum.getMembershipItemSet();
+								if (forumMembershipItems != null && forumMembershipItems.size() > 0) {
+									Element forum_permissions = doc.createElement(PERMISSIONS);
+									Iterator membershipIter = forumMembershipItems.iterator();
+									while (membershipIter.hasNext()) {
+										DBMembershipItem membershipItem = (DBMembershipItem) membershipIter.next();
+										Element permission = doc.createElement(PERMISSION);
+										permission.setAttribute(PERMISSION_TYPE, membershipItem.getType().toString());
+										permission.setAttribute(PERMISSION_NAME, membershipItem.getName());
+										permission.setAttribute(PERMISSION_LEVEL_NAME, membershipItem.getPermissionLevelName());
+										
+										if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM.equals(membershipItem.getPermissionLevelName())){
+											List customPerms = permissionManager.getCustomPermissions();
+											if (customPerms != null && customPerms.size() > 0) {
+												Element customPermissions = doc.createElement(CUSTOM_PERMISSIONS);
+												for (int i = 0; i < customPerms.size(); i++) {
+													String name = (String)customPerms.get(i);
+													String hasPermission = permissionManager.getCustomPermissionByName(name, membershipItem.getPermissionLevel()).toString();
+													customPermissions.setAttribute(name, hasPermission);				
+												}
+												permission.appendChild(customPermissions);
+											}
+									    }
+																			
+										forum_permissions.appendChild(permission);
+									}
+									df_data.appendChild(forum_permissions);
+								}
 
 								List topicList = dfManager.getTopicsByIdWithMessagesAndAttachments(forum.getId());
 								if (topicList != null && topicList.size() > 0) {
@@ -206,7 +233,6 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 											topic_short_desc.setAttribute(VALUE, "");
 										}
 
-
 										topic_properties.appendChild(topic_short_desc);
 
 										Element topic_long_desc = doc.createElement(PROPERTY);
@@ -228,22 +254,45 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 										topic_data.appendChild(topic_properties);
 
-										//TODO Archive attachments
-										//Need to use attachment Reference
-										/*List topicAtts = forumManager.getTopicByIdWithAttachments(topic.getId()).getAttachments();
+										// permissions
+										Set topicMembershipItems = topic.getMembershipItemSet();
+										if (topicMembershipItems != null && topicMembershipItems.size() > 0) {
+											Element topic_permissions = doc.createElement(PERMISSIONS);
+											Iterator topicMembershipIter = topicMembershipItems.iterator();
+											while (topicMembershipIter.hasNext()) {
+												DBMembershipItem membershipItem = (DBMembershipItem) topicMembershipIter.next();
+												Element permission = doc.createElement(PERMISSION);
+												permission.setAttribute(PERMISSION_TYPE, membershipItem.getType().toString());
+												permission.setAttribute(PERMISSION_NAME, membershipItem.getName());
+												permission.setAttribute(PERMISSION_LEVEL_NAME, membershipItem.getPermissionLevelName());
+												topic_permissions.appendChild(permission);
+												
+												if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM.equals(membershipItem.getPermissionLevelName())){
+													List customPerms = permissionManager.getCustomPermissions();
+													if (customPerms != null && customPerms.size() > 0) {
+														Element customPermissions = doc.createElement(CUSTOM_PERMISSIONS);
+														for (int i = 0; i < customPerms.size(); i++) {
+															String name = (String)customPerms.get(i);
+															String hasPermission = permissionManager.getCustomPermissionByName(name, membershipItem.getPermissionLevel()).toString();
+															customPermissions.setAttribute(name, hasPermission);				
+														}
+														permission.appendChild(customPermissions);
+													}
+											    }
+											}
+											topic_data.appendChild(topic_permissions);
+										}
+										
+										List topicAtts = forumManager.getTopicByIdWithAttachments(topic.getId()).getAttachments();
 										for (int j = 0; j < topicAtts.size(); j++)
 										{
 											Element topic_attachment = doc.createElement(ATTACHMENT);
-											String attachUrl = ((Attachment)topicAtts.get(j)).getAttachmentUrl();
+											String attachId = ((Attachment)topicAtts.get(j)).getAttachmentId();
 
-											// if it's in the attachment area, and not already in the list
-											if ((attachUrl.startsWith("/content/attachment/")) && (!attachments.contains(attachUrl)))
-											{
-												attachments.add(attachUrl);
-											}
-											topic_attachment.setAttribute(ATTACH_URL, attachUrl);
+
+											topic_attachment.setAttribute(ATTACH_ID, attachId);
 											topic_data.appendChild(topic_attachment);
-										}*/
+										}
 
 										df_data.appendChild(topic_data);
 									}
@@ -252,28 +301,24 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 								dfElement.appendChild(df_data);
 							}
 						}
-
-						siteElement.appendChild(dfElement);      
 					}
 					results.append("archiving " + getLabel() + ": (" + forumCount
 							+ ") messageforum DF items archived successfully.\n");
+					
+					((Element) stack.peek()).appendChild(dfElement);
+					stack.push(dfElement);
 				}
 				else
 				{
 					results.append("archiving " + getLabel()
 							+ ": empty messageforum DF archived.\n");
 				}
-				((Element) stack.peek()).appendChild(siteElement);
-				stack.push(siteElement);
+
 			}
 			stack.pop();
 
 		}
 		catch (DOMException e)
-		{
-			LOG.error(e.getMessage(), e);
-		}
-		catch (IdUnusedException e)
 		{
 			LOG.error(e.getMessage(), e);
 		}
@@ -351,14 +396,22 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 					newForum.setDraft(fromForum.getDraft());
 					newForum.setLocked(fromForum.getLocked());
 
-					// get permissions
+					// get permissions for "from" site
 					Set membershipItemSet = fromForum.getMembershipItemSet();
+					List roleIdList = getSiteRoleIds(toContext);
 
-					if (membershipItemSet != null && !membershipItemSet.isEmpty()) {
+					if (membershipItemSet != null && !membershipItemSet.isEmpty() && roleIdList != null && !roleIdList.isEmpty()) {
 						Iterator membershipIter = membershipItemSet.iterator();
 						while (membershipIter.hasNext()) {
-							DBMembershipItem item = (DBMembershipItem)membershipIter.next();
-							newForum.addMembershipItem(item);
+							DBMembershipItem oldItem = (DBMembershipItem)membershipIter.next();
+							if(roleIdList.contains(oldItem.getName())) {
+
+								DBMembershipItem newItem = getMembershipItemCopy(oldItem);
+								if (newItem != null) {
+									permissionManager.saveDBMembershipItem(newItem);
+									newForum.addMembershipItem(newItem);
+								}
+							}
 						}
 					}
 
@@ -367,10 +420,9 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 					if (fromAttach != null && !fromAttach.isEmpty()) {
 						for (int currAttach=0; currAttach < fromAttach.size(); currAttach++) {                   			
 							Attachment thisAttach = (Attachment)fromAttach.get(currAttach);
-							Attachment newAttach = copyAttachment(thisAttach);
-
-							if (newForum != null)
-								newForum.addAttachment(newAttach);
+							Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId());
+							if (newForum != null && newAttachment != null)
+								newForum.addAttachment(newAttachment);
 						}
 					}       		
 
@@ -400,11 +452,17 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 							// Get/set the topic's permissions
 							Set topicMembershipItemSet = fromTopic.getMembershipItemSet();
 
-							if (topicMembershipItemSet != null && !topicMembershipItemSet.isEmpty()) {
+							if (topicMembershipItemSet != null && !topicMembershipItemSet.isEmpty() && roleIdList != null && !roleIdList.isEmpty()) {
 								Iterator membershipIter = topicMembershipItemSet.iterator();
 								while (membershipIter.hasNext()) {
-									DBMembershipItem item = (DBMembershipItem)membershipIter.next();
-									newTopic.addMembershipItem(item);
+									DBMembershipItem oldItem = (DBMembershipItem)membershipIter.next();
+									if(roleIdList.contains(oldItem.getName())) {
+										DBMembershipItem newItem = getMembershipItemCopy(oldItem);
+										if (newItem != null) {
+											permissionManager.saveDBMembershipItem(newItem);
+											newTopic.addMembershipItem(newItem);
+										}
+									}
 								}
 							}
 							// Add the attachments
@@ -412,12 +470,9 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 							if (fromTopicAttach != null && !fromTopicAttach.isEmpty()) {
 								for (int topicAttach=0; topicAttach < fromTopicAttach.size(); topicAttach++) {                   			
 									Attachment thisAttach = (Attachment)fromTopicAttach.get(topicAttach);
-									Attachment newAttach = copyAttachment(thisAttach);
-
-									if (newForum != null)
-										newForum.addAttachment(newAttach);
-
-									newTopic.addAttachment(newAttach);
+									Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId());
+									if (newTopic != null && newAttachment != null)
+										newTopic.addAttachment(newAttachment);
 								}			
 							}				
 
@@ -497,7 +552,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 											trimSummary = trimToNull(forumShortDesc);
 											if (trimSummary != null && trimSummary.length() >0)
 											{
-												byte[] decoded = Base64.decode(trimBody);
+												byte[] decoded = Base64.decode(trimSummary);
 												trimSummary = new String(decoded, "UTF-8");
 											}
 										}
@@ -506,31 +561,73 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 											dfForum.setShortDescription(trimSummary);
 										}
 
-										NodeList topicNodes = forumElement.getChildNodes();
+										NodeList forumDetailNodes = forumElement.getChildNodes();
 										boolean hasTopic = false;
-										for(int k=0; k<topicNodes.getLength(); k++)
+										for(int k=0; k<forumDetailNodes.getLength(); k++)
 										{
-											Node topicChild = topicNodes.item(k);
-											if(topicChild.getNodeType() == Node.ELEMENT_NODE)
+											Node forumChild = forumDetailNodes.item(k);
+											if(forumChild.getNodeType() == Node.ELEMENT_NODE)
 											{
-												Element topicElement = (Element) topicChild;
-												if(topicElement.getTagName().equals(DISCUSSION_TOPIC))
+												Element forumChildElement = (Element) forumChild;
+
+												if (forumChildElement.getTagName().equals(ATTACHMENT)) {
+													String oldAttachId = forumChildElement.getAttribute(ATTACH_ID);
+													if (oldAttachId != null && oldAttachId.trim().length() > 0) {	                			
+														String oldUrl = oldAttachId;
+														if (oldUrl.startsWith("/content/attachment/"))
+														{
+															String newUrl = (String) attachmentNames.get(oldUrl);
+															if (newUrl != null)
+															{
+																oldAttachId = Validator.escapeQuestionMark(newUrl);
+															}
+														}
+														else if (oldUrl.startsWith("/content/group/" + fromSiteId + "/"))
+														{
+															String newUrl = "/content/group/" + siteId
+																	+ oldUrl.substring(15 + fromSiteId.length());
+															oldAttachId = Validator.escapeQuestionMark(newUrl);
+														}
+														Attachment newAttachment = copyAttachment(oldAttachId);
+														if (newAttachment != null)	
+															dfForum.addAttachment(newAttachment);																	
+													}			
+												}
+												// PERMISSIONS
+												else if(forumChildElement.getTagName().equals(PERMISSIONS)) {
+													Set membershipItemSet = getMembershipItemSetFromPermissionElement(forumChildElement);
+													List roleIdList = getSiteRoleIds(siteId);
+													if (membershipItemSet != null && membershipItemSet.size() > 0 && roleIdList != null && !roleIdList.isEmpty()) {
+														Iterator membershipIter = membershipItemSet.iterator();
+														while (membershipIter.hasNext()) {
+															DBMembershipItem oldItem = (DBMembershipItem)membershipIter.next();
+															if(roleIdList.contains(oldItem.getName())) {
+																DBMembershipItem newItem = getMembershipItemCopy(oldItem);
+																if (newItem != null) {
+																	permissionManager.saveDBMembershipItem(newItem);
+																	dfForum.addMembershipItem(newItem);
+																}
+															}
+														}
+													}
+												}
+
+												else if(forumChildElement.getTagName().equals(DISCUSSION_TOPIC))
 												{
 													DiscussionTopic dfTopic = forumManager.createDiscussionForumTopic(dfForum);
-													List attachStringList = new ArrayList();
 
-													String topicTitle = topicElement.getAttribute(TOPIC_TITLE);
+													String topicTitle = forumChildElement.getAttribute(TOPIC_TITLE);
 													dfTopic.setTitle(topicTitle);
 
-													String topicDraft = topicElement.getAttribute(DRAFT);
+													String topicDraft = forumChildElement.getAttribute(DRAFT);
 													if(topicDraft != null && topicDraft.length() >0)
 														dfTopic.setDraft(new Boolean(topicDraft));
 
-													String topicLocked = topicElement.getAttribute(LOCKED);
+													String topicLocked = forumChildElement.getAttribute(LOCKED);
 													if(topicLocked != null && topicLocked.length() >0)
 														dfTopic.setLocked(new Boolean(topicLocked));
 
-													NodeList topicPropertiesNodes = topicElement.getChildNodes();
+													NodeList topicPropertiesNodes = forumChildElement.getChildNodes();
 													for(int m=0; m<topicPropertiesNodes.getLength(); m++)
 													{
 														Node propertiesNode = topicPropertiesNodes.item(m);
@@ -599,53 +696,50 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 																	}
 																}
 															}
-															if(propertiesElement.getTagName().equals(ATTACHMENT))
+															else if (propertiesElement.getTagName().equals(ATTACHMENT))
 															{
-																String oldUrl = propertiesElement.getAttribute("relative-url");
-																if (oldUrl.startsWith("/content/attachment/"))
-																{
-																	String newUrl = (String) attachmentNames.get(oldUrl);
-																	if (newUrl != null)
+																String oldAttachId = propertiesElement.getAttribute(ATTACH_ID);
+																if (oldAttachId != null && oldAttachId.trim().length() > 0) {	
+																	String oldUrl = oldAttachId;
+																	if (oldUrl.startsWith("/content/attachment/"))
 																	{
-																		////if (newUrl.startsWith("/attachment/"))
-																		////newUrl = "/content".concat(newUrl);
+																		String newUrl = (String) attachmentNames.get(oldUrl);
+																		if (newUrl != null)
+																		{
+																			oldAttachId = Validator.escapeQuestionMark(newUrl);
+																		}
+																	}
+																	else if (oldUrl.startsWith("/content/group/" + fromSiteId + "/"))
+																	{
+																		String newUrl = "/content/group/" + siteId
+																				+ oldUrl.substring(15 + fromSiteId.length());
+																		oldAttachId = Validator.escapeQuestionMark(newUrl);
+																	}
+																	Attachment newAttachment = copyAttachment(oldAttachId);
+																	if (newAttachment != null)
+																		dfTopic.addAttachment(newAttachment);																	
+																}				
+															}
 
-																		propertiesElement.setAttribute("relative-url", Validator
-																				.escapeQuestionMark(newUrl));
-
-																		attachStringList.add(Validator.escapeQuestionMark(newUrl));
-
+															else if (propertiesElement.getTagName().equals(PERMISSIONS)) {
+																Set membershipItemSet = getMembershipItemSetFromPermissionElement(propertiesElement);
+																List roleIdList = getSiteRoleIds(siteId);
+																if (membershipItemSet != null && membershipItemSet.size() > 0 && roleIdList != null && !roleIdList.isEmpty()) {
+																	Iterator membershipIter = membershipItemSet.iterator();
+																	while (membershipIter.hasNext()) {
+																		DBMembershipItem oldItem = (DBMembershipItem)membershipIter.next();
+																		if(roleIdList.contains(oldItem.getName())) {
+																			DBMembershipItem newItem = getMembershipItemCopy(oldItem);
+																			if (newItem != null) {
+																				permissionManager.saveDBMembershipItem(newItem);
+																				dfTopic.addMembershipItem(newItem);
+																			}
+																		}
 																	}
 																}
-																else if (oldUrl.startsWith("/content/group/" + fromSiteId + "/"))
-																{
-																	String newUrl = "/content/group/" + siteId
-																	+ oldUrl.substring(15 + fromSiteId.length());
-																	propertiesElement.setAttribute("relative-url", Validator
-																			.escapeQuestionMark(newUrl));
-
-																	attachStringList.add(Validator.escapeQuestionMark(newUrl));
-																}
-
 															}
 														}
 													}                  				
-
-													List attachList = new ArrayList();
-													for(int m=0; m<attachStringList.size(); m++)
-													{
-														Attachment tempAttach = messageManager.createAttachment();
-														ContentResource cr = ContentHostingService.getResource((String)attachStringList.get(m));
-														ResourceProperties rp = cr.getProperties();
-
-														tempAttach.setAttachmentName(rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-														tempAttach.setAttachmentSize(rp.getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
-														tempAttach.setAttachmentType(rp.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
-														tempAttach.setAttachmentUrl(cr.getUrl());
-														tempAttach.setAttachmentId(cr.getId());
-
-														attachList.add(tempAttach);
-													}
 
 													if(!hasTopic)
 													{
@@ -655,8 +749,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 														forumManager.saveDiscussionForum(dfForum, false);
 													}
 													hasTopic = true;
-													dfTopic.setAttachments(attachList);
-													dfForum.addTopic(dfTopic);
+
 													forumManager.saveDiscussionForumTopic(dfTopic);
 												}                  			
 											}
@@ -670,7 +763,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 											forumManager.saveDiscussionForum(dfForum, false);
 										}
 									}
-								}
+								} 
 							}
 						}
 					}
@@ -778,29 +871,136 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		if (value.length() == 0) return null;
 		return value;
 	}
-
-	private Attachment copyAttachment(Attachment thisAttach) {
-		Attachment newAttach = messageManager.createAttachment();
-		try {
-			ContentResource oldAttachment = ContentHostingService.getResource(thisAttach.getAttachmentId());
+	
+	private Attachment copyAttachment(String attachmentId) {
+		try {			
+			ContentResource oldAttachment = ContentHostingService.getResource(attachmentId);
 			ContentResource attachment = ContentHostingService.addAttachmentResource(
-					oldAttachment.getProperties().getProperty(
-							ResourceProperties.PROP_DISPLAY_NAME), ToolManager
-							.getCurrentPlacement().getContext(), ToolManager.getTool(
-							"sakai.messagecenter").getTitle(), oldAttachment.getContentType(),
-							oldAttachment.getContent(), oldAttachment.getProperties());
-
-			newAttach.setAttachmentId(attachment.getId());
-			newAttach.setAttachmentUrl(attachment.getUrl());
-			newAttach.setAttachmentName(attachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-			newAttach.setAttachmentSize(attachment.getProperties().getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
-			newAttach.setAttachmentType(attachment.getProperties().getProperty(ResourceProperties.PROP_CONTENT_TYPE));
-		} catch(Exception e) {
-			e.printStackTrace();
+				oldAttachment.getProperties().getProperty(
+						ResourceProperties.PROP_DISPLAY_NAME), ToolManager
+						.getCurrentPlacement().getContext(), ToolManager.getTool(
+						"sakai.messagecenter").getTitle(), oldAttachment.getContentType(),
+						oldAttachment.getContent(), oldAttachment.getProperties());
+			Attachment thisDFAttach = dfManager.createDFAttachment(
+				attachment.getId(), 
+				attachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+			return thisDFAttach;
+		} catch (IdUnusedException iue) {
+			LOG.error("Error with attachment id: " + attachmentId);
+			LOG.error(iue.getMessage(), iue);
+		}
+		catch (Exception e) {
+			//e.printStackTrace();
+			LOG.error("Error with attachment id: " + attachmentId);
 			LOG.error(e.getMessage(), e);
 		}
 
-		return newAttach;
+		return null;
+	}
+	
+	private Set getMembershipItemSetFromPermissionElement(Element permissionsElement) {
+		Set membershipItemSet = new HashSet();
+
+		NodeList permissionsNodes = permissionsElement.getChildNodes();
+		for (int m=0; m < permissionsNodes.getLength(); m++)
+		{
+			Node permissionsNode = permissionsNodes.item(m);
+			if (permissionsNode.getNodeType() == Node.ELEMENT_NODE)
+			{
+				Element permissionElement = (Element)permissionsNode;
+				if(permissionElement.getTagName().equals(PERMISSION)) {
+					try {
+						if (permissionElement.getAttribute(PERMISSION_NAME) != null && permissionElement.getAttribute(PERMISSION_LEVEL_NAME) != null &&
+								permissionElement.getAttribute(PERMISSION_TYPE) != null) {
+							String permissionName = permissionElement.getAttribute(PERMISSION_NAME);
+							String permissionLevelName = permissionElement.getAttribute(PERMISSION_LEVEL_NAME);
+							Integer permissionType = new Integer(permissionElement.getAttribute(PERMISSION_TYPE));
+							DBMembershipItem membershipItem = permissionManager.createDBMembershipItem(permissionName, permissionLevelName, permissionType);
+
+							if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM.equals(membershipItem.getPermissionLevelName())){
+								NodeList customPermNodes = permissionElement.getChildNodes();
+								for (int l=0; l < customPermNodes.getLength(); l++)
+								{
+									Node customPermNode = customPermNodes.item(l);
+									if (customPermNode.getNodeType() == Node.ELEMENT_NODE)
+									{
+										Element customPermElement = (Element)customPermNode;
+										if (customPermElement.getTagName().equals(CUSTOM_PERMISSIONS)) {
+											PermissionsMask mask = new PermissionsMask();
+											List customPermList = permissionManager.getCustomPermissions();
+											for (int c=0; c < customPermList.size(); c++) {
+												String customPermName = (String) customPermList.get(c);
+												Boolean hasPermission = new Boolean(customPermElement.getAttribute(customPermName));
+												mask.put(customPermName, hasPermission);
+											}
+
+											PermissionLevel level = permissionManager.createPermissionLevel(membershipItem.getName(), typeManager.getCustomLevelType(), mask);
+											membershipItem.setPermissionLevel(level);
+										}
+									}
+								}
+							}
+							// save DBMembershiptItem here to get an id so we can add to the set
+							permissionManager.saveDBMembershipItem(membershipItem);
+							membershipItemSet.add(membershipItem);
+						}
+
+					} catch (NumberFormatException nfe) {
+						LOG.error(nfe);
+					} catch (Exception e) {
+						LOG.error(e);
+					}
+				}
+			}
+		}
+		return membershipItemSet;
+	}
+	
+	private List getSiteRoleIds(String contextId) {
+		// get the roles in the site
+		AuthzGroup realm;
+		List roleIdList = new ArrayList();
+		try
+		{      
+			realm = AuthzGroupService.getAuthzGroup("/site/" + contextId);
+			Set roleSet = realm.getRoles();
+
+			if (roleSet != null && roleSet.size() > 0)
+			{
+				Iterator roleIter = roleSet.iterator();
+				while (roleIter.hasNext())
+				{
+					Role role = (Role) roleIter.next();
+					if (role != null) 
+					{
+						roleIdList.add(role.getId());
+					}
+				}
+			}
+		} catch (GroupNotDefinedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}  
+		return roleIdList;
+	}
+	
+	private DBMembershipItem getMembershipItemCopy(DBMembershipItem itemToCopy) {
+		DBMembershipItem newItem = permissionManager.createDBMembershipItem(itemToCopy.getName(), itemToCopy.getPermissionLevelName(), 
+				itemToCopy.getType());
+		PermissionLevel oldPermLevel = itemToCopy.getPermissionLevel();
+		if (newItem.getPermissionLevelName().equals(PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM)) {
+			PermissionsMask mask = new PermissionsMask();
+			List customPermList = permissionManager.getCustomPermissions();
+			for (int c=0; c < customPermList.size(); c++) {
+				String customPermName = (String) customPermList.get(c);
+				Boolean hasPermission = permissionManager.getCustomPermissionByName(customPermName, oldPermLevel);
+				mask.put(customPermName, hasPermission);
+			}
+
+			PermissionLevel level = permissionManager.createPermissionLevel(newItem.getName(), typeManager.getCustomLevelType(), mask);
+			newItem.setPermissionLevel(level);
+		}
+		return newItem;
 	}
 
 	public MessageForumsMessageManager getMessageManager()
@@ -829,6 +1029,14 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 	public void setDfManager(DiscussionForumManager dfManager) {
 		this.dfManager = dfManager;
+	}
+	
+	public void setPermissionManager(PermissionLevelManager permissionManager) {
+		this.permissionManager = permissionManager;
+	}
+	
+	public PermissionLevelManager getPermissionManager() {
+		return permissionManager;
 	}
 
 }

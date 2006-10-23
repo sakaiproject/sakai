@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
+import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -340,6 +341,13 @@ public interface DiscussionForumManager
 
   public DBMembershipItem getAreaDBMember(Set originalSet, String name, Integer type);
 
-  public DBMembershipItem getDBMember(Set originalSet, String name,
-      Integer type);
+  public DBMembershipItem getDBMember(Set originalSet, String name, Integer type);
+  
+  /**
+   * 
+   * @param attachId
+   * @param name
+   * @return
+   */
+  public Attachment createDFAttachment(String attachId, String name);
 }
