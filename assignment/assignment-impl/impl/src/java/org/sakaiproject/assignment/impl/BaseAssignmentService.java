@@ -2645,7 +2645,28 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public List allowAddSubmissionUsers(String assignmentReference)
 	{
-		return SecurityService.unlockUsers(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference);
+		List rv = new Vector();
+		
+		rv = SecurityService.unlockUsers(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference);
+		
+		// get the list of users who have SECURE_ALL_GROUPS
+		List allGroupUsers = new Vector();
+		try
+		{
+			String contextRef = SiteService.siteReference(getAssignment(assignmentReference).getContext());
+			allGroupUsers = SecurityService.unlockUsers(SECURE_ALL_GROUPS, contextRef);
+			// remove duplicates
+			allGroupUsers.removeAll(rv);
+		}
+		catch (Exception e)
+		{
+			M_log.warn(this + e.getMessage() + assignmentReference);
+		}
+		
+		// combine two lists together
+		rv.addAll(allGroupUsers);
+		
+		return rv;
 
 	} // allowAddSubmissionUsers
 
