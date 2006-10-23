@@ -98,6 +98,7 @@ public class StartInsertItemListener implements ValueChangeListener
               String[] insertArray = itemValue.split(",");
               // add in p#,q#
               insertToSection = insertArray[1].trim();
+              
               // SAK-3160: workaround
               /*
                It seems very difficult to track down why the sequence number is
@@ -110,8 +111,7 @@ public class StartInsertItemListener implements ValueChangeListener
                This fixes two things.
                 1. No error or warning is logged
                 2. The type of item chosen is retained, and in the correct part.
-                */
-
+                
               if (insertArray.length > 2)
               {
                 insertItemPosition = insertArray[2].trim();
@@ -120,8 +120,13 @@ public class StartInsertItemListener implements ValueChangeListener
               {
                 insertItemPosition = "0";
               }
+              */
               break;
             }
+        	if (ContextUtil.lookupParam("itemSequence") != null &&
+      	          !ContextUtil.lookupParam("itemSequence").trim().equals("")) {
+        	  insertItemPosition = ContextUtil.lookupParam("itemSequence");
+        	}
           }
         }
         else

@@ -141,6 +141,7 @@ document.links[newindex].onclick();
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
   <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
+  <f:param name="itemSequence" value="0"/>
 </h:commandLink>
 
 
@@ -213,6 +214,7 @@ document.links[newindex].onclick();
 </h:selectOneMenu>
  <f:verbatim>    </div> </f:verbatim>
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
+<f:param name="itemSequence" value="0"/>
 </h:commandLink>
 
 </h:panelGroup>
@@ -323,6 +325,7 @@ document.links[newindex].onclick();
 </h:selectOneMenu>
  <f:verbatim>    </div> </f:verbatim>
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
+  <f:param name="itemSequence" value="#{question.itemData.sequence}"/>
 </h:commandLink>
 </h:column>
 </h:dataTable>
