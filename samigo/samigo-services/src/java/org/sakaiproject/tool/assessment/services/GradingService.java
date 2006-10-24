@@ -1423,7 +1423,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 			
 		  	// comment this part out if using the jdk 1.5 version
 			
-		// /*
+		/*
 		String REGEX = answer.replaceAll("\\*", ".+");
 		Pattern p;
 		if (casesensitive) {
@@ -1436,7 +1436,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		boolean matchresult = m.matches();
 		return matchresult;
 
-		/*
+        */
+			
+		 
 		// requires jdk 1.5 for Pattern.quote(), allow metacharacters, such as a+b.
 		 
 		 
@@ -1464,7 +1466,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		 Matcher m = p.matcher(input);
 		 boolean result = m.matches();
  		 return result;
-		 */
+		  
 		
 		}
 		catch (Exception e){
