@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-The build uses the sakai 2.1-based service layer by default.  To use another
+The build uses the sakai-based service layer by default.  To use another
 service implementation, specify -Dmode=<service layer name>.
 
-service layer names include 'standalone' and 'sakai21'.
+service layer names include 'standalone' and 'sakai'.
 
 -->
 

@@ -107,28 +107,28 @@ public class CourseManagerImpl implements CourseManager {
 	 * Not supported in sakai 2.1
 	 */
 	public ParticipationRecord addInstructor(final User user, final Course course) {
-		throw new RuntimeException("Operation not supported in sakai 2.1");
+		throw new RuntimeException("Operation not supported in sakai");
 	}
 
 	/**
 	 * Not supported in sakai 2.1
 	 */
 	public ParticipationRecord addEnrollment(final User user, final Course course) {
-		throw new RuntimeException("Operation not supported in sakai 2.1");
+		throw new RuntimeException("Operation not supported in sakai");
 	}
 
 	/**
 	 * Not supported in sakai 2.1
 	 */
 	public ParticipationRecord addTA(final User user, final Course course) {
-		throw new RuntimeException("Operation not supported in sakai 2.1");
+		throw new RuntimeException("Operation not supported in sakai");
 	}
 
 	/**
 	 * Not supported in sakai 2.1
 	 */
 	public void removeCourseMembership(String userUid, Course course) {
-		throw new RuntimeException("Operation not supported in sakai 2.1");
+		throw new RuntimeException("Operation not supported in sakai");
 	}
 
 }

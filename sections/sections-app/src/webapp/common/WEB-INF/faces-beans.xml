@@ -84,6 +84,13 @@
     </managed-bean>
 
     <managed-bean>
+        <description>Add Groups Bean</description>
+        <managed-bean-name>addGroupsBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.AddGroupsBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
         <description>Edit Student Sections Bean</description>
         <managed-bean-name>editStudentSectionsBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.EditStudentSectionsBean</managed-bean-class>

@@ -44,6 +44,11 @@
             <redirect/>
         </navigation-case>
         <navigation-case>
+            <from-outcome>addGroups</from-outcome>
+            <to-view-id>/addGroups.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
             <from-outcome>options</from-outcome>
             <to-view-id>/options.jsp</to-view-id>
             <redirect/>

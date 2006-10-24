@@ -102,6 +102,10 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 		return getCourseBean().sectionManager.getSections(getSiteContext());
 	}
 
+	protected List getAllSiteGroups() {
+		return getCourseBean().sectionManager.getCourseGroups(getSiteContext());
+	}
+
 	protected Set getMyEnrolledSections() {
 		String userUid = getUserUid();
 		Course course = getCourse();

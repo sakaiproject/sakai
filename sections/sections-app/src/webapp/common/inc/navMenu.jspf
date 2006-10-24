@@ -11,7 +11,13 @@
             <h:outputText value="#{msgs.nav_add_sections}"/>
         </h:commandLink>
         <h:outputText value="#{msgs.nav_add_sections}" rendered="#{viewName eq 'addSections'}" styleClass="currentView" />
-        
+
+        <h:outputText value=" | "/>
+
+        <h:commandLink action="addGroups" immediate="true" rendered="#{viewName ne 'addGroups'}">
+            <h:outputText value="#{msgs.nav_add_groups}"/>
+        </h:commandLink>
+        <h:outputText value="#{msgs.nav_add_groups}" rendered="#{viewName eq 'addGroups'}" styleClass="currentView" />
         <h:outputText value=" | "/>
     </h:panelGroup>
     
@@ -19,8 +25,7 @@
         <h:outputText value="#{msgs.nav_roster}"/>
     </h:commandLink>
     <h:outputText value="#{msgs.nav_roster}" rendered="#{viewName eq 'roster'}" styleClass="currentView" />
-    
-    
+
     <h:outputText value=" | "/>
 
     <h:commandLink action="options" immediate="true" rendered="#{viewName ne 'options'}">

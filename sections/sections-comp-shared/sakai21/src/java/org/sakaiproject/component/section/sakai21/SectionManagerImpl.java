@@ -70,7 +70,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
- * A sakai 2.1 based implementation of the Section Management API, using the
+ * A sakai-based implementation of the Section Management API, using the
  * new grouping capability of the framework.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
@@ -1074,7 +1074,12 @@ public class SectionManagerImpl implements SectionManager {
     	}
     	List courseGroups = new ArrayList(groups.size());
     	for(Iterator iter = groups.iterator(); iter.hasNext();) {
-    		courseGroups.add(new CourseGroupImpl((Group)iter.next()));
+    		Group group = (Group)iter.next();
+    		// We only want the groups with no category.  If a category exists, this is a section.
+    		String category = group.getProperties().getProperty(CourseSectionImpl.CATEGORY);
+    		if(category ==  null) {
+        		courseGroups.add(new CourseGroupImpl(group));
+    		}
     	}
     	Collections.sort(courseGroups);
     	return courseGroups;
