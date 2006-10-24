@@ -488,7 +488,7 @@ public String addNewSite( String sessionid, String siteid, String title, String 
 	try {
 
 		Site siteEdit = null;
-		siteEdit = SiteService.addSite(siteid, "");
+		siteEdit = SiteService.addSite(siteid, type);
 		siteEdit.setTitle(title);
 		siteEdit.setDescription(description);
 		siteEdit.setShortDescription(shortdesc);
