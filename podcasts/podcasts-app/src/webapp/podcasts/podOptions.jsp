@@ -24,15 +24,19 @@
             <h:outputText value="#{msgs.options_directions1}" />
             <span onClick="showPopupHere(this,'podcatcher'); return false;" 
             	     onMouseOver="this.style.cursor='pointer'; return false;"
- 	              onMouseOut="hidePopup('podcatcher');" style="color: #0099cc;" class="active">
- 	           <h:outputText value="#{msgs.podcatcher}" />,
+ 	              onMouseOut="hidePopup('podcatcher');">
+ 	        <h:outputLink styleClass="active" onclick="return false">
+ 	           <h:outputText value="#{msgs.podcatcher}" />
+ 	        </h:outputLink>,
  	        </span>
 
  	        <h:outputText value="#{msgs.options_directions2}" />
             <span onClick="showPopupHere(this,'podcatcher'); return false;" 
             	     onMouseOver="this.style.cursor='pointer'; return false;"
- 	              onMouseOut="hidePopup('podcatcher');" style="color: #0099cc;" class="active">
- 	           <h:outputText value="#{msgs.podcatcher}" />,
+ 	              onMouseOut="hidePopup('podcatcher');">
+	        <h:outputLink styleClass="active" onclick="return false">
+ 	           <h:outputText value="#{msgs.podcatcher}" />
+ 	        </h:outputLink>,
  	        </span>
 
  	        <h:outputText value="#{msgs.options_directions3}" />

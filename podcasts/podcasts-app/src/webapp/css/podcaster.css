@@ -48,9 +48,6 @@ body {
   line-height: 100%;
 }
 
-span.active {
-  color: #0099cc;
-}
 
 .podDateFormat {
 	position: relative;
@@ -100,10 +97,6 @@ span.active {
 .podDelButtonsPosition {
 	position: relative;
 	top: 30px;
-}
-
-.blacklink {
-    color: #FFFFFF;
 }
 
 .moveUp {

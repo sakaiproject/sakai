@@ -29,8 +29,10 @@
  
             <span onClick="showPopupHere(this,'podcatcher'); return false;"
             	     onMouseOver="this.style.cursor='pointer'; return false;"
- 	              onMouseOut="hidePopup('podcatcher');" class="active">
+ 	              onMouseOut="hidePopup('podcatcher');">
+ 	        <h:outputLink styleClass="active" onclick="return false">
 	             <h:outputText value="#{msgs.podcatcher}#{msgs.colon}" />
+	        </h:outputLink>
 				<%-- <h:outputText value="#{msgs.colon}" /> --%>
  	        </span>
  	            
@@ -39,9 +41,11 @@
 
  	       <h:outputText value="#{podHomeBean.URL}" styleClass="indnt1" />
      
-         <h:outputLink value="#{podHomeBean.URL}" styleClass="nolines" target="_blank"> 
+ <%--         <h:outputLink value="#{podHomeBean.URL}" styleClass="nolines" target="_blank"> --%>
+ 		 <a href="<h:outputText value="#{podHomeBean.URL}" />" class="active" target="<h:outputText value="_blank" />" >
  	       <h:graphicImage value="images/rss-feed-icon.png" styleClass="indnt1 rssIcon" width="25px" height="25px" />
-         </h:outputLink>
+		 </a>
+<%--          </h:outputLink> --%>
          <br />
  	     
  	     <h:commandLink action="podfeedRevise" styleClass="indnt2" rendered="#{podHomeBean.canUpdateSite}" >
@@ -49,13 +53,14 @@
  	     </h:commandLink>
  	  </div> 
 
-    <div class="indnt1 moveUp">
-         <h:outputText  styleClass="instruction" value="#{msgs.no_podcasts}" 
-                rendered="#{podHomeBean.podcastFolderExists && !podHomeBean.actPodcastsExist}" />
+    <div class="indnt1">
+    	<br />
+        <h:outputText  styleClass="instruction" value="#{msgs.no_podcasts}" 
+               rendered="#{podHomeBean.podcastFolderExists && !podHomeBean.actPodcastsExist}" />
     </div>
  
 	<!-- if there are podcasts, display their information here -->
-    <div id="podcast_info" class="indnt1 moveUp" >
+    <div id="podcast_info" class="indnt1" >
       <h:dataTable value="#{podHomeBean.contents}" var="eachPodcast" rendered="#{podHomeBean.actPodcastsExist}" >
         <h:column>
             <h:outputText value="#{eachPodcast.displayDate}" styleClass="podDateFormat" />

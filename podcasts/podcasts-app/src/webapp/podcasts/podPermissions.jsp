@@ -17,7 +17,7 @@
     <h:form>
 	  <div>
     		<h3><h:outputText value="#{msgs.perm_title}" /></h3>
-    		<div styleclass="instruction" >
+    		<div class="instruction" >
         	  <h:outputText value="#{msgs.perm_directions} #{podPerms.siteName}" styleClass="indnt1"/>
 
         <!-- TODO: pull down site name (id) and add to message above-->
