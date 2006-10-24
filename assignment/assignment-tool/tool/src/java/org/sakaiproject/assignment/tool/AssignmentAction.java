@@ -852,6 +852,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 		context.put("assignments", assignments.iterator());
 		
+		// allow get assignment
+		context.put("allowGetAssignment", Boolean.valueOf(AssignmentService.allowGetAssignment(contextString)));
+		
 		// test whether user user can grade at least one assignment
 		// and update the state variable.  
 		boolean allowGradeSubmission = false;
