@@ -32,7 +32,6 @@
     </listener>
     
   <servlet>
-    <!-- Changed ordering - PAFH 8/24/2006 -->
     <display-name>Apache-Axis Servlet</display-name>
     <servlet-name>AxisServlet</servlet-name>
     <servlet-class>
@@ -40,8 +39,9 @@
     </servlet-class>
   </servlet>
 
+<!-- Changed ordering - PAFH 8/24/2006 -->
+<!--
   <servlet>
-    <!-- Changed ordering - PAFH 8/24/2006 -->
     <display-name>Axis Admin Servlet</display-name>
     <servlet-name>AdminServlet</servlet-name>
     <servlet-class>
@@ -49,9 +49,10 @@
     </servlet-class>
     <load-on-startup>100</load-on-startup>
   </servlet>
+-->
 
+<!--
   <servlet>
-    <!-- Changed ordering - PAFH 8/24/2006 -->
     <display-name>SOAPMonitorService</display-name>
     <servlet-name>SOAPMonitorService</servlet-name>
     <servlet-class>
@@ -63,6 +64,7 @@
     </init-param>
     <load-on-startup>100</load-on-startup>
   </servlet>
+-->
 
   <servlet-mapping>
     <servlet-name>AxisServlet</servlet-name>
@@ -79,10 +81,12 @@
     <url-pattern>/services/*</url-pattern>
   </servlet-mapping>
 
+<!--
   <servlet-mapping>
     <servlet-name>SOAPMonitorService</servlet-name>
     <url-pattern>/SOAPMonitor</url-pattern>
   </servlet-mapping>
+-->
 
  <!-- uncomment this if you want the admin servlet -->
  <!--
@@ -112,9 +116,7 @@
   </mime-mapping>
 
   <welcome-file-list id="WelcomeFileList">
-    <welcome-file>index.jsp</welcome-file>
     <welcome-file>index.html</welcome-file>
-    <welcome-file>index.jws</welcome-file>
   </welcome-file-list>
 
 </web-app>
