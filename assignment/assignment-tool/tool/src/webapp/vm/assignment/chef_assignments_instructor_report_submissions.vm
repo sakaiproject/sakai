@@ -90,10 +90,10 @@
 				<table class="listHier lines nolines" border="0" cellspacing="0" summary="$tlang.getString("gen.viewasslistreportsummary")">
 					<tr>
 						<th id="studentname">
-							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=lastname")'; return false;"
-								onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=lastname")'; return false;" title=" $tlang.getString("gen.sorbylas")">
+							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_lastName")'; return false;"
+								onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_lastName")'; return false;" title=" $tlang.getString("gen.sorbylas")">
 								 $tlang.getString("gen.stunam")
-								#if ($sortedBy.equals("lastname")) 
+								#if ($sortedBy.equals($!sortedBy_lastName)) 
 									#if ($sortedAsc.equals("true")) 
 										<img id="sortascendinglastname" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
 									#else 
@@ -103,10 +103,10 @@
 							</a>
 						</th>
 						<th id="assignment">
-							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=assignment")'; return false;" 
-							onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=assignment")'; return false;" title="$tlang.getString("repsubmi.check")">
+							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_assignment")'; return false;" 
+							onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_assignment")'; return false;" title="$tlang.getString("repsubmi.check")">
 								$tlang.getString("gen.assig")
-								#if ($sortedBy.equals("assignment")) 
+								#if ($sortedBy.equals($!sortedBy_assignment)) 
 									#if ($sortedAsc.equals("true")) 
 										<img id="sortascendingassignment" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
 									#else 
@@ -116,10 +116,10 @@
 							</a>
 						</th>
 						<th id="grade">
-							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=submission_grade")'; return false;" 
-							 onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=submission_grade")'; return false;" title=" $tlang.getString("gen.sorbygra")">
+							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_grade")'; return false;" 
+							 onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_grade")'; return false;" title=" $tlang.getString("gen.sorbygra")">
 								$tlang.getString("gen.gra")
-								#if ($sortedBy.equals("submission_grade")) 
+								#if ($sortedBy.equals($!sortedBy_grade)) 
 									#if ($sortedAsc.equals("true")) 
 										<img id="sort_ascending_grade" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
 									#else 
@@ -129,10 +129,10 @@
 							</a>
 						</th>
 						<th id="scale">
-							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=submission_scale")'; return false;"
-								onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=submission_scale")'; return false;" title="$tlang.getString("repsubmi.sorbysca")">
+							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_maxGrade")'; return false;"
+								onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_maxGrade")'; return false;" title="$tlang.getString("repsubmi.sorbysca")">
 								 $tlang.getString("gen.sca")
-								#if ($sortedBy.equals("submission_scale")) 
+								#if ($sortedBy.equals($!sortedBy_maxGrade)) 
 									#if ($sortedAsc.equals("true")) 
 										<img id="sort_ascending_grade" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
 									#else 
@@ -142,10 +142,10 @@
 							</a>
 						</th>
 						<th id="submitted">
-							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=submit_time")'; return false;" 
-								onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=submit_time")'; return false;" title="$tlang.getString("repsubmi.sorbytur")">
+							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_submitTime")'; return false;" 
+								onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_submitTime")'; return false;" title="$tlang.getString("repsubmi.sorbytur")">
 								 $tlang.getString("gen.subm4")
-								#if ($sortedBy.equals("submit_time")) 
+								#if ($sortedBy.equals($!sortedBy_submitTime)) 
 									#if ($sortedAsc.equals("true")) 
 										<img id="sort_ascending_grade" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
 									#else 

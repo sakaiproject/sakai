@@ -189,19 +189,19 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String SORTED_GRADE_SUBMISSION_ASC = "Assignment.grade_submission_sorted_asc";
 
 	/** state sort submission by submitters last name * */
-	private static final String SORTED_GRADE_SUBMISSION_BY_LASTNAME = "grade_lastname";
+	private static final String SORTED_GRADE_SUBMISSION_BY_LASTNAME = "sorted_grade_submission_by_lastname";
 
 	/** state sort submission by submit time * */
-	private static final String SORTED_GRADE_SUBMISSION_BY_SUBMIT_TIME = "grade_submit_time";
+	private static final String SORTED_GRADE_SUBMISSION_BY_SUBMIT_TIME = "sorted_grade_submission_by_submit_time";
 
 	/** state sort submission by submission status * */
-	private static final String SORTED_GRADE_SUBMISSION_BY_STATUS = "grade_status";
+	private static final String SORTED_GRADE_SUBMISSION_BY_STATUS = "sorted_grade_submission_by_status";
 
 	/** state sort submission by submission grade * */
-	private static final String SORTED_GRADE_SUBMISSION_BY_GRADE = "grade_submission_grade";
+	private static final String SORTED_GRADE_SUBMISSION_BY_GRADE = "sorted_grade_submission_by_grade";
 
 	/** state sort submission by submission released * */
-	private static final String SORTED_GRADE_SUBMISSION_BY_RELEASED = "grade_released";
+	private static final String SORTED_GRADE_SUBMISSION_BY_RELEASED = "sorted_grade_submission_by_released";
 
 	/** *************************** sort submission *********************** */
 	/** state sort submission* */
@@ -211,25 +211,25 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String SORTED_SUBMISSION_ASC = "Assignment.submission_sorted_asc";
 
 	/** state sort submission by submitters last name * */
-	private static final String SORTED_SUBMISSION_BY_LASTNAME = "lastname";
+	private static final String SORTED_SUBMISSION_BY_LASTNAME = "sorted_submission_by_lastname";
 
 	/** state sort submission by submit time * */
-	private static final String SORTED_SUBMISSION_BY_SUBMIT_TIME = "submit_time";
+	private static final String SORTED_SUBMISSION_BY_SUBMIT_TIME = "sorted_submission_by_submit_time";
 
 	/** state sort submission by submission grade * */
-	private static final String SORTED_SUBMISSION_BY_GRADE = "submission_grade";
+	private static final String SORTED_SUBMISSION_BY_GRADE = "sorted_submission_by_grade";
 
 	/** state sort submission by submission status * */
-	private static final String SORTED_SUBMISSION_BY_STATUS = "status";
+	private static final String SORTED_SUBMISSION_BY_STATUS = "sorted_submission_by_status";
 
 	/** state sort submission by submission released * */
-	private static final String SORTED_SUBMISSION_BY_RELEASED = "released";
+	private static final String SORTED_SUBMISSION_BY_RELEASED = "sorted_submission_by_released";
 
 	/** state sort submission by assignment title */
-	private static final String SORTED_SUBMISSION_BY_ASSIGNMENT = "assignment";
+	private static final String SORTED_SUBMISSION_BY_ASSIGNMENT = "sorted_submission_by_assignment";
 
 	/** state sort submission by max grade */
-	private static final String SORTED_SUBMISSION_BY_MAX_GRADE = "submission_scale";
+	private static final String SORTED_SUBMISSION_BY_MAX_GRADE = "sorted_submission_by_max_grade";
 
 	/** ******************** student's view assignment submission ****************************** */
 	/** the assignment object been viewing * */
@@ -1601,6 +1601,13 @@ public class AssignmentAction extends PagedResourceActionII
 
 		context.put("sortedBy", (String) state.getAttribute(SORTED_SUBMISSION_BY));
 		context.put("sortedAsc", (String) state.getAttribute(SORTED_SUBMISSION_ASC));
+		context.put("sortedBy_lastName", SORTED_SUBMISSION_BY_LASTNAME);
+		context.put("sortedBy_submitTime", SORTED_SUBMISSION_BY_SUBMIT_TIME);
+		context.put("sortedBy_grade", SORTED_SUBMISSION_BY_GRADE);
+		context.put("sortedBy_status", SORTED_SUBMISSION_BY_STATUS);
+		context.put("sortedBy_released", SORTED_SUBMISSION_BY_RELEASED);
+		context.put("sortedBy_assignment", SORTED_SUBMISSION_BY_ASSIGNMENT);
+		context.put("sortedBy_maxGrade", SORTED_SUBMISSION_BY_MAX_GRADE);
 
 		add2ndToolbarFields(data, context);
 
@@ -6033,31 +6040,44 @@ public class AssignmentAction extends PagedResourceActionII
 				UserSubmission u1 = (UserSubmission) o1;
 				UserSubmission u2 = (UserSubmission) o2;
 
-				if (u1 == null || u2 == null)
+				String status1 = "";
+				String status2 = "";
+				
+				if (u1 == null)
 				{
-					result = -1;
+					status1 = rb.getString("listsub.nosub");
 				}
 				else
 				{
 					AssignmentSubmission s1 = u1.getSubmission();
-					AssignmentSubmission s2 = u2.getSubmission();
-
 					if (s1 == null)
 					{
-						result = -1;
-					}
-					else if (s2 == null)
-					{
-						result = 1;
+						status1 = rb.getString("listsub.nosub");
 					}
 					else
 					{
-						String status1 = getSubmissionStatus((AssignmentSubmission) s1);
-						String status2 = getSubmissionStatus((AssignmentSubmission) s2);
-
-						result = status1.compareTo(status2);
+						status1 = getSubmissionStatus(m_state, (AssignmentSubmission) s1);
 					}
 				}
+				
+				if (u2 == null)
+				{
+					status2 = rb.getString("listsub.nosub");
+				}
+				else
+				{
+					AssignmentSubmission s2 = u2.getSubmission();
+					if (s2 == null)
+					{
+						status2 = rb.getString("listsub.nosub");
+					}
+					else
+					{
+						status2 = getSubmissionStatus(m_state, (AssignmentSubmission) s2);
+					}
+				}
+				
+				result = status1.toLowerCase().compareTo(status2.toLowerCase());
 			}
 			else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_GRADE))
 			{
@@ -6222,8 +6242,8 @@ public class AssignmentAction extends PagedResourceActionII
 			else if (m_criteria.equals(SORTED_SUBMISSION_BY_STATUS))
 			{
 				// sort by submission status
-				String status1 = getSubmissionStatus((AssignmentSubmission) o1);
-				String status2 = getSubmissionStatus((AssignmentSubmission) o2);
+				String status1 = getSubmissionStatus(m_state, (AssignmentSubmission) o1);
+				String status2 = getSubmissionStatus(m_state, (AssignmentSubmission) o2);
 
 				result = status1.compareTo(status2);
 			}
@@ -6335,7 +6355,7 @@ public class AssignmentAction extends PagedResourceActionII
 				String title1 = ((AssignmentSubmission) o1).getAssignment().getContent().getTitle();
 				String title2 = ((AssignmentSubmission) o2).getAssignment().getContent().getTitle();
 
-				result = title1.compareTo(title2);
+				result = title1.toLowerCase().compareTo(title2.toLowerCase());
 			}
 
 			// sort ascending or descending
@@ -6349,24 +6369,36 @@ public class AssignmentAction extends PagedResourceActionII
 		/**
 		 * get the submissin status
 		 */
-		private String getSubmissionStatus(AssignmentSubmission s)
+		private String getSubmissionStatus(SessionState state, AssignmentSubmission s)
 		{
 			String status = "";
-			if (s.getGraded())
+			if (s.getReturned())
 			{
-				if (s.getGradeReleased())
+				if (s.getTimeReturned() != null && s.getTimeSubmitted() != null && s.getTimeReturned().before(s.getTimeSubmitted()))
 				{
-					status = rb.getString("releas");
+					status = rb.getString("listsub.resubmi");
 				}
 				else
 				{
+					status = rb.getString("gen.returned");
+				}
+			}
+			else if (s.getGraded())
+			{
+				if (state.getAttribute(WITH_GRADES) != null && ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue())
+				{
 					status = rb.getString("grad3");
+				}
+				else
+				{
+					status = rb.getString("gen.commented");
 				}
 			}
 			else
 			{
-				status = rb.getString("ungra");
+				status = rb.getString("gen.ung1");
 			}
+			
 			return status;
 
 		} // getSubmissionStatus
@@ -6728,12 +6760,14 @@ public class AssignmentAction extends PagedResourceActionII
 		// sort them all
 		String ascending = "true";
 		String sort = "";
-		if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_GRADE_ASSIGNMENT))
+		ascending = (String) state.getAttribute(SORTED_ASC);
+		sort = (String) state.getAttribute(SORTED_BY);
+		if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_GRADE_ASSIGNMENT) && !sort.startsWith("sorted_grade_submission_by"))
 		{
 			ascending = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_ASC);
 			sort = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_BY);
 		}
-		else if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_REPORT_SUBMISSIONS))
+		else if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_REPORT_SUBMISSIONS) && sort.startsWith("sorted_submission_by"))
 		{
 			ascending = (String) state.getAttribute(SORTED_SUBMISSION_ASC);
 			sort = (String) state.getAttribute(SORTED_SUBMISSION_BY);
@@ -6743,7 +6777,7 @@ public class AssignmentAction extends PagedResourceActionII
 			ascending = (String) state.getAttribute(SORTED_ASC);
 			sort = (String) state.getAttribute(SORTED_BY);
 		}
-
+		
 		if ((returnResources.size() > 1) && !mode.equalsIgnoreCase(MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT))
 		{
 			Collections.sort(returnResources, new AssignmentComparator(state, sort, ascending));
