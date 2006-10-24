@@ -42,6 +42,7 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.api.section.coursemanagement.CourseGroup;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
@@ -811,7 +812,79 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 		return result;
 	}
 	
+	// Groups
+	
+	public CourseGroup addCourseGroup(String courseUuid, String title, String description) {
+		String siteContext = context.getContext(null);
+		String uuid = uuidManager.createUuid();
+		Course course = getCourse(siteContext);
+		CourseGroupImpl group = new CourseGroupImpl(uuid, course, title, description);
+		getHibernateTemplate().save(group);
+		return group;
+	}
 
+	public void disbandCourseGroup(String courseGroupUuid) {
+		CourseGroup group = getCourseGroup(courseGroupUuid);
+		if(group == null) {
+			log.warn("can not delete a non-existent group");
+		} else {
+			getHibernateTemplate().delete(group);
+		}
+	}
+
+	public CourseGroup getCourseGroup(String courseGroupUuid) {
+		List list = getHibernateTemplate().findByNamedQueryAndNamedParam(
+				"findCourseGroupByUuid", "uuid", courseGroupUuid);
+		if(list.isEmpty()) {
+			log.warn("No group found with id=" + courseGroupUuid);
+			return null;
+		}
+			return (CourseGroup)list.get(0);
+		}
+
+	public List getCourseGroups(String siteContext) {
+		return getHibernateTemplate().findByNamedQueryAndNamedParam(
+				"findCourseGroupsBySiteContext", "context", siteContext);
+	}
+
+	public Set getUsersInGroup(String courseGroupUuid) {
+		return new HashSet(getHibernateTemplate().findByNamedQueryAndNamedParam(
+				"findGroupMembers", "groupUuid", courseGroupUuid));
+	}
+
+	public void setUsersInGroup(final String courseGroupUuid, final Set userUids) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	// Get the group
+            	CourseGroup group = getCourseGroup(courseGroupUuid);
+            	String siteContext = context.getContext(null);
+            	
+        		// Remove any existing users who are not in the new set of user uids
+            	Query q = session.getNamedQuery("clearGroupMembers");
+            	q.setParameter("group", group);
+            	q.executeUpdate();
+
+            	// Add any new users who were not previously in the group
+            	for(Iterator iter = userUids.iterator(); iter.hasNext();) {
+            		String userUid = (String)iter.next();
+            		User user = getUserFromSiteParticipation(siteContext, userUid, session);
+            		if(user == null) {
+            			log.warn("can not add user " + userUid + " to group " + group.getUuid() + ".  The user is not a member on the containing site, " + siteContext);
+            		}
+            		GroupParticipantImpl member = new GroupParticipantImpl(uuidManager.createUuid(), group, user);
+            		session.save(member);
+            	}
+            	return null;
+            }
+        };
+		getHibernateTemplate().execute(hc);
+	}
+
+	public void updateCourseGroup(CourseGroup courseGroup) {
+		getHibernateTemplate().update(courseGroup);
+	}
+
+	
 
     // Dependency injection
 

@@ -26,6 +26,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.api.section.coursemanagement.CourseGroup;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
@@ -65,7 +66,7 @@ public interface SectionManager {
      * associated with this site context.
      */
     public List getSections(String siteContext);
-	
+	    
     /**
      * Lists the sections in this context that are a member of the given category.
      * 
@@ -405,4 +406,60 @@ public interface SectionManager {
 	 */
     public User getSiteEnrollment(String siteContext, String studentUid);
 
+    /**
+     * Get the list of CourseGroups for this site context.
+     * 
+     * @param siteContext
+     * @return
+     */
+    public List getCourseGroups(String siteContext);
+    
+    /**
+     * Get a CourseGroup by its uuid.
+     * 
+     * @param courseGroupUuid
+     * @return
+     */
+    public CourseGroup getCourseGroup(String courseGroupUuid);
+    
+    /**
+     * Updates a CourseGroup.
+     * 
+     * @param courseGroup
+     */
+    public void updateCourseGroup(CourseGroup courseGroup);
+    
+    /**
+     * Creates a new CourseGroup.
+     * 
+     * @param courseUuid
+     * @param title
+     * @param description
+     * @return
+     */
+    public CourseGroup addCourseGroup(String courseUuid, String title, String description);
+
+    /**
+     * Disbands a CourseGroup.  This does not affect enrollment records for
+     * the course.
+     * 
+     * @param courseGroupUuid
+     */
+    public void disbandCourseGroup(String courseGroupUuid);
+    
+    /**
+     * Gets the userUids who are members in this CourseGroup.
+     * 
+     * @param courseGroupUuid
+     * @return
+     */
+    public Set getUsersInGroup(String courseGroupUuid);
+    
+    /**
+     * Updates the members of a group
+     * 
+     * @param courseGroupUuid The courseGroup identifier
+     * @param groupMembers The set if user uuids
+     */
+    public void setUsersInGroup(String courseGroupUuid, Set groupMembers);
 }

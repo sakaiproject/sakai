@@ -18,22 +18,28 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.api.section.coursemanagement;
+package org.sakaiproject.component.section.sakai21;
 
-/**
- * A LearningContext is an abstract grouping of users in an academic environment.
- * Examples include CourseOfferings, Sections, and could potentially include
- * departments and colleges.  For Sakai 2.1, only CourseOfferings and CourseSections
- * are LearningContexts.
- * 
- * A student can be enrolled in any learning context.
- * 
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
- *
- */
-public interface LearningContext {
-	public String getUuid();
-	public String getTitle();
-	public void setTitle(String title);
+import java.io.Serializable;
+
+import org.sakaiproject.api.section.coursemanagement.LearningContext;
+import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.facade.Role;
+
+public class GroupParticipantImpl extends ParticipationRecordImpl implements Serializable{
+
+	private static final long serialVersionUID = 1L;
+
+	protected Role role;
+	
+	public GroupParticipantImpl(LearningContext learningContext, User user, Role role) {
+		this.learningContext = learningContext;
+		this.user = user;
+		this.userUid =user.getUserUid();
+		this.role = role;
+	}
+
+	public Role getRole() {
+		return role;
+	}
 }
-

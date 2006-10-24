@@ -18,22 +18,41 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.api.section.coursemanagement;
+package org.sakaiproject.component.section;
+
+import java.io.Serializable;
+
+import org.sakaiproject.api.section.coursemanagement.LearningContext;
+import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.api.section.facade.Role;
 
 /**
- * A LearningContext is an abstract grouping of users in an academic environment.
- * Examples include CourseOfferings, Sections, and could potentially include
- * departments and colleges.  For Sakai 2.1, only CourseOfferings and CourseSections
- * are LearningContexts.
- * 
- * A student can be enrolled in any learning context.
+ * A detachable ParticipationRecord for persistent storage.  The original design for
+ * Section Info did not include Groups, and consequently, the Role enumeration
+ * doesn't fit well for groups.  This class uses a bit of an ugly hack to map the role
+ * enumeration into a persistable int.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public interface LearningContext {
-	public String getUuid();
-	public String getTitle();
-	public void setTitle(String title);
-}
+public class GroupParticipantImpl extends ParticipationRecordImpl implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * No-arg constructor needed for hibernate
+	 */
+	public GroupParticipantImpl() {		
+	}
+	
+	public GroupParticipantImpl(String uuid, LearningContext learningContext, User user) {
+		this.uuid = uuid;
+		this.learningContext = learningContext;
+		this.user = user;
+	}
+	
+	public Role getRole() {
+		// Section Info doesn't care about group roles
+		return null;
+	}
+}

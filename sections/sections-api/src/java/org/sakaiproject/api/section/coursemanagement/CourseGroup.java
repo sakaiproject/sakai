@@ -21,19 +21,13 @@
 package org.sakaiproject.api.section.coursemanagement;
 
 /**
- * A LearningContext is an abstract grouping of users in an academic environment.
- * Examples include CourseOfferings, Sections, and could potentially include
- * departments and colleges.  For Sakai 2.1, only CourseOfferings and CourseSections
- * are LearningContexts.
- * 
- * A student can be enrolled in any learning context.
+ * A subset of a Course's membership.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public interface LearningContext {
-	public String getUuid();
-	public String getTitle();
-	public void setTitle(String title);
-}
+public interface CourseGroup extends LearningContext {
 
+	public String getDescription();
+	public void setDescription(String description);
+}

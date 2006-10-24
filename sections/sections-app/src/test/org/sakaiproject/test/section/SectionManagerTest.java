@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.CourseManager;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.api.section.coursemanagement.CourseGroup;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
@@ -276,5 +277,64 @@ public class SectionManagerTest extends SectionsTestBase{
 		secMgr.setSelfSwitchingAllowed(course.getUuid(), false);
 		Assert.assertTrue( ! secMgr.isSelfSwitchingAllowed(course.getUuid()));
 
+    }
+    
+    public void testCreateAndDisbandGroup() throws Exception {
+    	String siteContext = context.getContext(null);
+
+    	// Add a course and a section to work from
+    	Course course = courseMgr.createCourse(siteContext, "A course", false, false, false);
+    	
+    	// Add a group
+    	CourseGroup group = secMgr.addCourseGroup(course.getUuid(), "group 1", "a sample group");
+    	
+    	// Get the group from the service
+    	CourseGroup groupFromDb = secMgr.getCourseGroup(group.getUuid());
+    	
+    	// Assert that these are the same object
+    	Assert.assertEquals(group, groupFromDb);
+    	
+    	// Remove the group
+    	secMgr.disbandCourseGroup(group.getUuid());
+    	
+    	// Ensure that the service can no longer find this group.
+    	Assert.assertNull(secMgr.getCourseGroup(course.getUuid()));
+    }
+    
+    public void testGroupMemberships() throws Exception {
+		String siteContext = context.getContext(null);
+		
+		// Add a course and a section to work from
+		Course course = courseMgr.createCourse(siteContext, "A course", false, false, false);
+		
+		// Add a group
+		CourseGroup group = secMgr.addCourseGroup(course.getUuid(), "group 1", "a sample group");
+		
+		// Create users
+		User user1 = userMgr.createUser("user1", "user1", "user1", "user1");
+		User user2 = userMgr.createUser("user2", "user2", "user2", "user2");
+		User user3 = userMgr.createUser("user3", "user3", "user3", "user3");
+		User user4 = userMgr.createUser("user4", "user4", "user4", "user4");
+		
+		// Add them to the site/context membership
+		courseMgr.addEnrollment(user1, course);
+		courseMgr.addEnrollment(user2, course);
+		courseMgr.addEnrollment(user3, course);
+		courseMgr.addEnrollment(user4, course);
+		
+		// Add group members, but don't add everybody
+		Set set = new HashSet();
+		set.add("user1");
+		set.add("user2");
+		set.add("user3");
+		
+		// Save the group members
+		secMgr.setUsersInGroup(group.getUuid(), set);
+		
+		// Ensure that the service returns the correct group members
+		Set groupMembers = secMgr.getUsersInGroup(group.getUuid());
+		Assert.assertEquals(3, groupMembers.size());
+		Assert.assertTrue(groupMembers.contains("user1"));
+		Assert.assertFalse(groupMembers.contains("user4"));
     }
 }

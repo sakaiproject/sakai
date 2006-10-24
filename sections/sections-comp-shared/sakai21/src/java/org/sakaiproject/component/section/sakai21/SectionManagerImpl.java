@@ -40,6 +40,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.api.section.coursemanagement.CourseGroup;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
@@ -430,6 +431,17 @@ public class SectionManagerImpl implements SectionManager {
     	return (String)roleStrings.iterator().next();
     }
 
+//    private String getSectionInstructorRole(AuthzGroup group) throws RoleConfigurationException {
+//    	Set roleStrings = group.getRolesIsAllowed(SectionAwareness.INSTRUCTOR_MARKER);
+//    	if(roleStrings.size() != 1) {
+//    		if(log.isDebugEnabled()) log.debug("Group " + group +
+//    			" must have one and only one role with permission " +
+//    			SectionAwareness.INSTRUCTOR_MARKER);
+//    		throw new RoleConfigurationException("Can't add a user to a section as an instructor, since there is no instructor-flagged role");
+//    	}
+//    	return (String)roleStrings.iterator().next();
+//    }
+    
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1003,6 +1015,154 @@ public class SectionManagerImpl implements SectionManager {
 	}
 	
 
+	// Groups
+
+	public CourseGroup addCourseGroup(String courseUuid, String title, String description) {
+    	Reference ref = entityManager.newReference(courseUuid);
+    	
+    	Site site;
+    	try {
+    		site = siteService.getSite(ref.getId());
+    	} catch (IdUnusedException e) {
+    		log.error("Unable to find site " + courseUuid);
+    		return null;
+    	}
+    	Group group = site.addGroup();
+    	group.setTitle(title);
+    	group.setDescription(description);
+
+    	// Save the site, along with the new group
+    	try {
+        	siteService.save(site);
+    	} catch (IdUnusedException ide) {
+    		log.error("Error saving site... could not find site for group " + group, ide);
+    	} catch (PermissionException pe) {
+    		log.error("Error saving site... permission denied for group " + group, pe);
+    	}
+    	return new CourseGroupImpl(group);
+	}
+
+	public void disbandCourseGroup(String courseGroupUuid) {
+		Group group = siteService.findGroup(courseGroupUuid);
+		if(group == null) {
+			log.warn("can not disband a non-existent group: " + courseGroupUuid);
+			return;
+		}
+		Site site = group.getContainingSite();
+    	site.removeGroup(group);
+    	// Save the site and its newly removed group
+    	try {
+        	siteService.save(site);
+    	} catch (IdUnusedException ide) {
+    		log.error("Error saving site... could not find site for group " + group, ide);
+    	} catch (PermissionException pe) {
+    		log.error("Error saving site... permission denied for group " + group, pe);
+    	}
+	}
+
+	public CourseGroup getCourseGroup(String courseGroupUuid) {
+		return new CourseGroupImpl(siteService.findGroup(courseGroupUuid));
+	}
+
+	public List getCourseGroups(String siteContext) {
+		Collection groups = null;
+    	try {
+    		groups = siteService.getSite(siteContext).getGroups();
+    	} catch (IdUnusedException e) {
+    		log.error("No site with id = " + siteContext);
+    		return new ArrayList();
+    	}
+    	List courseGroups = new ArrayList(groups.size());
+    	for(Iterator iter = groups.iterator(); iter.hasNext();) {
+    		courseGroups.add(new CourseGroupImpl((Group)iter.next()));
+    	}
+    	Collections.sort(courseGroups);
+    	return courseGroups;
+	}
+
+	public Set getUsersInGroup(String courseGroupUuid) {
+		Group group = siteService.findGroup(courseGroupUuid);
+		Set members = group.getMembers();
+		Set userUids = new HashSet();
+		for(Iterator iter = members.iterator(); iter.hasNext();) {
+			Member member = (Member)iter.next();
+			userUids.add(member.getUserId());
+		}
+		return userUids;
+	}
+
+//	private Role getRole(Member member) {
+//		org.sakaiproject.authz.api.Role sakaiRole = member.getRole();
+//		if(sakaiRole.isAllowed(SectionAwareness.STUDENT_MARKER)) {
+//			return Role.STUDENT;
+//		}
+//		if(sakaiRole.isAllowed(SectionAwareness.TA_MARKER)) {
+//			return Role.TA;
+//		}
+//		if(sakaiRole.isAllowed(SectionAwareness.INSTRUCTOR_MARKER)) {
+//			return Role.INSTRUCTOR;
+//		}
+//		return Role.NONE;
+//	}
+
+	public void setUsersInGroup(String courseGroupUuid, Set userUids) {
+		Group group = siteService.findGroup(courseGroupUuid);
+
+		// Remove the existing members
+		group.removeMembers();
+		
+		// Add the new set of members
+		for(Iterator iter = userUids.iterator(); iter.hasNext();) {
+			String userUid = (String)iter.next();
+			// FIXME What role should we use when adding a user to a group?
+			String sakaiRole = null;
+			group.addMember(userUid, sakaiRole, true, false);
+		}
+		
+		// Save the site (and hence, the group)
+		try {
+			siteService.saveGroupMembership(group.getContainingSite());
+		} catch (IdUnusedException e) {
+			log.error("unable to find site: ", e);
+		} catch (PermissionException e) {
+			log.error("access denied while attempting to save site: ", e);
+		}
+	}
+	
+//	private String getSakaiGroupRole(Group group, ParticipationRecord record) {
+//		try {
+//			Role role = record.getRole();
+//			if(role.isInstructor()) {
+//				return getSectionInstructorRole(group);
+//			}
+//			if(role.isTeachingAssistant()) {
+//				return getSectionTaRole(group);
+//			}
+//			if(role.isStudent()) {
+//				return getSectionStudentRole(group);
+//			}
+//		} catch (RoleConfigurationException rce) {
+//			// TODO Why is this a checked exception?
+//			throw new RuntimeException(rce);
+//		}
+//		return null;
+//	}
+
+	public void updateCourseGroup(CourseGroup courseGroup) {
+		Group group = siteService.findGroup(courseGroup.getUuid());
+		group.setDescription(courseGroup.getDescription());
+		group.setTitle(courseGroup.getTitle());
+
+		// Save the site (and hence, the group)
+		try {
+			siteService.saveGroupMembership(group.getContainingSite());
+		} catch (IdUnusedException e) {
+			log.error("unable to find site: ", e);
+		} catch (PermissionException e) {
+			log.error("access denied while attempting to save site: ", e);
+		}
+	}
+	
     // Dependency injection
 
 	public void setSiteService(SiteService siteService) {

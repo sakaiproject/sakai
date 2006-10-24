@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.component.section;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -34,7 +36,7 @@ import org.sakaiproject.api.section.coursemanagement.User;
  *
  */
 public abstract class ParticipationRecordImpl extends AbstractPersistentObject
-	implements ParticipationRecord {
+	implements ParticipationRecord, Serializable {
 	
 	protected User user;
 	protected LearningContext learningContext;
