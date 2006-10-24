@@ -1,12 +1,10 @@
 <div class="portletBody">
+
 	<h3>
-		$tlang.getString("stupresub.presub")
+		$tlang.getString("assig1")<span class="highlight"> - $tlang.getString("gen.pre")
 	</h3>	
 
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
-	<h4>
-		$tlang.getString("gen.assig")
-	</h4>	
 	<table class="itemSummary" summary="$tlang.getString("gen.assdet")" border="0">
 		 <tr>
 			<th>
@@ -77,18 +75,17 @@
 		#set($newAssignment=$assignment.getProperties().getProperty("newAssignment"))
 		#if ($assignment.getTimeLastModified().after($assignment.getOpenTime()) && !$!newAssignment.equalsIgnoreCase("true"))
 			<tr>
-				<th class="highlight">
+				<th>
 						$tlang.getString("gen.modbyins")
 				</th>
-				<td class="highlight">
+				<td>
 						$assignment.getTimeLastModified().toStringLocalFull()
 				</td>
 			</tr>	
 		#end
 	</table>
-
 	<h4>
-		$tlang.getString("gen.subm")
+		$tlang.getString("gen.submission")
 	</h4>
 	#if ($!text.length()>0)
 		<div class="textPanel">
@@ -159,16 +156,6 @@
 					<input name="eventSubmit_doCancel_show_submission" type="submit" value="$tlang.getString("gen.revi")" disabled="disabled" />
 			#else
 				<input
-					class="disableme" 
-					type="button" 
-					accesskey="d"
-					name="save" 
-					id="save" 
-					value="$tlang.getString("gen.savdra")"
-					onclick="showNotif('submitnotif','save','addSubmissionForm');document.addSubmissionForm.option.value='save'; document.addSubmissionForm.submit(); return false;"
-					onkeypress="showNotif('submitnotif','save','addSubmissionForm');document.addSubmissionForm.option.value='save'; document.addSubmissionForm.submit(); return false;"
-				/>
-				<input
 					type="button"
 					class="active"
 					#if (!$submission.getSubmitted())
@@ -185,6 +172,16 @@
 				<input
 					class="disableme" 
 					type="button" 
+					accesskey="d"
+					name="save" 
+					id="save" 
+					value="$tlang.getString("gen.savdra")"
+					onclick="showNotif('submitnotif','save','addSubmissionForm');document.addSubmissionForm.option.value='save'; document.addSubmissionForm.submit(); return false;"
+					onkeypress="showNotif('submitnotif','save','addSubmissionForm');document.addSubmissionForm.option.value='save'; document.addSubmissionForm.submit(); return false;"
+				/>
+				<input
+					class="disableme" 
+					type="button" 
 					name="revise" 
 					accesskey="r"
 					id="revise" 
@@ -192,15 +189,16 @@
 					onclick="document.addSubmissionForm.option.value='revise';document.addSubmissionForm.submit(); return false;"
 				/>
 			#end
-			<input
-				class="disableme" 
-				type="button" 
-				name="revise" 
-				accesskey="x"
-				id="done" 
-				value="$tlang.getString("gen.don")"
-				onclick="document.addSubmissionForm.option.value='revise'; document.addSubmissionForm.submit(); return false;"
-			/>
+## gsilver - what used for? confusion.
+##		<input
+##				class="disableme" 
+##			type="button" 
+##		name="revise" 
+##				accesskey="x"
+##				id="done" 
+##				value="$tlang.getString("gen.don")"
+##				onclick="document.addSubmissionForm.option.value='revise'; document.addSubmissionForm.submit(); return false;"
+##			/>
 			<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 		</div>
 	</form>

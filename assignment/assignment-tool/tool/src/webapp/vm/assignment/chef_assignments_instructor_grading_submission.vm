@@ -24,25 +24,23 @@
 		<input type="hidden" name="option" id="option" value="" />
 		<input type="hidden" name="view" id="view" value="" />
 		<h3>
+			$tlang.getString("gen.openquote")$assignment.title$tlang.getString("gen.closequote")
+			<span class="highlight"> - 
 			#if ($withGrade)
 				#if (!$!submission.getGraded())
-					$tlang.getString("gen.gra")
+					$tlang.getString("gen.grading")
 				#else
-					$tlang.getString("gen.regra")
+					$tlang.getString("gen.regrading")
 				#end 
 			#else
-				$tlang.getString("gen.review")
+				$tlang.getString("gen.reviewing")
 			#end
-			$assignment.title
+			</span>
 		</h3>
-		<h4>
-				$tlang.getString("gen.assdet")
-		</h4>		
-
 		## 1- text only; 2-attachment only; 3-text and attachment
 		#set ( $submissionType = $assignment.getContent().TypeOfSubmission)
 		<table class="itemSummary" cellspacing="0" summary="$tlang.getString("gen.assdet")">
-			<tr>
+#*			<tr>
 				<th>
 						$tlang.getString("gen.tit2")
 				</th>
@@ -50,9 +48,9 @@
 					$validator.escapeHtml($assignment.title)
 				</td>
 			</tr>
-			<tr>
+*#			<tr>
 				<th>
-					$tlang.getString("gen.student"):
+					$tlang.getString("gen.student")
 				</th>	
 				<td>
 					#set ($submitterNames = "")
@@ -162,7 +160,7 @@
 					</ul>
 				#end	
 			#end	## show the assignment content
-			<h4>$tlang.getString("gen.subm")</h4>
+			<h3>$tlang.getString("gen.submission")</h3>
 				## if there is a text
 				#if ($submissionType!=2)
 					<h4>
@@ -195,7 +193,7 @@
 						#end
 					#end
 					#if ($size == 0)
-						<p class="instruction">$tlang.getString("gen.noatt")</p>
+						<p class="instruction">$tlang.getString("gen.noattsubmitted")</p>
 					#else
 						<ul class="attachList indnt1">
 							#foreach ($attachment in $submission.SubmittedAttachments) 
@@ -299,7 +297,7 @@
 									<p class="shorttext">
 										<label for="grade">$tlang.getString("gen.gra2")</label>
 										<input type="hidden" name="$name_grade" value="ungraded" />
-										<span class="highlight">$tlang.getString("gen.nograd")</span>
+										<span class="highlight"> $tlang.getString("gen.nograd")</span>
 									</p>	
 								#elseif ($gradeType == 2)
 									<p class="shorttext">
@@ -317,7 +315,7 @@
 								#elseif ($gradeType == 3)
 									<p class="shorttext">
 										<label for="grade">$tlang.getString("gen.gra2")</label>
-										<input type="text" name="$name_grade" size="5" value="$value_grade" id="grade" /><span class="instruction">($tlang.getString("gen.outof") $assignment.getContent().getMaxGradePointDisplay())</span>
+										<input type="text" name="$name_grade" size="5" value="$value_grade" id="grade" /> <span class="instruction">($tlang.getString("gen.outof") $assignment.getContent().getMaxGradePointDisplay())</span>
 									</p>	
 								#elseif ($gradeType == 4)
 									<p class="shorttext">
@@ -351,9 +349,9 @@
 				<input type="checkbox" name="allowResubmit"  id="allowResubmit" #if($!value_allowResubmit) checked="checked" #end /> <label for="allowResubmit">$tlang.getString("allowResubmit")</label>
 			</p>	
 			<p class="act">
-				<input type="button" accesskey="s" class="active" name="return" value="$tlang.getString('gen.retu')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='returngrade';document.gradeForm.submit();return false;" />
-				<input type="button" accesskey="d"  name="save" value="$tlang.getString('gen.sav')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='savegrade';document.gradeForm.submit();return false;" />
+				<input type="button" accesskey="s" class="active" name="return" value="$tlang.getString('gen.retustud')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='returngrade';document.gradeForm.submit();return false;" title="$tlang.getString("gen.retustudtit")" />
 				<input type="button" accesskey="v" name="preview" value="$tlang.getString('gen.pre')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='previewgrade';document.gradeForm.submit();return false;" />
+				<input type="button" accesskey="d"  name="save" value="$tlang.getString('gen.savdra')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='savegrade';document.gradeForm.submit();return false;" />
 				<input type="button" accesskey="x" name="cancel" value="$tlang.getString('gen.can')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='cancelgrade';document.gradeForm.submit();return false;" />
 			</p>
 	</form>

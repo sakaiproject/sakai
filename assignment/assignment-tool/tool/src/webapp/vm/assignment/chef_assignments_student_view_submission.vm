@@ -1,6 +1,6 @@
 <div class="portletBody">
-	#set($closeTime = false)
-	#set($closeTime = $assignment.CloseTime)
+#set($closeTime = false)
+		#set($closeTime = $assignment.CloseTime)
 	#if ($!closeTime && $currentTime.after($!closeTime) && (!$!submission.getSubmitted()))
 		<div class="alertMessage">$tlang.getString("stuviewsubm.theclodat")</div><div class="clear"></div>
 	#else
@@ -8,26 +8,44 @@
 		#if ($!submission)
 			## get the properies
 		#if ($!allowAddAssignment)
-				<h3>$tlang.getString("viewexampleassign")</h3>
+				<h3>$tlang.getString("viewexampleassign") </h3>
 			#else
-				<h3>$tlang.getString("viewassign")</h3>
+			<h3>
+				#if ($submission.getSubmitted())
+				#else
+				$tlang.getString("viewassign")
+					<span class="highlight">
+						 - $tlang.getString("gen.inpro")
+					</span>
+				#end
+				#if ($submission.TimeReturned.after($submission.TimeSubmitted))
+				 $tlang.getString("assig1")
+					<span class="highlight">
+						 - $tlang.getString("resubmit")
+					</span>
+				#end	
+				</h3>
 			#end
 			#if ($submission.getSubmitted())
 				#if ($submission.returned)
 					#if ($submission.TimeReturned.after($submission.TimeSubmitted))
+					<p class="instruction">
 						$tlang.getString("stuviewsubm.asshasbee4") $submission.TimeReturned.toStringLocalFull(). $tlang.getString("stuviewsubm.plesub")
+					</p>	
 					#else
+					<p class="instruction">
 						$tlang.getString("stuviewsubm.asshasbee3") $submission.TimeSubmitted.toStringLocalFull().
 						#if ($submission.getTimeSubmitted().after($assignment.DueTime))
-							<span class="reqStar"> $tlang.getString("gen.late")</span>
+							<span class="highlight"> $tlang.getString("gen.late")</span>
 						#end
+					</p>	
 					#end
 				#elseif ($submission.getGraded() && ($submission.getGradeReleased() || $submission.Returned))
 					$tlang.getString("stuviewsubm.asshasbee2")
 				#else
 					<p class="instruction">$tlang.getString("gen.hasbee") $submission.TimeSubmitted.toStringLocalFull()</p>
 					#if ($submission.getTimeSubmitted().after($assignment.DueTime))
-						<span class="reqStar"> $tlang.getString("gen.late")</span>
+						<span class="highlight"> $tlang.getString("gen.late")</span>
 					#end
 				#end
 			#else
@@ -36,17 +54,29 @@
 		#else
 			#if ($!allowAddAssignment)
 				<h3>$tlang.getString("subexampleassign")</h3>
-			#else
-				<h3>$tlang.getString("subassign")</h3>
+			#else 
+				<h3>$tlang.getString("gen.assig")
+									<span class="highlight">
+						 - $tlang.getString("gen.inpro")
+					</span>
+				</h3>
+				#set ( $submissionType = $assignment.getContent().getTypeOfSubmission())
 			#end
-			<p class="instruction">$tlang.getString("stuviewsubm.asshasnot")</p>	
+			<p class="instruction">
+				#if (($submissionType==2) || ($submissionType==3))
+					Fill out form. Make sure you click <span class="highlight"><b>"Submit"</b></span>.
+				#else
+				 	$tlang.getString("stuviewsubm.asshasnot")
+					#end
+		
+			</p>	
 		#end
 	#end
 	<form name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 		<input type="hidden" name="eventSubmit_doRead_add_submission_form" value="x" />
 		<input type="hidden" name="option" value="cancel" />
 		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
-		<h4>$tlang.getString("gen.assdet")</h4>
+##		<h4>$tlang.getString("gen.assdet")</h4>
 			<table class="itemSummary"  summary="$tlang.getString("gen.theassinf")">
 				<tr>
 					<th>
@@ -142,17 +172,17 @@
 				#set($newAssignment=$assignment.getProperties().getProperty("newAssignment"))
 				#if ($assignment.getTimeLastModified().after($assignment.getOpenTime()) && !$!newAssignment.equalsIgnoreCase("true"))
 					<tr>
-						<th class="highlight">
+						<th>
 								$tlang.getString("gen.modbyins")
 						</th>
-						<td class="highlight">
+						<td>
 							$assignment.getTimeLastModified().toStringLocalFull()
 						</td>
 					</tr>
 				#end
 			</table>
 		<h4>
-			$tlang.getString("gen.assinf")
+			$tlang.getString("gen.assinfshort")
 		</h4>
 		
 		#if ($!assignment.getContent().getInstructions().length()>0)
@@ -193,14 +223,15 @@
 				</ul>
 				##end	 
 		#end
-		<h3>$tlang.getString("gen.subm")</h3>
+		<hr class="itemSeparator" />
+		<h3>$tlang.getString("gen.submission")</h3>
 		#if (!$submission.getSubmitted() || $submission.getReturned())
 			## if a draft submission or the submission has been returned and has not yet submitted
 			## 1- text only; 2-attachment only; 3-text and attachment
 			#set ( $submissionType = $assignment.getContent().getTypeOfSubmission())
 			#if (($submissionType==1) || ($submissionType==3))
 				#if ($!deleted.equalsIgnoreCase("true"))
-					<h4>$tlang.getString("gen.yousub")</h4>
+					<h4>$tlang.getString("gen.yousub") </h4>
 					##if the assignment has been deleted, disable the action button
 					$validator.escapeHtmlFormattedText($!value_submission_text)
 				#else
@@ -231,11 +262,10 @@
 									$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText))
 								</div>
 							#end
-							<h4>$tlang.getString("feedbacktext")</h4><br />
+							<h4>$tlang.getString("gen.orisub2")</h4>
 							<div class="textPanel">
 								$cheffeedbackhelper.escapeAssignmentFeedback($submission.FeedbackText)
 							</div>
-							<br />	
 							<h4>$tlang.getString("stuviewsubm.entbelo")</h4>
 							<table border="0"><tr><td>
 							<textarea cols="80" rows="15" wrap="virtual" name="$name_submission_text" id="$name_submission_text" #if(!$allowSubmit)disabled="disabled"#end >#if($!value_submission_text)$validator.escapeHtmlFormattedTextarea($!value_submission_text)#end</textarea>
@@ -365,8 +395,8 @@
 						#if ($size == 0)
 							##$tlang.getString("gen.noatt")
 						#else
-							<h5>$tlang.getString("gen.addinst")</h5>
-							<ul class="attachList">
+							<h5>$tlang.getString("gen.addinstatts")</h5>
+							<ul class="attachList indnt1">
 								#foreach ($attachment in $feedbackAttachments) 
 									#set ($props = false)
 									#set ($props = $attachment.Properties) 

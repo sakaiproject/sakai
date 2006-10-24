@@ -1,16 +1,17 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_student_view_grade.vm,v 1.2 2005/05/19 19:39:49 gsilver.umich.edu Exp $ -->
 <div class="portletBody">
-	#set ($assignment = $submission.Assignment)
+#set ($assignment = $submission.Assignment)
 	<h3>
-		$tlang.getString("stuviewgrad.viewass2")
-	</h3>
+	$tlang.getString("stuviewgrad.viewass2")
+		#if ($submission.Returned)
+			<span class="highlight"> - $tlang.getString("gen.returned")</span>
+		#else
+			<span class="highlight"> - $tlang.getString("gen.subm4")</span>
+		#end
+		</h3>
 
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<form action="#toolForm("AssignmentAction")" method="post" >
-			<h4>
-				$tlang.getString("gen.assig")
-			</h4>
-				
 			<table class="itemSummary" summary="$tlang.getString("stuviewgrad.thegradet")">
 				<tr>
 					<th>
@@ -120,16 +121,13 @@
 			</ul>
 			#end
 			<hr class="itemSeparator" />
-			<h4>
-				$tlang.getString("stuviewgrad.inscom")
-			</h4>
 			#if ($!submission.FeedbackText && ($submission.FeedbackText.length()>0))
 				<h5>$tlang.getString("gen.orisub2")</h5>
 				<div class="textPanel">$cheffeedbackhelper.escapeAssignmentFeedback($submission.FeedbackText)</div>
 			#else
 				#set ($text = $submission.getSubmittedText())
 				#if ($!text && $text.length() > 0)
-					<p class="instruction">$tlang.getString("gen.orisub")</p>
+					<h4>$tlang.getString("gen.orisub")</h4>
 					<div class="textPanel">$submission.getSubmittedText()</div>
 				#end
 			 #end
@@ -207,7 +205,7 @@
 					</ul>
 				#end
 			<div class="act">
-				<input type="submit" accesskey="x" name="eventSubmit_doCancel_view_grade" value="$tlang.getString("gen.don")" />
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel_view_grade" value="$tlang.getString("gen.backtolist")" />
 			</div>
 		</form>
 	</div>

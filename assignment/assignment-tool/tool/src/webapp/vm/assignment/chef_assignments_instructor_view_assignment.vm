@@ -300,7 +300,7 @@
 					</ul>
 				#end	
 				<h4>
-					$tlang.getString("gen.staass")
+					$tlang.getString("gen.submission")
 				</h4>	
 					## 1- text only; 2-attachment only; 3-text and attachment
 					#set ( $submissionType = $assignment.getContent().getTypeOfSubmission())
@@ -345,10 +345,10 @@
 		#end
 		<p class="act">
 			#if ($assignment.Draft)
-				<input type="submit" accesskey="s" name="eventSubmit_doPost_assignment" value="$tlang.getString("gen.pos")" />
+				<input type="submit" accesskey="s" name="eventSubmit_doPost_assignment" value="$tlang.getString("gen.pos")" class="active" />
 				 <input type="submit"accesskey="x" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.can")" />
 			#else
-				<input type="submit" accesskey="x" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.don")" />
+				<input type="submit" accesskey="x" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.backtolist")" class="active"  />
 		#end
 		</p>
 	</form>

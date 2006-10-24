@@ -13,7 +13,7 @@
 			| <a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a>
 		#end
 	</div>
-		<h3>$tlang.getString("gen.pre") $tlang.getString("gen.instrcomment")</h3>
+		<h3>$tlang.getString("gen.pre") $tlang.getString("gen.instrcomment") 	$tlang.getString("gen.to") 				$tlang.getString("gen.openquote")$assignment.title$tlang.getString("gen.closequote")</h3>
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end		
 		<form action="#toolForm("AssignmentAction")" method="post" >   
 			<table class="itemSummary" summary="layout">
@@ -73,7 +73,7 @@
 				</tr>
 			</table>
 			<h4>
-				$tlang.getString("gen.assinf")
+				$tlang.getString("gen.instr")
 			</h4>	
 			#if ($assignment.getContent().getInstructions().length()>0)
 				<div class="textPanel">$validator.escapeHtmlFormattedText($assignment.getContent().getInstructions())</div>
@@ -115,7 +115,7 @@
 			#end	
 			#if ($!feedback_text.length()>0)
 				<h4>
-					Feedback
+					$tlang.getString("gen.orisub2")
 				</h4>
 				<div class="textPanel">$cheffeedbackhelper.escapeAssignmentFeedback($feedback_text)</div>
 			 #end
@@ -203,10 +203,10 @@
 					#end	
 			</div>	
 			<p class="act">
-				<input accesskey="s" name="eventSubmit_doReturn_preview_grade_submission" type="submit" value="$tlang.getString("gen.retu")" />
+				<input accesskey="s" name="eventSubmit_doReturn_preview_grade_submission" type="submit" value="$tlang.getString("gen.retustud")" title="$tlang.getString("gen.retustudtit")" class="active" />
 				<input accesskey="d" name="eventSubmit_doSave_preview_grade_submission" type="submit" value="$tlang.getString("gen.sav")" />
 				<input accesskey="r" name="eventSubmit_doCancel_preview_grade_submission" type="submit" value="$tlang.getString("gen.revi")" />
-				<input accesskey="x" name="eventSubmit_doCancel_preview_grade_submission" type="submit" value="$tlang.getString("gen.don")" />
+				<input accesskey="d" name="eventSubmit_doSave_preview_grade_submission" type="submit" value="$tlang.getString("gen.savdra")" />				
 			</p>
 
 												
