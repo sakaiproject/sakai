@@ -23,8 +23,8 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.awt.geom.Arc2D.Float;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import javax.faces.application.FacesMessage;
@@ -81,6 +81,7 @@ public class SavePublishedSettingsListener
 
     PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean(
                          "publishedSettings");
+    
     // create an assessment based on the title entered and the assessment
     // template selected
     // #1 - set Assessment
@@ -98,12 +99,21 @@ public class SavePublishedSettingsListener
       // need to fix accessControl so it can take AssessmentFacade later
       control.setAssessmentBase(assessment.getData());
     }
-    // a. LATER set dueDate, retractDate, startDate, releaseTo
-    control.setStartDate(assessmentSettings.getStartDate());
-    control.setDueDate(assessmentSettings.getDueDate());
-    control.setRetractDate(assessmentSettings.getRetractDate());
-    control.setFeedbackDate(assessmentSettings.getFeedbackDate());
+    
+    String id = ae.getComponent().getId();
+    // Check if the action is clicking the the Retract button on Assessment Retract Confirmation button
+    if (id.equals("retract")) {
+    	control.setRetractDate(new Date());
+    }
+    else {
+    	control.setRetractDate(assessmentSettings.getRetractDate());
+    }
+   	// a. LATER set dueDate, startDate, releaseTo
+   	control.setStartDate(assessmentSettings.getStartDate());
+   	control.setDueDate(assessmentSettings.getDueDate());
+   	control.setFeedbackDate(assessmentSettings.getFeedbackDate());
 
+    
     // check if the score is > 0, Gradebook doesn't allow assessments with total
 	// point = 0.
 		boolean error = false;

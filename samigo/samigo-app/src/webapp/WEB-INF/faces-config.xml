@@ -589,6 +589,10 @@
       <from-outcome>confirmRemoveAssessmentAttachment</from-outcome>
       <to-view-id>/jsf/author/removeAssessmentAttachment.jsp</to-view-id>
     </navigation-case>
+    <navigation-case>
+      <from-outcome>confirmAssessmentRetract</from-outcome>
+      <to-view-id>/jsf/author/confirmAssessmentRetract.jsp</to-view-id>
+    </navigation-case>
 
   <!-- ITEM AUTHORING -->
     <navigation-case>
