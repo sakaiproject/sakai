@@ -1071,7 +1071,7 @@ public class PublishedAssessmentFacadeQueries
     String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title,"+
                    " c.releaseTo, c.startDate, c.dueDate, c.retractDate) from PublishedAssessmentData p,"+
                    " PublishedAccessControl c, AuthorizationData z  " +
-                   " where c.assessment=p and (p.status=0 or c.dueDate< ? or  c.retractDate< ?)" +
+                   " where c.assessment=p and (p.status=0 or c.dueDate<= ? or  c.retractDate<= ?)" +
                    " and p.publishedAssessmentId=z.qualifierId and z.functionId='OWN_PUBLISHED_ASSESSMENT' " +
                    " and z.agentIdString= ? order by p." + orderBy;
 
