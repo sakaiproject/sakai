@@ -70,12 +70,12 @@
 			#if ($allowAddChannelMessage)
 				#if (!$!publicDisable)
 				<p class="checkbox">
-					<input type="radio" name="announceTo" id="pubview" value="pubview" #if($!announceTo == "pubview" || $!pubview)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';" />
+					<input type="radio" name="announceTo" id="pubview" value="pubview" #if($!announceTo == "pubview" || $!pubview)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';"  />
 					<label for="pubview">$tlang.getString("displayto.public")</label>
 				</p>
 				#end
 				<p class="checkbox">
-					<input type="radio" name="announceTo" id="site" value="site" #if(!$!pubview && ($!announceTo == "site" || $!message.AnnouncementHeader.Access == $channelAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';" />
+					<input type="radio" name="announceTo" id="site" value="site" #if(!$!pubview && ($!announceTo == "site" || $!message.AnnouncementHeader.Access == $channelAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';"  />
 					<label for="site">$tlang.getString("displayto.site")</label>
 				</p>	
 			#else
@@ -88,7 +88,7 @@
 			#if ($!groups)
 				## added group awareness
 				<p class="checkbox">
-					<input type="radio" name="announceTo" id="groups" value="groups" #if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';" onkeypress="document.getElementById('groupTable').style.display = 'block';" />
+					<input type="radio" name="announceTo" id="groups" value="groups" #if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
 					<label for="groups">$tlang.getString("displayto.selected")</label>
 				</p>	
 				#if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))
@@ -100,7 +100,7 @@
 					<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
 						<tr>
 							<th id ="selectAllGroups" class="attach">
-								<input type="checkbox" name="selectall" value="" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')" onkeypress="javascript:toggleSelectAll(this, 'selectedGroups')" />
+								<input type="checkbox" name="selectall" value="" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')"  />
 							</th>
 					 		<th id ="groupname">
 								$tlang.getString("revise.group.list.title")

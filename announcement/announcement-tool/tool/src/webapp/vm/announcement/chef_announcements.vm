@@ -113,47 +113,47 @@
 						<th id="attach" class="attach"></th>
 						<th id ="subject">
 							#if (!$currentSortedBy.equals("subject"))
-								<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;" title ="$tlang.getString('gen.sortby')">$tlang.getString('gen.subject')</a>
+								<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortby')">$tlang.getString('gen.subject')</a>
 							#else
 								#if ($currentSortAsc.equals("true"))
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;" title ="$tlang.getString('gen.sortbyasc')">$tlang.getString('gen.subject') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyasc')" /></a>
+									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortbyasc')">$tlang.getString('gen.subject') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyasc')" /></a>
 								#else
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;" title ="$tlang.getString('gen.sortbydesc')">$tlang.getString('gen.subject') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortbydesc')"/></a>
+									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortbydesc')">$tlang.getString('gen.subject') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortbydesc')"/></a>
 								#end
 							#end
 						</th>
 						<th id="author">
 							#if (!$currentSortedBy.equals("from"))
-								<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;" title ="$tlang.getString('gen.sortbyauth')">$tlang.getString('gen.from')</a>
+								<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;"  title ="$tlang.getString('gen.sortbyauth')">$tlang.getString('gen.from')</a>
 							#else
 								#if ($currentSortAsc.equals("true"))
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;" title ="$tlang.getString('gen.sortbyauthasc')">$tlang.getString('gen.from') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyauthasc')" /></a>
+									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;"  title ="$tlang.getString('gen.sortbyauthasc')">$tlang.getString('gen.from') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyauthasc')" /></a>
 								#else
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;" title ="$tlang.getString('gen.sortbyauthdesc')">$tlang.getString('gen.from') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortbyauthdesc')"/></a>
+									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;"  title ="$tlang.getString('gen.sortbyauthdesc')">$tlang.getString('gen.from') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortbyauthdesc')"/></a>
 								#end
 							#end
 						</th>
 						#if ($SiteColumnFlag > 0) ## (there are anns from other sites so show what site they are from)
 							<th id ="Site">
 								#if (!$currentSortedBy.equals("channel"))
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" title ="$tlang.getString('gen.sortchannel')">$tlang.getString('gen.site')</a>
+									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;"  title ="$tlang.getString('gen.sortchannel')">$tlang.getString('gen.site')</a>
 								#else
 									#if ($currentSortAsc.equals("true"))
-										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" title ="$tlang.getString('gen.sortchanasc')">$tlang.getString('gen.site') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortchanasc')" /></a>
+										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;"  title ="$tlang.getString('gen.sortchanasc')">$tlang.getString('gen.site') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortchanasc')" /></a>
 									#else
-										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" title ="$tlang.getString('gen.sortchandesc')">$tlang.getString('gen.site') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortchandesc')" /></a>
+										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;"  title ="$tlang.getString('gen.sortchandesc')">$tlang.getString('gen.site') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortchandesc')" /></a>
 									#end
 								#end
 							</th>
 						#end
 						<th id ="date">
 							#if (!$currentSortedBy.equals("date"))
-								<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;" title="$tlang.getString('gen.sortbydate')">$tlang.getString('gen.date')</a>
+								<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydate')">$tlang.getString('gen.date')</a>
 							#else
 								#if ($currentSortAsc.equals("true"))
-									 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydateasc')">$tlang.getString('gen.date')<img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
+									 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydateasc')">$tlang.getString('gen.date')<img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
 								#else
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;" title="$tlang.getString('gen.sortbydatedesc')">$tlang.getString('gen.date') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt ="$tlang.getString('gen.sortbydatedesc')" /></a>
+									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydatedesc')">$tlang.getString('gen.date') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt ="$tlang.getString('gen.sortbydatedesc')" /></a>
 								#end
 							#end
 						</th>
@@ -378,23 +378,23 @@
 								 <th id ="attach" class="attach"></th>
 								 <th id ="subject">
 										#if (!$currentSortedBy.equals("subject"))
-											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;" title ="$tlang.getString('gen.sortby')">$tlang.getString('gen.subject')</a>
+											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortby')">$tlang.getString('gen.subject')</a>
 										#else
 											#if ($currentSortAsc.equals("true"))
-												<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;" title ="$tlang.getString('gen.sortbyasc')">$tlang.getString('gen.subject') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyasc')" /></a>
+												<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortbyasc')">$tlang.getString('gen.subject') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyasc')" /></a>
 											#else
-												<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"title ="$tlang.getString('gen.sortbydesc')">$tlang.getString('gen.subject') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortbydesc')"/></a>
+												<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortbydesc')">$tlang.getString('gen.subject') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortbydesc')"/></a>
 											#end
 										#end
 									</th>
 									<th id="author">
 										#if (!$currentSortedBy.equals("from"))
-											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;" title ="$tlang.getString('gen.sortbyauth')">$tlang.getString('gen.from')</a>
+											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;"  title ="$tlang.getString('gen.sortbyauth')">$tlang.getString('gen.from')</a>
 										#else
 											#if ($currentSortAsc.equals("true"))
-												<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;" title ="$tlang.getString('gen.sortbyauthasc')">$tlang.getString('gen.from') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyauthasc')" /></a>
+												<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;"  title ="$tlang.getString('gen.sortbyauthasc')">$tlang.getString('gen.from') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyauthasc')" /></a>
 											#else
-												<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;" title ="$tlang.getString('gen.sortbyauthdesc')">$tlang.getString('gen.from') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortbyauthdesc')"/></a>
+												<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;"  title ="$tlang.getString('gen.sortbyauthdesc')">$tlang.getString('gen.from') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('gen.sortbyauthdesc')"/></a>
 											#end
 										#end
 									</th>
@@ -402,12 +402,12 @@
 										#if ($SiteColumnFlag > 0) ## (there are anns from other sites so show what site they are from)
 											<th id ="Site">
 												#if (!$currentSortedBy.equals("channel"))
-													<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" title ="$tlang.getString("gen.sortchannel")">$tlang.getString("gen.site")</a>
+													<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;"  title ="$tlang.getString("gen.sortchannel")">$tlang.getString("gen.site")</a>
 												#else
 													#if ($currentSortAsc.equals("true"))
-														<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" title ="$tlang.getString("gen.sortchanasc")">$tlang.getString("gen.site") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt=$tlang.getString("gen.sortchanasc") /></a>
+														<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;"  title ="$tlang.getString("gen.sortchanasc")">$tlang.getString("gen.site") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt=$tlang.getString("gen.sortchanasc") /></a>
 													#else
-														<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" title ="$tlang.getString("gen.sortchandesc")">$tlang.getString("gen.site") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt=$tlang.getString("gen.sortchandesc")/></a>
+														<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;"  title ="$tlang.getString("gen.sortchandesc")">$tlang.getString("gen.site") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt=$tlang.getString("gen.sortchandesc")/></a>
 													#end
 												#end
 											</th>
@@ -415,23 +415,23 @@
 									#end
 									<th id="channel">
 										#if (!$currentSortedBy.equalsIgnoreCase("$tlang.getString('gen.visible')"))
-											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfor")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbyfor")';return false;" title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
+											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfor")';return false;"  title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
 										#else
 											#if ($currentSortAsc.equals("true"))
-												 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfor")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbyfor")';return false;" title="$tlang.getString('gen.sortbyforasc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbyforasc')" /></a>
+												 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfor")';return false;"  title="$tlang.getString('gen.sortbyforasc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbyforasc')" /></a>
 											#else
-												<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfor")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbyfor")';return false;" title="$tlang.getString('gen.sortbyfordesc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbyfordesc')" /></a>
+												<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfor")';return false;"  title="$tlang.getString('gen.sortbyfordesc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbyfordesc')" /></a>
 											#end
 										#end
 									</th>
 									<th id ="date">
 										#if (!$currentSortedBy.equals("date"))
-											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;" title="$tlang.getString('gen.sortbydateasc')">$tlang.getString("gen.date")</a>
+											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydateasc')">$tlang.getString("gen.date")</a>
 										#else
 											#if ($currentSortAsc.equals("true"))
-												 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;" title="$tlang.getString('gen.sortbydateasc')">$tlang.getString("gen.date") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
+												 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydateasc')">$tlang.getString("gen.date") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
 											#else
-												<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;" title="$tlang.getString('gen.sortbydatedesc')">$tlang.getString("gen.date") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbydatedesc')" /></a>
+												<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydatedesc')">$tlang.getString("gen.date") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbydatedesc')" /></a>
 											#end
 										#end
 									</th>
