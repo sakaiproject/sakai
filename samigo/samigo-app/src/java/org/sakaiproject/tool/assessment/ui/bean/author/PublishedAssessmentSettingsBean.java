@@ -132,7 +132,7 @@ public class PublishedAssessmentSettingsBean
   private boolean showSelectionLevelFeedback = false; // must be MC
   private boolean showGraderComments = false;
   private boolean showStatistics = false;
-
+  
   // properties of PublishedEvaluationModel
   private String anonymousGrading;
   private String toDefaultGradebook;
@@ -967,6 +967,14 @@ public String getOutcome() {
  */
 public void setOutcome(String outcome) {
 	this.outcome = outcome;
+}
+
+public boolean getActive() {
+	Date currentDate = new Date();
+	if ((this.dueDate != null && currentDate.after(this.dueDate)) || (this.retractDate != null && currentDate.after(this.retractDate))) {
+		return false;
+	}
+	return true;
 }
 
 }

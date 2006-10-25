@@ -108,7 +108,7 @@
       <h:outputText value="#{msg.assessment_retract_date}" />
       <samigo:datePicker value="#{publishedSettings.retractDateString}" size="25" id="retractDate" />
 
-      <h:commandButton accesskey="#{msg.a_retract}" type="submit" value="#{msg.button_retract_now}" action="confirmAssessmentRetract"  styleClass="active" />
+      <h:commandButton accesskey="#{msg.a_retract}" type="submit" value="#{msg.button_retract_now}" action="confirmAssessmentRetract"  styleClass="active" rendered="#{publishedSettings.active == true}"/>
 
 
     </h:panelGrid>
