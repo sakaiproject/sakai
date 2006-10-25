@@ -455,9 +455,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * @param value
 	 *        The value indicating whether entities can be hidden.
 	 */
-	public void setAvailabilityChecksEnabled(String value)
+	public void setAvailabilityChecksEnabled(boolean value)
 	{
-		m_availabilityChecksEnabled = value == null || ! Boolean.FALSE.toString().equalsIgnoreCase(value);
+		m_availabilityChecksEnabled = value;
 	}
 	
 	/**
@@ -478,9 +478,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * @param value
 	 *        The value indicating whether custom sort order is enabled.
 	 */
-	public void setPrioritySortEnabled(String value)
+	public void setPrioritySortEnabled(boolean value)
 	{
-		m_prioritySortEnabled = value == null || ! Boolean.FALSE.toString().equalsIgnoreCase(value);
+		m_prioritySortEnabled = value;
 	}
 
 	/**
@@ -489,9 +489,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * @param value
 	 *        The value indicating whether custom sort order is enabled.
 	 */
-	public String getPrioritySortEnabled()
+	public boolean getPrioritySortEnabled()
 	{
-		return Boolean.toString(m_prioritySortEnabled);
+		return m_prioritySortEnabled;
 	}
 
 	/**
