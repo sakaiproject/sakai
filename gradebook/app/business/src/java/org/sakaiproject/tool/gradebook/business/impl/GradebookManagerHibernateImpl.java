@@ -30,6 +30,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
+import org.hibernate.TransientObjectException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,6 +52,7 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.Spreadsheet;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 
@@ -253,7 +255,16 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                             // The grade record's value has changed
                             gradeRecordFromCall.setGraderId(graderId);
                             gradeRecordFromCall.setDateRecorded(now);
-                            session.update(gradeRecordFromCall);
+                            try {
+	                            session.update(gradeRecordFromCall);
+							} catch (TransientObjectException e) {
+								// It's possible that a previously unscored student
+								// was scored behind the current user's back before
+								// the user saved the new score. This translates
+								// that case into an optimistic locking failure.
+								if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to add a new assignment grade record");
+								throw new StaleObjectModificationException(e);
+							}
                             performUpdate = true;
                         }
                     } else {
@@ -391,7 +402,16 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 return null;
             }
         };
-        getHibernateTemplate().execute(hc);
+        try {
+	        getHibernateTemplate().execute(hc);
+		} catch (DataIntegrityViolationException e) {
+			// It's possible that a previously ungraded student
+			// was graded behind the current user's back before
+			// the user saved the new grade. This translates
+			// that case into an optimistic locking failure.
+			if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update course grade records");
+			throw new StaleObjectModificationException(e);
+		}
     }
 
     /**
