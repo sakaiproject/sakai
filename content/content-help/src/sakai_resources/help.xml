@@ -29,6 +29,12 @@
       <property name="name"><value>Copy Resource</value></property>
       <property name="location"><value>/sakai_resources/aqyf.html</value></property>
       </bean>
+
+      <bean id="sortResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>aukb</value></property>
+      <property name="name"><value>Sort Resources</value></property>
+      <property name="location"><value>/sakai_resources/aukb.html</value></property>
+      </bean>
     
           <bean id="replaceResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
          <property name="docId"><value>arfd</value></property>
@@ -50,6 +56,7 @@
                      <ref bean="reviseResource"/>
                       <ref bean="replaceResource"/>
                       <ref bean="moveResource"/>
+                      <ref bean="sortResource"/>
                      <ref bean="deleteResource"/>
                   </list>
                </property>
