@@ -23,7 +23,9 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 //import java.util.Map;
 
 
@@ -38,12 +40,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
@@ -275,6 +280,17 @@ public class ConfirmPublishAssessmentListener
       assessmentSettings.setOutcomePublish("editAssessmentSettings");
       return;
     }
+    
+    //#4 - regenerate the core assessment list in autor bean again
+    // sortString can be of these value:title,releaseTo,dueDate,startDate
+    // get the managed bean, author and reset the list.
+    // Yes, we need to do that just in case the user change those delivery
+    // dates and turning an inactive pub to active pub
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+	ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(author.getCoreAssessmentOrderBy(),author.isCoreAscending());
+	// get the managed bean, author and set the list
+	author.setAssessments(assessmentList);
+	
     assessmentSettings.setOutcomePublish("saveSettingsAndConfirmPublish"); // finally goto confirm
   }
 
@@ -297,8 +313,5 @@ public class ConfirmPublishAssessmentListener
     String agentId = AgentFacade.getAgentString();
     isOwner = agentId.equals(ownerId);
     return isOwner;
-  }
-
-
-  
+  }  
 }
