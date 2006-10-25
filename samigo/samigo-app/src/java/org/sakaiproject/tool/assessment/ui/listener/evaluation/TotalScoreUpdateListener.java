@@ -183,15 +183,38 @@ public class TotalScoreUpdateListener
     boolean update = true;
     String newComments = agentResults.getComments();
     log.debug("newComments = " + newComments);
-    
-    float newScore = new Float(agentResults.getTotalAutoScore()).floatValue() +
-                     new Float(agentResults.getTotalOverrideScore()).floatValue();
+
+    float totalAutoScore = 0; 
+    if (agentResults.getTotalAutoScore()!=null && !("").equals(agentResults.getTotalAutoScore())){
+      try{
+        totalAutoScore = new Float(agentResults.getTotalAutoScore()).floatValue();
+      }
+      catch (NumberFormatException e){
+        totalAutoScore = 0;
+      }
+    }
+
+    float totalOverrideScore = 0; 
+    if (agentResults.getTotalOverrideScore()!=null && !("").equals(agentResults.getTotalOverrideScore())){
+      try{
+        totalOverrideScore = new Float(agentResults.getTotalOverrideScore()).floatValue();
+      }
+      catch (NumberFormatException e){
+        totalOverrideScore = 0;
+      }
+    }
+
+
+    float newScore = totalAutoScore + totalOverrideScore;
     Boolean newIsLate = agentResults.getIsLate(); // if the duedate were postpond, we need to adjust this
     // we will check if there is change of grade. if so, add up new score
     // else skip
     AssessmentGradingIfc old = (AssessmentGradingIfc)map.get(agentResults.getAssessmentGradingId());
     if (old != null){
-      float oldScore = old.getFinalScore().floatValue();
+	float oldScore = 0;
+      if (old.getFinalScore()!=null){
+        oldScore = old.getFinalScore().floatValue();
+      }
       Boolean oldIsLate=old.getIsLate();
       
       String oldComments = old.getComments();

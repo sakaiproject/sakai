@@ -519,7 +519,12 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
         results.setTotalAutoScore(gdata.getTotalAutoScore().toString());
       else
         results.setTotalAutoScore("0.0");
-      results.setTotalOverrideScore(gdata.getTotalOverrideScore().toString());
+
+      if(gdata.getTotalOverrideScore() != null)
+        results.setTotalOverrideScore(gdata.getTotalOverrideScore().toString());
+      else
+        results.setTotalOverrideScore("0.0");
+
       if(gdata.getFinalScore() != null)
         results.setFinalScore(gdata.getFinalScore().toString());
       else
