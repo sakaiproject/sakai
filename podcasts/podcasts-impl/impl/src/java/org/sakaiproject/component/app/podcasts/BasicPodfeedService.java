@@ -25,8 +25,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.ResourceBundle;
+
+//import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,6 +48,8 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.util.ResourceLoader;
+import javax.faces.context.FacesContext;
 
 import com.sun.syndication.feed.WireFeed;
 import com.sun.syndication.feed.module.itunes.EntryInformation;
@@ -72,14 +78,24 @@ public class BasicPodfeedService implements PodfeedService {
 
 	/** Used to get the global feed description which is a property of Podcasts folder **/
 	private final String PODFEED_DESCRIPTION = "podfeedDescription";
+	
+	/** Used to pull message bundle */
+	private final String PODFEED_MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
 
-	/** FUTURE: Use to pull copyright statement from message bundle **/
-	private final String COPYRIGHT_STATEMENT = "feed_copyright";
+	/** Used to pull copyright statement from sakai.properties file */
+	private final String FEED_COPYRIGHT_STATEMENT = "podfeed_copyrighttext";
+	
+	/** Used to pull generator value from sakai.properties file */
+	private final String FEED_GENERATOR_STRING = "podfeed_generator";
 
+	/** Used to pull item author from sakai.properties file */
+	private final String FEED_ITEM_AUTHOR_STRING = "podfeed_author";
+
+	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.podcasts.bundle.Messages");
+	
 	private static final Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
 
 	private PodcastService podcastService;
-
 	private SecurityService securityService;
 
 	/**
@@ -372,7 +388,7 @@ public class BasicPodfeedService implements PodfeedService {
 				+ Entity.SEPARATOR + "podcasts/site/" + siteId;
 
 		// TODO: pull from message bundle
-		final String copyright = "Copyright 2006 The Trustees of Indiana University. All rights reserved.";
+		final String copyright = getMessageBundleString(FEED_COPYRIGHT_STATEMENT);
 
 		final WireFeed podcastFeed = doSyndication(podfeedTitle, URL,
 				description, copyright, entries, feedType, pubDate,
@@ -538,7 +554,8 @@ public class BasicPodfeedService implements PodfeedService {
         // Compile regular expression
         Pattern pattern = Pattern.compile(" ");
 
-        // Replace all occurrences of pattern in input
+        // Replace all occurrences of pattern (ie, spaces) in input
+        // with hex equivalent (%20)
         Matcher matcher = pattern.matcher(mp3link);
         mp3link = matcher.replaceAll("%20");
         item.setLink(mp3link);
@@ -573,7 +590,8 @@ public class BasicPodfeedService implements PodfeedService {
 		
 		final EntryInformation iTunesModule = new EntryInformationImpl();
 
-		iTunesModule.setAuthor("Created from ContentHosting");
+//		iTunesModule.setAuthor("Created from ContentHosting");
+		iTunesModule.setAuthor(getMessageBundleString(FEED_ITEM_AUTHOR_STRING));
 		iTunesModule.setSummary(blogContent);
 
 		modules.add(iTunesModule);
@@ -621,7 +639,8 @@ public class BasicPodfeedService implements PodfeedService {
 		channel.setLink(link);
 		channel.setDescription(description_loc);		
 		channel.setCopyright(copyright);
-		channel.setGenerator("Oncourse 2.2.1 https://oncourse.iu.edu");
+		channel.setGenerator(getMessageBundleString(FEED_GENERATOR_STRING));
+//		channel.setGenerator("Oncourse 2.2.1 https://oncourse.iu.edu");
 
 		channel.setItems(entries);
 
@@ -716,4 +735,24 @@ public class BasicPodfeedService implements PodfeedService {
 	public boolean allowAccess(String id) {
 		return podcastService.allowAccess(id);
 	}
+	
+	/**
+	 * Sets the Faces error message by pulling the message from the
+	 * MessageBundle using the name passed in
+	 * 
+	 * @param key
+	 *           The name in the MessageBundle for the message wanted
+	 *            
+	 * @return String
+	 * 			The string that is the value of the message
+	 */
+	private String getMessageBundleString(String key) {
+		
+		ResourceBundle resbud = ResourceBundle.getBundle(PODFEED_MESSAGE_BUNDLE);
+		
+		return resbud.getString(key);
+
+	}
+
+
 }

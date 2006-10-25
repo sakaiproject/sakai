@@ -3,7 +3,7 @@
   <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
   <% response.setContentType("text/html; charset=UTF-8"); %>
 
-<f:loadBundle basename="org.sakaiproject.tool.podcasts.bundle.Messages" var="msgs"/>
+<f:loadBundle basename="org.sakaiproject.api.podcasts.bundle.Messages" var="msgs"/>
 
   <f:view>
         <link href="./css/podcaster.css" type="text/css" rel="stylesheet" media="all" />

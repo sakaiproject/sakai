@@ -38,6 +38,8 @@ public class podFeedBean {
 	public static final String PODFEED_DESC2 = "feed_desc2";
 	public static final String NO_TITLE_ALERT = "notitle";
 
+	private final String MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
+
 	// inject podfeedService into here to use
 	private PodfeedService podfeedService;
 
@@ -170,11 +172,7 @@ public class podFeedBean {
 	 * 			The string that is the value of the message
 	 */
 	private String getErrorMessageString(String key) {
-		String bundleName = FacesContext.getCurrentInstance().getApplication()
-				.getMessageBundle();
-		Locale locale = FacesContext.getCurrentInstance().getViewRoot()
-				.getLocale();
-		ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
+		ResourceBundle rb = ResourceBundle.getBundle(MESSAGE_BUNDLE);
 		return rb.getString(key);
 
 	}

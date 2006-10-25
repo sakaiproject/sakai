@@ -32,9 +32,13 @@ import org.sakaiproject.api.app.podcasts.PodcastService;
 
 public class podOptionsBean {
   private int podOption;
-  
+
+  /** Used to acccess podcast service functions */
   private PodcastService podcastService;
   
+  /** Used to access message bundle */
+  private final String MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
+
   private static final int PUBLIC = 0;
   private static final int SITE = 1;
   private static final String OPTIONS_PUBLIC = "options_public";
@@ -100,14 +104,7 @@ public class podOptionsBean {
 	 * 			The string that is the value of the message
 	 */
 	private String getMessageString(String key) {
-		String bundleName = FacesContext.getCurrentInstance().getApplication()
-				.getMessageBundle();
-
-		Locale locale = FacesContext.getCurrentInstance().getViewRoot()
-				.getLocale();
-		
-		ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
-
+		ResourceBundle rb = ResourceBundle.getBundle(MESSAGE_BUNDLE);
 		return rb.getString(key);
 
 	}

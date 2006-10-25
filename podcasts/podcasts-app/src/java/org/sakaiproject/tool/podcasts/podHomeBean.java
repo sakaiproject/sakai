@@ -351,6 +351,9 @@ public class podHomeBean {
 	// configurable toolId for Resources tool check
 	private String RESOURCE_TOOL_ID = ServerConfigurationService.getString("podcasts.toolid", "sakai.resources");
 
+	/** Used to pull message bundle */
+	private final String MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
+
 	// inject the services needed
 	private PodcastService podcastService;
 
@@ -1178,6 +1181,13 @@ public class podHomeBean {
 		// a title is a requirement
 		if ("".equals(selectedPodcast.title.trim())) {
 			displayNoTitleErrMsg = true;
+			if ("".equals(selectedPodcast.displayDateRevise)) {
+				displayInvalidDateErrMsg = true;
+			}
+			else {
+				displayInvalidDateErrMsg = false;
+			}
+			
 			return "revise";
 		}
 
@@ -1556,11 +1566,7 @@ public class podHomeBean {
 	 * 			The string that is the value of the message
 	 */
 	private String getErrorMessageString(String key) {
-		String bundleName = FacesContext.getCurrentInstance().getApplication()
-				.getMessageBundle();
-		Locale locale = FacesContext.getCurrentInstance().getViewRoot()
-				.getLocale();
-		ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
+		ResourceBundle rb = ResourceBundle.getBundle(MESSAGE_BUNDLE);
 		return rb.getString(key);
 
 	}

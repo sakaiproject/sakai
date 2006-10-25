@@ -453,12 +453,14 @@ public class PodcastServiceImpl implements PodcastService {
 		List resourcesList = null;
 		final String podcastsCollection = retrievePodcastFolderId(siteId);
 
-		try {
+		try {			
+			checkForFeedInfo(podcastsCollection, siteId);
+
 
 			// just in case anything added from Resources so it does
 			// not have DISPLAY_DATE property
 			final ContentCollection collectionEdit = getContentCollection(siteId);
-			
+
 			resourcesList = collectionEdit.getMemberResources();
 
 			// remove non-file resources from collection
@@ -876,6 +878,65 @@ public class PodcastServiceImpl implements PodcastService {
 
 	}
 
+	private void checkForFeedInfo(String podcastsCollection, String siteId) {
+		try {
+			final ContentCollection podcasts = contentHostingService.getCollection(podcastsCollection);
+		
+			final ResourceProperties rp = podcasts.getProperties();
+		
+			final String podfeedTitle = rp.getProperty(PODFEED_TITLE);
+
+			if (podfeedTitle == null) {
+				// Podfeed Title does not exist, so add it
+				final ContentCollectionEdit podcastsEdit = contentHostingService.editCollection(podcastsCollection);
+
+				final ResourcePropertiesEdit resourceProperties = podcastsEdit.getPropertiesEdit();
+			
+				resourceProperties.addProperty(
+						ResourceProperties.PROP_DISPLAY_NAME,
+						COLLECTION_PODCASTS_TITLE);
+
+				resourceProperties.addProperty(
+						ResourceProperties.PROP_DESCRIPTION,
+						COLLECTION_PODCASTS_DESCRIPTION);
+
+				try {
+					// Set default feed title and description
+					resourceProperties.addProperty(PODFEED_TITLE,
+							"Podcasts for " + SiteService.getSite(siteId).getTitle());
+
+					final String feedDescription = "This is the official podcast for course "
+							+ SiteService.getSite(siteId).getTitle()
+							+ ". Please check back throughout the semester for updates.";
+
+					resourceProperties.addProperty(PODFEED_DESCRIPTION,
+							feedDescription);
+			
+					commitContentCollection(podcastsEdit);
+				}
+				catch (IdUnusedException e) {
+					LOG.error("IdUnusedException attempting to get site info to set feed title and description for site " + siteId);
+				}
+			}
+		}
+		catch (IdUnusedException e) {
+			LOG.error("IdUnusedException attempting to retrive podcast folder collection to check "
+					+ "if feed info exists for site " + siteId);
+		}
+		catch (TypeException e) {
+			LOG.error("TypeException attempting to retrive podcast folder collection to check "
+					+ "if feed info exists for site " + siteId);
+		}
+		catch (PermissionException e) {
+			LOG.error("PermissionException attempting to retrive podcast folder collection to check "
+					+ "if feed info exists for site " + siteId);
+		}
+		catch (InUseException e) {
+			LOG.info("InUsedException attempting to retrive podcast folder collection to check "
+					+ "if feed info exists for site " + siteId);
+		}
+	}
+	
 	/**
 	 * Returns the file's URL
 	 * 
