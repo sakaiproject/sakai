@@ -50,7 +50,7 @@ public class StandaloneSectionsDataLoader extends GradebookTestBase {
     public static final String[] SITE_NAMES = {
 		"QA Site #1 [no students, 1 instructor, no self reg, no self switch, external]",
 		"QA Site #2 [10 students, 1 instructor, no self reg, no self switch, internal]",
-		"QA Site #3 [10 students, 1 instructor, no self reg, no self switch, internal]",
+		"QA Site #3 [10 students, 2 instructors, no self reg, no self switch, internal]",
 		"QA Site #4 [10 students, 1 instructor, no self reg, no self switch, internal]",
 		"QA Site #5 [50 students, 1 instructor, no self reg, no self switch, internal]",
 		"QA Site #6 [50 students, 1 instructor, no self reg, no self switch, internal]",
