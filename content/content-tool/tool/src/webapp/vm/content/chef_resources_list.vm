@@ -50,7 +50,6 @@
 						#if($upOneLevel)
 							<a href="#"
 								onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$upOneLevel.id';document.getElementById('navRoot').value='$upOneLevel.root';document.getElementById('showForm').submit();"
-								onkeypress="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$upOneLevel.id';document.getElementById('navRoot').value='$upOneLevel.root';document.getElementById('showForm').submit();"
 								title= "$tlang.getString('sh.one')">
 							##<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($upOneLevel.id)&navRoot=$validator.escapeUrl($upOneLevel.root)")" title= "$tlang.getString('sh.one')">
 								<img src="/library/image/sakai/onelevelup.gif" border="0" alt ="$tlang.getString('sh.one')"/>
@@ -59,7 +58,6 @@
 					#else
 						<a href="#" 
 							onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$item.id';document.getElementById('navRoot').value='$item.root';document.getElementById('showForm').submit();"
-							onkeypress="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$item.id';document.getElementById('navRoot').value='$item.root';document.getElementById('showForm').submit();"
 							title= "$tlang.getString('sh.go')">
 						##<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($item.id)&navRoot=$validator.escapeUrl($item.root)")" title ="$tlang.getString('sh.go')">
 							#if ($dropboxMode && $velocityCount == 1)
@@ -83,7 +81,6 @@
 					#if($itemsOnLine > 0)|#end
 					<input id="removeButton" type="button" value="$tlang.getString("list.remove")"
 						onclick="javascript:document.getElementById('sakai_action').value='doDeleteconfirm';document.getElementById('showForm').submit();"
-						onkeypress="javascript:document.getElementById('sakai_action').value='doDeleteconfirm';document.getElementById('showForm').submit();"
 						disabled="disabled" alt="$tlang.getString("list.remove")" />
 					#set ($itemsOnLine = $itemsOnLine + 1)
 				#end
@@ -91,7 +88,6 @@
 					#if($itemsOnLine > 0)|#end
 					<input id="moveButton" type="button" value="$tlang.getString("list.move")"
 						onclick="javascript:document.getElementById('sakai_action').value='doMove';document.getElementById('showForm').submit();"
-						onkeypress="javascript:document.getElementById('sakai_action').value='doMove';document.getElementById('showForm').submit();"
 						disabled="disabled" alt="$tlang.getString("list.move")" />
 					#set ($itemsOnLine = $itemsOnLine + 1)
 				#end
@@ -99,7 +95,6 @@
 					#if($itemsOnLine > 0)|#end
 					<input id="copyButton" type="button" value="$tlang.getString("list.copyall")"
 						onclick="javascript:document.getElementById('sakai_action').value='doCopy';document.getElementById('showForm').submit();"
-						onkeypress="javascript:document.getElementById('sakai_action').value='doCopy';document.getElementById('showForm').submit();"
 						disabled="disabled" alt="$tlang.getString("list.copyall")" />
 					#set ($itemsOnLine = $itemsOnLine + 1)
 				#end
@@ -113,7 +108,6 @@
 				<th id="expansion">
 					#if ($expandallflag && "$expandallflag" == "$TRUE")
 						<a href="#" onclick="javascript:document.getElementById('sakai_action').value='doUnexpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
-							onkeypress="javascript:document.getElementById('sakai_action').value='doUnexpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
 							title= "$tlang.getString('collapseall')">
 						##<a href="#toolLinkParam("ResourcesAction" "doUnexpandall" "collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('collapseall')">
 							<img src = "#imageLink("sakai/collapse-expand.gif")" border="0" title="$tlang.getString('collapseall')" alt="$tlang.getString('collapseall')" hspace="0" />
@@ -121,7 +115,6 @@
 					#else
 						<a href="#"
 							onclick="javascript:document.getElementById('sakai_action').value='doExpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
-							onkeypress="javascript:document.getElementById('sakai_action').value='doExpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
 							title= "$tlang.getString('expandall')">
 						##<a href="#toolLinkParam("ResourcesAction" "doExpandall" "collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('expandall')">
 							<img src = "#imageLink("sakai/expand-collapse.gif")" border="0" title="$tlang.getString('expandall')" alt="$tlang.getString('expandall')" hspace="0" />
@@ -132,14 +125,12 @@
 					#if($showRemoveAction || $showMoveAction || $showCopyAction)
 							##(gsilver) need a value atttribute for xhtml...
 						<input type="checkbox" name="selectall" id="selectall" disabled="disabled" title="$tlang.getString("list.select")"
-							onclick="javascript:toggleSelectAll(this, 'selectedMembers')"
-							onkeypress="javascript:toggleSelectAll(this, 'selectedMembers')" />
+							onclick="javascript:toggleSelectAll(this, 'selectedMembers')" />
 					#end
 				</th>
 				<th id="title">
 					<a href="#"
 						onclick="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='title';document.getElementById('showForm').submit();"
-						onkeypress="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='title';document.getElementById('showForm').submit();"
 						title= "$tlang.getString('sh.sorttit')">
 					##<a href="#toolLinkParam("ResourcesAction" "doSort" "criteria=title&collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('sh.sorttit')"> 
 						$tlang.getString("gen.title1")
@@ -162,7 +153,6 @@
 					##<a href="#toolLinkParam("ResourcesAction" "doSort" "criteria=created%20by&collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('sh.sortcrea')"> 
 					<a href="#"
 						onclick="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='created by';document.getElementById('showForm').submit();"
-						onkeypress="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='created by';document.getElementById('showForm').submit();"
 						title= "$tlang.getString('sh.sortaut')">
 						$tlang.getString("gen.created")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropCreator)) 
@@ -177,7 +167,6 @@
 				<th id="modified">
 					<a href="#"
 						onclick="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='last modified';document.getElementById('showForm').submit();"
-						onkeypress="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='last modified';document.getElementById('showForm').submit();"
 						title= "$tlang.getString('sh.sortdate')">
 					##<a href="#toolLinkParam("ResourcesAction" "doSort" "criteria=last%20modified&collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('sh.sortdate')"> 
 						$tlang.getString("gen.last1")
@@ -194,7 +183,6 @@
 					##<a href="#toolLinkParam("ResourcesAction" "doSort" "criteria=size&collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('sh.sortsize')"> 
 					<a href="#"
 						onclick="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='size';document.getElementById('showForm').submit();"
-						onkeypress="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='size';document.getElementById('showForm').submit();"
 						title= "$tlang.getString('sh.sortsize')">
 						$tlang.getString("gen.size")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropContentLength)) 
@@ -225,7 +213,6 @@
 									#elseif (!$expandedCollections.contains($root.Id))
 										<a href="#"
 											onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
-											onkeypress="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
 											title= "$tlang.getString('sh.open')">
 										##<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($root.Id)")" title="$tlang.getString('sh.open')">
 											<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
@@ -234,14 +221,12 @@
 											<img src = "#imageLink("sakai/dir_openroot.gif")" border="0" alt="$tlang.getString('sh.close')" />
 											<a href="#"
 											onclick="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
-											onkeypress="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
 											title= "$tlang.getString('sh.close')">
 										##<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($root.Id)")" title="$tlang.getString('sh.close')">
 										</a>
 									#end
 									<a href="#"
 										onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$root.id';document.getElementById('navRoot').value='$validator.escapeUrl($root.root)';document.getElementById('showForm').submit();"
-										onkeypress="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$root.id';document.getElementById('navRoot').value='$validator.escapeUrl($root.root)';document.getElementById('showForm').submit();"
 										title= "$tlang.getString('sh.go')">
 									##<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=${validator.escapeUrl(${root.id})}&navRoot=$validator.escapeUrl($root.root)")" title="$tlang.getString('sh.go')">
 										$validator.escapeHtml(${root.name})
@@ -277,7 +262,7 @@
 											#set($actionLinkString = "$actionLinkString | ")
 										#end
 										#set ($itemsOnLine = $itemsOnLine + 1)
-										<a href="#toolLinkParam("ResourcesAction" "doEdit" "from=list&id=$validator.escapeUrl($root.id)&collectionId=$validator.escapeUrl($root.container)")" title="$tlang.getString('list.edit.title')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.edit").trim()</a>
+										<a href="#toolLinkParam("ResourcesAction" "doEdit" "from=list&id=$validator.escapeUrl($root.id)&collectionId=$validator.escapeUrl($root.container)")" title="$tlang.getString('list.edit.title')" onclick="javascript:disableLinks();"  >$tlang.getString("list.edit").trim()</a>
 										#set($actionLinkString = "$actionLinkString$tlang.getString('list.edit')")
 									#elseif ($root.canRead())
 										#if ($itemsOnLine > 0)
@@ -285,7 +270,7 @@
 											#set($actionLinkString = "$actionLinkString | ")
 										#end
 										#set ($itemsOnLine = $itemsOnLine + 1)
-										<a href="#toolLinkParam("ResourcesAction" "doMore" "from=list&id=$validator.escapeUrl($root.id)&collectionId=$validator.escapeUrl($root.container)")" title="$tlang.getString('list.props.title')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.props").trim()</a>
+										<a href="#toolLinkParam("ResourcesAction" "doMore" "from=list&id=$validator.escapeUrl($root.id)&collectionId=$validator.escapeUrl($root.container)")" title="$tlang.getString('list.props.title')" onclick="javascript:disableLinks();">$tlang.getString("list.props").trim()</a>
 										#set($actionLinkString = "$actionLinkString$tlang.getString('list.props')")
 									#end
 								##end
@@ -308,7 +293,7 @@
 											#set($actionLinkString = "$actionLinkString | ")
 										#end
 										#set ($itemsOnLine = $itemsOnLine + 1)
-										<a href="#toolLinkParam("ResourcesAction" "doFolder_permissions" "collectionId=$validator.escapeUrl(${root.id})")" title="$tlang.getString('list.fPerm.title')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.fPerm").trim()</a>
+										<a href="#toolLinkParam("ResourcesAction" "doFolder_permissions" "collectionId=$validator.escapeUrl(${root.id})")" title="$tlang.getString('list.fPerm.title')" onclick="javascript:disableLinks();" >$tlang.getString("list.fPerm").trim()</a>
 										#set($actionLinkString = "$actionLinkString$tlang.getString('list.fPerm')")
 									#end
 								#end
@@ -319,7 +304,7 @@
 										#set($actionLinkString = "${actionLinkString} | ")
 									#end
 									#set ($itemsOnLine = $itemsOnLine + 1)
-									<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doPasteitems" "collectionId=${validator.escapeUrl(${root.id})}")" title="$tlang.getString('list.paste1')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();">$tlang.getString("list.paste1").trim()</a>
+									<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doPasteitems" "collectionId=${validator.escapeUrl(${root.id})}")" title="$tlang.getString('list.paste1')" onclick="javascript:disableLinks();">$tlang.getString("list.paste1").trim()</a>
 									#set($actionLinkString = "${actionLinkString}$tlang.getString('list.paste1')")
 								#end
 								####### deal with Pasting moved items 
@@ -329,7 +314,7 @@
 										#set($actionLinkString = "${actionLinkString} | ")
 									#end
 									#set ($itemsOnLine = $itemsOnLine + 1)
-									<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doMoveitems" "collectionId=${validator.escapeUrl(${root.id})}")" title="$tlang.getString("list.paste3")" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.paste3").trim()</a>
+									<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doMoveitems" "collectionId=${validator.escapeUrl(${root.id})}")" title="$tlang.getString("list.paste3")" onclick="javascript:disableLinks();" >$tlang.getString("list.paste3").trim()</a>
 									#set($actionLinkString = "$actionLinkString$tlang.getString('list.paste3')")
 								#end
 							</div>
@@ -429,7 +414,6 @@
 									<input type="checkbox" name="selectedMembers" id="list$num" 
 										#if($selectedItems.contains("$member.id"))checked="checked"#end
 										onclick="#if($member.canDelete())adjustCount(this, 'removeCount', 'removeButton');adjustCount(this, 'moveCount', 'moveButton');#end#if($member.canRead())adjustCount(this, 'copyCount', 'copyButton');#end"
-										onkeypress="#if($member.canDelete())adjustCount(this, 'removeCount', 'removeButton');adjustCount(this, 'moveCount', 'moveButton');#end#if($member.canRead())adjustCount(this, 'copyCount', 'copyButton');#end"
 										value="$member.id" /><label for="list$num" class="skip">Select</label>
 									#set($num = $num + 1)
 									#if($member.canDelete())
@@ -459,21 +443,18 @@
 											#elseif (!$expandedCollections.contains($member.Id))
 												<a href="#"
 													onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
-													onkeypress="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
 													title= "$tlang.getString('sh.open')">
 													<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
 												</a>
 											#else
 												<a href="#"
 													onclick="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
-													onkeypress="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
 													title= "$tlang.getString('sh.close')">
 													<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.close')" />
 												</a>
 											#end
 											<a href="#"
 												onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$member.id';document.getElementById('navRoot').value='$member.root';document.getElementById('showForm').submit();"
-												onkeypress="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$member.id';document.getElementById('navRoot').value='$member.root';document.getElementById('showForm').submit();"
 												title= "$tlang.getString('sh.go')">
 												$validator.escapeHtml(${member.name})
 											</a>
@@ -488,7 +469,6 @@
 												<a href="#"
 													title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($member.type)  [$tlang.getString('gen.newwin')]"
 													onclick="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false"
-													onkeypress="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false"
 												>
 												#else
 												<a href="${member.url}" target="${member.target}"
@@ -505,7 +485,6 @@
 												<a href="#"
 													title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($member.type)  [$tlang.getString('gen.newwin')]"
 													onclick="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;"
-													onkeypress="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;"
 												>
 													$validator.escapeHtml($member.name)
 												</a>
@@ -591,7 +570,7 @@
 												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
-											<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doPasteitems" "collectionId=${validator.escapeUrl(${member.id})}")" title="$tlang.getString('list.paste1')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.paste1").trim()</a>
+											<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doPasteitems" "collectionId=${validator.escapeUrl(${member.id})}")" title="$tlang.getString('list.paste1')" onclick="javascript:disableLinks();">$tlang.getString("list.paste1").trim()</a>
 											#set($actionLinkString = "$actionLinkString$tlang.getString('list.paste1')")
 										#end
 										####### deal with Pasting moved items  3
@@ -601,7 +580,7 @@
 												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
-											<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doMoveitems" "collectionId=${validator.escapeUrl(${member.id})}")" title="$tlang.getString("list.paste3")" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.paste3").trim()</a>
+											<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doMoveitems" "collectionId=${validator.escapeUrl(${member.id})}")" title="$tlang.getString("list.paste3")" onclick="javascript:disableLinks();">$tlang.getString("list.paste3").trim()</a>
 											#set($actionLinkString = "$actionLinkString$tlang.getString('list.paste3')")
 										#end
 									#else
@@ -613,7 +592,7 @@
 												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
-											<a href="#toolLinkParam("ResourcesAction" "doPasteitem" "itemId=${validator.escapeUrl(${member.id})}&collectionId=${validator.escapeUrl(${member.container})}")" title="$tlang.getString('list.dup')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.dup").trim()</a>
+											<a href="#toolLinkParam("ResourcesAction" "doPasteitem" "itemId=${validator.escapeUrl(${member.id})}&collectionId=${validator.escapeUrl(${member.container})}")" title="$tlang.getString('list.dup')" onclick="javascript:disableLinks();">$tlang.getString("list.dup").trim()</a>
 											#set($actionLinkString = "$actionLinkString$tlang.getString('list.dup')")
 										#end
 										####### deal with viewing/editing file/folder information
@@ -676,7 +655,6 @@
 						<h3>
 							<a href="#"
 								onclick="javascript:document.getElementById('sakai_action').value='doHideOtherSites';document.getElementById('showForm').submit();"
-								onkeypress="javascript:document.getElementById('sakai_action').value='doHideOtherSites';document.getElementById('showForm').submit();"
 								title= "$tlang.getString('list.hide')">
 							##<a href="#toolLink("ResourcesAction" "doHideOtherSites")" title= "$tlang.getString('list.hide')">
 								<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString('list.hide')" border="0" align="top" />
@@ -748,21 +726,18 @@
 											#elseif (!$expandedCollections.contains($root.Id))
 												<a href="#"
 													onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
-													onkeypress="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
 													title= "$tlang.getString('sh.open')">
 													<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
 												</a>
 											#else
 												<a href="#"
 													onclick="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
-													onkeypress="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
 													title= "$tlang.getString('sh.close')">
 													<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.close')" />
 												</a>
 											#end
 											<a href="#"
 												onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$root.id';document.getElementById('navRoot').value='$root.root';document.getElementById('showForm').submit();"
-												onkeypress="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$root.id';document.getElementById('navRoot').value='$root.root';document.getElementById('showForm').submit();"
 												title= "$tlang.getString('sh.go')">
 												$validator.escapeHtml(${root.name})
 											</a>
@@ -816,7 +791,7 @@
 												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
-											<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doPasteitems" "collectionId=${validator.escapeUrl(${root.id})}")" title="$tlang.getString('list.paste1')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.paste1").trim()</a>
+											<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doPasteitems" "collectionId=${validator.escapeUrl(${root.id})}")" title="$tlang.getString('list.paste1')" onclick="javascript:disableLinks();" >$tlang.getString("list.paste1").trim()</a>
 											#set($actionLinkString = "$actionLinkString$tlang.getString('list.paste1')")
 										#end
 										####### deal with Pasting moved items 
@@ -826,7 +801,7 @@
 												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
-											<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doMoveitems" "collectionId=${validator.escapeUrl(${root.id})}")" title="$tlang.getString("list.paste3")" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.paste3").trim()</a>
+											<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doMoveitems" "collectionId=${validator.escapeUrl(${root.id})}")" title="$tlang.getString("list.paste3")" onclick="javascript:disableLinks();" >$tlang.getString("list.paste3").trim()</a>
 											#set($actionLinkString = "$actionLinkString$tlang.getString('list.paste3')")
 										#end
 									</div>
@@ -927,7 +902,6 @@
 											<input type="checkbox" name="selectedMembers" id="list$num" 
 												#if($selectedItems.contains("$member.id"))checked="checked"#end
 												onclick="#if($member.canDelete())adjustCount(this, 'removeCount', 'removeButton');adjustCount(this, 'moveCount', 'moveButton');#end#if($member.canRead())adjustCount(this, 'copyCount', 'copyButton');#end"
-												onkeypress="#if($member.canDelete())adjustCount(this, 'removeCount', 'removeButton');adjustCount(this, 'moveCount', 'moveButton');#end#if($member.canRead())adjustCount(this, 'copyCount', 'copyButton');#end"
 												value="$member.id" /><label for="list$num" class="skip">Select</label>
 											#set($num = $num + 1)
 											#if($member.canDelete())
@@ -957,7 +931,6 @@
 													#elseif(!$expandedCollections.contains($member.Id))
 														<a href="#"
 															onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
-															onkeypress="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
 															title= "$tlang.getString('sh.open')">
 														##<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($member.Id)")" title="$tlang.getString('sh.open')">
 															<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
@@ -965,7 +938,6 @@
 													#else
 														<a href="#"
 															onclick="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
-															onkeypress="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
 															title= "$tlang.getString('sh.close')">
 														##<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($member.Id)")" title="$tlang.getString('sh.close')">
 															<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.close')" />
@@ -973,7 +945,6 @@
 													#end
 													<a href="#"
 														onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$member.id';document.getElementById('navRoot').value='$member.root';document.getElementById('showForm').submit();"
-														onkeypress="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$member.id';document.getElementById('navRoot').value='$member.root';document.getElementById('showForm').submit();"
 														title= "$tlang.getString('sh.go')">
 													##<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=${validator.escapeUrl(${member.id})}&navRoot=$validator.escapeUrl($member.root)")" title="$tlang.getString('sh.go')">
 														$validator.escapeHtml(${member.name})
@@ -989,7 +960,6 @@
 														<a href="#" 
 															title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($member.type)  [$tlang.getString('gen.newwin')]"	
 															onclick="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false"
-															onkeypress="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false"
 														>
 														#else
 														<a href="${member.url}" target="${member.target}">
@@ -1004,7 +974,6 @@
 														<a href="#" 
 															title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($member.type)  [$tlang.getString('gen.newwin')]"
 															onclick="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;"
-															onkeypress="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;"
 														>
 															$validator.escapeHtml($member.name)
 														</a>
@@ -1051,7 +1020,7 @@
 														#set($actionLinkString = "$actionLinkString | ")
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
-													<a href="#toolLinkParam("ResourcesAction" "doEdit" "from=list&id=$validator.escapeUrl($member.id)&collectionId=$validator.escapeUrl($member.container)")" title="$tlang.getString('list.edit')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.edit.title").trim()</a>
+													<a href="#toolLinkParam("ResourcesAction" "doEdit" "from=list&id=$validator.escapeUrl($member.id)&collectionId=$validator.escapeUrl($member.container)")" title="$tlang.getString('list.edit')" onclick="javascript:disableLinks();">$tlang.getString("list.edit.title").trim()</a>
 													#set($actionLinkString = "$actionLinkString$tlang.getString('list.edit')")
 												#elseif ($member.canRead())
 													#if ($itemsOnLine > 0)
@@ -1069,7 +1038,7 @@
 														#set($actionLinkString = "$actionLinkString | ")
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
-													<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doPasteitems" "collectionId=${validator.escapeUrl(${member.id})}")" title="$tlang.getString('list.paste1')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.paste1").trim()</a>
+													<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doPasteitems" "collectionId=${validator.escapeUrl(${member.id})}")" title="$tlang.getString('list.paste1')" onclick="javascript:disableLinks();">$tlang.getString("list.paste1").trim()</a>
 													#set($actionLinkString = "$actionLinkString$tlang.getString('list.paste1')")
 												#end
 												####### deal with Pasting moved items 
@@ -1079,7 +1048,7 @@
 														#set($actionLinkString = "$actionLinkString | ")
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
-													<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doMoveitems" "collectionId=${validator.escapeUrl(${member.id})}")" title="$tlang.getString("list.paste3")" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.paste3").trim()</a>
+													<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doMoveitems" "collectionId=${validator.escapeUrl(${member.id})}")" title="$tlang.getString("list.paste3")" onclick="javascript:disableLinks();" >$tlang.getString("list.paste3").trim()</a>
 													#set($actionLinkString = "$actionLinkString$tlang.getString('list.paste3')")
 												#end
 											#else
@@ -1091,7 +1060,7 @@
 														#set($actionLinkString = "$actionLinkString | ")
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
-													<a href="#toolLinkParam("ResourcesAction" "doPasteitem" "itemId=${validator.escapeUrl(${member.id})}&collectionId=${validator.escapeUrl(${member.container})}")" title="$tlang.getString('list.dup')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.dup").trim()</a>
+													<a href="#toolLinkParam("ResourcesAction" "doPasteitem" "itemId=${validator.escapeUrl(${member.id})}&collectionId=${validator.escapeUrl(${member.container})}")" title="$tlang.getString('list.dup')" onclick="javascript:disableLinks();">$tlang.getString("list.dup").trim()</a>
 													#set($actionLinkString = "$actionLinkString$tlang.getString('list.dup')")
 												#end
 												####### deal with viewing/editing file/folder information

@@ -505,7 +505,7 @@
 						<input type="radio" name="$rightsObj.fieldNameTerms" id="${rightsObj.fieldNameTerms}_$key" value="$key" 
 							#if("$!{rightsObj.terms}" == "$key")checked="checked" #end
 							onclick="javascript:update$!{rightsObj.name}RightsAssignment();"
-							onkeypress="javascript:update$!{rightsObj.name}RightsAssignment();" />
+							 />
 					</td>
 					<td>
 						$rightsObj.getString("terms.$key") 
@@ -874,7 +874,7 @@
 					#if($tag.minCardinality > 0)<span class="reqStar">*</span>#end
 					$tag.label
 					#if($tag.canAddInstances())
-						[<a href="#" onclick="javascript: document.getElementById('flow').value='addInstance'; document.getElementById('field').value='$!{tag.dottedname}'; submitform('createForm'); return false;" onkeypress="javascript: document.getElementById('flow').value='addInstance'; document.getElementById('field').value='$!{tag.dottedname}'; submitform('createForm'); return false;"  title="$tlang.getString("gen.add") $tag.label">+</a>]
+						[<a href="#" onclick="javascript: document.getElementById('flow').value='addInstance'; document.getElementById('field').value='$!{tag.dottedname}'; submitform('createForm'); return false;"  title="$tlang.getString("gen.add") $tag.label">+</a>]
 					#end
 					<input type="hidden"
 						name="$!{tag.dottedname}" 
@@ -887,7 +887,7 @@
 						#if($tag.minCardinality > 0)<span class="reqStar">*</span>#end
 						$tag.label
 						#if($tag.canAddInstances())
-							[<a href="#" onclick="javascript: document.getElementById('flow').value='addInstance'; document.getElementById('field').value='$!{tag.dottedname}'; submitform('createForm'); return false;" onkeypress="javascript: document.getElementById('flow').value='addInstance'; document.getElementById('field').value='$!{tag.dottedname}'; submitform('createForm'); return false;"  title="$tlang.getString("gen.add") $tag.label">+</a>]
+							[<a href="#" onclick="javascript: document.getElementById('flow').value='addInstance'; document.getElementById('field').value='$!{tag.dottedname}'; submitform('createForm'); return false;"  title="$tlang.getString("gen.add") $tag.label">+</a>]
 						#end
 					</label>
 					#if("$!tag.widget" == "$!STRING")
@@ -1456,7 +1456,7 @@
 						<div class="checkbox labelindnt">
 							<input type="checkbox" name="copyrightAlert$i" id ="copyrightAlert$i" value="true" #if($item.hasCopyrightAlert())checked="checked"#end style="border:none" />
 							<label for="copyrightAlert$i">$tlang.getString("edit.display1")</label>
-							<a href="#" onclick="javascript:openSampleCopyrightWindow();" onkeypress="javascript:openSampleCopyrightWindow();"   title="[$tlang.getString('gen.newwin')]"><span class="skip">[$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.display2")</a>
+							<a href="#" onclick="javascript:openSampleCopyrightWindow();"    title="[$tlang.getString('gen.newwin')]"><span class="skip">[$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.display2")</a>
 							$tlang.getString("edit.display3")
 					</div>
 					#end
@@ -1610,12 +1610,12 @@
 					<div  class="labelindnt">
 						#if($item.isPubviewPossible())
 							<p class="checkbox">
-								<input type="radio" name="access_mode$i" id="access_mode${i}_public" value="public" #if($!item.isPubview()) checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable$i').style.display='none';" onkeypress="javascript:document.getElementById('groupTable$i').style.display='none';" />
+								<input type="radio" name="access_mode$i" id="access_mode${i}_public" value="public" #if($!item.isPubview()) checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable$i').style.display='none';"  />
 								<label for="access_mode${i}_public">$tlang.getString("edit.access2")</label>
 							</p>
 						#end
 						<p class="checkbox">
-							<input type="radio" name="access_mode$i" id="access_mode${i}_$INHERITED_ACCESS" value="$INHERITED_ACCESS" #if(!$item.isPubview() && ("$!item.access" == "$SITE_ACCESS" || "$!item.access" == "$INHERITED_ACCESS")) checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable$i').style.display='none';" onkeypress="javascript:document.getElementById('groupTable$i').style.display='none';" />
+							<input type="radio" name="access_mode$i" id="access_mode${i}_$INHERITED_ACCESS" value="$INHERITED_ACCESS" #if(!$item.isPubview() && ("$!item.access" == "$SITE_ACCESS" || "$!item.access" == "$INHERITED_ACCESS")) checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable$i').style.display='none';"  />
 							<label for="access_mode${i}_site">$tlang.getString("edit.access3")</label>
 						</p>
 						
@@ -1626,7 +1626,7 @@
 								#set ($listDisplay="none")
 							#end
 							<p class="checkbox">
-								<input type="radio" name="access_mode$i" id="access_mode${i}_$GROUP_ACCESS" value="$GROUP_ACCESS" #if("$!item.access" == "$GROUP_ACCESS") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable$i').style.display='block';" onkeypress="javascript:document.getElementById('groupTable$i').style.display='block';" />
+								<input type="radio" name="access_mode$i" id="access_mode${i}_$GROUP_ACCESS" value="$GROUP_ACCESS" #if("$!item.access" == "$GROUP_ACCESS") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable$i').style.display='block';"  />
 								<label for="access_mode${i}_grouped">$tlang.getString("edit.access4")</label>
 							</p>
 						#end
@@ -1637,7 +1637,7 @@
 						<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
 						<tr>
 							<th id="selectAllGroups${i}" style="width:2em;padding-left:.4em">
-								<input type="checkbox" id="selectall${i}" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'access_groups${i}')" onkeypress="javascript:toggleSelectAll(this, 'access_groups${i}')" />
+								<input type="checkbox" id="selectall${i}" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'access_groups${i}')"  />
 							</th>
 							<th id="groupname${i}">
 								$tlang.getString("edit.group1")
@@ -1705,9 +1705,9 @@
 					#if ($item.isGroupShowing($group.name))
 						<p class="discTria">
 							#if("$itemType" == "$TYPE_UPLOAD")
-								<a href="#" onclick="javascript:document.getElementById('createForm').action='#toolLinkParam("ResourcesAction" "doCreateitem" "special=upload&flow=hideOptional&metadataGroup=$validator.escapeUrl($group.name)&twiggleNumber=$i")';submitform('createForm');" onkeypress="javascript:document.getElementById('createForm').action='#toolLinkParam("ResourcesAction" "doCreateitem" "special=upload&flow=hideOptional&metadataGroup=$validator.escapeUrl($group.name)&twiggleNumber=$i")';submitform('createForm');"  title="$tlang.getString("edit.hide") $group.name">
+								<a href="#" onclick="javascript:document.getElementById('createForm').action='#toolLinkParam("ResourcesAction" "doCreateitem" "special=upload&flow=hideOptional&metadataGroup=$validator.escapeUrl($group.name)&twiggleNumber=$i")';submitform('createForm');"  title="$tlang.getString("edit.hide") $group.name">
 							#else
-								<a href="#" onclick="javascript:document.getElementById('flow').value='hideOptional';document.getElementById('metadataGroup').value='$validator.escapeUrl($group.name)'; document.getElementById('twiggleNumber').value='$i';submitform('createForm');" onkeypress="javascript:document.getElementById('flow').value='hideOptional';document.getElementById('metadataGroup').value='$validator.escapeUrl($group.name)'; document.getElementById('twiggleNumber').value='$i';submitform('createForm');"  title="$tlang.getString("edit.hide") $group.name">
+								<a href="#" onclick="javascript:document.getElementById('flow').value='hideOptional';document.getElementById('metadataGroup').value='$validator.escapeUrl($group.name)'; document.getElementById('twiggleNumber').value='$i';submitform('createForm');"   title="$tlang.getString("edit.hide") $group.name">
 							#end
 							##<a href="#" onclick="javascript: document.getElementById('flow').value='hideOptional'; document.getElementById('metadataGroup').value='$validator.escapeUrl($group.name)'; document.getElementById('twiggleNumber').value='$i'; submitform('createForm'); return false;" title="$tlang.getString("edit.hide") $group.name">
 								<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("edit.hide") $group.name" border="0" width="13" height="13" align="top" />
@@ -1778,9 +1778,9 @@
 					#else
 						<p class="discTria">
 							#if("$itemType" == "$TYPE_UPLOAD")
-								<a href="#" onclick="javascript:document.getElementById('createForm').action='#toolLinkParam("ResourcesAction" "doCreateitem" "special=upload&flow=showOptional&metadataGroup=$validator.escapeUrl($group.name)&twiggleNumber=$i")';submitform('createForm');"  onkeypress="javascript:document.getElementById('createForm').action='#toolLinkParam("ResourcesAction" "doCreateitem" "special=upload&flow=showOptional&metadataGroup=$validator.escapeUrl($group.name)&twiggleNumber=$i")';submitform('createForm');" title="$tlang.getString("edit.show") $group.name">
+								<a href="#" onclick="javascript:document.getElementById('createForm').action='#toolLinkParam("ResourcesAction" "doCreateitem" "special=upload&flow=showOptional&metadataGroup=$validator.escapeUrl($group.name)&twiggleNumber=$i")';submitform('createForm');"   title="$tlang.getString("edit.show") $group.name">
 							#else
-								<a href="#" onclick="javascript:document.getElementById('flow').value='showOptional';document.getElementById('metadataGroup').value='$validator.escapeUrl($group.name)'; document.getElementById('twiggleNumber').value='$i';submitform('createForm');" onkeypress="javascript:document.getElementById('flow').value='showOptional';document.getElementById('metadataGroup').value='$validator.escapeUrl($group.name)'; document.getElementById('twiggleNumber').value='$i';submitform('createForm');"  title="$tlang.getString("edit.show") $group.name">
+								<a href="#" onclick="javascript:document.getElementById('flow').value='showOptional';document.getElementById('metadataGroup').value='$validator.escapeUrl($group.name)'; document.getElementById('twiggleNumber').value='$i';submitform('createForm');"  title="$tlang.getString("edit.show") $group.name">
 							#end
 							##<a href="#" onclick="javascript: document.getElementById('flow').value='showOptional'; document.getElementById('metadataGroup').value='$validator.escapeUrl($group.name)'; document.getElementById('twiggleNumber').value='$i'; submitform('createForm'); return false;" title="$tlang.getString("edit.show") $group.name">	
 								<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("edit.show") $group.name" border="0" width="13" height="13" align="top" />
@@ -1797,8 +1797,8 @@
 
 		######################## ================ Add Button, Cancel Button ================ ########################
 		<p class="act">
-				<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif','saveChanges','createForm');document.getElementById('flow').value='create'; submitform('createForm');" onkeypress="javascript:showNotif('submitnotif','saveChanges','createForm');document.getElementById('flow').value='attach'; submitform('createForm');"  value="$tlang.getString("gen.add")" accesskey="s" />
-				<input type="button" name="cancel" onclick="javascript:document.getElementById('createForm').action='#toolLinkParam("ResourcesAction" "doCreateitem" "flow=cancel")';submitform('createForm');" onkeypress="javascript:document.getElementById('createForm').action='#toolLinkParam("ResourcesAction" "doCreateitem" "flow=cancel")';submitform('createForm');"  value="$tlang.getString("gen.cancel")" accesskey="x" />
+				<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif','saveChanges','createForm');document.getElementById('flow').value='create'; submitform('createForm');"  value="$tlang.getString("gen.add")" accesskey="s" />
+				<input type="button" name="cancel" onclick="javascript:document.getElementById('createForm').action='#toolLinkParam("ResourcesAction" "doCreateitem" "flow=cancel")';submitform('createForm');"   value="$tlang.getString("gen.cancel")" accesskey="x" />
 				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 		</p>
 		#if("$itemType" == "$TYPE_UPLOAD")

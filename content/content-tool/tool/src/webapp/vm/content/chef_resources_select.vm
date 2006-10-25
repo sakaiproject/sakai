@@ -242,7 +242,7 @@
 											## if there is a copyright alert, show the alert page first
 											<a href="" 
 											title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($member.type)  [$tlang.getString('gen.newwin')]"
-											onclick="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false" onkeypress="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
+											onclick="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
 											#else
 											<a href="${member.url}" target="${member.target}"
 												title="$tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($member.type)  [$tlang.getString('gen.newwin')]"
@@ -254,8 +254,7 @@
 											## if there is a copyright alert, show the alert page first
 											<a href=""
 											title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($member.type)  [$tlang.getString('gen.newwin')]"
-											onclick="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;" 
-											onkeypress="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;">
+											onclick="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;">
 												$validator.escapeHtml($member.name)
 											</a>
 											&#169;
@@ -497,8 +496,7 @@
 														## if there is a copyright alert, show the alert page first
 														<a href="" 
 														title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($member.type)  [$tlang.getString('gen.newwin')]"
-														onclick="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false"
-														onkeypress="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
+														onclick="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
 														#else
 														<a href="${member.url}" target="${member.target}">
 													#end
@@ -508,8 +506,7 @@
 														## if there is a copyright alert, show the alert page first
 														<a href="" 
 														title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($member.type)  [$tlang.getString('gen.newwin')]"
-														onclick="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;"
-														onkeypress="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;">
+														onclick="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;">
 															$validator.escapeHtml($member.name)
 														</a>
 														&#169;
