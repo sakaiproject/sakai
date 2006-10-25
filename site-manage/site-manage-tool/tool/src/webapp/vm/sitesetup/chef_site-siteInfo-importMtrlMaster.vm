@@ -38,13 +38,10 @@
 		<input type="hidden" name="template-index" value="45" />
 		<p class="act">
 			<input type="button" name="uploadButton" id="uploadButton"  accesskey="s"
-				onclick="javascript:showNotif('submitnotif','uploadButton','featuresForm');document.getElementById('featuresForm').action='#toolLink("SiteAction" "doUpload_Mtrl_Frm_File")'; submitform('featuresForm');" 
-				onkeypress="javascript:showNotif('submitnotif','uploadButton','featuresForm');document.getElementById('featuresForm').action='#toolLink("SiteAction" "doUpload_Mtrl_Frm_File")'; submitform('featuresForm');" 
-				value="$tlang.getString('sitedicla.import')" />
+				onclick="javascript:showNotif('submitnotif','uploadButton','featuresForm');document.getElementById('featuresForm').action='#toolLink("SiteAction" "doUpload_Mtrl_Frm_File")'; submitform('featuresForm');" value="$tlang.getString('sitedicla.import')" />
 			
 			<input type="button" name="cancelButton" id="cancelButton"  accesskey="x" 
-				onclick="javascript: document.getElementById('featuresForm').action='#toolLink("SiteAction" "doCancel")';submitform('featuresForm');" 
-				onkeypress="javascript: document.getElementById('featuresForm').action='#toolLink("SiteAction" "doCancel")';submitform('featuresForm');"  
+				onclick="javascript: document.getElementById('featuresForm').action='#toolLink("SiteAction" "doCancel")';submitform('featuresForm');"  
 				value="$tlang.getString('sitedicla.can')" />
 			<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 		</p>

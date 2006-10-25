@@ -62,7 +62,7 @@
 						</td>
 						<td headers="remove" class="screenOnly">
 							<label class="skip" for="remove_$group.Id">$tlang.getString("editgroup.selectremovechecked")  $group.Title</label> 
-							<input type="checkbox" name="removeGroups" value="$group.Id" id="remove_$group.Id" onclick="adjustCount(this, 'removeCount', 'removeButton');" onkeypress="adjustCount(this, 'removeCount', 'removeButton');" />
+							<input type="checkbox" name="removeGroups" value="$group.Id" id="remove_$group.Id" onclick="adjustCount(this, 'removeCount', 'removeButton');"  />
 						</td>
 					</tr>
 				#end

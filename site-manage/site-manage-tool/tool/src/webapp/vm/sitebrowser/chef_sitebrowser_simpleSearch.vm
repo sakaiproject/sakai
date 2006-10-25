@@ -43,7 +43,7 @@
 			<p class="instruction indnt1">$tlang.getString("se.instruction")</p>
 		<p class="shorttext indnt1">
 			<label for="searchbox">$tlang.getString("se.search1") </label>
-			<input type="text" name="search" id="searchbox" size="20" maxlength="50" value="" onkeypress="formSubmitOnEnter(this, event)" />
+			<input type="text" name="search" id="searchbox" size="20" maxlength="50" value=""  />
 			<input type="hidden" name="eventSubmit_doSearch" id="eventSubmit_doSearch" value="Search for Sites" />
 		</p>
 		

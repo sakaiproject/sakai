@@ -52,13 +52,13 @@
 				</th>
 				<th  class="act">
 						<input type="button"  name="$tlang.getString('editgroup.addmember')" value="$tlang.getString('editgroup.addmember')" onclick="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=add')';submitform('groupForm');" 
-						onkeypress="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=add')';submitform('groupForm');" />
+						 />
 				</th>
 				<th>
 					$tlang.getString("editgroup.grouplist")
 				</th>
 				<th  class="act">
-						<input type="button"  name="$tlang.getString('editgroup.removemember')" value="$tlang.getString('editgroup.removemember')" onclick="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=remove')';submitform('groupForm');"  onkeypress="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=remove')';submitform('groupForm');" />
+						<input type="button"  name="$tlang.getString('editgroup.removemember')" value="$tlang.getString('editgroup.removemember')" onclick="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=remove')';submitform('groupForm');"   />
 				</th>
 			</tr>
 			<tr>
