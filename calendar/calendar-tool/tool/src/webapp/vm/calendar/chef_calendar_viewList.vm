@@ -308,13 +308,13 @@
 	<input type="hidden" name="scheduleTo" id="site" value="site" checked="checked" />
 #else
 	<p class="checkbox">
-		<input type="radio" name="scheduleTo" id="site" value="site" #if ($!scheduleTo == "site" || $!event.Access == $channelAccess)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';"/>
+		<input type="radio" name="scheduleTo" id="site" value="site" #if ($!scheduleTo == "site" || $!event.Access == $channelAccess)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';"  />
 		<label for="site">$tlang.getString("displayfrom.site")</label>
 	</p>
 	#if ($!groups)
 		## added group awareness
 		<p class="checkbox">
-			<input type="radio" name="scheduleTo" id="groups" value="groups" #if(!$!pubview && ($!scheduleTo == "groups" || $!event.Access == $groupAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';" onkeypress="document.getElementById('groupTable').style.display = 'block';" />
+			<input type="radio" name="scheduleTo" id="groups" value="groups" #if(!$!pubview && ($!scheduleTo == "groups" || $!event.Access == $groupAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
 			<label for="groups">$tlang.getString("displayfrom.selected")</label>
 		</p>	
 		#if($!scheduleTo == "groups" || $!event.Access == $groupAccess)
@@ -326,7 +326,7 @@
 		<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
 			<tr>
 				<th id ="selectAllGroups" class="attach">
-					<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')" onkeypress="javascript:toggleSelectAll(this, 'selectedGroups')" />
+					<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')"  />
 				</th>
 		 		<th id ="groupname">
 					#if (!$currentSortedBy.equals("grouptitle"))
