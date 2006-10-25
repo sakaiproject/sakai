@@ -46,6 +46,17 @@
             <value>/sakai_gradebook_tool/araj.html</value>
         </property>
     </bean>
+    <bean id="gradebookUploadingScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>aukf</value>
+        </property>
+        <property name="name">
+            <value>Uploading and importing scores</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aukf.html</value>
+        </property>
+    </bean>
     <bean id="gradebookSorting" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
             <value>arby</value>
@@ -128,6 +139,7 @@
                             <ref bean="gradebookAddAssignment"/>
                             <ref bean="gradebookAssignmentDetails"/>
                             <ref bean="gradebookEnteringScores"/>
+                            <ref bean="gradebookUploadingScores"/>
                             <ref bean="gradebookSorting"/>
                             <ref bean="gradebookRoster"/>
                             <ref bean="gradebookCumulativeScores"/>
