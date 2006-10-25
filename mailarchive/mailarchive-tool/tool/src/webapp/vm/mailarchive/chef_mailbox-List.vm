@@ -14,7 +14,7 @@
 					<input type="button" value="$tlang.getString('lis.search')" />
 				</a>
 				#if (($!search) && (!$search.equals("")))
-					<a href="#" title="Search" onclick="location = '#toolLink("$action" "doSearch_clear")';return false;" onkeypress="location = '#toolLink("$action" "doSearch_clear")';return false;">
+					<a href="#" title="Search" onclick="location = '#toolLink("$action" "doSearch_clear")';return false;">
 						<input type="button" value="$tlang.getString('lis.clear')" />
 					</a>
 				#end
@@ -112,19 +112,19 @@
 		<table class ="listHier lines nolines specialLink" cellspacing="0" summary ="$tlang.getString("lis.summary")">
 			<tr>
 				<th id="from">
-					<a href="#" onclick = "location = '#toolLink($action "doSort_from")';return false;" onkeypress = "location = '#toolLink($action "doSort_from")';return false;" title ="$tlang.getString("lis.sortbysen")">
+					<a href="#" onclick = "location = '#toolLink($action "doSort_from")';return false;"  title ="$tlang.getString("lis.sortbysen")">
 						$tlang.getString("gen.fro")
 						#if ($sort-by == 0)<img border="0" src="#imageLink($sort-img)" alt="$tlang.getString("lis.sortbysen") $sort-dir" />#end
 					</a>
 				</th>
 				<th id="subject">
-					<a href="#" onclick = "location = '#toolLink($action "doSort_subject")';return false;" onkeypress = "location = '#toolLink($action "doSort_subject")';return false;"  title = "$tlang.getString("lis.sortbysub")">
+					<a href="#" onclick = "location = '#toolLink($action "doSort_subject")';return false;"   title = "$tlang.getString("lis.sortbysub")">
 						$tlang.getString("gen.sub")
 						#if ($sort-by == 2)<img border="0" src="#imageLink($sort-img)" alt="$tlang.getString("lis.sortbysub") $sort-dir" />#end
 					</a>
 				</th>
 				<th id="date">
-					<a href="#" onclick = "location = '#toolLink($action "doSort_date")';return false;" onkeypress = "location = '#toolLink($action "doSort_date")';return false;"  title ="$tlang.getString("lis.sortbydat")">
+					<a href="#" onclick = "location = '#toolLink($action "doSort_date")';return false;"   title ="$tlang.getString("lis.sortbydat")">
 						$tlang.getString("gen.datre")
 						#if ($sort-by == 1)<img border="0" src="#imageLink($sort-img)" alt ="$tlang.getString("lis.sortbydat") $sort-dir" />#end
 					</a>
@@ -134,7 +134,9 @@
 				<tr>
 					<td headers="from">$validator.escapeHtml($item.Header.FromAddress)</td>
 					<td headers="subject">
-						<h4><a href="#" onclick="location = '#toolLinkParam($action "doView" "$view-id=$validator.escapeUrl($item.Header.Id)")';return false;" onkeypress="location = '#toolLinkParam($action "doView" "$view-id=$validator.escapeUrl($item.Header.Id)")';return false;" title="$tlang.getString("lis.viewmessage") $validator.escapeHtml($item.Header.Subject)">
+						<h4><a href="#" 
+						onclick="location = '#toolLinkParam($action "doView" "$view-id=$validator.escapeUrl($item.Header.Id)")';return false;" 
+						title="$tlang.getString("lis.viewmessage") $validator.escapeHtml($item.Header.Subject)">
 							$validator.escapeHtml($item.Header.Subject)
 
 							## show the paperclip if existing
