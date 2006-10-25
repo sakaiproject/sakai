@@ -932,14 +932,28 @@ public class TotalScoresBean
 	private boolean isFilteredSearch() {
         return !StringUtils.equals(searchString, defaultSearchString);
 	}
-
+	
 	public ArrayList findMatchingAgents(final String pattern) {
 		ArrayList filteredList = new ArrayList();
+		// name1 example: John Doe
+		StringBuffer name1;
+		// name2 example: Doe, John
+		StringBuffer name2;
 		for(Iterator iter = allAgents.iterator(); iter.hasNext();) {
 			AgentResults result = (AgentResults)iter.next();
+			// name1 example: John Doe
+			name1 = new StringBuffer(result.getFirstName());
+			name1.append(" ");
+			name1.append(result.getLastName());
+			// name2 example: Doe, John
+			name2 = new StringBuffer(result.getLastName());
+			name2.append(", ");
+			name2.append(result.getFirstName());
 			if (result.getFirstName().toLowerCase().startsWith(pattern.toLowerCase()) ||
 				result.getLastName().toLowerCase().startsWith(pattern.toLowerCase()) ||
-				result.getAgentEid().toLowerCase().startsWith(pattern.toLowerCase())) {
+				result.getAgentEid().toLowerCase().startsWith(pattern.toLowerCase()) ||
+				name1.toString().toLowerCase().startsWith(pattern.toLowerCase()) ||
+				name2.toString().toLowerCase().startsWith(pattern.toLowerCase())) {
 				filteredList.add(result);
 			}
 		}
