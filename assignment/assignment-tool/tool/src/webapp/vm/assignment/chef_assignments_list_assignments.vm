@@ -148,7 +148,7 @@
 						&nbsp;
 					</th>
 					<th id="title">
-						<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"  onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;" title="$tlang.getString("listassig.sorbytit")">
+						<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"   title="$tlang.getString("listassig.sorbytit")">
 							$tlang.getString("gen.asstit")
 							#if ($sortedBy.equals("title")) 
 								#if ($sortedAsc.equals("true")) 
@@ -163,18 +163,18 @@
 						##only show it when there is at least a group in site
 						<th id="$tlang.getString('gen.visible')">
 							#if (!$sortedBy.equalsIgnoreCase("$tlang.getString('gen.visible')"))
-								<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
+								<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"   title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
 							#else
 								#if ($sortedAsc.equals("true"))
-									<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  title="$tlang.getString('gen.sortbyforasc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbyforasc')" /></a>
+									<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"    title="$tlang.getString('gen.sortbyforasc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbyforasc')" /></a>
 								#else
-									<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  title="$tlang.getString('gen.sortbyfordesc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbyfordesc')" /></a>
+									<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"    title="$tlang.getString('gen.sortbyfordesc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbyfordesc')" /></a>
 								#end
 							#end
 						</th>
 					#end
 					<th id="status">
-						<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=assignment_status")'; return false;"  onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=assignment_status")'; return false;" title="$tlang.getString("listassig.sorbysta")">
+						<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=assignment_status")'; return false;"   title="$tlang.getString("listassig.sorbysta")">
 							$tlang.getString("gen.status")
 							#if ($sortedBy.equals("assignment_status")) 
 								#if ($sortedAsc.equals("true")) 
@@ -186,7 +186,7 @@
 						</a>
 					</th>
 					<th id="openDate">
-						<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;" onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;" title="$tlang.getString("listassig.sorbysec")">
+						<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbysec")">
 							$tlang.getString("gen.open")
 							#if ($sortedBy.equals("opendate")) 
 								#if ($sortedAsc.equals("true")) 
@@ -198,7 +198,7 @@
 						</a>
 					</th>
 					<th id="dueDate">
-						<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=duedate")'; return false;" onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=duedate")'; return false;" title="$tlang.getString("gen.sorbydue")">
+						<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=duedate")'; return false;"  title="$tlang.getString("gen.sorbydue")">
 							$tlang.getString("gen.due1")
 							#if ($sortedBy.equals("duedate")) 
 								#if ($sortedAsc.equals("true")) 
@@ -212,9 +212,9 @@
 					#if ($!allowGradeSubmission)
 						#if ($!view.equals('lisofass1'))
 						<th id="num_submissions">
-							<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"  onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;" title="$tlang.getString("listassig.sorbynum1")">$tlang.getString("gen.in")</a>
+							<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">$tlang.getString("gen.in")</a>
 								#if ($sortedBy.equals("num_submissions")) 
-									<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"  onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;" title="$tlang.getString("listassig.sorbynum1")">
+									<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">
 										#if ($sortedAsc.equals("true")) 
 											<img id="sortascendingtotalsubmissions" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
 										#else 
@@ -223,9 +223,9 @@
 									</a>
 								#end
 								/
-							<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_ungraded")'; return false;" onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=num_ungraded")'; return false;" title="$tlang.getString("listassig.sorbynum2")">$tlang.getString("gen.new")</a>
+							<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_ungraded")'; return false;"  title="$tlang.getString("listassig.sorbynum2")">$tlang.getString("gen.new")</a>
 								#if ($sortedBy.equals("num_ungraded")) 
-									<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_ungraded")'; return false;"  onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=num_ungraded")'; return false;" title="$tlang.getString("listassig.sorbynum2")">
+									<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_ungraded")'; return false;"   title="$tlang.getString("listassig.sorbynum2")">
 										#if ($sortedAsc.equals("true")) 
 											<img id="sortascendingungradedsubmissions" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
 										#else 
@@ -238,7 +238,7 @@
 					#end
 					#if ($withGrade && $!allowGradeSubmission)
 						<th id="maxgrade">
-							<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=max_grade")'; return false;"  onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=max_grade")'; return false;" title="$tlang.getString("gen.sorbymax")">
+							<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=max_grade")'; return false;"   title="$tlang.getString("gen.sorbymax")">
 								$tlang.getString("gen.sca")
 								#if ($sortedBy.equals("max_grade")) 
 									#if ($sortedAsc.equals("true")) 
@@ -470,7 +470,7 @@
 											#end
 										#end
 									#end
-									<a href="#" onclick="location='#toolLinkParam("$action" "doGrade_assignment_from" "assignmentId=$validator.escapeUrl($assignmentReference)")'; return false;" onkeypress="location='#toolLinkParam("$action" "doGrade_assignment_from" "assignmentId=$validator.escapeUrl($assignmentReference)")'; return false;">
+									<a href="#" onclick="location='#toolLinkParam("$action" "doGrade_assignment_from" "assignmentId=$validator.escapeUrl($assignmentReference)")'; return false;" >
 									$totalNumber/$ungradedNumber</a>
 								</td>
 								#end

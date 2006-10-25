@@ -177,7 +177,6 @@
 					id="save" 
 					value="$tlang.getString("gen.savdra")"
 					onclick="showNotif('submitnotif','save','addSubmissionForm');document.addSubmissionForm.option.value='save'; document.addSubmissionForm.submit(); return false;"
-					onkeypress="showNotif('submitnotif','save','addSubmissionForm');document.addSubmissionForm.option.value='save'; document.addSubmissionForm.submit(); return false;"
 				/>
 				<input
 					class="disableme" 

@@ -123,7 +123,7 @@
 						&nbsp;
 					</th>
 					<th id="studentname">
-						<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_lastName")'; return false;"  onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_lastName")'; return false;" title="$tlang.getString("gen.sorbylas")">
+						<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_lastName")'; return false;"   title="$tlang.getString("gen.sorbylas")">
 							$tlang.getString("gen.student")
 							#if ($sortedBy.equals($!sort_lastName)) 
 								#if ($sortedAsc.equals("true")) 
@@ -135,7 +135,7 @@
 						</a>
 					</th>
 					<th id="submitted">
-						<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitTime")'; return false;" onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitTime")'; return false;" title="$tlang.getString("listsub.sorbysub")">
+						<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitTime")'; return false;"  title="$tlang.getString("listsub.sorbysub")">
 							$tlang.getString("gen.subm4")
 							#if ($sortedBy.equals($!sort_submitTime)) 
 								#if ($sortedAsc.equals("true")) 
@@ -147,7 +147,7 @@
 						</a>
 					</th>
 					<th id="status">
-						<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitStatus")'; return false;" onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitStatus")'; return false;" title="$tlang.getString("listsub.sorbysta")">
+						<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitStatus")'; return false;"  title="$tlang.getString("listsub.sorbysta")">
 							$tlang.getString("gen.status")
 							#if ($sortedBy.equals($!sort_submitStatus)) 
 								#if ($sortedAsc.equals("true")) 
@@ -160,7 +160,7 @@
 					</th>
 					#if ($withGrade)
 						<th id="grade">
-							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitGrade")'; return false;" onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitGrade")'; return false;" title="$tlang.getString("gen.sorbygra")">
+							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitGrade")'; return false;"  title="$tlang.getString("gen.sorbygra")">
 								$tlang.getString("gen.gra")
 								#if ($sortedBy.equals($!sort_submitGrade)) 
 									#if ($sortedAsc.equals("true")) 
@@ -173,7 +173,7 @@
 						</th>
 					#end	
 					<th id="gradereleased">
-						<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReleased")'; return false;" onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReleased")'; return false;" title="$tlang.getString("listsub.sorbyrel")">
+						<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReleased")'; return false;"  title="$tlang.getString("listsub.sorbyrel")">
 							$tlang.getString("gen.relea")
 							#if ($sortedBy.equals($!sort_submitReleased)) 
 								#if ($sortedAsc.equals("true")) 
