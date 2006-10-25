@@ -26,6 +26,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -340,13 +341,15 @@ public class podHomeBean {
 	// podHomeBean constants
 	private static final String NO_RESOURCES_ERR_MSG = "no_resource_alert";
 	private static final String RESOURCEID = "resourceId";
-	private static final String RESOURCE_TITLE = "Resources";
 	private static final String FEED_URL_MIDDLE = "podcasts/site/";
 	private static final String MB = "MB";
 	private static final String BYTES = "Bytes";
 	
 	private static final String MB_NUMBER_FORMAT = "#.#";
 	private static final String BYTE_NUMBER_FORMAT = "#,###";
+
+	// configurable toolId for Resources tool check
+	private String RESOURCE_TOOL_ID = ServerConfigurationService.getString("podcasts.toolid", "sakai.resources");
 
 	// inject the services needed
 	private PodcastService podcastService;
@@ -386,20 +389,16 @@ public class podHomeBean {
 		boolean resourceToolExists = false;
 
 		try {
-			// loop thru tools on this site looking for
-			// Resources tool
+			//
+			// Get a list of tool ids and see if RESOURCE_TOOL_ID is in the returned Collection			
+			LOG.debug("Checking for presence of Sakai Resources tool using RESOURCE_TOOL_ID = " + RESOURCE_TOOL_ID);
 			Site thisSite = SiteService.getSite(ToolManager
 					.getCurrentPlacement().getContext());
-			List pageList = thisSite.getPages();
 
-			Iterator iterator = pageList.iterator();
-			while (iterator.hasNext()) {
-				SitePage pgelement = (SitePage) iterator.next();
-
-				if (pgelement.getTitle().equals(RESOURCE_TITLE)) {
-					resourceToolExists = true;
-					break;
-				}
+			Collection toolsInSite = thisSite.getTools(RESOURCE_TOOL_ID);
+			
+			if (!toolsInSite.isEmpty()) {
+				resourceToolExists = true;
 			}
 		} 
 		catch (IdUnusedException e) {
