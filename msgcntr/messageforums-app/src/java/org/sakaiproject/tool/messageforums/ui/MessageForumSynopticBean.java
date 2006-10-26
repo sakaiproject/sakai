@@ -47,6 +47,8 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
@@ -153,6 +155,9 @@ public class MessageForumSynopticBean {
 
 	/** Used to determine if Message Center tool part of a site */
 	private final String MF_TITLE = "Message Center";
+	
+	/** Used to determine if MessageCenter tool part of site */
+	private final String MESSAGE_CENTER_ID = "sakai.messagecenter";
 
 	/** Used to get contextId when tool on MyWorkspace to set all private messages to Read status */
 	private final String CONTEXTID="contextId";
@@ -248,7 +253,6 @@ public class MessageForumSynopticBean {
 	public List getContents() {
 		List contents = new ArrayList();
 
-		// TODO: Actually generate the list of messages
 		if (isMyWorkspace()) {
 			// Get stats for "all" sites this user is a member of
 
@@ -505,14 +509,6 @@ public class MessageForumSynopticBean {
 	private List computeUnreadDFMessages(List totalMessages, List readMessages) {
 		List unreadDFMessageCounts = new ArrayList();
 
-		// If no sites contain topics
-		if (totalMessages.isEmpty()) {
-			return unreadDFMessageCounts;
-		}
-		else if (readMessages.isEmpty()) {
-			return totalMessages;
-		}
-
 		// Constructs the unread message counts from above 2 lists
 		final Iterator dfMessagesIter = totalMessages.iterator();
 		final Iterator dfReadMessagesIter = readMessages.iterator();
@@ -603,8 +599,8 @@ public class MessageForumSynopticBean {
 	 * 		TRUE if Message Forums (Message Center) exists in this site, FALSE otherwise
 	 */
 	private boolean isMessageForumsPageInSite(Site thisSite) {
-		Collection toolsInSite = thisSite.getTools("sakai.messagecenter");
-	
+		Collection toolsInSite = thisSite.getTools(MESSAGE_CENTER_ID);
+
 		if (toolsInSite.isEmpty()) {
 			return false;
 		}
@@ -613,27 +609,58 @@ public class MessageForumSynopticBean {
 		}
 	}
 
+	/**
+	 * Returns the URL for the page the Message Center tool is on. Called if tool
+	 * on home page of a site.
+	 * 
+	 * @return String
+	 * 			A URL so the user can click to go to Message Center. Needed since
+	 * 				tool could possibly by in MyWorkspace
+	 */
 	private String getMCPageURL() {
 		return getMCPageURL(ToolManager.getCurrentPlacement().getContext());
 	}
 
+	/**
+	 * Returns the URL for the page the Message Center tool is on.
+	 * 
+	 * @return String
+	 * 			A URL so the user can click to go to Message Center. Needed since
+	 * 				tool could possibly by in MyWorkspace
+	 */
 	private String getMCPageURL(String siteId) {
 		try {
+			Collection toolsInSite = SiteService.getSite(siteId).getTools(MESSAGE_CENTER_ID);
+			ToolConfiguration mcTool;
+			
+			if (! toolsInSite.isEmpty()) {
+				Iterator iter = toolsInSite.iterator();
+				mcTool = (ToolConfiguration) iter.next();
+			
+				SitePage pgelement = mcTool.getContainingPage();
+
+				return pgelement.getUrl();
+
+			}
+
 			// loop thru tools on this site looking for
 			// Message Center tool
-			Site thisSite = SiteService.getSite(siteId);
+/*			Site thisSite = SiteService.getSite(siteId);
 			List pageList = thisSite.getPages();
 
 			Iterator iterator = pageList.iterator();
 			while (iterator.hasNext()) {
 				SitePage pgelement = (SitePage) iterator.next();
+				
+//				ToolConfiguration tc = pgelement.getTool(MESSAGE_CENTER_ID);
+//				if (tc != null) {
 				if (pgelement.getTitle().equals(MF_TITLE)) {
 					return pgelement.getUrl();
 				}
 			}
-		} catch (IdUnusedException e) {
-			LOG
-					.error("No Site found while trying to check if site has MF tool.");
+*/		} 
+		catch (IdUnusedException e) {
+			LOG.error("No Site found while trying to check if site has MF tool.");
 
 			// TODO: if we are in My Workspace, do we go here?
 		}
