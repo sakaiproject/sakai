@@ -79,5 +79,12 @@
 			</props>
 		</property>
 	</bean>
+	
+	<bean id="org.sakaiproject.content.api.ResourceTypeRegistry"
+			class="org.sakaiproject.content.impl.ResourceTypeRegistryImpl"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+	</bean>
 
 </beans>
