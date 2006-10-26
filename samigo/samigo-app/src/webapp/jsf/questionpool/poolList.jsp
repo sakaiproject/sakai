@@ -94,7 +94,15 @@
 <h:commandLink title="#{msg.t_addPool}" rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" id="add" immediate="true" action="#{questionpool.addPool}">
  <h:outputText value="#{msg.add_new_pool}"/>
   <f:param name="qpid" value="0"/>
+</h:commandLink>
+
+<h:outputText value=" #{genMsg.separator} " />
+
+<h:commandLink title="#{msg.t_importPool}" rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" id="import" immediate="true" action="importPool">
+ <h:outputText value="#{msg.import}"/>
+  <f:param name="qpid" value="0"/>
 </h:commandLink> 
+ 
 <h:outputText rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" escape="false" value="</p>"/>
 </div>
 

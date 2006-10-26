@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.qti.helper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,16 +46,20 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolItemIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.qti.asi.Assessment;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
@@ -65,6 +70,7 @@ import org.sakaiproject.tool.assessment.qti.helper.item.ItemHelperIfc;
 import org.sakaiproject.tool.assessment.qti.helper.section.SectionHelperIfc;
 import org.sakaiproject.tool.assessment.qti.util.XmlStringBuffer;
 import org.sakaiproject.tool.assessment.services.ItemService;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import java.util.Set;
@@ -507,7 +513,7 @@ public class AuthoringHelper
       assessment.setTypeId(TypeIfc.QUIZ);
       assessment.setStatus(new Integer(1));
 
-      // process each section and each item withiassessmentn each section
+      // process each section and each item within each section
       List sectionList = exHelper.getSectionXmlList(assessmentXml);
       int sectionListSize = sectionList.size();
       log.debug("sections=" + sectionListSize);
@@ -598,6 +604,122 @@ public class AuthoringHelper
     }
 
   }
+  
+  /**
+  * Import an assessment XML document in QTI format, extract & persist the data.
+  * import process assumes assessment structure, not objectbank or itembank
+  * @param document the assessment XML document in QTI format
+  * @return a persisted assessment
+  */
+   public QuestionPoolFacade createImportedQuestionPool(Document document) 
+   {
+ 	QuestionPoolFacade questionpool = new QuestionPoolFacade();
+ 	QuestionPoolService questionPoolService = new QuestionPoolService();
+ 	
+ 	try
+ 	{
+       // identify user to assign as question pool owner
+       String me = AgentFacade.getAgentString();
+
+ 	  // create the questionpool as an assessment
+ 	  ExtractionHelper exHelper = new ExtractionHelper(this.qtiVersion);
+ 	  ItemService itemService = new ItemService();
+ 	  Assessment assessmentXml = new Assessment(document);
+ 	  Map assessmentMap = exHelper.mapAssessment(assessmentXml);
+ 	  String title = (String) assessmentMap.get("title");
+ 	  
+ 	  // save questionpool with required info only at this point
+ 	  questionpool.setOwnerId(me);
+ 	  questionpool.setTitle(title);
+ 	  questionpool.setLastModifiedById(me);
+      questionpool.setAccessTypeId(QuestionPoolFacade.ACCESS_DENIED); // set as default
+ 	  questionpool = questionPoolService.savePool(questionpool);
+      // update the remaining questionpool properties
+      exHelper.updateQuestionPool(questionpool, assessmentMap);
+ 	  
+ 	  // now make sure we have a unique name for the question pool
+      String baseId = questionpool.getQuestionPoolId().toString();
+ 	  boolean isUnique=questionPoolService.poolIsUnique(baseId,title,"0", me);
+   
+ 	  // if the title is not unique, increment with a number per renameDuplicate()
+ 	  if (!isUnique) {
+ 		  synchronized (title)
+ 	        {
+ 	          log.debug("Questionpool "+ title + " is not unique.");
+ 	          int count = 0; // alternate exit condition
+
+ 	          while (!isUnique)
+ 	          {
+ 	        	title = exHelper.renameDuplicate(title);
+ 	            log.debug("renameDuplicate(title): " + title);
+ 	            questionpool.setTitle(title);
+ 	            //recheck to confirm that new title is not a dplicate too
+ 	            isUnique = questionPoolService.poolIsUnique(baseId,title,"0", me);	      	  
+ 	            if (count++ > 99) break;// exit condition in case bug is introduced
+ 	          }
+ 	      }		  
+ 	  }
+ 	  
+ 	  
+      // process each section and each item within assessment each section
+      List sectionList = exHelper.getSectionXmlList(assessmentXml);
+      int sectionListSize = sectionList.size();
+      int sec = sectionListSize-1;
+      log.debug("sections=" + sectionListSize);
+             
+      // initialize setQuestionPoolItems so items can be added
+      Set itemSet = new HashSet();
+      questionpool.setQuestionPoolItems(itemSet);
+       
+      // use case for single section
+      // most common for Respondus & BB migrations
+      if (sectionListSize == 1)      
+      {
+           Section sectionXml = (Section) sectionList.get(sec);
+           Map sectionMap = exHelper.mapSection(sectionXml);
+           // for single section, do not create subpool
+
+           List itemList = exHelper.getItemXmlList(sectionXml);
+           for (int itm = 0; itm < itemList.size(); itm++) // for each item
+           {
+               log.debug("items=" + itemList.size());
+               Item itemXml = (Item) itemList.get(itm);
+               Map itemMap = exHelper.mapItem(itemXml);
+
+               ItemFacade item = new ItemFacade();
+               exHelper.updateItem(item, itemMap);
+               // make sure required fields are set
+               item.setCreatedBy(me);
+               item.setCreatedDate(questionpool.getLastModified());
+               item.setLastModifiedBy(me);
+               item.setLastModifiedDate(questionpool.getLastModified());
+               item.setStatus(ItemDataIfc.ACTIVE_STATUS);
+               itemService.saveItem(item);
+               
+               QuestionPoolItemData questionPoolItem = new QuestionPoolItemData();
+               questionPoolItem.setQuestionPoolId(questionpool.getQuestionPoolId());
+               questionPoolItem.setItemId(item.getItemIdString());         
+               questionpool.addQuestionPoolItem((QuestionPoolItemIfc) questionPoolItem);
+               
+             } // ... end for each item
+   
+      }
+      // need error message if more than one section, for now
+       
+      // update the questionpoool with all sections and items
+      questionPoolService.savePool(questionpool);
+       
+ 	  return questionpool;		
+ 	}
+ 	catch (Exception e)
+ 	{
+ 		log.error(e.getMessage(), e);
+ 		Tree tree = null;
+ 		questionPoolService.deletePool(questionpool.getQuestionPoolId(), AgentFacade.getAgentString(), tree);		
+ 		throw new RuntimeException(e);		
+ 	}
+   }
+ 
 
   /**
    * @deprecated

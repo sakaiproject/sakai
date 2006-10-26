@@ -484,6 +484,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
       }
     }
+    if ((item.getData()!= null) && (item.getData().getSection()!= null)) {
     AssessmentIfc assessment = item.getData().getSection().getAssessment();
     assessment.setLastModifiedBy(AgentFacade.getAgentString());
     assessment.setLastModifiedDate(new Date());
@@ -497,6 +498,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     		log.warn("problem updating asssessment: "+e.getMessage());
     		retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
     	}
+    }
     }
     return item;
     }

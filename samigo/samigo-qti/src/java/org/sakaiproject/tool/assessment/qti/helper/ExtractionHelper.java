@@ -55,6 +55,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.qti.asi.ASIBaseClass;
 import org.sakaiproject.tool.assessment.qti.asi.Assessment;
@@ -939,6 +940,33 @@ public class ExtractionHelper
 
     }
   }
+  
+  /**
+   * Update questionpool from the extracted properties.
+   * Note: you need to do a save when you are done.
+   * @param questionpool, which will  be persisted
+   * @param assessmentMap, the extracted properties
+   */
+  public void updateQuestionPool(QuestionPoolFacade questionpool,
+          Map assessmentMap)
+  {
+	  
+	  String title = ((String)assessmentMap.get("title"));
+	  questionpool.setDescription((String)assessmentMap.get("description"));
+	  //questionpool.setLastModifiedById("Sakai Import");
+	  questionpool.setLastModified(new Date());
+	  // note: currently dateCreated field not in use 	  
+	  //questionpool.setDateCreated(new Date());
+	  questionpool.setOrganizationName((String)assessmentMap.get("ASSESSMENT_ORGANIZATIONNAME"));
+	  questionpool.setObjectives((String)assessmentMap.get("ASSESSMENT_OBJECTIVES"));
+	  questionpool.setKeywords((String)assessmentMap.get("ASSESSMENT_KEYWORDS"));
+	  questionpool.setRubric((String)assessmentMap.get("ASSESSMENT_RUBRICS"));
+	  questionpool.setIntellectualPropertyId((Long)assessmentMap.get("INTELLECTUALPROPERTYID"));
+	  
+	  log.debug("QPOOL ASSESSMENT updating metadata information");
+
+  }
+  
   /**
    * Update section from the extracted properties.
    * Note: you need to do a save when you are done.

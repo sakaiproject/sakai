@@ -38,12 +38,14 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 
 /**
@@ -66,6 +68,7 @@ public class XMLImportBean implements Serializable
   private AuthorBean authorBean;
   private AssessmentBean assessmentBean;
   private ItemAuthorBean itemAuthorBean;
+  private QuestionPoolBean questionPoolBean;
 
   public XMLImportBean()
   {
@@ -240,4 +243,75 @@ public class XMLImportBean implements Serializable
     this.itemAuthorBean = itemAuthorBean;
   }
 
+  /**
+   * Value change on upload
+   * @param e the event
+   */
+  public void importPoolFromQti(ValueChangeEvent e)
+  {
+    String uploadFile = (String) e.getNewValue();
+
+    try
+    {
+    	processAsPoolFile(uploadFile);
+    }
+    catch (Exception ex)
+    {
+      ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
+      FacesMessage message = new FacesMessage( rb.getString("import_err") + ex );
+      FacesContext.getCurrentInstance().addMessage(null, message);
+    }
+  }
+   
+  
+  /**
+   * Process uploaded QTI XML 
+   * assessment as question pool
+   */
+  private void processAsPoolFile(String uploadFile)
+  {
+    itemAuthorBean.setTarget(ItemAuthorBean.FROM_QUESTIONPOOL); // save to questionpool
+
+    // Get the file name
+    String fileName = uploadFile;
+
+    // Create a questionpool based on the uploaded assessment file
+    QuestionPoolFacade questionPool = createImportedQuestionPool(fileName, qtiVersion);
+
+    // remove uploaded file
+    try{
+      //System.out.println("****filename="+fileName);
+      File upload = new File(fileName);
+      upload.delete();
+    }
+    catch(Exception e){
+      System.out.println(e.getMessage());
+    }
+  }
+  
+  /**
+   * Create questionpool from uploaded QTI assessment XML
+   * @param fullFileName file name and path
+   * @param qti QTI version
+   * @return
+   */
+  private QuestionPoolFacade createImportedQuestionPool(String fullFileName, int qti)
+  {
+    //trim = true so that xml processing instruction at top line, even if not.
+    Document document = XmlUtil.readDocument(fullFileName, true);
+    QTIService qtiService = new QTIService();
+    return qtiService.createImportedQuestionPool(document, qti);
+  }  
+  
+  
+  public QuestionPoolBean getQuestionPoolBean()
+  {
+    return questionPoolBean;
+  }
+
+  public void setQuestionPoolBean(QuestionPoolBean questionPoolBean)
+  {
+    this.questionPoolBean = questionPoolBean;
+  }  
+ 
 }

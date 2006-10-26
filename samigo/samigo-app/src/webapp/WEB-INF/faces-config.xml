@@ -331,6 +331,10 @@
       <property-name>itemAuthorBean</property-name>
       <value>#{itemauthor}</value>
     </managed-property>
+    <managed-property>
+      <property-name>questionPoolBean</property-name>
+      <value>#{questionpool}</value>
+    </managed-property>    
   </managed-bean>
   <managed-bean>
     <description>XML Controller.</description>
@@ -659,7 +663,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>importPool</from-outcome>
-      <to-view-id>/jsf/questionpool/importPool.jsp</to-view-id>
+      <to-view-id>/jsf/qti/importPool.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>exportPool</from-outcome>

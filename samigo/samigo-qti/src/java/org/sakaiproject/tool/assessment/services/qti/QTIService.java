@@ -27,6 +27,7 @@ import org.w3c.dom.Document;
 
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 
@@ -67,6 +68,32 @@ public class QTIService
       throw new QTIServiceException(ex);
     }
   }
+ 
+  
+  /**
+   * Import an assessment XML document in QTI format, extract & persist the data.
+   * import process assumes assessment structure, not objectbank or itembank
+   * based on usage in other potential migration systems, Respondus, BlackBoard, etc.
+   * QTI version 2.x will probably focus on content packaging for question pools  
+   * @param document the assessment XML document in QTI format
+   * @param qtiVersion QTIVersion.VERSION_1_2;
+   * @return a persisted assessment
+   */  
+  public QuestionPoolFacade createImportedQuestionPool(Document document, int qtiVersion)
+  {
+	  testQtiVersion(qtiVersion);
+
+	  try
+	  {
+		  AuthoringHelper helper = new AuthoringHelper(qtiVersion);
+	      return helper.createImportedQuestionPool(document);
+	  }
+	  catch (Exception ex)
+	  {
+		  throw new QTIServiceException(ex);
+	  }
+  } 
+  
 
   /**
    * Import an item XML document in QTI format, extract & persist the data.
