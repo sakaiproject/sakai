@@ -457,7 +457,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public void setAvailabilityChecksEnabled(boolean value)
 	{
-		M_log.info("======> setAvailabilityChecksEnabled(" + value + ")");
 		m_availabilityChecksEnabled = value;
 	}
 	
@@ -481,7 +480,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public void setPrioritySortEnabled(boolean value)
 	{
-		M_log.info("======> setPrioritySortEnabled(" + value + ")");
 		m_prioritySortEnabled = value;
 	}
 
@@ -576,9 +574,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			M_log.warn("init(): ", t);
 		}
 
-		M_log.info("======> init finishing m_prioritySortEnabled == " + m_prioritySortEnabled);
-		M_log.info("======>init finishing m_availabilityChecksEnabled == " + m_availabilityChecksEnabled);
-		
 	} // init
 
 	/**
