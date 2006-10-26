@@ -44,6 +44,7 @@ public class TestGradebookLoader extends GradebookLoaderBase {
     static String EXTERNAL_ASN_NAME1 = "External Assessment #1";
     static String EXTERNAL_ASN_NAME2 = "External Assessment #2";
     static String ASN_NO_DUE_DATE_NAME = "Fl\u00F8ating Assignment (Due Whenever)";
+    // static String ASN_NO_DUE_DATE_NAME = "F\u4E40\u00F8ating Assignment";	// Test for Chinese support
     static String ASN_NOT_COUNTED_NAME = "Self-Assessment";
 
 	protected IntegrationSupport integrationSupport;

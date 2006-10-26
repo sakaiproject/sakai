@@ -50,6 +50,10 @@ import org.sakaiproject.tool.gradebook.GradableObject;
  * Backing bean to export gradebook data. Currently we support two export
  * formats (CSV or Excel) and export two collections of data (all assignment
  * scores or all course grades).
+ *
+ * NOTE: CSV export capabilities are extremely limited! UTF-16 text (such as
+ * Chinese) is not supported correctly, for example. Use Excel-formatted output if at all
+ * possible.
  */
 public class ExportBean extends GradebookDependentBean implements Serializable {
 	private static final Log logger = LogFactory.getLog(ExportBean.class);
@@ -206,8 +210,8 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 		HSSFRow headerRow = sheet.createRow((short)0);
 
 		// Add the column headers
-        headerRow.createCell((short)(0)).setCellValue(getLocalizedString("export_student_id"));
-        headerRow.createCell((short)(1)).setCellValue(getLocalizedString("export_student_name"));
+        createCell(headerRow, (short)(0)).setCellValue(getLocalizedString("export_student_id"));
+        createCell(headerRow, (short)(1)).setCellValue(getLocalizedString("export_student_name"));
 
 		for(short i=0; i < gradableObjects.size(); i++) {
 			GradableObject go = (GradableObject)gradableObjects.get(i);
@@ -221,7 +225,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
             } else {
                 header = go.getName();
             }
-			headerRow.createCell((short)(i+2)).setCellValue(header); // Skip the first two columns
+			createCell(headerRow, (short)(i+2)).setCellValue(header); // Skip the first two columns
 		}
 
 		// Fill the spreadsheet cells
@@ -230,11 +234,11 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 			EnrollmentRecord enr = (EnrollmentRecord)enrollmentIter.next();
 			Map studentMap = (Map)scoresMap.get(enr.getUser().getUserUid());
 			HSSFRow row = sheet.createRow(sheet.getLastRowNum() + 1);
-            row.createCell((short)0).setCellValue(enr.getUser().getDisplayId());
-            row.createCell((short)1).setCellValue(enr.getUser().getSortName());
+            createCell(row, (short)0).setCellValue(enr.getUser().getDisplayId());
+            createCell(row, (short)1).setCellValue(enr.getUser().getSortName());
 			for(short j=0; j < gradableObjects.size(); j++) {
 				GradableObject go = (GradableObject)gradableObjects.get(j);
-				HSSFCell cell = row.createCell((short)(j+2));
+				HSSFCell cell = createCell(row, (short)(j+2));
 				Object cellValue = (studentMap != null) ? studentMap.get(go.getId()) : null;
 				if(cellValue != null) {
 					if (cellValue instanceof Double) {
@@ -246,8 +250,13 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 			}
 		}
 
-
         return wb;
+	}
+
+	private HSSFCell createCell(HSSFRow row, short column) {
+		HSSFCell cell = row.createCell(column);
+		cell.setEncoding(HSSFCell.ENCODING_UTF_16);
+		return cell;
 	}
 
 	/**
@@ -261,13 +270,14 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 	 * @return The csv document
 	 */
 	private String getAsCsv(boolean showCourseGradeAsPoints) {
+		String csvSep = ",";
         StringBuffer sb = new StringBuffer();
 
         // Add the headers
         sb.append(getLocalizedString("export_student_id"));
-        sb.append(",");
+        sb.append(csvSep);
         sb.append(getLocalizedString("export_student_name"));
-        sb.append(",");
+        sb.append(csvSep);
 
         for(Iterator goIter = gradableObjects.iterator(); goIter.hasNext();) {
             GradableObject go = (GradableObject)goIter.next();
@@ -283,7 +293,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
             }
 			appendQuoted(sb, header);
 			if(goIter.hasNext()) {
-				sb.append(",");
+				sb.append(csvSep);
 			} else {
 				sb.append("\n");
 			}
@@ -298,9 +308,9 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
                 studentMap = new HashMap();
             }
             appendQuoted(sb, enr.getUser().getDisplayId());
-            sb.append(",");
+            sb.append(csvSep);
             appendQuoted(sb, enr.getUser().getSortName());
-            sb.append(",");
+            sb.append(csvSep);
 
 
             for(Iterator goIter = gradableObjects.iterator(); goIter.hasNext();) {
@@ -311,7 +321,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
                     sb.append(cellValue);
                 }
                 if(goIter.hasNext()) {
-					sb.append(",");
+					sb.append(csvSep);
 				}
 			}
 			sb.append("\n");
