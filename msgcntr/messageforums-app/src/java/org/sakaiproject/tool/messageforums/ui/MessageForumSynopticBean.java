@@ -21,6 +21,7 @@
 package org.sakaiproject.tool.messageforums.ui;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -172,7 +173,7 @@ public class MessageForumSynopticBean {
 	/** Needed to grab unread message count if tool within site */
 	private PrivateMessageManager pvtMessageManager;
 
-	/** Needed to get Uuids for private messages and discussions */
+	/** Needed to get forum message counts as well as Uuids for private messages and discussions */
 	private MessageForumsTypeManager typeManager;
 
 	/** Needed to set up the counts for the private messages and forums */
@@ -219,7 +220,7 @@ public class MessageForumSynopticBean {
 	}
 
 	/**
-	 * Returns TRUE if on specific site, FALSE if on MyWorkspace
+	 * Returns TRUE if on MyWorkspace, FALSE if on a specific site
 	 * 
 	 * @return
 	 */
@@ -281,13 +282,21 @@ public class MessageForumSynopticBean {
 			final List discussionForumMessageCounts = messageManager
 					.findDiscussionForumMessageCountsForAllSites(siteList);
 
-			// Pulls read discussion forum message counts from DB
-			final List discussionForumReadMessageCounts = messageManager
+			List unreadDFMessageCounts = new ArrayList();
+			
+			if (! discussionForumMessageCounts.isEmpty()) {
+				// Pulls read discussion forum message counts from DB
+				final List discussionForumReadMessageCounts = messageManager
 					.findDiscussionForumReadMessageCountsForAllSites();
 
-			List unreadDFMessageCounts = computeUnreadDFMessages(discussionForumMessageCounts, discussionForumReadMessageCounts);
-
-			//	2. construct a List of decoratedCompiledMessageStats			
+				unreadDFMessageCounts = computeUnreadDFMessages(discussionForumMessageCounts, discussionForumReadMessageCounts);
+			
+			}
+			
+			//	If both are empty, just return.
+			if (privateMessageCounts.isEmpty() && discussionForumMessageCounts.isEmpty()) {
+				return contents;
+			}
 
 			// Set up to look through all info to compile decorated bean
 			Iterator pmi = privateMessageCounts.iterator();
@@ -298,13 +307,24 @@ public class MessageForumSynopticBean {
 			
 			}
 			else {
-				// create dummy private message amt for comparison
+				// create dummy private message site id for comparison
 				pmCounts = new Object [1];
 				pmCounts[0] = "";
 			}
 
 			Iterator urmci = unreadDFMessageCounts.iterator();
-			Object[] unreadDFCount = (Object[]) urmci.next();
+			Object[] unreadDFCount;
+			
+			if (urmci.hasNext()) {
+				unreadDFCount = (Object[]) urmci.next();
+			
+			}
+			else {
+				// create dummy discussion forum site id for comparsion
+				unreadDFCount = new Object[1];
+				unreadDFCount[0] = "";
+			}
+				
 
 			// loop through info to fill decorated bean
 			for (Iterator si = mySites.iterator(); si.hasNext();) {
@@ -336,12 +356,14 @@ public class MessageForumSynopticBean {
 					hasPrivate = true;
 				}
 				else {
-					Area area = areaManager.getAreaByContextIdAndTypeId(site.getId(), typeManager.getPrivateMessageAreaType());
+					if (isMessageForumsPageInSite(site)) {
+						Area area = areaManager.getAreaByContextIdAndTypeId(site.getId(), typeManager.getPrivateMessageAreaType());
 					
-					if (area != null) {
-						if (area.getEnabled().booleanValue()){
-							dcms.setUnreadPrivate("0 Private");
-							hasPrivate = true;
+						if (area != null) {
+							if (area.getEnabled().booleanValue()){
+								dcms.setUnreadPrivate("0 Private");
+								hasPrivate = true;
+							}
 						}
 					}
 				}
@@ -357,11 +379,13 @@ public class MessageForumSynopticBean {
 					hasDF = true;
 				}
 				else {
-					Area area = areaManager.getDiscusionArea();
+					if (isMessageForumsPageInSite(site)) {
+						Area area = areaManager.getDiscusionArea();
 					
-					if (area.getEnabled().booleanValue()) {
-						dcms.setUnreadForums("0 Forum");
-						hasDF = true;
+						if (area.getEnabled().booleanValue()) {
+							dcms.setUnreadForums("0 Forum");
+							hasDF = true;
+						}
 					}
 				}
 
@@ -390,19 +414,22 @@ public class MessageForumSynopticBean {
 				// List of topics so we can get the Received topic
 				// to finally determine number of unread messages
 				final Area area = pvtMessageManager.getPrivateMessageArea();
-				PrivateForum pf = pvtMessageManager
+				
+				if (area.getEnabled().booleanValue()) {
+					PrivateForum pf = pvtMessageManager
 						.initializePrivateMessageArea(area);
-				final List pt = pf.getTopics();
-				final Topic privateTopic = (Topic) pt.iterator().next();
+					final List pt = pf.getTopics();
+					final Topic privateTopic = (Topic) pt.iterator().next();
 
-				String typeUuid = typeManager.getReceivedPrivateMessageType();
+					String typeUuid = typeManager.getReceivedPrivateMessageType();
 
-				unreadPrivate = pvtMessageManager
+					unreadPrivate = pvtMessageManager
 						.findUnreadMessageCount(typeUuid);
 
-				dcms.setUnreadPrivate(unreadPrivate + " Private");
+					dcms.setUnreadPrivate(unreadPrivate + " Private");
 				
-				dcms.setUnreadPrivateAmt(unreadPrivate);
+					dcms.setUnreadPrivateAmt(unreadPrivate);
+				}
 
 				// Number of unread forum messages is a little harder
 				// need to loop through all topics and add them up
@@ -414,7 +441,7 @@ public class MessageForumSynopticBean {
 
 				while (forumIter.hasNext()) {
 					final DiscussionForum df = (DiscussionForum) forumIter
-							.next();
+								.next();
 
 					final List topics = df.getTopics();
 					Iterator topicIter = topics.iterator();
@@ -477,6 +504,14 @@ public class MessageForumSynopticBean {
 
 	private List computeUnreadDFMessages(List totalMessages, List readMessages) {
 		List unreadDFMessageCounts = new ArrayList();
+
+		// If no sites contain topics
+		if (totalMessages.isEmpty()) {
+			return unreadDFMessageCounts;
+		}
+		else if (readMessages.isEmpty()) {
+			return totalMessages;
+		}
 
 		// Constructs the unread message counts from above 2 lists
 		final Iterator dfMessagesIter = totalMessages.iterator();
@@ -568,22 +603,14 @@ public class MessageForumSynopticBean {
 	 * 		TRUE if Message Forums (Message Center) exists in this site, FALSE otherwise
 	 */
 	private boolean isMessageForumsPageInSite(Site thisSite) {
-		boolean mfToolExists = false;
-
-		// loop thru tools on this site looking for
-		// Message Center tool
-		List pageList = thisSite.getPages();
-
-		Iterator iterator = pageList.iterator();
-		while (iterator.hasNext()) {
-			SitePage pgelement = (SitePage) iterator.next();
-			if (pgelement.getTitle().equals(MF_TITLE)) {
-				mfToolExists = true;
-				break;
-			}
+		Collection toolsInSite = thisSite.getTools("sakai.messagecenter");
+	
+		if (toolsInSite.isEmpty()) {
+			return false;
 		}
-
-		return mfToolExists;
+		else {
+			return true;
+		}
 	}
 
 	private String getMCPageURL() {
