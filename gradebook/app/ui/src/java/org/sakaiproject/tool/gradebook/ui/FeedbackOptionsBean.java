@@ -70,11 +70,13 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
     public class GradeRow implements Serializable {
     	private GradeMapping gradeMapping;
     	private String grade;
+    	private boolean editable;
     	public GradeRow() {
     	}
-    	public GradeRow(GradeMapping gradeMapping, String grade) {
+    	public GradeRow(GradeMapping gradeMapping, String grade, boolean editable) {
     		this.gradeMapping = gradeMapping;
     		this.grade = grade;
+    		this.editable = editable;
     	}
 
     	public String getGrade() {
@@ -89,8 +91,7 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
     	}
 
     	public boolean isGradeEditable() {
-			Double bottomPercent = (Double)gradeMapping.getGradeMap().get(grade);
-			return ((bottomPercent != null) && (bottomPercent.doubleValue() != 0.0d));
+			return editable;
 		}
 	}
 
@@ -130,7 +131,10 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 		GradeMapping selectedGradeMapping = localGradebook.getSelectedGradeMapping();
 		for (Iterator iter = selectedGradeMapping.getGrades().iterator(); iter.hasNext(); ) {
 			String grade = (String)iter.next();
-			gradeRows.add(new GradeRow(selectedGradeMapping, grade));
+			// Until we support letter-only grades (such as "Incomplete")
+			// the bottom grade of every scale has an uneditable value of 0.
+			boolean editable = iter.hasNext();
+			gradeRows.add(new GradeRow(selectedGradeMapping, grade, editable));
 		}
 	}
 
