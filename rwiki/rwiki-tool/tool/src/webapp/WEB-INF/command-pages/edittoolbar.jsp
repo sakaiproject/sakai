@@ -21,6 +21,7 @@
  **********************************************************************************/
 -->
 <div class="editToolBarContainer" >
+<a class="editToolBar" href="#" id="toolbarButtonSave" onclick="var form = document.getElementById('editForm'); var saveButton = document.getElementById('saveButton'); form.save.value = saveButton.value; form.submit();" ><img src="/library/image/transparent.gif" border="0"   title="Save" alt="Save" /></a>
 <a class="editToolBar" href="#" id="toolbarButtonBold" onclick="addMarkup('content','bold','__','__'); return false;" ><img src="/library/image/transparent.gif" border="0"   title="bold" alt="bold" /></a>
 <a class="editToolBar" href="#" id="toolbarButtonItalic" onclick="addMarkup('content','italic','~~','~~'); return false;" ><img src="/library/image/transparent.gif" border="0"  title="italic" alt="italic" /></a>
 <a class="editToolBar" href="#" id="toolbarButtonSuper" onclick="addMarkup('content','super','^^','^^'); return false;"  ><img src="/library/image/transparent.gif" border="0" title="Superscript" alt="Superscript" /></a>

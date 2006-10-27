@@ -34,9 +34,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.api.SessionManager;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
@@ -122,6 +122,7 @@ public class SaveCommand implements HttpCommand
 		}
 		else if (save.equals(EditBean.PREVIEW_VALUE))
 		{
+			vphb.setSaveState(ViewParamsHelperBean.SAVE_PREVIEW);
 			this.previewDispatch(request, response);
 			return;
 		}
@@ -171,6 +172,7 @@ public class SaveCommand implements HttpCommand
 		}
 		else if (save.equals(EditBean.CANCEL_VALUE))
 		{
+			vphb.setSaveState(ViewParamsHelperBean.SAVE_CANCEL);
 			this.cancelDispatch(request, response);
 			ViewBean vb = new ViewBean(name, realm);
 			String requestURL = request.getRequestURL().toString();
@@ -192,6 +194,7 @@ public class SaveCommand implements HttpCommand
 			// The page has changed underneath us...
 
 			// redirect probably back to the edit page
+			vphb.setSaveState(ViewParamsHelperBean.SAVE_VERSION_EXCEPTION);
 			this.contentChangedDispatch(request, response);
 			return;
 		}
@@ -202,6 +205,7 @@ public class SaveCommand implements HttpCommand
 			return;
 		}
 		// Successful update
+		vphb.setSaveState(ViewParamsHelperBean.SAVE_OK);
 		this.successfulUpdateDispatch(request, response);
 		ViewBean vb = new ViewBean(name, realm);
 		String requestURL = request.getRequestURL().toString();
@@ -230,6 +234,8 @@ public class SaveCommand implements HttpCommand
 		RequestDispatcher rd = request.getRequestDispatcher(previewPath);
 		rd.forward(request, response);
 	}
+	
+
 
 	protected void successfulUpdateDispatch(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException

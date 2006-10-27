@@ -90,6 +90,7 @@
 				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/ajaxpopup.js" > </script>
 				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/asyncload.js" > </script>
 				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/logger.js" > </script>
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/autosave.js" > </script>
 				]]>
 				
 				

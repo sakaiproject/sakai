@@ -46,6 +46,18 @@ public class ViewParamsHelperBean
 
 	private static final Object SMALL_CHANGE = "smallchange";
 
+	public static final String SAVE_OK = "save-ok";
+
+	public static final String SAVE_VERSION_EXCEPTION = "save-versionexcep";
+
+	public static final String SAVE_CANCEL = "save-cancel";
+
+	public static final String SAVE_PREVIEW = "save-preview";
+
+	private static final String[] AUTOSAVE_REMOVE = { SAVE_OK, SAVE_CANCEL };
+
+	private static final String[] AUTOSAVE_NORECOVER = { SAVE_VERSION_EXCEPTION, SAVE_PREVIEW };
+
 	/**
 	 * the requested global page name
 	 */
@@ -110,6 +122,8 @@ public class ViewParamsHelperBean
 	 * breadcrumbs
 	 */
 	private String withBreadcrumbs;
+
+	private String saveState = "";
 
 	/**
 	 * Initializes the bean, gets the parameters out of the request
@@ -434,5 +448,41 @@ public class ViewParamsHelperBean
 	{
 		this.toolConfigBean = toolConfigBean;
 	}
+
+	public boolean isRemoveAutoSave()
+	{
+		for ( int i = 0; i < AUTOSAVE_REMOVE.length; i++ ) {
+			if ( AUTOSAVE_REMOVE[i].equals(saveState) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	public boolean isLoadAutoSave()
+	{
+		for ( int i = 0; i < AUTOSAVE_NORECOVER.length; i++ ) {
+			if ( AUTOSAVE_NORECOVER[i].equals(saveState) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * @return the saveState
+	 */
+	public String getSaveState()
+	{
+		return saveState;
+	}
+
+	/**
+	 * @param saveState the saveState to set
+	 */
+	public void setSaveState(String saveState)
+	{
+		this.saveState = saveState;
+	}
+
 
 }

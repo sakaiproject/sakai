@@ -28,9 +28,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -893,5 +893,13 @@ public class RequestScopeSuperBean
 		return configBean;
 	}
 
+	public boolean getLoadAutoSave() {
+		boolean b =  getNameHelperBean().isLoadAutoSave();
+		return b;
+	}
+	public boolean getRemoveAutoSave() {
+		boolean b =  getNameHelperBean().isRemoveAutoSave();
+		return b;
+	}
 	
 }

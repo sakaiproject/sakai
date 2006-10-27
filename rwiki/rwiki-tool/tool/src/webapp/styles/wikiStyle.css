@@ -18,6 +18,78 @@
  * limitations under the License.
  *
  **********************************************************************************/
+ 
+
+ul.tabs {
+   position: relative;
+}
+.tabhead {
+   margin-top: 2px;
+   margin-bottom: 2px;
+}
+ul.tabs li a {
+   text-decoration: none;
+   padding-top: 0px;
+}
+ul.tabs li a:hover {
+   text-decoration: none;   
+}
+ul.tabs li.tabHeadOff
+{
+    float:left;
+    list-style-type:none;
+    list-style: none;
+    margin-left: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    background-color: #cccccc;
+}
+
+ul.tabs li.tabHeadOn 
+{
+    float:left;
+    list-style-type:none;
+    list-style: none;
+    margin-left: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    background-color: #ffffff;
+}
+
+ul.tabs div.tabOff
+ {
+   width:100%;
+   position: absolute;
+   display: none;
+   float: left;
+   left: 0px;
+   z-index: 4;
+   left: -9000px;
+   padding-bottom: 20px;
+}
+
+ul.tabs div.tabOn
+{
+   width:100%;
+   position: absolute;
+   display: block;
+   left: 0px;
+   z-index: 5;
+   padding-bottom: 20px;
+   
+}
+
+
+li.autoSaveOffClass {
+   display: none;
+}
+ 
 #rwiki_container {
   height: 100%;
   width: 100%;
@@ -114,6 +186,9 @@
 	width: 16px !important;
 }
 
+#toolbarButtonSave {
+	background: url(/sakai-rwiki-tool/images/silk/icons/page_save.png) center center no-repeat;
+}
 
 #toolbarButtonBold {
 	background: url(/sakai-rwiki-tool/images/silk/icons/text_bold.png) center center no-repeat;

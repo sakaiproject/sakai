@@ -107,9 +107,11 @@ AsyncDIVLoader.prototype.loadXMLDoc = function(url,callBackFunction) {
 }
 AsyncDIVLoader.prototype.encodeContent = function(contentObject) {
     var form_contents = '';
-    if ( typeof(content) == 'array' ) {
-        for (var i in object)
-            form_contents += (form_contents ? '&' : '') + i + '=' + escape(object[i]);
+    
+    if ( contentObject.length ) {
+        for (var i = 0; i < contentObject.length-1; i+=2 ) {
+            form_contents += (form_contents ? '&' : '') + contentObject[i] + '=' + escape(contentObject[i+1]);
+        }
     } else {
         if ( contentObject.elements ) {
             for( var i = 0; i < contentObject.elements.length; i++ ) {
@@ -135,12 +137,12 @@ AsyncDIVLoader.prototype.createFormObject = function(contentObject,url) {
     var formObject = document.createElement("FORM");
     formObject.action = url;
     formObject.method = "POST";
-    if ( typeof(content) == 'array' ) {
-        for (var i in object) {
+    if ( contentObject.length ) {
+        for (var i = 0; i < contentObject.length-1; i+=2 ) {
             var formElement = document.createElement("INPUT");
             formElement.type = "hidden";
-            formElement.name = i;
-            formElement.value = object[i];
+            formElement.name = contentObject[i];
+            formElement.value = contentObject[i+1];
             formObject.appendChild(formElement);
         }
     } else {
@@ -171,9 +173,10 @@ AsyncDIVLoader.prototype.createFormObject = function(contentObject,url) {
 
 AsyncDIVLoader.prototype.createFormContent = function(contentObject,url,formID) {
     var form_contents = '<form action="'+escape(url)+'" method="POST" id="'+formID+'" >';
-    if ( typeof(content) == 'array' ) {
-        for (var i in object)
-            form_contents += '<input type="hidden" name="'+i+'" value="'+escape(object[i])+'" />"';
+    if ( contentObject.length ) {
+        for (var i = 0; i < contentObject.length-1; i+=2 ) {
+            form_contents += '<input type="hidden" name="'+contentObject[i]+'" value="'+escape(contentObject[i+1])+'" />"';
+        }
     } else {
         if ( contentObject.elements ) {
             for( var i = 0; i < contentObject.elements.length; i++ ) {

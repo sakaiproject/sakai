@@ -82,7 +82,11 @@
       <jsp:expression>request.getAttribute("sakai.html.head")</jsp:expression>
 	<link rel="alternate" title="Sakai Wiki RSS" 
  			href="${viewBean.rssAccessUrl}" type="application/rss+xml" />
-
+    <c:if test="${requestScope.rsacMap.removeAutoSave}">
+	  <script>
+		autoSaveClear('<c:out value="${requestScope.rsacMap.currentPageName}" />');
+	  </script>
+	</c:if>
     </head>
     <jsp:element name="body">
       <jsp:attribute name="onload">setMainFrameHeightNoScroll('<jsp:expression>request.getAttribute("sakai.tool.placement.id")</jsp:expression>');setFocus(focus_path);parent.updCourier(doubleDeep,ignoreCourier); callAllLoaders();</jsp:attribute>
