@@ -399,6 +399,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** **************************** student view grade submission id *********** */
 	private static final String VIEW_GRADE_SUBMISSION_ID = "view_grade_submission_id";
+	
+	// alert for grade exceeds max grade setting
+	private static final String GRADE_GREATER_THAN_MAX_ALERT = "grade_greater_than_max_alert";
 
 	/** **************************** modes *************************** */
 	/** The list view of assignments */
@@ -2226,7 +2229,10 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		readGradeForm(data, state, "save");
-		grade_submission_option(data, "save");
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			grade_submission_option(data, "save");
+		}
 
 	} // doSave_grade_submission
 
@@ -2237,7 +2243,10 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		readGradeForm(data, state, "release");
-		grade_submission_option(data, "release");
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			grade_submission_option(data, "release");
+		}
 
 	} // doRelease_grade_submission
 
@@ -2248,7 +2257,10 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		readGradeForm(data, state, "return");
-		grade_submission_option(data, "return");
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			grade_submission_option(data, "return");
+		}
 
 	} // doReturn_grade_submission
 
@@ -4544,6 +4556,9 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
+		// reset the submission context
+		resetViewSubmission(state);
+		
 		ParameterParser params = data.getParameters();
 
 		// reset the grade assignment id
@@ -5070,27 +5085,38 @@ public class AssignmentAction extends PagedResourceActionII
 						if (!((String) state.getAttribute(STATE_MODE)).equals(MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION))
 						{
 							validPointGrade(state, grade);
+							
+							if (state.getAttribute(STATE_MESSAGE) == null)
+							{
+								int maxGrade = a.getContent().getMaxGradePoint();
+								try
+								{
+									if (Integer.parseInt(scalePointGrade(state, grade)) > maxGrade)
+									{
+										if (state.getAttribute(GRADE_GREATER_THAN_MAX_ALERT) == null)
+										{
+											// alert user first when he enters grade bigger than max scale
+											addAlert(state, rb.getString("grad2"));
+											state.setAttribute(GRADE_GREATER_THAN_MAX_ALERT, Boolean.TRUE);
+										}
+										else
+										{
+											// remove the alert once user confirms he wants to give student higher grade
+											state.removeAttribute(GRADE_GREATER_THAN_MAX_ALERT);
+										}
+									}
+								}
+								catch (NumberFormatException e)
+								{
+									alertInvalidPoint(state, grade);
+								}
+							}
+							
 							if (state.getAttribute(STATE_MESSAGE) == null)
 							{
 								grade = scalePointGrade(state, grade);
 							}
 							state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
-						}
-
-						if (state.getAttribute(STATE_MESSAGE) == null)
-						{
-							int maxGrade = a.getContent().getMaxGradePoint();
-							try
-							{
-								if (Integer.parseInt(grade) > maxGrade)
-								{
-									addAlert(state, rb.getString("grad2"));
-								}
-							}
-							catch (NumberFormatException e)
-							{
-								alertInvalidPoint(state, grade);
-							}
 						}
 					}
 				}
@@ -5225,11 +5251,6 @@ public class AssignmentAction extends PagedResourceActionII
 
 		} // if
 
-		if (state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE) == null)
-		{
-			// reset the view submission attributes
-			resetViewSubmission(state);
-		}
 		if (state.getAttribute(STATE_CONTEXT_STRING) == null)
 		{
 			state.setAttribute(STATE_CONTEXT_STRING, siteId);
@@ -5331,6 +5352,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
 		state.removeAttribute(VIEW_SUBMISSION_TEXT);
 		state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, "false");
+		state.removeAttribute(GRADE_GREATER_THAN_MAX_ALERT);
 
 	} // resetViewSubmission
 
