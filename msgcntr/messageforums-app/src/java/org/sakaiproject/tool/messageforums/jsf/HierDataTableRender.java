@@ -59,7 +59,7 @@ public class HierDataTableRender extends HtmlBasicRenderer
 
   static {
   	RESOURCE_PATH = "/" + "sakai-messageforums-tool";
-  	BARIMG = RESOURCE_PATH + "/" +"images/expand.gif";
+  	BARIMG = RESOURCE_PATH + "/" +"images/collapse.gif";
     CURSOR = "cursor:pointer";
   }
 
