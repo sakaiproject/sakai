@@ -1,7 +1,20 @@
+2006/10/26 - Version 0.5.5
+------------------------------
+- Removed "?" users because of its ambiguous meaning: anonymous/denied access
+- fixed STAT-13: Unique visits incorrectly shown
+- added "Unique visits/total users" to Overview page
+- fixed STAT-12: SiteStats does not work with custom roles:
+	- for sakai_2-2-x, add role to tool.xml and apply SAK-4120 custom patch
+	- for sakai_2-3-x up:
+		- requires "sitestats.view" permission for standard tool (existing realms MUST be updated)
+		- requires "sitestats.admin.view" permission for admin version of the tool
+- added support for wiki.new, wiki.delete (sakai 2.3+ only)		
+- updated to match SAK-4120/REQ-47/SAK-1454 resolution
+
 2006/09/06 - Version 0.5.4
 ------------------------------
 - Fixed (rare) case where no data was displayed in Events and Resources page unless searching by keyword
-- replaced 'disc.delete.any' and 'disc.delete.own' events by 'disc.delete.category' event
+- (2.2.x only) replaced 'disc.delete.any' and 'disc.delete.own' events by 'disc.delete.category' event
 - if auto.ddl, do not update indexes for hsqldb
 - added addEventIds@StatsManager sakai property to add events to existing event list
 - added removeEventIds@StatsManager sakai property to remove events from existing event list

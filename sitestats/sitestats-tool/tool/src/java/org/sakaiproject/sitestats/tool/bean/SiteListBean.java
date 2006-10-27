@@ -31,7 +31,6 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.PagingPosition;
@@ -39,6 +38,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.sitestats.api.Authz;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.tool.jsf.InitializableBean;
 import org.sakaiproject.tool.api.Placement;
@@ -84,6 +84,7 @@ public class SiteListBean extends InitializableBean implements Serializable {
 
 	/** Manager APIs */
 	private SiteService			M_ss				= (SiteService) ComponentManager.get(SiteService.class.getName());
+	private Authz				authz				= (Authz) ComponentManager.get(Authz.class.getName());
 	private StatsManager		sm					= (StatsManager) ComponentManager.get(StatsManager.class.getName());
 
 	// ######################################################################################
@@ -107,16 +108,19 @@ public class SiteListBean extends InitializableBean implements Serializable {
 	}*/
 	public boolean isAllowed() {
 		// get site
-		if(site == null){
-			try{
-				site = M_ss.getSite(ToolManager.getCurrentPlacement().getContext());
-			}catch(IdUnusedException e){
-				LOG.error("Unable to get current site.", e);
-				return false;
-			}
-		}
+//		if(site == null){
+//			try{
+//				site = M_ss.getSite(ToolManager.getCurrentPlacement().getContext());
+//			}catch(IdUnusedException e){
+//				LOG.error("Unable to get current site.", e);
+//				return false;
+//			}
+//		}
+//
+//		if(allowed == null) allowed = new Boolean(sm.isUserAllowed(userId, site, tool));
 
-		if(allowed == null) allowed = new Boolean(sm.isUserAllowed(userId, site, tool));
+		allowed = new Boolean(authz.isUserAbleToViewSiteStatsAdmin(ToolManager.getCurrentPlacement().getContext()));
+		
 		if(!allowed.booleanValue()){
 			FacesContext fc = FacesContext.getCurrentInstance();
 			fc.addMessage("allowed", new FacesMessage(FacesMessage.SEVERITY_FATAL, msgs.getString("unauthorized"), null));

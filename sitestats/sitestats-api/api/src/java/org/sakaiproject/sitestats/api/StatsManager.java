@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.tool.api.Tool;
 
 
 public interface StatsManager {
@@ -43,7 +41,7 @@ public interface StatsManager {
 	// Tool access 
 	// ################################################################
 	/** Check if the given user has access to the specified tool */
-	public boolean isUserAllowed(String userId, Site site, Tool tool);
+	//public boolean isUserAllowed(String userId, Site site, Tool tool);
 	
 	// ################################################################
 	// Registered/configured events 
@@ -250,6 +248,13 @@ public interface StatsManager {
 	 * @return Total visits.
 	 */
 	public long getTotalSiteVisits(String siteId, Date iDate, Date fDate);
+	
+	/**
+	 * Get total site users (active and inactive).
+	 * @param siteId Site identifier
+	 * @return Total users
+	 */
+	public int getTotalSiteUsers(String siteId);
 	
 	/**
 	 * Get total site visits.

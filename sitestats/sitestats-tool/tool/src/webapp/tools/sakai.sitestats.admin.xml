@@ -2,11 +2,13 @@
 
 <registration>
 	<tool id="sakai.sitestats.admin"
-    	title="Site Stats"
+    	title="Site Stats Admin"
         description="For showing site statistics by user, event, or resource for every sakai site (admin).">
     	
     	<category name="sakai.admin" />
-
-		<!-- <configuration name="roles.allow" value="maintain,Instructor" /> -->
+		
+		<!-- Sakai 2.3.0, up -->
+		<configuration name="functions.require" value="sitestats.admin.view" />
+		
 	</tool>
 </registration>

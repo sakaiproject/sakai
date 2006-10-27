@@ -32,6 +32,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.sitestats.api.Authz;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.tool.jsf.InitializableBean;
 import org.sakaiproject.tool.api.Placement;
@@ -56,6 +57,7 @@ public class BaseBean extends InitializableBean implements Serializable {
 	private ToolManager				M_tm		= (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	private SiteService				M_ss		= (SiteService) ComponentManager.get(SiteService.class.getName());
 	private SessionManager			M_sm		= (SessionManager) ComponentManager.get(SessionManager.class.getName());
+	private Authz					authz		= (Authz) ComponentManager.get(Authz.class.getName());
 	private StatsManager			sm			= (StatsManager) ComponentManager.get(StatsManager.class.getName());
 
 	private Boolean					allowed		= null;
@@ -66,17 +68,8 @@ public class BaseBean extends InitializableBean implements Serializable {
 	private Tool					tool		= M_tm.getCurrentTool();
 
 	public boolean isAllowed() {
-		// get site
-		if(site == null){
-			try{
-				site = M_ss.getSite(M_tm.getCurrentPlacement().getContext());
-			}catch(IdUnusedException e){
-				LOG.error("Unable to get current site.", e);
-				return false;
-			}
-		}
-
-		if(allowed == null) allowed = new Boolean(sm.isUserAllowed(userId, site, tool));
+		allowed = new Boolean(authz.isUserAbleToViewSiteStats(M_tm.getCurrentPlacement().getContext()));
+		
 		if(!allowed.booleanValue()){
 			FacesContext fc = FacesContext.getCurrentInstance();
 			fc.addMessage("allowed", new FacesMessage(FacesMessage.SEVERITY_FATAL, msgs.getString("unauthorized"), null));

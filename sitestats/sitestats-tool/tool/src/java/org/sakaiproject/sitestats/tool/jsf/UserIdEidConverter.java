@@ -1,5 +1,7 @@
 package org.sakaiproject.sitestats.tool.jsf;
 
+import java.util.ResourceBundle;
+
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.CharacterConverter;
@@ -9,6 +11,9 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 
 
 public class UserIdEidConverter extends CharacterConverter {
+
+	/** Resource bundle */
+	protected static ResourceBundle	msgs		= ResourceBundle.getBundle("org.sakaiproject.sitestats.tool.bundle.Messages");
 
 	public String getAsString(FacesContext context, UIComponent component, Object value) {
 		String userEid = null;

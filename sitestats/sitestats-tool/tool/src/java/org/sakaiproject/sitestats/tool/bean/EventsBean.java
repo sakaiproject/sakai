@@ -33,7 +33,6 @@ import javax.faces.event.ValueChangeEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.sitestats.api.StatsManager;
 
 

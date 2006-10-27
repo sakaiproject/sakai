@@ -26,11 +26,15 @@
 			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		</property>
 		<!-- Event IDs to be collected (event names are set in resource bundle) -->
+		<!-- Base events -->
 		<property name="eventIds">
 			<value>
-				pres.begin,mail.new,mail.delete.any,mail.delete.own,chat.new,chat.delete.any,chat.delete.own,disc.new,disc.new.category,disc.null,disc.delete.category,content.new,content.read,content.revise,content.delete,asn.new.assignment,asn.revise.assignment,asn.delete.assignment,asn.submit.submission,asn.save.submission,asn.grade.submission,annc.new,annc.revise.own,annc.revise.any,annc.delete.own,annc.delete.any,calendar.new,calendar.revise,wiki.revise,syllabus.post.new,syllabus.post.change
+				pres.begin,mail.new,mail.delete.any,mail.delete.own,chat.new,chat.delete.any,chat.delete.own,disc.new,disc.new.category,disc.null,disc.delete.category,content.new,content.read,content.revise,content.delete,asn.new.assignment,asn.revise.assignment,asn.delete.assignment,asn.submit.submission,asn.save.submission,asn.grade.submission,annc.new,annc.revise.own,annc.revise.any,annc.delete.own,annc.delete.any,calendar.new,calendar.revise,wiki.new,wiki.revise,wiki.delete,syllabus.post.new,syllabus.post.change
 			</value>
 		</property>
+		<!-- Events added on sakai_2-3: wiki.new,wiki.delete -->
+		<!-- Events waiting for fix: wiki.read,msgcntr.new,msgcntr.read,msgcntr.revise,msgcntr.delete -->
+		
 		<!-- Aggregate administrator events? -->
 		<property name="collectAdminEvents">
 			<value>false</value>
@@ -88,6 +92,17 @@
 				<prop key="*">PROPAGATION_REQUIRED</prop>
 			</props>
 		</property>
+	</bean>
+
+
+	<!-- Authz -->	
+	<bean id="org.sakaiproject.sitestats.api.Authz"
+		class="org.sakaiproject.sitestats.impl.AuthzImpl"
+		singleton="true"
+		init-method="init">
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
 	</bean>
 
 

@@ -117,8 +117,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				// do update job
 				while(updateQueue.size() > 0){
 					Event e = (Event) updateQueue.remove(0);
-					if(registeredEvents.contains(e.getEvent()) && isValidEvent(e)){
-						String userId = e.getUserId();
+					String userId = e.getUserId();
+					e = fixMalFormedEvents(e);
+					if(registeredEvents.contains(e.getEvent()) && isValidEvent(e)){						
 						if(userId == null) userId = M_uss.getSession(e.getSessionId()).getUserId();
 						if(!M_sm.isCollectAdminEvents() && userId.equals("admin")) continue;
 						String siteId = parseSiteId(e.getResource());
@@ -172,12 +173,13 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	// ################################################################
 	// Update methods
 	// ################################################################
-	private synchronized void doUpdate(Event e, final String userId, final String siteId){
+	private synchronized void doUpdate(Event e, final String userId, final String siteId){		
 		// event details
 		final Date date = getToday();
 		final String event = e.getEvent();
 		final String resource = e.getResource();
 		if(resource.trim().equals("")) return;
+		
 		
 		// update		
 		if(registeredEvents.contains(event)){			
@@ -186,7 +188,11 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				doUpdateSiteActivity(event, siteId, date, registeredEvents);
 			}
 		}
-		if(event.startsWith("content.")){
+		String parts[] = e.getResource().split("\\/");	
+		if(event.startsWith("content.")
+				/* MessageCenter special case */
+				&& (parts[0].equals("MessageCenter")
+						|| parts[1].equals("MessageCenter"))){
 			doUpdateResourceStat(event, resource, userId, siteId, date);
 		}else if(event.equals("pres.begin")){
 			doUpdateSiteVisits(userId, siteId, date);
@@ -396,15 +402,40 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		return true;
 	}
 	
+	private Event fixMalFormedEvents(Event e){
+		String event = e.getEvent();
+		String resource = e.getResource();
+		
+		// fix bad reference (resource) format
+		if(!resource.startsWith("/"))
+			resource = '/' + resource;
+		
+		// fix event ids already in use
+		String parts[] = resource.split("\\/");
+		/* handle MessageCenter special case */
+		if(event.startsWith("content.") && parts[1].equals("MessageCenter"))
+			return EventTrackingService.newEvent(
+					event.replaceFirst("content.", "msgcntr."), 
+					resource, 
+					false);
+		
+		// all ok, return
+		return e;
+	}
+	
 	private String parseSiteId(String ref){
 		try{
 			String[] parts = ref.split("/");
 			if(parts == null)
 				return null;
 			if(parts.length == 1){
-				// try with MessageCenter syntax (MessageCenter::SITE_ID::...)
+				// try with OLD MessageCenter syntax (MessageCenter::SITE_ID::...)
 				parts = ref.split("::");
 				return parts.length > 1 ? parts[1] : null;
+			}
+			if(parts[0].equals("MessageCenter")){
+				// MessageCenter without initial '/'
+				return parts[2];
 			}
 			if(parts[0].equals("")){
 				if(parts[1].equals("presence"))

@@ -36,10 +36,7 @@ import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Expression;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
@@ -47,8 +44,8 @@ import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
 import org.sakaiproject.sitestats.api.Prefs;
@@ -77,8 +74,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private boolean					collectAdminEvents				= false;
 
 	/** Controller fields */
-	private List					registeredEvents				= new ArrayList();
+	private List					sitestatsRegisteredEvents		= new ArrayList();
 	private Map						eventNameMap;
+	private boolean					showAnonymousEvents				= false;
 
 	/** Sakai services */ 
 	private SqlService 				M_sql;
@@ -93,23 +91,27 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	public void setEventIds(String eventIds) {
 		String[] e = eventIds.replace('\n', ' ').split(",");
 		for(int i=0; i<e.length; i++)
-			registeredEvents.add(e[i].trim());
+			sitestatsRegisteredEvents.add(e[i].trim());
 	}
 	
 	public void setAddEventIds(String eventIds) {
 		String[] e = eventIds.replace('\n', ' ').split(",");
 		for(int i=0; i<e.length; i++)
-			registeredEvents.add(e[i].trim());
+			sitestatsRegisteredEvents.add(e[i].trim());
 	}
 	
 	public void setRemoveEventIds(String eventIds) {
 		String[] e = eventIds.replace('\n', ' ').split(",");
 		for(int i=0; i<e.length; i++)
-			registeredEvents.remove(e[i].trim());
+			sitestatsRegisteredEvents.remove(e[i].trim());
 	}
 
 	public void setCollectAdminEvents(boolean value){
 		this.collectAdminEvents = value;
+	}
+
+	public void setShowAnonymousEvents(boolean value){
+		this.showAnonymousEvents = value;
 	}
 
 	public boolean isCollectAdminEvents(){
@@ -157,7 +159,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getRegisteredEventIds()
 	 */
 	public List getRegisteredEventIds() {
-		return registeredEvents;
+		return sitestatsRegisteredEvents;
 	}
 	
 	/* (non-Javadoc)
@@ -349,8 +351,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	public Map getEventNameMap() {
 		if(eventNameMap == null){
 			eventNameMap = new HashMap();
-			if(registeredEvents == null) getRegisteredEventIds();
-			Iterator i = registeredEvents.iterator();
+			if(sitestatsRegisteredEvents == null) getRegisteredEventIds();
+			Iterator i = sitestatsRegisteredEvents.iterator();
 			while (i.hasNext()){
 				String eId = (String) i.next();
 				eventNameMap.put(eId, getEventName(eId));
@@ -509,6 +511,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					Criteria c = session.createCriteria(EventStatImpl.class)
 							.add(Expression.eq("siteId", siteId))
 							.add(Expression.in("eventId", events));
+					if(!showAnonymousEvents)
+						c.add(Expression.ne("userId", "?"));
 					if(userIdList != null && userIdList.size() > 0)
 						c.add(Expression.in("userId", userIdList));
 					if(iDate != null)
@@ -547,6 +551,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				iDateStr = "and s.date >= :idate ";
 			if(fDate != null)
 				fDateStr = "and s.date < :fdate ";
+			if(!showAnonymousEvents)
+				usersStr += " and s.userId != '?' ";
 			final String hql = "select s.siteId, s.userId, s.eventId, sum(s.count), max(s.date) " + 
 					"from EventStatImpl as s " +
 					"where s.siteId = :siteid " +
@@ -613,6 +619,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				iDateStr = "and s.date >= :idate ";
 			if(fDate != null)
 				fDateStr = "and s.date < :fdate ";
+			if(!showAnonymousEvents)
+				usersStr += " and s.userId != '?' ";
 			final String hql = "select count(*) " + 
 					"from EventStatImpl as s " +
 					"where s.siteId = :siteid " +
@@ -669,6 +677,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Criteria c = session.createCriteria(ResourceStatImpl.class)
 							.add(Expression.eq("siteId", siteId));
+					if(!showAnonymousEvents)
+						c.add(Expression.ne("userId", "?"));
 					if(userIdList != null && userIdList.size() > 0)
 						c.add(Expression.in("userId", userIdList));
 					if(iDate != null)
@@ -707,6 +717,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				iDateStr = "and s.date >= :idate ";
 			if(fDate != null)
 				fDateStr = "and s.date < :fdate ";
+			if(!showAnonymousEvents)
+				usersStr += " and s.userId != '?' ";
 			final String hql = "select s.siteId, s.userId, s.resourceRef, s.resourceAction, sum(s.count), max(s.date) " + 
 					"from ResourceStatImpl as s " +
 					"where s.siteId = :siteid " +
@@ -774,6 +786,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				iDateStr = "and s.date >= :idate ";
 			if(fDate != null)
 				fDateStr = "and s.date < :fdate ";
+			if(!showAnonymousEvents)
+				usersStr += " and s.userId != '?' ";
 			final String hql = "select count(*) " + 
 					"from ResourceStatImpl as s " +
 					"where s.siteId = :siteid " +
@@ -1266,8 +1280,27 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getTotalSiteUniqueVisits(java.lang.String, boolean)
 	 */
-	public long getTotalSiteUniqueVisits(String siteId) {
-		return getTotalSiteUniqueVisits(siteId, getInitialActivityDate(siteId), null);
+	public long getTotalSiteUniqueVisits(final String siteId) {
+		if(siteId == null){
+			throw new IllegalArgumentException("Null siteId");
+		}else{
+			final String hql = "select count(distinct es.userId) " +
+					"from EventStatImpl as es " +
+					"where es.siteId = :siteid " +
+					"and es.userId != '?' " +
+					"and es.eventId = 'pres.begin'";
+			
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Query q = session.createQuery(hql);
+					q.setString("siteid", siteId);
+					List res = q.list();
+					if(res.size() > 0) return res.get(0);
+					else return new Long(0);	
+				}
+			};
+			return ((Integer) getHibernateTemplate().execute(hcb)).longValue();
+		}
 	}
 
 	
@@ -1281,14 +1314,20 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			String iDateStr = "";
 			String fDateStr = "";
 			if(iDate != null)
-				iDateStr = "and ss.date >= :idate ";
+				iDateStr = "and es.date >= :idate ";
 			if(fDate != null)
-				fDateStr = "and ss.date < :fdate ";
-			final String hql = "select sum(ss.totalUnique) " +
-					"from SiteVisitsImpl as ss " +
-					"where ss.siteId = :siteid " +
+				fDateStr = "and es.date < :fdate ";
+//			final String hql = "select sum(ss.totalUnique) " +
+//					"from SiteVisitsImpl as ss " +
+//					"where ss.siteId = :siteid " +
+//					iDateStr + fDateStr +
+//					"group by ss.siteId";
+			final String hql = "select count(distinct es.userId) " +
+					"from EventStatImpl as es " +
+					"where es.siteId = :siteid " +
+					"and es.userId != '?'" +
 					iDateStr + fDateStr +
-					"group by ss.siteId";
+					"and es.eventId = 'pres.begin'";
 			
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -1309,7 +1348,23 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					else return new Long(0);	
 				}
 			};
-			return ((Long) getHibernateTemplate().execute(hcb)).longValue();
+			return ((Integer) getHibernateTemplate().execute(hcb)).longValue();
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#getTotalSiteUsers(java.lang.String)
+	 */
+	public int getTotalSiteUsers(String siteId){
+		if(siteId == null){
+			throw new IllegalArgumentException("Null siteId");
+		}else{
+			try{
+				return M_ss.getSite(siteId).getMembers().size();
+			}catch(IdUnusedException e){
+				LOG.warn("Unable to get total site users for site id: "+siteId, e);
+				return 0;
+			}
 		}
 	}
 
@@ -1419,13 +1474,13 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#isUserAllowed(java.lang.String, org.sakaiproject.service.legacy.site.Site, org.sakaiproject.api.kernel.tool.Tool)
 	 */
-	public boolean isUserAllowed(String userId, Site site, Tool tool) {
-		if(userId == null) return false;
-		if(SecurityService.isSuperUser()) return true;
-		Role r = site.getUserRole(userId);
-		if(r != null) return isToolAllowedForRole(tool, r.getId());
-		else return false;
-	}
+//	public boolean isUserAllowed(String userId, Site site, Tool tool) {
+//		if(userId == null) return false;
+//		if(SecurityService.isSuperUser()) return true;
+//		Role r = site.getUserRole(userId);
+//		if(r != null) return isToolAllowedForRole(tool, r.getId());
+//		else return false;
+//	}
 
 	/**
 	 * Checks if a given user has permissions access a tool in a site. This is

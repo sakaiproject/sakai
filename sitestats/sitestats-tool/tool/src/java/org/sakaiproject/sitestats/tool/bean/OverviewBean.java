@@ -60,6 +60,7 @@ public class OverviewBean extends InitializableBean implements Serializable {
 	private double				lastWeekUniqueVisitsAverage		= -1;
 	private double				lastMonthUniqueVisitsAverage	= -1;
 	private double				lastYearUniqueVisitsAverage		= -1;
+	private int					totalSiteUsers					= -1;
 	private long				totalActivity					= -1;
 	private double				lastWeekActivityAverage			= -1;
 	private double				lastMonthActivityAverage		= -1;
@@ -115,6 +116,8 @@ public class OverviewBean extends InitializableBean implements Serializable {
 			lastMonthVisitsAverage = getLastMonthVisitsAverage();
 			lastYearVisitsAverage = getLastYearVisitsAverage();
 			totalUniqueVisits = getTotalUniqueVisits();
+			totalSiteUsers = sm.getTotalSiteUsers(baseBean.getSiteId());
+			totalUniqueVisits = sm.getTotalSiteUniqueVisits(baseBean.getSiteId());
 			lastWeekUniqueVisitsAverage = getLastWeekUniqueVisitsAverage();
 			lastMonthUniqueVisitsAverage = getLastMonthUniqueVisitsAverage();
 			lastYearUniqueVisitsAverage = getLastYearUniqueVisitsAverage();
@@ -279,6 +282,20 @@ public class OverviewBean extends InitializableBean implements Serializable {
 			totalUniqueVisits = sm.getTotalSiteUniqueVisits(baseBean.getSiteId());
 		}
 		return totalUniqueVisits;
+	}
+	
+	public String getLoggedTotalUsersRelation() {
+		int totalUsers = getTotalSiteUsers();
+		long loggedUsers = getTotalUniqueVisits();
+		double percentage = (100 * loggedUsers) / totalUsers;
+		return loggedUsers + "/" + totalUsers + " (" + percentage + "%)";
+	}
+	
+	private int getTotalSiteUsers() {
+		if(totalSiteUsers == -1){
+			totalSiteUsers = sm.getTotalSiteUsers(baseBean.getSiteId());
+		}
+		return totalSiteUsers;
 	}
 
 	public String getUniqueVisitsAverage() {

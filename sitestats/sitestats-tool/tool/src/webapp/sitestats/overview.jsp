@@ -97,14 +97,16 @@
                     <h:panelGrid  styleClass="sectionContainerNav" style="width: 100%;" columns="2">
                             <t:div style="text-align: left; white-space: nowrap;">
                                     <h:panelGrid styleClass="sectionContainerNav" style="width: 100%;" columns="1">
-                                            <h:outputText value="#{msgs.overview_total_unique_visitors}" style="font-weight: bold;"/>            
-                                            <h:outputText value="#{msgs.overview_average}" style="font-weight: bold;"/>
+                                            <h:outputText value="#{msgs.overview_total_unique_visits}" style="font-weight: bold;"/>            
+                                            <h:outputText value="#{msgs.overview_average}" style="font-weight: bold;"/>           
+                                            <h:outputText value="#{msgs.overview_unique_visits_total_users}" style="font-weight: bold;"/>
                                     </h:panelGrid>
                             </t:div>
                             <t:div style="text-align: right; white-space: nowrap;">
                                     <h:panelGrid styleClass="sectionContainerNav" style="width: 100%;" columns="1">
                                             <h:outputText value="#{OverviewBean.totalUniqueVisits}"/>            
-                                            <h:outputText value="#{OverviewBean.uniqueVisitsAverage}"/>
+                                            <h:outputText value="#{OverviewBean.uniqueVisitsAverage}"/>     
+                                            <h:outputText value="#{OverviewBean.loggedTotalUsersRelation}"/>
                                     </h:panelGrid>
                             </t:div>
                        </h:panelGrid>
