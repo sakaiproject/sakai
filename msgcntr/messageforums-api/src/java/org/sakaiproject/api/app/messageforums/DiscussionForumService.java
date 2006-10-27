@@ -28,4 +28,13 @@ public interface DiscussionForumService extends EntityProducer
 	public static final String SERVICE_NAME = DiscussionForumService.class.getName();
 	
 	public static final String REFERENCE_ROOT = Entity.SEPARATOR + "messageforum";
+	
+	public static final String EVENT_RESOURCE_ADD = "msgcntr.new";
+
+	public static final String EVENT_RESOURCE_READ = "msgcntr.read";
+
+	public static final String EVENT_RESOURCE_WRITE = "msgcntr.revise";
+
+	public static final String EVENT_RESOURCE_REMOVE = "msgcntr.delete";
+
 }

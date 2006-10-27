@@ -37,6 +37,7 @@ import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
@@ -49,7 +50,6 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
 import org.sakaiproject.component.app.messageforums.exception.LockedException;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -358,9 +358,9 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         getHibernateTemplate().saveOrUpdate(message);
         
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(message), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(message), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(message), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(message), false));
         }
 
         LOG.info("message " + message.getId() + " saved successfully");
@@ -378,7 +378,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 				{
         	e.printStackTrace();
         }
-        eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_REMOVE, getEventMessage(message), false));
+        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_REMOVE, getEventMessage(message), false));
         try {
             getSession().evict(message);
         } catch (Exception e) {
@@ -579,7 +579,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     }
 
     private String getEventMessage(Object object) {
-    	return "MessageCenter/site/" + getContextId() + "/" + object.toString() + "/" + getCurrentUser(); 
+    	return "/MessageCenter/site/" + getContextId() + "/" + object.toString() + "/" + getCurrentUser(); 
         //return "MessageCenter::" + getCurrentUser() + "::" + object.toString();
     }
     

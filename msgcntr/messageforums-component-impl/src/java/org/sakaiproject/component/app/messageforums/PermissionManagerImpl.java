@@ -34,6 +34,7 @@ import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.ControlPermissions;
 import org.sakaiproject.api.app.messageforums.DefaultPermissionsManager;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.ForumControlPermission;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.MessagePermissions;
@@ -45,7 +46,6 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermiss
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ForumControlPermissionImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicControlPermissionImpl;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.api.Placement;
@@ -222,9 +222,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         getHibernateTemplate().saveOrUpdate(permissions);                
         
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(area, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(area, permissions), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(area, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(area, permissions), false));
         }
     }
 
@@ -248,9 +248,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         getHibernateTemplate().saveOrUpdate(permissions);        
     
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(area, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(area, permissions), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(area, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(area, permissions), false));
         }        
     }
 
@@ -323,9 +323,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         getHibernateTemplate().saveOrUpdate(permissions);        
         
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(forum, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(forum, permissions), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(forum, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(forum, permissions), false));
         }        
     }
 
@@ -349,9 +349,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         getHibernateTemplate().saveOrUpdate(permissions);        
 
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(forum, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(forum, permissions), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(forum, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(forum, permissions), false));
         }        
     }
 
@@ -421,9 +421,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         getHibernateTemplate().saveOrUpdate(permissions);
 
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(topic, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(topic, permissions), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(topic, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(topic, permissions), false));
         }
     }
 
@@ -447,9 +447,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         getHibernateTemplate().saveOrUpdate(permissions);
 
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(topic, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(topic, permissions), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(topic, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(topic, permissions), false));
         }        
     }    
 
@@ -614,9 +614,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         getHibernateTemplate().saveOrUpdate(permissions);                
         
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(area, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(area, permissions), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(area, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(area, permissions), false));
         }            
     }
 
@@ -644,9 +644,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         getHibernateTemplate().saveOrUpdate(permissions);                
         
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(area, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(area, permissions), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(area, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(area, permissions), false));
         }        
     }
 
@@ -743,9 +743,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         getHibernateTemplate().saveOrUpdate(permissions);                
         
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(forum, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(forum, permissions), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(forum, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(forum, permissions), false));
         }         
     }
 
@@ -773,9 +773,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         getHibernateTemplate().saveOrUpdate(permissions);                
         
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(forum, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(forum, permissions), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(forum, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(forum, permissions), false));
         }                 
     }
     
@@ -872,9 +872,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         getHibernateTemplate().saveOrUpdate(permissions);
         
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(topic, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(topic, permissions), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(topic, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(topic, permissions), false));
         }                 
     }
     
@@ -902,9 +902,9 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         getHibernateTemplate().saveOrUpdate(permissions);                
         
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(topic, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(topic, permissions), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(topic, permissions), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(topic, permissions), false));
         }                 
     }
     
@@ -938,7 +938,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     private String getEventMessage(Object parent, Object child) {
-    	return "MessageCenter/site/" + getContextId() + "/" + parent.toString() + "/" + child.toString() + "/" + getCurrentUser();
+    	return "/MessageCenter/site/" + getContextId() + "/" + parent.toString() + "/" + child.toString() + "/" + getCurrentUser();
         //return "MessageCenter::" + getCurrentUser() + "::" + parent.toString() + "::" + child.toString();
     }  
     

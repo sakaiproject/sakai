@@ -35,12 +35,12 @@ import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.UserPermissionManager;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -187,16 +187,16 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         getHibernateTemplate().saveOrUpdate(area);
 
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(area), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(area), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(area), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(area), false));
         }
 
         LOG.debug("saveArea executed with areaId: " + area.getId());
     }
 
     public void deleteArea(Area area) {
-        eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_REMOVE, getEventMessage(area), false));
+        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_REMOVE, getEventMessage(area), false));
         getHibernateTemplate().delete(area);
         LOG.debug("deleteArea executed with areaId: " + area.getId());
     }
@@ -266,7 +266,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     }
 
     private String getEventMessage(Object object) {
-    	  return "MessageCenter/site/" + getContextId() + "/" + object.toString() + "/" + getCurrentUser(); 
+    	  return "/MessageCenter/site/" + getContextId() + "/" + object.toString() + "/" + getCurrentUser(); 
         //return "MessageCenter::" + getCurrentUser() + "::" + object.toString();
     }
 

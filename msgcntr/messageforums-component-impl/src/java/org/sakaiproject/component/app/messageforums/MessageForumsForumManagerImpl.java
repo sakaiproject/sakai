@@ -43,6 +43,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.OpenTopic;
@@ -57,7 +58,6 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.Util;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.api.Placement;
@@ -615,9 +615,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         getHibernateTemplate().saveOrUpdate(forum);
 
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(forum), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(forum), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(forum), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(forum), false));
         }
 
         LOG.debug("savePrivateForum executed with forumId: " + forum.getId());
@@ -645,9 +645,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         getHibernateTemplate().saveOrUpdate(forum);
 
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(forum), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(forum), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(forum), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(forum), false));
         }
 
         LOG.debug("saveDiscussionForum executed with forumId: " + forum.getId() + ":: draft: " + draft);
@@ -703,9 +703,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         }
 
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(topic), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(topic), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(topic), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(topic), false));
         }
 
         LOG.debug("saveDiscussionForumTopic executed with topicId: " + topic.getId());
@@ -753,9 +753,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         getHibernateTemplate().saveOrUpdate(topic);
 
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(topic), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(topic), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(topic), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(topic), false));
         }
 
         LOG.debug("savePrivateForumTopic executed with forumId: " + topic.getId());
@@ -772,9 +772,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         getHibernateTemplate().saveOrUpdate(topic);
 
         if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(topic), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(topic), false));
         } else {
-            eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_WRITE, getEventMessage(topic), false));
+            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(topic), false));
         }
 
         LOG.debug("saveOpenForumTopic executed with forumId: " + topic.getId());
@@ -785,7 +785,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      */
     public void deleteDiscussionForum(DiscussionForum forum) {
         long id = forum.getId().longValue();
-        eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_REMOVE, getEventMessage(forum), false));
+        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_REMOVE, getEventMessage(forum), false));
         try {
             getSession().evict(forum);
         } catch (Exception e) {
@@ -818,7 +818,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      */
     public void deleteDiscussionForumTopic(DiscussionTopic topic) {
         long id = topic.getId().longValue();
-        eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_REMOVE, getEventMessage(topic), false));
+        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_REMOVE, getEventMessage(topic), false));
         try {
             getSession().evict(topic);
         } catch (Exception e) {
@@ -838,7 +838,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Delete an open forum topic
      */
     public void deleteOpenForumTopic(OpenTopic topic) {
-        eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_REMOVE, getEventMessage(topic), false));
+        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_REMOVE, getEventMessage(topic), false));
         getHibernateTemplate().delete(topic);
         LOG.debug("deleteOpenForumTopic executed with forumId: " + topic.getId());
     }
@@ -847,7 +847,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Delete a private forum topic
      */
     public void deletePrivateForumTopic(PrivateTopic topic) {
-        eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_REMOVE, getEventMessage(topic), false));
+        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_REMOVE, getEventMessage(topic), false));
         getHibernateTemplate().delete(topic);
         LOG.debug("deletePrivateForumTopic executed with forumId: " + topic.getId());
     }
@@ -959,7 +959,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     }
 
     private String getEventMessage(Object object) {
-    	return "MessageCenter/site/" + getContextId() + "/" + object.toString() + "/" + getCurrentUser(); 
+    	return "/MessageCenter/site/" + getContextId() + "/" + object.toString() + "/" + getCurrentUser(); 
         //return "MessageCenter::" + getCurrentUser() + "::" + object.toString();
     }
 

@@ -29,9 +29,9 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.api.app.messageforums.MessageForumsUser;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.MessageForumsUserManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.api.Placement;
@@ -108,7 +108,7 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
       newUser.setUuid(getNextUuid());
       newUser.setUserId(userId);
       saveForumUser(newUser);
-      eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ADD, getEventMessage(newUser), false));
+      eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(newUser), false));
       return newUser;
     }
     else{
@@ -140,7 +140,7 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
   }
     
   private String getEventMessage(Object object) {
-  	return "MessageCenter/site/" + getContextId() + "/" + object.toString() ; 
+  	return "/MessageCenter/site/" + getContextId() + "/" + object.toString() ; 
       //return "MessageCenter::" + object.toString();
   }
 
