@@ -33,7 +33,7 @@
 
 		<property name="studentId" column="STUDENT_ID" type="string" not-null="true"/>
 
-		<property name="comment" column="COMMENT" type="text" not-null="true"/>
+		<property name="commentText" column="COMMENT_TEXT" type="text" not-null="true"/>
 
         <property name="dateRecorded" column="DATE_RECORDED" type="timestamp" not-null="true"/>
 

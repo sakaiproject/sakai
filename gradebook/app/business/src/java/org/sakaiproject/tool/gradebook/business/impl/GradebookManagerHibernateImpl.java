@@ -986,12 +986,12 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
                 Comment comment = new Comment();
                 comment.setGradableObject(go);
-                comment.setComment(remarks);
+                comment.setCommentText(remarks);
                 comment.setGraderId(authn.getUserUid());
                 comment.setDateRecorded(new Date());
                 comment.setStudentId(studentId);
 
-                // Save the new comment
+                // Save the new commentText
                 Long id = (Long)session.save(comment);
                 return id;
             }
@@ -1077,13 +1077,13 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 Set studentIds = assignmentCommentSet.getAllStudentIds();
                 List persistentGradeRecords;
                 if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
-                    String hql = "select cmt.studentId, cmt.comment from Comment as cmt where cmt.gradableObject=:go and cmt.studentId in (:studentIds)";
+                    String hql = "select cmt.studentId, cmt.commentText from Comment as cmt where cmt.gradableObject=:go and cmt.studentId in (:studentIds)";
                     Query q = session.createQuery(hql);
                     q.setParameter("go", assignment);
                     q.setParameterList("studentIds", studentIds);
                     persistentGradeRecords = q.list();
                 } else {
-                    String hql = "select cmt.studentId, cmt.comment from Comment as cmt where cmt.gradableObject=:go";
+                    String hql = "select cmt.studentId, cmt.commentText from Comment as cmt where cmt.gradableObject=:go";
                     Query q = session.createQuery(hql);
                     q.setParameter("go", assignment);
                     persistentGradeRecords = new ArrayList();
@@ -1104,19 +1104,19 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 Date now = new Date();
 
                 for(Iterator iter = assignmentCommentSet.getAllComments().iterator(); iter.hasNext();) {
-                    // The possibly modified comment record
+                    // The possibly modified commentText record
                     Comment commentFromCall = (Comment)iter.next();
 
-                    // The entered comment in the db for this comment record
+                    // The entered commentText in the db for this commentText record
                     String comment = (String)commentMap.get(commentFromCall.getStudentId());
 
                     // Update the existing record
 
                     // If the entered grade hasn't changed, just move on
-                    if(commentFromCall.getComment() == null && comment == null) {
+                    if(commentFromCall.getCommentText() == null && comment == null) {
                         continue;
                     }
-                    if(commentFromCall.getComment() != null && comment != null && commentFromCall.getComment().equals(comment)) {
+                    if(commentFromCall.getCommentText() != null && comment != null && commentFromCall.getCommentText().equals(comment)) {
                         continue;
                     }
 
@@ -1127,7 +1127,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                         session.saveOrUpdate(commentFromCall);
                         session.flush();
                     } catch (StaleObjectStateException sose) {
-                        if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update comment records");
+                        if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update commentText records");
                         throw new StaleObjectModificationException(sose);
                     }
 

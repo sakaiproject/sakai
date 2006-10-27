@@ -31,7 +31,7 @@ public abstract class AbstractComment implements Serializable {
     protected String graderId;
     protected int version;
     protected Date dateRecorded;
-    protected String comment;
+    protected String commentText;
     protected GradableObject gradableObject;
 
 
@@ -75,12 +75,12 @@ public abstract class AbstractComment implements Serializable {
         this.dateRecorded = dateRecorded;
     }
 
-    public String getComment() {
-        return comment;
+    public String getCommentText() {
+        return commentText;
     }
 
-    public void setComment(String comment) {
-        this.comment = comment;
+    public void setCommentText(String commentText) {
+        this.commentText = commentText;
     }
 
     public GradableObject getGradableObject() {

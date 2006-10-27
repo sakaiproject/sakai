@@ -81,12 +81,12 @@ public class GradeCommentTest extends GradebookTestBase  {
         Assert.assertTrue(!gradebookManager.isEnteredAssignmentScores(asgId));
 
         // add comments
-        Long commentId = gradebookManager.createComment(asn,"entered1","grade comment test");
-        logger.debug("new comment entered with id " +commentId);
-        //get the eneterd comment
+        Long commentId = gradebookManager.createComment(asn,"entered1","grade commentText test");
+        logger.debug("new commentText entered with id " +commentId);
+        //get the eneterd commentText
         Comment comment = gradebookManager.getComment(asn,"entered1");
-        logger.debug(comment.getComment());
-        Assert.assertTrue(comment.getComment().equals("grade comment test"));
+        logger.debug(comment.getCommentText());
+        Assert.assertTrue(comment.getCommentText().equals("grade commentText test"));
 
     }
 
@@ -120,20 +120,20 @@ public class GradeCommentTest extends GradebookTestBase  {
         Assert.assertTrue(!gradebookManager.isEnteredAssignmentScores(asgId));
 
         // add comments
-        Long commentId = gradebookManager.createComment(asn,"entered1","grade comment test");
-        logger.debug("new comment entered with id " +commentId);
-        //get the entered comment
+        Long commentId = gradebookManager.createComment(asn,"entered1","grade commentText test");
+        logger.debug("new commentText entered with id " +commentId);
+        //get the entered commentText
         Comment comment = gradebookManager.getComment(asn,"entered1");
-        logger.debug(comment.getComment());
-        Assert.assertTrue(comment.getComment().equals("grade comment test"));
-        //change the comment text and save it
-        comment.setComment("grade comment changed");
+        logger.debug(comment.getCommentText());
+        Assert.assertTrue(comment.getCommentText().equals("grade commentText test"));
+        //change the commentText text and save it
+        comment.setCommentText("grade commentText changed");
         gradebookManager.updateComments(comment);
         //retrieve the cahnged and updated commment
         comment = gradebookManager.getComment(asn,"entered1");
-        //verify that that the saved comment did actually change
-        logger.debug("updated test is:" + comment.getComment());
-        Assert.assertTrue(comment.getComment().equals("grade comment changed"));
+        //verify that that the saved commentText did actually change
+        logger.debug("updated test is:" + comment.getCommentText());
+        Assert.assertTrue(comment.getCommentText().equals("grade commentText changed"));
 
     }
 
@@ -153,28 +153,28 @@ public class GradeCommentTest extends GradebookTestBase  {
         Assignment asn3 = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(2);
         Assignment asn4 = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(3);
         // add comments
-        Long commentId = gradebookManager.createComment(asn,"entered1","grade comment test 1");
-        logger.debug("new comment entered with id " +commentId);
-        commentId = gradebookManager.createComment(asn2,"entered1","grade comment test 2");
-        logger.debug("new comment entered with id " +commentId);
-        commentId = gradebookManager.createComment(asn3,"entered1","grade comment test 3");
-        logger.debug("new comment entered with id " +commentId);
-        commentId = gradebookManager.createComment(asn4,"entered1","grade comment test 4");
-        logger.debug("new comment entered with id " +commentId);
-        //get the entered comment
+        Long commentId = gradebookManager.createComment(asn,"entered1","grade commentText test 1");
+        logger.debug("new commentText entered with id " +commentId);
+        commentId = gradebookManager.createComment(asn2,"entered1","grade commentText test 2");
+        logger.debug("new commentText entered with id " +commentId);
+        commentId = gradebookManager.createComment(asn3,"entered1","grade commentText test 3");
+        logger.debug("new commentText entered with id " +commentId);
+        commentId = gradebookManager.createComment(asn4,"entered1","grade commentText test 4");
+        logger.debug("new commentText entered with id " +commentId);
+        //get the entered commentText
         StudentCommentSet studentCommentSet = gradebookManager.getStudentCommentSet(gradebook,"entered1");
         Map commentMap = (HashMap)studentCommentSet.getCommentMap();
 
-        logger.debug("print out the comment set contents --------------------");
+        logger.debug("print out the commentText set contents --------------------");
         Iterator it = commentMap.keySet().iterator();
         while(it.hasNext()){
            Comment comment = (Comment)commentMap.get(it.next());
-           logger.debug(comment.getComment());
+           logger.debug(comment.getCommentText());
         }
 
         Assert.assertTrue(commentMap.size() > 0);
         Comment comment = (Comment)commentMap.get(asgId);
-        Assert.assertTrue(comment.getComment().equals("grade comment test 1"));
+        Assert.assertTrue(comment.getCommentText().equals("grade commentText test 1"));
 
 
 
@@ -196,12 +196,12 @@ public class GradeCommentTest extends GradebookTestBase  {
         Assignment asn = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(0);
 
         // add comments to students
-        Long commentId = gradebookManager.createComment(asn,"testStudentUserUid1","grade comment test 1");
-        logger.debug("new comment entered with id " +commentId);
-        commentId = gradebookManager.createComment(asn,"testStudentUserUid2","grade comment test 2");
-        logger.debug("new comment entered with id " +commentId);
-        commentId = gradebookManager.createComment(asn,"testStudentUserUid3","grade comment test 3");
-        logger.debug("new comment entered with id " +commentId);
+        Long commentId = gradebookManager.createComment(asn,"testStudentUserUid1","grade commentText test 1");
+        logger.debug("new commentText entered with id " +commentId);
+        commentId = gradebookManager.createComment(asn,"testStudentUserUid2","grade commentText test 2");
+        logger.debug("new commentText entered with id " +commentId);
+        commentId = gradebookManager.createComment(asn,"testStudentUserUid3","grade commentText test 3");
+        logger.debug("new commentText entered with id " +commentId);
         // retrieve comments set
 
         AssignmentCommentSet assignmentCommentSet = gradebookManager.getAssignmentComments(asn);
@@ -209,14 +209,14 @@ public class GradeCommentTest extends GradebookTestBase  {
         Map commentMap = assignmentCommentSet.getCommentMap();
 
         Assert.assertTrue(commentMap.size() > 0);
-        logger.debug("print out the comment set contents");
+        logger.debug("print out the commentText set contents");
         Iterator it = commentMap.keySet().iterator();
         while(it.hasNext()){
             Comment comment = (Comment)commentMap.get(it.next());
-            logger.debug("student id "+ comment.getStudentId() + " comment text:"+ comment.getComment());
+            logger.debug("student id "+ comment.getStudentId() + " commentText text:"+ comment.getCommentText());
         }
         Comment comment = (Comment)commentMap.get("testStudentUserUid1");
-        Assert.assertTrue(comment.getComment().equals("grade comment test 1"));
+        Assert.assertTrue(comment.getCommentText().equals("grade commentText test 1"));
     }
 
 
@@ -235,12 +235,12 @@ public class GradeCommentTest extends GradebookTestBase  {
         Assignment asn = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(0);
 
         // add comments to students
-        Long commentId = gradebookManager.createComment(asn,"testStudentUserUid1","grade comment test 1");
-        logger.debug("new comment entered with id " +commentId);
-        commentId = gradebookManager.createComment(asn,"testStudentUserUid2","grade comment test 2");
-        logger.debug("new comment entered with id " +commentId);
-        commentId = gradebookManager.createComment(asn,"testStudentUserUid3","grade comment test 3");
-        logger.debug("new comment entered with id " +commentId);
+        Long commentId = gradebookManager.createComment(asn,"testStudentUserUid1","grade commentText test 1");
+        logger.debug("new commentText entered with id " +commentId);
+        commentId = gradebookManager.createComment(asn,"testStudentUserUid2","grade commentText test 2");
+        logger.debug("new commentText entered with id " +commentId);
+        commentId = gradebookManager.createComment(asn,"testStudentUserUid3","grade commentText test 3");
+        logger.debug("new commentText entered with id " +commentId);
         // retrieve comments set
         AssignmentCommentSet assignmentCommentSet = gradebookManager.getAssignmentComments(asn);
         //test updates without any changes
@@ -253,13 +253,13 @@ public class GradeCommentTest extends GradebookTestBase  {
         Iterator it = commentMap.keySet().iterator();
         while(it.hasNext()){
             Comment comment = (Comment)commentMap.get(it.next());
-            comment.setComment("grade update test");
+            comment.setCommentText("grade update test");
         }
         //verify the update to the map
         Iterator iter = commentMap.keySet().iterator();
         while(iter.hasNext()){
             Comment comment = (Comment)commentMap.get(iter.next());
-            logger.debug("student id "+ comment.getStudentId() + " comment text:"+ comment.getComment());
+            logger.debug("student id "+ comment.getStudentId() + " commentText text:"+ comment.getCommentText());
         }
         //now update the database
         gradebookManager.updateAssignmentComments(assignmentCommentSet);
@@ -271,14 +271,14 @@ public class GradeCommentTest extends GradebookTestBase  {
         commentMap = assignmentCommentSet.getCommentMap();
 
         Assert.assertTrue(commentMap.size() > 0);
-        logger.debug("print out the comment set contents");
+        logger.debug("print out the commentText set contents");
         Iterator i = commentMap.keySet().iterator();
         while(i.hasNext()){
             Comment comment = (Comment)commentMap.get(i.next());
-            logger.debug("student id "+ comment.getStudentId() + " comment text:"+ comment.getComment());
+            logger.debug("student id "+ comment.getStudentId() + " commentText text:"+ comment.getCommentText());
         }
         Comment comment = (Comment)commentMap.get("testStudentUserUid1");
-        Assert.assertTrue(comment.getComment().equals("grade update test"));
+        Assert.assertTrue(comment.getCommentText().equals("grade update test"));
 
     }
 }

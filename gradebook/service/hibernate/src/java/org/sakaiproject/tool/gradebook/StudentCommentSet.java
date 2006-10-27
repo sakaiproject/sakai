@@ -44,7 +44,7 @@ public class StudentCommentSet {
     /**
      * The whole idea of this class is to hide the map from the API, but since
      * we need access to the map to get the grade records in JSF, the accessor
-     * for the map remains (assignment id -> comment).
+     * for the map remains (assignment id -> commentText).
      *
      * @return  commentMap
      */

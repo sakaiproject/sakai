@@ -16,9 +16,6 @@
 
 package org.sakaiproject.tool.gradebook;
 
-import java.util.Date;
-import java.io.Serializable;
-
 /**
  * Author:Louis Majanja <louis@media.berkeley.edu>
  * Date: Oct 20, 2006
@@ -33,7 +30,7 @@ public class Comment extends AbstractComment {
     public Comment(String studentId, String comment, GradableObject gradableObject) {
         this.gradableObject = gradableObject;
         this.studentId = studentId;
-        this.comment = comment;
+        this.commentText = comment;
     }
 
 }
