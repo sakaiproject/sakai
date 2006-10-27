@@ -97,6 +97,9 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 	private static final String PERMISSION_NAME = "permission_name";
 	private static final String PERMISSION_LEVEL_NAME = "permission_level_name";
 	private static final String CUSTOM_PERMISSIONS = "permission_levels";
+	
+	private static final String ARCHIVE_VERSION = "2.4"; // in case new features are added in future exports
+	private static final String VERSION_ATTR = "version";
 
 	private MessageForumsForumManager forumManager;
 	private AreaManager areaManager;
@@ -123,6 +126,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 					+ SiteService.MAIN_CONTAINER + ".\n");
 			// start with an element with our very own (service) name
 			Element element = doc.createElement(DiscussionForumService.class.getName());
+			element.setAttribute(VERSION_ATTR, ARCHIVE_VERSION);
 			((Element) stack.peek()).appendChild(element);
 			stack.push(element);
 
