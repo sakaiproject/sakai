@@ -291,6 +291,10 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                     }
                 }
                 try {
+					// Fix any data contention before calling the recalculation.
+					session.flush();
+					session.clear();
+
 					// Update the course grade records for students with assignment grade record changes
 					recalculateCourseGradeRecords(gb, studentsWithUpdatedAssignmentGradeRecords, session);
                 } catch (StaleObjectStateException sose) {
