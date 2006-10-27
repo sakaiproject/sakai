@@ -41,6 +41,7 @@ public class GradebookTestSuite extends TestCase {
 		suite.addTestSuite(GradebookServiceTest.class);
 		suite.addTestSuite(GradeMappingTest.class);
         suite.addTestSuite(SpreadsheetTest.class);
+        suite.addTestSuite(GradeCommentTest.class);        
         return suite;
 	}
 }

@@ -40,17 +40,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameExcep
 
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.component.gradebook.BaseHibernateManager;
-import org.sakaiproject.tool.gradebook.Assignment;
-import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
-import org.sakaiproject.tool.gradebook.CourseGrade;
-import org.sakaiproject.tool.gradebook.CourseGradeRecord;
-import org.sakaiproject.tool.gradebook.GradableObject;
-import org.sakaiproject.tool.gradebook.GradeMapping;
-import org.sakaiproject.tool.gradebook.GradeRecordSet;
-import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.GradingEvent;
-import org.sakaiproject.tool.gradebook.GradingEvents;
-import org.sakaiproject.tool.gradebook.Spreadsheet;
+import org.sakaiproject.tool.gradebook.*;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -60,11 +50,12 @@ import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureExcep
  * Manages Gradebook persistence via hibernate.
  */
 public class GradebookManagerHibernateImpl extends BaseHibernateManager
-    implements GradebookManager {
+        implements GradebookManager {
 
     private static final Log log = LogFactory.getLog(GradebookManagerHibernateImpl.class);
+    private String comment;
 
-	public void updateGradebook(final Gradebook gradebook) throws StaleObjectModificationException {
+    public void updateGradebook(final Gradebook gradebook) throws StaleObjectModificationException {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 // Get the gradebook and selected mapping from persistence
@@ -97,14 +88,14 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 // If the same mapping is selected, but it has been modified, we need
                 // to trigger a sort value update on the explicitly entered course grades
                 if(!mappingFromPersistence.equals(gradebook.getSelectedGradeMapping())) {
-					updateCourseGradeRecordSortValues(gradebook.getId());
+                    updateCourseGradeRecordSortValues(gradebook.getId());
                 }
 
                 return null;
             }
         };
         getHibernateTemplate().execute(hc);
-	}
+    }
 
     public void removeAssignment(final Long assignmentId) throws StaleObjectModificationException {
         HibernateCallback hc = new HibernateCallback() {
@@ -128,9 +119,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         return (Gradebook)getHibernateTemplate().load(Gradebook.class, id);
     }
 
-	/**
-	 */
-	public List getPointsEarnedSortedGradeRecords(final GradableObject go, final Collection studentUids) {
+    /**
+     */
+    public List getPointsEarnedSortedGradeRecords(final GradableObject go, final Collection studentUids) {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 if(studentUids == null || studentUids.size() == 0) {
@@ -138,28 +129,28 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                     return new ArrayList();
                 }
 
-				Query q = session.createQuery("from AbstractGradeRecord as agr where agr.gradableObject.removed=false and agr.gradableObject.id=:gradableObjectId order by agr.pointsEarned");
-				q.setLong("gradableObjectId", go.getId().longValue());
-				List records = filterGradeRecordsByStudents(q.list(), studentUids);
+                Query q = session.createQuery("from AbstractGradeRecord as agr where agr.gradableObject.removed=false and agr.gradableObject.id=:gradableObjectId order by agr.pointsEarned");
+                q.setLong("gradableObjectId", go.getId().longValue());
+                List records = filterGradeRecordsByStudents(q.list(), studentUids);
 
-				// If this is a course grade, calculate the point totals for the grade records
-				if(go.isCourseGrade()) {
-					Double totalPoints = ((CourseGrade)go).getTotalPoints();
-					if(logger.isDebugEnabled()) logger.debug("Total points = " + totalPoints);
-					for(Iterator iter = records.iterator(); iter.hasNext();) {
-						CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
-						if(logger.isDebugEnabled()) logger.debug("Points earned = " + cgr.getPointsEarned());
+                // If this is a course grade, calculate the point totals for the grade records
+                if(go.isCourseGrade()) {
+                    Double totalPoints = ((CourseGrade)go).getTotalPoints();
+                    if(logger.isDebugEnabled()) logger.debug("Total points = " + totalPoints);
+                    for(Iterator iter = records.iterator(); iter.hasNext();) {
+                        CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
+                        if(logger.isDebugEnabled()) logger.debug("Points earned = " + cgr.getPointsEarned());
                         if(cgr.getPointsEarned() != null) {
                             cgr.setAutoCalculatedGrade(cgr.calculatePercent(totalPoints.doubleValue()));
                         }
-					}
-				}
+                    }
+                }
 
-		        return records;
-			}
-		};
+                return records;
+            }
+        };
         return (List)getHibernateTemplate().execute(hc);
-	}
+    }
 
     /**
      */
@@ -181,11 +172,11 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         return (List)getHibernateTemplate().execute(hc);
     }
 
-   /**
+    /**
      * @return Returns set of student UIDs who were given scores higher than the assignment's value.
      */
     public Set updateAssignmentGradeRecords(final GradeRecordSet gradeRecordSet)
-        throws StaleObjectModificationException {
+            throws StaleObjectModificationException {
 
         final Collection gradeRecordsFromCall = gradeRecordSet.getAllGradeRecords();
         final Set studentIds = gradeRecordSet.getAllStudentIds();
@@ -197,44 +188,44 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         }
 
         HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
+            public Object doInHibernate(Session session) throws HibernateException {
                 // Evict the grade records from the session so we can check for point changes
                 for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
                     session.evict(iter.next());
                 }
 
                 Assignment assignment = (Assignment)session.load(Assignment.class, gradeRecordSet.getGradableObject().getId());
-				Date now = new Date();
-				Gradebook gb = assignment.getGradebook();
-				String graderId = authn.getUserUid();
+                Date now = new Date();
+                Gradebook gb = assignment.getGradebook();
+                String graderId = authn.getUserUid();
 
                 Set studentsWithUpdatedAssignmentGradeRecords = new HashSet();
-				Set studentsWithExcessiveScores = new HashSet();
+                Set studentsWithExcessiveScores = new HashSet();
 
-				// In the following queries, we retrieve column values instead of
-				// mapped Java objects. This is to avoid a Hibernate NonUniqueObjectException
-				// due to conflicts with the input grade records.
-				List persistentGradeRecords;
-				if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
-					String hql = "select gr.studentId, gr.pointsEarned from AssignmentGradeRecord as gr where gr.gradableObject=:go and gr.studentId in (:studentIds)";
-					Query q = session.createQuery(hql);
-					q.setParameter("go", assignment);
-					q.setParameterList("studentIds", studentIds);
-					persistentGradeRecords = q.list();
-				} else {
-					String hql = "select gr.studentId, gr.pointsEarned from AssignmentGradeRecord as gr where gr.gradableObject=:go";
-					Query q = session.createQuery(hql);
-					q.setParameter("go", assignment);
-					persistentGradeRecords = new ArrayList();
-					for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
-						Object[] oa = (Object[])iter.next();
-						if (studentIds.contains(oa[0])) {
-							persistentGradeRecords.add(oa);
-						}
-					}
-				}
+                // In the following queries, we retrieve column values instead of
+                // mapped Java objects. This is to avoid a Hibernate NonUniqueObjectException
+                // due to conflicts with the input grade records.
+                List persistentGradeRecords;
+                if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+                    String hql = "select gr.studentId, gr.pointsEarned from AssignmentGradeRecord as gr where gr.gradableObject=:go and gr.studentId in (:studentIds)";
+                    Query q = session.createQuery(hql);
+                    q.setParameter("go", assignment);
+                    q.setParameterList("studentIds", studentIds);
+                    persistentGradeRecords = q.list();
+                } else {
+                    String hql = "select gr.studentId, gr.pointsEarned from AssignmentGradeRecord as gr where gr.gradableObject=:go";
+                    Query q = session.createQuery(hql);
+                    q.setParameter("go", assignment);
+                    persistentGradeRecords = new ArrayList();
+                    for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
+                        Object[] oa = (Object[])iter.next();
+                        if (studentIds.contains(oa[0])) {
+                            persistentGradeRecords.add(oa);
+                        }
+                    }
+                }
 
-				// Construct a map of student id to persistent grade record scores
+                // Construct a map of student id to persistent grade record scores
                 Map scoreMap = new HashMap();
                 for(Iterator iter = persistentGradeRecords.iterator(); iter.hasNext();) {
                     Object[] oa = (Object[])iter.next();
@@ -281,7 +272,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                     if (performUpdate &&
                             gradeRecordFromCall.getPointsEarned() != null &&
                             gradeRecordFromCall.getPointsEarned().compareTo(assignment.getPointsPossible()) > 0) {
-                    	studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
+                        studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
                     }
 
                     // Log the grading event, and keep track of the students with saved/updated grades
@@ -303,8 +294,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 }
 
                 return studentsWithExcessiveScores;
-			}
-		};
+            }
+        };
 
         return (Set)getHibernateTemplate().execute(hc);
     }
@@ -312,7 +303,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     /**
      */
     public void updateCourseGradeRecords(final GradeRecordSet gradeRecordSet)
-        throws StaleObjectModificationException {
+            throws StaleObjectModificationException {
 
         if(gradeRecordSet.getAllGradeRecords().size() == 0) {
             log.debug("updateCourseGradeRecords called with zero grade records to update");
@@ -320,43 +311,43 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         }
 
         HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
+            public Object doInHibernate(Session session) throws HibernateException {
                 for(Iterator iter = gradeRecordSet.getAllGradeRecords().iterator(); iter.hasNext();) {
                     session.evict(iter.next());
                 }
 
-				CourseGrade courseGrade = (CourseGrade)gradeRecordSet.getGradableObject();
-				Date now = new Date();
-				Gradebook gb = courseGrade.getGradebook();
-				String graderId = authn.getUserUid();
+                CourseGrade courseGrade = (CourseGrade)gradeRecordSet.getGradableObject();
+                Date now = new Date();
+                Gradebook gb = courseGrade.getGradebook();
+                String graderId = authn.getUserUid();
 
-				// Find the number of points possible in this gradebook
-				double totalPointsPossibleInGradebook = getTotalPoints(gb.getId());
+                // Find the number of points possible in this gradebook
+                double totalPointsPossibleInGradebook = getTotalPoints(gb.getId());
 
                 // Find the grade records for these students on this gradable object
-				// In the following queries, we retrieve column values instead of
-				// mapped Java objects. This is to avoid a Hibernate NonUniqueObjectException
-				// due to conflicts with the input grade records.
+                // In the following queries, we retrieve column values instead of
+                // mapped Java objects. This is to avoid a Hibernate NonUniqueObjectException
+                // due to conflicts with the input grade records.
                 Set studentIds = gradeRecordSet.getAllStudentIds();
-				List persistentGradeRecords;
-				if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
-					String hql = "select gr.studentId, gr.enteredGrade from CourseGradeRecord as gr where gr.gradableObject=:go and gr.studentId in (:studentIds)";
-					Query q = session.createQuery(hql);
-					q.setParameter("go", courseGrade);
-					q.setParameterList("studentIds", studentIds);
-					persistentGradeRecords = q.list();
-				} else {
-					String hql = "select gr.studentId, gr.enteredGrade from CourseGradeRecord as gr where gr.gradableObject=:go";
-					Query q = session.createQuery(hql);
-					q.setParameter("go", courseGrade);
-					persistentGradeRecords = new ArrayList();
-					for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
-						Object[] oa = (Object[])iter.next();
-						if (studentIds.contains(oa[0])) {
-							persistentGradeRecords.add(oa);
-						}
-					}
-				}
+                List persistentGradeRecords;
+                if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+                    String hql = "select gr.studentId, gr.enteredGrade from CourseGradeRecord as gr where gr.gradableObject=:go and gr.studentId in (:studentIds)";
+                    Query q = session.createQuery(hql);
+                    q.setParameter("go", courseGrade);
+                    q.setParameterList("studentIds", studentIds);
+                    persistentGradeRecords = q.list();
+                } else {
+                    String hql = "select gr.studentId, gr.enteredGrade from CourseGradeRecord as gr where gr.gradableObject=:go";
+                    Query q = session.createQuery(hql);
+                    q.setParameter("go", courseGrade);
+                    persistentGradeRecords = new ArrayList();
+                    for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
+                        Object[] oa = (Object[])iter.next();
+                        if (studentIds.contains(oa[0])) {
+                            persistentGradeRecords.add(oa);
+                        }
+                    }
+                }
 
                 // Construct a map of student id to persistent grade record scores
                 Map scoreMap = new HashMap();
@@ -374,23 +365,23 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
                     // Update the existing record
 
-					// If the entered grade hasn't changed, just move on
-					if(gradeRecordFromCall.getEnteredGrade() == null && grade == null) {
-						continue;
-					}
-					if(gradeRecordFromCall.getEnteredGrade() != null && grade != null && gradeRecordFromCall.getEnteredGrade().equals(grade)) {
-						continue;
-					}
+                    // If the entered grade hasn't changed, just move on
+                    if(gradeRecordFromCall.getEnteredGrade() == null && grade == null) {
+                        continue;
+                    }
+                    if(gradeRecordFromCall.getEnteredGrade() != null && grade != null && gradeRecordFromCall.getEnteredGrade().equals(grade)) {
+                        continue;
+                    }
 
-					// Update the sort grade
-					if(gradeRecordFromCall.getEnteredGrade() == null) {
-						gradeRecordFromCall.setSortGrade(gradeRecordFromCall.calculatePercent(totalPointsPossibleInGradebook));
-					} else {
-						gradeRecordFromCall.setSortGrade(gb.getSelectedGradeMapping().getValue(gradeRecordFromCall.getEnteredGrade()));
-					}
+                    // Update the sort grade
+                    if(gradeRecordFromCall.getEnteredGrade() == null) {
+                        gradeRecordFromCall.setSortGrade(gradeRecordFromCall.calculatePercent(totalPointsPossibleInGradebook));
+                    } else {
+                        gradeRecordFromCall.setSortGrade(gb.getSelectedGradeMapping().getValue(gradeRecordFromCall.getEnteredGrade()));
+                    }
 
-					gradeRecordFromCall.setGraderId(graderId);
-					gradeRecordFromCall.setDateRecorded(now);
+                    gradeRecordFromCall.setGraderId(graderId);
+                    gradeRecordFromCall.setDateRecorded(now);
                     try {
                         session.saveOrUpdate(gradeRecordFromCall);
                         session.flush();
@@ -421,34 +412,34 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     /**
      */
     public boolean isExplicitlyEnteredCourseGradeRecords(final Long gradebookId) {
-    	final Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
-    	if (studentUids.isEmpty()) {
-    		return false;
-    	}
+        final Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
+        if (studentUids.isEmpty()) {
+            return false;
+        }
 
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-				Integer total;
-				if (studentUids.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
-					Query q = session.createQuery(
-						"select count(cgr) from CourseGradeRecord as cgr where cgr.enteredGrade is not null and cgr.gradableObject.gradebook.id=:gradebookId and cgr.studentId in (:studentUids)");
-					q.setLong("gradebookId", gradebookId.longValue());
-					q.setParameterList("studentUids", studentUids);
-					total = (Integer)q.list().get(0);
-					if (log.isInfoEnabled()) log.info("total number of explicitly entered course grade records = " + total);
-				} else {
-					total = new Integer(0);
-					Query q = session.createQuery(
-						"select cgr.studentId from CourseGradeRecord as cgr where cgr.enteredGrade is not null and cgr.gradableObject.gradebook.id=:gradebookId");
-					q.setLong("gradebookId", gradebookId.longValue());
-					for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
-						String studentId = (String)iter.next();
-						if (studentUids.contains(studentId)) {
-							total = new Integer(1);
-							break;
-						}
-					}
-				}
+                Integer total;
+                if (studentUids.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+                    Query q = session.createQuery(
+                            "select count(cgr) from CourseGradeRecord as cgr where cgr.enteredGrade is not null and cgr.gradableObject.gradebook.id=:gradebookId and cgr.studentId in (:studentUids)");
+                    q.setLong("gradebookId", gradebookId.longValue());
+                    q.setParameterList("studentUids", studentUids);
+                    total = (Integer)q.list().get(0);
+                    if (log.isInfoEnabled()) log.info("total number of explicitly entered course grade records = " + total);
+                } else {
+                    total = new Integer(0);
+                    Query q = session.createQuery(
+                            "select cgr.studentId from CourseGradeRecord as cgr where cgr.enteredGrade is not null and cgr.gradableObject.gradebook.id=:gradebookId");
+                    q.setLong("gradebookId", gradebookId.longValue());
+                    for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
+                        String studentId = (String)iter.next();
+                        if (studentUids.contains(studentId)) {
+                            total = new Integer(1);
+                            break;
+                        }
+                    }
+                }
                 return total;
             }
         };
@@ -456,12 +447,12 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     }
 
     public boolean isEnteredAssignmentScores(final Long assignmentId) {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				Integer total = (Integer)session.createQuery(
-					"select count(agr) from AssignmentGradeRecord as agr where agr.gradableObject.id=? and agr.pointsEarned is not null").
-					setLong(0, assignmentId.longValue()).
-					uniqueResult();
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                Integer total = (Integer)session.createQuery(
+                        "select count(agr) from AssignmentGradeRecord as agr where agr.gradableObject.id=? and agr.pointsEarned is not null").
+                        setLong(0, assignmentId.longValue()).
+                        uniqueResult();
                 if (log.isInfoEnabled()) log.info("assignment " + assignmentId + " has " + total + " entered scores");
                 return total;
             }
@@ -469,28 +460,28 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         return ((Integer)getHibernateTemplate().execute(hc)).intValue() > 0;
     }
 
-	/**
-	 */
-	public List getStudentGradeRecords(final Long gradebookId, final String studentId) {
+    /**
+     */
+    public List getStudentGradeRecords(final Long gradebookId, final String studentId) {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-				return session.createQuery(
-					"from AssignmentGradeRecord as agr where agr.studentId=? and agr.gradableObject.removed=false and agr.gradableObject.gradebook.id=?").
-					setString(0, studentId).
-					setLong(1, gradebookId.longValue()).
-					list();
+                return session.createQuery(
+                        "from AssignmentGradeRecord as agr where agr.studentId=? and agr.gradableObject.removed=false and agr.gradableObject.gradebook.id=?").
+                        setString(0, studentId).
+                        setLong(1, gradebookId.longValue()).
+                        list();
             }
         };
         return (List)getHibernateTemplate().execute(hc);
-	}
+    }
 
-	public CourseGradeRecord getStudentCourseGradeRecord(final Gradebook gradebook, final String studentId) {
-		return (CourseGradeRecord)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				return getCourseGradeRecord(gradebook, studentId, session);
-			}
-		});
-	}
+    public CourseGradeRecord getStudentCourseGradeRecord(final Gradebook gradebook, final String studentId) {
+        return (CourseGradeRecord)getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                return getCourseGradeRecord(gradebook, studentId, session);
+            }
+        });
+    }
 
     public GradingEvents getGradingEvents(final GradableObject gradableObject, final Collection enrollments) {
 
@@ -508,24 +499,24 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                     studentIds.add(((EnrollmentRecord)iter.next()).getUser().getUserUid());
                 }
 
-				List eventsList;
-				if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
-					Query q = session.createQuery("from GradingEvent as ge where ge.gradableObject=:go and ge.studentId in (:students)");
-					q.setParameter("go", gradableObject, Hibernate.entity(GradableObject.class));
-					q.setParameterList("students", studentIds);
-					eventsList = q.list();
-				} else {
-					Query q = session.createQuery("from GradingEvent as ge where ge.gradableObject=:go");
-					q.setParameter("go", gradableObject, Hibernate.entity(GradableObject.class));
-					eventsList = new ArrayList();
-					for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
-						GradingEvent event = (GradingEvent)iter.next();
-						if (studentIds.contains(event.getStudentId())) {
-							eventsList.add(event);
-						}
-					}
-				}
-				return eventsList;
+                List eventsList;
+                if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+                    Query q = session.createQuery("from GradingEvent as ge where ge.gradableObject=:go and ge.studentId in (:students)");
+                    q.setParameter("go", gradableObject, Hibernate.entity(GradableObject.class));
+                    q.setParameterList("students", studentIds);
+                    eventsList = q.list();
+                } else {
+                    Query q = session.createQuery("from GradingEvent as ge where ge.gradableObject=:go");
+                    q.setParameter("go", gradableObject, Hibernate.entity(GradableObject.class));
+                    eventsList = new ArrayList();
+                    for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
+                        GradingEvent event = (GradingEvent)iter.next();
+                        if (studentIds.contains(event.getStudentId())) {
+                            eventsList.add(event);
+                        }
+                    }
+                }
+                return eventsList;
             }
         };
 
@@ -556,49 +547,49 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
      */
     public List getAssignmentsWithStats(final Long gradebookId, final String sortBy, final boolean ascending) {
 
-    	Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
-		return getAssignmentsWithStatsInternal(gradebookId, sortBy, ascending, studentUids);
+        Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
+        return getAssignmentsWithStatsInternal(gradebookId, sortBy, ascending, studentUids);
     }
 
     public List getAssignmentsAndCourseGradeWithStats(final Long gradebookId, final String sortBy, final boolean ascending) {
-    	Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
-    	List assignments = getAssignmentsWithStatsInternal(gradebookId, sortBy, ascending, studentUids);
+        Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
+        List assignments = getAssignmentsWithStatsInternal(gradebookId, sortBy, ascending, studentUids);
 
-    	// Always put the Course Grade at the end.
-    	assignments.add(getGradableObjectStatsInternal(getCourseGrade(gradebookId), studentUids));
+        // Always put the Course Grade at the end.
+        assignments.add(getGradableObjectStatsInternal(getCourseGrade(gradebookId), studentUids));
 
-    	return assignments;
+        return assignments;
     }
 
     private List getAssignmentsWithStatsInternal(final Long gradebookId, final String sortBy, final boolean ascending, final Set studentUids) {
         if(logger.isDebugEnabled())logger.debug("sort by is "+sortBy);
         List assignments;
-    	if (studentUids.isEmpty()) {
-    		// Hibernate 2.1.8 generates invalid SQL if an empty collection is used
-    		// as a parameter list.
-    		assignments = getAssignments(gradebookId, sortBy, ascending);
-    	} else {
-    		assignments = (List)getHibernateTemplate().execute(new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException {
-					// TODO Combine queries for efficiency.
-					Query q = session.createQuery(
-						"from AbstractGradeRecord as gr where gr.gradableObject.gradebook.id=:gradebookId and gr.gradableObject.removed=false");
-					q.setLong("gradebookId", gradebookId.longValue());
-					List gradeRecords = filterGradeRecordsByStudents(q.list(), studentUids);
+        if (studentUids.isEmpty()) {
+            // Hibernate 2.1.8 generates invalid SQL if an empty collection is used
+            // as a parameter list.
+            assignments = getAssignments(gradebookId, sortBy, ascending);
+        } else {
+            assignments = (List)getHibernateTemplate().execute(new HibernateCallback() {
+                public Object doInHibernate(Session session) throws HibernateException {
+                    // TODO Combine queries for efficiency.
+                    Query q = session.createQuery(
+                            "from AbstractGradeRecord as gr where gr.gradableObject.gradebook.id=:gradebookId and gr.gradableObject.removed=false");
+                    q.setLong("gradebookId", gradebookId.longValue());
+                    List gradeRecords = filterGradeRecordsByStudents(q.list(), studentUids);
 
-					List assignments = getAssignments(gradebookId, sortBy, ascending);
+                    List assignments = getAssignments(gradebookId, sortBy, ascending);
 
-					// Calculate and insert the statistics into the assignments
-					for(Iterator asnIter = assignments.iterator(); asnIter.hasNext();) {
-						Assignment asn = (Assignment)asnIter.next();
-						asn.calculateStatistics(gradeRecords, studentUids.size());
-					}
-					sortAssignments(assignments, sortBy, ascending);
-					return assignments;
-				}
-			});
-		}
-		return assignments;
+                    // Calculate and insert the statistics into the assignments
+                    for(Iterator asnIter = assignments.iterator(); asnIter.hasNext();) {
+                        Assignment asn = (Assignment)asnIter.next();
+                        asn.calculateStatistics(gradeRecords, studentUids.size());
+                    }
+                    sortAssignments(assignments, sortBy, ascending);
+                    return assignments;
+                }
+            });
+        }
+        return assignments;
     }
 
     /**
@@ -642,45 +633,45 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     /**
      */
     public Assignment getAssignmentWithStats(Long assignmentId) {
-    	return (Assignment)getGradableObjectWithStats(getGradableObject(assignmentId));
+        return (Assignment)getGradableObjectWithStats(getGradableObject(assignmentId));
     }
 
     private GradableObject getGradableObjectWithStats(GradableObject gradableObject) {
-    	Set studentUids = getAllStudentUids(gradableObject.getGradebook().getUid());
-    	return getGradableObjectStatsInternal(gradableObject, studentUids);
+        Set studentUids = getAllStudentUids(gradableObject.getGradebook().getUid());
+        return getGradableObjectStatsInternal(gradableObject, studentUids);
     }
 
     private GradableObject getGradableObjectStatsInternal(final GradableObject gradableObject, final Set studentUids) {
-		return (GradableObject)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				List gradeRecords;
-				if (studentUids.isEmpty()) {
-					// Hibernate 2.1.8 generates invalid SQL if an empty collection is used
-					// as a parameter list.
-					gradeRecords = new ArrayList();
-				} else {
-					Query q = session.createQuery(
-						"from AbstractGradeRecord as gr where gr.gradableObject.id=:gradableObjectId and gr.gradableObject.removed=false");
-					q.setLong("gradableObjectId", gradableObject.getId().longValue());
-					gradeRecords = filterGradeRecordsByStudents(q.list(), studentUids);
-				}
+        return (GradableObject)getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                List gradeRecords;
+                if (studentUids.isEmpty()) {
+                    // Hibernate 2.1.8 generates invalid SQL if an empty collection is used
+                    // as a parameter list.
+                    gradeRecords = new ArrayList();
+                } else {
+                    Query q = session.createQuery(
+                            "from AbstractGradeRecord as gr where gr.gradableObject.id=:gradableObjectId and gr.gradableObject.removed=false");
+                    q.setLong("gradableObjectId", gradableObject.getId().longValue());
+                    gradeRecords = filterGradeRecordsByStudents(q.list(), studentUids);
+                }
 
-				// Calculate the total points possible, along with the auto-calculated grade percentage for each grade record
-				if(gradableObject.isCourseGrade()) {
-					CourseGrade cg = (CourseGrade)gradableObject;
-					cg.calculateTotalPointsPossible(getAssignments(cg.getGradebook().getId()));
-					for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
-						CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
-						if(cgr.getPointsEarned() != null) {
-							cgr.setAutoCalculatedGrade(cgr.calculatePercent(cg.getTotalPoints().doubleValue()));
-						}
-					}
-				}
+                // Calculate the total points possible, along with the auto-calculated grade percentage for each grade record
+                if(gradableObject.isCourseGrade()) {
+                    CourseGrade cg = (CourseGrade)gradableObject;
+                    cg.calculateTotalPointsPossible(getAssignments(cg.getGradebook().getId()));
+                    for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
+                        CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
+                        if(cgr.getPointsEarned() != null) {
+                            cgr.setAutoCalculatedGrade(cgr.calculatePercent(cg.getTotalPoints().doubleValue()));
+                        }
+                    }
+                }
 
-				gradableObject.calculateStatistics(gradeRecords, studentUids.size());
-				return gradableObject;
-			}
-		});
+                gradableObject.calculateStatistics(gradeRecords, studentUids.size());
+                return gradableObject;
+            }
+        });
     }
 
     /**
@@ -689,16 +680,16 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased) throws ConflictingAssignmentNameException, StaleObjectModificationException {
 
         HibernateCallback hc = new HibernateCallback() {
-               public Object doInHibernate(Session session) throws HibernateException {
-                   Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-                   int numNameConflicts = ((Integer)session.createQuery(
-                           "select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
-                           setString(0, name).
-                           setEntity(1, gb).
-                           uniqueResult()).intValue();
-                   if(numNameConflicts > 0) {
-                       throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
-                   }
+            public Object doInHibernate(Session session) throws HibernateException {
+                Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+                int numNameConflicts = ((Integer)session.createQuery(
+                        "select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+                        setString(0, name).
+                        setEntity(1, gb).
+                        uniqueResult()).intValue();
+                if(numNameConflicts > 0) {
+                    throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
+                }
 
                    Assignment asn = new Assignment();
                    asn.setGradebook(gb);
@@ -861,7 +852,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
     /**
      *
-     * @param spreadsheetid
+     * @param spreadsheetId
      */
     public void removeSpreadsheet(final Long spreadsheetId)throws StaleObjectModificationException {
 
@@ -954,4 +945,198 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         return spreadsheets;
     }
 
+
+    public void updateComments(final Comment comment) throws StaleObjectModificationException {
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                comment.setGraderId(authn.getUserUid());
+                comment.setDateRecorded(new Date());
+                session.update(comment);
+                return null;
+            }
+        };
+        try {
+            getHibernateTemplate().execute(hc);
+        } catch (HibernateOptimisticLockingFailureException holfe) {
+            if(logger.isInfoEnabled()) logger.info("An optimistic locking failure occurred while attempting to update an assignment");
+            throw new StaleObjectModificationException(holfe);
+        }
+    }
+
+    public Comment getComment(final GradableObject gradableObject,final String studentId) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+                return (Comment)session.createQuery(
+                        "from Comment as ct where ct.studentId=? and ct.gradableObject=?").
+                        setString(0, studentId).
+                        setEntity(1, gradableObject).
+                        uniqueResult();
+            }
+        };
+
+        return(Comment)getHibernateTemplate().execute(hc);
+    }
+
+    public Long createComment(final GradableObject go, final String studentId,final String comment)throws StaleObjectModificationException {
+
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+
+                String remarks = comment;
+
+                Comment comment = new Comment();
+                comment.setGradableObject(go);
+                comment.setComment(remarks);
+                comment.setGraderId(authn.getUserUid());
+                comment.setDateRecorded(new Date());
+                comment.setStudentId(studentId);
+
+                // Save the new comment
+                Long id = (Long)session.save(comment);
+                return id;
+            }
+        };
+
+        return (Long)getHibernateTemplate().execute(hc);
+    }
+
+
+    public StudentCommentSet getStudentCommentSet(final Gradebook gradebook,final String studentId) {
+        StudentCommentSet studentCommentSet = new StudentCommentSet();
+        List comments = (List)getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                List comments = getStudentComments(gradebook,studentId, session);
+                return comments;
+            }
+        });
+
+        Iterator it = comments.iterator();
+        while(it.hasNext()){
+            Comment comment = (Comment)it.next();
+            studentCommentSet.addComment(comment);
+        }
+        return studentCommentSet;
+    }
+
+
+    protected List getStudentComments(Gradebook gradebook,String studentId,Session session) throws HibernateException {
+        List comments = session.createQuery(
+                "from Comment as cmt where cmt.gradableObject.gradebook.id=? and cmt.studentId=?").
+                setLong(0, gradebook.getId().longValue()).
+                setString(1,studentId).
+                list();
+        return comments;
+    }
+
+
+    protected List getAssignmentComments(GradableObject gradableObject,Session session) throws HibernateException {
+        List comments = session.createQuery(
+                "from Comment as cmt where cmt.gradableObject.id=?").
+                setLong(0, gradableObject.getId().longValue()).
+                list();
+        return comments;
+    }
+
+
+    public AssignmentCommentSet getAssignmentComments(final GradableObject gradableObject) {
+
+        AssignmentCommentSet assignmentCommentSet = new AssignmentCommentSet(gradableObject);
+        List comments = (List)getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                List comments = getAssignmentComments(gradableObject, session);
+                return comments;
+            }
+        });
+
+        Iterator it = comments.iterator();
+        while(it.hasNext()){
+            Comment comment = (Comment)it.next();
+            assignmentCommentSet.addComment(comment);
+        }
+        return assignmentCommentSet;
+    }
+
+    public void updateAssignmentComments(final AssignmentCommentSet assignmentCommentSet) throws StaleObjectModificationException {
+        // If no comments a records are sent, don't bother doing anything with the db
+        if(assignmentCommentSet.getCommentMap().size() == 0) {
+            log.debug("updateAssignmentComments called for zero comments");
+            return;
+        }
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                for(Iterator iter = assignmentCommentSet.getAllComments().iterator(); iter.hasNext();) {
+                    session.evict(iter.next());
+                }
+
+                GradableObject assignment = assignmentCommentSet.getGradableObject();
+                // Find the grade records for these students on this gradable object
+                // In the following queries, we retrieve column values instead of
+                // mapped Java objects. This is to avoid a Hibernate NonUniqueObjectException
+                // due to conflicts with the input grade records.
+
+                Set studentIds = assignmentCommentSet.getAllStudentIds();
+                List persistentGradeRecords;
+                if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+                    String hql = "select cmt.studentId, cmt.comment from Comment as cmt where cmt.gradableObject=:go and cmt.studentId in (:studentIds)";
+                    Query q = session.createQuery(hql);
+                    q.setParameter("go", assignment);
+                    q.setParameterList("studentIds", studentIds);
+                    persistentGradeRecords = q.list();
+                } else {
+                    String hql = "select cmt.studentId, cmt.comment from Comment as cmt where cmt.gradableObject=:go";
+                    Query q = session.createQuery(hql);
+                    q.setParameter("go", assignment);
+                    persistentGradeRecords = new ArrayList();
+                    for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
+                        Object[] oa = (Object[])iter.next();
+                        if (studentIds.contains(oa[0])) persistentGradeRecords.add(oa);
+                    }
+                }
+
+                // Construct a map of student id to persistent grade record scores
+                Map commentMap = new HashMap();
+                for(Iterator iter = persistentGradeRecords.iterator(); iter.hasNext();) {
+                    Object[] oa = (Object[])iter.next();
+                    commentMap.put(oa[0], oa[1]);
+                }
+
+                String graderId = authn.getUserUid();
+                Date now = new Date();
+
+                for(Iterator iter = assignmentCommentSet.getAllComments().iterator(); iter.hasNext();) {
+                    // The possibly modified comment record
+                    Comment commentFromCall = (Comment)iter.next();
+
+                    // The entered comment in the db for this comment record
+                    String comment = (String)commentMap.get(commentFromCall.getStudentId());
+
+                    // Update the existing record
+
+                    // If the entered grade hasn't changed, just move on
+                    if(commentFromCall.getComment() == null && comment == null) {
+                        continue;
+                    }
+                    if(commentFromCall.getComment() != null && comment != null && commentFromCall.getComment().equals(comment)) {
+                        continue;
+                    }
+
+
+                    commentFromCall.setGraderId(graderId);
+                    commentFromCall.setDateRecorded(now);
+                    try {
+                        session.saveOrUpdate(commentFromCall);
+                        session.flush();
+                    } catch (StaleObjectStateException sose) {
+                        if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update comment records");
+                        throw new StaleObjectModificationException(sose);
+                    }
+
+                }
+
+                return null;
+            }
+        };
+        getHibernateTemplate().execute(hc);
+
+    }
 }

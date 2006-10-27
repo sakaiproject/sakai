@@ -28,14 +28,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
-import org.sakaiproject.tool.gradebook.Assignment;
-import org.sakaiproject.tool.gradebook.CourseGrade;
-import org.sakaiproject.tool.gradebook.CourseGradeRecord;
-import org.sakaiproject.tool.gradebook.GradableObject;
-import org.sakaiproject.tool.gradebook.GradeRecordSet;
-import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.GradingEvents;
-import org.sakaiproject.tool.gradebook.Spreadsheet;
+import org.sakaiproject.tool.gradebook.*;
 
 /**
  * Manages Gradebook persistence.
@@ -299,7 +292,7 @@ public interface GradebookManager {
      */
 
     public void removeSpreadsheet(Long spreadsheetid) throws StaleObjectModificationException;
-   
+
     /**
      * create a net spreadsheet
      *
@@ -312,5 +305,18 @@ public interface GradebookManager {
      * @throws ConflictingSpreadsheetNameException StaleObjectModificationException
      */
     public Long createSpreadsheet(Long gradebookId, String name, String creator, Date dateCreated, String content) throws ConflictingSpreadsheetNameException, StaleObjectModificationException;
+
+
+    public void updateComments(Comment comment);
+
+    public Comment getComment(GradableObject gradableObject, String studentId);
+
+    public Long createComment(GradableObject go, String studentId, String comment) throws StaleObjectModificationException;
+
+    public StudentCommentSet getStudentCommentSet(Gradebook gradebook, String studentId);
+
+    public AssignmentCommentSet getAssignmentComments(GradableObject gradableObject);
+
+    public void updateAssignmentComments(AssignmentCommentSet asignmentCommentSet) throws StaleObjectModificationException;
 
 }
