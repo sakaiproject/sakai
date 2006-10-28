@@ -59,7 +59,34 @@ public class CommentSaveCommand extends SaveCommand
 		String baseName = localName;
 		if (baseNameI > 0)
 		{
-			baseName = localName.substring(0, baseNameI);
+			int nextI = localName.indexOf(".",baseNameI+1);
+			baseName = null;
+			while (nextI > 0 && baseName == null)
+			{
+				try
+				{
+					String test = localName.substring(baseNameI + 1, nextI);
+					Integer.parseInt(localName.substring(baseNameI + 1, nextI));
+					baseName = localName.substring(0, baseNameI);
+				}
+				catch (NumberFormatException e)
+				{
+					baseNameI = nextI;
+					nextI = localName.indexOf(".", baseNameI + 1);
+				}
+			}
+			if ( baseName == null ) {
+				try
+				{
+					String test = localName.substring(baseNameI + 1);
+					Integer.parseInt(localName.substring(baseNameI + 1));
+					baseName = localName.substring(0, baseNameI);
+				}
+				catch (NumberFormatException e)
+				{
+					baseName = localName;
+				}
+			}
 		}
 		globalName = NameHelper.globaliseName(baseName, vphb.getPageSpace());
 		vphb.setGlobalName(globalName);

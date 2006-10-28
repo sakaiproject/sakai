@@ -754,8 +754,12 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 					int lastp = lastCommentName.lastIndexOf(".");
 					if (lastp >= 0)
 					{
-						cnum = Integer.parseInt(lastCommentName
+						try {
+							cnum = Integer.parseInt(lastCommentName
 								.substring(lastp + 1)) + 1;
+						} catch ( Exception ex) {
+							// this is Ok
+						}
 					}
 				}
 				String newCommentName = MessageFormat.format(
