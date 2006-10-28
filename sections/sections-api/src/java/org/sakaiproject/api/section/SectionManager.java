@@ -245,6 +245,21 @@ public interface SectionManager {
      * @param title
      * @param category
      * @param maxEnrollments
+     * @param meetings
+     * @return
+     */
+    public CourseSection addSection(String courseUuid, String title,
+    		String category, Integer maxEnrollments, List meetings);
+	
+    /**
+     * Adds a CourseSection with a single meeting time to a parent CourseSection.
+     * This method is deprecated.  Please use addSection(String courseUuid, String title,
+     * String category, Integer maxEnrollments, List meetings)
+     * 
+     * @param courseUuid
+     * @param title
+     * @param category
+     * @param maxEnrollments
      * @param location
      * @param startTime
      * @param startTimeAm
@@ -257,6 +272,9 @@ public interface SectionManager {
      * @param friday
      * @param saturday
      * @param sunday
+     * 
+     * @deprecated
+     * 
      * @return
      */
     public CourseSection addSection(String courseUuid, String title,
@@ -264,10 +282,13 @@ public interface SectionManager {
     		Time startTime, Time endTime,
     		boolean monday, boolean tuesday, boolean wednesday, boolean thursday,
     		boolean friday, boolean saturday, boolean sunday);
-	
+
     /**
      * Updates the persistent representation of the given CourseSection.  Once
-     * a section is created, its category is immutable.
+     * a section is created, its category is immutable.  This method will remove all
+     * but one Meeting associated with this CourseSection.  To update a CourseSection
+     * and all of its meetings, use updateSection(String sectionUuid, String title,
+     * Integer maxEnrollments, List meetings).
      * 
      * @param sectionUuid
      * @param title
@@ -284,12 +305,25 @@ public interface SectionManager {
      * @param friday
      * @param saturday
      * @param sunday
+     * 
+     * @deprecated
      */
     public void updateSection(String sectionUuid, String title, Integer maxEnrollments,
     		String location, Time startTime, Time endTime,
     		boolean monday, boolean tuesday, boolean wednesday,
     		boolean thursday, boolean friday, boolean saturday, boolean sunday);
     
+    /**
+     * Updates a section and all of its meetings.  Notice that you can not change a
+     * section's category once it's been created.
+     * 
+     * @param sectionUuid
+     * @param title
+     * @param maxEnrollments
+     * @param meetings
+     */
+    public void updateSection(String sectionUuid, String title, Integer maxEnrollments, List meetings);
+
     /**
      * Disbands a course section.  This does not affect enrollment records for
      * the course.

@@ -29,18 +29,26 @@
         <joined-subclass name="org.sakaiproject.component.section.CourseSectionImpl" table="SEC_SECTION_T">
             <key column="ID"/>
             <many-to-one name="course" column="COURSE_ID" class="org.sakaiproject.component.section.CourseImpl"/>
-            <property name="location" column="LOCATION" type="string"/>
             <property name="category" column="CATEGORY" type="string"/>
             <property name="maxEnrollments" column="MAX_ENROLLMENTS" type="java.lang.Integer"/>
-            <property name="monday" column="MONDAY" type="boolean"/>
-            <property name="tuesday" column="TUESDAY" type="boolean"/>
-            <property name="wednesday" column="WEDNESDAY" type="boolean"/>
-            <property name="thursday" column="THURSDAY" type="boolean"/>
-            <property name="friday" column="FRIDAY" type="boolean"/>
-            <property name="saturday" column="SATURDAY" type="boolean"/>
-            <property name="sunday" column="SUNDAY" type="boolean"/>
-            <property name="startTime" column="START_TIME" type="time"/>
-            <property name="endTime" column="END_TIME" type="time"/>
+
+			<list name="meetings" 
+			        table="SEC_MEETING_T">
+			    <key column="ID"/>
+			    <list-index column="SEC_MEETING_INDEX_T"/>
+			    <composite-element class="org.sakaiproject.component.section.MeetingImpl">
+		            <property name="location" column="LOCATION" type="string"/>
+		            <property name="monday" column="MONDAY" type="boolean"/>
+		            <property name="tuesday" column="TUESDAY" type="boolean"/>
+		            <property name="wednesday" column="WEDNESDAY" type="boolean"/>
+		            <property name="thursday" column="THURSDAY" type="boolean"/>
+		            <property name="friday" column="FRIDAY" type="boolean"/>
+		            <property name="saturday" column="SATURDAY" type="boolean"/>
+		            <property name="sunday" column="SUNDAY" type="boolean"/>
+		            <property name="startTime" column="START_TIME" type="time"/>
+		            <property name="endTime" column="END_TIME" type="time"/>
+			    </composite-element>
+			</list>
         </joined-subclass>
 
         <joined-subclass name="org.sakaiproject.component.section.CourseGroupImpl" table="SEC_GROUP_T">

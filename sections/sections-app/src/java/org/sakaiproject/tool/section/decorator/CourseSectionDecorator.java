@@ -31,6 +31,7 @@ import java.util.List;
 
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.Meeting;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
@@ -45,18 +46,26 @@ public class CourseSectionDecorator implements Serializable {
 	
 	protected CourseSection section;
 	protected String categoryForDisplay;
+	protected List decoratedMeetings;
 
 	/**
 	 * Creates a decorator based on the course section alone.  Useful for only
 	 * displaying meeting times.
 	 * 
 	 * @param section
-	 */public CourseSectionDecorator(CourseSection section) {
+	 */
+	public CourseSectionDecorator(CourseSection section) {
 		this.section = section;
+		this.decoratedMeetings = new ArrayList();
+		if(section.getMeetings() != null) {
+			for(Iterator iter = section.getMeetings().iterator(); iter.hasNext();) {
+				decoratedMeetings.add(new MeetingDecorator((Meeting)iter.next()));
+			}
+		}
 	}
 
 	 public CourseSectionDecorator(CourseSection section, String categoryForDisplay) {
-		this.section = section;
+		this(section);
 		this.categoryForDisplay = categoryForDisplay;
 	}
 
@@ -65,103 +74,19 @@ public class CourseSectionDecorator implements Serializable {
 	}
 
 	// TODO Added for debugging. Should be more efficient to make section transient,
-
 	// and store and retrieve a section UID to keep track of which section goes
 	// with which row.
 	public CourseSection getSection() {
 		return section;
 	}
+	
+	public List getDecoratedMeetings() {
+		return decoratedMeetings;
+	}
 
 	// Decorator methods
 	public String getCategoryForDisplay() {
 		return categoryForDisplay;
-	}
-
-	public String getMeetingDays() {
-		String daySepChar = JsfUtil.getLocalizedMessage("day_of_week_sep_char");
-
-		StringBuffer sb = new StringBuffer();
-		for(Iterator iter = getDayList().iterator(); iter.hasNext();) {
-			String day = (String)iter.next();
-			sb.append(JsfUtil.getLocalizedMessage(day));
-			if(iter.hasNext()) {
-				sb.append(daySepChar);
-			}
-		}
-		return sb.toString();
-	}
-
-	public String getMeetingTimes() {
-		String daySepChar = JsfUtil.getLocalizedMessage("day_of_week_sep_char");
-		String timeSepChar = JsfUtil.getLocalizedMessage("time_sep_char");
-
-		StringBuffer sb = new StringBuffer();
-
-		// Days of the week
-		for(Iterator iter = getAbbreviatedDayList().iterator(); iter.hasNext();) {
-			String day = (String)iter.next();
-			sb.append(JsfUtil.getLocalizedMessage(day));
-			if(iter.hasNext()) {
-				sb.append(daySepChar);
-			}
-		}
-
-		// Start time
-		DateFormat df = new SimpleDateFormat("h:mm a");
-		sb.append(" ");
-		if(section.getStartTime() != null) {
-			sb.append(df.format(new Date(section.getStartTime().getTime())).toLowerCase());
-		}
-
-		// End time
-		if(section.getStartTime() != null &&
-				section.getEndTime() != null) {
-			sb.append(timeSepChar);
-		}
-
-		if(section.getEndTime() != null) {
-			sb.append(df.format(new Date(section.getEndTime().getTime())).toLowerCase());
-		}
-
-		return sb.toString();
-	}
-
-	private List getAbbreviatedDayList() {
-		List list = new ArrayList();
-		if(section.isMonday())
-			list.add("day_of_week_monday_abbrev");
-		if(section.isTuesday())
-			list.add("day_of_week_tuesday_abbrev");
-		if(section.isWednesday())
-			list.add("day_of_week_wednesday_abbrev");
-		if(section.isThursday())
-			list.add("day_of_week_thursday_abbrev");
-		if(section.isFriday())
-			list.add("day_of_week_friday_abbrev");
-		if(section.isSaturday())
-			list.add("day_of_week_saturday_abbrev");
-		if(section.isSunday())
-			list.add("day_of_week_sunday_abbrev");
-		return list;
-	}
-
-	private List getDayList() {
-		List list = new ArrayList();
-		if(section.isMonday())
-			list.add("day_of_week_monday");
-		if(section.isTuesday())
-			list.add("day_of_week_tuesday");
-		if(section.isWednesday())
-			list.add("day_of_week_wednesday");
-		if(section.isThursday())
-			list.add("day_of_week_thursday");
-		if(section.isFriday())
-			list.add("day_of_week_friday");
-		if(section.isSaturday())
-			list.add("day_of_week_saturday");
-		if(section.isSunday())
-			list.add("day_of_week_sunday");
-		return list;
 	}
 
 	// Delegate methods
@@ -174,20 +99,8 @@ public class CourseSectionDecorator implements Serializable {
 		return section.getCourse();
 	}
 
-	public Time getEndTime() {
-		return section.getEndTime();
-	}
-
-	public String getLocation() {
-		return section.getLocation();
-	}
-
 	public Integer getMaxEnrollments() {
 		return section.getMaxEnrollments();
-	}
-
-	public Time getStartTime() {
-		return section.getStartTime();
 	}
 
 	public String getTitle() {
@@ -197,32 +110,146 @@ public class CourseSectionDecorator implements Serializable {
 	public String getUuid() {
 		return section.getUuid();
 	}
+	
+	public class MeetingDecorator implements Serializable {
+		private static final long serialVersionUID = 1L;
+		private Meeting meeting;
+		
+		public MeetingDecorator() {
+			// Needed for serialization
+		}
 
-	public boolean isFriday() {
-		return section.isFriday();
-	}
+		public MeetingDecorator(Meeting meeting) {
+			this.meeting = meeting;
+		}
+		
+		private List getDayList() {
+			List list = new ArrayList();
+			if(meeting.isMonday())
+				list.add("day_of_week_monday");
+			if(meeting.isTuesday())
+				list.add("day_of_week_tuesday");
+			if(meeting.isWednesday())
+				list.add("day_of_week_wednesday");
+			if(meeting.isThursday())
+				list.add("day_of_week_thursday");
+			if(meeting.isFriday())
+				list.add("day_of_week_friday");
+			if(meeting.isSaturday())
+				list.add("day_of_week_saturday");
+			if(meeting.isSunday())
+				list.add("day_of_week_sunday");
+			return list;
+		}
+		
+		private List getAbbreviatedDayList() {
+			List list = new ArrayList();
+			if(meeting.isMonday())
+				list.add("day_of_week_monday_abbrev");
+			if(meeting.isTuesday())
+				list.add("day_of_week_tuesday_abbrev");
+			if(meeting.isWednesday())
+				list.add("day_of_week_wednesday_abbrev");
+			if(meeting.isThursday())
+				list.add("day_of_week_thursday_abbrev");
+			if(meeting.isFriday())
+				list.add("day_of_week_friday_abbrev");
+			if(meeting.isSaturday())
+				list.add("day_of_week_saturday_abbrev");
+			if(meeting.isSunday())
+				list.add("day_of_week_sunday_abbrev");
+			return list;
+		}
 
-	public boolean isMonday() {
-		return section.isMonday();
-	}
+		public String getMeetingTimes() {
+			String daySepChar = JsfUtil.getLocalizedMessage("day_of_week_sep_char");
+			String timeSepChar = JsfUtil.getLocalizedMessage("time_sep_char");
 
-	public boolean isSaturday() {
-		return section.isSaturday();
-	}
+			StringBuffer sb = new StringBuffer();
 
-	public boolean isSunday() {
-		return section.isSunday();
-	}
+			// Days of the week
+			for(Iterator iter = getAbbreviatedDayList().iterator(); iter.hasNext();) {
+				String day = (String)iter.next();
+				sb.append(JsfUtil.getLocalizedMessage(day));
+				if(iter.hasNext()) {
+					sb.append(daySepChar);
+				}
+			}
 
-	public boolean isThursday() {
-		return section.isThursday();
-	}
+			// Start time
+			DateFormat df = new SimpleDateFormat("h:mm a");
+			sb.append(" ");
+			if(meeting.getStartTime() != null) {
+				sb.append(df.format(new Date(meeting.getStartTime().getTime())).toLowerCase());
+			}
 
-	public boolean isTuesday() {
-		return section.isTuesday();
-	}
+			// End time
+			if(meeting.getStartTime() != null &&
+					meeting.getEndTime() != null) {
+				sb.append(timeSepChar);
+			}
 
-	public boolean isWednesday() {
-		return section.isWednesday();
+			if(meeting.getEndTime() != null) {
+				sb.append(df.format(new Date(meeting.getEndTime().getTime())).toLowerCase());
+			}
+
+			return sb.toString();
+		}
+
+		public String getMeetingDays() {
+			String daySepChar = JsfUtil.getLocalizedMessage("day_of_week_sep_char");
+
+			StringBuffer sb = new StringBuffer();
+			for(Iterator iter = getDayList().iterator(); iter.hasNext();) {
+				String day = (String)iter.next();
+				sb.append(JsfUtil.getLocalizedMessage(day));
+				if(iter.hasNext()) {
+					sb.append(daySepChar);
+				}
+			}
+			return sb.toString();
+		}
+
+		// Meeting delegate methods
+
+		public Time getEndTime() {
+			return meeting.getEndTime();
+		}
+
+		public String getLocation() {
+			return meeting.getLocation();
+		}
+
+		public Time getStartTime() {
+			return meeting.getStartTime();
+		}
+
+		public boolean isFriday() {
+			return meeting.isFriday();
+		}
+
+		public boolean isMonday() {
+			return meeting.isMonday();
+		}
+
+		public boolean isSaturday() {
+			return meeting.isSaturday();
+		}
+
+		public boolean isSunday() {
+			return meeting.isSunday();
+		}
+
+		public boolean isThursday() {
+			return meeting.isThursday();
+		}
+
+		public boolean isTuesday() {
+			return meeting.isTuesday();
+		}
+
+		public boolean isWednesday() {
+			return meeting.isWednesday();
+		}
 	}
 }

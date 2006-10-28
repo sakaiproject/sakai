@@ -92,13 +92,13 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		sectionTitle = currentSection.getTitle();
 		
 		// Generate the description
-		String sectionMeetingTimes = currentSection.getMeetingTimes();
-		if(StringUtils.trimToNull(sectionMeetingTimes) == null) {
-			sectionDescription = sectionTitle;
-		} else {
-			sectionDescription = JsfUtil.getLocalizedMessage("section_description",
-				new String[] {sectionTitle, sectionMeetingTimes});
-		}
+//		String sectionMeetingTimes = currentSection.getMeetings();
+//		if(StringUtils.trimToNull(sectionMeetingTimes) == null) {
+		sectionDescription = sectionTitle;
+//		} else {
+//			sectionDescription = JsfUtil.getLocalizedMessage("section_description",
+//				new String[] {sectionTitle, sectionMeetingTimes});
+//		}
 		
 		return currentSection;
 	}

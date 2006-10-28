@@ -90,7 +90,9 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 			if(log.isDebugEnabled()) log.debug("populating sections");
 			int offset = getSectionManager().getSectionsInCategory(getSiteContext(), category).size();
 			for(int i=0; i<numToAdd; i++) {
-				sections.add(new LocalSectionModel(getCategoryName(category) + (i+1+offset)));
+				LocalSectionModel section = new LocalSectionModel(getCategoryName(category) + (i+1+offset));
+				section.getMeetings().add(new LocalMeetingModel());
+				sections.add(section);
 				rowClasses.append("sectionPadRow");
 				if(i+1<numToAdd) {
 					rowClasses.append(",");
@@ -142,13 +144,13 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 				titles.append(" ");
 			}
 
+			List meetings = new ArrayList();
+			for(Iterator meetingIter = sectionModel.getMeetings().iterator(); meetingIter.hasNext();) {
+				LocalMeetingModel meeting = (LocalMeetingModel)meetingIter.next();
+				meetings.add(meeting);
+			}
 			getSectionManager().addSection(courseUuid, sectionModel.getTitle(),
-					category, sectionModel.getMaxEnrollments(), sectionModel.getLocation(),
-					JsfUtil.convertStringToTime(sectionModel.getStartTime(), Boolean.valueOf(sectionModel.getStartTimeAm()).booleanValue()),
-					JsfUtil.convertStringToTime(sectionModel.getEndTime(), Boolean.valueOf(sectionModel.getEndTimeAm()).booleanValue()),
-					sectionModel.isMonday(), sectionModel.isTuesday(), sectionModel.isWednesday(),
-					sectionModel.isThursday(), sectionModel.isFriday(), sectionModel.isSaturday(),
-					sectionModel.isSunday());
+					category,  sectionModel.getMaxEnrollments(), meetings);
 		}
 		String[] params = new String[3];
 		params[0] = titles.toString();
@@ -193,50 +195,51 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 						"section_add_failure_duplicate_title", new String[] {sectionModel.getTitle()}), componentId);
 				validationFailure = true;
 			}
-			
-			if(JsfUtil.isInvalidTime(sectionModel.getStartTime())) {
-				if(log.isDebugEnabled()) log.debug("Failed to add section... start time is invalid");
-				String componentId = "addSectionsForm:sectionTable_" + index + ":startTime";
-				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"javax.faces.convert.DateTimeConverter.CONVERSION"), componentId);
-				validationFailure = true;
-				invalidTimeEntered = true;
-			}
-			
-			if(JsfUtil.isInvalidTime(sectionModel.getEndTime())) {
-				if(log.isDebugEnabled()) log.debug("Failed to add section... end time is invalid");
-				String componentId = "addSectionsForm:sectionTable_" + index + ":endTime";
-				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"javax.faces.convert.DateTimeConverter.CONVERSION"), componentId);
-				validationFailure = true;
-				invalidTimeEntered = true;
-			}
+			for(Iterator meetingsIterator = sectionModel.getMeetings().iterator(); meetingsIterator.hasNext();) {
+				LocalMeetingModel meeting = (LocalMeetingModel)meetingsIterator.next();
+				if(JsfUtil.isInvalidTime(meeting.getStartTimeString())) {
+					if(log.isDebugEnabled()) log.debug("Failed to add section... meeting start time " + meeting.getStartTimeString() + " is invalid");
+					String componentId = "addSectionsForm:sectionTable_" + index + ":startTime";
+					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+							"javax.faces.convert.DateTimeConverter.CONVERSION"), componentId);
+					validationFailure = true;
+					invalidTimeEntered = true;
+				}
+				
+				if(JsfUtil.isInvalidTime(meeting.getEndTimeString())) {
+					if(log.isDebugEnabled()) log.debug("Failed to add section... meeting end time " + meeting.getEndTimeString() + " is invalid");
+					String componentId = "addSectionsForm:sectionTable_" + index + ":endTime";
+					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+							"javax.faces.convert.DateTimeConverter.CONVERSION"), componentId);
+					validationFailure = true;
+					invalidTimeEntered = true;
+				}
 
-			if(JsfUtil.isEndTimeWithoutStartTime(sectionModel.getStartTime(), sectionModel.getEndTime())) {
-				if(log.isDebugEnabled()) log.debug("Failed to update section... start time without end time");
-				String componentId = "addSectionsForm:sectionTable_" + index + ":startTime";
-				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"section_update_failure_end_without_start"), componentId);
-				validationFailure = true;
-			}
-			
-			if(isInvalidMaxEnrollments(sectionModel)) {
-				if(log.isDebugEnabled()) log.debug("Failed to update section... max enrollments is not valid");
-				String componentId = "addSectionsForm:sectionTable_" + index + ":maxEnrollmentInput";
-				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"javax.faces.validator.LongRangeValidator.MINIMUM", new String[] {"0"}), componentId);
-				validationFailure = true;
-			}
-			
-			// Don't bother checking if the time values are invalid
-			if(!invalidTimeEntered && JsfUtil.isEndTimeBeforeStartTime(sectionModel.getStartTime(),
-					Boolean.valueOf(sectionModel.getStartTimeAm()).booleanValue(),
-					sectionModel.getEndTime(), Boolean.valueOf(sectionModel.getEndTimeAm()).booleanValue())) {
-				if(log.isDebugEnabled()) log.debug("Failed to update section... end time is before start time");
-				String componentId = "addSectionsForm:sectionTable_" + index + ":endTime";
-				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"section_update_failure_end_before_start"), componentId);
-				validationFailure = true;
+				if(JsfUtil.isEndTimeWithoutStartTime(meeting.getStartTimeString(), meeting.getEndTimeString())) {
+					if(log.isDebugEnabled()) log.debug("Failed to update section... start time without end time");
+					String componentId = "addSectionsForm:sectionTable_" + index + ":startTime";
+					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+							"section_update_failure_end_without_start"), componentId);
+					validationFailure = true;
+				}
+				
+				if(isInvalidMaxEnrollments(sectionModel)) {
+					if(log.isDebugEnabled()) log.debug("Failed to update section... max enrollments is not valid");
+					String componentId = "addSectionsForm:sectionTable_" + index + ":maxEnrollmentInput";
+					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+							"javax.faces.validator.LongRangeValidator.MINIMUM", new String[] {"0"}), componentId);
+					validationFailure = true;
+				}
+				
+				// Don't bother checking if the time values are invalid
+				if(!invalidTimeEntered && JsfUtil.isEndTimeBeforeStartTime(meeting.getStartTimeString(),
+						meeting.isStartTimeAm(), meeting.getEndTimeString(), meeting.isEndTimeAm())) {
+					if(log.isDebugEnabled()) log.debug("Failed to update section... end time is before start time");
+					String componentId = "addSectionsForm:sectionTable_" + index + ":endTime";
+					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+							"section_update_failure_end_before_start"), componentId);
+					validationFailure = true;
+				}
 			}
 		}
 		return validationFailure;
@@ -266,107 +269,6 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		return categoryItems;
 	}
 	
-	public class LocalSectionModel implements Serializable {
-		private static final long serialVersionUID = 1L;
-
-		public LocalSectionModel() {}
-		public LocalSectionModel(String title) {this.title = title;}
-		
-		private String title, location, startTime, endTime;
-	    private Integer maxEnrollments;
-		private boolean monday, tuesday, wednesday, thursday, friday, saturday, sunday;
-		private boolean startTimeAm, endTimeAm;
-
-		public String getEndTime() {
-			return endTime;
-		}
-		public void setEndTime(String endTime) {
-			this.endTime = endTime;
-		}
-		// Must use a string due to http://issues.apache.org/jira/browse/MYFACES-570
-		public String getEndTimeAm() {
-			return Boolean.toString(endTimeAm);
-		}
-		// Must use a string due to http://issues.apache.org/jira/browse/MYFACES-570
-		public void setEndTimeAm(String endTimeAm) {
-			this.endTimeAm = Boolean.valueOf(endTimeAm).booleanValue();
-		}
-		public boolean isFriday() {
-			return friday;
-		}
-		public void setFriday(boolean friday) {
-			this.friday = friday;
-		}
-		public String getLocation() {
-			return location;
-		}
-		public void setLocation(String location) {
-			this.location = location;
-		}
-		public Integer getMaxEnrollments() {
-			return maxEnrollments;
-		}
-		public void setMaxEnrollments(Integer maxEnrollments) {
-			this.maxEnrollments = maxEnrollments;
-		}
-		public boolean isMonday() {
-			return monday;
-		}
-		public void setMonday(boolean monday) {
-			this.monday = monday;
-		}
-		public boolean isSaturday() {
-			return saturday;
-		}
-		public void setSaturday(boolean saturday) {
-			this.saturday = saturday;
-		}
-		public String getStartTime() {
-			return startTime;
-		}
-		public void setStartTime(String startTime) {
-			this.startTime = startTime;
-		}
-		// Must use a string due to http://issues.apache.org/jira/browse/MYFACES-570
-		public String getStartTimeAm() {
-			return Boolean.toString(startTimeAm);
-		}
-		// Must use a string due to http://issues.apache.org/jira/browse/MYFACES-570
-		public void setStartTimeAm(String startTimeAm) {
-			this.startTimeAm = Boolean.valueOf(startTimeAm).booleanValue();
-		}
-		public boolean isSunday() {
-			return sunday;
-		}
-		public void setSunday(boolean sunday) {
-			this.sunday = sunday;
-		}
-		public boolean isThursday() {
-			return thursday;
-		}
-		public void setThursday(boolean thursday) {
-			this.thursday = thursday;
-		}
-		public String getTitle() {
-			return title;
-		}
-		public void setTitle(String title) {
-			this.title = title;
-		}
-		public boolean isTuesday() {
-			return tuesday;
-		}
-		public void setTuesday(boolean tuesday) {
-			this.tuesday = tuesday;
-		}
-		public boolean isWednesday() {
-			return wednesday;
-		}
-		public void setWednesday(boolean wednesday) {
-			this.wednesday = wednesday;
-		}
-	}
-
 	public List getSections() {
 		return sections;
 	}
@@ -374,4 +276,5 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 	public String getRowStyleClasses() {
 		return rowStyleClasses;
 	}
+
 }

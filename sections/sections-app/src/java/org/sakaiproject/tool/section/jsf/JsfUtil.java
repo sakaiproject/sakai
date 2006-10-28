@@ -206,6 +206,14 @@ public class JsfUtil {
 		}
 		return ConversionUtil.convertDateToTime(date, am);
 	}
+	
+	public static String convertTimeToString(Time time) {
+		if(time == null) {
+			return null;
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat(JsfUtil.TIME_PATTERN_DISPLAY);
+		return sdf.format(time);
+	}
 
 	/**
 	 * As part of the crutch for JSF's inability to do validation on relative

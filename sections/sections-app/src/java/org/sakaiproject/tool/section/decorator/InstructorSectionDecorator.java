@@ -47,7 +47,6 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 	protected List instructorNames;
 	protected int totalEnrollments;
 	protected String spotsAvailable;
-	protected String truncatedLocation;
 	private boolean flaggedForRemoval;
 
 	public InstructorSectionDecorator(CourseSection courseSection, String categoryForDisplay,
@@ -56,8 +55,6 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		this.instructorNames = instructorNames;
 		this.totalEnrollments = totalEnrollments;
 		
-		// The latest spec has no truncation (10.28.2005)
-		this.truncatedLocation = courseSection.getLocation();
 		populateSpotsAvailable(courseSection);
 	}
 
@@ -279,8 +276,5 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 //		}
 //	}
 	
-	public String getLocation() {
-		return truncatedLocation;
-	}
 }
 

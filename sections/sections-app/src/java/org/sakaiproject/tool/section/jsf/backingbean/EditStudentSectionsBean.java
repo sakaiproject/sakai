@@ -31,7 +31,6 @@ import java.util.Set;
 
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.Course;
@@ -140,9 +139,9 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 	 */
 	private String getSectionLabel(CourseSection section, List taRecords, int numEnrollments) {
 		CourseSectionDecorator sec = new CourseSectionDecorator(section, null); // We dont't need the category
-		StringBuffer sb = new StringBuffer(section.getTitle());
+				
+		StringBuffer sb = new StringBuffer(sec.getTitle());
 
-		
 		if(taRecords != null && taRecords.size() > 0) {
 			sb.append(" ");
 			sb.append(sectionDescriptionSepChar);
@@ -157,24 +156,32 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 				}
 			}
 		}
-		
-		String meetingTimes = sec.getMeetingTimes();
-		if(StringUtils.trimToNull(meetingTimes) != null) {
-			sb.append(" ");
-			sb.append(sectionDescriptionSepChar);
-			sb.append(" ");
-			
-			sb.append(meetingTimes);
-		}
-		
+
 		if(section.getMaxEnrollments() != null && numEnrollments >= section.getMaxEnrollments().intValue()) {
 			sb.append(" ");
 			sb.append(sectionDescriptionSepChar);
 			sb.append(" ");
 			sb.append(fullIndicator);
 		}
-		
+
 		return sb.toString();
+		
+
+// Since we now have multiple meetings, should we display them?
+		
+//		
+//		StringBuffer meetingTimes = new StringBuffer();
+//		for(Iterator iter = sec.getDecoratedMeetings().iterator(); iter.hasNext();) {
+//			MeetingDecorator meeting = (MeetingDecorator)iter.next();
+//		}
+//		if(StringUtils.trimToNull(meetingTimes) != null) {
+//			sb.append(" ");
+//			sb.append(sectionDescriptionSepChar);
+//			sb.append(" ");
+//			
+//			sb.append(meetingTimes);
+//		}
+//		
 	}
 	
 	public String update() {

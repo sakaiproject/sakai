@@ -21,15 +21,11 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
@@ -44,56 +40,42 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	private static final Log log = LogFactory.getLog(EditSectionBean.class);
 	
 	private String sectionUuid;
-	private String title;
-	private String location;
-	private Integer maxEnrollments;
-	private boolean monday;
-	private boolean tuesday;
-	private boolean wednesday;
-	private boolean thursday;
-	private boolean friday;
-	private boolean saturday;
-	private boolean sunday;
-	
-	private String startTime;
-	private String endTime;
-	private boolean startTimeAm;
-	private boolean endTimeAm;
+	private LocalSectionModel section;
 	
 	/**
 	 * @inheritDoc
 	 */
 	public void init() {
+		// TODO Remove this code.  Replace it with a request param in faces-config
 		if(sectionUuid == null || isNotValidated()) {
 			String sectionUuidFromParam = JsfUtil.getStringFromParam("sectionUuid");
 			if(sectionUuidFromParam != null) {
 				sectionUuid = sectionUuidFromParam;
 			}
-			CourseSection section = getSectionManager().getSection(sectionUuid);
-			SimpleDateFormat sdf = new SimpleDateFormat(JsfUtil.TIME_PATTERN_DISPLAY);
-			
-			title = section.getTitle();
-			location = section.getLocation();
-			maxEnrollments = section.getMaxEnrollments();
-			monday = section.isMonday();
-			tuesday = section.isTuesday();
-			wednesday = section.isWednesday();
-			thursday = section.isThursday();
-			friday = section.isFriday();
-			saturday = section.isSaturday();
-			sunday = section.isSunday();
-			if(section.getStartTime() != null) {
-				startTime = sdf.format(section.getStartTime());
-				Calendar cal = new GregorianCalendar();
-				cal.setTime(section.getStartTime());
-				startTimeAm = cal.get(Calendar.HOUR_OF_DAY) <= 11;
-			}
-			if(section.getEndTime() != null) {
-				endTime = sdf.format(section.getEndTime());
-				Calendar cal = new GregorianCalendar();
-				cal.setTime(section.getEndTime());
-				endTimeAm = cal.get(Calendar.HOUR_OF_DAY) <= 11;
-			}
+			section = new LocalSectionModel(getSectionManager().getSection(sectionUuid));
+//			SimpleDateFormat sdf = new SimpleDateFormat(JsfUtil.TIME_PATTERN_DISPLAY);
+//			title = section.getTitle();
+//			location = section.getLocation();
+//			maxEnrollments = section.getMaxEnrollments();
+//			monday = section.isMonday();
+//			tuesday = section.isTuesday();
+//			wednesday = section.isWednesday();
+//			thursday = section.isThursday();
+//			friday = section.isFriday();
+//			saturday = section.isSaturday();
+//			sunday = section.isSunday();
+//			if(section.getStartTime() != null) {
+//				startTime = sdf.format(section.getStartTime());
+//				Calendar cal = new GregorianCalendar();
+//				cal.setTime(section.getStartTime());
+//				startTimeAm = cal.get(Calendar.HOUR_OF_DAY) <= 11;
+//			}
+//			if(section.getEndTime() != null) {
+//				endTime = sdf.format(section.getEndTime());
+//				Calendar cal = new GregorianCalendar();
+//				cal.setTime(section.getEndTime());
+//				endTimeAm = cal.get(Calendar.HOUR_OF_DAY) <= 11;
+//			}
 		}
 	}
 
@@ -105,6 +87,9 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	 * @return
 	 */
 	private boolean validationFails() {
+
+		// FIXME The JSF component IDs need to be updated here
+		
 		boolean validationFailure = false;
 		
 		// We also need to keep track of whether an invalid time was entered,
@@ -113,35 +98,13 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 
 		// Ensure that this title isn't being used by another section
 		if(isDuplicateSectionTitle()) {
-			if(log.isDebugEnabled()) log.debug("Failed to update section... duplicate title: " + title);
+			if(log.isDebugEnabled()) log.debug("Failed to update section... duplicate title: " + section.getTitle());
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-					"section_update_failure_duplicate_title", new String[] {title}), "editSectionForm:titleInput");
+					"section_update_failure_duplicate_title", new String[] {section.getTitle()}), "editSectionForm:titleInput");
 			validationFailure = true;
 		}
 		
-		if(JsfUtil.isInvalidTime(startTime)) {
-			if(log.isDebugEnabled()) log.debug("Failed to update section... start time is invalid");
-			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-					"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:startTime");
-			validationFailure = true;
-			invalidTimeEntered = true;
-		}
-		
-		if(JsfUtil.isInvalidTime(endTime)) {
-			if(log.isDebugEnabled()) log.debug("Failed to update section... end time is invalid");
-			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-					"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:endTime");
-			validationFailure = true;
-			invalidTimeEntered = true;
-		}
-
-		if(JsfUtil.isEndTimeWithoutStartTime(startTime, endTime)) {
-			if(log.isDebugEnabled()) log.debug("Failed to update section... start time without end time");
-			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-					"section_update_failure_end_without_start"), "editSectionForm:startTime");
-			validationFailure = true;
-		}
-		
+		// Ensure that the max enrollments is a number >= 0.
 		if(isInvalidMaxEnrollments()) {
 			if(log.isDebugEnabled()) log.debug("Failed to update section... max enrollments is not valid");
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
@@ -150,12 +113,41 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 			validationFailure = true;
 		}
 
-		if(!invalidTimeEntered && JsfUtil.isEndTimeBeforeStartTime(startTime, startTimeAm, endTime, endTimeAm)) {
-			if(log.isDebugEnabled()) log.debug("Failed to update section... end time is before start time");
-			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-					"section_update_failure_end_before_start"), "editSectionForm:endTime");
-			validationFailure = true;
+		// Ensure that the times entered in the meetings are valid, and that they end after they start
+		for(Iterator iter = section.getMeetings().iterator(); iter.hasNext();) {
+			LocalMeetingModel meeting = (LocalMeetingModel)iter.next();
+			if(JsfUtil.isInvalidTime(meeting.getStartTimeString())) {
+				if(log.isDebugEnabled()) log.debug("Failed to update section... start time is invalid");
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+						"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:startTime");
+				validationFailure = true;
+				invalidTimeEntered = true;
+			}
+			
+			if(JsfUtil.isInvalidTime(meeting.getEndTimeString())) {
+				if(log.isDebugEnabled()) log.debug("Failed to update section... end time is invalid");
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+						"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:endTime");
+				validationFailure = true;
+				invalidTimeEntered = true;
+			}
+
+			if(JsfUtil.isEndTimeWithoutStartTime(meeting.getStartTimeString(), meeting.getEndTimeString())) {
+				if(log.isDebugEnabled()) log.debug("Failed to update section... start time without end time");
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+						"section_update_failure_end_without_start"), "editSectionForm:startTime");
+				validationFailure = true;
+			}
+			
+			if(!invalidTimeEntered && JsfUtil.isEndTimeBeforeStartTime(meeting.getStartTimeString(),
+					meeting.isStartTimeAm(), meeting.getEndTimeString(), meeting.isEndTimeAm())) {
+				if(log.isDebugEnabled()) log.debug("Failed to update section... end time is before start time");
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+						"section_update_failure_end_before_start"), "editSectionForm:endTime");
+				validationFailure = true;
+			}
 		}
+
 		return validationFailure;
 	}
 
@@ -170,16 +162,13 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		if(validationFails()) {
 			return null;
 		}
-		
 		// Perform the update
-		getSectionManager().updateSection(sectionUuid, title, maxEnrollments,
-				location, JsfUtil.convertStringToTime(startTime, startTimeAm),
-				JsfUtil.convertStringToTime(endTime, endTimeAm), monday, tuesday,
-				wednesday, thursday, friday, saturday, sunday);
+		getSectionManager().updateSection(sectionUuid, section.getTitle(),
+				section.getMaxEnrollments(), section.getMeetings());
 		
 		// Add a success message
 		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage(
-				"section_update_successful", new String[] {title}));
+				"section_update_successful", new String[] {section.getTitle()}));
 		
 		// Add a warning if max enrollments has been exceeded
 		CourseSection section = getSectionManager().getSection(sectionUuid);
@@ -202,12 +191,12 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	 */
 	private boolean isDuplicateSectionTitle() {
 		for(Iterator iter = getAllSiteSections().iterator(); iter.hasNext();) {
-			CourseSection section = (CourseSection)iter.next();
+			CourseSection sec = (CourseSection)iter.next();
 			// Skip this section, since it is OK for it to keep the same title
-			if(section.getUuid().equals(sectionUuid)) {
+			if(sec.getUuid().equals(sectionUuid)) {
 				continue;
 			}
-			if(section.getTitle().equals(title)) {
+			if(sec.getTitle().equals(section.getTitle())) {
 				if(log.isDebugEnabled()) log.debug("Conflicting section name found.");
 				return true;
 			}
@@ -216,14 +205,16 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	}
 
 	private boolean isInvalidMaxEnrollments() {
-		return maxEnrollments != null && maxEnrollments.intValue() < 0;
+		return section.getMaxEnrollments() != null && section.getMaxEnrollments().intValue() < 0;
 	}
-	
-	public String getDays() {
-		CourseSection section = getSectionManager().getSection(sectionUuid);
-		CourseSectionDecorator decorator = new CourseSectionDecorator(section, null);
-		return decorator.getMeetingDays();
-	}
+
+// TODO What was this method used for?
+
+//	public String getDays() {
+//		CourseSection section = getSectionManager().getSection(sectionUuid);
+//		CourseSectionDecorator decorator = new CourseSectionDecorator(section, null);
+//		return decorator.getMeetingDays();
+//	}
 	
 	public String getSectionUuid() {
 		return sectionUuid;
@@ -231,118 +222,12 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	public void setSectionUuid(String sectionUuid) {
 		this.sectionUuid = sectionUuid;
 	}
-	public String getTitle() {
-		return title;
-	}
-	public void setTitle(String title) {
-		this.title = title;
+
+	public LocalSectionModel getSection() {
+		return section;
 	}
 
-	public String getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(String endTime) {
-		this.endTime = endTime;
-	}
-
-	// Must use a string due to http://issues.apache.org/jira/browse/MYFACES-570
-	public String getEndTimeAm() {
-		return Boolean.toString(endTimeAm);
-	}
-
-	// Must use a string due to http://issues.apache.org/jira/browse/MYFACES-570
-	public void setEndTimeAm(String endTimeAm) {
-		this.endTimeAm = Boolean.valueOf(endTimeAm).booleanValue();
-	}
-
-	public boolean isFriday() {
-		return friday;
-	}
-
-	public void setFriday(boolean friday) {
-		this.friday = friday;
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
-	public Integer getMaxEnrollments() {
-		return maxEnrollments;
-	}
-
-	public void setMaxEnrollments(Integer maxEnrollments) {
-		this.maxEnrollments = maxEnrollments;
-	}
-
-	public boolean isMonday() {
-		return monday;
-	}
-
-	public void setMonday(boolean monday) {
-		this.monday = monday;
-	}
-
-	public boolean isSaturday() {
-		return saturday;
-	}
-
-	public void setSaturday(boolean saturday) {
-		this.saturday = saturday;
-	}
-
-	public String getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(String startTime) {
-		this.startTime = startTime;
-	}
-
-	// Must use a string due to http://issues.apache.org/jira/browse/MYFACES-570
-	public String getStartTimeAm() {
-		return Boolean.toString(startTimeAm);
-	}
-
-	// Must use a string due to http://issues.apache.org/jira/browse/MYFACES-570
-	public void setStartTimeAm(String startTimeAm) {
-		this.startTimeAm = Boolean.valueOf(startTimeAm).booleanValue();
-	}
-
-	public boolean isSunday() {
-		return sunday;
-	}
-
-	public void setSunday(boolean sunday) {
-		this.sunday = sunday;
-	}
-
-	public boolean isThursday() {
-		return thursday;
-	}
-
-	public void setThursday(boolean thursday) {
-		this.thursday = thursday;
-	}
-
-	public boolean isTuesday() {
-		return tuesday;
-	}
-
-	public void setTuesday(boolean tuesday) {
-		this.tuesday = tuesday;
-	}
-
-	public boolean isWednesday() {
-		return wednesday;
-	}
-
-	public void setWednesday(boolean wednesday) {
-		this.wednesday = wednesday;
+	public void setSection(LocalSectionModel section) {
+		this.section = section;
 	}
 }

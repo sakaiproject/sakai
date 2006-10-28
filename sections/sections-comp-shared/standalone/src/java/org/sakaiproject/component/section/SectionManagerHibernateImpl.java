@@ -45,6 +45,7 @@ import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseGroup;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.api.section.coursemanagement.Meeting;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.SectionEnrollments;
 import org.sakaiproject.api.section.coursemanagement.User;
@@ -620,6 +621,36 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return (CourseSection)getHibernateTemplate().execute(hc);
     }
 
+    private List getHibernateMeetings(List meetings) {
+    	List meetingEntities = new ArrayList();
+		if(meetings != null) {
+			for(Iterator iter = meetings.iterator(); iter.hasNext();) {
+				Meeting meeting = (Meeting)iter.next();
+				meetingEntities.add(new MeetingImpl(meeting));
+			}
+		}
+		return meetingEntities;
+    }
+
+    public CourseSection addSection(final String courseUuid, final String title, final String category, final Integer maxEnrollments, List meetings) {
+		// We can't be sure that the meetings are in fact hibernate entities.  I guess this is true for other kinds of objects as well!
+		final List meetingEntities = getHibernateMeetings(meetings);
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	Course course = getCourseFromUuid(courseUuid, session);
+            	if(course == null) {
+            		throw new MembershipException("Course uuid = " + courseUuid + "does not exist");
+            	}
+            	String uuid = uuidManager.createUuid();
+            	CourseSectionImpl section = new CourseSectionImpl(course, title, uuid, category, maxEnrollments, meetingEntities);
+            	session.save(section);
+                return section;
+            }
+        };
+            
+        return (CourseSection)getHibernateTemplate().execute(hc);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -628,22 +659,32 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     		final Time endTime, final boolean monday, final boolean tuesday,
     		final boolean wednesday, final boolean thursday, final boolean friday,
     		final boolean saturday, final boolean sunday) {
-        HibernateCallback hc = new HibernateCallback(){
+        HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
             	CourseSectionImpl section = getSection(sectionUuid, session);
             	section.setTitle(title);
             	section.setMaxEnrollments(maxEnrollments);
-            	section.setLocation(location);
-            	section.setStartTime(startTime);
-            	section.setEndTime(endTime);
-            	section.setMonday(monday);
-            	section.setTuesday(tuesday);
-            	section.setWednesday(wednesday);
-            	section.setThursday(thursday);
-            	section.setFriday(friday);
-            	section.setSaturday(saturday);
-            	section.setSunday(sunday);
+            	List meetingList = new ArrayList(1);
+            	MeetingImpl meeting = new MeetingImpl(location, startTime, endTime, monday, tuesday, wednesday, thursday, friday, saturday, sunday);
+            	meetingList.add(meeting);
+            	section.setMeetings(meetingList);
             	
+            	session.update(section);
+            	return null;
+            }
+        };
+        getHibernateTemplate().execute(hc);
+	}
+
+	public void updateSection(final String sectionUuid, final String title, final Integer maxEnrollments, final List meetings) {
+		final List meetingEntities = getHibernateMeetings(meetings);
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+            	CourseSectionImpl section = getSection(sectionUuid, session);
+            	section.setTitle(title);
+            	section.setMaxEnrollments(maxEnrollments);
+            	section.setMeetings(meetingEntities);
+
             	session.update(section);
             	return null;
             }

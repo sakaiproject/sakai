@@ -22,10 +22,8 @@ package org.sakaiproject.component.section.sakai21;
 
 import java.io.Serializable;
 import java.sql.Time;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,6 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.Meeting;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Group;
 
@@ -44,7 +43,7 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
 	private static final long serialVersionUID = 1L;
 	private static final String TIME_FORMAT_LONG = "h:mm a";
 	private static final Log log = LogFactory.getLog(CourseSectionImpl.class);
-	
+	public static final String SEP_CHARACTER = ",";
 	public static final String CATEGORY = "sections_category";
 	public static final String END_TIME = "sections_end_time";
 	public static final String START_TIME = "sections_start_time";
@@ -65,17 +64,8 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
     protected String uuid;
 	protected Course course;
 	protected String category;
-    protected String location;
     protected Integer maxEnrollments;
-	private boolean monday;
-	private boolean tuesday;
-	private boolean wednesday;
-	private boolean thursday;
-	private boolean friday;
-	private boolean saturday;
-	private boolean sunday;
-	private Time startTime;
-	private Time endTime;
+    protected List meetings;
 
     // Fields shared between the two interfaces
 	protected String id;
@@ -85,66 +75,123 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
     private transient Group group;
     
 	public CourseSectionImpl(Group group) {
+		this.meetings = new ArrayList();
+		// We always start with a single empty meeting
+		meetings.add(new MeetingImpl());
 		this.group = group;
 		ResourceProperties props = group.getProperties();
-		id = group.getId();
-		uuid = group.getReference();
-		title = group.getTitle();
-		course = new CourseImpl(group.getContainingSite());
-		category = props.getProperty(CourseSectionImpl.CATEGORY);
-		location = props.getProperty(CourseSectionImpl.LOCATION);
-		endTime = CourseSectionImpl.convertStringToTime(props.getProperty(END_TIME));
-		startTime = CourseSectionImpl.convertStringToTime(props.getProperty(START_TIME));
+		this.id = group.getId();
+		this.uuid = group.getReference();
+		this.title = group.getTitle();
+		this.description = group.getContainingSite().getTitle() + ", " + this.title;
+		this.course = new CourseImpl(group.getContainingSite());
+		this.category = props.getProperty(CourseSectionImpl.CATEGORY);
 		String str = props.getProperty(MAX_ENROLLMENTS);
-
 		if(StringUtils.trimToNull(str) != null) {
 			try {
-				maxEnrollments = Integer.valueOf(str);
+				this.maxEnrollments = Integer.valueOf(str);
 			} catch(NumberFormatException nfe) {
 				if(log.isDebugEnabled()) log.debug("can not parse integer property for " + CourseSectionImpl.MAX_ENROLLMENTS);
 			}
 		}
-		try {
-			monday = props.getBooleanProperty(CourseSectionImpl.MONDAY);
-		} catch (Exception e) {
-			if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + CourseSectionImpl.MONDAY);
-		}
-		try {
-			tuesday = props.getBooleanProperty(CourseSectionImpl.TUESDAY);
-		} catch (Exception e) {
-			if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + CourseSectionImpl.TUESDAY);
-		}
-		try {
-			wednesday = props.getBooleanProperty(CourseSectionImpl.WEDNESDAY);
-		} catch (Exception e) {
-			if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + CourseSectionImpl.WEDNESDAY);
-		}
-		try {
-			thursday = props.getBooleanProperty(CourseSectionImpl.THURSDAY);
-		} catch (Exception e) {
-			if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + CourseSectionImpl.THURSDAY);
-		}
-		try {
-			friday = props.getBooleanProperty(CourseSectionImpl.FRIDAY);
-		} catch (Exception e) {
-			if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + CourseSectionImpl.FRIDAY);
-		}
-		try {
-			saturday = props.getBooleanProperty(CourseSectionImpl.SATURDAY);
-		} catch (Exception e) {
-			if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + CourseSectionImpl.SATURDAY);
-		}
-		try {
-			sunday = props.getBooleanProperty(CourseSectionImpl.SUNDAY);
-		} catch (Exception e) {
-			if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + CourseSectionImpl.SUNDAY);
-		}
-		
-		// Always generate the description last, so the fields are properly set
-		description = generateDescription();
 
-	}
+		// Parse the meetings for this group
+		long numMeetings = 0;
+		String locations = props.getProperty(CourseSectionImpl.LOCATION);
+		if(locations != null) {
+			try {
+				numMeetings = locations.split(CourseSectionImpl.SEP_CHARACTER).length;
+				if(log.isDebugEnabled()) log.debug("Found " + numMeetings + " meetings in group " + group);
+			} catch (Exception e) {
+				log.warn("Could not parse the number of meetings for group " + group);
+			}
+		}
 		
+		// If we have legitimate meetings, remove the placeholder
+		if(numMeetings > 0) {
+			meetings.clear();
+			if(log.isDebugEnabled()) log.debug("Constructing a CourseSectionImpl with " + numMeetings + " meetings");
+		} else {
+			if(log.isDebugEnabled()) log.debug("Constructing a CourseSectionImpl with one default meeting");
+		}
+				
+		// Iterate through the meeting properties and add the meetings to the group
+		for(int i=0; i < numMeetings; i++) {
+			String location = getIndexedStringProperty(i, props.getProperty(CourseSectionImpl.LOCATION));
+			Time endTime = CourseSectionImpl.convertStringToTime(getIndexedStringProperty(i, props.getProperty(END_TIME)));
+			Time startTime = CourseSectionImpl.convertStringToTime(getIndexedStringProperty(i, props.getProperty(START_TIME)));
+
+			boolean monday = false;
+			boolean tuesday = false;
+			boolean wednesday = false;
+			boolean thursday = false;
+			boolean friday = false;
+			boolean saturday = false;
+			boolean sunday = false;
+			
+			try {
+				monday = getIndexedBooleanProperty(i, props.getProperty(CourseSectionImpl.MONDAY));
+			} catch (Exception e) {
+				if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + i + " member of complex string " + CourseSectionImpl.MONDAY);
+			}
+			try {
+				tuesday = getIndexedBooleanProperty(i, props.getProperty(CourseSectionImpl.TUESDAY));
+			} catch (Exception e) {
+				if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + i + " member of complex string " + CourseSectionImpl.TUESDAY);
+			}
+			try {
+				wednesday = getIndexedBooleanProperty(i, props.getProperty(CourseSectionImpl.WEDNESDAY));
+			} catch (Exception e) {
+				if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + i + " member of complex string " + CourseSectionImpl.WEDNESDAY);
+			}
+			try {
+				thursday = getIndexedBooleanProperty(i, props.getProperty(CourseSectionImpl.THURSDAY));
+			} catch (Exception e) {
+				if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + i + " member of complex string " + CourseSectionImpl.THURSDAY);
+			}
+			try {
+				friday = getIndexedBooleanProperty(i, props.getProperty(CourseSectionImpl.FRIDAY));
+			} catch (Exception e) {
+				if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + i + " member of complex string " + CourseSectionImpl.FRIDAY);
+			}
+			try {
+				saturday = getIndexedBooleanProperty(i, props.getProperty(CourseSectionImpl.SATURDAY));
+			} catch (Exception e) {
+				if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + i + " member of complex string " + CourseSectionImpl.SATURDAY);
+			}
+			try {
+				sunday = getIndexedBooleanProperty(i, props.getProperty(CourseSectionImpl.SUNDAY));
+			} catch (Exception e) {
+				if(log.isDebugEnabled()) log.debug("can not parse boolean property for " + i + " member of complex string " + CourseSectionImpl.SUNDAY);
+			}
+			
+			// Now that we've parsed the group, add the meeting to the list
+			meetings.add(new MeetingImpl(location, startTime, endTime, monday, tuesday, wednesday, thursday, friday, saturday, sunday));
+		}
+		
+	}
+	
+	private boolean getIndexedBooleanProperty(int index, String complexString) {
+		String[] sa = complexString.split(CourseSectionImpl.SEP_CHARACTER);
+		if(index >=sa.length) {
+			log.warn("Can not get " + index + " index from string " + complexString);
+			return false;
+		}
+		return Boolean.parseBoolean(sa[index]);
+	}
+
+	private String getIndexedStringProperty(int index, String complexString) {
+		if(complexString == null) {
+			return null;
+		}
+		String[] sa = complexString.split(CourseSectionImpl.SEP_CHARACTER);
+		if(index >=sa.length) {
+			log.warn("Can not get " + index + " index from string " + complexString);
+			return null;
+		}
+		return sa[index];
+	}
+
     public static final String convertTimeToString(Time time) {
     	if(time == null) {
     		return null;
@@ -166,149 +213,143 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
     	}
     }
 
-    private String generateDescription() {
-		String daySepChar = ",";
-		String timeSepChar = "-";
-		
-		StringBuffer sb = new StringBuffer();
-		
-		// Days of the week
-		List dayList = new ArrayList();
-		if(monday)
-			dayList.add("M");
-		if(tuesday)
-			dayList.add("T");
-		if(wednesday)
-			dayList.add("W");
-		if(thursday)
-			dayList.add("Th");
-		if(friday)
-			dayList.add("F");
-		if(saturday)
-			dayList.add("Sa");
-		if(sunday)
-			dayList.add("Su");
-
-		for(Iterator iter = dayList.iterator(); iter.hasNext();) {
-			sb.append(iter.next());
-			if(iter.hasNext()) {
-				sb.append(daySepChar);
-			}
-		}
-
-		// Start time
-		DateFormat df = new SimpleDateFormat(CourseSectionImpl.TIME_FORMAT_LONG);
-		sb.append(" ");
-		if(startTime != null) {
-			sb.append(df.format(new Date(startTime.getTime())).toLowerCase());
-		}
-
-		// End time
-		if(startTime != null &&
-				endTime != null) {
-			sb.append(timeSepChar);
-		}
-		if(endTime != null) {
-			sb.append(df.format(new Date(endTime.getTime())).toLowerCase());
-		}
-		return sb.toString();
-    }
-
     /**
      * Decorates the framework's section (group) with metadata from this CourseSection.
      * 
      * @param group The framework group
      */
-    public void decorateSection(Group group) {
+    public void decorateGroup(Group group) {
     	ResourceProperties props = group.getProperties();
-    	SimpleDateFormat sdf = new SimpleDateFormat(CourseSectionImpl.TIME_FORMAT_LONG);
     	group.setTitle(title);
     	group.setDescription(description);
     	props.addProperty(CourseSectionImpl.CATEGORY, category);
-    	props.addProperty(CourseSectionImpl.LOCATION, location);
-    	if(startTime == null) {
-    		props.removeProperty(CourseSectionImpl.START_TIME);
-    	} else {
-        	props.addProperty(CourseSectionImpl.START_TIME, sdf.format(startTime));
-    	}
-    	if(endTime == null) {
-    		props.removeProperty(CourseSectionImpl.END_TIME);
-    	} else {
-        	props.addProperty(CourseSectionImpl.END_TIME, sdf.format(endTime));
-    	}
     	if(maxEnrollments == null) {
     		props.removeProperty(CourseSectionImpl.MAX_ENROLLMENTS);
     	} else {
     		props.addProperty(CourseSectionImpl.MAX_ENROLLMENTS, maxEnrollments.toString());
     	}
-    	props.addProperty(CourseSectionImpl.MONDAY, Boolean.toString(monday));
-    	props.addProperty(CourseSectionImpl.TUESDAY, Boolean.toString(tuesday));
-    	props.addProperty(CourseSectionImpl.WEDNESDAY, Boolean.toString(wednesday));
-    	props.addProperty(CourseSectionImpl.THURSDAY, Boolean.toString(thursday));
-    	props.addProperty(CourseSectionImpl.FRIDAY, Boolean.toString(friday));
-    	props.addProperty(CourseSectionImpl.SATURDAY, Boolean.toString(saturday));
-    	props.addProperty(CourseSectionImpl.SUNDAY, Boolean.toString(sunday));
-    }
-    
-	/**
-	 * Sets the fields for an update so we can easily call decorateSection.
-	 * 
-	 * @param title
-	 * @param location
-	 * @param maxEnrollments
-	 * @param startTime
-	 * @param endTime
-	 * @param monday
-	 * @param tuesday
-	 * @param wednesday
-	 * @param thursday
-	 * @param friday
-	 * @param saturday
-	 * @param sunday
-	 */
-    public void setUpdateFields(String title, String location, Integer maxEnrollments, Time startTime,
-			Time endTime, boolean monday, boolean tuesday, boolean wednesday, boolean thursday,
-			boolean friday, boolean saturday, boolean sunday) {
-		this.title = title;
-		this.location = location;
-		this.maxEnrollments = maxEnrollments;
-		this.startTime = startTime;
-		this.endTime = endTime;
-		this.monday = monday;
-		this.tuesday = tuesday;
-		this.wednesday = wednesday;
-		this.thursday = thursday;
-		this.friday = friday;
-		this.saturday = saturday;
-		this.sunday = sunday;
-		
-    	this.description = generateDescription();
-	}
+    	
+    	// Add the properties that containing the meeting metadata
+    	StringBuffer locationBuffer = new StringBuffer();
 
-    /**
-	 * Sets the fields for an add section operation so we can easily call decorateSection.
-     * 
-     * @param category
-     * @param title
-     * @param location
-     * @param maxEnrollments
-     * @param startTime
-     * @param endTime
-     * @param monday
-     * @param tuesday
-     * @param wednesday
-     * @param thursday
-     * @param friday
-     * @param saturday
-     * @param sunday
-     */
-    public void setAddFields(String category, String title, String location, Integer maxEnrollments,
-    		Time startTime, Time endTime, boolean monday, boolean tuesday, boolean wednesday,
-    		boolean thursday, boolean friday, boolean saturday, boolean sunday) {
-    	setUpdateFields(title, location, maxEnrollments, startTime, endTime, monday,
-    			tuesday, wednesday, thursday, friday, saturday, sunday);
-    	this.category = category;
-    	this.description = generateDescription();
+    	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
+    		Meeting meeting = (Meeting)iter.next();
+    		String meetingLocation = meeting.getLocation();
+    		if(meetingLocation == null) {
+    			meetingLocation = "";
+    		}
+    		locationBuffer.append(meetingLocation);
+    		if(iter.hasNext()) {
+    			locationBuffer.append(CourseSectionImpl.SEP_CHARACTER);
+    		}
+    	}
+    	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.LOCATION + " to " + locationBuffer.toString());
+    	props.addProperty(CourseSectionImpl.LOCATION, locationBuffer.toString());
+
+    	StringBuffer startTimeBuffer = new StringBuffer();
+    	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
+    		Meeting meeting = (Meeting)iter.next();
+    		Time meetingStart = meeting.getStartTime();
+    		if(meetingStart != null) {
+        		startTimeBuffer.append(CourseSectionImpl.convertTimeToString(meetingStart));
+    		}
+    		if(iter.hasNext()) {
+    			startTimeBuffer.append(CourseSectionImpl.SEP_CHARACTER);
+    		}
+    	}
+    	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.START_TIME + " to " + startTimeBuffer.toString());
+    	props.addProperty(CourseSectionImpl.START_TIME, startTimeBuffer.toString());
+
+    	StringBuffer endTimeBuffer = new StringBuffer();
+    	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
+    		Meeting meeting = (Meeting)iter.next();
+    		Time meetingEnd = meeting.getEndTime();
+    		if(meetingEnd != null) {
+        		endTimeBuffer.append(CourseSectionImpl.convertTimeToString(meetingEnd));
+    		}
+    		if(iter.hasNext()) {
+    			endTimeBuffer.append(CourseSectionImpl.SEP_CHARACTER);
+    		}
+    	}
+    	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.END_TIME + " to " + endTimeBuffer.toString());
+    	props.addProperty(CourseSectionImpl.END_TIME, endTimeBuffer.toString());
+    		
+    	StringBuffer mondayBuffer = new StringBuffer();
+    	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
+    		Meeting meeting = (Meeting)iter.next();
+        	mondayBuffer.append(meeting.isMonday());
+    		if(iter.hasNext()) {
+    			mondayBuffer.append(CourseSectionImpl.SEP_CHARACTER);
+    		}
+    	}
+    	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.MONDAY + " to " + mondayBuffer.toString());
+    	props.addProperty(CourseSectionImpl.MONDAY, mondayBuffer.toString());
+
+    	StringBuffer tuesdayBuffer = new StringBuffer();
+    	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
+    		Meeting meeting = (Meeting)iter.next();
+        	tuesdayBuffer.append(meeting.isTuesday());
+    		if(iter.hasNext()) {
+    			tuesdayBuffer.append(CourseSectionImpl.SEP_CHARACTER);
+    		}
+    	}
+    	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.TUESDAY + " to " + tuesdayBuffer.toString());
+    	props.addProperty(CourseSectionImpl.TUESDAY, tuesdayBuffer.toString());
+
+    	StringBuffer wednesdayBuffer = new StringBuffer();
+    	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
+    		Meeting meeting = (Meeting)iter.next();
+        	wednesdayBuffer.append(Boolean.valueOf(meeting.isWednesday()));
+    		if(iter.hasNext()) {
+    			wednesdayBuffer.append(CourseSectionImpl.SEP_CHARACTER);
+    		}
+    	}
+    	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.WEDNESDAY + " to " + wednesdayBuffer.toString());
+    	props.addProperty(CourseSectionImpl.WEDNESDAY, wednesdayBuffer.toString());
+
+    	StringBuffer thursdayBuffer = new StringBuffer();
+    	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
+    		Meeting meeting = (Meeting)iter.next();
+        	thursdayBuffer.append(Boolean.valueOf(meeting.isThursday()));
+    		if(iter.hasNext()) {
+    			thursdayBuffer.append(CourseSectionImpl.SEP_CHARACTER);
+    		}
+    	}
+    	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.THURSDAY + " to " + thursdayBuffer.toString());
+    	props.addProperty(CourseSectionImpl.THURSDAY, thursdayBuffer.toString());
+
+    	StringBuffer fridayBuffer = new StringBuffer();
+    	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
+    		Meeting meeting = (Meeting)iter.next();
+        	fridayBuffer.append(Boolean.valueOf(meeting.isFriday()));
+    		if(iter.hasNext()) {
+    			fridayBuffer.append(CourseSectionImpl.SEP_CHARACTER);
+    		}
+    	}
+    	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.FRIDAY + " to " + fridayBuffer.toString());
+    	props.addProperty(CourseSectionImpl.FRIDAY, fridayBuffer.toString());
+    	
+    	StringBuffer saturdayBuffer = new StringBuffer();
+    	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
+    		Meeting meeting = (Meeting)iter.next();
+        	saturdayBuffer.append(Boolean.valueOf(meeting.isSaturday()));
+    		if(iter.hasNext()) {
+    			saturdayBuffer.append(CourseSectionImpl.SEP_CHARACTER);
+    		}
+    	}
+    	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.SATURDAY+ " to " + saturdayBuffer.toString());
+    	props.addProperty(CourseSectionImpl.SATURDAY, saturdayBuffer.toString());
+
+    	StringBuffer sundayBuffer = new StringBuffer();
+    	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
+    		Meeting meeting = (Meeting)iter.next();
+        	sundayBuffer.append(Boolean.valueOf(meeting.isSunday()));
+    		if(iter.hasNext()) {
+    			sundayBuffer.append(CourseSectionImpl.SEP_CHARACTER);
+    		}
+    	}
+    	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.SUNDAY+ " to " + sundayBuffer.toString());
+    	props.addProperty(CourseSectionImpl.SUNDAY, sundayBuffer.toString());
     }
     
     /* Bean getters & setters */
@@ -337,20 +378,12 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
 		this.description = description;
 	}
 
-	public Time getEndTime() {
-		return endTime;
+	public List getMeetings() {
+		return meetings;
 	}
 
-	public void setEndTime(Time endTime) {
-		this.endTime = endTime;
-	}
-
-	public boolean isFriday() {
-		return friday;
-	}
-
-	public void setFriday(boolean friday) {
-		this.friday = friday;
+	public void setMeetings(List meetings) {
+		this.meetings = meetings;
 	}
 
 	public String getId() {
@@ -361,14 +394,6 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
 		this.id = id;
 	}
 
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
 	public Integer getMaxEnrollments() {
 		return maxEnrollments;
 	}
@@ -377,45 +402,6 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
 		this.maxEnrollments = maxEnrollments;
 	}
 
-	public boolean isMonday() {
-		return monday;
-	}
-
-	public void setMonday(boolean monday) {
-		this.monday = monday;
-	}
-
-	public boolean isSaturday() {
-		return saturday;
-	}
-
-	public void setSaturday(boolean saturday) {
-		this.saturday = saturday;
-	}
-
-	public Time getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(Time startTime) {
-		this.startTime = startTime;
-	}
-
-	public boolean isSunday() {
-		return sunday;
-	}
-
-	public void setSunday(boolean sunday) {
-		this.sunday = sunday;
-	}
-
-	public boolean isThursday() {
-		return thursday;
-	}
-
-	public void setThursday(boolean thursday) {
-		this.thursday = thursday;
-	}
 
 	public String getTitle() {
 		return title;
@@ -425,28 +411,12 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
 		this.title = title;
 	}
 
-	public boolean isTuesday() {
-		return tuesday;
-	}
-
-	public void setTuesday(boolean tuesday) {
-		this.tuesday = tuesday;
-	}
-
 	public String getUuid() {
 		return uuid;
 	}
 
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
-	}
-
-	public boolean isWednesday() {
-		return wednesday;
-	}
-
-	public void setWednesday(boolean wednesday) {
-		this.wednesday = wednesday;
 	}
 
 	public boolean equals(Object o) {

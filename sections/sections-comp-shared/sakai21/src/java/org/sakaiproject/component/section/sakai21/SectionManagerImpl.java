@@ -721,6 +721,15 @@ public class SectionManagerImpl implements SectionManager {
     		Time endTime, boolean monday,
     		boolean tuesday, boolean wednesday, boolean thursday,
     		boolean friday, boolean saturday, boolean sunday) {
+    	
+    	MeetingImpl meeting = new MeetingImpl(location, startTime, endTime, monday, tuesday, wednesday, thursday, friday, saturday, sunday);
+    	List meetings = new ArrayList();
+    	meetings.add(meeting);
+
+    	return addSection(courseUuid, title, category, maxEnrollments, meetings);
+    }
+    
+	public CourseSection addSection(String courseUuid, String title, String category, Integer maxEnrollments, List meetings) {
     	Reference ref = entityManager.newReference(courseUuid);
     	
     	Site site;
@@ -732,15 +741,17 @@ public class SectionManagerImpl implements SectionManager {
     	}
     	Group group = site.addGroup();
     	
-    	// Construct a CourseSection to generate the description
+    	// Construct a CourseSection for this group
     	CourseSectionImpl courseSection = new CourseSectionImpl(group);
     	
     	// Set the fields of the course section
-    	courseSection.setAddFields(category, title, location, maxEnrollments, startTime,
-    			endTime, monday, tuesday, wednesday, thursday, friday, saturday, sunday);
-
-    	// Decorate the framework section
-    	courseSection.decorateSection(group);
+    	courseSection.setTitle(title);
+    	courseSection.setCategory(category);
+    	courseSection.setMaxEnrollments(maxEnrollments);
+    	courseSection.setMeetings(meetings);
+    	
+    	// Decorate the framework group
+    	courseSection.decorateGroup(group);
 
     	// Save the site, along with the new section
     	try {
@@ -752,7 +763,7 @@ public class SectionManagerImpl implements SectionManager {
     		log.error("Error saving site... permission denied for section " + group, pe);
     	}
     	return new CourseSectionImpl(group);
-    }
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -762,6 +773,16 @@ public class SectionManagerImpl implements SectionManager {
     		Time endTime, boolean monday, boolean tuesday,
     		boolean wednesday, boolean thursday, boolean friday,
     		boolean saturday, boolean sunday) {
+    	// Create a list of meetings with a single meeting
+    	List meetings = new ArrayList();
+    	MeetingImpl meeting = new MeetingImpl(location, startTime, endTime, monday, tuesday, wednesday, thursday, friday, saturday, sunday);
+    	meetings.add(meeting);
+
+    	// Update the section with a single meeting
+    	updateSection(sectionUuid, title, maxEnrollments, meetings);
+	}
+
+	public void updateSection(String sectionUuid, String title, Integer maxEnrollments, List meetings) {
     	CourseSectionImpl section = (CourseSectionImpl)getSection(sectionUuid);
     	
     	if(section == null) {
@@ -769,12 +790,13 @@ public class SectionManagerImpl implements SectionManager {
     	}
     	
     	// Set the decorator's fields
-    	section.setUpdateFields(title, location, maxEnrollments, startTime, endTime,
-    			monday, tuesday, wednesday, thursday, friday, saturday, sunday);
+    	section.setTitle(title);
+    	section.setMaxEnrollments(maxEnrollments);
+    	section.setMeetings(meetings);
     	
     	// Decorate the framework section
     	Group group = siteService.findGroup(sectionUuid);
-    	section.decorateSection(group);
+    	section.decorateGroup(group);
 
     	// Save the site with its new section
     	try {
