@@ -933,7 +933,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		
 		GroupAwareEntity entity = null;
 		boolean isCollection = id.endsWith(Entity.SEPARATOR);
-		while(!available && entity == null)
+		while(!available && entity == null && id != null && ! id.trim().equals(""))
 		{
 			if(ROOT_COLLECTIONS.contains(id))
 			{
