@@ -22,6 +22,7 @@ package org.sakaiproject.component.app.messageforums;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Iterator;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -32,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
+import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.UserPermissionManager;
@@ -179,11 +181,37 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         return area;
     }
 
+    /**
+     * This method sets the modified user and date.  It then checks all the open forums for a 
+     * sort index of 0.  (if a sort index on a forum is 0 then it is new). If there is a 
+     * zero sort index then it increments all the sort indices by one so the new sort index
+     * becomes the first without having to rely on the creation date for the sorting.
+     * 
+     * @param area Area to save
+     */
     public void saveArea(Area area) {
         boolean isNew = area.getId() == null;
 
         area.setModified(new Date());
         area.setModifiedBy(getCurrentUser());
+        
+        boolean someForumHasZeroSortIndex = false;
+
+        for(Iterator i = area.getOpenForums().iterator(); i.hasNext(); ) {
+           BaseForum forum = (BaseForum)i.next();
+           if(forum.getSortIndex().intValue() == 0) {
+              someForumHasZeroSortIndex = true;
+              break;
+           }
+        }
+        if(someForumHasZeroSortIndex) {
+           for(Iterator i = area.getOpenForums().iterator(); i.hasNext(); ) {
+              BaseForum forum = (BaseForum)i.next();
+              forum.setSortIndex(new Integer(forum.getSortIndex().intValue() + 1));
+           }
+        }
+        
+        
         getHibernateTemplate().saveOrUpdate(area);
 
         if (isNew) {

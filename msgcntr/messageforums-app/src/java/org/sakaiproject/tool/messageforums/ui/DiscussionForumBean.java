@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.faces.model.SelectItem;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -73,6 +75,32 @@ public class DiscussionForumBean
   {
     LOG.debug("getForum()");
     return forum;
+  }
+
+  /**
+   * @return Returns count of topics in the forum
+   */
+  public int getTopicCount()
+  {
+    LOG.debug("getTopics()");
+    return (topics == null) ? 0 : topics.size();
+  }
+
+  /**
+   * @return List of SelectItem
+   */
+  public List getTopicSelectItems()
+  {
+     List f = getTopics();
+     int num = (f == null) ? 0 : f.size();
+
+     List retSort = new ArrayList();
+     for(int i = 1; i <= num; i++) {
+        Integer index = new Integer(i);
+        retSort.add(new SelectItem(index, index.toString()));
+     }
+     
+     return retSort;
   }
 
   /**

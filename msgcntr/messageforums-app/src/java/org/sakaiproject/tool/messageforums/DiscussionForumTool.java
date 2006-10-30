@@ -37,6 +37,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpSession;
+import javax.faces.component.UIData;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -100,6 +101,7 @@ public class DiscussionForumTool
    */
   private static final String MAIN = "main";
   private static final String TEMPLATE_SETTING = "dfTemplateSettings";
+  private static final String TEMPLATE_ORGANIZE = "dfTemplateOrganize";
   private static final String FORUM_DETAILS = "dfForumDetail";
   private static final String FORUM_SETTING = "dfForumSettings";
   private static final String FORUM_SETTING_REVISE = "dfReviseForumSettings";
@@ -120,6 +122,7 @@ public class DiscussionForumTool
   private DiscussionTopicBean selectedTopic;
   private DiscussionTopicBean searchResults;
   private DiscussionMessageBean selectedMessage;
+  private UIData  forumTable;
   private List groupsUsersList;   
   private List totalGroupsUsersList;
   private List selectedGroupsUsersList;
@@ -134,6 +137,7 @@ public class DiscussionForumTool
   private static final String REDIRECT_PROCESS_ACTION = "redirectToProcessAction";
 
   private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS = "cdfm_insufficient_privileges";
+  private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_ORGANIZE = "cdfm_insufficient_privileges";
   private static final String INSUFFICIENT_PRIVILEAGES_TO="cdfm_insufficient_privileages_to";
   private static final String INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM="cdfm_insufficient_privileges_change_forum";
   private static final String INSUFFICIENT_PRIVILEGES_NEW_TOPIC = "cdfm_insufficient_privileges_new_topic";
@@ -296,7 +300,24 @@ public class DiscussionForumTool
   }
 
   /**
-   * @return
+   * @return List of SelectItem
+   */
+  public List getForumSelectItems()
+  {
+     List f = getForums();
+     int num = (f == null) ? 0 : f.size();
+
+     List retSort = new ArrayList();
+     for(int i = 1; i <= num; i++) {
+        Integer index = new Integer(i);
+        retSort.add(new SelectItem(index, index.toString()));
+     }
+     
+     return retSort;
+  }
+
+  /**
+   * @return List of DiscussionForumBean
    */
   public List getForums()
   {
@@ -428,13 +449,31 @@ public class DiscussionForumTool
     
     setEditMode(false);
     setPermissionMode(PERMISSION_MODE_TEMPLATE);
-    	       	
+               
     if(!isInstructor())
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS));
       return MAIN;
     }
     return TEMPLATE_SETTING;
+  }
+
+  /**
+   * @return
+   */
+  public String processActionTemplateOrganize()
+  {
+    LOG.debug("processActionTemplateOrganize()");
+    
+    setEditMode(false);
+    setPermissionMode(PERMISSION_MODE_TEMPLATE);
+               
+    if(!isInstructor())
+    {
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_ORGANIZE));
+      return MAIN;
+    }
+    return TEMPLATE_ORGANIZE;
   }
 
   /**
@@ -509,6 +548,34 @@ public class DiscussionForumTool
     Area area = areaManager.getDiscusionArea();
     setObjectPermissions(area);
     areaManager.saveArea(area);
+    return MAIN;
+  }
+
+  /**
+   * @return
+   */
+  public String processActionSaveTemplateOrganization()
+  {
+    LOG.debug("processActionSaveTemplateOrganization()");
+    if(!isInstructor())
+    {
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_ORGANIZE));
+      return MAIN;
+    }
+    
+    for(Iterator i = forums.iterator(); i.hasNext(); ) {
+       DiscussionForumBean forum = (DiscussionForumBean)i.next();
+       
+       // because there is no straight up save forum function we need to retain the draft status
+       if(forum.getForum().getDraft().booleanValue())
+          forumManager.saveForumAsDraft(forum.getForum());
+       else
+          forumManager.saveForum(forum.getForum());
+    }
+    
+    //reload the forums so they change position in the list
+    forums = null;
+    
     return MAIN;
   }
 
@@ -1432,7 +1499,7 @@ public class DiscussionForumTool
     
   /**
    * @param forum
-   * @return
+   * @return List of DiscussionTopicBean
    */
   private DiscussionForumBean getDecoratedForum(DiscussionForum forum)
   {
@@ -4264,5 +4331,12 @@ public class DiscussionForumTool
 			return selectedTopic.getMessages();
 		}
 	}
+   public UIData getForumTable(){
+      return forumTable;
+   }
+
+   public void setForumTable(UIData forumTable){
+      this.forumTable=forumTable;
+   }
 
 }

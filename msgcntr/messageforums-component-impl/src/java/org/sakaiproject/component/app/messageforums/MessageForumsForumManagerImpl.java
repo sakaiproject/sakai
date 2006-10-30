@@ -66,6 +66,10 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+/**
+ * The forums are sorted by this java class.  The topics are sorted by the order-by in the hbm file.
+ *
+ */
 public class MessageForumsForumManagerImpl extends HibernateDaoSupport implements MessageForumsForumManager {
 
     private static final Log LOG = LogFactory.getLog(MessageForumsForumManagerImpl.class);
@@ -101,8 +105,10 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     private static final String QUERY_BY_TOPIC_ID_MESSAGES_ATTACHMENTS = "findTopicByIdWithAttachments";
     
-    public static Comparator FORUM_CREATED_DATE_COMPARATOR;    
-    public static Comparator FORUM_CREATED_DATE_COMPARATOR_DESC;
+    //public static Comparator FORUM_CREATED_DATE_COMPARATOR;
+    
+    /** Sorts the forums by the sort index and if the same index then order by the creation date */
+    public static Comparator FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC;
 
     private IdManager idManager;
 
@@ -115,13 +121,17 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private EventTrackingService eventTrackingService;
     
     static {
-    	FORUM_CREATED_DATE_COMPARATOR_DESC = new Comparator()
+    	FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC = new Comparator()
       {                                        
         public int compare(Object forum, Object otherForum)
         {
           if (forum != null && otherForum != null
               && forum instanceof OpenForum && otherForum instanceof OpenForum)
           {
+             Integer index1=((OpenForum) forum).getSortIndex();
+             Integer index2=((OpenForum) otherForum).getSortIndex();
+             if(index1.intValue() != index2.intValue())
+                return index1.intValue() - index2.intValue();
             Date date1=((OpenForum) forum).getCreated();
             Date date2=((OpenForum) otherForum).getCreated();
             return date2.compareTo(date1);
@@ -131,7 +141,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
       };
       
       // remove 5.0 specific code
-      //FORUM_CREATED_DATE_COMPARATOR_DESC = Collections.reverseOrder(FORUM_CREATED_DATE_COMPARATOR);
+      //FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC = Collections.reverseOrder(FORUM_CREATED_DATE_COMPARATOR);
     }
 
     public void init() {
@@ -339,7 +349,15 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
       }
       
       List resultList = Util.setToList(resultSet);
-      Collections.sort(resultList, FORUM_CREATED_DATE_COMPARATOR_DESC);
+      Collections.sort(resultList, FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC);
+      
+      // Now that the list is sorted, lets index the forums
+      int sort_index = 1;
+      for(Iterator i = resultList.iterator(); i.hasNext(); ) {
+         tempForum = (BaseForum)i.next();
+         
+         tempForum.setSortIndex(new Integer(sort_index++));
+      }
       
       return resultList;      
     }
@@ -380,7 +398,15 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         }
         
         List resultList = Util.setToList(resultSet);
-        Collections.sort(resultList, FORUM_CREATED_DATE_COMPARATOR_DESC);
+        Collections.sort(resultList, FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC);
+
+        // Now that the list is sorted, lets index the forums
+        int sort_index = 1;
+        for(Iterator i = resultList.iterator(); i.hasNext(); ) {
+           tempForum = (BaseForum)i.next();
+           
+           tempForum.setSortIndex(new Integer(sort_index++));
+        }
         
         return resultList;      
       }
@@ -642,6 +668,24 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setDraft(new Boolean(draft));
         forum.setModified(new Date());
         forum.setModifiedBy(getCurrentUser());
+        
+        List topics = forum.getTopics();
+        boolean someTopicHasZeroSortIndex = false;
+
+        for(Iterator i = topics.iterator(); i.hasNext(); ) {
+           DiscussionTopic topic = (DiscussionTopic)i.next();
+           if(topic.getSortIndex().intValue() == 0) {
+              someTopicHasZeroSortIndex = true;
+              break;
+           }
+        }
+        if(someTopicHasZeroSortIndex) {
+           for(Iterator i = topics.iterator(); i.hasNext(); ) {
+              DiscussionTopic topic = (DiscussionTopic)i.next();
+              topic.setSortIndex(new Integer(topic.getSortIndex().intValue() + 1));
+           }
+        }
+        
         getHibernateTemplate().saveOrUpdate(forum);
 
         if (isNew) {

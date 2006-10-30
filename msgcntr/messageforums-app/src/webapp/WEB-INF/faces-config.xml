@@ -172,7 +172,12 @@
             <from-outcome>dfTemplateSettings</from-outcome>
             <to-view-id>/jsp/discussionForum/area/dfTemplateSettings.jsp</to-view-id>
             <redirect/>
-        </navigation-case>        
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>dfTemplateOrganize</from-outcome>
+            <to-view-id>/jsp/discussionForum/area/dfTemplateOrganize.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
         <!-- permissions -->
         <navigation-case>
           <from-outcome>addGroupsUsers</from-outcome>

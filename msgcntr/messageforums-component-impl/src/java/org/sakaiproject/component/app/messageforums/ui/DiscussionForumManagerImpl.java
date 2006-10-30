@@ -857,6 +857,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       Area area = getDiscussionForumArea();
       forum.setArea(area);
+      forum.setSortIndex(new Integer(0));
       area.addDiscussionForum(forum);
       areaManager.saveArea(area);
     }

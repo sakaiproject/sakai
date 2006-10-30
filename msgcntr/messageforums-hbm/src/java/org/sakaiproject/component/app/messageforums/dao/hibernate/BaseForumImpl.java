@@ -23,6 +23,7 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -97,7 +98,21 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     }
 
     public List getTopics() {
-        return Util.setToList(topicsSet);
+        List topics =  Util.setToList(topicsSet);
+        boolean isUnsorted = true;
+        for(Iterator i = topics.iterator(); i.hasNext(); ) {
+           Topic topic = (Topic)i.next();
+           if(topic.getSortIndex().intValue() != 0)
+              isUnsorted = false;
+        }
+        if(isUnsorted) {
+           int x = 1;
+           for(Iterator i = topics.iterator(); i.hasNext(); x++) {
+              Topic topic = (Topic)i.next();
+              topic.setSortIndex(new Integer(x));
+           }
+        }
+        return topics;
     }
 
     public void setTopics(List topics) {

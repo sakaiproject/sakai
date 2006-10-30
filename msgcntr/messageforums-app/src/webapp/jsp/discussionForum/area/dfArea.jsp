@@ -1,11 +1,12 @@
 <mf:forumHideDivision title="#{msgs.cdfm_discussion_forums}" id="_test_div">
   <mf:forum_bar_link id="create_forum" title="#{msgs.cdfm_new_forum}" value=" #{msgs.cdfm_new_forum}" action="#{ForumTool.processActionNewForum}" rendered="#{ForumTool.newForum}"/>    
-   &nbsp;
-<%--  <mf:forum_bar_link id="organize_forum" title="#{msgs.cdfm_organize}" value=" #{msgs.cdfm_organize} " action="#{ForumTool.processActionOrganize}"/> &nbsp;
-  <mf:forum_bar_link id="forum_stats" title="#{msgs.cdfm_statistic}" value=" #{msgs.cdfm_statistic} " action="#{ForumTool.processActionStatistics}"/> &nbsp;--%>
-  <h:outputText id="draft_space2" value="   " />
+   
+  <h:outputText id="draft_space2" value="  &nbsp;  " escape="false" />
   <mf:forum_bar_link id="template_setting" title="#{msgs.cdfm_template_setting}" value="#{msgs.cdfm_template_setting} " action="#{ForumTool.processActionTemplateSettings}" rendered="#{ForumTool.instructor}"/>    
-     &nbsp;
+     
+  <h:outputText id="draft_space3" value="  &nbsp;  " escape="false" />
+  <mf:forum_bar_link id="template_organize" title="#{msgs.cdfm_organize}" value="#{msgs.cdfm_organize} " action="#{ForumTool.processActionTemplateOrganize}" rendered="#{ForumTool.instructor}"/>    
+     
 
 <!--jsp/discussionForum/area/dfArea.jsp-->
   <h:dataTable id="forums" value="#{ForumTool.forums}" width="100%" var="forum" cellpadding="0" cellspacing="0" summary="layout">
