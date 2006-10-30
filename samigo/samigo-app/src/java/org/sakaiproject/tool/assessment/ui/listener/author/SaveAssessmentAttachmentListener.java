@@ -93,13 +93,11 @@ public class SaveAssessmentAttachmentListener
     }
 
     ToolSession session = SessionManager.getCurrentToolSession();
-    if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null  &&
-        session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
+    if (session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
       
       Set attachmentSet = new HashSet();
       if (assessment!=null){
         attachmentSet = assessment.getAssessmentAttachmentSet();
-        System.out.println("*** set="+attachmentSet);
       } 
       HashMap map = getResourceIdHash(attachmentSet);
       ArrayList newAttachmentList = new ArrayList();
