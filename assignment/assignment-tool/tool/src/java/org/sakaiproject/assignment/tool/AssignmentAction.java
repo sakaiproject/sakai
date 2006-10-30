@@ -66,6 +66,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -4074,7 +4075,8 @@ public class AssignmentAction extends PagedResourceActionII
 
 		try
 		{
-			AssignmentService.getAssignment(assignmentId);
+			Assignment a = AssignmentService.getAssignment(assignmentId);
+			EventTrackingService.post(EventTrackingService.newEvent(AssignmentService.SECURE_ACCESS_ASSIGNMENT, a.getReference(), false));
 		}
 		catch (IdUnusedException e)
 		{
