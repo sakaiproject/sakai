@@ -532,12 +532,28 @@ log.debug("item==null ");
           }
 	  //Huong's temp commandout
 	  //answerText = answerText.replaceAll("<.*?>", "");
-	  answerText = answerText.replaceAll("\r\n", "<br/>");
+          answerText = answerText.replaceAll("\r\n", "<br/>");
           rationale = rationale.replaceAll("<.*?>", "");
           fullAnswerText = answerText;  // this is the non-abbreviated answers for essay questions
 	 
-          if (answerText.length() > 35)
-            answerText = answerText.substring(0, 35) + "...";
+          // Fix for SAK-6932: Strip out all HTML tags except image tags
+          if (answerText.length() > 35) {
+        	  String noHTMLAnswerText;
+        	  noHTMLAnswerText = answerText.replaceAll("<((..?)|([^iI][^mM][^gG].*?))>","");
+        	  
+        	  int index = noHTMLAnswerText.toLowerCase().indexOf("<img");
+        	  if (index != -1) {
+        		  answerText = noHTMLAnswerText;
+        	  }
+        	  else {
+        		  if (noHTMLAnswerText.length() > 35) {
+        			  answerText = noHTMLAnswerText.substring(0, 35) + "...";
+        		  }
+        		  else {
+        			  answerText = noHTMLAnswerText;
+        		  }
+        	  }
+          }
 /*
 	  // no need to shorten it 
           if (rationale.length() > 35)
