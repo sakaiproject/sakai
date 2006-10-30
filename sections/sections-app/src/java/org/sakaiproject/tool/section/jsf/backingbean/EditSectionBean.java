@@ -23,6 +23,8 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 import java.io.Serializable;
 import java.util.Iterator;
 
+import javax.faces.event.ActionEvent;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
@@ -41,7 +43,7 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	
 	private String sectionUuid;
 	private LocalSectionModel section;
-	
+
 	/**
 	 * @inheritDoc
 	 */
@@ -52,7 +54,9 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 			if(sectionUuidFromParam != null) {
 				sectionUuid = sectionUuidFromParam;
 			}
-			section = new LocalSectionModel(getSectionManager().getSection(sectionUuid));
+			CourseSection sectionFromService = getSectionManager().getSection(sectionUuid);
+			section = new LocalSectionModel(sectionFromService);
+			
 //			SimpleDateFormat sdf = new SimpleDateFormat(JsfUtil.TIME_PATTERN_DISPLAY);
 //			title = section.getTitle();
 //			location = section.getLocation();
@@ -79,6 +83,11 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		}
 	}
 
+	public void processAddMeeting(ActionEvent action) {
+		if(log.isDebugEnabled()) log.debug("processing an 'add meeting' action from " + this.getClass().getName());
+		section.getMeetings().add(new LocalMeetingModel());
+	}
+	
 	/**
 	 * Since the validation and conversion rules rely on the *relative*
 	 * values of one component to another, we can't use JSF validators and
@@ -162,6 +171,7 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		if(validationFails()) {
 			return null;
 		}
+		
 		// Perform the update
 		getSectionManager().updateSection(sectionUuid, section.getTitle(),
 				section.getMaxEnrollments(), section.getMeetings());
@@ -230,4 +240,5 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	public void setSection(LocalSectionModel section) {
 		this.section = section;
 	}
+
 }

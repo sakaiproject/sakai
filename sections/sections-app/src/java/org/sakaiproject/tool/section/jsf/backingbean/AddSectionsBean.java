@@ -26,6 +26,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.faces.component.html.HtmlCommandLink;
+import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
@@ -57,6 +59,9 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 	 * @inheritDoc
 	 */
 	public void init() {
+		if(log.isDebugEnabled()) log.debug("sections = " + sections);
+		if(log.isDebugEnabled()) log.debug("sectionsChanged = " + sectionsChanged);
+		
 		if(sections == null || sectionsChanged) {
 			if(log.isDebugEnabled()) log.debug("initializing add sections bean");
 			List categories = getSectionCategories();
@@ -79,6 +84,13 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		sectionsChanged = true;
 	}
 	
+	public void processAddMeeting(ActionEvent action) {
+		if(log.isDebugEnabled()) log.debug("processing an 'add meeting' action from " + this.getClass().getName());
+		int index = Integer.parseInt(JsfUtil.getStringFromParam("sectionIndex"));
+		((LocalSectionModel)sections.get(index)).getMeetings().add(new LocalMeetingModel());
+		action.getComponent().getAttributes();
+	}
+
 	/**
 	 * Populates the section collection and row css classes.
 	 *

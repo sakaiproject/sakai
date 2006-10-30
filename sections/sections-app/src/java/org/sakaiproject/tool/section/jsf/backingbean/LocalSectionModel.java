@@ -25,10 +25,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.Meeting;
 
 public class LocalSectionModel implements Serializable {
+	private static final Log log = LogFactory.getLog(LocalSectionModel.class);
 	private static final long serialVersionUID = 1L;
 
 	private String title;
@@ -75,4 +79,7 @@ public class LocalSectionModel implements Serializable {
 		this.meetings = meetings;
 	}
 
+	public String toString() {
+		return new ToStringBuilder(this).append(title).append(maxEnrollments).toString();
+	}
 }

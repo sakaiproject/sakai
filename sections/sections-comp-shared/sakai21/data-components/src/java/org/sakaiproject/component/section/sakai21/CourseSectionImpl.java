@@ -30,6 +30,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.Course;
@@ -234,9 +235,12 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
 
     	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
     		Meeting meeting = (Meeting)iter.next();
+    		// Ensure that the location has no SEP_CHARACTERs in it
     		String meetingLocation = meeting.getLocation();
     		if(meetingLocation == null) {
     			meetingLocation = "";
+    		} else {
+    			meetingLocation = meetingLocation.replaceAll(CourseSectionImpl.SEP_CHARACTER, "");
     		}
     		locationBuffer.append(meetingLocation);
     		if(iter.hasNext()) {
@@ -466,6 +470,10 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
 			throw new ClassCastException("Can not compare CourseSectionImpl to " + o.getClass());
 		}
 		
+	}
+	
+	public String toString() {
+		return new ToStringBuilder(this).append(title).append(uuid).append(category).append(maxEnrollments).toString();
 	}
 
 	/**

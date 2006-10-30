@@ -54,6 +54,7 @@
 			id="sectionTable"
 			value="#{addSectionsBean.sections}"
 			var="section"
+			rowIndexVar="sectionIndex"
 			rowClasses="#{addSectionsBean.rowStyleClasses}">
 			<h:column>
 				<h:panelGrid columns="2" rowClasses="sectionRow">
@@ -152,6 +153,14 @@
 							</h:panelGroup>
 						</h:column>
 					</h:dataTable>
+
+					<% // placeholder for the missing label for the 'add meeting' link %>
+					
+					<h:outputText value=""/>
+					<h:commandLink actionListener="#{addSectionsBean.processAddMeeting}">
+						<h:outputText value="#{msgs.add_section_add_meeting}"/>
+						<f:param name="sectionIndex" value="#{sectionIndex}"/>
+					</h:commandLink>
 
 				</h:panelGrid>
 			</h:column>

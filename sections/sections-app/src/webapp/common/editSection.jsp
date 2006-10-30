@@ -109,6 +109,12 @@
 						</h:column>
 					</h:dataTable>
 
+					<% // placeholder for the missing label for the 'add meeting' link %>
+					<h:outputText value=""/>
+					<h:commandLink actionListener="#{editSectionBean.processAddMeeting}" immediate="true">
+						<h:outputText value="#{msgs.add_section_add_meeting}"/>
+					</h:commandLink>
+
 				</h:panelGrid>
 
     <x:div styleClass="act">

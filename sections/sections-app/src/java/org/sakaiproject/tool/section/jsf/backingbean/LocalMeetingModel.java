@@ -25,13 +25,18 @@ import java.sql.Time;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.Meeting;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 public class LocalMeetingModel implements Meeting, Serializable {
+	private static final Log log = LogFactory.getLog(LocalMeetingModel.class);
 	private static final long serialVersionUID = 1L;
 
 	public LocalMeetingModel() {}
+	
 	public LocalMeetingModel(Meeting meeting) {
 		this.location = meeting.getLocation();
 		this.monday = meeting.isMonday();
@@ -48,15 +53,18 @@ public class LocalMeetingModel implements Meeting, Serializable {
 			this.startTimeAm = true;
 		} else {
 			cal.setTime(meeting.getStartTime());
-			this.startTimeAm = (cal.get(Calendar.AM) == 1);
+			if(log.isDebugEnabled()) log.debug("cal.get(Calendar.AM_PM) = " + cal.get(Calendar.AM_PM));
+			this.startTimeAm = (cal.get(Calendar.AM_PM) == Calendar.AM);
 		}
 		if(meeting.getEndTime() == null) {
 			this.endTimeAm = true;
 		} else {
 			cal.setTime(meeting.getEndTime());
-			this.endTimeAm = (cal.get(Calendar.AM) == 1);
+			if(log.isDebugEnabled()) log.debug("cal.get(Calendar.AM_PM) = " + cal.get(Calendar.AM_PM));
+			this.endTimeAm = (cal.get(Calendar.AM_PM) == Calendar.AM);
 		}
 	}
+	
 	private String location, startTimeString, endTimeString;
     private boolean monday, tuesday, wednesday, thursday, friday, saturday, sunday;
 	private boolean startTimeAm, endTimeAm;
@@ -120,6 +128,7 @@ public class LocalMeetingModel implements Meeting, Serializable {
 	// Must use a string due to http://issues.apache.org/jira/browse/MYFACES-570
 	public void setStartTimeAmString(String startTimeAm) {
 		this.startTimeAm = Boolean.parseBoolean(startTimeAm);
+		if(log.isDebugEnabled()) log.debug("String " + startTimeAm + " caused startTimeAm to be set to " + this.startTimeAm);
 	}
 	
 	public boolean isStartTimeAm() {
@@ -153,4 +162,11 @@ public class LocalMeetingModel implements Meeting, Serializable {
 	public void setWednesday(boolean wednesday) {
 		this.wednesday = wednesday;
 	}
+
+	public String toString() {
+		return new ToStringBuilder(this).append(location).append(startTimeString).append(startTimeAm)
+			.append(endTimeString).append(endTimeAm).append(monday).append(tuesday).append(wednesday)
+			.append(thursday).append(friday).append(saturday).append(sunday).toString();
+	}
+
 }
