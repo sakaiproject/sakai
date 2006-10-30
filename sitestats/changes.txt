@@ -1,3 +1,7 @@
+2006/10/30 - Version 0.5.5a
+------------------------------
+- Use event id as event name if resource bundle does not exist
+
 2006/10/26 - Version 0.5.5
 ------------------------------
 - Removed "?" users because of its ambiguous meaning: anonymous/denied access

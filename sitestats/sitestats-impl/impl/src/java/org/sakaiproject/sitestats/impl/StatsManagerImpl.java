@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
@@ -341,8 +342,14 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getEventName(java.lang.String)
 	 */
 	public String getEventName(String eventId) {
-		//return eventsBean.getProperty(eventId, eventId);
-		return msgs.getString(eventId);
+		String eventName = null;
+		try{
+			eventName = msgs.getString(eventId);
+		}catch(MissingResourceException e){
+			LOG.warn("Missing resource bundle for event id: "+eventId, e);
+			eventName = eventId;
+		}		
+		return eventName;
 	}
 
 	/* (non-Javadoc)
