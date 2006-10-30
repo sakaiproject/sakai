@@ -292,9 +292,13 @@ public class MessageForumSynopticBean {
 				// Pulls read discussion forum message counts from DB
 				final List discussionForumReadMessageCounts = messageManager
 					.findDiscussionForumReadMessageCountsForAllSites();
-
-				unreadDFMessageCounts = computeUnreadDFMessages(discussionForumMessageCounts, discussionForumReadMessageCounts);
-			
+				
+				if (! discussionForumReadMessageCounts.isEmpty()) {
+					unreadDFMessageCounts = computeUnreadDFMessages(discussionForumMessageCounts, discussionForumReadMessageCounts);
+				}
+				else {
+					unreadDFMessageCounts = discussionForumMessageCounts;
+				}
 			}
 			
 			//	If both are empty, just return.
