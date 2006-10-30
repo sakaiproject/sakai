@@ -195,23 +195,26 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		// so we can skip the time comparisons
 		boolean invalidTimeEntered = false;
 
-		int index = 0;
-		for(Iterator iter = sections.iterator(); iter.hasNext(); index++) {
+		int sectionIndex = 0;
+		for(Iterator iter = sections.iterator(); iter.hasNext(); sectionIndex++) {
 			LocalSectionModel sectionModel = (LocalSectionModel)iter.next();
 			
 			// Ensure that this title isn't being used by another section
 			if(isDuplicateSectionTitle(sectionModel.getTitle(), existingSections)) {
 				if(log.isDebugEnabled()) log.debug("Failed to update section... duplicate title: " + sectionModel.getTitle());
-				String componentId = "addSectionsForm:sectionTable_" + index + ":titleInput";
+				String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":titleInput";
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 						"section_add_failure_duplicate_title", new String[] {sectionModel.getTitle()}), componentId);
 				validationFailure = true;
 			}
-			for(Iterator meetingsIterator = sectionModel.getMeetings().iterator(); meetingsIterator.hasNext();) {
+			int meetingIndex = 0;
+			for(Iterator meetingsIterator = sectionModel.getMeetings().iterator(); meetingsIterator.hasNext(); meetingIndex++) {
 				LocalMeetingModel meeting = (LocalMeetingModel)meetingsIterator.next();
 				if(JsfUtil.isInvalidTime(meeting.getStartTimeString())) {
 					if(log.isDebugEnabled()) log.debug("Failed to add section... meeting start time " + meeting.getStartTimeString() + " is invalid");
-					String componentId = "addSectionsForm:sectionTable_" + index + ":startTime";
+
+					String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":meetingsTable_" + meetingIndex + ":startTime";
+
 					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 							"javax.faces.convert.DateTimeConverter.CONVERSION"), componentId);
 					validationFailure = true;
@@ -220,7 +223,7 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 				
 				if(JsfUtil.isInvalidTime(meeting.getEndTimeString())) {
 					if(log.isDebugEnabled()) log.debug("Failed to add section... meeting end time " + meeting.getEndTimeString() + " is invalid");
-					String componentId = "addSectionsForm:sectionTable_" + index + ":endTime";
+					String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":meetingsTable_" + meetingIndex + ":endTime";
 					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 							"javax.faces.convert.DateTimeConverter.CONVERSION"), componentId);
 					validationFailure = true;
@@ -229,7 +232,7 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 
 				if(JsfUtil.isEndTimeWithoutStartTime(meeting.getStartTimeString(), meeting.getEndTimeString())) {
 					if(log.isDebugEnabled()) log.debug("Failed to update section... start time without end time");
-					String componentId = "addSectionsForm:sectionTable_" + index + ":startTime";
+					String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":meetingsTable_" + meetingIndex + ":startTime";
 					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 							"section_update_failure_end_without_start"), componentId);
 					validationFailure = true;
@@ -237,7 +240,7 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 				
 				if(isInvalidMaxEnrollments(sectionModel)) {
 					if(log.isDebugEnabled()) log.debug("Failed to update section... max enrollments is not valid");
-					String componentId = "addSectionsForm:sectionTable_" + index + ":maxEnrollmentInput";
+					String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":maxEnrollmentInput";
 					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 							"javax.faces.validator.LongRangeValidator.MINIMUM", new String[] {"0"}), componentId);
 					validationFailure = true;
@@ -247,7 +250,7 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 				if(!invalidTimeEntered && JsfUtil.isEndTimeBeforeStartTime(meeting.getStartTimeString(),
 						meeting.isStartTimeAm(), meeting.getEndTimeString(), meeting.isEndTimeAm())) {
 					if(log.isDebugEnabled()) log.debug("Failed to update section... end time is before start time");
-					String componentId = "addSectionsForm:sectionTable_" + index + ":endTime";
+					String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":meetingsTable_" + meetingIndex + ":endTime";
 					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 							"section_update_failure_end_before_start"), componentId);
 					validationFailure = true;

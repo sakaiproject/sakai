@@ -130,12 +130,13 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		}
 
 		// Ensure that the times entered in the meetings are valid, and that they end after they start
-		for(Iterator iter = section.getMeetings().iterator(); iter.hasNext();) {
+		int meetingIndex = 0;
+		for(Iterator iter = section.getMeetings().iterator(); iter.hasNext(); meetingIndex++) {
 			LocalMeetingModel meeting = (LocalMeetingModel)iter.next();
 			if(JsfUtil.isInvalidTime(meeting.getStartTimeString())) {
 				if(log.isDebugEnabled()) log.debug("Failed to update section... start time is invalid");
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:startTime");
+						"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:sectionTable_0:meetingsTable_" + meetingIndex + ":startTime");
 				validationFailure = true;
 				invalidTimeEntered = true;
 			}
@@ -143,7 +144,7 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 			if(JsfUtil.isInvalidTime(meeting.getEndTimeString())) {
 				if(log.isDebugEnabled()) log.debug("Failed to update section... end time is invalid");
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:endTime");
+						"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:sectionTable_0:meetingsTable_" + meetingIndex + ":endTime");
 				validationFailure = true;
 				invalidTimeEntered = true;
 			}
@@ -151,7 +152,7 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 			if(JsfUtil.isEndTimeWithoutStartTime(meeting.getStartTimeString(), meeting.getEndTimeString())) {
 				if(log.isDebugEnabled()) log.debug("Failed to update section... start time without end time");
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"section_update_failure_end_without_start"), "editSectionForm:startTime");
+						"section_update_failure_end_without_start"), "editSectionForm:sectionTable_0:meetingsTable_" + meetingIndex + ":startTime");
 				validationFailure = true;
 			}
 			
@@ -159,7 +160,7 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 					meeting.isStartTimeAm(), meeting.getEndTimeString(), meeting.isEndTimeAm())) {
 				if(log.isDebugEnabled()) log.debug("Failed to update section... end time is before start time");
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"section_update_failure_end_before_start"), "editSectionForm:endTime");
+						"section_update_failure_end_before_start"), "editSectionForm:sectionTable_0:meetingsTable_" + meetingIndex + ":endTime");
 				validationFailure = true;
 			}
 		}
