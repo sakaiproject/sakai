@@ -972,7 +972,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 		}
 		
-		if(!available)
+		if(!available && entity != null)
 		{
 			String creator = entity.getProperties().getProperty(ResourceProperties.PROP_CREATOR);
 			String userId = SessionManager.getCurrentSessionUserId();
@@ -1046,7 +1046,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			isAllowed = ref != null && SecurityService.unlock(lock, ref);
 		}
 		
-		if(isAllowed && m_availabilityChecksEnabled)
+		if(isAllowed && lock != null && (lock.startsWith("content.") || lock.startsWith("dropbox.")) && m_availabilityChecksEnabled)
 		{
 			try 
 			{
