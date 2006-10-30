@@ -96,12 +96,12 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
 			}
 		}
 
-		// Parse the meetings for this group
+		// Parse the meetings for this group. Use a field that can't be null, such as "monday" (which must be T/F)
 		long numMeetings = 0;
-		String locations = props.getProperty(CourseSectionImpl.LOCATION);
-		if(locations != null) {
+		String mondays = props.getProperty(CourseSectionImpl.MONDAY);
+		if(mondays != null) {
 			try {
-				numMeetings = locations.split(CourseSectionImpl.SEP_CHARACTER).length;
+				numMeetings = mondays.split(CourseSectionImpl.SEP_CHARACTER).length;
 				if(log.isDebugEnabled()) log.debug("Found " + numMeetings + " meetings in group " + group);
 			} catch (Exception e) {
 				log.warn("Could not parse the number of meetings for group " + group);

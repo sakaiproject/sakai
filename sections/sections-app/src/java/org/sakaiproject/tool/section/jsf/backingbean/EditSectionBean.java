@@ -21,7 +21,9 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.faces.event.ActionEvent;
 
@@ -43,6 +45,9 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	
 	private String sectionUuid;
 	private LocalSectionModel section;
+	
+	/** A list composed of a single section.  This is used so we can share UI code with AddSections */
+	private List sections;
 
 	/**
 	 * @inheritDoc
@@ -56,6 +61,8 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 			}
 			CourseSection sectionFromService = getSectionManager().getSection(sectionUuid);
 			section = new LocalSectionModel(sectionFromService);
+			sections = new ArrayList();
+			sections.add(section);
 			
 //			SimpleDateFormat sdf = new SimpleDateFormat(JsfUtil.TIME_PATTERN_DISPLAY);
 //			title = section.getTitle();
@@ -239,6 +246,28 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 
 	public void setSection(LocalSectionModel section) {
 		this.section = section;
+	}
+	
+	public List getSections() {
+		return sections;
+	}
+
+	/**
+	 * Gets the css to use in the table generated for display.  Needed for sharing IU
+	 * code with AddSections.
+	 * 
+	 * @return
+	 */
+	public String getRowStyleClasses() {
+		return "sectionPadRow";
+	}
+
+	/**
+	 * This method is needed so we can share UI code with AddSections.
+	 * @return
+	 */
+	public List getMeetings() {
+		return section.getMeetings();
 	}
 
 }
