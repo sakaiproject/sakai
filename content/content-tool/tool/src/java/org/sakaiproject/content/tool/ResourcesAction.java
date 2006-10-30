@@ -740,7 +740,8 @@ public class ResourcesAction
 		if (folderId.equals(homeCollectionId))
 		{
 			atHome = true;
-			rootTitle = (String) state.getAttribute (STATE_HOME_COLLECTION_DISPLAY_NAME);
+			String siteTitle = (String) state.getAttribute (STATE_SITE_TITLE);
+			rootTitle = siteTitle + " " + rb.getString("gen.reso");
 		}
 		else
 		{
