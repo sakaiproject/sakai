@@ -50,6 +50,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -143,15 +144,25 @@ public class MessageForumSynopticBean {
 			this.privateMessagesURL = privateMessagesURL;
 		}
 
+		/**
+		 * 
+		 * @return
+		 */
 		public String getSiteId() {
 			return siteId;
 		}
 
+		/**
+		 * 
+		 * @param siteId
+		 */
 		public void setSiteId(String siteId) {
 			this.siteId = siteId;
 		}
 
 	}
+
+/* =========== End of DecoratedCompiledMessageStats =========== */
 
 	/** Used to determine if Message Center tool part of a site */
 	private final String MF_TITLE = "Message Center";
@@ -232,7 +243,7 @@ public class MessageForumSynopticBean {
 	public boolean isMyWorkspace() {
 
 		// get Site id
-		String siteId = ToolManager.getCurrentPlacement().getContext();
+		final String siteId = getContext();
 
 		if (SiteService.getUserSiteId("admin").equals(siteId))
 			return false;
@@ -247,32 +258,35 @@ public class MessageForumSynopticBean {
 	/**
 	 * Returns List of decoratedCompiledMessageStats
 	 * 
-	 * @return 
-	 * 			List of decoratedCompiledMessageStats
+	 * @return List of decoratedCompiledMessageStats
 	 */
 	public List getContents() {
-		List contents = new ArrayList();
+		final List contents = new ArrayList();
 
 		if (isMyWorkspace()) {
 			// Get stats for "all" sites this user is a member of
 
 			// Pulls unread private message counts from DB
 			List privateMessageCounts = pvtMessageManager
-					.getPrivateMessageCountsForAllSites();
+						.getPrivateMessageCountsForAllSites();
 
 			// get the sites the user has access to
-			// TODO: change to grab all sites user has membership in no matter what type
-			List mySites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null, null,
-					org.sakaiproject.site.api.SiteService.SortType.ID_ASC, null);
+			// TODO: change to grab all sites user has membership in no matter
+			// what type (?)
+			List mySites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
+								null,null,null,org.sakaiproject.site.api.SiteService.SortType.ID_ASC,
+								null);
 
 			Iterator lsi = mySites.iterator();
+			
 			if (!lsi.hasNext()) {
 				// TODO: Add user id to log message
-				LOG.warn("User does not belong to any sites.");
+				LOG.warn("User " + SessionManager.getCurrentSession().getUserId() + " does not belong to any sites.");
+
 				return contents;
 			}
 
-			List siteList = new ArrayList();
+			final List siteList = new ArrayList();
 
 			// needed to filter out discussion forum messages to just those
 			// for sites this use is a part of
@@ -284,98 +298,106 @@ public class MessageForumSynopticBean {
 
 			// Pulls discussion forum message counts from DB
 			final List discussionForumMessageCounts = messageManager
-					.findDiscussionForumMessageCountsForAllSites(siteList);
+							.findDiscussionForumMessageCountsForAllSites(siteList);
 
 			List unreadDFMessageCounts = new ArrayList();
-			
-			if (! discussionForumMessageCounts.isEmpty()) {
+
+			if (!discussionForumMessageCounts.isEmpty()) {
 				// Pulls read discussion forum message counts from DB
 				final List discussionForumReadMessageCounts = messageManager
-					.findDiscussionForumReadMessageCountsForAllSites();
-				
-				if (! discussionForumReadMessageCounts.isEmpty()) {
-					unreadDFMessageCounts = computeUnreadDFMessages(discussionForumMessageCounts, discussionForumReadMessageCounts);
-				}
+									.findDiscussionForumReadMessageCountsForAllSites();
+
+				if (!discussionForumReadMessageCounts.isEmpty()) {
+					unreadDFMessageCounts = computeUnreadDFMessages(
+												discussionForumMessageCounts,
+												discussionForumReadMessageCounts);
+				} 
 				else {
 					unreadDFMessageCounts = discussionForumMessageCounts;
 				}
 			}
-			
-			//	If both are empty, just return.
-			if (privateMessageCounts.isEmpty() && discussionForumMessageCounts.isEmpty()) {
+
+			// If both are empty, just return.
+			if (privateMessageCounts.isEmpty()
+					&& discussionForumMessageCounts.isEmpty()) {
 				return contents;
 			}
 
 			// Set up to look through all info to compile decorated bean
-			Iterator pmi = privateMessageCounts.iterator();
+			final Iterator pmi = privateMessageCounts.iterator();
 			Object[] pmCounts;
-			
+
 			if (pmi.hasNext()) {
 				pmCounts = (Object[]) pmi.next();
-			
-			}
+
+			} 
 			else {
-				// create dummy private message site id for comparison
-				pmCounts = new Object [1];
+				// Since empty, create dummy private message site id for comparison
+				// when compiling stats
+				pmCounts = new Object[1];
 				pmCounts[0] = "";
 			}
 
-			Iterator urmci = unreadDFMessageCounts.iterator();
+			final Iterator urmci = unreadDFMessageCounts.iterator();
 			Object[] unreadDFCount;
-			
+
 			if (urmci.hasNext()) {
 				unreadDFCount = (Object[]) urmci.next();
-			
-			}
+
+			} 
 			else {
 				// create dummy discussion forum site id for comparsion
+				// when compiling stats
 				unreadDFCount = new Object[1];
 				unreadDFCount[0] = "";
 			}
-				
 
 			// loop through info to fill decorated bean
 			for (Iterator si = mySites.iterator(); si.hasNext();) {
 				boolean hasPrivate = false;
 				boolean hasDF = false;
-				
-				Site site = (Site) si.next();
-				DecoratedCompiledMessageStats dcms = new DecoratedCompiledMessageStats();
+
+				final Site site = (Site) si.next();
+				final DecoratedCompiledMessageStats dcms = new DecoratedCompiledMessageStats();
 
 				// fill site title
 				dcms.setSiteName(site.getTitle());
 				dcms.setSiteId(site.getId());
 
 				if (site.getId().equals(pmCounts[0])) {
-					// info from db matches 
+					// info from db matches
 					// fill unread private messages
 					dcms.setUnreadPrivate(pmCounts[2] + " Private");
-					
-					dcms.setUnreadPrivateAmt(((Integer) pmCounts[2]).intValue());
+
+					dcms.setUnreadPrivateAmt(((Integer) pmCounts[2])
+									.intValue());
 
 					if (pmi.hasNext()) {
 						pmCounts = (Object[]) pmi.next();
 
-					}
+					} 
 					else {
 						pmCounts[0] = "";
 					}
-					
+
 					hasPrivate = true;
-				}
+				} 
 				else {
+					// enabled but all messages read
 					if (isMessageForumsPageInSite(site)) {
-						Area area = areaManager.getAreaByContextIdAndTypeId(site.getId(), typeManager.getPrivateMessageAreaType());
-					
+						final Area area = areaManager
+											.getAreaByContextIdAndTypeId(site.getId(), 
+												typeManager.getPrivateMessageAreaType());
+
 						if (area != null) {
-							if (area.getEnabled().booleanValue()){
+							if (area.getEnabled().booleanValue()) {
 								dcms.setUnreadPrivate("0 Private");
 								hasPrivate = true;
 							}
 						}
 					}
 				}
-				
+
 				// fill unread discussion forum messages
 				if (site.getId().equals(unreadDFCount[0])) {
 					dcms.setUnreadForums(unreadDFCount[1] + " Forum");
@@ -383,37 +405,35 @@ public class MessageForumSynopticBean {
 					if (urmci.hasNext()) {
 						unreadDFCount = (Object[]) urmci.next();
 					}
-					
+
 					hasDF = true;
-				}
+				} 
 				else {
+					// Might be there but all messages read (or no messages at all)
 					if (isMessageForumsPageInSite(site)) {
-						Area area = areaManager.getDiscusionArea();
-					
-						if (area.getEnabled().booleanValue()) {
+						if (areaManager.getDiscusionArea().getEnabled().booleanValue()) {
 							dcms.setUnreadForums("0 Forum");
 							hasDF = true;
 						}
 					}
 				}
 
-				// get the page URL for Message Center
-				dcms.setPrivateMessagesURL(getMCPageURL(site.getId()));
-
 				if (hasPrivate || hasDF) {
+					// get the page URL for Message Center
+					dcms.setPrivateMessagesURL(getMCPageURL(site.getId()));
+
 					contents.add(dcms);
-				
 				}
 			}
 
-		}
+		} 
 		else {
-			// Tool within site, get stats for just this site
-
+			// Check if tool within site
+			// if so, get stats for just this site
 			if (isMessageForumsPageInSite()) {
 				int unreadPrivate = 0;
 
-				DecoratedCompiledMessageStats dcms = new DecoratedCompiledMessageStats();
+				final DecoratedCompiledMessageStats dcms = new DecoratedCompiledMessageStats();
 
 				dcms.setSiteName(getSiteName());
 
@@ -421,44 +441,33 @@ public class MessageForumSynopticBean {
 				// private messasge forum so we can get the
 				// List of topics so we can get the Received topic
 				// to finally determine number of unread messages
-				final Area area = pvtMessageManager.getPrivateMessageArea();
-				
-				if (area.getEnabled().booleanValue()) {
-					PrivateForum pf = pvtMessageManager
-						.initializePrivateMessageArea(area);
-					final List pt = pf.getTopics();
-					final Topic privateTopic = (Topic) pt.iterator().next();
-
-					String typeUuid = typeManager.getReceivedPrivateMessageType();
-
-					unreadPrivate = pvtMessageManager
-						.findUnreadMessageCount(typeUuid);
+				if (pvtMessageManager.getPrivateMessageArea().getEnabled().booleanValue()) {
+					unreadPrivate = pvtMessageManager.findUnreadMessageCount(
+										typeManager.getReceivedPrivateMessageType());
 
 					dcms.setUnreadPrivate(unreadPrivate + " Private");
-				
+
 					dcms.setUnreadPrivateAmt(unreadPrivate);
 				}
 
 				// Number of unread forum messages is a little harder
 				// need to loop through all topics and add them up
-				// TODO: Construct single query to get sum
-				List topicsList = forumManager.getDiscussionForums();
+				final List topicsList = forumManager.getDiscussionForums();
 				long unreadForum = 0;
 
 				final Iterator forumIter = topicsList.iterator();
 
 				while (forumIter.hasNext()) {
-					final DiscussionForum df = (DiscussionForum) forumIter
-								.next();
+					final DiscussionForum df = (DiscussionForum) forumIter.next();
 
 					final List topics = df.getTopics();
-					Iterator topicIter = topics.iterator();
+					final Iterator topicIter = topics.iterator();
 
 					while (topicIter.hasNext()) {
 						final Topic topic = (Topic) topicIter.next();
 
-						unreadForum += messageManager
-								.findUnreadMessageCountByTopicId(topic.getId());
+						unreadForum += messageManager.findUnreadMessageCountByTopicId(
+														topic.getId());
 
 					}
 				}
@@ -468,7 +477,6 @@ public class MessageForumSynopticBean {
 
 				contents.add(dcms);
 			}
-
 			else {
 				// TODO: what to put on page? Alert? Leave Blank?
 			}
@@ -478,13 +486,14 @@ public class MessageForumSynopticBean {
 	}
 
 	/**
-	 * Retrieve the site id
+	 * Retrieve the site display title
 	 */
 	private String getSiteName() {
 		try {
-			return SiteService.getSite(
-					ToolManager.getCurrentPlacement().getContext()).getTitle();
-		} catch (IdUnusedException e) {
+			return getSite(getContext()).getTitle();
+
+		} 
+		catch (IdUnusedException e) {
 			LOG.error("IdUnusedException when trying to access site "
 					+ e.getMessage());
 		}
@@ -494,15 +503,14 @@ public class MessageForumSynopticBean {
 
 	/**
 	 * 
-	 * @return
-	 * 		The id for current site
+	 * @return The id for current site
 	 */
 	private String getSiteId() {
 		try {
-			return SiteService.getSite(
-					ToolManager.getCurrentPlacement().getContext()).getId();
+			return getSite(getContext()).getId();
 
-		} catch (IdUnusedException e) {
+		} 
+		catch (IdUnusedException e) {
 			LOG.error("IdUnusedException when trying to access site "
 					+ e.getMessage());
 		}
@@ -510,6 +518,12 @@ public class MessageForumSynopticBean {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param totalMessages
+	 * @param readMessages
+	 * @return
+	 */
 	private List computeUnreadDFMessages(List totalMessages, List readMessages) {
 		List unreadDFMessageCounts = new ArrayList();
 
@@ -517,45 +531,41 @@ public class MessageForumSynopticBean {
 		final Iterator dfMessagesIter = totalMessages.iterator();
 		final Iterator dfReadMessagesIter = readMessages.iterator();
 
-		Object[] dfReadMessageCountForASite = (Object[]) dfReadMessagesIter
-				.next();
+		Object[] dfReadMessageCountForASite = (Object[]) dfReadMessagesIter.next();
 
-		// NOTE: dfMessagesIter.count >= dfReadMessagesIter, so use dfMessagesIter for compilation loop
+		// NOTE: dfMessagesIter.count >= dfReadMessagesIter, so use
+		// dfMessagesIter for compilation loop
 		while (dfMessagesIter.hasNext()) {
-			Object[] dfMessageCountForASite = (Object[]) dfMessagesIter
-					.next();
+			final Object[] dfMessageCountForASite = (Object[]) dfMessagesIter.next();
 
-			Object[] siteDFInfo = new Object[2];
+			final Object[] siteDFInfo = new Object[2];
 
 			siteDFInfo[0] = (String) dfMessageCountForASite[0];
 
 			if (((String) dfMessageCountForASite[0])
-					.equals((String) dfReadMessageCountForASite[0])) {
-				siteDFInfo[1] = new Integer(
-						((Integer) dfMessageCountForASite[1]).intValue()
-								- ((Integer) dfReadMessageCountForASite[1])
-										.intValue());
+							.equals((String) dfReadMessageCountForASite[0])) {
+				siteDFInfo[1] = new Integer(((Integer) dfMessageCountForASite[1]).intValue()
+												- ((Integer) dfReadMessageCountForASite[1]).intValue());
 
 				if (dfReadMessagesIter.hasNext()) {
-					dfReadMessageCountForASite = (Object[]) dfReadMessagesIter
-							.next();
-
+					dfReadMessageCountForASite = (Object[]) dfReadMessagesIter.next();
 				}
-			} else {
+			} 
+			else {
+				// No messages read for this site so message count = unread message count
 				siteDFInfo[1] = (Integer) dfMessageCountForASite[1];
 			}
 
 			unreadDFMessageCounts.add(siteDFInfo);
 		}
-		
+
 		return unreadDFMessageCounts;
 	}
-	
+
 	/**
 	 * Change display options for synoptic Message Center screen
 	 * 
-	 * @return
-	 * 			String to handle navigation
+	 * @return String to handle navigation
 	 */
 	public String processOptionsChange() {
 		return "synMain";
@@ -564,109 +574,83 @@ public class MessageForumSynopticBean {
 	/**
 	 * Cancel changes to display settings for synoptic Message Center screen
 	 * 
-	 * @return
-	 * 			String to return to main page
+	 * @return String to return to main page
 	 */
 	public String processOptionsCancel() {
 		return "synMain";
 	}
 
 	/**
-	 * Returns TRUE if Message Forums (Message Center) exists in this site, FALSE otherwise
-	 * Called if tool placed on home page of a site
+	 * Returns TRUE if Message Forums (Message Center) exists in this site,
+	 * FALSE otherwise Called if tool placed on home page of a site
 	 * 
-	 * @return
-	 * 		TRUE if Message Forums (Message Center) exists in this site, FALSE otherwise
+	 * @return TRUE if Message Forums (Message Center) exists in this site,
+	 *         FALSE otherwise
 	 */
 	private boolean isMessageForumsPageInSite() {
 		boolean mfToolExists = false;
 
 		try {
-			Site thisSite = SiteService.getSite(ToolManager
-					.getCurrentPlacement().getContext());
+			final Site thisSite = getSite(getContext());
 
 			mfToolExists = isMessageForumsPageInSite(thisSite);
 
 		} catch (IdUnusedException e) {
-			LOG
-					.error("No Site found while trying to check if site has MF tool.");
+			LOG.error("IdUnusedException while trying to check if site has MF tool.");
 		}
 
 		return mfToolExists;
 	}
 
 	/**
-	 * Returns TRUE if Message Forums (Message Center) exists in this site, FALSE otherwise
-	 * Called if tool placed on My Workspace
+	 * Returns TRUE if Message Forums (Message Center) exists in this site,
+	 * FALSE otherwise Called if tool placed on My Workspace
 	 * 
-	 * @return
-	 * 		TRUE if Message Forums (Message Center) exists in this site, FALSE otherwise
+	 * @return TRUE if Message Forums (Message Center) exists in this site,
+	 *         FALSE otherwise
 	 */
 	private boolean isMessageForumsPageInSite(Site thisSite) {
 		Collection toolsInSite = thisSite.getTools(MESSAGE_CENTER_ID);
 
-		if (toolsInSite.isEmpty()) {
-			return false;
-		}
-		else {
-			return true;
-		}
+		return ! toolsInSite.isEmpty();
 	}
 
 	/**
-	 * Returns the URL for the page the Message Center tool is on. Called if tool
-	 * on home page of a site.
+	 * Returns the URL for the page the Message Center tool is on. Called if
+	 * tool on home page of a site.
 	 * 
-	 * @return String
-	 * 			A URL so the user can click to go to Message Center. Needed since
-	 * 				tool could possibly by in MyWorkspace
+	 * @return String A URL so the user can click to go to Message Center.
+	 *         Needed since tool could possibly by in MyWorkspace
 	 */
 	private String getMCPageURL() {
-		return getMCPageURL(ToolManager.getCurrentPlacement().getContext());
+		return getMCPageURL(getContext());
 	}
 
 	/**
 	 * Returns the URL for the page the Message Center tool is on.
 	 * 
-	 * @return String
-	 * 			A URL so the user can click to go to Message Center. Needed since
-	 * 				tool could possibly by in MyWorkspace
+	 * @return String A URL so the user can click to go to Message Center.
+	 *         Needed since tool could possibly by in MyWorkspace
 	 */
 	private String getMCPageURL(String siteId) {
 		try {
-			Collection toolsInSite = SiteService.getSite(siteId).getTools(MESSAGE_CENTER_ID);
+			Collection toolsInSite = getSite(siteId).getTools(MESSAGE_CENTER_ID);
 			ToolConfiguration mcTool;
-			
-			if (! toolsInSite.isEmpty()) {
+
+			if (!toolsInSite.isEmpty()) {
 				Iterator iter = toolsInSite.iterator();
 				mcTool = (ToolConfiguration) iter.next();
-			
+
 				SitePage pgelement = mcTool.getContainingPage();
 
 				return pgelement.getUrl();
-
 			}
 
-			// loop thru tools on this site looking for
-			// Message Center tool
-/*			Site thisSite = SiteService.getSite(siteId);
-			List pageList = thisSite.getPages();
-
-			Iterator iterator = pageList.iterator();
-			while (iterator.hasNext()) {
-				SitePage pgelement = (SitePage) iterator.next();
-				
-//				ToolConfiguration tc = pgelement.getTool(MESSAGE_CENTER_ID);
-//				if (tc != null) {
-				if (pgelement.getTitle().equals(MF_TITLE)) {
-					return pgelement.getUrl();
-				}
-			}
-*/		} 
+		}
 		catch (IdUnusedException e) {
-			LOG.error("No Site found while trying to check if site has MF tool.");
+			LOG.error("IdUnusedException while trying to check if site has MF tool.");
 
-			// TODO: if we are in My Workspace, do we go here?
+			// TODO: What do we do?
 		}
 
 		return "";
@@ -677,47 +661,65 @@ public class MessageForumSynopticBean {
 	 * This marks all Private messages as read
 	 */
 	public void processReadAll(ActionEvent e) {
-		
-		String typeUuid = typeManager.getReceivedPrivateMessageType();        
-	      
+		final String typeUuid = typeManager.getReceivedPrivateMessageType();
+
 		if (isMyWorkspace()) {
 			// if within MyWorkspace, need to find the siteId
 			FacesContext context = FacesContext.getCurrentInstance();
 			Map requestParams = context.getExternalContext()
-					.getRequestParameterMap();
+										 .getRequestParameterMap();
 
 			final String contextId = (String) requestParams.get(CONTEXTID);
 
-			List privateMessages = pvtMessageManager.getMessagesByTypeByContext(typeUuid, contextId);
+			final List privateMessages = pvtMessageManager
+					.getMessagesByTypeByContext(typeUuid, contextId);
 
 			if (privateMessages == null) {
-				LOG.error("No messages found while attempting to mark all as read from synoptic Message Center tool.");
-			}
+				LOG.error("No messages found while attempting to mark all as read "
+								+ "from synoptic Message Center tool.");
+			} 
 			else {
 				for (Iterator iter = privateMessages.iterator(); iter.hasNext();) {
-					pvtMessageManager.markMessageAsReadForUser((PrivateMessage) iter.next(), contextId);
-		    	  
-		      }
-			
+					pvtMessageManager.markMessageAsReadForUser(
+							(PrivateMessage) iter.next(), contextId);
+				}
 			}
-		}
+		} 
 		else {
-			// Get the site id and user id and call query to 
+			// Get the site id and user id and call query to
 			// mark them all as read
-		    List privateMessages = pvtMessageManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,
-		          PrivateMessageManager.SORT_DESC);
-			
+			List privateMessages = pvtMessageManager.getMessagesByType(
+										typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,
+											PrivateMessageManager.SORT_DESC);
+
 			if (privateMessages == null) {
-				LOG.error("No messages found while attempting to mark all as read from synoptic Message Center tool.");
-			}
+				LOG.error("No messages found while attempting to mark all as read "
+								+ "from synoptic Message Center tool.");
+			} 
 			else {
 				for (Iterator iter = privateMessages.iterator(); iter.hasNext();) {
 					pvtMessageManager.markMessageAsReadForUser((PrivateMessage) iter.next());
-		    	  
-		      }
-			
+				}
 			}
 		}
+	}
 
+	/**
+	 * 
+	 * @param siteId
+	 * @return
+	 */
+	private Site getSite(String siteId) 
+		throws IdUnusedException {
+		return SiteService.getSite(siteId);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 * 		String The site id (context) where tool currently located
+	 */
+	private String getContext() {
+		return ToolManager.getCurrentPlacement().getContext();
 	}
 }

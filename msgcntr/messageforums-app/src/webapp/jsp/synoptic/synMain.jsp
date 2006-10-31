@@ -18,13 +18,9 @@
 			<h:outputText value="#{eachSite.siteName}" />
 	   	</h:column>
 		<h:column>
-			<!-- === To create a link to Message Center home page === -->
+			<%-- === To create a link to Message Center home page === --%>
 			<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
-			<h:outputText value="#{eachSite.privateMessagesURL}" />
-			<f:verbatim>'; return false;" ></f:verbatim>
-
-			<h:outputText value="#{eachSite.unreadPrivate}" />
-
+			<h:outputText escape="false" value="#{eachSite.privateMessagesURL}';\">#{eachSite.unreadPrivate}" />
 			<f:verbatim></a></f:verbatim>
 		</h:column>
 		<h:column>
@@ -39,11 +35,7 @@
 		<h:column>
 			<!-- === To create a link to Message Center home page === -->
 			<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
-			<h:outputText value="#{eachSite.privateMessagesURL}" />
-			<f:verbatim>'; return false;" ></f:verbatim>
-
-			<h:outputText value="#{eachSite.unreadForums}" />
-
+			<h:outputText escape="false" value="#{eachSite.privateMessagesURL}';\">#{eachSite.unreadForums}" />
 			<f:verbatim></a></f:verbatim>
 		</h:column>
 	 </h:dataTable>
