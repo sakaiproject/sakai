@@ -32,7 +32,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -56,6 +55,7 @@ import org.sakaiproject.sitestats.tool.jsf.InitializableBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.ResourceLoader;
 
 
 /**
@@ -72,7 +72,7 @@ public class BaseFilteringBean extends InitializableBean {
 	public static final String	SORT_DATE			= "date";
 	public static final String	SORT_TOTAL			= "total";
 
-	protected ResourceBundle	msgs				= ResourceBundle.getBundle("org.sakaiproject.sitestats.tool.bundle.Messages");
+	protected static ResourceLoader	msgs			= new ResourceLoader("org.sakaiproject.sitestats.tool.bundle.Messages");
 	private static Log			LOG					= LogFactory.getLog(BaseFilteringBean.class);
 	public String				ALL					= msgs.getString("all");
 

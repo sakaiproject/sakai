@@ -19,11 +19,11 @@
 package org.sakaiproject.sitestats.tool.bean;
 
 import java.io.Serializable;
-import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.sitestats.tool.jsf.InitializableBean;
+import org.sakaiproject.util.ResourceLoader;
 
 
 
@@ -31,13 +31,13 @@ import org.sakaiproject.sitestats.tool.jsf.InitializableBean;
  * @author <a href="mailto:nuno@ufp.pt">Nuno Fernandes</a>
  */
 public class UsersBean extends InitializableBean implements Serializable {
-	private static final long	serialVersionUID	= 1697924408354481088L;
+	private static final long		serialVersionUID	= 1697924408354481088L;
 
 	/** Our log (commons). */
 	private static Log				LOG					= LogFactory.getLog(UsersBean.class);
 
 	/** Resource bundle */
-	ResourceBundle					msgs				= ResourceBundle.getBundle("org.sakaiproject.sitestats.tool.bundle.Messages");
+	protected static ResourceLoader	msgs		= new ResourceLoader("org.sakaiproject.sitestats.tool.bundle.Messages");
 
 
 	// ######################################################################################

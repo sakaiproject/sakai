@@ -1,3 +1,11 @@
+2006/10/31 - Version 0.5.6
+------------------------------
+- fixed STAT-17: Locale bundle not read
+- from STAT-16: Add new events:
+	- added support for 'View assignment' event
+	- added support for MessageCenter events
+	- added support for new 'Sections' events
+
 2006/10/30 - Version 0.5.5a
 ------------------------------
 - Use event id as event name if resource bundle does not exist

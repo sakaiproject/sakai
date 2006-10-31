@@ -26,7 +26,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -37,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.tool.jsf.InitializableBean;
+import org.sakaiproject.util.ResourceLoader;
 
 
 
@@ -44,27 +44,27 @@ import org.sakaiproject.sitestats.tool.jsf.InitializableBean;
  * @author <a href="mailto:nuno@ufp.pt">Nuno Fernandes</a>
  */
 public class PrefsBean extends InitializableBean implements Serializable {
-	private static final long	serialVersionUID			= -4463424105673377369L;
-	protected ResourceBundle	msgs						= ResourceBundle.getBundle("org.sakaiproject.sitestats.tool.bundle.Messages");
-	private static Log			LOG							= LogFactory.getLog(PrefsBean.class);
+	private static final long		serialVersionUID		= -4463424105673377369L;
+	protected static ResourceLoader	msgs					= new ResourceLoader("org.sakaiproject.sitestats.tool.bundle.Messages");
+	private static Log				LOG						= LogFactory.getLog(PrefsBean.class);
 
 	/** Bean members */
-	private Map					eventNames					= null;
-	private List				availableEPEvents			= null;
-	private List				availableOPEvents			= null;
-	private String[]			configuredEPEvents			= null;
-	private String[]			configuredOPEvents			= null;
-	private String[]			tempConfiguredEPEvents		= null;
-	private String[]			tempConfiguredOPEvents		= null;
+	private Map						eventNames				= null;
+	private List					availableEPEvents		= null;
+	private List					availableOPEvents		= null;
+	private String[]				configuredEPEvents		= null;
+	private String[]				configuredOPEvents		= null;
+	private String[]				tempConfiguredEPEvents	= null;
+	private String[]				tempConfiguredOPEvents	= null;
 
 	/** Statistics Manager object */
-	private String				message;
-	private boolean				updatedEvents				= false;
-	private boolean				noEPEventsSelected			= false;
-	private boolean				noOPEventsSelected			= false;
-	private BaseBean			baseBean				= null;
-	private StatsManager		sm							= getStatsManager();
-	private Collator			collator					= Collator.getInstance();
+	private String					message;
+	private boolean					updatedEvents			= false;
+	private boolean					noEPEventsSelected		= false;
+	private boolean					noOPEventsSelected		= false;
+	private BaseBean				baseBean				= null;
+	private StatsManager			sm						= getStatsManager();
+	private Collator				collator				= Collator.getInstance();
 
 	// ######################################################################################
 	// Main methods

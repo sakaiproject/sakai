@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -45,6 +44,7 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.ResourceLoader;
 
 
 
@@ -52,40 +52,40 @@ import org.sakaiproject.tool.cover.ToolManager;
  * @author <a href="mailto:nuno@ufp.pt">Nuno Fernandes</a>
  */
 public class SiteListBean extends InitializableBean implements Serializable {
-	private static final long	serialVersionUID	= -8271768875730368317L;
+	private static final long		serialVersionUID	= -8271768875730368317L;
 
-	private static Log			LOG					= LogFactory.getLog(SiteListBean.class);
+	private static Log				LOG					= LogFactory.getLog(SiteListBean.class);
 
-	protected ResourceBundle	msgs				= ResourceBundle.getBundle("org.sakaiproject.sitestats.tool.bundle.Messages");
-	private String				SITE_TYPE_ALL		= msgs.getString("all");
-	private final static String COL_TITLE			= "title";
-	private final static String COL_TYPE			= "type";
-	private final static String COL_STATUS			= "status";
+	protected static ResourceLoader	msgs				= new ResourceLoader("org.sakaiproject.sitestats.tool.bundle.Messages");
+	private String					SITE_TYPE_ALL		= msgs.getString("all");
+	private final static String		COL_TITLE			= "title";
+	private final static String		COL_TYPE			= "type";
+	private final static String		COL_STATUS			= "status";
 
 	/** Private */
-	//private boolean				allowed				= true;
-	private Boolean				allowed				= Boolean.TRUE;
-	private List				siteRows;
-	private String				siteId				= null;
-	private Site				site				= null;
-	private String				userId				= SessionManager.getCurrentSessionUserId();
-	private Tool				tool				= ToolManager.getCurrentTool();
+	// private boolean allowed = true;
+	private Boolean					allowed				= Boolean.TRUE;
+	private List					siteRows;
+	private String					siteId				= null;
+	private Site					site				= null;
+	private String					userId				= SessionManager.getCurrentSessionUserId();
+	private Tool					tool				= ToolManager.getCurrentTool();
 
 	/** UI related */
-	private List				siteTypes;
-	private String				searchKeyword;
-	private String				selectedSiteType;
-	private int					totalItems			= 0;
-	private int					firstItem			= 0;
-	private int					pageSize			= 20;
-	private SortType			sortType			= SortType.TITLE_ASC;
-	private boolean				sortAscending		= true;
-	private String				sortColumn			= COL_TITLE;
+	private List					siteTypes;
+	private String					searchKeyword;
+	private String					selectedSiteType;
+	private int						totalItems			= 0;
+	private int						firstItem			= 0;
+	private int						pageSize			= 20;
+	private SortType				sortType			= SortType.TITLE_ASC;
+	private boolean					sortAscending		= true;
+	private String					sortColumn			= COL_TITLE;
 
 	/** Manager APIs */
-	private SiteService			M_ss				= (SiteService) ComponentManager.get(SiteService.class.getName());
-	private Authz				authz				= (Authz) ComponentManager.get(Authz.class.getName());
-	private StatsManager		sm					= (StatsManager) ComponentManager.get(StatsManager.class.getName());
+	private SiteService				M_ss				= (SiteService) ComponentManager.get(SiteService.class.getName());
+	private Authz					authz				= (Authz) ComponentManager.get(Authz.class.getName());
+	private StatsManager			sm					= (StatsManager) ComponentManager.get(StatsManager.class.getName());
 
 	// ######################################################################################
 	// Main methods

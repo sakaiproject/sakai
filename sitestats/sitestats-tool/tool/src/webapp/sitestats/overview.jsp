@@ -10,6 +10,7 @@
 	response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
 	response.addHeader("Pragma", "no-cache");
 %>
+
 <f:loadBundle basename="org.sakaiproject.sitestats.tool.bundle.Messages" var="msgs"/>
 
 <f:view>

@@ -126,9 +126,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						if(siteId == null || SiteService.isUserSite(siteId) || SiteService.isSpecialSite(siteId)) continue;
 						
 						doUpdate(e, userId, siteId);
-						//LOG.debug("Statistics updated for '"+e.getEvent()+"' ("+e.toString()+")");
+						//LOG.info("Statistics updated for '"+e.getEvent()+"' ("+e.toString()+")");
 					}//else
-						//LOG.debug("Event ignored:  '"+e.toString()+"' ("+e.toString()+")");
+						//LOG.info("Event ignored:  '"+e.toString()+"' ("+e.toString()+")");
 				}
 				
 				// sleep if no work to do
@@ -446,6 +446,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						return null;
 				else if(parts[1].equals("syllabus"))
 					// try with Syllabus syntax (/syllabus/SITE_ID/...)
+					return parts[2];
+				else if(parts[1].equals("site"))
+					// try with Section Info syntax (/site/SITE_ID/...)
 					return parts[2];
 				else
 					// try with most common syntax (/abc/cde/SITE_ID/...)

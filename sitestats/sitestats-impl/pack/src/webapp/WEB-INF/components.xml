@@ -29,11 +29,15 @@
 		<!-- Base events -->
 		<property name="eventIds">
 			<value>
-				pres.begin,mail.new,mail.delete.any,mail.delete.own,chat.new,chat.delete.any,chat.delete.own,disc.new,disc.new.category,disc.null,disc.delete.category,content.new,content.read,content.revise,content.delete,asn.new.assignment,asn.revise.assignment,asn.delete.assignment,asn.submit.submission,asn.save.submission,asn.grade.submission,annc.new,annc.revise.own,annc.revise.any,annc.delete.own,annc.delete.any,calendar.new,calendar.revise,wiki.new,wiki.revise,wiki.delete,syllabus.post.new,syllabus.post.change
+				pres.begin,mail.new,mail.delete.any,mail.delete.own,chat.new,chat.delete.any,chat.delete.own,disc.new,disc.new.category,disc.null,disc.delete.category,content.new,content.read,content.revise,content.delete,asn.read,asn.new.assignment,asn.revise.assignment,asn.delete.assignment,asn.submit.submission,asn.save.submission,asn.grade.submission,annc.new,annc.revise.own,annc.revise.any,annc.delete.own,annc.delete.any,calendar.new,calendar.revise,wiki.new,wiki.read,wiki.revise,wiki.delete,syllabus.post.new,syllabus.post.change,msgcntr.new,msgcntr.read,msgcntr.revise,msgcntr.delete,section.student.join,section.student.unjoin,section.student.switch,section.add.ta,section.add.student,section.members.reset,section.student.drop,section.student.drop.category,section.add,section.update,section.disband,section.student.reg
 			</value>
 		</property>
-		<!-- Events added on sakai_2-3: wiki.new,wiki.delete -->
-		<!-- Events waiting for fix: wiki.read,msgcntr.new,msgcntr.read,msgcntr.revise,msgcntr.delete -->
+		<!-- Events added on sakai_2-3: 
+			asn.read,
+			wiki.read,wiki.new,wiki.delete,
+			msgcntr.new,msgcntr.read,msgcntr.revise,msgcntr.delete,
+			section.student.join,section.student.unjoin,section.student.switch,section.add.ta,section.add.student,section.members.reset,section.student.drop,section.student.drop.category,section.add,section.update,section.disband,section.student.reg
+		-->
 		
 		<!-- Aggregate administrator events? -->
 		<property name="collectAdminEvents">

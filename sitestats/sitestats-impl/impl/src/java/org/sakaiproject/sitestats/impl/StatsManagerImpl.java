@@ -75,7 +75,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private boolean					collectAdminEvents				= false;
 
 	/** Controller fields */
-	private List					sitestatsRegisteredEvents		= new ArrayList();
+	private List					registeredEvents		= new ArrayList();
 	private Map						eventNameMap;
 	private boolean					showAnonymousEvents				= false;
 
@@ -92,19 +92,19 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	public void setEventIds(String eventIds) {
 		String[] e = eventIds.replace('\n', ' ').split(",");
 		for(int i=0; i<e.length; i++)
-			sitestatsRegisteredEvents.add(e[i].trim());
+			registeredEvents.add(e[i].trim());
 	}
 	
 	public void setAddEventIds(String eventIds) {
 		String[] e = eventIds.replace('\n', ' ').split(",");
 		for(int i=0; i<e.length; i++)
-			sitestatsRegisteredEvents.add(e[i].trim());
+			registeredEvents.add(e[i].trim());
 	}
 	
 	public void setRemoveEventIds(String eventIds) {
 		String[] e = eventIds.replace('\n', ' ').split(",");
 		for(int i=0; i<e.length; i++)
-			sitestatsRegisteredEvents.remove(e[i].trim());
+			registeredEvents.remove(e[i].trim());
 	}
 
 	public void setCollectAdminEvents(boolean value){
@@ -140,13 +140,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	// Spring init/destroy methods
 	// ################################################################	
 	public void init(){
-//		String sqlRenameUpdateScriptName = "sakai_sitestats_post_schemaupdate_ren";
-//		String sqlUpdateScriptName = "sakai_sitestats_post_schemaupdate";
-		if (autoDdl && M_sql != null/* && M_sql.getVendor().equals("mysql")*/) {
-//			if (LOG.isInfoEnabled()) LOG.info("About to call sqlService.ddl with " + sqlRenameUpdateScriptName);
-//			M_sql.ddl(this.getClass().getClassLoader(), sqlRenameUpdateScriptName);
-//			if (LOG.isInfoEnabled()) LOG.info("About to call sqlService.ddl with " + sqlUpdateScriptName);
-//			M_sql.ddl(this.getClass().getClassLoader(), sqlUpdateScriptName);
+		if (autoDdl && M_sql != null) {
 			DBHelper dbHelper = new DBHelper(M_sql);
 			dbHelper.updateIndexes();
 		}
@@ -160,7 +154,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getRegisteredEventIds()
 	 */
 	public List getRegisteredEventIds() {
-		return sitestatsRegisteredEvents;
+		return registeredEvents;
 	}
 	
 	/* (non-Javadoc)
@@ -358,8 +352,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	public Map getEventNameMap() {
 		if(eventNameMap == null){
 			eventNameMap = new HashMap();
-			if(sitestatsRegisteredEvents == null) getRegisteredEventIds();
-			Iterator i = sitestatsRegisteredEvents.iterator();
+			registeredEvents = getRegisteredEventIds();
+			Iterator i = registeredEvents.iterator();
 			while (i.hasNext()){
 				String eId = (String) i.next();
 				eventNameMap.put(eId, getEventName(eId));

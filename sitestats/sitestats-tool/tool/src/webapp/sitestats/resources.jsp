@@ -10,8 +10,9 @@
 	response.addHeader("Pragma", "no-cache");
 %>
 
-<f:view>
 <f:loadBundle basename="org.sakaiproject.sitestats.tool.bundle.Messages" var="msgs"/>
+
+<f:view>
 <sakai:view title="#{msgs.tool_title}">
 	<sakai:flowState bean="#{ResourcesBean}"/>
 

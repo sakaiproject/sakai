@@ -20,7 +20,6 @@ package org.sakaiproject.sitestats.tool.bean;
 
 import java.io.Serializable;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -39,6 +38,7 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.ResourceLoader;
 
 
 
@@ -52,7 +52,7 @@ public class BaseBean extends InitializableBean implements Serializable {
 	private static Log				LOG			= LogFactory.getLog(BaseBean.class);
 
 	/** Resource bundle */
-	protected static ResourceBundle	msgs		= ResourceBundle.getBundle("org.sakaiproject.sitestats.tool.bundle.Messages");
+	protected static ResourceLoader	msgs		= new ResourceLoader("org.sakaiproject.sitestats.tool.bundle.Messages");
 
 	private ToolManager				M_tm		= (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	private SiteService				M_ss		= (SiteService) ComponentManager.get(SiteService.class.getName());
