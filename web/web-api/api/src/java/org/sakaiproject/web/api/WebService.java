@@ -20,9 +20,11 @@
  **********************************************************************************/
 package org.sakaiproject.web.api;
 
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 
 public interface WebService extends EntityProducer
 {
 	public static final String SERVICE_NAME = WebService.class.getName();
+	public static final String REFERENCE_ROOT = Entity.SEPARATOR + "web";
 }
