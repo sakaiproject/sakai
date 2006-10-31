@@ -51,9 +51,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private boolean saved = false;
     private String columnCount;
     private String rowCount;
-    private String rowStyles;
     private boolean hasUnknownUser;
-    private List spreadsheets;
     private Long spreadsheetId;
     private Map scores;
     private Assignment assignment;
@@ -128,10 +126,6 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         return getGradebookManager().getSpreadsheets(getGradebookId());
     }
 
-    public void setSpreadsheets(List spreadsheets) {
-        this.spreadsheets = spreadsheets;
-    }
-
     public String deleteItem(){
         return "spreadsheetRemove";
     }
@@ -189,7 +183,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         return FacesUtil.getLocalizedString("upload_preview_column_count",new String[] {columnCount});
     }
 
-    public void setColumnCount(String columCount) {
+    public void setColumnCount(String columnCount) {
         this.columnCount = columnCount;
     }
 
@@ -214,10 +208,6 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         }
         if(logger.isDebugEnabled())logger.debug(sb.toString());
         return sb.toString();
-    }
-
-    public void setRowStyles(String rowStyles) {
-        this.rowStyles = rowStyles;
     }
 
     public boolean getHasUnknownUser() {
@@ -612,8 +602,6 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             }
 
             if(logger.isDebugEnabled())logger.debug("persist grade records to database");
-            Set mismatchedScores  = getGradebookManager().updateAssignmentGradeRecords(graderecords);
-
             return  "spreadsheetPreview";
         } catch (ConflictingAssignmentNameException e) {
             if(logger.isErrorEnabled())logger.error(e);

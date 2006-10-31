@@ -144,9 +144,9 @@ public class GradeCommentTest extends GradebookTestBase  {
         students.add("entered1");
         //create a number of assignments
         Long asgId = gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
-        Long asg2Id = gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test1", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
-        Long asg3Id = gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test2", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
-        Long asg4Id = gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test3", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
+        gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test1", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
+        gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test2", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
+        gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test3", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
 
         Assignment asn = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(0);
         Assignment asn2 = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(1);
@@ -191,7 +191,7 @@ public class GradeCommentTest extends GradebookTestBase  {
 		addUsersEnrollments(gradebook, studentUidsList);
 
         //create a asssignment
-        Long asgId = gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
+        gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
 
         Assignment asn = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(0);
 
@@ -230,7 +230,7 @@ public class GradeCommentTest extends GradebookTestBase  {
 		addUsersEnrollments(gradebook, studentUidsList);
 
         //create a asssignment
-        Long asgId = gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
+        gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
 
         Assignment asn = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(0);
 

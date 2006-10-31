@@ -47,8 +47,6 @@ public class GradeMappingTest extends GradebookTestBase {
 	}
 
     public void testSetGradeMappings() throws Exception {
-    	Collection grades;
-    	List defaultValues;
     	GradeMapping gradeMapping;
 
         // By default, we get Letter Grades as a default mapping,

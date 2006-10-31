@@ -53,8 +53,6 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         implements GradebookManager {
 
     private static final Log log = LogFactory.getLog(GradebookManagerHibernateImpl.class);
-    private String comment;
-
     public void updateGradebook(final Gradebook gradebook) throws StaleObjectModificationException {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {

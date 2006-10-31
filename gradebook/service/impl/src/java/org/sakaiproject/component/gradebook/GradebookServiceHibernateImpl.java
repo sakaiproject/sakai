@@ -654,7 +654,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new SecurityException("You do not have permission to perform this operation");
 		}
 
-		Double assignmentScore = assignmentScore = (Double)getHibernateTemplate().execute(new HibernateCallback() {
+		Double assignmentScore = (Double)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentName, session);
 				if (assignment == null) {

@@ -98,7 +98,6 @@ public class TestServiceAgainstLoadedData extends GradebookLoaderBase {
 
 		Assignment asn = getAssignment(gradebook, TestGradebookLoader.EXTERNAL_ASN_NAME2);
 
-		Map studentUidsToScores = new HashMap();
 		int scoreGoRound = 2;
 		for (Iterator iter = enrollments.iterator(); iter.hasNext(); ) {
 			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
@@ -132,7 +131,6 @@ public class TestServiceAgainstLoadedData extends GradebookLoaderBase {
 
 		Assignment asn = getAssignment(gradebook, TestGradebookLoader.EXTERNAL_ASN_NAME1);
 
-		Map studentUidsToScores = new HashMap();
 		int scoreGoRound = 2;
 		for (Iterator iter = enrollments.iterator(); iter.hasNext(); ) {
 			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
