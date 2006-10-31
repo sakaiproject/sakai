@@ -1172,6 +1172,10 @@ public class podHomeBean {
 	 * 						or back to Main)
 	 */
 	public String processRevisePodcast() {
+		// set error messages to false so can be
+		// turned on during processing
+		displayNoTitleErrMsg = false;
+		displayInvalidDateErrMsg = false;
 
 		String whereToGo = "cancel";
 		boolean filenameChange = false;
