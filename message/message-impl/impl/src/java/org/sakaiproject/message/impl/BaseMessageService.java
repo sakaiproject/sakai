@@ -2378,6 +2378,19 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			return (!getGroupsAllowAddMessage().isEmpty());
 
 		} // allowAddMessage
+		
+		/**
+		 * @inheritDoc
+		 */
+		public boolean allowAddDraftMessage()
+		{
+			// checking for permission for allow adding any message
+			if (!allowAddMessage()) return false;
+
+			// if allow to add message, one can save it as draft if only he can modify the draft afterwards.
+			return (unlockCheck2(SECURE_UPDATE_ANY, SECURE_UPDATE_OWN, getReference()));
+
+		} // allowAddDraftMessage
 
 		/**
 		 * @inheritDoc

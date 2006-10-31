@@ -179,6 +179,11 @@ public interface MessageChannel extends Entity
 	 * @return true if the user is allowed to addMessage(...), false if not.
 	 */
 	boolean allowAddMessage();
+	
+	/**
+	 * check permission for adding draft message and modifying it afterwards.
+	 */
+	boolean allowAddDraftMessage();
 
 	/**
 	 * Check if the user has permission to add a channel-wide (not grouped) message.
