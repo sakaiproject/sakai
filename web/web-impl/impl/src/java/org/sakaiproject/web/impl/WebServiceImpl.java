@@ -21,10 +21,12 @@
 package org.sakaiproject.web.impl;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +36,8 @@ import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -43,6 +47,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.web.api.WebService;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -53,16 +58,140 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 	
 	private static Log M_log = LogFactory.getLog(WebServiceImpl.class);
 	
-  private static final String WEB_CONTENT = "web_content";
-  private static final String REDIRECT_TAB = "redirect_tab";
-  private static final String WEB_CONTENT_TITLE = "title";
-  private static final String WEB_CONTENT_URL = "url";
-	public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
+	private static final String TOOL_ID = "sakai.iframe";
+	
+	private static final String WEB_CONTENT = "web_content";
+	private static final String REDIRECT_TAB = "redirect_tab";
+	private static final String WEB_CONTENT_TITLE = "title";
+	private static final String WEB_CONTENT_URL = "url";
+	private static final String PAGE_TITLE = "page_title";
+	private static final String NEW_WINDOW = "open_in_new_window";
+	private static final String ARCHIVE_VERSION = "2.4"; // in case new features are added in future exports
+	
+	private static final String VERSION_ATTR = "version";
+	private static final String WEB_CONTENT_URL_PROP = "source";
+	private static final String HEIGHT_PROP = "height";
 
+	
+	public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
+	
+	public void init()
+	{
+		M_log.debug("init()");
+
+		// register as an entity producer
+		EntityManager.registerEntityProducer(this, REFERENCE_ROOT);
+
+	} // init
+	
+	
 	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		StringBuffer results = new StringBuffer();
+
+		try
+		{
+			int count = 0;
+			results.append("archiving " + getLabel() + " context "
+					+ Entity.SEPARATOR + siteId + Entity.SEPARATOR
+					+ SiteService.MAIN_CONTAINER + ".\n");
+			// start with an element with our very own (service) name
+			Element element = doc.createElement(SERVICE_NAME);
+			element.setAttribute(VERSION_ATTR, ARCHIVE_VERSION);
+			((Element) stack.peek()).appendChild(element);
+			stack.push(element);
+			if (siteId != null && siteId.trim().length() > 0)
+			{
+				Element webContentEl = doc.createElement(WEB_CONTENT);
+
+				Site site = SiteService.getSite(siteId);
+				List sitePages = site.getPages();
+
+				if (sitePages != null && !sitePages.isEmpty()) {
+					Iterator pageIter = sitePages.iterator();
+					while (pageIter.hasNext()) {
+						SitePage currPage = (SitePage) pageIter.next();
+
+						List toolList = currPage.getTools();
+						Iterator toolIter = toolList.iterator();
+						while (toolIter.hasNext()) {
+							ToolConfiguration toolConfig = (ToolConfiguration)toolIter.next();
+
+							if (toolConfig.getToolId().equals(TOOL_ID)) {
+								Element webContentData = doc.createElement(REDIRECT_TAB);
+								count++;
+
+								String contentUrl = toolConfig.getPlacementConfig().getProperty(WEB_CONTENT_URL_PROP);
+								String toolTitle = toolConfig.getTitle();
+								String pageTitle = currPage.getTitle();
+								String height = toolConfig.getPlacementConfig().getProperty(HEIGHT_PROP);
+
+								webContentData.setAttribute(NEW_WINDOW, new Boolean(currPage.isPopUp()).toString());
+
+								try {
+									String encoded = Base64.encode(contentUrl.getBytes());
+									webContentData.setAttribute(WEB_CONTENT_URL, encoded);
+								}
+								catch(Exception e) {
+									M_log.warn("Encode Web Content URL - " + e);
+								}
+
+								try {
+									String encoded = Base64.encode(toolTitle.getBytes());
+									webContentData.setAttribute(WEB_CONTENT_TITLE, encoded);
+								}
+								catch(Exception e) {
+									M_log.warn("Encode Web Content Tool Title - " + e);
+								}
+
+								if (height != null) {
+									webContentData.setAttribute(HEIGHT_PROP, height);
+								}
+
+								try {
+									String encoded = Base64.encode(pageTitle.getBytes());
+									webContentData.setAttribute(PAGE_TITLE, encoded);
+								}
+								catch(Exception e) {
+									M_log.warn("Encode Web Content Page Title - " + e);
+								}
+
+								if (height != null) {
+									webContentData.setAttribute(HEIGHT_PROP, height);
+								}
+
+								webContentEl.appendChild(webContentData);
+							}
+						}		  
+					}
+					results.append("archiving " + getLabel() + ": (" + count
+							+ ") web content items archived successfully.\n");
+				}
+
+				else {
+					results.append("archiving " + getLabel()
+							+ ": empty web content archived.\n");
+				}
+
+				((Element) stack.peek()).appendChild(webContentEl);
+				stack.push(webContentEl);
+			}
+			stack.pop();
+
+		}
+		catch (DOMException e)
+		{
+			M_log.error(e.getMessage(), e);
+		}
+		catch (IdUnusedException e)
+		{
+			M_log.error(e.getMessage(), e);
+		}
+		catch (Exception e)
+		{
+			M_log.error(e.getMessage(), e);
+		}
+		return results.toString();
 	}
 
 	public Entity getEntity(Reference ref)
@@ -103,92 +232,117 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 
 	public String getLabel()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return "web";
 	}
 
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans, Set userListAllowImport)
 	{
 		M_log.info("merge starts for Web Content...");
-    if (siteId != null && siteId.trim().length() > 0)
-    {
-      try
-      {
-      	Site site = SiteService.getSite(siteId);
-        NodeList allChildrenNodes = root.getChildNodes();
-        int length = allChildrenNodes.getLength();
-        for (int i = 0; i < length; i++)
-        {
-          Node siteNode = allChildrenNodes.item(i);
-          if (siteNode.getNodeType() == Node.ELEMENT_NODE)
-          {
-            Element siteElement = (Element) siteNode;
-            if (siteElement.getTagName().equals(WEB_CONTENT))
-            {
-            	NodeList allContentNodes = siteElement.getChildNodes();
-              int lengthContent = allContentNodes.getLength();
-              for (int j = 0; j < lengthContent; j++)
-              {
-                Node child1 = allContentNodes.item(j);
-                if (child1.getNodeType() == Node.ELEMENT_NODE)
-                {
-                  Element contentElement = (Element) child1;
-                  if (contentElement.getTagName().equals(REDIRECT_TAB))
-                  {
-                  	String contentTitle = contentElement.getAttribute(WEB_CONTENT_TITLE);
-                  	String trimBody = null;
-                  	if(contentTitle != null && contentTitle.length() >0)
-                  	{
-                      trimBody = trimToNull(contentTitle);
-                      if (trimBody != null && trimBody.length() >0)
-                      {
-                      	byte[] decoded = Base64.decode(trimBody);
-                      	contentTitle = new String(decoded, "UTF-8");
-                      }
-                  	}
-                  	String contentUrl = contentElement.getAttribute(WEB_CONTENT_URL);
-                  	trimBody = null;
-                  	if(contentUrl != null && contentUrl.length() >0)
-                  	{
-                      trimBody = trimToNull(contentUrl);
-                      if (trimBody != null && trimBody.length() >0)
-                      {
-                      	byte[] decoded = Base64.decode(trimBody);
-                      	contentUrl = new String(decoded, "UTF-8");
-                      }
-                  	}
-                  	
-                  	if(contentTitle != null && contentUrl != null && contentTitle.length() >0 && contentUrl.length() >0)
-                  	{
-                			Tool tr = ToolManager.getTool("sakai.iframe");
-                			SitePage page = site.addPage();
-                			page.setTitle(contentTitle);
-                			ToolConfiguration tool = page.addTool();
-                			tool.setTool("sakai.iframe", tr);
-                			tool.setTitle(contentTitle);
-    									tool.getPlacementConfig().setProperty("source", contentUrl);
-                  	}
-                  }
-                }
-              }
-            }
-          }
-        }
-        SiteService.save(site);
-    		ToolSession session = SessionManager.getCurrentToolSession();
+		if (siteId != null && siteId.trim().length() > 0)
+		{
+			try
+			{
+				Site site = SiteService.getSite(siteId);
+				NodeList allChildrenNodes = root.getChildNodes();
+				int length = allChildrenNodes.getLength();
+				for (int i = 0; i < length; i++)
+				{
+					Node siteNode = allChildrenNodes.item(i);
+					if (siteNode.getNodeType() == Node.ELEMENT_NODE)
+					{
+						Element siteElement = (Element) siteNode;
+						if (siteElement.getTagName().equals(WEB_CONTENT))
+						{
+							NodeList allContentNodes = siteElement.getChildNodes();
+							int lengthContent = allContentNodes.getLength();
+							for (int j = 0; j < lengthContent; j++)
+							{
+								Node child1 = allContentNodes.item(j);
+								if (child1.getNodeType() == Node.ELEMENT_NODE)
+								{
+									Element contentElement = (Element) child1;
+									if (contentElement.getTagName().equals(REDIRECT_TAB))
+									{
+										String toolTitle = contentElement.getAttribute(WEB_CONTENT_TITLE);
+										String trimBody = null;
+										if(toolTitle != null && toolTitle.length() >0)
+										{
+											trimBody = trimToNull(toolTitle);
+											if (trimBody != null && trimBody.length() >0)
+											{
+												byte[] decoded = Base64.decode(trimBody);
+												toolTitle = new String(decoded, "UTF-8");
+											}
+										}
 
-    		if (session.getAttribute(ATTR_TOP_REFRESH) == null)
-    		{
-    			session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
-    		}
-      }
-      catch(Exception e)
-      {
-      	M_log.error("errors in merge for WebServiceImpl");
-      	e.printStackTrace();
-      }
-    }
-    
+										String pageTitle = contentElement.getAttribute(PAGE_TITLE);
+										trimBody = null;
+										if(pageTitle != null && pageTitle.length() >0)
+										{
+											trimBody = trimToNull(pageTitle);
+											if (trimBody != null && trimBody.length() >0)
+											{
+												byte[] decoded = Base64.decode(trimBody);
+												pageTitle = new String(decoded, "UTF-8");
+											}
+										}
+
+										String contentUrl = contentElement.getAttribute(WEB_CONTENT_URL);
+										trimBody = null;
+										if(contentUrl != null && contentUrl.length() >0)
+										{
+											trimBody = trimToNull(contentUrl);
+											if (trimBody != null && trimBody.length() >0)
+											{
+												byte[] decoded = Base64.decode(trimBody);
+												contentUrl = new String(decoded, "UTF-8");
+											}
+										}
+
+										String height = contentElement.getAttribute(HEIGHT_PROP);
+										String openInNewWindow = contentElement.getAttribute(NEW_WINDOW);
+
+										if(toolTitle != null && contentUrl != null && toolTitle.length() >0 && contentUrl.length() >0
+												&& pageTitle !=null && pageTitle.length() > 0)
+										{
+											Tool tr = ToolManager.getTool(TOOL_ID);
+											SitePage page = site.addPage(); 
+											page.setTitle(pageTitle);
+											ToolConfiguration tool = page.addTool();
+											tool.setTool(TOOL_ID, tr);
+											tool.setTitle(toolTitle);
+											tool.getPlacementConfig().setProperty(WEB_CONTENT_URL_PROP, contentUrl);
+
+											if (height != null) {
+												tool.getPlacementConfig().setProperty(HEIGHT_PROP, height);
+											}
+
+											if (openInNewWindow.equalsIgnoreCase("true")) 
+												page.setPopup(true);
+											else
+												page.setPopup(false);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				SiteService.save(site);
+				ToolSession session = SessionManager.getCurrentToolSession();
+
+				if (session.getAttribute(ATTR_TOP_REFRESH) == null)
+				{
+					session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+				}
+			}
+			catch(Exception e)
+			{
+				M_log.error("errors in merge for WebServiceImpl");
+				e.printStackTrace();
+			}
+		}
+
 		return null;
 	}
 
@@ -201,19 +355,81 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 	public boolean willArchiveMerge()
 	{
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	public String[] myToolIds()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		String[] toolIds = { TOOL_ID };
+		return toolIds;
 	}
 
 	public void transferCopyEntities(String fromContext, String toContext, List ids)
 	{
-		// TODO Auto-generated method stub
-		
+		M_log.debug("web content transferCopyEntities");
+		try
+		{				
+			// retrieve all of the web content tools to copy
+			Site fromSite = SiteService.getSite(fromContext);
+			Site toSite = SiteService.getSite(toContext);
+			
+			List fromSitePages = fromSite.getPages();
+
+			if (fromSitePages != null && !fromSitePages.isEmpty()) {
+				Iterator pageIter = fromSitePages.iterator();
+				while (pageIter.hasNext()) {
+					SitePage currPage = (SitePage) pageIter.next();
+
+					List toolList = currPage.getTools();
+					Iterator toolIter = toolList.iterator();
+					while (toolIter.hasNext()) {
+						ToolConfiguration toolConfig = (ToolConfiguration)toolIter.next();
+
+						if (toolConfig.getToolId().equals(TOOL_ID)) {
+							String contentUrl = toolConfig.getPlacementConfig().getProperty(WEB_CONTENT_URL_PROP);
+							String toolTitle = toolConfig.getTitle();
+							String pageTitle = currPage.getTitle();
+							String height = toolConfig.getPlacementConfig().getProperty(HEIGHT_PROP);
+
+							if(toolTitle != null && toolTitle.length() >0 && pageTitle !=null && pageTitle.length() > 0)
+							{
+								Tool tr = ToolManager.getTool(TOOL_ID);
+								SitePage page = toSite.addPage(); 
+								page.setTitle(pageTitle);
+								ToolConfiguration tool = page.addTool();
+								tool.setTool(TOOL_ID, tr);
+								tool.setTitle(toolTitle);
+								if (contentUrl != null) {
+									tool.getPlacementConfig().setProperty(WEB_CONTENT_URL_PROP, contentUrl);
+								}
+
+								if (height != null) {
+									tool.getPlacementConfig().setProperty(HEIGHT_PROP, height);
+								}
+
+								if (currPage.isPopUp()) 
+									page.setPopup(true);
+								else
+									page.setPopup(false);
+							}
+						}
+					}
+				}
+			}
+			SiteService.save(toSite);
+			ToolSession session = SessionManager.getCurrentToolSession();
+
+			if (session.getAttribute(ATTR_TOP_REFRESH) == null)
+			{
+				session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+			}
+		}
+
+		catch (Exception any)
+		{
+			M_log.warn("transferCopyEntities(): exception in handling webcontent data: ", any);
+		}
+
 	}
 
 	public String trimToNull(String value)
