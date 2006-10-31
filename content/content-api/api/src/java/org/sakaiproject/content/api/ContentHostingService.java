@@ -1509,4 +1509,10 @@ public interface ContentHostingService extends EntityProducer
 	 */ 
 	public boolean isSortByPriorityEnabled();
 	
+	/**
+	 * Access flag indicating whether the ResourceTypeRegistry is being used
+	 * @return
+	 */
+	public boolean usingResourceTypeRegistry();
+	
 }

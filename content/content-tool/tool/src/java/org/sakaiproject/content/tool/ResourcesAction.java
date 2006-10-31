@@ -156,6 +156,8 @@ public class ResourcesAction
 
 	/** The content type image lookup service in the State. */
 	private static final String STATE_CONTENT_TYPE_IMAGE_SERVICE = "resources.content_type_image_service";
+	
+	private static final String STATE_RESOURCES_TYPE_REGISTRY = "resources.type_registry";
 
 	/** The resources, helper or dropbox mode. */
 	public static final String STATE_MODE_RESOURCES = "resources.resources_mode";
@@ -416,13 +418,13 @@ public class ResourcesAction
 	/** The not empty delete ids */
 	private static final String STATE_NOT_EMPTY_DELETE_IDS = "resource.not_empty_delete_ids";
 
-	/** The name of the state attribute containing a list of BrowseItem objects corresponding to resources selected for deletion */
+	/** The name of the state attribute containing a list of ChefBrowseItem objects corresponding to resources selected for deletion */
 	private static final String STATE_DELETE_ITEMS = "resources.delete_items";
 
-	/** The name of the state attribute containing a list of BrowseItem objects corresponding to nonempty folders selected for deletion */
+	/** The name of the state attribute containing a list of ChefBrowseItem objects corresponding to nonempty folders selected for deletion */
 	private static final String STATE_DELETE_ITEMS_NOT_EMPTY = "resources.delete_items_not_empty";
 
-	/** The name of the state attribute containing a list of BrowseItem objects selected for deletion that cannot be deleted */
+	/** The name of the state attribute containing a list of ChefBrowseItem objects selected for deletion that cannot be deleted */
 	private static final String STATE_DELETE_ITEMS_CANNOT_DELETE = "resources.delete_items_cannot_delete";
 
 	/************** the cut items context *****************************************/
@@ -610,6 +612,9 @@ public class ResourcesAction
 		context.put("tlang",rb);
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
+		
+		// get CHS
+		org.sakaiproject.content.api.ContentHostingService contentHostingService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute(STATE_CONTENT_SERVICE);
 
 		context.put("copyright_alert_url", COPYRIGHT_ALERT_URL);
 
@@ -640,8 +645,16 @@ public class ResourcesAction
 
 		if (mode.equals (MODE_LIST))
 		{
-			// build the context for add item
-			template = buildListContext (portlet, context, data, state);
+			if(contentHostingService.usingResourceTypeRegistry())
+			{
+				// build the context for list view
+				template = buildListContext (portlet, context, data, state);
+			}
+			else
+			{
+				// build the context for list view
+				template = buildChefListContext (portlet, context, data, state);
+			}
 		}
 		else if (mode.equals (MODE_HELPER))
 		{
@@ -711,7 +724,7 @@ public class ResourcesAction
 		// List all_roots = new Vector();
 		List this_site = new Vector();
 
-		List members = getListView(folderId, highlightedItems, (BrowseItem) null, true, state);
+		List members = getListView(folderId, highlightedItems, (ChefBrowseItem) null, true, state);
 
 		// restore expanded folder lists 
 		expandedCollections.addAll(tempExpandedCollections);
@@ -757,7 +770,7 @@ public class ResourcesAction
 
 		if(members != null && members.size() > 0)
 		{
-			BrowseItem root = (BrowseItem) members.remove(0);
+			ChefBrowseItem root = (ChefBrowseItem) members.remove(0);
 			root.addMembers(members);
 			root.setName(rootTitle);
 			this_site.add(root);
@@ -769,7 +782,345 @@ public class ResourcesAction
 	}
 
 	/**
-	* Build the context for the list view
+	* Build the context for the old list view, which does not use the resource type registry
+	*/
+	public String buildChefListContext (	VelocityPortlet portlet,
+										Context context,
+										RunData data,
+										SessionState state)
+	{
+		context.put("tlang",rb);
+
+		context.put("expandedCollections", state.getAttribute(STATE_EXPANDED_COLLECTIONS));
+
+		// find the ContentTypeImage service
+		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
+
+		context.put("TYPE_FOLDER", TYPE_FOLDER);
+		context.put("TYPE_UPLOAD", TYPE_UPLOAD);
+
+		context.put("SITE_ACCESS", AccessMode.SITE.toString());
+		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
+		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
+		context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
+
+		Set selectedItems = (Set) state.getAttribute(STATE_LIST_SELECTIONS);
+		if(selectedItems == null)
+		{
+			selectedItems = new TreeSet();
+			state.setAttribute(STATE_LIST_SELECTIONS, selectedItems);
+		}
+		context.put("selectedItems", selectedItems);
+
+		// find the ContentHosting service
+		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+		context.put ("service", contentService);
+
+		boolean inMyWorkspace = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
+		context.put("inMyWorkspace", Boolean.toString(inMyWorkspace));
+
+		boolean atHome = false;
+
+		// %%STATE_MODE_RESOURCES%%
+
+		boolean dropboxMode = RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES));
+		if (dropboxMode)
+		{
+			// notshow the public option or notification when in dropbox mode
+			context.put("dropboxMode", Boolean.TRUE);
+		}
+		else
+		{
+			//context.put("dropboxMode", Boolean.FALSE);
+		}
+
+		// make sure the channedId is set
+		String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
+		context.put ("collectionId", collectionId);
+		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
+		String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+
+		String siteTitle = (String) state.getAttribute (STATE_SITE_TITLE);
+		if (collectionId.equals(homeCollectionId))
+		{
+			atHome = true;
+			context.put ("collectionDisplayName", state.getAttribute (STATE_HOME_COLLECTION_DISPLAY_NAME));
+		}
+		else
+		{
+			// should be not PermissionException thrown at this time, when the user can successfully navigate to this collection
+			try
+			{
+				context.put("collectionDisplayName", contentService.getCollection(collectionId).getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+			}
+			catch (IdUnusedException e){}
+			catch (TypeException e) {}
+			catch (PermissionException e) {}
+		}
+		if(!inMyWorkspace && !dropboxMode && atHome && SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
+		{
+			context.put("showPermissions", Boolean.TRUE.toString());
+			//buildListMenu(portlet, context, data, state);
+		}
+
+		context.put("atHome", Boolean.toString(atHome));
+
+		if(ContentHostingService.isAvailabilityEnabled())
+		{
+			context.put("availability_is_enabled", Boolean.TRUE);
+		}
+		
+		List cPath = getCollectionPath(state);
+		context.put ("collectionPath", cPath);
+
+		// set the sort values
+		String sortedBy = (String) state.getAttribute (STATE_SORT_BY);
+		String sortedAsc = (String) state.getAttribute (STATE_SORT_ASC);
+		context.put ("currentSortedBy", sortedBy);
+		context.put ("currentSortAsc", sortedAsc);
+		context.put("TRUE", Boolean.TRUE.toString());
+
+		boolean showRemoveAction = false;
+		boolean showMoveAction = false;
+		boolean showCopyAction = false;
+
+		Set highlightedItems = new TreeSet();
+
+		try
+		{
+			try
+			{
+				contentService.checkCollection (collectionId);
+				context.put ("collectionFlag", Boolean.TRUE.toString());
+			}
+			catch(IdUnusedException ex)
+			{
+				logger.warn(this + "IdUnusedException: " + collectionId);
+				try
+				{
+					ContentCollectionEdit coll = contentService.addCollection(collectionId);
+					contentService.commitCollection(coll);
+				}
+				catch(IdUsedException inner)
+				{
+					// how can this happen??
+					logger.warn(this + "IdUsedException: " + collectionId);
+					throw ex;
+				}
+				catch(IdInvalidException inner)
+				{
+					logger.warn(this + "IdInvalidException: " + collectionId);
+					// what now?
+					throw ex;
+				}
+				catch(InconsistentException inner)
+				{
+					logger.warn(this + "InconsistentException: " + collectionId);
+					// what now?
+					throw ex;
+				}
+			}
+			catch(TypeException ex)
+			{
+				logger.warn(this + "TypeException.");
+				throw ex;				
+			}
+			catch(PermissionException ex)
+			{
+				logger.warn(this + "PermissionException.");
+				throw ex;
+			}
+			
+			String copyFlag = (String) state.getAttribute (STATE_COPY_FLAG);
+			if (copyFlag.equals (Boolean.TRUE.toString()))
+			{
+				context.put ("copyFlag", copyFlag);
+				List copiedItems = (List) state.getAttribute(STATE_COPIED_IDS);
+				// context.put ("copiedItem", state.getAttribute (STATE_COPIED_ID));
+				highlightedItems.addAll(copiedItems);
+				// context.put("copiedItems", copiedItems);
+			}
+
+			String moveFlag = (String) state.getAttribute (STATE_MOVE_FLAG);
+			if (moveFlag.equals (Boolean.TRUE.toString()))
+			{
+				context.put ("moveFlag", moveFlag);
+				List movedItems = (List) state.getAttribute(STATE_MOVED_IDS);
+				highlightedItems.addAll(movedItems);
+				// context.put ("copiedItem", state.getAttribute (STATE_COPIED_ID));
+				// context.put("movedItems", movedItems);
+			}
+
+			SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+			
+			//ContentCollection coll = contentService.getCollection(collectionId);
+			expandedCollections.add(collectionId);
+
+			state.removeAttribute(STATE_PASTE_ALLOWED_FLAG);
+
+			List all_roots = new Vector();
+			List this_site = new Vector();
+			
+			List members = getListView(collectionId, highlightedItems, (ChefBrowseItem) null, navRoot.equals(homeCollectionId), state);
+
+			// List members = getBrowseItems(collectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, navRoot.equals(homeCollectionId), state);
+			if(members != null && members.size() > 0)
+			{
+				ChefBrowseItem root = (ChefBrowseItem) members.remove(0);
+				showRemoveAction = showRemoveAction || root.hasDeletableChildren();
+				showMoveAction = showMoveAction || root.hasDeletableChildren();
+				showCopyAction = showCopyAction || root.hasCopyableChildren();
+
+				if(atHome && dropboxMode)
+				{
+					root.setName(siteTitle + " " + rb.getString("gen.drop"));
+				}
+				else if(atHome)
+				{
+					root.setName(siteTitle + " " + rb.getString("gen.reso"));
+				}
+				context.put("site", root);
+				root.addMembers(members);
+				this_site.add(root);
+				all_roots.add(root);
+			}
+			context.put ("this_site", this_site);
+
+			boolean show_all_sites = false;
+			List other_sites = new Vector();
+
+			String allowed_to_see_other_sites = (String) state.getAttribute(STATE_SHOW_ALL_SITES);
+			String show_other_sites = (String) state.getAttribute(STATE_SHOW_OTHER_SITES);
+			context.put("show_other_sites", show_other_sites);
+			if(Boolean.TRUE.toString().equals(allowed_to_see_other_sites))
+			{
+				context.put("allowed_to_see_other_sites", Boolean.TRUE.toString());
+				show_all_sites = Boolean.TRUE.toString().equals(show_other_sites);
+			}
+
+			if(atHome && show_all_sites)
+			{
+				state.setAttribute(STATE_HIGHLIGHTED_ITEMS, highlightedItems);
+				// TODO: see call to prepPage below.  That also calls readAllResources.  Are both calls necessary?
+				other_sites.addAll(readAllResources(state));
+				all_roots.addAll(other_sites);
+
+				List messages = prepPage(state);
+				context.put("other_sites", messages);
+
+				if (state.getAttribute(STATE_NUM_MESSAGES) != null)
+				{
+					context.put("allMsgNumber", state.getAttribute(STATE_NUM_MESSAGES).toString());
+					context.put("allMsgNumberInt", state.getAttribute(STATE_NUM_MESSAGES));
+				}
+
+				context.put("pagesize", ((Integer) state.getAttribute(STATE_PAGESIZE)).toString());
+
+				// find the position of the message that is the top first on the page
+				if ((state.getAttribute(STATE_TOP_MESSAGE_INDEX) != null) && (state.getAttribute(STATE_PAGESIZE) != null))
+				{
+					int topMsgPos = ((Integer)state.getAttribute(STATE_TOP_MESSAGE_INDEX)).intValue() + 1;
+					context.put("topMsgPos", Integer.toString(topMsgPos));
+					int btmMsgPos = topMsgPos + ((Integer)state.getAttribute(STATE_PAGESIZE)).intValue() - 1;
+					if (state.getAttribute(STATE_NUM_MESSAGES) != null)
+					{
+						int allMsgNumber = ((Integer)state.getAttribute(STATE_NUM_MESSAGES)).intValue();
+						if (btmMsgPos > allMsgNumber)
+							btmMsgPos = allMsgNumber;
+					}
+					context.put("btmMsgPos", Integer.toString(btmMsgPos));
+				}
+
+				boolean goPPButton = state.getAttribute(STATE_PREV_PAGE_EXISTS) != null;
+				context.put("goPPButton", Boolean.toString(goPPButton));
+				boolean goNPButton = state.getAttribute(STATE_NEXT_PAGE_EXISTS) != null;
+				context.put("goNPButton", Boolean.toString(goNPButton));
+
+				/*
+				boolean goFPButton = state.getAttribute(STATE_FIRST_PAGE_EXISTS) != null;
+				context.put("goFPButton", Boolean.toString(goFPButton));
+				boolean goLPButton = state.getAttribute(STATE_LAST_PAGE_EXISTS) != null;
+				context.put("goLPButton", Boolean.toString(goLPButton));
+				*/
+
+				context.put("pagesize", state.getAttribute(STATE_PAGESIZE));
+				// context.put("pagesizes", PAGESIZES);
+
+
+			}
+
+			// context.put ("other_sites", other_sites);
+			state.setAttribute(STATE_COLLECTION_ROOTS, all_roots);
+			// context.put ("root", root);
+
+			if(state.getAttribute(STATE_PASTE_ALLOWED_FLAG) != null)
+			{
+				context.put("paste_place_showing", state.getAttribute(STATE_PASTE_ALLOWED_FLAG));
+			}
+
+			if(showRemoveAction)
+			{
+				context.put("showRemoveAction", Boolean.TRUE.toString());
+			}
+
+			if(showMoveAction)
+			{
+				context.put("showMoveAction", Boolean.TRUE.toString());
+			}
+
+			if(showCopyAction)
+			{
+				context.put("showCopyAction", Boolean.TRUE.toString());
+			}
+
+		}
+		catch (IdUnusedException e)
+		{
+			addAlert(state, rb.getString("cannotfind"));
+			context.put ("collectionFlag", Boolean.FALSE.toString());
+		}
+		catch(TypeException e)
+		{
+			logger.warn(this + "TypeException.");
+			context.put ("collectionFlag", Boolean.FALSE.toString());
+		}
+		catch(PermissionException e)
+		{
+			addAlert(state, rb.getString("notpermis1"));
+			context.put ("collectionFlag", Boolean.FALSE.toString());
+		}
+
+		context.put("homeCollection", (String) state.getAttribute (STATE_HOME_COLLECTION_ID));
+		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
+		context.put ("resourceProperties", contentService.newResourceProperties ());
+
+		try
+		{
+			// TODO: why 'site' here?
+			Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			context.put("siteTitle", site.getTitle());
+		}
+		catch (IdUnusedException e)
+		{
+			logger.debug(this + e.toString());
+		}
+
+		context.put("expandallflag", state.getAttribute(STATE_EXPAND_ALL_FLAG));
+		state.removeAttribute(STATE_NEED_TO_EXPAND_ALL);
+
+		// inform the observing courier that we just updated the page...
+		// if there are pending requests to do so they can be cleared
+		justDelivered(state);
+
+		// pick the "show" template based on the standard template name
+		// String template = (String) getContext(data).get("template");
+
+		return TEMPLATE_LIST;
+
+	}	// buildListContext
+
+	/**
+	* Build the context for the new list view, which uses the resources type registry
 	*/
 	public String buildListContext (	VelocityPortlet portlet,
 										Context context,
@@ -948,12 +1299,12 @@ public class ResourcesAction
 			List all_roots = new Vector();
 			List this_site = new Vector();
 			
-			List members = getListView(collectionId, highlightedItems, (BrowseItem) null, navRoot.equals(homeCollectionId), state);
+			List members = getListView(collectionId, highlightedItems, (ChefBrowseItem) null, navRoot.equals(homeCollectionId), state);
 
-			// List members = getBrowseItems(collectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (BrowseItem) null, navRoot.equals(homeCollectionId), state);
+			// List members = getBrowseItems(collectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, navRoot.equals(homeCollectionId), state);
 			if(members != null && members.size() > 0)
 			{
-				BrowseItem root = (BrowseItem) members.remove(0);
+				ChefBrowseItem root = (ChefBrowseItem) members.remove(0);
 				showRemoveAction = showRemoveAction || root.hasDeletableChildren();
 				showMoveAction = showMoveAction || root.hasDeletableChildren();
 				showCopyAction = showCopyAction || root.hasCopyableChildren();
@@ -1179,7 +1530,7 @@ public class ResourcesAction
 					String collectionId = ContentHostingService.getContainingCollectionId(attachmentId);
 					current_stack_frame.put(STATE_STACK_EDIT_COLLECTION_ID, collectionId);
 
-					EditItem item = getEditItem(attachmentId, collectionId, data);
+					ChefEditItem item = getEditItem(attachmentId, collectionId, data);
 
 					if (state.getAttribute(STATE_MESSAGE) == null)
 					{
@@ -1868,11 +2219,11 @@ public class ResourcesAction
 						{
 							ContentCollection db = ContentHostingService.getCollection(dbId);
 							expandedCollections.add(dbId);
-							List dbox = getListView(dbId, highlightedItems, (BrowseItem) null, false, state); 
-							// getBrowseItems(dbId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (BrowseItem) null, false, state);
+							List dbox = getListView(dbId, highlightedItems, (ChefBrowseItem) null, false, state); 
+							// getBrowseItems(dbId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, false, state);
 							if(dbox != null && dbox.size() > 0)
 							{
-								BrowseItem root = (BrowseItem) dbox.remove(0);
+								ChefBrowseItem root = (ChefBrowseItem) dbox.remove(0);
 								// context.put("site", root);
 								root.setName(submitter.getDisplayName() + " " + rb.getString("gen.drop"));
 								root.addMembers(dbox);
@@ -1891,11 +2242,11 @@ public class ResourcesAction
 					{
 						ContentCollection db = ContentHostingService.getCollection(dropboxId);
 						expandedCollections.add(dropboxId);
-						List dbox = getListView(dropboxId, highlightedItems, (BrowseItem) null, false, state); 
-						// List dbox = getBrowseItems(dropboxId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (BrowseItem) null, false, state);
+						List dbox = getListView(dropboxId, highlightedItems, (ChefBrowseItem) null, false, state); 
+						// List dbox = getBrowseItems(dropboxId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, false, state);
 						if(dbox != null && dbox.size() > 0)
 						{
-							BrowseItem root = (BrowseItem) dbox.remove(0);
+							ChefBrowseItem root = (ChefBrowseItem) dbox.remove(0);
 							// context.put("site", root);
 							root.setName(ContentHostingService.getDropboxDisplayName());
 							root.addMembers(dbox);
@@ -1908,11 +2259,11 @@ public class ResourcesAction
 					}
 				}
 			}
-			List members = getListView(collectionId, highlightedItems, (BrowseItem) null, navRoot.equals(homeCollectionId), state);
-			// List members = getBrowseItems(collectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (BrowseItem) null, navRoot.equals(homeCollectionId), state);
+			List members = getListView(collectionId, highlightedItems, (ChefBrowseItem) null, navRoot.equals(homeCollectionId), state);
+			// List members = getBrowseItems(collectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, navRoot.equals(homeCollectionId), state);
 			if(members != null && members.size() > 0)
 			{
-				BrowseItem root = (BrowseItem) members.remove(0);
+				ChefBrowseItem root = (ChefBrowseItem) members.remove(0);
 				if(atHome && dropboxMode)
 				{
 					root.setName(siteTitle + " " + rb.getString("gen.drop"));
@@ -2006,10 +2357,10 @@ public class ResourcesAction
 					String collId = (String) othersites.get(displayName);
 					if(! collectionId.equals(collId))
 					{
-						members = getBrowseItems(collId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (BrowseItem) null, false, state);
+						members = getBrowseItems(collId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, false, state);
 						if(members != null && members.size() > 0)
 						{
-							BrowseItem root = (BrowseItem) members.remove(0);
+							ChefBrowseItem root = (ChefBrowseItem) members.remove(0);
 							root.addMembers(members);
 							root.setName(displayName);
 							other_sites.add(root);
@@ -2168,7 +2519,7 @@ public class ResourcesAction
 		Iterator it = nonEmptyFolders.iterator();
 		while(it.hasNext())
 		{
-			BrowseItem folder = (BrowseItem) it.next();
+			ChefBrowseItem folder = (ChefBrowseItem) it.next();
 			addAlert(state, rb.getString("folder2") + " " + folder.getName() + " " + rb.getString("contain2") + " ");
 		}
 
@@ -2224,7 +2575,7 @@ public class ResourcesAction
 		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
 		context.put("navRoot", navRoot);
 		
-		EditItem item = getEditItem(id, collectionId, data);
+		ChefEditItem item = getEditItem(id, collectionId, data);
 		context.put("item", item);
 
 		// for the resources of type URL or plain text, show the content also
@@ -2424,7 +2775,7 @@ public class ResourcesAction
 		}
 		
 		// put the item into context
-		EditItem item = (EditItem) current_stack_frame.get(STATE_STACK_EDIT_ITEM);
+		ChefEditItem item = (ChefEditItem) current_stack_frame.get(STATE_STACK_EDIT_ITEM);
 		if(item == null)
 		{
 			item = getEditItem(id, collectionId, data);
@@ -2792,7 +3143,7 @@ public class ResourcesAction
 
 		for(int i = 0; i < CREATE_MAX_ITEMS; i++)
 		{
-			EditItem item = new EditItem(itemtype);
+			ChefEditItem item = new ChefEditItem(itemtype);
 			if(encoding != null)
 			{
 				item.setEncoding(encoding);
@@ -2930,7 +3281,7 @@ public class ResourcesAction
 			Iterator it = items.iterator();
 			while(it.hasNext())
 			{
-				EditItem item = (EditItem) it.next();
+				ChefEditItem item = (ChefEditItem) it.next();
 				item.clearMissing();
 			}
 			state.removeAttribute(STATE_MESSAGE);
@@ -3079,7 +3430,7 @@ public class ResourcesAction
 				current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
 
 			}
-			EditItem item = (EditItem) new_items.get(0);
+			ChefEditItem item = (ChefEditItem) new_items.get(0);
 			addInstance(field, item.getProperties());
 			ResourcesMetadata form = item.getForm();
 			List flatList = form.getFlatList();
@@ -3121,7 +3472,7 @@ public class ResourcesAction
 			}
 			if(new_items != null && new_items.size() > twiggleNumber)
 			{
-				EditItem item = (EditItem) new_items.get(twiggleNumber);
+				ChefEditItem item = (ChefEditItem) new_items.get(twiggleNumber);
 				if(item != null)
 				{
 					item.showMetadataGroup(metadataGroup);
@@ -3133,7 +3484,7 @@ public class ResourcesAction
 			Iterator it = new_items.iterator();
 			while(it.hasNext())
 			{
-				EditItem item = (EditItem) it.next();
+				ChefEditItem item = (ChefEditItem) it.next();
 				item.clearMissing();
 			}
 		}
@@ -3166,7 +3517,7 @@ public class ResourcesAction
 			}
 			if(new_items != null && new_items.size() > twiggleNumber)
 			{
-				EditItem item = (EditItem) new_items.get(twiggleNumber);
+				ChefEditItem item = (ChefEditItem) new_items.get(twiggleNumber);
 				if(item != null)
 				{
 					item.hideMetadataGroup(metadataGroup);
@@ -3178,7 +3529,7 @@ public class ResourcesAction
 			Iterator it = new_items.iterator();
 			while(it.hasNext())
 			{
-				EditItem item = (EditItem) it.next();
+				ChefEditItem item = (ChefEditItem) it.next();
 				item.clearMissing();
 			}
 		}
@@ -3318,7 +3669,7 @@ public class ResourcesAction
 	}
 
 	/**
-	 * Add a new StructuredArtifact to ContentHosting for each EditItem in the state attribute named STATE_STACK_CREATE_ITEMS.
+	 * Add a new StructuredArtifact to ContentHosting for each ChefEditItem in the state attribute named STATE_STACK_CREATE_ITEMS.
 	 * The number of items to be added is indicated by the state attribute named STATE_STACK_CREATE_NUMBER, and
 	 * the items are added to the collection identified by the state attribute named STATE_STACK_CREATE_COLLECTION_ID.
 	 * @param state
@@ -3394,7 +3745,7 @@ public class ResourcesAction
 
 		outerloop: for(int i = 0; i < numberOfItems; i++)
 		{
-			EditItem item = (EditItem) new_items.get(i);
+			ChefEditItem item = (ChefEditItem) new_items.get(i);
 			if(item.isBlank())
 			{
 				continue;
@@ -3590,13 +3941,13 @@ public class ResourcesAction
 	 * against a SchemaBean.  If it validates, save the string representation. Otherwise, on
 	 * return, the parameter contains a non-empty list of ValidationError objects describing the
 	 * problems.
-	 * @param attempt A wrapper for the EditItem object which contains the hierarchical list of
+	 * @param attempt A wrapper for the ChefEditItem object which contains the hierarchical list of
 	 * ResourcesMetadata objects for this form.  Also contains an initially empty list of
 	 * ValidationError objects that describes any of the problems found in validating the form.
 	 */
 	private static void validateStructuredArtifact(SaveArtifactAttempt attempt)
 	{
-		EditItem item = attempt.getItem();
+		ChefEditItem item = attempt.getItem();
 		ResourcesMetadata form = item.getForm();
 
 		Stack processStack = new Stack();
@@ -3751,7 +4102,7 @@ public class ResourcesAction
 	}	// validateStructuredArtifact
 
 	/**
-	 * Add a new folder to ContentHosting for each EditItem in the state attribute named STATE_STACK_CREATE_ITEMS.
+	 * Add a new folder to ContentHosting for each ChefEditItem in the state attribute named STATE_STACK_CREATE_ITEMS.
 	 * The number of items to be added is indicated by the state attribute named STATE_STACK_CREATE_NUMBER, and
 	 * the items are added to the collection identified by the state attribute named STATE_STACK_CREATE_COLLECTION_ID.
 	 * @param state
@@ -3819,7 +4170,7 @@ public class ResourcesAction
 
 		outerloop: for(int i = 0; i < numberOfFolders; i++)
 		{
-			EditItem item = (EditItem) new_items.get(i);
+			ChefEditItem item = (ChefEditItem) new_items.get(i);
 			if(item.isBlank())
 			{
 				continue;
@@ -3911,7 +4262,7 @@ public class ResourcesAction
 	}	// createFolders
 
 	/**
-	 * Add a new file to ContentHosting for each EditItem in the state attribute named STATE_STACK_CREATE_ITEMS.
+	 * Add a new file to ContentHosting for each ChefEditItem in the state attribute named STATE_STACK_CREATE_ITEMS.
 	 * The number of items to be added is indicated by the state attribute named STATE_STACK_CREATE_NUMBER, and
 	 * the items are added to the collection identified by the state attribute named STATE_STACK_CREATE_COLLECTION_ID.
 	 * @param state
@@ -3979,7 +4330,7 @@ public class ResourcesAction
 		numberOfItems = number.intValue();
 		outerloop: for(int i = 0; i < numberOfItems; i++)
 		{
-			EditItem item = (EditItem) new_items.get(i);
+			ChefEditItem item = (ChefEditItem) new_items.get(i);
 			if(item.isBlank())
 			{
 				continue;
@@ -4179,7 +4530,7 @@ public class ResourcesAction
 
 		String field = params.getString("field");
 
-		EditItem item = null;
+		ChefEditItem item = null;
 		String mode = (String) state.getAttribute(STATE_MODE);
 		if (MODE_CREATE.equals(mode))
 		{
@@ -4188,12 +4539,12 @@ public class ResourcesAction
 			List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
 			if(new_items != null)
 			{
-				item = (EditItem) new_items.get(index);
+				item = (ChefEditItem) new_items.get(index);
 			}
 		}
 		else if(MODE_EDIT.equals(mode))
 		{
-			item = (EditItem) current_stack_frame.get(STATE_STACK_EDIT_ITEM);
+			item = (ChefEditItem) current_stack_frame.get(STATE_STACK_EDIT_ITEM);
 		}
 
 		if(item != null)
@@ -4675,15 +5026,15 @@ public class ResourcesAction
 					new_items = (List) state.getAttribute(ResourcesAction.STATE_HELPER_NEW_ITEMS);
 				}
 			}
-			EditItem edit_item = null;
+			ChefEditItem edit_item = null;
 			List edit_items = (List) current_stack_frame.get(ResourcesAction.STATE_STACK_CREATE_ITEMS);
 			if(edit_items == null)
 			{
-				edit_item = (EditItem) current_stack_frame.get(ResourcesAction.STATE_STACK_EDIT_ITEM);
+				edit_item = (ChefEditItem) current_stack_frame.get(ResourcesAction.STATE_STACK_EDIT_ITEM);
 			}
 			else
 			{
-				edit_item = (EditItem) edit_items.get(0);
+				edit_item = (ChefEditItem) edit_items.get(0);
 			}
 			if(edit_item != null)
 			{
@@ -4893,7 +5244,7 @@ public class ResourcesAction
 	}
 
 	/**
-	 * Add a new URL to ContentHosting for each EditItem in the state attribute named STATE_STACK_CREATE_ITEMS.
+	 * Add a new URL to ContentHosting for each ChefEditItem in the state attribute named STATE_STACK_CREATE_ITEMS.
 	 * The number of items to be added is indicated by the state attribute named STATE_STACK_CREATE_NUMBER, and
 	 * the items are added to the collection identified by the state attribute named STATE_STACK_CREATE_COLLECTION_ID.
 	 * @param state
@@ -4938,7 +5289,7 @@ public class ResourcesAction
 
 		outerloop: for(int i = 0; i < numberOfItems; i++)
 		{
-			EditItem item = (EditItem) new_items.get(i);
+			ChefEditItem item = (ChefEditItem) new_items.get(i);
 			if(item.isBlank())
 			{
 				continue;
@@ -5431,7 +5782,7 @@ public class ResourcesAction
 			addAlert(state," " + rb.getString("nullex") + " " + id + ". ");
 		}
 		
-		EditItem item = getEditItem(id, collectionId, data);
+		ChefEditItem item = getEditItem(id, collectionId, data);
 		
 		
 
@@ -5479,7 +5830,7 @@ public class ResourcesAction
 		Iterator it = Items.iterator();
 		while(it.hasNext())
 		{
-			BrowseItem item = (BrowseItem) it.next();
+			ChefBrowseItem item = (ChefBrowseItem) it.next();
 			depth = ContentHostingService.getDepth(item.getId(), item.getRoot());
 			if (depth > maxDepth)
 			{
@@ -5505,7 +5856,7 @@ public class ResourcesAction
 			Iterator itemIt = v.iterator();
 			while(itemIt.hasNext())
 			{
-				BrowseItem item = (BrowseItem) itemIt.next();
+				ChefBrowseItem item = (ChefBrowseItem) itemIt.next();
 				try
 				{
 					if (item.isFolder())
@@ -6058,7 +6409,7 @@ public class ResourcesAction
 		}
 		current_stack_frame.put(STATE_STACK_EDIT_COLLECTION_ID, collectionId);
 
-		EditItem item = getEditItem(id, collectionId, data);
+		ChefEditItem item = getEditItem(id, collectionId, data);
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
@@ -6076,7 +6427,7 @@ public class ResourcesAction
 
 	}	// doEdit
 
-	public static EditItem getEditItem(String id, String collectionId, RunData data)
+	public static ChefEditItem getEditItem(String id, String collectionId, RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
@@ -6084,9 +6435,9 @@ public class ResourcesAction
 
 		Map current_stack_frame = peekAtStack(state);
 
-		EditItem item = null;
+		ChefEditItem item = null;
 
-		// populate an EditItem object with values from the resource and return the EditItem
+		// populate an ChefEditItem object with values from the resource and return the ChefEditItem
 		try
 		{
 			ResourceProperties properties = ContentHostingService.getProperties(id);
@@ -6118,7 +6469,7 @@ public class ResourcesAction
 
 			String itemName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 
-			item = new EditItem(id, itemName, itemType);
+			item = new ChefEditItem(id, itemName, itemType);
 			
 			item.setInDropbox(ContentHostingService.isInDropbox(id));
 			boolean isUserSite = false;
@@ -6661,7 +7012,7 @@ public class ResourcesAction
 				{
 					//%%%%% doing this wipes out data that's been stored previously
 
-					EditItem item = (EditItem) new_items.get(i);
+					ChefEditItem item = (ChefEditItem) new_items.get(i);
 					item.setRootname(docRoot);
 					item.setFormtype(formtype);
 					item.setInstruction(instruction);
@@ -6672,7 +7023,7 @@ public class ResourcesAction
 			}
 			else if(current_stack_frame.get(STATE_STACK_EDIT_ITEM) != null)
 			{
-				EditItem item = (EditItem) current_stack_frame.get(STATE_STACK_EDIT_ITEM);
+				ChefEditItem item = (ChefEditItem) current_stack_frame.get(STATE_STACK_EDIT_ITEM);
 				item.setRootname(docRoot);
 				item.setFormtype(formtype);
 				item.setInstruction(instruction);
@@ -6970,7 +7321,7 @@ public class ResourcesAction
 	/**
 	 * Retrieve values for an item from edit context.  Edit context contains just one item at a time of a known type
 	 * (folder, file, text document, structured-artifact, etc).  This method retrieves the data apppropriate to the
-	 * type and updates the values of the EditItem stored as the STATE_STACK_EDIT_ITEM attribute in state.
+	 * type and updates the values of the ChefEditItem stored as the STATE_STACK_EDIT_ITEM attribute in state.
 	 * @param state
 	 * @param params
 	 * @param item
@@ -6979,7 +7330,7 @@ public class ResourcesAction
 	{
 		Map current_stack_frame = peekAtStack(state);
 
-		EditItem item = (EditItem) current_stack_frame.get(STATE_STACK_EDIT_ITEM);
+		ChefEditItem item = (ChefEditItem) current_stack_frame.get(STATE_STACK_EDIT_ITEM);
 		Set alerts = (Set) state.getAttribute(STATE_EDIT_ALERTS);
 		if(alerts == null)
 		{
@@ -7502,14 +7853,14 @@ public class ResourcesAction
 
 	/**
 	 * Retrieve from an html form all the values needed to create a new resource
-	 * @param item The EditItem object in which the values are temporarily stored.
+	 * @param item The ChefEditItem object in which the values are temporarily stored.
 	 * @param index The index of the item (used as a suffix in the name of the form element)
 	 * @param state
 	 * @param params
 	 * @param markMissing Indicates whether to mark required elements if they are missing.
 	 * @return
 	 */
-	public static Set captureValues(EditItem item, int index, SessionState state, ParameterParser params, boolean markMissing)
+	public static Set captureValues(ChefEditItem item, int index, SessionState state, ParameterParser params, boolean markMissing)
 	{
 		Map current_stack_frame = peekAtStack(state);
 
@@ -8047,7 +8398,7 @@ public class ResourcesAction
 	/**
 	 * Retrieve values for one or more items from create context.  Create context contains up to ten items at a time
 	 * all of the same type (folder, file, text document, structured-artifact, etc).  This method retrieves the data
-	 * apppropriate to the type and updates the values of the EditItem objects stored as the STATE_STACK_CREATE_ITEMS
+	 * apppropriate to the type and updates the values of the ChefEditItem objects stored as the STATE_STACK_CREATE_ITEMS
 	 * attribute in state. If the third parameter is "true", missing/incorrect user inputs will generate error messages
 	 * and attach flags to the input elements.
 	 * @param state
@@ -8141,7 +8492,7 @@ public class ResourcesAction
 		*/
 		for(int i = 0; i < number.intValue(); i++)
 		{
-			EditItem item = (EditItem) new_items.get(i);
+			ChefEditItem item = (ChefEditItem) new_items.get(i);
 			Set item_alerts = captureValues(item, i, state, params, markMissing);
 			if(i == 0)
 			{
@@ -8159,7 +8510,7 @@ public class ResourcesAction
 		}
 		if(actualCount > 0)
 		{
-			EditItem item = (EditItem) new_items.get(0);
+			ChefEditItem item = (ChefEditItem) new_items.get(0);
 			if(item.isBlank())
 			{
 				item.clearMissing();
@@ -8174,7 +8525,7 @@ public class ResourcesAction
 
 	}	// captureMultipleValues
 
-	protected static void capturePropertyValues(ParameterParser params, EditItem item, List properties)
+	protected static void capturePropertyValues(ParameterParser params, ChefEditItem item, List properties)
 	{
 		// use the item's properties if they're not supplied
 		if(properties == null)
@@ -8299,7 +8650,7 @@ public class ResourcesAction
 
 		Map current_stack_frame = peekAtStack(state);
 
-		EditItem item = (EditItem) current_stack_frame.get(STATE_STACK_EDIT_ITEM);
+		ChefEditItem item = (ChefEditItem) current_stack_frame.get(STATE_STACK_EDIT_ITEM);
 
 		if(flow.equals("showMetadata"))
 		{
@@ -8602,7 +8953,7 @@ public class ResourcesAction
 	 * @param metadataGroups
 	 * @param metadata
 	 */
-	private static void saveMetadata(ResourcePropertiesEdit pedit, List metadataGroups, EditItem item)
+	private static void saveMetadata(ResourcePropertiesEdit pedit, List metadataGroups, ChefEditItem item)
 	{
 		if(metadataGroups != null && !metadataGroups.isEmpty())
 		{
@@ -9014,13 +9365,13 @@ public class ResourcesAction
 			Iterator rootIt = roots.iterator();
 			while(rootIt.hasNext())
 			{
-				BrowseItem root = (BrowseItem) rootIt.next();
+				ChefBrowseItem root = (ChefBrowseItem) rootIt.next();
 
 				List members = root.getMembers();
 				Iterator memberIt = members.iterator();
 				while(memberIt.hasNext())
 				{
-					BrowseItem member = (BrowseItem) memberIt.next();
+					ChefBrowseItem member = (ChefBrowseItem) memberIt.next();
 					if(deleteIdSet.contains(member.getId()))
 					{
 						if(member.isFolder())
@@ -9057,7 +9408,7 @@ public class ResourcesAction
 				Iterator notIt = notDeleteItems.iterator();
 				while(notIt.hasNext())
 				{
-					BrowseItem item = (BrowseItem) notIt.next();
+					ChefBrowseItem item = (ChefBrowseItem) notIt.next();
 					if(first_item)
 					{
 						notDeleteNames = item.getName();
@@ -9383,7 +9734,7 @@ public class ResourcesAction
 		Iterator rootIt = roots.iterator();
 		while(rootIt.hasNext())
 		{
-			BrowseItem root = (BrowseItem) rootIt.next();
+			ChefBrowseItem root = (ChefBrowseItem) rootIt.next();
 			boolean root_copied = copyItemsVector.contains(root.getId());
 			root.setCopied(root_copied);
 
@@ -9391,7 +9742,7 @@ public class ResourcesAction
 			Iterator memberIt = members.iterator();
 			while(memberIt.hasNext())
 			{
-				BrowseItem member = (BrowseItem) memberIt.next();
+				ChefBrowseItem member = (ChefBrowseItem) memberIt.next();
 				boolean member_copied = copyItemsVector.contains(member.getId());
 				member.setCopied(member_copied);
 			}
@@ -9545,6 +9896,7 @@ public class ResourcesAction
 
 		state.setAttribute (STATE_CONTENT_SERVICE, ContentHostingService.getInstance());
 		state.setAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE, ContentTypeImageService.getInstance());
+		state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, ComponentManager.get("org.sakaiproject.content.api.ResourcesTypeRegistry"));
 
 		TimeBreakdown timeBreakdown = (TimeService.newTime()).breakdownLocal ();
 		String mycopyright = COPYRIGHT_SYMBOL + " " + timeBreakdown.getYear () +", " + UserDirectoryService.getCurrentUser().getDisplayName () + ". All Rights Reserved. ";
@@ -10194,7 +10546,7 @@ public class ResourcesAction
 			{
 				ResourceProperties props = contentService.getProperties(id);
 				String name = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-				PathItem item = new PathItem(id, name);
+				ChefPathItem item = new ChefPathItem(id, name);
 
 				boolean canRead = contentService.allowGetCollection(id) || contentService.allowGetResource(id);
 				item.setCanRead(canRead);
@@ -10246,9 +10598,9 @@ public class ResourcesAction
 	 * @param parent - The folder containing this item
 	 * @param isLocal - true if navigation root and home collection id of site are the same, false otherwise
 	 * @param state - The session state
-	 * @return a List of BrowseItem objects
+	 * @return a List of ChefBrowseItem objects
 	 */
-	protected static List getListView(String collectionId, Set highlightedItems, BrowseItem parent, boolean isLocal, SessionState state)
+	protected static List getListView(String collectionId, Set highlightedItems, ChefBrowseItem parent, boolean isLocal, SessionState state)
 	{
 		// find the ContentHosting service
 		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
@@ -10403,7 +10755,7 @@ public class ResourcesAction
 			{
 				folderName = (String) state.getAttribute(STATE_HOME_COLLECTION_DISPLAY_NAME);
 			}
-			BrowseItem folder = new BrowseItem(collectionId, folderName, "folder");
+			ChefBrowseItem folder = new ChefBrowseItem(collectionId, folderName, "folder");
 			if(parent == null)
 			{
 				folder.setRoot(collectionId);
@@ -10581,7 +10933,7 @@ public class ResourcesAction
 
 						if(! offspring.isEmpty())
 						{
-							BrowseItem child = (BrowseItem) offspring.get(0);
+							ChefBrowseItem child = (ChefBrowseItem) offspring.get(0);
 							hasDeletableChildren = hasDeletableChildren || child.hasDeletableChildren();
 							hasCopyableChildren = hasCopyableChildren || child.hasCopyableChildren();
 						}
@@ -10606,7 +10958,7 @@ public class ResourcesAction
 						
 						String itemType = ((ContentResource)resource).getContentType();
 						String itemName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-						BrowseItem newItem = new BrowseItem(itemId, itemName, itemType);
+						ChefBrowseItem newItem = new ChefBrowseItem(itemId, itemName, itemType);
 						
 						boolean isLocked = contentService.isLocked(itemId);
 						newItem.setLocked(isLocked);
@@ -10764,7 +11116,7 @@ public class ResourcesAction
 
 	}	// getBrowseItems
 
-	protected static boolean checkItemFilter(ContentResource resource, BrowseItem newItem, SessionState state) 
+	protected static boolean checkItemFilter(ContentResource resource, ChefBrowseItem newItem, SessionState state) 
 	{
 		ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_ATTACH_FILTER);
 	
@@ -11552,9 +11904,10 @@ public class ResourcesAction
 	}
 
 	/**
-	 * Internal class that encapsulates all information about a resource that is needed in the browse mode
+	 * Internal class that encapsulates all information about a resource that is needed in the browse mode.
+	 * This is being phased out as we switch to the resources type registry.
 	 */
-	public static class BrowseItem
+	public static class ChefBrowseItem
 	{
 		protected static Integer seqnum = new Integer(0);
 		private String m_itemnum;
@@ -11625,7 +11978,7 @@ public class ResourcesAction
 		 * @param name
 		 * @param type
 		 */
-		public BrowseItem(String id, String name, String type)
+		public ChefBrowseItem(String id, String name, String type)
 		{
 			m_name = name;
 			m_id = id;
@@ -12892,14 +13245,15 @@ public class ResourcesAction
 			m_sortable = sortable;
 		}
 		
-	}	// inner class BrowseItem
+	}	// inner class ChefBrowseItem
 
 
 	/**
 	 * Inner class encapsulates information about resources (folders and items) for editing
+	 * This is being phased out as we switch to the resources type registry.
 	 */
-	public static class EditItem
-		extends BrowseItem
+	public static class ChefEditItem
+		extends ChefBrowseItem
 	{
 		protected String m_copyrightStatus;
 		protected String m_copyrightInfo;
@@ -12951,7 +13305,7 @@ public class ResourcesAction
 		 * @param name
 		 * @param type
 		 */
-		public EditItem(String id, String name, String type)
+		public ChefEditItem(String id, String name, String type)
 		{
 			super(id, name, type);
 			
@@ -13202,7 +13556,7 @@ public class ResourcesAction
 		 * @param name
 		 * @param type
 		 */
-		public EditItem(String type)
+		public ChefEditItem(String type)
 		{
 			this(null, "", type);
 		}
@@ -13923,13 +14277,14 @@ public class ResourcesAction
 		}
 
 
-	}	// inner class EditItem
+	}	// inner class ChefEditItem
 
 
 	/**
 	 * Inner class encapsulates information about folders (and final item?) in a collection path (a.k.a. breadcrumb)
+	 * This is being phased out as we switch to the resources type registry.
 	 */
-	public static class PathItem
+	public static class ChefPathItem
 	{
 		protected String m_url;
 		protected String m_name;
@@ -13940,7 +14295,7 @@ public class ResourcesAction
 		protected String m_root;
 		protected boolean m_isLocal;
 
-		public PathItem(String id, String name)
+		public ChefPathItem(String id, String name)
 		{
 			m_id = id;
 			m_name = name;
@@ -14073,7 +14428,7 @@ public class ResourcesAction
 			return m_isLocal;
 		}
 
-	}	// inner class PathItem
+	}	// inner class ChefPathItem
 
 	/**
 	 *
@@ -14286,11 +14641,11 @@ public class ResourcesAction
 
 	public static class SaveArtifactAttempt
 	{
-		protected EditItem item;
+		protected ChefEditItem item;
 		protected List errors;
 		protected SchemaNode schema;
 
-		public SaveArtifactAttempt(EditItem item, SchemaNode schema)
+		public SaveArtifactAttempt(ChefEditItem item, SchemaNode schema)
 		{
 			this.item = item;
 			this.schema = schema;
@@ -14315,7 +14670,7 @@ public class ResourcesAction
 		/**
 		 * @return Returns the item.
 		 */
-		public EditItem getItem()
+		public ChefEditItem getItem()
 		{
 			return item;
 		}
@@ -14323,7 +14678,7 @@ public class ResourcesAction
 		/**
 		 * @param item The item to set.
 		 */
-		public void setItem(EditItem item)
+		public void setItem(ChefEditItem item)
 		{
 			this.item = item;
 		}
@@ -14385,12 +14740,12 @@ public class ResourcesAction
 		String wsCollectionId = ContentHostingService.getSiteCollection(wsId);
 		if(! collectionId.equals(wsCollectionId))
 		{
-			List members = getListView(wsCollectionId, highlightedItems, (BrowseItem) null, false, state);
+			List members = getListView(wsCollectionId, highlightedItems, (ChefBrowseItem) null, false, state);
 
-            //List members = getBrowseItems(wsCollectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (BrowseItem) null, false, state);
+            //List members = getBrowseItems(wsCollectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, false, state);
             if(members != null && members.size() > 0)
 		    {
-		        BrowseItem root = (BrowseItem) members.remove(0);
+		        ChefBrowseItem root = (ChefBrowseItem) members.remove(0);
 				showRemoveAction = showRemoveAction || root.hasDeletableChildren();
 				showMoveAction = showMoveAction || root.hasDeletableChildren();
 				showCopyAction = showCopyAction || root.hasCopyableChildren();
@@ -14425,12 +14780,12 @@ public class ResourcesAction
 			String collId = item.substring(item.lastIndexOf(DELIM) + 1);
 			if(! collectionId.equals(collId) && ! wsCollectionId.equals(collId))
 			{
-				List members = getListView(collId, highlightedItems, (BrowseItem) null, false, state);
+				List members = getListView(collId, highlightedItems, (ChefBrowseItem) null, false, state);
 
-				// List members = getBrowseItems(collId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (BrowseItem) null, false, state);
+				// List members = getBrowseItems(collId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, false, state);
 				if(members != null && members.size() > 0)
 				{
-					BrowseItem root = (BrowseItem) members.remove(0);
+					ChefBrowseItem root = (ChefBrowseItem) members.remove(0);
 					root.addMembers(members);
 					root.setName(displayName);
 					other_sites.add(root);
@@ -14443,7 +14798,7 @@ public class ResourcesAction
 	
 	/**
 	* Prepare the current page of site collections to display.
-	* @return List of BrowseItem objects to display on this page.
+	* @return List of ChefBrowseItem objects to display on this page.
 	*/
 	protected static List prepPage(SessionState state)
 	{
@@ -14585,7 +14940,7 @@ public class ResourcesAction
 		}
 
 		// save which message is at the top of the page
-		BrowseItem itemAtTheTopOfThePage = (BrowseItem) allMessages.get(posStart);
+		ChefBrowseItem itemAtTheTopOfThePage = (ChefBrowseItem) allMessages.get(posStart);
 		state.setAttribute(STATE_TOP_PAGE_MESSAGE_ID, itemAtTheTopOfThePage.getId());
 		state.setAttribute(STATE_TOP_MESSAGE_INDEX, new Integer(posStart));
 
@@ -14633,7 +14988,7 @@ public class ResourcesAction
 			}
 			
 			// update the view message
-			state.setAttribute(STATE_VIEW_ID, ((BrowseItem) allMessages.get(viewPos)).getId());
+			state.setAttribute(STATE_VIEW_ID, ((ChefBrowseItem) allMessages.get(viewPos)).getId());
 			
 			// if the view message is no longer on the current page, adjust the page
 			// Note: next time through this will get processed
@@ -14680,7 +15035,7 @@ public class ResourcesAction
 		for (int i = 0; i < resources.size(); i++)
 		{
 			// if this is the one, return this index
-			if (((BrowseItem) (resources.get(i))).getId().equals(id)) return i;
+			if (((ChefBrowseItem) (resources.get(i))).getId().equals(id)) return i;
 		}
 
 		// not found

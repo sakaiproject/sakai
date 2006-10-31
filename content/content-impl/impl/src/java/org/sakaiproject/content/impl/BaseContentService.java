@@ -66,8 +66,13 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.content.api.GroupAwareEntity;
+import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.content.types.FileUploadType;
+import org.sakaiproject.content.types.HtmlDocumentType;
+import org.sakaiproject.content.types.TextDocumentType;
+import org.sakaiproject.content.types.UrlResourceType;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
@@ -503,6 +508,40 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return m_prioritySortEnabled;
 	}
 	
+	/**
+	 * Dependency: the ResourceTypeRegistry
+	 */
+	protected ResourceTypeRegistry m_resourceTypeRegistry;
+	
+	/**
+	 * Dependency: inject the ResourceTypeRegistry
+	 * @param registry
+	 */
+	public void setResourceTypeRegistry(ResourceTypeRegistry registry)
+	{
+		m_resourceTypeRegistry = registry;
+	}
+	
+	/**
+	 * @return the ResourceTypeRegistry
+	 */
+	public ResourceTypeRegistry getResourceTypeRegistry()
+	{
+		return m_resourceTypeRegistry;
+	}
+	
+	protected boolean useResourceTypeRegistry = true;
+	
+	public void setUseResourceTypeRegistry(boolean useRegistry)
+	{
+		useResourceTypeRegistry = useRegistry;
+	}
+	
+	public boolean usingResourceTypeRegistry()
+	{
+		return useResourceTypeRegistry;
+	}
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -572,6 +611,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		catch (Throwable t)
 		{
 			M_log.warn("init(): ", t);
+		}
+		
+		if(usingResourceTypeRegistry())
+		{
+			this.getResourceTypeRegistry().register(new FileUploadType());
+			this.getResourceTypeRegistry().register(new TextDocumentType());
+			this.getResourceTypeRegistry().register(new HtmlDocumentType());
+			this.getResourceTypeRegistry().register(new UrlResourceType());
 		}
 
 	} // init

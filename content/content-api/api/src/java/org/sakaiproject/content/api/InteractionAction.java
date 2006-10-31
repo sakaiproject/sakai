@@ -22,21 +22,31 @@
 
 package org.sakaiproject.content.api;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.sakaiproject.entity.api.Reference;
 
 /**
  * An InteractionAction defines a kind of ResourceToolAction which involves 
- * user interaction to complete the action.  
+ * user interaction to complete the action. The Resources tool will invoke 
+ * a helper to render an html page (or possibly a series of pages), process 
+ * the response(s) and turn control back to the Resources tool when done.  
  *
  */
 public interface InteractionAction extends ResourceToolAction
 {
 	/**
-	 * @param baseServerUrl
-	 * @param reference
+	 * Setup to invoke a helper to handle the user interaction for this action. The method returns a
+	 * URL that renders the UI for the action.  The Resources tool will use the URL as the src attribute
+	 * for a frame or window as part of a wizard, so the URL should render a full XHTML document or 
+	 * a sequence of documents that elicit information needed to complete the action.  
+	 * The helper eventually return to the caller
+	 * 
+	 * @param req The request from which the helper is invoked.
+	 * @param reference Identifies the ContentEntity with respect to which the action is to be invoked. 
 	 * @return
 	 */
-	public String getActionUrl(String baseServerUrl, Reference reference);
+	public String getActionUrl(HttpServletRequest req, Reference reference);
 	
 	/**
 	 * @param reference

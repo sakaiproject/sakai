@@ -18,6 +18,7 @@
 		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
 		<property name="lockManager"><ref bean="org.sakaiproject.content.api.LockManager"/></property>
 		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+		<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
  
  		<property name="collectionTableName"><value>CONTENT_COLLECTION</value></property>
  		<property name="resourceTableName"><value>CONTENT_RESOURCE</value></property>
@@ -29,6 +30,7 @@
  		<property name="siteQuota"><value>1048576</value></property>
 		<property name="availabilityChecksEnabled"><value>true</value></property>
 		<property name="prioritySortEnabled"><value>true</value></property>
+		<property name="useResourceTypeRegistry"><value>true</value></property>
   	</bean>
 
 	<bean id="org.sakaiproject.content.api.ContentTypeImageService"

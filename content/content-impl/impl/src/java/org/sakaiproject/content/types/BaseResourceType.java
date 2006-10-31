@@ -19,40 +19,49 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.content.api;
+package org.sakaiproject.content.types;
 
-import java.util.Map;
-
-import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.content.api.ResourceType;
 
 /**
  * 
- * 
+ *
  */
-public interface ResourceToolAction 
+public abstract class BaseResourceType implements ResourceType 
 {
-	public static final String CREATE = "create";
-	public static final String DELETE = "delete";
-	public static final String COPY = "copy";
-	public static final String REVISE_CONTENT = "revise";
-	public static final String ACCESS_CONTENT = "access";
-	public static final String ACCESS_PROPERTIES = "info";
-	public static final String DUPLICATE = "duplicate";
-	public static final String MOVE = "move";
-	
-	public static final String PREFIX = "resourceToolAction.";
-	public static final String ACTION_CANCELED = PREFIX + "action_canceled";
-	public static final String ACTION_ERROR = PREFIX + "action_error";
-	public static final String ACTION_SUCCEEDED = PREFIX + "action_succeeded";
-	
-	/**
-	 * @return
-	 */
-	public String getId();
-	
-	/**
-	 * @return
-	 */
-	public String getLabel();
-	
+	public boolean hasAvailabilityDialog() 
+	{
+		return true;
+	}
+
+	public boolean hasDescription() 
+	{
+		return true;
+	}
+
+	public boolean hasGroupsDialog() 
+	{
+		return true;
+	}
+
+	public boolean hasNotificationDialog() 
+	{
+		return true;
+	}
+
+	public boolean hasOptionalPropertiesDialog() 
+	{
+		return true;
+	}
+
+	public boolean hasPublicDialog() 
+	{
+		return true;
+	}
+
+	public boolean hasRightsDialog() 
+	{
+		return true;
+	}
+
 }

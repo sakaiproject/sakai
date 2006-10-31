@@ -32,6 +32,7 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.InteractionAction;
+import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.ServiceLevelAction;
@@ -118,7 +119,17 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 		{
 			return;
 		}
+//		System.out.println("----------> ResourceTypeRegistry.register(" + type.getId() + ", " + type.getLabel() + ")");
+//		List actions = type.getActions(null);
+//		Iterator it = actions.iterator();
+//		while(it.hasNext())
+//		{
+//			ResourceToolAction action = (ResourceToolAction) it.next();
+//			System.out.println("          > " + action.getId() + " ==> " + action.getLabel() );
+//			
+//		}
 		typeIndex.put(type.getId(), type);
+		
 	}
 
 }

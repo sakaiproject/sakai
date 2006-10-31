@@ -35,4 +35,6 @@ public interface ServiceLevelAction extends ResourceToolAction
 	 */
 	public void invokeAction(Reference reference);
 	
+	public boolean isMultipleItemAction();
+	
 }

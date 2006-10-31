@@ -1,0 +1,17 @@
+<!-- resources/sakai_create_text.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
+<div class="portletBody">
+	<h4>
+		$tlang.getString("add.text")
+	</h4>
+	#if ($itemAlertMessage)
+		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($itemAlertMessage)</div>
+		<div style="display:block;clear:both" ></div>
+	#end
+	#if($!{item.isMissing("content")})
+		<p class="longtext validation">
+	#else
+		<p class="longtext">
+	#end
+		<textarea name="content" id="content" rows="10" cols="60" wrap="virtual">$!validator.escapeHtmlTextarea($!{item.contentstring})</textarea>
+	</p>
+</div>
