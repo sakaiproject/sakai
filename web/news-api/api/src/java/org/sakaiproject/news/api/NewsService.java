@@ -24,13 +24,14 @@ package org.sakaiproject.news.api;
 import java.util.List;
 
 import org.sakaiproject.javax.Filter;
+import org.sakaiproject.entity.api.EntityProducer;
 
 /**
  * <p>
  * NewsService is the interface for retrieving and caching news items from a rss news feed.
  * </p>
  */
-public interface NewsService
+public interface NewsService extends EntityProducer
 {
 	/** This string can be used to find the service in the service manager. */
 	public static final String SERVICE_NAME = NewsService.class.getName();
