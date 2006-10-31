@@ -307,7 +307,7 @@ public interface GradebookManager {
     public Long createSpreadsheet(Long gradebookId, String name, String creator, Date dateCreated, String content) throws ConflictingSpreadsheetNameException, StaleObjectModificationException;
 
 
-    public void updateComments(Comment comment);
+    public void updateComment(Comment comment);
 
     public Comment getComment(GradableObject gradableObject, String studentId);
 

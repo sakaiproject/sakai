@@ -128,7 +128,7 @@ public class GradeCommentTest extends GradebookTestBase  {
         Assert.assertTrue(comment.getCommentText().equals("grade commentText test"));
         //change the commentText text and save it
         comment.setCommentText("grade commentText changed");
-        gradebookManager.updateComments(comment);
+        gradebookManager.updateComment(comment);
         //retrieve the cahnged and updated commment
         comment = gradebookManager.getComment(asn,"entered1");
         //verify that that the saved commentText did actually change

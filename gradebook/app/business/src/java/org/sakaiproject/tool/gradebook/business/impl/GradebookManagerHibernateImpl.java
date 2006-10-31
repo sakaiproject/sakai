@@ -946,7 +946,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     }
 
 
-    public void updateComments(final Comment comment) throws StaleObjectModificationException {
+    public void updateComment(final Comment comment) throws StaleObjectModificationException {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 comment.setGraderId(authn.getUserUid());

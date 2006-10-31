@@ -16,16 +16,24 @@
 
 package org.sakaiproject.tool.gradebook;
 
+import java.util.Date;
+import java.io.Serializable;
+
 /**
  * Author:Louis Majanja <louis@media.berkeley.edu>
  * Date: Oct 20, 2006
  * Time: 10:56:34 AM
  */
-public class Comment extends AbstractComment {
+public class Comment implements Serializable {
 
-    public Comment() {
-       super();
-    }
+    protected Long id;
+    protected String studentId;
+    protected String graderId;
+    protected int version;
+    protected Date dateRecorded;
+    protected String commentText;
+    protected GradableObject gradableObject;
+
 
     public Comment(String studentId, String comment, GradableObject gradableObject) {
         this.gradableObject = gradableObject;
@@ -33,5 +41,65 @@ public class Comment extends AbstractComment {
         this.commentText = comment;
     }
 
+
+    public Comment() {
+    }
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
+
+    public String getGraderId() {
+        return graderId;
+    }
+
+    public void setGraderId(String graderId) {
+        this.graderId = graderId;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
+
+    public Date getDateRecorded() {
+        return dateRecorded;
+    }
+
+    public void setDateRecorded(Date dateRecorded) {
+        this.dateRecorded = dateRecorded;
+    }
+
+    public String getCommentText() {
+        return commentText;
+    }
+
+    public void setCommentText(String commentText) {
+        this.commentText = commentText;
+    }
+
+    public GradableObject getGradableObject() {
+        return gradableObject;
+    }
+
+    public void setGradableObject(GradableObject gradableObject) {
+        this.gradableObject = gradableObject;
+    }
 }
 
