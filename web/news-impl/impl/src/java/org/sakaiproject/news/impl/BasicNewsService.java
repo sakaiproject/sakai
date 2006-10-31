@@ -25,13 +25,18 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.dv.util.Base64;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -40,8 +45,27 @@ import org.sakaiproject.news.api.NewsConnectionException;
 import org.sakaiproject.news.api.NewsFormatException;
 import org.sakaiproject.news.api.NewsItem;
 import org.sakaiproject.news.api.NewsService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.HttpAccess;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.exception.IdUnusedException;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -56,10 +80,24 @@ import com.sun.syndication.io.XmlReader;
  * BasicNewsService implements the NewsService using the Rome RSS package.
  * </p>
  */
-public class BasicNewsService implements NewsService
+public class BasicNewsService implements NewsService, EntityTransferrer
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(BasicNewsService.class);
+	
+	private static final String TOOL_ID = "sakai.news";
+	
+	private static final String NEWS = "news";
+	private static final String NEWS_ITEM = "news_item";
+	private static final String NEWS_URL = "url";
+	private static final String TOOL_TITLE = "tool_title";
+	private static final String PAGE_TITLE = "page_title";
+	private static final String ARCHIVE_VERSION = "2.4"; // in case new features are added in future exports
+	
+	private static final String VERSION_ATTR = "version";
+	private static final String NEWS_URL_PROP = "channel-url";
+	
+	public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
 
 	// default expiration is 10 minutes (expressed in seconds)
 	protected static final int DEFAULT_EXPIRATION = 10 * 60;
@@ -104,6 +142,9 @@ public class BasicNewsService implements NewsService
 		{
 			M_log.warn("init(): ", t);
 		}
+		
+		// register as an entity producer
+		EntityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
 	} // init
 
@@ -871,5 +912,401 @@ public class BasicNewsService implements NewsService
 	public void removeChannel(String source)
 	{
 		m_storage.remove(source);
+	}
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Import/Export
+	 *********************************************************************************************************************************************************************************************************************************************************/
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getEntityUrl(Reference ref)
+	{
+		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean willArchiveMerge()
+	{
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean willImport()
+	{
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public HttpAccess getHttpAccess()
+	{
+		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getEntityDescription(Reference ref)
+	{
+		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public ResourceProperties getEntityResourceProperties(Reference ref)
+	{
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Entity getEntity(Reference ref)
+	{
+		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans, Set userListAllowImport)
+	{
+		M_log.info("merge starts for News...");
+		if (siteId != null && siteId.trim().length() > 0)
+		{
+			try
+			{
+				Site site = SiteService.getSite(siteId);
+				NodeList allChildrenNodes = root.getChildNodes();
+				int length = allChildrenNodes.getLength();
+				for (int i = 0; i < length; i++)
+				{
+					Node siteNode = allChildrenNodes.item(i);
+					if (siteNode.getNodeType() == Node.ELEMENT_NODE)
+					{
+						Element siteElement = (Element) siteNode;
+						if (siteElement.getTagName().equals(NEWS))
+						{
+							NodeList allContentNodes = siteElement.getChildNodes();
+							int lengthContent = allContentNodes.getLength();
+							for (int j = 0; j < lengthContent; j++)
+							{
+								Node child1 = allContentNodes.item(j);
+								if (child1.getNodeType() == Node.ELEMENT_NODE)
+								{
+									Element contentElement = (Element) child1;
+									if (contentElement.getTagName().equals(NEWS_ITEM))
+									{
+										String toolTitle = contentElement.getAttribute(TOOL_TITLE);
+										String trimBody = null;
+										if(toolTitle != null && toolTitle.length() >0)
+										{
+											trimBody = trimToNull(toolTitle);
+											if (trimBody != null && trimBody.length() >0)
+											{
+												byte[] decoded = Base64.decode(trimBody);
+												toolTitle = new String(decoded, "UTF-8");
+											}
+										}
+
+										String pageTitle = contentElement.getAttribute(PAGE_TITLE);
+										trimBody = null;
+										if(pageTitle != null && pageTitle.length() >0)
+										{
+											trimBody = trimToNull(pageTitle);
+											if (trimBody != null && trimBody.length() >0)
+											{
+												byte[] decoded = Base64.decode(trimBody);
+												pageTitle = new String(decoded, "UTF-8");
+											}
+										}
+
+										String contentUrl = contentElement.getAttribute(NEWS_URL);
+										trimBody = null;
+										if(contentUrl != null && contentUrl.length() >0)
+										{
+											trimBody = trimToNull(contentUrl);
+											if (trimBody != null && trimBody.length() >0)
+											{
+												byte[] decoded = Base64.decode(trimBody);
+												contentUrl = new String(decoded, "UTF-8");
+											}
+										}
+
+										if(toolTitle != null && contentUrl != null && toolTitle.length() >0 && contentUrl.length() >0
+												&& pageTitle !=null && pageTitle.length() > 0)
+										{
+											Tool tr = ToolManager.getTool(TOOL_ID);
+											SitePage page = site.addPage(); 
+											page.setTitle(pageTitle);
+											ToolConfiguration tool = page.addTool();
+											tool.setTool(TOOL_ID, tr);
+											tool.setTitle(toolTitle);
+											tool.getPlacementConfig().setProperty(NEWS_URL_PROP, contentUrl);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				SiteService.save(site);
+				ToolSession session = SessionManager.getCurrentToolSession();
+
+				if (session.getAttribute(ATTR_TOP_REFRESH) == null)	
+				{
+					session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+				}
+			}
+			catch(Exception e)
+			{
+				M_log.error("errors in merge for BasicNewsService");
+				e.printStackTrace();
+			}
+		}
+
+		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String archive(String siteId, Document doc, Stack stack, String arg3,
+		      List attachments)
+	{
+		StringBuffer results = new StringBuffer();
+
+		try
+		{
+			int count = 0;
+			results.append("archiving " + getLabel() + " context "
+					+ Entity.SEPARATOR + siteId + Entity.SEPARATOR
+					+ SiteService.MAIN_CONTAINER + ".\n");
+			
+			// get the default news url
+			String defaultUrl = ServerConfigurationService.getString("news.feedURL");
+			
+			// start with an element with our very own (service) name
+			Element element = doc.createElement(SERVICE_NAME);
+			element.setAttribute(VERSION_ATTR, ARCHIVE_VERSION);
+			((Element) stack.peek()).appendChild(element);
+			stack.push(element);
+			if (siteId != null && siteId.trim().length() > 0)
+			{
+				Element newsEl = doc.createElement(NEWS);
+
+				Site site = SiteService.getSite(siteId);
+				List sitePages = site.getPages();
+
+				if (sitePages != null && !sitePages.isEmpty()) 
+				{
+					Iterator pageIter = sitePages.iterator();
+					while (pageIter.hasNext()) 
+					{
+						SitePage currPage = (SitePage) pageIter.next();
+
+						List toolList = currPage.getTools();
+						Iterator toolIter = toolList.iterator();
+						while (toolIter.hasNext()) 
+						{
+							ToolConfiguration toolConfig = (ToolConfiguration)toolIter.next();
+
+							if (toolConfig.getToolId().equals(TOOL_ID)) 
+							{
+								Element newsData = doc.createElement(NEWS_ITEM);
+								count++;
+								//There will only be a url property if the user updated the default URL
+								String newsUrl = toolConfig.getPlacementConfig().getProperty(NEWS_URL_PROP);		
+								if (newsUrl == null || newsUrl.length() <= 0) 
+								{
+									// news item is using default url
+									newsUrl = defaultUrl;
+								}
+								String toolTitle = toolConfig.getTitle();
+								String pageTitle = currPage.getTitle();
+
+								try 
+								{
+									String encoded = Base64.encode(newsUrl.getBytes());
+									newsData.setAttribute(NEWS_URL, encoded);
+								}
+								catch(Exception e) 
+								{
+									M_log.warn("Encode News URL - " + e);
+								}
+
+								try 
+								{
+									String encoded = Base64.encode(toolTitle.getBytes());
+									newsData.setAttribute(TOOL_TITLE, encoded);
+								}
+								catch(Exception e) 
+								{
+									M_log.warn("Encode News Tool Title - " + e);
+								}
+								
+								try 
+								{
+									String encoded = Base64.encode(pageTitle.getBytes());
+									newsData.setAttribute(PAGE_TITLE, encoded);
+								}
+								catch(Exception e) 
+								{
+									M_log.warn("Encode News Page Title - " + e);
+								}
+
+								newsEl.appendChild(newsData);
+							}
+						}		  
+					}
+					results.append("archiving " + getLabel() + ": (" + count
+							+ ") news items archived successfully.\n");
+				}
+
+				else 
+				{
+					results.append("archiving " + getLabel()
+							+ ": empty news archived.\n");
+				}
+
+				((Element) stack.peek()).appendChild(newsEl);
+				stack.push(newsEl);
+			}
+			stack.pop();
+
+		}
+		catch (DOMException e)	
+		{
+			M_log.error(e.getMessage(), e);
+		}
+		catch (IdUnusedException e)	
+		{
+			M_log.error(e.getMessage(), e);
+		}
+		catch (Exception e)	
+		{
+			M_log.error(e.getMessage(), e);
+		}
+		return results.toString();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void transferCopyEntities(String fromContext, String toContext, List ids) 
+	{
+		M_log.debug("news transferCopyEntities");
+		try
+		{				
+			// retrieve all of the news tools to copy
+			Site fromSite = SiteService.getSite(fromContext);
+			Site toSite = SiteService.getSite(toContext);
+			
+			List fromSitePages = fromSite.getPages();
+
+			if (fromSitePages != null && !fromSitePages.isEmpty()) 
+			{
+				Iterator pageIter = fromSitePages.iterator();
+				while (pageIter.hasNext()) 
+				{
+					SitePage currPage = (SitePage) pageIter.next();
+
+					List toolList = currPage.getTools();
+					Iterator toolIter = toolList.iterator();
+					while (toolIter.hasNext()) 
+					{
+						ToolConfiguration toolConfig = (ToolConfiguration)toolIter.next();
+						String toolId =  toolConfig.getToolId();
+
+						if (toolId.equals(TOOL_ID)) 
+						{
+							String newsUrl = toolConfig.getPlacementConfig().getProperty(NEWS_URL_PROP);
+							String toolTitle = toolConfig.getTitle();
+							String pageTitle = currPage.getTitle();
+
+							if(toolTitle != null && toolTitle.length() >0 && pageTitle !=null && pageTitle.length() > 0) 
+							{
+								Tool tr = ToolManager.getTool(TOOL_ID);
+								SitePage page = toSite.addPage(); 
+								page.setTitle(pageTitle);
+								ToolConfiguration tool = page.addTool();
+								tool.setTool(TOOL_ID, tr);
+								tool.setTitle(toolTitle);
+								if (newsUrl != null) 
+								{   
+									tool.getPlacementConfig().setProperty(NEWS_URL_PROP, newsUrl);
+								}
+							}
+						}
+					}
+				}
+			}
+			SiteService.save(toSite);
+			ToolSession session = SessionManager.getCurrentToolSession();
+
+			if (session.getAttribute(ATTR_TOP_REFRESH) == null)	
+			{
+				session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+			}
+		}
+		catch (Exception any) 
+		{
+			M_log.warn("transferCopyEntities(): exception in handling news data: ", any);
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getLabel()
+	{
+	    return "news";
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Collection getEntityAuthzGroups(Reference ref)
+	{
+		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Collection getEntityAuthzGroups(Reference ref, String userId)
+	{
+		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String[] myToolIds()
+	{
+		String[] toolIds = { TOOL_ID };
+		return toolIds;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean parseEntityReference(String reference, Reference ref)
+	{
+		return false;
+	}
+	
+	public String trimToNull(String value)
+	{
+		if (value == null) return null;
+		value = value.trim();
+		if (value.length() == 0) return null;
+		return value;
 	}
 }
