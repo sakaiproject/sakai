@@ -94,7 +94,7 @@ public class UrlResourceType extends BaseResourceType
 
 		public String getLabel() 
 		{
-			return rb.getString("action.create"); 
+			return rb.getString("create.url"); 
 		}
 
 		public String getActionUrl(HttpServletRequest req, Reference reference) 

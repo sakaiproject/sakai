@@ -94,7 +94,7 @@ public class FileUploadType extends BaseResourceType
 
 		public String getLabel() 
 		{
-			return rb.getString("action.create"); 
+			return rb.getString("create.upload"); 
 		}
 
 		public String getActionUrl(HttpServletRequest req, Reference reference) 

@@ -94,7 +94,7 @@ public class HtmlDocumentType extends BaseResourceType
 
 		public String getLabel() 
 		{
-			return rb.getString("action.create"); 
+			return rb.getString("create.html"); 
 		}
 
 		public String getActionUrl(HttpServletRequest req, Reference reference) 

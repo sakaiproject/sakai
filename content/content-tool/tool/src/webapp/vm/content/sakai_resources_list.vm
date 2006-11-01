@@ -16,6 +16,7 @@
 				<div class="navIntraTool">
 					$tlang.getString("list.site")
 					| <a href="#toolLink("ResourcesAction" "doShow_webdav")" title="$tlang.getString('dav.webdav')">$tlang.getString("dav.webdav").trim()</a> 
+					| <a href="#toolLink("ResourcesAction" "doColumns")" title="$tlang.getString('list.columns')">$tlang.getString("list.columns")</a> 
 					#if($showPermissions)
 					| <a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$validator.escapeUrl(${site.id})")" title="$tlang.getString('list.sPerm')">$tlang.getString("list.sPerm").trim()</a>
 					#end

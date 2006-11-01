@@ -73,6 +73,8 @@ import org.sakaiproject.content.api.ContentResourceFilter;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.content.api.GroupAwareEntity;
+import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
@@ -140,6 +142,48 @@ import org.w3c.dom.Text;
 public class ResourcesAction
 	extends PagedResourceHelperAction // VelocityPortletPaneledAction
 {
+	public class ListItem
+	{
+		protected String name;
+		protected String id;
+		protected List members;
+		protected boolean selected;
+		
+		
+		public String getId() 
+		{
+			return id;
+		}
+		public void setId(String id) 
+		{
+			this.id = id;
+		}
+		public String getName() 
+		{
+			return name;
+		}
+		public void setName(String name) 
+		{
+			this.name = name;
+		}
+		public List getMembers() 
+		{
+			return members;
+		}
+		public void setMembers(List members) 
+		{
+			this.members = members;
+		}
+		public void setSelected(boolean selected) 
+		{
+			this.selected = selected;
+		}
+		public boolean isSelected() 
+		{
+			return selected;
+		}
+	}
+	
 	/** Resource bundle using current language locale */
     private static ResourceLoader rb = new ResourceLoader("content");
 
@@ -407,6 +451,11 @@ public class ResourcesAction
 	 *  the workspace if this attribute is set to "true". 
 	 */
 	public static final String STATE_ATTACH_SHOW_WORKSPACE = "resources.state_attach_show_workspace";
+	
+	
+	/************** the columns context *****************************************/
+
+	public static final String STATE_COLUMN_ITEM_ID = "resources.state_column_item_id";
 
 	
 	
@@ -466,6 +515,9 @@ public class ResourcesAction
 	private static final String MODE_PROPERTIES = "properties";
 	private static final String MODE_REORDER = "reorder";
 
+	private static final String STATE_LIST_PREFERENCE = "resources.state_list_preference";
+	private static final String LIST_COLUMNS = "columns";
+	private static final String LIST_HIERARCHY = "hierarchy";
 
 	/** modes for attachment helper */
 	public static final String MODE_ATTACHMENT_SELECT = "resources.attachment_select";
@@ -645,10 +697,15 @@ public class ResourcesAction
 
 		if (mode.equals (MODE_LIST))
 		{
-			if(contentHostingService.usingResourceTypeRegistry())
+			String list_pref = (String) state.getAttribute(STATE_LIST_PREFERENCE);
+			if(list_pref == null)
+			{
+				list_pref = LIST_HIERARCHY;
+			}
+			if(LIST_COLUMNS.equals(list_pref))
 			{
 				// build the context for list view
-				template = buildListContext (portlet, context, data, state);
+				template = buildColumnsContext (portlet, context, data, state);
 			}
 			else
 			{
@@ -698,6 +755,187 @@ public class ResourcesAction
 
 	}	// buildMainPanelContext
 
+	/**
+	 * Build the context to establish a custom-ordering of resources/folders within a folder.
+	 */
+	public String buildColumnsContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
+	{
+		context.put("tlang",rb);
+		
+		// get the id of the item currently selected
+		String selectedItemId = (String) state.getAttribute(STATE_COLUMN_ITEM_ID);
+		if(selectedItemId == null)
+		{
+			selectedItemId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+		}
+		String folderId = null;
+		
+		// need a list of roots (ListItem objects) in context as $roots
+		List roots = new Vector();
+		Map othersites = ContentHostingService.getCollectionMap();
+		Iterator it = othersites.keySet().iterator();
+		while(it.hasNext())
+		{
+			String rootId = (String) it.next();
+			String rootName = (String) othersites.get(rootId);
+			ListItem root = new ListItem();
+			root.setId(rootId);
+			root.setName(rootName);
+			if(selectedItemId != null && selectedItemId.startsWith(rootId))
+			{
+				root.setSelected(true);
+				folderId = rootId;
+			}
+			roots.add(root);
+		}
+		// sort by name?
+		context.put("roots", roots);
+		
+		// need a list of folders (ListItem objects) for one root in context as $folders
+		List folders = new Vector();
+		ContentCollection collection = null;
+		ContentEntity selectedItem = null;
+		
+		while(folderId != null)
+		{
+			String collectionId = folderId;
+			folderId = null;
+
+			List folder = new Vector();
+			try 
+			{
+				if(collection == null)
+				{
+					collection = ContentHostingService.getCollection(collectionId);
+				}
+				List members = collection.getMemberResources();
+				collection = null;
+				Iterator memberIt = members.iterator();
+				while(memberIt.hasNext())
+				{
+					ContentEntity member = (ContentEntity) memberIt.next();
+					String itemId = member.getId();
+					ResourceProperties props = member.getProperties();
+					String itemName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+					ListItem item = new ListItem();
+					item.setId(itemId);
+					item.setName(itemName);
+					if(selectedItemId != null && selectedItemId.startsWith(itemId))
+					{
+						selectedItem = member;
+						item.setSelected(true);
+						if(member.isCollection())
+						{
+							folderId = itemId;
+						}
+					}
+					folder.add(item);
+				}
+				folders.add(folder);
+				
+				
+			} 
+			catch (IdUnusedException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			catch (TypeException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			catch (PermissionException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		context.put("folders", folders);
+		
+		if(selectedItem != null)
+		{
+			ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+			if(registry == null)
+			{
+				registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			}
+			Reference ref = EntityManager.newReference(selectedItem.getReference());
+			if(selectedItem.isCollection())
+			{
+				List actions = new Vector();
+				Collection types = registry.getTypes();
+				Iterator typeIt = types.iterator();
+				while(typeIt.hasNext())
+				{
+					ResourceType type = (ResourceType) typeIt.next();
+					if(type.isCreateActionAllowed(ref))
+					{
+						User user = UserDirectoryService.getCurrentUser();
+						actions.add(type.getCreateAction(ref, user));
+					}
+				}
+				context.put("actions", actions);
+			}
+			else
+			{
+				ContentResource resource = (ContentResource) selectedItem;
+				String mimetype = resource.getContentType();
+				ResourceType type = registry.getType(mimetype);
+				if(type == null)
+				{
+					type = registry.getType("file");
+				}
+				context.put("actions", type.getActions(ref));
+			}
+		}
+		
+		
+		return "content/sakai_resources_columns";
+	}
+	
+	public void doShowMembers(RunData data)
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		
+		// get the parameter-parser
+		ParameterParser params = data.getParameters();
+		
+		// get the item to be expanded
+		String itemId = params.getString("item");
+		if(itemId != null)
+		{
+			// put the itemId into state
+			state.setAttribute(STATE_COLUMN_ITEM_ID, itemId);
+		}
+	}
+	
+	public void doColumns(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		state.setAttribute(STATE_LIST_PREFERENCE, LIST_COLUMNS);
+	}
+	
+	public void doHierarchy(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		state.setAttribute(STATE_LIST_PREFERENCE, LIST_HIERARCHY);
+	}
+	
+	public void doDispatchAction(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		
+		// get the parameter-parser
+		ParameterParser params = data.getParameters();
+		
+		String action = params.getString("action");
+		
+		
+	}
+	
 	/**
 	 * Build the context to establish a custom-ordering of resources/folders within a folder.
 	 */
@@ -10147,6 +10385,11 @@ public class ResourcesAction
 			}
 		}
 		state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractTime);
+		
+		if(state.getAttribute(STATE_LIST_PREFERENCE) == null)
+		{
+			state.setAttribute(STATE_LIST_PREFERENCE, LIST_HIERARCHY);
+		}
 			
 		state.setAttribute (STATE_INITIALIZED, Boolean.TRUE.toString());
 
