@@ -58,7 +58,7 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
 	public static final String SATURDAY = "sections_saturday";
 	public static final String SUNDAY = "sections_sunday";
 
-	// Fields from Site Section
+	// Fields from Site Group
 	protected String description;
 
 	// Fields from CourseSection
@@ -66,22 +66,18 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
 	protected Course course;
 	protected String category;
     protected Integer maxEnrollments;
-    protected List meetings;
-
-    // Fields shared between the two interfaces
-	protected String id;
+    protected List<MeetingImpl> meetings;
     protected String title;
 
     // Transient holder for the framework group being decorated.
     private transient Group group;
     
 	public CourseSectionImpl(Group group) {
-		this.meetings = new ArrayList();
+		this.meetings = new ArrayList<MeetingImpl>();
 		// We always start with a single empty meeting
 		meetings.add(new MeetingImpl());
 		this.group = group;
 		ResourceProperties props = group.getProperties();
-		this.id = group.getId();
 		this.uuid = group.getReference();
 		this.title = group.getTitle();
 		this.description = group.getContainingSite().getTitle() + ", " + this.title;
@@ -171,7 +167,7 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
 		}
 		
 	}
-	
+
 	private boolean getIndexedBooleanProperty(int index, String complexString) {
 		String[] sa = complexString.split(CourseSectionImpl.SEP_CHARACTER);
 		if(index >=sa.length) {
@@ -386,16 +382,8 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
 		return meetings;
 	}
 
-	public void setMeetings(List meetings) {
+	public void setMeetings(List<MeetingImpl> meetings) {
 		this.meetings = meetings;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
 	}
 
 	public Integer getMaxEnrollments() {

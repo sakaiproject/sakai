@@ -103,8 +103,6 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	 * @return
 	 */
 	private boolean validationFails() {
-
-		// FIXME The JSF component IDs need to be updated here
 		
 		boolean validationFailure = false;
 		

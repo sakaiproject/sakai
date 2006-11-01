@@ -40,9 +40,7 @@
                 <h:panelGrid columns="2">
                     <h:outputLabel for="titleInput" value="#{msgs.add_groups_name} #{msgs.section_required}" styleClass="formLabel"/>
                     <h:panelGroup>
-                        <x:div>
-                            <h:message for="titleInput" styleClass="validationEmbedded"/>
-                        </x:div>
+                        <h:message for="titleInput" styleClass="validationEmbedded"/>
                         <h:inputText
                             id="titleInput"
                             required="true"

@@ -50,6 +50,7 @@ import org.sakaiproject.api.section.exception.MembershipException;
 import org.sakaiproject.api.section.exception.RoleConfigurationException;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.component.section.facade.impl.sakai21.SakaiUtil;
+import org.sakaiproject.component.section.sakai21.advisor.ExternalSectionAdvisor;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -84,7 +85,8 @@ public class SectionManagerImpl implements SectionManager {
 			"org.sakaiproject.api.section.bundle.CourseSectionCategories");
 
 	// Local facades and services
-
+	protected ExternalSectionAdvisor externalSectionAdvisor;
+	
     // Sakai services
     protected SiteService siteService;
     protected AuthzGroupService authzGroupService;
@@ -859,21 +861,38 @@ public class SectionManagerImpl implements SectionManager {
     		throw new RuntimeException("Can not find site " + courseUuid, e);
     	}
 		ResourceProperties props = site.getProperties();
+		
+		// Keep track of whether the previous setting was external or not
+		boolean previouslyExternallyManaged = false;
+		try {
+			previouslyExternallyManaged = props.getBooleanProperty(CourseImpl.EXTERNALLY_MAINTAINED);
+		} catch (Exception e) {
+			if(log.isDebugEnabled()) log.debug("could not find the 'externally managed' state of site " + site.getId());
+		}
+		
+		// Update the site
 		props.addProperty(CourseImpl.EXTERNALLY_MAINTAINED, Boolean.toString(externallyManaged));
 		if(externallyManaged) {
 	    	// Also set the self join/switch to false
 			props.addProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED, Boolean.toString(false));
 			props.addProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED, Boolean.toString(false));
 		}
+    	
+    	// Alert the ExternalSectionAdvisor if this site has changed from manual to automatic
+    	if( ! previouslyExternallyManaged && externallyManaged) {
+    		externalSectionAdvisor.replaceManualSectionsWithExternalSections(site);
+    	}
+
     	try {
         	siteService.save(site);
+        	if(log.isDebugEnabled()) log.debug("Saved site " + site.getTitle());
 			postEvent("section.external=" + externallyManaged, site.getReference());
     	} catch (IdUnusedException ide) {
     		log.error("Error saving site... could not find site " + site, ide);
     	} catch (PermissionException pe) {
     		log.error("Error saving site... permission denied for " + site, pe);
     	}
-	}
+}
 
 	/**
 	 * {@inheritDoc}
@@ -1218,5 +1237,9 @@ public class SectionManagerImpl implements SectionManager {
 
 	public void setEventTrackingService(EventTrackingService eventTrackingService) {
 		this.eventTrackingService = eventTrackingService;
+	}
+
+	public void setExternalSectionAdvisor(ExternalSectionAdvisor externalSectionAdvisor) {
+		this.externalSectionAdvisor = externalSectionAdvisor;
 	}
 }

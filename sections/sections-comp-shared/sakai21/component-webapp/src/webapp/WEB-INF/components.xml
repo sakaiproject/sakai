@@ -39,20 +39,6 @@
         class="org.sakaiproject.component.section.sakai21.CourseManagerImpl">
     </bean>
 
-<!-- 
-    SectionManager is the interface used by the Section Info tool to manipulate
-    sections and their members.  It is not intended for public use.
-    
-    However, if a local institution wants to use the interface to populate sections
-    from enterprise data, they could use this as a temporary stop-gap until the
-    CourseManagement service comes on line.  Be warned that this is not recommended.
-    Uncomment this at your own risk!
-    
-    The Sakai 2.1 SectionManager implementation does not do authorization checks,
-    so use this carefully.
--->
-
-<!-- 
     <bean id="org.sakaiproject.api.section.SectionManager"
         class="org.sakaiproject.component.section.sakai21.SectionManagerImpl">
 
@@ -77,7 +63,19 @@
         <property name="eventTrackingService">
             <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
         </property>
+		<property name="externalSectionAdvisor">
+			<bean class="org.sakaiproject.component.section.sakai21.advisor.CourseManagementProviderExternalSectionAdvisor">
+		        <property name="siteService">
+		            <ref bean="org.sakaiproject.site.api.SiteService"/>
+		        </property>
+		        <property name="authzGroupService">
+		            <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
+		        </property>
+		        <property name="courseManagementService">
+		            <ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+		        </property>
+			</bean>
+		</property>
     </bean>
--->
 
 </beans>
