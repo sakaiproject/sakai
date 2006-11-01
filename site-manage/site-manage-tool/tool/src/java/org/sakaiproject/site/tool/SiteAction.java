@@ -7159,6 +7159,11 @@ public class SiteAction extends PagedResourceActionII
 			try
 			{
 				AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realmId);
+				
+				// does the site has maintain type user(s) before updating participants?
+				String maintainRoleString = realmEdit.getMaintainRole();
+				boolean hadMaintainUser = realmEdit.getUsersHasRole(maintainRoleString).isEmpty();
+				
 				// update participant roles
 				List participants = (List) state.getAttribute(STATE_PARTICIPANT_LIST);;
 				// remove all roles and then add back those that were checked
@@ -7197,10 +7202,6 @@ public class SiteAction extends PagedResourceActionII
 						}
 					}
 				}
-				
-				// does the site has maintain type user(s) before the removing of selected participant?
-				String maintainRoleString = realmEdit.getMaintainRole();
-				boolean hadMaintainUser = realmEdit.getUsersHasRole(maintainRoleString).isEmpty();
 				
 				//remove selected users
 				if (params.getStrings ("selectedUser") != null)
