@@ -441,7 +441,11 @@ public class MessageForumSynopticBean {
 				// private messasge forum so we can get the
 				// List of topics so we can get the Received topic
 				// to finally determine number of unread messages
+				final Area area = pvtMessageManager.getPrivateMessageArea();
+				
 				if (pvtMessageManager.getPrivateMessageArea().getEnabled().booleanValue()) {
+					PrivateForum pf = pvtMessageManager.initializePrivateMessageArea(area);
+					
 					unreadPrivate = pvtMessageManager.findUnreadMessageCount(
 										typeManager.getReceivedPrivateMessageType());
 
