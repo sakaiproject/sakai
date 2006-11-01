@@ -4161,14 +4161,7 @@ public class AssignmentAction extends PagedResourceActionII
 			state.setAttribute(NEW_ASSIGNMENT_OPENDAY, new Integer(openTime.getDay()));
 			state.setAttribute(NEW_ASSIGNMENT_OPENYEAR, new Integer(openTime.getYear()));
 			int openHour = openTime.getHour();
-			if (openHour == 0)
-			{
-				// for midnight point, we mark it as 12AM
-				openHour = 12;
-			}
-			state.setAttribute(NEW_ASSIGNMENT_OPENHOUR, new Integer((openHour > 12) ? openHour - 12 : openHour));
-			state.setAttribute(NEW_ASSIGNMENT_OPENMIN, new Integer(openTime.getMin()));
-			if (((String) a.getOpenTime().toStringLocalFull()).indexOf("pm") != -1)
+			if (openHour >= 12)
 			{
 				state.setAttribute(NEW_ASSIGNMENT_OPENAMPM, "PM");
 			}
@@ -4176,20 +4169,20 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				state.setAttribute(NEW_ASSIGNMENT_OPENAMPM, "AM");
 			}
+			if (openHour == 0)
+			{
+				// for midnight point, we mark it as 12AM
+				openHour = 12;
+			}
+			state.setAttribute(NEW_ASSIGNMENT_OPENHOUR, new Integer((openHour > 12) ? openHour - 12 : openHour));
+			state.setAttribute(NEW_ASSIGNMENT_OPENMIN, new Integer(openTime.getMin()));
 
 			TimeBreakdown dueTime = a.getDueTime().breakdownLocal();
 			state.setAttribute(NEW_ASSIGNMENT_DUEMONTH, new Integer(dueTime.getMonth()));
 			state.setAttribute(NEW_ASSIGNMENT_DUEDAY, new Integer(dueTime.getDay()));
 			state.setAttribute(NEW_ASSIGNMENT_DUEYEAR, new Integer(dueTime.getYear()));
 			int dueHour = dueTime.getHour();
-			if (dueHour == 0)
-			{
-				// for midnight point, we mark it as 12AM
-				dueHour = 12;
-			}
-			state.setAttribute(NEW_ASSIGNMENT_DUEHOUR, new Integer((dueHour > 12) ? dueHour - 12 : dueHour));
-			state.setAttribute(NEW_ASSIGNMENT_DUEMIN, new Integer(dueTime.getMin()));
-			if (((String) a.getDueTime().toStringLocalFull()).indexOf("pm") != -1)
+			if (dueHour >= 12)
 			{
 				state.setAttribute(NEW_ASSIGNMENT_DUEAMPM, "PM");
 			}
@@ -4197,6 +4190,13 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				state.setAttribute(NEW_ASSIGNMENT_DUEAMPM, "AM");
 			}
+			if (dueHour == 0)
+			{
+				// for midnight point, we mark it as 12AM
+				dueHour = 12;
+			}
+			state.setAttribute(NEW_ASSIGNMENT_DUEHOUR, new Integer((dueHour > 12) ? dueHour - 12 : dueHour));
+			state.setAttribute(NEW_ASSIGNMENT_DUEMIN, new Integer(dueTime.getMin()));
 			// generate alert when editing an assignment past due date
 			if (a.getDueTime().before(TimeService.newTime()))
 			{
@@ -4211,14 +4211,7 @@ public class AssignmentAction extends PagedResourceActionII
 				state.setAttribute(NEW_ASSIGNMENT_CLOSEDAY, new Integer(closeTime.getDay()));
 				state.setAttribute(NEW_ASSIGNMENT_CLOSEYEAR, new Integer(closeTime.getYear()));
 				int closeHour = closeTime.getHour();
-				if (closeHour == 0)
-				{
-					// for the midnight point, we mark it as 12 AM
-					closeHour = 12;
-				}
-				state.setAttribute(NEW_ASSIGNMENT_CLOSEHOUR, new Integer((closeHour > 12) ? closeHour - 12 : closeHour));
-				state.setAttribute(NEW_ASSIGNMENT_CLOSEMIN, new Integer(closeTime.getMin()));
-				if (((String) a.getCloseTime().toStringLocalFull()).indexOf("pm") != -1)
+				if (closeHour >= 12)
 				{
 					state.setAttribute(NEW_ASSIGNMENT_CLOSEAMPM, "PM");
 				}
@@ -4226,6 +4219,13 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					state.setAttribute(NEW_ASSIGNMENT_CLOSEAMPM, "AM");
 				}
+				if (closeHour == 0)
+				{
+					// for the midnight point, we mark it as 12 AM
+					closeHour = 12;
+				}
+				state.setAttribute(NEW_ASSIGNMENT_CLOSEHOUR, new Integer((closeHour > 12) ? closeHour - 12 : closeHour));
+				state.setAttribute(NEW_ASSIGNMENT_CLOSEMIN, new Integer(closeTime.getMin()));
 			}
 			else
 			{
