@@ -2225,7 +2225,7 @@ public class SiteAction extends PagedResourceActionII
 				}
 			}
 			context.put (STATE_TOOL_REGISTRATION_LIST, state.getAttribute(STATE_TOOL_REGISTRATION_LIST));
-			context.put ("selectedTools", orderToolIds(state, site_type, (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST))); // String toolId's
+			context.put ("selectedTools", orderToolIds(state, site_type, getToolsAvailableForImport(state))); // String toolId's
 			context.put("importSites", state.getAttribute(STATE_IMPORT_SITES));
 			context.put("importSitesTools", state.getAttribute(STATE_IMPORT_SITE_TOOL));
 			context.put("check_home", state.getAttribute(STATE_TOOL_HOME_SELECTED));
@@ -7912,6 +7912,8 @@ public class SiteAction extends PagedResourceActionII
 						List selectedTools = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 						importToolIntoSite(selectedTools, importTools, existingSite);
 						
+						existingSite = getStateSite(state);   // refresh site for WC and News
+												
 						if (state.getAttribute(STATE_MESSAGE) == null)
 						{
 							commitSite(existingSite);
@@ -12727,6 +12729,38 @@ public class SiteAction extends PagedResourceActionII
 		}
 
 		return rv;
+	}
+	
+	/**
+	* @param state
+	* @return Get a list of all tools that should be included as options for import
+	*/
+	protected List getToolsAvailableForImport(SessionState state)
+	{
+		// The Web Content and News tools do not follow the standard rules for import
+		// Even if the current site does not contain the tool, News and WC will be
+		// an option if the imported site contains it
+		boolean displayWebContent = false;
+		boolean displayNews = false;
+	 
+		Set importSites = ((Hashtable)state.getAttribute(STATE_IMPORT_SITES)).keySet();
+		Iterator sitesIter = importSites.iterator();
+		while (sitesIter.hasNext()) 
+		{
+			Site site = (Site)sitesIter.next();
+			if (site.getToolForCommonId("sakai.iframe") != null)
+				displayWebContent = true;
+			if (site.getToolForCommonId("sakai.news") != null)
+				displayNews = true;	
+		}
+		
+		List toolsOnImportList = (List)state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
+		if (displayWebContent && !toolsOnImportList.contains("sakai.iframe"))
+			toolsOnImportList.add("sakai.iframe");
+		if (displayNews && !toolsOnImportList.contains("sakai.news"))
+			toolsOnImportList.add("sakai.news");
+		
+		return toolsOnImportList;
 	}
 
 }
