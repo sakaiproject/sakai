@@ -1,0 +1,77 @@
+<div class="portletBody">
+	#set($itemsOnLine = 0)
+	<div class="navIntraTool">
+		$tlang.getString("list.site")
+		| <a href="#toolLink("ResourcesAction" "doShow_webdav")" title="$tlang.getString('dav.webdav')">$tlang.getString("dav.webdav").trim()</a> 
+		#if($showPermissions)
+		| <a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$validator.escapeUrl(${site.id})")" title="$tlang.getString('list.sPerm')">$tlang.getString("list.sPerm").trim()</a>
+		#end
+		| <a href="#toolLink("ResourcesAction" "doHierarchy")" title="$tlang.getString('list.hierarchy')">$tlang.getString("list.hierarchy").trim()</a> 
+	</div>
+	#if ($alertMessage)
+		<br /><div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear" ></div>
+	#end
+	<div>
+		<form id="actionForm" name="actionForm" action="#toolLink("ResourcesAction" "doDispatchAction")" method="post">
+			<select name="action" id="action" onchange="submitform('actionForm');">
+				#foreach($action in $actions)
+					<option value="$action.id">$action.label</option>
+				#end
+			</select>
+		</form>
+	</div>
+	
+	<table cellspacing="10">
+		<tr>
+			<td width="20%" valign="top">
+				<div style="overflow:auto;">
+					<table>
+						#foreach($root in $roots)
+							<tr>
+								<td #if($root.isSelected())bgcolor="red"#end ondblclick="selectItem('$root.id');" valign="top">
+									$root.name
+								</td>
+							</tr>
+						#end
+					</table>
+				</div>
+			</td>
+			<td width="80%" valign="top">
+				<div style="overflow:auto;">
+					<table>
+						<tr>
+							#foreach($folder in $folders)
+								<td valign="top">
+									<div style="overflow:auto;">
+										<table>
+											#foreach($item in $folder)
+												<tr>
+													<td #if($item.isSelected())bgcolor="red"#end ondblclick="selectItem('$item.id');">
+														$item.name
+													</td>
+												</tr>
+											#end
+										</table>
+									</div>
+								</td>
+							#end
+						</tr>
+					</table>
+				</div>
+			</td>
+		</tr>
+	</table>
+	<script type="text/javascript">
+		function selectItem(id)
+		{
+			var theItem = document.getElementById("item");
+			var theForm = document.getElementById("selectionForm");
+			theItem.value = id;
+			theForm.submit();
+		}
+	</script>
+	<form id="selectionForm" name="selectionForm" action="#toolForm("ResourcesAction")" method="post">
+		<input type="hidden" name="sakai_action" id="sakai_action" value="doShowMembers" />
+		<input type="hidden" name="item" id="item" value="" />
+	</form>
+</div>
