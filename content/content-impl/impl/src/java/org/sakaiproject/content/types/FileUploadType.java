@@ -44,6 +44,7 @@ public class FileUploadType extends BaseResourceType
 	private static ResourceLoader rb = new ResourceLoader("types");
 
 	protected Map actions = new Hashtable();
+	protected String typeId = "file";
 	protected UserDirectoryService userDirectoryService;
 	
 	public class FileUploadCopyAction implements ServiceLevelAction
@@ -68,6 +69,11 @@ public class FileUploadType extends BaseResourceType
 		public boolean isMultipleItemAction() 
 		{
 			return true;
+		}
+
+		public String getTypeId() 
+		{
+			return typeId;
 		}
 		
 	}
@@ -102,6 +108,11 @@ public class FileUploadType extends BaseResourceType
 			// TODO Auto-generated method stub
 			return null;
 		}
+
+		public String getTypeId() 
+		{
+			return typeId;
+		}
 		
 	}
 
@@ -129,6 +140,10 @@ public class FileUploadType extends BaseResourceType
 			return true;
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
 	}
 
 	public class FileUploadDuplicateAction implements ServiceLevelAction
@@ -156,6 +171,10 @@ public class FileUploadType extends BaseResourceType
 			return false;
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
 	}
 
 	public class FileUploadMoveAction implements ServiceLevelAction
@@ -183,6 +202,10 @@ public class FileUploadType extends BaseResourceType
 			return true;
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
 	}
 
 	public class FileUploadReviseAction implements InteractionAction
@@ -216,6 +239,10 @@ public class FileUploadType extends BaseResourceType
 			return rb.getString("action.revise"); 
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
 	}
 	
 	public class FileUploadAccessAction implements InteractionAction
@@ -249,6 +276,10 @@ public class FileUploadType extends BaseResourceType
 			return rb.getString("action.access"); 
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
 	}
 	
 	public FileUploadType()
@@ -266,8 +297,7 @@ public class FileUploadType extends BaseResourceType
 
 	public ResourceToolAction getAction(String actionId) 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return (ResourceToolAction) actions.get(actionId);
 	}
 
 	public List getActions(Reference entityRef) 
@@ -280,8 +310,10 @@ public class FileUploadType extends BaseResourceType
 
 	public List getActions(Reference entityRef, User user) 
 	{
-		
-		return null;
+		// TODO: use entityRef and user to filter actions
+		List rv = new Vector();
+		rv.addAll(actions.values());
+		return rv;
 	}
 
 	public ResourceToolAction getCreateAction(Reference collectionRef, User user) 
@@ -301,7 +333,7 @@ public class FileUploadType extends BaseResourceType
 	
 	public String getId() 
 	{
-		return "file";
+		return typeId;
 	}
 
 	public String getLabel() 

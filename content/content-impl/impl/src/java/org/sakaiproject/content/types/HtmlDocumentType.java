@@ -46,6 +46,8 @@ public class HtmlDocumentType extends BaseResourceType
 	protected Map actions = new Hashtable();
 	protected UserDirectoryService userDirectoryService;
 	
+	protected String typeId = "text/html";
+	
 	public class HtmlDocumentCopyAction implements ServiceLevelAction
 	{
 
@@ -70,6 +72,10 @@ public class HtmlDocumentType extends BaseResourceType
 			return true;
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
 	}
 
 	public class HtmlDocumentCreateAction implements InteractionAction
@@ -103,6 +109,10 @@ public class HtmlDocumentType extends BaseResourceType
 			return null;
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
 	}
 
 	public class HtmlDocumentDeleteAction implements ServiceLevelAction
@@ -129,6 +139,10 @@ public class HtmlDocumentType extends BaseResourceType
 			return true;
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
 	}
 
 	public class HtmlDocumentDuplicateAction implements ServiceLevelAction
@@ -156,6 +170,10 @@ public class HtmlDocumentType extends BaseResourceType
 			return false;
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
 	}
 
 	public class HtmlDocumentMoveAction implements ServiceLevelAction
@@ -183,6 +201,10 @@ public class HtmlDocumentType extends BaseResourceType
 			return true;
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
 	}
 
 	public class HtmlDocumentReviseAction implements InteractionAction
@@ -216,6 +238,10 @@ public class HtmlDocumentType extends BaseResourceType
 			return rb.getString("action.revise"); 
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
 	}
 	
 	public class HtmlDocumentAccessAction implements InteractionAction
@@ -249,6 +275,10 @@ public class HtmlDocumentType extends BaseResourceType
 			return rb.getString("action.access");
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
 	}
 	
 	public HtmlDocumentType()
@@ -266,8 +296,7 @@ public class HtmlDocumentType extends BaseResourceType
 
 	public ResourceToolAction getAction(String actionId) 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return (ResourceToolAction) actions.get(actionId);
 	}
 
 	public List getActions(Reference entityRef) 
@@ -280,8 +309,10 @@ public class HtmlDocumentType extends BaseResourceType
 
 	public List getActions(Reference entityRef, User user) 
 	{
-		
-		return null;
+		// TODO: use entityRef and user to filter actions
+		List rv = new Vector();
+		rv.addAll(actions.values());
+		return rv;
 	}
 
 	public ResourceToolAction getCreateAction(Reference collectionRef, User user) 
@@ -301,7 +332,7 @@ public class HtmlDocumentType extends BaseResourceType
 	
 	public String getId() 
 	{
-		return "text/html";
+		return typeId;
 	}
 
 	public String getLabel() 

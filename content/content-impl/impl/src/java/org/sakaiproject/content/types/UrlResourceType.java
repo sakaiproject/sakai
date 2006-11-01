@@ -46,6 +46,8 @@ public class UrlResourceType extends BaseResourceType
 	protected Map actions = new Hashtable();
 	protected UserDirectoryService userDirectoryService;
 	
+	protected String typeId = "Url";
+	
 	public class UrlResourceCopyAction implements ServiceLevelAction
 	{
 
@@ -70,6 +72,11 @@ public class UrlResourceType extends BaseResourceType
 			return true;
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
 	}
 
 	public class UrlResourceCreateAction implements InteractionAction
@@ -103,6 +110,11 @@ public class UrlResourceType extends BaseResourceType
 			return null;
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
 	}
 
 	public class UrlResourceDeleteAction implements ServiceLevelAction
@@ -129,6 +141,11 @@ public class UrlResourceType extends BaseResourceType
 			return true;
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
 	}
 
 	public class UrlResourceDuplicateAction implements ServiceLevelAction
@@ -156,6 +173,11 @@ public class UrlResourceType extends BaseResourceType
 			return false;
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
 	}
 
 	public class UrlResourceMoveAction implements ServiceLevelAction
@@ -183,6 +205,11 @@ public class UrlResourceType extends BaseResourceType
 			return true;
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
 	}
 
 	public class UrlResourceReviseAction implements InteractionAction
@@ -216,6 +243,11 @@ public class UrlResourceType extends BaseResourceType
 			return rb.getString("action.revise"); 
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
 	}
 	
 	public class UrlResourceAccessAction implements InteractionAction
@@ -249,6 +281,11 @@ public class UrlResourceType extends BaseResourceType
 			return rb.getString("action.access"); 
 		}
 		
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
 	}
 	
 	public UrlResourceType()
@@ -266,8 +303,7 @@ public class UrlResourceType extends BaseResourceType
 
 	public ResourceToolAction getAction(String actionId) 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return (ResourceToolAction) actions.get(actionId);
 	}
 
 	public List getActions(Reference entityRef) 
@@ -280,8 +316,10 @@ public class UrlResourceType extends BaseResourceType
 
 	public List getActions(Reference entityRef, User user) 
 	{
-		
-		return null;
+		// TODO: use entityRef and user to filter actions
+		List rv = new Vector();
+		rv.addAll(actions.values());
+		return rv;
 	}
 
 	public ResourceToolAction getCreateAction(Reference collectionRef, User user) 
@@ -301,7 +339,7 @@ public class UrlResourceType extends BaseResourceType
 	
 	public String getId() 
 	{
-		return "Url";
+		return typeId;
 	}
 
 	public String getLabel() 
@@ -311,8 +349,7 @@ public class UrlResourceType extends BaseResourceType
 	
 	public boolean isActionAllowed(String actionId, Reference entityRef, User user) 
 	{
-		// TODO Auto-generated method stub
-		return true;
+		return actions.containsKey(actionId);
 	}
 	
 	public boolean isCreateActionAllowed(Reference collectionRef) 

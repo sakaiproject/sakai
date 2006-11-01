@@ -79,6 +79,7 @@ public interface ResourceType
 	// TODO: types should be able to opt-out of some "properties"
 	// "property" categories: title (always required), description, copyright/licensing, access (groups, public), email-notification, availability  
 	/**
+	 * Access the identifier for this type (which must be unique within the registry and must be limited to alphnumeric characters).
 	 * @return
 	 */
 	public String getId(); 

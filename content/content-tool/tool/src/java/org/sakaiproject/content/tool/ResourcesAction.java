@@ -73,8 +73,11 @@ import org.sakaiproject.content.api.ContentResourceFilter;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.content.api.GroupAwareEntity;
+import org.sakaiproject.content.api.InteractionAction;
+import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
+import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
@@ -768,6 +771,7 @@ public class ResourcesAction
 		{
 			selectedItemId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
 		}
+		context.put("selectedItemId", selectedItemId);
 		String folderId = null;
 		
 		// need a list of roots (ListItem objects) in context as $roots
@@ -860,6 +864,7 @@ public class ResourcesAction
 			if(registry == null)
 			{
 				registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+				state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
 			}
 			Reference ref = EntityManager.newReference(selectedItem.getReference());
 			if(selectedItem.isCollection())
@@ -931,9 +936,102 @@ public class ResourcesAction
 		// get the parameter-parser
 		ParameterParser params = data.getParameters();
 		
-		String action = params.getString("action");
+		String action_string = params.getString("action");
+		String selectedItemId = params.getString("selectedItemId");
 		
+		String[] parts = action_string.split("\\.");
+		String typeId = parts[0];
+		String actionId = parts[1];
 		
+		// ResourceType type = getResourceType(selectedItemId, state);
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		ResourceType type = registry.getType(typeId); 
+		
+		Reference reference = EntityManager.newReference(ContentHostingService.getReference(selectedItemId));
+		
+		ResourceToolAction action = type.getAction(actionId);
+		if(action == null)
+		{
+			
+		}
+		else if(action instanceof InteractionAction)
+		{
+			InteractionAction iAction = (InteractionAction) action;
+			String url = iAction.getActionUrl(data.getRequest(), reference);
+		}
+		else if(action instanceof ServiceLevelAction)
+		{
+			ServiceLevelAction sAction = (ServiceLevelAction) action;
+			sAction.invokeAction(reference);
+		}
+	}
+	
+	protected ResourceType getResourceType(String id, SessionState state)
+	{
+		ResourceType type = null;
+		
+		boolean isCollection = false;
+		String typeId = TYPE_UPLOAD;
+		ResourceProperties properties;
+		try 
+		{
+			properties = ContentHostingService.getProperties(id);
+			isCollection = properties.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
+			if(isCollection)
+			{
+				typeId = "folder";
+			}
+			else 
+			{
+				ContentResource resource = ContentHostingService.getResource(id);
+				String mimetype = resource.getContentType();
+				if(TYPE_HTML.equals(mimetype) || TYPE_URL.equals(mimetype) || TYPE_TEXT.equals(mimetype))
+				{
+					typeId = mimetype;
+				}
+			}
+			
+			ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+			if(registry == null)
+			{
+				registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+				state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+			}
+			type = registry.getType(typeId); 
+		} 
+		catch (PermissionException e1) 
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} 
+		catch (IdUnusedException e1) 
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} 
+		catch (EntityPropertyNotDefinedException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		catch (EntityPropertyTypeException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		catch (TypeException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return type;
+
 	}
 	
 	/**
@@ -10134,7 +10232,7 @@ public class ResourcesAction
 
 		state.setAttribute (STATE_CONTENT_SERVICE, ContentHostingService.getInstance());
 		state.setAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE, ContentTypeImageService.getInstance());
-		state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, ComponentManager.get("org.sakaiproject.content.api.ResourcesTypeRegistry"));
+		state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry"));
 
 		TimeBreakdown timeBreakdown = (TimeService.newTime()).breakdownLocal ();
 		String mycopyright = COPYRIGHT_SYMBOL + " " + timeBreakdown.getYear () +", " + UserDirectoryService.getCurrentUser().getDisplayName () + ". All Rights Reserved. ";

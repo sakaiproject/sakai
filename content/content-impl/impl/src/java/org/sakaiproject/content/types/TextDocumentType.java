@@ -46,6 +46,8 @@ public class TextDocumentType extends BaseResourceType
 	protected Map actions = new Hashtable();
 	protected UserDirectoryService userDirectoryService;
 	
+	protected String typeId = "text/plain";
+	
 	public class TextDocumentCopyAction implements ServiceLevelAction
 	{
 
@@ -69,7 +71,12 @@ public class TextDocumentType extends BaseResourceType
 		{
 			return true;
 		}
-		
+
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
 	}
 
 	public class TextDocumentCreateAction implements InteractionAction
@@ -102,7 +109,12 @@ public class TextDocumentType extends BaseResourceType
 			// TODO Auto-generated method stub
 			return null;
 		}
-		
+
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
 	}
 
 	public class TextDocumentDeleteAction implements ServiceLevelAction
@@ -128,7 +140,12 @@ public class TextDocumentType extends BaseResourceType
 		{
 			return true;
 		}
-		
+
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
 	}
 
 	public class TextDocumentDuplicateAction implements ServiceLevelAction
@@ -155,7 +172,12 @@ public class TextDocumentType extends BaseResourceType
 			// TODO Auto-generated method stub
 			return false;
 		}
-		
+
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
 	}
 
 	public class TextDocumentMoveAction implements ServiceLevelAction
@@ -182,7 +204,12 @@ public class TextDocumentType extends BaseResourceType
 			// TODO Auto-generated method stub
 			return true;
 		}
-		
+
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
 	}
 
 	public class TextDocumentReviseAction implements InteractionAction
@@ -215,7 +242,12 @@ public class TextDocumentType extends BaseResourceType
 		{
 			return rb.getString("action.revise"); 
 		}
-		
+
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
 	}
 	
 	public class TextDocumentAccessAction implements InteractionAction
@@ -248,7 +280,12 @@ public class TextDocumentType extends BaseResourceType
 		{
 			return rb.getString("action.access"); 
 		}
-		
+
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
 	}
 	
 	public TextDocumentType()
@@ -266,8 +303,7 @@ public class TextDocumentType extends BaseResourceType
 
 	public ResourceToolAction getAction(String actionId) 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return (ResourceToolAction) actions.get(actionId);
 	}
 
 	public List getActions(Reference entityRef) 
@@ -280,8 +316,10 @@ public class TextDocumentType extends BaseResourceType
 
 	public List getActions(Reference entityRef, User user) 
 	{
-		
-		return null;
+		// TODO: use entityRef and user to filter actions
+		List rv = new Vector();
+		rv.addAll(actions.values());
+		return rv;
 	}
 
 	public ResourceToolAction getCreateAction(Reference collectionRef, User user) 
@@ -301,7 +339,7 @@ public class TextDocumentType extends BaseResourceType
 	
 	public String getId() 
 	{
-		return "text/plain";
+		return typeId;
 	}
 
 	public String getLabel() 

@@ -1,3 +1,22 @@
+<script type="text/javascript">
+	focus_path = [ "selected-item" ];
+</script>
+<script type="text/javascript" language="JavaScript">
+	<!--
+	function submitform(id)
+	{
+		var theForm = document.getElementById(id);
+		if(theForm && theForm.onsubmit)
+		{
+			theForm.onsubmit();
+		}
+		if(theForm && theForm.submit)
+		{
+			theForm.submit();
+		}
+	}
+	//-->
+</script>
 <div class="portletBody">
 	#set($itemsOnLine = 0)
 	<div class="navIntraTool">
@@ -13,22 +32,23 @@
 	#end
 	<div>
 		<form id="actionForm" name="actionForm" action="#toolLink("ResourcesAction" "doDispatchAction")" method="post">
-			<select name="action" id="action" onchange="submitform('actionForm');">
+			<select name="action" id="action" onchange="alert('got it'); submitform('actionForm');">
 				#foreach($action in $actions)
-					<option value="$action.id">$action.label</option>
+					<option value="${action.typeId}.$action.id">$action.label</option>
 				#end
 			</select>
+			<input type="hidden" id="selectedItemId" name="selectedItemId" value="$selectedItemId" />
 		</form>
 	</div>
 	
-	<table cellspacing="10">
+	<table cellspacing="10" height="500">
 		<tr>
-			<td width="20%" valign="top">
+			<td width="160" valign="top">
 				<div style="overflow:auto;">
 					<table>
 						#foreach($root in $roots)
 							<tr>
-								<td #if($root.isSelected())bgcolor="red"#end ondblclick="selectItem('$root.id');" valign="top">
+								<td #if($root.isSelected())bgcolor="red"#end onclick="selectItem('$root.id');" valign="top">
 									$root.name
 								</td>
 							</tr>
@@ -41,13 +61,17 @@
 					<table>
 						<tr>
 							#foreach($folder in $folders)
-								<td valign="top">
+								<td valign="top" width="160">
 									<div style="overflow:auto;">
 										<table>
 											#foreach($item in $folder)
 												<tr>
-													<td #if($item.isSelected())bgcolor="red"#end ondblclick="selectItem('$item.id');">
-														$item.name
+													<td #if($item.isSelected())bgcolor="red"#end onclick="selectItem('$item.id');">
+														#if("$selectedItemId" == "$item.id")
+															<a name="selected-item" id="selected-item">$item.name</a>
+														#else
+															$item.name
+														#end
 													</td>
 												</tr>
 											#end

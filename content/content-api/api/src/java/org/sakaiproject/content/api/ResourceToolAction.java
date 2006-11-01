@@ -46,9 +46,16 @@ public interface ResourceToolAction
 	public static final String ACTION_SUCCEEDED = PREFIX + "action_succeeded";
 	
 	/**
+	 * Access the id of this action (which must be unique within this type and must be limited to alphnumeric characters).
 	 * @return
 	 */
 	public String getId();
+	
+	/**
+	 * Access the id of the ResourceType this action relates to.
+	 * @return
+	 */
+	public String getTypeId();
 	
 	/**
 	 * @return
