@@ -25,6 +25,7 @@ package org.sakaiproject.tool.gradebook.ui;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,6 @@ import org.sakaiproject.service.gradebook.shared.StaleObjectModificationExceptio
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
-import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
@@ -48,8 +48,8 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	private static final Log logger = LogFactory.getLog(AssignmentDetailsBean.class);
 
 	private List scoreRows;
-	private GradeRecordSet scores;
-
+	private List gradeRecords;
+	
 	private Long assignmentId;
     private Assignment assignment;
 	private Assignment previousAssignment;
@@ -65,13 +65,8 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		public ScoreRow(EnrollmentRecord enrollment, AssignmentGradeRecord gradeRecord, List gradingEvents) {
             Collections.sort(gradingEvents);
             this.enrollment = enrollment;
-            if(gradeRecord == null) {
-                this.gradeRecord = new AssignmentGradeRecord(assignment, enrollment.getUser().getUserUid(), null);
-                scores.addGradeRecord(this.gradeRecord);
-            } else {
-                this.gradeRecord = gradeRecord;
-            }
-
+            this.gradeRecord = gradeRecord;
+ 
             eventRows = new ArrayList();
             for (Iterator iter = gradingEvents.iterator(); iter.hasNext();) {
             	GradingEvent gradingEvent = (GradingEvent)iter.next();
@@ -110,8 +105,6 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		if (assignmentId != null) {
 			assignment = getGradebookManager().getAssignmentWithStats(assignmentId);
 			if (assignment != null) {
-                scores = new GradeRecordSet(assignment);
-
                 // Get the list of assignments.  If we are sorting by mean, we
                 // need to fetch the assignment statistics as well.
 				List assignments;
@@ -134,38 +127,55 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
 				// Set up score rows.
 				Map enrollmentMap = getOrderedEnrollmentMap();
-
-				List gradeRecords = getGradebookManager().getPointsEarnedSortedGradeRecords(assignment, enrollmentMap.keySet());
-				List workingEnrollments = new ArrayList(enrollmentMap.values());
+				List studentUids = new ArrayList(enrollmentMap.keySet());
+				gradeRecords = getGradebookManager().getPointsEarnedSortedGradeRecords(assignment, studentUids);
 
 				if (!isEnrollmentSort()) {
 					// Need to sort and page based on a scores column.
-					List scoreSortedEnrollments = new ArrayList();
+					List scoreSortedStudentUids = new ArrayList();
 					for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
 						AbstractGradeRecord agr = (AbstractGradeRecord)iter.next();
-						scoreSortedEnrollments.add(enrollmentMap.get(agr.getStudentId()));
+						scoreSortedStudentUids.add(agr.getStudentId());
 					}
 
 					// Put enrollments with no scores at the beginning of the final list.
-					workingEnrollments.removeAll(scoreSortedEnrollments);
+					studentUids.removeAll(scoreSortedStudentUids);
 
 					// Add all sorted enrollments with scores into the final list
-					workingEnrollments.addAll(scoreSortedEnrollments);
+					studentUids.addAll(scoreSortedStudentUids);
 
-					workingEnrollments = finalizeSortingAndPaging(workingEnrollments);
+					studentUids = finalizeSortingAndPaging(studentUids);
 				}
 
                 // Get all of the grading events for these enrollments on this assignment
-                GradingEvents allEvents = getGradebookManager().getGradingEvents(assignment, workingEnrollments);
+                GradingEvents allEvents = getGradebookManager().getGradingEvents(assignment, studentUids);
 
+                Map gradeRecordMap = new HashMap();
                 for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
 					AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)iter.next();
-					scores.addGradeRecord(gradeRecord);
+					if (studentUids.contains(gradeRecord.getStudentId())) {
+						gradeRecordMap.put(gradeRecord.getStudentId(), gradeRecord);
+					}
 				}
-				for (Iterator iter = workingEnrollments.iterator(); iter.hasNext(); ) {
-					EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
-                    AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)scores.getGradeRecord(enrollment.getUser().getUserUid());
-					scoreRows.add(new ScoreRow(enrollment, gradeRecord, allEvents.getEvents(enrollment.getUser().getUserUid())));
+                
+                // If the table is not being sorted by enrollment information, then
+                // we had to gather grade records for all students to set up the
+                // current page. In that case, eliminate the undisplayed grade records
+                // to reduce data contention.
+                if (!isEnrollmentSort()) {
+                	gradeRecords = new ArrayList(gradeRecordMap.values());
+                }
+                
+				for (Iterator iter = studentUids.iterator(); iter.hasNext(); ) {
+					String studentUid = (String)iter.next();
+					EnrollmentRecord enrollment = (EnrollmentRecord)enrollmentMap.get(studentUid);
+					AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)gradeRecordMap.get(studentUid);
+		            if(gradeRecord == null) {
+		                gradeRecord = new AssignmentGradeRecord(assignment, studentUid, null);
+		                gradeRecords.add(gradeRecord);
+		            }
+					
+					scoreRows.add(new ScoreRow(enrollment, gradeRecord, allEvents.getEvents(studentUid)));
 				}
 
 			} else {
@@ -209,7 +219,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
 	private void saveScores() throws StaleObjectModificationException {
 		if (logger.isInfoEnabled()) logger.info("saveScores " + assignmentId);
-		Set excessiveScores = getGradebookManager().updateAssignmentGradeRecords(scores);
+		Set excessiveScores = getGradebookManager().updateAssignmentGradeRecords(assignment, gradeRecords);
 
 		String messageKey = (excessiveScores.size() > 0) ?
 			"assignment_details_scores_saved_excessive" :
@@ -320,9 +330,6 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
     }
     public void setPreviousAssignment(Assignment previousAssignment) {
         this.previousAssignment = previousAssignment;
-    }
-    public GradeRecordSet getScores() {
-        return scores;
     }
 }
 

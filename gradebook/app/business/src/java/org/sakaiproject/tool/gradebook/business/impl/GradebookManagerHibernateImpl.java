@@ -23,24 +23,44 @@
 package org.sakaiproject.tool.gradebook.business.impl;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.TransientObjectException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.component.gradebook.BaseHibernateManager;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
-
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
-import org.sakaiproject.component.gradebook.BaseHibernateManager;
-import org.sakaiproject.tool.gradebook.*;
+import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
+import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.AssignmentCommentSet;
+import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.Comment;
+import org.sakaiproject.tool.gradebook.CourseGrade;
+import org.sakaiproject.tool.gradebook.CourseGradeRecord;
+import org.sakaiproject.tool.gradebook.GradableObject;
+import org.sakaiproject.tool.gradebook.GradeMapping;
+import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradingEvent;
+import org.sakaiproject.tool.gradebook.GradingEvents;
+import org.sakaiproject.tool.gradebook.Spreadsheet;
+import org.sakaiproject.tool.gradebook.StudentCommentSet;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -169,15 +189,25 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         };
         return (List)getHibernateTemplate().execute(hc);
     }
-
+    
+    private Set getStudentIdsFromGradeRecords(Collection gradeRecords) {
+    	Set studentIds = new HashSet();
+    	for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
+    		AbstractGradeRecord gradeRecord = (AbstractGradeRecord)iter.next();
+    		studentIds.add(gradeRecord.getStudentId());
+    	}
+    	return studentIds;
+    }
+    
     /**
      * @return Returns set of student UIDs who were given scores higher than the assignment's value.
      */
-    public Set updateAssignmentGradeRecords(final GradeRecordSet gradeRecordSet)
+    public Set updateAssignmentGradeRecords(final Assignment assignment, final Collection gradeRecordsFromCall)
             throws StaleObjectModificationException {
 
-        final Collection gradeRecordsFromCall = gradeRecordSet.getAllGradeRecords();
-        final Set studentIds = gradeRecordSet.getAllStudentIds();
+        final Set studentIds = getStudentIdsFromGradeRecords(gradeRecordsFromCall);
+        
+        if (log.isDebugEnabled()) log.debug("updateAssignmentGradeRecords called with " + studentIds.size() + " grades");
 
         // If no grade records are sent, don't bother doing anything with the db
         if(gradeRecordsFromCall.size() == 0) {
@@ -192,7 +222,6 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                     session.evict(iter.next());
                 }
 
-                Assignment assignment = (Assignment)session.load(Assignment.class, gradeRecordSet.getGradableObject().getId());
                 Date now = new Date();
                 Gradebook gb = assignment.getGradebook();
                 String graderId = authn.getUserUid();
@@ -283,6 +312,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 					// Fix any data contention before calling the recalculation.
 					session.flush();
 					session.clear();
+					
+					if (log.isDebugEnabled()) log.debug("Updated " + studentsWithUpdatedAssignmentGradeRecords.size() + " grade records");
 
 					// Update the course grade records for students with assignment grade record changes
 					recalculateCourseGradeRecords(gb, studentsWithUpdatedAssignmentGradeRecords, session);
@@ -300,21 +331,20 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
     /**
      */
-    public void updateCourseGradeRecords(final GradeRecordSet gradeRecordSet)
+    public void updateCourseGradeRecords(final CourseGrade courseGrade, final Collection gradeRecordsFromCall)
             throws StaleObjectModificationException {
 
-        if(gradeRecordSet.getAllGradeRecords().size() == 0) {
+        if(gradeRecordsFromCall.size() == 0) {
             log.debug("updateCourseGradeRecords called with zero grade records to update");
             return;
         }
 
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-                for(Iterator iter = gradeRecordSet.getAllGradeRecords().iterator(); iter.hasNext();) {
+                for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
                     session.evict(iter.next());
                 }
 
-                CourseGrade courseGrade = (CourseGrade)gradeRecordSet.getGradableObject();
                 Date now = new Date();
                 Gradebook gb = courseGrade.getGradebook();
                 String graderId = authn.getUserUid();
@@ -326,7 +356,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 // In the following queries, we retrieve column values instead of
                 // mapped Java objects. This is to avoid a Hibernate NonUniqueObjectException
                 // due to conflicts with the input grade records.
-                Set studentIds = gradeRecordSet.getAllStudentIds();
+                Set studentIds = getStudentIdsFromGradeRecords(gradeRecordsFromCall);
                 List persistentGradeRecords;
                 if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
                     String hql = "select gr.studentId, gr.enteredGrade from CourseGradeRecord as gr where gr.gradableObject=:go and gr.studentId in (:studentIds)";
@@ -354,7 +384,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                     scoreMap.put(oa[0], oa[1]);
                 }
 
-                for(Iterator iter = gradeRecordSet.getAllGradeRecords().iterator(); iter.hasNext();) {
+                for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
                     // The possibly modified course grade record
                     CourseGradeRecord gradeRecordFromCall = (CourseGradeRecord)iter.next();
 
@@ -481,22 +511,16 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         });
     }
 
-    public GradingEvents getGradingEvents(final GradableObject gradableObject, final Collection enrollments) {
+    public GradingEvents getGradingEvents(final GradableObject gradableObject, final Collection studentIds) {
 
         // Don't attempt to run the query if there are no enrollments
-        if(enrollments == null || enrollments.size() == 0) {
+        if(studentIds == null || studentIds.size() == 0) {
             log.debug("No enrollments were specified.  Returning an empty GradingEvents object");
             return new GradingEvents();
         }
 
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                // Construct a set of student ids from the enrollments
-                Set studentIds = new HashSet();
-                for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
-                    studentIds.add(((EnrollmentRecord)iter.next()).getUser().getUserUid());
-                }
-
                 List eventsList;
                 if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
                     Query q = session.createQuery("from GradingEvent as ge where ge.gradableObject=:go and ge.studentId in (:students)");
@@ -528,6 +552,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         }
         return events;
     }
+
 
     /**
      */

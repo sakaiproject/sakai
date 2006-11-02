@@ -32,9 +32,7 @@ import java.util.*;
  */
 public class GradeCommentTest extends GradebookTestBase  {
 
-    private static Log log = LogFactory.getLog(GradeCommentTest.class);
     protected Gradebook gradebook;
-
 
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
@@ -64,20 +62,20 @@ public class GradeCommentTest extends GradebookTestBase  {
         Assert.assertTrue(!gradebookManager.isEnteredAssignmentScores(asgId));
 
         // add grade records
-        GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "entered1", new Double(9)));
+        List gradeRecords = new ArrayList();
+        gradeRecords.add(new AssignmentGradeRecord(asn, "entered1", new Double(9)));
 
-        gradebookManager.updateAssignmentGradeRecords(gradeRecordSet);
+        gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
         Assert.assertTrue(gradebookManager.isEnteredAssignmentScores(asgId));
 
         List persistentGradeRecords = gradebookManager.getPointsEarnedSortedGradeRecords(asn, students);
 
-        gradeRecordSet = new GradeRecordSet(asn);
+        gradeRecords = new ArrayList();
         AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)persistentGradeRecords.get(0);
         gradeRecord.setPointsEarned(null);
-        gradeRecordSet.addGradeRecord(gradeRecord);
+        gradeRecords.add(gradeRecord);
 
-        gradebookManager.updateAssignmentGradeRecords(gradeRecordSet);
+        gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
         Assert.assertTrue(!gradebookManager.isEnteredAssignmentScores(asgId));
 
         // add comments
@@ -103,20 +101,20 @@ public class GradeCommentTest extends GradebookTestBase  {
         Assert.assertTrue(!gradebookManager.isEnteredAssignmentScores(asgId));
 
         // add grade records
-        GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "entered1", new Double(9)));
+        List gradeRecords = new ArrayList();
+        gradeRecords.add(new AssignmentGradeRecord(asn, "entered1", new Double(9)));
 
-        gradebookManager.updateAssignmentGradeRecords(gradeRecordSet);
+        gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
         Assert.assertTrue(gradebookManager.isEnteredAssignmentScores(asgId));
 
         List persistentGradeRecords = gradebookManager.getPointsEarnedSortedGradeRecords(asn, students);
 
-        gradeRecordSet = new GradeRecordSet(asn);
+        gradeRecords = new ArrayList();
         AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)persistentGradeRecords.get(0);
         gradeRecord.setPointsEarned(null);
-        gradeRecordSet.addGradeRecord(gradeRecord);
+        gradeRecords.add(gradeRecord);
 
-        gradebookManager.updateAssignmentGradeRecords(gradeRecordSet);
+        gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
         Assert.assertTrue(!gradebookManager.isEnteredAssignmentScores(asgId));
 
         // add comments

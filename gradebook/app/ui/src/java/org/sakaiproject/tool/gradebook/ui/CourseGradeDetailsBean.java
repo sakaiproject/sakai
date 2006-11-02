@@ -26,12 +26,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIData;
 import javax.faces.event.ActionEvent;
 
 import org.apache.commons.logging.Log;
@@ -41,7 +40,6 @@ import org.sakaiproject.service.gradebook.shared.StaleObjectModificationExceptio
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeMapping;
-import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
@@ -54,7 +52,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 
 	// Controller fields - transient.
 	private CourseGrade courseGrade;
-    private GradeRecordSet gradeRecordSet;
+    private List gradeRecords;
     private GradeMapping gradeMapping;
     private double totalPoints;
 
@@ -65,15 +63,9 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 
 		public ScoreRow() {
 		}
-		public ScoreRow(EnrollmentRecord enrollment, List gradingEvents) {
+		public ScoreRow(EnrollmentRecord enrollment, CourseGradeRecord courseGradeRecord, List gradingEvents) {
             this.enrollment = enrollment;
-			courseGradeRecord = (CourseGradeRecord)gradeRecordSet.getGradeRecord(enrollment.getUser().getUserUid());
-			if (courseGradeRecord == null) {
-				// Since we're using the domain object to transport UI input, we need
-				// to create it, even if we don't end up storing it in the database.
-				courseGradeRecord = new CourseGradeRecord(courseGrade, enrollment.getUser().getUserUid(), null);
-				gradeRecordSet.addGradeRecord(courseGradeRecord);
-			}
+			this.courseGradeRecord = courseGradeRecord;
 
             eventRows = new ArrayList();
             for (Iterator iter = gradingEvents.iterator(); iter.hasNext();) {
@@ -120,9 +112,9 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 
 		// Set up score rows.
 		Map enrollmentMap = getOrderedEnrollmentMap();
-		List gradeRecords = getGradebookManager().getPointsEarnedSortedGradeRecords(courseGrade, enrollmentMap.keySet());
-		List workingEnrollments = new ArrayList(enrollmentMap.values());
-
+		List studentUids = new ArrayList(enrollmentMap.keySet());
+		gradeRecords = getGradebookManager().getPointsEarnedSortedGradeRecords(courseGrade, studentUids);
+		
 		if (!isEnrollmentSort()) {
 			// Need to sort and page based on a scores column.
 			String sortColumn = getSortColumn();
@@ -137,40 +129,55 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 	            Collections.sort(gradeRecords, comparator);
 	        }
 
-			List scoreSortedEnrollments = new ArrayList();
+			List scoreSortedStudentUids = new ArrayList();
 			for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
 				CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
-				scoreSortedEnrollments.add(enrollmentMap.get(cgr.getStudentId()));
+				scoreSortedStudentUids.add(cgr.getStudentId());
 			}
 
 			// Put enrollments with no scores at the beginning of the final list.
-			workingEnrollments.removeAll(scoreSortedEnrollments);
+			studentUids.removeAll(scoreSortedStudentUids);
 
 			// Add all sorted enrollments with scores into the final list
-			workingEnrollments.addAll(scoreSortedEnrollments);
+			studentUids.addAll(scoreSortedStudentUids);
 
-			workingEnrollments = finalizeSortingAndPaging(workingEnrollments);
+			studentUids = finalizeSortingAndPaging(studentUids);
 		}
 
 		// Get all of the grading events for these enrollments on this assignment
-		GradingEvents allEvents = getGradebookManager().getGradingEvents(courseGrade, workingEnrollments);
+		GradingEvents allEvents = getGradebookManager().getGradingEvents(courseGrade, studentUids);
 
-		gradeRecordSet = new GradeRecordSet(courseGrade);
+		Map gradeRecordMap = new HashMap();
 		for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
 			CourseGradeRecord gradeRecord = (CourseGradeRecord)iter.next();
-			gradeRecordSet.addGradeRecord(gradeRecord);
+			if (studentUids.contains(gradeRecord.getStudentId())) {
+				gradeRecordMap.put(gradeRecord.getStudentId(), gradeRecord);
+			}
 		}
-		for (Iterator iter = workingEnrollments.iterator(); iter.hasNext(); ) {
-			EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
-            scoreRows.add(new ScoreRow(enrollment, allEvents.getEvents(enrollment.getUser().getUserUid())));
+
+        // If the table is not being sorted by enrollment information, then
+        // we had to gather grade records for all students to set up the
+        // current page. In that case, eliminate the undisplayed grade records
+        // to reduce data contention.
+        if (!isEnrollmentSort()) {
+        	gradeRecords = new ArrayList(gradeRecordMap.values());
+        }
+			
+		for (Iterator iter = studentUids.iterator(); iter.hasNext(); ) {
+			String studentUid = (String)iter.next();
+			EnrollmentRecord enrollment = (EnrollmentRecord)enrollmentMap.get(studentUid);
+			CourseGradeRecord gradeRecord = (CourseGradeRecord)gradeRecordMap.get(studentUid);
+            if(gradeRecord == null) {
+                gradeRecord = new CourseGradeRecord(courseGrade, studentUid, null);
+                gradeRecords.add(gradeRecord);
+            }
+			
+			scoreRows.add(new ScoreRow(enrollment, gradeRecord, allEvents.getEvents(studentUid)));
 		}
 	}
 
     public CourseGrade getCourseGrade() {
         return courseGrade;
-    }
-    public GradeRecordSet getGradeRecordSet() {
-        return gradeRecordSet;
     }
     public double getTotalPoints() {
         return totalPoints;
@@ -189,15 +196,10 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 	}
 
 	private void saveGrades() throws StaleObjectModificationException {
-		getGradebookManager().updateCourseGradeRecords(gradeRecordSet);
+		getGradebookManager().updateCourseGradeRecords(courseGrade, gradeRecords);
 
 		// Let the user know.
 		FacesUtil.addMessage(getLocalizedString("course_grade_details_grades_saved"));
-	}
-
-	private ScoreRow getScoreRow(UIComponent component) {
-		UIData gradingTable = (UIData)component.findComponent("gradingTable");
-		return (ScoreRow)gradingTable.getRowData();
 	}
 
 	public List getScoreRows() {
@@ -225,6 +227,3 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
         getPreferencesBean().setCourseGradeDetailsTableSortColumn(sortColumn);
     }
 }
-
-
-

@@ -21,6 +21,7 @@
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook.test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,7 +39,6 @@ import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
-import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
@@ -90,9 +90,9 @@ public class GradebookServiceTest extends GradebookTestBase {
                 break;
             }
         }
-        GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
-        gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "student1", new Double(10)));
-        gradebookManager.updateAssignmentGradeRecords(gradeRecordSet);
+        List gradeRecords = new ArrayList();
+        gradeRecords.add(new AssignmentGradeRecord(asn, "student1", new Double(10)));
+        gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
     }
 
     /**

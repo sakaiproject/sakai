@@ -133,9 +133,9 @@ public interface GradebookManager {
      * @return The set of student UIDs who were given scores higher than the
      * assignment's value.
      */
-    public Set updateAssignmentGradeRecords(GradeRecordSet gradeRecordSet)
-        throws StaleObjectModificationException;
-
+    public Set updateAssignmentGradeRecords(Assignment assignment, Collection gradeRecords)
+    	throws StaleObjectModificationException;
+ 
     /**
      * Updates the grade records for the keys (student IDs) in the studentsToPoints map.
      * Map values must be valid strings (that exist in the gradebook's grade
@@ -143,7 +143,7 @@ public interface GradebookManager {
      *
      * @param studentsToPoints A Map of student IDs to grades
      */
-    public void updateCourseGradeRecords(GradeRecordSet gradeRecordSet)
+    public void updateCourseGradeRecords(CourseGrade courseGrade, final Collection gradeRecords)
         throws StaleObjectModificationException;
 
     /**
@@ -169,7 +169,7 @@ public interface GradebookManager {
      * @param enrollments
      * @return
      */
-    public GradingEvents getGradingEvents(GradableObject gradableObject, Collection enrollments);
+    public GradingEvents getGradingEvents(GradableObject gradableObject, Collection studentUids);
 
     /**
      * Fetches a List of Assignments, but does not populate non-persistent

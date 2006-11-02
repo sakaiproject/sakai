@@ -22,6 +22,7 @@
 
 package org.sakaiproject.tool.gradebook.test;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -29,7 +30,6 @@ import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
-import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
@@ -53,7 +53,7 @@ public class TestGradeLoader extends GradebookLoaderBase {
 				continue;
 			}
 
-            GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
+            List gradeRecords = new ArrayList();
 			for(Iterator enrIter = enrollments.iterator(); enrIter.hasNext();) {
 				EnrollmentRecord enr = (EnrollmentRecord)enrIter.next();
                 // Don't add grades for those no good lazy students
@@ -68,14 +68,14 @@ public class TestGradeLoader extends GradebookLoaderBase {
                         gradebookService.updateExternalAssessmentScore(gb.getUid(), asn.getExternalId(), enr.getUser().getUserUid(), grade);
                     } else {
                     	AssignmentGradeRecord agr = new AssignmentGradeRecord(asn, enr.getUser().getUserUid(), grade);
-                        gradeRecordSet.addGradeRecord(agr);
+                        gradeRecords.add(agr);
                     }
                 }
 			}
 
             // Save the internal assignment scores
             if(!asn.isExternallyMaintained()) {
-            	gradebookManager.updateAssignmentGradeRecords(gradeRecordSet);
+            	gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
             }
 		}
         // Ensure that this is actually saved to the database

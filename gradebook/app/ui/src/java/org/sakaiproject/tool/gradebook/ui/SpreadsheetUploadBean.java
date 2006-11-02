@@ -16,24 +16,33 @@
 
 package org.sakaiproject.tool.gradebook.ui;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-import org.apache.myfaces.custom.fileupload.UploadedFile;
+import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
-import org.sakaiproject.tool.gradebook.Assignment;
-import org.sakaiproject.tool.gradebook.GradeRecordSet;
-import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.faces.model.SelectItem;
-import javax.faces.context.FacesContext;
+import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 public class SpreadsheetUploadBean extends GradebookDependentBean implements Serializable {
 
@@ -55,7 +64,6 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private Long spreadsheetId;
     private Map scores;
     private Assignment assignment;
-    private GradeRecordSet graderecords;
     private Long assignmentId;
 
 
@@ -233,14 +241,6 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
     public void setAssignment(Assignment assignment) {
         this.assignment = assignment;
-    }
-
-    public GradeRecordSet getGraderecords() {
-        return graderecords;
-    }
-
-    public void setGraderecords(GradeRecordSet graderecords) {
-        this.graderecords = graderecords;
     }
 
     public Long getAssignmentId() {
@@ -583,7 +583,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save", new String[] {assignment.getName()}));
 
             assignment = getGradebookManager().getAssignmentWithStats(assignmentId);
-            graderecords = new GradeRecordSet(assignment);
+            List gradeRecords = new ArrayList();
 
             if(logger.isDebugEnabled())logger.debug("remove title entry form map");
             scores.remove("Assignment");
@@ -596,12 +596,13 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                 String uid = (String) entry.getKey();
                 String points = (String) entry.getValue();
                 AssignmentGradeRecord asnGradeRecord = new AssignmentGradeRecord(assignment,uid,Double.valueOf(points));
-                graderecords.addGradeRecord(asnGradeRecord);
+                gradeRecords.add(asnGradeRecord);
                 if(logger.isDebugEnabled())logger.debug("added grades for " + uid + " - points scored " +points);
 
             }
 
             if(logger.isDebugEnabled())logger.debug("persist grade records to database");
+            getGradebookManager().updateAssignmentGradeRecords(assignment, gradeRecords);
             return  "spreadsheetPreview";
         } catch (ConflictingAssignmentNameException e) {
             if(logger.isErrorEnabled())logger.error(e);

@@ -21,6 +21,7 @@
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook.test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -33,13 +34,11 @@ import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
-import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
@@ -169,10 +168,10 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         Assignment asn = gradebookManager.getAssignmentWithStats(id1);
 
 		// Add some scores to the interesting assignment, leaving one student unscored.
-		GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
-		gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, (String)studentUidsList.get(0), new Double(8)));
-		gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, (String)studentUidsList.get(1), new Double(9)));
-		gradebookManager.updateAssignmentGradeRecords(gradeRecordSet);
+        List gradeRecords = new ArrayList();
+        gradeRecords.add(new AssignmentGradeRecord(asn, (String)studentUidsList.get(0), new Double(8)));
+        gradeRecords.add(new AssignmentGradeRecord(asn, (String)studentUidsList.get(1), new Double(9)));
+		gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
 
 		// Do what the Overview page does.
 		assignments = gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.SORT_BY_NAME, true);
@@ -194,7 +193,7 @@ public class GradableObjectManagerTest extends GradebookTestBase {
 
         // Get the grade records for this gradebook, and make sure none of them
         // belong to a removed assignment
-        List gradeRecords = gradebookManager.getPointsEarnedSortedAllGradeRecords(gradebook.getId(), studentUids);
+        gradeRecords = gradebookManager.getPointsEarnedSortedAllGradeRecords(gradebook.getId(), studentUids);
         assertNoneFromRemovedAssignments(gradeRecords);
 
         // Get the grade records for this assignment.  None should be returned, since
