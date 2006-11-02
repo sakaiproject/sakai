@@ -1,3 +1,6 @@
+<link href="dhtmlpopup/dhtmlPopup.css" rel="stylesheet" type="text/css" />
+<script src="dhtmlpopup/dhtmlPopup.js" type="text/javascript"></script>
+
 <f:view>
 	<div class="portletBody">
 	  <h:form id="gbForm">
@@ -28,7 +31,7 @@
 			</h:panelGroup>
 		</h:panelGrid>
 
-		<h:panelGroup rendered="#{studentViewBean.assignmentsReleased}">
+        <h:panelGroup rendered="#{studentViewBean.assignmentsReleased}">
 			<f:verbatim><fieldset>
 			<legend></f:verbatim><h:outputText value="#{msgs.student_view_assignments}"/><f:verbatim></legend></f:verbatim>
 
@@ -36,9 +39,10 @@
 				id="studentViewTable"
 				value="#{studentViewBean.assignmentGradeRows}"
 				var="row"
-				sortColumn="#{studentViewBean.sortColumn}"
+                rowIndexVar="rowIndex"
+                sortColumn="#{studentViewBean.sortColumn}"
 				sortAscending="#{studentViewBean.sortAscending}"
-				columnClasses="left,left,center,center,left,external"
+				columnClasses="left,left,left,left,left,external"
 				rowClasses="#{studentViewBean.rowStyles}"
 				styleClass="listHier wideTable">
 				<h:column>
@@ -77,31 +81,45 @@
                     </h:outputText>
 
                 </h:column>
-				<h:column>
+                <h:column>
 					<f:facet name="header">
 						<x:commandSortHeader columnName="pointsPossible" immediate="true" arrow="true">
-							<h:outputText value="#{msgs.student_view_points}"/>
-						</x:commandSortHeader>
-					</f:facet>
-					<h:outputText value="#{row.assignment}" escape="false" rendered="#{studentViewBean.courseGradeReleased}">
-						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.ASSIGNMENT_POINTS"/>
-					</h:outputText>
+                            <h:outputText value="#{msgs.student_view_points}"/>
+                        </x:commandSortHeader>
+                    </f:facet>
+                    <h:outputText value="#{row.assignment}" escape="false" rendered="#{studentViewBean.courseGradeReleased}">
+                        <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.ASSIGNMENT_POINTS"/>
+                    </h:outputText>
 
                     <h:outputText value="#{row.assignment.pointsPossible}" escape="false" rendered="#{!studentViewBean.courseGradeReleased}">
                         <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS"/>
                     </h:outputText>
-
                 </h:column>
+                <h:column>
+                    <f:facet name="header">
+                        <x:commandSortHeader columnName="comments" immediate="true" arrow="true">
+                            <h:outputText value="#{msgs.student_view_comment_header}"/>
+                        </x:commandSortHeader>
+                    </f:facet>
+                    <h:outputLink value="#" rendered="#{not empty row.comments}"
+                                  onclick="javascript:dhtmlPopupToggle('#{rowIndex}', event);return false;">
+                        <h:graphicImage value="images/log.png" alt="Show Comment"/>
+                    </h:outputLink>
+                </h:column>
+                <h:column>
+                    <h:outputText value="#{row.assignment.externalAppName}" />
+                </h:column>
+            </x:dataTable>
+
+            <x:aliasBean alias="#{bean}" value="#{studentViewBean}">
+                <%@include file="/inc/comment.jspf"%>
+            </x:aliasBean>
 
 
-				<h:column>
-					<h:outputText value="#{row.assignment.externalAppName}" />
-				</h:column>
-			</x:dataTable>
 
-			<f:verbatim></fieldset></f:verbatim>
-		</h:panelGroup>
+        <f:verbatim></fieldset></f:verbatim>
+    </h:panelGroup>
 
-	  </h:form>
-	</div>
+</h:form>
+</div>
 </f:view>

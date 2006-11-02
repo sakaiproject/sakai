@@ -28,10 +28,7 @@ import java.math.BigDecimal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
-import org.sakaiproject.tool.gradebook.Assignment;
-import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
-import org.sakaiproject.tool.gradebook.CourseGradeRecord;
-import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.*;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 /**
@@ -146,11 +143,16 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
     }
 
     public class AssignmentGradeRow implements Serializable {
+
         private Assignment assignment;
         private AssignmentGradeRecord gradeRecord;
+        private List comments;
+
+
 
         public AssignmentGradeRow(Assignment assignment) {
         	this.assignment = assignment;
+            this.comments = new ArrayList();
         }
         public void setGradeRecord(AssignmentGradeRecord gradeRecord) {
         	this.gradeRecord = gradeRecord;
@@ -183,6 +185,15 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
         		return gradeRecord.getGradeAsPercentage();
         	}
         }
+
+        public List getComments() {
+            return comments;
+        }
+
+        public void setComments(List comments) {
+            this.comments = comments;
+        }
+
     }
 
     /**
@@ -293,14 +304,25 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
 
 
         }
+        //append comments to the comments collections
+
+        Iterator iterator = assignmentGradeRows.iterator();
+        while(iterator.hasNext()){
+            AssignmentGradeRow assignmentGradeRow = (AssignmentGradeRow)iterator.next();
+            Comment comment  = getGradebookManager().getComment(assignmentGradeRow.getAssignment(),getUserUid());
+            if(comment!= null){ 
+            assignmentGradeRow.getComments().add(comment);
+            }
+        }
+
 
     }
 
-	/**
-	 * @return Returns the assignmentGradeRows.
-	 */
-	public List getAssignmentGradeRows() {
-		return assignmentGradeRows;
+    /**
+     * @return Returns the assignmentGradeRows.
+     */
+    public List getAssignmentGradeRows() {
+        return assignmentGradeRows;
 	}
     /**
 	 * @return Returns the courseGrade.

@@ -135,50 +135,6 @@ public class GradeCommentTest extends GradebookTestBase  {
 
     }
 
-
-    public void testGetStudentCommentSet()throws Exception{
-
-        Set students = new HashSet();
-        students.add("entered1");
-        //create a number of assignments
-        Long asgId = gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
-        gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test1", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
-        gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test2", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
-        gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test3", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
-
-        Assignment asn = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(0);
-        Assignment asn2 = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(1);
-        Assignment asn3 = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(2);
-        Assignment asn4 = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(3);
-        // add comments
-        Long commentId = gradebookManager.createComment(asn,"entered1","grade commentText test 1");
-        logger.debug("new commentText entered with id " +commentId);
-        commentId = gradebookManager.createComment(asn2,"entered1","grade commentText test 2");
-        logger.debug("new commentText entered with id " +commentId);
-        commentId = gradebookManager.createComment(asn3,"entered1","grade commentText test 3");
-        logger.debug("new commentText entered with id " +commentId);
-        commentId = gradebookManager.createComment(asn4,"entered1","grade commentText test 4");
-        logger.debug("new commentText entered with id " +commentId);
-        //get the entered commentText
-        StudentCommentSet studentCommentSet = gradebookManager.getStudentCommentSet(gradebook,"entered1");
-        Map commentMap = (HashMap)studentCommentSet.getCommentMap();
-
-        logger.debug("print out the commentText set contents --------------------");
-        Iterator it = commentMap.keySet().iterator();
-        while(it.hasNext()){
-           Comment comment = (Comment)commentMap.get(it.next());
-           logger.debug(comment.getCommentText());
-        }
-
-        Assert.assertTrue(commentMap.size() > 0);
-        Comment comment = (Comment)commentMap.get(asgId);
-        Assert.assertTrue(comment.getCommentText().equals("grade commentText test 1"));
-
-
-
-    }
-
-
     public void testGetAssignmentCommentSet()throws Exception{
 
         List studentUidsList = Arrays.asList(new String[] {

@@ -313,9 +313,7 @@ public interface GradebookManager {
 
     public Long createComment(GradableObject go, String studentId, String comment) throws StaleObjectModificationException;
 
-    public StudentCommentSet getStudentCommentSet(Gradebook gradebook, String studentId);
-
-    public AssignmentCommentSet getAssignmentComments(GradableObject gradableObject);
+   public AssignmentCommentSet getAssignmentComments(GradableObject gradableObject);
 
     public void updateAssignmentComments(AssignmentCommentSet asignmentCommentSet) throws StaleObjectModificationException;
 

@@ -60,7 +60,6 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.Spreadsheet;
-import org.sakaiproject.tool.gradebook.StudentCommentSet;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -189,7 +188,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         };
         return (List)getHibernateTemplate().execute(hc);
     }
-    
+
     private Set getStudentIdsFromGradeRecords(Collection gradeRecords) {
     	Set studentIds = new HashSet();
     	for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
@@ -198,7 +197,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	}
     	return studentIds;
     }
-    
+
     /**
      * @return Returns set of student UIDs who were given scores higher than the assignment's value.
      */
@@ -206,7 +205,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
             throws StaleObjectModificationException {
 
         final Set studentIds = getStudentIdsFromGradeRecords(gradeRecordsFromCall);
-        
+
         if (log.isDebugEnabled()) log.debug("updateAssignmentGradeRecords called with " + studentIds.size() + " grades");
 
         // If no grade records are sent, don't bother doing anything with the db
@@ -312,7 +311,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 					// Fix any data contention before calling the recalculation.
 					session.flush();
 					session.clear();
-					
+
 					if (log.isDebugEnabled()) log.debug("Updated " + studentsWithUpdatedAssignmentGradeRecords.size() + " grade records");
 
 					// Update the course grade records for students with assignment grade record changes
@@ -1021,34 +1020,6 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         };
 
         return (Long)getHibernateTemplate().execute(hc);
-    }
-
-
-    public StudentCommentSet getStudentCommentSet(final Gradebook gradebook,final String studentId) {
-        StudentCommentSet studentCommentSet = new StudentCommentSet();
-        List comments = (List)getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                List comments = getStudentComments(gradebook,studentId, session);
-                return comments;
-            }
-        });
-
-        Iterator it = comments.iterator();
-        while(it.hasNext()){
-            Comment comment = (Comment)it.next();
-            studentCommentSet.addComment(comment);
-        }
-        return studentCommentSet;
-    }
-
-
-    protected List getStudentComments(Gradebook gradebook,String studentId,Session session) throws HibernateException {
-        List comments = session.createQuery(
-                "from Comment as cmt where cmt.gradableObject.gradebook.id=? and cmt.studentId=?").
-                setLong(0, gradebook.getId().longValue()).
-                setString(1,studentId).
-                list();
-        return comments;
     }
 
 
