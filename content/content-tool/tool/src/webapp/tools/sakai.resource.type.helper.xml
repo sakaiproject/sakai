@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool id="sakai.resource.type.helper" title="Resource Type Helper" description="Provides Implementations for Actions of Basic Resource Types">
+       <configuration name="test" value="reg-value" />
+
+       <category name="sakai.helper" />
+
+	</tool>
+
+</registration>

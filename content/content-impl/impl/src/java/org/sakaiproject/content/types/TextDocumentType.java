@@ -31,22 +31,29 @@ import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
+import org.sakaiproject.content.api.ResourceToolActionController;
+import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ServiceLevelAction;
-import org.sakaiproject.content.types.BaseResourceType;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
 public class TextDocumentType extends BaseResourceType 
 {
+	public static final String MY_HELPER_ID = "sakai.resource.type.helper";
+
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("types");
 	
 	protected Map actions = new Hashtable();
 	protected UserDirectoryService userDirectoryService;
 	
-	protected String typeId = "text/plain";
+	protected String typeId = ResourceType.TYPE_TEXT;
+	protected String helperId = "sakai.resource.type.helper";
 	
 	public class TextDocumentCopyAction implements ServiceLevelAction
 	{
@@ -81,7 +88,8 @@ public class TextDocumentType extends BaseResourceType
 
 	public class TextDocumentCreateAction implements InteractionAction
 	{
-
+		ResourceToolActionController controller = null;
+		
 		public void cancelAction(Reference reference) 
 		{
 			// TODO Auto-generated method stub
@@ -113,6 +121,25 @@ public class TextDocumentType extends BaseResourceType
 		public String getTypeId() 
 		{
 			return typeId;
+		}
+
+		public void startHelper(HttpServletRequest req, String helperId, String doneURL) 
+		{
+		}
+
+		public String getHelperId() 
+		{
+			return helperId;
+		}
+
+		public void setController(ResourceToolActionController controller) 
+		{
+			this.controller = controller;
+		}
+
+		public ResourceToolActionController getController() 
+		{
+			return this.controller;
 		}
 
 	}
@@ -215,6 +242,8 @@ public class TextDocumentType extends BaseResourceType
 	public class TextDocumentReviseAction implements InteractionAction
 	{
 
+		private ResourceToolActionController controller;
+
 		public void cancelAction(Reference reference) 
 		{
 			// TODO Auto-generated method stub
@@ -248,10 +277,32 @@ public class TextDocumentType extends BaseResourceType
 			return typeId;
 		}
 
+		public void startHelper(HttpServletRequest request, String helperId, String doneURL) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public String getHelperId() 
+		{
+			return helperId;
+		}
+
+		public void setController(ResourceToolActionController controller) 
+		{
+			this.controller = controller;
+		}
+
+		public ResourceToolActionController getController() 
+		{
+			return this.controller;
+		}
+
 	}
 	
 	public class TextDocumentAccessAction implements InteractionAction
 	{
+
+		private ResourceToolActionController controller;
 
 		public void cancelAction(Reference reference) 
 		{
@@ -284,6 +335,27 @@ public class TextDocumentType extends BaseResourceType
 		public String getTypeId() 
 		{
 			return typeId;
+		}
+
+		public void startHelper(HttpServletRequest request, String helperId, String doneURL) 
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		public String getHelperId() 
+		{
+			return helperId;
+		}
+
+		public void setController(ResourceToolActionController controller) 
+		{
+			this.controller = controller;
+		}
+
+		public ResourceToolActionController getController() 
+		{
+			return this.controller;
 		}
 
 	}

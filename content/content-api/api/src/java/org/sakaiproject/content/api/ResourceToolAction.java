@@ -41,9 +41,18 @@ public interface ResourceToolAction
 	public static final String MOVE = "move";
 	
 	public static final String PREFIX = "resourceToolAction.";
+	
 	public static final String ACTION_CANCELED = PREFIX + "action_canceled";
 	public static final String ACTION_ERROR = PREFIX + "action_error";
 	public static final String ACTION_SUCCEEDED = PREFIX + "action_succeeded";
+
+	public static final String ACTION = PREFIX + "action";
+
+	/** The state attribute that provides a Reference identifying the collection in which an item is to be created */
+	public static final String COLLECTION_REFERENCE = PREFIX + "collection_reference";
+	
+	public static final String RESOURCE_TYPE = PREFIX + "resource_type";
+	
 	
 	/**
 	 * Access the id of this action (which must be unique within this type and must be limited to alphnumeric characters).

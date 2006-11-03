@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
+import org.sakaiproject.content.api.ResourceToolActionController;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.types.BaseResourceType;
 import org.sakaiproject.entity.api.Reference;
@@ -47,6 +48,7 @@ public class UrlResourceType extends BaseResourceType
 	protected UserDirectoryService userDirectoryService;
 	
 	protected String typeId = "Url";
+	protected String helperId = "sakai.resource.type.helper";
 	
 	public class UrlResourceCopyAction implements ServiceLevelAction
 	{
@@ -113,6 +115,26 @@ public class UrlResourceType extends BaseResourceType
 		public String getTypeId() 
 		{
 			return typeId;
+		}
+
+		public void startHelper(HttpServletRequest request, String helperId, String doneURL) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public String getHelperId() 
+		{
+			return helperId;
+		}
+
+		public ResourceToolActionController getController() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public void setController(ResourceToolActionController controller) {
+			// TODO Auto-generated method stub
+			
 		}
 
 	}
@@ -248,6 +270,26 @@ public class UrlResourceType extends BaseResourceType
 			return typeId;
 		}
 
+		public void startHelper(HttpServletRequest request, String helperId, String doneURL) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public String getHelperId() 
+		{
+			return helperId;
+		}
+
+		public ResourceToolActionController getController() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public void setController(ResourceToolActionController controller) {
+			// TODO Auto-generated method stub
+			
+		}
+
 	}
 	
 	public class UrlResourceAccessAction implements InteractionAction
@@ -284,6 +326,26 @@ public class UrlResourceType extends BaseResourceType
 		public String getTypeId() 
 		{
 			return typeId;
+		}
+
+		public void startHelper(HttpServletRequest request, String helperId, String doneURL) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public String getHelperId() 
+		{
+			return helperId;
+		}
+
+		public ResourceToolActionController getController() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public void setController(ResourceToolActionController controller) {
+			// TODO Auto-generated method stub
+			
 		}
 
 	}

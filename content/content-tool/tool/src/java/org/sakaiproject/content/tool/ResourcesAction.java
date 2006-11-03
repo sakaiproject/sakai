@@ -48,6 +48,8 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
@@ -119,6 +121,9 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -512,6 +517,8 @@ public class ResourcesAction
 	private static final String MODE_EDIT = "edit";
 	private static final String MODE_DAV = "webdav";
 	private static final String MODE_CREATE = "create";
+	private static final String MODE_CREATE_WIZARD = "createWizard";
+
 	public  static final String MODE_HELPER = "helper";
 	private static final String MODE_DELETE_CONFIRM = "deleteConfirm";
 	private static final String MODE_MORE = "more";
@@ -656,6 +663,10 @@ public class ResourcesAction
 
 	protected static final String STATE_EXPANDED_FOLDER_SORT_MAP = "resources.expanded_folder_sort_map";
 
+	protected static final String STATE_CREATE_WIZARD_ACTION = "resources.create_wizard_action";
+
+
+
 	/**
 	* Build the context for normal display
 	*/
@@ -723,8 +734,12 @@ public class ResourcesAction
 		}
 		else if (mode.equals (MODE_CREATE))
 		{
-			// build the context for add item
+			// build the context for create item
 			template = buildCreateContext (portlet, context, data, state);
+		}
+		else if(mode.equals(MODE_CREATE_WIZARD))
+		{
+			template = buildCreateWizardContext(portlet, context, data, state);
 		}
 		else if (mode.equals (MODE_DELETE_CONFIRM))
 		{
@@ -757,6 +772,31 @@ public class ResourcesAction
 		return template;
 
 	}	// buildMainPanelContext
+
+	private String buildCreateWizardContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
+	{
+		String template = "content/sakai_resources_cwiz_begin";
+		if(state.getAttribute(ResourceToolAction.ACTION_SUCCEEDED) != null)
+		{
+			// complete the create wizard
+			
+		}
+		else if(state.getAttribute(ResourceToolAction.ACTION_CANCELED) != null)
+		{
+			// go back to list view
+			
+		}
+		else if(state.getAttribute(ResourceToolAction.ACTION_ERROR) != null)
+		{
+			// report the error?
+			
+		}
+		else
+		{
+			// start the wizard.  
+		}
+		return template;
+	}
 
 	/**
 	 * Build the context to establish a custom-ordering of resources/folders within a folder.
@@ -961,8 +1001,16 @@ public class ResourcesAction
 		}
 		else if(action instanceof InteractionAction)
 		{
+			ToolSession toolSession = SessionManager.getCurrentToolSession();
+			toolSession.setAttribute(ResourceToolAction.COLLECTION_REFERENCE, reference);
+			toolSession.setAttribute(ResourceToolAction.ACTION, actionId);
+			toolSession.setAttribute(ResourceToolAction.RESOURCE_TYPE, typeId);
+			
 			InteractionAction iAction = (InteractionAction) action;
-			String url = iAction.getActionUrl(data.getRequest(), reference);
+			if(ResourceToolAction.CREATE.equals(actionId))
+			{
+				startHelper(data.getRequest(), iAction.getHelperId());
+			}
 		}
 		else if(action instanceof ServiceLevelAction)
 		{

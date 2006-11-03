@@ -58,4 +58,20 @@ public interface InteractionAction extends ResourceToolAction
 	 */
 	public void cancelAction(Reference reference);
 	
+	/**
+	 * @return
+	 */
+	public String getHelperId();
+	
+	public void setController(ResourceToolActionController controller);
+	
+	public ResourceToolActionController getController();
+
+	/**
+	 * @param request
+	 * @param helperId TODO
+	 * @param doneURL The address to which the helper should redirect when done.
+	 */
+	public void startHelper(HttpServletRequest request, String helperId, String doneURL);
+	
 }

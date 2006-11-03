@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
+import org.sakaiproject.content.api.ResourceToolActionController;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.types.BaseResourceType;
 import org.sakaiproject.entity.api.Reference;
@@ -40,11 +41,12 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class FileUploadType extends BaseResourceType 
 {
+	protected String typeId = "file";
+	protected String helperId = "sakai.resource.type.helper";
+
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("types");
-
 	protected Map actions = new Hashtable();
-	protected String typeId = "file";
 	protected UserDirectoryService userDirectoryService;
 	
 	public class FileUploadCopyAction implements ServiceLevelAction
@@ -113,7 +115,27 @@ public class FileUploadType extends BaseResourceType
 		{
 			return typeId;
 		}
+
+		public void startHelper(HttpServletRequest request, String helperId, String doneURL) {
+			// TODO Auto-generated method stub
+			
+		}
 		
+		public String getHelperId() 
+		{
+			return helperId;
+		}
+
+		public ResourceToolActionController getController() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public void setController(ResourceToolActionController controller) {
+			// TODO Auto-generated method stub
+			
+		}
+
 	}
 
 	public class FileUploadDeleteAction implements ServiceLevelAction
@@ -243,6 +265,27 @@ public class FileUploadType extends BaseResourceType
 		{
 			return typeId;
 		}
+
+		public void startHelper(HttpServletRequest request, String helperId, String doneURL) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		public String getHelperId() 
+		{
+			return helperId;
+		}
+
+		public ResourceToolActionController getController() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public void setController(ResourceToolActionController controller) {
+			// TODO Auto-generated method stub
+			
+		}
+
 	}
 	
 	public class FileUploadAccessAction implements InteractionAction
@@ -280,6 +323,27 @@ public class FileUploadType extends BaseResourceType
 		{
 			return typeId;
 		}
+
+		public void startHelper(HttpServletRequest request, String helperId, String doneURL) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		public String getHelperId() 
+		{
+			return helperId;
+		}
+
+		public ResourceToolActionController getController() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public void setController(ResourceToolActionController controller) {
+			// TODO Auto-generated method stub
+			
+		}
+
 	}
 	
 	public FileUploadType()

@@ -29,6 +29,8 @@ import org.sakaiproject.content.api.ResourceType;
  */
 public abstract class BaseResourceType implements ResourceType 
 {
+	
+	
 	public boolean hasAvailabilityDialog() 
 	{
 		return true;

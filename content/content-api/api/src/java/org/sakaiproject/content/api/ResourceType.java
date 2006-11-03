@@ -32,6 +32,11 @@ import org.sakaiproject.user.api.User;
  */
 public interface ResourceType 
 {
+	public static final String TYPE_TEXT = "textDocument";
+	public static final String TYPE_HTML = "htmlDocument";
+	public static final String TYPE_URL = "urlResource";
+	public static final String TYPE_UPLOAD = "fileUpload";
+
 	/**
 	 * @param actionId
 	 * @return
