@@ -100,3 +100,16 @@ td.prefixedCheckbox {
 	font-weight:bold;
 	padding-bottom:.5em;
 }
+
+/* A table cell with an optional message above the content */
+td.gbMessageAbove {vertical-align:top;}
+td.gbMessageAboveNumber {vertical-align:top; text-align:right;}
+
+/* Offset to better match icon and input heights. */
+.gbTextOnRow {margin-top:4px;}
+
+.gbInputOnRow {}
+.gbNumberEntry {padding-right:2em;}
+
+/* Try to make the standard message formatting work with other cell content. */
+.gbMessageAdjustForContent {margin-left:1px; margin-bottom:.5em;}

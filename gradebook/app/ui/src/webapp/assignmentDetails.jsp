@@ -126,7 +126,7 @@
 			rowIndexVar="scoreRowIndex"
 			sortColumn="#{assignmentDetailsBean.sortColumn}"
 			sortAscending="#{assignmentDetailsBean.sortAscending}"
-			columnClasses="left,left,left,right,left"
+			columnClasses="gbMessageAbove,gbMessageAbove,gbMessageAbove,gbMessageAboveNumber,gbMessageAbove"
 			styleClass="listHier narrowTable">
 			<h:column>
 				<f:facet name="header">
@@ -134,7 +134,9 @@
 						<h:outputText value="#{msgs.assignment_details_student_name}" styleClass="tier0"/>
 		            </x:commandSortHeader>
 				</f:facet>
-				<h:outputText value="#{scoreRow.enrollment.user.sortName}"/>
+				<x:div styleClass="gbTextOnRow">
+					<h:outputText value="#{scoreRow.enrollment.user.sortName}"/>
+				</x:div>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
@@ -142,7 +144,9 @@
 						<h:outputText value="#{msgs.assignment_details_student_id}" styleClass="tier0"/>
 		            </x:commandSortHeader>
 				</f:facet>
-				<h:outputText value="#{scoreRow.enrollment.user.displayId}"/>
+				<x:div styleClass="gbTextOnRow">
+					<h:outputText value="#{scoreRow.enrollment.user.displayId}"/>
+				</x:div>
 			</h:column>
 
 			<h:column>
@@ -163,29 +167,30 @@
 		            </x:commandSortHeader>
 				</f:facet>
 
-				<h:inputText id="Score" value="#{scoreRow.score}" size="4" rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}" style="text-align:right;"
-					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
-					<f:validateDoubleRange minimum="0"/>
-					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
-				</h:inputText>
+				<x:div styleClass="gbInputOnRow gbNumberEntry">
+					<h:inputText id="Score" value="#{scoreRow.score}" size="4" rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}" style="text-align:right;"
+						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+						<f:validateDoubleRange minimum="0"/>
+						<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
+					</h:inputText>
 
-				<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.assignment.externallyMaintained}">
-					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
-				</h:outputText>
-			</h:column>
-			<h:column>
-				<h:message for="Score" styleClass="validationEmbedded"/>
+					<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.assignment.externallyMaintained}">
+						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
+					</h:outputText>
+				</x:div>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
 					<h:outputText value="#{msgs.assignment_details_comments}" styleClass="tier0"/>
 				</f:facet>
-				<h:inputText id="Comment" value="#{scoreRow.commentText}" size="30"
-					rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}" 
-					style="text-align:right;"
-					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-				</h:inputText>
+				<h:message for="Score" styleClass="validationEmbedded gbMessageAdjustForContent"/>
+				<x:div styleClass="gbInputOnRow">
+					<h:inputText id="Comment" value="#{scoreRow.commentText}" size="30"
+						rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}"
+						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+					</h:inputText>
+				</x:div>
 			</h:column>
 		</x:dataTable>
 
