@@ -1155,22 +1155,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		context.put("value_Title", (String) state.getAttribute(NEW_ASSIGNMENT_TITLE));
 
-		// open time
-		int openMonth = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENMONTH)).intValue();
-		int openDay = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENDAY)).intValue();
-		int openYear = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENYEAR)).intValue();
-		int openHour = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENHOUR)).intValue();
-		int openMin = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENMIN)).intValue();
-		String openAMPM = (String) state.getAttribute(NEW_ASSIGNMENT_OPENAMPM);
-		if ((openAMPM.equals("PM")) && (openHour != 12))
-		{
-			openHour = openHour + 12;
-		}
-		if ((openHour == 12) && (openAMPM.equals("AM")))
-		{
-			openHour = 0;
-		}
-		Time openTime = TimeService.newTimeLocal(openYear, openMonth, openDay, openHour, openMin, 0, 0);
+		Time openTime = getOpenTime(state);
 		context.put("value_OpenDate", openTime);
 
 		// due time
@@ -2930,6 +2915,10 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		Time dueTime = TimeService.newTimeLocal(dueYear, dueMonth, dueDay, dueHour, dueMin, 0, 0);
 		// validate date
+		if (dueTime.before(TimeService.newTime()))
+		{
+			addAlert(state, rb.getString("assig4"));
+		}
 		if (!Validator.checkDate(dueDay, dueMonth, dueYear))
 		{
 			addAlert(state, rb.getString("date.invalid") + rb.getString("date.duedate") + ".");
@@ -3299,9 +3288,11 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		
+		ParameterParser params = data.getParameters();
+		
 		String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		
-		boolean post = (postOrSave != null && postOrSave.equals("post")) ? true : false;
+		boolean post = (postOrSave != null) && postOrSave.equals("post");
 
 		// assignment old title
 		String aOldTitle = null;
@@ -3315,68 +3306,34 @@ public class AssignmentAction extends PagedResourceActionII
 			// read input data if the mode is not preview mode
 			setNewAssignmentParameters(data, true);
 		}
+		
+		String assignmentId = params.getString("assignmentId");
+		String assignmentContentId = params.getString("assignmentContentId");
+
+		// AssignmentContent object
+		AssignmentContentEdit ac = getAssignmentContentEdit(state, assignmentContentId);
+
+		// Assignment
+		AssignmentEdit a = getAssignmentEdit(state, assignmentId);
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
-			ParameterParser params = data.getParameters();
 
 			// put the names and values into vm file
 			String title = (String) state.getAttribute(NEW_ASSIGNMENT_TITLE);
 
 			// open time
-			int openMonth = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENMONTH)).intValue();
-			int openDay = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENDAY)).intValue();
-			int openYear = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENYEAR)).intValue();
-			int openHour = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENHOUR)).intValue();
-			int openMin = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENMIN)).intValue();
-			String openAMPM = (String) state.getAttribute(NEW_ASSIGNMENT_OPENAMPM);
-			if ((openAMPM.equals("PM")) && (openHour != 12))
-			{
-				openHour = openHour + 12;
-			}
-			if ((openHour == 12) && (openAMPM.equals("AM")))
-			{
-				openHour = 0;
-			}
-			Time openTime = TimeService.newTimeLocal(openYear, openMonth, openDay, openHour, openMin, 0, 0);
+			Time openTime = getOpenTime(state);
 
 			// due time
-			int dueMonth = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEMONTH)).intValue();
-			int dueDay = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEDAY)).intValue();
-			int dueYear = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEYEAR)).intValue();
-			int dueHour = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEHOUR)).intValue();
-			int dueMin = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEMIN)).intValue();
-			String dueAMPM = (String) state.getAttribute(NEW_ASSIGNMENT_DUEAMPM);
-			if ((dueAMPM.equals("PM")) && (dueHour != 12))
-			{
-				dueHour = dueHour + 12;
-			}
-			if ((dueHour == 12) && (dueAMPM.equals("AM")))
-			{
-				dueHour = 0;
-			}
-			Time dueTime = TimeService.newTimeLocal(dueYear, dueMonth, dueDay, dueHour, dueMin, 0, 0);
+			Time dueTime = getDueTime(state);
 
 			// close time
-			Time closeTime = TimeService.newTime();
+			Time closeTime = dueTime;
 			boolean enableCloseDate = ((Boolean) state.getAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE)).booleanValue();
 			if (enableCloseDate)
 			{
-				int closeMonth = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEMONTH)).intValue();
-				int closeDay = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEDAY)).intValue();
-				int closeYear = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEYEAR)).intValue();
-				int closeHour = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEHOUR)).intValue();
-				int closeMin = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEMIN)).intValue();
-				String closeAMPM = (String) state.getAttribute(NEW_ASSIGNMENT_CLOSEAMPM);
-				if ((closeAMPM.equals("PM")) && (closeHour != 12))
-				{
-					closeHour = closeHour + 12;
-				}
-				if ((closeHour == 12) && (closeAMPM.equals("AM")))
-				{
-					closeHour = 0;
-				}
-				closeTime = TimeService.newTimeLocal(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0);
+				closeTime = getCloseTime(state);
 			}
 
 			// sections
@@ -3403,626 +3360,711 @@ public class AssignmentAction extends PagedResourceActionII
 			// the attachments
 			List attachments = (List) state.getAttribute(ATTACHMENTS);
 			List attachments1 = EntityManager.newReferenceList(attachments);
-
-			// correct inputs
-			if (state.getAttribute(STATE_MESSAGE) == null)
+			
+			// set group property
+			String range = (String) state.getAttribute(NEW_ASSIGNMENT_RANGE);
+			Collection groups = new Vector();
+			try
 			{
-				String assignmentId = params.getString("assignmentId");
-				String assignmentContentId = params.getString("assignmentContentId");
-
-				// AssignmentContent object
-				AssignmentContentEdit ac = null;
-				if (assignmentContentId.length() == 0)
+				Site site = SiteService.getSite(siteId);
+				Collection groupChoice = (Collection) state.getAttribute(NEW_ASSIGNMENT_GROUPS);
+				for (Iterator iGroups = groupChoice.iterator(); iGroups.hasNext();)
 				{
-					// new assignment
-					// only show alert when dealing with new assignment
-					// allow editing assignment after due date
-					if (dueTime.before(TimeService.newTime()))
-					{
-						addAlert(state, rb.getString("assig4"));
-					}
-					else
-					{
-						try
-						{
-							ac = AssignmentService.addAssignmentContent((String) state.getAttribute(STATE_CONTEXT_STRING));
-						}
-						catch (PermissionException e)
-						{
-							addAlert(state, rb.getString("youarenot3"));
-						}
-					}
+					String groupId = (String) iGroups.next();
+					groups.add(site.getGroup(groupId));
 				}
-				else
-				{
-					try
-					{
-						// edit assignment
-						ac = AssignmentService.editAssignmentContent(assignmentContentId);
-					}
-					catch (InUseException e)
-					{
-						addAlert(state, rb.getString("theassicon"));
-					}
-					catch (IdUnusedException e)
-					{
-						addAlert(state, rb.getString("cannotfin4"));
-					}
-					catch (PermissionException e)
-					{
-						addAlert(state, rb.getString("youarenot15"));
-					}
+			}
+			catch (Exception e)
+			{
+				Log.warn("chef", this + "cannot find site with id "+ siteId);
+			}
 
+
+			if ((state.getAttribute(STATE_MESSAGE) == null) && (ac != null) && (a != null))
+			{
+				aOldTitle = a.getTitle();
+				// old open time
+				Time oldOpenTime = a.getOpenTime();
+				// old due time
+				Time oldDueTime = a.getDueTime();
+				
+				// commit the changes to AssignmentContent object
+				commitAssignmentContentEdit(state, ac, title, submissionType, gradeType, gradePoints, description, checkAddHonorPledge, attachments1);
+				
+				// set the Assignment Properties object
+				ResourcePropertiesEdit aPropertiesEdit = a.getPropertiesEdit();
+				oAssociateGradebookAssignment = aPropertiesEdit.getProperty(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+				editAssignmentProperties(a, checkAddDueTime, checkAutoAnnounce, addtoGradebook, associateGradebookAssignment, aPropertiesEdit);
+				
+				// comment the changes to Assignment object
+				commitAssignmentEdit(state, post, ac, a, title, openTime, dueTime, closeTime, enableCloseDate, s, range, groups);
+	
+				if (state.getAttribute(STATE_MESSAGE) == null)
+				{
+					state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+					state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
+					resetAssignment(state);
 				}
 
-				// Assignment
-				AssignmentEdit a = null;
-				if (assignmentId.length() == 0)
+				if (post)
 				{
-					// create a new assignment
-					try
-					{
-						a = AssignmentService.addAssignment((String) state.getAttribute(STATE_CONTEXT_STRING));
-					}
-					catch (PermissionException e)
-					{
-						addAlert(state, rb.getString("youarenot1"));
-					}
-				}
-				else
-				{
-					try
-					{
-						// edit assignment
-						a = AssignmentService.editAssignment(assignmentId);
-						aOldTitle = a.getTitle();
-					}
-					catch (InUseException e)
-					{
-						addAlert(state, rb.getString("theassicon"));
-					}
-					catch (IdUnusedException e)
-					{
-						addAlert(state, rb.getString("cannotfin3"));
-					}
-					catch (PermissionException e)
-					{
-						addAlert(state, rb.getString("youarenot14"));
-					} // try-catch
-				} // if-else
+					// only if user is posting the assignment
 
-				if ((state.getAttribute(STATE_MESSAGE) == null) && (ac != null) && (a != null))
-				{
-					ac.setTitle(title);
-					ac.setInstructions(description);
-					ac.setHonorPledge(Integer.parseInt(checkAddHonorPledge));
-					ac.setTypeOfSubmission(submissionType);
-					ac.setTypeOfGrade(gradeType);
-					if (gradeType == 3)
-					{
-						try
-						{
-							ac.setMaxGradePoint(Integer.parseInt(gradePoints));
-						}
-						catch (NumberFormatException e)
-						{
-							alertInvalidPoint(state, gradePoints);
-						}
-					}
-					ac.setGroupProject(true);
-					ac.setIndividuallyGraded(false);
+					// add the due date to schedule if the schedule exists
+					integrateWithCalendar(state, a, title, dueTime, checkAddDueTime, oldDueTime, aPropertiesEdit);
 
-					if (submissionType != 1)
-					{
-						ac.setAllowAttachments(true);
-					}
-					else
-					{
-						ac.setAllowAttachments(false);
-					}
+					// the open date been announced
+					integrateWithAnnouncement(state, aOldTitle, a, title, openTime, checkAutoAnnounce, oldOpenTime);
 
-					// clear attachments
-					ac.clearAttachments();
-
-					// add each attachment
-					Iterator it = EntityManager.newReferenceList(attachments1).iterator();
-					while (it.hasNext())
-					{
-						Reference r = (Reference) it.next();
-						ac.addAttachment(r);
-					}
-					state.setAttribute(ATTACHMENTS_MODIFIED, new Boolean(false));
-
-					// commit the changes
-					AssignmentService.commitEdit(ac);
-
-				}
-
-					a.setTitle(title);
-					a.setContent(ac);
-					a.setContext((String) state.getAttribute(STATE_CONTEXT_STRING));
-					a.setSection(s);
-					// old open time
-					Time oldOpenTime = a.getOpenTime();
-					a.setOpenTime(openTime);
-					// old due time
-					Time oldDueTime = a.getDueTime();
-					a.setDueTime(dueTime);
-					// set the drop dead date as the due date
-					a.setDropDeadTime(dueTime);
-					if (enableCloseDate)
-					{
-						a.setCloseTime(closeTime);
-					}
-					else
-					{
-						// if editing an old assignment with close date
-						if (a.getCloseTime() != null)
-						{
-							a.setCloseTime(null);
-						}
-					}
-
-					// post the assignment
-					a.setDraft(!post);
-
-					// set the auto check/auto announce property
-					ResourcePropertiesEdit aPropertiesEdit = a.getPropertiesEdit();
-					if (aPropertiesEdit.getProperty("newAssignment") != null)
-					{
-						if (aPropertiesEdit.getProperty("newAssignment").equalsIgnoreCase(Boolean.TRUE.toString()))
-						{
-							// not a newly created assignment, been added.
-							aPropertiesEdit.addProperty("newAssignment", Boolean.FALSE.toString());
-						}
-					}
-					else
-					{
-						// for newly created assignment
-						aPropertiesEdit.addProperty("newAssignment", Boolean.TRUE.toString());
-					}
-					if (checkAddDueTime != null)
-					{
-						aPropertiesEdit.addProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, checkAddDueTime);
-					}
-					else
-					{
-						aPropertiesEdit.removeProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
-					}
-					aPropertiesEdit.addProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, checkAutoAnnounce);
-					aPropertiesEdit.addProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, addtoGradebook);
-					oAssociateGradebookAssignment = aPropertiesEdit.getProperty(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-					aPropertiesEdit.addProperty(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associateGradebookAssignment);
-
-					if (addtoGradebook.equals(GRADEBOOK_INTEGRATION_ADD))
-					{
-						// if the choice is to add an entry into Gradebook, let just mark it as associated with such new entry then
-						aPropertiesEdit.addProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
-						aPropertiesEdit.addProperty(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, a.getReference());
-
-					}
-					// set group property
-					String range = (String) state.getAttribute(NEW_ASSIGNMENT_RANGE);
-					try
-					{
-						if (range.equals("site"))
-						{
-							a.setAccess(Assignment.AssignmentAccess.SITE);
-							a.clearGroupAccess();
-						}
-						else if (range.equals("groups"))
-						{
-							try
-							{
-								Site site = SiteService.getSite(siteId);
-								Collection groupChoice = (Collection) state.getAttribute(NEW_ASSIGNMENT_GROUPS);
-								Collection groups = new Vector();
-								for (Iterator iGroups = groupChoice.iterator(); iGroups.hasNext();)
-								{
-									String groupId = (String) iGroups.next();
-									groups.add(site.getGroup(groupId));
-								}
-								a.setGroupAccess(groups);
-							}
-							catch (Exception e)
-							{
-								Log.warn("chef", this + "cannot find site with id "+ siteId);
-							}
-						}
-					}
-					catch (PermissionException e)
-					{
-						addAlert(state, rb.getString("youarenot1"));
-					}
-
-					if (state.getAttribute(STATE_MESSAGE) == null)
-					{
-						// commit assignment first
-						AssignmentService.commitEdit(a);
-
-						if (state.getAttribute(STATE_MESSAGE) == null)
-						{
-							state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
-							state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
-							resetAssignment(state);
-						}
-
-						if (post)
-						{
-							// add due date to schedule and add open date to announcement only if user is posting the assignment
-
-							// add the due date to schedule if the schedule exists
-							if (state.getAttribute(CALENDAR) != null)
-							{
-								Calendar c = (Calendar) state.getAttribute(CALENDAR);
-								String dueDateScheduled = a.getProperties().getProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
-								String oldEventId = aPropertiesEdit.getProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
-								CalendarEvent e = null;
-
-								if (dueDateScheduled != null || oldEventId != null)
-								{
-									// find the old event
-									boolean found = false;
-									if (oldEventId != null && c != null)
-									{
-										try
-										{
-											e = c.getEvent(oldEventId);
-											found = true;
-										}
-										catch (IdUnusedException ee)
-										{
-											Log.warn("chef", "The old event has been deleted: event id=" + oldEventId + ". ");
-										}
-										catch (PermissionException ee)
-										{
-											Log.warn("chef", "You do not have the permission to view the schedule event id= "
-													+ oldEventId + ".");
-										}
-									}
-									else
-									{
-										TimeBreakdown b = oldDueTime.breakdownLocal();
-										// TODO: check- this was new Time(year...), not local! -ggolden
-										Time startTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 0, 0, 0, 0);
-										Time endTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 23, 59, 59, 999);
-										try
-										{
-											Iterator events = c.getEvents(TimeService.newTimeRange(startTime, endTime), null)
-													.iterator();
-
-											while ((!found) && (events.hasNext()))
-											{
-												e = (CalendarEvent) events.next();
-												if (((String) e.getDisplayName()).indexOf(rb.getString("assig1") + " " + title) != -1)
-												{
-													found = true;
-												}
-											}
-										}
-										catch (PermissionException ignore)
-										{
-											// ignore PermissionException
-										}
-									}
-
-									if (found)
-									{
-										// remove the founded old event
-										try
-										{
-											c.removeEvent(c.getEditEvent(e.getId(), CalendarService.EVENT_REMOVE_CALENDAR));
-										}
-										catch (PermissionException ee)
-										{
-											Log.warn("chef", rb.getString("cannotrem") + " " + title + ". ");
-										}
-										catch (InUseException ee)
-										{
-											Log.warn("chef", rb.getString("somelsis") + " " + rb.getString("calen"));
-										}
-										catch (IdUnusedException ee)
-										{
-											Log.warn("chef", rb.getString("cannotfin6") + e.getId());
-										}
-									}
-								}
-
-								if (checkAddDueTime.equalsIgnoreCase(Boolean.TRUE.toString()))
-								{
-									if (c != null)
-									{
-										// commit related properties into Assignment object
-										String ref = "";
-										try
-										{
-											ref = a.getReference();
-											AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
-
-											try
-											{
-												e = null;
-												CalendarEvent.EventAccess eAccess = CalendarEvent.EventAccess.SITE;
-												Collection eGroups = new Vector();
-
-												if (aEdit.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
-												{
-													eAccess = CalendarEvent.EventAccess.GROUPED;
-													Collection groupRefs = aEdit.getGroups();
-
-													// make a collection of Group objects from the collection of group ref strings
-													Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-													for (Iterator iGroupRefs = groupRefs.iterator(); iGroupRefs.hasNext();)
-													{
-														String groupRef = (String) iGroupRefs.next();
-														eGroups.add(site.getGroup(groupRef));
-													}
-												}
-												e = c.addEvent(/* TimeRange */TimeService.newTimeRange(dueTime.getTime(), /* 0 duration */0 * 60 * 1000),
-														/* title */rb.getString("due") + " " + title,
-														/* description */rb.getString("assig1") + " " + title + " " + "is due on "
-																+ dueTime.toStringLocalFull() + ". ",
-														/* type */rb.getString("deadl"),
-														/* location */"",
-														/* access */ eAccess,
-														/* groups */ eGroups,
-														/* attachments */EntityManager.newReferenceList());
-
-												aEdit.getProperties().addProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
-												if (e != null)
-												{
-													aEdit.getProperties().addProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID, e.getId());
-												}
-											}
-											catch (IdUnusedException ee)
-											{
-												Log.warn("chef", ee.getMessage());
-											}
-											catch (PermissionException ee)
-											{
-												Log.warn("chef", rb.getString("cannotfin1"));
-											}
-											catch (Exception ee)
-											{
-												Log.warn("chef", ee.getMessage());
-											}
-											// try-catch
-
-
-											AssignmentService.commitEdit(aEdit);
-										}
-										catch (Exception ignore)
-										{
-											// ignore the exception
-											Log.warn("chef", rb.getString("cannotfin2") + ref);
-										}
-									} // if
-								} // if
-							}
-
-							// the open date been announced
-							if (checkAutoAnnounce.equalsIgnoreCase(Boolean.TRUE.toString()))
-							{
-								AnnouncementChannel channel = (AnnouncementChannel) state.getAttribute(ANNOUNCEMENT_CHANNEL);
-								if (channel != null)
-								{
-									String openDateAnnounced = a.getProperties().getProperty(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED);
-
-									// open date has been announced or title has been changed?
-									boolean openDateMessageModified = false;
-									if (openDateAnnounced != null && openDateAnnounced.equalsIgnoreCase(Boolean.TRUE.toString()))
-									{
-										if (oldOpenTime != null
-												&& (!oldOpenTime.toStringLocalFull().equals(openTime.toStringLocalFull())) // open time changes
-												|| !aOldTitle.equals(title)) // assignment title changes
-										{
-											// need to change message
-											openDateMessageModified = true;
-										}
-
-									}
-
-									// add the open date to annoucement
-									if (openDateAnnounced == null // no announcement yet
-											|| (openDateAnnounced != null
-													&& openDateAnnounced.equalsIgnoreCase(Boolean.TRUE.toString()) && openDateMessageModified)) // announced, but open date or announcement title changes
-									{
-										// announcement channel is in place
-										try
-										{
-											AnnouncementMessageEdit message = channel.addAnnouncementMessage();
-											AnnouncementMessageHeaderEdit header = message.getAnnouncementHeaderEdit();
-											header.setDraft(/* draft */false);
-											header.replaceAttachments(/* attachment */EntityManager.newReferenceList());
-
-											if (openDateAnnounced == null)
-											{
-												// making new announcement
-												header.setSubject(/* subject */rb.getString("assig6") + " " + title);
-												message.setBody(/* body */rb.getString("opedat") + " "
-														+ FormattedText.convertPlaintextToFormattedText(title) + " is "
-														+ openTime.toStringLocalFull() + ". ");
-											}
-											else
-											{
-												// revised announcement
-												header.setSubject(/* subject */rb.getString("assig5") + " " + title);
-												message.setBody(/* body */rb.getString("newope") + " "
-														+ FormattedText.convertPlaintextToFormattedText(title) + " is "
-														+ openTime.toStringLocalFull() + ". ");
-											}
-
-											// group information
-											if (a.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
-											{
-												try
-												{
-													// get the group ids selected
-													Collection groupRefs = a.getGroups();
-
-													// make a collection of Group objects
-													Collection groups = new Vector();
-
-													//make a collection of Group objects from the collection of group ref strings
-													Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-													for (Iterator iGroupRefs = groupRefs.iterator(); iGroupRefs.hasNext();)
-													{
-														String groupRef = (String) iGroupRefs.next();
-														groups.add(site.getGroup(groupRef));
-													}
-
-													// set access
-													header.setGroupAccess(groups);
-												}
-												catch (Exception exception)
-												{
-													// log
-													Log.warn("chef", exception.getMessage());
-												}
-											}
-											else
-											{
-												// site announcement
-												header.clearGroupAccess();
-											}
-
-
-											channel.commitMessage(message, NotificationService.NOTI_NONE);
-
-											// commit related properties into Assignment object
-											String ref = "";
-											try
-											{
-												ref = a.getReference();
-												AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
-												aEdit.getPropertiesEdit().addProperty(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
-												if (message != null)
-												{
-													aEdit.getPropertiesEdit().addProperty(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, message.getId());
-												}
-												AssignmentService.commitEdit(aEdit);
-											}
-											catch (Exception ignore)
-											{
-												// ignore the exception
-												Log.warn("chef", rb.getString("cannotfin2") + ref);
-											}
-
-										}
-										catch (PermissionException ee)
-										{
-											Log.warn("chef", rb.getString("cannotmak"));
-										}
-									}
-								}
-							} // if
-
-							// integrate with Gradebook
-							String aReference = a.getReference();
-							String addUpdateRemoveAssignment = "remove";
-							if (!addtoGradebook.equals(GRADEBOOK_INTEGRATION_NO))
-							{
-								// if integrate with Gradebook
-								if (!AssignmentService.getAllowGroupAssignmentsInGradebook() && (range.equals("groups")))
-								{
-									// if grouped assignment is not allowed to add into Gradebook
-									addAlert(state, rb.getString("java.alert.noGroupedAssignmentIntoGB"));
-									String ref = "";
-									try
-									{
-										ref = a.getReference();
-										AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
-										aEdit.getPropertiesEdit().removeProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
-										aEdit.getPropertiesEdit().removeProperty(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-										AssignmentService.commitEdit(aEdit);
-									}
-									catch (Exception ignore)
-									{
-										// ignore the exception
-										Log.warn("chef", rb.getString("cannotfin2") + ref);
-									}
-									integrateGradebook(state, aReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null);
-								}
-								else
-								{
-									if (addtoGradebook.equals(GRADEBOOK_INTEGRATION_ADD))
-									{
-										addUpdateRemoveAssignment = GRADEBOOK_INTEGRATION_ADD;
-									}
-									else if (addtoGradebook.equals(GRADEBOOK_INTEGRATION_ASSOCIATE))
-									{
-										addUpdateRemoveAssignment = "update";
-									}
-
-									if (!addUpdateRemoveAssignment.equals("remove") && gradeType == 3)
-									{
-										try
-										{
-											integrateGradebook(state, aReference, associateGradebookAssignment, addUpdateRemoveAssignment, aOldTitle, title, Integer.parseInt (gradePoints), dueTime, null, null);
-
-											// add all existing grades, if any, into Gradebook
-											integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, null, "update");
-
-											// if the assignment has been assoicated with a different entry in gradebook before, remove those grades from the entry in Gradebook
-											if (StringUtil.trimToNull(oAssociateGradebookAssignment) != null && !oAssociateGradebookAssignment.equals(associateGradebookAssignment))
-											{
-												integrateGradebook(state, aReference, oAssociateGradebookAssignment, null, null, null, -1, null, null, "remove");
-												
-												// if the old assoicated assignment entry in GB is an external one, but doesn't have anything assoicated with it in Assignment tool, remove it
-												boolean gradebookExists = isGradebookDefined();
-												if (gradebookExists)
-												{
-													GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-													String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
-													boolean isExternalAssignmentDefined=g.isExternalAssignmentDefined(gradebookUid, oAssociateGradebookAssignment);
-													if (isExternalAssignmentDefined)
-													{
-														// iterate through all assignments currently in the site, see if any is associated with this GB entry
-														Iterator i = AssignmentService.getAssignmentsForContext(siteId);
-														boolean found = false;
-														while (!found && i.hasNext())
-														{
-															Assignment aI = (Assignment) i.next();
-															String gbEntry = aI.getProperties().getProperty(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-															if (gbEntry != null && gbEntry.equals(oAssociateGradebookAssignment))
-															{
-																found = true;
-															}
-														}
-														// so if none of the assignment in this site is associated with the entry, remove the entry
-														if (!found)
-														{
-															g.removeExternalAssessment(gradebookUid, oAssociateGradebookAssignment);
-														}
-													}
-												}
-											}
-										}
-										catch (NumberFormatException nE)
-										{
-											alertInvalidPoint(state, gradePoints);
-										}
-									}
-									else
-									{
-										integrateGradebook(state, aReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null);
-									}
-								}
-							}
-							else
-							{
-								// remove assignment entry from Gradebook
-								integrateGradebook(state, aReference, oAssociateGradebookAssignment, "remove", null, null, -1, null, null, "remove");
-							}
-						}	// if post
-
-					} // if
+					// integrate with Gradebook
+					initIntegrateWithGradebook(state, siteId, aOldTitle, oAssociateGradebookAssignment, a, title, dueTime, gradeType, gradePoints, addtoGradebook, associateGradebookAssignment, range);
+	
+				} // if
 
 			} // if
 
 		} // if
 
 	} // doPost_assignment
+
+	private void initIntegrateWithGradebook(SessionState state, String siteId, String aOldTitle, String oAssociateGradebookAssignment, AssignmentEdit a, String title, Time dueTime, int gradeType, String gradePoints, String addtoGradebook, String associateGradebookAssignment, String range) {
+		String aReference = a.getReference();
+		String addUpdateRemoveAssignment = "remove";
+		if (!addtoGradebook.equals(GRADEBOOK_INTEGRATION_NO))
+		{
+			// if integrate with Gradebook
+			if (!AssignmentService.getAllowGroupAssignmentsInGradebook() && (range.equals("groups")))
+			{
+				// if grouped assignment is not allowed to add into Gradebook
+				addAlert(state, rb.getString("java.alert.noGroupedAssignmentIntoGB"));
+				String ref = "";
+				try
+				{
+					ref = a.getReference();
+					AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
+					aEdit.getPropertiesEdit().removeProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
+					aEdit.getPropertiesEdit().removeProperty(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+					AssignmentService.commitEdit(aEdit);
+				}
+				catch (Exception ignore)
+				{
+					// ignore the exception
+					Log.warn("chef", rb.getString("cannotfin2") + ref);
+				}
+				integrateGradebook(state, aReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null);
+			}
+			else
+			{
+				if (addtoGradebook.equals(GRADEBOOK_INTEGRATION_ADD))
+				{
+					addUpdateRemoveAssignment = GRADEBOOK_INTEGRATION_ADD;
+				}
+				else if (addtoGradebook.equals(GRADEBOOK_INTEGRATION_ASSOCIATE))
+				{
+					addUpdateRemoveAssignment = "update";
+				}
+
+				if (!addUpdateRemoveAssignment.equals("remove") && gradeType == 3)
+				{
+					try
+					{
+						integrateGradebook(state, aReference, associateGradebookAssignment, addUpdateRemoveAssignment, aOldTitle, title, Integer.parseInt (gradePoints), dueTime, null, null);
+
+						// add all existing grades, if any, into Gradebook
+						integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, null, "update");
+
+						// if the assignment has been assoicated with a different entry in gradebook before, remove those grades from the entry in Gradebook
+						if (StringUtil.trimToNull(oAssociateGradebookAssignment) != null && !oAssociateGradebookAssignment.equals(associateGradebookAssignment))
+						{
+							integrateGradebook(state, aReference, oAssociateGradebookAssignment, null, null, null, -1, null, null, "remove");
+							
+							// if the old assoicated assignment entry in GB is an external one, but doesn't have anything assoicated with it in Assignment tool, remove it
+							boolean gradebookExists = isGradebookDefined();
+							if (gradebookExists)
+							{
+								GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+								String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+								boolean isExternalAssignmentDefined=g.isExternalAssignmentDefined(gradebookUid, oAssociateGradebookAssignment);
+								if (isExternalAssignmentDefined)
+								{
+									// iterate through all assignments currently in the site, see if any is associated with this GB entry
+									Iterator i = AssignmentService.getAssignmentsForContext(siteId);
+									boolean found = false;
+									while (!found && i.hasNext())
+									{
+										Assignment aI = (Assignment) i.next();
+										String gbEntry = aI.getProperties().getProperty(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+										if (gbEntry != null && gbEntry.equals(oAssociateGradebookAssignment))
+										{
+											found = true;
+										}
+									}
+									// so if none of the assignment in this site is associated with the entry, remove the entry
+									if (!found)
+									{
+										g.removeExternalAssessment(gradebookUid, oAssociateGradebookAssignment);
+									}
+								}
+							}
+						}
+					}
+					catch (NumberFormatException nE)
+					{
+						alertInvalidPoint(state, gradePoints);
+					}
+				}
+				else
+				{
+					integrateGradebook(state, aReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null);
+				}
+			}
+		}
+		else
+		{
+			// remove assignment entry from Gradebook
+			integrateGradebook(state, aReference, oAssociateGradebookAssignment, "remove", null, null, -1, null, null, "remove");
+		}
+	}
+
+	private void integrateWithAnnouncement(SessionState state, String aOldTitle, AssignmentEdit a, String title, Time openTime, String checkAutoAnnounce, Time oldOpenTime) 
+	{
+		if (checkAutoAnnounce.equalsIgnoreCase(Boolean.TRUE.toString()))
+		{
+			AnnouncementChannel channel = (AnnouncementChannel) state.getAttribute(ANNOUNCEMENT_CHANNEL);
+			if (channel != null)
+			{
+				String openDateAnnounced = a.getProperties().getProperty(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED);
+
+				// open date has been announced or title has been changed?
+				boolean openDateMessageModified = false;
+				if (openDateAnnounced != null && openDateAnnounced.equalsIgnoreCase(Boolean.TRUE.toString()))
+				{
+					if (oldOpenTime != null
+							&& (!oldOpenTime.toStringLocalFull().equals(openTime.toStringLocalFull())) // open time changes
+							|| !aOldTitle.equals(title)) // assignment title changes
+					{
+						// need to change message
+						openDateMessageModified = true;
+					}
+
+				}
+
+				// add the open date to annoucement
+				if (openDateAnnounced == null // no announcement yet
+						|| (openDateAnnounced != null
+								&& openDateAnnounced.equalsIgnoreCase(Boolean.TRUE.toString()) && openDateMessageModified)) // announced, but open date or announcement title changes
+				{
+					// announcement channel is in place
+					try
+					{
+						AnnouncementMessageEdit message = channel.addAnnouncementMessage();
+						AnnouncementMessageHeaderEdit header = message.getAnnouncementHeaderEdit();
+						header.setDraft(/* draft */false);
+						header.replaceAttachments(/* attachment */EntityManager.newReferenceList());
+
+						if (openDateAnnounced == null)
+						{
+							// making new announcement
+							header.setSubject(/* subject */rb.getString("assig6") + " " + title);
+							message.setBody(/* body */rb.getString("opedat") + " "
+									+ FormattedText.convertPlaintextToFormattedText(title) + " is "
+									+ openTime.toStringLocalFull() + ". ");
+						}
+						else
+						{
+							// revised announcement
+							header.setSubject(/* subject */rb.getString("assig5") + " " + title);
+							message.setBody(/* body */rb.getString("newope") + " "
+									+ FormattedText.convertPlaintextToFormattedText(title) + " is "
+									+ openTime.toStringLocalFull() + ". ");
+						}
+
+						// group information
+						if (a.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
+						{
+							try
+							{
+								// get the group ids selected
+								Collection groupRefs = a.getGroups();
+
+								// make a collection of Group objects
+								Collection groups = new Vector();
+
+								//make a collection of Group objects from the collection of group ref strings
+								Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+								for (Iterator iGroupRefs = groupRefs.iterator(); iGroupRefs.hasNext();)
+								{
+									String groupRef = (String) iGroupRefs.next();
+									groups.add(site.getGroup(groupRef));
+								}
+
+								// set access
+								header.setGroupAccess(groups);
+							}
+							catch (Exception exception)
+							{
+								// log
+								Log.warn("chef", exception.getMessage());
+							}
+						}
+						else
+						{
+							// site announcement
+							header.clearGroupAccess();
+						}
+
+
+						channel.commitMessage(message, NotificationService.NOTI_NONE);
+
+						// commit related properties into Assignment object
+						String ref = "";
+						try
+						{
+							ref = a.getReference();
+							AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
+							aEdit.getPropertiesEdit().addProperty(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
+							if (message != null)
+							{
+								aEdit.getPropertiesEdit().addProperty(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, message.getId());
+							}
+							AssignmentService.commitEdit(aEdit);
+						}
+						catch (Exception ignore)
+						{
+							// ignore the exception
+							Log.warn("chef", rb.getString("cannotfin2") + ref);
+						}
+
+					}
+					catch (PermissionException ee)
+					{
+						Log.warn("chef", rb.getString("cannotmak"));
+					}
+				}
+			}
+		} // if
+	}
+
+	private void integrateWithCalendar(SessionState state, AssignmentEdit a, String title, Time dueTime, String checkAddDueTime, Time oldDueTime, ResourcePropertiesEdit aPropertiesEdit) 
+	{
+		if (state.getAttribute(CALENDAR) != null)
+		{
+			Calendar c = (Calendar) state.getAttribute(CALENDAR);
+			String dueDateScheduled = a.getProperties().getProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
+			String oldEventId = aPropertiesEdit.getProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
+			CalendarEvent e = null;
+
+			if (dueDateScheduled != null || oldEventId != null)
+			{
+				// find the old event
+				boolean found = false;
+				if (oldEventId != null && c != null)
+				{
+					try
+					{
+						e = c.getEvent(oldEventId);
+						found = true;
+					}
+					catch (IdUnusedException ee)
+					{
+						Log.warn("chef", "The old event has been deleted: event id=" + oldEventId + ". ");
+					}
+					catch (PermissionException ee)
+					{
+						Log.warn("chef", "You do not have the permission to view the schedule event id= "
+								+ oldEventId + ".");
+					}
+				}
+				else
+				{
+					TimeBreakdown b = oldDueTime.breakdownLocal();
+					// TODO: check- this was new Time(year...), not local! -ggolden
+					Time startTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 0, 0, 0, 0);
+					Time endTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 23, 59, 59, 999);
+					try
+					{
+						Iterator events = c.getEvents(TimeService.newTimeRange(startTime, endTime), null)
+								.iterator();
+
+						while ((!found) && (events.hasNext()))
+						{
+							e = (CalendarEvent) events.next();
+							if (((String) e.getDisplayName()).indexOf(rb.getString("assig1") + " " + title) != -1)
+							{
+								found = true;
+							}
+						}
+					}
+					catch (PermissionException ignore)
+					{
+						// ignore PermissionException
+					}
+				}
+
+				if (found)
+				{
+					// remove the founded old event
+					try
+					{
+						c.removeEvent(c.getEditEvent(e.getId(), CalendarService.EVENT_REMOVE_CALENDAR));
+					}
+					catch (PermissionException ee)
+					{
+						Log.warn("chef", rb.getString("cannotrem") + " " + title + ". ");
+					}
+					catch (InUseException ee)
+					{
+						Log.warn("chef", rb.getString("somelsis") + " " + rb.getString("calen"));
+					}
+					catch (IdUnusedException ee)
+					{
+						Log.warn("chef", rb.getString("cannotfin6") + e.getId());
+					}
+				}
+			}
+
+			if (checkAddDueTime.equalsIgnoreCase(Boolean.TRUE.toString()))
+			{
+				if (c != null)
+				{
+					// commit related properties into Assignment object
+					String ref = "";
+					try
+					{
+						ref = a.getReference();
+						AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
+
+						try
+						{
+							e = null;
+							CalendarEvent.EventAccess eAccess = CalendarEvent.EventAccess.SITE;
+							Collection eGroups = new Vector();
+
+							if (aEdit.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
+							{
+								eAccess = CalendarEvent.EventAccess.GROUPED;
+								Collection groupRefs = aEdit.getGroups();
+
+								// make a collection of Group objects from the collection of group ref strings
+								Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+								for (Iterator iGroupRefs = groupRefs.iterator(); iGroupRefs.hasNext();)
+								{
+									String groupRef = (String) iGroupRefs.next();
+									eGroups.add(site.getGroup(groupRef));
+								}
+							}
+							e = c.addEvent(/* TimeRange */TimeService.newTimeRange(dueTime.getTime(), /* 0 duration */0 * 60 * 1000),
+									/* title */rb.getString("due") + " " + title,
+									/* description */rb.getString("assig1") + " " + title + " " + "is due on "
+											+ dueTime.toStringLocalFull() + ". ",
+									/* type */rb.getString("deadl"),
+									/* location */"",
+									/* access */ eAccess,
+									/* groups */ eGroups,
+									/* attachments */EntityManager.newReferenceList());
+
+							aEdit.getProperties().addProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
+							if (e != null)
+							{
+								aEdit.getProperties().addProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID, e.getId());
+							}
+						}
+						catch (IdUnusedException ee)
+						{
+							Log.warn("chef", ee.getMessage());
+						}
+						catch (PermissionException ee)
+						{
+							Log.warn("chef", rb.getString("cannotfin1"));
+						}
+						catch (Exception ee)
+						{
+							Log.warn("chef", ee.getMessage());
+						}
+						// try-catch
+
+
+						AssignmentService.commitEdit(aEdit);
+					}
+					catch (Exception ignore)
+					{
+						// ignore the exception
+						Log.warn("chef", rb.getString("cannotfin2") + ref);
+					}
+				} // if
+			} // if
+		}
+	}
+
+	private void commitAssignmentEdit(SessionState state, boolean post, AssignmentContentEdit ac, AssignmentEdit a, String title, Time openTime, Time dueTime, Time closeTime, boolean enableCloseDate, String s, String range, Collection groups) 
+	{
+		a.setTitle(title);
+		a.setContent(ac);
+		a.setContext((String) state.getAttribute(STATE_CONTEXT_STRING));
+		a.setSection(s);
+		a.setOpenTime(openTime);
+		a.setDueTime(dueTime);
+		// set the drop dead date as the due date
+		a.setDropDeadTime(dueTime);
+		if (enableCloseDate)
+		{
+			a.setCloseTime(closeTime);
+		}
+		else
+		{
+			// if editing an old assignment with close date
+			if (a.getCloseTime() != null)
+			{
+				a.setCloseTime(null);
+			}
+		}
+
+		// post the assignment
+		a.setDraft(!post);
+
+		try
+		{
+			if (range.equals("site"))
+			{
+				a.setAccess(Assignment.AssignmentAccess.SITE);
+				a.clearGroupAccess();
+			}
+			else if (range.equals("groups"))
+			{
+				a.setGroupAccess(groups);
+			}
+		}
+		catch (PermissionException e)
+		{
+			addAlert(state, rb.getString("youarenot1"));
+		}
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			// commit assignment first
+			AssignmentService.commitEdit(a);
+		}
+	}
+
+	private void editAssignmentProperties(AssignmentEdit a, String checkAddDueTime, String checkAutoAnnounce, String addtoGradebook, String associateGradebookAssignment, ResourcePropertiesEdit aPropertiesEdit) 
+	{
+		if (aPropertiesEdit.getProperty("newAssignment") != null)
+		{
+			if (aPropertiesEdit.getProperty("newAssignment").equalsIgnoreCase(Boolean.TRUE.toString()))
+			{
+				// not a newly created assignment, been added.
+				aPropertiesEdit.addProperty("newAssignment", Boolean.FALSE.toString());
+			}
+		}
+		else
+		{
+			// for newly created assignment
+			aPropertiesEdit.addProperty("newAssignment", Boolean.TRUE.toString());
+		}
+		if (checkAddDueTime != null)
+		{
+			aPropertiesEdit.addProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, checkAddDueTime);
+		}
+		else
+		{
+			aPropertiesEdit.removeProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
+		}
+		aPropertiesEdit.addProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, checkAutoAnnounce);
+		aPropertiesEdit.addProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, addtoGradebook);
+		aPropertiesEdit.addProperty(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associateGradebookAssignment);
+
+		if (addtoGradebook.equals(GRADEBOOK_INTEGRATION_ADD))
+		{
+			// if the choice is to add an entry into Gradebook, let just mark it as associated with such new entry then
+			aPropertiesEdit.addProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
+			aPropertiesEdit.addProperty(NEW_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, a.getReference());
+
+		}
+	}
+
+	private void commitAssignmentContentEdit(SessionState state, AssignmentContentEdit ac, String title, int submissionType, int gradeType, String gradePoints, String description, String checkAddHonorPledge, List attachments1) 
+	{
+		ac.setTitle(title);
+		ac.setInstructions(description);
+		ac.setHonorPledge(Integer.parseInt(checkAddHonorPledge));
+		ac.setTypeOfSubmission(submissionType);
+		ac.setTypeOfGrade(gradeType);
+		if (gradeType == 3)
+		{
+			try
+			{
+				ac.setMaxGradePoint(Integer.parseInt(gradePoints));
+			}
+			catch (NumberFormatException e)
+			{
+				alertInvalidPoint(state, gradePoints);
+			}
+		}
+		ac.setGroupProject(true);
+		ac.setIndividuallyGraded(false);
+
+		if (submissionType != 1)
+		{
+			ac.setAllowAttachments(true);
+		}
+		else
+		{
+			ac.setAllowAttachments(false);
+		}
+
+		// clear attachments
+		ac.clearAttachments();
+
+		// add each attachment
+		Iterator it = EntityManager.newReferenceList(attachments1).iterator();
+		while (it.hasNext())
+		{
+			Reference r = (Reference) it.next();
+			ac.addAttachment(r);
+		}
+		state.setAttribute(ATTACHMENTS_MODIFIED, new Boolean(false));
+
+		// commit the changes
+		AssignmentService.commitEdit(ac);
+	}
+
+	private AssignmentEdit getAssignmentEdit(SessionState state, String assignmentId) 
+	{
+		AssignmentEdit a = null;
+		if (assignmentId.length() == 0)
+		{
+			// create a new assignment
+			try
+			{
+				a = AssignmentService.addAssignment((String) state.getAttribute(STATE_CONTEXT_STRING));
+			}
+			catch (PermissionException e)
+			{
+				addAlert(state, rb.getString("youarenot1"));
+			}
+		}
+		else
+		{
+			try
+			{
+				// edit assignment
+				a = AssignmentService.editAssignment(assignmentId);
+			}
+			catch (InUseException e)
+			{
+				addAlert(state, rb.getString("theassicon"));
+			}
+			catch (IdUnusedException e)
+			{
+				addAlert(state, rb.getString("cannotfin3"));
+			}
+			catch (PermissionException e)
+			{
+				addAlert(state, rb.getString("youarenot14"));
+			} // try-catch
+		} // if-else
+		return a;
+	}
+
+	private AssignmentContentEdit getAssignmentContentEdit(SessionState state, String assignmentContentId) 
+	{
+		AssignmentContentEdit ac = null;
+		if (assignmentContentId.length() == 0)
+		{
+			// new assignment
+			try
+			{
+				ac = AssignmentService.addAssignmentContent((String) state.getAttribute(STATE_CONTEXT_STRING));
+			}
+			catch (PermissionException e)
+			{
+				addAlert(state, rb.getString("youarenot3"));
+			}
+		}
+		else
+		{
+			try
+			{
+				// edit assignment
+				ac = AssignmentService.editAssignmentContent(assignmentContentId);
+			}
+			catch (InUseException e)
+			{
+				addAlert(state, rb.getString("theassicon"));
+			}
+			catch (IdUnusedException e)
+			{
+				addAlert(state, rb.getString("cannotfin4"));
+			}
+			catch (PermissionException e)
+			{
+				addAlert(state, rb.getString("youarenot15"));
+			}
+
+		}
+		return ac;
+	}
+
+	private Time getOpenTime(SessionState state) 
+	{
+		int openMonth = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENMONTH)).intValue();
+		int openDay = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENDAY)).intValue();
+		int openYear = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENYEAR)).intValue();
+		int openHour = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENHOUR)).intValue();
+		int openMin = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENMIN)).intValue();
+		String openAMPM = (String) state.getAttribute(NEW_ASSIGNMENT_OPENAMPM);
+		if ((openAMPM.equals("PM")) && (openHour != 12))
+		{
+			openHour = openHour + 12;
+		}
+		if ((openHour == 12) && (openAMPM.equals("AM")))
+		{
+			openHour = 0;
+		}
+		Time openTime = TimeService.newTimeLocal(openYear, openMonth, openDay, openHour, openMin, 0, 0);
+		return openTime;
+	}
+
+	private Time getCloseTime(SessionState state) 
+	{
+		Time closeTime;
+		int closeMonth = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEMONTH)).intValue();
+		int closeDay = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEDAY)).intValue();
+		int closeYear = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEYEAR)).intValue();
+		int closeHour = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEHOUR)).intValue();
+		int closeMin = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEMIN)).intValue();
+		String closeAMPM = (String) state.getAttribute(NEW_ASSIGNMENT_CLOSEAMPM);
+		if ((closeAMPM.equals("PM")) && (closeHour != 12))
+		{
+			closeHour = closeHour + 12;
+		}
+		if ((closeHour == 12) && (closeAMPM.equals("AM")))
+		{
+			closeHour = 0;
+		}
+		closeTime = TimeService.newTimeLocal(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0);
+		return closeTime;
+	}
+
+	private Time getDueTime(SessionState state) 
+	{
+		int dueMonth = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEMONTH)).intValue();
+		int dueDay = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEDAY)).intValue();
+		int dueYear = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEYEAR)).intValue();
+		int dueHour = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEHOUR)).intValue();
+		int dueMin = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEMIN)).intValue();
+		String dueAMPM = (String) state.getAttribute(NEW_ASSIGNMENT_DUEAMPM);
+		if ((dueAMPM.equals("PM")) && (dueHour != 12))
+		{
+			dueHour = dueHour + 12;
+		}
+		if ((dueHour == 12) && (dueAMPM.equals("AM")))
+		{
+			dueHour = 0;
+		}
+		Time dueTime = TimeService.newTimeLocal(dueYear, dueMonth, dueDay, dueHour, dueMin, 0, 0);
+		return dueTime;
+	}
 
 	/**
 	 * Action is to post new assignment
@@ -4345,70 +4387,7 @@ public class AssignmentAction extends PagedResourceActionII
 				String isThereEvent = pEdit.getProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
 				if (isThereEvent != null && isThereEvent.equals(Boolean.TRUE.toString()))
 				{
-					// remove the associated calender event
-					Calendar c = (Calendar) state.getAttribute(CALENDAR);
-					if (c != null)
-					{
-						// already has calendar object
-						// get the old event
-						CalendarEvent e = null;
-						boolean found = false;
-						String oldEventId = pEdit.getProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
-						if (oldEventId != null)
-						{
-							try
-							{
-								e = c.getEvent(oldEventId);
-								found = true;
-							}
-							catch (IdUnusedException ee)
-							{
-								// no action needed for this condition
-							}
-							catch (PermissionException ee)
-							{
-							}
-						}
-						else
-						{
-							TimeBreakdown b = aEdit.getDueTime().breakdownLocal();
-							// TODO: check- this was new Time(year...), not local! -ggolden
-							Time startTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 0, 0, 0, 0);
-							Time endTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 23, 59, 59, 999);
-							Iterator events = c.getEvents(TimeService.newTimeRange(startTime, endTime), null).iterator();
-							while ((!found) && (events.hasNext()))
-							{
-								e = (CalendarEvent) events.next();
-								if (((String) e.getDisplayName()).indexOf(rb.getString("assig1") + " " + title) != -1)
-								{
-									found = true;
-								}
-							}
-						}
-						// remove the founded old event
-						if (found)
-						{
-							// found the old event delete it
-							try
-							{
-								c.removeEvent(c.getEditEvent(e.getId(), CalendarService.EVENT_REMOVE_CALENDAR));
-								pEdit.removeProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
-								pEdit.removeProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
-							}
-							catch (PermissionException ee)
-							{
-								Log.warn("chef", rb.getString("cannotrem") + " " + title + ". ");
-							}
-							catch (InUseException ee)
-							{
-								Log.warn("chef", rb.getString("somelsis") + " " + rb.getString("calen"));
-							}
-							catch (IdUnusedException ee)
-							{
-								Log.warn("chef", rb.getString("cannotfin6") + e.getId());
-							}
-						}
-					}
+					removeCalendarEvent(state, aEdit, pEdit, title);
 				} // if-else
 
 				if (!AssignmentService.getSubmissions(aEdit).hasNext())
@@ -4456,6 +4435,74 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 	} // doDelete_Assignment
+
+	private void removeCalendarEvent(SessionState state, AssignmentEdit aEdit, ResourcePropertiesEdit pEdit, String title) throws PermissionException 
+	{
+		// remove the associated calender event
+		Calendar c = (Calendar) state.getAttribute(CALENDAR);
+		if (c != null)
+		{
+			// already has calendar object
+			// get the old event
+			CalendarEvent e = null;
+			boolean found = false;
+			String oldEventId = pEdit.getProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
+			if (oldEventId != null)
+			{
+				try
+				{
+					e = c.getEvent(oldEventId);
+					found = true;
+				}
+				catch (IdUnusedException ee)
+				{
+					// no action needed for this condition
+				}
+				catch (PermissionException ee)
+				{
+				}
+			}
+			else
+			{
+				TimeBreakdown b = aEdit.getDueTime().breakdownLocal();
+				// TODO: check- this was new Time(year...), not local! -ggolden
+				Time startTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 0, 0, 0, 0);
+				Time endTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 23, 59, 59, 999);
+				Iterator events = c.getEvents(TimeService.newTimeRange(startTime, endTime), null).iterator();
+				while ((!found) && (events.hasNext()))
+				{
+					e = (CalendarEvent) events.next();
+					if (((String) e.getDisplayName()).indexOf(rb.getString("assig1") + " " + title) != -1)
+					{
+						found = true;
+					}
+				}
+			}
+			// remove the founded old event
+			if (found)
+			{
+				// found the old event delete it
+				try
+				{
+					c.removeEvent(c.getEditEvent(e.getId(), CalendarService.EVENT_REMOVE_CALENDAR));
+					pEdit.removeProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
+					pEdit.removeProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
+				}
+				catch (PermissionException ee)
+				{
+					Log.warn("chef", rb.getString("cannotrem") + " " + title + ". ");
+				}
+				catch (InUseException ee)
+				{
+					Log.warn("chef", rb.getString("somelsis") + " " + rb.getString("calen"));
+				}
+				catch (IdUnusedException ee)
+				{
+					Log.warn("chef", rb.getString("cannotfin6") + e.getId());
+				}
+			}
+		}
+	}
 
 	/**
 	 * Action is to delete the assignment and also the related AssignmentSubmission
