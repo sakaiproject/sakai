@@ -52,6 +52,7 @@ public interface ResourceToolAction
 	public static final String COLLECTION_REFERENCE = PREFIX + "collection_reference";
 	
 	public static final String RESOURCE_TYPE = PREFIX + "resource_type";
+	public static final String RESOURCE_CONTENT = PREFIX + "resource_content";
 	
 	
 	/**

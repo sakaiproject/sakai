@@ -33,9 +33,11 @@ import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -133,6 +135,13 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters ();
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		
+		Tool tool = ToolManager.getCurrentTool();
+		String url = (String) toolSession.getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+		toolSession.removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+
+		toolSession.setAttribute(ResourceToolAction.ACTION_CANCELED, Boolean.TRUE);
 
 	}
 	
@@ -148,9 +157,15 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			return;
 		}
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		toolSession.setAttribute(ResourceToolAction.ACTION_SUCCEEDED, content);
 		
+		toolSession.setAttribute(ResourceToolAction.RESOURCE_CONTENT, content);
 		
+		toolSession.setAttribute(ResourceToolAction.ACTION_SUCCEEDED, Boolean.TRUE);
+		
+		Tool tool = ToolManager.getCurrentTool();
+		String url = (String) toolSession.getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+		toolSession.removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+
 	}
 
 }
