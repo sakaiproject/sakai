@@ -16,14 +16,18 @@
 
 package org.sakaiproject.tool.gradebook.test;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.gradebook.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import junit.framework.Assert;
 
-
-import java.util.*;
+import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
+import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.Comment;
+import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  * Author:Louis Majanja <louis@media.berkeley.edu>
@@ -48,191 +52,68 @@ public class GradeCommentTest extends GradebookTestBase  {
         gradebook = gradebookManager.getGradebook(gradebookName);
     }
 
+    public void testAssignmentGradeComments() throws Exception {
+    	// Create enrollment records.
+        List studentUids = Arrays.asList(new String[] {
+    			"testStudentUserUid1",
+    			"testStudentUserUid2",
+    			"testStudentUserUid3",
+    		});
+    	addUsersEnrollments(gradebook, studentUids);
 
-
-    public void testCreateComment() throws Exception{
-
-        Set students = new HashSet();
-        students.add("entered1");
-        //create assignment
-        Long asgId = gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE
-        );
-        Assignment asn = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(0);
-
-        Assert.assertTrue(!gradebookManager.isEnteredAssignmentScores(asgId));
-
-        // add grade records
-        List gradeRecords = new ArrayList();
-        gradeRecords.add(new AssignmentGradeRecord(asn, "entered1", new Double(9)));
-
-        gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
-        Assert.assertTrue(gradebookManager.isEnteredAssignmentScores(asgId));
-
-        List persistentGradeRecords = gradebookManager.getPointsEarnedSortedGradeRecords(asn, students);
-
-        gradeRecords = new ArrayList();
-        AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)persistentGradeRecords.get(0);
-        gradeRecord.setPointsEarned(null);
-        gradeRecords.add(gradeRecord);
-
-        gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
-        Assert.assertTrue(!gradebookManager.isEnteredAssignmentScores(asgId));
-
-        // add comments
-        Long commentId = gradebookManager.createComment(asn,"entered1","grade commentText test");
-        logger.debug("new commentText entered with id " +commentId);
-        //get the eneterd commentText
-        Comment comment = gradebookManager.getComment(asn,"entered1");
-        logger.debug(comment.getCommentText());
-        Assert.assertTrue(comment.getCommentText().equals("grade commentText test"));
-
+        // Create an asssignment.
+        Long asnId = gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
+        Assignment asn = gradebookManager.getAssignmentWithStats(asnId);
+    	
+    	// Make sure comments start off as null.
+        List persistentComments = gradebookManager.getComments(asn, studentUids);
+        Assert.assertTrue(persistentComments.isEmpty());
+    	
+    	// Add a comment.
+        List comments = new ArrayList();
+        comments.add(new Comment((String)studentUids.get(0), "First Comment", asn));
+        gradebookManager.updateComments(comments);
+    	
+    	// Make sure we stored just the one comment.
+        persistentComments = gradebookManager.getComments(asn, studentUids);
+        Assert.assertTrue(persistentComments.size() == 1);
+        Comment comment = (Comment)persistentComments.get(0);
+        Assert.assertTrue(comment.getCommentText().equals("First Comment"));
+    	
+    	// Leave the first comment as is, add a comment.
+        comments = new ArrayList();
+        comments.add(new Comment((String)studentUids.get(1), "Next comment", asn));
+        comment.setCommentText("");
+        comments.add(comment);
+        gradebookManager.updateComments(comments);
+    	
+        persistentComments = gradebookManager.getComments(asn, studentUids);
+        Assert.assertTrue(persistentComments.size() == 2);
+        for (Iterator iter = persistentComments.iterator(); iter.hasNext(); ) {
+        	comment = (Comment)iter.next();
+        	if (comment.getStudentId().equals(studentUids.get(0))) {
+        		Assert.assertTrue(comment.getCommentText().length() == 0);
+        	}
+        }
+        
+        // Currently the Student View reads comments from the database
+        // one at a time.
+        comment = gradebookManager.getComment(asn, (String)studentUids.get(1));
+        Assert.assertTrue(comment.getCommentText().equals("Next comment"));
+        comment = gradebookManager.getComment(asn, (String)studentUids.get(2));
+        Assert.assertTrue(comment == null);        
+     	
+    	// Make sure we emulate an optimistic locking failure when we try
+        // to create a new comment record that's already in the database.
+        // (This test has to go last, since it will cause transaction
+        // rollback.)
+        comments = new ArrayList();
+        comments.add(new Comment((String)studentUids.get(0), "Oops", asn));
+        try {
+        	gradebookManager.updateComments(comments);
+        	fail();
+        } catch (StaleObjectModificationException e) {}
+      
     }
 
-
-    public void testUpdateComment() throws Exception {
-
-        Set students = new HashSet();
-        students.add("entered1");
-        //create assignment
-        Long asgId = gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE
-        );
-        Assignment asn = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(0);
-
-        Assert.assertTrue(!gradebookManager.isEnteredAssignmentScores(asgId));
-
-        // add grade records
-        List gradeRecords = new ArrayList();
-        gradeRecords.add(new AssignmentGradeRecord(asn, "entered1", new Double(9)));
-
-        gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
-        Assert.assertTrue(gradebookManager.isEnteredAssignmentScores(asgId));
-
-        List persistentGradeRecords = gradebookManager.getPointsEarnedSortedGradeRecords(asn, students);
-
-        gradeRecords = new ArrayList();
-        AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)persistentGradeRecords.get(0);
-        gradeRecord.setPointsEarned(null);
-        gradeRecords.add(gradeRecord);
-
-        gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
-        Assert.assertTrue(!gradebookManager.isEnteredAssignmentScores(asgId));
-
-        // add comments
-        Long commentId = gradebookManager.createComment(asn,"entered1","grade commentText test");
-        logger.debug("new commentText entered with id " +commentId);
-        //get the entered commentText
-        Comment comment = gradebookManager.getComment(asn,"entered1");
-        logger.debug(comment.getCommentText());
-        Assert.assertTrue(comment.getCommentText().equals("grade commentText test"));
-        //change the commentText text and save it
-        comment.setCommentText("grade commentText changed");
-        gradebookManager.updateComment(comment);
-        //retrieve the cahnged and updated commment
-        comment = gradebookManager.getComment(asn,"entered1");
-        //verify that that the saved commentText did actually change
-        logger.debug("updated test is:" + comment.getCommentText());
-        Assert.assertTrue(comment.getCommentText().equals("grade commentText changed"));
-
-    }
-
-    public void testGetAssignmentCommentSet()throws Exception{
-
-        List studentUidsList = Arrays.asList(new String[] {
-			"testStudentUserUid1",
-			"testStudentUserUid2",
-			"testStudentUserUid3",
-		});
-		addUsersEnrollments(gradebook, studentUidsList);
-
-        //create a asssignment
-        gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
-
-        Assignment asn = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(0);
-
-        // add comments to students
-        Long commentId = gradebookManager.createComment(asn,"testStudentUserUid1","grade commentText test 1");
-        logger.debug("new commentText entered with id " +commentId);
-        commentId = gradebookManager.createComment(asn,"testStudentUserUid2","grade commentText test 2");
-        logger.debug("new commentText entered with id " +commentId);
-        commentId = gradebookManager.createComment(asn,"testStudentUserUid3","grade commentText test 3");
-        logger.debug("new commentText entered with id " +commentId);
-        // retrieve comments set
-
-        AssignmentCommentSet assignmentCommentSet = gradebookManager.getAssignmentComments(asn);
-
-        Map commentMap = assignmentCommentSet.getCommentMap();
-
-        Assert.assertTrue(commentMap.size() > 0);
-        logger.debug("print out the commentText set contents");
-        Iterator it = commentMap.keySet().iterator();
-        while(it.hasNext()){
-            Comment comment = (Comment)commentMap.get(it.next());
-            logger.debug("student id "+ comment.getStudentId() + " commentText text:"+ comment.getCommentText());
-        }
-        Comment comment = (Comment)commentMap.get("testStudentUserUid1");
-        Assert.assertTrue(comment.getCommentText().equals("grade commentText test 1"));
-    }
-
-
-    public void testUpdateAssignmentCommentSet()throws Exception {
-
-           List studentUidsList = Arrays.asList(new String[] {
-			"testStudentUserUid1",
-			"testStudentUserUid2",
-			"testStudentUserUid3",
-		});
-		addUsersEnrollments(gradebook, studentUidsList);
-
-        //create a asssignment
-        gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
-
-        Assignment asn = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(0);
-
-        // add comments to students
-        Long commentId = gradebookManager.createComment(asn,"testStudentUserUid1","grade commentText test 1");
-        logger.debug("new commentText entered with id " +commentId);
-        commentId = gradebookManager.createComment(asn,"testStudentUserUid2","grade commentText test 2");
-        logger.debug("new commentText entered with id " +commentId);
-        commentId = gradebookManager.createComment(asn,"testStudentUserUid3","grade commentText test 3");
-        logger.debug("new commentText entered with id " +commentId);
-        // retrieve comments set
-        AssignmentCommentSet assignmentCommentSet = gradebookManager.getAssignmentComments(asn);
-        //test updates without any changes
-        logger.debug("test assignmentCommentSet updates");
-        gradebookManager.updateAssignmentComments(assignmentCommentSet);
-
-        logger.debug("now make changes and update");
-
-        Map commentMap = assignmentCommentSet.getCommentMap();
-        Iterator it = commentMap.keySet().iterator();
-        while(it.hasNext()){
-            Comment comment = (Comment)commentMap.get(it.next());
-            comment.setCommentText("grade update test");
-        }
-        //verify the update to the map
-        Iterator iter = commentMap.keySet().iterator();
-        while(iter.hasNext()){
-            Comment comment = (Comment)commentMap.get(iter.next());
-            logger.debug("student id "+ comment.getStudentId() + " commentText text:"+ comment.getCommentText());
-        }
-        //now update the database
-        gradebookManager.updateAssignmentComments(assignmentCommentSet);
-        // retrieve the grade set and see if the comments were updated
-
-        logger.debug("retrieve updated commentSet -----");
-        assignmentCommentSet = gradebookManager.getAssignmentComments(asn);
-
-        commentMap = assignmentCommentSet.getCommentMap();
-
-        Assert.assertTrue(commentMap.size() > 0);
-        logger.debug("print out the commentText set contents");
-        Iterator i = commentMap.keySet().iterator();
-        while(i.hasNext()){
-            Comment comment = (Comment)commentMap.get(i.next());
-            logger.debug("student id "+ comment.getStudentId() + " commentText text:"+ comment.getCommentText());
-        }
-        Comment comment = (Comment)commentMap.get("testStudentUserUid1");
-        Assert.assertTrue(comment.getCommentText().equals("grade update test"));
-
-    }
 }

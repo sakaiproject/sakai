@@ -136,6 +136,12 @@ public interface GradebookManager {
     public Set updateAssignmentGradeRecords(Assignment assignment, Collection gradeRecords)
     	throws StaleObjectModificationException;
  
+    public Set updateAssignmentGradesAndComments(Assignment assignment, Collection gradeRecords, Collection comments)
+		throws StaleObjectModificationException;
+ 
+    public void updateComments(Collection comments)
+		throws StaleObjectModificationException;
+
     /**
      * Updates the grade records for the keys (student IDs) in the studentsToPoints map.
      * Map values must be valid strings (that exist in the gradebook's grade
@@ -306,15 +312,7 @@ public interface GradebookManager {
      */
     public Long createSpreadsheet(Long gradebookId, String name, String creator, Date dateCreated, String content) throws ConflictingSpreadsheetNameException, StaleObjectModificationException;
 
-
-    public void updateComment(Comment comment);
-
+    public List getComments(Assignment assignment, Collection studentIds);
+    
     public Comment getComment(GradableObject gradableObject, String studentId);
-
-    public Long createComment(GradableObject go, String studentId, String comment) throws StaleObjectModificationException;
-
-   public AssignmentCommentSet getAssignmentComments(GradableObject gradableObject);
-
-    public void updateAssignmentComments(AssignmentCommentSet asignmentCommentSet) throws StaleObjectModificationException;
-
 }

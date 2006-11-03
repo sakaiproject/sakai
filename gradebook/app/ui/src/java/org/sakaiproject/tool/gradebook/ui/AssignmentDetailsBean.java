@@ -33,6 +33,7 @@ import java.util.Set;
 
 import javax.faces.event.ActionEvent;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
@@ -40,6 +41,7 @@ import org.sakaiproject.service.gradebook.shared.StaleObjectModificationExceptio
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
@@ -49,6 +51,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
 	private List scoreRows;
 	private List gradeRecords;
+	private List updatedComments;
 	
 	private Long assignmentId;
     private Assignment assignment;
@@ -58,14 +61,16 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	public class ScoreRow implements Serializable {
         private AssignmentGradeRecord gradeRecord;
         private EnrollmentRecord enrollment;
+        private Comment comment;
         private List eventRows;
 
 		public ScoreRow() {
 		}
-		public ScoreRow(EnrollmentRecord enrollment, AssignmentGradeRecord gradeRecord, List gradingEvents) {
+		public ScoreRow(EnrollmentRecord enrollment, AssignmentGradeRecord gradeRecord, Comment comment, List gradingEvents) {
             Collections.sort(gradingEvents);
             this.enrollment = enrollment;
             this.gradeRecord = gradeRecord;
+            this.comment = comment;
  
             eventRows = new ArrayList();
             for (Iterator iter = gradingEvents.iterator(); iter.hasNext();) {
@@ -82,6 +87,16 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		}
         public EnrollmentRecord getEnrollment() {
             return enrollment;
+        }
+        
+        public String getCommentText() {
+        	return comment.getCommentText();
+        }
+        public void setCommentText(String commentText) {
+        	if (!StringUtils.stripToEmpty(commentText).equals(StringUtils.stripToEmpty(comment.getCommentText()))) {
+        		comment.setCommentText(commentText);
+        		updatedComments.add(comment);
+        	}
         }
 
         public List getEventRows() {
@@ -101,6 +116,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         previousAssignment = null;
         nextAssignment = null;
 		scoreRows = new ArrayList();
+		updatedComments = new ArrayList();
 
 		if (assignmentId != null) {
 			assignment = getGradebookManager().getAssignmentWithStats(assignmentId);
@@ -166,6 +182,14 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 	gradeRecords = new ArrayList(gradeRecordMap.values());
                 }
                 
+                // Get all of the comments for these enrollments on this assignment.
+                List comments = getGradebookManager().getComments(assignment, studentUids);
+                Map commentMap = new HashMap();
+                for (Iterator iter = comments.iterator(); iter.hasNext(); ) {
+					Comment comment = (Comment)iter.next();
+					commentMap.put(comment.getStudentId(), comment);
+				}
+                
 				for (Iterator iter = studentUids.iterator(); iter.hasNext(); ) {
 					String studentUid = (String)iter.next();
 					EnrollmentRecord enrollment = (EnrollmentRecord)enrollmentMap.get(studentUid);
@@ -174,8 +198,12 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		                gradeRecord = new AssignmentGradeRecord(assignment, studentUid, null);
 		                gradeRecords.add(gradeRecord);
 		            }
+		            Comment comment = (Comment)commentMap.get(studentUid);
+		            if (comment == null) {
+		            	comment = new Comment(studentUid, null, assignment);
+		            }
 					
-					scoreRows.add(new ScoreRow(enrollment, gradeRecord, allEvents.getEvents(studentUid)));
+					scoreRows.add(new ScoreRow(enrollment, gradeRecord, comment, allEvents.getEvents(studentUid)));
 				}
 
 			} else {
@@ -219,7 +247,9 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
 	private void saveScores() throws StaleObjectModificationException {
 		if (logger.isInfoEnabled()) logger.info("saveScores " + assignmentId);
-		Set excessiveScores = getGradebookManager().updateAssignmentGradeRecords(assignment, gradeRecords);
+		Set excessiveScores = getGradebookManager().updateAssignmentGradesAndComments(assignment, gradeRecords, updatedComments);
+		
+		if (logger.isDebugEnabled()) logger.debug("About to save " + updatedComments.size() + " updated comments");
 
 		String messageKey = (excessiveScores.size() > 0) ?
 			"assignment_details_scores_saved_excessive" :

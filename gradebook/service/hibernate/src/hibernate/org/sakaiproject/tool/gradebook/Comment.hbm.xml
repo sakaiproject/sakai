@@ -31,13 +31,13 @@
 
 		<property name="graderId" column="GRADER_ID" type="string"  not-null="true"/>
 
-		<property name="studentId" column="STUDENT_ID" type="string" not-null="true"/>
+		<property name="studentId" column="STUDENT_ID" type="string" not-null="true" unique-key="G_O_STUDENT"/>
 
 		<property name="commentText" column="COMMENT_TEXT" type="text" not-null="true"/>
 
         <property name="dateRecorded" column="DATE_RECORDED" type="timestamp" not-null="true"/>
 
-        <many-to-one name="gradableObject" column="GRADABLE_OBJECT_ID" not-null="true" />
+        <many-to-one name="gradableObject" column="GRADABLE_OBJECT_ID" not-null="true" unique-key="G_O_STUDENT"/>
 
 
     </class>

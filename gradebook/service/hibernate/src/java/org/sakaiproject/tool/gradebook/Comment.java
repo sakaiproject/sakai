@@ -26,13 +26,13 @@ import java.io.Serializable;
  */
 public class Comment implements Serializable {
 
-    protected Long id;
-    protected String studentId;
-    protected String graderId;
-    protected int version;
-    protected Date dateRecorded;
-    protected String commentText;
-    protected GradableObject gradableObject;
+    private Long id;
+    private String studentId;
+    private String graderId;
+    private int version;
+    private Date dateRecorded;
+    private String commentText;
+    private GradableObject gradableObject;
 
 
     public Comment(String studentId, String comment, GradableObject gradableObject) {

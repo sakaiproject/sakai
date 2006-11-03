@@ -49,7 +49,6 @@ import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameExcep
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
-import org.sakaiproject.tool.gradebook.AssignmentCommentSet;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
@@ -328,7 +327,49 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         return (Set)getHibernateTemplate().execute(hc);
     }
 
-    /**
+	public Set updateAssignmentGradesAndComments(Assignment assignment, Collection gradeRecords, Collection comments) throws StaleObjectModificationException {
+		Set studentsWithExcessiveScores = updateAssignmentGradeRecords(assignment, gradeRecords);
+		
+		updateComments(comments);
+		
+		return studentsWithExcessiveScores;
+	}
+	
+	public void updateComments(final Collection comments) throws StaleObjectModificationException {
+        final Date now = new Date();
+        final String graderId = authn.getUserUid();
+
+        // Unlike the complex grade update logic, this method assumes that
+		// the client has done the work of filtering out any unchanged records
+		// and isn't interested in throwing an optimistic locking exception for untouched records
+		// which were changed by other sessions.
+		HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				for (Iterator iter = comments.iterator(); iter.hasNext();) {
+					Comment comment = (Comment)iter.next();
+					comment.setGraderId(graderId);
+					comment.setDateRecorded(now);
+					session.saveOrUpdate(comment);
+				}
+				return null;
+			}
+		};
+		try {
+			getHibernateTemplate().execute(hc);
+		} catch (DataIntegrityViolationException e) {
+			// If a student hasn't yet received a comment for this
+			// assignment, and two graders try to save a new comment record at the
+			// same time, the database should report a unique constraint violation.
+			// Since that's similar to the conflict between two graders who
+			// are trying to update an existing comment record at the same
+			// same time, this method translates the exception into an
+			// optimistic locking failure.
+			if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update comments");
+			throw new StaleObjectModificationException(e);
+		}
+	}
+
+	/**
      */
     public void updateCourseGradeRecords(final CourseGrade courseGrade, final Collection gradeRecordsFromCall)
             throws StaleObjectModificationException {
@@ -967,22 +1008,34 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         return spreadsheets;
     }
 
-
-    public void updateComment(final Comment comment) throws StaleObjectModificationException {
-        HibernateCallback hc = new HibernateCallback() {
+    public List getComments(final Assignment assignment, final Collection studentIds) {
+    	if (studentIds.isEmpty()) {
+    		return new ArrayList();
+    	}
+        return (List)getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-                comment.setGraderId(authn.getUserUid());
-                comment.setDateRecorded(new Date());
-                session.update(comment);
-                return null;
+            	List comments;
+            	if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+            		Query q = session.createQuery(
+            			"from Comment as c where c.gradableObject=:go and c.studentId in (:studentIds)");
+                    q.setParameter("go", assignment);
+                    q.setParameterList("studentIds", studentIds);
+                    comments = q.list();
+            	} else {
+            		comments = new ArrayList();
+            		Query q = session.createQuery("from Comment as c where c.gradableObject=:go");
+            		q.setParameter("go", assignment);
+            		List allComments = q.list();
+            		for (Iterator iter = allComments.iterator(); iter.hasNext(); ) {
+            			Comment comment = (Comment)iter.next();
+            			if (studentIds.contains(comment.getStudentId())) {
+            				comments.add(comment);
+            			}
+            		}
+            	}
+                return comments;
             }
-        };
-        try {
-            getHibernateTemplate().execute(hc);
-        } catch (HibernateOptimisticLockingFailureException holfe) {
-            if(logger.isInfoEnabled()) logger.info("An optimistic locking failure occurred while attempting to update an assignment");
-            throw new StaleObjectModificationException(holfe);
-        }
+        });
     }
 
     public Comment getComment(final GradableObject gradableObject,final String studentId) {
@@ -999,138 +1052,4 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         return(Comment)getHibernateTemplate().execute(hc);
     }
 
-    public Long createComment(final GradableObject go, final String studentId,final String comment)throws StaleObjectModificationException {
-
-        HibernateCallback hc = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-
-                String remarks = comment;
-
-                Comment comment = new Comment();
-                comment.setGradableObject(go);
-                comment.setCommentText(remarks);
-                comment.setGraderId(authn.getUserUid());
-                comment.setDateRecorded(new Date());
-                comment.setStudentId(studentId);
-
-                // Save the new commentText
-                Long id = (Long)session.save(comment);
-                return id;
-            }
-        };
-
-        return (Long)getHibernateTemplate().execute(hc);
-    }
-
-
-    protected List getAssignmentComments(GradableObject gradableObject,Session session) throws HibernateException {
-        List comments = session.createQuery(
-                "from Comment as cmt where cmt.gradableObject.id=?").
-                setLong(0, gradableObject.getId().longValue()).
-                list();
-        return comments;
-    }
-
-
-    public AssignmentCommentSet getAssignmentComments(final GradableObject gradableObject) {
-
-        AssignmentCommentSet assignmentCommentSet = new AssignmentCommentSet(gradableObject);
-        List comments = (List)getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                List comments = getAssignmentComments(gradableObject, session);
-                return comments;
-            }
-        });
-
-        Iterator it = comments.iterator();
-        while(it.hasNext()){
-            Comment comment = (Comment)it.next();
-            assignmentCommentSet.addComment(comment);
-        }
-        return assignmentCommentSet;
-    }
-
-    public void updateAssignmentComments(final AssignmentCommentSet assignmentCommentSet) throws StaleObjectModificationException {
-        // If no comments a records are sent, don't bother doing anything with the db
-        if(assignmentCommentSet.getCommentMap().size() == 0) {
-            log.debug("updateAssignmentComments called for zero comments");
-            return;
-        }
-        HibernateCallback hc = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                for(Iterator iter = assignmentCommentSet.getAllComments().iterator(); iter.hasNext();) {
-                    session.evict(iter.next());
-                }
-
-                GradableObject assignment = assignmentCommentSet.getGradableObject();
-                // Find the grade records for these students on this gradable object
-                // In the following queries, we retrieve column values instead of
-                // mapped Java objects. This is to avoid a Hibernate NonUniqueObjectException
-                // due to conflicts with the input grade records.
-
-                Set studentIds = assignmentCommentSet.getAllStudentIds();
-                List persistentGradeRecords;
-                if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
-                    String hql = "select cmt.studentId, cmt.commentText from Comment as cmt where cmt.gradableObject=:go and cmt.studentId in (:studentIds)";
-                    Query q = session.createQuery(hql);
-                    q.setParameter("go", assignment);
-                    q.setParameterList("studentIds", studentIds);
-                    persistentGradeRecords = q.list();
-                } else {
-                    String hql = "select cmt.studentId, cmt.commentText from Comment as cmt where cmt.gradableObject=:go";
-                    Query q = session.createQuery(hql);
-                    q.setParameter("go", assignment);
-                    persistentGradeRecords = new ArrayList();
-                    for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
-                        Object[] oa = (Object[])iter.next();
-                        if (studentIds.contains(oa[0])) persistentGradeRecords.add(oa);
-                    }
-                }
-
-                // Construct a map of student id to persistent grade record scores
-                Map commentMap = new HashMap();
-                for(Iterator iter = persistentGradeRecords.iterator(); iter.hasNext();) {
-                    Object[] oa = (Object[])iter.next();
-                    commentMap.put(oa[0], oa[1]);
-                }
-
-                String graderId = authn.getUserUid();
-                Date now = new Date();
-
-                for(Iterator iter = assignmentCommentSet.getAllComments().iterator(); iter.hasNext();) {
-                    // The possibly modified commentText record
-                    Comment commentFromCall = (Comment)iter.next();
-
-                    // The entered commentText in the db for this commentText record
-                    String comment = (String)commentMap.get(commentFromCall.getStudentId());
-
-                    // Update the existing record
-
-                    // If the entered grade hasn't changed, just move on
-                    if(commentFromCall.getCommentText() == null && comment == null) {
-                        continue;
-                    }
-                    if(commentFromCall.getCommentText() != null && comment != null && commentFromCall.getCommentText().equals(comment)) {
-                        continue;
-                    }
-
-
-                    commentFromCall.setGraderId(graderId);
-                    commentFromCall.setDateRecorded(now);
-                    try {
-                        session.saveOrUpdate(commentFromCall);
-                        session.flush();
-                    } catch (StaleObjectStateException sose) {
-                        if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update commentText records");
-                        throw new StaleObjectModificationException(sose);
-                    }
-
-                }
-
-                return null;
-            }
-        };
-        getHibernateTemplate().execute(hc);
-
-    }
 }

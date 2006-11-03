@@ -177,6 +177,16 @@
 			<h:column>
 				<h:message for="Score" styleClass="validationEmbedded"/>
 			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="#{msgs.assignment_details_comments}" styleClass="tier0"/>
+				</f:facet>
+				<h:inputText id="Comment" value="#{scoreRow.commentText}" size="30"
+					rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}" 
+					style="text-align:right;"
+					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+				</h:inputText>
+			</h:column>
 		</x:dataTable>
 
 		<x:aliasBean alias="#{bean}" value="#{assignmentDetailsBean}">
