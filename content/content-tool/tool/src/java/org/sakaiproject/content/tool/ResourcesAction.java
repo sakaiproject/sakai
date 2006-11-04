@@ -1003,7 +1003,7 @@ public class ResourcesAction
 		{
 			ToolSession toolSession = SessionManager.getCurrentToolSession();
 			toolSession.setAttribute(ResourceToolAction.COLLECTION_REFERENCE, reference);
-			toolSession.setAttribute(ResourceToolAction.ACTION, actionId);
+			toolSession.setAttribute(ResourceToolAction.ACTION_ID, actionId);
 			toolSession.setAttribute(ResourceToolAction.RESOURCE_TYPE, typeId);
 			
 			InteractionAction iAction = (InteractionAction) action;

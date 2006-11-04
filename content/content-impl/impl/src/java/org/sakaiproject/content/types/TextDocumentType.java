@@ -142,6 +142,11 @@ public class TextDocumentType extends BaseResourceType
 			return this.controller;
 		}
 
+		public List getRequiredPropertyKeys() 
+		{
+			return null;
+		}
+
 	}
 
 	public class TextDocumentDeleteAction implements ServiceLevelAction
@@ -297,6 +302,11 @@ public class TextDocumentType extends BaseResourceType
 			return this.controller;
 		}
 
+		public List getRequiredPropertyKeys() 
+		{
+			return null;
+		}
+
 	}
 	
 	public class TextDocumentAccessAction implements InteractionAction
@@ -356,6 +366,11 @@ public class TextDocumentType extends BaseResourceType
 		public ResourceToolActionController getController() 
 		{
 			return this.controller;
+		}
+
+		public List getRequiredPropertyKeys() 
+		{
+			return null;
 		}
 
 	}

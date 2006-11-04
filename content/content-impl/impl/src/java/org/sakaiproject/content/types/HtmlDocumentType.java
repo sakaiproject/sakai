@@ -136,6 +136,11 @@ public class HtmlDocumentType extends BaseResourceType
 			
 		}
 
+		public List getRequiredPropertyKeys() 
+		{
+			return null;
+		}
+
 	}
 
 	public class HtmlDocumentDeleteAction implements ServiceLevelAction
@@ -286,6 +291,11 @@ public class HtmlDocumentType extends BaseResourceType
 			
 		}
 
+		public List getRequiredPropertyKeys() 
+		{
+			return null;
+		}
+
 	}
 	
 	public class HtmlDocumentAccessAction implements InteractionAction
@@ -342,6 +352,11 @@ public class HtmlDocumentType extends BaseResourceType
 		public void setController(ResourceToolActionController controller) {
 			// TODO Auto-generated method stub
 			
+		}
+
+		public List getRequiredPropertyKeys() 
+		{
+			return null;
 		}
 
 	}

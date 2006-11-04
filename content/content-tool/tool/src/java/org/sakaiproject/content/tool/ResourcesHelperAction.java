@@ -69,7 +69,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 		
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		String actionId = (String) toolSession.getAttribute(ResourceToolAction.ACTION);
+		String actionId = (String) toolSession.getAttribute(ResourceToolAction.ACTION_ID);
 		
 		String template = "";
 

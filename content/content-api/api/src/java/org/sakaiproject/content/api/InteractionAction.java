@@ -22,6 +22,8 @@
 
 package org.sakaiproject.content.api;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.entity.api.Reference;
@@ -63,8 +65,14 @@ public interface InteractionAction extends ResourceToolAction
 	 */
 	public String getHelperId();
 	
+	/**
+	 * @param controller
+	 */
 	public void setController(ResourceToolActionController controller);
 	
+	/**
+	 * @return
+	 */
 	public ResourceToolActionController getController();
 
 	/**
@@ -73,5 +81,12 @@ public interface InteractionAction extends ResourceToolAction
 	 * @param doneURL The address to which the helper should redirect when done.
 	 */
 	public void startHelper(HttpServletRequest request, String helperId, String doneURL);
+	
+	/**
+	 * Access a list of properties that should be provided to the helper if they are defined. 
+	 * Returning null or empty list indicates no properties are needed by the helper.
+	 * @return a List of Strings if property values are required. 
+	 */
+	public List getRequiredPropertyKeys();
 	
 }

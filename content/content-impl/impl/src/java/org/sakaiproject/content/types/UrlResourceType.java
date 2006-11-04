@@ -137,6 +137,11 @@ public class UrlResourceType extends BaseResourceType
 			
 		}
 
+		public List getRequiredPropertyKeys() 
+		{
+			return null;
+		}
+
 	}
 
 	public class UrlResourceDeleteAction implements ServiceLevelAction
@@ -290,6 +295,11 @@ public class UrlResourceType extends BaseResourceType
 			
 		}
 
+		public List getRequiredPropertyKeys() 
+		{
+			return null;
+		}
+
 	}
 	
 	public class UrlResourceAccessAction implements InteractionAction
@@ -346,6 +356,11 @@ public class UrlResourceType extends BaseResourceType
 		public void setController(ResourceToolActionController controller) {
 			// TODO Auto-generated method stub
 			
+		}
+
+		public List getRequiredPropertyKeys() 
+		{
+			return null;
 		}
 
 	}

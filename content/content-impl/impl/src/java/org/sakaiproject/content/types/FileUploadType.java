@@ -136,6 +136,11 @@ public class FileUploadType extends BaseResourceType
 			
 		}
 
+		public List getRequiredPropertyKeys() 
+		{
+			return null;
+		}
+
 	}
 
 	public class FileUploadDeleteAction implements ServiceLevelAction
@@ -286,6 +291,11 @@ public class FileUploadType extends BaseResourceType
 			
 		}
 
+		public List getRequiredPropertyKeys() 
+		{
+			return null;
+		}
+
 	}
 	
 	public class FileUploadAccessAction implements InteractionAction
@@ -342,6 +352,11 @@ public class FileUploadType extends BaseResourceType
 		public void setController(ResourceToolActionController controller) {
 			// TODO Auto-generated method stub
 			
+		}
+
+		public List getRequiredPropertyKeys() 
+		{
+			return null;
 		}
 
 	}
