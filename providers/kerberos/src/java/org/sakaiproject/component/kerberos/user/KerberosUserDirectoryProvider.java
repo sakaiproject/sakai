@@ -49,7 +49,7 @@ import sun.misc.BASE64Encoder;
 
 /**
  * <p>
- * KerberosUserDirectoryProvider is UserDirectoryProvider that authenticates usernames using Kerberos.
+ * KerberosUserDirectoryProvider is a UserDirectoryProvider that authenticates usernames using Kerberos.
  * </p>
  * <p>
  * For more information on configuration, see the README.txt file
@@ -298,14 +298,14 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 		// lets not get messed up with spaces or cases
 		String test = email.toLowerCase().trim();
 
-		// if the email ends with "umich.edu" (even if it's from somebody@krusty.si.umich.edu)
+		// if the email ends with "domain.tld" (even if it's from somebody@foo.bar.domain.tld)
 		// use the local part as a user id.
 
 		if (!test.endsWith(m_domain)) return false;
 
 		// split the string once at the first "@"
 		String parts[] = StringUtil.splitFirst(test, "@");
-		edit.setId(parts[0]);
+		edit.setEid(parts[0]);
 		return getUser(edit);
 
 	} // findUserByEmail
