@@ -28,6 +28,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.collection.PersistentSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -197,17 +198,23 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         
         boolean someForumHasZeroSortIndex = false;
 
-        for(Iterator i = area.getOpenForums().iterator(); i.hasNext(); ) {
-           BaseForum forum = (BaseForum)i.next();
-           if(forum.getSortIndex().intValue() == 0) {
-              someForumHasZeroSortIndex = true;
-              break;
-           }
-        }
-        if(someForumHasZeroSortIndex) {
+        // If the open forums were not loaded then there is no need to redo the sort index
+        //     thus if it's a hibernate persistentset and initialized
+        if( area.getOpenForumsSet() != null &&
+              ((area.getOpenForumsSet() instanceof PersistentSet && 
+              ((PersistentSet)area.getOpenForumsSet()).wasInitialized()) || !(area.getOpenForumsSet() instanceof PersistentSet) )) {
            for(Iterator i = area.getOpenForums().iterator(); i.hasNext(); ) {
               BaseForum forum = (BaseForum)i.next();
-              forum.setSortIndex(new Integer(forum.getSortIndex().intValue() + 1));
+              if(forum.getSortIndex().intValue() == 0) {
+                 someForumHasZeroSortIndex = true;
+                 break;
+              }
+           }
+           if(someForumHasZeroSortIndex) {
+              for(Iterator i = area.getOpenForums().iterator(); i.hasNext(); ) {
+                 BaseForum forum = (BaseForum)i.next();
+                 forum.setSortIndex(new Integer(forum.getSortIndex().intValue() + 1));
+              }
            }
         }
         

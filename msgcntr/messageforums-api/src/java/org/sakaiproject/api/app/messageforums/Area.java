@@ -44,6 +44,8 @@ public interface Area extends MutableEntity {
     public void setEnabled(Boolean enabled);
 
     public List getOpenForums();
+    
+    public Set getOpenForumsSet();
 
     public void setOpenForums(List openForums);
 

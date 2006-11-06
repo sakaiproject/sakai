@@ -36,6 +36,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.collection.PersistentSet;
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.BaseForum;
@@ -669,20 +670,26 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setModified(new Date());
         forum.setModifiedBy(getCurrentUser());
         
-        List topics = forum.getTopics();
-        boolean someTopicHasZeroSortIndex = false;
-
-        for(Iterator i = topics.iterator(); i.hasNext(); ) {
-           DiscussionTopic topic = (DiscussionTopic)i.next();
-           if(topic.getSortIndex().intValue() == 0) {
-              someTopicHasZeroSortIndex = true;
-              break;
-           }
-        }
-        if(someTopicHasZeroSortIndex) {
+        // If the topics were not loaded then there is no need to redo the sort index
+        //     thus if it's a hibernate persistentset and initialized
+        if( forum.getTopicsSet() != null &&
+              ((forum.getTopicsSet() instanceof PersistentSet && 
+              ((PersistentSet)forum.getTopicsSet()).wasInitialized()) || !(forum.getTopicsSet() instanceof PersistentSet) )) {
+           List topics = forum.getTopics();
+           boolean someTopicHasZeroSortIndex = false;
+           
            for(Iterator i = topics.iterator(); i.hasNext(); ) {
               DiscussionTopic topic = (DiscussionTopic)i.next();
-              topic.setSortIndex(new Integer(topic.getSortIndex().intValue() + 1));
+              if(topic.getSortIndex().intValue() == 0) {
+                 someTopicHasZeroSortIndex = true;
+                 break;
+              }
+           }
+           if(someTopicHasZeroSortIndex) {
+              for(Iterator i = topics.iterator(); i.hasNext(); ) {
+                 DiscussionTopic topic = (DiscussionTopic)i.next();
+                 topic.setSortIndex(new Integer(topic.getSortIndex().intValue() + 1));
+              }
            }
         }
         
