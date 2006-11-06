@@ -19,7 +19,6 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.content.api;
 
 import java.util.List;
@@ -33,7 +32,17 @@ import org.sakaiproject.entity.api.Reference;
  * user interaction to complete the action. The Resources tool will invoke 
  * a helper to render an html page (or possibly a series of pages), process 
  * the response(s) and turn control back to the Resources tool when done.  
- *
+ * 
+ * Before invoking the helper, ResourcesAction will call initializeAction() 
+ * supplying a Reference onject as a parameter. Implementations of this 
+ * interface may do whatever is necessary to prepare for invocation of the
+ * helper and they may return an identifier for that initialization. 
+ * 
+ * After starting the helper and getting back control from the helper, 
+ * ResourcesAction will call either finalizeAction or cancelAction to indicate 
+ * that the user either finalized the action or canceled it. The registrant may  
+ * do whatever is necessary to commit any changes in persistant storage (other
+ * than changes to the referenced resource in ContentHosting) or reverse them.
  */
 public interface InteractionAction extends ResourceToolAction
 {
@@ -59,19 +68,19 @@ public interface InteractionAction extends ResourceToolAction
 	 * (possibly null) which will be provided as the "initializationId" parameter to other
 	 * methods and in 
 	 * @param reference
-	 * @return TODO
+	 * @return 
 	 */
 	public String initializeAction(Reference reference);
 	
 	/**
 	 * @param reference
-	 * @param initializationId TODO
+	 * @param initializationId 
 	 */
 	public void finalizeAction(Reference reference, String initializationId);
 	
 	/**
 	 * @param reference
-	 * @param initializationId TODO
+	 * @param initializationId 
 	 */
 	public void cancelAction(Reference reference, String initializationId);
 	

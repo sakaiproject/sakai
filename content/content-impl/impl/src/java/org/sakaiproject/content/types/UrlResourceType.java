@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
-import org.sakaiproject.content.api.ResourceToolActionController;
+import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.types.BaseResourceType;
 import org.sakaiproject.entity.api.Reference;

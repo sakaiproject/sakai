@@ -11,7 +11,7 @@ import org.sakaiproject.entity.api.Reference;
  * 
  *
  */
-public interface ResourceToolActionController 
+public interface ResourceToolActionPipe 
 {
 	/**
 	 * Used by helper to access the initialization-id for this action, if an initialization-id
@@ -155,9 +155,4 @@ public interface ResourceToolActionController
 	 */
 	public void setRevisedResourceProperty(String name, String value);
 	
-	/**
-	 * Use by helper to stop helper.
-	 *
-	 */
-	public void stopHelper();
 }

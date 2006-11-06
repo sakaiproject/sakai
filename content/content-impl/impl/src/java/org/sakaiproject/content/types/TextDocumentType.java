@@ -26,34 +26,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
-import org.sakaiproject.content.api.ResourceToolActionController;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
+/**
+ * 
+ * 
+ *
+ */
 public class TextDocumentType extends BaseResourceType 
 {
 	public static final String MY_HELPER_ID = "sakai.resource.type.helper";
 
-	/** Resource bundle using current language locale */
-	private static ResourceLoader rb = new ResourceLoader("types");
-	
 	protected Map actions = new Hashtable();
-	protected UserDirectoryService userDirectoryService;
 	
 	protected String typeId = ResourceType.TYPE_TEXT;
 	protected String helperId = "sakai.resource.type.helper";
+
+	protected UserDirectoryService userDirectoryService;
+	
+	/** Resource bundle using current language locale */
+	private static ResourceLoader rb = new ResourceLoader("types");
 	
 	public class TextDocumentCopyAction implements ServiceLevelAction
 	{
