@@ -119,6 +119,12 @@ public interface ResourceToolAction
 	 */
 	public static final String REVISED_RESOURCE_PROPERTIES = PREFIX + "revised_resource_properties";
 	
+	/** 
+	 * Key for Tool Session attribute that provides a Reference object identifying the resource involved in the action. 
+	 * (supplied by ResourcesAction before starting helper). 
+	 */
+	public static final String RESOURCE_REFERENCE = PREFIX + "resource_reference";
+	
 	/**
 	 * Access the id of this action (which must be unique within this type and must be limited to alphnumeric characters).
 	 * @return

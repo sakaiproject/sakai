@@ -1002,15 +1002,19 @@ public class ResourcesAction
 		else if(action instanceof InteractionAction)
 		{
 			ToolSession toolSession = SessionManager.getCurrentToolSession();
-			toolSession.setAttribute(ResourceToolAction.COLLECTION_REFERENCE, reference);
 			toolSession.setAttribute(ResourceToolAction.ACTION_ID, actionId);
 			toolSession.setAttribute(ResourceToolAction.RESOURCE_TYPE, typeId);
 			
 			InteractionAction iAction = (InteractionAction) action;
 			if(ResourceToolAction.CREATE.equals(actionId))
 			{
-				startHelper(data.getRequest(), iAction.getHelperId());
+				toolSession.setAttribute(ResourceToolAction.COLLECTION_REFERENCE, reference);
 			}
+			else
+			{
+				toolSession.setAttribute(ResourceToolAction.RESOURCE_REFERENCE, reference);
+			}
+			startHelper(data.getRequest(), iAction.getHelperId());
 		}
 		else if(action instanceof ServiceLevelAction)
 		{

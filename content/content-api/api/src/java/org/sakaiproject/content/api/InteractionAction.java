@@ -38,49 +38,12 @@ import org.sakaiproject.entity.api.Reference;
 public interface InteractionAction extends ResourceToolAction
 {
 	/**
-	 * Setup to invoke a helper to handle the user interaction for this action. The method returns a
-	 * URL that renders the UI for the action.  The Resources tool will use the URL as the src attribute
-	 * for a frame or window as part of a wizard, so the URL should render a full XHTML document or 
-	 * a sequence of documents that elicit information needed to complete the action.  
-	 * The helper eventually return to the caller
-	 * 
-	 * @param req The request from which the helper is invoked.
-	 * @param reference Identifies the ContentEntity with respect to which the action is to be invoked. 
-	 * @return
-	 */
-	public String getActionUrl(HttpServletRequest req, Reference reference);
-	
-	/**
-	 * @param reference
-	 */
-	public void finalizeAction(Reference reference);
-	
-	/**
-	 * @param reference
-	 */
-	public void cancelAction(Reference reference);
-	
-	/**
+	 * Access the unique identifier for the tool that will handle this action. 
+	 * This is the identifier by which the helper is registered with the 
+	 * ToolManager.
 	 * @return
 	 */
 	public String getHelperId();
-	
-	/**
-	 * @param controller
-	 */
-	public void setController(ResourceToolActionController controller);
-	
-	/**
-	 * @return
-	 */
-	public ResourceToolActionController getController();
-
-	/**
-	 * @param request
-	 * @param helperId TODO
-	 * @param doneURL The address to which the helper should redirect when done.
-	 */
-	public void startHelper(HttpServletRequest request, String helperId, String doneURL);
 	
 	/**
 	 * Access a list of properties that should be provided to the helper if they are defined. 
@@ -88,5 +51,28 @@ public interface InteractionAction extends ResourceToolAction
 	 * @return a List of Strings if property values are required. 
 	 */
 	public List getRequiredPropertyKeys();
+	
+	/**
+	 * ResourcesAction calls this method before starting the helper. This is intended to give
+	 * the registrant a chance to do any preparation needed before the helper starts with respect
+	 * to this action and the reference specified in the parameter. The method returns a String
+	 * (possibly null) which will be provided as the "initializationId" parameter to other
+	 * methods and in 
+	 * @param reference
+	 * @return TODO
+	 */
+	public String initializeAction(Reference reference);
+	
+	/**
+	 * @param reference
+	 * @param initializationId TODO
+	 */
+	public void finalizeAction(Reference reference, String initializationId);
+	
+	/**
+	 * @param reference
+	 * @param initializationId TODO
+	 */
+	public void cancelAction(Reference reference, String initializationId);
 	
 }

@@ -82,14 +82,18 @@ public class HtmlDocumentType extends BaseResourceType
 
 	public class HtmlDocumentCreateAction implements InteractionAction
 	{
+		public String initializeAction(Reference reference) 
+		{
+			return null;
+		}
 
-		public void cancelAction(Reference reference) 
+		public void cancelAction(Reference reference, String initializationId) 
 		{
 			// TODO Auto-generated method stub
 			
 		}
 
-		public void finalizeAction(Reference reference) 
+		public void finalizeAction(Reference reference, String initializationId) 
 		{
 			// TODO Auto-generated method stub
 			
@@ -105,35 +109,14 @@ public class HtmlDocumentType extends BaseResourceType
 			return rb.getString("create.html"); 
 		}
 
-		public String getActionUrl(HttpServletRequest req, Reference reference) 
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
 		public String getTypeId() 
 		{
 			return typeId;
 		}
 
-		public void startHelper(HttpServletRequest request, String helperId, String doneURL) {
-			// TODO Auto-generated method stub
-			
-		}
-		
 		public String getHelperId() 
 		{
 			return helperId;
-		}
-
-		public ResourceToolActionController getController() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		public void setController(ResourceToolActionController controller) {
-			// TODO Auto-generated method stub
-			
 		}
 
 		public List getRequiredPropertyKeys() 
@@ -237,23 +220,21 @@ public class HtmlDocumentType extends BaseResourceType
 
 	public class HtmlDocumentReviseAction implements InteractionAction
 	{
-
-		public void cancelAction(Reference reference) 
+		public String initializeAction(Reference reference) 
 		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		public void finalizeAction(Reference reference) 
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		public String getActionUrl(HttpServletRequest req, Reference reference) 
-		{
-			// TODO Auto-generated method stub
 			return null;
+		}
+
+		public void cancelAction(Reference reference, String initializationId) 
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void finalizeAction(Reference reference, String initializationId) 
+		{
+			// TODO Auto-generated method stub
+			
 		}
 
 		public String getId() 
@@ -271,24 +252,9 @@ public class HtmlDocumentType extends BaseResourceType
 			return typeId;
 		}
 
-		public void startHelper(HttpServletRequest request, String helperId, String doneURL) {
-			// TODO Auto-generated method stub
-			
-		}
-		
 		public String getHelperId() 
 		{
 			return helperId;
-		}
-
-		public ResourceToolActionController getController() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		public void setController(ResourceToolActionController controller) {
-			// TODO Auto-generated method stub
-			
 		}
 
 		public List getRequiredPropertyKeys() 
@@ -300,23 +266,21 @@ public class HtmlDocumentType extends BaseResourceType
 	
 	public class HtmlDocumentAccessAction implements InteractionAction
 	{
-
-		public void cancelAction(Reference reference) 
+		public String initializeAction(Reference reference) 
 		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		public void finalizeAction(Reference reference) 
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		public String getActionUrl(HttpServletRequest req, Reference reference) 
-		{
-			// TODO Auto-generated method stub
 			return null;
+		}
+
+		public void cancelAction(Reference reference, String initializationId) 
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void finalizeAction(Reference reference, String initializationId) 
+		{
+			// TODO Auto-generated method stub
+			
 		}
 
 		public String getId() 
@@ -334,24 +298,9 @@ public class HtmlDocumentType extends BaseResourceType
 			return typeId;
 		}
 
-		public void startHelper(HttpServletRequest request, String helperId, String doneURL) {
-			// TODO Auto-generated method stub
-			
-		}
-		
 		public String getHelperId() 
 		{
 			return helperId;
-		}
-
-		public ResourceToolActionController getController() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		public void setController(ResourceToolActionController controller) {
-			// TODO Auto-generated method stub
-			
 		}
 
 		public List getRequiredPropertyKeys() 

@@ -83,13 +83,13 @@ public class FileUploadType extends BaseResourceType
 	public class FileUploadCreateAction implements InteractionAction
 	{
 
-		public void cancelAction(Reference reference) 
+		public void cancelAction(Reference reference, String initializationId) 
 		{
 			// TODO Auto-generated method stub
 			
 		}
 
-		public void finalizeAction(Reference reference) 
+		public void finalizeAction(Reference reference, String initializationId) 
 		{
 			// TODO Auto-generated method stub
 			
@@ -105,38 +105,22 @@ public class FileUploadType extends BaseResourceType
 			return rb.getString("create.upload"); 
 		}
 
-		public String getActionUrl(HttpServletRequest req, Reference reference) 
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
 		public String getTypeId() 
 		{
 			return typeId;
 		}
 
-		public void startHelper(HttpServletRequest request, String helperId, String doneURL) {
-			// TODO Auto-generated method stub
-			
-		}
-		
 		public String getHelperId() 
 		{
 			return helperId;
 		}
 
-		public ResourceToolActionController getController() {
-			// TODO Auto-generated method stub
+		public List getRequiredPropertyKeys() 
+		{
 			return null;
 		}
 
-		public void setController(ResourceToolActionController controller) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		public List getRequiredPropertyKeys() 
+		public String initializeAction(Reference reference) 
 		{
 			return null;
 		}
@@ -238,22 +222,16 @@ public class FileUploadType extends BaseResourceType
 	public class FileUploadReviseAction implements InteractionAction
 	{
 
-		public void cancelAction(Reference reference) 
+		public void cancelAction(Reference reference, String initializationId) 
 		{
 			// TODO Auto-generated method stub
 			
 		}
 
-		public void finalizeAction(Reference reference) 
+		public void finalizeAction(Reference reference, String initializationId) 
 		{
 			// TODO Auto-generated method stub
 			
-		}
-
-		public String getActionUrl(HttpServletRequest req, Reference reference) 
-		{
-			// TODO Auto-generated method stub
-			return null;
 		}
 
 		public String getId() 
@@ -271,27 +249,17 @@ public class FileUploadType extends BaseResourceType
 			return typeId;
 		}
 
-		public void startHelper(HttpServletRequest request, String helperId, String doneURL) {
-			// TODO Auto-generated method stub
-			
-		}
-		
 		public String getHelperId() 
 		{
 			return helperId;
 		}
 
-		public ResourceToolActionController getController() {
-			// TODO Auto-generated method stub
+		public List getRequiredPropertyKeys() 
+		{
 			return null;
 		}
 
-		public void setController(ResourceToolActionController controller) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		public List getRequiredPropertyKeys() 
+		public String initializeAction(Reference reference) 
 		{
 			return null;
 		}
@@ -300,23 +268,21 @@ public class FileUploadType extends BaseResourceType
 	
 	public class FileUploadAccessAction implements InteractionAction
 	{
-
-		public void cancelAction(Reference reference) 
+		public String initializeAction(Reference reference) 
 		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		public void finalizeAction(Reference reference) 
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		public String getActionUrl(HttpServletRequest req, Reference reference) 
-		{
-			// TODO Auto-generated method stub
 			return null;
+		}
+
+		public void cancelAction(Reference reference, String initializationId) 
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void finalizeAction(Reference reference, String initializationId) 
+		{
+			// TODO Auto-generated method stub
+			
 		}
 
 		public String getId() 
@@ -334,24 +300,9 @@ public class FileUploadType extends BaseResourceType
 			return typeId;
 		}
 
-		public void startHelper(HttpServletRequest request, String helperId, String doneURL) {
-			// TODO Auto-generated method stub
-			
-		}
-		
 		public String getHelperId() 
 		{
 			return helperId;
-		}
-
-		public ResourceToolActionController getController() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		public void setController(ResourceToolActionController controller) {
-			// TODO Auto-generated method stub
-			
 		}
 
 		public List getRequiredPropertyKeys() 
