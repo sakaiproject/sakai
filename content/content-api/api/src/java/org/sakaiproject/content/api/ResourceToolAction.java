@@ -86,22 +86,38 @@ public interface ResourceToolAction
 	
 	/** 
 	 * Key for Tool Session attribute that provides a String object containing the "content" of the resource
-	 * (supplied by ResourcesAction before starting helper if the action involves modifications to an existing resource;
-	 * updated or supplied by helper before stopping helper). 
+	 * (supplied by ResourcesAction before starting helper). 
 	 */
 	public static final String RESOURCE_CONTENT = PREFIX + "resource_content";
+	
+	/** 
+	 * Key for Tool Session attribute that provides a String object containing the revised "content" of the 
+	 * resource (supplied by helper before stopping helper if the action can create/update the content). 
+	 */
+	public static final String REVISED_RESOURCE_CONTENT = PREFIX + "revised_resource_content";
 	
 	/**
 	 * Key for Tool Session attribute that provides a Map containing the key-value pairs mapping Strings to Objects
 	 * identifying values of ResourceProperties related to the action. If the action registration indicates that 
 	 * ResourcesAction should provide existing values for properties, the values of those properties will be 
 	 * passed to the helper in this attribute.  If a value for a required property is not yet defined, no entry 
-	 * for that property will be included in the Map.  On completion of the helper's part of the action, the 
-	 * Map will include entries for any properties that should be added or updated as a result of the helper's 
-	 * part of the action.  If this attribute is defined and the Map contains entries, ResourcesAction will 
-	 * include those values in the ResourceProperties for the resource.
+	 * for that property will be included in the Map.  
 	 */
 	public static final String RESOURCE_PROPERTIES = PREFIX + "resource_properties";
+	
+	/**
+	 * Key for Tool Session attribute that provides a Map containing the key-value pairs mapping Strings to Objects
+	 * identifying values of ResourceProperties updated during the action. If the action registration indicates that 
+	 * ResourcesAction should provide existing values for properties, the values of those properties will be 
+	 * passed to the helper in the RESOURCE_PROPERTIES attribute, and a value should also be provided by the helper 
+	 * for each of those properties in this attribute. On completion of the helper's part of the action, the 
+	 * Map will include entries for any properties that should be added or updated as a result of the helper's 
+	 * part of the action.  If this attribute is defined and the Map contains entries, ResourcesAction will 
+	 * include those values in the ResourceProperties for the resource.  If an entry was included for a key in the 
+	 * RESOURCE_PROPERTIES attribute and no entry for that key in this attribute, the value associated with that
+	 * key will be removed from the entity's resource properties.
+	 */
+	public static final String REVISED_RESOURCE_PROPERTIES = PREFIX + "revised_resource_properties";
 	
 	/**
 	 * Access the id of this action (which must be unique within this type and must be limited to alphnumeric characters).
