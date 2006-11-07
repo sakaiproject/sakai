@@ -448,7 +448,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			public Object doInHibernate(Session session) throws HibernateException {
                 // Delete the scores
                 try {
-                    recalculateCourseGradeRecords(asn.getGradebook(), studentsWithExternalScores, session);
+                    recalculateCourseGradeRecords(asn.getGradebook(), session);
                 } catch (StaleObjectStateException e) {
                     if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to remove an external assessment");
                     throw new StaleObjectModificationException(e);

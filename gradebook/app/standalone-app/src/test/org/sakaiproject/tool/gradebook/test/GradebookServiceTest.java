@@ -235,7 +235,14 @@ public class GradebookServiceTest extends GradebookTestBase {
 
     public void testRemoveExternalAssignment() throws Exception {
         Gradebook gb = gradebookManager.getGradebook(GRADEBOOK_UID);
-
+        
+        // Grade a second student on the internal assignment to test
+        // course grade calculations later.
+        Assignment asn = gradebookManager.getAssignmentWithStats(asn_1Id);
+        List gradeRecords = new ArrayList();
+        gradeRecords.add(new AssignmentGradeRecord(asn, "student2", new Double(10)));
+        gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
+        
         // Add an external assessment
         gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, new Date(), "Samigo");
 
@@ -243,6 +250,13 @@ public class GradebookServiceTest extends GradebookTestBase {
         gradebookService.updateExternalAssessmentScore(GRADEBOOK_UID, EXT_ID_1, "student1", new Double(5));
         CourseGradeRecord cgr = gradebookManager.getStudentCourseGradeRecord(gb, "student1");
         Assert.assertTrue(cgr.getPointsEarned().equals(new Double(15)));// 10 points on internal, 10 points on external
+        
+        // Check the display grade (which is what the students would see).
+        if (log.isDebugEnabled()) log.debug("student1 cgr displayGrade=" + cgr.getDisplayGrade());
+        Assert.assertTrue(cgr.getDisplayGrade().equals("C"));
+        cgr = gradebookManager.getStudentCourseGradeRecord(gb, "student2");
+        if (log.isDebugEnabled()) log.debug("student2 cgr displayGrade=" + cgr.getDisplayGrade());
+        Assert.assertTrue(cgr.getDisplayGrade().equals("F"));
 
         // Remove the external assessment
         gradebookService.removeExternalAssessment(GRADEBOOK_UID, EXT_ID_1);
@@ -251,6 +265,13 @@ public class GradebookServiceTest extends GradebookTestBase {
         cgr = gradebookManager.getStudentCourseGradeRecord(gb, "student1");
         Assert.assertTrue(cgr.getPointsEarned().equals(new Double(10)));// 10 points on internal, 0 points on external
         
+        // Check the display grade (which is what the students would see).
+        if (log.isDebugEnabled()) log.debug("student1 cgr displayGrade=" + cgr.getDisplayGrade());
+        Assert.assertTrue(cgr.getDisplayGrade().equals("A+"));
+        cgr = gradebookManager.getStudentCourseGradeRecord(gb, "student2");
+        if (log.isDebugEnabled()) log.debug("student2 cgr displayGrade=" + cgr.getDisplayGrade());
+        Assert.assertTrue(cgr.getDisplayGrade().equals("A+"));
+       
         // Try to add another external assessment with the same external ID as the recently deleted external assessment
         gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, "some other unique title", 10, new Date(), "Samigo");        
     }
