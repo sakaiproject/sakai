@@ -217,6 +217,7 @@ public class SelectActionListener
         }
 
         delivery.setTimeElapse(getTimeElapsed(g.getTimeElapsed()));
+	/*
         delivery.setSubmissionDate(g.getSubmittedDate());
         if (g.getSubmittedDate() != null && g.getAttemptDate() != null) {
           long time = g.getSubmittedDate().getTime() -
@@ -233,6 +234,7 @@ public class SelectActionListener
           delivery.setSubmissionHours("n/a");
           delivery.setSubmissionMinutes("n/a");
         }
+	*/
 
         delivery.setSubmitted(true); // records are all submitted for grade
         // check is feedback is available
