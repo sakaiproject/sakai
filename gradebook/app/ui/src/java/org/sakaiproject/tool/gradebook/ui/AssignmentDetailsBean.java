@@ -57,6 +57,8 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
     private Assignment assignment;
 	private Assignment previousAssignment;
 	private Assignment nextAssignment;
+	
+	private boolean isAllCommentsEditable;
 
 	public class ScoreRow implements Serializable {
         private AssignmentGradeRecord gradeRecord;
@@ -104,6 +106,10 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         }
         public String getEventsLogTitle() {
         	return FacesUtil.getLocalizedString("assignment_details_log_title", new String[] {enrollment.getUser().getDisplayName()});
+        }
+        
+        public boolean isCommentEditable() {
+        	return (isAllCommentsEditable && !assignment.isExternallyMaintained());
         }
 	}
 
@@ -258,6 +264,10 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         // Let the user know.
         FacesUtil.addMessage(getLocalizedString(messageKey));
 	}
+	
+	public void toggleEditableComments(ActionEvent event) {
+		isAllCommentsEditable = !isAllCommentsEditable;
+	}
 
     /**
 	 * View maintenance methods.
@@ -361,7 +371,19 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
     public void setPreviousAssignment(Assignment previousAssignment) {
         this.previousAssignment = previousAssignment;
     }
+    
+    public String getCommentsToggle() {
+    	String messageKey = isAllCommentsEditable ? 
+    			"assignment_details_comments_read" :
+				"assignment_details_comments_edit";
+    	return getLocalizedString(messageKey);
+    }
+
+	public boolean isAllCommentsEditable() {
+		return isAllCommentsEditable;
+	}
+
+	public void setAllCommentsEditable(boolean isAllCommentsEditable) {
+		this.isAllCommentsEditable = isAllCommentsEditable;
+	}
 }
-
-
-

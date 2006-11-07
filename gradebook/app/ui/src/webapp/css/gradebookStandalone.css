@@ -152,9 +152,10 @@ table.listHier tr th  {
 	padding-bottom:.2em;
 }
 table.listHier tr td {
-	padding-left:.3em;
+	padding-left:.4em;
 	padding-top:.2em;
 	padding-bottom:.2em;
+	padding-right:.4em;
 }
 
 /*
@@ -176,6 +177,11 @@ div.portletBody {
 }
 
 /* "important" as in tool_base.css. */
-.indnt1  {
-	margin-left:1em  !important
+/* SECTION 5 INDENTING CLASSES:use these classes with <div> blocks to structure layout hierarchically.*/
+.indnt0,.tier0{
+	margin-left: 0  !important;
+}
+
+.indnt1,.tier1{
+	margin-left: 1em  !important;
 }

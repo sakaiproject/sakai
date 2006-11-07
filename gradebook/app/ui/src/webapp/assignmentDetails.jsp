@@ -127,7 +127,8 @@
 			sortColumn="#{assignmentDetailsBean.sortColumn}"
 			sortAscending="#{assignmentDetailsBean.sortAscending}"
 			columnClasses="gbMessageAbove,gbMessageAbove,gbMessageAbove,gbMessageAboveNumber,gbMessageAbove"
-			styleClass="listHier narrowTable">
+			headerClass="gbHeader"
+			styleClass="listHier narrowerTable">
 			<h:column>
 				<f:facet name="header">
 		            <x:commandSortHeader columnName="studentSortName" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
@@ -167,7 +168,7 @@
 		            </x:commandSortHeader>
 				</f:facet>
 
-				<x:div styleClass="gbInputOnRow gbNumberEntry">
+				<x:div styleClass="gbInputOnRow">
 					<h:inputText id="Score" value="#{scoreRow.score}" size="4" rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}" style="text-align:right;"
 						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
@@ -182,14 +183,20 @@
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-					<h:outputText value="#{msgs.assignment_details_comments}" styleClass="tier0"/>
+					<h:commandButton
+						value="#{assignmentDetailsBean.commentsToggle}"
+						actionListener="#{assignmentDetailsBean.toggleEditableComments}"
+						disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"/>
 				</f:facet>
 				<h:message for="Score" styleClass="validationEmbedded gbMessageAdjustForContent"/>
-				<x:div styleClass="gbInputOnRow">
-					<h:inputText id="Comment" value="#{scoreRow.commentText}" size="30"
-						rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}"
+				<x:div styleClass="gbTextOnRow" rendered="#{!scoreRow.commentEditable}">
+					<h:outputText value="#{scoreRow.commentText}"/>
+				</x:div>
+				<x:div styleClass="gbInputOnRow" rendered="#{scoreRow.commentEditable}">
+					<h:inputTextarea id="Comment" value="#{scoreRow.commentText}"
+						rows="1" cols="40"
 						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-					</h:inputText>
+					</h:inputTextarea>
 				</x:div>
 			</h:column>
 		</x:dataTable>

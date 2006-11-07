@@ -70,6 +70,10 @@ table.narrowTable td.rightpadded {
 	padding-right:6em !important;
 }
 
+table.narrowerTable {
+	width:auto;
+}
+
 .allowWrap {
 	white-space:normal;
 }
@@ -103,13 +107,14 @@ td.prefixedCheckbox {
 
 /* A table cell with an optional message above the content */
 td.gbMessageAbove {vertical-align:top;}
-td.gbMessageAboveNumber {vertical-align:top; text-align:right;}
+td.gbMessageAboveNumber {vertical-align:top; text-align:right; padding-right:2em !important;}
 
 /* Offset to better match icon and input heights. */
 .gbTextOnRow {margin-top:4px;}
 
 .gbInputOnRow {}
-.gbNumberEntry {padding-right:2em;}
 
 /* Try to make the standard message formatting work with other cell content. */
 .gbMessageAdjustForContent {margin-left:1px; margin-bottom:.5em;}
+
+.gbHeader {white-space:nowrap; padding-right:4em !important;}
