@@ -434,14 +434,16 @@ sorting actions for table:
       </f:facet>
       <h:panelGroup>
 
+        <h:outputText id="timeElapse" value="#{reviewable.timeElapse}" />
+<%--
         <h:outputText value="#{msg.na}"
           rendered="#{reviewable.submitted && reviewable.submissionHours == 'n/a' && reviewable.submissionMinutes == 'n/a'}" />
 
  <h:outputText value="#{reviewable.submissionHours} #{msg.hours}, #{reviewable.submissionMinutes} #{msg.minutes}"
           rendered="#{reviewable.submitted && reviewable.submissionHours ne 'n/a' || reviewable.submissionMinutes ne 'n/a'}" />
-
         <h:outputText value="#{msg.not_applicable}"
           rendered="#{!reviewable.submitted}"/>
+--%>
       </h:panelGroup>
     </h:column>
 
