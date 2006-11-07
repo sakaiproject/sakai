@@ -365,7 +365,7 @@ public class CharonPortal extends HttpServlet
 
 			// recognize and dispatch the 'tool' option: [1] = "tool", [2] =
 			// placement id (of a site's tool placement), rest for the tool
-			if ((parts.length >= 2) && (parts[1].equals("tool")))
+			if ((parts.length > 2) && (parts[1].equals("tool")))
 			{
 				// Resolve the placements of the form
 				// /portal/tool/sakai.resources?sakai.site=~csev
@@ -381,7 +381,7 @@ public class CharonPortal extends HttpServlet
 						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web
 						.makePath(parts, 3, parts.length));
 			}
-			else if (enableDirect && (parts.length >= 2)
+			else if (enableDirect && (parts.length > 2)
 					&& (parts[1].equals("directtool")))
 			{
 				// Resolve the placements of the form
@@ -401,31 +401,21 @@ public class CharonPortal extends HttpServlet
 
 			// These reet urls simply set a session value to indicate to reset state and then redirect
 			// This is necessary os that hte URL is clean and we do not see resets on refresh
-			else if ((parts.length >= 2) && (parts[1].equals("site-reset")))
+			else if ((parts.length > 2) && (parts[1].equals("tool-reset")))
 			{
-				String siteUrl = req.getContextPath() + "/site" + Web.makePath(parts, 2, parts.length);
-				setResetState("true");
-				resetDone = true;				
-				res.sendRedirect(siteUrl);
+                               String toolUrl = req.getContextPath() + "/tool" + Web.makePath(parts, 2, parts.length);
+                               // Make sure to add the parameters such as panel=Main
+                               String queryString = req.getQueryString();
+                               if ( queryString != null )
+                               {
+                                       toolUrl = toolUrl + "?" + queryString;
+                               }
+                               setResetState("true");
+                               resetDone = true;
+                               res.sendRedirect(toolUrl);
 			}
 
-			else if ((parts.length >= 2) && (parts[1].equals("worksite-reset")))
-			{
-				String siteUrl = req.getContextPath() + "/worksite" + Web.makePath(parts, 2, parts.length);
-				setResetState("true");
-				resetDone = true;				
-				res.sendRedirect(siteUrl);
-			}
-
-			else if ((parts.length >= 2) && (parts[1].equals("gallery-reset")))
-			{
-				String siteUrl = req.getContextPath() + "/gallery" + Web.makePath(parts, 2, parts.length);
-				setResetState("true");
-				resetDone = true;				
-				res.sendRedirect(siteUrl);
-			}
-
-			else if ((parts.length >= 2) && (parts[1].equals("title")))
+			else if ((parts.length > 2) && (parts[1].equals("title")))
 			{
 				// Resolve the placements of the form
 				// /portal/title/sakai.resources?sakai.site=~csev
@@ -1058,13 +1048,13 @@ public class CharonPortal extends HttpServlet
 
 			// recognize and dispatch the 'tool' option: [1] = "tool", [2] =
 			// placement id (of a site's tool placement), rest for the tool
-			if ((parts.length >= 2) && (parts[1].equals("tool")))
+			if ((parts.length > 2) && (parts[1].equals("tool")))
 			{
 				doTool(req, res, session, parts[2], req.getContextPath()
 						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web
 						.makePath(parts, 3, parts.length));
 			}
-			else if (enableDirect && (parts.length >= 2)
+			else if (enableDirect && (parts.length > 2)
 					&& (parts[1].equals("directtool")))
 			{
 				// Resolve the placements of the form
@@ -1082,7 +1072,7 @@ public class CharonPortal extends HttpServlet
 						.makePath(parts, 3, parts.length));
 			}
 
-			else if ((parts.length >= 2) && (parts[1].equals("title")))
+			else if ((parts.length > 2) && (parts[1].equals("title")))
 			{
 				doTitle(req, res, session, parts[2], req.getContextPath()
 						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web
@@ -2120,6 +2110,12 @@ public class CharonPortal extends HttpServlet
 					.println("<input name=\"submit\" type=\"submit\" id=\"submit\" value=\""
 							+ loginWording + "\" /> </form>");
 
+                        out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
+                        out.println("document.forms[0].eid.focus();");
+                        out.println("</script>");
+
+
+
 			// setup for the redirect after login
 			session.setAttribute(Tool.HELPER_DONE_URL,
 					ServerConfigurationService.getPortalUrl());
@@ -2864,7 +2860,15 @@ public class CharonPortal extends HttpServlet
 		// This is a new-style reset where the button is in the background document
 		if (showResetButton)
 		{
-			out.write("\t\t<a href=\"" + toolUrl + "?" + PARM_STATE_RESET + "=true" + "\" "
+                       // Note: This is somewhat brittle code as it assumes that the url will
+                       // always be /tool/ - as an example - one thing that might fail would
+                       // be if the /portal/ string were /tool/ so the right tool url would be
+                       // http://localhost:8080/tool/tool/ - then this code would break
+
+                       // Send the reset url through a redirect step so that any future
+                       // refresh of the tool's iframe do not cause a reset
+                       String resetUrl = PortalStringUtil.replaceFirst(toolUrl,"/tool/","/tool-reset/");
+                       out.write("\t\t<a href=\"" + resetUrl + "?panel=Main\" "
 					+ " target=\"" + Web.escapeJavascript("Main" + placement.getId()) + "\""
 					+ " title=\"" + Web.escapeHtml(rb.getString("sit.reset")) 
 					+ "\"><img src=\"/library/image/transparent.gif\" alt=\"" 

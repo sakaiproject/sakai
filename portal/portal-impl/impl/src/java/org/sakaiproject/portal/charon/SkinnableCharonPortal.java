@@ -19,6 +19,7 @@
  *
  **********************************************************************************/
 // Base version: CharonPortal.java 14784 -- this must be updated to map changes in Charon 
+// Patched to 17988
 
 package org.sakaiproject.portal.charon;
 
@@ -474,7 +475,7 @@ public class SkinnableCharonPortal extends HttpServlet
 
 			// recognize and dispatch the 'tool' option: [1] = "tool", [2] =
 			// placement id (of a site's tool placement), rest for the tool
-			if ((parts.length >= 2) && (parts[1].equals("tool")))
+			if ((parts.length > 2) && (parts[1].equals("tool")))
 			{
 				// Resolve the placements of the form
 				// /portal/tool/sakai.resources?sakai.site=~csev
@@ -490,7 +491,7 @@ public class SkinnableCharonPortal extends HttpServlet
 						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web
 						.makePath(parts, 3, parts.length));
 			}
-			else if (enableDirect && (parts.length >= 2)
+			else if (enableDirect && (parts.length > 2)
 					&& (parts[1].equals("directtool")))
 			{
 				// Resolve the placements of the form
@@ -512,34 +513,21 @@ public class SkinnableCharonPortal extends HttpServlet
 			// state and then redirect
 			// This is necessary os that hte URL is clean and we do not see
 			// resets on refresh
-			else if ((parts.length >= 2) && (parts[1].equals("site-reset")))
+			else if ((parts.length > 2) && (parts[1].equals("tool-reset")))
 			{
-				String siteUrl = req.getContextPath() + "/site"
-						+ Web.makePath(parts, 2, parts.length);
-				setResetState("true");
-				resetDone = true;
-				res.sendRedirect(siteUrl);
+                               String toolUrl = req.getContextPath() + "/tool" + Web.makePath(parts, 2, parts.length);
+                               // Make sure to add the parameters such as panel=Main
+                               String queryString = req.getQueryString();
+                               if ( queryString != null )
+                               {
+                                       toolUrl = toolUrl + "?" + queryString;
+                               }
+                               setResetState("true");
+                               resetDone = true;
+                               res.sendRedirect(toolUrl);
 			}
 
-			else if ((parts.length >= 2) && (parts[1].equals("worksite-reset")))
-			{
-				String siteUrl = req.getContextPath() + "/worksite"
-						+ Web.makePath(parts, 2, parts.length);
-				setResetState("true");
-				resetDone = true;
-				res.sendRedirect(siteUrl);
-			}
-
-			else if ((parts.length >= 2) && (parts[1].equals("gallery-reset")))
-			{
-				String siteUrl = req.getContextPath() + "/gallery"
-						+ Web.makePath(parts, 2, parts.length);
-				setResetState("true");
-				resetDone = true;
-				res.sendRedirect(siteUrl);
-			}
-
-			else if ((parts.length >= 2) && (parts[1].equals("title")))
+			else if ((parts.length > 2) && (parts[1].equals("title")))
 			{
 				// Resolve the placements of the form
 				// /portal/title/sakai.resources?sakai.site=~csev
@@ -795,7 +783,7 @@ public class SkinnableCharonPortal extends HttpServlet
 		String toolTitle = Web.escapeHtml(placement.getTitle());
 
 		// for the reset button
-		String resetActionUrl = toolContextPath + "?reset=true";
+		String resetActionUrl = PortalStringUtil.replaceFirst(toolContextPath,"/tool/","/tool-reset/") + "?panel=Main";
 		boolean resetToolNow = "true".equals(req.getParameter("reset"));
 		boolean showResetButton = !"false".equals(placement.getConfig()
 				.getProperty(TOOLCONFIG_SHOW_RESET_BUTTON));
@@ -1093,13 +1081,13 @@ public class SkinnableCharonPortal extends HttpServlet
 
 			// recognize and dispatch the 'tool' option: [1] = "tool", [2] =
 			// placement id (of a site's tool placement), rest for the tool
-			if ((parts.length >= 2) && (parts[1].equals("tool")))
+			if ((parts.length > 2) && (parts[1].equals("tool")))
 			{
 				doTool(req, res, session, parts[2], req.getContextPath()
 						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web
 						.makePath(parts, 3, parts.length));
 			}
-			else if (enableDirect && (parts.length >= 2)
+			else if (enableDirect && (parts.length > 2)
 					&& (parts[1].equals("directtool")))
 			{
 				// Resolve the placements of the form
@@ -1117,7 +1105,7 @@ public class SkinnableCharonPortal extends HttpServlet
 						.makePath(parts, 3, parts.length));
 			}
 
-			else if ((parts.length >= 2) && (parts[1].equals("title")))
+			else if ((parts.length > 2) && (parts[1].equals("title")))
 			{
 				doTitle(req, res, session, parts[2], req.getContextPath()
 						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web

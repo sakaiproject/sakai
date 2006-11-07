@@ -171,6 +171,9 @@
 		<label for="pw">${loginPwWording}</label>
 		<input name="pw" type="password" id="pw" />
 		<input name="submit" type="submit" id="submit" value="${loginWording}" />
+		<script type="text/javascript" language="JavaScript">
+			document.forms[0].eid.focus();
+		</script>
 	</form>
 #end
 #end

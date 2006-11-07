@@ -24,20 +24,24 @@ package org.sakaiproject.util;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
+import java.util.Enumeration;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.EmailService;
-import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
@@ -215,13 +219,22 @@ public class ErrorReporter
 	 *        The request URI.
 	 * @param userReport
 	 *        The end user comments.
+	 * @param object 
+	 * @param placementDisplay 
 	 */
-	protected void logAndMail(String usageSessionId, String userId, String time, String problem, String problemdigest, String requestURI, String userReport)
+	protected void logAndMail(String usageSessionId, String userId,
+			String time, String problem, String problemdigest,
+			String requestURI, String userReport)
+	{
+		logAndMail(usageSessionId, userId, time, problem, problemdigest,
+				requestURI, "", "", userReport);
+	}
+	protected void logAndMail(String usageSessionId, String userId, String time, String problem, String problemdigest, String requestURI, String requestDisplay, String placementDisplay,String userReport)
 	{
 		// log
 		M_log.warn(rb.getString("bugreport.bugreport") + " " + rb.getString("bugreport.user") + ": " + userId + " "
 				+ rb.getString("bugreport.usagesession") + ": " + usageSessionId + " " + rb.getString("bugreport.time")
-				+ ": " + time + " " + rb.getString("bugreport.usercomment") + ": " + userReport + " " + rb.getString("bugreport.stacktrace") + "\n" + problem);
+				+ ": " + time + " " + rb.getString("bugreport.usercomment") + ": " + userReport + " " + rb.getString("bugreport.stacktrace") + "\n" + problem + "\n" + placementDisplay + "\n" + requestDisplay );
 
 		// mail
 		String emailAddr = ServerConfigurationService.getString("portal.error.email");
@@ -282,7 +295,9 @@ public class ErrorReporter
 					+ pathInfo
 					+ rb.getString("bugreport.time") + ": " + time + "\n\n\n" 
 					+ userComment 
-					+ rb.getString("bugreport.stacktrace") + ":\n\n" + problem;
+					+ rb.getString("bugreport.stacktrace") + ":\n\n" + problem 
+					+ "\n\n" + placementDisplay
+					+ "\n\n" + requestDisplay;
 
 			EmailService.send(from, emailAddr, subject, body, null, null, null);
 		}
@@ -306,6 +321,8 @@ public class ErrorReporter
 		String time = reportTime.toStringLocalDate() + " " + reportTime.toStringLocalTime24(); 
 		String usageSessionId = UsageSessionService.getSessionId();
 		String userId = SessionManager.getCurrentSessionUserId();
+		String requestDisplay = requestDisplay(req);
+		String placementDisplay = placementDisplay();
 		String problem = throwableDisplay(t);
 		String problemdigest = computeSha1(problem);
 		String postAddr = ServerConfigurationService.getPortalUrl() + "/error-report";
@@ -351,6 +368,12 @@ public class ErrorReporter
 			out.println("<input type=\"hidden\" name=\"problem\" value=\"");
 			out.println(problem);
 			out.println("\">");
+			out.println("<input type=\"hidden\" name=\"problemRequest\" value=\"");
+			out.println(Web.escapeHtml(requestDisplay));
+			out.println("\">");
+			out.println("<input type=\"hidden\" name=\"problemPlacement\" value=\"");
+			out.println(Web.escapeHtml(placementDisplay));
+			out.println("\">");
 			out.println("<input type=\"hidden\" name=\"problemdigest\" value=\"" + problemdigest + "\">");
 			out.println("<input type=\"hidden\" name=\"session\" value=\"" + usageSessionId + "\">");
 			out.println("<input type=\"hidden\" name=\"user\" value=\"" + userId + "\">");
@@ -388,12 +411,158 @@ public class ErrorReporter
 			out.println("</html>");
 
 			// log and send the preliminary email
-			logAndMail(usageSessionId, userId, time, problem, problemdigest, requestURI, null);
+			logAndMail(usageSessionId, userId, time, problem, problemdigest, requestURI, requestDisplay, placementDisplay, null);
 		}
 		catch (Throwable any)
 		{
 			M_log.warn(rb.getString("bugreport.troublereporting"), any);
 		}
+	}
+
+	private String placementDisplay()
+	{
+		StringBuffer sb = new StringBuffer();
+		try
+		{
+			Placement p = ToolManager.getCurrentPlacement();
+			if ( p != null ) {
+			sb.append(rb.getString("bugreport.placement")).append("\n");
+			sb.append(rb.getString("bugreport.placement.id")).append(
+					p.getToolId()).append("\n");
+			sb.append(rb.getString("bugreport.placement.context")).append(
+					p.getContext()).append("\n");
+			sb.append(rb.getString("bugreport.placement.title")).append(
+					p.getTitle()).append("\n");
+			} else {
+				sb.append(rb.getString("bugreport.placement")).append("\n");
+				sb.append(rb.getString("bugreport.placement.none")).append("\n");
+			}
+		}
+		catch (Exception ex)
+		{
+			M_log.error("Failed to generate placement display", ex);
+			sb.append("Error " + ex.getMessage());
+		}
+
+		return sb.toString();
+	}
+
+	private String requestDisplay(HttpServletRequest request)
+	{
+		StringBuffer sb = new StringBuffer();
+		try
+		{
+			sb.append(rb.getString("bugreport.request")).append("\n");
+			sb.append(rb.getString("bugreport.request.authtype")).append(
+					request.getAuthType()).append("\n");
+			sb.append(rb.getString("bugreport.request.charencoding")).append(
+					request.getCharacterEncoding()).append("\n");
+			sb.append(rb.getString("bugreport.request.contentlength")).append(
+					request.getContentLength()).append("\n");
+			sb.append(rb.getString("bugreport.request.contenttype")).append(
+					request.getContentType()).append("\n");
+			sb.append(rb.getString("bugreport.request.contextpath")).append(
+					request.getContextPath()).append("\n");
+			sb.append(rb.getString("bugreport.request.localaddr")).append(
+					request.getLocalAddr()).append("\n");
+			sb.append(rb.getString("bugreport.request.localname")).append(
+					request.getLocalName()).append("\n");
+			sb.append(rb.getString("bugreport.request.localport")).append(
+					request.getLocalPort()).append("\n");
+			sb.append(rb.getString("bugreport.request.method")).append(
+					request.getMethod()).append("\n");
+			sb.append(rb.getString("bugreport.request.pathinfo")).append(
+					request.getPathInfo()).append("\n");
+			sb.append(rb.getString("bugreport.request.protocol")).append(
+					request.getProtocol()).append("\n");
+			sb.append(rb.getString("bugreport.request.querystring")).append(
+					request.getQueryString()).append("\n");
+			sb.append(rb.getString("bugreport.request.remoteaddr")).append(
+					request.getRemoteAddr()).append("\n");
+			sb.append(rb.getString("bugreport.request.remotehost")).append(
+					request.getRemoteHost()).append("\n");
+			sb.append(rb.getString("bugreport.request.remoteport")).append(
+					request.getRemotePort()).append("\n");
+			sb.append(rb.getString("bugreport.request.remoteuser")).append(
+					request.getRemoteUser()).append("\n");
+			sb.append(rb.getString("bugreport.request.requestedsession"))
+					.append(request.getRequestedSessionId()).append("\n");
+			sb.append(rb.getString("bugreport.request.requesturl")).append(
+					request.getRequestURL()).append("\n");
+			sb.append(rb.getString("bugreport.request.scheme")).append(
+					request.getScheme()).append("\n");
+			sb.append(rb.getString("bugreport.request.servername")).append(
+					request.getServerName()).append("\n");
+			sb.append(rb.getString("bugreport.request.headers")).append("\n");
+			for (Enumeration e = request.getHeaderNames(); e.hasMoreElements();)
+			{
+				String headerName = (String) e.nextElement();
+				for (Enumeration he = request.getHeaders(headerName); he
+						.hasMoreElements();)
+				{
+					String headerValue = (String) he.nextElement();
+					sb.append(rb.getString("bugreport.request.header")).append(
+							headerName).append(":").append(headerValue).append(
+							"\n");
+				}
+			}
+			sb.append(rb.getString("bugreport.request.parameters"))
+					.append("\n");
+			for (Enumeration e = request.getParameterNames(); e
+					.hasMoreElements();)
+			{
+				String parameterName = (String) e.nextElement();
+				String[] paramvalues = request
+						.getParameterValues(parameterName);
+				for (int i = 0; i < paramvalues.length; i++)
+				{
+					sb.append(rb.getString("bugreport.request.parameter"))
+							.append(parameterName).append(":").append(i)
+							.append(":").append(paramvalues[i]).append("\n");
+				}
+			}
+			sb.append(rb.getString("bugreport.request.attributes"))
+					.append("\n");
+			for (Enumeration e = request.getAttributeNames(); e
+					.hasMoreElements();)
+			{
+				String attributeName = (String) e.nextElement();
+				Object attribute = request.getAttribute(attributeName);
+				sb.append(rb.getString("bugreport.request.attribute")).append(
+						attributeName).append(":").append(attribute).append(
+						"\n");
+			}
+			HttpSession session = request.getSession(false);
+			if (session != null)
+			{
+				sb.append(rb.getString("bugreport.session")).append("\n");
+				sb.append(rb.getString("bugreport.session.creation")).append(
+						session.getCreationTime()).append("\n");
+				sb.append(rb.getString("bugreport.session.lastaccess")).append(
+						session.getLastAccessedTime()).append("\n");
+				sb.append(rb.getString("bugreport.session.maxinactive"))
+						.append(session.getMaxInactiveInterval()).append("\n");
+				sb.append(rb.getString("bugreport.session.attributes")).append(
+						"\n");
+				for (Enumeration e = session.getAttributeNames(); e
+						.hasMoreElements();)
+				{
+					String attributeName = (String) e.nextElement();
+					Object attribute = session.getAttribute(attributeName);
+					sb.append(rb.getString("bugreport.session.attribute"))
+							.append(attributeName).append(":")
+							.append(attribute).append("\n");
+				}
+
+			}
+		}
+		catch (Exception ex)
+		{
+			M_log.error("Failed to generate request display", ex);
+			sb.append("Error " + ex.getMessage());
+		}
+
+		return sb.toString();
 	}
 
 	/**
@@ -412,9 +581,11 @@ public class ErrorReporter
 		String comment = req.getParameter("comment");
 		String problem = req.getParameter("problem");
 		String problemdigest = req.getParameter("problemdigest");
+		String problemRequest = req.getParameter("problemRequest");
+		String problemPlacement = req.getParameter("problemPlacement");
 
 		// log and send the followup email
-		logAndMail(session, user, time, problem, problemdigest, null, comment);
+		logAndMail(session, user, time, problem, problemdigest, null, problemRequest, problemPlacement, comment);
 
 		// always redirect from a post
 		try
