@@ -21,7 +21,12 @@
 
 package org.sakaiproject.chat.impl;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,6 +43,7 @@ import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -48,19 +54,50 @@ import org.sakaiproject.message.api.MessageChannel;
 import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.message.api.MessageHeaderEdit;
 import org.sakaiproject.message.impl.BaseMessageService;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * <p>
  * BaseChatService extends the BaseMessageService for the specifics of Chat.
  * </p>
  */
-public abstract class BaseChatService extends BaseMessageService implements ChatService, ContextObserver
+public abstract class BaseChatService extends BaseMessageService implements ChatService, ContextObserver, EntityTransferrer
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseChatService.class);
+	
+	private static final String CHAT = "chat";
+	private static final String CHANNEL = "channel";
+	private static final String CHANNEL_ID = "id";
+	private static final String PREF_CHAT_ROOM = "selectedChatRoom";
+	private static final String FILTER_TYPE = "filterType";
+	private static final String FILTER_PARAM = "filterParam";
+	private static final String ARCHIVE_VERSION = "2.4"; // in case new features are added in future exports
+	private static final String VERSION_ATTR = "version";
+	private static final String SYNOPTIC_TOOL = "synoptic_tool";
+	private static final String NAME = "name";
+	private static final String VALUE = "value";
+	
+	// properties
+	private static final String CHANNEL_PROP = "channel";
+	private static final String FILTER_TYPE_PROP = "filter-type";
+	private static final String FILTER_PARAM_PROP = "filter-param";
+	private static final String PROPERTIES = "properties";
+	private static final String PROPERTY = "property";
+
+	/** Tool session attribute name used to schedule a whole page refresh. */
+	public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -755,6 +792,472 @@ public abstract class BaseChatService extends BaseMessageService implements Chat
 		public BaseChatMessageHeaderEdit(Message msg, MessageHeader other)
 		{
 			super(msg, other);
+		}
+	}
+	
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Import/Export implementation
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean willArchiveMerge()
+	{
+		return true;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
+	{
+		//prepare the buffer for the results log
+		StringBuffer results = new StringBuffer();
+		int channelCount = 0;
+
+		try 
+		{
+			// start with an element with our very own (service) name			
+			Element element = doc.createElement(serviceName());
+			element.setAttribute(VERSION_ATTR, ARCHIVE_VERSION);
+			((Element) stack.peek()).appendChild(element);
+			stack.push(element);
+
+			Element chat = doc.createElement(CHAT);
+
+			// get the site's user-set options
+			Site site = SiteService.getSite(siteId);
+			ToolConfiguration fromTool = site.getToolForCommonId("sakai.chat");
+			Properties fromProp = fromTool.getPlacementConfig();
+
+			if (fromProp != null && !fromProp.isEmpty()) {
+				String preferredChannel = fromProp.getProperty(CHANNEL_PROP);
+				if (preferredChannel != null && preferredChannel.trim().length() > 0) 
+				{
+					chat.setAttribute(PREF_CHAT_ROOM, preferredChannel);
+				}
+
+				String filterType = fromProp.getProperty(FILTER_TYPE_PROP);
+				if (filterType != null && filterType.trim().length() > 0) 
+				{
+					chat.setAttribute(FILTER_TYPE, filterType);
+				}
+				
+				String filterParam = fromProp.getProperty(FILTER_PARAM_PROP);
+				if (filterParam != null && filterParam.trim().length() > 0) 
+				{
+					chat.setAttribute(FILTER_PARAM, filterParam);
+				}
+			}
+
+			List channelIdList = getChannelIds(siteId);
+			if (channelIdList != null && !channelIdList.isEmpty()) 
+			{
+				Iterator idIterator = channelIdList.iterator();
+				while (idIterator.hasNext()) 
+				{
+					String channelId = (String)idIterator.next();
+					ChatChannel channel = null;
+					String channelRef = channelReference(siteId, channelId);
+					try
+					{
+						channel = (ChatChannel) getChannel(channelRef);
+					}
+					catch (IdUnusedException e)
+					{
+						M_log.warn("Exception archiving channel with id: " + channelId);
+					}
+
+					Element channelElement = channel.toXml(doc, stack);
+					chat.appendChild(channelElement);
+					channelCount++;
+				}
+				results.append("archiving " + getLabel() + ": (" + channelCount + ") channels archived successfully.\n");
+				
+			} 
+			else 
+			{
+				results.append("archiving " + getLabel()
+						+ ": empty chat room archived.\n");
+			}
+			
+			//	archive the chat synoptic tool options
+			ToolConfiguration synTool = site.getToolForCommonId("sakai.synoptic.chat");
+			Properties synProp = synTool.getPlacementConfig();
+			if (synProp != null && synProp.size() > 0) {
+				Element synElement = doc.createElement(SYNOPTIC_TOOL);
+				Element synProps = doc.createElement(PROPERTIES);
+		
+				Set synPropSet = synProp.keySet();
+				Iterator propIter = synPropSet.iterator();
+				while (propIter.hasNext())
+				{
+					String propName = (String)propIter.next();
+					Element synPropEl = doc.createElement(PROPERTY);
+					synPropEl.setAttribute(NAME, propName);
+					synPropEl.setAttribute(VALUE, synProp.getProperty(propName));
+					synProps.appendChild(synPropEl);
+				}
+				
+				synElement.appendChild(synProps);
+				chat.appendChild(synElement);
+			}
+
+			((Element) stack.peek()).appendChild(chat);
+			stack.push(chat);
+
+			stack.pop();
+		}
+		catch (Exception any)
+		{
+			M_log.warn("archive: exception archiving service: " + serviceName());
+		}
+
+		stack.pop();
+
+		return results.toString();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
+			Set userListAllowImport)
+	{
+		M_log.debug("trying to merge chat");
+
+		// buffer for the results log
+		StringBuffer results = new StringBuffer();
+
+		int count = 0;
+
+		if (siteId != null && siteId.trim().length() > 0)
+		{
+			try
+			{
+				NodeList allChildrenNodes = root.getChildNodes();
+				int length = allChildrenNodes.getLength();
+				for (int i = 0; i < length; i++)
+				{
+					count++;
+					Node siteNode = allChildrenNodes.item(i);
+					if (siteNode.getNodeType() == Node.ELEMENT_NODE)
+					{
+						Element chatElement = (Element) siteNode;
+						if (chatElement.getTagName().equals(CHAT))
+						{
+							Site site = SiteService.getSite(siteId);
+							if (site.getToolForCommonId("sakai.chat") != null) {
+								ToolConfiguration tool = site.getToolForCommonId("sakai.chat");
+								Properties prop = tool.getPlacementConfig();
+								
+								// set the user-defined options
+								String prefChatRoom = chatElement.getAttribute(PREF_CHAT_ROOM);
+								String filterParam = chatElement.getAttribute(FILTER_PARAM);
+								String filterType = chatElement.getAttribute(FILTER_TYPE);
+								
+								if (prefChatRoom != null) 
+								{
+									int index = prefChatRoom.lastIndexOf(Entity.SEPARATOR) + 1;
+									prefChatRoom = prefChatRoom.substring(index);
+									if (prefChatRoom != null && prefChatRoom.length() > 0) 
+									{
+										prefChatRoom = channelReference(siteId, prefChatRoom);
+										prop.setProperty(CHANNEL_PROP, prefChatRoom);
+									}
+									else
+									{
+										M_log.warn("Invalid chat room preference not merged:" + chatElement.getAttribute(PREF_CHAT_ROOM));
+									}
+								}
+								
+								if (filterType != null && filterType.length() > 0) 
+									prop.setProperty(FILTER_TYPE_PROP, filterType);
+								
+								if (filterParam != null && inputIsValidInteger(filterParam)) 
+									prop.setProperty(FILTER_PARAM_PROP, filterParam);
+								else
+									M_log.warn("Invalid filter parameter not merged: " + filterParam);
+
+								// add the chat rooms and synoptic tool options	            	
+								NodeList chatNodes = chatElement.getChildNodes();
+								int lengthChatNodes = chatNodes.getLength();
+								for (int cn = 0; cn < lengthChatNodes; cn++)
+								{
+									Node chatNode = chatNodes.item(cn);
+									if (chatNode.getNodeType() == Node.ELEMENT_NODE)
+									{
+										Element channelElement = (Element) chatNode;
+										if (channelElement.getTagName().equals(CHANNEL))
+										{
+											String channelId = channelElement.getAttribute(CHANNEL_ID);
+											if (channelId != null && channelId.trim().length() > 0) {
+												ChatChannel nChannel = null;
+												String nChannelRef = channelReference(siteId, channelId);
+												try	
+												{
+													nChannel = (ChatChannel) getChannel(nChannelRef);
+												}
+												catch (IdUnusedException e)	
+												{
+													try	
+													{
+														commitChannel(addChatChannel(nChannelRef));
+
+														try	
+														{
+															nChannel = (ChatChannel) getChannel(nChannelRef);
+														}
+														catch (IdUnusedException eee) 
+														{
+															M_log.warn("IdUnusedException while getting channel with reference " + nChannelRef + ": " + eee);
+														}
+													} 
+													catch (Exception ee) 
+													{
+														M_log.warn("Exception while committing channel with reference " + nChannelRef + ": " + ee);
+													}
+												}
+											}
+										}
+										else if (channelElement.getTagName().equals(SYNOPTIC_TOOL)) 
+										{
+											ToolConfiguration synTool = site.getToolForCommonId("sakai.synoptic.chat");
+											Properties synProps = synTool.getPlacementConfig();
+
+											NodeList synPropNodes = channelElement.getChildNodes();
+											for (int props = 0; props < synPropNodes.getLength(); props++)
+											{
+												Node propsNode = synPropNodes.item(props);
+												if (propsNode.getNodeType() == Node.ELEMENT_NODE)
+												{
+													Element synPropEl = (Element) propsNode;
+													if (synPropEl.getTagName().equals(PROPERTIES))
+													{
+														NodeList synProperties = synPropEl.getChildNodes();
+														for (int p = 0; p < synProperties.getLength(); p++)
+														{
+															Node propertyNode = synProperties.item(p);
+															if (propertyNode.getNodeType() == Node.ELEMENT_NODE)
+															{
+																Element propEl = (Element) propertyNode;
+																if (propEl.getTagName().equals(PROPERTY))
+																{
+																	String propName = propEl.getAttribute(NAME);
+																	String propValue = propEl.getAttribute(VALUE);
+																	
+																	if (propName != null && propName.length() > 0 && propValue != null && propValue.length() > 0)
+																	{
+																		if (propName.equals(CHANNEL_PROP))
+																		{
+																			int index = propValue.lastIndexOf(Entity.SEPARATOR);
+																			propValue = propValue.substring(index + 1);
+																			if (propValue != null && propValue.length() > 0) 
+																			{
+																				String channelRef = channelReference(siteId, propValue);					
+																				try	
+																				{
+																					ChatChannel channel = (ChatChannel) getChannel(channelRef);
+																					synProps.setProperty(propName, channelRef.toString());
+																				}
+																				catch (IdUnusedException e)	
+																				{
+																					// do not add channel b/c it does not exist in Chat tool
+																					M_log.warn("Chat Synoptic Tool Channel preference not added- " + channelRef + ":" + e);
+																				}
+																			}			
+																		}
+																		else
+																		{
+																			synProps.setProperty(propName, propValue);
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}			
+								}
+								SiteService.save(site);
+
+								scheduleTopRefresh();
+							}
+						}
+					}
+				}
+
+				results.append("merging chat " + siteId + " (" + count
+						+ ") chat items.\n");
+			}
+			catch (DOMException e)
+			{
+				M_log.error(e.getMessage(), e);
+				results.append("merging " + getLabel()
+						+ " failed during xml parsing.\n");
+			}
+			catch (Exception e)
+			{
+				M_log.error(e.getMessage(), e);
+				results.append("merging " + getLabel() + " failed.\n");
+			}
+		}
+
+		return results.toString();
+
+	} // merge
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void transferCopyEntities(String fromContext, String toContext, List ids) 
+	{
+		try
+		{				
+			// get the "from" site's user-set options
+			Site fromSite = SiteService.getSite(fromContext);
+			ToolConfiguration fromTool = fromSite.getToolForCommonId("sakai.chat");
+			Properties fromProp = fromTool.getPlacementConfig();
+			
+			Site toSite = SiteService.getSite(toContext);
+			ToolConfiguration tool = toSite.getToolForCommonId("sakai.chat");
+
+			if (fromProp != null && !fromProp.isEmpty()) 
+			{
+				String preferredChannel = fromProp.getProperty(CHANNEL_PROP);
+				String filterType = fromProp.getProperty(FILTER_TYPE_PROP);
+				String filterParam = fromProp.getProperty(FILTER_PARAM_PROP);
+				
+				//set these properties in the "to" site
+				Properties toProp = tool.getPlacementConfig();
+
+				if (preferredChannel != null) 
+				{
+					int index = preferredChannel.lastIndexOf(Entity.SEPARATOR) + 1;
+					preferredChannel = preferredChannel.substring(index);
+					if (preferredChannel != null && preferredChannel.length() > 0) 
+					{
+						String channelRef = channelReference(toContext, preferredChannel);
+						toProp.setProperty(CHANNEL_PROP, channelRef);
+					}			
+				}
+				if (filterType != null && filterType.length() > 0) 
+				{
+					toProp.setProperty(FILTER_TYPE_PROP, filterType);
+				}
+				if (filterParam != null) 
+				{
+					toProp.setProperty(FILTER_PARAM_PROP, filterParam);
+				}
+				
+				SiteService.save(toSite);
+			}
+						
+			// retrieve all of the chat rooms
+			List oChannelIdList = getChannelIds(fromContext);
+			if (oChannelIdList != null && !oChannelIdList.isEmpty()) 
+			{
+				Iterator idIterator = oChannelIdList.iterator();
+				while (idIterator.hasNext()) 
+				{
+					String oChannelId = (String)idIterator.next();
+					ChatChannel nChannel = null;
+					String nChannelRef = channelReference(toContext, oChannelId);
+					try	
+					{
+						nChannel = (ChatChannel) getChannel(nChannelRef);
+					}
+					catch (IdUnusedException e)	
+					{
+						try	
+						{
+							commitChannel(addChatChannel(nChannelRef));
+
+							try	
+							{
+								nChannel = (ChatChannel) getChannel(nChannelRef);
+							}
+							catch (IdUnusedException eee) 
+							{
+								M_log.warn("IdUnusedException while getting channel with reference " + nChannelRef + ": " + eee);
+							}
+						} 
+						catch (Exception ee) 
+						{
+							M_log.warn("Exception while committing channel with reference " + nChannelRef + ": " + ee);
+						}
+					}
+
+				}
+			}
+			
+			// transfer the synoptic tool options
+			ToolConfiguration fromSynTool = fromSite.getToolForCommonId("sakai.synoptic.chat");
+			Properties fromSynProp = fromSynTool.getPlacementConfig();
+			
+			ToolConfiguration toSynTool = toSite.getToolForCommonId("sakai.synoptic.chat");
+			Properties toSynProp = toSynTool.getPlacementConfig();
+
+			if (fromSynProp != null && !fromSynProp.isEmpty()) 
+			{
+				Set synPropSet = fromSynProp.keySet();
+				Iterator propIter = synPropSet.iterator();
+				while (propIter.hasNext())
+				{
+					String propName = ((String)propIter.next());
+					String propValue = fromSynProp.getProperty(propName);
+					if (propValue != null && propValue.length() > 0)
+					{
+						if (propName.equals(CHANNEL_PROP))
+						{
+							int index = propValue.lastIndexOf(Entity.SEPARATOR);
+							propValue = propValue.substring(index + 1);
+							if (propValue != null && propValue.length() > 0) 
+							{
+								String channelRef = channelReference(toContext, propValue);
+								toSynProp.setProperty(propName, channelRef.toString());
+							}
+						}
+						else
+						{
+							toSynProp.setProperty(propName, propValue);
+						}
+					}
+				}
+				
+				SiteService.save(toSite);
+			}
+			
+			scheduleTopRefresh();			
+		}
+
+		catch (Exception any)
+		{
+			M_log.warn(".transferCopyEntities(): exception in handling " + serviceName() + " : ", any);
+		}
+	}
+	
+	private void scheduleTopRefresh()
+	{
+		ToolSession session = SessionManager.getCurrentToolSession();
+		if (session.getAttribute(ATTR_TOP_REFRESH) == null)
+		{
+			session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+		}
+	}
+	
+	private boolean inputIsValidInteger(String val)
+	{
+		try {  
+			Integer.parseInt(val);
+			return true;
+		}
+		catch (Exception e)
+		{
+			return false;
 		}
 	}
 }
