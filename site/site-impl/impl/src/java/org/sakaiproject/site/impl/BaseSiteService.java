@@ -23,10 +23,13 @@ package org.sakaiproject.site.impl;
 
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Observer;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -69,6 +72,7 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteAdvisor;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -106,6 +110,9 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 
 	/** A site cache. */
 	protected SiteCacheImpl m_siteCache = null;
+
+	/** A list of observers watching site save events **/
+	protected List<SiteAdvisor> siteAdvisors;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -404,6 +411,8 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	public void init()
 	{
+		siteAdvisors = new ArrayList<SiteAdvisor>();
+
 		try
 		{
 			m_relativeAccessPoint = REFERENCE_ROOT;
@@ -745,7 +754,8 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		{
 			throw new IdUnusedException(site.getId());
 		}
-
+		
+		// Save the site
 		doSave((BaseSite) site, false);
 	}
 
@@ -812,6 +822,11 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 
 		// update the properties
 		addLiveUpdateProperties(site);
+
+		// Give the site advisors, if any, a chance to make last minute changes to the site
+		for(Iterator<SiteAdvisor> iter = siteAdvisors.iterator(); iter.hasNext();) {
+			iter.next().update(site);
+		}
 
 		// complete the edit
 		m_storage.save(site);
@@ -2718,5 +2733,30 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		}
 
 		threadLocalManager().set("enforceGroupSubMembership", null);
+	}
+
+	
+	/**
+	 * @inheritDoc
+	 */
+	public void addSiteAdvisor(SiteAdvisor siteAdvisor)
+	{
+		siteAdvisors.add(siteAdvisor);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public List<SiteAdvisor> getSiteAdvisors()
+	{
+		return Collections.unmodifiableList(siteAdvisors);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public boolean removeSiteAdvisor(SiteAdvisor siteAdvisor)
+	{
+		return siteAdvisors.remove(siteAdvisor);
 	}
 }

@@ -23,6 +23,7 @@ package org.sakaiproject.site.api;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Observer;
 import java.util.Set;
 
 import org.sakaiproject.entity.api.Entity;
@@ -705,4 +706,27 @@ public interface SiteService extends EntityProducer
 	 * @return The Group object if found, or null if not.
 	 */
 	Group findGroup(String refOrId);
+	
+	/**
+	 * Registers a SiteAdvisor with the SiteService.  Each registered advisor will be
+	 * called immediately upon a call to save(Site).
+	 * 
+	 * @param advisor The SiteAdvisor to add
+	 */
+	public void addSiteAdvisor(SiteAdvisor advisor);
+	
+	/**
+	 * Removes a SiteAdvisor.
+	 * 
+	 * @param advisor The SiteAdvisor to remove
+	 * @return Whether the SiteAdvisor was previously registered and hence removed.
+	 */
+	public boolean removeSiteAdvisor(SiteAdvisor advisor);
+	
+	/**
+	 * Lists the current SiteAdvisors registered with the SiteService.
+	 * 
+	 * @return An unmodifiable List containing the currently registered SiteAdvisors
+	 */
+	public List<SiteAdvisor> getSiteAdvisors();
 }
