@@ -66,6 +66,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteAdvisor;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -77,7 +78,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class SectionManagerImpl implements SectionManager {
+public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 
 	private static final Log log = LogFactory.getLog(SectionManagerImpl.class);
 	
@@ -95,6 +96,52 @@ public class SectionManagerImpl implements SectionManager {
     protected SessionManager sessionManager;
     protected EntityManager entityManager;
     protected EventTrackingService eventTrackingService;
+    
+    /**
+     * Initialization called once all dependencies are set.
+     */
+    public void init() {
+    	if(log.isInfoEnabled()) log.info("init()");
+    	siteService.addSiteAdvisor(this);
+    }
+
+    /**
+     * Cleans up any resources in use before destroying this service.
+     */
+    public void destroy() {
+    	if(log.isInfoEnabled()) log.info("destroy()");
+    	siteService.removeSiteAdvisor(this);
+    }
+    
+    // SiteAdvisor Methods
+	
+    /**
+     * {@inheritDoc}
+     */
+    public void update(Site site) {
+    	// If the site is manually managed, we do nothing
+		CourseImpl courseModel = new CourseImpl(site);
+    	if( ! courseModel.isExternallyManaged()) {
+    		return;
+    	}
+    	
+    	// Check to see whether this site object has had its providerId changed.
+    	Site oldSite = null;
+    	try {
+			oldSite = siteService.getSite(site.getId());
+		} catch (IdUnusedException e) {
+			log.error("Can't find site " + site.getId());
+			return;
+		}
+		
+		// If the provider ID has changed, we need to update the sections.
+		if( ! StringUtils.trimToEmpty(site.getProviderGroupId()).equals(
+				StringUtils.trimToEmpty(oldSite.getProviderGroupId()))) {
+			externalSectionAdvisor.updateInternalSections(site);
+		}
+	}
+
+	// SectionManager Methods
     
 	/**
 	 * Filters out framework groups that do not have a category.  A section's
@@ -1241,5 +1288,16 @@ public class SectionManagerImpl implements SectionManager {
 
 	public void setExternalSectionAdvisor(ExternalSectionAdvisor externalSectionAdvisor) {
 		this.externalSectionAdvisor = externalSectionAdvisor;
+	}
+
+	
+	// This goes somewhere
+	private void updateInternalSections(Site site) {
+		// TODO Get the existing groups from the site
+		
+		// TODO Remove any group with a providerId that is not in the Site's complex provider ID
+		
+		// TODO Add any new groups (decorated as sections) that are missing
+		
 	}
 }

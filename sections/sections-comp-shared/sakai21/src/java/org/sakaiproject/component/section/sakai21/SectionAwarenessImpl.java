@@ -23,13 +23,10 @@ package org.sakaiproject.component.section.sakai21;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -37,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
@@ -45,6 +43,8 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.section.facade.impl.sakai21.SakaiUtil;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.SectionCategory;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
@@ -63,16 +63,15 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public class SectionAwarenessImpl implements SectionAwareness {
 
-	private ResourceBundle sectionCategoryBundle = ResourceBundle.getBundle(
-			"org.sakaiproject.api.section.bundle.CourseSectionCategories");
-
 	private static final Log log = LogFactory.getLog(SectionAwarenessImpl.class);
 
+	// Sakai services
 	protected SiteService siteService;
     protected SecurityService securityService;
 	protected EntityManager entityManager;
     protected FunctionManager functionManager;
     protected UserDirectoryService userDirectoryService;
+    protected CourseManagementService courseManagementService;
 
     /**
 	 * Bean initialization (called by spring) registers authorization functions
@@ -89,7 +88,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
 	 */
 	public List getSections(final String siteContext) {
     	if(log.isDebugEnabled()) log.debug("Getting sections for context " + siteContext);
-    	List sectionList = new ArrayList();
+    	List<CourseSectionImpl> sectionList = new ArrayList<CourseSectionImpl>();
     	Collection sections;
     	try {
     		sections = siteService.getSite(siteContext).getGroups();
@@ -109,13 +108,12 @@ public class SectionAwarenessImpl implements SectionAwareness {
 	 * @inheritDoc
 	 */
 	public List getSectionCategories(String siteContext) {
-		Enumeration keys = sectionCategoryBundle.getKeys();
-		List categoryIds = new ArrayList();
-		while(keys.hasMoreElements()) {
-			categoryIds.add(keys.nextElement());
+		List<String> catCodes = new ArrayList<String>();
+		for(Iterator iter = courseManagementService.getSectionCategories().iterator(); iter.hasNext();) {
+			SectionCategory cat = (SectionCategory)iter.next();
+			catCodes.add(cat.getCategoryCode());
 		}
-		Collections.sort(categoryIds);
-		return categoryIds;
+		return catCodes;
 	}
 	
 	/**
@@ -154,7 +152,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
         }
         List sakaiMembers = securityService.unlockUsers(SectionAwareness.INSTRUCTOR_MARKER,
         		course.getUuid());
-        List membersList = new ArrayList();
+        List<InstructorRecordImpl> membersList = new ArrayList<InstructorRecordImpl>();
         for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
         	org.sakaiproject.user.api.User sakaiUser = (org.sakaiproject.user.api.User)iter.next();
         	User user = SakaiUtil.convertUser(sakaiUser);
@@ -172,7 +170,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
         }
         List sakaiMembers = securityService.unlockUsers(SectionAwareness.STUDENT_MARKER, course.getUuid());
         if(log.isDebugEnabled()) log.debug("Site students size = " + sakaiMembers.size());
-        List membersList = new ArrayList();
+        List<EnrollmentRecordImpl> membersList = new ArrayList<EnrollmentRecordImpl>();
         for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
         	org.sakaiproject.user.api.User sakaiUser = (org.sakaiproject.user.api.User)iter.next();
         	User user = SakaiUtil.convertUser(sakaiUser);
@@ -190,7 +188,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
         List sakaiMembers = securityService.unlockUsers(SectionAwareness.TA_MARKER, course.getUuid());
         if(log.isDebugEnabled()) log.debug("Site TAs size = " + sakaiMembers.size());
 
-        List membersList = new ArrayList();
+        List<TeachingAssistantRecordImpl> membersList = new ArrayList<TeachingAssistantRecordImpl>();
         for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
         	org.sakaiproject.user.api.User sakaiUser = (org.sakaiproject.user.api.User)iter.next();
         	User user = SakaiUtil.convertUser(sakaiUser);
@@ -217,7 +215,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
 	 */
 	public List findSiteMembersInRole(final String siteContext, final Role role, final String pattern) {
 		List fullList = getSiteMembersInRole(siteContext, role);
-		List filteredList = new ArrayList();
+		List<ParticipationRecord> filteredList = new ArrayList<ParticipationRecord>();
 		for(Iterator iter = fullList.iterator(); iter.hasNext();) {
 			ParticipationRecord record = (ParticipationRecord)iter.next();
 			User user = record.getUser();
@@ -282,7 +280,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
 		Set studentRoles = getSectionStudentRoles(group);
 		Set members = group.getMembers();
 		
-		List sectionMembershipRecords = new ArrayList();
+		List<ParticipationRecord> sectionMembershipRecords = new ArrayList<ParticipationRecord>();
 		for(Iterator iter = members.iterator(); iter.hasNext();) {
 			Member member = (Member)iter.next();
 			String roleString = member.getRole().getId();
@@ -345,14 +343,14 @@ public class SectionAwarenessImpl implements SectionAwareness {
 		if(studentRoles == null || studentRoles.isEmpty()) {
 			return new ArrayList();
 		}
-		Set sakaiUserUids = new HashSet();
+		Set<String> sakaiUserUids = new HashSet<String>();
 		for(Iterator iter = studentRoles.iterator(); iter.hasNext();) {
 			String role = (String)iter.next();
 			sakaiUserUids.addAll(group.getUsersHasRole(role));
 		}
 		List sakaiUsers = userDirectoryService.getUsers(sakaiUserUids);
 
-        List membersList = new ArrayList();
+        List<EnrollmentRecord> membersList = new ArrayList<EnrollmentRecord>();
         for(Iterator iter = sakaiUsers.iterator(); iter.hasNext();) {
         	User user = SakaiUtil.convertUser((org.sakaiproject.user.api.User) iter.next());
     		EnrollmentRecordImpl record = new EnrollmentRecordImpl(section, null, user);
@@ -380,7 +378,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
 		}
 		List sakaiUsers = userDirectoryService.getUsers(sakaiUserUids);
 
-        List membersList = new ArrayList();
+        List<TeachingAssistantRecordImpl> membersList = new ArrayList<TeachingAssistantRecordImpl>();
         for(Iterator iter = sakaiUsers.iterator(); iter.hasNext();) {
         	User user = SakaiUtil.convertUser((org.sakaiproject.user.api.User) iter.next());
     		TeachingAssistantRecordImpl record = new TeachingAssistantRecordImpl(section, user);
@@ -421,7 +419,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
 	public List getSectionsInCategory(final String siteContext, final String categoryId) {
     	if(log.isDebugEnabled()) log.debug("Getting " + categoryId +
     			" sections for context " + siteContext);
-    	List sectionList = new ArrayList();
+    	List<CourseSection> sectionList = new ArrayList<CourseSection>();
     	Collection groups;
     	try {
     		groups = siteService.getSite(siteContext).getGroups();
@@ -442,16 +440,11 @@ public class SectionAwarenessImpl implements SectionAwareness {
 	 * @inheritDoc
 	 */
 	public String getCategoryName(String categoryId, Locale locale) {
-		ResourceBundle bundle = ResourceBundle.getBundle("org.sakaiproject.api.section.bundle.CourseSectionCategories", locale);
-		String name;
-		try {
-			name = bundle.getString(categoryId);
-		} catch(MissingResourceException mre) {
-			if(log.isDebugEnabled()) log.debug("Could not find the name for category id = " +
-					categoryId + " in locale " + locale.getDisplayName());
-			name = null;
+		String description = courseManagementService.getSectionCategoryDescription(categoryId);
+		if(description == null) {
+			return categoryId;
 		}
-		return name;
+		return description;
 	}
 
 	/**
@@ -517,4 +510,9 @@ public class SectionAwarenessImpl implements SectionAwareness {
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
 		this.userDirectoryService = userDirectoryService;
 	}
+
+	public void setCourseManagementService(CourseManagementService courseManagementService) {
+		this.courseManagementService = courseManagementService;
+	}
+
 }
