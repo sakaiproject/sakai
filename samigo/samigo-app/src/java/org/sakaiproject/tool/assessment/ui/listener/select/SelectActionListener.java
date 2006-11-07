@@ -217,8 +217,8 @@ public class SelectActionListener
         }
 
         delivery.setTimeElapse(getTimeElapsed(g.getTimeElapsed()));
-	/*
         delivery.setSubmissionDate(g.getSubmittedDate());
+	/*
         if (g.getSubmittedDate() != null && g.getAttemptDate() != null) {
           long time = g.getSubmittedDate().getTime() -
               g.getAttemptDate().getTime();
