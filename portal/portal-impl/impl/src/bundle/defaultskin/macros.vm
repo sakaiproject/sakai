@@ -504,7 +504,7 @@
 	<div id="footerInfo">
 #foreach ( $pb in $bottomNavPoweredBy )
 		<span class="skip">${bottomNavSitNewWindow}</span>	
-		<a href="${pb.powerdByUrl}" target="_blank">
+		<a href="${pb.poweredByUrl}" target="_blank">
 				<img border="0" src="${pb.poweredByImage}" alt="${pb.poweredByAltText}" /></a>
 #end
 	</div>

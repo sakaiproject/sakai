@@ -80,7 +80,6 @@
 #if (${siteNavLoggedIn})
 		<div id="headerMax">
 #includeLogoSkinTwo()
-#includeHierarchy()
 #includeTabsSkinTwo()
 		</div>
 #else
@@ -112,7 +111,6 @@
 		</div>
 #if (${gallaryLoggedIn})
 		<div id="headerMax">
-#includeHierarchy()
 #includeTabsSkinTwo()
 		</div>
 #else
@@ -147,40 +145,3 @@
 </div>
 #end
 
-#macro( includeHierarchy  ) 
-<div class="${tabsCssClass}">
-	<div id="siteNav">
-		<div id="linkNav">
-			<a id="sitetabs" class="skip" name="sitetabs"></a>
-			<ul class="makeMenu" >
-			    <li class="makeMenu" >Hierarchy Path</li>
-			    
-#foreach ( $path in $portalPath )
-#if ( ${path.current} )
-				<li class="makeMenu"><a href="#"><span>${path.name}</span></a>
-					<ul class="hierarchyDropDown" >
-#foreach ( $child in $path.children )
-				<li class="hierarchyDropDown">&nbsp;&nbsp;&nbsp;&nbsp;<a href="${child.url}" >&gt;&gt;${child.name}</a></li>
-#end				
-					</ul>
-				</li>
-				
-#else
-				<li class="makeMenu" ><a href="${path.url}" >${path.name}</a>
-					<ul  class="hierarchyDropDown"  >
-#foreach ( $child in $path.children )
-				<li class="hierarchyDropDown">&nbsp;&nbsp;&nbsp;&nbsp;<a href="${child.url}" >&gt;&gt;${child.name}</a></li>
-#end				
-					</ul>
-				</li>
-#end
-#end
-
-				<li style="border-width: 0pt; display: none;" class="fixTabsIE">
-					<a href="javascript:void(0);">#x20;</a>
-				</li>
-			</ul>
-		</div>
-	</div>
-</div>
-#end

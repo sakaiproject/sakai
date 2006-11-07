@@ -127,11 +127,6 @@
 		</dependency>
 
 
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-hierarchy-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
 
 	</dependencies>
 

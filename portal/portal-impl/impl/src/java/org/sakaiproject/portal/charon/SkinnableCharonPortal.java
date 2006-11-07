@@ -19,14 +19,6 @@
  *
  **********************************************************************************/
 // Base version: CharonPortal.java 14784 -- this must be updated to map changes in Charon 
-/* progress comments,
- * Use of hierarchy is controlled by the skin in the options.properties file in the
- * skin bundle.
- * Where hierarchy is enabled, Worksites are filtered by the Hierarchy.
- * There is also a Management site for the node. For the user be able 
- * to do anything to the node, the user needs to be a member of the management
- * site for the node.
- */
 
 package org.sakaiproject.portal.charon;
 
@@ -57,9 +49,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.hierarchy.api.model.Hierarchy;
-import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
-import org.sakaiproject.hierarchy.cover.HierarchyService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -156,8 +145,6 @@ public class SkinnableCharonPortal extends HttpServlet
 	private static final String PADDING = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 
 	private static final String INCLUDE_BOTTOM = "include-bottom";
-
-	private static final String INCLUDE_HIERARCHY = "include-hierarchy";
 
 	private static final String INCLUDE_WORKSITE = "include-worksite";
 
@@ -439,7 +426,6 @@ public class SkinnableCharonPortal extends HttpServlet
 		// logout.
 
 		// includeTabs(out, req, session, siteId, "gallery", true);
-		includeHierarchy(rcontext, req);
 		includeTabs(rcontext, req, session, siteId, "gallery", false);
 
 		sendResponse(rcontext, res, "gallery-tabs");
@@ -1429,7 +1415,6 @@ public class SkinnableCharonPortal extends HttpServlet
 				skin, req);
 
 		includeLogo(rcontext, req, session, siteId);
-		includeHierarchy(rcontext, req);
 		includeTabs(rcontext, req, session, siteId, "site", false);
 
 		sendResponse(rcontext, res, "site-tabs");
@@ -1964,7 +1949,6 @@ public class SkinnableCharonPortal extends HttpServlet
 			{
 				if (loggedIn)
 				{
-					includeHierarchy(rcontext, req);
 					includeTabs(rcontext, req, session, siteId, "gallery",
 							false);
 				}
@@ -2395,7 +2379,6 @@ public class SkinnableCharonPortal extends HttpServlet
 				if (loggedIn)
 				{
 					includeLogo(rcontext, req, session, siteId);
-					includeHierarchy(rcontext, req);
 					includeTabs(rcontext, req, session, siteId, "site", false);
 				}
 				else
@@ -2494,39 +2477,6 @@ public class SkinnableCharonPortal extends HttpServlet
 
 			// remove all in exclude from mySites
 			mySites.removeAll(prefExclude);
-
-			// get a list of sites at this location
-			// is there are none, null will come back
-			// its not absolutely clear if a non hierarchy portal
-			// should include hierarchy filtering
-			try
-			{
-				if (rcontext.uses(INCLUDE_HIERARCHY))
-				{
-					String hierarchySites = getHierarchySites();
-
-					List removeSites = new ArrayList();
-					if (hierarchySites != null)
-					{
-						for (Iterator ih = mySites.iterator(); ih.hasNext();)
-						{
-							String site = (String) ih.next();
-							if (hierarchySites.indexOf(site) != -1)
-							{
-								removeSites.add(site);
-							}
-						}
-					}
-					if (removeSites.size() > 0)
-					{
-						mySites.removeAll(removeSites);
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				M_log.info(" Failed ", ex);
-			}
 
 			// re-order mySites to have order first, the rest later
 			List ordered = new Vector();
@@ -3122,256 +3072,6 @@ public class SkinnableCharonPortal extends HttpServlet
 		}
 	}
 
-	// hierarchy code
-	/**
-	 * What is the current portal path, bound to session
-	 */
-	protected String getCurrentPortalPath()
-	{
-		return HierarchyService.getCurrentPortalPath();
-	}
-
-	/**
-	 * set the current portal path, bound to session
-	 * 
-	 * @param portalPath
-	 */
-	protected void setCurrentPortalPath(String portalPath)
-	{
-		HierarchyService.setCurrentPortalPath(portalPath);
-	}
-
-	/**
-	 * get the current portal hierarchy nodes
-	 * 
-	 * @return
-	 */
-	private Hierarchy getCurrentPortalNode()
-	{
-		return HierarchyService.getCurrentPortalNode();
-	}
-
-	/**
-	 * get a string containing ; seperated sites at the node if null there is no
-	 * oppinion
-	 * 
-	 * @return
-	 */
-	private String getHierarchySites()
-	{
-		Hierarchy h = getCurrentPortalNode();
-		if (h != null)
-		{
-			String portalSites = null;
-			HierarchyProperty hp = h.getProperty(HierarchyProperty.PORTAL_SITES);
-			if (hp != null)
-			{
-				portalSites = hp.getPropvalue();
-			}
-			if (portalSites == null)
-			{
-				portalSites = "";
-			}
-			// get the management site for the node
-			hp = h.getProperty(HierarchyProperty.MANAGEMENT_SITE);
-			String managementSite = null;
-			if (hp != null)
-			{
-				managementSite = hp.getPropvalue();
-			}
-			if (managementSite == null)
-			{
-				managementSite = "";
-			}
-			return portalSites + ";" + managementSite;
-		}
-		else
-		{
-			return null;
-		}
-
-	}
-
-	/**
-	 * include hierarchy information into the portal context
-	 * 
-	 * @param rcontext
-	 * @param request
-	 */
-	protected void includeHierarchy(PortalRenderContext rcontext,
-			HttpServletRequest request)
-	{
-		if (rcontext.uses(INCLUDE_HIERARCHY))
-		{
-
-			try
-			{
-				String portalPath = getCurrentPortalPath();
-				if (portalPath == null)
-				{
-					portalPath = "";
-				}
-				String newPath = request.getParameter("portal-hierarchy-path");
-				M_log.debug("Path Param " + newPath);
-
-				Hierarchy h = null;
-				if (newPath != null && newPath.length() > 0)
-				{
-					if (newPath.endsWith("/"))
-					{
-						newPath = newPath.substring(0, newPath.length() - 1);
-					}
-					h = HierarchyService.getNode("/portal" + newPath);
-					if (h != null)
-					{
-						portalPath = newPath;
-						setCurrentPortalPath(portalPath);
-					}
-					else
-					{
-						M_log.warn("Didnt find node for /portal" + newPath);
-					}
-				}
-				else
-				{
-					if (portalPath.endsWith("/"))
-					{
-						portalPath = newPath.substring(0,
-								portalPath.length() - 1);
-					}
-					h = HierarchyService.getNode("/portal" + portalPath);
-					if (h == null)
-					{
-						M_log.warn("Didnt find node for /portal" + portalPath);
-					}
-				}
-				Hierarchy rootNode = HierarchyService.getNode("/portal");
-				{
-					M_log.debug("Portal Path is " + portalPath);
-					String[] path = portalPath.split("/");
-					M_log.debug("Portal Path is " + portalPath + " split into "
-							+ path.length + " elements ");
-					List l = new ArrayList();
-					String currentPath = "";
-					String nextPath = null;
-					if (1 < path.length)
-					{
-						nextPath = "/" + path[1];
-					}
-					M_log.debug("Looking for Root Child Path " + nextPath);
-					Map m = new HashMap();
-					m
-							.put("url", "?portal-hierarchy-path="
-									+ Web.escapeUrl("/"));
-					m.put("name", "Home");
-
-					Hierarchy currentNode = rootNode;
-					Map children = currentNode.getChildren();
-					List lc = new ArrayList();
-					currentNode = null;
-					for (Iterator ic = children.values().iterator(); ic
-							.hasNext();)
-					{
-						Hierarchy child = (Hierarchy) ic.next();
-						Map mchild = new HashMap();
-						String childPath = child.getPath().substring(
-								"/portal".length());
-						String[] pathElements = childPath.split("/");
-						mchild.put("url", "?portal-hierarchy-path="
-								+ Web.escapeUrl(childPath));
-						String name = pathElements[pathElements.length - 1];
-						if (name.length() < 15)
-						{
-							name = name + PADDING.substring(name.length() * 6);
-						}
-						mchild.put("name", name);
-						lc.add(mchild);
-
-						M_log.debug("Checking ChildPath " + childPath);
-						if (nextPath != null && nextPath.equals(childPath))
-						{
-							currentNode = child;
-							M_log.debug("Matched ");
-						}
-					}
-					m.put("children", lc);
-					l.add(m);
-					M_log.debug("Added Root node with children, next node is  "
-							+ currentNode);
-
-					for (int i = 1; i < path.length && currentNode != null; i++)
-					{
-						m = new HashMap();
-						currentPath = currentPath + "/" + path[i];
-						M_log.debug("Current Node " + currentNode.getPath()
-								+ " should be  /portal" + currentPath);
-						if (i < path.length - 1)
-						{
-							nextPath = currentPath + "/" + path[i + 1];
-						}
-						else
-						{
-							nextPath = null;
-						}
-						M_log.debug("Looking for child path " + nextPath);
-						if (currentNode != null)
-						{
-							m.put("url", "?portal-hierarchy-path="
-									+ Web.escapeUrl(currentPath));
-							m.put("name", path[i]);
-							m.put("current", Boolean
-									.valueOf(i == (path.length - 1)));
-
-							children = currentNode.getChildren();
-							currentNode = null;
-							lc = new ArrayList();
-							for (Iterator ic = children.values().iterator(); ic
-									.hasNext();)
-							{
-								Hierarchy child = (Hierarchy) ic.next();
-								Map mchild = new HashMap();
-								String childPath = child.getPath().substring(
-										"/portal".length());
-								String[] pathElements = childPath.split("/");
-								mchild.put("url", "?portal-hierarchy-path="
-										+ Web.escapeUrl(childPath));
-								String name = pathElements[pathElements.length - 1];
-								if (name.length() < 15)
-								{
-									name = name
-											+ PADDING
-													.substring(name.length() * 6);
-								}
-								mchild.put("name", name);
-								lc.add(mchild);
-
-								M_log.debug("Checking child path " + childPath);
-								if (nextPath != null
-										&& nextPath.equals(childPath))
-								{
-									currentNode = child;
-									M_log.debug("Found " + childPath);
-								}
-							}
-							m.put("children", lc);
-							l.add(m);
-						}
-						else
-						{
-							M_log.warn("Cant Locate Node " + currentPath);
-						}
-					}
-					rcontext.put("portalPath", l);
-				}
-
-				M_log.debug("All Done ");
-			}
-			catch (Exception ex)
-			{
-				M_log.error("Ooops ", ex);
-			}
-		}
-	}
 
 	// Static registered files
 	// -------------------------------------------------------------
