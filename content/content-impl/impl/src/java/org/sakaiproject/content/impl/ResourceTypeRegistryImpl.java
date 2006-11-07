@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
+import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.ServiceLevelAction;
@@ -130,6 +131,11 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 //		}
 		typeIndex.put(type.getId(), type);
 		
+	}
+
+	public ResourceToolActionPipe newPipe(String initializationId, ResourceToolAction action) 
+	{
+		return new BasicResourceToolActionPipe(initializationId, action);
 	}
 
 }

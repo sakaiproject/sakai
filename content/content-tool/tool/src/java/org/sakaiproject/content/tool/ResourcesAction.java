@@ -77,6 +77,7 @@ import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
+import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.ServiceLevelAction;
@@ -775,25 +776,54 @@ public class ResourcesAction
 
 	private String buildCreateWizardContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
 	{
-		String template = "content/sakai_resources_cwiz_begin";
-		if(state.getAttribute(ResourceToolAction.ACTION_SUCCEEDED) != null)
-		{
-			// complete the create wizard
-			
-		}
-		else if(state.getAttribute(ResourceToolAction.ACTION_CANCELED) != null)
+		String template = "content/sakai_resources_cwiz_finish";
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+
+		if(pipe.isActionCanceled())
 		{
 			// go back to list view
 			
 		}
-		else if(state.getAttribute(ResourceToolAction.ACTION_ERROR) != null)
+		else if(pipe.isErrorEncountered())
 		{
 			// report the error?
 			
 		}
 		else
 		{
-			// start the wizard.  
+			// complete the create wizard
+			String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
+			if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
+			{
+				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
+				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
+			}
+
+			String encoding = data.getRequest().getCharacterEncoding();
+
+			Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
+			if(defaultRetractDate == null)
+			{
+				defaultRetractDate = TimeService.newTime();
+				state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
+			}
+	
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+			if(preventPublicDisplay == null)
+			{
+				preventPublicDisplay = Boolean.FALSE;
+				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+			}
+
+			Reference collectionRef = pipe.getContentEntityReference();
+
+			List items = newEditItems(collectionRef.getId(), pipe.getAction().getTypeId(), encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), defaultRetractDate, new Integer(1));
+
+			ChefEditItem item = (ChefEditItem) items.get(0);
+			item.setContent(pipe.getContent());
+			
+			context.put("item", item);
 		}
 		return template;
 	}
@@ -1007,16 +1037,51 @@ public class ResourcesAction
 			
 			InteractionAction iAction = (InteractionAction) action;
 			String intitializationId = iAction.initializeAction(reference);
+			ResourceToolActionPipe pipe = registry.newPipe(intitializationId, action);
+			pipe.setContentEntityReference(reference);
 			
+			toolSession.setAttribute(ResourceToolAction.ACTION_PIPE, pipe);
+
+			ContentEntity entity = (ContentEntity) reference.getEntity();
+			ResourceProperties props = entity.getProperties();
+
+			List propKeys = iAction.getRequiredPropertyKeys();
+			if(propKeys != null)
+			{
+				Iterator it = propKeys.iterator();
+				while(it.hasNext())
+				{
+					String key = (String) it.next();
+					Object value = props.get(key);
+					if(value == null)
+					{
+						// do nothing
+					}
+					else if(value instanceof String)
+					{
+						pipe.setResourceProperty(key, (String) value);
+					}
+					else if(value instanceof List)
+					{
+						pipe.setResourceProperty(key, (List) value);
+					}
+				}
+			}
 			
-			if(ResourceToolAction.CREATE.equals(actionId))
+			if(entity.isResource())
 			{
-				toolSession.setAttribute(ResourceToolAction.COLLECTION_REFERENCE, reference);
+				try 
+				{
+					pipe.setContentType(((ContentResource) entity).getContentType());
+					pipe.setContent(((ContentResource) entity).getContent());
+				} 
+				catch (ServerOverloadException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
-			else
-			{
-				toolSession.setAttribute(ResourceToolAction.RESOURCE_REFERENCE, reference);
-			}
+
 			startHelper(data.getRequest(), iAction.getHelperId());
 		}
 		else if(action instanceof ServiceLevelAction)

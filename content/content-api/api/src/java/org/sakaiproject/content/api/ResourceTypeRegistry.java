@@ -61,5 +61,14 @@ public interface ResourceTypeRegistry
 	 * @param type
 	 */
 	public void register(ResourceType type);
+	
+	/**
+	 * Create a new "pipe" that can be used as a conduit of information between the Resources tool 
+	 * and a helper that handles some part of an action. 
+	 * @param initializationId
+	 * @param action
+	 * @return
+	 */
+	public ResourceToolActionPipe newPipe(String initializationId, ResourceToolAction action);
 		
 }

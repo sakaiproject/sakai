@@ -22,3 +22,18 @@
 		</p>
 	</form>
 </div>
+<script type="text/javascript" language="JavaScript">
+	<!--
+	function submitform(id)
+	{
+		var theForm = document.getElementById(id);
+		if(theForm && theForm.onsubmit)
+		{
+			theForm.onsubmit();
+		}
+		if(theForm && theForm.submit)
+		{
+			theForm.submit();
+		}
+	}
+</script>

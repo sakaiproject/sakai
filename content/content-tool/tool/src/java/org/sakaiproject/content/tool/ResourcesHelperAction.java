@@ -30,6 +30,7 @@ import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.content.api.ResourceToolAction;
+import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.SessionState;
@@ -69,7 +70,13 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 		
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		String actionId = (String) toolSession.getAttribute(ResourceToolAction.ACTION_ID);
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		if(pipe.isActionCompleted())
+		{
+			return null;
+		}
+
+		String actionId = pipe.getAction().getId();
 		
 		String template = "";
 
@@ -77,7 +84,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		{
 			template = buildCreateContext(portlet, context, data, state);
 		}
-		
 		
 		return template;
 	}
@@ -99,8 +105,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		String template = CREATE_UPLOAD_TEMPLATE;
 		
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		Reference reference = (Reference) toolSession.getAttribute(ResourceToolAction.COLLECTION_REFERENCE);
-		String typeId = (String) toolSession.getAttribute(ResourceToolAction.RESOURCE_TYPE);
+
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+
+		//Reference reference = (Reference) toolSession.getAttribute(ResourceToolAction.COLLECTION_REFERENCE);
+		String typeId = pipe.getAction().getTypeId();
 
 		if(ResourceType.TYPE_TEXT.equals(typeId))
 		{
@@ -140,8 +149,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		Tool tool = ToolManager.getCurrentTool();
 		String url = (String) toolSession.getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
 		toolSession.removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
-
-		toolSession.setAttribute(ResourceToolAction.ACTION_CANCELED, Boolean.TRUE);
+		
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		pipe.setActionCanceled(true);
+		pipe.setErrorEncountered(false);
+		pipe.setActionCompleted(true);
 
 	}
 	
@@ -158,13 +170,16 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		
-		toolSession.setAttribute(ResourceToolAction.RESOURCE_CONTENT, content);
-		
-		toolSession.setAttribute(ResourceToolAction.ACTION_SUCCEEDED, Boolean.TRUE);
-		
 		Tool tool = ToolManager.getCurrentTool();
 		String url = (String) toolSession.getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
 		toolSession.removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		
+		pipe.setContent(content.getBytes());
+		pipe.setActionCanceled(false);
+		pipe.setErrorEncountered(false);
+		pipe.setActionCompleted(true);
 
 	}
 
