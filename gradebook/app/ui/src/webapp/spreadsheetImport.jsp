@@ -31,6 +31,13 @@
                 </h:panelGroup>
                 <x:inputCalendar id="dueDate" value="#{spreadsheetUploadBean.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true" popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" />
                 <h:message for="dueDate" styleClass="validationEmbedded" />
+
+                <h:outputLabel for="selectCommentColumn" id="commentsLabel" value="#{msgs.import_assignment_comments}"/>
+                <h:selectOneMenu id="selectCommentColumn" converter="javax.faces.Integer" value="#{spreadsheetUploadBean.selectedCommentsColumnId}">
+                    <f:selectItem itemValue="0" itemLabel="#{msgs.import_assignment_comments_none}"/>
+                    <f:selectItems value="#{spreadsheetUploadBean.assignmentColumnSelectItems}" />
+                </h:selectOneMenu>
+
             </h:panelGrid>
 
          <%/*

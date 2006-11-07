@@ -135,7 +135,7 @@ public interface GradebookManager {
      */
     public Set updateAssignmentGradeRecords(Assignment assignment, Collection gradeRecords)
     	throws StaleObjectModificationException;
- 
+
     public Set updateAssignmentGradesAndComments(Assignment assignment, Collection gradeRecords, Collection comments)
 		throws StaleObjectModificationException;
  

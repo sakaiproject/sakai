@@ -42,6 +42,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 public class SpreadsheetUploadBean extends GradebookDependentBean implements Serializable {
@@ -65,6 +66,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private Map scores;
     private Assignment assignment;
     private Long assignmentId;
+    private Integer selectedCommentsColumnId;
 
 
 
@@ -553,7 +555,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
         return "spreadsheetImport";
     }
-    //save grades
+    //save grades and comments
     public String saveGrades(){
 
         if(logger.isDebugEnabled())logger.debug("create assignment and save grades");
@@ -585,6 +587,12 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             assignment = getGradebookManager().getAssignmentWithStats(assignmentId);
             List gradeRecords = new ArrayList();
 
+            //initialize comment List
+            List comments = new ArrayList();
+            //check if a comments column is selected for the defalt select item value is
+            // 0 which mean no comments to be imported
+            if(selectedCommentsColumnId.intValue() > 0) comments = createCommentList(assignment);
+
             if(logger.isDebugEnabled())logger.debug("remove title entry form map");
             scores.remove("Assignment");
             if(logger.isDebugEnabled())logger.debug("iterate through scores and and save assignment grades");
@@ -602,14 +610,79 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             }
 
             if(logger.isDebugEnabled())logger.debug("persist grade records to database");
-            getGradebookManager().updateAssignmentGradeRecords(assignment, gradeRecords);
+            getGradebookManager().updateAssignmentGradesAndComments(assignment,gradeRecords,comments);
             return  "spreadsheetPreview";
         } catch (ConflictingAssignmentNameException e) {
             if(logger.isErrorEnabled())logger.error(e);
             FacesUtil.addErrorMessage(getLocalizedString("add_assignment_name_conflict_failure"));
         }
 
+
         return null;
+    }
+
+
+    /**
+     * method creates a collection of comment
+     * objects from a the saved spreadsheet and
+     * selected column. requires an assignment as parameter to set the
+     * gradableObject property of the comment
+     *
+     * @param assignmentTobeCommented
+     * @return  List of comment comment objects
+     */
+    public List createCommentList(Assignment assignmentTobeCommented){
+
+        List comments = new ArrayList();
+
+        Iterator it = studentRows.iterator();
+        if(logger.isDebugEnabled())logger.debug("number of rows "+studentRows.size() );
+        int i = 0;
+        while(it.hasNext()){
+
+            if(logger.isDebugEnabled())logger.debug("row " + i);
+            SpreadsheetRow row = (SpreadsheetRow) it.next();
+            List line = row.getRowcontent();
+
+            String userid = "";
+            String user = (String)line.get(0);
+            try{
+                userid = ((User)rosterMap.get(line.get(0))).getUserUid();
+            }catch(Exception e){
+                if(logger.isDebugEnabled())logger.debug("user "+ user + "is not known to the system");
+                userid = "";
+            }
+
+            String commentText;
+            int index = selectedCommentsColumnId.intValue();
+            if(line.size() > index) {
+                commentText = (String) line.get(index);
+            } else {
+                logger.info("unable to find any coments for " + userid + " in spreadsheet");
+                commentText = "";
+            }
+
+            if(logger.isDebugEnabled())logger.debug("user "+user + " userid " + userid +" points "+commentText);
+            if((commentText.length() > 1) && (!"".equals(userid))){
+                Comment comment = new Comment(userid,commentText,assignmentTobeCommented);
+                logger.debug(comment.toString());
+                logger.debug("assignemnt is "+comment.getGradableObject().getName());
+                comments.add(comment);
+            }
+            i++;
+        }
+
+        return comments;
+    }
+
+
+
+    public Integer getSelectedCommentsColumnId() {
+        return selectedCommentsColumnId;
+    }
+
+    public void setSelectedCommentsColumnId(Integer selectedCommentsColumnId) {
+        this.selectedCommentsColumnId = selectedCommentsColumnId;
     }
 
     /**

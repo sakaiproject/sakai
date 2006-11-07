@@ -16,10 +16,17 @@
 
 package org.sakaiproject.tool.gradebook;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import java.util.Date;
 import java.io.Serializable;
 
 /**
+ * Comment Object
+ *
+ *
  * Author:Louis Majanja <louis@media.berkeley.edu>
  * Date: Oct 20, 2006
  * Time: 10:56:34 AM
@@ -101,5 +108,35 @@ public class Comment implements Serializable {
     public void setGradableObject(GradableObject gradableObject) {
         this.gradableObject = gradableObject;
     }
+
+
+    public String toString() {
+        return new ToStringBuilder(this).
+                append("id", id).
+                append("grader", graderId).
+                append("comment",commentText).
+                append("studentid",studentId).toString();
+
+    }
+
+    public boolean equals(Object other) {
+        if (!(other instanceof Comment)) {
+            return false;
+        }
+        Comment comment = (Comment)other;
+        return new EqualsBuilder()
+            .append(gradableObject, comment.getGradableObject())
+            .append(id, comment.getId())
+            .append(commentText, comment.getCommentText()).isEquals();
+    }
+
+    public int hashCode() {
+        return new HashCodeBuilder().
+          append(gradableObject).
+          append(id).
+          append(commentText).
+          toHashCode();
+	}
+
 }
 
