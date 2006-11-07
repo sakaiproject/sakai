@@ -88,6 +88,7 @@ public interface MessageForumsForumManager {
      * Save a discussion forum topic
      */
     public void saveDiscussionForumTopic(DiscussionTopic topic);
+    public void saveDiscussionForumTopic(DiscussionTopic topic, boolean parentForumDraftStatus);
     
     /**
      * Create and save an empty private discussion forum topic

@@ -58,6 +58,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.site.api.Site;
@@ -433,8 +434,16 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 					// save the forum
 					Area area = areaManager.getDiscusionArea();
 					newForum.setArea(area);
-					newForum.setDraft(new Boolean("false"));
-					forumManager.saveDiscussionForum(newForum, false);
+					
+					if ("false".equalsIgnoreCase(ServerConfigurationService.getString("import.importAsDraft")))
+					{
+						forumManager.saveDiscussionForum(newForum, newForum.getDraft().booleanValue());
+					}
+					else
+					{
+						newForum.setDraft(new Boolean("true"));
+						forumManager.saveDiscussionForum(newForum, true);
+					}
 
 					// get/add the topics
 					List topicList = dfManager.getTopicsByIdWithMessagesAndAttachments(fromForumId);
@@ -480,7 +489,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 								}			
 							}				
 
-							forumManager.saveDiscussionForumTopic(newTopic);
+							forumManager.saveDiscussionForumTopic(newTopic, newForum.getDraft().booleanValue());
 						}
 					}	
 				}
@@ -749,12 +758,19 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 													{
 														Area area = areaManager.getDiscusionArea();
 														dfForum.setArea(area);
-														dfForum.setDraft(new Boolean("false"));
-														forumManager.saveDiscussionForum(dfForum, false);
+														if ("false".equalsIgnoreCase(ServerConfigurationService.getString("import.importAsDraft")))
+														{
+															forumManager.saveDiscussionForum(dfForum, dfForum.getDraft().booleanValue());
+														}
+														else
+														{
+															dfForum.setDraft(new Boolean("true"));
+															forumManager.saveDiscussionForum(dfForum, true);
+														}
 													}
 													hasTopic = true;
 
-													forumManager.saveDiscussionForumTopic(dfTopic);
+													forumManager.saveDiscussionForumTopic(dfTopic, dfForum.getDraft().booleanValue());
 												}                  			
 											}
 										}
@@ -763,8 +779,15 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 										{
 											Area area = areaManager.getDiscusionArea();
 											dfForum.setArea(area);
-											dfForum.setDraft(new Boolean("false"));
-											forumManager.saveDiscussionForum(dfForum, false);
+											if ("false".equalsIgnoreCase(ServerConfigurationService.getString("import.importAsDraft")))
+											{
+												forumManager.saveDiscussionForum(dfForum, dfForum.getDraft().booleanValue());
+											}
+											else
+											{
+												dfForum.setDraft(new Boolean("true"));
+												forumManager.saveDiscussionForum(dfForum, true);
+											}
 										}
 									}
 								} 

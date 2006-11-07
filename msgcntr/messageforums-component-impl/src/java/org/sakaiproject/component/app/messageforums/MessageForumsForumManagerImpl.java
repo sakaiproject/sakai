@@ -716,11 +716,16 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         LOG.debug("createDiscussionForumTopic executed");
         return topic;
     }
+    
+    
+    public void saveDiscussionForumTopic(DiscussionTopic topic) {	
+    	saveDiscussionForumTopic(topic, false);
+    }
 
     /**
      * Save a discussion forum topic
      */
-    public void saveDiscussionForumTopic(DiscussionTopic topic) {
+    public void saveDiscussionForumTopic(DiscussionTopic topic, boolean parentForumDraftStatus) {
         boolean isNew = topic.getId() == null;
 
 //        if (isForumLocked(topic.getBaseForum().getId())) {
@@ -747,7 +752,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 //          getHibernateTemplate().initialize(forum.getTopicsSet());          
 //          forum.addTopic(topic);                       
 //          getHibernateTemplate().saveOrUpdate(topic);
-          saveDiscussionForum(discussionForum);
+          saveDiscussionForum(discussionForum, parentForumDraftStatus);
             
         } else {
             getHibernateTemplate().saveOrUpdate(topic);
