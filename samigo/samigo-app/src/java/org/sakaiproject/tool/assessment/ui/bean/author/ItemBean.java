@@ -1014,32 +1014,45 @@ public class ItemBean
   }
 
   public String removeChoices() {
-	String labelToRemove = ContextUtil.lookupParam("answerid");
-        ArrayList list = getMultipleChoiceAnswers(); // get existing list
-	Iterator iter = list.iterator();
-	int currentindex = 0;
-        if (list!=null) {
-      	  while(iter.hasNext())
-       	  {
-		AnswerBean answerbean = (AnswerBean) iter.next();
-		if (answerbean.getLabel().equals(labelToRemove)) {
-		// delete selected choices
-               		iter.remove();
-                }
-		else {
-		currentindex=currentindex+1;
-		// reset sequence and labels , shift the seq/labels after a choice is deleted
-              		answerbean.setSequence(new Long(currentindex));
-                	answerbean.setLabel(AnswerBean.getChoiceLabels()[currentindex-1]);
+		String labelToRemove = ContextUtil.lookupParam("answerid");
+		ArrayList corranswersList = ContextUtil.paramArrayValueLike("mccheckboxes");
+		Object [] objArray = corranswersList.toArray();
+		String [] corrAnswers = new String[objArray.length];
+		ArrayList list = getMultipleChoiceAnswers(); // get existing list
+		Iterator iter = list.iterator();
+		int currentindex = 0;
+		int correctIndex = 0;
+		boolean delete = false;
+		if (list != null) {
+			while (iter.hasNext()) {
+				AnswerBean answerbean = (AnswerBean) iter.next();
+				if (answerbean.getLabel().equals(labelToRemove)) {
+					// delete selected choices
+					iter.remove();
+					delete = true;
+				} else {
+					currentindex = currentindex + 1;
+					// reset sequence and labels , shift the seq/labels after a
+					// choice is deleted
+					answerbean.setSequence(new Long(currentindex));
+					answerbean.setLabel(AnswerBean.getChoiceLabels()[currentindex - 1]);
+				}
+				
+				// reset correct answers
+				for (int i = 0; i < objArray.length; i++) {
+					if (!labelToRemove.equals(objArray[i])) {
+						if ((delete && AnswerBean.getChoiceLabels()[currentindex].equals(objArray[i])) ||
+								(!delete && AnswerBean.getChoiceLabels()[currentindex - 1].equals(objArray[i]))) {
+							corrAnswers[correctIndex++] = AnswerBean.getChoiceLabels()[currentindex - 1];
+						}
+					}
+				}
+			}
 		}
-          }
+		this.setCorrAnswers(corrAnswers);
 
-        }
-        setMultipleChoiceAnswers(list);
-
-	return null;
-
-  }
+		return null;
+	}
 
 
 // Huong added for matching
