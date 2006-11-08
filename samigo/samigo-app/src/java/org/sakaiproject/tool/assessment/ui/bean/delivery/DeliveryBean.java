@@ -2524,7 +2524,13 @@ public class DeliveryBean
       if (assessmentGrading.getSubmittedDate()!=null){
          DBdate = assessmentGrading.getSubmittedDate().getTime();
       }
-      String browserDateString = ContextUtil.lookupParam("lastSubmittedDate"); 
+      String browserDateString = ContextUtil.lookupParam("lastSubmittedDate1");
+      if (browserDateString == null){
+        browserDateString = ContextUtil.lookupParam("lastSubmittedDate2");
+      }
+
+      // SAK-7106:jsf doesn't like id with same name even though there is a rendering condition there
+      // so we have to use 2 differnt id and check it this way instead.
       long browserDate=0;
       try{
         if (browserDateString!=null){
