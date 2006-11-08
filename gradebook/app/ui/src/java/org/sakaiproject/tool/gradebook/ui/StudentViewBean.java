@@ -54,6 +54,8 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
     private String sortColumn;
 
     private StringBuffer rowStyles;
+    private Map commentMap;
+
 
     // Controller fields - transient.
     private transient List assignmentGradeRows;
@@ -205,11 +207,11 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
 
         // Set the display name
         try {
-	        userDisplayName = getUserDirectoryService().getUserDisplayName(getUserUid());
-	    } catch (UnknownUserException e) {
-	    	if(logger.isErrorEnabled())logger.error("User " + getUserUid() + " is unknown but logged in as student in gradebook " + gradebook.getUid());
-	    	userDisplayName = "";
-	    }
+            userDisplayName = getUserDirectoryService().getUserDisplayName(getUserUid());
+        } catch (UnknownUserException e) {
+            if(logger.isErrorEnabled())logger.error("User " + getUserUid() + " is unknown but logged in as student in gradebook " + gradebook.getUid());
+            userDisplayName = "";
+        }
         courseGradeReleased = gradebook.isCourseGradeDisplayed();
         assignmentsReleased = gradebook.isAssignmentsDisplayed();
 
@@ -226,6 +228,15 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
                 courseGrade = gradeRecord.getDisplayGrade();
                 percent = gradeRecord.getSortGrade().doubleValue();
             }
+        }
+        //get grade comments and load them into a map assignmentId->comment
+        commentMap = new HashMap();
+        List assignmentComments = getGradebookManager().getStudentAssignmentComments(getUserUid(),getGradebookId());
+        logger.debug("number of comments "+assignmentComments.size());
+        Iterator iteration = assignmentComments.iterator();
+        while (iteration.hasNext()){
+            Comment comment = (Comment)iteration.next();
+            commentMap.put(comment.getGradableObject().getId(),comment);
         }
 
         // Don't display any assignments if they have not been released
@@ -259,6 +270,13 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
                 // Update the AssignmentGradeRow in the map
                 AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
                 asnGradeRow.setGradeRecord(asnGr);
+                //update the coments
+                try{
+                    Comment comment = (Comment)commentMap.get(asnGradeRow.getAssignment().getId());
+                    if(comment.getCommentText().length() > 0)asnGradeRow.getComments().add(comment);
+                }catch(NullPointerException npe){
+                    if(logger.isDebugEnabled())logger.debug("assignment has no associated comment");
+                }
             }
 
 
@@ -304,16 +322,6 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
 
 
         }
-        //append comments to the comments collections
-        Iterator iterator = assignmentGradeRows.iterator();
-        while(iterator.hasNext()){
-            AssignmentGradeRow assignmentGradeRow = (AssignmentGradeRow)iterator.next();
-            Comment comment  = getGradebookManager().getComment(assignmentGradeRow.getAssignment(),getUserUid());
-            if(comment!= null){ 
-            assignmentGradeRow.getComments().add(comment);
-            }
-        }
-
 
     }
 
@@ -322,50 +330,50 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
      */
     public List getAssignmentGradeRows() {
         return assignmentGradeRows;
-	}
+    }
     /**
-	 * @return Returns the courseGrade.
-	 */
-	public String getCourseGrade() {
-		return courseGrade;
-	}
-	/**
-	 * @return Returns the courseGradeReleased.
-	 */
-	public boolean isCourseGradeReleased() {
-		return courseGradeReleased;
-	}
-	public boolean isAssignmentsReleased() {
-		return assignmentsReleased;
-	}
-	/**
-	 * @return Returns the percent.
-	 */
-	public double getPercent() {
+     * @return Returns the courseGrade.
+     */
+    public String getCourseGrade() {
+        return courseGrade;
+    }
+    /**
+     * @return Returns the courseGradeReleased.
+     */
+    public boolean isCourseGradeReleased() {
+        return courseGradeReleased;
+    }
+    public boolean isAssignmentsReleased() {
+        return assignmentsReleased;
+    }
+    /**
+     * @return Returns the percent.
+     */
+    public double getPercent() {
         double pct = 0;
         BigDecimal bd = new BigDecimal(percent);
         bd = bd.setScale(2,BigDecimal.ROUND_DOWN);
         pct = bd.doubleValue();
         return pct;
-	}
-	/**
-	 * @return Returns the totalPointsEarned.
-	 */
-	public double getTotalPointsEarned() {
-		return totalPointsEarned;
-	}
-	/**
-	 * @return Returns the totalPointsScored.
-	 */
-	public double getTotalPointsScored() {
-		return totalPointsScored;
-	}
-	/**
-	 * @return Returns the userDisplayName.
-	 */
-	public String getUserDisplayName() {
-		return userDisplayName;
-	}
+    }
+    /**
+     * @return Returns the totalPointsEarned.
+     */
+    public double getTotalPointsEarned() {
+        return totalPointsEarned;
+    }
+    /**
+     * @return Returns the totalPointsScored.
+     */
+    public double getTotalPointsScored() {
+        return totalPointsScored;
+    }
+    /**
+     * @return Returns the userDisplayName.
+     */
+    public String getUserDisplayName() {
+        return userDisplayName;
+    }
 
     // Delegated sort methods
     public String getAssignmentSortColumn() {
@@ -411,7 +419,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
      *         the final course grade.
      */
     public boolean isAnyNotCounted() {
-    	return anyNotCounted;
+        return anyNotCounted;
     }
 
 

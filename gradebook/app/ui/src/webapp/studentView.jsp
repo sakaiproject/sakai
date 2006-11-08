@@ -103,7 +103,7 @@
                     </f:facet>
                     <h:outputLink value="#" rendered="#{not empty row.comments}"
                                   onclick="javascript:dhtmlPopupToggle('#{rowIndex}', event);return false;">
-                        <h:graphicImage value="images/log.png" alt="Show Comment"/>
+                        <h:graphicImage value="images/comment.gif" alt="Show Comment"/>
                     </h:outputLink>
                 </h:column>
                 <h:column>
