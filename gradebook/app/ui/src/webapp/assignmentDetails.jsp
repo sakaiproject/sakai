@@ -189,6 +189,7 @@
 						disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"/>
 				</f:facet>
 				<h:message for="Score" styleClass="validationEmbedded gbMessageAdjustForContent"/>
+				<h:message for="Comment" styleClass="validationEmbedded gbMessageAdjustForContent"/>
 				<x:div styleClass="gbTextOnRow" rendered="#{!scoreRow.commentEditable}">
 					<h:outputText value="#{scoreRow.commentText}"/>
 				</x:div>
@@ -196,6 +197,7 @@
 					<h:inputTextarea id="Comment" value="#{scoreRow.commentText}"
 						rows="4" cols="35"
 						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+						<f:validateLength maximum="255" />
 					</h:inputTextarea>
 				</x:div>
 			</h:column>
