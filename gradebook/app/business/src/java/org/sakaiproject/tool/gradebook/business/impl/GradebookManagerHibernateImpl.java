@@ -1038,18 +1038,22 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         });
     }
 
-    public Comment getComment(final GradableObject gradableObject,final String studentId) {
-        HibernateCallback hc = new HibernateCallback(){
+
+    public List getStudentAssignmentComments(final String studentId, final Long gradebookId) {
+        return (List)getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-                return (Comment)session.createQuery(
-                        "from Comment as ct where ct.studentId=? and ct.gradableObject=?").
-                        setString(0, studentId).
-                        setEntity(1, gradableObject).
-                        uniqueResult();
+                List comments;
+                comments = new ArrayList();
+                Query q = session.createQuery("from Comment as c where c.studentId=:studentId and c.gradableObject.gradebook.id=:gradebookId");
+                q.setParameter("studentId", studentId);
+                q.setParameter("gradebookId",gradebookId);
+                List allComments = q.list();
+                for (Iterator iter = allComments.iterator(); iter.hasNext(); ) {
+                    Comment comment = (Comment)iter.next();
+                    comments.add(comment);
+                }
+                return comments;
             }
-        };
-
-        return(Comment)getHibernateTemplate().execute(hc);
+        });
     }
-
 }

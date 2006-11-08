@@ -312,7 +312,19 @@ public interface GradebookManager {
      */
     public Long createSpreadsheet(Long gradebookId, String name, String creator, Date dateCreated, String content) throws ConflictingSpreadsheetNameException, StaleObjectModificationException;
 
+    /**
+     *
+     * @param assignment
+     * @param studentIds
+     * @return
+     */
     public List getComments(Assignment assignment, Collection studentIds);
-    
-    public Comment getComment(GradableObject gradableObject, String studentId);
+
+    /**method to get comments for a assignments for a student in a gradebook
+     *
+     * @param studentId
+     * @param gradebookId
+     * @return
+     */
+    public List getStudentAssignmentComments(String studentId, Long gradebookId);
 }
