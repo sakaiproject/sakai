@@ -176,6 +176,9 @@ div.portletBody {
 	margin:2em;
 }
 
+.shorttext {
+}
+
 /* "important" as in tool_base.css. */
 /* SECTION 5 INDENTING CLASSES:use these classes with <div> blocks to structure layout hierarchically.*/
 .indnt0,.tier0{

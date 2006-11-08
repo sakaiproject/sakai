@@ -57,6 +57,7 @@
 			id="mappingTable"
 			value="#{feedbackOptionsBean.gradeRows}"
 			var="gradeRow"
+			columnClasses="shorttext"
 			styleClass="listHier narrowTable">
 			<h:column>
 				<f:facet name="header">

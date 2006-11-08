@@ -10,7 +10,7 @@
 				<f:selectItems value="#{bean.sectionFilterSelectItems}" />
 			</h:selectOneMenu>
 		</x:div>
-		<x:div>
+		<x:div styleClass="shorttext">
 			<h:inputText
 				id="searchString"
 				value="#{bean.searchString}"
@@ -23,7 +23,7 @@
 		</x:div>
 	</x:div>
 
-	<x:div>
+	<x:div styleClass="shorttext">
 	<sakai:pager id="pager" totalItems="#{bean.dataRows}" firstItem="#{bean.firstRow}" pageSize="#{bean.maxDisplayedRows}" textStatus="#{msgs.paging_status_students}" />
 	</x:div>
 </h:panelGrid>

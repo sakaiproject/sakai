@@ -106,13 +106,15 @@
 						<h:outputText value="#{msgs.course_grade_details_grade}"/>
 		            </x:commandSortHeader>
 				</f:facet>
-				<h:inputText
-					id="Grade"
-					value="#{scoreRow.courseGradeRecord.enteredGrade}"
-					size="4"
-					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.COURSE_GRADE" />
-				</h:inputText>
+				<x:div styleClass="shorttext">
+					<h:inputText
+						id="Grade"
+						value="#{scoreRow.courseGradeRecord.enteredGrade}"
+						size="4"
+						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.COURSE_GRADE" />
+					</h:inputText>
+				</x:div>
 			</h:column>
 			<h:column>
 				<h:message for="Grade" styleClass="validationEmbedded" />

@@ -168,7 +168,7 @@
 		            </x:commandSortHeader>
 				</f:facet>
 
-				<x:div styleClass="gbInputOnRow">
+				<x:div styleClass="shorttext">
 					<h:inputText id="Score" value="#{scoreRow.score}" size="4" rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}" style="text-align:right;"
 						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
@@ -192,9 +192,9 @@
 				<x:div styleClass="gbTextOnRow" rendered="#{!scoreRow.commentEditable}">
 					<h:outputText value="#{scoreRow.commentText}"/>
 				</x:div>
-				<x:div styleClass="gbInputOnRow" rendered="#{scoreRow.commentEditable}">
+				<x:div rendered="#{scoreRow.commentEditable}">
 					<h:inputTextarea id="Comment" value="#{scoreRow.commentText}"
-						rows="1" cols="40"
+						rows="4" cols="35"
 						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 					</h:inputTextarea>
 				</x:div>
