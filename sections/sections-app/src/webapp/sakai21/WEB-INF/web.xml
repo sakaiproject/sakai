@@ -17,7 +17,7 @@
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
             classpath:/org/sakaiproject/component/section/sakai21/spring-services.xml
-            /WEB-INF/spring-uiAuthz.xml
+            /WEB-INF/spring-ui.xml
 		</param-value>
 	</context-param>
  

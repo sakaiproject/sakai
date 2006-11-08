@@ -7,4 +7,11 @@
 		<managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.standalone.LoginBean</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
 	</managed-bean>
+
+	<managed-bean>
+		<description>Application Configuration Bean</description>
+		<managed-bean-name>configBean</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.standalone.ConfigBean</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
 </faces-config>

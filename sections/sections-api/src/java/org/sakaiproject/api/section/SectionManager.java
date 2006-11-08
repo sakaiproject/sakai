@@ -496,4 +496,45 @@ public interface SectionManager {
      * @param groupMembers The set if user uuids
      */
     public void setUsersInGroup(String courseGroupUuid, Set groupMembers);
+
+
+    //// Configuration
+
+    
+    /**
+	 * Describes the configuraiton for the SectionManager service and the Section
+	 * Info tool:
+	 * 
+	 * <ul>
+	 * 	<li><b>ALWAYS_MANUAL</b> - The section Info tool does not allow for
+	 * externally managed sections, and sections will never be created automatically</li>
+	 * 
+	 * 	<li><b>OPTIONAL_MULTIPLE</b> - The section Info tool allows the user
+	 * to choose whether sections should be internally or externally managed.
+	 * Sections will be generated for sites associated with multiple rosters.</li>
+	 * 
+	 * 	<li><b>OPTIONAL_ALL</b> - The section Info tool allows the user
+	 * to choose whether sections should be internally or externally managed.
+	 * Sections will be generated for sites associated with any number of rosters.</li>
+	 * 
+	 * 	<li><b>ALWAYS_AUTOMATIC</b> - The section Info tool does not allow
+	 * for internally managed sections.  Add sections are created automatically, based
+	 * on the rosters associated with the site.</li>
+	 * </ul>
+	 * 
+	 * @author <a href="mailto:jholtzman@berkeley.edu">jholtzman@berkeley.edu</a>
+	 *
+	 */
+	public enum ExternalIntegrationConfig {ALWAYS_MANUAL, OPTIONAL_MULTIPLE, OPTIONAL_ALL, ALWAYS_AUTOMATIC};
+
+	/**
+	 * Gets the application-wide configuration setting.
+	 * 
+	 * @param obj An object to pass any necessary context information.
+	 * @return
+	 */
+	public ExternalIntegrationConfig getConfiguration(Object obj);
+	
+	public static final String CONFIGURATION_KEY="section.info.integration";
+
 }

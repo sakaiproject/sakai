@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -37,6 +38,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
@@ -96,6 +98,9 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
     protected SessionManager sessionManager;
     protected EntityManager entityManager;
     protected EventTrackingService eventTrackingService;
+
+    // Configuration setting
+    protected String config;
     
     /**
      * Initialization called once all dependencies are set.
@@ -1256,7 +1261,20 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		}
 	}
 	
-    // Dependency injection
+	public ExternalIntegrationConfig getConfiguration(Object obj) {
+		if(ExternalIntegrationConfig.ALWAYS_AUTOMATIC.toString().equals(config)) {
+			return ExternalIntegrationConfig.ALWAYS_AUTOMATIC;
+		} else if(ExternalIntegrationConfig.ALWAYS_MANUAL.toString().equals(config)) {
+			return ExternalIntegrationConfig.ALWAYS_MANUAL;
+		} else if(ExternalIntegrationConfig.OPTIONAL_ALL.toString().equals(config)){
+			return ExternalIntegrationConfig.OPTIONAL_ALL;
+		} else {
+			// our default configuration
+			return ExternalIntegrationConfig.OPTIONAL_MULTIPLE;
+		}
+	}
+
+	// Dependency injection
 
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
@@ -1290,14 +1308,19 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		this.externalSectionAdvisor = externalSectionAdvisor;
 	}
 
-	
-	// This goes somewhere
-	private void updateInternalSections(Site site) {
-		// TODO Get the existing groups from the site
-		
-		// TODO Remove any group with a providerId that is not in the Site's complex provider ID
-		
-		// TODO Add any new groups (decorated as sections) that are missing
-		
+	public void setConfig(String config) {
+		this.config = config;
 	}
+
+//	
+//	// This goes somewhere
+//	private void updateInternalSections(Site site) {
+//		// TODO Get the existing groups from the site
+//		
+//		// TODO Remove any group with a providerId that is not in the Site's complex provider ID
+//		
+//		// TODO Add any new groups (decorated as sections) that are missing
+//		
+//	}
+
 }

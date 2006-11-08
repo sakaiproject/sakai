@@ -8,5 +8,10 @@
             <to-view-id>/standalone/login.jsp</to-view-id>
             <redirect/>
         </navigation-case>
+        <navigation-case>
+            <from-outcome>config</from-outcome>
+            <to-view-id>/standalone/config.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
 	</navigation-rule>
 </faces-config>

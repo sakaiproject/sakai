@@ -87,4 +87,5 @@ public interface Authz {
 	 * @return
 	 */
 	public boolean isViewOwnSectionsAllowed(String userUid, String siteContext);
+	
 }

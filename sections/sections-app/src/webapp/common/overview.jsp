@@ -66,7 +66,7 @@
                 <h:outputText value="#{msgs.overview_table_header_day_time}" />
                 </x:commandSortHeader>
             </f:facet>
-            <h:dataTable id="meetingTimeTable" value="section.meetings" var="meeting">
+            <h:dataTable id="meetingTimeTable" value="#{section.decoratedMeetings}" var="meeting">
 	            <h:outputText value="#{meeting.meetingTimes}"/>
             </h:dataTable>
         </h:column>
@@ -91,7 +91,7 @@
                     <h:outputText value="#{msgs.overview_table_header_location}" />
                 </x:commandSortHeader>
             </f:facet>
-            <h:dataTable id="meetingLocationTable" value="section.meetings" var="meeting">
+            <h:dataTable id="meetingLocationTable" value="#{section.decoratedMeetings}" var="meeting">
 	            <h:outputText value="#{meeting.location}"/>
             </h:dataTable>
         </h:column>

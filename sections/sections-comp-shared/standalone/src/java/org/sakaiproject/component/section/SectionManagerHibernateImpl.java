@@ -32,6 +32,9 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -925,6 +928,19 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 		getHibernateTemplate().update(courseGroup);
 	}
 
+	public ExternalIntegrationConfig getConfiguration(Object obj) {
+		HttpServletRequest request = (HttpServletRequest)obj;
+		ServletContext context = request.getSession(true).getServletContext();
+		ExternalIntegrationConfig config = (ExternalIntegrationConfig)context.getAttribute(CONFIGURATION_KEY);
+		
+		// Set the default if the configuration string is missing
+		if(config == null) {
+			config = ExternalIntegrationConfig.OPTIONAL_MULTIPLE;
+			context.setAttribute(CONFIGURATION_KEY, config);
+		}
+		
+		return config;
+	}
 	
 
     // Dependency injection

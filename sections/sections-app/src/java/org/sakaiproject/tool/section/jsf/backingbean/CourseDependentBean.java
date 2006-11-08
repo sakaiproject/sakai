@@ -32,6 +32,7 @@ import javax.faces.context.FacesContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.SectionManager;
+import org.sakaiproject.api.section.SectionManager.ExternalIntegrationConfig;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
@@ -86,9 +87,9 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 		return getCourseBean().authn.getUserUid(FacesContext.getCurrentInstance().getExternalContext().getRequest());
 	}
 	
-//	protected Role getSiteRole() {
-//		return getCourseBean().authz.getSiteRole(getUserUid(), getSiteContext());
-//	}
+	protected ExternalIntegrationConfig getApplicationConfiguration() {
+		return getCourseBean().sectionManager.getConfiguration(FacesContext.getCurrentInstance().getExternalContext().getRequest());
+	}
 	
 	protected String getSiteContext() {
 		return getCourseBean().context.getContext(null);
