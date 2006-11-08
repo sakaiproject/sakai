@@ -183,10 +183,17 @@
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-					<h:commandButton
-						value="#{assignmentDetailsBean.commentsToggle}"
-						actionListener="#{assignmentDetailsBean.toggleEditableComments}"
-						disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"/>
+					<h:panelGroup>
+						<h:commandButton
+							value="#{assignmentDetailsBean.commentsToggle}"
+							actionListener="#{assignmentDetailsBean.toggleEditableComments}"
+							disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
+							rendered="#{!assignmentDetailsBean.allCommentsEditable}"/>
+						<h:outputText
+							value="#{assignmentDetailsBean.commentsToggle}"
+							rendered="#{assignmentDetailsBean.allCommentsEditable}"
+							styleClass="tier0"/>
+					</h:panelGroup>
 				</f:facet>
 				<h:message for="Score" styleClass="validationEmbedded gbMessageAdjustForContent"/>
 				<h:message for="Comment" styleClass="validationEmbedded gbMessageAdjustForContent"/>
@@ -195,10 +202,10 @@
 				</x:div>
 				<x:div rendered="#{scoreRow.commentEditable}">
 					<h:inputTextarea id="Comment" value="#{scoreRow.commentText}"
-						rows="4" cols="35"
-						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+						rows="4" cols="35">
 						<f:validateLength maximum="255" />
 					</h:inputTextarea>
+					<x:div><h:outputText value="#{msgs.assignment_details_comments_size_limit}"/></x:div>
 				</x:div>
 			</h:column>
 		</x:dataTable>
