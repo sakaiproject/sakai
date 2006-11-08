@@ -634,13 +634,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     public List createCommentList(Assignment assignmentTobeCommented){
 
         List comments = new ArrayList();
-
         Iterator it = studentRows.iterator();
-        if(logger.isDebugEnabled())logger.debug("number of rows "+studentRows.size() );
-        int i = 0;
         while(it.hasNext()){
-
-            if(logger.isDebugEnabled())logger.debug("row " + i);
             SpreadsheetRow row = (SpreadsheetRow) it.next();
             List line = row.getRowcontent();
 
@@ -648,30 +643,15 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             String user = (String)line.get(0);
             try{
                 userid = ((User)rosterMap.get(line.get(0))).getUserUid();
+                String commentText = (String) line.get( selectedCommentsColumnId.intValue());
+                if((!commentText.equals(""))){
+                    Comment comment = new Comment(userid,commentText,assignmentTobeCommented);
+                    comments.add(comment);
+                }
             }catch(Exception e){
-                if(logger.isDebugEnabled())logger.debug("user "+ user + "is not known to the system");
-                userid = "";
+                if(logger.isDebugEnabled())logger.debug("student is required  and "+ user + "is not known to this gradebook");
             }
-
-            String commentText;
-            int index = selectedCommentsColumnId.intValue();
-            if(line.size() > index) {
-                commentText = (String) line.get(index);
-            } else {
-                logger.info("unable to find any coments for " + userid + " in spreadsheet");
-                commentText = "";
-            }
-
-            if(logger.isDebugEnabled())logger.debug("user "+user + " userid " + userid +" points "+commentText);
-            if((commentText.length() > 1) && (!"".equals(userid))){
-                Comment comment = new Comment(userid,commentText,assignmentTobeCommented);
-                logger.debug(comment.toString());
-                logger.debug("assignemnt is "+comment.getGradableObject().getName());
-                comments.add(comment);
-            }
-            i++;
         }
-
         return comments;
     }
 

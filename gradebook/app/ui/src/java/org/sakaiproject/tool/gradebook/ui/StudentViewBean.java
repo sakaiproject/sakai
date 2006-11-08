@@ -305,7 +305,6 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
 
         }
         //append comments to the comments collections
-
         Iterator iterator = assignmentGradeRows.iterator();
         while(iterator.hasNext()){
             AssignmentGradeRow assignmentGradeRow = (AssignmentGradeRow)iterator.next();
