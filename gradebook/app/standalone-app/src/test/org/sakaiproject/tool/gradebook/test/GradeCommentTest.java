@@ -97,12 +97,15 @@ public class GradeCommentTest extends GradebookTestBase  {
         }
         
         // Currently the Student View reads comments from the database
-        // one at a time.
-        comment = gradebookManager.getComment(asn, (String)studentUids.get(1));
-        Assert.assertTrue(comment.getCommentText().equals("Next comment"));
-        comment = gradebookManager.getComment(asn, (String)studentUids.get(2));
-        Assert.assertTrue(comment == null);        
-     	
+        // into an ArrayList
+        List studentComments = gradebookManager.getStudentAssignmentComments((String)studentUids.get(1),gradebook.getId());
+        Iterator iter  = studentComments.iterator();
+        while(iter.hasNext()){
+            Comment asnComment = (Comment) iter.next();
+            if(asnComment.getStudentId().equals(studentUids.get(1))) Assert.assertTrue(asnComment.getCommentText().equals("Next comment"));
+            if(asnComment.getStudentId().equals(studentUids.get(2))) Assert.assertTrue(asnComment == null);
+        }
+
     	// Make sure we emulate an optimistic locking failure when we try
         // to create a new comment record that's already in the database.
         // (This test has to go last, since it will cause transaction
