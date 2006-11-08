@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.privacy"
+			title="Privacy Status"
+			description="Display current privacy status for all sites or a site">
+
+<!-- 			<category name="course" />
+			<category name="project" />	
+-->
+<!--		<configuration name="help.id" value="sakai.synoptic.messagecenter" type="final" /> -->
+
+	</tool>
+
+</registration>

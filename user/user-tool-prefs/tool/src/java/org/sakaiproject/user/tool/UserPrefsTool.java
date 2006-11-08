@@ -997,6 +997,20 @@ public class UserPrefsTool
 	}
 
 	/**
+	 * Process the cancel command from the edit view.
+	 * 
+	 * @return navigation outcome to locale page (list)
+	 */
+	public String processActionPrivFrmEdit()
+	{
+		LOG.debug("processActionPrivFrmEdit()");
+
+		cancelEdit();
+		// navigation page data are loaded through getter method as navigation is the default page for 'sakai.preferences' tool.
+		return "privacy";
+	}
+
+	/**
 	 * This is called from edit page for navigation to refresh page
 	 * 
 	 * @return navigation outcome to refresh page (refresh)

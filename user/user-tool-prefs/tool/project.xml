@@ -2,7 +2,7 @@
 
 <project>
 	<pomVersion>3</pomVersion>
-	<extend>../../../master/project.xml</extend>
+	<extend>../../../master/jsf-sun-tool.xml</extend>
 	<name>sakai-user-tool-prefs</name>
 	<groupId>sakaiproject</groupId>
 	<id>sakai-user-tool-prefs</id>
@@ -19,6 +19,12 @@
 	</properties>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-privacy-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
