@@ -503,27 +503,19 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 * {@inheritDoc}
 	 */
 	public String getCategoryName(String categoryId, Locale locale) {
-		ResourceBundle bundle = ResourceBundle.getBundle("org.sakaiproject.api.section.bundle.CourseSectionCategories", locale);
-		String name;
-		try {
-			name = bundle.getString(categoryId);
-		} catch(MissingResourceException mre) {
-			if(log.isDebugEnabled()) log.debug("Could not find the name for category id = " + categoryId + " in locale " + locale.getDisplayName());
-			name = null;
-		}
-		return name;
+		return courseManagementService.getSectionCategoryDescription(categoryId);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public List getSectionCategories(String siteContext) {
-		Enumeration keys = sectionCategoryBundle.getKeys();
-		List categoryIds = new ArrayList();
-		while(keys.hasMoreElements()) {
-			categoryIds.add(keys.nextElement());
+		List categoryObjects =  courseManagementService.getSectionCategories();
+		List<String> categoryIds = new ArrayList<String>();
+		for(Iterator iter = categoryObjects.iterator(); iter.hasNext();) {
+			SectionCategory cat = (SectionCategory)iter.next();
+			categoryIds.add(cat.getCategoryCode());
 		}
-		Collections.sort(categoryIds);
 		return categoryIds;
 	}
 
@@ -585,6 +577,9 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 * {@inheritDoc}
 	 */
 	public EnrollmentRecord joinSection(String sectionUuid) throws RoleConfigurationException {
+		// Disallow if we're in an externally managed site
+		ensureInternallyManaged(getSection(sectionUuid).getCourse().getUuid());
+
 		Group group = siteService.findGroup(sectionUuid);
 		
 		// It's possible that this section has been deleted
@@ -650,10 +645,19 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 * {@inheritDoc}
 	 */
 	public void switchSection(String newSectionUuid) throws RoleConfigurationException {
+		// Disallow if we're in an externally managed site
+		ensureInternallyManaged(getSection(newSectionUuid).getCourse().getUuid());
+
 		CourseSection newSection = getSection(newSectionUuid);
 
 		// It's possible that this section has been deleted
 		if(newSection == null) {
+			return;
+		}
+		
+		// Disallow if we're in an externally managed site
+		if(isExternallyManaged(newSection.getCourse().getUuid())) {
+			log.warn("Can not switch sections in an externally managed site");
 			return;
 		}
 
@@ -710,6 +714,8 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	public ParticipationRecord addSectionMembership(String userUid, Role role, String sectionUuid)
 			throws MembershipException, RoleConfigurationException {
 		if(role.isStudent()) {
+			// Disallow if we're in an externally managed site
+			ensureInternallyManaged(getSection(sectionUuid).getCourse().getUuid());
 			return addStudentToSection(userUid, sectionUuid);
 		} else if(role.isTeachingAssistant()) {
 			return addTaToSection(userUid, sectionUuid);
@@ -791,6 +797,11 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 * {@inheritDoc}
 	 */
 	public void setSectionMemberships(Set userUids, Role role, String sectionUuid) throws RoleConfigurationException {
+		if(role.isStudent()) {
+			// Disallow if we're in an externally managed site
+			ensureInternallyManaged(getSection(sectionUuid).getCourse().getUuid());
+		}
+		
 		CourseSectionImpl section = (CourseSectionImpl)getSection(sectionUuid);
 
 		// It's possible that this section has been deleted
@@ -843,8 +854,23 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 * {@inheritDoc}
 	 */
 	public void dropSectionMembership(String userUid, String sectionUuid) {
+		
 		CourseSectionImpl section = (CourseSectionImpl)getSection(sectionUuid);
 		Group group = section.getGroup();
+		
+		// If we're trying to drop a student, ensure that we're not automatically managed
+		Member member = group.getMember(userUid);
+		String studentRole = null;
+		try {
+			studentRole = getSectionStudentRole(group);
+		} catch (RoleConfigurationException e1) {
+			log.error("Can't find the student role for section" + sectionUuid);
+		}
+		if(studentRole != null && studentRole.equals(member.getRole())) {
+			// We can not drop students from a section in externally managed sites
+			ensureInternallyManaged(section.getCourse().getUuid());
+		}
+		
 		group.removeMember(userUid);
 		try {
 			siteService.saveGroupMembership(group.getContainingSite());
@@ -860,6 +886,9 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 * {@inheritDoc}
 	 */
 	public void dropEnrollmentFromCategory(String studentUid, String siteContext, String category) {
+		// Disallow if we're in an externally managed site
+		ensureInternallyManaged(getCourse(siteContext).getUuid());
+		
 		if(log.isDebugEnabled()) log.debug("Dropping " + studentUid + " from all sections in category " + category + " in site " + siteContext);
 		// Get the sections in this category
 		Site site;
@@ -933,9 +962,21 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		return addSection(courseUuid, title, category, maxEnrollments, meetings);
 	}
 	
+	/**
+	 * Throws a SecurityException if an attempt is made to modify a section or its
+	 * student memberships when the site is configured for external management.
+	 */
+	private void ensureInternallyManaged(String courseUuid) {
+		if(isExternallyManaged(courseUuid)) {
+			throw new SecurityException("Can not make changes to sections or student memberships in site " + courseUuid + ".  It is externally managed.");
+		}
+	}
+
 	public CourseSection addSection(String courseUuid, String title, String category, Integer maxEnrollments, List meetings) {
+		// Disallow if we're in an externally managed site
+		ensureInternallyManaged(courseUuid);
+
 		Reference ref = entityManager.newReference(courseUuid);
-		
 		Site site;
 		try {
 			site = siteService.getSite(ref.getId());
@@ -987,6 +1028,9 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	}
 
 	public void updateSection(String sectionUuid, String title, Integer maxEnrollments, List meetings) {
+		// Disallow if we're in an externally managed site
+		ensureInternallyManaged(getSection(sectionUuid).getCourse().getUuid());
+
 		CourseSectionImpl section = (CourseSectionImpl)getSection(sectionUuid);
 		
 		if(section == null) {
@@ -1017,8 +1061,10 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 * {@inheritDoc}
 	 */
 	public void disbandSection(String sectionUuid) {
+		// Disallow if we're in an externally managed site
+		ensureInternallyManaged(getSection(sectionUuid).getCourse().getUuid());
+		
 		if(log.isDebugEnabled()) log.debug("Disbanding section " + sectionUuid);
-
 		Group group = siteService.findGroup(sectionUuid);
 		
 		// TODO Add token in UI to intercept double clicks in action buttons
@@ -1054,13 +1100,11 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	}
 
 	public void setExternallyManaged(String courseUuid, boolean externallyManaged) {
-		// Make sure this method is allowed in the current app configuration
+		// Disallow if the service is configured to be mandatory
 		ExternalIntegrationConfig appConfig = getConfiguration(null);
-		if(appConfig == SectionManager.ExternalIntegrationConfig.AUTOMATIC_MANDATORY ||
-				appConfig == SectionManager.ExternalIntegrationConfig.MANUAL_MANDATORY) {
-			// This method is disallowed for both of these configurations
-			log.error("You can not change the externally managed setting on a site when the SectionManager is set to " + appConfig);
-			return;
+		if(appConfig == ExternalIntegrationConfig.AUTOMATIC_MANDATORY ||
+				appConfig == ExternalIntegrationConfig.MANUAL_MANDATORY) {
+			throw new SecurityException("Can not change the external management of a site, since this service is configured to be " + appConfig);
 		}
 
 		Reference ref = entityManager.newReference(courseUuid);
@@ -1127,6 +1171,9 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 * {@inheritDoc}
 	 */
 	public void setSelfRegistrationAllowed(String courseUuid, boolean allowed) {
+		// Disallow if we're in an externally managed site
+		ensureInternallyManaged(courseUuid);
+
 		Reference ref = entityManager.newReference(courseUuid);
 		String siteId = ref.getId();
 		Site site;
@@ -1167,6 +1214,9 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 * {@inheritDoc}
 	 */
 	public void setSelfSwitchingAllowed(String courseUuid, boolean allowed) {
+		// Disallow if we're in an externally managed site
+		ensureInternallyManaged(courseUuid);
+
 		Reference ref = entityManager.newReference(courseUuid);
 		String siteId = ref.getId();
 		Site site;
