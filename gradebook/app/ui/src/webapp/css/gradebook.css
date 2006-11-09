@@ -116,3 +116,9 @@ td.gbMessageAboveNumber {vertical-align:top; text-align:right; padding-right:2em
 .gbMessageAdjustForContent {margin-left:1px; margin-bottom:.5em;}
 
 .gbHeader {white-space:nowrap; padding-right:4em !important;}
+
+.gbSizeCheckMessage {
+	padding-right:1em;
+	text-align:right;
+	font-size:.9em;
+}

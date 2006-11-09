@@ -1,6 +1,19 @@
 <link href="dhtmlpopup/dhtmlPopup.css" rel="stylesheet" type="text/css" />
 <script src="dhtmlpopup/dhtmlPopup.js" type="text/javascript"></script>
+<script src="js/dynamicSizeCheck.js" type="text/javascript"></script>
+
 <f:view>
+
+  <f:verbatim>
+  <script type="text/javascript">
+  	initDynamicSizeCheck( "gbForm:gradingTable_", ":Comment", ":CommentSize", 255,
+  </f:verbatim>
+  <h:outputText value="\"#{msgs.assignment_details_comments_size_dynamic}\"" escape="false"/>
+  <f:verbatim>
+  	);
+  </script>
+  </f:verbatim>
+
   <div class="portletBody">
 	<h:form id="gbForm">
 
@@ -205,7 +218,7 @@
 						rows="4" cols="35">
 						<f:validateLength maximum="255" />
 					</h:inputTextarea>
-					<x:div><h:outputText value="#{msgs.assignment_details_comments_size_limit}"/></x:div>
+					<x:div id="CommentSize" styleClass="gbSizeCheckMessage"><h:outputText value="#{msgs.assignment_details_comments_size_limit}"/></x:div>
 				</x:div>
 			</h:column>
 		</x:dataTable>
