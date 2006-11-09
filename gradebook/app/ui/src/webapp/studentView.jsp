@@ -97,9 +97,7 @@
                 </h:column>
                 <h:column>
                     <f:facet name="header">
-                        <x:commandSortHeader columnName="comments" immediate="true" arrow="true">
                             <h:outputText value="#{msgs.student_view_comment_header}"/>
-                        </x:commandSortHeader>
                     </f:facet>
                     <h:outputLink value="#" rendered="#{not empty row.comments}"
                                   onclick="javascript:dhtmlPopupToggle('#{rowIndex}', event);return false;">
