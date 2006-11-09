@@ -37,10 +37,13 @@ should be included in file importing DeliveryMessages
 </h:panelGroup> 
 <f:verbatim><br/></f:verbatim>
 <h:inputTextarea rows="20" cols="80" value="#{question.responseText}" 
-   disabled="#{delivery.actionString=='reviewAssessment'
-            || delivery.actionString=='gradeAssessment'}" >
+   rendered="#{delivery.actionString!='reviewAssessment'
+            && delivery.actionString!='gradeAssessment'}" >
 <f:validateLength maximum="4000"/>
 </h:inputTextarea>
+<h:outputText value="#{question.responseText}" 
+   rendered="#{delivery.actionString=='reviewAssessment'
+            || delivery.actionString=='gradeAssessment'}" />
 
 <f:verbatim><br /></f:verbatim>
 <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"
