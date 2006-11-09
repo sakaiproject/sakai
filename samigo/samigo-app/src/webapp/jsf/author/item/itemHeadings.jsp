@@ -130,7 +130,6 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
 
   <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
-  <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10"/>
 </h:selectOneMenu>
 
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
