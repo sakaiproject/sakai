@@ -51,6 +51,7 @@ public class BasicResourceToolActionPipe
 	protected String helperId;
 	protected ResourceToolAction action;
 	private boolean actionCompleted;
+	private String errorMessage;
 	
 	public BasicResourceToolActionPipe(String interactionId, ResourceToolAction action)
 	{
@@ -220,6 +221,16 @@ public class BasicResourceToolActionPipe
 	public void setActionCompleted(boolean actionCompleted) 
 	{
 		this.actionCompleted = actionCompleted;
+	}
+
+	public String getErrorMessage() 
+	{
+		return this.errorMessage;
+	}
+
+	public void setErrorMessage(String msg) 
+	{
+		this.errorMessage = msg;
 	}
 
 }

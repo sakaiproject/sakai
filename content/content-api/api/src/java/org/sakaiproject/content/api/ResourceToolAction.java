@@ -50,6 +50,13 @@ public interface ResourceToolAction
 	
 	public static final String ACTION_PIPE = PREFIX + "action_pipe";
 	
+	public static final String STARTED = PREFIX + "started";
+	
+	public static final String STATE_MODE = PREFIX + "state_mode";
+	
+	public static final String DONE = PREFIX + "done";
+
+	
 //	/** 
 //	 * Key for Tool Session attribute indicating that user canceled the action in the helper. Any (non-null) value indicates true. 
 //	 * (supplied by helper before stopping helper)

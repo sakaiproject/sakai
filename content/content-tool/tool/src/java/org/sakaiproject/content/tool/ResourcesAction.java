@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -666,6 +667,10 @@ public class ResourcesAction
 
 	protected static final String STATE_CREATE_WIZARD_ACTION = "resources.create_wizard_action";
 
+	protected static final String STATE_CREATE_WIZARD_ITEM = "resources.create_wizard_item";
+
+	protected static final String STATE_CREATE_WIZARD_COLLECTION_ID = "resources.create_wizard_collection_id";
+
 
 
 	/**
@@ -684,9 +689,40 @@ public class ResourcesAction
 		org.sakaiproject.content.api.ContentHostingService contentHostingService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute(STATE_CONTENT_SERVICE);
 
 		context.put("copyright_alert_url", COPYRIGHT_ALERT_URL);
+		
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		if(pipe != null)
+		{
+			if(pipe.isActionCanceled())
+			{
+				state.setAttribute(STATE_MODE, MODE_LIST);
+			}
+			else if(pipe.isErrorEncountered())
+			{
+				String msg = pipe.getErrorMessage();
+				if(msg != null && ! msg.trim().equals(""))
+				{
+					addAlert(state, msg);
+				}
+				state.setAttribute(STATE_MODE, MODE_LIST);
+			}
+			else if(pipe.isActionCompleted())
+			{
+				ResourceToolAction action = pipe.getAction();
+				if(ResourceToolAction.CREATE.equals(action.getId()))
+				{
+					state.setAttribute(STATE_MODE, MODE_CREATE_WIZARD);
+				}
+			}
+			else
+			{
+				// cleanup(toolSession, ResourceToolAction.PREFIX);
+			}
+		}
 
 		String template = null;
-
+		
 		// place if notification is enabled and current site is not of My Workspace type
 		boolean isUserSite = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
 		context.put("notification", new Boolean(!isUserSite && notificationEnabled(state)));
@@ -774,7 +810,26 @@ public class ResourcesAction
 
 	}	// buildMainPanelContext
 
-	private String buildCreateWizardContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
+	/**
+	 * Iterate over attributes in ToolSession and remove all attributes starting with a particular prefix.
+	 * @param toolSession
+	 * @param prefix
+	 */
+	protected void cleanup(ToolSession toolSession, String prefix) 
+	{
+		Enumeration attributeNames = toolSession.getAttributeNames();
+		while(attributeNames.hasMoreElements())
+		{
+			String aName = (String) attributeNames.nextElement();
+			if(aName.startsWith(prefix))
+			{
+				toolSession.removeAttribute(aName);
+			}
+		}
+		
+	}
+
+	public String buildCreateWizardContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
 	{
 		String template = "content/sakai_resources_cwiz_finish";
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
@@ -822,8 +877,21 @@ public class ResourcesAction
 
 			ChefEditItem item = (ChefEditItem) items.get(0);
 			item.setContent(pipe.getContent());
+			item.setMimeType(pipe.getContentType());
 			
 			context.put("item", item);
+			
+			state.setAttribute(STATE_CREATE_WIZARD_ITEM, item);
+			
+			if(ContentHostingService.isAvailabilityEnabled())
+			{
+				context.put("availability_is_enabled", Boolean.TRUE);
+			}
+			
+			context.put("SITE_ACCESS", AccessMode.SITE.toString());
+			context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
+			context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
+			context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
 		}
 		return template;
 	}
@@ -999,6 +1067,246 @@ public class ResourcesAction
 		state.setAttribute(STATE_LIST_PREFERENCE, LIST_HIERARCHY);
 	}
 	
+	public void doCompleteCreateWizard(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		
+		ChefEditItem item = (ChefEditItem) state.getAttribute(STATE_CREATE_WIZARD_ITEM);
+		
+		// get the parameter-parser
+		ParameterParser params = data.getParameters();
+		
+		String user_action = params.getString("user_action");
+		
+		if(user_action == null)
+		{
+			
+		}
+		else if(user_action.equals("save"))
+		{
+			String collectionId = (String) state.getAttribute(STATE_CREATE_WIZARD_COLLECTION_ID);
+			ContentCollection collection;
+			try 
+			{
+				collection = ContentHostingService.getCollection(collectionId );
+				ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties();
+				
+				// title
+				String name = params.getString("name");
+				
+				// description
+				String description = params.getString("description");
+				
+				// rights
+				String copyright = params.getString("copyright");
+				String newcopyright = params.getString("newcopyright");
+				boolean copyrightAlert = params.getBoolean("copyrightAlert");
+				
+				// availability
+				boolean hidden = params.getBoolean("hidden");
+				boolean use_start_date = params.getBoolean("use_start_date");
+				boolean use_end_date = params.getBoolean("use_end_date");
+				Time releaseDate = null;
+				Time retractDate = null;
+				
+				if(use_start_date)
+				{
+					int begin_year = params.getInt("release_year");
+					int begin_month = params.getInt("release_month");
+					int begin_day = params.getInt("release_day");
+					int begin_hour = params.getInt("release_hour");
+					int begin_min = params.getInt("release_min");
+					String release_ampm = params.getString("release_ampm");
+					if("pm".equals(release_ampm))
+					{
+						begin_hour += 12;
+					}
+					else if(begin_hour == 12)
+					{
+						begin_hour = 0;
+					}
+					releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
+				}
+				
+				if(use_end_date)
+				{
+					int end_year = params.getInt("retract_year");
+					int end_month = params.getInt("retract_month");
+					int end_day = params.getInt("retract_day");
+					int end_hour = params.getInt("retract_hour");
+					int end_min = params.getInt("retract_min");
+					String retract_ampm = params.getString("retract_ampm");
+					if("pm".equals(retract_ampm))
+					{
+						end_hour += 12;
+					}
+					else if(end_hour == 12)
+					{
+						end_hour = 0;
+					}
+					retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
+				}
+				
+				// access
+				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+				if(preventPublicDisplay == null)
+				{
+					preventPublicDisplay = Boolean.FALSE;
+					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+				}
+				
+				String access_mode = params.getString("access_mode");
+				SortedSet groups = new TreeSet();
+				
+				if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
+				{
+					// we inherit more than one group and must check whether group access changes at this item
+					String[] access_groups = params.getStrings("access_groups");
+					
+					SortedSet new_groups = new TreeSet();
+					if(access_groups != null)
+					{
+						new_groups.addAll(Arrays.asList(access_groups));
+					}
+					new_groups = item.convertToRefs(new_groups);
+					
+					Collection inh_grps = item.getInheritedGroupRefs();
+					boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
+					
+					if(groups_are_inherited)
+					{
+						new_groups.clear();
+						item.setEntityGroupRefs(new_groups);
+						item.setAccess(AccessMode.INHERITED.toString());
+					}
+					else
+					{
+						item.setEntityGroupRefs(new_groups);
+						item.setAccess(AccessMode.GROUPED.toString());
+					}
+					
+					item.setPubview(false);
+				}
+				else if(PUBLIC_ACCESS.equals(access_mode))
+				{
+					if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
+					{
+						item.setPubview(true);
+						item.setAccess(AccessMode.INHERITED.toString());
+					}
+				}
+				else if(AccessMode.INHERITED.toString().equals(access_mode))
+				{
+					item.setAccess(AccessMode.INHERITED.toString());
+					item.clearGroups();
+					item.setPubview(false);
+				}
+
+				// notification
+				int noti = NotificationService.NOTI_NONE;
+				// %%STATE_MODE_RESOURCES%%
+				if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+				{
+					// set noti to none if in dropbox mode
+					noti = NotificationService.NOTI_NONE;
+				}
+				else
+				{
+					// read the notification options
+					String notification = params.getString("notify");
+					if ("r".equals(notification))
+					{
+						noti = NotificationService.NOTI_REQUIRED;
+					}
+					else if ("o".equals(notification))
+					{
+						noti = NotificationService.NOTI_OPTIONAL;
+					}
+				}
+				item.setNotification(noti);
+				
+				// create resource
+				ContentResource resource = ContentHostingService.addResource (name,
+						collection.getId(),
+						MAXIMUM_ATTEMPTS_FOR_UNIQUENESS,
+						item.getMimeType(),
+						item.getContent(),
+						resourceProperties,
+						groups,
+						hidden,
+						releaseDate,
+						retractDate,
+						item.getNotification());
+
+				// set to public access if allowed and requested
+				if(!preventPublicDisplay.booleanValue() && PUBLIC_ACCESS.equals(access_mode))
+				{
+					ContentHostingService.setPubView(resource.getId(), true);
+				}
+				
+				// finalize action (use ref to new entity)
+				// iAction.finalizeAction(EntityManager.newReference(resource.getReference()), pipe.getInitializationId());
+				
+				// show folder if in hierarchy view
+				
+				
+				state.setAttribute(STATE_MODE, MODE_LIST);
+
+			} 
+			catch (IdUnusedException e1) 
+			{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} 
+			catch (TypeException e1) 
+			{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} 
+			catch (PermissionException e1) 
+			{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} 
+			catch (IdInvalidException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			catch (InconsistentException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			catch (OverQuotaException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			catch (ServerOverloadException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (IdUniquenessException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			catch (IdLengthException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		else if(user_action.equals("cancel"))
+		{
+			// 
+			// iAction.cancelAction(null, pipe.getInitializationId());
+		}
+	}
+	
 	public void doDispatchAction(RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
@@ -1034,6 +1342,8 @@ public class ResourcesAction
 			ToolSession toolSession = SessionManager.getCurrentToolSession();
 			// toolSession.setAttribute(ResourceToolAction.ACTION_ID, actionId);
 			// toolSession.setAttribute(ResourceToolAction.RESOURCE_TYPE, typeId);
+			
+			state.setAttribute(STATE_CREATE_WIZARD_COLLECTION_ID, selectedItemId);
 			
 			InteractionAction iAction = (InteractionAction) action;
 			String intitializationId = iAction.initializeAction(reference);

@@ -21,6 +21,8 @@
 
 package org.sakaiproject.content.tool;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -32,7 +34,6 @@ import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
@@ -62,6 +63,44 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	protected  static final String REVISE_UPLOAD_TEMPLATE = "resources/sakai_revise_upload";
 	protected  static final String REVISE_URL_TEMPLATE = "resources/sakai_revise_url";
 	
+	public static final String MODE_MAIN = "main";
+
+
+	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)
+		throws ToolException
+	{
+		SessionState sstate = getState(req);
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		
+		//String mode = (String) sstate.getAttribute(ResourceToolAction.STATE_MODE);
+		//Object started = toolSession.getAttribute(ResourceToolAction.STARTED);
+		Object done = toolSession.getAttribute(ResourceToolAction.DONE);
+		
+		if (done != null)
+		{
+			toolSession.removeAttribute(ResourceToolAction.STARTED);
+			Tool tool = ToolManager.getCurrentTool();
+		
+			String url = (String) SessionManager.getCurrentToolSession().getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+		
+			SessionManager.getCurrentToolSession().removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+		
+			try
+			{
+				res.sendRedirect(url);
+			}
+			catch (IOException e)
+			{
+				// Log.warn("chef", this + " : ", e);
+			}
+			return;
+		}
+		
+		super.toolModeDispatch(methodBase, methodExt, req, res);
+	}
+
+
+	
 	public String buildMainPanelContext(VelocityPortlet portlet,
 			Context context,
 			RunData data,
@@ -69,6 +108,13 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
 		
+		String mode = (String) state.getAttribute(ResourceToolAction.STATE_MODE);
+
+		if (mode == null)
+		{
+			initHelper(portlet, context, data, state);
+		}
+
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(pipe.isActionCompleted())
@@ -155,6 +201,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		pipe.setErrorEncountered(false);
 		pipe.setActionCompleted(true);
 
+		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+		
 	}
 	
 	public void doContinue(RunData data)
@@ -170,9 +218,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		
-		Tool tool = ToolManager.getCurrentTool();
-		String url = (String) toolSession.getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
-		toolSession.removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+//		Tool tool = ToolManager.getCurrentTool();
+//		String url = (String) toolSession.getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+//		toolSession.removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
 
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		
@@ -180,7 +228,16 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		pipe.setActionCanceled(false);
 		pipe.setErrorEncountered(false);
 		pipe.setActionCompleted(true);
+		
+		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
 
+	}
+
+	protected void initHelper(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
+	{
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		//toolSession.setAttribute(ResourceToolAction.STARTED, Boolean.TRUE);
+		//state.setAttribute(ResourceToolAction.STATE_MODE, MODE_MAIN);
 	}
 
 }

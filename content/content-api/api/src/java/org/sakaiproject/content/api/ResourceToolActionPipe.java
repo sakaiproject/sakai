@@ -63,6 +63,14 @@ public interface ResourceToolActionPipe
 	public String getContentType();
 	
 	/**
+	 * Used by the Resources tool to retrieve error message that will be shown to user in 
+	 * its list view after completion of helper activity in which "error encountered" is set 
+	 * to true and an error is reported. 
+	 * @return
+	 */
+	public String getErrorMessage();
+	
+	/**
 	 * Used by helper to access the initialization-id for this action, if an initialization-id
 	 * was returned when ResourcesAction invoked the InteractionAction.initializeAction() method. 
 	 * The return value of this method will be null if an initialization-id was not supplied by
@@ -102,7 +110,7 @@ public interface ResourceToolActionPipe
 	 * @return
 	 */
 	public Map getRevisedResourceProperties();
-	
+
 	/**
 	 * May be accessed by ResourcesAction after completion of helper activity to determine 
 	 * whether action was canceled.  If the action was not canceled and no error was encountered, 
@@ -110,7 +118,12 @@ public interface ResourceToolActionPipe
 	 * @return
 	 */
 	public boolean isActionCanceled();
-
+	
+	/**
+	 * @return
+	 */
+	public boolean isActionCompleted();
+	
 	/**
 	 * May be accessed by ResourcesAction after completion of helper activity to determine 
 	 * whether an error was encountered.  If the action was not canceled and no error was 
@@ -124,6 +137,11 @@ public interface ResourceToolActionPipe
 	 * @param actionCanceled
 	 */
 	public void setActionCanceled(boolean actionCanceled);
+	
+	/**
+	 * @param actionCompleted
+	 */
+	public void setActionCompleted(boolean actionCompleted);
 	
 	/**
 	 * Used by ResourcesAction to provide helper with current value of resource's "content".
@@ -160,6 +178,17 @@ public interface ResourceToolActionPipe
 	public void setErrorEncountered(boolean errorEncountered);
 	
 	/**
+	 * Used by helper to report error to user after completion of helper's portion of wizard. 
+	 * Most errors in the helper should be dealt with in the helper. This is for unusual errors
+	 * that can not be dealt with in the helper and are tossed back to the Resources tool. 
+	 * If a message is reported and "error encountered" is set to true, the Resources tool
+	 * will display the message in its list view. The message should be localized (i.e. read
+	 * from a resource bundle).
+	 * @param msg
+	 */
+	public void setErrorMessage(String msg);
+	
+	/**
 	 * Used by ResourcesAction to provide a value for the initialization-id.  Should be initialized
 	 * the value returned by the InteractionAction.initializeAction() method.
 	 * @param 
@@ -173,7 +202,7 @@ public interface ResourceToolActionPipe
 	 * @param list
 	 */
 	public void setResourceProperty(String key, List list);
-	
+
 	/**
 	 * Used by ResourcesAction to provide helper with current value of a requested resource property
 	 * whose value is a single String.
@@ -187,7 +216,7 @@ public interface ResourceToolActionPipe
 	 * @param content
 	 */
 	public void setRevisedContent(byte[] content);
-	
+
 	/**
 	 * Used by helper to provide ResourcesAction with revised value of resource's "content".
 	 * @param istream
@@ -202,16 +231,6 @@ public interface ResourceToolActionPipe
 	public void setRevisedContentType(String type);
 
 	/**
-	 * Used by helper to provide ResourcesAction with revised value for a resource property.
-	 * Any property other than "live" properties can be set with this method. 
-	 * If action definition names the property and it is not set by this method,  
-	 * current value will be removed.  
-	 * @param name
-	 * @param value
-	 */
-	public void setRevisedResourceProperty(String name, String value);
-	
-	/**
 	 * Used by helper to provide ResourcesAction with revised value for a resource property
 	 * whose value is a List of Strings.  Any property other than "live" properties can be set 
 	 * with this method. If action definition names the property and it is not set by this method, 
@@ -220,14 +239,14 @@ public interface ResourceToolActionPipe
 	 * @param list
 	 */
 	public void setRevisedResourceProperty(String name, List list);
-
-	/**
-	 * @return
-	 */
-	public boolean isActionCompleted();
 	
 	/**
-	 * @param actionCompleted
+	 * Used by helper to provide ResourcesAction with revised value for a resource property.
+	 * Any property other than "live" properties can be set with this method. 
+	 * If action definition names the property and it is not set by this method,  
+	 * current value will be removed.  
+	 * @param name
+	 * @param value
 	 */
-	public void setActionCompleted(boolean actionCompleted);
+	public void setRevisedResourceProperty(String name, String value);
 }
