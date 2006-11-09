@@ -155,9 +155,9 @@ $Id$
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
-       <h:outputText value="#{description.firstName}" />
-       <h:outputText value=" " />
        <h:outputText value="#{description.lastName}" />
+         <h:outputText value=", " rendered="#{description.lastInitial ne 'Anonymous'}"/>
+       <h:outputText value="#{description.firstName}" />
        <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
      </span>
      </h:panelGroup>
@@ -178,9 +178,9 @@ $Id$
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
-       <h:outputText value="#{description.firstName}" />
-       <h:outputText value=" " />
        <h:outputText value="#{description.lastName}" />
+         <h:outputText value=", " rendered="#{description.lastInitial ne 'Anonymous'}"/>
+       <h:outputText value="#{description.firstName}" />
        <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
      </span>
      </h:panelGroup>
@@ -201,9 +201,9 @@ $Id$
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
-       <h:outputText value="#{description.firstName}" />
-       <h:outputText value=" " />
        <h:outputText value="#{description.lastName}" />
+         <h:outputText value=", " rendered="#{description.lastInitial ne 'Anonymous'}"/>
+       <h:outputText value="#{description.firstName}" />
        <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
      </span>
      </h:panelGroup>

@@ -355,9 +355,9 @@ $Id$
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
        <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true">
-         <h:outputText value="#{description.firstName}" />
-         <h:outputText value=" " />
          <h:outputText value="#{description.lastName}" />
+         <h:outputText value=", " rendered="#{description.lastInitial ne 'Anonymous'}"/>
+         <h:outputText value="#{description.firstName}" />
          <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
@@ -387,9 +387,9 @@ $Id$
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
        <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true">
-         <h:outputText value="#{description.firstName}" />
-         <h:outputText value=" " />
          <h:outputText value="#{description.lastName}" />
+         <h:outputText value=", " rendered="#{description.lastInitial ne 'Anonymous'}"/>
+         <h:outputText value="#{description.firstName}" />
          <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
@@ -419,9 +419,9 @@ $Id$
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
        <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true">
-         <h:outputText value="#{description.firstName}" />
-         <h:outputText value=" " />
          <h:outputText value="#{description.lastName}" />
+         <h:outputText value=", " rendered="#{description.lastInitial ne 'Anonymous'}"/>
+         <h:outputText value="#{description.firstName}" />
          <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />

@@ -208,15 +208,15 @@
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
 
-         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}" />
-         <h:outputText value=" " rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}"/>
          <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}" />
+         <h:outputText value=", " rendered="#{(description.assessmentGradingId eq '-1' || description.submittedDate==null) && description.lastInitial ne 'Anonymous'}"/>
+         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}" />
          <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous' && (description.assessmentGradingId eq '-1' || description.submittedDate==null)}" />
        <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true" 
           rendered="#{description.submittedDate!=null &&  description.assessmentGradingId ne '-1'}" >
-         <h:outputText value="#{description.firstName}" />
-         <h:outputText value=" " />
          <h:outputText value="#{description.lastName}" />
+         <h:outputText value=", " rendered="#{description.lastInitial ne 'Anonymous'}"/>
+         <h:outputText value="#{description.firstName}" />
          <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
@@ -248,15 +248,15 @@
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
 
-         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}" />
-         <h:outputText value=" " rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}"/>
          <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}" />
+         <h:outputText value=", " rendered="#{(description.assessmentGradingId eq '-1' || description.submittedDate==null) && description.lastInitial ne 'Anonymous'}"/>
+         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}" />
          <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous' && (description.assessmentGradingId eq '-1' || description.submittedDate==null)}" />
        <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true" 
           rendered="#{description.submittedDate!=null && description.assessmentGradingId ne '-1'}" >
-         <h:outputText value="#{description.firstName}" />
-         <h:outputText value=" " />
          <h:outputText value="#{description.lastName}" />
+         <h:outputText value=", " rendered="#{description.lastInitial ne 'Anonymous'}"/>
+         <h:outputText value="#{description.firstName}" />
          <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
@@ -287,15 +287,15 @@
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
 
-         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}" />
-         <h:outputText value=" " rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}"/>
          <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}" />
+         <h:outputText value=", " rendered="#{(description.assessmentGradingId eq '-1' || description.submittedDate==null) && description.lastInitial ne 'Anonymous'}"/>
+         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}" />
          <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous' && (description.assessmentGradingId eq '-1' || description.submittedDate==null)}" />
        <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true" 
           rendered="#{description.submittedDate!=null && description.assessmentGradingId ne '-1'}" >
-         <h:outputText value="#{description.firstName}" />
-         <h:outputText value=" " />
          <h:outputText value="#{description.lastName}" />
+         <h:outputText value=", " rendered="#{description.lastInitial ne 'Anonymous'}"/>
+         <h:outputText value="#{description.firstName}" />
          <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
