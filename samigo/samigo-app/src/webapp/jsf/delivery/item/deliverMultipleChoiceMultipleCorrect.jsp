@@ -65,8 +65,11 @@ should be included in file importing DeliveryMessages
     <h:outputLabel for="rationale" value="#{msg.rationale}" />
     <f:verbatim><br /></f:verbatim>
     <h:inputTextarea id="rationale" value="#{question.rationale}" rows="5" cols="40" 
-       disabled="#{delivery.actionString=='reviewAssessment'
-                || delivery.actionString=='gradeAssessment'}" />
+        rendered="#{delivery.actionString!='reviewAssessment' 
+                 && delivery.actionString!='gradeAssessment'}" />
+    <h:outputText id="rationale2" value="#{question.rationale}" 
+        rendered="#{delivery.actionString=='reviewAssessment'
+                 || delivery.actionString=='gradeAssessment'}" />
   </h:panelGroup>
 
 <f:verbatim><br /></f:verbatim>

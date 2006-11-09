@@ -53,12 +53,15 @@ should be included in file importing DeliveryMessages
    </h:column>
   </h:dataTable>
 
-  <h:panelGroup rendered="#{question.itemData.hasRationale}" >
+  <h:panelGroup rendered="#{question.itemData.hasRationale}">
     <f:verbatim><br /></f:verbatim>
     <h:outputLabel for="rationale" value="#{msg.rationale}" />
     <f:verbatim><br /></f:verbatim>
     <h:inputTextarea id="rationale" value="#{question.rationale}" rows="5" cols="40" 
-        disabled="#{delivery.actionString=='reviewAssessment'
+        rendered="#{delivery.actionString!='reviewAssessment' 
+                 && delivery.actionString!='gradeAssessment'}" />
+    <h:outputText id="rationale2" value="#{question.rationale}" 
+        rendered="#{delivery.actionString=='reviewAssessment'
                  || delivery.actionString=='gradeAssessment'}" />
   </h:panelGroup>
 
