@@ -37,7 +37,7 @@ function dhtmlGetInnerWidth() {
 	}
 	return theWidth;
 }
-function dhtmlGetInnerWidth() {
+function dhtmlGetInnerHeight() {
 	var theHeight = 0;
 
 	if (typeof(window.innerHeight) == "number") {
