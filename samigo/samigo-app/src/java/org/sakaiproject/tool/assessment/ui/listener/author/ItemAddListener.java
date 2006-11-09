@@ -1073,7 +1073,8 @@ public class ItemAddListener
   }
 
   private static ArrayList getFIBanswers(String entiretext) {
-    String[] tokens = entiretext.split("[\\}][^\\{]*[\\{]");
+	String fixedText = entiretext.replaceAll("&nbsp;", " "); // replace &nbsp to " " (instead of "") just want to reserve the original input
+    String[] tokens = fixedText.split("[\\}][^\\{]*[\\{]");
     ArrayList list = new ArrayList();
     if (tokens.length==1) {
         String[] afteropen= tokens[0].split("\\{");
@@ -1106,7 +1107,8 @@ public class ItemAddListener
   }
 
   private static ArrayList getFINanswers(String entiretext) {
-	    String[] tokens = entiretext.split("[\\}][^\\{]*[\\{]");
+		String fixedText = entiretext.replaceAll("&nbsp;", " "); // replace &nbsp to " " (instead of "") just want to reserve the original input
+	    String[] tokens = fixedText.split("[\\}][^\\{]*[\\{]");
 	    ArrayList list = new ArrayList();
 	    if (tokens.length==1) {
 	        String[] afteropen= tokens[0].split("\\{");
