@@ -525,7 +525,7 @@ public interface SectionManager {
 	 * @author <a href="mailto:jholtzman@berkeley.edu">jholtzman@berkeley.edu</a>
 	 *
 	 */
-	public enum ExternalIntegrationConfig {ALWAYS_MANUAL, OPTIONAL_MULTIPLE, OPTIONAL_ALL, ALWAYS_AUTOMATIC};
+	public enum ExternalIntegrationConfig {MANUAL_MANDATORY, MANUAL, AUTOMATIC, AUTOMATIC_MANDATORY};
 
 	/**
 	 * Gets the application-wide configuration setting.

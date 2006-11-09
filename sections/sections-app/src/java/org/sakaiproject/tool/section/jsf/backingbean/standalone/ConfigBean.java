@@ -30,22 +30,22 @@ public class ConfigBean extends CourseDependentBean {
 	private static final long serialVersionUID = 1L;
 
 	public String updateConfigAllManual() {
-		getServletContext().setAttribute(SectionManager.CONFIGURATION_KEY, SectionManager.ExternalIntegrationConfig.ALWAYS_MANUAL);
+		getServletContext().setAttribute(SectionManager.CONFIGURATION_KEY, SectionManager.ExternalIntegrationConfig.MANUAL_MANDATORY);
 		return "overview";
 	}
 	
 	public String updateConfigAllAutomatic() {
-		getServletContext().setAttribute(SectionManager.CONFIGURATION_KEY, SectionManager.ExternalIntegrationConfig.ALWAYS_AUTOMATIC);
+		getServletContext().setAttribute(SectionManager.CONFIGURATION_KEY, SectionManager.ExternalIntegrationConfig.AUTOMATIC_MANDATORY);
 		return "overview";
 	}
 
 	public String updateConfigOptionalAll() {
-		getServletContext().setAttribute(SectionManager.CONFIGURATION_KEY, SectionManager.ExternalIntegrationConfig.OPTIONAL_ALL);
+		getServletContext().setAttribute(SectionManager.CONFIGURATION_KEY, SectionManager.ExternalIntegrationConfig.AUTOMATIC);
 		return "overview";
 	}
 
 	public String updateConfigOptionalMultiple() {
-		getServletContext().setAttribute(SectionManager.CONFIGURATION_KEY, SectionManager.ExternalIntegrationConfig.OPTIONAL_MULTIPLE);
+		getServletContext().setAttribute(SectionManager.CONFIGURATION_KEY, SectionManager.ExternalIntegrationConfig.MANUAL);
 		return "overview";
 	}
 

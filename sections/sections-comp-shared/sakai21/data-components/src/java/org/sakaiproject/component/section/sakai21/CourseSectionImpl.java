@@ -169,7 +169,10 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
 	}
 
 	private boolean getIndexedBooleanProperty(int index, String complexString) {
-		String[] sa = complexString.split(CourseSectionImpl.SEP_CHARACTER);
+		String[] sa = StringUtils.splitPreserveAllTokens(complexString, CourseSectionImpl.SEP_CHARACTER);
+		if(sa == null) {
+			return false;
+		}
 		if(index >=sa.length) {
 			log.warn("Can not get " + index + " index from string " + complexString);
 			return false;
@@ -181,7 +184,7 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
 		if(complexString == null) {
 			return null;
 		}
-		String[] sa = complexString.split(CourseSectionImpl.SEP_CHARACTER);
+		String[] sa = StringUtils.splitPreserveAllTokens(complexString, CourseSectionImpl.SEP_CHARACTER);
 		if(index >=sa.length) {
 			log.warn("Can not get " + index + " index from string " + complexString);
 			return null;

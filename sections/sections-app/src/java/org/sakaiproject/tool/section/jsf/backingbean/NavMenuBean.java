@@ -20,6 +20,11 @@
  **********************************************************************************/
 package org.sakaiproject.tool.section.jsf.backingbean;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.section.SectionManager;
+import org.sakaiproject.api.section.SectionManager.ExternalIntegrationConfig;
+
 /**
  * Caches whether the instructor features are enabled for the current user in
  * the current request.
@@ -28,6 +33,7 @@ package org.sakaiproject.tool.section.jsf.backingbean;
  *
  */
 public class NavMenuBean extends CourseDependentBean {
+	private static final Log log = LogFactory.getLog(NavMenuBean.class);
 	private static final long serialVersionUID = 1L;
 	
 	private boolean sectionTaManagementEnabled;
@@ -36,8 +42,12 @@ public class NavMenuBean extends CourseDependentBean {
 	private boolean sectionManagementEnabled;
 
 	public NavMenuBean() {
+		ExternalIntegrationConfig appConfig = super.getApplicationConfiguration();
+		
 		this.sectionManagementEnabled = super.isSectionManagementEnabled();
-		this.sectionOptionsManagementEnabled = super.isSectionOptionsManagementEnabled();
+		this.sectionOptionsManagementEnabled = super.isSectionOptionsManagementEnabled() &&
+			appConfig != SectionManager.ExternalIntegrationConfig.AUTOMATIC_MANDATORY &&
+			appConfig != SectionManager.ExternalIntegrationConfig.MANUAL_MANDATORY;
 		this.sectionEnrollmentMangementEnabled = super.isSectionEnrollmentMangementEnabled();
 		this.sectionTaManagementEnabled = super.isSectionTaManagementEnabled();
 	}

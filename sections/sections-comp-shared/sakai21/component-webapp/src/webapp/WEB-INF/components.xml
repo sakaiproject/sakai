@@ -68,26 +68,11 @@
         <property name="eventTrackingService">
             <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
         </property>
-
-		<property name="externalSectionAdvisor">
-			<!--
-			Advises SectionManager and SectionAwareness on how to get data from an external system.
-			This implementation may be used only when the new CourseManagementService
-			is in use, and when authzGroups make use of Sakai's providerId mechanism.
-			
-			If your installation does not fit this description, you need to replace this implementaion
-			with one that will work in your enterprise-integration environment.
-			 -->
-			<bean
-				class="org.sakaiproject.component.section.sakai21.advisor.CourseManagementProviderExternalSectionAdvisor">
-		        <property name="authzGroupService">
-		            <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
-		        </property>
-		        <property name="courseManagementService">
-		            <ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
-		        </property>
-			</bean>
-		</property>
+        <property name="courseManagementService">
+            <ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+        </property>
+        <property name="config" value="MANUAL"/>
+        
     </bean>
 
 </beans>

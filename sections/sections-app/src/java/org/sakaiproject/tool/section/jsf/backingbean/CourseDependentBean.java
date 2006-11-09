@@ -88,7 +88,9 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	}
 	
 	protected ExternalIntegrationConfig getApplicationConfiguration() {
-		return getCourseBean().sectionManager.getConfiguration(FacesContext.getCurrentInstance().getExternalContext().getRequest());
+		ExternalIntegrationConfig config = getCourseBean().sectionManager.getConfiguration(FacesContext.getCurrentInstance().getExternalContext().getRequest());
+		if(log.isDebugEnabled()) log.debug("Application configuration = " + config);
+		return config;
 	}
 	
 	protected String getSiteContext() {
