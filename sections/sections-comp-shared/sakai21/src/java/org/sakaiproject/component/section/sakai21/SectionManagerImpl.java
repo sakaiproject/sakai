@@ -232,12 +232,12 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		// Add new groups (decorated as sections) based on the site's providerIds
 		for(Iterator iter = providerIds.iterator(); iter.hasNext();) {
 			String providerId = (String)iter.next();
-			addCourseSectionToSite(site, providerId);
+			addExternalCourseSectionToSite(site, providerId);
 		}
 	}
 	
 	/**
-	 * Adds a CourseSection (a decorated group) to a site.  The CourseSection is
+	 * Adds an externally managed CourseSection (a decorated group) to a site.  The CourseSection is
 	 * constructed by finding the official section from CM and converting it to a CourseSection.
 	 * 
 	 * @param site The site in which we are adding a CourseSection 
@@ -245,7 +245,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 * 
 	 * @return The CourseSection that was added to the site
 	 */
-	private CourseSection addCourseSectionToSite(Site site, String sectionEid) {
+	private CourseSection addExternalCourseSectionToSite(Site site, String sectionEid) {
 		if(log.isDebugEnabled()) log.debug("Adding section " + sectionEid + " to site " + site.getId());
 
 		// Create a new sakai section (group) for this providerId
@@ -281,20 +281,11 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		// persisted with the correct section metadata
 		section.decorateGroup(group);
 	
+		// Ensure that the group has the correct provider ID
+		group.setProviderGroupId(sectionEid);
+		
 		return section;
 	}
-	
-	
-//	public Map<String, String> getSectionCategoryMap() {
-//		List categories = courseManagementService.getSectionCategories();
-//		Map categoryMap = new HashMap();
-//		for(Iterator iter = categories.iterator(); iter.hasNext();) {
-//			SectionCategory cat = (SectionCategory)iter.next();
-//			categoryMap.put(cat.getCategoryCode(), cat.getCategoryDescription());
-//		}
-//		return categoryMap;
-//	}
-
 	
 	// SectionManager Methods
 	
