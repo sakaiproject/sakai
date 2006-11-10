@@ -168,7 +168,8 @@ public class ControllerServlet extends HttpServlet
 		String sakaiHeader = (String) request.getAttribute("sakai.html.head");
 		String skin = "default/"; // this could be changed in the future to make search skin awaire
 		String localStylesheet = "<link href=\"/sakai-search-tool/styles/"+skin+"searchStyle.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />";
-		request.setAttribute("sakai.html.head", localStylesheet + sakaiHeader);
+		String localJavascript = "<script type=\"text/javascript\" src=\"/sakai-search-tool/scripts/search.js\"> </script>";
+		request.setAttribute("sakai.html.head", localStylesheet + sakaiHeader + localJavascript);
 	}
 
 	/**

@@ -105,6 +105,12 @@ public interface SearchResult
 	 * @throws IOException
 	 */
 	TermFrequency getTerms() throws IOException;
+
+	/**
+	 * get the tool name that this search cam from
+	 * @return
+	 */
+	String getTool();
 	
 
 }

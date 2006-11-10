@@ -207,9 +207,10 @@ public class SearchBeanImpl implements SearchBean
 
 				SearchResult sr = (SearchResult) i.next();
 				sb.append(MessageFormat.format(searchItemFormat, new Object[] {
-						String.valueOf(sr.getIndex() + 1), sr.getUrl(),
+						sr.getTool(), sr.getUrl(),
 						sr.getTitle(), sr.getSearchResult(),
-						new Double(sr.getScore()) }));
+						new Double(sr.getScore()),
+						String.valueOf(sr.getIndex() + 1) }));
 				try
 				{
 					termsVectors.add(sr.getTerms());
@@ -554,6 +555,16 @@ public class SearchBeanImpl implements SearchBean
 
 		return ServerConfigurationService.getString("portalPath") + "/tool/"
 				+ placementId;
+	}
+
+	public boolean hasResults()
+	{
+		SearchList sr = (SearchList) search();
+		if (sr == null) {
+			return false;
+		} else {
+			return (sr.size() > 0);
+		}
 	}
 
 }

@@ -108,6 +108,11 @@ public interface SearchBean
 
 	String getTerms(String format, int nterms, int top, float divisor, boolean relative);
 
+	/**
+	 * Returns true if a search has been performed and there are some results
+	 * @return
+	 */
+	boolean hasResults();
 	
 	
 }

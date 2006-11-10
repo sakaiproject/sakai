@@ -6,14 +6,16 @@
 	org.sakaiproject.search.tool.SearchBean searchBean = searchBeanFactory.newSearchBean(request);
 	
 	String errorMessageFormat = "<div class=\"alertMessage\" >{0}</div>";
-	String searchItemFormat = "<p class=\"searchItem\" ><a href=\"{1}\" target=\"searchresult\" >{2}</a><br />"
-			+ "{3} <br/> "
-			+ "<span class=\"searchScore\" > Hit: {0} "
-			+ " Score: {4} <a href=\"{1}\" target=\"searchresult\" >{1}</a> "
-			+ "</span></p>";
+	String searchItemFormat = 
+	          "<div class=\"searchItem\" > " 
+	        + "<span class=\"searchTool\">{0}:</span> "
+	        + "<a href=\"{1}\" target=\"searchresult\" class=\"searchTopLink\" >{2}</a>"
+			+ "<div class=\"searchItemBody\" >{3}</div> "
+			+ "<a href=\"{1}\" target=\"searchresult\" class=\"searchBottonLink\" >{1}</a> "
+			+ "</div>";
 
-	String pagerFormat = "<td class=\"searchPage{2}\" ><a href=\"{0}\" class=\"searchPage{2}\" ><img src=\"/sakai-search-tool/images/pager{2}.gif\" border=\"0\" alt=\"Page {1}\" /><br />{1}</a></td>";
-	String singlePageFormat = "<td><div class=\"singleSearchPage\" >&#160;</div></td>";
+	String pagerFormat = "<a href=\"{0}\" class=\"searchPage\" >{1}</a></li>";
+	String singlePageFormat = " ";
 	String searchTerms = searchBean.getSearch();
 	String rssURL = "";
 	String rssLink = "";
@@ -36,7 +38,7 @@
       <%= rssLink %>  
     </head>
     <body 
-    onload="<%= request.getAttribute("sakai.html.body.onload") %> parent.updCourier(doubleDeep,ignoreCourier); " 
+    onload="setMainFrameHeightNoScroll('<%= request.getAttribute("sakai.tool.placement.id") %>');parent.updCourier(doubleDeep,ignoreCourier); callAllLoaders(); "
     >
 <%@include file="header.jsp"%>
     	<div class="portletBody">    		
@@ -65,27 +67,37 @@
 		</div>
 	</div>	
 	
+	
 	<%= searchBean.getHeader(searchHeaderFormat) %>
 
-    <table cellspacing="0" cellpadding="0" >
-    <tr valign="top">
-    <%= searchBean.getPager(pagerFormat, singlePageFormat) %>
-    </tr>
-    </table>
-
-	<ul>
-	<li>
-    <%= searchBean.getSearchResults(searchItemFormat,errorMessageFormat) %>
-    </li><li>
-    <%= searchBean.getTerms(termsFormat,100,10,3,true) %>
-    <li>
-    </ul>
-    <table cellspacing="0" cellpadding="0" >
-    <tr valign="top" >
-    <%= searchBean.getPager(pagerFormat, singlePageFormat) %>
-    </tr>
-    </table>
     <%
+    	if ( searchBean.hasResults() ) 
+    	{
+    %>
+    <div class="searchPageContainer" >
+    	<%= searchBean.getPager(pagerFormat, singlePageFormat) %>
+    </div>
+    <div class="searchTabsContainer" >
+	   <span id="results" class="tabHeadOn" >        	
+		  <p class="tabhead" title="Results" ><a href="#" onClick="selectTabs('tagsTab','tabOn','tabOff','resultsTab','tabOff','tabOn','tags','tabHeadOn','tabHeadOff','results','tabHeadOff','tabHeadOn'); return false;" >Results</a></p>
+       </span>
+	   <span id="tags" class="tabHeadOff" >        	
+		  <p class="tabhead" title="Tags" ><a href="#" onClick="selectTabs('tagsTab','tabOff','tabOn','resultsTab','tabOn','tabOff','tags','tabHeadOff','tabHeadOn','results','tabHeadOn','tabHeadOff'); return false;" >Tags</a></p>
+    	</span>
+    </div>
+    <div class="searchResultsContainer" >
+		  <div id="resultsTab" class="tabOn" >
+    <%= searchBean.getSearchResults(searchItemFormat,errorMessageFormat) %>
+          </div>
+		  <div id="tagsTab" class="tabOff" >
+    	     <%= searchBean.getTerms(termsFormat,100,10,3,true) %>
+    	  </div>
+    </div>
+    <div class="searchPageContainer" >
+    	<%= searchBean.getPager(pagerFormat, singlePageFormat) %>
+    </div>
+    <%
+    	}
     }
     else
     {

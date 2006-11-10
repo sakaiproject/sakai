@@ -21,6 +21,7 @@
 
 package org.sakaiproject.search.filter.impl;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +33,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchResult;
+import org.sakaiproject.search.api.TermFrequency;
 import org.sakaiproject.search.filter.SearchItemFilter;
 
 /**
@@ -173,6 +175,29 @@ public class SearchSecurityFilter implements SearchItemFilter
 		}
 
 		public String getReference()
+		{
+			return "";
+		}
+
+		public TermFrequency getTerms() throws IOException
+		{
+			return new TermFrequency() {
+				int[] freq = new int[0];
+				String[] terms = new String[0];
+				public int[] getFrequencies()
+				{
+					return freq;
+				}
+
+				public String[] getTerms()
+				{
+					return terms;
+				}
+				
+			};
+		}
+
+		public String getTool()
 		{
 			return "";
 		}

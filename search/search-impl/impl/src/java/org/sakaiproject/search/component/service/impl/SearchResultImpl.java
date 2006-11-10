@@ -153,8 +153,13 @@ public class SearchResultImpl implements SearchResult
 	public String getTitle()
 	{
 		return FormattedText.escapeHtml(			
-doc.get(SearchService.FIELD_TOOL) + ": "
-				+ doc.get(SearchService.FIELD_TITLE),false);
+				doc.get(SearchService.FIELD_TITLE),false);
+	}
+	public String getTool() 
+	{
+		return FormattedText.escapeHtml(			
+				doc.get(SearchService.FIELD_TOOL) ,false);
+		
 	}
 
 	public int getIndex()

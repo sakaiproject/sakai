@@ -6,12 +6,13 @@
 	org.sakaiproject.search.tool.SearchBean searchBean = searchBeanFactory.newSearchBean(request,"dateRelevanceSort","normal");
 	
 	String searchItemFormat = 
-	  "<item><title>{2}</title><link>{1}</link><description> " 
-	+ "<p class=\"searchItem\" ><a href=\"{1}\" target=\"searchresult\" >{2}</a><br />"
-	+ "{3} <br/> "
-	+ "<span class=\"searchScore\" > Hit: {0} "
-	+ " Score: {4} <a href=\"{1}\" target=\"searchresult\" >{1}</a> "
-	+ "</span></p>"
+	  "<item><title>{0}: {2}</title><link>{1}</link><description> " 
+	        + "<div class=\"searchItem\" > " 
+	        + "<span class=\"searchTool\">{0}:</span> "
+	        + "<a href=\"{1}\" target=\"searchresult\" class=\"searchTopLink\" >{2}</a>"
+			+ "<div class=\"searchItemBody\" >{3}</div> "
+			+ "<a href=\"{1}\" target=\"searchresult\" class=\"searchBottonLink\" >{1}</a> "
+			+ "</div>"
 	+ "</description>"
 	+ "</item>";
 	String errorMessageFormat = 
