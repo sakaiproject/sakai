@@ -15,7 +15,7 @@
  	  
   	  <h:outputText value="#{msgs.del_confirm}" styleClass="alertMessage" />
 
-      <h:outputText value="#{podHomeBean.selectedPodcast.displayDate}" styleClass="podDelDateFormat" />
+      <h:outputText value="#{podHomeBean.selectedPodcast.displayDate}" styleClass="podDateFormat" />
  	  <br />
 
       <h:outputText value="#{podHomeBean.selectedPodcast.title}" styleClass="podDelTitleFormat" />

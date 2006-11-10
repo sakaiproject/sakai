@@ -47,6 +47,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.podcasts.PodcastService;
+import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
@@ -161,7 +162,11 @@ public class podHomeBean {
 				return formatter.format(tempDate);
 			
 			} catch (ParseException e) {
-				LOG.error("ParseException while rendering Revise Podcast page. ");
+				// since revising, only log error if malformed date
+				// not just blank
+				if (! "".equals(dispDate)) {
+					LOG.error("ParseException while rendering Revise Podcast page. ");
+				}
 			}
 			
 			return dispDate;
@@ -1672,5 +1677,34 @@ public class podHomeBean {
 
 		}	
 	}
-	
+
+	/**
+	 * We want to use an action to forward to the helper.  We don't want
+    * to forward to the permission helper in the jsp beause we need to 
+    * clear out the cached permissions
+	 * @return String unused
+	 */
+/*	public String processPermissions()
+	{
+	   ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+	    
+	   userCan = null;
+
+       
+	   try {
+          String url = "sakai.permissions.helper.helper/tool?" + 
+            "session."+ PermissionsHelper.DESCRIPTION +"=" +
+               getPermissionsMessage() + 
+            "&session."+ PermissionsHelper.TARGET_REF +"=" +
+            SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getReference() + 
+            "&session."+ PermissionsHelper.PREFIX +"= content";
+           
+	        context.redirect(url);
+	   }
+	   catch (IOException e) {
+	        throw new RuntimeException("Failed to redirect to helper", e);
+	   }
+	   return null;
+	}
+	*/
 }

@@ -18,15 +18,30 @@
 	  <div>
     		<h3><h:outputText value="#{msgs.perm_title}" /></h3>
     		<div class="instruction" >
-        	  <h:outputText value="#{msgs.perm_directions} #{podPerms.siteName}" styleClass="indnt1"/>
+        	  <h:outputText value="#{msgs.perm_directions} #{podPerms.siteName} (#{podPerms.siteId})" styleClass="indnt1"/>
 
         <!-- TODO: pull down site name (id) and add to message above-->
 		</div>
   	  </div>
        <br />
 
-	<h:dataTable value="#{podPerms.permDataTableList}" var="permItem" binding="#{podPerms.permDataTable}" />
+	<%-- Dymanic table --%>
+	<h:dataTable value="#{podPerms.permTableDataList}" var="cellItem" binding="#{podPerms.permDataTable}" />
 
+
+<br><br><br>
+	<%-- Using selectManyCheckbox tag --%>
+	<h:dataTable value="#{podPerms.checkboxTableValues}" var="permItem" >
+	  <h:column>
+	    <h:outputText value="#{permItem.rowName}" />
+	  </h:column>
+	  <h:column>
+	    <h:selectManyCheckbox value="" >
+	      <f:selectItems value="#{permItem.checkboxSelectValues}" />
+	    </h:selectManyCheckbox>
+	  </h:column>
+	</h:dataTable>
+	
      <sakai:button_bar>
       <sakai:button_bar_item action="#{podPerms.processPermChange}" value="#{msgs.change_submit}" 
           accesskey="s" title="Save Podcast Permissions" styleClass="active" />

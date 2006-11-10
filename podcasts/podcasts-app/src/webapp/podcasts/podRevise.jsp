@@ -26,47 +26,47 @@
     </div>
     <br />
 
-    <div class="indnt1">  <!-- Choose a file -->
-      <h:outputText value="#{msgs.current_file}" />
-      <b><h:outputText value="#{podHomeBean.selectedPodcast.filename}" styleClass="indnt35" /></b>
-      <br />
-      
- 	  <h:outputText value="#{msgs.file_prompt}" styleClass="reqPrompt" />
- 	  <sakai:inputFileUpload id="podfile" valueChangeListener="#{podHomeBean.processFileUpload}" 
- 	     styleClass="indnt6" size="35" />
-
-      <h:message for="podfile" styleClass="alertMessage" />
-    </div>
-    <br /><br />
-
-    <div class="indnt1">  <!-- Date --> 
-      <h:outputText value="#{msgs.date_prompt}" styleClass="reqPrompt" />
-      
-      <span class="indnt1">
+    <table class="indnt1 nolines">
+      <tr>  <!-- ****** Choose a file ****** -->
+        <td><h:outputText value="#{msgs.current_file}" /></td>
+        <td><h:outputText value="#{podHomeBean.selectedPodcast.filename}" /></td>
+      </tr>
+      <tr>
+ 	    <td><h:outputText value="#{msgs.file_prompt}" /></td>
+ 	    <td>
+ 	      <sakai:inputFileUpload id="podfile" valueChangeListener="#{podHomeBean.processFileUpload}" size="35" />
+		</td>
+	  </tr>
+	  <tr>
+        <td colspan=3><h:message for="podfile" styleClass="alertMessage" /></td>
+      </tr>
+      <tr>  <!-- ****** Date ****** --> 
+        <td><h:outputText value="#{msgs.date_prompt}" /></td>
+        <td>
 	      <podcasts:datePicker value="#{podHomeBean.selectedPodcast.displayDateRevise}" id="poddate" size="28" />
 		  <h:outputText value="#{msgs.date_picker_format_string}" />
-     </span>
-     
-      <h:message for="poddate" styleClass="alertMessage" />
-      <h:outputText value="#{msgs.invalid_date_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayInvalidDateErrMsg}" />
-      
-    </div>
-    <br /><br />
-     
-    <div class="indnt1">  <!-- Title -->
-      <h:outputText value="#{msgs.title_prompt}" styleClass="reqPrompt" />
- 	  <h:inputText id="podtitle" value="#{podHomeBean.selectedPodcast.title}" styleClass="indnt4" size="35" maxlength="255" />
-
-	  <h:outputText value="#{msgs.notitle_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayNoTitleErrMsg}" />
-    </div>
-    <br /><br />
-
-    <div class="indnt1"> <!-- Description -->
-      <h:outputText value="#{msgs.description_prompt}" styleClass="reqPrompt" />
-      <br />
-      <h:inputTextarea value="#{podHomeBean.selectedPodcast.description}" rows="6" cols="80" />
-    </div>
-    <br />
+		</td>
+     </tr>
+     <tr>
+       <td colspan="3"><h:outputText value="#{msgs.invalid_date_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayInvalidDateErrMsg}" /></td>
+     </tr>
+     <tr>
+       <td colspan="3"><h:message for="poddate" styleClass="alertMessage" /></td>
+     </tr>
+    <tr>  <!-- ****** Title ****** -->
+      <td><h:outputText value="#{msgs.title_prompt}" /></td>
+ 	  <td><h:inputText id="podtitle" value="#{podHomeBean.selectedPodcast.title}" size="35" maxlength="255" /></td>
+ 	</tr>
+    <tr>
+	  <td colspan="3"><h:outputText value="#{msgs.notitle_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayNoTitleErrMsg}" /></td>
+    </tr>
+    <tr> <!-- ****** Description ****** -->
+      <td colspan="2"><h:outputText value="#{msgs.description_prompt}" />
+    </tr>
+    <tr>
+      <td colspan="3"><h:inputTextarea value="#{podHomeBean.selectedPodcast.description}" rows="6" cols="80" /></td>
+    </tr>
+  </table>
 
 <%--    <div class="indnt1"> <!-- Email Notification -->
       <h:outputText value="#{msgs.email_prompt}" />

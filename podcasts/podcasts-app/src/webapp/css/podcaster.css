@@ -2,12 +2,6 @@ body {
 	width: 98%;
 }
 
-.reqPrompt {
-    position: relative;
-    top: 4px;
-    left: 2px;
-}
-
 .indnt1 {
     position: relative;
     left: 15px;
@@ -17,37 +11,6 @@ body {
     position: relative;
     left: 18px;
 }
-
-.indnt3 {
-    position: relative;
-    left: 37px;
-}
-
-.indnt35 {
-	position: relative;
-	left: 64px;
-}
-
-.indnt4 {
-	position: relative;
-	left: 58px;
-}
-
-.indnt6 {
-	position: relative;
-	left: -18px;
-}
-
-.podcatcher_popup {
-  margin-top: 4px;
-  margin-bottom: 4px;
-  padding: 5px 5px 5px 5px;
-  color: inherit;
-  background-color: #ffffcc;
-  border: 1px dotted #003366;
-  line-height: 100%;
-}
-
 
 .podDateFormat {
 	position: relative;
@@ -71,16 +34,15 @@ body {
 	top: 22px;
 }
 
+.rssIcon {
+	position: relative;
+	top: 6px;
+}
+
 .posted {
 	position: relative;
 	top: 13px;
 	font-size: 8pt;
-}
-
-.podDelDateFormat {
-	position: relative;
-	top: 10px;
-	font-size: 13pt;
 }
 
 .podDelTitleFormat {
@@ -99,12 +61,12 @@ body {
 	top: 30px;
 }
 
-.moveUp {
-	position: relative;
-	top: 20px;
-}
-
-.rssIcon {
-	position: relative;
-	top: 6px;
+.podcatcher_popup {
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding: 5px 5px 5px 5px;
+  color: inherit;
+  background-color: #ffffcc;
+  border: 1px dotted #003366;
+  line-height: 100%;
 }

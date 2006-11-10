@@ -23,51 +23,52 @@
     </div>
     <br /><br />
     
-      <h:outputText value="#{msgs.file_to_upload}" rendered="#{podHomeBean.displayNoFileErrMsg && ! empty podHomeBean.filename }" 
-      		styleClass="indnt1" />
- 	  <h:outputText value="#{podHomeBean.filename}" rendered="#{podHomeBean.displayNoFileErrMsg}" styleClass="indnt1" />
-
-    <div class="indnt1">  <!-- Choose a file -->
-      <span class="reqStarInline">*</span>
- 	  <h:outputText value="#{msgs.file_prompt}" styleClass="reqPrompt" />
-
- 	  <sakai:inputFileUpload id="podfile" valueChangeListener="#{podHomeBean.processFileUpload}"
- 	     styleClass="indnt6" size="35" />
-
-	  <h:outputText value="#{msgs.nofile_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayNoFileErrMsg}" />
-    </div>
-    <br />
-
-    <div class="indnt1">  <!-- Date -->
-      <span class="reqStarInline">*</span>
-      <h:outputText value="#{msgs.date_prompt}" styleClass="reqPrompt" />
-
-	<span class="indnt1">
-      <podcasts:datePicker value="#{podHomeBean.date}" id="addDate" size="28" />
-	  <h:outputText value="#{msgs.date_picker_format_string}" />
-	</span>
-
- 	  <h:outputText value="#{msgs.nodate_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayNoDateErrMsg}" /> 
- 	  <h:outputText value="#{msgs.invalid_date_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayInvalidDateErrMsg}" />
- 	</div>
-    <br />
-     
-    <div class="indnt1">  <!-- Title -->
-      <span class="reqStarInline">*</span>
-      <h:outputText value="#{msgs.title_prompt}" styleClass="reqPrompt" />
-
- 	  <h:inputText id="podtitle" value="#{podHomeBean.title}" styleClass="indnt4" size="35" maxlength="255" />
-
-	  <h:outputText value="#{msgs.notitle_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayNoTitleErrMsg}" />
-    </div>
-    <br />
-
-    <div class="indnt1"> <!-- Description -->
-      <h:outputText value="#{msgs.description_prompt}" styleClass="reqPrompt" />
-      <br />
-      <h:inputTextarea value="#{podHomeBean.description}" rows="6" cols="80" />
-    </div>
-    <br />
+    	<table class="indnt1 nolines">
+    	  <tr>
+     		<td>
+     		  <h:outputText value="#{msgs.file_to_upload}" rendered="#{podHomeBean.displayNoFileErrMsg && ! empty podHomeBean.filename }" />
+      		</td>
+      		<td><h:outputText value="#{podHomeBean.filename}" rendered="#{podHomeBean.displayNoFileErrMsg}" /></td>
+		  </tr>
+    	  <tr> <!-- ****** Choose a file ****** -->
+      		<td class="reqStarInline">*</td>
+ 	  		<td><h:outputText value="#{msgs.file_prompt}" /></td>
+			<td>
+			  <sakai:inputFileUpload id="podfile" valueChangeListener="#{podHomeBean.processFileUpload}" size="35" />
+ 	     	</td>
+ 	      </tr>
+ 	      <tr>
+			<td colspan="3"><h:outputText value="#{msgs.nofile_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayNoFileErrMsg}" /></td>
+	      </tr>
+		  <tr>  <!-- ****** Date ****** -->
+      		<td class="reqStarInline">*</td>
+	      	<td><h:outputText value="#{msgs.date_prompt}" /></td>
+			<td>
+	      		<podcasts:datePicker value="#{podHomeBean.date}" id="addDate" size="28" />
+	  			<h:outputText value="#{msgs.date_picker_format_string}" />
+	  		</td>
+	  	  </tr>
+	  	  <tr>
+ 	  		<td colspan="3">
+ 	  			<h:outputText value="#{msgs.nodate_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayNoDateErrMsg}" /> 
+ 	  			<h:outputText value="#{msgs.invalid_date_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayInvalidDateErrMsg}" />
+ 	  		</td>
+ 	  	  </tr>
+		  <tr>  <!-- ****** Title ****** -->
+		    <td class="reqStarInline">*</td>
+		    <td><h:outputText value="#{msgs.title_prompt}" /></td>
+	 	  	<td><h:inputText id="podtitle" value="#{podHomeBean.title}" size="35" maxlength="255" /></td>
+	 	  </tr>
+	 	  <tr>
+			<td colspan="3"><h:outputText value="#{msgs.notitle_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayNoTitleErrMsg}" /></td>
+	      </tr>
+          <tr> <!-- ****** Description ****** -->
+      		<td colspan="2"><h:outputText value="#{msgs.description_prompt}" /></td>
+      	  </tr>
+      	  <tr>
+	        <td colspan="3"><h:inputTextarea value="#{podHomeBean.description}" rows="6" cols="80" /></td>
+    	  </tr>
+		</table>
 
     <sakai:button_bar>
         <sakai:button_bar_item action="#{podHomeBean.processAdd}" value="#{msgs.add}"

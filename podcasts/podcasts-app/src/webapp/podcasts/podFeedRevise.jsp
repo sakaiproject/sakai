@@ -24,27 +24,26 @@
     </div>
     <br />
 
-    <div class="indnt1">  <!-- Choose a file -->
-      <h:outputText value="#{msgs.podfeed_revise_url_caption}" />
-      <b><h:outputText id="feedURL" value="#{podHomeBean.URL}" styleClass="indnt1" /></b>
-    </div>
-    <br />
-
-    <div class="indnt1">  <!-- Title -->
-      <span class="reqStarInline">*</span>
-      <h:outputText value="#{msgs.title_prompt}" styleClass="reqPrompt" />
- 	  <h:inputText id="podtitle" value="#{podfeedBean.podfeedTitle}" styleClass="indnt3" size="35" maxlength="255" />
-
-  	  <h:messages styleClass="alertMessage" id="errorMessages"/> 
-    </div>
-    <br />
-
-    <div class="indnt1">
-      <h:outputText value="#{msgs.description_prompt}" styleClass="reqPrompt" />
-      <br />
-      <h:inputTextarea id="desc" value="#{podfeedBean.podfeedDescription}" rows="6" cols="80" />
-      
-    </div>
+    <table class="indnt1 nolines">
+      <tr> <!--  ****** Feed Address (non-editable) ****** -->
+        <td colspan=2><h:outputText value="#{msgs.podfeed_revise_url_caption}" /></td>
+        <td><b><h:outputText id="feedURL" value="#{podHomeBean.URL}" /></b></td>
+      </tr>
+      <tr>  <!-- ****** Feed Title ****** -->
+        <td class="reqStarInline">*</td>
+        <td><h:outputText value="#{msgs.title_prompt}" /></td>
+ 	    <td><h:inputText id="podtitle" value="#{podfeedBean.podfeedTitle}" size="35" maxlength="255" /></td>
+ 	  </tr>
+	  <tr>
+  	    <td colspan="3"><h:messages styleClass="alertMessage" id="errorMessages"/> </td>
+      </tr>
+      <tr>
+        <td colspan="2"><h:outputText value="#{msgs.description_prompt}" /></td>
+      </tr>
+      <tr>
+        <td colspan="3"><h:inputTextarea id="desc" value="#{podfeedBean.podfeedDescription}" rows="6" cols="80" /></td>
+      </tr>
+    </table>
     <br />
 
     <sakai:button_bar>  <!-- Save Changes and Cancel buttons -->

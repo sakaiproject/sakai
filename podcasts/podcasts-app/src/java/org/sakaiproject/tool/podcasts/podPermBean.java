@@ -31,9 +31,11 @@ import javax.faces.component.UIColumn;
 import javax.faces.component.UIOutput;
 import javax.faces.component.UISelectBoolean;
 import javax.faces.component.html.HtmlDataTable;
+import javax.faces.component.html.HtmlOutputText;
 import javax.faces.component.html.HtmlSelectBooleanCheckbox;
 import javax.faces.context.FacesContext;
 import javax.faces.el.ValueBinding;
+import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,42 +49,88 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.cover.SiteService;
 
-
 public class podPermBean {
+
+	private final String CONTENT = "content";
+	private final String DOT = ".";
+	private final String SLASH = "/";
+	private final String SITE = "site";
 	
+	public class DecoratedCheckboxTableRow {
+		private String rowName;
+		private List checkboxValues;
+		private SelectItem [] checkboxSelectValues;
+		
+		public List getCheckboxValues() {
+			return checkboxValues;
+		}
+		public void setCheckboxValues(List checkboxValues) {
+			this.checkboxValues = checkboxValues;
+		}
+		public String getRowName() {
+			return rowName;
+		}
+		public void setRowName(String rowName) {
+			this.rowName = rowName;
+		}
+		public SelectItem[] getCheckboxSelectValues() {
+			checkboxSelectValues = new SelectItem[checkboxValues.size()];
+			
+			Iterator ckboxValIter = checkboxValues.iterator();
+			
+			for  (int i = 0; i < checkboxValues.size(); i++) {
+				checkboxSelectValues[i] = new SelectItem((Boolean) ckboxValIter.next(), " ");
+			}
+			
+			return checkboxSelectValues;
+		}
+		public void setCheckboxSelectValues(SelectItem[] checkboxSelectValues) {
+			this.checkboxSelectValues = checkboxSelectValues;
+		}
+	}
+
 	public class HtmlDynamicColumnCheckboxTable extends HtmlDataTable {
 
+		/** The faces cell values to be put in the table */
 		private List dataTableContents;
+
+		/** The number of columns to be put in the table */
 		private int numColumns = -1;
-		private String bindingVar;
 
-		/**
-		 * Returns the binding variable to be used in
-		 * binding the Faces component to a Bean property
-		 */
-		public String getBindingVar() {
-			return bindingVar;
+		/** A String value to bind to each checkbox in the table to a bean property */
+		private String checkboxBindingVar;
+		
+		/** A String value to bind the first column in the table to a bean property */
+		private String firstColumnBindingVar;
+
+		public String getCheckboxBindingVar() {
+			return checkboxBindingVar;
+		}
+
+		public void setCheckboxBindingVar(String checkboxBindingVar) {
+			this.checkboxBindingVar = checkboxBindingVar;
+		}
+
+		public String getFirstColumnBindingVar() {
+			return firstColumnBindingVar;
+		}
+
+		public void setFirstColumnBindingVar(String firstColumnBindingVar) {
+			this.firstColumnBindingVar = firstColumnBindingVar;
 		}
 
 		/**
-		 * Sets the binding variable to be used when
-		 * binding the Bean property to the Faces component
+		 * 
+		 *
 		 */
-		public void setBindingVar(String bindingVar) {
-			this.bindingVar = bindingVar;
-		}
-
 		public HtmlDynamicColumnCheckboxTable() {
 
 		}
 
 		/**
-		 * This constructs the Faces component structure of the
-		 * table. It is created column by column since each
-		 * column's type is homogeneous.
-		 * 
-		 * @ param headers
-		 * 			A list of the header for each column
+		 * This constructs the Faces component structure of the table. It is
+		 * created column by column since each column's type is homogeneous.
+		 *  @ param headers A list of the header for each column
 		 */
 		public void prepareDCDataTable(List headers) {
 
@@ -94,33 +142,34 @@ public class podPermBean {
 			// Set columns.
 			for (int i = 0; i < numColumns; i++) {
 
-				// Set header (optional).
 				UIOutput header = new UIOutput();
 				header.setValue(headerIter.next());
+
 				UIColumn column = new UIColumn();
 
 				// Set output.
 				if (i == 0) {
 					UIOutput output = new UIOutput();
 					ValueBinding aRow = FacesContext.getCurrentInstance()
-							.getApplication().createValueBinding(
-									"#{" + bindingVar + "[" + i + "]}");
+														.getApplication()
+															.createValueBinding("#{cellItem[" + i + "]}");
 					output.setValueBinding("value", aRow);
 
-					// Set column.
+					// Create column FACES component and add label to it (column 0).
 					column = new UIColumn();
 					column.getChildren().add(output);
 					column.setHeader(header);
 
-				} else {
+				} 
+				else {
 					UISelectBoolean output = new UISelectBoolean();
 					ValueBinding aRow = FacesContext.getCurrentInstance()
-							.getApplication().createValueBinding(
-									"#{" + bindingVar + "[" + i + "]}");
+														.getApplication()
+															.createValueBinding("#{cellItem[" + i + "]}");
 					output.setValueBinding("value", aRow);
 
-					// Set column.
-					column = new UIColumn();
+					// Create column FACES component and add checkbox to it.
+               					column = new UIColumn();
 					column.getChildren().add(output);
 					column.setHeader(header);
 
@@ -135,38 +184,54 @@ public class podPermBean {
 		 * This returns the actual Faces component for each cell.
 		 * 
 		 * @param rowId
-		 * 			The Faces component for the first column of each row
+		 *            The String name for the row being constructed (to be put
+		 *            in column 0)
 		 * 
 		 * @param colNumber
-		 * 			Which column are we currently constructing
+		 *            Which column are we currently constructing
 		 * 
-		 * @return Object
-		 * 			Either the component passed in (column = 0) or a
-		 * 			HtmlSelectBooleanCheckbox (every other column)
-		 **/
-		private Object getRowCell(Object rowId, int colNumber) {
+		 * @param select
+		 *            Whether the checkbox should be checked or not (ignored for
+		 *            column 0)
+		 * 
+		 * @return Object Either the component passed in (column = 0) or a
+		 *         HtmlSelectBooleanCheckbox (every other column)
+		 */
+		private Object getRowCell(String rowId, int colNumber, boolean select) {
 
 			if (colNumber == 0) {
-				// first column of row, add columnId
-				return rowId;
-			
-			}
+				// first column of row, add rowId
+/*				HtmlOutputText labelCell = new HtmlOutputText();
+				ValueBinding aRow = FacesContext.getCurrentInstance()
+										.getApplication()
+											.createValueBinding("#{" + firstColumnBindingVar + "}");
+				labelCell.setValueBinding("value", aRow);
+
+				return labelCell;
+*/				return rowId;
+			} 
 			else {
-				//Create a checkbox TODO: pull info to determine if checked
+				// Create a checkbox
 				HtmlSelectBooleanCheckbox checkboxCell = new HtmlSelectBooleanCheckbox();
 
-				// TODO: from permissions, determine if should be checked
-				checkboxCell.setSelected(false);
-				checkboxCell.setSubmittedValue(((String) rowId) + "_"
-						+ colNumber);
+				checkboxCell.setSelected(select);
+//				checkboxCell.setSubmittedValue(rowId + "_" + colNumber);
 				checkboxCell.setRendererType("javax.faces.Checkbox");
 
-				// create MethodBinding so when checkbox checked, can process it
-				//	    	    		Class [] classArray = new Class[1];
-				//    	    		classArray[0] = new ValueChangeEvent(checkboxCell, Boolean.FALSE, Boolean.FALSE);
+				ValueBinding aRow = FacesContext.getCurrentInstance()
+										.getApplication()
+											.createValueBinding("#{" + checkboxBindingVar + "[" + (colNumber-1) + "]}");
+				checkboxCell.setValueBinding("value", aRow);
 
-				//	    	    		MethodBinding mb = FacesContext.getCurrentInstance().getApplication().createMethodBinding("processCheckboxStateChange", classArray);
-				//    	    		checkboxCell.setValueChangeListener(mb);
+				// create MethodBinding so when checkbox checked, can process it
+				// Class [] classArray = new Class[1];
+				// classArray[0] = new ValueChangeEvent(checkboxCell,
+				// Boolean.FALSE, Boolean.FALSE);
+
+				// MethodBinding mb =
+				// FacesContext.getCurrentInstance().getApplication().createMethodBinding("processCheckboxStateChange",
+				// classArray);
+				// checkboxCell.setValueChangeListener(mb);
 				return checkboxCell;
 
 			}
@@ -192,33 +257,70 @@ public class podPermBean {
 		 * This constructs the actual contents of the table
 		 * 
 		 * @param firstColumn
-		 * 			List of the labels for the first column
+		 *            List of the labels for the first column
 		 * @param headerRow
-		 * 			List of the labels for the headers for each column
+		 *            List of the labels for the headers for each column
 		 */
 		public void setDataTableContents(List firstColumn, List headerRow) {
-
 			dataTableContents = new ArrayList();
 
-			Iterator RIter = firstColumn.iterator();
-
+			final int width = headerRow.size();
+			
+			final Iterator roleIter = firstColumn.iterator();
 			int rows = firstColumn.size();
 
 			for (int i = 0; i < rows; i++) {
-				List thisRow = new ArrayList();
+				final List thisRow = new ArrayList();
+				final String roleName = (String) roleIter.next();
+				final Collection podcasts = new ArrayList();
 
-				Object columnId = RIter.next();
+				String podcastFolderRef = "";
+				Iterator permIter = null;
+				AuthzGroup podAuthzGroup = null;
+
+				try {
+					podcastFolderRef = SLASH + CONTENT  
+											+ podcastService.retrievePodcastFolderId(podcastService.getSiteId());
+					podAuthzGroup = AuthzGroupService.getAuthzGroup(podcastFolderRef);
+				} 
+				catch (PermissionException e) {
+					LOG.warn("PermissionException trying to get roles for site "
+								+ podcastService.getSiteId() + e.getMessage());
+				} 
+				catch (GroupNotDefinedException e) {
+					LOG.info("GroupNotDefinedException while constructing permission data table contents for site "
+									+ podcastService.getSiteId() + ".");
+				}
+
+				// Create a list of azGroup ids to get permissions
+				Collection podcastCollection = new ArrayList();
+				if (podAuthzGroup != null) {
+					podcastCollection.add(podAuthzGroup.getId());
+				}
+				
+				podcastCollection.add(getSiteRef());
+
+				// get functions (permissions) for this role
+				Set rolePerms = AuthzGroupService.getAllowedFunctions(roleName,podcastCollection);
+				permIter = rolePerms.iterator();
+
+				Iterator headerIter = headerRow.iterator();
 
 				for (int colNumber = 0; colNumber < numColumns; colNumber++) {
-					Object cell = getRowCell(columnId, colNumber);
+					Object cell = null;
 
-					if (colNumber == 0) {
-						thisRow.add(cell);
+					if (colNumber != 0) {
+						final String permCheck = CONTENT + DOT + (String) headerIter.next();
+						final boolean isChecked = rolePerms.contains(permCheck);
 
-					} else {
-						thisRow.add(cell);
-
+						cell = getRowCell(roleName, colNumber, isChecked);
+					} 
+					else {
+						cell = getRowCell(roleName, colNumber, false);
+						headerIter.next();
 					}
+
+					thisRow.add(cell);
 				}
 
 				dataTableContents.add(thisRow);
@@ -227,7 +329,8 @@ public class podPermBean {
 		}
 
 		/**
-		 * @param numColumns The numColumns to set.
+		 * @param numColumns
+		 *            The numColumns to set.
 		 */
 		public void setNumColumns(int numColumns) {
 			this.numColumns = numColumns;
@@ -235,44 +338,48 @@ public class podPermBean {
 
 	}
 
-	// constants
-	private final String CONTENT = "content";
-	private final String DOT = ".";
-
+	/** dataTable subclass dynamically created */
 	private HtmlDynamicColumnCheckboxTable permTable;
-
+	
+	/** Name of the site for display purposes */
 	private String siteName;
-
+	
+	/** List of UI components to populate table */
 	private List permTableDataList;
+
+	/** List of values to put in table */
+	private List checkboxTableValues;
 
 	// injected beans
 	private Log LOG = LogFactory.getLog(podPermBean.class);
-
 	private PodcastService podcastService;
 
+	/**
+	 * 
+	 *
+	 */
 	public podPermBean() {
 	}
 
-	public podPermBean(boolean[] mPerms, boolean[] aPerms) {
-	}
-
+	/**
+	 * 
+	 * @return
+	 */
 	public String processPermChange() {
 		return "cancel";
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String processPermCancel() {
 		return "cancel";
 	}
 
 	/**
-	 * @return Returns the podcastService.
-	 */
-	public PodcastService getPodcastService() {
-		return podcastService;
-	}
-
-	/**
-	 * @param podcastService The podcastService to set.
+	 * @param podcastService
+	 *            The podcastService to set.
 	 */
 	public void setPodcastService(PodcastService podcastService) {
 		this.podcastService = podcastService;
@@ -281,24 +388,17 @@ public class podPermBean {
 	/**
 	 * Returns a list of user roles
 	 * 
-	 * @return List 
-	 * 			List of user roles (String [])
+	 * @return List List of user roles (String [])
 	 */
 	public List getRoleNames() {
 		List rolesInfo = new ArrayList();
 
-		String siteId = "/site/" + podcastService.getSiteId();
+		String siteRef = getSiteRef();
 
 		try {
-			String podcastFolderId = podcastService
-					.retrievePodcastFolderId(podcastService.getSiteId());
-			Collection podcasts = new ArrayList();
-			podcasts.add(podcastFolderId);
-
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(siteId);
+			AuthzGroup realm = AuthzGroupService.getAuthzGroup(siteRef);
 
 			Set roles = realm.getRoles();
-
 			Iterator iter = roles.iterator();
 
 			while (iter.hasNext()) {
@@ -308,19 +408,12 @@ public class podPermBean {
 					rolesInfo.add(role.getId());
 			}
 
-		} 
-		catch (GroupNotDefinedException e) {
-			LOG.error("GroupNotDefinedException trying to get roles for site " 
-							+ podcastService.getSiteId() 	+ ". " + e.getMessage());
-
-		} catch (PermissionException e) {
-			LOG.warn("PermissionException trying to get roles for site "
-							+ podcastService.getSiteId() + e.getMessage()); 
-
+		} catch (GroupNotDefinedException e) {
+			LOG.error("GroupNotDefinedException trying to get roles for site "
+							+ podcastService.getSiteId() + ". " + e.getMessage());
 		}
 
 		return rolesInfo;
-
 	}
 
 	/**
@@ -340,12 +433,7 @@ public class podPermBean {
 		List permNamesPlus = new ArrayList();
 
 		permNamesPlus.add("Role");
-
-		Iterator LIter = permNames.iterator();
-
-		while (LIter.hasNext()) {
-			permNamesPlus.add(LIter.next());
-		}
+		permNamesPlus.addAll(permNames);
 
 		permTable = new HtmlDynamicColumnCheckboxTable();
 
@@ -353,11 +441,15 @@ public class podPermBean {
 		permTable.setCellpadding("0");
 		permTable.setCellspacing("0");
 		permTable.setBorder(0);
-		permTable.setBindingVar("permItem");
+		permTable.setCheckboxBindingVar("podPerms.checkboxTableValues[1].checkboxValues");
 		permTable.setHeaderClass("navIntraTool");
 		permTable.prepareDCDataTable(permNamesPlus);
 		permTable.setDataTableContents(roleNames, permNamesPlus);
+		permTable.setValue("#{podPerms.checkboxTableValues}");
+		permTable.setVar("permItem");
 
+		setCheckboxTableValues();
+		
 		return (HtmlDataTable) permTable;
 
 	}
@@ -365,28 +457,23 @@ public class podPermBean {
 	/**
 	 * Returns the names of the permissions (functions) available
 	 * 
-	 * @return List 
-	 * 			List of permissions (functions) available (String[])
+	 * @return List List of permissions (functions) available (String[])
 	 */
 	public List getPermNames() {
+		final List permNames = new ArrayList();
+		final List allFunctions = FunctionManager.getRegisteredFunctions(CONTENT);
 
-		List permNames = new ArrayList();
-
-		List allFunctions = FunctionManager.getRegisteredFunctions();
-
-		Iterator fIter = allFunctions.iterator();
+		final Iterator fIter = allFunctions.iterator();
 
 		while (fIter.hasNext()) {
-			String permission = (String) fIter.next();
+			final String permission = (String) fIter.next();
 
 			// TODO: Determine correct way to filter which permissions to show
-			if (permission.indexOf(CONTENT) != -1) {
-				String actPermName = permission.substring(permission
-						.indexOf(DOT) + 1);
+			if (permission.indexOf("all") == -1 && permission.indexOf("hidden") == -1) {
+				final String actPermName = permission.substring(permission
+												.indexOf(DOT) + 1);
 				permNames.add(actPermName);
-
 			}
-
 		}
 
 		return permNames;
@@ -401,7 +488,8 @@ public class podPermBean {
 	}
 
 	/**
-	 * @param permTableDataList The permTableDataList to set.
+	 * @param permTableDataList
+	 *            The permTableDataList to set.
 	 */
 	public void setPermTableDataList(List permTableDataList) {
 		this.permTableDataList = permTableDataList;
@@ -416,23 +504,103 @@ public class podPermBean {
 		siteName = "";
 
 		try {
-			siteName = SiteService.getSite(podcastService.getSiteId())
-					.getTitle();
+			siteName = SiteService.getSite(podcastService.getSiteId()).getTitle();
 
 		} catch (IdUnusedException e) {
 			LOG.error("IdUnusedException attempting to get site name for site. "
-					+ e.getMessage());
-
+						+ e.getMessage());
 		}
 
 		return siteName;
 	}
 
 	/**
-	 * @param siteName The siteName to set.
+	 * @param siteName
+	 *            The siteName to set.
 	 */
 	public void setSiteName(String siteName) {
 		this.siteName = siteName;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private String getSiteRef() {
+		return SLASH + SITE + SLASH + podcastService.getSiteId();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getSiteId() {
+		return podcastService.getSiteId();
+	}
+
+	public void setCheckboxTableValues() {
+		final List roleNames = getRoleNames();
+		final Iterator roleIter = roleNames.iterator();
+		
+		final List permNames = getPermNames();
+		
+		checkboxTableValues = new ArrayList();
+		
+		String podcastFolderRef = "";
+		AuthzGroup podAuthzGroup = null;
+
+		try {
+			podcastFolderRef = SLASH + CONTENT  
+									+ podcastService.retrievePodcastFolderId(podcastService.getSiteId());
+			podAuthzGroup = AuthzGroupService.getAuthzGroup(podcastFolderRef);
+		} 
+		catch (PermissionException e) {
+			LOG.warn("PermissionException trying to get roles for site "
+						+ podcastService.getSiteId() + e.getMessage());
+		} 
+		catch (GroupNotDefinedException e) {
+			LOG.error("GroupNotDefinedException while constructing permission table for site "
+							+ podcastService.getSiteId() + ".");
+		}
+
+		// Create a list of azGroup ids to get permissions
+		Collection podcastCollection = new ArrayList();
+		if (podAuthzGroup != null) {
+			podcastCollection.add(podAuthzGroup.getId());
+		}
+		
+		podcastCollection.add(getSiteRef());
+
+		while (roleIter.hasNext()) {
+			final DecoratedCheckboxTableRow tableRow = new DecoratedCheckboxTableRow();
+			
+			final String roleName = (String) roleIter.next();
+			
+			tableRow.setRowName(roleName);
+			
+			// get functions (permissions) for this role
+			Set rolePerms = AuthzGroupService.getAllowedFunctions(roleName, podcastCollection);
+
+			final Iterator permNameIter = permNames.iterator();
+			final List checkVal = new ArrayList();
+
+			for (int j=0; j < permNames.size(); j++) {
+				final String testPerm = CONTENT + DOT + permNameIter.next();
+		
+				checkVal.add(new Boolean(rolePerms.contains(testPerm)));
+			}
+			tableRow.setCheckboxValues(checkVal);
+			
+			checkboxTableValues.add(tableRow);
+		}		
+	}
+
+	public List getCheckboxTableValues() {
+		return checkboxTableValues;
+	}
+
+	public void setCheckboxTableValues(List checkboxTableValues) {
+		this.checkboxTableValues = checkboxTableValues;
 	}
 
 }
