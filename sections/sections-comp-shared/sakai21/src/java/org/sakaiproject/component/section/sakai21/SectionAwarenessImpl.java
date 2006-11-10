@@ -454,7 +454,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
 		List siteMembers = getSiteMembersInRole(siteContext, role);
 
 		// Get all userUids of all users in sections
-		List sectionedUserUids = new ArrayList();
+		List<String> sectionedUserUids = new ArrayList<String>();
 		List sections = getSections(siteContext);
 		for(Iterator sectionIter = sections.iterator(); sectionIter.hasNext();) {
 			CourseSection section = (CourseSection)sectionIter.next();
@@ -467,7 +467,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
 
 		// Now generate the list of unsectioned enrollments by subtracting the two collections
 		// Since the APIs return different kinds of objects, we need to iterate
-		List unsectionedMembers = new ArrayList();
+		List<ParticipationRecord> unsectionedMembers = new ArrayList<ParticipationRecord>();
 		for(Iterator iter = siteMembers.iterator(); iter.hasNext();) {
 			ParticipationRecord record = (ParticipationRecord)iter.next();
 			if(! sectionedUserUids.contains(record.getUser().getUserUid())) {

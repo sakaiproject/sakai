@@ -24,14 +24,10 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -45,6 +41,7 @@ import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseGroup;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.api.section.coursemanagement.Meeting;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.SectionEnrollments;
 import org.sakaiproject.api.section.coursemanagement.User;
@@ -53,7 +50,6 @@ import org.sakaiproject.api.section.exception.RoleConfigurationException;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.component.section.facade.impl.sakai21.SakaiUtil;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
-import org.sakaiproject.coursemanagement.api.Meeting;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.SectionCategory;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
@@ -204,7 +200,6 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
      */
 	private void replaceSectionsWithExternalSections(Site site) {
 		if(log.isInfoEnabled()) log.info("Replacing sections with externally managed sections in site " + site.getId());
-		ExternalIntegrationConfig appConfig = getConfiguration(null);
 
 		// Get the existing groups from the site, and add them to a new collection so we can remove elements from the original collection
 		Collection<Group> groups = new HashSet<Group>(site.getGroups());
@@ -268,7 +263,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		if(officialMeetings != null) {
 			List<MeetingImpl> meetings = new ArrayList<MeetingImpl>();
 			for(Iterator meetingIter = officialMeetings.iterator(); meetingIter.hasNext();) {
-				Meeting officialMeeting = (Meeting)meetingIter.next();
+				org.sakaiproject.coursemanagement.api.Meeting officialMeeting = (org.sakaiproject.coursemanagement.api.Meeting)meetingIter.next();
 				MeetingImpl meeting = new MeetingImpl(officialMeeting.getLocation(),
 						officialMeeting.getStartTime(), officialMeeting.getFinishTime(),
 						officialMeeting.isMonday(), officialMeeting.isTuesday(), officialMeeting.isWednesday(),
@@ -296,7 +291,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 */
 	public List getSections(String siteContext) {
 		if(log.isDebugEnabled()) log.debug("Getting sections for context " + siteContext);
-		List sectionList = new ArrayList();
+		List<CourseSection> sectionList = new ArrayList<CourseSection>();
 		Collection sections;
 		try {
 			sections = siteService.getSite(siteContext).getGroups();
@@ -321,7 +316,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 */
 	public List getSectionsInCategory(String siteContext, String categoryId) {
 		if(log.isDebugEnabled()) log.debug("Getting " + categoryId + " sections for context " + siteContext);
-		List sectionList = new ArrayList();
+		List<CourseSection> sectionList = new ArrayList<CourseSection>();
 		Collection sections;
 		try {
 			sections = siteService.getSite(siteContext).getGroups();
@@ -362,7 +357,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		Site site = course.getSite();
 		Set sakaiUserIds = site.getUsersIsAllowed(SectionAwareness.INSTRUCTOR_MARKER);
 		List sakaiMembers = userDirectoryService.getUsers(sakaiUserIds);
-		List membersList = new ArrayList();
+		List<ParticipationRecord> membersList = new ArrayList<ParticipationRecord>();
 		for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
 			org.sakaiproject.user.api.User sakaiUser = (org.sakaiproject.user.api.User)iter.next();
 			User user = SakaiUtil.convertUser(sakaiUser);
@@ -383,7 +378,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		Site site = course.getSite();
 		Set sakaiUserIds = site.getUsersIsAllowed(SectionAwareness.TA_MARKER);
 		List sakaiMembers = userDirectoryService.getUsers(sakaiUserIds);
-		List membersList = new ArrayList();
+		List<ParticipationRecord> membersList = new ArrayList<ParticipationRecord>();
 		for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
 			org.sakaiproject.user.api.User sakaiUser = (org.sakaiproject.user.api.User)iter.next();
 			User user = SakaiUtil.convertUser(sakaiUser);
@@ -404,7 +399,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		Site site = course.getSite();
 		Set sakaiUserIds = site.getUsersIsAllowed(SectionAwareness.STUDENT_MARKER);
 		List sakaiMembers = userDirectoryService.getUsers(sakaiUserIds);
-		List membersList = new ArrayList();
+		List<ParticipationRecord> membersList = new ArrayList<ParticipationRecord>();
 		for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
 			org.sakaiproject.user.api.User sakaiUser = (org.sakaiproject.user.api.User)iter.next();
 			User user = SakaiUtil.convertUser(sakaiUser);
@@ -433,7 +428,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		Set sakaiUserUids = group.getUsersHasRole(taRole);
 		List sakaiUsers = userDirectoryService.getUsers(sakaiUserUids);
 
-		List membersList = new ArrayList();
+		List<ParticipationRecord> membersList = new ArrayList<ParticipationRecord>();
 		for(Iterator iter = sakaiUsers.iterator(); iter.hasNext();) {
 			User user = SakaiUtil.convertUser((org.sakaiproject.user.api.User) iter.next());
 			TeachingAssistantRecordImpl record = new TeachingAssistantRecordImpl(section, user);
@@ -463,7 +458,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		Set sakaiUserUids = group.getUsersHasRole(studentRole);
 		List sakaiUsers = userDirectoryService.getUsers(sakaiUserUids);
 
-		List membersList = new ArrayList();
+		List<ParticipationRecord> membersList = new ArrayList<ParticipationRecord>();
 		for(Iterator iter = sakaiUsers.iterator(); iter.hasNext();) {
 			User user = SakaiUtil.convertUser((org.sakaiproject.user.api.User) iter.next());
 			EnrollmentRecordImpl record = new EnrollmentRecordImpl(section, null, user);
@@ -477,7 +472,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 */
 	public List findSiteEnrollments(String siteContext, String pattern) {
 		List fullList = getSiteEnrollments(siteContext);
-		List filteredList = new ArrayList();
+		List<ParticipationRecord> filteredList = new ArrayList<ParticipationRecord>();
 		for(Iterator iter = fullList.iterator(); iter.hasNext();) {
 			ParticipationRecord record = (ParticipationRecord)iter.next();
 			User user = record.getUser();
@@ -537,7 +532,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		List allSections = getSections(siteContext);
 		
 		// Get all student enrollments in each section, and combine them into a single collection
-		List allSectionEnrollments = new ArrayList();
+		List<ParticipationRecord> allSectionEnrollments = new ArrayList<ParticipationRecord>();
 		for(Iterator sectionIter = allSections.iterator(); sectionIter.hasNext();) {
 			CourseSection section = (CourseSection)sectionIter.next();
 			List sectionEnrollments = getSectionEnrollments(section.getUuid());
@@ -620,17 +615,6 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		}
 		return (String)roleStrings.iterator().next();
 	}
-
-//	private String getSectionInstructorRole(AuthzGroup group) throws RoleConfigurationException {
-//		Set roleStrings = group.getRolesIsAllowed(SectionAwareness.INSTRUCTOR_MARKER);
-//		if(roleStrings.size() != 1) {
-//			if(log.isDebugEnabled()) log.debug("Group " + group +
-//				" must have one and only one role with permission " +
-//				SectionAwareness.INSTRUCTOR_MARKER);
-//			throw new RoleConfigurationException("Can't add a user to a section as an instructor, since there is no instructor-flagged role");
-//		}
-//		return (String)roleStrings.iterator().next();
-//	}
 	
 	/**
 	 * {@inheritDoc}
@@ -946,8 +930,8 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 			boolean tuesday, boolean wednesday, boolean thursday,
 			boolean friday, boolean saturday, boolean sunday) {
 		
-		MeetingImpl meeting = new MeetingImpl(location, startTime, endTime, monday, tuesday, wednesday, thursday, friday, saturday, sunday);
-		List meetings = new ArrayList();
+		Meeting meeting = new MeetingImpl(location, startTime, endTime, monday, tuesday, wednesday, thursday, friday, saturday, sunday);
+		List<Meeting> meetings = new ArrayList<Meeting>();
 		meetings.add(meeting);
 
 		return addSection(courseUuid, title, category, maxEnrollments, meetings);
@@ -1010,7 +994,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 			boolean wednesday, boolean thursday, boolean friday,
 			boolean saturday, boolean sunday) {
 		// Create a list of meetings with a single meeting
-		List meetings = new ArrayList();
+		List<Meeting> meetings = new ArrayList<Meeting>();
 		MeetingImpl meeting = new MeetingImpl(location, startTime, endTime, monday, tuesday, wednesday, thursday, friday, saturday, sunday);
 		meetings.add(meeting);
 
@@ -1240,7 +1224,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		List siteEnrollments = getSiteEnrollments(siteId);
 		
 		// Get all userUids of students enrolled in sections of this category
-		List sectionedStudentUids = new ArrayList();
+		List<String> sectionedStudentUids = new ArrayList<String>();
 		List categorySections = getSectionsInCategory(siteId, category);
 		for(Iterator sectionIter = categorySections.iterator(); sectionIter.hasNext();) {
 			CourseSection section = (CourseSection)sectionIter.next();
@@ -1257,7 +1241,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 
 		// Now generate the list of unsectioned enrollments by subtracting the two collections
 		// Since the APIs return different kinds of objects, we need to iterate
-		List unsectionedEnrollments = new ArrayList();
+		List<EnrollmentRecord> unsectionedEnrollments = new ArrayList<EnrollmentRecord>();
 		for(Iterator iter = siteEnrollments.iterator(); iter.hasNext();) {
 			EnrollmentRecord record = (EnrollmentRecord)iter.next();
 			if(! sectionedStudentUids.contains(record.getUser().getUserUid())) {
@@ -1287,7 +1271,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		List sections = getSections(siteId);
 		
 		// Generate a set of sections for which this user is enrolled
-		Set sectionEnrollments = new HashSet();
+		Set<EnrollmentRecord> sectionEnrollments = new HashSet<EnrollmentRecord>();
 		for(Iterator sectionIter = sections.iterator(); sectionIter.hasNext();) {
 			CourseSectionImpl section = (CourseSectionImpl)sectionIter.next();
 			Group group = section.getGroup();
@@ -1383,7 +1367,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	public Set getUsersInGroup(String courseGroupUuid) {
 		Group group = siteService.findGroup(courseGroupUuid);
 		Set members = group.getMembers();
-		Set userUids = new HashSet();
+		Set<String> userUids = new HashSet<String>();
 		for(Iterator iter = members.iterator(); iter.hasNext();) {
 			Member member = (Member)iter.next();
 			userUids.add(member.getUserId());

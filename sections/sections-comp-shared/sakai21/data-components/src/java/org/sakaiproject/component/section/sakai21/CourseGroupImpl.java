@@ -33,7 +33,7 @@ import org.sakaiproject.site.api.Group;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class CourseGroupImpl implements CourseGroup, Comparable, Serializable {
+public class CourseGroupImpl implements CourseGroup, Comparable<CourseGroupImpl>, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -75,10 +75,10 @@ public class CourseGroupImpl implements CourseGroup, Comparable, Serializable {
 		this.uuid = uuid;
 	}
 
-	public int compareTo(Object o) {
-		CourseGroup other = (CourseGroup)o;
+	public int compareTo(CourseGroupImpl other) {
 		return title.compareTo(other.getTitle());
 	}
+
 	public boolean equals(Object o) {
 		if(o instanceof CourseGroup) {
 			CourseGroup other = (CourseGroup)o;

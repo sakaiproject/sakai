@@ -39,7 +39,7 @@ import org.sakaiproject.api.section.coursemanagement.Meeting;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Group;
 
-public class CourseSectionImpl implements CourseSection, Comparable, Serializable {
+public class CourseSectionImpl implements CourseSection, Comparable<CourseSection>, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private static final String TIME_FORMAT_LONG = "h:mm a";
@@ -437,28 +437,23 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
 	 * Compares CourseSectionImpls based on their category ID and title.  Sections
 	 * without a category are sorted last.
 	 */
-	public int compareTo(Object o) {
-		if(o == this) {
+	public int compareTo(CourseSection other) {
+		if(other == this) {
 			return 0;
 		}
-		if(o instanceof CourseSectionImpl) {
-			CourseSectionImpl other = (CourseSectionImpl)o;
-			if(this.category != null && other.category == null) {
-				return -1;
-			} else if(this.category == null && other.category != null) {
-				return 1;
-			}
-			if(this.category == null && other.category == null) {
-				return this.title.toLowerCase().compareTo(other.title.toLowerCase());
-			}
-			int categoryComparison = this.category.compareTo(other.category);
-			if(categoryComparison == 0) {
-				return this.title.toLowerCase().compareTo(other.title.toLowerCase());
-			} else {
-				return categoryComparison;
-			}
+		if(this.category != null && other.getCategory() == null) {
+			return -1;
+		} else if(this.category == null && other.getCategory() != null) {
+			return 1;
+		}
+		if(this.category == null && other.getCategory() == null) {
+			return this.title.toLowerCase().compareTo(other.getTitle().toLowerCase());
+		}
+		int categoryComparison = this.category.compareTo(other.getCategory());
+		if(categoryComparison == 0) {
+			return this.title.toLowerCase().compareTo(other.getTitle().toLowerCase());
 		} else {
-			throw new ClassCastException("Can not compare CourseSectionImpl to " + o.getClass());
+			return categoryComparison;
 		}
 		
 	}
