@@ -58,10 +58,11 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.site.api.Site;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.Validator;
@@ -429,7 +430,21 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 							if (newForum != null && newAttachment != null)
 								newForum.addAttachment(newAttachment);
 						}
-					}       		
+					}   
+								
+					// get/add the gradebook assignment associated with the forum settings
+					GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
+			        ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+					String gradebookUid = ToolManager.getCurrentPlacement().getContext();
+					
+					if (gradebookService.isGradebookDefined(gradebookUid))
+					{
+						String fromAssignmentTitle = fromForum.getDefaultAssignName();
+						if (gradebookService.isAssignmentDefined(gradebookUid, fromAssignmentTitle))
+						{
+							newForum.setDefaultAssignName(fromAssignmentTitle);
+						}
+					}
 
 					// save the forum
 					Area area = areaManager.getDiscusionArea();
@@ -487,7 +502,17 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 									if (newTopic != null && newAttachment != null)
 										newTopic.addAttachment(newAttachment);
 								}			
-							}				
+							}
+							
+							// get/add the gradebook assignment associated with the topic	
+							if (gradebookService.isGradebookDefined(gradebookUid))
+							{
+								String fromAssignmentTitle = fromTopic.getDefaultAssignName();
+								if (gradebookService.isAssignmentDefined(gradebookUid, fromAssignmentTitle))
+								{
+									newTopic.setDefaultAssignName(fromAssignmentTitle);
+								}
+							}
 
 							forumManager.saveDiscussionForumTopic(newTopic, newForum.getDraft().booleanValue());
 						}
