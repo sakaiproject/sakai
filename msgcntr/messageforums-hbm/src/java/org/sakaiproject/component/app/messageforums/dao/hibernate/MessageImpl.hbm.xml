@@ -187,7 +187,7 @@
   <!--  NOTE: do not need site list since private message read status table only has entries for sites user is a part of -->
   
   <query name="findUnreadPvtMsgCntByUserForAllSites">
-    <![CDATA[select recipient.contextId, message.uuid, count(*) 
+    <![CDATA[select recipient.contextId, count(*) 
              from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
              left join message.recipients recipient
              where recipient.userId = :userId and
@@ -196,13 +196,30 @@
     ]]>
   </query>
 
-<query name="findDiscussionForumMessageCountsForAllSites">
+  <query name="findDiscussionForumMessageCountsForAllSites">
     <![CDATA[select a.contextId, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
     		 join messages.topic as topic
              join topic.openForum as f
              join f.area as a
              where a.contextId in ( :siteList )
+             group by a.contextId
+    ]]>
+    
+ </query>
+
+<!--  Added 11-9-06 to filter out topics that are hidden for this user (role) -->
+<query name="findDiscussionForumMessageRemoveCountsForAllSites">
+    <![CDATA[select a.contextId, pl.name, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
+    		 join messages.topic as topic
+             join topic.openForum as f
+             join f.membershipItem as mi
+             join mi.permissionLevel as pl
+             join f.area as a
+             where a.contextId in ( :siteList ) and
+             pl.read = true and
+             pl.name in ( :roleList )
              group by a.contextId
     ]]>
     
@@ -217,6 +234,25 @@
              join f.area as a
              where us.userId = :userId and
              messages.id = us.messageId
+             group by a.contextId
+    ]]>
+    
+ </query>
+
+<!--  Need this since the user might have unread messages before made private -->
+<query name="findDiscussionForumReadMessageRemoveCountsForAllSites">
+    <![CDATA[select a.contextId, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
+    		 org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us
+    		 join messages.topic as topic
+             join topic.openForum as f
+             join f.membershipItem as mi
+             join mi.permissionLevel as pl
+             join f.area as a
+             where us.userId = :userId and
+             messages.id = us.messageId and
+             pl.read = true and
+             pl.name in ( :roleList )
              group by a.contextId
     ]]>
     

@@ -54,11 +54,19 @@
         <key column="of_surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"/>            
     </set>
-    <set name="membershipItemSet" lazy="false" cascade="all-delete-orphan">
+
+ <!-- CHANGED 11-9-06: COMMENTED OUT 
+ 	<set name="membershipItemSet" lazy="false" cascade="all-delete-orphan">
         <key column="of_surrogateKey"/>
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl"/>
     </set>
-    
+ END CHANGE  -->
+
+   <many-to-one name="membershipItem" column="t_surrogateKey"
+        class="org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl"
+        not-null="false" cascade="save-update" unique="true"
+        lazy="false"/>
+     
    	<!-- 
  	<list name="attachments" lazy="false" table="MFR_ATTACHMENT_T" cascade="all">
 	    <key column="of_urrogateKey"/>

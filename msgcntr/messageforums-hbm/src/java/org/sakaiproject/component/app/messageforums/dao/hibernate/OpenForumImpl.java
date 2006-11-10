@@ -23,6 +23,7 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.OpenForum;
+import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 
 public class OpenForumImpl extends BaseForumImpl implements OpenForum {
 
@@ -31,6 +32,7 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
     private Boolean draft;
     private Boolean locked;
     private String defaultAssignName;
+    private DBMembershipItem membershipItem;
     
     // indecies for hibernate
     //protected int areaindex;
@@ -72,5 +74,13 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
     {
       this.defaultAssignName = defaultAssignName;
     }
+
+	public DBMembershipItem getMembershipItem() {
+		return membershipItem;
+	}
+
+	public void setMembershipItem(DBMembershipItem membershipItem) {
+		this.membershipItem = membershipItem;
+	}
 
 }

@@ -4,7 +4,7 @@
 
 	<tool
 			id="sakai.synoptic.messagecenter"
-			title="Synoptic Message Center"
+			title="Message Center Notifications"
 			description="Display unread discussion and forum topic messages for all sites or a site">
 
 <!-- 			<category name="course" />

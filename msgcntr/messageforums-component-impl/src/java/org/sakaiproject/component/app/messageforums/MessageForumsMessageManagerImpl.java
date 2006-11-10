@@ -67,7 +67,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private static final String QUERY_CHILD_MESSAGES = "finalAllChildMessages";
     //private static final String ID = "id";
 
-    private IdManager idManager;                             
+    private IdManager idManager;                      
 
     private MessageForumsTypeManager typeManager;
 
@@ -133,6 +133,35 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
                    return q.list();
                }
     	};
+
+        return (List) getHibernateTemplate().execute(hcb);        
+
+    }
+
+    /**
+     * FOR SYNOPTIC TOOL:
+     * 		Returns the count of discussion forum messages grouped by site
+     * 		that user not have READ access to
+     * 
+     * @param siteList
+     * 			List of site ids user is a part of
+     * 
+     * @return List
+     */
+    public List findDiscussionForumMessageRemoveCountsForAllSites(final List siteList, final List roleList) {
+    	if (siteList == null) {
+            LOG.error("findDiscussionForumMessageCountsForAllSites failed with null site list.");
+            throw new IllegalArgumentException("Null Argument");
+    	}	
+        
+    	HibernateCallback hcb = new HibernateCallback() {
+               public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                   Query q = session.getNamedQuery("findDiscussionForumMessageRemoveCountsForAllSites");
+                    q.setParameterList("siteList", siteList);
+                    q.setParameterList("roleList", roleList);
+                   return q.list();
+               }
+    	};
         
         return (List) getHibernateTemplate().execute(hcb);        
             
@@ -150,6 +179,28 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
                public Object doInHibernate(Session session) throws HibernateException, SQLException {
                    Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForAllSites");
                    	q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   return q.list();
+               }
+    	};
+        
+        return (List) getHibernateTemplate().execute(hcb);        
+            
+    }
+
+    /**
+     * FOR SYNOPTIC TOOL:
+     * 		Returns the count of read discussion forum messages grouped by site
+     * 		that user does not have READ access to
+     * 
+     * @return List
+     */
+    public List findDiscussionForumReadMessageRemoveCountsForAllSites(final List roleList) {
+        
+    	HibernateCallback hcb = new HibernateCallback() {
+               public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                   Query q = session.getNamedQuery("findDiscussionForumReadMessageRemoveCountsForAllSites");
+                   	q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   	q.setParameterList("roleList", roleList);
                    return q.list();
                }
     	};
