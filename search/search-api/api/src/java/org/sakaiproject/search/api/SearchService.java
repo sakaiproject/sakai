@@ -21,7 +21,9 @@
 
 package org.sakaiproject.search.api;
 
+import java.io.IOException;
 import java.util.List;
+
 
 /**
  * Provides a search interface
@@ -237,6 +239,13 @@ public interface SearchService
 	 */
 	void forceReload();
 
+	/**
+	 * get the term vector for this document, where document is the 
+	 * @param doc
+	 * @return
+	 * @throws IOException 
+	 */
+	TermFrequency getTerms(int documentId) throws IOException;
 
 
 }

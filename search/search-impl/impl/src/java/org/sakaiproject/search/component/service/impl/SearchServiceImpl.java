@@ -33,6 +33,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanClause;
@@ -54,6 +55,7 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchStatus;
+import org.sakaiproject.search.api.TermFrequency;
 import org.sakaiproject.search.filter.SearchItemFilter;
 import org.sakaiproject.search.index.IndexStorage;
 import org.sakaiproject.search.model.SearchWriterLock;
@@ -300,7 +302,7 @@ public class SearchServiceImpl implements SearchService
 						EVENT_SEARCH, EVENT_SEARCH_REF+textQuery.toString(), true,
 						NotificationService.PREF_IMMEDIATE));
 				return new SearchListImpl(h, textQuery, start, end,
-						indexStorage.getAnalyzer(), filter, entityManager ,searchIndexBuilder);
+						indexStorage.getAnalyzer(), filter, entityManager ,searchIndexBuilder, this);
 			}
 			else
 			{
@@ -656,5 +658,20 @@ public class SearchServiceImpl implements SearchService
 	{
 		return indexStorage.getSegmentInfoList();
 	}
+
+	public TermFrequency getTerms(int documentId) throws IOException
+	{
+		final TermFreqVector tf = getIndexSearcher(false).getIndexReader().getTermFreqVector(documentId, FIELD_CONTENTS );
+		// TODO Auto-generated method stub
+		return new TermFrequency() {
+			public String[] getTerms() {
+				return tf.getTerms();
+			}
+			public int[] getFrequencies() {
+				return tf.getTermFrequencies();
+			}
+		};
+	}
+
 
 }

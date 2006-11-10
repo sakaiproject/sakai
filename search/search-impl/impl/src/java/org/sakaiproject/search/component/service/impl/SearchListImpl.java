@@ -36,6 +36,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.filter.SearchItemFilter;
 
 /**
@@ -61,9 +62,11 @@ public class SearchListImpl implements SearchList
 	private SearchIndexBuilder searchIndexBuilder;
 	private EntityManager entityManager;
 
+	private SearchService searchService;
+
 
 	public SearchListImpl(Hits h, Query query, int start, int end,
-			Analyzer analyzer, SearchItemFilter filter, EntityManager entityManager, SearchIndexBuilder searchIndexBuilder)
+			Analyzer analyzer, SearchItemFilter filter, EntityManager entityManager, SearchIndexBuilder searchIndexBuilder, SearchService searchService)
 	{
 		this.h = h;
 		this.query = query;
@@ -73,6 +76,7 @@ public class SearchListImpl implements SearchList
 		this.filter = filter;
 		this.entityManager = entityManager;
 		this.searchIndexBuilder = searchIndexBuilder;
+		this.searchService = searchService;
 
 
 	}
@@ -99,7 +103,7 @@ public class SearchListImpl implements SearchList
 					final int thisHit = counter;
 					counter++;
 					return filter.filter(new SearchResultImpl(h, thisHit,
-							query, analyzer,entityManager,searchIndexBuilder));
+							query, analyzer,entityManager,searchIndexBuilder,searchService));
 				}
 				catch (IOException e)
 				{
@@ -151,7 +155,7 @@ public class SearchListImpl implements SearchList
 			{
 
 				o[i + start] = filter.filter(new SearchResultImpl(h, i + start,
-						query, analyzer,entityManager,searchIndexBuilder));
+						query, analyzer,entityManager,searchIndexBuilder,searchService));
 			}
 		}
 		catch (IOException e)
@@ -215,7 +219,7 @@ public class SearchListImpl implements SearchList
 		try
 		{
 			return filter
-					.filter(new SearchResultImpl(h, arg0, query, analyzer,entityManager,searchIndexBuilder));
+					.filter(new SearchResultImpl(h, arg0, query, analyzer,entityManager,searchIndexBuilder,searchService));
 		}
 		catch (IOException e)
 		{

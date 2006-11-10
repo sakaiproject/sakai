@@ -21,10 +21,15 @@
 
 package org.sakaiproject.search.tool;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.Collator;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -38,6 +43,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.api.TermFrequency;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -51,6 +57,7 @@ public class SearchBeanImpl implements SearchBean
 {
 
 	private static final Log log = LogFactory.getLog(SearchBeanImpl.class);
+
 	/**
 	 * The searhc string parameter name
 	 */
@@ -106,9 +113,13 @@ public class SearchBeanImpl implements SearchBean
 
 	private String sortName = "normal";
 
-	private String  filterName = "normal";
+	private String filterName = "normal";
 
 	private Object errorMessage;
+
+	private List termsVectors;
+
+	private List termList;
 
 	/**
 	 * Creates a searchBean
@@ -124,8 +135,9 @@ public class SearchBeanImpl implements SearchBean
 	 * @throws IdUnusedException
 	 *         if there is no current worksite
 	 */
-	public SearchBeanImpl(HttpServletRequest request, SearchService searchService, SiteService siteService, ToolManager toolManager)
-			throws IdUnusedException
+	public SearchBeanImpl(HttpServletRequest request,
+			SearchService searchService, SiteService siteService,
+			ToolManager toolManager) throws IdUnusedException
 	{
 		this.search = request.getParameter(SEARCH_PARAM);
 		this.searchService = searchService;
@@ -135,7 +147,8 @@ public class SearchBeanImpl implements SearchBean
 		this.siteId = toolManager.getCurrentPlacement().getContext();
 		try
 		{
-			this.requestPage = Integer.parseInt(request.getParameter(SEARCH_PAGE));
+			this.requestPage = Integer.parseInt(request
+					.getParameter(SEARCH_PAGE));
 		}
 		catch (Exception ex)
 		{
@@ -146,9 +159,10 @@ public class SearchBeanImpl implements SearchBean
 
 	}
 
-	public SearchBeanImpl(HttpServletRequest request, String sortName, String filterName, 
-			SearchService searchService, SiteService siteService,
-			ToolManager toolManager) throws IdUnusedException
+	public SearchBeanImpl(HttpServletRequest request, String sortName,
+			String filterName, SearchService searchService,
+			SiteService siteService, ToolManager toolManager)
+			throws IdUnusedException
 	{
 		this.search = request.getParameter(SEARCH_PARAM);
 		this.searchService = searchService;
@@ -160,7 +174,8 @@ public class SearchBeanImpl implements SearchBean
 		this.siteId = toolManager.getCurrentPlacement().getContext();
 		try
 		{
-			this.requestPage = Integer.parseInt(request.getParameter(SEARCH_PAGE));
+			this.requestPage = Integer.parseInt(request
+					.getParameter(SEARCH_PAGE));
 		}
 		catch (Exception ex)
 		{
@@ -173,31 +188,147 @@ public class SearchBeanImpl implements SearchBean
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getSearchResults(String searchItemFormat, String errorFeedbackFormat )
+	public String getSearchResults(String searchItemFormat,
+			String errorFeedbackFormat)
 	{
 		StringBuffer sb = new StringBuffer();
 		List searchResults = search();
-		if ( errorMessage != null ) {
-			sb.append(MessageFormat.format(errorFeedbackFormat, new Object[] { errorMessage }));
+		if (errorMessage != null)
+		{
+			sb.append(MessageFormat.format(errorFeedbackFormat,
+					new Object[] { errorMessage }));
 		}
 		if (searchResults != null)
 		{
+			termsVectors = new ArrayList();
+			termList = null;
 			for (Iterator i = searchResults.iterator(); i.hasNext();)
 			{
-				SearchResult sr = (SearchResult) i.next();
-				sb.append(MessageFormat.format(searchItemFormat, new Object[] { String.valueOf(sr.getIndex() + 1), sr.getUrl(),
-						sr.getTitle(), sr.getSearchResult(), new Double(sr.getScore()) }));
 
+				SearchResult sr = (SearchResult) i.next();
+				sb.append(MessageFormat.format(searchItemFormat, new Object[] {
+						String.valueOf(sr.getIndex() + 1), sr.getUrl(),
+						sr.getTitle(), sr.getSearchResult(),
+						new Double(sr.getScore()) }));
+				try
+				{
+					termsVectors.add(sr.getTerms());
+				}
+				catch (IOException e)
+				{
+					log.warn("Failed to get term vector ",e);
+				}
 			}
 		}
 		return sb.toString();
 
 	}
 
+	public String getTerms(String format, int nterms, int top, float divisor, boolean relative)
+	{
+		if ( termList == null ) {
+			mergeTerms();
+		}
+		if ( termList == null ) {
+			return "";
+		}
+		List l = termList.subList(0, Math.min(nterms,termList.size()));
+		int j=0;
+		for ( Iterator li = l.iterator(); li.hasNext(); ) {
+			TermHolder t = (TermHolder) li.next();
+			t.position = j;
+			j++;
+		}
+		
+		Collections.sort(l,new Comparator() {
+			Collator c = Collator.getInstance();
+			public int compare(Object a, Object b)
+			{
+				TermHolder ta = (TermHolder) a;
+				TermHolder tb = (TermHolder) b;
+				return c.compare(ta.term, tb.term);
+			}
+			
+		});
+		StringBuffer sb = new StringBuffer();
+		int factor = 1;
+		j = l.size();
+		for ( Iterator li = l.iterator(); li.hasNext(); ) {
+				TermHolder t = (TermHolder) li.next();
+				factor = Math.max(t.frequency, factor);
+		}
+		
+		for ( Iterator li = l.iterator(); li.hasNext(); ) {
+			TermHolder t = (TermHolder) li.next();
+			float f = (top*t.frequency)/factor;
+			if ( relative ) {
+				f = (top*(l.size()-t.position))/l.size();		
+			}
+			f = f/divisor;
+			j--;
+			sb.append(MessageFormat.format(format,new Object[] {t.term, String.valueOf(f) }));
+		}
+		return sb.toString();
+	}
+
+	protected class TermHolder
+	{
+		public int position;
+
+		protected String term;
+
+		protected int frequency;
+
+	}
+
+	public void mergeTerms()
+	{
+		if ( termsVectors == null ) {
+			return;
+		}
+		HashMap hm = new HashMap();
+		for (Iterator i = termsVectors.iterator(); i.hasNext();)
+		{
+			TermFrequency tf = (TermFrequency) i.next();
+			String[] terms = tf.getTerms();
+			int[] freq = tf.getFrequencies();
+			for (int ti = 0; ti < terms.length; ti++)
+			{
+				TermHolder h = (TermHolder) hm.get(terms[ti]);
+				if (h == null)
+				{
+					h = new TermHolder();
+					h.term = terms[ti];
+					h.frequency = freq[ti];
+					hm.put(terms[ti], h);
+				}
+				else
+				{
+					h.frequency += freq[ti];
+				}
+			}
+		}
+		termList = new ArrayList();
+		termList.addAll(hm.values());
+		Collections.sort(termList, new Comparator()
+		{
+
+			public int compare(Object a, Object b)
+			{
+				TermHolder ao = (TermHolder) a;
+				TermHolder bo = (TermHolder) b;
+				return bo.frequency - ao.frequency;
+			}
+
+		});
+		
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getPager(String pagerFormat, String singlePageFormat) throws UnsupportedEncodingException
+	public String getPager(String pagerFormat, String singlePageFormat)
+			throws UnsupportedEncodingException
 	{
 		SearchList sr = (SearchList) search();
 		if (sr == null) return "";
@@ -219,7 +350,9 @@ public class SearchBeanImpl implements SearchBean
 		{
 			while (cpage <= lastPage)
 			{
-				String searchURL = "?search=" + URLEncoder.encode(search, "UTF-8") + "&page=" + String.valueOf(cpage);
+				String searchURL = "?search="
+						+ URLEncoder.encode(search, "UTF-8") + "&page="
+						+ String.valueOf(cpage);
 				String cssInd = "1";
 				if (first)
 				{
@@ -231,7 +364,8 @@ public class SearchBeanImpl implements SearchBean
 					cssInd = "2";
 				}
 
-				sb.append(MessageFormat.format(pagerFormat, new Object[] { searchURL, String.valueOf(cpage + 1), cssInd }));
+				sb.append(MessageFormat.format(pagerFormat, new Object[] {
+						searchURL, String.valueOf(cpage + 1), cssInd }));
 				cpage++;
 			}
 		}
@@ -241,7 +375,8 @@ public class SearchBeanImpl implements SearchBean
 
 	public boolean isEnabled()
 	{
-		return ("true".equals(ServerConfigurationService.getString("search.experimental", "false")));
+		return ("true".equals(ServerConfigurationService.getString(
+				"search.experimental", "false")));
 
 	}
 
@@ -262,7 +397,8 @@ public class SearchBeanImpl implements SearchBean
 			end = Math.min(start + sr.size(), total);
 			start++;
 		}
-		return MessageFormat.format(headerFormat, new Object[] { new Integer(start), new Integer(end), new Integer(total),
+		return MessageFormat.format(headerFormat, new Object[] {
+				new Integer(start), new Integer(end), new Integer(total),
 				new Double(timeTaken) });
 	}
 
@@ -296,7 +432,7 @@ public class SearchBeanImpl implements SearchBean
 	public List search()
 	{
 
-		if (searchResults == null && errorMessage == null )
+		if (searchResults == null && errorMessage == null)
 		{
 			if (search != null && search.trim().length() > 0)
 			{
@@ -305,14 +441,22 @@ public class SearchBeanImpl implements SearchBean
 				long start = System.currentTimeMillis();
 				int searchStart = requestPage * pagesize;
 				int searchEnd = searchStart + pagesize;
-				try {
-				searchResults = searchService.search(search, l, searchStart, searchEnd, filterName , sortName);
-				} catch ( Exception ex)  {
-					
+				try
+				{
+					searchResults = searchService.search(search, l,
+							searchStart, searchEnd, filterName, sortName);
+				}
+				catch (Exception ex)
+				{
+
 					errorMessage = ex.getMessage();
-					log.warn("Search Error encoutered, generated by a user action "+ex.getClass().getName()+":"+ex.getMessage());
-					log.debug("Search Error Traceback ",ex);
-					
+					log
+							.warn("Search Error encoutered, generated by a user action "
+									+ ex.getClass().getName()
+									+ ":"
+									+ ex.getMessage());
+					log.debug("Search Error Traceback ", ex);
+
 				}
 				long end = System.currentTimeMillis();
 				timeTaken = 0.001 * (end - start);
@@ -396,8 +540,10 @@ public class SearchBeanImpl implements SearchBean
 	public boolean hasAdmin()
 	{
 		boolean superUser = SecurityService.isSuperUser();
-		return ( superUser ) || ( "true".equals(ServerConfigurationService.getString("search.alow.maintain.admin","false")) &&
-						siteService.allowUpdateSite(siteId));	
+		return (superUser)
+				|| ("true".equals(ServerConfigurationService.getString(
+						"search.alow.maintain.admin", "false")) && siteService
+						.allowUpdateSite(siteId));
 	}
 
 	/**
@@ -406,8 +552,8 @@ public class SearchBeanImpl implements SearchBean
 	public String getToolUrl()
 	{
 
-		return ServerConfigurationService.getString("portalPath") + "/tool/" + placementId;
+		return ServerConfigurationService.getString("portalPath") + "/tool/"
+				+ placementId;
 	}
-
 
 }

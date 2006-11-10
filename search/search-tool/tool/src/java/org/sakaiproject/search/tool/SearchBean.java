@@ -96,6 +96,18 @@ public interface SearchBean
 	 */
 	boolean isEnabled();
 
+	/**
+	 * Get a formatted list of terms
+	 * @param format format is {0} is the term {1} is the frequency
+	 * @param nterms the number of terms to display
+	 * @param top the top value of frequency (0) is considered the lowest
+	 * @param divisor divide the factor
+	 * @param relative if true, the order is used, if false the absolute frequency is used
+	 * @return
+	 */
+
+	String getTerms(String format, int nterms, int top, float divisor, boolean relative);
+
 	
 	
 }

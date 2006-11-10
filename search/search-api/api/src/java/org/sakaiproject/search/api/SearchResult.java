@@ -21,6 +21,7 @@
 
 package org.sakaiproject.search.api;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -97,5 +98,13 @@ public interface SearchResult
 	 * @return
 	 */
 	String getReference();
+
+	/**
+	 * gets the term frequencies for this Document
+	 * @return
+	 * @throws IOException
+	 */
+	TermFrequency getTerms() throws IOException;
+	
 
 }

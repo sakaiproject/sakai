@@ -24,6 +24,7 @@
     
 	}
 	String searchHeaderFormat = "<div class=\"searchHeader\">Found {0} to {1} of {2} documents ({3} seconds) <a href=\""+rssURL+"\" target=\"rss\" ><img src=\"/sakai-search-tool/images/rss.gif\" alt=\"RSS\" border=\"0\" /></a></div>";
+	String termsFormat = "<span style=\"font-size:{1}em;\" ><a href=\"?panel=Main&search={0}\" >{0}</a></span> ";
 
 %>
 <html>
@@ -72,8 +73,13 @@
     </tr>
     </table>
 
+	<ul>
+	<li>
     <%= searchBean.getSearchResults(searchItemFormat,errorMessageFormat) %>
-    
+    </li><li>
+    <%= searchBean.getTerms(termsFormat,100,10,3,true) %>
+    <li>
+    </ul>
     <table cellspacing="0" cellpadding="0" >
     <tr valign="top" >
     <%= searchBean.getPager(pagerFormat, singlePageFormat) %>

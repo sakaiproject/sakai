@@ -46,6 +46,7 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.api.TermFrequency;
 import org.sakaiproject.util.FormattedText;
 
 /**
@@ -72,8 +73,10 @@ public class SearchResultImpl implements SearchResult
 
 	private SearchIndexBuilder searchIndexBuilder;
 
+	private SearchService searchService;
 
-	public SearchResultImpl(Hits h, int index, Query query, Analyzer analyzer, EntityManager entityManager, SearchIndexBuilder searchIndexBuilder) throws IOException
+
+	public SearchResultImpl(Hits h, int index, Query query, Analyzer analyzer, EntityManager entityManager, SearchIndexBuilder searchIndexBuilder, SearchService searchService) throws IOException
 	{
 		this.h = h;
 		this.index = index;
@@ -82,6 +85,7 @@ public class SearchResultImpl implements SearchResult
 		this.analyzer = analyzer;
 		this.entityManager = entityManager;
 		this.searchIndexBuilder = searchIndexBuilder;
+		this.searchService = searchService;
 	}
 
 	public float getScore()
@@ -197,6 +201,10 @@ doc.get(SearchService.FIELD_TOOL) + ": "
 	public String getReference()
 	{
 		return doc.get(SearchService.FIELD_REFERENCE);
+	}
+	
+	public TermFrequency getTerms() throws IOException {
+		return searchService.getTerms(h.id(index));
 	}
 
 }
