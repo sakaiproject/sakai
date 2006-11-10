@@ -79,10 +79,10 @@
     </div>
     <div class="searchTabsContainer" >
 	   <span id="results" class="tabHeadOn" >        	
-		  <p class="tabhead" title="Results" ><a href="#" onClick="selectTabs('tagsTab','tabOn','tabOff','resultsTab','tabOff','tabOn','tags','tabHeadOn','tabHeadOff','results','tabHeadOff','tabHeadOn'); return false;" >Results</a></p>
+		  <p class="tabhead" title="Results" ><a href="#" onClick="selectTabs('tagsTab','tabOn','tabOff','resultsTab','tabOff','tabOn','tags','tabHeadOn','tabHeadOff','results','tabHeadOff','tabHeadOn'); setMainFrameHeightNoScroll('<%= request.getAttribute("sakai.tool.placement.id") %>'); return false;" >Results</a></p>
        </span>
 	   <span id="tags" class="tabHeadOff" >        	
-		  <p class="tabhead" title="Tags" ><a href="#" onClick="selectTabs('tagsTab','tabOff','tabOn','resultsTab','tabOn','tabOff','tags','tabHeadOff','tabHeadOn','results','tabHeadOn','tabHeadOff'); return false;" >Tags</a></p>
+		  <p class="tabhead" title="Tags" ><a href="#" onClick="selectTabs('tagsTab','tabOff','tabOn','resultsTab','tabOn','tabOff','tags','tabHeadOff','tabHeadOn','results','tabHeadOn','tabHeadOff'); setMainFrameHeightNoScroll('<%= request.getAttribute("sakai.tool.placement.id") %>'); return false;" >Tags</a></p>
     	</span>
     </div>
     <div class="searchResultsContainer" >
