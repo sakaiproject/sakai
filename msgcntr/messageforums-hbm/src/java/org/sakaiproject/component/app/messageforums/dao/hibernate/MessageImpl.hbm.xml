@@ -210,16 +210,18 @@
 
 <!--  Added 11-9-06 to filter out topics that are hidden for this user (role) -->
 <query name="findDiscussionForumMessageRemoveCountsForAllSites">
-    <![CDATA[select a.contextId, pl.name, count(*)
-    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
+    <![CDATA[select a.contextId, membershipItem.name, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
+    		 org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membershipItem
+             join membershipItem.topic as mt
+             join membershipItem.permissionLevel as pl
     		 join messages.topic as topic
              join topic.openForum as f
-             join f.membershipItem as mi
-             join mi.permissionLevel as pl
              join f.area as a
              where a.contextId in ( :siteList ) and
-             pl.read = true and
-             pl.name in ( :roleList )
+             mt.id = topic.id and
+             membershipItem.name in ( :roleList ) and
+             pl.read = false
              group by a.contextId
     ]]>
     
@@ -241,18 +243,20 @@
 
 <!--  Need this since the user might have unread messages before made private -->
 <query name="findDiscussionForumReadMessageRemoveCountsForAllSites">
-    <![CDATA[select a.contextId, count(*)
+    <![CDATA[select a.contextId, membershipItem.name, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
-    		 org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us
-    		 join messages.topic as topic
+    		 org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us,
+	   		 org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membershipItem
+             join membershipItem.topic as mt
+             join membershipItem.permissionLevel as pl
+     		 join messages.topic as topic
              join topic.openForum as f
-             join f.membershipItem as mi
-             join mi.permissionLevel as pl
              join f.area as a
              where us.userId = :userId and
              messages.id = us.messageId and
-             pl.read = true and
-             pl.name in ( :roleList )
+             pl.read = false and
+             mt.id = topic.id and
+             membershipItem.name in ( :roleList )
              group by a.contextId
     ]]>
     

@@ -37,6 +37,12 @@
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl"
         not-null="false" cascade="save-update" unique="true"
         lazy="false"/>
+     
+     <many-to-one name="topic" column="t_surrogateKey"
+        class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
+        not-null="false" cascade="save-update" unique="true"
+        lazy="false"/>
+     
                
   </class>
     
