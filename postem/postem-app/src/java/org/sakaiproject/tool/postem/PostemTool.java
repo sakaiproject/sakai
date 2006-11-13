@@ -596,7 +596,7 @@ public class PostemTool {
 				Iterator si = slist.iterator();
 				while (si.hasNext()) {
 					List ss = (List) si.next();
-					String uname = (String) ss.remove(0);
+					String uname = ((String) ss.remove(0)).trim();
 					// logger.info("[POSTEM] processCreate -- adding student " +
 					// uname);
 					gradebookManager.createStudentGradesInGradebook(uname, ss,
