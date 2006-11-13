@@ -42,13 +42,19 @@ public class NavMenuBean extends CourseDependentBean {
 	private boolean sectionManagementEnabled;
 
 	public NavMenuBean() {
+		String courseUuid = super.getCourse().getUuid();
 		ExternalIntegrationConfig appConfig = super.getApplicationConfiguration();
 		
-		this.sectionManagementEnabled = super.isSectionManagementEnabled();
+		this.sectionManagementEnabled = super.isSectionManagementEnabled() &&
+			! super.getSectionManager().isExternallyManaged(courseUuid);
+
 		this.sectionOptionsManagementEnabled = super.isSectionOptionsManagementEnabled() &&
 			appConfig != SectionManager.ExternalIntegrationConfig.AUTOMATIC_MANDATORY &&
 			appConfig != SectionManager.ExternalIntegrationConfig.MANUAL_MANDATORY;
-		this.sectionEnrollmentMangementEnabled = super.isSectionEnrollmentMangementEnabled();
+
+		this.sectionEnrollmentMangementEnabled = super.isSectionEnrollmentMangementEnabled() &&
+			! super.getSectionManager().isExternallyManaged(courseUuid);
+
 		this.sectionTaManagementEnabled = super.isSectionTaManagementEnabled();
 	}
 
@@ -56,8 +62,7 @@ public class NavMenuBean extends CourseDependentBean {
 		return sectionEnrollmentMangementEnabled;
 	}
 
-	public void setSectionEnrollmentMangementEnabled(
-			boolean sectionEnrollmentMangementEnabled) {
+	public void setSectionEnrollmentMangementEnabled(boolean sectionEnrollmentMangementEnabled) {
 		this.sectionEnrollmentMangementEnabled = sectionEnrollmentMangementEnabled;
 	}
 
@@ -73,8 +78,7 @@ public class NavMenuBean extends CourseDependentBean {
 		return sectionOptionsManagementEnabled;
 	}
 
-	public void setSectionOptionsManagementEnabled(
-			boolean sectionOptionsManagementEnabled) {
+	public void setSectionOptionsManagementEnabled(boolean sectionOptionsManagementEnabled) {
 		this.sectionOptionsManagementEnabled = sectionOptionsManagementEnabled;
 	}
 

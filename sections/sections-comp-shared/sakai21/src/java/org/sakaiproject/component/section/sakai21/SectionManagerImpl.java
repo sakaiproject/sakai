@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -83,9 +82,6 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 
 	private static final Log log = LogFactory.getLog(SectionManagerImpl.class);
-	
-	protected ResourceBundle sectionCategoryBundle = ResourceBundle.getBundle(
-			"org.sakaiproject.api.section.bundle.CourseSectionCategories");
 	
     // Sakai services
     protected SiteService siteService;
