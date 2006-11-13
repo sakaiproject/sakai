@@ -90,6 +90,13 @@
     <%= searchBean.getSearchResults(searchItemFormat,errorMessageFormat) %>
           </div>
 		  <div id="tagsTab" class="tabOff" >
+		     <div id="aboutTabs" >
+		     Tags, shows the top 100 terms in your search results. 
+		     The size of the term represents how many times it appears in the set of results
+		     shown in the Results tab. 
+		     The larger the term, the more frequently it appears in the search results.
+		     You can click on the word to perform a search on that word. 
+		     </div>
     	     <%= searchBean.getTerms(termsFormat,100,10,3,true) %>
     	  </div>
     </div>

@@ -115,3 +115,10 @@
    margin: 10px;
    
 }
+#aboutTabs {
+   font-size: 0.9em;
+   margin: 5px;
+   padding: 5px;
+   border: 1px dotted #ccc;
+   background-color: #f0f0f0;
+}
