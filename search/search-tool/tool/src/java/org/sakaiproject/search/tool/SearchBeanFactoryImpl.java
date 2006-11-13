@@ -129,4 +129,20 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 		}
 	}
 
+	public OpenSearchBean newOpenSearchBean(HttpServletRequest request) throws PermissionException
+	{
+		try
+		{
+			OpenSearchBean openSearchBean = new OpenSearchBeanImpl(request, 
+					searchService, siteService, toolManager);
+
+			return openSearchBean;
+		}
+		catch (IdUnusedException e)
+		{
+			throw new RuntimeException(
+					"You must access the Search through a woksite");
+		}
+	}
+
 }

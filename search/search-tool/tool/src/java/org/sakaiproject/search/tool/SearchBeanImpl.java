@@ -567,4 +567,9 @@ public class SearchBeanImpl implements SearchBean
 		}
 	}
 
+	public String getOpenSearchUrl()
+	{
+		return ServerConfigurationService.getPortalUrl()+"/tool/"+placementId+"/opensearch";
+	}
+
 }

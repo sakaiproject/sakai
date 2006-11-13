@@ -62,5 +62,8 @@ public interface SearchBeanFactory
 	 */
 	SearchAdminBean newSearchAdminBean(HttpServletRequest request)
 			throws PermissionException;
+	
+	OpenSearchBean newOpenSearchBean(HttpServletRequest request)
+		throws PermissionException;
 
 }

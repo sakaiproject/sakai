@@ -114,5 +114,10 @@ public interface SearchBean
 	 */
 	boolean hasResults();
 	
+	/**
+	 * Get the OpensearchURL
+	 * @return
+	 */
+	String getOpenSearchUrl();
 	
 }

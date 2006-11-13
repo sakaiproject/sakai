@@ -36,6 +36,10 @@
      <title>Search: <%= searchBean.getSearchTitle() %></title>
       <%= request.getAttribute("sakai.html.head") %>
       <%= rssLink %>  
+      <link rel="search"
+           type="application/opensearchdescription+xml" 
+           href="<%= searchBean.getOpenSearchUrl() %>"
+           title="Worksite Search" />
     </head>
     <body 
     onload="setMainFrameHeightNoScroll('<%= request.getAttribute("sakai.tool.placement.id") %>');parent.updCourier(doubleDeep,ignoreCourier); callAllLoaders(); "
