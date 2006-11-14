@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-    <extend>${basedir}/../project.xml</extend>
+    <extend>../../../project.xml</extend>
     <pomVersion>3</pomVersion>
-    <name>Sakai Sections Shared Components: Standalone Test Support</name>
+    <name>sakai-sections-integrationsupport</name>
     <groupId>sakaiproject</groupId>
-    <id>sakai-sections-comp-shared-standalone-integrationsupport</id>
+    <id>sakai-sections-integrationsupport</id>
     <currentVersion>${sakai.version}</currentVersion>
     <organization>
         <name>Sakai Project</name>
@@ -34,7 +34,7 @@
 
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-sections-comp-shared-standalone</artifactId>
+            <artifactId>sakai-sections-impl-standalone</artifactId>
             <version>${sakai.version}</version>
         </dependency>
 

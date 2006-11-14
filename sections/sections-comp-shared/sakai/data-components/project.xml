@@ -1,34 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-    <extend>../../../master/project.xml</extend>
+    <extend>../../../../master/project.xml</extend>
     <pomVersion>3</pomVersion>
-    <name>sakai-sections-impl-standalone</name>
+    <name>sakai-sections-model</name>
     <groupId>sakaiproject</groupId>
-    <id>sakai-sections-impl-standalone</id>
-    <currentVersion>${sakai.version}</currentVersion>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2005</inceptionYear>
+    <id>sakai-sections-model</id>
 
     <properties>
         <deploy.type>jar</deploy.type>
+        <deploy.target>shared</deploy.target>
     </properties>
 
+
     <dependencies>
-        <!-- Standalone authn, authz, and context use faces context and http session -->
+
+        <!-- Sakai Dependencies -->
         <dependency>
-            <groupId>myfaces</groupId>
-            <artifactId>myfaces</artifactId>
-            <version>1.0.9</version>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-tool-api</artifactId>
+            <version>${sakai.version}</version>
         </dependency>
         <dependency>
-            <id>servletapi</id>
-            <version>2.4</version>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-util-api</artifactId>
+            <version>${sakai.version}</version>
         </dependency>
-        
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-entity-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-site-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-authz-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+
         <!-- 3rd Party Dependencies -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
@@ -151,6 +164,7 @@
 			<artifactId>xalan</artifactId>
 			<version>2.6.0</version>
 		</dependency>
+
     </dependencies>
 
     <reports/>
@@ -162,12 +176,6 @@
                 <directory>${basedir}/src/conf</directory>
                 <includes>
                     <include>**/*.xml</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>${hibernate.properties.dir}</directory>
-                <includes>
-                    <include>hibernate.properties</include>
                 </includes>
             </resource>
             <resource>

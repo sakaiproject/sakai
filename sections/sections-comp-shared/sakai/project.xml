@@ -1,23 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-	<pomVersion>3</pomVersion>
-    <extend>../../master/project.xml</extend>
-	<name>Sakai Sections Shared Components</name>
-	<groupId>sakaiproject</groupId>
-    <id>sakai-sections-comp-shared</id>
-	<currentVersion>${sakai.version}</currentVersion>
-	<organization>
-		<name>Sakai Project</name>
-		<url>http://sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2005</inceptionYear>
+    <extend>../../../master/project.xml</extend>
+    <pomVersion>3</pomVersion>
+    <name>sakai-sections-impl</name>
+    <groupId>sakaiproject</groupId>
+    <id>sakai-sections-impl</id>
+    <currentVersion>${sakai.version}</currentVersion>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2005</inceptionYear>
 
-   	<properties>
-		<deploy.type>jar</deploy.type>
-	</properties>
-	
-	<dependencies>
+    <properties>
+        <deploy.type>jar</deploy.type>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-sections-model</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+
+        <!-- Sakai Dependencies -->
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-tool-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-util-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-util</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-entity-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-site-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-authz-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-user-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-event-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-coursemanagement-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        
+        <!-- 3rd Party Dependencies -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai</artifactId>
@@ -140,10 +195,19 @@
 			<version>2.6.0</version>
 		</dependency>
 
-	</dependencies>
+    </dependencies>
 
-	<reports/>
+    <reports/>
 
-	<build>
-	</build>
+    <build>
+        <sourceDirectory>src/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/conf</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 </project>
