@@ -241,6 +241,7 @@ document.links[newindex].onclick();
      <h:outputText rendered="#{question.itemData.typeId== 4}" value=" #{msg.true_false}"/>
      <h:outputText rendered="#{question.itemData.typeId== 5}" value=" #{msg.short_answer_essay}"/>
      <h:outputText rendered="#{question.itemData.typeId== 8}" value=" #{msg.fill_in_the_blank}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 11}" value=" #{msg.fill_in_numeric}"/>
      <h:outputText rendered="#{question.itemData.typeId== 9}" value=" #{msg.matching}"/>
      <h:outputText rendered="#{question.itemData.typeId== 7}" value=" #{msg.audio_recording}"/>
      <h:outputText rendered="#{question.itemData.typeId== 6}" value=" #{msg.file_upload}"/>
