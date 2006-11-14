@@ -67,7 +67,7 @@
     <!-- Standalone component -->
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-sections-comp-shared-standalone</artifactId>
+      <artifactId>sakai-sections-impl-standalone</artifactId>
       <version>${sakai.version}</version>
       <properties>
         <war.bundle>standalone</war.bundle>
@@ -76,7 +76,7 @@
     <!-- Sakai-embedded version -->
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-sections-comp-shared-sakai21</artifactId>
+      <artifactId>sakai-sections-impl</artifactId>
       <version>${sakai.version}</version>
       <properties>
         <war.bundle>integrated</war.bundle>
