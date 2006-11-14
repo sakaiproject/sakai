@@ -530,6 +530,12 @@ public class RequestFilter implements Filter
 					ThreadLocalManager.set(CURRENT_HTTP_REQUEST, req);
 					ThreadLocalManager.set(CURRENT_HTTP_RESPONSE, resp);
 
+					// set the portal into thread local
+					if (m_contextId != null && m_contextId.length() > 0)
+					{
+						ThreadLocalManager.set(ServerConfigurationService.CURRENT_PORTAL_PATH, "/" + m_contextId);
+					}
+
 					// Pass control on to the next filter or the servlet
 					chain.doFilter(req, resp);
 
