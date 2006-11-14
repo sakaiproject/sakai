@@ -453,6 +453,8 @@ public class RequestFilter implements Filter
 	public void doFilter(ServletRequest requestObj, ServletResponse responseObj, FilterChain chain) throws IOException,
 			ServletException
 	{
+		long startTime = System.currentTimeMillis();
+
 		// bind some preferences as "current"
 		Boolean curRemoteUser = (Boolean) ThreadLocalManager.get(CURRENT_REMOTE_USER);
 		Integer curHttpSession = (Integer) ThreadLocalManager.get(CURRENT_HTTP_SESSION);
@@ -556,6 +558,12 @@ public class RequestFilter implements Filter
 				ThreadLocalManager.set(CURRENT_CONTEXT, curContext);
 				ThreadLocalManager.set(CURRENT_HTTP_REQUEST, curRequest);
 				ThreadLocalManager.set(CURRENT_HTTP_RESPONSE, curResponse);
+			}
+			
+			if (M_log.isDebugEnabled())
+			{
+				long elapsedTime = System.currentTimeMillis() - startTime;
+				M_log.debug("request timing (ms): " + elapsedTime);
 			}
 		}
 	}
