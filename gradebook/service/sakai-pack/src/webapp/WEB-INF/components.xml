@@ -30,7 +30,7 @@
 	<bean id="org_sakaiproject_tool_gradebook_facades_Authz"
 		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.AuthzSakai2Impl"
 		init-method="init">
-		<property name="sectionAwareness"><ref bean="org.sakaiproject.api.section.SectionAwareness"/></property>
+		<property name="sectionAwareness"><ref bean="org.sakaiproject.section.api.SectionAwareness"/></property>
 		<property name="authn"><ref bean="org_sakaiproject_tool_gradebook_facades_Authn"/></property>
 	</bean>
 
@@ -41,7 +41,7 @@
 		name="org.sakaiproject.service.gradebook.GradebookServiceTarget">
 		<property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
 		<property name="sectionAwareness">
-			<ref bean="org.sakaiproject.api.section.SectionAwareness" />
+			<ref bean="org.sakaiproject.section.api.SectionAwareness" />
 		</property>
 		<property name="authn">
 			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />

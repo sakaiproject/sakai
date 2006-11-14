@@ -31,7 +31,7 @@ import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.cover.SiteService;
 
-import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.section.api.facade.Role;
 
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.sections.AuthzSectionsImpl;

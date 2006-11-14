@@ -30,7 +30,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.api.section.SectionAwareness;
+import org.sakaiproject.section.api.SectionAwareness;
 
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.tool.gradebook.Gradebook;

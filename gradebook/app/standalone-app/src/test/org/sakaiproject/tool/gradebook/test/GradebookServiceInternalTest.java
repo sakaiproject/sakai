@@ -29,9 +29,9 @@ import junit.framework.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.section.api.coursemanagement.Course;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.facade.Role;
 
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.tool.gradebook.Gradebook;

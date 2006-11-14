@@ -8,7 +8,7 @@
 		name="org.sakaiproject.service.gradebook.GradebookService">
 		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
 		<property name="sectionAwareness">
-			<ref bean="org.sakaiproject.api.section.SectionAwareness" />
+			<ref bean="org.sakaiproject.section.api.SectionAwareness" />
 		</property>
 		<property name="authn">
 			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />

@@ -40,7 +40,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.component.html.ext.HtmlDataTable;
 import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;
 
-import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
