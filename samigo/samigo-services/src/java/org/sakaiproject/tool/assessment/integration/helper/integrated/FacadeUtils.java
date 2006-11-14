@@ -26,7 +26,7 @@ import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 
 /**
  * borrowed gradebook's FacadeUtils class

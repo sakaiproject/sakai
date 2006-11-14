@@ -36,7 +36,7 @@ import org.sakaiproject.tool.assessment.facade.SectionFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
-import org.sakaiproject.api.section.SectionAwareness;
+import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**

@@ -25,7 +25,7 @@ package org.sakaiproject.tool.assessment.integration.helper.standalone;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.api.section.SectionAwareness;
+import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 

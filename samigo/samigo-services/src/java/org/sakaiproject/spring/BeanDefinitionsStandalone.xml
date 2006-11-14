@@ -37,7 +37,7 @@
       <ref bean="AuthzQueriesFacade"/>
     </property>
     <property name="sectionAwareness" >
-      <ref bean="org.sakaiproject.api.section.SectionAwareness"/>
+      <ref bean="org.sakaiproject.section.api.SectionAwareness"/>
     </property>
 
   </bean>

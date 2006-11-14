@@ -35,7 +35,7 @@
      <property name="authorizationFacadeQueries"><ref bean="AuthorizationFacadeQueries" /></property>
      <property name="pagingUtilQueries"><ref bean="PagingUtilQueries" /></property>
      <property name="authzQueriesFacade"><ref bean="AuthzQueriesFacade" /></property>
-     <property name="sectionAwareness" ><ref bean="org.sakaiproject.api.section.SectionAwareness"/></property>
+     <property name="sectionAwareness" ><ref bean="org.sakaiproject.section.api.SectionAwareness"/></property>
    </bean>
     
    <bean id="TypeFacadeQueries"
