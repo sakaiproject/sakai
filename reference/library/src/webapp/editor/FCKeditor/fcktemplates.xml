@@ -30,7 +30,7 @@
 			]]>
 		</Html>
 	</Template>
-	<Template title="Strange Template" image="template2.gif">
+	<Template title="Two Column Template" image="template2.gif">
 		<Description>A template that defines two colums, each one with a title, and some text.</Description>
 		<Html>
 			<![CDATA[
