@@ -196,19 +196,20 @@
     ]]>
   </query>
 
-  <query name="findDiscussionForumMessageCountsForAllSites">
+   <query name="findDiscussionForumMessageCountsForAllSites">
     <![CDATA[select a.contextId, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
     		 join messages.topic as topic
              join topic.openForum as f
              join f.area as a
-             where a.contextId in ( :siteList )
+             where a.contextId in ( :siteList ) and
+             f.draft = false
              group by a.contextId
     ]]>
-    
+ 
  </query>
 
-<!--  Added 11-9-06 to filter out topics that are hidden for this user (role) -->
+<!--  Added 11-9-06 to filter out topics that are hidden for this user (role)
 <query name="findDiscussionForumMessageRemoveCountsForAllSites">
     <![CDATA[select a.contextId, membershipItem.name, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
@@ -226,7 +227,7 @@
     ]]>
     
  </query>
-
+-->
 <query name="findDiscussionForumReadMessageCountsForAllSites">
     <![CDATA[select a.contextId, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
@@ -235,13 +236,14 @@
              join topic.openForum as f
              join f.area as a
              where us.userId = :userId and
-             messages.id = us.messageId
+             messages.id = us.messageId and
+             f.draft = false
              group by a.contextId
     ]]>
     
  </query>
 
-<!--  Need this since the user might have unread messages before made private -->
+<!--  Need this since the user might have unread messages before made private 
 <query name="findDiscussionForumReadMessageRemoveCountsForAllSites">
     <![CDATA[select a.contextId, membershipItem.name, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
@@ -261,7 +263,7 @@
     ]]>
     
  </query>
-
+-->
  <query name="findAggregatePvtMsgCntForUserInContext">
     <![CDATA[select recipient.read, recipient.typeUuid, count(*) 
              from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
