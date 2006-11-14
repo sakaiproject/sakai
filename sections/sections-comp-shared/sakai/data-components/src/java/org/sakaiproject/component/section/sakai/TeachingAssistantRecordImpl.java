@@ -18,48 +18,38 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.component.section.sakai21;
+package org.sakaiproject.component.section.sakai;
 
 import java.io.Serializable;
 
-import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.LearningContext;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
 
 /**
- * A detachable EnrollmentRecord for persistent storage.
+ * A detachable TeachingAssistantRecord for persistent storage.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class EnrollmentRecordImpl extends ParticipationRecordImpl implements EnrollmentRecord, Serializable {
+public class TeachingAssistantRecordImpl extends ParticipationRecordImpl implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
-	protected String status;
 
 	/**
 	 * No-arg constructor needed for hibernate
 	 */
-	public EnrollmentRecordImpl() {		
+	public TeachingAssistantRecordImpl() {		
 	}
 	
-	public EnrollmentRecordImpl(LearningContext learningContext, String status, User user) {
+	public TeachingAssistantRecordImpl(LearningContext learningContext, User user) {
 		this.learningContext = learningContext;
-		this.status = status;
 		this.user = user;
 		this.userUid = user.getUserUid();
 	}
 
 	public Role getRole() {
-		return Role.STUDENT;
+		return Role.TA;
 	}
 
-	public String getStatus() {
-		return status;
-	}
-	public void setStatus(String status) {
-		this.status = status;
-	}
 }

@@ -6,7 +6,7 @@
     Provides read-only section information, including membership.
 -->
     <bean id="org.sakaiproject.api.section.SectionAwareness"
-        class="org.sakaiproject.component.section.sakai21.SectionAwarenessImpl"
+        class="org.sakaiproject.component.section.sakai.SectionAwarenessImpl"
         init-method="init">
         <property name="siteService">
             <ref bean="org.sakaiproject.site.api.SiteService"/>
@@ -36,7 +36,7 @@
     Most installations will not need to use CourseManager.
 -->
     <bean id="org.sakaiproject.api.section.CourseManager"
-        class="org.sakaiproject.component.section.sakai21.CourseManagerImpl">
+        class="org.sakaiproject.component.section.sakai.CourseManagerImpl">
     </bean>
 
 <!--
@@ -45,7 +45,7 @@
 	lists of sections.
 -->
     <bean id="org.sakaiproject.api.section.SectionManager"
-        class="org.sakaiproject.component.section.sakai21.SectionManagerImpl">
+        class="org.sakaiproject.component.section.sakai.SectionManagerImpl">
 
         <property name="siteService">
             <ref bean="org.sakaiproject.site.api.SiteService"/>

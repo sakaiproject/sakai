@@ -18,30 +18,40 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.component.section.facade.impl.sakai21;
+package org.sakaiproject.component.section.sakai;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.facade.manager.Authn;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
+import java.io.Serializable;
 
-/**
- * Uses Sakai's SessionManager to determine the current user's uuid.
- * 
- * @author <a href="jholtzman@berkeley.edu">Josh Holtzman</a>
- */
-public class AuthnSakaiImpl implements Authn {
-    private static final Log log = LogFactory.getLog(AuthnSakaiImpl.class);
+import org.sakaiproject.api.section.coursemanagement.User;
 
-    /**
-     * @see org.sakaiproject.api.section.facade.managers.Authn#getUserUid()
-     */
-    public String getUserUid(Object request) {
-        Session session = SessionManager.getCurrentSession();
-        String userId = session.getUserId();
-        if(log.isDebugEnabled()) log.debug("current user id is " + userId);
-        return userId;
-    }
+public class UserImpl implements User, Serializable {
+	private static final long serialVersionUID = 1L;
+	
+	private String userUid;
+	private String displayId;
+	private String sortName;
+	private String displayName;
+	
+	public UserImpl(String displayId, String displayName, String sortName, String uid) {
+		this.displayId = displayId;
+		this.displayName = displayName;
+		this.sortName = sortName;
+		this.userUid = uid;
+	}
 
+	public String getUserUid() {
+		return userUid;
+	}
+
+	public String getSortName() {
+		return sortName;
+	}
+
+	public String getDisplayId() {
+		return displayId;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
 }

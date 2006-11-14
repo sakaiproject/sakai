@@ -18,28 +18,30 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.component.section.sakai21;
+package org.sakaiproject.component.section.facade.impl.sakai;
 
-import java.io.Serializable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.section.facade.manager.Authn;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 
-import org.sakaiproject.api.section.coursemanagement.LearningContext;
-import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.api.section.facade.Role;
+/**
+ * Uses Sakai's SessionManager to determine the current user's uuid.
+ * 
+ * @author <a href="jholtzman@berkeley.edu">Josh Holtzman</a>
+ */
+public class AuthnSakaiImpl implements Authn {
+    private static final Log log = LogFactory.getLog(AuthnSakaiImpl.class);
 
-public class GroupParticipantImpl extends ParticipationRecordImpl implements Serializable{
+    /**
+     * @see org.sakaiproject.api.section.facade.managers.Authn#getUserUid()
+     */
+    public String getUserUid(Object request) {
+        Session session = SessionManager.getCurrentSession();
+        String userId = session.getUserId();
+        if(log.isDebugEnabled()) log.debug("current user id is " + userId);
+        return userId;
+    }
 
-	private static final long serialVersionUID = 1L;
-
-	protected Role role;
-	
-	public GroupParticipantImpl(LearningContext learningContext, User user, Role role) {
-		this.learningContext = learningContext;
-		this.user = user;
-		this.userUid =user.getUserUid();
-		this.role = role;
-	}
-
-	public Role getRole() {
-		return role;
-	}
 }

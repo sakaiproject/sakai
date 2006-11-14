@@ -52,11 +52,11 @@ service layer names include 'standalone' and 'sakai'.
 				<ant:copy file="${hibernate.properties.dir}/hibernate.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
 			</j:if>
             
-            <j:if test="${mode.equals('sakai21') || empty(mode)}">
-                <ant:echo message="Copying sakai 2.1 dependent resources into webapp"/>
+            <j:if test="${mode.equals('sakai') || empty(mode)}">
+                <ant:echo message="Copying sakai dependent resources into webapp"/>
 
                 <ant:copy todir="${maven.war.webapp.dir}" overwrite="true">
-                    <ant:fileset dir="${maven.src.dir}/webapp/sakai21/">
+                    <ant:fileset dir="${maven.src.dir}/webapp/sakai/">
                         <ant:include name="**/*"/>
                     </ant:fileset>
                 </ant:copy>
@@ -136,8 +136,8 @@ service layer names include 'standalone' and 'sakai'.
         <j:if test="${mode.equals('standalone')}">
             <j:set var="maven.hibernate.input.dir" value="${basedir}/../sections-comp-shared/standalone/src/hibernate" />
         </j:if>
-        <j:if test="${mode.equals('sakai21')}">
-            <j:set var="maven.hibernate.input.dir" value="${basedir}/../sections-comp-shared/sakai21/data-components/src/hibernate/org/sakaiproject/component/section/sakai21" />
+        <j:if test="${mode.equals('sakai')}">
+            <j:set var="maven.hibernate.input.dir" value="${basedir}/../sections-comp-shared/sakai/data-components/src/hibernate/org/sakaiproject/component/section/sakai" />
         </j:if>
 
 		<j:set var="maven.hibernate.input.includes" value="**/*.hbm.xml" />

@@ -18,12 +18,12 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.component.section.facade.impl.sakai21;
+package org.sakaiproject.component.section.facade.impl.sakai;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.component.section.sakai21.UserImpl;
+import org.sakaiproject.component.section.sakai.UserImpl;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.ToolManager;

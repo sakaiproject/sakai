@@ -18,7 +18,7 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.component.section.sakai21;
+package org.sakaiproject.component.section.sakai;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,7 +42,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.section.facade.impl.sakai21.SakaiUtil;
+import org.sakaiproject.component.section.facade.impl.sakai.SakaiUtil;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.SectionCategory;
 import org.sakaiproject.entity.api.EntityManager;
@@ -55,8 +55,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
- * A sakai 2.1 based implementation of the Section Awareness API, using the
- * new grouping capability of the framework.
+ * A sakai based implementation of the Section Awareness API, using the
+ * grouping capability of the framework as the persistence mechanism.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *

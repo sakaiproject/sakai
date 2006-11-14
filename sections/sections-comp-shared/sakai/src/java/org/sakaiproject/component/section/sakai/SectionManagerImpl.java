@@ -18,7 +18,7 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.component.section.sakai21;
+package org.sakaiproject.component.section.sakai;
 
 import java.sql.Time;
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.exception.MembershipException;
 import org.sakaiproject.api.section.exception.RoleConfigurationException;
 import org.sakaiproject.api.section.facade.Role;
-import org.sakaiproject.component.section.facade.impl.sakai21.SakaiUtil;
+import org.sakaiproject.component.section.facade.impl.sakai.SakaiUtil;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.SectionCategory;

@@ -18,7 +18,7 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.component.section.sakai21;
+package org.sakaiproject.component.section.sakai;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,7 +32,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 
 /**
- * Sakai 2.1 implementation of CourseManager.  Uses Sakai Sites API to store
+ * Sakai  implementation of CourseManager.  Uses Sakai Sites API to store
  * all course metadata needed by the Section Info tool.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
@@ -51,7 +51,7 @@ public class CourseManagerImpl implements CourseManager {
 
 		log.warn("There should be no need to call " +
 				"org.sakaiproject.api.section.CourseManager.createCourse() in " +
-				"sakai 2.1.  This should only be called by a customized section " +
+				"sakai .  This should only be called by a customized section " +
 				"data loader.");
 		
 		Site site;
@@ -83,7 +83,7 @@ public class CourseManagerImpl implements CourseManager {
 	}
 	
 	/**
-	 * The Sakai 2.1 implementation uses the SiteService API, so if the site exists
+	 * The Sakai implementation uses the SiteService API, so if the site exists
 	 * then the "Course" exists.
 	 */
 	public boolean courseExists(final String siteContext) {
@@ -97,35 +97,35 @@ public class CourseManagerImpl implements CourseManager {
 	
 	
 	/**
-	 * This is handled by the Site and AuthzGroup Services in Sakai 2.1.  No need to
+	 * This is handled by the Site and AuthzGroup Services in Sakai.  No need to
 	 * do anything here.
 	 */
 	public void removeOrphans(final String siteContext) {
 	}
 
 	/**
-	 * Not supported in sakai 2.1
+	 * Not supported in sakai 
 	 */
 	public ParticipationRecord addInstructor(final User user, final Course course) {
 		throw new RuntimeException("Operation not supported in sakai");
 	}
 
 	/**
-	 * Not supported in sakai 2.1
+	 * Not supported in sakai 
 	 */
 	public ParticipationRecord addEnrollment(final User user, final Course course) {
 		throw new RuntimeException("Operation not supported in sakai");
 	}
 
 	/**
-	 * Not supported in sakai 2.1
+	 * Not supported in sakai 
 	 */
 	public ParticipationRecord addTA(final User user, final Course course) {
 		throw new RuntimeException("Operation not supported in sakai");
 	}
 
 	/**
-	 * Not supported in sakai 2.1
+	 * Not supported in sakai 
 	 */
 	public void removeCourseMembership(String userUid, Course course) {
 		throw new RuntimeException("Operation not supported in sakai");

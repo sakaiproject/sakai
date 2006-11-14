@@ -1,4 +1,4 @@
-package org.sakaiproject.component.section.facade.impl.sakai21;
+package org.sakaiproject.component.section.facade.impl.sakai;
 
 import java.util.Locale;
 

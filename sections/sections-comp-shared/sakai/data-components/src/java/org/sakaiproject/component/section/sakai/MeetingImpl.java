@@ -1,4 +1,4 @@
-package org.sakaiproject.component.section.sakai21;
+package org.sakaiproject.component.section.sakai;
 
 import java.io.Serializable;
 import java.sql.Time;
