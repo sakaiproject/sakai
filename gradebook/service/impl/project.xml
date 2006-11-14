@@ -35,7 +35,7 @@
 		<!-- Needed for standalone user directory -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-sections-comp-shared-standalone-integrationsupport</artifactId>
+			<artifactId>sakai-sections-integrationsupport</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 		<!-- JSF needed for standalone authn -->

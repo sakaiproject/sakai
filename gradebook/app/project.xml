@@ -37,14 +37,14 @@
 		<!-- Standalone component -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-sections-comp-shared-standalone</artifactId>
+			<artifactId>sakai-sections-impl-standalone</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<!-- Used only for test data. -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-sections-comp-shared-standalone-integrationsupport</artifactId>
+			<artifactId>sakai-sections-integrationsupport</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
