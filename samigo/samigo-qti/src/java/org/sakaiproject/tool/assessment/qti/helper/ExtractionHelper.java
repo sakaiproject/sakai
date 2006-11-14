@@ -419,6 +419,8 @@ public class ExtractionHelper
     log.debug("duration: " + duration);
 
     makeAccessControl(assessment, duration);
+    String submissionMsg = metadataList.getSubmissionMessage();
+    updateSubmissionMessage(assessment,submissionMsg);
 
     // evaluation model control
     makeEvaluationModel(assessment);
@@ -628,6 +630,22 @@ public class ExtractionHelper
     assessment.setEvaluationModel(evaluationModel);
   }
 
+  
+  private void updateSubmissionMessage(AssessmentFacade assessment, String submissionMsg) 
+  {
+    AssessmentAccessControl control =
+        (AssessmentAccessControl)assessment.getAssessmentAccessControl();
+    if (control == null){
+      control = new AssessmentAccessControl();
+      // need to fix accessControl so it can take AssessmentFacade later
+      control.setAssessmentBase(assessment.getData());
+    }
+      if (submissionMsg != null)
+    {
+      control.setSubmissionMessage(submissionMsg);
+    }
+
+  }
   /**
    * Put access control settings into assessment (bi-directional)
    * @param assessment
@@ -866,13 +884,16 @@ public class ExtractionHelper
     }
 
     // Submission Message
+    /*
     String submissionMessage = assessment.getAssessmentMetaDataByLabel(
         "SUBMISSION_MESSAGE");
     if (submissionMessage != null)
     {
       control.setSubmissionMessage(submissionMessage);
     }
+    */
 
+    
     // Username, password, finalPageUrl
 //    String considerUserId = assessment.getAssessmentMetaDataByLabel(
 //        "CONSIDER_USERID"); //

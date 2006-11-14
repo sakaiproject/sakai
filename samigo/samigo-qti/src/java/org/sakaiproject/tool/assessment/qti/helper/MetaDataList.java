@@ -146,26 +146,59 @@ public class MetaDataList
         	item.addItemMetaData("RUBRIC", value);
         }
         else {
+        	log.debug("key now is " + key);
         item.addItemMetaData(key, value);
         }
       }
     }
   }
 
+  public String getSubmissionMessage()
+	{
+		String submissionMsg = null;
+		if (metadataList == null)
+		{
+			return null; // no metadata found
+		}
+
+		for (int i = 0; i < metadataList.size(); i++)
+		{
+			String meta = (String) metadataList.get(i);
+			StringTokenizer st = new StringTokenizer(meta, "|");
+			String key = null;
+			String value = null;
+
+			if (st.hasMoreTokens())
+			{
+				key = st.nextToken().trim();
+			}
+
+			// SAK-6831: if it's submissionMessage, do not store in sam_assessmentmetadata_t, because the value is 255 char.
+			if ("SUBMISSION_MESSAGE".equalsIgnoreCase(key))
+			{
+
+				if (st.hasMoreTokens())
+				{
+					value = st.nextToken().trim();
+					submissionMsg = value;
+
+				}
+			}
+		}
+		return submissionMsg;
+	}
 
   /**
-   * Adds extraction-created list of "|" key value pairs
-   * to assessment metadata map, if there are any.
-   * Example:<br/>
-   * <p>
-   * &lt; metadata type =" list " &gt; FEEDBACK_SHOW_CORRECT_RESPONSE|True &lt;/ metadata &gt;<br/> á
-   * &lt; metadata type =" list " &gt; FEEDBACK_SHOW_STUDENT_SCORE|True &lt/ metadata &gt;<br/>
-   * Becomes:<br/>
-   * TEXT_FORMAT=>HTML etc.
-   * </p>
-   * @param metadataList extraction-created list of "|" key value pairs
-   * @param assessment the assessment
-   */
+	 * Adds extraction-created list of "|" key value pairs to assessment metadata map, if there are any. Example:<br/>
+	 * <p>
+	 * &lt; metadata type =" list " &gt; FEEDBACK_SHOW_CORRECT_RESPONSE|True &lt;/ metadata &gt;<br/> á &lt; metadata type =" list " &gt; FEEDBACK_SHOW_STUDENT_SCORE|True &lt/ metadata &gt;<br/> Becomes:<br/> TEXT_FORMAT=>HTML etc.
+	 * </p>
+	 * 
+	 * @param metadataList
+	 *        extraction-created list of "|" key value pairs
+	 * @param assessment
+	 *        the assessment
+	 */
   public void addTo(AssessmentFacade assessment)
   {
     if (metadataList == null)
@@ -176,6 +209,7 @@ public class MetaDataList
     for (int i = 0; i < metadataList.size(); i++)
     {
       String meta = (String) metadataList.get(i);
+      //log.debug( "meta = "+ meta);
       StringTokenizer st = new StringTokenizer(meta, "|");
       String key = null;
       String value = null;
@@ -183,7 +217,7 @@ public class MetaDataList
       {
         key = st.nextToken().trim();
       }
-
+      //log.debug( "key  = "+ key );
       // translate XML metadata strings to assessment metadata strings here
       // key to patch up the difference between Daisy's and earlier labels
       // that are compatible with the earlier beta version of Samigo
@@ -225,11 +259,16 @@ public class MetaDataList
           "Fixing obsolete reference to 'Authenticated Users', setting released to 'Anonymous Users'.");
         value = AuthoringConstantStrings.ANONYMOUS;
       }
-
-      if (st.hasMoreTokens())
+       
+      if ("SUBMISSION_MESSAGE".equalsIgnoreCase(key)){
+    	  //log.debug("key is submsg " + key);
+    	  // skip
+      }
+      else if (st.hasMoreTokens())
       {
         value = st.nextToken().trim();
         assessment.addAssessmentMetaData(key, value);
+
       }
     }
   }
