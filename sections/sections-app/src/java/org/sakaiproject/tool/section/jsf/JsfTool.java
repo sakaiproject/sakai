@@ -22,9 +22,9 @@ package org.sakaiproject.tool.section.jsf;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.facade.manager.Authn;
-import org.sakaiproject.api.section.facade.manager.Authz;
-import org.sakaiproject.api.section.facade.manager.Context;
+import org.sakaiproject.section.api.facade.manager.Authn;
+import org.sakaiproject.section.api.facade.manager.Authz;
+import org.sakaiproject.section.api.facade.manager.Context;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -47,9 +47,9 @@ public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
         if(log.isDebugEnabled()) log.debug("Entering sections tool... determining role appropriate view");
 
         ApplicationContext ac = (ApplicationContext)getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-        Authn authnService = (Authn)ac.getBean("org.sakaiproject.api.section.facade.manager.Authn");
-        Authz authzService = (Authz)ac.getBean("org.sakaiproject.api.section.facade.manager.Authz");
-        Context contextService = (Context)ac.getBean("org.sakaiproject.api.section.facade.manager.Context");
+        Authn authnService = (Authn)ac.getBean("org.sakaiproject.section.api.facade.manager.Authn");
+        Authz authzService = (Authz)ac.getBean("org.sakaiproject.section.api.facade.manager.Authz");
+        Context contextService = (Context)ac.getBean("org.sakaiproject.section.api.facade.manager.Context");
 
         String userUid = authnService.getUserUid(null);
         String siteContext = contextService.getContext(null);

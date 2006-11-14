@@ -34,7 +34,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.facade.manager.Authn;
+import org.sakaiproject.section.api.facade.manager.Authn;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**

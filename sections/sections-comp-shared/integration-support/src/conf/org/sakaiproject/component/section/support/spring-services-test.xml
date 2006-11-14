@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-    <bean id="org.sakaiproject.api.section.facade.manager.Context"
+    <bean id="org.sakaiproject.section.api.facade.manager.Context"
         class="org.sakaiproject.component.section.facade.impl.standalone.ContextTestImpl"/>
-    <bean id="org.sakaiproject.api.section.facade.manager.Authn"
+    <bean id="org.sakaiproject.section.api.facade.manager.Authn"
         class="org.sakaiproject.component.section.facade.impl.standalone.AuthnTestImpl"/>
 
-    <bean id="org.sakaiproject.api.section.facade.manager.Authz"
+    <bean id="org.sakaiproject.section.api.facade.manager.Authz"
         class="org.sakaiproject.component.section.facade.impl.standalone.AuthzStandaloneImpl">
         <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
     </bean>
@@ -14,6 +14,6 @@
     <bean id="org.sakaiproject.id.api.IdManager"
         class="org.sakaiproject.id.impl.UuidV4IdComponent"/>
         
-	<bean id="org.sakaiproject.api.section.facade.manager.ResourceLoader"
+	<bean id="org.sakaiproject.section.api.facade.manager.ResourceLoader"
 		class="org.sakaiproject.component.section.facade.impl.standalone.ResourceLoaderTestImpl"/>
 </beans>

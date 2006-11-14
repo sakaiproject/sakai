@@ -22,10 +22,10 @@ package org.sakaiproject.component.section.sakai;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.CourseManager;
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
-import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.section.api.CourseManager;
+import org.sakaiproject.section.api.coursemanagement.Course;
+import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
+import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
@@ -50,7 +50,7 @@ public class CourseManagerImpl implements CourseManager {
 			final boolean externallyManaged) {
 
 		log.warn("There should be no need to call " +
-				"org.sakaiproject.api.section.CourseManager.createCourse() in " +
+				"org.sakaiproject.section.api.CourseManager.createCourse() in " +
 				"sakai .  This should only be called by a customized section " +
 				"data loader.");
 		

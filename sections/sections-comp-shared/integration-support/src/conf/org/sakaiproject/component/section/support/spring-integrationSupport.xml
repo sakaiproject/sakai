@@ -7,10 +7,10 @@
             <bean class="org.sakaiproject.component.section.support.IntegrationSupportImpl">
                 <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
                 <property name="courseManager">
-                    <ref bean="org.sakaiproject.api.section.CourseManager"/>
+                    <ref bean="org.sakaiproject.section.api.CourseManager"/>
                 </property>
                 <property name="sectionManager">
-                    <ref bean="org.sakaiproject.api.section.SectionManager"/>
+                    <ref bean="org.sakaiproject.section.api.SectionManager"/>
                 </property>
                 <property name="userManager">
                     <ref bean="org.sakaiproject.component.section.support.UserManager"/>
@@ -30,7 +30,7 @@
         </property>
     </bean>
 
-    <bean id="org.sakaiproject.api.section.CourseManager" parent="sectionsTxTemplate">
+    <bean id="org.sakaiproject.section.api.CourseManager" parent="sectionsTxTemplate">
         <property name="target">
             <bean class="org.sakaiproject.component.section.CourseManagerHibernateImpl">
                 <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>

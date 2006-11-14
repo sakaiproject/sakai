@@ -22,8 +22,8 @@ package org.sakaiproject.component.section.facade.impl.sakai;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.SectionAwareness;
-import org.sakaiproject.api.section.facade.manager.Authz;
+import org.sakaiproject.section.api.SectionAwareness;
+import org.sakaiproject.section.api.facade.manager.Authz;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.api.User;

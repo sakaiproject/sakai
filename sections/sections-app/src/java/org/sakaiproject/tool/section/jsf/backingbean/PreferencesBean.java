@@ -20,7 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.tool.section.jsf.backingbean;
 
-import org.sakaiproject.api.section.facade.manager.ResourceLoader;
+import org.sakaiproject.section.api.facade.manager.ResourceLoader;
 
 /**
  * Stores user preferences for table sorting and paging.  These preferences are

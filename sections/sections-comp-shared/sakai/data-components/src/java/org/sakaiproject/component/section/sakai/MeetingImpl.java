@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.sql.Time;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.sakaiproject.api.section.coursemanagement.Meeting;
+import org.sakaiproject.section.api.coursemanagement.Meeting;
 
 public class MeetingImpl implements Meeting, Serializable {
 

@@ -21,7 +21,7 @@
 package org.sakaiproject.component.section.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.section.api.coursemanagement.Course;
 
 /**
  * A static cover over the section info project's CourseManager.  Note that, since
@@ -35,7 +35,7 @@ import org.sakaiproject.api.section.coursemanagement.Course;
  *
  */
 public class CourseManager {
-	private static org.sakaiproject.api.section.CourseManager instance;
+	private static org.sakaiproject.section.api.CourseManager instance;
 
 	public static final boolean courseExists(String siteContext) {
 		return getInstance().courseExists(siteContext);
@@ -45,10 +45,10 @@ public class CourseManager {
 		return getInstance().createCourse(siteContext, title, selfRegAllowed, selfSwitchingAllowed, externallyManaged);
 	}
 
-	private static org.sakaiproject.api.section.CourseManager getInstance() {
+	private static org.sakaiproject.section.api.CourseManager getInstance() {
 		if(instance == null) {
-			instance = (org.sakaiproject.api.section.CourseManager)ComponentManager.get(
-					org.sakaiproject.api.section.CourseManager.class);
+			instance = (org.sakaiproject.section.api.CourseManager)ComponentManager.get(
+					org.sakaiproject.section.api.CourseManager.class);
 		}
 		return instance;
 	}

@@ -32,10 +32,10 @@ import org.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.api.section.CourseManager;
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
-import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.section.api.CourseManager;
+import org.sakaiproject.section.api.coursemanagement.Course;
+import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
+import org.sakaiproject.section.api.coursemanagement.User;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 

@@ -23,7 +23,7 @@ package org.sakaiproject.component.section.sakai;
 import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 

@@ -2,7 +2,7 @@ package org.sakaiproject.component.section.facade.impl.sakai;
 
 import java.util.Locale;
 
-import org.sakaiproject.api.section.facade.manager.ResourceLoader;
+import org.sakaiproject.section.api.facade.manager.ResourceLoader;
 
 public class ResourceLoaderSakaiImpl implements ResourceLoader {
 

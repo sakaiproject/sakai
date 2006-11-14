@@ -36,8 +36,8 @@ import javax.servlet.ServletContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.facade.manager.Context;
-import org.sakaiproject.api.section.facade.manager.ResourceLoader;
+import org.sakaiproject.section.api.facade.manager.Context;
+import org.sakaiproject.section.api.facade.manager.ResourceLoader;
 import org.sakaiproject.jsf.util.ConversionUtil;
 import org.sakaiproject.tool.section.jsf.backingbean.MessagingBean;
 import org.springframework.context.ApplicationContext;
@@ -146,7 +146,7 @@ public class JsfUtil {
      * Gets a localized message from the message bundle.
      */
     public static String getLocalizedMessage(String key) {
-    	ResourceLoader rl = (ResourceLoader)resolveVariable("org.sakaiproject.api.section.facade.manager.ResourceLoader");
+    	ResourceLoader rl = (ResourceLoader)resolveVariable("org.sakaiproject.section.api.facade.manager.ResourceLoader");
         return rl.getString(key);
 	}
 	

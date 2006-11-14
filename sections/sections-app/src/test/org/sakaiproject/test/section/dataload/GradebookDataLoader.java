@@ -26,10 +26,10 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.CourseManager;
-import org.sakaiproject.api.section.SectionManager;
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.section.api.CourseManager;
+import org.sakaiproject.section.api.SectionManager;
+import org.sakaiproject.section.api.coursemanagement.Course;
+import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.component.section.support.UserManager;
 import org.sakaiproject.test.section.SectionsTestBase;
 
@@ -90,8 +90,8 @@ public class GradebookDataLoader extends SectionsTestBase {
     protected UserManager userManager;
 
 	protected void onSetUpInTransaction() throws Exception {
-		courseManager = (CourseManager)applicationContext.getBean("org.sakaiproject.api.section.CourseManager");
-		sectionManager = (SectionManager)applicationContext.getBean("org.sakaiproject.api.section.SectionManager");
+		courseManager = (CourseManager)applicationContext.getBean("org.sakaiproject.section.api.CourseManager");
+		sectionManager = (SectionManager)applicationContext.getBean("org.sakaiproject.section.api.SectionManager");
 		userManager = (UserManager)applicationContext.getBean("org.sakaiproject.component.section.support.UserManager");
     }
 

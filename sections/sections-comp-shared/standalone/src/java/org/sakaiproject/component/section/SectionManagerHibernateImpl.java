@@ -42,20 +42,20 @@ import org.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.api.section.SectionAwareness;
-import org.sakaiproject.api.section.SectionManager;
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.coursemanagement.CourseGroup;
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
-import org.sakaiproject.api.section.coursemanagement.Meeting;
-import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
-import org.sakaiproject.api.section.coursemanagement.SectionEnrollments;
-import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.api.section.exception.MembershipException;
-import org.sakaiproject.api.section.facade.Role;
-import org.sakaiproject.api.section.facade.manager.Authn;
-import org.sakaiproject.api.section.facade.manager.Context;
+import org.sakaiproject.section.api.SectionAwareness;
+import org.sakaiproject.section.api.SectionManager;
+import org.sakaiproject.section.api.coursemanagement.Course;
+import org.sakaiproject.section.api.coursemanagement.CourseGroup;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.coursemanagement.Meeting;
+import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
+import org.sakaiproject.section.api.coursemanagement.SectionEnrollments;
+import org.sakaiproject.section.api.coursemanagement.User;
+import org.sakaiproject.section.api.exception.MembershipException;
+import org.sakaiproject.section.api.facade.Role;
+import org.sakaiproject.section.api.facade.manager.Authn;
+import org.sakaiproject.section.api.facade.manager.Context;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -69,7 +69,10 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         SectionManager {
 
 	private static final Log log = LogFactory.getLog(SectionManagerHibernateImpl.class);
-	
+
+	/** The resource bundle containing the category IDs and names */
+	static final String CATEGORY_BUNDLE = "org.sakaiproject.component.section.CourseSectionCategories";
+
 	// Fields configured via dep. injection
 	protected IdManager uuidManager;
     protected Authn authn;
@@ -207,7 +210,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	 * {@inheritDoc}
 	 */
 	public String getCategoryName(String categoryId, Locale locale) {
-		ResourceBundle bundle = ResourceBundle.getBundle(SectionAwareness.CATEGORY_BUNDLE, locale);
+		ResourceBundle bundle = ResourceBundle.getBundle(CATEGORY_BUNDLE, locale);
 		String name;
 		try {
 			name = bundle.getString(categoryId);
@@ -222,7 +225,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	 * {@inheritDoc}
 	 */
 	public List getSectionCategories(String siteContext) {
-		ResourceBundle bundle = ResourceBundle.getBundle(SectionAwareness.CATEGORY_BUNDLE);
+		ResourceBundle bundle = ResourceBundle.getBundle(CATEGORY_BUNDLE);
 		
 		Enumeration keys = bundle.getKeys();
 		List categoryIds = new ArrayList();

@@ -24,16 +24,16 @@ import java.util.List;
 import java.util.Locale;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.facade.Role;
 
 public class SectionAwareness {
-	private static org.sakaiproject.api.section.SectionAwareness instance;
+	private static org.sakaiproject.section.api.SectionAwareness instance;
 
-	private static org.sakaiproject.api.section.SectionAwareness getInstance() {
+	private static org.sakaiproject.section.api.SectionAwareness getInstance() {
 		if(instance == null) {
-			instance = (org.sakaiproject.api.section.SectionAwareness)ComponentManager.get(
-					org.sakaiproject.api.section.SectionAwareness.class);
+			instance = (org.sakaiproject.section.api.SectionAwareness)ComponentManager.get(
+					org.sakaiproject.section.api.SectionAwareness.class);
 		}
 		return instance;
 	}

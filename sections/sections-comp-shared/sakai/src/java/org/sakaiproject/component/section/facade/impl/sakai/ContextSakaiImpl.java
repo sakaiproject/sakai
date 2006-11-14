@@ -22,7 +22,7 @@ package org.sakaiproject.component.section.facade.impl.sakai;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.facade.manager.Context;
+import org.sakaiproject.section.api.facade.manager.Context;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;

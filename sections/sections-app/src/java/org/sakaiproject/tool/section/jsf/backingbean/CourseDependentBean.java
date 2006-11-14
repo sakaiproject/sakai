@@ -31,10 +31,10 @@ import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.SectionManager;
-import org.sakaiproject.api.section.SectionManager.ExternalIntegrationConfig;
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.SectionManager;
+import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
+import org.sakaiproject.section.api.coursemanagement.Course;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**

@@ -30,7 +30,7 @@ import javax.faces.event.ValueChangeEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.coursemanagement.CourseGroup;
+import org.sakaiproject.section.api.coursemanagement.CourseGroup;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**

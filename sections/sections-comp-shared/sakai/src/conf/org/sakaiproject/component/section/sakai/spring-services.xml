@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-    <bean id="org.sakaiproject.api.section.facade.manager.Authn"
+    <bean id="org.sakaiproject.section.api.facade.manager.Authn"
         class="org.sakaiproject.component.section.facade.impl.sakai.AuthnSakaiImpl"/>
 
-    <bean id="org.sakaiproject.api.section.facade.manager.Authz"
+    <bean id="org.sakaiproject.section.api.facade.manager.Authz"
         class="org.sakaiproject.component.section.facade.impl.sakai.AuthzSakaiImpl">
     </bean>
 
-    <bean id="org.sakaiproject.api.section.facade.manager.Context"
+    <bean id="org.sakaiproject.section.api.facade.manager.Context"
         class="org.sakaiproject.component.section.facade.impl.sakai.ContextSakaiImpl"/>
 
-	<bean id="org.sakaiproject.api.section.facade.manager.ResourceLoader"
+	<bean id="org.sakaiproject.section.api.facade.manager.ResourceLoader"
 		class="org.sakaiproject.component.section.facade.impl.sakai.ResourceLoaderSakaiImpl"/>
 
 </beans>

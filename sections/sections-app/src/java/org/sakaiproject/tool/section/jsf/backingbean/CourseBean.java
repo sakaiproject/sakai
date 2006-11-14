@@ -22,11 +22,11 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
 
-import org.sakaiproject.api.section.SectionManager;
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.facade.manager.Authn;
-import org.sakaiproject.api.section.facade.manager.Authz;
-import org.sakaiproject.api.section.facade.manager.Context;
+import org.sakaiproject.section.api.SectionManager;
+import org.sakaiproject.section.api.coursemanagement.Course;
+import org.sakaiproject.section.api.facade.manager.Authn;
+import org.sakaiproject.section.api.facade.manager.Authz;
+import org.sakaiproject.section.api.facade.manager.Context;
 
 /**
  * Provides the current course uuid for a given user session.  This is also the

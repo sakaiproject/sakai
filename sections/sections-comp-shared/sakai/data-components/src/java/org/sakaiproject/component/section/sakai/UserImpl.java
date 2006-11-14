@@ -22,7 +22,7 @@ package org.sakaiproject.component.section.sakai;
 
 import java.io.Serializable;
 
-import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.section.api.coursemanagement.User;
 
 public class UserImpl implements User, Serializable {
 	private static final long serialVersionUID = 1L;

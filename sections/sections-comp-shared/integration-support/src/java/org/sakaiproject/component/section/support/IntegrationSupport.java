@@ -24,11 +24,11 @@ import java.sql.Time;
 import java.util.List;
 import java.util.Set;
 
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
-import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.section.api.coursemanagement.Course;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
+import org.sakaiproject.section.api.coursemanagement.User;
+import org.sakaiproject.section.api.facade.Role;
 
 /**
  * Provides methods for manipulating users, courses, sections, and memberships.

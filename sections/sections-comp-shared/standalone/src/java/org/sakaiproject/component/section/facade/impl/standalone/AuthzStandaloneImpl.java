@@ -28,9 +28,9 @@ import org.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
-import org.sakaiproject.api.section.facade.Role;
-import org.sakaiproject.api.section.facade.manager.Authz;
+import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
+import org.sakaiproject.section.api.facade.Role;
+import org.sakaiproject.section.api.facade.manager.Authz;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 

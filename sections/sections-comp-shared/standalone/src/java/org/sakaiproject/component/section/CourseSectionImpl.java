@@ -25,8 +25,8 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.coursemanagement.Course;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
 
 /**
  * A detachable CourseSection for persistent storage.

@@ -27,15 +27,15 @@ import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.CourseManager;
-import org.sakaiproject.api.section.SectionAwareness;
-import org.sakaiproject.api.section.SectionManager;
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
-import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.api.section.facade.Role;
-import org.sakaiproject.api.section.facade.manager.Context;
+import org.sakaiproject.section.api.CourseManager;
+import org.sakaiproject.section.api.SectionAwareness;
+import org.sakaiproject.section.api.SectionManager;
+import org.sakaiproject.section.api.coursemanagement.Course;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
+import org.sakaiproject.section.api.coursemanagement.User;
+import org.sakaiproject.section.api.facade.Role;
+import org.sakaiproject.section.api.facade.manager.Context;
 import org.sakaiproject.component.section.support.UserManager;
 
 /**
@@ -56,10 +56,10 @@ public class SectionAwarenessTest extends SectionsTestBase{
 	private UserManager userMgr;
 
     protected void onSetUpInTransaction() throws Exception {
-    	context = (Context)applicationContext.getBean("org.sakaiproject.api.section.facade.manager.Context");
-        secMgr = (SectionManager)applicationContext.getBean("org.sakaiproject.api.section.SectionManager");
-        secAware = (SectionAwareness)applicationContext.getBean("org.sakaiproject.api.section.SectionAwareness");
-        courseMgr = (CourseManager)applicationContext.getBean("org.sakaiproject.api.section.CourseManager");
+    	context = (Context)applicationContext.getBean("org.sakaiproject.section.api.facade.manager.Context");
+        secMgr = (SectionManager)applicationContext.getBean("org.sakaiproject.section.api.SectionManager");
+        secAware = (SectionAwareness)applicationContext.getBean("org.sakaiproject.section.api.SectionAwareness");
+        courseMgr = (CourseManager)applicationContext.getBean("org.sakaiproject.section.api.CourseManager");
         userMgr = (UserManager)applicationContext.getBean("org.sakaiproject.component.section.support.UserManager");
     }
 

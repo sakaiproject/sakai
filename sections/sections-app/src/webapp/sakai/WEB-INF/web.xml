@@ -94,15 +94,15 @@
         </init-param>
         <init-param>
             <param-name>authnServiceBean</param-name>
-            <param-value>org.sakaiproject.api.section.facade.manager.Authn</param-value>
+            <param-value>org.sakaiproject.section.api.facade.manager.Authn</param-value>
         </init-param>
         <init-param>
             <param-name>authzServiceBean</param-name>
-            <param-value>org.sakaiproject.api.section.facade.manager.Authz</param-value>
+            <param-value>org.sakaiproject.section.api.facade.manager.Authz</param-value>
         </init-param>
         <init-param>
             <param-name>contextManagementServiceBean</param-name>
-            <param-value>org.sakaiproject.api.section.facade.manager.Context</param-value>
+            <param-value>org.sakaiproject.section.api.facade.manager.Context</param-value>
         </init-param>
         <init-param>
             <param-name>selectSiteRedirect</param-name>

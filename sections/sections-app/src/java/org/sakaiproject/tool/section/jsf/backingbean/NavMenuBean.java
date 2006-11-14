@@ -22,8 +22,8 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.SectionManager;
-import org.sakaiproject.api.section.SectionManager.ExternalIntegrationConfig;
+import org.sakaiproject.section.api.SectionManager;
+import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
 
 /**
  * Caches whether the instructor features are enabled for the current user in

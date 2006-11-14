@@ -24,7 +24,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.sakaiproject.api.section.coursemanagement.LearningContext;
+import org.sakaiproject.section.api.coursemanagement.LearningContext;
 
 /**
  * A base class of LearningContexts for detachable persistent storage.

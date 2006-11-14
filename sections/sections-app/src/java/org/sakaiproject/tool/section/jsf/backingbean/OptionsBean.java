@@ -24,7 +24,7 @@ import java.io.Serializable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.SectionManager;
+import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**

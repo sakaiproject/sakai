@@ -22,8 +22,8 @@ package org.sakaiproject.component.section;
 
 import java.io.Serializable;
 
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.coursemanagement.CourseGroup;
+import org.sakaiproject.section.api.coursemanagement.Course;
+import org.sakaiproject.section.api.coursemanagement.CourseGroup;
 
 /**
  * A detachable CourseSection for persistent storage.

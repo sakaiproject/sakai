@@ -24,7 +24,7 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.sakaiproject.api.section.facade.manager.Context;
+import org.sakaiproject.section.api.facade.manager.Context;
 
 /**
  * Standalone implementation of Context, using the HttpSession to store current

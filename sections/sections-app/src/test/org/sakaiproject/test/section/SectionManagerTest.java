@@ -30,18 +30,18 @@ import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.CourseManager;
-import org.sakaiproject.api.section.SectionManager;
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.coursemanagement.CourseGroup;
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
-import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
-import org.sakaiproject.api.section.coursemanagement.SectionEnrollments;
-import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.api.section.exception.MembershipException;
-import org.sakaiproject.api.section.facade.Role;
-import org.sakaiproject.api.section.facade.manager.Context;
+import org.sakaiproject.section.api.CourseManager;
+import org.sakaiproject.section.api.SectionManager;
+import org.sakaiproject.section.api.coursemanagement.Course;
+import org.sakaiproject.section.api.coursemanagement.CourseGroup;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
+import org.sakaiproject.section.api.coursemanagement.SectionEnrollments;
+import org.sakaiproject.section.api.coursemanagement.User;
+import org.sakaiproject.section.api.exception.MembershipException;
+import org.sakaiproject.section.api.facade.Role;
+import org.sakaiproject.section.api.facade.manager.Context;
 import org.sakaiproject.component.section.facade.impl.standalone.AuthnTestImpl;
 import org.sakaiproject.component.section.support.UserManager;
 
@@ -63,10 +63,10 @@ public class SectionManagerTest extends SectionsTestBase{
 	private UserManager userMgr;
 
     protected void onSetUpInTransaction() throws Exception {
-    	authn = (AuthnTestImpl)applicationContext.getBean("org.sakaiproject.api.section.facade.manager.Authn");
-    	context = (Context)applicationContext.getBean("org.sakaiproject.api.section.facade.manager.Context");
-        secMgr = (SectionManager)applicationContext.getBean("org.sakaiproject.api.section.SectionManager");
-        courseMgr = (CourseManager)applicationContext.getBean("org.sakaiproject.api.section.CourseManager");
+    	authn = (AuthnTestImpl)applicationContext.getBean("org.sakaiproject.section.api.facade.manager.Authn");
+    	context = (Context)applicationContext.getBean("org.sakaiproject.section.api.facade.manager.Context");
+        secMgr = (SectionManager)applicationContext.getBean("org.sakaiproject.section.api.SectionManager");
+        courseMgr = (CourseManager)applicationContext.getBean("org.sakaiproject.section.api.CourseManager");
         userMgr = (UserManager)applicationContext.getBean("org.sakaiproject.component.section.support.UserManager");
     }
 

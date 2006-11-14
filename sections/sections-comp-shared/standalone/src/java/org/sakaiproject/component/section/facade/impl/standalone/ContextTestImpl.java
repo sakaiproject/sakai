@@ -20,7 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.component.section.facade.impl.standalone;
 
-import org.sakaiproject.api.section.facade.manager.Context;
+import org.sakaiproject.section.api.facade.manager.Context;
 
 /**
  * Testing implementation of Context, which always returns TEST_CONTEXT_ID.

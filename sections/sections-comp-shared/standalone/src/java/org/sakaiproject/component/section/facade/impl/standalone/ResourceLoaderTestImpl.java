@@ -3,7 +3,7 @@ package org.sakaiproject.component.section.facade.impl.standalone;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import org.sakaiproject.api.section.facade.manager.ResourceLoader;
+import org.sakaiproject.section.api.facade.manager.ResourceLoader;
 
 public class ResourceLoaderTestImpl implements ResourceLoader {
 

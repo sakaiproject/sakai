@@ -28,7 +28,7 @@ import org.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.component.section.UserImpl;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;

@@ -30,7 +30,7 @@ import java.util.List;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.component.section.CourseImpl;
 import org.sakaiproject.component.section.CourseSectionImpl;
 import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;

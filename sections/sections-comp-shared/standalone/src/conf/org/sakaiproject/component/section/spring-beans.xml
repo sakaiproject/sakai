@@ -2,7 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-	<bean id="org.sakaiproject.api.section.SectionAwareness" parent="sectionsTxTemplate">
+	<bean id="org.sakaiproject.section.api.SectionAwareness" parent="sectionsTxTemplate">
         <property name="target">
             <bean class="org.sakaiproject.component.section.SectionAwarenessHibernateImpl">
         		<property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
@@ -10,7 +10,7 @@
         </property>
 	</bean>
 
-    <bean id="org.sakaiproject.api.section.CourseManager" parent="sectionsTxTemplate">
+    <bean id="org.sakaiproject.section.api.CourseManager" parent="sectionsTxTemplate">
         <property name="target">
             <bean class="org.sakaiproject.component.section.CourseManagerHibernateImpl">
                 <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
@@ -21,15 +21,15 @@
         </property>
     </bean>
 
-	<bean id="org.sakaiproject.api.section.SectionManager" parent="sectionsTxTemplate">
+	<bean id="org.sakaiproject.section.api.SectionManager" parent="sectionsTxTemplate">
         <property name="target">
             <bean class="org.sakaiproject.component.section.SectionManagerHibernateImpl">
         		<property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
                 <property name="authn">
-                    <ref bean="org.sakaiproject.api.section.facade.manager.Authn"/>
+                    <ref bean="org.sakaiproject.section.api.facade.manager.Authn"/>
                 </property>
                 <property name="context">
-                    <ref bean="org.sakaiproject.api.section.facade.manager.Context"/>
+                    <ref bean="org.sakaiproject.section.api.facade.manager.Context"/>
                 </property>
         		<property name="uuidManager">
         			<ref bean="org.sakaiproject.id.api.IdManager"/>

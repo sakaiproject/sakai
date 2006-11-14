@@ -24,7 +24,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.sakaiproject.api.section.coursemanagement.CourseGroup;
+import org.sakaiproject.section.api.coursemanagement.CourseGroup;
 import org.sakaiproject.site.api.Group;
 
 /**

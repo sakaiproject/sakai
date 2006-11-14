@@ -23,7 +23,7 @@ package org.sakaiproject.component.section;
 import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.sakaiproject.api.section.coursemanagement.Course;
+import org.sakaiproject.section.api.coursemanagement.Course;
 
 /**
  * A detachable Course for persistent storage.

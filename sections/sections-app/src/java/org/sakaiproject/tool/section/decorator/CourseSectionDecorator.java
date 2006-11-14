@@ -29,9 +29,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.api.section.coursemanagement.Meeting;
+import org.sakaiproject.section.api.coursemanagement.Course;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.coursemanagement.Meeting;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**

@@ -24,7 +24,7 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.sakaiproject.api.section.facade.manager.Authn;
+import org.sakaiproject.section.api.facade.manager.Authn;
 
 /**
  * Standalone implementation of Authn, using the HttpSession to store current
@@ -36,7 +36,7 @@ public class AuthnStandaloneImpl implements Authn {
     public static final String USER_NAME = "username";
 
     /**
-     * @see org.sakaiproject.api.section.facade.managers.Authn#getUserUid()
+     * @see org.sakaiproject.section.api.facade.managers.Authn#getUserUid()
      */
     public String getUserUid(Object request) {
     	HttpSession session = null;

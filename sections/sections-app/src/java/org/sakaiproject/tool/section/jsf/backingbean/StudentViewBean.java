@@ -33,10 +33,10 @@ import javax.faces.event.ActionEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
-import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
-import org.sakaiproject.api.section.exception.RoleConfigurationException;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
+import org.sakaiproject.section.api.exception.RoleConfigurationException;
 import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
 import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;

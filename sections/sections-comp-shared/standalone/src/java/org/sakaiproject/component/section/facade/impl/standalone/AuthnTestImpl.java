@@ -20,7 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.component.section.facade.impl.standalone;
 
-import org.sakaiproject.api.section.facade.manager.Authn;
+import org.sakaiproject.section.api.facade.manager.Authn;
 
 /**
  * Authn implementation for testing.  Note that the userUid can be set manually

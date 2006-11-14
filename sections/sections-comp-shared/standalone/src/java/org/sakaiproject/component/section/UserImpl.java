@@ -25,7 +25,7 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.section.api.coursemanagement.User;
 
 /**
  * A detachable User for persistent storage.

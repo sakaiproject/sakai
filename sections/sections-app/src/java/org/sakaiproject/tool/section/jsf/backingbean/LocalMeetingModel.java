@@ -28,7 +28,7 @@ import java.util.GregorianCalendar;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.coursemanagement.Meeting;
+import org.sakaiproject.section.api.coursemanagement.Meeting;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 public class LocalMeetingModel implements Meeting, Serializable {

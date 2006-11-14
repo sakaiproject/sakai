@@ -22,9 +22,9 @@ package org.sakaiproject.component.section.sakai;
 
 import java.io.Serializable;
 
-import org.sakaiproject.api.section.coursemanagement.LearningContext;
-import org.sakaiproject.api.section.coursemanagement.User;
-import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.section.api.coursemanagement.LearningContext;
+import org.sakaiproject.section.api.coursemanagement.User;
+import org.sakaiproject.section.api.facade.Role;
 
 public class GroupParticipantImpl extends ParticipationRecordImpl implements Serializable{
 

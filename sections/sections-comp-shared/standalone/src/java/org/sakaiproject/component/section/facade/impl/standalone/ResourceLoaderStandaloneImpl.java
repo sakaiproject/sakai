@@ -5,7 +5,7 @@ import java.util.ResourceBundle;
 
 import javax.faces.context.FacesContext;
 
-import org.sakaiproject.api.section.facade.manager.ResourceLoader;
+import org.sakaiproject.section.api.facade.manager.ResourceLoader;
 
 public class ResourceLoaderStandaloneImpl implements ResourceLoader {
 

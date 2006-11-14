@@ -23,7 +23,7 @@ package org.sakaiproject.tool.section.jsf.backingbean.standalone;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 
-import org.sakaiproject.api.section.SectionManager;
+import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.tool.section.jsf.backingbean.CourseDependentBean;
 
 public class ConfigBean extends CourseDependentBean {
