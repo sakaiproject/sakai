@@ -121,6 +121,8 @@ public class SearchBeanImpl implements SearchBean
 
 	private List termList;
 
+	private Site currentSite;
+
 	/**
 	 * Creates a searchBean
 	 * 
@@ -154,7 +156,7 @@ public class SearchBeanImpl implements SearchBean
 		{
 
 		}
-		Site currentSite = this.siteService.getSite(this.siteId);
+		currentSite = this.siteService.getSite(this.siteId);
 		String siteCheck = currentSite.getReference();
 
 	}
@@ -181,7 +183,7 @@ public class SearchBeanImpl implements SearchBean
 		{
 
 		}
-		Site currentSite = this.siteService.getSite(this.siteId);
+		currentSite = this.siteService.getSite(this.siteId);
 		String siteCheck = currentSite.getReference();
 	}
 
@@ -570,6 +572,18 @@ public class SearchBeanImpl implements SearchBean
 	public String getOpenSearchUrl()
 	{
 		return ServerConfigurationService.getPortalUrl()+"/tool/"+placementId+"/opensearch";
+	}
+
+	
+	public String getBaseUrl()
+	{
+		return ServerConfigurationService.getPortalUrl() + "/tool/"
+			+ placementId;
+	}
+
+	public String getSiteTitle()
+	{
+		return currentSite.getTitle();
 	}
 
 }

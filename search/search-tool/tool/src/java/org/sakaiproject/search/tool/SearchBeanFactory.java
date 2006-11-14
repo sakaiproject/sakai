@@ -21,6 +21,7 @@
 
 package org.sakaiproject.search.tool;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.exception.PermissionException;
@@ -65,5 +66,10 @@ public interface SearchBeanFactory
 	
 	OpenSearchBean newOpenSearchBean(HttpServletRequest request)
 		throws PermissionException;
+	
+	SherlockSearchBean newSherlockSearchBean(HttpServletRequest request)
+		throws PermissionException;
+
+	void setContext(ServletContext servletContext);
 
 }

@@ -97,7 +97,7 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 
 	public String getHTMLSearchFormUrl()
 	{
-		return baseURL + "index";
+		return baseURL + "/index";
 	}
 
 	public String getHTMLSearchTemplate()
@@ -113,6 +113,7 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 		}
 		return iconURL;
 	}
+	
 
 	public String getRSSSearchTemplate()
 	{

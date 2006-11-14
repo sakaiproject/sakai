@@ -21,6 +21,7 @@
 
 package org.sakaiproject.search.tool;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
@@ -48,6 +49,8 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 	private ToolManager toolManager;
 
 	private SessionManager sessionManager;
+
+	private ServletContext context;
 
 	public void init()
 	{
@@ -143,6 +146,40 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 			throw new RuntimeException(
 					"You must access the Search through a woksite");
 		}
+	}
+
+	public SherlockSearchBean newSherlockSearchBean(HttpServletRequest request) throws PermissionException
+	{
+		try
+		{
+			SherlockSearchBean sherlockSearchBean = 
+				new SherlockSearchBeanImpl(request, 
+					context, 
+					searchService, siteService, toolManager);
+
+			return sherlockSearchBean;
+		}
+		catch (IdUnusedException e)
+		{
+			throw new RuntimeException(
+					"You must access the Search through a woksite");
+		}	
+	}
+
+	/**
+	 * @return the context
+	 */
+	public ServletContext getContext()
+	{
+		return context;
+	}
+
+	/**
+	 * @param context the context to set
+	 */
+	public void setContext(ServletContext context)
+	{
+		this.context = context;
 	}
 
 }

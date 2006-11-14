@@ -122,3 +122,33 @@
    border: 1px dotted #ccc;
    background-color: #f0f0f0;
 }
+
+
+
+#rssLink {
+    block: inline;
+	float: right;
+	background: url(/sakai-rwiki-tool/images/feed.png) center right no-repeat;
+}
+
+#rssLink img {
+	margin: 0;
+        padding-left: 2px;
+        padding-right: 2px;
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
+#addSherlockButton {
+    block: inline;
+	float: right;
+	background: url(/sakai-rwiki-tool/images/silk/icons/zoom.png) center right no-repeat;
+}
+
+#addSherlockButton img {
+	margin: 0;
+        padding-left: 2px;
+        padding-right: 2px;
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
+

@@ -120,4 +120,16 @@ public interface SearchBean
 	 */
 	String getOpenSearchUrl();
 	
+	/**
+	 * Get the site title 
+	 * @return
+	 */
+	String getSiteTitle();
+	
+	/**
+	 * get the base URL
+	 * @return
+	 */
+	String getBaseUrl();
+	
 }

@@ -7,12 +7,12 @@
 	
 	String errorMessageFormat = "<div class=\"alertMessage\" >{0}</div>";
 	String searchItemFormat = 
-	          "<div class=\"searchItem\" > " 
+	          "<!--is--><div class=\"searchItem\" > " 
 	        + "<span class=\"searchTool\">{0}:</span> "
 	        + "<a href=\"{1}\" target=\"searchresult\" class=\"searchTopLink\" >{2}</a>"
 			+ "<div class=\"searchItemBody\" >{3}</div> "
 			+ "<a href=\"{1}\" target=\"searchresult\" class=\"searchBottonLink\" >{1}</a> "
-			+ "</div>";
+			+ "</div><!--ie-->";
 
 	String pagerFormat = "<a href=\"{0}\" class=\"searchPage\" >{1}</a></li>";
 	String singlePageFormat = " ";
@@ -25,7 +25,12 @@
  			+ " href=\""+rssURL+"\" type=\"application/rss+xml\" /> ";
     
 	}
-	String searchHeaderFormat = "<div class=\"searchHeader\">Found {0} to {1} of {2} documents ({3} seconds) <a href=\""+rssURL+"\" target=\"rss\" ><img src=\"/sakai-search-tool/images/rss.gif\" alt=\"RSS\" border=\"0\" /></a></div>";
+	String searchHeaderFormat = 
+	        "<a href="+rssURL+"\" target=\"rss\" id=\"rssLink\" > " +
+	        "<img src=\"/library/image/transparent.gif\" title=\"RSS\" alt=\"RSS\" border=\"0\" /> " +
+	        "</a>" +
+			"Found {0} to {1} of {2} documents ({3} seconds) ";
+	
 	String termsFormat = "<span style=\"font-size:{1}em;\" ><a href=\"?panel=Main&search={0}\" >{0}</a></span> ";
 
 %>
@@ -40,10 +45,19 @@
            type="application/opensearchdescription+xml" 
            href="<%= searchBean.getOpenSearchUrl() %>"
            title="Worksite Search" />
+    <script type="text/javascript" >
+        function searchLocalAddSherlock() {
+        	addSherlockButton(
+        	    "<%= searchBean.getSiteTitle() %>",
+        		"Sakai Search",
+        		"<%= searchBean.getBaseUrl() %>");
+        }
+        appendLoader(searchLocalAddSherlock);
+    </script>
     </head>
     <body 
-    onload="setMainFrameHeightNoScroll('<%= request.getAttribute("sakai.tool.placement.id") %>');parent.updCourier(doubleDeep,ignoreCourier); callAllLoaders(); "
-    >
+    onload="callAllLoaders(); setMainFrameHeightNoScroll('<%= request.getAttribute("sakai.tool.placement.id") %>');parent.updCourier(doubleDeep,ignoreCourier);  "
+    >  
 <%@include file="header.jsp"%>
     	<div class="portletBody">    		
     	
@@ -72,7 +86,19 @@
 	</div>	
 	
 	
+	<div class="searchHeader">
+	<span id="sherlockButtonHolder" >
+<!--
+	    <a href="#" id="addSherlockButton" >
+	    	<img src="/library/image/transparent.gif" 
+	    		border="0"   
+	    		title="Install Browser Search Plugin" 
+	    		alt="Install Browser Search Plugin" />
+	    </a>
+-->
+	</span>
 	<%= searchBean.getHeader(searchHeaderFormat) %>
+	</div>
 
     <%
     	if ( searchBean.hasResults() ) 
@@ -91,7 +117,9 @@
     </div>
     <div class="searchResultsContainer" >
 		  <div id="resultsTab" class="tabOn" >
+		   <!--ls--> 
     <%= searchBean.getSearchResults(searchItemFormat,errorMessageFormat) %>
+    	   <!--le--> 
           </div>
 		  <div id="tagsTab" class="tabOff" >
 		     <div id="aboutTabs" >

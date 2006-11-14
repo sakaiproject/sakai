@@ -77,6 +77,8 @@ public class ControllerServlet extends HttpServlet
 		{
 			searchBeanFactory = (SearchBeanFactory) wac
 					.getBean("search-searchBeanFactory");
+			ServletContext context = getServletContext();
+			searchBeanFactory.setContext(context);
 		}
 		catch (Exception ex)
 		{
@@ -99,7 +101,7 @@ public class ControllerServlet extends HttpServlet
 	public void execute(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
 	{
-
+		
 		if (wac == null)
 		{
 			wac = WebApplicationContextUtils
@@ -112,10 +114,14 @@ public class ControllerServlet extends HttpServlet
 			}
 
 		}
+		request.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
+		
 		if (searchBeanFactory == null)
 		{
 			searchBeanFactory = (SearchBeanFactory) wac
 					.getBean("search-searchBeanFactory");
+			ServletContext context = getServletContext();
+			searchBeanFactory.setContext(context);
 		}
 		if (sessionManager == null)
 		{
@@ -123,7 +129,6 @@ public class ControllerServlet extends HttpServlet
 					.getName());
 		}
 
-		request.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 
 		addLocalHeaders(request);
 
@@ -153,6 +158,7 @@ public class ControllerServlet extends HttpServlet
 				path = "/" + path;
 			}
 			String targetPage = "/WEB-INF/pages" + path + ".jsp";
+			
 			request.setAttribute(SearchBeanFactory.SEARCH_BEAN_FACTORY_ATTR,
 					searchBeanFactory);
 			RequestDispatcher rd = request.getRequestDispatcher(targetPage);
@@ -229,9 +235,21 @@ public class ControllerServlet extends HttpServlet
 	 * @param request
 	 * @return true if it is possible to restore to this point.
 	 */
-	private boolean isPageRestorable(HttpServletRequest request)
+	private boolean isPageRestorable(HttpServletRequest request) 
 	{
+
 		if (TITLE_PANEL.equals(request.getParameter(PANEL))) return false;
+		String pathInfo = request.getPathInfo();
+		if ( pathInfo != null ) {
+			if (request.getPathInfo().endsWith(".gif") ) 
+			{
+				return false;
+			}
+			if (request.getPathInfo().endsWith(".src") ) 
+			{
+				return false;
+			}
+		}
 
 		if ("GET".equalsIgnoreCase(request.getMethod())) return true;
 
