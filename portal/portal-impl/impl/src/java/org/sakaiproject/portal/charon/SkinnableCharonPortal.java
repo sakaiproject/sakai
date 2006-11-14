@@ -445,6 +445,7 @@ public class SkinnableCharonPortal extends HttpServlet
 	protected void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException
 	{
+           
 		boolean resetDone = false;
 		try
 		{
@@ -1698,7 +1699,7 @@ public class SkinnableCharonPortal extends HttpServlet
 		Session s = SessionManager.getCurrentSession();
 		if (s.getAttribute("direct-stored-state") == null || ss == null)
 		{
-			s.setAttribute("reset-stored-state", ss);
+			s.setAttribute("direct-stored-state", ss);
 		}
 	}
 
