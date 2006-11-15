@@ -38,6 +38,9 @@
 	</h:panelGroup>
 
 	<%-- *********** common Tool rendering *********** --%>
+	<h:messages styleClass="alertMessage" />
+    <br />
+    	
 	<h:panelGroup rendered="#{!privacyBean.myWorkspace || privacyBean.siteSelected}" >
       <f:verbatim><div class="instruction"></f:verbatim>
       <h:outputText value="#{msgs.privacy_stmt1}" />

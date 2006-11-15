@@ -170,6 +170,11 @@ public class PrivacyBean {
 			// Reset the checkbox to not checked
 			changeStatus = false;
 		}
+		else {
+			FacesContext.getCurrentInstance().addMessage(null,
+					new FacesMessage("Please check the checkbox " + getCheckboxText() + " in order to change your status."));
+
+		}
 
 		return "main";
 	}
