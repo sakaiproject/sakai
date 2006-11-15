@@ -123,10 +123,16 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 
 		if(sortColumn.equals("managers")) {
 			return InstructorSectionDecorator.getManagersComparator(sortAscending);
-		} else if(sortColumn.equals("max")) {
+		} else if(sortColumn.equals("totalEnrollments")) {
 			return InstructorSectionDecorator.getEnrollmentsComparator(sortAscending, false);
 		} else if(sortColumn.equals("available")) {
 			return InstructorSectionDecorator.getEnrollmentsComparator(sortAscending, true);
+		} else if(sortColumn.equals("meetingDays")) {
+			return InstructorSectionDecorator.getDayComparator(sortAscending);
+		} else if(sortColumn.equals("meetingTimes")) {
+			return InstructorSectionDecorator.getDayComparator(sortAscending);
+		} else if(sortColumn.equals("location")) {
+			return InstructorSectionDecorator.getLocationComparator(sortAscending);
 		} else {
 			return InstructorSectionDecorator.getFieldComparator(sortColumn, sortAscending);
 		}

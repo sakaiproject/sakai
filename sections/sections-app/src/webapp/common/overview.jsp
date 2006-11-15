@@ -62,16 +62,6 @@
         </h:column>
         <h:column>
             <f:facet name="header">
-                <x:commandSortHeader columnName="meetingTimes" immediate="false" arrow="true">
-                <h:outputText value="#{msgs.overview_table_header_day_time}" />
-                </x:commandSortHeader>
-            </f:facet>
-            <h:dataTable id="meetingTimeTable" value="#{section.decoratedMeetings}" var="meeting">
-	            <h:outputText value="#{meeting.meetingTimes}"/>
-            </h:dataTable>
-        </h:column>
-        <h:column>
-            <f:facet name="header">
                 <x:commandSortHeader columnName="managers" immediate="false" arrow="true">
                 <h:outputText value="#{msgs.overview_table_header_managers}" />
                 </x:commandSortHeader>
@@ -87,21 +77,47 @@
         </h:column>
         <h:column>
             <f:facet name="header">
+                <x:commandSortHeader columnName="meetingDays" immediate="false" arrow="true">
+                	<h:outputText value="#{msgs.overview_table_header_day}" />
+                </x:commandSortHeader>
+            </f:facet>
+            <x:dataList id="meetingDayList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
+	            <x:div>
+	            	<h:outputText value="#{meeting.abbreviatedDays}"/>
+	            </x:div>
+            </x:dataList>
+        </h:column>
+        <h:column>
+            <f:facet name="header">
+                <x:commandSortHeader columnName="meetingTimes" immediate="false" arrow="true">
+                	<h:outputText value="#{msgs.overview_table_header_time}" />
+                </x:commandSortHeader>
+            </f:facet>
+            <x:dataList id="meetingTimeList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
+	            <x:div>
+		            <h:outputText value="#{meeting.times}"/>
+	            </x:div>
+            </x:dataList>
+        </h:column>
+        <h:column>
+            <f:facet name="header">
                 <x:commandSortHeader columnName="location" immediate="false" arrow="true">
                     <h:outputText value="#{msgs.overview_table_header_location}" />
                 </x:commandSortHeader>
             </f:facet>
-            <h:dataTable id="meetingLocationTable" value="#{section.decoratedMeetings}" var="meeting">
-	            <h:outputText value="#{meeting.location}"/>
-            </h:dataTable>
+            <x:dataList id="meetingLocationList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
+	            <x:div>
+	            	<h:outputText value="#{meeting.location}"/>
+	            </x:div>
+            </x:dataList>
         </h:column>
         <h:column>
             <f:facet name="header">
-                <x:commandSortHeader columnName="max" immediate="false" arrow="true">
-                    <h:outputText value="#{msgs.overview_table_header_max_size}" />
+                <x:commandSortHeader columnName="totalEnrollments" immediate="false" arrow="true">
+                    <h:outputText value="#{msgs.overview_table_header_current_size}" />
                 </x:commandSortHeader>
             </f:facet>
-            <h:outputText value="#{section.maxEnrollments}"/>
+            <h:outputText value="#{section.totalEnrollments}"/>
         </h:column>
         <h:column>
             <f:facet name="header">

@@ -21,6 +21,7 @@
 package org.sakaiproject.tool.section.decorator;
 
 import java.io.Serializable;
+import java.sql.Time;
 import java.util.Comparator;
 import java.util.List;
 
@@ -77,6 +78,9 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 	}
 	public String getSpotsAvailable() {
 		return spotsAvailable;
+	}
+	public int getTotalEnrollments() {
+		return totalEnrollments;
 	}
 	public boolean isFlaggedForRemoval() {
 		return flaggedForRemoval;
@@ -164,6 +168,120 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		};
 	}
 
+	public static final Comparator getTimeComparator(final boolean sortAscending) {
+		return new Comparator() {
+			public int compare(Object o1, Object o2) {
+					InstructorSectionDecorator section1 = (InstructorSectionDecorator)o1;
+					InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
+
+					// First compare the category name, then compare the time
+					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
+					if(categoryNameComparison == 0) {
+						// These are in the same category, so compare by the first meeting time
+						List meetings1 = section1.getDecoratedMeetings();
+						List meetings2 = section2.getDecoratedMeetings();
+						
+						MeetingDecorator meeting1 = (MeetingDecorator)meetings1.get(0);
+						MeetingDecorator meeting2 = (MeetingDecorator)meetings2.get(0);
+						
+						Time startTime1 = meeting1.getStartTime();
+						Time startTime2 = meeting2.getStartTime();
+						
+						if(startTime1 == null && startTime2 != null) {
+							return sortAscending? -1 : 1 ;
+						}
+						if(startTime2 == null && startTime1 != null) {
+							return sortAscending? 1 : -1 ;
+						}
+						
+						if(startTime1 == null && startTime2 == null ||
+								startTime1.equals(startTime2)) {
+							return getTitleComparator(sortAscending).compare(o1, o2);
+						}
+						return sortAscending ? startTime1.compareTo(startTime2) : startTime2.compareTo(startTime1);
+					} else {
+						return categoryNameComparison;
+					}
+			}
+		};
+	}
+
+	public static final Comparator getDayComparator(final boolean sortAscending) {
+		return new Comparator() {
+			public int compare(Object o1, Object o2) {
+					InstructorSectionDecorator section1 = (InstructorSectionDecorator)o1;
+					InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
+
+					// First compare the category name, then compare the time
+					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
+					if(categoryNameComparison == 0) {
+						// These are in the same category, so compare by the first meeting time
+						List meetings1 = section1.getDecoratedMeetings();
+						List meetings2 = section2.getDecoratedMeetings();
+						
+						MeetingDecorator meeting1 = (MeetingDecorator)meetings1.get(0);
+						MeetingDecorator meeting2 = (MeetingDecorator)meetings2.get(0);
+						
+						String days1 = meeting1.getAbbreviatedDays();
+						String days2 = meeting2.getAbbreviatedDays();
+						
+						if(days1 == null && days2 != null) {
+							return sortAscending? -1 : 1 ;
+						}
+						if(days2 == null && days1 != null) {
+							return sortAscending? 1 : -1 ;
+						}
+						
+						if(days1 == null && days2 == null ||
+								days1.equals(days2)) {
+							return getTitleComparator(sortAscending).compare(o1, o2);
+						}
+						return sortAscending ? days1.compareTo(days2) : days2.compareTo(days1);
+					} else {
+						return categoryNameComparison;
+					}
+			}
+		};
+	}
+
+	public static final Comparator getLocationComparator(final boolean sortAscending) {
+		return new Comparator() {
+			public int compare(Object o1, Object o2) {
+					InstructorSectionDecorator section1 = (InstructorSectionDecorator)o1;
+					InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
+
+					// First compare the category name, then compare the time
+					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
+					if(categoryNameComparison == 0) {
+						// These are in the same category, so compare by the first meeting time
+						List meetings1 = section1.getDecoratedMeetings();
+						List meetings2 = section2.getDecoratedMeetings();
+						
+						MeetingDecorator meeting1 = (MeetingDecorator)meetings1.get(0);
+						MeetingDecorator meeting2 = (MeetingDecorator)meetings2.get(0);
+						
+						String location1 = meeting1.getLocation();
+						String location2 = meeting2.getLocation();
+						
+						if(location1 == null && location2 != null) {
+							return sortAscending? -1 : 1 ;
+						}
+						if(location2 == null && location1 != null) {
+							return sortAscending? 1 : -1 ;
+						}
+						
+						if(location1 == null && location2 == null ||
+								location1.equals(location2)) {
+							return getTitleComparator(sortAscending).compare(o1, o2);
+						}
+						return sortAscending ? location1.compareTo(location2) : location2.compareTo(location1);
+					} else {
+						return categoryNameComparison;
+					}
+			}
+		};
+	}
+
 	public static final Comparator getManagersComparator(final boolean sortAscending) {
 		return new Comparator() {
 			public int compare(Object o1, Object o2) {
@@ -212,26 +330,32 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 					// First compare the category name, then compare available spots
 					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
 					if(categoryNameComparison == 0) {
-						// These are in the same category, so compare by available enrollments
+						// These are in the same category, so compare by total
 						Integer maxEnrollments1 = section1.getMaxEnrollments();
 						Integer maxEnrollments2 = section2.getMaxEnrollments();
-						if(maxEnrollments1 == null && maxEnrollments2 != null) {
-							return sortAscending? 1 : -1 ;
-						}
-						if(maxEnrollments2 == null && maxEnrollments1 != null) {
-							return sortAscending? -1 : 1 ;
-						}
-						if(maxEnrollments1 == null && maxEnrollments2 == null) {
-							return getTitleComparator(sortAscending).compare(o1, o2);
-						}
+
+						int total1 = section1.getTotalEnrollments();
+						int total2 = section2.getTotalEnrollments();
+						
 						int availEnrollmentComparison;
+
 						if(useAvailable) {
+							if(maxEnrollments1 == null && maxEnrollments2 != null) {
+								return sortAscending? 1 : -1 ;
+							}
+							if(maxEnrollments2 == null && maxEnrollments1 != null) {
+								return sortAscending? -1 : 1 ;
+							}
+							if(maxEnrollments1 == null && maxEnrollments2 == null) {
+								return getTitleComparator(sortAscending).compare(o1, o2);
+							}
 							availEnrollmentComparison = (maxEnrollments1.intValue() - section1.totalEnrollments) -
-								(maxEnrollments2.intValue() - section2.totalEnrollments);
+									(maxEnrollments2.intValue() - section2.totalEnrollments);
 						} else {
-							availEnrollmentComparison = maxEnrollments1.intValue() - maxEnrollments2.intValue();
+							availEnrollmentComparison = total1 - total2;
 						}
-						// If these are in the same category, and have the same number of enrollments (available), use the title to sort
+						
+						// If these are in the same category, and have the same number of enrollments, use the title to sort
 						if(availEnrollmentComparison == 0) {
 							return getTitleComparator(sortAscending).compare(o1, o2);
 						}
@@ -246,35 +370,5 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 			}
 		};
 	}
-
-//	private String internalTruncation(final String str) {
-//		if(log.isDebugEnabled()) log.debug("Truncating " + str + " to " + LOCATION_TRUNCATION_LENGTH + " characters");
-//		
-//		if(str == null) {
-//			return null;
-//		}
-//
-//		final String ellipsis = "...";
-//		final int length = str.length();
-//		if(log.isDebugEnabled()) log.debug("String length = " + length + ", max length = " + LOCATION_TRUNCATION_LENGTH);
-//		if(length <= LOCATION_TRUNCATION_LENGTH) {
-//			return str;
-//		} else {
-//			final StringBuffer sb = new StringBuffer();
-//			final int prefixEnd = (int)Math.floor((LOCATION_TRUNCATION_LENGTH - ellipsis.length()) / 2);
-//			if(log.isDebugEnabled()) log.debug("prefix end = " + prefixEnd);
-//
-//			// TODO This truncates one too many chars if maxLength is even
-//			int suffixStart = length - prefixEnd;
-//			if(log.isDebugEnabled()) log.debug("suffix start = " + suffixStart);
-//
-//			sb.append(str.substring(0, prefixEnd));
-//			sb.append(ellipsis);
-//			sb.append(str.substring(suffixStart, length));
-//			
-//			return sb.toString();
-//		}
-//	}
-	
 }
 

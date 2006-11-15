@@ -29,6 +29,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.Meeting;
@@ -41,12 +43,13 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
  *
  */
 public class CourseSectionDecorator implements Serializable {
-
+	private static final Log log = LogFactory.getLog(CourseSectionDecorator.class);
+	
 	private static final long serialVersionUID = 1L;
 	
 	protected CourseSection section;
 	protected String categoryForDisplay;
-	protected List decoratedMeetings;
+	protected List<MeetingDecorator> decoratedMeetings;
 
 	/**
 	 * Creates a decorator based on the course section alone.  Useful for only
@@ -56,7 +59,7 @@ public class CourseSectionDecorator implements Serializable {
 	 */
 	public CourseSectionDecorator(CourseSection section) {
 		this.section = section;
-		this.decoratedMeetings = new ArrayList();
+		this.decoratedMeetings = new ArrayList<MeetingDecorator>();
 		if(section.getMeetings() != null) {
 			for(Iterator iter = section.getMeetings().iterator(); iter.hasNext();) {
 				decoratedMeetings.add(new MeetingDecorator((Meeting)iter.next()));
@@ -80,7 +83,7 @@ public class CourseSectionDecorator implements Serializable {
 		return section;
 	}
 	
-	public List getDecoratedMeetings() {
+	public List<MeetingDecorator> getDecoratedMeetings() {
 		return decoratedMeetings;
 	}
 
@@ -161,20 +164,10 @@ public class CourseSectionDecorator implements Serializable {
 			return list;
 		}
 
-		public String getMeetingTimes() {
-			String daySepChar = JsfUtil.getLocalizedMessage("day_of_week_sep_char");
+		public String getTimes() {
 			String timeSepChar = JsfUtil.getLocalizedMessage("time_sep_char");
 
 			StringBuffer sb = new StringBuffer();
-
-			// Days of the week
-			for(Iterator iter = getAbbreviatedDayList().iterator(); iter.hasNext();) {
-				String day = (String)iter.next();
-				sb.append(JsfUtil.getLocalizedMessage(day));
-				if(iter.hasNext()) {
-					sb.append(daySepChar);
-				}
-			}
 
 			// Start time
 			DateFormat df = new SimpleDateFormat("h:mm a");
@@ -192,11 +185,26 @@ public class CourseSectionDecorator implements Serializable {
 			if(meeting.getEndTime() != null) {
 				sb.append(df.format(new Date(meeting.getEndTime().getTime())).toLowerCase());
 			}
-
+			if(log.isDebugEnabled()) log.debug("Meeting times = " + sb.toString());
 			return sb.toString();
 		}
 
-		public String getMeetingDays() {
+		public String getAbbreviatedDays() {
+			String daySepChar = JsfUtil.getLocalizedMessage("day_of_week_sep_char");
+
+			StringBuffer sb = new StringBuffer();
+			for(Iterator iter = getAbbreviatedDayList().iterator(); iter.hasNext();) {
+				String day = (String)iter.next();
+				sb.append(JsfUtil.getLocalizedMessage(day));
+				if(iter.hasNext()) {
+					sb.append(daySepChar);
+				}
+			}
+			if(log.isDebugEnabled()) log.debug("Meeting days = " + sb.toString());
+			return sb.toString();
+		}
+
+		public String getDays() {
 			String daySepChar = JsfUtil.getLocalizedMessage("day_of_week_sep_char");
 
 			StringBuffer sb = new StringBuffer();
@@ -207,6 +215,7 @@ public class CourseSectionDecorator implements Serializable {
 					sb.append(daySepChar);
 				}
 			}
+			if(log.isDebugEnabled()) log.debug("Meeting days = " + sb.toString());
 			return sb.toString();
 		}
 
