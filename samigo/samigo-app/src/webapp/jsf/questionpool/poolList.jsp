@@ -96,7 +96,7 @@
   <f:param name="qpid" value="0"/>
 </h:commandLink>
 
-<h:outputText value=" #{genMsg.separator} " />
+<h:outputText value=" #{genMsg.separator}" rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" />
 
 <h:commandLink title="#{msg.t_importPool}" rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" id="import" immediate="true" action="importPool">
  <h:outputText value="#{msg.import}"/>
