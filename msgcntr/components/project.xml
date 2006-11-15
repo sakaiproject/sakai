@@ -16,6 +16,12 @@
 	</properties>
 
 	<dependencies>
+      <dependency>
+        	<groupId>sakaiproject</groupId>
+        	<artifactId>sakai-privacy-api</artifactId>
+        	<version>${sakai.version}</version>
+        </dependency>
+
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-messageforums-api</artifactId>

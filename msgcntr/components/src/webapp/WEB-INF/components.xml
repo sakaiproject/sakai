@@ -432,6 +432,9 @@
                 <property name="securityService">
                   <ref bean="org.sakaiproject.authz.api.SecurityService"/>
                 </property>              
+		 	    <property name="privacyManager">
+					<ref bean="org.sakaiproject.api.privacy.PrivacyManager" />
+		        </property>
             </bean>           
         </property>
          <property name="transactionAttributes">

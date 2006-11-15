@@ -65,6 +65,7 @@ import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.messageforums.ui.PrivateForumDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
@@ -110,7 +111,7 @@ public class PrivateMessagesTool
   private ErrorMessages errorMessages;
   private SakaiPersonManager sakaiPersonManager;
   private MembershipManager membershipManager;
-  
+    
   /** Dependency Injected   */
   private MessageForumsTypeManager typeManager;
   
@@ -268,7 +269,6 @@ public class PrivateMessagesTool
   {
     this.sakaiPersonManager = sakaiPersonManager;
   }
-
 
   public void initializePrivateMessageArea()
   {           
@@ -608,6 +608,11 @@ public class PrivateMessagesTool
     return selectedComposeToList;
   }
     
+  private String getContextSiteId() 
+  {
+	 return "/site/" + ToolManager.getCurrentPlacement().getContext();
+  }
+
   public List getTotalComposeToList()
   { 
     
@@ -619,17 +624,29 @@ public class PrivateMessagesTool
     totalComposeToListRecipients = new ArrayList();
  
     courseMemberMap = membershipManager.getFilteredCourseMembers(true);
- 
+
     List members = membershipManager.convertMemberMapToList(courseMemberMap);
-    List selectItemList = new ArrayList();
+
+    Set memberIds = new HashSet();
     
-    /** create a list of SelectItem elements */
     for (Iterator i = members.iterator(); i.hasNext();){
-      
-      MembershipItem item = (MembershipItem) i.next();     
-      selectItemList.add(
-        new SelectItem(item.getId(), item.getName()));
+        
+        MembershipItem item = (MembershipItem) i.next();
+ 
+        String name = item.getName();
+        
+       	memberIds.add(item.getId());
     }
+
+		List selectItemList = new ArrayList();
+
+		/** create a list of SelectItem elements */
+		for (Iterator i = members.iterator(); i.hasNext();) {
+
+			MembershipItem item = (MembershipItem) i.next();
+
+			selectItemList.add(new SelectItem(item.getId(), item.getName()));
+		}
     
     totalComposeToList = selectItemList;
     return selectItemList;       

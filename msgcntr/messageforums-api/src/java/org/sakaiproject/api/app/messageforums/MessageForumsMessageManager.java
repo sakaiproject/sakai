@@ -57,7 +57,7 @@ public interface MessageForumsMessageManager {
 
     public int findReadMessageCountByTopicId(Long topicId);
 
-    public List findDiscussionForumMessageCountsForAllSites(List siteList);
+    public List findDiscussionForumMessageCountsForAllSites(final List siteList);
     
     public List findDiscussionForumMessageRemoveCountsForAllSites(List siteList, List roleList);
     

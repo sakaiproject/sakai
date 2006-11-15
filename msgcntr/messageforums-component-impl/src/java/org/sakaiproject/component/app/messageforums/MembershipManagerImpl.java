@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,17 +35,18 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -59,17 +61,74 @@ public class MembershipManagerImpl implements MembershipManager{
   private AuthzGroupService authzGroupService;
   private ToolManager toolManager;
   private SecurityService securityService;
+  private PrivacyManager privacyManager;
 
   public void init() {
     ;
   }    
+
+  /**
+   * 
+   * @param privacyManager
+   */
+  public void setPrivacyManager(PrivacyManager privacyManager) 
+  {
+	this.privacyManager = privacyManager;
+  }
+
+  /**
+   * Filters out users whose Privacy Status is set to Hidden
+   * 
+   * @param all
+   * @return
+   */
+  private Map filterByPrivacyManager(List allCourseUsers, Map courseUserMap) {
+	  List userIds = new ArrayList();
+	  Map results = new HashMap();
+
+	  for (Iterator usersIter = allCourseUsers.iterator(); usersIter.hasNext();) {
+	      MembershipItem memberItem = (MembershipItem) usersIter.next();
+	      
+	      if (memberItem.getUser() != null) {
+	    	  userIds.add(memberItem.getUser().getId());    
+	      }
+	  }
+	    
+	  /** only allow private messages to be sent to users with Visible privacy status */
+	  Set memberSet = privacyManager.findViewable(
+							toolManager.getCurrentPlacement().getContext(), new HashSet(userIds));
+
+	  Collection userCollection = courseUserMap.values();
+		
+	  /** look through the members again to pick out Member objects corresponding
+		  to only those who are visible (as well as current user) */
+	  for (Iterator userIterator = userCollection.iterator(); userIterator.hasNext();) {
+		  MembershipItem memberItem = (MembershipItem) userIterator.next();
+			
+		  if (memberItem.getUser() != null) {
+			  final boolean inMemberSet = memberSet.contains(memberItem.getUser().getId());
+			  final String memberSetId = memberItem.getUser().getId();
+			  final String currentUserId = userDirectoryService.getCurrentUser().getId();
+			  
+			  if (inMemberSet || currentUserId.equals(memberSetId)) {
+				  results.put(memberItem.getId(), memberItem);
+			  }
+		  }
+		  else {
+			  results.put(memberItem.getId(), memberItem);
+		  }
+	  }
+		
+	  return results;
+  }
   
   /**
    * @see org.sakaiproject.api.app.messageforums.MembershipManager#getFilteredCourseMembers(boolean)
    */
   public Map getFilteredCourseMembers(boolean filterFerpa){
 
-    List allCourseUsers = getAllCourseUsers();    
+    List allCourseUsers = getAllCourseUsers();
+    
     Set membershipRoleSet = new HashSet();    
     
     /** generate set of roles which has members */
@@ -82,6 +141,10 @@ public class MembershipManagerImpl implements MembershipManager{
     
     /** filter member map */
     Map memberMap = getAllCourseMembers(filterFerpa, true, true);
+    
+    if (filterFerpa) {
+    	memberMap = filterByPrivacyManager(allCourseUsers, memberMap);
+    }
     
     for (Iterator i = memberMap.entrySet().iterator(); i.hasNext();){
       
@@ -168,6 +231,8 @@ public class MembershipManagerImpl implements MembershipManager{
     
     /** handle users */
     Set users = realm.getMembers();
+    
+    /** create our HashSet of user ids */
     for (Iterator userIterator = users.iterator(); userIterator.hasNext();){
       Member member = (Member) userIterator.next();
       String userId = member.getUserId();

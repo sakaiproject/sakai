@@ -209,8 +209,8 @@
  
  </query>
 
-<!--  Added 11-9-06 to filter out topics that are hidden for this user (role)
-<query name="findDiscussionForumMessageRemoveCountsForAllSites">
+<!--  Added 11-9-06 to filter out topics that are hidden for this user (role) -->
+<query name="findDiscussionForumMessageRemoveCountsForAllSites"> 
     <![CDATA[select a.contextId, membershipItem.name, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
     		 org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membershipItem
@@ -223,11 +223,11 @@
              mt.id = topic.id and
              membershipItem.name in ( :roleList ) and
              pl.read = false
-             group by a.contextId
+             group by a.contextId, membershipItem.name
     ]]>
     
  </query>
--->
+<!-- -->
 <query name="findDiscussionForumReadMessageCountsForAllSites">
     <![CDATA[select a.contextId, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
@@ -243,7 +243,7 @@
     
  </query>
 
-<!--  Need this since the user might have unread messages before made private 
+<!--  Need this since the user might have unread messages before made private -->
 <query name="findDiscussionForumReadMessageRemoveCountsForAllSites">
     <![CDATA[select a.contextId, membershipItem.name, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
@@ -259,11 +259,11 @@
              pl.read = false and
              mt.id = topic.id and
              membershipItem.name in ( :roleList )
-             group by a.contextId
+             group by a.contextId, membershipItem.name
     ]]>
     
  </query>
--->
+<!--  -->
  <query name="findAggregatePvtMsgCntForUserInContext">
     <![CDATA[select recipient.read, recipient.typeUuid, count(*) 
              from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message

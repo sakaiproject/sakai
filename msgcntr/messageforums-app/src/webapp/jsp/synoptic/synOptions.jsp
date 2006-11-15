@@ -11,7 +11,9 @@
 				
 		<p class="instruction"><h:outputText value="#{msgs.syn_directions}"/></p>
 				
-	<%-- (gsilver) 2 issues 
+  	    <h:messages styleClass="alertMessage" id="errorMessages"/> 
+
+ 	<%-- (gsilver) 2 issues 
 	1.  if there are no sites to populate both selects a message should put in the response to the effect that there are no memberships, hence cannot move things onto tabs group or off it. The table and all its children should then be excluded  from the response.
 		2. if a given select is empty (has no option children) the resultant xhtml is invalid - we may need to seed it if this is important. This is fairly standard practice and helps to provide a default width to an empty select item (ie: about 12 dashes)
 --%>	
