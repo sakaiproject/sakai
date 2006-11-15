@@ -42,7 +42,6 @@ import org.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseGroup;
