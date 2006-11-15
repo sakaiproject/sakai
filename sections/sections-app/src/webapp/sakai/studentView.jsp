@@ -48,12 +48,13 @@
     
             <h:column>
                 <f:facet name="header">
-                    <x:commandSortHeader columnName="meetingTimes" immediate="true" arrow="true">
-                        <h:outputText value="#{msgs.student_view_header_time}" />
+                    <x:commandSortHeader columnName="title" immediate="true" arrow="true">
+                        <h:outputText value="#{msgs.student_view_header_title}" />
                     </x:commandSortHeader>
                 </f:facet>
-                <h:outputText value="#{section.meetingTimes}"/>
+                <h:outputText value="#{section.title}"/>
             </h:column>
+
             <h:column>
                 <f:facet name="header">
                     <x:commandSortHeader columnName="instructor" immediate="true" arrow="true">
@@ -69,22 +70,52 @@
                     </x:div>
                </x:dataList>
             </h:column>
+
+	        <h:column>
+	            <f:facet name="header">
+	                <x:commandSortHeader columnName="meetingDays" immediate="false" arrow="true">
+	                	<h:outputText value="#{msgs.student_view_header_day}" />
+	                </x:commandSortHeader>
+	            </f:facet>
+	            <x:dataList id="meetingDayList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
+		            <x:div>
+		            	<h:outputText value="#{meeting.abbreviatedDays}"/>
+		            </x:div>
+	            </x:dataList>
+	        </h:column>
             <h:column>
                 <f:facet name="header">
-                    <x:commandSortHeader columnName="title" immediate="true" arrow="true">
-                        <h:outputText value="#{msgs.student_view_header_title}" />
+                    <x:commandSortHeader columnName="meetingTimes" immediate="true" arrow="true">
+                        <h:outputText value="#{msgs.student_view_header_time}" />
                     </x:commandSortHeader>
                 </f:facet>
-                <h:outputText value="#{section.title}"/>
+	            <x:dataList id="meetingTimeList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
+		            <x:div>
+			            <h:outputText value="#{meeting.times}"/>
+		            </x:div>
+	            </x:dataList>
             </h:column>
-
+                        
             <h:column>
                 <f:facet name="header">
                     <x:commandSortHeader columnName="location" immediate="true" arrow="true">
                         <h:outputText value="#{msgs.student_view_header_location}" />
                     </x:commandSortHeader>
                 </f:facet>
-                <h:outputText value="#{section.location}"/>
+	            <x:dataList id="meetingLocationList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
+		            <x:div>
+		            	<h:outputText value="#{meeting.location}"/>
+		            </x:div>
+	            </x:dataList>
+            </h:column>
+
+            <h:column>
+                <f:facet name="header">
+                    <x:commandSortHeader columnName="available" immediate="true" arrow="true">
+                        <h:outputText value="#{msgs.student_view_header_available}" />
+                    </x:commandSortHeader>
+                </f:facet>
+            	<h:outputText value="#{section.spotsAvailable}"/>
             </h:column>
 
             <h:column rendered="#{!studentViewBean.externallyManaged}">

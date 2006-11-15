@@ -74,8 +74,8 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 		externallyManaged = getSectionManager().isExternallyManaged(getCourse().getUuid());
 		
 		// Determine whether the sections are joinable and/or switchable
-		joinAllowed = getSectionManager().isSelfRegistrationAllowed(getSiteContext());
-		switchAllowed = getSectionManager().isSelfSwitchingAllowed(getSiteContext());
+		joinAllowed = getSectionManager().isSelfRegistrationAllowed(getCourse().getUuid());
+		switchAllowed = getSectionManager().isSelfSwitchingAllowed(getCourse().getUuid());
 
 		// Keep track of whether there are joinable Sections
 		boolean joinableSectionsExist = false;
@@ -228,6 +228,12 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 			return InstructorSectionDecorator.getFieldComparator("title", sortAscending);
 		} else if(sortColumn.equals("available")) {
 			return InstructorSectionDecorator.getEnrollmentsComparator(sortAscending, true); 
+		} else if(sortColumn.equals("meetingDays")) {
+			return InstructorSectionDecorator.getDayComparator(sortAscending); 
+		} else if(sortColumn.equals("meetingTimes")) {
+			return InstructorSectionDecorator.getTimeComparator(sortAscending); 
+		} else if(sortColumn.equals("location")) {
+			return InstructorSectionDecorator.getLocationComparator(sortAscending); 
 		} else {
 			return InstructorSectionDecorator.getFieldComparator(sortColumn, sortAscending); 
 		}
