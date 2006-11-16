@@ -660,8 +660,9 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
      * @return
      */
     
-    public List findPvtMsgsBySearchText(final String typeUuid, final String searchText,final Date searchFromDate, final Date searchToDate, final Long searchByText,
-                final Long searchByAuthor,final Long searchByBody,final Long searchByLabel,final Long searchByDate) {
+    public List findPvtMsgsBySearchText(final String typeUuid, final String searchText, 
+          final Date searchFromDate, final Date searchToDate, final boolean searchByText,
+          final boolean searchByAuthor, final boolean searchByBody, final boolean searchByLabel, final boolean searchByDate) {
 
       LOG.debug("findPvtMsgsBySearchText executing with searchText: " + searchText);
 
@@ -669,11 +670,11 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
           public Object doInHibernate(Session session) throws HibernateException, SQLException {
               Query q = session.getNamedQuery("findPvtMsgsBySearchText");
               q.setParameter("searchText", "%" + searchText + "%");
-              q.setParameter("searchByText", searchByText);
-              q.setParameter("searchByAuthor", searchByAuthor);
-              q.setParameter("searchByBody", searchByBody);
-              q.setParameter("searchByLabel", searchByLabel);
-              q.setParameter("searchByDate", searchByDate);
+              q.setParameter("searchByText", convertBooleanToInteger(searchByText));
+              q.setParameter("searchByAuthor", convertBooleanToInteger(searchByAuthor));
+              q.setParameter("searchByBody", convertBooleanToInteger(searchByBody));
+              q.setParameter("searchByLabel", convertBooleanToInteger(searchByLabel));
+              q.setParameter("searchByDate", convertBooleanToInteger(searchByDate));
               q.setParameter("searchFromDate", (searchFromDate == null) ? new Date(0) : searchFromDate);
               q.setParameter("searchToDate", (searchToDate == null) ? new Date(System.currentTimeMillis()) : searchToDate);
               q.setParameter("userId", getCurrentUser());
@@ -685,6 +686,11 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
       return (List) getHibernateTemplate().execute(hcb);
   }
+    
+    private Integer convertBooleanToInteger(boolean value) {
+       Integer retVal = (Boolean.TRUE.equals(value)) ? 1 : 0;
+       return new Integer(retVal);
+    }
     
     private String getContextId() {
       if (TestUtil.isRunningTests()) {

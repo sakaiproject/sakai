@@ -176,6 +176,6 @@ public interface PrivateMessageManager {
     public boolean hasNextMessage(PrivateMessage message);
     
     /** advanced search for private messages */ 
-    public List searchPvtMsgs(String typeUuid, String searchText,Date searchFromDate, Date searchToDate, Long searchByText, Long searchByAuthor,Long searchByBody, Long searchByLabel,Long searchByDate);
+    public List searchPvtMsgs(String typeUuid, String searchText,Date searchFromDate, Date searchToDate, boolean searchByText, boolean searchByAuthor,boolean searchByBody, boolean searchByLabel,boolean searchByDate);
     
 }

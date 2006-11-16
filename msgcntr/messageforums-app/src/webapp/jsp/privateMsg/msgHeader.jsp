@@ -50,7 +50,7 @@
 		<h:commandButton value="#{msgs.pvt_search}" action="#{PrivateMessagesTool.processSearch}" onkeypress="document.forms[0].submit;"/>
 		
 		<f:verbatim><div id='adv_button'></f:verbatim>
-		  <h:commandLink value="#{msgs.pvt_advsearch}" onmousedown="javascript:toggleDisplay('adv_input','adv_button');" title="#{msgs.pvt_advsearch}"/>
+		  <h:commandLink value="#{msgs.pvt_advsearch}" onmousedown="javascript:toggleDisplay('adv_input','adv_button');setMainFrameHeight('#{PrivateMessagesTool.placementId}');" title="#{msgs.pvt_advsearch}"/>
 		<f:verbatim></div></f:verbatim>
 		<f:verbatim></div></f:verbatim>
   </h:panelGroup>

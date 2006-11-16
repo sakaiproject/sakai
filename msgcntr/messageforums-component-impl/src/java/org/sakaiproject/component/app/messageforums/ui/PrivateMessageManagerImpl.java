@@ -1184,7 +1184,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     
   
   public List searchPvtMsgs(String typeUuid, String searchText,Date searchFromDate, Date searchToDate, 
-      Long searchByText,Long searchByAuthor,Long searchByBody, Long searchByLabel,Long searchByDate)
+      boolean searchByText, boolean searchByAuthor, boolean searchByBody, boolean searchByLabel, boolean searchByDate)
   {    
     return messageManager.findPvtMsgsBySearchText(typeUuid, searchText,searchFromDate, searchToDate, 
         searchByText,searchByAuthor,searchByBody,searchByLabel,searchByDate);

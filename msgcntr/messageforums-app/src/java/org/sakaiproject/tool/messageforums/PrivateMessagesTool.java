@@ -72,6 +72,7 @@ import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.Validator;
 
 public class PrivateMessagesTool
 {
@@ -2439,176 +2440,19 @@ public class PrivateMessagesTool
      */ 
     List tempPvtMsgLs= new ArrayList();
     
-    if(searchOnDate)
+    if(searchOnDate && searchFromDate == null && searchToDate==null)
     {
-      if((searchFromDate == null) && (searchToDate==null))
-      {
-        setErrorMessage(getResourceBundleString(MISSING_BEG_END_DATE));
-      }
-      
-      if(searchOnSubject && searchOnAuthor && searchOnBody && searchOnLabel)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(1), new Long(1), new Long(1), new Long(1),new Long(1)) ;
-      } 
-      else if(searchOnSubject && searchOnAuthor && searchOnBody)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(1), new Long(1), new Long(1), new Long(0),new Long(1)) ;
-      } 
-      else if(searchOnSubject && searchOnAuthor && searchOnLabel)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(1), new Long(1), new Long(0), new Long(1),new Long(1)) ;
-      }    
-      else if(searchOnSubject && searchOnLabel && searchOnBody)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(1), new Long(0), new Long(1), new Long(1),new Long(1)) ;
-      }
-      else if(searchOnAuthor && searchOnBody && searchOnLabel)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(0), new Long(1), new Long(1), new Long(1),new Long(1)) ;
-      } 
-      else if(searchOnSubject && searchOnAuthor)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(1), new Long(1), new Long(0), new Long(0),new Long(1)) ;
-      } 
-      else if(searchOnSubject && searchOnLabel)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(1), new Long(0), new Long(0), new Long(1),new Long(1)) ;
-      } 
-      else if(searchOnSubject && searchOnBody)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(1), new Long(0), new Long(1), new Long(0),new Long(1)) ;
-      } 
-      else if(searchOnAuthor && searchOnLabel)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(0), new Long(1), new Long(0), new Long(1),new Long(1)) ;
-      }   
-      else if(searchOnAuthor && searchOnBody)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(0), new Long(1), new Long(1), new Long(0),new Long(1)) ;
-      }
-      else if(searchOnBody && searchOnLabel)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(0), new Long(0), new Long(1), new Long(1),new Long(1)) ;
-      }
-      else if(searchOnSubject)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(1), new Long(0),new Long(0), new Long(0),new Long(1)) ;
-      } 
-      else if (searchOnAuthor)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(0), new Long(1),new Long(0), new Long(0),new Long(1)) ;
-      }
-      else if (searchOnBody)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(0), new Long(0),new Long(1), new Long(0),new Long(1)) ;
-      }    
-      else if (searchOnLabel)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(0), new Long(0),new Long(0), new Long(1),new Long(1)) ;
-      } 
-      else
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(0), new Long(0),new Long(0), new Long(0),new Long(1)) ;
-      }
+       setErrorMessage(getResourceBundleString(MISSING_BEG_END_DATE));
     }
-    //if date is not selected
-    else {
-      if(!hasValue(searchText))
-      {
-        setErrorMessage(getResourceBundleString(ENTER_SEARCH_TEXT));
-      }
-      if(searchOnSubject && searchOnAuthor && searchOnBody && searchOnLabel)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(1), new Long(1), new Long(1), new Long(1),new Long(0)) ;
-      } 
-      else if(searchOnSubject && searchOnAuthor && searchOnBody)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(1), new Long(1), new Long(1), new Long(0),new Long(0)) ;
-      } 
-      else if(searchOnSubject && searchOnAuthor && searchOnLabel)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(1), new Long(1), new Long(0), new Long(1),new Long(0)) ;
-      }    
-      else if(searchOnSubject && searchOnLabel && searchOnBody)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(1), new Long(0), new Long(1), new Long(1),new Long(0)) ;
-      }
-      else if(searchOnAuthor && searchOnBody && searchOnLabel)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(0), new Long(1), new Long(1), new Long(1),new Long(0)) ;
-      } 
-      else if(searchOnSubject && searchOnAuthor)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(1), new Long(1), new Long(0), new Long(0),new Long(0)) ;
-      } 
-      else if(searchOnSubject && searchOnLabel)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(1), new Long(0), new Long(0), new Long(1),new Long(0)) ;
-      } 
-      else if(searchOnSubject && searchOnBody)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(1), new Long(0), new Long(1), new Long(0),new Long(0)) ;
-      } 
-      else if(searchOnAuthor && searchOnLabel)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(0), new Long(1), new Long(0), new Long(1),new Long(0)) ;
-      }   
-      else if(searchOnAuthor && searchOnBody)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(0), new Long(1), new Long(1), new Long(0),new Long(0)) ;
-      }
-      else if(searchOnBody && searchOnLabel)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(0), new Long(0), new Long(1), new Long(1),new Long(0)) ;
-      }
-      else if(searchOnSubject)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(1), new Long(0),new Long(0), new Long(0),new Long(0)) ;
-      } 
-      else if (searchOnAuthor)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(0), new Long(1),new Long(0), new Long(0),new Long(0)) ;
-      }
-      else if (searchOnBody)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(0), new Long(0),new Long(1), new Long(0),new Long(0)) ;
-      }    
-      else if (searchOnLabel)
-      {
-        tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), getSearchText(), getSearchFromDate(), getSearchToDate(),
-            new Long(0), new Long(0),new Long(0), new Long(1),new Long(0)) ;
-      }        
+    
+    if(!hasValue(searchText))
+    {
+       setErrorMessage(getResourceBundleString(ENTER_SEARCH_TEXT));
     }
+    
+    tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), 
+          getSearchText(), getSearchFromDate(), getSearchToDate(),
+          searchOnSubject, searchOnAuthor, searchOnBody, searchOnLabel, searchOnDate) ;
     
     newls= createDecoratedDisplay(tempPvtMsgLs);
 //    
@@ -3065,6 +2909,10 @@ public class PrivateMessagesTool
        }
        
        return authorString;
+    }
+    
+    public String getPlacementId() {
+       return Validator.escapeJavascript("Main" + ToolManager.getCurrentPlacement().getId());
     }
 
 }
