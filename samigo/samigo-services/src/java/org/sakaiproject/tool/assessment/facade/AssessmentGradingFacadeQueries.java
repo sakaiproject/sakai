@@ -311,9 +311,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     try {
       HashMap map = new HashMap();
       AssessmentGradingData gdata = load(new Long(assessmentGradingId));
-      gdata.setItemGradingSet(getItemGradingSet(gdata.getAssessmentGradingId()));
       log.debug("****#6, gdata="+gdata);
-      log.debug("****#7, item size="+gdata.getItemGradingSet().size());
+      //log.debug("****#7, item size="+gdata.getItemGradingSet().size());
       Iterator iter = gdata.getItemGradingSet().iterator();
       while (iter.hasNext())
       {
@@ -652,7 +651,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public AssessmentGradingData load(Long id) {
-    return (AssessmentGradingData) getHibernateTemplate().load(AssessmentGradingData.class, id);
+    AssessmentGradingData gdata = (AssessmentGradingData) getHibernateTemplate().load(AssessmentGradingData.class, id);
+    gdata.setItemGradingSet(getItemGradingSet(gdata.getAssessmentGradingId()));
+    return gdata;
   }
 
   public ItemGradingData getItemGrading(Long id) {
