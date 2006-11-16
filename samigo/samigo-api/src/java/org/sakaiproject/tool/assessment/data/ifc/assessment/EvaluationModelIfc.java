@@ -33,17 +33,19 @@ public interface EvaluationModelIfc
     extends java.io.Serializable
 {
 
-  public static Integer ANONYMOUS_GRADING = new Integer(1);
-  public static Integer NON_ANONYMOUS_GRADING = new Integer(2);
-  public static Integer GRADEBOOK_NOT_AVAILABLE = new Integer(0);
-  public static Integer TO_DEFAULT_GRADEBOOK = new Integer(1);
-  public static Integer TO_SELECTED_GRADEBOOK = new Integer(2);
+  public static final Integer ANONYMOUS_GRADING = new Integer(1);
+  public static final Integer NON_ANONYMOUS_GRADING = new Integer(2);
+  public static final Integer GRADEBOOK_NOT_AVAILABLE = new Integer(0);
+  public static final Integer TO_DEFAULT_GRADEBOOK = new Integer(1);
+  //public static Integer TO_SELECTED_GRADEBOOK = new Integer(2);  // this is confusing, we are using 2 for 'None' but the name is confusing, 
+  public static final Integer NOT_TO_GRADEBOOK = new Integer(2);		// so now we added this new constant, SAK-7162
+  public static final Integer TO_SELECTED_GRADEBOOK = new Integer(3);  // not used, but leave it for now 
 
   // scoring type 
-  public static Integer HIGHEST_SCORE = new Integer(1);
+  public static final Integer HIGHEST_SCORE = new Integer(1);
   //public static Integer AVERAGE_SCORE = new Integer(2);
-  public static Integer LAST_SCORE= new Integer(2);
-  public static Integer ALL_SCORE= new Integer(3);
+  public static final Integer LAST_SCORE= new Integer(2);
+  public static final Integer ALL_SCORE= new Integer(3);
 
 
   Long getId();

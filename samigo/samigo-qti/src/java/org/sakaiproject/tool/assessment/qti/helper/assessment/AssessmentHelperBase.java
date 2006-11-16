@@ -210,6 +210,14 @@ public abstract class AssessmentHelperBase
     {
       assessmentXml.setFieldentry("GRADEBOOK_OPTIONS", "DEFAULT");
     }
+    //SAK-7162
+    if (EvaluationModelIfc.NOT_TO_GRADEBOOK.toString().
+            equals(evaluationModel.getToGradeBook()))
+    {
+          assessmentXml.setFieldentry("GRADEBOOK_OPTIONS", "NONE");
+
+ 	}
+
 
     //highest or last
     if (EvaluationModelIfc.HIGHEST_SCORE.equals(evaluationModel.getScoringType()))

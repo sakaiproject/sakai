@@ -605,8 +605,17 @@ public class ExtractionHelper
     else if ("SELECTED".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
         "GRADEBOOK_OPTIONS")))
     {
-      evaluationModel.setToGradeBook(EvaluationModel.TO_SELECTED_GRADEBOOK.toString());
+      evaluationModel.setToGradeBook(EvaluationModel.NOT_TO_GRADEBOOK.toString());	// this is for backward compatibility. 
+      // we've always used 2 for 'None' option. Old exported XML will have 'SELECTED' for assessemnts that are set not to send to gradebook, so we need to accomodate those.
+      // TO_SELECTED_GRADEBOOK is not really used. 
     }
+    //  SAK-7162
+    else if ("NONE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    "GRADEBOOK_OPTIONS")))
+    {
+    	evaluationModel.setToGradeBook(EvaluationModel.NOT_TO_GRADEBOOK.toString());
+    }
+   
 
     // highest or last
     if ("HIGHEST_SCORE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
