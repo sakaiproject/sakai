@@ -12,7 +12,7 @@
           <sakai:tool_bar_item action="#{mfSynopticBean.processGotoOptions}" value="#{msgs.syn_options}" />
        </sakai:tool_bar>
 
-	<h:outputText value="syn_no_sites" rendered="#{! mfSynopticBean.sitesToView}" />
+	<h:outputText value="#{msgs.syn_no_sites}" rendered="#{! mfSynopticBean.sitesToView}" />
 
 	 <%-- ===== Display when in MyWorkspace ===== --%>
 	 <h:dataTable value="#{mfSynopticBean.contents}" var="eachSite" styleClass="listHier lines nolines"

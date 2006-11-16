@@ -47,6 +47,7 @@ import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -55,6 +56,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
@@ -332,7 +334,7 @@ public class MessageForumSynopticBean {
 	protected PreferencesService preferencesService = null;
 
 	/** The PreferencesEdit in KeyNameValue collection form. */
-	protected Collection prefsEditKeyNameValueCollection = null;
+	protected Collection prefsEditKNVCollection = null;
 
 	/** =============== End Options page bean values =============== */
 
@@ -442,13 +444,14 @@ public class MessageForumSynopticBean {
 
 	/**
 	 * Returns TRUE if there is at least one site user can access
+	 * and user has not set it to be excluded
 	 *  
 	 * @return
 	 * 			TRUE if there are/is site(s) user can access
 	 * 			FALSE if not
 	 */
 	public boolean isSitesToView() {
-		return ! getSiteList().isEmpty();
+		return ! filterOutExcludedSites(getSiteList()).isEmpty();
 	}
 
 	/**
@@ -670,6 +673,33 @@ public class MessageForumSynopticBean {
 	}
 
 	/**
+	 * Removes all sites user does not want message info about and
+	 * returns all sites left
+	 * 
+	 * @param allSites
+	 * 				List of all sites user is a member of
+	 * 
+	 * @return
+	 * 		List of sites user wants notification about
+	 */
+	private List filterOutExcludedSites(List allSites) {
+		final List excludedSites = getExcludedSiteList();
+		
+		if (excludedSites != null) {
+			for (Iterator excludeIter = excludedSites.iterator(); excludeIter.hasNext(); ) {
+				final String siteId = (String) excludeIter.next();
+				final int pos = indexOf(siteId, allSites);
+			
+				if (pos != -1) {
+					allSites.remove(pos);
+				}
+			}
+		}
+		
+		return allSites;
+	}
+	
+	/**
 	 * Return List to populate page if in MyWorkspace
 	 * 
 	 * @return
@@ -688,7 +718,7 @@ public class MessageForumSynopticBean {
 					.getPrivateMessageCountsForAllSites();
 
 		// retrieve what sites is this user a member of
-		final List siteList = getSiteList();
+		final List siteList = filterOutExcludedSites(getSiteList());
 
 		// no sites to work with, just return
 		if (siteList.isEmpty()) { return contents; }
@@ -1092,6 +1122,7 @@ public class MessageForumSynopticBean {
 
 		}
 		catch (IdUnusedException e) {
+			// Weirdness since site ids used gotten from SiteService
 			LOG.error("IdUnusedException while trying to check if site has MF tool.");
 
 			// TODO: What do we do?
@@ -1111,14 +1142,14 @@ public class MessageForumSynopticBean {
 
 		if (isMyWorkspace()) {
 			// if within MyWorkspace, need to find the siteId
-			FacesContext context = FacesContext.getCurrentInstance();
-			Map requestParams = context.getExternalContext()
-										 .getRequestParameterMap();
+			final FacesContext context = FacesContext.getCurrentInstance();
+			final Map requestParams = context.getExternalContext()
+												.getRequestParameterMap();
 
 			final String contextId = (String) requestParams.get(CONTEXTID);
 
 			final List privateMessages = pvtMessageManager
-					.getMessagesByTypeByContext(typeUuid, contextId);
+											.getMessagesByTypeByContext(typeUuid, contextId);
 
 			if (privateMessages == null) {
 				LOG.error("No messages found while attempting to mark all as read "
@@ -1127,7 +1158,7 @@ public class MessageForumSynopticBean {
 			else {
 				for (Iterator iter = privateMessages.iterator(); iter.hasNext();) {
 					pvtMessageManager.markMessageAsReadForUser(
-							(PrivateMessage) iter.next(), contextId);
+											(PrivateMessage) iter.next(), contextId);
 				}
 			}
 		} 
@@ -1188,15 +1219,14 @@ public class MessageForumSynopticBean {
 		Iterator lsi = mySites.iterator();
 
 		if (!lsi.hasNext()) {
-			// TODO: Add user id to log message
-			LOG.warn("User " + SessionManager.getCurrentSession().getUserId() + " does not belong to any sites.");
+			LOG.warn("User " + SessionManager.getCurrentSessionUserId() + " does not belong to any sites.");
 
 			return mySites;
 		}
 
 		final List siteList = new ArrayList();
 
-		// only display sites that are published
+		// only display sites that are published and have Message Center in them
 		while (lsi.hasNext()) {
 			Site site = (Site) lsi.next();
 
@@ -1209,7 +1239,24 @@ public class MessageForumSynopticBean {
 		return siteList;
 	}
 
-// ======================== Options Page Methods ======================== 
+	/**
+	 * Returns list of sites user does NOT want unread message notifications
+	 * about
+	 * 
+	 * @return
+	 * 		List of sites user does NOT want unread message notifications about
+	 */
+	private List getExcludedSiteList() {
+		Preferences prefs = preferencesService.getPreferences(
+									SessionManager.getCurrentSessionUserId());
+		
+		ResourceProperties props = prefs.getProperties(SYNMC_OPTIONS_PREFS);
+		final List l = props.getPropertyList(EXCLUDE_STRING);
+
+		return l;
+	}
+
+	// ======================== Options Page Methods ======================== 
 
 	public List getNonNotificationSitesItems() {
 		return nonNotificationSitesItems;
@@ -1251,37 +1298,75 @@ public class MessageForumSynopticBean {
 	 * 		String to move to Option page
 	 */
 	public String processGotoOptions() {
-		List sites = getSiteList();
+		final List sites = getSiteList();
+		
 		notificationSitesItems.clear();
 		nonNotificationSitesItems.clear();
-		
-		// TODO: get excluded sites, if any
+		List prefExclude = new Vector();
+
+		// Get excluded sites, if any. If returns null,
+		// use empty list prefExclude, otherwise results returned.
+		final List l = getExcludedSiteList();
+		if (l != null) {
+			prefExclude = l;
+		}
+
+		// create excluded and order list of Sites and add balance mySites to excluded Site list for display in Form
+		List excluded = new Vector();
+
+		for (Iterator iter = prefExclude.iterator(); iter.hasNext();) {
+			final String element = (String) iter.next();
+			final int pos = indexOf(element, sites);
+
+			if (pos != -1) {
+				try {
+					Site s = getSite((String) sites.get(pos));
+
+					excluded.add(s);
+					sites.remove(pos);
+				} 
+				catch (IdUnusedException e) {
+					// Weirdness since site ids pulled from SiteService
+					LOG.error("IdUnusedException while getting site when creating actual excluded site list");
+				}
+			}
+		}
 
 		// Now convert to SelectItem for display in JSF
-		for (Iterator iter = sites.iterator(); iter.hasNext();)
-		{
-			Site element = null;
+		for (Iterator iter = excluded.iterator(); iter.hasNext();) {
+			Site element = (Site) iter.next();
 			
+			SelectItem excludeItem = new SelectItem(
+											element.getId(), element.getTitle());
+
+			nonNotificationSitesItems.add(excludeItem);
+		}
+
+		for (Iterator iter = sites.iterator(); iter.hasNext();) {
+			Site element = null;
+
 			try {
 				element = getSite((String) iter.next());
-			}
+			} 
 			catch (IdUnusedException e) {
 				// Weirdness, pulled by SiteService as a valid site but when try
 				// to retrieve throws exception
-				LOG.error("IdUnusedException while trying to load site for Message Center Notifications Options page.");
-				
+				LOG.error("IdUnusedException while trying to load site for "
+								+ "Message Center Notifications Options page.");
+
 				// skip this invalid site
 				continue;
 			}
-			
-			SelectItem excludeItem = new SelectItem(element.getId(), element.getTitle());
+
+			SelectItem excludeItem = new SelectItem(
+										element.getId(), element.getTitle());
 
 			notificationSitesItems.add(excludeItem);
 		}
-		
+
 		return "synOptions";
 	}
-	
+
 	/**
 	 * Move site(s) from not displaying unread info to displaying
 	 * 
@@ -1290,18 +1375,17 @@ public class MessageForumSynopticBean {
 	 */
 	public String processActionAdd() {
 		String[] values = getNonNotificationSites();
-		
-		if (values.length < 1)
-		{
+
+		if (values.length < 1) {
 			setErrorMessage(NO_SITE_SELECTED_MSG);
 		}
 
-		for (int i = 0; i < values.length; i++)
-		{
+		for (int i = 0; i < values.length; i++) {
 			String value = values[i];
-			getNotificationSitesItems().add(removeItems(value, getNonNotificationSitesItems()));
+			getNotificationSitesItems().add(
+					removeItems(value, getNonNotificationSitesItems()));
 		}
-		
+
 		return "synOption";
 	}
 
@@ -1313,18 +1397,17 @@ public class MessageForumSynopticBean {
 	 */
 	public String processActionRemove() {
 		String[] values = getNotificationSites();
-		
-		if (values.length < 1)
-		{
+
+		if (values.length < 1) {
 			setErrorMessage(NO_SITE_SELECTED_MSG);
 		}
 
-		for (int i = 0; i < values.length; i++)
-		{
+		for (int i = 0; i < values.length; i++) {
 			String value = values[i];
-			getNonNotificationSitesItems().add(removeItems(value, getNotificationSitesItems()));
+			getNonNotificationSitesItems().add(
+					removeItems(value, getNotificationSitesItems()));
 		}
-		
+
 		return "synOption";
 	}
 
@@ -1333,8 +1416,7 @@ public class MessageForumSynopticBean {
 	 * 
 	 * @return navigation output to tab customization page (edit)
 	 */
-	public String processActionAddAll()
-	{
+	public String processActionAddAll() {
 		LOG.debug("processActionAddAll()");
 
 		getNotificationSitesItems().addAll(getNonNotificationSitesItems());
@@ -1348,8 +1430,7 @@ public class MessageForumSynopticBean {
 	 * 
 	 * @return navigation output to tab customization page (edit)
 	 */
-	public String processActionRemoveAll()
-	{
+	public String processActionRemoveAll() {
 		LOG.debug("processActionAddAll()");
 
 		getNonNotificationSitesItems().addAll(getNotificationSitesItems());
@@ -1375,18 +1456,19 @@ public class MessageForumSynopticBean {
 		// Commit to remove from database, for next set of value storing
 		preferencesService.commit(prefsEdit);
 
-		prefsEditKeyNameValueCollection = new Vector();
+		prefsEditKNVCollection = new Vector();
 		String eparts = "";
 
-		for (int i = 0; i < nonNotificationSitesItems.size(); i++)
-		{
+		for (int i = 0; i < nonNotificationSitesItems.size(); i++) {
 			SelectItem item = (SelectItem) nonNotificationSitesItems.get(i);
+			
 			String evalue = (String) item.getValue();
 			eparts += evalue + ", ";
 		}
 
 		// add property name and value for saving
-		prefsEditKeyNameValueCollection.add(new KeyNameValue(SYNMC_OPTIONS_PREFS, EXCLUDE_STRING, eparts, true));
+		prefsEditKNVCollection.add(new KeyNameValue(
+							SYNMC_OPTIONS_PREFS, EXCLUDE_STRING, eparts, true));
 
 		// save
 		saveEdit();
@@ -1411,12 +1493,14 @@ public class MessageForumSynopticBean {
 		return "synMain";
 	}
 
-	protected void cancelEdit()
-	{
+	/**
+	 * Clean up information when user canels changes
+	 */
+	protected void cancelEdit() {
 		LOG.debug("cancelEdit()");
 
 		// cleanup
-		prefsEditKeyNameValueCollection = null;
+		prefsEditKNVCollection = null;
 		prefsEdit = null;
 		nonNotificationSitesItems = new ArrayList();
 
@@ -1435,19 +1519,16 @@ public class MessageForumSynopticBean {
 	 * @return
 	 * 		The SelectItem removed from items
 	 */
-	private SelectItem removeItems(String value, List items)
-	{
-		if (LOG.isDebugEnabled())
-		{
+	private SelectItem removeItems(String value, List items) {
+		if (LOG.isDebugEnabled()) {
 			LOG.debug("removeItems(String " + value + ", List " + items + ")");
 		}
 
 		SelectItem result = null;
-		for (int i = 0; i < items.size(); i++)
-		{
+		for (int i = 0; i < items.size(); i++) {
 			SelectItem item = (SelectItem) items.get(i);
-			if (value.equals(item.getValue()))
-			{
+			
+			if (value.equals(item.getValue())) {
 				result = (SelectItem) items.remove(i);
 				break;
 			}
@@ -1462,80 +1543,97 @@ public class MessageForumSynopticBean {
 	 */
 	private void setErrorMessage(String alertMsg) {
 		FacesContext.getCurrentInstance().addMessage(null,
-				new FacesMessage(rb.getString(alertMsg)));
+									new FacesMessage(rb.getString(alertMsg)));
 	}
-	
+
 	/**
 	 * Set editing mode on for user and add user if not existing
 	 */
-	protected void setUserEditingOn()
-	{
+	protected void setUserEditingOn() {
 		LOG.debug("setUserEditingOn()");
 
-		try
-		{
-			prefsEdit = preferencesService.edit(SessionManager.getCurrentSessionUserId());
-		}
-		catch (IdUnusedException e)
-		{
-			try
-			{
-				prefsEdit = preferencesService.add(SessionManager.getCurrentSessionUserId());
-//				isNewUser = true;
+		try {
+			prefsEdit = preferencesService.edit(SessionManager
+													.getCurrentSessionUserId());
+		} 
+		catch (IdUnusedException e) {
+			try {
+				prefsEdit = preferencesService.add(SessionManager
+													.getCurrentSessionUserId());
+			} 
+			catch (Exception ee) {
+				// PermissionException or IdUnusedException
+				LOG.error(ee.getMessage() + " occured while attempting to add new user preferences.");
 			}
-			catch (Exception ee)
-			{
-//				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(ee.toString()));
-			}
-		}
-		catch (Exception e)
-		{
-//			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.toString()));
+		} 
+		catch (Exception e) {
+			// Any other error besides IdUnusedException should be an error
+			LOG.error(e.getMessage() + " occured while attempting to edit user preferences.");
 		}
 	}
 
 	/**
 	 * Save any changed values from the edit and cleanup.
 	 */
-	protected void saveEdit()
-	{
+	protected void saveEdit() {
 		LOG.debug("saveEdit()");
 
 		// user editing is required as commit() disable isActive() flag
 		setUserEditingOn();
-		
-		// move the stuff from prefsEditKeyNameValueCollection into the edit
-		for (Iterator i = prefsEditKeyNameValueCollection.iterator(); i.hasNext();)
-		{
+
+		// move the stuff from prefsEditKNVCollection into the edit
+		for (Iterator i = prefsEditKNVCollection.iterator(); i.hasNext();) {
 			KeyNameValue knv = (KeyNameValue) i.next();
-			
+
 			// find the original to remove (unless this one was new)
-			if (!knv.getOrigKey().equals(""))
-			{
-				ResourcePropertiesEdit props = prefsEdit.getPropertiesEdit(knv.getOrigKey());
+			if (!knv.getOrigKey().equals("")) {
+				ResourcePropertiesEdit props = prefsEdit.getPropertiesEdit(knv
+																	.getOrigKey());
 				props.removeProperty(knv.getOrigName());
 			}
 			// add the new if we have a key and name and value
-			if ((!knv.getKey().equals("")) && (!knv.getName().equals("")) && (!knv.getValue().equals("")))
-			{
+			if ((!knv.getKey().equals("")) && (!knv.getName().equals(""))
+					&& (!knv.getValue().equals(""))) {
 				ResourcePropertiesEdit props = prefsEdit.getPropertiesEdit(knv.getKey());
-				if (knv.isList())
-				{
+				
+				if (knv.isList()) {
 					// split by ", "
 					String[] parts = knv.getValue().split(", ");
-					for (int p = 0; p < parts.length; p++)
-					{
+					for (int p = 0; p < parts.length; p++) {
 						props.addPropertyToList(knv.getName(), parts[p]);
 					}
-				}
-				else
-				{
+				} 
+				else {
 					props.addProperty(knv.getName(), knv.getValue());
 				}
 			}
 		}
 		// save the preferences, release the edit
 		preferencesService.commit(prefsEdit);
+	}
+
+	/**
+	 * Find the site in the list that has this id - return the position. *
+	 * 
+	 * @param value
+	 *        The site id to find.
+	 * @param siteList
+	 *        The list of Site objects.
+	 * @return The index position in siteList of the site with site id = value, or -1 if not found.
+	 */
+	protected int indexOf(String value, List siteList) {
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("indexOf(String " + value + ", List " + siteList + ")");
+		}
+
+		for (int i = 0; i < siteList.size(); i++) {
+			String siteId = (String) siteList.get(i);
+
+			if (siteId.equals(value)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 }
