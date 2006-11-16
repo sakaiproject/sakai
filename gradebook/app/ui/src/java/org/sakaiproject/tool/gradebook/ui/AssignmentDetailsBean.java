@@ -60,7 +60,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	
 	private boolean isAllCommentsEditable;
 
-	public class ScoreRow implements Serializable {
+    public class ScoreRow implements Serializable {
         private AssignmentGradeRecord gradeRecord;
         private EnrollmentRecord enrollment;
         private Comment comment;
@@ -267,7 +267,8 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	
 	public void toggleEditableComments(ActionEvent event) {
 		isAllCommentsEditable = !isAllCommentsEditable;
-	}
+        if(!isAllCommentsEditable)FacesUtil.addErrorMessage(getLocalizedString("assignment_details_comments_changes"));
+    }
 
     /**
 	 * View maintenance methods.
