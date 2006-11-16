@@ -72,6 +72,7 @@ import org.w3c.dom.NodeList;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndImage;
+import com.sun.syndication.feed.synd.SyndEnclosure;
 import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.XmlReader;
 
@@ -226,6 +227,33 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 		/** The description (or body) of the news item */
 		protected String m_description = null;
 
+		/** The list of NewsItemEnclosures for this item. */
+		protected List m_enclosures = null;
+		
+		/**
+		 * Construct.
+		 * 
+		 * @param title
+		 *        The headline of the item
+		 * @param description
+		 *        The body of the item
+		 * @param link
+		 *        The URL for a longer version of the item
+		 * @param pubdate
+		 *        The date/time at which the item was published
+		 * @param enclosure
+		 *        The list of NewsItemEnclosures for this item
+		 */
+		public BasicNewsItem(String title, String description, String link, String pubdate, List enclosures)
+		{
+			m_title = title;
+			m_description = description;
+			m_link = link;
+			m_pubdate = pubdate;
+			m_enclosures = enclosures;
+
+		} // BasicNewsItem
+
 		/**
 		 * Construct.
 		 * 
@@ -247,6 +275,7 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 
 		} // BasicNewsItem
 
+		
 		/**
 		 * Access the title of the NewsItem.
 		 * 
@@ -279,6 +308,16 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 			return m_link;
 
 		} // getLink
+		
+		/**
+		 * Access the List of Enclosures for the item
+		 * 
+		 * @return the List of Enclosures for the item
+		 */
+		public List getEnclosures()
+		{
+			return m_enclosures;
+		} // getEnclosures
 
 		/**
 		 * Access the description (or body) of the NewsItem.
@@ -539,10 +578,20 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 				{
 					iPubDate = DateFormat.getDateInstance().format(entrydate);
 				}
-				iPubDate = Validator.stripAllNewlines(iPubDate);
-				m_items.add(new BasicNewsItem(iTitle, iDescription, iLink, iPubDate));
-			}
+				
+				List enclosures = new Vector();
+				List syndEnclosures = entry.getEnclosures();
 
+				for (int j = 0; j < syndEnclosures.size(); j++) {
+					SyndEnclosure syndEnclosure = (SyndEnclosure) syndEnclosures.get(j);
+
+					enclosures.add(new BasicNewsItemEnclosure(syndEnclosure.getUrl(), 
+									syndEnclosure.getType(), syndEnclosure.getLength()));
+
+				}
+				iPubDate = Validator.stripAllNewlines(iPubDate);
+				m_items.add(new BasicNewsItem(iTitle, iDescription, iLink, iPubDate, enclosures));
+			}
 		} // initChannel
 
 		/**

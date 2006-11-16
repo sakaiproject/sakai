@@ -59,6 +59,9 @@
 			#if($item.Link)
 				 <a href="$validator.escapeHtml($item.Link)" target="_blank" title="$tlang.getString("goto.item")">($full_story)</a>
 			 #end
+			#foreach ($enc in $item.Enclosures)
+			 	<a href="$validator.escapeHtml($enc.Url)" target="_blank" title="$validator.escapeHtml($enc.Url)">$validator.escapeHtml($enc.Url)</a> ($enc.Type, $enc.Length Bytes) <br>
+			#end
 			 #if($item.Pubdate && !($item.Pubdate == ""))
 				($item.Pubdate)
 			#end

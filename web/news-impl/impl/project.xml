@@ -84,8 +84,18 @@
 		<dependency>
 			<groupId>rome</groupId>
 			<artifactId>rome</artifactId>
+			<version>0.8</version>
+		</dependency>
+		<dependency>
+			<groupId>rome</groupId>
+			<artifactId>rome-fetcher</artifactId>
 			<version>0.7</version>
 		</dependency>
+		<dependency>
+			<groupId>rome</groupId>
+			<artifactId>itunes</artifactId>
+			<version>0.3</version>
+		</dependency>		
 		<dependency>
 			<groupId>jdom</groupId>
 			<artifactId>jdom</artifactId>
