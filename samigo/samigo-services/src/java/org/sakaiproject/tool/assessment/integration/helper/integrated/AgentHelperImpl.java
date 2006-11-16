@@ -25,8 +25,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+//import javax.servlet.http.HttpServletRequest;
+//import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -105,7 +105,7 @@ public class AgentHelperImpl implements AgentHelper
     }
     catch (Exception ex)
     {
-      log.warn(ex);
+      log.warn("getAgentString(): " + ex.getMessage());
     }
     return agentS;
   }
@@ -131,7 +131,7 @@ public class AgentHelperImpl implements AgentHelper
     }
     catch (Exception ex)
     {
-      log.warn(ex);
+      log.warn("getEid: " + ex.getMessage());
     }
     return eid;
   }
@@ -150,7 +150,7 @@ log.debug("getEidById agentString = " + agentString);
 log.debug("getEidById agentString s = " + s);
     }
     catch(Exception e){
-      log.warn(e.getMessage());
+      log.warn("getEidById: " + e.getMessage());
     }
     return s;
   }
@@ -168,7 +168,7 @@ log.debug("getEidById agentString s = " + s);
         s=UserDirectoryService.getUser(agentString).getDisplayName();
     }
     catch(Exception e){
-      log.warn(e.getMessage());
+      log.warn("getDisplayName: " + e.getMessage());
     }
     return s;
   }
@@ -186,7 +186,7 @@ log.debug("getEidById agentString s = " + s);
         s=UserDirectoryService.getUser(agentString).getFirstName();
     }
     catch(Exception e){
-      log.warn(e.getMessage());
+      log.warn("getFirstName:" + e.getMessage());
     }
     return s;
   }
@@ -205,7 +205,7 @@ log.debug("getEidById agentString s = " + s);
     }
     catch(Exception e){
       // if agentString is anonymous, s=""
-      log.warn(e.getMessage());
+      log.warn("getLastName: " + e.getMessage());
     }
     return s;
   }
@@ -228,7 +228,7 @@ log.debug("getEidById agentString s = " + s);
     {
       log.warn("Failure to get site id from ToolManager.  \n" +
                "Need to fix if not running in unit test.");
-      log.warn(ex);
+      log.warn("getRole : " + ex.getMessage());
     }
     //cwen
     if ((thisSiteId == null) || (thisSiteId.equals("")))
@@ -295,7 +295,7 @@ log.debug("getEidById agentString s = " + s);
     }
     catch (Exception ex)
     {
-      log.warn(ex.getMessage());
+      log.warn("createAnonymous : " + ex.getMessage());
       // leave... ...mostly for unit testing
     }
     return anonymousId;
@@ -315,7 +315,7 @@ log.debug("getEidById agentString s = " + s);
           SiteService.getSite(getCurrentSiteId(accessViaUrl)).getTitle();
       }
       catch (Exception e){
-        log.warn(e.getMessage());
+        log.warn("getCurrentSiteName : "  + e.getMessage());
       }
     }
     return currentSiteName;
@@ -334,7 +334,7 @@ log.debug("getEidById agentString s = " + s);
       //log.debug("**** siteName="+siteName);
     }
     catch (Exception ex){
-      log.warn(ex);
+      log.warn("getSiteName : " + ex.getMessage());
       log.warn("SiteService not available.  " +
                "This needs to be fixed if you are not running a unit test.");
     }
@@ -414,7 +414,7 @@ log.debug("getEidById agentString s = " + s);
       {
         log.warn("Failure to get site id from ToolManager.  \n" +
                  "Need to fix if not running in unit test.");
-        log.warn(ex);
+        log.warn("getUserRolesFromContextRealm : " + ex.getMessage());
       }
       //If none the returna blank map
       if (thisSiteId == null)
