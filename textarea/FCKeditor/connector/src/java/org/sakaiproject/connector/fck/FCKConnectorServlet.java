@@ -316,38 +316,48 @@ public class FCKConnectorServlet extends HttpServlet
                     
           ContentCollection collection = null;
          
-          //prevent listings of root level nodes, which could have 1000's of items 
-          if (dir.split("/").length < 3)
-              return;       
+          Map map = null; 
+          Iterator foldersIterator = null;
    
           try 
           {
-               collection = ContentHostingService.getCollection(dir);
+               //hides the real root level stuff and just shows the users the
+               //the root folders of all the sites they actually have access to.
+               if (dir.split("/").length == 2)
+               {
+                    map = ContentHostingService.getCollectionMap();
+                    if (map != null && map.keySet() != null)
+                         foldersIterator = map.keySet().iterator();
+               }
+               else if (dir.split("/").length > 2)
+               {
+                    collection = ContentHostingService.getCollection(dir);
+                    if (collection != null && collection.getMembers() != null)
+                         foldersIterator = collection.getMembers().iterator();
+               }          
           }
           catch (Exception e) 
-          {
-               //not a valid collection? file list will be empty and so will the doc
+          {    e.printStackTrace();
+        	   //not a valid collection? file list will be empty and so will the doc
           }
-          if (collection != null) 
+          if (foldersIterator != null) 
           {
                String current = null;
-               Iterator iterator = collection.getMembers().iterator();
-
-               while (iterator.hasNext ()) 
+               
+               while (foldersIterator.hasNext()) 
                {
                     try 
                     {
-                         current = (String)iterator.next();
+                         current = (String) foldersIterator.next();
                          ContentCollection myCollection = ContentHostingService.getCollection(current);
                          Element element=doc.createElement("Folder");
-                         element.setAttribute("id", current.substring( ( 
-                                current.substring(0, current.length()-1) ).lastIndexOf("/")+1, current.length()-1) );
+                         element.setAttribute("url", current);
                          element.setAttribute("name", myCollection.getProperties().getProperty(
                         		 myCollection.getProperties().getNamePropDisplayName()));
                          folders.appendChild(element);
                     }
                     catch (Exception e) 
-                    {
+                    {    
                          //do nothing, we either don't have access to the collction or it's a resource
                     }
                }          
@@ -394,7 +404,7 @@ public class FCKConnectorServlet extends HttpServlet
                               // for linking in the FCK editor uses what is returned...
                               element.setAttribute("name", current.getProperties().getProperty(
                             		  current.getProperties().getNamePropDisplayName()));
-                              element.setAttribute("id", id.substring(id.lastIndexOf("/") + 1));
+                              element.setAttribute("url", id.substring(id.lastIndexOf("/") + 1));
                               
                               if (current.getProperties().getProperty(
                                             current.getProperties().getNamePropContentLength()) != null)
