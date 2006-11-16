@@ -177,7 +177,10 @@
             <property-name>spreadsheetId</property-name>
             <value>#{param.spreadsheetId}</value>
         </managed-property>
-
+        <managed-property>
+			<property-name>pageName</property-name>
+			<value>spreadsheetListing</value>
+		</managed-property>
     </managed-bean>
 
     <managed-bean>

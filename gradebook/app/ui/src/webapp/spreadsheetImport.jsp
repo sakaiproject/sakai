@@ -1,7 +1,9 @@
 <f:view>
     <div class="portletBody">
         <h:form id="gbForm">
-            <%@include file="/inc/appMenu.jspf"%>
+              <x:aliasBean alias="#{bean}" value="#{spreadsheetUploadBean}">
+                <%@include file="/inc/appMenu.jspf"%>
+            </x:aliasBean>
             <sakai:flowState bean="#{spreadsheetUploadBean}" />
             <h2><h:outputText value="#{msgs.import_assignment_page_title}"/></h2>
             <div class="instruction">
@@ -60,7 +62,7 @@
                         action="#{spreadsheetUploadBean.saveGrades}"/>
                 <h:commandButton
                         value="#{msgs.import_assignment_cancel}"
-                        action="spreadsheetPreview" />
+                        action="spreadsheetPreview" immediate="true" />
             </p>
         </h:form>
     </div>

@@ -4,7 +4,9 @@
     <div class="portletBody">
         <h:form id="form">
 
-            <%@include file="/inc/appMenu.jspf"%>
+              <x:aliasBean alias="#{bean}" value="#{spreadsheetUploadBean}">
+                <%@include file="/inc/appMenu.jspf"%>
+            </x:aliasBean>
 
             <sakai:flowState bean="#{spreadsheetUploadBean}" />
 
@@ -63,7 +65,7 @@
                         styleClass="active"
                         value="#{msgs.import_preview_import_selected}"
                         action="#{spreadsheetUploadBean.importData}"/>
-                    
+
                 <h:commandButton
                         value="#{msgs.import_preview_cancel}"
                         action="spreadsheetListing" immediate="true"/>

@@ -2,7 +2,9 @@
 <f:view>
     <div class="portletBody">
         <h:form id="form" enctype="multipart/form-data">
-            <%@include file="/inc/appMenu.jspf"%>
+             <x:aliasBean alias="#{bean}" value="#{spreadsheetUploadBean}">
+                <%@include file="/inc/appMenu.jspf"%>
+            </x:aliasBean>
             <h2><h:outputText value="#{msgs.upload_view_page_title}"/></h2>
             <h3><h:outputText value="#{msgs.upload_view_instructions}" escape="false"/></h3>
             <div class="instruction">

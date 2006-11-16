@@ -28,10 +28,10 @@
 
         <h:outputText value=" | "/>
         <h:commandLink action="spreadsheetListing" immediate="true">
-            <h:outputText value="#{msgs.appmenu_import_upload}" rendered="#{bean.pageName ne 'spreadsheetListing'}" styleClass="currentView" />
+            <h:outputText value="#{msgs.appmenu_import_upload}" rendered="#{bean ne spreadsheetUploadBean}" styleClass="currentView" />
             <f:param name="pageName" value="spreadsheetListing"/>
         </h:commandLink>
-        <h:outputText value="#{msgs.appmenu_import_upload}" rendered="#{bean.pageName eq 'spreadsheetListing'}" styleClass="currentView" />
+        <h:outputText value="#{msgs.appmenu_import_upload}" rendered="#{bean eq spreadsheetUploadBean}" styleClass="currentView" />
 
 	</h:panelGroup>
 </x:div>

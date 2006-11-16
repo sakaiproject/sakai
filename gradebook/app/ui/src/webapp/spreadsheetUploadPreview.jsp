@@ -3,7 +3,10 @@
 <f:view>
     <div class="portletBody">
         <h:form id="form">
-            <%@include file="/inc/appMenu.jspf"%>
+            <x:aliasBean alias="#{bean}" value="#{spreadsheetUploadBean}">
+                <%@include file="/inc/appMenu.jspf"%>
+            </x:aliasBean>
+
             <h2><h:outputText value="#{msgs.upload_preview_page_title}"/></h2>
 
             <sakai:flowState bean="#{spreadsheetUploadBean}" />
