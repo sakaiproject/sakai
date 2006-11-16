@@ -12,7 +12,7 @@
 
     <%@include file="/inc/globalMessages.jspf"%>
 
-    <x:dataTable cellpadding="0" cellspacing="0"
+    <sec:sectionTable cellpadding="0" cellspacing="0"
         id="sectionsTable"
         value="#{overviewBean.sections}"
         var="section"
@@ -133,7 +133,7 @@
             </f:facet>
             <h:selectBooleanCheckbox id="remove" value="#{section.flaggedForRemoval}"/>
         </h:column>
-    </x:dataTable>
+    </sec:sectionTable>
 
     <x:div styleClass="verticalPadding" rendered="#{empty overviewBean.sections}">
         <h:outputText value="#{msgs.no_sections_available}"/>

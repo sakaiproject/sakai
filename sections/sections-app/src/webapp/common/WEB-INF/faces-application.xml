@@ -24,6 +24,11 @@
         </phase-listener>
     </lifecycle>
 
+	<component>
+		<component-type>org.sakaiproject.tool.section.jsf.sectionTable</component-type>
+		<component-class>org.sakaiproject.tool.section.jsf.SectionTable</component-class>
+	</component>
+
     <render-kit>
         <renderer>
             <component-family>javax.faces.Messages</component-family>
@@ -39,6 +44,11 @@
             <component-family>javax.faces.Command</component-family>
             <renderer-type>org.apache.myfaces.SortHeader</renderer-type>
             <renderer-class>org.sakaiproject.tool.section.jsf.HtmlSortHeaderRenderer</renderer-class>
+        </renderer>
+        <renderer>
+            <component-family>javax.faces.Data</component-family>
+            <renderer-type>org.sakaiproject.tool.section.jsf.sectionTable</renderer-type>
+            <renderer-class>org.sakaiproject.tool.section.jsf.SectionTableRenderer</renderer-class>
         </renderer>
     </render-kit>
 
