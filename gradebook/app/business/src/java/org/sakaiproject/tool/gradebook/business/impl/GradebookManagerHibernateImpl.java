@@ -980,7 +980,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                         setEntity(1, gb).
                         uniqueResult()).intValue();
                 if(numNameConflicts > 0) {
-                    throw new ConflictingAssignmentNameException("You can not save multiple spreadsheets in a gradebook with the same name");
+                    throw new ConflictingSpreadsheetNameException("You can not save multiple spreadsheets in a gradebook with the same name");
                 }
 
                 Spreadsheet spt = new Spreadsheet();
