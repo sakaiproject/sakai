@@ -142,7 +142,7 @@
 
     <discriminator column="ATTACHMENTTYPE" />
 
-    <property name="resourceId" type="string" length="4000" column="RESOURCEID" not-null="false" />
+    <property name="resourceId" type="string" length="255" column="RESOURCEID" not-null="false" />
     <property name="filename" type="string" length="255" column="FILENAME" not-null="false" />
     <property name="mimeType" type="string" length="80"  column="MIMETYPE" not-null="false" />
     <property name="fileSize" type="long" column="FILESIZE" not-null="false" />
