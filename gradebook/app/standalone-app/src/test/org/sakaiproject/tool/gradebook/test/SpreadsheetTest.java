@@ -26,7 +26,7 @@ import org.sakaiproject.tool.gradebook.*;
 
 
 import org.sakaiproject.tool.gradebook.Spreadsheet;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
 
 import java.util.*;
 
@@ -77,7 +77,7 @@ public class SpreadsheetTest extends GradebookTestBase {
         boolean errorThrown = false;
         try {
             gradebookManager.createSpreadsheet(gradebook.getId(),SPT_NAME,"test_uid",new Date(),CONTENT);
-        } catch (ConflictingAssignmentNameException e) {
+        } catch (ConflictingSpreadsheetNameException e) {
             errorThrown = true;
         }
         Assert.assertTrue(errorThrown);        
