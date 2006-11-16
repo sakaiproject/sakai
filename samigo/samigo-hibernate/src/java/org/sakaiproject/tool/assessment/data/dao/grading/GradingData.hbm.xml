@@ -13,7 +13,7 @@
     <property name="assessmentGradingId" type="long" column="ASSESSMENTGRADINGID" not-null="true" index="SAM_ASSESSMENTGRADING_I" />
     <property name="publishedItemId" type="long" column="PUBLISHEDITEMID" not-null="true" index="SAM_ITEMGRADING_ITEM_I" />
     <property name="publishedItemTextId" type="long" column="PUBLISHEDITEMTEXTID" not-null="true" index="SAM_ITEMGRADING_ITEMTEXT_I" />
-    <property name="agentId" type="string" length="36" column="AGENTID" not-null="true" />
+    <property name="agentId" type="string" length="255" column="AGENTID" not-null="true" />
     <property name="submittedDate" type="timestamp" column="SUBMITTEDDATE" not-null="false" />
     <property name="publishedAnswerId" type="long" column="PUBLISHEDANSWERID" not-null="false" index="SAM_ITEMGRADING_PUBANS_I" />
     <property name="rationale" type="string" length="4000" column="RATIONALE" not-null="false" />
@@ -21,7 +21,7 @@
     <property name="autoScore" type="float" column="AUTOSCORE" not-null="false" />
     <property name="overrideScore" type="float" column="OVERRIDESCORE" not-null="false" />
     <property name="comments" type="string" length="4000" column="COMMENTS" not-null="false" />
-    <property name="gradedBy" type="string" length="36" column="GRADEDBY" not-null="false" />
+    <property name="gradedBy" type="string" length="255" column="GRADEDBY" not-null="false" />
     <property name="gradedDate" type="timestamp" column="GRADEDDATE" not-null="false" />
     <property name="review" type="boolean" column="REVIEW" not-null="false" />
     <property name="attemptsRemaining" type="integer" column="ATTEMPTSREMAINING" not-null="false" />
@@ -35,7 +35,7 @@
       </generator>
     </id>
     <property name="publishedAssessmentId" column="PUBLISHEDASSESSMENTID" not-null="true" type="long" index="SAM_PUBLISHEDASSESSMENT_I" />
-    <property name="agentId" type="string" length="36" column="AGENTID" not-null="true" />
+    <property name="agentId" type="string" length="255" column="AGENTID" not-null="true" />
     <property name="submittedDate" type="timestamp" column="SUBMITTEDDATE" not-null="false" />
     <property name="isLate" type="boolean" column="ISLATE" not-null="true" />
     <property name="forGrade" type="boolean" column="FORGRADE" not-null="true" />
@@ -43,7 +43,7 @@
     <property name="totalOverrideScore" type="float" column="TOTALOVERRIDESCORE" not-null="false" />
     <property name="finalScore" type="float" column="FINALSCORE" not-null="false" />
     <property name="comments" type="string" length="4000" column="COMMENTS" not-null="false" />
-    <property name="gradedBy" type="string" length="36" column="GRADEDBY" not-null="false" />
+    <property name="gradedBy" type="string" length="255" column="GRADEDBY" not-null="false" />
     <property name="gradedDate" type="timestamp" column="GRADEDDATE" not-null="false" />
     <property name="status" type="integer" column="STATUS" not-null="true" />
     <property name="attemptDate" type="timestamp" column="ATTEMPTDATE" not-null="false" />
@@ -63,7 +63,7 @@
     </id>
     <many-to-one name="publishedAssessment" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"
        column="PUBLISHEDASSESSMENTID" not-null="true"/>
-    <property name="agentId" type="string" length="36" column="AGENTID" not-null="true" />
+    <property name="agentId" type="string" length="255" column="AGENTID" not-null="true" />
     <property name="totalSubmitted" type="integer" column="TOTALSUBMITTED" not-null="false" />
     <property name="totalSubmittedForGrade" type="integer" column="TOTALSUBMITTEDFORGRADE" not-null="false" />
     <one-to-one name="lastSubmittedAssessmentGrading"

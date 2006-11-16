@@ -27,9 +27,9 @@
     <property name="isLink" type="boolean" column="ISLINK" not-null="false" />
     <property name="isHtmlInline" type="boolean" column="ISHTMLINLINE" not-null="false" />
     <property name="status" type="integer" column="STATUS" not-null="false" />
-    <property name="createdBy" type="string" length="36" column="CREATEDBY" not-null="false" />
+    <property name="createdBy" type="string" length="255" column="CREATEDBY" not-null="false" />
     <property name="createdDate" type="timestamp" column="CREATEDDATE" not-null="false" />
-    <property name="lastModifiedBy" type="string" length="36" column="LASTMODIFIEDBY" not-null="false" />
+    <property name="lastModifiedBy" type="string" length="255" column="LASTMODIFIEDBY" not-null="false" />
     <property name="lastModifiedDate" type="timestamp" column="LASTMODIFIEDDATE" not-null="false" />
     <property name="duration" type="string" length="36" column="DURATION" not-null="false" />
   </class>

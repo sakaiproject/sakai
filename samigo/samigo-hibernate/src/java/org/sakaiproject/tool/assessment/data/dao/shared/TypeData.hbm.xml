@@ -15,9 +15,9 @@
   <property name="keyword" type="string" length="255" column="KEYWORD" not-null="false" />
   <property name="description" type="string" length="4000" column="DESCRIPTION" not-null="false" />
   <property name="status" type="integer" column="STATUS" not-null="true" />
-  <property name="createdBy" type="string" length="36" column="CREATEDBY" not-null="true" />
+  <property name="createdBy" type="string" length="255" column="CREATEDBY" not-null="true" />
   <property name="createdDate" type="timestamp" column="CREATEDDATE" not-null="true" />
-  <property name="lastModifiedBy" type="string" length="36" column="LASTMODIFIEDBY" not-null="true" />
+  <property name="lastModifiedBy" type="string" length="255" column="LASTMODIFIEDBY" not-null="true" />
   <property name="lastModifiedDate" type="timestamp" column="LASTMODIFIEDDATE" not-null="true" />
 </class>
 

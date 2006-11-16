@@ -23,9 +23,9 @@
     <property name="testeeNotification" type="integer" column="TESTEENOTIFICATION" not-null="false" />
     <property name="multipartAllowed" type="integer" column="MULTIPARTALLOWED" not-null="false" />
     <property name="status" type="integer" column="STATUS" not-null="true" />
-    <property name="createdBy" type="string" length="36" column="CREATEDBY" not-null="true" />
+    <property name="createdBy" type="string" length="255" column="CREATEDBY" not-null="true" />
     <property name="createdDate" type="timestamp" column="CREATEDDATE" not-null="true" />
-    <property name="lastModifiedBy" type="string" length="36" column="LASTMODIFIEDBY" not-null="true" />
+    <property name="lastModifiedBy" type="string" length="255" column="LASTMODIFIEDBY" not-null="true" />
     <property name="lastModifiedDate" type="timestamp" column="LASTMODIFIEDDATE" not-null="true" />
     <set name="sectionSet" table="SAM_PUBLISHEDSECTION_T" cascade="all" order-by="sequence asc"
       inverse="true" lazy="true">
@@ -168,9 +168,9 @@
     <property name="description" type="string" length="4000" column="DESCRIPTION" not-null="false" />
     <property name="typeId" type="long" column="TYPEID" not-null="true" />
     <property name="status" type="integer" column="STATUS" not-null="true" />
-    <property name="createdBy" type="string" length="36" column="CREATEDBY" not-null="true" />
+    <property name="createdBy" type="string" length="255" column="CREATEDBY" not-null="true" />
     <property name="createdDate" type="timestamp" column="CREATEDDATE" not-null="true" />
-    <property name="lastModifiedBy" type="string" length="36" column="LASTMODIFIEDBY" not-null="true" />
+    <property name="lastModifiedBy" type="string" length="255" column="LASTMODIFIEDBY" not-null="true" />
     <property name="lastModifiedDate" type="timestamp" column="LASTMODIFIEDDATE" not-null="true" />
     <set name="itemSet" table="SAM_PUBLISHEDITEM_T" cascade="all" order-by="sequence asc"
       inverse="true" lazy="false">
