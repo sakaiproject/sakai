@@ -21,11 +21,11 @@
                 not-null="true" index="sam_authz_agentId_idx" />
       </property>
       <property name="functionId">
-        <column name="FUNCTIONID" unique-key="uniqueAuthz" length="255"
+        <column name="FUNCTIONID" unique-key="uniqueAuthz" length="36"
                 not-null="true" index="sam_authz_functionId_idx" />
       </property>
       <property name="qualifierId">
-        <column name="QUALIFIERID" unique-key="uniqueAuthz" length="255"
+        <column name="QUALIFIERID" unique-key="uniqueAuthz" length="36"
                 not-null="true" index="sam_authz_qualifierId_idx" />
       </property>  
       
