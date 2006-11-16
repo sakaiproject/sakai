@@ -114,8 +114,8 @@ function GetFoldersAndFilesCallBack( fckXml )
 	for ( var i = 0 ; i < oNodes.length ; i++ )
 	{
 		var sFolderName = oNodes[i].attributes.getNamedItem('name').value ;
-		var sFolderId = oNodes[i].attributes.getNamedItem('id').value ;
-		sHTML += oListManager.GetFolderRowHtml( sFolderName, sCurrentFolderPath + sFolderId + "/" ) ;
+		var sFolderId = oNodes[i].attributes.getNamedItem('url').value ;
+		sHTML += oListManager.GetFolderRowHtml( sFolderName, sFolderId ) ;
 	}
 
 	// Add the Files.	
@@ -123,7 +123,7 @@ function GetFoldersAndFilesCallBack( fckXml )
 	for ( var i = 0 ; i < oNodes.length ; i++ )
 	{
 		var sFileName = oNodes[i].attributes.getNamedItem('name').value ;
-		var sFileId = oNodes[i].attributes.getNamedItem('id').value ;
+		var sFileId = oNodes[i].attributes.getNamedItem('url').value ;
 		var sFileSize = oNodes[i].attributes.getNamedItem('size').value ;
 		sHTML += oListManager.GetFileRowHtml( sFileName, sCurrentFolderUrl + sFileId, sFileSize ) ;
 	}

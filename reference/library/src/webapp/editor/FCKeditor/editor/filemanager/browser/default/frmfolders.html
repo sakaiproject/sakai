@@ -133,8 +133,11 @@ function LoadFolders( folderPath )
 	// Get the parent folder path.
 	var sParentFolderPath ;
 	if ( folderPath != '/' )
-		sParentFolderPath = folderPath.substring( 0, folderPath.lastIndexOf( '/', folderPath.length - 2 ) + 1 ) ;
-
+		sParentFolderPath = folderPath.substring(0, folderPath.lastIndexOf('/', folderPath.length - 2) + 1);
+	
+	// Sakai specific check to prevent user getting stuck at top level with nothing to click
+	if (sParentFolderPath == '/')
+	    sParentFolderPath = null;
 	// Show/Hide the Up Folder.
 	oListManager.ShowUpFolder( sParentFolderPath ) ;
 	
@@ -162,8 +165,8 @@ function GetFoldersCallBack( fckXml )
 	for ( var i = 0 ; i < oNodes.length ; i++ )
 	{
 		var sFolderName = oNodes[i].attributes.getNamedItem('name').value ;
-		var sFolderId = oNodes[i].attributes.getNamedItem('id').value ;
-		oListManager.AddItem( sFolderName, sCurrentFolderPath + sFolderId + "/" ) ;
+		var sFolderUrl = oNodes[i].attributes.getNamedItem('url').value ;
+		oListManager.AddItem( sFolderName, sFolderUrl ) ;
 	}
 	
 	OpenFolder( sActiveFolder ) ;
