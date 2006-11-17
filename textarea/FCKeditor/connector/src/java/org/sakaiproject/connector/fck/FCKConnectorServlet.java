@@ -43,6 +43,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
 import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
@@ -131,11 +132,11 @@ public class FCKConnectorServlet extends HttpServlet
                
                try 
                {
-                    ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties();
+            	    ContentCollectionEdit edit = ContentHostingService.addCollection(currentFolder + Validator.escapeResourceName(newFolderStr) + Entity.SEPARATOR);
+                    ResourcePropertiesEdit resourceProperties = edit.getPropertiesEdit();
                     resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, newFolderStr);
-
-                    ContentHostingService.addCollection(currentFolder + Validator.escapeResourceName(newFolderStr) + 
-                             "/", resourceProperties);
+                    ContentHostingService.commitCollection(edit);
+                    
                     status="0";
                }
                catch (IdUsedException iue) 
