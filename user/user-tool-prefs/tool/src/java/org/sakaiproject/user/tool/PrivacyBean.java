@@ -163,27 +163,24 @@ public class PrivacyBean {
 	 * 		String for navigation
 	 */
 	public String processUpdate() {
-		// is a site selected?
-		if (siteSelected) {
-			// can update the site so no error message
-			noSiteProcessErr = false;
+		if (isMyWorkspace() && ! siteSelected) {
+			noSiteProcessErr = true;
+			
+			return "main";
+		}
 
-			// if user checked the checkbox
-			if (changeStatus) {
-				processChoice(isMyWorkspace() ? curSite : getSiteId(), 
-								new Boolean(SHOW_ME.equals(checkboxText)));
+		// if user checked the checkbox
+		if (changeStatus) {
+			processChoice(isMyWorkspace() ? curSite : getSiteId(), 
+							new Boolean(SHOW_ME.equals(checkboxText)));
 
-				// Reset the checkbox to not checked
-				changeStatus = false;
-			}
-			else {
-				FacesContext.getCurrentInstance().addMessage(null,
-								new FacesMessage("Please check the checkbox " + getCheckboxText() + 
-													" in order to change your status."));
-			}
+			// Reset the checkbox to not checked
+			changeStatus = false;
 		}
 		else {
-			noSiteProcessErr = true;
+			FacesContext.getCurrentInstance().addMessage(null,
+							new FacesMessage("Please check the checkbox " + getCheckboxText() + 
+												" in order to change your status."));
 		}
 
 		return "main";
