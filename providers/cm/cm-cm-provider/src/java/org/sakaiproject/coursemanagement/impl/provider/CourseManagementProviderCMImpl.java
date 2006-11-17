@@ -98,19 +98,15 @@ public class CourseManagementProviderCMImpl implements CourseManagementProvider 
 	public String getCourseId(Term term, List requiredFields) {
 		StringBuffer sb = new StringBuffer();
 		if(log.isDebugEnabled()) log.debug("Constructing getCourseId");
-		if (term != null) {
-			sb.append(term.getYear());
-			sb.append(",");
-			sb.append(term.getTerm());
-		} else {
-			sb.append(",,");
-		}
-		
-		for (int i = 0; i < requiredFields.size(); i++)
-		{
-			sb.append(",");
-			sb.append((String) requiredFields.get(i));
-		}
+
+		sb.append(requiredFields.get(0)); // bio
+		sb.append(requiredFields.get(1)); // 101
+		sb.append("_");
+		sb.append(term.getTerm());	// f
+		sb.append(term.getYear()); // 2006
+		sb.append("_");
+		sb.append(requiredFields.get(2)); // lab1
+
 		String id = sb.toString();
 		if(log.isDebugEnabled()) log.debug("courseId constructed as: " + id);
 		return id;
@@ -126,9 +122,9 @@ public class CourseManagementProviderCMImpl implements CourseManagementProvider 
 
 	public List getCourseIdRequiredFieldsSizes() {
 		List fields = new ArrayList();
-		fields.add(new Integer(8));
 		fields.add(new Integer(3));
 		fields.add(new Integer(3));
+		fields.add(new Integer(4));
 		return fields;
 	}
 

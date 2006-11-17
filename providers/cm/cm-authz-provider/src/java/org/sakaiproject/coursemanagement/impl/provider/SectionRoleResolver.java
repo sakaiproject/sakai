@@ -34,6 +34,12 @@ import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.Section;
 
+/**
+ * Resolves users roles in sections.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
+ *
+ */
 public class SectionRoleResolver implements RoleResolver {
 	private static final Log log = LogFactory.getLog(SectionRoleResolver.class);
 

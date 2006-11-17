@@ -96,6 +96,7 @@ public class CourseOfferingRoleResolver implements RoleResolver {
 		Set coEids = new HashSet(courseOfferingRoles.keySet());
 		for(Iterator coIter = coEids.iterator(); coIter.hasNext();) {
 			String equivCoEid = (String)coIter.next();
+			// FIXME -- I think this is a bug... find should be passed a userEid
 			courseOfferingRoles.putAll(cmService.findCourseOfferingRoles(equivCoEid));
 		}
 		
