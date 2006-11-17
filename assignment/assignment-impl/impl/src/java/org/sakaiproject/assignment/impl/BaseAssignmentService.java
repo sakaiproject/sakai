@@ -3839,7 +3839,19 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								}
 							} // for
 
-							el2clone.setAttribute("draft", "true");
+ 							// when importing, refer to property to determine draft status
+							if ("false".equalsIgnoreCase(m_serverConfigurationService.getString("import.importAsDraft")))
+							{
+								String draftAttribute = el2clone.getAttribute("draft");
+								if (draftAttribute.equalsIgnoreCase("true") || draftAttribute.equalsIgnoreCase("false"))
+									el2clone.setAttribute("draft", draftAttribute);
+								else
+									el2clone.setAttribute("draft", "true");
+							}
+							else
+							{
+								el2clone.setAttribute("draft", "true");
+							}
 
 							// merge in this assignment
 							AssignmentEdit edit = mergeAssignment(el2clone);
@@ -4030,7 +4042,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							nAssignment.setCloseTime(oAssignment.getCloseTime());
 							nAssignment.setContentReference(nContent.getReference());
 							nAssignment.setContext(toContext);
-							nAssignment.setDraft(true);
+							
+ 							// when importing, refer to property to determine draft status
+							if ("false".equalsIgnoreCase(m_serverConfigurationService.getString("import.importAsDraft")))
+							{
+								nAssignment.setDraft(oAssignment.getDraft());
+							}
+							else
+							{
+								nAssignment.setDraft(true);
+							}
+							
 							nAssignment.setDropDeadTime(oAssignment.getDropDeadTime());
 							nAssignment.setDueTime(oAssignment.getDueTime());
 							nAssignment.setOpenTime(oAssignment.getOpenTime());
