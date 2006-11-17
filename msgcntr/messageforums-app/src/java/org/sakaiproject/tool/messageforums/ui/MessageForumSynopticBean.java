@@ -481,18 +481,21 @@ public class MessageForumSynopticBean {
 		
 		// from above, they each have at least one element
 		Object [] removeValues = (Object []) removeIter.next();
-		Object [] resultValues = new Object [2];
-		Object [] currentValues = null;
-		
+
 		while (currentIter.hasNext()) {
-			// get ready for next iteration
+			final Object [] resultValues = new Object [2];
+			Object [] currentValues = null;
+			
+			// get current values for this iteration
 			if (currentIter.hasNext()) {
 				currentValues = (Object []) currentIter.next();
 			}
-			
+
+			// if there are messages to remove, do so otherwise just add current values
 			if (((String) currentValues[0]).equals((String) removeValues[0])) {
 				resultValues[0] = currentValues[0];
-				resultValues[1] = new Integer(((Integer) currentValues[1]).intValue() - ((Integer) removeValues[2]).intValue());
+				resultValues[1] = new Integer( ((Integer) currentValues[1]).intValue() - 
+													((Integer) removeValues[2]).intValue() );
 				
 				resultList.add(resultValues);
 				
@@ -503,11 +506,24 @@ public class MessageForumSynopticBean {
 					removeValues[0] = "";
 				}
 			}
+			else {
+				resultList.add(currentValues);
+			}
 		}
 		
 		return resultList;
 	}
 
+	/**
+	 * Returns a List of all roles a user has for all sites
+	 * they are a member of
+	 * 
+	 * @param siteList
+	 * 				The List of site ids the user is a member of
+	 * 
+	 * @return
+	 * 		List of role ids user has for all sites passed in
+	 */
 	private List getUserRoles(List siteList) {
 		List roles = new ArrayList();
 		
@@ -537,13 +553,26 @@ public class MessageForumSynopticBean {
 		return roles;
 	}
 
+	/**
+	 * For this particular site, pick the correct role's count
+	 * that needs to be removed from the total count
+	 * 
+	 * @param removeMessageCounts
+	 * 				List of counts to be removed ordered by site id
+	 * 
+	 * @param siteList
+	 * 				List of sites this user is a member of
+	 * 
+	 * @return
+	 * 			List of correct counts, at most one per site
+	 */
 	private List selectCorrectRemoveMessageCount(List removeMessageCounts, List siteList) {
-		Object [] resultSet = null;
-		
+		// if message counts empty, nothing to do so return
 		if (removeMessageCounts.isEmpty()) {
 			return removeMessageCounts;
 		}
 		
+		Object [] resultSet = null;		
 		final List resultList = new ArrayList();
 		
 		// ***** set up iterators *****
@@ -564,6 +593,7 @@ public class MessageForumSynopticBean {
 				continue;
 			}
 
+			// take care of initial case
 			if (resultSet == null) {
 				if (rmIter.hasNext()) {
 					resultSet = (Object []) rmIter.next();						
@@ -572,7 +602,8 @@ public class MessageForumSynopticBean {
 					return resultList;
 				}
 			}
-			
+
+			// since there could be sites we need to skip over
 			while (site.getId().compareTo(((String) resultSet[0])) > 0) 
 			{
 				if (rmIter.hasNext()) {
@@ -586,7 +617,8 @@ public class MessageForumSynopticBean {
 			// permissions based on roles, so need to check if user's role has messages
 			// that need to be removed from totals (either total or unread)
 			while (site.getId().equals((String) resultSet[0])) {
-				final String curRole = AuthzGroupService.getUserRole(SessionManager.getCurrentSessionUserId(), "/site/" + site.getId());
+				final String curRole = AuthzGroupService.getUserRole(SessionManager.getCurrentSessionUserId(), 
+																	 	("/site/" + site.getId()) );
 				
 				if (curRole.equals((String) resultSet[1])) {
 					resultList.add(resultSet);
@@ -648,7 +680,8 @@ public class MessageForumSynopticBean {
 					List discussionForumRemoveReadMessageCounts = messageManager
 										.findDiscussionForumReadMessageRemoveCountsForAllSites(getUserRoles(siteList));
 
-					discussionForumRemoveReadMessageCounts = selectCorrectRemoveMessageCount(discussionForumRemoveReadMessageCounts, siteList);
+					discussionForumRemoveReadMessageCounts = 
+								selectCorrectRemoveMessageCount(discussionForumRemoveReadMessageCounts, siteList);
 
 					// if no messages to remove, don't bother
 					if (! discussionForumRemoveReadMessageCounts.isEmpty()) {
@@ -665,6 +698,9 @@ public class MessageForumSynopticBean {
 					else {
 						unreadDFMessageCounts = discussionForumMessageCounts;
 					}
+				}
+				else {
+					unreadDFMessageCounts = discussionForumMessageCounts;
 				}
 			}
 		}
@@ -875,10 +911,8 @@ public class MessageForumSynopticBean {
 
 			dcms.setSiteName(getSiteName());
 
-			// Get private message area so we can get the
-			// private messasge forum so we can get the
-			// List of topics so we can get the Received topic
-			// to finally determine number of unread messages
+			// Get private message area so we can get the private messasge forum so we can get the
+			// List of topics so we can get the Received topic to finally determine number of unread messages
 			final Area area = pvtMessageManager.getPrivateMessageArea();
 			
 			if (pvtMessageManager.getPrivateMessageArea().getEnabled().booleanValue()) {
@@ -949,6 +983,7 @@ public class MessageForumSynopticBean {
 	public List getContents() {
 		if (isMyWorkspace()) {
 			// Get stats for "all" sites this user is a member of
+			// and has not turned displaying info off
 			return getMyWorkspaceContents();
 		}
 		else {
@@ -1133,7 +1168,7 @@ public class MessageForumSynopticBean {
 	}
 
 	/**
-	 * This marks all Private messages as read
+	 * This marks all Private messages as read for a particular site
 	 * 
 	 * @param ActionEvent e
 	 */
@@ -1230,30 +1265,13 @@ public class MessageForumSynopticBean {
 		while (lsi.hasNext()) {
 			Site site = (Site) lsi.next();
 
-			// filter out unpublished and site w/ no messsage center
+			// filter out unpublished or no messsage center
 			if (site.isPublished() && isMessageForumsPageInSite(site)) {
 				siteList.add(site.getId());
 			}
 		}
 
 		return siteList;
-	}
-
-	/**
-	 * Returns list of sites user does NOT want unread message notifications
-	 * about
-	 * 
-	 * @return
-	 * 		List of sites user does NOT want unread message notifications about
-	 */
-	private List getExcludedSiteList() {
-		Preferences prefs = preferencesService.getPreferences(
-									SessionManager.getCurrentSessionUserId());
-		
-		ResourceProperties props = prefs.getProperties(SYNMC_OPTIONS_PREFS);
-		final List l = props.getPropertyList(EXCLUDE_STRING);
-
-		return l;
 	}
 
 	// ======================== Options Page Methods ======================== 
@@ -1288,6 +1306,23 @@ public class MessageForumSynopticBean {
 
 	public void setNotificationSites(String[] notificationSites) {
 		this.notificationSites = notificationSites;
+	}
+
+	/**
+	 * Returns list of sites user does NOT want unread message notifications
+	 * about
+	 * 
+	 * @return
+	 * 		List of sites user does NOT want unread message notifications about
+	 */
+	private List getExcludedSiteList() {
+		Preferences prefs = preferencesService.getPreferences(
+									SessionManager.getCurrentSessionUserId());
+		
+		ResourceProperties props = prefs.getProperties(SYNMC_OPTIONS_PREFS);
+		final List l = props.getPropertyList(EXCLUDE_STRING);
+
+		return l;
 	}
 
 	/**
