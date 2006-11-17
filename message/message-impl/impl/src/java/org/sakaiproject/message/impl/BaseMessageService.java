@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
@@ -78,12 +79,15 @@ import org.sakaiproject.message.api.MessageService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -113,6 +117,14 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 
 	/** A bunch of caches for messages: keyed by channel id, the cache is keyed by message reference. (if m_caching) */
 	protected Hashtable m_messageCaches = null;
+	
+	private static final String CHANNEL_PROP = "channel";
+	private static final String PROPERTIES = "properties";
+	private static final String PROPERTY = "property";
+	private static final String SYNOPTIC_TOOL = "synoptic_tool";
+	private static final String NAME = "name";
+	private static final String VALUE = "value";
+	private static final String STATE_UPDATE = "update";
 
 	/**
 	 * Access this service from the inner classes.
@@ -1602,6 +1614,9 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 					}
 				}
 			}
+			
+			// archive the synoptic tool options
+			archiveSynopticOptions(siteId, doc, element);
 
 			stack.pop();
 		}
@@ -1613,6 +1628,45 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		stack.pop();
 
 		return results.toString();
+	}
+	
+	/**
+	 * try to add synoptic options for this tool to the archive, if they exist
+	 * @param siteId
+	 * @param doc
+	 * @param element
+	 */
+	public void archiveSynopticOptions(String siteId, Document doc, Element element)
+	{
+		try
+		{
+			// archive the synoptic tool options
+			Site site = m_siteService.getSite(siteId);
+			ToolConfiguration synTool = site.getToolForCommonId("sakai.synoptic." + getLabel());
+			Properties synProp = synTool.getPlacementConfig();
+			if (synProp != null && synProp.size() > 0) {
+				Element synElement = doc.createElement(SYNOPTIC_TOOL);
+				Element synProps = doc.createElement(PROPERTIES);
+
+				Set synPropSet = synProp.keySet();
+				Iterator propIter = synPropSet.iterator();
+				while (propIter.hasNext())
+				{
+					String propName = (String)propIter.next();
+					Element synPropEl = doc.createElement(PROPERTY);
+					synPropEl.setAttribute(NAME, propName);
+					synPropEl.setAttribute(VALUE, synProp.getProperty(propName));
+					synProps.appendChild(synPropEl);
+				}
+
+				synElement.appendChild(synProps);
+				element.appendChild(synElement);
+			}
+		}
+		catch (Exception e)
+		{
+			M_log.warn("archive: exception archiving synoptic options for service: " + serviceName());
+		}
 	}
 
 	/**
@@ -1760,6 +1814,74 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 							}
 						}
 					}
+					// merge synoptic tool
+					else if (element2.getTagName().equals(SYNOPTIC_TOOL)) 
+					{
+						Site site = m_siteService.getSite(siteId);
+						ToolConfiguration synTool = site.getToolForCommonId("sakai.synoptic." + getLabel());
+						Properties synProps = synTool.getPlacementConfig();
+
+						NodeList synPropNodes = element2.getChildNodes();
+						for (int props = 0; props < synPropNodes.getLength(); props++)
+						{
+							Node propsNode = synPropNodes.item(props);
+							if (propsNode.getNodeType() == Node.ELEMENT_NODE)
+							{
+								Element synPropEl = (Element) propsNode;
+								if (synPropEl.getTagName().equals(PROPERTIES))
+								{
+									NodeList synProperties = synPropEl.getChildNodes();
+									for (int p = 0; p < synProperties.getLength(); p++)
+									{
+										Node propertyNode = synProperties.item(p);
+										if (propertyNode.getNodeType() == Node.ELEMENT_NODE)
+										{
+											Element propEl = (Element) propertyNode;
+											if (propEl.getTagName().equals(PROPERTY))
+											{
+												String propName = propEl.getAttribute(NAME);
+												String propValue = propEl.getAttribute(VALUE);
+												
+												if (propName != null && propName.length() > 0 && propValue != null && propValue.length() > 0)
+												{
+													if (propName.equals(CHANNEL_PROP))
+													{
+														int index = propValue.lastIndexOf("/");
+														propValue = propValue.substring(index + 1);
+														if (propValue != null && propValue.length() > 0) 
+														{
+															String synChannelRef = channelReference(siteId, propValue);					
+															try	
+															{
+																MessageChannelEdit c = editChannel(synChannelRef);
+																synProps.setProperty(propName, channelRef.toString());
+															}
+															catch (IdUnusedException e)	
+															{
+																// do not add channel b/c it does not exist in tool
+																M_log.warn("Synoptic Tool Channel option not added- " + synChannelRef + ":" + e);
+															}
+														}			
+													}
+													else
+													{
+														synProps.setProperty(propName, propValue);
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+						Session session = m_sessionManager.getCurrentSession();
+						ToolSession toolSession = session.getToolSession(synTool.getId());
+						if (toolSession.getAttribute(STATE_UPDATE) == null)
+						{
+							toolSession.setAttribute(STATE_UPDATE, STATE_UPDATE);
+						}
+						m_siteService.save(site);
+					}
 				}
 			}
 
@@ -1824,7 +1946,19 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 													goAhead = false;
 												}
 												// TODO: reall want a draft? -ggolden
-												element4.setAttribute("draft", "true");
+												// set draft status based upon property setting
+												if ("false".equalsIgnoreCase(m_serverConfigurationService.getString("import.importAsDraft")))
+												{
+													String draftAttribute = element4.getAttribute("draft");
+													if (draftAttribute.equalsIgnoreCase("true") || draftAttribute.equalsIgnoreCase("false"))
+														element4.setAttribute("draft", draftAttribute);
+													else
+														element4.setAttribute("draft", "true");
+												}
+												else
+												{
+													element4.setAttribute("draft", "true");
+												}
 											}
 										}
 									}
@@ -1854,6 +1988,76 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		return results.toString();
 
 	} // merge
+
+	/**
+	 * Import the synoptic tool options from another site
+	 * 
+	 * @param fromContext
+	 * @param toContext
+	 */
+	public void transferSynopticOptions(String fromContext, String toContext)
+	{
+		try 
+		{
+			// transfer the synoptic tool options
+			Site fromSite = m_siteService.getSite(fromContext);
+			ToolConfiguration fromSynTool = fromSite.getToolForCommonId("sakai.synoptic." + getLabel());
+			Properties fromSynProp = fromSynTool.getPlacementConfig();
+
+			Site toSite = m_siteService.getSite(toContext);
+			ToolConfiguration toSynTool = toSite.getToolForCommonId("sakai.synoptic." + getLabel());
+			Properties toSynProp = toSynTool.getPlacementConfig();
+
+			if (fromSynProp != null && !fromSynProp.isEmpty()) 
+			{
+				Set synPropSet = fromSynProp.keySet();
+				Iterator propIter = synPropSet.iterator();
+				while (propIter.hasNext())
+				{
+					String propName = ((String)propIter.next());
+					String propValue = fromSynProp.getProperty(propName);
+					if (propValue != null && propValue.length() > 0)
+					{
+						if (propName.equals(CHANNEL_PROP))
+						{
+							int index = propValue.lastIndexOf("/");
+							propValue = propValue.substring(index + 1);
+							if (propValue != null && propValue.length() > 0) 
+							{
+								String channelRef = channelReference(toContext, propValue);
+								toSynProp.setProperty(propName, channelRef.toString());
+							}
+						}
+						else
+						{
+							toSynProp.setProperty(propName, propValue);
+						}
+					}
+				}
+
+				Session session = m_sessionManager.getCurrentSession();
+				ToolSession toolSession = session.getToolSession(toSynTool.getId());
+				if (toolSession.getAttribute(STATE_UPDATE) == null)
+				{
+					toolSession.setAttribute(STATE_UPDATE, STATE_UPDATE);
+				}
+
+				m_siteService.save(toSite);
+			}
+		}
+		catch (PermissionException pe)
+		{
+			M_log.warn("PermissionException transferring synoptic options for " + serviceName() + ':', pe);
+		}
+		catch (IdUnusedException e)
+		{
+			M_log.warn("Channel " + fromContext + " cannot be found. ");
+		}
+		catch (Exception e)
+		{
+			M_log.warn("transferSynopticOptions(): exception in handling " + serviceName() + " : ", e);
+		}
+	}
 
 	/**
 	 * Handle the extra "categtories" stuff in the channel part of the merge xml.
