@@ -757,8 +757,16 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 						// message header
 						AnnouncementMessageHeaderEdit nMessageHeader = (AnnouncementMessageHeaderEdit) nMessage.getHeaderEdit();
 						nMessageHeader.setDate(oMessageHeader.getDate());
-						// when importing, always mark the announcement message as draft
-						nMessageHeader.setDraft(true);
+						// when importing, refer to property to determine draft status
+						if ("false".equalsIgnoreCase(m_serverConfigurationService.getString("import.importAsDraft")))
+						{
+							nMessageHeader.setDraft(oMessageHeader.getDraft());
+						}
+						else
+						{
+							nMessageHeader.setDraft(true);
+						}
+
 						nMessageHeader.setFrom(oMessageHeader.getFrom());
 						nMessageHeader.setSubject(oMessageHeader.getSubject());
 						// attachment
@@ -842,6 +850,8 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 				}
 
 			} // if
+			
+			transferSynopticOptions(fromContext, toContext);
 		}
 		catch (IdUnusedException e)
 		{
