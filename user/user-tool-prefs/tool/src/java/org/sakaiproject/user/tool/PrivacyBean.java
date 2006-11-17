@@ -42,6 +42,7 @@ public class PrivacyBean {
 	private String curSite;
 	private boolean allChanged = false;
 	private String changeAllMsg;
+	private boolean noSiteProcessErr = false;
 
 	private SelectItem[] sites;
 
@@ -162,18 +163,27 @@ public class PrivacyBean {
 	 * 		String for navigation
 	 */
 	public String processUpdate() {
-		// if user checked the checkbox
-		if (changeStatus) {
-			processChoice(isMyWorkspace() ? curSite : getSiteId(), 
-							new Boolean(SHOW_ME.equals(checkboxText)));
+		// is a site selected?
+		if (siteSelected) {
+			// can update the site so no error message
+			noSiteProcessErr = false;
 
-			// Reset the checkbox to not checked
-			changeStatus = false;
+			// if user checked the checkbox
+			if (changeStatus) {
+				processChoice(isMyWorkspace() ? curSite : getSiteId(), 
+								new Boolean(SHOW_ME.equals(checkboxText)));
+
+				// Reset the checkbox to not checked
+				changeStatus = false;
+			}
+			else {
+				FacesContext.getCurrentInstance().addMessage(null,
+								new FacesMessage("Please check the checkbox " + getCheckboxText() + 
+													" in order to change your status."));
+			}
 		}
 		else {
-			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage("Please check the checkbox " + getCheckboxText() + " in order to change your status."));
-
+			noSiteProcessErr = true;
 		}
 
 		return "main";
@@ -326,6 +336,7 @@ public class PrivacyBean {
 	 */
 	public void processSiteSelected(ValueChangeEvent e) {
 		allChanged = false;
+		noSiteProcessErr = false;
 		
 		if ("".equals((String) e.getNewValue())) {
 			siteSelected = false;
@@ -365,5 +376,9 @@ public class PrivacyBean {
 	 */
 	public String getChangeAllMsg() {
 		return changeAllMsg;
+	}
+
+	public boolean isNoSiteProcessErr() {
+		return noSiteProcessErr;
 	}
 }

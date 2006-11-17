@@ -24,23 +24,21 @@
      <f:verbatim></h3></div><br /></f:verbatim>
 	  
 	  <%--  Message if Show All or Hide All has been clicked --%>
-	  <f:verbatim><div style="color:green"></f:verbatim>
-	  <h:outputText value="#{privacyBean.changeAllMsg}" rendered="#{privacyBean.allChanged}" />
+	  <f:verbatim><div></f:verbatim>
+	  <h:outputText value="#{privacyBean.changeAllMsg}" styleClass="information" style="color: green;" rendered="#{privacyBean.allChanged}" />
 	  <f:verbatim></div><br /></f:verbatim>
 			  
 	  <h:outputText value="#{msgs.privacy_choose}" />
 
       <h:selectOneMenu value="#{privacyBean.selectedSite}" immediate="true" onchange="this.form.submit( );"
-      			 valueChangeListener="#{privacyBean.processSiteSelected}">
+      			 valueChangeListener="#{privacyBean.processSiteSelected}" id="siteSelect">
           <f:selectItems value="#{privacyBean.sites}" />
       </h:selectOneMenu>
 	  
+	  <h:outputText value="#{msgs.privacy_site_not_selected}" styleClass="alertMessage" rendered="#{privacyBean.noSiteProcessErr}" />
 	</h:panelGroup>
 
 	<%-- *********** common Tool rendering *********** --%>
-	<h:messages styleClass="alertMessage" />
-    <br />
-    	
 	<h:panelGroup rendered="#{!privacyBean.myWorkspace || privacyBean.siteSelected}" >
       <f:verbatim><div class="instruction"></f:verbatim>
       <h:outputText value="#{msgs.privacy_stmt1}" />
@@ -63,6 +61,9 @@
       <h:outputText value="#{privacyBean.checkboxText}" />
       <f:verbatim><br /><br /></f:verbatim>
 
+	  <h:messages styleClass="alertMessage" />
+      <f:verbatim><br /></f:verbatim>
+    	
       <h:outputText value="#{msgs.privacy_note}" />
       <f:verbatim><br /></f:verbatim>
 	</h:panelGroup>
