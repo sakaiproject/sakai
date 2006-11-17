@@ -432,6 +432,34 @@ public class SchedulerTool
     }
     return "jobs";
   }
+  
+  /**
+   * This method runs the current job only once, right now
+   * @return String
+   */
+  public String processRunJobNow()
+  {
+     Scheduler scheduler = schedulerManager.getScheduler();
+     if (scheduler == null)
+     {
+       LOG.error("Scheduler is down!");
+       return "error";
+     }
+     try
+     {
+       
+       scheduler.triggerJob(
+             selectedJobDetailWrapper.getJobDetail().getName(), 
+             selectedJobDetailWrapper.getJobDetail().getGroup());
+
+       return "success";
+     }
+     catch (Exception e)
+     {
+       LOG.error("Failed to trigger job now");
+       return "error";
+     }
+  }
 
   public String processRefreshFilteredJobs()
   {

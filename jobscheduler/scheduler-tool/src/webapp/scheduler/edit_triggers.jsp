@@ -9,7 +9,7 @@
 	<sakai:view_container title="#{msgs.title_trigger}">		
 	  <h:form>
   	  <h:graphicImage value="/images/quartz.jpg" alt="Powered By Quartz"/>
-  	  <sakai:tool_bar_message value="Currently editing triggers for job: #{schedulerTool.selectedJobDetailWrapper.jobDetail.name}"/>
+  	  <sakai:tool_bar_message value="#{msgs.edit_trigger_for_job} #{schedulerTool.selectedJobDetailWrapper.jobDetail.name}"/>
   	  <sakai:tool_bar>
 		   <sakai:tool_bar_item
 		     action="create_trigger"
@@ -18,6 +18,9 @@
   		   rendered="#{!empty schedulerTool.selectedJobDetailWrapper.triggerWrapperList}"
 		     action="#{schedulerTool.processRefreshFilteredTriggers}"
 			   value="#{msgs.bar_delete_triggers}" />
+		   <sakai:tool_bar_item
+		     action="run_job_confirm"
+			   value="#{msgs.bar_run_job_now}"  />
 			 <sakai:tool_bar_item 
 		     action="#{schedulerTool.processRefreshJobs}"
 			   value="#{msgs.bar_return_jobs}" />

@@ -93,7 +93,11 @@
 		    	<from-outcome>delete_triggers</from-outcome>
       			<to-view-id>/scheduler/delete_triggers.jsp</to-view-id>
 		    </navigation-case>
-	</navigation-rule>	
+   		    <navigation-case>
+		    	<from-outcome>run_job_confirm</from-outcome>
+      			<to-view-id>/scheduler/run_job_confirm.jsp</to-view-id>
+		    </navigation-case>
+	</navigation-rule>
 	
 	<navigation-rule>
     	<from-view-id>/scheduler/delete_triggers.jsp</from-view-id>
@@ -101,7 +105,7 @@
 		    	<from-outcome>edit_triggers</from-outcome>
       			<to-view-id>/scheduler/edit_triggers.jsp</to-view-id>
 		    </navigation-case>
-	</navigation-rule>					 
+	</navigation-rule>
 	
 	<navigation-rule>
     	<from-view-id>/scheduler/create_trigger.jsp</from-view-id>
@@ -109,6 +113,18 @@
 		    	<from-outcome>edit_triggers</from-outcome>
       			<to-view-id>/scheduler/edit_triggers.jsp</to-view-id>
 		    </navigation-case>
-	</navigation-rule>					 
+	</navigation-rule>
+	
+	<navigation-rule>
+    	<from-view-id>/scheduler/run_job_confirm.jsp</from-view-id>
+   		    <navigation-case>
+		    	<from-outcome>cancel</from-outcome>
+      			<to-view-id>/scheduler/edit_triggers.jsp</to-view-id>
+		    </navigation-case>
+   		    <navigation-case>
+		    	<from-outcome>success</from-outcome>
+      			<to-view-id>/scheduler/jobs.jsp</to-view-id>
+		    </navigation-case>
+	</navigation-rule>
   
 </faces-config>
