@@ -56,6 +56,7 @@ import org.sakaiproject.message.api.MessageHeaderEdit;
 import org.sakaiproject.message.impl.BaseMessageService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.StringUtil;
@@ -98,6 +99,7 @@ public abstract class BaseChatService extends BaseMessageService implements Chat
 
 	/** Tool session attribute name used to schedule a whole page refresh. */
 	public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
+	private static final String STATE_UPDATE = "update";
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -883,26 +885,7 @@ public abstract class BaseChatService extends BaseMessageService implements Chat
 			}
 			
 			//	archive the chat synoptic tool options
-			ToolConfiguration synTool = site.getToolForCommonId("sakai.synoptic.chat");
-			Properties synProp = synTool.getPlacementConfig();
-			if (synProp != null && synProp.size() > 0) {
-				Element synElement = doc.createElement(SYNOPTIC_TOOL);
-				Element synProps = doc.createElement(PROPERTIES);
-		
-				Set synPropSet = synProp.keySet();
-				Iterator propIter = synPropSet.iterator();
-				while (propIter.hasNext())
-				{
-					String propName = (String)propIter.next();
-					Element synPropEl = doc.createElement(PROPERTY);
-					synPropEl.setAttribute(NAME, propName);
-					synPropEl.setAttribute(VALUE, synProp.getProperty(propName));
-					synProps.appendChild(synPropEl);
-				}
-				
-				synElement.appendChild(synProps);
-				chat.appendChild(synElement);
-			}
+			archiveSynopticOptions(siteId, doc, chat);
 
 			((Element) stack.peek()).appendChild(chat);
 			stack.push(chat);
@@ -1079,6 +1062,13 @@ public abstract class BaseChatService extends BaseMessageService implements Chat
 													}
 												}
 											}
+											// refresh the synoptic tool on the home page
+											Session session = m_sessionManager.getCurrentSession();
+											ToolSession toolSession = session.getToolSession(synTool.getId());
+											if (toolSession.getAttribute(STATE_UPDATE) == null)
+											{
+												toolSession.setAttribute(STATE_UPDATE, STATE_UPDATE);
+											}
 										}
 									}			
 								}
@@ -1194,42 +1184,7 @@ public abstract class BaseChatService extends BaseMessageService implements Chat
 				}
 			}
 			
-			// transfer the synoptic tool options
-			ToolConfiguration fromSynTool = fromSite.getToolForCommonId("sakai.synoptic.chat");
-			Properties fromSynProp = fromSynTool.getPlacementConfig();
-			
-			ToolConfiguration toSynTool = toSite.getToolForCommonId("sakai.synoptic.chat");
-			Properties toSynProp = toSynTool.getPlacementConfig();
-
-			if (fromSynProp != null && !fromSynProp.isEmpty()) 
-			{
-				Set synPropSet = fromSynProp.keySet();
-				Iterator propIter = synPropSet.iterator();
-				while (propIter.hasNext())
-				{
-					String propName = ((String)propIter.next());
-					String propValue = fromSynProp.getProperty(propName);
-					if (propValue != null && propValue.length() > 0)
-					{
-						if (propName.equals(CHANNEL_PROP))
-						{
-							int index = propValue.lastIndexOf(Entity.SEPARATOR);
-							propValue = propValue.substring(index + 1);
-							if (propValue != null && propValue.length() > 0) 
-							{
-								String channelRef = channelReference(toContext, propValue);
-								toSynProp.setProperty(propName, channelRef.toString());
-							}
-						}
-						else
-						{
-							toSynProp.setProperty(propName, propValue);
-						}
-					}
-				}
-				
-				SiteService.save(toSite);
-			}
+			transferSynopticOptions(fromContext, toContext);
 			
 			scheduleTopRefresh();			
 		}
