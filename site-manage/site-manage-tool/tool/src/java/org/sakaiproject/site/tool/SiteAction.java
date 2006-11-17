@@ -12661,7 +12661,16 @@ public class SiteAction extends PagedResourceActionII
 	 */
 	protected String mailArchiveChannelReference(String siteId)
 	{
-		return MailArchiveService.channelReference(siteId, SiteService.MAIN_CONTAINER);
+		MailArchiveService m = (MailArchiveService) (org.sakaiproject.mailarchive.cover.MailArchiveService) ComponentManager.get("org.sakaiproject.mailarchive.cover.MailArchiveService");
+		
+		if (m != null)
+		{
+			return MailArchiveService.channelReference(siteId, SiteService.MAIN_CONTAINER);
+		}
+		else
+		{
+			return "";
+		}
 	}
 
 	/**
