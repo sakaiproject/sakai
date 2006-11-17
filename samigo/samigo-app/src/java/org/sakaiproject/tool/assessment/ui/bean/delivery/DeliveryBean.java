@@ -1499,21 +1499,41 @@ public class DeliveryBean
     try
     {
       String results = "";
+      // #1. check password
       if (!getSettings().getUsername().equals(""))
       {
         results = validatePassword();
+        log.debug("*** checked password="+results);
       }
+
+      // #2. check IP
       if (!results.equals("passwordAccessError") &&
           getSettings().getIpAddresses() != null &&
           !getSettings().getIpAddresses().isEmpty())
       {
-        results = validateIP();
+         results = validateIP();
+         log.debug("*** checked password & IP="+results);
       }
+      else{ // password error
+      }
+
+      // #3. results="" => no security checking required
       if (results.equals(""))
       {
         // in post 2.1, clicking at Begin Assessment takes users to the
         // 1st question.
         return "takeAssessment";
+      }
+
+      // #4. if results != "takeAssessment", stop the clock if it is a timed assessment
+      // Trouble was the timer was started by DeliveryActionListener before validate() is being run.
+      // So, we need to remove the timer thread as soon as we realized that the validation fails.
+      if (!("takeAssessment".equals(results)) && adata!=null){
+        TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
+        TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
+        if (timedAG != null){
+          queue.remove(timedAG);
+        }
       }
       return results;
     }
