@@ -5691,7 +5691,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		StringBuffer results = new StringBuffer();
 
 		// start with an element with our very own name
-		Element element = doc.createElement(APPLICATION_ID);
+		Element element = doc.createElement(ContentHostingService.class.getName());
 		((Element) stack.peek()).appendChild(element);
 		stack.push(element);
 
