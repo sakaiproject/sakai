@@ -201,6 +201,8 @@ public interface ContentHostingService extends EntityProducer
 	 * @exception InconsistentException
 	 *            if the containing collection does not exist.
 	 * @return a new ContentCollection object.
+	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link #Edit.getPropertiesEdit()},
+	 * 		and {@link #commitCollection(ContentCollectionEdit)}
 	 */
 	public ContentCollection addCollection(String id, ResourceProperties properties) throws IdUsedException, IdInvalidException,
 			PermissionException, InconsistentException;
@@ -228,6 +230,8 @@ public interface ContentHostingService extends EntityProducer
 	 * @throws PermissionException 
 	 * @throws IdInvalidException 
 	 * @throws IdUsedException 
+	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link #Edit.getPropertiesEdit()},
+	 * 		{@link #GroupAwareEdit.setGroupAccess(Collection)} and {@link #commitCollection(ContentCollectionEdit)}
 	 */
 	public ContentCollection addCollection(String id, ResourceProperties properties, Collection groups) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException;
 
@@ -260,6 +264,9 @@ public interface ContentHostingService extends EntityProducer
 	 * @throws PermissionException 
 	 * @throws IdInvalidException 
 	 * @throws IdUsedException 
+	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link #Edit.getPropertiesEdit()},
+	 * 		{@link #GroupAwareEdit.setGroupAccess(Collection)}, {@link #GroupAwareEdit.setAvailability(boolean, Time, Time)} 
+	 * 		and {@link #commitCollection(ContentCollectionEdit)}
 	 */
 	public ContentCollection addCollection(String id, ResourceProperties properties, Collection groups, boolean hidden, Time releaseDate, Time retractDate) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException;
 

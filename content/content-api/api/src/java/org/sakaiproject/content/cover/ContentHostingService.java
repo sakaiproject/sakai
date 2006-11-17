@@ -22,6 +22,7 @@
 package org.sakaiproject.content.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentCollectionEdit;
 
 /**
  * <p>
@@ -129,6 +130,17 @@ public class ContentHostingService
 		return service.allowAddCollection(param0);
 	}
 
+	/**
+	 * @param param0
+	 * @param param1
+	 * @return
+	 * @throws org.sakaiproject.exception.IdUsedException
+	 * @throws org.sakaiproject.exception.IdInvalidException
+	 * @throws org.sakaiproject.exception.PermissionException
+	 * @throws org.sakaiproject.exception.InconsistentException
+	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link #Edit.getPropertiesEdit()},
+	 * 		and {@link #commitCollection(ContentCollectionEdit)}
+	 */
 	public static org.sakaiproject.content.api.ContentCollection addCollection(java.lang.String param0,
 			org.sakaiproject.entity.api.ResourceProperties param1) throws org.sakaiproject.exception.IdUsedException,
 			org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.PermissionException,
@@ -140,6 +152,23 @@ public class ContentHostingService
 		return service.addCollection(param0, param1);
 	}
 
+	/**
+	 * 
+	 * @param param0
+	 * @param param1
+	 * @param param2
+	 * @param param3
+	 * @param param4
+	 * @param param5
+	 * @return
+	 * @throws org.sakaiproject.exception.IdUsedException
+	 * @throws org.sakaiproject.exception.IdInvalidException
+	 * @throws org.sakaiproject.exception.PermissionException
+	 * @throws org.sakaiproject.exception.InconsistentException
+	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link #Edit.getPropertiesEdit()},
+	 * 		{@link #GroupAwareEdit.setGroupAccess(Collection)}, {@link #GroupAwareEdit.setAvailability(boolean, Time, Time)} 
+	 * 		and {@link #commitCollection(ContentCollectionEdit)}
+	 */
 	public static org.sakaiproject.content.api.ContentCollection addCollection(java.lang.String param0,
 			org.sakaiproject.entity.api.ResourceProperties param1, java.util.Collection param2, boolean param3, org.sakaiproject.time.api.Time param4, org.sakaiproject.time.api.Time param5) throws org.sakaiproject.exception.IdUsedException,
 			org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.PermissionException,

@@ -4949,10 +4949,11 @@ public class ResourcesAction
 				continue outerloop;
 			}
 
-			ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties ();
 
 			try
 			{
+				ContentCollectionEdit collection = ContentHostingService.addCollection (newCollectionId);
+				ResourcePropertiesEdit resourceProperties = collection.getPropertiesEdit();
 				resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, item.getName());
 				resourceProperties.addProperty (ResourceProperties.PROP_DESCRIPTION, item.getDescription());
 				List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
@@ -4960,27 +4961,35 @@ public class ResourcesAction
 
 				SortedSet groups = new TreeSet(item.getEntityGroupRefs());
 				groups.retainAll(item.getAllowedAddGroupRefs());
+				if(groups.isEmpty())
+				{
+					// do nothing
+					// nothing to clear since it's a new entity
+				}
+				else
+				{
+					collection.setGroupAccess(groups);
+				}
 
-				boolean hidden = false;
-
-				Time releaseDate = null;
-				Time retractDate = null;
-				
 				if(ContentHostingService.isAvailabilityEnabled())
 				{
-					hidden = item.isHidden();
-					
-					if(item.useReleaseDate())
+					if(item.isHidden())
 					{
-						releaseDate = item.getReleaseDate();
+						collection.setHidden();
 					}
-					if(item.useRetractDate())
+					else
 					{
-						retractDate = item.getRetractDate();
+						if(item.useReleaseDate())
+						{
+							collection.setReleaseDate(item.getReleaseDate());
+						}
+						if(item.useRetractDate())
+						{
+							collection.setRetractDate(item.getRetractDate());
+						}
 					}
 				}
 				
-				ContentCollection collection = ContentHostingService.addCollection (newCollectionId, resourceProperties, groups, hidden, releaseDate, retractDate);
 				
 				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 				if(preventPublicDisplay == null)
@@ -4993,6 +5002,9 @@ public class ResourcesAction
 				{
 					ContentHostingService.setPubView(collection.getId(), true);
 				}
+				
+				ContentHostingService.commitCollection(collection);
+				
 			}
 			catch (IdUsedException e)
 			{
@@ -6503,14 +6515,15 @@ public class ResourcesAction
 				{
 					try
 					{
+						String homeCollectionId = (String) state.getAttribute (STATE_HOME_COLLECTION_ID);
+						ContentCollectionEdit edit = ContentHostingService.addCollection(homeCollectionId);
+						
 						// default copyright
 						String mycopyright = (String) state.getAttribute (STATE_MY_COPYRIGHT);
 
-						ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties ();
-						String homeCollectionId = (String) state.getAttribute (STATE_HOME_COLLECTION_ID);
+						ResourcePropertiesEdit resourceProperties = edit.getPropertiesEdit();
 						resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, ContentHostingService.getProperties (homeCollectionId).getPropertyFormatted (ResourceProperties.PROP_DISPLAY_NAME));
-
-						ContentCollection collection = ContentHostingService.addCollection (homeCollectionId, resourceProperties);
+						ContentHostingService.commitCollection(edit);
 					}
 					catch (IdUsedException ee)
 					{
