@@ -73,8 +73,9 @@ import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndImage;
 import com.sun.syndication.feed.synd.SyndEnclosure;
-import com.sun.syndication.io.SyndFeedInput;
-import com.sun.syndication.io.XmlReader;
+import com.sun.syndication.fetcher.FeedFetcher;
+import com.sun.syndication.fetcher.impl.HttpURLFeedFetcher;
+
 
 /**
  * <p>
@@ -487,10 +488,10 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 			// Document document = null;
 			try
 			{
-
 				URL feedUrl = new URL(source);
-				SyndFeedInput input = new SyndFeedInput();
-				feed = input.build(new XmlReader(feedUrl));
+				FeedFetcher feedFetcher = new HttpURLFeedFetcher();
+				feed = feedFetcher.retrieveFeed(feedUrl);
+			    
 			}
 			catch (MalformedURLException e)
 			{
