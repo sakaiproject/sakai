@@ -1529,11 +1529,7 @@ public class DeliveryBean
       // Trouble was the timer was started by DeliveryActionListener before validate() is being run.
       // So, we need to remove the timer thread as soon as we realized that the validation fails.
       if (!("takeAssessment".equals(results)) && adata!=null){
-        TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
-        TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
-        if (timedAG != null){
-          queue.remove(timedAG);
-        }
+        removeTimedAssessmentFromQueue();
       }
       return results;
     }
@@ -2254,8 +2250,10 @@ public class DeliveryBean
     TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
     TimedAssessmentGradingModel timedAG = (TimedAssessmentGradingModel)queue.
                                              get(adata.getAssessmentGradingId());
-    if (timedAG != null)
+    if (timedAG != null){
       queue.remove(timedAG);
+      timeRunning = false;
+    }
   }
 
 
