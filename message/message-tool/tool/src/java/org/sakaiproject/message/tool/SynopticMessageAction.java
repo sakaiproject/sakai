@@ -275,6 +275,14 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
+		
+		// if the synoptic options have just been imported, we need to update
+		// the state
+		if (state.getAttribute(STATE_UPDATE) != null)
+		{
+			updateState(state, portlet);
+			state.removeAttribute(STATE_UPDATE);
+		}
 
 		// // TODO: TIMING
 		// if (CurrentService.getInThread("DEBUG") == null)
@@ -680,6 +688,33 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 		enableObservers(state);
 
 	} // doCancel
+	
+	/**
+	 * update state (synoptic tool options)
+	 */
+	private void updateState(SessionState state, VelocityPortlet portlet)
+	{
+		PortletConfig config = portlet.getPortletConfig();
+		
+		try
+		{
+			int days = Integer.parseInt(config.getInitParameter(PARAM_DAYS));
+			state.setAttribute(STATE_DAYS, new Integer(days));
+
+			long startTime = System.currentTimeMillis() - ((long) days * 24l * 60l * 60l * 1000l);
+			state.setAttribute(STATE_AFTER_DATE, TimeService.newTime(startTime));
+			
+			state.setAttribute(STATE_ITEMS, new Integer(config.getInitParameter(PARAM_ITEMS)));
+			state.setAttribute(STATE_LENGTH, new Integer(config.getInitParameter(PARAM_LENGTH)));
+			state.setAttribute(STATE_SHOW_SUBJECT, new Boolean(config.getInitParameter(PARAM_SHOW_SUBJECT)));
+			state.setAttribute(STATE_SHOW_BODY, new Boolean(config.getInitParameter(PARAM_SHOW_BODY)));
+			state.setAttribute(STATE_SHOW_NEWLINES, new Boolean(config.getInitParameter(PARAM_SHOW_NEWLINES)));
+		}
+		catch (Exception e)
+		{
+			// do not update the state if there are any errors
+		}
+	} 
 
 	/**
 	 * Improves performance by returning the appropriate MessageService through the service Cover classes instead of through the ComponentManager (for certain well-known services)
