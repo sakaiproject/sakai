@@ -86,7 +86,8 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.mailarchive.cover.MailArchiveService;
+import org.sakaiproject.message.api.MessageService;
+import org.sakaiproject.mailarchive.api.MailArchiveService;
 import org.sakaiproject.site.api.Course;
 import org.sakaiproject.site.api.CourseMember;
 import org.sakaiproject.site.api.Group;
@@ -12661,11 +12662,11 @@ public class SiteAction extends PagedResourceActionII
 	 */
 	protected String mailArchiveChannelReference(String siteId)
 	{
-		MailArchiveService m = (MailArchiveService) (org.sakaiproject.mailarchive.cover.MailArchiveService) ComponentManager.get("org.sakaiproject.mailarchive.cover.MailArchiveService");
+		MailArchiveService m = (org.sakaiproject.mailarchive.api.MailArchiveService) ComponentManager.get("org.sakaiproject.mailarchive.api.MailArchiveService");
 		
 		if (m != null)
 		{
-			return MailArchiveService.channelReference(siteId, SiteService.MAIN_CONTAINER);
+			return m.channelReference(siteId, SiteService.MAIN_CONTAINER);
 		}
 		else
 		{
