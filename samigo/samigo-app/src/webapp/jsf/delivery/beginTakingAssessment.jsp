@@ -56,6 +56,7 @@
  <!-- content... -->
 <h:form id="takeAssessmentForm">
 <h:inputHidden id="isMacNetscapeBrowser" value="#{person.isMacNetscapeBrowser}" />
+<h:inputHidden id="timerId" value="#{delivery.timerId}" rendered="#{delivery.timerId!=null}" />
 
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">

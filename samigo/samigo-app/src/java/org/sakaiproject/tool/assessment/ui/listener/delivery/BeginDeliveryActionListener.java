@@ -262,10 +262,14 @@ public class BeginDeliveryActionListener implements ActionListener
     AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
     // check if we need to time the assessment, i.e.hasTimeassessment="true"
     String hasTimeLimit = pubAssessment.getAssessmentMetaDataByLabel("hasTimeAssessment");
-    if (hasTimeLimit!=null && hasTimeLimit.equals("true"))
+    if (hasTimeLimit!=null && hasTimeLimit.equals("true")){
       delivery.setHasTimeLimit(true);
-    else
+      delivery.setTimerId((new Date()).getTime()+"");
+    }
+    else{
       delivery.setHasTimeLimit(false);
+      delivery.setTimerId(null);
+    }
 
     try {
       if (control.getTimeLimit() != null) {

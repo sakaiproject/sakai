@@ -104,8 +104,8 @@ public class DeliveryActionListener
 
     try
     {
-    PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
-    log.debug("**** MacNetscape="+person.getIsMacNetscapeBrowser());
+      PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
+      log.debug("**** MacNetscape="+person.getIsMacNetscapeBrowser());
       // 1. get managed bean
       DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
       //log.debug("***DeliveryBean in deliveryListener = "+delivery);
@@ -1938,10 +1938,12 @@ public class DeliveryActionListener
       AssessmentGradingData ag = delivery.getAssessmentGrading();
       delivery.setBeginTime(ag.getAttemptDate());
       if (delivery.isTimeRunning() && delivery.getBeginAssessment()){
-        if (ag.getTimeElapsed() != null)
+        if (ag.getTimeElapsed() != null){
           delivery.setTimeElapse(ag.getTimeElapsed().toString());
-        else  // this is a new timed assessment
+	}
+        else{  // this is a new timed assessment
           delivery.setTimeElapse("0");
+	}
         queueTimedAssessment(delivery, timeLimit);
         delivery.setBeginAssessment(false);
       }
@@ -1966,7 +1968,7 @@ public class DeliveryActionListener
       timedAG = new TimedAssessmentGradingModel(ag.getAssessmentGradingId(), 
                 timeLimit, timeLimit - ag.getTimeElapsed().intValue(),
                 new Date(), new Date(), // need modify later
-                false);
+		false, getTimerId(delivery));
       queue.add(timedAG);
       //log.debug("***0. queue="+queue);
       //log.debug("***1. put timedAG in queue, timedAG="+timedAG);
@@ -2050,6 +2052,14 @@ public class DeliveryActionListener
     Collections.sort(list);
     return list;
     }
+  }
+
+  // SAK-6990: if DeliveryActionListener is called by beginAssessment.jsp, a timerId
+  // is assigned to timedAssessment that we need to attach to TimedAssessmentGradingModel
+  private String getTimerId(DeliveryBean delivery){
+    String timerId = (String) ContextUtil.lookupParam("timerId");
+    log.debug("***timerId="+timerId);
+    return timerId;
   }
 
 }

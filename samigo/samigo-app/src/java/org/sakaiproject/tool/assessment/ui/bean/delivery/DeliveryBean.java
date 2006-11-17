@@ -180,6 +180,10 @@ public class DeliveryBean
   private String contextPath;
   private boolean initAgentAccessString = false;
 
+  // daisyf added this for timed assessment for SAK-6990, to check if mutiple windows were open 
+  // during timed assessment
+  private String timerId=null;
+
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -1090852048737428722L;
   private boolean showStudentScore;
@@ -1529,7 +1533,20 @@ public class DeliveryBean
       // Trouble was the timer was started by DeliveryActionListener before validate() is being run.
       // So, we need to remove the timer thread as soon as we realized that the validation fails.
       if (!("takeAssessment".equals(results)) && adata!=null){
-        removeTimedAssessmentFromQueue();
+        TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
+        TimedAssessmentGradingModel timedAG = (TimedAssessmentGradingModel)queue.
+                                             get(adata.getAssessmentGradingId());
+        if (timedAG != null){
+          String agTimerId = timedAG.getTimerId();
+          if (agTimerId != null && agTimerId.equals(timerId)){ 
+            // SAK-6990: it is only safe to removed if u are sure that timedAG is started by your beginAssessment.jsp
+            // we added a hidden field timerId on beginAssessment.jsp. Upon successful security check, a timedAG
+            // will be created that carried this timerId. If user open another browser to take the same timed 
+            // assessment. If the security check of the new one fails, it won't stop the clock for existing one.
+            queue.remove(timedAG);
+            timeRunning = false;
+	  }
+        }
       }
       return results;
     }
@@ -2582,5 +2599,16 @@ public class DeliveryBean
   public String getPortal(){
    return ServerConfigurationService.getString("portalPath");
   }
+
+  public String getTimerId()
+  {
+      return timerId;
+  }
+
+  public void setTimerId(String timerId)
+  {
+    this.timerId = timerId;
+  }
+
 
 }
