@@ -18,9 +18,10 @@
         var="section"
         sortColumn="#{preferencesBean.overviewSortColumn}"
         sortAscending="#{preferencesBean.overviewSortAscending}"
+        rules="rows"
         styleClass="listHier narrowTable"
-        columnClasses="left,left,left,left,center,center,center"
-        rowClasses="#{overviewBean.rowClasses}">
+        columnClasses="leftIndent,left,left,left,center,center,center"
+        >
     
         <h:column>
             <f:facet name="header">

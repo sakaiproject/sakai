@@ -20,15 +20,15 @@
  **********************************************************************************/
 package org.sakaiproject.tool.section.jsf;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.component.html.ext.HtmlDataTable;
 
+/**
+ * Extension of the MyFaces extended HtmlDataTable that includes a marker for the
+ * current category we're displaying.
+ * 
+ * @author <a href="mailto:jholtzman@berkeley.edu">jholtzman@berkeley.edu</a>
+ *
+ */
 public class SectionTable extends HtmlDataTable {
-	private static final Log log = LogFactory.getLog(SectionTable.class);
-	
-	public SectionTable() {
-		super();
-		log.info("Constructing " + this);
-	}
+	String category;
 }

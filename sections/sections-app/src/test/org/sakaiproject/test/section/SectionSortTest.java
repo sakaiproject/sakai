@@ -120,10 +120,6 @@ public class SectionSortTest extends TestCase {
 		Assert.assertTrue(comp.compare(secB, secA) > 0);
 
 		// Compare the max enrollments in different categories
-		Assert.assertTrue(comp.compare(secB, secC) < 0);
-		
-		comp = InstructorSectionDecorator.getFieldComparator("title", true);
-		Assert.assertTrue(comp.compare(secA, secB) < 0);
-		
+		Assert.assertTrue(comp.compare(secB, secC) < 0);		
 	}
 }

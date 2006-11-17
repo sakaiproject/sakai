@@ -93,64 +93,6 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		return this.getTitle().toLowerCase().compareTo(((InstructorSectionDecorator)o).getTitle().toLowerCase());
 	}
 
-	public static final Comparator getFieldComparator(final String fieldName, final boolean sortAscending) {
-		// Titles must be compared case-insensitive
-		if("title".equals(fieldName)) {
-			return getTitleComparator(sortAscending);
-		}
-		return new Comparator() {
-			public int compare(Object o1, Object o2) {
-				if(o1 instanceof InstructorSectionDecorator && o2 instanceof InstructorSectionDecorator) {
-					InstructorSectionDecorator section1 = (InstructorSectionDecorator)o1;
-					InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
-
-					// First compare the category name, then compare the field
-					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
-					if(categoryNameComparison == 0) {
-						// These are in the same category, so compare by the field
-						Comparable object1;
-						Comparable object2;
-						try {
-							object1 = (Comparable)PropertyUtils.getProperty(section1, fieldName);
-							object2 = (Comparable)PropertyUtils.getProperty(section2, fieldName);
-						} catch (Exception e) {
-							if(log.isDebugEnabled()) log.debug("Could not read field " +
-									fieldName + " on objects" + o1 + " and " + o2);
-							return 0;
-						}
-						if(object1 == null && object2 != null) {
-							return sortAscending? -1 : 1 ;
-						}
-						if(object2 == null && object1 != null) {
-							return sortAscending? 1 : -1 ;
-						}
-						if(object1 == null && object2 == null) {
-							// If both of these fields are null, we just compare based on title.
-							return getTitleComparator(sortAscending).compare(o1, o2);
-						}
-						int comparison;
-						if(object1 instanceof String && object2 instanceof String) {
-							comparison = ((String)object1).toLowerCase().compareTo(((String)object2).toLowerCase());
-						} else {
-							comparison = object1.compareTo(object2);
-						}
-						
-						// If the two objects are equal, then try again using the title.
-						if(comparison == 0) {
-							comparison = getTitleComparator(sortAscending).compare(o1, o2);
-						}
-						return sortAscending ? comparison : (-1 * comparison);
-					}
-					// These are in different categories, so sort them by category name
-					return categoryNameComparison;
-				}
-				if(log.isDebugEnabled()) log.debug("One of these is not an InstructorSectionDecorator: "
-						+ o1 + "," + o2);
-				return 0;
-			}
-		};
-	}
-
 	/**
 	 * TODO: Now that we need to sort titles non-case sensitive, is there much of a point to keeping the generic getFieldComparator() method?
 	 * 
@@ -162,8 +104,13 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 			public int compare(Object o1, Object o2) {
 				InstructorSectionDecorator section1 = (InstructorSectionDecorator)o1;
 				InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
-				int comparison =  section1.getTitle().toLowerCase().compareTo(section2.getTitle().toLowerCase());
-				return sortAscending ? comparison : (-1 * comparison);
+				int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
+				if(categoryNameComparison == 0) {
+					int comparison =  section1.getTitle().toLowerCase().compareTo(section2.getTitle().toLowerCase());
+					return sortAscending ? comparison : (-1 * comparison);
+				} else {
+					return categoryNameComparison;
+				}
 			}
 		};
 	}

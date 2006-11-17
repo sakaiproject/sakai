@@ -47,7 +47,7 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 	private static final Log log = LogFactory.getLog(OverviewBean.class);
 
 	private boolean externallyManaged;
-	private String rowClasses;
+//	private String rowClasses;
 
 	private List sections;
 	private List sectionsToDelete;
@@ -97,31 +97,33 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 		// Sort the collection set
 		Collections.sort(sections, getComparator());
 
-		// Add the row css classes
-		StringBuffer sb = new StringBuffer();
-		int index = 0;
-		for(Iterator iter = sections.iterator(); iter.hasNext();) {
-			InstructorSectionDecorator decoratedSection = (InstructorSectionDecorator)iter.next();
-			if(iter.hasNext()) {
-				InstructorSectionDecorator nextSection = (InstructorSectionDecorator)sections.get(++index);
-				if(nextSection.getCategory().equals(decoratedSection.getCategory())) {
-					sb.append("section");
-				} else {
-					sb.append("sectionPadRow");
-				}
-				sb.append(",");
-			} else {
-				sb.append("sectionRow");
-			}
-		}
-		rowClasses = sb.toString();
+//		// Add the row css classes
+//		StringBuffer sb = new StringBuffer();
+//		int index = 0;
+//		for(Iterator iter = sections.iterator(); iter.hasNext();) {
+//			InstructorSectionDecorator decoratedSection = (InstructorSectionDecorator)iter.next();
+//			if(iter.hasNext()) {
+//				InstructorSectionDecorator nextSection = (InstructorSectionDecorator)sections.get(++index);
+//				if(nextSection.getCategory().equals(decoratedSection.getCategory())) {
+//					sb.append("sectionRow");
+//				} else {
+//					sb.append("sectionPadRow");
+//				}
+//				sb.append(",");
+//			} else {
+//				sb.append("sectionRow");
+//			}
+//		}
+//		rowClasses = sb.toString();
 	}
 
 	private Comparator getComparator() {
 		String sortColumn = getPrefs().getOverviewSortColumn();
 		boolean sortAscending = getPrefs().isOverviewSortAscending();
 
-		if(sortColumn.equals("managers")) {
+		if(sortColumn.equals("title")) {
+			return InstructorSectionDecorator.getTitleComparator(sortAscending);
+		} else if(sortColumn.equals("managers")) {
 			return InstructorSectionDecorator.getManagersComparator(sortAscending);
 		} else if(sortColumn.equals("totalEnrollments")) {
 			return InstructorSectionDecorator.getEnrollmentsComparator(sortAscending, false);
@@ -133,9 +135,9 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 			return InstructorSectionDecorator.getDayComparator(sortAscending);
 		} else if(sortColumn.equals("location")) {
 			return InstructorSectionDecorator.getLocationComparator(sortAscending);
-		} else {
-			return InstructorSectionDecorator.getFieldComparator(sortColumn, sortAscending);
 		}
+		log.error("Invalid sort specified.");
+		return null;
 	}
 
 	public String confirmDelete() {
@@ -172,9 +174,9 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 	public boolean isExternallyManaged() {
 		return externallyManaged;
 	}
-	public String getRowClasses() {
-		return rowClasses;
-	}
+//	public String getRowClasses() {
+//		return rowClasses;
+//	}
 
 	public List getSectionsToDelete() {
 		return sectionsToDelete;

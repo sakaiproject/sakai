@@ -20,21 +20,11 @@
  **********************************************************************************/
 package org.sakaiproject.tool.section.jsf;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.taglib.html.ext.HtmlDataTableTag;
 
 public class SectionTableTag extends HtmlDataTableTag {
-	private static final Log log = LogFactory.getLog(SectionTableTag.class);
 	public static final String COMPONENT_TYPE = "org.sakaiproject.tool.section.jsf.sectionTable";
 	public static final String COMPONENT_FAMILY = "javax.faces.Data";
-
-	String currentCategory;
-
-	public SectionTableTag() {
-		super();
-		log.info("Constructing " + this);
-	}
 
     public String getRendererType() {
         return COMPONENT_TYPE;

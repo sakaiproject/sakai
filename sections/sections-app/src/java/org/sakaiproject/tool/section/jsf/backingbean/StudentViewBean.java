@@ -61,7 +61,6 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	private boolean switchAllowed;
 	
 	private List sections;
-	private String rowClasses;
 	private String instructions;
 	
 	public StudentViewBean() {
@@ -125,7 +124,6 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 			}
 		}
 		Collections.sort(sections, getComparator());
-		buildRowClasses();
 
 		instructions = generateInstructions(joinableSectionsExist, switchableSectionsExist);
 	}
@@ -167,38 +165,6 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 		}
 	}
 	
-	private void buildRowClasses() {
-		StringBuffer sb = new StringBuffer();
-		int index = 0;
-		for(Iterator iter = sections.iterator(); iter.hasNext();) {
-			StudentSectionDecorator decoratedSection = (StudentSectionDecorator)iter.next();
-			if(iter.hasNext()) {
-				StudentSectionDecorator nextSection = (StudentSectionDecorator)sections.get(++index);
-				if(nextSection.getCategory().equals(decoratedSection.getCategory())) {
-					if(decoratedSection.isMember()) {
-						sb.append("member");
-					} else {
-						sb.append("nonmember");
-					}
-				} else {
-					if(decoratedSection.isMember()) {
-						sb.append("memberPadRow");
-					} else {
-						sb.append("nonmemberPadRow");
-					}
-				}
-				sb.append(",");
-			} else {
-				if(decoratedSection.isMember()) {
-					sb.append("member");
-				} else {
-					sb.append("nonmember");
-				}
-			}
-		}
-		rowClasses = sb.toString();
-	}
-
 	private boolean isEnrolledInSection(Set enrolledSections, CourseSection section) {
 		for(Iterator iter = enrolledSections.iterator(); iter.hasNext();) {
 			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
@@ -221,11 +187,10 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	}
 
 	private Comparator getComparator() {
-		if(sortColumn.equals("instructor")) {
+		if(sortColumn.equals("title")) {
+			return InstructorSectionDecorator.getTitleComparator(sortAscending); 
+		} else if(sortColumn.equals("instructor")) {
 			return InstructorSectionDecorator.getManagersComparator(sortAscending); 
-		} else if(sortColumn.equals("category")) {
-			// These are already sorted by category, so just sort by title
-			return InstructorSectionDecorator.getFieldComparator("title", sortAscending);
 		} else if(sortColumn.equals("available")) {
 			return InstructorSectionDecorator.getEnrollmentsComparator(sortAscending, true); 
 		} else if(sortColumn.equals("meetingDays")) {
@@ -234,9 +199,9 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 			return InstructorSectionDecorator.getTimeComparator(sortAscending); 
 		} else if(sortColumn.equals("location")) {
 			return InstructorSectionDecorator.getLocationComparator(sortAscending); 
-		} else {
-			return InstructorSectionDecorator.getFieldComparator(sortColumn, sortAscending); 
 		}
+		log.error("Invalid sort specified.");
+		return null;
 	}
 
 	public void processJoinSection(ActionEvent event) {
@@ -301,9 +266,6 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 
 	public List getSections() {
 		return sections;
-	}
-	public String getRowClasses() {
-		return rowClasses;
 	}
 	public boolean isSortAscending() {
 		return sortAscending;
