@@ -425,10 +425,10 @@
 
       <qtimetadatafield>
         <fieldlabel>GRADEBOOK_OPTIONS</fieldlabel>
-        <fieldentry>DEFAULT</fieldentry>
+        <fieldentry>NONE</fieldentry>
       </qtimetadatafield>
       <!--Possible Values -->
-      <!--DEFAULT, SELECTED -->
+      <!--DEFAULT, SELECTED, NONE -->
 
       <qtimetadatafield>
         <fieldlabel>EDIT_GRADEBOOK_OPTIONS</fieldlabel>

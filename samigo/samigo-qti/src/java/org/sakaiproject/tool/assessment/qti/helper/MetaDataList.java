@@ -93,13 +93,10 @@ public class MetaDataList
   /**
    * Adds extraction-created list of "|" key value pairs
    * to item metadata map, if there are any.
-   * Example:<br/>
-   * <p>
-     * &lt; metadata type =" list " &gt; TEXT_FORMAT| HTML &lt;/ metadata &gt;<br/> á
-   * &lt; metadata type =" list " &gt; ITEM_OBJECTIVE| &lt/ metadata &gt;<br/>
-   * Becomes:<br/>
-   * TEXT_FORMAT=>HTML etc.
-   * </p>
+   * Example:<metadata type =" list " > TEXT_FORMAT| HTML </metadata > 
+   * <metadata type =" list " > ITEM_OBJECTIVE| </ metadata > 
+   * Becomes:
+   * TEXT_FORMAT=>HTML 
    * @param metadataList extraction-created list of "|" key value pairs
    * @param item the item
    */
@@ -189,10 +186,10 @@ public class MetaDataList
 	}
 
   /**
-	 * Adds extraction-created list of "|" key value pairs to assessment metadata map, if there are any. Example:<br/>
-	 * <p>
-	 * &lt; metadata type =" list " &gt; FEEDBACK_SHOW_CORRECT_RESPONSE|True &lt;/ metadata &gt;<br/> á &lt; metadata type =" list " &gt; FEEDBACK_SHOW_STUDENT_SCORE|True &lt/ metadata &gt;<br/> Becomes:<br/> TEXT_FORMAT=>HTML etc.
-	 * </p>
+	 * Adds extraction-created list of "|" key value pairs to assessment metadata map, if there are any. Example:
+	 * <metadata type =" list " > FEEDBACK_SHOW_CORRECT_RESPONSE|True </ metadata >
+	 * <metadata type =" list " > FEEDBACK_SHOW_STUDENT_SCORE|True </ metadata > 
+	 * Becomes:TEXT_FORMAT=>HTML etc.
 	 * 
 	 * @param metadataList
 	 *        extraction-created list of "|" key value pairs

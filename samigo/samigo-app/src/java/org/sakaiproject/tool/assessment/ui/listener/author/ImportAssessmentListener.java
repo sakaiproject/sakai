@@ -45,16 +45,15 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 
 /**
- * <p>Title: Samigo</p>
- * <p>Description: Sakai Assessment Manager</p>
- * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
- * <p>Organization: Sakai Project</p>
- * @author Ed Smiley
+  * @author Ed Smiley
  * @version $Id$
- */
+  */
 
 public class ImportAssessmentListener implements ActionListener
 {
+	
+	// This listener doesn't seem to be used by any JSF pages, or called by any java code. 
+
   private static Log log = LogFactory.getLog(ImportAssessmentListener.class);
   private static final String f = "sample12Assessment.xml";
 //  private static final String f = "sample12Assessment2.xml";
@@ -62,6 +61,8 @@ public class ImportAssessmentListener implements ActionListener
 
   private static final String testFileName = "/tmp/jsf/upload_tmp/testImport/" + f;
 
+  
+  
   public ImportAssessmentListener()
   {
   }

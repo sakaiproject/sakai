@@ -35,10 +35,15 @@ import org.w3c.dom.Document;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
@@ -48,6 +53,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 
+ 
 /**
  * <p>Bean for QTI Import Data</p>
  * <p>Copyright: Copyright (c) 2005 Sakai</p>
@@ -69,6 +75,12 @@ public class XMLImportBean implements Serializable
   private AssessmentBean assessmentBean;
   private ItemAuthorBean itemAuthorBean;
   private QuestionPoolBean questionPoolBean;
+
+  private static final GradebookServiceHelper gbsHelper =
+      IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+  private static final boolean integrated =
+      IntegrationContextFactory.getInstance().isIntegrated();
+
 
   public XMLImportBean()
   {
@@ -168,9 +180,34 @@ public class XMLImportBean implements Serializable
 
     // Get the file name
     String fileName = uploadFile;
-
+    AssessmentService assessmentService = new AssessmentService();
     // Create an assessment based on the uploaded file
     AssessmentFacade assessment = createImportedAssessment(fileName, qtiVersion);
+
+    
+    // change grading book settings if there is no gradebook in the site
+    boolean hasGradebook = false;
+   GradebookService g = null;
+   if (integrated){
+     g = (GradebookService) SpringBeanLocator.getInstance().
+          getBean("org.sakaiproject.service.gradebook.GradebookService");
+   }
+   try{
+     if (gbsHelper.isAssignmentDefined(assessment.getTitle(), g)){
+   	  hasGradebook= true;
+      }
+   }
+   catch(Exception e){
+     log.debug("Error calling gradebookHelper");
+   }
+   
+
+   // gradebook options, don't know how this is supposed to work, leave alone for now
+   if (!hasGradebook && assessment!=null){
+   	assessment.getEvaluationModel().setToGradeBook(EvaluationModelIfc.NOT_TO_GRADEBOOK.toString());
+   }
+   assessmentService.saveAssessment(assessment);
+   
 
     // Go to editAssessment.jsp, so prepare assessmentBean
     assessmentBean.setAssessment(assessment);
@@ -181,7 +218,7 @@ public class XMLImportBean implements Serializable
     authorBean.setAssessmentTemplateId(AssessmentTemplateFacade.DEFAULTTEMPLATE.toString());
 
     // update core AssessmentList: get the managed bean, author and set the list
-    AssessmentService assessmentService = new AssessmentService();
+    
     ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments(
                      AssessmentFacadeQueries.TITLE,true);
     //
