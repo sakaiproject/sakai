@@ -2,16 +2,16 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
     <bean id="org.sakaiproject.section.api.facade.manager.Authn"
-        class="org.sakaiproject.component.section.facade.impl.sakai.AuthnSakaiImpl"/>
+        class="org.sakaiproject.tool.section.facade.sakai.AuthnSakaiImpl"/>
 
     <bean id="org.sakaiproject.section.api.facade.manager.Authz"
-        class="org.sakaiproject.component.section.facade.impl.sakai.AuthzSakaiImpl">
+        class="org.sakaiproject.tool.section.facade.sakai.AuthzSakaiImpl">
     </bean>
 
     <bean id="org.sakaiproject.section.api.facade.manager.Context"
-        class="org.sakaiproject.component.section.facade.impl.sakai.ContextSakaiImpl"/>
+        class="org.sakaiproject.tool.section.facade.sakai.ContextSakaiImpl"/>
 
 	<bean id="org.sakaiproject.section.api.facade.manager.ResourceLoader"
-		class="org.sakaiproject.component.section.facade.impl.sakai.ResourceLoaderSakaiImpl"/>
+		class="org.sakaiproject.tool.section.facade.sakai.ResourceLoaderSakaiImpl"/>
 
 </beans>

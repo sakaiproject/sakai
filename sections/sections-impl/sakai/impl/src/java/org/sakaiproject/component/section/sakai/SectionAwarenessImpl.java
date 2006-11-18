@@ -42,7 +42,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.section.facade.impl.sakai.SakaiUtil;
+import org.sakaiproject.component.section.sakai.facade.SakaiUtil;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.SectionCategory;
 import org.sakaiproject.entity.api.EntityManager;
@@ -78,9 +78,14 @@ public class SectionAwarenessImpl implements SectionAwareness {
 	 * with the AuthzGroup system.
 	 */
 	public void init() {
+    	if(log.isInfoEnabled()) log.info("init()");
 		functionManager.registerFunction("section.role.student");
 		functionManager.registerFunction("section.role.ta");
 		functionManager.registerFunction("section.role.instructor");
+	}
+	
+	public void destroy() {
+    	if(log.isInfoEnabled()) log.info("destroy()");
 	}
 	
 	/**

@@ -16,7 +16,7 @@
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
-            classpath:/org/sakaiproject/component/section/sakai/spring-services.xml
+            /WEB-INF/spring-services.xml
             /WEB-INF/spring-ui.xml
 		</param-value>
 	</context-param>

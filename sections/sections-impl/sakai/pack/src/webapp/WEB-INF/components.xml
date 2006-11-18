@@ -7,7 +7,7 @@
 -->
     <bean id="org.sakaiproject.section.api.SectionAwareness"
         class="org.sakaiproject.component.section.sakai.SectionAwarenessImpl"
-        init-method="init">
+        init-method="init" destroy-method="destroy">
         <property name="siteService">
             <ref bean="org.sakaiproject.site.api.SiteService"/>
         </property>
@@ -45,7 +45,8 @@
 	lists of sections.
 -->
     <bean id="org.sakaiproject.section.api.SectionManager"
-        class="org.sakaiproject.component.section.sakai.SectionManagerImpl">
+        class="org.sakaiproject.component.section.sakai.SectionManagerImpl"
+        init-method="init" destroy-method="destroy">
 
         <property name="siteService">
             <ref bean="org.sakaiproject.site.api.SiteService"/>

@@ -18,7 +18,7 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.component.section.facade.impl.sakai;
+package org.sakaiproject.component.section.sakai.facade;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

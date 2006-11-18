@@ -47,7 +47,7 @@ import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.exception.MembershipException;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
 import org.sakaiproject.section.api.facade.Role;
-import org.sakaiproject.component.section.facade.impl.sakai.SakaiUtil;
+import org.sakaiproject.component.section.sakai.facade.SakaiUtil;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.SectionCategory;
@@ -118,6 +118,11 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 * {@inheritDoc}
 	 */
     public void update(Site site) {
+    	
+    	log.info("###################################");
+    	log.info("Updating Site with provider ID=" + site.getProviderGroupId());
+    	log.info("###################################");
+    	
     	// NOTE: This code will be called any time a site is saved (including site creation).
     	// Be very careful...
 
