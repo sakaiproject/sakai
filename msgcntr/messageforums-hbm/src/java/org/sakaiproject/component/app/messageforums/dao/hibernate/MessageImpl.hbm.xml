@@ -227,7 +227,7 @@
     ]]>
     
  </query>
-<!-- -->
+
 <query name="findDiscussionForumReadMessageCountsForAllSites">
     <![CDATA[select a.contextId, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,

@@ -62,7 +62,23 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 
 public class MessageForumSynopticBean {
-	
+
+	/**
+	 * Used to store synoptic information for a users unread messages.
+	 * Whether on the Home page of a site or in MyWorkspace determines
+	 * what properties are filled.
+	 * <p>
+	 * If in MyWorkspace, each object contains the number of unread
+	 * Private Messages and number of unread Discussion Forum messages.
+	 * </p>
+	 * <p>
+	 * If in the Home page of a site, each object contains either the
+	 * number of unread Private Messages or number of unread Discussion 
+	 * Forum messages.</p>
+	 * 
+	 * @author josephrodriguez
+	 *
+	 */
 	public class DecoratedCompiledMessageStats {
 		private String siteName;
 		private String siteId;
@@ -201,11 +217,14 @@ public class MessageForumSynopticBean {
 	/** Used to retrieve non-notification sites for MyWorkspace page */
 	private final String SYNMC_OPTIONS_PREFS = "synmc_hidden_sites";
 	
+	/** Used to pull excluded sites from user preferences */
 	private final String EXCLUDE_STRING = "excludeSiteMC";
+	
 	/**
 	 * Taken from UserPrefsTool. Sites removed from synoptic Message Center
-	 * on MyWorkspace are saved in user preferences.
-	 * 
+	 * on MyWorkspace are saved in user preferences. This is the class
+	 * user-prefs-tool grabs/stores the properties in user preferences
+	 * so doing the same.
 	 */
 	public class KeyNameValue
 	{
@@ -322,6 +341,12 @@ public class MessageForumSynopticBean {
 
 	/** ============ End KeyNameValue class ========== */
 
+	/** Used to store list of sites that will be displayed
+	 * as well as sites to exclude within the Options page.
+	 * The List is for the information coming from user 
+	 * preferences and the String [] are to display in the 
+	 * multi-item select boxes on the page.
+	 */
 	private List notificationSitesItems = new ArrayList();
 	private String [] notificationSites;
 	private List nonNotificationSitesItems = new ArrayList();
@@ -338,6 +363,10 @@ public class MessageForumSynopticBean {
 
 	/** =============== End Options page bean values =============== */
 
+	/** Used to determine if there are sites to display on page */
+	private boolean sitesToView;
+	private boolean sitesToViewSet = false;
+	
 	/** Resource loader to grab bundle messages */
 	private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.messageforums.bundle.Messages");
 	
@@ -451,7 +480,12 @@ public class MessageForumSynopticBean {
 	 * 			FALSE if not
 	 */
 	public boolean isSitesToView() {
-		return ! filterOutExcludedSites(getSiteList()).isEmpty();
+		if (sitesToViewSet) {
+			return sitesToView;
+		}
+		else {
+			return ! filterOutExcludedSites(getSiteList()).isEmpty();
+		}
 	}
 
 	/**
@@ -747,50 +781,66 @@ public class MessageForumSynopticBean {
 		Object[] unreadDFCount;
 		Object[] pmCounts;
 		
-		// ============= This section pulls counts from DB ============= 
+		// Used to determine if there are any sites to view on UI
+		sitesToView = false;
+
+		// retrieve what sites is this user a member of
+		final List siteList = filterOutExcludedSites(getSiteList());
+
+		// no sites to work with, set boolean variable and return
+		if (siteList.isEmpty()) { 
+			sitesToView = false;
+			return contents; 
+		}
 
 		// ******* Pulls unread private message counts from DB ******* 
 		final List privateMessageCounts = pvtMessageManager
 					.getPrivateMessageCountsForAllSites();
 
-		// retrieve what sites is this user a member of
-		final List siteList = filterOutExcludedSites(getSiteList());
-
-		// no sites to work with, just return
-		if (siteList.isEmpty()) { return contents; }
-
+		// ******* Pulls unread discussion forum message counts from DB *******
 		List unreadDFMessageCounts = compileDFMessageCount(siteList);
 		
-		// If both are empty, no unread messages so just return.
+		// If both are empty, no unread messages so 
+		// create 0 count beans for both types so proper message display
 		if (privateMessageCounts.isEmpty() && unreadDFMessageCounts.isEmpty()) {
+			
+			for (Iterator siteIter = siteList.iterator(); siteIter.hasNext(); ) {
+				String siteId = "";
+				Site site= null;
+			
+				// ************ Get next site from List ************ 
+				try {
+					siteId = (String) siteIter.next();
+					site = getSite(siteId);
+				}
+				catch (IdUnusedException e) {
+					// Wierdness has happened - pulled from SiteService but now can't
+					// find it. Log and skip
+					LOG.error("IdUnusedException attempting to access site " + siteId);
+					continue;
+				}
+				
+				// ************ Each row on page gets info stored in DecoratedCompiledMessageStats bean ************ 
+				final DecoratedCompiledMessageStats dcms = new DecoratedCompiledMessageStats();
+
+				// fill site title
+				dcms.setSiteName(site.getTitle());
+				dcms.setSiteId(site.getId());
+				
+				dcms.setUnreadForumsAmt(0);
+				dcms.setUnreadPrivateAmt(0);
+				
+				dcms.setMcPageURL(getMCPageURL(site.getId()));
+
+				contents.add(dcms);
+				
+				sitesToView = true;
+			}
+			
 			return contents;
 		}
 
 		//============= At least some unread messages so process =============
-
-		// ************ Set up private message counts for processing ************
-		final Iterator pmi = privateMessageCounts.iterator();
-		final Iterator urmci = unreadDFMessageCounts.iterator();
-
-		// May be empty. if so, create dummy private message site id for comparison
-		// when compiling stats
-		if (pmi.hasNext()) {
-			pmCounts = (Object[]) pmi.next();
-		}
-		else {
-			pmCounts = new Object [2];
-			pmCounts[0] = "";
-		}
-			
-		// May be empty. if so, create dummy discussion forum site id for comparsion
-		// when compiling stats
-		if (urmci.hasNext()) {
-			unreadDFCount = (Object[]) urmci.next();
-		}
-		else {
-			unreadDFCount = new Object [2];
-			unreadDFCount[0] = "";
-		}
 
 		// ************ loop through info to fill decorated bean ************ 
 		for (Iterator si = siteList.iterator(); si.hasNext();) {
@@ -811,30 +861,26 @@ public class MessageForumSynopticBean {
 				continue;
 			}
 
-			// May have been a member of a site whose id is less than first
-			// site now, so loop until pmCounts' siteId is >= siteId
-			while (siteId.compareTo((String) pmCounts[0]) > 0) {
-				if (pmi.hasNext()) {
-					pmCounts = (Object[]) pmi.next();
-				} 
-				else {
-					pmCounts = new Object[1];
-					pmCounts[0] = "";
-					break;
-				}
+			// Determine if current site has unread private messages
+			final int PMpos = indexOf(siteId, getSiteIds(privateMessageCounts));
+			
+			if (PMpos != -1) {
+				pmCounts = (Object []) privateMessageCounts.get(PMpos);
+			}
+			else {
+				pmCounts = new Object[1];
+				pmCounts[0] = "";
 			}
 
-			// May have been a member of a site whose id is less than first
-			// site now, so loop until pmCounts' siteId is >= siteId
-			while (siteId.compareTo((String) unreadDFCount[0]) > 0) {
-				if (urmci.hasNext()) {
-					unreadDFCount = (Object[]) urmci.next();
-				} 
-				else {
-					unreadDFCount = new Object[1];
-					unreadDFCount[0] = "";
-					break;
-				}
+			// Determine if current site has unread discussion forum messages
+			final int DFpos = indexOf(siteId, getSiteIds(unreadDFMessageCounts));
+			
+			if (DFpos != -1) {
+				unreadDFCount = (Object []) unreadDFMessageCounts.get(DFpos);
+			}
+			else {
+				unreadDFCount = new Object[1];
+				unreadDFCount[0] = "";
 			}
 
 			// ************ Each row on page gets info stored in DecoratedCompiledMessageStats bean ************ 
@@ -849,23 +895,26 @@ public class MessageForumSynopticBean {
 
 				// ************ checking for unread private messages for this site ************  
 				if (siteId.equals(pmCounts[0])) {
-					dcms.setUnreadPrivateAmt(((Integer) pmCounts[1]).intValue());
-
-					hasPrivate = true;
-				}
-				else {
-					// check if there are actually no unread messages or if
-					// not enabled
+					// check if not enabled
 					final Area area = areaManager.getAreaByContextIdAndTypeId(site.getId(), 
 													typeManager.getPrivateMessageAreaType());
 					
 					if (area != null) {
 						if (area.getEnabled().booleanValue()) {
+							dcms.setUnreadPrivateAmt(((Integer) pmCounts[1]).intValue());
+							hasPrivate = true;
+						}
+						else {
 							dcms.setUnreadPrivateAmt(0);
 							hasPrivate = true;
 						}
-					}					
+					}
+					else {
+						dcms.setUnreadPrivateAmt(0);
+						hasPrivate = true;
+					}
 				}
+				
 
 				// ************ check for unread discussion forum messages on this site ************
 				if (siteId.equals(unreadDFCount[0])) {
@@ -886,6 +935,8 @@ public class MessageForumSynopticBean {
 					dcms.setMcPageURL(getMCPageURL(site.getId()));
 
 					contents.add(dcms);
+					
+					sitesToView = true;
 				}
 			}
 		}
@@ -893,6 +944,29 @@ public class MessageForumSynopticBean {
 		return contents;
 	}
 
+	/**
+	 * Returns a list of Strings stored in index 0 of Object [] members of
+	 * list passed in.
+	 * 
+	 * @param counts
+	 * 			List of Object [] members whose element at index 0 is a String
+	 * 
+	 * @return
+	 * 			List of Strings extracted from list passed in
+	 */
+	private List getSiteIds(List counts) {
+		List results = new ArrayList();
+		
+		if (! counts.isEmpty()) {
+			for (Iterator iter = counts.iterator(); iter.hasNext(); ) {
+				Object [] pmCount = (Object []) iter.next();
+				
+				results.add(pmCount[0]);
+			}
+		}
+		
+		return results;
+	}
 	/**
 	 * Returns List to populate page if on Home page of a site
 	 * 
@@ -952,9 +1026,7 @@ public class MessageForumSynopticBean {
 					final Topic topic = (Topic) topicIter.next();
 					
 					if (uiPermissionsManager.isRead((DiscussionTopic) topic, df)) {
-						// TODO: Does user have permission to read this topic?
 						unreadForum += messageManager.findUnreadMessageCountByTopicId(topic.getId());
-					
 					}
 				}
 			}
@@ -1051,15 +1123,11 @@ public class MessageForumSynopticBean {
 	private List computeUnreadDFMessages(List totalMessages, List readMessages) {
 		List unreadDFMessageCounts = new ArrayList();
 
+		final List readSiteIds = getSiteIds(readMessages);
+		
 		// Constructs the unread message counts from above 4 lists
 		final Iterator dfMessagesIter = totalMessages.iterator();
-		final Iterator dfReadMessagesIter = readMessages.iterator();
 		
-		Object [] dfNoAccMessageCountForASite;
-		Object [] dfNoAccReadMessageCountForASite;
-
-		Object [] dfReadMessageCountForASite = (Object []) dfReadMessagesIter.next();
-
 		// NOTE: dfMessagesIter.count >= dfReadMessagesIter, so use
 		// dfMessagesIter for compilation loop
 		while (dfMessagesIter.hasNext()) {
@@ -1069,14 +1137,13 @@ public class MessageForumSynopticBean {
 
 			siteDFInfo[0] = (String) dfMessageCountForASite[0];
 
-			if (((String) dfMessageCountForASite[0])
-							.equals((String) dfReadMessageCountForASite[0])) {
+			int pos = indexOf((String) siteDFInfo[0], readSiteIds);
+			
+			if (pos != -1) {
+				final Object [] dfReadMessageCountForASite = (Object []) readMessages.get(pos);
+				
 				siteDFInfo[1] = new Integer(((Integer) dfMessageCountForASite[1]).intValue()
 												- ((Integer) dfReadMessageCountForASite[1]).intValue());
-
-				if (dfReadMessagesIter.hasNext()) {
-					dfReadMessageCountForASite = (Object[]) dfReadMessagesIter.next();
-				}
 			} 
 			else {
 				// No messages read for this site so message count = unread message count
