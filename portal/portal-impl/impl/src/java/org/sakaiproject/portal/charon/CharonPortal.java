@@ -1690,7 +1690,7 @@ public class CharonPortal extends HttpServlet
 		Session s = SessionManager.getCurrentSession();
 		if (s.getAttribute("direct-stored-state") == null || ss == null)
 		{
-			s.setAttribute("reset-stored-state", ss);
+			s.setAttribute("direct-stored-state", ss);
 		}
 	}
 
