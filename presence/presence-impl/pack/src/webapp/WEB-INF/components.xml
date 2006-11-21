@@ -13,6 +13,7 @@
 		<property name="usageSessionService"><ref bean="org.sakaiproject.event.api.UsageSessionService"/></property>
 		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
 		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="privacyManager"><ref bean="org.sakaiproject.api.privacy.PrivacyManager"/></property>
  		<property name="timeoutSeconds"><value>60</value></property>
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
 	</bean>

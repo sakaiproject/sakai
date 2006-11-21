@@ -23,12 +23,15 @@ package org.sakaiproject.presence.impl;
 
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -123,6 +126,19 @@ public abstract class BasePresenceService implements PresenceService
 	public void setEventTrackingService(EventTrackingService service)
 	{
 		m_eventTrackingService = service;
+	}
+
+	/** Dependency: PrivacyManager */
+	protected PrivacyManager m_privacyManager = null;
+
+	/**
+	 * Dependency: PrivacyManager.
+	 * 
+	 * @param service
+	 * 			The PrivacyManager.
+	 */
+	public void setPrivacyManager(PrivacyManager service) {
+		m_privacyManager = service;
 	}
 
 	/** Configuration: milliseconds till a non-refreshed presence entry times out. */
@@ -296,7 +312,7 @@ public abstract class BasePresenceService implements PresenceService
 		for (Iterator i = sessions.iterator(); i.hasNext();)
 		{
 			UsageSession s = (UsageSession) i.next();
-
+			
 			if (!userIds.contains(s.getUserId()))
 			{
 				userIds.add(s.getUserId());
@@ -306,6 +322,49 @@ public abstract class BasePresenceService implements PresenceService
 		// get the users for these ids
 		List users = m_userDirectoryService.getUsers(userIds);
 
+		// sort
+		Collections.sort(users);
+
+		return users;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List getPresentUsers(String locationId, String siteId)
+	{
+		boolean userInSite = false;
+		
+		// get the sessions
+		List sessions = m_storage.getSessions(locationId);
+
+		// form a list of user ids
+		List userIds = new Vector();
+		
+		for (Iterator i = sessions.iterator(); i.hasNext();)
+		{
+			UsageSession s = (UsageSession) i.next();
+			
+			if (s.getUserId().equals(m_sessionManager.getCurrentSessionUserId())) {
+				userInSite = true;
+			}
+			
+			if (!userIds.contains(s.getUserId()))
+			{
+				userIds.add(s.getUserId());
+			}
+		}
+		
+		Set userIdsSet = m_privacyManager.findViewable(siteId, new HashSet(userIds));
+
+		// add current user back in just in case privacy status is hidden
+		if (userInSite) {
+			userIdsSet.add(m_sessionManager.getCurrentSessionUserId());
+		}
+
+		// get the users for these ids
+		List users = m_userDirectoryService.getUsers(userIdsSet);
+		
 		// sort
 		Collections.sort(users);
 
