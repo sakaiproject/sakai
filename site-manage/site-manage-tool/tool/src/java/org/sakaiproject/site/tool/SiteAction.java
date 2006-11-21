@@ -445,6 +445,8 @@ public class SiteAction extends PagedResourceActionII
   	private static final String GROUP_PROP_WSETUP_CREATED = "group_prop_wsetup_created";
   	
   	private static final String IMPORT_DATA_SOURCE = "import_data_source";
+  	
+  	private static final String EMAIL_CHAR = "@";
   
 	/**
 	* Populate the state object, if needed.
@@ -10318,187 +10320,128 @@ public class SiteAction extends PagedResourceActionII
 	public void doAdd_participant(RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ()); 
-		String siteTitle = getStateSite(state).getTitle();				
-		Hashtable selectedRoles = (Hashtable) state.getAttribute(STATE_SELECTED_PARTICIPANT_ROLES);
-		int i;
-		
-		//accept noEmailInIdAccounts and/or emailInIdAccount account names
+		String siteTitle = getStateSite(state).getTitle();
 		String emailInIdAccountName = ServerConfigurationService.getString("emailInIdAccountName", "");
-		String noEmailInIdAccounts = null;
-		String emailInIdAccounts = null;
 		
-		if (state.getAttribute("noEmailInIdAccountValue") != null)
-		{
-			noEmailInIdAccounts = (String) state.getAttribute("noEmailInIdAccountValue");
-		}
-		if (state.getAttribute("emailInIdAccountValue") != null)
-		{
-			emailInIdAccounts = (String) state.getAttribute("emailInIdAccountValue");
-		}
+		Hashtable selectedRoles = (Hashtable) state.getAttribute(STATE_SELECTED_PARTICIPANT_ROLES);
 		
 		boolean notify = false;
 		if (state.getAttribute("form_selectedNotify") != null)
 		{
 			notify = ((Boolean) state.getAttribute("form_selectedNotify")).booleanValue();
 		}
-		
 		boolean same_role = ((Boolean) state.getAttribute("form_same_role")).booleanValue();
-	
-		String pw = null;
-		String notAddedNoEmailInIdAccounts = null;
-		String notAddedEmailInIdAccounts = null;
-
-		Vector addedNoEmailInIdAccounts = new Vector();
-		
 		Hashtable eIdRoles = new Hashtable();
-		if (noEmailInIdAccounts != null)
+		
+		
+		List addParticipantList = (List) state.getAttribute(STATE_ADD_PARTICIPANTS);
+		for (int i = 0; i < addParticipantList.size(); i++)
 		{
-			// adding noEmailInIdAccounts
-			String[] noEmailInIdAccountArray = noEmailInIdAccounts.replaceAll(",","\r\n").split("\r\n");
-			for (i = 0; i < noEmailInIdAccountArray.length; i++)
+			Participant p = (Participant) addParticipantList.get(i);
+			String eId = p.getEid();
+			
+			// role defaults to same role
+			String role =  (String) state.getAttribute("form_selectedRole");
+			if (!same_role)
 			{
-				String noEmailInIdAccount = StringUtil.trimToNull(noEmailInIdAccountArray[i].replaceAll("[\t\r\n]",""));
-				if(noEmailInIdAccount != null)
-				{
-					// get role
-					String role = null;
-					if (same_role)
-					{
-						// if all added participants have a same role
-						role = (String) state.getAttribute("form_selectedRole");
-					}
-					else
-					{
-						// if all added participants have different role
-						role = (String) selectedRoles.get(noEmailInIdAccount);
-					}
-					
-					// update the hashtable
-					eIdRoles.put(noEmailInIdAccount, role);
-				}
+				// if all added participants have different role
+				role = (String) selectedRoles.get(eId);
 			}
 			
-			// batch add and updates the successful added list
-			addedNoEmailInIdAccounts.addAll(addUsersRealm(state, eIdRoles, notify, false));
-			
-			for (Iterator iEIds = eIdRoles.keySet().iterator(); iEIds.hasNext();)
-			{
-				String iEId = (String) iEIds.next();
-				if (!addedNoEmailInIdAccounts.contains(iEId))
-				{
-					// not added eids
-					notAddedNoEmailInIdAccounts.concat(iEId + "\n");
-				}
+			boolean noEmailInIdAccount = eId.indexOf(EMAIL_CHAR) == -1;
+			if(noEmailInIdAccount)
+			{	
+				// if this is a noEmailInIdAccount
+				// update the hashtable
+				eIdRoles.put(eId, role);
 			}
-		}	// noEmailInIdAccounts					
-
-		// for those email in EId accounts
-		eIdRoles.clear();
-		Vector addedEmailInIdAccounts = new Vector();
-		if (emailInIdAccounts != null)
-		{
-			String[] emailInIdAccountArray = emailInIdAccounts.split("\r\n");
-	
-			for (i = 0; i < emailInIdAccountArray.length; i++)
+			else
 			{
-				String emailInIdAccount = StringUtil.trimToNull(emailInIdAccountArray[i].replaceAll("[ \t\r\n]",""));
-				
-				// remove the trailing dots and empty space
-				while (emailInIdAccount.endsWith(".") || emailInIdAccount.endsWith(" "))
+				// if this is an emailInIdAccount
+				try
 				{
-					emailInIdAccount = emailInIdAccount.substring(0, emailInIdAccount.length() -1);
+					UserDirectoryService.getUserByEid(eId);
 				}
-
-				if(emailInIdAccount != null)
-				{	
+				catch (UserNotDefinedException e) 
+				{
+					//if there is no such user yet, add the user
 					try
 					{
-						UserDirectoryService.getUserByEid(emailInIdAccount);
-					}
-					catch (UserNotDefinedException e) 
-					{
-						//if there is no such user yet, add the user
-						try
-						{
-							UserEdit uEdit = UserDirectoryService.addUser(null, emailInIdAccount);
+						UserEdit uEdit = UserDirectoryService.addUser(null, eId);
 
-							//set email address
-							uEdit.setEmail(emailInIdAccount);
-							
-							// set the guest user type
-							uEdit.setType("guest");
-
-							// set password to a positive random number
-							Random generator = new Random(System.currentTimeMillis());
-							Integer num = new Integer(generator.nextInt(Integer.MAX_VALUE));
-							if (num.intValue() < 0) num = new Integer(num.intValue() *-1);
-							pw = num.toString();
-							uEdit.setPassword(pw);
-							
-							// and save
-							UserDirectoryService.commitEdit(uEdit);
-							
-							boolean notifyNewUserEmail = (ServerConfigurationService.getString("notifyNewUserEmail", Boolean.TRUE.toString())).equalsIgnoreCase(Boolean.TRUE.toString());
-							if (notifyNewUserEmail)
-							{
-								notifyNewUserEmail(uEdit.getEid(), uEdit.getEmail(), pw, siteTitle);
-							}
-						 }
-						 catch(UserIdInvalidException ee)
-						 {
-							 addAlert(state, emailInIdAccountName + " id " + emailInIdAccount + " "+rb.getString("java.isinval") );
-							 M_log.warn("doAdd_participant: UserDirectoryService addUser exception " + e.getMessage());
-						 }
-						 catch(UserAlreadyDefinedException ee)
-						 {
-							 addAlert(state, "The " + emailInIdAccountName + " " + emailInIdAccount + " " + rb.getString("java.beenused"));
-							 M_log.warn("doAdd_participant: UserDirectoryService addUser exception " + e.getMessage());
-						 }
-						 catch(UserPermissionException ee)
-						 {
-							 addAlert(state, rb.getString("java.haveadd")+ " " + emailInIdAccount);
-							 M_log.warn("doAdd_participant: UserDirectoryService addUser exception " + e.getMessage());
-						 }	
-					}
-					
-					// add role if user exists
-					if (state.getAttribute(STATE_MESSAGE) == null)
-					{
-						// get role 
-						String role = null;
-						if (same_role)
-						{
-							// if all added participants have a same role
-							role = (String) state.getAttribute("form_selectedRole"); 
-						}
-						else
-						{
-							// if all added participants have different role
-							role = (String) selectedRoles.get(emailInIdAccount);
-						}
+						//set email address
+						uEdit.setEmail(eId);
 						
-						eIdRoles.put(emailInIdAccount, role);
-					}	// if
-				}	// if
-			}	// for
-					
-			addedEmailInIdAccounts.addAll(addUsersRealm(state, eIdRoles, notify, true));
-			
-			// update the not added user list
-			for (Iterator iEIds = eIdRoles.keySet().iterator(); iEIds.hasNext();)
-			{
-				String iEId = (String) iEIds.next();
-				if (!addedEmailInIdAccounts.contains(iEId))
+						// set the guest user type
+						uEdit.setType("guest");
+
+						// set password to a positive random number
+						Random generator = new Random(System.currentTimeMillis());
+						Integer num = new Integer(generator.nextInt(Integer.MAX_VALUE));
+						if (num.intValue() < 0) num = new Integer(num.intValue() *-1);
+						String pw = num.toString();
+						uEdit.setPassword(pw);
+						
+						// and save
+						UserDirectoryService.commitEdit(uEdit);
+						
+						boolean notifyNewUserEmail = (ServerConfigurationService.getString("notifyNewUserEmail", Boolean.TRUE.toString())).equalsIgnoreCase(Boolean.TRUE.toString());
+						if (notifyNewUserEmail)
+						{
+							notifyNewUserEmail(uEdit.getEid(), uEdit.getEmail(), pw, siteTitle);
+						}
+					 }
+					 catch(UserIdInvalidException ee)
+					 {
+						 addAlert(state, emailInIdAccountName + " id " + eId + " "+rb.getString("java.isinval") );
+						 M_log.warn(this + " UserDirectoryService addUser exception " + e.getMessage());
+					 }
+					 catch(UserAlreadyDefinedException ee)
+					 {
+						 addAlert(state, "The " + emailInIdAccountName + " " + eId + " " + rb.getString("java.beenused"));
+						 M_log.warn(this + " UserDirectoryService addUser exception " + e.getMessage());
+					 }
+					 catch(UserPermissionException ee)
+					 {
+						 addAlert(state, rb.getString("java.haveadd")+ " " + eId);
+						 M_log.warn(this + " UserDirectoryService addUser exception " + e.getMessage());
+					 }
+				}
+				
+				if (state.getAttribute(STATE_MESSAGE) == null)
 				{
+					eIdRoles.put(eId, role);
+				}
+			}
+		}
+		
+		// batch add and updates the successful added list
+		List addedParticipantEIds = addUsersRealm(state, eIdRoles, notify, false);
+		
+		// update the not added user list
+		String notAddedNoEmailInIdAccounts = null;
+		String notAddedEmailInIdAccounts = null;
+		for (Iterator iEIds = eIdRoles.keySet().iterator(); iEIds.hasNext();)
+		{
+			String iEId = (String) iEIds.next();
+			if (!addedParticipantEIds.contains(iEId))
+			{
+				if (iEId.indexOf(EMAIL_CHAR) == -1)
+				{
+					// no email in eid
+					notAddedNoEmailInIdAccounts = notAddedNoEmailInIdAccounts.concat(iEId + "\n");
+				}
+				else
+				{
+					// email in eid
 					notAddedEmailInIdAccounts = notAddedEmailInIdAccounts.concat(iEId + "\n");
 				}
 			}
-			
-		} // emailInIdAccounts
+		}
 
-		if (!(addedNoEmailInIdAccounts.size() == 0 && addedEmailInIdAccounts.size() == 0) && (notAddedNoEmailInIdAccounts != null || notAddedEmailInIdAccounts != null))
+		if (addedParticipantEIds.size() != 0 && (notAddedNoEmailInIdAccounts != null || notAddedEmailInIdAccounts != null))
 		{
-			// at lease one noEmailInIdAccount account or a emailInIdAccount account added
+			// at lease one noEmailInIdAccount account or an emailInIdAccount account added, and there are also failures
 			addAlert(state, rb.getString("java.allusers"));
 		}
 
