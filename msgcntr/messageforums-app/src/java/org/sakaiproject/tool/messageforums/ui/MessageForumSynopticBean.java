@@ -511,13 +511,10 @@ public class MessageForumSynopticBean {
 
 		// ****** Set up our iterator ******
 		final Iterator currentIter = currentList.iterator();
-		final Iterator removeIter = removeList.iterator();
 		
-		// from above, they each have at least one element
-		Object [] removeValues = (Object []) removeIter.next();
-
 		while (currentIter.hasNext()) {
 			final Object [] resultValues = new Object [2];
+			Object [] removeValues;
 			Object [] currentValues = null;
 			
 			// get current values for this iteration
@@ -525,21 +522,20 @@ public class MessageForumSynopticBean {
 				currentValues = (Object []) currentIter.next();
 			}
 
+			int pos = indexOf((String) currentValues[0], getSiteIds(removeList));
+			
 			// if there are messages to remove, do so otherwise just add current values
-			if (((String) currentValues[0]).equals((String) removeValues[0])) {
+			if (pos != -1) {
+				removeValues = (Object []) removeList.get(pos);
+
 				resultValues[0] = currentValues[0];
 				resultValues[1] = new Integer( ((Integer) currentValues[1]).intValue() - 
 													((Integer) removeValues[2]).intValue() );
 				
 				resultList.add(resultValues);
 				
-				if (removeIter.hasNext()) {
-					removeValues = (Object []) removeIter.next();
-				}
-				else {
-					removeValues[0] = "";
-				}
-			}
+				removeList.remove(pos);
+			} 
 			else {
 				resultList.add(currentValues);
 			}
@@ -578,7 +574,7 @@ public class MessageForumSynopticBean {
 			if (curSite != null) {
 				final String curRole = AuthzGroupService.getUserRole(SessionManager.getCurrentSessionUserId(), "/site/" + curSite.getId());
 			
-				if (! roles.contains(curRole) && curRole != null) {
+				if (curRole != null && ! roles.contains(curRole)) {
 					roles.add(curRole);
 				}
 			}
@@ -627,58 +623,63 @@ public class MessageForumSynopticBean {
 				continue;
 			}
 
-			// take care of initial case
-			if (resultSet == null) {
-				if (rmIter.hasNext()) {
-					resultSet = (Object []) rmIter.next();						
-				}
-				else {
-					return resultList;
-				}
-			}
-
-			// since there could be sites we need to skip over
-			while (site.getId().compareTo(((String) resultSet[0])) > 0) 
-			{
-				if (rmIter.hasNext()) {
-					resultSet = (Object []) rmIter.next();						
-				}
-				else {
-					return resultList;
-				}
-			}
+			int pos = indexOf(site.getId(), getSiteIds(removeMessageCounts));
 
 			// permissions based on roles, so need to check if user's role has messages
 			// that need to be removed from totals (either total or unread)
-			while (site.getId().equals((String) resultSet[0])) {
-				final String curRole = AuthzGroupService.getUserRole(SessionManager.getCurrentSessionUserId(), 
-																	 	("/site/" + site.getId()) );
+			if (pos != -1) {
+				resultSet = (Object []) removeMessageCounts.get(pos);
 				
-				if (curRole.equals((String) resultSet[1])) {
-					resultList.add(resultSet);
-				}
+				while (site.getId().equals((String) resultSet[0])) {
+					final String curRole = AuthzGroupService.getUserRole(
+												SessionManager.getCurrentSessionUserId(),
+														("/site/" + site.getId()) );
 				
-				if (rmIter.hasNext()) {
-					resultSet = (Object []) rmIter.next();
+					if (curRole.equals((String) resultSet[1])) {
+						resultList.add(resultSet);
+					
+						// remove all rows of removeMessageCounts for this site
+						// since I've found the one I was looking for
+						while (site.getId().equals((String) resultSet[0])) {
+							removeMessageCounts.remove(pos++);
+						
+							if (pos < removeMessageCounts.size()) {
+								resultSet = (Object []) removeMessageCounts.get(pos);
+							}
+							else {
+								resultSet[0] = "";
+							}
+						}
+					}
+					else {
+						// this row is not it but may have others so remove it
+						// and set up for next iteration of the loop
+						removeMessageCounts.remove(pos++);
 
-					while (site.getId().equals(resultSet[0])) {
-						if (rmIter.hasNext()) {
-							resultSet = (Object []) rmIter.next();
+						if (pos < removeMessageCounts.size()) {
+							resultSet = (Object []) removeMessageCounts.get(pos);
 						}
 						else {
 							resultSet[0] = "";
 						}
-					}
-				}
-				else {
-					return resultList;
+					} 
 				}
 			}
 		}
 		
 		return resultList;
 	}
-	
+
+	/**
+	 * Determines the number of unread messages for each site.
+	 * Filters out messages user does not have read permission for.
+	 * 
+	 * @param siteList
+	 * 			List of sites user is a member of/has access to
+	 * 
+	 * @return
+	 * 		List of unread message counts grouped by site
+	 */
 	private List compileDFMessageCount(List siteList) {
 		// retrieve what possible roles user could be in sites
 		final List roleList = getUserRoles(siteList);
@@ -730,10 +731,12 @@ public class MessageForumSynopticBean {
 													discussionForumReadMessageCounts);
 					} 
 					else {
+						// after filtering, no unread message counts
 						unreadDFMessageCounts = discussionForumMessageCounts;
 					}
 				}
 				else {
+					// no read message counts
 					unreadDFMessageCounts = discussionForumMessageCounts;
 				}
 			}
@@ -800,8 +803,9 @@ public class MessageForumSynopticBean {
 		// ******* Pulls unread discussion forum message counts from DB *******
 		List unreadDFMessageCounts = compileDFMessageCount(siteList);
 		
-		// If both are empty, no unread messages so 
-		// create 0 count beans for both types so proper message display
+		// If both are empty, no unread messages so
+		// create 0 count beans for both types for all sites not filtered so
+		// displays proper messages
 		if (privateMessageCounts.isEmpty() && unreadDFMessageCounts.isEmpty()) {
 			
 			for (Iterator siteIter = siteList.iterator(); siteIter.hasNext(); ) {
@@ -866,6 +870,9 @@ public class MessageForumSynopticBean {
 			
 			if (PMpos != -1) {
 				pmCounts = (Object []) privateMessageCounts.get(PMpos);
+				
+				// to make searching for remaining counts more efficient
+				privateMessageCounts.remove(pmCounts);
 			}
 			else {
 				pmCounts = new Object[1];
@@ -877,6 +884,9 @@ public class MessageForumSynopticBean {
 			
 			if (DFpos != -1) {
 				unreadDFCount = (Object []) unreadDFMessageCounts.get(DFpos);
+				
+				// to make searching for remaining counts more efficient
+				unreadDFMessageCounts.remove(DFpos);
 			}
 			else {
 				unreadDFCount = new Object[1];
@@ -967,6 +977,7 @@ public class MessageForumSynopticBean {
 		
 		return results;
 	}
+	
 	/**
 	 * Returns List to populate page if on Home page of a site
 	 * 
