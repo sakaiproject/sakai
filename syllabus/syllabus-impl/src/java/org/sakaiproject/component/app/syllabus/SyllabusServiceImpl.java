@@ -360,7 +360,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
           + Entity.SEPARATOR + siteId + Entity.SEPARATOR
           + SiteService.MAIN_CONTAINER + ".\n");
       // start with an element with our very own (service) name
-      Element element = doc.createElement(APPLICATION_ID);
+      Element element = doc.createElement(SyllabusService.class.getName());
       ((Element) stack.peek()).appendChild(element);
       stack.push(element);
       if (siteId != null && siteId.trim().length() > 0)
