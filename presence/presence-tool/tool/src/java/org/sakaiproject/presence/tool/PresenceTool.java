@@ -121,8 +121,8 @@ public class PresenceTool extends HttpServlet
 		}
 
 		// get the list of users at the location
-		List users = PresenceService.getPresentUsers(location);
-
+		List users = PresenceService.getPresentUsers(location, placement.getContext());
+		
 		// get SiteId from the current placement and retrieve site
 		String siteId = placement.getContext();
 
@@ -150,7 +150,7 @@ public class PresenceTool extends HttpServlet
 		if (toolConfig != null)
 		{
 			String chatLocation = toolConfig.getId();
-			chatUsers = PresenceService.getPresentUsers(chatLocation);
+			chatUsers = PresenceService.getPresentUsers(chatLocation, siteId);
 
 			PresenceObservingCourier chatObserver = (PresenceObservingCourier) toolSession.getAttribute(ATTR_CHAT_OBSERVER);
 			if (chatObserver == null)
