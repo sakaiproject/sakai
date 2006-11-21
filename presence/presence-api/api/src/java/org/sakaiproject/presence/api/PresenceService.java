@@ -112,6 +112,18 @@ public interface PresenceService
 	List getPresentUsers(String locationId);
 
 	/**
+	 * Access a List of users (User) now present in a location.
+	 * 
+	 * @param locationId
+	 *        A presence location id.
+	 * @param siteId
+	 * 		  A siteId (added when integrating PrivacyManager)
+	 * 
+	 * @return The a List of users (User) now present in the location (may be empty).
+	 */
+	List getPresentUsers(String locationId, String siteId);
+
+	/**
 	 * Access a List of all location ids (String).
 	 * 
 	 * @return The List of all location ids (Strings) (may be empty).

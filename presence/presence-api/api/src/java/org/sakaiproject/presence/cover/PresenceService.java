@@ -115,6 +115,14 @@ public class PresenceService
 		return service.getPresentUsers(param0);
 	}
 
+	public static java.util.List getPresentUsers(java.lang.String param0, java.lang.String param1)
+	{
+		org.sakaiproject.presence.api.PresenceService service = getInstance();
+		if (service == null) return null;
+
+		return service.getPresentUsers(param0, param1);
+	}
+
 	public static java.util.List getLocations()
 	{
 		org.sakaiproject.presence.api.PresenceService service = getInstance();
