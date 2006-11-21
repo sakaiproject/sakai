@@ -45,7 +45,7 @@ public interface RWikiObjectService extends EntityProducer, EntityTransferrer, C
 {
 
 	/** The type string for this application: should not change over time as it may be stored in various parts of persistent entities. */
-	static final String APPLICATION_ID = "sakai:rwiki";
+	static final String APPLICATION_ID = RWikiObjectService.class.getName();
 
 	/** This string starts the references to resources in this service. */
 	static final String REFERENCE_ROOT = Entity.SEPARATOR + "wiki";
