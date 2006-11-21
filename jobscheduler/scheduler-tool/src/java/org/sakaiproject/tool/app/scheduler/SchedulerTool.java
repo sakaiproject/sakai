@@ -39,6 +39,7 @@ import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
+import org.quartz.JobExecutionContext;
 import org.sakaiproject.api.app.scheduler.JobDetailWrapper;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.api.app.scheduler.TriggerWrapper;
@@ -247,6 +248,37 @@ public class SchedulerTool
       JobDetailWrapper selectedJobDetailWrapper)
   {
     this.selectedJobDetailWrapper = selectedJobDetailWrapper;
+  }
+  
+  /**
+   * This method runs the current job only once, right now
+   * @return int 0 if it's not running, 1 if it is, 2 if there is an error
+   */
+  public int getSelectedJobRunning()
+  {
+     Scheduler scheduler = schedulerManager.getScheduler();
+     if (scheduler == null)
+     {
+       LOG.error("Scheduler is down!");
+       return 2;
+     }
+     try
+     {
+        List executingJobs = scheduler.getCurrentlyExecutingJobs();
+        
+        for(Iterator i = executingJobs.iterator(); i.hasNext(); ) {
+           JobExecutionContext jobExecContext = (JobExecutionContext)i.next();
+           if(selectedJobDetailWrapper.getJobDetail().getFullName().equals(
+                    jobExecContext.getJobDetail().getFullName()) )
+              return 1;
+        }
+       return 0;
+     }
+     catch (Exception e)
+     {
+       LOG.error("Failed to trigger job now");
+       return 2;
+     }
   }
 
   public String processCreateJob()

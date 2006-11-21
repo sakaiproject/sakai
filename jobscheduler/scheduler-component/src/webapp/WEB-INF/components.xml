@@ -10,6 +10,7 @@
             <set>                
                 <value>org.sakaiproject.component.app.scheduler.jobs.TestJob</value>
                 <value>org.sakaiproject.component.app.scheduler.jobs.TestJob2</value>
+                <value>org.sakaiproject.component.app.scheduler.jobs.LongTestJob</value>
             </set>
         </property>
         <property name="qrtzPropFile">

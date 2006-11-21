@@ -10,9 +10,16 @@
 		<sakai:view_content>
 			<h:form>
   	    <h:graphicImage value="/images/quartz.jpg"/>
-				<sakai:group_box title="#{msgs.run_job}">
+				<sakai:group_box title="#{msgs.run_job} #{schedulerTool.selectedJobDetailWrapper.jobDetail.name}">
 				  <sakai:panel_edit>
-				  				  					  						
+				  		
+                     <h:outputText value="#{msgs.already_running}" 
+                           styleClass="validation" rendered="#{schedulerTool.selectedJobRunning == 1}" />
+   
+  				</sakai:panel_edit>
+				  <sakai:panel_edit>
+				  		
+   
 						<h:outputText value="#{msgs.confirm_running_job_now}"/>
   				</sakai:panel_edit>
 				</sakai:group_box>
