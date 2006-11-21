@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <bean id="org.sakaiproject.portal.render.api.ToolRenderService"
+          class="org.sakaiproject.portal.render.compat.CompatibilityToolRenderService"
+          singleton="true">
+        <property name="iframeRenderService">
+            <bean class="org.sakaiproject.portal.render.iframe.IFrameToolRenderService"/>
+        </property>
+
+        <property name="portletRenderService">
+            <ref local="portletRenderService"/>
+        </property>
+    </bean>
+
+
+    <bean id="portletRenderService" name="portletRenderService"
+          class="org.sakaiproject.portal.render.portlet.PortletToolRenderService">
+        <property name="portletStateEncoder">
+            <ref local="portletStateEncoder"/>
+        </property>
+    </bean>
+
+    <bean id="portletStateEncoder"
+          class="org.sakaiproject.portal.render.portlet.services.state.encode.EnhancedPortletStateEncoder">
+        <property name="urlSafeEncoder">
+            <ref local="urlSafeEncoder"/>
+        </property>
+    </bean>
+
+    <bean id="urlSafeEncoder"
+          class="org.sakaiproject.portal.render.portlet.services.state.encode.UrlSafeBase64Encoder"/>
+
+</beans>

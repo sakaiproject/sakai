@@ -50,6 +50,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.portal.render.api.RenderResult;
+import org.sakaiproject.portal.render.cover.ToolRenderService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -404,7 +406,7 @@ public class SkinnableCharonPortal extends HttpServlet
 		// the 'little' top area
 		includeGalleryNav(rcontext, req, session, siteId);
 
-		includeWorksite(rcontext, req, session, site, page, toolContextPath,
+		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
 				"gallery");
 
 		includeBottom(rcontext);
@@ -1010,7 +1012,7 @@ public class SkinnableCharonPortal extends HttpServlet
 		PortalRenderContext rcontext = startPageContext(siteType, title, page
 				.getSkin(), req);
 
-		includePage(rcontext, req, page, toolContextPath, "contentFull");
+		includePage(rcontext, res, req, page, toolContextPath, "contentFull");
 
 		sendResponse(rcontext, res, "page");
 	}
@@ -1323,7 +1325,7 @@ public class SkinnableCharonPortal extends HttpServlet
 		// the 'full' top area
 		includeSiteNav(rcontext, req, session, siteId);
 
-		includeWorksite(rcontext, req, session, site, page, toolContextPath,
+		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
 				"site");
 
 		includeBottom(rcontext);
@@ -1783,7 +1785,7 @@ public class SkinnableCharonPortal extends HttpServlet
 		PortalRenderContext rcontext = startPageContext(siteType, title, site
 				.getSkin(), req);
 
-		includeWorksite(rcontext, req, session, site, page, toolContextPath,
+		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
 				"worksite");
 
 		// end the response
@@ -2113,9 +2115,9 @@ public class SkinnableCharonPortal extends HttpServlet
 		}
 	}
 
-	protected void includePage(PortalRenderContext rcontext,
+	protected void includePage(PortalRenderContext rcontext,HttpServletResponse res,
 			HttpServletRequest req, SitePage page, String toolContextPath,
-			String wrapperClass) throws IOException
+			String wrapperClass ) throws IOException
 	{
 		if (rcontext.uses(INCLUDE_PAGE))
 		{
@@ -2155,7 +2157,7 @@ public class SkinnableCharonPortal extends HttpServlet
 						// allowed
 					}
 
-					Map m = includeTool(req, placement);
+					Map m = includeTool(res, req, placement);
 					if (m != null)
 					{
 						toolList.add(m);
@@ -2175,7 +2177,7 @@ public class SkinnableCharonPortal extends HttpServlet
 				for (Iterator i = tools.iterator(); i.hasNext();)
 				{
 					ToolConfiguration placement = (ToolConfiguration) i.next();
-					Map m = includeTool(req, placement);
+					Map m = includeTool(res, req, placement);
 					if (m != null)
 					{
 						toolList.add(m);
@@ -2659,7 +2661,7 @@ public class SkinnableCharonPortal extends HttpServlet
 		}
 	}
 
-	protected Map includeTool(HttpServletRequest req,
+	protected Map includeTool(HttpServletResponse res, HttpServletRequest req, 
 			ToolConfiguration placement) throws IOException
 	{
 
@@ -2730,6 +2732,9 @@ public class SkinnableCharonPortal extends HttpServlet
 		}
 
 		Map toolMap = new HashMap();
+        RenderResult result = ToolRenderService.render(placement, req, res, getServletContext());
+        toolMap.put("toolRenderResult", result);
+
 		toolMap.put("toolUrl", toolUrl);
 		toolMap.put("toolPlacementIDJS", Web.escapeJavascript("Main"
 				+ placement.getId()));
@@ -2741,7 +2746,7 @@ public class SkinnableCharonPortal extends HttpServlet
 		return toolMap;
 	}
 
-	protected void includeWorksite(PortalRenderContext rcontext,
+	protected void includeWorksite(PortalRenderContext rcontext, HttpServletResponse res,
 			HttpServletRequest req, Session session, Site site, SitePage page,
 			String toolContextPath, String portalPrefix) throws IOException
 	{
@@ -2753,7 +2758,7 @@ public class SkinnableCharonPortal extends HttpServlet
 					portalPrefix);
 
 			// add the page
-			includePage(rcontext, req, page, toolContextPath, "content");
+			includePage(rcontext, res, req, page, toolContextPath, "content");
 		}
 	}
 
