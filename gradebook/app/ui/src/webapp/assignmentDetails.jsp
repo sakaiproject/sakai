@@ -202,11 +202,10 @@
 							actionListener="#{assignmentDetailsBean.toggleEditableComments}"
 							disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
 							rendered="#{!assignmentDetailsBean.allCommentsEditable}"/>
-                        <h:commandButton
+						<h:outputText
 							value="#{assignmentDetailsBean.commentsToggle}"
-							actionListener="#{assignmentDetailsBean.toggleEditableComments}"
-							disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
-							rendered="#{assignmentDetailsBean.allCommentsEditable}"/>
+							rendered="#{assignmentDetailsBean.allCommentsEditable}"
+							styleClass="tier0"/>
 					</h:panelGroup>
 				</f:facet>
 				<h:message for="Score" styleClass="validationEmbedded gbMessageAdjustForContent"/>

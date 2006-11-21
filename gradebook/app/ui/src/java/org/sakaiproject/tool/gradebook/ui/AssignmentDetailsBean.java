@@ -187,7 +187,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 if (!isEnrollmentSort()) {
                 	gradeRecords = new ArrayList(gradeRecordMap.values());
                 }
-                
+
                 // Get all of the comments for these enrollments on this assignment.
                 List comments = getGradebookManager().getComments(assignment, studentUids);
                 Map commentMap = new HashMap();
@@ -195,7 +195,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 					Comment comment = (Comment)iter.next();
 					commentMap.put(comment.getStudentId(), comment);
 				}
-                
+
 				for (Iterator iter = studentUids.iterator(); iter.hasNext(); ) {
 					String studentUid = (String)iter.next();
 					EnrollmentRecord enrollment = (EnrollmentRecord)enrollmentMap.get(studentUid);
@@ -267,7 +267,6 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	
 	public void toggleEditableComments(ActionEvent event) {
 		isAllCommentsEditable = !isAllCommentsEditable;
-        if(!isAllCommentsEditable)FacesUtil.addErrorMessage(getLocalizedString("assignment_details_comments_changes"));
     }
 
     /**
