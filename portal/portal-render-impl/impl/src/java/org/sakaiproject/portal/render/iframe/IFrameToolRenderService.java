@@ -30,12 +30,12 @@ public class IFrameToolRenderService implements ToolRenderService {
                        ServletContext context)
         throws IOException, ToolRenderException {
 
-        String titleString = Web.escapeHtml(configuration.getTitle());
+        final String titleString = Web.escapeHtml(configuration.getTitle());
         String toolUrl = ServerConfigurationService.getToolUrl() + "/"
             + Web.escapeUrl(configuration.getId());
 
 
-        StringBuffer sb = new StringBuffer();
+        final StringBuffer sb = new StringBuffer();
         sb.append("<iframe")
             .append("	name=\"").append(Web.escapeJavascript("Main" + configuration.getId())).append("\"\n")
             .append("	id=\"")
@@ -52,9 +52,14 @@ public class IFrameToolRenderService implements ToolRenderService {
             .append("	src=\"").append(toolUrl).append("?panel=Main\">").append("\n")
             .append("</iframe>");
 
-        RenderResult result = new RenderResult();
-        result.setTitle(titleString);
-        result.setContent(sb);
+        RenderResult result = new RenderResult() {
+        	public String getTitle() {
+        		return titleString;
+        	}
+        	public String getContent() {
+        		return sb.toString();
+        	}
+        };
 
         return result;
     }

@@ -63,6 +63,34 @@
 ##				.getString("sit.contentporttit")));
 ##
 #macro( includeTool $toolPlacement )
+#if (${toolPlacement.hasRenderResult})
+<div class="portlet">
+	<div class="portletTitleWrap">
+		<div class="portletTitle">
+			<div class="title">
+#if (${toolPlacement.toolShowResetButton})
+				<a href="${toolPlacement.toolUrl}?#${toolParamResetState}=true" target="${toolPlacement.toolPlacementIDJS}" title="${sitReset}">
+					<img src="/library/image/transparent.gif" alt="${sitReset}" border="1" /></a>
+#end	
+				<h2>${toolPlacement.toolRenderResult.getTitle()}</h2>
+			</div>
+			<div class="action">
+#if (${toolPlacement.toolShowHelpButton})
+		<a accesskey="h" href="${toolPlacement.toolHelpActionUrl}" title="${sitHelp}" 
+		 target="_blank" onclick="openWindow('${toolPlacement.toolHelpActionUrl}', 'Help',
+		  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+			<img src="/library/image/transparent.gif"  alt="${sitHelp}" border="0" />
+		</a>
+#end
+			</div>
+		</div>
+	</div>
+
+	<div class="portletMainWrap">
+	    ${toolPlacement.toolRenderResult.getContent()}
+	</div>
+</div>
+#else
 <div class="portlet">
 	<div class="portletTitleWrap">
 		<div class="portletTitle">
@@ -98,6 +126,7 @@
 		</iframe>
 	</div>
 </div>
+#end
 #end
 ##------------------------------------------------------------------------------------------
 ##

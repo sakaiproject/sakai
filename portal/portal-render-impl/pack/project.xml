@@ -3,9 +3,9 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../../master/project.xml</extend>
-	<name>sakai-portal-render-pack</name>
+	<name>000sakai-portal-render-pack</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-portal-render-pack</id>
+	<id>000sakai-portal-render-pack</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>
@@ -46,6 +46,30 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
+      <dependency>
+          <groupId>commons-codec</groupId>
+          <artifactId>commons-codec</artifactId>
+          <version>1.3</version>
+          <properties>
+				<war.bundle>true</war.bundle>
+		  </properties>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.pluto</groupId>
+          <artifactId>pluto-container</artifactId>
+          <version>1.1.0-beta2</version>
+          <properties>
+				<war.bundle>true</war.bundle>
+		  </properties>
+      </dependency>
+      <dependency>
+          <groupId>javax.portlet</groupId>
+          <artifactId>portlet-api</artifactId>
+          <version>1.0</version>
+          <properties>
+				<war.bundle>true</war.bundle>
+		  </properties>
+      </dependency>
 
 	</dependencies>
 

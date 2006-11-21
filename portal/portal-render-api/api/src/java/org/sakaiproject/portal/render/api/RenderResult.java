@@ -1,23 +1,20 @@
 package org.sakaiproject.portal.render.api;
-
-public class RenderResult {
-
-    private String title;
-    private StringBuffer content;
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public StringBuffer getContent() {
-        return content;
-    }
-
-    public void setContent(StringBuffer content) {
-        this.content = content;
-    }
+/**
+ * Results rendered from the portlet must impliment this interface
+ * @author ieb
+ *
+ */
+public interface RenderResult {
+	/**
+	 * get the portlet title
+	 * @return
+	 * @throws ToolRenderException
+	 */
+	String getTitle() throws ToolRenderException;
+	/**
+	 * get the portlet content
+	 * @return
+	 * @throws ToolRenderException
+	 */
+	String getContent() throws ToolRenderException;
 }

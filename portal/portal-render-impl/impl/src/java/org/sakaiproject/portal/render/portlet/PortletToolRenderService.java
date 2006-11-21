@@ -71,33 +71,60 @@ public class PortletToolRenderService implements ToolRenderService {
     }
 
     public RenderResult render(ToolConfiguration toolConfiguration,
-                       HttpServletRequest request,
-                       HttpServletResponse response,
+                       final HttpServletRequest request,
+                       final HttpServletResponse response,
                        ServletContext context)
             throws IOException, ToolRenderException {
 
         Tool tool = toolConfiguration.getTool();
 
-        SakaiPortletWindow window = createPortletWindow(tool, toolConfiguration);
+        final SakaiPortletWindow window = createPortletWindow(tool, toolConfiguration);
         PortletState state = PortletStateAccess.getPortletState(request, window.getId().getStringId());
         if(state != null) {
             window.setState(state);
         }
         try {
-            PortletContainer portletContainer = getPortletContainer(context);
+            final PortletContainer portletContainer = getPortletContainer(context);
 
-            BufferedServletResponse bufferedResponse = new BufferedServletResponse(response);
-            portletContainer.doRender(window, request, bufferedResponse);
 
-            RenderResult result = new RenderResult();
-            result.setContent(bufferedResponse.getInternalBuffer().getBuffer());
-            result.setTitle(PortletAttributesAccess.getPortletAttributes(request, window).getTitle());
-
+            RenderResult result = new RenderResult(){
+            	private BufferedServletResponse bufferedResponse = null;
+            	private void renderResponse() throws ToolRenderException {
+            		if ( bufferedResponse == null ) {
+            			bufferedResponse = new BufferedServletResponse(response);
+            			try
+						{
+							portletContainer.doRender(window, request, bufferedResponse);
+						}
+						catch (PortletException e)
+						{
+							throw new ToolRenderException(e.getMessage(),e);
+						}
+						catch (IOException e)
+						{
+							throw new ToolRenderException(e.getMessage(),e);
+						}
+						catch (PortletContainerException e)
+						{
+							throw new ToolRenderException(e.getMessage(),e);
+						}	
+            		}                	
+            	}
+				public String getContent() throws ToolRenderException
+				{
+					renderResponse();
+                    return bufferedResponse.getInternalBuffer().getBuffer().toString();
+				}
+				public String getTitle() throws ToolRenderException
+				{
+					renderResponse();
+			        return PortletAttributesAccess.getPortletAttributes(request, window).getTitle();
+				}
+            	
+            };
             return result;
 
         } catch (PortletContainerException e) {
-            throw new ToolRenderException(e.getMessage(), e);
-        } catch (PortletException e) {
             throw new ToolRenderException(e.getMessage(), e);
         }
     }

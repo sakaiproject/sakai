@@ -2734,6 +2734,8 @@ public class SkinnableCharonPortal extends HttpServlet
 		Map toolMap = new HashMap();
         RenderResult result = ToolRenderService.render(placement, req, res, getServletContext());
         toolMap.put("toolRenderResult", result);
+        toolMap.put("hasRenderResult", Boolean.valueOf(true));
+        
 
 		toolMap.put("toolUrl", toolUrl);
 		toolMap.put("toolPlacementIDJS", Web.escapeJavascript("Main"
