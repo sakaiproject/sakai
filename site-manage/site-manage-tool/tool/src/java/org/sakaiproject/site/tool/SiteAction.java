@@ -30,13 +30,11 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.Vector;
@@ -67,7 +65,6 @@ import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -81,12 +78,9 @@ import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.message.api.MessageService;
 import org.sakaiproject.mailarchive.api.MailArchiveService;
 import org.sakaiproject.site.api.Course;
 import org.sakaiproject.site.api.CourseMember;
@@ -141,9 +135,7 @@ public class SiteAction extends PagedResourceActionII
 	
 	private static final String SITE_MODE_SITESETUP = "sitesetup";
 	private static final String SITE_MODE_SITEINFO= "siteinfo";
-	private static final String SITE_MODE_SITEMANAGE = "sitemanage"; 
 	private static final String STATE_SITE_MODE = "site_mode";
-	private static final String NO_SHOW_SEARCH_TYPE = "noshow_search_sitetype";
 	
 	protected final static String[] TEMPLATE = 
 	{
@@ -177,18 +169,18 @@ public class SiteAction extends PagedResourceActionII
 		"-importSites",
 		"-siteInfo-import",
 		"-siteInfo-duplicate",
-		"-sitemanage-search",//30
-		"-sitemanage-list",//31
-		"-sitemanage-participants",//32
-		"-sitemanage-addParticipant",//33
-		"-sitemanage-sameRole",//34
-		"-sitemanage-differentRoles",//35
+		"",//30
+		"",//31
+		"",//32
+		"",//33
+		"",//34
+		"",//35
 		"-newSiteCourse",//36
 		"-newSiteCourseManual",//37
-		"-sitemanage-editInfo",//38
-		"-sitemanage-editAccess",//39
-		"-sitemanage-siteDeleteConfirm",//40
-		"-sitemanage-saveas",//41
+		"",//38
+		"",//39
+		"",//40
+		"",//41
 		"-gradtoolsConfirm",//42
 		"-siteInfo-editClass",//43
 		"-siteInfo-addCourseConfirm",//44
@@ -372,17 +364,6 @@ public class SiteAction extends PagedResourceActionII
 	private static final String STATE_SITES = "state_sites";
 	private static final String STATE_PREV_SITE = "state_prev_site";
 	private static final String STATE_NEXT_SITE = "state_next_site";
-	
-	/** for sitemanage tool */
-	private final static String STATE_SEARCH_SITE_TYPE = "search_site_type";
-	private final static String DEFAULT_SITE_SIZE_LIMIT = "1GB";
-	private final static String STATE_SITE_SIZE_DEFAULT_SELECT = "default_size_selected";
-	private final static String STATE_SITEMANAGE_SITETYPE = "sitemanage_siteinfo_type";
-	private final static String SITE_TERM_ANY = "Any";
-	private final static String STATE_TERM_SELECTION = "termSelection";
-	private final static String STATE_PROP_SEARCH_MAP = "propertyCriteriaMap";
-	private final static String SEARCH_TERM_SITE_TYPE = "termSearchSiteType";
-	private final static String SEARCH_TERM_PROP = "termProp";
 	
 	/** for course information */
 	private final static String STATE_TERM_COURSE_LIST = "state_term_course_list";
@@ -2267,259 +2248,6 @@ public class SiteAction extends PagedResourceActionII
 				context.put("duplicatedName", state.getAttribute(SITE_DUPLICATED_NAME));
 			}
 			return (String)getContext(data).get("template") + TEMPLATE[29];
-		case 30:
-			/* 
-			 *buildContextForTemplate chef_site-sitemanage-search.vm
-			 */
-			 
-			List newTypes = new Vector();
-			if (state.getAttribute(NO_SHOW_SEARCH_TYPE) != null)
-			{
-				String noType = state.getAttribute(NO_SHOW_SEARCH_TYPE).toString();
-				List oldTypes = SiteService.getSiteTypes();
-				for (int i = 0; i < oldTypes.size(); i++)
-				{
-					siteType = oldTypes.get(i).toString();
-					if ((siteType.indexOf(noType)) == -1)
-					{
-						newTypes.add(siteType);
-					}
-				}
-			}
-			else
-			{
-				newTypes = SiteService.getSiteTypes();
-			}
-
-			// remove the "myworkspace" type
-			for (Iterator i = newTypes.iterator(); i.hasNext();)
-			{
-				String t = (String) i.next();
-				if ("myworkspace".equalsIgnoreCase(t))
-				{
-					i.remove();
-				}
-			}
-
-			context.put("siteTypes", newTypes);
-		
-			terms = CourseManagementService.getTerms();
-		
-			String termSearchSiteType = (String)state.getAttribute(SEARCH_TERM_SITE_TYPE);
-			if (termSearchSiteType != null)
-			{
-				context.put("termSearchSiteType", termSearchSiteType);
-				context.put("terms", terms);
-			}
-			
-			return (String)getContext(data).get("template") + TEMPLATE[30];
-		case 31:
-			/*
-			 * buildContextForTemplate chef_site-sitemanage-list.vm
-			 */
-			Integer newPageSize = (Integer) state.getAttribute("inter_size");
-			if (newPageSize != null)
-			{
-				context.put("pagesize", newPageSize);	
-				state.setAttribute(STATE_PAGESIZE, newPageSize);
-			}
-			else
-			{
-				state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
-				context.put("pagesize", new Integer(DEFAULT_PAGE_SIZE));
-			}
-		
-			// put the service in the context (used for allow update calls on each site)
-			context.put("service", SiteService.getInstance());
-
-			// prepare the paging of realms
-			sites = prepPage(state);
-			context.put("sites", sites);
-		
-			pagingInfoToContext(state, context);
-
-			bar = new MenuImpl();
-			if (SiteService.allowAddSite(""))
-			{
-				bar.add( new MenuEntry(rb.getString("java.newsite"), "doNew") );
-			}
-			if (bar.size() > 0)
-			{
-				context.put(Menu.CONTEXT_MENU, bar);
-			}
-			
-			Vector siteItems = new Vector();
-			for (int i = 0; i < sites.size(); i++)
-			{
-				SiteItem siteItem = new SiteItem();
-				site = (Site)sites.get(i);
-				siteItem.setSite(site);
-				
-				siteType = site.getType();
-				if (siteType != null && siteType.equalsIgnoreCase("course"))
-				{ 
-					realmId = SiteService.siteReference(site.getId());
-					String rv = null;
-					try
-					{
-						AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
-						rv = realm.getProviderGroupId();
-					}
-					catch (GroupNotDefinedException e)
-					{
-						M_log.warn("SiteAction.getExternalRealmId, site realm not found");
-					}
-					List providerCourseList = getProviderCourseList(StringUtil.trimToNull(rv));
-					if (providerCourseList != null)
-					{
-						siteItem.setProviderCourseList(providerCourseList);
-					}
-				}
-				siteItems.add(siteItem);
-			}
-			context.put("siteItems", siteItems);
-
-			context.put("termProp", (String)state.getAttribute(SEARCH_TERM_PROP));
-			context.put("searchText", (String)state.getAttribute(STATE_SEARCH));
-			context.put("siteType", (String)state.getAttribute(STATE_SEARCH_SITE_TYPE));
-			context.put("termSelection", (String)state.getAttribute(STATE_TERM_SELECTION));
-			context.put("termSearchSiteType", (String)state.getAttribute(SEARCH_TERM_SITE_TYPE));
-			
-			return (String)getContext(data).get("template") + TEMPLATE[31];
-		
-		case 32:
-			/*  
-			* buildContextForTemplate chef_site-sitemanage-participants.vm 
-			*/	
-			String siteId = (String) state.getAttribute("siteId");
-			try
-			{
-				site = SiteService.getSite(siteId);
-				context.put("site", site);
-			
-				bar = new MenuImpl();
-				bar.add( new MenuEntry(rb.getString("java.addp"), null, true, MenuItem.CHECKED_NA, "doMenu_sitemanage_addParticipant", "site-form") );												
-				context.put(Menu.CONTEXT_MENU, bar);
-		
-				// for paging
-				newPageSize = (Integer) state.getAttribute("inter_size");
-				if (newPageSize != null)
-				{
-					context.put("pagesize", newPageSize);	
-					state.setAttribute(STATE_PAGESIZE, newPageSize);
-				}
-				else
-				{
-					state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
-					context.put("pagesize", new Integer(DEFAULT_PAGE_SIZE));
-				}
-
-				// put the service in the context (used for allow update calls on each site)
-				context.put("service", SiteService.getInstance());
-
-				// prepare the paging of realms
-				List participants = prepPage(state);
-				context.put("participants", participants);
-		
-				pagingInfoToContext(state, context);
-				
-				roles = getRoles(state);
-				context.put("roles", roles);
-				
-				// will have the choice to active/inactive user or not 
-				activeInactiveUser = ServerConfigurationService.getString("activeInactiveUser", Boolean.FALSE.toString());
-				if (activeInactiveUser.equalsIgnoreCase("true"))
-				{
-					context.put("activeInactiveUser", Boolean.TRUE);
-					// put realm object into context
-					realmId = SiteService.siteReference(site.getId());
-					try
-					{
-						context.put("realm", AuthzGroupService.getAuthzGroup(realmId));
-					}
-					catch (GroupNotDefinedException e)
-					{
-						M_log.warn(this + "  IdUnusedException " + realmId);
-					}
-				}
-				else
-				{
-					context.put("activeInactiveUser", Boolean.FALSE);
-				}
-				
-				boolean allowUpdateSite = SiteService.allowUpdateSite(siteId);
-				if (allowUpdateSite)
-				{	
-					context.put("allowUpdate", Boolean.TRUE);
-				}
-				else
-				{
-					context.put("allowUpate", Boolean.FALSE);
-				}
-			
-				return (String)getContext(data).get("template") + TEMPLATE[32];
-			}
-			catch(IdUnusedException e)
-			{
-				return (String)getContext(data).get("template") + TEMPLATE[31];
-			}
-		case 33:
-			/*  
-			* buildContextForTemplate chef_site-sitemanage-addParticipant.vm 
-			*/
-         // Note that (for now) these strings are in both sakai.properties and sitesetupgeneric.properties
-			context.put("noEmailInIdAccountName", ServerConfigurationService.getString("noEmailInIdAccountName"));
-			context.put("noEmailInIdAccountLabel", ServerConfigurationService.getString("noEmailInIdAccountLabel"));
-			context.put("emailInIdAccountName", ServerConfigurationService.getString("emailInIdAccountName"));
-			context.put("emailInIdAccountLabel", ServerConfigurationService.getString("emailInIdAccountLabel"));
-			
-			try
-			{
-				site = SiteService.getSite(state.getAttribute("siteId").toString());
-				context.put("title", site.getTitle());
-				roles = getRoles(state);
-				context.put("roles", roles);
-				if(state.getAttribute("noEmailInIdAccountValue")!=null)
-				{
-					context.put("noEmailInIdAccountValue", (String)state.getAttribute("noEmailInIdAccountValue"));
-				}
-				if(state.getAttribute("emailInIdAccountValue")!=null)
-				{
-					context.put("emailInIdAccountValue", (String)state.getAttribute("emailInIdAccountValue"));
-				}
-				if(state.getAttribute("form_same_role") != null)
-				{
-					context.put("form_same_role", ((Boolean) state.getAttribute("form_same_role")).toString());
-				}
-				else
-				{
-					context.put("form_same_role", Boolean.TRUE.toString());
-				}
-				context.put("backIndex", "32");
-				return (String)getContext(data).get("template") + TEMPLATE[33];
-			}
-			catch(Exception e)
-			{
-				return (String)getContext(data).get("template") + TEMPLATE[32];
-			}
-		case 34:
-			/*  
-			* buildContextForTemplate chef_site-sitemanage-sameRole.vm 
-			*/
-			context.put("title", site.getTitle());
-			context.put("roles", getRoles(state));
-			context.put("participantList", state.getAttribute(STATE_ADD_PARTICIPANTS));
-			context.put("form_selectedRole", state.getAttribute("form_selectedRole"));
-			return (String)getContext(data).get("template") + TEMPLATE[34];
-		case 35:
-			/*  
-			* buildContextForTemplate chef_site-sitemanage-differentRoles.vm 
-			*/
-			context.put("title", site.getTitle());
-			context.put("roles", getRoles(state));
-			context.put("selectedRoles", state.getAttribute(STATE_SELECTED_PARTICIPANT_ROLES));
-			context.put("participantList", state.getAttribute(STATE_ADD_PARTICIPANTS));
-			return (String)getContext(data).get("template") + TEMPLATE[35];
 		case 36:
 			/*
 			 * buildContextForTemplate chef_site-newSiteCourse.vm
@@ -2645,117 +2373,6 @@ public class SiteAction extends PagedResourceActionII
 			context.put("isFutureTerm", state.getAttribute(STATE_FUTURE_TERM_SELECTED));
 			context.put("weeksAhead", ServerConfigurationService.getString("roster.available.weeks.before.term.start", "0"));
 			return (String)getContext(data).get("template") + TEMPLATE[37];	
-		case 38:
-			/*  
-			* buildContextForTemplate chef_site-sitemanage-editInfo.vm
-			*/
-			bar = new MenuImpl(portlet, data, (String) state.getAttribute(STATE_ACTION));
-			if (state.getAttribute("siteId") != null)
-			{
-				if (SiteService.allowRemoveSite(state.getAttribute("siteId").toString()))
-				{
-					bar.add( new MenuEntry(rb.getString("java.delete"), null, true, MenuItem.CHECKED_NA, "doSitemanage_site_delete",  "site-form"));
-				}
-			}
-			bar.add( new MenuEntry(rb.getString("java.saveas"), null, true, MenuItem.CHECKED_NA, "doSitemanage_saveas_request", "site-form") );
-			context.put("menu", bar);
-			context.put("title", state.getAttribute(FORM_SITEINFO_TITLE));
-			
-			types = SiteService.getSiteTypes();
-			context.put("types", types);
-			context.put("siteType", state.getAttribute("siteType"));
-			
-			if (SecurityService.isSuperUser())
-			{
-				context.put("isSuperUser", Boolean.TRUE);
-			}
-			else
-			{
-				context.put("isSuperUser", Boolean.FALSE);
-			}
-			context.put("description", state.getAttribute(FORM_SITEINFO_DESCRIPTION));
-			context.put("short_description", state.getAttribute(FORM_SITEINFO_SHORT_DESCRIPTION));
-			context.put("skins", state.getAttribute("skins"));
-			context.put("skin", state.getAttribute(FORM_SITEINFO_SKIN));
-			context.put("iconUrl", state.getAttribute("siteIconUrl"));
-			context.put("include", state.getAttribute(FORM_SITEINFO_INCLUDE));
-			context.put("form_site_contact_name", state.getAttribute(FORM_SITEINFO_CONTACT_NAME));
-			context.put("form_site_contact_email", state.getAttribute(FORM_SITEINFO_CONTACT_EMAIL));
-			if (state.getAttribute(STATE_SITE_SIZE_DEFAULT_SELECT) == null)
-			{
-				context.put("default_size_selected", Boolean.TRUE);
-			}
-			else
-			{
-				context.put("default_size_selected", state.getAttribute(STATE_SITE_SIZE_DEFAULT_SELECT));
-			}
-			return (String)getContext(data).get("template") + TEMPLATE[38];	
-		case 39:
-			/*  
-			* buildContextForTemplate chef_site-sitemanage-editInfo.vm
-			*/
-			context.put("site", site);
-			context.put("include", Boolean.valueOf(site.isPubView()));
-			context.put("roles", getRoles(state));
-			return (String)getContext(data).get("template") + TEMPLATE[39];
-		case 40:
-			/*  
-			* buildContextForTemplate chef_site-sitemanage-siteDeleteConfirmation.vm
-			*/
-			String id = (String) state.getAttribute("siteId");
-			site_title = NULL_STRING;				
-			user = SessionManager.getCurrentSessionUserId();
-			workspace = SiteService.getUserSiteId(user);
-			boolean removeable = true;
-			
-			if(!(id.equals(workspace)))
-			{
-				try
-				{
-					site_title = SiteService.getSite(id).getTitle();
-					
-				}
-				catch (IdUnusedException e)
-				{
-					M_log.warn("SiteAction.doSitemanage_delete_confirmed - IdUnusedException " + id);
-					addAlert(state, rb.getString("java.sitewith")+" " + id + " "+ rb.getString("java.couldnt")+" ");
-				}
-				if(SiteService.allowRemoveSite(id))
-				{
-					try
-					{
-						SiteService.getSite(id);
-					}
-					catch (IdUnusedException e)
-					{
-						M_log.warn("SiteAction.buildContextForTemplate chef_site-sitemanage-siteDeleteConfirm.vm: IdUnusedException");	
-					}
-				}
-				else
-				{
-					removeable = false;
-					addAlert(state, site_title + " "+rb.getString("java.couldntdel")+" ");
-				}
-			}
-			else
-			{
-				removeable = false;
-				addAlert(state, rb.getString("java.yourwork"));
-			}
-
-			if(!removeable)
-			{
-				addAlert(state, rb.getString("java.click"));
-			}
-			
-			context.put("removeable", new Boolean(removeable));
-			return (String)getContext(data).get("template") + TEMPLATE[40];	
-		case 41:
-			/*  
-			* buildContextForTemplate chef_site-sitemanage-site-saveas.vm
-			*/
-			context.put("site", site);
-			return (String)getContext(data).get("template") + TEMPLATE[41];	
 		case 42:
 			/*  buildContextForTemplate chef_site-gradtoolsConfirm.vm
 			* 
@@ -3439,20 +3056,6 @@ public class SiteAction extends PagedResourceActionII
 			List l = (List) state.getAttribute(STATE_PARTICIPANT_LIST); 
 			size = (l!= null)?l.size():0;
 		}
-		// if this is about site list page 
-		else if (state.getAttribute(STATE_TEMPLATE_INDEX).toString().equals("31"))
-		{
-			// search?
-			search = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH));
-			
-			size = SiteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY,
-					state.getAttribute(STATE_SEARCH_SITE_TYPE), search, (HashMap)state.getAttribute(STATE_PROP_SEARCH_MAP));
-		}
-		// TODO: mode for participants list is needed
-		else if (state.getAttribute(STATE_TEMPLATE_INDEX).toString().equals("32"))
-		{
-			size = getParticipantList(state).size();
-		}
 		return size;
 		
 	} // sizeResources
@@ -3599,27 +3202,6 @@ public class SiteAction extends PagedResourceActionII
 			
 			return participants;
 		}
-		// if this is about sitemanage site list page 
-		else if (state.getAttribute(STATE_TEMPLATE_INDEX).toString().equals("31"))
-		{
-
-			search = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH));
-			return SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY,
-							state.getAttribute(STATE_SEARCH_SITE_TYPE), search, 
-							(HashMap)state.getAttribute(STATE_PROP_SEARCH_MAP), SortType.TITLE_ASC,
-							new PagingPosition(first, last));
-		
-		}
-		// if this is for sitemanage participants list
-		else if (state.getAttribute(STATE_TEMPLATE_INDEX).toString().equals("32"))
-		{
-			List rv = getParticipantList(state);
-			PagingPosition page = new PagingPosition(first, last);
-			page.validate(rv.size());
-			rv = rv.subList(page.getFirst()-1, page.getLast());
-			
-			return rv;
-		}
 		
 		return null;
 		
@@ -3738,18 +3320,6 @@ public class SiteAction extends PagedResourceActionII
 		
 	} // doMenu_site_delete
 	
-	/**
-	* doSitemanage_site_delete is called when the Site list tool bar Delete button is clicked
-	* 
-	*/
-	public void doSitemanage_site_delete ( RunData data )
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		//present confirm delete template
-		state.setAttribute(STATE_TEMPLATE_INDEX, "40");
-		
-	} // doSitemanage_site_delete
-	
 	public void doSite_delete_confirmed ( RunData data )
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
@@ -3810,268 +3380,6 @@ public class SiteAction extends PagedResourceActionII
 		scheduleTopRefresh();
 		
 	} // doSite_delete_confirmed
-
-	/*
-	 * Handles the quest of confirming site deletion in Sitemanage
-	 */
-	public void doSitemanage_delete_confirmed ( RunData data )
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		
-		String id = (String) state.getAttribute("siteId");
-
-		if(SiteService.allowRemoveSite(id))
-		{
-			String title = "";
-			try
-			{
-				title = SiteService.getSite(id).getTitle();
-				Site site = getStateSite(state);
-				SiteService.removeSite(site);
-				state.removeAttribute("siteId");
-				state.removeAttribute(STATE_SITE_INSTANCE_ID);
-			
-			}
-			catch (IdUnusedException e)
-			{
-				M_log.warn("SiteAction.doSite_sitemanage_delete_confirmed - IdUnusedException " + id);
-				addAlert(state, rb.getString("java.sitewith")+" " + id + " "+rb.getString("java.couldnt") +" ");
-			}
-			catch (PermissionException e)
-			{
-				M_log.warn("SiteAction.doSite_sitemanage_delete_confirmed -  PermissionException, site " + id);
-				addAlert(state, title + " "+ rb.getString("java.dontperm")+" ");
-			}
-		}
-		else
-		{
-			M_log.warn("SiteAction.doSitemanage_delete_confirmed -  allowRemoveSite failed for site " + id);
-			addAlert(state, id + " "+rb.getString("java.dontperm")+" ");
-		}
-
-		state.setAttribute(STATE_TEMPLATE_INDEX, "31"); // return to the site list
-
-	} // doSitemanage_delete_confirmed
-
-	/**
-	* Go into saveas mode
-	*/
-	public void doSitemanage_saveas_request(RunData data, Context context)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
-
-		// read the form - if rejected, leave things as they are
-		if (!readSiteForm(data, state)) return;
-
-		// go to saveas mode
-		state.setAttribute(STATE_TEMPLATE_INDEX, "41");
-
-	}	// doSaveas_request
-	
-	/**
-	* Read the site form and update the site in state.
-	* @return true if the form is accepted, false if there's a validation error (an alertMessage will be set)
-	*/
-	private boolean readSiteForm(RunData data, SessionState state)
-	{
-		Site Site = getStateSite(state);
-		ResourcePropertiesEdit siteProperties = Site.getPropertiesEdit();
-		
-		ParameterParser params = data.getParameters ();
-		
-		String title = StringUtil.trimToZero(params.getString("title"));
-		Site.setTitle(title);
-							
-		String type = StringUtil.trimToZero(params.getString("type"));
-		if (!(type.equals(""))){Site.setType(type);}
-		
-		String description = StringUtil.trimToNull(params.getString("description"));
-		Site.setDescription(description);
-		
-		String short_description = StringUtil.trimToNull(params.getString("short_description"));
-		Site.setShortDescription(short_description);
-		
-		// "skin" will be the icon from the list (course sites), or we have the icon as a full URL
-		String skin = StringUtil.trimToNull(params.getString("skin"));
-		if (skin != null)
-		{
-			setAppearance(state, Site, skin);
-		}
-		else
-		{
-			String iconUrl = StringUtil.trimToNull(params.getString("icon"));
-			Site.setIconUrl(iconUrl);
-		}
-
-		String include = StringUtil.trimToNull(params.getString("include"));	
-		boolean pubview = true;
-		if (include != null && include.equalsIgnoreCase(Boolean.FALSE.toString()))
-		{
-			pubview = false;
-		}
-		Site.setPubView(pubview);			
-		
-		String contactName = StringUtil.trimToZero(params.getString ("siteContactName"));
-		siteProperties = Site.getPropertiesEdit();
-		siteProperties.addProperty(PROP_SITE_CONTACT_NAME, contactName);
-		
-		String email = StringUtil.trimToZero(params.getString ("siteContactEmail"));
-		String[] parts = email.split("@");
-		if(email.length() > 0 && (email.indexOf("@") == -1 || parts.length != 2 || parts[0].length() == 0 || !Validator.checkEmailLocal(parts[0])))
-		{
-			// invalid email
-			addAlert(state, email + " "+rb.getString("java.invalid") + INVALID_EMAIL);
-			return false;
-		}
-		else
-		{
-			siteProperties.addProperty(PROP_SITE_CONTACT_EMAIL, email);
-		}
-					
-		// for site size limit
-		String size = params.getString("size");
-		if (size != null)
-		{
-			String currentSiteId = ToolManager.getCurrentPlacement().getContext();
-			String rootCollectionId = ContentHostingService.getSiteCollection(currentSiteId);
-			
-			ContentCollectionEdit cedit = null;
-			try 
-			{
-				cedit = ContentHostingService.editCollection(rootCollectionId);
-			}
-			catch (IdUnusedException e) 
-			{
-				try 
-				{
-					cedit = ContentHostingService.addCollection(rootCollectionId);
-				}
-				catch (Exception err) {}
-			} 
-			catch (TypeException e) {}
-			catch (PermissionException e){}
-			catch (InUseException e)
-			{
-				addAlert(state, rb.getString("java.someone"));
-				return false;
-			}
-
-			if (cedit != null)
-			{
-				ResourcePropertiesEdit pedit = cedit.getPropertiesEdit();
-							
-				// default 1 GB = 1,048,576 Kilobyte
-				String quota = "1048576";
-						
-				if (size.equals(DEFAULT_SITE_SIZE_LIMIT))
-				{
-					state.setAttribute(STATE_SITE_SIZE_DEFAULT_SELECT, Boolean.TRUE);
-					// set the quota
-					pedit.addProperty(ResourceProperties.PROP_COLLECTION_BODY_QUOTA, quota);
-				}
-				else
-				{
-					String otherSize = StringUtil.trimToZeroLower(params.getString("otherSize"));
-					if (otherSize.equals(""))
-					{
-						addAlert(state, rb.getString("java.pleasech"));
-						state.setAttribute(STATE_SITE_SIZE_DEFAULT_SELECT, Boolean.FALSE);
-					}
-					else
-					{
-						String[] strings = null;
-						long unit = 1;
-						if (otherSize.endsWith("kb")){strings = StringUtil.splitFirst(otherSize,"kb");}
-						else if (otherSize.endsWith("kilobytes")){strings = StringUtil.splitFirst(otherSize,"kilobytes");}
-						else if (otherSize.endsWith("kilobyte")){strings = StringUtil.splitFirst(otherSize,"kilobyte");}
-						else if (otherSize.endsWith("mb")){strings = StringUtil.splitFirst(otherSize,"mb"); unit = 1024;}
-						else if (otherSize.endsWith("megabytes")){strings = StringUtil.splitFirst(otherSize,"megabytes"); unit = 1024;}
-						else if (otherSize.endsWith("megabyte")){strings = StringUtil.splitFirst(otherSize,"megabytes"); unit = 1024;}
-						else if (otherSize.endsWith("gb")){strings = StringUtil.splitFirst(otherSize,"gb"); unit = 1048576;}
-						else if (otherSize.endsWith("gigabytes")){strings = StringUtil.splitFirst(otherSize,"gigabytes"); unit = 1048576;}
-						else if (otherSize.endsWith("gigabyte")){strings = StringUtil.splitFirst(otherSize,"gigabyte"); unit = 1048576;}
-									
-						if (strings != null)
-						{
-							try
-							{
-								// strings{digital strings, size unit "kb/mb/gb"}
-								int intSize = Integer.parseInt(strings[0]);
-								unit = intSize * unit; // size is transferred to KB
-								pedit.addProperty(ResourceProperties.PROP_COLLECTION_BODY_QUOTA, (new Long(unit)).toString());										
-							}
-							catch(NumberFormatException error)
-							{
-								addAlert(state, rb.getString("java.pleaseval"));
-							}
-						}
-						else
-						{
-							addAlert(state, rb.getString("java.pleaseval"));
-						}
-					} // if-else
-				} // if-else
-			}
-			
-			if (state.getAttribute(STATE_MESSAGE) != null)
-			{
-				return false;
-			}
-			
-		} // if size not equals to null
-
-		return true;
-
-	}	// readSiteForm
-	
-	/**
-	* Handle a request to save-as the site as a new site.
-	*/
-	public void doSitemanage_saveas(RunData data, Context context)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
-
-		// read the form
-		String id = data.getParameters().getString("id");
-
-		// get the site to copy from
-		Site Site = getStateSite(state);
-		try
-		{
-			// make a new site with this id and as a structural copy of site
-			SiteService.addSite(id, Site);
-		}
-		catch (IdUsedException e)
-		{
-			addAlert(state,  rb.getString("java.inuse"));
-			return;
-		}
-		catch (IdInvalidException e)
-		{
-			addAlert(state,  rb.getString("java.idinvalid"));
-			return;
-		}
-		catch (PermissionException e)
-		{
-			addAlert(state, rb.getString("java.nocreate"));
-			return;
-		}
-
-		// return to sitemanage site list mode
-		state.removeAttribute(STATE_SITE_INSTANCE_ID);
-		state.removeAttribute("siteId");
-		
-		//return to sitemanage site list view
-		state.setAttribute (STATE_TEMPLATE_INDEX, "31");
-
-		// make sure auto-updates are enabled
-		enableObserver(state);
-
-		// TODO: hard coding this frame id is fragile, portal dependent, and needs to be fixed -ggolden
-		// schedulePeerFrameRefresh("sitenav");
-		scheduleTopRefresh();
-
-	}	// doSitemanage_saveas
 
 	/**
 	 * get the Site object based on SessionState attribute values
@@ -5788,25 +5096,6 @@ public class SiteAction extends PagedResourceActionII
 			}
 			removeEditToolState(state);
 		}
-		else if (currentIndex.equals("32"))
-		{
-			//current is Sitemanage participants list
-			// cancel back to the site list
-			state.setAttribute(STATE_TEMPLATE_INDEX, "31");
-			state.removeAttribute("siteId");
-		}
-		else if (currentIndex.equals("33"))
-		{
-			// current is Sitemanage add participant view
-			// cancel back to the participants list
-			state.setAttribute(STATE_TEMPLATE_INDEX, "32");
-		}
-		else if (currentIndex.equals("33"))
-		{
-			// current is Sitemanage add participant view
-			// cancel back to the participants list
-			state.setAttribute(STATE_TEMPLATE_INDEX, "32");
-		}
 		else if (currentIndex.equals("37") || currentIndex.equals("44"))
 		{
 			// cancel back to edit class view
@@ -6068,16 +5357,6 @@ public class SiteAction extends PagedResourceActionII
 		}
 		
 	} //  doMenu_siteInfo_addParticipant
-	
-	/**
-	* doMenu_sitemanage_addParticipant
-	*/
-	public void doMenu_sitemanage_addParticipant ( RunData data )
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		state.setAttribute(STATE_TEMPLATE_INDEX, "33");
-		
-	} //  doMenu_sitemanage_addParticipant
 	
 	/**
 	 * doMenu_siteInfo_removeParticipant
@@ -6363,102 +5642,6 @@ public class SiteAction extends PagedResourceActionII
 	} // doMenu_edit_site_info
 	
 	/**
-	*  doSitemanage_edit_site_info
-	* 
-	*/
-	public void doSitemanage_edit_site_info ( RunData data )
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		String siteId = StringUtil.trimToNull(data.getParameters().getString("id"));
-		
-		if (siteId != null)
-		{
-			if (SiteService.allowUpdateSite(siteId))
-			{
-				try
-				{
-					Site Site = SiteService.getSite(siteId);
-					state.setAttribute(STATE_SITE_INSTANCE_ID, siteId);
-					state.setAttribute("siteId", siteId);
-					
-					ResourceProperties siteProperties = Site.getProperties(); 
-					state.setAttribute(FORM_SITEINFO_TITLE, Site.getTitle());
-	
-					String site_type = Site.getType(); 
-					if(site_type != null && !site_type.equalsIgnoreCase("myworkspace")) 
-					{
-						state.setAttribute(FORM_SITEINFO_INCLUDE, Boolean.valueOf(Site.isPubView()).toString());
-					}
-					state.setAttribute("siteType", site_type);
-					state.setAttribute(FORM_SITEINFO_DESCRIPTION, Site.getDescription());
-					state.setAttribute(FORM_SITEINFO_SHORT_DESCRIPTION, Site.getShortDescription());
-					state.setAttribute(FORM_SITEINFO_SKIN, Site.getIconUrl());
-					state.setAttribute("siteIconUrl", Site.getIconUrl());
-					if (Site.getIconUrl() != null)
-					{
-						state.setAttribute(FORM_SITEINFO_SKIN, Site.getIconUrl());
-					}
-	
-					// site contact information
-					String contactName = siteProperties.getProperty(PROP_SITE_CONTACT_NAME);
-					String contactEmail = siteProperties.getProperty(PROP_SITE_CONTACT_EMAIL);
-					if (contactName == null && contactEmail == null)
-					{
-						String creatorId = siteProperties.getProperty(ResourceProperties.PROP_CREATOR);
-						try
-						{
-							User u = UserDirectoryService.getUser(creatorId);
-							String email = u.getEmail();
-							if (email != null)
-							{
-								contactEmail = u.getEmail();	
-							}
-							contactName = u.getDisplayName();
-						}
-						catch (UserNotDefinedException e)
-						{
-						}
-					}
-					if (contactName != null)
-					{
-						state.setAttribute(FORM_SITEINFO_CONTACT_NAME, contactName);
-					}
-					if (contactEmail != null)
-					{
-						state.setAttribute(FORM_SITEINFO_CONTACT_EMAIL, contactEmail);
-					}
-			
-					if (state.getAttribute(STATE_MESSAGE) == null)
-					{
-						state.setAttribute(STATE_TEMPLATE_INDEX, "38");
-					}
-					
-				}
-				catch (IdUnusedException e)
-				{
-					addAlert(state, rb.getString("java.specif")+" " + siteId + ". ");
-					M_log.warn(this + e.toString());
-				}
-			}
-			
-			// no permission
-			else
-			{
-				addAlert(state, rb.getString("java.permeditsite")+" " + siteId + ".");
-				M_log.warn(this + "no update permission to site : " + siteId);				
-			}
-		}
-		else
-		{
-			// if siteId is null
-			addAlert(state, rb.getString("java.error")+" "); 
-			state.setAttribute(STATE_TEMPLATE_INDEX, "31");
-		}
-		
-	} // doSitemanage_edit_site_info
-	
-	/**
 	*  doMenu_edit_site_tools
 	* 
 	*/
@@ -6490,52 +5673,6 @@ public class SiteAction extends PagedResourceActionII
 		}
 		
 	} // doMenu_edit_site_access
-	
-	/**
-	*  doSitemanage_edit_site_access
-	* 
-	*/
-	public void doSitemanage_edit_site_access ( RunData data )
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		
-		String siteId = StringUtil.trimToNull(data.getParameters().getString("id"));
-		
-		if (siteId != null)
-		{
-			if (SiteService.allowUpdateSite(siteId))
-			{
-				try
-				{
-					SiteService.getSite(siteId);
-					state.setAttribute(STATE_SITE_INSTANCE_ID, siteId);
-				}
-				catch (IdUnusedException e)
-				{
-					addAlert(state, rb.getString("java.cannot")+" " + siteId + ". ");
-					M_log.warn(this + e.toString());
-				}
-				
-				if (state.getAttribute(STATE_MESSAGE) == null)
-				{
-					state.setAttribute(STATE_TEMPLATE_INDEX, "39");
-				}
-			}
-			
-			// not permitted
-			else
-			{
-				addAlert(state, rb.getString("java.permeditsite")+ " " + siteId + ".");
-				M_log.warn(this + "no update permission to site : " + siteId);				
-			}
-		}
-		else
-		{
-			// if siteId is null
-			addAlert(state, rb.getString("java.error")+" "); 
-			state.setAttribute(STATE_TEMPLATE_INDEX, "31");
-		}
-	} // doSitemanage_edit_site_access
 
 	/**
 	*  doMenu_publish_site
@@ -6654,346 +5791,6 @@ public class SiteAction extends PagedResourceActionII
 	} 	// doSave_siteInfo
 	
 	/**
-	* Handle a request to search in the sitemanage tool.
-	*/
-	public void doSitemanage_search(RunData data, Context context)
-	{
-		super.doSearch(data, context);
-		
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
-		
-		state.removeAttribute(STATE_PROP_SEARCH_MAP);
-		state.removeAttribute(STATE_TERM_SELECTION);
-		
-		// read the search form field into the state object
-		String siteType = StringUtil.trimToNull(data.getParameters().getString("siteType"));
-		if ((siteType == null) || (siteType.equalsIgnoreCase("Any")))
-		{
-			state.setAttribute(STATE_SEARCH_SITE_TYPE, null);
-		}
-		else
-		{
-			state.setAttribute(STATE_SEARCH_SITE_TYPE, siteType);
-			
-			String termSearchSiteType = (String)state.getAttribute(SEARCH_TERM_SITE_TYPE);
-			if (termSearchSiteType != null)
-			{
-				if (siteType.equals(termSearchSiteType))
-				{
-					// search parameter - term; termId from UI	
-					String term = StringUtil.trimToNull(data.getParameters().getString("selectTerm"));
-					if (term != null)
-					{
-						state.setAttribute(STATE_TERM_SELECTION, term);
-						
-						// property criteria map
-						Map pMap = null;
-						if (!SITE_TERM_ANY.equals(term))
-						{
-							pMap = new HashMap();
-							pMap.put((String)state.getAttribute(SEARCH_TERM_PROP), term);
-							state.setAttribute(STATE_PROP_SEARCH_MAP, pMap);
-						}
-					}
-					
-				}
-			}
-		}
-
-		state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
-		state.removeAttribute("inter_size");
-		
-		state.setAttribute(STATE_TEMPLATE_INDEX, "31");
-		
-	}	// doSitemanage_search
-	
-	/**
-	* Handle a request to go to Search Mode.
-	*/
-	public void doSitemanage_showsearch(RunData data, Context context)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
-
-		state.setAttribute(STATE_TEMPLATE_INDEX, "30");
-
-	}	// doSitemanage_showsearch
-	
-	/**
-	* Handle a request to finalize the participants adding/role-assigning.
-	*/
-	public void doSitemanage_participants_save(RunData data, Context context)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ()); 
-		ParameterParser params = data.getParameters ();
-		
-		String emailInIdAccountName = ServerConfigurationService.getString("emailInIdAccountName", "");
-		
-		String index = state.getAttribute(STATE_TEMPLATE_INDEX).toString();
-		
-		if(state.getAttribute("form_same_role") != null)
-		{
-			boolean same_role = ((Boolean) state.getAttribute("form_same_role")).booleanValue();
-			if (same_role)
-			{
-				String roleId = StringUtil.trimToNull(params.getString("selectRole"));
-				if (roleId == null)
-				{
-					addAlert(state, rb.getString("java.pleasesel")+" ");
-				}
-				else
-				{
-					state.setAttribute("form_selectedRole", params.getString("selectRole"));
-				}
-			}
-			else
-			{
-				getSelectedRoles(state, params, STATE_ADD_PARTICIPANTS);
-			}
-			
-			if (state.getAttribute(STATE_MESSAGE) == null)
-			{
-				Hashtable selectedRoles = (Hashtable) state.getAttribute(STATE_SELECTED_PARTICIPANT_ROLES);
-				int i;
-		
-				//accept noEmailInIdAccounts and/or emailInIdAccount account names
-				String noEmailInIdAccounts = null;
-				String emailInIdAccounts = null;
-		
-				if (state.getAttribute("noEmailInIdAccountValue") != null)
-				{
-					noEmailInIdAccounts = (String) state.getAttribute("noEmailInIdAccountValue");
-				}
-				if (state.getAttribute("emailInIdAccountValue") != null)
-				{
-					emailInIdAccounts = (String) state.getAttribute("emailInIdAccountValue");
-				}
-		
-				String pw = "";
-				String notAddedNames = null;
-				String notAddedEmailInIdAccounts = null;
-
-				// successfully added user accounts
-				Vector addedNames = new Vector();
-				
-				// hash table for eids and roles
-				Hashtable eidRoles = new Hashtable();
-				
-				if (noEmailInIdAccounts != null)
-				{
-					// adding noEmailInIdAccounts
-					String[] noEmailInIdAccountArray = noEmailInIdAccounts.split("\r\n");
-					for (i = 0; i < noEmailInIdAccountArray.length; i++)
-					{
-						String noEmailInIdAccount = StringUtil.trimToNull(noEmailInIdAccountArray[i].replaceAll("[ \t\r\n]",""));
-						if(noEmailInIdAccount != null)
-						{
-							// get role
-							String role = null;
-							if (same_role)
-							{
-								// if all added participants have a same role
-								role = (String) state.getAttribute("form_selectedRole");
-							}
-							else
-							{
-								// if all added participants have different role
-								role = (String) selectedRoles.get(noEmailInIdAccount);
-							}
-							
-							eidRoles.put(noEmailInIdAccount, role);
-						}
-					}
-					
-					// successfully added users
-					List addedEIds = addUsersRealm(state, eidRoles, false, false);
-					addedNames.addAll(addedEIds);
-					
-					// not added users
-					for (Iterator iEIds = eidRoles.keySet().iterator(); iEIds.hasNext();)
-					{
-						String noEmailInIdAccount = (String) iEIds.next();
-						if (!addedEIds.contains(noEmailInIdAccount))
-						{
-							notAddedNames=notAddedNames.concat(noEmailInIdAccount);
-						}
-					}
-				}	// noEmailInIdAccounts					
-
-				List addedEmailInIdAccounts = new Vector();
-				if (emailInIdAccounts != null)
-				{
-					eidRoles = new Hashtable();
-					
-					String[] emailInIdAccountArray = emailInIdAccounts.split("\r\n");
-					
-					List emailInIdAccountList = new Vector();
-	
-					for (i = 0; i < emailInIdAccountArray.length; i++)
-					{
-						String emailInIdAccount = StringUtil.trimToNull(emailInIdAccountArray[i].replaceAll("[ \t\r\n]",""));
-						// remove the trailing dots and empty space
-						while (emailInIdAccount.endsWith(".") || emailInIdAccount.endsWith(" "))
-						{
-							emailInIdAccount = emailInIdAccount.substring(0, emailInIdAccount.length() -1);
-						}
-
-						if(emailInIdAccount != null)
-						{	
-							// update the candidate list
-							emailInIdAccountList.add(emailInIdAccount);
-							
-							//is the emailInIdAccount account user already exists?
-							try
-							{
-								UserDirectoryService.getUser(emailInIdAccount);
-							}
-							catch (UserNotDefinedException e) 
-							{
-								//if there is no such user yet, add the user
-								try
-								{
-									UserEdit uEdit = UserDirectoryService.addUser(null, emailInIdAccount);
-
-									//set email address
-									uEdit.setEmail(emailInIdAccount);
-							
-									// set the guest user type
-									uEdit.setType("guest");
-
-									// set password to a random positive number
-									Random generator = new Random(System.currentTimeMillis());
-									Integer num = new Integer(generator.nextInt(Integer.MAX_VALUE));
-									if (num.intValue() < 0) num = new Integer(num.intValue() *-1);
-									pw = num.toString();
-									uEdit.setPassword(pw);
-
-									// and save
-									UserDirectoryService.commitEdit(uEdit);
-								 }
-								 catch(UserIdInvalidException ee)
-								 {
-									 addAlert(state, emailInIdAccountName + " " + emailInIdAccount + " " +rb.getString("java.isinval") );
-									 M_log.warn("doSitemanage_participants_save: UserDirectoryService addUser exception " + e.getMessage());
-								 }
-								 catch(UserAlreadyDefinedException ee)
-								 {
-									 addAlert(state, emailInIdAccountName + " " + emailInIdAccount + " " +rb.getString("java.beenused") );
-									 M_log.warn("doSitemanage_participants_save: UserDirectoryService addUser exception " + e.getMessage());
-								 }
-								 catch(UserPermissionException ee)
-								 {
-									 addAlert(state, rb.getString("java.haveadd")+" " + emailInIdAccount);
-									 M_log.warn("doSitemanage_participants_save: UserDirectoryService addUser exception " + e.getMessage());
-								 }	
-							}
-					
-							// get role 
-							String role = null;
-							if (same_role)
-							{
-								// if all added participants have a same role
-								role = (String) state.getAttribute("form_selectedRole"); 
-							}
-							else
-							{
-								// if all added participants have different role
-								role = (String) selectedRoles.get(emailInIdAccount);
-							}
-							
-							eidRoles.put(emailInIdAccount, role);
-						}	// if
-					}// for
-					
-					// add those users to realm
-					// Update added list according to add result
-					// 1. emailInIdAccount account has been added successfully
-					addedEmailInIdAccounts = addUsersRealm(state, eidRoles, false, true);
-					// 2. emailInIdAccount account has not been added successfully
-					for (Iterator iList = eidRoles.keySet().iterator(); iList.hasNext(); )
-					{
-						String emailAccount = (String) iList.next();
-						if (!addedEmailInIdAccounts.contains(emailAccount))
-						{
-							notAddedEmailInIdAccounts = notAddedEmailInIdAccounts.concat(emailAccount + "\n");
-						}
-					}	
-				} // emailInIdAccounts
-
-				if (!(addedNames.size() == 0 && addedEmailInIdAccounts.size() == 0) && (notAddedNames != null || notAddedEmailInIdAccounts != null))
-				{
-					// at lease one noEmailInIdAccount account or a emailInIdAccount account added
-					addAlert(state, rb.getString("java.allusers"));
-				}
-
-				if (notAddedNames == null && notAddedEmailInIdAccounts == null)
-				{
-					// all account has been added successfully
-					removeAddParticipantContext(state);
-				}
-				else
-				{
-					state.setAttribute("noEmailInIdAccountValue", notAddedNames);
-					state.setAttribute("emailInIdAccountValue", notAddedEmailInIdAccounts);
-				}
-				if (state.getAttribute(STATE_MESSAGE) != null)
-				{
-					state.setAttribute(STATE_TEMPLATE_INDEX, index);
-				}
-				else
-				{
-					// save the updates and go back to the participants list view
-					state.setAttribute(STATE_TEMPLATE_INDEX, "32");
-					//commitSiteAndRemoveEdit(state);
-				}
-			}
-			else
-			{
-				state.setAttribute(STATE_TEMPLATE_INDEX, index);
-			}
-		}
-	} // doSitemanage_participants_save
-	
-	
-	/**
-	* doParticipants is the request to go to participants list/edit view
-	*/
-	public void doSitemanage_participants(RunData data, Context context)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
-		
-		String siteId = data.getParameters().getString("id");
-		state.setAttribute("siteId", siteId);
-		
-		if (siteId != null)
-		{
-			if (SiteService.allowUpdateSite(siteId))
-			{
-				try
-				{
-					state.setAttribute(STATE_SITE_INSTANCE_ID, siteId);
-					state.setAttribute(STATE_TEMPLATE_INDEX, "32");
-				}
-				catch(Exception e)
-				{
-					addAlert(state, rb.getString("java.problem"));
-					// stay at the same mode
-				}
-			}
-			
-			// no permission
-			else
-			{
-				addAlert(state, rb.getString("java.problem"));
-				// stay at the same mode				
-			}
-		}
-		
-		state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
-		cleanStatePaging(state);
-		
-	}	// doSitemanage_participants
-	
-	/**
 	*  init
 	* 
 	*/
@@ -7023,26 +5820,6 @@ public class SiteAction extends PagedResourceActionII
 				h.put(siteId, new Integer(200));
 				state.setAttribute(STATE_PAGESIZE_SITEINFO, h);
 				state.setAttribute(STATE_PAGESIZE, new Integer(200));
-			}
-		}
-		else if  (((String) state.getAttribute(STATE_SITE_MODE)).equalsIgnoreCase(SITE_MODE_SITEMANAGE))
-		{
-			// mode to display search page mode
-			state.setAttribute(STATE_TEMPLATE_INDEX, "30");
-			
-			String termSearchSiteType = ServerConfigurationService.getString("sitebrowser.termsearch.type");
-			if (termSearchSiteType != null)
-			{
-				state.setAttribute(SEARCH_TERM_SITE_TYPE, termSearchSiteType);
-	
-				String termSearchProperty = ServerConfigurationService.getString("sitebrowser.termsearch.property");
-				state.setAttribute(SEARCH_TERM_PROP, termSearchProperty);
-			}
-			
-			String noSearchSiteType = StringUtil.trimToNull(ServerConfigurationService.getString("sitesearch.noshow.sitetype"));
-			if (noSearchSiteType != null)
-			{
-				state.setAttribute(NO_SHOW_SEARCH_TYPE, noSearchSiteType);
 			}
 		}
 		if (state.getAttribute(STATE_SITE_TYPES) == null)
@@ -7428,83 +6205,6 @@ public class SiteAction extends PagedResourceActionII
 	
 	} // doUpdate_site_access
 	
-	
-	/**
-	*  doSitemanage_update_site_access
-	* 
-	*/
-	public void doSitemanage_update_site_access(RunData data)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		Site sEdit = getStateSite(state);
-			
-		ParameterParser params = data.getParameters ();
-				
-		// publish site or not
-		String publishUnpublish = params.getString("publishunpublish");
-		if (publishUnpublish != null&& publishUnpublish.equalsIgnoreCase("publish"))
-		{
-			sEdit.setPublished(true);
-		}
-		else
-		{
-			sEdit.setPublished(false);
-		}
-				
-		//site public choice
-		String include = params.getString("include");
-		if (include != null && include.equalsIgnoreCase("true"))
-		{
-			sEdit.setPubView(true);
-		}
-		else if (include != null && include.equalsIgnoreCase("false"))
-		{
-			sEdit.setPubView(false);
-		}
-				
-		//publish site or not
-		String joinable = params.getString("joinable");
-		if (joinable != null && joinable.equalsIgnoreCase("true"))
-		{
-			sEdit.setJoinable(true);
-			String joinerRole = params.getString("joinerRole");
-			if (joinerRole!= null)
-			{
-				sEdit.setJoinerRole(joinerRole);
-			}
-		}
-		else
-		{
-			sEdit.setJoinable(false);
-			sEdit.setJoinerRole(null);
-		}
-		
-		try
-		{
-			SiteService.save(sEdit);
-		}
-		catch (IdUnusedException e)
-		{
-			// TODO:
-		}
-		catch (PermissionException e)
-		{
-			// TODO:
-		}
-		
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			state.setAttribute(STATE_TEMPLATE_INDEX, "31");
-			state.removeAttribute(STATE_SITE_INSTANCE_ID);
-			state.removeAttribute("siteId");
-		}
-		else
-		{
-			state.setAttribute(STATE_TEMPLATE_INDEX, "39");
-		}
-		
-		
-	}
 	/**
 	 * remove related state variable for changing participants roles
 	 * @param state SessionState object
@@ -8094,29 +6794,6 @@ public class SiteAction extends PagedResourceActionII
 				}
 				break;
 			case 33:
-				/*  
-				* actionForTemplate chef_site-sitemanage-addParticipants.vm
-				*/
-				checkAddParticipant(params, state);
-				if (state.getAttribute(STATE_MESSAGE) == null)
-				{
-					if(state.getAttribute("form_same_role") != null)
-					{
-						boolean same_role = ((Boolean) state.getAttribute("form_same_role")).booleanValue();
-						if (same_role)
-						{
-							state.setAttribute(STATE_TEMPLATE_INDEX, "34");
-						}
-						else
-						{
-							state.setAttribute(STATE_TEMPLATE_INDEX, "35");
-						}
-					}
-				}
-				else
-				{
-					state.setAttribute(STATE_TEMPLATE_INDEX, "33");
-				}
 				break;
 			case 36:
 				/*
@@ -8187,188 +6864,8 @@ public class SiteAction extends PagedResourceActionII
 				}
 				break;
 			case 38:
-				/*
-				 * actionForTemplate chef_site-sitemange-editInfo.vm
-				 */
-				if (forward)
-				{
-					Site siteEdit = getStateSite(state);
-					ResourcePropertiesEdit siteProperties = siteEdit.getPropertiesEdit();
-					if (SecurityService.isSuperUser())
-					{
-						String title = StringUtil.trimToNull(params.getString("title"));
-						state.setAttribute(FORM_SITEINFO_TITLE, title);
-						siteEdit.setTitle(title);
-					}
-					
-					String type = StringUtil.trimToNull(params.getString("type"));
-					state.setAttribute(STATE_SITEMANAGE_SITETYPE, type);
-					siteEdit.setType(type);
-					
-					String description = StringUtil.trimToNull(params.getString("description"));
-					state.setAttribute(FORM_SITEINFO_DESCRIPTION, description);
-					siteEdit.setDescription(description);
-							
-					String short_description = StringUtil.trimToNull(params.getString("short_description"));
-					state.setAttribute(FORM_SITEINFO_SHORT_DESCRIPTION, short_description);
-					siteEdit.setShortDescription(short_description);
-
-					// "skin" will be the icon from the list (course sites), or we have the icon as a full URL
-					String skin = StringUtil.trimToNull(params.getString("skin"));
-					state.setAttribute(FORM_SITEINFO_SKIN, skin);
-					if (skin != null)
-					{
-						setAppearance(state, siteEdit, skin);
-					}
-					else
-					{
-						String iconUrl = StringUtil.trimToNull(params.getString("icon"));
-						state.setAttribute("siteIconUrl", iconUrl);
-						siteEdit.setIconUrl(iconUrl);
-					}
-						
-					String include = StringUtil.trimToNull(params.getString("include"));		
-					if (include != null && include.equalsIgnoreCase(Boolean.FALSE.toString()))
-					{
-						state.setAttribute(FORM_SITEINFO_INCLUDE, Boolean.FALSE.toString());
-						siteEdit.setPubView(false);
-					}
-					else
-					{
-						state.setAttribute(FORM_SITEINFO_INCLUDE, Boolean.TRUE.toString());
-						siteEdit.setPubView(true);
-					}
-						
-					// site contact information
-					String contactName = StringUtil.trimToZero(params.getString ("siteContactName"));
-					state.setAttribute(FORM_SITEINFO_CONTACT_NAME, contactName);
-					siteProperties = siteEdit.getPropertiesEdit();
-					if (contactName != null)
-					{
-						siteProperties.addProperty(PROP_SITE_CONTACT_NAME, contactName);
-					}
-			
-					String email = StringUtil.trimToZero(params.getString ("siteContactEmail"));
-					String[] parts = email.split("@");
-					if(email.length() > 0 && (email.indexOf("@") == -1 || parts.length != 2 || parts[0].length() == 0 || !Validator.checkEmailLocal(parts[0])))
-					{
-						// invalid email
-						addAlert(state, email + " "+rb.getString("java.invalid") + INVALID_EMAIL);
-					}
-					state.setAttribute(FORM_SITEINFO_CONTACT_EMAIL, email);
-					if (email != null)
-					{
-						siteProperties.addProperty(PROP_SITE_CONTACT_EMAIL, email);
-					}
-					
-					// for site size limit
-					String size = params.getString("size");
-					if (size != null)
-					{
-						String currentSiteId = ToolManager.getCurrentPlacement().getContext();
-						String rootCollectionId = ContentHostingService.getSiteCollection(currentSiteId);
-
-						try 
-						{
-							ContentCollectionEdit cedit = ContentHostingService.editCollection(rootCollectionId);
-							ResourcePropertiesEdit pedit = cedit.getPropertiesEdit();
-							
-							// default 1 GB = 1,048,576 Kilobyte
-							String quota = "1048576";
-						
-							if (size.equals(DEFAULT_SITE_SIZE_LIMIT))
-							{
-								state.setAttribute(STATE_SITE_SIZE_DEFAULT_SELECT, Boolean.TRUE);
-								// set the quota
-								pedit.addProperty(ResourceProperties.PROP_COLLECTION_BODY_QUOTA, quota);
-							}
-							else
-							{
-								String otherSize = StringUtil.trimToZeroLower(params.getString("otherSize"));
-								if (otherSize.equals(""))
-								{
-									addAlert(state, rb.getString("java.pleasech"));
-									state.setAttribute(STATE_SITE_SIZE_DEFAULT_SELECT, Boolean.FALSE);
-								}
-								else
-								{
-									String[] strings = null;
-									long unit = 1;
-									if (otherSize.endsWith("kb")){strings = StringUtil.splitFirst(otherSize,"kb");}
-									else if (otherSize.endsWith("kilobytes")){strings = StringUtil.splitFirst(otherSize,"kilobytes");}
-									else if (otherSize.endsWith("kilobyte")){strings = StringUtil.splitFirst(otherSize,"kilobyte");}
-									else if (otherSize.endsWith("mb")){strings = StringUtil.splitFirst(otherSize,"mb"); unit = 1024;}
-									else if (otherSize.endsWith("megabytes")){strings = StringUtil.splitFirst(otherSize,"megabytes"); unit = 1024;}
-									else if (otherSize.endsWith("megabyte")){strings = StringUtil.splitFirst(otherSize,"megabytes"); unit = 1024;}
-									else if (otherSize.endsWith("gb")){strings = StringUtil.splitFirst(otherSize,"gb"); unit = 1048576;}
-									else if (otherSize.endsWith("gigabytes")){strings = StringUtil.splitFirst(otherSize,"gigabytes"); unit = 1048576;}
-									else if (otherSize.endsWith("gigabyte")){strings = StringUtil.splitFirst(otherSize,"gigabyte"); unit = 1048576;}
-									
-									if (strings != null)
-									{
-										try
-										{
-											// strings{digital strings, size unit "kb/mb/gb"}
-											int intSize = Integer.parseInt(strings[0]);
-											unit = intSize * unit; // size is transferred to KB
-											pedit.addProperty(ResourceProperties.PROP_COLLECTION_BODY_QUOTA, (new Long(unit)).toString());										
-										}
-										catch(NumberFormatException error)
-										{
-											addAlert(state, rb.getString("java.pleaseval"));
-										}
-									}
-									else
-									{
-										addAlert(state, rb.getString("java.pleaseval"));
-									}
-								} // if-else
-							} // if-else
-							
-							ContentHostingService.commitCollection(cedit);
-						} 
-						catch (IdUnusedException e) 
-						{
-						} 
-						catch (TypeException e) 
-						{
-						} 
-						catch (PermissionException e) 
-						{
-						} 
-						catch (InUseException e) 
-						{
-							addAlert(state, rb.getString("java.someone"));
-						}
-					}
-						
-					try
-					{
-						SiteService.save(siteEdit);
-					}
-					catch (IdUnusedException e)
-					{
-						// TODO:
-					}
-					catch (PermissionException e)
-					{
-						// TODO:
-					}
-
-					if (state.getAttribute(STATE_MESSAGE) == null)
-					{
-						state.setAttribute(STATE_TEMPLATE_INDEX, "31");
-					}
-				}
 				break;
 			case 39:
-				/*
-				 * actionForTemplate chef_site-sitemange-editAccess.vm
-				 */
-				if (state.getAttribute(STATE_MESSAGE) == null)
-				{
-					updateCurrentStep(state, forward);
-				}
 				break;
 			case 42:
 				/* actionForTemplate chef_site-gradtoolsConfirm.vm
@@ -11441,7 +9938,7 @@ public class SiteAction extends PagedResourceActionII
 				
 				try
 				{
-					URL u = new URL(url);
+					new URL(url);
 				}
 				catch (MalformedURLException e)
 				{
@@ -12271,63 +10768,6 @@ public class SiteAction extends PagedResourceActionII
 		}
 
 	} // Participant
-	
-	/**
-	* SiteItem for display purposes in Sitemanage
-	*
-	*/
-	public class SiteItem
-	{
-		public Site m_site = null;
-		
-		public void setSite(Site site) { m_site = site; }
-		public Site getSite() { return m_site; }
-		
-		public Boolean isCourseSite()
-		{
-			String siteType = m_site.getType();
-			if (siteType != null && siteType.equalsIgnoreCase("course"))
-				return Boolean.TRUE;
-			else
-				return Boolean.FALSE;
-		}
-		
-		public Boolean disableCourseSelection()
-		{
-		  if ((ServerConfigurationService.getString("disable.course.site.skin.selection")).equals("true"))
-		    return Boolean.TRUE;
-		  else
-		    return Boolean.FALSE;
-		}
-		
-		List m_providerCourseList = null;
-		public void setProviderCourseList(List list)
-		{
-			m_providerCourseList = list;
-		}
-		public List getProviderCourseList()
-		{
-			return m_providerCourseList;
-		}
-		
-		public List getManualCourseList()
-		{
-			String manualCourseListString = m_site.getProperties().getProperty(PROP_SITE_REQUEST_COURSE);
-			List manualCourseList = new Vector();
-			if (manualCourseListString != null)
-			{
-				if (manualCourseListString.indexOf("+") != -1)
-				{
-					manualCourseList = new ArrayList(Arrays.asList(manualCourseListString.split("\\+")));
-				}
-				else
-				{
-					manualCourseList.add(manualCourseListString);
-				}
-			}
-			return manualCourseList;
-		}
-	} // SiteItem
 	
 	/**
 	* Student in roster
