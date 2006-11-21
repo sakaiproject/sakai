@@ -123,6 +123,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -2211,8 +2212,6 @@ public class DavServlet extends HttpServlet
 
 		// Add the collection
 
-		ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties();
-
 		try
 		{
 			User user = UserDirectoryService.getCurrentUser();
@@ -2221,8 +2220,12 @@ public class DavServlet extends HttpServlet
 			String mycopyright = "copyright (c)" + " " + timeBreakdown.getYear() + ", " + user.getDisplayName()
 					+ ". All Rights Reserved. ";
 
+
+			ContentCollectionEdit edit = ContentHostingService.addCollection(adjustId(path));
+			ResourcePropertiesEdit resourceProperties = edit.getPropertiesEdit();
 			resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 			resourceProperties.addProperty(ResourceProperties.PROP_COPYRIGHT, mycopyright);
+			ContentHostingService.commitCollection(edit);
 
 			ContentCollection collection = ContentHostingService.addCollection(adjustId(path), resourceProperties);
 		}
