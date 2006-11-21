@@ -7306,7 +7306,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			String collId = (String) siteIt.next();
 			String displayName = (String) othersites.get(collId);
 			List artifacts = getFlatResources(collId);
-			globalList.addAll(filterArtifacts(artifacts, type, primaryMimeType, subMimeType));
+			globalList.addAll(filterArtifacts(artifacts, type, primaryMimeType, subMimeType, true));
 		}
 
 		return globalList;
@@ -7367,48 +7367,60 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	} // eliminate duplicates
 
-	protected List filterArtifacts(List artifacts, String type, String primaryMimeType, String subMimeType)
+   protected List filterArtifacts(List artifacts, String type, String primaryMimeType, String subMimeType)
+   {
+      return filterArtifacts(artifacts, type, primaryMimeType, subMimeType, false);
+   }
+   
+	protected List filterArtifacts(List artifacts, String type, String primaryMimeType, String subMimeType, boolean checkPerms)
 	{
 		for (Iterator i = artifacts.iterator(); i.hasNext();)
 		{
 			ContentResource resource = (ContentResource) i.next();
-			String currentType = resource.getProperties().getProperty(ResourceProperties.PROP_STRUCTOBJ_TYPE);
-			String mimeType = resource.getProperties().getProperty(ResourceProperties.PROP_CONTENT_TYPE);
-
-			if (type != null && !type.equals(ResourceProperties.FILE_TYPE))
-			{
-				// process StructuredObject type
-				if (currentType == null)
-				{
-					i.remove();
-				}
-				else if (!currentType.equals(type))
-				{
-					i.remove();
-				}
-			}
-			else if (currentType != null && type.equals(ResourceProperties.FILE_TYPE))
-			{
-				// this one is a structured object, get rid of it
-				i.remove();
-			}
-			else
-			{
-				String[] parts = mimeType.split("/");
-				String currentPrimaryType = parts[0];
-				String currentSubtype = null;
-				if (parts.length > 1) currentSubtype = parts[1];
-
-				// check the mime type match
-				if (primaryMimeType != null && !primaryMimeType.equals(currentPrimaryType))
-				{
-					i.remove();
-				}
-				else if (subMimeType != null && !subMimeType.equals(currentSubtype))
-				{
-					i.remove();
-				}
-			}
+         //check for read permissions...
+         if (!checkPerms || unlockCheck(AUTH_RESOURCE_READ, resource.getId())) 
+         {
+   			String currentType = resource.getProperties().getProperty(ResourceProperties.PROP_STRUCTOBJ_TYPE);
+   			String mimeType = resource.getProperties().getProperty(ResourceProperties.PROP_CONTENT_TYPE);
+   
+   			if (type != null && !type.equals(ResourceProperties.FILE_TYPE))
+   			{
+   				// process StructuredObject type
+   				if (currentType == null)
+   				{
+   					i.remove();
+   				}
+   				else if (!currentType.equals(type))
+   				{
+   					i.remove();
+   				}
+   			}
+   			else if (currentType != null && type.equals(ResourceProperties.FILE_TYPE))
+   			{
+   				// this one is a structured object, get rid of it
+   				i.remove();
+   			}
+   			else
+   			{
+   				String[] parts = mimeType.split("/");
+   				String currentPrimaryType = parts[0];
+   				String currentSubtype = null;
+   				if (parts.length > 1) currentSubtype = parts[1];
+   
+   				// check the mime type match
+   				if (primaryMimeType != null && !primaryMimeType.equals(currentPrimaryType))
+   				{
+   					i.remove();
+   				}
+   				else if (subMimeType != null && !subMimeType.equals(currentSubtype))
+   				{
+   					i.remove();
+   				}
+   			}
+         }
+         else {
+            i.remove();
+         }
 		}
 		return artifacts;
 	}
