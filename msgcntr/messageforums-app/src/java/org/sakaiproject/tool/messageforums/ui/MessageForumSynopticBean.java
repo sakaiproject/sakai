@@ -607,8 +607,7 @@ public class MessageForumSynopticBean {
 		
 		// ***** set up iterators *****
 		final Iterator siteIter = siteList.iterator();
-		final Iterator rmIter = removeMessageCounts.iterator();
-		
+
 		while (siteIter.hasNext()) {
 			
 			Site site;
@@ -640,16 +639,15 @@ public class MessageForumSynopticBean {
 					
 						// remove all rows of removeMessageCounts for this site
 						// since I've found the one I was looking for
-						while (site.getId().equals((String) resultSet[0])) {
+						while (pos != -1) {
 							removeMessageCounts.remove(pos++);
-						
-							if (pos < removeMessageCounts.size()) {
-								resultSet = (Object []) removeMessageCounts.get(pos);
-							}
-							else {
-								resultSet[0] = "";
-							}
+							
+							pos = indexOf(site.getId(), getSiteIds(removeMessageCounts));
 						}
+						
+						// we're done removing rows, onto next site
+						resultSet = new Object [2];
+						resultSet[0] = "";
 					}
 					else {
 						// this row is not it but may have others so remove it
@@ -660,12 +658,13 @@ public class MessageForumSynopticBean {
 							resultSet = (Object []) removeMessageCounts.get(pos);
 						}
 						else {
+							resultSet = new Object [2];
 							resultSet[0] = "";
 						}
 					} 
-				}
-			}
-		}
+				}   // end while (site id = remove message site id)
+			}  // end if (pos != -1)
+		}  // end while (sites to check)
 		
 		return resultList;
 	}
