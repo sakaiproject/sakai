@@ -47,8 +47,13 @@
 		#foreach ($item in $news_items)
 			#if($item.Title)
 				<h4 class="textPanelHeader">
-				#set($title="$validator.escapeHtml($item.Title)")
+					#if($item.Link)
+						<a href="$validator.escapeHtml($item.Link)" target="_blank" title="$tlang.getString("goto.item")">
+					#end
 					$validator.escapeHtml($item.Title)
+					#if($item.Link)
+						</a>
+					#end
 				</h4>
 			#end
 			#if($item.Description)
