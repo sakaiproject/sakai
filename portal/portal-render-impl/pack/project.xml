@@ -59,18 +59,43 @@
           <artifactId>pluto-container</artifactId>
           <version>1.1.0-beta2</version>
           <properties>
-				<war.bundle>true</war.bundle>
-		  </properties>
+              <deploy.target>shared</deploy.target>
+          </properties>
       </dependency>
       <dependency>
           <groupId>javax.portlet</groupId>
           <artifactId>portlet-api</artifactId>
           <version>1.0</version>
           <properties>
-				<war.bundle>true</war.bundle>
-		  </properties>
+              <deploy.target>shared</deploy.target>
+          </properties>
       </dependency>
-
+<!-- not strictly a dep of this, but must be in shared to work -->
+      <dependency>
+          <groupId>org.apache.pluto</groupId>
+          <artifactId>pluto-descriptor-api</artifactId>
+          <version>1.1.0-beta2</version>
+          <properties>
+              <deploy.target>shared</deploy.target>
+          </properties>
+      </dependency>
+<!-- not strictly a dep of this, but must be in shared to work -->
+      <dependency>
+          <groupId>org.apache.pluto</groupId>
+          <artifactId>pluto-descriptor-impl</artifactId>
+          <version>1.1.0-beta2</version>
+          <properties>
+              <deploy.target>shared</deploy.target>
+          </properties>
+      </dependency>
+      <dependency>
+          <groupId>castor</groupId>
+          <artifactId>castor</artifactId>
+          <version>1.0</version>
+          <properties>
+              <deploy.target>shared</deploy.target>
+          </properties>
+      </dependency>
 	</dependencies>
 
 	<build>
