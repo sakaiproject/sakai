@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL:  $
- * $Id:  $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
@@ -28,6 +28,8 @@ package org.sakaiproject.news.api;
  * <p>
  * The news message enclsure has header fields (type, size) and a url of the actual enclosed file. All fields are read only.
  * </p>
+ * 
+ * @author Joshua Ryan joshua.ryan@asu.edu  alt^i
  */
 public interface NewsItemEnclosure
 {

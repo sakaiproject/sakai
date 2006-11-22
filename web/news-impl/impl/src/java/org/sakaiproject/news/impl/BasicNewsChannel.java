@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/web/trunk/news-impl/impl/src/java/org/sakaiproject/news/impl/BasicNewsChannel.java $
- * $Id: BasicNewsChannel.java 18196 2006-11-17 02:25:14Z joshua.ryan@asu.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
