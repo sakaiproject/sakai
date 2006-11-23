@@ -1,17 +1,19 @@
 package org.sakaiproject.portal.render.iframe;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.portal.render.api.RenderResult;
-import org.sakaiproject.portal.render.api.ToolRenderException;
-import org.sakaiproject.portal.render.api.ToolRenderService;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Web;
+import java.io.IOException;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.portal.render.api.RenderResult;
+import org.sakaiproject.portal.render.api.ToolRenderException;
+import org.sakaiproject.portal.render.api.ToolRenderService;
+import org.sakaiproject.portal.render.portlet.PortletToolRenderService;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Web;
 
 public class IFrameToolRenderService implements ToolRenderService {
 
@@ -63,4 +65,14 @@ public class IFrameToolRenderService implements ToolRenderService {
 
         return result;
     }
+
+	public boolean accept(ToolConfiguration configuration, HttpServletRequest request, HttpServletResponse response, ServletContext context)
+	{
+		if ( PortletToolRenderService.isPortletTool(configuration) ) {
+			System.err.println("Tool "+configuration.getToolId()+" is a portlet");
+			return false;
+		}
+		System.err.println("Tool "+configuration.getToolId()+" is iframe tool");
+		return true;
+	}
 }

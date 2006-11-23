@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="portal.testsuite"
+			title="Pluto Testsuite tool"
+		description="The Pluto Test Suite tool">
+      <configuration name="portlet-context" value="/testsuite" />
+      <configuration name="portlet-name" value="TestPortlet1" />
+
+			
+		<category name="course" />
+         <category name="project" />
+         <category name="myworkspace" />
+		
+
+	</tool>
+
+</registration>

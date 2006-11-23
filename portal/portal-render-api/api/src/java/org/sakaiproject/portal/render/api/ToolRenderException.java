@@ -10,4 +10,9 @@ public class ToolRenderException extends IOException {
         super(string);
         this.t = throwable;
     }
+
+	public ToolRenderException(String string)
+	{
+		super(string);
+	}
 }
