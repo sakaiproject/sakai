@@ -1,18 +1,25 @@
 package org.sakaiproject.portal.render.portlet.services.state;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import javax.portlet.PortletMode;
 import javax.portlet.WindowState;
-import java.io.Serializable;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
-import java.util.Map;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Collections;
 
 /**
  *
  */
 public class PortletState implements Serializable {
+
+    private static final Log LOG =
+        LogFactory.getLog(PortletState.class);
 
     private String id;
     private boolean action;
@@ -66,7 +73,7 @@ public class PortletState implements Serializable {
     }
 
     public Map getParameters() {
-        return parameters;
+        return new HashMap(parameters);
     }
 
     public void setParameters(Map parameters) {
@@ -123,6 +130,10 @@ public class PortletState implements Serializable {
 // Serialization
 
     private void writeObject(ObjectOutputStream out) throws IOException {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Serializing PortletState [action=" + action + "]");
+        }
+
         out.writeObject(id);
         out.writeBoolean(action);
         out.writeBoolean(secure);
@@ -132,13 +143,18 @@ public class PortletState implements Serializable {
     }
 
     private void readObject(ObjectInputStream in) throws IOException,
-            ClassNotFoundException {
+        ClassNotFoundException {
 
         id = in.readObject().toString();
         action = in.readBoolean();
         secure = in.readBoolean();
-        parameters = (Map)in.readObject();
+        parameters = (Map) in.readObject();
         portletMode = new PortletMode(in.readObject().toString());
         windowState = new WindowState(in.readObject().toString());
+        
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Deserializing PortletState [action=" + action + "]");
+        }
+
     }
 }

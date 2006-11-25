@@ -4,6 +4,8 @@ import org.apache.pluto.spi.PortalCallbackService;
 import org.apache.pluto.spi.PortletURLProvider;
 import org.apache.pluto.spi.ResourceURLProvider;
 import org.apache.pluto.PortletWindow;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateAccess;
 import org.sakaiproject.portal.render.portlet.services.state.encode.PortletStateEncoder;
@@ -18,6 +20,9 @@ import java.util.Map;
  *
  */
 public class SakaiPortalCallbackService implements PortalCallbackService {
+
+    private static final Log LOG =
+        LogFactory.getLog(SakaiPortalCallbackService.class);
 
     public static final String PORTLET_STATE_QUERY_PARAM =
             "org.sakaiproject.portal.pluto.PORTLET_STATE";
@@ -112,6 +117,13 @@ public class SakaiPortalCallbackService implements PortalCallbackService {
         }
 
         public void setParameters(Map map) {
+            LOG.debug(" ----- Setting URL Parameters: "+map);
+            if(map.containsKey("testId")) {
+                String[] arg = (String[])map.get("testId");
+                for(int i=0;i<arg.length; i++) {
+                    LOG.debug("parm["+i+"] = " + arg[i]);
+                }
+            }
             portletState.setParameters(map);
         }
 

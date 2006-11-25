@@ -8,23 +8,27 @@ import javax.servlet.ServletContext;
 import java.io.IOException;
 
 /**
- * Service responsible for rendering tools within a Sakai portal.
+ * Service responsible for preprocessing and rendering tools
+ * within a Sakai portal.
+ *
+ * @since Sakai 2.2.3
+ * @version $Rev$
  */
 public interface ToolRenderService
 {
 
-	/**
-	 * Perfrorm any preperatory processing for the specified tool.
-	 * 
-	 * @param toolConfiguration
-	 * @param request
-	 * @param response
-	 * @throws IOException
-	 * @throws ToolRenderException
-	 */
-	void preprocess(ToolConfiguration toolConfiguration,
-			HttpServletRequest request, HttpServletResponse response,
-			ServletContext context) throws IOException, ToolRenderException;
+    /**
+     * Perfrorm any preperatory processing for the specified tool.
+     *
+     * @param request the servlet request
+     * @param response the servlet response.
+     * @param context the portal servlet context
+     * @return indicates whether or not processing should be continued.
+     * @throws IOException if an error occurs during preprocessing.
+     */
+    boolean preprocess(HttpServletRequest request, HttpServletResponse response,
+                    ServletContext context)
+        throws IOException;
 
 	/**
 	 * Render the tool.

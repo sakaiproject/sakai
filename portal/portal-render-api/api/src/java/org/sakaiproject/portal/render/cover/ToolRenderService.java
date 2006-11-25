@@ -59,15 +59,14 @@ public class ToolRenderService {
 		}
 	}
 
-	public static void preprocess(ToolConfiguration configuration,
-                                  HttpServletRequest request,
+	public static boolean preprocess(HttpServletRequest request,
                                   HttpServletResponse response,
                                   ServletContext context)
         throws IOException {
 		org.sakaiproject.portal.render.api.ToolRenderService service = getInstance();
-		if (service == null) return;
+		if (service == null) return true;
 
-        service.preprocess(configuration, request, response, context);
+        return service.preprocess(request, response, context);
     }
 
 

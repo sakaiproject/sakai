@@ -1,16 +1,19 @@
 package org.sakaiproject.portal.render.portlet.services.state.encode;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 
-import javax.portlet.WindowState;
 import javax.portlet.PortletMode;
-import java.util.Properties;
-import java.util.Map;
-import java.util.Iterator;
-import java.util.HashMap;
+import javax.portlet.WindowState;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ByteArrayInputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 /**
  * Enhanced version of the PortletStateEncoder.
@@ -21,10 +24,13 @@ import java.io.ByteArrayInputStream;
  * where the url query string is allready significant and may
  * surpass the limit of 2083 characters imposed by some browsers.
  *
- * @since 2.2.3
  * @version $Id$
+ * @since 2.2.3
  */
 public class EnhancedPortletStateEncoder implements PortletStateEncoder {
+
+    private static final Log LOG =
+        LogFactory.getLog(EnhancedPortletStateEncoder.class);
 
 //
 // Implementation Note:
@@ -37,7 +43,7 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder {
     private static final String ID_PARAM =
         "o.s.p.r.s.ID";
 
-     private static final String ACTION_PARAM =
+    private static final String ACTION_PARAM =
         "o.s.p.r.s.ACTION";
 
     private static final String SECURE_PARAM =
@@ -48,9 +54,6 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder {
 
     private static final String WINDOW_STATE_PARAM =
         "o.s.p.r.s.WINDOW_STATE";
-
-    private static final String PROP_PARAM_PREFIX =
-        "o.s.p.r.s.PARAM";
 
 
     private UrlSafeEncoder urlSafeEncoder
@@ -65,6 +68,10 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder {
     }
 
     public String encode(PortletState portletState) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Encoding PortletState [action="+portletState.isAction()+"]");
+        }
+
         Properties p = new Properties();
         p.setProperty(ID_PARAM, portletState.getId());
         p.setProperty(ACTION_PARAM, String.valueOf(portletState.isAction()));
@@ -77,7 +84,26 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder {
         Iterator it = parms.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry entry = (Map.Entry) it.next();
-            p.setProperty(PROP_PARAM_PREFIX + entry.getKey(), entry.getValue().toString());
+            Object o = entry.getValue();
+            if(o instanceof String) {
+                p.setProperty("" + entry.getKey(), o.toString());
+            }
+            else {
+                String[] vals = (String[])o;
+                StringBuffer sb = new StringBuffer();
+                for(int i=0;i<vals.length;i++) {
+                    if(i > 0) {
+                        sb.append(",");
+                    }
+                    sb.append(vals[i]);
+                }
+                LOG.info("** Adding complex parameter. ** : "+sb.toString());
+                p.setProperty("" + entry.getKey(), sb.toString());
+            }
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Encoded PortletState to properties: "+p);
         }
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -101,6 +127,10 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder {
             throw new IllegalStateException("This should never occor");
         }
 
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Decoding PortletState from Properties: " + p);
+        }
+
         String id = p.getProperty(ID_PARAM);
         PortletState state = new PortletState(id);
         state.setAction(Boolean.valueOf(p.getProperty(ACTION_PARAM)).booleanValue());
@@ -114,7 +144,29 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder {
         p.remove(WINDOW_STATE_PARAM);
         p.remove(PORTLET_MODE_PARAM);
 
-        state.setParameters(new HashMap(p));
+        LOG.debug("--- Decoded parameters: "+p);
+
+        Map map = new HashMap();
+        Iterator i = p.entrySet().iterator();
+        while(i.hasNext()) {
+            Map.Entry parm = (Map.Entry)i.next();
+            String key = parm.getKey().toString();
+            String val = parm.getValue().toString();
+
+            StringTokenizer st = new StringTokenizer(val, ",");
+            String[] parms = new String[st.countTokens()];
+            int j =0;
+            while(st.hasMoreTokens()) {
+                parms[j++] = st.nextToken();
+            }
+            map.put(key, parms);
+        }
+
+        state.setParameters(map);
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("PortletState decoded.  action=" + state.isAction());
+        }
 
         return state;
     }

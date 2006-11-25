@@ -3,9 +3,9 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../../master/project.xml</extend>
-	<name>000sakai-portal-render-pack</name>
+	<name>sakai-portal-render-pack</name>
 	<groupId>sakaiproject</groupId>
-	<id>000sakai-portal-render-pack</id>
+	<id>sakai-portal-render-pack</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>

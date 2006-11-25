@@ -14,16 +14,22 @@ import org.sakaiproject.portal.render.portlet.PortletToolRenderService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class IFrameToolRenderService implements ToolRenderService {
 
+    private static final Log LOG =
+        LogFactory.getLog(IFrameToolRenderService.class);
+
     private static ResourceLoader rb = new ResourceLoader("sitenav");
 
-    public void preprocess(ToolConfiguration toolConfiguration,
-                           HttpServletRequest request,
+    public boolean preprocess(HttpServletRequest request,
                            HttpServletResponse response,
                            ServletContext context)
         throws IOException, ToolRenderException {
+
+        return true;
     }
 
     public RenderResult render(ToolConfiguration configuration,
@@ -66,8 +72,10 @@ public class IFrameToolRenderService implements ToolRenderService {
         return result;
     }
 
-	public boolean accept(ToolConfiguration configuration, HttpServletRequest request, HttpServletResponse response, ServletContext context)
-	{
+	public boolean accept(ToolConfiguration configuration,
+                          HttpServletRequest request,
+                          HttpServletResponse response,
+                          ServletContext context) {
 		if ( PortletToolRenderService.isPortletTool(configuration) ) {
 			System.err.println("Tool "+configuration.getToolId()+" is a portlet");
 			return false;
