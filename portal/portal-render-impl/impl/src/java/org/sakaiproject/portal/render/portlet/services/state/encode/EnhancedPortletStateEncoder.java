@@ -97,13 +97,12 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder {
                     }
                     sb.append(vals[i]);
                 }
-                LOG.info("** Adding complex parameter. ** : "+sb.toString());
                 p.setProperty("" + entry.getKey(), sb.toString());
             }
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Encoded PortletState to properties: "+p);
+            LOG.debug("Encoded PortletState to properties for Tool '"+portletState.getId()+"'.");
         }
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -127,10 +126,6 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder {
             throw new IllegalStateException("This should never occor");
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Decoding PortletState from Properties: " + p);
-        }
-
         String id = p.getProperty(ID_PARAM);
         PortletState state = new PortletState(id);
         state.setAction(Boolean.valueOf(p.getProperty(ACTION_PARAM)).booleanValue());
@@ -143,8 +138,6 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder {
         p.remove(SECURE_PARAM);
         p.remove(WINDOW_STATE_PARAM);
         p.remove(PORTLET_MODE_PARAM);
-
-        LOG.debug("--- Decoded parameters: "+p);
 
         Map map = new HashMap();
         Iterator i = p.entrySet().iterator();
@@ -165,7 +158,7 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder {
         state.setParameters(map);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("PortletState decoded.  action=" + state.isAction());
+            LOG.debug("Decoded PortletState for Tool '"+state.getId()+"'");
         }
 
         return state;

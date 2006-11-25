@@ -18,7 +18,6 @@ public class SakaiServletRequest extends HttpServletRequestWrapper {
     public SakaiServletRequest(HttpServletRequest servletRequest, PortletState state) {
         super(servletRequest);
         this.state = state;
-
     }
 
 

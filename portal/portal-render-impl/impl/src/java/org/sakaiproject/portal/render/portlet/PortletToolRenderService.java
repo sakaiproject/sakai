@@ -5,7 +5,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.pluto.PortletContainer;
 import org.apache.pluto.PortletContainerException;
 import org.apache.pluto.PortletContainerFactory;
-import org.apache.pluto.PortletWindow;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.api.ToolRenderException;
 import org.sakaiproject.portal.render.api.ToolRenderService;
@@ -18,7 +17,6 @@ import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateAccess;
 import org.sakaiproject.portal.render.portlet.services.state.encode.PortletStateEncoder;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
 
 import javax.portlet.PortletException;
@@ -27,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Properties;
 import java.net.MalformedURLException;
 
 /**
@@ -69,6 +66,9 @@ public class PortletToolRenderService implements ToolRenderService {
                               HttpServletResponse response,
                               ServletContext context)
         throws IOException {
+
+        LOG.info("Preprocess request received.");
+
         String stateParam = request.getParameter(SakaiPortalCallbackService.PORTLET_STATE_QUERY_PARAM);
 
         // If there is not state parameter, short circuit
@@ -80,11 +80,7 @@ public class PortletToolRenderService implements ToolRenderService {
         PortletStateAccess.setPortletState(request, state);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Portlet State retrieved for Tool.");
-            LOG.debug(" - Portlet State contains " + state.getParameters().size() + " parameters");
-            LOG.debug(" - Portlet State's PortletMode is " + state.getPortletMode());
-            LOG.debug(" - Portlet State's WindowState is " + state.getWindowState());
-            LOG.debug(" - Portlet State's is Action?     " + state.isAction());
+            LOG.debug("New Portlet State retrieved for Tool '"+state.getId()+".");
         }
 
         if (state.isAction()) {
@@ -119,8 +115,7 @@ public class PortletToolRenderService implements ToolRenderService {
                                final HttpServletResponse response,
                                ServletContext context)
         throws IOException {
-
-        Tool tool = toolConfiguration.getTool();
+        LOG.info("Render request recieved.");
 
         final SakaiPortletWindow window = isIn168TestMode(request) ?
             createPortletWindow(toolConfiguration.getId()) :
@@ -137,6 +132,8 @@ public class PortletToolRenderService implements ToolRenderService {
             window.setState(state);
         }
 
+        final HttpServletRequest req = new SakaiServletRequest(request, state);
+
         try {
             final PortletContainer portletContainer = getPortletContainer(context);
 
@@ -147,7 +144,7 @@ public class PortletToolRenderService implements ToolRenderService {
                     if (bufferedResponse == null) {
                         bufferedResponse = new BufferedServletResponse(response);
                         try {
-                            portletContainer.doRender(window, request, bufferedResponse);
+                            portletContainer.doRender(window, req, bufferedResponse);
                         }
                         catch (PortletException e) {
                             throw new ToolRenderException(e.getMessage(), e);
