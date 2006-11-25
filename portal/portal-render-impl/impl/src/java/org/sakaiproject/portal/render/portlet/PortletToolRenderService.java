@@ -13,6 +13,7 @@ import org.sakaiproject.portal.render.portlet.services.PortletAttributesAccess;
 import org.sakaiproject.portal.render.portlet.services.SakaiPortalCallbackService;
 import org.sakaiproject.portal.render.portlet.services.SakaiPortalContext;
 import org.sakaiproject.portal.render.portlet.services.SakaiPortletContainerServices;
+import org.sakaiproject.portal.render.portlet.services.SakaiServletRequest;
 import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateAccess;
 import org.sakaiproject.portal.render.portlet.services.state.encode.PortletStateEncoder;
@@ -100,7 +101,7 @@ public class PortletToolRenderService implements ToolRenderService {
 
             try {
                 PortletContainer portletContainer = getPortletContainer(context);
-                portletContainer.doAction(window, request, response);
+                portletContainer.doAction(window, new SakaiServletRequest(request, state), response);
             } catch (PortletException e) {
                 throw new ToolRenderException(e.getMessage(), e);
             } catch (PortletContainerException e) {
