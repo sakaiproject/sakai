@@ -121,16 +121,19 @@ public class PortletToolRenderService implements ToolRenderService {
             createPortletWindow(toolConfiguration.getId()) :
             registry.getOrCreatePortletWindow(toolConfiguration);
 
-        PortletState state = PortletStateAccess.getPortletState(request, window.getId().getStringId());
+        PortletState state =
+            PortletStateAccess.getPortletState(request, window.getId().getStringId());
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Retrieved PortletState from request cache.  Applying to window.");
         }
 
 
-        if (state != null) {
-            window.setState(state);
+        if (state == null) {
+            state = new PortletState(window.getId().getStringId());
         }
+        
+        window.setState(state);
 
         final HttpServletRequest req = new SakaiServletRequest(request, state);
 

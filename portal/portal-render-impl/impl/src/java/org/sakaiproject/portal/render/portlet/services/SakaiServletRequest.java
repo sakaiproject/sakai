@@ -2,7 +2,6 @@ package org.sakaiproject.portal.render.portlet.services;
 
 import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
