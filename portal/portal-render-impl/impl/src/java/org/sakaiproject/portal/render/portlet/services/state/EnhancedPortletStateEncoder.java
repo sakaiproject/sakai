@@ -92,6 +92,10 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder {
                 String[] vals = (String[])o;
                 StringBuffer sb = new StringBuffer();
                 for(int i=0;i<vals.length;i++) {
+                    if(vals[i] == null) {
+                        continue;
+                    }
+                    
                     if(i > 0) {
                         sb.append(",");
                     }
