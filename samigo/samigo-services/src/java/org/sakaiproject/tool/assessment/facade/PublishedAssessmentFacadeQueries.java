@@ -713,6 +713,16 @@ public class PublishedAssessmentFacadeQueries
       IntegrationContextFactory.getInstance().getPublishingTargetHelper();
 
     HashMap targets = ptHelper.getTargets();
+    // Fixed for SAK-7251
+    HashMap trimedTargets = new HashMap(); 
+    Iterator iter = targets.keySet().iterator();
+    String key;
+    String value;
+    while (iter.hasNext()) {
+    	key = (String) iter.next();
+    	value = (String) targets.get(key);
+    	trimedTargets.put(key.trim(), value);
+    }
 
     // 2. get the key of the target selected, it is stored in accessControl.releaseTo
     AssessmentAccessControlIfc control = p.getAssessmentAccessControl();
@@ -722,8 +732,8 @@ public class PublishedAssessmentFacadeQueries
       for (int i = 0; i < targetSelected.length; i++) {
         String agentKey = targetSelected[i].trim();
         // add agentId into v
-        if (targets.get(agentKey) != null) {
-          v.add( (String) targets.get(agentKey));
+        if (trimedTargets.get(agentKey) != null) {
+          v.add( (String) trimedTargets.get(agentKey));
         }
       }
     }
