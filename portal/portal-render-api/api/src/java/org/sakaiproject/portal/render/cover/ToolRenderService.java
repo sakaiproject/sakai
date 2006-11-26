@@ -32,10 +32,14 @@ import java.io.IOException;
 /**
  * ToolRenderService is a static cover for the
  * {@link org.sakaiproject.portal.render.api.ToolRenderService}
+ *
+ * @since Sakai 2.2.4
+ * @version $Rev$
+ *
  */
 public class ToolRenderService {
 
-        /** Possibly cached component instance. */
+    /** Possibly cached component instance. */
 	private static org.sakaiproject.portal.render.api.ToolRenderService m_instance = null;
 
 	/**
@@ -59,9 +63,22 @@ public class ToolRenderService {
 		}
 	}
 
-	public static boolean preprocess(HttpServletRequest request,
-                                  HttpServletResponse response,
-                                  ServletContext context)
+    /**
+     * Preprocess the given request.
+     *
+     * Instructs the service to perform any preprocessing which may affect the
+     * state of the portlets (e.g. how they are rendered).
+     *
+     * @param request the current servlet request
+     * @param response the current servlet response
+     * @param context the application context
+     * @return true, if and only if processing should continue.
+     * @throws IOException if an error occurs during preprocessing
+     *
+     */
+    public static boolean preprocess(HttpServletRequest request,
+                                     HttpServletResponse response,
+                                     ServletContext context)
         throws IOException {
 		org.sakaiproject.portal.render.api.ToolRenderService service = getInstance();
 		if (service == null) return true;
@@ -69,8 +86,16 @@ public class ToolRenderService {
         return service.preprocess(request, response, context);
     }
 
-
-	public static RenderResult render(ToolConfiguration configuration,
+    /**
+     *
+     * @param configuration the tool which should be rendered
+     * @param request the current servlet request
+     * @param response the current servlet response
+     * @param context the application context
+     * @return a rendered(able) content
+     * @throws IOException if an error occurs during processing.
+     */
+    public static RenderResult render(ToolConfiguration configuration,
                                   HttpServletRequest request,
                                   HttpServletResponse response,
                                   ServletContext context)
