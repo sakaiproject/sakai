@@ -41,7 +41,7 @@ public class CompatibilityToolRenderService implements ToolRenderService {
         boolean continueProcessing = true;
         for (Iterator i = renderServices.iterator(); i.hasNext();) {
             ToolRenderService trs = (ToolRenderService) i.next();
-            LOG.warn("Preprocessing with " + trs);
+            LOG.debug("Preprocessing with " + trs);
             continueProcessing = continueProcessing &&
                 trs.preprocess(request, response, context);
         }
@@ -57,7 +57,7 @@ public class CompatibilityToolRenderService implements ToolRenderService {
         for (Iterator i = renderServices.iterator(); i.hasNext();) {
             ToolRenderService trs = (ToolRenderService) i.next();
             if (trs.accept(configuration, request, response, context)) {
-                LOG.warn("Rendering with " + trs);
+                LOG.debug("Rendering with " + trs);
                 return trs.render(configuration, request, response, context);
             }
         }

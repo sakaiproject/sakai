@@ -77,10 +77,8 @@ public class IFrameToolRenderService implements ToolRenderService {
                           HttpServletResponse response,
                           ServletContext context) {
 		if ( PortletToolRenderService.isPortletTool(configuration) ) {
-			System.err.println("Tool "+configuration.getToolId()+" is a portlet");
 			return false;
 		}
-		System.err.println("Tool "+configuration.getToolId()+" is iframe tool");
 		return true;
 	}
 }

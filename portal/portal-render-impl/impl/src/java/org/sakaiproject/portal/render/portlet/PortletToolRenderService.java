@@ -66,7 +66,6 @@ public class PortletToolRenderService implements ToolRenderService {
                               ServletContext context)
         throws IOException {
 
-        LOG.info("Preprocess request received.");
 
         String stateParam = request.getParameter(SakaiPortalCallbackService.PORTLET_STATE_QUERY_PARAM);
 
@@ -114,7 +113,6 @@ public class PortletToolRenderService implements ToolRenderService {
                                final HttpServletResponse response,
                                ServletContext context)
         throws IOException {
-        LOG.info("Render request recieved.");
 
         final SakaiPortletWindow window = isIn168TestMode(request) ?
             createPortletWindow(toolConfiguration.getId()) :
@@ -217,6 +215,9 @@ public class PortletToolRenderService implements ToolRenderService {
     private boolean isPortletApplication(ServletContext context, ToolConfiguration configuration)
         throws ToolRenderException, MalformedURLException {
         SakaiPortletWindow window = registry.getOrCreatePortletWindow(configuration);
+        if ( window == null ) {
+		return false;
+	}
         ServletContext crossContext = context.getContext(window.getContextPath());
         return crossContext.getResource("/WEB-INF/portlet.xml") != null;
     }
@@ -232,10 +233,14 @@ public class PortletToolRenderService implements ToolRenderService {
 				return true;
 			}
 			if ( isPortletApplication(context, configuration)) {
-				LOG.warn("Tool "+configuration.getToolId()+" is a portlet");
+        			if (LOG.isDebugEnabled()) {
+					LOG.debug("Tool "+configuration.getToolId()+" is a portlet");
+				}
 				return true;
 			}
-			LOG.warn("Tool "+configuration.getToolId()+" is not a portlet");
+        		if (LOG.isDebugEnabled()) {
+				LOG.debug("Tool "+configuration.getToolId()+" is not a portlet");
+			}
 			return false;
 		}
 		catch (MalformedURLException e)

@@ -65,6 +65,9 @@ public class PortletRegistry {
     }
 
     private void createPortletWindow(Placement placement) throws ToolRenderException {
+        if ( !isPortletApplication(placement) ) {
+	     return;
+        }
         Properties placementProperties = placement.getConfig();
         String contextPath = placementProperties.getProperty(TOOL_PORTLET_CONTEXT_PATH);
         String portletName = placementProperties.getProperty(TOOL_PORTLET_NAME);
@@ -79,8 +82,14 @@ public class PortletRegistry {
         portletWindows.put(windowId, window);
     }
 
-    static boolean isPortletApplication(ToolConfiguration configuration) {
-        Properties toolProperties = configuration.getConfig();
+    static boolean isPortletApplication(Placement placement) {
+        if ( placement == null ) {
+		return false;
+	}
+        Properties toolProperties = placement.getConfig();
+        if ( toolProperties == null ) {
+		return false;
+	}
         if (toolProperties.containsKey(TOOL_PORTLET_CONTEXT_PATH) &&
             toolProperties.containsKey(TOOL_PORTLET_NAME)) {
             return true;
