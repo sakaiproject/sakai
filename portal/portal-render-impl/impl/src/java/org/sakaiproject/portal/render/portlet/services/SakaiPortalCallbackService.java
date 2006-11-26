@@ -57,7 +57,7 @@ public class SakaiPortalCallbackService implements PortalCallbackService {
     }
 
     public ResourceURLProvider getResourceURLProvider(HttpServletRequest request, PortletWindow window) {
-        return new SakaiResourceURLProvider(window.getContextPath());
+        return new SakaiResourceURLProvider("");
     }
 
     public Map getRequestProperties(HttpServletRequest request, PortletWindow window) {
