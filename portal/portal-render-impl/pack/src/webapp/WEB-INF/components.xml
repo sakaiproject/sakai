@@ -7,14 +7,13 @@
     <bean id="org.sakaiproject.portal.render.api.ToolRenderService"
           class="org.sakaiproject.portal.render.compat.CompatibilityToolRenderService"
           singleton="true">
-        <property name="renderServices" >
-          <list>
-            <ref local="portletRenderService"/>
-            <bean class="org.sakaiproject.portal.render.iframe.IFrameToolRenderService"/>
-          </list>
+        <property name="renderServices">
+            <list>
+                <ref local="portletRenderService"/>
+                <bean class="org.sakaiproject.portal.render.iframe.IFrameToolRenderService"/>
+            </list>
         </property>
     </bean>
-
 
     <bean id="portletRenderService" name="portletRenderService"
           class="org.sakaiproject.portal.render.portlet.PortletToolRenderService">
@@ -24,13 +23,13 @@
     </bean>
 
     <bean id="portletStateEncoder"
-          class="org.sakaiproject.portal.render.portlet.services.state.encode.EnhancedPortletStateEncoder">
+          class="org.sakaiproject.portal.render.portlet.services.state.EnhancedPortletStateEncoder">
         <property name="urlSafeEncoder">
             <ref local="urlSafeEncoder"/>
         </property>
     </bean>
 
     <bean id="urlSafeEncoder"
-          class="org.sakaiproject.portal.render.portlet.services.state.encode.UrlSafeBase64Encoder"/>
+          class="org.sakaiproject.portal.render.portlet.services.state.Base64Recoder"/>
 
 </beans>

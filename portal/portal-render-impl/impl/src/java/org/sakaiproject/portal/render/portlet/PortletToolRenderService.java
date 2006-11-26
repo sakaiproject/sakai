@@ -8,16 +8,15 @@ import org.apache.pluto.PortletContainerFactory;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.api.ToolRenderException;
 import org.sakaiproject.portal.render.api.ToolRenderService;
-import org.sakaiproject.portal.render.portlet.services.PortletAttributesAccess;
 import org.sakaiproject.portal.render.portlet.services.SakaiPortalCallbackService;
 import org.sakaiproject.portal.render.portlet.services.SakaiPortalContext;
 import org.sakaiproject.portal.render.portlet.services.SakaiPortletContainerServices;
-import org.sakaiproject.portal.render.portlet.services.SakaiServletRequest;
+import org.sakaiproject.portal.render.portlet.servlet.SakaiServletRequest;
 import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateAccess;
-import org.sakaiproject.portal.render.portlet.services.state.encode.PortletStateEncoder;
+import org.sakaiproject.portal.render.portlet.services.state.PortletStateEncoder;
+import org.sakaiproject.portal.render.portlet.servlet.BufferedServletResponse;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.Tool;
 
 import javax.portlet.PortletException;
 import javax.servlet.ServletContext;
@@ -131,16 +130,18 @@ public class PortletToolRenderService implements ToolRenderService {
 
         if (state == null) {
             state = new PortletState(window.getId().getStringId());
+            PortletStateAccess.setPortletState(request, state);
         }
         
         window.setState(state);
 
-        final HttpServletRequest req = new SakaiServletRequest(request, state);
 
         try {
+
+            final HttpServletRequest req = new SakaiServletRequest(request, state);
             final PortletContainer portletContainer = getPortletContainer(context);
 
-            RenderResult result = new RenderResult() {
+            return new RenderResult() {
                 private BufferedServletResponse bufferedResponse = null;
 
                 private void renderResponse() throws ToolRenderException {
@@ -168,11 +169,10 @@ public class PortletToolRenderService implements ToolRenderService {
 
                 public String getTitle() throws ToolRenderException {
                     renderResponse();
-                    return PortletAttributesAccess.getPortletAttributes(request, window).getTitle();
+                    return PortletStateAccess.getPortletState(req, window.getId().getStringId()).getTitle();
                 }
 
             };
-            return result;
 
         } catch (PortletContainerException e) {
             throw new ToolRenderException(e.getMessage(), e);

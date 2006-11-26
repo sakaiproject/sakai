@@ -21,13 +21,28 @@ public class PortletState implements Serializable {
     private static final Log LOG =
         LogFactory.getLog(PortletState.class);
 
+    //
+    // Session Scoped State
+    //
     private String id;
     private boolean action;
     private boolean secure;
     private Map parameters;
+    
+
+    // Transient state
 
     private transient PortletMode portletMode;
     private transient WindowState windowState;
+
+    //
+    // Request scoped state
+    //
+
+    private String title;
+    private Map requestProperties;
+    private Map responseProperties;
+
 
 
     public PortletState(String id) {
@@ -99,6 +114,36 @@ public class PortletState implements Serializable {
     public void setWindowState(WindowState windowState) {
         this.windowState = windowState;
     }
+
+//
+// request scoped state
+//
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public Map getRequestProperties() {
+        return requestProperties;
+    }
+
+    public void setRequestProperties(Map requestProperties) {
+        this.requestProperties = requestProperties;
+    }
+
+    public Map getResponseProperties() {
+        return responseProperties;
+    }
+
+    public void setResponseProperties(Map responseProperties) {
+        this.responseProperties = responseProperties;
+    }
+
+
 
     public boolean equals(Object o) {
         if (this == o) return true;

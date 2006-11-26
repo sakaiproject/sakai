@@ -1,11 +1,20 @@
-package org.sakaiproject.portal.render.portlet.services.state.encode;
+package org.sakaiproject.portal.render.portlet.services.state;
 
 import java.net.URLEncoder;
 import java.net.URLDecoder;
 import java.io.UnsupportedEncodingException;
 
-public class UrlSafeJDKEncoder implements UrlSafeEncoder {
+/**
+ * WebRecoder which uses basic url encoding (escaped)
+ * values to perform the encoding. Encoded values will
+ * not be obfuscated, but will be safe.
+ *
+ * @since Sakai 2.2.4
+ * @version $Rev$
+ */
+public class BasicWebRecoder implements WebRecoder {
 
+    /* Encoding */
     private static final String UTF8 = "UTF-8";
 
     public String encode(byte[] bits) {

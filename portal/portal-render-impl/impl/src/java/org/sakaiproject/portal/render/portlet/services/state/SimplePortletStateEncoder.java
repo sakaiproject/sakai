@@ -1,4 +1,4 @@
-package org.sakaiproject.portal.render.portlet.services.state.encode;
+package org.sakaiproject.portal.render.portlet.services.state;
 
 import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 
@@ -15,13 +15,13 @@ import java.io.*;
  */
 public class SimplePortletStateEncoder implements PortletStateEncoder {
 
-    private UrlSafeEncoder urlSafeEncoder;
+    private WebRecoder urlSafeEncoder;
 
-    public UrlSafeEncoder getUrlSafeEncoder() {
+    public WebRecoder getUrlSafeEncoder() {
         return urlSafeEncoder;
     }
 
-    public void setUrlSafeEncoder(UrlSafeEncoder urlSafeEncoder) {
+    public void setUrlSafeEncoder(WebRecoder urlSafeEncoder) {
         this.urlSafeEncoder = urlSafeEncoder;
     }
 

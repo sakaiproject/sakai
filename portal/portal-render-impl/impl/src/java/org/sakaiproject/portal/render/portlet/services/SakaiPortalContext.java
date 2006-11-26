@@ -48,7 +48,12 @@ public class SakaiPortalContext implements PortalContext {
         return new IteratorEnumeration(states.iterator());
     }
 
+    /**
+     * @todo Dynamic
+     * @return
+     */
     public String getPortalInfo() {
+
         return "Charon/2.3-SNAPSHOT";
     }
 

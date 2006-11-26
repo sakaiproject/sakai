@@ -1,4 +1,4 @@
-package org.sakaiproject.portal.render.portlet.services.state.encode;
+package org.sakaiproject.portal.render.portlet.services.state;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,14 +56,14 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder {
         "o.s.p.r.s.WINDOW_STATE";
 
 
-    private UrlSafeEncoder urlSafeEncoder
-        = new UrlSafeBase64Encoder();
+    private WebRecoder urlSafeEncoder
+        = new Base64Recoder();
 
-    public UrlSafeEncoder getUrlSafeEncoder() {
+    public WebRecoder getUrlSafeEncoder() {
         return urlSafeEncoder;
     }
 
-    public void setUrlSafeEncoder(UrlSafeEncoder urlSafeEncoder) {
+    public void setUrlSafeEncoder(WebRecoder urlSafeEncoder) {
         this.urlSafeEncoder = urlSafeEncoder;
     }
 

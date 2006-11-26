@@ -10,7 +10,10 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
+ * A cache of all portlets windows.
  *
+ * @since Sakai 2.2.4
+ * @version $Rev$
  */
 public class PortletRegistry {
 
@@ -37,6 +40,12 @@ public class PortletRegistry {
         this.portletWindows = new HashMap();
     }
 
+    /**
+     * Retrieve the portlet window for the specified placement.
+     * @param placement
+     * @return
+     * @throws ToolRenderException
+     */
     public SakaiPortletWindow getOrCreatePortletWindow(Placement placement)
         throws ToolRenderException {
         if (!portletWindows.containsKey(placement.getId())) {
@@ -45,6 +54,12 @@ public class PortletRegistry {
         return getPortletWindow(placement.getId());
     }
 
+    /**
+     * Retrieve the PortletWindow for the given id.
+     *
+     * @param placementId
+     * @return
+     */
     public SakaiPortletWindow getPortletWindow(String placementId) {
         return (SakaiPortletWindow) portletWindows.get(placementId);
     }

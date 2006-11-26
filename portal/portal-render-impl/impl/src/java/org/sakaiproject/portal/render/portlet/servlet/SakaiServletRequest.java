@@ -1,4 +1,4 @@
-package org.sakaiproject.portal.render.portlet.services;
+package org.sakaiproject.portal.render.portlet.servlet;
 
 import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 
