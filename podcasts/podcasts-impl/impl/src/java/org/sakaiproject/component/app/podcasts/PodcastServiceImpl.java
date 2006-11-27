@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -70,6 +71,16 @@ public class PodcastServiceImpl implements PodcastService {
 	private final String PODFEED_TITLE = "podfeedTitle";
 	private final String PODFEED_DESCRIPTION = "podfeedDescription";
 	
+	/** Used to grab the default feed title prefix */
+	private final String FEED_TITLE_STRING = "feed_title";
+
+	/** Used to get the default feed description pieces from the message bundle */
+	private final String FEED_DESC1_STRING = "feed_desc1";
+	private final String FEED_DESC2_STRING = "feed_desc2";
+	
+	/** Used to pull message bundle */
+	private final String PODFEED_MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
+
 	/** Used for event tracking of podcasts - adding a podcast **/
 	private final String EVENT_ADD_PODCAST = "podcast.add";
 	
@@ -77,14 +88,15 @@ public class PodcastServiceImpl implements PodcastService {
 	private final String EVENT_REVISE_PODCAST = "podcast.revise";
 	
 	/** Used for event tracking of podcasts - deleting a podcast **/
-	private final String 	EVENT_DELETE_PODCAST = "podcast.delete";
+	private final String EVENT_DELETE_PODCAST = "podcast.delete";
 
 	/** Options. 0 = Display to non-members, 1 = Display to Site * */
 	private final int PUBLIC = 0;
 	private final int SITE = 1;
 
 	private Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
-
+	private ResourceBundle resbud = ResourceBundle.getBundle(PODFEED_MESSAGE_BUNDLE);
+	
 	private Reference siteRef;
 
 	// injected beans
@@ -1115,7 +1127,36 @@ public class PodcastServiceImpl implements PodcastService {
 		try {
 			LOG.info("Could not find podcast folder, attempting to create.");
 
-			final ResourcePropertiesEdit resourceProperties = contentHostingService
+			// Refactored 11-20-06 since add method is being deprecated
+			ContentCollectionEdit collection = 
+						contentHostingService.addCollection(podcastsCollection);
+			
+			final ResourcePropertiesEdit resourceProperties = collection.getPropertiesEdit();
+			
+			resourceProperties.addProperty(
+					ResourceProperties.PROP_DISPLAY_NAME,
+					COLLECTION_PODCASTS_TITLE);
+
+			resourceProperties.addProperty(
+					ResourceProperties.PROP_DESCRIPTION,
+					COLLECTION_PODCASTS_DESCRIPTION);
+
+			// Set default feed title and description
+			resourceProperties.addProperty(PODFEED_TITLE,
+					getMessageBundleString(FEED_TITLE_STRING) + SiteService.getSite(siteId).getTitle());
+
+			final String feedDescription = getMessageBundleString(FEED_DESC1_STRING)
+											+ SiteService.getSite(siteId).getTitle()
+												+ getMessageBundleString(FEED_DESC2_STRING);
+
+			resourceProperties.addProperty(PODFEED_DESCRIPTION,
+					feedDescription);
+
+			contentHostingService.commitCollection(collection);
+
+			contentHostingService.setPubView(collection.getId(), true);
+			
+/*			final ResourcePropertiesEdit resourceProperties = contentHostingService
 					.newResourceProperties();
 
 			resourceProperties.addProperty(
@@ -1147,7 +1188,7 @@ public class PodcastServiceImpl implements PodcastService {
 					.editCollection(collection.getId());
 
 			commitContentCollection(edit);
-
+*/
 		} 
 		catch (Exception e) {
 			// catches	IdUnusedException, 		TypeException
@@ -1205,5 +1246,19 @@ public class PodcastServiceImpl implements PodcastService {
 	 */
 	public boolean allowAccess(String id) {
 		return contentHostingService.allowGetCollection(id);
+	}
+
+	/**
+	 * Sets the Faces error message by pulling the message from the
+	 * MessageBundle using the name passed in
+	 * 
+	 * @param key
+	 *           The name in the MessageBundle for the message wanted
+	 *            
+	 * @return String
+	 * 			The string that is the value of the message
+	 */
+	private String getMessageBundleString(String key) {
+		return resbud.getString(key);
 	}
 }

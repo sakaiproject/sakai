@@ -21,6 +21,7 @@
 
 package org.sakaiproject.component.app.podcasts;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -52,8 +53,10 @@ import org.sakaiproject.util.ResourceLoader;
 import javax.faces.context.FacesContext;
 
 import com.sun.syndication.feed.WireFeed;
+import com.sun.syndication.feed.module.DCModuleImpl;
 import com.sun.syndication.feed.module.itunes.EntryInformation;
 import com.sun.syndication.feed.module.itunes.EntryInformationImpl;
+import com.sun.syndication.feed.module.Module;
 import com.sun.syndication.feed.rss.Channel;
 import com.sun.syndication.feed.rss.Description;
 import com.sun.syndication.feed.rss.Enclosure;
@@ -75,9 +78,16 @@ public class BasicPodfeedService implements PodfeedService {
 
 	/** Used to get the global feed title which is a property of Podcasts folder **/
 	private final String PODFEED_TITLE = "podfeedTitle";
+	
+	/** Used to grab the default feed title prefix */
+	private final String FEED_TITLE_STRING = "feed_title";
 
 	/** Used to get the global feed description which is a property of Podcasts folder **/
 	private final String PODFEED_DESCRIPTION = "podfeedDescription";
+	
+	/** Used to get the default feed description pieces from the message bundle */
+	private final String FEED_DESC1_STRING = "feed_desc1";
+	private final String FEED_DESC2_STRING = "feed_desc2";
 	
 	/** Used to pull message bundle */
 	private final String PODFEED_MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
@@ -90,8 +100,6 @@ public class BasicPodfeedService implements PodfeedService {
 
 	/** Used to pull item author from sakai.properties file */
 	private final String FEED_ITEM_AUTHOR_STRING = "podfeed_author";
-
-	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.podcasts.bundle.Messages");
 	
 	private static final Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
 
@@ -178,7 +186,7 @@ public class BasicPodfeedService implements PodfeedService {
 			/* For site where not added to folder upon creation
 			 * and has not been revised/updated */
 			if (feedTitle == null) {
-				feedTitle = "Podcasts for " + SiteService.getSite(siteId).getTitle();
+				feedTitle = getMessageBundleString(FEED_TITLE_STRING) + SiteService.getSite(siteId).getTitle();
 				LOG.info("No saved feed title found for site: " + siteId + ". Using " + feedTitle);
 
 			}
@@ -263,9 +271,9 @@ public class BasicPodfeedService implements PodfeedService {
 			/* For site where not added to folder upon creation
 			 * and has not been revised/updated */
 			if (feedDescription == null) {
-				feedDescription = "This is the official podcast for course "
-						+ SiteService.getSite(siteId).getTitle();
-				feedDescription += ". Please check back throughout the semester for updates.";
+				feedDescription = getMessageBundleString(FEED_DESC1_STRING) 
+									+ SiteService.getSite(siteId).getTitle() 
+									+ getMessageBundleString(FEED_DESC2_STRING);
 				LOG.info("No feed description found for site: " + siteId + ". Using " + feedDescription);
 
 			}
@@ -282,6 +290,9 @@ public class BasicPodfeedService implements PodfeedService {
 
 	}
 
+	/**
+	 * 
+	 */
 	public void setPodfeedDescription(String feedDescription) {
 		setPodfeedDescription(feedDescription, podcastService.getSiteId());
 	}
@@ -387,7 +398,6 @@ public class BasicPodfeedService implements PodfeedService {
 		final String URL = ServerConfigurationService.getServerUrl()
 				+ Entity.SEPARATOR + "podcasts/site/" + siteId;
 
-		// TODO: pull from message bundle
 		final String copyright = getMessageBundleString(FEED_COPYRIGHT_STATEMENT);
 
 		final WireFeed podcastFeed = doSyndication(podfeedTitle, URL,
@@ -543,13 +553,9 @@ public class BasicPodfeedService implements PodfeedService {
 			String blogContent, String author, long length, String mimeType) 
 	{
 		final Item item = new Item();
-		
-		item.setAuthor(author);
-		item.setTitle(title);
 
-		// Need to replace all spaces with their HEX equiv
-		// so podcatchers (iTunes) recognize it
-//		mp3link = mp3link.replaceAll(" ", "%20");
+		// set title for this podcast
+		item.setTitle(title);
 
         // Compile regular expression
         Pattern pattern = Pattern.compile(" ");
@@ -559,15 +565,19 @@ public class BasicPodfeedService implements PodfeedService {
         Matcher matcher = pattern.matcher(mp3link);
         mp3link = matcher.replaceAll("%20");
         item.setLink(mp3link);
-        
-		date = new Date(date.toGMTString());
+
+        // Set Publish date for this podcast/episode
+        // NOTE: date has local time, but when feed rendered,
+        // converts it to GMT
 		item.setPubDate(date);
 
+		// Set description for this podcast/episode
 		final Description itemDescription = new Description();
 		itemDescription.setType(DESCRIPTION_CONTENT_TYPE);
 		itemDescription.setValue(blogContent);
 		item.setDescription(itemDescription);
 
+		// Set guid for this podcast/episode
 		item.setGuid(new Guid());
 		item.getGuid().setValue(mp3link);
 		item.getGuid().setPermaLink(false);
@@ -585,17 +595,26 @@ public class BasicPodfeedService implements PodfeedService {
 
 		item.setEnclosures(enclosures);
 
-		// Generate the iTunes tags
+		// Currently uses 2 modules:
+		//  iTunes for podcasting
+		//  DCmodule since validators want email with author tag, 
+		//    so use dc:creator instead
 		List modules = new ArrayList();
 		
+		// Generate the iTunes tags
 		final EntryInformation iTunesModule = new EntryInformationImpl();
 
-//		iTunesModule.setAuthor("Created from ContentHosting");
 		iTunesModule.setAuthor(getMessageBundleString(FEED_ITEM_AUTHOR_STRING));
 		iTunesModule.setSummary(blogContent);
 
+		// Set dc:creator tag
+		final DCModuleImpl dcModule = new DCModuleImpl();
+		
+		dcModule.setCreator(author);
+		
 		modules.add(iTunesModule);
-
+		modules.add(dcModule);
+		
 		item.setModules(modules);
 		
 		return item;
@@ -640,7 +659,6 @@ public class BasicPodfeedService implements PodfeedService {
 		channel.setDescription(description_loc);		
 		channel.setCopyright(copyright);
 		channel.setGenerator(getMessageBundleString(FEED_GENERATOR_STRING));
-//		channel.setGenerator("Oncourse 2.2.1 https://oncourse.iu.edu");
 
 		channel.setItems(entries);
 

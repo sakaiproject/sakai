@@ -42,7 +42,7 @@
 	      </tr>
 		  <tr>  <!-- ****** Date ****** -->
       		<td class="reqStarInline">*</td>
-	      	<td><h:outputText value="#{msgs.date_prompt}" /></td>
+	      	<td><h:outputText value="#{msgs.date_prompt}" />&nbsp;&nbsp;&nbsp;</td>
 			<td>
 	      		<podcasts:datePicker value="#{podHomeBean.date}" id="addDate" size="28" />
 	  			<h:outputText value="#{msgs.date_picker_format_string}" />

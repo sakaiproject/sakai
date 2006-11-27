@@ -41,7 +41,7 @@
         <td colspan=3><h:message for="podfile" styleClass="alertMessage" /></td>
       </tr>
       <tr>  <!-- ****** Date ****** --> 
-        <td><h:outputText value="#{msgs.date_prompt}" /></td>
+        <td><h:outputText value="#{msgs.date_prompt}" />&nbsp;&nbsp;&nbsp;</td>
         <td>
 	      <podcasts:datePicker value="#{podHomeBean.selectedPodcast.displayDateRevise}" id="poddate" size="28" />
 		  <h:outputText value="#{msgs.date_picker_format_string}" />

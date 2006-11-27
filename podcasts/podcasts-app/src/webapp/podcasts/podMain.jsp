@@ -20,7 +20,7 @@
           <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" />
       </sakai:tool_bar>
       </h:panelGroup>
-      
+ <%-- <sakai:tool_bar_item action="podcastPermissions" value="#{msgs.permissions}" /> --%>     
  	  <div>
  	  	  <h:messages styleClass="alertMessage" id="errorMessages"/> 
  	      <h3><h:outputText value="#{msgs.podcast_home_title}" /></h3>
