@@ -61,6 +61,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.integration.helper.integrated.AgentHelperImpl;
 import org.sakaiproject.tool.assessment.qti.asi.Assessment;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
 import org.sakaiproject.tool.assessment.qti.asi.Section;
@@ -176,10 +177,12 @@ public class AuthoringHelper
       }
       else
       {
+    	AgentHelperImpl helper = new AgentHelperImpl();
         String createdBy = assessment.getCreatedBy();
-        if (createdBy != null)
+        String eid = helper.getEidById(createdBy);
+        if (eid != null)
         {
-          assessmentXml.setFieldentry("AUTHORS", createdBy);
+          assessmentXml.setFieldentry("AUTHORS", eid);
         }
         else
         {
