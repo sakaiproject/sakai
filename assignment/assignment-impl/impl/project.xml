@@ -140,24 +140,33 @@
 
 		<sourceDirectory>src/java</sourceDirectory>
 
+		<unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+		<unitTest>
+			<includes>**/*Test</includes>
+			<resources>
+				<resource>
+					<directory>${basedir}/src/testBundle</directory>
+					<includes>
+						<include>**/*.*</include>
+					</includes>
+					<filtering>false</filtering>
+				</resource>
+			</resources>
+		</unitTest>
 		<resources>
-
 			<resource>
 				<directory>${basedir}/src/sql</directory>
 				<includes>
 					<include>**/*.sql</include>
 				</includes>
 			</resource>
-
 			<resource>
 				<directory>${basedir}/src/bundle</directory>
 				<includes>
 					<include>**/*.properties</include>
 				</includes>
 			</resource>
-
 		</resources>
-
 	</build>
 
 </project>
