@@ -192,8 +192,7 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 		// return a list of items from the channel
 		Object obj = m_storage.get(source);
 		NewsChannel ch = (NewsChannel) obj;
-		List items = ch.getNewsitems();
-		return items;
+		return ch.getNewsitems();
 	}
 
 	/**
@@ -215,8 +214,7 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 		updateChannel(source);
 
 		// 
-		List items = ((NewsChannel) m_storage.get(source)).getNewsitems(filter);
-		return items;
+		return ((NewsChannel) m_storage.get(source)).getNewsitems(filter);
 
 	} // getNewsitems
 
