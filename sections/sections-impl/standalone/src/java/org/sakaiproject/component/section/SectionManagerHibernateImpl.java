@@ -937,7 +937,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 		
 		// Set the default if the configuration string is missing
 		if(config == null) {
-			config = ExternalIntegrationConfig.MANUAL;
+			config = ExternalIntegrationConfig.MANUAL_DEFAULT;
 			context.setAttribute(CONFIGURATION_KEY, config);
 		}
 		

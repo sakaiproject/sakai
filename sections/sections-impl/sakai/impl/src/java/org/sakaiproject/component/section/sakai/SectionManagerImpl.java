@@ -58,6 +58,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
@@ -86,6 +87,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
     // Sakai services
     protected SiteService siteService;
     protected AuthzGroupService authzGroupService;
+    protected GroupProvider groupProvider;
     protected SecurityService securityService;
     protected UserDirectoryService userDirectoryService;
     protected SessionManager sessionManager;
@@ -118,11 +120,6 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 * {@inheritDoc}
 	 */
     public void update(Site site) {
-    	
-    	log.info("###################################");
-    	log.info("Updating Site with provider ID=" + site.getProviderGroupId());
-    	log.info("###################################");
-    	
     	// NOTE: This code will be called any time a site is saved (including site creation).
     	// Be very careful...
 
@@ -137,7 +134,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		ResourceProperties siteProps = site.getProperties();
 
 		// If we're configured to be mandatory auto or mandatory manual, handle those conditions and return
-		if(handlingMandatoryConfigs(appConfig, siteProps)) {
+		if(handlingMandatoryConfigs(appConfig, site)) {
 			if(log.isDebugEnabled()) log.debug(this.getClass().getCanonicalName() + " finished decorating site " + site.getTitle() + " for " + appConfig);
 			return;
 		}
@@ -155,18 +152,21 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		replaceSectionsWithExternalSections(site);
 	}
 
-    private boolean handlingMandatoryConfigs(ExternalIntegrationConfig appConfig, ResourceProperties siteProps) {
+    private boolean handlingMandatoryConfigs(ExternalIntegrationConfig appConfig, Site site) {
+		ResourceProperties siteProps = site.getProperties();
+
 		switch(appConfig) {
-		// If we're configured to treat all sites as manual, set the site to manual control
 		case MANUAL_MANDATORY:
+			// If we're configured to treat all sites as manual, set the site to manual control
 			siteProps.addProperty(CourseImpl.EXTERNALLY_MAINTAINED, Boolean.FALSE.toString());
 			return true;
 
-		// If we're configured to treat all sites as automatic, set the site to external control
 		case AUTOMATIC_MANDATORY:
+			// If we're configured to treat all sites as automatic, set the site to external control and update the sections
 			siteProps.addProperty(CourseImpl.EXTERNALLY_MAINTAINED, Boolean.TRUE.toString());
 			siteProps.addProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED, Boolean.FALSE.toString());
 			siteProps.addProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED, Boolean.FALSE.toString());
+			replaceSectionsWithExternalSections(site);
 			return true;
 
 		default:
@@ -178,14 +178,14 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		// If the site doesn't have a property set for "Externally Maintained", it's either a new site or one
 		// that was created before this SiteAdvisor was registered.
 		if(siteProps.getProperty(CourseImpl.EXTERNALLY_MAINTAINED) == null) {
-			// Set this property to external if the app config is AUTOMATIC, else make it internally managed
+			// Set this property to external if the app config is AUTOMATIC_DEFAULT, else make it internally managed
 			// FIXME -- This might have unforseen consequences...
 			if(log.isDebugEnabled()) log.debug("Site '" + site.getTitle() + "' has no EXTERNALLY_MAINTAINED flag.");
-			if(appConfig == ExternalIntegrationConfig.AUTOMATIC) {
+			if(appConfig == ExternalIntegrationConfig.AUTOMATIC_DEFAULT) {
 				siteProps.addProperty(CourseImpl.EXTERNALLY_MAINTAINED, Boolean.TRUE.toString());
 				siteProps.addProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED, Boolean.FALSE.toString());
 				siteProps.addProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED, Boolean.FALSE.toString());
-			} else {
+			} else if(appConfig == ExternalIntegrationConfig.MANUAL_DEFAULT) {
 				siteProps.addProperty(CourseImpl.EXTERNALLY_MAINTAINED, Boolean.FALSE.toString());
 				return;
 			}
@@ -202,6 +202,13 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	private void replaceSectionsWithExternalSections(Site site) {
 		if(log.isInfoEnabled()) log.info("Replacing sections with externally managed sections in site " + site.getId());
 
+		// Use the group provider to split the complex string
+		if(groupProvider == null) {
+			log.warn("SectionManager can not automatically generate sections without" +
+					"a properly configured GroupProvider");
+			return;
+		}
+
 		// Get the existing groups from the site, and add them to a new collection so we can remove elements from the original collection
 		Collection<Group> groups = new HashSet<Group>(site.getGroups());
 		
@@ -214,21 +221,14 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 			}
 		}
 		
-		// Dereference the groups collection
-		groups = null;
-		
-		// Get the provider Ids associated with this site
-		Set providerIds = authzGroupService.getProviderIds(site.getReference());
-
-		// TODO Does the app configuration matter here?  It shouldn't
-		if(providerIds.size() <= 1) {
-			return;
-		}
+		// Get the provider Ids associated with this site.  We can't use
+		// authzGroupService.getProviderIds(), since we're inspecting the provider IDs
+		// on the in-memory object, not what's in persistence
+		String[] providerIds = groupProvider.unpackId(site.getProviderGroupId());
 
 		// Add new groups (decorated as sections) based on the site's providerIds
-		for(Iterator iter = providerIds.iterator(); iter.hasNext();) {
-			String providerId = (String)iter.next();
-			addExternalCourseSectionToSite(site, providerId);
+		for(int i=0; i < providerIds.length; i++) {
+			addExternalCourseSectionToSite(site, providerIds[i]);
 		}
 	}
 	
@@ -1099,6 +1099,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 			previouslyExternallyManaged = props.getBooleanProperty(CourseImpl.EXTERNALLY_MAINTAINED);
 		} catch (Exception e) {
 			if(log.isDebugEnabled()) log.debug("could not find the 'externally managed' state of site " + site.getId());
+			e.printStackTrace();
 		}
 		
 		// Update the site
@@ -1111,10 +1112,12 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		
 		// We're changing from manual (internally managed) to automatic (externally managed),
 		// so we need to replace the internally defined sections with externally defined ones.
+
+		// FIXME: The above comment isn't correct.  The site save should replace all sections with external sections
 		
-		if( ! previouslyExternallyManaged && externallyManaged) {
-			replaceSectionsWithExternalSections(site);
-		}
+//		if( ! previouslyExternallyManaged && externallyManaged) {
+//			replaceSectionsWithExternalSections(site);
+//		}
 
 		try {
 			siteService.save(site);
@@ -1418,14 +1421,16 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	public ExternalIntegrationConfig getConfiguration(Object obj) {
 		if(ExternalIntegrationConfig.AUTOMATIC_MANDATORY.toString().equals(config)) {
 			return ExternalIntegrationConfig.AUTOMATIC_MANDATORY;
+		} else if(ExternalIntegrationConfig.AUTOMATIC_DEFAULT.toString().equals(config)){
+			return ExternalIntegrationConfig.AUTOMATIC_DEFAULT;
+		} else if(ExternalIntegrationConfig.MANUAL_DEFAULT.toString().equals(config)) {
+			return ExternalIntegrationConfig.MANUAL_DEFAULT;
 		} else if(ExternalIntegrationConfig.MANUAL_MANDATORY.toString().equals(config)) {
 			return ExternalIntegrationConfig.MANUAL_MANDATORY;
-		} else if(ExternalIntegrationConfig.AUTOMATIC.toString().equals(config)){
-			return ExternalIntegrationConfig.AUTOMATIC;
-		} else {
-			// our default configuration
-			return ExternalIntegrationConfig.MANUAL;
 		}
+
+		log.warn("No integration configuration property has been set.  Using " + ExternalIntegrationConfig.MANUAL_DEFAULT);
+		return ExternalIntegrationConfig.MANUAL_DEFAULT;
 	}
 
 	// Dependency injection
@@ -1464,5 +1469,9 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 
 	public void setCourseManagementService(CourseManagementService courseManagementService) {
 		this.courseManagementService = courseManagementService;
+	}
+
+	public void setGroupProvider(GroupProvider groupProvider) {
+		this.groupProvider = groupProvider;
 	}
 }

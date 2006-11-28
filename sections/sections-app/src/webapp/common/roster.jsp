@@ -37,7 +37,8 @@
         binding="#{rosterBean.rosterDataTable}"
         sortColumn="#{preferencesBean.rosterSortColumn}"
         sortAscending="#{preferencesBean.rosterSortAscending}"
-        styleClass="listHier rosterTable">
+        styleClass="listHier rosterTable"
+        rowClasses="light,dark">
         <h:column>
             <f:facet name="header">
                 <x:commandSortHeader columnName="studentName" immediate="true" arrow="true">

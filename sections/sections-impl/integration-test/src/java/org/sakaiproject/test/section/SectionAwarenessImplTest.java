@@ -22,10 +22,7 @@ package org.sakaiproject.test.section;
 
 import java.util.List;
 
-import junit.extensions.TestSetup;
 import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 //import org.apache.commons.logging.Log;
 //import org.apache.commons.logging.LogFactory;
@@ -59,26 +56,6 @@ public class SectionAwarenessImplTest extends SakaiTestBase {
 	// Constants
 	private static final String GROUP1_TITLE = "group1";
 	
-	/**
-	 * Runs only once for this TestCase, so we can keep the same component manager
-	 * rather than rebuilding it for each test.
-	 * 
-	 * @return
-	 */
-	public static Test suite() {
-		TestSetup setup = new TestSetup(new TestSuite(SectionAwarenessImplTest.class)) {
-			protected void setUp() throws Exception {
-				log.debug("starting setup");
-				oneTimeSetup();
-				log.debug("finished setup");
-			}
-			protected void tearDown() throws Exception {
-				oneTimeTearDown();
-			}
-		};
-		return setup;
-	}
-
 	/**
 	 * Setup test fixture (runs once for each test method called)
 	 */

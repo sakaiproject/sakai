@@ -40,12 +40,12 @@ public class ConfigBean extends CourseDependentBean {
 	}
 
 	public String updateConfigOptionalAll() {
-		getServletContext().setAttribute(SectionManager.CONFIGURATION_KEY, SectionManager.ExternalIntegrationConfig.AUTOMATIC);
+		getServletContext().setAttribute(SectionManager.CONFIGURATION_KEY, SectionManager.ExternalIntegrationConfig.AUTOMATIC_DEFAULT);
 		return "overview";
 	}
 
 	public String updateConfigOptionalMultiple() {
-		getServletContext().setAttribute(SectionManager.CONFIGURATION_KEY, SectionManager.ExternalIntegrationConfig.MANUAL);
+		getServletContext().setAttribute(SectionManager.CONFIGURATION_KEY, SectionManager.ExternalIntegrationConfig.MANUAL_DEFAULT);
 		return "overview";
 	}
 

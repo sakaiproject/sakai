@@ -28,6 +28,12 @@
             <version>${sakai.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+        </dependency>
+		
 		<!-- Logging -->
 		<dependency>
 			<groupId>commons-logging</groupId>
@@ -45,6 +51,12 @@
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-sections-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-sections-impl</artifactId>
             <version>${sakai.version}</version>
         </dependency>
 		
@@ -87,10 +99,11 @@
     </dependencies>
 
     <build>
+        <sourceDirectory>src/java</sourceDirectory>
         <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
         <unitTest>
             <includes>
-                <include>**/SectionAwarenessImplTest.java</include>
+                <include>**/SectionIntegrationTestSuite.java</include>
             </includes>
         </unitTest>
     </build>

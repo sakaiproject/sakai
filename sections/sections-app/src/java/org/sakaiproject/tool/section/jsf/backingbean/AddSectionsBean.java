@@ -100,12 +100,12 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		if(StringUtils.trimToNull(category) != null) {
 			if(log.isDebugEnabled()) log.debug("populating sections");
 			int offset = getSectionManager().getSectionsInCategory(getSiteContext(), category).size();
-			for(int i=0; i<numToAdd; i++) {
-				LocalSectionModel section = new LocalSectionModel(getCategoryName(category) + (i+1+offset));
+			for(int i=1; i<=numToAdd; i++) {
+				LocalSectionModel section = new LocalSectionModel(getCategoryName(category) + (i+offset));
 				section.getMeetings().add(new LocalMeetingModel());
 				sections.add(section);
-				rowClasses.append("sectionPadRow");
-				if(i+1<numToAdd) {
+				rowClasses.append("sectionRow");
+				if(i<numToAdd) {
 					rowClasses.append(",");
 				}
 			}

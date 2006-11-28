@@ -88,3 +88,7 @@ table.rosterTable td {
 table.narrowTable tr th {
     padding-right:2em;
 }
+
+/* Alternate row colors in the roster table */
+tr.light td {background-color: #FFFFFF;}
+tr.dark td {background-color: #EFEFEF;}

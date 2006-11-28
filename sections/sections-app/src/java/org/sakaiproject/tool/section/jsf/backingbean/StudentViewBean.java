@@ -129,40 +129,23 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	}
 
 	private String generateInstructions(boolean joinableSectionsExist, boolean switchableSectionsExist) {
-
-		// No instructions if the site is externally managed
-		if(externallyManaged) {
-			return null;
-		} else
-
-		// No instructions if not allowed to join or switch
-		if(!joinAllowed && !switchAllowed) {
-			return null;
-		} else
-
-		// No instructions if there are no joinable or switchable sections
-		if(!joinableSectionsExist && !switchableSectionsExist) {
-			return null;
-		} else
-
+		
 		// Joining is possible, but switching is not
 		if(joinAllowed && joinableSectionsExist && !(switchAllowed && switchableSectionsExist)) {
 			return JsfUtil.getLocalizedMessage("student_view_instructions_join");
-		} else
+		}
 		
 		// Switching is possible, but joining is not
 		if(switchAllowed && switchableSectionsExist && !(joinAllowed && joinableSectionsExist)) {
 			return JsfUtil.getLocalizedMessage("student_view_instructions_switch");
-		} else
+		}
 
 		// Joining and switching are both possible
 		if(switchAllowed && switchableSectionsExist && joinAllowed && joinableSectionsExist) {
 			return JsfUtil.getLocalizedMessage("student_view_instructions_join_or_switch");
-		} else {
-			// Something is wrong with this picture
-			log.error("A serious mistake occurred in the section info student view!");
-			return null;
 		}
+		
+		return null;
 	}
 	
 	private boolean isEnrolledInSection(Set enrolledSections, CourseSection section) {

@@ -23,11 +23,14 @@ package org.sakaiproject.component.section.sakai;
 import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 
 public class CourseImpl implements Course, Serializable {
+	private static final Log log = LogFactory.getLog(CourseImpl.class);
 	private static final long serialVersionUID = 1L;
 
 	public static final String EXTERNALLY_MAINTAINED = "sections_externally_maintained";
@@ -48,13 +51,6 @@ public class CourseImpl implements Course, Serializable {
 		this.selfRegistrationAllowed = Boolean.valueOf(site.getProperties().getProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED)).booleanValue();
 		this.selfSwitchingAllowed = Boolean.valueOf(site.getProperties().getProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED)).booleanValue();
 	}
-	
-	public void decorateSite(Site site) {
-		ResourceProperties props = site.getProperties();
-		props.addProperty(CourseImpl.EXTERNALLY_MAINTAINED, Boolean.toString(externallyManaged));
-		props.addProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED, Boolean.toString(selfRegistrationAllowed));
-		props.addProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED, Boolean.toString(selfSwitchingAllowed));
-	}
 
 	protected String siteContext;
 	protected String uuid;
@@ -62,6 +58,15 @@ public class CourseImpl implements Course, Serializable {
 	protected boolean externallyManaged;
 	protected boolean selfRegistrationAllowed;
 	protected boolean selfSwitchingAllowed;
+
+	
+	public void decorateSite(Site site) {
+		ResourceProperties props = site.getProperties();
+		if(log.isDebugEnabled()) log.debug("Decorating site " + site.getId() + " with external = " + externallyManaged);
+		props.addProperty(CourseImpl.EXTERNALLY_MAINTAINED, Boolean.toString(externallyManaged));
+		props.addProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED, Boolean.toString(selfRegistrationAllowed));
+		props.addProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED, Boolean.toString(selfSwitchingAllowed));
+	}
 
 	// Transient reference to the site being modeled
 	private transient Site site;
