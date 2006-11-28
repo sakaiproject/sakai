@@ -59,13 +59,13 @@
 
                         ## JS -----  add new line to show dates
                         <tr>
-                         <th class="borderWhiteYear"> Su </th>
-                         <th class="borderWhiteYear"> Mo </th>
-                         <th class="borderWhiteYear"> Tu </th>
-                         <th class="borderWhiteYear"> We </th>
-                         <th class="borderWhiteYear"> Th </th>
-                         <th class="borderWhiteYear"> Fr </th>
-                         <th class="borderWhiteYear"> Sa </th>
+                         <th class="borderWhiteYear"> $tlang.getString("viewy.sun") </th>
+                         <th class="borderWhiteYear"> $tlang.getString("viewy.mon") </th>
+                         <th class="borderWhiteYear"> $tlang.getString("viewy.tue") </th>
+                         <th class="borderWhiteYear"> $tlang.getString("viewy.wed") </th>
+                         <th class="borderWhiteYear"> $tlang.getString("viewy.thu") </th>
+                         <th class="borderWhiteYear"> $tlang.getString("viewy.fri") </th>
+                         <th class="borderWhiteYear"> $tlang.getString("viewy.sat") </th>
                          </tr>
                         ## JS -----  add new line to show dates
 
