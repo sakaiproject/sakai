@@ -232,6 +232,11 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     	// Add the properties that containing the meeting metadata
     	StringBuffer locationBuffer = new StringBuffer();
 
+    	// Ensure that we've got a meeting object
+    	if(meetings == null) {
+    		meetings = new ArrayList<MeetingImpl>();
+    	}
+    	
     	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
     		Meeting meeting = (Meeting)iter.next();
     		// Ensure that the location has no SEP_CHARACTERs in it

@@ -125,7 +125,11 @@ public class CourseManagementIntegrationTest extends SakaiTestBase {
 		Assert.assertFalse(sectionManager.isExternallyManaged(siteReference));
 
 		// Ensure that the section manager will allow the site to be set to "automatic" sections
-		sectionManager.setExternallyManaged(siteReference,true);
+		try {
+			sectionManager.setExternallyManaged(siteReference,true);
+		} catch (Exception e) {
+			fail("Unable to change a manual site to automatic, even though we should be able to do so: " + e.getMessage());
+		}
 	}
 	
 	public void testManualDefaultSections() throws Exception {
@@ -150,9 +154,15 @@ public class CourseManagementIntegrationTest extends SakaiTestBase {
 		// Ensure that no internal sections were created for multiple rosters
 		Assert.assertEquals(0, sectionManager.getSections(siteId).size());
 
+		// Add a section "manually"
+		CourseSection section = sectionManager.addSection(site.getReference(), "a manual section", "lec", new Integer(10), null);
+		
 		// Now change this "manual by default" site to be externally controlled (automatic)
 		sectionManager.setExternallyManaged(site.getReference(), true);
 
+		// Ensure that the manually created section was removed
+		Assert.assertFalse(sectionManager.getSections(siteId).contains(section));
+		
 		// Get a new site object from the service, since the one we have is now out-of-date
 		site = siteService.getSite(siteId);
 
@@ -211,6 +221,20 @@ public class CourseManagementIntegrationTest extends SakaiTestBase {
 
 		// Ensure that both internal sections were created for the rosters
 		Assert.assertEquals(2, sectionManager.getSections(siteId).size());
+		
+		// Ensure that we can not edit the sections
+		CourseSection section = (CourseSection)sectionManager.getSections(siteId).get(0);
+		try {
+			sectionManager.updateSection(section.getUuid(), "a new title", null, null);
+			fail("We should not be able to edit sections in an externally controlled site.");
+		} catch (Exception e) {}
+
+
+		// Ensure that we can not delete the sections
+		try {
+			sectionManager.disbandSection(section.getUuid());
+			fail("We should not be able to delete sections in an externally controlled site.");
+		} catch (Exception e) {}
 
 		// Now change this "automatic by default" site to be manually controlled
 		sectionManager.setExternallyManaged(site.getReference(), false);
@@ -227,6 +251,20 @@ public class CourseManagementIntegrationTest extends SakaiTestBase {
 
 		// The sections should not have changed, since we're a manual site
 		Assert.assertEquals(2, sectionManager.getSections(siteId).size());
+		
+		// Ensure that we can edit a section
+		try {
+			sectionManager.updateSection(section.getUuid(), "a new title", null, null);
+		} catch (Exception e) {
+			fail("We should be able to edit sections, but couldn't: " + e.getMessage());
+		}
+
+		// Ensure that we can delete sections
+		try {
+			sectionManager.disbandSection(section.getUuid());
+		} catch (Exception e) {
+			fail("We should be able to delete sections in a manually controlled site: " + e.getMessage());			
+		}
 	}
 
 	//// Automatic Mandatory ////
