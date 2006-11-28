@@ -25,6 +25,8 @@ import junit.framework.Assert;
 import org.sakaiproject.component.section.sakai.SectionManagerImpl;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.test.SakaiTestBase;
@@ -181,9 +183,13 @@ public class CourseManagementIntegrationTest extends SakaiTestBase {
 		Assert.assertTrue(sectionManager.isExternallyManaged(siteReference));
 
 		// Ensure that the section manager will allow the site to be set to "manual" sections
-		sectionManager.setExternallyManaged(siteReference,false);
+		try {
+			sectionManager.setExternallyManaged(siteReference,false);
+		} catch (Exception e) {
+			fail("We should be able to switch to internal section management, but couldn't: " + e.getMessage());
+		}
 	}
-	
+
 	public void testAutomaticDefaultSections() throws Exception {
 		// Set the sectionManager to be auto default
 		((SectionManagerImpl)sectionManager).setConfig(ExternalIntegrationConfig.AUTOMATIC_DEFAULT.toString());
@@ -265,5 +271,32 @@ public class CourseManagementIntegrationTest extends SakaiTestBase {
 
 		// Ensure that both internal sections were created
 		Assert.assertEquals(2, sectionManager.getSections(siteId).size());
+		
+		// Ensure that sections in this site can not be edited
+		CourseSection section = (CourseSection)sectionManager.getSections(siteId).get(0);
+		try {
+			sectionManager.updateSection(section.getUuid(), "a new title", null, null);
+			fail();
+		} catch (Exception e) {}
+
+		// Ensure that students can not be added
+		try {
+			sectionManager.addSectionMembership("admin", Role.STUDENT, section.getUuid());
+			fail("We should not be allowed to add students to an externally managed section");
+		} catch (Exception e) {}
+
+		// Ensure that TAs can be added
+		try {
+			sectionManager.addSectionMembership("admin", Role.TA, section.getUuid());
+		} catch (Exception e) {
+			fail("Exception adding a TA to an externally managed section: " + e.getMessage());
+		}
+
+		// Remove the provider ID (roster) from the site.
+		site.setProviderGroupId(null);
+		siteService.save(site);
+
+		// Ensure that the sections were removed
+		Assert.assertEquals(0, sectionManager.getSections(siteId).size());
 	}
 }
