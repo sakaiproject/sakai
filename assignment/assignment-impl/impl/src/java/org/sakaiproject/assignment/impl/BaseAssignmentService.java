@@ -3013,163 +3013,21 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		try
 		{
 			Assignment a = getAssignment(assignmentReferenceFromSubmissionsZipReference(ref));
+			Iterator submissions = getSubmissions(a);
 
 			Blob b = new Blob();
 			StringBuffer exceptionMessage = new StringBuffer();
 
 			if (allowGradeSubmission(a.getReference()))
 			{
-				try
+				zipSubmissions(a.getTitle(), a.getContent().getTypeOfSubmission(), submissions, b, exceptionMessage);
+
+				if (exceptionMessage.length() > 0)
 				{
-					ZipOutputStream out = new ZipOutputStream(b.outputStream());
-
-					// create the folder structor - named after the assignment's title
-					String root = Validator.escapeZipEntry(a.getTitle()) + Entity.SEPARATOR;
-
-					Iterator submissions = getSubmissions(a);
-					String submittedText = "";
-					if (!submissions.hasNext())
-					{
-						exceptionMessage.append("There is no submission yet. ");
-					}
-
-					// Create the ZIP file
-					String submittersName = "";
-					int count = 1;
-					while (submissions.hasNext())
-					{
-						count = 1;
-						submittersName = root;
-						AssignmentSubmission s = (AssignmentSubmission) submissions.next();
-
-						if (s.getSubmitted())
-						{
-							User[] submitters = s.getSubmitters();
-							String submittersString = "";
-							for (int i = 0; i < submitters.length; i++)
-							{
-								if (i > 0)
-								{
-									submittersString = submittersString.concat("; ");
-								}
-								submittersString = submittersString.concat(submitters[i].getLastName()+","+submitters[i].getFirstName());
-							}
-							
-							if (StringUtil.trimToNull(submittersString) != null)
-							{
-								submittersName = submittersName.concat(StringUtil.trimToNull(submittersString));
-								submittedText = s.getSubmittedText();
-	
-								boolean added = false;
-								while (!added)
-								{
-									try
-									{
-										submittersName = submittersName.concat("/");
-										// create the folder structure - named after the submitter's name
-										AssignmentContent ac = a.getContent();
-										if (ac.getTypeOfSubmission() != Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION)
-										{
-											// create the text file only when a text submission is allowed
-											String entryName = submittersName + submittersString + "_submissionText.html";
-											ZipEntry textEntry = new ZipEntry(entryName);
-											out.putNextEntry(textEntry);
-											out.write(FormattedText.encodeUnicode(submittedText).getBytes());
-											out.closeEntry();
-										}
-	
-										// create the attachment file(s)
-										List attachments = s.getSubmittedAttachments();
-										int attachedUrlCount = 0;
-										for (int j = 0; j < attachments.size(); j++)
-										{
-											Reference r = (Reference) attachments.get(j);
-											try
-											{
-												ContentResource resource = ContentHostingService.getResource(r.getId());
-	
-												String contentType = resource.getContentType();
-												
-												ResourceProperties props = r.getProperties();
-												String displayName = props.getPropertyFormatted(props.getNamePropDisplayName());
-	
-												// for URL content type, encode a redirect to the body URL
-												if (contentType.equalsIgnoreCase(ResourceProperties.TYPE_URL))
-												{
-													displayName = "attached_URL_" + attachedUrlCount;
-													attachedUrlCount++;
-												}
-	
-												// buffered stream input
-												InputStream content = resource.streamContent();
-												byte data[] = new byte[1024 * 10];
-												BufferedInputStream bContent = new BufferedInputStream(content, data.length);
-												
-												ZipEntry attachmentEntry = new ZipEntry(submittersName + displayName);
-												out.putNextEntry(attachmentEntry);
-												int bCount = -1;
-												while ((bCount = bContent.read(data, 0, data.length)) != -1) 
-												{
-													out.write(data, 0, bCount);
-												}
-												out.closeEntry();
-												content.close();
-											}
-											catch (PermissionException e)
-											{
-												M_log.debug(this + ": getSubmissionsZip--PermissionException submittersName="
-														+ submittersName + " attachment reference=" + r);
-											}
-											catch (IdUnusedException e)
-											{
-												M_log.debug(this + ": getSubmissionsZip--IdUnusedException submittersName="
-														+ submittersName + " attachment reference=" + r);
-											}
-											catch (TypeException e)
-											{
-												M_log.debug(this + ": getSubmissionsZip--TypeException: submittersName="
-														+ submittersName + " attachment reference=" + r);
-											}
-											catch (IOException e)
-											{
-												M_log
-														.debug(this
-																+ ": getSubmissionsZip--IOException: Problem in creating the attachment file: submittersName="
-																+ submittersName + " attachment reference=" + r);
-											}
-											catch (ServerOverloadException e)
-											{
-												M_log.debug(this + ": getSubmissionsZip--ServerOverloadException: submittersName="
-														+ submittersName + " attachment reference=" + r);
-											}
-										} // for
-	
-										added = true;
-									}
-									catch (IOException e)
-									{
-										exceptionMessage.append("Can not establish the IO to create zip file for user "
-												+ submittersName);
-										M_log.debug(this + ": getSubmissionsZip--IOException unable to create the zip file for user"
-												+ submittersName);
-										submittersName = submittersName.substring(0, submittersName.length() - 1) + "_" + count++;
-									}
-								} // while
-							}	// if
-						} // submitted
-
-					} // while -- there is submission
-
-					// Complete the ZIP file
-					out.close();
+					// log any error messages
+					if (M_log.isDebugEnabled())
+						M_log.debug(this + ref + exceptionMessage.toString());
 				}
-				catch (IOException e)
-				{
-					exceptionMessage.append("Can not establish the IO to create zip file. ");
-					M_log.debug(this + ": getSubmissionsZip--IOException unable to create the zip file for assignment "
-							+ a.getTitle());
-				}
-
 				// return zip file content
 				rv = b.getBytes();
 			}
@@ -3177,18 +3035,172 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		catch (IdUnusedException e)
 		{
 			if (M_log.isDebugEnabled())
-				M_log.debug(this + ": getSubmissionsZip--IdUnusedException Unable to get assignment " + ref);
+				M_log.debug(this + "-IdUnusedException Unable to get assignment " + ref);
 			throw new IdUnusedException(ref);
 		}
 		catch (PermissionException e)
 		{
-			M_log.debug(this + ": getSubmissionsZip--PermissionException Not permitted to get assignment " + ref);
+			M_log.debug(this + "-PermissionException Not permitted to get assignment " + ref);
 			throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT, ref);
 		}
 
 		return rv;
 
 	} // getSubmissionsZip
+
+	protected void zipSubmissions(String assignmentTitle, int typeOfSubmission, Iterator submissions, Blob b, StringBuffer exceptionMessage) 
+	{
+		try
+		{
+			ZipOutputStream out = new ZipOutputStream(b.outputStream());
+
+			// create the folder structor - named after the assignment's title
+			String root = Validator.escapeZipEntry(assignmentTitle) + Entity.SEPARATOR;
+
+			String submittedText = "";
+			if (!submissions.hasNext())
+			{
+				exceptionMessage.append("There is no submission yet. ");
+			}
+
+			// Create the ZIP file
+			String submittersName = "";
+			int count = 1;
+			while (submissions.hasNext())
+			{
+				count = 1;
+				submittersName = root;
+				AssignmentSubmission s = (AssignmentSubmission) submissions.next();
+
+				if (s.getSubmitted())
+				{
+					User[] submitters = s.getSubmitters();
+					String submittersString = "";
+					for (int i = 0; i < submitters.length; i++)
+					{
+						if (i > 0)
+						{
+							submittersString = submittersString.concat("; ");
+						}
+						submittersString = submittersString.concat(submitters[i].getLastName()+","+submitters[i].getFirstName());
+					}
+					
+					if (StringUtil.trimToNull(submittersString) != null)
+					{
+						submittersName = submittersName.concat(StringUtil.trimToNull(submittersString));
+						submittedText = s.getSubmittedText();
+
+						boolean added = false;
+						while (!added)
+						{
+							try
+							{
+								submittersName = submittersName.concat("/");
+								// create the folder structure - named after the submitter's name
+								if (typeOfSubmission != Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION)
+								{
+									// create the text file only when a text submission is allowed
+									String entryName = submittersName + submittersString + "_submissionText.html";
+									ZipEntry textEntry = new ZipEntry(entryName);
+									out.putNextEntry(textEntry);
+									out.write(FormattedText.encodeUnicode(submittedText).getBytes());
+									out.closeEntry();
+								}
+
+								// create the attachment file(s)
+								List attachments = s.getSubmittedAttachments();
+								int attachedUrlCount = 0;
+								for (int j = 0; j < attachments.size(); j++)
+								{
+									Reference r = (Reference) attachments.get(j);
+									try
+									{
+										ContentResource resource = ContentHostingService.getResource(r.getId());
+
+										String contentType = resource.getContentType();
+										
+										ResourceProperties props = r.getProperties();
+										String displayName = props.getPropertyFormatted(props.getNamePropDisplayName());
+
+										// for URL content type, encode a redirect to the body URL
+										if (contentType.equalsIgnoreCase(ResourceProperties.TYPE_URL))
+										{
+											displayName = "attached_URL_" + attachedUrlCount;
+											attachedUrlCount++;
+										}
+
+										// buffered stream input
+										InputStream content = resource.streamContent();
+										byte data[] = new byte[1024 * 10];
+										BufferedInputStream bContent = new BufferedInputStream(content, data.length);
+										
+										ZipEntry attachmentEntry = new ZipEntry(submittersName + displayName);
+										out.putNextEntry(attachmentEntry);
+										int bCount = -1;
+										while ((bCount = bContent.read(data, 0, data.length)) != -1) 
+										{
+											out.write(data, 0, bCount);
+										}
+										out.closeEntry();
+										content.close();
+									}
+									catch (PermissionException e)
+									{
+										M_log.debug(this + ": getSubmissionsZip--PermissionException submittersName="
+												+ submittersName + " attachment reference=" + r);
+									}
+									catch (IdUnusedException e)
+									{
+										M_log.debug(this + ": getSubmissionsZip--IdUnusedException submittersName="
+												+ submittersName + " attachment reference=" + r);
+									}
+									catch (TypeException e)
+									{
+										M_log.debug(this + ": getSubmissionsZip--TypeException: submittersName="
+												+ submittersName + " attachment reference=" + r);
+									}
+									catch (IOException e)
+									{
+										M_log
+												.debug(this
+														+ ": getSubmissionsZip--IOException: Problem in creating the attachment file: submittersName="
+														+ submittersName + " attachment reference=" + r);
+									}
+									catch (ServerOverloadException e)
+									{
+										M_log.debug(this + ": getSubmissionsZip--ServerOverloadException: submittersName="
+												+ submittersName + " attachment reference=" + r);
+									}
+								} // for
+
+								added = true;
+							}
+							catch (IOException e)
+							{
+								exceptionMessage.append("Can not establish the IO to create zip file for user "
+										+ submittersName);
+								M_log.debug(this + ": getSubmissionsZip--IOException unable to create the zip file for user"
+										+ submittersName);
+								submittersName = submittersName.substring(0, submittersName.length() - 1) + "_" + count++;
+							}
+						} // while
+					}	// if
+				} // submitted
+
+			} // while -- there is submission
+
+			// Complete the ZIP file
+			out.finish();
+			out.flush();
+			out.close();
+		}
+		catch (IOException e)
+		{
+			exceptionMessage.append("Can not establish the IO to create zip file. ");
+			M_log.debug(this + ": getSubmissionsZip--IOException unable to create the zip file for assignment "
+					+ assignmentTitle);
+		}
+	}
 
 	/**
 	 * Get the string to form an assignment grade spreadsheet
