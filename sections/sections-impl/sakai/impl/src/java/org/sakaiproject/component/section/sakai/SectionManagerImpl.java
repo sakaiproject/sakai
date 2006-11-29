@@ -47,6 +47,7 @@ import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.exception.MembershipException;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
 import org.sakaiproject.section.api.facade.Role;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.section.sakai.facade.SakaiUtil;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Section;
@@ -104,6 +105,9 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
     public void init() {
     	if(log.isInfoEnabled()) log.info("init()");
 		siteService.addSiteAdvisor(this);
+		
+		// A group provider may not exist, so we can't use spring to inject it
+		groupProvider = (GroupProvider)ComponentManager.get(GroupProvider.class);
     }
 
     /**
