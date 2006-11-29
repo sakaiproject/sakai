@@ -143,7 +143,7 @@
             <list>
                 <bean id="massageForumsCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
                     <property name="name">
-                        <value>Forums</value>
+                        <value>Message Center</value>
                     </property>
                     <property name="resources">
                         <list>
