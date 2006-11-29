@@ -23,12 +23,15 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
@@ -41,6 +44,8 @@ import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
+import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
+import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
@@ -50,207 +55,161 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
  *
  */
 public class EditStudentSectionsBean extends CourseDependentBean implements Serializable {
-
 	private static final long serialVersionUID = 1L;
-	private static final String UNASSIGNED = "unassigned";
-
 	private static final Log log = LogFactory.getLog(EditStudentSectionsBean.class);
+
+	protected static final String UNASSIGNED = "unassigned";
+
+	protected String sortColumn;
+	protected boolean sortAscending;
+	protected String studentUid;
+	protected String studentName;
+	protected List sections;
 	
-	private String studentUid;
-	private String studentName;
-	private List usedCategories;
-	private Map sectionItems;
-	private Map sectionEnrollment;
-	
-	private String nameSeparator;
-	private String sectionDescriptionSepChar;
-	private String fullIndicator;
+	public EditStudentSectionsBean() {
+		sortColumn = "meetingTimes";
+		sortAscending = true;
+	}
 	
 	public void init() {
-		// Get the description separator character
-		sectionDescriptionSepChar = JsfUtil.getLocalizedMessage("edit_student_sections_description_sep_char");
-		nameSeparator = JsfUtil.getLocalizedMessage("name_list_separator");
-		fullIndicator = JsfUtil.getLocalizedMessage("edit_student_sections_full");
+		// Get all sections in the site
+		List sectionSet = getAllSiteSections();
+		sections = new ArrayList();
+		
+		// Get the section enrollments for this student
+		Set enrolledSections = getEnrolledSections(studentUid);
+
+		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {
+			CourseSection section = (CourseSection)sectionIter.next();
+			String catName = getCategoryName(section.getCategory());
+			
+			// Generate the string showing the TAs
+			List tas = getSectionManager().getSectionTeachingAssistants(section.getUuid());
+			List taNames = new ArrayList();
+			for(Iterator taIter = tas.iterator(); taIter.hasNext();) {
+				ParticipationRecord ta = (ParticipationRecord)taIter.next();
+				taNames.add(ta.getUser().getSortName());
+			}
+
+			Collections.sort(taNames);
+
+			int totalEnrollments = getSectionManager().getTotalEnrollments(section.getUuid());
+			boolean member = isEnrolledInSection(enrolledSections, section);
+			boolean memberOtherSection = isEnrolledInOtherSection(enrolledSections, section);
+			
+			StudentSectionDecorator decoratedSection = new StudentSectionDecorator(
+					section, catName, taNames, totalEnrollments, member, memberOtherSection);
+			sections.add(decoratedSection);
+		}
+		Collections.sort(sections, getComparator());
 		
 		// Get the student's name
-		String studentUidFromParam = JsfUtil.getStringFromParam("studentUid");
-		if(studentUidFromParam != null) {
-			studentUid = studentUidFromParam;
-		}
-		
 		User student = getSectionManager().getSiteEnrollment(getSiteContext(), studentUid);
 		studentName = student.getDisplayName();
-		
-		// Get the site course and sections
-		Course course = getCourse();
-		List allSections = getAllSiteSections();
 
-		// Get the list of used categories
-		Set usedCategorySet = super.getUsedCategories(); 
-		usedCategories = new ArrayList();
-		for(Iterator iter=usedCategorySet.iterator(); iter.hasNext();) {
-			usedCategories.add(iter.next());
-		}
-		Collections.sort(usedCategories);
-		
-		// Build the map of categories to section select items
-		sectionItems = new HashMap();
-		sectionEnrollment = new HashMap();
-		for(Iterator iter = allSections.iterator(); iter.hasNext();) {
-			CourseSection section = (CourseSection)iter.next();
-			String cat = section.getCategory();
-			List sectionsInCat;
-			if(sectionItems.get(cat) == null) {
-				sectionsInCat = new ArrayList();
-			} else {
-				sectionsInCat = (List)sectionItems.get(cat);
-			}
-			List taRecords = getSectionManager().getSectionTeachingAssistants(section.getUuid());
-			int numEnrollments = getSectionManager().getTotalEnrollments(section.getUuid());
-			sectionsInCat.add(new SelectItem(section.getUuid(), getSectionLabel(section, taRecords, numEnrollments)));
-			sectionItems.put(cat, sectionsInCat);
-			
-			// Ensure that each used category has at least an entry in the sectionEnrollment map
-			sectionEnrollment.put(cat, UNASSIGNED);
-		}
-		
-		// Sort each of the select items within all of the categories
-		for(Iterator iter = sectionItems.keySet().iterator(); iter.hasNext();) {
-			List list = (List)sectionItems.get(iter.next());
-			Collections.sort(list, JsfUtil.getSelectItemComparator());
-		}
-
-		// Build the map of categories to the section uuids for the student's current enrollments
-		Set studentEnrollments = getSectionManager().getSectionEnrollments(studentUid, course.getUuid());
-		for(Iterator iter = studentEnrollments.iterator(); iter.hasNext();) {
-			EnrollmentRecord record = (EnrollmentRecord)iter.next();
-			CourseSection section = (CourseSection)record.getLearningContext();
-			sectionEnrollment.put(section.getCategory(), section.getUuid());
-		}
 	}
 	
+	protected boolean isEnrolledInSection(Set enrolledSections, CourseSection section) {
+		for(Iterator iter = enrolledSections.iterator(); iter.hasNext();) {
+			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
+			if(enr.getLearningContext().equals(section)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	protected boolean isEnrolledInOtherSection(Set enrolledSections, CourseSection section) {
+		String category = section.getCategory();
+		for(Iterator iter = enrolledSections.iterator(); iter.hasNext();) {
+			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
+			if(((CourseSection)enr.getLearningContext()).getCategory().equals(category)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	protected void checkMaxEnrollments(String sectionUuid) {
+		// Add a warning if max enrollments has been exceeded
+		CourseSection section = getSectionManager().getSection(sectionUuid);
+		Integer maxEnrollments = section.getMaxEnrollments();
+		int totalEnrollments = getSectionManager().getTotalEnrollments(section.getUuid());
+		if(maxEnrollments != null && totalEnrollments > maxEnrollments.intValue()) {
+			JsfUtil.addRedirectSafeWarnMessage(JsfUtil.getLocalizedMessage(
+					"edit_student_over_max_warning", new String[] {
+							section.getTitle(),
+							Integer.toString(totalEnrollments),
+							Integer.toString(totalEnrollments - maxEnrollments.intValue()) }));
+		}
+	}
+
+	protected Comparator getComparator() {
+		if(sortColumn.equals("title")) {
+			return InstructorSectionDecorator.getTitleComparator(sortAscending); 
+		} else if(sortColumn.equals("instructor")) {
+			return InstructorSectionDecorator.getManagersComparator(sortAscending); 
+		} else if(sortColumn.equals("available")) {
+			return InstructorSectionDecorator.getEnrollmentsComparator(sortAscending, true); 
+		} else if(sortColumn.equals("meetingDays")) {
+			return InstructorSectionDecorator.getDayComparator(sortAscending); 
+		} else if(sortColumn.equals("meetingTimes")) {
+			return InstructorSectionDecorator.getTimeComparator(sortAscending); 
+		} else if(sortColumn.equals("location")) {
+			return InstructorSectionDecorator.getLocationComparator(sortAscending); 
+		}
+		log.error("Invalid sort specified.");
+		return null;
+	}
+	
+	public void processJoinSection(ActionEvent event) {
+		String sectionUuid = (String)FacesContext.getCurrentInstance().getExternalContext()
+		.getRequestParameterMap().get("sectionUuid");
+		//is this section still joinable?
+		CourseSection section = getSectionManager().getSection(sectionUuid);
+		
+		// The section might have been deleted
+		if(section == null) {
+			// There's nothing we can do in the UI, really.
+			log.warn("Attempted to add user " + studentUid + " to a non-existent (recently deleted?) section: " + sectionUuid);
+			return;
+		}
+
+		try {
+			getSectionManager().addSectionMembership(studentUid, Role.STUDENT, sectionUuid);
+		} catch (RoleConfigurationException rce) {
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+		}
+	}
+
 	/**
-	 * Builds the section description for the UI.
+	 * Sets the student id to use in displaying the page.
 	 * 
-	 * @param section
-	 * @param taRecords
-	 * @param numEnrollments
-	 * @return
+	 * @param studentUuid
 	 */
-	private String getSectionLabel(CourseSection section, List taRecords, int numEnrollments) {
-		CourseSectionDecorator sec = new CourseSectionDecorator(section, null); // We dont't need the category
-				
-		StringBuffer sb = new StringBuffer(sec.getTitle());
-
-		if(taRecords != null && taRecords.size() > 0) {
-			sb.append(" ");
-			sb.append(sectionDescriptionSepChar);
-			sb.append(" ");
-			
-			for(Iterator iter = taRecords.iterator(); iter.hasNext();) {
-				ParticipationRecord record = (ParticipationRecord)iter.next();
-				sb.append(record.getUser().getDisplayName());
-				if(iter.hasNext()) {
-					sb.append(nameSeparator);
-					sb.append(" ");
-				}
-			}
-		}
-
-		if(section.getMaxEnrollments() != null && numEnrollments >= section.getMaxEnrollments().intValue()) {
-			sb.append(" ");
-			sb.append(sectionDescriptionSepChar);
-			sb.append(" ");
-			sb.append(fullIndicator);
-		}
-
-		return sb.toString();
-		
-
-// Since we now have multiple meetings, should we display them?
-		
-//		
-//		StringBuffer meetingTimes = new StringBuffer();
-//		for(Iterator iter = sec.getDecoratedMeetings().iterator(); iter.hasNext();) {
-//			MeetingDecorator meeting = (MeetingDecorator)iter.next();
-//		}
-//		if(StringUtils.trimToNull(meetingTimes) != null) {
-//			sb.append(" ");
-//			sb.append(sectionDescriptionSepChar);
-//			sb.append(" ");
-//			
-//			sb.append(meetingTimes);
-//		}
-//		
+	public void setStudentUid(String studentUid) {
+		this.studentUid = studentUid;
 	}
-	
-	public String update() {
-		// Add the success message first, before any caveats (see below)
-		String[] params = {studentName};
-		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage("edit_student_sections_successful", params));
 
-		String siteContext = getSiteContext();
-		for(Iterator iter = sectionEnrollment.keySet().iterator(); iter.hasNext();) {
-			String category = (String)iter.next();
-			String sectionUuid = (String)sectionEnrollment.get(category);
-			if(sectionUuid.equals(UNASSIGNED)) {
-				// Remove any existing section enrollment for this category
-				if(log.isDebugEnabled()) log.debug("Unassigning " + studentUid + " from category " + category);
-				getSectionManager().dropEnrollmentFromCategory(studentUid, siteContext, category);
-			} else {
-				if(log.isDebugEnabled()) log.debug("Assigning " + studentUid + " to section " + sectionUuid);
-				try {
-					getSectionManager().addSectionMembership(studentUid, Role.STUDENT, sectionUuid);
-				} catch (RoleConfigurationException rce) {
-					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
-					return null;
-				}
-
-				// Add a warning if max enrollments has been exceeded
-				CourseSection section = getSectionManager().getSection(sectionUuid);
-				Integer maxEnrollments = section.getMaxEnrollments();
-				int totalEnrollments = getSectionManager().getTotalEnrollments(section.getUuid());
-				if(maxEnrollments != null && totalEnrollments > maxEnrollments.intValue()) {
-					JsfUtil.addRedirectSafeWarnMessage(JsfUtil.getLocalizedMessage(
-							"edit_student_over_max_warning", new String[] {
-									section.getTitle(),
-									Integer.toString(totalEnrollments),
-									Integer.toString(totalEnrollments - maxEnrollments.intValue()) }));
-				}
-			}
-		}
-		return "roster";
-	}
-	
-	public void setStudentUid(String studentUuid) {
-		this.studentUid = studentUuid;
-	}
-	
 	public String getStudentName() {
 		return studentName;
 	}
-
-	public List getUsedCategoryList() {
-		return usedCategories;
-	}
-
-	public Map getSectionEnrollment() {
-		return sectionEnrollment;
-	}
-
-	public void setSectionEnrollment(Map sectionEnrollment) {
-		this.sectionEnrollment = sectionEnrollment;
-	}
-
-	public Map getSectionItems() {
-		return sectionItems;
-	}
-
-	public void setSectionItems(Map sectionItems) {
-		this.sectionItems = sectionItems;
-	}
-
 	public String getUnassignedValue() {
 		return UNASSIGNED;
+	}
+	public List getSections() {
+		return sections;
+	}
+	public boolean isSortAscending() {
+		return sortAscending;
+	}
+	public void setSortAscending(boolean sortAscending) {
+		this.sortAscending = sortAscending;
+	}
+	public String getSortColumn() {
+		return sortColumn;
+	}
+	public void setSortColumn(String sortColumn) {
+		this.sortColumn = sortColumn;
 	}
 }

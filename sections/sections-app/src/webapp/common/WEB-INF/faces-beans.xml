@@ -95,6 +95,10 @@
         <managed-bean-name>editStudentSectionsBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.EditStudentSectionsBean</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
+		<managed-property>
+			<property-name>studentUid</property-name>
+			<value>#{param.studentUid}</value>
+		</managed-property>
     </managed-bean>
 
     <managed-bean>
