@@ -70,10 +70,10 @@ public class AssignmentServiceTest extends TestCase
 	private static final Log log = LogFactory.getLog(AssignmentServiceTest.class);
 
 	// test interation number
-	int testNumber = 1;
+	int testNumber = 5;
 	
 	// specify the total number of users
-	int userNumber = 50;
+	int userNumber = 200;
 	
 	// attachment text size in kB
 	private int attachmentSize = 3000;
@@ -277,6 +277,8 @@ public class AssignmentServiceTest extends TestCase
 	{	
 		System.out.println("student number = " + userNumber);
 		System.out.println("attachment size = " + attachmentSize + "KB");
+		System.gc();
+		
 		for (int index = 1; index <= testNumber; index++)
 		{
 			Random ran = new Random();
@@ -294,27 +296,9 @@ public class AssignmentServiceTest extends TestCase
 			System.out.println("minute time used " + (tAfter-tBefore)/(1000.0*60.0));
 			System.out.println("percent  " + (mBefore-mAfter)* 100/(mBefore*1.0));
 			System.out.println("*************");
+			// gc
+			System.gc();
 		}
-	}
-	
-	/*
-	 * Test method for 'org.sakaiproject.assignment.impl.BaseAssignmentService.zipSubmissions(String, int, Iterator, Blob, StringBuffer) 
-	 */
-	public void zipSubmissionsWithFlushing(boolean flushing) 
-	{
-
-		Runtime r = Runtime.getRuntime();
-		System.out.println("with flushing = " + flushing);
-		long mBefore = r.freeMemory();
-		long tBefore = System.currentTimeMillis();
-		
-		zipWithFlushing(flushing);
-		long mAfter = r.freeMemory();
-		long tAfter = System.currentTimeMillis();
-		System.out.println("free memory before invoke " + mBefore + " after " + mAfter);
-		System.out.println("minute time used " + (tAfter-tBefore)/(1000.0*60.0));
-		System.out.println("percent  " + (mBefore-mAfter)* 100/(mBefore*1.0));
-		System.out.println("*************");
 	}
 
 }
