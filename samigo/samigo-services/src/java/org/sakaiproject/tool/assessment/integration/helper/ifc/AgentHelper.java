@@ -62,6 +62,8 @@ public interface AgentHelper extends Serializable
 
   public String getLastName(String agentString);
 
+  public String getEmail(String agentString);
+  
   public String getRole(String agentString); // for static call
 
   public String getRoleForCurrentAgent(String agentString); // for instance call

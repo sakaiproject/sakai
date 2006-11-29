@@ -210,7 +210,24 @@ log.debug("getEidById agentString s = " + s);
     return s;
   }
 
-
+  /**
+   * Get the Agent email.
+   * @param agentString teh agent string
+   * @return the Agent email.
+   */
+  public String getEmail(String agentString)
+  {
+    String s="";
+    try{
+      if (!agentString.startsWith("anonymous_"))
+        s=UserDirectoryService.getUser(agentString).getEmail();
+    }
+    catch(Exception e){
+      log.warn(e.getMessage());
+    }
+    return s;
+  }
+  
   /**
    * Can be called statically from AgentFacade from an instance
    * @param agentString the agent string for an agent

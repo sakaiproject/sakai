@@ -307,6 +307,13 @@
     <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.misc.BuildInfoBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
+  <managed-bean>
+    <description>For util Email backing bean.</description>
+    <managed-bean-name>email</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.util.EmailBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+
   <!-- XML -->
   <managed-bean>
     <description>XML Display.</description>
@@ -756,6 +763,14 @@
     <navigation-case>
       <from-outcome>exportZip</from-outcome>
       <to-view-id>/jsf/test/stub.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>createNewEmail</from-outcome>
+      <to-view-id>/jsf/evaluation/createNewEmail.jsp</to-view-id>
+    </navigation-case>
+	<navigation-case>
+      <from-outcome>confirmEmailSent</from-outcome>
+      <to-view-id>/jsf/evaluation/confirmEmailSent.jsp</to-view-id>
     </navigation-case>
 
   <!-- XML -->

@@ -44,6 +44,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
+import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 
 /**
  * <p>
@@ -216,6 +217,15 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
          toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
       }
 
+      // case 4: create new mail, then set
+		// emailBean.attachmentList = filepicker list
+		if (target.indexOf("/jsf/evaluation/createNewEmail") > -1
+				&& ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))) {
+			EmailBean bean = (EmailBean) ContextUtil.lookupBeanFromExternalServlet("email", req, res);
+			bean.prepareAttachment();
+			toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
+		}
+      
       RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(target);
       dispatcher.forward(req, res);
 

@@ -29,6 +29,7 @@ import java.util.Set;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
@@ -186,6 +187,8 @@ public interface AssessmentFacadeQueriesAPI
     String resourceId, String filename, String protocol);
 
   public void removeAssessmentAttachment(Long assessmentAttachmentId);
+
+  public AttachmentData createEmailAttachment(String resourceId, String filename, String protocol);
 
   public void saveOrUpdateAttachments(List list);
 

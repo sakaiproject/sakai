@@ -52,6 +52,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
@@ -1624,6 +1625,44 @@ public class AssessmentFacadeQueries
     }
   }
 
+  public AttachmentData createEmailAttachment(String resourceId, String filename, String protocol){
+	  AttachmentData attach = null;
+	    Boolean isLink = Boolean.FALSE;
+	    try{
+	    	ContentResource cr = ContentHostingService.getResource(resourceId);
+	    	if (cr != null) {
+	    		ResourceProperties p = cr.getProperties();
+	    		attach = new AttachmentData();
+	    		attach.setResourceId(resourceId);
+	    		attach.setFilename(filename);
+	    		attach.setMimeType(cr.getContentType());
+	    		// we want to display kb, so divide by 1000 and round
+	    		// the result
+	    		attach.setFileSize(new Long(fileSizeInKB(cr.getContentLength())));
+	    		if (cr.getContentType().lastIndexOf("url") > -1) {
+	    			isLink = Boolean.TRUE;
+	    		}
+	    		attach.setIsLink(isLink);
+	    		attach.setStatus(SectionAttachmentIfc.ACTIVE_STATUS);
+	    		attach.setCreatedBy(p.getProperty(p.getNamePropCreator()));
+	    		attach.setCreatedDate(new Date());
+	    		attach.setLastModifiedBy(p.getProperty(p.getNamePropModifiedBy()));
+	    		attach.setLastModifiedDate(new Date());
+	    		attach.setLocation(getRelativePath(cr.getUrl(), protocol));
+	    	}
+	    }
+	    catch(PermissionException pe){
+	      pe.printStackTrace();
+	    }
+	    catch(IdUnusedException ie){
+	        ie.printStackTrace();
+	    }
+	    catch(TypeException te){
+	        te.printStackTrace();
+	    }
+	    return attach;
+  }
+  
   public void saveOrUpdateAttachments(List list){
     getHibernateTemplate().saveOrUpdateAll(list);
   }

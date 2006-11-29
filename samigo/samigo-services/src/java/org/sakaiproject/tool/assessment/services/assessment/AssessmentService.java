@@ -23,31 +23,13 @@
 package org.sakaiproject.tool.assessment.services.assessment;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
-import org.sakaiproject.tool.assessment.facade.SectionFacade;
-import org.sakaiproject.tool.assessment.facade.TypeFacade;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -58,7 +40,23 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
+import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.facade.TypeFacade;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 /**
  * The AssessmentService calls the service locator to reach the
@@ -473,6 +471,18 @@ public void deleteAssessment(Id assessmentId)
           removeAssessmentAttachment(new Long(attachmentId));
   }
 
+  public AttachmentData createEmailAttachment(String resourceId, String filename, String protocol){
+	  AttachmentData attachment = null;
+	    try{
+	      AssessmentFacadeQueriesAPI queries = PersistenceService.getInstance().getAssessmentFacadeQueries();
+	      attachment = queries.createEmailAttachment(resourceId, filename, protocol);
+	    }
+	    catch(Exception e){
+	      e.printStackTrace();
+	    }
+	    return attachment;
+	  }
+  
   public List getAssessmentResourceIdList(AssessmentIfc pub){
     List resourceIdList = new ArrayList();
     List list = pub.getAssessmentAttachmentList();

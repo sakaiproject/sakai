@@ -27,35 +27,33 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
 import java.util.Iterator;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.List;
+import java.util.Map;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
-import org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.business.entity.RecordingData;
-import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-
-import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.jsf.model.PhaseAware;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
-import org.sakaiproject.jsf.model.PhaseAware;
+import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
+import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
+import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
+import org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>Description: class form for evaluating total scores</p>
@@ -103,6 +101,8 @@ public class TotalScoresBean
   private boolean releaseToAnonymous = false;
   private PublishedAssessmentData publishedAssessment; 
   private ArrayList allAgents;
+  
+  private String graderEmailInfo;
   
   // Paging.
   private int firstScoreRow;
@@ -904,7 +904,17 @@ public class TotalScoresBean
 	  }
 	  return allAgents;
   }
-    
+
+
+  public String getGraderEmailInfo() {
+	  return Validator.check(graderEmailInfo, "");
+  }
+  
+
+  public void setGraderEmailInfo(String graderEmailInfo) {
+	  this.graderEmailInfo = graderEmailInfo; 
+  }
+  
   public String getSearchString() {
       return searchString;
   }

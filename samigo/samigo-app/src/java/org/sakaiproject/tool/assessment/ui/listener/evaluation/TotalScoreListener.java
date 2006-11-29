@@ -30,7 +30,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.List;
+import java.util.Properties;
 
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
 import javax.faces.context.FacesContext;
 import javax.faces.application.FacesMessage;
 import javax.faces.event.AbortProcessingException;
@@ -38,6 +41,15 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
@@ -64,8 +76,11 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
+import org.sakaiproject.tool.assessment.util.SamigoEmailAuthenticator;
+import org.sakaiproject.tool.assessment.util.SamigoEmailService;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 
@@ -106,6 +121,7 @@ public class TotalScoreListener
     QuestionScoresBean questionbean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
     HistogramScoresBean histobean = (HistogramScoresBean) ContextUtil.lookupBean("histogramScores");
     SubmissionStatusBean submissionbean = (SubmissionStatusBean) ContextUtil.lookupBean("submissionStatus");
+    EmailBean emailBean = (EmailBean) ContextUtil.lookupBean("email");
     
     // we probably want to change the poster to be consistent
     String publishedId = ContextUtil.lookupParam("publishedId");
@@ -131,8 +147,102 @@ public class TotalScoreListener
     		histobean.setAllSubmissions(TotalScoresBean.LAST_SUBMISSION);
     	}
     }
-    	
-   // checking for permission first
+    
+    // Set from email here. We need it to decide if the Email link should be displayed or not.
+    // (if from email is null, we don't display the Email link)
+    // as well.
+    AgentFacade agent = new AgentFacade();
+    emailBean.setFromEmailAddress(agent.getEmail());
+   
+    
+    
+    
+    
+    
+    
+    
+    /*
+	String to = "huitsao@yahoo.com";
+	String from = "ktsao@stanford.edu";
+	String host = "mail.hungs.org";
+	String filename = "C:\\Karen.txt";
+	boolean debug = true;
+	String msgText1 = "Sending a file.\n";
+	String subject = "Sending a file";
+	
+	// create some properties and get the default Session
+	//Properties props = System.getProperties();
+	Properties props = new Properties();
+	props.put("mail.smtp.host", host);
+	
+	Session session = Session.getInstance(props, null);
+	session.setDebug(debug);
+	
+	try {
+	    // create a message
+	    MimeMessage msg = new MimeMessage(session);
+	    msg.setFrom(new InternetAddress(from));
+	    InternetAddress[] address = {new InternetAddress(to)};
+	    msg.setRecipients(Message.RecipientType.TO, address);
+	    msg.setSubject(subject);
+
+	    msg.setText(msgText1);
+	    /*
+		Multipart mp = new MimeMultipart();
+	    // create and fill the first message part
+	    MimeBodyPart mbp1 = new MimeBodyPart();
+	    mbp1.setText(msgText1);
+		mp.addBodyPart(mbp1);
+		log.debug(String.valueOf(mp.getCount()));
+	    // create the second message part
+	    mbp1 = new MimeBodyPart();
+
+            // attach the file to the message
+			filename = "C:/Karen.txt";
+			System.out.println("*********" + filename);
+   	    FileDataSource fds = new FileDataSource(filename);
+	    mbp1.setDataHandler(new DataHandler(fds));
+	    mbp1.setFileName(fds.getName());
+		mp.addBodyPart(mbp1);
+		log.debug(String.valueOf(mp.getCount()));
+	    // create the Multipart and its parts to it
+	   
+	    
+	    
+
+	    // add the Multipart to the message
+	    msg.setContent(mp);
+
+	    // set the Date: header
+	    //msg.setSentDate(new Date());
+	
+	    // send the message
+	    Transport.send(msg);
+	    
+	} catch (MessagingException mex) {
+	    mex.printStackTrace();
+	    Exception ex = null;
+	    if ((ex = mex.getNextException()) != null) {
+		ex.printStackTrace();
+	    }
+	}
+	
+	*/
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+    // checking for permission first
     FacesContext context = FacesContext.getCurrentInstance();
     AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     author.setOutcome("totalScores");
@@ -576,6 +686,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       AgentFacade agent = new AgentFacade(gdata.getAgentId());
       results.setLastName(agent.getLastName());
       results.setFirstName(agent.getFirstName());
+      results.setEmail(agent.getEmail());
       if (results.getLastName() != null &&
         results.getLastName().length() > 0)
         results.setLastInitial(results.getLastName().substring(0,1));
@@ -685,6 +796,7 @@ log.debug("testing agent getEid agent.geteid = " + agent.getEidString());
       AgentFacade agent = new AgentFacade(studentid);
       results.setLastName(agent.getLastName());
       results.setFirstName(agent.getFirstName());
+      results.setEmail(agent.getEmail());
       if (results.getLastName() != null &&
         results.getLastName().length() > 0)
       {

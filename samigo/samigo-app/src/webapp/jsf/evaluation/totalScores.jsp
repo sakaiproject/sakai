@@ -228,10 +228,19 @@
          <f:param name="publishedIdd" value="#{totalScores.publishedId}" />
          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
        </h:commandLink>
-</span>
      </h:panelGroup>
+     <f:verbatim><br/></f:verbatim>
+	 <span class="itemAction">
+	  <h:commandLink title="#{msg.t_fullShortAnswer}" immediate="true" id="createEmail1"  onmouseup="javascript:window.open('../evaluation/createNewEmail.faces','createNewEmail','width=600,height=600,scrollbars=yes, resizable=yes');">
+    	<h:outputText value="  #{msg.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
+		  <f:param name="toName" value="#{description.firstName} #{description.lastName}" />
+  		  <f:param name="toEmailAddress" value="#{description.email}" />
+  		  <f:param name="toFirstName" value="#{description.firstName}" />
+	  </h:commandLink>
+	  </span>
+   	</span>
     </h:column>
-
 
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'lastName' && totalScores.sortAscending}">
       <f:facet name="header">
@@ -268,10 +277,19 @@
          <f:param name="publishedIdd" value="#{totalScores.publishedId}" />
          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
        </h:commandLink>
-</span>
      </h:panelGroup>
+     <f:verbatim><br/></f:verbatim>
+	 <span class="itemAction">
+	  <h:commandLink title="#{msg.t_fullShortAnswer}" immediate="true" id="createEmail2"  onmouseup="javascript:window.open('../evaluation/createNewEmail.faces','createNewEmail','width=600,height=600,scrollbars=yes, resizable=yes');">
+    	<h:outputText value="  #{msg.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
+		  <f:param name="toName" value="#{description.firstName} #{description.lastName}" />
+  		  <f:param name="toEmailAddress" value="#{description.email}" />
+  		  <f:param name="toFirstName" value="#{description.firstName}" />
+	  </h:commandLink>
+	  </span>
+   	</span>
     </h:column>
-    
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'lastName' && !totalScores.sortAscending}">
       <f:facet name="header">
       <h:commandLink title="#{msg.t_sortLastName}" action="totalScores">
@@ -307,9 +325,20 @@
          <f:param name="publishedIdd" value="#{totalScores.publishedId}" />
          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
        </h:commandLink>
-</span>
      </h:panelGroup>
-    </h:column>
+     <f:verbatim><br/></f:verbatim>
+     <f:verbatim><br/></f:verbatim>
+	 <span class="itemAction">
+	  <h:commandLink title="#{msg.t_fullShortAnswer}" immediate="true" id="createEmail3"  onmouseup="javascript:window.open('../evaluation/createNewEmail.faces','createNewEmail','width=600,height=600,scrollbars=yes, resizable=yes');">
+    	<h:outputText value="  #{msg.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
+		  <f:param name="toName" value="#{description.firstName} #{description.lastName}" />
+  		  <f:param name="toEmailAddress" value="#{description.email}" />
+  		  <f:param name="toFirstName" value="#{description.firstName}" />
+	  </h:commandLink>
+	  </span>
+   	</span>
+	</h:column>
     
 
     <!-- ANONYMOUS and ASSESSMENTGRADINGID -->

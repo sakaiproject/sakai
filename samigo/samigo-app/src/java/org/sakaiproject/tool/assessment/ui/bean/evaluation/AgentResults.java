@@ -23,6 +23,7 @@
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -51,6 +52,7 @@ private Long assessmentGradingId;
   private String firstName;
   private String lastName;
   private String lastInitial;
+  private String email;
   private String idString;
   private String role;
   private PublishedAssessmentIfc publishedAssessment;
@@ -132,6 +134,14 @@ private Long assessmentGradingId;
     lastInitial = init;
   }
 
+  public String getEmail() {
+    return Validator.check(email,"");
+  }
+  
+  public void setEmail(String email) {
+	this.email = email;
+  }
+  
   public String getIdString() {
     String escapedIdString =  ContextUtil.escapeApostrophe(idString);
     return Validator.check(escapedIdString, "N/A");
@@ -307,5 +317,4 @@ private Long assessmentGradingId;
   public void setRationale(String param) {
     this.rationale= param;
   }
-
 }

@@ -195,6 +195,15 @@ log.debug("agentfacade.getEid(agentS) agentString = " + agentString);
     return helper.getLastName(agentString);
   }
 
+  /**
+   * Get the Agent last name.
+   * @return the Agent last name.
+   */
+  public String getEmail()
+  {
+    return helper.getEmail(agentString);
+  }
+  
 /**
  * Get role for this agent.
  * @return role string

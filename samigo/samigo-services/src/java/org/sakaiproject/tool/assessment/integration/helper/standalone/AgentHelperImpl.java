@@ -30,11 +30,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 /**
  *
@@ -169,6 +169,24 @@ public class AgentHelperImpl implements AgentHelper
       return "Petit";
     else
       return "Who";
+  }
+  
+  /**
+   * Get the Agent email.
+   * @param agentString teh agent string
+   * @return the Agent email.
+   */
+  public String getEmail(String agentString)
+  {
+    String s="";
+    try{
+      if (!agentString.startsWith("anonymous_"))
+        s=UserDirectoryService.getUser(agentString).getEmail();
+    }
+    catch(Exception e){
+      log.warn(e.getMessage());
+    }
+    return s;
   }
 
   /**
