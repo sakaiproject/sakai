@@ -3,26 +3,15 @@
 <beans>
     <bean id="mcOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
-            <value>asbg</value>
+            <value>asax</value>
         </property>
         <property name="name">
             <value>Message Center Overview</value>
         </property>
         <property name="location">
-            <value>/sakai_messagecenter/asbg.html</value>
-        </property>
-	<property name="defaultForTool"><value>sakai.messagecenter</value></property>
-    </bean>
-    <bean id="mcAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
-        <property name="docId">
-            <value>asax</value>
-        </property>
-        <property name="name">
-            <value>About Message Center</value>
-        </property>
-        <property name="location">
             <value>/sakai_messagecenter/asax.html</value>
         </property>
+	<property name="defaultForTool"><value>sakai.messagecenter</value></property>
     </bean>
     <bean id="mcCreateForumTopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
@@ -148,7 +137,6 @@
                     <property name="resources">
                         <list>
                             <ref bean="mcOverview"/>
-                            <ref bean="mcAbout"/>
                             <ref bean="mcCreateForumTopic"/>
                             <ref bean="mcPermissions"/>
                             <ref bean="mcRevise"/>
