@@ -6,6 +6,10 @@
 	<p class="step">
 		$tlang.getString("import.reuse2")
 	</p>
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="clear"></div>
+	#end
 	<p class="instruction">
 	$tlang.getString("import.choose")
 	</p>

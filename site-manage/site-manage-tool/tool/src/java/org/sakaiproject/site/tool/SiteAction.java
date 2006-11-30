@@ -3210,8 +3210,11 @@ public class SiteAction extends PagedResourceActionII
 	/**
 	 * get the selected tool ids from import sites
 	 */
-	private void select_import_tools(ParameterParser params, SessionState state)
+	private boolean select_import_tools(ParameterParser params, SessionState state)
 	{
+		// has the user selected any tool for importing?
+		boolean anyToolSelected = false;
+		
 		Hashtable importTools = new Hashtable();
 		
 		// the tools for current site
@@ -3223,10 +3226,16 @@ public class SiteAction extends PagedResourceActionII
 			if (params.getStrings(toolId) != null)
 			{
 				importTools.put(toolId, new ArrayList(Arrays.asList(params.getStrings(toolId))));
+				if (!anyToolSelected)
+				{
+					anyToolSelected = true;
+				}
 			}
 		}
 		
 		state.setAttribute(STATE_IMPORT_SITE_TOOL, importTools);
+		
+		return anyToolSelected;
 		
 	}	// select_import_tools
 	
@@ -6611,18 +6620,25 @@ public class SiteAction extends PagedResourceActionII
 					if (existingSite != null)
 					{
 						// revising a existing site's tool
-						select_import_tools(params, state);
-						Hashtable importTools = (Hashtable) state.getAttribute(STATE_IMPORT_SITE_TOOL);
-						List selectedTools = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
-						importToolIntoSite(selectedTools, importTools, existingSite);
-						
-						existingSite = getStateSite(state);   // refresh site for WC and News
-												
-						if (state.getAttribute(STATE_MESSAGE) == null)
+						if (select_import_tools(params, state))
 						{
-							commitSite(existingSite);
-							state.removeAttribute(STATE_IMPORT_SITE_TOOL);
-							state.removeAttribute(STATE_IMPORT_SITES);
+							Hashtable importTools = (Hashtable) state.getAttribute(STATE_IMPORT_SITE_TOOL);
+							List selectedTools = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
+							importToolIntoSite(selectedTools, importTools, existingSite);
+							
+							existingSite = getStateSite(state);   // refresh site for WC and News
+													
+							if (state.getAttribute(STATE_MESSAGE) == null)
+							{
+								commitSite(existingSite);
+								state.removeAttribute(STATE_IMPORT_SITE_TOOL);
+								state.removeAttribute(STATE_IMPORT_SITES);
+							}
+						}
+						else
+						{
+							// show alert and remain in current page
+							addAlert(state, rb.getString("java.toimporttool"));
 						}
 					}
 					else
@@ -6650,6 +6666,7 @@ public class SiteAction extends PagedResourceActionII
 					if (params.getStrings("importSites") == null)
 					{
 						addAlert(state, rb.getString("java.toimport")+" ");
+						state.removeAttribute(STATE_IMPORT_SITES);
 					}
 					else
 					{
