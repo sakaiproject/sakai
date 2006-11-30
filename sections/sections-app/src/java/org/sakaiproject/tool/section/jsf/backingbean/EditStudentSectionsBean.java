@@ -31,6 +31,7 @@ import java.util.Set;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -39,7 +40,7 @@ import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
 import org.sakaiproject.section.api.facade.Role;
-import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
+import org.sakaiproject.tool.section.decorator.SectionDecorator;
 import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
@@ -49,29 +50,29 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class EditStudentSectionsBean extends CourseDependentBean implements Serializable {
+public class EditStudentSectionsBean extends FilteredSectionListingBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(EditStudentSectionsBean.class);
 
 	protected static final String UNASSIGNED = "unassigned";
 
-	protected String sortColumn;
-	protected boolean sortAscending;
 	protected String studentUid;
 	protected String studentName;
-	protected List<StudentSectionDecorator> sections;
-	protected List<StudentSectionDecorator> enrolledSections;
-	
-	public EditStudentSectionsBean() {
-		sortColumn = "meetingTimes";
-		sortAscending = true;
-	}
+	protected List<SectionDecorator> enrolledSections;
 	
 	public void init() {
+		// Get the student's name
+		User student = getSectionManager().getSiteEnrollment(getSiteContext(), studentUid);
+		studentName = student.getDisplayName();
+
 		// Get all sections in the site
 		List sectionSet = getAllSiteSections();
-		sections = new ArrayList<StudentSectionDecorator>();
-		enrolledSections = new ArrayList<StudentSectionDecorator>();
+		sections = new ArrayList<SectionDecorator>();
+		enrolledSections = new ArrayList<SectionDecorator>();
+
+		// Generate the category select items
+		categorySelectItems = generateCategorySelectItems();
+
 		// Get the section enrollments for this student
 		Set enrolled = getEnrolledSections(studentUid);
 
@@ -79,23 +80,42 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 			CourseSection section = (CourseSection)sectionIter.next();
 			String catName = getCategoryName(section.getCategory());
 			
-			// Generate the string showing the TAs
-			List tas = getSectionManager().getSectionTeachingAssistants(section.getUuid());
-			List<String> taNames = new ArrayList<String>();
-			for(Iterator taIter = tas.iterator(); taIter.hasNext();) {
-				ParticipationRecord ta = (ParticipationRecord)taIter.next();
-				taNames.add(ta.getUser().getSortName());
+			boolean hideSectionInTable = false;
+
+			// If we are filtering by categories, and the section is not in this category, skip it
+			if(StringUtils.trimToNull(categoryFilter) != null && ! categoryFilter.equals(section.getCategory())) {
+				if(log.isDebugEnabled()) log.debug("Filtering out " + section.getTitle() + ", since it is not in category " + categoryFilter);
+				hideSectionInTable = true;
 			}
 
+			// Generate the string showing the TAs
+			List<ParticipationRecord> tas = getSectionManager().getSectionTeachingAssistants(section.getUuid());
+			List<String> taNames = generateTaNames(tas);
+			List<String> taUids = generateTaUids(tas);
+
+			// If we're filtering by my sections, and the TAs in the section don't include me, skip this section
+			if("MY".equals(myFilter)) {
+				String userUid = getUserUid();
+				if( ! taUids.contains(userUid)) {
+					if(log.isDebugEnabled()) log.debug("Filtering out " + section.getTitle() + ", since user " + userUid + " is not a TA");
+					hideSectionInTable = true;
+				}
+			}
+
+			// Sort the TA names
 			Collections.sort(taNames);
 
+			// Get the enrollments and membership so we can decorate the section
 			int totalEnrollments = getSectionManager().getTotalEnrollments(section.getUuid());
 			boolean member = isEnrolledInSection(enrolled, section);
 			boolean memberOtherSection = isEnrolledInOtherSection(enrolled, section);
 			
 			StudentSectionDecorator decoratedSection = new StudentSectionDecorator(
 					section, catName, taNames, totalEnrollments, member, memberOtherSection);
-			sections.add(decoratedSection);
+			
+			if(!hideSectionInTable) {
+				sections.add(decoratedSection);
+			}
 			
 			if(member) {
 				enrolledSections.add(decoratedSection);
@@ -103,12 +123,6 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 		}
 		Collections.sort(sections, getComparator());
 		Collections.sort(enrolledSections, getComparator());
-
-
-		// Get the student's name
-		User student = getSectionManager().getSiteEnrollment(getSiteContext(), studentUid);
-		studentName = student.getDisplayName();
-
 	}
 	
 	protected boolean isEnrolledInSection(Set enrolledSections, CourseSection section) {
@@ -146,19 +160,19 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 		}
 	}
 
-	protected Comparator<InstructorSectionDecorator> getComparator() {
+	protected Comparator<SectionDecorator> getComparator() {
 		if(sortColumn.equals("title")) {
-			return InstructorSectionDecorator.getTitleComparator(sortAscending); 
+			return SectionDecorator.getTitleComparator(sortAscending); 
 		} else if(sortColumn.equals("instructor")) {
-			return InstructorSectionDecorator.getManagersComparator(sortAscending); 
+			return SectionDecorator.getManagersComparator(sortAscending); 
 		} else if(sortColumn.equals("available")) {
-			return InstructorSectionDecorator.getEnrollmentsComparator(sortAscending, true); 
+			return SectionDecorator.getEnrollmentsComparator(sortAscending, true); 
 		} else if(sortColumn.equals("meetingDays")) {
-			return InstructorSectionDecorator.getDayComparator(sortAscending); 
+			return SectionDecorator.getDayComparator(sortAscending); 
 		} else if(sortColumn.equals("meetingTimes")) {
-			return InstructorSectionDecorator.getTimeComparator(sortAscending); 
+			return SectionDecorator.getTimeComparator(sortAscending); 
 		} else if(sortColumn.equals("location")) {
-			return InstructorSectionDecorator.getLocationComparator(sortAscending); 
+			return SectionDecorator.getLocationComparator(sortAscending); 
 		}
 		log.error("Invalid sort specified.");
 		return null;
@@ -193,29 +207,16 @@ public class EditStudentSectionsBean extends CourseDependentBean implements Seri
 		this.studentUid = studentUid;
 	}
 
+
 	public String getStudentName() {
 		return studentName;
 	}
+	
 	public String getUnassignedValue() {
 		return UNASSIGNED;
 	}
-	public List getSections() {
-		return sections;
-	}
-	public boolean isSortAscending() {
-		return sortAscending;
-	}
-	public void setSortAscending(boolean sortAscending) {
-		this.sortAscending = sortAscending;
-	}
-	public String getSortColumn() {
-		return sortColumn;
-	}
-	public void setSortColumn(String sortColumn) {
-		this.sortColumn = sortColumn;
-	}
 
-	public List<StudentSectionDecorator> getEnrolledSections() {
+	public List<SectionDecorator> getEnrolledSections() {
 		return enrolledSections;
 	}
 }

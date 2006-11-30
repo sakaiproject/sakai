@@ -59,5 +59,5 @@ public interface CourseSection extends LearningContext {
      * 
      * @return
      */
-    public List getMeetings();
+    public List<Meeting> getMeetings();
 }

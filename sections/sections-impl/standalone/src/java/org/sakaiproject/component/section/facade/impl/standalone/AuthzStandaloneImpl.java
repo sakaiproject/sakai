@@ -87,4 +87,9 @@ public class AuthzStandaloneImpl extends HibernateDaoSupport implements Authz {
 		Role role = getSiteRole(userUid, siteContext);
 		return role.isInstructor() || role.isTeachingAssistant();
 	}
+
+	public boolean isSectionAssignable(String userUid, String siteContext) {
+		Role role = getSiteRole(userUid, siteContext);
+		return role.isTeachingAssistant() || role.isStudent();
+	}
 }

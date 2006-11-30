@@ -66,7 +66,7 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	 * @return
 	 */
 	protected Set getUsedCategories() {
-		Set used = new HashSet();
+		Set<String> used = new HashSet<String>();
 		List sections = getAllSiteSections();
 		List categories = getSectionManager().getSectionCategories(getSiteContext());
 		for(Iterator iter = sections.iterator(); iter.hasNext();) {
@@ -118,7 +118,7 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 		return getCourseBean().sectionManager.getCategoryName(categoryId, locale);
 	}
 	
-	protected List getSectionCategories() {
+	protected List<String> getSectionCategories() {
 		return getCourseBean().sectionManager.getSectionCategories(getSiteContext());
 	}
 
@@ -139,6 +139,9 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	}
 	public boolean isViewAllSectionsEnabled() {
 		return getCourseBean().authz.isViewAllSectionsAllowed(getUserUid(), getSiteContext());
+	}
+	public boolean isSectionAssignable() {
+		return getCourseBean().authz.isSectionAssignable(getUserUid(), getSiteContext());
 	}
 
 	public PreferencesBean getPrefs() {

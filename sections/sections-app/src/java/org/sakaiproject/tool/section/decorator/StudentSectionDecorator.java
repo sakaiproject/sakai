@@ -34,7 +34,7 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class StudentSectionDecorator extends InstructorSectionDecorator
+public class StudentSectionDecorator extends SectionDecorator
 	implements Serializable {
 
 	private static final long serialVersionUID = 1L;

@@ -88,4 +88,14 @@ public interface Authz {
 	 */
 	public boolean isViewOwnSectionsAllowed(String userUid, String siteContext);
 	
+	/**
+	 * Returns whether the user can be assigned to specific sections.  In general, a TA
+	 * can be assigned to a section, while an instructor can not (since they are site-wide
+	 * administrators).
+	 * 
+	 * @param userUid
+	 * @param siteContext
+	 * @return
+	 */
+	public boolean isSectionAssignable(String userUid, String siteContext);
 }

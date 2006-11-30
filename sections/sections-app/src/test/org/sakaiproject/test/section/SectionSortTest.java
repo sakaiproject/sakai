@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.component.section.CourseImpl;
 import org.sakaiproject.component.section.CourseSectionImpl;
-import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
+import org.sakaiproject.tool.section.decorator.SectionDecorator;
 
 public class SectionSortTest extends TestCase {
 	private CourseSection sectionA;
@@ -100,12 +100,12 @@ public class SectionSortTest extends TestCase {
 
 	
 	public void testInstructorSectionDecoratorSorting() throws Exception {
-		InstructorSectionDecorator secA = new InstructorSectionDecorator(sectionA, "Category A", instructorsA, 10);
-		InstructorSectionDecorator secB = new InstructorSectionDecorator(sectionB, "Category A", instructorsB, 20);
-		InstructorSectionDecorator secC = new InstructorSectionDecorator(sectionC, "Category B", new ArrayList(), 10);
-		InstructorSectionDecorator secD = new InstructorSectionDecorator(sectionD, "Category B", new ArrayList(), 20);
+		SectionDecorator secA = new SectionDecorator(sectionA, "Category A", instructorsA, 10);
+		SectionDecorator secB = new SectionDecorator(sectionB, "Category A", instructorsB, 20);
+		SectionDecorator secC = new SectionDecorator(sectionC, "Category B", new ArrayList(), 10);
+		SectionDecorator secD = new SectionDecorator(sectionD, "Category B", new ArrayList(), 20);
 		
-		Comparator comp = InstructorSectionDecorator.getManagersComparator(true);
+		Comparator comp = SectionDecorator.getManagersComparator(true);
 
 		// Compare managers in sections of the same category
 		Assert.assertTrue(comp.compare(secA, secB) > 0);
@@ -114,7 +114,7 @@ public class SectionSortTest extends TestCase {
 		// Compare managers in sections in different categories.  The one with no managers sorts first
 		Assert.assertTrue(comp.compare(secC, secA) > 0);
 		
-		comp = InstructorSectionDecorator.getEnrollmentsComparator(true, false);
+		comp = SectionDecorator.getEnrollmentsComparator(true, false);
 
 		// Compare the max enrollments in sections of the same category
 		Assert.assertTrue(comp.compare(secB, secA) > 0);

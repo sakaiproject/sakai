@@ -39,7 +39,7 @@ import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
 import org.sakaiproject.section.api.facade.Role;
-import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
+import org.sakaiproject.tool.section.decorator.SectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
@@ -55,10 +55,10 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 	private static final Log log = LogFactory.getLog(EditManagersBean.class);
 	
 	// For the right-side list box
-	protected List selectedUsers;
+	protected List<SelectItem> selectedUsers;
 	
 	// For the left-side list box
-	protected List availableUsers;
+	protected List<SelectItem> availableUsers;
 	
 	protected String sectionUuid;
 	protected String sectionTitle;
@@ -77,7 +77,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		}
 	};
 
-	protected CourseSectionDecorator initializeFields() {
+	protected SectionDecorator initializeFields() {
 		// Determine whether this course is externally managed
 		externallyManaged = getSectionManager().isExternallyManaged(getCourse().getUuid());
 		
@@ -87,7 +87,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		if(sectionUuidFromParam != null) {
 			sectionUuid = sectionUuidFromParam;
 		}
-		CourseSectionDecorator currentSection = new CourseSectionDecorator(getSectionManager().getSection(sectionUuid));
+		SectionDecorator currentSection = new SectionDecorator(getSectionManager().getSection(sectionUuid));
 
 		sectionTitle = currentSection.getTitle();
 		
@@ -105,7 +105,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 
 	protected void populateSelectedUsers(List participationRecords) {
 		// Build the list of items for the right-side list box
-		selectedUsers = new ArrayList();
+		selectedUsers = new ArrayList<SelectItem>();
 		for(Iterator iter =participationRecords.iterator(); iter.hasNext();) {
 			ParticipationRecord record = (ParticipationRecord)iter.next();
 			SelectItem item = new SelectItem(record.getUser().getUserUid(),
@@ -118,7 +118,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		initializeFields();
 
 		// Get the current users in the manager role for this section
-		List selectedManagers = getSectionManager().getSectionTeachingAssistants(sectionUuid);
+		List<ParticipationRecord> selectedManagers = getSectionManager().getSectionTeachingAssistants(sectionUuid);
 		Collections.sort(selectedManagers, sortNameComparator);
 		
 		populateSelectedUsers(selectedManagers);
@@ -128,16 +128,16 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		// are linked to the course, we can not use collection manipulation on these
 		// objects.  So, generate a set of user uuids to filter out the currently
 		// selected users from the available (left side) list.
-		Set selectedUserUuids = new HashSet();
-		for(Iterator iter = selectedManagers.iterator(); iter.hasNext();) {
-			ParticipationRecord manager = (ParticipationRecord)iter.next();
+		Set<String> selectedUserUuids = new HashSet<String>();
+		for(Iterator<ParticipationRecord> iter = selectedManagers.iterator(); iter.hasNext();) {
+			ParticipationRecord manager = iter.next();
 			selectedUserUuids.add(manager.getUser().getUserUid());
 		}
 
 		List availableManagers = getSectionManager().getSiteTeachingAssistants(getSiteContext());
 		Collections.sort(availableManagers, sortNameComparator);
 		
-		availableUsers = new ArrayList();
+		availableUsers = new ArrayList<SelectItem>();
 		for(Iterator iter = availableManagers.iterator(); iter.hasNext();) {
 			User manager = ((ParticipationRecord)iter.next()).getUser();
 			if( ! selectedUserUuids.contains(manager.getUserUid())) {
@@ -165,8 +165,8 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		return "overview";
 	}
 
-	protected Set getHighlightedUsers(String componentId) {
-		Set userUids = new HashSet();
+	protected Set<String> getHighlightedUsers(String componentId) {
+		Set<String> userUids = new HashSet<String>();
 		
 		String[] highlighted = (String[])FacesContext.getCurrentInstance()
 		.getExternalContext().getRequestParameterValuesMap().get(componentId);
@@ -179,19 +179,19 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		return userUids;
 	}
 	
-	public List getAvailableUsers() {
+	public List<SelectItem> getAvailableUsers() {
 		return availableUsers;
 	}
 
-	public void setAvailableUsers(List availableUsers) {
+	public void setAvailableUsers(List<SelectItem> availableUsers) {
 		this.availableUsers = availableUsers;
 	}
 
-	public List getSelectedUsers() {
+	public List<SelectItem> getSelectedUsers() {
 		return selectedUsers;
 	}
 
-	public void setSelectedUsers(List selectedUsers) {
+	public void setSelectedUsers(List<SelectItem> selectedUsers) {
 		this.selectedUsers = selectedUsers;
 	}
 

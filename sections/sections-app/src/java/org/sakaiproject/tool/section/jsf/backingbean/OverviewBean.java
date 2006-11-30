@@ -22,17 +22,13 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.section.api.coursemanagement.CourseSection;
-import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
-import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
+import org.sakaiproject.tool.section.decorator.SectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
@@ -41,109 +37,49 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class OverviewBean extends CourseDependentBean implements Serializable {
+public class OverviewBean extends FilteredSectionListingBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(OverviewBean.class);
 
 	private boolean externallyManaged;
-//	private String rowClasses;
 
-	private List sections;
-	private List sectionsToDelete;
-	private List categoryIds;
-	private List categoryNames; // Must be ordered exactly like the category ids
+	private List<SectionDecorator> sectionsToDelete;
 
 	public void init() {
+		super.init();
 		// Determine whether this course is externally managed
 		externallyManaged = getSectionManager().isExternallyManaged(getCourse().getUuid());
 
-		// Get all sections in the site
-		List sectionSet = getAllSiteSections();
-		sections = new ArrayList();
-
-		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {
-			CourseSection section = (CourseSection)sectionIter.next();
-			String catName = getCategoryName(section.getCategory());
-
-			// Generate the string showing the TAs
-			// FIXME Get this query out of the loop!
-			List tas = getSectionManager().getSectionTeachingAssistants(section.getUuid());
-			List taNames = new ArrayList();
-			for(Iterator taIter = tas.iterator(); taIter.hasNext();) {
-				ParticipationRecord ta = (ParticipationRecord)taIter.next();
-				taNames.add(StringUtils.abbreviate(ta.getUser().getSortName(), getPrefs().getMaxNameLength()));
-			}
-
-			Collections.sort(taNames);
-
-			int totalEnrollments = getSectionManager().getTotalEnrollments(section.getUuid());
-
-			InstructorSectionDecorator decoratedSection = new InstructorSectionDecorator(
-					section, catName, taNames, totalEnrollments);
-			sections.add(decoratedSection);
-		}
-
-		// Get the category ids
-		categoryIds = getSectionCategories();
-
-		// Get category names, ordered just like the category ids
-		categoryNames = new ArrayList();
-		for(Iterator iter = categoryIds.iterator(); iter.hasNext();) {
-			String catId = (String)iter.next();
-			categoryNames.add(getCategoryName(catId));
-		}
-
-		// Sort the collection set
-		Collections.sort(sections, getComparator());
-
-//		// Add the row css classes
-//		StringBuffer sb = new StringBuffer();
-//		int index = 0;
-//		for(Iterator iter = sections.iterator(); iter.hasNext();) {
-//			InstructorSectionDecorator decoratedSection = (InstructorSectionDecorator)iter.next();
-//			if(iter.hasNext()) {
-//				InstructorSectionDecorator nextSection = (InstructorSectionDecorator)sections.get(++index);
-//				if(nextSection.getCategory().equals(decoratedSection.getCategory())) {
-//					sb.append("sectionRow");
-//				} else {
-//					sb.append("sectionPadRow");
-//				}
-//				sb.append(",");
-//			} else {
-//				sb.append("sectionRow");
-//			}
-//		}
-//		rowClasses = sb.toString();
 	}
 
-	private Comparator getComparator() {
+	protected Comparator<SectionDecorator> getComparator() {
 		String sortColumn = getPrefs().getOverviewSortColumn();
 		boolean sortAscending = getPrefs().isOverviewSortAscending();
 
 		if(sortColumn.equals("title")) {
-			return InstructorSectionDecorator.getTitleComparator(sortAscending);
+			return SectionDecorator.getTitleComparator(sortAscending);
 		} else if(sortColumn.equals("managers")) {
-			return InstructorSectionDecorator.getManagersComparator(sortAscending);
+			return SectionDecorator.getManagersComparator(sortAscending);
 		} else if(sortColumn.equals("totalEnrollments")) {
-			return InstructorSectionDecorator.getEnrollmentsComparator(sortAscending, false);
+			return SectionDecorator.getEnrollmentsComparator(sortAscending, false);
 		} else if(sortColumn.equals("available")) {
-			return InstructorSectionDecorator.getEnrollmentsComparator(sortAscending, true);
+			return SectionDecorator.getEnrollmentsComparator(sortAscending, true);
 		} else if(sortColumn.equals("meetingDays")) {
-			return InstructorSectionDecorator.getDayComparator(sortAscending);
+			return SectionDecorator.getDayComparator(sortAscending);
 		} else if(sortColumn.equals("meetingTimes")) {
-			return InstructorSectionDecorator.getDayComparator(sortAscending);
+			return SectionDecorator.getDayComparator(sortAscending);
 		} else if(sortColumn.equals("location")) {
-			return InstructorSectionDecorator.getLocationComparator(sortAscending);
+			return SectionDecorator.getLocationComparator(sortAscending);
 		}
 		log.error("Invalid sort specified.");
 		return null;
 	}
 
 	public String confirmDelete() {
-		sectionsToDelete = new ArrayList();
-		for(Iterator iter = sections.iterator(); iter.hasNext();) {
-			InstructorSectionDecorator decoratedSection = (InstructorSectionDecorator)iter.next();
+		sectionsToDelete = new ArrayList<SectionDecorator>();
+		for(Iterator<SectionDecorator> iter = sections.iterator(); iter.hasNext();) {
+			SectionDecorator decoratedSection = iter.next();
 			if(decoratedSection.isFlaggedForRemoval()) {
 				sectionsToDelete.add(decoratedSection);
 			}
@@ -158,7 +94,7 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 	
 	public String deleteSections() {
 		for(Iterator iter = sectionsToDelete.iterator(); iter.hasNext();) {
-			InstructorSectionDecorator decoratedSection = (InstructorSectionDecorator)iter.next();
+			SectionDecorator decoratedSection = (SectionDecorator)iter.next();
 			getSectionManager().disbandSection(decoratedSection.getUuid());
 		}
 		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage("overview_delete_section_success"));
@@ -168,15 +104,9 @@ public class OverviewBean extends CourseDependentBean implements Serializable {
 		return (!externallyManaged) && sections.size() > 0 && isSectionManagementEnabled();
 	}
 
-	public List getSections() {
-		return sections;
-	}
 	public boolean isExternallyManaged() {
 		return externallyManaged;
 	}
-//	public String getRowClasses() {
-//		return rowClasses;
-//	}
 
 	public List getSectionsToDelete() {
 		return sectionsToDelete;

@@ -12,6 +12,10 @@
 
     <%@include file="/inc/globalMessages.jspf"%>
 
+    <x:aliasBean alias="#{filterBean}" value="#{overviewBean}">
+        <%@include file="/inc/sectionFilter.jspf"%>
+    </x:aliasBean>
+
     <sec:sectionTable cellpadding="0" cellspacing="0"
         id="sectionsTable"
         value="#{overviewBean.sections}"

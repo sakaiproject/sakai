@@ -35,6 +35,10 @@
             <h:outputText value="#{msgs.edit_student_sections_instructions}"/>
         </x:div>
 
+		<x:aliasBean alias="#{filterBean}" value="#{editStudentSectionsBean}">
+	        <%@include file="/inc/sectionFilter.jspf"%>
+	    </x:aliasBean>
+
         <sec:sectionTable cellpadding="0" cellspacing="0"
             id="editStudentSectionsTable"
             value="#{editStudentSectionsBean.sections}"

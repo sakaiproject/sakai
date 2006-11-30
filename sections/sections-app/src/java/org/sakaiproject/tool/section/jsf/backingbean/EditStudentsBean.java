@@ -38,7 +38,7 @@ import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
 import org.sakaiproject.section.api.facade.Role;
-import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
+import org.sakaiproject.tool.section.decorator.SectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
@@ -63,7 +63,7 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 	private Integer sectionMax;
 
 	public void init() {
-		CourseSectionDecorator currentSection = initializeFields();
+		SectionDecorator currentSection = initializeFields();
 		sectionMax = currentSection.getMaxEnrollments();
 		
 		// Get the current users

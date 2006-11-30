@@ -105,4 +105,8 @@ public class AuthzSakaiImpl implements Authz {
 		 		SecurityService.unlock(sakaiUser, SectionAwareness.TA_MARKER, siteRef);
 	}
 
+	public boolean isSectionAssignable(String userUid, String siteContext) {
+		return ! isSectionManagementAllowed(userUid, siteContext);
+	}
+
 }

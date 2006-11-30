@@ -22,12 +22,19 @@ package org.sakaiproject.tool.section.decorator;
 
 import java.io.Serializable;
 import java.sql.Time;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.coursemanagement.Meeting;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
@@ -36,26 +43,55 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class InstructorSectionDecorator extends CourseSectionDecorator
-	implements Serializable, Comparable {
+public class SectionDecorator implements Serializable, Comparable {
 	private static final long serialVersionUID = 1L;
-	private static final Log log = LogFactory.getLog(InstructorSectionDecorator.class);
+	private static final Log log = LogFactory.getLog(SectionDecorator.class);
 
 	public static final int NAME_TRUNCATION_LENGTH = 20;
 	public static final int LOCATION_TRUNCATION_LENGTH = 15;
 
-	protected List instructorNames;
+	protected CourseSection section;
+	protected String categoryForDisplay;
+	protected List<MeetingDecorator> decoratedMeetings;
+
+	protected List<String> instructorNames;
 	protected int totalEnrollments;
 	protected String spotsAvailable;
 	private boolean flaggedForRemoval;
 
-	public InstructorSectionDecorator(CourseSection courseSection, String categoryForDisplay,
-			List instructorNames, int totalEnrollments) {
-		super(courseSection, categoryForDisplay);
+	/**
+	 * Creates a SectionDecorator from a vanilla CourseSection.
+	 * 
+	 * @param section
+	 */
+	public SectionDecorator(CourseSection section) {
+		this.section = section;
+		this.decoratedMeetings = new ArrayList<MeetingDecorator>();
+		if(section.getMeetings() != null) {
+			for(Iterator iter = section.getMeetings().iterator(); iter.hasNext();) {
+				decoratedMeetings.add(new MeetingDecorator((Meeting)iter.next()));
+			}
+		}
+	}
+
+
+	/**
+	 * Creates a SectionDecorator with more contextual information about the section.
+	 * 
+	 * @param section The CourseSection to decorate
+	 * @param categoryForDisplay The CourseSection's category label
+	 * @param instructorNames The names of TAs in this CourseSection
+	 * @param totalEnrollments The total number of enrollments in this CourseSection
+	 */
+	public SectionDecorator(CourseSection section, String categoryForDisplay,
+			List<String> instructorNames, int totalEnrollments) {
+		this(section);
+		this.categoryForDisplay = categoryForDisplay;
+
 		this.instructorNames = instructorNames;
 		this.totalEnrollments = totalEnrollments;
 		
-		populateSpotsAvailable(courseSection);
+		populateSpotsAvailable(section);
 	}
 
 	protected void populateSpotsAvailable(CourseSection courseSection) {
@@ -68,7 +104,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		}
 	}
 
-	public InstructorSectionDecorator() {
+	public SectionDecorator() {
 		// Needed for serialization
 	}
 
@@ -89,18 +125,18 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 	}
 
 	public int compareTo(Object o) {
-		return this.getTitle().toLowerCase().compareTo(((InstructorSectionDecorator)o).getTitle().toLowerCase());
+		return this.getTitle().toLowerCase().compareTo(((SectionDecorator)o).getTitle().toLowerCase());
 	}
 
 	/**
-	 * TODO: Now that we need to sort titles non-case sensitive, is there much of a point to keeping the generic getFieldComparator() method?
+	 * Compares SectionDecorators by the section's title.
 	 * 
 	 * @param sortAscending
 	 * @return
 	 */
-	public static final Comparator<InstructorSectionDecorator> getTitleComparator(final boolean sortAscending) {
-		return new Comparator<InstructorSectionDecorator>() {
-			public int compare(InstructorSectionDecorator section1, InstructorSectionDecorator section2) {
+	public static final Comparator<SectionDecorator> getTitleComparator(final boolean sortAscending) {
+		return new Comparator<SectionDecorator>() {
+			public int compare(SectionDecorator section1, SectionDecorator section2) {
 				int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
 				if(categoryNameComparison == 0) {
 					int comparison =  section1.getTitle().toLowerCase().compareTo(section2.getTitle().toLowerCase());
@@ -112,9 +148,15 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		};
 	}
 
-	public static final Comparator<InstructorSectionDecorator> getTimeComparator(final boolean sortAscending) {
-		return new Comparator<InstructorSectionDecorator>() {
-			public int compare(InstructorSectionDecorator section1, InstructorSectionDecorator section2) {
+	/**
+	 * Compares SectionDecorators by the section's first meeting times.
+	 * 
+	 * @param sortAscending
+	 * @return
+	 */
+	public static final Comparator<SectionDecorator> getTimeComparator(final boolean sortAscending) {
+		return new Comparator<SectionDecorator>() {
+			public int compare(SectionDecorator section1, SectionDecorator section2) {
 
 					// First compare the category name, then compare the time
 					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
@@ -148,9 +190,15 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		};
 	}
 
-	public static final Comparator<InstructorSectionDecorator> getDayComparator(final boolean sortAscending) {
-		return new Comparator<InstructorSectionDecorator>() {
-			public int compare(InstructorSectionDecorator section1, InstructorSectionDecorator section2) {
+	/**
+	 * Compares SectionDecorators by the section's first meeting days.
+	 * 
+	 * @param sortAscending
+	 * @return
+	 */
+	public static final Comparator<SectionDecorator> getDayComparator(final boolean sortAscending) {
+		return new Comparator<SectionDecorator>() {
+			public int compare(SectionDecorator section1, SectionDecorator section2) {
 					// First compare the category name, then compare the time
 					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
 					if(categoryNameComparison == 0) {
@@ -183,9 +231,15 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		};
 	}
 
-	public static final Comparator<InstructorSectionDecorator> getLocationComparator(final boolean sortAscending) {
-		return new Comparator<InstructorSectionDecorator>() {
-			public int compare(InstructorSectionDecorator section1, InstructorSectionDecorator section2) {
+	/**
+	 * Compares SectionDecorators by the section's first meeting location.
+	 * 
+	 * @param sortAscending
+	 * @return
+	 */
+	public static final Comparator<SectionDecorator> getLocationComparator(final boolean sortAscending) {
+		return new Comparator<SectionDecorator>() {
+			public int compare(SectionDecorator section1, SectionDecorator section2) {
 
 					// First compare the category name, then compare the time
 					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
@@ -219,9 +273,15 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		};
 	}
 
-	public static final Comparator<InstructorSectionDecorator> getManagersComparator(final boolean sortAscending) {
-		return new Comparator<InstructorSectionDecorator>() {
-			public int compare(InstructorSectionDecorator section1, InstructorSectionDecorator section2) {
+	/**
+	 * Compares SectionDecorators by the section's TA names.
+	 * 
+	 * @param sortAscending
+	 * @return
+	 */
+	public static final Comparator<SectionDecorator> getManagersComparator(final boolean sortAscending) {
+		return new Comparator<SectionDecorator>() {
+			public int compare(SectionDecorator section1, SectionDecorator section2) {
 				// First compare the category name, then compare the time
 				int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
 				if(categoryNameComparison == 0) {
@@ -249,9 +309,16 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		};
 	}
 
-	public static final Comparator<InstructorSectionDecorator> getEnrollmentsComparator(final boolean sortAscending, final boolean useAvailable) {
-		return new Comparator<InstructorSectionDecorator>() {
-			public int compare(InstructorSectionDecorator section1, InstructorSectionDecorator section2) {
+	/**
+	 * Compares SectionDecorators by the section's enrollments.
+	 * 
+	 * @param sortAscending Whether to sort ascending or descending
+	 * @param useAvailable Whether to use the number of available enrollments, or the total number of enrollments to sort
+	 * @return
+	 */
+	public static final Comparator<SectionDecorator> getEnrollmentsComparator(final boolean sortAscending, final boolean useAvailable) {
+		return new Comparator<SectionDecorator>() {
+			public int compare(SectionDecorator section1, SectionDecorator section2) {
 					// First compare the category name, then compare available spots
 					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
 					if(categoryNameComparison == 0) {
@@ -291,5 +358,189 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 			}
 		};
 	}
+	
+	public CourseSection getSection() {
+		return section;
+	}
+	
+	public List<MeetingDecorator> getDecoratedMeetings() {
+		return decoratedMeetings;
+	}
+
+	// Decorator methods
+	public String getCategoryForDisplay() {
+		return categoryForDisplay;
+	}
+
+	// Delegate methods
+
+	public String getCategory() {
+		return section.getCategory();
+	}
+
+	public Course getCourse() {
+		return section.getCourse();
+	}
+
+	public Integer getMaxEnrollments() {
+		return section.getMaxEnrollments();
+	}
+
+	public String getTitle() {
+		return section.getTitle();
+	}
+
+	public String getUuid() {
+		return section.getUuid();
+	}
+	
+	public class MeetingDecorator implements Serializable {
+		private static final long serialVersionUID = 1L;
+		private Meeting meeting;
+		
+		public MeetingDecorator() {
+			// Needed for serialization
+		}
+
+		public MeetingDecorator(Meeting meeting) {
+			this.meeting = meeting;
+		}
+		
+		private List<String> getDayList() {
+			List<String> list = new ArrayList<String>();
+			if(meeting.isMonday())
+				list.add("day_of_week_monday");
+			if(meeting.isTuesday())
+				list.add("day_of_week_tuesday");
+			if(meeting.isWednesday())
+				list.add("day_of_week_wednesday");
+			if(meeting.isThursday())
+				list.add("day_of_week_thursday");
+			if(meeting.isFriday())
+				list.add("day_of_week_friday");
+			if(meeting.isSaturday())
+				list.add("day_of_week_saturday");
+			if(meeting.isSunday())
+				list.add("day_of_week_sunday");
+			return list;
+		}
+		
+		private List<String> getAbbreviatedDayList() {
+			List<String> list = new ArrayList<String>();
+			if(meeting.isMonday())
+				list.add("day_of_week_monday_abbrev");
+			if(meeting.isTuesday())
+				list.add("day_of_week_tuesday_abbrev");
+			if(meeting.isWednesday())
+				list.add("day_of_week_wednesday_abbrev");
+			if(meeting.isThursday())
+				list.add("day_of_week_thursday_abbrev");
+			if(meeting.isFriday())
+				list.add("day_of_week_friday_abbrev");
+			if(meeting.isSaturday())
+				list.add("day_of_week_saturday_abbrev");
+			if(meeting.isSunday())
+				list.add("day_of_week_sunday_abbrev");
+			return list;
+		}
+
+		public String getTimes() {
+			String timeSepChar = JsfUtil.getLocalizedMessage("time_sep_char");
+
+			StringBuffer sb = new StringBuffer();
+
+			// Start time
+			DateFormat df = new SimpleDateFormat("h:mm a");
+			sb.append(" ");
+			if(meeting.getStartTime() != null) {
+				sb.append(df.format(new Date(meeting.getStartTime().getTime())).toLowerCase());
+			}
+
+			// End time
+			if(meeting.getStartTime() != null &&
+					meeting.getEndTime() != null) {
+				sb.append(timeSepChar);
+			}
+
+			if(meeting.getEndTime() != null) {
+				sb.append(df.format(new Date(meeting.getEndTime().getTime())).toLowerCase());
+			}
+			if(log.isDebugEnabled()) log.debug("Meeting times = " + sb.toString());
+			return sb.toString();
+		}
+
+		public String getAbbreviatedDays() {
+			String daySepChar = JsfUtil.getLocalizedMessage("day_of_week_sep_char");
+
+			StringBuffer sb = new StringBuffer();
+			for(Iterator iter = getAbbreviatedDayList().iterator(); iter.hasNext();) {
+				String day = (String)iter.next();
+				sb.append(JsfUtil.getLocalizedMessage(day));
+				if(iter.hasNext()) {
+					sb.append(daySepChar);
+				}
+			}
+			if(log.isDebugEnabled()) log.debug("Meeting days = " + sb.toString());
+			return sb.toString();
+		}
+
+		public String getDays() {
+			String daySepChar = JsfUtil.getLocalizedMessage("day_of_week_sep_char");
+
+			StringBuffer sb = new StringBuffer();
+			for(Iterator iter = getDayList().iterator(); iter.hasNext();) {
+				String day = (String)iter.next();
+				sb.append(JsfUtil.getLocalizedMessage(day));
+				if(iter.hasNext()) {
+					sb.append(daySepChar);
+				}
+			}
+			if(log.isDebugEnabled()) log.debug("Meeting days = " + sb.toString());
+			return sb.toString();
+		}
+
+		// Meeting delegate methods
+
+		public Time getEndTime() {
+			return meeting.getEndTime();
+		}
+
+		public String getLocation() {
+			return meeting.getLocation();
+		}
+
+		public Time getStartTime() {
+			return meeting.getStartTime();
+		}
+
+		public boolean isFriday() {
+			return meeting.isFriday();
+		}
+
+		public boolean isMonday() {
+			return meeting.isMonday();
+		}
+
+		public boolean isSaturday() {
+			return meeting.isSaturday();
+		}
+
+		public boolean isSunday() {
+			return meeting.isSunday();
+		}
+
+		public boolean isThursday() {
+			return meeting.isThursday();
+		}
+
+		public boolean isTuesday() {
+			return meeting.isTuesday();
+		}
+
+		public boolean isWednesday() {
+			return meeting.isWednesday();
+		}
+	}
+
 }
 

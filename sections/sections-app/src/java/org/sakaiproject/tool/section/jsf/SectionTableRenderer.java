@@ -39,7 +39,7 @@ import org.apache.myfaces.renderkit.html.HtmlRendererUtils;
 import org.apache.myfaces.renderkit.html.ext.HtmlTableRenderer;
 import org.apache.myfaces.util.ArrayUtils;
 import org.apache.myfaces.util.StringUtils;
-import org.sakaiproject.tool.section.decorator.CourseSectionDecorator;
+import org.sakaiproject.tool.section.decorator.SectionDecorator;
 
 public class SectionTableRenderer extends HtmlTableRenderer{
 	private static final Log log = LogFactory.getLog(SectionTableRenderer.class);
@@ -60,7 +60,7 @@ public class SectionTableRenderer extends HtmlTableRenderer{
         // Iterate over the data in the table, adding category header classes to the list when the category changes
         String currentCategory = null;
 		for(Iterator iter = rowData.iterator(); iter.hasNext();) {
-			CourseSectionDecorator section = (CourseSectionDecorator)iter.next();
+			SectionDecorator section = (SectionDecorator)iter.next();
 			if( ! section.getCategory().equals(currentCategory)) {
 				if(rowClassList.isEmpty()) {
 					rowClassList.add(FIRST_CATEGORY_HEADER_STYLE_CLASS);
@@ -157,10 +157,10 @@ public class SectionTableRenderer extends HtmlTableRenderer{
 			}
 			
 			// Get the current section
-			CourseSectionDecorator section;
+			SectionDecorator section;
 			List list = (List)uiData.getValue();
 			try {
-				section = (CourseSectionDecorator)list.get(rowNumber);
+				section = (SectionDecorator)list.get(rowNumber);
 			} catch (IndexOutOfBoundsException ioobe) {
 				log.error(ioobe);
 				return;

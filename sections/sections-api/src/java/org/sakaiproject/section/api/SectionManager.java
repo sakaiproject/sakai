@@ -418,16 +418,14 @@ public interface SectionManager {
     public String getCategoryName(String categoryId, Locale locale);
    
     /**
-     * Gets the list of section categories.  In sakai 2.1, there will be only a
-     * single set of categories.  They will not be configurable on a per-course
+     * Gets the list of section categories.  These are not configurable on a per-course
      * or per-context bases.
      * 
      * @param siteContext The site context (which is not used in the
      * current implementation)
      * 
      * @return A List of unique Strings that identify the available section
-     * categories.  These should be internationalized for display using
-     * {@link SectionAwareness#getCategoryName(String, Locale) getCategoryName}.
+     * categories.
      */
     public List getSectionCategories(String siteContext);
 

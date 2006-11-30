@@ -1,0 +1,14 @@
+    <x:div>
+        <h:outputText
+            value="#{msgs.student_view_view}" rendered="#{filterBean.sectionAssignable}"/>
+        <h:outputText
+            value="#{msgs.student_view_view_all}" rendered="#{ ! filterBean.sectionAssignable}"/>
+        <h:selectOneMenu value="#{filterBean.myFilter}" onchange="this.form.submit()" rendered="#{filterBean.sectionAssignable}">
+            <f:selectItem itemLabel="#{msgs.student_view_all}" itemValue="ALL"/>
+            <f:selectItem itemLabel="#{msgs.student_view_my}" itemValue="MY"/>
+        </h:selectOneMenu>
+        <h:selectOneMenu value="#{filterBean.categoryFilter}" onchange="this.form.submit()">
+            <f:selectItem itemLabel="#{msgs.student_view_sections}" itemValue=""/>
+            <f:selectItems value="#{filterBean.categorySelectItems}"/>
+        </h:selectOneMenu>
+    </x:div>

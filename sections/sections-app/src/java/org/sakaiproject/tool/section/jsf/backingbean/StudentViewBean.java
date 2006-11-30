@@ -23,10 +23,8 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -34,10 +32,8 @@ import javax.faces.event.ActionEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
-import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
-import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
-import org.sakaiproject.tool.section.decorator.InstructorSectionDecorator;
+import org.sakaiproject.tool.section.decorator.SectionDecorator;
 import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
@@ -53,7 +49,6 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 
 	private static final Log log = LogFactory.getLog(StudentViewBean.class);
 	
-	private String sectionFilter;
 	private boolean externallyManaged;
 	private boolean joinAllowed;
 	private boolean switchAllowed;
@@ -62,6 +57,8 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 	
 	public StudentViewBean() {
 		super();
+		sortColumn = "meetingTimes";
+		sortAscending = true;
 	}
 	
 	public void init() {
@@ -82,12 +79,12 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 		// Keep track of whether there are switchable Sections
 		boolean switchableSectionsExist = false;
 
-		List sectionCopy = new ArrayList(sections);
-		for(Iterator iter = sectionCopy.iterator(); iter.hasNext();) {
+		List<SectionDecorator> sectionCopy = new ArrayList<SectionDecorator>(sections);
+		for(Iterator<SectionDecorator> iter = sectionCopy.iterator(); iter.hasNext();) {
 			StudentSectionDecorator decoratedSection = (StudentSectionDecorator)iter.next(); 
 			
 			// Ignore non-member sections if we're filtering for my sections
-			if("MY".equals(sectionFilter) && ! decoratedSection.isMember()) {
+			if("MY".equals(myFilter) && ! decoratedSection.isMember()) {
 				sections.remove(decoratedSection);
 			}
 			
@@ -182,12 +179,6 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 		}
 	}
 
-	public String getSectionFilter() {
-		return sectionFilter;
-	}
-	public void setSectionFilter(String sectionFilter) {
-		this.sectionFilter = sectionFilter;
-	}
 	public boolean isExternallyManaged() {
 		return externallyManaged;
 	}
