@@ -46,6 +46,27 @@
  <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>
 
+<script>
+function clickEmailLink(field){
+var emaillinkid= field.id.replace("createEmail", "hiddenlink");
+
+var newindex = 0;
+for (i=0; i<document.links.length; i++) {
+  if(document.links[i].id == emaillinkid)
+  {
+    newindex = i;
+    break;
+  }
+}
+
+document.links[newindex].onclick();
+window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height=600,scrollbars=yes, resizable=yes');
+}
+
+
+</script>
+
+
 <!-- content... -->
 <h:form id="editTotalResults">
   <h:inputHidden id="publishedId" value="#{totalScores.publishedId}" />
@@ -231,15 +252,17 @@
      </h:panelGroup>
      <f:verbatim><br/></f:verbatim>
 	 <span class="itemAction">
-	  <h:commandLink title="#{msg.t_fullShortAnswer}" immediate="true" id="createEmail1"  onmouseup="javascript:window.open('../evaluation/createNewEmail.faces','createNewEmail','width=600,height=600,scrollbars=yes, resizable=yes');">
-    	<h:outputText value="  #{msg.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
+	   <h:outputLink onclick="clickEmailLink(this);" value="../evaluation/totalScores" id="createEmail1">
+	     <h:outputText value="  #{msg.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
+	   </h:outputLink>
+	 </span>
+   	</span>
+	<h:commandLink id="hiddenlink1" value="">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
 		  <f:param name="toName" value="#{description.firstName} #{description.lastName}" />
   		  <f:param name="toEmailAddress" value="#{description.email}" />
   		  <f:param name="toFirstName" value="#{description.firstName}" />
-	  </h:commandLink>
-	  </span>
-   	</span>
+	</h:commandLink>
     </h:column>
 
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'lastName' && totalScores.sortAscending}">
@@ -280,16 +303,19 @@
      </h:panelGroup>
      <f:verbatim><br/></f:verbatim>
 	 <span class="itemAction">
-	  <h:commandLink title="#{msg.t_fullShortAnswer}" immediate="true" id="createEmail2"  onmouseup="javascript:window.open('../evaluation/createNewEmail.faces','createNewEmail','width=600,height=600,scrollbars=yes, resizable=yes');">
-    	<h:outputText value="  #{msg.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
+	   <h:outputLink onclick="clickEmailLink(this);" value="../evaluation/totalScores" id="createEmail2">
+	     <h:outputText value="  #{msg.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
+	   </h:outputLink>
+	 </span>
+   	</span>
+	<h:commandLink id="hiddenlink2" value="">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
 		  <f:param name="toName" value="#{description.firstName} #{description.lastName}" />
   		  <f:param name="toEmailAddress" value="#{description.email}" />
   		  <f:param name="toFirstName" value="#{description.firstName}" />
-	  </h:commandLink>
-	  </span>
-   	</span>
+	</h:commandLink>
     </h:column>
+
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'lastName' && !totalScores.sortAscending}">
       <f:facet name="header">
       <h:commandLink title="#{msg.t_sortLastName}" action="totalScores">
@@ -329,15 +355,18 @@
      <f:verbatim><br/></f:verbatim>
      <f:verbatim><br/></f:verbatim>
 	 <span class="itemAction">
-	  <h:commandLink title="#{msg.t_fullShortAnswer}" immediate="true" id="createEmail3"  onmouseup="javascript:window.open('../evaluation/createNewEmail.faces','createNewEmail','width=600,height=600,scrollbars=yes, resizable=yes');">
+	  <h:outputLink id="createEmail3" value="../evaluation/totalScores" onclick="clickEmailLink(this);">
     	<h:outputText value="  #{msg.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
+	  </h:outputLink>
+	  </span>
+   	</span>
+
+	<h:commandLink id="hiddenlink3" action="totalScores" value="">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
 		  <f:param name="toName" value="#{description.firstName} #{description.lastName}" />
   		  <f:param name="toEmailAddress" value="#{description.email}" />
   		  <f:param name="toFirstName" value="#{description.firstName}" />
-	  </h:commandLink>
-	  </span>
-   	</span>
+	</h:commandLink>
 	</h:column>
     
 

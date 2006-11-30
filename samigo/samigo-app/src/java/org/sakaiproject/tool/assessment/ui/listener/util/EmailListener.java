@@ -49,7 +49,7 @@ public class EmailListener implements ActionListener {
 	 */
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
 		log.debug("Email Action Listener.");
-		if (ae != null && ae.getComponent().getId().startsWith("createEmail")) {
+		if (ae != null && ae.getComponent().getId().startsWith("hiddenlink")) {
 			EmailBean emailBean = (EmailBean) ContextUtil.lookupBean("email");
 			TotalScoresBean totalScoreBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 			
