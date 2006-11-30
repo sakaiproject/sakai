@@ -773,6 +773,11 @@
       <to-view-id>/jsf/evaluation/confirmEmailSent.jsp</to-view-id>
     </navigation-case>
 
+	<navigation-case>
+      <from-outcome>emailError</from-outcome>
+      <to-view-id>/jsf/evaluation/emailError.jsp</to-view-id>
+    </navigation-case>
+
   <!-- XML -->
     <navigation-case>
       <from-outcome>xmlDisplay</from-outcome>

@@ -35,20 +35,20 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 <f:loadBundle basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages" var="genMsg"/>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head><%= request.getAttribute("html.head") %>
-<title><h:outputText value="#{msg.sent}" /></title>
+<title><h:outputText value="#{msg.error}" /></title>
 </head>
 <body onload="<%= request.getAttribute("html.body.onload") %>">
+
 <div style="margin-left: 10px; margin-right: 10px">
 <h3>
-<h:outputText value="#{msg.sent}" />
+<h:outputText value="#{msg.error}" />
 </h3>
 
 <p>
 <h:messages styleClass="validation"/>
 </p>
-<h:panelGrid columns="1" columnClasses="navView,navView" border="0">	
 <h:commandButton id="close"onclick="window.close();" onkeypress="window.close();"  accesskey="#{msg.a_close}" value="#{msg.close}"/>
-</h:panelGrid>
+
 </div>	
 
 </body>

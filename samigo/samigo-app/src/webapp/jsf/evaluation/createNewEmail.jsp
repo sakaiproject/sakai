@@ -44,8 +44,9 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 <script language="javascript" type="text/JavaScript">
 
 </script>
+<h3>
 <h:outputText value="#{msg.title_create_new_email}" />
-
+</h3>
 <p>
 <h:messages styleClass="validation"/>
 </p>

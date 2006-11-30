@@ -375,7 +375,7 @@ public class EmailBean implements Serializable {
 			String msgError = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","sent_email_error");
 			FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(msgError));
 			
-			return "email";
+			return "emailError";
 		}
 	}
 
