@@ -13,7 +13,22 @@
                 <f:param value="#{editStudentSectionsBean.studentName}"/>
             </h:outputFormat>
         </h3>
-        
+
+		<x:div styleClass="borderBox">
+            <h:outputFormat value="#{msgs.edit_student_sections_current_sections}">
+                <f:param value="#{editStudentSectionsBean.studentName}"/>
+            </h:outputFormat>
+            
+            <h:dataTable value="#{editStudentSectionsBean.enrolledSections}" var="section">
+            <h:column>
+            	<h:outputText value="#{section.categoryForDisplay}"/>
+            </h:column>
+            <h:column>
+            	<h:outputText value="#{section.title}"/>
+            </h:column>
+            </h:dataTable>
+		</x:div>
+
         <%@include file="/inc/globalMessages.jspf"%>
     
         <x:div styleClass="instructions">

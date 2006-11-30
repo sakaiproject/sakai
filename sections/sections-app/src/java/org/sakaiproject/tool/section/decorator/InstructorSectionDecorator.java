@@ -25,7 +25,6 @@ import java.sql.Time;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -99,11 +98,9 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 	 * @param sortAscending
 	 * @return
 	 */
-	public static final Comparator getTitleComparator(final boolean sortAscending) {
-		return new Comparator() {
-			public int compare(Object o1, Object o2) {
-				InstructorSectionDecorator section1 = (InstructorSectionDecorator)o1;
-				InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
+	public static final Comparator<InstructorSectionDecorator> getTitleComparator(final boolean sortAscending) {
+		return new Comparator<InstructorSectionDecorator>() {
+			public int compare(InstructorSectionDecorator section1, InstructorSectionDecorator section2) {
 				int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
 				if(categoryNameComparison == 0) {
 					int comparison =  section1.getTitle().toLowerCase().compareTo(section2.getTitle().toLowerCase());
@@ -115,11 +112,9 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		};
 	}
 
-	public static final Comparator getTimeComparator(final boolean sortAscending) {
-		return new Comparator() {
-			public int compare(Object o1, Object o2) {
-					InstructorSectionDecorator section1 = (InstructorSectionDecorator)o1;
-					InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
+	public static final Comparator<InstructorSectionDecorator> getTimeComparator(final boolean sortAscending) {
+		return new Comparator<InstructorSectionDecorator>() {
+			public int compare(InstructorSectionDecorator section1, InstructorSectionDecorator section2) {
 
 					// First compare the category name, then compare the time
 					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
@@ -143,7 +138,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 						
 						if(startTime1 == null && startTime2 == null ||
 								startTime1.equals(startTime2)) {
-							return getTitleComparator(sortAscending).compare(o1, o2);
+							return getTitleComparator(sortAscending).compare(section1, section2);
 						}
 						return sortAscending ? startTime1.compareTo(startTime2) : startTime2.compareTo(startTime1);
 					} else {
@@ -153,12 +148,9 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		};
 	}
 
-	public static final Comparator getDayComparator(final boolean sortAscending) {
-		return new Comparator() {
-			public int compare(Object o1, Object o2) {
-					InstructorSectionDecorator section1 = (InstructorSectionDecorator)o1;
-					InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
-
+	public static final Comparator<InstructorSectionDecorator> getDayComparator(final boolean sortAscending) {
+		return new Comparator<InstructorSectionDecorator>() {
+			public int compare(InstructorSectionDecorator section1, InstructorSectionDecorator section2) {
 					// First compare the category name, then compare the time
 					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
 					if(categoryNameComparison == 0) {
@@ -181,7 +173,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 						
 						if(days1 == null && days2 == null ||
 								days1.equals(days2)) {
-							return getTitleComparator(sortAscending).compare(o1, o2);
+							return getTitleComparator(sortAscending).compare(section1, section2);
 						}
 						return sortAscending ? days1.compareTo(days2) : days2.compareTo(days1);
 					} else {
@@ -191,11 +183,9 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		};
 	}
 
-	public static final Comparator getLocationComparator(final boolean sortAscending) {
-		return new Comparator() {
-			public int compare(Object o1, Object o2) {
-					InstructorSectionDecorator section1 = (InstructorSectionDecorator)o1;
-					InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
+	public static final Comparator<InstructorSectionDecorator> getLocationComparator(final boolean sortAscending) {
+		return new Comparator<InstructorSectionDecorator>() {
+			public int compare(InstructorSectionDecorator section1, InstructorSectionDecorator section2) {
 
 					// First compare the category name, then compare the time
 					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
@@ -219,7 +209,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 						
 						if(location1 == null && location2 == null ||
 								location1.equals(location2)) {
-							return getTitleComparator(sortAscending).compare(o1, o2);
+							return getTitleComparator(sortAscending).compare(section1, section2);
 						}
 						return sortAscending ? location1.compareTo(location2) : location2.compareTo(location1);
 					} else {
@@ -229,51 +219,39 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 		};
 	}
 
-	public static final Comparator getManagersComparator(final boolean sortAscending) {
-		return new Comparator() {
-			public int compare(Object o1, Object o2) {
-				if(o1 instanceof InstructorSectionDecorator && o2 instanceof InstructorSectionDecorator) {
-					InstructorSectionDecorator section1 = (InstructorSectionDecorator)o1;
-					InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
-
-					// First compare the category name, then compare the time
-					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
-					if(categoryNameComparison == 0) {
-						// These are in the same category, so compare by the list of managers
-						List managers1 = section1.getInstructorNames();
-						List managers2 = section2.getInstructorNames();
-						if(managers1.isEmpty() && ! managers2.isEmpty()) {
-							return sortAscending? -1 : 1 ;
-						}
-						if(managers2.isEmpty() && ! managers1.isEmpty()) {
-							return sortAscending? 1 : -1 ;
-						}
-						if(managers1.isEmpty() && managers2.isEmpty()) {
-							return getTitleComparator(sortAscending).compare(o1, o2);
-						}
-						int managersComparison = managers1.get(0).toString().compareTo(managers2.get(0).toString());
-						if(managersComparison == 0) {
-							return getTitleComparator(sortAscending).compare(o1, o2);
-						}
-						return sortAscending ? managersComparison : (-1 * managersComparison);
+	public static final Comparator<InstructorSectionDecorator> getManagersComparator(final boolean sortAscending) {
+		return new Comparator<InstructorSectionDecorator>() {
+			public int compare(InstructorSectionDecorator section1, InstructorSectionDecorator section2) {
+				// First compare the category name, then compare the time
+				int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
+				if(categoryNameComparison == 0) {
+					// These are in the same category, so compare by the list of managers
+					List managers1 = section1.getInstructorNames();
+					List managers2 = section2.getInstructorNames();
+					if(managers1.isEmpty() && ! managers2.isEmpty()) {
+						return sortAscending? -1 : 1 ;
 					}
-					// These are in different categories, so sort them by category name
-					return categoryNameComparison;
+					if(managers2.isEmpty() && ! managers1.isEmpty()) {
+						return sortAscending? 1 : -1 ;
+					}
+					if(managers1.isEmpty() && managers2.isEmpty()) {
+						return getTitleComparator(sortAscending).compare(section1, section2);
+					}
+					int managersComparison = managers1.get(0).toString().compareTo(managers2.get(0).toString());
+					if(managersComparison == 0) {
+						return getTitleComparator(sortAscending).compare(section1, section2);
+					}
+					return sortAscending ? managersComparison : (-1 * managersComparison);
 				}
-				if(log.isDebugEnabled()) log.debug("One of these is not an InstructorSectionDecorator: "
-						+ o1 + "," + o2);
-				return 0;
+				// These are in different categories, so sort them by category name
+				return categoryNameComparison;
 			}
 		};
 	}
 
-	public static final Comparator getEnrollmentsComparator(final boolean sortAscending, final boolean useAvailable) {
-		return new Comparator() {
-			public int compare(Object o1, Object o2) {
-				if(o1 instanceof InstructorSectionDecorator && o2 instanceof InstructorSectionDecorator) {
-					InstructorSectionDecorator section1 = (InstructorSectionDecorator)o1;
-					InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
-
+	public static final Comparator<InstructorSectionDecorator> getEnrollmentsComparator(final boolean sortAscending, final boolean useAvailable) {
+		return new Comparator<InstructorSectionDecorator>() {
+			public int compare(InstructorSectionDecorator section1, InstructorSectionDecorator section2) {
 					// First compare the category name, then compare available spots
 					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
 					if(categoryNameComparison == 0) {
@@ -294,7 +272,7 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 								return sortAscending? -1 : 1 ;
 							}
 							if(maxEnrollments1 == null && maxEnrollments2 == null) {
-								return getTitleComparator(sortAscending).compare(o1, o2);
+								return getTitleComparator(sortAscending).compare(section1, section2);
 							}
 							availEnrollmentComparison = (maxEnrollments1.intValue() - section1.totalEnrollments) -
 									(maxEnrollments2.intValue() - section2.totalEnrollments);
@@ -304,16 +282,12 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 						
 						// If these are in the same category, and have the same number of enrollments, use the title to sort
 						if(availEnrollmentComparison == 0) {
-							return getTitleComparator(sortAscending).compare(o1, o2);
+							return getTitleComparator(sortAscending).compare(section1, section2);
 						}
 						return sortAscending ? availEnrollmentComparison : (-1 * availEnrollmentComparison);
 					}
 					// These are in different categories, so sort them by category name
 					return categoryNameComparison;
-				}
-				if(log.isDebugEnabled()) log.debug("One of these is not an InstructorSectionDecorator: "
-						+ o1 + "," + o2);
-				return 0;
 			}
 		};
 	}
