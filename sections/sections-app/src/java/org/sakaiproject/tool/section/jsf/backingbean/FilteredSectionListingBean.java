@@ -41,21 +41,15 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(FilteredSectionListingBean.class);
 	
-	protected String sortColumn;
-	protected boolean sortAscending;
-
-	protected String myFilter;
-	protected String categoryFilter;
-
 	protected List<SectionDecorator> sections;
 	protected List<SelectItem> categorySelectItems;
 
-	public FilteredSectionListingBean() {
-		sortColumn = "title";
-		sortAscending = true;
-	}
-		
 	public void init() {
+		setDefaultPrefs();
+		// Get the filter settings
+		String categoryFilter = getCategoryFilter();
+		String myFilter = getMyFilter();
+		
 		// Get all sections in the site
 		List sectionSet = getAllSiteSections();
 		sections = new ArrayList<SectionDecorator>();
@@ -98,6 +92,13 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 		Collections.sort(sections, getComparator());
 	}
 
+	protected void setDefaultPrefs() {
+		if(getSortColumn() == null) {
+			setSortColumn("title");
+			setSortAscending(true);
+		}
+	}
+	
 	protected List<String> generateTaNames(List<ParticipationRecord> tas) {
 		// Generate the string showing the TAs
 		List<String> taNames = new ArrayList<String>();
@@ -120,7 +121,7 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 	
 	protected List<SelectItem> generateCategorySelectItems() {
 		 List<SelectItem> list = new ArrayList<SelectItem>();
-		for(Iterator<String> iter = getSectionCategories().iterator(); iter.hasNext();) {
+		for(Iterator<String> iter =  getUsedCategories().iterator(); iter.hasNext();) {
 			String catId = iter.next();
 			String catName = getCategoryName(catId);
 			list.add(new SelectItem(catId,
@@ -131,22 +132,14 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 	
 	protected abstract Comparator<SectionDecorator> getComparator();
 
-	public String getCategoryFilter() {
-		return categoryFilter;
-	}
+	public abstract String getCategoryFilter();
 
-	public void setCategoryFilter(String categoryFilter) {
-		this.categoryFilter = categoryFilter;
-	}
+	public abstract void setCategoryFilter(String categoryFilter);
 
-	public String getMyFilter() {
-		return myFilter;
-	}
+	public abstract String getMyFilter();
 
-	public void setMyFilter(String myFilter) {
-		this.myFilter = myFilter;
-	}
-
+	public abstract void setMyFilter(String myFilter);
+	
 	public List<SectionDecorator> getSections() {
 		return sections;
 	}
@@ -155,21 +148,11 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 		this.sections = sections;
 	}
 
-	public boolean isSortAscending() {
-		return sortAscending;
-	}
+	public abstract boolean isSortAscending();
+	public abstract void setSortAscending(boolean sortAscending);
 
-	public void setSortAscending(boolean sortAscending) {
-		this.sortAscending = sortAscending;
-	}
-
-	public String getSortColumn() {
-		return sortColumn;
-	}
-
-	public void setSortColumn(String sortColumn) {
-		this.sortColumn = sortColumn;
-	}
+	public abstract String getSortColumn();
+	public abstract void setSortColumn(String sortColumn);
 
 	public List<SelectItem> getCategorySelectItems() {
 		return categorySelectItems;

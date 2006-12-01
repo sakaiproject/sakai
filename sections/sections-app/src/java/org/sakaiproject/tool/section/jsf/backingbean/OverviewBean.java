@@ -111,4 +111,44 @@ public class OverviewBean extends FilteredSectionListingBean implements Serializ
 	public List getSectionsToDelete() {
 		return sectionsToDelete;
 	}
+
+	@Override
+	public String getSortColumn() {
+		return getPrefs().getOverviewSortColumn();
+	}
+
+	@Override
+	public boolean isSortAscending() {
+		return getPrefs().isOverviewSortAscending();
+	}
+
+	@Override
+	public void setSortAscending(boolean sortAscending) {
+		getPrefs().setOverviewSortAscending(sortAscending);
+	}
+
+	@Override
+	public void setSortColumn(String sortColumn) {
+		getPrefs().setOverviewSortColumn(sortColumn);
+	}
+
+	@Override
+	public String getCategoryFilter() {
+		return getPrefs().getOverviewCategoryFilter();
+	}
+
+	@Override
+	public String getMyFilter() {
+		return getPrefs().getOverviewMyFilter();
+	}
+
+	@Override
+	public void setCategoryFilter(String categoryFilter) {
+		getPrefs().setOverviewCategoryFilter(categoryFilter);
+	}
+
+	@Override
+	public void setMyFilter(String myFilter) {
+		getPrefs().setOverviewMyFilter(myFilter);
+	}
 }

@@ -54,10 +54,17 @@ public class PreferencesBean extends CourseDependentBean {
 	protected int maxNameLength;
 	protected String overviewSortColumn;
 	protected boolean overviewSortAscending;
+	protected String overviewMyFilter;
+	protected String overviewCategoryFilter;
 	
 	protected String rosterSortColumn;
 	protected boolean rosterSortAscending;
 	protected int rosterMaxDisplayedRows;
+
+	protected String editStudentSectionsSortColumn;
+	protected boolean editStudentSectionsSortAscending;
+	protected String editStudentSectionsMyFilter;
+	protected String editStudentSectionsCategoryFilter;
 
 	public boolean isOverviewSortAscending() {
 		return overviewSortAscending;
@@ -103,5 +110,56 @@ public class PreferencesBean extends CourseDependentBean {
 		
 		// TODO This is a hack... fix it
 		init();
+	}
+
+	public boolean isEditStudentSectionsSortAscending() {
+		return editStudentSectionsSortAscending;
+	}
+
+	public void setEditStudentSectionsSortAscending(
+			boolean editStudentSectionsSortAscending) {
+		this.editStudentSectionsSortAscending = editStudentSectionsSortAscending;
+	}
+
+	public String getEditStudentSectionsSortColumn() {
+		return editStudentSectionsSortColumn;
+	}
+
+	public void setEditStudentSectionsSortColumn(
+			String editStudentSectionsSortColumn) {
+		this.editStudentSectionsSortColumn = editStudentSectionsSortColumn;
+	}
+
+	public String getEditStudentSectionsCategoryFilter() {
+		return editStudentSectionsCategoryFilter;
+	}
+
+	public void setEditStudentSectionsCategoryFilter(
+			String editStudentSectionsCategoryFilter) {
+		this.editStudentSectionsCategoryFilter = editStudentSectionsCategoryFilter;
+	}
+
+	public String getEditStudentSectionsMyFilter() {
+		return editStudentSectionsMyFilter;
+	}
+
+	public void setEditStudentSectionsMyFilter(String editStudentSectionsMyFilter) {
+		this.editStudentSectionsMyFilter = editStudentSectionsMyFilter;
+	}
+
+	public String getOverviewCategoryFilter() {
+		return overviewCategoryFilter;
+	}
+
+	public void setOverviewCategoryFilter(String overviewCategoryFilter) {
+		this.overviewCategoryFilter = overviewCategoryFilter;
+	}
+
+	public String getOverviewMyFilter() {
+		return overviewMyFilter;
+	}
+
+	public void setOverviewMyFilter(String overviewMyFilter) {
+		this.overviewMyFilter = overviewMyFilter;
 	}
 }

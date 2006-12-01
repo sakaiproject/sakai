@@ -21,7 +21,7 @@
         <x:div>
             <h:outputText
                 value="#{msgs.student_view_view}"/>
-            <h:selectOneMenu value="#{studentViewBean.sectionFilter}" onchange="this.form.submit()">
+            <h:selectOneMenu value="#{studentViewBean.filter}" onchange="this.form.submit()">
                 <f:selectItem itemLabel="#{msgs.student_view_all}" itemValue="ALL"/>
                 <f:selectItem itemLabel="#{msgs.student_view_my}" itemValue="MY"/>
             </h:selectOneMenu>

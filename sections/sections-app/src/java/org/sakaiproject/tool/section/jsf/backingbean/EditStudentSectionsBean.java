@@ -61,6 +61,12 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 	protected List<SectionDecorator> enrolledSections;
 	
 	public void init() {
+		setDefaultPrefs();
+
+		// Get the filter settings
+		String categoryFilter = getCategoryFilter();
+		String myFilter = getMyFilter();
+		
 		// Get the student's name
 		User student = getSectionManager().getSiteEnrollment(getSiteContext(), studentUid);
 		studentName = student.getDisplayName();
@@ -161,6 +167,8 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 	}
 
 	protected Comparator<SectionDecorator> getComparator() {
+		String sortColumn = getSortColumn();
+		boolean sortAscending = isSortAscending();
 		if(sortColumn.equals("title")) {
 			return SectionDecorator.getTitleComparator(sortAscending); 
 		} else if(sortColumn.equals("instructor")) {
@@ -218,5 +226,45 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 
 	public List<SectionDecorator> getEnrolledSections() {
 		return enrolledSections;
+	}
+
+	@Override
+	public String getSortColumn() {
+		return getPrefs().getEditStudentSectionsSortColumn();
+	}
+
+	@Override
+	public boolean isSortAscending() {
+		return getPrefs().isEditStudentSectionsSortAscending();
+	}
+
+	@Override
+	public void setSortAscending(boolean sortAscending) {
+		getPrefs().setEditStudentSectionsSortAscending(sortAscending);
+	}
+
+	@Override
+	public void setSortColumn(String sortColumn) {
+		getPrefs().setEditStudentSectionsSortColumn(sortColumn);
+	}
+
+	@Override
+	public String getCategoryFilter() {
+		return getPrefs().getEditStudentSectionsCategoryFilter();
+	}
+
+	@Override
+	public String getMyFilter() {
+		return getPrefs().getEditStudentSectionsMyFilter();
+	}
+
+	@Override
+	public void setCategoryFilter(String categoryFilter) {
+		getPrefs().setEditStudentSectionsCategoryFilter(categoryFilter);
+	}
+
+	@Override
+	public void setMyFilter(String myFilter) {
+		getPrefs().setEditStudentSectionsMyFilter(myFilter);
 	}
 }

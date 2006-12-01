@@ -54,6 +54,11 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 	private boolean switchAllowed;
 	
 	private String instructions;
+	private String filter;
+	
+	// Students don't need a full preferences bean, so we just store the sorting as fields
+	private String sortColumn;
+	private boolean sortAscending;
 	
 	public StudentViewBean() {
 		super();
@@ -84,7 +89,7 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 			StudentSectionDecorator decoratedSection = (StudentSectionDecorator)iter.next(); 
 			
 			// Ignore non-member sections if we're filtering for my sections
-			if("MY".equals(myFilter) && ! decoratedSection.isMember()) {
+			if("MY".equals(filter) && ! decoratedSection.isMember()) {
 				sections.remove(decoratedSection);
 			}
 			
@@ -191,4 +196,29 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 	public String getInstructions() {
 		return instructions;
 	}
+
+	public boolean isSortAscending() {
+		return sortAscending;
+	}
+
+	public void setSortAscending(boolean sortAscending) {
+		this.sortAscending = sortAscending;
+	}
+
+	public String getSortColumn() {
+		return sortColumn;
+	}
+
+	public void setSortColumn(String sortColumn) {
+		this.sortColumn = sortColumn;
+	}
+
+	public String getFilter() {
+		return filter;
+	}
+
+	public void setFilter(String filter) {
+		this.filter = filter;
+	}
+
 }

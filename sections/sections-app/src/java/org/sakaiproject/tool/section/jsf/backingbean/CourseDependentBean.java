@@ -65,7 +65,7 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	 * @param sections
 	 * @return
 	 */
-	protected Set getUsedCategories() {
+	protected Set<String> getUsedCategories() {
 		Set<String> used = new HashSet<String>();
 		List sections = getAllSiteSections();
 		List categories = getSectionManager().getSectionCategories(getSiteContext());
