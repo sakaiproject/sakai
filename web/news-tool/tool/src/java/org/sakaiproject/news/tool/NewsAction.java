@@ -34,6 +34,7 @@ import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.news.api.NewsChannel;
@@ -58,6 +59,8 @@ import org.sakaiproject.util.StringUtil;
  */
 public class NewsAction extends VelocityPortletPaneledAction
 {
+	private static final long serialVersionUID = 1L;
+
 	private static ResourceLoader rb = new ResourceLoader("news");
 
 	/** portlet configuration parameter names. */
@@ -82,6 +85,12 @@ public class NewsAction extends VelocityPortletPaneledAction
 
 	private static final String FULL_STORY_TEXT = "full_story";
 
+	/** Basic feed access event. */
+	private static final String FEED_ACCESS = "news.read";
+	
+	/** Basic feed update event. */
+	private static final String FEED_UPDATE = "news.revise";
+	
 	/**
 	 * Populate the state object, if needed.
 	 */
@@ -125,17 +134,6 @@ public class NewsAction extends VelocityPortletPaneledAction
 		}
 
 	} // initState
-
-	/**
-	 * Setup our observer to be watching for change events for our channel.
-	 * 
-	 * @param peid
-	 *        The portlet id.
-	 */
-	private void updateObservationOfChannel(SessionState state, String peid)
-	{
-
-	} // updateObservationOfChannel
 
 	/**
 	 * build the context for the Main (Layout) panel
@@ -212,7 +210,23 @@ public class NewsAction extends VelocityPortletPaneledAction
 
 		context.put("channel", channel);
 		context.put("news_items", items);
-
+ 
+		try 
+		{
+			EventTrackingService.post(EventTrackingService.newEvent(FEED_ACCESS, "/news/site/" +
+				SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getId() +
+				"/placement/" + SessionManager.getCurrentToolSession().getPlacementId(), false));
+			
+		} 
+		catch (IdUnusedException e)
+		{
+			//should NEVER actually happen
+			if (Log.getLogger("chef").isDebugEnabled())
+			{
+				Log.debug("chef", "failed to log news access event due to invalid siteId");
+			}
+		}
+		
 		return (String) getContext(rundata).get("template") + "-Layout";
 
 	} // buildMainPanelContext
@@ -382,6 +396,22 @@ public class NewsAction extends VelocityPortletPaneledAction
 				// display message
 				addAlert(state, newChannelUrl + " " + rb.getString("invalidfeed"));
 				return;
+			}
+
+			try 
+			{
+				EventTrackingService.post(EventTrackingService.newEvent(FEED_UPDATE, "/news/site/" +
+					SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getId() +
+					"/placement/" + SessionManager.getCurrentToolSession().getPlacementId(), true));
+				
+			} 
+			catch (IdUnusedException e)
+			{
+				//should NEVER actually happen
+				if (Log.getLogger("chef").isDebugEnabled())
+				{
+					Log.debug("chef", "failed to log news update event due to invalid siteId");
+				}
 			}
 		}
 
