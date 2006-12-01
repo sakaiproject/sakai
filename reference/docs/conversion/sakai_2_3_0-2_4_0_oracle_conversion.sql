@@ -12,6 +12,9 @@
 alter table osp_presentation_template add propertyFormType varchar2(36);
 alter table osp_presentation add property_form varchar2(36);
 
+update osp_list_config set selected_columns = replace(selected_columns, 'name', 'title') where selected_columns like '%name%';
+update osp_list_config set selected_columns = replace(selected_columns, 'siteName', 'site.title') where selected_columns like '%siteName%';
+
 
 -- Samigo SAK-6790 conversion
 alter table SAM_ASSESSMENTBASE_T MODIFY (CREATEDBY varchar(255) , LASTMODIFIEDBY varchar(255));
