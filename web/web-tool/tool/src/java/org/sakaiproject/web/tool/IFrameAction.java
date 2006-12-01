@@ -890,8 +890,13 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		// title
 		String title = data.getParameters().getString(TITLE);
 		// state.setAttribute(TITLE, title);
+		if (StringUtil.trimToNull(title) == null)
+		{
+			addAlert(state, rb.getString("gen.tootit"));
+			return;			
+		}
 		placement.setTitle(title);
-
+		
 		// for web content tool, if it is a site page tool, and the only tool on the page, update the page title / popup.
 		if ((state.getAttribute(SPECIAL) == null) && (toolConfig != null))
 		{
@@ -907,7 +912,12 @@ public class IFrameAction extends VelocityPortletPaneledAction
 					String newPageTitle = data.getParameters().getString(FORM_PAGE_TITLE);
 					String currentPageTitle = (String) state.getAttribute(STATE_PAGE_TITLE);
 					
-					if (StringUtil.trimToNull(newPageTitle) !=null && !newPageTitle.equals(currentPageTitle))
+					if (StringUtil.trimToNull(newPageTitle) == null)
+					{
+						addAlert(state, rb.getString("gen.pagtit"));
+						return;		
+					}
+					else if (!newPageTitle.equals(currentPageTitle))
 					{
 						page.setTitle(newPageTitle);
 						state.setAttribute(STATE_PAGE_TITLE, newPageTitle);
