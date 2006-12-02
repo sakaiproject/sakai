@@ -223,13 +223,15 @@ public class SamigoEmailService {
 			return "error";
 		} finally {
 			if (attachmentList != null) {
-				StringBuffer sbPrefixedPath = new StringBuffer(prefixedPath);
-				sbPrefixedPath.append("/email_tmp/");
-				Iterator iter = attachmentList.iterator();
-				while (iter.hasNext()) {
-					a = (AttachmentData) iter.next();
-					if (!a.getIsLink().booleanValue()) {
-						deleteAttachedFile(sbPrefixedPath.append(a.getResourceId()).toString());
+				if (prefixedPath != null && !prefixedPath.equals("")) {
+					StringBuffer sbPrefixedPath = new StringBuffer(prefixedPath);
+					sbPrefixedPath.append("/email_tmp/");
+					Iterator iter = attachmentList.iterator();
+					while (iter.hasNext()) {
+						a = (AttachmentData) iter.next();
+						if (!a.getIsLink().booleanValue()) {
+							deleteAttachedFile(sbPrefixedPath.append(a.getResourceId()).toString());
+						}
 					}
 				}
 			}
