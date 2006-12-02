@@ -222,7 +222,15 @@ public abstract class SakaiSecurity implements SecurityService
 	 */
 	public boolean unlock(String userId, String function, String entityRef)
 	{
-		// make sure we have complete parameters
+		return unlock(userId, function, entityRef, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean unlock(String userId, String function, String entityRef, Collection azgs)
+	{
+		// make sure we have complete parameters (azgs is optional)
 		if (userId == null || function == null || entityRef == null)
 		{
 			M_log.warn("unlock(): null: " + userId + " " + function + " " + entityRef);
@@ -247,7 +255,7 @@ public abstract class SakaiSecurity implements SecurityService
 		}
 
 		// check with the AuthzGroups appropriate for this entity
-		return checkAuthzGroups(userId, function, entityRef);
+		return checkAuthzGroups(userId, function, entityRef, azgs);
 	}
 
 	/**
@@ -261,7 +269,7 @@ public abstract class SakaiSecurity implements SecurityService
 	 *        The entity reference string.
 	 * @return true if allowed, false if not.
 	 */
-	protected boolean checkAuthzGroups(String userId, String function, String entityRef)
+	protected boolean checkAuthzGroups(String userId, String function, String entityRef, Collection azgs)
 	{
 		// check the cache
 		String command = "unlock@" + userId + "@" + function + "@" + entityRef;
@@ -271,11 +279,15 @@ public abstract class SakaiSecurity implements SecurityService
 			return rv;
 		}
 
-		// make a reference for the entity
-		Reference ref = entityManager().newReference(entityRef);
+		// get this entity's AuthzGroups if needed
+		if (azgs == null)
+		{
+			// make a reference for the entity
+			Reference ref = entityManager().newReference(entityRef);
 
-		// get this entity's AuthzGroups
-		Collection azgs = ref.getAuthzGroups(userId);
+			azgs = ref.getAuthzGroups(userId);
+		}
+
 		boolean rv = authzGroupService().isAllowed(userId, function, azgs);
 
 		// cache

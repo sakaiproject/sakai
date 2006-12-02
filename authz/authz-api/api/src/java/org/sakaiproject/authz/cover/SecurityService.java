@@ -106,6 +106,14 @@ public class SecurityService
 		return service.unlock(param0, param1, param2);
 	}
 
+	public static boolean unlock(java.lang.String param0, java.lang.String param1, java.lang.String param2, java.util.Collection param3)
+	{
+		org.sakaiproject.authz.api.SecurityService service = getInstance();
+		if (service == null) return false;
+
+		return service.unlock(param0, param1, param2, param3);
+	}
+
 	public static void pushAdvisor(org.sakaiproject.authz.api.SecurityAdvisor param0)
 	{
 		org.sakaiproject.authz.api.SecurityService service = getInstance();
