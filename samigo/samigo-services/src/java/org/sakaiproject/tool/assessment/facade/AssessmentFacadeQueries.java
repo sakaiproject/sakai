@@ -1634,13 +1634,22 @@ public class AssessmentFacadeQueries
 	    		ResourceProperties p = cr.getProperties();
 	    		attach = new AttachmentData();
 	    		attach.setResourceId(resourceId);
-	    		attach.setFilename(filename);
 	    		attach.setMimeType(cr.getContentType());
 	    		// we want to display kb, so divide by 1000 and round
 	    		// the result
 	    		attach.setFileSize(new Long(fileSizeInKB(cr.getContentLength())));
 	    		if (cr.getContentType().lastIndexOf("url") > -1) {
 	    			isLink = Boolean.TRUE;
+	    			if (!filename.toLowerCase().startsWith("http")) {
+	    				String adjustedFilename = "http://" + filename;
+	    				attach.setFilename(adjustedFilename);
+	    			}
+	    			else {
+	    				attach.setFilename(filename);
+	    			}
+	    		}
+	    		else {
+	    			attach.setFilename(filename);
 	    		}
 	    		attach.setIsLink(isLink);
 	    		attach.setStatus(SectionAttachmentIfc.ACTIVE_STATUS);

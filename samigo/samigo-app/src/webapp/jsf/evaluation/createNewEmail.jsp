@@ -47,11 +47,9 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 <h3>
 <h:outputText value="#{msg.title_create_new_email}" />
 </h3>
-<p>
-<h:messages styleClass="validation"/>
-</p>
 
-<h:panelGrid columns="2" columnClasses="navView,navView" border="3">	
+<h:panelGrid columns="1" columnClasses="navView,navView" border="0">	
+	<h:panelGrid columns="2" columnClasses="navView" border="0">	
 	<h:outputText value="#{msg.from}" />
 	<h:outputText value="#{email.fromName} <#{email.fromEmailAddress}>" />
 
@@ -69,16 +67,21 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 
 	<h:outputText value="#{msg.message}" />
 	<h:outputText value="" />
+	</h:panelGrid>
+
 	<f:facet name="footer">
-		<h:panelGrid columns="1" columnClasses="navView" border="3">	
+		<h:panelGrid columns="1" columnClasses="navView" border="0">	
 			<h:panelGroup>
 				<samigo:wysiwyg rows="140" value="#{email.message}">
 					<f:validateLength minimum="1" maximum="4000"/>
 				</samigo:wysiwyg>
 			</h:panelGroup>
 
-  <%@ include file="/jsf/evaluation/emailAttachment.jsp" %>
-			<h:panelGrid columns="2" columnClasses="navView" border="3">
+			<h:panelGrid columns="1" border="0">
+		    <%@ include file="/jsf/evaluation/emailAttachment.jsp" %>
+			</h:panelGrid>
+
+			<h:panelGrid columns="2" border="0">
 				<h:commandButton id="send" accesskey="#{msg.a_send}" styleClass="active" value="#{msg.send}" action="#{email.send}" type="submit" >
 				          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
 				</h:commandButton>

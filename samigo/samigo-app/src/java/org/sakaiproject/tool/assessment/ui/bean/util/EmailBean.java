@@ -346,24 +346,7 @@ public class EmailBean implements Serializable {
 				fromName, fromEmailAddress, toName, toEmailAddress, ccMe,
 				subject, message);
 		
-		String result = "error";
-		try {
-			result = samigoEmailService.send();
-		} catch (UnsupportedEncodingException e) {
-			log.error("Exception throws from send()" + e);
-		} catch (MessagingException e) {
-			log.error("Exception throws from send()" + e);
-		} catch (ServerOverloadException e) {
-			log.error("Exception throws from send()" + e);
-		} catch (PermissionException e) {
-			log.error("Exception throws from send()" + e);
-		} catch (IdUnusedException e) {
-			log.error("Exception throws from send()" + e);
-		} catch (TypeException e) {
-			log.error("Exception throws from send()" + e);
-		} catch (IOException e) {
-			log.error("Exception throws from send()" + e);
-		}
+		String result = samigoEmailService.send();
 		
 		if (result.equals("send")) {
 			String msgSent = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","sent_email_confirmation");

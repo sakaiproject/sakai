@@ -71,6 +71,9 @@ public class EmailListener implements ActionListener {
 			String toEmailAddress = ContextUtil.lookupParam("toEmailAddress");
 			emailBean.setToEmailAddress(toEmailAddress);
 			
+			// Cc
+			emailBean.setCcMe("no");
+			
 			// AssessmentName
 			emailBean.setAssessmentName(totalScoreBean.getAssessmentName());
 			

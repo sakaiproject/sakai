@@ -21,7 +21,6 @@
 -->
 <!-- 2a ATTACHMENTS -->
  <div class="longtext"><h:outputLabel value="#{msg.attachments}" />
-  <br/>
   <h:panelGroup rendered="#{email.hasAttachment}">
     <h:dataTable value="#{email.attachmentList}" var="attach">
       <h:column>
@@ -47,18 +46,13 @@
   </h:panelGroup>
 
   <h:panelGroup rendered="#{!email.hasAttachment}">
-    <sakai:button_bar>
-     <sakai:button_bar_item action="#{email.addAttachmentsRedirect}"
+     <h:commandButton action="#{email.addAttachmentsRedirect}"
            value="#{msg.add_attachments}" immediate="true"/>
-    </sakai:button_bar>
   </h:panelGroup>
 
   <h:panelGroup rendered="#{email.hasAttachment}">
-    <sakai:button_bar>
-     <sakai:button_bar_item action="#{email.addAttachmentsRedirect}"
+     <h:commandButton action="#{email.addAttachmentsRedirect}"
            value="#{msg.add_remove_attachments}" immediate="true"/>
-    </sakai:button_bar>
   </h:panelGroup>
-
 </div>
 
