@@ -139,21 +139,22 @@ public class SamigoEmailService {
 			}
 			msg.setSubject(subject);
 
-			/*
+			
 			Multipart mp = new MimeMultipart();
 			// create and fill the first message part
 			MimeBodyPart mbp1 = new MimeBodyPart();
 			mbp1.setText(message);
 			mp.addBodyPart(mbp1);
-			
+			/*
 			// create the second message part MimeBodyPart mbp2 = new
 			MimeBodyPart(); // attach the file to the message FileDataSource
 			fds = new FileDataSource("C:/Karen.txt"); mbp2.setDataHandler(new
 			DataHandler(fds)); mbp2.setFileName(fds.getName());
 			mp.addBodyPart(mbp2);
+			*/
 			// add the Multipart to the message
 			msg.setContent(mp);
-			*/
+			
 			
 			/*
 			 * Multipart multipart = new MimeMultipart(); MimeBodyPart
@@ -197,7 +198,7 @@ public class SamigoEmailService {
 				}
 			}
 			// msg.setContent(multipart);
-			msg.setContent(message + url.toString(), "text/html");
+			//msg.setContent(message + url.toString(), "text/html");
 
 			Transport.send(msg);
 		} catch (UnsupportedEncodingException e) {
