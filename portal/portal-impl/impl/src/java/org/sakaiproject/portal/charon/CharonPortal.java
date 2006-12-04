@@ -854,7 +854,7 @@ public class CharonPortal extends HttpServlet
 		out.write(tailHtml);
 	}
 
-	private String makeHelpButton(String helpActionUrl)
+	protected String makeHelpButton(String helpActionUrl)
 	{
 		return ("\t\t<a accesskey=\"h\""
 			+ " href=\"" + helpActionUrl + "\" "
@@ -1673,19 +1673,19 @@ public class CharonPortal extends HttpServlet
 
 	}
 
-	private String getPortalPageUrl(ToolConfiguration p)
+	protected String getPortalPageUrl(ToolConfiguration p)
 	{
 		return "/site/" + p.getSiteId() + "/page/" + p.getPageId();
 	}
 
-	private StoredState getStoredState()
+	protected StoredState getStoredState()
 	{
 		Session s = SessionManager.getCurrentSession();
 		StoredState ss = (StoredState) s.getAttribute("direct-stored-state");
 		return ss;
 	}
 
-	private void setStoredState(StoredState ss)
+	protected void setStoredState(StoredState ss)
 	{
 		Session s = SessionManager.getCurrentSession();
 		if (s.getAttribute("direct-stored-state") == null || ss == null)
@@ -1695,14 +1695,14 @@ public class CharonPortal extends HttpServlet
 	}
 
 	// To allow us to retain reset state across redirects
-	private String getResetState()
+	protected String getResetState()
 	{
 		Session s = SessionManager.getCurrentSession();
 		String ss = (String) s.getAttribute("reset-stored-state");
 		return ss;
 	}
 
-	private void setResetState(String ss)
+	protected void setResetState(String ss)
 	{
 		Session s = SessionManager.getCurrentSession();
 		if (s.getAttribute("reset-stored-state") == null || ss == null)
@@ -2218,7 +2218,7 @@ public class CharonPortal extends HttpServlet
 		out.println("</div>");
 	}
 
-	private boolean allowTool(Site site, Placement placement)
+	protected boolean allowTool(Site site, Placement placement)
 	{
 		if ( placement == null || site == null ) return true;  // No way to render an opinion
 
