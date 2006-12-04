@@ -52,7 +52,7 @@
 </script>
       </head>
 
-<f:verbatim><body onload="collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);flagRows();<%= request.getAttribute("html.body.onload") %>;disabledButton()"></f:verbatim>
+<f:verbatim><body onload="collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);flagRows();<%= request.getAttribute("html.body.onload") %>;"></f:verbatim>
 
  <div class="portletBody">
 <h:form id="editform">
@@ -187,7 +187,7 @@
 
 
  <h:commandButton accesskey="#{msg.a_cancel}" style="act" value="#{msg.cancel}" action="poolList" immediate="true"/>
-<h:outputText escape="false" value="<span id=\"submitnotif\" style=\"visibility:hidden\"> Processing.....</span>"/>
+ <h:outputText escape="false" value="<span id=\"submitnotif\" style=\"visibility:hidden\"> Processing.....</span>"/>
  </div>
 
 </h:form>

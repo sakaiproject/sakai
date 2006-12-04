@@ -62,6 +62,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
+import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
@@ -527,9 +528,9 @@ public class ItemAddListener
 
         }
 
-        QuestionPoolBean qpoolbean = (QuestionPoolBean) ContextUtil.lookupBean(
-            "questionpool");
-
+        QuestionPoolBean qpoolbean = (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
+        QuestionPoolDataBean contextCurrentPool = qpoolbean.getCurrentPool();
+       
         qpoolbean.buildTree();
 
         /*
@@ -538,6 +539,19 @@ public class ItemAddListener
             qpoolbean.getCurrentPool().setNumberOfQuestions(thepool.getQuestionSize().toString());
          */
         qpoolbean.startEditPoolAgain(itemauthor.getQpoolId());
+        QuestionPoolDataBean currentPool = qpoolbean.getCurrentPool();
+        currentPool.setDisplayName(contextCurrentPool.getDisplayName());
+        currentPool.setOrganizationName(contextCurrentPool.getOrganizationName());
+        currentPool.setDescription(contextCurrentPool.getDescription());
+        currentPool.setObjectives(contextCurrentPool.getObjectives());
+        currentPool.setKeywords(contextCurrentPool.getKeywords());
+        
+        ArrayList addedQuestions = qpoolbean.getAddedQuestions();
+        if (addedQuestions == null) {
+        	addedQuestions = new ArrayList();
+        }
+        addedQuestions.add(item.getItemId());
+        qpoolbean.setAddedPools(addedQuestions);
         // return to edit pool
         itemauthor.setOutcome("editPool");
       }

@@ -125,6 +125,9 @@ public class QuestionPoolBean implements Serializable
   private String sortQuestionProperty = "text";
   private boolean sortQuestionAscending = true;
   
+  private ArrayList addedPools;
+  private ArrayList addedQuestions;
+  
   private ItemFacade itemToPreview;
 
   private static Log log = LogFactory.getLog(QuestionPoolBean.class);
@@ -1447,14 +1450,19 @@ public String getAddOrEdit()
 	return "poolList";
   }
 
-  public String addPool(){
-          String addsource = "poollist";
-          addsource = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("addsource");
-	this.setAddPoolSource(addsource);
- 	startCreatePool();
-        this.setAddOrEdit("add");
-	return "addPool";
-  }
+  public String addPool() {
+		String addsource = "poollist";
+		addsource = (String) FacesContext.getCurrentInstance()
+				.getExternalContext().getRequestParameterMap().get("addsource");
+		this.setAddPoolSource(addsource);
+		startCreatePool();
+		this.setAddOrEdit("add");	
+		
+		QuestionPoolDataBean pool = new QuestionPoolDataBean();
+		setPoolInfo(pool);
+		this.setParentPool(pool);
+		return "addPool";
+	}
 
   public void startCreatePool()
   {
@@ -1693,20 +1701,24 @@ String poolId = ContextUtil.lookupParam("qpid");
 
 
   public String selectQuestionType() {
-    ItemAuthorBean itemauthorbean= (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
-String poolid = ContextUtil.lookupParam("poolId");
-     if(poolid!=null) {
-       itemauthorbean.setQpoolId(poolid);
-       itemauthorbean.setTarget(ItemAuthorBean.FROM_QUESTIONPOOL);
+		ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
+		String poolid = ContextUtil.lookupParam("poolId");
+		if (poolid != null) {
+			itemauthorbean.setQpoolId(poolid);
+			itemauthorbean.setTarget(ItemAuthorBean.FROM_QUESTIONPOOL);
 
-      itemauthorbean.setItemType("");
-      itemauthorbean.setItemTypeString("");
-        return "selectQuestionType";
-     }
-     else {
-        return "editPool";  // should not come to this
-     }
-  }
+			itemauthorbean.setItemType("");
+			itemauthorbean.setItemTypeString("");
+
+			//QuestionPoolDataBean pool = new QuestionPoolDataBean();
+			QuestionPoolDataBean pool = this.getCurrentPool();
+			this.setPoolInfo(pool);
+			this.setCurrentPool(pool);
+			return "selectQuestionType";
+		} else {
+			return "editPool"; // should not come to this
+		}
+	}
 
   public String sortByColumnHeader() {
     String sortString = ContextUtil.lookupParam("orderBy");
@@ -1857,5 +1869,60 @@ String poolid = ContextUtil.lookupParam("poolId");
     }
   }
   */
+  
+  /**
+   * DOCUMENTATION PENDING
+   *
+   * @return DOCUMENTATION PENDING
+   */
+  public ArrayList getAddedPools()
+  {
+    return addedPools;
+  }
 
+
+  /**
+   * DOCUMENTATION PENDING
+   *
+   * @param pPool DOCUMENTATION PENDING
+   */
+  public void setAddedPools(ArrayList addedPools)
+  {
+    this.addedPools = addedPools;
+  }
+  
+  /**
+   * DOCUMENTATION PENDING
+   *
+   * @return DOCUMENTATION PENDING
+   */
+  public ArrayList getAddedQuestions()
+  {
+    return addedQuestions;
+  }
+
+
+  /**
+   * DOCUMENTATION PENDING
+   *
+   * @param pPool DOCUMENTATION PENDING
+   */
+  public void setAddedQuestions(ArrayList addedQuestions)
+  {
+    this.addedQuestions = addedQuestions;
+  }
+  
+  private void setPoolInfo(QuestionPoolDataBean pool) {
+  	String nameField = ContextUtil.lookupParam("namefield");
+	String orgField = ContextUtil.lookupParam("orgfield");
+	String descField = ContextUtil.lookupParam("descfield");
+	String objField = ContextUtil.lookupParam("objfield");
+	String keyField = ContextUtil.lookupParam("keyfield");		
+	
+	pool.setDisplayName(nameField);
+	pool.setOrganizationName(orgField);
+	pool.setDescription(descField);
+	pool.setObjectives(objField);
+	pool.setKeywords(keyField);
+  }
 }
