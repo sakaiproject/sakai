@@ -121,16 +121,25 @@
 			</ul>
 			#end
 			<hr class="itemSeparator" />
-			#if ($!submission.FeedbackText && ($submission.FeedbackText.length()>0))
-				<h5>$tlang.getString("gen.orisub2")</h5>
-				<div class="textPanel">$cheffeedbackhelper.escapeAssignmentFeedback($submission.FeedbackText)</div>
+			#if (($submission.Graded) && ($submission.GradeReleased || $submission.Returned))
+				## show feedback text when submission is released or returned
+				#if ($!submission.FeedbackText && ($submission.FeedbackText.length()>0))
+					<h5>$tlang.getString("gen.orisub2")</h5>
+					<div class="textPanel">$cheffeedbackhelper.escapeAssignmentFeedback($submission.FeedbackText)</div>
+				#else
+					#set ($text = $submission.getSubmittedText())
+					#if ($!text && $text.length() > 0)
+						<h4>$tlang.getString("gen.orisub")</h4>
+						<div class="textPanel">$submission.getSubmittedText()</div>
+					#end
+				 #end
 			#else
 				#set ($text = $submission.getSubmittedText())
 				#if ($!text && $text.length() > 0)
 					<h4>$tlang.getString("gen.orisub")</h4>
 					<div class="textPanel">$submission.getSubmittedText()</div>
 				#end
-			 #end
+			#end
 			#set ($submittedAttachments = $submission.SubmittedAttachments)
 			#set ($size = 0)
 			#set ($props = false)
@@ -164,15 +173,15 @@
 					#end
 				</ul>
 			#end	
-			
-			#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.length()>0))
-				<h5>$tlang.getString("gen.addinst")</h5>	
-				<div class="textPanel">$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
-			#else
-			#end
-			#set ($size = 0)
-			#set ($props = false)
-			#set ($feedbackAttachments = $submission.FeedbackAttachments)
+			#if (($submission.Graded) && ($submission.GradeReleased || $submission.Returned))
+				## show feedback comment and feedback comment when submission is released or returned
+				#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.length()>0))
+					<h5>$tlang.getString("gen.addinst")</h5>	
+					<div class="textPanel">$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
+				#end
+				#set ($size = 0)
+				#set ($props = false)
+				#set ($feedbackAttachments = $submission.FeedbackAttachments)
 				#set ($size = 0)
 				#set ($props = false)
 				#foreach ($attachment in $feedbackAttachments) 
@@ -204,6 +213,7 @@
 						#end
 					</ul>
 				#end
+			#end
 			<div class="act">
 				<input type="submit" accesskey="x" name="eventSubmit_doCancel_view_grade" value="$tlang.getString("gen.backtolist")" />
 			</div>
