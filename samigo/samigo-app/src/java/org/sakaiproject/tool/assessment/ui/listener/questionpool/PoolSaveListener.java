@@ -122,12 +122,12 @@ public class PoolSaveListener implements ActionListener
 	    throw new RuntimeException("failed to populateItemBean.");   
 	}
    
-        if((qpoolbean.getAddOrEdit()).equals("edit")){
+    if((qpoolbean.getAddOrEdit()).equals("edit")){
 	    if (!startRemoveItems(qpoolbean)){
 		throw new RuntimeException("failed to populateItemBean.");
 	    }
 	}
-        
+    qpoolbean.setAddOrEdit("edit");
 	   
     }
     catch(Exception e){
