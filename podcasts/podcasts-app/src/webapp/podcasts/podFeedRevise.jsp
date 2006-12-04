@@ -38,6 +38,14 @@
   	    <td colspan="3"><h:messages styleClass="alertMessage" id="errorMessages"/> </td>
       </tr>
       <tr>
+        <td colspan="2"><h:outputText value="Copyright" /></td>
+        <td><h:inputText id="podcopyright" value="#{podfeedBean.feedCopyright}" size="35" maxlength="255" /></td>
+      </tr>
+      <tr>
+        <td colspan="2"><h:outputText value="Generator" /></td>
+        <td><h:inputText id="podGenerator" value="#{podfeedBean.feedGenerator}" size="35" maxlength="255" /></td>
+      </tr>
+      <tr>
         <td colspan="2"><h:outputText value="#{msgs.description_prompt}" /></td>
       </tr>
       <tr>

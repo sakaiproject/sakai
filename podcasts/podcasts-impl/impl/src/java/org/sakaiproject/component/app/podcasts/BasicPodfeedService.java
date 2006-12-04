@@ -21,12 +21,12 @@
 
 package org.sakaiproject.component.app.podcasts;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.ResourceBundle;
@@ -85,6 +85,21 @@ public class BasicPodfeedService implements PodfeedService {
 	/** Used to get the global feed description which is a property of Podcasts folder **/
 	private final String PODFEED_DESCRIPTION = "podfeedDescription";
 	
+	/** Used to pull copyright statement from sakai.properties file */
+	private final String FEED_COPYRIGHT_STATEMENT = "podfeed_copyrighttext";
+	
+	/** Used to get the copyright statement if stored in Podcasts folder */
+	private final String PODFEED_COPYRIGHT = "feed_copyright";
+	
+	/** Used to pull generator value from sakai.properties file */
+	private final String FEED_GENERATOR_STRING = "podfeed_generator";
+	
+	/** Used to pull generator value from Podcasts folder */
+	private final String PODFEED_GENERATOR = "feed_generator";
+
+	/** Used to pull item author from sakai.properties file */
+	private final String FEED_ITEM_AUTHOR_STRING = "podfeed_author";
+		
 	/** Used to get the default feed description pieces from the message bundle */
 	private final String FEED_DESC1_STRING = "feed_desc1";
 	private final String FEED_DESC2_STRING = "feed_desc2";
@@ -92,15 +107,6 @@ public class BasicPodfeedService implements PodfeedService {
 	/** Used to pull message bundle */
 	private final String PODFEED_MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
 
-	/** Used to pull copyright statement from sakai.properties file */
-	private final String FEED_COPYRIGHT_STATEMENT = "podfeed_copyrighttext";
-	
-	/** Used to pull generator value from sakai.properties file */
-	private final String FEED_GENERATOR_STRING = "podfeed_generator";
-
-	/** Used to pull item author from sakai.properties file */
-	private final String FEED_ITEM_AUTHOR_STRING = "podfeed_author";
-	
 	private static final Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
 
 	private PodcastService podcastService;
@@ -222,31 +228,12 @@ public class BasicPodfeedService implements PodfeedService {
 	 *            The siteId whose feed is being titled
 	 */
 	public void setPodfeedTitle(String feedTitle, String siteId) {
-		ContentCollectionEdit contentCollection = null;
-		
-		try {
-			contentCollection = podcastService.getContentCollectionEditable(siteId);
-			ResourcePropertiesEdit rp = contentCollection.getPropertiesEdit();
-
-			if (rp.getProperty(PODFEED_TITLE) != null) {
-				rp.removeProperty(PODFEED_TITLE);
-			}
-
-			rp.addProperty(PODFEED_TITLE, feedTitle);
-
-			podcastService.commitContentCollection(contentCollection);
-
-		}
-		catch (Exception e) {
-			// catches IdUnusedException, PermissionException
-			LOG.error(e.getMessage() + " attempting to add feed title property (getting podcast folder) "
-						+ "for site: " + siteId + ". " + e.getMessage(), e);
-			podcastService.cancelContentCollection(contentCollection);
-			
-			throw new Error(e);
-		}
+		storeProperty(PODFEED_TITLE, feedTitle, siteId);
 	}
 
+	/**
+	 * Returns the String of the global feed description
+	 */
 	public String getPodfeedDescription() {
 		return getPodfeedDescription(podcastService.getSiteId());
 	}
@@ -275,23 +262,19 @@ public class BasicPodfeedService implements PodfeedService {
 									+ SiteService.getSite(siteId).getTitle() 
 									+ getMessageBundleString(FEED_DESC2_STRING);
 				LOG.info("No feed description found for site: " + siteId + ". Using " + feedDescription);
-
 			}
-
 		}
 		catch (IdUnusedException e) {
-			LOG.error("IdUnusedException attempting to get feed description (getting podcast folder) "
-						+ "for site: " + siteId + ". " + e.getMessage(), e);
+			LOG.error("IdUnusedException attempting to get feed title (getting podcast folder) "
+					+ "for site: " + siteId + ". " + e.getMessage(), e);
 			throw new Error(e);
-
 		}
-
+		
 		return feedDescription;
-
 	}
 
 	/**
-	 * 
+	 * Returns the global feed generator String.
 	 */
 	public void setPodfeedDescription(String feedDescription) {
 		setPodfeedDescription(feedDescription, podcastService.getSiteId());
@@ -306,31 +289,153 @@ public class BasicPodfeedService implements PodfeedService {
 	 *            The siteId where to store the description
 	 */
 	public void setPodfeedDescription(String feedDescription, String siteId) {
+		storeProperty(PODFEED_DESCRIPTION, feedDescription, siteId);
+	}
+
+	public String getPodfeedGenerator() {
+		return getPodfeedGenerator(podcastService.getSiteId());
+	}
+
+	/**
+	 * Returns the global feed generator string.
+	 * 
+	 * @param siteId 
+	 * 			The site id to get the feed description from
+	 * 
+	 * @return String 
+	 * 			The global feed generator string.
+	 */
+	public String getPodfeedGenerator(String siteId) {
+		return retrievePropValue(PODFEED_GENERATOR, siteId, FEED_GENERATOR_STRING);
+	}
+
+	/**
+	 * 
+	 */
+	public void setPodfeedGenerator(String feedGenerator) {
+		setPodfeedGenerator(feedGenerator, podcastService.getSiteId());
+	}
+
+	/**
+	 * Sets the description for the feed.
+	 * 
+	 * @param feedDescription
+	 *            The String containing the feed description.
+	 * @param siteId
+	 *            The siteId where to store the description
+	 */
+	public void setPodfeedGenerator(String feedGenerator, String siteId) {
+		storeProperty(PODFEED_GENERATOR, feedGenerator, siteId);
+	}
+
+	public String getPodfeedCopyright() {
+		return getPodfeedCopyright(podcastService.getSiteId());
+	}
+
+	/**
+	 * Returns the global feed generator string.
+	 * 
+	 * @param siteId 
+	 * 			The site id to get the feed description from
+	 * 
+	 * @return String 
+	 * 			The global feed generator string.
+	 */
+	public String getPodfeedCopyright(String siteId) {
+		return retrievePropValue(PODFEED_COPYRIGHT, siteId, FEED_COPYRIGHT_STATEMENT);
+	}
+
+	/**
+	 * Sets feed copyright statement from within site.
+	 */
+	public void setPodfeedCopyright(String feedCopyright) {
+		setPodfeedCopyright(feedCopyright, podcastService.getSiteId());
+	}
+
+	/**
+	 * Sets the description for the feed.
+	 * 
+	 * @param feedDescription
+	 *            The String containing the feed description.
+	 * @param siteId
+	 *            The siteId where to store the description
+	 */
+	public void setPodfeedCopyright(String feedCopyright, String siteId) {
+		storeProperty(PODFEED_COPYRIGHT, feedCopyright, siteId);
+	}
+
+	/**
+	 * Returns the property value for the property requested if stored within the
+	 * Podcasts folder resource of the site id passed in. If not stored, retrieves
+	 * the value from the Message bundle.
+	 * 
+	 * @param propName
+	 * 				The name of the property wanted.
+	 * 
+	 * @param siteId
+	 * 				The id of the site wanted.
+	 * 
+	 * @param bundleName
+	 * 				The name within the Message bundle for the default string.
+	 * 
+	 * @return
+	 * 				String containing either the stored property or the default Message bundle one.
+	 */
+	private String retrievePropValue(String propName, String siteId, String bundleName) {
+		String propValue = null;
+
+		ResourceProperties rp = getPodcastCollectionProperties(siteId);
+
+		propValue = rp.getProperty(propName);
+
+		/* For site where not added to folder upon creation
+		 * and has not been revised/updated */
+		if (propValue == null) {
+			propValue = getMessageBundleString(bundleName);
+			LOG.info("No property " + propName + " stored for site: " + siteId + ". Using " + propValue);
+		}
+
+		return propValue;
+		
+	}
+
+	/**
+	 * Stores the property propValue in the Podcasts folder resource under the name propName
+	 * 
+	 * @param propName
+	 * 				The name within the resource to store the value
+	 * 
+	 * @param propValue
+	 * 				The value to store
+	 * 
+	 * @param siteId
+	 * 				Which site's Podcasts folder to store this property within.
+	 */
+	private void storeProperty(final String propName, String propValue, String siteId) {
 		ContentCollectionEdit contentCollection = null;
 		
 		try {
 			contentCollection = podcastService.getContentCollectionEditable(siteId);
 			ResourcePropertiesEdit rp = contentCollection.getPropertiesEdit();
 			
-			if (rp.getProperty(PODFEED_DESCRIPTION) != null) {
-				rp.removeProperty(PODFEED_DESCRIPTION);
+			if (rp.getProperty(propName) != null) {
+				rp.removeProperty(propName);
 			}
 
-			rp.addProperty(PODFEED_DESCRIPTION, feedDescription);
+			rp.addProperty(propName, propValue);
 
 			podcastService.commitContentCollection(contentCollection);
-
 		}
 		catch (Exception e) {
 			// catches IdUnusedException, PermissionException
-			LOG.error(e.getMessage() + " attempting to add feed title property (while getting podcast folder) "
-						+ "for site: " + siteId + ". " + e.getMessage(), e);
+			LOG.error(e.getMessage() + " attempting to add property " + propName 
+						+ " for site: " + siteId + ". " + e.getMessage(), e);
 			podcastService.cancelContentCollection(contentCollection);
 			
 			throw new Error(e);
 		}
-	}
 
+	}
 	/**
 	 * This method generates the RSS feed
 	 * 
@@ -390,19 +495,22 @@ public class BasicPodfeedService implements PodfeedService {
 			}
 		}
 
-		// pull global information for the feed
-		final String podfeedTitle = getPodfeedTitle(siteId);
-		final String description = getPodfeedDescription(siteId);
-
+		// pull global information for the feed into a Map so
+		// can be passed all at once
+		Map feedInfo = new HashMap();
+		
+		feedInfo.put("title", getPodfeedTitle(siteId));
+		feedInfo.put("desc", getPodfeedDescription(siteId));
+		feedInfo.put("gen", getPodfeedGenerator(siteId));
+		
 		// This is the URL for the actual feed.
-		final String URL = ServerConfigurationService.getServerUrl()
-				+ Entity.SEPARATOR + "podcasts/site/" + siteId;
-
-		final String copyright = getMessageBundleString(FEED_COPYRIGHT_STATEMENT);
-
-		final WireFeed podcastFeed = doSyndication(podfeedTitle, URL,
-				description, copyright, entries, feedType, pubDate,
-				lastBuildDate);
+		feedInfo.put("url", ServerConfigurationService.getServerUrl()
+				+ Entity.SEPARATOR + "podcasts/site/" + siteId);
+		
+		feedInfo.put("copyright", getPodfeedCopyright(siteId));
+		
+		final WireFeed podcastFeed = doSyndication(feedInfo, entries, feedType, 
+										pubDate, lastBuildDate);
 
 		final WireFeedOutput wireWriter = new WireFeedOutput();
 
@@ -500,7 +608,7 @@ public class BasicPodfeedService implements PodfeedService {
 						final String description = podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION);
 						final String author = podcastProperties.getPropertyFormatted(ResourceProperties.PROP_CREATOR);
 						final long contentLength = Long.parseLong(podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
-						final String contentType = podcastProperties	.getProperty(ResourceProperties.PROP_CONTENT_TYPE);
+						final String contentType = podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_TYPE);
 
 						entries.add(addPodcast(title, fileUrl, publishDate, description, author,
 								contentLength, contentType));
@@ -641,24 +749,23 @@ public class BasicPodfeedService implements PodfeedService {
 	 * @eturn SyndFeed
 	 * 			The entire podcast stuffed into a SyndFeed object
 	 */
-	private Channel doSyndication(String title, String link,
-			String description_loc, String copyright, List entries,
+	private Channel doSyndication(Map feedInfo, List entries,
 			String feedType, Date pubDate, Date lastBuildDate) {
 
 		final Channel channel = new Channel();
 
 		// FUTURE: How to determine what podcatcher supports and feed that to them
 		channel.setFeedType(feedType);
-		channel.setTitle(title);
+		channel.setTitle((String) feedInfo.get("title"));
 		channel.setLanguage(LANGUAGE);
 
 		channel.setPubDate(pubDate);
 		channel.setLastBuildDate(lastBuildDate);
 
-		channel.setLink(link);
-		channel.setDescription(description_loc);		
-		channel.setCopyright(copyright);
-		channel.setGenerator(getMessageBundleString(FEED_GENERATOR_STRING));
+		channel.setLink((String) feedInfo.get("url"));
+		channel.setDescription((String) feedInfo.get("desc"));		
+		channel.setCopyright((String) feedInfo.get("copyright"));
+		channel.setGenerator((String) feedInfo.get("gen"));
 
 		channel.setItems(entries);
 
@@ -769,8 +876,5 @@ public class BasicPodfeedService implements PodfeedService {
 		ResourceBundle resbud = ResourceBundle.getBundle(PODFEED_MESSAGE_BUNDLE);
 		
 		return resbud.getString(key);
-
 	}
-
-
 }

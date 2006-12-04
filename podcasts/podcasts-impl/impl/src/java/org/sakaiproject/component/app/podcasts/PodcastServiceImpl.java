@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -574,6 +575,8 @@ public class PodcastServiceImpl implements PodcastService {
 				description);
 
 		final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+		formatter.setTimeZone(TimeService.getLocalTimeZone());
+		
 		resourceProperties.addProperty(DISPLAY_DATE, formatter
 				.format(displayDate));
 
@@ -723,6 +726,7 @@ public class PodcastServiceImpl implements PodcastService {
 
 				final SimpleDateFormat formatter = new SimpleDateFormat(
 						"yyyyMMddHHmmssSSS");
+				formatter.setTimeZone(TimeService.getLocalTimeZone());
 
 				podcastResourceEditable.addProperty(DISPLAY_DATE, formatter
 						.format(date));
@@ -868,6 +872,7 @@ public class PodcastServiceImpl implements PodcastService {
 	public void setDISPLAY_DATE(ResourceProperties rp) {
 		final SimpleDateFormat formatterProp = new SimpleDateFormat(
 				"yyyyMMddHHmmssSSS");
+		formatterProp.setTimeZone(TimeService.getLocalTimeZone());
 
 		Date tempDate = null;
 
@@ -1212,9 +1217,11 @@ public class PodcastServiceImpl implements PodcastService {
 	 * 			The Date object set in GMT time
 	 */
 	public Date getGMTdate(long date) {
-		final Calendar here = Calendar.getInstance();
-		final int gmtoffset = here.get(Calendar.DST_OFFSET) + here.get(Calendar.ZONE_OFFSET);
-
+		final Calendar cal = Calendar.getInstance(TimeService.getLocalTimeZone());
+		cal.setTimeInMillis(date);
+		
+		int gmtoffset = cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET);
+		
 		return new Date(date - gmtoffset);
 	}
 

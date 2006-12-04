@@ -28,14 +28,17 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.TimeZone;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -48,6 +51,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.authz.api.PermissionsHelper;
+import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
@@ -68,6 +72,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.Validator;
 
@@ -98,6 +103,13 @@ public class podHomeBean {
 	private boolean displayNoTitleErrMsg = false;
 	private boolean displayInvalidDateErrMsg = false;
 
+	/**
+	 * Bean to store information about a single podcast.
+	 * Used by main page to display and to store which
+	 * podcast is to be Revised or Deleted.
+	 *  
+	 * @author josephrodriguez
+	 */
 	public class DecoratedPodcastBean {
 
 		private String resourceId;
@@ -120,17 +132,14 @@ public class podHomeBean {
 
 		}
 
-		/** Returns the description for this podcast **/
 		public String getDescription() {
 			return description;
 		}
 
-		/** Sets the description for this podcast **/
 		public void setDescription(String decsription) {
 			this.description = decsription;
 		}
 
-		/** Returns the display date for this podcast **/
 		public String getDisplayDate() {
 			return displayDate;
 		}
@@ -162,8 +171,7 @@ public class podHomeBean {
 				return formatter.format(tempDate);
 			
 			} catch (ParseException e) {
-				// since revising, only log error if malformed date
-				// not just blank
+				// since revising, only log error if malformed date and not just blank
 				if (! "".equals(dispDate)) {
 					LOG.error("ParseException while rendering Revise Podcast page. ");
 				}
@@ -172,17 +180,14 @@ public class podHomeBean {
 			return dispDate;
 
 		}
-		/** Sets the display date for this podcast **/
 		public void setDisplayDate(String displayDate) {
 			this.displayDate = displayDate;
 		}
 
-		/** Returns the filename for this podcast **/
 		public String getFilename() {
 			return filename;
 		}
 
-		/** Sets the filename for this podcast **/
 		public void setFilename(String filename) {
 			this.filename = filename;
 		}
@@ -197,12 +202,10 @@ public class podHomeBean {
 			this.size = size;
 		}
 
-		/** Returns this podcast's title **/
 		public String getTitle() {
 			return title;
 		}
 
-		/** Sets this podcast's title ***/
 		public void setTitle(String title) {
 			this.title = title;
 		}
@@ -217,52 +220,42 @@ public class podHomeBean {
 			this.type = type;
 		}
 
-		/** Returns this podcast's time of creation ***/
 		public String getPostedTime() {
 			return postedTime;
 		}
 
-		/** Sets this podcast's time of creation ***/
 		public void setPostedTime(String postedTime) {
 			this.postedTime = postedTime;
 		}
 
-		/** Returnss this podcast's publish date ***/
 		public String getPostedDate() {
 			return postedDate;
 		}
 
-		/** Sets this podcast's publish date ***/
 		public void setPostedDate(String postedDate) {
 			this.postedDate = postedDate;
 		}
 
-		/** Returns the author of this podcast **/
 		public String getAuthor() {
 			return author;
 		}
 
-		/** Sets the author of this podcast **/
 		public void setAuthor(String author) {
 			this.author = author;
 		}
 
-		/** Returns the resource id for this podcast **/
 		public String getResourceId() {
 			return resourceId;
 		}
 
-		/** Sets the resource id for this podcast **/
 		public void setResourceId(String resourceId) {
 			this.resourceId = resourceId;
 		}
 
-		/** Returns the file size in bytes as a long **/
 		public long getFileSize() {
 			return fileSize;
 		}
 
-		/** Sets the file size in bytes as a long **/
 		public void setFileSize(long fileSize) {
 			this.fileSize = fileSize;
 		}
@@ -270,9 +263,6 @@ public class podHomeBean {
 		/**
 		 * Returns the file URL for the podcast. If errors, return empty
 		 * string.
-		 * 
-		 * @return String
-		 * 				Returns the fileURL. If errors return empty string
 		 */
 		public String getFileURL() {
 			try {
@@ -295,10 +285,6 @@ public class podHomeBean {
 			return "";
 		}
 
-		/**
-		 * @param fileURL
-		 *            The fileURL to set.
-		 */
 		public void setFileURL(String fileURL) {
 			this.fileURL = fileURL;
 		}
@@ -316,33 +302,22 @@ public class podHomeBean {
 			return Validator.getResourceTarget(fileContentType);
 		}
 
-		/**
-		 * 
-		 * @param newWindow
-		 *            The newWindow to set.
-		 */
 		public void setNewWindow(String newWindow) {
 			this.newWindow = newWindow;
 		}
 
-		/**
-		 * @return String
-		 * 			Returns the fileContentType.
-		 */
 		public String getFileContentType() {
 			return fileContentType;
 		}
 
-		/**
-		 * @param fileContentType
-		 *            The fileContentType to set.
-		 */
 		public void setFileContentType(String fileContentType) {
 			this.fileContentType = fileContentType;
 		}
 
 	} // end of DecoratedPodcastBean
 
+// ====================== End of DecoratedPodcastBean ====================== // 
+	
 	// podHomeBean constants
 	private static final String NO_RESOURCES_ERR_MSG = "no_resource_alert";
 	private static final String RESOURCEID = "resourceId";
@@ -352,6 +327,25 @@ public class podHomeBean {
 	
 	private static final String MB_NUMBER_FORMAT = "#.#";
 	private static final String BYTE_NUMBER_FORMAT = "#,###";
+
+	// For date String conversion
+	private static final Map monStrings; 
+	
+	static {
+		monStrings = new HashMap();
+		
+		monStrings.put("Jan", "January");
+		monStrings.put("Feb", "February");
+		monStrings.put("Mar", "March");
+		monStrings.put("Apr", "April");
+		monStrings.put("Jun", "June");
+		monStrings.put("Jul", "July");
+		monStrings.put("Aug", "August");
+		monStrings.put("Sep", "September");
+		monStrings.put("Oct", "October");
+		monStrings.put("Nov", "November");
+		monStrings.put("Dec", "December");
+	}
 
 	// configurable toolId for Resources tool check
 	private String RESOURCE_TOOL_ID = ServerConfigurationService.getString("podcasts.toolid", "sakai.resources");
@@ -377,8 +371,9 @@ public class podHomeBean {
 	private String email;
 	private long fileSize = 0;
 	private String fileContentType;
-	BufferedInputStream fileAsStream;
+	private BufferedInputStream fileAsStream;
 
+	// FUTURE: Will be used to implement Email notifications
 	private SelectItem[] emailItems = {
 			new SelectItem("none", "None - No notification"),
 			new SelectItem("low", "Low - Only participants who have opted in"),
@@ -389,9 +384,6 @@ public class podHomeBean {
 
 	/**
 	 * Determines if Resource tool part of the site. Needed to store podcasts.
-	 * 
-	 * @return boolean
-	 * 				TRUE - Resource tool exists, FALSE - does not
 	 */
 	public boolean getResourceToolExists() {
 		boolean resourceToolExists = false;
@@ -537,13 +529,13 @@ public class podHomeBean {
 				.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION));
 
 		Date tempDate = null;
-		SimpleDateFormat formatter = null;
-
+		final SimpleDateFormat formatter = new SimpleDateFormat(
+									getErrorMessageString(PUBLISH_DATE_FORMAT));
+		formatter.setTimeZone(TimeService.getLocalTimeZone());
+		
 		tempDate = podcastService.getGMTdate(podcastProperties.getTimeProperty(
 				PodcastService.DISPLAY_DATE).getTime());
-
-		formatter = new SimpleDateFormat(
-				getErrorMessageString(PUBLISH_DATE_FORMAT));
+		
 		podcastInfo.setDisplayDate(formatter.format(tempDate));
 
 		final String filename = podcastProperties
@@ -801,9 +793,6 @@ public class podHomeBean {
 
 	/**
 	 * Returns the current DecoratedPodcastBean set as selectedPodcast.
-	 * 
-	 * @return DecoratedPodcastBean
-	 * 				The information for the selectedPodcast bean
 	 */
 	public DecoratedPodcastBean getSelectedPodcast() {
 		return selectedPodcast;
@@ -811,87 +800,39 @@ public class podHomeBean {
 
 	/**
 	 * Use to set the selectedPodcast object.
-	 * 
-	 * @param selectedPodcast
-	 * 				The DecoratedPodcastBean object to set selectedPodcast to.
 	 */
 	public void setSelectedPodcast(DecoratedPodcastBean selectedPodcast) {
 		this.selectedPodcast = selectedPodcast;
 	}
 
-	/**
-	 * 
-	 * @return String
-	 * 			The current filename
-	 */
 	public String getFilename() {
 		return filename;
 	}
 
-	/**
-	 * Sets the filename property.
-	 * 
-	 * @param filename
-	 * 				The filename to set the property to.
-	 */
 	public void setFilename(String filename) {
 		this.filename = filename;
 	}
 
-	/**
-	 * 
-	 * @return String
-	 * 				The String the date property is set to 
-	 */
 	public String getDate() {
 		return date;
 	}
 
-	/**
-	 * Sets the date property
-	 * @param date
-	 * 			The String to set the date property to
-	 */
 	public void setDate(String date) {
 		this.date = date;
 	}
 
-	/**
-	 * Gets the title for the current selectedPodcast
-	 * 
-	 * @return String
-	 * 				The current podcast's title
-	 */
 	public String getTitle() {
 		return title;
 	}
 
-	/**
-	 * Sets the current podcast's title
-	 * 
-	 * @param title
-	 * 			String to set the podcast title property to
-	 */
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
-	/**
-	 * Returns the current podcast's description property
-	 * 
-	 * @return String
-	 * 			The current podcast's description
-	 */
 	public String getDescription() {
 		return description;
 	}
 
-	/**
-	 * Sets the current podcast's description property
-	 * 
-	 * @param description
-	 * 			String to set the current podcast's description property to
-	 */
 	public void setDescription(String description) {
 		this.description = description;
 	}
@@ -929,9 +870,6 @@ public class podHomeBean {
 	/**
 	 * Returns boolean if user can update podcasts. Used to display modification
 	 * options on main page.
-	 * 
-	 * @return 
-	 * 		TRUE if user can modify, FALSE otherwise.
 	 */
 	public boolean getCanUpdateSite() {
 		return podcastService.canUpdateSite();
@@ -1009,7 +947,8 @@ public class podHomeBean {
 
 		Date convertedDate = null;
 		SimpleDateFormat dateFormat = new SimpleDateFormat(FORMAT_STRING);
-
+		dateFormat.setTimeZone(TimeService.getLocalTimeZone());
+		
 		convertedDate = dateFormat.parse(inputDate);
 
 		return convertedDate;
@@ -1171,10 +1110,6 @@ public class podHomeBean {
 	/**
 	 * Gathers information and calls PodcastService to make changes to existing
 	 * podcast.
-	 * 
-	 * @return String 
-	 * 				Used to navigate to proper page (either stay on Revise
-	 * 						or back to Main)
 	 */
 	public String processRevisePodcast() {
 		// set error messages to false so can be
@@ -1337,6 +1272,7 @@ public class podHomeBean {
 
 		} 
 
+		// Reset values to continue processing
 		date = null;
 		title = "";
 		description = "";
@@ -1349,8 +1285,6 @@ public class podHomeBean {
 
 	/**
 	 * Resets selectedPodcast bean since no revision is to be made
-	 * 
-	 * @return String Sent to return to main page.
 	 */
 	public String processCancelRevise() {
 		selectedPodcast = null;
@@ -1367,9 +1301,6 @@ public class podHomeBean {
 
 	/**
 	 * Used to call podcastService to actually delete selected podcast.
-	 * 
-	 * @return String 
-	 * 				Sent to return to main page.
 	 */
 	public String processDeletePodcast() {
 		try {
@@ -1401,7 +1332,7 @@ public class podHomeBean {
 
 		}
 
-		// Stay on this page
+		// If here these was an error so stay on this page
 		return "podcastDelete";
 	}
 
@@ -1419,19 +1350,12 @@ public class podHomeBean {
 
 	/**
 	 * Returns whether a no file selected error message is displayed 
-	 * 
-	 * @return boolean
-	 * 				Returns the displayNoFileErrMsg.
 	 */
 	public boolean getDisplayNoFileErrMsg() {
 		return displayNoFileErrMsg;
 	
 	}
 
-	/**
-	 * @param displayNoFileErrMsg
-	 *            The displayNoFileErrMsg to set.
-	 */
 	public void setDisplayNoFileErrMsg(boolean displayNoFileErrMsg) {
 		this.displayNoFileErrMsg = displayNoFileErrMsg;
 	
@@ -1439,19 +1363,12 @@ public class podHomeBean {
 
 	/**
 	 * Returns whether a no date error message is displayed
-	 * 
-	 * @return boolean
-	 * 				Returns the displayNoDateErrMsg.
 	 */
 	public boolean getDisplayNoDateErrMsg() {
 		return displayNoDateErrMsg;
 	
 	}
 
-	/**
-	 * @param displayNoDateErrMsg
-	 *            The displayNoDateErrMsg to set.
-	 */
 	public void setDisplayNoDateErrMsg(boolean displayNoDateErrMsg) {
 		this.displayNoDateErrMsg = displayNoDateErrMsg;
 	
@@ -1459,19 +1376,12 @@ public class podHomeBean {
 
 	/**
 	 * Returns whether a no title entered error message is displayed
-	 * 
-	 * @return boolean
-	 * 			Returns whether to display the No Title error message (TRUE) or not (FALSE)
 	 */
 	public boolean getDisplayNoTitleErrMsg() {
 		return displayNoTitleErrMsg;
 	
 	}
 
-	/**
-	 * @param displayNoTitleErrMsg
-	 *            The displayNoTitleErrMsg to set.
-	 */
 	public void setDisplayNoTitleErrMsg(boolean displayNoTitleErrMsg) {
 		this.displayNoTitleErrMsg = displayNoTitleErrMsg;
 	
@@ -1479,9 +1389,6 @@ public class podHomeBean {
 
 	/**
 	 * Returns whether an invalid date error message is displayed
-	 * 
-	 * @return boolean
-	 * 			Returns the displayInvalidDateErrMsg.
 	 */
 	public boolean getDisplayInvalidDateErrMsg() {
 		return displayInvalidDateErrMsg;
@@ -1497,8 +1404,9 @@ public class podHomeBean {
 
 	/**
 	 * Performs validation of input when attempting to add a podcast.
-	 * If errors, sets boolean flags so proper error messages appear
-	 * on the page.
+	 * Checks filename, date, and title fields since those are the
+	 * required ones. If errors, sets boolean flags so proper error 
+	 * messages appear on the page.
 	 * 
 	 * @return boolean
 	 * 			TRUE - input validated, FALSE -  there were errors
@@ -1631,6 +1539,7 @@ public class podHomeBean {
 			// Date's OK, now to the time
 			String[] timeSplit = wholeDateSplit[1].split(":");
 
+			// Valid times are hh:mm or hh:mm:ss, so check for either 
 			if (timeSplit.length < 2 || timeSplit.length > 3) {
 				return false;
 
@@ -1667,7 +1576,8 @@ public class podHomeBean {
 				}
 			}
 		}
-		
+
+		// We want a 12 hour clock, so AM/PM needs to be specified
 		if ("AM".equals(wholeDateSplit[2]) || "PM".equals(wholeDateSplit[2])) {
 			return true;
 
@@ -1677,34 +1587,13 @@ public class podHomeBean {
 
 		}	
 	}
-
-	/**
-	 * We want to use an action to forward to the helper.  We don't want
-    * to forward to the permission helper in the jsp beause we need to 
-    * clear out the cached permissions
-	 * @return String unused
-	 */
-/*	public String processPermissions()
-	{
-	   ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-	    
-	   userCan = null;
-
-       
-	   try {
-          String url = "sakai.permissions.helper.helper/tool?" + 
-            "session."+ PermissionsHelper.DESCRIPTION +"=" +
-               getPermissionsMessage() + 
-            "&session."+ PermissionsHelper.TARGET_REF +"=" +
-            SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getReference() + 
-            "&session."+ PermissionsHelper.PREFIX +"= content";
-           
-	        context.redirect(url);
-	   }
-	   catch (IOException e) {
-	        throw new RuntimeException("Failed to redirect to helper", e);
-	   }
-	   return null;
+	
+	private String formatDate(long date) {
+		String disTimeString = TimeService.newTime(date).toStringGmtFull();
+		
+		String temp = monStrings.get(disTimeString.substring(0, 3)) + disTimeString.substring(3);
+		
+		return temp;
+		
 	}
-	*/
 }

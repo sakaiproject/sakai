@@ -79,6 +79,36 @@ public interface PodfeedService {
 	public void setPodfeedDescription(String feedDescription);
 
 	/**
+	 * Returns the global description for the podcast feed.
+	 * 
+	 * @return String containing the global podcast feed description.
+	 */
+	public String getPodfeedGenerator();
+	public String getPodfeedGenerator(String siteId);
+	
+	/**
+	 * Sets the global feed description to the string passed in.
+	 * 
+	 * @param feedDescription The new description for the podcast feed.
+	 */
+	public void setPodfeedGenerator(String feedGenerator);
+
+	/**
+	 * Returns the global description for the podcast feed.
+	 * 
+	 * @return String containing the global podcast feed description.
+	 */
+	public String getPodfeedCopyright();
+	public String getPodfeedCopyright(String siteId);
+	
+	/**
+	 * Sets the global feed description to the string passed in.
+	 * 
+	 * @param feedDescription The new description for the podcast feed.
+	 */
+	public void setPodfeedCopyright(String feedCopyright);
+
+	/**
 	 * Returns podcast folder id using either 'podcasts' or 'Podcasts'.
 	 * If it does not exist in either form, will create it.
 	 * 

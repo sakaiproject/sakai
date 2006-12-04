@@ -46,6 +46,9 @@ public class podFeedBean {
 	// Used by podFeedRevise for global feed info
 	private String podfeedTitle;
 	private String podfeedDescription;
+	private String feedCopyright;
+	private String feedGenerator;
+	private String language;
 
 	/**
 	 * Returns the global podcast title
@@ -120,6 +123,14 @@ public class podFeedBean {
 			// Replace with this description
 			podfeedService.setPodfeedDescription(podfeedDescription);
 		}
+		
+		if (feedCopyright != null || ! "".equals(feedCopyright)) {
+			podfeedService.setPodfeedCopyright(feedCopyright);
+		}
+		
+		if (feedGenerator != null || ! "".equals(feedGenerator)) {
+			podfeedService.setPodfeedGenerator(feedGenerator);
+		}
 
 		return whereToGo;
 	}
@@ -175,6 +186,34 @@ public class podFeedBean {
 		ResourceBundle rb = ResourceBundle.getBundle(MESSAGE_BUNDLE);
 		return rb.getString(key);
 
+	}
+
+	public String getFeedCopyright() {
+		feedCopyright = podfeedService.getPodfeedCopyright();
+		
+		return feedCopyright;
+	}
+
+	public void setFeedCopyright(String feedCopyright) {
+		this.feedCopyright = feedCopyright;
+	}
+
+	public String getFeedGenerator() {
+		feedGenerator = podfeedService.getPodfeedGenerator();
+		
+		return feedGenerator;
+	}
+
+	public void setFeedGenerator(String feedGenerator) {
+		this.feedGenerator = feedGenerator;
+	}
+
+	public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
 	}
 
 }
