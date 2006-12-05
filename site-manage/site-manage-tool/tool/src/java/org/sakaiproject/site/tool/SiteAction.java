@@ -1510,6 +1510,17 @@ public class SiteAction extends PagedResourceActionII
 							}
 						}
 						
+						// if the page order helper is available, not stealthed and not hidden, show the link
+						if (ToolManager.getTool("sakai-site-pageorder-helper") != null
+								&& !ServerConfigurationService
+									.getString("stealthTools@org.sakaiproject.tool.api.ActiveToolManager")
+									.contains("sakai-site-pageorder-helper")
+								&& !ServerConfigurationService
+									.getString("hiddenTools@org.sakaiproject.tool.api.ActiveToolManager")
+									.contains("sakai-site-pageorder-helper"))
+						{
+							b.add(new MenuEntry(rb.getString("java.orderpages"), "doPageOrderHelper"));	
+						}					
 						context.put("menu", b);
 					}
 					
@@ -2550,6 +2561,24 @@ public class SiteAction extends PagedResourceActionII
     return (String)getContext(data).get("template") + TEMPLATE[0];
 
   } // buildContextForTemplate
+
+  /**
+   * Launch the Page Order Helper Tool -- for ordering, adding and customizing pages
+   * @see case 12
+   *
+   */
+  public void doPageOrderHelper(RunData data)
+  {
+    SessionState state = ((JetspeedRunData)data)
+    	.getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+    //pass in the siteId of the site to be ordered (so it can configure sites other then the current site)
+    SessionManager.getCurrentToolSession()
+    	.setAttribute(HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
+
+    //launch the helper
+    startHelper(data.getRequest(), "sakai-site-pageorder-helper");
+  }
 
   //htripath: import materials from classic
   /**
