@@ -219,7 +219,7 @@ public class BaseSitePage implements SitePage, Identifiable
 
 		m_properties = new BaseResourcePropertiesEdit();
 		ResourceProperties pOther = other.getProperties();
-		// exact copying of SitePage properties vs replacing occurence of site id within, depending on "exact" setting			--- zqian
+		// exact copying of SitePage properties vs replacing occurence of site id within, depending on "exact" setting --- zqian
 		if (exact)
 		{
 			m_properties.addAll(pOther);
@@ -233,7 +233,7 @@ public class BaseSitePage implements SitePage, Identifiable
 				m_properties.addProperty(pOtherName, pOther.getProperty(pOtherName).replaceAll(bOther.getSiteId(), getSiteId()));
 			}
 		}
-		
+
 		((BaseResourcePropertiesEdit) m_properties).setLazy(((BaseResourceProperties) other.getProperties()).isLazy());
 
 		// deep copy the tools
@@ -532,6 +532,24 @@ public class BaseSitePage implements SitePage, Identifiable
 	{
 		if (m_site == null) return;
 		((ResourceVector) m_site.getPages()).moveUp(this);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public void setPosition(int pos)
+	{
+		if (m_site == null) return;
+		((ResourceVector) m_site.getPages()).moveTo(this, pos);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public int getPosition()
+	{
+		if (m_site == null) return -1;
+		return ((ResourceVector) m_site.getPages()).indexOf(this);
 	}
 
 	/**

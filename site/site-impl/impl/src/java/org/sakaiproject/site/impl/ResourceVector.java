@@ -114,4 +114,16 @@ public class ResourceVector extends Vector
 		remove(entry);
 		add(pos + 1, entry);
 	}
+
+	/**
+	 * Move an entry to a specific (0 based) index.
+	 * 
+	 * @param entry
+	 *        The resource to move.
+	 */
+	public void moveTo(Identifiable entry, int newPos)
+	{
+		remove(entry);
+		add(newPos, entry);
+	}
 }

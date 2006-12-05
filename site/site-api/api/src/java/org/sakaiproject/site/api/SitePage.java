@@ -156,4 +156,14 @@ public interface SitePage extends Edit, Serializable
 	 * Move this page one step towards the end of the order of pages in this site.
 	 */
 	public void moveDown();
+
+	/**
+	 * Move this page to a specific (0 based index) position within the site's pages.
+	 */
+	public void setPosition(int pos);
+
+	/**
+	 * get the 0 based index position of the page within the site's pages.
+	 */
+	public int getPosition();
 }
