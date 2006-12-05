@@ -10,10 +10,19 @@
         <property name="renderServices">
             <list>
                 <ref local="portletRenderService"/>
-                <bean class="org.sakaiproject.portal.render.iframe.IFrameToolRenderService"/>
+                <ref local="fragmentRenderService"/>
+                <ref local="iframeRenderService"/>
             </list>
         </property>
     </bean>
+    <bean id="fragmentRenderService" name="fragmentRenderService"
+                class="org.sakaiproject.portal.render.fragment.FragmentToolRenderService" >
+        <property name="portalService" ><ref bean="org.sakaiproject.portal.api.PortalService" /></property>
+    </bean>
+    <bean id="iframeRenderService" name="iframeRenderService"
+          class="org.sakaiproject.portal.render.iframe.IFrameToolRenderService" >
+    </bean>
+
 
     <bean id="portletRenderService" name="portletRenderService"
           class="org.sakaiproject.portal.render.portlet.PortletToolRenderService">

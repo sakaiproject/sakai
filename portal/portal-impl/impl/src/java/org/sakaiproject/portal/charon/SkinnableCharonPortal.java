@@ -23,6 +23,26 @@
 
 package org.sakaiproject.portal.charon;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Vector;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -30,6 +50,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.cover.ToolRenderService;
 import org.sakaiproject.site.api.Site;
@@ -58,31 +80,12 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.ToolURLManagerImpl;
 import org.sakaiproject.util.Web;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Vector;
-
 /**
  * <p/>
  * Charon is the Sakai Site based portal.
  * </p>
  */
-public class SkinnableCharonPortal extends HttpServlet {
+public class SkinnableCharonPortal extends HttpServlet  {
     /**
      * Our log (commons).
      */
@@ -106,10 +109,6 @@ public class SkinnableCharonPortal extends HttpServlet {
      */
     protected static final String PARAM_FORCE_LOGIN = "force.login";
 
-    /**
-     * Parameter to force state reset
-     */
-    protected static final String PARM_STATE_RESET = "sakai.state.reset";
 
     /**
      * Configuration option to enable/disable state reset on navigation change
@@ -154,6 +153,8 @@ public class SkinnableCharonPortal extends HttpServlet {
     private PortalRenderEngine rengine;
 
     private Properties contentTypes = null;
+
+	private PortalService portalService;
 
     private static final ThreadLocal staticCacheHolder = new ThreadLocal();
 
@@ -489,7 +490,7 @@ public class SkinnableCharonPortal extends HttpServlet {
                 if (queryString != null) {
                     toolUrl = toolUrl + "?" + queryString;
                 }
-                setResetState("true");
+                portalService.setResetState("true");
                 resetDone = true;
                 res.sendRedirect(toolUrl);
             } else if ((parts.length > 2) && (parts[1].equals("title"))) {
@@ -665,7 +666,7 @@ public class SkinnableCharonPortal extends HttpServlet {
         // Make sure to clear any reset State at the end of the request unless
         // we *just* set it
         if (!resetDone) {
-            setResetState(null);
+            portalService.setResetState(null);
         }
 
     }
@@ -936,7 +937,7 @@ public class SkinnableCharonPortal extends HttpServlet {
             siteType = "";
         }
         rcontext.put("pageSiteType", siteType);
-        rcontext.put("toolParamResetState", PARM_STATE_RESET);
+        rcontext.put("toolParamResetState", portalService.getResetStateParam());
 
         return rcontext;
     }
@@ -954,8 +955,10 @@ public class SkinnableCharonPortal extends HttpServlet {
         try {
             basicAuth.doLogin(req);
             if (!ToolRenderService.preprocess(req, res, getServletContext())) {
+                System.err.println("POST FAILED, REDIRECT ?");
                 return;
             }
+            System.err.println("POST DONE");
             // get the Sakai session
             Session session = SessionManager.getCurrentSession();
 
@@ -1281,8 +1284,8 @@ public class SkinnableCharonPortal extends HttpServlet {
         }
 
         // Reset the tool state if requested
-        if ("true".equals(req.getParameter(PARM_STATE_RESET))
-            || "true".equals(getResetState())) {
+        if ("true".equals(req.getParameter(portalService.getResetStateParam()))
+            || "true".equals(portalService.getResetState())) {
             Session s = SessionManager.getCurrentSession();
             ToolSession ts = s.getToolSession(placementId);
             ts.clearAttributes();
@@ -1310,13 +1313,13 @@ public class SkinnableCharonPortal extends HttpServlet {
                 // if not logged in, give them a chance
                 if (session.getUserId() == null) {
                     // let the tool do the the work (forward)
-                    StoredState ss = new StoredState("directtool", "tool");
+                    StoredState ss = portalService.newStoredState("directtool", "tool");
                     ss.setRequest(req);
                     ss.setPlacement(siteTool);
                     ss.setToolContextPath(toolContextPath);
                     ss.setToolPathInfo(toolPathInfo);
                     ss.setSkin(siteTool.getSkin());
-                    setStoredState(ss);
+                    portalService.setStoredState(ss);
 
                     doLogin(req, res, session, getPortalPageUrl(siteTool),
                         false);
@@ -1327,13 +1330,13 @@ public class SkinnableCharonPortal extends HttpServlet {
             }
         }
         // let the tool do the the work (forward)
-        StoredState ss = new StoredState("directtool", "tool");
+        StoredState ss = portalService.newStoredState("directtool", "tool");
         ss.setRequest(req);
         ss.setPlacement(siteTool);
         ss.setToolContextPath(toolContextPath);
         ss.setToolPathInfo(toolPathInfo);
         ss.setSkin(siteTool.getSkin());
-        setStoredState(ss);
+        portalService.setStoredState(ss);
 
         forwardPortal(tool, req, res, siteTool, siteTool.getSkin(),
             toolContextPath, toolPathInfo);
@@ -1354,8 +1357,8 @@ public class SkinnableCharonPortal extends HttpServlet {
         }
 
         // Reset the tool state if requested
-        if ("true".equals(req.getParameter(PARM_STATE_RESET))
-            || "true".equals(getResetState())) {
+        if ("true".equals(req.getParameter(portalService.getResetStateParam()))
+            || "true".equals(portalService.getResetState())) {
             Session s = SessionManager.getCurrentSession();
             ToolSession ts = s.getToolSession(placementId);
             ts.clearAttributes();
@@ -1394,7 +1397,7 @@ public class SkinnableCharonPortal extends HttpServlet {
             toolContextPath, toolPathInfo);
     }
 
-    protected void setupForward(HttpServletRequest req,
+    private void setupForward(HttpServletRequest req,
                                 HttpServletResponse res, Placement p, String skin)
         throws ToolException {
         // setup html information that the tool might need (skin, body on load,
@@ -1450,7 +1453,7 @@ public class SkinnableCharonPortal extends HttpServlet {
 
         // let the tool do the the work (forward)
         if (enableDirect) {
-            StoredState ss = getStoredState();
+            StoredState ss = portalService.getStoredState();
             if (ss == null || !toolContextPath.equals(ss.getToolContextPath())) {
                 setupForward(req, res, p, skin);
                 req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
@@ -1467,7 +1470,7 @@ public class SkinnableCharonPortal extends HttpServlet {
                 req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
                 stool.forward(sreq, res, splacement, stoolContext,
                     stoolPathInfo);
-                setStoredState(null);
+                portalService.setStoredState(null);
             }
         } else {
             setupForward(req, res, p, skin);
@@ -1497,32 +1500,7 @@ public class SkinnableCharonPortal extends HttpServlet {
         return "/site/" + p.getSiteId() + "/page/" + p.getPageId();
     }
 
-    private StoredState getStoredState() {
-        Session s = SessionManager.getCurrentSession();
-        StoredState ss = (StoredState) s.getAttribute("direct-stored-state");
-        return ss;
-    }
 
-    private void setStoredState(StoredState ss) {
-        Session s = SessionManager.getCurrentSession();
-        if (s.getAttribute("direct-stored-state") == null || ss == null) {
-            s.setAttribute("direct-stored-state", ss);
-        }
-    }
-
-    // To allow us to retain reset state across redirects
-    private String getResetState() {
-        Session s = SessionManager.getCurrentSession();
-        String ss = (String) s.getAttribute("reset-stored-state");
-        return ss;
-    }
-
-    private void setResetState(String ss) {
-        Session s = SessionManager.getCurrentSession();
-        if (s.getAttribute("reset-stored-state") == null || ss == null) {
-            s.setAttribute("reset-stored-state", ss);
-        }
-    }
 
     protected void doWorksite(HttpServletRequest req, HttpServletResponse res,
                               Session session, String siteId, String pageId,
@@ -2378,8 +2356,8 @@ public class SkinnableCharonPortal extends HttpServlet {
         String titleString = Web.escapeHtml(placement.getTitle());
 
         // Reset the tool state if requested
-        if ("true".equals(req.getParameter(PARM_STATE_RESET))
-            || "true".equals(getResetState())) {
+        if ("true".equals(req.getParameter(portalService.getResetStateParam()))
+            || "true".equals(portalService.getResetState())) {
             Session s = SessionManager.getCurrentSession();
             ToolSession ts = s.getToolSession(placement.getId());
             ts.clearAttributes();
@@ -2427,7 +2405,7 @@ public class SkinnableCharonPortal extends HttpServlet {
         toolMap.put("toolUrl", toolUrl);
         toolMap.put("toolPlacementIDJS", Web.escapeJavascript("Main"
             + placement.getId()));
-        toolMap.put("toolParamResetState", PARM_STATE_RESET);
+        toolMap.put("toolParamResetState", portalService.getResetStateParam());
         toolMap.put("toolTitle", titleString);
         toolMap.put("toolShowResetButton", Boolean.valueOf(showResetButton));
         toolMap.put("toolShowHelpButton", Boolean.valueOf(showHelpButton));
@@ -2458,13 +2436,13 @@ public class SkinnableCharonPortal extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
+        portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
         M_log.info("init()");
 
         basicAuth = new BasicAuth();
         basicAuth.init();
 
-        enableDirect = "true".equals(ServerConfigurationService.getString(
-            "charon.directurl", "true"));
+        enableDirect = portalService.isEnableDirect();
 
         // this should be a spring bean, but for the moment I dont want to bind
         // to spring.
@@ -2492,6 +2470,8 @@ public class SkinnableCharonPortal extends HttpServlet {
                 "Failed to load Static Content Types (staticcontenttypes.properties) ",
                 e);
         }
+                
+        
     }
 
     /**
@@ -2905,5 +2885,7 @@ public class SkinnableCharonPortal extends HttpServlet {
             }
         }
     }
+
+
 
 }

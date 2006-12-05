@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.portal.charon;
+package org.sakaiproject.portal.service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

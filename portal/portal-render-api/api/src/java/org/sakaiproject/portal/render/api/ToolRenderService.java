@@ -1,11 +1,13 @@
 package org.sakaiproject.portal.render.api;
 
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.ToolConfiguration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletContext;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Service responsible for preprocessing and rendering tools
@@ -55,5 +57,9 @@ public interface ToolRenderService
 	 */
 	boolean accept(ToolConfiguration configuration, HttpServletRequest request,
 			HttpServletResponse response, ServletContext context);
+	
+	
+
+	
 
 }

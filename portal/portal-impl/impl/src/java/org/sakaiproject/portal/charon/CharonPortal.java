@@ -68,6 +68,8 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.ToolURLManagerImpl;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.render.cover.ToolRenderService;
 import org.sakaiproject.portal.render.api.RenderResult;
 
@@ -78,6 +80,8 @@ import org.sakaiproject.portal.render.api.RenderResult;
  */
 public class CharonPortal extends HttpServlet
 {
+	
+	
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(CharonPortal.class);
 
@@ -97,8 +101,6 @@ public class CharonPortal extends HttpServlet
 	 */
 	protected static final String PARAM_FORCE_LOGIN = "force.login";
 
-	/** Parameter to force state reset */
-	protected static final String PARM_STATE_RESET = "sakai.state.reset";
 
 	/** Configuration option to enable/disable state reset on navigation change */
 	protected static final String CONFIG_AUTO_RESET = "portal.experimental.auto.reset";
@@ -131,6 +133,8 @@ public class CharonPortal extends HttpServlet
 	private BasicAuth basicAuth = null;
 
 	private boolean enableDirect = false;
+
+	private PortalService portalService;
 
     /**
 	 * Shutdown the servlet.
@@ -414,7 +418,7 @@ public class CharonPortal extends HttpServlet
                                {
                                        toolUrl = toolUrl + "?" + queryString;
                                }
-                               setResetState("true");
+                               portalService.setResetState("true");
                                resetDone = true;
                                res.sendRedirect(toolUrl);
 			}
@@ -614,7 +618,7 @@ public class CharonPortal extends HttpServlet
 
 		// Make sure to clear any reset State at the end of the request unless we *just* set it
 		if ( !resetDone ) {
-			setResetState(null);
+			portalService.setResetState(null);
 		}
 
 	}
@@ -1413,7 +1417,7 @@ public class CharonPortal extends HttpServlet
 		}
 
 		// Reset the tool state if requested
-		if ("true".equals(req.getParameter(PARM_STATE_RESET)) || "true".equals(getResetState()))
+		if (portalService.isResetRequested(req))
 		{
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placementId);
@@ -1448,13 +1452,13 @@ public class CharonPortal extends HttpServlet
 				if (session.getUserId() == null)
 				{
 					// let the tool do the the work (forward)
-					StoredState ss = new StoredState("directtool", "tool");
+					StoredState ss = portalService.newStoredState("directtool", "tool");
 					ss.setRequest(req);
 					ss.setPlacement(siteTool);
 					ss.setToolContextPath(toolContextPath);
 					ss.setToolPathInfo(toolPathInfo);
 					ss.setSkin(siteTool.getSkin());
-					setStoredState(ss);
+					portalService.setStoredState(ss);
 
 					doLogin(req, res, session, getPortalPageUrl(siteTool),
 							false);
@@ -1467,13 +1471,13 @@ public class CharonPortal extends HttpServlet
 			}
 		}
 		// let the tool do the the work (forward)
-		StoredState ss = new StoredState("directtool", "tool");
+		StoredState ss = portalService.newStoredState("directtool", "tool");
 		ss.setRequest(req);
 		ss.setPlacement(siteTool);
 		ss.setToolContextPath(toolContextPath);
 		ss.setToolPathInfo(toolPathInfo);
 		ss.setSkin(siteTool.getSkin());
-		setStoredState(ss);
+		portalService.setStoredState(ss);
 
 		forwardPortal(tool, req, res, siteTool, siteTool.getSkin(),
 				toolContextPath, toolPathInfo);
@@ -1495,7 +1499,7 @@ public class CharonPortal extends HttpServlet
 		}
 
 		// Reset the tool state if requested
-		if ("true".equals(req.getParameter(PARM_STATE_RESET)) || "true".equals(getResetState()))
+		if (portalService.isResetRequested(req))
 		{
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placementId);
@@ -1603,7 +1607,7 @@ public class CharonPortal extends HttpServlet
 		// let the tool do the the work (forward)
 		if (enableDirect)
 		{
-			StoredState ss = getStoredState();
+			StoredState ss = portalService.getStoredState();
 			if (ss == null || !toolContextPath.equals(ss.getToolContextPath()))
 			{
 				setupForward(req, res, p, skin);
@@ -1623,7 +1627,7 @@ public class CharonPortal extends HttpServlet
 				req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
 				stool.forward(sreq, res, splacement, stoolContext,
 						stoolPathInfo);
-				setStoredState(null);
+				portalService.setStoredState(null);
 			}
 		}
 		else
@@ -1657,38 +1661,7 @@ public class CharonPortal extends HttpServlet
 		return "/site/" + p.getSiteId() + "/page/" + p.getPageId();
 	}
 
-	private StoredState getStoredState()
-	{
-		Session s = SessionManager.getCurrentSession();
-		StoredState ss = (StoredState) s.getAttribute("direct-stored-state");
-		return ss;
-	}
 
-	private void setStoredState(StoredState ss)
-	{
-		Session s = SessionManager.getCurrentSession();
-		if (s.getAttribute("direct-stored-state") == null || ss == null)
-		{
-			s.setAttribute("reset-stored-state", ss);
-		}
-	}
-
-	// To allow us to retain reset state across redirects
-	private String getResetState()
-	{
-		Session s = SessionManager.getCurrentSession();
-		String ss = (String) s.getAttribute("reset-stored-state");
-		return ss;
-	}
-
-	private void setResetState(String ss)
-	{
-		Session s = SessionManager.getCurrentSession();
-		if (s.getAttribute("reset-stored-state") == null || ss == null)
-		{
-			s.setAttribute("reset-stored-state", ss);
-		}
-	}
 
 	protected void doWorksite(HttpServletRequest req, HttpServletResponse res,
 			Session session, String siteId, String pageId,
@@ -2811,7 +2784,7 @@ public class CharonPortal extends HttpServlet
 				+ Web.escapeUrl(placement.getId());
 
 		// Reset the tool state if requested
-		if ("true".equals(req.getParameter(PARM_STATE_RESET)) || "true".equals(getResetState()))
+		if (portalService.isResetRequested(req))
 		{
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placement.getId());
@@ -2922,7 +2895,9 @@ public class CharonPortal extends HttpServlet
 	public void init(ServletConfig config) throws ServletException
 	{
 		super.init(config);
+		 portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
 
+		
 		M_log.info("init()");
 
 		basicAuth = new BasicAuth();

@@ -19,13 +19,14 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.portal.charon;
+package org.sakaiproject.portal.service;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.tool.api.Placement;
 
-public class StoredState
+public class StoredStateImpl implements StoredState
 {
 	private SessionRequestHolder requestHolder = null;
 
@@ -41,7 +42,7 @@ public class StoredState
 
 	private String skin;
 
-	public StoredState(String marker, String replacement)
+	public StoredStateImpl(String marker, String replacement)
 	{
 		this.marker = marker;
 		this.replacement = replacement;

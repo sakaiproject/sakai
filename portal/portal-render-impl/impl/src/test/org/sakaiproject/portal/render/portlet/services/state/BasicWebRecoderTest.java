@@ -1,4 +1,4 @@
-package org.sakaiproject.portal.render.portlet.services.state.encode;
+package org.sakaiproject.portal.render.portlet.services.state;
 
 import junit.framework.TestCase;
 import org.sakaiproject.portal.render.portlet.services.state.BasicWebRecoder;
