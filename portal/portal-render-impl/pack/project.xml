@@ -28,7 +28,8 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
-
+<!-- I think this may cause problems,
+   A second copy of the component manager should not be bundled with a pack
         <dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-component-impl</artifactId>
@@ -37,6 +38,7 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
+-->
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
