@@ -23,7 +23,6 @@ package org.sakaiproject.site.api;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Observer;
 import java.util.Set;
 
 import org.sakaiproject.entity.api.Entity;
