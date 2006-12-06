@@ -247,7 +247,7 @@ function saveTime()
                  || delivery.actionString=='takeAssessment' 
                  || delivery.actionString=='takeAssessmentViaUrl')
               && delivery.continue}"
-    onclick="disableNext()" onkeypress="disableNext()" />
+    onclick="disableNext()" onkeypress="" />
 
   <%-- SUBMIT FOR GRADE --%>
   <h:commandButton id="submitforGrade" accesskey="#{msg.a_submit}" type="submit" value="#{msg.button_submit_grading}"
@@ -256,7 +256,7 @@ function saveTime()
              && delivery.navigation ne '1' 
              && !delivery.continue}"
 	disabled="#{delivery.actionString=='previewAssessment'}" 
-    onclick="disableSubmitForGrade()" onkeypress="disableSubmitForGrade()" />
+    onclick="disableSubmitForGrade()" onkeypress="" />
 
   <%-- PREVIOUS --%>
   <h:commandButton id="previous" accesskey="#{msg.a_prev}" type="submit" value="#{msg.previous}"
@@ -265,7 +265,7 @@ function saveTime()
                  || delivery.actionString=='takeAssessment'
                  || delivery.actionString=='takeAssessmentViaUrl')
               && delivery.navigation ne '1' && delivery.previous}" 
-    onclick="disablePrevious()" onkeypress="disablePrevious()" />
+    onclick="disablePrevious()" onkeypress="" />
 
   <!-- check for submit for grade permission to determine if button can be displayed -->
   <%-- SUBMIT FOR GRADE FOR LINEAR ACCESS --%>
@@ -277,7 +277,7 @@ function saveTime()
 				   || delivery.actionString=='previewAssessment')
 				   && delivery.navigation eq '1' && !delivery.continue}" 
       disabled="#{delivery.actionString=='previewAssessment'}"
-      onclick="pauseTiming='false'; disableSubmit()" onkeypress="pauseTiming='false'; disableSubmit()"/>
+      onclick="pauseTiming='false'; disableSubmit()" onkeypress="pauseTiming='false'"/>
   </h:panelGroup>
 
   <%-- SAVE AND EXIT --%>
@@ -286,27 +286,27 @@ function saveTime()
     rendered="#{(delivery.actionString=='previewAssessment'  
                  || delivery.actionString=='takeAssessment')
               && delivery.navigation ne '1'}"  
-    onclick="pauseTiming='false'; disableSave();" onkeypress="pauseTiming='false'; disableSave();" 
+    onclick="pauseTiming='false'; disableSave();" onkeypress="pauseTiming='false'" 
     disabled="#{delivery.actionString=='previewAssessment'}" />
 
   <%-- SUBMIT FOR GRADE DURING PAU --%>
   <h:commandButton type="submit" value="#{msg.button_submit}"
     action="#{delivery.submitForGrade}"  id="submitForm2" styleClass="active"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
-    onclick="pauseTiming='false'; disableSubmit2();" onkeypress="pauseTiming='false'; disableSubmit2();"/>
+    onclick="pauseTiming='false'; disableSubmit2();" onkeypress="pauseTiming='false'"/>
 
   <%-- SAVE AND EXIT DURING PAU WITH ANONYMOUS LOGIN--%>
   <h:commandButton accesskey="#{msg.a_quit}" type="submit" value="#{msg.button_quit}"
     action="#{delivery.saveAndExit}" id="quit"
     rendered="#{(delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin)}"
-    onclick="pauseTiming='false'; disableQuit()" onkeypress="pauseTiming='false'; disableQuit()"  /> 
+    onclick="pauseTiming='false'; disableQuit()" onkeypress="pauseTiming='false'"  /> 
 
   <%-- SAVE AND EXIT FOR LINEAR ACCESS --%>
   <h:commandButton accesskey="#{msg.a_saveAndExit}" type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit2"
     rendered="#{delivery.actionString=='takeAssessment'
             && delivery.navigation eq '1' && delivery.continue}"
-    onclick="disableSave2();" onkeypress="disableSave2();"
+    onclick="disableSave2();" onkeypress=""
     disabled="#{delivery.actionString=='previewAssessment'}"/>
 
 </p>
