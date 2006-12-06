@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -139,67 +140,49 @@ public class SamigoEmailService {
 			}
 			msg.setSubject(subject);
 
-			
-			Multipart mp = new MimeMultipart();
-			// create and fill the first message part
-			MimeBodyPart mbp1 = new MimeBodyPart();
-			mbp1.setText(message);
-			mp.addBodyPart(mbp1);
-			/*
-			// create the second message part MimeBodyPart mbp2 = new
-			MimeBodyPart(); // attach the file to the message FileDataSource
-			fds = new FileDataSource("C:/Karen.txt"); mbp2.setDataHandler(new
-			DataHandler(fds)); mbp2.setFileName(fds.getName());
-			mp.addBodyPart(mbp2);
-			*/
-			// add the Multipart to the message
-			msg.setContent(mp);
-			
-			
-			/*
-			 * Multipart multipart = new MimeMultipart(); MimeBodyPart
-			 * messageBodyPart = new MimeBodyPart();
-			 * //messageBodyPart.setText(message);
-			 * messageBodyPart.setContent(message, "text/html"); //
-			 * msg.addHeaderLine("Content-Type: text/html;
-			 * charset=\"iso-8859-1\""); //
-			 * msg.addHeaderLine("Content-Transfer-Encoding: quoted-printable");
-			 * multipart.addBodyPart(messageBodyPart);
-			 */
-
-			// Part two is attachment
 			EmailBean emailBean = (EmailBean) ContextUtil.lookupBean("email");
 			attachmentList = emailBean.getAttachmentList();
-			StringBuffer url = new StringBuffer();
+			StringBuffer content = new StringBuffer(message);
+			ArrayList fileList = new ArrayList();
+			ArrayList fileNameList = new ArrayList();
 			if (attachmentList != null) {
 				if (prefixedPath == null || prefixedPath.equals("")) {
 					log.error("samigo.email.prefixedPath is not set");
 					return "error";
 				}
-				
 				Iterator iter = attachmentList.iterator();
 				while (iter.hasNext()) {
 					a = (AttachmentData) iter.next();
 					if (a.getIsLink().booleanValue()) {
 						log.debug("send(): url");
-						url.append("<br/>\n\r");
-						url.append("<br/>"); // give a new line
-						url.append(a.getFilename());
+						content.append("<br/>\n\r");
+						content.append("<br/>"); // give a new line
+						content.append(a.getFilename());
 					}
 					else {
 						log.debug("send(): file");
 						File attachedFile = getAttachedFile(a.getResourceId());
-						// messageBodyPart = new MimeBodyPart();
-						// DataSource source = new FileDataSource(attachedFile);
-						// messageBodyPart.setDataHandler(new DataHandler(source));
-						// messageBodyPart.setFileName(a.getFilename());
-						// multipart.addBodyPart(messageBodyPart);
+						fileList.add(attachedFile);
+						fileNameList.add(a.getFilename());
 					}
 				}
 			}
-			// msg.setContent(multipart);
-			//msg.setContent(message + url.toString(), "text/html");
-
+			
+			Multipart multipart = new MimeMultipart(); 
+			MimeBodyPart messageBodyPart = new MimeBodyPart();
+			messageBodyPart.setContent(content.toString(), "text/html");
+			multipart.addBodyPart(messageBodyPart);
+			msg.setContent(multipart);
+			
+			for (int i = 0; i < fileList.size(); i++) {
+				messageBodyPart = new MimeBodyPart();
+				FileDataSource source = new FileDataSource((File)fileList.get(i));
+				messageBodyPart.setDataHandler(new DataHandler(source));
+				messageBodyPart.setFileName((String)fileNameList.get(i));
+				multipart.addBodyPart(messageBodyPart);
+			}
+			msg.setContent(multipart);
+			
 			Transport.send(msg);
 		} catch (UnsupportedEncodingException e) {
 			log.error("Exception throws from send()" + e.getMessage());
@@ -225,10 +208,11 @@ public class SamigoEmailService {
 		} finally {
 			if (attachmentList != null) {
 				if (prefixedPath != null && !prefixedPath.equals("")) {
-					StringBuffer sbPrefixedPath = new StringBuffer(prefixedPath);
-					sbPrefixedPath.append("/email_tmp/");
+					StringBuffer sbPrefixedPath;
 					Iterator iter = attachmentList.iterator();
 					while (iter.hasNext()) {
+						sbPrefixedPath = new StringBuffer(prefixedPath);
+						sbPrefixedPath.append("/email_tmp/");
 						a = (AttachmentData) iter.next();
 						if (!a.getIsLink().booleanValue()) {
 							deleteAttachedFile(sbPrefixedPath.append(a.getResourceId()).toString());
@@ -285,9 +269,8 @@ public class SamigoEmailService {
 		String tunedFilename = filename.replace(" ", "");
 		File file = new File(tunedFilename);
 		boolean success = file.delete();
-		// Shouldn't come to here because resourceId is unique
 		if (!success) {
-			log.error("Fail to delete file: " + filename);
+			log.error("Fail to delete file: " + tunedFilename);
 		}
 	}
 }

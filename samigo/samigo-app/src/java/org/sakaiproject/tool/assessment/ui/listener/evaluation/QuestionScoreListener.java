@@ -595,6 +595,7 @@ log.debug("item==null ");
             //log.info("Rachel: agentid = " + gdata.getAgentId());
             results.setLastName(agent.getLastName());
             results.setFirstName(agent.getFirstName());
+            results.setEmail(agent.getEmail());
             if (results.getLastName() != null &&
                 results.getLastName().length() > 0)
               results.setLastInitial(results.getLastName().substring(0,1));

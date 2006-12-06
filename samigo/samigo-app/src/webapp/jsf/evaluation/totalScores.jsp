@@ -252,7 +252,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
      </h:panelGroup>
      <f:verbatim><br/></f:verbatim>
 	 <span class="itemAction">
-	   <h:outputLink onclick="clickEmailLink(this);" value="../evaluation/totalScores" id="createEmail1">
+	   <h:outputLink id="createEmail1" onclick="clickEmailLink(this);" value="../evaluation/totalScores">
 	     <h:outputText value="  #{msg.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	   </h:outputLink>
 	 </span>
@@ -303,7 +303,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
      </h:panelGroup>
      <f:verbatim><br/></f:verbatim>
 	 <span class="itemAction">
-	   <h:outputLink onclick="clickEmailLink(this);" value="../evaluation/totalScores" id="createEmail2">
+	   <h:outputLink id="createEmail2" onclick="clickEmailLink(this);" value="../evaluation/totalScores">
 	     <h:outputText value="  #{msg.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	   </h:outputLink>
 	 </span>

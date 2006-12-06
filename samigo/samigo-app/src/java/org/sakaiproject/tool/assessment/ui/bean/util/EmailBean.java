@@ -21,21 +21,15 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.util;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.mail.MessagingException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,20 +37,14 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.impl.ReferenceComponent;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.SectionAttachment;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.SamigoEmailService;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -295,16 +283,6 @@ public class EmailBean implements Serializable {
 			} catch (IdUnusedException e) {
 				log.warn("IdUnusedException from ContentHostingService:"
 						+ e.getMessage());
-				// <-- bad sign, some left over association of part and
-				// resource,
-				// use case: user remove resource in file picker, then exit
-				// modification without
-				// proper cancellation by clicking at the left nav instead of
-				// "cancel".
-				// Also in this use case, any added resource would be left
-				// orphan.
-				//AssessmentService assessmentService = new AssessmentService();
-				//assessmentService.removeSectionAttachment(attach.getAttachmentId().toString());
 			} catch (TypeException e) {
 				log.warn("TypeException from ContentHostingService:"
 						+ e.getMessage());
@@ -345,7 +323,6 @@ public class EmailBean implements Serializable {
 		SamigoEmailService samigoEmailService = new SamigoEmailService(
 				fromName, fromEmailAddress, toName, toEmailAddress, ccMe,
 				subject, message);
-		
 		String result = samigoEmailService.send();
 		
 		if (result.equals("send")) {
@@ -364,8 +341,8 @@ public class EmailBean implements Serializable {
 
 	public void cancel() {
 		log.debug("cancel");
-		// num_files=0;
-		// attachedFiles.clear();
+		setAttachmentList(null);
+		setHasAttachment(false);
 	}
 	
 }

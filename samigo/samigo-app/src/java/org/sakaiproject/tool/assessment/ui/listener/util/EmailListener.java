@@ -49,45 +49,42 @@ public class EmailListener implements ActionListener {
 	 */
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
 		log.debug("Email Action Listener.");
-		if (ae != null && ae.getComponent().getId().startsWith("hiddenlink")) {
-			EmailBean emailBean = (EmailBean) ContextUtil.lookupBean("email");
-			TotalScoresBean totalScoreBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+		EmailBean emailBean = (EmailBean) ContextUtil.lookupBean("email");
+		TotalScoresBean totalScoreBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 			
-			emailBean.setAttachmentList(null);
-			emailBean.setHasAttachment(false);
+		emailBean.setAttachmentList(null);
+		emailBean.setHasAttachment(false);
 			
-			// From Name
-			AgentFacade agent = new AgentFacade();
-			StringBuffer sb = new StringBuffer(agent.getFirstName());
-			sb.append(" ");
-			sb.append(agent.getLastName());
-			emailBean.setFromName(sb.toString());
+		// From Name
+		AgentFacade agent = new AgentFacade();
+		StringBuffer sb = new StringBuffer(agent.getFirstName());
+		sb.append(" ");
+		sb.append(agent.getLastName());
+		emailBean.setFromName(sb.toString());
 			
-			// From Email is set in TotalScoreListener
+		// From Email is set in TotalScoreListener
 			
-			// To
-			String toName = ContextUtil.lookupParam("toName");
-			emailBean.setToName(toName);
-			String toEmailAddress = ContextUtil.lookupParam("toEmailAddress");
-			emailBean.setToEmailAddress(toEmailAddress);
+		// To
+		String toName = ContextUtil.lookupParam("toName");
+		emailBean.setToName(toName);
+		String toEmailAddress = ContextUtil.lookupParam("toEmailAddress");
+		emailBean.setToEmailAddress(toEmailAddress);
 			
-			// Cc
-			emailBean.setCcMe("no");
+		// Cc
+		emailBean.setCcMe("no");
 			
-			// AssessmentName
-			emailBean.setAssessmentName(totalScoreBean.getAssessmentName());
+		// AssessmentName
+		emailBean.setAssessmentName(totalScoreBean.getAssessmentName());
 			
-			// Subject
-			sb = new StringBuffer(totalScoreBean.getAssessmentName());
-			sb.append(" ");
-			sb.append(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "feedback"));
-			emailBean.setSubject(sb.toString());
+		// Subject
+		sb = new StringBuffer(totalScoreBean.getAssessmentName());
+		sb.append(" ");
+		sb.append(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "feedback"));
+		emailBean.setSubject(sb.toString());
 			
-			// Message
-			String toFirstName = ContextUtil.lookupParam("toFirstName");
-			emailBean.setToFirstName(toFirstName);
-			emailBean.setMessageTemplate();
-
-		}
+		// Message
+		String toFirstName = ContextUtil.lookupParam("toFirstName");
+		emailBean.setToFirstName(toFirstName);
+		emailBean.setMessageTemplate();
 	}
 }

@@ -82,11 +82,8 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 			</h:panelGrid>
 
 			<h:panelGrid columns="2" border="0">
-				<h:commandButton id="send" accesskey="#{msg.a_send}" styleClass="active" value="#{msg.send}" action="#{email.send}" type="submit" >
-				          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
-				</h:commandButton>
-				<h:commandButton id="cancel"onclick="window.close();" onkeypress="window.close();"  accesskey="#{msg.a_cancel}" value="#{msg.cancel}" action="#{email.cancel}" immediate="true">
-				</h:commandButton>
+				<h:commandButton id="send" accesskey="#{msg.a_send}" styleClass="active" value="#{msg.send}" action="#{email.send}" type="submit" />
+				<h:commandButton id="cancel"onclick="window.close();" onkeypress="window.close();"  accesskey="#{msg.a_cancel}" value="#{msg.cancel}" action="#{email.cancel}" immediate="true"/>
 			</h:panelGrid>
 		</h:panelGrid>
 	</f:facet>
