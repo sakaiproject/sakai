@@ -437,7 +437,9 @@
       </h:panelGrid>
 </div>
     <!-- GRADEBOOK OPTIONS -->
-    <div class="longtext"><h:outputLabel value="#{msg.gradebook_options}" /></div><div class="tier3">
+    <h:panelGroup rendered="#{assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true}">
+     <f:verbatim> <div class="longtext"></f:verbatim> <h:outputLabel value="#{msg.gradebook_options}" />
+	 <f:verbatim></div><div class="tier3"></f:verbatim>
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="toDefaultGradebook"
             value="#{publishedSettings.toDefaultGradebook}"  layout="pageDirection">
@@ -445,7 +447,9 @@
           <f:selectItem itemValue="1" itemLabel="#{msg.to_default_gradebook}"/>
         </h:selectOneRadio>
       </h:panelGrid>
-</div>
+	<f:verbatim></div></f:verbatim>
+    </h:panelGroup>
+
     <!-- RECORDED SCORE AND MULTIPLES -->
     <div class="longtext"><h:outputLabel value="#{msg.recorded_score}" /></div><div class="tier3">
       <h:panelGrid columns="2"  >
