@@ -140,7 +140,7 @@
 
 		<sourceDirectory>src/java</sourceDirectory>
 
-		<unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+		<!-- <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
 		<unitTest>
 			<includes>**/*Test</includes>
 			<resources>
@@ -152,7 +152,7 @@
 					<filtering>false</filtering>
 				</resource>
 			</resources>
-		</unitTest>
+		</unitTest> -->
 		<resources>
 			<resource>
 				<directory>${basedir}/src/sql</directory>
