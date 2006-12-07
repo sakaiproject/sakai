@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool id="sakai.messageforums.helper" title="Private Messages Helper" description="Message Center Navigation Helper Tool">
+ 
+       <category name="sakai.helper" />
+
+	</tool>
+
+</registration>
