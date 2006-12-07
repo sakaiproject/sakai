@@ -1,7 +1,28 @@
+<%@ page import="java.util.*, javax.faces.context.*, javax.faces.application.*,
+                 javax.faces.el.*, org.sakaiproject.tool.messageforums.*,
+                 org.sakaiproject.tool.messageforums.ui.*"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
+
+<%
+// FOR WHEN COMING FROM SYNOPTIC TOOL 
+    FacesContext context = FacesContext.getCurrentInstance();
+    ExternalContext exContext = context.getExternalContext();
+    Map paramMap = exContext.getRequestParameterMap();
+    
+     if ("Received".equals((String) paramMap.get("selectedTopic"))) {
+	  Application app = context.getApplication();
+	  ValueBinding binding = app.createValueBinding("#{PrivateMessagesTool}");
+	  PrivateMessagesTool pmt = (PrivateMessagesTool) binding.getValue(context);
+	  pmt.initializePrivateMessageArea();
+	  pmt.processPvtMsgTopic();
+	  PrivateTopicDecoratedBean selectedTopic = pmt.getSelectedTopic();
+	  selectedTopic.setHasNextTopic(true);
+	  selectedTopic.setHasPreviousTopic(false);
+    }
+%>
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
 <f:view>
 	<sakai:view title="#{msgs.pvtarea_name}">

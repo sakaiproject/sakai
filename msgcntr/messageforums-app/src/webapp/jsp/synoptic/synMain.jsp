@@ -31,9 +31,8 @@
  			</f:facet>
  			<%-- === To create a link to Message Center home page === --%>
 			<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
-			<h:outputText escape="false" value="#{eachSite.mcPageURL}';\">" />
-
-			<h:outputText value="#{eachSite.unreadPrivateAmt}  " rendered="#{eachSite.unreadPrivateAmt > 0}" />
+			<h:outputText escape="false" value="#{eachSite.privateMessagesUrl}';\">" />
+				<h:outputText value="#{eachSite.unreadPrivateAmt}  " rendered="#{eachSite.unreadPrivateAmt > 0}" />
 			<f:verbatim></a></f:verbatim>
 
 			<h:graphicImage id="waveImg" url="/images/silk/email.png" rendered="#{eachSite.unreadPrivateAmt > 0}" />
@@ -45,7 +44,8 @@
 				<h:outputText value="  (#{msgs.syn_mark_as_read})  " rendered="#{eachSite.unreadPrivateAmt > 0}" />
 				<f:param name="contextId" value="#{eachSite.siteId}" />
 			</h:commandLink>
-			<h:outputText value="#{msgs.syn_no_messages}" rendered="#{eachSite.unreadPrivateAmt == 0}" />
+
+			<h:outputText value="#{msgs.syn_no_messages}" rendered="#{eachSite.unreadPrivateAmt == 0}" />			
 		</h:column>
 
 		<h:column>
@@ -81,7 +81,7 @@
 		<h:column>
 			<!-- === To create a link to Message Center home page === -->
 			<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
-			<h:outputText escape="false" value="#{eachSite.mcPageURL}';\">" />
+			<h:outputText escape="false" value="#{eachSite.privateMessagesUrl}';\">" />
 
 			<h:outputText value="#{eachSite.unreadMessages}  " rendered="#{eachSite.unreadMessages > 0}" />
 			<f:verbatim></a></f:verbatim>

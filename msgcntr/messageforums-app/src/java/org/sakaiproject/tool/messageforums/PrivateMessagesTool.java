@@ -880,7 +880,7 @@ public class PrivateMessagesTool
   {
     return selectedTopicId;
   }
-  private void setSelectedTopicId(String selectedTopicId)
+  public void setSelectedTopicId(String selectedTopicId)
   {
     this.selectedTopicId=selectedTopicId;    
   }
@@ -2915,4 +2915,8 @@ public class PrivateMessagesTool
        return Validator.escapeJavascript("Main" + ToolManager.getCurrentPlacement().getId());
     }
 
+
+	public void setMsgNavMode(String msgNavMode) {
+		this.msgNavMode = msgNavMode;
+	}
 }

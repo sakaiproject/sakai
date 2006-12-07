@@ -270,7 +270,20 @@
         <navigation-case>
         	<from-outcome>synMain</from-outcome>
         	<to-view-id>/jsp/synoptic/synMain.jsp</to-view-id>
-        	<redirect />
+        </navigation-case>
+        <navigation-case>
+        	<from-outcome>synPvtMsg</from-outcome>
+        	<to-view-id>/../privateMsg/pvtMsg.jsp</to-view-id>
+        </navigation-case>
+
+        <!--******************* navigation cases for Private Messages via synoptic ***************************-->
+        <navigation-case>
+        	<from-outcome>mainviasyn</from-outcome>
+        	<to-view-id>/../../jsp/main.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+        	<from-outcome>composeviasyn</from-outcome>
+        	<to-view-id>/../compose.jsp</to-view-id>
         </navigation-case>
     </navigation-rule>
   

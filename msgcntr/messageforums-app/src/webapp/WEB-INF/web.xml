@@ -74,6 +74,15 @@
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
         
+	<!-- filter for synoptic tool -->       
+    <filter-mapping>
+        <filter-name>org.sakaiproject.util.RequestFilter</filter-name>
+        <servlet-name>sakai.messagecenter.helper</servlet-name>
+        <dispatcher>REQUEST</dispatcher> 
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+        
     <!-- Faces Servlet -->
     <!-- 
     <servlet>
@@ -112,6 +121,25 @@
             <param-value>true</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+	<!-- Dispatcher for helper tool -->    
+    <servlet>
+        <servlet-name>sakai.messageforums.helper</servlet-name>
+        <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
+        <init-param>
+            <param-name>default</param-name>
+            <param-value>pvtMsg</param-value>
+        </init-param>
+        <init-param>
+            <param-name>path</param-name>
+            <param-value>/jsp</param-value>
+        </init-param>
+        <init-param>
+            <param-name>default.last.view</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <load-on-startup>2</load-on-startup>
     </servlet>
     
     <!-- Faces Servlet -->

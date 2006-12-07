@@ -20,8 +20,11 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.ui;
 
+import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +32,7 @@ import java.util.Vector;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.application.FacesMessage;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
@@ -47,6 +51,8 @@ import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
@@ -87,6 +93,7 @@ public class MessageForumSynopticBean {
 		private int unreadPrivateAmt;
 		private int unreadForumsAmt;
 		private String mcPageURL;
+		private String privateMessagesUrl;
 		
 		/** site Home page information */
 		private int unreadMessages;
@@ -100,102 +107,61 @@ public class MessageForumSynopticBean {
 			this.heading = heading;
 		}
 
-		/**
-		 * 
-		 * @return
-		 */
 		public String getSiteName() {
 			return siteName;
 		}
 
-		/**
-		 * 
-		 * @param siteName
-		 */
 		public void setSiteName(String siteName) {
 			this.siteName = siteName;
 		}
 
-		/**
-		 * 
-		 * @return
-		 */
 		public int getUnreadPrivateAmt() {
 			return unreadPrivateAmt;
 		}
 
-		/**
-		 * 
-		 * @param unreadPrivateAmt
-		 */
 		public void setUnreadPrivateAmt(int unreadPrivateAmt) {
 			this.unreadPrivateAmt = unreadPrivateAmt;
 		}
 
-		/**
-		 * 
-		 * @return
-		 */
 		public int getUnreadForumsAmt() {
 			return unreadForumsAmt;
 		}
 
-		/**
-		 * 
-		 * @param unreadForumsAmt
-		 */
 		public void setUnreadForumsAmt(int unreadForumsAmt) {
 			this.unreadForumsAmt = unreadForumsAmt;
 		}
 
-		/**
-		 * 
-		 * @return
-		 */
 		public String getMcPageURL() {
 			return mcPageURL;
 		}
 
-		/**
-		 * 
-		 * @param mcPageURL
-		 */
 		public void setMcPageURL(String mcPageURL) {
 			this.mcPageURL = mcPageURL;
 		}
 
-		/**
-		 * 
-		 * @return
-		 */
 		public String getSiteId() {
 			return siteId;
 		}
 
-		/**
-		 * 
-		 * @param siteId
-		 */
 		public void setSiteId(String siteId) {
 			this.siteId = siteId;
 		}
 
-		/**
-		 * 
-		 * @return
-		 */
 		public int getUnreadMessages() {
 			return unreadMessages;
 		}
 
-		/**
-		 * 
-		 * @param unreadMessages
-		 */
 		public void setUnreadMessages(int unreadMessages) {
 			this.unreadMessages = unreadMessages;
 		}
 
+		public String getPrivateMessagesUrl() {
+			return privateMessagesUrl;
+		}
+
+		public void setPrivateMessagesUrl(String privateMessagesUrl) {
+			this.privateMessagesUrl = privateMessagesUrl;
+		}
 	}
 
 /* =========== End of DecoratedCompiledMessageStats =========== */
@@ -296,7 +262,8 @@ public class MessageForumSynopticBean {
 
 	public boolean isChanged()
 	{
-		return ((!m_name.equals(m_origName)) || (!m_value.equals(m_origValue)) || (!m_key.equals(m_origKey)) || (m_isList != m_origIsList));
+		return ((!m_name.equals(m_origName)) || (!m_value.equals(m_origValue)) 
+				  || (!m_key.equals(m_origKey)) || (m_isList != m_origIsList));
 	}
 
 	public boolean isList()
@@ -394,58 +361,30 @@ public class MessageForumSynopticBean {
 	/** Needed to determine if user has read permission of topic */
 	private UIPermissionsManager uiPermissionsManager;
 	
-	/**
-	 * 
-	 * @param messageManager
-	 */
 	public void setMessageManager(MessageForumsMessageManager messageManager) {
 		this.messageManager = messageManager;
 	}
 
-	/**
-	 * 
-	 * @param forumManager
-	 */
 	public void setForumManager(DiscussionForumManager forumManager) {
 		this.forumManager = forumManager;
 	}
 
-	/**
-	 * 
-	 * @param pvtMessageManager
-	 */
 	public void setPvtMessageManager(PrivateMessageManager pvtMessageManager) {
 		this.pvtMessageManager = pvtMessageManager;
 	}
 
-	/**
-	 * 
-	 * @param typeManager
-	 */
 	public void setTypeManager(MessageForumsTypeManager typeManager) {
 		this.typeManager = typeManager;
 	}
 
-	/**
-	 * 
-	 * @param areaManager
-	 */
 	public void setAreaManager(AreaManager areaManager) {
 		this.areaManager = areaManager;
 	}
 
-	/**
-	 * 
-	 * @param uiPermissionsManager
-	 */
 	public void setUiPermissionsManager(UIPermissionsManager uiPermissionsManager) {
 		this.uiPermissionsManager = uiPermissionsManager;
 	}
 
-	/**
-	 * 
-	 * @param preferencesService
-	 */
 	public void setPreferencesService(PreferencesService preferencesService) {
 		this.preferencesService = preferencesService;
 	}
@@ -502,7 +441,7 @@ public class MessageForumSynopticBean {
 	 * 		List with the adjusted message counts
 	 */
 	private List filterNoAccessMessages(List currentList, List removeList) {
-		List resultList = new ArrayList();
+		final List resultList = new ArrayList();
 		
 		// ****** if either list is empty, return currentList unchanged ******
 		if (currentList.isEmpty() || removeList.isEmpty()) {
@@ -522,6 +461,7 @@ public class MessageForumSynopticBean {
 				currentValues = (Object []) currentIter.next();
 			}
 
+			// is current site in the removeList. if so, return index where
 			int pos = indexOf((String) currentValues[0], getSiteIds(removeList));
 			
 			// if there are messages to remove, do so otherwise just add current values
@@ -555,8 +495,7 @@ public class MessageForumSynopticBean {
 	 * 		List of role ids user has for all sites passed in
 	 */
 	private List getUserRoles(List siteList) {
-		List roles = new ArrayList();
-		
+		final List roles = new ArrayList();
 		final Iterator siteIter = siteList.iterator();
 		
 		while (siteIter.hasNext()) {
@@ -604,8 +543,6 @@ public class MessageForumSynopticBean {
 		
 		Object [] resultSet = null;		
 		final List resultList = new ArrayList();
-		
-		// ***** set up iterators *****
 		final Iterator siteIter = siteList.iterator();
 
 		while (siteIter.hasNext()) {
@@ -622,14 +559,16 @@ public class MessageForumSynopticBean {
 				continue;
 			}
 
+			// does current site contain counts to remove. if so, return index where
 			int pos = indexOf(site.getId(), getSiteIds(removeMessageCounts));
 
-			// permissions based on roles, so need to check if user's role has messages
-			// that need to be removed from totals (either total or unread)
+			// found, so get it and add to result list
 			if (pos != -1) {
 				resultSet = (Object []) removeMessageCounts.get(pos);
 				
 				while (site.getId().equals((String) resultSet[0])) {
+					// permissions based on roles, so need to check if user's role has messages
+					// that need to be removed from totals (either total or unread)
 					final String curRole = AuthzGroupService.getUserRole(
 												SessionManager.getCurrentSessionUserId(),
 														("/site/" + site.getId()) );
@@ -640,7 +579,7 @@ public class MessageForumSynopticBean {
 						// remove all rows of removeMessageCounts for this site
 						// since I've found the one I was looking for
 						while (pos != -1) {
-							removeMessageCounts.remove(pos++);
+							removeMessageCounts.remove(pos);
 							
 							pos = indexOf(site.getId(), getSiteIds(removeMessageCounts));
 						}
@@ -651,13 +590,14 @@ public class MessageForumSynopticBean {
 					}
 					else {
 						// this row is not it but may have others so remove it
-						// and set up for next iteration of the loop
+						// to set up for next iteration of the loop
 						removeMessageCounts.remove(pos++);
 
 						if (pos < removeMessageCounts.size()) {
 							resultSet = (Object []) removeMessageCounts.get(pos);
 						}
 						else {
+							// nope, no more for this site so do this to stop loop
 							resultSet = new Object [2];
 							resultSet[0] = "";
 						}
@@ -683,12 +623,12 @@ public class MessageForumSynopticBean {
 		// retrieve what possible roles user could be in sites
 		final List roleList = getUserRoles(siteList);
 		
-		// ******* Pulls discussion forum message counts from DB *******
+		// ******* Pulls total discussion forum message counts from DB *******
 		List unreadDFMessageCounts = new ArrayList();
 		List discussionForumMessageCounts = messageManager
 						.findDiscussionForumMessageCountsForAllSites(siteList);
 
-		// if no messages at all, no need for further processing
+		// if still messages, keep processing
 		if (! discussionForumMessageCounts.isEmpty()) {
 			List discussionForumRemoveMessageCounts = messageManager
 						.findDiscussionForumMessageRemoveCountsForAllSites(siteList, roleList);
@@ -696,50 +636,53 @@ public class MessageForumSynopticBean {
 			discussionForumRemoveMessageCounts = selectCorrectRemoveMessageCount(
 													discussionForumRemoveMessageCounts, siteList);
 
-			// if no read messages to remove, don't bother
+			// if still read messages to remove, keep processing
 			if (! discussionForumRemoveMessageCounts.isEmpty()) {
 				discussionForumMessageCounts = filterNoAccessMessages(
 													discussionForumMessageCounts,
 													discussionForumRemoveMessageCounts);
 			}
 
-			// if no messages left, no read messages to get
+			// if messages left, get read messages
 			if (! discussionForumMessageCounts.isEmpty()) {
 				// Pulls read discussion forum message counts from DB
 				List discussionForumReadMessageCounts = messageManager
 											.findDiscussionForumReadMessageCountsForAllSites();
 
-				// if no read messages, don't bother
-				if (! discussionForumReadMessageCounts.isEmpty()) {
+				// if no read messages, totals are current message counts
+				if (discussionForumReadMessageCounts.isEmpty()) {
+					unreadDFMessageCounts = discussionForumMessageCounts;
+				}
+				else {
+					// else need to subtract read messages to get unread messages
 					List discussionForumRemoveReadMessageCounts = messageManager
-										.findDiscussionForumReadMessageRemoveCountsForAllSites(getUserRoles(siteList));
+						.findDiscussionForumReadMessageRemoveCountsForAllSites(getUserRoles(siteList));
 
+					// need to find correct read message counts for site and role
 					discussionForumRemoveReadMessageCounts = 
-								selectCorrectRemoveMessageCount(discussionForumRemoveReadMessageCounts, siteList);
+						selectCorrectRemoveMessageCount(discussionForumRemoveReadMessageCounts, siteList);
 
-					// if no messages to remove, don't bother
+					// if still messages to remove, remove them
 					if (! discussionForumRemoveReadMessageCounts.isEmpty()) {
 						discussionForumReadMessageCounts = filterNoAccessMessages(
-																discussionForumReadMessageCounts,
-																discussionForumRemoveReadMessageCounts);
+															discussionForumReadMessageCounts,
+															discussionForumRemoveReadMessageCounts);
 					}
 
-					if (! discussionForumReadMessageCounts.isEmpty()) {
+					// if after filtering there are no read message counts, current
+					// message counts are the result
+					if (discussionForumReadMessageCounts.isEmpty()) {
+						unreadDFMessageCounts = discussionForumMessageCounts;
+					} 
+					else {
+						// else subtract read from total to get unread counts
 						unreadDFMessageCounts = computeUnreadDFMessages(
 													discussionForumMessageCounts,
 													discussionForumReadMessageCounts);
-					} 
-					else {
-						// after filtering, no unread message counts
-						unreadDFMessageCounts = discussionForumMessageCounts;
-					}
-				}
-				else {
-					// no read message counts
-					unreadDFMessageCounts = discussionForumMessageCounts;
-				}
-			}
-		}
+					} // end setting final unread message counts where subtraction needed
+				} // end (discussionForumReadMessageCounts.isEmpty()) - after retrieving read messages from db 
+			} // end (! discussionForumMessageCounts.isEmpty()) - after fitering messsage not accessible
+		} // end (! discussionForumMessageCounts.isEmpty()) - after initial retrieval of messages from db
 		
 		return unreadDFMessageCounts;
 	}
@@ -778,7 +721,6 @@ public class MessageForumSynopticBean {
 	 * 		List of DecoratedCompiledMessageStats to populate MyWorkspace page
 	 */
 	private List getMyWorkspaceContents() {
-		final boolean firstIteration = true;
 		final List contents = new ArrayList();
 		Object[] unreadDFCount;
 		Object[] pmCounts;
@@ -828,13 +770,14 @@ public class MessageForumSynopticBean {
 
 				// fill site title
 				dcms.setSiteName(site.getTitle());
-				dcms.setSiteId(site.getId());
+				dcms.setSiteId(siteId);
 				
 				dcms.setUnreadForumsAmt(0);
 				dcms.setUnreadPrivateAmt(0);
 				
-				dcms.setMcPageURL(getMCPageURL(site.getId()));
-
+				dcms.setMcPageURL(getMCPageURL(siteId));
+				dcms.setPrivateMessagesUrl(generatePrivateTopicMessagesUrl(siteId));
+				
 				contents.add(dcms);
 				
 				sitesToView = true;
@@ -897,7 +840,7 @@ public class MessageForumSynopticBean {
 
 			// fill site title
 			dcms.setSiteName(site.getTitle());
-			dcms.setSiteId(site.getId());
+			dcms.setSiteId(siteId);
 
 			// Put check here because if not in site, skip
 			if (isMessageForumsPageInSite(site)) {
@@ -905,9 +848,9 @@ public class MessageForumSynopticBean {
 				// ************ checking for unread private messages for this site ************  
 				if (siteId.equals(pmCounts[0])) {
 					// check if not enabled
-					final Area area = areaManager.getAreaByContextIdAndTypeId(site.getId(), 
+					final Area area = areaManager.getAreaByContextIdAndTypeId(siteId, 
 													typeManager.getPrivateMessageAreaType());
-					
+
 					if (area != null) {
 						if (area.getEnabled().booleanValue()) {
 							dcms.setUnreadPrivateAmt(((Integer) pmCounts[1]).intValue());
@@ -941,7 +884,8 @@ public class MessageForumSynopticBean {
 				// ************ get the page URL for Message Center************
 				// only if unread messages, ie, only if row will appear on page 
 				if (hasPrivate || hasDF) {
-					dcms.setMcPageURL(getMCPageURL(site.getId()));
+					dcms.setMcPageURL(getMCPageURL(siteId));
+					dcms.setPrivateMessagesUrl(generatePrivateTopicMessagesUrl(siteId));
 
 					contents.add(dcms);
 					
@@ -964,11 +908,11 @@ public class MessageForumSynopticBean {
 	 * 			List of Strings extracted from list passed in
 	 */
 	private List getSiteIds(List counts) {
-		List results = new ArrayList();
+		final List results = new ArrayList();
 		
 		if (! counts.isEmpty()) {
-			for (Iterator iter = counts.iterator(); iter.hasNext(); ) {
-				Object [] pmCount = (Object []) iter.next();
+			for (final Iterator iter = counts.iterator(); iter.hasNext(); ) {
+				final Object [] pmCount = (Object []) iter.next();
 				
 				results.add(pmCount[0]);
 			}
@@ -984,7 +928,7 @@ public class MessageForumSynopticBean {
 	 * 		List of DecoratedCompiledMessageStats for a particular site
 	 */
 	private List getSiteContents() {
-		List contents = new ArrayList();
+		final List contents = new ArrayList();
 		
 		// Check if tool within site
 		// if so, get stats for just this site
@@ -1000,7 +944,7 @@ public class MessageForumSynopticBean {
 			final Area area = pvtMessageManager.getPrivateMessageArea();
 			
 			if (pvtMessageManager.getPrivateMessageArea().getEnabled().booleanValue()) {
-				PrivateForum pf = pvtMessageManager.initializePrivateMessageArea(area);
+				pvtMessageManager.initializePrivateMessageArea(area);
 				
 				unreadPrivate = pvtMessageManager.findUnreadMessageCount(
 									typeManager.getReceivedPrivateMessageType());
@@ -1013,7 +957,8 @@ public class MessageForumSynopticBean {
 			}
 
 			dcms.setHeading(rb.getString(PRIVATE_HEADING));
-			dcms.setMcPageURL(getMCPageURL());
+//			dcms.setMcPageURL(getMCPageURL());
+			dcms.setPrivateMessagesUrl(generatePrivateTopicMessagesUrl(getSiteId()));
 
 			contents.add(dcms);
 			
@@ -1042,7 +987,7 @@ public class MessageForumSynopticBean {
 			}
 			dcms.setUnreadMessages(unreadForum);
 			dcms.setHeading(rb.getString(DISCUSSION_HEADING));
-			dcms.setMcPageURL(getMCPageURL());
+			dcms.setPrivateMessagesUrl(getMCPageURL());
 
 			contents.add(dcms);
 		}
@@ -1082,7 +1027,6 @@ public class MessageForumSynopticBean {
 	private String getSiteName() {
 		try {
 			return getSite(getContext()).getTitle();
-
 		} 
 		catch (IdUnusedException e) {
 			LOG.error("IdUnusedException when trying to access site "
@@ -1101,7 +1045,6 @@ public class MessageForumSynopticBean {
 	private String getSiteId() {
 		try {
 			return getSite(getContext()).getId();
-
 		} 
 		catch (IdUnusedException e) {
 			LOG.error("IdUnusedException when trying to access site "
@@ -1131,15 +1074,12 @@ public class MessageForumSynopticBean {
 	 * 			List of unread messages by site
 	 */
 	private List computeUnreadDFMessages(List totalMessages, List readMessages) {
-		List unreadDFMessageCounts = new ArrayList();
-
+		final List unreadDFMessageCounts = new ArrayList();
 		final List readSiteIds = getSiteIds(readMessages);
 		
-		// Constructs the unread message counts from above 4 lists
+		// Constructs the unread message counts
 		final Iterator dfMessagesIter = totalMessages.iterator();
 		
-		// NOTE: dfMessagesIter.count >= dfReadMessagesIter, so use
-		// dfMessagesIter for compilation loop
 		while (dfMessagesIter.hasNext()) {
 			final Object [] dfMessageCountForASite = (Object[]) dfMessagesIter.next();
 			
@@ -1148,12 +1088,17 @@ public class MessageForumSynopticBean {
 			siteDFInfo[0] = (String) dfMessageCountForASite[0];
 
 			int pos = indexOf((String) siteDFInfo[0], readSiteIds);
-			
+
+			// read message count for this site found, so subtract it
 			if (pos != -1) {
 				final Object [] dfReadMessageCountForASite = (Object []) readMessages.get(pos);
 				
 				siteDFInfo[1] = new Integer(((Integer) dfMessageCountForASite[1]).intValue()
 												- ((Integer) dfReadMessageCountForASite[1]).intValue());
+				
+				// done with it, remove from list
+				readMessages.remove(pos);
+				readSiteIds.remove(pos);
 			} 
 			else {
 				// No messages read for this site so message count = unread message count
@@ -1213,34 +1158,30 @@ public class MessageForumSynopticBean {
 	}
 
 	/**
-	 * Returns the URL for the page the Message Center tool is on.
+	 * Returns the URL using a helper to go to MC home page directly.
 	 * 
 	 * @return String A URL so the user can click to go to Message Center.
 	 *         Needed since tool could possibly by in MyWorkspace
 	 */
 	private String getMCPageURL(String siteId) {
-		try {
-			Collection toolsInSite = getSite(siteId).getTools(MESSAGE_CENTER_ID);
-			ToolConfiguration mcTool;
+	    ToolConfiguration mcTool = null;
+	    String url = null;
+	    
+	    try {
+		    mcTool = SiteService.getSite(siteId).getToolForCommonId(MESSAGE_CENTER_ID);	    	
 
-			if (!toolsInSite.isEmpty()) {
-				Iterator iter = toolsInSite.iterator();
-				mcTool = (ToolConfiguration) iter.next();
-
-				SitePage pgelement = mcTool.getContainingPage();
-
-				return pgelement.getUrl();
-			}
-
+		    if (mcTool != null) {
+		    	url = ServerConfigurationService.getPortalUrl() + "/directtool/"
+		    					+ mcTool.getId() + "/sakai.messageforums.helper.helper/main";
+		    }
 		}
 		catch (IdUnusedException e) {
 			// Weirdness since site ids used gotten from SiteService
 			LOG.error("IdUnusedException while trying to check if site has MF tool.");
 
-			// TODO: What do we do?
 		}
 
-		return "";
+		return url;
 
 	}
 
@@ -1286,6 +1227,7 @@ public class MessageForumSynopticBean {
 								+ "from synoptic Message Center tool.");
 			} 
 			else {
+				// TODO: construct query to be one roundtrip to DB
 				for (Iterator iter = privateMessages.iterator(); iter.hasNext();) {
 					pvtMessageManager.markMessageAsReadForUser((PrivateMessage) iter.next());
 				}
@@ -1351,7 +1293,58 @@ public class MessageForumSynopticBean {
 		return siteList;
 	}
 
+	/**
+	 * Construct the Url to bring up the Private Message section
+	 * for the site whose id is passed in
+	 * 
+	 * @param contextId
+	 * 				The site id
+	 * 
+	 * @return
+	 * 			String containing the Url to call the helper to move
+	 * 			to the Private Message section of a site
+	 */
+	public String generatePrivateTopicMessagesUrl(String contextId) {
+		Topic receivedTopic = null;
+		String receivedTopicUuid = null;
+		
+	    Area area = areaManager.getAreaByContextIdAndTypeId(contextId, typeManager.getPrivateMessageAreaType());
+        
+	    if (area.getEnabled().booleanValue() || pvtMessageManager.isInstructor()){
+	      PrivateForum pf = pvtMessageManager.initializePrivateMessageArea(area);
+	      pf = pvtMessageManager.initializationHelper(pf);
+	      List pvtTopics = pf.getTopics();
+	      Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);   //changed to date comparator
+	      
+	      receivedTopic = (Topic) pvtTopics.iterator().next();
+	      receivedTopicUuid = receivedTopic.getUuid();
+	    } 
+
+	    ToolConfiguration mcTool = null;
+	    String url = null;
+	    
+	    try {
+		    mcTool = SiteService.getSite(contextId).getToolForCommonId(MESSAGE_CENTER_ID);	    	
+
+		    if (mcTool != null) {
+		    	url = ServerConfigurationService.getPortalUrl() + "/directtool/"
+		    					+ mcTool.getId() 
+		    					+ "/sakai.messageforums.helper.helper/privateMsg/pvtMsg?pvtMsgTopicId=" + receivedTopicUuid 
+		    					+ "&contextId=" + contextId + "&selectedTopic=Received";
+			
+		    	return url;
+		    }
+	    }
+	    catch (IdUnusedException e) {
+	    	LOG.error("IdUnusedException attempting to move to Private Messages for a site. Site id used is: " + contextId);
+	    }
+
+	    return "";
+    }
+
+	// ======================================================================
 	// ======================== Options Page Methods ======================== 
+	// ======================================================================
 
 	public List getNonNotificationSitesItems() {
 		return nonNotificationSitesItems;
@@ -1424,7 +1417,7 @@ public class MessageForumSynopticBean {
 		}
 
 		// create excluded and order list of Sites and add balance mySites to excluded Site list for display in Form
-		List excluded = new Vector();
+		final List excluded = new Vector();
 
 		for (Iterator iter = prefExclude.iterator(); iter.hasNext();) {
 			final String element = (String) iter.next();
@@ -1432,7 +1425,7 @@ public class MessageForumSynopticBean {
 
 			if (pos != -1) {
 				try {
-					Site s = getSite((String) sites.get(pos));
+					final Site s = getSite((String) sites.get(pos));
 
 					excluded.add(s);
 					sites.remove(pos);
@@ -1445,16 +1438,16 @@ public class MessageForumSynopticBean {
 		}
 
 		// Now convert to SelectItem for display in JSF
-		for (Iterator iter = excluded.iterator(); iter.hasNext();) {
-			Site element = (Site) iter.next();
+		for (final Iterator iter = excluded.iterator(); iter.hasNext();) {
+			final Site element = (Site) iter.next();
 			
-			SelectItem excludeItem = new SelectItem(
+			final SelectItem excludeItem = new SelectItem(
 											element.getId(), element.getTitle());
 
 			nonNotificationSitesItems.add(excludeItem);
 		}
 
-		for (Iterator iter = sites.iterator(); iter.hasNext();) {
+		for (final Iterator iter = sites.iterator(); iter.hasNext();) {
 			Site element = null;
 
 			try {
@@ -1470,7 +1463,7 @@ public class MessageForumSynopticBean {
 				continue;
 			}
 
-			SelectItem excludeItem = new SelectItem(
+			final SelectItem excludeItem = new SelectItem(
 										element.getId(), element.getTitle());
 
 			notificationSitesItems.add(excludeItem);
@@ -1725,7 +1718,7 @@ public class MessageForumSynopticBean {
 	}
 
 	/**
-	 * Find the site in the list that has this id - return the position. *
+	 * Find the object in the list that has this value - return the position.
 	 * 
 	 * @param value
 	 *        The site id to find.
@@ -1739,7 +1732,7 @@ public class MessageForumSynopticBean {
 		}
 
 		for (int i = 0; i < siteList.size(); i++) {
-			String siteId = (String) siteList.get(i);
+			final String siteId = (String) siteList.get(i);
 
 			if (siteId.equals(value)) {
 				return i;
