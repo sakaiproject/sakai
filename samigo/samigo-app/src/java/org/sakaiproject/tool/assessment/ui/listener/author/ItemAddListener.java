@@ -175,45 +175,38 @@ public class ItemAddListener
 	FacesContext context=FacesContext.getCurrentInstance();
         int corrsize = item.getMultipleChoiceAnswers().size();
 	String[] corrChoices = new String[corrsize];
-	//boolean correctChoice=false;
         int counter=0;
-       
-
+        boolean isCorrectChoice = false;
 	if(item.getMultipleChoiceAnswers()!=null){
 	    while (iter.hasNext()) {
 		AnswerBean answerbean = (AnswerBean) iter.next();
                 String answerTxt=ContextUtil.stringWYSIWYG(answerbean.getText());
  		//  if(answerTxt.replaceAll("<.*?>", "").trim().equals(""))        
         // SAK-6050
-		if(answerTxt.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim().equals("")) 
-
+		if(answerTxt.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim().equals("")) {
                     answerbean.setText("");
+		}
+		
 		label = answerbean.getLabel();
                 txt=answerbean.getText();
 		  
 		corrChoices[counter]=label;
-		if(isCorrectChoice(item,label)&&((txt==null) ||(txt.equals("")))){          
-                    error=true;
+		isCorrectChoice = isCorrectChoice(item,label);
+		if(isCorrectChoice && ((txt==null) ||(txt.equals("")))){          
+            error=true;
 		    String empty_correct_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","empty_correct_error");
 		    context.addMessage(null,new FacesMessage(empty_correct_err+label));
 
 		}
 		
-	
-		if ((txt!=null)&& (!txt.equals("")))
-		    {
+		if ((txt!=null)&& (!txt.equals(""))) {
 			countAnswerText++;
-		
-			if(isCorrectChoice(item,label)){
-		
+			if(isCorrectChoice){
 			    correct=true;
-		   
 			    counter++;
-                     
 			}
 	        
 			if(!label.equals(AnswerBean.getChoiceLabels()[indexLabel])){
-		
 			    missingchoices= true;
 			    if( missingLabel.equals(""))
 				missingLabel=missingLabel+" "+AnswerBean.getChoiceLabels()[indexLabel];
@@ -222,8 +215,15 @@ public class ItemAddListener
 			    indexLabel++;
 			}
 			indexLabel++;
-	
-		    }
+		}
+	    } // end of while
+	    
+	    // Fixed for 7208
+	    // Following the above logic, at this point, no matter the last choice (lable is corrChoices[counter])
+	    // is a correct answer or not, it will be the last value in array corrChoice[].
+	    // Therefore, make a call to isCorrectChoice() to see if it is indeed a correct choice
+	    if (!isCorrectChoice(item, corrChoices[counter])) {
+	    	corrChoices[counter] = null;
 	    }
 	    item.setCorrAnswers(corrChoices);
 	    if(!error){
