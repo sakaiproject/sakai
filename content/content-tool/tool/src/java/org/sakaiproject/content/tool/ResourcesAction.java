@@ -671,6 +671,8 @@ public class ResourcesAction
 
 	protected static final String STATE_CREATE_WIZARD_COLLECTION_ID = "resources.create_wizard_collection_id";
 
+	public static final String UTF_8_ENCODING = "UTF-8";
+
 
 
 	/**
@@ -4527,7 +4529,7 @@ public class ResourcesAction
 					ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties ();
 					resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, item.getName());
 					resourceProperties.addProperty (ResourceProperties.PROP_DESCRIPTION, item.getDescription());
-					resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_ENCODING, "UTF-8");
+					resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_ENCODING, UTF_8_ENCODING);
 					resourceProperties.addProperty(ResourceProperties.PROP_STRUCTOBJ_TYPE, item.getFormtype());
 					resourceProperties.addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, org.sakaiproject.metaobj.shared.mgt.MetaobjEntityManager.METAOBJ_ENTITY_PREFIX);
 					List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
@@ -5134,9 +5136,9 @@ public class ResourcesAction
 			rightsObj.addResourceProperties(resourceProperties);
 
 			resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString());
-			if(item.isHtml())
+			if(item.isHtml() || item.isPlaintext())
 			{
-				resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_ENCODING, "UTF-8");
+				resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_ENCODING, UTF_8_ENCODING);
 			}
 			List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
 			saveMetadata(resourceProperties, metadataGroups, item);
@@ -13611,7 +13613,7 @@ public class ResourcesAction
 		
 		protected String m_filename;
 		protected byte[] m_content;
-		protected String m_encoding;
+		protected String m_encoding = UTF_8_ENCODING;
 
 		protected String m_mimetype;
 		protected String m_description;
@@ -13667,7 +13669,7 @@ public class ResourcesAction
 			m_metadataGroupsShowing = new HashSet();
 			m_mimetype = type;
 			m_content = null;
-			m_encoding = "UTF-8";
+			m_encoding = UTF_8_ENCODING;
 			m_notification = NotificationService.NOTI_NONE;
 			m_hasQuota = false;
 			m_canSetQuota = false;
@@ -13811,7 +13813,7 @@ public class ResourcesAction
 
 		/**
 		 * Set the character encoding type that will be used when converting content body between strings and byte arrays.
-		 * Default is "UTF-8".
+		 * Default is UTF_8_ENCODING.
 		 * @param encoding A valid name for a character set encoding scheme (@see java.lang.Charset)
 		 */
 		public void setEncoding(String encoding)
