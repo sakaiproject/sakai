@@ -128,8 +128,7 @@
       <h:outputLabel rendered="#{delivery.dueDate!=null}" value="#{msg.due_date}" />
     </h:panelGroup>
     <h:panelGroup>
-      <h:outputText value="#{delivery.dueDate}" >
-        <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
+      <h:outputText value="#{delivery.dueDateString}" >
       </h:outputText>
     </h:panelGroup>
 
