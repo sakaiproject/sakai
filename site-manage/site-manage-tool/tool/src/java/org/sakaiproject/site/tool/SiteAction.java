@@ -244,9 +244,9 @@ public class SiteAction extends PagedResourceActionII
 	private static final String STATE_VIEW_SELECTED = "site.view.selected";
 		
 	/** the list of View selection options **/
-	private final static String ALL_MY_SITES = rb.getString("java.allmy");//"All My Sites";
-	private final static String MYWORKSPACE = rb.getString("java.my");//"My Workspace";
-   private final static String GRADTOOLS = rb.getString("java.gradtools");//"gradtools";
+	private String ALL_MY_SITES = rb.getString("java.allmy");//"All My Sites";
+	private String MYWORKSPACE = rb.getString("java.my");//"My Workspace";
+	private String GRADTOOLS = rb.getString("java.gradtools");//"gradtools";
 	
 	/** Names of lists related to tools */
 	private static final String STATE_TOOL_REGISTRATION_LIST = "toolRegistrationList"; 
@@ -326,10 +326,10 @@ public class SiteAction extends PagedResourceActionII
 	private static final String NULL_STRING = "";
 	
 	/** The alert message shown when no site has been selected for the requested action. */
-	private static final String NO_SITE_SELECTED_STRING = rb.getString("java.nosites");
+	private String NO_SITE_SELECTED_STRING = rb.getString("java.nosites");
 	
 	/** The alert message shown when Revise... has been clicked but more than one site was checked */
-	private static final String MORE_THAN_ONE_SITE_SELECTED_STRING = rb.getString("java.please"); 
+	private String MORE_THAN_ONE_SITE_SELECTED_STRING = rb.getString("java.please"); 
 	
 	/** The state attribute alerting user of a sent course request */
 	private static final String REQUEST_SENT = "site.request.sent";
@@ -339,7 +339,7 @@ public class SiteAction extends PagedResourceActionII
 	private static final String STATE_JOINERROLE = "state_joinerRole";
 	
 	/** Invalid email address warning */
-	private static final String INVALID_EMAIL = rb.getString("java.theemail");
+	private String INVALID_EMAIL = rb.getString("java.theemail");
 	
 	/** the list of selected user */
 	private static final String STATE_SELECTED_USER_LIST = "state_selected_user_list";
@@ -428,6 +428,9 @@ public class SiteAction extends PagedResourceActionII
   	private static final String IMPORT_DATA_SOURCE = "import_data_source";
   	
   	private static final String EMAIL_CHAR = "@";
+  	
+  	//  Special tool id for Home page
+  	private static final String HOME_TOOL_ID = "home";
   
 	/**
 	* Populate the state object, if needed.
@@ -1087,7 +1090,7 @@ public class SiteAction extends PagedResourceActionII
 				// default.
 				Boolean checkHome = (Boolean)state.getAttribute(STATE_TOOL_HOME_SELECTED);
 				if (checkHome == null) {
-					if ((defaultSelectedTools != null) && defaultSelectedTools.contains("home")) {
+					if ((defaultSelectedTools != null) && defaultSelectedTools.contains(HOME_TOOL_ID)) {
 						checkHome = Boolean.TRUE;
 					}
 				}
@@ -5252,7 +5255,7 @@ public class SiteAction extends PagedResourceActionII
 				{
 					String toolId = (String) l.get(i);
 					
-					if (toolId.equals("home"))
+					if (toolId.equals(HOME_TOOL_ID))
 					{
 						homeSelected = true;
 					}
@@ -7635,7 +7638,7 @@ public class SiteAction extends PagedResourceActionII
 		for (ListIterator j = chosenList.listIterator(); j.hasNext(); )
 		{
 			String choice = (String) j.next();
-			if(choice.equalsIgnoreCase("home"))
+			if(choice.equalsIgnoreCase(HOME_TOOL_ID))
 			{ 
 				homeInChosenList = true; 
 			}
@@ -7697,7 +7700,7 @@ public class SiteAction extends PagedResourceActionII
 		for (ListIterator i = wSetupPageList.listIterator(); i.hasNext(); )
 		{
 			wSetupPage = (WorksiteSetupPage) i.next();
-			if((wSetupPage.getPageTitle()).equals("Home")){ homeInWSetupPageList = true; }
+			if((wSetupPage.getPageTitle()).equals(HOME_TOOL_ID)){ homeInWSetupPageList = true; }
 		}
 		
 		if (homeInChosenList)
@@ -7715,7 +7718,7 @@ public class SiteAction extends PagedResourceActionII
 					for (ListIterator i = wSetupPageList.listIterator(); i.hasNext(); )
 					{
 						WorksiteSetupPage comparePage = (WorksiteSetupPage) i.next();
-						if((comparePage.getPageTitle()).equals("Home")) { homePage = comparePage; }
+						if((comparePage.getPageTitle()).equals(HOME_TOOL_ID)) { homePage = comparePage; }
 					}
 					page = site.getPage(homePage.getPageId());
 					List toolList = page.getTools();
@@ -7765,7 +7768,7 @@ public class SiteAction extends PagedResourceActionII
 	
 				wSetupHome.pageId = page.getId();
 				wSetupHome.pageTitle = page.getTitle();
-				wSetupHome.toolId = "home";
+				wSetupHome.toolId = HOME_TOOL_ID;
 				wSetupPageList.add(wSetupHome);
 			
 				//Add worksite information tool
@@ -8161,7 +8164,7 @@ public class SiteAction extends PagedResourceActionII
 				{
 					goToENWPage = true;
 				}
-				else if (toolId.equals("home"))
+				else if (toolId.equals(HOME_TOOL_ID))
 				{
 					homeSelected = true;
 				}
@@ -8276,7 +8279,7 @@ public class SiteAction extends PagedResourceActionII
 		}
 		
 		//for tools other than home
-		if (chosenList.contains("home"))
+		if (chosenList.contains(HOME_TOOL_ID))
 		{
 			// add home tool later 
 			hasHome = true;
@@ -9558,7 +9561,7 @@ public class SiteAction extends PagedResourceActionII
 				{
 					if(page.getTitle().equals(rb.getString("java.home")))
 					{
-						wSetupTool = "home";
+						wSetupTool = HOME_TOOL_ID;
 						check_home = true;
 					}
 					else
@@ -9705,7 +9708,7 @@ public class SiteAction extends PagedResourceActionII
 		if (state.getAttribute(STATE_TOOL_HOME_SELECTED) != null
 			&& ((Boolean) state.getAttribute(STATE_TOOL_HOME_SELECTED)).booleanValue())
 		{
-			rv.add("home");
+			rv.add(HOME_TOOL_ID);
 		}
 
 		// look for null site type
@@ -10016,10 +10019,10 @@ public class SiteAction extends PagedResourceActionII
 				}
 				wcUrls.put(id, wcUrl);
 			}
-			else if (id.equalsIgnoreCase("home"))
-			{
-				has_home = true;
-			}
+			else if (id.equalsIgnoreCase(HOME_TOOL_ID))
+ 			{
+ 				has_home = true;
+ 			}
 			else if (id.equalsIgnoreCase("sakai.mailbox"))
 			{
 				// if Email archive tool is selected, check the email alias
