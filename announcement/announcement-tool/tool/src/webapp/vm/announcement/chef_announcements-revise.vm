@@ -10,7 +10,7 @@
 			$tlang.getString("revise.revise")
 		#end
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">Alert: $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<div class="indnt1">
 		<p class="instruction">
 				#if ( $newAnn =="true")
