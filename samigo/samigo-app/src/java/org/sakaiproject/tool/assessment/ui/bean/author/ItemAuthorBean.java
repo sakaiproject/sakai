@@ -25,7 +25,6 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,6 +52,7 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
+import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.tool.api.ToolSession;
@@ -81,10 +81,6 @@ public class ItemAuthorBean
 {
   private static Log log = LogFactory.getLog(ItemAuthorBean.class);
 
-  private static String filename = "/org/sakaiproject/tool/assessment/bundle/AuthorMessages.properties";
-  // internal use
-  private static final String answerNumbers =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 8266438770394956874L;
 
@@ -839,58 +835,65 @@ public class ItemAuthorBean
    * delete specified Item
    */
   public String deleteItem() {
+	  ItemService delegate = new ItemService();
+	  Long deleteId= this.getItemToDelete().getItemId();
+	  ItemFacade itemf = delegate.getItem(deleteId, AgentFacade.getAgentString());
+	  // save the currSection before itemf.setSection(null), used to reorder question sequences
+	  SectionFacade  currSection = (SectionFacade) itemf.getSection();
+	  Integer  currSeq = itemf.getSequence();
 
-ItemService delegate = new ItemService();
-
-        Long deleteId= this.getItemToDelete().getItemId();
-
-        ItemFacade itemf = delegate.getItem(deleteId, AgentFacade.getAgentString());
-	// save the currSection before itemf.setSection(null), used to reorder question sequences
-
-        SectionFacade  currSection = (SectionFacade) itemf.getSection();
-        Integer  currSeq = itemf.getSequence();
-
-	QuestionPoolService qpdelegate = new QuestionPoolService();
-        if ((qpdelegate.getPoolIdsByItem(deleteId.toString()) ==  null) ||
+	  QuestionPoolService qpdelegate = new QuestionPoolService();
+	  if ((qpdelegate.getPoolIdsByItem(deleteId.toString()) ==  null) ||
            (qpdelegate.getPoolIdsByItem(deleteId.toString()).isEmpty() )){
-	// if no reference to this item at all
-        delegate.deleteItem(deleteId, AgentFacade.getAgentString());
-	}
-	else {
-	// if some pools still reference to this item , then just set section = null
-	  itemf.setSection(null);
-	  delegate.saveItem(itemf);
- 	}
+		  // if no reference to this item at all, ie, this item is created in 
+		  // assessment but not assigned to any pool
+		  delegate.deleteItem(deleteId, AgentFacade.getAgentString());
+	  }
+	  else {
+		  if (currSection == null) {
+			  // if this item is created from question pool
+			  QuestionPoolBean  qpoolbean= (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
+	          ItemFacade itemfacade= delegate.getItem(deleteId, AgentFacade.getAgentString());
+	          ArrayList items = new ArrayList();
+	          items.add(itemfacade);
+	          qpoolbean.setItemsToDelete(items);
+			  qpoolbean.removeQuestionsFromPool();
+			  return "editPool";
+		  }
+		  else {
+			  // 
+			  // if some pools still reference to this item, ie, this item is 
+			  // created in assessment but also assigned a a pool
+			  // then just set section = null
+			  itemf.setSection(null);
+			  delegate.saveItem(itemf);
+		  }
+	  }
 
-    AssessmentService assessdelegate = new AssessmentService();
+	  AssessmentService assessdelegate = new AssessmentService();
       // reorder item numbers
 
-    SectionFacade sectfacade = assessdelegate.getSection(currSection.getSectionId().toString());
-      Set itemset = sectfacade.getItemFacadeSet();
-// should be size-1 now.
-      Iterator iter = itemset.iterator();
-      while (iter.hasNext()) {
-        ItemFacade  itemfacade = (ItemFacade) iter.next();
-        Integer itemfacadeseq = itemfacade.getSequence();
-        if (itemfacadeseq.compareTo(currSeq) > 0 ){
-          itemfacade.setSequence(new Integer(itemfacadeseq.intValue()-1) );
-	  delegate.saveItem(itemfacade);
-        }
-      }
+	  SectionFacade sectfacade = assessdelegate.getSection(currSection.getSectionId().toString());
+	  Set itemset = sectfacade.getItemFacadeSet();
+	  // should be size-1 now.
+	  Iterator iter = itemset.iterator();
+	  while (iter.hasNext()) {
+		  ItemFacade  itemfacade = (ItemFacade) iter.next();
+		  Integer itemfacadeseq = itemfacade.getSequence();
+		  if (itemfacadeseq.compareTo(currSeq) > 0 ){
+			  itemfacade.setSequence(new Integer(itemfacadeseq.intValue()-1) );
+			  delegate.saveItem(itemfacade);
+		  }
+	  }
 
-
-
-    //  go to editAssessment.jsp, need to first reset assessmentBean
-    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
+	  //  go to editAssessment.jsp, need to first reset assessmentBean
+	  AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
                                           "assessmentBean");
-    AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
-    assessmentBean.setAssessment(assessment);
-    assessdelegate.updateAssessmentLastModifiedInfo(assessment);
+	  AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
+	  assessmentBean.setAssessment(assessment);
+	  assessdelegate.updateAssessmentLastModifiedInfo(assessment);
 
-
-	return "editAssessment";
-
-
+	  return "editAssessment";
   }
 
 
