@@ -3968,7 +3968,24 @@ public class SiteAction extends PagedResourceActionII
 				}
 				if (state.getAttribute(STATE_GROUP_MEMBERS) == null)
 				{
-					state.setAttribute(STATE_GROUP_MEMBERS, g.getMembers());
+					// double check the member existance
+					Set gMemberSet = g.getMembers();
+					Set rvGMemberSet = new HashSet();
+					for(Iterator iSet = gMemberSet.iterator(); iSet.hasNext();)
+					{
+						Member member = (Member) iSet.next();
+						try
+						{
+							UserDirectoryService.getUser(member.getUserId());
+							((Set) rvGMemberSet).add(member);
+						}
+						catch (UserNotDefinedException e)
+						{
+							// cannot find user
+							M_log.warn(this + rb.getString("user.notdefined") + member.getUserId());
+						}
+					}
+					state.setAttribute(STATE_GROUP_MEMBERS, rvGMemberSet);
 				}
 			}
 		}
