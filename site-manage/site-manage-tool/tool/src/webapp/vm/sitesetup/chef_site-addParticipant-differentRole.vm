@@ -38,7 +38,12 @@
 				#set($uniqname = $participant.getUniqname())
 				<tr>
 					<td>
-						<label for="role$selectIDCount">$participant.getDisplayId()</label>
+						<label for="role$selectIDCount">$participant.getDisplayId()
+						#set($name=$participant.name)
+						#if($!name && $name.length()>0)
+							($name)
+						#end
+						</label>
 					</td>
 					<td  class="required">
 						<span class="reqStarInline">*</span>

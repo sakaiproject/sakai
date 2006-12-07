@@ -37,7 +37,13 @@
 		</h4>	
 		<ul class="attachList indnt2">
 			#foreach ($participant in $participantList)
-				<li>$participant.getDisplayId()</li>
+				<li>
+					$participant.getDisplayId()
+					#set($name=$participant.name)
+					#if($!name && $name.length()>0)
+						($name)
+					#end
+				</li>
 			#end
 		</ul>	
 		<input type="hidden" name="continue" value="21" />
