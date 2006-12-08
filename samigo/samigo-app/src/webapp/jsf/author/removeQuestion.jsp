@@ -50,7 +50,7 @@
        <h:commandButton accesskey="#{msg.a_remove}" immediate="true" value="#{msg.button_remove}" type="submit" action="#{itemauthor.deleteItem}" styleClass="active">
        </h:commandButton>
        <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_cancel}" type="submit"
-         action="author" />
+         action="editAssessment" />
    </p>
 
  </h:form>
