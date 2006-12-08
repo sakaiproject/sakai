@@ -504,9 +504,12 @@ log.debug("item==null ");
             
 
 
-          if (bean.getTypeId().equals("11"))
-              answerText = gdataAnswer.getSequence() + ":" +
-                answerText;
+          if (bean.getTypeId().equals("11")) {
+        	  if (gdataAnswer != null) {
+                  answerText = gdataAnswer.getSequence() + ":" + answerText;
+        	  }
+          }
+
 
           
 
