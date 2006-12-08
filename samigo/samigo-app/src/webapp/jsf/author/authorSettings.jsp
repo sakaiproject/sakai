@@ -57,10 +57,11 @@ function validateUrl(){
   for (var i=0; i<list.length; i++){
     if (list[i].id.indexOf("finalPageUrl") >=0){			
       var finalPageUrl = list[i].value;
-	  if (finalPageUrl.substring(0,7).toLowerCase().indexOf("http://") == -1)
+	  if (finalPageUrl.substring(0,4).toLowerCase().indexOf("http") == -1)
 	  {
 		finalPageUrl = "http://" + finalPageUrl;
 	  }
+	  //alert(finalPageUrl);
       window.open(finalPageUrl,'validateUrl');
     }
   }

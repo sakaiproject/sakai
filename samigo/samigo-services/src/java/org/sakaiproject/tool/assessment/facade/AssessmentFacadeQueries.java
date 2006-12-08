@@ -1474,17 +1474,27 @@ public class AssessmentFacadeQueries
         attach = new ItemAttachment();
         attach.setItem(item);
         attach.setResourceId(resourceId);
-        attach.setFilename(filename);
-	attach.setMimeType(cr.getContentType());
+        attach.setMimeType(cr.getContentType());
         // we want to display kb, so divide by 1000 and round the result
-	attach.setFileSize(new Long(""+fileSizeInKB(cr.getContentLength())));
-        if (cr.getContentType().lastIndexOf("url") > -1)
-          isLink = Boolean.TRUE;
-        attach.setIsLink(isLink);
+        attach.setFileSize(new Long(""+fileSizeInKB(cr.getContentLength())));
+		if (cr.getContentType().lastIndexOf("url") > -1) {
+			isLink = Boolean.TRUE;
+			if (!filename.toLowerCase().startsWith("http")) {
+				String adjustedFilename = "http://" + filename;
+				attach.setFilename(adjustedFilename);
+			}
+			else {
+				attach.setFilename(filename);
+			}
+		}
+		else {
+			attach.setFilename(filename);
+		}
+		attach.setIsLink(isLink);
         attach.setStatus(ItemAttachmentIfc.ACTIVE_STATUS);
-	attach.setCreatedBy(p.getProperty(p.getNamePropCreator()));
+        attach.setCreatedBy(p.getProperty(p.getNamePropCreator()));
         attach.setCreatedDate(new Date());
-	attach.setLastModifiedBy(p.getProperty(p.getNamePropModifiedBy()));
+        attach.setLastModifiedBy(p.getProperty(p.getNamePropModifiedBy()));
         attach.setLastModifiedDate(new Date());
         attach.setLocation(getRelativePath(cr.getUrl(), protocol));
         //getHibernateTemplate().save(attach);
@@ -1513,13 +1523,23 @@ public class AssessmentFacadeQueries
         attach = new SectionAttachment();
         attach.setSection(section);
         attach.setResourceId(resourceId);
-        attach.setFilename(filename);
-	attach.setMimeType(cr.getContentType());
+        attach.setMimeType(cr.getContentType());
         // we want to display kb, so divide by 1000 and round the result
-	attach.setFileSize(new Long(fileSizeInKB(cr.getContentLength())));
-        if (cr.getContentType().lastIndexOf("url") > -1)
-          isLink = Boolean.TRUE;
-        attach.setIsLink(isLink);
+		attach.setFileSize(new Long(fileSizeInKB(cr.getContentLength())));
+		if (cr.getContentType().lastIndexOf("url") > -1) {
+			isLink = Boolean.TRUE;
+			if (!filename.toLowerCase().startsWith("http")) {
+				String adjustedFilename = "http://" + filename;
+				attach.setFilename(adjustedFilename);
+			}
+			else {
+				attach.setFilename(filename);
+			}
+		}
+		else {
+			attach.setFilename(filename);
+		}
+		attach.setIsLink(isLink);
         attach.setStatus(SectionAttachmentIfc.ACTIVE_STATUS);
 	attach.setCreatedBy(p.getProperty(p.getNamePropCreator()));
         attach.setCreatedDate(new Date());
@@ -1576,16 +1596,27 @@ public class AssessmentFacadeQueries
         attach.setAssessment(assessment);
         attach.setResourceId(resourceId);
         attach.setFilename(filename);
-	attach.setMimeType(cr.getContentType());
+        attach.setMimeType(cr.getContentType());
         // we want to display kb, so divide by 1000 and round the result
-	attach.setFileSize(new Long(fileSizeInKB(cr.getContentLength())));
-        if (cr.getContentType().lastIndexOf("url") > -1)
-          isLink = Boolean.TRUE;
-        attach.setIsLink(isLink);
+		attach.setFileSize(new Long(fileSizeInKB(cr.getContentLength())));
+		if (cr.getContentType().lastIndexOf("url") > -1) {
+			isLink = Boolean.TRUE;
+			if (!filename.toLowerCase().startsWith("http")) {
+				String adjustedFilename = "http://" + filename;
+				attach.setFilename(adjustedFilename);
+			}
+			else {
+				attach.setFilename(filename);
+			}
+		}
+		else {
+			attach.setFilename(filename);
+		}
+		attach.setIsLink(isLink);
         attach.setStatus(AssessmentAttachmentIfc.ACTIVE_STATUS);
-	attach.setCreatedBy(p.getProperty(p.getNamePropCreator()));
+        attach.setCreatedBy(p.getProperty(p.getNamePropCreator()));
         attach.setCreatedDate(new Date());
-	attach.setLastModifiedBy(p.getProperty(p.getNamePropModifiedBy()));
+        attach.setLastModifiedBy(p.getProperty(p.getNamePropModifiedBy()));
         attach.setLastModifiedDate(new Date());
         attach.setLocation(getRelativePath(cr.getUrl(), protocol));
         //getHibernateTemplate().save(attach);
