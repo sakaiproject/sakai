@@ -24,7 +24,6 @@
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
@@ -86,6 +85,10 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
     // button to display - daisyf
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet(
        "delivery", req, res);
+    // For SAK-7132. 
+    // As this class is only used for taking assessment via URL, 
+    // there should not be any assessment grading data at this point
+    delivery.setAssessmentGrading(null);
     delivery.setActionString("takeAssessmentViaUrl");
 
     // reset timer in case this is a timed assessment
