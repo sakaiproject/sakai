@@ -10250,7 +10250,7 @@ public class SiteAction extends PagedResourceActionII
 				// sorted by the worksite title
 				String s1 = ((Site) o1).getTitle();
 				String s2 = ((Site) o2).getTitle();
-				result =  s1.compareToIgnoreCase (s2);
+				result = compareString(s1, s2);
 			}
 			else if (m_criterion.equals (SORTED_BY_DESCRIPTION))
 			{
@@ -10258,66 +10258,21 @@ public class SiteAction extends PagedResourceActionII
 				// sorted by the site short description
 				String s1 = ((Site) o1).getShortDescription();
 				String s2 = ((Site) o2).getShortDescription();
-				if (s1==null && s2==null)
-				{
-					result = 0;
-				}
-				else if (s2==null)
-				{
-					result = 1;
-				}
-				else if (s1==null)
-				{
-					result = -1;
-				}
-				else
-				{
-					result = s1.compareToIgnoreCase (s2);
-				}
+				result = compareString(s1, s2);
 			}
 			else if (m_criterion.equals (SORTED_BY_TYPE))
 			{
 				// sorted by the site type
 				String s1 = ((Site) o1).getType();
 				String s2 = ((Site) o2).getType();
-				if (s1==null && s2==null)
-				{
-					result = 0;
-				}
-				else if (s2==null)
-				{
-					result = 1;
-				}
-				else if (s1==null)
-				{
-					result = -1;
-				}
-				else
-				{
-					result = s1.compareToIgnoreCase (s2);
-				}
+				result = compareString(s1, s2);
 			}
 			else if (m_criterion.equals (SORTED_BY_OWNER))
 			{
 				// sorted by the site creator
 				String s1 = ((Site) o1).getProperties().getProperty("CHEF:creator");
 				String s2 = ((Site) o2).getProperties().getProperty("CHEF:creator");
-				if (s1==null && s2==null)
-				{
-					result = 0;
-				}
-				else if (s2==null)
-				{
-					result = 1;
-				}
-				else if (s1==null)
-				{
-					result = -1;
-				}
-				else
-				{
-					result = s1.compareToIgnoreCase (s2);
-				}
+				result = compareString(s1, s2);
 			}
 			else if (m_criterion.equals (SORTED_BY_STATUS))
 			{
@@ -10359,37 +10314,14 @@ public class SiteAction extends PagedResourceActionII
 				{
 					s1 = ((Participant) o1).getName();	
 				}
-				else if (o1.getClass().equals(CourseMember.class))
-				{
-					s1 = ((CourseMember) o1).getName();	
-				}
 				
 				String s2 = null;
 				if (o2.getClass().equals(Participant.class))
 				{
 					s2 = ((Participant) o2).getName();	
 				}
-				else if (o2.getClass().equals(CourseMember.class))
-				{
-					s2 = ((CourseMember) o2).getName();	
-				}
 				
-				if (s1==null && s2==null)
-				{
-					result = 0;
-				}
-				else if (s2==null)
-				{
-					result = 1;
-				}
-				else if (s1==null)
-				{
-					result = -1;
-				}
-				else
-				{
-					result = s1.compareToIgnoreCase (s2);
-				}
+				result = compareString(s1, s2);
 			}
 			else if (m_criterion.equals (SORTED_BY_PARTICIPANT_UNIQNAME))
 			{
@@ -10399,37 +10331,14 @@ public class SiteAction extends PagedResourceActionII
 				{
 					s1 = ((Participant) o1).getUniqname();	
 				}
-				else if (o1.getClass().equals(CourseMember.class))
-				{
-					s1 = ((CourseMember) o1).getUniqname();	
-				}
 				
 				String s2 = null;
 				if (o2.getClass().equals(Participant.class))
 				{
 					s2 = ((Participant) o2).getUniqname();	
-				}
-				else if (o2.getClass().equals(CourseMember.class))
-				{
-					s2 = ((CourseMember) o2).getUniqname();	
 				}				
 
-				if (s1==null && s2==null)
-				{
-					result = 0;
-				}
-				else if (s2==null)
-				{
-					result = 1;
-				}
-				else if (s1==null)
-				{
-					result = -1;
-				}
-				else
-				{
-					result = s1.compareToIgnoreCase (s2);
-				}
+				result = compareString(s1, s2);
 			}
 			else if (m_criterion.equals (SORTED_BY_PARTICIPANT_ROLE))
 			{
@@ -10438,148 +10347,63 @@ public class SiteAction extends PagedResourceActionII
 				{
 					s1 = ((Participant) o1).getRole();
 				}
-				else if (o1.getClass().equals(CourseMember.class))
-				{
-					s1 = ((CourseMember) o1).getRole();	
-				}
 				
 				String s2 = "";
 				if (o2.getClass().equals(Participant.class))
 				{
 					s2 = ((Participant) o2).getRole();
-				}
-				else if (o2.getClass().equals(CourseMember.class))
-				{
-					s2 = ((CourseMember) o2).getRole();	
 				}		
 				
-				if (s1.length() == 0 && s2.length() == 0)
-				{
-					result = 0;
-				}
-				else if (s2.length() == 0)
-				{
-					result = 1;
-				}
-				else if (s1.length() == 0)
-				{
-					result = -1;
-				}
-				else
-				{
-					result = s1.compareToIgnoreCase (s2);
-				}
+				result = compareString(s1, s2);
 			}
 			else if (m_criterion.equals (SORTED_BY_PARTICIPANT_COURSE))
 			{
 				// sort by whether the site is joinable or not
 				String s1 = null;
 				if (o1.getClass().equals(Participant.class))
-				{	
-				}
-				else if (o1.getClass().equals(CourseMember.class))
 				{
-					s1 = ((CourseMember) o1).getCourse() + " " + ((CourseMember) o1).getSection();	
+					s1 = ((Participant) o1).getCourse();
 				}
 				
 				String s2 = null;
 				if (o2.getClass().equals(Participant.class))
 				{
+					s2 = ((Participant) o2).getCourse();
 				}
-				else if (o2.getClass().equals(CourseMember.class))
-				{
-					s2 = ((CourseMember) o2).getCourse() + " " + ((CourseMember) o2).getSection();	
-				}
-				if (s1==null && s2==null)
-				{
-					result = 0;
-				}
-				else if (s2==null)
-				{
-					result = 1;
-				}
-				else if (s1==null)
-				{
-					result = -1;
-				}
-				else
-				{
-					result = s1.compareToIgnoreCase (s2);
-				}
+				
+				result = compareString(s1, s2);
 			}
 			else if (m_criterion.equals (SORTED_BY_PARTICIPANT_ID))
 			{
-				int i1 = -1;
+				String s1 = null;
 				if (o1.getClass().equals(Participant.class))
 				{
-					
-				}
-				else if (o1.getClass().equals(CourseMember.class))
-				{
-					try
-					{
-						i1 = Integer.parseInt(((CourseMember) o1).getUniqname());	
-					}
-					catch (Exception e) {}
+					s1 = ((Participant) o1).getRegId();
 				}
 				
-				int i2 = -1;
+				String s2 = null;
 				if (o2.getClass().equals(Participant.class))
 				{
+					s2 = ((Participant) o2).getRegId();
 				}
-				else if (o2.getClass().equals(CourseMember.class))
-				{
-					try
-					{
-						i2 = Integer.parseInt(((CourseMember) o2).getUniqname());	
-					}
-					catch (Exception e) {}
-				}
-				if (i1 > i2)
-				{
-					result = 1;
-				}
-				else
-				{
-					result = -1;
-				}
+				
+				result = compareString(s1, s2);
 			}
 			else if (m_criterion.equals (SORTED_BY_PARTICIPANT_CREDITS))
 			{
-				int i1 = -1;
+				String s1 = null;
 				if (o1.getClass().equals(Participant.class))
 				{
-					
-				}
-				else if (o1.getClass().equals(CourseMember.class))
-				{
-					try
-					{
-						i1 = Integer.parseInt(((CourseMember) o1).getCredits());	
-					}
-					catch (Exception e) {}
+					s1 = ((Participant) o1).getCredits();
 				}
 				
-				int i2 = -1;
+				String s2 = null;
 				if (o2.getClass().equals(Participant.class))
 				{
+					s2 = ((Participant) o2).getCredits();
 				}
-				else if (o2.getClass().equals(CourseMember.class))
-				{
-					try
-					{
-						i2 = Integer.parseInt(((CourseMember) o2).getCredits());	
-					}
-					catch (Exception e) {}
-				}
-				if (i1 > i2)
-				{
-					result = 1;
-				}
-				else
-				{
-					result = -1;
-				}
+				
+				result = compareString(s1, s2);
 			}
 			else if (m_criterion.equals (SORTED_BY_CREATION_DATE))
 			{
@@ -10631,7 +10455,7 @@ public class SiteAction extends PagedResourceActionII
 				// sorted by the group title
 				String s1 = ((Group) o1).getTitle();
 				String s2 = ((Group) o2).getTitle();
-				result =  s1.compareToIgnoreCase (s2);
+				result = compareString(s1, s2);
 			}
 			else if (m_criterion.equals (rb.getString("group.number")))
 			{
@@ -10643,8 +10467,8 @@ public class SiteAction extends PagedResourceActionII
 			else if (m_criterion.equals (SORTED_BY_MEMBER_NAME))
 			{
 				// sorted by the member name
-				String s1 = "";
-				String s2 = "";
+				String s1 = null;
+				String s2 = null;
 				
 				try
 				{
@@ -10663,7 +10487,7 @@ public class SiteAction extends PagedResourceActionII
 				{
 					
 				}
-				result =  s1.compareToIgnoreCase (s2);
+				result = compareString(s1, s2);
 			}
 			
 			if(m_asc == null) m_asc = Boolean.TRUE.toString ();
@@ -10677,6 +10501,27 @@ public class SiteAction extends PagedResourceActionII
 			return result;
 			
 		}	// compare
+
+		private int compareString(String s1, String s2) {
+			int result;
+			if (s1==null && s2==null)
+			{
+				result = 0;
+			}
+			else if (s2==null)
+			{
+				result = 1;
+			}
+			else if (s1==null)
+			{
+				result = -1;
+			}
+			else
+			{
+				result = s1.compareToIgnoreCase (s2);
+			}
+			return result;
+		}
 		
 	} //SiteComparator
 	
