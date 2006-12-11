@@ -72,6 +72,10 @@ public class PrivacyBean {
 		return allChanged;
 	}
 
+	public void setAllChanged(boolean allChanged) {
+		this.allChanged = allChanged;
+	}
+	
 	public String getChangeAllMsg() {
 		return changeAllMsg;
 	}

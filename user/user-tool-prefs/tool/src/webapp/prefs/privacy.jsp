@@ -1,3 +1,5 @@
+<%@ page import="java.util.*, javax.faces.context.*, javax.faces.application.*,
+                 javax.faces.el.*, org.sakaiproject.user.tool.*"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
@@ -98,4 +100,12 @@
 
     </h:form>
   </sakai:view>
-</f:view>   
+</f:view>  
+
+<%
+	FacesContext context = FacesContext.getCurrentInstance();
+	Application app = context.getApplication();
+	ValueBinding binding = app.createValueBinding("#{privacyBean}");
+	PrivacyBean pb = (PrivacyBean) binding.getValue(context);
+	pb.setAllChanged(false);
+%> 
