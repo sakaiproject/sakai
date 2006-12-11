@@ -270,7 +270,14 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
                 // Update the AssignmentGradeRow in the map
                 AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
                 asnGradeRow.setGradeRecord(asnGr);
-                //update the coments
+
+            }
+
+            //iterate through the assignments and update the comments
+            Iterator assignmentIterator = assignments.iterator();
+            while(assignmentIterator.hasNext()){
+                Assignment assignment = (Assignment) assignmentIterator.next();
+                AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(assignment);
                 try{
                     Comment comment = (Comment)commentMap.get(asnGradeRow.getAssignment().getId());
                     if(comment.getCommentText().length() > 0)asnGradeRow.getComments().add(comment);
@@ -278,7 +285,6 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
                     if(logger.isDebugEnabled())logger.debug("assignment has no associated comment");
                 }
             }
-
 
             if(logger.isDebugEnabled())logger.debug("calculating total points scored from " +assignments.size() + "assignments");
             for(Iterator it = assignments.iterator(); it.hasNext();){
