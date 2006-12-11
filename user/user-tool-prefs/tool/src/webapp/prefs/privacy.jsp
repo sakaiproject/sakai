@@ -50,37 +50,52 @@
  	  <h:outputText value="#{msgs.privacy_stmt_show} " rendered="#{privacyBean.show}" />
  	  <h:outputText value="#{msgs.privacy_stmt_hide} " rendered="#{! privacyBean.show}" />    
  	     
- 	  <f:verbatim><br /></f:verbatim>
- 	     
  	  <h:outputText value="#{msgs.privacy_change_directions}" />
  	  <h:outputText value=" #{privacyBean.checkboxText} " />
  	  <h:outputText value="#{msgs.privacy_change_directions2}" />
       <f:verbatim></div></f:verbatim>
      
-      <h:selectBooleanCheckbox value="#{privacyBean.changeStatus}" id="statusChange" />
+  	  <f:verbatim>
+  	    <table>
+ 	    <tr>
+ 	      <td class="shorttext">
+ 	  </f:verbatim>
+	  <h:selectBooleanCheckbox value="#{privacyBean.changeStatus}" id="statusChange" />
       <h:outputText value="#{privacyBean.checkboxText}" />
-      <f:verbatim><br /><br /></f:verbatim>
+	  <f:verbatim></td></f:verbatim>
+ 	  
+ 	  <h:panelGroup rendered="#{! privacyBean.myWorkspace}" >
+ 	    <f:verbatim>
+ 	      <td>&nbsp;&nbsp;&nbsp;</td>
+ 	      <td>
+ 		</f:verbatim>
+	 	<sakai:button_bar_item action="#{privacyBean.processUpdate}" value="#{msgs.privacy_update}"
+        	accesskey="u" title="#{msgs.privacy_update_title}" styleClass="active" rendered="#{! privacyBean.myWorkspace}" />
+        <f:verbatim>
+          </td>
+        </f:verbatim>
+      </h:panelGroup>
+      
+      <f:verbatim></tr></table></f:verbatim>
 
 	  <h:messages styleClass="alertMessage" />
-      <f:verbatim><br /></f:verbatim>
-    	
-      <h:outputText value="#{msgs.privacy_note}" />
-      <f:verbatim><br /></f:verbatim>
-	</h:panelGroup>
+  	</h:panelGroup>
          
-	  <sakai:button_bar>
-        <sakai:button_bar_item action="#{privacyBean.processUpdate}" value="#{msgs.privacy_update}"
-            accesskey="u" title="#{msgs.privacy_update_title}" styleClass="active" />
-
    		<h:panelGroup rendered="#{privacyBean.myWorkspace}" >
+     <f:verbatim><br /></f:verbatim>
+    	
+      <h:outputText value="#{msgs.privacy_note}" rendered = "#{privacyBean.siteSelected}" /> 
+      <f:verbatim><br /></f:verbatim>
+ 	  	  <sakai:button_bar>
+        	<sakai:button_bar_item action="#{privacyBean.processUpdate}" value="#{msgs.privacy_update}"
+                accesskey="u" title="#{msgs.privacy_update_title}" styleClass="active" />
    			<sakai:button_bar_item action="#{privacyBean.processShowAll}" value="#{msgs.privacy_show_all}"
    				accesskey="s" title="#{msgs.privacy_show_title}" styleClass="active" />
    			<sakai:button_bar_item action="#{privacyBean.processHideAll}" value="#{msgs.privacy_hide_all}"
    				accesskey="s" title="#{msgs.privacy_hide_title}" styleClass="active" />
+	  	  </sakai:button_bar>
 	   	</h:panelGroup>
 
-	  </sakai:button_bar>
-  
     </h:form>
   </sakai:view>
 </f:view>   
