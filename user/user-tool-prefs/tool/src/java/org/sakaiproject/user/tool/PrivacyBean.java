@@ -54,15 +54,54 @@ public class PrivacyBean {
 
 	private Log LOG = LogFactory.getLog(PrivacyBean.class);
 
+	public void setPrivacyManager(PrivacyManager privacyManager) {
+		this.privacyManager = privacyManager;
+	}
+
+	/** ========== Setters/Getters for UI ========== */
+	
+	public boolean isSiteSelected() {
+		return (isMyWorkspace()) ? siteSelected : false;
+	}
+
+	public void setSiteSelected(boolean siteSelected) {
+		this.siteSelected = siteSelected;
+	}
+
+	public boolean getAllChanged() {
+		return allChanged;
+	}
+
+	public String getChangeAllMsg() {
+		return changeAllMsg;
+	}
+
+	public boolean isNoSiteProcessErr() {
+		return noSiteProcessErr;
+	}
+
+	public boolean isChangeStatus() {
+		return changeStatus;
+	}
+
+	public void setChangeStatus(boolean changeStatus) {
+		this.changeStatus = changeStatus;
+	}
+
+	public String getSelectedSite() {
+		return selectedSite;
+	}
+
+	public void setSelectedSite(String selectedSite) {
+		this.selectedSite = selectedSite;
+	}
+
 	/**
 	 * Returns 'visible' or 'hidden' based on status within site
-	 * 
-	 * @return
-	 * 		Either 'visible' or 'hidden' depending on user's privacy status
 	 */
 	public String getCurrentStatus() {
 		if (!isMyWorkspace()) {
-			curSite = getSiteId();
+			curSite = getContextId();
 		}
 
 		if (privacyManager.isViewable(curSite, getUserId())) {
@@ -75,49 +114,23 @@ public class PrivacyBean {
 
 	/**
 	 * Return TRUE if privacy set to visible, FALSE if set to hidden
-	 * @return
 	 */
 	public boolean isShow() {
 		if (isMyWorkspace()) {
 			return privacyManager.isViewable(curSite, getUserId());
 		} 
 		else {
-			return privacyManager.isViewable(getSiteId(), getUserId());
+			return privacyManager.isViewable(getContextId(), getUserId());
 		}
 	}
 
 	/**
-	 * Retrieve the site id
-	 */
-	public String getSiteId() {
-		return ToolManager.getCurrentPlacement().getContext();
-	}
-
-	/**
-	 * Retrieve the current user id
-	 */
-	public String getUserId() {
-		return SessionManager.getCurrentSessionUserId();
-	}
-
-	/**
-	 * Injects the PrivacyManager
-	 * 
-	 * @param privacyManager
-	 */
-	public void setPrivacyManager(PrivacyManager privacyManager) {
-		this.privacyManager = privacyManager;
-	}
-
-	/**
 	 * Returns TRUE if on MyWorkspace, FALSE if on a specific site
-	 * 
-	 * @return
 	 */
 	public boolean isMyWorkspace() {
 
 		// get Site id
-		String siteId = getSiteId();
+		String siteId = getContextId();
 
 		if (SiteService.getUserSiteId("admin").equals(siteId))
 			return false;
@@ -130,12 +143,11 @@ public class PrivacyBean {
 	}
 
 	/**
-	 * 
-	 * @return
+	 * Returns text currently displayed on checkbox
 	 */
 	public String getCheckboxText() {
 		if (!isMyWorkspace()) {
-			curSite = getSiteId();
+			curSite = getContextId();
 		}
 
 		if (privacyManager.isViewable(curSite, getUserId())) {
@@ -149,160 +161,10 @@ public class PrivacyBean {
 	}
 
 	/**
-	 * 
-	 * @param checkboxText
+	 * Sets the text for the checkbox
 	 */
 	public void setCheckboxText(String checkboxText) {
 		this.checkboxText = checkboxText;
-	}
-
-	/**
-	 * Sets the privacy status for the user
-	 *
-	 * @return
-	 * 		String for navigation
-	 */
-	public String processUpdate() {
-		if (isMyWorkspace() && ! siteSelected) {
-			noSiteProcessErr = true;
-			
-			return "main";
-		}
-
-		// if user checked the checkbox
-		if (changeStatus) {
-			processChoice(isMyWorkspace() ? curSite : getSiteId(), 
-							new Boolean(SHOW_ME.equals(checkboxText)));
-
-			// Reset the checkbox to not checked
-			changeStatus = false;
-		}
-		else {
-			FacesContext.getCurrentInstance().addMessage(null,
-							new FacesMessage("Please check the checkbox " + getCheckboxText() + 
-												" in order to change your status."));
-		}
-
-		return "main";
-	}
-
-	/**
-	 * 
-	 * @param siteId
-	 */
-	private void processChoice(String siteId, Boolean status) {
-		privacyManager.setViewableState(siteId, getUserId(), status,
-				privacyManager.USER_RECORD_TYPE);
-
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public String processShowAll() {
-		List mySites = getSiteList();
-
-		Iterator siteIter = mySites.iterator();
-
-		while (siteIter.hasNext()) {
-			Site curSite = (Site) siteIter.next();
-
-			processChoice(curSite.getId(), Boolean.TRUE);
-		}
-
-		allChanged = true;
-		changeAllMsg = getMessageBundleString(SET_SHOW_ALL_STRING);
-
-		// Below so UI shows no site selected
-		siteSelected = false;
-		selectedSite = "";
-		
-		return "main";
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public String processHideAll() {
-		List mySites = getSiteList();
-
-		Iterator siteIter = mySites.iterator();
-
-		while (siteIter.hasNext()) {
-			Site curSite = (Site) siteIter.next();
-
-			processChoice(curSite.getId(), Boolean.FALSE);
-		}
-
-		allChanged = true;
-		changeAllMsg = getMessageBundleString(SET_HIDE_ALL_STRING);
-
-		// Below so UI shows no site selected
-		siteSelected = false;
-		selectedSite = "";
-
-		return "main";
-	}
-
-	/**
-	 * Pulls the message from the message bundle using the name passed in
-	 * 
-	 * @param key
-	 *            The name in the MessageBundle for the message wanted
-	 * 
-	 * @return String The string that is the value of the message
-	 */
-	private String getMessageBundleString(String key) {
-		return msgs.getString(key);
-
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public boolean isChangeStatus() {
-		return changeStatus;
-	}
-
-	/**
-	 * 
-	 * @param changeStatus
-	 */
-	public void setChangeStatus(boolean changeStatus) {
-		this.changeStatus = changeStatus;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public String getSelectedSite() {
-		return selectedSite;
-	}
-
-	/**
-	 * 
-	 * @param selectedSite
-	 */
-	public void setSelectedSite(String selectedSite) {
-		this.selectedSite = selectedSite;
-	}
-
-	/**
-	 * Returns a list of sites user has access to (is a member of) 
-	 *  
-	 * @return
-	 * 		List of sites user has access to (is a member of)
-	 */
-	private List getSiteList() {
-		return SiteService.getSites(
-					org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-					null, null, null,
-					org.sakaiproject.site.api.SiteService.SortType.ID_ASC, null);
-
 	}
 
 	/**
@@ -321,15 +183,101 @@ public class PrivacyBean {
 
 		while (siteIter.hasNext()) {
 			final Site site = (Site) siteIter.next();
-			sites[sitesIndex++] = new SelectItem(site.getId(), site.getTitle());
+			sites[sitesIndex++] = new SelectItem("/site/" + site.getId(), site.getTitle());
 		}
 
 		return sites;
 	}
 
+	/** ========== processes iteraction on UI ========== */
+
 	/**
-	 * 
-	 * @param e
+	 * Determines if ready to change status and calls method to do so
+	 */
+	public String processUpdate() {
+		if (isMyWorkspace() && ! siteSelected) {
+			noSiteProcessErr = true;
+			
+			return "main";
+		}
+
+		// if user checked the checkbox
+		if (changeStatus) {
+			processChoice(isMyWorkspace() ? curSite : getContextId(), 
+							new Boolean(SHOW_ME.equals(checkboxText)));
+
+			// Reset the checkbox to not checked
+			changeStatus = false;
+		}
+		else {
+			FacesContext.getCurrentInstance().addMessage(null,
+							new FacesMessage("Please check the checkbox " + getCheckboxText() + 
+												" in order to change your status."));
+		}
+
+		return "main";
+	}
+
+	/**
+	 * Does the actual setting of the privacy status
+	 */
+	private void processChoice(String siteId, Boolean status) {
+		privacyManager.setViewableState(siteId, getUserId(), status,
+				privacyManager.USER_RECORD_TYPE);
+
+	}
+
+	/**
+	 * Sets the user's privacy status to Visible for all sites
+	 */
+	public String processShowAll() {
+		List mySites = getSiteList();
+
+		Iterator siteIter = mySites.iterator();
+
+		while (siteIter.hasNext()) {
+			Site curSite = (Site) siteIter.next();
+
+			processChoice("/site/" + curSite.getId(), Boolean.TRUE);
+		}
+
+		allChanged = true;
+		changeAllMsg = getMessageBundleString(SET_SHOW_ALL_STRING);
+
+		// Below so UI shows no site selected
+		siteSelected = false;
+		selectedSite = "";
+		
+		return "main";
+	}
+
+	/**
+	 * Sets the user's privacy status to Hidden for all sites
+	 */
+	public String processHideAll() {
+		List mySites = getSiteList();
+
+		Iterator siteIter = mySites.iterator();
+
+		while (siteIter.hasNext()) {
+			Site curSite = (Site) siteIter.next();
+
+			processChoice("/site/" + curSite.getId(), Boolean.FALSE);
+		}
+
+		allChanged = true;
+		changeAllMsg = getMessageBundleString(SET_HIDE_ALL_STRING);
+
+		// Below so UI shows no site selected
+		siteSelected = false;
+		selectedSite = "";
+
+		return "main";
+	}
+
+	/**
+	 * Sets Bean variables to affect display when dropdown list
+	 * in MyWorkspace is changed.
 	 */
 	public void processSiteSelected(ValueChangeEvent e) {
 		allChanged = false;
@@ -343,39 +291,42 @@ public class PrivacyBean {
 		}
 	}
 
+	/** ========== Utility functions ========== */
+
 	/**
+	 * Pulls the message from the message bundle using the name passed in
 	 * 
-	 * @return
+	 * @param key
+	 *            The name in the MessageBundle for the message wanted
 	 */
-	public boolean isSiteSelected() {
-		return (isMyWorkspace()) ? siteSelected : false;
+	private String getMessageBundleString(String key) {
+		return msgs.getString(key);
+
 	}
 
 	/**
-	 * 
-	 * @param siteSelected
+	 * Returns a list of sites user has access to (is a member of) 
 	 */
-	public void setSiteSelected(boolean siteSelected) {
-		this.siteSelected = siteSelected;
+	private List getSiteList() {
+		return SiteService.getSites(
+					org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
+					null, null, null,
+					org.sakaiproject.site.api.SiteService.SortType.ID_ASC, null);
+
 	}
 
 	/**
-	 * 
-	 * @return
+	 * Returns context id (/site/site id)
 	 */
-	public boolean getAllChanged() {
-		return allChanged;
+	private String getContextId() {
+		return "/site/" + ToolManager.getCurrentPlacement().getContext();
 	}
-
+	
 	/**
-	 * 
-	 * @return
+	 * Returns the current user id
 	 */
-	public String getChangeAllMsg() {
-		return changeAllMsg;
+	public String getUserId() {
+		return SessionManager.getCurrentSessionUserId();
 	}
 
-	public boolean isNoSiteProcessErr() {
-		return noSiteProcessErr;
-	}
 }
