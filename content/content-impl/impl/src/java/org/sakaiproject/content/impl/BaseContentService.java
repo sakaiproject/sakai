@@ -9243,7 +9243,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 					m_properties = new BaseResourcePropertiesEdit(element);
 					if(m_prioritySortEnabled)
 					{
-						setPriority();
+						// setPriority();
 					}
 				}
 				// look for groups
