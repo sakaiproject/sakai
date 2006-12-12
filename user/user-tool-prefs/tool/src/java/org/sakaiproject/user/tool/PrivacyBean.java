@@ -225,8 +225,8 @@ public class PrivacyBean {
 	/**
 	 * Does the actual setting of the privacy status
 	 */
-	private void processChoice(String siteId, Boolean status) {
-		privacyManager.setViewableState(siteId, getUserId(), status,
+	private void processChoice(String contextId, Boolean status) {
+		privacyManager.setViewableState(contextId, getUserId(), status,
 				privacyManager.USER_RECORD_TYPE);
 
 	}
