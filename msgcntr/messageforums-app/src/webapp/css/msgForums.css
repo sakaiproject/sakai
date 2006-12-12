@@ -62,3 +62,15 @@
 {
 	float: right;
 }
+
+.markasread_popup {
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding: 5px 5px 5px 5px;
+  color: inherit;
+  background-color: #ffffcc;
+  border: 1px dotted #003366;
+  line-height: 100%;
+  z-index: 1;
+}
+

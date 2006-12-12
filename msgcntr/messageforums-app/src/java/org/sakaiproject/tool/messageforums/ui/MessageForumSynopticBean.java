@@ -334,6 +334,9 @@ public class MessageForumSynopticBean {
 	private boolean sitesToView;
 	private boolean sitesToViewSet = false;
 	
+	/** Decorated Bean to store stats for individual site */
+	private DecoratedCompiledMessageStats siteInfo = null;
+
 	/** Resource loader to grab bundle messages */
 	private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.messageforums.bundle.Messages");
 	
@@ -425,6 +428,18 @@ public class MessageForumSynopticBean {
 		else {
 			return ! filterOutExcludedSites(getSiteList()).isEmpty();
 		}
+	}
+
+	public DecoratedCompiledMessageStats getSiteInfo() {
+		if (siteInfo == null) {
+			siteInfo = getSiteContents();
+		}
+		
+		return siteInfo;
+	}
+
+	public void setSiteInfo(DecoratedCompiledMessageStats siteInfo) {
+		this.siteInfo = siteInfo;
 	}
 
 	/**
@@ -927,17 +942,16 @@ public class MessageForumSynopticBean {
 	 * @return
 	 * 		List of DecoratedCompiledMessageStats for a particular site
 	 */
-	private List getSiteContents() {
-		final List contents = new ArrayList();
+	private DecoratedCompiledMessageStats getSiteContents() {
+		final DecoratedCompiledMessageStats dcms = new DecoratedCompiledMessageStats();
 		
 		// Check if tool within site
 		// if so, get stats for just this site
 		if (isMessageForumsPageInSite()) {
 			int unreadPrivate = 0;
 
-			DecoratedCompiledMessageStats dcms = new DecoratedCompiledMessageStats();
-
 			dcms.setSiteName(getSiteName());
+			dcms.setSiteId(getSiteId());
 
 			// Get private message area so we can get the private messasge forum so we can get the
 			// List of topics so we can get the Received topic to finally determine number of unread messages
@@ -949,21 +963,15 @@ public class MessageForumSynopticBean {
 				unreadPrivate = pvtMessageManager.findUnreadMessageCount(
 									typeManager.getReceivedPrivateMessageType());
 
-				dcms.setUnreadMessages(unreadPrivate);
 				dcms.setUnreadPrivateAmt(unreadPrivate);
 			}
 			else {
-				dcms.setUnreadMessages(0);
+				dcms.setUnreadPrivateAmt(0);
 			}
 
 			dcms.setHeading(rb.getString(PRIVATE_HEADING));
-//			dcms.setMcPageURL(getMCPageURL());
 			dcms.setPrivateMessagesUrl(generatePrivateTopicMessagesUrl(getSiteId()));
-
-			contents.add(dcms);
 			
-			dcms = new DecoratedCompiledMessageStats();
-
 			// Number of unread forum messages is a little harder
 			// need to loop through all topics and add them up
 			final List topicsList = forumManager.getDiscussionForums();
@@ -985,17 +993,15 @@ public class MessageForumSynopticBean {
 					}
 				}
 			}
-			dcms.setUnreadMessages(unreadForum);
-			dcms.setHeading(rb.getString(DISCUSSION_HEADING));
-			dcms.setPrivateMessagesUrl(getMCPageURL());
-
-			contents.add(dcms);
+			
+			dcms.setUnreadForumsAmt(unreadForum);
+			dcms.setMcPageURL(getMCPageURL());
 		}
 		else {
 			// TODO: what to put on page? Alert? Leave Blank?
 		}
 		
-		return contents;
+		return dcms;
 	}
 
 	/**
@@ -1014,7 +1020,8 @@ public class MessageForumSynopticBean {
 			return getMyWorkspaceContents();
 		}
 		else {
-			return getSiteContents();
+			// refactored to not use dataTable 12/12/06
+			return new ArrayList();
 		}
 	}
 
