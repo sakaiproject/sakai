@@ -24,4 +24,4 @@
 			src="${pageContext.request.contextPath}/js/sections.js">
 		</script>
 	</head>
-	<body onload="<%=request.getAttribute("sakai.html.body.onload")%>;prepMemberForm()">
+	<body onload="<%=request.getAttribute("sakai.html.body.onload")%>;prepForms()">

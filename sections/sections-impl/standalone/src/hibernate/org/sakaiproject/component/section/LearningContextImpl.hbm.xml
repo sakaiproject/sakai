@@ -50,12 +50,6 @@
 			    </composite-element>
 			</list>
         </joined-subclass>
-
-        <joined-subclass name="org.sakaiproject.component.section.CourseGroupImpl" table="SEC_GROUP_T">
-            <key column="ID"/>
-            <many-to-one name="course" column="COURSE_ID" class="org.sakaiproject.component.section.CourseImpl"/>
-            <property name="description" column="DESCRIPTION" type="string"/>
-		</joined-subclass>
     </class>
 
     <query name="findSectionsBySiteContext">
@@ -106,19 +100,6 @@
         <![CDATA[
         from CourseSectionImpl as section where section.category=:categoryId and
             section.course.siteContext=:siteContext order by section.category asc
-        ]]>
-    </query>
-
-    <query name="findCourseGroupByUuid">
-        <![CDATA[
-        from CourseGroupImpl as group where group.uuid=:uuid
-        ]]>
-    </query>
-
-    <query name="findCourseGroupsBySiteContext">
-        <![CDATA[
-        from CourseGroupImpl as group where group.course.siteContext=:context
-            order by group.title asc, group.description asc
         ]]>
     </query>
 

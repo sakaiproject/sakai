@@ -11,7 +11,6 @@
         <property name="manageAllSections">
             <list>
                 <value>addSections</value>
-                <value>addGroups</value>
                 <value>deleteSections</value>
                 <value>editSection</value>
                 <value>config</value>

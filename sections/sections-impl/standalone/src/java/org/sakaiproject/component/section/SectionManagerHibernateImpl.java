@@ -44,7 +44,6 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.coursemanagement.Course;
-import org.sakaiproject.section.api.coursemanagement.CourseGroup;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.Meeting;
@@ -80,7 +79,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	/**
 	 * {@inheritDoc}
 	 */
-	public List getSections(final String siteContext) {
+	public List<CourseSection> getSections(final String siteContext) {
     	if(log.isDebugEnabled()) log.debug("Getting sections for context " + siteContext);
     	return getHibernateTemplate().findByNamedQueryAndNamedParam("findSectionsBySiteContext", "context", siteContext);
 	}
@@ -88,7 +87,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	/**
 	 * {@inheritDoc}
 	 */
-	public List getSectionsInCategory(final String siteContext, final String categoryId) {
+	public List<CourseSection> getSectionsInCategory(final String siteContext, final String categoryId) {
         HibernateCallback hc = new HibernateCallback(){
 	        public Object doInHibernate(Session session) throws HibernateException {
 	            Query q = session.getNamedQuery("findSectionsByCategory");
@@ -115,7 +114,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	/**
 	 * {@inheritDoc}
 	 */
-	public List getSiteInstructors(final String siteContext) {
+	public List<ParticipationRecord> getSiteInstructors(final String siteContext) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	Course course = getCourseFromSiteContext(siteContext, session);
@@ -130,7 +129,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	/**
 	 * {@inheritDoc}
 	 */
-	public List getSiteTeachingAssistants(final String siteContext) {
+	public List<ParticipationRecord> getSiteTeachingAssistants(final String siteContext) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	Course course = getCourseFromSiteContext(siteContext, session);
@@ -145,7 +144,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	/**
 	 * {@inheritDoc}
 	 */
-	public List getSiteEnrollments(final String siteContext) {
+	public List<EnrollmentRecord> getSiteEnrollments(final String siteContext) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	Course course = getCourseFromSiteContext(siteContext, session);
@@ -160,7 +159,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	/**
 	 * {@inheritDoc}
 	 */
-	public List getSectionTeachingAssistants(final String sectionUuid) {
+	public List<ParticipationRecord> getSectionTeachingAssistants(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	CourseSection section = getSection(sectionUuid, session);
@@ -175,7 +174,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	/**
 	 * {@inheritDoc}
 	 */
-	public List getSectionEnrollments(final String sectionUuid) {
+	public List<EnrollmentRecord> getSectionEnrollments(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	CourseSection section = getSection(sectionUuid, session);
@@ -190,11 +189,11 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	/**
 	 * {@inheritDoc}
 	 */
-	public List findSiteEnrollments(String siteContext, String pattern) {
-		List fullList = getSiteEnrollments(siteContext);
-		List filteredList = new ArrayList();
+	public List<EnrollmentRecord> findSiteEnrollments(String siteContext, String pattern) {
+		List<EnrollmentRecord> fullList = getSiteEnrollments(siteContext);
+		List<EnrollmentRecord> filteredList = new ArrayList<EnrollmentRecord>();
 		for(Iterator iter = fullList.iterator(); iter.hasNext();) {
-			ParticipationRecord record = (ParticipationRecord)iter.next();
+			EnrollmentRecord record = (EnrollmentRecord)iter.next();
 			User user = record.getUser();
 			if(user.getDisplayName().toLowerCase().startsWith(pattern.toLowerCase()) ||
 			   user.getSortName().toLowerCase().startsWith(pattern.toLowerCase()) ||
@@ -223,13 +222,13 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	/**
 	 * {@inheritDoc}
 	 */
-	public List getSectionCategories(String siteContext) {
+	public List<String> getSectionCategories(String siteContext) {
 		ResourceBundle bundle = ResourceBundle.getBundle(CATEGORY_BUNDLE);
 		
 		Enumeration keys = bundle.getKeys();
-		List categoryIds = new ArrayList();
+		List<String> categoryIds = new ArrayList<String>();
 		while(keys.hasMoreElements()) {
-			categoryIds.add(keys.nextElement());
+			categoryIds.add(keys.nextElement().toString());
 		}
 		Collections.sort(categoryIds);
 		return categoryIds;
@@ -810,7 +809,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	/**
 	 * {@inheritDoc}
 	 */
-	public List getUnsectionedEnrollments(final String courseUuid, final String category) {
+	public List<EnrollmentRecord> getUnsectionedEnrollments(final String courseUuid, final String category) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	Query q = session.getNamedQuery("findUnsectionedEnrollmentsInCategory");
@@ -825,7 +824,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	/**
 	 * {@inheritDoc}
 	 */
-	public Set getSectionEnrollments(final String userUid, final String courseUuid) {
+	public Set<EnrollmentRecord> getSectionEnrollments(final String userUid, final String courseUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
             	Query q = session.getNamedQuery("findSingleStudentSectionEnrollmentsInCourse");
@@ -858,78 +857,6 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 		return result;
 	}
 	
-	// Groups
-	
-	public CourseGroup addCourseGroup(String courseUuid, String title, String description) {
-		String siteContext = context.getContext(null);
-		String uuid = uuidManager.createUuid();
-		Course course = getCourse(siteContext);
-		CourseGroupImpl group = new CourseGroupImpl(uuid, course, title, description);
-		getHibernateTemplate().save(group);
-		return group;
-	}
-
-	public void disbandCourseGroup(String courseGroupUuid) {
-		CourseGroup group = getCourseGroup(courseGroupUuid);
-		if(group == null) {
-			log.warn("can not delete a non-existent group");
-		} else {
-			getHibernateTemplate().delete(group);
-		}
-	}
-
-	public CourseGroup getCourseGroup(String courseGroupUuid) {
-		List list = getHibernateTemplate().findByNamedQueryAndNamedParam(
-				"findCourseGroupByUuid", "uuid", courseGroupUuid);
-		if(list.isEmpty()) {
-			log.warn("No group found with id=" + courseGroupUuid);
-			return null;
-		}
-			return (CourseGroup)list.get(0);
-		}
-
-	public List getCourseGroups(String siteContext) {
-		return getHibernateTemplate().findByNamedQueryAndNamedParam(
-				"findCourseGroupsBySiteContext", "context", siteContext);
-	}
-
-	public Set getUsersInGroup(String courseGroupUuid) {
-		return new HashSet(getHibernateTemplate().findByNamedQueryAndNamedParam(
-				"findGroupMembers", "groupUuid", courseGroupUuid));
-	}
-
-	public void setUsersInGroup(final String courseGroupUuid, final Set userUids) {
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-            	// Get the group
-            	CourseGroup group = getCourseGroup(courseGroupUuid);
-            	String siteContext = context.getContext(null);
-            	
-        		// Remove any existing users who are not in the new set of user uids
-            	Query q = session.getNamedQuery("clearGroupMembers");
-            	q.setParameter("group", group);
-            	q.executeUpdate();
-
-            	// Add any new users who were not previously in the group
-            	for(Iterator iter = userUids.iterator(); iter.hasNext();) {
-            		String userUid = (String)iter.next();
-            		User user = getUserFromSiteParticipation(siteContext, userUid, session);
-            		if(user == null) {
-            			log.warn("can not add user " + userUid + " to group " + group.getUuid() + ".  The user is not a member on the containing site, " + siteContext);
-            		}
-            		GroupParticipantImpl member = new GroupParticipantImpl(uuidManager.createUuid(), group, user);
-            		session.save(member);
-            	}
-            	return null;
-            }
-        };
-		getHibernateTemplate().execute(hc);
-	}
-
-	public void updateCourseGroup(CourseGroup courseGroup) {
-		getHibernateTemplate().update(courseGroup);
-	}
-
 	public ExternalIntegrationConfig getConfiguration(Object obj) {
 		HttpServletRequest request = (HttpServletRequest)obj;
 		ServletContext context = request.getSession(true).getServletContext();

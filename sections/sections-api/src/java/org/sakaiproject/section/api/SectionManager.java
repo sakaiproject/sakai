@@ -26,9 +26,9 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.sakaiproject.section.api.coursemanagement.Course;
-import org.sakaiproject.section.api.coursemanagement.CourseGroup;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.coursemanagement.Meeting;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.SectionEnrollments;
 import org.sakaiproject.section.api.coursemanagement.User;
@@ -65,7 +65,7 @@ public interface SectionManager {
      * {@link org.sakaiproject.section.api.coursemanagement.CourseSection CourseSections}
      * associated with this site context.
      */
-    public List getSections(String siteContext);
+    public List<CourseSection> getSections(String siteContext);
 	    
     /**
      * Lists the sections in this context that are a member of the given category.
@@ -75,7 +75,7 @@ public interface SectionManager {
      * 
      * @return A List of {@link org.sakaiproject.section.api.coursemanagement.CourseSection CourseSections}
      */
-    public List getSectionsInCategory(String siteContext, String categoryId);
+    public List<CourseSection> getSectionsInCategory(String siteContext, String categoryId);
 
     /**
      * Gets a {@link org.sakaiproject.section.api.coursemanagement.CourseSection CourseSection}
@@ -94,7 +94,7 @@ public interface SectionManager {
      * @param siteContext The current site context
      * @return The instructors
      */
-    public List getSiteInstructors(String siteContext);
+    public List<ParticipationRecord> getSiteInstructors(String siteContext);
 
     /**
      * Gets a list of {@link org.sakaiproject.section.api.coursemanagement.ParticipationRecord
@@ -103,7 +103,7 @@ public interface SectionManager {
      * @param siteContext The current site context
      * @return The TAs
      */
-    public List getSiteTeachingAssistants(String siteContext);
+    public List<ParticipationRecord> getSiteTeachingAssistants(String siteContext);
 
     /**
      * Gets a list of {@link org.sakaiproject.section.api.coursemanagement.ParticipationRecord
@@ -112,7 +112,7 @@ public interface SectionManager {
      * @param sectionUuid The section uuid
      * @return The TAs
      */
-    public List getSectionTeachingAssistants(String sectionUuid);
+    public List<ParticipationRecord> getSectionTeachingAssistants(String sectionUuid);
 
     /**
      * Gets a list of {@link org.sakaiproject.section.api.coursemanagement.EnrollmentRecord
@@ -121,7 +121,7 @@ public interface SectionManager {
      * @param siteContext The current site context
      * @return The enrollments
      */
-    public List getSiteEnrollments(String siteContext);
+    public List<EnrollmentRecord> getSiteEnrollments(String siteContext);
 
     /**
      * Gets a list of {@link org.sakaiproject.section.api.coursemanagement.EnrollmentRecord
@@ -130,7 +130,7 @@ public interface SectionManager {
      * @param sectionUuid The section uuid
      * @return The enrollments
      */
-    public List getSectionEnrollments(String sectionUuid);
+    public List<EnrollmentRecord> getSectionEnrollments(String sectionUuid);
 
     /**
      * Finds a list of {@link org.sakaiproject.section.api.coursemanagement.EnrollmentRecord
@@ -142,7 +142,7 @@ public interface SectionManager {
      * 
      * @return The enrollments
      */
-    public List findSiteEnrollments(String siteContext, String pattern);
+    public List<EnrollmentRecord> findSiteEnrollments(String siteContext, String pattern);
 
     /**
 	 * Gets a SectionEnrollments data structure for the given students.
@@ -249,7 +249,7 @@ public interface SectionManager {
      * @return
      */
     public CourseSection addSection(String courseUuid, String title,
-    		String category, Integer maxEnrollments, List meetings);
+    		String category, Integer maxEnrollments, List<Meeting> meetings);
 	
     /**
      * Adds a CourseSection with a single meeting time to a parent CourseSection.
@@ -322,7 +322,7 @@ public interface SectionManager {
      * @param maxEnrollments
      * @param meetings
      */
-    public void updateSection(String sectionUuid, String title, Integer maxEnrollments, List meetings);
+    public void updateSection(String sectionUuid, String title, Integer maxEnrollments, List<Meeting> meetings);
 
     /**
      * Disbands a course section.  This does not affect enrollment records for
@@ -393,7 +393,7 @@ public interface SectionManager {
      * EnrollmentRecords} of students who are enrolled in the course but are
      * not enrolled in a section of the given section category.
      */
-    public List getUnsectionedEnrollments(String courseUuid, String category);
+    public List<EnrollmentRecord> getUnsectionedEnrollments(String courseUuid, String category);
 
     /**
      * Gets all of the section enrollments for a user in a course.  Useful for
@@ -403,7 +403,7 @@ public interface SectionManager {
      * @param courseUuid
      * @return A Set of EnrollmentRecords
      */
-    public Set getSectionEnrollments(String userUid, String courseUuid);
+    public Set<EnrollmentRecord> getSectionEnrollments(String userUid, String courseUuid);
 
 
     /**
@@ -427,7 +427,7 @@ public interface SectionManager {
      * @return A List of unique Strings that identify the available section
      * categories.
      */
-    public List getSectionCategories(String siteContext);
+    public List<String> getSectionCategories(String siteContext);
 
 	/**
 	 * Gets a single User object for a student in a site.
@@ -438,64 +438,7 @@ public interface SectionManager {
 	 */
     public User getSiteEnrollment(String siteContext, String studentUid);
 
-    /**
-     * Get the list of CourseGroups for this site context.
-     * 
-     * @param siteContext
-     * @return
-     */
-    public List getCourseGroups(String siteContext);
     
-    /**
-     * Get a CourseGroup by its uuid.
-     * 
-     * @param courseGroupUuid
-     * @return
-     */
-    public CourseGroup getCourseGroup(String courseGroupUuid);
-    
-    /**
-     * Updates a CourseGroup.
-     * 
-     * @param courseGroup
-     */
-    public void updateCourseGroup(CourseGroup courseGroup);
-    
-    /**
-     * Creates a new CourseGroup.
-     * 
-     * @param courseUuid
-     * @param title
-     * @param description
-     * @return
-     */
-    public CourseGroup addCourseGroup(String courseUuid, String title, String description);
-
-    /**
-     * Disbands a CourseGroup.  This does not affect enrollment records for
-     * the course.
-     * 
-     * @param courseGroupUuid
-     */
-    public void disbandCourseGroup(String courseGroupUuid);
-    
-    /**
-     * Gets the userUids who are members in this CourseGroup.
-     * 
-     * @param courseGroupUuid
-     * @return
-     */
-    public Set getUsersInGroup(String courseGroupUuid);
-    
-    /**
-     * Updates the members of a group
-     * 
-     * @param courseGroupUuid The courseGroup identifier
-     * @param groupMembers The set if user uuids
-     */
-    public void setUsersInGroup(String courseGroupUuid, Set groupMembers);
-
-
     //// Configuration
 
     

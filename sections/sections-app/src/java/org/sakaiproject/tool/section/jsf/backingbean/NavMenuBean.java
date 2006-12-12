@@ -49,8 +49,7 @@ public class NavMenuBean extends CourseDependentBean {
 			! super.getSectionManager().isExternallyManaged(courseUuid);
 
 		this.sectionOptionsManagementEnabled = super.isSectionOptionsManagementEnabled() &&
-			appConfig != SectionManager.ExternalIntegrationConfig.AUTOMATIC_MANDATORY &&
-			appConfig != SectionManager.ExternalIntegrationConfig.MANUAL_MANDATORY;
+			appConfig != SectionManager.ExternalIntegrationConfig.AUTOMATIC_MANDATORY;
 
 		this.sectionEnrollmentMangementEnabled = super.isSectionEnrollmentMangementEnabled() &&
 			! super.getSectionManager().isExternallyManaged(courseUuid);

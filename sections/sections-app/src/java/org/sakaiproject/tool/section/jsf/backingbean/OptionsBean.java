@@ -25,6 +25,7 @@ import java.io.Serializable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.SectionManager;
+import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
@@ -45,11 +46,19 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 	private boolean selfSwitch;
 	private String management;
 	private boolean confirmMode;
+	private boolean managementToggleEnabled;
 
 	public void init() {
 		// We don't need to initialize the bean when we're in confirm mode
 		if(confirmMode) {
 			return;
+		}
+		
+		// The management toggle is not available in mandatory configurations
+		ExternalIntegrationConfig config = getApplicationConfiguration();
+		if(config == ExternalIntegrationConfig.AUTOMATIC_DEFAULT ||
+				config == ExternalIntegrationConfig.MANUAL_DEFAULT) {
+			managementToggleEnabled = true;
 		}
 		
 		if(log.isDebugEnabled()) log.debug("OptionsBean.init()");
@@ -142,6 +151,10 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 
 	public void setConfirmMode(boolean confirmMode) {
 		this.confirmMode = confirmMode;
+	}
+	
+	public boolean isManagementToggleEnabled() {
+		return managementToggleEnabled;
 	}
 
 }

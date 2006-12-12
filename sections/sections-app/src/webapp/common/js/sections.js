@@ -1,8 +1,40 @@
+/* Javascript for clearing text boxes with default text */
+
 function clearIfDefaultString(formField, defaultString) {
     if(formField.value == defaultString) {
         formField.value = "";
     }
 }
+
+/* Javascript for enabling or disabling self join/switch options */
+
+function updateOptionBoxes(externallyManaged) {
+if(externallyManaged == null) {
+	var external = document.optionsForm[3];
+	var internal = document.optionsForm[4];
+	if(external.checked) {
+		externallyManaged = external;
+	} else {
+		externallyManaged = internal;
+	}	
+
+}
+	var selfJoin = document.getElementById("optionsForm:selfRegister");
+	var selfSwitch = document.getElementById("optionsForm:selfSwitch");
+
+	if(externallyManaged.value=='external') {
+		// Automatic section management is selected
+		selfJoin.checked = false;
+		selfJoin.disabled = true;
+		selfSwitch.checked = false;
+		selfSwitch.disabled = true;
+	} else {
+		// Manual section management is selected
+		selfJoin.disabled = false;
+		selfSwitch.disabled = false;
+	}
+}
+
 
 /* Javascript for moving users between multi-select lists */
 
@@ -15,11 +47,15 @@ var availableUsers;
   need to follow the naming convention "availableUsers" and "selectedUsers" for
   the select lists on these pages.
 */
-function prepMemberForm() {
+function prepForms() {
     if(document.getElementById("memberForm")) {
         populateLists();
         unHighlightUsers();
         updateTotalMembers();
+    }
+
+    if(document.getElementById("optionsForm")) {
+    	updateOptionBoxes();
     }
 }
 

@@ -66,14 +66,14 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 	protected Course course;
 	protected String category;
     protected Integer maxEnrollments;
-    protected List<MeetingImpl> meetings;
+    protected List<Meeting> meetings;
     protected String title;
 
     // Transient holder for the framework group being decorated.
     private transient Group group;
     
 	public CourseSectionImpl(Group group) {
-		this.meetings = new ArrayList<MeetingImpl>();
+		this.meetings = new ArrayList<Meeting>();
 		// We always start with a single empty meeting
 		meetings.add(new MeetingImpl());
 		this.group = group;
@@ -234,7 +234,7 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 
     	// Ensure that we've got a meeting object
     	if(meetings == null) {
-    		meetings = new ArrayList<MeetingImpl>();
+    		meetings = new ArrayList<Meeting>();
     	}
     	
     	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
@@ -386,11 +386,11 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 		this.description = description;
 	}
 
-	public List getMeetings() {
+	public List<Meeting> getMeetings() {
 		return meetings;
 	}
 
-	public void setMeetings(List<MeetingImpl> meetings) {
+	public void setMeetings(List<Meeting> meetings) {
 		this.meetings = meetings;
 	}
 

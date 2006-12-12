@@ -17,4 +17,4 @@
 	<link href="${pageContext.request.contextPath}/css/sections.css" rel="stylesheet" type="text/css" />
 	<link href="${pageContext.request.contextPath}/css/sectionsStandalone.css" rel="stylesheet" type="text/css" />
 </head>
-	<body onload="prepMemberForm()">
+	<body onload="prepForms()">

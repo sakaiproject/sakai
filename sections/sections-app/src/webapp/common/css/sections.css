@@ -96,3 +96,5 @@ tr.dark td {background-color: #EFEFEF;}
 /* Show text in a thin-bordered box */
 .borderBox {border:1px solid;}
 
+/* Indent options checkboxes */
+.indent {text-indent: 3em;}

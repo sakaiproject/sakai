@@ -23,7 +23,9 @@
         	</h:panelGrid>
         </x:div>
 
-		<x:selectOneRadio id="externallyManaged" layout="spread" value="#{optionsBean.management}" disabled="#{optionsBean.confirmMode}">
+		<x:selectOneRadio id="externallyManaged" layout="spread" value="#{optionsBean.management}"
+			rendered="#{optionsBean.managementToggleEnabled}" disabled="#{optionsBean.confirmMode}"
+			onclick="updateOptionBoxes(this);">
 			<f:selectItem itemValue="external" itemLabel="#{msgs.options_externally_managed_description}"/>
 			<f:selectItem itemValue="internal" itemLabel="#{msgs.options_internally_managed_description}"/>
 		</x:selectOneRadio>
@@ -34,11 +36,11 @@
 
         <x:div>
 			<x:radio for="externallyManaged" index="1" />
-	        <x:div>
+	        <x:div styleClass="indent">
 	            <h:selectBooleanCheckbox id="selfRegister" value="#{optionsBean.selfRegister}" disabled="#{optionsBean.confirmMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
 	            <h:outputLabel for="selfRegister" value="#{msgs.options_self_register_label}"/>
 	        </x:div>
-	        <x:div>
+	        <x:div styleClass="indent">
 	            <h:selectBooleanCheckbox id="selfSwitch" value="#{optionsBean.selfSwitch}" disabled="#{optionsBean.confirmMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
 	            <h:outputLabel for="selfSwitch" value="#{msgs.options_self_switch_label}"/>
 	        </x:div>

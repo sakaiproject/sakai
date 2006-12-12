@@ -36,8 +36,6 @@
         <subclass name="org.sakaiproject.component.section.TeachingAssistantRecordImpl" discriminator-value="3">
         </subclass>
 
-        <subclass name="org.sakaiproject.component.section.GroupParticipantImpl" discriminator-value="4">
-        </subclass>
     </class>
 
     <query name="findSiteInstructors">
@@ -277,19 +275,5 @@
             )
         ]]>
     </query>
-
-    <query name="findGroupMembers">
-        <![CDATA[
-        select gp.user.userUid from GroupParticipantImpl as gp where gp.learningContext.uuid=:groupUuid
-        ]]>
-    </query>
-    
-    <query name="clearGroupMembers">
-        <![CDATA[
-        delete GroupParticipantImpl gp where gp.learningContext=:group
-        ]]>
-    </query>
-    
-    
 
 </hibernate-mapping>
