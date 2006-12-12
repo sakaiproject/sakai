@@ -83,20 +83,30 @@ public class MembershipManagerImpl implements MembershipManager{
    * @return
    */
   private Map filterByPrivacyManager(List allCourseUsers, Map courseUserMap) {
+	  
 	  List userIds = new ArrayList();
 	  Map results = new HashMap();
 
 	  for (Iterator usersIter = allCourseUsers.iterator(); usersIter.hasNext();) {
-	      MembershipItem memberItem = (MembershipItem) usersIter.next();
+		  MembershipItem memberItem = (MembershipItem) usersIter.next();
 	      
-	      if (memberItem.getUser() != null) {
-	    	  userIds.add(memberItem.getUser().getId());    
-	      }
+		  if (memberItem.getUser() != null) {
+			  userIds.add(memberItem.getUser().getId());    
+		  }
 	  }
-	    
-	  /** only allow private messages to be sent to users with Visible privacy status */
-	  Set memberSet = privacyManager.findViewable(
-							toolManager.getCurrentPlacement().getContext(), new HashSet(userIds));
+	  
+	  // only allow private messages to be sent to users with Visible privacy status
+	  // Instructors should see all users
+	  Set memberSet = null;
+	  
+	  if (securityService.unlock(userDirectoryService.getCurrentUser(), "site.upd", getContextSiteId())) {
+		  return courseUserMap;
+	  }
+	  else {
+		  memberSet = privacyManager.findViewable(
+				  			("/site/" + toolManager.getCurrentPlacement().getContext()), new HashSet(userIds));
+	  }
+	 
 
 	  Collection userCollection = courseUserMap.values();
 		
