@@ -226,7 +226,11 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
             CourseGradeRecord gradeRecord = getGradebookManager().getStudentCourseGradeRecord(gradebook, getUserUid());
             if (gradeRecord != null) {
                 courseGrade = gradeRecord.getDisplayGrade();
-                percent = gradeRecord.getSortGrade().doubleValue();
+                try{
+                    percent = gradeRecord.getSortGrade().doubleValue();
+                }catch(NullPointerException npe){
+                    if(logger.isDebugEnabled())logger.debug(npe + "currently no grade is available ");
+                }
             }
         }
         //get grade comments and load them into a map assignmentId->comment
