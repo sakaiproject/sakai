@@ -106,12 +106,6 @@
     <h:outputText value="#{msg.unlimited_}"
        rendered="#{delivery.settings.unlimitedAttempts}"/>
 
-    <h:outputLabel value="#{msg.auto_exp}" />
-    <h:outputText value="#{msg.enabled_}"
-       rendered="#{delivery.settings.autoSubmit}"/>
-    <h:outputText value="#{msg.disabled}"
-       rendered="#{!delivery.settings.autoSubmit}"/>
-
     <h:outputLabel value="#{msg.feedback}" />
     <h:panelGroup>
       <h:outputText value="#{msg.immed}"
