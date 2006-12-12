@@ -1218,11 +1218,11 @@ public class PodcastServiceImpl implements PodcastService {
 	 */
 	public Date getGMTdate(long date) {
 		final Calendar cal = Calendar.getInstance(TimeService.getLocalTimeZone());
-		cal.setTimeInMillis(date);
-		
 		int gmtoffset = cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET);
+	
+		cal.setTimeInMillis(date - gmtoffset);
 		
-		return new Date(date - gmtoffset);
+		return cal.getTime();
 	}
 
 	/**

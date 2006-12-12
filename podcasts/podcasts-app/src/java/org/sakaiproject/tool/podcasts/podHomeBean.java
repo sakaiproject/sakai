@@ -163,6 +163,7 @@ public class podHomeBean {
 			}
 				
 			SimpleDateFormat formatter = new SimpleDateFormat(getErrorMessageString(DATE_BY_HAND_FORMAT));
+			formatter.setTimeZone(TimeService.getLocalTimeZone());
 			
 			try {
 				Date tempDate = convertDateString(dispDate,
