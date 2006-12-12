@@ -49,15 +49,21 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 public class AssignmentDetailsBean extends EnrollmentTableBean {
 	private static final Log logger = LogFactory.getLog(AssignmentDetailsBean.class);
 
+	/**
+	 * The following variable keeps bean initialization from overwriting
+	 * input fields from the database.
+	 */
+	private boolean workInProgress;
+
 	private List scoreRows;
 	private List gradeRecords;
 	private List updatedComments;
-	
+
 	private Long assignmentId;
     private Assignment assignment;
 	private Assignment previousAssignment;
 	private Assignment nextAssignment;
-	
+
 	private boolean isAllCommentsEditable;
 
     public class ScoreRow implements Serializable {
@@ -73,7 +79,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
             this.enrollment = enrollment;
             this.gradeRecord = gradeRecord;
             this.comment = comment;
- 
+
             eventRows = new ArrayList();
             for (Iterator iter = gradingEvents.iterator(); iter.hasNext();) {
             	GradingEvent gradingEvent = (GradingEvent)iter.next();
@@ -90,7 +96,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         public EnrollmentRecord getEnrollment() {
             return enrollment;
         }
-        
+
         public String getCommentText() {
         	return comment.getCommentText();
         }
@@ -107,7 +113,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         public String getEventsLogTitle() {
         	return FacesUtil.getLocalizedString("assignment_details_log_title", new String[] {enrollment.getUser().getDisplayName()});
         }
-        
+
         public boolean isCommentEditable() {
         	return (isAllCommentsEditable && !assignment.isExternallyMaintained());
         }
@@ -115,6 +121,15 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
 	protected void init() {
 		if (logger.isDebugEnabled()) logger.debug("loadData assignment=" + assignment + ", previousAssignment=" + previousAssignment + ", nextAssignment=" + nextAssignment);
+		
+		if (logger.isDebugEnabled()) logger.debug("workInProgress=" + workInProgress);
+		if (workInProgress) {			
+			// Keeping the current form values in memory is a one-shot deal at
+			// present. The next time the user does anything, the form will be
+			// refreshed from the database.
+			workInProgress = false;
+			return;
+		}
 
 		super.init();
 
@@ -179,7 +194,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 						gradeRecordMap.put(gradeRecord.getStudentId(), gradeRecord);
 					}
 				}
-                
+
                 // If the table is not being sorted by enrollment information, then
                 // we had to gather grade records for all students to set up the
                 // current page. In that case, eliminate the undisplayed grade records
@@ -208,7 +223,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		            if (comment == null) {
 		            	comment = new Comment(studentUid, null, assignment);
 		            }
-					
+
 					scoreRows.add(new ScoreRow(enrollment, gradeRecord, comment, allEvents.getEvents(studentUid)));
 				}
 
@@ -254,7 +269,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	private void saveScores() throws StaleObjectModificationException {
 		if (logger.isInfoEnabled()) logger.info("saveScores " + assignmentId);
 		Set excessiveScores = getGradebookManager().updateAssignmentGradesAndComments(assignment, gradeRecords, updatedComments);
-		
+
 		if (logger.isDebugEnabled()) logger.debug("About to save " + updatedComments.size() + " updated comments");
 
 		String messageKey = (excessiveScores.size() > 0) ?
@@ -264,8 +279,14 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         // Let the user know.
         FacesUtil.addMessage(getLocalizedString(messageKey));
 	}
-	
+
 	public void toggleEditableComments(ActionEvent event) {
+		// Don't write over any scores the user entered before pressing
+		// the "Edit Comments" button.
+		if (!isAllCommentsEditable) {
+			workInProgress = true;
+		}
+
 		isAllCommentsEditable = !isAllCommentsEditable;
     }
 
@@ -371,9 +392,9 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
     public void setPreviousAssignment(Assignment previousAssignment) {
         this.previousAssignment = previousAssignment;
     }
-    
+
     public String getCommentsToggle() {
-    	String messageKey = isAllCommentsEditable ? 
+    	String messageKey = isAllCommentsEditable ?
     			"assignment_details_comments_read" :
 				"assignment_details_comments_edit";
     	return getLocalizedString(messageKey);
@@ -381,9 +402,5 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
 	public boolean isAllCommentsEditable() {
 		return isAllCommentsEditable;
-	}
-
-	public void setAllCommentsEditable(boolean isAllCommentsEditable) {
-		this.isAllCommentsEditable = isAllCommentsEditable;
 	}
 }
