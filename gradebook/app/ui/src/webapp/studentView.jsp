@@ -1,4 +1,5 @@
 <link href="dhtmlpopup/dhtmlPopup.css" rel="stylesheet" type="text/css" />
+<link href="dhtmlpopup/dhtmlCommentPopup.css" rel="stylesheet" type="text/css" />
 <script src="dhtmlpopup/dhtmlPopup.js" type="text/javascript"></script>
 
 <f:view>
