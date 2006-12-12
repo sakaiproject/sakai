@@ -355,7 +355,7 @@ public abstract class BasePresenceService implements PresenceService
 			}
 		}
 		
-		Set userIdsSet = m_privacyManager.findViewable(siteId, new HashSet(userIds));
+		Set userIdsSet = m_privacyManager.findViewable("/site/" + siteId, new HashSet(userIds));
 
 		// add current user back in just in case privacy status is hidden
 		if (userInSite) {
