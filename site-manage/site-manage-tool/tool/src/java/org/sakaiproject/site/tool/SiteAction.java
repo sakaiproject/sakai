@@ -7717,7 +7717,7 @@ public class SiteAction extends PagedResourceActionII
 		for (ListIterator i = wSetupPageList.listIterator(); i.hasNext(); )
 		{
 			wSetupPage = (WorksiteSetupPage) i.next();
-			if((wSetupPage.getPageTitle()).equals(HOME_TOOL_ID)){ homeInWSetupPageList = true; }
+			if(wSetupPage.getToolId().equals(HOME_TOOL_ID)){ homeInWSetupPageList = true; }
 		}
 		
 		if (homeInChosenList)
@@ -7735,7 +7735,7 @@ public class SiteAction extends PagedResourceActionII
 					for (ListIterator i = wSetupPageList.listIterator(); i.hasNext(); )
 					{
 						WorksiteSetupPage comparePage = (WorksiteSetupPage) i.next();
-						if((comparePage.getPageTitle()).equals(HOME_TOOL_ID)) { homePage = comparePage; }
+						if((comparePage.getToolId()).equals(HOME_TOOL_ID)) { homePage = comparePage; }
 					}
 					page = site.getPage(homePage.getPageId());
 					List toolList = page.getTools();
@@ -7841,7 +7841,7 @@ public class SiteAction extends PagedResourceActionII
 			for (ListIterator i = wSetupPageList.listIterator(); i.hasNext(); )
 			{
 				WorksiteSetupPage comparePage = (WorksiteSetupPage) i.next();
-				if((comparePage.getPageTitle()).equals(rb.getString("java.home"))) { removePage = comparePage; }
+				if(comparePage.getToolId().equals(HOME_TOOL_ID)) { removePage = comparePage; }
 			}
 			SitePage siteHome = site.getPage(removePage.getPageId());
 			site.removePage(siteHome);
