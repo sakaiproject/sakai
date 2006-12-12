@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN" "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
 <faces-config>
 	<managed-bean>
@@ -14,7 +14,7 @@
 		<managed-property>
 			<description>Section Awareness Service</description>
 			<property-name>sectionAwareness</property-name>
-			<value>#{org_sakaiproject_api_section_SectionAwareness}</value>
+			<value>#{org_sakaiproject_section_api_SectionAwareness}</value>
 		</managed-property>
 		<managed-property>
 			<description>User Directory Service</description>
