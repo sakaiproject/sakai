@@ -31,7 +31,6 @@ import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
-import javax.faces.component.UIViewRoot;
 
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -95,14 +94,17 @@ public class HideDivisionRenderer extends Renderer
       throws IOException {
 
         ResponseWriter writer = context.getResponseWriter();
+        String id = component.getClientId(context);
+        
+        /* SAK-7299
         String jsfId = (String) component.getAttributes().get("id");
         String id = jsfId;
-
         if (component.getId() != null &&
           !component.getId().startsWith(UIViewRoot.UNIQUE_ID_PREFIX))
         {
           id = component.getClientId(context);
         }
+        */
 
         String title = (String) component.getAttributes().get("title");
         String contextPath = context.getExternalContext()

@@ -80,11 +80,13 @@ public class HideDivisionTag
 
     super.setProperties(component);
 
+    /* SAK-7299
     if (id != null)
     {
       component.getAttributes().put("id", id);
     }
-
+    */
+    
     if (title != null)
     {
       if ( title.indexOf("#{") > -1)
