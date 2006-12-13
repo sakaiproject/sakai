@@ -69,6 +69,9 @@ table.narrowTable {
     width:auto;
 }
 
+table.sectionTable{border:none; border-collapse:collapse;}
+table.sectionTable tr td {border-color:gray !important; border-top:solid; border-width:1px; border-collapse:collapse;}
+
 table.rosterTable {
     width:auto;
 }
@@ -97,4 +100,4 @@ tr.dark td {background-color: #EFEFEF;}
 .borderBox {border:1px solid;}
 
 /* Indent options checkboxes */
-.indent {text-indent: 3em;}
+.indent {text-indent: 1em;}

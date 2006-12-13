@@ -33,8 +33,7 @@
             var="section"
             sortColumn="#{studentViewBean.sortColumn}"
             sortAscending="#{studentViewBean.sortAscending}"
-            styleClass="listHier"
-	        rules="rows"
+        	styleClass="listHier sectionTable"
         	columnClasses="leftIndent,left,left,left,left,center,center"
             >
     

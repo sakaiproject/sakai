@@ -22,8 +22,7 @@
         var="section"
         sortColumn="#{preferencesBean.overviewSortColumn}"
         sortAscending="#{preferencesBean.overviewSortAscending}"
-        rules="rows"
-        styleClass="listHier narrowTable"
+        styleClass="listHier sectionTable"
         columnClasses="leftIndent,left,left,left,center,center,center"
         >
     

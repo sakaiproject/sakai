@@ -45,8 +45,7 @@
             var="section"
             sortColumn="#{editStudentSectionsBean.sortColumn}"
             sortAscending="#{editStudentSectionsBean.sortAscending}"
-            styleClass="listHier"
-	        rules="rows"
+        	styleClass="listHier sectionTable"
         	columnClasses="leftIndent,left,left,left,left,center,center"
             >
     
