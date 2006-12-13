@@ -182,6 +182,8 @@ public class MessageForumSynopticBean {
 
 	/** Used to retrieve non-notification sites for MyWorkspace page */
 	private final String SYNMC_OPTIONS_PREFS = "synmc_hidden_sites";
+	private static final String CHARON_PREFS = "sakai:portal:sitenav";
+	private final String TAB_EXCLUDED_SITES = "exclude";
 	
 	/** Used to pull excluded sites from user preferences */
 	private final String EXCLUDE_STRING = "excludeSiteMC";
@@ -330,9 +332,11 @@ public class MessageForumSynopticBean {
 
 	/** =============== End Options page bean values =============== */
 
+	/** =============== Main page bean values =============== */
 	/** Used to determine if there are sites to display on page */
 	private boolean sitesToView;
 	private boolean sitesToViewSet = false;
+	private boolean pmEnabled;
 	
 	/** Decorated Bean to store stats for individual site */
 	private DecoratedCompiledMessageStats siteInfo = null;
@@ -428,6 +432,12 @@ public class MessageForumSynopticBean {
 		else {
 			return ! filterOutExcludedSites(getSiteList()).isEmpty();
 		}
+	}
+
+	public boolean isPmEnabled() {
+		final Area area = pvtMessageManager.getPrivateMessageArea();
+		
+		return (area != null) && area.getEnabled().booleanValue();
 	}
 
 	public DecoratedCompiledMessageStats getSiteInfo() {
@@ -957,20 +967,21 @@ public class MessageForumSynopticBean {
 			// List of topics so we can get the Received topic to finally determine number of unread messages
 			final Area area = pvtMessageManager.getPrivateMessageArea();
 			
-			if (pvtMessageManager.getPrivateMessageArea().getEnabled().booleanValue()) {
+			if (area.getEnabled().booleanValue()) {
 				pvtMessageManager.initializePrivateMessageArea(area);
 				
 				unreadPrivate = pvtMessageManager.findUnreadMessageCount(
 									typeManager.getReceivedPrivateMessageType());
 
 				dcms.setUnreadPrivateAmt(unreadPrivate);
+				dcms.setPrivateMessagesUrl(generatePrivateTopicMessagesUrl(getSiteId()));
 			}
 			else {
 				dcms.setUnreadPrivateAmt(0);
+				dcms.setPrivateMessagesUrl(getMCPageURL());
 			}
 
 			dcms.setHeading(rb.getString(PRIVATE_HEADING));
-			dcms.setPrivateMessagesUrl(generatePrivateTopicMessagesUrl(getSiteId()));
 			
 			// Number of unread forum messages is a little harder
 			// need to loop through all topics and add them up
@@ -1397,9 +1408,48 @@ public class MessageForumSynopticBean {
 									SessionManager.getCurrentSessionUserId());
 		
 		ResourceProperties props = prefs.getProperties(SYNMC_OPTIONS_PREFS);
-		final List l = props.getPropertyList(EXCLUDE_STRING);
+		List l = props.getPropertyList(EXCLUDE_STRING);
+
+		if (l == null) {
+			// First time, need to set up excluded sites from Tabs for this
+			l = getExcludedSitesFromTabs();
+
+			if (l != null) {
+				// now need to save it so next time we are OK
+				setUserEditingOn();
+
+				prefsEditKNVCollection = new Vector();
+				String eparts = "";
+
+				for (Iterator prefIter = l.iterator(); prefIter.hasNext();) {
+					String evalue = (String) prefIter.next();
+					eparts += evalue + ", ";
+				}
+
+				// add property name and value for saving
+				prefsEditKNVCollection.add(new KeyNameValue(
+										 SYNMC_OPTIONS_PREFS, EXCLUDE_STRING, eparts, true));
+
+				// save
+				saveEdit();
+
+				// release lock and clear session variables
+				cancelEdit();
+			}
+		}
 
 		return l;
+	}
+	
+	private List getExcludedSitesFromTabs() {
+		Preferences prefs = preferencesService.getPreferences(
+								SessionManager.getCurrentSessionUserId());
+
+		ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
+		final List l = props.getPropertyList(TAB_EXCLUDED_SITES);
+
+		return l;
+		
 	}
 
 	/**
@@ -1423,7 +1473,7 @@ public class MessageForumSynopticBean {
 			prefExclude = l;
 		}
 
-		// create excluded and order list of Sites and add balance mySites to excluded Site list for display in Form
+		// create excluded list of Sites and add balance mySites to excluded Site list for display in Form
 		final List excluded = new Vector();
 
 		for (Iterator iter = prefExclude.iterator(); iter.hasNext();) {

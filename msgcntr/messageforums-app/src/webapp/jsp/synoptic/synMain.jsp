@@ -85,11 +85,15 @@
 	<h:panelGrid columns="2" styleClass="listHier lines nolines"
 		rendered="#{(! mfSynopticBean.myWorkspace) && mfSynopticBean.messageForumsPageInSite}" >
 		<h:panelGroup>
-			<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
-			<h:outputText escape="false" value="#{mfSynopticBean.siteInfo.privateMessagesUrl}';\">" />
-
+			<h:panelGroup rendered="#{mfSynopticBean.pmEnabled}" >
+				<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
+				<h:outputText escape="false" value="#{mfSynopticBean.siteInfo.privateMessagesUrl}';\">" />
+			</h:panelGroup>
+			
 			<h:outputText  value="#{msgs.syn_private_heading}" title="#{msgs.syn_goto_messages}" />
-			<f:verbatim></a></f:verbatim>
+			<h:panelGroup rendered="#{mfSynopticBean.pmEnabled}" >
+				<f:verbatim></a></f:verbatim>
+			</h:panelGroup>
 		</h:panelGroup>
 		
 		<h:panelGroup>
