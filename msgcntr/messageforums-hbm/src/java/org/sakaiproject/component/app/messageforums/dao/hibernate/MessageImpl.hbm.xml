@@ -203,7 +203,8 @@
              join topic.openForum as f
              join f.area as a
              where a.contextId in ( :siteList ) and
-             f.draft = false
+             f.draft = false and
+             topic.draft = false
              group by a.contextId
     ]]>
  
@@ -237,7 +238,8 @@
              join f.area as a
              where us.userId = :userId and
              messages.id = us.messageId and
-             f.draft = false
+             f.draft = false and
+             topic.draft = false
              group by a.contextId
     ]]>
     
