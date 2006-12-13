@@ -1317,33 +1317,33 @@ public class MessageForumSynopticBean {
 		
 	    Area area = areaManager.getAreaByContextIdAndTypeId(contextId, typeManager.getPrivateMessageAreaType());
         
-	    if (area.getEnabled().booleanValue() || pvtMessageManager.isInstructor()){
-	      PrivateForum pf = pvtMessageManager.initializePrivateMessageArea(area);
-	      pf = pvtMessageManager.initializationHelper(pf);
-	      List pvtTopics = pf.getTopics();
-	      Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);   //changed to date comparator
+	    if (area != null) {
+	    	if (area.getEnabled().booleanValue() || pvtMessageManager.isInstructor()){
+	    		PrivateForum pf = pvtMessageManager.initializePrivateMessageArea(area);
+	    		pf = pvtMessageManager.initializationHelper(pf);
+	    		List pvtTopics = pf.getTopics();
+	    		Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);   //changed to date comparator
 	      
-	      receivedTopic = (Topic) pvtTopics.iterator().next();
-	      receivedTopicUuid = receivedTopic.getUuid();
-	    } 
+	    		receivedTopic = (Topic) pvtTopics.iterator().next();
+	    		receivedTopicUuid = receivedTopic.getUuid();
+	    	} 
 
-	    ToolConfiguration mcTool = null;
-	    String url = null;
+	    	ToolConfiguration mcTool = null;
+	    	String url = null;
 	    
-	    try {
-		    mcTool = SiteService.getSite(contextId).getToolForCommonId(MESSAGE_CENTER_ID);	    	
+	    	try {
+	    		mcTool = SiteService.getSite(contextId).getToolForCommonId(MESSAGE_CENTER_ID);	    	
 
-		    if (mcTool != null) {
-		    	url = ServerConfigurationService.getPortalUrl() + "/directtool/"
-		    					+ mcTool.getId() 
-		    					+ "/sakai.messageforums.helper.helper/privateMsg/pvtMsg?pvtMsgTopicId=" + receivedTopicUuid 
-		    					+ "&contextId=" + contextId + "&selectedTopic=Received";
-			
-		    	return url;
-		    }
-	    }
-	    catch (IdUnusedException e) {
-	    	LOG.error("IdUnusedException attempting to move to Private Messages for a site. Site id used is: " + contextId);
+	    		if (mcTool != null) {
+	    			url = ServerConfigurationService.getPortalUrl() + "/directtool/"
+		    					+ mcTool.getId() + "/sakai.messageforums.helper.helper/privateMsg/pvtMsg?pvtMsgTopicId=" 
+		    					+ receivedTopicUuid + "&contextId=" + contextId + "&selectedTopic=Received";
+	    			return url;
+	    		}
+	    	}
+	    	catch (IdUnusedException e) {
+	    		LOG.error("IdUnusedException attempting to move to Private Messages for a site. Site id used is: " + contextId);
+	    	}
 	    }
 
 	    return "";

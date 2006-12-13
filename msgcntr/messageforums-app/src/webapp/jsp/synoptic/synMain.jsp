@@ -27,7 +27,7 @@
 			<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
 			<h:outputText escape="false" value="#{eachSite.mcPageURL}';\">" />
 			
-			<h:outputText value="#{eachSite.siteName}" title="#{msgs.syn_goto_messages}" />
+			<h:outputText value="#{eachSite.siteName}" title="#{msgs.syn_goto_mc}" />
 			<f:verbatim></a></f:verbatim>
 	   	</h:column>
 
