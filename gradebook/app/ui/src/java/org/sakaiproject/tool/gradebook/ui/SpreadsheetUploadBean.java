@@ -376,9 +376,15 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         //
         // assignmentHeaders = new ArrayList();
 
-        SpreadsheetHeader header = new SpreadsheetHeader((String) spreadsheet.getLineitems().get(0));
-        assignmentHeaders = header.getHeaderWithoutUser();
-
+        SpreadsheetHeader header;
+        try{
+            header = new SpreadsheetHeader((String) spreadsheet.getLineitems().get(0));
+            assignmentHeaders = header.getHeaderWithoutUser();
+        }catch(IndexOutOfBoundsException ioe){
+            if(logger.isDebugEnabled())logger.debug(ioe + " there is a problem with the uploaded spreadsheet");
+            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filecontent_error"));
+            return null;
+        }
 
         //generate spreadsheet rows
         Iterator it = spreadsheet.getLineitems().iterator();
