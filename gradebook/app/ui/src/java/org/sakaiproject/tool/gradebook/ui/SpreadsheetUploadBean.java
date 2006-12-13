@@ -419,6 +419,11 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         if(logger.isDebugEnabled()) logger.debug("Map initialized " +studentRows.size());
         if(logger.isDebugEnabled()) logger.debug("assignmentList " +assignmentList.size());
 
+        if(studentRows.size() < 1){
+            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filecontent_error"));
+            return null;
+        }
+
 
         return "spreadsheetUploadPreview";
     }
