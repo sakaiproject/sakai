@@ -1,5 +1,7 @@
 package org.sakaiproject.portal.render.portlet.services;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
+
 import javax.portlet.PortalContext;
 import javax.portlet.PortletMode;
 import javax.portlet.WindowState;
@@ -54,7 +56,7 @@ public class SakaiPortalContext implements PortalContext {
      */
     public String getPortalInfo() {
 
-        return "Charon/2.3-SNAPSHOT";
+        return  "Sakai-Charon/" + ServerConfigurationService.getString("version.sakai");
     }
 
     class IteratorEnumeration implements Enumeration {

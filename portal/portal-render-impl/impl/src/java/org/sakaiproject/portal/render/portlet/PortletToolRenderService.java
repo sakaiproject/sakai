@@ -178,8 +178,8 @@ public class PortletToolRenderService implements ToolRenderService {
     }
 
     private SakaiPortletWindow createPortletWindow(String windowId) {
-        String contextPath = "/testsuite";
-        String portletName = "TestPortlet1";
+        String contextPath = "/rsf";
+        String portletName = "numberguess";
         return new SakaiPortletWindow(windowId, contextPath, portletName);
     }
 

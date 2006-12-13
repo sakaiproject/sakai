@@ -59,7 +59,7 @@
       <dependency>
           <groupId>org.apache.pluto</groupId>
           <artifactId>pluto-container</artifactId>
-          <version>1.1.0-beta2</version>
+          <version>1.1.0-SNAPSHOT</version>
           <properties>
               <deploy.target>shared</deploy.target>
           </properties>
@@ -76,7 +76,7 @@
       <dependency>
           <groupId>org.apache.pluto</groupId>
           <artifactId>pluto-descriptor-api</artifactId>
-          <version>1.1.0-beta2</version>
+          <version>1.1.0-SNAPSHOT</version>
           <properties>
               <deploy.target>shared</deploy.target>
           </properties>
@@ -85,7 +85,7 @@
       <dependency>
           <groupId>org.apache.pluto</groupId>
           <artifactId>pluto-descriptor-impl</artifactId>
-          <version>1.1.0-beta2</version>
+          <version>1.1.0-SNAPSHOT</version>
           <properties>
               <deploy.target>shared</deploy.target>
           </properties>
@@ -94,7 +94,7 @@
       <dependency>
           <groupId>org.apache.pluto</groupId>
           <artifactId>pluto-taglib</artifactId>
-          <version>1.1.0-beta2</version>
+          <version>1.1.0-SNAPSHOT</version>
           <properties>
               <deploy.target>shared</deploy.target>
           </properties>
