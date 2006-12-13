@@ -1066,8 +1066,11 @@ if (answer != null)
     {
       Object data = iter.next();
       if (data instanceof AssessmentGradingData) {
-        floats.add((Float)
-          ((AssessmentGradingData) data).getFinalScore());
+    	  Float finalScore = ((AssessmentGradingData) data).getFinalScore();
+    	  if (finalScore == null) {
+    		  finalScore = Float.valueOf("0");
+    	  }
+        floats.add(finalScore);
       }
       else
       {
