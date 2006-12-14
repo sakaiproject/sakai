@@ -146,7 +146,11 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		
 		// If this site is manually managed, we do nothing
 		if("false".equals(siteProps.getProperty(CourseImpl.EXTERNALLY_MAINTAINED))) {
-			if(log.isDebugEnabled()) log.debug("SiteAdvisor " + this.getClass().getCanonicalName() + " ignoring sections in site " + site.getTitle() + ".  The site is internally managed.");
+			if(log.isDebugEnabled()) log.debug("SiteAdvisor " + this.getClass().getCanonicalName() + " stripping provider IDs from all sections in site " + site.getTitle() + ".  The site is internally managed.");
+			for(Iterator iter = site.getGroups().iterator(); iter.hasNext();) {
+				Group group = (Group)iter.next();
+				group.setProviderGroupId(null);
+			}
 			return;
 		}
 		
