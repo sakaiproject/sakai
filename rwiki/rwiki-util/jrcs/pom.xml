@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../../../master/pom.xml</relativePath>
+  </parent>
+  <name>sakai-rwiki-diff</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-rwiki-diff</artifactId>
+  <description>
+    This project creates the  diff library used by RWiki
+  </description>
+  <packaging>jar</packaging>
+  <properties>
+    <deploy.target/>
+  </properties>
+  <build>
+    
+    
+    
+    
+    
+    
+    <resources/>
+<!--nagEmailAddress: andrew@caret.cam.ac.uk -->
+<!-- java source -->
+    
+<!--
+ Needs fixing, ant test works
+    <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+    <unitTest>
+      <includes>**/*Test</includes>
+    </unitTest>
+-->
+  </build>
+  <dependencies>
+    <dependency>
+      
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+      <version>2.0.8</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+</project>
