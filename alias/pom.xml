@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai Alias Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>alias-base</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>alias-api/api</module>
+    <module>alias-impl/impl</module>
+    <module>alias-impl/pack</module>
+    <module>alias-tool/tool</module>
+  </modules>
+</project>
