@@ -10,7 +10,7 @@
     <h:form>
 
 	<!-- *********** Tool rendering top of page if on MyWorkspace home page *********** --> 
-   <h:panelGroup rendered="#{privacyBean.myWorkspace}" >
+   	<h:panelGroup rendered="#{privacyBean.myWorkspace}" >
 		<sakai:tool_bar>
  		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" />
  		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionEdit}" value="#{msgs.prefs_tab_title}" />
@@ -19,25 +19,25 @@
 		    <sakai:tool_bar_item value="#{msgs.prefs_privacy}" />
 		</sakai:tool_bar>
 			
-     <f:verbatim><div><h3></f:verbatim>
+		<f:verbatim><div><h3></f:verbatim>
      
-     <h:outputText value="#{msgs.privacy_title}" rendered="#{privacyBean.myWorkspace}" />
+     	<h:outputText value="#{msgs.privacy_title}" rendered="#{privacyBean.myWorkspace}" />
 
-     <f:verbatim></h3></div><br /></f:verbatim>
+     	<f:verbatim></h3></div><br /></f:verbatim>
 	  
-	  <%--  Message if Show All or Hide All has been clicked --%>
-	  <f:verbatim><div></f:verbatim>
-	  <h:outputText value="#{privacyBean.changeAllMsg}" styleClass="success" rendered="#{privacyBean.allChanged}" />
-	  <f:verbatim></div><br /></f:verbatim>
+	 	<%--  Message if Show All or Hide All has been clicked --%>
+	 	<f:verbatim><div></f:verbatim>
+	 	<h:outputText value="#{privacyBean.changeAllMsg}" styleClass="success" rendered="#{privacyBean.allChanged}" />
+	 	<f:verbatim></div><br /></f:verbatim>
 			  
-	  <h:outputText value="#{msgs.privacy_choose}" />
+	 	<h:outputText value="#{msgs.privacy_choose}" />
 
-      <h:selectOneMenu value="#{privacyBean.selectedSite}" immediate="true" onchange="this.form.submit( );"
-      			 valueChangeListener="#{privacyBean.processSiteSelected}" id="siteSelect">
-          <f:selectItems value="#{privacyBean.sites}" />
-      </h:selectOneMenu>
+   		<h:selectOneMenu value="#{privacyBean.selectedSite}" immediate="true" onchange="this.form.submit( );"
+      									valueChangeListener="#{privacyBean.processSiteSelected}" id="siteSelect">
+        	<f:selectItems value="#{privacyBean.sites}" />
+		</h:selectOneMenu>
 	  
-	  <h:outputText value="#{msgs.privacy_site_not_selected}" styleClass="alertMessage" rendered="#{privacyBean.noSiteProcessErr}" />
+	  	<h:outputText value="#{msgs.privacy_site_not_selected}" styleClass="alertMessage" rendered="#{privacyBean.noSiteProcessErr}" />
 	</h:panelGroup>
 
 	<%-- *********** common Tool rendering *********** --%>
@@ -57,36 +57,27 @@
  	  <h:outputText value="#{msgs.privacy_change_directions2}" />
       <f:verbatim></div></f:verbatim>
      
-  	  <f:verbatim>
-  	    <table>
- 	    <tr>
- 	      <td class="shorttext">
- 	  </f:verbatim>
+  	  <f:verbatim> <table> <tr> <td class="shorttext"> </f:verbatim>
+  	  
 	  <h:selectBooleanCheckbox value="#{privacyBean.changeStatus}" id="statusChange" />
       <h:outputText value="#{privacyBean.checkboxText}" />
-	  <f:verbatim></td></f:verbatim>
+
+	  <f:verbatim> </td> </f:verbatim>
  	  
  	  <h:panelGroup rendered="#{! privacyBean.myWorkspace}" >
- 	    <f:verbatim>
- 	      <td>&nbsp;&nbsp;&nbsp;</td>
- 	      <td>
- 		</f:verbatim>
+ 	  	<f:verbatim>  <td>&nbsp;&nbsp;&nbsp;</td>  <td>  </f:verbatim>
+ 	  	
 	 	<sakai:button_bar_item action="#{privacyBean.processUpdate}" value="#{msgs.privacy_update}"
         	accesskey="u" title="#{msgs.privacy_update_title}" styleClass="active" rendered="#{! privacyBean.myWorkspace}" />
-        <f:verbatim>
-          </td>
-        </f:verbatim>
+        
+        <f:verbatim> </td> </f:verbatim>
       </h:panelGroup>
-      
+
       <f:verbatim></tr></table></f:verbatim>
 
-	  <h:messages styleClass="alertMessage" />
   	</h:panelGroup>
          
    		<h:panelGroup rendered="#{privacyBean.myWorkspace}" >
-     <f:verbatim><br /></f:verbatim>
-    	
-      <f:verbatim><br /></f:verbatim>
  	  	  <sakai:button_bar>
         	<sakai:button_bar_item action="#{privacyBean.processUpdate}" value="#{msgs.privacy_update}"
                 accesskey="u" title="#{msgs.privacy_update_title}" styleClass="active" />
