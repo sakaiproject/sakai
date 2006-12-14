@@ -60,6 +60,7 @@ function restoreSavedContent(pageVersionId, contentId, restoreId,restoreVersionI
 }
 
 function autoSaveOn(pageNameId, pageVersionId, contentId, restoreId,restoreVersionId,restoreDateId,autosaveId,autosaveClass) {
+        return;
 	var pageName = document.getElementById(pageNameId);
 	var pageVersion = document.getElementById(pageVersionId);
 	var pageRestore = document.getElementById(restoreId);
