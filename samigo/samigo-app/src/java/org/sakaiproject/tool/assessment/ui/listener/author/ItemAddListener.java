@@ -150,13 +150,20 @@ public class ItemAddListener
     }
     
     if(iType.equals(TypeFacade.AUDIO_RECORDING.toString())){
-    	if (Integer.parseInt(item.getTimeAllowed()) < 1) {
-    		err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","submissions_allowed_error");
+    	try {
+	   		String timeAllowed = item.getTimeAllowed().trim();
+	   		int intTimeAllowed = Integer.parseInt(timeAllowed);
+	   		if (intTimeAllowed < 1) {
+	   			throw new RuntimeException();
+	   		}
+    	}
+		catch (RuntimeException e){
+			err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","submissions_allowed_error");
     	    context.addMessage(null,new FacesMessage(err));
     	    item.setOutcome("audioRecItem");
     	    item.setPoolOutcome("audioRecItem");
     	    return;
-    	}
+		}    	
     }
 	
     if (!saveItem(itemauthorbean)){
