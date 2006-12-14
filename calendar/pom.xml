@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai Calendar Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>calendar-base</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>calendar-api/api</module>
+    <module>calendar-help</module>
+    <module>calendar-impl/impl</module>
+    <module>calendar-impl/pack</module>
+    <module>calendar-summary-tool/tool</module>
+    <module>calendar-tool/tool</module>
+    <module>calendar-util/util</module>
+    <module>mergedlist-util/util</module>
+  </modules>
+</project>
