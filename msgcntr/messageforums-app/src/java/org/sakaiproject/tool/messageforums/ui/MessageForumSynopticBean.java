@@ -1287,7 +1287,7 @@ public class MessageForumSynopticBean {
 	 */
 	public List getSiteList() {
 		List mySites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-				null,null,null,org.sakaiproject.site.api.SiteService.SortType.ID_ASC,
+				null,null,null,org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC,
 				null);
 
 		Iterator lsi = mySites.iterator();
