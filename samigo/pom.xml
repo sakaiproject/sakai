@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai Samigo Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sam-base</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>samigo-api</module>
+    <module>samigo-app</module>
+    <module>samigo-audio</module>
+    <module>samigo-help</module>
+    <module>samigo-hibernate</module>
+    <module>samigo-pack</module>
+    <module>samigo-qti</module>
+    <module>samigo-services</module>
+  </modules>
+</project>
