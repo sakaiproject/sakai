@@ -503,7 +503,12 @@ public class TotalScoresBean
    */
   public String getSortType()
   {
-    return Validator.check(sortType, "lastName");
+      if (!Boolean.parseBoolean(getAnonymous())) {
+    	  return Validator.check(sortType, "lastName");
+      }
+      else {
+    	  return Validator.check(sortType, "assessmentGradingId");
+      }
   }
 
   /**
