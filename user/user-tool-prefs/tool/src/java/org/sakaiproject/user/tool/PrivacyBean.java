@@ -315,8 +315,7 @@ public class PrivacyBean {
 		return SiteService.getSites(
 					org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
 					null, null, null,
-					org.sakaiproject.site.api.SiteService.SortType.ID_ASC, null);
-
+					org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
 	}
 
 	/**

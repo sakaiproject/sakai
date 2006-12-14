@@ -27,7 +27,7 @@
 	  
 	  <%--  Message if Show All or Hide All has been clicked --%>
 	  <f:verbatim><div></f:verbatim>
-	  <h:outputText value="#{privacyBean.changeAllMsg}" styleClass="information" style="color: green;" rendered="#{privacyBean.allChanged}" />
+	  <h:outputText value="#{privacyBean.changeAllMsg}" styleClass="success" rendered="#{privacyBean.allChanged}" />
 	  <f:verbatim></div><br /></f:verbatim>
 			  
 	  <h:outputText value="#{msgs.privacy_choose}" />
@@ -86,7 +86,6 @@
    		<h:panelGroup rendered="#{privacyBean.myWorkspace}" >
      <f:verbatim><br /></f:verbatim>
     	
-      <h:outputText value="#{msgs.privacy_note}" rendered = "#{privacyBean.siteSelected}" /> 
       <f:verbatim><br /></f:verbatim>
  	  	  <sakai:button_bar>
         	<sakai:button_bar_item action="#{privacyBean.processUpdate}" value="#{msgs.privacy_update}"
