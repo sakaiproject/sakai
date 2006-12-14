@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai Rights Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>rights-base</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>rights-api/api</module>
+    <module>rights-impl/impl</module>
+    <module>rights-impl/pack</module>
+    <module>rights-tool/tool</module>
+  </modules>
+</project>
