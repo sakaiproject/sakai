@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai Site Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>site-base</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>site-api/api</module>
+    <module>site-help</module>
+    <module>site-impl/impl</module>
+    <module>site-impl/pack</module>
+    <module>site-tool/tool</module>
+  </modules>
+</project>
