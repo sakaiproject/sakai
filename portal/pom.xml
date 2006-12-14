@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai Portal Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>portal-base</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>portal-charon/charon</module>
+    <module>portal-impl/impl</module>
+    <module>portal-mercury/mercury</module>
+    <module>portal-tool/tool</module>
+    <module>portal-util/util</module>
+  </modules>
+</project>
