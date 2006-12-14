@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>sakai-jsf-sun-ri-tool</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai Postem Tool</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-postem-tool</artifactId>
+  <organization>
+    <name>Sakai Project</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2004</inceptionYear>
+  <packaging>war</packaging>
+  <dependencies>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jsf-sun-ri-tool</artifactId>
+      <version>${sakai.version}</version>
+      <type>pom</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-postem-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-postem-impl</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-site-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-tool-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-entity-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-authz-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-user-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jsf-widgets-myfaces</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      
+      <groupId>myfaces</groupId>
+      <artifactId>myfaces</artifactId>
+      <version>1.0.9</version>
+    </dependency>
+  </dependencies>
+  <build>
+    
+    
+    
+    
+    
+    
+    <resources>
+      <resource>
+        <directory>${basedir}/src/bundle</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+    
+  </build>
+</project>
