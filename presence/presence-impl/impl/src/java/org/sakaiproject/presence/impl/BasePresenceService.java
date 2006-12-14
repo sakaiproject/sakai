@@ -333,8 +333,6 @@ public abstract class BasePresenceService implements PresenceService
 	 */
 	public List getPresentUsers(String locationId, String siteId)
 	{
-		boolean userInSite = false;
-		
 		// get the sessions
 		List sessions = m_storage.getSessions(locationId);
 
@@ -345,10 +343,6 @@ public abstract class BasePresenceService implements PresenceService
 		{
 			UsageSession s = (UsageSession) i.next();
 			
-			if (s.getUserId().equals(m_sessionManager.getCurrentSessionUserId())) {
-				userInSite = true;
-			}
-			
 			if (!userIds.contains(s.getUserId()))
 			{
 				userIds.add(s.getUserId());
@@ -356,11 +350,6 @@ public abstract class BasePresenceService implements PresenceService
 		}
 		
 		Set userIdsSet = m_privacyManager.findViewable("/site/" + siteId, new HashSet(userIds));
-
-		// add current user back in just in case privacy status is hidden
-		if (userInSite) {
-			userIdsSet.add(m_sessionManager.getCurrentSessionUserId());
-		}
 
 		// get the users for these ids
 		List users = m_userDirectoryService.getUsers(userIdsSet);
