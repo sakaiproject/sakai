@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai MessageForums Components</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-messageforums-components</artifactId>
+  <organization>
+    <name>Sakai Project</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2003</inceptionYear>
+  <packaging>sakai-component</packaging>
+  <properties>
+    <deploy.target>components</deploy.target>
+  </properties>
+  <dependencies>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-privacy-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-messageforums-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-messageforums-hbm</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-messageforums-component-impl</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+      <version>1.7.0</version>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-event-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-entity-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+  </dependencies>
+  <build>
+    
+    
+    
+    
+    
+    
+    <resources>
+      <resource>
+        <directory>${basedir}/src/bundle</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+        <excludes>
+          <exclude>**/web.xml</exclude>
+        </excludes>
+      </resource>
+    </resources>
+    
+  </build>
+</project>
