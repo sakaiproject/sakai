@@ -57,6 +57,15 @@
 			#else
 				| <a href="#toolLinkParam("$action" "doRelease_grades" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('relcommented')">$!tlang.getString('relcommented')</a>
 			#end
+			#if ($taggable)
+				#foreach ($provider in $providers)
+					#set ($helperInfo = false)
+					#set ($helperInfo = $provider.getItemsHelperInfo($assignment.reference))
+					#if ($helperInfo)
+						| <a href="#toolLinkParam("$action" "doHelp_items" "activityRef=$validator.escapeUrl($assignment.Reference)&providerType=$validator.escapeUrl($provider.type)")" title="$!helperInfo.title">$!helperInfo.text</a>
+					#end
+				#end
+			#end
 		</div>
 		<div class="navPanel">
 			<div class="listNav">
@@ -210,9 +219,24 @@
 								#end
 							</td>
 							<td headers="studentname">
-								<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">
+								#if ($taggable)
 									$!siteUser.sortName
-								</a>
+									<div class="itemAction">
+										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("listsub.grade")</a>
+										#foreach ($provider in $providers)
+											#set ($item = $submission.getTaggableSubmission($siteUser.getId()))
+											#set ($helperInfo = false)
+											#set ($helperInfo = $provider.getItemHelperInfo($item.reference))
+											#if ($helperInfo)
+												| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerType=$validator.escapeUrl($provider.type)")" title="$!helperInfo.title">$!helperInfo.text</a>
+											#end
+										#end
+									</div>
+								#else
+									<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">
+										$siteUser.sortName
+									</a>
+								#end
 							</td>
 							<td headers="submitted">
 								#if ($!submission)

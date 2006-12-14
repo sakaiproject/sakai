@@ -21,9 +21,12 @@
 
 package org.sakaiproject.assignment.cover;
 
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import org.sakaiproject.assignment.taggable.api.TaggableActivity;
+import org.sakaiproject.assignment.taggable.api.TaggableItem;
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**
@@ -579,6 +582,62 @@ public class AssignmentService
 		if (service == null) return null;
 
 		return service.archive(param0, param1, param2, param3, param4);
+	}
+
+	public static String getType()
+	{
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null) return null;
+
+		return service.getType();
+	}
+
+	public static String getName()
+	{
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null) return null;
+
+		return service.getName();		
+	}
+
+	public static List getActivities(String context) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getActivities(context);
+	}
+
+	public static TaggableActivity getActivity(String activityRef) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getActivity(activityRef);
+	}
+
+	public static boolean checkReference(String ref) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return false;
+
+		return service.checkReference(ref);
+	}
+
+	public static String getContext(String ref) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getContext(ref);
+	}
+
+	public static TaggableItem getItem(String itemRef) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getItem(itemRef);
 	}
 	
 	public static boolean getAllowGroupAssignments()

@@ -12,6 +12,7 @@
 		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+		<property name="taggingManager"><ref bean="org.sakaiproject.assignment.taggable.api.TaggingManager"/></property>
  		<property name="assignmentTableName"><value>ASSIGNMENT_ASSIGNMENT</value></property>
  		<property name="contentTableName"><value>ASSIGNMENT_CONTENT</value></property>
  		<property name="submissionTableName"><value>ASSIGNMENT_SUBMISSION</value></property>
@@ -26,5 +27,10 @@
  			By default this is false -->
  		<property name="allowGroupAssignmentsInGradebook"><value>true</value></property>
 	</bean>
+
+	<bean id="org.sakaiproject.assignment.taggable.api.TaggingManager"
+	      class="org.sakaiproject.assignment.taggable.impl.TaggingManagerImpl"
+	      init-method="init"
+	      singleton="true"/>
 
 </beans>

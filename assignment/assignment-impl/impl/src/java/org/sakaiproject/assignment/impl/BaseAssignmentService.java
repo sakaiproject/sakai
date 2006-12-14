@@ -25,6 +25,7 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Hashtable;
@@ -56,6 +57,11 @@ import org.sakaiproject.assignment.api.AssignmentEdit;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
+import org.sakaiproject.assignment.api.AssignmentTaggableSubmission;
+import org.sakaiproject.assignment.taggable.api.TaggableActivity;
+import org.sakaiproject.assignment.taggable.api.TaggableActivityProducer;
+import org.sakaiproject.assignment.taggable.api.TaggableItem;
+import org.sakaiproject.assignment.taggable.api.TaggingManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -108,6 +114,7 @@ import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Blob;
@@ -124,6 +131,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 
 /**
  * <p>
@@ -495,6 +503,20 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		m_serverConfigurationService = service;
 	}
 
+	/** Dependency: TaggingManager. */
+	protected TaggingManager m_taggingManager = null;
+
+	/**
+	 * Dependency: TaggingManager.
+	 * 
+	 * @param manager
+	 *        The TaggingManager.
+	 */
+	public void setTaggingManager(TaggingManager manager)
+	{
+		m_taggingManager = manager;
+	}
+
 	/** Dependency: allowGroupAssignments setting */
 	protected boolean m_allowGroupAssignments = true;
 
@@ -579,6 +601,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		FunctionManager.registerFunction(SECURE_ACCESS_ASSIGNMENT);
 		FunctionManager.registerFunction(SECURE_UPDATE_ASSIGNMENT);
 		FunctionManager.registerFunction(SECURE_GRADE_ASSIGNMENT_SUBMISSION);
+		
+		// register as a linkable activity producer
+		m_taggingManager.registerProducer(this);
 
 	} // init
 
@@ -4106,10 +4131,77 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
+	 * TaggableActivityProducer Implementation
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	public String getType() {
+		return APPLICATION_ID;
+	}
+
+	public String getName() {
+		return rb.getString("assig7");
+	}
+
+	public List getActivities(String context) {
+		List assignments = getAssignments(context);
+		for (Iterator i = assignments.iterator(); i.hasNext();) {
+			BaseAssignment assignment = (BaseAssignment) i.next();
+			assignment.setProducer(this);
+		}
+		return assignments;
+	}
+
+	public TaggableActivity getActivity(String activityRef) {
+		if (activityRef.startsWith(REFERENCE_ROOT)) {
+			try {
+				return (TaggableActivity) getAssignment(activityRef);
+			} catch (IdUnusedException iue) {
+				M_log.warn(this + ".getLinkableActivity(): " + iue);
+			} catch (PermissionException pe) {
+				M_log.warn(this + ".getLinkableActivity(): " + pe);
+			}
+		}
+		return null;
+	}
+
+	public TaggableItem getItem(String itemRef) {
+		if (itemRef.startsWith(REFERENCE_ROOT)) {
+			try {
+				return new BaseTaggableSubmission(
+						getSubmission(parseSubmissionRef(itemRef)),
+						parseAuthor(itemRef));
+			} catch (IdUnusedException iue) {
+				M_log.error(iue.getMessage(), iue);
+			} catch (PermissionException pe) {
+				M_log.error(pe.getMessage(), pe);
+			}
+		}
+		return null;
+	}
+	
+	public boolean checkReference(String ref) {
+		return ref.startsWith(REFERENCE_ROOT);
+	}
+	
+	public String getContext(String ref) {
+		return m_entityManager.newReference(ref).getContext();
+	}
+	
+	protected static final String ITEM_REF_SEPARATOR = "@";
+	
+	protected String parseSubmissionRef(String itemRef) {
+		return itemRef.split(ITEM_REF_SEPARATOR)[0];
+	}
+
+	protected String parseAuthor(String itemRef) {
+		return itemRef.split(ITEM_REF_SEPARATOR)[1];
+	}
+	
+	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Assignment Implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	public class BaseAssignment implements Assignment
+	public class BaseAssignment implements Assignment, TaggableActivity
 	{
 		protected ResourcePropertiesEdit m_properties;
 
@@ -4696,6 +4788,46 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return compare;
 
 		} // compareTo
+
+		/***********************************************************************
+		 * LinkableActivity implementation
+		 **********************************************************************/
+
+		protected TaggableActivityProducer producer;
+
+		protected void setProducer(TaggableActivityProducer producer) {
+			this.producer = producer;
+		}
+
+		public TaggableActivityProducer getProducer() {
+			return producer;
+		}
+
+		public String getDescription() {
+			return "";
+		}
+
+		public List getItems() {
+			List items = new ArrayList();
+			for (Iterator i = getSubmissions(this); i.hasNext();)
+				items.addAll(((BaseAssignmentSubmission) i.next())
+						.getTaggableSubmissions());
+			return items;
+		}
+
+		public List getItems(String userId) {
+			TaggableItem item = null;
+			try {
+				item = ((BaseAssignmentSubmission) getSubmission(this
+						.getReference(), UserDirectoryService.getUser(userId)))
+						.getTaggableSubmission(userId);
+			} catch (Exception e) {
+				M_log.warn(this + ".getItem(): " + e);
+			}
+			List returned = new ArrayList();
+			returned.add(item);
+			return returned;
+		}
 
 	} // BaseAssignment
 
@@ -6932,12 +7064,83 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return compare;
 
 		} // compareTo
+		
+		public List getTaggableSubmissions() {
+			List list = new ArrayList();
+			for (Iterator i = m_submitters.iterator(); i.hasNext();) {
+				String submitterId = (String) i.next();
+				list.add(new BaseTaggableSubmission(this, submitterId));
+			}
+			return list;
+		}
 
+		public AssignmentTaggableSubmission getTaggableSubmission(String submitterId) {
+			AssignmentTaggableSubmission taggableSub = null;
+			if (m_submitters.contains(submitterId))
+				taggableSub = new BaseTaggableSubmission(this, submitterId);
+			return taggableSub;
+		}
 	} // AssignmentSubmission
-
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * AssignmentSubmissionEdit implementation
+	 * TaggableSubmission implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	public class BaseTaggableSubmission implements AssignmentTaggableSubmission {
+
+		protected AssignmentSubmission submission;
+
+		protected String userId;
+
+		public BaseTaggableSubmission(AssignmentSubmission submission,
+				String userId) {
+			this.submission = submission;
+			this.userId = userId;
+		}
+
+		public String getReference() {
+			StringBuffer sb = new StringBuffer();
+			sb.append(submission.getReference());
+			sb.append(ITEM_REF_SEPARATOR);
+			sb.append(userId);
+			return sb.toString();
+		}
+
+		public String getTitle() {
+			StringBuffer sb = new StringBuffer();
+			try {
+				User user = UserDirectoryService.getUser(userId);
+				sb.append(user.getFirstName());
+				sb.append(' ');
+				sb.append(user.getLastName());
+				sb.append(' ');
+				sb.append(rb.getString("gen.submission"));
+			} catch (UserNotDefinedException unde) {
+				M_log.error(unde.getMessage(), unde);
+			}
+			return sb.toString();
+		}
+
+		public String getContent() {
+			return submission.getSubmittedText();
+		}
+
+		public String getUserId() {
+			return userId;
+		}
+
+		public TaggableActivity getActivity() {
+			return (TaggableActivity) submission.getAssignment();
+		}
+
+		public AssignmentSubmission getAssignmentSubmission() {
+			return submission;
+		}
+	}
+
+	/***************************************************************************
+	 * AssignmentSubmissionEdit implementation
+	 **************************************************************************/
 
 	/**
 	 * <p>

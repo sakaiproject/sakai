@@ -313,6 +313,20 @@
 											#set($prevAction=false)
 											#if ($!allowUpdateAssignment)#set($prevAction=true)<a href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("revise")</a>#end
 											#if ($allowAddAssignment)#if($prevAction) | #else#set($prevAction=true)#end<a href="#toolLinkParam("$action" "doDuplicate_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("dupli")</a>#end
+											#if (!$assignment.draft && $taggable)
+												#foreach ($provider in $providers)
+													#set ($helperInfo = false)
+													#set ($helperInfo = $provider.getActivityHelperInfo($assignment.reference))
+													#if ($helperInfo)
+														#if($prevAction)
+															| 
+														#else
+															#set($prevAction=true)
+														#end
+															<a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($assignment.reference)&providerType=$validator.escapeUrl($provider.type)")" title="$!helperInfo.title">$!helperInfo.text</a>
+													#end
+												#end
+											#end
 											#if (!$assignment.draft && $allowGradeSubmission)#if($prevAction) | #end<a href="#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">#if ($withGrade)$!tlang.getString("grad1")#else$!tlang.getString("viewsubmissions")#end</a>#end
 										</div>
 									#else
@@ -340,14 +354,28 @@
 												#if ($!submission)
 													#if (($!submissionReturned && $!submissionProperties.getProperty("grade_submission_allow_resubmit").equalsIgnoreCase("true"))|| !$!submissionSubmitted)
 														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
-														<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
+														<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 													#else
-														<h4><a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">
+														#if ($taggable)
+															$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)
+															<div class="itemAction">
+																<a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">$!tlang.getString("viewsubmission")</a>
+																#foreach ($provider in $providers)
+																	#set ($item = $submission.getTaggableSubmission($user.getId()))
+																	#set ($helperInfo = false)
+																	#set ($helperInfo = $provider.getItemHelperInfo($item.reference))
+																	#if ($helperInfo)
+																		| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerType=$validator.escapeUrl($provider.type)")" title="$!helperInfo.title">$!helperInfo.text</a>
+																	#end
+																#end
+															</div>
+														#else
+															<h4><a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>														
+														#end
 													#end
 												#else
-													<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
+													<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 												#end
-												$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 											#else
 												<a href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignment.Reference")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 											#end

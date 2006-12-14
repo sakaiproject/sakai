@@ -4,9 +4,6 @@
 		$tlang.getString("viewassig.viewass1") 	
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
-	<form name="viewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post">
-		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
-		<input type="hidden" name="assignmentContentId" value="$assignment.ContentReference" />
 		#if (!$hideAssignmentFlag)
 		<p class="discTria">
 			 $tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
@@ -88,6 +85,9 @@
 				</td>
 			</tr>
 		</table>
+		#if ($taggable)
+        	#parse ("/vm/assignment/chef_assignment_tags_list.vm")
+		#end
 		<h4>
 			$tlang.getString("gen.assinf")
 		</h4>
@@ -139,6 +139,9 @@
 				$tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
 			</p>	
 		#end
+	<form name="viewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post">
+		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
+		<input type="hidden" name="assignmentContentId" value="$assignment.ContentReference" />
 			<div class="act">
 				<input type="submit" name="eventSubmit_doCancel_student_view_assignment" value="$tlang.getString("gen.don")" />
 			</div>

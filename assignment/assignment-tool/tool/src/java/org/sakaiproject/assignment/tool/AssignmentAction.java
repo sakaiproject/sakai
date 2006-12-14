@@ -45,6 +45,9 @@ import org.sakaiproject.assignment.api.AssignmentEdit;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
 import org.sakaiproject.assignment.cover.AssignmentService;
+import org.sakaiproject.assignment.taggable.api.TaggingHelperInfo;
+import org.sakaiproject.assignment.taggable.api.TaggingManager;
+import org.sakaiproject.assignment.taggable.api.TaggingProvider;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.AuthzGroupService;
@@ -514,11 +517,30 @@ public class AssignmentAction extends PagedResourceActionII
 	/** is current user allowed to grade assignment? */
 	private static final String STATE_ALLOW_GRADE_SUBMISSION = "state_allow_grade_submission";
 
+	/** tagging provider type that will provide the appropriate helper */
+	private static final String PROVIDER_TYPE = "providerType";
+
+	/** Reference to an activity */
+	private static final String ACTIVITY_REF = "activityRef";
+	
+	/** Reference to an item */
+	private static final String ITEM_REF = "itemRef";
+	
+	/** Reference to an assignment submission object */
+	private static final String SUBMISSION_REF = "submissionRef";
+	
+	/** For storing an instance of the TaggingManager */
+	protected TaggingManager taggingManager = (TaggingManager) ComponentManager.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+	
 	/**
 	 * central place for dispatching the build routines based on the state name
 	 */
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
+		if (taggingManager.isTaggable()) {
+			context.put("taggable", true);
+		}
+		
 		String template = null;
 
 		context.put("tlang", rb);
@@ -682,6 +704,10 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		context.put("context", (String) state.getAttribute(STATE_CONTEXT_STRING));
 
+		if (taggingManager.isTaggable()) {
+			context.put("providers", taggingManager.getProviders());
+		}
+		
 		User user = (User) state.getAttribute(STATE_USER);
 		String currentAssignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
 		try
@@ -743,6 +769,11 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("context", (String) state.getAttribute(STATE_CONTEXT_STRING));
 
 		String aId = (String) state.getAttribute(VIEW_ASSIGNMENT_ID);
+
+		if (taggingManager.isTaggable()) {
+			context.put("providers", taggingManager.getProviders());
+		}
+		
 		try
 		{
 			Assignment currentAssignment = AssignmentService.getAssignment(aId);
@@ -805,6 +836,11 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_student_view_grade_context(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
+		
+		if (taggingManager.isTaggable()) {
+			context.put("providers", taggingManager.getProviders());
+		}
+		
 		try
 		{
 			AssignmentSubmission s = AssignmentService.getSubmission((String) state.getAttribute(VIEW_GRADE_SUBMISSION_ID));
@@ -830,6 +866,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	protected String build_list_assignments_context(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
+		if (taggingManager.isTaggable()) {
+			context.put("providers", taggingManager.getProviders());
+		}
+		
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		context.put("contextString", contextString);
 		context.put("user", (User) state.getAttribute(STATE_USER));
@@ -1472,6 +1512,10 @@ public class AssignmentAction extends PagedResourceActionII
 			addAlert(state, rb.getString("youarenot14"));
 		}
 
+		if (taggingManager.isTaggable()) {
+			context.put("providers", taggingManager.getProviders());
+		}
+ 
 		context.put("submissionTypeTable", submissionTypeTable());
 		context.put("gradeTypeTable", gradeTypeTable());
 		context.put("attachments", state.getAttribute(ATTACHMENTS));
@@ -1502,6 +1546,11 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_instructor_view_assignment_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
+		if (taggingManager.isTaggable()) {
+			context.put("providers", taggingManager.getProviders());
+		}
+
+		context.put("tlang", rb);
 		try
 		{
 			context.put("assignment", AssignmentService.getAssignment((String) state.getAttribute(VIEW_ASSIGNMENT_ID)));
@@ -3281,6 +3330,93 @@ public class AssignmentAction extends PagedResourceActionII
 
 	} // doPost_assignment
 
+	/**
+	 * Action is to tag items via an items tagging helper
+	 */
+	public void doHelp_items(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+
+		TaggingProvider provider = taggingManager.findProviderByType(params
+				.getString(PROVIDER_TYPE));
+
+		String activityRef = params.getString(ACTIVITY_REF);
+
+		TaggingHelperInfo helperInfo = provider
+				.getItemsHelperInfo(activityRef);
+
+		// get into helper mode with this helper tool
+		startHelper(data.getRequest(), helperInfo.getHelperId());
+
+		Map<String, ? extends Object> helperParms = helperInfo
+				.getParameterMap();
+
+		for (Iterator<String> keys = helperParms.keySet().iterator(); keys
+				.hasNext();) {
+			String key = keys.next();
+			state.setAttribute(key, helperParms.get(key));
+		}
+	} // doHelp_items
+	
+	/**
+	 * Action is to tag an individual item via an item tagging helper
+	 */
+	public void doHelp_item(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+
+		TaggingProvider provider = taggingManager.findProviderByType(params
+				.getString(PROVIDER_TYPE));
+
+		String itemRef = params.getString(ITEM_REF);
+
+		TaggingHelperInfo helperInfo = provider
+				.getItemHelperInfo(itemRef);
+
+		// get into helper mode with this helper tool
+		startHelper(data.getRequest(), helperInfo.getHelperId());
+
+		Map<String, ? extends Object> helperParms = helperInfo
+				.getParameterMap();
+
+		for (Iterator<String> keys = helperParms.keySet().iterator(); keys
+				.hasNext();) {
+			String key = keys.next();
+			state.setAttribute(key, helperParms.get(key));
+		}
+	} // doHelp_item
+	
+	/**
+	 * Action is to tag an activity via an activity tagging helper
+	 */
+	public void doHelp_activity(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+
+		TaggingProvider provider = taggingManager.findProviderByType(params
+				.getString(PROVIDER_TYPE));
+
+		String activityRef = params.getString(ACTIVITY_REF);
+
+		TaggingHelperInfo helperInfo = provider
+				.getActivityHelperInfo(activityRef);
+
+		// get into helper mode with this helper tool
+		startHelper(data.getRequest(), helperInfo.getHelperId());
+
+		Map<String, ? extends Object> helperParms = helperInfo
+				.getParameterMap();
+
+		for (Iterator<String> keys = helperParms.keySet().iterator(); keys
+				.hasNext();) {
+			String key = keys.next();
+			state.setAttribute(key, helperParms.get(key));
+		}
+	} // doHelp_activity
+	
 	/**
 	 * post or save assignment
 	 */

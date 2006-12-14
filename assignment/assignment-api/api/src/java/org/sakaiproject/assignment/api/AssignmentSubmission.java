@@ -180,4 +180,21 @@ public interface AssignmentSubmission extends Entity
 	 * @return The Submission's status.
 	 */
 	public String getStatus();
+
+    /**
+     * Method to get a list of taggable submissions for this assignment
+     * submission.
+     *
+     * @return A taggable submission.
+     */
+    public List getTaggableSubmissions();
+
+    /**
+     * Method to get a taggable submission for a submitter.
+     *
+     * @param submitterId
+     *            The identifier of the submitter.
+     * @return The taggable submission.
+     */
+    public AssignmentTaggableSubmission getTaggableSubmission(String submitterId);
 }

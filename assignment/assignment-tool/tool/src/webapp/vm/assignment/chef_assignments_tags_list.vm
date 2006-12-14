@@ -1,0 +1,25 @@
+#foreach ($provider in $providers)
+	#if ($provider.allowViewTags())
+		<h4>$provider.getName() $tlang.getString("tag.tags")</h4>
+		#set ($tagList = $provider.getTags($assignment))
+		#if (!$tagList.isEmpty())
+			<table class="listHier lines nolines" border="0" cellspacing="0" summary="Table contains list of tags associated with current assignment.">
+				#set ($columns = $tagList.getColumns())
+				<tr>
+					#foreach ($column in $columns)
+						<th>$column</th>
+					#end
+				</tr>
+				#foreach ($tag in $tagList)
+					<tr>
+						#foreach ($column in $columns)
+							<td>$tag.getField($column)</td>
+						#end
+					</tr>
+				#end
+			</table>
+		#else
+			<div class="alertMessage">$tlang.getString("tag.emptylist")</div>
+		#end
+	#end
+#end

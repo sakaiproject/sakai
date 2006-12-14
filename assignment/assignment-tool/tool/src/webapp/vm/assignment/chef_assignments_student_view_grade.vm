@@ -11,7 +11,6 @@
 		</h3>
 
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-		<form action="#toolForm("AssignmentAction")" method="post" >
 			<table class="itemSummary" summary="$tlang.getString("stuviewgrad.thegradet")">
 				<tr>
 					<th>
@@ -76,6 +75,9 @@
 				</td>
 			</tr>
 		</table>
+		#if ($taggable)
+	        	#parse ("/vm/assignment/chef_assignments_tags_list.vm")
+		#end
 		<h4>
 			$tlang.getString("gen.instr")
 		</h4>				
@@ -214,6 +216,7 @@
 					</ul>
 				#end
 			#end
+		<form action="#toolForm("AssignmentAction")" method="post" >
 			<div class="act">
 				<input type="submit" accesskey="x" name="eventSubmit_doCancel_view_grade" value="$tlang.getString("gen.backtolist")" />
 			</div>
