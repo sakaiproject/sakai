@@ -904,7 +904,8 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
       forum.addTopic(topic);
-      forumManager.saveDiscussionForum(forum);
+      forumManager.saveDiscussionForum(forum, forum.getDraft());
+      //sak-5146 forumManager.saveDiscussionForum(forum);
     }
   }
 

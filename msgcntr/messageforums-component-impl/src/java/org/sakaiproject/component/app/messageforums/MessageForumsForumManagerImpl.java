@@ -752,7 +752,13 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 //          getHibernateTemplate().initialize(forum.getTopicsSet());          
 //          forum.addTopic(topic);                       
 //          getHibernateTemplate().saveOrUpdate(topic);
-          saveDiscussionForum(discussionForum, parentForumDraftStatus);
+          if(topic.getDraft().equals(Boolean.TRUE))
+          {        	  
+	  	    saveDiscussionForum(discussionForum, discussionForum.getDraft());
+          }
+          else
+            saveDiscussionForum(discussionForum, parentForumDraftStatus);
+          //sak-5146 saveDiscussionForum(discussionForum, parentForumDraftStatus);
             
         } else {
             getHibernateTemplate().saveOrUpdate(topic);
