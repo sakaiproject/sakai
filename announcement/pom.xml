@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai Announcements Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>announcement-base</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>announcement-api/api</module>
+    <module>announcement-help</module>
+    <module>announcement-impl/impl</module>
+    <module>announcement-impl/pack</module>
+    <module>announcement-tool/tool</module>
+  </modules>
+</project>
