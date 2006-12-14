@@ -1248,6 +1248,8 @@ public class MessageForumSynopticBean {
 				// TODO: construct query to be one roundtrip to DB
 				for (Iterator iter = privateMessages.iterator(); iter.hasNext();) {
 					pvtMessageManager.markMessageAsReadForUser((PrivateMessage) iter.next());
+				
+				siteInfo.setUnreadPrivateAmt(0);
 				}
 			}
 		}
