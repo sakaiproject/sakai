@@ -2830,12 +2830,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// user enterprise id column
 			HSSFCell cell = row.createCell(cellNum++);
 			cell.setCellStyle(style);
-			cell.setCellValue(rb.getString("download.spreadsheet.column.userid"));
+			cell.setCellValue(rb.getString("download.spreadsheet.column.name"));
 	
 			// user name column
 			cell = row.createCell(cellNum++);
 			cell.setCellStyle(style);
-			cell.setCellValue(rb.getString("download.spreadsheet.column.name"));
+			cell.setCellValue(rb.getString("download.spreadsheet.column.userid"));
 			
 			// starting from this row, going to input user data
 			Iterator assignments = new SortedIterator(assignmentsList.iterator(), new AssignmentComparator("duedate", "true"));
@@ -2851,7 +2851,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				AuthzGroup group = AuthzGroupService.getAuthzGroup(SiteService.siteReference(context));
 				Set grants = group.getUsers();
-				for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
+				for (Iterator iUserIds = new SortedIterator(grants.iterator(), new AssignmentComparator("sortname", "true")); iUserIds.hasNext();)
 				{
 					String userId = (String) iUserIds.next();
 					try
@@ -2869,8 +2869,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							rowNum++;
 							// put user displayid and sortname in the first two cells
 							cellNum = 0;
-							row.createCell(cellNum++).setCellValue(u.getDisplayId());
-							row.createCell(cellNum).setCellValue(u.getSortName());
+							row.createCell(cellNum++).setCellValue(u.getSortName());
+							row.createCell(cellNum).setCellValue(u.getDisplayId());
 						}
 					}
 					catch (Exception e)
@@ -8545,6 +8545,52 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				else
 				{
 					result = 1;
+				}
+			}
+			else if (m_criteria.equals("sortname"))
+			{
+				// sorted by the user's display name
+				String s1 = null;
+				String userId1 = (String) o1;
+				if (userId1 != null)
+				{
+					try
+					{
+						User u1 = UserDirectoryService.getUser(userId1);
+						s1 = u1!=null?u1.getSortName():null;
+					}
+					catch (Exception e)
+					{
+						if (M_log.isDebugEnabled()) M_log.debug(this + e.getMessage() + " id=" + userId1);
+					}
+				}
+					
+				String s2 = null;
+				String userId2 = (String) o2;
+				if (userId2 != null)
+				{
+					try
+					{
+						User u2 = UserDirectoryService.getUser(userId2);
+						s2 = u2!=null?u2.getSortName():null;
+					}
+					catch (Exception e)
+					{
+						if (M_log.isDebugEnabled()) M_log.debug(this + e.getMessage() + " id=" + userId2);
+					}
+				}
+
+				if (s1 == null)
+				{
+					result = -1;
+				}
+				else if (s2 == null)
+				{
+					result = 1;
+				}
+				else
+				{
+					result = s1.compareTo(s2);
 				}
 			}
 			
