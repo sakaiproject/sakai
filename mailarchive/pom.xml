@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai Mail Archive Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>mailarchive-base</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>mailarchive-api/api</module>
+    <module>mailarchive-help</module>
+    <module>mailarchive-impl/impl</module>
+    <module>mailarchive-impl/pack</module>
+    <module>mailarchive-james/james</module>
+    <module>mailarchive-tool/tool</module>
+  </modules>
+</project>
