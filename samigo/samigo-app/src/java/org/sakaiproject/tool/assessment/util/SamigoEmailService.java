@@ -266,11 +266,21 @@ public class SamigoEmailService {
 	
 	private void deleteAttachedFile(String filename) {
 		log.debug("deleteAttachedFile(): filename = " + filename);
+		// delete the file
 		String tunedFilename = filename.replace(" ", "");
+		log.debug("deleteAttachedFile(): tunedFilename = " + tunedFilename);
 		File file = new File(tunedFilename);
 		boolean success = file.delete();
 		if (!success) {
 			log.error("Fail to delete file: " + tunedFilename);
+		}
+		// delete the last directory
+		String directoryName = tunedFilename.substring(0, tunedFilename.lastIndexOf("/"));
+		log.debug("deleteAttachedFile(): directoryName = " + directoryName);
+		File dir = new File(directoryName);
+		success = dir.delete();
+		if (!success) {
+			log.error("Fail to delete directory: " + directoryName);
 		}
 	}
 }
