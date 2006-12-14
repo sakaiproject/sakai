@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../../../master/pom.xml</relativePath>
+  </parent>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-gradebook-service-hibernate</artifactId>
+  <name>sakai-gradebook-service-hibernate</name>
+  <packaging>jar</packaging>
+  <properties>
+    <deploy.target>shared</deploy.target>
+  </properties>
+  <dependencies>
+    <dependency>
+
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>${sakai.commons.lang.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-gradebook-service-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    
+    
+    
+    
+    
+    
+    
+    <resources>
+      <resource>
+        <directory>${basedir}/src/hibernate</directory>
+      </resource>
+    </resources>
+  </build>
+</project>
