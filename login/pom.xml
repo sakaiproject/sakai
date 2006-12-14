@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai Login Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>login-base</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>login-authn-tool/tool</module>
+    <module>login-tool/tool</module>
+  </modules>
+</project>
