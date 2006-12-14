@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai JobScheduler Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>jobscheduler-base</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>scheduler-api</module>
+    <module>scheduler-component</module>
+    <module>scheduler-component-shared</module>
+    <module>scheduler-tool</module>
+    <module>scheduler-shared-deploy</module>
+  </modules>
+</project>
