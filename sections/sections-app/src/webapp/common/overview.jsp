@@ -8,7 +8,10 @@
         <%@include file="/inc/navMenu.jspf"%>
     </x:aliasBean>
 
-    <h3><h:outputText value="#{msgs.overview_page_header}"/></h3>
+	<div class="instructions">
+		<h3 class="instructions"><h:outputText value="#{msgs.overview_page_header}"/></h3>
+		<h:outputText value="#{overviewBean.instructions}"/>
+	</div>
 
     <%@include file="/inc/globalMessages.jspf"%>
 

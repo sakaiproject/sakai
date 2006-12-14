@@ -7,11 +7,23 @@
     <x:aliasBean alias="#{viewName}" value="roster">
         <%@include file="/inc/navMenu.jspf"%>
     </x:aliasBean>
-    
-    <h3><h:outputText value="#{msgs.roster_page_header}"/></h3>
-    
+
+	<div class="instructions">
+		<h3 class="instructions"><h:outputText value="#{msgs.roster_page_header}"/></h3>
+		<h:outputText value="#{msgs.roster_instructions}"
+			rendered="#{ ! rosterBean.externallyManaged}"/>
+	</div>
+
     <%@include file="/inc/globalMessages.jspf"%>
 
+	<x:div>
+		<h:outputText value="#{msgs.roster_view_students}"/>
+        <h:selectOneMenu value="#{rosterBean.filter}" onchange="this.form.submit()" rendered="#{rosterBean.sectionAssignable}">
+            <f:selectItems value="#{rosterBean.filterItems}"/>
+        </h:selectOneMenu>
+        <h:outputText value="#{msgs.roster_all_sections}" rendered="#{ ! rosterBean.sectionAssignable}"/>
+	</x:div>
+	
     <h:panelGrid styleClass="sectionContainerNav" columns="2" columnClasses="sectionLeftNav,sectionRightNav">
         <x:div>
             <h:inputText id="search" value="#{rosterBean.searchText}"
@@ -37,8 +49,7 @@
         binding="#{rosterBean.rosterDataTable}"
         sortColumn="#{preferencesBean.rosterSortColumn}"
         sortAscending="#{preferencesBean.rosterSortAscending}"
-        styleClass="listHier rosterTable"
-        rowClasses="light,dark">
+        styleClass="listHier rosterTable">
         <h:column>
             <f:facet name="header">
                 <x:commandSortHeader columnName="studentName" immediate="true" arrow="true">

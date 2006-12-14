@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
 import org.sakaiproject.tool.section.decorator.SectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
@@ -42,6 +43,7 @@ public class OverviewBean extends FilteredSectionListingBean implements Serializ
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(OverviewBean.class);
 
+	private String instructions;
 	private boolean externallyManaged;
 
 	private List<SectionDecorator> sectionsToDelete;
@@ -51,6 +53,20 @@ public class OverviewBean extends FilteredSectionListingBean implements Serializ
 		// Determine whether this course is externally managed
 		externallyManaged = getSectionManager().isExternallyManaged(getCourse().getUuid());
 
+		// Generate the instructions for this user for the app in its current state
+		if(externallyManaged) {
+			if(isSectionAssignable()) {
+				instructions = JsfUtil.getLocalizedMessage("overview_instructions_auto_ta");
+			} else {
+				if(getApplicationConfiguration() == ExternalIntegrationConfig.AUTOMATIC_MANDATORY) {
+					instructions = JsfUtil.getLocalizedMessage("overview_instructions_mandatory_auto_instructor");
+				} else {
+					instructions = JsfUtil.getLocalizedMessage("overview_instructions_auto_instructor");
+				}
+			}
+		} else {
+			instructions = "";
+		}
 	}
 
 	protected Comparator<SectionDecorator> getComparator() {
@@ -150,5 +166,9 @@ public class OverviewBean extends FilteredSectionListingBean implements Serializ
 	@Override
 	public void setMyFilter(String myFilter) {
 		getPrefs().setOverviewMyFilter(myFilter);
+	}
+
+	public String getInstructions() {
+		return instructions;
 	}
 }

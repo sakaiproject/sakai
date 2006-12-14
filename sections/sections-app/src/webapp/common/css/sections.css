@@ -6,10 +6,13 @@
 .selected {width:210px; text-align:right; vertical-align:top;}
 
 .transferButtonTable {text-align:center; font-weight:bold;}
-.instructions {padding-bottom:1em;}
 .studentSectionInfo {font-weight:bold;}
 .deleteButtons {margin-top:40px;}
 .verticalPadding {margin-top:20px;}
+
+/* Headings display close to their instructions */
+.instructions {margin-bottom:2em;}
+h3.instructions {margin-bottom:0em !important;}
 
 /* Student View section table */
 tr.member td {font-weight:bold;}
@@ -69,20 +72,14 @@ table.narrowTable {
     width:auto;
 }
 
+/* Tables displaying sections have thin internal borders */
 table.sectionTable{border:none; border-collapse:collapse;}
 table.sectionTable tr td {border-color:gray !important; border-top:solid; border-width:1px; border-collapse:collapse;}
 
-table.rosterTable {
-    width:auto;
-}
-
-table.rosterTable th {
-    padding-right:1.5em !important;
-}
-
-table.rosterTable td {
-    padding-right:1.5em !important;
-}
+/* Student roster table styling */
+table.rosterTable {border:none; border-collapse:collapse;width:auto;}
+table.rosterTable th {padding-right:1.5em !important;}
+table.rosterTable tr td {padding-right:1.5em !important;border-color:gray !important; border-top:solid; border-width:1px; border-collapse:collapse;}
 
 /*
     It would be better to use margin-right in a div or to apply this to specific
@@ -91,10 +88,6 @@ table.rosterTable td {
 table.narrowTable tr th {
     padding-right:2em;
 }
-
-/* Alternate row colors in the roster table */
-tr.light td {background-color: #FFFFFF;}
-tr.dark td {background-color: #EFEFEF;}
 
 /* Show text in a thin-bordered box */
 .borderBox {border:1px solid;}

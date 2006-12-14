@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.faces.application.Application;
 import javax.faces.component.UIColumn;
@@ -37,6 +38,7 @@ import javax.faces.component.html.HtmlDataTable;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -65,21 +67,24 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	private int firstRow;
 	private int enrollmentsSize;
 	private boolean externallyManaged;
-
-	private List enrollments;
-	private List categories;
+	private List<SelectItem> filterItems;
+	private List<EnrollmentDecorator> enrollments;
+	private List<String> categories;
 	
 	public void init() {
 		// Determine whether this course is externally managed
 		externallyManaged = getSectionManager().isExternallyManaged(getCourse().getUuid());
 
+		// Get the section categories
+		categories = getSectionManager().getSectionCategories(getSiteContext());
+
 		// Get the default search text
 		if(StringUtils.trimToNull(searchText) == null) {
 			searchText = JsfUtil.getLocalizedMessage("roster_search_text");
 		}
-
+		
 		// Get the site enrollments
-		List siteStudents;
+		List<EnrollmentRecord> siteStudents;
 		if(searchText.equals(JsfUtil.getLocalizedMessage("roster_search_text"))) {
 			siteStudents = getSectionManager().getSiteEnrollments(getSiteContext());
 		} else {
@@ -87,36 +92,80 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 		}
 		
 		// Get the section enrollments
-		Set studentUids = new HashSet();
+		Set<String> studentUids = new HashSet<String>();
 		for(Iterator iter = siteStudents.iterator(); iter.hasNext();) {
 			ParticipationRecord record = (ParticipationRecord)iter.next();
 			studentUids.add(record.getUser().getUserUid());
 		}
 		SectionEnrollments sectionEnrollments = getSectionManager().getSectionEnrollmentsForStudents(getSiteContext(), studentUids);
+
+		// Construct the list of filter items
+		filterItems = new ArrayList<SelectItem>();
+		filterItems.add(new SelectItem("", JsfUtil.getLocalizedMessage("roster_all_sections")));
+		filterItems.add(new SelectItem("MY", JsfUtil.getLocalizedMessage("roster_my_sections", new String[] {""})));
+		for(Iterator<String> iter = categories.iterator(); iter.hasNext();) {
+			String cat = iter.next();
+			filterItems.add(new SelectItem(cat, JsfUtil.getLocalizedMessage("roster_my_sections",
+					new String[] {getCategoryName(cat)})));
+		}
 		
+		// If this is a TA, and we're filtering, get the TA's participation records
+		List<CourseSection> assignedSections = null;
+		if(StringUtils.trimToNull(getFilter()) != null) {
+			assignedSections = findAssignedSections();
+		}
+
 		// Construct the decorated enrollments for the UI
-		List unpagedEnrollments = new ArrayList();
-		categories = getSectionManager().getSectionCategories(getSiteContext());
-		
-		for(Iterator iter = siteStudents.iterator(); iter.hasNext();) {
-			EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
+		decorateEnrollments(siteStudents, sectionEnrollments, assignedSections);
+	}
+
+	private void decorateEnrollments(List<EnrollmentRecord> siteStudents, SectionEnrollments sectionEnrollments, List<CourseSection> assignedSections) {
+		List<EnrollmentDecorator> unpagedEnrollments = new ArrayList<EnrollmentDecorator>();
+		for(Iterator<EnrollmentRecord> studentIter = siteStudents.iterator(); studentIter.hasNext();) {
+			EnrollmentRecord enrollment = studentIter.next();
 			
 			// Build a map of categories to sections in which the student is enrolled
-			Map map = new HashMap();
+			Map<String, CourseSection> map = new HashMap<String, CourseSection>();
 			for(Iterator catIter = categories.iterator(); catIter.hasNext();) {
 				String cat = (String)catIter.next();
 				CourseSection section = sectionEnrollments.getSection(enrollment.getUser().getUserUid(), cat);
+
 				map.put(cat, section);
 			}
-			EnrollmentDecorator decorator = new EnrollmentDecorator(enrollment, map);
-			unpagedEnrollments.add(decorator);
+			
+			// Check to see whether this enrollment should be filtered out
+			boolean includeStudent = false;
+			if(StringUtils.trimToNull(getFilter()) == null) {
+				includeStudent = true;
+			} else {
+				for(Iterator<Entry<String, CourseSection>> entryIter = map.entrySet().iterator(); entryIter.hasNext();) {
+					Entry<String, CourseSection> entry = entryIter.next();
+					CourseSection section = entry.getValue();
+					// Some map entries won't have a section at all, since the student isn't in any section of that category
+					if(section == null) {
+						continue;
+					}
+					if("MY".equals(getFilter()) && assignedSections.contains(section)) {
+						includeStudent = true;
+						break;
+					} else if(section.getCategory().equals(getFilter()) && assignedSections.contains(section)) {
+						includeStudent = true;
+						break;
+					}
+				}
+			}
+
+			if(includeStudent) {
+				EnrollmentDecorator decorator = new EnrollmentDecorator(enrollment, map);
+				unpagedEnrollments.add(decorator);
+			}
 		}
 
 		// Sort the list
 		Collections.sort(unpagedEnrollments, getComparator());
-		
-		// Filter the list
-		enrollments = new ArrayList();
+
+		// Filter the list of enrollments
+		enrollments = new ArrayList<EnrollmentDecorator>();
 		int lastRow;
 		int maxDisplayedRows = getPrefs().getRosterMaxDisplayedRows();
 		if(maxDisplayedRows < 1 || firstRow + maxDisplayedRows > unpagedEnrollments.size()) {
@@ -127,8 +176,24 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 		enrollments.addAll(unpagedEnrollments.subList(firstRow, lastRow));
 		enrollmentsSize = unpagedEnrollments.size();
 	}
+
+	private List<CourseSection> findAssignedSections() {
+		List<CourseSection> assignedSections = new ArrayList<CourseSection>();
+		for(Iterator<CourseSection> secIter = getSectionManager().getSections(getSiteContext()).iterator(); secIter.hasNext();) {
+			CourseSection section = secIter.next();
+			List<ParticipationRecord> tas = getSectionManager().getSectionTeachingAssistants(section.getUuid());
+			for(Iterator<ParticipationRecord> taIter = tas.iterator(); taIter.hasNext();) {
+				ParticipationRecord ta = taIter.next();
+				if(ta.getUser().getUserUid().equals(getUserUid())) {
+					assignedSections.add(section);
+					break;
+				}
+			}
+		}
+		return assignedSections;
+	}
 	
-	private Comparator getComparator() {
+	private Comparator<EnrollmentDecorator> getComparator() {
 		String sortColumn = getPrefs().getRosterSortColumn();
 		boolean sortAscending = getPrefs().isRosterSortAscending();
 		
@@ -221,5 +286,17 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	}
 	public void setFirstRow(int firstRow) {
 		this.firstRow = firstRow;
+	}
+
+	public String getFilter() {
+		return getPrefs().getRosterFilter();
+	}
+
+	public void setFilter(String filter) {
+		getPrefs().setRosterFilter(filter);
+	}
+
+	public List getFilterItems() {
+		return filterItems;
 	}
 }

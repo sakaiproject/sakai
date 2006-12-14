@@ -42,7 +42,7 @@ public class PreferencesBean extends CourseDependentBean {
 
 		rosterSortColumn = "studentName";
 		rosterSortAscending = true;
-		rosterMaxDisplayedRows = 10;
+		rosterMaxDisplayedRows = 50;
 	}
 
 	public void init() {
@@ -60,6 +60,7 @@ public class PreferencesBean extends CourseDependentBean {
 	protected String rosterSortColumn;
 	protected boolean rosterSortAscending;
 	protected int rosterMaxDisplayedRows;
+	protected String rosterFilter;
 
 	protected String editStudentSectionsSortColumn;
 	protected boolean editStudentSectionsSortAscending;
@@ -161,5 +162,13 @@ public class PreferencesBean extends CourseDependentBean {
 
 	public void setOverviewMyFilter(String overviewMyFilter) {
 		this.overviewMyFilter = overviewMyFilter;
+	}
+
+	public void setRosterFilter(String rosterFilter) {
+		this.rosterFilter = rosterFilter;
+	}
+
+	public String getRosterFilter() {
+		return rosterFilter;
 	}
 }

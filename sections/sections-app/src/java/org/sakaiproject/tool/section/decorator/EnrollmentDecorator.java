@@ -50,34 +50,28 @@ public class EnrollmentDecorator implements Serializable {
 		this.categoryToSectionMap = categoryToSectionMap;
 	}
 	
-	public static final Comparator getNameComparator(final boolean sortAscending) {
-		return new Comparator() {
-			public int compare(Object o1, Object o2) {
-				EnrollmentDecorator enr1 = (EnrollmentDecorator)o1;
-				EnrollmentDecorator enr2 = (EnrollmentDecorator)o2;
+	public static final Comparator<EnrollmentDecorator> getNameComparator(final boolean sortAscending) {
+		return new Comparator<EnrollmentDecorator>() {
+			public int compare(EnrollmentDecorator enr1, EnrollmentDecorator enr2) {
 				int comparison = enr1.getUser().getSortName().compareTo(enr2.getUser().getSortName());
 				return sortAscending ? comparison : (-1 * comparison);
 			}
 		};
 	}
 
-	public static final Comparator getDisplayIdComparator(final boolean sortAscending) {
-		return new Comparator() {
-			public int compare(Object o1, Object o2) {
-				EnrollmentDecorator enr1 = (EnrollmentDecorator)o1;
-				EnrollmentDecorator enr2 = (EnrollmentDecorator)o2;
+	public static final Comparator<EnrollmentDecorator> getDisplayIdComparator(final boolean sortAscending) {
+		return new Comparator<EnrollmentDecorator>() {
+			public int compare(EnrollmentDecorator enr1, EnrollmentDecorator enr2) {
 				int comparison = enr1.getUser().getDisplayId().compareTo(enr2.getUser().getDisplayId());
 				return sortAscending ? comparison : (-1 * comparison);
 			}
 		};
 	}
 
-	public static final Comparator getCategoryComparator(final String categoryId, final boolean sortAscending) {
+	public static final Comparator<EnrollmentDecorator> getCategoryComparator(final String categoryId, final boolean sortAscending) {
 		if(log.isDebugEnabled()) log.debug("Comparing enrollment decorators by " + categoryId);
-		return new Comparator() {
-			public int compare(Object o1, Object o2) {
-				EnrollmentDecorator enr1 = (EnrollmentDecorator)o1;
-				EnrollmentDecorator enr2 = (EnrollmentDecorator)o2;
+		return new Comparator<EnrollmentDecorator>() {
+			public int compare(EnrollmentDecorator enr1, EnrollmentDecorator enr2) {
 				CourseSection section1 = (CourseSection)enr1.getCategoryToSectionMap().get(categoryId);
 				CourseSection section2 = (CourseSection)enr2.getCategoryToSectionMap().get(categoryId);
 				if(section1 == null && section2 != null) {
@@ -87,7 +81,7 @@ public class EnrollmentDecorator implements Serializable {
 					return sortAscending ? 1 : -1;
 				}
 				if(section1 == null && section2 == null) {
-					return getNameComparator(sortAscending).compare(o1, o2);
+					return getNameComparator(sortAscending).compare(enr1, enr2);
 				}
 				
 				int comparison = 0;

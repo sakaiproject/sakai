@@ -150,6 +150,13 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 			for(Iterator iter = site.getGroups().iterator(); iter.hasNext();) {
 				Group group = (Group)iter.next();
 				group.setProviderGroupId(null);
+				
+				// Add members to the groups based on the current (provided) memberships
+				Set members = group.getMembers();
+				for(Iterator memberIter = members.iterator(); memberIter.hasNext();) {
+					Member member = (Member)memberIter.next();
+					group.addMember(member.getUserId(), member.getRole().getId(), member.isActive(), false);
+				}
 			}
 			return;
 		}
