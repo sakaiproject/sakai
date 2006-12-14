@@ -862,7 +862,7 @@ public class SiteAction extends PagedResourceActionII
 				if (sortedAsc == null)
 				{
 					sortedAsc = Boolean.TRUE.toString();
-					state.setAttribute(SORTED_ASC, so.rtedAsc);
+					state.setAttribute(SORTED_ASC, sortedAsc);
 				}
 				if(sortedBy!=null) context.put ("currentSortedBy", sortedBy);
 				if(sortedAsc!=null) context.put ("currentSortAsc", sortedAsc);
