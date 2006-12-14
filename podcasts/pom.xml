@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai Podcast Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>podcasts-base</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>help</module>
+    <module>pack</module>
+    <module>podcasts</module>
+    <module>podcasts-api</module>
+    <module>podcasts-app</module>
+    <module>podcasts-impl</module>
+  </modules>
+</project>
