@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai User Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>user-base</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>user-api/api</module>
+    <module>user-impl/impl</module>
+    <module>user-impl/pack</module>
+    <module>user-tool/tool</module>
+    <module>user-tool-admin-prefs/admin-prefs</module>
+    <module>user-tool-prefs/tool</module>
+    <module>user-util/util</module>
+  </modules>
+</project>
