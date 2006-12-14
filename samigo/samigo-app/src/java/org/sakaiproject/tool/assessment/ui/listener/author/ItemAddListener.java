@@ -45,6 +45,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
@@ -127,15 +128,15 @@ public class ItemAddListener
     
     if(iType.equals(TypeFacade.FILL_IN_BLANK.toString())){
 	
-	if(isErrorFIB()){
-	    err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","pool_missingBracket_error");
-	    context.addMessage(null,new FacesMessage(err));
-	    item.setOutcome("fillInBlackItem");
-	    item.setPoolOutcome("fillInBlackItem");
-	    return;
-
-	}
+    	if(isErrorFIB()){
+    		err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","pool_missingBracket_error");
+    		context.addMessage(null,new FacesMessage(err));
+    		item.setOutcome("fillInBlackItem");
+    		item.setPoolOutcome("fillInBlackItem");
+    		return;
+    	}
     }
+    
     if(iType.equals(TypeFacade.FILL_IN_NUMERIC.toString())){
     	
     	if(isErrorFIN()){
@@ -146,9 +147,17 @@ public class ItemAddListener
     	    return;
 
     	}
-        }
+    }
     
-  
+    if(iType.equals(TypeFacade.AUDIO_RECORDING.toString())){
+    	if (Integer.parseInt(item.getTimeAllowed()) < 1) {
+    		err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","submissions_allowed_error");
+    	    context.addMessage(null,new FacesMessage(err));
+    	    item.setOutcome("audioRecItem");
+    	    item.setPoolOutcome("audioRecItem");
+    	    return;
+    	}
+    }
 	
     if (!saveItem(itemauthorbean)){
 	throw new RuntimeException("failed to saveItem.");
