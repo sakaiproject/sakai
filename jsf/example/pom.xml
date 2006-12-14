@@ -1,0 +1,222 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai JSF Widgets - Example</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-jsf-example</artifactId>
+  <organization>
+    <name>University of Michigan</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2003</inceptionYear>
+  <description>
+		This project contains examples of Sakai JSF in action.
+	</description>
+  <packaging>war</packaging>
+  <dependencies>
+<!-- Sakai plugin -->
+    <dependency>
+      
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.4</version>
+      <scope>provided</scope>
+    </dependency>
+<!-- this is required for any Sakai JSF tool -->
+<!--
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-jsf-tool</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		-->
+<!-- these (jsf-app and util-web) are options to get full Sakai integration -->
+<!--
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-jsf-app</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-util-web</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		-->
+<!-- MyFaces JSF dependencies -->
+    <dependency>
+      
+      <groupId>myfaces</groupId>
+      <artifactId>myfaces-all</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+<!-- Sun JSF dependencies -->
+<!--
+		<dependency>
+			<groupId>jsf</groupId>
+			<artifactId>jsf-api</artifactId>
+			<version>1.1.01</version>
+			<url>http://java.sun.com/j2ee/javaserverfaces/</url>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+
+		<dependency>
+			<groupId>jsf</groupId>
+			<artifactId>jsf-impl</artifactId>
+			<version>1.1.01</version>
+			<url>http://java.sun.com/j2ee/javaserverfaces/</url>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		-->
+<!-- Sakai tag library -->
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jsf-widgets</artifactId>
+      <version>${sakai.version}</version>
+<!--url: http://sakaiproject.org/ -->
+    </dependency>
+<!-- Adaptor to use tag library with Sun's RI -->
+<!--
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-jsf-widget-sun</artifactId>
+			<version>${sakai.version}</version>
+			<url>http://sakaiproject.org/</url>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		-->
+<!-- Adaptor to use tag library with MyFaces -->
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jsf-widgets-myfaces</artifactId>
+      <version>${sakai.version}</version>
+<!--url: http://sakaiproject.org/ -->
+    </dependency>
+    <dependency>
+      
+      <groupId>commons-digester</groupId>
+      <artifactId>commons-digester</artifactId>
+      <version>1.6</version>
+    </dependency>
+    <dependency>
+      
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.3</version>
+    </dependency>
+    <dependency>
+      
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
+      <version>1.1.2</version>
+    </dependency>
+    <dependency>
+      
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+      <version>1.7.0</version>
+    </dependency>
+<!-- Provided by the servlet container by default -->
+    <dependency>
+      
+      <groupId>commons-el</groupId>
+      <artifactId>commons-el</artifactId>
+      <version>1.0</version>
+      <scope>provided</scope>
+    </dependency>
+<!--  The below JSF-related depencencies should only be bundled in the webapp if it
+	          is being used OUTSIDE of Sakai.  When deployed inside of Sakai,
+	          or using the Sakai maven plugin, these jars are deployed by Sakai automatically.
+		-->
+<!-- Apache Commons file upload used by inputFileUpload tag and associated filter -->
+    <dependency>
+      
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>1.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+      <scope>provided</scope>
+    </dependency>
+<!--  New for myfaces 1.1.1 update -->
+    <dependency>
+      
+      <groupId>commons-validator</groupId>
+      <artifactId>commons-validator</artifactId>
+      <version>1.3.0</version>
+    </dependency>
+    <dependency>
+      
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>${sakai.commons.lang.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+      <version>2.0.8</version>
+    </dependency>
+  </dependencies>
+  <build>
+    
+    
+    
+    
+    
+    
+    <resources>
+      <resource>
+        <directory>${basedir}/src/bundle</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/webapp</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>
+    </resources>
+    
+  </build>
+</project>

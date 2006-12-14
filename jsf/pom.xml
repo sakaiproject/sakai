@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai JSF Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>jsf-base</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>app</module>
+    <module>devtool</module>
+    <module>example</module>
+    <module>resource</module>
+    <module>tool</module>
+    <module>widgets</module>
+    <module>widgets-myfaces</module>
+    <module>widgets-sun</module>
+  </modules>
+</project>
