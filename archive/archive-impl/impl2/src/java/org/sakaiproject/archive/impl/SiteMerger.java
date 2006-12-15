@@ -27,7 +27,7 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xerces.impl.dv.util.Base64;
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.AuthzGroupService;
