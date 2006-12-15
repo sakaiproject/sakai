@@ -91,12 +91,6 @@
       <artifactId>${sakai.spring.artifactId}</artifactId>
       <version>${sakai.spring.version}</version>
     </dependency>
-    <!-- Needed to build under Java 1.5 -->
-    <dependency>
-        <groupId>xalan</groupId>
-        <artifactId>xalan</artifactId>
-        <version>2.6.0</version>
-    </dependency>
 
   </dependencies>
   <build>

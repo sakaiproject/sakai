@@ -32,8 +32,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xerces.dom.CoreDocumentImpl;
-import org.apache.xerces.dom.ElementImpl;
+import com.sun.org.apache.xerces.internal.dom.CoreDocumentImpl;
+import com.sun.org.apache.xerces.internal.dom.ElementImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

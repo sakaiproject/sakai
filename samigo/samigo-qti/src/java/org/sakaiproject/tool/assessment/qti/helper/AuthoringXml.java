@@ -22,6 +22,7 @@
 
 
 package org.sakaiproject.tool.assessment.qti.helper;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -42,9 +43,9 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xerces.dom.CharacterDataImpl;
-import org.apache.xerces.dom.CoreDocumentImpl;
-import org.apache.xerces.dom.TextImpl;
+import com.sun.org.apache.xerces.internal.dom.CharacterDataImpl;
+import com.sun.org.apache.xerces.internal.dom.CoreDocumentImpl;
+import com.sun.org.apache.xerces.internal.dom.TextImpl;
 import org.jaxen.JaxenException;
 import org.jaxen.XPath;
 import org.jaxen.dom.DOMXPath;

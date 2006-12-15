@@ -161,12 +161,6 @@
       <artifactId>OkiSID</artifactId>
       <version>rc6.1</version>
     </dependency>
-    <!-- This is just for Eclipse compiling; Maven compiling doesn't need it but its here for Eclipse -->
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-      <version>2.6.2</version>
-    </dependency>
     <dependency>
       <groupId>aopalliance</groupId>
       <artifactId>aopalliance</artifactId>
@@ -389,13 +383,6 @@
       <groupId>axis</groupId>
       <artifactId>axis-jaxrpc</artifactId>
       <version>1.2-RC1</version>
-    </dependency>
-
-    <!-- Needed to build under Java 1.5 -->
-    <dependency>
-        <groupId>xalan</groupId>
-        <artifactId>xalan</artifactId>
-        <version>2.6.0</version>
     </dependency>
 
   </dependencies>

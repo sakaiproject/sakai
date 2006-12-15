@@ -31,7 +31,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xerces.dom.CharacterDataImpl;
+import com.sun.org.apache.xerces.internal.dom.CharacterDataImpl;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;

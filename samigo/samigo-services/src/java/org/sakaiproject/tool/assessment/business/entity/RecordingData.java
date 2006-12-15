@@ -21,6 +21,7 @@
 
 
 package org.sakaiproject.tool.assessment.business.entity;
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.StringTokenizer;
@@ -31,8 +32,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 // these are used for unit test only
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
+import com.sun.org.apache.xml.internal.serialize.OutputFormat;
+import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

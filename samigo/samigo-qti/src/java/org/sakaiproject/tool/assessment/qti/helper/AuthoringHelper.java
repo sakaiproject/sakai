@@ -38,7 +38,7 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xpath.XPathAPI;
+import com.sun.org.apache.xpath.internal.XPathAPI;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
