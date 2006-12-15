@@ -134,7 +134,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
      */
     protected void recalculateCourseGradeRecords(final Gradebook gradebook,
             final Collection studentIds, Session session) throws HibernateException {
-        if(logger.isDebugEnabled()) logger.debug("Recalculating " + studentIds.size() + " course grade records");
+        if(log.isDebugEnabled()) log.debug("Recalculating " + studentIds.size() + " course grade records");
         int changedRecordCount = 0;	// For debugging
 
         List assignments = getAssignments(gradebook.getId(), session);
@@ -179,7 +179,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 				changedRecordCount++;
 			}
         }
-        if(logger.isDebugEnabled()) logger.debug("Stored " + changedRecordCount + " changed course grade records");
+        if(log.isDebugEnabled()) log.debug("Stored " + changedRecordCount + " changed course grade records");
     }
 
     /**

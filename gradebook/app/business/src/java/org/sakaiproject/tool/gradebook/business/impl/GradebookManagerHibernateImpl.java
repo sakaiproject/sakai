@@ -71,6 +71,10 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         implements GradebookManager {
 
     private static final Log log = LogFactory.getLog(GradebookManagerHibernateImpl.class);
+    
+    // Special logger for data contention analysis.
+    private static final Log logData = LogFactory.getLog(GradebookManagerHibernateImpl.class.getName() + ".GB_DATA");
+
     public void updateGradebook(final Gradebook gradebook) throws StaleObjectModificationException {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
@@ -120,7 +124,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 Gradebook gradebook = asn.getGradebook();
                 asn.setRemoved(true);
                 session.update(asn);
-                if(logger.isInfoEnabled()) logger.info("Assignment " + asn.getName() + " has been removed from " + gradebook);
+                if(log.isInfoEnabled()) log.info("Assignment " + asn.getName() + " has been removed from " + gradebook);
 
                 // Update the course grade records
                 recalculateCourseGradeRecords(gradebook, session);
@@ -141,7 +145,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 if(studentUids == null || studentUids.size() == 0) {
-                    if(logger.isInfoEnabled()) logger.info("Returning no grade records for an empty collection of student UIDs");
+                    if(log.isInfoEnabled()) log.info("Returning no grade records for an empty collection of student UIDs");
                     return new ArrayList();
                 }
 
@@ -152,10 +156,10 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 // If this is a course grade, calculate the point totals for the grade records
                 if(go.isCourseGrade()) {
                     Double totalPoints = ((CourseGrade)go).getTotalPoints();
-                    if(logger.isDebugEnabled()) logger.debug("Total points = " + totalPoints);
+                    if(log.isDebugEnabled()) log.debug("Total points = " + totalPoints);
                     for(Iterator iter = records.iterator(); iter.hasNext();) {
                         CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
-                        if(logger.isDebugEnabled()) logger.debug("Points earned = " + cgr.getPointsEarned());
+                        if(log.isDebugEnabled()) log.debug("Points earned = " + cgr.getPointsEarned());
                         if(cgr.getPointsEarned() != null) {
                             cgr.setAutoCalculatedGrade(cgr.calculatePercent(totalPoints.doubleValue()));
                         }
@@ -175,7 +179,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
             public Object doInHibernate(Session session) throws HibernateException {
                 if(studentUids.size() == 0) {
                     // If there are no enrollments, no need to execute the query.
-                    if(logger.isInfoEnabled()) logger.info("No enrollments were specified.  Returning an empty List of grade records");
+                    if(log.isInfoEnabled()) log.info("No enrollments were specified.  Returning an empty List of grade records");
                     return new ArrayList();
                 } else {
                     Query q = session.createQuery("from AbstractGradeRecord as agr where agr.gradableObject.removed=false and " +
@@ -205,13 +209,13 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
         final Set studentIds = getStudentIdsFromGradeRecords(gradeRecordsFromCall);
 
-        if (log.isDebugEnabled()) log.debug("updateAssignmentGradeRecords called with " + studentIds.size() + " grades");
-
         // If no grade records are sent, don't bother doing anything with the db
         if(gradeRecordsFromCall.size() == 0) {
             log.debug("updateAssignmentGradeRecords called for zero grade records");
             return new HashSet();
         }
+
+        if (logData.isDebugEnabled()) logData.debug("BEGIN: Update " + gradeRecordsFromCall.size() + " scores for gradebook=" + assignment.getGradebook().getUid() + ", assignment=" + assignment.getName());
 
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
@@ -311,7 +315,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 					session.flush();
 					session.clear();
 
-					if (log.isDebugEnabled()) log.debug("Updated " + studentsWithUpdatedAssignmentGradeRecords.size() + " grade records");
+					if (logData.isDebugEnabled()) logData.debug("Updated " + studentsWithUpdatedAssignmentGradeRecords.size() + " assignment score records");
 
 					// Update the course grade records for students with assignment grade record changes
 					recalculateCourseGradeRecords(gb, studentsWithUpdatedAssignmentGradeRecords, session);
@@ -324,7 +328,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
             }
         };
 
-        return (Set)getHibernateTemplate().execute(hc);
+        Set studentsWithExcessiveScores = (Set)getHibernateTemplate().execute(hc);
+        if (logData.isDebugEnabled()) logData.debug("END: Update " + gradeRecordsFromCall.size() + " scores for gradebook=" + assignment.getGradebook().getUid() + ", assignment=" + assignment.getName());
+        return studentsWithExcessiveScores;
     }
 
 	public Set updateAssignmentGradesAndComments(Assignment assignment, Collection gradeRecords, Collection comments) throws StaleObjectModificationException {
@@ -378,6 +384,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
             log.debug("updateCourseGradeRecords called with zero grade records to update");
             return;
         }
+        
+        if (logData.isDebugEnabled()) logData.debug("BEGIN: Update " + gradeRecordsFromCall.size() + " course grades for gradebook=" + courseGrade.getGradebook().getUid());
 
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
@@ -388,6 +396,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 Date now = new Date();
                 Gradebook gb = courseGrade.getGradebook();
                 String graderId = authn.getUserUid();
+                int numberOfUpdatedGrades = 0;
 
                 // Find the number of points possible in this gradebook
                 double totalPointsPossibleInGradebook = getTotalPoints(gb.getId());
@@ -460,13 +469,16 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
                     // Log the grading event
                     session.save(new GradingEvent(courseGrade, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getEnteredGrade()));
+                    
+                    numberOfUpdatedGrades++;
                 }
-
+                if (logData.isDebugEnabled()) logData.debug("Changed " + numberOfUpdatedGrades + " course grades for gradebook=" + courseGrade.getGradebook().getUid());
                 return null;
             }
         };
         try {
 	        getHibernateTemplate().execute(hc);
+	        if (logData.isDebugEnabled()) logData.debug("END: Update " + gradeRecordsFromCall.size() + " course grades for gradebook=" + courseGrade.getGradebook().getUid());
 		} catch (DataIntegrityViolationException e) {
 			// It's possible that a previously ungraded student
 			// was graded behind the current user's back before
@@ -544,7 +556,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     }
 
     public CourseGradeRecord getStudentCourseGradeRecord(final Gradebook gradebook, final String studentId) {
-        return (CourseGradeRecord)getHibernateTemplate().execute(new HibernateCallback() {
+    	if (logData.isDebugEnabled()) logData.debug("About to read student course grade for gradebook=" + gradebook.getUid());
+    	return (CourseGradeRecord)getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 return getCourseGradeRecord(gradebook, studentId, session);
             }
@@ -625,7 +638,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     }
 
     private List getAssignmentsWithStatsInternal(final Long gradebookId, final String sortBy, final boolean ascending, final Set studentUids) {
-        if(logger.isDebugEnabled())logger.debug("sort by is "+sortBy);
+        if(log.isDebugEnabled())log.debug("sort by is "+sortBy);
         List assignments;
         if (studentUids.isEmpty()) {
             // Hibernate 2.1.8 generates invalid SQL if an empty collection is used
@@ -823,7 +836,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         try {
             getHibernateTemplate().execute(hc);
         } catch (HibernateOptimisticLockingFailureException holfe) {
-            if(logger.isInfoEnabled()) logger.info("An optimistic locking failure occurred while attempting to update an assignment");
+            if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update an assignment");
             throw new StaleObjectModificationException(holfe);
         }
     }
@@ -844,7 +857,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     private void updateCourseGradeRecordSortValues(final Long gradebookId) {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-                if(logger.isDebugEnabled()) logger.debug("Updating sort values on manually entered course grades");
+                if(log.isDebugEnabled()) log.debug("Updating sort values on manually entered course grades");
 
                 Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
                 GradeMapping mapping = gb.getSelectedGradeMapping();
@@ -923,7 +936,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
             public Object doInHibernate(Session session) throws HibernateException {
                 Spreadsheet spt = (Spreadsheet)session.load(Spreadsheet.class, spreadsheetId);
                 session.delete(spt);
-                if(logger.isInfoEnabled()) logger.info("Spreadsheet " + spt.getName() + " has been removed from gradebook" );
+                if(log.isInfoEnabled()) log.info("Spreadsheet " + spt.getName() + " has been removed from gradebook" );
 
                 return null;
             }
@@ -963,7 +976,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
             try {
                 getHibernateTemplate().execute(hc);
             } catch (HibernateOptimisticLockingFailureException holfe) {
-                if(logger.isInfoEnabled()) logger.info("An optimistic locking failure occurred while attempting to update a spreadsheet");
+                if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update a spreadsheet");
                 throw new StaleObjectModificationException(holfe);
             }
     }

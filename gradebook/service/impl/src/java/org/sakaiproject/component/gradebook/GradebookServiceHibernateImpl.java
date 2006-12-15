@@ -62,6 +62,8 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
  */
 public class GradebookServiceHibernateImpl extends BaseHibernateManager implements GradebookService {
     private static final Log log = LogFactory.getLog(GradebookServiceHibernateImpl.class);
+    // Special logger for data contention analysis.
+    private static final Log logData = LogFactory.getLog(GradebookServiceHibernateImpl.class.getName() + ".GB_DATA");
 
 	public static final String UID_OF_DEFAULT_GRADING_SCALE_PROPERTY = "uidOfDefaultGradingScale";
 
@@ -486,6 +488,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         if(asn == null) {
             throw new AssessmentNotFoundException("There is no assessment id=" + externalId + " in gradebook uid=" + gradebookUid);
         }
+        
+        if (logData.isDebugEnabled()) logData.debug("BEGIN: Update 1 score for gradebookUid=" + gradebookUid + ", external assessment=" + externalId + " from " + asn.getExternalAppName());
 
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
@@ -529,6 +533,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
             }
         };
         getHibernateTemplate().execute(hc);
+        if (logData.isDebugEnabled()) logData.debug("END: Update 1 score for gradebookUid=" + gradebookUid + ", external assessment=" + externalId + " from " + asn.getExternalAppName());
 		if (log.isDebugEnabled()) log.debug("External assessment score updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid() + ", new score=" + points);
 	}
 
