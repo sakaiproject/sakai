@@ -30,8 +30,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
@@ -44,7 +42,6 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
-import org.sakaiproject.content.cover.ContentHostingService;
 
 /**
  * <p>Title: Samigo</p>2
@@ -57,7 +54,7 @@ import org.sakaiproject.content.cover.ContentHostingService;
 
 public class SaveAssessmentSettings
 {
-  private static Log log = LogFactory.getLog(SaveAssessmentSettings.class);
+  //private static Log log = LogFactory.getLog(SaveAssessmentSettings.class);
 
   public AssessmentFacade save(AssessmentSettingsBean assessmentSettings)
   {
@@ -155,8 +152,8 @@ public class SaveAssessmentSettings
     // g. set password
     control.setPassword(assessmentSettings.getPassword());
     // h. set finalPageUrl
-    String finalPageUrl = assessmentSettings.getFinalPageUrl();
-    if (!finalPageUrl.toLowerCase().startsWith("http")) {
+    String finalPageUrl = assessmentSettings.getFinalPageUrl().trim();
+    if (finalPageUrl.length() != 0 && !finalPageUrl.toLowerCase().startsWith("http")) {
     	finalPageUrl = "http://" + finalPageUrl;
     }
     control.setFinalPageUrl(finalPageUrl);
