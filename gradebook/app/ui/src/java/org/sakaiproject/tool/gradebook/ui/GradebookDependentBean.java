@@ -22,7 +22,9 @@
 
 package org.sakaiproject.tool.gradebook.ui;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,8 +58,12 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	 * Convenience method, for use in calling external facades
 	 * that assume the gradebook ID is an string.
 	 */
+	private transient String gradebookUid;
 	String getGradebookUid() {
-		return getGradebookManager().getGradebookUid(getGradebookId());
+		if (gradebookUid == null) {
+			gradebookUid = getGradebookManager().getGradebookUid(getGradebookId());
+		}
+		return gradebookUid;
 	}
 
 	/**
@@ -118,14 +124,36 @@ public abstract class GradebookDependentBean extends InitializableBean {
 		return getGradebookBean().getAuthnService();
 	}
 
+	// Because these methods are referred to inside "rendered" tag attributes,
+	// JSF will call them multiple times in every request. To cut back on
+	// business logic traffic, cache them in request scope. They need to be
+	// declared transient, however, so that they aren't copied between
+	// requests (which would prevent changes in a user's authz status).
+	private transient Boolean userAbleToEditAssessments;
 	public boolean isUserAbleToEditAssessments() {
-		return getGradebookBean().getAuthzService().isUserAbleToEditAssessments(getGradebookUid());
+		if (userAbleToEditAssessments == null) {
+			userAbleToEditAssessments = new Boolean(getGradebookBean().getAuthzService().isUserAbleToEditAssessments(getGradebookUid()));
+		}
+		return userAbleToEditAssessments.booleanValue();
 	}
+	private transient Boolean userAbleToGradeAll;
 	public boolean isUserAbleToGradeAll() {
-		return getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid());
+		if (userAbleToGradeAll == null) {
+			userAbleToGradeAll = new Boolean(getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid()));
+		}
+		return userAbleToGradeAll.booleanValue();
 	}
+	private transient Map userAbleToGradeSectionMap;
 	public boolean isUserAbleToGradeSection(String sectionUid) {
-		return getGradebookBean().getAuthzService().isUserAbleToGradeSection(sectionUid);
+		if (userAbleToGradeSectionMap == null) {
+			userAbleToGradeSectionMap = new HashMap();
+		}
+		Boolean isAble = (Boolean)userAbleToGradeSectionMap.get(sectionUid);
+		if (isAble == null) {
+			isAble = new Boolean(getGradebookBean().getAuthzService().isUserAbleToGradeSection(sectionUid));
+			userAbleToGradeSectionMap.put(sectionUid, isAble);
+		}
+		return isAble.booleanValue();
 	}
 
 	public List getAvailableEnrollments() {
