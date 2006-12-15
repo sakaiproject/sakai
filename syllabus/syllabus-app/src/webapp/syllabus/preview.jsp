@@ -33,7 +33,7 @@
 				<sakai:button_bar>
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processEditPreviewBack}"
-						value="#{msgs.back}" 
+						value="#{msgs.revise}" 
 						accesskey="x" />
 				</sakai:button_bar>
 
