@@ -36,8 +36,8 @@ import javax.xml.transform.sax.TemplatesHandler;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.xml.serializer.OutputPropertiesFactory;
-import org.apache.xml.serializer.Serializer;
+import com.sun.org.apache.xml.internal.serializer.OutputPropertiesFactory;
+import com.sun.org.apache.xml.internal.serializer.Serializer;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -70,7 +70,7 @@ public class XSLTTransform
 		String systemId = xsltresource.getSystemId();
 		th.setSystemId(systemId);
 		XMLReader xr = XMLReaderFactory
-				.createXMLReader("org.apache.xerces.parsers.SAXParser");
+				.createXMLReader("com.sun.org.apache.xerces.internal.parsers.SAXParser");
 		xr.setContentHandler(th);
 		xr.parse(xsltresource);
 		templates = th.getTemplates();

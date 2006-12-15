@@ -33,7 +33,7 @@ import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xml.serializer.ToXMLStream;
+import com.sun.org.apache.xml.internal.serializer.ToXMLStream;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.filter.context.FilterContext;
 import org.xml.sax.Attributes;
@@ -133,7 +133,7 @@ public class XHTMLFilter implements Filter, CacheFilter
 			epf.setContentHander(xser.asContentHandler());
 
 			XMLReader xmlr = XMLReaderFactory
-					.createXMLReader("org.apache.xerces.parsers.SAXParser");
+					.createXMLReader("com.sun.org.apache.xerces.internal.parsers.SAXParser");
 			xmlr.setContentHandler(dbf);
 			// log.warn("Input is "+input);
 			xmlr.parse(new InputSource(new StringReader("<sr>" + input

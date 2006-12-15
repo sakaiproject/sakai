@@ -573,7 +573,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		try
 		{
 			xmlReader = XMLReaderFactory
-					.createXMLReader("org.apache.xerces.parsers.SAXParser");
+					.createXMLReader("com.sun.org.apache.xerces.internal.parsers.SAXParser");
 		}
 		catch (SAXException e)
 		{

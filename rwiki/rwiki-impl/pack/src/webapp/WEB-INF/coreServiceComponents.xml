@@ -161,7 +161,7 @@
         <entry key="{http://xml.apache.org/xalan}indent-amount"><value>2</value></entry> 
 		<entry key="{http://xml.apache.org/xalan}content-handler"><value>uk.ac.cam.caret.sakai.rwiki.component.service.impl.XHTMLSerializer</value></entry>
 <!--        
-      <entry key="{http://xml.apache.org/xalan}entities"><value>org/apache/xml/serializer/HTMLEntities</value></entry> 
+      <entry key="{http://xml.apache.org/xalan}entities"><value>com/sun/org/apache/xml/internal/serializer/HTMLEntities</value></entry> 
 
 -->
         <entry key="{http://xml.apache.org/xalan}use-url-escaping"><value>yes</value></entry> 
@@ -371,8 +371,8 @@ DISABLED
         <entry key="media-type"><value>text/xml</value></entry>
         <entry key="{http://xml.apache.org/xalan}indent-amount"><value>2</value></entry> 
         <!--
-          <entry key="{http://xml.apache.org/xalan}content-handler"><value>org.apache.xml.serializer.ToHTMLStream</value></entry> 
-          <entry key="{http://xml.apache.org/xalan}entities"><value>org/apache/xml/serializer/HTMLEntities</value></entry> 
+          <entry key="{http://xml.apache.org/xalan}content-handler"><value>com.sun.org.apache.xml.internal.serializer.ToHTMLStream</value></entry> 
+          <entry key="{http://xml.apache.org/xalan}entities"><value>com/sun/org/apache/xml/internal/serializer/HTMLEntities</value></entry> 
           
         -->
       </map>     
@@ -406,8 +406,8 @@ DISABLED
         <entry key="media-type"><value>text/xml</value></entry>
         <entry key="{http://xml.apache.org/xalan}indent-amount"><value>2</value></entry> 
         <!--
-          <entry key="{http://xml.apache.org/xalan}content-handler"><value>org.apache.xml.serializer.ToHTMLStream</value></entry> 
-          <entry key="{http://xml.apache.org/xalan}entities"><value>org/apache/xml/serializer/HTMLEntities</value></entry> 
+          <entry key="{http://xml.apache.org/xalan}content-handler"><value>com.sun.org.apache.xml.internal.serializer.ToHTMLStream</value></entry> 
+          <entry key="{http://xml.apache.org/xalan}entities"><value>com/sun/org/apache/xml/internal/serializer/HTMLEntities</value></entry> 
           
         -->
       </map>     
@@ -441,8 +441,8 @@ DISABLED
         <entry key="media-type"><value>text/xml</value></entry>
         <entry key="{http://xml.apache.org/xalan}indent-amount"><value>2</value></entry> 
         <!--
-          <entry key="{http://xml.apache.org/xalan}content-handler"><value>org.apache.xml.serializer.ToHTMLStream</value></entry> 
-          <entry key="{http://xml.apache.org/xalan}entities"><value>org/apache/xml/serializer/HTMLEntities</value></entry> 
+          <entry key="{http://xml.apache.org/xalan}content-handler"><value>com.sun.org.apache.xml.internal.serializer.ToHTMLStream</value></entry> 
+          <entry key="{http://xml.apache.org/xalan}entities"><value>com/sun/org/apache/xml/internal/serializer/HTMLEntities</value></entry> 
           
         -->
       </map>     
