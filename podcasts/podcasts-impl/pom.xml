@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>sakai-jsf-sun-ri-tool</artifactId>
+    <artifactId>master</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
     <relativePath>../../master/pom.xml</relativePath>
@@ -20,6 +20,8 @@
     <deploy.target/>
   </properties>
   <dependencies>
+<!--
+   If you find an import for javax.faces.context either remove it or uncomment this
     <dependency>
       
       <groupId>org.sakaiproject</groupId>
@@ -28,6 +30,7 @@
       <type>pom</type>
       <scope>provided</scope>
     </dependency>
+-->
     <dependency>
       
       <groupId>org.sakaiproject</groupId>
