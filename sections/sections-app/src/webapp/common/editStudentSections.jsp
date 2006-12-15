@@ -19,13 +19,28 @@
                 <f:param value="#{editStudentSectionsBean.studentName}"/>
             </h:outputFormat>
             
-            <h:dataTable value="#{editStudentSectionsBean.enrolledSections}" var="section">
-            <h:column>
-            	<h:outputText value="#{section.categoryForDisplay}"/>
-            </h:column>
-            <h:column>
-            	<h:outputText value="#{section.title}"/>
-            </h:column>
+            <h:dataTable value="#{editStudentSectionsBean.enrolledSections}"
+            	var="section" columnClasses="rightLabel, left, left, left">
+	            <h:column>
+	            	<h:outputText value="#{section.categoryForDisplay}:"/>
+	            </h:column>
+	            <h:column>
+	            	<h:outputText value="#{section.title}"/>
+	            </h:column>
+		        <h:column>
+		            <x:dataList id="meetingDayList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
+			            <x:div>
+			            	<h:outputText value="#{meeting.abbreviatedDays}"/>
+			            </x:div>
+		            </x:dataList>
+		        </h:column>
+		        <h:column>
+		            <x:dataList id="meetingTimeList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
+			            <x:div>
+				            <h:outputText value="#{meeting.times}"/>
+			            </x:div>
+		            </x:dataList>
+		        </h:column>
             </h:dataTable>
 		</x:div>
 

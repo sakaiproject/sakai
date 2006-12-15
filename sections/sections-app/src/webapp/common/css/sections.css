@@ -62,6 +62,7 @@ td.left {text-align:left; vertical-align:top;}
 td.leftIndent {padding-left:2em !important; text-align:left; vertical-align:top;}
 td.center {text-align:center; vertical-align:top;}
 td.right {text-align:right; vertical-align:top; padding-right:2em !important;}
+td.rightLabel {font-weight:bold; text-align:right; vertical-align:top; padding-right:2em !important;}
 td.rightpadded {text-align:right; vertical-align:top; padding-right:5em !important;}
 
 /* Most but not all tables are shown 100% width in the spec. */
