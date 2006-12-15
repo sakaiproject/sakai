@@ -30,7 +30,7 @@ import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xerces.impl.dv.util.Base64;
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;

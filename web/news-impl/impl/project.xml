@@ -74,12 +74,6 @@
 			<version>${sakai.version}</version>
 		</dependency>
 		
-		<dependency>
-			<groupId>xerces</groupId>
-			<artifactId>xercesImpl</artifactId>
-			<version>2.6.2</version>
-		</dependency>
-
 		<!-- needed for news api impl -->	
 		<dependency>
 			<groupId>rome</groupId>
