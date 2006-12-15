@@ -1,4 +1,4 @@
-<--
+<!--
 
 //-----------------------------------------------------------------------
 // Changes the image src to the src passed in. IMPORTANT: This first
@@ -9,4 +9,4 @@ function ImageRollOver(img, src) {
     img.src = src;
 }
 
--->
+// -->
