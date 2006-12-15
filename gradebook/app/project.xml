@@ -321,12 +321,6 @@
 			</properties>
 		</dependency>
 
-		<dependency>
-			<groupId>xalan</groupId>
-			<artifactId>xalan</artifactId>
-			<version>2.6.0</version>
-		</dependency>
-
 		<!-- Sakai tag library -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
