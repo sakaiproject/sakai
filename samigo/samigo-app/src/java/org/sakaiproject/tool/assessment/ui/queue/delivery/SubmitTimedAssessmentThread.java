@@ -23,10 +23,14 @@
 
 package org.sakaiproject.tool.assessment.ui.queue.delivery;
 
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import java.util.Date;
@@ -70,6 +74,8 @@ public class SubmitTimedAssessmentThread extends TimerTask
           AssessmentGradingData ag = service.load(timedAG.getAssessmentGradingId().toString());
           ag.setForGrade(Boolean.TRUE);
           ag.setTimeElapsed(new Integer(timedAG.getTimeLimit()));
+          ag.setStatus(AssessmentGradingIfc.AUTO_GRADED); // this will change status 0 -> 1
+          ag.setIsLate(islate(ag.getPublishedAssessmentId()));
           ag.setSubmittedDate(new Date());
           service.saveOrUpdateAssessmentGrading(ag);
           log.debug("**** 4a. time's up, timeLeft+latency buffer reached, saved to DB");
@@ -82,6 +88,15 @@ public class SubmitTimedAssessmentThread extends TimerTask
         }
       }
     }
+  }
+
+  private Boolean islate(Long publishedId) {
+	PublishedAssessmentService service = new PublishedAssessmentService();
+	PublishedAssessmentData pub = service.getBasicInfoOfPublishedAssessment(publishedId.toString());
+	if (pub.getDueDate()!=null && pub.getDueDate().before(new Date()))
+		return Boolean.TRUE;
+	else
+		return Boolean.FALSE;
   }
 
 }

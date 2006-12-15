@@ -1848,4 +1848,27 @@ public class PublishedAssessmentFacadeQueries
 		return assessmentList;
 	}
 
+  public PublishedAssessmentData getBasicInfoOfPublishedAssessment(final Long publishedId) {
+	    String query =
+	        "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, " +
+	        " c.releaseTo, c.startDate, c.dueDate, c.retractDate, " +
+	        " c.feedbackDate, f.feedbackDelivery,  f.feedbackAuthoring, c.lateHandling, " +
+	        " c.unlimitedSubmissions, c.submissionsAllowed) " +
+	        " from PublishedAssessmentData as p, PublishedAccessControl as c," +
+	        " PublishedFeedback as f" +
+	        " where c.assessment.publishedAssessmentId=p.publishedAssessmentId " +
+	        " and p.publishedAssessmentId = f.assessment.publishedAssessmentId " +
+	        " and p.publishedAssessmentId=?";
+	    final String hql = query;
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(hql);
+	    		q.setLong(0, publishedId);
+	    		return q.list();
+	    	};
+	    };
+	    List list = getHibernateTemplate().executeFind(hcb);
+	    return (PublishedAssessmentData) list.get(0);
+  }
+
 }

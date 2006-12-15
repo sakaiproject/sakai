@@ -30,6 +30,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
@@ -483,5 +484,11 @@ public class PublishedAssessmentService {
         getPublishedAssessmentFacadeQueries().
         getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(agentId, siteId);
   }
+
+   public PublishedAssessmentData getBasicInfoOfPublishedAssessment(String publishedId) {
+	    return PersistenceService.getInstance().
+        getPublishedAssessmentFacadeQueries().
+        getBasicInfoOfPublishedAssessment(new Long(publishedId));
+   }
 
 }

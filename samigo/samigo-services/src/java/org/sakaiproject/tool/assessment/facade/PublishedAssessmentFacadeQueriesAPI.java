@@ -301,6 +301,8 @@ public interface PublishedAssessmentFacadeQueriesAPI
 * @param agentId 
 * @return
 */
-    public ArrayList getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(String agentId, String siteId);
+  public ArrayList getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(String agentId, String siteId);
+
+  public PublishedAssessmentData getBasicInfoOfPublishedAssessment(Long publishedId);
  
 }
