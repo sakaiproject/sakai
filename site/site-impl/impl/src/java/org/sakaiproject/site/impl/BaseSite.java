@@ -150,6 +150,9 @@ public class BaseSite implements Site
 	/** Set to true if we have changed our azg, so it need to be written back on save. */
 	protected boolean m_azgChanged = false;
 
+	/** Set to true to use the site's page order, or false to let a toolOrder override the page order. */
+	protected boolean m_customPageOrdered = false;
+
 	/**
 	 * Construct.
 	 * 
@@ -269,6 +272,16 @@ public class BaseSite implements Site
 		if (time != null)
 		{
 			m_lastModifiedTime = TimeService.newTimeGmt(time);
+		}
+
+		String customOrder = StringUtil.trimToNull(el.getAttribute("customPageOrdered"));
+		if (customOrder == null)
+		{
+			m_customPageOrdered = false;
+		}
+		else
+		{
+			m_customPageOrdered = Boolean.valueOf(customOrder).booleanValue();
 		}
 
 		// get pubView setting - but old versions (pre 1.42 of this file) won't have it and will have a property instead
@@ -420,7 +433,7 @@ public class BaseSite implements Site
 	 */
 	public BaseSite(String id, String title, String type, String shortDesc, String description, String iconUrl, String infoUrl,
 			String skin, boolean published, boolean joinable, boolean pubView, String joinRole, boolean isSpecial, boolean isUser,
-			String createdBy, Time createdOn, String modifiedBy, Time modifiedOn)
+			String createdBy, Time createdOn, String modifiedBy, Time modifiedOn, boolean customPageOrdered)
 	{
 		// setup for properties
 		m_properties = new BaseResourcePropertiesEdit();
@@ -449,6 +462,7 @@ public class BaseSite implements Site
 		m_lastModifiedUserId = modifiedBy;
 		m_createdTime = createdOn;
 		m_lastModifiedTime = modifiedOn;
+		m_customPageOrdered = customPageOrdered;
 
 		// setup for properties, but mark them lazy since we have not yet established them from data
 		((BaseResourcePropertiesEdit) m_properties).setLazy(true);
@@ -484,6 +498,7 @@ public class BaseSite implements Site
 		m_skin = other.m_skin;
 		m_type = other.m_type;
 		m_pubView = other.m_pubView;
+		m_customPageOrdered = other.m_customPageOrdered;
 		if (exact)
 		{
 			m_createdUserId = other.m_createdUserId;
@@ -828,6 +843,9 @@ public class BaseSite implements Site
 	 */
 	public List getOrderedPages()
 	{
+		// if we are set to use our custom page order, do so
+		if (m_customPageOrdered) return getPages();
+
 		List order = ((BaseSiteService) (SiteService.getInstance())).serverConfigurationService().getToolOrder(getType());
 		if (order.isEmpty()) return getPages();
 
@@ -1085,6 +1103,7 @@ public class BaseSite implements Site
 		if (m_info != null) site.setAttribute("info", m_info);
 		if (m_skin != null) site.setAttribute("skin", m_skin);
 		site.setAttribute("pubView", Boolean.valueOf(m_pubView).toString());
+		site.setAttribute("customPageOrdered", Boolean.valueOf(m_customPageOrdered).toString());
 		site.setAttribute("type", m_type);
 
 		site.setAttribute("created-id", m_createdUserId);
@@ -1256,6 +1275,21 @@ public class BaseSite implements Site
 	{
 		m_pubView = pubView;
 
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isCustomPageOrdered()
+	{
+		return m_customPageOrdered;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setCustomPageOrdered(boolean setting)
+	{
+		m_customPageOrdered = setting;
 	}
 
 	/**

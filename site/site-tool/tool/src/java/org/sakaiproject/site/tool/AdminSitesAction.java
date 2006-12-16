@@ -1061,6 +1061,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		boolean published = data.getParameters().getBoolean("published");
 		String skin = StringUtil.trimToNull(data.getParameters().getString("skin"));
 		boolean pubView = data.getParameters().getBoolean("pubView");
+		boolean customOrder = data.getParameters().getBoolean("customOrder");
 
 		// get the site
 		Site site = (Site) state.getAttribute("site");
@@ -1160,6 +1161,7 @@ public class AdminSitesAction extends PagedResourceActionII
 			site.setType(type);
 			site.setPubView(pubView);
 			site.setPublished(published);
+			site.setCustomPageOrdered(customOrder);
 		}
 
 		return true;

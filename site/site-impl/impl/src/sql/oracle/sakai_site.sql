@@ -39,7 +39,9 @@ CREATE TABLE SAKAI_SITE (
        IS_SPECIAL           CHAR(1) NULL
                                    CHECK (IS_SPECIAL IN (1, 0)),
        IS_USER              CHAR(1) NULL
-                                   CHECK (IS_USER IN (1, 0))
+                                   CHECK (IS_USER IN (1, 0)),
+       CUSTOM_PAGE_ORDERED  CHAR(1) NULL
+                                   CHECK (CUSTOM_PAGE_ORDERED IN (1, 0))
 );
 
 ALTER TABLE SAKAI_SITE

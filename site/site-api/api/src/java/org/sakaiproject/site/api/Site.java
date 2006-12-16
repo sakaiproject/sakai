@@ -95,7 +95,7 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	 */
 	void loadAll();
 
-	/** @return The pages ordered by the tool order constraint for this site's type (as tool category). */
+	/** @return The pages ordered by the tool order constraint for this site's type (as tool category), or the site's pages in defined order if the site is set to have a custom page order. */
 	List getOrderedPages();
 
 	/** @return true if the site is published, false if not. */
@@ -332,4 +332,19 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	 *        The group to remove.
 	 */
 	void removeGroup(Group group);
+
+	/**
+	 * Check if the site has a custom page order
+	 * 
+	 * @return true if the site has a custom page order, false if not.
+	 */
+	boolean isCustomPageOrdered();
+	
+	/**
+	 * Set the site's custom page order flag.
+	 * 
+	 * @param custom
+	 *        true if the site has a custom page ordering, false if not.
+	 */
+	void setCustomPageOrdered(boolean custom);
 }

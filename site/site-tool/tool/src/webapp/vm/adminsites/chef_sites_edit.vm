@@ -145,6 +145,17 @@
 					<input type="radio" value="false" name="pubView" id="pubViewfalse" #if (!$site || !$site.isPubView()) checked="checked" #end /><label for="pubViewfalse"> $tlang.getString("sitedi.no") </label>
 				</td>
 			</tr>
+			<tr>
+				<th>
+					<label for="customOrder">
+						$tlang.getString("sitedi.custom")
+					</label>
+				</th>
+				<td   class="checkbox">
+					<input type="radio" value="true" name="customOrder" id="customOrdertrue" #if ($site.isCustomPageOrdered()) checked="checked" #end /><label for="customOrdertrue">  $tlang.getString("sitedi.yes")</label>
+					<input type="radio" value="false" name="customOrder" id="customOrderfalse" #if (!$site || !$site.isCustomPageOrdered()) checked="checked" #end /><label for="customOrderfalse"> $tlang.getString("sitedi.no") </label>
+				</td>
+			</tr>
 		</table>
 		#if ($site)
 			<h4>

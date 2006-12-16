@@ -72,7 +72,7 @@ public abstract class DbSiteService extends BaseSiteService
 	/** All fields for site. */
 	protected String[] m_siteFieldNames = { "SITE_ID", "TITLE", "TYPE", "SHORT_DESC", "DESCRIPTION", "ICON_URL", "INFO_URL",
 			"SKIN", "PUBLISHED", "JOINABLE", "PUBVIEW", "JOIN_ROLE", "IS_SPECIAL", "IS_USER", "CREATEDBY", "MODIFIEDBY",
-			"CREATEDON", "MODIFIEDON" };
+			"CREATEDON", "MODIFIEDON", "CUSTOM_PAGE_ORDERED" };
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
@@ -136,6 +136,9 @@ public abstract class DbSiteService extends BaseSiteService
 
 				// also load the 2.1.0.003 field insertion
 				sqlService().ddl(this.getClass().getClassLoader(), "sakai_site_2_1_0_003");
+			
+				// also load the 2.4.0 field insertion
+				sqlService().ddl(this.getClass().getClassLoader(), "sakai_site_2_4_0_001");
 			}
 
 			super.init();
@@ -2059,11 +2062,11 @@ public abstract class DbSiteService extends BaseSiteService
 		 */
 		protected Object[] fields(String id, Site edit, boolean idAgain)
 		{
-			Object[] rv = new Object[idAgain ? 19 : 18];
+			Object[] rv = new Object[idAgain ? 20 : 19];
 			rv[0] = caseId(id);
 			if (idAgain)
 			{
-				rv[18] = rv[0];
+				rv[19] = rv[0];
 			}
 
 			if (edit == null)
@@ -2092,6 +2095,7 @@ public abstract class DbSiteService extends BaseSiteService
 				rv[15] = current;
 				rv[16] = now;
 				rv[17] = now;
+				rv[18] = "0";
 			}
 
 			else
@@ -2113,6 +2117,7 @@ public abstract class DbSiteService extends BaseSiteService
 				rv[15] = StringUtil.trimToZero(((BaseSite) edit).m_lastModifiedUserId);
 				rv[16] = edit.getCreatedTime();
 				rv[17] = edit.getModifiedTime();
+				rv[18] = edit.isCustomPageOrdered() ? "1" : "0";
 			}
 
 			return rv;
@@ -2157,10 +2162,11 @@ public abstract class DbSiteService extends BaseSiteService
 				{
 					modifiedOn = timeService().newTime(ts.getTime());
 				}
+				boolean customPageOrdered = "1".equals(result.getString(19)) ? true : false;
 
 				// create the Resource from these fields
 				return new BaseSite(id, title, type, shortDesc, description, icon, info, skin, published, joinable, pubView,
-						joinRole, isSpecial, isUser, createdBy, createdOn, modifiedBy, modifiedOn);
+						joinRole, isSpecial, isUser, createdBy, createdOn, modifiedBy, modifiedOn, customPageOrdered);
 			}
 			catch (SQLException e)
 			{
