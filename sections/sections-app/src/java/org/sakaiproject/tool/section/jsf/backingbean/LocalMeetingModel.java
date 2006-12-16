@@ -25,6 +25,7 @@ import java.sql.Time;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,6 +69,12 @@ public class LocalMeetingModel implements Meeting, Serializable {
 	private String location, startTimeString, endTimeString;
     private boolean monday, tuesday, wednesday, thursday, friday, saturday, sunday;
 	private boolean startTimeAm, endTimeAm;
+
+
+	public boolean isEmpty() {
+		return !monday && !tuesday && !wednesday && !thursday && !friday && !saturday && !sunday &&
+			StringUtils.trimToNull(startTimeString) == null && StringUtils.trimToNull(endTimeString) == null && StringUtils.trimToNull(location) == null;
+	}
 
 	public Time getStartTime() {
 		return JsfUtil.convertStringToTime(startTimeString, startTimeAm);

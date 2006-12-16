@@ -37,7 +37,7 @@ public class LocalSectionModel implements Serializable {
 
 	private String title;
     private Integer maxEnrollments;
-    private List meetings;
+    private List<Meeting> meetings;
 
 	public LocalSectionModel() {}
 	
@@ -48,7 +48,7 @@ public class LocalSectionModel implements Serializable {
 	public LocalSectionModel(CourseSection section) {
 		this.title = section.getTitle();
 		this.maxEnrollments = section.getMaxEnrollments();
-		this.meetings = new ArrayList();
+		this.meetings = new ArrayList<Meeting>();
 		for(Iterator iter = section.getMeetings().iterator(); iter.hasNext();) {
 			Meeting meeting = (Meeting)iter.next();
 			meetings.add(new LocalMeetingModel(meeting));
@@ -67,15 +67,15 @@ public class LocalSectionModel implements Serializable {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public List getMeetings() {
+	public List<Meeting> getMeetings() {
 		if(meetings == null) {
 			// Keep this out of the constructor to avoid it in deserialization
-			this.meetings = new ArrayList();
+			this.meetings = new ArrayList<Meeting>();
 		}
 		return meetings;
 	}
 
-	public void setMeetings(List meetings) {
+	public void setMeetings(List<Meeting> meetings) {
 		this.meetings = meetings;
 	}
 

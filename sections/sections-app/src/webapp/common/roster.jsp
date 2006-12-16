@@ -21,7 +21,7 @@
         <h:selectOneMenu value="#{rosterBean.filter}" onchange="this.form.submit()" rendered="#{rosterBean.sectionAssignable}">
             <f:selectItems value="#{rosterBean.filterItems}"/>
         </h:selectOneMenu>
-        <h:outputText value="#{msgs.roster_all_sections}" rendered="#{ ! rosterBean.sectionAssignable}"/>
+        <h:outputText value="#{msgs.filter_all_sections}" rendered="#{ ! rosterBean.sectionAssignable}"/>
 	</x:div>
 	
     <h:panelGrid styleClass="sectionContainerNav" columns="2" columnClasses="sectionLeftNav,sectionRightNav">

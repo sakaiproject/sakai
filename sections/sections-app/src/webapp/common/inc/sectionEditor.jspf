@@ -9,7 +9,7 @@
 			rowIndexVar="sectionIndex"
 			rowClasses="#{bean.rowStyleClasses}">
 			<h:column>
-				<h:panelGrid columns="2" rowClasses="sectionRow">
+				<h:panelGrid rowClasses="none" columns="2" rowClasses="sectionRow">
 
 					<% // Title %>
 
@@ -33,7 +33,7 @@
 					<% // Logistics %>
 					
 					<h:outputLabel value="#{msgs.section_logistics}" styleClass="formLabel"/>
-					<h:dataTable id="meetingsTable" value="#{section.meetings}" var="meeting">
+					<h:dataTable id="meetingsTable" value="#{section.meetings}" var="meeting" rowClasses="none">
 					
 						<% // One column per meeting.  Use a div to add a line break in the form controls %>
 						<h:column>

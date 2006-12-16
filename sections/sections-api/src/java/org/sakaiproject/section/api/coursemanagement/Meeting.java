@@ -72,4 +72,11 @@ public interface Meeting {
 	 */
 	public Time getEndTime();
 
+	/**
+	 * Indicates whether this meeting has no information.  Should return true if there are
+	 * no meeting times and a null location.
+	 * 
+	 * @return
+	 */
+	public boolean isEmpty();
 }

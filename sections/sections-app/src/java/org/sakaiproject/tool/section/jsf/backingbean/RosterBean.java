@@ -101,11 +101,11 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 
 		// Construct the list of filter items
 		filterItems = new ArrayList<SelectItem>();
-		filterItems.add(new SelectItem("", JsfUtil.getLocalizedMessage("roster_all_sections")));
-		filterItems.add(new SelectItem("MY", JsfUtil.getLocalizedMessage("roster_my_sections", new String[] {""})));
+		filterItems.add(new SelectItem("", JsfUtil.getLocalizedMessage("filter_all_sections")));
+		filterItems.add(new SelectItem("MY", JsfUtil.getLocalizedMessage("filter_my_category_sections", new String[] {""})));
 		for(Iterator<String> iter = categories.iterator(); iter.hasNext();) {
 			String cat = iter.next();
-			filterItems.add(new SelectItem(cat, JsfUtil.getLocalizedMessage("roster_my_sections",
+			filterItems.add(new SelectItem(cat, JsfUtil.getLocalizedMessage("filter_my_category_sections",
 					new String[] {getCategoryName(cat)})));
 		}
 		

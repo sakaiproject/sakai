@@ -40,7 +40,10 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
 public abstract class FilteredSectionListingBean extends CourseDependentBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(FilteredSectionListingBean.class);
+
+	public enum FilterState {NONE, COMPACT, SPLIT, SINGLE};
 	
+	protected FilterState currentFilterState;
 	protected List<SectionDecorator> sections;
 	protected List<SelectItem> categorySelectItems;
 
@@ -52,6 +55,7 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 		
 		// Get all sections in the site
 		List sectionSet = getAllSiteSections();
+		
 		sections = new ArrayList<SectionDecorator>();
 
 		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {
@@ -90,6 +94,25 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 
 		// Sort the collection set
 		Collections.sort(sections, getComparator());
+		
+		if(sectionSet.size() <= 1) {
+			// Don't display a filter if there's zero or one section in the site
+			currentFilterState = FilterState.NONE;
+		} else if(isSectionAssignable() && categorySelectItems.size() == 1) {
+			// Display the compact filter for TAs  if there's only one category, but more than one section
+			currentFilterState = FilterState.COMPACT;
+		} else if(isSectionAssignable()) {
+			// Show the split filter for TAs if there are multiple sections and categories
+			currentFilterState = FilterState.SPLIT;
+		} else if(categorySelectItems.size() > 1){
+			// Instructors get the single filter if there are multiple categories
+			currentFilterState = FilterState.SINGLE;
+		} else {
+			// Instructors get no filter when there is only one categories
+			currentFilterState = FilterState.NONE;
+		}
+		
+		
 	}
 
 	protected void setDefaultPrefs() {
@@ -160,5 +183,18 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 
 	public void setCategorySelectItems(List<SelectItem> categorySelectItems) {
 		this.categorySelectItems = categorySelectItems;
+	}
+
+
+	public boolean isDisplayCompactFilter() {
+		return currentFilterState == FilterState.COMPACT;
+	}
+
+	public boolean isDisplaySplitFilter() {
+		return currentFilterState == FilterState.SPLIT;
+	}
+
+	public boolean isDisplaySingleFilter() {
+		return currentFilterState == FilterState.SINGLE;
 	}
 }

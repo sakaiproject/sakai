@@ -3,6 +3,7 @@ package org.sakaiproject.component.section;
 import java.io.Serializable;
 import java.sql.Time;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.section.api.coursemanagement.Meeting;
 
 public class MeetingImpl implements Meeting, Serializable {
@@ -50,6 +51,11 @@ public class MeetingImpl implements Meeting, Serializable {
 		this.sunday = meeting.isSunday();
 	}
 
+	public boolean isEmpty() {
+		return !monday && !tuesday && !wednesday && !thursday && !friday && !saturday && !sunday &&
+			startTime == null && endTime == null && StringUtils.trimToNull(location) == null;
+	}
+	
 	public Time getEndTime() {
 		return endTime;
 	}

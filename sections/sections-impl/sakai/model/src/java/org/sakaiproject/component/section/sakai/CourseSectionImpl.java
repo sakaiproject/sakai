@@ -228,11 +228,11 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     	} else {
     		props.addProperty(CourseSectionImpl.MAX_ENROLLMENTS, maxEnrollments.toString());
     	}
-    	
+
     	// Add the properties that containing the meeting metadata
     	StringBuffer locationBuffer = new StringBuffer();
 
-    	// Ensure that we've got a meeting object
+    	// Ensure that we've got a meetings object
     	if(meetings == null) {
     		meetings = new ArrayList<Meeting>();
     	}

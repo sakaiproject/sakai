@@ -23,6 +23,7 @@ package org.sakaiproject.component.section.sakai;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -961,6 +962,18 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		}
 	}
 
+	private List<Meeting> filterMeetings(List<Meeting> meetings) {
+		// Remove any empty meetings
+		List<Meeting> filteredMeetings = new ArrayList<Meeting>();
+		for(Iterator<Meeting> iter = meetings.iterator(); iter.hasNext();) {
+			Meeting meeting = iter.next();
+			if( ! meeting.isEmpty()) {
+				filteredMeetings.add(meeting);
+			}
+		}
+		return filteredMeetings;
+	}
+	
 	public CourseSection addSection(String courseUuid, String title, String category, Integer maxEnrollments, List<Meeting> meetings) {
 		// Disallow if we're in an externally managed site
 		ensureInternallyManaged(courseUuid);
@@ -982,7 +995,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		courseSection.setTitle(title);
 		courseSection.setCategory(category);
 		courseSection.setMaxEnrollments(maxEnrollments);
-		courseSection.setMeetings(meetings);
+		courseSection.setMeetings(filterMeetings(meetings));
 		
 		// Decorate the framework group
 		courseSection.decorateGroup(group);
@@ -1029,7 +1042,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		// Set the decorator's fields
 		section.setTitle(title);
 		section.setMaxEnrollments(maxEnrollments);
-		section.setMeetings(meetings);
+		section.setMeetings(filterMeetings(meetings));
 		
 		// Decorate the framework section
 		Group group = siteService.findGroup(sectionUuid);

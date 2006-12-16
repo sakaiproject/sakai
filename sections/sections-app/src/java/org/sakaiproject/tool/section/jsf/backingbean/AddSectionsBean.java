@@ -34,6 +34,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.coursemanagement.Meeting;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
@@ -48,8 +49,8 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 	
 	private int numToAdd;
 	private String category;
-	private List categoryItems;
-	private List sections;
+	private List<SelectItem> categoryItems;
+	private List<LocalSectionModel> sections;
 	private String rowStyleClasses;
 	
 	private transient boolean sectionsChanged;
@@ -65,7 +66,7 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 			if(log.isDebugEnabled()) log.debug("initializing add sections bean");
 			List categories = getSectionCategories();
 			populateSections();
-			categoryItems = new ArrayList();
+			categoryItems = new ArrayList<SelectItem>();
 			for(Iterator iter = categories.iterator(); iter.hasNext();) {
 				String cat = (String)iter.next();
 				categoryItems.add(new SelectItem(cat, getCategoryName(cat)));
@@ -86,7 +87,7 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 	public void processAddMeeting(ActionEvent action) {
 		if(log.isDebugEnabled()) log.debug("processing an 'add meeting' action from " + this.getClass().getName());
 		int index = Integer.parseInt(JsfUtil.getStringFromParam("sectionIndex"));
-		((LocalSectionModel)sections.get(index)).getMeetings().add(new LocalMeetingModel());
+		sections.get(index).getMeetings().add(new LocalMeetingModel());
 		action.getComponent().getAttributes();
 	}
 
@@ -95,7 +96,7 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 	 *
 	 */
 	private void populateSections() {
-		sections = new ArrayList();
+		sections = new ArrayList<LocalSectionModel>();
 		StringBuffer rowClasses = new StringBuffer();
 		if(StringUtils.trimToNull(category) != null) {
 			if(log.isDebugEnabled()) log.debug("populating sections");
@@ -104,8 +105,10 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 				LocalSectionModel section = new LocalSectionModel(getCategoryName(category) + (i+offset));
 				section.getMeetings().add(new LocalMeetingModel());
 				sections.add(section);
-				rowClasses.append("sectionRow");
-				if(i<numToAdd) {
+				if(i>1) {
+					rowClasses.append("nextSectionRow");
+				}
+				if(i < numToAdd) {
 					rowClasses.append(",");
 				}
 			}
@@ -155,9 +158,9 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 				titles.append(" ");
 			}
 
-			List meetings = new ArrayList();
-			for(Iterator meetingIter = sectionModel.getMeetings().iterator(); meetingIter.hasNext();) {
-				LocalMeetingModel meeting = (LocalMeetingModel)meetingIter.next();
+			List<Meeting> meetings = new ArrayList<Meeting>();
+			for(Iterator<Meeting> meetingIter = sectionModel.getMeetings().iterator(); meetingIter.hasNext();) {
+				Meeting meeting = meetingIter.next();
 				meetings.add(meeting);
 			}
 			getSectionManager().addSection(courseUuid, sectionModel.getTitle(),
