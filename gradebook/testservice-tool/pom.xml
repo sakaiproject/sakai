@@ -89,5 +89,61 @@
       <artifactId>commons-codec</artifactId>
       <version>1.2</version>
     </dependency>
+<!-- blocking unwanted transitive dependency -->
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.1</version>
+      <scope>provided</scope>
+     </dependency>
+<!-- blocking unwanted transitive dependency -->
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>1.0</version>
+      <scope>provided</scope>
+     </dependency>
+<!-- blocking unwanted transitive dependency -->
+    <dependency>
+      <groupId>commons-el</groupId>
+      <artifactId>commons-el</artifactId>
+      <version>1.0</version>
+      <scope>provided</scope>
+     </dependency>
+<!-- blocking unwanted transitive dependency -->
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.1</version>
+      <scope>provided</scope>
+     </dependency>
+<!-- blocking unwanted transitive dependency -->
+    <dependency>
+      <groupId>commons-validator</groupId>
+      <artifactId>commons-validator</artifactId>
+      <version>1.1.4</version>
+      <scope>provided</scope>
+     </dependency>
+<!-- blocking unwanted transitive dependency -->
+    <dependency>
+      <groupId>jstl</groupId>
+      <artifactId>jstl</artifactId>
+      <version>1.1.2</version>
+      <scope>provided</scope>
+     </dependency>
+<!-- blocking unwanted transitive dependency -->
+    <dependency>
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+      <version>2.0.8</version>
+      <scope>provided</scope>
+     </dependency>
+<!-- blocking unwanted transitive dependency -->
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
+      <version>2.0.2</version>
+      <scope>provided</scope>
+     </dependency>
   </dependencies>
 </project>
