@@ -28,37 +28,6 @@
       <version>2.4</version>
       <scope>provided</scope>
     </dependency>
-<!-- this is required for any Sakai JSF tool -->
-<!--
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-jsf-tool</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-		-->
-<!-- these (jsf-app and util-web) are options to get full Sakai integration -->
-<!--
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-jsf-app</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util-web</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-		-->
 <!-- MyFaces JSF dependencies -->
     <dependency>
       
@@ -67,28 +36,6 @@
       <version>1.1.1</version>
     </dependency>
 <!-- Sun JSF dependencies -->
-<!--
-		<dependency>
-			<groupId>jsf</groupId>
-			<artifactId>jsf-api</artifactId>
-			<version>1.1.01</version>
-			<url>http://java.sun.com/j2ee/javaserverfaces/</url>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-
-
-		<dependency>
-			<groupId>jsf</groupId>
-			<artifactId>jsf-impl</artifactId>
-			<version>1.1.01</version>
-			<url>http://java.sun.com/j2ee/javaserverfaces/</url>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-		-->
 <!-- Sakai tag library -->
     <dependency>
       
@@ -98,17 +45,6 @@
 <!--url: http://sakaiproject.org/ -->
     </dependency>
 <!-- Adaptor to use tag library with Sun's RI -->
-<!--
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-jsf-widget-sun</artifactId>
-			<version>${sakai.version}</version>
-			<url>http://sakaiproject.org/</url>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-		-->
 <!-- Adaptor to use tag library with MyFaces -->
     <dependency>
       
@@ -195,6 +131,14 @@
       <artifactId>oro</artifactId>
       <version>2.0.8</version>
     </dependency>
+    <dependency>
+
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
+      <version>2.0.2</version>
+      <scope>provided</scope>
+    </dependency>
+
   </dependencies>
   <build>
     
