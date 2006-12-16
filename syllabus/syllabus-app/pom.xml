@@ -5,7 +5,7 @@
     <artifactId>sakai-jsf-sun-ri-tool</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../master/pom.xml</relativePath>
+    <relativePath>../../master/jsf-sun-tool/pom.xml</relativePath>
   </parent>
   <name>sakai-syllabus-tool</name>
   <groupId>org.sakaiproject</groupId>
@@ -17,14 +17,6 @@
   <inceptionYear>2003</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
-    <dependency>
-      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-sun-ri-tool</artifactId>
-      <version>${sakai.version}</version>
-      <type>pom</type>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       
       <groupId>org.sakaiproject</groupId>
