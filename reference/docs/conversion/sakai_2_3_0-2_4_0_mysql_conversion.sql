@@ -139,4 +139,8 @@ FROM
 DROP TABLE PERMISSIONS_TEMP;
 DROP TABLE PERMISSIONS_SRC_TEMP;
 
+----------------------------------------------------------------------------------------------------------------------------------------
+-- Site related tables changes needed for 2.4.0 (SAK-7341)
+----------------------------------------------------------------------------------------------------------------------------------------
+ALTER TABLE SAKAI_SITE ADD (CUSTOM_PAGE_ORDERED CHAR(1) DEFAULT '0' CHECK (CUSTOM_PAGE_ORDERED IN (1, 0)));
 
