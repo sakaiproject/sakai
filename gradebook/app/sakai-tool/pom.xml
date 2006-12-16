@@ -297,12 +297,12 @@
       <version>1.1.1</version>
     </dependency>
 <!-- Needed by MyFaces ExtensionsFilter -->
+<!-- although this is in shared, the maven 1 build put it into the war -->
     <dependency>
       
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
       <version>1.1</version>
-      <scope>provided</scope>
     </dependency>
 <!-- base64 used to implement STATE_SAVING_METHOD client -->
     <dependency>
