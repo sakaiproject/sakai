@@ -51,7 +51,7 @@
       
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-audio</artifactId>
-      <version>dev</version>
+      <version>${sakai.version}</version>
 <!--properties:  war.target.path: applets -->
       <scope>provided</scope>
     </dependency>
@@ -106,15 +106,6 @@
             </properties>
 	</dependency>
 -->
-    <dependency>
-      
-      <groupId>commons-id</groupId>
-      <artifactId>commons-id</artifactId>
-      <version>0.1-dev</version>
-<!--url: http://brutus.apache.org/gump/public/jakarta-commons-sandbox/commons-id/ -->
-<!--properties:  war.bundle: standalone -->
-      <scope>provided</scope>
-    </dependency>
 <!-- Sakai plugin for building inside Sakai -->
     <dependency>
       
@@ -173,7 +164,6 @@
       <artifactId>sakai-jsf-tool</artifactId>
       <version>${sakai.version}</version>
 <!--properties:  war.bundle: integrated -->
-      <scope>provided</scope>
     </dependency>
 <!-- these (jsf-app and util-web) are options to get full Sakai JSF integration -->
     <dependency>
@@ -182,7 +172,6 @@
       <artifactId>sakai-jsf-app</artifactId>
       <version>${sakai.version}</version>
 <!--properties:  war.bundle: integrated -->
-      <scope>provided</scope>
     </dependency>
     <dependency>
       
@@ -190,7 +179,6 @@
       <artifactId>sakai-jsf-widgets</artifactId>
       <version>${sakai.version}</version>
 <!--properties:  war.bundle: integrated -->
-      <scope>provided</scope>
     </dependency>
     <dependency>
       
@@ -198,7 +186,6 @@
       <artifactId>sakai-jsf-widgets-sun</artifactId>
       <version>${sakai.version}</version>
 <!--properties:  war.bundle: integrated -->
-      <scope>provided</scope>
     </dependency>
     <dependency>
       
@@ -206,7 +193,6 @@
       <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
 <!--properties:  war.bundle: integrated -->
-      <scope>provided</scope>
     </dependency>
 <!-- For integration with the gradebook -->
     <dependency>
@@ -395,6 +381,7 @@
       <groupId>commons-id</groupId>
       <artifactId>commons-id</artifactId>
       <version>0.1-dev</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       
@@ -480,14 +467,6 @@
       <groupId>jaxen</groupId>
       <artifactId>jaxen</artifactId>
       <version>1.0-FCS-full</version>
-    </dependency>
-    <dependency>
-      
-      <groupId>jdbc</groupId>
-      <artifactId>jdbc2_0</artifactId>
-      <version>stdext-h2.1.8</version>
-<!--properties:  war.bundle: standalone -->
-      <scope>provided</scope>
     </dependency>
     <dependency>
       
@@ -591,7 +570,7 @@
       
       <groupId>struts</groupId>
       <artifactId>struts</artifactId>
-      <version>1.1h2.1.8</version>
+      <version>1.1</version>
     </dependency>
     <dependency>
       
@@ -635,6 +614,34 @@
       <artifactId>axis-jaxrpc</artifactId>
       <version>1.2-RC1</version>
     </dependency>
+<!-- transtive deps being excluded -->
+<!-- provided deps that would otherwise be bundled -->
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
+      <version>2.0.2</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>xalan</groupId>
+      <artifactId>xalan</artifactId>
+      <version>2.6.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xerces</artifactId>
+      <version>1.2.3</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.sql</groupId>
+      <artifactId>jdbc-stdext</artifactId>
+      <version>2.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+
   </dependencies>
   <build>
     
