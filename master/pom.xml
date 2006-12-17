@@ -88,6 +88,20 @@
     <sourceDirectory>src/java</sourceDirectory>
     <scriptSourceDirectory>src/webapp</scriptSourceDirectory>
     <testSourceDirectory>src/test</testSourceDirectory>
+    <resources>
+	<resource>
+	   <directory>${basedir}/src/java</directory>
+           <excludes>
+		<exclude>**/*.java</exclude>
+           </excludes>
+	</resource>
+	<resource>
+	   <directory>${basedir}/src/bundle</directory>
+           <includes>
+		<include>**/*</include>
+           </includes>
+	</resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -108,6 +122,9 @@
             <resource>
 <!-- this is relative to the this pom.xml directory -->
               <directory>${basedir}/src/webapp</directory>
+              <includes>
+		<include>**/*.*</include>
+	      </includes>
             </resource>
           </webResources>
         </configuration>
@@ -121,6 +138,9 @@
             <resource>
 <!-- this is relative to the this pom.xml directory -->
               <directory>${basedir}/src/webapp</directory>
+              <includes>
+		<include>**/*.*</include>
+	      </includes>
             </resource>
           </webResources>
         </configuration>
