@@ -655,6 +655,12 @@
         <directory>src/webapp/WEB-INF</directory>
       </resource>
       <resource>
+        <directory>${basedir}/src/java</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </resource>
+      <resource>
         <directory>${basedir}/src/sql</directory>
         <includes>
           <include>**/*.sql</include>

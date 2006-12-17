@@ -24,9 +24,17 @@
     
     
     
+
+    <resources>
+    	<resource>
+		<directory>${basedir}/src/java</directory>
+		<excludes>
+			<exclude>**/*.java</exclude>
+		</excludes>
+    	</resource>
+    </resources>
     
     
-    <resources/>
     
   </build>
 </project>

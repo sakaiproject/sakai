@@ -521,6 +521,12 @@
     
     <resources>
       <resource>
+        <directory>${basedir}/src/java</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </resource>
+      <resource>
         <directory>${basedir}/src/bundle</directory>
         <includes>
           <include>**/*.properties</include>
