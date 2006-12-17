@@ -401,7 +401,7 @@
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
-            <phase>package</phase>
+            <phase>process-resources</phase>
             <configuration>
               <tasks>
                 <echo message="Copying shared resources into webapp"/>
