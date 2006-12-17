@@ -304,7 +304,12 @@ private String text;
   private String sequence;
 
   // for display/hide score
-  private boolean showStudentScore;   // show student Assessment Score
+  // private boolean showStudentScore;   // show student Assessment Score
+  // Chage showStudentScore to showStudentQuestionScore for SAK-7290
+  // We consider the display/hide of part(section) score same as question score 
+  // We used to consider them as assessment score as you can see above line and 
+  // comment (private boolean showStudentScore;   // show student Assessment Score)
+  private boolean showStudentQuestionScore;   // show student Assessment Score
   private String pointsDisplayString;
 
   public String getTitle()
@@ -567,18 +572,18 @@ private String text;
    * Show the student score currently earned?
    * @return the score
    */
-  public boolean isShowStudentScore()
+  public boolean isShowStudentQuestionScore()
   {
-    return showStudentScore;
+    return showStudentQuestionScore;
   }
 
   /**
    * Set the student score currently earned.
-   * @param showStudentScore true/false Show the student score currently earned?
+   * @param setShowStudentQuestionScore true/false Show the student score currently earned?
    */
-  public void setShowStudentScore(boolean showStudentScore)
+  public void setShowStudentQuestionScore(boolean showStudentQuestionScore)
   {
-    this.showStudentScore = showStudentScore;
+    this.showStudentQuestionScore = showStudentQuestionScore;
   }
 
   /**
@@ -588,7 +593,7 @@ private String text;
   public String getPointsDisplayString()
   {
     String pointsDisplayString = "";
-    if (showStudentScore)
+    if (showStudentQuestionScore)
     {
       pointsDisplayString = roundTo2Decimals(points) + "/";
     }

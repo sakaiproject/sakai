@@ -169,7 +169,7 @@ public class DeliveryActionListener
               
               if (("true").equals(delivery.getFeedback())){
                 itemGradingHash = new HashMap();
-                if (delivery.getFeedbackComponent().getShowResponse())
+                if (delivery.getFeedbackComponent().getShowResponse() || delivery.getFeedbackComponent().getShowStudentQuestionScore() || delivery.getFeedbackComponent().getShowGraderComment())
                   itemGradingHash = service.getSubmitData(id, agent, scoringoption);
                 ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, false);
                 delivery.setAssessmentGrading(ag);
@@ -787,7 +787,7 @@ public class DeliveryActionListener
     // scoring information
     sec.setMaxPoints(maxPoints);
     sec.setPoints(points);
-    sec.setShowStudentScore(delivery.isShowStudentScore());
+    sec.setShowStudentQuestionScore(delivery.isShowStudentQuestionScore());
     sec.setUnansweredQuestions(unansweredQuestions);
     sec.setItemContents(itemContents);
     sec.setAttachmentList(part.getSectionAttachmentList());
@@ -872,7 +872,7 @@ public class DeliveryActionListener
     // scoring information
     sec.setMaxPoints(maxPoints);
     sec.setPoints(points);
-    sec.setShowStudentScore(delivery.isShowStudentScore());
+    sec.setShowStudentQuestionScore(delivery.isShowStudentQuestionScore());
     sec.setUnansweredQuestions(unansweredQuestions);
     sec.setItemContents(itemContents);
 
