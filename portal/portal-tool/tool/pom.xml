@@ -7,14 +7,22 @@
     <version>M2</version>
     <relativePath>../../../master/pom.xml</relativePath>
   </parent>
-  <name>sakai-portal-api</name>
+  <name>tool</name>
   <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-portal-api</artifactId>
-  <packaging>jar</packaging>
-  <properties>
-    <deploy.target>shared</deploy.target>
-  </properties>
+  <artifactId>tool</artifactId>
+  <organization>
+    <name>University of Michigan</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2003</inceptionYear>
+  <packaging>war</packaging>
   <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-site-api</artifactId>
@@ -23,7 +31,7 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component</artifactId>
+      <artifactId>sakai-tool-api</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
@@ -35,9 +43,23 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-tool-api</artifactId>
+      <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-tool-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-tool-servlet</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-portal-util</artifactId>
+      <version>${sakai.version}</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -45,16 +67,15 @@
       <version>2.4</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <build>
-    <resources>
-      <resource>
-        <directory>${basedir}/src/bundle</directory>
-        <includes>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
-    </resources>
+    <resources/>
     <sourceDirectory>src/java</sourceDirectory>
   </build>
 </project>
