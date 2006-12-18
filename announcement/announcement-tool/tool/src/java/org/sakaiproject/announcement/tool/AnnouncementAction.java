@@ -1211,6 +1211,11 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	private boolean isOkToShowMergeButton(String statusName)
 	{
+		String displayMerge = ServerConfigurationService.getString("announcement.merge.display", "1");
+		
+		if(displayMerge != null && !displayMerge.equals("1"))
+			return false;
+		
 		if (SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()) && !isOnWorkspaceTab())
 		{
 			return (statusName == null || statusName.equals(CANCEL_STATUS) || statusName.equals(POST_STATUS)
