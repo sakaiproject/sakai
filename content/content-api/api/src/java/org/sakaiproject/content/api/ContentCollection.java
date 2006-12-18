@@ -57,6 +57,14 @@ public interface ContentCollection
 	public long getBodySizeK();
 	
 	/**
+	 * Access a count of the number of members (resources and collections) within this
+	 * collection.  This count is not recursive.  Only items whose immediate parent is
+	 * the current collection are counted.
+	 * @return
+	 */
+	public int getMemberCount();
+	
+	/**
 	 * Access the release date before which this entity should not be available to users 
 	 * except those with adequate permission (what defines "adequate permission" is TBD).
 	 * @return The date/time at which the entity may be accessed by all users.

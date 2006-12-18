@@ -11239,11 +11239,8 @@ public class ResourcesAction
 			String url = contentService.getUrl(collectionId);
 			folder.setUrl(url);
 			
-			// Get the collection members from the 'new' collection
-			List newMembers = collection.getMemberResources ();
-			
 			// get the "size' of the collection, meaning the number of members one level down
-			int collection_size = newMembers.size();
+			int collection_size = collection.getMemberCount(); // newMembers.size();
 			folder.setIsEmpty(collection_size < 1);
 			folder.setSortable(ContentHostingService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < EXPANDABLE_FOLDER_SIZE_LIMIT);
 			folder.setIsTooBig(collection_size > EXPANDABLE_FOLDER_SIZE_LIMIT);
@@ -11251,8 +11248,11 @@ public class ResourcesAction
 			folder.setDepth(depth);
 			newItems.add(folder);
 
-			if(need_to_expand_all || expandedFolderSortMap.keySet().contains(collectionId))
+			if(!folder.isTooBig() && !folder.isEmpty() && (need_to_expand_all || expandedFolderSortMap.keySet().contains(collectionId)))
 			{
+				// Get the collection members from the 'new' collection
+				List newMembers = collection.getMemberResources();
+				
 				Comparator comparator = userSelectedSort;
 				if(comparator == null)
 				{

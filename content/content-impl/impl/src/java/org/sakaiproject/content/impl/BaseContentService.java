@@ -9065,6 +9065,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 		}
 
+		public int getMemberCount() 
+		{
+			int count = m_storage.getMemberCount(this.m_id);
+			return count;
+		}
+
 	} // class BaseCollection
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -9721,6 +9727,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 * Open and be ready to read / write.
 		 */
 		public void open();
+
+		/**
+		 * Get a count of all members of a collection, where 'member' means the collection
+		 * is the immediate parent of the item.  The count is not recursive and it will 
+		 * include all resources and collections whose immediate parent is the collection
+		 * identified by the parameter.
+		 */
+		public int getMemberCount(String collectionId);
 
 		/**
 		 * Close.

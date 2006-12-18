@@ -994,6 +994,29 @@ public class DbContentService extends BaseContentService
 			}
 		}
 
+		public int getMemberCount(String collectionId) 
+		{
+			int fileCount = 0;
+			try 
+			{
+				fileCount = countQuery("select count(IN_COLLECTION) from CONTENT_RESOURCE where IN_COLLECTION = ?", collectionId);
+			} 
+			catch (IdUnusedException e) 
+			{
+				// ignore -- means this is not a collection or the collection contains no files, so zero is right answer
+			}
+			int folderCount = 0;
+			try 
+			{
+				folderCount = countQuery("select count(IN_COLLECTION) from CONTENT_COLLECTION where IN_COLLECTION = ?", collectionId);
+			} 
+			catch (IdUnusedException e) 
+			{
+				// ignore -- means this is not a collection or the collection contains no folders, so zero is right answer
+			};
+			return fileCount + folderCount;
+		}
+
 	} // DbStorage
 
 	/**
