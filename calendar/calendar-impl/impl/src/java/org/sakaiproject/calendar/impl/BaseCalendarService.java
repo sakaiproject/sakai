@@ -770,7 +770,12 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	*/
 	public boolean allowMergeCalendar(String ref)
 	{
-		return unlockCheck(AUTH_MODIFY_CALENDAR_ANY, ref);
+		 String displayMerge = getString("calendar.merge.display", "1");
+		 
+		 if(displayMerge != null && !displayMerge.equals("1"))
+			 return false;     
+		 
+		 return unlockCheck(AUTH_MODIFY_CALENDAR_ANY, ref);
 
 	} // allowMergeCalendar
 
