@@ -10,9 +10,6 @@
 	<h:form>
 	  <sakai:script contextBase="/sakai-messageforums-tool" path="/js/popupscripts.js"/>
 	  <h:panelGroup rendered="#{mfSynopticBean.myWorkspace}" > 
-       <sakai:tool_bar>
-          <sakai:tool_bar_item action="#{mfSynopticBean.processGotoOptions}" value="#{msgs.syn_options}" />
-       </sakai:tool_bar>
 
 	<h:outputText value="#{msgs.syn_no_sites}" rendered="#{! mfSynopticBean.sitesToView}" />
 
