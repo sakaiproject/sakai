@@ -83,7 +83,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	 * @inheritDoc
 	 */
 	public List getSectionCategories(String siteContext) {
-		ResourceBundle bundle = ResourceBundle.getBundle(SectionManagerHibernateImpl.CATEGORY_BUNDLE);
+		ResourceBundle bundle = ResourceBundle.getBundle(SectionManagerHibernateImpl.CATEGORY_BUNDLE, Locale.US);
 
 		Enumeration keys = bundle.getKeys();
 		List categoryIds = new ArrayList();

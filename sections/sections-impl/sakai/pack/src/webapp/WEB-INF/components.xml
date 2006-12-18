@@ -48,9 +48,8 @@
         class="org.sakaiproject.component.section.sakai.SectionManagerImpl"
         init-method="init" destroy-method="destroy">
 
-        <property name="siteService">
-            <ref bean="org.sakaiproject.site.api.SiteService"/>
-        </property>
+		<lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService" />
+
         <property name="authzGroupService">
             <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
         </property>

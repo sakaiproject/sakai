@@ -23,7 +23,6 @@ package org.sakaiproject.component.section.sakai;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -80,12 +79,14 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class SectionManagerImpl implements SectionManager, SiteAdvisor {
+public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor {
 
 	private static final Log log = LogFactory.getLog(SectionManagerImpl.class);
 	
-    // Sakai services
-    protected SiteService siteService;
+    // Sakai services set by method injection
+    protected abstract SiteService siteService();
+
+    // Sakai services set by dependency injection
     protected AuthzGroupService authzGroupService;
     protected GroupProvider groupProvider;
     protected SecurityService securityService;
@@ -96,14 +97,14 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	protected CourseManagementService courseManagementService;
 
     // Configuration setting
-    protected String config;
+    protected ExternalIntegrationConfig config;
     
     /**
      * Initialization called once all dependencies are set.
      */
     public void init() {
     	if(log.isInfoEnabled()) log.info("init()");
-		siteService.addSiteAdvisor(this);
+		siteService().addSiteAdvisor(this);
 		
 		// A group provider may not exist, so we can't use spring to inject it
 		groupProvider = (GroupProvider)ComponentManager.get(GroupProvider.class);
@@ -114,7 +115,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
      */
     public void destroy() {
     	if(log.isInfoEnabled()) log.info("destroy()");
-    	siteService.removeSiteAdvisor(this);
+    	siteService().removeSiteAdvisor(this);
     }
     
     // SiteAdvisor methods
@@ -309,7 +310,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		List<CourseSection> sectionList = new ArrayList<CourseSection>();
 		Collection sections;
 		try {
-			sections = siteService.getSite(siteContext).getGroups();
+			sections = siteService().getSite(siteContext).getGroups();
 		} catch (IdUnusedException e) {
 			log.error("No site with id = " + siteContext);
 			return new ArrayList<CourseSection>();
@@ -334,7 +335,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		List<CourseSection> sectionList = new ArrayList<CourseSection>();
 		Collection sections;
 		try {
-			sections = siteService.getSite(siteContext).getGroups();
+			sections = siteService().getSite(siteContext).getGroups();
 		} catch (IdUnusedException e) {
 			log.error("No site with id = " + siteContext);
 			return new ArrayList<CourseSection>();
@@ -353,7 +354,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 */
 	public CourseSection getSection(String sectionUuid) {
 		Group group;
-		group = siteService.findGroup(sectionUuid);
+		group = siteService().findGroup(sectionUuid);
 		if(group == null) {
 			log.error("Unable to find section " + sectionUuid);
 			return null;
@@ -428,7 +429,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 * {@inheritDoc}
 	 */
 	public List<ParticipationRecord> getSectionTeachingAssistants(String sectionUuid) {
-		Group group = siteService.findGroup(sectionUuid);
+		Group group = siteService().findGroup(sectionUuid);
 		CourseSection section = getSection(sectionUuid);
 		if(section == null) {
 			return new ArrayList<ParticipationRecord>();
@@ -456,7 +457,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	 * {@inheritDoc}
 	 */
 	public List<EnrollmentRecord> getSectionEnrollments(String sectionUuid) {
-		Group group = siteService.findGroup(sectionUuid);
+		Group group = siteService().findGroup(sectionUuid);
 		CourseSection section = getSection(sectionUuid);
 		if(section == null) {
 			return new ArrayList<EnrollmentRecord>();
@@ -527,7 +528,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		if(log.isDebugEnabled()) log.debug("Getting course for context " + siteContext);
 		Site site;
 		try {
-			site = siteService.getSite(siteContext);
+			site = siteService().getSite(siteContext);
 		} catch (IdUnusedException e) {
 			log.error("Could not find site with id = " + siteContext);
 			return null;
@@ -581,7 +582,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		// Disallow if we're in an externally managed site
 		ensureInternallyManaged(getSection(sectionUuid).getCourse().getUuid());
 
-		Group group = siteService.findGroup(sectionUuid);
+		Group group = siteService().findGroup(sectionUuid);
 		
 		// It's possible that this section has been deleted
 		if(group == null) {
@@ -731,7 +732,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		group.addMember(userUid, role, true, false);
 		
 		try {
-			siteService.saveGroupMembership(group.getContainingSite());
+			siteService().saveGroupMembership(group.getContainingSite());
 			postEvent("section.add.ta", sectionUuid);
 		} catch (IdUnusedException e) {
 			log.error("unable to find site: ", e);
@@ -769,7 +770,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		group.addMember(userUid, studentRole, true, false);
 
 		try {
-			siteService.saveGroupMembership(group.getContainingSite());
+			siteService().saveGroupMembership(group.getContainingSite());
 			postEvent("section.add.student", sectionUuid);
 		} catch (IdUnusedException e) {
 			log.error("unable to find site: ", e);
@@ -830,7 +831,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		}
 
 		try {
-			siteService.saveGroupMembership(group.getContainingSite());
+			siteService().saveGroupMembership(group.getContainingSite());
 			postEvent("section.members.reset", sectionUuid);
 		} catch (IdUnusedException e) {
 			log.error("unable to find site: ", e);
@@ -863,7 +864,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		
 		group.removeMember(userUid);
 		try {
-			siteService.saveGroupMembership(group.getContainingSite());
+			siteService().saveGroupMembership(group.getContainingSite());
 			postEvent("section.student.drop", sectionUuid);
 		} catch (IdUnusedException e) {
 			log.error("unable to find site: ", e);
@@ -883,7 +884,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		// Get the sections in this category
 		Site site;
 		try {
-			site = siteService.getSite(siteContext);
+			site = siteService().getSite(siteContext);
 		} catch (IdUnusedException ide) {
 			log.error("Unable to find site " + siteContext);
 			return;
@@ -902,7 +903,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 			}
 		}
 		try {
-			siteService.saveGroupMembership(site);
+			siteService().saveGroupMembership(site);
 			postEvent("section.student.drop.category", site.getReference());
 		} catch (IdUnusedException e) {
 			log.error("unable to find site: ", e);
@@ -981,7 +982,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		Reference ref = entityManager.newReference(courseUuid);
 		Site site;
 		try {
-			site = siteService.getSite(ref.getId());
+			site = siteService().getSite(ref.getId());
 		} catch (IdUnusedException e) {
 			log.error("Unable to find site " + courseUuid);
 			return null;
@@ -1002,7 +1003,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 
 		// Save the site, along with the new section
 		try {
-			siteService.save(site);
+			siteService().save(site);
 			postEvent("section.add", group.getReference());
 		} catch (IdUnusedException ide) {
 			log.error("Error saving site... could not find site for section " + group, ide);
@@ -1045,12 +1046,12 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		section.setMeetings(filterMeetings(meetings));
 		
 		// Decorate the framework section
-		Group group = siteService.findGroup(sectionUuid);
+		Group group = siteService().findGroup(sectionUuid);
 		section.decorateGroup(group);
 
 		// Save the site with its new section
 		try {
-			siteService.save(group.getContainingSite());
+			siteService().save(group.getContainingSite());
 			postEvent("section.update", sectionUuid);
 		} catch (IdUnusedException ide) {
 			log.error("Error saving site... could not find site for section " + group, ide);
@@ -1067,7 +1068,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		ensureInternallyManaged(getSection(sectionUuid).getCourse().getUuid());
 		
 		if(log.isDebugEnabled()) log.debug("Disbanding section " + sectionUuid);
-		Group group = siteService.findGroup(sectionUuid);
+		Group group = siteService().findGroup(sectionUuid);
 		
 		// TODO Add token in UI to intercept double clicks in action buttons
 		// SAK-3553 (Clicking remove button twice during section remove operation results in blank iframe.)
@@ -1079,7 +1080,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		Site site = group.getContainingSite();
 		site.removeGroup(group);
 		try {
-			siteService.save(site);
+			siteService().save(site);
 			postEvent("section.disband", sectionUuid);
 		} catch (IdUnusedException e) {
 			log.error("Cound not disband section (can't find section): ",e);
@@ -1093,7 +1094,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		String siteId = ref.getId();
 		Site site;
 		try {
-			site = siteService.getSite(siteId);
+			site = siteService().getSite(siteId);
 		} catch (IdUnusedException e) {
 			throw new RuntimeException("Can not find site " + courseUuid, e);
 		}
@@ -1113,7 +1114,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		String siteId = ref.getId();
 		Site site;
 		try {
-			site = siteService.getSite(siteId);
+			site = siteService().getSite(siteId);
 		} catch (IdUnusedException e) {
 			throw new RuntimeException("Can not find site " + courseUuid, e);
 		}
@@ -1128,7 +1129,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		}
 
 		try {
-			siteService.save(site);
+			siteService().save(site);
 			if(log.isDebugEnabled()) log.debug("Saved site " + site.getTitle());
 			postEvent("section.external=" + externallyManaged, site.getReference());
 		} catch (IdUnusedException ide) {
@@ -1146,7 +1147,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		String siteId = ref.getId();
 		Site site;
 		try {
-			site = siteService.getSite(siteId);
+			site = siteService().getSite(siteId);
 		} catch (IdUnusedException e) {
 			throw new RuntimeException("Can not find site " + courseUuid, e);
 		}
@@ -1165,14 +1166,14 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		String siteId = ref.getId();
 		Site site;
 		try {
-			site = siteService.getSite(siteId);
+			site = siteService().getSite(siteId);
 		} catch (IdUnusedException e) {
 			throw new RuntimeException("Can not find site " + courseUuid, e);
 		}
 		ResourceProperties props = site.getProperties();
 		props.addProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED, new Boolean(allowed).toString());
 		try {
-			siteService.save(site);
+			siteService().save(site);
 			postEvent("section.student.reg=" + allowed, site.getReference());
 		} catch (IdUnusedException ide) {
 			log.error("Error saving site... could not find site " + site, ide);
@@ -1189,7 +1190,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		String siteId = ref.getId();
 		Site site;
 		try {
-			site = siteService.getSite(siteId);
+			site = siteService().getSite(siteId);
 		} catch (IdUnusedException e) {
 			throw new RuntimeException("Can not find site " + courseUuid, e);
 		}
@@ -1208,7 +1209,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		String siteId = ref.getId();
 		Site site;
 		try {
-			site = siteService.getSite(siteId);
+			site = siteService().getSite(siteId);
 		} catch (IdUnusedException e) {
 			throw new RuntimeException("Can not find site " + courseUuid, e);
 		}
@@ -1216,7 +1217,7 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 		props.addProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED, new Boolean(allowed).toString());
 		
 		try {
-			siteService.save(site);
+			siteService().save(site);
 			postEvent("section.student.switch=" + allowed, site.getReference());
 		} catch (IdUnusedException ide) {
 			log.error("Error saving site... could not find site " + site, ide);
@@ -1306,25 +1307,14 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	}
 
 	public ExternalIntegrationConfig getConfiguration(Object obj) {
-		if(ExternalIntegrationConfig.AUTOMATIC_MANDATORY.toString().equals(config)) {
-			return ExternalIntegrationConfig.AUTOMATIC_MANDATORY;
-		} else if(ExternalIntegrationConfig.AUTOMATIC_DEFAULT.toString().equals(config)){
-			return ExternalIntegrationConfig.AUTOMATIC_DEFAULT;
-		} else if(ExternalIntegrationConfig.MANUAL_DEFAULT.toString().equals(config)) {
-			return ExternalIntegrationConfig.MANUAL_DEFAULT;
-		} else if(ExternalIntegrationConfig.MANUAL_MANDATORY.toString().equals(config)) {
-			return ExternalIntegrationConfig.MANUAL_MANDATORY;
+		if(config == null) {
+			log.warn("No integration configuration property has been set.  Using " + ExternalIntegrationConfig.MANUAL_DEFAULT);
+			config = ExternalIntegrationConfig.MANUAL_DEFAULT;
 		}
-
-		log.warn("No integration configuration property has been set.  Using " + ExternalIntegrationConfig.MANUAL_DEFAULT);
-		return ExternalIntegrationConfig.MANUAL_DEFAULT;
+		return config;
 	}
 
 	// Dependency injection
-
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
 
 	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
 		this.authzGroupService = authzGroupService;
@@ -1351,7 +1341,17 @@ public class SectionManagerImpl implements SectionManager, SiteAdvisor {
 	}
 
 	public void setConfig(String config) {
-		this.config = config;
+		if(ExternalIntegrationConfig.AUTOMATIC_MANDATORY.toString().equals(config)) {
+			this.config = ExternalIntegrationConfig.AUTOMATIC_MANDATORY;
+		} else if(ExternalIntegrationConfig.AUTOMATIC_DEFAULT.toString().equals(config)){
+			this.config = ExternalIntegrationConfig.AUTOMATIC_DEFAULT;
+		} else if(ExternalIntegrationConfig.MANUAL_DEFAULT.toString().equals(config)) {
+			this.config = ExternalIntegrationConfig.MANUAL_DEFAULT;
+		} else if(ExternalIntegrationConfig.MANUAL_MANDATORY.toString().equals(config)) {
+			this.config = ExternalIntegrationConfig.MANUAL_MANDATORY;
+		} else {
+			log.warn("Unknown section integration config specified: " + config + ".  Using " + ExternalIntegrationConfig.MANUAL_DEFAULT);
+		}
 	}
 
 	public void setCourseManagementService(CourseManagementService courseManagementService) {
