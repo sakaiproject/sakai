@@ -845,7 +845,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 						p.addAll(oProperties);
 
 						// complete the edit
-						nChannel.commitMessage(nMessage);
+						nChannel.commitMessage(nMessage, NotificationService.NOTI_NONE);
 					}
 				}
 
