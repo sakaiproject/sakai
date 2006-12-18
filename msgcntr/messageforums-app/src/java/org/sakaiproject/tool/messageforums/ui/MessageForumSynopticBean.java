@@ -95,18 +95,6 @@ public class MessageForumSynopticBean {
 		private String mcPageURL;
 		private String privateMessagesUrl;
 		
-		/** site Home page information */
-		private int unreadMessages;
-		private String heading;
-
-		public String getHeading() {
-			return heading;
-		}
-
-		public void setHeading(String heading) {
-			this.heading = heading;
-		}
-
 		public String getSiteName() {
 			return siteName;
 		}
@@ -147,14 +135,6 @@ public class MessageForumSynopticBean {
 			this.siteId = siteId;
 		}
 
-		public int getUnreadMessages() {
-			return unreadMessages;
-		}
-
-		public void setUnreadMessages(int unreadMessages) {
-			this.unreadMessages = unreadMessages;
-		}
-
 		public String getPrivateMessagesUrl() {
 			return privateMessagesUrl;
 		}
@@ -166,12 +146,6 @@ public class MessageForumSynopticBean {
 
 /* =========== End of DecoratedCompiledMessageStats =========== */
 
-	/** Used to display 'Private Messages' on tool when in home page of site */
-	private final String PRIVATE_HEADING = "syn_private_heading";
-	
-	/** Use to display 'Discussion Forums' on tool when in home page of site */
-	private final String DISCUSSION_HEADING = "syn_discussion_heading";
-	
 	/** Used to determine if MessageCenter tool part of site */
 	private final String MESSAGE_CENTER_ID = "sakai.messagecenter";
 
@@ -182,7 +156,7 @@ public class MessageForumSynopticBean {
 
 	/** Used to retrieve non-notification sites for MyWorkspace page */
 	private final String SYNMC_OPTIONS_PREFS = "synmc_hidden_sites";
-	private static final String CHARON_PREFS = "sakai:portal:sitenav";
+	private static final String TABS_EXCLUDED_PREFS = "sakai:portal:sitenav";
 	private final String TAB_EXCLUDED_SITES = "exclude";
 	
 	/** Used to pull excluded sites from user preferences */
@@ -403,8 +377,7 @@ public class MessageForumSynopticBean {
 	 * 		TRUE if on MyWorkspace, FALSE if on a specific site
 	 */
 	public boolean isMyWorkspace() {
-
-		// get Site id
+		// get context id
 		final String siteId = getContext();
 
 		if (SiteService.getUserSiteId("admin").equals(siteId))
@@ -487,7 +460,7 @@ public class MessageForumSynopticBean {
 			}
 
 			// is current site in the removeList. if so, return index where
-			int pos = indexOf((String) currentValues[0], getSiteIds(removeList));
+			final int pos = indexOf((String) currentValues[0], getSiteIds(removeList));
 			
 			// if there are messages to remove, do so otherwise just add current values
 			if (pos != -1) {
@@ -981,8 +954,6 @@ public class MessageForumSynopticBean {
 				dcms.setPrivateMessagesUrl(getMCPageURL());
 			}
 
-			dcms.setHeading(rb.getString(PRIVATE_HEADING));
-			
 			// Number of unread forum messages is a little harder
 			// need to loop through all topics and add them up
 			final List topicsList = forumManager.getDiscussionForums();
@@ -1406,14 +1377,14 @@ public class MessageForumSynopticBean {
 	 * 		List of sites user does NOT want unread message notifications about
 	 */
 	private List getExcludedSiteList() {
-		Preferences prefs = preferencesService.getPreferences(
+		final Preferences prefs = preferencesService.getPreferences(
 									SessionManager.getCurrentSessionUserId());
 		
-		ResourceProperties props = prefs.getProperties(SYNMC_OPTIONS_PREFS);
+		final ResourceProperties props = prefs.getProperties(SYNMC_OPTIONS_PREFS);
 		List l = props.getPropertyList(EXCLUDE_STRING);
 
+		// First time, need to set up excluded sites from Tabs for this
 		if (l == null) {
-			// First time, need to set up excluded sites from Tabs for this
 			l = getExcludedSitesFromTabs();
 
 			if (l != null) {
@@ -1444,10 +1415,10 @@ public class MessageForumSynopticBean {
 	}
 	
 	private List getExcludedSitesFromTabs() {
-		Preferences prefs = preferencesService.getPreferences(
+		final Preferences prefs = preferencesService.getPreferences(
 								SessionManager.getCurrentSessionUserId());
 
-		ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
+		final ResourceProperties props = prefs.getProperties(TABS_EXCLUDED_PREFS);
 		final List l = props.getPropertyList(TAB_EXCLUDED_SITES);
 
 		return l;
@@ -1538,14 +1509,14 @@ public class MessageForumSynopticBean {
 	 * 		String to stay on Options page
 	 */
 	public String processActionAdd() {
-		String[] values = getNonNotificationSites();
+		final String[] values = getNonNotificationSites();
 
 		if (values.length < 1) {
 			setErrorMessage(NO_SITE_SELECTED_MSG);
 		}
 
 		for (int i = 0; i < values.length; i++) {
-			String value = values[i];
+			final String value = values[i];
 			getNotificationSitesItems().add(
 					removeItems(value, getNonNotificationSitesItems()));
 		}
@@ -1560,14 +1531,14 @@ public class MessageForumSynopticBean {
 	 * 		String to stay on Options page
 	 */
 	public String processActionRemove() {
-		String[] values = getNotificationSites();
+		final String[] values = getNotificationSites();
 
 		if (values.length < 1) {
 			setErrorMessage(NO_SITE_SELECTED_MSG);
 		}
 
 		for (int i = 0; i < values.length; i++) {
-			String value = values[i];
+			final String value = values[i];
 			getNonNotificationSitesItems().add(
 					removeItems(value, getNotificationSitesItems()));
 		}
@@ -1614,7 +1585,7 @@ public class MessageForumSynopticBean {
 		setUserEditingOn();
 
 		// Remove existing property
-		ResourcePropertiesEdit props = prefsEdit.getPropertiesEdit(SYNMC_OPTIONS_PREFS);
+		final ResourcePropertiesEdit props = prefsEdit.getPropertiesEdit(SYNMC_OPTIONS_PREFS);
 		props.removeProperty(EXCLUDE_STRING);
 
 		// Commit to remove from database, for next set of value storing
@@ -1667,7 +1638,6 @@ public class MessageForumSynopticBean {
 		prefsEditKNVCollection = null;
 		prefsEdit = null;
 		nonNotificationSitesItems = new ArrayList();
-
 	}
 
 	/**
@@ -1690,7 +1660,7 @@ public class MessageForumSynopticBean {
 
 		SelectItem result = null;
 		for (int i = 0; i < items.size(); i++) {
-			SelectItem item = (SelectItem) items.get(i);
+			final SelectItem item = (SelectItem) items.get(i);
 			
 			if (value.equals(item.getValue())) {
 				result = (SelectItem) items.remove(i);
@@ -1747,22 +1717,22 @@ public class MessageForumSynopticBean {
 
 		// move the stuff from prefsEditKNVCollection into the edit
 		for (Iterator i = prefsEditKNVCollection.iterator(); i.hasNext();) {
-			KeyNameValue knv = (KeyNameValue) i.next();
+			final KeyNameValue knv = (KeyNameValue) i.next();
 
 			// find the original to remove (unless this one was new)
 			if (!knv.getOrigKey().equals("")) {
-				ResourcePropertiesEdit props = prefsEdit.getPropertiesEdit(knv
-																	.getOrigKey());
+				final ResourcePropertiesEdit props = prefsEdit.getPropertiesEdit(knv.getOrigKey());
 				props.removeProperty(knv.getOrigName());
 			}
+
 			// add the new if we have a key and name and value
 			if ((!knv.getKey().equals("")) && (!knv.getName().equals(""))
 					&& (!knv.getValue().equals(""))) {
-				ResourcePropertiesEdit props = prefsEdit.getPropertiesEdit(knv.getKey());
+				final ResourcePropertiesEdit props = prefsEdit.getPropertiesEdit(knv.getKey());
 				
 				if (knv.isList()) {
 					// split by ", "
-					String[] parts = knv.getValue().split(", ");
+					final String[] parts = knv.getValue().split(", ");
 					for (int p = 0; p < parts.length; p++) {
 						props.addPropertyToList(knv.getName(), parts[p]);
 					}

@@ -3,15 +3,11 @@
 <registration>
 
 	<tool
-			id="sakai.synoptic.messagecenter"
-			title="Message Center Notifications"
-			description="Display unread discussion and forum topic messages for all sites or a site">
+		id="sakai.synoptic.messagecenter"
+		title="Message Center Notifications"
+		description="Display unread discussion and forum topic messages for all sites or a site">
 
-<!-- 			<category name="course" />
-			<category name="project" />	
--->
-<!--		<configuration name="help.id" value="sakai.synoptic.messagecenter" type="final" /> -->
-
+<!-- 		<configuration name="help.id" value="sakai.messagecenter" type="final" /> -->
 	</tool>
 
 </registration>
