@@ -13,28 +13,24 @@
       <property name="docId"><value>audb</value></property>
       <property name="name"><value>Add/Edit/Delete A Podcast</value></property>
       <property name="location"><value>/sakai_podcasts/audb.html</value></property>
-      <property name="defaultForTool"><value>sakai.podcasts</value></property>
    </bean>
    
    <bean id="downloadSubscribePodcasts" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>audn</value></property>
       <property name="name"><value>Download/Subscribe to Podcasts</value></property>
       <property name="location"><value>/sakai_podcasts/audn.html</value></property>
-      <property name="defaultForTool"><value>sakai.podcasts</value></property>
    </bean>
    
    <bean id="editRSSFeedInfo" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>audo</value></property>
       <property name="name"><value>Edit Podcasts RSS Feed Information</value></property>
       <property name="location"><value>/sakai_podcasts/audo.html</value></property>
-      <property name="defaultForTool"><value>sakai.podcasts</value></property>
    </bean>
    
    <bean id="manageFeedAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>audp</value></property>
       <property name="name"><value>Manage Access to Podcasts RSS Feed</value></property>
       <property name="location"><value>/sakai_podcasts/audp.html</value></property>
-      <property name="defaultForTool"><value>sakai.podcasts</value></property>
    </bean>
       
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
