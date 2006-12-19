@@ -18,15 +18,15 @@
 
         <%@include file="/inc/globalMessages.jspf"%>
 
-        <x:div>
-            <h:outputText
-                value="#{msgs.student_view_view}"/>
-            <h:selectOneMenu value="#{studentViewBean.filter}" onchange="this.form.submit()">
-                <f:selectItem itemLabel="#{msgs.student_view_all}" itemValue="ALL"/>
-                <f:selectItem itemLabel="#{msgs.student_view_my}" itemValue="MY"/>
-            </h:selectOneMenu>
-        </x:div>
-
+		<x:div>
+			<h:outputText value="#{msgs.student_view_view}"/>
+	        <h:selectOneMenu value="#{studentViewBean.filter}" onchange="this.form.submit()">
+                <f:selectItem itemLabel="#{msgs.student_view_all} #{msgs.student_view_sections}" itemValue=""/>
+                <f:selectItem itemLabel="#{msgs.student_view_my} #{msgs.student_view_sections}" itemValue="MY"/>
+	            <f:selectItems value="#{studentViewBean.categorySelectItems}"/>
+	        </h:selectOneMenu>
+		</x:div>
+	    
         <sec:sectionTable cellpadding="0" cellspacing="0"
             id="studentViewSectionsTable"
             value="#{studentViewBean.sections}"

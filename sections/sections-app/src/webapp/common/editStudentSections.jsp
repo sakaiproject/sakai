@@ -143,10 +143,12 @@
                     rendered="#{ ! section.member}">
                     <f:param name="sectionUuid" value="#{section.uuid}"/>
                 </h:commandLink>
-                <h:outputText
-                    value="#{msgs.student_view_member}"
-                    styleClass="formLabel"
-                    rendered="#{section.member}"/>
+                <h:commandLink
+                    value="#{msgs.edit_student_sections_drop}"
+                    actionListener="#{editStudentSectionsBean.processDrop}"
+                    rendered="#{section.member}">
+                    <f:param name="sectionUuid" value="#{section.uuid}"/>
+                </h:commandLink>
             </h:column>
     
         </sec:sectionTable>

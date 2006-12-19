@@ -29,6 +29,7 @@ import java.util.List;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -87,10 +88,15 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 		List<SectionDecorator> sectionCopy = new ArrayList<SectionDecorator>(sections);
 		for(Iterator<SectionDecorator> iter = sectionCopy.iterator(); iter.hasNext();) {
 			StudentSectionDecorator decoratedSection = (StudentSectionDecorator)iter.next(); 
-			
-			// Ignore non-member sections if we're filtering for my sections
-			if("MY".equals(filter) && ! decoratedSection.isMember()) {
-				sections.remove(decoratedSection);
+
+			// Filter sections
+			if(StringUtils.trimToNull(filter) != null) {
+				if("MY".equals(filter) && ! decoratedSection.isMember()) {
+					sections.remove(decoratedSection);
+				}
+				if(! "MY".equals(filter) && ! decoratedSection.getCategory().equals(filter)) {
+					sections.remove(decoratedSection);
+				}
 			}
 			
 			if(decoratedSection.isJoinable()) {

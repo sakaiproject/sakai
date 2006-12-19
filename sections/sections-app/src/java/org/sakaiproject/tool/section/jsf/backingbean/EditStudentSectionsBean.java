@@ -205,6 +205,21 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
 		}
 	}
+	
+	public void processDrop(ActionEvent event) {
+		String sectionUuid = (String)FacesContext.getCurrentInstance().getExternalContext()
+		.getRequestParameterMap().get("sectionUuid");
+		CourseSection section = getSectionManager().getSection(sectionUuid);
+		
+		// The section might have been deleted
+		if(section == null) {
+			// There's nothing we can do in the UI, really.
+			log.warn("Attempted to remove user " + studentUid + " from a non-existent (recently deleted?) section: " + sectionUuid);
+			return;
+		}
+
+		getSectionManager().dropSectionMembership(studentUid, sectionUuid);
+	}
 
 	/**
 	 * Sets the student id to use in displaying the page.
