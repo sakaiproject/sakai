@@ -920,6 +920,31 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return l;
   }
 
+  
+  public List getHighestSubmittedAssessmentGradingList(final Long publishedAssessmentId){
+	    final String query = "from AssessmentGradingData a where a.publishedAssessmentId=? and a.forGrade=? order by a.agentId asc, a.finalScore desc";
+
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(query);
+	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setBoolean(1, true);
+	    		return q.list();
+	    	};
+	    };
+	    List assessmentGradings = getHibernateTemplate().executeFind(hcb);
+
+	    ArrayList l = new ArrayList();
+	    String currentAgent="";
+	    for (int i=0; i<assessmentGradings.size(); i++){
+	      AssessmentGradingData g = (AssessmentGradingData)assessmentGradings.get(i);
+	      if (!currentAgent.equals(g.getAgentId())){
+	        l.add(g);
+	        currentAgent = g.getAgentId();
+	      }
+	    }
+	    return l;
+  }
   // build a Hashmap (Long publishedItemId, ArrayList assessmentGradingIds)
   // containing the item submission of the last AssessmentGrading
   // (regardless of users who submitted it) of a given published assessment

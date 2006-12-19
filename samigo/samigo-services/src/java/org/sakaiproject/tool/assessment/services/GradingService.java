@@ -110,6 +110,19 @@ public class GradingService
     }
     return results;
   }
+  
+  public List getHighestSubmittedAssessmentGradingList(Long publishedId)
+  {
+    ArrayList results = null;
+    try {
+      results =
+        new ArrayList(PersistenceService.getInstance().
+           getAssessmentGradingFacadeQueries().getHighestSubmittedAssessmentGradingList(publishedId));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return results;
+  }
 
   public ArrayList getLastAssessmentGradingList(Long publishedId)
   {
