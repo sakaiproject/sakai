@@ -154,13 +154,13 @@
         <sourceDirectory>src/java</sourceDirectory>
         <resources>
             <resource>
-                <directory>/src/java</directory>
+                <directory>src/java</directory>
                 <includes>
                     <include>**/*.properties</include>
                 </includes>
             </resource>
             <resource>
-                <directory>${basedir}/src/conf</directory>
+                <directory>src/conf</directory>
                 <includes>
                     <include>**/*.xml</include>
                 </includes>
@@ -172,7 +172,7 @@
                 </includes>
             </resource>
             <resource>
-                <directory>${basedir}/src/hibernate</directory>
+                <directory>src/hibernate</directory>
                 <includes>
                     <include>ehcache.xml</include>
                     <include>**/*.hbm.xml</include>
