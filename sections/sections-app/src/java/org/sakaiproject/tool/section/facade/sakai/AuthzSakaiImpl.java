@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.facade.manager.Authz;
+import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.api.User;
@@ -107,6 +108,13 @@ public class AuthzSakaiImpl implements Authz {
 
 	public boolean isSectionAssignable(String userUid, String siteContext) {
 		return ! isSectionManagementAllowed(userUid, siteContext);
+	}
+
+	public String getRoleDescription(String userUid, String siteContext) {
+		String siteRef = SiteService.siteReference(siteContext);
+		String role = AuthzGroupService.getUserRole(userUid, siteRef);
+		if(log.isDebugEnabled()) log.debug("User " + userUid + " has role " + role + " in site " + siteContext);
+		return role;
 	}
 
 }

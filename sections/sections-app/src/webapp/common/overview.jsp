@@ -9,7 +9,11 @@
     </x:aliasBean>
 
 	<div class="instructions">
-		<h3 class="instructions"><h:outputText value="#{msgs.overview_page_header}"/></h3>
+		<h3 class="instructions">
+		    <h:outputFormat value="#{msgs.overview_page_header}">
+		        <f:param value="#{overviewBean.siteRole}"/>
+		    </h:outputFormat>
+		</h3>
 		<h:outputText value="#{overviewBean.instructions}"/>
 	</div>
 

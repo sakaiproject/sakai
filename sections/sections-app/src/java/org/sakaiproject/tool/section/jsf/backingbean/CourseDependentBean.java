@@ -139,8 +139,10 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	public boolean isSectionAssignable() {
 		return getCourseBean().authz.isSectionAssignable(getUserUid(), getSiteContext());
 	}
-
 	public PreferencesBean getPrefs() {
 		return getCourseBean().getPrefs();
+	}
+	public String getSiteRole() {
+		return getCourseBean().authz.getRoleDescription(getUserUid(), getSiteContext());
 	}
 }

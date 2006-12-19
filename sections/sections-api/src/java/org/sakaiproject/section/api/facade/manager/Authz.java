@@ -98,4 +98,14 @@ public interface Authz {
 	 * @return
 	 */
 	public boolean isSectionAssignable(String userUid, String siteContext);
+	
+	/**
+	 * Returns the role description for a user in a particular context.  This isn't strictly
+	 * authz, but it doesn't seem to require its own facade.
+	 * 
+	 * @param userUid
+	 * @param siteContext
+	 * @return
+	 */
+	public String getRoleDescription(String userUid, String siteContext);
 }
