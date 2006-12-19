@@ -91,10 +91,14 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 
 		// Populate the category names and select items, ordered just like the category ids
 		categorySelectItems = generateCategorySelectItems();
+		computeFilterState(sectionSet);
 
 		// Sort the collection set
 		Collections.sort(sections, getComparator());
 		
+	}
+
+	protected void computeFilterState(List sectionSet) {
 		if(sectionSet.size() <= 1) {
 			// Don't display a filter if there's zero or one section in the site
 			currentFilterState = FilterState.NONE;
@@ -111,8 +115,6 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 			// Instructors get no filter when there is only one categories
 			currentFilterState = FilterState.NONE;
 		}
-		
-		
 	}
 
 	protected void setDefaultPrefs() {

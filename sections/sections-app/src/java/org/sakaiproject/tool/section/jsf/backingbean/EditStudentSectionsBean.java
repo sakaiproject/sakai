@@ -75,9 +75,12 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 		List sectionSet = getAllSiteSections();
 		sections = new ArrayList<SectionDecorator>();
 		enrolledSections = new ArrayList<SectionDecorator>();
-
+		
 		// Generate the category select items
 		categorySelectItems = generateCategorySelectItems();
+
+		// Compute the filter state
+		computeFilterState(sectionSet);
 
 		// Get the section enrollments for this student
 		Set enrolled = getEnrolledSections(studentUid);
