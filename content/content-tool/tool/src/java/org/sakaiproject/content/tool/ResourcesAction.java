@@ -588,8 +588,11 @@ public class ResourcesAction
 	/** The default value for whether to show all sites in dropbox (used if global value can't be read from server config service) */
 	private static final boolean SHOW_ALL_SITES_IN_DROPBOX = false;
 
-	/** The number of members for a collection at which this tool should refuse to expand the collection */
+	/** The default number of members for a collection at which this tool should refuse to expand the collection. Used only if value can't be read from config service. */
 	protected static final int EXPANDABLE_FOLDER_SIZE_LIMIT = 256;
+
+	/** Name of state attribute indicating number of members for a collection at which this tool should refuse to expand the collection. */
+	private static final String STATE_EXPANDABLE_FOLDER_SIZE_LIMIT = "resources.expandable_folder_size_limit";
 
 	protected static final String STATE_SHOW_REMOVE_ACTION = "resources.show_remove_action";
 
@@ -672,7 +675,6 @@ public class ResourcesAction
 	protected static final String STATE_CREATE_WIZARD_COLLECTION_ID = "resources.create_wizard_collection_id";
 
 	public static final String UTF_8_ENCODING = "UTF-8";
-
 
 
 	/**
@@ -10223,6 +10225,115 @@ public class ResourcesAction
 		{
 			state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, ServerConfigurationService.getString("content.upload.max", "1"));
 		}
+		
+//		for(int i = 0; i < 255; i++)
+//		{
+//			try {
+//				if(i < 10)
+//				{
+//					ContentCollectionEdit edit = ContentHostingService.addCollection("/user/x00" + i + "/");
+//					ContentHostingService.commitCollection(edit);
+//					System.out.println("addCollection(\"/user/x00" + i + "/\")");
+//				}
+//				else if(i < 100)
+//				{
+//					ContentCollectionEdit edit = ContentHostingService.addCollection("/user/x0" + i + "/");
+//					ContentHostingService.commitCollection(edit);
+//					System.out.println("addCollection(\"/user/x0" + i + "/\")");
+//				}
+//				else 
+//				{
+//					ContentCollectionEdit edit = ContentHostingService.addCollection("/user/x" + i + "/");
+//					ContentHostingService.commitCollection(edit);
+//					System.out.println("addCollection(\"/user/x" + i + "/\")");
+//				}
+//			} catch (IdUsedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (IdInvalidException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (PermissionException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (InconsistentException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+//		for(int i = 0; i < 255; i++)
+//		{
+//			try {
+//				if(i < 10)
+//				{
+//					ContentCollectionEdit edit = ContentHostingService.addCollection("/public/x00" + i + "/");
+//					ContentHostingService.commitCollection(edit);
+//					System.out.println("addCollection(\"/public/x00" + i + "/\")");
+//				}
+//				else if(i < 100)
+//				{
+//					ContentCollectionEdit edit = ContentHostingService.addCollection("/public/x0" + i + "/");
+//					ContentHostingService.commitCollection(edit);
+//					System.out.println("addCollection(\"/public/x0" + i + "/\")");
+//				}
+//				else 
+//				{
+//					ContentCollectionEdit edit = ContentHostingService.addCollection("/public/x" + i + "/");
+//					ContentHostingService.commitCollection(edit);
+//					System.out.println("addCollection(\"/public/x" + i + "/\")");
+//				}
+//			} catch (IdUsedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (IdInvalidException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (PermissionException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (InconsistentException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+//		
+//		for(int i = 0; i < 257; i++)
+//		{
+//			try {
+//				if(i < 10)
+//				{
+//					ContentCollectionEdit edit = ContentHostingService.addCollection("/group/x00" + i + "/");
+//					ContentHostingService.commitCollection(edit);
+//					System.out.println("addCollection(\"/group/x00" + i + "/\")");
+//				}
+//				else if(i < 100)
+//				{
+//					ContentCollectionEdit edit = ContentHostingService.addCollection("/group/x0" + i + "/");
+//					ContentHostingService.commitCollection(edit);
+//					System.out.println("addCollection(\"/group/x0" + i + "/\")");
+//				}
+//				else 
+//				{
+//					ContentCollectionEdit edit = ContentHostingService.addCollection("/group/x" + i + "/");
+//					ContentHostingService.commitCollection(edit);
+//					System.out.println("addCollection(\"/group/x" + i + "/\")");
+//				}
+//			} catch (IdUsedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (IdInvalidException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (PermissionException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (InconsistentException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+//
+//
 
 		PortletConfig config = portlet.getPortletConfig();
 		try
@@ -10294,6 +10405,11 @@ public class ResourcesAction
 		{
 			show_other_sites = ServerConfigurationService.getBoolean("resources.show_all_collections.tool", SHOW_ALL_SITES_IN_RESOURCES);
 		}
+		
+		/** set attribute for the maximum size at which the resources tool will expand a collection. */
+		int expandableFolderSizeLimit = ServerConfigurationService.getInt("resources.expanded_folder_size_limit", EXPANDABLE_FOLDER_SIZE_LIMIT);
+		state.setAttribute(STATE_EXPANDABLE_FOLDER_SIZE_LIMIT, new Integer(expandableFolderSizeLimit));
+		
 		/** This attribute indicates whether "Other Sites" twiggle should show */
 		state.setAttribute(STATE_SHOW_ALL_SITES, Boolean.toString(show_other_sites));
 		/** This attribute indicates whether "Other Sites" twiggle should be open */
@@ -11243,12 +11359,17 @@ public class ResourcesAction
 			int collection_size = collection.getMemberCount(); // newMembers.size();
 			folder.setIsEmpty(collection_size < 1);
 			folder.setSortable(ContentHostingService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < EXPANDABLE_FOLDER_SIZE_LIMIT);
-			folder.setIsTooBig(collection_size > EXPANDABLE_FOLDER_SIZE_LIMIT);
+			Integer expansionLimit = (Integer) state.getAttribute(STATE_EXPANDABLE_FOLDER_SIZE_LIMIT);
+			if(expansionLimit == null)
+			{
+				expansionLimit = new Integer(EXPANDABLE_FOLDER_SIZE_LIMIT);
+			}
+			folder.setIsTooBig(collection_size > expansionLimit.intValue());
 				
 			folder.setDepth(depth);
 			newItems.add(folder);
 
-			if(!folder.isTooBig() && !folder.isEmpty() && (need_to_expand_all || expandedFolderSortMap.keySet().contains(collectionId)))
+			if(need_to_expand_all || expandedFolderSortMap.keySet().contains(collectionId))
 			{
 				// Get the collection members from the 'new' collection
 				List newMembers = collection.getMemberResources();
