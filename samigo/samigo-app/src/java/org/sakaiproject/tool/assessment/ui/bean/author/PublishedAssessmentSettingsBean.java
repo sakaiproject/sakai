@@ -40,14 +40,18 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecuredIPAddressIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
@@ -56,13 +60,15 @@ import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 public class PublishedAssessmentSettingsBean
   implements Serializable {
   private static Log log = LogFactory.getLog(PublishedAssessmentSettingsBean.class);
-
-
+  
   private static final IntegrationContextFactory integrationContextFactory =
     IntegrationContextFactory.getInstance();
   private static final PublishingTargetHelper ptHelper =
     integrationContextFactory.getPublishingTargetHelper();
- 
+  private static final GradebookServiceHelper gbsHelper =
+      integrationContextFactory.getGradebookServiceHelper();
+  private static final boolean integrated =
+      integrationContextFactory.isIntegrated();
   /**
    *  we use the calendar widget which uses 'MM/dd/yyyy hh:mm:ss a'
    *  used to take the internal format from calendar picker and move it
@@ -135,6 +141,7 @@ public class PublishedAssessmentSettingsBean
   
   // properties of PublishedEvaluationModel
   private String anonymousGrading;
+  private boolean gradebookExists;
   private String toDefaultGradebook;
   private String scoringType;
   private String bgColor;
@@ -266,6 +273,16 @@ public class PublishedAssessmentSettingsBean
           this.toDefaultGradebook = evaluation.getToGradeBook();
         if (evaluation.getScoringType()!=null)
           this.scoringType = evaluation.getScoringType().toString();
+        
+        GradebookService g = null;
+        if (integrated)
+        {
+          g = (GradebookService) SpringBeanLocator.getInstance().
+            getBean("org.sakaiproject.service.gradebook.GradebookService");
+        }
+
+        this.gradebookExists = gbsHelper.gradebookExists(
+          GradebookFacade.getGradebookUId(), g);
       }
 
       //set IPAddresses
@@ -672,6 +689,14 @@ public class PublishedAssessmentSettingsBean
 
   public void setToDefaultGradebook(String toDefaultGradebook) {
     this.toDefaultGradebook = toDefaultGradebook;
+  }
+
+  public boolean getGradebookExists() {
+	return this.gradebookExists;
+  }
+
+  public void setGradebookExists(boolean gradebookExists) {
+	this.gradebookExists = gradebookExists;
   }
 
   public String getScoringType() {

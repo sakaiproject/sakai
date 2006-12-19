@@ -118,7 +118,7 @@ public class SavePublishedSettingsListener
 	// point = 0.
 		boolean error = false;
 
-		if (assessmentSettings.getToDefaultGradebook().equals("1")) {
+		if (assessmentSettings.getToDefaultGradebook() != null && assessmentSettings.getToDefaultGradebook().equals("1")) {
 			if (assessment.getTotalScore().floatValue() <= 0) {
 
 				String gb_err = (String) ContextUtil.getLocalizedString(

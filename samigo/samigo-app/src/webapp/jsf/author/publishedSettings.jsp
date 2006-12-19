@@ -437,7 +437,7 @@
       </h:panelGrid>
 </div>
     <!-- GRADEBOOK OPTIONS -->
-    <h:panelGroup rendered="#{assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true}">
+    <h:panelGroup rendered="#{publishedSettings.valueMap.toGradebook_isInstructorEditable==true && publishedSettings.gradebookExists==true}">
      <f:verbatim> <div class="longtext"></f:verbatim> <h:outputLabel value="#{msg.gradebook_options}" />
 	 <f:verbatim></div><div class="tier3"></f:verbatim>
       <h:panelGrid columns="2"  >
