@@ -49,8 +49,20 @@
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
-			<version>1.0</version>
+			<version>1.1.1</version>
 			<url>http://jakarta.apache.org/commons/fileupload/</url>
+			<properties>
+				<!-- deploy dependency jar to "shared", "common" or "server": use <war.bundle>true</war.bundle> to include in war -->
+				<deploy.target>shared</deploy.target>
+			</properties>
+		</dependency>
+
+ 		<!-- commons-fileupload is dependent on this artifact -->
+ 		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.2</version>
+			<url>http://jakarta.apache.org/commons/io/</url>
 			<properties>
 				<!-- deploy dependency jar to "shared", "common" or "server": use <war.bundle>true</war.bundle> to include in war -->
 				<deploy.target>shared</deploy.target>
