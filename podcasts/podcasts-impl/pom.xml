@@ -172,13 +172,6 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-      <version>2.6.2</version>
-      <scope>provided</scope>
-    </dependency>
 <!--		Needed to construct the actual feed -->
     <dependency>
       
