@@ -124,6 +124,7 @@
       <artifactId>commons-io</artifactId>
       <version>1.2</version>
       <type>jar</type>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       
