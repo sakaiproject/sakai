@@ -40,6 +40,12 @@
                         <artifactId>servletapi</artifactId>
                         <version>2.4</version>
                 </dependency>
+		<!-- will be provided by the portall app in shared -->
+    <dependency>
+      <groupId>javax.portlet</groupId>
+      <artifactId>portlet-api</artifactId>
+      <version>1.0</version>
+    </dependency>
 
 
 

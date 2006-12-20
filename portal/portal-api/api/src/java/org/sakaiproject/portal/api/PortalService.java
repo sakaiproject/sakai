@@ -1,5 +1,7 @@
 package org.sakaiproject.portal.api;
 
+import java.util.Iterator;
+
 import javax.servlet.http.HttpServletRequest;
 
 public interface PortalService
@@ -20,5 +22,7 @@ public interface PortalService
 	String getResetStateParam();
 
 	StoredState newStoredState(String string, String string2);
+
+	Iterator<PortletApplicationDescriptor> getRegisteredApplications();
 
 }

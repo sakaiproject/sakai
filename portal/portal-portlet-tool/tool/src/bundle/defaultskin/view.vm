@@ -1,0 +1,17 @@
+<div>
+View Page
+Portal Applications ${portletapplications}
+<ul>
+    #foreach ( $portletapp in $portletapplications ) 
+	<li>${portletapp.name} : ${portletapp.portlets}
+	    <ul>
+    		#foreach ( $portlet in $portletapp.portlets )
+    			<li><a href="${portlet.url}">${portlet.name}</a></li>
+    		#end 
+	    </ul>
+	</li>
+	#end
+</ul>
+
+
+</div>

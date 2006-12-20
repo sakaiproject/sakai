@@ -216,9 +216,20 @@ public class PortletToolRenderService implements ToolRenderService {
         throws ToolRenderException, MalformedURLException {
         SakaiPortletWindow window = registry.getOrCreatePortletWindow(configuration);
         if ( window == null ) {
-		return false;
-	}
+        	return false;
+        }
+        if ( LOG.isDebugEnabled() ) {
+        	LOG.debug("Checking context for potential portlet ");
+        }
         ServletContext crossContext = context.getContext(window.getContextPath());
+        if ( LOG.isDebugEnabled() ) {
+        	LOG.debug("Got servlet context as  "+crossContext);
+        	LOG.debug("Getting Context for path "+window.getContextPath());
+        	LOG.debug("Base Path "+crossContext.getRealPath("/"));
+        	LOG.debug("Context Name "+crossContext.getServletContextName());
+        	LOG.debug("Server Info "+crossContext.getServerInfo());
+        	LOG.debug("      and it is a portlet ? :"+(crossContext.getResource("/WEB-INF/portlet.xml") != null));
+        }
         return crossContext.getResource("/WEB-INF/portlet.xml") != null;
     }
 
