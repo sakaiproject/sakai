@@ -907,6 +907,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					sharedStructuredStorage));
 			packetFile = clusterStorage.packPatch();
 			packetStream = new FileInputStream(packetFile);
+			sharedTempFile.getParentFile().mkdirs();
 			sharedStream = new FileOutputStream(sharedTempFile);
 
 			byte[] b = new byte[1024 * 1024];
@@ -1956,6 +1957,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					sharedStructuredStorage));
 			packetFile = clusterStorage.packSegment(addsi, newVersion);
 			packetStream = new FileInputStream(packetFile);
+			sharedTempFile.getParentFile().mkdirs();
 			sharedStream = new FileOutputStream(sharedTempFile);
 
 			byte[] b = new byte[1024 * 1024];
