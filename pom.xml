@@ -35,7 +35,6 @@
     <module>entity</module>
     <module>event</module>
     <module>gradebook</module>
-    <module>helloworld</module>
     <module>help</module>
     <module>jobscheduler</module>
     <module>jsf</module>
