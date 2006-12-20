@@ -7,10 +7,7 @@
 			title="Privacy Status"
 			description="Display current privacy status for all sites or a site">
 
-<!-- 			<category name="course" />
-			<category name="project" />	
--->
-<!--		<configuration name="help.id" value="sakai.synoptic.messagecenter" type="final" /> -->
+		<configuration name="reset.button" value="false" type="final" />
 
 	</tool>
 
