@@ -153,21 +153,7 @@
       <version>2.4</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-      <version>2.6.2</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      
-      <groupId>xerces</groupId>
-      <artifactId>xmlParserAPIs</artifactId>
-      <version>2.6.2</version>
-      <scope>provided</scope>
-    </dependency>
-<!-- fop: fop, avalon-framework, xercesImpl, xmlParserAPIs, batik -->
+<!-- fop: fop, avalon-framework, batik -->
     <dependency>
       
       <groupId>fop</groupId>

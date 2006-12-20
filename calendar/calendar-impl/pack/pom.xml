@@ -50,7 +50,7 @@
       <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-<!-- fop: fop, avalon-framework, xercesImpl, xmlParserAPIs, batik -->
+<!-- fop: fop, avalon-framework,  batik -->
     <dependency>
       
       <groupId>fop</groupId>
@@ -75,19 +75,6 @@
       <scope>provided</scope>
       <version>2.0.2</version>
     </dependency>
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-      <scope>provided</scope>
-      <version>2.2.1</version>
-    </dependency>
-    <dependency>
-      <groupId>xalan</groupId>
-      <artifactId>xalan</artifactId>
-      <version>2.4.1</version>
-      <scope>provided</scope>
-    </dependency>
-    
   </dependencies>
   <build>
     
