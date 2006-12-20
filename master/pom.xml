@@ -64,6 +64,26 @@
     </repository>
   </repositories>
   <dependencies>
+<!-- provided by the JDK, here to ensure its not packaged in child poms 
+     child poms may still override if necessary -->
+		<dependency>
+			<groupId>xalan</groupId>
+			<artifactId>xalan</artifactId>
+			<version>2.6.0</version>
+                        <scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>xerces</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>2.6.2</version>
+                        <scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>xerces</groupId>
+			<artifactId>xmlParserAPIs</artifactId>
+			<version>2.6.2</version>
+                        <scope>provided</scope>
+		</dependency>
 <!--
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
