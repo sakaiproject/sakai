@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
-<link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
+
 <f:view>
 <sakai:view>
 	<h:form id="DF-1">
