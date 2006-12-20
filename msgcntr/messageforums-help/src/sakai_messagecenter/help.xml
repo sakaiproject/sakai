@@ -12,21 +12,7 @@
             <value>/sakai_messagecenter/asax.html</value>
         </property>
 		<property name="defaultForTool">
-			<value>sakai.synoptic.messagecenter</value>
-		</property>
-    </bean>
-    <bean id="mcsynOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
-        <property name="docId">
-            <value>asax</value>
-        </property>
-        <property name="name">
-            <value>Message Center Overview</value>
-        </property>
-        <property name="location">
-            <value>/sakai_messagecenter/asax.html</value>
-        </property>
-		<property name="defaultForTool">
-			<value>sakai.synoptic.messagecenter</value>
+			<value>sakai.messagecenter</value>
 		</property>
     </bean>
     <bean id="mcCreateForumTopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -153,7 +139,6 @@
                     <property name="resources">
                         <list>
                             <ref bean="mcOverview"/>
-                            <ref bean="mcsynOverview" />
                             <ref bean="mcCreateForumTopic"/>
                             <ref bean="mcPermissions"/>
                             <ref bean="mcRevise"/>
