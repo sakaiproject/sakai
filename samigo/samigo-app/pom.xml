@@ -364,7 +364,7 @@
       
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
-      <version>1.0</version>
+      <version>1.1.1</version>
 <!--properties:  war.bundle: standalone -->
       <scope>provided</scope>
     </dependency>
