@@ -50,7 +50,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.util.ResourceLoader;
-import javax.faces.context.FacesContext;
+//import javax.faces.context.FacesContext;
 
 import com.sun.syndication.feed.WireFeed;
 import com.sun.syndication.feed.module.DCModuleImpl;
