@@ -286,14 +286,6 @@
 <!-- This is just for Eclipse compiling; Maven compiling doesn't need it but its here for Eclipse -->
     <dependency>
       
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-      <version>2.6.2</version>
-<!--properties:  war.bundle: false -->
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      
       <groupId>aopalliance</groupId>
       <artifactId>aopalliance</artifactId>
       <version>1.0</version>
@@ -584,14 +576,6 @@
       <artifactId>wsdl4j</artifactId>
       <version>1.4</version>
     </dependency>
-<!-- Needed to build under Java 1.5 -->
-    <dependency>
-      
-      <groupId>xalan</groupId>
-      <artifactId>xalan</artifactId>
-      <version>2.6.0</version>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       
       <groupId>org.sakaiproject</groupId>
@@ -623,23 +607,21 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>xalan</groupId>
-      <artifactId>xalan</artifactId>
-      <version>2.6.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xerces</artifactId>
-      <version>1.2.3</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>javax.sql</groupId>
       <artifactId>jdbc-stdext</artifactId>
       <version>2.0</version>
       <scope>provided</scope>
     </dependency>
+
+
+<!-- this is here to prevent packing in the war -->
+     <dependency>
+                        <groupId>xerces</groupId>
+                        <artifactId>xerces</artifactId>
+                        <version>1.2.3</version>
+                        <scope>provided</scope>
+                </dependency>
+
 
 
   </dependencies>
