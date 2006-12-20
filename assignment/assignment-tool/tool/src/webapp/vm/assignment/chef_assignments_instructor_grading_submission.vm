@@ -243,9 +243,51 @@
 							#end
 						</h4>
 						#set ($size = 0)
+						#set ($props = false)
+						#foreach ($attachment in $gradingAttachments) 
+							#set ($props = $attachment.Properties) 
+							#if ($!props)
+								#set ($size = $size + 1)
+							#end
+						#end
+						#if ($size == 0)
+							<p class="instruction">$tlang.getString("gen.noatt")</p>
+						#else
+							<ul class="attachList indnt1">
+								#foreach ($attachment in $gradingAttachments) 
+									#set ($props = false)
+									#set ($props = $attachment.Properties) 
+									#if ($!props)
+										<li>
+											#if ($props.getBooleanProperty($props.NamePropIsCollection))
+												<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+											#else
+												<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+											#end
+											<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+											#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+												($props.getPropertyFormatted($props.NamePropContentLength))
+											#end
+										</li>
+									#end
+								#end
+							</ul>
+						#end		
+						<p class="act">
+							#if ($!props)
+								<input type="button" name="attach" value="$tlang.getString('gen.adddroatt')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='attach';document.gradeForm.submit();return false;" accesskey="a"/>
+							#else
+								<input type="button" name="attach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='attach';document.gradeForm.submit();return false;" accesskey="a"/>
+							#end
+						</p>
+						## show previous grading/feedback attachments if any
+						#if ($!prevFeedbackAttachments && $prevFeedbackAttachments.size()>0)
+							<h4>
+								<h4>$tlang.getString("gradingsub.prefeedbackAttachments")</h4>
+							</h4>
 							#set ($size = 0)
 							#set ($props = false)
-							#foreach ($attachment in $gradingAttachments) 
+							#foreach ($attachment in $!prevFeedbackAttachments) 
 								#set ($props = $attachment.Properties) 
 								#if ($!props)
 									#set ($size = $size + 1)
@@ -255,7 +297,7 @@
 								<p class="instruction">$tlang.getString("gen.noatt")</p>
 							#else
 								<ul class="attachList indnt1">
-									#foreach ($attachment in $gradingAttachments) 
+									#foreach ($attachment in $!prevFeedbackAttachments) 
 										#set ($props = false)
 										#set ($props = $attachment.Properties) 
 										#if ($!props)
@@ -273,14 +315,8 @@
 										#end
 									#end
 								</ul>
-							#end			
-							<p class="act">
-								#if ($!props)
-									<input type="button" name="attach" value="$tlang.getString('gen.adddroatt')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='attach';document.gradeForm.submit();return false;" accesskey="a"/>
-								#else
-									<input type="button" name="attach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='attach';document.gradeForm.submit();return false;" accesskey="a"/>
-								#end
-							</p>
+							#end	
+						#end	
 #*					<!-- Grade types
 						GRADE_TYPE_NOT_SET: -1; 
 						UNGRADED_GRADE_TYPE: 1; 

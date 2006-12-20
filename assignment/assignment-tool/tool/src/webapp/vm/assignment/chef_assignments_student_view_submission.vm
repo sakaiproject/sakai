@@ -258,6 +258,10 @@
 					#end
 				#elseif ($submission.getReturned())
 						#if ($submission.TimeReturned.after($submission.TimeSubmitted))
+							<h4>$tlang.getString("gen.orisub2")</h4>
+							<div class="textPanel">
+								$cheffeedbackhelper.escapeAssignmentFeedback($submission.FeedbackText)
+							</div>
 							## for returned submission, show the instructor commented text as well
 							#if ($!prevFeedbackText)
 								<h4>$tlang.getString("gradingsub.prefeetex")</h4>
@@ -265,10 +269,6 @@
 									$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText))
 								</div>
 							#end
-							<h4>$tlang.getString("gen.orisub2")</h4>
-							<div class="textPanel">
-								$cheffeedbackhelper.escapeAssignmentFeedback($submission.FeedbackText)
-							</div>
 							<h4>$tlang.getString("stuviewsubm.entbelo")</h4>
 							<table border="0"><tr><td>
 							<textarea cols="80" rows="15" wrap="virtual" name="$name_submission_text" id="$name_submission_text" #if(!$allowSubmit)disabled="disabled"#end >#if($!value_submission_text)$validator.escapeHtmlFormattedTextarea($!value_submission_text)#end</textarea>
@@ -387,20 +387,56 @@
 					#set ($size = 0)
 					#set ($props = false)
 					#set ($feedbackAttachments = $submission.FeedbackAttachments)	
+					#set ($size = 0)
+					#set ($props = false)
+					#foreach ($attachment in $feedbackAttachments) 
+						#set ($props = $attachment.Properties) 
+						#if ($!props)
+							#set ($size = $size + 1)
+						#end
+					#end
+					#if ($size == 0)
+						##$tlang.getString("gen.noatt")
+					#else
+						<h5>$tlang.getString("gen.addinstatts")</h5>
+						<ul class="attachList indnt1">
+							#foreach ($attachment in $feedbackAttachments) 
+								#set ($props = false)
+								#set ($props = $attachment.Properties) 
+								#if ($!props)
+									<li>
+										#if ($props.getBooleanProperty($props.NamePropIsCollection))
+											<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+										#else
+											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+										#end
+										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+											($props.getPropertyFormatted($props.NamePropContentLength))
+										#end
+									</li>
+								#end
+							#end
+						</ul>
+					#end
+					## show previous grading/feedback attachments if any
+					#if ($!prevFeedbackAttachments && $prevFeedbackAttachments.size()>0)
+						<h4>
+							<h4>$tlang.getString("gradingsub.prefeedbackAttachments")</h4>
+						</h4>
 						#set ($size = 0)
 						#set ($props = false)
-						#foreach ($attachment in $feedbackAttachments) 
+						#foreach ($attachment in $!prevFeedbackAttachments) 
 							#set ($props = $attachment.Properties) 
 							#if ($!props)
 								#set ($size = $size + 1)
 							#end
 						#end
 						#if ($size == 0)
-							##$tlang.getString("gen.noatt")
+							<p class="instruction">$tlang.getString("gen.noatt")</p>
 						#else
-							<h5>$tlang.getString("gen.addinstatts")</h5>
 							<ul class="attachList indnt1">
-								#foreach ($attachment in $feedbackAttachments) 
+								#foreach ($attachment in $!prevFeedbackAttachments) 
 									#set ($props = false)
 									#set ($props = $attachment.Properties) 
 									#if ($!props)
@@ -418,7 +454,8 @@
 									#end
 								#end
 							</ul>
-						#end
+						#end	
+					#end	
 				#end
 				#if ($withGrade)
 					#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionScaledPreviousGrades()))
