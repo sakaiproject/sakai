@@ -63,21 +63,5 @@
       <version>3.8.1</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-      <version>2.6.2</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      
-      <groupId>xalan</groupId>
-      <artifactId>xalan</artifactId>
-      <version>2.6.0</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 </project>
