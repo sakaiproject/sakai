@@ -73,8 +73,13 @@ public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 		m_categories.add("myworkspace");
 		m_categories.add("project");
 		m_categories.add("course");
-		m_description = "Auto Registered Portlet "+pdd.getPortletInfo().getTitle();
-		m_title = "Portlet: "+pdd.getPortletInfo().getShortTitle();
+		if ( pdd.getPortletInfo() != null ) {
+			m_description = "Auto Registered Portlet "+pdd.getPortletInfo().getTitle();
+			m_title = "Portlet: "+pdd.getPortletInfo().getShortTitle();
+		} else {
+			m_description = "Auto Registered Portlet "+pdd.getPortletName();
+			m_title = "Portlet: "+pdd.getPortletName();
+		}
 		m_finalConfig.setProperty(PortalService.TOOL_PORTLET_CONTEXT_PATH, portlet.getApplicationId());
 		m_finalConfig.setProperty(PortalService.TOOL_PORTLET_NAME, pdd.getPortletName());
 		
