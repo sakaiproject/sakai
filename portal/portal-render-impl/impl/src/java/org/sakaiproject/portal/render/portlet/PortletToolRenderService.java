@@ -269,4 +269,5 @@ public class PortletToolRenderService implements ToolRenderService {
 		registry.reset(configuration);
 	}
 
+	
 }

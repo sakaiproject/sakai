@@ -8,5 +8,12 @@
           class="org.sakaiproject.portal.service.PortalServiceImpl"
           singleton="true">
     </bean>
+    <bean id="org.sakaiproject.portal.api.PortalService.portletRegistryListener"
+          class="org.sakaiproject.portal.service.SakaiPortletRegistryListener"
+          singleton="true"
+          init-method="init"
+          destroy-method="destroy" >
+       <property name="activeToolManager" ><ref bean="org.sakaiproject.tool.api.ActiveToolManager" /></property>
+    </bean>
 
 </beans>
