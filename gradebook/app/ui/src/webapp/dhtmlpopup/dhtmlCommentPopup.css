@@ -21,7 +21,7 @@ div.dhtmlPopup {
 	background-color:white;
 	border:1px solid black;
 	left:100px; top:100px;
-    width:30em;
+    width:25em;
 }
 
 div.dhtmlPopup table tr td table tr {
@@ -33,7 +33,7 @@ div.dhtmlPopupTitleBar {
 	color:#fff;
 	padding:5px;
 	cursor:move;
-    width:27.5em
+    width:22.5em
 }
 
 div.dhtmlPopupClose {

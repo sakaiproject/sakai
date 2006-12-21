@@ -1,6 +1,7 @@
 <link href="dhtmlpopup/dhtmlPopup.css" rel="stylesheet" type="text/css" />
 <link href="dhtmlpopup/dhtmlCommentPopup.css" rel="stylesheet" type="text/css" />
 <script src="dhtmlpopup/dhtmlPopup.js" type="text/javascript"></script>
+<script src="js/frameAdjust.js" type="text/javascript"></script>
 
 <f:view>
 	<div class="portletBody">
@@ -101,7 +102,7 @@
                             <h:outputText value="#{msgs.student_view_comment_header}"/>
                     </f:facet>
                     <h:outputLink value="#" rendered="#{not empty row.comments}"
-                                  onclick="javascript:dhtmlPopupToggle('#{rowIndex}', event);return false;">
+                                  onclick="javascript:dhtmlPopupToggle('#{rowIndex}', event);adjustMainFrameHeight(self.name);return false;">
                         <h:graphicImage value="images/comment.gif" alt="Show Comment"/>
                     </h:outputLink>
                 </h:column>
