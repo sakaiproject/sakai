@@ -1,13 +1,12 @@
 package org.sakaiproject.portal.render.api;
 
-import org.sakaiproject.portal.api.PortalService;
-import org.sakaiproject.site.api.ToolConfiguration;
+import java.io.IOException;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletContext;
-import java.io.IOException;
-import java.util.List;
+
+import org.sakaiproject.site.api.ToolConfiguration;
 
 /**
  * Service responsible for preprocessing and rendering tools
@@ -19,7 +18,8 @@ import java.util.List;
 public interface ToolRenderService
 {
 
-    /**
+
+	/**
      * Perfrorm any preperatory processing for the specified tool.
      *
      * @param request the servlet request
@@ -60,6 +60,11 @@ public interface ToolRenderService
 	
 	
 
+	/**
+	 * reset the ToolConfiguration/Placement associated with the config
+	 * @param configuration
+	 */
+	void reset(ToolConfiguration configuration);
 	
 
 }

@@ -7,7 +7,7 @@
     <version>M2</version>
     <relativePath>../../../master/pom.xml</relativePath>
   </parent>
-  <name>sakai-portal-render-impl</name>
+  <name>sakai-portal-render-api</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-portal-render-api</artifactId>
   <packaging>jar</packaging>

@@ -88,4 +88,12 @@ public class CompatibilityToolRenderService implements ToolRenderService {
         this.renderServices = renderServices;
     }
 
+	public void reset(ToolConfiguration configuration)
+	{
+        for (Iterator i = renderServices.iterator(); i.hasNext();) {
+            ToolRenderService trs = (ToolRenderService) i.next();
+            trs.reset(configuration);
+        }
+	}
+
 }

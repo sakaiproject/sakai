@@ -75,10 +75,11 @@ public class IFrameToolRenderService implements ToolRenderService {
 	public boolean accept(ToolConfiguration configuration,
                           HttpServletRequest request,
                           HttpServletResponse response,
-                          ServletContext context) {
-		if ( PortletToolRenderService.isPortletTool(configuration) ) {
-			return false;
-		}
+                          ServletContext context) {		
 		return true;
+	}
+
+	public void reset(ToolConfiguration configuration)
+	{
 	}
 }

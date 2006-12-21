@@ -264,10 +264,9 @@ public class PortletToolRenderService implements ToolRenderService {
         }
     }
 
-	public static boolean isPortletTool(ToolConfiguration configuration) {
-        return PortletRegistry.isPortletApplication(configuration);
-    }
-
-
+	public void reset(ToolConfiguration configuration)
+	{
+		registry.reset(configuration);
+	}
 
 }

@@ -249,4 +249,8 @@ public class FragmentToolRenderService implements ToolRenderService
 	{		
 		this.portal = portal;	
 	}
+
+	public void reset(ToolConfiguration configuration)
+	{
+	}
 }
