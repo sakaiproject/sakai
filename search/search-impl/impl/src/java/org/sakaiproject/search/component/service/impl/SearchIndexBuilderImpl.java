@@ -41,6 +41,9 @@ import org.sakaiproject.search.api.SearchIndexBuilderWorker;
 import org.sakaiproject.search.dao.SearchBuilderItemDao;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.SearchWriterLock;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
 
 /**
  * Search index builder is expected to be registered in spring as org.sakaiproject.search.api.SearchIndexBuilder as a singleton. It receives resources which it adds to its list of pending documents to be indexed. A seperate thread then runs thtough the
@@ -60,6 +63,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	private SearchIndexBuilderWorker searchIndexBuilderWorker = null;
 
 	private List producers = new ArrayList();
+
+	private boolean onlyIndexSearchToolSites = false;
 
 	public void init()
 	{
@@ -117,6 +122,28 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		{
 			log.debug("Not indexing " + resourceName + " as it has no context");
 			return;
+		}
+		if (onlyIndexSearchToolSites )
+		{
+			try
+			{
+				String siteId = ecp.getSiteId(resourceName);
+				Site s = SiteService.getSite(siteId);
+				ToolConfiguration t = s.getToolForCommonId("sakai.search");
+				if (t == null)
+				{
+					log.debug("Not indexing " + resourceName
+							+ " as it has no search tool");
+					return;
+				}
+			}
+			catch (Exception ex)
+			{
+				log.debug("Not indexing  " + resourceName
+						+ " as it has no site", ex);
+				return;
+
+			}
 		}
 		Integer action = ecp.getAction(event);
 		try
@@ -462,6 +489,22 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	public String getCurrentElapsed()
 	{
 		return searchIndexBuilderWorker.getCurrentElapsed();
+	}
+
+	/**
+	 * @return the onlyIndexSearchToolSites
+	 */
+	public boolean isOnlyIndexSearchToolSites()
+	{
+		return onlyIndexSearchToolSites;
+	}
+
+	/**
+	 * @param onlyIndexSearchToolSites the onlyIndexSearchToolSites to set
+	 */
+	public void setOnlyIndexSearchToolSites(boolean onlyIndexSearchToolSites)
+	{
+		this.onlyIndexSearchToolSites = onlyIndexSearchToolSites;
 	}
 
 }
