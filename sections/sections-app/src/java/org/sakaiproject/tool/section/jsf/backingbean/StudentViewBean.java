@@ -63,6 +63,7 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 	
 	public StudentViewBean() {
 		super();
+		showNegativeSpots = false;
 		sortColumn = "meetingTimes";
 		sortAscending = true;
 	}

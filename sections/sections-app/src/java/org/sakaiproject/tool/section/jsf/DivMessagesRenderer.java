@@ -33,7 +33,6 @@ import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.section.jsf.backingbean.MessagingBean;
 
 /**
  * Work around JSF 1.1's inadequate Messages renderer, which has the following problems:

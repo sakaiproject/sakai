@@ -87,7 +87,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 		if(sectionUuidFromParam != null) {
 			sectionUuid = sectionUuidFromParam;
 		}
-		SectionDecorator currentSection = new SectionDecorator(getSectionManager().getSection(sectionUuid));
+		SectionDecorator currentSection = new SectionDecorator(getSectionManager().getSection(sectionUuid), true);
 
 		sectionTitle = currentSection.getTitle();
 		

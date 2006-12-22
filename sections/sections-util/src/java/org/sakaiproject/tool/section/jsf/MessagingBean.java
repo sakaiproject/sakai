@@ -18,7 +18,7 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.tool.section.jsf.backingbean;
+package org.sakaiproject.tool.section.jsf;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -59,13 +59,18 @@ public class SectionDecorator implements Serializable, Comparable {
 	protected String spotsAvailable;
 	private boolean flaggedForRemoval;
 
+	/* Whether this decorator should show the number of spots available as a negative
+	 * number or zero when the section is overenrolled */
+	protected boolean showNegativeSpots;
+
 	/**
 	 * Creates a SectionDecorator from a vanilla CourseSection.
 	 * 
 	 * @param section
 	 */
-	public SectionDecorator(CourseSection section) {
+	public SectionDecorator(CourseSection section, boolean showNegativeSpots) {
 		this.section = section;
+		this.showNegativeSpots = showNegativeSpots;
 		this.decoratedMeetings = new ArrayList<MeetingDecorator>();
 		if(section.getMeetings() != null) {
 			for(Iterator iter = section.getMeetings().iterator(); iter.hasNext();) {
@@ -73,7 +78,6 @@ public class SectionDecorator implements Serializable, Comparable {
 			}
 		}
 	}
-
 
 	/**
 	 * Creates a SectionDecorator with more contextual information about the section.
@@ -84,26 +88,25 @@ public class SectionDecorator implements Serializable, Comparable {
 	 * @param totalEnrollments The total number of enrollments in this CourseSection
 	 */
 	public SectionDecorator(CourseSection section, String categoryForDisplay,
-			List<String> instructorNames, int totalEnrollments) {
-		this(section);
+			List<String> instructorNames, int totalEnrollments, boolean showNegativeSpots) {
+		this(section, showNegativeSpots);
 		this.categoryForDisplay = categoryForDisplay;
 
 		this.instructorNames = instructorNames;
 		this.totalEnrollments = totalEnrollments;
 		
-		populateSpotsAvailable(section);
-	}
-
-	protected void populateSpotsAvailable(CourseSection courseSection) {
-		if(courseSection.getMaxEnrollments() == null) {
+		if(section.getMaxEnrollments() == null) {
 			spotsAvailable = JsfUtil.getLocalizedMessage("section_max_size_unlimited");
 		} else {
-			int spots = courseSection.getMaxEnrollments().intValue() - totalEnrollments;
-			// Allow negative values to be displayed
-			spotsAvailable = Integer.toString(spots);
+			int spots = section.getMaxEnrollments().intValue() - totalEnrollments;
+			if(spots < 0 && ! showNegativeSpots) {
+				spotsAvailable = "0";
+			} else {
+				spotsAvailable = Integer.toString(spots);
+			}
 		}
 	}
-
+	
 	public SectionDecorator() {
 		// Needed for serialization
 	}
@@ -203,27 +206,18 @@ public class SectionDecorator implements Serializable, Comparable {
 					int categoryNameComparison = section1.getCategory().compareTo(section2.getCategory());
 					if(categoryNameComparison == 0) {
 						// These are in the same category, so compare by the first meeting time
-						List meetings1 = section1.getDecoratedMeetings();
-						List meetings2 = section2.getDecoratedMeetings();
+						List<MeetingDecorator> meetings1 = section1.getDecoratedMeetings();
+						List<MeetingDecorator> meetings2 = section2.getDecoratedMeetings();
 						
-						MeetingDecorator meeting1 = (MeetingDecorator)meetings1.get(0);
-						MeetingDecorator meeting2 = (MeetingDecorator)meetings2.get(0);
+						String sortString1 = generateSortableDayString(meetings1.get(0));
+						String sortString2 = generateSortableDayString(meetings2.get(0));
 						
-						String days1 = meeting1.getAbbreviatedDays();
-						String days2 = meeting2.getAbbreviatedDays();
-						
-						if(days1 == null && days2 != null) {
-							return sortAscending? -1 : 1 ;
-						}
-						if(days2 == null && days1 != null) {
-							return sortAscending? 1 : -1 ;
-						}
-						
-						if(days1 == null && days2 == null ||
-								days1.equals(days2)) {
+						int diff = sortString1.compareTo(sortString2);
+
+						if(diff == 0) {
 							return getTitleComparator(sortAscending).compare(section1, section2);
 						}
-						return sortAscending ? days1.compareTo(days2) : days2.compareTo(days1);
+						return sortAscending ? diff : -1*diff ;
 					} else {
 						return categoryNameComparison;
 					}
@@ -231,6 +225,38 @@ public class SectionDecorator implements Serializable, Comparable {
 		};
 	}
 
+	/**
+	 * Generate a string that contains information on the meeting days for a section
+	 * meeting, and is sortable.
+	 * 
+	 * @param meeting A meeting we're interested in sorting by day of the week.
+	 * @return A string that sorts in the order of the meetings' days of the week.
+	 */
+	private static final String generateSortableDayString(MeetingDecorator meeting) {
+		StringBuffer sb = new StringBuffer();
+		if(meeting.isMonday()) {
+			sb.append("a");
+		}
+		if(meeting.isTuesday()) {
+			sb.append("b");
+		}
+		if(meeting.isWednesday()) {
+			sb.append("c");
+		}
+		if(meeting.isThursday()) {
+			sb.append("d");
+		}
+		if(meeting.isFriday()) {
+			sb.append("e");
+		}
+		if(meeting.isSaturday()) {
+			sb.append("f");
+		}
+		if(meeting.isSunday()) {
+			sb.append("g");
+		}
+		return sb.toString();
+	}
 	/**
 	 * Compares SectionDecorators by the section's first meeting location.
 	 * 

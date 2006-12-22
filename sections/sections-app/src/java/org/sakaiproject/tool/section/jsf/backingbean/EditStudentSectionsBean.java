@@ -60,6 +60,12 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 	protected String studentName;
 	protected List<SectionDecorator> enrolledSections;
 	
+	protected boolean showNegativeSpots;
+	
+	public EditStudentSectionsBean() {
+		 showNegativeSpots = true;
+	}
+	
 	public void init() {
 		setDefaultPrefs();
 
@@ -120,7 +126,7 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 			boolean memberOtherSection = isEnrolledInOtherSection(enrolled, section);
 			
 			StudentSectionDecorator decoratedSection = new StudentSectionDecorator(
-					section, catName, taNames, totalEnrollments, member, memberOtherSection);
+					section, catName, taNames, totalEnrollments, member, memberOtherSection, showNegativeSpots);
 			
 			if(!hideSectionInTable) {
 				sections.add(decoratedSection);

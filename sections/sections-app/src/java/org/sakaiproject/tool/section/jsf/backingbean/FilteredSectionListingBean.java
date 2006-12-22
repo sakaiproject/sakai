@@ -85,7 +85,7 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 			int totalEnrollments = getSectionManager().getTotalEnrollments(section.getUuid());
 
 			SectionDecorator decoratedSection = new SectionDecorator(
-					section, catName, taNames, totalEnrollments);
+					section, catName, taNames, totalEnrollments, true);
 			sections.add(decoratedSection);
 		}
 

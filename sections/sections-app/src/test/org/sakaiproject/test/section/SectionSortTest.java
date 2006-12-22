@@ -42,18 +42,22 @@ public class SectionSortTest extends TestCase {
 	private CourseSection sectionC;
 	private CourseSection sectionD;
 	
-	private List instructorsA;
-	private List instructorsB;
+
+	private CourseSection sectionE;
+	private CourseSection sectionF;
+
+	private List<String> instructorsA;
+	private List<String> instructorsB;
 	
-	private List categoryNames;
-	private List categoryIds;
+	private List<String> categoryNames;
+	private List<String> categoryIds;
 	
 	protected void setUp() throws Exception {
-		categoryNames = new ArrayList();
+		categoryNames = new ArrayList<String>();
 		categoryNames.add("Category A");
 		categoryNames.add("Category B");
 		
-		categoryIds = new ArrayList();
+		categoryIds = new ArrayList<String>();
 		categoryIds.add("a category");
 		categoryIds.add("b category");
 
@@ -70,17 +74,17 @@ public class SectionSortTest extends TestCase {
 		sectionA = new CourseSectionImpl(course, "a section",
 				"a section uuid", "a category", new Integer(10), "a section location",
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
-				false, false, false, false, false, false, false);
+				true, true, false, false, false, false, false);
 
 		sectionB = new CourseSectionImpl(course, "B section",
 				"b section uuid", "a category", new Integer(20), "b section location",
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
-				false, false, false, false, false, false, false);
+				false, true, false, false, false, false, false);
 
 		sectionC = new CourseSectionImpl(course, "c section",
 				"c section uuid", "b category", new Integer(5), "c section location",
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
-				false, false, false, false, false, false, false);
+				false, true, false, false, false, false, false);
 		
 		startCal.set(Calendar.HOUR_OF_DAY, 9);
 		endCal.set(Calendar.HOUR_OF_DAY, 10);
@@ -88,38 +92,64 @@ public class SectionSortTest extends TestCase {
 		sectionD = new CourseSectionImpl(course, "D section",
 				"d section uuid", "b category", new Integer(15), "d section location",
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
-				false, false, false, false, false, false, false);
+				false, false, true, true, false, false, false);
 		
-		instructorsA = new ArrayList();
+
+		sectionE = new CourseSectionImpl(course, "E section",
+				"e section uuid", "b category", new Integer(15), "e section location",
+				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
+				false, false, false, true, true, false, false);
+
+		sectionF = new CourseSectionImpl(course, "F section",
+				"f section uuid", "b category", new Integer(15), "f section location",
+				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
+				false, false, false, false, true, true, true);
+
+		instructorsA = new ArrayList<String>();
 		instructorsA.add("Schmoe, Joe");
 		instructorsA.add("Adams, Sally");
 	
-		instructorsB = new ArrayList();
+		instructorsB = new ArrayList<String>();
 		instructorsA.add("Schmoe, Joe");
 	}
 
 	
-	public void testInstructorSectionDecoratorSorting() throws Exception {
-		SectionDecorator secA = new SectionDecorator(sectionA, "Category A", instructorsA, 10);
-		SectionDecorator secB = new SectionDecorator(sectionB, "Category A", instructorsB, 20);
-		SectionDecorator secC = new SectionDecorator(sectionC, "Category B", new ArrayList(), 10);
-		SectionDecorator secD = new SectionDecorator(sectionD, "Category B", new ArrayList(), 20);
+	public void testSectionDecoratorSorting() throws Exception {
+		SectionDecorator secA = new SectionDecorator(sectionA, "Category A", instructorsA, 10, true);
+		SectionDecorator secB = new SectionDecorator(sectionB, "Category A", instructorsB, 20, true);
+		SectionDecorator secC = new SectionDecorator(sectionC, "Category B", new ArrayList<String>(), 10, true);
+		SectionDecorator secD = new SectionDecorator(sectionD, "Category B", new ArrayList<String>(), 20, true);
+		SectionDecorator secE = new SectionDecorator(sectionE, "Category B", new ArrayList<String>(), 20, true);
+		SectionDecorator secF = new SectionDecorator(sectionF, "Category B", new ArrayList<String>(), 20, true);
 		
-		Comparator comp = SectionDecorator.getManagersComparator(true);
+		
+		Comparator<SectionDecorator> mgrComp = SectionDecorator.getManagersComparator(true);
 
 		// Compare managers in sections of the same category
-		Assert.assertTrue(comp.compare(secA, secB) > 0);
-		Assert.assertTrue(comp.compare(secC, secD) < 0); // Using the title, since managers are equal
+		Assert.assertTrue(mgrComp.compare(secA, secB) > 0);
+		Assert.assertTrue(mgrComp.compare(secC, secD) < 0); // Using the title, since managers are equal
 		
 		// Compare managers in sections in different categories.  The one with no managers sorts first
-		Assert.assertTrue(comp.compare(secC, secA) > 0);
+		Assert.assertTrue(mgrComp.compare(secC, secA) > 0);
 		
-		comp = SectionDecorator.getEnrollmentsComparator(true, false);
+		mgrComp = SectionDecorator.getEnrollmentsComparator(true, false);
 
 		// Compare the max enrollments in sections of the same category
-		Assert.assertTrue(comp.compare(secB, secA) > 0);
+		Assert.assertTrue(mgrComp.compare(secB, secA) > 0);
 
 		// Compare the max enrollments in different categories
-		Assert.assertTrue(comp.compare(secB, secC) < 0);		
+		Assert.assertTrue(mgrComp.compare(secB, secC) < 0);
+		
+		// Compare the days in a meeting.
+		Comparator<SectionDecorator> dayComp = SectionDecorator.getDayComparator(true);
+
+		dayComp.compare(secA, secB);
+		dayComp.compare(secC, secD);
+		
+		Assert.assertTrue(dayComp.compare(secA, secB) < 0);
+		Assert.assertTrue(dayComp.compare(secC, secD) < 0);
+		Assert.assertTrue(dayComp.compare(secD, secE) < 0);
+		Assert.assertTrue(dayComp.compare(secE, secF) < 0);
+		
 	}
 }

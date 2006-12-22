@@ -44,11 +44,11 @@ public class StudentSectionDecorator extends SectionDecorator
 	protected boolean joinable;
 	protected boolean switchable;
 	protected boolean member;
-	
+		
 	public StudentSectionDecorator(CourseSection courseSection, String categoryForDisplay,
-			List instructorNames, int totalEnrollments, boolean member,
-			boolean memberOtherSection) {
-		super(courseSection, categoryForDisplay, instructorNames, totalEnrollments);
+			List<String> instructorNames, int totalEnrollments, boolean member,
+			boolean memberOtherSection, boolean showNegativeSpots) {
+		super(courseSection, categoryForDisplay, instructorNames, totalEnrollments, showNegativeSpots);
 		this.member = member;
 		if( ! this.member && this.spotsAvailable.equals("0")) {
 			this.full = true;
@@ -56,24 +56,6 @@ public class StudentSectionDecorator extends SectionDecorator
 		if( ! this.member && ! this.full) {
 			this.switchable = memberOtherSection;
 			this.joinable = ! memberOtherSection;
-		}
-	}
-	
-	/**
-	 * Overrides the behavior of the superclass.  Students should not see a
-	 * negative number of available spots.
-	 */
-	protected void populateSpotsAvailable(CourseSection courseSection) {
-		if(courseSection.getMaxEnrollments() == null) {
-			spotsAvailable = JsfUtil.getLocalizedMessage("section_max_size_unlimited");
-		} else {
-			// Do not allow negative values to be displayed
-			int spots = courseSection.getMaxEnrollments().intValue() - totalEnrollments;
-			if(spots < 0) {
-				spotsAvailable = "0";
-			} else {
-				spotsAvailable = Integer.toString(spots);
-			}
 		}
 	}
 

@@ -111,7 +111,7 @@
     <managed-bean>
         <description>Messaging bean for redirect-safe messages across pages</description>
         <managed-bean-name>messagingBean</managed-bean-name>
-        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.MessagingBean</managed-bean-class>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.MessagingBean</managed-bean-class>
         <managed-bean-scope>session</managed-bean-scope>
     </managed-bean>
 

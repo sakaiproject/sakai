@@ -26,22 +26,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Locale;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
-import javax.servlet.ServletContext;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.section.api.facade.manager.Context;
 import org.sakaiproject.section.api.facade.manager.ResourceLoader;
 import org.sakaiproject.jsf.util.ConversionUtil;
-import org.sakaiproject.tool.section.jsf.backingbean.MessagingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.WebApplicationContext;
+import org.sakaiproject.tool.section.jsf.MessagingBean;
 
 /**
  * A utility to help deal with common tasks in JSF.
