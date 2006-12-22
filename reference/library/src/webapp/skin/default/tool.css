@@ -970,3 +970,18 @@ width:auto !important
 	width: 11em;
 	background:#fff url(images/logo_inst.gif) 1em 1em no-repeat
 }
+/*temp work for mneme - will incorporate later to the rest 
+tables will be of various types according to their function and meaning - tableFlat, tableAction, tableHierarchical, tableItemSummary 
+right now "namespaced" for mneme only to avoid any possible conflicts*/
+.samSection .tableAction td {
+	vertical-align:middle
+}
+.samSection .tableAction td input{
+	margin: 0 5px 1px 1px;
+	vertical-align:top;
+}
+.samSection .tableAction td label{
+	border:1px solid #bbb;
+	padding:0 3px;
+	background: #ddd;
+}
