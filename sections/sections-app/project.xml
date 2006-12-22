@@ -27,7 +27,7 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-sections-util</artifactId>
+			<artifactId>sakai-sections-app-util</artifactId>
 			<version>${sakai.version}</version>
             <properties>
                 <war.bundle>true</war.bundle>
