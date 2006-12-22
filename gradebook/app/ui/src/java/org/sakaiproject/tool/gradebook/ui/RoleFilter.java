@@ -117,7 +117,7 @@ public class RoleFilter implements Filter {
 		}
 
 		if (gradebookUid != null) {
-			if(logger.isInfoEnabled()) logger.info("gradebookUid=" + gradebookUid + ", userUid=" + userUid);
+			if(logger.isDebugEnabled()) logger.debug("gradebookUid=" + gradebookUid + ", userUid=" + userUid);
 
 			// Get the name of the page from the servlet path.
 			String[] splitPath = servletPath.split("[./]");
