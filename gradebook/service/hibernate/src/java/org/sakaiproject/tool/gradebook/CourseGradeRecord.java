@@ -22,13 +22,9 @@
 
 package org.sakaiproject.tool.gradebook;
 
-import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * A CourseGradeRecord is a grade record that can be associated with a CourseGrade.
@@ -37,10 +33,9 @@ import org.apache.commons.logging.LogFactory;
  */
 public class CourseGradeRecord extends AbstractGradeRecord {
     private String enteredGrade;
-    private Double sortGrade; // Persisted for sorting purposes
     private Double autoCalculatedGrade;  // Not persisted
+    private Double calculatedPointsEarned;	// Not persisted
 
-    private static final Log log = LogFactory.getLog(CourseGradeRecord.class);
     public static Comparator calcComparator;
 
     static {
@@ -101,13 +96,10 @@ public class CourseGradeRecord extends AbstractGradeRecord {
      * grade manager before the database is updated.
 	 * @param courseGrade
 	 * @param studentId
-	 * @param grade
 	 */
-	public CourseGradeRecord(CourseGrade courseGrade, String studentId, String grade) {
+	public CourseGradeRecord(CourseGrade courseGrade, String studentId) {
         this.gradableObject = courseGrade;
         this.studentId = studentId;
-        this.enteredGrade = grade;
-        this.sortGrade = courseGrade.getGradebook().getSelectedGradeMapping().getValue(grade);
 	}
 
     /**
@@ -116,27 +108,6 @@ public class CourseGradeRecord extends AbstractGradeRecord {
     public CourseGradeRecord() {
         super();
     }
-
-    /**
-     * Calculates the total points earned for a set of grade records.
-     *
-     * @param gradeRecords The collection of all grade records for a student
-     * that count toward the course grade
-     */
-    public void calculateTotalPointsEarned(Collection gradeRecords) {
-        double total = 0;
-        for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
-            AssignmentGradeRecord agr = (AssignmentGradeRecord)iter.next();
-            // Skip this if it doesn't have any points earned
-            if(agr.getPointsEarned() == null) {
-                continue;
-            }
-
-            total += agr.getPointsEarned().doubleValue();
-        }
-        pointsEarned = new Double(total);
-    }
-
 
 	/**
      * This method will fail unless this course grade was fetched "with statistics",
@@ -149,7 +120,7 @@ public class CourseGradeRecord extends AbstractGradeRecord {
         if(enteredGrade == null) {
             return autoCalculatedGrade;
         } else {
-            return getGradableObject().getGradebook().getSelectedGradeMapping().getValue(enteredGrade);
+            return getCourseGrade().getGradebook().getSelectedGradeMapping().getValue(enteredGrade);
         }
     }
 
@@ -180,23 +151,9 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 	public Double getAutoCalculatedGrade() {
 		return autoCalculatedGrade;
 	}
-	/**
-	 * @param autoCalculatedGrade The autoCalculatedGrade to set.
-	 */
-	public void setAutoCalculatedGrade(Double autoCalculatedGrade) {
-		this.autoCalculatedGrade = autoCalculatedGrade;
-	}
-	/**
-	 * @return Returns the sortGrade.
-	 */
-	public Double getSortGrade() {
-		return sortGrade;
-	}
-	/**
-	 * @param sortGrade The sortGrade to set.
-	 */
-	public void setSortGrade(Double sortGrade) {
-		this.sortGrade = sortGrade;
+
+	public Double getPointsEarned() {
+		return calculatedPointsEarned;
 	}
 
     /**
@@ -206,9 +163,7 @@ public class CourseGradeRecord extends AbstractGradeRecord {
         if(enteredGrade != null) {
             return enteredGrade;
         } else {
-            CourseGrade cg = (CourseGrade)getGradableObject();
-            return cg.getGradebook().getSelectedGradeMapping().getGrade(sortGrade);
-
+            return getCourseGrade().getGradebook().getSelectedGradeMapping().getGrade(autoCalculatedGrade);
         }
 	}
 
@@ -219,20 +174,6 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 		return true;
 	}
 
-
-    /**
-     * Calculates the grade as a percentage for a course grade record.
-     */
-    public Double calculatePercent(double totalPointsPossible) {
-        Double pointsEarned = getPointsEarned();
-        if (log.isDebugEnabled()) log.debug("calculatePercent; totalPointsPossible=" + totalPointsPossible + ", pointsEarned=" + pointsEarned);
-        if ((pointsEarned == null) || (totalPointsPossible == 0.0)) {
-            return null;
-        } else {
-            return new Double(pointsEarned.doubleValue() / totalPointsPossible * 100);
-        }
-    }
-
 	/**
 	 * For use by the Course Grade UI.
 	 */
@@ -242,5 +183,16 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 			percent = new Double(0);
 		}
 		return percent;
+	}
+
+	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned) {
+		Double percentageEarned;
+		calculatedPointsEarned = totalPointsEarned;
+		if (totalPointsPossible == 0.0) {
+			percentageEarned = null;
+		} else {
+			percentageEarned = new Double(totalPointsEarned / totalPointsPossible * 100);
+		}
+		autoCalculatedGrade = percentageEarned;
 	}
 }

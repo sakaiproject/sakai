@@ -184,12 +184,6 @@ public class Assignment extends GradableObject {
         return false;
     }
 
-    /**
-	 */
-	public Double getPointsForDisplay() {
-		return pointsPossible;
-	}
-
 	/**
 	 */
 	public Date getDateForDisplay() {

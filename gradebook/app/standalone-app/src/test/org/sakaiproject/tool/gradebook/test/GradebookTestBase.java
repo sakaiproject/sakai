@@ -21,24 +21,28 @@
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook.test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.component.section.support.IntegrationSupport;
 import org.sakaiproject.component.section.support.UserManager;
+import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
-
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.CourseGrade;
+import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
 import org.sakaiproject.tool.gradebook.facades.test.AuthnTestImpl;
-
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 /**
@@ -128,5 +132,20 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
 			throw new UnsupportedOperationException();
 		}
 	}
+
+    /**
+     * Utility method for legacy tests after the "getCourseGradeWithStats" method stopped being used
+     * by the application.
+     */
+	protected CourseGrade getCourseGradeWithStats(Long gradebookId) {
+    	List gradableObjects = gradebookManager.getAssignmentsAndCourseGradeWithStats(gradebookId, Assignment.DEFAULT_SORT, true);
+    	for (Iterator iter = gradableObjects.iterator(); iter.hasNext(); ) {
+    		GradableObject gradableObject = (GradableObject)iter.next();
+    		if (gradableObject instanceof CourseGrade) {
+    			return (CourseGrade)gradableObject;
+    		}
+    	}
+    	return null;
+    }
 
 }

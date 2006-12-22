@@ -17,6 +17,7 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,12 +25,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.math.BigDecimal;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
-import org.sakaiproject.tool.gradebook.*;
-import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
+import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.Comment;
+import org.sakaiproject.tool.gradebook.CourseGradeRecord;
+import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  * Provides data for the student view of the gradebook.
@@ -165,13 +169,6 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
         public AssignmentGradeRecord getGradeRecord() {
         	return gradeRecord;
         }
-        public String getDisplayGrade() {
-        	if (gradeRecord == null) {
-        		return FacesUtil.getLocalizedString("score_null_placeholder");
-        	} else {
-        		return gradeRecord.getDisplayGrade();
-        	}
-        }
 
         Double getPointsEarned() {
         	if (gradeRecord == null) {
@@ -227,7 +224,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
             if (gradeRecord != null) {
                 courseGrade = gradeRecord.getDisplayGrade();
                 try{
-                    percent = gradeRecord.getSortGrade().doubleValue();
+                    percent = gradeRecord.getGradeAsPercentage().doubleValue();
                 }catch(NullPointerException npe){
                     if(logger.isDebugEnabled())logger.debug(npe + "currently no grade is available ");
                 }

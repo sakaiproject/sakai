@@ -41,7 +41,6 @@ public abstract class AbstractGradeRecord implements Serializable {
     protected String graderId;
     protected GradableObject gradableObject;
     protected Date dateRecorded;
-    protected Double pointsEarned;
 
     public abstract Double getGradeAsPercentage();
 
@@ -53,16 +52,8 @@ public abstract class AbstractGradeRecord implements Serializable {
     /**
      * @return Returns the pointsEarned
      */
-    public Double getPointsEarned() {
-        return pointsEarned;
-    }
+    public abstract Double getPointsEarned();
 
-	/**
-	 * @param pointsEarned The pointsEarned to set.
-	 */
-	public void setPointsEarned(Double pointsEarned) {
-		this.pointsEarned = pointsEarned;
-	}
 	/**
 	 * @return Returns the dateRecorded.
 	 */

@@ -44,6 +44,7 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
     private static final Map columnSortMap;
 
 	private List gradableObjects;
+	private double totalPoints;
 
     static {
         columnSortMap = new HashMap();
@@ -66,6 +67,19 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 		// Get the list of assignments for this gradebook, sorted as defined in the overview page.
         gradableObjects = getGradebookManager().getAssignmentsAndCourseGradeWithStats(getGradebookId(),
         		getAssignmentSortColumn(), isAssignmentSortAscending());
+        
+        totalPoints = 0;
+        for(Iterator iter = gradableObjects.iterator(); iter.hasNext();) {
+            GradableObject go = (GradableObject)iter.next();
+            if(go.isCourseGrade()) {
+                continue;
+            }
+            Assignment asn = (Assignment)go;
+            if (asn.isNotCounted()) {
+            	continue;
+            }
+            totalPoints+=asn.getPointsPossible().doubleValue();
+        }
 	}
 
     // Delegated sort methods
@@ -121,5 +135,9 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
     	}
     	return gradeOptionSummary;
     }
+    
+	public Double getTotalPoints() {
+		return new Double(totalPoints);
+	}
 
 }

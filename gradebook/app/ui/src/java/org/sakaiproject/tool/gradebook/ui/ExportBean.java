@@ -42,6 +42,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
+import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
@@ -62,7 +63,8 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 	// between action methods.
 	private transient List enrollments;
 	private transient List gradableObjects;
-	private transient Map scoresMap;	// May be course grades instead
+	private transient Map gradeRecordMap;	// May be course grades instead
+	private boolean displayCourseGradeAsPointsEarned;
 
 	/**
 	 * Exports the roster via http as a csv document
@@ -96,12 +98,14 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
     }
 
 	private void initScoresMap(boolean isCourseGrade) {
-        if (isCourseGrade) {
-        	gradableObjects = new ArrayList();
-        } else {
-        	gradableObjects = getGradebookManager().getAssignments(getGradebookId());
+		displayCourseGradeAsPointsEarned = !isCourseGrade;
+		gradableObjects = new ArrayList();
+		List assignments = null;
+        if (!isCourseGrade) {
+        	assignments = getGradebookManager().getAssignments(getGradebookId());
+        	gradableObjects.addAll(assignments);
         }
-		CourseGrade courseGrade = getGradebookManager().getCourseGradeWithStats(getGradebookId());
+		CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
 		gradableObjects.add(courseGrade);
 
 		enrollments = getAvailableEnrollments();
@@ -112,29 +116,15 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 			studentUids.add(enr.getUser().getUserUid());
 		}
 
-		List gradeRecords;
+		gradeRecordMap = new HashMap();
 		if (isCourseGrade) {
-			gradeRecords = getGradebookManager().getPointsEarnedSortedGradeRecords(courseGrade, studentUids);
+			List gradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentUids);
+			getGradebookManager().addToGradeRecordMap(gradeRecordMap, gradeRecords);
 		} else {
-			gradeRecords = getGradebookManager().getPointsEarnedSortedAllGradeRecords(getGradebookId(), studentUids);
-		}
-
-		scoresMap = new HashMap();
-		for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
-			AbstractGradeRecord gradeRecord = (AbstractGradeRecord)iter.next();
-			String studentUid = gradeRecord.getStudentId();
-			Map studentMap = (Map)scoresMap.get(studentUid);
-			if (studentMap == null) {
-				studentMap = new HashMap();
-				scoresMap.put(studentUid, studentMap);
-			}
-			Object columnValue;
-			if (isCourseGrade) {
-				columnValue = ((CourseGradeRecord)gradeRecord).getDisplayGrade();
-			} else {
-				columnValue = gradeRecord.getPointsEarned();
-			}
-            studentMap.put(gradeRecord.getGradableObject().getId(), columnValue);
+			List gradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), studentUids);
+			getGradebookManager().addToGradeRecordMap(gradeRecordMap, gradeRecords);
+			gradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentUids, assignments, gradeRecordMap);
+			getGradebookManager().addToGradeRecordMap(gradeRecordMap, gradeRecords);
 		}
 	}
 
@@ -232,14 +222,14 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
         Collections.sort(enrollments, EnrollmentTableBean.ENROLLMENT_NAME_COMPARATOR);
 		for(Iterator enrollmentIter = enrollments.iterator(); enrollmentIter.hasNext();) {
 			EnrollmentRecord enr = (EnrollmentRecord)enrollmentIter.next();
-			Map studentMap = (Map)scoresMap.get(enr.getUser().getUserUid());
+			Map studentMap = (Map)gradeRecordMap.get(enr.getUser().getUserUid());
 			HSSFRow row = sheet.createRow(sheet.getLastRowNum() + 1);
             createCell(row, (short)0).setCellValue(enr.getUser().getDisplayId());
             createCell(row, (short)1).setCellValue(enr.getUser().getSortName());
 			for(short j=0; j < gradableObjects.size(); j++) {
 				GradableObject go = (GradableObject)gradableObjects.get(j);
 				HSSFCell cell = createCell(row, (short)(j+2));
-				Object cellValue = (studentMap != null) ? studentMap.get(go.getId()) : null;
+				Object cellValue = getScoreAsCellValue((studentMap != null) ? studentMap.get(go.getId()) : null);
 				if(cellValue != null) {
 					if (cellValue instanceof Double) {
 						cell.setCellValue(((Double)cellValue).doubleValue());
@@ -251,6 +241,16 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 		}
 
         return wb;
+	}
+	
+	private Object getScoreAsCellValue(Object fromScoreMap) {
+		if (fromScoreMap == null) {
+			return null;
+		} else if (displayCourseGradeAsPointsEarned || (fromScoreMap instanceof AssignmentGradeRecord)) {
+			return ((AbstractGradeRecord)fromScoreMap).getPointsEarned();
+		} else {
+			return ((CourseGradeRecord)fromScoreMap).getDisplayGrade();
+		}
 	}
 
 	private HSSFCell createCell(HSSFRow row, short column) {
@@ -303,20 +303,16 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 
         for(Iterator enrIter = enrollments.iterator(); enrIter.hasNext();) {
             EnrollmentRecord enr = (EnrollmentRecord)enrIter.next();
-            Map studentMap = (Map)scoresMap.get(enr.getUser().getUserUid());
-            if (studentMap == null) {
-                studentMap = new HashMap();
-            }
+            Map studentMap = (Map)gradeRecordMap.get(enr.getUser().getUserUid());
             appendQuoted(sb, enr.getUser().getDisplayId());
             sb.append(csvSep);
             appendQuoted(sb, enr.getUser().getSortName());
             sb.append(csvSep);
 
-
             for(Iterator goIter = gradableObjects.iterator(); goIter.hasNext();) {
                 GradableObject go = (GradableObject)goIter.next();
                 if(logger.isDebugEnabled()) logger.debug("userUid=" + enr.getUser().getUserUid() + ", go=" + go + ", studentMap=" + studentMap);
-                Object cellValue = (studentMap != null) ? studentMap.get(go.getId()) : null;
+                Object cellValue = getScoreAsCellValue((studentMap != null) ? studentMap.get(go.getId()) : null);
                 if(cellValue != null) {
                     sb.append(cellValue);
                 }

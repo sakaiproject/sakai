@@ -23,37 +23,40 @@
 
 package org.sakaiproject.component.gradebook;
 
-import java.util.*;
-
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.StaleObjectStateException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
+import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
-import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExistsException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
-import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
+import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.GradeMapping;
-import org.sakaiproject.tool.gradebook.GradingScale;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradingScale;
 import org.sakaiproject.tool.gradebook.LetterGradeMapping;
 import org.sakaiproject.tool.gradebook.LetterGradePlusMinusMapping;
 import org.sakaiproject.tool.gradebook.PassNotPassMapping;
 import org.sakaiproject.tool.gradebook.facades.Authz;
-
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -293,8 +296,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         hibTempl.deleteAll(toBeDeleted);
         if (log.isDebugEnabled()) log.debug("Deleted " + numberDeleted + " grade mappings");
 
-        hibTempl.flush();
-
         hibTempl.delete(gradebook);
         hibTempl.flush();
         hibTempl.clear();
@@ -362,7 +363,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
                 asn.setReleased(true);
 
                 session.save(asn);
-				recalculateCourseGradeRecords(gradebook, session);
 				return null;
 			}
 		});
@@ -393,23 +393,15 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-                boolean updateCourseGradeSortScore = false;
                 asn.setExternalInstructorLink(externalUrl);
                 asn.setExternalStudentLink(externalUrl);
                 asn.setName(title);
                 asn.setDueDate(dueDate);
                 //support selective release
                 asn.setReleased(true);
-                // If the points possible changes, we need to update the course grade sort values
-                if(!asn.getPointsPossible().equals(new Double(points))) {
-                    updateCourseGradeSortScore = true;
-                }
                 asn.setPointsPossible(new Double(points));
                 session.update(asn);
                 if (log.isInfoEnabled()) log.info("External assessment updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid());
-                if (updateCourseGradeSortScore) {
-                    recalculateCourseGradeRecords(asn.getGradebook(), session);
-                }
                 return null;
 
             }
@@ -444,20 +436,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		hibTempl.flush();
 		hibTempl.clear();
 		hibTempl.delete(asn);
-
-		// Do the usual cleanup.
-		hibTempl.execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-                // Delete the scores
-                try {
-                    recalculateCourseGradeRecords(asn.getGradebook(), session);
-                } catch (StaleObjectStateException e) {
-                    if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to remove an external assessment");
-                    throw new StaleObjectModificationException(e);
-                }
-                return null;
-			}
-        });
 
         if (log.isInfoEnabled()) log.info("External assessment removed from gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid());
 	}
@@ -517,15 +495,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					Set set = new HashSet();
 					set.add(studentUid);
 
-					// Need to sync database before recalculating.
+					// Sync database.
 					session.flush();
 					session.clear();
-					try {
-						recalculateCourseGradeRecords(gradebook, set, session);
-					} catch (StaleObjectStateException e) {
-						if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update an external score");
-						throw new StaleObjectModificationException(e);
-					}
 				} else {
 					if(log.isDebugEnabled()) log.debug("Ignoring updateExternalAssessmentScore, since the new points value is the same as the old");
 				}
@@ -600,15 +572,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 				if (log.isDebugEnabled()) log.debug("updateExternalAssessmentScores sent " + studentIds.size() + " records, actually changed " + changedStudents.size());
 
-				// Need to sync database before recalculating.
+				// Sync database.
 				session.flush();
 				session.clear();
-                try {
-                    recalculateCourseGradeRecords(assignment.getGradebook(), changedStudents, session);
-                } catch (StaleObjectStateException e) {
-                    if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update an external score");
-                    throw new StaleObjectModificationException(e);
-                }
                 return null;
             }
         });
@@ -708,18 +674,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				gradeRecord.setGraderId(graderId);
 				gradeRecord.setDateRecorded(now);
 				session.saveOrUpdate(gradeRecord);
-				// Need to sync database before recalculating.
+				// Sync database.
 				session.flush();
 				session.clear();
-
-				Set set = new HashSet();
-				set.add(studentUid);
-				try {
-					recalculateCourseGradeRecords(assignment.getGradebook(), set, session);
-				} catch (StaleObjectStateException e) {
-					if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while user " + graderId + " was attempting to update score for assignment " + assignment.getName() + " and student " + studentUid + " from client " + clientServiceDescription);
-					throw new StaleObjectModificationException(e);
-				}
 				return null;
 			}
 		});

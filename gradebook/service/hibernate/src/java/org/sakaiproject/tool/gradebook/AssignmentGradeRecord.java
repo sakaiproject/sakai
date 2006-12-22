@@ -30,7 +30,7 @@ package org.sakaiproject.tool.gradebook;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class AssignmentGradeRecord extends AbstractGradeRecord {
-    protected String displayGrade; // Not persisted
+    private Double pointsEarned;
 
     public AssignmentGradeRecord() {
         super();
@@ -51,6 +51,20 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
 	}
 
     /**
+     * @return Returns the pointsEarned
+     */
+    public Double getPointsEarned() {
+        return pointsEarned;
+    }
+
+	/**
+	 * @param pointsEarned The pointsEarned to set.
+	 */
+	public void setPointsEarned(Double pointsEarned) {
+		this.pointsEarned = pointsEarned;
+	}
+
+    /**
      * Returns null if the points earned is null.  Otherwise, returns earned / points possible * 100.
      *
      * @see org.sakaiproject.tool.gradebook.AbstractGradeRecord#getGradeAsPercentage()
@@ -63,19 +77,6 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
         double possible = ((Assignment)getGradableObject()).getPointsPossible().doubleValue();
         return new Double(earned / possible * 100);
     }
-
-	/**
-	 * @return Returns the displayGrade.
-	 */
-	public String getDisplayGrade() {
-		return displayGrade;
-	}
-	/**
-	 * @param displayGrade The displayGrade to set.
-	 */
-	public void setDisplayGrade(String displayGrade) {
-		this.displayGrade = displayGrade;
-	}
 
 	/**
 	 * @see org.sakaiproject.tool.gradebook.AbstractGradeRecord#isCourseGradeRecord()

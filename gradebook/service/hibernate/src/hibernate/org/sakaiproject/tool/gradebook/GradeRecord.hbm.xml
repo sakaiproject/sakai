@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.gradebook"
@@ -28,14 +28,12 @@
 
 		<property name="dateRecorded" column="DATE_RECORDED" type="timestamp" not-null="true" />
 
-		<property name="pointsEarned" column="POINTS_EARNED" type="double" not-null="false" />
-
 		<subclass name="org.sakaiproject.tool.gradebook.AssignmentGradeRecord"  discriminator-value="1">
+			<property name="pointsEarned" column="POINTS_EARNED" type="double" not-null="false" />
 		</subclass>
 
 		<subclass name="org.sakaiproject.tool.gradebook.CourseGradeRecord" discriminator-value="2">
 			<property name="enteredGrade" column="ENTERED_GRADE" type="string" not-null="false" />
-			<property name="sortGrade" column="SORT_GRADE" type="double" />
 		</subclass>
 
 	</class>

@@ -23,8 +23,10 @@
 package org.sakaiproject.tool.gradebook.test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -90,6 +92,24 @@ public class CalculationsTest extends TestCase {
         gradeRecords.addAll(generateGradeRecords(homework3, 101));
         gradeRecords.addAll(generateGradeRecords(courseGrade, 30));
     }
+	
+	public static double getTotalPointsPossible(Collection assignments) {
+		double total = 0;
+		for (Iterator iter = assignments.iterator(); iter.hasNext();) {
+			total += ((Assignment)iter.next()).getPointsPossible();
+		}
+		return total;
+	}
+	
+	public static Double getTotalPointsEarned(Collection gradeRecords) {
+		double total = 0;
+		boolean hasScores = false;
+		for (Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
+			total += ((AssignmentGradeRecord)iter.next()).getPointsEarned();
+			hasScores = true;
+		}
+		return hasScores ? new Double(total) : null;
+	}
 
 	/**
      * Tests the statistics calculations for assignments
@@ -109,7 +129,6 @@ public class CalculationsTest extends TestCase {
      * @throws Exception
      */
     public void testCourseGradeStatisticsCalculation() throws Exception {
-        courseGrade.calculateTotalPointsPossible(assignments);
         courseGrade.calculateStatistics(gradeRecords, 30); // We generated 30 course grade records
 
         Double firstMean = courseGrade.getMean();
@@ -117,7 +136,7 @@ public class CalculationsTest extends TestCase {
         Assert.assertTrue(firstMean.equals(gradeMap.getValue("B")));
 
         // The total points in the gradebook should be 900
-        Assert.assertTrue(courseGrade.getTotalPoints().doubleValue() == 900);
+        Assert.assertTrue(getTotalPointsPossible(assignments) == 900);
     }
 
     /**
@@ -134,12 +153,10 @@ public class CalculationsTest extends TestCase {
         studentGradeRecords.add(new AssignmentGradeRecord(homework3, "studentId", new Double(400)));
 
         // The grade records should total 90%
-        courseGrade.calculateTotalPointsPossible(assignments);
         CourseGradeRecord cgr = new CourseGradeRecord();
         cgr.setStudentId("studentId");
-        cgr.calculateTotalPointsEarned(studentGradeRecords);
-        Double autoCalc = cgr.calculatePercent(courseGrade.getTotalPoints().doubleValue());
-        Assert.assertEquals(new Double(90), autoCalc);
+        cgr.initNonpersistentFields(getTotalPointsPossible(assignments), getTotalPointsEarned(studentGradeRecords));
+        Assert.assertEquals(new Double(90), cgr.getAutoCalculatedGrade());
     }
 
     /**
@@ -192,14 +209,14 @@ public class CalculationsTest extends TestCase {
 		List records = new ArrayList();
 		List courseRecords = new ArrayList();
 		for (int i = 0; i < numEnrollments; i++) {
-			Double score = (i == 0) ? new Double(10) : null;
+			Double score = (i == 0) ? asn.getPointsPossible() : null;
 			records.add(new AssignmentGradeRecord(asn, "student" + i, score));
-
-			Double calculatedCoursePercentage = (i == 0) ? new Double(100) : null;
+			
 			CourseGradeRecord cgr = new CourseGradeRecord();
 			cgr.setGradableObject(courseGrade);
 			cgr.setStudentId("student" + i);
-			cgr.setAutoCalculatedGrade(calculatedCoursePercentage);
+			double scoreVal = (score != null) ? score.doubleValue() : 0.0; 
+			cgr.initNonpersistentFields(asn.getPointsPossible(), scoreVal);
 			courseRecords.add(cgr);
 		}
 		asn.calculateStatistics(records, numEnrollments);

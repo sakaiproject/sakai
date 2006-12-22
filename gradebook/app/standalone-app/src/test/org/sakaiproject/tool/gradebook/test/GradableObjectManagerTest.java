@@ -32,8 +32,6 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -44,7 +42,6 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 /**
  */
 public class GradableObjectManagerTest extends GradebookTestBase {
-    private static final Log log = LogFactory.getLog(GradableObjectManagerTest.class);
     protected static final String ASN1_NAME = "Assignment #1";
     protected static final String ASN2_NAME = "Assignment #2";
     protected static final String ASN3_NAME = "Assignment #3";
@@ -68,7 +65,7 @@ public class GradableObjectManagerTest extends GradebookTestBase {
 
     public void testCreateAndUpdateAssignment() throws Exception {
         Long asnId = gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
-        Assignment asn = (Assignment)gradebookManager.getGradableObject(asnId);
+        Assignment asn = gradebookManager.getAssignment(asnId);
         asn.setPointsPossible(new Double(20));
         gradebookManager.updateAssignment(asn);
 
@@ -88,7 +85,7 @@ public class GradableObjectManagerTest extends GradebookTestBase {
 
         // Save a second assignment
         Long secondId = gradebookManager.createAssignment(gradebook.getId(), ASN2_NAME, new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
-        Assignment asn2 = (Assignment)gradebookManager.getGradableObject(secondId);
+        Assignment asn2 = gradebookManager.getAssignment(secondId);
 
         errorThrown = false;
 
@@ -123,9 +120,9 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         List ascPointsOrderedAssignments = gradebookManager.getAssignments(gradebook.getId(), Assignment.SORT_BY_POINTS, true);
         List descPointsOrderedAssignments = gradebookManager.getAssignments(gradebook.getId(), Assignment.SORT_BY_POINTS, false);
 
-        Assignment asn1 = (Assignment)gradebookManager.getGradableObject(id1);
-        Assignment asn2 = (Assignment)gradebookManager.getGradableObject(id2);
-        Assignment asn3 = (Assignment)gradebookManager.getGradableObject(id3);
+        Assignment asn1 = gradebookManager.getAssignment(id1);
+        Assignment asn2 = gradebookManager.getAssignment(id2);
+        Assignment asn3 = gradebookManager.getAssignment(id3);
 
         // Ensure that the dates sort correctly
         Assert.assertTrue(ascDateOrderedAssignments.indexOf(asn2) < ascDateOrderedAssignments.indexOf(asn3));
@@ -149,8 +146,8 @@ public class GradableObjectManagerTest extends GradebookTestBase {
     public void testDeletedAssignments() throws Exception {
     	// Make sure nothing awful happens when we ask for CourseGrade
     	// total points for an empty Gradebook
-		CourseGrade courseGrade = gradebookManager.getCourseGradeWithStats(gradebook.getId());
-		Assert.assertTrue(courseGrade.getPointsForDisplay().doubleValue() == 0.0);
+		CourseGrade courseGrade = getCourseGradeWithStats(gradebook.getId());
+		Assert.assertTrue(courseGrade.getMean() == null);
 
 		List studentUidsList = Arrays.asList(new String[] {
 			"testStudentUserUid1",
@@ -173,10 +170,6 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         gradeRecords.add(new AssignmentGradeRecord(asn, (String)studentUidsList.get(1), new Double(9)));
 		gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
 
-		// Do what the Overview page does.
-		assignments = gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.SORT_BY_NAME, true);
-		courseGrade = gradebookManager.getCourseGradeWithStats(gradebook.getId());
-
         // Remove the assignments.
         // (We remove all of them to make sure that the calculated course grade can be emptied.)
         gradebookManager.removeAssignment(id2);
@@ -193,12 +186,12 @@ public class GradableObjectManagerTest extends GradebookTestBase {
 
         // Get the grade records for this gradebook, and make sure none of them
         // belong to a removed assignment
-        gradeRecords = gradebookManager.getPointsEarnedSortedAllGradeRecords(gradebook.getId(), studentUids);
+        gradeRecords = gradebookManager.getAllAssignmentGradeRecords(gradebook.getId(), studentUids);
         assertNoneFromRemovedAssignments(gradeRecords);
 
         // Get the grade records for this assignment.  None should be returned, since
         // it has been removed.
-        gradeRecords = gradebookManager.getPointsEarnedSortedGradeRecords(asn, studentUids);
+        gradeRecords = gradebookManager.getAssignmentGradeRecords(asn, studentUids);
         assertNoneFromRemovedAssignments(gradeRecords);
         Assert.assertTrue(gradeRecords.size() == 0);
 

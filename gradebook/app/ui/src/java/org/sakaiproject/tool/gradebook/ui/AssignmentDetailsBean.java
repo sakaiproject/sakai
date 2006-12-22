@@ -56,7 +56,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	private boolean workInProgress;
 
 	private List scoreRows;
-	private List gradeRecords;
+	private List updatedGradeRecords;
 	private List updatedComments;
 
 	private Long assignmentId;
@@ -71,7 +71,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         private EnrollmentRecord enrollment;
         private Comment comment;
         private List eventRows;
-
+ 
 		public ScoreRow() {
 		}
 		public ScoreRow(EnrollmentRecord enrollment, AssignmentGradeRecord gradeRecord, Comment comment, List gradingEvents) {
@@ -79,7 +79,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
             this.enrollment = enrollment;
             this.gradeRecord = gradeRecord;
             this.comment = comment;
-
+ 
             eventRows = new ArrayList();
             for (Iterator iter = gradingEvents.iterator(); iter.hasNext();) {
             	GradingEvent gradingEvent = (GradingEvent)iter.next();
@@ -91,8 +91,14 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 			return gradeRecord.getPointsEarned();
 		}
 		public void setScore(Double score) {
-            gradeRecord.setPointsEarned(score);
+			Double originalScore = gradeRecord.getPointsEarned();
+			if ( (originalScore != null && !originalScore.equals(score)) ||
+					(originalScore == null && score != null) ) {
+				gradeRecord.setPointsEarned(score);
+				updatedGradeRecords.add(gradeRecord);
+			}
 		}
+
         public EnrollmentRecord getEnrollment() {
             return enrollment;
         }
@@ -138,6 +144,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         nextAssignment = null;
 		scoreRows = new ArrayList();
 		updatedComments = new ArrayList();
+		updatedGradeRecords = new ArrayList();
 
 		if (assignmentId != null) {
 			assignment = getGradebookManager().getAssignmentWithStats(assignmentId);
@@ -165,7 +172,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				// Set up score rows.
 				Map enrollmentMap = getOrderedEnrollmentMap();
 				List studentUids = new ArrayList(enrollmentMap.keySet());
-				gradeRecords = getGradebookManager().getPointsEarnedSortedGradeRecords(assignment, studentUids);
+				List gradeRecords = getGradebookManager().getAssignmentGradeRecords(assignment, studentUids);
 
 				if (!isEnrollmentSort()) {
 					// Need to sort and page based on a scores column.
@@ -268,7 +275,8 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
 	private void saveScores() throws StaleObjectModificationException {
 		if (logger.isInfoEnabled()) logger.info("saveScores " + assignmentId);
-		Set excessiveScores = getGradebookManager().updateAssignmentGradesAndComments(assignment, gradeRecords, updatedComments);
+		
+		Set excessiveScores = getGradebookManager().updateAssignmentGradesAndComments(assignment, updatedGradeRecords, updatedComments);
 
 		if (logger.isDebugEnabled()) logger.debug("About to save " + updatedComments.size() + " updated comments");
 

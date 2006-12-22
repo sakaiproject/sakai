@@ -92,8 +92,11 @@
 						<h:outputText value="#{msgs.overview_assignments_header_points}"/>
 		            </x:commandSortHeader>
 		        </f:facet>
-				<h:outputText value="#{gradableObject}" escape="false">
+				<h:outputText value="#{gradableObject}" escape="false" rendered="#{!gradableObject.courseGrade}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.ASSIGNMENT_POINTS"/>
+				</h:outputText>
+				<h:outputText value="#{overviewBean.totalPoints}" escape="false" rendered="#{gradableObject.courseGrade}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS"/>
 				</h:outputText>
 			</h:column>
 			<h:column>

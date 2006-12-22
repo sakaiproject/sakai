@@ -21,7 +21,7 @@
 			columnClasses="itemName"
 			styleClass="itemSummary">
 			<h:outputText id="pointsLabel" value="#{msgs.course_grade_details_points}"/>
-			<h:outputText id="points" value="#{courseGradeDetailsBean.courseGrade.pointsForDisplay}">
+			<h:outputText id="points" value="#{courseGradeDetailsBean.totalPoints}">
 				<f:convertNumber maxFractionDigits="2"/>
 			</h:outputText>
 
@@ -109,7 +109,7 @@
 				<x:div styleClass="shorttext">
 					<h:inputText
 						id="Grade"
-						value="#{scoreRow.courseGradeRecord.enteredGrade}"
+						value="#{scoreRow.enteredGrade}"
 						size="4"
 						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.COURSE_GRADE" />

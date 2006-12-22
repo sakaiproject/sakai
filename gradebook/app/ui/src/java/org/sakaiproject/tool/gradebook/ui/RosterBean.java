@@ -24,6 +24,7 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -39,11 +40,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.component.html.ext.HtmlDataTable;
 import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;
-
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
-
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
+import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.jsf.AssignmentPointsConverter;
 
@@ -90,7 +90,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 
 	// Controller fields - transient.
 	private transient List studentRows;
-	private transient Map scoresMap;
+	private transient Map gradeRecordMap;
 
 	public class StudentRow implements Serializable {
         private EnrollmentRecord enrollment;
@@ -112,17 +112,34 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		}
 
 		public Map getScores() {
-			return (Map)scoresMap.get(enrollment.getUser().getUserUid());
+			return (Map)gradeRecordMap.get(enrollment.getUser().getUserUid());
 		}
 	}
 
 	protected void init() {
 		super.init();
 
+		List gradableObjects = getGradebookManager().getAssignments(getGradebookId());
+		CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
+		gradableObjectColumns = new ArrayList();
+		for (Iterator iter = gradableObjects.iterator(); iter.hasNext(); ) {
+			gradableObjectColumns.add(new GradableObjectColumn((GradableObject)iter.next()));
+		}
+		gradableObjectColumns.add(new GradableObjectColumn(courseGrade));
+
         Map enrollmentMap = getOrderedEnrollmentMap();
 
-		List gradeRecords = getGradebookManager().getPointsEarnedSortedAllGradeRecords(getGradebookId(), enrollmentMap.keySet());
+		List gradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), enrollmentMap.keySet());
         List workingEnrollments = new ArrayList(enrollmentMap.values());
+
+        gradeRecordMap = new HashMap();
+        getGradebookManager().addToGradeRecordMap(gradeRecordMap, gradeRecords);
+		if (logger.isDebugEnabled()) logger.debug("init - gradeRecordMap.keySet().size() = " + gradeRecordMap.keySet().size());
+
+		List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, enrollmentMap.keySet(), gradableObjects, gradeRecordMap);
+		Collections.sort(courseGradeRecords, CourseGradeRecord.calcComparator);
+        getGradebookManager().addToGradeRecordMap(gradeRecordMap, courseGradeRecords);
+        gradeRecords.addAll(courseGradeRecords);
 
         if (!isEnrollmentSort()) {
         	// Need to sort and page based on a scores column.
@@ -144,36 +161,11 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
             workingEnrollments = finalizeSortingAndPaging(workingEnrollments);
 		}
 
-        scoresMap = new HashMap();
-		for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
-			AbstractGradeRecord gradeRecord = (AbstractGradeRecord)iter.next();
-			String studentUid = gradeRecord.getStudentId();
-			Map studentMap = (Map)scoresMap.get(studentUid);
-			if (studentMap == null) {
-				studentMap = new HashMap();
-				scoresMap.put(studentUid, studentMap);
-			}
-
-			// The current specification shows the final column as "Cumulative" points
-			// rather than as a course display grade.
-
-			studentMap.put(gradeRecord.getGradableObject().getId(), gradeRecord);
-		}
-		if (logger.isDebugEnabled()) logger.debug("init - scoresMap.keySet().size() = " + scoresMap.keySet().size());
-
 		studentRows = new ArrayList(workingEnrollments.size());
         for (Iterator iter = workingEnrollments.iterator(); iter.hasNext(); ) {
             EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
             studentRows.add(new StudentRow(enrollment));
         }
-
-		List gradableObjects = getGradebookManager().getAssignments(getGradebookId());
-		CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
-		gradableObjectColumns = new ArrayList();
-		for (Iterator iter = gradableObjects.iterator(); iter.hasNext(); ) {
-			gradableObjectColumns.add(new GradableObjectColumn((GradableObject)iter.next()));
-		}
-		gradableObjectColumns.add(new GradableObjectColumn(courseGrade));
 
 	}
 
@@ -274,10 +266,6 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		return studentRows;
 	}
 
-	public Map getScoresMap() {
-		return scoresMap;
-	}
-
 	// Sorting
     public boolean isSortAscending() {
         return getPreferencesBean().isRosterTableSortAscending();
@@ -292,6 +280,3 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         getPreferencesBean().setRosterTableSortColumn(sortColumn);
     }
 }
-
-
-

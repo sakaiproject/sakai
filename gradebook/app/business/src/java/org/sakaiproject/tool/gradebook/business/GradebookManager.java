@@ -86,17 +86,40 @@ public interface GradebookManager {
      * @param assignmentId The assignment id
      */
     public void removeAssignment(Long assignmentId) throws StaleObjectModificationException;
+    
+    /**
+     * Get all assignment score records for the given set of student UIDs.
+     * 
+     * @param assignment
+     * @param studentUids
+     * @return AssignmentGradeRecord list
+     */
+    public List getAssignmentGradeRecords(Assignment assignment, Collection studentUids);
 
     /**
-     * Get all grade records for the given gradable object and the given set of
-     * student UIDs
+     * Get all course grade records (with autocalculated fields) for the given
+     * gradebook and the given set of student UIDs
      *
-     * @param gradableObject Find grade records for this gradable object
+     * @param gradebookId
      * @param studentUids
-     * @return A List of grade records
+     * @return CourseGradeRecord list
      */
-    public List getPointsEarnedSortedGradeRecords(GradableObject gradableObject, Collection studentUids);
+    public List getPointsEarnedCourseGradeRecords(CourseGrade courseGrade, Collection studentUids);
 
+    /**
+     * As a side-effect, this version of the method calculates the mean course grade.
+     * The proliferation of method signatures is meant to cut back as much as possible on
+     * redundant reads from the assignment grade records.
+     * 
+     * @param courseGrade This input argument is modified to include statistical information
+     * @param studentUids
+     * @return
+     */
+    public List getPointsEarnedCourseGradeRecordsWithStats(CourseGrade courseGrade, Collection studentUids);
+    
+    public List getPointsEarnedCourseGradeRecords(CourseGrade courseGrade, Collection studentUids, Collection assignments, Map scoreMap);
+    public void addToGradeRecordMap(Map gradeRecordMap, List gradeRecords);
+   
     /**
      * Gets all grade records that belong to a collection of enrollments in a
      * gradebook.
@@ -104,11 +127,10 @@ public interface GradebookManager {
      * @param gradebookId
      * @param studentUids
      */
-    public List getPointsEarnedSortedAllGradeRecords(Long gradebookId, Collection studentUids);
+    public List getAllAssignmentGradeRecords(Long gradebookId, Collection studentUids);
 
     /**
      * Gets whether there are explicitly entered course grade records in a gradebook.
-     * (This may include grades for students who are not currently enrolled.)
      *
      * @param gradebookId The gradebook
      * @return Whether there are course grade records that have a non-null enteredGrade field
@@ -216,12 +238,12 @@ public interface GradebookManager {
     public List getAssignmentsAndCourseGradeWithStats(Long gradebookId, String sortBy, boolean ascending);
 
     /**
-     * Fetches a GradableObject
+     * Fetches an assignment
      *
-     * @param gradableObjectId The gradable object ID
-     * @return The GradableObject
+     * @param assignmentId The assignment ID
+     * @return The assignment
      */
-    public GradableObject getGradableObject(Long gradableObjectId);
+    public Assignment getAssignment(Long assignmentId);
 
     /**
      * Fetches an assignment and populates its non-persistent statistics
@@ -258,21 +280,13 @@ public interface GradebookManager {
         throws ConflictingAssignmentNameException, StaleObjectModificationException;
 
     /**
-     * Fetches the course grade for a gradebook
+     * Fetches the course grade for a gradebook as found in the database.
+     * No non-persistent fields (such as points earned) are filled in.
      *
      * @param gradebookId The gradebook id
      * @return The course grade
      */
     public CourseGrade getCourseGrade(Long gradebookId);
-
-    /**
-     * Fetches the course grade for a gradebook and populates its non-persistent
-     * statistics fields
-     *
-     * @param gradebookId The gradebook id
-     * @return The course grade
-     */
-    public CourseGrade getCourseGradeWithStats(Long gradebookId);
 
     public double getTotalPoints(Long gradebookId);
 

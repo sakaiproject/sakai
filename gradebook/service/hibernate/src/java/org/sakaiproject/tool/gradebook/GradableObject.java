@@ -25,14 +25,12 @@ package org.sakaiproject.tool.gradebook;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -63,15 +61,6 @@ public abstract class GradableObject implements Serializable {
      */
     public abstract boolean isCourseGrade();
 
-    /**
-     * The number of points to display in the UI.
-     */
-    public abstract Double getPointsForDisplay();
-
-    /**
-     * The date to display in the UI.
-     */
-    public abstract Date getDateForDisplay();
 	/**
 	 * @return Returns the id.
 	 */

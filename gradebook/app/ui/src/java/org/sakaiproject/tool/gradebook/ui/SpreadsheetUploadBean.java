@@ -595,7 +595,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
             FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save", new String[] {assignment.getName()}));
 
-            assignment = getGradebookManager().getAssignmentWithStats(assignmentId);
+            assignment = getGradebookManager().getAssignment(assignmentId);
             List gradeRecords = new ArrayList();
 
             //initialize comment List
