@@ -332,13 +332,19 @@
 									#else
 										#if ($!allowAddAssignment)
 											#if ($!submission)
-												
-												#if (($!submissionReturned && $!submissionProperties.getProperty("grade_submission_allow_resubmit").equalsIgnoreCase("true")) || !$!submissionSubmitted)
+												#set($allowResubmitNumber=$!submissionProperties.getProperty($!allowResubmitNumberProp))
+												#if(!$!allowResubmitNumber.equals("0"))
+													#set($allowResubmitCloseTimeString=$!submissionProperties.getProperty($!allowResubmitCloseTimeProp))
+													#set($allowResubmitCloseTime=$!TimeService.newTime($!LongObject.parseLong($!allowResubmitCloseTimeString)))
+												#end
+												## if not submitted or returned and still allowed to submit within the due time
+												#if (($!submissionReturned && !$!allowResubmitNumber.equals("0") && $!allowResubmitCloseTime && $currentTime.before($!allowResubmitCloseTime)) || !$!submissionSubmitted)
+													## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
 													<a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
 												#else
-													<h4><a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">
+													<a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">
 												#end
-												<h4>$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
+												<h4>$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</h4></a>
 											#else
 												<h4>$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</h4>
 												#if ($!allowSubmit)
@@ -352,7 +358,13 @@
 										#else
 											#if($!allowSubmit)
 												#if ($!submission)
-													#if (($!submissionReturned && $!submissionProperties.getProperty("grade_submission_allow_resubmit").equalsIgnoreCase("true"))|| !$!submissionSubmitted)
+													#set($allowResubmitNumber=$!submissionProperties.getProperty($!allowResubmitNumberProp))
+													#if(!$!allowResubmitNumber.equals("0"))
+														#set($allowResubmitCloseTimeString=$!submissionProperties.getProperty($!allowResubmitCloseTimeProp))
+														#set($allowResubmitCloseTime=$!TimeService.newTime($!LongObject.parseLong($!allowResubmitCloseTimeString)))
+													#end
+													## if not submitted or returned and still allowed to submit within the due time
+													#if (($!submissionReturned && !$!allowResubmitNumber.equals("0") && $!allowResubmitCloseTime && $currentTime.before($!allowResubmitCloseTime)) || !$!submissionSubmitted)
 														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
 														<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 													#else

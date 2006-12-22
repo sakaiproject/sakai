@@ -190,25 +190,26 @@
 				#end	
 			<div class="highlightPanel">
 				Grade:
-					#if ($!grade && $grade.length()>0 && $grade!="ungraded")
-						<span class="highlight">$grade</span>
-					#else
-						<span class="highlight">$tlang.getString("gen.ung1")</span>
-					#end
-					<br />
-					#if($!allowResubmit)
-						$tlang.getString("allowResubmitDisplay")
-					#else
-						$tlang.getString("allowNotResubmitDisplay")
-					#end	
-			</div>	
+				#if ($!grade && $grade.length()>0 && $grade!="ungraded")
+					<span class="highlight">$grade</span>
+				#else
+					<span class="highlight">$tlang.getString("gen.ung1")</span>
+				#end
+			</div>
+			<br />
+			<p>
+				$tlang.getString("allow.resubmit.number"): $!allowResubmitNumber
+			</p>
+			#if ($!allowResubmitCloseTime)
+				<p>
+					$tlang.getString("gen.acesubunt"): $!allowResubmitCloseTime
+				</p>
+			#end
 			<p class="act">
 				<input accesskey="s" name="eventSubmit_doReturn_preview_grade_submission" type="submit" value="$tlang.getString("gen.retustud")" title="$tlang.getString("gen.retustudtit")" class="active" />
 				<input accesskey="d" name="eventSubmit_doSave_preview_grade_submission" type="submit" value="$tlang.getString("gen.sav")" />
 				<input accesskey="r" name="eventSubmit_doCancel_preview_grade_submission" type="submit" value="$tlang.getString("gen.revi")" />
 				<input accesskey="d" name="eventSubmit_doSave_preview_grade_submission" type="submit" value="$tlang.getString("gen.savdra")" />				
-			</p>
-
-												
+			</p>											
 		</form>
 </div>

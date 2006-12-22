@@ -1,5 +1,8 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_grading_submission.vm,v 1.10 2005/06/03 15:32:15 zqian.umich.edu Exp $ -->
 ## no focus_path
+<script type="text/javascript">
+	focus_path = [ '$fField' ];
+</script>
 <div class="portletBody">
 	<div class="navIntraTool">
 		#if ($allowAddAssignment)
@@ -381,9 +384,70 @@
 								#end
 						</div>	
 						#end
-			<p class="checkbox">			
-				<input type="checkbox" name="allowResubmit"  id="allowResubmit" #if($!value_allowResubmit) checked="checked" #end /> <label for="allowResubmit">$tlang.getString("allowResubmit")</label>
-			</p>	
+					<p class="shorttext">
+						<label for="allowResubmitNumber">
+							$tlang.getString("allow.resubmit.number")
+						</label>
+						<select name="$name_allowResubmitNumber" id="allowResubmitNumber" onchange="if (document.getElementById('allowResubmitNumber').value!=0 && document.getElementById('closeTime') !=null){document.getElementById('closeTime').style.display = 'block';}else {document.getElementById('closeTime').style.display = 'none';}">
+							#foreach ($i in [-1..10])
+								<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
+									#if($i==-1)
+										$tlang.getString("allow.resubmit.number.unlimited")
+									#else
+										$i
+									#end
+								</option>
+							#end
+						</select>
+					</p>
+					#if($!value_allowResubmitNumber==0)
+						#set($closeTimeStyle="display:none")
+					#else 
+						#set($closeTimeStyle="display:block")
+					#end
+					## only show date selection when allowed to resubmit
+					<p class="shorttext" id="closeTime" style=$!closeTimeStyle>
+						<label for="new_assignment_closemonth">
+							$tlang.getString("gen.acesubunt")
+						</label>
+						#chef_dateselectionwidget($name_CloseYear $name_CloseMonth $name_CloseDay 2002 2007 $value_CloseYear $value_CloseMonth $value_CloseDay)
+						$tlang.getString("gen.at") 
+						<select name="$name_CloseHour" id="$name_CloseHour">
+							#foreach ($i in [1..12])
+								#if ($i == $value_CloseHour)
+									<option value="$i" selected="selected">$i</option>
+								#else
+									<option value="$i">$i</option>
+								#end
+							#end
+						</select>
+						<select name="$name_CloseMin" id="$name_CloseMin">
+							#foreach ($i in [0, 15, 30, 45])
+								#if ($i == $value_CloseMin)
+									#if ($i == 0)
+										<option value="$i" selected="selected">00</option>
+									#else
+										<option value="$i" selected="selected">$i</option>
+									#end
+								#else
+									#if ($i == 0)
+										<option value="$i">00</option>
+									#else
+										<option value="$i">$i</option>
+									#end
+								#end
+							#end
+						</select>
+						<select name="$name_CloseAMPM" id="$name_CloseAMPM">
+							#foreach ($i in ["AM", "PM"])
+								#if ($i == $value_CloseAMPM)
+									<option value="$i" selected="selected">$i</option>
+								#else
+									<option value="$i">$i</option>
+								#end
+							#end
+						</select>
+					</p>	
 			<p class="act">
 				<input type="button" accesskey="s" class="active" name="return" value="$tlang.getString('gen.retustud')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='returngrade';document.gradeForm.submit();return false;" title="$tlang.getString("gen.retustudtit")" />
 				<input type="button" accesskey="v" name="preview" value="$tlang.getString('gen.pre')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='previewgrade';document.gradeForm.submit();return false;" />
