@@ -114,19 +114,16 @@ public class MembershipManagerImpl implements MembershipManager{
 		  to only those who are visible (as well as current user) */
 	  for (Iterator userIterator = userCollection.iterator(); userIterator.hasNext();) {
 		  MembershipItem memberItem = (MembershipItem) userIterator.next();
-			
+					  
 		  if (memberItem.getUser() != null) {
-			  final boolean inMemberSet = memberSet.contains(memberItem.getUser().getId());
-			  final String memberSetId = memberItem.getUser().getId();
-			  final String currentUserId = userDirectoryService.getCurrentUser().getId();
-			  
-			  if (inMemberSet || currentUserId.equals(memberSetId)) {
-				  results.put(memberItem.getId(), memberItem);
-			  }
+			  memberItem.setViewable(memberSet.contains(memberItem.getUser().getId()));
 		  }
 		  else {
-			  results.put(memberItem.getId(), memberItem);
+			  // want groups to be displayed
+			  memberItem.setViewable(true);
 		  }
+
+		  results.put(memberItem.getId(), memberItem);
 	  }
 		
 	  return results;

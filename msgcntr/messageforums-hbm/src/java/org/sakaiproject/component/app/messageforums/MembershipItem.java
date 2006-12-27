@@ -51,6 +51,7 @@ import org.sakaiproject.user.api.User;
    private Role role;
    private Group group;   
    private User user;
+   private boolean viewable;
          
   private MembershipItem(){
   }
@@ -117,7 +118,15 @@ import org.sakaiproject.user.api.User;
   }
 
 
-  /**
+  public boolean isViewable() {
+	return viewable;
+  }
+
+  public void setViewable(boolean viewable) {
+	this.viewable = viewable;
+  }
+
+/**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
   public int compareTo(Object o)
@@ -157,7 +166,7 @@ import org.sakaiproject.user.api.User;
   public int hashCode()
   {    
     return id.hashCode();
-  } 
+  }
     
 }
  

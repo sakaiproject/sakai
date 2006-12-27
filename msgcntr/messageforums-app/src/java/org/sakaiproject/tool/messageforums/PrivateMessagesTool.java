@@ -617,9 +617,21 @@ public class PrivateMessagesTool
   public List getTotalComposeToList()
   { 
     
-    /** protect from jsf calling multiple times */
+    /** just need to refilter */
     if (totalComposeToList != null){
-      return totalComposeToList;
+        List selectItemList = new ArrayList();
+        
+    	for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {
+
+    		MembershipItem item = (MembershipItem) i.next();
+
+    		if (item.isViewable()) {
+    			selectItemList.add(new SelectItem(item.getId(), item.getName()));
+    		}
+    	}
+
+    	return selectItemList;       
+
     }
     
     totalComposeToListRecipients = new ArrayList();
@@ -639,18 +651,20 @@ public class PrivateMessagesTool
        	memberIds.add(item.getId());
     }
 
-		List selectItemList = new ArrayList();
+    totalComposeToList = members;
+    
+    List selectItemList = new ArrayList();
+    
+	for (Iterator i = members.iterator(); i.hasNext();) {
 
-		/** create a list of SelectItem elements */
-		for (Iterator i = members.iterator(); i.hasNext();) {
+		MembershipItem item = (MembershipItem) i.next();
 
-			MembershipItem item = (MembershipItem) i.next();
-
+		if (item.isViewable()) {
 			selectItemList.add(new SelectItem(item.getId(), item.getName()));
 		}
-    
-    totalComposeToList = selectItemList;
-    return selectItemList;       
+	}
+
+	return selectItemList;       
   }
   
   public String getUserSortNameById(String id){    
@@ -1560,8 +1574,7 @@ public class PrivateMessagesTool
         
     //by default add current user
     for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {      
-      SelectItem selectItem = (SelectItem) i.next();
-      MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectItem.getValue());                
+      MembershipItem membershipItem = (MembershipItem) i.next();                
       
       if (MembershipItem.TYPE_USER.equals(membershipItem.getType())) {
         if (membershipItem.getUser() != null) {
@@ -1598,16 +1611,31 @@ public class PrivateMessagesTool
     rrepMsg.setInReplyTo(currentMessage) ;
     
     //Add the recipientList as String for display in Sent folder
+    // Since some users may be hidden, if some of these are recipients
+    // filter them out (already checked if no recipients)
     String sendToString="";
-    for (int i = 0; i < selectedComposeToList.size(); i++)
-    {
-      MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(i));  
-      if(membershipItem != null)
-      {
-        sendToString +=membershipItem.getName()+"; " ;
-      }          
+    if (selectedComposeToList.size() == 1) {
+        MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(0));  
+        if(membershipItem != null)
+        {
+      		  sendToString +=membershipItem.getName()+"; " ;
+        }          
     }
-    sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space
+    else {
+    	for (int i = 0; i < selectedComposeToList.size(); i++)
+    	{
+    		MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(i));  
+    		if(membershipItem != null)
+    		{
+    			if (membershipItem.isViewable()) {
+    				sendToString +=membershipItem.getName()+"; " ;
+    			}
+    		}
+    	}
+    }
+
+   	sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space	
+    
     rrepMsg.setRecipientsAsText(sendToString);
     
     
