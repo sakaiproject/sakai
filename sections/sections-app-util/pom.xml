@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../../master/pom.xml</relativePath>
+  </parent>
+  <name>sakai-sections-app-util</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-sections-app-util</artifactId>
+  <organization>
+    <name>Sakai Project</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2005</inceptionYear>
+  <packaging>jar</packaging>
+  <properties>
+    <deploy.target/>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-sections-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-sections-model</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+
+<!-- Sakai plugin -->
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>${sakai.commons.lang.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>myfaces</groupId>
+      <artifactId>myfaces-all</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jsf-widgets</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+  </dependencies>
+  <reports/>
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/bundle</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+    </resources>
+    <sourceDirectory>src/java</sourceDirectory>
+  </build>
+</project>

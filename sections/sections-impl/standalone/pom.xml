@@ -175,7 +175,7 @@
     
     <resources>
       <resource>
-        <directory>/src/java</directory>
+        <directory>src/java/</directory>
         <includes>
           <include>**/*.properties</include>
         </includes>

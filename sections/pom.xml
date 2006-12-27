@@ -14,6 +14,7 @@
   <modules>
     <module>help</module>
     <module>sections-api</module>
+    <module>sections-app-util</module>
     <module>sections-app</module>
     <module>sections-impl/integration-support</module>
     <module>sections-impl/integration-test</module>

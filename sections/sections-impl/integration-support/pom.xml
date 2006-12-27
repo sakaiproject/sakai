@@ -228,7 +228,13 @@
           <include>log4j.properties</include>
         </includes>
       </testResource>
-<!--includes:  include: **/*Test.java -->
+      <testResource>
+        <directory>${basedir}/../../sections-app/src/test/</directory>
+        <includes>
+          <include>hibernate.properties</include>
+        </includes>
+      </testResource>
+
     </testResources>
   </build>
 </project>

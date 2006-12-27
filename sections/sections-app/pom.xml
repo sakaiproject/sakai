@@ -53,6 +53,13 @@
 <!--properties:  war.bundle: false -->
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-sections-app-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+
     <dependency>
       
       <groupId>org.sakaiproject</groupId>
@@ -379,6 +386,7 @@
   <build>
     
    <plugins>
+
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
@@ -408,6 +416,21 @@
           </execution>
         </executions>
       </plugin>
+
+		<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+                    <testExcludes>
+                        <exclude implementation="java.lang.String">**/*Test*</exclude>
+                        <exclude implementation="java.lang.String">**/*Loader*</exclude>
+                    </testExcludes>
+                    <testiNcludes>
+                        <include implementation="java.lang.String">**/SectionsTestSuite</include>
+                    </testiNcludes>
+				</configuration>
+		</plugin>
+
     </plugins>
     <resources>
       <resource>
@@ -430,7 +453,6 @@
       </resource>
     </resources>
     
-    
     <testResources>
       <testResource>
         <directory>${basedir}</directory>
@@ -438,7 +460,12 @@
           <include>log4j.properties</include>
         </includes>
       </testResource>
-<!--includes:  include: **/*TestSuite.java -->
+      <testResource>
+        <directory>${basedir}/src/test/</directory>
+        <includes>
+          <include>hibernate.properties</include>
+        </includes>
+      </testResource>
     </testResources>
 
   </build>
