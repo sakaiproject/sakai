@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/contrib/syracuse/gmt/trunk/gmt/gmt-impl/impl/src/java/org/sakaiproject/gmt/impl/LinkableActivityManagerImpl.java $
- * $Id: LinkableActivityManagerImpl.java 2556 2006-11-08 03:10:00Z jmpease@syr.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2006 The Sakai Foundation.
