@@ -38,6 +38,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
@@ -473,16 +474,38 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			isCollection = false;
 		
 		String imgLink = "";
-		if(isCollection)
-			imgLink = href + ContentTypeImageService.getContentTypeImage("folder");			
-		else if(rp != null)
-			imgLink = href + ContentTypeImageService.getContentTypeImage(rp.getProperty(rp.getNamePropContentType()));
-		else
+		try{
+			if(isCollection)
+				imgLink = href + ContentTypeImageService.getContentTypeImage("folder");			
+			else if(rp != null){
+				String contentTypePropName = rp.getNamePropContentType();
+				String contentType = rp.getProperty(contentTypePropName);
+				if(contentType != null)
+					imgLink = href + ContentTypeImageService.getContentTypeImage(contentType);
+				else
+					imgLink = href + "sakai/generic.gif";
+			}else
+				imgLink = href + "sakai/generic.gif";
+		}catch(Exception e){
 			imgLink = href + "sakai/generic.gif";
+		}
 		return imgLink;
 	}	
 	
+	
 	public String getResourceURL(String ref){
+		try{
+			String tmp = ref.replaceFirst("/content", "");
+			if(tmp.endsWith("/"))
+				ContentHostingService.checkCollection(tmp);
+			else
+				ContentHostingService.checkResource(tmp);
+		}catch(IdUnusedException e){
+			return null;
+		}catch(Exception e){
+			// TypeException or PermissionException
+			// It's OK since it exists
+		}
 		Reference r = EntityManager.newReference(ref);
 		return Validator.escapeHtml(r.getUrl());
 	}
@@ -505,7 +528,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if(siteId == null){
 			throw new IllegalArgumentException("Null siteId");
 		}else{
-			final List userIdList = searchUsers(searchKey);
+			final List userIdList = searchUsers(searchKey, siteId);
+			/* return if no users matched */
+			if(userIdList != null && userIdList.size() == 0)				
+				return new ArrayList();
 			
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -541,7 +567,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if(siteId == null){
 			throw new IllegalArgumentException("Null siteId");
 		}else{
-			final List userIdList = searchUsers(searchKey);
+			final List userIdList = searchUsers(searchKey, siteId);
+			/* return if no users matched */
+			if(userIdList != null && userIdList.size() == 0)				
+				return new ArrayList();
 
 			String usersStr = "";
 			String iDateStr = "";
@@ -609,7 +638,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if(siteId == null){
 			throw new IllegalArgumentException("Null siteId");
 		}else{
-			final List userIdList = searchUsers(searchKey);
+			final List userIdList = searchUsers(searchKey, siteId);
+			/* return if no users matched */
+			if(userIdList != null && userIdList.size() == 0)				
+				return 0;
 
 			String usersStr = "";
 			String iDateStr = "";
@@ -672,7 +704,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if(siteId == null){
 			throw new IllegalArgumentException("Null siteId");
 		}else{
-			final List userIdList = searchUsers(searchKey);			
+			final List userIdList = searchUsers(searchKey, siteId);		
+			/* return if no users matched */
+			if(userIdList != null && userIdList.size() == 0)				
+				return new ArrayList();	
 			
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -707,7 +742,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if(siteId == null){
 			throw new IllegalArgumentException("Null siteId");
 		}else{
-			final List userIdList = searchUsers(searchKey);			
+			final List userIdList = searchUsers(searchKey, siteId);	
+			/* return if no users matched */
+			if(userIdList != null && userIdList.size() == 0)				
+				return new ArrayList();		
 			
 			String usersStr = "";
 			String iDateStr = "";
@@ -776,7 +814,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if(siteId == null){
 			throw new IllegalArgumentException("Null siteId");
 		}else{
-			final List userIdList = searchUsers(searchKey);			
+			final List userIdList = searchUsers(searchKey, siteId);	
+			/* return if no users matched */
+			if(userIdList != null && userIdList.size() == 0)				
+				return 0;		
 			
 			String usersStr = "";
 			String iDateStr = "";
@@ -1457,7 +1498,51 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		return date;
 	}
 	
-	private List searchUsers(String searchKey){
+	private List searchUsers(String searchKey, String siteId){
+		if(searchKey == null || searchKey.trim().equals(""))
+			return null;
+		List usersWithStats = getUsersWithStats(siteId);
+		List userIdList = new ArrayList();
+		Iterator i = usersWithStats.iterator();
+		while(i.hasNext()){
+			String userId = (String) i.next();
+			boolean match = false;
+			if(userId.toLowerCase().matches("(.*)"+searchKey.toLowerCase()+"(.*)"))
+				match = true;
+			else
+				try{
+					User u = M_uds.getUser(userId);
+					if(u.getEid().toLowerCase().matches("(.*)"+searchKey.toLowerCase()+"(.*)")
+							|| u.getFirstName().toLowerCase().matches("(.*)"+searchKey.toLowerCase()+"(.*)")
+							|| u.getLastName().toLowerCase().matches("(.*)"+searchKey.toLowerCase()+"(.*)"))
+						match = true;
+				}catch(Exception e) {
+					match = false;
+				}
+			
+			if(match)
+				userIdList.add(userId);
+		}
+		return userIdList;
+	}
+	
+	private List getUsersWithStats(final String siteId){
+		final String hql = "select distinct(ss.userId) " +
+		"from EventStatImpl as ss " +
+		"where ss.siteId = :siteid ";
+
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery(hql);
+				q.setString("siteid", siteId);
+				return q.list();	
+			}
+		};
+		return ((List) getHibernateTemplate().execute(hcb));
+	}
+	
+	// This method is limited to internal users only (FASTER) - replaced
+	private List searchUsers_old(String searchKey){
 		if(searchKey == null || searchKey.trim().equals(""))
 			return null;
 		List userList = M_uds.searchUsers(searchKey, 0, Integer.MAX_VALUE);

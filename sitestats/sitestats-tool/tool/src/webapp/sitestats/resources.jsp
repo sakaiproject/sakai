@@ -90,11 +90,14 @@
 			            </t:commandSortHeader>   	                
 			        </f:facet>
 			        <t:graphicImage value="#{row.refImg}"/>
-			        <h:outputLink value="#{row.refUrl}" target="_new" >
+			        <h:outputLink value="#{row.refUrl}" target="_new" rendered="#{row.refUrl != null}">
                     	<h:outputText value="#{row.ref}" escape="false">
 							<f:converter converterId="org.sakaiproject.sitestats.tool.jsf.converter.RES_REF_NAME"/>
 						</h:outputText>    
 					</h:outputLink>
+					<h:outputText value="#{row.ref}" escape="false" rendered="#{row.refUrl == null}">
+						<f:converter converterId="org.sakaiproject.sitestats.tool.jsf.converter.RES_REF_NAME"/>
+					</h:outputText>
 				</h:column>
 				<h:column>
 					<f:facet name="header">

@@ -73,7 +73,7 @@ public interface StatsManager {
 	/** Get the resource image from a reference */
 	public String getResourceImage(String ref);
 	
-	/** Get the resource url from a reference */
+	/** Get the resource url from a reference. Returns null if resource no longer exist. */
 	public String getResourceURL(String ref);
 	
 	// ################################################################

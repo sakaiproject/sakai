@@ -1,3 +1,12 @@
+2006/12/28 - Version 0.5.7
+------------------------------
+- added support for new 'Poll' events
+- STAT-18: Deleted resources may slow down Site Stats  
+- STAT-19: Site Stats gives a stack trace error when you click on "resources"
+- STAT-20: Conflicting 'content.*' (Resources/MessageCenter) events may not get correctly processed
+- STAT-21: Do not render links for deleted resources on Resources page
+- STAT-22: Search doesn't work for external users
+
 2006/10/31 - Version 0.5.6
 ------------------------------
 - fixed STAT-17: Locale bundle not read

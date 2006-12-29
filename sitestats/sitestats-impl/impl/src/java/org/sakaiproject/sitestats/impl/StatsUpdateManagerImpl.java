@@ -107,7 +107,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	public void update(Observable obs, Object o) {		
 		if(o instanceof Event){
 			updateQueue.add(o);
-		}
+		}//else LOG.info("Not an Event: "+o.toString());
 	}
 	
 	/** Update thread: do not call this method! */
@@ -126,9 +126,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						if(siteId == null || SiteService.isUserSite(siteId) || SiteService.isSpecialSite(siteId)) continue;
 						
 						doUpdate(e, userId, siteId);
-						//LOG.info("Statistics updated for '"+e.getEvent()+"' ("+e.toString()+")");
-					}//else
-						//LOG.info("Event ignored:  '"+e.toString()+"' ("+e.toString()+")");
+						//LOG.info("Statistics updated for '"+e.getEvent()+"' ("+e.toString()+") USER_ID: "+userId);
+					}//else LOG.info("Event ignored:  '"+e.toString()+"' ("+e.toString()+") USER_ID: "+userId);
 				}
 				
 				// sleep if no work to do
@@ -187,12 +186,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			if(!event.equals("pres.begin")){
 				doUpdateSiteActivity(event, siteId, date, registeredEvents);
 			}
-		}
-		String parts[] = e.getResource().split("\\/");	
-		if(event.startsWith("content.")
-				/* MessageCenter special case */
-				&& (parts[0].equals("MessageCenter")
-						|| parts[1].equals("MessageCenter"))){
+		}	
+		if(event.startsWith("content.")){
 			doUpdateResourceStat(event, resource, userId, siteId, date);
 		}else if(event.equals("pres.begin")){
 			doUpdateSiteVisits(userId, siteId, date);

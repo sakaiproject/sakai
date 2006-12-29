@@ -3,10 +3,11 @@ Site Stats Tool
 1. About
 2. Building/deploying
 3. Updating from previous releases
-4. Permission-sensitive pages/tools
-5. Using the tool
-6. Known bugs/issues
-7. Contact
+4. Tool permissions
+5. Permission-sensitive pages/tools
+6. Using the tool
+7. Known bugs/issues
+8. Contact
 
 
 
@@ -42,14 +43,25 @@ uses a master project descriptor file at '../master/project.xml').
   3. Build/deploy with maven
 
 
-4. Permission-sensitive pages/tools
+4. Tool permissions
 -----------------------
-Sakai currently does not support permission-sensitive pages although there is already a feature request 
-for this (SAK-4120). Meanwhile, and while there is no native support for this, you can use the custom 
-solution explained in http://bugs.sakaiproject.org/confluence/display/STAT
+For SiteStats 0.5.5 or higher, the 'sitestats.view' permission IS REQUIRED in order to use the tool.
+Please either add the permission to the '!site.helper' realm or use a script to update existing realms.
 
 
-5. Using the Tool
+5. Permission-sensitive pages/tools
+-----------------------
+Sakai 2.3.x or higher
+Sakai 2.3 addresses SAK-4120. Sitestats will be displayed in left menu for all users with the 
+'sitestats.view' permission. Also, Sitestats admin version can be displayed for users with the 
+'sitestats.view.admin' permission.
+
+Sakai 2.1.x or 2.2.x
+Sakai up to 2.2.x does not support permission-sensitive pages. Alternatively, you can use the
+custom solution explained in http://bugs.sakaiproject.org/confluence/display/STAT
+
+
+6. Using the Tool
 -----------------------
 Use the 'Site Info' tool to add SiteStats to a site.
 In the events and resources page, events can searched by user ID or name, filtered by groups,
@@ -58,17 +70,16 @@ The preferences page allows a user to select events to be displayed in Events pa
 as Activity in the Overview page.
  
 
-6. Known bugs/issues/limitations
+7. Known bugs/issues/limitations
 -----------------------
 - Assignments tool: SAK-4315: When grading in Assignments, 'asn.submit.submission' events are logged to SAKAI_EVENT
 instead of 'asn.grade.submission' (FIXED in r11229);
 - Email archive: unable to process email attachments (no reference to site id);
 - Discussion tool: SAK-5340: Category related events are always logged as 'disc.null' (FIXED in r11194);
 - Message Center: SAK-5341: Events logged should have unique ID and normalized reference;
-- SiteStats is not cluster-aware (yet);
 
 
-7. Contact
+8. Contact
 -----------------------
 SiteStats is written by Nuno Fernandes at Universidade Fernando Pessoa.
 If you wish, feel free to submit patches or any other contributions.
