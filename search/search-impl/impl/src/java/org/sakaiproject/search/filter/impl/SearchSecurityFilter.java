@@ -22,6 +22,7 @@
 package org.sakaiproject.search.filter.impl;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,13 +37,15 @@ import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.TermFrequency;
 import org.sakaiproject.search.filter.SearchItemFilter;
 
+
 /**
  * @author ieb
  */
 public class SearchSecurityFilter implements SearchItemFilter
 {
 
-	private static final Log log = LogFactory.getLog(SearchSecurityFilter.class);
+	private static final Log log = LogFactory
+			.getLog(SearchSecurityFilter.class);
 
 	private SearchIndexBuilder searchIndexBuilder = null;
 
@@ -62,6 +65,7 @@ public class SearchSecurityFilter implements SearchItemFilter
 		}
 
 	}
+
 	private Object load(ComponentManager cm, String name)
 	{
 		Object o = cm.get(name);
@@ -71,7 +75,6 @@ public class SearchSecurityFilter implements SearchItemFilter
 		}
 		return o;
 	}
-
 
 	/**
 	 * @return Returns the nextFilter.
@@ -113,7 +116,7 @@ public class SearchSecurityFilter implements SearchItemFilter
 		Reference ref = entityManager.newReference(reference);
 		EntityContentProducer ecp = searchIndexBuilder
 				.newEntityContentProducer(ref);
-		
+
 		if (ecp == null || !ecp.canRead(ref))
 		{
 			result = new CensoredSearchResult();
@@ -181,9 +184,12 @@ public class SearchSecurityFilter implements SearchItemFilter
 
 		public TermFrequency getTerms() throws IOException
 		{
-			return new TermFrequency() {
+			return new TermFrequency()
+			{
 				int[] freq = new int[0];
+
 				String[] terms = new String[0];
+
 				public int[] getFrequencies()
 				{
 					return freq;
@@ -193,13 +199,25 @@ public class SearchSecurityFilter implements SearchItemFilter
 				{
 					return terms;
 				}
-				
+
 			};
 		}
 
 		public String getTool()
 		{
 			return "";
+		}
+
+		public void toXMLString(StringBuffer sb)
+		{
+			sb.append("<result");
+			sb.append(" index=\"0\" ");
+			sb.append(" score=\"0\" ");
+			sb.append(" sid=\"\" ");
+			sb.append(" reference=\"\" ");
+			sb.append(" title=\"\" ");
+			sb.append(" tool=\"\" ");
+			sb.append(" url=\"\" />");
 		}
 
 	}

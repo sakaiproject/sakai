@@ -33,14 +33,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * @author andrew
+ * @author Ian Boston
  */
 // FIXME: Tool
 public class ControllerServlet extends HttpServlet
@@ -83,6 +83,11 @@ public class ControllerServlet extends HttpServlet
 		catch (Exception ex)
 		{
 		}
+		if (sessionManager == null)
+		{
+			sessionManager = (SessionManager) wac.getBean(SessionManager.class
+					.getName());
+		}
 
 	}
 
@@ -101,7 +106,7 @@ public class ControllerServlet extends HttpServlet
 	public void execute(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
 	{
-		
+
 		if (wac == null)
 		{
 			wac = WebApplicationContextUtils
@@ -115,7 +120,7 @@ public class ControllerServlet extends HttpServlet
 
 		}
 		request.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
-		
+
 		if (searchBeanFactory == null)
 		{
 			searchBeanFactory = (SearchBeanFactory) wac
@@ -128,7 +133,6 @@ public class ControllerServlet extends HttpServlet
 			sessionManager = (SessionManager) wac.getBean(SessionManager.class
 					.getName());
 		}
-
 
 		addLocalHeaders(request);
 
@@ -157,13 +161,13 @@ public class ControllerServlet extends HttpServlet
 			{
 				path = "/" + path;
 			}
+
 			String targetPage = "/WEB-INF/pages" + path + ".jsp";
-			
+
 			request.setAttribute(SearchBeanFactory.SEARCH_BEAN_FACTORY_ATTR,
 					searchBeanFactory);
 			RequestDispatcher rd = request.getRequestDispatcher(targetPage);
 			rd.forward(request, response);
-
 		}
 
 		request.removeAttribute(Tool.NATIVE_URL);
@@ -172,10 +176,14 @@ public class ControllerServlet extends HttpServlet
 	public void addLocalHeaders(HttpServletRequest request)
 	{
 		String sakaiHeader = (String) request.getAttribute("sakai.html.head");
-		String skin = "default/"; // this could be changed in the future to make search skin awaire
-		String localStylesheet = "<link href=\"/sakai-search-tool/styles/"+skin+"searchStyle.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />";
+		String skin = "default/"; // this could be changed in the future to
+		// make search skin awaire
+		String localStylesheet = "<link href=\"/sakai-search-tool/styles/"
+				+ skin
+				+ "searchStyle.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />";
 		String localJavascript = "<script type=\"text/javascript\" src=\"/sakai-search-tool/scripts/search.js\"> </script>";
-		request.setAttribute("sakai.html.head", localStylesheet + sakaiHeader + localJavascript);
+		request.setAttribute("sakai.html.head", localStylesheet + sakaiHeader
+				+ localJavascript);
 	}
 
 	/**
@@ -235,17 +243,18 @@ public class ControllerServlet extends HttpServlet
 	 * @param request
 	 * @return true if it is possible to restore to this point.
 	 */
-	private boolean isPageRestorable(HttpServletRequest request) 
+	private boolean isPageRestorable(HttpServletRequest request)
 	{
 
 		if (TITLE_PANEL.equals(request.getParameter(PANEL))) return false;
 		String pathInfo = request.getPathInfo();
-		if ( pathInfo != null ) {
-			if (request.getPathInfo().endsWith(".gif") ) 
+		if (pathInfo != null)
+		{
+			if (request.getPathInfo().endsWith(".gif"))
 			{
 				return false;
 			}
-			if (request.getPathInfo().endsWith(".src") ) 
+			if (request.getPathInfo().endsWith(".src"))
 			{
 				return false;
 			}

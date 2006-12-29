@@ -111,6 +111,8 @@ public interface SearchResult
 	 * @return
 	 */
 	String getTool();
+
+	void toXMLString(StringBuffer sb);
 	
 
 }

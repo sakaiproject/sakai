@@ -136,6 +136,25 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
+        <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+      <version>3.0</version>
+      <type>jar</type>
+       <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.3</version>
+      <type>jar</type>
+       <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    
     
   </dependencies>
 </project>

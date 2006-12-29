@@ -31,6 +31,22 @@
     <property name="indexStorage"><ref bean="org.sakaiproject.search.index.IndexStorage" /></property>
     <property name="filter"><ref bean="searchSecurityFilterImpl" /></property>
     <property name="defaultSorter"><value>none</value></property>
+    <!--
+     If you want to make this search instance use a remote search server
+     set the search server URL
+     http://searchserver/sakai-search/searchservice
+     This is probably best done in sakai.properties eg
+     searchServerUrl@org.sakaiproject.search.api.SearchService=http://localhost:8080/sakai-search-tool/xmlsearch/
+    --> 
+    <!--
+    <property name="searchServerUrl" ><value></value></property>
+    -->
+    <!--
+    For added security a shared key may be added, it must be the same on all nodes 
+    -->
+    <!--
+    <property name="sharedKey" ><value></value></property>
+    -->
     <property name="luceneSorters">
       <map>
         <entry key="dateRelevanceSort"><ref bean="dateRelevanceSort"/></entry>

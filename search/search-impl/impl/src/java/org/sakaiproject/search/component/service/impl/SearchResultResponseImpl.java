@@ -24,7 +24,6 @@ package org.sakaiproject.search.component.service.impl;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -34,9 +33,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
@@ -49,20 +45,17 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.TermFrequency;
+import org.xml.sax.Attributes;
+
+
 
 /**
  * @author ieb
  */
-public class SearchResultImpl implements SearchResult
+public class SearchResultResponseImpl implements SearchResult
 {
 
-	private static Log log = LogFactory.getLog(SearchResultImpl.class);
-
-	private Hits h;
-
-	private int index;
-
-	private Document doc;
+	private static Log log = LogFactory.getLog(SearchResultResponseImpl.class);
 
 	String[] fieldNames = null;
 
@@ -76,13 +69,41 @@ public class SearchResultImpl implements SearchResult
 
 	private SearchService searchService;
 
-	public SearchResultImpl(Hits h, int index, Query query, Analyzer analyzer,
-			EntityManager entityManager, SearchIndexBuilder searchIndexBuilder,
-			SearchService searchService) throws IOException
+	private Map attributes;
+
+	public SearchResultResponseImpl(Map attributes, Query query,
+			Analyzer analyzer, EntityManager entityManager,
+			SearchIndexBuilder searchIndexBuilder, SearchService searchService)
+			throws IOException
 	{
-		this.h = h;
-		this.index = index;
-		this.doc = h.doc(index);
+
+		this.attributes = attributes;
+		this.query = query;
+		this.analyzer = analyzer;
+		this.entityManager = entityManager;
+		this.searchIndexBuilder = searchIndexBuilder;
+		this.searchService = searchService;
+	}
+	public SearchResultResponseImpl(Attributes atts, Query query,
+			Analyzer analyzer, EntityManager entityManager,
+			SearchIndexBuilder searchIndexBuilder, SearchService searchService)
+			throws IOException
+	{
+		Map m = new HashMap();
+		for ( int i = 0; i < atts.getLength(); i++ ) {
+			m.put(atts.getLocalName(i),atts.getValue(i));
+		}
+		try
+		{
+			String title = (String)m.get("title");
+			if ( title != null ) {
+				m.put("title", new String(Base64.decodeBase64(title.getBytes("UTF-8")),"UTF-8"));
+			}
+		}
+		catch (UnsupportedEncodingException e)
+		{
+		}
+		this.attributes = m;
 		this.query = query;
 		this.analyzer = analyzer;
 		this.entityManager = entityManager;
@@ -92,36 +113,24 @@ public class SearchResultImpl implements SearchResult
 
 	public float getScore()
 	{
-		try
-		{
-			return h.score(index);
-		}
-		catch (IOException e)
-		{
-			throw new RuntimeException("Cant determine score ", e);
-		}
+		return Float.parseFloat((String)attributes.get("score"));
 	}
 
 	public String getId()
 	{
-		return doc.get(SearchService.FIELD_ID);
+		return (String)attributes.get("sid");
 	}
 
 	public String[] getFieldNames()
 	{
+
 		if (fieldNames != null)
 		{
 			return fieldNames;
 		}
-		HashMap al = new HashMap();
-		for (Enumeration e = doc.fields(); e.hasMoreElements();)
-		{
-			Field f = (Field) e.nextElement();
-			al.put(f.name(), f);
-		}
-		fieldNames = new String[al.size()];
+		fieldNames = new String[attributes.size()];
 		int ii = 0;
-		for (Iterator i = al.keySet().iterator(); i.hasNext();)
+		for (Iterator i = attributes.keySet().iterator(); i.hasNext();)
 		{
 			fieldNames[ii++] = (String) i.next();
 		}
@@ -130,7 +139,7 @@ public class SearchResultImpl implements SearchResult
 
 	public String[] getValues(String fieldName)
 	{
-		return doc.getValues(fieldName);
+		return new String[] {(String)attributes.get(fieldName)};
 	}
 
 	/**
@@ -142,31 +151,33 @@ public class SearchResultImpl implements SearchResult
 		String[] fieldNames = getFieldNames();
 		for (int i = 0; i < fieldNames.length; i++)
 		{
-			hm.put(fieldNames[i], doc.getValues(fieldNames[i]));
+			hm.put(fieldNames[i], new String[] { (String) attributes
+					.get(fieldNames[i]) });
 		}
 		return hm;
 	}
 
 	public String getUrl()
 	{
-		return doc.get(SearchService.FIELD_URL);
+		return (String) attributes.get("url");
 	}
 
 	public String getTitle()
 	{
-		return StringUtils
-				.escapeHtml(doc.get(SearchService.FIELD_TITLE), false);
+		return StringUtils.escapeHtml((String) attributes
+				.get("title"), false);
 	}
 
 	public String getTool()
 	{
-		return StringUtils.escapeHtml(doc.get(SearchService.FIELD_TOOL), false);
+		return StringUtils.escapeHtml((String) attributes
+				.get("tool"), false);
 
 	}
 
 	public int getIndex()
 	{
-		return index;
+		return Integer.parseInt((String)attributes.get("index"));
 	}
 
 	public String getSearchResult()
@@ -179,20 +190,11 @@ public class SearchResultImpl implements SearchResult
 			// contents no longer contains the digested contents, so we need to
 			// fetch it from the EntityContentProducer
 
-			String[] references = doc.getValues(SearchService.FIELD_REFERENCE);
-
-			if (references != null && references.length > 0)
-			{
-
-				for (int i = 0; i < references.length; i++)
-				{
-					Reference ref = entityManager.newReference(references[i]);
-					Entity entity = ref.getEntity();
-					EntityContentProducer sep = searchIndexBuilder
-							.newEntityContentProducer(ref);
-					sb.append(sep.getContent(entity));
-				}
-			}
+			Reference ref = entityManager.newReference(getReference());
+			Entity entity = ref.getEntity();
+			EntityContentProducer sep = searchIndexBuilder
+					.newEntityContentProducer(ref);
+			sb.append(sep.getContent(entity));
 
 			String text = StringUtils.escapeHtml(sb.toString(), false);
 			TokenStream tokenStream = analyzer.tokenStream(
@@ -207,12 +209,12 @@ public class SearchResultImpl implements SearchResult
 
 	public String getReference()
 	{
-		return doc.get(SearchService.FIELD_REFERENCE);
+		return (String) attributes.get("reference");
 	}
 
 	public TermFrequency getTerms() throws IOException
 	{
-		return searchService.getTerms(h.id(index));
+		return null;
 	}
 
 	public void toXMLString(StringBuffer sb)

@@ -215,7 +215,10 @@ public class SearchBeanImpl implements SearchBean
 						String.valueOf(sr.getIndex() + 1) }));
 				try
 				{
-					termsVectors.add(sr.getTerms());
+					TermFrequency tf = sr.getTerms();
+					if ( tf != null ) {
+						termsVectors.add(sr.getTerms());
+					}
 				}
 				catch (IOException e)
 				{

@@ -22,7 +22,9 @@
 package org.sakaiproject.search.api;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -32,6 +34,18 @@ import java.util.List;
  */
 public interface SearchService
 {
+	public static final String REST_USERID = "u";
+
+	public static final String REST_TERMS = "q";
+
+	public static final String REST_CHECKSUM = "cs";
+
+	public static final String REST_CONTEXTS = "ctx";
+
+	public static final String REST_START = "s";
+
+	public static final String REST_END = "e";
+
 	/**
 	 * event to trigger an update of the index sent from Search Service to index
 	 * builders
@@ -246,6 +260,15 @@ public interface SearchService
 	 * @throws IOException 
 	 */
 	TermFrequency getTerms(int documentId) throws IOException;
+
+
+	/**
+	 * generates a block of XML representign the search results
+	 * @param parameterMap
+	 * @return
+	 */
+	String searchXML(Map parameterMap);
+
 
 
 }

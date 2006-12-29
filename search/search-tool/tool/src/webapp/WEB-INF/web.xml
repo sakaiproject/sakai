@@ -62,6 +62,13 @@
 		<dispatcher>FORWARD</dispatcher>
 		<dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
+	<filter-mapping>
+		<filter-name>sakai.request</filter-name>
+		<servlet-name>sakai.search-service</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
 	
 	<!--
 	The Search Controller 
@@ -73,10 +80,21 @@
 		</servlet-class>
 		<load-on-startup>100</load-on-startup>
 	</servlet>
+	<servlet>
+		<servlet-name>sakai.search-service</servlet-name>
+		<servlet-class>
+			org.sakaiproject.search.tool.RestSearchServlet
+		</servlet-class>
+		<load-on-startup>100</load-on-startup>
+	</servlet>
 	
 	<servlet-mapping>
 		<servlet-name>sakai.search</servlet-name>
 		<url-pattern>/search/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>sakai.search-service</servlet-name>
+		<url-pattern>/xmlsearch/*</url-pattern>
 	</servlet-mapping>
 	<error-page>
 		<exception-type>java.lang.Exception</exception-type>

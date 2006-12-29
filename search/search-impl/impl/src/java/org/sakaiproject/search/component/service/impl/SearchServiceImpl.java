@@ -22,6 +22,10 @@
 package org.sakaiproject.search.component.service.impl;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,6 +34,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpConnectionManager;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.Term;
@@ -53,12 +65,16 @@ import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchList;
+import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchStatus;
 import org.sakaiproject.search.api.TermFrequency;
 import org.sakaiproject.search.filter.SearchItemFilter;
 import org.sakaiproject.search.index.IndexStorage;
 import org.sakaiproject.search.model.SearchWriterLock;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
  * The search service
@@ -67,7 +83,6 @@ import org.sakaiproject.search.model.SearchWriterLock;
  */
 public class SearchServiceImpl implements SearchService
 {
-
 
 	private static Log log = LogFactory.getLog(SearchServiceImpl.class);
 
@@ -118,6 +133,23 @@ public class SearchServiceImpl implements SearchService
 
 	private EventTrackingService eventTrackingService;
 
+	private UserDirectoryService userDirectoryService;
+
+	private SessionManager sessionManager;
+
+	private String sharedKey = null;
+
+	private String searchServerUrl = null;
+
+	private boolean searchServer = false;
+
+	private ThreadLocal localSearch = new ThreadLocal();
+	
+	private HttpClient httpClient;
+	private HttpConnectionManagerParams httpParams = new HttpConnectionManagerParams();
+	private HttpConnectionManager httpConnectionManager = new MultiThreadedHttpConnectionManager();
+
+
 	/**
 	 * Register a notification action to listen to events and modify the search
 	 * index
@@ -131,16 +163,21 @@ public class SearchServiceImpl implements SearchService
 				NotificationService.class.getName());
 		searchIndexBuilder = (SearchIndexBuilder) load(cm,
 				SearchIndexBuilder.class.getName());
-		entityManager = (EntityManager) load(cm,
-				EntityManager.class.getName());
+		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
 		eventTrackingService = (EventTrackingService) load(cm,
 				EventTrackingService.class.getName());
+		sessionManager = (SessionManager) load(cm, SessionManager.class
+				.getName());
+		userDirectoryService = (UserDirectoryService) load(cm,
+				UserDirectoryService.class.getName());
 
 		try
 		{
-			log.debug("init start");
-
-			log.debug("checking setup");
+			if (log.isDebugEnabled())
+			{
+				log.debug("init start");
+				log.debug("checking setup");
+			}
 			if (indexStorage == null)
 			{
 				log.error(" indexStorage must be set");
@@ -165,7 +202,19 @@ public class SearchServiceImpl implements SearchService
 			if (entityManager == null)
 			{
 				log.error("Event Tracking Service was not found");
-				throw new RuntimeException("Event Tracking Service was not found");
+				throw new RuntimeException(
+						"Event Tracking Service was not found");
+			}
+			if (sessionManager == null)
+			{
+				log.error("Session Manager was not found");
+				throw new RuntimeException("Session Manager was not found");
+			}
+			if (userDirectoryService == null)
+			{
+				log.error("User Directory Service was not found");
+				throw new RuntimeException(
+						"User Directory Service was not found");
 			}
 
 			// register a transient notification for resources
@@ -181,7 +230,10 @@ public class SearchServiceImpl implements SearchService
 				{
 					String function = (String) ifn.next();
 					notification.addFunction(function);
-					log.debug("Adding Search Register " + function);
+					if (log.isDebugEnabled())
+					{
+						log.debug("Adding Search Register " + function);
+					}
 				}
 			}
 
@@ -191,9 +243,30 @@ public class SearchServiceImpl implements SearchService
 			// set the action
 			notification.setAction(new SearchNotificationAction(
 					searchIndexBuilder));
+			
+			
+			
+//			 Configure params for the Connection Manager
+			httpParams.setDefaultMaxConnectionsPerHost( 20 );
+			httpParams.setMaxTotalConnections( 30 );
+
+//			 This next line may not be necessary since we specified default 2 lines ago, but here it is anyway
+			httpParams.setMaxConnectionsPerHost( HostConfiguration.ANY_HOST_CONFIGURATION, 20 );
+
+//			 Set up the connection manager
+			httpConnectionManager.setParams( httpParams );
+
+//			 Finally set up the static multithreaded HttpClient
+			httpClient = new HttpClient( httpConnectionManager );
+			
+
+			
 
 			initComplete = true;
-			log.debug("init end");
+			if (log.isDebugEnabled())
+			{
+				log.debug("init end");
+			}
 		}
 		catch (Throwable t)
 		{
@@ -238,7 +311,10 @@ public class SearchServiceImpl implements SearchService
 	public void registerFunction(String function)
 	{
 		notification.addFunction(function);
-		log.debug("Adding Function " + function);
+		if (log.isDebugEnabled())
+		{
+			log.debug("Adding Function " + function);
+		}
 	}
 
 	/**
@@ -273,41 +349,96 @@ public class SearchServiceImpl implements SearchService
 			query.add(contextQuery, BooleanClause.Occur.MUST);
 			query.add(textQuery, BooleanClause.Occur.MUST);
 			log.info("Compiled Query is " + query.toString());
-			IndexSearcher indexSearcher = getIndexSearcher(false);
-			if (indexSearcher != null)
+
+			if (localSearch.get() == null && searchServerUrl != null
+					&& searchServerUrl.length() > 0)
 			{
-				Hits h = null;
-				Filter indexFilter = (Filter) luceneFilters.get(filterName);
-				Sort indexSorter = (Sort) luceneSorters.get(sorterName);
-				log.debug("Using Filter " + filterName + ":" + indexFilter
-						+ " and " + sorterName + ":" + indexSorter);
-				if (indexFilter != null && indexSorter != null)
+				try
 				{
-					h = indexSearcher.search(query, indexFilter, indexSorter);
+					PostMethod post = new PostMethod(searchServerUrl);
+					String userId = sessionManager.getCurrentSessionUserId();
+					StringBuffer sb = new StringBuffer();
+					for (Iterator ci = contexts.iterator(); ci.hasNext();)
+					{
+						sb.append(ci.next()).append(";");
+					}
+					String contextParam = sb.toString();
+					post.setParameter(REST_CHECKSUM, digestCheck(userId,
+							searchTerms));
+					post.setParameter(REST_CONTEXTS, contextParam);
+					post.setParameter(REST_END, String.valueOf(end));
+					post.setParameter(REST_START, String.valueOf(start));
+					post.setParameter(REST_TERMS, searchTerms);
+					post.setParameter(REST_USERID, userId);
+					
+					
+					int status = httpClient.executeMethod(post);
+					if ( status != 200  ) {
+						throw new RuntimeException("Failed to perform remote search, http status was "+status);
+					}
+
+					String response = post.getResponseBodyAsString();
+					return new SearchListReponseImpl(response, textQuery,
+							start, end, indexStorage.getAnalyzer(), filter,
+							entityManager, searchIndexBuilder, this);
 				}
-				else if (indexFilter != null)
+				catch (Exception ex)
 				{
-					h = indexSearcher.search(query, indexFilter);
+
+					log.error("Remote Search Failed ", ex);
+					throw new IOException(ex.getMessage());
 				}
-				else if (indexSorter != null)
-				{
-					h = indexSearcher.search(query, indexSorter);
-				}
-				else
-				{
-					h = indexSearcher.search(query);
-				}
-				log.debug("Got " + h.length() + " hits");
-				eventTrackingService.post(eventTrackingService.newEvent(
-						EVENT_SEARCH, EVENT_SEARCH_REF+textQuery.toString(), true,
-						NotificationService.PREF_IMMEDIATE));
-				return new SearchListImpl(h, textQuery, start, end,
-						indexStorage.getAnalyzer(), filter, entityManager ,searchIndexBuilder, this);
+
 			}
 			else
 			{
-				throw new RuntimeException(
-						"Failed to start the Lucene Searche Engine");
+
+				IndexSearcher indexSearcher = getIndexSearcher(false);
+				if (indexSearcher != null)
+				{
+					Hits h = null;
+					Filter indexFilter = (Filter) luceneFilters.get(filterName);
+					Sort indexSorter = (Sort) luceneSorters.get(sorterName);
+					if (log.isDebugEnabled())
+					{
+						log.debug("Using Filter " + filterName + ":"
+								+ indexFilter + " and " + sorterName + ":"
+								+ indexSorter);
+					}
+					if (indexFilter != null && indexSorter != null)
+					{
+						h = indexSearcher.search(query, indexFilter,
+								indexSorter);
+					}
+					else if (indexFilter != null)
+					{
+						h = indexSearcher.search(query, indexFilter);
+					}
+					else if (indexSorter != null)
+					{
+						h = indexSearcher.search(query, indexSorter);
+					}
+					else
+					{
+						h = indexSearcher.search(query);
+					}
+					if (log.isDebugEnabled())
+					{
+						log.debug("Got " + h.length() + " hits");
+					}
+					eventTrackingService.post(eventTrackingService.newEvent(
+							EVENT_SEARCH, EVENT_SEARCH_REF
+									+ textQuery.toString(), true,
+							NotificationService.PREF_IMMEDIATE));
+					return new SearchListImpl(h, textQuery, start, end,
+							indexStorage.getAnalyzer(), filter, entityManager,
+							searchIndexBuilder, this);
+				}
+				else
+				{
+					throw new RuntimeException(
+							"Failed to start the Lucene Searche Engine");
+				}
 			}
 
 		}
@@ -342,7 +473,10 @@ public class SearchServiceImpl implements SearchService
 			long lastUpdate = indexStorage.getLastUpdate();
 			if (lastUpdate > reloadStart)
 			{
-				log.debug("Reloading Index, force=" + reload);
+				if (log.isDebugEnabled())
+				{
+					log.debug("Reloading Index, force=" + reload);
+				}
 				try
 				{
 					reloadStart = System.currentTimeMillis();
@@ -360,7 +494,8 @@ public class SearchServiceImpl implements SearchService
 					{
 						try
 						{
-							indexStorage.closeIndexSearcher(oldRunningIndexSearcher);
+							indexStorage
+									.closeIndexSearcher(oldRunningIndexSearcher);
 						}
 						catch (Exception ex)
 						{
@@ -377,8 +512,12 @@ public class SearchServiceImpl implements SearchService
 			}
 			else
 			{
-				log.debug("No Reload lastUpdate " + lastUpdate
-						+ " < lastReload " + reloadStart);
+				if (log.isDebugEnabled())
+				{
+					log.debug("No Reload lastUpdate " + lastUpdate
+							+ " < lastReload " + reloadStart);
+				}
+
 			}
 		}
 
@@ -661,17 +800,263 @@ public class SearchServiceImpl implements SearchService
 
 	public TermFrequency getTerms(int documentId) throws IOException
 	{
-		final TermFreqVector tf = getIndexSearcher(false).getIndexReader().getTermFreqVector(documentId, FIELD_CONTENTS );
+		final TermFreqVector tf = getIndexSearcher(false).getIndexReader()
+				.getTermFreqVector(documentId, FIELD_CONTENTS);
 		// TODO Auto-generated method stub
-		return new TermFrequency() {
-			public String[] getTerms() {
+		return new TermFrequency()
+		{
+			public String[] getTerms()
+			{
 				return tf.getTerms();
 			}
-			public int[] getFrequencies() {
+
+			public int[] getFrequencies()
+			{
 				return tf.getTermFrequencies();
 			}
 		};
 	}
 
+	public String searchXML(Map parameterMap)
+	{
+		String userid = null;
+		String searchTerms = null;
+		String checksum = null;
+		String contexts = null;
+		String ss = null;
+		String se = null;
+		try
+		{
+			if (!searchServer)
+			{
+				throw new Exception(
+						"Search Server is not enabled please set searchServer@org.sakaiproject.search.api.SearchService=true to enable ");
+			}
+			String[] useridA = (String[]) parameterMap.get(REST_USERID);
+			String[] searchTermsA = (String[]) parameterMap.get(REST_TERMS);
+			String[] checksumA = (String[]) parameterMap.get(REST_CHECKSUM);
+			String[] contextsA = (String[]) parameterMap.get(REST_CONTEXTS);
+			String[] ssA = (String[]) parameterMap.get(REST_START);
+			String[] seA = (String[]) parameterMap.get(REST_END);
+
+			StringBuffer sb = new StringBuffer();
+			sb.append("<?xml version=\"1.0\"?>");
+
+			boolean requestError = false;
+			if (useridA == null || useridA.length != 1)
+			{
+				requestError = true;
+			}
+			else
+			{
+				userid = useridA[0];
+			}
+			if (searchTermsA == null || searchTermsA.length != 1)
+			{
+				requestError = true;
+			}
+			else
+			{
+				searchTerms = searchTermsA[0];
+			}
+			if (checksumA == null || checksumA.length != 1)
+			{
+				requestError = true;
+			}
+			else
+			{
+				checksum = checksumA[0];
+			}
+			if (contextsA == null || contextsA.length != 1)
+			{
+				requestError = true;
+			}
+			else
+			{
+				contexts = contextsA[0];
+			}
+			if (ssA == null || ssA.length != 1)
+			{
+				requestError = true;
+			}
+			else
+			{
+				ss = ssA[0];
+			}
+			if (seA == null || seA.length != 1)
+			{
+				requestError = true;
+			}
+			else
+			{
+				se = seA[0];
+			}
+
+			if (requestError)
+			{
+				throw new Exception("Invalid Request ");
+
+			}
+
+			int searchStart = Integer.parseInt(ss);
+			int searchEnd = Integer.parseInt(se);
+			String[] ctxa = contexts.split(";");
+			List ctx = new ArrayList(ctxa.length);
+			for (int i = 0; i < ctxa.length; i++)
+			{
+				ctx.add(ctxa[i]);
+			}
+
+			if (sharedKey != null && sharedKey.length() > 0)
+			{
+				String check = digestCheck(userid, searchTerms);
+				if (!check.equals(checksum))
+				{
+					throw new Exception("Security Checksum is not valid");
+				}
+			}
+
+			org.sakaiproject.tool.api.Session s = sessionManager.startSession();
+			User u = userDirectoryService.getUser("admin");
+			s.setUserId(u.getId());
+			sessionManager.setCurrentSession(s);
+			localSearch.set("localsearch");
+			try
+			{
+
+				SearchList sl = search(searchTerms, ctx, searchStart, searchEnd);
+				sb.append("<results ");
+				sb.append(" fullsize=\"").append(sl.getFullSize())
+						.append("\" ");
+				sb.append(" start=\"").append(sl.getStart()).append("\" ");
+				sb.append(" size=\"").append(sl.size()).append("\" ");
+				sb.append(" >");
+				for (Iterator si = sl.iterator(); si.hasNext();)
+				{
+					SearchResult sr = (SearchResult) si.next();
+					sr.toXMLString(sb);
+				}
+				sb.append("</results>");
+				return sb.toString();
+			}
+			finally
+			{
+				sessionManager.setCurrentSession(null);
+				localSearch.set(null);
+			}
+		}
+		catch (Exception ex)
+		{
+			StringBuffer sb = new StringBuffer();
+			sb.append("<?xml version=\"1.0\"?>");
+			sb.append("<fault>");
+			sb.append("<request>");
+			sb.append("<![CDATA[");
+			sb.append(" userid = ").append(userid).append("\n");
+			sb.append(" searchTerms = ").append(searchTerms).append("\n");
+			sb.append(" checksum = ").append(checksum).append("\n");
+			sb.append(" contexts = ").append(contexts).append("\n");
+			sb.append(" ss = ").append(ss).append("\n");
+			sb.append(" se = ").append(se).append("\n");
+			sb.append("]]>");
+			sb.append("</request>");
+			sb.append("<error>");
+			sb.append("<![CDATA[");
+			try
+			{
+				StringWriter sw = new StringWriter();
+				PrintWriter pw = new PrintWriter(sw);
+				ex.printStackTrace(pw);
+				pw.flush();
+				sb.append(sw.toString());
+				pw.close();
+				sw.close();
+			}
+			catch (Exception ex2)
+			{
+				sb.append("Failed to serialize exception " + ex.getMessage())
+						.append("\n");
+				sb.append("Case:  " + ex2.getMessage());
+
+			}
+			sb.append("]]>");
+			sb.append("</error>");
+			sb.append("</fault>");
+			return sb.toString();
+		}
+	}
+
+	private String digestCheck(String userid, String searchTerms)
+			throws GeneralSecurityException, IOException
+	{
+		MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+		String chstring = sharedKey + userid + searchTerms;
+		return byteArrayToHexStr(sha1.digest(chstring.getBytes("UTF-8")));
+	}
+
+	private static String byteArrayToHexStr(byte[] data)
+	{
+		char[] chars = new char[data.length * 2];
+		for (int i = 0; i < data.length; i++)
+		{
+			byte current = data[i];
+			int hi = (current & 0xF0) >> 4;
+			int lo = current & 0x0F;
+			chars[2 * i] = (char) (hi < 10 ? ('0' + hi) : ('A' + hi - 10));
+			chars[2 * i + 1] = (char) (lo < 10 ? ('0' + lo) : ('A' + lo - 10));
+		}
+		return new String(chars);
+	}
+
+	/**
+	 * @return the sharedKey
+	 */
+	public String getSharedKey()
+	{
+		return sharedKey;
+	}
+
+	/**
+	 * @param sharedKey
+	 *        the sharedKey to set
+	 */
+	public void setSharedKey(String sharedKey)
+	{
+		this.sharedKey = sharedKey;
+	}
+
+	/**
+	 * @return the searchServerUrl
+	 */
+	public String getSearchServerUrl()
+	{
+		return searchServerUrl;
+	}
+
+	/**
+	 * @param searchServerUrl
+	 *        the searchServerUrl to set
+	 */
+	public void setSearchServerUrl(String searchServerUrl)
+	{
+		this.searchServerUrl = searchServerUrl;
+	}
+
+	/**
+	 * @return the searchServer
+	 */
+	public boolean isSearchServer()
+	{
+		return searchServer;
+	}
+
+	/**
+	 * @param searchServer
+	 *        the searchServer to set
+	 */
+	public void setSearchServer(boolean searchServer)
+	{
+		this.searchServer = searchServer;
+	}
 
 }
