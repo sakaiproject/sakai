@@ -9,13 +9,11 @@ create table GB_SPREADSHEET_T (
   CONTENT longvarchar NOT NULL,
   DATE_CREATED datetime NOT NULL,
   GRADEBOOK_ID bigint(20) NOT NULL,
-  PRIMARY KEY  (`ID`) 
+  PRIMARY KEY  (`ID`)
 );
 
 
---add selective release support
+-- Add selective release support
 
-alter table GB_GRADABLE_OBJECT_T add (RELEASED bit(1) DEFAULT 1);
-
-
-
+alter table GB_GRADABLE_OBJECT_T add (RELEASED bit);
+update GB_GRADABLE_OBJECT_T set RELEASED=1 where RELEASED is NULL;
