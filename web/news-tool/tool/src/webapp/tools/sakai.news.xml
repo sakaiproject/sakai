@@ -13,6 +13,8 @@
 		<category name="project" />
 		<category name="myworkspace" />
 
+		<configuration name="functions.require" /> 
+
 	</tool>
 
 </registration>
