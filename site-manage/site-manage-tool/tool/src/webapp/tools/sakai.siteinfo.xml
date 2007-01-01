@@ -23,6 +23,14 @@
 		<category name="course" />
 		<category name="project" />
 
+		<!-- It would be good to separate "site.visit" and "site.read" so site.visit controls
+		     visiting the site and site.read controls the right to read site information.
+		     Until that is done, to use this tool in gateway, it is better set this to something 
+                     like annc.read, content.read or some other permission
+		     that the particular role is likely to have so the button appears and disappears properly -->
+
+		<configuration name="functions.require" value="site.visit" /> 
+
 	</tool>
 
 </registration>
