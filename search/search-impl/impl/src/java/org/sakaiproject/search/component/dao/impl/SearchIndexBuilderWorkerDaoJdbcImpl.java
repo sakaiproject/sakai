@@ -62,6 +62,7 @@ import org.sakaiproject.search.index.IndexStorage;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.cover.SiteService;
@@ -109,6 +110,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 	private IndexStorage indexStorage = null;
 
 	private DataSource dataSource = null;
+
 
 	public void init()
 	{
@@ -168,10 +170,12 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 		}
 		return o;
 	}
-	
-	
-	private void processDeletes(SearchIndexBuilderWorker worker, Connection connection, List runtimeToDo) throws SQLException, IOException {
-	
+
+	private void processDeletes(SearchIndexBuilderWorker worker,
+			Connection connection, List runtimeToDo) throws SQLException,
+			IOException
+	{
+
 		if (indexStorage.indexExists())
 		{
 			IndexReader indexReader = null;
@@ -184,23 +188,20 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 						.isRunning()
 						&& tditer.hasNext();)
 				{
-					SearchBuilderItem sbi = (SearchBuilderItem) tditer
-							.next();
+					SearchBuilderItem sbi = (SearchBuilderItem) tditer.next();
 					if (!SearchBuilderItem.STATE_LOCKED.equals(sbi
 							.getSearchstate()))
 					{
 						// should only be getting pending
 						// items
-						log
-								.warn(" Found Item that was not pending "
-										+ sbi.getName());
+						log.warn(" Found Item that was not pending "
+								+ sbi.getName());
 						continue;
 					}
 					if (SearchBuilderItem.ACTION_UNKNOWN.equals(sbi
 							.getSearchaction()))
 					{
-						sbi
-								.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
+						sbi.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
 						updateOrSave(connection, sbi);
 						connection.commit();
 
@@ -211,10 +212,9 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 					try
 					{
 						indexReader.deleteDocuments(new Term(
-								SearchService.FIELD_REFERENCE, sbi
-										.getName()));
-						if (SearchBuilderItem.ACTION_DELETE
-								.equals(sbi.getSearchaction()))
+								SearchService.FIELD_REFERENCE, sbi.getName()));
+						if (SearchBuilderItem.ACTION_DELETE.equals(sbi
+								.getSearchaction()))
 						{
 							sbi
 									.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
@@ -245,256 +245,258 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 		}
 
 	}
-	
-	private void processAdd(SearchIndexBuilderWorker worker, Connection connection, List runtimeToDo) throws Exception {
+
+	private void processAdd(SearchIndexBuilderWorker worker,
+			Connection connection, List runtimeToDo) throws Exception
+	{
 		IndexWriter indexWrite = null;
-		try {
-		if (worker.isRunning())
+		try
 		{
-			indexWrite = indexStorage.getIndexWriter(false);
-		}
-		for (Iterator tditer = runtimeToDo.iterator(); worker
-				.isRunning()
-				&& tditer.hasNext();)
-		{
-			Reader contentReader = null;
-			try
+			if (worker.isRunning())
 			{
-				SearchBuilderItem sbi = (SearchBuilderItem) tditer
-						.next();
-				// only add adds, that have been deleted
-				// sucessfully
-				if (!SearchBuilderItem.STATE_PENDING_2.equals(sbi
-						.getSearchstate()))
-				{
-					continue;
-				}
-				Reference ref = entityManager.newReference(sbi
-						.getName());
-
-				if (ref == null)
-				{
-					log
-							.error("Unrecognised trigger object presented to index builder "
-									+ sbi);
-				}
-
-				long startDocIndex = System.currentTimeMillis();
-				worker.setStartDocIndex(startDocIndex);
-				worker.setNowIndexing(ref.getReference());
-
+				indexWrite = indexStorage.getIndexWriter(false);
+			}
+			for (Iterator tditer = runtimeToDo.iterator(); worker.isRunning()
+					&& tditer.hasNext();)
+			{
+				Reader contentReader = null;
 				try
 				{
+					SearchBuilderItem sbi = (SearchBuilderItem) tditer.next();
+					// only add adds, that have been deleted
+					// sucessfully
+					if (!SearchBuilderItem.STATE_PENDING_2.equals(sbi
+							.getSearchstate()))
+					{
+						continue;
+					}
+					Reference ref = entityManager.newReference(sbi.getName());
+
+					if (ref == null)
+					{
+						log
+								.error("Unrecognised trigger object presented to index builder "
+										+ sbi);
+					}
+
+					long startDocIndex = System.currentTimeMillis();
+					worker.setStartDocIndex(startDocIndex);
+					worker.setNowIndexing(ref.getReference());
+
 					try
 					{
-						Entity entity = ref.getEntity();
-						EntityContentProducer sep = searchIndexBuilder
-								.newEntityContentProducer(ref);
-						if (sep != null && sep.isForIndex(ref)
-								&& ref.getContext() != null)
+						try
 						{
-
-							Document doc = new Document();
-							String container = ref.getContainer();
-							if (container == null) container = "";
-							doc.add(new Field(
-									SearchService.DATE_STAMP,
-									String.valueOf(System
-											.currentTimeMillis()),
-									Field.Store.COMPRESS,
-									Field.Index.UN_TOKENIZED));
-							doc.add(new Field(
-									SearchService.FIELD_CONTAINER,
-									container, Field.Store.COMPRESS,
-									Field.Index.UN_TOKENIZED));
-							doc
-									.add(new Field(
-											SearchService.FIELD_ID,
-											ref.getId(),
-											Field.Store.COMPRESS,
-											Field.Index.NO));
-							doc.add(new Field(
-									SearchService.FIELD_TYPE, ref
-											.getType(),
-									Field.Store.COMPRESS,
-									Field.Index.UN_TOKENIZED));
-							doc.add(new Field(
-									SearchService.FIELD_SUBTYPE,
-									ref.getSubType(),
-									Field.Store.COMPRESS,
-									Field.Index.UN_TOKENIZED));
-							doc.add(new Field(
-									SearchService.FIELD_REFERENCE,
-									ref.getReference(),
-									Field.Store.COMPRESS,
-									Field.Index.UN_TOKENIZED));
-
-							doc.add(new Field(
-									SearchService.FIELD_CONTEXT,
-									sep.getSiteId(ref),
-									Field.Store.COMPRESS,
-									Field.Index.UN_TOKENIZED));
-							if (sep.isContentFromReader(entity))
+							Entity entity = ref.getEntity();
+							EntityContentProducer sep = searchIndexBuilder
+									.newEntityContentProducer(ref);
+							boolean indexDoc = true;
+							if (searchIndexBuilder.isOnlyIndexSearchToolSites())
 							{
-								contentReader = sep
-										.getContentReader(entity);
-								doc
-										.add(new Field(
-												SearchService.FIELD_CONTENTS,
-												contentReader,
-												Field.TermVector.YES));
-							}
-							else
-							{
-								doc
-										.add(new Field(
-												SearchService.FIELD_CONTENTS,
-												sep
-														.getContent(entity),
-												Field.Store.NO,
-												Field.Index.TOKENIZED,
-												Field.TermVector.YES));
-							}
-							doc.add(new Field(
-									SearchService.FIELD_TITLE, sep
-											.getTitle(entity),
-									Field.Store.COMPRESS,
-									Field.Index.TOKENIZED,
-									Field.TermVector.YES));
-							doc.add(new Field(
-									SearchService.FIELD_TOOL, sep
-											.getTool(),
-									Field.Store.COMPRESS,
-									Field.Index.UN_TOKENIZED));
-							doc.add(new Field(
-									SearchService.FIELD_URL, sep
-											.getUrl(entity),
-									Field.Store.COMPRESS,
-									Field.Index.UN_TOKENIZED));
-							doc.add(new Field(
-									SearchService.FIELD_SITEID, sep
-											.getSiteId(ref),
-									Field.Store.COMPRESS,
-									Field.Index.UN_TOKENIZED));
-
-							// add the custom properties
-
-							Map m = sep.getCustomProperties();
-							if (m != null)
-							{
-								for (Iterator cprops = m.keySet()
-										.iterator(); cprops
-										.hasNext();)
+								try
 								{
-									String key = (String) cprops
-											.next();
-									Object value = m.get(key);
-									String[] values = null;
-									if (value instanceof String)
+									String siteId = sep
+											.getSiteId(sbi.getName());
+									Site s = SiteService.getSite(siteId);
+									ToolConfiguration t = s
+											.getToolForCommonId("sakai.search");
+									if (t == null)
 									{
-										values = new String[1];
-										values[0] = (String) value;
+										indexDoc = false;
+										log.debug("Not indexing "
+												+ sbi.getName()
+												+ " as it has no search tool");
 									}
-									if (value instanceof String[])
+								}
+								catch (Exception ex)
+								{
+									indexDoc = false;
+									log.debug("Not indexing  " + sbi.getName()
+											+ " as it has no site", ex);
+
+								}
+							}
+							if (indexDoc && sep != null && sep.isForIndex(ref)
+									&& ref.getContext() != null)
+							{
+
+								Document doc = new Document();
+								String container = ref.getContainer();
+								if (container == null) container = "";
+								doc.add(new Field(SearchService.DATE_STAMP,
+										String.valueOf(System
+												.currentTimeMillis()),
+										Field.Store.COMPRESS,
+										Field.Index.UN_TOKENIZED));
+								doc.add(new Field(
+										SearchService.FIELD_CONTAINER,
+										container, Field.Store.COMPRESS,
+										Field.Index.UN_TOKENIZED));
+								doc.add(new Field(SearchService.FIELD_ID, ref
+										.getId(), Field.Store.COMPRESS,
+										Field.Index.NO));
+								doc.add(new Field(SearchService.FIELD_TYPE, ref
+										.getType(), Field.Store.COMPRESS,
+										Field.Index.UN_TOKENIZED));
+								doc.add(new Field(SearchService.FIELD_SUBTYPE,
+										ref.getSubType(), Field.Store.COMPRESS,
+										Field.Index.UN_TOKENIZED));
+								doc.add(new Field(
+										SearchService.FIELD_REFERENCE, ref
+												.getReference(),
+										Field.Store.COMPRESS,
+										Field.Index.UN_TOKENIZED));
+
+								doc.add(new Field(SearchService.FIELD_CONTEXT,
+										sep.getSiteId(ref),
+										Field.Store.COMPRESS,
+										Field.Index.UN_TOKENIZED));
+								if (sep.isContentFromReader(entity))
+								{
+									contentReader = sep
+											.getContentReader(entity);
+									doc
+											.add(new Field(
+													SearchService.FIELD_CONTENTS,
+													contentReader,
+													Field.TermVector.YES));
+								}
+								else
+								{
+									doc.add(new Field(
+											SearchService.FIELD_CONTENTS, sep
+													.getContent(entity),
+											Field.Store.NO,
+											Field.Index.TOKENIZED,
+											Field.TermVector.YES));
+								}
+								doc.add(new Field(SearchService.FIELD_TITLE,
+										sep.getTitle(entity),
+										Field.Store.COMPRESS,
+										Field.Index.TOKENIZED,
+										Field.TermVector.YES));
+								doc.add(new Field(SearchService.FIELD_TOOL, sep
+										.getTool(), Field.Store.COMPRESS,
+										Field.Index.UN_TOKENIZED));
+								doc.add(new Field(SearchService.FIELD_URL, sep
+										.getUrl(entity), Field.Store.COMPRESS,
+										Field.Index.UN_TOKENIZED));
+								doc.add(new Field(SearchService.FIELD_SITEID,
+										sep.getSiteId(ref),
+										Field.Store.COMPRESS,
+										Field.Index.UN_TOKENIZED));
+
+								// add the custom properties
+
+								Map m = sep.getCustomProperties();
+								if (m != null)
+								{
+									for (Iterator cprops = m.keySet()
+											.iterator(); cprops.hasNext();)
 									{
-										values = (String[]) value;
-									}
-									if (values == null)
-									{
-										log
-												.info("Null Custom Properties value has been suppled by "
-														+ sep
-														+ " in index "
-														+ key);
-									}
-									else
-									{
-										for (int i = 0; i < values.length; i++)
+										String key = (String) cprops.next();
+										Object value = m.get(key);
+										String[] values = null;
+										if (value instanceof String)
 										{
-											doc
-													.add(new Field(
-															key,
-															values[i],
-															Field.Store.COMPRESS,
-															Field.Index.UN_TOKENIZED));
+											values = new String[1];
+											values[0] = (String) value;
+										}
+										if (value instanceof String[])
+										{
+											values = (String[]) value;
+										}
+										if (values == null)
+										{
+											log
+													.info("Null Custom Properties value has been suppled by "
+															+ sep
+															+ " in index "
+															+ key);
+										}
+										else
+										{
+											for (int i = 0; i < values.length; i++)
+											{
+												doc
+														.add(new Field(
+																key,
+																values[i],
+																Field.Store.COMPRESS,
+																Field.Index.UN_TOKENIZED));
+											}
 										}
 									}
 								}
+
+								log.debug("Indexing Document " + doc);
+
+								indexWrite.addDocument(doc);
+
+								log.debug("Done Indexing Document " + doc);
+
+								processRDF(sep);
+
 							}
-
-							log.debug("Indexing Document " + doc);
-
-							indexWrite.addDocument(doc);
-
-							log.debug("Done Indexing Document "
-									+ doc);
-
-							processRDF(sep);
-
+							else
+							{
+								log.debug("Ignored Document " + ref.getId());
+							}
 						}
-						else
+						catch (Exception e1)
 						{
-							log.debug("Ignored Document "
-									+ ref.getId());
+							log.info(" Failed to index document cause: "
+									+ e1.getMessage());
 						}
+						sbi.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
+						updateOrSave(connection, sbi);
+						connection.commit();
 					}
 					catch (Exception e1)
 					{
+						log.debug(" Failed to index document cause: "
+								+ e1.getMessage());
+					}
+					long endDocIndex = System.currentTimeMillis();
+					worker.setLastIndex(endDocIndex - startDocIndex);
+					if ((endDocIndex - startDocIndex) > 60000L)
+					{
 						log
-								.info(" Failed to index document cause: "
-										+ e1.getMessage());
+								.warn("Slow index operation "
+										+ String
+												.valueOf((endDocIndex - startDocIndex) / 1000)
+										+ " seconds to index "
+										+ ref.getReference());
 					}
-					sbi
-							.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
-					updateOrSave(connection, sbi);
-					connection.commit();
+					// update this node lock to indicate its
+					// still alove, no document should
+					// take more than 2 mins to process
+					if (!worker.getLockTransaction(15L * 60L * 1000L, true))
+					{
+						throw new Exception(
+								"Transaction Lock Expired while indexing "
+										+ ref.getReference());
+					}
+
 				}
-				catch (Exception e1)
+				finally
 				{
-					log.debug(" Failed to index document cause: "
-							+ e1.getMessage());
-				}
-				long endDocIndex = System.currentTimeMillis();
-				worker.setLastIndex(endDocIndex - startDocIndex);
-				if ((endDocIndex - startDocIndex) > 60000L)
-				{
-					log
-							.warn("Slow index operation "
-									+ String
-											.valueOf((endDocIndex - startDocIndex) / 1000)
-									+ " seconds to index "
-									+ ref.getReference());
-				}
-				// update this node lock to indicate its
-				// still alove, no document should
-				// take more than 2 mins to process
-				if (!worker.getLockTransaction(15L * 60L * 1000L,
-						true))
-				{
-					throw new Exception(
-							"Transaction Lock Expired while indexing "
-									+ ref.getReference());
+					if (contentReader != null)
+					{
+						try
+						{
+							contentReader.close();
+						}
+						catch (IOException ioex)
+						{
+						}
+					}
 				}
 
 			}
-			finally
-			{
-				if (contentReader != null)
-				{
-					try
-					{
-						contentReader.close();
-					}
-					catch (IOException ioex)
-					{
-					}
-				}
-			}
-
+			worker.setStartDocIndex(System.currentTimeMillis());
+			worker.setNowIndexing("-idle-");
 		}
-		worker.setStartDocIndex(System.currentTimeMillis());
-		worker.setNowIndexing("-idle-");
-		}				
 		finally
 		{
 			if (indexWrite != null)
@@ -505,16 +507,16 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 
 	}
 
-	private int completeUpdate(SearchIndexBuilderWorker worker, Connection connection, List runtimeToDo) throws Exception {
+	private int completeUpdate(SearchIndexBuilderWorker worker,
+			Connection connection, List runtimeToDo) throws Exception
+	{
 		try
 		{
 
-			for (Iterator tditer = runtimeToDo.iterator(); worker
-					.isRunning()
+			for (Iterator tditer = runtimeToDo.iterator(); worker.isRunning()
 					&& tditer.hasNext();)
 			{
-				SearchBuilderItem sbi = (SearchBuilderItem) tditer
-						.next();
+				SearchBuilderItem sbi = (SearchBuilderItem) tditer.next();
 				if (SearchBuilderItem.STATE_COMPLETED.equals(sbi
 						.getSearchstate()))
 				{
@@ -544,6 +546,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 		return 0;
 
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -558,52 +561,46 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 			long startTime = System.currentTimeMillis();
 			int totalDocs = 0;
 
-
 			// Load the list
 
 			List runtimeToDo = findPending(indexBatchSize, connection, worker);
 
-			totalDocs = runtimeToDo.size(); 
+			totalDocs = runtimeToDo.size();
 
 			log.debug("Processing " + totalDocs + " documents");
 
 			if (totalDocs > 0)
 			{
-					indexStorage.doPreIndexUpdate();
-					
-					// get lock
-					
-					
-					// this needs to be exclusive
-					processDeletes(worker, connection, runtimeToDo);
-					
-					// upate and release lock
-					// after a process Deletes the index needs to updated
-					
-					// can be parallel
-					processAdd(worker,connection,runtimeToDo);
-					
-					
-					
-					completeUpdate(worker,connection,runtimeToDo);
-					
-					// get lock
-					try
-					{
-						indexStorage.doPostIndexUpdate();
-					}
-					catch (IOException e)
-					{
-						log.error("Failed to do Post Index Update", e);
-					}
-					// release lock
-					
+				indexStorage.doPreIndexUpdate();
+
+				// get lock
+
+				// this needs to be exclusive
+				processDeletes(worker, connection, runtimeToDo);
+
+				// upate and release lock
+				// after a process Deletes the index needs to updated
+
+				// can be parallel
+				processAdd(worker, connection, runtimeToDo);
+
+				completeUpdate(worker, connection, runtimeToDo);
+
+				// get lock
+				try
+				{
+					indexStorage.doPostIndexUpdate();
+				}
+				catch (IOException e)
+				{
+					log.error("Failed to do Post Index Update", e);
+				}
+				// release lock
+
 			}
 
-			
-
 			if (worker.isRunning())
-			{		
+			{
 				long endTime = System.currentTimeMillis();
 				float totalTime = endTime - startTime;
 				float ndocs = totalDocs;
@@ -988,10 +985,8 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 								+ SEARCH_BUILDER_ITEM_T
 								+ " where searchstate = ? and    searchaction <> ? and "
 								+ "        not ( name like ? )  order by version ");
-				lockedPst = connection
-				.prepareStatement("update "
-						+ SEARCH_BUILDER_ITEM_T
-						+ " set searchstate = ? "
+				lockedPst = connection.prepareStatement("update "
+						+ SEARCH_BUILDER_ITEM_T + " set searchstate = ? "
 						+ " where id = ?  and  searchstate = ? ");
 				pst.clearParameters();
 				pst.setInt(1, SearchBuilderItem.STATE_PENDING.intValue());
@@ -1001,22 +996,22 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 				ArrayList a = new ArrayList();
 				while (rst.next() && a.size() < batchSize)
 				{
-					
+
 					SearchBuilderItemImpl sbi = new SearchBuilderItemImpl();
 					populateSearchBuilderItem(rst, sbi);
 					lockedPst.clearParameters();
-					lockedPst.setInt(1, SearchBuilderItem.STATE_LOCKED.intValue());
-					lockedPst.setString(2,sbi.getId());
-					lockedPst.setInt(3,SearchBuilderItem.STATE_PENDING.intValue());
-					if ( lockedPst.executeUpdate() == 1 ) {
+					lockedPst.setInt(1, SearchBuilderItem.STATE_LOCKED
+							.intValue());
+					lockedPst.setString(2, sbi.getId());
+					lockedPst.setInt(3, SearchBuilderItem.STATE_PENDING
+							.intValue());
+					if (lockedPst.executeUpdate() == 1)
+					{
 						sbi.setSearchstate(SearchBuilderItem.STATE_LOCKED);
 						a.add(sbi);
 					}
 					connection.commit();
-					
-					
-					
-			
+
 				}
 				return a;
 			}
@@ -1125,9 +1120,22 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 						.hasNext();)
 				{
 					Site s = (Site) i.next();
-					if ( !SiteService.isSpecialSite(s.getId()) || 
-							SiteService.isUserSite(s.getId())) {
-						contextList.add(s.getId());
+					if (!SiteService.isSpecialSite(s.getId())
+							|| SiteService.isUserSite(s.getId()))
+					{
+						if (searchIndexBuilder.isOnlyIndexSearchToolSites())
+						{
+							ToolConfiguration t = s
+									.getToolForCommonId("sakai.search");
+							if (t != null)
+							{
+								contextList.add(s.getId());
+							}
+						}
+						else
+						{
+							contextList.add(s.getId());
+						}
 					}
 				}
 			}
@@ -1138,16 +1146,16 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 			for (Iterator c = contextList.iterator(); c.hasNext();)
 			{
 				String siteContext = (String) c.next();
-				log.info("Rebuild for "+siteContext);
+				log.info("Rebuild for " + siteContext);
 				for (Iterator i = searchIndexBuilder.getContentProducers()
 						.iterator(); i.hasNext();)
 				{
 					EntityContentProducer ecp = (EntityContentProducer) i
 							.next();
-					
+
 					Iterator contentIterator = null;
 					contentIterator = ecp.getSiteContentIterator(siteContext);
-					log.debug("Using ECP "+ecp);
+					log.debug("Using ECP " + ecp);
 
 					int added = 0;
 					for (; contentIterator.hasNext();)
@@ -1163,7 +1171,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 							}
 						}
 						String resourceName = (String) contentIterator.next();
-						log.debug("Checking "+resourceName);
+						log.debug("Checking " + resourceName);
 						if (resourceName == null || resourceName.length() > 255)
 						{
 							log
@@ -1310,5 +1318,5 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 		return !indexStorage.isMultipleIndexers();
 	}
 
-
+	
 }

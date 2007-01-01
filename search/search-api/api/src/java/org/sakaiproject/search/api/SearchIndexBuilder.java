@@ -161,6 +161,8 @@ public interface SearchIndexBuilder
 
 	String getCurrentElapsed();
 
+	boolean isOnlyIndexSearchToolSites();
+
 
 
 	
