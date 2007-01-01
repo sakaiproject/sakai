@@ -12,7 +12,9 @@
 
 		<category name="course" />
 		<category name="project" />
-      <category name="portfolio" />
+      		<category name="portfolio" />
+
+		<configuration name="functions.require" value="mail.read" /> 
 
 	</tool>
 
