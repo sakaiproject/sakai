@@ -18,6 +18,8 @@
 		<category name="GradToolsDepartment" />
 		<category name="GradToolsRackham" />
 
+		<configuration name="functions.require" value="annc.read" /> 
+
 	</tool>
 
 </registration>
