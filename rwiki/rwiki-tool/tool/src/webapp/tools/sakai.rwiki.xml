@@ -25,9 +25,10 @@
 
 			
 		<category name="course" />
-         <category name="project" />
-         <category name="myworkspace" />
+         	<category name="project" />
+         	<category name="myworkspace" />
 		
+		<configuration name="functions.require" value="rwiki.read" /> 
 
 	</tool>
 
