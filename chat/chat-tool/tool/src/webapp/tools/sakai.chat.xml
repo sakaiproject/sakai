@@ -18,6 +18,8 @@
 		<category name="course" />
 		<category name="project" />
 
+		<configuration name="functions.require" value="chat.read" /> 
+
 	</tool>
 
 </registration>
