@@ -114,6 +114,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	private ClusterSegmentsStorage clusterStorage = null;
 
+	private boolean localSegmentsOnly = false;
+
 	public void init()
 	{
 		log.info(this + ":init() ");
@@ -654,13 +656,22 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	protected void updateLocalSegment(Connection connection, SegmentInfo addsi)
 			throws SQLException, IOException
 	{
-		if (sharedSegments == null || sharedSegments.length() == 0)
+		if (localSegmentsOnly)
 		{
-			updateLocalSegmentBLOB(connection, addsi);
+			log
+					.warn("Update Local Segment Requested with inactive Shared Storage "
+							+ addsi);
 		}
 		else
 		{
-			updateLocalSegmentFilesystem(connection, addsi);
+			if (sharedSegments == null || sharedSegments.length() == 0)
+			{
+				updateLocalSegmentBLOB(connection, addsi);
+			}
+			else
+			{
+				updateLocalSegmentFilesystem(connection, addsi);
+			}
 		}
 
 	}
@@ -794,13 +805,20 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			IOException
 	{
 
-		if (sharedSegments == null || sharedSegments.length() == 0)
+		if (localSegmentsOnly)
 		{
-			updateDBPatchBLOB(connection);
+			log.debug("Update Patch Requested with inactive Shared Storage ");
 		}
 		else
 		{
-			updateDBPatchFilesystem(connection);
+			if (sharedSegments == null || sharedSegments.length() == 0)
+			{
+				updateDBPatchBLOB(connection);
+			}
+			else
+			{
+				updateDBPatchFilesystem(connection);
+			}
 		}
 	}
 
@@ -995,14 +1013,20 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	protected void updateDBSegment(Connection connection, SegmentInfo addsi)
 			throws SQLException, IOException
 	{
-
-		if (sharedSegments == null || sharedSegments.length() == 0)
+		if (localSegmentsOnly)
 		{
-			updateDBSegmentBLOB(connection, addsi);
+			log.debug("Not Saving Segment to DB as no Shared Storage " + addsi);
 		}
 		else
 		{
-			updateDBSegmentFilesystem(connection, addsi);
+			if (sharedSegments == null || sharedSegments.length() == 0)
+			{
+				updateDBSegmentBLOB(connection, addsi);
+			}
+			else
+			{
+				updateDBSegmentFilesystem(connection, addsi);
+			}
 		}
 	}
 
@@ -1671,13 +1695,20 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	protected void updateLocalPatch(Connection connection) throws SQLException,
 			IOException
 	{
-		if (sharedSegments == null || sharedSegments.length() == 0)
+		if (localSegmentsOnly)
 		{
-			updateLocalPatchBLOB(connection);
+			log.warn("Update Patch Requested with inactive Shared Storage ");
 		}
 		else
 		{
-			updateLocalPatchFilesystem(connection);
+			if (sharedSegments == null || sharedSegments.length() == 0)
+			{
+				updateLocalPatchBLOB(connection);
+			}
+			else
+			{
+				updateLocalPatchFilesystem(connection);
+			}
 		}
 	}
 
@@ -2054,6 +2085,9 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	private String getSharedFileName(String name, boolean structured)
 	{
+		if ( localSegmentsOnly  ) {
+			return null;
+		}
 		if (sharedSegments != null && sharedSegments.length() > 0)
 		{
 			if (!sharedSegments.endsWith("/"))
@@ -2318,6 +2352,9 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	private void migrateSharedSegments()
 	{
+		if ( localSegmentsOnly ) {
+			return;
+		}
 		if (sharedSegments != null && sharedSegments.length() > 0)
 		{
 			Connection connection = null;
@@ -2521,5 +2558,21 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	public void setSharedStructuredStorage(boolean sharedStructuredStorage)
 	{
 		this.sharedStructuredStorage = sharedStructuredStorage;
+	}
+
+	/**
+	 * @return the localSegmentsOnly
+	 */
+	public boolean isLocalSegmentsOnly()
+	{
+		return localSegmentsOnly;
+	}
+
+	/**
+	 * @param localSegmentsOnly the localSegmentsOnly to set
+	 */
+	public void setLocalSegmentsOnly(boolean localSegmentsOnly)
+	{
+		this.localSegmentsOnly = localSegmentsOnly;
 	}
 }
