@@ -1,4 +1,8 @@
 <div class="portletBody">
+## submission times
+#set($timeReturned=$submission.TimeReturned)
+#set($timeSubmitted=$submission.TimeSubmitted)
+				
 #set($closeTime = false)
 		#set($closeTime = $assignment.CloseTime)
 	#if ($!closeTime && $currentTime.after($!closeTime) && (!$!submission.getSubmitted()))
@@ -18,7 +22,7 @@
 						 - $tlang.getString("gen.inpro")
 					</span>
 				#end
-				#if ($submission.TimeReturned.after($submission.TimeSubmitted))
+				#if ($!timeReturned && $!timeSubmitted && $!timeReturned.after($!timeSubmitted))
 				 $tlang.getString("assig1")
 					<span class="highlight">
 						 - $tlang.getString("resubmit")
@@ -28,14 +32,14 @@
 			#end
 			#if ($submission.getSubmitted())
 				#if ($submission.returned)
-					#if ($submission.TimeReturned.after($submission.TimeSubmitted))
+					#if ($!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted))
 					<p class="instruction">
 						$tlang.getString("stuviewsubm.asshasbee4") $submission.TimeReturned.toStringLocalFull(). $tlang.getString("stuviewsubm.plesub")
 					</p>	
 					#else
 					<p class="instruction">
 						$tlang.getString("stuviewsubm.asshasbee3") $submission.TimeSubmitted.toStringLocalFull().
-						#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+						#if ($!timeSubmitted && $!timeSubmitted.after($assignment.DueTime))
 							<span class="highlight"> $tlang.getString("gen.late")</span>
 						#end
 					</p>	
@@ -44,7 +48,7 @@
 					$tlang.getString("stuviewsubm.asshasbee2")
 				#else
 					<p class="instruction">$tlang.getString("gen.hasbee") $submission.TimeSubmitted.toStringLocalFull()</p>
-					#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+					#if ($!timeSubmitted && $!timeSubmitted.after($assignment.DueTime))
 						<span class="highlight"> $tlang.getString("gen.late")</span>
 					#end
 				#end
@@ -103,11 +107,11 @@
 						#if ($!submission)
 							#if ($submission.getSubmitted())
 								#if ($submission.returned)
-									#if ($submission.TimeReturned.after($submission.TimeSubmitted))
+									#if ($!timeReturned && $!timeSubmitted && $!timeReturned.after($!timeSubmitted))
 										$tlang.getString("gen.retu") $submission.TimeReturned.toStringLocalFull()
 									#else
 										$tlang.getString("gen.resub") $submission.TimeSubmitted.toStringLocalFull()
-										#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+										#if ($!timeSubmitted && $!timeSubmitted.after($assignment.DueTime))
 											<span class="highlight"> $tlang.getString("gen.late")</span>
 										#end
 									#end
@@ -119,7 +123,7 @@
 									#end
 								#else
 									$tlang.getString("gen.subm4") $submission.timeSubmitted.toStringLocalFull()
-									#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+									#if ($!timeSubmitted && $!timeSubmitted.after($assignment.DueTime))
 										<span class="highlight">$tlang.getString("gen.late2")</span>
 									#end
 								#end
@@ -257,7 +261,7 @@
 						</td></tr></table>
 					#end
 				#elseif ($submission.getReturned())
-						#if ($submission.TimeReturned.after($submission.TimeSubmitted))
+						#if ($!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted))
 							<h4>$tlang.getString("gen.orisub2")</h4>
 							<div class="textPanel">
 								$cheffeedbackhelper.escapeAssignmentFeedback($submission.FeedbackText)
@@ -287,7 +291,7 @@
 			#if (($submissionType==2) || ($submissionType==3)) 
 				#if ($submissionType==2)
 					<h4>
-						#if (($submission.getSubmitted() && !$submission.getReturned()) || ($submission.Returned && $submission.TimeReturned.before($submission.TimeSubmitted)) || ($!closeTime && $currentTime.after($closeTime)))
+						#if (($submission.getSubmitted() && !$submission.getReturned()) || ($submission.Returned && $!timeReturned && $!timeSubmitted && $!timeReturned.before($!timeSubmitted)) || ($!closeTime && $currentTime.after($closeTime)))
 							## for submitted not yet returned submission; or returned by resubmitted submission; or after close date
 							$tlang.getString("stuviewsubm.youatt")
 						#else
@@ -335,7 +339,7 @@
 							<input type="submit" name="eventSubmit_doAttachments" value="Attachment" accesskey="a" disabled="disabled" />
 						#else
 							##if the submission has not been submitted or has been returned and not yet resubmitted
-							#if (!$submission.getSubmitted() || ($submission.getReturned() && $submission.TimeReturned.after($submission.TimeSubmitted)))
+							#if (!$submission.getSubmitted() || ($submission.getReturned() && $!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted)))
 								#if ($!closeTime)
 									## there is close date. Can only submit before the close date
 									#if ($currentTime.before($!closeTime))
@@ -373,7 +377,7 @@
 						#end
 					</p>
 				#end
-				#if ($submission.getReturned() && $submission.TimeReturned.after($submission.TimeSubmitted))
+				#if ($submission.getReturned() && $!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted))
 					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						<h5>$tlang.getString("gen.addinst")</h5>
 						<div>$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
@@ -473,7 +477,7 @@
 						<label for="$name_submission_honor_pledge_yes">
 							$tlang.getString("gen.honple2")
 						</label>
-						#if (($submission.getSubmitted() && !$submission.getReturned()) || ($submission.Returned && $submission.TimeReturned.before($submission.TimeSubmitted))||($!closeTime && $currentTime.after($closeTime)))
+						#if (($submission.getSubmitted() && !$submission.getReturned()) || ($submission.Returned && $!timeSubmitted &&$!timeReturned && $!timeReturned.before($!timeSubmitted))||($!closeTime && $currentTime.after($closeTime)))
 							## for submitted submission not yet returned; or returned but resubmitted submission; or after the close time
 							#if ($value_submission_honor_pledge_yes.equals("false"))
 								<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" disabled="disabled" />
@@ -514,7 +518,7 @@
 							onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
 						/>
 					#else
-						#if (!$submission.getSubmitted() || ($submission.getReturned()&&$submission.TimeReturned.after($submission.TimeSubmitted)))
+						#if (!$submission.getSubmitted() || ($submission.getReturned() && $!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted)))
 							<input
 								type="button"
 								class="active"
