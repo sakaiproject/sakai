@@ -209,21 +209,21 @@
 								#if ($root.canRead())
 									#if ($root.isEmpty())
 										<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="folder" />
-									#elseif($root.isTooBig())
-										<img src = "#imageLink("sakai/dir_unexpand.gif")" border="0" title="$tlang.getString('list.toobig')" alt="$tlang.getString('list.toobig')" />
-									#elseif (!$expandedCollections.contains($root.Id))
-										<a href="#"
-											onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
-											title= "$tlang.getString('sh.open')">
-										##<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($root.Id)")" title="$tlang.getString('sh.open')">
-											<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
-										</a>
-									#else
+									#elseif ($expandedCollections.contains($root.Id))
 											<img src = "#imageLink("sakai/dir_openroot.gif")" border="0" alt="$tlang.getString('sh.close')" />
 											<a href="#"
 											onclick="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
 											title= "$tlang.getString('sh.close')">
 										##<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($root.Id)")" title="$tlang.getString('sh.close')">
+										</a>
+									#elseif($root.isTooBig())
+										<img src = "#imageLink("sakai/dir_unexpand.gif")" border="0" title="$tlang.getString('list.toobig')" alt="$tlang.getString('list.toobig')" />
+									#else
+										<a href="#"
+											onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
+											title= "$tlang.getString('sh.open')">
+										##<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($root.Id)")" title="$tlang.getString('sh.open')">
+											<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
 										</a>
 									#end
 									<a href="#"
@@ -439,19 +439,19 @@
 										#if ($member.canRead())
 											#if ($member.isEmpty())
 												<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="folder" />
-											#elseif($member.isTooBig())
-												<img src = "#imageLink("sakai/dir_unexpand.gif")" border="0" title="$tlang.getString('list.toobig')" alt="$tlang.getString('list.toobig')" />
-											#elseif (!$expandedCollections.contains($member.Id))
-												<a href="#"
-													onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
-													title= "$tlang.getString('sh.open')">
-													<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
-												</a>
-											#else
+											#elseif ($expandedCollections.contains($member.Id))
 												<a href="#"
 													onclick="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
 													title= "$tlang.getString('sh.close')">
 													<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.close')" />
+												</a>
+											#elseif($member.isTooBig())
+												<img src = "#imageLink("sakai/dir_unexpand.gif")" border="0" title="$tlang.getString('list.toobig')" alt="$tlang.getString('list.toobig')" />
+											#else
+												<a href="#"
+													onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
+													title= "$tlang.getString('sh.open')">
+													<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
 												</a>
 											#end
 											<a href="#"
@@ -722,19 +722,19 @@
 										#if ($root.canRead())
 											#if ($root.isEmpty())
 												<img src = "#imageLink("sakai/dir_closed.gif")" border="0"  alt="folder" />
-											#elseif($root.isTooBig())
-												<img src = "#imageLink("sakai/dir_unexpand.gif")" border="0" title="$tlang.getString('list.toobig')" alt="$tlang.getString('list.toobig')" />
-											#elseif (!$expandedCollections.contains($root.Id))
-												<a href="#"
-													onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
-													title= "$tlang.getString('sh.open')">
-													<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
-												</a>
-											#else
+											#elseif ($expandedCollections.contains($root.Id))
 												<a href="#"
 													onclick="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
 													title= "$tlang.getString('sh.close')">
 													<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.close')" />
+												</a>
+											#elseif($root.isTooBig())
+												<img src = "#imageLink("sakai/dir_unexpand.gif")" border="0" title="$tlang.getString('list.toobig')" alt="$tlang.getString('list.toobig')" />
+											#else
+												<a href="#"
+													onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
+													title= "$tlang.getString('sh.open')">
+													<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
 												</a>
 											#end
 											<a href="#"
@@ -927,21 +927,21 @@
 												#if ($member.canRead())
 													#if ($member.isEmpty())
 														<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="folder" />
-													#elseif($member.isTooBig())
-														<img src = "#imageLink("sakai/dir_unexpand.gif")" border="0" title="$tlang.getString('list.toobig')" alt="$tlang.getString('list.toobig')" />
-													#elseif(!$expandedCollections.contains($member.Id))
-														<a href="#"
-															onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
-															title= "$tlang.getString('sh.open')">
-														##<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($member.Id)")" title="$tlang.getString('sh.open')">
-															<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
-														</a>
-													#else
+													#elseif($expandedCollections.contains($member.Id))
 														<a href="#"
 															onclick="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
 															title= "$tlang.getString('sh.close')">
 														##<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($member.Id)")" title="$tlang.getString('sh.close')">
 															<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.close')" />
+														</a>
+													#elseif($member.isTooBig())
+														<img src = "#imageLink("sakai/dir_unexpand.gif")" border="0" title="$tlang.getString('list.toobig')" alt="$tlang.getString('list.toobig')" />
+													#else
+														<a href="#"
+															onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
+															title= "$tlang.getString('sh.open')">
+														##<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($member.Id)")" title="$tlang.getString('sh.open')">
+															<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
 														</a>
 													#end
 													<a href="#"

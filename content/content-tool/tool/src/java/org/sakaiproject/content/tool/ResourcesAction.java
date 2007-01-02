@@ -3701,7 +3701,20 @@ public class ResourcesAction
 			addObservingPattern(collectionId, state);
 
 			state.setAttribute(STATE_COLLECTION_ID, collectionId);
-			state.setAttribute(STATE_EXPANDED_COLLECTIONS, new TreeSet());
+			
+			SortedSet currentMap = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+			if(currentMap == null)
+			{
+				currentMap = new TreeSet();
+				state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
+			}
+			if(!currentMap.contains(collectionId))
+			{
+				currentMap.add (collectionId);
+
+				// add this folder id into the set to be event-observed
+				addObservingPattern(collectionId, state);
+			}
 		}
 
 	}	// doNavigate
