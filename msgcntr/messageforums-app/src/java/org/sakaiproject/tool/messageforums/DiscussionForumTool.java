@@ -3820,7 +3820,7 @@ public class DiscussionForumTool
               i=1;
             }
             DBMembershipItem item = forumManager.getAreaDBMember(membershipItems, role.getId(), DBMembershipItem.TYPE_ROLE);
-            siteMembers.add(new SelectItem(role.getId(), role.getId() + "("+item.getPermissionLevelName()+")"));
+            siteMembers.add(new SelectItem(role.getId(), role.getId() + " ("+item.getPermissionLevelName()+")"));
             permissions.add(new PermissionBean(item, permissionLevelManager));
           }
         }
