@@ -335,7 +335,9 @@
 												#set($allowResubmitNumber=$!submissionProperties.getProperty($!allowResubmitNumberProp))
 												#if(!$!allowResubmitNumber.equals("0"))
 													#set($allowResubmitCloseTimeString=$!submissionProperties.getProperty($!allowResubmitCloseTimeProp))
-													#set($allowResubmitCloseTime=$!TimeService.newTime($!LongObject.parseLong($!allowResubmitCloseTimeString)))
+													#if($!allowResubmitCloseTimeString)
+														#set($allowResubmitCloseTime=$!TimeService.newTime($!LongObject.parseLong($!allowResubmitCloseTimeString)))
+													#end
 												#end
 												## if not submitted or returned and still allowed to submit within the due time
 												#if (($!submissionReturned && !$!allowResubmitNumber.equals("0") && $!allowResubmitCloseTime && $currentTime.before($!allowResubmitCloseTime)) || !$!submissionSubmitted)
@@ -361,7 +363,9 @@
 													#set($allowResubmitNumber=$!submissionProperties.getProperty($!allowResubmitNumberProp))
 													#if(!$!allowResubmitNumber.equals("0"))
 														#set($allowResubmitCloseTimeString=$!submissionProperties.getProperty($!allowResubmitCloseTimeProp))
-														#set($allowResubmitCloseTime=$!TimeService.newTime($!LongObject.parseLong($!allowResubmitCloseTimeString)))
+														#if($!allowResubmitCloseTimeString)
+															#set($allowResubmitCloseTime=$!TimeService.newTime($!LongObject.parseLong($!allowResubmitCloseTimeString)))
+														#end
 													#end
 													## if not submitted or returned and still allowed to submit within the due time
 													#if (($!submissionReturned && !$!allowResubmitNumber.equals("0") && $!allowResubmitCloseTime && $currentTime.before($!allowResubmitCloseTime)) || !$!submissionSubmitted)
