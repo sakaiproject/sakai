@@ -303,6 +303,7 @@ public class CalendarBean extends InitializableBean implements Serializable {
 			// selected month
 			Calendar c = Calendar.getInstance();
 			c.setTime(getSelectedMonth());
+			int selYear = c.get(Calendar.YEAR);
 			int selMonth = c.get(Calendar.MONTH);
 			c.set(Calendar.MONTH, selMonth);
 			c.set(Calendar.DAY_OF_MONTH, 1);
@@ -346,6 +347,7 @@ public class CalendarBean extends InitializableBean implements Serializable {
 						day = new Day(c.getTime(), getDayEventCount(c) > 0);
 						day.setOccursInOtherMonth(true);
 					}else{
+						c.set(Calendar.YEAR, selYear);
 						c.set(Calendar.MONTH, selMonth);
 						c.set(Calendar.DAY_OF_MONTH, currDay++);
 						day = new Day(c.getTime(), getDayEventCount(c) > 0);
