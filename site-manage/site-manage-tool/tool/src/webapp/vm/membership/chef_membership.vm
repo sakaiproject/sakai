@@ -37,7 +37,9 @@
 					<tr>
 						<td headers="worksite" style="white-space:nowrap">
 							<h4><a href="$site.Url" target="_top" title="$tlang.getString('mb.gotosite') $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a></h4>
-							#if($disableUnjoinSelection)
+							#set($siteType=$site.Type)
+							## don't show unjoin link if (1) unjoin is disabled for all sites; (2) unjoin is disabled for current site type
+							#if($disableUnjoinSelection || ($!siteType && $!disableUnjoinSiteTypes.contains($!siteType)))
 								<p class ="shorttext"></p>
 							#else		
 								#if ($SiteService.allowUnjoinSite($site.Id))

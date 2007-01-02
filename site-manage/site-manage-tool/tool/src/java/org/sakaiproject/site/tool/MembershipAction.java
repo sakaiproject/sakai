@@ -21,6 +21,8 @@
 
 package org.sakaiproject.site.tool;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -165,6 +167,11 @@ public class MembershipAction extends PagedResourceActionII
 			if (ServerConfigurationService.getBoolean("disable.membership.unjoin.selection", false))
 			{
 				context.put("disableUnjoinSelection", Boolean.TRUE);
+			}
+			
+			if (ServerConfigurationService.getStrings("wsetup.disable.unjoin") != null)
+			{
+				context.put("disableUnjoinSiteTypes", new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("wsetup.disable.unjoin"))));
 			}
 		}
 		else
