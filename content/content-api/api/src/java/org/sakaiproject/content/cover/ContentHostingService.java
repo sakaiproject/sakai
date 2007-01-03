@@ -66,7 +66,17 @@ public class ContentHostingService
 
 	public static java.lang.String EVENT_RESOURCE_REMOVE = org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_REMOVE;
 
+	public static java.lang.String AUTH_RESOURCE_ADD = org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_ADD;
+	public static java.lang.String AUTH_RESOURCE_READ = org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_READ;
+	public static java.lang.String AUTH_RESOURCE_WRITE_ANY = org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_WRITE_ANY;
+	public static java.lang.String AUTH_RESOURCE_WRITE_OWN = org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_WRITE_OWN;
+	public static java.lang.String AUTH_RESOURCE_REMOVE_ANY = org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_REMOVE_ANY;
+	public static java.lang.String AUTH_RESOURCE_REMOVE_OWN = org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_REMOVE_OWN;
 	public static java.lang.String AUTH_RESOURCE_ALL_GROUPS = org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_ALL_GROUPS;
+	public static java.lang.String AUTH_GROUP_RESOURCE_READ = org.sakaiproject.content.api.ContentHostingService.AUTH_GROUP_RESOURCE_READ;
+	public static java.lang.String AUTH_RESOURCE_HIDDEN = org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_HIDDEN;
+	public static java.lang.String AUTH_DROPBOX_OWN = org.sakaiproject.content.api.ContentHostingService.AUTH_DROPBOX_OWN;
+	public static java.lang.String AUTH_DROPBOX_MAINTAIN = org.sakaiproject.content.api.ContentHostingService.AUTH_DROPBOX_MAINTAIN;
 	
 	public static java.lang.String PROP_ALTERNATE_REFERENCE = org.sakaiproject.content.api.ContentHostingService.PROP_ALTERNATE_REFERENCE;
 
@@ -966,6 +976,18 @@ public class ContentHostingService
 		if (service == null) return false;
 
 		return service.usingResourceTypeRegistry();
+	}
+
+	/**
+	 * @param entityId
+	 * @return
+	 */
+	public static boolean isCollection(String entityId)
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return false;
+
+		return service.isCollection(entityId);
 	}
 
 }

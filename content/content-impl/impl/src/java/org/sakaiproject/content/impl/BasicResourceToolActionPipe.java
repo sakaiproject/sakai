@@ -3,7 +3,7 @@
  * $Id:  $
  ***********************************************************************************
  *
- * Copyright (c) 2006 The Sakai Foundation.
+ * Copyright (c) 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -53,6 +53,22 @@ public class BasicResourceToolActionPipe
 	private boolean actionCompleted;
 	private String errorMessage;
 	
+	/**
+	 * @return the helperId
+	 */
+	public String getHelperId()
+	{
+		return this.helperId;
+	}
+
+	/**
+	 * @param helperId the helperId to set
+	 */
+	public void setHelperId(String helperId)
+	{
+		this.helperId = helperId;
+	}
+
 	public BasicResourceToolActionPipe(String interactionId, ResourceToolAction action)
 	{
 		this.initializationId = interactionId;
@@ -74,7 +90,7 @@ public class BasicResourceToolActionPipe
 		return this.contentOutputStream;
 	}
 
-	public String getContentType() 
+	public String getMimeType() 
 	{
 		return this.contentType;
 	}
@@ -99,7 +115,7 @@ public class BasicResourceToolActionPipe
 		return this.revisedContentStream;
 	}
 
-	public String getRevisedContentType() 
+	public String getRevisedMimeType() 
 	{
 		return this.revisedContentType;
 	}
@@ -124,7 +140,7 @@ public class BasicResourceToolActionPipe
 		this.contentOutputStream = ostream;
 	}
 
-	public void setContentType(String type) 
+	public void setMimeType(String type) 
 	{
 		this.contentType = type;
 	}
@@ -156,7 +172,7 @@ public class BasicResourceToolActionPipe
 		this.revisedContentStream = istream;
 	}
 
-	public void setRevisedContentType(String type) 
+	public void setRevisedMimeType(String type) 
 	{
 		this.revisedContentType = type;
 	}

@@ -3,7 +3,7 @@
  * $Id:  $
  ***********************************************************************************
  *
- * Copyright (c) 2006 The Sakai Foundation.
+ * Copyright (c) 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -389,6 +389,14 @@ public class FileUploadType extends BaseResourceType
 			user = userDirectoryService.getCurrentUser();
 		}
 		return this.isActionAllowed(ResourceToolAction.CREATE, collectionRef, user);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceType#getLocalizedHoverText(org.sakaiproject.entity.api.Reference)
+	 */
+	public String getLocalizedHoverText(Reference reference)
+	{
+		return rb.getString("add.upload");
 	}
 	
 }

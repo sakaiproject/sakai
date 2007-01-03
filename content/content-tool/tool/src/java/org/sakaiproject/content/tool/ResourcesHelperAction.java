@@ -3,7 +3,7 @@
  * $Id:  $
  ***********************************************************************************
  *
- * Copyright (c) 2006 The Sakai Foundation.
+ * Copyright (c) 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -130,6 +130,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		{
 			template = buildCreateContext(portlet, context, data, state);
 		}
+		else if(ResourceToolAction.REVISE_CONTENT.equals(actionId))
+		{
+			template = buildReviseContext(portlet, context, data, state);
+		}
 		
 		return template;
 	}
@@ -183,6 +187,32 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			SessionState state)
 	{
 		String template = REVISE_TEXT_TEMPLATE;
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+
+		//Reference reference = (Reference) toolSession.getAttribute(ResourceToolAction.COLLECTION_REFERENCE);
+		String typeId = pipe.getAction().getTypeId();
+		
+		context.put("pipe", pipe);
+
+		if(ResourceType.TYPE_TEXT.equals(typeId))
+		{
+			template = REVISE_TEXT_TEMPLATE;
+		}
+		else if(ResourceType.TYPE_HTML.equals(typeId))
+		{
+			template = REVISE_HTML_TEMPLATE;
+		}
+		else if(ResourceType.TYPE_URL.equals(typeId))
+		{
+			template = REVISE_URL_TEMPLATE;
+		}
+		else // assume ResourceType.TYPE_UPLOAD
+		{
+			template = REVISE_UPLOAD_TEMPLATE;
+		}
+		
 		return template;
 	}
 	
@@ -224,7 +254,18 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		
-		pipe.setContent(content.getBytes());
+		String resourceType = pipe.getAction().getTypeId();
+		
+		pipe.setRevisedContent(content.getBytes());
+		pipe.setRevisedMimeType(pipe.getMimeType());
+		if(ResourceType.TYPE_TEXT.equals(resourceType))
+		{
+			pipe.setRevisedMimeType(ResourceType.MIME_TYPE_TEXT);
+		}
+		else if(ResourceType.TYPE_HTML.equals(resourceType))
+		{
+			pipe.setRevisedMimeType(ResourceType.MIME_TYPE_HTML);
+		}
 		pipe.setActionCanceled(false);
 		pipe.setErrorEncountered(false);
 		pipe.setActionCompleted(true);

@@ -43,4 +43,11 @@ public interface ContentEntity extends GroupAwareEntity
 	 */
 	public boolean isCollection();
 	
+	/**
+	 * Access the "type" of this ContentEntity, which defines which ResourceType registration defines
+	 * its properties.
+	 * @return
+	 */
+	public String getResourceType();
+	
 }

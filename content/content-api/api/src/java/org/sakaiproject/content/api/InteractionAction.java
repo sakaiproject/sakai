@@ -73,12 +73,16 @@ public interface InteractionAction extends ResourceToolAction
 	public String initializeAction(Reference reference);
 	
 	/**
-	 * @param reference
+	 * ResourcesAction calls this method after completion of its portion of the action. 
+	 * @param reference The 
 	 * @param initializationId 
 	 */
 	public void finalizeAction(Reference reference, String initializationId);
 	
 	/**
+	 * ResourcesAction calls this method if the user cancels out of the action or some error 
+	 * occurs preventing completion of the action after the helper completes its part of the 
+	 * action.    
 	 * @param reference
 	 * @param initializationId 
 	 */

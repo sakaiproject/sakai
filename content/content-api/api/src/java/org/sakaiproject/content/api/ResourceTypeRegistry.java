@@ -32,6 +32,15 @@ import org.sakaiproject.javax.Filter;
 public interface ResourceTypeRegistry 
 {
 	/**
+	 * Access the definition of an action based on the id of the type in which it's defined and
+	 * the id of the action within that type.
+	 * @param typeId
+	 * @param actionId
+	 * @return
+	 */
+	public ResourceToolAction getAction(String typeId, String actionId);
+	
+	/**
 	 *  Access the definition of a particular resource type.
 	 * @param typeId The id of the resource type.
 	 * @return The ResourceType object which defines the requested type, or null if the type is not defined.
@@ -55,14 +64,6 @@ public interface ResourceTypeRegistry
 	public Collection getTypes(Filter filter);
 	
 	/**
-	 * Register a ResourceType object to indicate that resources of that type can be defined in  
-	 * the Resources tool.  If the InteractionAction object is null or if the type object's getId()  
-	 * method returns a null value, no type is registered. 
-	 * @param type
-	 */
-	public void register(ResourceType type);
-	
-	/**
 	 * Create a new "pipe" that can be used as a conduit of information between the Resources tool 
 	 * and a helper that handles some part of an action. 
 	 * @param initializationId
@@ -70,5 +71,13 @@ public interface ResourceTypeRegistry
 	 * @return
 	 */
 	public ResourceToolActionPipe newPipe(String initializationId, ResourceToolAction action);
+		
+	/**
+	 * Register a ResourceType object to indicate that resources of that type can be defined in  
+	 * the Resources tool.  If the InteractionAction object is null or if the type object's getId()  
+	 * method returns a null value, no type is registered. 
+	 * @param type
+	 */
+	public void register(ResourceType type);
 		
 }

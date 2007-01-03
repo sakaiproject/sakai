@@ -14,10 +14,18 @@ import org.sakaiproject.entity.api.Reference;
  * 
  * ResourceToolActionPipe has a set of methods through which ResourcesAction can pass 
  * information to a helper about the current state of the entity (or entities?) involved 
- * in an action.  It has another set of methods through which the helper can report any 
- * revisions needed in the entity as a result of the action. It also has a few methods 
- * through which the helper can report whether the action was canceled or an error was 
- * encountered.  
+ * in an action ("setContent", "getContent", "setMimeType", "getMimeType", etc).  It has 
+ * another set of methods through which the helper passes back values that may or may 
+ * not have been updated as a result of the action ("setRevisedContent", "getRevisedContent", 
+ * "setRevisedMimeType", "getRevisedMimeType", etc). If a value is not changed by the action,
+ * the helper should use an appropriate setter to indicate the revised value is the same
+ * as the original value.  For example:
+ * 
+ *   pipe.setRevisedMimeType( pipe.getMimeType() );
+ *   
+ * Otherwise, the getter for the revised value will return null, and ResourcesAction will
+ * set unset the property. ResourceToolActionPipe also has a few methods through which the 
+ * helper can report whether the action was canceled or an error was encountered.  
  * 
  * @see org.sakaiproject.content.api.ResourceTypeRegistry
  * @see org.sakaiproject.content.api.ResourceToolAction
@@ -32,7 +40,7 @@ public interface ResourceToolActionPipe
 	
 	/**
 	 * Used by helper to access current value of resource's "content". Return will be 
-	 * empty string to indicate no content is defined for resource or null to indicate 
+	 * empty array to indicate no content is defined for resource or null to indicate 
 	 * that content should be accessed as an OutputStream because of size or type of content. 
 	 * @return
 	 */
@@ -60,7 +68,7 @@ public interface ResourceToolActionPipe
 	 * indicates that mimetype is irrelevant or unavailable.
 	 * @return
 	 */
-	public String getContentType();
+	public String getMimeType();
 	
 	/**
 	 * Used by the Resources tool to retrieve error message that will be shown to user in 
@@ -69,6 +77,11 @@ public interface ResourceToolActionPipe
 	 * @return
 	 */
 	public String getErrorMessage();
+	
+	/**
+	 * @return
+	 */
+	public String getHelperId();
 	
 	/**
 	 * Used by helper to access the initialization-id for this action, if an initialization-id
@@ -88,13 +101,17 @@ public interface ResourceToolActionPipe
 	public Object getPropertyValue(String name);
 	
 	/**
-	 * Used by ResourceAction to access helper's revised value of resource's "content".
+	 * Used by ResourceAction to access helper's revised value of resource's "content". An empty 
+	 * array indicates that the resource has no content.  A null value indicates that the content
+	 * should be accessed as a stream.
 	 * @return
 	 */
 	public byte[] getRevisedContent();
 	
 	/**
-	 * Used by ResourceAction to access helper's revised value of resource's "content".
+	 * Used by ResourceAction to access helper's revised value of resource's "content". If both 
+	 * the byte-array and the stream are null, or if the byte-array is null and the stream does
+	 * not contain any data, the resource is assumed to have no content. 
 	 * @return
 	 */
 	public InputStream getRevisedContentStream();
@@ -103,10 +120,10 @@ public interface ResourceToolActionPipe
 	 * Used by ResourceAction to access helper's revised value for mimetype of resource.
 	 * @return
 	 */
-	public String getRevisedContentType();
+	public String getRevisedMimeType();
 	
 	/**
-	 * Used by ResourceAction to access helper's revisions to values of resource properties.
+	 * Used by ResourceAction to access helper's revisions to values of resource properties. 
 	 * @return
 	 */
 	public Map getRevisedResourceProperties();
@@ -165,10 +182,10 @@ public interface ResourceToolActionPipe
 	public void setContentStream(OutputStream ostream);
 	
 	/**
-	 * Used by ResourcesAction to provide helper with mimetype of resource.
+	 * Used by ResourcesAction to provide helper with mimetype of resource. 
 	 * @param ostream
 	 */
-	public void setContentType(String type);
+	public void setMimeType(String type);
 	
 	/**
 	 * Used by helper to indicate that an error was encountered which prevented completion 
@@ -190,7 +207,8 @@ public interface ResourceToolActionPipe
 	
 	/**
 	 * Used by ResourcesAction to provide a value for the initialization-id.  Should be initialized
-	 * the value returned by the InteractionAction.initializeAction() method.
+	 * to the value returned by the InteractionAction.initializeAction() method (possibly null or
+	 * an empty string is this information is not needed by the helper). 
 	 * @param 
 	 */
 	public void setInitializationId(String id);
@@ -228,7 +246,7 @@ public interface ResourceToolActionPipe
 	 * Mimetype will not be referenced if param is null.
 	 * @param type
 	 */
-	public void setRevisedContentType(String type);
+	public void setRevisedMimeType(String type);
 
 	/**
 	 * Used by helper to provide ResourcesAction with revised value for a resource property
@@ -249,4 +267,9 @@ public interface ResourceToolActionPipe
 	 * @param value
 	 */
 	public void setRevisedResourceProperty(String name, String value);
+
+	/**
+	 * @param helperId
+	 */
+	public void setHelperId(String helperId);
 }

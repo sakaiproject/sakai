@@ -32,10 +32,15 @@ import org.sakaiproject.user.api.User;
  */
 public interface ResourceType 
 {
-	public static final String TYPE_TEXT = "textDocument";
-	public static final String TYPE_HTML = "htmlDocument";
-	public static final String TYPE_URL = "urlResource";
-	public static final String TYPE_UPLOAD = "fileUpload";
+	public static final String TYPE_TEXT = "org.sakaiproject.content.types.TextDocumentType";
+	public static final String TYPE_HTML = "org.sakaiproject.content.types.HtmlDocumentType";
+	public static final String TYPE_URL = "org.sakaiproject.content.types.urlResource";
+	public static final String TYPE_UPLOAD = "org.sakaiproject.content.types.fileUpload";
+	public static final String TYPE_FOLDER = "org.sakaiproject.content.types.folder";
+	
+	public static final String MIME_TYPE_TEXT = "text/plain";
+	public static final String MIME_TYPE_HTML = "text/html";
+
 
 	/**
 	 * @param actionId
@@ -87,12 +92,23 @@ public interface ResourceType
 	 * Access the identifier for this type (which must be unique within the registry and must be limited to alphnumeric characters).
 	 * @return
 	 */
-	public String getId(); 
+	public String getId();
 	
 	/**
 	 * @return
 	 */
-	public String getLabel();
+	public String getLabel(); 
+	
+	/**
+	 * Access a text string suitable for use as a very brief description of a particular resource.
+	 * If the string is more than about 40 or 50 characters, it may be truncated at an arbitrary
+	 * length.  The string may identify the type of this resource or more specific information. 
+	 * The string should be localized.  If no value is supplied, a default hover-string will be 
+	 * used.
+	 * @param reference A reference to the resource that's being displayed
+	 * @return
+	 */
+	public String getLocalizedHoverText(Reference reference);
 	
 	/**
 	 * Should the Resources tool support hiding and scheduled release and/or retraction for items of this type?

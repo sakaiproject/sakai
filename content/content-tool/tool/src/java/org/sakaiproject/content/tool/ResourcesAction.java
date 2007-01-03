@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -156,42 +156,746 @@ public class ResourcesAction
 	{
 		protected String name;
 		protected String id;
+		protected List actions;
 		protected List members;
+		protected Set permissions;
 		protected boolean selected;
+		protected boolean collection;
 		
+		/**
+		 * @return the collection
+		 */
+		public boolean isCollection()
+		{
+			return this.collection;
+		}
+
+		/**
+		 * @param collection the collection to set
+		 */
+		public void setCollection(boolean collection)
+		{
+			this.collection = collection;
+		}
+
+		/**
+		 * @return the permissions
+		 */
+		public Set getPermissions()
+		{
+			return this.permissions;
+		}
 		
+		/**
+		 * @param permissions the permissions to set
+		 */
+		public void setPermissions(Set permissions)
+		{
+			this.permissions = permissions;
+		}
+		
+		/**
+		 * @param permission
+		 */
+		public void addPermission(String permission)
+		{
+			if(this.permissions == null)
+			{
+				this.permissions = new TreeSet();
+			}
+			this.permissions.add(permission);
+		}
+		
+		/**
+		 * @param permission
+		 * @return
+		 */
+		public boolean isPermitted(String permission)
+		{
+			if(this.permissions == null)
+			{
+				this.permissions = new TreeSet();
+			}
+			return this.permissions.contains(permission);
+		}
+		
+		/**
+		 * @return
+		 */
 		public String getId() 
 		{
 			return id;
 		}
+		
+		/**
+		 * @param id
+		 */
 		public void setId(String id) 
 		{
 			this.id = id;
 		}
+		
 		public String getName() 
 		{
 			return name;
 		}
+		
 		public void setName(String name) 
 		{
 			this.name = name;
 		}
+		
 		public List getMembers() 
 		{
 			return members;
 		}
+		
 		public void setMembers(List members) 
 		{
 			this.members = members;
 		}
+		
 		public void setSelected(boolean selected) 
 		{
 			this.selected = selected;
 		}
+		
 		public boolean isSelected() 
 		{
 			return selected;
 		}
+		
+		public List getActions()
+		{
+			return actions;
+		}
+		
+		public void setActions(List actions)
+		{
+			this.actions = actions;
+		}
+	}
+	
+	/**
+	 * Action
+	 *
+	 */
+	public class Action
+	{
+		protected String label;
+		protected String actionId;
+		
+		/**
+		 * @return the actionId
+		 */
+		public String getActionId()
+		{
+			return this.actionId;
+		}
+		
+		/**
+		 * @param actionId the actionId to set
+		 */
+		
+		public void setActionId(String actionId)
+		{
+			this.actionId = actionId;
+		}
+		
+		/**
+		 * @return the label
+		 */
+		public String getLabel()
+		{
+			return this.label;
+		}
+		
+		/**
+		 * @param label the label to set
+		 */
+		public void setLabel(String label)
+		{
+			this.label = label;
+		}
+		
+	}
+	
+	public class EditItem
+	{
+		protected byte[] content;
+		protected boolean collection = false;
+		protected AccessMode accessMode = AccessMode.INHERITED;
+		protected String createdBy;
+		protected Time createdTime;
+		protected String displayName;
+		protected String entityId;
+		protected String collectionId;
+		protected String siteCollectionId;
+		protected Set groups;
+		protected String modifiedBy;
+		protected Time modifiedTime;
+		protected Map propertyValues = new Hashtable();
+		protected int prioritySortOrder;
+		protected String resourceType;
+		protected Time retractDate;
+		protected String uuid;
+		protected int version;
+		protected boolean hasPrioritySort = false;
+		protected boolean hidden = false;
+		protected Time releaseDate;
+		protected int notification;
+		protected boolean hasQuota = false;
+		protected boolean canSetQuota = false;
+		protected String quota;
+		
+		/**
+		 * @param entityId
+		 * @param collectionId
+		 * @param propertyValues
+		 * @param resourceType
+		 */
+		public EditItem(String entityId, String collectionId, String resourceType, Map propertyValues)
+		{
+			super();
+			this.entityId = entityId;
+			this.collectionId = collectionId;
+			this.resourceType = resourceType;
+			if(propertyValues != null)
+			{
+				this.propertyValues.putAll(propertyValues);
+			}
+		}
+		
+		public EditItem(String entityId, String collectionId, String resourceType, ResourceToolActionPipe pipe)
+		{
+			super();
+			this.entityId = entityId;
+			this.collectionId = collectionId;
+			this.resourceType = resourceType;
+			this.content = pipe.getContent();
+			this.propertyValues.putAll(pipe.getRevisedResourceProperties());
+			
+			if(pipe.getRevisedMimeType() == null)
+			{
+				// this.propertyValues.remove(ResourceProperties.PROP_CONTENT_TYPE);
+			}
+			else
+			{
+				this.propertyValues.put(ResourceProperties.PROP_CONTENT_TYPE, pipe.getRevisedMimeType());
+			}
+		}
+		
+		public void update(ResourceToolActionPipe pipe)
+		{
+			// TODO: update the EditItem based on the pipe
+		}
+
+		/**
+		 * @return the accessMode
+		 */
+		public AccessMode getAccessMode()
+		{
+			return this.accessMode;
+		}
+		
+		/**
+		 * @param accessMode the accessMode to set
+		 */
+		public void setAccessMode(AccessMode accessMode)
+		{
+			this.accessMode = accessMode;
+		}
+		
+		/**
+		 * @return the canSetQuota
+		 */
+		public boolean isCanSetQuota()
+		{
+			return this.canSetQuota;
+		}
+		
+		/**
+		 * @param canSetQuota the canSetQuota to set
+		 */
+		public void setCanSetQuota(boolean canSetQuota)
+		{
+			this.canSetQuota = canSetQuota;
+		}
+		
+		/**
+		 * @return the collection
+		 */
+		public boolean isCollection()
+		{
+			return this.collection;
+		}
+		
+		/**
+		 * @param collection the collection to set
+		 */
+		public void setCollection(boolean collection)
+		{
+			this.collection = collection;
+		}
+		
+		/**
+		 * @return the collectionId
+		 */
+		public String getCollectionId()
+		{
+			return this.collectionId;
+		}
+		
+		/**
+		 * @param collectionId the collectionId to set
+		 */
+		public void setCollectionId(String collectionId)
+		{
+			this.collectionId = collectionId;
+		}
+		
+		/**
+		 * @return the content
+		 */
+		public byte[] getContent()
+		{
+			return this.content;
+		}
+
+		/**
+		 * @param content the content to set
+		 */
+		public void setContent(byte[] content)
+		{
+			this.content = content;
+		}
+
+		/**
+		 * @return the createdBy
+		 */
+		public String getCreatedBy()
+		{
+			return this.createdBy;
+		}
+		
+		/**
+		 * @param createdBy the createdBy to set
+		 */
+		public void setCreatedBy(String createdBy)
+		{
+			this.createdBy = createdBy;
+		}
+		
+		/**
+		 * @return the createdTime
+		 */
+		public Time getCreatedTime()
+		{
+			return this.createdTime;
+		}
+		
+		/**
+		 * @param createdTime the createdTime to set
+		 */
+		public void setCreatedTime(Time createdTime)
+		{
+			this.createdTime = createdTime;
+		}
+		
+		/**
+		 * @return the displayName
+		 */
+		public String getDisplayName()
+		{
+			return this.displayName;
+		}
+		
+		/**
+		 * @param displayName the displayName to set
+		 */
+		public void setDisplayName(String displayName)
+		{
+			this.displayName = displayName;
+		}
+		/**
+		 * @return the entityId
+		 */
+		public String getEntityId()
+		{
+			return this.entityId;
+		}
+		
+		/**
+		 * @param entityId the entityId to set
+		 */
+		public void setEntityId(String entityId)
+		{
+			this.entityId = entityId;
+		}
+		
+		/**
+		 * @return the groups
+		 */
+		public Set getGroups()
+		{
+			return this.groups;
+		}
+		
+		/**
+		 * @param groups the groups to set
+		 */
+		public void setGroups(Set groups)
+		{
+			this.groups = groups;
+		}
+		
+		/**
+		 * @return the hasPrioritySort
+		 */
+		public boolean hasPrioritySort()
+		{
+			return this.hasPrioritySort;
+		}
+		/**
+		 * @param hasPrioritySort the hasPrioritySort to set
+		 */
+		public void setHasPrioritySort(boolean hasPrioritySort)
+		{
+			this.hasPrioritySort = hasPrioritySort;
+		}
+		
+		/**
+		 * @return the hasQuota
+		 */
+		public boolean hasQuota()
+		{
+			return this.hasQuota;
+		}
+		
+		/**
+		 * @param hasQuota the hasQuota to set
+		 */
+		public void setHasQuota(boolean hasQuota)
+		{
+			this.hasQuota = hasQuota;
+		}
+		
+		/**
+		 * @return the hidden
+		 */
+		public boolean isHidden()
+		{
+			return this.hidden;
+		}
+		
+		/**
+		 * @param hidden the hidden to set
+		 */
+		public void setHidden(boolean hidden)
+		{
+			this.hidden = hidden;
+		}
+		
+		/**
+		 * @return the modifiedBy
+		 */
+		public String getModifiedBy()
+		{
+			return this.modifiedBy;
+		}
+		
+		/**
+		 * @param modifiedBy the modifiedBy to set
+		 */
+		public void setModifiedBy(String modifiedBy)
+		{
+			this.modifiedBy = modifiedBy;
+		}
+		
+		/**
+		 * @return the modifiedTime
+		 */
+		public Time getModifiedTime()
+		{
+			return this.modifiedTime;
+		}
+		
+		/**
+		 * @param modifiedTime the modifiedTime to set
+		 */
+		public void setModifiedTime(Time modifiedTime)
+		{
+			this.modifiedTime = modifiedTime;
+		}
+		
+		/**
+		 * @return the notification
+		 */
+		public int getNotification()
+		{
+			return this.notification;
+		}
+		
+		/**
+		 * @param notification the notification to set
+		 */
+		public void setNotification(int notification)
+		{
+			this.notification = notification;
+		}
+		
+		/**
+		 * @return the prioritySortOrder
+		 */
+		public int getPrioritySortOrder()
+		{
+			return this.prioritySortOrder;
+		}
+		
+		/**
+		 * @param prioritySortOrder the prioritySortOrder to set
+		 */
+		public void setPrioritySortOrder(int prioritySortOrder)
+		{
+			this.prioritySortOrder = prioritySortOrder;
+		}
+		
+		/**
+		 * @param name
+		 * @return
+		 */
+		public String getPropertyValue(String name)
+		{
+			String rv = null;
+			Object value = this.propertyValues.get(name);
+			if(value == null)
+			{
+				// do nothing, return null 
+			}
+			else if (value instanceof String)
+			{
+				rv = (String) value;
+			}
+			else if (value instanceof List)
+			{
+				List list = (List) value;
+				if(list.isEmpty())
+				{
+					// do nothing, return null
+				}
+				else
+				{
+					rv = (String) list.get(0);
+				}
+			}
+			return rv;
+		}
+		
+		/**
+		 * @param name
+		 * @return
+		 */
+		public List getPropertyValues(String name)
+		{
+			List rv = new Vector();
+			Object value = this.propertyValues.get(name);
+			if(value == null)
+			{
+				// do nothing, return empty list 
+			}
+			else if (value instanceof String)
+			{
+				rv.add(value);
+			}
+			else if (value instanceof List)
+			{
+				rv.addAll((Collection) value);
+			}
+			return rv;
+		}
+		
+		
+		
+		/**
+		 * @param name
+		 * @param value
+		 */
+		public void setPropertyValue(String name, List value)
+		{
+			this.propertyValues.put(name, value);
+		}
+		
+		/**
+		 * @param name
+		 * @param index
+		 * @param value
+		 */
+		public void setPropertyValue(String name, int index, String value)
+		{
+			Object obj = this.propertyValues.get(name);
+			if(obj != null && obj instanceof List)
+			{
+				List list = (List) obj;
+				if(index < 0)
+				{
+					// throw exception??
+				}
+				else if(index < list.size())
+				{
+					list.add(index, value);
+				}
+				else if(index == list.size())
+				{
+					list.add(value);
+				}
+				else
+				{
+					// throw exception??
+				}
+			}
+			else 
+			{
+				if(index > 0)
+				{
+					// throw exception??
+				}
+				else
+				{
+					List list = new Vector();
+					this.propertyValues.put(name, list);
+					list.add(value);
+				}
+			}
+		}
+		
+		/**
+		 * @return the propertyValues
+		 */
+		public Map getPropertyValues()
+		{
+			return this.propertyValues;
+		}
+		
+		/**
+		 * @param propertyValues the propertyValues to set
+		 */
+		public void setPropertyValues(Map propertyValues)
+		{
+			this.propertyValues = propertyValues;
+		}
+		
+		/**
+		 * @return the quota
+		 */
+		public String getQuota()
+		{
+			return this.quota;
+		}
+		
+		/**
+		 * @param quota the quota to set
+		 */
+		public void setQuota(String quota)
+		{
+			this.quota = quota;
+		}
+		
+		/**
+		 * @return the releaseDate
+		 */
+		public Time getReleaseDate()
+		{
+			return this.releaseDate;
+		}
+		
+		/**
+		 * @param releaseDate the releaseDate to set
+		 */
+		public void setReleaseDate(Time releaseDate)
+		{
+			this.releaseDate = releaseDate;
+		}
+		
+		/**
+		 * @return the resourceType
+		 */
+		public String getResourceType()
+		{
+			return this.resourceType;
+		}
+		
+		/**
+		 * @param resourceType the resourceType to set
+		 */
+		public void setResourceType(String resourceType)
+		{
+			this.resourceType = resourceType;
+		}
+		
+		/**
+		 * @return the retractDate
+		 */
+		public Time getRetractDate()
+		{
+			return this.retractDate;
+		}
+		
+		/**
+		 * @param retractDate the retractDate to set
+		 */
+		public void setRetractDate(Time retractDate)
+		{
+			this.retractDate = retractDate;
+		}
+		
+		/**
+		 * @return the siteCollectionId
+		 */
+		public String getSiteCollectionId()
+		{
+			return this.siteCollectionId;
+		}
+		
+		/**
+		 * @param siteCollectionId the siteCollectionId to set
+		 */
+		public void setSiteCollectionId(String siteCollectionId)
+		{
+			this.siteCollectionId = siteCollectionId;
+		}
+		
+		/**
+		 * @return the uuid
+		 */
+		public String getUuid()
+		{
+			return this.uuid;
+		}
+		
+		/**
+		 * @param uuid the uuid to set
+		 */
+		public void setUuid(String uuid)
+		{
+			this.uuid = uuid;
+		}
+		
+		/**
+		 * @return the version
+		 */
+		public int getVersion()
+		{
+			return this.version;
+		}
+		
+		/**
+		 * @param version the version to set
+		 */
+		public void setVersion(int version)
+		{
+			this.version = version;
+		}
+
 	}
 	
 	/** Resource bundle using current language locale */
@@ -881,7 +1585,7 @@ public class ResourcesAction
 
 			ChefEditItem item = (ChefEditItem) items.get(0);
 			item.setContent(pipe.getContent());
-			item.setMimeType(pipe.getContentType());
+			item.setMimeType(pipe.getMimeType());
 			
 			context.put("item", item);
 			
@@ -1028,8 +1732,9 @@ public class ResourcesAction
 			else
 			{
 				ContentResource resource = (ContentResource) selectedItem;
-				String mimetype = resource.getContentType();
-				ResourceType type = registry.getType(mimetype);
+				// String mimetype = resource.getContentType();
+				String resourceType = resource.getResourceType();
+				ResourceType type = registry.getType(resourceType);
 				if(type == null)
 				{
 					type = registry.getType("file");
@@ -1093,13 +1798,52 @@ public class ResourcesAction
 			try 
 			{
 				collection = ContentHostingService.getCollection(collectionId );
-				ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties();
 				
 				// title
 				String name = params.getString("name");
 				
+				// create resource
+				ContentResourceEdit resource = ContentHostingService.addResource (collectionId + name);
+				
+				String resourceType = null;
+				ToolSession toolSession = SessionManager.getCurrentToolSession();
+				ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+				if(pipe != null)
+				{
+					ResourceToolAction action = pipe.getAction();
+					if(action == null)
+					{
+						
+					}
+					else 
+					{
+						if(action instanceof InteractionAction)
+						{
+							InteractionAction iAction = (InteractionAction) action;
+							iAction.finalizeAction(EntityManager.newReference(resource.getReference()), pipe.getInitializationId());
+						}
+						resourceType = action.getTypeId();
+					}
+				}
+				
+				resource.setResourceType(resourceType);
+				resource.setContent(pipe.getRevisedContent());		// item.getContent()
+				resource.setContentType(pipe.getRevisedMimeType());		// item.getMimeType()
+				
+				
+//						resourceProperties,
+//						groups,
+//						hidden,
+//						releaseDate,
+//						retractDate,
+//						item.getNotification());
+				
+				ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
+				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+				
 				// description
 				String description = params.getString("description");
+				resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
 				
 				// rights
 				String copyright = params.getString("copyright");
@@ -1150,6 +1894,8 @@ public class ResourcesAction
 					}
 					retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
 				}
+				
+				resource.setAvailability(hidden, releaseDate, retractDate);
 				
 				// access
 				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
@@ -1205,6 +1951,8 @@ public class ResourcesAction
 					item.clearGroups();
 					item.setPubview(false);
 				}
+				
+				// update resource with access info
 
 				// notification
 				int noti = NotificationService.NOTI_NONE;
@@ -1227,20 +1975,10 @@ public class ResourcesAction
 						noti = NotificationService.NOTI_OPTIONAL;
 					}
 				}
-				item.setNotification(noti);
 				
-				// create resource
-				ContentResource resource = ContentHostingService.addResource (name,
-						collection.getId(),
-						MAXIMUM_ATTEMPTS_FOR_UNIQUENESS,
-						item.getMimeType(),
-						item.getContent(),
-						resourceProperties,
-						groups,
-						hidden,
-						releaseDate,
-						retractDate,
-						item.getNotification());
+				ContentHostingService.commitResource(resource, noti);
+				
+				toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 
 				// set to public access if allowed and requested
 				if(!preventPublicDisplay.booleanValue() && PUBLIC_ACCESS.equals(access_mode))
@@ -1248,14 +1986,11 @@ public class ResourcesAction
 					ContentHostingService.setPubView(resource.getId(), true);
 				}
 				
-				// finalize action (use ref to new entity)
-				// iAction.finalizeAction(EntityManager.newReference(resource.getReference()), pipe.getInitializationId());
-				
 				// show folder if in hierarchy view
-				
-				
-				state.setAttribute(STATE_MODE, MODE_LIST);
+				SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				expandedCollections.add(collectionId);
 
+				state.setAttribute(STATE_MODE, MODE_LIST);
 			} 
 			catch (IdUnusedException e1) 
 			{
@@ -1282,25 +2017,20 @@ public class ResourcesAction
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} 
-			catch (OverQuotaException e) 
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} 
 			catch (ServerOverloadException e) 
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			catch (IdUniquenessException e) 
+			catch (IdUsedException e)
 			{
 				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} 
-			catch (IdLengthException e) 
+				logger.warn("IdUsedException ", e);
+			}
+			catch (OverQuotaException e)
 			{
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("OverQuotaException ", e);
 			}
 			
 		}
@@ -1353,6 +2083,7 @@ public class ResourcesAction
 			String intitializationId = iAction.initializeAction(reference);
 			ResourceToolActionPipe pipe = registry.newPipe(intitializationId, action);
 			pipe.setContentEntityReference(reference);
+			pipe.setHelperId(iAction.getHelperId());
 			
 			toolSession.setAttribute(ResourceToolAction.ACTION_PIPE, pipe);
 
@@ -1386,7 +2117,7 @@ public class ResourcesAction
 			{
 				try 
 				{
-					pipe.setContentType(((ContentResource) entity).getContentType());
+					pipe.setMimeType(((ContentResource) entity).getContentType());
 					pipe.setContent(((ContentResource) entity).getContent());
 				} 
 				catch (ServerOverloadException e) 
@@ -3708,6 +4439,14 @@ public class ResourcesAction
 				currentMap = new TreeSet();
 				state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
 			}
+			
+			Map sortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
+			if(sortMap == null)
+			{
+				sortMap = new Hashtable();
+				state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, sortMap);
+			}
+			
 			Iterator it = currentMap.iterator();
 			while(it.hasNext())
 			{
@@ -3715,6 +4454,7 @@ public class ResourcesAction
 				if(id.startsWith(collectionId))
 				{
 					it.remove();
+					sortMap.remove(id);
 					removeObservingPattern(id, state);
 				}
 			}
@@ -3726,7 +4466,8 @@ public class ResourcesAction
 				// add this folder id into the set to be event-observed
 				addObservingPattern(collectionId, state);
 			}
-			state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());		}
+			//state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());
+		}
 
 	}	// doNavigate
 
@@ -6105,14 +6846,6 @@ public class ResourcesAction
 				continue;
 			}
 
-			ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties ();
-			resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, item.getName());
-			resourceProperties.addProperty (ResourceProperties.PROP_DESCRIPTION, item.getDescription());
-
-			resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString());
-			List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
-			saveMetadata(resourceProperties, metadataGroups, item);
-
 			byte[] newUrl = item.getFilename().getBytes();
 			String name = Validator.escapeResourceName(item.getName());
 
@@ -6140,17 +6873,15 @@ public class ResourcesAction
 			
 			try
 			{
-				ContentResource resource = ContentHostingService.addResource (name,
-																			collectionId,
-																			MAXIMUM_ATTEMPTS_FOR_UNIQUENESS,
-																			item.getMimeType(),
-																			newUrl,
-																			resourceProperties, 
-																			groups,
-																			hidden,
-																			releaseDate,
-																			retractDate,
-																			item.getNotification());
+				ContentResourceEdit resource = ContentHostingService.addResource(name);
+
+				ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
+				resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, item.getName());
+				resourceProperties.addProperty (ResourceProperties.PROP_DESCRIPTION, item.getDescription());
+
+				resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString());
+				List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
+				saveMetadata(resourceProperties, metadataGroups, item);
 
 				item.setAdded(true);
 
@@ -6165,6 +6896,8 @@ public class ResourcesAction
 				{
 					ContentHostingService.setPubView(resource.getId(), true);
 				}
+				
+				ContentHostingService.commitResource(resource);
 
 				String mode = (String) state.getAttribute(STATE_MODE);
 				if(MODE_HELPER.equals(mode))
@@ -6213,16 +6946,16 @@ public class ResourcesAction
 				alerts.add(rb.getString("title") + " " + e.getMessage ());
 				continue outerloop;
 			}
-			catch(IdLengthException e)
-			{
-				alerts.add(rb.getString("toolong") + " " + e.getMessage());
-				continue outerloop;
-			}
-			catch(IdUniquenessException e)
-			{
-				alerts.add("Could not add this item to this folder");
-				continue outerloop;
-			}
+//			catch(IdLengthException e)
+//			{
+//				alerts.add(rb.getString("toolong") + " " + e.getMessage());
+//				continue outerloop;
+//			}
+//			catch(IdUniquenessException e)
+//			{
+//				alerts.add("Could not add this item to this folder");
+//				continue outerloop;
+//			}
 			catch(InconsistentException e)
 			{
 				alerts.add(RESOURCE_INVALID_TITLE_STRING);
@@ -6237,6 +6970,11 @@ public class ResourcesAction
 			{
 				alerts.add(rb.getString("failed"));
 				continue outerloop;
+			}
+			catch (IdUsedException e)
+			{
+				// TODO Auto-generated catch block
+				logger.debug("IdUsedException " + e.getMessage());
 			}
 			catch(RuntimeException e)
 			{
@@ -9663,6 +10401,7 @@ public class ResourcesAction
 					if(expandedCollections == null)
 					{
 						expandedCollections = (SortedSet) new TreeSet();
+						state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
 					}
 					expandedCollections.add(folderId);
 					
@@ -10884,6 +11623,7 @@ public class ResourcesAction
 		if(expandedItems == null)
 		{
 			expandedItems = new TreeSet();
+			state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedItems);
 		}
 
 		//get the ParameterParser from RunData
@@ -10900,8 +11640,6 @@ public class ResourcesAction
 
 		String id = params.getString("collectionId");
 		expandedItems.add(id);
-
-		state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedItems);
 
 		// add this folder id into the set to be event-observed
 		addObservingPattern(id, state);
@@ -11619,7 +12357,149 @@ public class ResourcesAction
 
 		return newItems;
 
-	}	// getBrowseItems
+	}	// getListView
+	
+	public ListItem getListItem(String entityId, ListItem parent, boolean expandAll, Set expandedFolders)
+	{
+		ListItem item = null;
+		ContentEntity entity = null;
+		try
+		{
+			boolean isCollection = ContentHostingService.isCollection(entityId);
+			if(isCollection)
+			{
+				entity = ContentHostingService.getCollection(entityId);
+				
+			}
+			else
+			{
+				entity = ContentHostingService.getResource(entityId);
+			}
+			
+			Reference ref = EntityManager.newReference(entity.getReference());
+
+			item = new ListItem();
+			item.setId(entityId);
+			item.setCollection(isCollection);
+			
+			/*
+			 * calculate permissions for this entity.  If its access mode is 
+			 * GROUPED, we need to calculate permissions based on current user's 
+			 * role in group. Otherwise, we inherit from containing collection
+			 * and check to see if additional permissions are set on this entity
+			 * that were't set on containing collection...
+			 */
+			Set permissions = new TreeSet();
+			// TODO: Calculate permissions
+			if(GroupAwareEntity.AccessMode.INHERITED == entity.getAccess())
+			{
+				// permissions are same as parent or site
+				if(parent == null)
+				{
+					// permissions are same as site
+					permissions = getPermissions(ref.getContext());
+				}
+				else
+				{
+					// permissions are same as parent
+					permissions.addAll(parent.getPermissions());
+				}
+			}
+			else if(GroupAwareEntity.AccessMode.GROUPED == entity.getAccess())
+			{
+				// permissions are determined by group(s)
+			}
+			item.setPermissions(permissions);
+			
+			if(isCollection)
+			{
+				List childNames = ((ContentCollection) entity).getMembers();
+				Iterator childIt = childNames.iterator();
+				while(childIt.hasNext())
+				{
+					String childId = (String) childIt.next();
+					ListItem child = getListItem(childId, item, expandAll, expandedFolders);
+				}
+			}
+		}
+		catch (IdUnusedException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("IdUnusedException ", e);
+		}
+		catch (TypeException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("TypeException ", e);
+		}
+		catch (PermissionException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("PermissionException ", e);
+		}
+		
+		return item;
+	}
+	/**
+	 * @param context
+	 * @return
+	 */
+	protected Set getPermissions(String id)
+	{
+		Set permissions = new TreeSet();
+		if(ContentHostingService.isCollection(id))
+		{
+			if(ContentHostingService.allowAddCollection(id))
+			{
+				permissions.add(ContentHostingService.AUTH_RESOURCE_ADD);
+			}
+			if(ContentHostingService.allowGetCollection(id))
+			{
+				permissions.add(ContentHostingService.AUTH_RESOURCE_READ);
+			}
+			/*
+			if(ContentHostingService.allowAddCollection(id) || ContentHostingService.allowAddResource(id))
+			{
+				permissions.add(ContentHostingService.AUTH_RESOURCE_ADD);
+			}
+			if(ContentHostingService.allowAddCollection(id) || ContentHostingService.allowAddResource(id))
+			{
+				permissions.add(ContentHostingService.AUTH_RESOURCE_ADD);
+			}
+			if(ContentHostingService.allowAddCollection(id) || ContentHostingService.allowAddResource(id))
+			{
+				permissions.add(ContentHostingService.AUTH_RESOURCE_ADD);
+			}
+			if(ContentHostingService.allowAddCollection(id) || ContentHostingService.allowAddResource(id))
+			{
+				permissions.add(ContentHostingService.AUTH_RESOURCE_ADD);
+			}
+			*/
+		}
+		else
+		{
+			if(ContentHostingService.allowAddResource(id))
+			{
+				permissions.add(ContentHostingService.AUTH_RESOURCE_ADD);
+			}
+			if(ContentHostingService.allowGetResource(id))
+			{
+				permissions.add(ContentHostingService.AUTH_RESOURCE_READ);
+			}
+		}
+		
+		return permissions;
+	}
+
+	public ListItem expandChildren(ListItem item, ListItem parent, boolean expandAll, Set expandedFolders)
+	{
+		List newItems = new Vector();
+		
+		
+		
+		return item;
+		
+	}
 
 	protected static boolean checkItemFilter(ContentResource resource, ChefBrowseItem newItem, SessionState state) 
 	{
@@ -11814,6 +12694,11 @@ public class ResourcesAction
 
 				// try to expand the collection
 				SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				if(expandedCollections == null)
+				{
+					expandedCollections = new TreeSet();
+					state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+				}
 				if(! expandedCollections.contains(collectionId))
 				{
 					expandedCollections.add(collectionId);
@@ -12052,6 +12937,11 @@ public class ResourcesAction
 
 			// try to expand the collection
 			SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+			if(STATE_EXPANDED_COLLECTIONS == null)
+			{
+				expandedCollections = new TreeSet();
+				state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+			}
 			if(! expandedCollections.contains(collectionId))
 			{
 				expandedCollections.add(collectionId);
@@ -15219,7 +16109,12 @@ public class ResourcesAction
 		{
 			collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
 		}
-		SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+//		SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+//		if(expandedCollections == null)
+//		{
+//			expandedCollections = new TreeSet();
+//			state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+//		}
 		
 		// set the sort values
 		String sortedBy = (String) state.getAttribute (STATE_SORT_BY);

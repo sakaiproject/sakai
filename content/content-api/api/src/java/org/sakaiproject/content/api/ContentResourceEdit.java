@@ -48,6 +48,13 @@ public interface ContentResourceEdit
 	* @param content An array containing the bytes of the resource's content.
 	*/
 	public void setContent(byte[] content);
+	
+	/**
+	 * Set the "type" of this ContentEntity as determined by the ResourceType registration
+	 * that was used to create it.
+	 * @param string
+	 */
+	public void setResourceType(String string);
 
 }	// ContentResourceEdit
 

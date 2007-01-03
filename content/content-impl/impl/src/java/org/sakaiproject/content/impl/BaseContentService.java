@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -66,6 +66,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.content.api.GroupAwareEntity;
+import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentTypeImageService;
@@ -910,6 +911,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * @return The new storage object.
 	 */
 	protected abstract Storage newStorage();
+	
+	/**
+	 * Determine whether the entityId parameter identifies a collection (as opposed to a resource).  
+	 * This method does not necessarily verify that a ContentEntity with this id exists.  
+	 * It merely determines whether the id could identify a collection.
+	 * @param entityId
+	 * @return true if the entityId could identify a collection, false otherwise.
+	 */
+	public boolean isCollection(String entityId)
+	{
+		return (entityId != null && entityId.endsWith(Entity.SEPARATOR));
+	}
 
 	/**
 	 * @param id
@@ -979,7 +992,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		boolean available = (! m_availabilityChecksEnabled) || isAttachmentResource(id);
 		
 		GroupAwareEntity entity = null;
-		boolean isCollection = id.endsWith(Entity.SEPARATOR);
+		//boolean isCollection = id.endsWith(Entity.SEPARATOR);
 		while(!available && entity == null && id != null && ! id.trim().equals(""))
 		{
 			if(ROOT_COLLECTIONS.contains(id))
@@ -990,7 +1003,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			{
 				try
 				{
-					if (isCollection)
+					if (isCollection(id))
 					{
 						entity = findCollection(id);
 					}
@@ -1001,7 +1014,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				}
 				catch (TypeException ignore)
 				{
-					if(isCollection)
+					if(isCollection(id))
 					{
 						M_log.warn("trying to get collection, found resource: " + id);
 					}
@@ -1014,7 +1027,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				if (entity == null)
 				{
 					id = isolateContainingId(id);
-					isCollection = true;
+					// isCollection = true;
 				}
 			}
 		}
@@ -7967,6 +7980,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return id;
 	}
 
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * ContentEntity implementation
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
 	public abstract class BasicGroupAwareEdit implements GroupAwareEdit
 	{
 		/** Store the resource id */
@@ -7999,7 +8016,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		/** The Collection of group-ids for groups with access to this entity. */
 		protected Collection m_groups = new Vector();
 
+		/** The "priority" of this entity in its containing collection, if a custom sort order is defined for that collection */
 		protected int m_customOrderRank = 0;
+
+		/** The "type" in the ResourceTypeRegistry that defines properties of this ContentEntity */
+		protected String m_resourceType;
 
 		/**
 		 * @inheritDoc
@@ -8340,6 +8361,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			this.m_retractDate = null;
 		}
 
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ContentEntity#getResourceType()
+		 */
+		public String getResourceType()
+		{
+			return m_resourceType;
+		}
+
 		public ContentCollection getContainingCollection()
 		{
 			ContentCollection container = null;
@@ -8414,6 +8443,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 			// setup for properties
 			m_properties = new BaseResourcePropertiesEdit();
+			
+			m_resourceType = ResourceType.TYPE_FOLDER;
 
 		} // BaseCollectionEdit
 
@@ -8426,6 +8457,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		public BaseCollectionEdit(ContentCollection other)
 		{
 			set(other);
+			m_resourceType = ResourceType.TYPE_FOLDER;
 
 		} // BaseCollectionEdit
 
@@ -8441,6 +8473,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			m_properties = new BaseResourcePropertiesEdit();
 
 			m_id = el.getAttribute("id");
+			m_resourceType = ResourceType.TYPE_FOLDER;
 			
 			String refStr = getReference(m_id);
 			Reference ref = m_entityManager.newReference(refStr);
@@ -8857,6 +8890,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			stack.push(collection);
 
 			collection.setAttribute("id", m_id);
+			collection.setAttribute("resource-type", ResourceType.TYPE_FOLDER);
+			
 			if(m_access == null || AccessMode.SITE == m_access)
 			{
 				m_access = AccessMode.INHERITED;
@@ -9159,6 +9194,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			m_id = other.getId();
 			m_contentType = other.getContentType();
 			m_contentLength = other.getContentLength();
+			m_resourceType = other.getResourceType();
 
 			// if there's a body in the other, reference it, else leave this one null
 			// Note: this treats the body byte array as immutable, so to update it one
@@ -9213,7 +9249,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			m_properties = new BaseResourcePropertiesEdit();
 
 			m_id = el.getAttribute("id");
-			setContentType(StringUtil.trimToNull(el.getAttribute("content-type")));
+			String contentType = StringUtil.trimToNull(el.getAttribute("content-type"));
+			setContentType(contentType);
 			m_contentLength = 0;
 			try
 			{
@@ -9222,6 +9259,31 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			catch (Exception ignore)
 			{
 			}
+			String resourceType = StringUtil.trimToNull(el.getAttribute("resource-type"));
+			if(resourceType == null)
+			{
+				if("text/html".equals(contentType))
+				{
+					resourceType = ResourceType.TYPE_HTML;
+				}
+				else if("text/plain".equals(contentType))
+				{
+					resourceType = ResourceType.TYPE_TEXT;
+				}
+				else if("text/url".equals(contentType))
+				{
+					resourceType = ResourceType.TYPE_URL;
+				}
+				else if("application/x-osp".equals(contentType))
+				{
+					resourceType = "formItem";
+				}
+				else
+				{
+					resourceType = ResourceType.TYPE_UPLOAD;
+				}
+			}
+			setResourceType(resourceType);
 
 			String enc = StringUtil.trimToNull(el.getAttribute("body"));
 			if (enc != null)
@@ -9566,6 +9628,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 			resource.setAttribute("id", m_id);
 			resource.setAttribute("content-type", m_contentType);
+			resource.setAttribute("resource-type", m_resourceType);
 
 			// body may not be loaded; if not use m_contentLength
 			int contentLength = m_contentLength;
@@ -9713,6 +9776,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			// TODO: this may need a different implementation in the handler
 			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ContentResourceEdit#setResourceType(java.lang.String)
+		 */
+		public void setResourceType(String type)
+		{
+			m_resourceType = type;
 		}
 
 	} // BaseResource
