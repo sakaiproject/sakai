@@ -6,7 +6,7 @@
 
 <faces-config>
 	<application>
-      <message-bundle>org.sakaiproject.tool.preferences.bundle.Messages</message-bundle>
+      <message-bundle>user-tool-prefs</message-bundle>
         <locale-config>
             <default-locale>en</default-locale>
             <supported-locale>de</supported-locale>
