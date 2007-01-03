@@ -1728,7 +1728,7 @@ public class ResourcesAction
 
 			state.removeAttribute(STATE_PASTE_ALLOWED_FLAG);
 
-			List all_roots = new Vector();
+			//List all_roots = new Vector();
 			List this_site = new Vector();
 			
 			List members = getListView(collectionId, highlightedItems, (ChefBrowseItem) null, navRoot.equals(homeCollectionId), state);
@@ -1752,7 +1752,7 @@ public class ResourcesAction
 				context.put("site", root);
 				root.addMembers(members);
 				this_site.add(root);
-				all_roots.add(root);
+				//all_roots.add(root);
 			}
 			context.put ("this_site", this_site);
 
@@ -1773,7 +1773,7 @@ public class ResourcesAction
 				state.setAttribute(STATE_HIGHLIGHTED_ITEMS, highlightedItems);
 				// TODO: see call to prepPage below.  That also calls readAllResources.  Are both calls necessary?
 				other_sites.addAll(readAllResources(state));
-				all_roots.addAll(other_sites);
+				//all_roots.addAll(other_sites);
 
 				List messages = prepPage(state);
 				context.put("other_sites", messages);
@@ -1820,7 +1820,7 @@ public class ResourcesAction
 			}
 
 			// context.put ("other_sites", other_sites);
-			state.setAttribute(STATE_COLLECTION_ROOTS, all_roots);
+			//state.setAttribute(STATE_COLLECTION_ROOTS, all_roots);
 			// context.put ("root", root);
 
 			if(state.getAttribute(STATE_PASTE_ALLOWED_FLAG) != null)
@@ -2095,7 +2095,7 @@ public class ResourcesAction
 			context.put ("this_site", this_site);
 
 			boolean show_all_sites = false;
-			List other_sites = new Vector();
+			//List other_sites = new Vector();
 
 			String allowed_to_see_other_sites = (String) state.getAttribute(STATE_SHOW_ALL_SITES);
 			String show_other_sites = (String) state.getAttribute(STATE_SHOW_OTHER_SITES);
@@ -2110,8 +2110,8 @@ public class ResourcesAction
 			{
 				state.setAttribute(STATE_HIGHLIGHTED_ITEMS, highlightedItems);
 				// TODO: see call to prepPage below.  That also calls readAllResources.  Are both calls necessary?
-				other_sites.addAll(readAllResources(state));
-				all_roots.addAll(other_sites);
+				//other_sites.addAll(readAllResources(state));
+				//all_roots.addAll(other_sites);
 
 				List messages = prepPage(state);
 				context.put("other_sites", messages);
@@ -2158,7 +2158,7 @@ public class ResourcesAction
 			}
 
 			// context.put ("other_sites", other_sites);
-			state.setAttribute(STATE_COLLECTION_ROOTS, all_roots);
+			//state.setAttribute(STATE_COLLECTION_ROOTS, all_roots);
 			// context.put ("root", root);
 
 			if(state.getAttribute(STATE_PASTE_ALLOWED_FLAG) != null)
@@ -3708,6 +3708,17 @@ public class ResourcesAction
 				currentMap = new TreeSet();
 				state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
 			}
+			Iterator it = currentMap.iterator();
+			while(it.hasNext())
+			{
+				String id = (String) it.next();
+				if(id.startsWith(collectionId))
+				{
+					it.remove();
+					removeObservingPattern(id, state);
+				}
+			}
+			
 			if(!currentMap.contains(collectionId))
 			{
 				currentMap.add (collectionId);
@@ -3715,7 +3726,7 @@ public class ResourcesAction
 				// add this folder id into the set to be event-observed
 				addObservingPattern(collectionId, state);
 			}
-		}
+			state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());		}
 
 	}	// doNavigate
 
@@ -4692,6 +4703,7 @@ public class ResourcesAction
 				if(currentMap == null)
 				{
 					currentMap = new TreeSet();
+					state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
 				}
 				if(!currentMap.contains(collectionId))
 				{
@@ -4701,7 +4713,6 @@ public class ResourcesAction
 					// add this folder id into the set to be event-observed
 					addObservingPattern(collectionId, state);
 				}
-				state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
 			}
 			else
 			{
@@ -5042,6 +5053,11 @@ public class ResourcesAction
 		}
 
 		SortedSet currentMap = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		if(currentMap == null)
+		{
+			currentMap = new TreeSet();
+			state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
+		}
 		if(!currentMap.contains(collectionId))
 		{
 			currentMap.add(collectionId);
@@ -5050,7 +5066,6 @@ public class ResourcesAction
 			// add this folder id into the set to be event-observed
 			addObservingPattern(collectionId, state);
 		}
-		state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
 
 		state.setAttribute(STATE_CREATE_ALERTS, alerts);
 
@@ -5299,9 +5314,9 @@ public class ResourcesAction
 		if(currentMap == null)
 		{
 			currentMap = new TreeSet();
+			state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
 		}
 		currentMap.add(collectionId);
-		state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
 
 		// add this folder id into the set to be event-observed
 		addObservingPattern(collectionId, state);
@@ -6232,6 +6247,11 @@ public class ResourcesAction
 		}
 
 		SortedSet currentMap = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		if(currentMap == null)
+		{
+			currentMap = new TreeSet();
+			state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
+		}
 		if(!currentMap.contains(collectionId))
 		{
 			currentMap.add (collectionId);
@@ -6239,7 +6259,6 @@ public class ResourcesAction
 			// add this folder id into the set to be event-observed
 			addObservingPattern(collectionId, state);
 		}
-		state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
 
 		state.setAttribute(STATE_CREATE_ALERTS, alerts);
 
@@ -9643,7 +9662,7 @@ public class ResourcesAction
 					SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 					if(expandedCollections == null)
 					{
-						expandedCollections = (SortedSet) new Hashtable();
+						expandedCollections = (SortedSet) new TreeSet();
 					}
 					expandedCollections.add(folderId);
 					
