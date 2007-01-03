@@ -1757,7 +1757,7 @@ public class ResourcesAction
 			context.put ("this_site", this_site);
 
 			boolean show_all_sites = false;
-			List other_sites = new Vector();
+			//List other_sites = new Vector();
 
 			String allowed_to_see_other_sites = (String) state.getAttribute(STATE_SHOW_ALL_SITES);
 			String show_other_sites = (String) state.getAttribute(STATE_SHOW_OTHER_SITES);
@@ -1772,7 +1772,7 @@ public class ResourcesAction
 			{
 				state.setAttribute(STATE_HIGHLIGHTED_ITEMS, highlightedItems);
 				// TODO: see call to prepPage below.  That also calls readAllResources.  Are both calls necessary?
-				other_sites.addAll(readAllResources(state));
+				//other_sites.addAll(readAllResources(state));
 				//all_roots.addAll(other_sites);
 
 				List messages = prepPage(state);
