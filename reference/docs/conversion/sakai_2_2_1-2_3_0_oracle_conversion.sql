@@ -321,8 +321,10 @@ create table GB_SPREADSHEET_T (
 
 create sequence GB_SPREADSHEET_S;
 
-alter table GB_GRADABLE_OBJECT_T add (RELEASED NUMBER(1,0) DEFAULT 1);
+alter table GB_GRADABLE_OBJECT_T add (RELEASED NUMBER(1,0));
+update GB_GRADABLE_OBJECT_T set RELEASED=1 where RELEASED is NULL;
 
 ----------------------------------------------------------------------------------------------------------------------------------------
+
 
 

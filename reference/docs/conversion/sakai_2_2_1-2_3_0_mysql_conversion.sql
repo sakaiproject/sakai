@@ -322,8 +322,10 @@ create table GB_SPREADSHEET_T (
 );
 
 
---add selective release support
+-- Add selective release support
 
-alter table GB_GRADABLE_OBJECT_T add (RELEASED bit(1) DEFAULT 1);
+alter table GB_GRADABLE_OBJECT_T add column (RELEASED bit);
+update GB_GRADABLE_OBJECT_T set RELEASED=1 where RELEASED is NULL;
 ----------------------------------------------------------------------------------------------------------------------------------------
+
 
