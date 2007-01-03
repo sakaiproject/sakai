@@ -118,20 +118,8 @@
 				#end
 			</select>
 			<select name="$name_OpenMin" id="$name_OpenMin">
-				#foreach ($i in [00, 15, 30, 45])
-					#if ($i == $value_OpenMin)
-						#if ($i == 0)
-							<option value="$i" selected="selected">00</option>
-						#else
-							<option value="$i" selected="selected">$i</option>
-						#end
-					#else
-						#if ($i == 0)
-							<option value="$i">00</option>
-						#else
-							<option value="$i">$i</option>
-						#end
-					#end
+				#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
+					<option value="$i" #if($i == $value_OpenMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 				#end
 			</select>
 			<select name="$name_OpenAMPM" id="$name_OpenAMPM">
@@ -164,20 +152,8 @@
 				#end
 			</select>
 			<select name="$name_DueMin" id="$name_DueMin">
-				#foreach ($i in [0, 15, 30, 45])
-					#if ($i == $value_DueMin)
-						#if ($i == 0)
-							<option value="$i" selected="selected">00</option>
-						#else
-							<option value="$i" selected="selected">$i</option>
-						#end
-					#else
-						#if ($i == 0)
-							<option value="$i">00</option>
-						#else
-							<option value="$i">$i</option>
-						#end
-					#end
+				#foreach ($i in [00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
+					<option value="$i" #if($i == $value_DueMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 				#end
 			</select>
 			<select name="$name_DueAMPM" id="$name_DueAMPM">
@@ -208,20 +184,8 @@
 					#end
 				</select>
 				<select name="$name_CloseMin" id="$name_CloseMin">
-					#foreach ($i in [0, 15, 30, 45])
-						#if ($i == $value_CloseMin)
-							#if ($i == 0)
-								<option value="$i" selected="selected">00</option>
-							#else
-								<option value="$i" selected="selected">$i</option>
-							#end
-						#else
-							#if ($i == 0)
-								<option value="$i">00</option>
-							#else
-								<option value="$i">$i</option>
-							#end
-						#end
+					#foreach ($i in [00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
+						<option value="$i" #if($i == $value_CloseMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 					#end
 				</select>
 				<select name="$name_CloseAMPM" id="$name_CloseAMPM">
@@ -272,20 +236,8 @@
 					#end
 				</select>
 				<select name="$name_CloseMin" id="$name_CloseMin" disabled="disabled">
-					#foreach ($i in [0, 15, 30, 45])
-						#if ($i == $value_CloseMin)
-							#if ($i == 0)
-								<option value="$i" selected="selected">00</option>
-							#else
-								<option value="$i" selected="selected">$i</option>
-							#end
-						#else
-							#if ($i == 0)
-								<option value="$i">00</option>
-							#else
-								<option value="$i">$i</option>
-							#end
-						#end
+					#foreach ($i in [00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
+						<option value="$i" #if($i == $value_CloseMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 					#end
 				</select>
 				<select name="$name_CloseAMPM" id="$name_CloseAMPM" disabled="disabled">
