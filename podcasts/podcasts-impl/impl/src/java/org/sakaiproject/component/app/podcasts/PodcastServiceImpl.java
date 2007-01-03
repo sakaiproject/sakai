@@ -1150,8 +1150,8 @@ public class PodcastServiceImpl implements PodcastService {
 			resourceProperties.addProperty(PODFEED_TITLE,
 					getMessageBundleString(FEED_TITLE_STRING) + SiteService.getSite(siteId).getTitle());
 
-			final String feedDescription = getMessageBundleString(FEED_DESC1_STRING)
-											+ SiteService.getSite(siteId).getTitle()
+			final String feedDescription =  SiteService.getSite(siteId).getTitle()
+												+ getMessageBundleString(FEED_DESC1_STRING)
 												+ getMessageBundleString(FEED_DESC2_STRING);
 
 			resourceProperties.addProperty(PODFEED_DESCRIPTION,

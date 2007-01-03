@@ -258,8 +258,8 @@ public class BasicPodfeedService implements PodfeedService {
 			/* For site where not added to folder upon creation
 			 * and has not been revised/updated */
 			if (feedDescription == null) {
-				feedDescription = getMessageBundleString(FEED_DESC1_STRING) 
-									+ SiteService.getSite(siteId).getTitle() 
+				feedDescription =  SiteService.getSite(siteId).getTitle()
+									+ getMessageBundleString(FEED_DESC1_STRING)
 									+ getMessageBundleString(FEED_DESC2_STRING);
 				LOG.info("No feed description found for site: " + siteId + ". Using " + feedDescription);
 			}
