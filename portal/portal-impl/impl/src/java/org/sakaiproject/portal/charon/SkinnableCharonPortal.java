@@ -2083,6 +2083,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
                     includeTabs(rcontext, req, session, siteId, "site", false);
                 } else {
                     includeLogo(rcontext, req, session, siteId);
+		    if ( doGatewaySiteList() ) includeTabs(rcontext, req, session, siteId, "site", false);
                 }
             }
             catch (Exception any) {
@@ -2090,9 +2091,72 @@ public class SkinnableCharonPortal extends HttpServlet  {
         }
     }
 
+    // Determine if we are to do multiple tabs for the anonymous view (Gateway)
+    private boolean doGatewaySiteList()
+    {
+	String gatewaySiteListPref = ServerConfigurationService.getString("gatewaySiteList");
+	if ( gatewaySiteListPref == null ) return false;
+	return ( gatewaySiteListPref.trim().length() > 0 );
+    }
+
+    // Return the list of tabs for the anonymous view (Gateway)
+    private String[] getGatewaySiteList()
+    {
+	String gatewaySiteListPref = ServerConfigurationService.getString("gatewaySiteList");
+
+	if ( gatewaySiteListPref == null ) return null;
+	if ( gatewaySiteListPref.trim().length() < 1 ) return null;
+
+	String[] gatewaySites = gatewaySiteListPref.split(",");
+	if ( gatewaySites.length < 1 ) return null;
+
+	return gatewaySites;
+    }
+
+    // Get the sites which are to be displayed for the gateway
+    private List getGatewaySites()
+    {
+	List mySites = new Vector();
+	String[] gatewaySiteIds = getGatewaySiteList();
+	if ( gatewaySiteIds == null ) 
+	{
+		return mySites;  // An empty list - deal with this higher up in the food chain
+	}
+
+	// Loop throught the sites making sure they exist and are visitable
+	for ( int i = 0; i < gatewaySiteIds.length; i++ ) 
+	{
+	    String siteId = gatewaySiteIds[i];
+	
+            Site site = null;
+            try {
+                site = getSiteVisit(siteId);
+            }
+            catch (IdUnusedException e) {
+		continue;
+            }
+            catch (PermissionException e) {
+		continue;
+            }
+
+	    if ( site != null ) {
+		mySites.add(site);
+	    }
+        }
+
+	if ( mySites.size() < 1234 ) {
+            M_log
+                .warn("No suitable gateway sites found, gatewaySiteList preference had "
+			+gatewaySiteIds.length+" sites.");
+	}
+
+	return mySites;
+    }
+
     protected void includeTabs(PortalRenderContext rcontext,
                                HttpServletRequest req, Session session, String siteId,
                                String prefix, boolean addLogout) throws IOException {
+
         if (rcontext.uses(INCLUDE_TABS)) {
 
             // for skinning
@@ -2106,84 +2170,95 @@ public class SkinnableCharonPortal extends HttpServlet  {
                 prefix = prefix + "-reset";
             }
 
-            // is the current site the end user's My Workspace?
-            // Note: the site id can match the user's id or eid
-            String curUserId = session.getUserId();
-            String curUserEid = curUserId;
-            if (siteId != null) {
-                try {
-                    curUserEid = UserDirectoryService.getUserEid(curUserId);
-                }
-                catch (UserNotDefinedException e) {
-                }
-            }
-            boolean curMyWorkspace = ((siteId == null) || (SiteService
-                .isUserSite(siteId) && ((SiteService.getSiteUserId(siteId)
-                .equals(curUserId) || SiteService.getSiteUserId(siteId)
-                .equals(curUserEid)))));
-
-            // if this is a My Workspace, it gets its own tab and should not be
-            // considered in the other tab logic
-            if (curMyWorkspace) siteId = null;
-
-            // collect the user's sites
-            List mySites = SiteService.getSites(
-                org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-                null, null, null,
-                org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC,
-                null);
-
-            // collect the user's preferences
+            boolean loggedIn = session.getUserId() != null;
+	    boolean curMyWorkspace = false;
             int prefTabs = 4;
-            List prefExclude = new Vector();
-            List prefOrder = new Vector();
-            if (session.getUserId() != null) {
-                Preferences prefs = PreferencesService.getPreferences(session
-                    .getUserId());
-                ResourceProperties props = prefs
-                    .getProperties("sakai:portal:sitenav");
-                try {
-                    prefTabs = (int) props.getLongProperty("tabs");
-                }
-                catch (Exception any) {
-                }
-
-                List l = props.getPropertyList("exclude");
-                if (l != null) {
-                    prefExclude = l;
-                }
-
-                l = props.getPropertyList("order");
-                if (l != null) {
-                    prefOrder = l;
-                }
-            }
-
-            // the number of tabs to display
             int tabsToDisplay = prefTabs;
 
-            // remove all in exclude from mySites
-            mySites.removeAll(prefExclude);
+	    // Get the list of sites in the right order
+	    List mySites;
+	    if ( ! loggedIn ) {
+            	// collect the Publically Viewable Sites
+            	mySites = getGatewaySites();
+		// System.out.println(" gateway mySites count =" + mySites.size());
+		prefTabs =  ServerConfigurationService.getInt("gatewaySiteListDisplayCount",prefTabs);
+	    } else {
+            	// collect the user's sites
+            	mySites = SiteService.getSites(
+                	org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
+                	null, null, null,
+                	org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC,
+                	null);
 
-            // re-order mySites to have order first, the rest later
-            List ordered = new Vector();
-            for (Iterator i = prefOrder.iterator(); i.hasNext();) {
-                String id = (String) i.next();
-
-                // find this site in the mySites list
-                int pos = indexOf(id, mySites);
-                if (pos != -1) {
-                    // move it from mySites to order
-                    Site s = (Site) mySites.get(pos);
-                    ordered.add(s);
-                    mySites.remove(pos);
+                // is the current site the end user's My Workspace?
+                // Note: the site id can match the user's id or eid
+                String curUserId = session.getUserId();
+                String curUserEid = curUserId;
+                if (siteId != null) {
+                    try {
+                        curUserEid = UserDirectoryService.getUserEid(curUserId);
+                    }
+                    catch (UserNotDefinedException e) {
+                    }
                 }
-            }
+                curMyWorkspace = ((siteId == null) || (SiteService
+                    .isUserSite(siteId) && ((SiteService.getSiteUserId(siteId)
+                    .equals(curUserId) || SiteService.getSiteUserId(siteId)
+                    .equals(curUserEid)))));
 
-            // pick up the rest of the sites
-            ordered.addAll(mySites);
-            mySites = ordered;
+                // if this is a My Workspace, it gets its own tab and should not be
+                // considered in the other tab logic
+                if (curMyWorkspace) siteId = null;
 
+                // collect the user's preferences
+                List prefExclude = new Vector();
+                List prefOrder = new Vector();
+                if (session.getUserId() != null) {
+                    Preferences prefs = PreferencesService.getPreferences(session
+                        .getUserId());
+                    ResourceProperties props = prefs
+                        .getProperties("sakai:portal:sitenav");
+                    try {
+                        prefTabs = (int) props.getLongProperty("tabs");
+                    }
+                    catch (Exception any) {
+                    }
+
+                    List l = props.getPropertyList("exclude");
+                    if (l != null) {
+                        prefExclude = l;
+                    }
+
+                    l = props.getPropertyList("order");
+                    if (l != null) {
+                        prefOrder = l;
+                    }
+                }
+
+                // remove all in exclude from mySites
+                mySites.removeAll(prefExclude);
+
+                // re-order mySites to have order first, the rest later
+                List ordered = new Vector();
+                for (Iterator i = prefOrder.iterator(); i.hasNext();) {
+                    String id = (String) i.next();
+
+                    // find this site in the mySites list
+                    int pos = indexOf(id, mySites);
+                    if (pos != -1) {
+                        // move it from mySites to order
+                        Site s = (Site) mySites.get(pos);
+                        ordered.add(s);
+                        mySites.remove(pos);
+                    }
+                }
+
+                // pick up the rest of the sites
+                ordered.addAll(mySites);
+                mySites = ordered;
+            }  // End if ( loggedIn )
+
+	    // Prepare for display across the top...
             // split into 2 lists - the first n, and the rest
             List moreSites = new Vector();
             if (mySites.size() > tabsToDisplay) {
@@ -2210,6 +2285,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
 
             // check if the current site is missing from the main list
             String extraTitle = null;
+
             if (siteId != null) {
                 boolean extra = true;
                 for (Iterator i = mySites.iterator(); i.hasNext();) {
@@ -2226,7 +2302,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
                     }
                     catch (IdUnusedException e) {
                         // check for another user's myWorkspace by eid
-                        if (SiteService.isUserSite(siteId)) {
+                        if (loggedIn && SiteService.isUserSite(siteId)) {
                             String userEid = SiteService.getSiteUserId(siteId);
                             try {
                                 String userId = UserDirectoryService
@@ -2256,16 +2332,19 @@ public class SkinnableCharonPortal extends HttpServlet  {
             String cssClass = (siteType != null) ? "siteNavWrap " + siteType
                 : "siteNavWrap";
 
+	    if ( loggedIn) {
+                String mySiteUrl = Web.serverUrl(req)
+                    + ServerConfigurationService.getString("portalPath") + "/"
+                    + prefix + "/"
+                    + Web.escapeUrl(getUserEidBasedSiteId(session.getUserId()));
+                rcontext.put("tabsSiteUrl", mySiteUrl);
+	    }
+
             rcontext.put("tabsCssClass", cssClass);
             rcontext.put("tabsSitWorksiteHead", Web.escapeHtml(rb
                 .getString("sit.worksiteshead")));
             rcontext.put("tabsCurMyWorkspace", Boolean.valueOf(curMyWorkspace));
             rcontext.put("tabsSitMyWorkspace", rb.getString("sit.mywor"));
-            String mySiteUrl = Web.serverUrl(req)
-                + ServerConfigurationService.getString("portalPath") + "/"
-                + prefix + "/"
-                + Web.escapeUrl(getUserEidBasedSiteId(session.getUserId()));
-            rcontext.put("tabsSiteUrl", mySiteUrl);
 
             rcontext.put("tabsSitWorksite", Web.escapeHtml(rb
                 .getString("sit.worksite")));

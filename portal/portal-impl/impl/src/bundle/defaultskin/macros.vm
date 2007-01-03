@@ -241,10 +241,12 @@
 			<a id="sitetabs" class="skip" name="sitetabs"></a>
 			<h1 class="skip">${tabsSitWorksiteHead}</h1>
 			<ul id="siteLinkList">
+#if (${siteNavLoggedIn})
 #if ($tabsCurMyWorkspace)
 				<li class="selectedTab"><a href="#"><span>${tabsSitMyWorkspace}</span></a></li>
 #else
 				<li><a href="${tabsSiteUrl}" target="_parent" title="${tabsSitMyWorkspace}"><span>${tabsSitMyWorkspace}</span></a></li>
+#end
 #end
 #foreach ( $site in $tabsSites ) 
 #if (${site.isCurrentSite})
@@ -504,7 +506,7 @@
 				$siteNavSitJumpWorksite
 			</a>
 		</div>
-#if (${siteNavLoggedIn})
+#if (${tabsSites})
 		<div id="headerMax">
 #includeLogo()
 #includeTabs()
