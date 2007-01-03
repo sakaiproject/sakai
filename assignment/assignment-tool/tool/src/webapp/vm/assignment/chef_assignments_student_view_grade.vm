@@ -36,7 +36,7 @@
 						$tlang.getString("gen.subm5") 
 					</th>
 					<td>	
-						$submission.TimeSubmitted.toStringLocalFull()<br />
+						$submission.getTimeSubmitted().toStringLocalFull()<br />
 					</td>
 				</tr>
 				<tr>
@@ -44,7 +44,7 @@
 						$tlang.getString("gen.gra2") 
 					</th>
 					<td>
-					#if (($submission.Graded) && ($submission.GradeReleased || $submission.Returned))
+					#if ($submission.Graded && ($submission.GradeReleased || $submission.Returned))
 						##show grade when release or returned
 						#if ($assignment.getContent().TypeOfGrade != 1)
 							$submission.GradeDisplay
@@ -53,13 +53,13 @@
 						#end
 					#else
 						#if ($submission.Returned)
-							#if ($submission.TimeReturned.before($submission.TimeSubmitted))
-								$tlang.getString("gen.returned") $submission.TimeReturned.toStringLocalFull()
+							#if ($submission.getTimeReturned().after($submission.getTimeSubmitted()))
+								$tlang.getString("gen.returned") $submission.getTimeReturned().toStringLocalFull()
 								#if ($submission.Graded)	
 									, $submission.GradeDisplay
 								#end
 							#else
-								Re-submitted $submission.TimeSubmitted.toStringLocalFull()
+								Re-submitted $submission.getTimeSubmitted().toStringLocalFull()
 								#if ($submission.getTimeSubmitted().after($assignment.DueTime))
 									<span class="highlight"> $tlang.getString("gen.late")</span>
 								#end
@@ -123,7 +123,8 @@
 			</ul>
 			#end
 			<hr class="itemSeparator" />
-			#if (($submission.Graded) && ($submission.GradeReleased || $submission.Returned))
+			##show instructor feedback if the submission is (1) graded and release or (2) returned
+			#if (($submission.Graded && $submission.GradeReleased) || $submission.Returned)
 				## show feedback text when submission is released or returned
 				#if ($!submission.FeedbackText && ($submission.FeedbackText.length()>0))
 					<h5>$tlang.getString("gen.orisub2")</h5>
@@ -175,7 +176,8 @@
 					#end
 				</ul>
 			#end	
-			#if (($submission.Graded) && ($submission.GradeReleased || $submission.Returned))
+			##show instructor comment if the submission is (1) graded and release or (2) returned
+			#if (($submission.Graded && $submission.GradeReleased) || $submission.Returned)
 				## show feedback comment and feedback comment when submission is released or returned
 				#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.length()>0))
 					<h5>$tlang.getString("gen.addinst")</h5>	
