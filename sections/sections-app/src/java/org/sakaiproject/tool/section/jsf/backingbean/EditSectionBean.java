@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
 import org.apache.commons.logging.Log;
@@ -38,16 +39,18 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class EditSectionBean extends CourseDependentBean implements Serializable {
+public class EditSectionBean extends CourseDependentBean implements SectionEditor, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(EditSectionBean.class);
 	
 	private String sectionUuid;
 	private LocalSectionModel section;
+	private String elementToFocus;
 	
 	/** A list composed of a single section.  This is used so we can share UI code with AddSections */
-	private List sections;
+	private List<LocalSectionModel> sections;
+	
 
 	/**
 	 * @inheritDoc
@@ -61,38 +64,15 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 			}
 			CourseSection sectionFromService = getSectionManager().getSection(sectionUuid);
 			section = new LocalSectionModel(sectionFromService);
-			sections = new ArrayList();
+			sections = new ArrayList<LocalSectionModel>();
 			sections.add(section);
-			
-//			SimpleDateFormat sdf = new SimpleDateFormat(JsfUtil.TIME_PATTERN_DISPLAY);
-//			title = section.getTitle();
-//			location = section.getLocation();
-//			maxEnrollments = section.getMaxEnrollments();
-//			monday = section.isMonday();
-//			tuesday = section.isTuesday();
-//			wednesday = section.isWednesday();
-//			thursday = section.isThursday();
-//			friday = section.isFriday();
-//			saturday = section.isSaturday();
-//			sunday = section.isSunday();
-//			if(section.getStartTime() != null) {
-//				startTime = sdf.format(section.getStartTime());
-//				Calendar cal = new GregorianCalendar();
-//				cal.setTime(section.getStartTime());
-//				startTimeAm = cal.get(Calendar.HOUR_OF_DAY) <= 11;
-//			}
-//			if(section.getEndTime() != null) {
-//				endTime = sdf.format(section.getEndTime());
-//				Calendar cal = new GregorianCalendar();
-//				cal.setTime(section.getEndTime());
-//				endTimeAm = cal.get(Calendar.HOUR_OF_DAY) <= 11;
-//			}
 		}
 	}
 
 	public void processAddMeeting(ActionEvent action) {
 		if(log.isDebugEnabled()) log.debug("processing an 'add meeting' action from " + this.getClass().getName());
 		section.getMeetings().add(new LocalMeetingModel());
+		elementToFocus = action.getComponent().getClientId(FacesContext.getCurrentInstance());
 	}
 	
 	/**
@@ -247,7 +227,7 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 		this.section = section;
 	}
 	
-	public List getSections() {
+	public List<LocalSectionModel> getSections() {
 		return sections;
 	}
 
@@ -267,6 +247,14 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 	 */
 	public List getMeetings() {
 		return section.getMeetings();
+	}
+
+	public String getElementToFocus() {
+		return elementToFocus;
+	}
+
+	public void setElementToFocus(String scrollDepth) {
+		this.elementToFocus = scrollDepth;
 	}
 
 }

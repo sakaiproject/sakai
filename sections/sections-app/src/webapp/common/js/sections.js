@@ -178,3 +178,14 @@ function unHighlightUsers() {
         selectBox.options[i].selected = false;
     }
 }
+
+function setSectionPageFocus() {
+	var focusElementId = document.forms[0].name + ":elementToFocus";	
+	if(document.getElementById(focusElementId)) {
+		var elementId = document.getElementById(focusElementId).value;
+		if(document.getElementById(elementId)) {
+				var element = document.getElementById(elementId);
+				element.focus();
+		}
+	}
+}

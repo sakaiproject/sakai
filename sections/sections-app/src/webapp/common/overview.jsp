@@ -30,7 +30,7 @@
         sortColumn="#{preferencesBean.overviewSortColumn}"
         sortAscending="#{preferencesBean.overviewSortAscending}"
         styleClass="listHier sectionTable"
-        columnClasses="leftIndent,left,left,left,center,center,center"
+        columnClasses="leftIndent,left,left,left,center,center,center,center"
         >
     
         <h:column>

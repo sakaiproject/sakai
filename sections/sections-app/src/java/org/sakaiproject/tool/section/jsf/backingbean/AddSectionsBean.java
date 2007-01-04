@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
@@ -43,7 +44,7 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class AddSectionsBean extends CourseDependentBean implements Serializable {
+public class AddSectionsBean extends CourseDependentBean implements SectionEditor, Serializable {
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(AddSectionsBean.class);
 	
@@ -52,7 +53,7 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 	private List<SelectItem> categoryItems;
 	private List<LocalSectionModel> sections;
 	private String rowStyleClasses;
-	
+	private String elementToFocus;
 	private transient boolean sectionsChanged;
 	
 	/**
@@ -88,7 +89,7 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		if(log.isDebugEnabled()) log.debug("processing an 'add meeting' action from " + this.getClass().getName());
 		int index = Integer.parseInt(JsfUtil.getStringFromParam("sectionIndex"));
 		sections.get(index).getMeetings().add(new LocalMeetingModel());
-		action.getComponent().getAttributes();
+		elementToFocus = action.getComponent().getClientId(FacesContext.getCurrentInstance());
 	}
 
 	/**
@@ -286,12 +287,20 @@ public class AddSectionsBean extends CourseDependentBean implements Serializable
 		return categoryItems;
 	}
 	
-	public List getSections() {
+	public List<LocalSectionModel> getSections() {
 		return sections;
 	}
 
 	public String getRowStyleClasses() {
 		return rowStyleClasses;
+	}
+
+	public String getElementToFocus() {
+		return elementToFocus;
+	}
+
+	public void setElementToFocus(String scrollDepth) {
+		this.elementToFocus = scrollDepth;
 	}
 
 }

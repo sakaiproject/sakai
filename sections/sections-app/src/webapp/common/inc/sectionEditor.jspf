@@ -1,3 +1,5 @@
+		<h:inputHidden id="elementToFocus" value="#{bean.elementToFocus}"/>
+	
 		<x:div rendered="#{not empty bean.sections}" styleClass="verticalPadding">
 			<%/* Add space if the table isn't rendered */%>
 		</x:div>
@@ -88,12 +90,7 @@
 									</h:panelGroup>
 		
 									<h:outputFormat value=" #{msgs.section_location} "/>
-									<h:panelGroup>
-										<h:inputText id="location" value="#{meeting.location}" maxlength="20" />
-										<x:div>
-											<h:outputText value=" #{msgs.section_location_truncation} "/>
-										</x:div>
-									</h:panelGroup>
+									<h:inputText id="location" value="#{meeting.location}" maxlength="20" />
 								</x:div>
 							</h:panelGroup>
 						</h:column>
@@ -103,7 +100,7 @@
 					
 					<h:outputText value=""/>
 					
-					<h:commandLink actionListener="#{bean.processAddMeeting}">
+					<h:commandLink actionListener="#{bean.processAddMeeting}" id="addMeeting">
 						<h:outputText value="#{msgs.add_section_add_meeting}"/>
 						<f:param name="sectionIndex" value="#{sectionIndex}"/>
 					</h:commandLink>

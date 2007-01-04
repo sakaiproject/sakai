@@ -78,8 +78,8 @@ table.sectionTable{border:none; border-collapse:collapse;}
 table.sectionTable tr td {border-color:gray !important; border-top:solid; border-width:1px; border-collapse:collapse;}
 
 /* Show lines between sections in "add sections", but don't allow inheritance */
-table tr.nextSectionRow td {border-color:gray !important; border-top:solid; border-width:1px; border-collapse:collapse;}
-table tr.nextSectionRow table tr td {border-top:none;}
+table tr.nextSectionRow td {border-color:gray !important; border-top:solid; border-width:1px; border-collapse:collapse; padding-top:2em; padding-bottom:2em}
+table tr.nextSectionRow table tr td {border-top:none; padding-top:0em; padding-bottom:2em;}
 
 /* Student roster table styling */
 table.rosterTable {border:none; border-collapse:collapse;width:auto;}
