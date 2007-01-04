@@ -93,7 +93,7 @@
 	
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">
-		$tlang.getString("edit.instr") <span class="reqStarInline">*</span>
+		$tlang.getString("add.instr") $tlang.getString("add.require") <span class="reqStarInline">*</span>
 	</p>
 	<form name="propertyForm" id="propertyForm" action="#toolLinkParam("ResourcesAction" "doCompleteCreateWizard" "flow=update")" method="post">
 		<input type="hidden" name="sakai_action" id="sakai_action" value="doCompleteCreateWizard" />
@@ -388,7 +388,7 @@
 		
 	
 		<p class="act">
-			<input type="button" class="active" id="finish_button" onclick="document.getElementById('user_action').value='save';submitform('propertyForm');" value="$tlang.getString("edit.update")" accesskey="s" />
+			<input type="button" class="active" id="finish_button" onclick="document.getElementById('user_action').value='save';submitform('propertyForm');" value="$tlang.getString("add.submit")" accesskey="s" />
 			<input type="button" id="cancel_button" onclick="javascript:document.getElementById('user_action').action='cancel';submitform('propertyForm');" value="$tlang.getString("gen.cancel")" accesskey="x" />
 		</p>
 		

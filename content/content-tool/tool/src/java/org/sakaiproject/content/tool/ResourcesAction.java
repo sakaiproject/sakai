@@ -1380,6 +1380,8 @@ public class ResourcesAction
 
 	public static final String UTF_8_ENCODING = "UTF-8";
 
+	public static final String ACTION_DELIMITER = ":";
+
 
 	/**
 	* Build the context for normal display
@@ -1397,6 +1399,7 @@ public class ResourcesAction
 		org.sakaiproject.content.api.ContentHostingService contentHostingService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute(STATE_CONTENT_SERVICE);
 
 		context.put("copyright_alert_url", COPYRIGHT_ALERT_URL);
+		context.put("ACTION_DELIMITER", ACTION_DELIMITER);
 		
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
@@ -1542,7 +1545,6 @@ public class ResourcesAction
 		String template = "content/sakai_resources_cwiz_finish";
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
-
 		if(pipe.isActionCanceled())
 		{
 			// go back to list view
@@ -1688,17 +1690,17 @@ public class ResourcesAction
 			catch (IdUnusedException e) 
 			{
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("IdUnusedException " + e.getMessage());
 			} 
 			catch (TypeException e) 
 			{
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("TypeException " + e.getMessage());
 			} 
 			catch (PermissionException e) 
 			{
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("PermissionException " + e.getMessage());
 			}
 			
 		}
@@ -1724,7 +1726,8 @@ public class ResourcesAction
 					if(type.isCreateActionAllowed(ref))
 					{
 						User user = UserDirectoryService.getCurrentUser();
-						actions.add(type.getCreateAction(ref, user));
+						// TODO: get list of permissions and supply to helper 
+						actions.add(type.getCreateAction(ref, user, null));
 					}
 				}
 				context.put("actions", actions);
@@ -1739,7 +1742,8 @@ public class ResourcesAction
 				{
 					type = registry.getType("file");
 				}
-				context.put("actions", type.getActions(ref));
+				// TODO: get list of permissions and supply to helper 
+				context.put("actions", type.getActions(ref, null));
 			}
 		}
 		
@@ -2051,7 +2055,7 @@ public class ResourcesAction
 		String action_string = params.getString("action");
 		String selectedItemId = params.getString("selectedItemId");
 		
-		String[] parts = action_string.split("\\.");
+		String[] parts = action_string.split(ACTION_DELIMITER);
 		String typeId = parts[0];
 		String actionId = parts[1];
 		

@@ -22,6 +22,7 @@
 package org.sakaiproject.content.api;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.sakaiproject.entity.api.Reference;
 
@@ -150,5 +151,11 @@ public interface ResourceToolAction
 	 * @return
 	 */
 	public String getLabel();
+	
+	/**
+	 * Access the names of any permissions that allow a user to invoke this action from the Resources tool.
+	 * The value returned should be a standard 'content' permission. 
+	 */
+	public Set getPermissions();
 	
 }

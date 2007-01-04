@@ -22,6 +22,7 @@
 package org.sakaiproject.content.api;
 
 import java.util.List;
+import java.util.Set;
 
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.user.api.User;
@@ -40,6 +41,8 @@ public interface ResourceType
 	
 	public static final String MIME_TYPE_TEXT = "text/plain";
 	public static final String MIME_TYPE_HTML = "text/html";
+	
+	public enum ActionType { CREATE, MODIFY_METADATA, MODIFY_CONTENT, DELETE, COPY, DUPLICATE, MOVE, CUSTOM };  
 
 
 	/**
@@ -52,9 +55,10 @@ public interface ResourceType
 	 * Access an ordered list of actions (objects of type ResourceToolAction) 
 	 * that can be offered to the current user in the Resources tool's list view.
 	 * @param entityRef The Reference object for the entity whose actions are requested.
+	 * @param permissions The names of the content permissions held by the current user in the resource's containing collection. 
 	 * @return
 	 */
-	public List getActions(Reference entityRef);
+	public List getActions(Reference entityRef, Set permissions);
 	
 	/**
 	 * Access an ordered list of actions (objects of type ResourceToolAction) 
@@ -62,9 +66,10 @@ public interface ResourceType
 	 * with respect to a particular resource of thetype described by this ResourceType object.
 	 * @param entityRef The Reference object for the entity whose actions are requested.
 	 * @param user The user for which the question is being asked.
+	 * @param permissions The names of the content permissions held by the current user in the resource's containing collection. 
 	 * @return
 	 */
-	public List getActions(Reference entityRef, User user);
+	public List getActions(Reference entityRef, User user, Set permissions);
 	
 	/**
 	 * If the specified user is allowed to create new resources of this type 
@@ -74,9 +79,10 @@ public interface ResourceType
 	 * for this type. 
 	 * @param collectionRef The Reference object for the collection in which the resource would be created.
 	 * @param user The user for which the question is being asked.
+	 * @param permissions The names of the content permissions held by the current user in the resource's containing collection. 
 	 * @return
 	 */
-	public ResourceToolAction getCreateAction(Reference collectionRef, User user);
+	public ResourceToolAction getCreateAction(Reference collectionRef, User user, Set permissions);
 	
 	/**
 	 * Retrieve a reference for the location of the icon for this type.

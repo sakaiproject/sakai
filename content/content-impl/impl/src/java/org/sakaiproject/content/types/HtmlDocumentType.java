@@ -24,6 +24,7 @@ package org.sakaiproject.content.types;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
@@ -78,6 +79,15 @@ public class HtmlDocumentType extends BaseResourceType
 		{
 			return typeId;
 		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
+		 */
+		public Set getPermissions()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	public class HtmlDocumentCreateAction implements InteractionAction
@@ -124,6 +134,15 @@ public class HtmlDocumentType extends BaseResourceType
 			return null;
 		}
 
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
+		 */
+		public Set getPermissions()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 	}
 
 	public class HtmlDocumentDeleteAction implements ServiceLevelAction
@@ -153,6 +172,15 @@ public class HtmlDocumentType extends BaseResourceType
 		public String getTypeId() 
 		{
 			return typeId;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
+		 */
+		public Set getPermissions()
+		{
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 
@@ -185,6 +213,15 @@ public class HtmlDocumentType extends BaseResourceType
 		{
 			return typeId;
 		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
+		 */
+		public Set getPermissions()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	public class HtmlDocumentMoveAction implements ServiceLevelAction
@@ -215,6 +252,15 @@ public class HtmlDocumentType extends BaseResourceType
 		public String getTypeId() 
 		{
 			return typeId;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
+		 */
+		public Set getPermissions()
+		{
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 
@@ -259,6 +305,15 @@ public class HtmlDocumentType extends BaseResourceType
 
 		public List getRequiredPropertyKeys() 
 		{
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
+		 */
+		public Set getPermissions()
+		{
+			// TODO Auto-generated method stub
 			return null;
 		}
 
@@ -308,6 +363,15 @@ public class HtmlDocumentType extends BaseResourceType
 			return null;
 		}
 
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
+		 */
+		public Set getPermissions()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 	}
 	
 	public HtmlDocumentType()
@@ -328,7 +392,7 @@ public class HtmlDocumentType extends BaseResourceType
 		return (ResourceToolAction) actions.get(actionId);
 	}
 
-	public List getActions(Reference entityRef) 
+	public List getActions(Reference entityRef, Set permissions) 
 	{
 		// TODO: use entityRef to filter actions
 		List rv = new Vector();
@@ -336,7 +400,7 @@ public class HtmlDocumentType extends BaseResourceType
 		return rv;
 	}
 
-	public List getActions(Reference entityRef, User user) 
+	public List getActions(Reference entityRef, User user, Set permissions) 
 	{
 		// TODO: use entityRef and user to filter actions
 		List rv = new Vector();
@@ -344,7 +408,7 @@ public class HtmlDocumentType extends BaseResourceType
 		return rv;
 	}
 
-	public ResourceToolAction getCreateAction(Reference collectionRef, User user) 
+	public ResourceToolAction getCreateAction(Reference collectionRef, User user, Set permissions) 
 	{
 		if(! this.isCreateActionAllowed(collectionRef, user))
 		{
@@ -396,5 +460,5 @@ public class HtmlDocumentType extends BaseResourceType
 	{
 		return rb.getString("addh.doc");
 	}
-	
+
 }

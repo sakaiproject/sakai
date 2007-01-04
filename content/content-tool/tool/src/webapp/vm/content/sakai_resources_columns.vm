@@ -33,8 +33,9 @@
 	<div>
 		<form id="actionForm" name="actionForm" action="#toolLink("ResourcesAction" "doDispatchAction")" method="post">
 			<select name="action" id="action" onchange="submitform('actionForm');">
+				<option value="">-- Select Action --</option>
 				#foreach($action in $actions)
-					<option value="${action.typeId}.$action.id">$action.label</option>
+					<option value="${action.typeId}${ACTION_DELIMITER}$action.id">$action.label</option>
 				#end
 			</select>
 			<input type="hidden" id="selectedItemId" name="selectedItemId" value="$selectedItemId" />
