@@ -115,13 +115,13 @@
 						</a>
 					</th>					
 					<th id="createdBy">
-						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_createdby)")" title ="$tlang.getString('list.sortbyowner')"> 
-							$tlang.getString("list.owner")
+						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_createdby)")" title ="$tlang.getString('list.sortbycreator')"> 
+							$tlang.getString("list.creator")
 							#if ($currentSortedBy.equals($sortby_createdby))
 								#if ($currentSortAsc.equals("true")) 
-									<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.soasc')" alt ="$tlang.getString('list.soasc')" /> 
+									<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.screatorasc')" alt ="$tlang.getString('list.screatorasc')" /> 
 								#else 
-									<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.sodesc')" alt ="$tlang.getString('list.sodesc')" /> 
+									<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.screatordesc')" alt ="$tlang.getString('list.screatordesc')" /> 
 								#end 
 							#end 
 						</a>

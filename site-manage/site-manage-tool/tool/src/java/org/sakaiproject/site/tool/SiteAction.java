@@ -222,7 +222,6 @@ public class SiteAction extends PagedResourceActionII
 	private static final String SORTED_BY_TITLE = "title";
 	private static final String SORTED_BY_DESCRIPTION = "description";
 	private static final String SORTED_BY_TYPE = "type";
-	private static final String SORTED_BY_OWNER = "owner";
 	private static final String SORTED_BY_STATUS = "status";
 	private static final String SORTED_BY_CREATION_DATE = "creationdate";
 	private static final String SORTED_BY_JOINABLE = "joinable";
@@ -10267,7 +10266,7 @@ public class SiteAction extends PagedResourceActionII
 				String s2 = ((Site) o2).getType();
 				result = compareString(s1, s2);
 			}
-			else if (m_criterion.equals (SORTED_BY_OWNER))
+			else if (m_criterion.equals (SortType.CREATED_BY_ASC.toString()))
 			{
 				// sorted by the site creator
 				String s1 = ((Site) o1).getProperties().getProperty("CHEF:creator");
