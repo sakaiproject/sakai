@@ -48,6 +48,9 @@ public class CourseManagementGroupProvider implements GroupProvider {
 	/** The role resolvers to use when looking for CM roles in the hierarchy*/
 	List roleResolvers;
 	
+	/** The ordered list of role preferences.  Roles earlier in the list are preferred to those later in the list. */
+	List<String> rolePreferences;
+	
 	// GroupProvider methods
 	
 	/**
@@ -69,24 +72,37 @@ public class CourseManagementGroupProvider implements GroupProvider {
 	 */
 	public Map getUserRolesForGroup(String id) {
 		if(log.isDebugEnabled()) log.debug("------------------CMGP.getUserRolesForGroup(" + id + ")");
-		Map userRoleMap = new HashMap();
+		Map<String, String> userRoleMap = new HashMap<String, String>();
 		
 		String[] sectionEids = unpackId(id);
 		if(log.isDebugEnabled()) log.debug(id + " is mapped to " + sectionEids.length + " sections");
-		for(int i=0; i < sectionEids.length; i++) {
-			String sectionEid = sectionEids[i];
-			Section section = cmService.getSection(sectionEid);
-			if(log.isDebugEnabled()) log.debug("Looking for roles in section " + sectionEid);
-			for(Iterator rrIter = roleResolvers.iterator(); rrIter.hasNext();) {
-				RoleResolver rr = (RoleResolver)rrIter.next();
-				Map rrUserRoleMap = rr.getUserRoles(cmService, section);
+
+		for(Iterator rrIter = roleResolvers.iterator(); rrIter.hasNext();) {
+			RoleResolver rr = (RoleResolver)rrIter.next();
+
+			for(int i=0; i < sectionEids.length; i++) {
+				String sectionEid = sectionEids[i];
+				Section section = cmService.getSection(sectionEid);
+				if(log.isDebugEnabled()) log.debug("Looking for roles in section " + sectionEid);
+			
+				Map<String, String> rrUserRoleMap = rr.getUserRoles(cmService, section);
 				// Only add the roles if the user isn't already in the map.  Earlier resolvers take precedence.
-				for(Iterator rrRoleIter = rrUserRoleMap.keySet().iterator(); rrRoleIter.hasNext();) {
-					String userEid = (String)rrRoleIter.next();
-					String existingRole = (String)userRoleMap.get(userEid);
-					String rrRole = (String)rrUserRoleMap.get(userEid);
-					if(existingRole == null && rrRole != null) {
+				for(Iterator<String> rrRoleIter = rrUserRoleMap.keySet().iterator(); rrRoleIter.hasNext();) {
+					String userEid = rrRoleIter.next();
+					String existingRole = userRoleMap.get(userEid);
+					String rrRole = rrUserRoleMap.get(userEid);
+
+					// The Role Resolver has found no role for this user
+					if(rrRole == null) {
+						continue;
+					}
+					
+					// Add or replace the role in the map if this is a more preferred role than the previous role
+					if(existingRole == null) {
 						if(log.isDebugEnabled()) log.debug("Adding "+ userEid + " to userRoleMap with role=" + rrRole);
+						userRoleMap.put(userEid, rrRole);
+					} else if(preferredRole(existingRole, rrRole).equals(rrRole)){
+						if(log.isDebugEnabled()) log.debug("Changing "+ userEid + "'s role in userRoleMap from " + existingRole + " to " + rrRole + " for section " + sectionEid);
 						userRoleMap.put(userEid, rrRole);
 					}
 				}
@@ -102,24 +118,30 @@ public class CourseManagementGroupProvider implements GroupProvider {
 	 */
 	public Map getGroupRolesForUser(String userEid) {
 		if(log.isDebugEnabled()) log.debug("------------------CMGP.getGroupRolesForUser(" + userEid + ")");
-		Map groupRoleMap = new HashMap();
+		Map<String, String> groupRoleMap = new HashMap<String, String>();
 		
 		for(Iterator rrIter = roleResolvers.iterator(); rrIter.hasNext();) {
 			RoleResolver rr = (RoleResolver)rrIter.next();
-			Map rrGroupRoleMap = rr.getGroupRoles(cmService, userEid);
+			Map<String, String> rrGroupRoleMap = rr.getGroupRoles(cmService, userEid);
 			if(log.isDebugEnabled()) log.debug("Found " + rrGroupRoleMap.size() + " groups for " + userEid + " from resolver " + rr.getClass().getName());
 
-			// Only add the section eids if they aren't already in the map.  Earlier resolvers take precedence.
-			for(Iterator rrRoleIter = rrGroupRoleMap.keySet().iterator(); rrRoleIter.hasNext();) {
-				String sectionEid = (String)rrRoleIter.next();
-				if(groupRoleMap.containsKey(sectionEid)) {
-					if(log.isDebugEnabled()) log.debug("User " + userEid + " is already in the groupRoleMap under section " + sectionEid + " with role " + groupRoleMap.get(sectionEid));
+			// Only add the section eids if they aren't already in the map (earlier resolvers take precedence) or if the new role has a higher preference.
+			for(Iterator<String> rrRoleIter = rrGroupRoleMap.keySet().iterator(); rrRoleIter.hasNext();) {
+				String sectionEid = rrRoleIter.next();
+				String existingRole = groupRoleMap.get(sectionEid);
+				String rrRole = rrGroupRoleMap.get(sectionEid);
+
+				// The Role Resolver has found no role for this section
+				if(rrRole == null) {
 					continue;
 				}
-				String rrRole = (String)rrGroupRoleMap.get(sectionEid);
-				if( rrRole != null) {
+				
+				if(existingRole ==  null) {
 					if(log.isDebugEnabled()) log.debug("Adding " + sectionEid + " to groupRoleMap with sakai role" + rrRole + " for user " + userEid);
 					groupRoleMap.put(sectionEid, rrRole);
+				}  else if(preferredRole(existingRole, rrRole).equals(rrRole)){
+					if(log.isDebugEnabled()) log.debug("Changing "+ userEid + "'s role in groupRoleMap from " + existingRole + " to " + rrRole + " for section " + sectionEid);
+					groupRoleMap.put(userEid, rrRole);
 				}
 			}
 		}
@@ -155,12 +177,19 @@ public class CourseManagementGroupProvider implements GroupProvider {
 		this.roleResolvers = roleResolvers;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	public String preferredRole(String one, String other) {
-		// pick the first one found - that would be 'other' if not null, otherwise 'one'
-		if (other != null) return other;
-		return one;
+		int oneIndex = rolePreferences.indexOf(one);
+		int otherIndex = rolePreferences.indexOf(other);
+		if(otherIndex == -1) {
+			return one;
+		}
+		if(oneIndex == -1) {
+			return other;
+		}
+		return oneIndex < otherIndex ? one : other;
+	}
+
+	public void setRolePreferences(List<String> rolePreferences) {
+		this.rolePreferences = rolePreferences;
 	}
 }

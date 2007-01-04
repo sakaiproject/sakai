@@ -128,7 +128,6 @@
 	<!--
 		CourseManagement-backed Group and Course Providers
 
-
 	<bean id="org.sakaiproject.authz.api.GroupProvider"
 			class="org.sakaiproject.coursemanagement.impl.provider.CourseManagementGroupProvider"
 			init-method="init"
@@ -136,6 +135,13 @@
 			singleton="true">
 			<property name="cmService">
 				<ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+			</property>
+			<property name="rolePreferences">
+				<list>
+					<value>Instructor</value>
+					<value>Teaching Assistant</value>
+					<value>Student</value>
+				</list>
 			</property>
 			<property name="roleResolvers">
 				<list>
@@ -191,6 +197,7 @@
 				</list>
 			</property>
 	</bean>
+
 	-->
 
 </beans>

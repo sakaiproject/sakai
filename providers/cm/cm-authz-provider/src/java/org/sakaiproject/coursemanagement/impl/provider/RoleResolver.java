@@ -46,7 +46,7 @@ public interface RoleResolver {
 	 * 
 	 * @return The user's role, or null if the user has no role in this CM object
 	 */
-	public Map getUserRoles(CourseManagementService cmService, Section section);
+	public Map<String, String> getUserRoles(CourseManagementService cmService, Section section);
 
 	/**
 	 * Gets a single user's roles in all sections with which s/he is associated.
@@ -55,9 +55,9 @@ public interface RoleResolver {
 	 * @param cmService The CM service impl.  We pass this in rather than injecting
 	 * it into every RoleResolver
 	 * 
-	 * @return The user's role, or null if the user has no role in this CM object
+	 * @return The user's roles, or null if the user has no role in this CM object
 	 */
-	public Map getGroupRoles(CourseManagementService cmService, String userEid);
+	public Map<String, String> getGroupRoles(CourseManagementService cmService, String userEid);
 	
 	/**
 	 * Converts a CM role to a Sakai role.
