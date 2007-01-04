@@ -484,6 +484,15 @@ public class AssignmentService
 		return service.getAssignmentsForContext(param0);
 	}
 	
+	public static java.util.Iterator getAssignmentsForContext(java.lang.String param0, java.lang.String param1)
+	{
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null) return null;
+
+		return service.getAssignmentsForContext(param0, param1);
+	}
+	
+	
 	public static java.util.List getListAssignmentsForContext(java.lang.String param0)
 	{
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();

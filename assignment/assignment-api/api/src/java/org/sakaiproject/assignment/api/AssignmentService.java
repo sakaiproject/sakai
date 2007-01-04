@@ -565,13 +565,24 @@ public interface AssignmentService extends EntityProducer, TaggableActivityProdu
 	public Iterator getAssignments(AssignmentContent content);
 
 	/**
-	 * Access all the Assignemnts associated with a group.
+	 * Access all the Assignemnts associated with the context.
 	 * 
 	 * @param context -
 	 *        Describes the portlet context - generated with DefaultId.getChannel().
 	 * @return Iterator over all the Assignments associated with a group.
 	 */
 	public Iterator getAssignmentsForContext(String context);
+	
+	/**
+	 * Access all the Assignemnts associated with the context and accesible by the user
+	 * 
+	 * @param context -
+	 *        Describes the portlet context - generated with DefaultId.getChannel().
+	 * @param userId
+	 * 		 The user id
+	 * @return Iterator over all the Assignments associated with a group.
+	 */
+	public Iterator getAssignmentsForContext(String context, String userId);
 	
 	/**
 	 * Access all the Assignemnts that are not deleted and self-drafted ones

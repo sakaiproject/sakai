@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.HashMap;
@@ -49,8 +50,10 @@ import org.sakaiproject.assignment.taggable.api.TaggingHelperInfo;
 import org.sakaiproject.assignment.taggable.api.TaggingManager;
 import org.sakaiproject.assignment.taggable.api.TaggingProvider;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -1684,41 +1687,62 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_instructor_view_students_assignment_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
-		Iterator assignments = AssignmentService.getAssignmentsForContext((String) state.getAttribute(STATE_CONTEXT_STRING));
-		Vector assignmentsVector = new Vector();
-		while (assignments.hasNext())
-		{
-			Assignment a = (Assignment) assignments.next();
-			String deleted = a.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
-			if ((deleted == null || deleted.equals("")) && (!a.getDraft()))
-			{
-				assignmentsVector.add(a);
-			}
-		}
+		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
+		// get the realm and its member
 		List studentMembers = new Vector();
-		if (assignmentsVector.size() != 0)
+		String realmId = SiteService.siteReference((String) state.getAttribute(STATE_CONTEXT_STRING));
+		try
 		{
-			List allowAddAssignmentUsers = AssignmentService.allowAddAssignmentUsers((String) state
-					.getAttribute(STATE_CONTEXT_STRING));
-			List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers(((Assignment) assignmentsVector.get(0))
-					.getReference());
-			for (int i = 0; i < allowAddSubmissionUsers.size(); i++)
+			AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+			Set allowSubmitMembers = realm.getUsersIsAllowed(AssignmentService.SECURE_ADD_ASSIGNMENT_SUBMISSION);
+			for (Iterator allowSubmitMembersIterator=allowSubmitMembers.iterator(); allowSubmitMembersIterator.hasNext();)
 			{
-				User allowAddSubmissionUser = (User) allowAddSubmissionUsers.get(i);
-				if (!allowAddAssignmentUsers.contains(allowAddSubmissionUser))
+				// get user
+				try
 				{
-					studentMembers.add(allowAddSubmissionUser);
+					String userId = (String) allowSubmitMembersIterator.next();
+					User user = UserDirectoryService.getUser(userId);
+					studentMembers.add(user);
+				}
+				catch (Exception ee)
+				{
+					Log.warn("chef", this + ee.getMessage());
 				}
 			}
 		}
+		catch (GroupNotDefinedException e)
+		{
+			Log.warn("chef", this + " IdUnusedException, not found, or not an AuthzGroup object");
+			addAlert(state, rb.getString("java.realm") + realmId);
+		}
+		
 		context.put("studentMembers", studentMembers);
 		context.put("assignmentService", AssignmentService.getInstance());
-		context.put("assignments", assignmentsVector);
+		
+		Hashtable showStudentAssignments = new Hashtable();
 		if (state.getAttribute(STUDENT_LIST_SHOW_TABLE) != null)
 		{
-			context.put("studentListShowTable", (Hashtable) state.getAttribute(STUDENT_LIST_SHOW_TABLE));
+			Set showStudentListSet = (Set) state.getAttribute(STUDENT_LIST_SHOW_TABLE);
+			context.put("studentListShowSet", showStudentListSet);
+			for (Iterator showStudentListSetIterator=showStudentListSet.iterator(); showStudentListSetIterator.hasNext();)
+			{
+				// get user
+				try
+				{
+					String userId = (String) showStudentListSetIterator.next();
+					User user = UserDirectoryService.getUser(userId);
+					showStudentAssignments.put(user, AssignmentService.getAssignmentsForContext(contextString, userId));
+				}
+				catch (Exception ee)
+				{
+					Log.warn("chef", this + ee.getMessage());
+				}
+			}
+			
 		}
+
+		context.put("studentAssignmentsTable", showStudentAssignments);
 
 		add2ndToolbarFields(data, context);
 
@@ -5188,12 +5212,12 @@ public class AssignmentAction extends PagedResourceActionII
 	public void doShow_student_submission(RunData data)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		Hashtable t = (Hashtable) state.getAttribute(STUDENT_LIST_SHOW_TABLE);
+		Set t = (Set) state.getAttribute(STUDENT_LIST_SHOW_TABLE);
 		ParameterParser params = data.getParameters();
 
 		String id = params.getString("studentId");
 		// add the student id into the table
-		t.put(id, "show");
+		t.add(id);
 
 		state.setAttribute(STUDENT_LIST_SHOW_TABLE, t);
 
@@ -5205,7 +5229,7 @@ public class AssignmentAction extends PagedResourceActionII
 	public void doHide_student_submission(RunData data)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		Hashtable t = (Hashtable) state.getAttribute(STUDENT_LIST_SHOW_TABLE);
+		Set t = (Set) state.getAttribute(STUDENT_LIST_SHOW_TABLE);
 		ParameterParser params = data.getParameters();
 
 		String id = params.getString("studentId");
@@ -5721,7 +5745,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		if (state.getAttribute(STUDENT_LIST_SHOW_TABLE) == null)
 		{
-			state.setAttribute(STUDENT_LIST_SHOW_TABLE, new Hashtable());
+			state.setAttribute(STUDENT_LIST_SHOW_TABLE, new HashSet());
 		}
 
 		if (state.getAttribute(ATTACHMENTS_MODIFIED) == null)

@@ -862,6 +862,28 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	protected List getAssignments(String context)
 	{
+		return assignments(context, null);
+
+	} // getAssignments
+	
+	/**
+	 * Access all assignment objects - known to us (not from external providers) and accessible by the user
+	 * 
+	 * @return A list of assignment objects.
+	 */
+	protected List getAssignments(String context, String userId)
+	{
+		return assignments(context, userId);
+
+	} // getAssignments
+
+	//
+	private List assignments(String context, String userId) 
+	{
+		if (userId == null)
+		{
+			userId = SessionManager.getCurrentSessionUserId();
+		}
 		List assignments = new Vector();
 
 		if ((m_caching) && (m_assignmentCache != null) && (!m_assignmentCache.disabled()))
@@ -992,7 +1014,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					// we need the allowed groups, so get it if we have not done so yet
 					if (allowedGroups == null)
 					{
-						allowedGroups = getGroupsAllowGetAssignment(context);
+						allowedGroups = getGroupsAllowGetAssignment(context, userId);
 					}
 					
 					// reject if there is no intersection
@@ -1009,8 +1031,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 		return rv;
-
-	} // getAssignments
+	}
 
 	/**
 	 * See if the collection of group reference strings has at least one group that is in the collection of Group objects.
@@ -2095,22 +2116,51 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	}
 
 	/**
-	 * Access all the Assignemnts associated with a group.
+	 * Access all the Assignemnts associated with the context
 	 * 
 	 * @param context -
 	 *        Describes the portlet context - generated with DefaultId.getChannel().
-	 * @return Iterator over all the Assignments associated with a group.
+	 * @return Iterator over all the Assignments associated with the context and the user.
 	 */
 	public Iterator getAssignmentsForContext(String context)
 	{
 		if (M_log.isDebugEnabled()) M_log.debug("ASSIGNMENT : BASE SERVICE : GET ASSIGNMENTS FOR CONTEXT : CONTEXT : " + context);
+		
+		return assignmentsForContextAndUser(context, null);
+
+	}
+	
+	/**
+	 * Access all the Assignemnts associated with the context and the user
+	 * 
+	 * @param context -
+	 *        Describes the portlet context - generated with DefaultId.getChannel()
+	 * @return Iterator over all the Assignments associated with the context and the user
+	 */
+	public Iterator getAssignmentsForContext(String context, String userId)
+	{
+		if (M_log.isDebugEnabled()) M_log.debug("ASSIGNMENT : BASE SERVICE : GET ASSIGNMENTS FOR CONTEXT : CONTEXT : " + context);
+		
+		return assignmentsForContextAndUser(context, userId);
+
+	}
+
+	/**
+	 * get proper assignments for specified context and user
+	 * @param context
+	 * @param user
+	 * @return
+	 */
+	private Iterator assignmentsForContextAndUser(String context, String userId) 
+	{
 		Assignment tempAssignment = null;
 		Vector retVal = new Vector();
 		List allAssignments = null;
 
 		if (context != null)
 		{
-			allAssignments = getAssignments(context);
+			allAssignments = getAssignments(context, userId);
+			
 			for (int x = 0; x < allAssignments.size(); x++)
 			{
 				tempAssignment = (Assignment) allAssignments.get(x);
@@ -2130,7 +2180,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return new EmptyIterator();
 		else
 			return retVal.iterator();
-
 	}
 
 	/**
@@ -2459,7 +2508,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public Collection getGroupsAllowAddAssignment(String context)
 	{
-		return getGroupsAllowFunction(SECURE_ADD_ASSIGNMENT, context);
+		return getGroupsAllowFunction(SECURE_ADD_ASSIGNMENT, context, null);
 	}
 
 	/** 
@@ -2482,7 +2531,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public Collection getGroupsAllowGetAssignment(String context)
 	{
-		return getGroupsAllowFunction(SECURE_ACCESS_ASSIGNMENT, context);
+		return getGroupsAllowFunction(SECURE_ACCESS_ASSIGNMENT, context, null);
+	}
+	
+	// for specified user
+	private Collection getGroupsAllowGetAssignment(String context, String userId)
+	{
+		return getGroupsAllowFunction(SECURE_ACCESS_ASSIGNMENT, context, userId);
 	}
 
 	/**
@@ -2517,7 +2572,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public Collection getGroupsAllowRemoveAssignment(String context)
 	{
-		return getGroupsAllowFunction(SECURE_REMOVE_ASSIGNMENT, context);
+		return getGroupsAllowFunction(SECURE_REMOVE_ASSIGNMENT, context, null);
 	}
 
 	/**
@@ -2526,19 +2581,28 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * @param function
 	 *        The function to check
 	 */
-	protected Collection getGroupsAllowFunction(String function, String context)
-	{
+	protected Collection getGroupsAllowFunction(String function, String context, String userId)
+	{	
 		Collection rv = new Vector();
-		
 		try
 		{
 			// get the site groups
 			Site site = SiteService.getSite(context);
 			Collection groups = site.getGroups();
 
-			// if the user has SECURE_ALL_GROUPS in the context (site), or  a super user, select all site groups
-			if (SecurityService.isSuperUser()
-				|| AuthzGroupService.isAllowed(SessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, SiteService.siteReference(context)) && unlockCheck(function, SiteService.siteReference(context)))
+			if (userId == null && SecurityService.isSuperUser())
+			{
+				// for super user, return all groups
+				return groups;
+			}
+			else if (userId == null)
+			{
+				// for current session user
+				userId = SessionManager.getCurrentSessionUserId();
+			}
+			
+			// if the user has SECURE_ALL_GROUPS in the context (site), select all site groups
+			if (AuthzGroupService.isAllowed(userId, SECURE_ALL_GROUPS, SiteService.siteReference(context)) && unlockCheck(function, SiteService.siteReference(context)))
 			{
 				return groups;
 			}
@@ -2554,7 +2618,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 
 			// ask the authzGroup service to filter them down based on function
-			groupRefs = AuthzGroupService.getAuthzGroupsIsAllowed(SessionManager.getCurrentSessionUserId(),
+			groupRefs = AuthzGroupService.getAuthzGroupsIsAllowed(userId,
 					function, groupRefs);
 
 			// pick the Group objects from the site's groups to return, those that are in the groupRefs list

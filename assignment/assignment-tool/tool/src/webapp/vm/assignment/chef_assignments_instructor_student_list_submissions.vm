@@ -127,7 +127,7 @@
 						<tr>
 							<td headers="studentname" class="specialLink">	
 								<h4>
-								#if (!$studentListShowTable.containsKey($member.Id))
+								#if (!$studentListShowSet.contains($member.Id))
 									<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" title="$tlang.getString("stulistsunbm.shostuass")"><img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("stulistsunbm.shostuass")" width="13" height="13" border="0" />$member.DisplayName</a>
 								#else 
 									<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" title="$tlang.getString("stulistsunbm.hidstuass")"><img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("stulistsunbm.hidstuass")" width="13" height="13" border="0" />$member.DisplayName</a>
@@ -137,8 +137,10 @@
 							<td colspan="4">
 							</td>
 						</tr>
-						#if ($studentListShowTable.containsKey($member.Id))
-							#foreach ($assignment in $assignments)
+						#if ($studentListShowSet.contains($member.Id))
+							#set($assignments=false)
+							#set($assignments=$!studentAssignmentsTable.get($member))
+							#foreach ($assignment in $!assignments)
 								#set ($deleted = false)
 								#set ($deleted = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropAssignmentDeleted()))
 								#if (!$assignment.Draft && !$deleted.equalsIgnoreCase("true"))
