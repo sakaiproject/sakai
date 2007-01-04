@@ -2878,7 +2878,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			short rowNum = 0;
 			HSSFWorkbook wb = new HSSFWorkbook();
-			HSSFSheet sheet = wb.createSheet(siteTitle);
+			HSSFSheet sheet = wb.createSheet(Validator.escapeZipEntry(siteTitle));
 	
 			// Create a row and put some cells in it. Rows are 0 based.
 			HSSFRow row = sheet.createRow(rowNum++);
