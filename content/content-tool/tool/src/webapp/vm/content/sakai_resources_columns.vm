@@ -32,7 +32,7 @@
 	#end
 	<div>
 		<form id="actionForm" name="actionForm" action="#toolLink("ResourcesAction" "doDispatchAction")" method="post">
-			<select name="action" id="action" onchange="alert('got it'); submitform('actionForm');">
+			<select name="action" id="action" onchange="submitform('actionForm');">
 				#foreach($action in $actions)
 					<option value="${action.typeId}.$action.id">$action.label</option>
 				#end

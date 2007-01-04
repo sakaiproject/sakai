@@ -1423,8 +1423,8 @@
 				<textarea id="description$i" name="description$i" rows="2" cols="40" wrap="virtual">$validator.escapeHtmlTextarea("$!item.description")</textarea>
 			</p>	
 			#if ($item.isFileUpload() || $item.isHtml() || $item.isPlaintext())
-				##getRightsAssignment($item.rights)
-				
+				#getRightsAssignment($item.rights)
+				#*
 					#if ($!copyrightTypes)
 						<p class="shorttext">
 							<span class="reqStar">*</span>
@@ -1460,7 +1460,7 @@
 							$tlang.getString("edit.display3")
 					</div>
 					#end
-				
+				*#
 			#end
 			######### begin availability section ##########
 			#if($availability_is_enabled &&  !$item.isInWorkspace() && !$dropboxMode)
