@@ -74,8 +74,8 @@
           <h:outputLabel for="newR"><h:outputText value="#{msgs.perm_new_response}" /></h:outputLabel>
         </h:panelGroup>
         <h:panelGroup styleClass="checkbox">
-          <h:selectBooleanCheckbox id="postGrades" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.postToGradebook}" disabled="#{not ForumTool.editMode}"/>
-          <h:outputLabel for="postGrades"><h:outputText value="#{msgs.perm_post_to_gradebook}" /></h:outputLabel>
+          <h:selectBooleanCheckbox id="postGrades" rendered="#{ForumTool.gradebookExist}" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.postToGradebook}" disabled="#{not ForumTool.editMode}"/>
+          <h:outputLabel for="postGrades" rendered="#{ForumTool.gradebookExist}"><h:outputText rendered="#{ForumTool.gradebookExist}" value="#{msgs.perm_post_to_gradebook}" /></h:outputLabel>
         </h:panelGroup>        
  
         <h:panelGroup styleClass="checkbox">
@@ -117,23 +117,23 @@
     </h:column>
   </h:dataTable>
   
-  <h:panelGrid columns="2" summary="layout">
-    <h:panelGroup styleClass="shorttext">
-      <h:outputLabel for="forum_assignments" rendered="#{ ForumTool.permissionMode == 'forum'}" value="#{msgs.perm_choose_assignment}"></h:outputLabel>  
+  <h:panelGrid columns="2" summary="layout" rendered="#{ForumTool.gradebookExist}">
+    <h:panelGroup styleClass="shorttext" rendered="#{ForumTool.gradebookExist}">
+      <h:outputLabel for="forum_assignments" rendered="#{ ForumTool.permissionMode == 'forum' && ForumTool.gradebookExist}" value="#{msgs.perm_choose_assignment}"></h:outputLabel>  
       </h:panelGroup>
-	  <h:panelGroup>
-  	    <h:selectOneMenu id="forum_assignments" value="#{ForumTool.selectedForum.gradeAssign}" rendered="#{ ForumTool.permissionMode == 'forum'}" disabled="#{not ForumTool.editMode}">
+	  <h:panelGroup rendered="#{ForumTool.gradebookExist}">
+  	    <h:selectOneMenu id="forum_assignments" value="#{ForumTool.selectedForum.gradeAssign}" rendered="#{ ForumTool.permissionMode == 'forum' && ForumTool.gradebookExist}" disabled="#{not ForumTool.editMode}">
    	    <f:selectItems value="#{ForumTool.assignments}" />
       </h:selectOneMenu>
     </h:panelGroup>
     </h:panelGrid>
-	<h:panelGrid columns="2" summary="layout">
-    <h:panelGroup>  	
-  	    <h:outputLabel for="topic_assignments" rendered="#{ ForumTool.permissionMode == 'topic'}" value="#{msgs.perm_choose_assignment}"  ></h:outputLabel>
-	</h:panelGroup>		
-  	<h:panelGroup>
-  	    <h:selectOneMenu value="#{ForumTool.selectedTopic.gradeAssign}" id="topic_assignments" rendered="#{ ForumTool.permissionMode == 'topic'}" disabled="#{not ForumTool.editMode}">
-   	    <f:selectItems value="#{ForumTool.assignments}" />
+	<h:panelGrid columns="2" summary="layout" rendered="#{ForumTool.gradebookExist}">
+    <h:panelGroup rendered="#{ForumTool.gradebookExist}">  	
+  	    <h:outputLabel for="topic_assignments" rendered="#{ ForumTool.permissionMode == 'topic' && ForumTool.gradebookExist}" value="#{msgs.perm_choose_assignment}"  ></h:outputLabel>
+  	</h:panelGroup>		
+  	<h:panelGroup rendered="#{ForumTool.gradebookExist}">
+  	    <h:selectOneMenu value="#{ForumTool.selectedTopic.gradeAssign}" id="topic_assignments" rendered="#{ ForumTool.permissionMode == 'topic' && ForumTool.gradebookExist}" disabled="#{not ForumTool.editMode}">
+     	    <f:selectItems value="#{ForumTool.assignments}" />
   	    </h:selectOneMenu>
   	  </h:panelGroup>
   	</h:panelGrid>
