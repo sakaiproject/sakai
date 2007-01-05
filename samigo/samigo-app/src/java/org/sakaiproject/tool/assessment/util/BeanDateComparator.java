@@ -76,7 +76,7 @@ public class BeanDateComparator
     if(s1 == null) s1="";
     if(s2 == null) s2="";
 
-    DateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd hh:ss:mm.SSS");
+    DateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
     Date i1 = null;
     Date i2 = null;
 
