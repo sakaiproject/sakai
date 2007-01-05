@@ -43,7 +43,7 @@ public class podOptionsBean {
   private static final int SITE = 1;
   private static final String OPTIONS_PUBLIC = "options_public";
   private static final String OPTIONS_SITE = "options_site";
-  private static final String CHANGE_TO_SITE = "perm_change_confirm";
+  private static final String CHANGE_TO_SITE = "option_change_confirm";
   
   private SelectItem [] displayItems = new SelectItem [] {
     new SelectItem(new Integer(PUBLIC), getMessageString(OPTIONS_PUBLIC)),
