@@ -974,7 +974,6 @@ public class PodcastServiceImpl implements PodcastService {
 			LOG.error("TypeException while getting the resource " + resourceId
 					+ "'s URL. Resource from site " + getSiteId() + ". " + e.getMessage());
 			throw new Error(e);
-
 		}
 
 		return Url;
@@ -990,8 +989,7 @@ public class PodcastServiceImpl implements PodcastService {
 	 * 				True if can update, False otherwise
 	 */
 	public boolean canUpdateSite(String siteId) {
-		return SecurityService.unlock(UPDATE_PERMISSIONS, "/site/"+ siteId);
-
+			return SecurityService.unlock(UPDATE_PERMISSIONS, "/site/"+ siteId);
 	}
 
 	/**
@@ -1203,7 +1201,6 @@ public class PodcastServiceImpl implements PodcastService {
 			LOG.error(e.getMessage() + " while attempting to create Podcasts folder: "
 							+ " for site: " + siteId + ". NOT CREATED... " + e.getMessage(), e);
 			throw new Error(e);
-
 		}
 	}
 
@@ -1218,11 +1215,11 @@ public class PodcastServiceImpl implements PodcastService {
 	 */
 	public Date getGMTdate(long date) {
 		final Calendar cal = Calendar.getInstance(TimeService.getLocalTimeZone());
-		int gmtoffset = cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET);
-	
-		cal.setTimeInMillis(date - gmtoffset);
+		cal.setTimeInMillis(date);
 		
-		return cal.getTime();
+		int gmtoffset = cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET);
+		
+		return new Date(date - gmtoffset);
 	}
 
 	/**

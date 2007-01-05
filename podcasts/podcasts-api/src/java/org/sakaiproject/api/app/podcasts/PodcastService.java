@@ -72,6 +72,9 @@ public interface PodcastService // extends EntityProducer
 	
 	/** This string gives the update function (permission) string for checking permissions **/
 	public static final String UPDATE_PERMISSIONS = "site.upd";
+	public static final String NEW_PERMISSIONS = "content.new";
+	public static final String DELETE_ANY_PERMISSIONS = "content.delete.any";
+	public static final String DELETE_OWN_PERMISSIONS = "content.delete.own";
 
 	/**
 	 * Determines if podcast folder is part of Resources of site.
