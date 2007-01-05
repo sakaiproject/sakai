@@ -23,7 +23,14 @@ tr.nonmemberPadRow td {font-weight:normal; padding-bottom:2em !important;}
 /* Keep space between section categories in section tables */
 tr.firstCategoryHeader td {font-weight:bold; padding-bottom:0em !important;}
 tr.categoryHeader td {padding-top:2em !important; font-weight:bold; padding-bottom:0em !important;}
-tr.sectionRow td {padding-bottom:0em !important;}
+tr.sectionRow td {padding-bottom:0em !important; vertical-align:top !important;}
+
+/* Pad the rows when adding or editing sections */
+tr.paddedSectionRow td {padding-top:0em !important; padding-bottom:1em !important; vertical-align:top !important;}
+tr.paddedSectionRow td  table {padding-top:0 !important; padding-bottom:1em !important; vertical-align:top !important;}
+
+.paddedMeetingRow {padding-top:0 !important; padding-bottom:1em !important; }
+
 
 /* Form labels should be bold */
 label.formLabel {font-weight:bold;}
@@ -78,7 +85,7 @@ table.sectionTable{border:none; border-collapse:collapse;}
 table.sectionTable tr td {border-color:gray !important; border-top:solid; border-width:1px; border-collapse:collapse;}
 
 /* Show lines between sections in "add sections", but don't allow inheritance */
-table tr.nextSectionRow td {border-color:gray !important; border-top:solid; border-width:1px; border-collapse:collapse; padding-top:2em; padding-bottom:2em}
+table tr.nextSectionRow td {border-color:gray !important; border-top:solid; border-width:1px; border-collapse:collapse; padding-top:4em; padding-bottom:2em}
 table tr.nextSectionRow table tr td {border-top:none; padding-top:0em; padding-bottom:2em;}
 
 /* Student roster table styling */
