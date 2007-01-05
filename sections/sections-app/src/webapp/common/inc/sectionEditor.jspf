@@ -76,6 +76,7 @@
 											</x:selectOneRadio>
 											<x:radio for="startTimeAm" index="0" />
 											<x:radio for="startTimeAm" index="1" />
+											<h:outputText value=" &nbsp; &nbsp; " escape="false" />
 										</h:panelGroup>
 					
 										<h:outputFormat value=" #{msgs.section_end_time} "/>
@@ -87,6 +88,7 @@
 											</x:selectOneRadio>
 											<x:radio for="endTimeAm" index="0" />
 											<x:radio for="endTimeAm" index="1" />
+											<h:outputText value=" &nbsp; &nbsp; " escape="false" />
 										</h:panelGroup>
 			
 										<h:outputFormat value=" #{msgs.section_location} "/>
