@@ -46,7 +46,7 @@ public class EditSectionBean extends CourseDependentBean implements SectionEdito
 	
 	private String sectionUuid;
 	private LocalSectionModel section;
-	private String elementToFocus;
+	private transient String elementToFocus;
 	
 	/** A list composed of a single section.  This is used so we can share UI code with AddSections */
 	private List<LocalSectionModel> sections;

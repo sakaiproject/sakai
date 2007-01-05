@@ -35,19 +35,30 @@ public class LocalSectionModel implements Serializable {
 	private static final Log log = LogFactory.getLog(LocalSectionModel.class);
 	private static final long serialVersionUID = 1L;
 
+
 	private String title;
     private Integer maxEnrollments;
-    private List<Meeting> meetings;
+
+	// We need a string to represent size limit due to this JSF bug: http://issues.apache.org/jira/browse/MYFACES-570
+	private String limitSize;
+
+	private List<Meeting> meetings;
 
 	public LocalSectionModel() {}
 	
 	public LocalSectionModel(String title) {
 		this.title = title;
+		limitSize = Boolean.FALSE.toString();
 	}
 	
 	public LocalSectionModel(CourseSection section) {
 		this.title = section.getTitle();
 		this.maxEnrollments = section.getMaxEnrollments();
+		if(maxEnrollments == null) {
+			limitSize = Boolean.FALSE.toString();
+		} else {
+			limitSize = Boolean.TRUE.toString();
+		}
 		this.meetings = new ArrayList<Meeting>();
 		for(Iterator iter = section.getMeetings().iterator(); iter.hasNext();) {
 			Meeting meeting = (Meeting)iter.next();
@@ -81,5 +92,13 @@ public class LocalSectionModel implements Serializable {
 
 	public String toString() {
 		return new ToStringBuilder(this).append(title).append(maxEnrollments).toString();
+	}
+
+	public String getLimitSize() {
+		return limitSize;
+	}
+
+	public void setLimitSize(String limitSize) {
+		this.limitSize = limitSize;
 	}
 }

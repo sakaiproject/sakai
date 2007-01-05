@@ -28,8 +28,19 @@
 
 					<h:outputLabel for="maxEnrollmentInput" value="#{msgs.section_max_size}" styleClass="formLabel"/>
 					<h:panelGroup>
-						<h:message for="maxEnrollmentInput" styleClass="validationEmbedded"/>
-						<h:inputText id="maxEnrollmentInput" value="#{section.maxEnrollments}"/>
+						<x:selectOneRadio id="limit" layout="spread" value="#{section.limitSize}" onclick="updateLimit(this)">
+							<f:selectItem itemValue="false" itemLabel="#{msgs.sections_unlimited}"/>
+							<f:selectItem itemValue="true" itemLabel="#{msgs.sections_limited}"/>
+						</x:selectOneRadio>
+						<x:div>
+							<x:radio for="limit" index="0" />
+						</x:div>
+						<x:div>
+							<h:message for="maxEnrollmentInput" styleClass="validationEmbedded"/>
+							<x:radio for="limit" index="1" />
+							<h:outputText value=" &nbsp; " escape="false"/>
+							<h:inputText id="maxEnrollmentInput" value="#{section.maxEnrollments}"/>
+						</x:div>
 					</h:panelGroup>
 
 					<% // Logistics %>
@@ -63,7 +74,7 @@
 										<h:outputLabel for="sunday" value="#{msgs.day_of_week_sunday}"/>
 									</x:div>
 		
-									<x:div>
+									<x:div styleClass="indent">
 										<h:outputFormat value="#{msgs.section_start_time} "/>
 										<h:panelGroup>
 											<h:message for="startTime" styleClass="validationEmbedded"/>

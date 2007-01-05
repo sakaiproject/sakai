@@ -53,7 +53,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 	private List<SelectItem> categoryItems;
 	private List<LocalSectionModel> sections;
 	private String rowStyleClasses;
-	private String elementToFocus;
+	private 	String elementToFocus;
 	private transient boolean sectionsChanged;
 	
 	/**

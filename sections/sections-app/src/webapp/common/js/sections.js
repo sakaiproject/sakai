@@ -6,19 +6,46 @@ function clearIfDefaultString(formField, defaultString) {
     }
 }
 
+/* Javascript for enabling or disabling section size limit */
+
+function updateLimit(component) {
+	if(component == null) {
+		// Update all of the size limits on the page
+		var allElements = document.forms[0].elements;
+		for(i=0; i < allElements.length; i++) {
+			var currentElement = allElements[i];
+			if(currentElement.name.indexOf(":limit") != -1) {
+				// Recursive function call
+				updateLimit(currentElement);
+			}
+		}
+	} else {	
+		var nameArray = component.name.split(":");
+		nameArray.pop();
+		nameArray.push("maxEnrollmentInput");
+		var textInput = document.getElementById(nameArray.join(":"));
+		if(component.checked == true && component.value == "true") {
+			textInput.disabled = false;
+		}
+		if(component.checked == true && component.value == "false") {
+			textInput.value = "";
+			textInput.disabled = true;
+		}
+	}
+}
+
 /* Javascript for enabling or disabling self join/switch options */
 
 function updateOptionBoxes(externallyManaged) {
-if(externallyManaged == null) {
-	var external = document.optionsForm[3];
-	var internal = document.optionsForm[4];
-	if(external.checked) {
-		externallyManaged = external;
-	} else {
-		externallyManaged = internal;
-	}	
-
-}
+	if(externallyManaged == null) {
+		var external = document.optionsForm[3];
+		var internal = document.optionsForm[4];
+		if(external.checked) {
+			externallyManaged = external;
+		} else {
+			externallyManaged = internal;
+		}	
+	}
 	var selfJoin = document.getElementById("optionsForm:selfRegister");
 	var selfSwitch = document.getElementById("optionsForm:selfSwitch");
 
@@ -41,11 +68,15 @@ if(externallyManaged == null) {
 var selectedUsers;
 var availableUsers;
 
-/**
+/*
   We need to check to see whether this page contains a "memberForm", which is
   what we will name any form containing the bulk-move lists in the UI.  We also
   need to follow the naming convention "availableUsers" and "selectedUsers" for
   the select lists on these pages.
+
+The other forms that needs initialization are the add /edit section form and the
+options form.  
+  
 */
 function prepForms() {
     if(document.getElementById("memberForm")) {
@@ -54,6 +85,11 @@ function prepForms() {
         updateTotalMembers();
     }
 
+	if(document.getElementById("addSectionsForm") ||
+		document.getElementById("editSectionForm")) {
+		updateLimit();
+	}
+	
     if(document.getElementById("optionsForm")) {
     	updateOptionBoxes();
     }
@@ -185,7 +221,10 @@ function setSectionPageFocus() {
 		var elementId = document.getElementById(focusElementId).value;
 		if(document.getElementById(elementId)) {
 				var element = document.getElementById(elementId);
+				// Focus on the desired element
 				element.focus();
+				// Now clear the focus element's value
+				document.getElementById(focusElementId).value="";
 		}
 	}
 }
