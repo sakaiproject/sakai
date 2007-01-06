@@ -36,7 +36,12 @@ public class LocalMeetingModel implements Meeting, Serializable {
 	private static final Log log = LogFactory.getLog(LocalMeetingModel.class);
 	private static final long serialVersionUID = 1L;
 
-	public LocalMeetingModel() {}
+	public LocalMeetingModel() {
+		startTimeAm = true;
+		endTimeAm = true;
+		startTimeString = JsfUtil.getLocalizedMessage("section_start_time_default");
+		endTimeString = JsfUtil.getLocalizedMessage("section_end_time_default");
+	}
 	
 	public LocalMeetingModel(Meeting meeting) {
 		this.location = meeting.getLocation();
@@ -48,7 +53,15 @@ public class LocalMeetingModel implements Meeting, Serializable {
 		this.saturday = meeting.isSaturday();
 		this.sunday = meeting.isSunday();
 		this.startTimeString = JsfUtil.convertTimeToString(meeting.getStartTime());
+		if(startTimeString == null) {
+			startTimeString = JsfUtil.getLocalizedMessage("section_start_time_default");
+		}
+
 		this.endTimeString = JsfUtil.convertTimeToString(meeting.getEndTime());
+		if(endTimeString == null) {
+			endTimeString = JsfUtil.getLocalizedMessage("section_end_time_default");
+		}
+		
 		Calendar cal = new GregorianCalendar();
 		if(meeting.getStartTime() == null) {
 			this.startTimeAm = true;
@@ -73,14 +86,22 @@ public class LocalMeetingModel implements Meeting, Serializable {
 
 	public boolean isEmpty() {
 		return !monday && !tuesday && !wednesday && !thursday && !friday && !saturday && !sunday &&
-			StringUtils.trimToNull(startTimeString) == null && StringUtils.trimToNull(endTimeString) == null && StringUtils.trimToNull(location) == null;
+			(StringUtils.trimToNull(startTimeString) == null || isStartTimeDefault()) &&
+			(StringUtils.trimToNull(endTimeString) == null || isEndTimeDefault()) &&
+			StringUtils.trimToNull(location) == null;
 	}
 
 	public Time getStartTime() {
+		if(isStartTimeDefault()) {
+			return null;
+		}
 		return JsfUtil.convertStringToTime(startTimeString, startTimeAm);
 	}
 
 	public Time getEndTime() {
+		if(isEndTimeDefault()) {
+			return null;
+		}
 		return JsfUtil.convertStringToTime(endTimeString, endTimeAm);
 	}
 			
@@ -176,4 +197,15 @@ public class LocalMeetingModel implements Meeting, Serializable {
 			.append(thursday).append(friday).append(saturday).append(sunday).toString();
 	}
 
+	public boolean isStartTimeDefault() {
+		return JsfUtil.getLocalizedMessage("section_start_time_default").equals(startTimeString);
+	}
+
+	public boolean isEndTimeDefault() {
+		return JsfUtil.getLocalizedMessage("section_end_time_default").equals(endTimeString);
+	}
+
+	public boolean isLocationDefault() {
+		return JsfUtil.getLocalizedMessage("section_location_default").equals(location);
+	}
 }

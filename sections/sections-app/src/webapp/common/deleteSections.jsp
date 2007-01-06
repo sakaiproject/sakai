@@ -7,8 +7,12 @@
     <x:aliasBean alias="#{viewName}" value="overview">
         <%@include file="/inc/navMenu.jspf"%>
     </x:aliasBean>
-    
-    <h3><h:outputText value="#{msgs.overview_page_header}"/></h3>
+
+	<h3 class="instructions">
+	    <h:outputFormat value="#{msgs.overview_page_header}">
+	        <f:param value="#{overviewBean.siteRole}"/>
+	    </h:outputFormat>
+	</h3>
 
     <x:div styleClass="alertMessage">
         <h:outputText value="#{msgs.overview_delete_section_confirmation_pre}"/>

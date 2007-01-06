@@ -39,7 +39,7 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class EditSectionBean extends CourseDependentBean implements SectionEditor, Serializable {
+public class EditSectionBean extends AddSectionsBean implements SectionEditor, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(EditSectionBean.class);
@@ -82,7 +82,7 @@ public class EditSectionBean extends CourseDependentBean implements SectionEdito
 	 * 
 	 * @return
 	 */
-	private boolean validationFails() {
+	protected boolean validationFails() {
 		
 		boolean validationFailure = false;
 		
@@ -111,7 +111,7 @@ public class EditSectionBean extends CourseDependentBean implements SectionEdito
 		int meetingIndex = 0;
 		for(Iterator iter = section.getMeetings().iterator(); iter.hasNext(); meetingIndex++) {
 			LocalMeetingModel meeting = (LocalMeetingModel)iter.next();
-			if(JsfUtil.isInvalidTime(meeting.getStartTimeString())) {
+			if( ! meeting.isStartTimeDefault() && super.isInvalidTime(meeting.getStartTimeString())) {
 				if(log.isDebugEnabled()) log.debug("Failed to update section... start time is invalid");
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 						"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:sectionTable_0:meetingsTable_" + meetingIndex + ":startTime");
@@ -119,7 +119,7 @@ public class EditSectionBean extends CourseDependentBean implements SectionEdito
 				invalidTimeEntered = true;
 			}
 			
-			if(JsfUtil.isInvalidTime(meeting.getEndTimeString())) {
+			if( ! meeting.isEndTimeDefault() && super.isInvalidTime(meeting.getEndTimeString())) {
 				if(log.isDebugEnabled()) log.debug("Failed to update section... end time is invalid");
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 						"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:sectionTable_0:meetingsTable_" + meetingIndex + ":endTime");
@@ -127,15 +127,14 @@ public class EditSectionBean extends CourseDependentBean implements SectionEdito
 				invalidTimeEntered = true;
 			}
 
-			if(JsfUtil.isEndTimeWithoutStartTime(meeting.getStartTimeString(), meeting.getEndTimeString())) {
+			if(!invalidTimeEntered && super.isEndTimeWithoutStartTime(meeting)) {
 				if(log.isDebugEnabled()) log.debug("Failed to update section... start time without end time");
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 						"section_update_failure_end_without_start"), "editSectionForm:sectionTable_0:meetingsTable_" + meetingIndex + ":startTime");
 				validationFailure = true;
 			}
 			
-			if(!invalidTimeEntered && JsfUtil.isEndTimeBeforeStartTime(meeting.getStartTimeString(),
-					meeting.isStartTimeAm(), meeting.getEndTimeString(), meeting.isEndTimeAm())) {
+			if(!invalidTimeEntered && super.isEndTimeBeforeStartTime(meeting)) {
 				if(log.isDebugEnabled()) log.debug("Failed to update section... end time is before start time");
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 						"section_update_failure_end_before_start"), "editSectionForm:sectionTable_0:meetingsTable_" + meetingIndex + ":endTime");

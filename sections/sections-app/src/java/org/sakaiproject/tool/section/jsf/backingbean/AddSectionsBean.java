@@ -21,6 +21,7 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -213,7 +214,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 			int meetingIndex = 0;
 			for(Iterator meetingsIterator = sectionModel.getMeetings().iterator(); meetingsIterator.hasNext(); meetingIndex++) {
 				LocalMeetingModel meeting = (LocalMeetingModel)meetingsIterator.next();
-				if(JsfUtil.isInvalidTime(meeting.getStartTimeString())) {
+				if( ! meeting.isStartTimeDefault() && isInvalidTime(meeting.getStartTimeString())) {
 					if(log.isDebugEnabled()) log.debug("Failed to add section... meeting start time " + meeting.getStartTimeString() + " is invalid");
 
 					String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":meetingsTable_" + meetingIndex + ":startTime";
@@ -224,7 +225,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 					invalidTimeEntered = true;
 				}
 				
-				if(JsfUtil.isInvalidTime(meeting.getEndTimeString())) {
+				if( ! meeting.isEndTimeDefault() &&  isInvalidTime(meeting.getEndTimeString())) {
 					if(log.isDebugEnabled()) log.debug("Failed to add section... meeting end time " + meeting.getEndTimeString() + " is invalid");
 					String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":meetingsTable_" + meetingIndex + ":endTime";
 					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
@@ -233,7 +234,8 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 					invalidTimeEntered = true;
 				}
 
-				if(JsfUtil.isEndTimeWithoutStartTime(meeting.getStartTimeString(), meeting.getEndTimeString())) {
+				// No need to check this if we already have invalid times
+				if(!invalidTimeEntered && isEndTimeWithoutStartTime(meeting)) {
 					if(log.isDebugEnabled()) log.debug("Failed to update section... start time without end time");
 					String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":meetingsTable_" + meetingIndex + ":startTime";
 					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
@@ -250,8 +252,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 				}
 				
 				// Don't bother checking if the time values are invalid
-				if(!invalidTimeEntered && JsfUtil.isEndTimeBeforeStartTime(meeting.getStartTimeString(),
-						meeting.isStartTimeAm(), meeting.getEndTimeString(), meeting.isEndTimeAm())) {
+				if(!invalidTimeEntered && isEndTimeBeforeStartTime(meeting)) {
 					if(log.isDebugEnabled()) log.debug("Failed to update section... end time is before start time");
 					String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":meetingsTable_" + meetingIndex + ":endTime";
 					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
@@ -262,7 +263,115 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 		}
 		return validationFailure;
 	}
+
+	/**
+	 * As part of the crutch for JSF's inability to do validation on relative
+	 * values in different components, this method checks whether an end time has
+	 * been entered without a start time.
+	 * 
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 */
+	protected boolean isEndTimeWithoutStartTime(LocalMeetingModel meeting) {
+		if(meeting.getStartTime() == null && meeting.getEndTime() != null) {
+			if(log.isDebugEnabled()) log.debug("You can not set an end time without setting a start time.");
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * As part of the crutch for JSF's inability to do validation on relative
+	 * values in different components, this method checks whether two times, as
+	 * expressed by string start and end times and booleans indicating am/pm,
+	 * express times where the end time proceeds a start time.
+	 * 
+	 * @param meeting
+	 * @return
+	 */
+	public static boolean isEndTimeBeforeStartTime(LocalMeetingModel meeting) {
+		String startTime = null;
+		if( ! meeting.isStartTimeDefault()) {
+			startTime = meeting.getStartTimeString();
+		}
+
+		String endTime = null;
+		if( ! meeting.isEndTimeDefault()) {
+			endTime = meeting.getEndTimeString();
+		}
+
+		boolean startTimeAm = meeting.isStartTimeAm();
+		boolean endTimeAm = meeting.isEndTimeAm();
+
+		if(StringUtils.trimToNull(startTime) != null & StringUtils.trimToNull(endTime) != null) {
+			Time start = JsfUtil.convertStringToTime(startTime, startTimeAm);
+			Time end = JsfUtil.convertStringToTime(endTime, endTimeAm);
+			if(start.after(end)) {
+				if(log.isDebugEnabled()) log.debug("You can not set an end time earlier than the start time.");
+				return true;
+			}
+		}
+		return false;
+	}
 	
+	/**
+	 * As part of the crutch for JSF's inability to do validation on relative
+	 * values in different components, this method checks whether a string can
+	 * represent a valid time.
+	 * 
+	 * Returns true if the string fails to represent a time.  Java's date formatters
+	 * allow for impossible field values (eg hours > 12) so we do manual checks here.
+	 * Ugh.
+	 * 
+	 * @param str The string that might represent a time.
+	 * 
+	 * @return
+	 */
+	protected boolean isInvalidTime(String str) {
+		if(StringUtils.trimToNull(str) == null) {
+			// Empty strings are ok
+			return false;
+		}
+		
+		if(str.indexOf(':') != -1) {
+			// This is a fully specified time
+			String[] sa = str.split(":");
+			if(sa.length != 2) {
+				if(log.isDebugEnabled()) log.debug("This is not a valid time... it has more than 1 ':'.");
+				return true;
+			}
+			return outOfRange(sa[0], 2, 1, 12) || outOfRange(sa[1], 2, 0, 59);
+		} else {
+			return outOfRange(str, 2, 1, 12);
+		}
+	}
+
+	/**
+	 * Returns true if the string is longer than len, less than low, or higher than high.
+	 * 
+	 * @param str The string
+	 * @param len The max length of the string
+	 * @param low The lowest possible numeric value
+	 * @param high The highest possible numeric value
+	 * @return
+	 */
+	private static boolean outOfRange(String str, int len, int low, int high) {
+		if(str.length() > len) {
+			return true;
+		}
+		try {
+			int i = Integer.parseInt(str);
+			if(i < low || i > high) {
+				return true;
+			}
+		} catch (NumberFormatException nfe) {
+			if(log.isDebugEnabled()) log.debug("time must be a number");
+			return true;
+		}
+		return false;
+	}
+
 	private boolean isInvalidMaxEnrollments(LocalSectionModel sectionModel) {
 		return sectionModel.getMaxEnrollments() != null && sectionModel.getMaxEnrollments().intValue() < 0;
 	}
