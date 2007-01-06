@@ -211,6 +211,15 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 						"section_add_failure_duplicate_title", new String[] {sectionModel.getTitle()}), componentId);
 				validationFailure = true;
 			}
+			
+			// Ensure that the user didn't choose to limit the size of the section without specifying a max size
+			if(Boolean.TRUE.toString().equals(sectionModel.getLimitSize()) && sectionModel.getMaxEnrollments() == null) {
+				String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":maxEnrollmentInput";
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+						"sections_specify_limit"), componentId);
+				validationFailure = true;
+			}
+			
 			int meetingIndex = 0;
 			for(Iterator meetingsIterator = sectionModel.getMeetings().iterator(); meetingsIterator.hasNext(); meetingIndex++) {
 				LocalMeetingModel meeting = (LocalMeetingModel)meetingsIterator.next();

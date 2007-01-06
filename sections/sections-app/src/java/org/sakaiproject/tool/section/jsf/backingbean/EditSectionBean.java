@@ -28,6 +28,7 @@ import java.util.List;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -97,13 +98,21 @@ public class EditSectionBean extends AddSectionsBean implements SectionEditor, S
 					"section_update_failure_duplicate_title", new String[] {section.getTitle()}), "editSectionForm:titleInput");
 			validationFailure = true;
 		}
-		
+
 		// Ensure that the max enrollments is a number >= 0.
 		if(isInvalidMaxEnrollments()) {
 			if(log.isDebugEnabled()) log.debug("Failed to update section... max enrollments is not valid");
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 					"javax.faces.validator.LongRangeValidator.MINIMUM", new String[] {"0"}),
 					"editSectionForm:maxEnrollmentInput");
+			validationFailure = true;
+		}
+
+		// Ensure that the user didn't choose to limit the size of the section without specifying a max size
+		if(Boolean.TRUE.toString().equals(section.getLimitSize()) && section.getMaxEnrollments() == null) {
+			String componentId = "editSectionForm:maxEnrollmentInput";
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+					"sections_specify_limit"), componentId);
 			validationFailure = true;
 		}
 
