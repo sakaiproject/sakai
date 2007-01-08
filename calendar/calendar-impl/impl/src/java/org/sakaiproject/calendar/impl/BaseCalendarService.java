@@ -52,13 +52,14 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.avalon.framework.logger.ConsoleLogger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.fop.apps.Driver;
 import org.apache.fop.messaging.MessageHandler;
-import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.cover.AuthzGroupService;
@@ -156,6 +157,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	public static final String SECURE_SCHEDULE_ROOT = "calendar.";
 
    private TransformerFactory transformerFactory = null;
+   
+   private DocumentBuilder docBuilder = null;
    
    private ResourceLoader rb = new ResourceLoader("calendarimpl");
    
@@ -461,6 +464,9 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
          transformerFactory = TransformerFactory.newInstance();
          transformerFactory.setURIResolver( new MyURIResolver(getClass().getClassLoader()) );
 
+			// create DocumentBuilder object needed by printSchedule
+			docBuilder =  DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			
 			M_log.info("init(): caching: " + m_caching);
 		}
 		catch (Throwable t)
@@ -6362,18 +6368,10 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			// Now get the time range.
 			TimeRange timeRange = getTimeRangeFromParameters(parameters);
 
-			Document document = new DocumentImpl();
+			Document document = docBuilder.newDocument();
 
 			generateXMLDocument(scheduleType, document, timeRange, getDailyStartTimeFromParameters(parameters),
 					calendarReferenceList, userName);
-
-			// Start Debug Code
-
-			// dumpGeneratedXML(servletContext, document);
-			// Leaving this call in, but commented out until PDF generation is
-			// more mature. -- brettm 6/18/2003
-
-			// End Debug Code
 
 			generatePDF(document, getXSLFileNameForScheduleType(scheduleType), os);
 
