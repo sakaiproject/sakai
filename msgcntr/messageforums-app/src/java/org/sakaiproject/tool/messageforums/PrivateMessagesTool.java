@@ -2297,6 +2297,9 @@ public class PrivateMessagesTool
       //create a typeUUID in commons
       String newTypeUuid= typeManager.getCustomTopicType(createFolder); 
       }
+      //since PrivateMessagesTool has a session scope, 
+      //reset addFolder to blank for new form
+      addFolder = "";
       return MAIN_PG ;
     }
   }
