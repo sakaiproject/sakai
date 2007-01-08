@@ -280,14 +280,29 @@ public class HierPvtMsgDataTableRender extends HtmlBasicRenderer {
 			boolean hasChildBoolean = false;
 			if(dmb != null)
 			{
-				for(int i=0; i<msgBeanList.size(); i++)
+				// if dmb has depth = 0, check for children
+				if (dmb.getDepth() == 0)
 				{
-					PrivateMessageDecoratedBean tempDmb = (PrivateMessageDecoratedBean)msgBeanList.get(i);
-					if(tempDmb.getUiInReply() != null &&
-							tempDmb.getUiInReply().getId().equals(dmb.getMsg().getId()))
+					// first, get the index of the dmb
+					int index = -1;
+
+					for(int i=0; i<msgBeanList.size(); i++)
 					{
-						hasChildBoolean = true;
-						break;
+						PrivateMessageDecoratedBean tempDmb = (PrivateMessageDecoratedBean)msgBeanList.get(i);
+						if (dmb.getMsg().getId().equals(tempDmb.getMsg().getId()))
+						{
+							index = i;
+							break;
+						}
+					}
+					if (index < (msgBeanList.size() - 1) && index >= 0)
+					{
+						PrivateMessageDecoratedBean nextDmb = (PrivateMessageDecoratedBean) msgBeanList.get(index+1);
+
+						if(nextDmb.getDepth() > 0)
+						{
+							hasChildBoolean = true;
+						}
 					}
 				}
 			}

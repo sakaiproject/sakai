@@ -148,6 +148,8 @@ public class PrivateMessagesTool
   public static final String SET_AS_YES="yes";
   public static final String SET_AS_NO="no";    
   
+  public static final String THREADED_VIEW = "threaded";
+  
   PrivateForumDecoratedBean decoratedForum;
   
   private Area area;
@@ -156,6 +158,7 @@ public class PrivateMessagesTool
   private List decoratedPvtMsgs;
   private String msgNavMode="privateMessages" ;
   private PrivateMessageDecoratedBean detailMsg ;
+  private boolean viewChanged = false;
   
   private String currentMsgUuid; //this is the message which is being currently edited/displayed/deleted
   private List selectedItems;
@@ -351,38 +354,52 @@ public class PrivateMessagesTool
   	    avoid apply_request_values and render_response from calling this method on postback
   	    solution -- only call durig render_response phase
   	*/
-  	if (!FacesContext.getCurrentInstance().getRenderResponse()){
+  	if (!FacesContext.getCurrentInstance().getRenderResponse() && !viewChanged){
   		return decoratedPvtMsgs;
   	}
-  	  	  	
-    decoratedPvtMsgs=new ArrayList() ;
-        
-    String typeUuid = getPrivateMessageTypeFromContext(msgNavMode);
-    
-    /** support for sorting */
-    String sortColumnParameter = getExternalParameterByKey("sortColumn");
   	
-  	if ("subject".equals(sortColumnParameter)){  		  		
-  		sortType = (SORT_SUBJECT_ASC.equals(sortType)) ? SORT_SUBJECT_DESC : SORT_SUBJECT_ASC;  			 		
+	if(selectView!=null && selectView.equalsIgnoreCase(THREADED_VIEW))
+    {
+    	this.rearrageTopicMsgsThreaded(false);
+    	return decoratedPvtMsgs;
+    }
+  	  	  	
+  	decoratedPvtMsgs=new ArrayList() ;
+
+  	String typeUuid = getPrivateMessageTypeFromContext(msgNavMode);
+
+  	/** support for sorting */
+  	/* if the view was changed to "All Messages", we want to retain the previous
+  	 * sort setting. Otherwise, the user has selected a different sort setting.
+  	 */
+  	if (!viewChanged || sortType == null)
+  	{
+  		String sortColumnParameter = getExternalParameterByKey("sortColumn");
+
+  		if ("subject".equals(sortColumnParameter)){  		  		
+  			sortType = (SORT_SUBJECT_ASC.equals(sortType)) ? SORT_SUBJECT_DESC : SORT_SUBJECT_ASC;  			 		
+  		}
+  		else if ("author".equals(sortColumnParameter)){  		  		
+  			sortType = (SORT_AUTHOR_ASC.equals(sortType)) ? SORT_AUTHOR_DESC : SORT_AUTHOR_ASC;  			 		
+  		}
+  		else if ("date".equals(sortColumnParameter)){  		  		
+  			sortType = (SORT_DATE_ASC.equals(sortType)) ? SORT_DATE_DESC : SORT_DATE_ASC;  			 		
+  		}
+  		else if ("label".equals(sortColumnParameter)){  		  		
+  			sortType = (SORT_LABEL_ASC.equals(sortType)) ? SORT_LABEL_DESC : SORT_LABEL_ASC;  			 		
+  		}
+  		else if ("to".equals(sortColumnParameter)){  		  		
+  			sortType = (SORT_TO_ASC.equals(sortType)) ? SORT_TO_DESC : SORT_TO_ASC;  			 		
+  		}
+  		else if ("attachment".equals(sortColumnParameter)){  		  		
+  			sortType = (SORT_ATTACHMENT_ASC.equals(sortType)) ? SORT_ATTACHMENT_DESC : SORT_ATTACHMENT_ASC;  			 		
+  		}
+  		else{
+  			sortType = SORT_DATE_DESC;
+  		}
   	}
-  	else if ("author".equals(sortColumnParameter)){  		  		
-  		sortType = (SORT_AUTHOR_ASC.equals(sortType)) ? SORT_AUTHOR_DESC : SORT_AUTHOR_ASC;  			 		
-  	}
-  	else if ("date".equals(sortColumnParameter)){  		  		
-  		sortType = (SORT_DATE_ASC.equals(sortType)) ? SORT_DATE_DESC : SORT_DATE_ASC;  			 		
-  	}
-  	else if ("label".equals(sortColumnParameter)){  		  		
-  		sortType = (SORT_LABEL_ASC.equals(sortType)) ? SORT_LABEL_DESC : SORT_LABEL_ASC;  			 		
-  	}
-  	else if ("to".equals(sortColumnParameter)){  		  		
-  		sortType = (SORT_TO_ASC.equals(sortType)) ? SORT_TO_DESC : SORT_TO_ASC;  			 		
-  	}
-  	else if ("attachment".equals(sortColumnParameter)){  		  		
-  		sortType = (SORT_ATTACHMENT_ASC.equals(sortType)) ? SORT_ATTACHMENT_DESC : SORT_ATTACHMENT_ASC;  			 		
-  	}
-  	else{
-  		sortType = SORT_DATE_DESC;
-  	}
+
+  	viewChanged = false; 
     
     /** add support for sorting */
     if (SORT_SUBJECT_ASC.equals(sortType)){
@@ -440,7 +457,15 @@ public class PrivateMessagesTool
     //pre/next message
     if(decoratedPvtMsgs != null)
     {
-      List tempMsgs = decoratedPvtMsgs;
+   		setMessageBeanPreNextStatus();
+    }
+    
+    return decoratedPvtMsgs ;
+  }
+  
+  private void setMessageBeanPreNextStatus()
+  {
+	  List tempMsgs = decoratedPvtMsgs;
       for(int i=0; i<tempMsgs.size(); i++)
       {
         PrivateMessageDecoratedBean dmb = (PrivateMessageDecoratedBean)tempMsgs.get(i);
@@ -467,12 +492,6 @@ public class PrivateMessagesTool
           dmb.setHasPre(true);
         }
       }
-    }
-    if(selectView!=null && selectView.equalsIgnoreCase("threaded"))
-    {
-    	this.rearrageTopicMsgsThreaded(false);
-    }
-    return decoratedPvtMsgs ;
   }
 
   public void setDecoratedPvtMsgs(List displayPvtMsgs)
@@ -740,96 +759,105 @@ public class PrivateMessagesTool
   public void processChangeSelectView(ValueChangeEvent eve)
   {
     String currentValue = (String) eve.getNewValue();
-  	if (currentValue == null)
+  	if (currentValue == null || !currentValue.equalsIgnoreCase(THREADED_VIEW))
   	{
   		selectView = "";
+  		viewChanged = true;
+  		getDecoratedPvtMsgs();
   		return;
     }
   	else
   	{
-  		if(currentValue.equalsIgnoreCase("threaded"))
-  		{
-  			selectView = "threaded";
-  			return;
-  		}
+  		selectView = THREADED_VIEW;
+  		if (searchPvtMsgs != null && !searchPvtMsgs.isEmpty())
+  			this.rearrageTopicMsgsThreaded(true);
   		else
-  		{
-  			selectView = "";
-  			return;
-  		}
+  			this.rearrageTopicMsgsThreaded(false);
+  		return;
   	}
   }
   
   public void rearrageTopicMsgsThreaded(boolean searcModeOn)
-  {
-  	List msgsList = new ArrayList();
-    
-    if(searcModeOn)
-    {
-      for(int i=0; i<searchPvtMsgs.size(); i++)
-      {
-          msgsList.add((PrivateMessageDecoratedBean)searchPvtMsgs.get(i));
-      }
-      searchPvtMsgs.clear();
-    }else
-    {
-      for(int i=0; i<decoratedPvtMsgs.size(); i++)
-      {
-          msgsList.add((PrivateMessageDecoratedBean)decoratedPvtMsgs.get(i));
-      }   
-      decoratedPvtMsgs.clear();
-    }
-  	
-  	
-  	if(msgsList != null)
-  	{
-  		Set msgsSet = new HashSet();
-  		for(int i=0; i<msgsList.size(); i++)
-  		{
-  			msgsSet.add((PrivateMessageDecoratedBean)msgsList.get(i));
-  		}
-  		Iterator iter = msgsSet.iterator();
-  		while(iter.hasNext())
-  		{
-  			List allRelatedMsgs = messageManager.getAllRelatedMsgs(
-  					((PrivateMessageDecoratedBean)iter.next()).getMsg().getId());
-  			List currentRelatedMsgs = new ArrayList();
-  			if(allRelatedMsgs != null && allRelatedMsgs.size()>0)
-  			{
-  				PrivateMessageDecoratedBean pdb = new PrivateMessageDecoratedBean((PrivateMessage)allRelatedMsgs.get(0));
-  				pdb.setDepth(-1);
-  				boolean firstEleAdded = false;
-  				for(int i=0; i<msgsList.size(); i++)
-  				{
-  					PrivateMessageDecoratedBean tempPMDB = (PrivateMessageDecoratedBean)msgsList.get(i);
-  	        if (tempPMDB.getMsg().getId().equals(pdb.getMsg().getId()))
-  	        {
-  	          tempPMDB.setDepth(0);
-  	          currentRelatedMsgs.add(tempPMDB);
-  	          firstEleAdded = true;
-  	          recursiveGetThreadedMsgsFromList(msgsList, allRelatedMsgs, currentRelatedMsgs, tempPMDB);
-  	          break;
-  	        }
-  				}
-  				if(!firstEleAdded)
-  					recursiveGetThreadedMsgsFromList(msgsList, allRelatedMsgs, currentRelatedMsgs, pdb);
-  			}
-  			for(int i=0; i<currentRelatedMsgs.size(); i++)
-  			{
-  				if(searcModeOn)
-                {
-                  searchPvtMsgs.add((PrivateMessageDecoratedBean)currentRelatedMsgs.get(i));
-                }else
-                {
-                  decoratedPvtMsgs.add((PrivateMessageDecoratedBean)currentRelatedMsgs.get(i));
-                }
-              
-  				msgsSet.remove((PrivateMessageDecoratedBean)currentRelatedMsgs.get(i));
-  			}
-  			
-  			iter = msgsSet.iterator();
-  		}
-  	}
+  {  
+	  List msgsList = new ArrayList();
+
+	  if(searcModeOn)
+	  {
+		  for(int i=0; i<searchPvtMsgs.size(); i++)
+		  {
+			  msgsList.add((PrivateMessageDecoratedBean)searchPvtMsgs.get(i));
+		  }
+		  searchPvtMsgs.clear();
+	  }else
+	  {
+		  // always start with the decorated pm in ascending date order
+		  String typeUuid = getPrivateMessageTypeFromContext(msgNavMode);
+		  decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,
+		          PrivateMessageManager.SORT_ASC);
+		  decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);
+		  
+		  for(int i=0; i<decoratedPvtMsgs.size(); i++)
+		  {
+			  msgsList.add((PrivateMessageDecoratedBean)decoratedPvtMsgs.get(i));
+		  }   
+		  decoratedPvtMsgs.clear();
+	  }
+
+
+	  if(msgsList != null)
+	  {
+		  List tempMsgsList = new ArrayList();
+		  for(int i=0; i<msgsList.size(); i++)
+		  {
+			  tempMsgsList.add((PrivateMessageDecoratedBean)msgsList.get(i));
+		  }
+		  Iterator iter = tempMsgsList.iterator();
+		  while(iter.hasNext())
+		  {
+			  List allRelatedMsgs = messageManager.getAllRelatedMsgs(
+					  ((PrivateMessageDecoratedBean)iter.next()).getMsg().getId());
+			  List currentRelatedMsgs = new ArrayList();
+			  if(allRelatedMsgs != null && allRelatedMsgs.size()>0)
+			  {
+				  Long msgId = ((Message)allRelatedMsgs.get(0)).getId();
+				  PrivateMessage pvtMsg= (PrivateMessage) prtMsgManager.getMessageById(msgId);
+				  PrivateMessageDecoratedBean pdb = new PrivateMessageDecoratedBean(pvtMsg);
+				  pdb.setDepth(-1);
+				  boolean firstEleAdded = false;
+				  for(int i=0; i<msgsList.size(); i++)
+				  {
+					  PrivateMessageDecoratedBean tempPMDB = (PrivateMessageDecoratedBean)msgsList.get(i);
+					  if (tempPMDB.getMsg().getId().equals(pdb.getMsg().getId()))
+					  {
+						  tempPMDB.setDepth(0);
+						  currentRelatedMsgs.add(tempPMDB);
+						  firstEleAdded = true;
+						  recursiveGetThreadedMsgsFromList(msgsList, allRelatedMsgs, currentRelatedMsgs, tempPMDB);
+						  break;
+					  }
+				  }
+				  if(!firstEleAdded)
+					  recursiveGetThreadedMsgsFromList(msgsList, allRelatedMsgs, currentRelatedMsgs, pdb);
+			  }
+			  for(int i=0; i<currentRelatedMsgs.size(); i++)
+			  {
+				  if(searcModeOn)
+				  {
+					  searchPvtMsgs.add((PrivateMessageDecoratedBean)currentRelatedMsgs.get(i));
+				  }else
+				  {
+					  decoratedPvtMsgs.add((PrivateMessageDecoratedBean)currentRelatedMsgs.get(i));
+				  }
+
+				  tempMsgsList.remove((PrivateMessageDecoratedBean)currentRelatedMsgs.get(i));
+			  }
+
+			  iter = tempMsgsList.iterator();
+		  }
+	  }
+
+	  setMessageBeanPreNextStatus();
+
   }
   
   private void recursiveGetThreadedMsgsFromList(List msgsList, 
@@ -838,8 +866,10 @@ public class PrivateMessagesTool
   {
     for (int i = 0; i < allRelatedMsgs.size(); i++)
     {
-    	PrivateMessageDecoratedBean thisMsgBean = 
-    		new PrivateMessageDecoratedBean((PrivateMessage)allRelatedMsgs.get(i));
+      Long msgId = ((Message)allRelatedMsgs.get(i)).getId();
+	  PrivateMessage pvtMsg= (PrivateMessage) prtMsgManager.getMessageById(msgId);
+	  PrivateMessageDecoratedBean thisMsgBean = new PrivateMessageDecoratedBean(pvtMsg);
+
       Message thisMsg = thisMsgBean.getMsg();
       boolean existedInCurrentUserList = false;
       for(int j=0; j< msgsList.size(); j++)
@@ -914,6 +944,8 @@ public class PrivateMessagesTool
   public String processDisplayForum()
   {
     LOG.debug("processDisplayForum()");
+    if (searchPvtMsgs != null)
+    	searchPvtMsgs.clear();
     return DISPLAY_MESSAGES_PG;
   }
   public String processPvtMsgTopic()
@@ -1500,6 +1532,11 @@ public class PrivateMessagesTool
           PrivateMessageManager.SORT_DESC);
       
       decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);
+      
+      if(selectView!=null && selectView.equalsIgnoreCase(THREADED_VIEW))
+      {
+      	this.rearrageTopicMsgsThreaded(false);
+      }
 
       //set prev/next Topic
       setPrevNextTopicDetails(msgNavMode);
@@ -1527,6 +1564,11 @@ public class PrivateMessagesTool
           PrivateMessageManager.SORT_DESC);
       
       decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);
+      
+      if(selectView!=null && selectView.equalsIgnoreCase(THREADED_VIEW))
+      {
+      	this.rearrageTopicMsgsThreaded(false);
+      }
 
       //set prev/next Topic
       setPrevNextTopicDetails(msgNavMode);
@@ -2419,7 +2461,7 @@ public class PrivateMessagesTool
   private List searchPvtMsgs;
   public List getSearchPvtMsgs()
   {
-    if(selectView!=null && selectView.equalsIgnoreCase("threaded"))
+    if(selectView!=null && selectView.equalsIgnoreCase(THREADED_VIEW))
     {
         this.rearrageTopicMsgsThreaded(true);
     }
@@ -2532,7 +2574,7 @@ public class PrivateMessagesTool
     if(searchPvtMsgs != null)
     {
       searchPvtMsgs.clear();
-      searchPvtMsgs= decoratedPvtMsgs;   
+      //searchPvtMsgs= decoratedPvtMsgs;   
     }
     
     searchOnBody=false ;

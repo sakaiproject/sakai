@@ -70,22 +70,22 @@
 
 
 	  <h:dataTable styleClass="listHier lines nolines" cellpadding="0" cellspacing="0"  id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.searchPvtMsgs}" var="rcvdItems" 
-	  	rendered="#{PrivateMessagesTool.selectView != 'threaded'}">   
-		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
+	  	rendered="#{PrivateMessagesTool.selectView != 'threaded'}" columnClasses="attach,attach,specialLink,bogus,bogus,bogus">   
+		  <h:column>
 		    <f:facet name="header">
  					<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" 
  					               rendered="#{PrivateMessagesTool.msgNavMode == 'Deleted'}" title="#{msgs.cdfm_checkall}" />
 		     <%--<h:commandButton alt="SelectAll" image="/sakai-messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>--%>
 		    </f:facet>
-<%--		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}"/>--%>
+				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" rendered="#{PrivateMessagesTool.msgNavMode == 'Deleted'}"/>
 		  </h:column>
-		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
+		  <h:column>
 				<f:facet name="header">
 					<h:graphicImage value="/images/attachment.gif" alt="#{msgs.msg_has_attach}"/>								
 				</f:facet>
 				<h:graphicImage value="/images/attachment.gif" rendered="#{rcvdItems.msg.hasAttachments}" alt="#{msgs.msg_has_attach}" />			 
 			</h:column>
-		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
+		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_subject}"/>
 		    </f:facet>
@@ -95,14 +95,14 @@
             <f:param value="#{rcvdItems.msg.id}" name="current_msg_detail"/>
           </h:commandLink>
 		  </h:column>			
-		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded' && PrivateMessagesTool.msgNavMode != 'Sent'}">
+		  <h:column rendered="#{PrivateMessagesTool.msgNavMode != 'Sent'}">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_authby}"/>
 		    </f:facet>		     		    
 		     <h:outputText value="#{rcvdItems.msg.author}" rendered="#{rcvdItems.hasRead}"/>
 		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.author}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>
-		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded' && PrivateMessagesTool.msgNavMode == 'Sent'}">
+		  <h:column rendered="#{PrivateMessagesTool.msgNavMode == 'Sent'}">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_to}"/>
 		    </f:facet>		     		    
@@ -110,7 +110,7 @@
 		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.sendToStringDecorated}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>	
 		  	  
-		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
+		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_date}"/>
 		    </f:facet>
@@ -121,7 +121,7 @@
 		         <f:convertDateTime pattern="#{msgs.date_format}" />
 		     </h:outputText>
 		  </h:column>
-		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
+		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_label}"/>
 		    </f:facet>
@@ -133,20 +133,20 @@
 	  	value="#{PrivateMessagesTool.searchPvtMsgs}" 
 	  	var="rcvdItems" 
 	  	rendered="#{PrivateMessagesTool.selectView == 'threaded'}"
-	  	expanded="true">
-		  <h:column rendered="#{PrivateMessagesTool.selectView == 'threaded'}">
+	  	expanded="true"
+	  	columnClasses="attach,attach,specialLink,bogus,bogus,bogus">
+		  <h:column>
 		    <f:facet name="header">
 		    </f:facet>
-		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}"/>
+		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" rendered="#{PrivateMessagesTool.msgNavMode == 'Deleted'}"/>
 		  </h:column>
-		  <h:column rendered="#{PrivateMessagesTool.selectView == 'threaded'}">
+		  <h:column>
 				<f:facet name="header">
 					<h:graphicImage value="/images/attachment.gif" alt="#{msgs.msg_has_attach}" />								
 				</f:facet>
 				<h:graphicImage value="/images/attachment.gif" rendered="#{rcvdItems.msg.hasAttachments}" alt="#{msgs.msg_has_attach}" />			 
 			</h:column>
-			<h:column id="_msg_subject"
-				rendered="#{PrivateMessagesTool.selectView == 'threaded'}">
+			<h:column id="_msg_subject">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_subject}"/>
 		    </f:facet>
@@ -156,21 +156,21 @@
             <f:param value="#{rcvdItems.msg.id}" name="current_msg_detail"/>
           </h:commandLink>
 		  </h:column>			
-		  <h:column rendered="#{PrivateMessagesTool.selectView == 'threaded' && PrivateMessagesTool.msgNavMode != 'Sent'}">
+		  <h:column rendered="#{PrivateMessagesTool.msgNavMode != 'Sent'}">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_authby}"/>
 		    </f:facet>		     		    
 		     <h:outputText value="#{rcvdItems.msg.author}" rendered="#{rcvdItems.hasRead}"/>
 		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.msg.author}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>
-		  <h:column rendered="#{PrivateMessagesTool.selectView == 'threaded' && PrivateMessagesTool.msgNavMode == 'Sent'}">
+		  <h:column rendered="#{PrivateMessagesTool.msgNavMode == 'Sent'}">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_to}"/>
 		    </f:facet>		     		    
 		     <h:outputText value="#{rcvdItems.sendToStringDecorated}" rendered="#{rcvdItems.hasRead}"/>
 		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.sendToStringDecorated}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>		  
-		  <h:column rendered="#{PrivateMessagesTool.selectView == 'threaded'}">
+		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_date}"/>
 		    </f:facet>
@@ -181,7 +181,7 @@
 		         <f:convertDateTime pattern="#{msgs.date_format}" />
 		     </h:outputText>
 		  </h:column>
-		  <h:column rendered="#{PrivateMessagesTool.selectView == 'threaded'}">
+		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_label}"/>
 		    </f:facet>
