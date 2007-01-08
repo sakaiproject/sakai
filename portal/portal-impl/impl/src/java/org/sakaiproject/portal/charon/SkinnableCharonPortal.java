@@ -2144,7 +2144,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
 	    }
         }
 
-	if ( mySites.size() < 1234 ) {
+	if ( mySites.size() < 1 ) {
             M_log
                 .warn("No suitable gateway sites found, gatewaySiteList preference had "
 			+gatewaySiteIds.length+" sites.");
