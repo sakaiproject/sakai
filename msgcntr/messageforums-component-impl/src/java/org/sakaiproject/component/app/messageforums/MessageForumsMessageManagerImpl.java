@@ -45,6 +45,7 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
@@ -699,6 +700,36 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
       Placement placement = ToolManager.getCurrentPlacement();
       String presentSiteId = placement.getContext();
       return presentSiteId;
+  }
+    
+  public String getAttachmentUrl(String id)
+  {
+  	try
+  	{
+      String tempString = ContentHostingService.getResource(id).getUrl();
+      String newString = new String();
+      char[] oneChar = new char[1];
+      for (int i = 0; i < tempString.length(); i++)
+      {
+        if (tempString.charAt(i) != ' ')
+        {
+          oneChar[0] = tempString.charAt(i);
+          String concatString = new String(oneChar);
+          newString = newString.concat(concatString);
+        }
+        else
+        {
+          newString = newString.concat("%20");
+        }
+      }
+  		
+  		return newString; 
+  	}
+  	catch(Exception e)
+  	{
+  		LOG.error("MessageForumsMessageManagerImpl.getAttachmentUrl" + e);
+  	}
+  	return null;
   }
 
 }

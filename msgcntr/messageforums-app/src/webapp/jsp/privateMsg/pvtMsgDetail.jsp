@@ -86,23 +86,27 @@
           </tr> 
           <tr>
             <th>
-              <h:outputText value="#{msgs.pvt_att}" rendered="#{!empty PrivateMessagesTool.detailMsg.msg.attachments}" />
+              <h:outputText value="#{msgs.pvt_att}" rendered="#{!empty PrivateMessagesTool.detailMsg.attachList}" />
             </th>
             <td>
               <%-- Attachments --%>
 			  <%-- gsilver:copying the rendered attribute from the column to the dataTable - do not want a table rendered without children (is not xhtml)--%>
-              <h:dataTable value="#{PrivateMessagesTool.detailMsg.msg.attachments}" var="eachAttach"  styleClass="attachListJSF"  rendered="#{!empty PrivateMessagesTool.detailMsg.msg.attachments}">
-					  		<h:column rendered="#{!empty PrivateMessagesTool.detailMsg.msg.attachments}">
-								  <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}" alt="" />
-								  <h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}" alt="" />
-								  <h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}" alt="" />
-								  <h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
-								  <h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}" alt="" />
-								  <h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}" alt="" />
+              <h:dataTable value="#{PrivateMessagesTool.detailMsg.attachList}" var="eachAttach"  styleClass="attachListJSF"  rendered="#{!empty PrivateMessagesTool.detailMsg.attachList}">
+					  		<h:column rendered="#{!empty PrivateMessagesTool.detailMsg.attachList}">
+								  <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt="" />
+								  <h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/html'}" alt="" />
+								  <h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/pdf'}" alt="" />
+								  <h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
+								  <h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/plain'}" alt="" />
+								  <h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/msword'}" alt="" />
 								  
-								  <h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
+<%--								  <h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
 								  	<h:outputText value="#{eachAttach.attachmentName}"/>
+									</h:outputLink>--%>
+								  <h:outputLink value="#{eachAttach.url}" target="_blank">
+								  	<h:outputText value="#{eachAttach.attachment.attachmentName}"/>
 									</h:outputLink>
+									
 								</h:column>
 							</h:dataTable>   
               <%-- Attachments --%>

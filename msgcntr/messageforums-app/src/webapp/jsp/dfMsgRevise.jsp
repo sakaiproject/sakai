@@ -53,18 +53,18 @@
 					  <h:column>
 							<f:facet name="header">
 							</f:facet>
-								<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}" alt="" />
-								<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}" alt="" />
-								<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}" alt="" />
-								<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
-								<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}" alt="" />
-								<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}" alt="" />
+								<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt="" />
+								<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/html'}" alt="" />
+								<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/pdf'}" alt="" />
+								<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
+								<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/plain'}" alt="" />
+								<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/msword'}" alt="" />
 							</h:column>	
 							<h:column>
 							<f:facet name="header">
 								<h:outputText value="#{msgs.cdfm_title}"/>
 							</f:facet>
-							<h:outputText value="#{eachAttach.attachmentName}"/>
+							<h:outputText value="#{eachAttach.attachment.attachmentName}"/>
 							</h:column>
 							<h:column>
 								<h:commandLink action="#{ForumTool.processDeleteAttachRevise}" 
@@ -73,7 +73,7 @@
 									title="#{msgs.cdfm_remove}">
 									<h:outputText value="#{msgs.cdfm_remove}"/>
 <%--									<f:param value="#{eachAttach.attachmentId}" name="dfmsg_current_attach"/>--%>
-									<f:param value="#{eachAttach.attachmentId}" name="dfmsg_current_attach"/>
+									<f:param value="#{eachAttach.attachment.attachmentId}" name="dfmsg_current_attach"/>
 								</h:commandLink>
 			
 						</h:column>
@@ -81,13 +81,13 @@
 							<f:facet name="header">
 								<h:outputText value="#{msgs.cdfm_attsize}" />
 							</f:facet>
-							<h:outputText value="#{eachAttach.attachmentSize}"/>
+							<h:outputText value="#{eachAttach.attachment.attachmentSize}"/>
 						</h:column>
 					  <h:column>
 							<f:facet name="header">
 		  			    <h:outputText value="#{msgs.cdfm_atttype}" />
 							</f:facet>
-							<h:outputText value="#{eachAttach.attachmentType}"/>
+							<h:outputText value="#{eachAttach.attachment.attachmentType}"/>
 						</h:column>
 						</h:dataTable>   
 

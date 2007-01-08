@@ -69,6 +69,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.messageforums.ui.PrivateForumDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
+import org.sakaiproject.tool.messageforums.ui.DecoratedAttachment;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -1280,7 +1281,7 @@ public class PrivateMessagesTool
     //Add attachments
     for(int i=0; i<attachments.size(); i++)
     {
-      prtMsgManager.addAttachToPvtMsg(aMsg, (Attachment)attachments.get(i));         
+      prtMsgManager.addAttachToPvtMsg(aMsg, ((DecoratedAttachment)attachments.get(i)).getAttachment());         
     }    
     //clear
     attachments.clear();
@@ -1684,7 +1685,7 @@ public class PrivateMessagesTool
     //Add attachments
     for(int i=0; i<allAttachments.size(); i++)
     {
-      prtMsgManager.addAttachToPvtMsg(rrepMsg, (Attachment)allAttachments.get(i));         
+      prtMsgManager.addAttachToPvtMsg(rrepMsg, ((DecoratedAttachment)allAttachments.get(i)).getAttachment());         
     }            
     
     if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
@@ -1741,7 +1742,7 @@ public class PrivateMessagesTool
     //Add attachments
     for(int i=0; i<allAttachments.size(); i++)
     {
-      prtMsgManager.addAttachToPvtMsg(drrepMsg, (Attachment)allAttachments.get(i));         
+      prtMsgManager.addAttachToPvtMsg(drrepMsg, ((DecoratedAttachment)allAttachments.get(i)).getAttachment());         
     } 
     
     if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
@@ -1861,7 +1862,7 @@ public class PrivateMessagesTool
           //TODO - remove this as being set for test only  
           //thisAttach.setPvtMsgAttachId(new Long(1));
           
-          attachments.add(thisAttach);
+          attachments.add(new DecoratedAttachment(thisAttach));
           
         }
       }
@@ -1891,7 +1892,7 @@ public class PrivateMessagesTool
           
           //TODO - remove this as being set for test only
           //thisAttach.setPvtMsgAttachId(new Long(1));
-          allAttachments.add(thisAttach);
+          allAttachments.add(new DecoratedAttachment(thisAttach));
         }
       }
     }
@@ -1981,7 +1982,7 @@ public class PrivateMessagesTool
     {
       for (int i = 0; i < attachments.size(); i++)
       {
-        if (attachId.equalsIgnoreCase(((Attachment) attachments.get(i))
+        if (attachId.equalsIgnoreCase(((DecoratedAttachment) attachments.get(i)).getAttachment()
             .getAttachmentId()))
         {
           attachments.remove(i);
@@ -2024,7 +2025,7 @@ public class PrivateMessagesTool
     {
       for (int i = 0; i < allAttachments.size(); i++)
       {
-        if (attachId.equalsIgnoreCase(((Attachment) allAttachments.get(i))
+        if (attachId.equalsIgnoreCase(((DecoratedAttachment) allAttachments.get(i)).getAttachment()
             .getAttachmentId()))
         {
           allAttachments.remove(i);
@@ -2048,8 +2049,8 @@ public class PrivateMessagesTool
       
       for(int i=0; i<attachments.size(); i++)
       {
-        Attachment thisAttach = (Attachment)attachments.get(i);
-        if(((Long)thisAttach.getPvtMsgAttachId()).toString().equals(removeAttachId))
+      	DecoratedAttachment thisAttach = (DecoratedAttachment)attachments.get(i);
+        if(((Long)thisAttach.getAttachment().getPvtMsgAttachId()).toString().equals(removeAttachId))
         {
           attachments.remove(i);
           break;
@@ -2991,5 +2992,5 @@ public class PrivateMessagesTool
 
 	public void setMsgNavMode(String msgNavMode) {
 		this.msgNavMode = msgNavMode;
-	}
+	}	
 }

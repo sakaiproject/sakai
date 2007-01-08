@@ -259,7 +259,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
         }
       }
       //tempString.replaceAll(" ", "%20");
-      attach.setAttachmentUrl(newString);
+      //attach.setAttachmentUrl(newString);
+      attach.setAttachmentUrl("");
 
       return attach;
     }
@@ -962,8 +963,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
           body.append("<br/><br/>");
           for (Iterator iter = message.getAttachments().iterator(); iter.hasNext();) {
             Attachment attachment = (Attachment) iter.next();
-            body.append("<a href=\"" + attachment.getAttachmentUrl() +
-                        "\">" + attachment.getAttachmentName() + "</a><br/>");            
+            //body.append("<a href=\"" + attachment.getAttachmentUrl() +
+                        //"\">" + attachment.getAttachmentName() + "</a><br/>");            
+            body.append("<a href=\"" + messageManager.getAttachmentUrl(attachment.getAttachmentId()) +
+                "\">" + attachment.getAttachmentName() + "</a><br/>");            
           }
       }
       

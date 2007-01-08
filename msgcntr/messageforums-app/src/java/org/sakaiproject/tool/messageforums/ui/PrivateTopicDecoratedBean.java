@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
 
@@ -210,8 +211,20 @@ public class PrivateTopicDecoratedBean
     this.previousTopicTitle = previousTopicTitle;
   }
  
-  
-  
+	public ArrayList getAttachList()
+	{
+		ArrayList decoAttachList = new ArrayList();
+		List attachList = topic.getAttachments(); 
+		if(attachList != null)
+		{
+			for(int i=0; i<attachList.size(); i++)
+			{
+				DecoratedAttachment decoAttach = new DecoratedAttachment((Attachment)attachList.get(i));
+				decoAttachList.add(decoAttach);
+			}
+		}
+		return decoAttachList;
+	}
 }
 
 

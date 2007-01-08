@@ -115,24 +115,29 @@
     	<h:outputText value="#{ForumTool.selectedMessage.message.author} #{msgs.cdfm_openb} #{ForumTool.selectedMessage.message.created} #{msgs.cdfm_closeb}" />  
       <h:outputText value="" />
       
-      <h:outputText value="#{msgs.cdfm_att}" rendered="#{!empty ForumTool.selectedMessage.message.attachments}" />
-      <h:panelGroup rendered="#{!empty ForumTool.selectedMessage.message.attachments}">
-      	<h:dataTable value="#{ForumTool.selectedMessage.message.attachments}" var="eachAttach"  styleClass="attachListJSF"  rendered="#{!empty ForumTool.selectedMessage.message.attachments}">
+      <h:outputText value="#{msgs.cdfm_att}" rendered="#{!empty ForumTool.selectedMessage.attachList}" />
+      <h:panelGroup rendered="#{!empty ForumTool.selectedMessage.attachList}">
+      	<h:dataTable value="#{ForumTool.selectedMessage.attachList}" var="eachAttach"  styleClass="attachListJSF"  rendered="#{!empty ForumTool.selectedMessage.attachList}">
 			  		<h:column rendered="#{!empty ForumTool.selectedMessage.message.attachments}">
-				      <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}" alt="" />
-						  <h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}" alt="" />
-							<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}" alt="" />
-							<h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
-							<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}" alt="" />
-							<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}" alt="" />
+				      <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt="" />
+						  <h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/html'}" alt="" />
+							<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/pdf'}" alt="" />
+							<h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
+							<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/plain'}" alt="" />
+							<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/msword'}" alt="" />
 								  
-							<h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
+<%--							<h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
 							 	<h:outputText value="#{eachAttach.attachmentName}"/>
-							  </h:outputLink>
+							  </h:outputLink>--%>
+							<h:outputLink value="#{eachAttach.url}" target="_blank">
+							 	<h:outputText value="#{eachAttach.attachment.attachmentName}"/>
+						  </h:outputLink>
+							  
 					  </h:column>
+
 					</h:dataTable>
       </h:panelGroup>
-      <h:outputText value="" rendered="#{!empty ForumTool.selectedMessage.message.attachments}" />
+      <h:outputText value="" rendered="#{!empty ForumTool.selectedMessage.attachList}" />
       
       
     </h:panelGrid>

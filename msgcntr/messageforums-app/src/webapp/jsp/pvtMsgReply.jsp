@@ -114,14 +114,17 @@
 								<h:outputText value="#{msgs.pvt_title}"/>
 							</f:facet>
 							<sakai:doc_section>
-								<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}" alt="" />
-								<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}"  alt="" />
-								<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}" alt="" />
-								<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
-								<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}" alt="" />
-								<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}" alt="" />
-													  <h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
+								<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt="" />
+								<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/html'}"  alt="" />
+								<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/pdf'}" alt="" />
+								<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
+								<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/plain'}" alt="" />
+								<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/msword'}" alt="" />
+<%--													  <h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
 									<h:outputText value="#{eachAttach.attachmentName}"/>
+								</h:outputLink>--%>
+							  <h:outputLink value="#{eachAttach.url}" target="_blank">
+									<h:outputText value="#{eachAttach.attachment.attachmentName}"/>
 								</h:outputLink>
 
 							</sakai:doc_section>
@@ -132,7 +135,7 @@
 									immediate="true"
 									onfocus="document.forms[0].onsubmit();">
 									<h:outputText value="#{msgs.pvt_attrem}"/>
-									<f:param value="#{eachAttach.attachmentId}" name="remsg_current_attach"/>
+									<f:param value="#{eachAttach.attachment.attachmentId}" name="remsg_current_attach"/>
 								</h:commandLink>
 							</sakai:doc_section>
 							
@@ -141,13 +144,13 @@
 							<f:facet name="header">
 								<h:outputText value="#{msgs.pvt_attsize}" />
 							</f:facet>
-							<h:outputText value="#{eachAttach.attachmentSize}"/>
+							<h:outputText value="#{eachAttach.attachment.attachmentSize}"/>
 						</h:column>
 					  <h:column >
 							<f:facet name="header">
 		  			    <h:outputText value="#{msgs.pvt_atttype}" />
 							</f:facet>
-							<h:outputText value="#{eachAttach.attachmentType}"/>
+							<h:outputText value="#{eachAttach.attachment.attachmentType}"/>
 						</h:column>
 						</h:dataTable>   
 					 
@@ -179,20 +182,24 @@
 	    <h:outputText value="#{msgs.pvt_label}" />
 	    <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.label}" />
 	    
-	    <h:outputText value="#{msgs.pvt_att}" rendered="#{!empty PrivateMessagesTool.detailMsg.msg.attachments}"/>
-	    <h:panelGroup rendered="#{!empty PrivateMessagesTool.detailMsg.msg.attachments}">
-	      <h:dataTable value="#{PrivateMessagesTool.detailMsg.msg.attachments}" var="eachAttach"  styleClass="attachListJSF"  rendered="#{!empty PrivateMessagesTool.detailMsg.msg.attachments}">
-		  		<h:column rendered="#{!empty PrivateMessagesTool.detailMsg.msg.attachments}">
-					  <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}" alt="" />
-					  <h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}" alt="" />
-					  <h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}" alt="" />
-					  <h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
-					  <h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}" alt="" />
-					  <h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}" alt="" />
+	    <h:outputText value="#{msgs.pvt_att}" rendered="#{!empty PrivateMessagesTool.detailMsg.attachList}"/>
+	    <h:panelGroup rendered="#{!empty PrivateMessagesTool.detailMsg.attachList}">
+	      <h:dataTable value="#{PrivateMessagesTool.detailMsg.attachList}" var="eachAttach"  styleClass="attachListJSF"  rendered="#{!empty PrivateMessagesTool.detailMsg.attachList}">
+		  		<h:column rendered="#{!empty PrivateMessagesTool.detailMsg.attachList}">
+					  <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt="" />
+					  <h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/html'}" alt="" />
+					  <h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/pdf'}" alt="" />
+					  <h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
+					  <h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/plain'}" alt="" />
+					  <h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/msword'}" alt="" />
 					  
-					  <h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
+<%--					  <h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
 					  	<h:outputText value="#{eachAttach.attachmentName}"/>
+						</h:outputLink>--%>
+					  <h:outputLink value="#{eachAttach.attachment.attachmentUrl}" target="_blank">
+					  	<h:outputText value="#{eachAttach.attachment.attachmentName}"/>
 						</h:outputLink>
+						
 					</h:column>
 				</h:dataTable>   
 	    </h:panelGroup> 

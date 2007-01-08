@@ -33,6 +33,7 @@ import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
+import org.sakaiproject.api.app.messageforums.Attachment;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -335,5 +336,20 @@ public class DiscussionForumBean
 	public void setNonePermission(boolean nonePermission)
 	{
 		this.nonePermission = nonePermission;
+	}
+	
+	public ArrayList getAttachList()
+	{
+		ArrayList decoAttachList = new ArrayList();
+		List attachList = forum.getAttachments(); 
+		if(attachList != null)
+		{
+			for(int i=0; i<attachList.size(); i++)
+			{
+				DecoratedAttachment decoAttach = new DecoratedAttachment((Attachment)attachList.get(i));
+				decoAttachList.add(decoAttach);
+			}
+		}
+		return decoAttachList;
 	}
 }

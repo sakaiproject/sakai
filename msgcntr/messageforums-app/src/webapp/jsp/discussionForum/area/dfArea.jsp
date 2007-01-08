@@ -67,19 +67,22 @@
 <%--	 	    <sakai:inputRichText rows="5" cols="110" buttonSet="none" readonly="true" showXPath="false" id="forum_extended_description" value="#{forum.forum.extendedDescription}" rendered="#{forum.readFullDesciption}"/> --%>
   	    </h:panelGroup>
   	  </h:panelGrid>
-	  <h:dataTable  value="#{forum.forum.attachments}" var="eachAttach" rendered="#{!empty forum.forum.attachments}" columnClasses="attach,bogus" styleClass="listHier" summary="layout">
+	  <h:dataTable  value="#{forum.attachList}" var="eachAttach" rendered="#{!empty forum.attachList}" columnClasses="attach,bogus" styleClass="listHier" summary="layout">
 			<h:column>
-				<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}" alt="" />
-				<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}" alt="" />
-				<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}" alt="" />
-				<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
-				<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}" alt="" />
-				<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}" alt="" />
+				<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt="" />
+				<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/html'}" alt="" />
+				<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/pdf'}" alt="" />
+				<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
+				<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/plain'}" alt="" />
+				<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/msword'}" alt="" />
 		  </h:column>
 		  <h:column>
-				<h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
+<%--				<h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
 					<h:outputText value="#{eachAttach.attachmentName}"  />
-				</h:outputLink>
+				</h:outputLink>--%>
+				<h:outputLink value="#{eachAttach.url}" target="_blank">
+					<h:outputText value="#{eachAttach.attachment.attachmentName}"  />
+				</h:outputLink>			
 			</h:column>	
 	  </h:dataTable>
 	  
@@ -137,21 +140,24 @@
 					<mf:htmlShowArea  id="topic_fullDescription" hideBorder="true"	 value="#{topic.topic.extendedDescription}" rendered="#{topic.readFullDesciption}"/>
 		 			<%--  <sakai:inputRichText rows="5" cols="110" buttonSet="none"  readonly="true" showXPath="false" id="topic_extended_description" value="#{topic.topic.extendedDescription}" rendered="#{topic.readFullDesciption}"/> --%>
 				</h:panelGroup>
-				<h:dataTable styleClass="listHier" value="#{topic.topic.attachments}" var="eachAttach" rendered="#{!empty topic.topic.attachments}" cellpadding="0" cellspacing="0" columnClasses="attach,bogus" summary="layout">
+				<h:dataTable styleClass="listHier" value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" cellpadding="0" cellspacing="0" columnClasses="attach,bogus" summary="layout">
 					  <h:column>
 					  <%-- gsilver: need to tie in the attachment type to actual  MIME type mapping tables instead of the below (which is prevalent everywhere) or at the very least provide a mechanism for defaults. --%> 
-						<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}" alt="application/vnd.ms-excel" />
-						<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}" alt="text/html" />
-						<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}" alt="application/pdf" />
-						<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}" alt="application/vnd.ms-powerpoint" />
-						<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}" alt="text/plain" />
-						<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}" alt="application/msword" />
+						<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt="application/vnd.ms-excel" />
+						<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/html'}" alt="text/html" />
+						<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/pdf'}" alt="application/pdf" />
+						<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-powerpoint'}" alt="application/vnd.ms-powerpoint" />
+						<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/plain'}" alt="text/plain" />
+						<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/msword'}" alt="application/msword" />
 						</h:column>
 						<h:column>
-						<h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
+<%--						<h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
 							<h:outputText value="#{eachAttach.attachmentName}" />
-						</h:outputLink>
-				  </h:column>
+						</h:outputLink>--%>
+						<h:outputLink value="#{eachAttach.url}" target="_blank">
+							<h:outputText value="#{eachAttach.attachment.attachmentName}" />
+						</h:outputLink>				  
+					</h:column>
 			  </h:dataTable>
 			  <%-- gsilver: need a render attribute on the dataTable here to avoid putting an empty table in response -- since this looks like a stub that was never worked out to display the messages inside this construct - commenting the whole thing out.
 			 <h:dataTable styleClass="indnt2" id="messages" value="#{topics.messages}" var="message">

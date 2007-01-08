@@ -39,20 +39,23 @@
 				</tr>
    		</table>
 
-			  <h:dataTable value="#{ForumTool.selectedForum.forum.attachments}" var="eachAttach" rendered="#{!empty ForumTool.selectedForum.forum.attachments}" styleClass="listHier" columnClasses="attach,bogus">
+			  <h:dataTable value="#{ForumTool.selectedForum.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedForum.attachList}" styleClass="listHier" columnClasses="attach,bogus">
 			    <h:column>
-						<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}" alt="" />
-						<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}" alt="" />
-						<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}" alt="" />
-						<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
-						<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}" alt="" />
-						<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}" alt="" />
+						<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt="" />
+						<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/html'}" alt="" />
+						<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/pdf'}" alt="" />
+						<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
+						<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/plain'}" alt="" />
+						<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/msword'}" alt="" />
 					</h:column>
-				<h:column>	
-						<h:outputLink value="#{eachAttach.attachmentUrl}" target="_new_window">
-							<h:outputText value="#{eachAttach.attachmentName}"  style="text-decoration:underline;"/>
-						</h:outputLink>
-				  </h:column>
+				  <h:column>	
+<%--  				  <h:outputLink value="#{eachAttach.attachmentUrl}" target="_new_window">
+	  				  <h:outputText value="#{eachAttach.attachmentName}"  style="text-decoration:underline;"/>
+		  		  </h:outputLink>--%>
+  				  <h:outputLink value="#{eachAttach.url}" target="_new_window">
+	  				  <h:outputText value="#{eachAttach.attachment.attachmentName}"  style="text-decoration:underline;"/>
+		  		  </h:outputLink>
+			    </h:column>
 			  </h:dataTable>
 	
     <h4><h:outputText  value="#{msgs.cdfm_forum_posting}"/></h4>

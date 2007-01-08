@@ -89,19 +89,19 @@
 				    	<f:facet name="header">
 
 						</f:facet>
-						  <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}" alt="" />
-							<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}" alt="" />
-							<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}" alt="" />
-							<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
-							<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}" alt="" />
-							<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}" alt="" />
+						  <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt="" />
+							<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/html'}" alt="" />
+							<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/pdf'}" alt="" />
+							<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
+							<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/plain'}" alt="" />
+							<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/msword'}" alt="" />
 						</h:column>	
 						<h:column>
 				    	<f:facet name="header">
 						  <h:outputText value="#{msgs.pvt_title}"/>
 						</f:facet>
 
-						<h:outputText value="#{eachAttach.attachmentName}"/>
+						<h:outputText value="#{eachAttach.attachment.attachmentName}"/>
 
 						</h:column>
 						<h:column>
@@ -112,7 +112,7 @@
 									           title="#{msgs.pvt_attrem}">
 							  <h:outputText value="#{msgs.pvt_attrem}"/>
 <%--							<f:param value="#{eachAttach.attachmentId}" name="dfmsg_current_attach"/>--%>
-								<f:param value="#{eachAttach.attachmentId}" name="pvmsg_current_attach"/>
+								<f:param value="#{eachAttach.attachment.attachmentId}" name="pvmsg_current_attach"/>
 							</h:commandLink>
 									
 					</h:column>
@@ -120,26 +120,26 @@
 					  <f:facet name="header">
 						  <h:outputText value="#{msgs.pvt_attsize}" />
 						</f:facet>
-						<h:outputText value="#{eachAttach.attachmentSize}"/>
+						<h:outputText value="#{eachAttach.attachment.attachmentSize}"/>
 					</h:column>
 					<h:column rendered="#{!empty PrivateMessagesTool.attachments}">
 					  <f:facet name="header">
 		  			    <h:outputText value="#{msgs.pvt_atttype}" />
 						</f:facet>
-						<h:outputText value="#{eachAttach.attachmentType}"/>
+						<h:outputText value="#{eachAttach.attachment.attachmentType}"/>
 					</h:column>
 						<%--
 					  <h:column rendered="#{!empty PrivateMessagesTool.attachments}">
 							<f:facet name="header">
 								<h:outputText value="#{msgs.pvt_noatt}Created by" />
 							</f:facet>
-							<h:outputText value="#{eachAttach.createdBy}"/>
+							<h:outputText value="#{eachAttach.attachment.createdBy}"/>
 						</h:column>
 					  <h:column rendered="#{!empty PrivateMessagesTool.attachments}">
 							<f:facet name="header">
 								<h:outputText value="Last modified by" />
 							</f:facet>
-							<h:outputText value="#{eachAttach.lastModifiedBy}"/>
+							<h:outputText value="#{eachAttach.attachment.lastModifiedBy}"/>
 						</h:column>
 						--%>
 				</h:dataTable>   

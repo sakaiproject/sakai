@@ -152,9 +152,13 @@
 							<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}" alt="" />
 							</h:column>
 								<h:column>
-							<h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
+<%--							<h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
 							  <h:outputText value="#{eachAttach.attachmentName}"/>
-							  </h:outputLink>
+							  </h:outputLink>--%>
+							<h:outputLink value="#{ForumTool.attachmentUrl}" target="_blank">
+							  <f:param name="attachmentId" value="#{eachAttach.attachmentId}"/>
+							  <h:outputText value="#{eachAttach.attachmentName}"/>
+							</h:outputLink>
 					  </h:column>
 					</h:dataTable>
 	    </h:panelGroup> 

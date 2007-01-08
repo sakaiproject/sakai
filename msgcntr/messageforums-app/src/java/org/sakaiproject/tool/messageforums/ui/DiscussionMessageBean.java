@@ -20,8 +20,10 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
 
 import org.sakaiproject.component.cover.ComponentManager;
@@ -198,4 +200,20 @@ public class DiscussionMessageBean
   	
   	return hasChild;
   }
+  
+	public ArrayList getAttachList()
+	{
+		ArrayList decoAttachList = new ArrayList();
+		List attachList = message.getAttachments(); 
+		if(attachList != null)
+		{
+			for(int i=0; i<attachList.size(); i++)
+			{
+				DecoratedAttachment decoAttach = new DecoratedAttachment((Attachment)attachList.get(i));
+				decoAttachList.add(decoAttach);
+			}
+		}
+		return decoAttachList;
+	}
+
 }

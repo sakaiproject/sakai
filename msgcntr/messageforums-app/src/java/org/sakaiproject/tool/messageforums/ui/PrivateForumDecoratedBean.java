@@ -23,6 +23,7 @@ package org.sakaiproject.tool.messageforums.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 
 public class PrivateForumDecoratedBean
@@ -65,4 +66,18 @@ public class PrivateForumDecoratedBean
     }
   } 
   
+	public ArrayList getAttachList()
+	{
+		ArrayList decoAttachList = new ArrayList();
+		List attachList = forum.getAttachments(); 
+		if(attachList != null)
+		{
+			for(int i=0; i<attachList.size(); i++)
+			{
+				DecoratedAttachment decoAttach = new DecoratedAttachment((Attachment)attachList.get(i));
+				decoAttachList.add(decoAttach);
+			}
+		}
+		return decoAttachList;
+	}
 }

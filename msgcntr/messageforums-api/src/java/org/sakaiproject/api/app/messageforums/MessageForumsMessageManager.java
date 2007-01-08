@@ -85,5 +85,7 @@ public interface MessageForumsMessageManager {
     
     public List findPvtMsgsBySearchText(final String typeUuid, final String searchText,final Date searchFromDate, final Date searchToDate,
         final boolean searchByText, final boolean searchByAuthor,final boolean searchByBody, final boolean searchByLabel,final boolean searchByDate);
+    
+    public String getAttachmentUrl(String id);
 }
 
