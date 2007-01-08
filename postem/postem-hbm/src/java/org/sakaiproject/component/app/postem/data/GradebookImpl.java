@@ -356,7 +356,7 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 	public boolean hasStudent(String username) {
 		Iterator iter = getStudents().iterator();
 		while (iter.hasNext()) {
-			if (((StudentGrades) iter.next()).getUsername().equals(username)) {
+			if (((StudentGrades) iter.next()).getUsername().equalsIgnoreCase(username)) {
 				return true;
 			}
 		}
@@ -470,7 +470,7 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 		Iterator iter = getStudents().iterator();
 		while (iter.hasNext()) {
 			StudentGrades current = (StudentGrades) iter.next();
-			if (current.getUsername().equals(username)) {
+			if (current.getUsername().equalsIgnoreCase(username)) {
 				return current;
 			}
 		}
