@@ -446,13 +446,15 @@
 									#end
 								#else
 									#if ($!submission)
-										  #if ($submissionSubmitted)
+										#set($submitTime=false)
+										#set ($submitTime = $s.getTimeSubmitted())
+										#if ($submissionSubmitted)
 											#if ($submissionReturned)
-												#if ($submission.TimeReturned.after($submission.TimeSubmitted))
+												#if ($!submitTime && $submission.TimeReturned.after($submitTime) || !$submitTime)
 													$tlang.getString("gen.returned")
 												#else
-													Re-submitted $submission.TimeSubmitted.toStringLocalFull()
-													#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+													Re-submitted #if($!submitTime)$submitTime.toStringLocalFull()#end
+													#if ($!submitTime && $submitTime.after($assignment.DueTime))
 														<span class="highlight"> $tlang.getString("gen.late")</span>
 													#end
 												#end
@@ -463,8 +465,10 @@
 													$tlang.getString("gen.commented")
 												#end
 											#else
-												Submitted $submission.timeSubmitted.toStringLocalFull()
-												#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+												#if($!submitTime)
+													Submitted $submitTime.toStringLocalFull()
+												#end
+												#if ($!submitTime && $submitTime.after($assignment.DueTime))
 													<span class="highlight">$tlang.getString("gen.late2")</span>
 												#end
 											<!--missing -if saved...In progress-->
@@ -490,6 +494,8 @@
 									#set ($totalNumber = 0)
 									#set ($ungradedNumber = 0)
 									#foreach ($s in $totalSubmission)
+										#set($returnedTime=false)
+										#set ($returnedTime = $s.getTimeReturned())
 										## if the submitter is a current active user in the site
 										#set($submitterIdList = $s.getSubmitterIds())
 										#set($existUser=false)
@@ -500,11 +506,11 @@
 										#end
 										#if ($existUser)
 											#if ($s.Submitted)
-												#set ($totalNumber = $totalNumber + 1)
+												#set($submitTime=false)
+												#set ($submitTime = $s.getTimeSubmitted())
+												#if($!submitTime)#set ($totalNumber = $totalNumber + 1)#end
 												#if ($s.Returned)
-													#set ($returnedTime = $s.getTimeReturned())
-													#set ($submitTime = $s.getTimeSubmitted())
-													#if ($!returnedTime && $returnedTime.before($submitTime))
+													#if ($!submitTime && $!returnedTime && $returnedTime.before($!submitTime))
 														## has been resubmitted, and ungraded
 														#set ($ungradedNumber = $ungradedNumber + 1)
 													#end
@@ -514,7 +520,7 @@
 											#end
 										#end
 									#end
-									<a href="#" onclick="location='#toolLinkParam("$action" "doGrade_assignment_from" "assignmentId=$validator.escapeUrl($assignmentReference)")'; return false;" >
+									<a href="#" onclick="location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")'; return false;" >
 									$totalNumber/$ungradedNumber</a>
 								</td>
 								#end

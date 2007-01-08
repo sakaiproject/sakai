@@ -53,9 +53,14 @@
 						$tlang.getString("gen.subm5") 
 					</th>
 					<td>
-						$submission.TimeSubmitted.toStringLocalFull()
-						#if ($submission.getTimeSubmitted().after($assignment.DueTime))
-							<span class="highlight">$tlang.getString("gen.late2") </span>
+						## get submission time
+						#set($timeSubmitted=false)
+						#set($timeSubmitted=$submission.TimeSubmitted)
+						#if ($!timeSubmitted)
+							$!timeSubmitted.toStringLocalFull()
+						#end
+						#if ($!timeSubmitted && $timeSubmitted.after($assignment.DueTime))
+							<span class="highlight">$tlang.getString("gen.late2")</span>
 						#end
 					</td>
 				</tr>

@@ -321,7 +321,7 @@
 					#chef_setupformattedtextarea($name_Description)
 					</td></tr></table>
 			</div>
-			#if ($!name_CheckAddDueDate)
+		#if ($!name_CheckAddDueDate)
 				<p class="checkbox indnt1">
 					#if ($value_CheckAddDueDate.equals("true"))
 						<input id="$name_CheckAddDueDate" name="$name_CheckAddDueDate" type="checkbox" value="true" checked="checked" />

@@ -293,6 +293,8 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String GRADE_ASSIGNMENT_EXPAND_FLAG = "grade_assignment_expand_flag";
 
 	private static final String GRADE_SUBMISSION_EXPAND_FLAG = "grade_submission_expand_flag";
+	
+	private static final String GRADE_NO_SUBMISSION_DEFAULT_GRADE = "grade_no_submission_default_grade";
 
 	/** ******************* instructor's grade submission ***************************** */
 	private static final String GRADE_SUBMISSION_ASSIGNMENT_ID = "grade_submission_assignment_id";
@@ -549,6 +551,9 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	/** property for previous feedback attachments **/
 	private static final String PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS = "prop_submission_previous_feedback_attachments";
+	
+	/** the user and submission list for list of submissions page */
+	private static final String USER_SUBMISSIONS = "user_submissions";
 	
 	/**
 	 * central place for dispatching the build routines based on the state name
@@ -1602,8 +1607,16 @@ public class AssignmentAction extends PagedResourceActionII
 			Assignment a = AssignmentService.getAssignment((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
 			context.put("assignment", a);
 			state.setAttribute(EXPORT_ASSIGNMENT_ID, a.getId());
-
-			context.put("userSubmissions", prepPage(state));
+			List userSubmissions = prepPage(state);
+			state.setAttribute(USER_SUBMISSIONS, userSubmissions);
+			context.put("userSubmissions", state.getAttribute(USER_SUBMISSIONS));
+			
+			// ever set the default grade for no-submissions
+			String noSubmissionDefaultGrade = a.getProperties().getProperty(GRADE_NO_SUBMISSION_DEFAULT_GRADE);
+			if (noSubmissionDefaultGrade != null)
+			{
+				context.put("noSubmissionDefaultGrade", noSubmissionDefaultGrade);
+			}
 		}
 		catch (IdUnusedException e)
 		{
@@ -5136,43 +5149,9 @@ public class AssignmentAction extends PagedResourceActionII
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
 
-		// reset the export assignment id
-		state.setAttribute(EXPORT_ASSIGNMENT_REF, "");
-
-		String assignmentId = StringUtil.trimToNull(params.getString("assignmentId"));
-		if (assignmentId != null)
-		{
-			// get the assignment id
-			state.setAttribute(EXPORT_ASSIGNMENT_REF, assignmentId);
-			try
-			{
-				Assignment a = AssignmentService.getAssignment(assignmentId);
-				state.setAttribute(EXPORT_ASSIGNMENT_ID, a.getId());
-				state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
-
-				// we are changing the view, so start with first page again.
-				resetPaging(state);
-			}
-			catch (IdUnusedException e)
-			{
-				addAlert(state, rb.getString("theisno"));
-			}
-			catch (PermissionException e)
-			{
-				addAlert(state, rb.getString("youarenot14"));
-			}
-		}
-
-	} // doGrade_Assignment
-
-	/**
-	 * Action is to show the grade assignment
-	 */
-	public void doGrade_assignment_from(RunData data)
-	{
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		ParameterParser params = data.getParameters();
-
+		// clean state attribute
+		state.removeAttribute(USER_SUBMISSIONS);
+		
 		state.setAttribute(EXPORT_ASSIGNMENT_REF, params.getString("assignmentId"));
 
 		try
@@ -5194,7 +5173,7 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			addAlert(state, rb.getString("youarenot14"));
 		}
-	} // doGrade_assignment_from
+	} // doGrade_assignment
 
 	/**
 	 * Action is to show the View Students assignment screen
@@ -7188,7 +7167,7 @@ public class AssignmentAction extends PagedResourceActionII
 						{
 							User u = UserDirectoryService.getUser(userId);
 							// only include those users that can submit to this assignment
-							if (allowAddSubmissionUsers.contains(u))
+							if (u != null && allowAddSubmissionUsers.contains(u))
 							{
 								boolean found = false;
 								for (int i = 0; !found && i<submissions.size();i++)
@@ -7204,13 +7183,25 @@ public class AssignmentAction extends PagedResourceActionII
 								// add those users who haven't made any submissions
 								if (!found)
 								{
-									returnResources.add(new UserSubmission(u, null));
+									// construct fake submissions for grading purpose
+									
+									AssignmentSubmissionEdit s = AssignmentService.addSubmission(contextString, a.getId());
+									s.removeSubmitter(UserDirectoryService.getCurrentUser());
+									s.addSubmitter(u);
+									// submitted by without submit time
+									s.setSubmitted(true);
+									s.setAssignment(a);
+									AssignmentService.commitEdit(s);
+									
+									// update the UserSubmission list by adding newly created Submission object
+									AssignmentSubmission sub = AssignmentService.getSubmission(s.getReference());
+									returnResources.add(new UserSubmission(u, sub));
 								}
 							}
 						}
 						catch (Exception e)
 						{
-							Log.warn("chef", this + e.getMessage() + " userId = " + userId);
+							Log.warn("chef", this + e.toString() + " here userId = " + userId);
 						}
 					}
 				}
@@ -7769,5 +7760,131 @@ public class AssignmentAction extends PagedResourceActionII
 			// attach
 			doAttachments(data);
 		}
+	}
+	
+	/**
+	 * 
+	 */
+	public void doSet_defaultNoSubmissionScore(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ()); 
+		ParameterParser params = data.getParameters();
+		
+		String grade = params.getString("defaultGrade");
+		
+		String assignmentId = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
+		try
+		{
+			// record the default grade setting for no-submission
+			AssignmentEdit aEdit = AssignmentService.editAssignment(assignmentId); 
+			aEdit.getPropertiesEdit().addProperty(GRADE_NO_SUBMISSION_DEFAULT_GRADE, grade);
+			AssignmentService.commitEdit(aEdit);
+			
+			Assignment a = AssignmentService.getAssignment(assignmentId);
+			if (a.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)
+			{
+				//for point-based grades
+				validPointGrade(state, grade);
+				
+				if (state.getAttribute(STATE_MESSAGE) == null)
+				{
+					int maxGrade = a.getContent().getMaxGradePoint();
+					try
+					{
+						if (Integer.parseInt(scalePointGrade(state, grade)) > maxGrade)
+						{
+							if (state.getAttribute(GRADE_GREATER_THAN_MAX_ALERT) == null)
+							{
+								// alert user first when he enters grade bigger than max scale
+								addAlert(state, rb.getString("grad2"));
+								state.setAttribute(GRADE_GREATER_THAN_MAX_ALERT, Boolean.TRUE);
+							}
+							else
+							{
+								// remove the alert once user confirms he wants to give student higher grade
+								state.removeAttribute(GRADE_GREATER_THAN_MAX_ALERT);
+							}
+						}
+					}
+					catch (NumberFormatException e)
+					{
+						alertInvalidPoint(state, grade);
+					}
+				}
+				
+				if (state.getAttribute(STATE_MESSAGE) == null)
+				{
+					grade = scalePointGrade(state, grade);
+				}
+			}
+			
+			
+			if (grade != null && state.getAttribute(STATE_MESSAGE) == null)
+			{
+				// get the user list
+				List userSubmissions = new Vector();
+				if (state.getAttribute(USER_SUBMISSIONS) != null)
+				{
+					userSubmissions = (List) state.getAttribute(USER_SUBMISSIONS);
+				}
+				
+				// constructor a new UserSubmissions list
+				List userSubmissionsNew = new Vector();
+				
+				for (int i = 0; i<userSubmissions.size(); i++)
+				{
+					// get the UserSubmission object
+					UserSubmission us = (UserSubmission) userSubmissions.get(i);
+					
+					User u = us.getUser();
+					AssignmentSubmission submission = us.getSubmission();
+					
+					// check whether there is a submission associated
+					if (submission == null)
+					{
+						AssignmentSubmissionEdit s = AssignmentService.addSubmission((String) state.getAttribute(STATE_CONTEXT_STRING), assignmentId);
+						s.removeSubmitter(UserDirectoryService.getCurrentUser());
+						s.addSubmitter(u);
+						// submitted by without submit time
+						s.setSubmitted(true);
+						s.setGrade(grade);
+						s.setGraded(true);
+						s.setAssignment(a);
+						AssignmentService.commitEdit(s);
+						
+						// update the UserSubmission list by adding newly created Submission object
+						AssignmentSubmission sub = AssignmentService.getSubmission(s.getReference());
+						userSubmissionsNew.add(new UserSubmission(u, sub));
+					}
+					else if (submission.getTimeSubmitted() == null)
+					{
+						// update the grades for those existing non-submissions
+						AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(submission.getReference());
+						sEdit.setGrade(grade);
+						sEdit.setSubmitted(true);
+						sEdit.setGraded(true);
+						sEdit.setAssignment(a);
+						AssignmentService.commitEdit(sEdit);
+						
+						userSubmissionsNew.add(new UserSubmission(u, AssignmentService.getSubmission(sEdit.getReference())));
+					}
+					else
+					{
+						// no change for this user
+						userSubmissionsNew.add(us);
+					}
+				}
+				
+				state.setAttribute(USER_SUBMISSIONS, userSubmissionsNew);
+			}
+			
+		}
+		catch (Exception e)
+		{
+			Log.warn("chef", e.toString());
+		
+		}
+		
+		
 	}
 }

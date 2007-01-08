@@ -35,8 +35,11 @@
 					<th>
 						$tlang.getString("gen.subm5") 
 					</th>
-					<td>	
-						$submission.getTimeSubmitted().toStringLocalFull()<br />
+					<td>
+						## get submit time
+						#set($submitTime=false)
+						#set($submitTime=$submission.getTimeSubmitted())
+						#if($!submitTime)$submitTime.toStringLocalFull()#end<br />
 					</td>
 				</tr>
 				<tr>

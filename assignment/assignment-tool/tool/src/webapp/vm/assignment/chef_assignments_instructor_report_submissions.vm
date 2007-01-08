@@ -225,8 +225,12 @@
 							<td headers="submitted">
 								#if ($!submission)
 									#if ($submission.submitted)
-										$submission.TimeSubmitted.toStringLocalFull()
-										#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+										#set($timeSubmitted=false)
+										#set($timeSubmitted=$submission.TimeSubmitted)
+										#if($!timeSubmitted)
+											$!timeSubmitted.toStringLocalFull()
+										#end
+										#if ($!timeSubmitted && $timeSubmitted.after($assignment.DueTime))
 											<span class="highlight">
 												$tlang.getString("gen.late2")
 											</span>
