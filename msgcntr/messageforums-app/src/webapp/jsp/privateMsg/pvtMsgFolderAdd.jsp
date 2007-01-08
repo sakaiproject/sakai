@@ -14,6 +14,7 @@
 				  <h:outputText value="#{msgs.cdfm_required}"/> <h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline"/>
 				</div>
 			   
+			   <h:messages styleClass="alertMessage" id="errorMessages" />
 			 
  <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout">
 			  <h:panelGroup styleClass="shorttext required">

@@ -2282,7 +2282,7 @@ public class PrivateMessagesTool
     LOG.debug("processPvtMsgFldCreate()");
     
     String createFolder=getAddFolder() ;
-    if(createFolder == null)
+    if(createFolder == null || createFolder.trim().length() == 0)
     {
       setErrorMessage(getResourceBundleString(ENTER_FOLDER_NAME));
       return null ;
