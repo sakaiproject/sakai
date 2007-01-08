@@ -23,6 +23,7 @@ package org.sakaiproject.test.section;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -76,30 +77,41 @@ public class SectionSortTest extends TestCase {
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
 				true, true, false, false, false, false, false);
 
+		startCal.set(Calendar.HOUR_OF_DAY, 9);
+		endCal.set(Calendar.HOUR_OF_DAY, 10);
+
 		sectionB = new CourseSectionImpl(course, "B section",
 				"b section uuid", "a category", new Integer(20), "b section location",
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
 				false, true, false, false, false, false, false);
 
+		startCal.set(Calendar.HOUR_OF_DAY, 10);
+		endCal.set(Calendar.HOUR_OF_DAY, 11);
+
 		sectionC = new CourseSectionImpl(course, "c section",
 				"c section uuid", "b category", new Integer(5), "c section location",
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
 				false, true, false, false, false, false, false);
-		
-		startCal.set(Calendar.HOUR_OF_DAY, 9);
-		endCal.set(Calendar.HOUR_OF_DAY, 10);
+
+
+		startCal.set(Calendar.HOUR_OF_DAY, 11);
+		endCal.set(Calendar.HOUR_OF_DAY, 12);
 
 		sectionD = new CourseSectionImpl(course, "D section",
 				"d section uuid", "b category", new Integer(15), "d section location",
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
 				false, false, true, true, false, false, false);
 		
+		startCal.set(Calendar.HOUR_OF_DAY, 12);
+		endCal.set(Calendar.HOUR_OF_DAY, 13);
 
 		sectionE = new CourseSectionImpl(course, "E section",
 				"e section uuid", "b category", new Integer(15), "e section location",
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
 				false, false, false, true, true, false, false);
 
+		// Keep these times the same as sectionE
+		
 		sectionF = new CourseSectionImpl(course, "F section",
 				"f section uuid", "b category", new Integer(15), "f section location",
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
@@ -142,14 +154,50 @@ public class SectionSortTest extends TestCase {
 		
 		// Compare the days in a meeting.
 		Comparator<SectionDecorator> dayComp = SectionDecorator.getDayComparator(true);
-
-		dayComp.compare(secA, secB);
-		dayComp.compare(secC, secD);
 		
 		Assert.assertTrue(dayComp.compare(secA, secB) < 0);
 		Assert.assertTrue(dayComp.compare(secC, secD) < 0);
 		Assert.assertTrue(dayComp.compare(secD, secE) < 0);
 		Assert.assertTrue(dayComp.compare(secE, secF) < 0);
+
+		// Compare the times in meetings
+		Comparator<SectionDecorator> timeComp = SectionDecorator.getTimeComparator(true);
+
+		Assert.assertTrue(timeComp.compare(secA, secB) < 0);
+		Assert.assertTrue(timeComp.compare(secA, secC) < 0);
+		Assert.assertTrue(timeComp.compare(secA, secD) < 0);
+		Assert.assertTrue(timeComp.compare(secA, secE) < 0);
+		Assert.assertTrue(timeComp.compare(secA, secF) < 0);
 		
+		Assert.assertTrue(timeComp.compare(secB, secA) > 0);
+		Assert.assertTrue(timeComp.compare(secB, secC) < 0);
+		Assert.assertTrue(timeComp.compare(secB, secD) < 0);
+		Assert.assertTrue(timeComp.compare(secB, secE) < 0);
+		Assert.assertTrue(timeComp.compare(secB, secF) < 0);
+
+		Assert.assertTrue(timeComp.compare(secC, secA) > 0);
+		Assert.assertTrue(timeComp.compare(secC, secB) > 0);
+		Assert.assertTrue(timeComp.compare(secC, secD) < 0);
+		Assert.assertTrue(timeComp.compare(secC, secE) < 0);
+		Assert.assertTrue(timeComp.compare(secC, secF) < 0);
+
+		Assert.assertTrue(timeComp.compare(secD, secE) < 0);
+		Assert.assertTrue(timeComp.compare(secE, secF) < 0); // Even though the times and categories are equal, the titles should sort e before f
+		
+		// Sort a list and ensure that it's in the correct order.
+		List<SectionDecorator> list = new ArrayList<SectionDecorator>();
+		list.add(secA);
+		list.add(secB);
+		list.add(secC);
+		list.add(secD);
+		list.add(secE);
+		list.add(secF);
+		Collections.sort(list, timeComp);
+		Assert.assertEquals(0, list.indexOf(secA));
+		Assert.assertEquals(1, list.indexOf(secB));
+		Assert.assertEquals(2, list.indexOf(secC));
+		Assert.assertEquals(3, list.indexOf(secD));
+		Assert.assertEquals(4, list.indexOf(secE));
+		Assert.assertEquals(5, list.indexOf(secF));
 	}
 }

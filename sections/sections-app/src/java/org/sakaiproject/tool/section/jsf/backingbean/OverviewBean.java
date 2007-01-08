@@ -84,7 +84,7 @@ public class OverviewBean extends FilteredSectionListingBean implements Serializ
 		} else if(sortColumn.equals("meetingDays")) {
 			return SectionDecorator.getDayComparator(sortAscending);
 		} else if(sortColumn.equals("meetingTimes")) {
-			return SectionDecorator.getDayComparator(sortAscending);
+			return SectionDecorator.getTimeComparator(sortAscending);
 		} else if(sortColumn.equals("location")) {
 			return SectionDecorator.getLocationComparator(sortAscending);
 		}
