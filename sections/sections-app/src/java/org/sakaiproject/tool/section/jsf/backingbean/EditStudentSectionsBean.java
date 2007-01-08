@@ -59,6 +59,7 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 	protected String studentUid;
 	protected String studentName;
 	protected List<SectionDecorator> enrolledSections;
+	protected String elementToFocus;
 	
 	protected boolean showNegativeSpots;
 	
@@ -213,6 +214,9 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 		} catch (RoleConfigurationException rce) {
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
 		}
+		// Don't focus on this component, since it won't be there any more.  Focus on the unjoin component
+		String componentId = event.getComponent().getClientId(FacesContext.getCurrentInstance());
+		elementToFocus = componentId.replaceAll(":join", ":unjoin");
 	}
 	
 	public void processDrop(ActionEvent event) {
@@ -228,6 +232,10 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 		}
 
 		getSectionManager().dropSectionMembership(studentUid, sectionUuid);
+
+		// Don't focus on this component, since it won't be there any more.  Focus on the join component
+		String componentId = event.getComponent().getClientId(FacesContext.getCurrentInstance());
+		elementToFocus = componentId.replaceAll(":unjoin", ":join");
 	}
 
 	/**
@@ -243,7 +251,15 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 	public String getStudentName() {
 		return studentName;
 	}
-	
+
+	public String getElementToFocus() {
+		return elementToFocus;
+	}
+
+	public void setElementToFocus(String elementToFocus) {
+		this.elementToFocus = elementToFocus;
+	}
+
 	public String getUnassignedValue() {
 		return UNASSIGNED;
 	}
