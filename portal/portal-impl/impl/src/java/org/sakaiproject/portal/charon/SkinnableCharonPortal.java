@@ -493,19 +493,17 @@ public class SkinnableCharonPortal extends HttpServlet  {
                 portalService.setResetState("true");
                 resetDone = true;
                 res.sendRedirect(toolUrl);
-            } else if ((parts.length > 2) && (parts[1].equals("title"))) {
-                // Resolve the placements of the form
-                // /portal/title/sakai.resources?sakai.site=~csev
-                String toolPlacement = getPlacement(req, res, session,
-                    parts[2], false);
-                if (toolPlacement == null) {
-                    return;
-                }
-                parts[2] = toolPlacement;
 
-                doTitle(req, res, session, parts[2], req.getContextPath()
-                    + req.getServletPath() + Web.makePath(parts, 1, 3), Web
-                    .makePath(parts, 3, parts.length));
+            /**
+             * Title frames were no longer used in 2.3 and are not supported in 2.4
+             * so we emit a WARN message here to help people with derived classes figure
+             * out the new way.
+             */
+
+            // TODO: Remove after 2.4
+            } else if ((parts.length > 2) && (parts[1].equals("title"))) {
+            	M_log
+                	.warn("The /title/ form of portal URLs is no longer supported in Sakai 2.4 and later");
             }
 
             // recognize a dispatch the 'page' option (tools on a page)
@@ -669,112 +667,6 @@ public class SkinnableCharonPortal extends HttpServlet  {
             portalService.setResetState(null);
         }
 
-    }
-
-    protected void doTitle(HttpServletRequest req, HttpServletResponse res,
-                           Session session, String placementId, String toolContextPath,
-                           String toolPathInfo) throws ToolException, IOException {
-        // find the tool from some site
-        ToolConfiguration siteTool = SiteService.findTool(placementId);
-        if (siteTool == null) {
-            doError(req, res, session, ERROR_WORKSITE);
-            return;
-        }
-
-        // find the tool registered for this
-        ActiveTool tool = ActiveToolManager.getActiveTool(siteTool.getToolId());
-        if (tool == null) {
-            doError(req, res, session, ERROR_WORKSITE);
-            return;
-        }
-
-        includeTitle(tool, req, res, siteTool, siteTool.getSkin(),
-            toolContextPath, toolPathInfo);
-    }
-
-    /**
-     * Output the content of the title frame for a tool.
-     */
-    protected void includeTitle(ActiveTool tool, HttpServletRequest req,
-                                HttpServletResponse res, ToolConfiguration placement, String skin,
-                                String toolContextPath, String toolPathInfo) throws IOException {
-
-        // TODO: After 2.3 and the background document is modified - this
-        // may no
-        // longer be needed
-        // as the title is simply in the background document
-
-        if (skin == null || skin.length() == 0)
-            skin = ServerConfigurationService.getString("skin.default");
-        String skinRepo = ServerConfigurationService.getString("skin.repo");
-
-        // the title to display in the title frame
-        String toolTitle = Web.escapeHtml(placement.getTitle());
-
-        // for the reset button
-        String resetActionUrl = PortalStringUtil.replaceFirst(toolContextPath, "/tool/", "/tool-reset/") + "?panel=Main";
-        boolean resetToolNow = "true".equals(req.getParameter("reset"));
-        boolean showResetButton = !"false".equals(placement.getConfig()
-            .getProperty(TOOLCONFIG_SHOW_RESET_BUTTON));
-
-        // for the help button
-        // get the help document ID from the tool config (tool registration
-        // usually).
-        // The help document ID defaults to the tool ID
-        boolean helpEnabledGlobally = ServerConfigurationService.getBoolean(
-            "display.help.icon", true);
-        boolean helpEnabledInTool = !"false".equals(placement.getConfig()
-            .getProperty(TOOLCONFIG_SHOW_HELP_BUTTON));
-        boolean showHelpButton = helpEnabledGlobally && helpEnabledInTool;
-
-        String helpActionUrl = "";
-        if (showHelpButton) {
-            String helpDocId = placement.getConfig().getProperty(
-                TOOLCONFIG_HELP_DOCUMENT_ID);
-            String helpDocUrl = placement.getConfig().getProperty(
-                TOOLCONFIG_HELP_DOCUMENT_URL);
-            if (helpDocUrl != null && helpDocUrl.length() > 0) {
-                helpActionUrl = helpDocUrl;
-            } else {
-                if (helpDocId == null || helpDocId.length() == 0) {
-                    helpDocId = tool.getId();
-                }
-                helpActionUrl = ServerConfigurationService
-                    .getHelpUrl(helpDocId);
-            }
-        }
-
-        PortalRenderContext rcontext = startPageContext("", toolTitle, skin,
-            req);
-
-        rcontext.put("titleShowResetButton", Boolean.valueOf(showResetButton));
-        rcontext.put("titleResetActionUrl", resetActionUrl);
-        rcontext.put("titleShowHelpButton", Boolean.valueOf(showHelpButton));
-        rcontext.put("titleHelpActionUrl", helpActionUrl);
-
-        rcontext.put("titleToolResetNow", Boolean.valueOf(resetToolNow));
-
-        if (resetToolNow) {
-            // cause main tool frame to be reset
-
-            // clear the session data associated with the tool - should
-            // reset
-            // the tool
-            Session s = SessionManager.getCurrentSession();
-            ToolSession ts = s.getToolSession(placement.getId());
-            ts.clearAttributes();
-
-            // redirect the main tool frame back to the initial tool URL.
-            String mainFrameId = Web.escapeJavascript("Main"
-                + placement.getId());
-            String mainFrameUrl = ServerConfigurationService.getToolUrl() + "/"
-                + Web.escapeUrl(placement.getId()) + "?panel=Main";
-
-            rcontext.put("titleMainFrameId", mainFrameId);
-            rcontext.put("titleMainFrameUrl", mainFrameUrl);
-
-        }
-        sendResponse(rcontext, res, "tool-title");
     }
 
     protected void doLogin(HttpServletRequest req, HttpServletResponse res,
@@ -994,10 +886,17 @@ public class SkinnableCharonPortal extends HttpServlet  {
                 doDirectTool(req, res, session, parts[2], req.getContextPath()
                     + req.getServletPath() + Web.makePath(parts, 1, 3), Web
                     .makePath(parts, 3, parts.length));
+
+            /**
+             * Title frames were no longer used in 2.3 and are not supported in 2.4
+             * so we emit a WARN message here to help people with derived classes figure
+             * out the new way.
+             */
+
+            // TODO: Remove after 2.4
             } else if ((parts.length > 2) && (parts[1].equals("title"))) {
-                doTitle(req, res, session, parts[2], req.getContextPath()
-                    + req.getServletPath() + Web.makePath(parts, 1, 3), Web
-                    .makePath(parts, 3, parts.length));
+                M_log
+                        .warn("The /title/ form of portal URLs is no longer supported in Sakai 2.4 and later");
             }
 
             // recognize and dispatch the 'login' options
@@ -2430,6 +2329,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
         // should be a check which tool is being reset, rather than all
         // tools on the page.
         // let the tool do some the work (include) (see note above)
+
         String toolUrl = ServerConfigurationService.getToolUrl() + "/"
             + Web.escapeUrl(placement.getId()) + "/";
         String titleString = Web.escapeHtml(placement.getTitle());
@@ -2447,6 +2347,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
         // for the reset button
         boolean showResetButton = !"false".equals(placement.getConfig()
             .getProperty(TOOLCONFIG_SHOW_RESET_BUTTON));
+        String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, "/tool/", "/tool-reset/") + "?panel=Main";
 
         // for the help button
         // get the help document ID from the tool config (tool registration
@@ -2479,12 +2380,10 @@ public class SkinnableCharonPortal extends HttpServlet  {
         RenderResult result = ToolRenderService.render(placement, req, res, getServletContext());
         toolMap.put("toolRenderResult", result);
         toolMap.put("hasRenderResult", Boolean.valueOf(true));
-
-
         toolMap.put("toolUrl", toolUrl);
         toolMap.put("toolPlacementIDJS", Web.escapeJavascript("Main"
             + placement.getId()));
-        toolMap.put("toolParamResetState", portalService.getResetStateParam());
+        toolMap.put("toolResetActionUrl", resetActionUrl);
         toolMap.put("toolTitle", titleString);
         toolMap.put("toolShowResetButton", Boolean.valueOf(showResetButton));
         toolMap.put("toolShowHelpButton", Boolean.valueOf(showHelpButton));

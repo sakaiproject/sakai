@@ -423,21 +423,16 @@ public class CharonPortal extends HttpServlet
                                res.sendRedirect(toolUrl);
 			}
 
+	                /**
+	                 * Title frames were no longer used in 2.3 and are not supported in 2.4
+	                 * so we emit a WARN message here to help people with derived classes figure
+		         * out the new way.
+                         */ 
+
+			// TODO: Remove after 2.4
 			else if ((parts.length > 2) && (parts[1].equals("title")))
 			{
-				// Resolve the placements of the form
-				// /portal/title/sakai.resources?sakai.site=~csev
-				String toolPlacement = getPlacement(req, res, session,
-						parts[2], false);
-				if (toolPlacement == null)
-				{
-					return;
-				}
-				parts[2] = toolPlacement;
-
-				doTitle(req, res, session, parts[2], req.getContextPath()
-						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web
-						.makePath(parts, 3, parts.length));
+                                M_log.warn("doGet(): The /title/ form of portal URLs is no longer supported in Sakai 2.4 and later");
 			}
 
 			// recognize a dispatch the 'page' option (tools on a page)
@@ -623,219 +618,24 @@ public class CharonPortal extends HttpServlet
 
 	}
 
-	protected void doTitle(HttpServletRequest req, HttpServletResponse res,
+	/**
+	 * Title frames were no longer used in 2.3 and are not supported in 2.4
+	 * so these methods are made private to notify derived classes.
+	 * they can be removed for 2.5  - csev
+	 */
+
+	private void doTitle(HttpServletRequest req, HttpServletResponse res,
 			Session session, String placementId, String toolContextPath,
 			String toolPathInfo) throws ToolException, IOException
 	{
-		// find the tool from some site
-		ToolConfiguration siteTool = SiteService.findTool(placementId);
-		if (siteTool == null)
-		{
-			doError(req, res, session, ERROR_WORKSITE);
-			return;
-		}
-
-		// find the tool registered for this
-		ActiveTool tool = ActiveToolManager.getActiveTool(siteTool.getToolId());
-		if (tool == null)
-		{
-			doError(req, res, session, ERROR_WORKSITE);
-			return;
-		}
-
-		// don't check permissions when just displaying the title...
-		// // permission check - visit the site (unless the tool is configured
-		// to bypass)
-		// if (tool.getAccessSecurity() == Tool.AccessSecurity.PORTAL)
-		// {
-		// Site site = null;
-		// try
-		// {
-		// site = SiteService.getSiteVisit(siteTool.getSiteId());
-		// }
-		// catch (IdUnusedException e)
-		// {
-		// doError(req, res, session, ERROR_WORKSITE);
-		// return;
-		// }
-		// catch (PermissionException e)
-		// {
-		// // if not logged in, give them a chance
-		// if (session.getUserId() == null)
-		// {
-		// doLogin(req, res, session, req.getPathInfo(), false);
-		// }
-		// else
-		// {
-		// doError(req, res, session, ERROR_WORKSITE);
-		// }
-		// return;
-		// }
-		// }
-
-		includeTitle(tool, req, res, siteTool, siteTool.getSkin(),
-				toolContextPath, toolPathInfo);
+                M_log.warn("doTitle(): The /title/ form of portal URLs is no longer supported in Sakai 2.4 and later");
 	}
 
-	/**
-	 * Output the content of the title frame for a tool.
-	 */
-	protected void includeTitle(ActiveTool tool, HttpServletRequest req,
-			HttpServletResponse res, ToolConfiguration placement, String skin,
-			String toolContextPath, String toolPathInfo) throws IOException
-	{
-
-		// TODO: After 2.3 and the background document is modified - this may no longer be needed
-		// as the title is simply in the background document
-
-		res.setContentType("text/html; charset=UTF-8");
-		res.addDateHeader("Expires", System.currentTimeMillis()
-				- (1000L * 60L * 60L * 24L * 365L));
-		res.addDateHeader("Last-Modified", System.currentTimeMillis());
-		res
-				.addHeader("Cache-Control",
-						"no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-		res.addHeader("Pragma", "no-cache");
-
-		if (skin == null || skin.length() == 0)
-			skin = ServerConfigurationService.getString("skin.default");
-		String skinRepo = ServerConfigurationService.getString("skin.repo");
-
-		// the title to display in the title frame
-		String toolTitle = Web.escapeHtml(placement.getTitle());
-
-		// for the reset button
-		String resetActionUrl = toolContextPath + "?reset=true";
-		boolean resetToolNow = "true".equals(req.getParameter("reset"));
-		boolean showResetButton = !"false".equals(placement.getConfig()
-				.getProperty(TOOLCONFIG_SHOW_RESET_BUTTON));
-
-		// for the help button
-		// get the help document ID from the tool config (tool registration
-		// usually).
-		// The help document ID defaults to the tool ID
-		boolean helpEnabledGlobally = ServerConfigurationService.getBoolean(
-				"display.help.icon", true);
-		boolean helpEnabledInTool = !"false".equals(placement.getConfig()
-				.getProperty(TOOLCONFIG_SHOW_HELP_BUTTON));
-		boolean showHelpButton = helpEnabledGlobally && helpEnabledInTool;
-
-		String helpActionUrl = "";
-		if (showHelpButton)
-		{
-			String helpDocId = placement.getConfig().getProperty(
-					TOOLCONFIG_HELP_DOCUMENT_ID);
-			String helpDocUrl = placement.getConfig().getProperty(
-					TOOLCONFIG_HELP_DOCUMENT_URL);
-			if (helpDocUrl != null && helpDocUrl.length() > 0)
-			{
-				helpActionUrl = helpDocUrl;
-			}
-			else
-			{
-				if (helpDocId == null || helpDocId.length() == 0)
-				{
-					helpDocId = tool.getId();
-				}
-				helpActionUrl = ServerConfigurationService
-						.getHelpUrl(helpDocId);
-			}
-		}
-
-		PrintWriter out = res.getWriter();
-
-		final String headHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
-				+ "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">\n"
-				+ "  <head>\n"
-				+ "    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
-				+ "    <link href=\""
-				+ skinRepo
-				+ "/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
-				+ "    <link href=\""
-				+ skinRepo
-				+ "/"
-				+ skin
-				+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
-				+ "    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />\n"
-				+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""
-				+ getScriptPath()
-				+ "headscripts.js\"></script>\n"
-				+ "    <title>"
-				+ toolTitle
-				+ "</title>\n"
-				+ "  </head>\n"
-				+ "  <body onload=\"document.forms[0].eid.focus();\">\n";
-		final String tailHtml = "</body></html>\n";
-
-		out.write(headHtml);
-
-		out.write("<div class=\"portletTitle\">\n");
-		out.write("\t<div class=\"title\">\n");
-		if (showResetButton)
-		{
-			out.write("\t\t<a href=\""
-				+ resetActionUrl
-				+ "\" title=\"" + Web.escapeHtml(rb.getString("sit.reset")) 
-				+ "\"><img src=\"/library/image/transparent.gif\" alt=\"" 
-				+ Web.escapeHtml(rb.getString("sit.reset")) + "\" border=\"1\" /></a>");
-		}
-
-		out.write("<h2>" + toolTitle + "\n" + "\t</h2></div>\n");
-		out.write("\t<div class=\"action\">\n");
-		if (showHelpButton)
-		{
-			out.write(makeHelpButton(helpActionUrl));
- 		}
-
-		out.write("\t</div>\n");
-		out.write("</div>\n");
-
-		if (resetToolNow)
-		{
-			// cause main tool frame to be reset
-
-			// clear the session data associated with the tool - should reset
-			// the tool
-			Session s = SessionManager.getCurrentSession();
-			ToolSession ts = s.getToolSession(placement.getId());
-			ts.clearAttributes();
-
-			// redirect the main tool frame back to the initial tool URL.
-			String mainFrameId = Web.escapeJavascript("Main"
-					+ placement.getId());
-			String mainFrameUrl = ServerConfigurationService.getToolUrl() + "/"
-					+ Web.escapeUrl(placement.getId()) + "?panel=Main";
-
-			out
-					.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");
-			out.write("try\n");
-			out.write("{\n");
-			out.write("	if (parent." + mainFrameId
-					+ ".location.toString().length > 1)\n");
-			out.write("	{\n");
-			out.write("		parent." + mainFrameId + ".location = '"
-					+ mainFrameUrl + "';\n");
-			out.write("	}\n");
-			out.write("}\n");
-			out.write("catch (e1)\n");
-			out.write("{\n");
-			out.write("	try\n");
-			out.write("	{\n");
-			out.write("		if (parent.parent." + mainFrameId
-					+ ".location.toString().length > 1)\n");
-			out.write("		{\n");
-			out.write("			parent.parent." + mainFrameId + ".location = '"
-					+ mainFrameUrl + "';\n");
-			out.write("		}\n");
-			out.write("	}\n");
-			out.write("	catch (e2)\n");
-			out.write("	{\n");
-			out.write("	}\n");
-			out.write("}\n");
-			out.write("</script>\n");
-		}
-
-		out.write(tailHtml);
+        private void includeTitle(ActiveTool tool, HttpServletRequest req,
+                        HttpServletResponse res, ToolConfiguration placement, String skin,
+                        String toolContextPath, String toolPathInfo) throws IOException
+        {
+                M_log.warn("includeTitle(): The /title/ form of portal URLs is no longer supported in Sakai 2.4 and later");
 	}
 
 	private String makeHelpButton(String helpActionUrl)
@@ -1080,11 +880,16 @@ public class CharonPortal extends HttpServlet
 						.makePath(parts, 3, parts.length));
 			}
 
+	                /**
+	                 * Title frames were no longer used in 2.3 and are not supported in 2.4
+	                 * so we emit a WARN message here to help people with derived classes figure
+		         * out the new way.
+                         */ 
+
+			// TODO: Remove after 2.4
 			else if ((parts.length > 2) && (parts[1].equals("title")))
 			{
-				doTitle(req, res, session, parts[2], req.getContextPath()
-						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web
-						.makePath(parts, 3, parts.length));
+                                M_log.warn("doPost(): The /title/ form of portal URLs is no longer supported in Sakai 2.4 and later");
 			}
 
 			// recognize and dispatch the 'login' options
