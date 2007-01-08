@@ -475,6 +475,14 @@ public class PostemTool {
 		FacesContext.getCurrentInstance().addMessage(null,
 				MessageUtils.getMessage(severity, messageId, args));
 	}
+	
+	protected static void clearMessages() {
+    	Iterator iter = FacesContext.getCurrentInstance().getMessages(null);
+    	while (iter.hasNext()) {
+    		iter.next();
+    		iter.remove();
+    	}
+    }
 
 	public String processCreate() {
 
@@ -503,6 +511,9 @@ public class PostemTool {
 			while (gi.hasNext()) {
 				if (((Gradebook) gi.next()).getTitle().equals(
 						currentGradebook.getTitle())) {
+					//To stay consistent, remove current messages when adding a new message
+					//so as to only display one error message before returning
+					PostemTool.clearMessages();
 					PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
 							"duplicate_title", new Object[] {});
 					return "create_gradebook";
@@ -511,13 +522,15 @@ public class PostemTool {
 		}
 		if (currentGradebook.getTitle() == null
 				|| currentGradebook.getTitle().equals("")) {
+			//To stay consistent, remove current messages when adding a new message
+			//so as to only display one error message before returning
+			PostemTool.clearMessages();
 			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR, "missing_title",
 					new Object[] {});
 			return "create_gradebook";
 		}
 		
-		if (this.csv == null || this.csv.trim().length() <= 0) {
-			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR, "missing_csv", new Object[] {});
+		if (this.csv == null || this.csv.trim().length() == 0){
 			return "create_gradebook";
 		}
 		

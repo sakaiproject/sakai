@@ -38,6 +38,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
+import javax.faces.application.FacesMessage;
+import org.sakaiproject.tool.postem.PostemTool;
 
 public class UploadRenderer extends Renderer {
 	public void encodeBegin(FacesContext context, UIComponent component)
@@ -65,7 +67,13 @@ public class UploadRenderer extends Renderer {
 		ValueBinding binding = component.getValueBinding("value");
 		if (binding != null) {
 			// sometimes item is null, due to being hidden
-			if (item != null) {
+			if (item.getSize() == 0 && item.getName().equals("")){
+				//no file uploaded at all
+				PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+						"missing_csv", new Object[] {});
+				newValue = "";
+			}
+			else if (item != null && item.getName().endsWith(".csv")){
 				if (binding.getType(context) == byte[].class) {
 					newValue = item.get();
 				}
@@ -86,8 +94,22 @@ public class UploadRenderer extends Renderer {
 					else
 						newValue = item.getString();
 				}
-			} else
+				//check to make sure file was not empty
+				if (newValue.equals("")){
+					PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+							"missing_csv", new Object[] {});
+					newValue = "";
+				}
+			} 
+			else if (item != null && !item.getName().endsWith(".csv")){
+				//item does not have correct extension
+				PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+						"invalid_ext", new Object[] {item.getName()});
 				newValue = "";
+			}
+			else
+				newValue = "";
+			
 			((EditableValueHolder) component).setSubmittedValue(newValue);
 		}
 
