@@ -73,6 +73,8 @@ public interface PodcastService // extends EntityProducer
 	/** This string gives the update function (permission) string for checking permissions **/
 	public static final String UPDATE_PERMISSIONS = "site.upd";
 	public static final String NEW_PERMISSIONS = "content.new";
+	public static final String REVISE_ANY_PERMISSIONS = "content.revise.any";
+	public static final String REVISE_OWN_PERMISSIONS = "content.revise.own";
 	public static final String DELETE_ANY_PERMISSIONS = "content.delete.any";
 	public static final String DELETE_OWN_PERMISSIONS = "content.delete.own";
 
@@ -153,6 +155,13 @@ public interface PodcastService // extends EntityProducer
 	public String getUserId();
 	
 	/**
+	 * Returns user display name for current user
+	 * 
+	 * @return String of the user display name
+	 */
+	public String getUserName();
+	
+	/**
 	 * Returns the full URL of the file from ContentHostingService
 	 * 
 	 * @param resourceId The ID for the file whose URL is wanted
@@ -222,6 +231,13 @@ public interface PodcastService // extends EntityProducer
 	 */
 	public boolean canUpdateSite();
 	
+	/**
+	 * Determines if user has the function (permission) passed in
+	 * 
+	 * @return boolean true if user has function (permission), false otherwise.
+	 */
+	public boolean hasPerm(String function);
+
 	/**
 	 * Returns the ContentCollection that contains the podcasts.
 	 * 

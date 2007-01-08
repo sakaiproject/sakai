@@ -14,13 +14,13 @@
 
   
       <h:form>
-      <h:panelGroup rendered="#{podHomeBean.resourceToolExists && podHomeBean.canUpdateSite}" >
-      <sakai:tool_bar>
-          <sakai:tool_bar_item action="podcastAdd" value="#{msgs.add}"  />
-          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" />
-      </sakai:tool_bar>
+      <h:panelGroup rendered="#{podHomeBean.hasNewPerm || podHomeBean.canUpdateSite}" >
+        <sakai:tool_bar>
+          <sakai:tool_bar_item action="podcastAddPlus" value="#{msgs.add}" rendered="#{podHomeBean.hasNewPerm || podHomeBean.canUpdateSite}" />
+          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" rendered="#{podHomeBean.canUpdateSite}" />
+        </sakai:tool_bar>
       </h:panelGroup>
- <%-- <sakai:tool_bar_item action="podcastPermissions" value="#{msgs.permissions}" /> --%>     
+      
  	  <div>
  	  	  <h:messages styleClass="alertMessage" id="errorMessages"/> 
  	      <h3><h:outputText value="#{msgs.podcast_home_title}" /></h3>
@@ -41,11 +41,9 @@
 
  	       <h:outputText value="#{podHomeBean.URL}" styleClass="indnt1" />
      
- <%--         <h:outputLink value="#{podHomeBean.URL}" styleClass="nolines" target="_blank"> --%>
  		 <a href="<h:outputText value="#{podHomeBean.URL}" />" class="active" target="<h:outputText value="_blank" />" >
  	       <h:graphicImage value="images/rss-feed-icon.png" styleClass="indnt1 rssIcon" width="25px" height="25px" />
 		 </a>
-<%--          </h:outputLink> --%>
          <br />
  	     
  	     <h:commandLink action="podfeedRevise" styleClass="indnt2" rendered="#{podHomeBean.canUpdateSite}" >
@@ -101,16 +99,16 @@
 
               <%--  go to Revise page --%>
               <h:outputText value="#{msgs.close_paren}" /><h:outputText value=" " />
-              <h:outputText value=" #{msgs.spacer_bar}" rendered="#{podHomeBean.canUpdateSite}" />
+              <h:outputText value=" #{msgs.spacer_bar}" rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasReviseAnyPerm || (podHomeBean.hasReviseOwnPerm && eachPodcast.author == podHomeBean.userName)}" />
               <h:commandLink action="podcastRevise" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.revise}" styleClass="active" 
-                    rendered="#{podHomeBean.canUpdateSite}" >
+                    rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasReviseAnyPerm || (podHomeBean.hasReviseOwnPerm && eachPodcast.author == podHomeBean.userName)}" >
                 <f:param name="resourceId" value="#{eachPodcast.resourceId}" />
               </h:commandLink>
                  
               <%--  go to Delete page --%> 
-              <h:outputText value="#{msgs.spacer_bar}" rendered="#{podHomeBean.canUpdateSite}" />
+              <h:outputText value="#{msgs.spacer_bar}" rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasDelAnyPerm || (podHomeBean.hasDelOwnPerm && eachPodcast.author == podHomeBean.userName)}" />
               <h:commandLink action="podcastDelete" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.delete}" styleClass="active" 
-                    rendered="#{podHomeBean.canUpdateSite}" >
+                    rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasDelAnyPerm || (podHomeBean.hasDelOwnPerm && eachPodcast.author == podHomeBean.userName)}" >
                 <f:param name="resourceId" value="#{eachPodcast.resourceId}" />
               </h:commandLink>
               <f:verbatim></div><br /></f:verbatim>

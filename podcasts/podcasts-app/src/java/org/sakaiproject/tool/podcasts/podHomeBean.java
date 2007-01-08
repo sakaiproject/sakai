@@ -876,6 +876,55 @@ public class podHomeBean {
 		return podcastService.canUpdateSite();
 	}
 
+	public boolean getHasNewPerm() {
+		if (podcastService.canUpdateSite()) {
+			return true;
+		}
+		else {
+			return podcastService.hasPerm(PodcastService.NEW_PERMISSIONS);
+		}
+	}
+	
+	public boolean getHasReviseAnyPerm() {
+		if (podcastService.canUpdateSite()) {
+			return true;
+		}
+		else {
+			return podcastService.hasPerm(PodcastService.REVISE_ANY_PERMISSIONS);
+		}
+	}
+	
+	public boolean getHasReviseOwnPerm() {
+		if (podcastService.canUpdateSite()) {
+			return true;
+		}
+		else {
+			return podcastService.hasPerm(PodcastService.REVISE_OWN_PERMISSIONS);
+		}
+	}
+	
+	public boolean getHasDelAnyPerm() {
+		if (podcastService.canUpdateSite()) {
+			return true;
+		}
+		else {
+			return podcastService.hasPerm(PodcastService.DELETE_ANY_PERMISSIONS);
+		}
+	}
+	
+	public boolean getHasDelOwnPerm() {
+		if (podcastService.canUpdateSite()) {
+			return true;
+		}
+		else {
+			return podcastService.hasPerm(PodcastService.DELETE_OWN_PERMISSIONS);
+		}
+	}
+	
+	public String getUserName() {
+		return podcastService.getUserName();
+	}
+
 	/**
 	 * Creates a BufferedInputStream to get ready to upload file selected. Used
 	 * by Add Podcast and Revise Podcast pages.

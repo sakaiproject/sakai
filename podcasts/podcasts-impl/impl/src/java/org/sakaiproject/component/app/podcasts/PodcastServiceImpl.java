@@ -29,11 +29,12 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.podcasts.PodcastService;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -65,6 +66,7 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.Validator;
 
 public class PodcastServiceImpl implements PodcastService {
@@ -136,6 +138,13 @@ public class PodcastServiceImpl implements PodcastService {
 	 */
 	public String getUserId() {
 		return SessionManager.getCurrentSessionUserId();
+	}
+
+	/**
+	 * Retrieve the current user display name
+	 */
+	public String getUserName() {
+		return UserDirectoryService.getCurrentUser().getDisplayName();
 	}
 
 	/**
@@ -821,7 +830,15 @@ public class PodcastServiceImpl implements PodcastService {
 
 				ContentResourceEdit aResourceEdit = null;
 				try {
-					aResourceEdit = contentHostingService.editResource(aResource.getId()); 
+					try {
+						aResourceEdit = contentHostingService.editResource(aResource.getId());
+					}
+					catch (PermissionException e1) {
+						// Not able to access, add a SecurityAdvisor to force it to work
+						enablePodcastSecurityAdvisor();
+						
+						aResourceEdit = contentHostingService.editResource(aResource.getId());
+					}
 					
 					setDISPLAY_DATE(aResourceEdit.getPropertiesEdit());
 					
@@ -836,10 +853,12 @@ public class PodcastServiceImpl implements PodcastService {
 
 					revisedList.add(aResourceEdit);
 					
-				} catch (Exception e1) {
+				}
+				catch (Exception e1) {
 					// catches   PermissionException	IdUnusedException
 					//			TypeException		InUseException
-					LOG.error("Problem getting resource for editing while trying to set DISPLAY_DATE for site " + getSiteId());
+					LOG.error("Problem getting resource for editing while trying to set DISPLAY_DATE for site " + getSiteId() + ". " 
+									+ e.getMessage());
 					
 					if (aResourceEdit != null) {
 						contentHostingService.cancelResource(aResourceEdit);						
@@ -855,6 +874,9 @@ public class PodcastServiceImpl implements PodcastService {
 							+ " Possible non-resource (aka a folder) exists in podcasts folder. " 
 							+ "SKIPPING..." + e.getMessage());
 
+			}
+			finally {
+				SecurityService.clearAdvisors();
 			}
 		}
 
@@ -991,7 +1013,19 @@ public class PodcastServiceImpl implements PodcastService {
 	public boolean canUpdateSite(String siteId) {
 			return SecurityService.unlock(UPDATE_PERMISSIONS, "/site/"+ siteId);
 	}
-
+	
+	public boolean hasPerm(String function) {
+		try {
+			return SecurityService.unlock(function, "/content" + retrievePodcastFolderId(getSiteId()));
+		} 
+		catch (PermissionException e) {
+			// weirdness since displaying
+			LOG.error("PermissionException while trying to determine if user can update site " + getSiteId());
+		}
+	
+		return false;
+	}
+	
 	/**
 	 * Determine whether user and update the site
 	 * 
@@ -1265,4 +1299,21 @@ public class PodcastServiceImpl implements PodcastService {
 	private String getMessageBundleString(String key) {
 		return resbud.getString(key);
 	}
+	
+	/**
+	 * Establish a security advisor to allow the "embedded" azg work to occur
+	 * with no need for additional security permissions.
+	 */
+	protected void enablePodcastSecurityAdvisor() {
+		// put in a security advisor so we can do our podcast work without need
+		// of further permissions
+		SecurityService.pushAdvisor(new SecurityAdvisor() {
+			public SecurityAdvice isAllowed(String userId, String function,
+					String reference) {
+				return SecurityAdvice.ALLOWED;
+			}
+		});
+	}
+
+
 }
