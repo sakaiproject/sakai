@@ -321,6 +321,7 @@ public class podHomeBean {
 	
 	// podHomeBean constants
 	private static final String NO_RESOURCES_ERR_MSG = "no_resource_alert";
+	private static final String NO_RESOURCES_ERR_MSG2 = "no_resource_alert2";
 	private static final String RESOURCEID = "resourceId";
 	private static final String FEED_URL_MIDDLE = "podcasts/site/";
 	private static final String MB = "MB";
@@ -408,7 +409,9 @@ public class podHomeBean {
 			// Only want to display this message if they are instructors or administrators
 			// so if student say it exists
 			if (getCanUpdateSite()) {
-				setErrorMessage(NO_RESOURCES_ERR_MSG);
+				FacesContext.getCurrentInstance().addMessage(null,
+						new FacesMessage("Alert: " + getErrorMessageString(NO_RESOURCES_ERR_MSG) + ToolManager.getTool(RESOURCE_TOOL_ID).getTitle()
+									+ " " + getErrorMessageString(NO_RESOURCES_ERR_MSG2)));
 			}
 		}
 
@@ -417,7 +420,9 @@ public class podHomeBean {
 				&& (!FacesContext.getCurrentInstance().getMessages().hasNext())) {
 			
 			if (getCanUpdateSite()) {
-				setErrorMessage(NO_RESOURCES_ERR_MSG);
+				FacesContext.getCurrentInstance().addMessage(null,
+						new FacesMessage("Alert: " + getErrorMessageString(NO_RESOURCES_ERR_MSG) + ToolManager.getTool(RESOURCE_TOOL_ID).getTitle()
+									+ " " + getErrorMessageString(NO_RESOURCES_ERR_MSG2)));
 			}
 		}
 
@@ -874,6 +879,16 @@ public class podHomeBean {
 	 */
 	public boolean getCanUpdateSite() {
 		return podcastService.canUpdateSite();
+	}
+	
+	public boolean getHasReadPerm() {
+		if (podcastService.canUpdateSite()) {
+			return true;
+		}
+		else {
+			boolean b = podcastService.hasPerm(PodcastService.READ_PERMISSIONS);
+			return b;
+		}
 	}
 
 	public boolean getHasNewPerm() {

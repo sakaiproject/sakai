@@ -73,6 +73,7 @@ public interface PodcastService // extends EntityProducer
 	/** This string gives the update function (permission) string for checking permissions **/
 	public static final String UPDATE_PERMISSIONS = "site.upd";
 	public static final String NEW_PERMISSIONS = "content.new";
+	public static final String READ_PERMISSIONS = "content.read";
 	public static final String REVISE_ANY_PERMISSIONS = "content.revise.any";
 	public static final String REVISE_OWN_PERMISSIONS = "content.revise.own";
 	public static final String DELETE_ANY_PERMISSIONS = "content.delete.any";
@@ -230,7 +231,7 @@ public interface PodcastService // extends EntityProducer
 	 * @return boolean true if user can modify, false otherwise
 	 */
 	public boolean canUpdateSite();
-	
+
 	/**
 	 * Determines if user has the function (permission) passed in
 	 * 

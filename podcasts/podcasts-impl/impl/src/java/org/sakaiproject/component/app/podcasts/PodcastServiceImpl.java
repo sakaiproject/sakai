@@ -1019,7 +1019,7 @@ public class PodcastServiceImpl implements PodcastService {
 			return SecurityService.unlock(function, "/content" + retrievePodcastFolderId(getSiteId()));
 		} 
 		catch (PermissionException e) {
-			// weirdness since displaying
+			// weirdness since displaying main page so user should have permission
 			LOG.error("PermissionException while trying to determine if user can update site " + getSiteId());
 		}
 	
