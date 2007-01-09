@@ -15,7 +15,7 @@
 				<h:outputText value="#{msgs.newSyllabusForm2}"/>
 			</sakai:doc_section>
 
-			<h:panelGrid columns="1" styleClass="jsfFormTable" summary="layout">
+			<h:panelGrid columns="2" styleClass="jsfFormTable" summary="layout">
 				<h:panelGroup styleClass="shorttext required">
 						<h:outputText value="*" styleClass="reqStar"/>
 
@@ -24,9 +24,10 @@
 						<h:outputText value="#{msgs.syllabus_title}"/>
 					</h:outputLabel>
 					<h:inputText value="#{SyllabusTool.entry.entry.title}" id="title"/>
-					<h:outputText value="#{msgs.empty_title_validate}" styleClass="alertMessage"
-						rendered="#{SyllabusTool.displayTitleErroMsg}"/>
 				</h:panelGroup>
+				<h:outputText value="#{msgs.empty_title_validate}" styleClass="alertMessageInline"
+					rendered="#{SyllabusTool.displayTitleErroMsg}"/>
+				
 			</h:panelGrid>
 
 			<div class="longtext">
