@@ -71,7 +71,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 	private static final String VERSION_ATTR = "version";
 	private static final String WEB_CONTENT_URL_PROP = "source";
 	private static final String HEIGHT_PROP = "height";
-
+	private static final String SPECIAL_PROP = "special";
 	
 	public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
 	
@@ -116,8 +116,11 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 						Iterator toolIter = toolList.iterator();
 						while (toolIter.hasNext()) {
 							ToolConfiguration toolConfig = (ToolConfiguration)toolIter.next();
+							
+							// we do not want to archive "special" uses of sakai.iframe, such as worksite info
+							String special = toolConfig.getPlacementConfig().getProperty(SPECIAL_PROP);
 
-							if (toolConfig.getToolId().equals(TOOL_ID)) {
+							if (toolConfig.getToolId().equals(TOOL_ID) && special == null) {
 								Element webContentData = doc.createElement(REDIRECT_TAB);
 								count++;
 
@@ -384,8 +387,11 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 					Iterator toolIter = toolList.iterator();
 					while (toolIter.hasNext()) {
 						ToolConfiguration toolConfig = (ToolConfiguration)toolIter.next();
+						
+						 // we do not want to import "special" uses of sakai.iframe, such as worksite info
+						String special = toolConfig.getPlacementConfig().getProperty(SPECIAL_PROP);
 
-						if (toolConfig.getToolId().equals(TOOL_ID)) {
+						if (toolConfig.getToolId().equals(TOOL_ID) && special == null) {
 							String contentUrl = toolConfig.getPlacementConfig().getProperty(WEB_CONTENT_URL_PROP);
 							String toolTitle = toolConfig.getTitle();
 							String pageTitle = currPage.getTitle();
