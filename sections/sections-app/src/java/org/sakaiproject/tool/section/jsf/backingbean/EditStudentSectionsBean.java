@@ -82,7 +82,10 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 		List sectionSet = getAllSiteSections();
 		sections = new ArrayList<SectionDecorator>();
 		enrolledSections = new ArrayList<SectionDecorator>();
-		
+
+		// Keep track of whether there are no sections in this site
+		siteWithoutSections = sectionSet.isEmpty();
+
 		// Generate the category select items
 		categorySelectItems = generateCategorySelectItems();
 

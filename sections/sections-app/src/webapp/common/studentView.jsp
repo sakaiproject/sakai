@@ -43,7 +43,8 @@
                         <h:outputText value="#{msgs.student_view_header_title}" />
                     </x:commandSortHeader>
                 </f:facet>
-                <h:outputText value="#{section.title}"/>
+                <h:outputText value="#{section.title}"  styleClass="studentSectionInfo" rendered="#{section.member}"/>
+                <h:outputText value="#{section.title}"  rendered="#{ ! section.member}"/>
             </h:column>
 
             <h:column>
@@ -109,7 +110,7 @@
             	<h:outputText value="#{section.spotsAvailable}"/>
             </h:column>
 
-            <h:column rendered="#{!studentViewBean.externallyManaged}">
+            <h:column>
                 <h:commandLink
                     value="#{msgs.student_view_join}"
                     actionListener="#{studentViewBean.processJoinSection}"
@@ -126,13 +127,18 @@
                     value="#{msgs.student_view_full}"
                     rendered="#{section.full}"/>
                 <h:outputText
-                    value="#{msgs.student_view_member}"
+                	styleClass="studentSectionInfo"
+                	value="#{msgs.student_view_member}"
                     rendered="#{section.member}"/>
             </h:column>
     
         </sec:sectionTable>
 
-        <x:div styleClass="verticalPadding" rendered="#{empty studentViewBean.sections}">
+        <x:div styleClass="verticalPadding" rendered="#{empty studentViewBean.sections && ! studentViewBean.siteWithoutSections}">
+            <h:outputText value="#{msgs.student_view_no_sections_to_display}"/>
+        </x:div>
+
+        <x:div styleClass="verticalPadding" rendered="#{studentViewBean.siteWithoutSections}">
             <h:outputText value="#{msgs.no_sections_available}"/>
         </x:div>
 

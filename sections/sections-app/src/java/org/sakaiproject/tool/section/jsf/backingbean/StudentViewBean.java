@@ -85,7 +85,7 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 
 		// Keep track of whether there are switchable Sections
 		boolean switchableSectionsExist = false;
-
+		
 		List<SectionDecorator> sectionCopy = new ArrayList<SectionDecorator>(sections);
 		for(Iterator<SectionDecorator> iter = sectionCopy.iterator(); iter.hasNext();) {
 			StudentSectionDecorator decoratedSection = (StudentSectionDecorator)iter.next(); 
@@ -112,6 +112,16 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 	}
 
 	private String generateInstructions(boolean joinableSectionsExist, boolean switchableSectionsExist) {
+
+		//This site is externally managed, or joining and switching are both disallowed
+		if(!joinAllowed && ! switchAllowed) {
+			return JsfUtil.getLocalizedMessage("student_view_instructions_no_join_or_switch");
+		}
+
+		// Joining and switching are both possible
+		if(switchAllowed && switchableSectionsExist && joinAllowed && joinableSectionsExist) {
+			return JsfUtil.getLocalizedMessage("student_view_instructions_join_or_switch");
+		}
 		
 		// Joining is possible, but switching is not
 		if(joinAllowed && joinableSectionsExist && !(switchAllowed && switchableSectionsExist)) {
@@ -123,12 +133,8 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 			return JsfUtil.getLocalizedMessage("student_view_instructions_switch");
 		}
 
-		// Joining and switching are both possible
-		if(switchAllowed && switchableSectionsExist && joinAllowed && joinableSectionsExist) {
-			return JsfUtil.getLocalizedMessage("student_view_instructions_join_or_switch");
-		}
-		
-		return null;
+		// No sections can be joined or switched into
+		return JsfUtil.getLocalizedMessage("student_view_instructions_no_sections");
 	}
 
 	public void processJoinSection(ActionEvent event) {
@@ -227,5 +233,4 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 	public void setFilter(String filter) {
 		this.filter = filter;
 	}
-
 }

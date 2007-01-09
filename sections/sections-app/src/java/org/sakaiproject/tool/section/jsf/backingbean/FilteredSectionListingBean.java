@@ -46,6 +46,8 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 	protected FilterState currentFilterState;
 	protected List<SectionDecorator> sections;
 	protected List<SelectItem> categorySelectItems;
+	
+	protected boolean siteWithoutSections;
 
 	public void init() {
 		setDefaultPrefs();
@@ -55,7 +57,10 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 		
 		// Get all sections in the site
 		List sectionSet = getAllSiteSections();
-		
+
+		// Keep track of whether there are no sections in this site
+		siteWithoutSections = sectionSet.isEmpty();
+
 		sections = new ArrayList<SectionDecorator>();
 
 		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {
@@ -198,5 +203,9 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 
 	public boolean isDisplaySingleFilter() {
 		return currentFilterState == FilterState.SINGLE;
+	}
+
+	public boolean isSiteWithoutSections() {
+		return siteWithoutSections;
 	}
 }
