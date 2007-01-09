@@ -104,6 +104,7 @@ public class PrivateMessagesTool
   private static final String SELECT_MSG_RECIPIENT = "pvt_select_msg_recipient";
   private static final String CONFIRM_MSG_DELETE = "pvt_confirm_msg_delete";
   private static final String ENTER_SEARCH_TEXT = "pvt_enter_search_text";
+  private static final String MOVE_MSG_ERROR = "pvt_move_msg_error";
   /**
    *Dependency Injected 
    */
@@ -2437,17 +2438,26 @@ public class PrivateMessagesTool
   {
     LOG.debug("processPvtMsgMoveMessage()");
     String moveTopicTitle=getMoveToTopic(); //this is uuid of new topic
+    if( moveTopicTitle == null || moveTopicTitle.trim().length() == 0){
+    	setErrorMessage(getResourceBundleString(MOVE_MSG_ERROR));
+    	return null;
+    }
     
     Topic newTopic= prtMsgManager.getTopicByUuid(moveTopicTitle);
     Topic oldTopic=selectedTopic.getTopic();
-    
-    prtMsgManager.movePvtMsgTopic(detailMsg.getMsg(), oldTopic, newTopic);
-    
-    //reset 
-    moveToTopic="";
-    moveToNewTopic="";
-    
-    return MAIN_PG ;
+    if( newTopic.getUuid() == oldTopic.getUuid()){
+    	//error
+    	setErrorMessage(getResourceBundleString(MOVE_MSG_ERROR));
+    	return null;
+    }else{
+	    prtMsgManager.movePvtMsgTopic(detailMsg.getMsg(), oldTopic, newTopic);
+	    
+	    //reset 
+	    moveToTopic="";
+	    moveToNewTopic="";
+	    
+	    return MAIN_PG ;
+    }
   }
   
   /**
