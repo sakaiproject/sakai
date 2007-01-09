@@ -2438,7 +2438,6 @@ public class AnnouncementAction extends PagedResourceActionII
 			{
 				if (Log.getLogger("chef").isDebugEnabled()) Log.debug("chef", this + "doDeleteannouncement()" + e);
 				addAlert(sstate, rb.getString("java.alert.youdelann2"));
-				// "you don't have permissions to delete this announcement!");
 			}
 
 			// state.setDelete_messages(delete_messages);
@@ -2492,7 +2491,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		catch (PermissionException e)
 		{
 			if (Log.getLogger("chef").isDebugEnabled()) Log.debug("chef", this + "doDeleteannouncement()" + e);
-			addAlert(sstate, "you don't have permissions to delete this announcement!");
+			addAlert(sstate, rb.getString("java.alert.youdelann2"));
 		}
 
 		state.setDeleteMessages(v);
