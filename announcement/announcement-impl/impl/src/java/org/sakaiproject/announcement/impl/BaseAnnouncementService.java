@@ -796,22 +796,26 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 											{
 												// add the new resource into attachment collection area
 												ContentResource attachment = ContentHostingService.addAttachmentResource(
-														oAttachment.getProperties().getProperty(
-																ResourceProperties.PROP_DISPLAY_NAME), ToolManager
-																.getCurrentPlacement().getContext(), ToolManager.getTool(
-																"sakai.announcements").getTitle(), oAttachment.getContentType(),
-														oAttachment.getContent(), oAttachment.getProperties());
+														Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)), 
+														ToolManager.getCurrentPlacement().getContext(), 
+														ToolManager.getTool("sakai.announcements").getTitle(), 
+														oAttachment.getContentType(),
+														oAttachment.getContent(), 
+														oAttachment.getProperties());
 												// add to attachment list
 												nAttachments.add(m_entityManager.newReference(attachment.getReference()));
 											}
 											else
 											{
 												// add the new resource into resource area
-												ContentResource attachment = ContentHostingService.addResource(oAttachment
-														.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME),
-														ToolManager.getCurrentPlacement().getContext(), 1, oAttachment
-																.getContentType(), oAttachment.getContent(), oAttachment
-																.getProperties(), NotificationService.NOTI_NONE);
+												ContentResource attachment = ContentHostingService.addResource(
+														Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
+														ToolManager.getCurrentPlacement().getContext(), 
+														1, 
+														oAttachment.getContentType(), 
+														oAttachment.getContent(), 
+														oAttachment.getProperties(), 
+														NotificationService.NOTI_NONE);
 												// add to attachment list
 												nAttachments.add(m_entityManager.newReference(attachment.getReference()));
 											}
