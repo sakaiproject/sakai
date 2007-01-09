@@ -591,10 +591,13 @@ public class BasicPodfeedService implements PodfeedService {
 				// if getting the date generates an error, skip this podcast.
 				if (publishDate != null) {
 					try {
-						final String title = podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-
+						Map podcastMap = new HashMap();
+						podcastMap.put("date", publishDate);
+						podcastMap.put("title", podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME));
+						
 						enablePodfeedSecurityAdvisor();
 						String fileUrl = podcastService.getPodcastFileURL(podcastResource.getId());
+						podcastMap.put("guid", fileUrl);
 						final String podcastFolderId = podcastService.retrievePodcastFolderId(siteId);
 						securityService.clearAdvisors();
 						
@@ -602,16 +605,15 @@ public class BasicPodfeedService implements PodfeedService {
 						// so change item URLs to do so
 						if (!podcastService.isPublic(podcastFolderId)) {
 							fileUrl = convertToDavUrl(fileUrl);
-						
 						}
 					
-						final String description = podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION);
-						final String author = podcastProperties.getPropertyFormatted(ResourceProperties.PROP_CREATOR);
-						final long contentLength = Long.parseLong(podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
-						final String contentType = podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_TYPE);
-
-						entries.add(addPodcast(title, fileUrl, publishDate, description, author,
-								contentLength, contentType));
+						podcastMap.put("url", fileUrl);
+						podcastMap.put("description",podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION));
+						podcastMap.put("author", podcastProperties.getPropertyFormatted(ResourceProperties.PROP_CREATOR));
+						podcastMap.put("len", Long.parseLong(podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_LENGTH)));
+						podcastMap.put("type", podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
+						
+						entries.add(addPodcast(podcastMap));
 
 					}
 					catch (PermissionException e) {
@@ -657,37 +659,35 @@ public class BasicPodfeedService implements PodfeedService {
 	 * @return 
 	 * 			 A SyndEntryImpl for this podcast
 	 */
-	private Item addPodcast(String title, String mp3link, Date date,
-			String blogContent, String author, long length, String mimeType) 
+	private Item addPodcast(Map values) 
 	{
 		final Item item = new Item();
 
 		// set title for this podcast
-		item.setTitle(title);
-
-        // Compile regular expression
-        Pattern pattern = Pattern.compile(" ");
+		item.setTitle((String) values.get("title"));
 
         // Replace all occurrences of pattern (ie, spaces) in input
         // with hex equivalent (%20)
-        Matcher matcher = pattern.matcher(mp3link);
-        mp3link = matcher.replaceAll("%20");
-        item.setLink(mp3link);
+        Pattern pattern = Pattern.compile(" ");
+        String url = (String) values.get("url");
+        Matcher matcher = pattern.matcher(url);
+        url = matcher.replaceAll("%20");
+        item.setLink(url);
 
         // Set Publish date for this podcast/episode
         // NOTE: date has local time, but when feed rendered,
         // converts it to GMT
-		item.setPubDate(date);
+		item.setPubDate((Date) values.get("date"));
 
 		// Set description for this podcast/episode
 		final Description itemDescription = new Description();
 		itemDescription.setType(DESCRIPTION_CONTENT_TYPE);
-		itemDescription.setValue(blogContent);
+		itemDescription.setValue((String) values.get("description"));
 		item.setDescription(itemDescription);
 
 		// Set guid for this podcast/episode
 		item.setGuid(new Guid());
-		item.getGuid().setValue(mp3link);
+		item.getGuid().setValue((String) values.get("guid"));
 		item.getGuid().setPermaLink(false);
 
 		// This creates the enclosure so podcatchers (iTunes) can
@@ -695,9 +695,9 @@ public class BasicPodfeedService implements PodfeedService {
 		List enclosures = new ArrayList();
 
 		final Enclosure enc = new Enclosure();
-		enc.setUrl(mp3link);
-		enc.setType(mimeType);
-		enc.setLength(length);
+		enc.setUrl(url);
+		enc.setType((String) values.get("type"));
+		enc.setLength((Long) values.get("len"));
 
 		enclosures.add(enc);
 
@@ -713,12 +713,12 @@ public class BasicPodfeedService implements PodfeedService {
 		final EntryInformation iTunesModule = new EntryInformationImpl();
 
 		iTunesModule.setAuthor(getMessageBundleString(FEED_ITEM_AUTHOR_STRING));
-		iTunesModule.setSummary(blogContent);
+		iTunesModule.setSummary((String) values.get("description"));
 
 		// Set dc:creator tag
 		final DCModuleImpl dcModule = new DCModuleImpl();
 		
-		dcModule.setCreator(author);
+		dcModule.setCreator((String) values.get("author"));
 		
 		modules.add(iTunesModule);
 		modules.add(dcModule);
