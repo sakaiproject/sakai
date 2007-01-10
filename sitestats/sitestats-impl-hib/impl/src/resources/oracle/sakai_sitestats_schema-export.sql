@@ -32,3 +32,6 @@ create sequence SST_PREFS_ID;
 create sequence SST_RESOURCES_ID;
 create sequence SST_SITEACTIVITY_ID;
 create sequence SST_SITEVISITS_ID;
+
+-- John Leasia suggestion to increase performance
+create index idx_SST_EVENTS_SID_EID_EDATE on SST_EVENTS (SITE_ID,EVENT_ID,EVENT_DATE);
