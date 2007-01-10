@@ -102,8 +102,7 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 		getSectionManager().setExternallyManaged(courseUuid, EXTERNAL.equals(management));
 		// If we're externally managed, these will automatically be set to false
 		if(INTERNAL.equals(management)) {
-			getSectionManager().setSelfRegistrationAllowed(courseUuid, selfRegister);
-			getSectionManager().setSelfSwitchingAllowed(courseUuid, selfSwitch);
+			getSectionManager().setJoinOptions(courseUuid, selfRegister, selfSwitch);
 		}
 		
 		// TODO Customize the message depending on the action taken

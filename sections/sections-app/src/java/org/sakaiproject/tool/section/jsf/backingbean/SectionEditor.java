@@ -22,6 +22,8 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.util.List;
 
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
+
 /**
  * Backing beans that are used to modify (add or edit) sections should implement
  * SectionEditor.
@@ -33,7 +35,7 @@ public interface SectionEditor {
 	 * Gets the list of sections to add / edit
 	 * @return
 	 */
-	public List<LocalSectionModel> getSections();
+	public List<CourseSection> getSections();
 	
 	/**
 	 * Gets the comma-separated css classes for use in the UI.

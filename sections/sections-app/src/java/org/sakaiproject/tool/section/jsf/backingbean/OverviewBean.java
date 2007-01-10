@@ -23,8 +23,10 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -109,10 +111,11 @@ public class OverviewBean extends FilteredSectionListingBean implements Serializ
 	}
 	
 	public String deleteSections() {
-		for(Iterator iter = sectionsToDelete.iterator(); iter.hasNext();) {
-			SectionDecorator decoratedSection = (SectionDecorator)iter.next();
-			getSectionManager().disbandSection(decoratedSection.getUuid());
+		Set<String> set = new HashSet<String>();
+		for(Iterator<SectionDecorator> iter = sectionsToDelete.iterator(); iter.hasNext();) {
+			set.add(iter.next().getUuid());
 		}
+		getSectionManager().disbandSections(set);
 		JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage("overview_delete_section_success"));
 		return "overview";
 	}

@@ -21,6 +21,7 @@
 package org.sakaiproject.section.api;
 
 import java.sql.Time;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -234,24 +235,6 @@ public interface SectionManager {
     public void dropEnrollmentFromCategory(String studentUid, String siteContext, String category);
 
     /**
-     * Adds a CourseSection to a parent CourseSection.  This assumes that meeting times
-     * will not be handled by an external service.  The added functionality of
-     * linking course sections to repeating events (meet every 2nd Tuesday of the
-     * month at 3pm) is currently out of scope, so meetingTimes is represented
-     * as a start time, end time, and seven booleans representing the days that
-     * the section meets.
-     * 
-     * @param courseUuid
-     * @param title
-     * @param category
-     * @param maxEnrollments
-     * @param meetings
-     * @return
-     */
-    public CourseSection addSection(String courseUuid, String title,
-    		String category, Integer maxEnrollments, List<Meeting> meetings);
-	
-    /**
      * Adds a CourseSection with a single meeting time to a parent CourseSection.
      * This method is deprecated.  Please use addSection(String courseUuid, String title,
      * String category, Integer maxEnrollments, List meetings)
@@ -283,6 +266,22 @@ public interface SectionManager {
     		boolean monday, boolean tuesday, boolean wednesday, boolean thursday,
     		boolean friday, boolean saturday, boolean sunday);
 
+    /**
+     * Adds multiple sections at once.  This should help address the inefficiencies
+     * described in http://bugs.sakaiproject.org/jira/browse/SAK-7503.
+     * 
+     * Meeting times should be, but are not handled by an external calendar service.
+     * So, the added functionality of linking course sections to repeating events (meet
+     * every 2nd Tuesday of the month at 3pm) is currently out of scope.  Instead,
+     * meetings are represented as a start time, end time, and seven booleans
+     * representing the days that the section meets.
+     * 
+     * @param courseUuid
+     * @param sections
+     */
+    public Collection<CourseSection> addSections(String courseUuid, Collection<CourseSection> sections);
+    
+    
     /**
      * Updates the persistent representation of the given CourseSection.  Once
      * a section is created, its category is immutable.  This method will remove all
@@ -332,22 +331,23 @@ public interface SectionManager {
      */
     public void disbandSection(String sectionUuid);
 
+    /**
+     * Disbands course sections.  This does not affect enrollment records for
+     * the course.
+     * 
+     * @param sectionUuids
+     */
+    public void disbandSections(Set<String> sectionUuids);
+
 
     /**
      * Determines whether students can enroll themselves in a section.
+     * 
      * 
      * @param courseUuid
      * @return
      */
     public boolean isSelfRegistrationAllowed(String courseUuid);
-    
-    /**
-     * Sets the "self registration" status of a section.
-     * 
-     * @param courseUuid
-     * @param allowed
-     */
-    public void setSelfRegistrationAllowed(String courseUuid, boolean allowed);
     
     /**
      * Determines whether students can switch sections once they are enrolled in
@@ -359,13 +359,14 @@ public interface SectionManager {
     public boolean isSelfSwitchingAllowed(String courseUuid);
     
     /**
-     * Sets the "student switching" status of a primary section.
+     * Sets the join/switch options for a course.
      * 
-     * @param courseId
-     * @param allowed
+     * @param courseUuid
+     * @param joinAllowed
+     * @param switchAllowed
      */
-    public void setSelfSwitchingAllowed(String courseUuid, boolean allowed);
-
+    public void setJoinOptions(String courseUuid, boolean joinAllowed, boolean switchAllowed);
+    
     /**
      * Determines whether a course is externally managed.
      * 

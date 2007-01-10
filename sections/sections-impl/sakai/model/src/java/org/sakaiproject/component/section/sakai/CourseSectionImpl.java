@@ -72,6 +72,41 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     // Transient holder for the framework group being decorated.
     private transient Group group;
     
+    /**
+     * Convenience constructor to create a CourseSection with a single meeting.
+     * 
+     * @param course
+     * @param title
+     * @param uuid
+     * @param category
+     * @param maxEnrollments
+     * @param location
+     * @param startTime
+     * @param endTime
+     * @param monday
+     * @param tuesday
+     * @param wednesday
+     * @param thursday
+     * @param friday
+     * @param saturday
+     * @param sunday
+     */
+    public CourseSectionImpl(Course course, String title, String uuid, String category,
+    		Integer maxEnrollments, String location, Time startTime,
+    		Time endTime, boolean monday, boolean tuesday,
+    		boolean wednesday, boolean thursday, boolean friday, boolean saturday,
+    		boolean sunday) {
+    	
+		this.course = course;
+		this.title = title;
+		this.uuid = uuid;
+		this.category = category;
+		this.maxEnrollments = maxEnrollments;
+		this.meetings = new ArrayList<Meeting>();
+		this.meetings.add(new MeetingImpl(location, startTime, endTime, monday,
+				tuesday, wednesday, thursday, friday, saturday, sunday));
+	}
+
 	public CourseSectionImpl(Group group) {
 		this.meetings = new ArrayList<Meeting>();
 		// We always start with a single empty meeting

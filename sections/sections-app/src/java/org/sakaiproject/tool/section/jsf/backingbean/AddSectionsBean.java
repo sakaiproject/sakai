@@ -35,8 +35,8 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
-import org.sakaiproject.section.api.coursemanagement.Meeting;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
@@ -52,7 +52,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 	private int numToAdd;
 	private String category;
 	private List<SelectItem> categoryItems;
-	private List<LocalSectionModel> sections;
+	private List<CourseSection> sections;
 	private String rowStyleClasses;
 	private 	String elementToFocus;
 	private transient boolean sectionsChanged;
@@ -98,13 +98,16 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 	 *
 	 */
 	private void populateSections() {
-		sections = new ArrayList<LocalSectionModel>();
+		Course course = getCourse();
+		
+		sections = new ArrayList<CourseSection>();
 		StringBuffer rowClasses = new StringBuffer();
 		if(StringUtils.trimToNull(category) != null) {
 			if(log.isDebugEnabled()) log.debug("populating sections");
+			String categoryName = getCategoryName(category);
 			int offset = getSectionManager().getSectionsInCategory(getSiteContext(), category).size();
 			for(int i=1; i<=numToAdd; i++) {
-				LocalSectionModel section = new LocalSectionModel(getCategoryName(category) + (i+offset));
+				LocalSectionModel section = new LocalSectionModel(course,  categoryName + (i+offset), category, null);
 				section.getMeetings().add(new LocalMeetingModel());
 				sections.add(section);
 				if(i>1) {
@@ -159,15 +162,10 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 				titles.append(sepChar);
 				titles.append(" ");
 			}
-
-			List<Meeting> meetings = new ArrayList<Meeting>();
-			for(Iterator<Meeting> meetingIter = sectionModel.getMeetings().iterator(); meetingIter.hasNext();) {
-				Meeting meeting = meetingIter.next();
-				meetings.add(meeting);
-			}
-			getSectionManager().addSection(courseUuid, sectionModel.getTitle(),
-					category,  sectionModel.getMaxEnrollments(), meetings);
 		}
+
+		getSectionManager().addSections(courseUuid, sections);
+
 		String[] params = new String[3];
 		params[0] = titles.toString();
 		if(sections.size() == 1) {
@@ -405,7 +403,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 		return categoryItems;
 	}
 	
-	public List<LocalSectionModel> getSections() {
+	public List<CourseSection> getSections() {
 		return sections;
 	}
 

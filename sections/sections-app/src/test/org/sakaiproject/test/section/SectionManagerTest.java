@@ -264,18 +264,13 @@ public class SectionManagerTest extends SectionsTestBase{
 		secMgr.dropEnrollmentFromCategory("student1", siteContext, firstCategory);
 		
 		// Change the self reg and self switching flags
-		secMgr.setSelfRegistrationAllowed(course.getUuid(), true);
+		secMgr.setJoinOptions(course.getUuid(), true, false);
 		Assert.assertTrue(secMgr.isSelfRegistrationAllowed(course.getUuid()));
+		Assert.assertFalse(secMgr.isSelfSwitchingAllowed(course.getUuid()));
 
-		secMgr.setSelfRegistrationAllowed(course.getUuid(), false);
-		Assert.assertTrue( ! secMgr.isSelfRegistrationAllowed(course.getUuid()));
-
-		secMgr.setSelfSwitchingAllowed(course.getUuid(), true);
+		secMgr.setJoinOptions(course.getUuid(), false, true);
+		Assert.assertFalse(secMgr.isSelfRegistrationAllowed(course.getUuid()));
 		Assert.assertTrue(secMgr.isSelfSwitchingAllowed(course.getUuid()));
-
-		secMgr.setSelfSwitchingAllowed(course.getUuid(), false);
-		Assert.assertTrue( ! secMgr.isSelfSwitchingAllowed(course.getUuid()));
-
     }
     
 }

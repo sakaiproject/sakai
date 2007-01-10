@@ -50,7 +50,7 @@ public class EditSectionBean extends AddSectionsBean implements SectionEditor, S
 	private transient String elementToFocus;
 	
 	/** A list composed of a single section.  This is used so we can share UI code with AddSections */
-	private List<LocalSectionModel> sections;
+	private List<CourseSection> sections;
 	
 
 	/**
@@ -65,7 +65,7 @@ public class EditSectionBean extends AddSectionsBean implements SectionEditor, S
 			}
 			CourseSection sectionFromService = getSectionManager().getSection(sectionUuid);
 			section = new LocalSectionModel(sectionFromService);
-			sections = new ArrayList<LocalSectionModel>();
+			sections = new ArrayList<CourseSection>();
 			sections.add(section);
 		}
 	}
@@ -235,7 +235,7 @@ public class EditSectionBean extends AddSectionsBean implements SectionEditor, S
 		this.section = section;
 	}
 	
-	public List<LocalSectionModel> getSections() {
+	public List<CourseSection> getSections() {
 		return sections;
 	}
 

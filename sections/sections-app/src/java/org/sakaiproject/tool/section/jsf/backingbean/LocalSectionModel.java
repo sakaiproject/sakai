@@ -28,15 +28,18 @@ import java.util.List;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.Meeting;
 
-public class LocalSectionModel implements Serializable {
+public class LocalSectionModel implements CourseSection, Serializable {
 	private static final Log log = LogFactory.getLog(LocalSectionModel.class);
 	private static final long serialVersionUID = 1L;
 
-
+	private Course course;
+	private String uuid;
 	private String title;
+	private String category;
     private Integer maxEnrollments;
 
 	// We need a string to represent size limit due to this JSF bug: http://issues.apache.org/jira/browse/MYFACES-570
@@ -46,13 +49,18 @@ public class LocalSectionModel implements Serializable {
 
 	public LocalSectionModel() {}
 	
-	public LocalSectionModel(String title) {
+	public LocalSectionModel(Course course, String title, String category, String uuid) {
+		this.uuid = uuid;
 		this.title = title;
+		this.category = category;
 		limitSize = Boolean.FALSE.toString();
 	}
 	
 	public LocalSectionModel(CourseSection section) {
+		this.course = section.getCourse();
+		this.uuid = section.getUuid();
 		this.title = section.getTitle();
+		this.category = section.getCategory();
 		this.maxEnrollments = section.getMaxEnrollments();
 		if(maxEnrollments == null) {
 			limitSize = Boolean.FALSE.toString();
@@ -100,5 +108,17 @@ public class LocalSectionModel implements Serializable {
 
 	public void setLimitSize(String limitSize) {
 		this.limitSize = limitSize;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public Course getCourse() {
+		return course;
+	}
+
+	public String getUuid() {
+		return uuid;
 	}
 }

@@ -44,8 +44,17 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
     
     protected List meetings;
 
-    public CourseSectionImpl() {
-    	// Default constructor needed by hibernate
+    /** Default constructor needed by hibernate */
+    public CourseSectionImpl() {}
+
+    /** Converts an arbitrary CourseSection into an instance of this class  */
+    public CourseSectionImpl(CourseSection section) {
+    	this.course = section.getCourse();
+    	this.category = section.getCategory();
+    	this.maxEnrollments = section.getMaxEnrollments();
+    	this.meetings = section.getMeetings();
+    	this.title = section.getTitle();
+    	this.uuid = section.getUuid();
     }
 
 

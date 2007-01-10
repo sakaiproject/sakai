@@ -155,7 +155,9 @@ public class CourseManagementIntegrationTest extends SakaiTestBase {
 		Assert.assertEquals(0, sectionManager.getSections(siteId).size());
 
 		// Add a section "manually"
-		CourseSection section = sectionManager.addSection(site.getReference(), "a manual section", "lec", new Integer(10), null);
+		CourseSection section = sectionManager.addSection(site.getReference(),
+				"a manual section", "lec", new Integer(10), null, null, null, false, false,
+				false, false, false, false, false);
 		
 		// Now change this "manual by default" site to be externally controlled (automatic)
 		sectionManager.setExternallyManaged(site.getReference(), true);
@@ -256,7 +258,8 @@ public class CourseManagementIntegrationTest extends SakaiTestBase {
 		try {
 			sectionManager.updateSection(section.getUuid(), "a new title", null, null);
 		} catch (Exception e) {
-			fail("We should be able to edit sections, but couldn't: " + e.getMessage());
+			fail("We should be able to edit sections, but couldn't: " + e);
+			e.printStackTrace();
 		}
 
 		// Ensure that we can delete sections

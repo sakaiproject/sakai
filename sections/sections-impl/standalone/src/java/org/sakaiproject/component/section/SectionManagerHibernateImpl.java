@@ -22,6 +22,7 @@ package org.sakaiproject.component.section;
 
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -723,6 +724,15 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     /**
      * {@inheritDoc}
      */
+	public void disbandSections(Set<String> sectionUuids) {
+		for(Iterator<String> iter = sectionUuids.iterator(); iter.hasNext();) {
+			disbandSection(iter.next());
+		}
+	}
+
+    /**
+     * {@inheritDoc}
+     */
 	public boolean isExternallyManaged(final String courseUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -763,21 +773,6 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return ((Boolean)getHibernateTemplate().execute(hc)).booleanValue();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void setSelfRegistrationAllowed(final String courseUuid, final boolean allowed) {
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-            	CourseImpl course = (CourseImpl)getCourseFromUuid(courseUuid, session);
-            	course.setSelfRegistrationAllowed(allowed);
-            	session.update(course);
-            	return null;
-            }
-        };
-        getHibernateTemplate().execute(hc);
-    }
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -789,21 +784,6 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
             }
         };
         return ((Boolean)getHibernateTemplate().execute(hc)).booleanValue();
-    }
-
-	/**
-	 * {@inheritDoc}
-	 */
-    public void setSelfSwitchingAllowed(final String courseUuid, final boolean allowed) {
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-            	CourseImpl course = (CourseImpl)getCourseFromUuid(courseUuid, session);
-            	course.setSelfSwitchingAllowed(allowed);
-            	session.update(course);
-            	return null;
-            }
-        };
-        getHibernateTemplate().execute(hc);
     }
     
 	/**
@@ -886,4 +866,48 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 		this.context = context;
 	}
 
+	public void setJoinOptions(final String courseUuid, final boolean joinAllowed, final boolean switchAllowed) {
+        HibernateCallback hc = new HibernateCallback(){
+            public Object doInHibernate(Session session) throws HibernateException {
+            	CourseImpl course = (CourseImpl)getCourseFromUuid(courseUuid, session);
+            	course.setSelfRegistrationAllowed(joinAllowed);
+            	course.setSelfSwitchingAllowed(switchAllowed);
+            	session.update(course);
+            	return null;
+            }
+        };
+        getHibernateTemplate().execute(hc);
+	}
+
+	public Collection<CourseSection> addSections(String courseUuid, Collection<CourseSection> sections) {
+		// We need to ensure that these sections are hibernate entities, not some other impl.
+		sections = ensureHibernateSections(sections);
+		
+		Collection<CourseSection> addedSections = new ArrayList<CourseSection>();
+		for(Iterator<CourseSection> iter = sections.iterator(); iter.hasNext();) {
+			CourseSection section = iter.next();
+			addedSections.add(
+					addSection(courseUuid, section.getTitle(), section.getCategory(),
+							section.getMaxEnrollments(), ensureHibernateMeetings(section.getMeetings())));
+		}
+		return addedSections;
+	}
+	
+	private List<MeetingImpl> ensureHibernateMeetings(List<Meeting> meetings) {
+		List<MeetingImpl> hibernateEntities = new ArrayList<MeetingImpl>();
+		for(Iterator<Meeting> iter = meetings.iterator(); iter.hasNext();) {
+			Meeting meeting = iter.next();
+			hibernateEntities.add(new MeetingImpl(meeting));
+		}
+		return hibernateEntities;
+	}
+	
+	private List<CourseSection> ensureHibernateSections(Collection<CourseSection> sections) {
+		List<CourseSection> hibernateEntities = new ArrayList<CourseSection>();
+		for(Iterator<CourseSection> iter = sections.iterator(); iter.hasNext();) {
+			CourseSection section = iter.next();
+			hibernateEntities.add(new CourseSectionImpl(section));
+		}
+		return hibernateEntities;
+	}
 }

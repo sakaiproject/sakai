@@ -940,17 +940,32 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 	 * {@inheritDoc}
 	 */
 	public CourseSection addSection(String courseUuid, String title,
-			String category, Integer maxEnrollments,
-			String location, Time startTime,
-			Time endTime, boolean monday,
-			boolean tuesday, boolean wednesday, boolean thursday,
-			boolean friday, boolean saturday, boolean sunday) {
+		String category, Integer maxEnrollments,
+		String location, Time startTime,
+		Time endTime, boolean monday,
+		boolean tuesday, boolean wednesday, boolean thursday,
+		boolean friday, boolean saturday, boolean sunday) {
 		
-		Meeting meeting = new MeetingImpl(location, startTime, endTime, monday, tuesday, wednesday, thursday, friday, saturday, sunday);
-		List<Meeting> meetings = new ArrayList<Meeting>();
-		meetings.add(meeting);
+		// Get the site
+		Reference ref = entityManager.newReference(courseUuid);
+		Site site;
+		try {
+			site = siteService().getSite(ref.getId());
+		} catch (IdUnusedException e) {
+			log.error("Unable to find site " + courseUuid);
+			return null;
+		}
 
-		return addSection(courseUuid, title, category, maxEnrollments, meetings);
+		CourseSection section = new CourseSectionImpl(getCourse(site.getId()), title,
+				null, category,maxEnrollments, location, startTime, endTime, monday,
+				tuesday, wednesday, thursday, friday, saturday, sunday);
+
+		List<CourseSection> sections = new ArrayList<CourseSection>();
+		sections.add(section);
+
+		addSections(courseUuid, sections);
+		
+		return section;
 	}
 	
 	/**
@@ -975,18 +990,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		return filteredMeetings;
 	}
 	
-	public CourseSection addSection(String courseUuid, String title, String category, Integer maxEnrollments, List<Meeting> meetings) {
-		// Disallow if we're in an externally managed site
-		ensureInternallyManaged(courseUuid);
-
-		Reference ref = entityManager.newReference(courseUuid);
-		Site site;
-		try {
-			site = siteService().getSite(ref.getId());
-		} catch (IdUnusedException e) {
-			log.error("Unable to find site " + courseUuid);
-			return null;
-		}
+	private CourseSection addSectionToSite(Site site, String title, String category, Integer maxEnrollments, List<Meeting> meetings) {
 		Group group = site.addGroup();
 		
 		// Construct a CourseSection for this group
@@ -1001,17 +1005,48 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		// Decorate the framework group
 		courseSection.decorateGroup(group);
 
+		return courseSection;
+	}
+	
+	public Collection<CourseSection> addSections(String courseUuid, Collection<CourseSection> sections) {
+		// Disallow if we're in an externally managed site
+		ensureInternallyManaged(courseUuid);
+
+		// Get the site
+		Reference ref = entityManager.newReference(courseUuid);
+		Site site;
+		try {
+			site = siteService().getSite(ref.getId());
+		} catch (IdUnusedException e) {
+			log.error("Unable to find site " + courseUuid);
+			return null;
+		}
+
+		List<CourseSection> addedSections = new ArrayList<CourseSection>();
+		
+		// Add the decorated groups to the site
+		for(Iterator<CourseSection> iter = sections.iterator(); iter.hasNext();) {
+			CourseSection section = iter.next();
+			addedSections.add(
+					addSectionToSite(site, section.getTitle(), section.getCategory(),
+							section.getMaxEnrollments(), section.getMeetings()));
+		}
+		
 		// Save the site, along with the new section
 		try {
 			siteService().save(site);
-			postEvent("section.add", group.getReference());
+			for(Iterator<CourseSection> iter = sections.iterator(); iter.hasNext();) {
+				postEvent("section.add", iter.next().getUuid());
+			}
+			return addedSections;
 		} catch (IdUnusedException ide) {
-			log.error("Error saving site... could not find site for section " + group, ide);
+			log.error("Error saving site... could not find site " + site.getId(), ide);
 		} catch (PermissionException pe) {
-			log.error("Error saving site... permission denied for section " + group, pe);
+			log.error("Error saving site... permission denied for site " + site.getId(), pe);
 		}
-		return new CourseSectionImpl(group);
+		return null;
 	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -1064,24 +1099,56 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 	 * {@inheritDoc}
 	 */
 	public void disbandSection(String sectionUuid) {
-		// Disallow if we're in an externally managed site
-		ensureInternallyManaged(getSection(sectionUuid).getCourse().getUuid());
-		
-		if(log.isDebugEnabled()) log.debug("Disbanding section " + sectionUuid);
-		Group group = siteService().findGroup(sectionUuid);
-		
-		// TODO Add token in UI to intercept double clicks in action buttons
-		// SAK-3553 (Clicking remove button twice during section remove operation results in blank iframe.)
-		if(group == null) {
-			log.warn("Unable to find group with uuid " + sectionUuid);
+		Set<String> set = new HashSet<String>();
+		set.add(sectionUuid);
+		disbandSections(set);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void disbandSections(Set<String> sectionUuids) {
+		if(sectionUuids == null || sectionUuids.isEmpty()) {
 			return;
 		}
 
-		Site site = group.getContainingSite();
-		site.removeGroup(group);
+		// Determine the course (site) we're in
+		String firstSectionUuid = sectionUuids.iterator().next();
+		CourseSection firstSection = getSection(firstSectionUuid);
+		if(firstSection == null) {
+			if(log.isDebugEnabled()) log.debug("Unable to remove section " + firstSectionUuid);
+			return;
+		}
+		Course course = firstSection.getCourse();
+
+		// Disallow if we're in an externally managed site
+		ensureInternallyManaged(course.getUuid());
+
+		Site site = null;
+		for(Iterator<String> iter = sectionUuids.iterator(); iter.hasNext();) {
+			String sectionUuid = iter.next();
+			if(log.isDebugEnabled()) log.debug("Disbanding section " + sectionUuid);
+			Group group = siteService().findGroup(sectionUuid);
+
+			// TODO Add token in UI to intercept double clicks in action buttons
+			// SAK-3553 (Clicking remove button twice during section remove operation results in blank iframe.)
+			if(group == null) {
+				log.warn("Unable to find group with uuid " + sectionUuid);
+				return;
+			}
+			if(site == null) {
+				site = group.getContainingSite();
+			}
+			site.removeGroup(group);
+		}
+		
+
 		try {
 			siteService().save(site);
-			postEvent("section.disband", sectionUuid);
+			for(Iterator<String> iter = sectionUuids.iterator(); iter.hasNext();) {
+				String sectionUuid = iter.next();
+				postEvent("section.disband", sectionUuid);
+			}
 		} catch (IdUnusedException e) {
 			log.error("Cound not disband section (can't find section): ",e);
 		} catch (PermissionException e) {
@@ -1154,11 +1221,9 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		ResourceProperties props = site.getProperties();
 		return Boolean.toString(true).equals(props.getProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED));
 	}
+	
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setSelfRegistrationAllowed(String courseUuid, boolean allowed) {
+	public void setJoinOptions(String courseUuid, boolean joinAllowed, boolean switchAllowed) {
 		// Disallow if we're in an externally managed site
 		ensureInternallyManaged(courseUuid);
 
@@ -1171,15 +1236,27 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			throw new RuntimeException("Can not find site " + courseUuid, e);
 		}
 		ResourceProperties props = site.getProperties();
-		props.addProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED, new Boolean(allowed).toString());
+		
+		// Get the existing join and switch settings, so we know what's changed
+		boolean oldJoin = new Boolean(props.getProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED)).booleanValue();
+		boolean oldSwitch = new Boolean(props.getProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED)).booleanValue();
+		
+		props.addProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED, Boolean.toString(joinAllowed));
+		props.addProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED, Boolean.toString(switchAllowed));
 		try {
 			siteService().save(site);
-			postEvent("section.student.reg=" + allowed, site.getReference());
+			if(joinAllowed != oldJoin) {
+				postEvent("section.student.reg=" + joinAllowed, site.getReference());
+			}
+			if(switchAllowed != oldSwitch) {
+				postEvent("section.student.switch=" + switchAllowed, site.getReference());
+			}
+			
 		} catch (IdUnusedException ide) {
 			log.error("Error saving site... could not find site " + site, ide);
 		} catch (PermissionException pe) {
 			log.error("Error saving site... permission denied for " + site, pe);
-		}
+		}		
 	}
 
 	/**
@@ -1196,34 +1273,6 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		}
 		ResourceProperties props = site.getProperties();
 		return Boolean.toString(true).equals(props.getProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED));
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setSelfSwitchingAllowed(String courseUuid, boolean allowed) {
-		// Disallow if we're in an externally managed site
-		ensureInternallyManaged(courseUuid);
-
-		Reference ref = entityManager.newReference(courseUuid);
-		String siteId = ref.getId();
-		Site site;
-		try {
-			site = siteService().getSite(siteId);
-		} catch (IdUnusedException e) {
-			throw new RuntimeException("Can not find site " + courseUuid, e);
-		}
-		ResourceProperties props = site.getProperties();
-		props.addProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED, new Boolean(allowed).toString());
-		
-		try {
-			siteService().save(site);
-			postEvent("section.student.switch=" + allowed, site.getReference());
-		} catch (IdUnusedException ide) {
-			log.error("Error saving site... could not find site " + site, ide);
-		} catch (PermissionException pe) {
-			log.error("Error saving site... permission denied for " + site, pe);
-		}
 	}
 	
 	/**
