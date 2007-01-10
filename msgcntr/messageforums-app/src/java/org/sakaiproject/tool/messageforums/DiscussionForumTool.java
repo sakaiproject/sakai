@@ -2039,7 +2039,6 @@ public class DiscussionForumTool
     selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
 
     selectedTopic.getTopic().addMessage(dMsg);
-    forumManager.saveTopic(selectedTopic.getTopic());
     
     /** mark message creator as having read the message */
     messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(), dMsg.getId(), true);        
@@ -2070,7 +2069,6 @@ public class DiscussionForumTool
     //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
-    forumManager.saveTopic(selectedTopic.getTopic());
 
     this.composeBody = null;
     this.composeLabel = null;
@@ -2376,7 +2374,6 @@ public class DiscussionForumTool
     //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
-    forumManager.saveTopic(selectedTopic.getTopic());
 
     this.composeBody = null;
     this.composeLabel = null;
@@ -2427,7 +2424,6 @@ public class DiscussionForumTool
     //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
-    forumManager.saveTopic(selectedTopic.getTopic());
 
     this.composeBody = null;
     this.composeLabel = null;
@@ -2718,7 +2714,6 @@ public class DiscussionForumTool
     //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
-    forumManager.saveTopic(selectedTopic.getTopic());
 
     this.composeBody = null;
     this.composeLabel = null;
@@ -2743,7 +2738,6 @@ public class DiscussionForumTool
     //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
-    forumManager.saveTopic(selectedTopic.getTopic());
 
     this.composeBody = null;
     this.composeLabel = null;
