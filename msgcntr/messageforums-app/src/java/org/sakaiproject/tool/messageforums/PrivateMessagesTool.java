@@ -52,6 +52,7 @@ import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.authz.api.Member;
@@ -2332,10 +2333,30 @@ public class PrivateMessagesTool
       return REVISE_FOLDER_PG;
     }
     else {
+      List tmpMsgList = prtMsgManager.getMessagesByType(typeManager.getCustomTopicType(prtMsgManager.getTopicByUuid(selectedTopicId).getTitle()), PrivateMessageManager.SORT_COLUMN_DATE,
+          PrivateMessageManager.SORT_ASC);
       prtMsgManager.renameTopicFolder(forum, selectedTopicId,  newTopicTitle);
       //rename topic in commons -- as messages are linked through commons type
       //TODO - what if more than one type objects are returned-- We need to switch from title
-      typeManager.renameCustomTopicType(selectedTopicTitle, newTopicTitle);
+      String newTypeUuid = typeManager.renameCustomTopicType(selectedTopicTitle, newTopicTitle);
+      for(int i=0; i<tmpMsgList.size(); i++)
+      {
+      	PrivateMessage tmpPM = (PrivateMessage) tmpMsgList.get(i);
+      	List tmpRecipList = tmpPM.getRecipients();
+      	tmpPM.setTypeUuid(newTypeUuid);
+      	String currentUserId = SessionManager.getCurrentSessionUserId();
+      	Iterator iter = tmpRecipList.iterator();
+      	while(iter.hasNext())
+      	{
+      		PrivateMessageRecipient tmpPMR = (PrivateMessageRecipient) iter.next();
+      		if(tmpPMR != null && tmpPMR.getUserId().equals(currentUserId))
+      		{
+      			tmpPMR.setTypeUuid(newTypeUuid);
+      		}
+      	}
+      	tmpPM.setRecipients(tmpRecipList);
+      	prtMsgManager.savePrivateMessage(tmpPM);
+      }
     }
     
     return MAIN_PG ;

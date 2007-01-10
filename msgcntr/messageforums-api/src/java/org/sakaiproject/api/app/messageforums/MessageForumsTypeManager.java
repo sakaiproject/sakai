@@ -113,6 +113,6 @@ public interface MessageForumsTypeManager
  
   public String getCustomTopicType(String topicTitle);
   
-  public void renameCustomTopicType(String oldTopicTitle, String newTopicTitle);
+  public String renameCustomTopicType(String oldTopicTitle, String newTopicTitle);
  
 }

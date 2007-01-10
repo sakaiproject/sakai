@@ -431,16 +431,19 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
     }
   }
   
-  public void renameCustomTopicType(String oldTopicTitle, String newTopicTitle)
+  public String renameCustomTopicType(String oldTopicTitle, String newTopicTitle)
   {
     Type type = typeManager.getType(AUTHORITY, DOMAIN, oldTopicTitle);
-    if (type != null)
+    Type typeNew = typeManager.getType(AUTHORITY, DOMAIN, newTopicTitle);
+    if (type != null && typeNew == null)
     {
-      type.setDisplayName(newTopicTitle);
-      type.setDescription(newTopicTitle);
-      type.setKeyword(newTopicTitle);
-      
-      typeManager.saveType(type);
+    	return (typeManager.createType(AUTHORITY, DOMAIN, newTopicTitle, newTopicTitle, newTopicTitle)).getUuid();
     }
+    else if(type != null && typeNew != null)
+    {
+    	return typeNew.getUuid();
+    }
+    else
+    	return null;
   }
 }
