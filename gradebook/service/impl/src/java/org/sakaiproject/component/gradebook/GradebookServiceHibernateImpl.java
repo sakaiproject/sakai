@@ -425,8 +425,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         // for the details.
         HibernateTemplate hibTempl = getHibernateTemplate();
 
-        final List studentsWithExternalScores = hibTempl.find("select agr.studentId from AssignmentGradeRecord as agr where agr.gradableObject=?", asn);
-
         List toBeDeleted = hibTempl.find("from AssignmentGradeRecord as agr where agr.gradableObject=?", asn);
         int numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
@@ -490,10 +488,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					agr.setGraderId(getUserUid());
 					if (log.isDebugEnabled()) log.debug("About to save AssignmentGradeRecord id=" + agr.getId() + ", version=" + agr.getVersion() + ", studenttId=" + agr.getStudentId() + ", pointsEarned=" + agr.getPointsEarned());
 					session.saveOrUpdate(agr);
-
-					Gradebook gradebook = asn.getGradebook();
-					Set set = new HashSet();
-					set.add(studentUid);
 
 					// Sync database.
 					session.flush();
