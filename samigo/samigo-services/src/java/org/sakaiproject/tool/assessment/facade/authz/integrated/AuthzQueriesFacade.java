@@ -186,7 +186,7 @@ public class AuthzQueriesFacade
       ad.setAgentIdString(agentId);
       ad.setFunctionId(functionId);
       ad.setQualifierId(qualifierId);
-      ad.setLastModifiedBy("someone");
+      ad.setLastModifiedBy(UserDirectoryService.getCurrentUser().getId());
       ad.setLastModifiedDate(lastModifiedDate);
       getHibernateTemplate().save(ad);
       return ad;
