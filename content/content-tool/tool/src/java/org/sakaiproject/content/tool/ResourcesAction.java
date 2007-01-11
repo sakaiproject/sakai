@@ -2226,7 +2226,7 @@ public class ResourcesAction
 		state.setAttribute(STATE_EXPANDED_COLLECTIONS, tempExpandedCollections);
 
 		Set highlightedItems = new TreeSet();
-		// List all_roots = new Vector();
+		List all_roots = new Vector();
 		List this_site = new Vector();
 
 		List members = getListView(folderId, highlightedItems, (ChefBrowseItem) null, true, state);
@@ -2279,7 +2279,7 @@ public class ResourcesAction
 			root.addMembers(members);
 			root.setName(rootTitle);
 			this_site.add(root);
-			// all_roots.add(root);
+			all_roots.add(root);
 		}
 		context.put ("this_site", this_site);
 		
@@ -2463,7 +2463,7 @@ public class ResourcesAction
 
 			state.removeAttribute(STATE_PASTE_ALLOWED_FLAG);
 
-			//List all_roots = new Vector();
+			List all_roots = new Vector();
 			List this_site = new Vector();
 			
 			List members = getListView(collectionId, highlightedItems, (ChefBrowseItem) null, navRoot.equals(homeCollectionId), state);
@@ -2487,7 +2487,7 @@ public class ResourcesAction
 				context.put("site", root);
 				root.addMembers(members);
 				this_site.add(root);
-				//all_roots.add(root);
+				all_roots.add(root);
 			}
 			context.put ("this_site", this_site);
 
@@ -2512,6 +2512,7 @@ public class ResourcesAction
 
 				List messages = prepPage(state);
 				context.put("other_sites", messages);
+				all_roots.addAll(messages);
 
 				if (state.getAttribute(STATE_NUM_MESSAGES) != null)
 				{
@@ -2555,7 +2556,7 @@ public class ResourcesAction
 			}
 
 			// context.put ("other_sites", other_sites);
-			//state.setAttribute(STATE_COLLECTION_ROOTS, all_roots);
+			state.setAttribute(STATE_COLLECTION_ROOTS, all_roots);
 			// context.put ("root", root);
 
 			if(state.getAttribute(STATE_PASTE_ALLOWED_FLAG) != null)
@@ -2801,7 +2802,7 @@ public class ResourcesAction
 
 			state.removeAttribute(STATE_PASTE_ALLOWED_FLAG);
 
-			List all_roots = new Vector();
+			//List all_roots = new Vector();
 			List this_site = new Vector();
 			
 			List members = getListView(collectionId, highlightedItems, (ChefBrowseItem) null, navRoot.equals(homeCollectionId), state);
@@ -2825,7 +2826,7 @@ public class ResourcesAction
 				context.put("site", root);
 				root.addMembers(members);
 				this_site.add(root);
-				all_roots.add(root);
+				//all_roots.add(root);
 			}
 			context.put ("this_site", this_site);
 
@@ -10486,6 +10487,10 @@ public class ResourcesAction
 			List notDeleteItems = new Vector();
 			List nonEmptyFolders = new Vector();
 			List roots = (List) state.getAttribute(STATE_COLLECTION_ROOTS);
+			if(roots == null)
+			{
+				
+			}
 			Iterator rootIt = roots.iterator();
 			while(rootIt.hasNext())
 			{
