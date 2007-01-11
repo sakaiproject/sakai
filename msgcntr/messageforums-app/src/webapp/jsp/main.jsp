@@ -38,6 +38,7 @@
 <script type="text/javascript">
   setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
 </script> 
+					<h:inputHidden id="mainOrHp" value="main" />
           <%@include file="privateMsg/pvtArea.jsp"%>
         </mf:forumHideDivision>
         <%@include file="discussionForum/area/dfArea.jsp"%>

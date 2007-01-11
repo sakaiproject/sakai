@@ -124,6 +124,7 @@ public class PrivateMessagesTool
   public static final String DISPLAY_MESSAGES_PG="pvtMsg";
   public static final String SELECTED_MESSAGE_PG="pvtMsgDetail";
   public static final String COMPOSE_MSG_PG="compose";
+  public static final String COMPOSE_FROM_PG="msgForum:mainOrHp";
   public static final String MESSAGE_SETTING_PG="pvtMsgSettings";
   public static final String MESSAGE_FOLDER_SETTING_PG="pvtMsgFolderSettings";
   public static final String SEARCH_RESULT_MESSAGES_PG="pvtMsgEx";
@@ -198,6 +199,9 @@ public class PrivateMessagesTool
   //message header screen
   private String searchText="";
   private String selectView;
+  
+  //return to previous page after send msg
+  private String fromMainOrHp = null;
   //////////////////////
   /** The configuration mode, received, sent,delete, case etc ... */
   public static final String STATE_PVTMSG_MODE = "pvtmsg.mode";
@@ -1126,6 +1130,11 @@ public class PrivateMessagesTool
    */ 
   public String processPvtMsgCompose() {
     this.setDetailMsg(new PrivateMessageDecoratedBean(messageManager.createPrivateMessage()));
+    String fromPage = getExternalParameterByKey(COMPOSE_FROM_PG);
+    if(fromPage != null && (fromPage.equals(MESSAGE_HOME_PG) || (fromPage.equals(MAIN_PG))))
+    {
+    	fromMainOrHp = fromPage;
+    }
     LOG.debug("processPvtMsgCompose()");
     return "pvtMsgCompose" ;
   }
@@ -1194,7 +1203,20 @@ public class PrivateMessagesTool
 
     //reset contents
     resetComposeContents();
-    
+
+    if(fromMainOrHp != null && !fromMainOrHp.equals(""))
+    {
+    	String tmpBackPage = fromMainOrHp;
+    	fromMainOrHp = "";
+    	return tmpBackPage;
+    }
+    else if(selectedTopic != null)
+    {
+    	msgNavMode=getSelectedTopicTitle();
+    	setPrevNextTopicDetails(msgNavMode);
+
+    	return DISPLAY_MESSAGES_PG;
+    }
     return MAIN_PG;    
   }
      

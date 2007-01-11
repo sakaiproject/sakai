@@ -14,6 +14,7 @@
 			<h:outputText value="#{msgs.pvt_message_nav}"/>
 		  </h3>
         </div>
+				<h:inputHidden id="mainOrHp" value="pvtMsgHpView" />
         <%@include file="pvtArea.jsp"%>
       </h:form>
   </sakai:view>
