@@ -46,7 +46,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class ResourcesHelperAction extends VelocityPortletPaneledAction 
 {
 	/** Resource bundle using current language locale */
-	private static ResourceLoader rb = new ResourceLoader("content");
+	private static ResourceLoader rb = new ResourceLoader("types");
 
 	protected  static final String ACCESS_HTML_TEMPLATE = "resources/sakai_access_html";
 	protected  static final String ACCESS_TEXT_TEMPLATE = "resources/sakai_access_text";
