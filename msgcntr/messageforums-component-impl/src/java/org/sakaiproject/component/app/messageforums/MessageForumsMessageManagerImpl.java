@@ -406,7 +406,16 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         }
         
         message.setModified(new Date());
-        message.setModifiedBy(getCurrentUser());       
+        message.setModifiedBy(getCurrentUser());
+        if(message.getId() == null || message.getUuid() == null || message.getCreated() == null
+        	|| message.getCreatedBy() == null || message.getModified() == null
+        	|| message.getModifiedBy() == null || message.getTitle() == null 
+        	|| message.getAuthor() == null || message.getHasAttachments() == null
+        	|| message.getTypeUuid() == null || message.getApproved() == null
+        	|| message.getDraft() == null)
+        {
+        	LOG.error("null attribute(s) for saving message in MessageForumsMessageManagerImpl.saveMessage");
+        }
         getHibernateTemplate().saveOrUpdate(message);
         
         if (isNew) {
