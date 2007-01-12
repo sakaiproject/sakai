@@ -1925,6 +1925,21 @@ public class AssignmentAction extends PagedResourceActionII
 				        		Log.warn("chef", "Cannot find assignment " + assignmentRef + ": " + e.getMessage());
 				        }
 					}
+					else if (associateGradebookAssignment != null && isExternalAssociateAssignmentDefined)
+					{
+						try
+						{
+						    Assignment a = AssignmentService.getAssignment(associateGradebookAssignment);
+
+						    // update attributes for existing assignment
+					    		g.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, newAssignment_title, newAssignment_maxPoints/10.0, new Date(newAssignment_dueTime.getTime()));
+						}
+					    catch(Exception e)
+				        {
+				        		Log.warn("chef", "Cannot find assignment " + assignmentRef + ": " + e.getMessage());
+				        }
+					}
+					
 				}	// addUpdateRemove != null
 				else if (addUpdateRemoveAssignment.equals("remove"))
 				{
