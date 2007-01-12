@@ -29,7 +29,7 @@ import java.util.Vector;
  * Course contains information about term, people and roles. The section includes information about the location of the class as well as the roster of students.
  * </p>
  */
-public class Course
+public class Course implements Comparable
 {
 	/** The course id. */
 	protected String m_id = null;
@@ -179,6 +179,19 @@ public class Course
 		m_members.addAll(members);
 
 	} // setMembers
+
+	public int compareTo(Object o)
+	{
+		if(o == null)
+		{
+			return 1;
+		}
+		if( ! (o instanceof Course))
+		{
+			return 1;
+		}
+		return this.m_title.compareTo(((Course)o).m_title);
+	}
 
 } // Course
 
