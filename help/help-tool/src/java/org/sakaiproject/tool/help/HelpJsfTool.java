@@ -56,9 +56,8 @@ public class HelpJsfTool extends JsfTool
   private static final String HELP_ATTRIBUTE = "helpURL";
   
   /** To determine if an external webapp handles help and if so, the base url */
-  private static final String USE_EXTERNAL_WEBAPP = "help.extern.webapp";
-  private static final String EXTERNAL_WEBAPP_URL_BASE = "help.extern.webapp.urlbase";
-  
+  private static final String EXTERNAL_WEBAPP_URL_BASE = "help.redirect.external.webapp";
+  private static final String EXTERNAL_WEBAPP_URL = ServerConfigurationService.getString(EXTERNAL_WEBAPP_URL_BASE, "sakai");
   /**
    * @see org.sakaiproject.jsf.util.JsfTool#dispatch(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
    */
@@ -66,10 +65,10 @@ public class HelpJsfTool extends JsfTool
       throws ServletException, IOException
   {
 	    // if magic switch turned on, go to external webapp
-	    if ("true".equals(ServerConfigurationService.getString(USE_EXTERNAL_WEBAPP))) {
+	    if (! "sakai".equals(EXTERNAL_WEBAPP_URL)) {
 	       String docId = req.getParameter("help");
 	       
-	       String extUrl = ServerConfigurationService.getString(EXTERNAL_WEBAPP_URL_BASE);
+	       String extUrl = EXTERNAL_WEBAPP_URL;
 	       
 	       if (docId != null && ! "".equals("docId")) {
 	    	   extUrl += docId;
