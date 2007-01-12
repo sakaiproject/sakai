@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html;charset=UTF-8"  %><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"  %><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
 <%
 	org.sakaiproject.search.tool.SearchBeanFactory searchBeanFactory = 
 	  (org.sakaiproject.search.tool.SearchBeanFactory)
@@ -20,7 +20,7 @@
 	String rssURL = "";
 	String rssLink = "";
 	if ( searchTerms != null && searchTerms.length() > 0 ) {
-		rssURL = searchBean.getToolUrl()+"/rss20?search="+java.net.URLEncoder.encode(searchBean.getSearch());
+		rssURL = searchBean.getToolUrl()+"/rss20?search="+java.net.URLEncoder.encode(searchBean.getSearch(),"UTF-8");
 		rssLink = "<link rel=\"alternate\" title=\"Sakai RSS Search for: "+searchTerms+" \" " 
  			+ " href=\""+rssURL+"\" type=\"application/rss+xml\" /> ";
     

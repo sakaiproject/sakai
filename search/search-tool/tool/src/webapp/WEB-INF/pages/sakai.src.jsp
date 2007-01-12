@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="application/opensearchdescription+xml;charset=UTF-8"  %><%
+<%@ page language="java" contentType="application/opensearchdescription+xml;charset=UTF-8" pageEncoding="UTF-8"  %><%
 	org.sakaiproject.search.tool.SearchBeanFactory searchBeanFactory = 
 	  (org.sakaiproject.search.tool.SearchBeanFactory)
 		request.getAttribute(org.sakaiproject.search.tool.SearchBeanFactory.SEARCH_BEAN_FACTORY_ATTR);

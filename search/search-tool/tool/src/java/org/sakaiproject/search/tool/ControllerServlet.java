@@ -21,7 +21,11 @@
 
 package org.sakaiproject.search.tool;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -29,6 +33,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
@@ -91,10 +96,30 @@ public class ControllerServlet extends HttpServlet
 
 	}
 
-	protected void doGet(HttpServletRequest request,
+	protected void doGet(final HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		execute(request, response);
+		// GET doesnt do UTF-8 encoding even URL, take the default encoding of the machine
+		HttpServletRequestWrapper httprequest = new HttpServletRequestWrapper(request) {
+			
+			@Override
+			public String getParameter(String name)
+			{
+				String param = request.getParameter(name);
+				if ( param == null ) return null;
+				try
+				{
+					return new String(param.getBytes("ISO-8859-1"),"UTF-8");
+				}
+				catch (UnsupportedEncodingException e)
+				{
+					return param;
+				}
+			}
+		};
+		
+		
+		execute(httprequest, response);
 	}
 
 	protected void doPost(HttpServletRequest request,
@@ -106,7 +131,6 @@ public class ControllerServlet extends HttpServlet
 	public void execute(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
 	{
-
 		if (wac == null)
 		{
 			wac = WebApplicationContextUtils
