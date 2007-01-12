@@ -127,6 +127,7 @@
  
 	<!--
 		CourseManagement-backed Group and Course Providers
+	-->
 
 	<bean id="org.sakaiproject.authz.api.GroupProvider"
 			class="org.sakaiproject.coursemanagement.impl.provider.CourseManagementGroupProvider"
@@ -197,7 +198,5 @@
 				</list>
 			</property>
 	</bean>
-
-	-->
 
 </beans>
