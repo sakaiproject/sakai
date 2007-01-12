@@ -3636,14 +3636,13 @@ public class AssignmentAction extends PagedResourceActionII
 		String assignmentId = params.getString("assignmentId");
 		String assignmentContentId = params.getString("assignmentContentId");
 
-		// AssignmentContent object
-		AssignmentContentEdit ac = getAssignmentContentEdit(state, assignmentContentId);
-
-		// Assignment
-		AssignmentEdit a = getAssignmentEdit(state, assignmentId);
-
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
+			// AssignmentContent object
+			AssignmentContentEdit ac = getAssignmentContentEdit(state, assignmentContentId);
+
+			// Assignment
+			AssignmentEdit a = getAssignmentEdit(state, assignmentId);
 
 			// put the names and values into vm file
 			String title = (String) state.getAttribute(NEW_ASSIGNMENT_TITLE);
