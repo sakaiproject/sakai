@@ -21,6 +21,7 @@
 package org.sakaiproject.coursemanagement.impl.provider;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -200,6 +201,7 @@ public class CourseManagementProviderCMImpl implements CourseManagementProvider 
 				if(log.isDebugEnabled()) log.debug("Section " + section.getEid() + " does not match the term " + termTerm + " " + termYear);
 			}
 		}
+		Collections.sort(courses);
 		return courses;
 	}
 
