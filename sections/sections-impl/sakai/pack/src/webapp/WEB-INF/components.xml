@@ -71,7 +71,7 @@
         <property name="courseManagementService">
             <ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
         </property>
-        <property name="config" value="MANUAL_DEFAULT"/>
+        <property name="config" value="AUTOMATIC_DEFAULT"/>
         
     </bean>
 
