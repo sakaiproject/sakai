@@ -1,3 +1,8 @@
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
+
 <html>
 
 <head>
@@ -10,8 +15,12 @@
 	
 	// intervalid - id of call to progress() every 1/2 sec.
 	//					Put here so can clear on unload.
+	// text - holds the wait message.
+	// width, height - so when content is blank alert retains size.
 	var intervalid, index = 0;
-	
+	var text = 'Loading...';
+	var width, height;
+
 	/*
 	 * Parses the GET parameters into a map
 	 */
@@ -41,11 +50,19 @@
 	 */	
 	function progress()
 	{
-		var prog = ".";
-		for(i = index++; i > 0; i--)
-			prog += ".";
-		document.getElementById("progress").innerHTML = prog;
-		index = index % 5;
+		var content = document.getElementById("progress");
+		if (index++) {
+			text = content.innerHTML;
+			height = content.style.height;
+			width = content.style.width;
+			content.innerHTML = "";
+			content.style.width = width;
+			content.style.height = height;			
+		}
+		else {
+			document.getElementById("progress").innerHTML = text;
+		}
+		index = index % 2;
 	}
 
 	/*
@@ -70,7 +87,7 @@
 	 * 2. an entire url (ex: url=http://www.somesite.com)
 	 */
 	function load() {
-		intervalid = window.setInterval(progress, 500);	
+//		intervalid = window.setInterval(progress, 500);	
 		setTimeout( function() {
 			var map = getParams();
 			var url = map['url'];
@@ -104,24 +121,25 @@
 // --></script>
 </head>
 <body onload="load()" onunload="unload()">
-
+<f:view>
+  <sakai:view>
 <table width="99%" height="99%">
 <tr>
 	<td align="center" valign="middle">
 		<table cellpadding="0" cellspacing="0">
 		<tr>
-		  <td>
-			<span id="message">Loading -- Please wait</span>
-		  </td>
 		  <td width="40">
-			<span id="progress" style="width:25px"></span>
+			<span id="progress" class="alertMessage" style="text-decoration: blink;">
+				<h3><h:outputText value="#{msgs.loading_wait}" /></h3>
+			</span>
 		  </td>
 		</tr>
 		</table>
 	</td>
 </tr>
 </table>
-
+  </sakai:view>
+</f:view>
 </body>
 
 </html>
