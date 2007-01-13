@@ -78,7 +78,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
     {
       return false;
     }
-    return g.gradebookExists(gradebookUId);
+    return g.isGradebookDefined(gradebookUId);
   }
 
   /**
@@ -91,7 +91,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 public void removeExternalAssessment(String gradebookUId,
    String publishedAssessmentId, GradebookService g) throws Exception
   {
-    if (g.gradebookExists(gradebookUId))
+    if (g.isGradebookDefined(gradebookUId))
     {
       g.removeExternalAssessment(gradebookUId, publishedAssessmentId);
     }
@@ -127,8 +127,8 @@ public void removeExternalAssessment(String gradebookUId,
     }
 
     //log.info("inside addToGradebook, gradebook exists? " +
-    //          g.gradebookExists(gradebookUId));
-    if (g.gradebookExists(gradebookUId))
+    //          g.isGradebookDefined(gradebookUId));
+    if (g.isGradebookDefined(gradebookUId))
     {
 
       // Tool name code added by Josh Holtzman
@@ -190,7 +190,7 @@ public void removeExternalAssessment(String gradebookUId,
 				getDueDate());
     return true;
   }
-  
+
   /**
    * Update the grading of the assessment.
    * @param ag the assessment grading.
