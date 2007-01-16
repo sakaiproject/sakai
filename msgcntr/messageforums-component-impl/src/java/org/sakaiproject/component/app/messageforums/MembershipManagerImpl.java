@@ -77,10 +77,12 @@ public class MembershipManagerImpl implements MembershipManager{
   }
 
   /**
-   * Filters out users whose Privacy Status is set to Hidden
+   * sets users' privacy status so can be filtered out
    * 
-   * @param all
-   * @return
+   * @param allCourseUsers - used to get user ids so can call PrivacyManager
+   * @param courseUserMap - map of all course users
+   * 
+   * @return Map of all course users with privacy status set
    */
   private Map filterByPrivacyManager(List allCourseUsers, Map courseUserMap) {
 	  
@@ -89,48 +91,35 @@ public class MembershipManagerImpl implements MembershipManager{
 
 	  Collection userCollection = courseUserMap.values();
 
-	  // if has site.upd, should be able to see all students
-	  if (securityService.unlock(userDirectoryService.getCurrentUser(), "site.upd", getContextSiteId())) {
-		  for (Iterator userIterator = userCollection.iterator(); userIterator.hasNext();) {
-			  MembershipItem memberItem = (MembershipItem) userIterator.next();
-						  
-			  memberItem.setViewable(true);
-
-			  results.put(memberItem.getId(), memberItem);
+	  for (Iterator usersIter = allCourseUsers.iterator(); usersIter.hasNext();) {
+		  MembershipItem memberItem = (MembershipItem) usersIter.next();
+	      
+		  if (memberItem.getUser() != null) {
+			  userIds.add(memberItem.getUser().getId());    
 		  }
 	  }
-	  else {
-		  for (Iterator usersIter = allCourseUsers.iterator(); usersIter.hasNext();) {
-			  MembershipItem memberItem = (MembershipItem) usersIter.next();
-		      
-			  if (memberItem.getUser() != null) {
-				  userIds.add(memberItem.getUser().getId());    
-			  }
-		  }
-		  
-		  // only allow private messages to be sent to users with Visible privacy status
-		  Set memberSet = null;		  
 
-		  memberSet = privacyManager.findViewable(
-				  			("/site/" + toolManager.getCurrentPlacement().getContext()), new HashSet(userIds));
+	  // set privacy status
+	  Set memberSet = null;		  
+
+	  memberSet = privacyManager.findViewable(
+			  			("/site/" + toolManager.getCurrentPlacement().getContext()), new HashSet(userIds));
 	  
-		  /** look through the members again to pick out Member objects corresponding
-		  		to only those who are visible (as well as current user) */
-		  for (Iterator userIterator = userCollection.iterator(); userIterator.hasNext();) {
-			  MembershipItem memberItem = (MembershipItem) userIterator.next();
-					  
-			  if (memberItem.getUser() != null) {
-				  memberItem.setViewable(memberSet.contains(memberItem.getUser().getId()));
-			  }
-			  else {
-				  // want groups to be displayed
-				  memberItem.setViewable(true);
-			  }
-		  
-			  results.put(memberItem.getId(), memberItem);
+	  /** look through the members again to pick out Member objects corresponding
+	  		to only those who are visible (as well as current user) */
+	  for (Iterator userIterator = userCollection.iterator(); userIterator.hasNext();) {
+		  MembershipItem memberItem = (MembershipItem) userIterator.next();
+				  
+		  if (memberItem.getUser() != null) {
+			  memberItem.setViewable(memberSet.contains(memberItem.getUser().getId()));
 		  }
-	  }	 
-		
+		  else {
+			  // want groups to be displayed
+			  memberItem.setViewable(true);
+		  }
+		  
+		  results.put(memberItem.getId(), memberItem);
+	  }
 		
 	  return results;
   }

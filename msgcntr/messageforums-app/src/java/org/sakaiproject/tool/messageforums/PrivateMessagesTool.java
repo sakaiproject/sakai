@@ -642,22 +642,23 @@ public class PrivateMessagesTool
 
   public List getTotalComposeToList()
   { 
-    
-    /** just need to refilter */
-    if (totalComposeToList != null){
-        List selectItemList = new ArrayList();
+    // if user has site.upd, then don't filter
+  	final boolean noFilter = SecurityService.unlock(UserDirectoryService.getCurrentUser(), "site.upd", getContextSiteId());
+
+  	/** just need to refilter */
+    if (totalComposeToList != null) {
+    	
+  		List selectItemList = new ArrayList();
         
-    	for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {
+   		for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {
+   			MembershipItem item = (MembershipItem) i.next();
 
-    		MembershipItem item = (MembershipItem) i.next();
-
-    		if (item.isViewable()) {
-    			selectItemList.add(new SelectItem(item.getId(), item.getName()));
-    		}
-    	}
-
-    	return selectItemList;       
-
+   			if (noFilter || item.isViewable()) {
+   				selectItemList.add(new SelectItem(item.getId(), item.getName()));
+   			}
+   		}
+    		
+   		return selectItemList;       
     }
     
     totalComposeToListRecipients = new ArrayList();
@@ -668,8 +669,7 @@ public class PrivateMessagesTool
 
     Set memberIds = new HashSet();
     
-    for (Iterator i = members.iterator(); i.hasNext();){
-        
+    for (Iterator i = members.iterator(); i.hasNext();){       
         MembershipItem item = (MembershipItem) i.next();
  
         String name = item.getName();
@@ -685,7 +685,7 @@ public class PrivateMessagesTool
 
 		MembershipItem item = (MembershipItem) i.next();
 
-		if (item.isViewable()) {
+		if (noFilter || item.isViewable()) {
 			selectItemList.add(new SelectItem(item.getId(), item.getName()));
 		}
 	}
@@ -693,6 +693,11 @@ public class PrivateMessagesTool
 	return selectItemList;       
   }
   
+  /**
+   * 
+   * @param id
+   * @return
+   */
   public String getUserSortNameById(String id){    
     try
     {
@@ -1295,7 +1300,9 @@ public class PrivateMessagesTool
         MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(i));  
         if(membershipItem != null)
         {
-          sendToString +=membershipItem.getName()+"; " ;
+        	if (membershipItem.isViewable()) {
+        		sendToString +=membershipItem.getName()+"; " ;
+        	}
         }          
       }
       sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space
@@ -1680,9 +1687,10 @@ public class PrivateMessagesTool
     //Add the recipientList as String for display in Sent folder
     // Since some users may be hidden, if some of these are recipients
     // filter them out (already checked if no recipients)
+    // if only 1 recipient no need to check visibility
     String sendToString="";
     if (selectedComposeToList.size() == 1) {
-        MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(0));  
+        MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(0));
         if(membershipItem != null)
         {
       		  sendToString +=membershipItem.getName()+"; " ;
