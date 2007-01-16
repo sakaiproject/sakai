@@ -84,6 +84,16 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
         // Add an external assessment.
         gradebookExternalAssessmentService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, null, "Samigo");
     }
+    
+    public void testStudentRebuff() throws Exception {
+    	setAuthnId(STUDENT_IN_SECTION_UID);
+    	try {
+			if (log.isInfoEnabled()) log.info("Ignore the upcoming authorization error...");
+			gradebookService.getAssignments(GRADEBOOK_UID);
+			fail();
+		} catch (SecurityException e) {
+		}
+   }
 
 	public void testExternalClientSupport() throws Exception {
 		setAuthnId(TA_UID);

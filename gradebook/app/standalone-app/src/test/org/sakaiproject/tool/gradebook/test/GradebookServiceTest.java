@@ -288,7 +288,7 @@ public class GradebookServiceTest extends GradebookTestBase {
 		Assert.assertTrue(gradebookExternalAssessmentService.isAssignmentDefined(GRADEBOOK_UID, assignmentTitle));
 
         // Now test conflicts with an internally defined assignment.
-        Assert.assertTrue(gradebookService.isAssignmentDefined(GRADEBOOK_UID, ASN_1));
+        Assert.assertTrue(gradebookExternalAssessmentService.isAssignmentDefined(GRADEBOOK_UID, ASN_1));
         gradebookManager.removeAssignment(asn_1Id);
         Assert.assertFalse(gradebookExternalAssessmentService.isAssignmentDefined(GRADEBOOK_UID, ASN_1));
     }

@@ -60,6 +60,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	public boolean isAssignmentDefined(final String gradebookUid, final String assignmentName)
         throws GradebookNotFoundException {
+		if (!isUserAbleToViewAssignments(gradebookUid)) {
+			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to check for assignment " + assignmentName);
+			throw new SecurityException("You do not have permission to perform this operation");
+		}
         Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				return getAssignmentWithoutStats(gradebookUid, assignmentName, session);
@@ -67,6 +71,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		});
         return (assignment != null);
     }
+	
+	private boolean isUserAbleToViewAssignments(String gradebookUid) {
+		Authz authz = getAuthz();
+		return (authz.isUserAbleToEditAssessments(gradebookUid) || authz.isUserAbleToGrade(gradebookUid));
+	}
 
 	public boolean isUserAbleToGradeStudent(String gradebookUid, String studentUid) {
 		return getAuthz().isUserAbleToGradeStudent(gradebookUid, studentUid);
@@ -74,6 +83,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	public List getAssignments(String gradebookUid)
 		throws GradebookNotFoundException {
+		if (!isUserAbleToViewAssignments(gradebookUid)) {
+			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to get assignments list");
+			throw new SecurityException("You do not have permission to perform this operation");
+		}
+
 		final Long gradebookId = getGradebook(gradebookUid).getId();
 
         List internalAssignments = (List)getHibernateTemplate().execute(new HibernateCallback() {
