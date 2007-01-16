@@ -60,9 +60,9 @@ public class RWikiObjectContentImpl implements RWikiObjectContent
 
 	public void setContent(String content)
 	{
-		this.content= content.replaceAll("[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\ud800-\\udfff\\uffff\\ufffe]", "");
 		// SAK-2470
 		if (this.content == null) this.content = "";
+		this.content= content.replaceAll("[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\ud800-\\udfff\\uffff\\ufffe]", "");
 	}
 
 }
