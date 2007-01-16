@@ -26,13 +26,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.section.support.IntegrationSupport;
 import org.sakaiproject.component.section.support.UserManager;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
@@ -55,12 +55,12 @@ import org.springframework.test.AbstractTransactionalSpringContextTests;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public abstract class GradebookTestBase extends AbstractTransactionalSpringContextTests {
-	private static Log log = LogFactory.getLog(GradebookTestBase.class);
-
-    protected Authz authz;
+	protected Authz authz;
     protected Authn authn;
     protected GradebookManager gradebookManager;
     protected GradebookService gradebookService;
+    protected GradebookFrameworkService gradebookFrameworkService;
+    protected GradebookExternalAssessmentService gradebookExternalAssessmentService;
 	protected SectionAwareness sectionAwareness;
     protected UserDirectoryService userDirectoryService;
 	protected IntegrationSupport integrationSupport;
@@ -70,6 +70,8 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
         authn = (Authn)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_Authn");
         authz = (Authz)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_Authz");
         gradebookService = (GradebookService)applicationContext.getBean("org_sakaiproject_service_gradebook_GradebookService");
+        gradebookFrameworkService = (GradebookFrameworkService)applicationContext.getBean("org_sakaiproject_service_gradebook_GradebookFrameworkService");
+        gradebookExternalAssessmentService = (GradebookExternalAssessmentService)applicationContext.getBean("org_sakaiproject_service_gradebook_GradebookExternalAssessmentService");
         gradebookManager = (GradebookManager)applicationContext.getBean("org_sakaiproject_tool_gradebook_business_GradebookManager");
         sectionAwareness = (SectionAwareness)applicationContext.getBean("org.sakaiproject.section.api.SectionAwareness");
         userDirectoryService = (UserDirectoryService)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_UserDirectoryService");

@@ -20,17 +20,14 @@
 
 package org.sakaiproject.tool.gradebook.test;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.gradebook.*;
-
-
-import org.sakaiproject.tool.gradebook.Spreadsheet;
-import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
-
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 import junit.framework.Assert;
+
+import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
+import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.Spreadsheet;
 
 /**
  * User: louis
@@ -39,7 +36,6 @@ import junit.framework.Assert;
  */
 public class SpreadsheetTest extends GradebookTestBase {
 
-    private static final Log log = LogFactory.getLog(SpreadsheetTest.class);
     protected Gradebook gradebook;
     protected static final String SPT_NAME = "SP1 #1";
     protected static final String SPT_NAME2 = "SP2 #1";
@@ -51,7 +47,7 @@ public class SpreadsheetTest extends GradebookTestBase {
         // Create a gradebook to work with
         String className = this.getClass().getName();
         String gradebookName = className + (new Date()).getTime();
-        gradebookService.addGradebook(gradebookName, gradebookName);
+        gradebookFrameworkService.addGradebook(gradebookName, gradebookName);
 
         // Set up a holder for enrollments, teaching assignments, and sections.
         integrationSupport.createCourse(gradebookName, gradebookName, false, false, false);

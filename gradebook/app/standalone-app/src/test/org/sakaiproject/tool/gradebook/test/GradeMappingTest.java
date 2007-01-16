@@ -52,7 +52,7 @@ public class GradeMappingTest extends GradebookTestBase {
         // By default, we get Letter Grades as a default mapping,
         // and three possible mappings per gradebook.
         String gradebook1Name = "SetGradeMappingsTest1";
-        gradebookService.addGradebook(gradebook1Name, gradebook1Name);
+        gradebookFrameworkService.addGradebook(gradebook1Name, gradebook1Name);
         Gradebook gradebook1 = gradebookManager.getGradebook(gradebook1Name);
         gradeMapping = gradebook1.getSelectedGradeMapping();
         GradeMapping oldStaticDefault = new LetterGradePlusMinusMapping();
@@ -60,9 +60,9 @@ public class GradeMappingTest extends GradebookTestBase {
         Assert.assertTrue(gradebook1.getGradeMappings().size() == 3);
 
         // Now make LetterGradeMapping the default.
-        gradebookService.setDefaultGradingScale("LetterGradeMapping");
+        gradebookFrameworkService.setDefaultGradingScale("LetterGradeMapping");
         String gradebook2Name = "SetGradeMappingsTest2";
-        gradebookService.addGradebook(gradebook2Name, gradebook2Name);
+        gradebookFrameworkService.addGradebook(gradebook2Name, gradebook2Name);
         Gradebook gradebook2 = gradebookManager.getGradebook(gradebook2Name);
         gradeMapping = gradebook2.getSelectedGradeMapping();
         GradingScale letterGradingScale = gradeMapping.getGradingScale();
@@ -96,11 +96,11 @@ public class GradeMappingTest extends GradebookTestBase {
         }
         def.setDefaultBottomPercents(bottomPercentsList);
         newMappings.add(def);
-        gradebookService.setAvailableGradingScales(newMappings);
+        gradebookFrameworkService.setAvailableGradingScales(newMappings);
 
         // Make sure a new gradebook is as expected.
         String gradebook3Name = "SetGradeMappingsTest3";
-        gradebookService.addGradebook(gradebook3Name, gradebook3Name);
+        gradebookFrameworkService.addGradebook(gradebook3Name, gradebook3Name);
         Gradebook gradebook3 = gradebookManager.getGradebook(gradebook3Name);
         gradeMapping = gradebook3.getSelectedGradeMapping();
 		Assert.assertTrue(gradeMapping.getValue("A").equals(new Double(89)));
@@ -144,13 +144,13 @@ public class GradeMappingTest extends GradebookTestBase {
         def.setGrades(Arrays.asList(new Object[] {"Win", "Draw", "Lose"}));
         def.setDefaultBottomPercents(Arrays.asList(new Object[] {new Double(80), new Double(40), new Double(0)}));
         newMappings.add(def);
-        gradebookService.setAvailableGradingScales(newMappings);
+        gradebookFrameworkService.setAvailableGradingScales(newMappings);
 
-        gradebookService.setDefaultGradingScale("NoSuchGradeMapping");
+        gradebookFrameworkService.setDefaultGradingScale("NoSuchGradeMapping");
 
         String gradebook1Name = "SetGradeMappingsTest1";
         if (log.isInfoEnabled()) log.info("Ignore the upcoming warning about no default...");
-        gradebookService.addGradebook(gradebook1Name, gradebook1Name);
+        gradebookFrameworkService.addGradebook(gradebook1Name, gradebook1Name);
         Gradebook gradebook1 = gradebookManager.getGradebook(gradebook1Name);
         GradeMapping gradeMapping = gradebook1.getSelectedGradeMapping();
 

@@ -15,8 +15,8 @@
 		<managed-bean-class>org.sakaiproject.tool.gradebooktest.GradebookBean</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
-			<property-name>gradebookService</property-name>
-			<value>#{Components["org.sakaiproject.service.gradebook.GradebookService"]}</value>
+			<property-name>gradebookFrameworkService</property-name>
+			<value>#{Components["org.sakaiproject.service.gradebook.GradebookFrameworkService"]}</value>
 		</managed-property>
 	</managed-bean>
 

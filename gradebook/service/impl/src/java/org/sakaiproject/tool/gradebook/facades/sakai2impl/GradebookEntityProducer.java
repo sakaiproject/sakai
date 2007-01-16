@@ -28,7 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.entity.api.ContextObserver;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 
 /**
@@ -39,7 +39,7 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
     private static final Log log = LogFactory.getLog(GradebookEntityProducer.class);
 
     private String[] toolIdArray;
-    private GradebookService gradebookService;
+    private GradebookFrameworkService gradebookFrameworkService;
 
 	public void setToolIds(List toolIds) {
 		if (log.isDebugEnabled()) log.debug("setToolIds(" + toolIds + ")");
@@ -55,20 +55,20 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 	public void contextCreated(String context, boolean toolPlacement) {
 		// Only create Gradebook storage if the Gradebook tool is actually
 		// part of the new site.
-		if (toolPlacement && !gradebookService.isGradebookDefined(context)) {
+		if (toolPlacement && !gradebookFrameworkService.isGradebookDefined(context)) {
 			if (log.isInfoEnabled()) log.info("Gradebook being added to context " + context);
-			gradebookService.addGradebook(context, context);
+			gradebookFrameworkService.addGradebook(context, context);
 		}
 	}
 
 	public void contextUpdated(String context, boolean toolPlacement) {
 		if (toolPlacement) {
-			if (!gradebookService.isGradebookDefined(context)) {
+			if (!gradebookFrameworkService.isGradebookDefined(context)) {
 				if (log.isInfoEnabled()) log.info("Gradebook being added to context " + context);
-				gradebookService.addGradebook(context, context);
+				gradebookFrameworkService.addGradebook(context, context);
 			}
 		} else {
-			if (gradebookService.isGradebookDefined(context)) {
+			if (gradebookFrameworkService.isGradebookDefined(context)) {
 				// We've been directed to leave Gradebook data in place when
 				// the tool is removed from a site, just in case the site
 				// owner changes their mind later.
@@ -78,17 +78,17 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 	}
 
 	public void contextDeleted(String context, boolean toolPlacement) {
-		if (gradebookService.isGradebookDefined(context)) {
+		if (gradebookFrameworkService.isGradebookDefined(context)) {
 			if (log.isInfoEnabled()) log.info("Gradebook being deleted from context " + context);
 			try {
-				gradebookService.deleteGradebook(context);
+				gradebookFrameworkService.deleteGradebook(context);
 			} catch (GradebookNotFoundException e) {
 				if (log.isWarnEnabled()) log.warn(e);
 			}
 		}
 	}
 
-	public void setGradebookService(GradebookService gradebookService) {
-		this.gradebookService = gradebookService;
+	public void setGradebookFrameworkService(GradebookFrameworkService gradebookFrameworkService) {
+		this.gradebookFrameworkService = gradebookFrameworkService;
 	}
 }

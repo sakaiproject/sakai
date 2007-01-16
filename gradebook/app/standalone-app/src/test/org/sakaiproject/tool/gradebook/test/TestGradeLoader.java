@@ -65,7 +65,7 @@ public class TestGradeLoader extends GradebookLoaderBase {
                     		grade = new Double(grade.doubleValue() + 0.39981);
                     		needToAddScrewyExternalScore = false;
                     	}
-                        gradebookService.updateExternalAssessmentScore(gb.getUid(), asn.getExternalId(), enr.getUser().getUserUid(), grade);
+                    	gradebookExternalAssessmentService.updateExternalAssessmentScore(gb.getUid(), asn.getExternalId(), enr.getUser().getUserUid(), grade);
                     } else {
                     	AssignmentGradeRecord agr = new AssignmentGradeRecord(asn, enr.getUser().getUserUid(), grade);
                         gradeRecords.add(agr);

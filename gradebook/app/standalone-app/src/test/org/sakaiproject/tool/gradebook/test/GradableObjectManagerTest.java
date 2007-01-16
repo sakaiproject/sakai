@@ -54,7 +54,7 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         // Create a gradebook to work with
         String className = this.getClass().getName();
         String gradebookName = className + (new Date()).getTime();
-        gradebookService.addGradebook(gradebookName, gradebookName);
+        gradebookFrameworkService.addGradebook(gradebookName, gradebookName);
 
         // Set up a holder for enrollments, teaching assignments, and sections.
         integrationSupport.createCourse(gradebookName, gradebookName, false, false, false);

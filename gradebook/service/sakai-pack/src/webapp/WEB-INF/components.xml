@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
@@ -36,6 +36,24 @@
 
 	<!-- Service implementation hook-up with Sakai DB -->
 
+	<bean id="org_sakaiproject_service_gradebook_GradebookFrameworkServiceTarget"
+		class="org.sakaiproject.component.gradebook.GradebookFrameworkServiceImpl"
+		name="org.sakaiproject.service.gradebook.GradebookFrameworkServiceTarget">
+		<property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+		<property name="authn">
+			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
+		</property>
+	</bean>
+
+	<bean id="org_sakaiproject_service_gradebook_GradebookExternalAssessmentServiceTarget"
+		class="org.sakaiproject.component.gradebook.GradebookExternalAssessmentServiceImpl"
+		name="org.sakaiproject.service.gradebook.GradebookExternalAssessmentServiceTarget">
+		<property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+		<property name="authn">
+			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
+		</property>
+	</bean>
+
 	<bean id="org_sakaiproject_service_gradebook_GradebookServiceTarget"
 		class="org.sakaiproject.component.gradebook.GradebookServiceHibernateImpl"
 		name="org.sakaiproject.service.gradebook.GradebookServiceTarget">
@@ -49,17 +67,21 @@
 		<property name="authz">
 			<ref bean="org_sakaiproject_tool_gradebook_facades_Authz" />
 		</property>
+
+		<!-- Temporary support for deprecated methods. -->
+		<property name="frameworkService">
+			<ref bean="org_sakaiproject_service_gradebook_GradebookFrameworkService" />
+		</property>
+		<property name="externalAssessmentService">
+			<ref bean="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService" />
+		</property>
 	</bean>
 
-	<bean id="org_sakaiproject_service_gradebook_GradebookService"
+	<bean id="gradebookServiceTemplate"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
-		name="org.sakaiproject.service.gradebook.GradebookService"
-		singleton="true">
+		abstract="true">
 		<property name="transactionManager">
 			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
-		</property>
-		<property name="target">
-			<ref bean="org_sakaiproject_service_gradebook_GradebookServiceTarget"/>
 		</property>
 		<property name="transactionAttributes">
 			<props>
@@ -69,14 +91,38 @@
 			</props>
 		</property>
 	</bean>
+	<bean id="org_sakaiproject_service_gradebook_GradebookService"
+		name="org.sakaiproject.service.gradebook.GradebookService"
+		parent="gradebookServiceTemplate"
+		singleton="true">
+		<property name="target">
+			<ref bean="org_sakaiproject_service_gradebook_GradebookServiceTarget"/>
+		</property>
+	</bean>
+	<bean id="org_sakaiproject_service_gradebook_GradebookFrameworkService"
+		name="org.sakaiproject.service.gradebook.GradebookFrameworkService"
+		parent="gradebookServiceTemplate"
+		singleton="true">
+		<property name="target">
+			<ref bean="org_sakaiproject_service_gradebook_GradebookFrameworkServiceTarget"/>
+		</property>
+	</bean>
+	<bean id="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService"
+		name="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"
+		parent="gradebookServiceTemplate"
+		singleton="true">
+		<property name="target">
+			<ref bean="org_sakaiproject_service_gradebook_GradebookExternalAssessmentServiceTarget"/>
+		</property>
+	</bean>
 
 	<!-- ContextObserver to take action when the Gradebook is added to or removed from a site -->
 	<bean id="org_sakaiproject_service_gradebook_EntityProducer"
 		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.GradebookEntityProducer"
 		init-method="init">
 		<property name="label" value="gradebook"/>
-		<property name="gradebookService">
-			<ref bean="org_sakaiproject_service_gradebook_GradebookService" />
+		<property name="gradebookFrameworkService">
+			<ref bean="org_sakaiproject_service_gradebook_GradebookFrameworkService" />
 		</property>
 		<property name="toolIds">
 		    <list>
@@ -93,7 +139,7 @@
 		<property name="autoDdl" value="${auto.ddl}"/>
 		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
 
-		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
+		<property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
 
 		<!-- Set up default system-wide grading scales. -->
 <!--

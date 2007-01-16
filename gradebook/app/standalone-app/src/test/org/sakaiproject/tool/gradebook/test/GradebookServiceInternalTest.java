@@ -61,7 +61,7 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
      */
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
- 		gradebookService.addGradebook(GRADEBOOK_UID, GRADEBOOK_UID);
+ 		gradebookFrameworkService.addGradebook(GRADEBOOK_UID, GRADEBOOK_UID);
  		Gradebook gradebook = gradebookManager.getGradebook(GRADEBOOK_UID);
 
         // Set up users, enrollments, teaching assignments, and sections.
@@ -82,7 +82,7 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
         gradebookManager.createAssignment(gradebook.getId(), ASN_TITLE, ASN_POINTS, new Date(), Boolean.FALSE,Boolean.FALSE);
 
         // Add an external assessment.
-        gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, null, "Samigo");
+        gradebookExternalAssessmentService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, null, "Samigo");
     }
 
 	public void testExternalClientSupport() throws Exception {

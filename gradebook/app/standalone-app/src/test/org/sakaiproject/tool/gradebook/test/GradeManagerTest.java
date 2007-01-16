@@ -52,7 +52,7 @@ public class GradeManagerTest extends GradebookTestBase {
         super.onSetUpInTransaction();
 
         String gradebookName = this.getClass().getName();
-        gradebookService.addGradebook(gradebookName, gradebookName);
+        gradebookFrameworkService.addGradebook(gradebookName, gradebookName);
 
         // Set up a holder for enrollments, teaching assignments, and sections.
         integrationSupport.createCourse(gradebookName, gradebookName, false, false, false);

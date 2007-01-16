@@ -35,7 +35,7 @@ public class GradebookManagerTest extends GradebookTestBase {
     public void testCreateGradebook() throws Exception {
         // Create a gradebook
         String className = this.getClass().getName();
-        gradebookService.addGradebook(className, className);
+        gradebookFrameworkService.addGradebook(className, className);
         setComplete();
     }
 

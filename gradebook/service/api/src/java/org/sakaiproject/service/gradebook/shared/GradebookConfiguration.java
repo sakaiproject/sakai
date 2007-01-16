@@ -21,12 +21,7 @@
 **********************************************************************************/
 package org.sakaiproject.service.gradebook.shared;
 
-import java.util.*;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import java.util.Collection;
 
 /**
  * Simple configuration bean. Set up the properties you want changed and
@@ -35,19 +30,17 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
  * bypass transaction proxying.)
  */
 public class GradebookConfiguration {
-    private static final Log log = LogFactory.getLog(GradebookConfiguration.class);
-
     private Collection gradingScaleDefinitions;
     private String defaultGradingScale;
-    private GradebookService gradebookService;
+    private GradebookFrameworkService gradebookFrameworkService;
 
 	public void init() {
-		if (gradebookService != null) {
+		if (gradebookFrameworkService != null) {
 			if (gradingScaleDefinitions != null) {
-				gradebookService.setAvailableGradingScales(gradingScaleDefinitions);
+				gradebookFrameworkService.setAvailableGradingScales(gradingScaleDefinitions);
 			}
 			if (defaultGradingScale != null) {
-				gradebookService.setDefaultGradingScale(defaultGradingScale);
+				gradebookFrameworkService.setDefaultGradingScale(defaultGradingScale);
 			}
 		}
 	}
@@ -60,7 +53,7 @@ public class GradebookConfiguration {
 		this.defaultGradingScale = defaultGradingScale;
 	}
 
-	public void setGradebookService(GradebookService gradebookService) {
-		this.gradebookService = gradebookService;
+	public void setGradebookFrameworkService(GradebookFrameworkService gradebookFrameworkService) {
+		this.gradebookFrameworkService = gradebookFrameworkService;
 	}
 }

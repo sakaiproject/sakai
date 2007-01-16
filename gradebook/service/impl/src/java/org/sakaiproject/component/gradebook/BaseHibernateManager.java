@@ -21,18 +21,24 @@
 **********************************************************************************/
 package org.sakaiproject.component.gradebook;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
+import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -45,8 +51,6 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * logic, but not exposed to external callers.
  */
 public abstract class BaseHibernateManager extends HibernateDaoSupport {
-    private static final Log log = LogFactory.getLog(BaseHibernateManager.class);
-
     // Oracle will throw a SQLException if we put more than this into a
     // "WHERE tbl.col IN (:paramList)" query.
     public static int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 1000;
@@ -65,6 +69,11 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		} else {
             throw new GradebookNotFoundException("Could not find gradebook uid=" + uid);
         }
+    }
+
+    public boolean isGradebookDefined(String gradebookUid) {
+        String hql = "from Gradebook as gb where gb.uid=?";
+        return getHibernateTemplate().find(hql, gradebookUid).size() == 1;
     }
 
     protected List getAssignments(Long gradebookId, Session session) throws HibernateException {
@@ -174,7 +183,23 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		return filteredRecords;
 	}
 
-    public Authn getAuthn() {
+	protected Assignment getAssignmentWithoutStats(String gradebookUid, String assignmentName, Session session) throws HibernateException {
+		return (Assignment)session.createQuery(
+			"from Assignment as asn where asn.name=? and asn.gradebook.uid=? and asn.removed=false").
+			setString(0, assignmentName).
+			setString(1, gradebookUid).
+			uniqueResult();
+	}
+
+	protected AssignmentGradeRecord getAssignmentGradeRecord(Assignment assignment, String studentUid, Session session) throws HibernateException {
+		return (AssignmentGradeRecord)session.createQuery(
+			"from AssignmentGradeRecord as agr where agr.studentId=? and agr.gradableObject.id=?").
+			setString(0, studentUid).
+			setLong(1, assignment.getId().longValue()).
+			uniqueResult();
+	}
+
+	public Authn getAuthn() {
         return authn;
     }
     public void setAuthn(Authn authn) {
