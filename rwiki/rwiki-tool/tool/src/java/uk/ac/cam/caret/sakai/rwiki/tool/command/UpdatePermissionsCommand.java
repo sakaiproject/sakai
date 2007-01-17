@@ -34,6 +34,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.tool.cover.SessionManager;
 
+import com.sun.j3d.utils.behaviors.vp.WandViewBehavior.ResetViewListener;
+
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiPermissions;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
@@ -42,8 +44,10 @@ import uk.ac.cam.caret.sakai.rwiki.tool.RWikiServlet;
 import uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ErrorBean;
+import uk.ac.cam.caret.sakai.rwiki.tool.bean.ResourceLoaderBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.UpdatePermissionsBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
+import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ResourceLoaderHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ViewParamsHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.command.helper.ErrorBeanHelper;
 
@@ -152,9 +156,9 @@ public class UpdatePermissionsCommand implements HttpCommand
 			HttpServletResponse response) throws ServletException, IOException
 	{
 		ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
-		// FIXME internationalise this!!
+	    ResourceLoaderBean rlb = ResourceLoaderHelperBean.getResourceLoaderBean();
 		errorBean
-				.addError("Content has changed since you last viewed it. Please update the new content or overwrite it with the submitted content.");
+				.addError(rlb.getString("updatepermissioncmd.content_changed","Content has changed since you last viewed it. Please update the new content or overwrite it with the submitted content."));
 		RequestDispatcher rd = request.getRequestDispatcher(contentChangedPath);
 		rd.forward(request, response);
 	}
@@ -163,8 +167,8 @@ public class UpdatePermissionsCommand implements HttpCommand
 			HttpServletResponse response) throws ServletException, IOException
 	{
 		ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
-		// FIXME internationalise this!!
-		errorBean.addError("You do not have permission to update this page.");
+	    ResourceLoaderBean rlb = ResourceLoaderHelperBean.getResourceLoaderBean();
+		errorBean.addError(rlb.getString("updatepermissioncmd.noupdate_permission","You do not have permission to update this page."));
 		RequestDispatcher rd = request.getRequestDispatcher(noUpdatePath);
 		rd.forward(request, response);
 	}

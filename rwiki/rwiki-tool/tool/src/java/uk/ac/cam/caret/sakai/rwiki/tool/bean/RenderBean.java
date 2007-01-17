@@ -27,7 +27,9 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
+import uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.ToolRenderService;
+import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ResourceLoaderHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 
 /**
@@ -49,7 +51,6 @@ public class RenderBean
 
 	private boolean canEdit = false;
 
-	// FIXME internationalise this!
 	private static final String PERMISSION_PROBLEM = "You do not have permission to view this page";
 
 	/**
@@ -106,7 +107,8 @@ public class RenderBean
 		{
 			this.rwo = objectService.createNewRWikiCurrentObject();
 			rwo.setName(pageName);
-			rwo.setContent(PERMISSION_PROBLEM);
+			ResourceLoaderBean rlb = ResourceLoaderHelperBean.getResourceLoaderBean();
+			rwo.setContent(rlb.getString("renderbean.permission_problem",PERMISSION_PROBLEM));
 		}
 	}
 
@@ -226,7 +228,8 @@ public class RenderBean
 		{
 			RWikiObject page = objectService.createNewRWikiCurrentObject();
 			page.setName(pageName);
-			page.setContent(PERMISSION_PROBLEM);
+			ResourceLoaderBean rlb = ResourceLoaderHelperBean.getResourceLoaderBean();
+			page.setContent(rlb.getString("renderbean.permission_problem",PERMISSION_PROBLEM));
 			return toolRenderService.renderPage(page, defaultRealm);
 		}
 
@@ -259,7 +262,8 @@ public class RenderBean
 		{
 			RWikiObject page = objectService.createNewRWikiCurrentObject();
 			page.setName(pageName);
-			page.setContent(PERMISSION_PROBLEM);
+			ResourceLoaderBean rlb = ResourceLoaderHelperBean.getResourceLoaderBean();
+			page.setContent(rlb.getString("renderbean.permission_problem",PERMISSION_PROBLEM));
 			return toolRenderService.renderPublicPage(page, defaultRealm,
 					withBreadcrumbs);
 		}

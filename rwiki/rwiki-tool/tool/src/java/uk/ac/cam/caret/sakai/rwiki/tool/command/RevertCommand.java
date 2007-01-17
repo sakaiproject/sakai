@@ -43,7 +43,9 @@ import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.EditBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ErrorBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.HistoryBean;
+import uk.ac.cam.caret.sakai.rwiki.tool.bean.ResourceLoaderBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
+import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ResourceLoaderHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ViewParamsHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.command.helper.ErrorBeanHelper;
 
@@ -144,9 +146,9 @@ public class RevertCommand implements HttpCommand
 			HttpServletResponse response) throws ServletException, IOException
 	{
 		ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
-		// FIXME internationalise this!!
+		ResourceLoaderBean rlb = ResourceLoaderHelperBean.getResourceLoaderBean();
 		errorBean
-				.addError("Content has changed since you last viewed it. Please update the new content or overwrite it with the submitted content.");
+				.addError(rlb.getString("revertcmd.content_changed","Content has changed since you last viewed it. Please update the new content or overwrite it with the submitted content."));
 
 		RequestDispatcher rd = request.getRequestDispatcher(contentChangedPath);
 		rd.forward(request, response);
@@ -156,8 +158,8 @@ public class RevertCommand implements HttpCommand
 			HttpServletResponse response) throws ServletException, IOException
 	{
 		ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
-		// FIXME internationalise this!!
-		errorBean.addError("You do not have permission to update this page.");
+		ResourceLoaderBean rlb = ResourceLoaderHelperBean.getResourceLoaderBean();
+		errorBean.addError(rlb.getString("revertcmd.noupdate_allowed","You do not have permission to update this page."));
 
 		RequestDispatcher rd = request.getRequestDispatcher(noUpdatePath);
 		rd.forward(request, response);

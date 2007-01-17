@@ -46,7 +46,9 @@ import uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.EditBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ErrorBean;
+import uk.ac.cam.caret.sakai.rwiki.tool.bean.ResourceLoaderBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
+import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ResourceLoaderHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ViewParamsHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.command.helper.ErrorBeanHelper;
 import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
@@ -100,6 +102,8 @@ public class SaveCommand implements HttpCommand
 
 		RequestScopeSuperBean rssb = RequestScopeSuperBean
 				.getFromRequest(request);
+		
+		ResourceLoaderBean rlb = rssb.getResourceLoaderBean();
 
 		ViewParamsHelperBean vphb = (ViewParamsHelperBean) rssb
 				.getNameHelperBean();
@@ -149,16 +153,15 @@ public class SaveCommand implements HttpCommand
 			session.setAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS,
 					FilePickerHelper.FILE_PICKER_ATTACH_LINKS);
 
-			// FIXME internationalise this
 			String fromText;
 			if (returnAction
 					.equals(WikiPageAction.LINK_ATTACHMENT_RETURN_ACTION))
 			{
-				fromText = vb.getLocalName() + " as link";
+				fromText = vb.getLocalName() + rlb.getString("save.as_link"," as link");
 			}
 			else
 			{
-				fromText = vb.getLocalName() + " as embed";
+				fromText = vb.getLocalName() + rlb.getString("save.as_embed"," as embed");
 			}
 
 			session.setAttribute(FilePickerHelper.FILE_PICKER_FROM_TEXT,
@@ -247,9 +250,9 @@ public class SaveCommand implements HttpCommand
 			HttpServletResponse response) throws ServletException, IOException
 	{
 		ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
-		// FIXME internationalise this!!
+		ResourceLoaderBean rlb = ResourceLoaderHelperBean.getResourceLoader(request);
 		errorBean
-				.addError("Content has changed since you last viewed it. Please update the new content or overwrite it with the submitted content.");
+				.addError(rlb.getString("save.content_changed","Content has changed since you last viewed it. Please update the new content or overwrite it with the submitted content."));
 		RequestDispatcher rd = request.getRequestDispatcher(contentChangedPath);
 		rd.forward(request, response);
 	}
@@ -258,8 +261,8 @@ public class SaveCommand implements HttpCommand
 			HttpServletResponse response) throws ServletException, IOException
 	{
 		ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
-		// FIXME internationalise this!!
-		errorBean.addError("You do not have permission to update this page.");
+		ResourceLoaderBean rlb = ResourceLoaderHelperBean.getResourceLoader(request);
+		errorBean.addError(rlb.getString("save.noupdate_permission","You do not have permission to update this page."));
 		RequestDispatcher rd = request.getRequestDispatcher(noUpdatePath);
 		rd.forward(request, response);
 	}

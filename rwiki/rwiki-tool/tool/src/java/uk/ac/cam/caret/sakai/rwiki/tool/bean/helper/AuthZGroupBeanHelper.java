@@ -29,6 +29,7 @@ import org.sakaiproject.site.api.SiteService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.AuthZGroupBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ErrorBean;
+import uk.ac.cam.caret.sakai.rwiki.tool.bean.ResourceLoaderBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
 
 
@@ -51,9 +52,9 @@ public class AuthZGroupBeanHelper
 		}
 		catch (GroupNotDefinedException e)
 		{
-			// FIXME localise!
-			errorBean.addError("Realm: " + realmId
-					+ " is not recognised in the system.");
+			ResourceLoaderBean rlb = ResourceLoaderHelperBean.getResourceLoaderBean();
+			errorBean.addError(rlb.getString("auzgroup.groupnotdef1","Realm")+": " + realmId
+					+ rlb.getString("auzgroup.groupnotdef2"," is not recognised in the system."));
 		}
 		boolean update = realmService.allowUpdate(realmId);
 		boolean siteUpdate = siteService.allowUpdateSite(siteId);

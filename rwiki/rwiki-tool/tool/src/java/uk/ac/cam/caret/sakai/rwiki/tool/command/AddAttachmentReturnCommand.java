@@ -47,6 +47,7 @@ import uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.EditBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ErrorBean;
+import uk.ac.cam.caret.sakai.rwiki.tool.bean.ResourceLoaderBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.SearchBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ViewParamsHelperBean;
@@ -130,8 +131,8 @@ public class AddAttachmentReturnCommand implements HttpCommand
 		else
 		{
 			ErrorBean errorBean = rssb.getErrorBean();
-			// FIXME internationalise this!
-			errorBean.addError("Cancelled add attachment");
+			ResourceLoaderBean rlb = rssb.getResourceLoaderBean();
+			errorBean.addError(rlb.getString("addattacheret.cancel_add_attach","Cancelled add attachment"));
 		}
 
 		// Eek! I think we need a better way of doing this...

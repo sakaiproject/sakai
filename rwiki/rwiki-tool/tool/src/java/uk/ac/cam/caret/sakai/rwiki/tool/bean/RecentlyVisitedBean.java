@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean;
+import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ResourceLoaderHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 import uk.ac.cam.caret.sakai.rwiki.utils.XmlEscaper;
 
@@ -172,8 +174,9 @@ public class RecentlyVisitedBean
 		{
 			viewBean.setSearch(search);
 
+			ResourceLoaderBean rlb = ResourceLoaderHelperBean.getResourceLoaderBean();
 			return "<a href=\"" + XmlEscaper.xmlEscape(viewBean.getSearchUrl())
-					+ "\">Search: " + XmlEscaper.xmlEscape(search) + "</a>";
+					+ "\">"+rlb.getString("recentlyvisited.search","Search")+": " + XmlEscaper.xmlEscape(search) + "</a>";
 		}
 
 		public String getPublicLink()

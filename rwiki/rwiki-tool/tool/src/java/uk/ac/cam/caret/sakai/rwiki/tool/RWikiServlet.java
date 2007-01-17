@@ -219,9 +219,11 @@ public class RWikiServlet extends HttpServlet
 		ToolSession ts = SessionManager.getCurrentToolSession();
 		if (isPageToolDefault(request))
 		{
-			log.debug("Incomming URL is " + request.getRequestURL().toString()
-					+ "?" + request.getQueryString());
-			log.debug("Restore " + ts.getAttribute(SAVED_REQUEST_URL));
+			if (log.isDebugEnabled())
+			{
+				log.debug("Incomming URL is " + request.getRequestURL().toString() + "?" + request.getQueryString());
+				log.debug("Restore " + ts.getAttribute(SAVED_REQUEST_URL));
+			}
 			return (String) ts.getAttribute(SAVED_REQUEST_URL);
 		}
 		if (isPageRestorable(request))
@@ -229,7 +231,10 @@ public class RWikiServlet extends HttpServlet
 			ts.setAttribute(SAVED_REQUEST_URL, request.getRequestURL()
 					.toString()
 					+ "?" + request.getQueryString());
-			log.debug("Saved " + ts.getAttribute(SAVED_REQUEST_URL));
+			if (log.isDebugEnabled())
+			{
+				log.debug("Saved " + ts.getAttribute(SAVED_REQUEST_URL));
+			}
 		}
 		return null;
 	}

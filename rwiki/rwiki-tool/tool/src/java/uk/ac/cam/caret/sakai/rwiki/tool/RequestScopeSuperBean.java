@@ -62,6 +62,7 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.PresenceBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.RecentlyVisitedBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ReferencesBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.RenderBean;
+import uk.ac.cam.caret.sakai.rwiki.tool.bean.ResourceLoaderBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.SearchBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ToolConfigBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.UpdatePermissionsBean;
@@ -96,7 +97,7 @@ public class RequestScopeSuperBean
 
 	private HttpServletRequest request;
 
-	private HashMap map = new HashMap();
+	private HashMap<String, Object> map = new HashMap<String, Object>();
 
 	private ApplicationContext context;
 
@@ -115,6 +116,8 @@ public class RequestScopeSuperBean
 	private PreferenceService preferenceService;
 
 	private SearchService searchService;
+	
+	private ResourceLoaderBean resourceLoader;
 
 	private boolean experimental = false;
 
@@ -139,9 +142,9 @@ public class RequestScopeSuperBean
 	}
 	
 	// Thread scope
-	private static ThreadLocal requestScopeSuperBeanHolder = new ThreadLocal();
+	private static ThreadLocal<RequestScopeSuperBean> requestScopeSuperBeanHolder = new ThreadLocal<RequestScopeSuperBean>();
 	public static RequestScopeSuperBean getInstance() {
-		return (RequestScopeSuperBean) requestScopeSuperBeanHolder.get();
+		return requestScopeSuperBeanHolder.get();
 	}
 	
 	public static void clearInstance() {
@@ -380,6 +383,19 @@ public class RequestScopeSuperBean
 		}
 		return (ViewBean) map.get(key);
 	}
+	
+	public ResourceLoaderBean getResourceLoaderBean()
+	{
+		String key = "resourceLoaderBean";
+		if (map.get(key) == null)
+		{
+			ResourceLoaderBean rb = new ResourceLoaderBean();
+			rb.init(request);
+			map.put(key, rb);
+		}
+		return (ResourceLoaderBean) map.get(key);
+	}
+
 
 	public RWikiObject getCurrentRWikiObject(boolean refresh)
 	{

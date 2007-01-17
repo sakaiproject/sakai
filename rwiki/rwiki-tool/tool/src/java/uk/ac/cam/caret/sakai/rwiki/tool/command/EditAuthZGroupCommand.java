@@ -46,6 +46,7 @@ import uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.AuthZGroupEditBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ErrorBean;
+import uk.ac.cam.caret.sakai.rwiki.tool.bean.ResourceLoaderBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ViewParamsHelperBean;
 
@@ -126,9 +127,11 @@ public class EditAuthZGroupCommand implements HttpCommand
 					// TODO: set errorBean and ignore current request i.e. go
 					// back to start
 					ErrorBean errorBean = rssb.getErrorBean();
-					errorBean.addError("You are currently editing: "
+					ResourceLoaderBean rlb = rssb.getResourceLoaderBean();
+					
+					errorBean.addError(rlb.getString("editauthz.currently_editing1", "You are currently editing: ")
 							+ realmEdit.getId()
-							+ ". You must finish editing this realm first");
+							+ rlb.getString("editauthz.currently_editing2", ". You must finish editing this realm first"));
 					realmEditBean.setLocalSpace(realmEdit.getId());
 					saveType = null;
 				}
