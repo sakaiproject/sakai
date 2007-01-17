@@ -31,7 +31,6 @@ import org.sakaiproject.authz.api.Role;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
 
-//FIXME: Tool
 
 public class AuthZGroupEditBean extends ViewBean
 {

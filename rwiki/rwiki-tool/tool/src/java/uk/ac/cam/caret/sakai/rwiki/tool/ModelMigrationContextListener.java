@@ -32,7 +32,6 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.DataMigrationController;
  * @author ieb
  */
 
-// FIXME: Tool
 public class ModelMigrationContextListener implements ServletContextListener
 {
 
@@ -67,7 +66,6 @@ public class ModelMigrationContextListener implements ServletContextListener
 	 */
 	public void contextDestroyed(ServletContextEvent contextEvent)
 	{
-		// TODO Auto-generated method stub
 
 	}
 

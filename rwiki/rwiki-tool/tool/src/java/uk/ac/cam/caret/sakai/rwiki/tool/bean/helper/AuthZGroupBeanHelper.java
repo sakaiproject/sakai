@@ -31,7 +31,6 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.AuthZGroupBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ErrorBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
 
-//FIXME: Tool
 
 public class AuthZGroupBeanHelper
 {

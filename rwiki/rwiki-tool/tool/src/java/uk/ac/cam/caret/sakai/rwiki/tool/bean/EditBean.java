@@ -26,7 +26,6 @@ package uk.ac.cam.caret.sakai.rwiki.tool.bean;
  * @author andrew
  * @version $Id$
  */
-// FIXME: Tool
 public class EditBean
 {
 

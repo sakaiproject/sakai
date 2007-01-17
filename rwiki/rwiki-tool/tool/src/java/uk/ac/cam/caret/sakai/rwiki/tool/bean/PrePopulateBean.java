@@ -31,7 +31,6 @@ import uk.ac.cam.caret.sakai.rwiki.tool.api.PopulateService;
  * 
  * @author andrew
  */
-// FIXME: Tool
 public class PrePopulateBean
 {
 	private static Log log = LogFactory.getLog(PrePopulateBean.class);

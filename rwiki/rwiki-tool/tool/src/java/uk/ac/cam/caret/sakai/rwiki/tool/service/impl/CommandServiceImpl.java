@@ -50,7 +50,6 @@ import org.sakaiproject.event.api.NotificationService;
  * 
  * @author andrew
  */
-// FIXME: Tool
 public class CommandServiceImpl implements CommandService
 {
 	private static Log log = LogFactory.getLog(CommandServiceImpl.class);

@@ -25,7 +25,6 @@ package uk.ac.cam.caret.sakai.rwiki.tool.bean;
  * @author andrew
  */
 
-// FIXME: Tool
 public class HomeBean
 {
 	

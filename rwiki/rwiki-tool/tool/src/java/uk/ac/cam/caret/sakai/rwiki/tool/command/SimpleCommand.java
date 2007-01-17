@@ -35,7 +35,6 @@ import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
  * 
  * @author andrew
  */
-// FIXME: Tool
 public class SimpleCommand implements HttpCommand
 {
 

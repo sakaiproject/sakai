@@ -36,7 +36,6 @@ import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 /**
  * @author andrew
  */
-// FIXME: Tool
 public class BasicHttpCommand implements HttpCommand
 {
 	private static Log log = LogFactory.getLog(BasicHttpCommand.class);

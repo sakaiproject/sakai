@@ -29,7 +29,6 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.ErrorBean;
 /**
  * @author andrew
  */
-// FIXME: Tool
 public class ErrorBeanHelper
 {
 

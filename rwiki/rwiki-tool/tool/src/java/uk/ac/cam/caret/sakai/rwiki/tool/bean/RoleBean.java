@@ -25,7 +25,6 @@ import org.sakaiproject.authz.api.Role;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
 
-//FIXME: Tool
 
 public class RoleBean
 {

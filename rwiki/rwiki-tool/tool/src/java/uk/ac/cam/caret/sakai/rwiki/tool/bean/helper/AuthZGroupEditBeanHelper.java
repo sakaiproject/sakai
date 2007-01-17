@@ -27,7 +27,6 @@ import javax.servlet.http.HttpSession;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.AuthZGroupEditBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
 
-//FIXME: Tool
 
 public class AuthZGroupEditBeanHelper
 {

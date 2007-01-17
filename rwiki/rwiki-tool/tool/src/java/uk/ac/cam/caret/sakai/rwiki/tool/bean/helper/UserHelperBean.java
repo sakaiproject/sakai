@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
  * 
  * @author andrew
  */
-// FIXME: Tool
 public class UserHelperBean
 {
 

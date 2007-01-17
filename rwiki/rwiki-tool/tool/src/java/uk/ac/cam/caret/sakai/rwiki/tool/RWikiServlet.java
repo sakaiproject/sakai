@@ -46,7 +46,6 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 /**
  * @author andrew
  */
-// FIXME: Tool
 public class RWikiServlet extends HttpServlet
 {
 	private static Log log = LogFactory.getLog(RWikiServlet.class);

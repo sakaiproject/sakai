@@ -33,7 +33,6 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.HistoryBean;
  * 
  * @author andrew
  */
-// FIXME: Tool
 public class ReviewHelperBean
 {
 

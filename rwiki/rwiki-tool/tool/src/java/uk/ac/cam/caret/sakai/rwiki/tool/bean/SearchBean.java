@@ -21,7 +21,6 @@
 
 package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 
-// FIXME: Tool
 
 import java.util.List;
 

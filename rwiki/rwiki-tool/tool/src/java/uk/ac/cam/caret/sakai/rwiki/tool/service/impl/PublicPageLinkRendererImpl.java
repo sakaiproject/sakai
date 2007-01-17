@@ -33,7 +33,6 @@ import uk.ac.cam.caret.sakai.rwiki.utils.XmlEscaper;
  * @author ieb
  */
 
-// FIXME: Tool
 public class PublicPageLinkRendererImpl implements PageLinkRenderer
 {
 

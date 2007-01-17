@@ -39,7 +39,6 @@ import uk.ac.cam.caret.sakai.rwiki.utils.XmlEscaper;
  * 
  * @author andrew
  */
-// FIXME: Tool
 public class ReferencesBean
 {
 

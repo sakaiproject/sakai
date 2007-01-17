@@ -53,7 +53,6 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ViewParamsHelperBean;
 /**
  * @author andrew
  */
-// FIXME: Tool
 public class EditManyAuthZGroupCommand implements HttpCommand
 {
 	private static Log log = LogFactory.getLog(EditManyAuthZGroupCommand.class);

@@ -22,7 +22,6 @@ package uk.ac.cam.caret.sakai.rwiki.tool.api;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 
-// FIXME: Service
 
 public interface ToolRenderService
 {

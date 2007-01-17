@@ -29,7 +29,6 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.UpdatePermissionsBean;
 /**
  * @author andrew
  */
-// FIXME: References component directly
 public class UpdatePermissionsBeanHelper
 {
 

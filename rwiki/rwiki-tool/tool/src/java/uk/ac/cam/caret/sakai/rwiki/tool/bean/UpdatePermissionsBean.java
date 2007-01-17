@@ -23,7 +23,6 @@ package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiPermissions;
 
-// FIXME: Tool
 
 public class UpdatePermissionsBean
 {

@@ -33,7 +33,6 @@ import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 /**
  * @author andrew
  */
-// FIXME: Component WITH FIXES, remove deps on page link render impl
 public class ToolRenderServiceImpl implements ToolRenderService
 {
 	private static Log log = LogFactory.getLog(ToolRenderServiceImpl.class);

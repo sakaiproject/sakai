@@ -36,7 +36,6 @@ import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
  * 
  * @author andrew
  */
-// FIXME: Tool
 public class RenderBean
 {
 

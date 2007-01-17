@@ -54,6 +54,8 @@ public class AuthZGroupCollectionBeanHelper
 		Collection groupRefs = objectService.getEntityAuthzGroups(EntityManager
 				.newReference(entity.getReference()), null);
 		// TODO - we might want to deal with this null userId parameter -ggolden
+		// TODO: ieb comment, it is trying to get a generic set, the API indicates 
+		// a null user id will deliver a generic set.
 
 		List groups = new ArrayList(groupRefs.size());
 

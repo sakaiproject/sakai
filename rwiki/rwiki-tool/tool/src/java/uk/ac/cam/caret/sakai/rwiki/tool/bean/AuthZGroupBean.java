@@ -33,7 +33,6 @@ import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
 /**
  * @author andrew
  */
-// FIXME: Tool
 public class AuthZGroupBean extends ViewBean
 {
 

@@ -31,7 +31,6 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
  * @author andrew
  */
 
-// FIXME: Tool
 public class PermissionsBean
 {
 

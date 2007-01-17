@@ -31,7 +31,6 @@ import java.util.List;
  * @author andrew
  */
 
-// FIXME: Tool
 public class ErrorBean
 {
 	private List errors = new ArrayList();

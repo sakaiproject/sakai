@@ -37,7 +37,6 @@ import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
  * 
  * @author andrew
  */
-// FIXME: Tool
 // FIXME: Need a better way of making urls!
 public class ViewBean
 {

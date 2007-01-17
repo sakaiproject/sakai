@@ -28,7 +28,6 @@ import org.apache.commons.logging.LogFactory;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.CommandService;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 
-// FIXME: Tool
 public class RequestHelper
 {
 	private static Log log = LogFactory.getLog(RequestHelper.class);

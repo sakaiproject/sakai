@@ -54,7 +54,6 @@ import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
 /**
  * @author andrew
  */
-// FIXME: Tool
 public class SaveCommand implements HttpCommand
 {
 	private static Log log = LogFactory.getLog(SaveCommand.class);

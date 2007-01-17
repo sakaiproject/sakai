@@ -27,7 +27,6 @@ import java.util.HashMap;
  * @author andrew
  */
 
-// FIXME: Tool
 public class WikiPageAction
 {
 

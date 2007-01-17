@@ -20,7 +20,6 @@
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.tool.api;
 
-// FIXME: Tool
 
 public interface CommandService
 {

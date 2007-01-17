@@ -50,7 +50,6 @@ import uk.ac.cam.caret.sakai.rwiki.tool.command.helper.ErrorBeanHelper;
 /**
  * @author andrew
  */
-// FIXME: Tool
 public class RevertCommand implements HttpCommand
 {
 

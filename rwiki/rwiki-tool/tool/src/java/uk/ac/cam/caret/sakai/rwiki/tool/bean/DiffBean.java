@@ -34,7 +34,6 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
  * @version $Id$
  * @author andrew
  */
-// FIXME: Tool
 public class DiffBean
 {
 
