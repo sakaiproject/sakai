@@ -639,12 +639,9 @@ public class PrivateMessagesTool
   {
 	 return "/site/" + ToolManager.getCurrentPlacement().getContext();
   }
-
+  
   public List getTotalComposeToList()
   { 
-    // if user has site.upd, then don't filter
-  	final boolean noFilter = SecurityService.unlock(UserDirectoryService.getCurrentUser(), "site.upd", getContextSiteId());
-
   	/** just need to refilter */
     if (totalComposeToList != null) {
     	
@@ -653,7 +650,7 @@ public class PrivateMessagesTool
    		for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {
    			MembershipItem item = (MembershipItem) i.next();
 
-   			if (noFilter || item.isViewable()) {
+   			if (isInstructor() || item.isViewable()) {
    				selectItemList.add(new SelectItem(item.getId(), item.getName()));
    			}
    		}
@@ -685,7 +682,7 @@ public class PrivateMessagesTool
 
 		MembershipItem item = (MembershipItem) i.next();
 
-		if (noFilter || item.isViewable()) {
+		if (isInstructor() || item.isViewable()) {
 			selectItemList.add(new SelectItem(item.getId(), item.getName()));
 		}
 	}
@@ -1293,8 +1290,10 @@ public class PrivateMessagesTool
       aMsg.setApproved(Boolean.FALSE);     
       aMsg.setLabel(getSelectedLabel());
       
-      //Add the recipientList as String for display in Sent folder
+      // Add the recipientList as String for display in Sent folder
+      // Any hidden users will be tacked on at the end
       String sendToString="";
+      String sendToHiddenString = "";
       for (int i = 0; i < selectedComposeToList.size(); i++)
       {
         MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(i));  
@@ -1303,10 +1302,14 @@ public class PrivateMessagesTool
         	if (membershipItem.isViewable()) {
         		sendToString +=membershipItem.getName()+"; " ;
         	}
+        	else {
+        		sendToHiddenString += membershipItem.getName() + "; ";
+        	}
         }          
       }
-      sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space
-      aMsg.setRecipientsAsText(sendToString);
+//      sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space
+      sendToHiddenString=sendToHiddenString.substring(0, sendToHiddenString.length()-2); //remove last comma and space
+      aMsg.setRecipientsAsText(sendToString + "(" + sendToHiddenString + ")");
       
     }
     //Add attachments
@@ -1689,6 +1692,7 @@ public class PrivateMessagesTool
     // filter them out (already checked if no recipients)
     // if only 1 recipient no need to check visibility
     String sendToString="";
+    String sendToHiddenString="";
     if (selectedComposeToList.size() == 1) {
         MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(0));
         if(membershipItem != null)
@@ -1705,14 +1709,21 @@ public class PrivateMessagesTool
     			if (membershipItem.isViewable()) {
     				sendToString +=membershipItem.getName()+"; " ;
     			}
-    		}
+   		       	else {
+   	        		sendToHiddenString += membershipItem.getName() + "; ";
+   	        	}
+   	        }          
     	}
     }
 
-   	sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space	
-    
-    rrepMsg.setRecipientsAsText(sendToString);
-    
+	sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space    	
+    if ("".equals(sendToHiddenString)) {
+        rrepMsg.setRecipientsAsText(sendToString);
+    }
+    else {
+    	sendToHiddenString=sendToHiddenString.substring(0, sendToHiddenString.length()-2); //remove last comma and space    
+    	rrepMsg.setRecipientsAsText(sendToString + "(" + sendToHiddenString + ")");
+    }    
     
     //Add attachments
     for(int i=0; i<allAttachments.size(); i++)
@@ -3030,7 +3041,7 @@ public class PrivateMessagesTool
     }
 
 
-    private String getAuthorString() {
+    public String getAuthorString() {
        String authorString = getUserId();
        
        try

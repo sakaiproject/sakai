@@ -51,7 +51,8 @@
             	 <h:outputText value="#{msgs.pvt_to}" />
             </th>
             <td>
-            	 <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.recipientsAsText}" />
+            	 <h:outputText value="#{PrivateMessagesTool.detailMsg.visibleRecipientsAsText}" rendered="#{! PrivateMessagesTool.instructor || ! (PrivateMessagesTool.detailMsg.author == PrivateMessagesTool.authorString) }"  />
+            	 <h:outputText value="#{PrivateMessagesTool.detailMsg.recipientsAsText}" rendered="#{ PrivateMessagesTool.instructor && (PrivateMessagesTool.detailMsg.author == PrivateMessagesTool.authorString) }" />
             </td>  
           </tr>
           <tr>

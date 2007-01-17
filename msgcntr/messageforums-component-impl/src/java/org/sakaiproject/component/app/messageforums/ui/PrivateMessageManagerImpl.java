@@ -955,8 +955,17 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       User currentUser = UserDirectoryService.getCurrentUser();
       StringBuffer body = new StringBuffer(message.getBody());
       
-      body.insert(0, "From: " + currentUser.getDisplayName() + "<p/>");      
-      body.insert(0, "To: " + message.getRecipientsAsText() + "<p/>");
+      body.insert(0, "From: " + currentUser.getDisplayName() + "<p/>"); 
+      
+      // need to filter out hidden users if there are any and:
+      //   a non-instructor (! site.upd)
+      //   instructor but not the author
+      String sendToString = message.getRecipientsAsText();
+      if (sendToString.indexOf("(") > 0 && (! isInstructor() || (message.getAuthor() != getAuthorString())) ) {
+    	  sendToString = sendToString.substring(0, sendToString.indexOf("("));
+      }
+      
+      body.insert(0, "To: " + sendToString + "<p/>");
       
       if (message.getAttachments() != null && message.getAttachments().size() > 0) {
                            
@@ -1193,6 +1202,22 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
         searchByText,searchByAuthor,searchByBody,searchByLabel,searchByDate);
   }
 
+  public String getAuthorString() {
+      String authorString = getCurrentUser();
+      
+      try
+      {
+        authorString = UserDirectoryService.getUser(authorString).getSortName();
+
+      }
+      catch(Exception e)
+      {
+        e.printStackTrace();
+      }
+      
+      return authorString;
+   }
+   
   private String getCurrentUser()
   {
     if (TestUtil.isRunningTests())
