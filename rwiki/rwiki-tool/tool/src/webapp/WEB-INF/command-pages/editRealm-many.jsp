@@ -80,7 +80,7 @@
 			  <th>Roles</th>
 			  <td>Create</td>
 			  <td>Read</td>
-			  <td>Update</td>
+			  <td>Edit</td>
 			  <!--<td>Delete</td>-->
 			  <td>Admin</td>
 			  <td>Super Admin</td>

@@ -25,7 +25,7 @@ public class MultiRealmEditBean
 
 	private RequestScopeSuperBean rsac = null;
 
-	private static final String[] permissionNames = { "Create", "Read", "Update", "Delete", "Admin", "Super Admin" };
+	private static final String[] permissionNames = { "Create", "Read", "Edit", "Delete", "Admin", "Super Admin" };
 
 	private static final int PERM_CREATE = 0;
 

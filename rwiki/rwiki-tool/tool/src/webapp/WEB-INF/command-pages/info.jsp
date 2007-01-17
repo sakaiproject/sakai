@@ -77,7 +77,7 @@
     	</div>
     	<div id="updatehelp" style=" position: absolute; top: -1000px; left: -1000px; visibility: hidden; " 
     		class="rwiki_help_popup" >
-    		<h3>Update Page Permission</h3>
+    		<h3>Edit Page Permission</h3>
     		Once granted, a user may edit the content of this page.
     		If you have permission, you can tick the checkbox to grant that permission.
     		If you do not have permission, you will see the state of the permission.
@@ -117,7 +117,7 @@
     		<h3>Public Permissions</h3>
     		Where a user is not the page owner and not a member of the worksite
     		they are a 'public' user. Granting Public permissions on the page 
-    		gives a 'public' user the permission to read or update the page.
+    		gives a 'public' user the permission to read or edit the page.
     	</div>
     	<div id="siteenablehelp" style=" position: absolute; top: -1000px; left: -1000px; visibility: hidden; " 
     		class="rwiki_help_popup" >
@@ -143,7 +143,7 @@
     		<h3>Public Permissions</h3>
     		Where a user is not the page owner and not a member of the worksite
     		they are a 'public' user. Granting Public permissions on the page 
-    		gives a 'public' user the permission to read or update the page.    		
+    		gives a 'public' user the permission to read or edit the page.    		
     	</div>
     	<div id="siteenabledisphelp" style=" position: absolute; top: -1000px; left: -1000px; visibility: hidden; " 
     		class="rwiki_help_popup" >
@@ -357,7 +357,7 @@ both pages are identical. Any change in the page, will change the digest on the 
 		    		onMouseOut="hidePopup('createhelp');" >?</a></td>
 		    	<td>Read<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'readhelp'); return false;"
 		    		onMouseOut="hidePopup('readhelp');" >?</a></td>
-		    	<td>Update<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'updatehelp'); return false;"
+		    	<td>Edit<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'updatehelp'); return false;"
 		    		onMouseOut="hidePopup('updatehelp');" >?</a></td>
 		    	<!--<td>Delete<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'deletehelp'); return false;"
 		    		onMouseOut="hidePopup('deletehelp');" >?</a></td>-->
