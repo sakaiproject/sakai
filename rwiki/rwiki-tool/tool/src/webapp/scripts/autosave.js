@@ -46,6 +46,7 @@ function restoreSavedContent(pageVersionId, contentId, restoreId,restoreVersionI
 	}
 	 
 	if ( pageVersionValue != restoreVersionValue ) {
+	// FIXME: Internationalize
 		if ( !confirm("Are you certain you want to restore this content, the saved content was not from the same version of this page as the one you are currently editing\n--------------------------------------------------\nSaved Version: "+restoreVersionValue+"\nCurrent Version:"+pageVersionValue) ) {
 			return;
 		}
@@ -162,6 +163,7 @@ WikiAutoSave.prototype.saveContent = function ()
 		 	var cookieName = cookieNameBase+"_"+i+"X";
 		 	this.delCookie(cookieName);
 		}
+		// FIXME: Internationalize
 		alert("There is insufficent space to perform \n" 
 		    + "autosaving on this page, please save \n"
 		    + "your work at regular intervals to reduce \n"

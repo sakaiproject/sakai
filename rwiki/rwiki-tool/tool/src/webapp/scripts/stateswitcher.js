@@ -38,7 +38,7 @@ function changeRoleState(cb,column,enable,disable) {
 }
 
 
-
+// FIXME: Internationalize
 contractsymbol = '<span class="rwiki_collapse"><img title="hide" alt="hide" src="/sakai-rwiki-tool/images/minus.gif"/><span>Hide </span></span>';
 expandsymbol = '<span class="rwiki_expand"><img alt="show" src="/sakai-rwiki-tool/images/plus.gif" title="show"/><span>Show </span></span>';
 
