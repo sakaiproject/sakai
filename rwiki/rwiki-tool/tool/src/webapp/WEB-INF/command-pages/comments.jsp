@@ -19,6 +19,7 @@
  * limitations under the License.
  *
  **********************************************************************************/
+ FIXME: i18n
 -->
 <c:if test="${requestScope.rsacMap.withcomments}" >
 <div class="rwiki_comments" >

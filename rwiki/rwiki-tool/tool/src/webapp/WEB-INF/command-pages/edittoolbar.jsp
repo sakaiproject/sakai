@@ -3,6 +3,8 @@
  * $URL$
  * $Id$
  **********************************************************************************/
+ FIXME: i18n
+
 -->
 <div class="editToolBarContainer" >
 <a class="editToolBar" href="#" id="toolbarButtonSave" onclick="var form = document.getElementById('editForm'); var saveButton = document.getElementById('saveButton'); form.save.value = saveButton.value; form.submit();" ><img src="/library/image/transparent.gif" border="0"   title="Save" alt="Save" /></a>
