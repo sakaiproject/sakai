@@ -589,4 +589,9 @@ public class SearchBeanImpl implements SearchBean
 		return currentSite.getTitle();
 	}
 
+	public String getSystemName()
+	{
+		return ServerConfigurationService.getString("ui.service","Sakai");
+	}
+
 }

@@ -132,4 +132,9 @@ public interface SearchBean
 	 */
 	String getBaseUrl();
 	
+	/**
+	 * get the name of the system
+	 * @return
+	 */
+	String getSystemName();
 }

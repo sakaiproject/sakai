@@ -20,14 +20,15 @@
 	+ "<p class=\"alertMessage\" >{0}</p>"
 	+ "</description>"
 	+ "</item>";
+	String systemName = searchBean.getSystemName();
 %>
 <rss version="2.0">
   <channel>
      <title>
-      Sakai Search RSS Feed <%= searchBean.getSearchTitle() %>
+      <%= systemName %> Search RSS Feed <%= searchBean.getSearchTitle() %>
      </title>
      <description>
-      Sakai Search RSS Feed <%= searchBean.getSearchTitle() %>
+      <%= systemName %> Search RSS Feed <%= searchBean.getSearchTitle() %>
      </description>
      <link>
      <%= request.getRequestURL() %>
@@ -35,7 +36,7 @@
      <lastBuildDate>
      <%= (new java.util.Date()).toString() %>
      </lastBuildDate>
-     <generator>Sakai Search RSS Generator</generator>
+     <generator><%= systemName %> Search RSS Generator</generator>
     		<%= searchBean.getSearchResults(searchItemFormat,errorMessageFormat) %>
      </channel>
 </rss>
