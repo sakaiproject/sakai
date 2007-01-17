@@ -33,7 +33,7 @@ if (usePrinterLink != null && usePrinterLink.booleanValue()) {
 	<jsp:attribute name="id">printerFriendlyLink</jsp:attribute>
 	<jsp:body>
 		<jsp:element name="img">
-			<jsp:attribute name="src">"/library/image/transparent.gif</jsp:attribute> 		
+			<jsp:attribute name="src">/library/image/transparent.gif</jsp:attribute> 		
 			<jsp:attribute name="alt"><jsp:expression>resourceLoaderBean.getString("jsp_printer_friendly")</jsp:expression></jsp:attribute>
 			<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_printer_friendly")</jsp:expression></jsp:attribute>
 			<jsp:attribute name="border">0</jsp:attribute>

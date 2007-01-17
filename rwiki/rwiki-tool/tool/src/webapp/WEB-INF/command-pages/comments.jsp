@@ -19,7 +19,6 @@
  * limitations under the License.
  *
  **********************************************************************************/
- FIXME: i18n
 -->
 <c:if test="${requestScope.rsacMap.withcomments}" >
 <div class="rwiki_comments" >
@@ -30,10 +29,10 @@
 		
 	    <div class="rwikicommentheader">
 	    
-	        Comment by: <rwiki:formatDisplayName name="${comment.rwikiObject.user}"/> on <c:out value="${comment.rwikiObject.version}" /> 
-        		<a href="#" onclick="ajaxRefPopup(this,'<c:out value="${comment.newCommentURL}" />',0); return false;" >Comment</a>
+	        <c:out value="${rlb.jsp_comment_by}" />: <rwiki:formatDisplayName name="${comment.rwikiObject.user}"/> <c:out value="${rlb.jsp_on}" /> <c:out value="${comment.rwikiObject.version}" /> 
+        		<a href="#" onclick="ajaxRefPopup(this,'<c:out value="${comment.newCommentURL}" />',0); return false;" ><c:out value="${rlb.jsp_comment}" /></a>
         		<c:if test="${comment.canEdit}" >
-        			<a href="#" onclick="ajaxRefPopup(this,'<c:out value="${comment.editCommentURL}" />',0); return false;" >Edit</a>
+        			<a href="#" onclick="ajaxRefPopup(this,'<c:out value="${comment.editCommentURL}" />',0); return false;" ><c:out value="${rlb.jsp_edit}" /></a>
         		</c:if>
         	</div>
 		 <div class="rwikicomenttext" />
@@ -52,13 +51,13 @@ function toggleComments(target) {
 		target = lastCommentControl;
 	lastCommentControl = target;
 	if ( commentsShowing ) {
-		target.innerHTML = "Show Comments";
+		target.innerHTML = "<c:out value="${rlb.jsp_show_comments}" />";
 	    popupClose(0);
 	    commentsShowing = false;
 	} else {
 		popupClose(0);
 		ajaxRefPopup(target,'<c:out value="${renderBean.listCommentsURL}" escapeXml="false" />',0);
-		target.innerHTML = "Hide Comments";
+		target.innerHTML = "<c:out value="${rlb.jsp_hide_comments}" />";
 		commentsShowing = true;
 	}
 }
@@ -69,19 +68,19 @@ function togglePresence(target) {
 		target = lastPresenceControl;
 	lastPresenceControl = target;
 	if ( presenceShowing ) {
-		target.innerHTML = "Show Who";
+		target.innerHTML = "<c:out value="${rlb.jsp_show_who}" />";
 	    popupClose(0);
 	    presenceShowing = false;
 	} else {
 		popupClose(0);
 		ajaxRefPopup(target,'<c:out value="${renderBean.listPresenceURL}" escapeXml="false" />',0);
-		target.innerHTML = "Hide Who";
+		target.innerHTML = "<c:out value="${rlb.jsp_hide_who}" />";
 		presenceShowing = true;
 	}
 }
 </script>
 <div id="rwiki_comments_sidebar" >
-<a href="#" onclick="toggleComments(this); return false;" >Show Comments</a>
-<a href="#" onclick="togglePresence(this); return false;" >Show Who</a>
+<a href="#" onclick="toggleComments(this); return false;" ><c:out value="${rlb.jsp_show_comments}" /></a>
+<a href="#" onclick="togglePresence(this); return false;" ><c:out value="${rlb.jsp_show_who}" /></a>
 </div>
 -->

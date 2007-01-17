@@ -20,7 +20,6 @@
  * limitations under the License.
  *
  **********************************************************************************/
- FIXME: i18n
 -->
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0" 
   xmlns:c="http://java.sun.com/jsp/jstl/core"
@@ -33,9 +32,11 @@
   </jsp:text>
   
   <c:set var="currentRWikiObject" value="${requestScope.rsacMap.currentRWikiObject}"/>
+  <c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>
+  
   <div class="rwiki_help_popup" >
 	    <form action="?#" method="post" >
-	    New Comment<br/>
+	    <c:out value="${rlb.jsp_new_comment}"/><br/>
 		<textarea cols="40" rows="10" name="content" id="content" >&#160;</textarea>
 		<input type="hidden" name="action" value="commentnewsave"/>
 		<input type="hidden" name="panel" value="Main"/>
@@ -44,8 +45,16 @@
 		<input type="hidden" name="realm" value="${currentRWikiObject.realm }"/>
 		<br/>
 		<span class="act">
-		  <input type="submit" name="save" value="save" />
-		  <input type="button" value="cancel" onclick="popupClose(-1);"/>
+			<jsp:element name="input">
+				<jsp:attribute name="type">submit</jsp:attribute> 
+				<jsp:attribute name="name">save</jsp:attribute>
+				<jsp:attribute name="value"><c:out value="${rlb.jsp_button_save}" /></jsp:attribute>
+			</jsp:element>
+			<jsp:element name="input">
+				<jsp:attribute name="type">button</jsp:attribute> 
+				<jsp:attribute name="onclick">popupClose(-1);</jsp:attribute>
+				<jsp:attribute name="value"><c:out value="${rlb.jsp_button_cancel}" /></jsp:attribute>
+			</jsp:element>
 		</span>
 	    </form>
 	</div>

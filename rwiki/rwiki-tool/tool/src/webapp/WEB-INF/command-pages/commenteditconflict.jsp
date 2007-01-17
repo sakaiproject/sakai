@@ -20,7 +20,6 @@
  * limitations under the License.
  *
  **********************************************************************************/
- FIXME: i18n
 -->
 
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0" 
@@ -35,7 +34,8 @@
   <jsp:text>
     <![CDATA[ <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> ]]>
   </jsp:text>
+    <c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>
   <div class="rwiki_help_popup" >
-  Someone else edited the comment
+  <c:out value="${rlb.jsp_comment_conflict}"/>
   </div>
 </jsp:root>
