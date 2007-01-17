@@ -12,7 +12,7 @@
 	 	throw new ServletException("Unable to locate RequestScopeBean");
 	 }
 	 MultiRealmEditBean multiRealmEditBean = rsac.getMultiRealmEditBean();
-	 ResourceLoaderBean rlb = rsav.getResourceLoaderBean();
+	 ResourceLoaderBean rlb = rsac.getResourceLoaderBean();
 	 if ( multiRealmEditBean == null ) 
 	 {
 	 	throw new ServletException("Unable to locate MultiRealmEditBean from RequestScopeBean");
@@ -77,8 +77,8 @@
                         <input type="hidden" name="pageName" value="<%= multiRealmEditBean.getPageName() %>" />
                         <input type="hidden" name="panel" value="Main"/>
                         <input type="hidden" name="action" value="editRealmMany"/>
-                        <input type="submit" name="save" value="<%= rlb.getString("jsp_save") %>"/>
-                        <input type="submit" name="save" value="<%= rlb.getString("jsp_cancel") %>"/>
+                        <input type="submit" name="save" value="<%= rlb.getString("jsp_button_save") %>"/>
+                        <input type="submit" name="save" value="<%= rlb.getString("jsp_button_cancel") %>"/>
                         <input type="hidden" name="realm" value="<%= multiRealmEditBean.getLocalSpace() %>"/>
                   </td>
                 </tr>

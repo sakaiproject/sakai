@@ -59,6 +59,9 @@
 				</div>
 				<jsp:directive.include file="breadcrumb.jsp"/>
 				<jsp:scriptlet>
+						    uk.ac.cam.caret.sakai.rwiki.tool.bean.ResourceLoaderBean rlb = 
+		       uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ResourceLoaderHelperBean.getResourceLoaderBean();
+				
 					if ( exception instanceof javax.servlet.jsp.el.ELException) {
 					    Throwable t = ((javax.servlet.jsp.el.ELException) exception).getRootCause();
 					    if (t instanceof Exception) {
@@ -91,25 +94,25 @@
     						if ( exception != null ) { 
     							exception.printStackTrace();
     						}
-						out.write("<c:out value="${rlb.jsp_error_error}"/>: ");
+						out.write(rlb.getString("jsp_error_error"));
 						try { 
 							out.write(exception.getClass().getName()); 
 						} catch ( Exception ex ) { 
-							out.write("<c:out value="${rlb.jsp_error_unknown_exception}"/>");
+							out.write(rlb.getString("jsp_error_unknown_exception"));
 						}
 					    	out.write("\n");
     						out.write("     : ");
 						try { 
 							out.write(exception.getMessage()); 
 						} catch ( Exception ex ) { 
-							out.write("<c:out value="${rlb.jsp_error_unknown_message}"/>"); 
+							out.write(rlb.getString("jsp_error_unknown_message")); 
 						}
     						out.write("\n");
     						java.io.PrintWriter pw = new java.io.PrintWriter(out);
 						try { 
 							exception.printStackTrace(pw);
 						} catch ( Exception ex ) { 
-							out.write("<c:out value="${rlb.jsp_error_unknown_stack_trace}"/>");
+							out.write(rlb.getString("jsp_error_unknown_stack_trace"));
 						}
     						
 					</jsp:scriptlet>						

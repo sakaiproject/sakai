@@ -58,7 +58,7 @@
 							useHistoryLink="false"
 							useWatchLink="false"
 							homeBean="${homeBean}" 
-							resourceLocaderBean="${rlb}"
+							resourceLoaderBean="${rlb}"
 						        />
 	  <span class="rwiki_searchBox">
 	    <c:out value="${rlb.jsp_search}"/>: 
