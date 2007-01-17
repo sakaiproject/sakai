@@ -287,8 +287,12 @@ public class OverviewBean extends InitializableBean implements Serializable {
 	public String getLoggedTotalUsersRelation() {
 		int totalUsers = getTotalSiteUsers();
 		long loggedUsers = getTotalUniqueVisits();
-		double percentage = (100 * loggedUsers) / totalUsers;
-		return loggedUsers + "/" + totalUsers + " (" + percentage + "%)";
+		if(totalUsers == 0)
+			return new String("0");
+		else{
+			double percentage = (100 * loggedUsers) / totalUsers;
+			return loggedUsers + "/" + totalUsers + " (" + percentage + "%)";
+		}
 	}
 	
 	private int getTotalSiteUsers() {
