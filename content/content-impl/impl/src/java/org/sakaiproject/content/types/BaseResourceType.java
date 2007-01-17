@@ -21,7 +21,15 @@
 
 package org.sakaiproject.content.types;
 
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.content.api.ServiceLevelAction;
+import org.sakaiproject.content.api.ResourceToolAction.ActionType;
+import org.sakaiproject.entity.api.Reference;
 
 /**
  * 
@@ -29,7 +37,6 @@ import org.sakaiproject.content.api.ResourceType;
  */
 public abstract class BaseResourceType implements ResourceType 
 {
-	
 	
 	public boolean hasAvailabilityDialog() 
 	{
@@ -65,5 +72,7 @@ public abstract class BaseResourceType implements ResourceType
 	{
 		return true;
 	}
+	
+	
 
 }

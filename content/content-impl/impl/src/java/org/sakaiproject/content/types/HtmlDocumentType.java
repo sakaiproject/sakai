@@ -21,7 +21,9 @@
 
 package org.sakaiproject.content.types;
 
+import java.util.EnumMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +36,15 @@ import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ServiceLevelAction;
+import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.types.BaseResourceType;
+import org.sakaiproject.content.types.FileUploadType.FileUploadAccessAction;
+import org.sakaiproject.content.types.FileUploadType.FileUploadCopyAction;
+import org.sakaiproject.content.types.FileUploadType.FileUploadCreateAction;
+import org.sakaiproject.content.types.FileUploadType.FileUploadDeleteAction;
+import org.sakaiproject.content.types.FileUploadType.FileUploadDuplicateAction;
+import org.sakaiproject.content.types.FileUploadType.FileUploadMoveAction;
+import org.sakaiproject.content.types.FileUploadType.FileUploadReviseAction;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -44,8 +54,10 @@ public class HtmlDocumentType extends BaseResourceType
 {
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("types");
+	
+	protected EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>> actionMap = new EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>>(ResourceToolAction.ActionType.class);
 
-	protected Map actions = new Hashtable();
+	protected Map<String, ResourceToolAction> actions = new Hashtable<String, ResourceToolAction>();	
 	protected UserDirectoryService userDirectoryService;
 	
 	protected String typeId = "text/html";
@@ -53,6 +65,13 @@ public class HtmlDocumentType extends BaseResourceType
 	
 	public class HtmlDocumentCopyAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.COPY;
+		}
 
 		public String getId() 
 		{
@@ -80,14 +99,6 @@ public class HtmlDocumentType extends BaseResourceType
 			return typeId;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
-		 */
-		public Set getPermissions()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
 	}
 
 	public class HtmlDocumentCreateAction implements InteractionAction
@@ -107,6 +118,14 @@ public class HtmlDocumentType extends BaseResourceType
 		{
 			// TODO Auto-generated method stub
 			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.CREATE;
 		}
 
 		public String getId() 
@@ -134,19 +153,17 @@ public class HtmlDocumentType extends BaseResourceType
 			return null;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
-		 */
-		public Set getPermissions()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
 	}
 
 	public class HtmlDocumentDeleteAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.DELETE;
+		}
 
 		public String getId() 
 		{
@@ -174,18 +191,17 @@ public class HtmlDocumentType extends BaseResourceType
 			return typeId;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
-		 */
-		public Set getPermissions()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
 	}
 
 	public class HtmlDocumentDuplicateAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.DUPLICATE;
+		}
 
 		public String getId() 
 		{
@@ -214,18 +230,17 @@ public class HtmlDocumentType extends BaseResourceType
 			return typeId;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
-		 */
-		public Set getPermissions()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
 	}
 
 	public class HtmlDocumentMoveAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.MOVE;
+		}
 
 		public String getId() 
 		{
@@ -254,14 +269,6 @@ public class HtmlDocumentType extends BaseResourceType
 			return typeId;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
-		 */
-		public Set getPermissions()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
 	}
 
 	public class HtmlDocumentReviseAction implements InteractionAction
@@ -281,6 +288,14 @@ public class HtmlDocumentType extends BaseResourceType
 		{
 			// TODO Auto-generated method stub
 			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.REVISE_CONTENT;
 		}
 
 		public String getId() 
@@ -308,15 +323,6 @@ public class HtmlDocumentType extends BaseResourceType
 			return null;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
-		 */
-		public Set getPermissions()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
 	}
 	
 	public class HtmlDocumentAccessAction implements InteractionAction
@@ -336,6 +342,14 @@ public class HtmlDocumentType extends BaseResourceType
 		{
 			// TODO Auto-generated method stub
 			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.VIEW_CONTENT;
 		}
 
 		public String getId() 
@@ -363,15 +377,6 @@ public class HtmlDocumentType extends BaseResourceType
 			return null;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
-		 */
-		public Set getPermissions()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
 	}
 	
 	public HtmlDocumentType()
@@ -380,11 +385,33 @@ public class HtmlDocumentType extends BaseResourceType
 		
 		actions.put(ResourceToolAction.CREATE, new HtmlDocumentCreateAction());
 		actions.put(ResourceToolAction.ACCESS_CONTENT, new HtmlDocumentAccessAction());
-		actions.put(ResourceToolAction.REVISE_CONTENT, new HtmlDocumentReviseAction());
+		actions.put(ResourceToolAction.REVISE_CONTENT, new HtmlDocumentAccessAction());
 		actions.put(ResourceToolAction.DUPLICATE, new HtmlDocumentDuplicateAction());
 		actions.put(ResourceToolAction.COPY, new HtmlDocumentCopyAction());
 		actions.put(ResourceToolAction.MOVE, new HtmlDocumentMoveAction());
 		actions.put(ResourceToolAction.DELETE, new HtmlDocumentDeleteAction());
+
+		// initialize actionMap with an empty List for each ActionType
+		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())
+		{
+			actionMap.put(type, new Vector<ResourceToolAction>());
+		}
+		
+		// for each action in actions, add a link in actionMap
+		Iterator<String> it = actions.keySet().iterator();
+		while(it.hasNext())
+		{
+			String id = it.next();
+			ResourceToolAction action = actions.get(id);
+			List<ResourceToolAction> list = actionMap.get(action.getActionType());
+			if(list == null)
+			{
+				list = new Vector<ResourceToolAction>();
+				actionMap.put(action.getActionType(), list);
+			}
+			list.add(action);
+		}
+		
 	}
 
 	public ResourceToolAction getAction(String actionId) 
@@ -459,6 +486,44 @@ public class HtmlDocumentType extends BaseResourceType
 	public String getLocalizedHoverText(Reference reference)
 	{
 		return rb.getString("addh.doc");
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceType#getActions(org.sakaiproject.content.api.ResourceType.ActionType)
+	 */
+	public List<ResourceToolAction> getActions(ActionType type)
+	{
+		List<ResourceToolAction> list = actionMap.get(type);
+		if(list == null)
+		{
+			list = new Vector<ResourceToolAction>();
+			actionMap.put(type, list);
+		}
+		return new Vector<ResourceToolAction>(list);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceType#getActions(java.util.List)
+	 */
+	public List<ResourceToolAction> getActions(List<ActionType> types)
+	{
+		List<ResourceToolAction> list = new Vector<ResourceToolAction>();
+		if(types != null)
+		{
+			Iterator<ActionType> it = types.iterator();
+			while(it.hasNext())
+			{
+				ActionType type = it.next();
+				List<ResourceToolAction> sublist = actionMap.get(type);
+				if(sublist == null)
+				{
+					sublist = new Vector<ResourceToolAction>();
+					actionMap.put(type, sublist);
+				}
+				list.addAll(sublist);
+			}
+		}
+		return list;
 	}
 
 }

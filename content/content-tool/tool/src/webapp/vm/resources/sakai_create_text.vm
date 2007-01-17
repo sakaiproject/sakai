@@ -39,4 +39,5 @@
 			theForm.submit();
 		}
 	}
+	-->
 </script>

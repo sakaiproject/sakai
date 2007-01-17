@@ -42,8 +42,22 @@ public interface ResourceType
 	public static final String MIME_TYPE_TEXT = "text/plain";
 	public static final String MIME_TYPE_HTML = "text/html";
 	
-	public enum ActionType { CREATE, MODIFY_METADATA, MODIFY_CONTENT, DELETE, COPY, DUPLICATE, MOVE, CUSTOM };  
+	/**
+	 * Access the action specified by the parameter.  If the action is defined for this resource type,
+	 * it is returned.  Otherwise, the method returns null.
+	 * @param type
+	 * @return
+	 */
+	public List<ResourceToolAction> getActions(ResourceToolAction.ActionType type);
 
+	/**
+	 * Access an ordered list of actions specified by the parameter.  The actions are added to the list
+	 * in the order specified by the parametric list.  If none of the action types specified in the list
+	 * are defined for this resource type, the returned list will be empty.
+	 * @param types
+	 * @return
+	 */
+	public List<ResourceToolAction> getActions(List<ResourceToolAction.ActionType> types);
 
 	/**
 	 * @param actionId

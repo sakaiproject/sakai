@@ -21,7 +21,9 @@
 
 package org.sakaiproject.content.types;
 
+import java.util.EnumMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +36,7 @@ import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ServiceLevelAction;
+import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.types.BaseResourceType;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.user.api.User;
@@ -44,8 +47,10 @@ public class UrlResourceType extends BaseResourceType
 {
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("types");
+	
+	protected EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>> actionMap = new EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>>(ResourceToolAction.ActionType.class);
 
-	protected Map actions = new Hashtable();
+	protected Map<String, ResourceToolAction> actions = new Hashtable<String, ResourceToolAction>();	
 	protected UserDirectoryService userDirectoryService;
 	
 	protected String typeId = "Url";
@@ -53,6 +58,13 @@ public class UrlResourceType extends BaseResourceType
 	
 	public class UrlResourceCopyAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.COPY;
+		}
 
 		public String getId() 
 		{
@@ -80,15 +92,6 @@ public class UrlResourceType extends BaseResourceType
 			return typeId;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
-		 */
-		public Set getPermissions()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
 	}
 
 	public class UrlResourceCreateAction implements InteractionAction
@@ -108,6 +111,14 @@ public class UrlResourceType extends BaseResourceType
 		{
 			// TODO Auto-generated method stub
 			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.CREATE;
 		}
 
 		public String getId() 
@@ -135,19 +146,17 @@ public class UrlResourceType extends BaseResourceType
 			return null;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
-		 */
-		public Set getPermissions()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
 	}
 
 	public class UrlResourceDeleteAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.DELETE;
+		}
 
 		public String getId() 
 		{
@@ -175,19 +184,17 @@ public class UrlResourceType extends BaseResourceType
 			return typeId;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
-		 */
-		public Set getPermissions()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
 	}
 
 	public class UrlResourceDuplicateAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.DUPLICATE;
+		}
 
 		public String getId() 
 		{
@@ -216,19 +223,17 @@ public class UrlResourceType extends BaseResourceType
 			return typeId;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
-		 */
-		public Set getPermissions()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
 	}
 
 	public class UrlResourceMoveAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.MOVE;
+		}
 
 		public String getId() 
 		{
@@ -257,15 +262,6 @@ public class UrlResourceType extends BaseResourceType
 			return typeId;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
-		 */
-		public Set getPermissions()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
 	}
 
 	public class UrlResourceReviseAction implements InteractionAction
@@ -285,6 +281,14 @@ public class UrlResourceType extends BaseResourceType
 		{
 			// TODO Auto-generated method stub
 			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.REVISE_CONTENT;
 		}
 
 		public String getId() 
@@ -312,15 +316,6 @@ public class UrlResourceType extends BaseResourceType
 			return null;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
-		 */
-		public Set getPermissions()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
 	}
 	
 	public class UrlResourceAccessAction implements InteractionAction
@@ -340,6 +335,14 @@ public class UrlResourceType extends BaseResourceType
 		{
 			// TODO Auto-generated method stub
 			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.VIEW_CONTENT;
 		}
 
 		public String getId() 
@@ -367,15 +370,6 @@ public class UrlResourceType extends BaseResourceType
 			return null;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermissions()
-		 */
-		public Set getPermissions()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
 	}
 	
 	public UrlResourceType()
@@ -389,6 +383,28 @@ public class UrlResourceType extends BaseResourceType
 		actions.put(ResourceToolAction.COPY, new UrlResourceCopyAction());
 		actions.put(ResourceToolAction.MOVE, new UrlResourceMoveAction());
 		actions.put(ResourceToolAction.DELETE, new UrlResourceDeleteAction());
+		
+		// initialize actionMap with an empty List for each ActionType
+		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())
+		{
+			actionMap.put(type, new Vector<ResourceToolAction>());
+		}
+		
+		// for each action in actions, add a link in actionMap
+		Iterator<String> it = actions.keySet().iterator();
+		while(it.hasNext())
+		{
+			String id = it.next();
+			ResourceToolAction action = actions.get(id);
+			List<ResourceToolAction> list = actionMap.get(action.getActionType());
+			if(list == null)
+			{
+				list = new Vector<ResourceToolAction>();
+				actionMap.put(action.getActionType(), list);
+			}
+			list.add(action);
+		}
+		
 	}
 
 	public ResourceToolAction getAction(String actionId) 
@@ -462,6 +478,44 @@ public class UrlResourceType extends BaseResourceType
 	public String getLocalizedHoverText(Reference reference)
 	{
 		return rb.getString("addub.url");
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceType#getActions(org.sakaiproject.content.api.ResourceType.ActionType)
+	 */
+	public List<ResourceToolAction> getActions(ActionType type)
+	{
+		List<ResourceToolAction> list = actionMap.get(type);
+		if(list == null)
+		{
+			list = new Vector<ResourceToolAction>();
+			actionMap.put(type, list);
+		}
+		return new Vector<ResourceToolAction>(list);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceType#getActions(java.util.List)
+	 */
+	public List<ResourceToolAction> getActions(List<ActionType> types)
+	{
+		List<ResourceToolAction> list = new Vector<ResourceToolAction>();
+		if(types != null)
+		{
+			Iterator<ActionType> it = types.iterator();
+			while(it.hasNext())
+			{
+				ActionType type = it.next();
+				List<ResourceToolAction> sublist = actionMap.get(type);
+				if(sublist == null)
+				{
+					sublist = new Vector<ResourceToolAction>();
+					actionMap.put(type, sublist);
+				}
+				list.addAll(sublist);
+			}
+		}
+		return list;
 	}
 
 }

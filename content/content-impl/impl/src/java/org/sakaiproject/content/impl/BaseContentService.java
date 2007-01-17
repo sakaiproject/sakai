@@ -144,9 +144,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseContentService.class);
 
-	/** The collection id for the attachments collection */
-	protected static final String ATTACHMENTS_COLLECTION = "/attachment/";
-
 	/** Number of times to attempt to find a unique resource id when copying or moving a resource */
 	protected static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
 	
@@ -166,6 +163,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * The quota for content resource body bytes (in Kbytes) for any hierarchy in the /user/ or /group/ areas, or 0 if quotas are not enforced.
 	 */
 	protected long m_siteQuota = 0;
+
+	/** The collection id for the attachments collection */
+	protected static final String ATTACHMENTS_COLLECTION = "/attachment/";
 
 	/** Collection id for the user sites. */
 	public static final String COLLECTION_USER = "/user/";

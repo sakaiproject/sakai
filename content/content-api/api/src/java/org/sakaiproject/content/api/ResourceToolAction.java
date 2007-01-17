@@ -21,21 +21,120 @@
 
 package org.sakaiproject.content.api;
 
-import java.util.Map;
-import java.util.Set;
-
-import org.sakaiproject.entity.api.Reference;
-
 /**
+ * ResourceToolAction defines the way in which actions are described in a resource-type registration. 
+ * Each action should have its own ResourceToolAction defined in the registration.  
+ * If the action requires user interaction by a helper, the resource-type registration should include
+ * an action definition that implements the InteractionAction interface.  
+ * If an action requires action by another webapp but does not involve user interaction (i.e. it does
+ * not delegate the user interaction to a helper), the resource-type registration should include an
+ * action definition that implements the ServiceLevelAction interface.
+ * Most actions for new resources types are likely to be similar to familiar actions on resources (e.g. 
+ * "create", "revise", "delete", etc) and permissions for these actions are handled by the Content Hosting
+ * Service.  If an action requires custom permissions, the definition of that action implements the
+ * CustomToolAction interface to provide a way for the Resources tool to determine whether to show 
+ * the action as an option in a particular context to a particular user.
+ * A ResourceToolAction deinition should implement at least one of those subinterfaces, and it may
+ * implement all three.  If a ResourceToolAction implements both InteractionAction and ServiceLevelAction,
+ * the activity of the helper defined by InteractionAction will occur before the service-level activity 
+ * defined by ServiceLevelAction.
  * 
- * 
+ * @see org.sakaiproject.content.api.ResourceType
  */
 public interface ResourceToolAction 
 {
+	/**
+	 * ActionType defines identifiers for types of actions related to resources.
+	 */
+	public enum ActionType
+	{
+		/**
+		 * Create upload -- Handled by Resources tool.  Can create multiple uploads at once.  
+		 * 		Metadata and content supplied in same form.  Requires content.new permission 
+		 * 		in parent folder.
+		 */
+		NEW_UPLOAD,
+		
+		/**
+		 * Create folder -- Handled by Resources tool.  Can create multiple folders at once.  
+		 * 		No content; requires metadata only.  Requires content.new permission in parent 
+		 * 		folder.
+		 */
+		NEW_FOLDER,
+		
+		/**
+		 * Create other -- Handled by helper and Resources tool.  Can create one item at a time.  
+		 * 		Content (and possibly some properties) handled by helper. Metadata supplied in 
+		 * 		form that appears after helper finishes.  Requires content.new permission in 
+		 * 		parent folder.
+		 */
+		CREATE,
+		
+		/**
+		 * Delete -- Handled by Resources tool.  Requires content.delete permission
+		 */
+		DELETE,
+		
+		/**
+		 * Revise content -- Handled by helper.  Requires content.revise.any permission (or 
+		 * 		content.revise.own if user is creator).
+		 */
+		REVISE_CONTENT,
+		
+		/**
+		 * Replace content -- Handled by Resources tool.  Requires content.revise.any permission 
+		 * 		(or content.revise.own if user is creator).
+		 */
+		REPLACE_CONTENT,
+		
+		/**
+		 * Revise metadata -- Handled by Resources tool.  Requires content.revise.any permission 
+		 * 		(or content.revise.own if user is creator).
+		 */
+		REVISE_METADATA,
+		
+		/**
+		 * Copy -- Handled by Resources tool.  Requires content.read permission for item being 
+		 * 		copied and content.new permission in folder to which it's copied.
+		 */
+		COPY,
+		
+		/**
+		 * Move -- Handled by Resources tool.  Requires content.delete (or content.update ?) permission for 
+		 * 		item being moved and content.new permission in folder to which it's moved.
+		 */
+		MOVE,
+		
+		/**
+		 * Duplicate -- Handled by Resources tool.  Requires content.read permission for item being 
+		 * 		duplicated and content.new permission in parent folder.
+		 */
+		DUPLICATE,
+		
+		/**
+		 * View content -- Handled by AccessServlet (via Resources tool) or helper.  Requires 
+		 * 		content.read permission.
+		 */
+		VIEW_CONTENT,
+		
+		/**
+		 * View metadata -- Handled by Resources tool.  Requires content.read permission.
+		 */
+		VIEW_METADATA,
+		
+		/**
+		 * Custom action -- Handled by helper.  May be interactive or service-level.  Custom actions
+		 * 		must implement the CustomToolAction interface to provide Resources tool with a way to 
+		 * 		determine permissions, as well as either InteractionAction or ServiceLevelAction.
+		 */
+		CUSTOM_TOOL_ACTION
+	}
+	
 	public static final String CREATE = "create";
 	public static final String DELETE = "delete";
 	public static final String COPY = "copy";
 	public static final String REVISE_CONTENT = "revise";
+	public static final String REVISE_METADATA = "properties";
 	public static final String ACCESS_CONTENT = "access";
 	public static final String ACCESS_PROPERTIES = "info";
 	public static final String DUPLICATE = "duplicate";
@@ -57,84 +156,6 @@ public interface ResourceToolAction
 	
 	public static final String DONE = PREFIX + "done";
 
-	
-//	/** 
-//	 * Key for Tool Session attribute indicating that user canceled the action in the helper. Any (non-null) value indicates true. 
-//	 * (supplied by helper before stopping helper)
-//	 */
-//	public static final String ACTION_CANCELED = PREFIX + "action_canceled";
-//	
-//	/** 
-//	 * Key for Tool Session attribute indicating that the action resulted in an error in the helper that effectively canceled the action. 
-//	 * Any (non-null) value indicates true. (supplied by helper before stopping helper) 
-//	 */
-//	public static final String ACTION_ERROR = PREFIX + "action_error";
-//	
-//	/** 
-//	 * Key for Tool Session attribute indicating that the action succeeded in the helper. Any (non-null) value indicates true. 
-//	 * (supplied by helper before stopping helper) 
-//	 */
-//	public static final String ACTION_SUCCEEDED = PREFIX + "action_succeeded";
-//	
-//	/** 
-//	 * Key for Tool Session attribute identifying the type of resource being created/edited/etc 
-//	 * (supplied by ResourcesAction before starting helper). 
-//	 */
-//	public static final String RESOURCE_TYPE = PREFIX + "resource_type";
-//	
-//	/** 
-//	 * Key for Tool Session attribute identifying the action being invoked 
-//	 * (supplied by ResourcesAction before starting helper). 
-//	 */
-//	public static final String ACTION_ID = PREFIX + "action";
-//
-//	/** 
-//	 * Key for Tool Session attribute that provides a Reference object identifying the collection in which an item is to be created 
-//	 * (supplied by ResourcesAction before starting helper). 
-//	 */
-//	public static final String COLLECTION_REFERENCE = PREFIX + "collection_reference";
-//	
-//	/** 
-//	 * Key for Tool Session attribute that provides a String object containing the "content" of the resource
-//	 * (supplied by ResourcesAction before starting helper). 
-//	 */
-//	public static final String RESOURCE_CONTENT = PREFIX + "resource_content";
-//	
-//	/** 
-//	 * Key for Tool Session attribute that provides a String object containing the revised "content" of the 
-//	 * resource (supplied by helper before stopping helper if the action can create/update the content). 
-//	 */
-//	public static final String REVISED_RESOURCE_CONTENT = PREFIX + "revised_resource_content";
-//	
-//	/**
-//	 * Key for Tool Session attribute that provides a Map containing the key-value pairs mapping Strings to Objects
-//	 * identifying values of ResourceProperties related to the action. If the action registration indicates that 
-//	 * ResourcesAction should provide existing values for properties, the values of those properties will be 
-//	 * passed to the helper in this attribute.  If a value for a required property is not yet defined, no entry 
-//	 * for that property will be included in the Map.  
-//	 */
-//	public static final String RESOURCE_PROPERTIES = PREFIX + "resource_properties";
-//	
-//	/**
-//	 * Key for Tool Session attribute that provides a Map containing the key-value pairs mapping Strings to Objects
-//	 * identifying values of ResourceProperties updated during the action. If the action registration indicates that 
-//	 * ResourcesAction should provide existing values for properties, the values of those properties will be 
-//	 * passed to the helper in the RESOURCE_PROPERTIES attribute, and a value should also be provided by the helper 
-//	 * for each of those properties in this attribute. On completion of the helper's part of the action, the 
-//	 * Map will include entries for any properties that should be added or updated as a result of the helper's 
-//	 * part of the action.  If this attribute is defined and the Map contains entries, ResourcesAction will 
-//	 * include those values in the ResourceProperties for the resource.  If an entry was included for a key in the 
-//	 * RESOURCE_PROPERTIES attribute and no entry for that key in this attribute, the value associated with that
-//	 * key will be removed from the entity's resource properties.
-//	 */
-//	public static final String REVISED_RESOURCE_PROPERTIES = PREFIX + "revised_resource_properties";
-//	
-//	/** 
-//	 * Key for Tool Session attribute that provides a Reference object identifying the resource involved in the action. 
-//	 * (supplied by ResourcesAction before starting helper). 
-//	 */
-//	public static final String RESOURCE_REFERENCE = PREFIX + "resource_reference";
-	
 	/**
 	 * Access the id of this action (which must be unique within this type and must be limited to alphnumeric characters).
 	 * @return
@@ -148,14 +169,14 @@ public interface ResourceToolAction
 	public String getTypeId();
 	
 	/**
+	 * Access the enumerated constant for this action.
+	 * @return
+	 */
+	public ActionType getActionType();
+	
+	/**
 	 * @return
 	 */
 	public String getLabel();
-	
-	/**
-	 * Access the names of any permissions that allow a user to invoke this action from the Resources tool.
-	 * The value returned should be a standard 'content' permission. 
-	 */
-	public Set getPermissions();
 	
 }
