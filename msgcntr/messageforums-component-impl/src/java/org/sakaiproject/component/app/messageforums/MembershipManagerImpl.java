@@ -263,15 +263,8 @@ public class MembershipManagerImpl implements MembershipManager{
       	if(!(userId).equals("admin"))
       	{                                       
       		if (filterFerpa){                       
-      			List personList = sakaiPersonManager.findSakaiPersonByUid(userId);
       			boolean ferpa_flag = false;
-      			for (Iterator iter = personList.iterator(); iter.hasNext();)
-      			{
-      				SakaiPerson element = (SakaiPerson) iter.next();            
-      				if (Boolean.TRUE.equals(element.getFerpaEnabled())){
-      					ferpa_flag = true;
-      				}            
-      			}                                          
+      			ferpa_flag = !privacyManager.isViewable(getContextSiteId(), userId); 
       			if (!ferpa_flag || securityService.unlock(memberItem.getUser(), 
       					SiteService.SECURE_UPDATE_SITE,
       					getContextSiteId())
