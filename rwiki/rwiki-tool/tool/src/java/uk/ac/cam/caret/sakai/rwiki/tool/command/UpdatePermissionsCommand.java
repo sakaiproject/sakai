@@ -34,7 +34,6 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.tool.cover.SessionManager;
 
-import com.sun.j3d.utils.behaviors.vp.WandViewBehavior.ResetViewListener;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiPermissions;

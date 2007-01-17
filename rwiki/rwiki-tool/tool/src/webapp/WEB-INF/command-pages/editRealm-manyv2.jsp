@@ -1,19 +1,18 @@
 <%@ page language="java"
 		contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"
 		errorPage="/WEB-INF/command-pages/errorpage.jsp" 
-		import="uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean,uk.ac.cam.caret.sakai.rwiki.tool.bean.MultiRealmEditBean"
+		import="uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean,uk.ac.cam.caret.sakai.rwiki.tool.bean.MultiRealmEditBean,uk.ac.cam.caret.sakai.rwiki.tool.bean.ResourceLoaderBean"
 		%><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <%
-// FIXME: i18n
 
 	 RequestScopeSuperBean rsac = (RequestScopeSuperBean)request.getAttribute(RequestScopeSuperBean.REQUEST_ATTRIBUTE);
 	 if ( rsac == null ) 
 	 {
 	 	throw new ServletException("Unable to locate RequestScopeBean");
 	 }
-	 System.err.println("Got RSAC as "+rsac);
 	 MultiRealmEditBean multiRealmEditBean = rsac.getMultiRealmEditBean();
+	 ResourceLoaderBean rlb = rsav.getResourceLoaderBean();
 	 if ( multiRealmEditBean == null ) 
 	 {
 	 	throw new ServletException("Unable to locate MultiRealmEditBean from RequestScopeBean");
@@ -27,15 +26,15 @@
 	 String permissionsRealmWrapper = 
 	 "<tr> "+
 	 "<th colspan=\"7\" >" +
-	 "<label>Realm: {0}</label>"+
-	 "<input type=\"submit\" name=\"save\" value=\"Remove Realm\"/>"+
+	 "<label>"+rlb.getString("jsp_realm")+": {0}</label>"+
+	 "<input type=\"submit\" name=\"save\" value=\""+rlb.getString("jsp_realm")+"Remove Realm\"/>"+
 	 "</th>"+
 	 "</tr><tr>"+
-	 "<th>Roles</th>"+
+	 "<th>"+rlb.getString("jsp_realm")+"Roles</th>"+
 	 "{1}"+
 	 "</tr>{2}<tr>"+
 	 "<td colspan=\"7\" >"+
-	 "<input type=\"test\" name=\"{3}\" /><input type=\"submit\" name=\"save\" value=\"Add Role\"/>"+
+	 "<input type=\"test\" name=\"{3}\" /><input type=\"submit\" name=\"save\" value=\""+rlb.getString("jsp_add_role")+"\"/>"+
 	 "</td>"+
 	 "</tr>";
 	 
@@ -57,7 +56,7 @@
   <body <%= multiRealmEditBean.getBodyOnLoad() %> > 
     <div id="rwiki_container"> 
       <div class="portletBody"> 
-          <h3>Edit ACL's Controlling Page Permissions: 
+          <h3><%= rlb.getString("jsp_edit_acl_title") %>Edit ACL's Controlling Page Permissions: 
             <%= multiRealmEditBean.getPageName() %>
           </h3>
           <%= multiRealmEditBean.getErrors(errorFormatWrapper,errorFormatItem) %>
@@ -69,7 +68,7 @@
                         <select name="add_realm" >
                         	<%= multiRealmEditBean.getAvailableRealms(addRealmOptionFormat) %>
                         </select>
-                        <input type="submit" name="save" value="Add Realm"/>   
+                        <input type="submit" name="save" value="<%= rlb.getString("jsp_add_realm") %>"/>   
                   </td>
                 </tr>
                 <%= multiRealmEditBean.getPermissionsGroupRoles(permissionsRealmWrapper,permissionNames,permissionsGroupRoleWrapper,permissionEditOn,permissionEditOff) %>
@@ -78,8 +77,8 @@
                         <input type="hidden" name="pageName" value="<%= multiRealmEditBean.getPageName() %>" />
                         <input type="hidden" name="panel" value="Main"/>
                         <input type="hidden" name="action" value="editRealmMany"/>
-                        <input type="submit" name="save" value="Save"/>
-                        <input type="submit" name="save" value="Cancel"/>
+                        <input type="submit" name="save" value="<%= rlb.getString("jsp_save") %>"/>
+                        <input type="submit" name="save" value="<%= rlb.getString("jsp_cancel") %>"/>
                         <input type="hidden" name="realm" value="<%= multiRealmEditBean.getLocalSpace() %>"/>
                   </td>
                 </tr>
