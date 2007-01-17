@@ -20,7 +20,6 @@
  * limitations under the License.
  *
  **********************************************************************************/
- FIXME: i18n
 -->
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0" 
   xmlns:c="http://java.sun.com/jsp/jstl/core"
@@ -30,7 +29,8 @@
 	/>
 	<c:set var="currentRWikiObject" value="${requestScope.rsacMap.currentRWikiObject}"/>
 	<c:set var="editBean" value="${requestScope.rsacMap.editBean}"/>
-	<c:set var="renderBean" value="${requestScope.rsacMap.renderBean}"/>	
+	<c:set var="renderBean" value="${requestScope.rsacMap.renderBean}"/>
+	<c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>		
 	<c:set var="currentContent" value="${currentRWikiObject.content}"/>
 	<c:set target="${currentRWikiObject}" property="content" value="${editBean.previousContent}"/>	    
 	<c:out value="${renderBean.previewPage}" escapeXml="false"/><br/>

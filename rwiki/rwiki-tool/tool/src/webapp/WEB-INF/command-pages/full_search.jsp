@@ -20,7 +20,6 @@
  * limitations under the License.
  *
  **********************************************************************************/
- FIXME: i18n
 -->
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0" 
   xmlns:c="http://java.sun.com/jsp/jstl/core"
@@ -37,9 +36,10 @@
       <c:set var="rightRenderBean" value="${requestScope.rsacMap.searchRightRenderBean}"/>
         <c:set var="recentlyVisitedBean" value="${requestScope.rsacMap.recentlyVisitedBean}"/>
   <c:set var="homeBean" value="${requestScope.rsacMap.homeBean}"/>
+	<c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>
   <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
     <head>
-      <title>Search: <c:out value="${searchBean.search}"/></title>
+      <title><c:out value="${rlb.jsp_search}"/>: <c:out value="${searchBean.search}"/></title>
       <jsp:expression>request.getAttribute("sakai.html.head")</jsp:expression>
     </head>
     <jsp:element name="body">
@@ -57,10 +57,11 @@
 							useInfoLink="false"
 							useHistoryLink="false"
 							useWatchLink="false"
-							homeBean="${homeBean}"  
+							homeBean="${homeBean}" 
+							resourceLocaderBean="${rlb}"
 						        />
 	  <span class="rwiki_searchBox">
-	    Search: 
+	    <c:out value="${rlb.jsp_search}"/>: 
 	    <input type="hidden" name="action" value="full_search" />
 	    <input type="hidden" name="panel" value="Main" />
 	    <input type="text" name="search" />
@@ -78,9 +79,9 @@
 	<c:set var="searchResults" value="${searchBean.searchResults}"/>
 	<c:set var="searchPages" value="${searchBean.searchPages}"/>
 	<c:set var="requestSearchPages" value="${searchBean.requestPage}"/>
-	<h3>Search: <c:out value="${searchBean.search}"/></h3>
+	<h3><c:out value="${rlb.jsp_search}"/>: <c:out value="${searchBean.search}"/></h3>
 	<p>
-     Search Took <c:out value="${searchBean.timeTaken}" /> ms found <c:out value="${searchBean.nresults}" />
+     <c:out value="${rlb.jsp_search_took}"/><c:out value=" "/>  <c:out value="${searchBean.timeTaken}" /> <c:out value="${rlb.jsp_ms_found}"/><c:out value=" "/> <c:out value="${searchBean.nresults}" />
     </p>
 
 	<jsp:useBean id="searchViewBean" class="uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean"/>
@@ -95,21 +96,21 @@
                        <jsp:attribute name="href"><c:out value="${foundItem.url}"  escapeXml="false" /></jsp:attribute>
                    <c:out value="${foundItem.title}"  escapeXml="false" /> 
                        </jsp:element><br />
-     		    Content: <br />
+     		    <c:out value="${rlb.jsp_search_content}"/>: <br />
      		    			<c:out value="${foundItem.searchResult}"  escapeXml="false" /> 
      		    		<br />
      		    	<span style="font-size: smaller;" >
-     		    Realms: <br />
+     		    <c:out value="${rlb.jsp_search_realms}"/>: <br />
      		    <c:forEach var="realm" items="${foundItem.valueMap.realm}" >
      		    			<c:out value="${realm}" /> <br />
 		    			</c:forEach>
      		    		<br />
-     		    Score: <c:out value="${foundItem.score}" />
+     		    <c:out value="${rlb.jsp_search_score}"/>: <c:out value="${foundItem.score}" />
 				</span>	  		  
 	  			</p>
 		    		</c:forEach>
 		    		<p>
-		    		Result Page:
+		    		<c:out value="${rlb.jsp_search_result_page}"/>:
 		    		<c:forEach var="pages" items="${searchPages}" >
 		    		<jsp:element name="a">
 		    		   <jsp:attribute name="href"><c:out value="${pages.fullSearchLinkUrl}" escapeXml="false" /></jsp:attribute>

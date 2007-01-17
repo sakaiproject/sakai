@@ -20,7 +20,6 @@
  * limitations under the License.
  *
  **********************************************************************************/
- FIXME: i18n
 -->
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0" 
   xmlns:c="http://java.sun.com/jsp/jstl/core"
@@ -30,10 +29,4 @@
     <!-- this fixes the guillotine bug for IE and the resizing issue for Safari -->
     <div id="guillotineFixer">&#160;</div>
   <script type="text/javascript" ><c:out value="${requestScope.footerScript}" escapeXml="false" /></script>
-  <jsp:scriptlet>
-    {
-    long endofpage = System.currentTimeMillis();
-    uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger.printTimer("END Of Page:",endofpage,endofpage);
-    }
-  </jsp:scriptlet>
 </jsp:root>

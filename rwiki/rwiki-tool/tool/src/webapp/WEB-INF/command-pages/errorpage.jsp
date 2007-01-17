@@ -20,7 +20,6 @@
  * limitations under the License.
  *
  **********************************************************************************/
- FIXME: i18n
 -->
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:c="http://java.sun.com/jsp/jstl/core" version="2.0"
  xmlns:rwiki="urn:jsptld:/WEB-INF/rwiki.tld"
@@ -35,7 +34,7 @@
 	<html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title>Permission Denied</title>
+	<title><c:out value="${rlb.jsp_error_permission_denied}"/></title>
 	<jsp:expression>request.getAttribute("sakai.html.head")</jsp:expression>
 	</head>
 	<jsp:element name="body">
@@ -69,13 +68,13 @@
 				
 					if ( exception instanceof uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException ) {
 				</jsp:scriptlet>
-	<h3>Permission Denied</h3>
-	<p>You do not have the correct permissions.</p>
+	<h3><c:out value="${rlb.jsp_error_permission_denied}"/></h3>
+	<p><c:out value="${rlb.jsp_error_permission_denied_message}"/></p>
 				<jsp:scriptlet>
 					} else {
 				</jsp:scriptlet>
-				<h3>The Action encountered a problem.</h3>
-				<p>Please report this problem to <a href="http://bugs.sakaiproject.org/jira/browse/SAK" >JIRA</a></p>
+				<h3><c:out value="${rlb.jsp_error_action_problem}"/></h3>
+				<p><c:out value="${rlb.jsp_error_action_report}"/> <a href="http://bugs.sakaiproject.org/jira/browse/SAK" >JIRA</a></p>
 				<pre>
     					<jsp:scriptlet>
     					    
@@ -92,25 +91,25 @@
     						if ( exception != null ) { 
     							exception.printStackTrace();
     						}
-						out.write("Error: ");
+						out.write("<c:out value="${rlb.jsp_error_error}"/>: ");
 						try { 
 							out.write(exception.getClass().getName()); 
 						} catch ( Exception ex ) { 
-							out.write("Unknown Exception Class");
+							out.write("<c:out value="${rlb.jsp_error_unknown_exception}"/>");
 						}
 					    	out.write("\n");
     						out.write("     : ");
 						try { 
 							out.write(exception.getMessage()); 
 						} catch ( Exception ex ) { 
-							out.write("Unknown Message"); 
+							out.write("<c:out value="${rlb.jsp_error_unknown_message}"/>"); 
 						}
     						out.write("\n");
     						java.io.PrintWriter pw = new java.io.PrintWriter(out);
 						try { 
 							exception.printStackTrace(pw);
 						} catch ( Exception ex ) { 
-							out.write("Unknown Stack Trace");
+							out.write("<c:out value="${rlb.jsp_error_unknown_stack_trace}"/>");
 						}
     						
 					</jsp:scriptlet>						
