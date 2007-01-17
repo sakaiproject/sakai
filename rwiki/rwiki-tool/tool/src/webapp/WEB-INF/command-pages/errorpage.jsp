@@ -30,6 +30,8 @@
 	</jsp:text>
 	<c:set var="viewBean" value="${requestScope.rsacMap.viewBean}" />
 	<c:set var="homeBean" value="${requestScope.rsacMap.homeBean}" />
+	<c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>
+	
 	<html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -51,6 +53,8 @@
 							useHistoryLink="false"
 							useWatchLink="false"
 							homeBean="${homeBean}"  
+							resourceLoaderBean="${rlb}"
+							
 						        />
 					</form>
 				</div>
