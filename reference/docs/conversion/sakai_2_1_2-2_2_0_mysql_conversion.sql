@@ -2237,3 +2237,9 @@ create index POSTEM_GB_TITLE_I on SAKAI_POSTEM_GRADEBOOK (title);
 ----------------------------------------------------------------------------------------------------------------------------------------
 
 ALTER TABLE SAKAI_SESSION CHANGE SESSION_IP SESSION_IP VARCHAR (128);
+
+----------------------------------------------------------------------------------------------------------------------------------------
+-- Increase the field size for the NOTES field in the SAKAI_PERSON_T table
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE SAKAI_PERSON_T CHANGE NOTES NOTES varchar(4000);
