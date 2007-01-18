@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  *
  * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,37 +21,24 @@
 
 package uk.ac.cam.caret.sakai.rwiki.utils;
 
-import java.io.StringReader;
-
 import org.sakaiproject.util.ResourceLoader;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
- * Digests XHTML into a string representation
- * 
  * @author ieb
+ *
  */
-public class DigestHtml
+public class Messages
 {
+	private static final String BUNDLE_NAME = "uk.ac.cam.caret.sakai.rwiki.utils.messages"; //$NON-NLS-1$
 
-	public static String digest(String todigest)
+
+	private Messages()
 	{
-		Digester d = new Digester();
-		try
-		{
-			XMLReader reader = XMLReaderFactory
-					.createXMLReader("com.sun.org.apache.xerces.internal.parsers.SAXParser"); //$NON-NLS-1$
-			reader.setContentHandler(d);
-			reader.parse(new InputSource(new StringReader("<content>" //$NON-NLS-1$
-					+ todigest + "</content>"))); //$NON-NLS-1$
-			return d.toString();
-		}
-		catch (Exception ex)
-		{
-			return d.toString() + Messages.getString("DigestHtml.3") + ex.getMessage(); //$NON-NLS-1$
-		}
 	}
 
+	public static String getString(String key)
+	{
+		ResourceLoader rl = new ResourceLoader(BUNDLE_NAME);
+		return rl.getString(key);
+	}
 }

@@ -24,15 +24,13 @@ package uk.ac.cam.caret.sakai.rwiki.utils;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.ResourceLoader;
 
 public class UserDisplayHelper
 {
 
 	public static String formatDisplayName(String name)
 	{
-		ResourceLoader rl = new ResourceLoader(ResourceLoaderLocation.BUNDLE);
-		return formatDisplayName(name, rl.getString("userdisplay_unknown","Unknown"));
+		return formatDisplayName(name, Messages.getString("UserDisplayHelper.0")); //$NON-NLS-1$
 	}
 
 	public static String formatDisplayName(String name, String defaultName)
@@ -44,8 +42,8 @@ public class UserDisplayHelper
 		}
 		catch (UserNotDefinedException e)
 		{
-			return defaultName + " (" + XmlEscaper.xmlEscape(name) + ")";
+			return defaultName + " (" + XmlEscaper.xmlEscape(name) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		return XmlEscaper.xmlEscape(user.getDisplayName() + " (" + user.getDisplayId() + ")");
+		return XmlEscaper.xmlEscape(user.getDisplayName() + " (" + user.getDisplayId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
