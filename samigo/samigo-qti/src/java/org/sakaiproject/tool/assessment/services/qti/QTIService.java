@@ -53,6 +53,27 @@ public class QTIService
    * @param qtiVersion either QTIVersion.VERSION_1_2 or QTIVersion.VERSION_2_0;
    * @return a persisted assessment
    */
+  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion)
+  {
+    testQtiVersion(qtiVersion);
+
+    try
+    {
+      AuthoringHelper helper = new AuthoringHelper(qtiVersion);
+      return helper.createImportedAssessment(document);
+    }
+    catch (Exception ex)
+    {
+      throw new QTIServiceException(ex);
+    }
+  }
+ 
+  /**
+   * Import an assessment XML document in QTI format, extract & persist the data.
+   * @param document the assessment XML document in QTI format
+   * @param qtiVersion either QTIVersion.VERSION_1_2 or QTIVersion.VERSION_2_0;
+   * @return a persisted assessment
+   */
   public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation)
   {
     testQtiVersion(qtiVersion);
@@ -67,7 +88,6 @@ public class QTIService
       throw new QTIServiceException(ex);
     }
   }
- 
   
   /**
    * Import an assessment XML document in QTI format, extract & persist the data.
