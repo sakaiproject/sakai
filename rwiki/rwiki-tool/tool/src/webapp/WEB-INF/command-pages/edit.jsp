@@ -51,7 +51,7 @@
   <c:set var="editBean" value="${requestScope.rsacMap.editBean}"/>
   <c:set var="nameHelperBean" value="${requestScope.rsacMap.nameHelperBean}"/>
   <c:set var="homeBean" value="${requestScope.rsacMap.homeBean}"/>
-  <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <html xmlns="http://www.w3.org/1999/xhtml" lang="${rlb.jsp_lang}" xml:lang="${rlb.jsp_xml_lang}" >
     <head>
       <title><c:out value="${rlb.jsp_edit}"/>: <c:out value="${viewBean.localName}"/></title>
       <jsp:expression>request.getAttribute("sakai.html.head")</jsp:expression>

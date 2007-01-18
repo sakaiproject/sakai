@@ -46,7 +46,7 @@
 	 String permissionEditOff="<td><input type=\"checkbox\" name=\"{0}\" />";
 	 String addRealmOptionFormat="<option value=\"{0}\" >{0}</option>";
 %>
-<html xmlns="http://www.w3.org/1999/xhtml" > 
+<html xmlns="http://www.w3.org/1999/xhtml" lang="<%= rlb.getString("jsp_lang") %>" xml:lang="<%= rlb.getString("jsp_xml_lang") %>"> 
   <head> 
     <title>Edit Section: 
       <%= multiRealmEditBean.getLocalSpace() %>

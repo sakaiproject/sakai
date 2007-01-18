@@ -37,7 +37,7 @@
         <c:set var="recentlyVisitedBean" value="${requestScope.rsacMap.recentlyVisitedBean}"/>
   <c:set var="homeBean" value="${requestScope.rsacMap.homeBean}"/>
 	<c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>
-  <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <html xmlns="http://www.w3.org/1999/xhtml" lang="${rlb.jsp_lang}" xml:lang="${rlb.jsp_xml_lang}" >
     <head>
       <title><c:out value="${rlb.jsp_search}"/>: <c:out value="${searchBean.search}"/></title>
       <jsp:expression>request.getAttribute("sakai.html.head")</jsp:expression>

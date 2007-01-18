@@ -36,7 +36,7 @@
   <c:set var="diffBean" value="${requestScope.rsacMap.diffBean}"/>
   <c:set var="homeBean" value="${requestScope.rsacMap.homeBean}"/>
   <c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>
-  <html xmlns="http://www.w3.org/1999/xhtml">
+  <html xmlns="http://www.w3.org/1999/xhtml" lang="${rlb.jsp_lang}" xml:lang="${rlb.jsp_xml_lang}" >
     <head>
       <title><c:out value="${rlb.jsp_title_diff}"/>: <c:out value="${historyBean.localName}"/></title>
       <jsp:expression>request.getAttribute("sakai.html.head")</jsp:expression>
