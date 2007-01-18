@@ -1,6 +1,0 @@
-h2 About this Course
-
-Some information about this Course
-
-{recent-changes}
-

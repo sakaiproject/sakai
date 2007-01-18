@@ -34,6 +34,7 @@ import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.ResourceLoader;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.PageLinkRenderer;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RenderService;
@@ -70,19 +71,28 @@ public class PopulateServiceImpl implements PopulateService
 		for (Iterator i = seedPages.iterator(); i.hasNext();)
 		{
 			RWikiCurrentObject seed = (RWikiCurrentObject) i.next();
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					getClass().getResourceAsStream(seed.getSource()), "UTF-8"));
-			char[] c = new char[2048];
-			StringBuffer sb = new StringBuffer();
-			for (int ic = br.read(c); ic >= 0; ic = br.read(c))
+			if (seed.getSource().startsWith("bundle:"))
 			{
-				if (ic == 0)
-					Thread.yield();
-				else
-					sb.append(c, 0, ic);
+				String[] source = seed.getSource().split(":");
+				ResourceLoader rl = new ResourceLoader(source[1]);
+				seed.setContent(rl.getString(source[2]));
 			}
-			br.close();
-			seed.setContent(sb.toString());
+			else
+			{
+				BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(seed.getSource()),
+						"UTF-8"));
+				char[] c = new char[2048];
+				StringBuffer sb = new StringBuffer();
+				for (int ic = br.read(c); ic >= 0; ic = br.read(c))
+				{
+					if (ic == 0)
+						Thread.yield();
+					else
+						sb.append(c, 0, ic);
+				}
+				br.close();
+				seed.setContent(sb.toString());
+			}
 		}
 	}
 

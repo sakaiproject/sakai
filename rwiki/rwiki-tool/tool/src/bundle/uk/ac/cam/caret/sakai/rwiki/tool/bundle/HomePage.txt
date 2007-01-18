@@ -1,8 +1,0 @@
-h2 Welcome to the Wiki Tool
-
-This page is your [Home] page for this worksite. You can change it by clicking on the edit link above.
-
-h3 Recently changed pages
-
-{recent-changes}
-

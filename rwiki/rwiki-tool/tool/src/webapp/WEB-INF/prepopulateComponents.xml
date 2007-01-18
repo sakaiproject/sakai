@@ -71,7 +71,7 @@
     <property name="name"><value>Help Page</value></property>
 
     <property name="source">
-      <value>/uk/ac/cam/caret/sakai/rwiki/tool/bundle/HelpPage.txt</value>
+      <value>bundle:/uk/ac/cam/caret/sakai/rwiki/tool/bundle/PrepopulatePages:wiki_help_page</value>
     </property>
 
     <property name="ownerAdmin"><value>true</value></property>
@@ -92,7 +92,7 @@
     <property name="name"><value>Home</value></property>
 
     <property name="source">
-      <value>/uk/ac/cam/caret/sakai/rwiki/tool/bundle/HomePage.txt</value>
+      <value>bundle:/uk/ac/cam/caret/sakai/rwiki/tool/bundle/PrepopulatePages:wiki_home_page</value>
     </property>
 
     <property name="ownerAdmin"><value>true</value></property>
@@ -113,7 +113,7 @@
     <property name="name"><value>About</value></property>
 
     <property name="source">
-      <value>/uk/ac/cam/caret/sakai/rwiki/tool/bundle/AboutCoursePage.txt</value>
+      <value>bundle:/uk/ac/cam/caret/sakai/rwiki/tool/bundle/PrepopulatePages:wiki_about_course_page</value>
     </property>
 
     <!--
@@ -161,7 +161,7 @@
     </property>
 
     <property name="source">
-      <value>/uk/ac/cam/caret/sakai/rwiki/tool/bundle/AboutProjectPage.txt</value>
+      <value>bundle:/uk/ac/cam/caret/sakai/rwiki/tool/bundle/PrepopulatePages:wiki_about_project_page</value>
     </property>
 
     <property name="ownerAdmin"><value>true</value></property>
@@ -183,7 +183,7 @@
     <property name="name"><value>HelpPagetest</value></property>
 
     <property name="source">
-      <value>/uk/ac/cam/caret/sakai/rwiki/tool/bundle/HelpPage.txt</value>
+      <value>bundle:/uk/ac/cam/caret/sakai/rwiki/tool/bundle/PrepopulatePages:wiki_help_page</value>
     </property>
 
     <property name="ownerAdmin"><value>true</value></property>
@@ -204,7 +204,7 @@
     <property name="name"><value>default_template</value></property>
 
     <property name="source">
-      <value>/uk/ac/cam/caret/sakai/rwiki/tool/bundle/DefaultPageTemplate.txt</value>
+      <value>bundle:/uk/ac/cam/caret/sakai/rwiki/tool/bundle/PrepopulatePages:wiki_default_page_template</value>
     </property>
 
     <property name="ownerAdmin"><value>true</value></property>
@@ -226,7 +226,7 @@
     <property name="name"><value>Recent Changes</value></property>
 
     <property name="source">
-      <value>/uk/ac/cam/caret/sakai/rwiki/tool/bundle/RecentChanges.txt</value>
+      <value>bundle:/uk/ac/cam/caret/sakai/rwiki/tool/bundle/PrepopulatePages:wiki_recent_changes</value>
     </property>
 
     <property name="ownerAdmin"><value>true</value></property>
@@ -247,7 +247,7 @@
     <property name="name"><value>Edit_right</value></property>
 
     <property name="source">
-      <value>/uk/ac/cam/caret/sakai/rwiki/tool/bundle/EditRight.txt</value>
+      <value>bundle:/uk/ac/cam/caret/sakai/rwiki/tool/bundle/PrepopulatePages:wiki_edit_right</value>
     </property>
 
     <property name="ownerAdmin"><value>true</value></property>
