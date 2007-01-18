@@ -28,6 +28,7 @@ import java.io.Writer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.radeox.Messages;
 import org.radeox.macro.parameter.MacroParameter;
 
 /*
@@ -40,11 +41,11 @@ public class MailToMacro extends LocalePreserved
 {
 	private static Log log = LogFactory.getLog(MailToMacro.class);
 
-	private String[] paramDescription = { "1: mail address" };
+	private String[] paramDescription = { Messages.getString("MailToMacro.0") }; //$NON-NLS-1$
 
 	public String getLocaleKey()
 	{
-		return "macro.mailto";
+		return "macro.mailto"; //$NON-NLS-1$
 	}
 
 	public String[] getParamDescription()
@@ -58,8 +59,8 @@ public class MailToMacro extends LocalePreserved
 
 		if (params.getLength() == 1)
 		{
-			String mail = params.get("0");
-			writer.write("<a href=\"mailto:" + mail + "\">" + mail + "</a>");
+			String mail = params.get("0"); //$NON-NLS-1$
+			writer.write("<a href=\"mailto:" + mail + "\">" + mail + "</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return;
 	}

@@ -26,6 +26,7 @@ package org.radeox.macro;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.radeox.Messages;
 import org.radeox.macro.parameter.MacroParameter;
 import org.radeox.macro.table.Table;
 import org.radeox.macro.table.TableBuilder;
@@ -50,7 +51,7 @@ public class TableMacro extends BaseLocaleMacro
 
 	public String getLocaleKey()
 	{
-		return "macro.table";
+		return "macro.table"; //$NON-NLS-1$
 	}
 
 	public void execute(Writer writer, MacroParameter params)
@@ -61,9 +62,9 @@ public class TableMacro extends BaseLocaleMacro
 
 		if (null == content)
 			throw new IllegalArgumentException(
-					"TableMacro: missing table content");
+					Messages.getString("TableMacro.1")); //$NON-NLS-1$
 
-		content = content.trim() + "\n";
+		content = content.trim() + "\n"; //$NON-NLS-1$
 
 		Table table = TableBuilder.build(content);
 		table.calc(); // calculate macros like =SUM(A1:A3)

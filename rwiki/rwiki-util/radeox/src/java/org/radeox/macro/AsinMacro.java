@@ -28,6 +28,7 @@ import java.io.Writer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.radeox.Messages;
 import org.radeox.macro.book.AsinServices;
 import org.radeox.macro.parameter.MacroParameter;
 
@@ -44,7 +45,7 @@ public class AsinMacro extends BaseLocaleMacro
 {
 	private static Log log = LogFactory.getLog(AsinMacro.class);
 
-	private String[] paramDescription = { "1: asin number" };
+	private String[] paramDescription = { Messages.getString("AsinMacro.0") }; //$NON-NLS-1$
 
 	public String[] getParamDescription()
 	{
@@ -53,7 +54,7 @@ public class AsinMacro extends BaseLocaleMacro
 
 	public String getLocaleKey()
 	{
-		return "macro.asin";
+		return "macro.asin"; //$NON-NLS-1$
 	}
 
 	public void execute(Writer writer, MacroParameter params)
@@ -62,14 +63,14 @@ public class AsinMacro extends BaseLocaleMacro
 
 		if (params.getLength() == 1)
 		{
-			AsinServices.getInstance().appendUrl(writer, params.get("0"));
+			AsinServices.getInstance().appendUrl(writer, params.get("0")); //$NON-NLS-1$
 			return;
 		}
 		else
 		{
-			log.warn("needs an ASIN number as argument");
+			log.warn("needs an ASIN number as argument"); //$NON-NLS-1$
 			throw new IllegalArgumentException(
-					"needs an ASIN number as argument");
+					Messages.getString("AsinMacro.4")); //$NON-NLS-1$
 		}
 	}
 }

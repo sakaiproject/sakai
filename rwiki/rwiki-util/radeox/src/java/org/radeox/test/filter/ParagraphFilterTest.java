@@ -35,7 +35,6 @@ public class ParagraphFilterTest extends FilterTestSupport
 	public ParagraphFilterTest(String s)
 	{
 		super(s);
-		// TODO Auto-generated constructor stub
 	}
 
 	protected void setUp() throws Exception

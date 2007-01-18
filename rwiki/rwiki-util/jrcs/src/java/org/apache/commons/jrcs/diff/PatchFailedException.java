@@ -72,13 +72,11 @@ public class PatchFailedException extends DiffException
 	public PatchFailedException(String message, Throwable cause)
 	{
 		super(message, cause);
-		// TODO Auto-generated constructor stub
 	}
 
 	public PatchFailedException(Throwable cause)
 	{
 		super(cause);
-		// TODO Auto-generated constructor stub
 	}
 
 	public PatchFailedException()

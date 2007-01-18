@@ -63,6 +63,18 @@
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
     </dependency>
+      <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-util-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+      <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-util</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
     
   </dependencies>
 </project>

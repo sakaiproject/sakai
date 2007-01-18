@@ -26,8 +26,6 @@ import java.nio.CharBuffer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-// FIXME: Component
-// FORCED TO BIN DUE TO SVN Insisting on Commit
 public class NameHelper
 {
 

@@ -26,6 +26,7 @@ package org.radeox.macro;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.radeox.Messages;
 import org.radeox.macro.book.BookServices;
 import org.radeox.macro.parameter.MacroParameter;
 
@@ -40,7 +41,7 @@ import org.radeox.macro.parameter.MacroParameter;
 
 public class IsbnMacro extends BaseLocaleMacro
 {
-	private String[] paramDescription = { "1: isbn number" };
+	private String[] paramDescription = { Messages.getString("IsbnMacro.0") }; //$NON-NLS-1$
 
 	private String NEEDS_ISBN_ERROR;
 
@@ -51,7 +52,7 @@ public class IsbnMacro extends BaseLocaleMacro
 
 	public String getLocaleKey()
 	{
-		return "macro.isbn";
+		return "macro.isbn"; //$NON-NLS-1$
 	}
 
 	public void execute(Writer writer, MacroParameter params)
@@ -60,13 +61,13 @@ public class IsbnMacro extends BaseLocaleMacro
 
 		if (params.getLength() == 1)
 		{
-			BookServices.getInstance().appendUrl(writer, params.get("0"));
+			BookServices.getInstance().appendUrl(writer, params.get("0")); //$NON-NLS-1$
 			return;
 		}
 		else
 		{
 			throw new IllegalArgumentException(
-					"needs an ISBN number as argument");
+					Messages.getString("IsbnMacro.3")); //$NON-NLS-1$
 		}
 	}
 }

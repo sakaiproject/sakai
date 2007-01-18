@@ -30,9 +30,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.radeox.Messages;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.WikiRenderEngine;
-import org.radeox.api.engine.context.RenderContext;
 import org.radeox.filter.context.FilterContext;
 import org.radeox.filter.interwiki.InterWiki;
 import org.radeox.filter.regex.LocaleRegexTokenFilter;
@@ -61,7 +61,7 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 
 	protected String getLocaleKey()
 	{
-		return "filter.linktest";
+		return "filter.linktest"; //$NON-NLS-1$
 	}
 
 	protected void setUp(FilterContext context)
@@ -84,12 +84,12 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 			{
 				// User probably wrote [http://radeox.org] instead of
 				// http://radeox.org
-				if (name.indexOf("http://") != -1)
+				if (name.indexOf("http://") != -1) //$NON-NLS-1$
 				{
 					try
 					{
 						writer
-								.write("<div class=\"error\">Do not surround URLs with [...].</div>");
+								.write(Messages.getString("LinkTestFilter.2")); //$NON-NLS-1$
 					}
 					catch (IOException e)
 					{
@@ -100,16 +100,16 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 
 				// Is there an alias like [alias|link] ?
 				int pipeIndex = name.indexOf('|');
-				String alias = "";
+				String alias = ""; //$NON-NLS-1$
 				if (-1 != pipeIndex)
 				{
 					alias = Encoder.unescape(name.substring(0, pipeIndex).trim());
 					name = name.substring(pipeIndex + 1).trim();
 				}
 
-				Pattern p = Pattern.compile("(.*)(?<!\\&)\\#(.*)");
+				Pattern p = Pattern.compile("(.*)(?<!\\&)\\#(.*)"); //$NON-NLS-1$
 				Matcher m = p.matcher(name);
-				String hash = "";
+				String hash = ""; //$NON-NLS-1$
 				
 				if (m.matches()) {
 					hash = Encoder.unescape(m.group(2));
@@ -155,7 +155,7 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 							view = alias;
 						} 
 						else {
-							view = name + "@" + extSpace;
+							view = name + "@" + extSpace; //$NON-NLS-1$
 						}
 
 
@@ -177,14 +177,14 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 						}
 						catch (IOException e)
 						{
-							log.debug("InterWiki " + extSpace + " not found.");
+							log.debug("InterWiki " + extSpace + " not found."); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 					}
 					else
 					{
-						buffer.append("&#91;<span class=\"error\">");
+						buffer.append("&#91;<span class=\"error\">"); //$NON-NLS-1$
 						buffer.append(result.group(1));
-						buffer.append("?</span>&#93;");
+						buffer.append("?</span>&#93;"); //$NON-NLS-1$
 					}
 				}
 				else
@@ -197,10 +197,10 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 					{
 						addAtSignError(buffer);
 					} 
-					else if (wikiEngine.exists(name) || ("".equals(name) && !("".equals(hash))))
+					else if (wikiEngine.exists(name) || ("".equals(name) && !("".equals(hash)))) //$NON-NLS-1$ //$NON-NLS-2$
 					{
-						if ("".equals(name) && !("".equals(hash))) {
-							name = (String) context.getRenderContext().get("uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject.name");
+						if ("".equals(name) && !("".equals(hash))) { //$NON-NLS-1$ //$NON-NLS-2$
+							name = (String) context.getRenderContext().get("uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject.name"); //$NON-NLS-1$
 						}
 						
 						String view = getWikiView(name, hash);
@@ -222,7 +222,7 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 					else if (wikiEngine.showCreate())
 					{
 
-						String view = getWikiView(name, "");
+						String view = getWikiView(name, ""); //$NON-NLS-1$
 						if (-1 != pipeIndex)
 						{
 							view = alias;
@@ -247,10 +247,9 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 	}
 
 	private void addAtSignError(StringBuffer buffer) {
-		buffer.append("<span class=\"error\">");
-		// XXX internationalise
-		buffer.append("Page names cannot contain \"@\" currently");
-		buffer.append("</span>");
+		buffer.append("<span class=\"error\">"); //$NON-NLS-1$
+		buffer.append(Messages.getString("LinkTestFilter.1")); 
+		buffer.append("</span>"); //$NON-NLS-1$
 	}
 	
 	/**
@@ -263,9 +262,9 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 
 	protected String getWikiView(String name, String hash)
 	{
-		if (!hash.equals(""))
+		if (!hash.equals("")) //$NON-NLS-1$
 		{
-			return name + "#" + hash;
+			return name + "#" + hash; //$NON-NLS-1$
 		}
 
 		return name;

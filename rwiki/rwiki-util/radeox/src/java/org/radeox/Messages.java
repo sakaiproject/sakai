@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  *
  * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,40 +19,26 @@
  *
  **********************************************************************************/
 
-package uk.ac.cam.caret.sakai.rwiki.utils;
-
-import java.io.StringReader;
+package org.radeox;
 
 import org.sakaiproject.util.ResourceLoader;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
- * Digests XHTML into a string representation
- * 
  * @author ieb
+ *
  */
-public class DigestHtml
+public class Messages
 {
+	private static final String BUNDLE_NAME = "org.radeox.Messages"; //$NON-NLS-1$
 
-	public static String digest(String todigest)
+
+	private Messages()
 	{
-		Digester d = new Digester();
-		try
-		{
-			XMLReader reader = XMLReaderFactory
-					.createXMLReader("com.sun.org.apache.xerces.internal.parsers.SAXParser");
-			reader.setContentHandler(d);
-			reader.parse(new InputSource(new StringReader("<content>"
-					+ todigest + "</content>")));
-			return d.toString();
-		}
-		catch (Exception ex)
-		{
-			ResourceLoader rl = new ResourceLoader(ResourceLoaderLocation.BUNDLE);
-			return d.toString() + rl.getString("digesthtml_failed_at","\n Failed at ") + ex.getMessage();
-		}
 	}
 
+	public static String getString(String key)
+	{
+		ResourceLoader rl = new ResourceLoader(BUNDLE_NAME);
+		return rl.getString(key);
+	}
 }

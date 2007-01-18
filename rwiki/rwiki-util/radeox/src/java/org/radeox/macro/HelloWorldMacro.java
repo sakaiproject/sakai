@@ -26,6 +26,7 @@ package org.radeox.macro;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.radeox.Messages;
 import org.radeox.macro.parameter.MacroParameter;
 
 /*
@@ -38,16 +39,16 @@ import org.radeox.macro.parameter.MacroParameter;
 
 public class HelloWorldMacro extends BaseMacro
 {
-	private String[] paramDescription = { "1: name to print" };
+	private String[] paramDescription = { Messages.getString("HelloWorldMacro.0") }; //$NON-NLS-1$
 
 	public String getName()
 	{
-		return "hello";
+		return "hello"; //$NON-NLS-1$
 	}
 
 	public String getDescription()
 	{
-		return "Say hello example macro.";
+		return Messages.getString("HelloWorldMacro.2"); //$NON-NLS-1$
 	}
 
 	public String[] getParamDescription()
@@ -60,14 +61,14 @@ public class HelloWorldMacro extends BaseMacro
 	{
 		if (params.getLength() == 1)
 		{
-			writer.write("Hello <b>");
-			writer.write(params.get("0"));
-			writer.write("</b>");
+			writer.write(Messages.getString("HelloWorldMacro.3")); //$NON-NLS-1$
+			writer.write(params.get("0")); //$NON-NLS-1$
+			writer.write("</b>"); //$NON-NLS-1$
 		}
 		else
 		{
 			throw new IllegalArgumentException(
-					"Number of arguments does not match");
+					Messages.getString("HelloWorldMacro.6")); //$NON-NLS-1$
 		}
 	}
 }

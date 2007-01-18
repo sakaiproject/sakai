@@ -25,6 +25,7 @@ package org.radeox.macro;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.radeox.Messages;
 import org.radeox.api.engine.ImageRenderEngine;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.RenderContext;
@@ -41,13 +42,13 @@ import org.radeox.util.Encoder;
 public class LinkMacro extends BaseLocaleMacro
 {
 	private static String[] paramDescription = {
-			"1,text: Text of the link ",
-			"2,url: URL of the link, if this is external and no target is specified, a new window will open ",
-			"3,img: (optional) if 'none' then no small URL image will be used",
-			"4,target: (optional) Target window, if 'none' is specified, the url will use the current window",
-			"Remember if using positional parameters, you must include dummies for the optional parameters" };
+			Messages.getString("LinkMacro.0"), //$NON-NLS-1$
+			Messages.getString("LinkMacro.1"), //$NON-NLS-1$
+			Messages.getString("LinkMacro.2"), //$NON-NLS-1$
+			Messages.getString("LinkMacro.3"), //$NON-NLS-1$
+			Messages.getString("LinkMacro.4") }; //$NON-NLS-1$
 
-	private static String description = "Generated a link";
+	private static String description = Messages.getString("LinkMacro.5"); //$NON-NLS-1$
 
 	public String[] getParamDescription()
 	{
@@ -66,7 +67,7 @@ public class LinkMacro extends BaseLocaleMacro
 
 	public String getLocaleKey()
 	{
-		return "macro.link";
+		return "macro.link"; //$NON-NLS-1$
 	}
 
 	public void execute(Writer writer, MacroParameter params)
@@ -76,10 +77,10 @@ public class LinkMacro extends BaseLocaleMacro
 		RenderContext context = params.getContext();
 		RenderEngine engine = context.getRenderEngine();
 
-		String text = params.get("text", 0);
-		String url = params.get("url", 1);
-		String img = params.get("img", 2);
-		String target = params.get("target", 3);
+		String text = params.get("text", 0); //$NON-NLS-1$
+		String url = params.get("url", 1); //$NON-NLS-1$
+		String img = params.get("img", 2); //$NON-NLS-1$
+		String target = params.get("target", 3); //$NON-NLS-1$
 
 		// check for single url argument (text == url)
 		if (params.getLength() == 1)
@@ -93,39 +94,39 @@ public class LinkMacro extends BaseLocaleMacro
 		{
 			if (target == null)
 			{
-				if (url.indexOf("://") >= 0 && url.indexOf("://") < 6)
+				if (url.indexOf("://") >= 0 && url.indexOf("://") < 6) //$NON-NLS-1$ //$NON-NLS-2$
 				{
-					target = "rwikiexternal";
+					target = "rwikiexternal"; //$NON-NLS-1$
 				}
 				else
 				{
-					target = "none";
+					target = "none"; //$NON-NLS-1$
 				}
 
 			}
-			writer.write("<span class=\"nobr\">");
-			if (!"none".equals(img) && engine instanceof ImageRenderEngine)
+			writer.write("<span class=\"nobr\">"); //$NON-NLS-1$
+			if (!"none".equals(img) && engine instanceof ImageRenderEngine) //$NON-NLS-1$
 			{
 				writer.write(((ImageRenderEngine) engine)
 						.getExternalImageLink());
 			}
-			writer.write("<a href=\"");
+			writer.write("<a href=\""); //$NON-NLS-1$
 			writer.write(url);
-			writer.write("\"");
-			if (!"none".equals(target))
+			writer.write("\""); //$NON-NLS-1$
+			if (!"none".equals(target)) //$NON-NLS-1$
 			{
-				writer.write(" target=\"");
+				writer.write(" target=\""); //$NON-NLS-1$
 				writer.write(target);
-				writer.write("\" ");
+				writer.write("\" "); //$NON-NLS-1$
 			}
-			writer.write(">");
+			writer.write(">"); //$NON-NLS-1$
 			writer.write(text);
-			writer.write("</a></span>");
+			writer.write("</a></span>"); //$NON-NLS-1$
 		}
 		else
 		{
 			throw new IllegalArgumentException(
-					"link needs a name and a url as argument");
+					Messages.getString("LinkMacro.23")); //$NON-NLS-1$
 		}
 		return;
 	}

@@ -27,6 +27,7 @@ import java.io.Writer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.radeox.Messages;
 import org.radeox.api.engine.IncludeRenderEngine;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.InitialRenderContext;
@@ -63,8 +64,8 @@ public class MacroFilter extends RegexTokenFilter
 	public MacroFilter()
 	{
 		// optimized by Jeffrey E.F. Friedl
-		super("\\{([^:}]+)(?::([^\\}]*))?\\}(.*?)\\{\\1\\}", SINGLELINE);
-		addRegex("\\{([^:}]+)(?::([^\\}]*))?\\}", "", MULTILINE);
+		super("\\{([^:}]+)(?::([^\\}]*))?\\}(.*?)\\{\\1\\}", SINGLELINE); //$NON-NLS-1$
+		addRegex("\\{([^:}]+)(?::([^\\}]*))?\\}", "", MULTILINE); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void setInitialContext(InitialRenderContext context)
@@ -86,7 +87,7 @@ public class MacroFilter extends RegexTokenFilter
 		if (command != null)
 		{
 			// {$peng} are variables not macros.
-			if (!command.startsWith("$"))
+			if (!command.startsWith("$")) //$NON-NLS-1$
 			{
 				MacroParameter mParams = context.getMacroParameter();
 				// System.err.println("count="+result.groups());
@@ -123,7 +124,7 @@ public class MacroFilter extends RegexTokenFilter
 						Writer writer = new StringBufferWriter(buffer);
 						macro.execute(writer, mParams);
 					}
-					else if (command.startsWith("!"))
+					else if (command.startsWith("!")) //$NON-NLS-1$
 					{
 						// @TODO including of other snips
 						RenderEngine engine = context.getRenderContext()
@@ -143,7 +144,7 @@ public class MacroFilter extends RegexTokenFilter
 							else
 							{
 								buffer.append(command.substring(1)
-										+ " not found.");
+										+ Messages.getString("MacroFilter.5")); //$NON-NLS-1$
 							}
 						}
 						return;
@@ -156,23 +157,23 @@ public class MacroFilter extends RegexTokenFilter
 				}
 				catch (IllegalArgumentException e)
 				{
-					buffer.append("<div class=\"error\">" + command + ": "
-							+ e.getMessage() + "</div>");
+					buffer.append("<div class=\"error\">" + command + ": " //$NON-NLS-1$ //$NON-NLS-2$
+							+ e.getMessage() + "</div>"); //$NON-NLS-1$
 				}
 				catch (Throwable e)
 				{
-					log.warn("MacroFilter: unable to format macro: "
+					log.warn("MacroFilter: unable to format macro: " //$NON-NLS-1$
 							+ result.group(1), e);
-					buffer.append("<div class=\"error\">" + command + ": "
-							+ e.getMessage() + "</div>");
+					buffer.append("<div class=\"error\">" + command + ": " //$NON-NLS-1$ //$NON-NLS-2$
+							+ e.getMessage() + "</div>"); //$NON-NLS-1$
 					return;
 				}
 			}
 			else
 			{
-				buffer.append("<");
+				buffer.append("<"); //$NON-NLS-1$
 				buffer.append(command.substring(1));
-				buffer.append(">");
+				buffer.append(">"); //$NON-NLS-1$
 			}
 		}
 		else

@@ -34,6 +34,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.radeox.Messages;
 import org.radeox.util.Encoder;
 
 /**
@@ -67,7 +68,7 @@ public abstract class TextFileUrlMapper implements UrlMapper
 		}
 		catch (IOException e)
 		{
-			log.warn("Unable to read " + getFileName());
+			log.warn("Unable to read " + getFileName()); //$NON-NLS-1$
 			fileNotFound = true;
 		}
 
@@ -77,12 +78,12 @@ public abstract class TextFileUrlMapper implements UrlMapper
 			try
 			{
 				br = new BufferedReader(new InputStreamReader(klass
-						.getResourceAsStream("/" + getFileName())));
+						.getResourceAsStream("/" + getFileName()))); //$NON-NLS-1$
 				addMapping(br);
 			}
 			catch (Exception e)
 			{
-				log.warn("Unable to read /" + getFileName() + " from jar");
+				log.warn("Unable to read /" + getFileName() + " from jar"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 	}
@@ -92,9 +93,9 @@ public abstract class TextFileUrlMapper implements UrlMapper
 		String line;
 		while ((line = reader.readLine()) != null)
 		{
-			if (!line.startsWith("#"))
+			if (!line.startsWith("#")) //$NON-NLS-1$
 			{
-				int index = line.indexOf(" ");
+				int index = line.indexOf(" "); //$NON-NLS-1$
 				services.put(line.substring(0, index), Encoder.escape(line
 						.substring(index + 1)));
 			}
@@ -104,17 +105,17 @@ public abstract class TextFileUrlMapper implements UrlMapper
 	public Writer appendTo(Writer writer) throws IOException
 	{
 		Iterator iterator = services.entrySet().iterator();
-		writer.write("{table}\n");
-		writer.write("Service|Url\n");
+		writer.write("{table}\n"); //$NON-NLS-1$
+		writer.write(Messages.getString("TextFileUrlMapper.7")); //$NON-NLS-1$
 		while (iterator.hasNext())
 		{
 			Map.Entry entry = (Map.Entry) iterator.next();
 			writer.write((String) entry.getKey());
-			writer.write("|");
+			writer.write("|"); //$NON-NLS-1$
 			writer.write((String) entry.getValue());
-			writer.write("\n");
+			writer.write("\n"); //$NON-NLS-1$
 		}
-		writer.write("{table}");
+		writer.write("{table}"); //$NON-NLS-1$
 		return writer;
 	}
 
@@ -128,29 +129,29 @@ public abstract class TextFileUrlMapper implements UrlMapper
 		if (services.size() == 0)
 		{
 			writer.write(getKeyName());
-			writer.write(":");
+			writer.write(":"); //$NON-NLS-1$
 			writer.write(key);
 		}
 		else
 		{
 			// SnipLink.appendImage(writer, "external-link", "&gt;&gt;");
-			writer.write("(");
+			writer.write("("); //$NON-NLS-1$
 			Iterator iterator = services.entrySet().iterator();
 			while (iterator.hasNext())
 			{
 				Map.Entry entry = (Map.Entry) iterator.next();
-				writer.write("<a href=\"");
+				writer.write("<a href=\""); //$NON-NLS-1$
 				writer.write((String) entry.getValue());
 				writer.write(key);
-				writer.write("\">");
+				writer.write("\">"); //$NON-NLS-1$
 				writer.write((String) entry.getKey());
-				writer.write("</a>");
+				writer.write("</a>"); //$NON-NLS-1$
 				if (iterator.hasNext())
 				{
-					writer.write(" &#x7c; ");
+					writer.write(" &#x7c; "); //$NON-NLS-1$
 				}
 			}
-			writer.write(")");
+			writer.write(")"); //$NON-NLS-1$
 		}
 		return writer;
 	}

@@ -26,6 +26,7 @@ package org.radeox.macro;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.radeox.Messages;
 import org.radeox.macro.parameter.MacroParameter;
 
 /*
@@ -40,7 +41,7 @@ public class RfcMacro extends BaseLocaleMacro
 
 	public String getLocaleKey()
 	{
-		return "macro.rfc";
+		return "macro.rfc"; //$NON-NLS-1$
 	}
 
 	public void execute(Writer writer, MacroParameter params)
@@ -49,8 +50,8 @@ public class RfcMacro extends BaseLocaleMacro
 
 		if (params.getLength() == 1)
 		{
-			String number = params.get("0");
-			String view = "RFC" + number;
+			String number = params.get("0"); //$NON-NLS-1$
+			String view = "RFC" + number; //$NON-NLS-1$
 			// ftp://ftp.rfc-editor.org/in-notes/rfc3300.txt
 			// http://zvon.org/tmRFC/RFC3300/Output/index.html
 			appendRfc(writer, number, view);
@@ -64,7 +65,7 @@ public class RfcMacro extends BaseLocaleMacro
 		}
 		else
 		{
-			throw new IllegalArgumentException("needs an RFC numer as argument");
+			throw new IllegalArgumentException(Messages.getString("RfcMacro.3")); //$NON-NLS-1$
 		}
 	}
 
@@ -81,11 +82,11 @@ public class RfcMacro extends BaseLocaleMacro
 		{
 			throw new IllegalArgumentException();
 		}
-		writer.write("<a href=\"http://zvon.org/tmRFC/RFC");
+		writer.write("<a href=\"http://zvon.org/tmRFC/RFC"); //$NON-NLS-1$
 		writer.write(number);
-		writer.write("/Output/index.html\">");
+		writer.write("/Output/index.html\">"); //$NON-NLS-1$
 		writer.write(view);
-		writer.write("</a>");
+		writer.write("</a>"); //$NON-NLS-1$
 		return;
 	}
 }

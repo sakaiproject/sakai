@@ -24,14 +24,15 @@ package uk.ac.cam.caret.sakai.rwiki.utils;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.ResourceLoader;
 
 public class UserDisplayHelper
 {
 
 	public static String formatDisplayName(String name)
 	{
-		// FIXME internationalize
-		return formatDisplayName(name, "Unknown");
+		ResourceLoader rl = new ResourceLoader(ResourceLoaderLocation.BUNDLE);
+		return formatDisplayName(name, rl.getString("userdisplay_unknown","Unknown"));
 	}
 
 	public static String formatDisplayName(String name, String defaultName)

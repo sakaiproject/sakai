@@ -26,6 +26,7 @@ package org.radeox.macro;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.radeox.Messages;
 import org.radeox.macro.parameter.MacroParameter;
 import org.radeox.macro.xref.XrefMapper;
 
@@ -39,8 +40,8 @@ import org.radeox.macro.xref.XrefMapper;
 public class XrefMacro extends BaseLocaleMacro
 {
 	private String[] paramDescription = {
-			"1: class name, e.g. java.lang.Object or java.lang.Object@Nanning",
-			"?2: line number" };
+			Messages.getString("XrefMacro.0"), //$NON-NLS-1$
+			Messages.getString("XrefMacro.1") }; //$NON-NLS-1$
 
 	public String[] getParamDescription()
 	{
@@ -49,7 +50,7 @@ public class XrefMacro extends BaseLocaleMacro
 
 	public String getLocaleKey()
 	{
-		return "macro.xref";
+		return "macro.xref"; //$NON-NLS-1$
 	}
 
 	public void execute(Writer writer, MacroParameter params)
@@ -61,9 +62,9 @@ public class XrefMacro extends BaseLocaleMacro
 
 		if (params.getLength() >= 1)
 		{
-			klass = params.get("0");
+			klass = params.get("0"); //$NON-NLS-1$
 
-			int index = klass.indexOf("@");
+			int index = klass.indexOf("@"); //$NON-NLS-1$
 			if (index > 0)
 			{
 				project = klass.substring(index + 1);
@@ -71,17 +72,17 @@ public class XrefMacro extends BaseLocaleMacro
 			}
 			else
 			{
-				project = "SnipSnap";
+				project = "SnipSnap"; //$NON-NLS-1$
 			}
 			if (params.getLength() == 2)
 			{
-				lineNumber = Integer.parseInt(params.get("1"));
+				lineNumber = Integer.parseInt(params.get("1")); //$NON-NLS-1$
 			}
 		}
 		else
 		{
 			throw new IllegalArgumentException(
-					"xref macro needs one or two paramaters");
+					Messages.getString("XrefMacro.7")); //$NON-NLS-1$
 		}
 
 		XrefMapper.getInstance().expand(writer, klass, project, lineNumber);

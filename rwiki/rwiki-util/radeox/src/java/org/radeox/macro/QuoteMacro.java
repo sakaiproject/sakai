@@ -28,6 +28,7 @@ import java.io.Writer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.radeox.Messages;
 import org.radeox.macro.parameter.MacroParameter;
 
 /*
@@ -41,8 +42,8 @@ public class QuoteMacro extends LocalePreserved
 {
 	private static Log log = LogFactory.getLog(QuoteMacro.class);
 
-	private String[] paramDescription = { "?1: source",
-			"?2: displayed description, default is Source" };
+	private String[] paramDescription = { Messages.getString("QuoteMacro.0"), //$NON-NLS-1$
+			Messages.getString("QuoteMacro.1") }; //$NON-NLS-1$
 
 	public String[] getParamDescription()
 	{
@@ -55,16 +56,16 @@ public class QuoteMacro extends LocalePreserved
 
 	public String getLocaleKey()
 	{
-		return "macro.quote";
+		return "macro.quote"; //$NON-NLS-1$
 	}
 
 	public void execute(Writer writer, MacroParameter params)
 			throws IllegalArgumentException, IOException
 	{
 
-		writer.write("<blockquote class=\"quote\"><p class=\"paragraph\">");
+		writer.write("<blockquote class=\"quote\"><p class=\"paragraph\">"); //$NON-NLS-1$
 		writer.write(params.getContent());
-		String source = "Source"; // i18n
+		String source = Messages.getString("QuoteMacro.4"); // i18n //$NON-NLS-1$
 		if (params.getLength() == 2)
 		{
 			source = params.get(1);
@@ -73,11 +74,11 @@ public class QuoteMacro extends LocalePreserved
 		// should show a description for the link
 		if (params.getLength() > 0)
 		{
-			writer.write("<a href=\"" + params.get(0) + "\">");
+			writer.write("<a href=\"" + params.get(0) + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
 			writer.write(source);
-			writer.write("</a>");
+			writer.write("</a>"); //$NON-NLS-1$
 		}
-		writer.write("</p></blockquote>");
+		writer.write("</p></blockquote>"); //$NON-NLS-1$
 		return;
 	}
 }

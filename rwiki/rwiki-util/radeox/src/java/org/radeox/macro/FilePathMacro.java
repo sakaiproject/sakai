@@ -28,6 +28,7 @@ import java.io.Writer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.radeox.Messages;
 import org.radeox.macro.parameter.MacroParameter;
 
 /*
@@ -44,11 +45,11 @@ public class FilePathMacro extends LocalePreserved
 {
 	private static Log log = LogFactory.getLog(FilePathMacro.class);
 
-	private String[] paramDescription = { "1: file path" };
+	private String[] paramDescription = { Messages.getString("FilePathMacro.0") }; //$NON-NLS-1$
 
 	public String getLocaleKey()
 	{
-		return "macro.filepath";
+		return "macro.filepath"; //$NON-NLS-1$
 	}
 
 	public FilePathMacro()
@@ -58,7 +59,7 @@ public class FilePathMacro extends LocalePreserved
 
 	public String getDescription()
 	{
-		return "Displays a file system path. The file path should use slashes. Defaults to windows.";
+		return Messages.getString("FilePathMacro.2"); //$NON-NLS-1$
 	}
 
 	public String[] getParamDescription()
@@ -72,7 +73,7 @@ public class FilePathMacro extends LocalePreserved
 
 		if (params.getLength() == 1)
 		{
-			String path = params.get("0").replace('/', '\\');
+			String path = params.get("0").replace('/', '\\'); //$NON-NLS-1$
 			writer.write(replace(path));
 		}
 		return;

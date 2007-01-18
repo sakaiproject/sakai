@@ -24,7 +24,6 @@ package uk.ac.cam.caret.sakai.rwiki.utils;
 /**
  * @author andrew
  */
-// FIXME: Tool
 public class XmlEscaper
 {
 

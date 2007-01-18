@@ -38,7 +38,6 @@ public class XHTMLFilterTest extends FilterTestSupport
 	public XHTMLFilterTest(String s)
 	{
 		super(s);
-		// TODO Auto-generated constructor stub
 	}
 
 	protected void setUp() throws Exception

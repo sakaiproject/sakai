@@ -75,5 +75,18 @@
       <version>1.0.4</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
   </dependencies>
 </project>

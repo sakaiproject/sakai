@@ -26,6 +26,7 @@ package org.radeox.macro;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.radeox.Messages;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.macro.parameter.MacroParameter;
 
@@ -39,9 +40,9 @@ public abstract class BaseMacro implements Macro
 {
 	protected InitialRenderContext initialContext;
 
-	protected String description = " ";
+	protected String description = " "; //$NON-NLS-1$
 
-	protected String[] paramDescription = { "unexplained, lazy programmer, probably [funzel]" };
+	protected String[] paramDescription = { Messages.getString("BaseMacro.1") }; //$NON-NLS-1$
 
 	/**
 	 * Get the name of the macro. This is used to map a macro in the input to

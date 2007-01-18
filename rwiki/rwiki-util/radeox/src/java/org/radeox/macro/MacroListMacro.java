@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.radeox.Messages;
 import org.radeox.macro.parameter.MacroParameter;
 
 /*
@@ -42,7 +43,7 @@ public class MacroListMacro extends BaseLocaleMacro
 {
 	public String getLocaleKey()
 	{
-		return "macro.macrolist";
+		return Messages.getString("MacroListMacro.0"); //$NON-NLS-1$
 	}
 
 	public void execute(Writer writer, MacroParameter params)
@@ -55,7 +56,7 @@ public class MacroListMacro extends BaseLocaleMacro
 		else
 		{
 			throw new IllegalArgumentException(
-					"MacroListMacro: number of arguments does not match");
+					"MacroListMacro: number of arguments does not match"); //$NON-NLS-1$
 		}
 	}
 
@@ -64,40 +65,40 @@ public class MacroListMacro extends BaseLocaleMacro
 		List macroList = MacroRepository.getInstance().getPlugins();
 		Collections.sort(macroList);
 		Iterator iterator = macroList.iterator();
-		writer.write("{table}\n");
-		writer.write("Macro|Description|Parameters\n");
+		writer.write(Messages.getString("MacroListMacro.2")); //$NON-NLS-1$
+		writer.write("Macro|Description|Parameters\n"); //$NON-NLS-1$
 		while (iterator.hasNext())
 		{
 			Macro macro = (Macro) iterator.next();
 			writer.write(macro.getName());
-			writer.write("|");
+			writer.write(Messages.getString("MacroListMacro.4")); //$NON-NLS-1$
 			writer.write(macro.getDescription());
-			writer.write("|");
+			writer.write(Messages.getString("MacroListMacro.5")); //$NON-NLS-1$
 			String[] params = macro.getParamDescription();
 			if (params.length == 0)
 			{
-				writer.write("none");
+				writer.write("none"); //$NON-NLS-1$
 			}
 			else
 			{
 				for (int i = 0; i < params.length; i++)
 				{
 					String description = params[i];
-					if (description.startsWith("?"))
+					if (description.startsWith(Messages.getString("MacroListMacro.7"))) //$NON-NLS-1$
 					{
 						writer.write(description.substring(1));
-						writer.write(" (optional)");
+						writer.write(" (optional)"); //$NON-NLS-1$
 					}
 					else
 					{
 						writer.write(params[i]);
 					}
-					writer.write("\\\\");
+					writer.write(Messages.getString("MacroListMacro.9")); //$NON-NLS-1$
 				}
 			}
-			writer.write("\n");
+			writer.write(Messages.getString("MacroListMacro.10")); //$NON-NLS-1$
 		}
-		writer.write("{table}");
+		writer.write(Messages.getString("MacroListMacro.11")); //$NON-NLS-1$
 		return writer;
 	}
 

@@ -35,6 +35,7 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.radeox.Messages;
 
 /**
  * Stores information and links to api documentation, e.g. for Java, Ruby, JBoss
@@ -69,12 +70,12 @@ public class ApiDoc
 		try
 		{
 			BufferedReader br = new BufferedReader(new InputStreamReader(
-					new FileInputStream("conf/apidocs.txt")));
+					new FileInputStream("conf/apidocs.txt"))); //$NON-NLS-1$
 			addApiDoc(br);
 		}
 		catch (IOException e)
 		{
-			log.warn("Unable to read conf/apidocs.txt");
+			log.warn("Unable to read conf/apidocs.txt"); //$NON-NLS-1$
 			fileNotFound = true;
 		}
 
@@ -84,12 +85,12 @@ public class ApiDoc
 			try
 			{
 				br = new BufferedReader(new InputStreamReader(ApiDoc.class
-						.getResourceAsStream("/conf/apidocs.txt")));
+						.getResourceAsStream("/conf/apidocs.txt"))); //$NON-NLS-1$
 				addApiDoc(br);
 			}
 			catch (Exception e)
 			{
-				log.warn("Unable to read conf/apidocs.txt from jar");
+				log.warn("Unable to read conf/apidocs.txt from jar"); //$NON-NLS-1$
 			}
 		}
 	}
@@ -99,7 +100,7 @@ public class ApiDoc
 		String line;
 		while ((line = reader.readLine()) != null)
 		{
-			StringTokenizer tokenizer = new StringTokenizer(line, " ");
+			StringTokenizer tokenizer = new StringTokenizer(line, " "); //$NON-NLS-1$
 			String mode = tokenizer.nextToken();
 			String baseUrl = tokenizer.nextToken();
 			String converterName = tokenizer.nextToken();
@@ -107,13 +108,13 @@ public class ApiDoc
 			try
 			{
 				converter = (ApiConverter) Class.forName(
-						"org.radeox.macro.api." + converterName
-								+ "ApiConverter").newInstance();
+						"org.radeox.macro.api." + converterName //$NON-NLS-1$
+								+ "ApiConverter").newInstance(); //$NON-NLS-1$
 			}
 			catch (Exception e)
 			{
-				log.warn("Unable to load converter: " + converterName
-						+ "ApiConverter", e);
+				log.warn("Unable to load converter: " + converterName //$NON-NLS-1$
+						+ "ApiConverter", e); //$NON-NLS-1$
 			}
 			converter.setBaseUrl(baseUrl);
 			apiDocs.put(mode.toLowerCase(), converter);
@@ -131,36 +132,36 @@ public class ApiDoc
 		mode = mode.toLowerCase();
 		if (apiDocs.containsKey(mode))
 		{
-			writer.write("<a href=\"");
+			writer.write("<a href=\""); //$NON-NLS-1$
 			((ApiConverter) apiDocs.get(mode)).appendUrl(writer, className);
-			writer.write("\">");
+			writer.write("\">"); //$NON-NLS-1$
 			writer.write(className);
-			writer.write("</a>");
+			writer.write("</a>"); //$NON-NLS-1$
 		}
 		else
 		{
-			log.warn(mode + " not found");
+			log.warn(mode + " not found"); //$NON-NLS-1$
 		}
 		return writer;
 	}
 
 	public Writer appendTo(Writer writer) throws IOException
 	{
-		writer.write("{table}\n");
-		writer.write("Binding|BaseUrl|Converter Name\n");
+		writer.write("{table}\n"); //$NON-NLS-1$
+		writer.write(Messages.getString("ApiDoc.14")); //$NON-NLS-1$
 		Iterator iterator = apiDocs.entrySet().iterator();
 		while (iterator.hasNext())
 		{
 			Map.Entry entry = (Map.Entry) iterator.next();
 			writer.write((String) entry.getKey());
 			ApiConverter converter = (ApiConverter) entry.getValue();
-			writer.write("|");
+			writer.write("|"); //$NON-NLS-1$
 			writer.write(converter.getBaseUrl());
-			writer.write("|");
+			writer.write("|"); //$NON-NLS-1$
 			writer.write(converter.getName());
-			writer.write("\n");
+			writer.write("\n"); //$NON-NLS-1$
 		}
-		writer.write("{table}");
+		writer.write("{table}"); //$NON-NLS-1$
 		return writer;
 	}
 

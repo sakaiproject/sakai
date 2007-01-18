@@ -26,6 +26,7 @@ package org.radeox.macro;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.radeox.Messages;
 import org.radeox.macro.api.ApiDoc;
 import org.radeox.macro.parameter.MacroParameter;
 
@@ -39,8 +40,8 @@ import org.radeox.macro.parameter.MacroParameter;
 public class ApiMacro extends BaseLocaleMacro
 {
 	private String[] paramDescription = {
-			"1: class name, e.g. java.lang.Object or java.lang.Object@Java131",
-			"?2: mode, e.g. Java12, Ruby, defaults to Java" };
+			Messages.getString("ApiMacro.0"), //$NON-NLS-1$
+			Messages.getString("ApiMacro.1") }; //$NON-NLS-1$
 
 	public String[] getParamDescription()
 	{
@@ -49,7 +50,7 @@ public class ApiMacro extends BaseLocaleMacro
 
 	public String getLocaleKey()
 	{
-		return "macro.api";
+		return "macro.api"; //$NON-NLS-1$
 	}
 
 	public void execute(Writer writer, MacroParameter params)
@@ -60,8 +61,8 @@ public class ApiMacro extends BaseLocaleMacro
 
 		if (params.getLength() == 1)
 		{
-			klass = params.get("0");
-			int index = klass.indexOf("@");
+			klass = params.get("0"); //$NON-NLS-1$
+			int index = klass.indexOf("@"); //$NON-NLS-1$
 			if (index > 0)
 			{
 				mode = klass.substring(index + 1);
@@ -69,18 +70,18 @@ public class ApiMacro extends BaseLocaleMacro
 			}
 			else
 			{
-				mode = "java";
+				mode = "java"; //$NON-NLS-1$
 			}
 		}
 		else if (params.getLength() == 2)
 		{
-			mode = params.get("1").toLowerCase();
-			klass = params.get("0");
+			mode = params.get("1").toLowerCase(); //$NON-NLS-1$
+			klass = params.get("0"); //$NON-NLS-1$
 		}
 		else
 		{
 			throw new IllegalArgumentException(
-					"api macro needs one or two paramaters");
+					Messages.getString("ApiMacro.8")); //$NON-NLS-1$
 		}
 
 		ApiDoc.getInstance().expand(writer, klass, mode);
