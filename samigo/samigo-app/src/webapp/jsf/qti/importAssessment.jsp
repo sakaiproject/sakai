@@ -55,7 +55,7 @@
     <%-- target represents location where import will be temporarily stored
         check valueChangeListener for final destination --%>
     <corejsf:upload target="jsf/upload_tmp/qti_imports/#{person.id}"
-      valueChangeListener="#{xmlImport.importFromQti}"/>
+      valueChangeListener="#{xmlImport.importAssessment}"/>
    </div>
     <br/>
     <br/>

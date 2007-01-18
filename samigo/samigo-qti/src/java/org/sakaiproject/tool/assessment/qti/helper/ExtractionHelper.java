@@ -33,15 +33,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -51,6 +49,8 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -69,8 +69,11 @@ import org.sakaiproject.tool.assessment.qti.util.Iso8601DateFormat;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601TimeInterval;
 import org.sakaiproject.tool.assessment.qti.util.XmlMapper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 /**
  * <p>Has helper methods for data extraction (import) from QTI</p>
@@ -427,7 +430,7 @@ public class ExtractionHelper
 
     // assessment feedback control
     makeAssessmentFeedback(assessment);
-
+    
   }
 
   /**
@@ -970,6 +973,54 @@ public class ExtractionHelper
 
     }
   }
+  
+  /**
+   * the ip address is in a newline delimited string
+   * @param assessment
+   */
+  public void makeAttachmentSet(AssessmentFacade assessment, String unzipLocation)
+  {
+
+	// first check if there is any attachment
+	// if no attachment - no action is needed
+	String attachment = assessment.getAssessmentMetaDataByLabel("ATTACHMENT");
+	if (attachment == null) {
+	  	return;
+	}
+	
+    Set assessmentAttachmentSet = (Set) assessment.getAssessmentAttachmentSet();
+    if (assessmentAttachmentSet == null) {
+    	assessmentAttachmentSet = new HashSet();
+    }
+        
+    AssessmentAttachmentIfc assessmentAttachment;
+    String[] attachmentArray = attachment.split("\\n");
+    for (int i = 0; i < attachmentArray.length; i++) {
+    	String[] attachmentInfo = attachmentArray[i].split("\\|");
+    	String fullFilePath = unzipLocation + "/" + attachmentInfo[0];
+    	String filename = attachmentInfo[1];
+    	AttachmentHelper attachementHelper = new AttachmentHelper();
+    	ContentResource contentResource = attachementHelper.createContentResource(fullFilePath, filename, attachmentInfo[2]);
+    	AssessmentService assessmentService = new AssessmentService();
+    	assessmentAttachment = assessmentService.createAssessmentAttachment(assessment, contentResource.getId(), filename, getProtocol());
+    	assessmentAttachmentSet.add(assessmentAttachment);
+    }
+    assessment.setAssessmentAttachmentSet(assessmentAttachmentSet);
+  }
+  
+  // Copied from ContextUtil.java
+  // Although it is not good copying codes, but because the packaging structure, we cannot
+  // make a call to ContextUtil without repackaging. Therefore, just add this simple method
+  // here for now.
+  private String getProtocol(){
+	    FacesContext context = FacesContext.getCurrentInstance();
+	    ExternalContext extContext = context.getExternalContext();
+	    String server = ( (javax.servlet.http.HttpServletRequest) extContext.
+	                       getRequest()).getRequestURL().toString();
+	    int index = server.indexOf(extContext.getRequestContextPath() + "/"); 
+	    String protocol = server.substring(0, index);
+	    return protocol;
+	  }
   
   /**
    * Update questionpool from the extracted properties.

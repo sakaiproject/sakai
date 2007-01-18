@@ -78,6 +78,8 @@ public interface AssessmentHelperIfc
 
   public void updateIPAddressSet(Assessment assessmentXml,
                                   Set securedIPAddressSet);
+  
+  public void updateAttachmentSet(Assessment assessmentXml, Set attachmentSet);
 
   public void updateMetaData(Assessment assessmentXml,
                              AssessmentFacade assessment);

@@ -30,7 +30,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -38,17 +40,12 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sun.org.apache.xpath.internal.XPathAPI;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -70,11 +67,17 @@ import org.sakaiproject.tool.assessment.qti.helper.assessment.AssessmentHelperIf
 import org.sakaiproject.tool.assessment.qti.helper.item.ItemHelperIfc;
 import org.sakaiproject.tool.assessment.qti.helper.section.SectionHelperIfc;
 import org.sakaiproject.tool.assessment.qti.util.XmlStringBuffer;
+import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
-import java.util.Set;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import com.sun.org.apache.xpath.internal.XPathAPI;
 
 /**
  * <p>Copyright: Copyright (c) 2004</p>
@@ -236,6 +239,11 @@ public class AuthoringHelper
       {
         assessmentHelper.updateIPAddressSet(assessmentXml,
                                              securedIPAddressSet);
+      }
+      Set attachmentSet = (Set) assessment.getAssessmentAttachmentSet();
+   	  if (attachmentSet !=null || attachmentSet.size() != 0)    	  
+      {
+        assessmentHelper.updateAttachmentSet(assessmentXml, attachmentSet);
       }
 
 
@@ -463,7 +471,17 @@ public class AuthoringHelper
    */
   public AssessmentFacade createImportedAssessment(Document document)
   {
-    AssessmentFacade assessment = null;
+	  return createImportedAssessment(document, null);
+  }
+
+	  /**
+	     * Import an assessment XML document in QTI format, extract & persist the data.
+	   * @param document the assessment XML document in QTI format
+	   * @return a persisted assessment
+	   */
+  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation)
+  {
+	AssessmentFacade assessment = null;
 
     AssessmentService assessmentService = new AssessmentService();
     try
@@ -594,9 +612,17 @@ public class AuthoringHelper
         //log.info("NOT NULL: " + allowIp);
         exHelper.makeSecuredIPAddressSet(assessment, allowIp);
       }
-
+      
       //assessmentService.update(assessment);
       assessmentService.saveAssessment(assessment);
+      
+      // if unzipLocation is not null, there might be attachment
+      if (unzipLocation != null) {
+    	  // update attachment
+    	  exHelper.makeAttachmentSet(assessment, unzipLocation);
+    	  updateAttachment(assessment.getAssessmentAttachmentList(), (AssessmentIfc)assessment.getData());
+      }
+      
       return assessment;
     }
     catch (Exception e)
@@ -605,7 +631,6 @@ public class AuthoringHelper
       assessmentService.removeAssessment(assessment.getAssessmentId().toString());
       throw new RuntimeException(e);
     }
-
   }
   
   /**
@@ -825,4 +850,18 @@ public class AuthoringHelper
     this.qtiVersion = qtiVersion;
   }
 
+  private void updateAttachment(List attachmentList, AssessmentIfc assessment) {
+		if (attachmentList == null || attachmentList.size() == 0) {
+			return;
+		}
+		List list = new ArrayList();
+		for (int i = 0; i < attachmentList.size(); i++) {
+			AssessmentAttachmentIfc a = (AssessmentAttachmentIfc) attachmentList.get(i);
+			a.setAssessment(assessment);
+			list.add(a);
+		}
+		// save new ones
+		AssessmentService assessmentService = new AssessmentService();
+		assessmentService.saveOrUpdateAttachments(list);
+	}
 }

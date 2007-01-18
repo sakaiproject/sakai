@@ -22,21 +22,20 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.qti;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
-import java.io.File;
-
-import org.w3c.dom.Document;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.contentpackaging.ImportService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
@@ -45,13 +44,14 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
+import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
-import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
+import org.w3c.dom.Document;
 
  
 /**
@@ -71,10 +71,12 @@ public class XMLImportBean implements Serializable
   private int qtiVersion;
   private String uploadFileName;
   private String importType;
+  private String pathToData;
   private AuthorBean authorBean;
   private AssessmentBean assessmentBean;
   private ItemAuthorBean itemAuthorBean;
   private QuestionPoolBean questionPoolBean;
+  private boolean isCP;
 
   private static final GradebookServiceHelper gbsHelper =
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();
@@ -93,13 +95,24 @@ public class XMLImportBean implements Serializable
     //XMLImportBean XMLImportBean1 = new XMLImportBean();
   }
 
+  public void importAssessment(ValueChangeEvent e)
+  {
+	  String uploadFile = (String) e.getNewValue();
+	  if(uploadFile.endsWith(".zip")) {
+		  isCP = true;
+		  importFromCP(uploadFile);
+	  }
+	  else {
+		  isCP = false;
+		  importFromQti(uploadFile);
+	  }
+  }
   /**
    * Value change on upload
    * @param e the event
    */
-  public void importFromQti(ValueChangeEvent e)
+  public void importFromQti(String uploadFile)
   {
-    String uploadFile = (String) e.getNewValue();
     try
     {
       processFile(uploadFile);
@@ -112,6 +125,32 @@ public class XMLImportBean implements Serializable
       // remove unsuccessful file
       log.debug("****remove unsuccessful uplaodFile="+uploadFile);
       File upload = new File(uploadFile);
+      upload.delete();
+    }
+  }
+  
+  /**
+   * Value change on upload
+   * @param e the event
+   */
+  
+  public void importFromCP(String uploadFile)
+  {
+    ImportService importService = new ImportService();
+    String unzipLocation = importService.unzipImportFile(uploadFile);
+    String filename = unzipLocation + "/" + importService.getQTIFilename();
+    try
+    {
+      processFile(filename);
+    }
+    catch (Exception ex)
+    {
+      ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
+      FacesMessage message = new FacesMessage( rb.getString("import_err") + ex );
+      FacesContext.getCurrentInstance().addMessage(null, message);
+      // remove unsuccessful file
+      log.debug("****remove unsuccessful filename="+filename);
+      File upload = new File(filename);
       upload.delete();
     }
   }
@@ -233,9 +272,8 @@ public class XMLImportBean implements Serializable
     catch(Exception e){
       log.error(e.getMessage());
     }
-
   }
-
+  
   /**
    * Create assessment from uploaded QTI XML
    * @param fullFileName file name and path
@@ -247,7 +285,12 @@ public class XMLImportBean implements Serializable
     //trim = true so that xml processing instruction at top line, even if not.
     Document document = XmlUtil.readDocument(fullFileName, true);
     QTIService qtiService = new QTIService();
-    return qtiService.createImportedAssessment(document, qti);
+    if (isCP) {
+    	return qtiService.createImportedAssessment(document, qti, fullFileName.substring(0, fullFileName.lastIndexOf("/")));
+    }
+    else {
+    	return qtiService.createImportedAssessment(document, qti, null);
+    }
   }
 
   public AuthorBean getAuthorBean()
@@ -340,7 +383,6 @@ public class XMLImportBean implements Serializable
     return qtiService.createImportedQuestionPool(document, qti);
   }  
   
-  
   public QuestionPoolBean getQuestionPoolBean()
   {
     return questionPoolBean;
@@ -351,4 +393,13 @@ public class XMLImportBean implements Serializable
     this.questionPoolBean = questionPoolBean;
   }  
  
+  public String getPathToData()
+  {
+    return pathToData;
+  }
+
+  public void setPathToData(String pathToData)
+  {
+    this.pathToData = pathToData;
+  }  
 }

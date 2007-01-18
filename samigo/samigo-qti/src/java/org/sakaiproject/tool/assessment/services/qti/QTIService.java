@@ -23,13 +23,12 @@ package org.sakaiproject.tool.assessment.services.qti;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
-
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
+import org.w3c.dom.Document;
 
 /**
  * <p>This service provides translation between database and QTI representations.
@@ -54,14 +53,14 @@ public class QTIService
    * @param qtiVersion either QTIVersion.VERSION_1_2 or QTIVersion.VERSION_2_0;
    * @return a persisted assessment
    */
-  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion)
+  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation)
   {
     testQtiVersion(qtiVersion);
 
     try
     {
       AuthoringHelper helper = new AuthoringHelper(qtiVersion);
-      return helper.createImportedAssessment(document);
+      return helper.createImportedAssessment(document, unzipLocation);
     }
     catch (Exception ex)
     {

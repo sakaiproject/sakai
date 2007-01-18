@@ -52,7 +52,7 @@ public class QTIServiceImpl implements QTIServiceAPI
     try
     {
       QTIService nativeQTIService = new QTIService();
-      return (AssessmentIfc) nativeQTIService.createImportedAssessment(document, qtiVersion);
+      return (AssessmentIfc) nativeQTIService.createImportedAssessment(document, qtiVersion, null);
     }
     catch (Exception ex)
     {

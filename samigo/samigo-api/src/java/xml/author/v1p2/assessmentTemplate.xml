@@ -45,6 +45,11 @@
       <!--Possible Values -->
       <!--True, False -->
 
+       <qtimetadatafield>
+        <fieldlabel>ATTACHMENT</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+
 <!--chen change -->
       <qtimetadatafield>
         <fieldlabel>DISPLAY_TEMPLATE</fieldlabel>

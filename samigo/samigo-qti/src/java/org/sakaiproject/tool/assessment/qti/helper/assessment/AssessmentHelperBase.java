@@ -36,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -417,6 +418,30 @@ public abstract class AssessmentHelperBase
 
     assessmentXml.setFieldentry("ALLOW_IP", ipAddresses);
 
+  }
+
+  /**
+   * If there are attachments set put them into ATTACHMENTx field in XML.
+   * @param assessmentXml the XML
+   * @param securedIPAddressSet the Set
+   */
+  public void updateAttachmentSet(Assessment assessmentXml, Set attachmentSet)
+  {
+    String ipAddresses = "";
+    Iterator iter = attachmentSet.iterator();
+    int i = 1;
+    while (iter.hasNext())
+    {
+    	AttachmentData attachmentData = (AttachmentData) iter.next();
+    	StringBuffer attachment = new StringBuffer(attachmentData.getResourceId());
+    	attachment.append("|");
+    	attachment.append(attachmentData.getFilename());
+    	attachment.append("|");
+    	attachment.append(attachmentData.getMimeType());
+    	
+    	assessmentXml.setFieldentry("ATTACHMENT" + i, attachment.toString());
+    	i++;
+    }
   }
 
 

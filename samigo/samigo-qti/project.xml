@@ -91,6 +91,42 @@
       <artifactId>${sakai.spring.artifactId}</artifactId>
       <version>${sakai.spring.version}</version>
     </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-entity-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+	<dependency>
+        <groupId>sakaiproject</groupId>
+        <artifactId>sakai-content-api</artifactId>
+        <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-util-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+	<dependency>
+        <groupId>sakaiproject</groupId>
+        <artifactId>sakai-tool-api</artifactId>
+        <version>${sakai.version}</version>
+    </dependency>
+	<dependency>
+      <groupId>jsf</groupId>
+      <artifactId>jsf-impl</artifactId>
+      <version>1.1.01</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>jsf</groupId>
+      <artifactId>jsf-api</artifactId>
+      <version>1.1.01</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
 
   </dependencies>
   <build>

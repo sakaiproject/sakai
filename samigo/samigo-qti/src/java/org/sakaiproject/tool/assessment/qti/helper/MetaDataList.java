@@ -261,6 +261,10 @@ public class MetaDataList
     	  //log.debug("key is submsg " + key);
     	  // skip
       }
+      if ("ATTACHMENT".equalsIgnoreCase(key)) {
+    	  value = meta.substring(meta.indexOf("|") + 1);
+    	  assessment.addAssessmentMetaData(key, value);
+      }
       else if (st.hasMoreTokens())
       {
         value = st.nextToken().trim();
