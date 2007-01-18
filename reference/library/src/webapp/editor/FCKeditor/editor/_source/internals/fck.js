@@ -41,7 +41,7 @@ FCK.LoadLinkedFile = function()
 	var i = 0;
 	while ( eLinkedField || i == 0 )
 	{
-		if ( eLinkedField && ( eLinkedField.tagName == 'INPUT' || eLinkedField.tagName == 'TEXTAREA' ) )
+		if ( eLinkedField && ( eLinkedField.tagName.toLowerCase() == 'input' || eLinkedField.tagName.toLowerCase() == 'textarea' ) )
 		{
 			FCK.LinkedField = eLinkedField ;
 			break ;

@@ -259,6 +259,7 @@ DlgLnkPopTop		: "Ülemine asukoht",
 DlnLnkMsgNoUrl		: "Palun kirjuta lingi URL",
 DlnLnkMsgNoEMail	: "Palun kirjuta E-Posti aadress",
 DlnLnkMsgNoAnchor	: "Palun vali ankur",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Vali värv",
@@ -375,8 +376,11 @@ DlgSpellManyChanges		: "Õigekirja kontroll sooritatud: %1 sõna muudetud",
 IeSpellDownload			: "Õigekirja kontrollija ei ole installeeritud. Soovid sa selle alla laadida?",
 
 // Button Dialog
-DlgButtonText	: "Tekst (väärtus)",
-DlgButtonType	: "Tüüp",
+DlgButtonText		: "Tekst (väärtus)",
+DlgButtonType		: "Tüüp",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Nimi",
@@ -425,6 +429,7 @@ DlgHiddenValue	: "Väärtus",
 // Bulleted List Dialog
 BulletedListProp	: "Täpitud loetelu omadused",
 NumberedListProp	: "Nummerdatud loetelu omadused",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Tüüp",
 DlgLstTypeCircle	: "Ring",
 DlgLstTypeDisc		: "Ketas",
@@ -447,6 +452,15 @@ DlgDocLangDirLTR	: "Vasakult paremale (LTR)",
 DlgDocLangDirRTL	: "Paremalt vasakule (RTL)",
 DlgDocLangCode		: "Keele kood",
 DlgDocCharSet		: "Märgistiku kodeering",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Ülejäänud märgistike kodeeringud",
 
 DlgDocDocType		: "Dokumendi tüüppäis",
@@ -476,6 +490,7 @@ DlgTemplatesTitle	: "Sisu šabloonid",
 DlgTemplatesSelMsg	: "Palun vali šabloon, et avada see redaktoris<br />(praegune sisu läheb kaotsi):",
 DlgTemplatesLoading	: "Laen šabloonide nimekirja. Palun oota...",
 DlgTemplatesNoTpl	: "(Ühtegi šablooni ei ole defineeritud)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "Teave",

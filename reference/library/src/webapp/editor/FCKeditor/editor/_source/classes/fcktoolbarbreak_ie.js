@@ -24,7 +24,7 @@ var FCKToolbarBreak = function()
 
 FCKToolbarBreak.prototype.Create = function( targetElement )
 {
-	var oBreakDiv = targetElement.ownerDocument.createElement( 'div' ) ;
+	var oBreakDiv = FCKTools.GetElementDocument( targetElement ).createElement( 'div' ) ;
 	
 	oBreakDiv.className = 'TB_Break' ;
 	

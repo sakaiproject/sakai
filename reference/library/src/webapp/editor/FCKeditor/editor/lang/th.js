@@ -259,6 +259,7 @@ DlgLnkPopTop		: "พิกัดบน (Top Position)",
 DlnLnkMsgNoUrl		: "กรุณาระบุที่อยู่อ้างอิงออนไลน์ (URL)",
 DlnLnkMsgNoEMail	: "กรุณาระบุอีเมล์ (E-mail)",
 DlnLnkMsgNoAnchor	: "กรุณาระบุจุดเชื่อมโยง (Anchor)",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "เลือกสี",
@@ -375,8 +376,11 @@ DlgSpellManyChanges		: "ตรวจสอบคำสะกดเสร็จ�
 IeSpellDownload			: "ไม่ได้ติดตั้งระบบตรวจสอบคำสะกด. ต้องการติดตั้งไหมครับ?",
 
 // Button Dialog
-DlgButtonText	: "ข้อความ (ค่าตัวแปร)",
-DlgButtonType	: "ข้อความ",
+DlgButtonText		: "ข้อความ (ค่าตัวแปร)",
+DlgButtonType		: "ข้อความ",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "ชื่อ",
@@ -425,6 +429,7 @@ DlgHiddenValue	: "ค่าตัวแปร",
 // Bulleted List Dialog
 BulletedListProp	: "คุณสมบัติของ บูลเล็ตลิสต์",
 NumberedListProp	: "คุณสมบัติของ นัมเบอร์ลิสต์",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "ชนิด",
 DlgLstTypeCircle	: "รูปวงกลม",
 DlgLstTypeDisc		: "Disc",	//MISSING
@@ -447,6 +452,15 @@ DlgDocLangDirLTR	: "จากซ้ายไปขวา (LTR)",
 DlgDocLangDirRTL	: "จากขวาไปซ้าย (RTL)",
 DlgDocLangCode		: "รหัสภาษา",
 DlgDocCharSet		: "ชุดตัวอักษร",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "ชุดตัวอักษรอื่นๆ",
 
 DlgDocDocType		: "ประเภทของเอกสาร",
@@ -476,6 +490,7 @@ DlgTemplatesTitle	: "Content Templates",	//MISSING
 DlgTemplatesSelMsg	: "Please select the template to open in the editor<br>(the actual contents will be lost):",	//MISSING
 DlgTemplatesLoading	: "Loading templates list. Please wait...",	//MISSING
 DlgTemplatesNoTpl	: "(No templates defined)",	//MISSING
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "เกี่ยวกับโปรแกรม",

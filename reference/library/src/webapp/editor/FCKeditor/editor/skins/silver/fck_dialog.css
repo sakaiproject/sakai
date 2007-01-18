@@ -125,8 +125,8 @@ body, .BackColor
 
 .PopupSelectionBox
 {
-	border: #a9a9a9 1px solid;
-	background-color: #dcdcdc;
+	border: #a9a9a9 1px solid !important;
+	background-color: #dcdcdc !important;
 	cursor: pointer;
 	cursor: hand;
 }

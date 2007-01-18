@@ -259,6 +259,7 @@ DlgLnkPopTop		: "Augšējā koordināte",
 DlnLnkMsgNoUrl		: "Lūdzu norādi hipersaiti",
 DlnLnkMsgNoEMail	: "Lūdzu norādi e-pasta adresi",
 DlnLnkMsgNoAnchor	: "Lūdzu norādi iezīmi",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Izvēlies krāsu",
@@ -375,8 +376,11 @@ DlgSpellManyChanges		: "Pareizrakstības pārbaude pabeigta: %1 vārdi tika main
 IeSpellDownload			: "Pareizrakstības pārbaudītājs nav pievienots. Vai vēlaties to lejupielādēt tagad?",
 
 // Button Dialog
-DlgButtonText	: "Teksts (vērtība)",
-DlgButtonType	: "Tips",
+DlgButtonText		: "Teksts (vērtība)",
+DlgButtonType		: "Tips",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Nosaukums",
@@ -425,6 +429,7 @@ DlgHiddenValue	: "Vērtība",
 // Bulleted List Dialog
 BulletedListProp	: "Aizzīmju saraksta īpašības",
 NumberedListProp	: "Numerētā saraksta īpašības",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Tips",
 DlgLstTypeCircle	: "Aplis",
 DlgLstTypeDisc		: "Disks",
@@ -447,6 +452,15 @@ DlgDocLangDirLTR	: "No kreisās uz labo (LTR)",
 DlgDocLangDirRTL	: "No labās uz kreiso (RTL)",
 DlgDocLangCode		: "Valodas kods",
 DlgDocCharSet		: "Simbolu kodējums",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Cits simbolu kodējums",
 
 DlgDocDocType		: "Dokumenta tips",
@@ -476,6 +490,7 @@ DlgTemplatesTitle	: "Satura sagataves",
 DlgTemplatesSelMsg	: "Lūdzu, norādiet sagatavi, ko atvērt editorā<br>(patreizējie dati tiks zaudēti):",
 DlgTemplatesLoading	: "Notiek sagatavju saraksta ielāde. Lūdzu, uzgaidiet...",
 DlgTemplatesNoTpl	: "(Nav norādītas sagataves)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "Par",

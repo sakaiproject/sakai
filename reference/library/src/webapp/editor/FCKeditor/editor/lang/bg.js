@@ -258,6 +258,7 @@ DlgLnkPopTop		: "Координати - Y",
 DlnLnkMsgNoUrl		: "Моля, напишете пълния път (URL)",
 DlnLnkMsgNoEMail	: "Моля, напишете адреса за е-поща",
 DlnLnkMsgNoAnchor	: "Моля, изберете котва",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Изберете цвят",
@@ -374,8 +375,11 @@ DlgSpellManyChanges		: "Проверката за правопис завърш�
 IeSpellDownload			: "Инструментът за проверка на правопис не е инсталиран. Желаете ли да го инсталирате ?",
 
 // Button Dialog
-DlgButtonText	: "Текст (Стойност)",
-DlgButtonType	: "Тип",
+DlgButtonText		: "Текст (Стойност)",
+DlgButtonType		: "Тип",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Име",
@@ -424,6 +428,7 @@ DlgHiddenValue	: "Стойност",
 // Bulleted List Dialog
 BulletedListProp	: "Параметри на ненумерирания списък",
 NumberedListProp	: "Параметри на нумерирания списък",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Тип",
 DlgLstTypeCircle	: "Окръжност",
 DlgLstTypeDisc		: "Кръг",
@@ -446,6 +451,15 @@ DlgDocLangDirLTR	: "От ляво на дясно",
 DlgDocLangDirRTL	: "От дясно на ляво",
 DlgDocLangCode		: "Код на езика",
 DlgDocCharSet		: "Кодиране на символите",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Друго кодиране на символите",
 
 DlgDocDocType		: "Тип на документа",
@@ -475,6 +489,7 @@ DlgTemplatesTitle	: "Шаблони",
 DlgTemplatesSelMsg	: "Изберете шаблон <br>(текущото съдържание на редактора ще бъде загубено):",
 DlgTemplatesLoading	: "Зареждане на списъка с шаблоните. Моля изчакайте...",
 DlgTemplatesNoTpl	: "(Няма дефинирани шаблони)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "За",

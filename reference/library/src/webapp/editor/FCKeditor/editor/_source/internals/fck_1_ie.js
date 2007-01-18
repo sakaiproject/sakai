@@ -26,6 +26,7 @@ FCK._GetBehaviorsStyle = function()
 	if ( !FCK._BehaviorsStyle )
 	{
 		var sBasePath = FCKConfig.FullBasePath ;
+		var sTableBehavior = '' ;
 		var sStyle ;
 		
 		// The behaviors should be pointed using the FullBasePath to avoid security
@@ -35,15 +36,21 @@ FCK._GetBehaviorsStyle = function()
 			'INPUT { behavior: url(' + sBasePath + 'css/behaviors/hiddenfield.htc) ; }' ;
 
 		if ( FCKConfig.ShowBorders )
-			sStyle += 'TABLE { behavior: url(' + sBasePath + 'css/behaviors/showtableborders.htc) ; }' ;
+			sTableBehavior = 'url(' + sBasePath + 'css/behaviors/showtableborders.htc)' ;
 
 		// Disable resize handlers.
 		sStyle += 'INPUT,TEXTAREA,SELECT,.FCK__Anchor,.FCK__PageBreak' ;
 
 		if ( FCKConfig.DisableObjectResizing )
-			sStyle += ',IMG,TABLE' ;
-
+		{
+			sStyle += ',IMG' ;
+			sTableBehavior += ' url(' + sBasePath + 'css/behaviors/disablehandles.htc)' ;
+		}
+		
 		sStyle += ' { behavior: url(' + sBasePath + 'css/behaviors/disablehandles.htc) ; }' ;
+
+		if ( sTableBehavior.length > 0 )
+			sStyle += 'TABLE { behavior: ' + sTableBehavior + ' ; }' ;
 
 		sStyle += '</style>' ;
 		FCK._BehaviorsStyle = sStyle ;
@@ -65,9 +72,9 @@ function Doc_OnMouseUp()
 function Doc_OnPaste()
 {
 	if ( FCK.Status == FCK_STATUS_COMPLETE )
-		return FCK.Events.FireEvent( "OnPaste" ) ;
-	else
-		return false ;
+		FCK.Events.FireEvent( "OnPaste" ) ;
+
+	return false ;
 }
 
 /*
@@ -226,6 +233,8 @@ FCK.InsertHtml = function( html )
 
 	// Insert the HTML.
 	oSel.createRange().pasteHTML( html ) ;
+	
+	FCKDocumentProcessor.Process( FCK.EditorDocument ) ;
 }
 
 FCK.SetInnerHtml = function( html )		// IE Only

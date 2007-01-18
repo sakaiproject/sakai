@@ -1,4 +1,4 @@
-﻿<%@ CodePage=65001 Language="VBScript"%>
+﻿<%@  codepage="65001" language="VBScript" %>
 <% Option Explicit %>
 <!--
  * FCKeditor - The text editor for internet
@@ -20,21 +20,24 @@
 -->
 <% ' You must set "Enable Parent Paths" on your web site in order this relative include to work. %>
 <!-- #INCLUDE file="../../fckeditor.asp" -->
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
-	<head>
-		<title>FCKeditor - Sample</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta name="robots" content="noindex, nofollow">
-		<link href="../sample.css" rel="stylesheet" type="text/css" />
-	</head>
-	<body>
-		<h1>FCKeditor - ASP - Sample 1</h1>
-		This sample displays a normal HTML form with an FCKeditor with full features 
-		enabled.
-		<hr>
-		<form action="sampleposteddata.asp" method="post" target="_blank">
-<%
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>FCKeditor - Sample</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="robots" content="noindex, nofollow" />
+	<link href="../sample.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+	<h1>
+		FCKeditor - ASP - Sample 1
+	</h1>
+	<div>
+		This sample displays a normal HTML form with an FCKeditor with full features enabled.
+	</div>
+	<hr />
+	<form action="sampleposteddata.asp" method="post" target="_blank">
+		<%
 ' Automatically calculates the editor base path based on the _samples directory.
 ' This is usefull only for these samples. A real application should use something like this:
 ' oFCKeditor.BasePath = '/fckeditor/' ;	// '/fckeditor/' is the default value.
@@ -47,9 +50,9 @@ Set oFCKeditor = New FCKeditor
 oFCKeditor.BasePath	= sBasePath
 oFCKeditor.Value	= "This is some <strong>sample text</strong>. You are using <a href=""http://www.fckeditor.net/"">FCKeditor</a>."
 oFCKeditor.Create "FCKeditor1"
-%>
-			<br>
-			<input type="submit" value="Submit">
-		</form>
-	</body>
+		%>
+		<br />
+		<input type="submit" value="Submit" />
+	</form>
+</body>
 </html>

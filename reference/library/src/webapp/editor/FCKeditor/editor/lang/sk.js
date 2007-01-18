@@ -258,6 +258,7 @@ DlgLnkPopTop		: "Horný okraj",
 DlnLnkMsgNoUrl		: "Zadajte prosím URL odkazu",
 DlnLnkMsgNoEMail	: "Zadajte prosím e-mailovú adresu",
 DlnLnkMsgNoAnchor	: "Vyberte prosím kotvu",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Výber farby",
@@ -374,8 +375,11 @@ DlgSpellManyChanges		: "Kontrola pravopisu dokončená: zmenených %1 slov",
 IeSpellDownload			: "Kontrola pravopisu nie je naištalovaná. Chcete ju hneď stiahnuť?",
 
 // Button Dialog
-DlgButtonText	: "Text",
-DlgButtonType	: "Typ",
+DlgButtonText		: "Text",
+DlgButtonType		: "Typ",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Názov",
@@ -424,6 +428,7 @@ DlgHiddenValue	: "Hodnota",
 // Bulleted List Dialog
 BulletedListProp	: "Vlastnosti odrážok",
 NumberedListProp	: "Vlastnosti číslovania",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Typ",
 DlgLstTypeCircle	: "Krúžok",
 DlgLstTypeDisc		: "Disk",
@@ -446,6 +451,15 @@ DlgDocLangDirLTR	: "Zľava doprava (LTR)",
 DlgDocLangDirRTL	: "Zprava doľava (RTL)",
 DlgDocLangCode		: "Kód jazyka",
 DlgDocCharSet		: "Kódová stránka",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Iná kódová stránka",
 
 DlgDocDocType		: "Typ záhlavia dokumentu",
@@ -475,6 +489,7 @@ DlgTemplatesTitle	: "Šablóny obsahu",
 DlgTemplatesSelMsg	: "Prosím vyberte šablóny ma otvorenie v editore<br>(terajší obsah bude stratený):",
 DlgTemplatesLoading	: "Nahrávam zoznam šablón. Čakajte prosím...",
 DlgTemplatesNoTpl	: "(žiadne šablóny nenájdené)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "O aplikáci",

@@ -259,6 +259,7 @@ DlgLnkPopTop		: "التمركز للأعلى",
 DlnLnkMsgNoUrl		: "فضلاً أدخل عنوان الموقع الذي يشير إليه الرابط",
 DlnLnkMsgNoEMail	: "فضلاً أدخل عنوان البريد الإلكتروني",
 DlnLnkMsgNoAnchor	: "فضلاً حدد العلامة المرجعية المرغوبة",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "اختر لوناً",
@@ -375,8 +376,11 @@ DlgSpellManyChanges		: "تم إكمال التدقيق الإملائي: تم ت
 IeSpellDownload			: "المدقق الإملائي (الإنجليزي) غير مثبّت. هل تود تحميله الآن؟",
 
 // Button Dialog
-DlgButtonText	: "القيمة/التسمية",
-DlgButtonType	: "نوع الزر",
+DlgButtonText		: "القيمة/التسمية",
+DlgButtonType		: "نوع الزر",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "الاسم",
@@ -425,6 +429,7 @@ DlgHiddenValue	: "القيمة",
 // Bulleted List Dialog
 BulletedListProp	: "خصائص التعداد النقطي",
 NumberedListProp	: "خصائص التعداد الرقمي",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "النوع",
 DlgLstTypeCircle	: "دائرة",
 DlgLstTypeDisc		: "قرص",
@@ -447,6 +452,15 @@ DlgDocLangDirLTR	: "اليسار لليمين (LTR)",
 DlgDocLangDirRTL	: "اليمين لليسار (RTL)",
 DlgDocLangCode		: "رمز اللغة",
 DlgDocCharSet		: "ترميز الحروف",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "ترميز حروف آخر",
 
 DlgDocDocType		: "ترويسة نوع  الصفحة",
@@ -476,6 +490,7 @@ DlgTemplatesTitle	: "قوالب المحتوى",
 DlgTemplatesSelMsg	: "اختر القالب الذي تود وضعه في المحرر <br>(سيتم فقدان المحتوى الحالي):",
 DlgTemplatesLoading	: "جاري تحميل قائمة القوالب، الرجاء الإنتظار...",
 DlgTemplatesNoTpl	: "(لم يتم تعريف أي قالب)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "نبذة",

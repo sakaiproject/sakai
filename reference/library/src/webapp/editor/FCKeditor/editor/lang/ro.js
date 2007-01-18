@@ -259,6 +259,7 @@ DlgLnkPopTop		: "Poziţia la dreapta",
 DlnLnkMsgNoUrl		: "Vă rugăm să scrieţi URL-ul",
 DlnLnkMsgNoEMail	: "Vă rugăm să scrieţi adresa de e-mail",
 DlnLnkMsgNoAnchor	: "Vă rugăm să selectaţi o ancoră",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Selectează culoare",
@@ -375,8 +376,11 @@ DlgSpellManyChanges		: "Verificarea textului terminată: 1% cuvinte modificate",
 IeSpellDownload			: "Unealta pentru verificat textul (Spell checker) neinstalată. Doriţi să o descărcaţi acum?",
 
 // Button Dialog
-DlgButtonText	: "Text (Valoare)",
-DlgButtonType	: "Tip",
+DlgButtonText		: "Text (Valoare)",
+DlgButtonType		: "Tip",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Nume",
@@ -425,6 +429,7 @@ DlgHiddenValue	: "Valoare",
 // Bulleted List Dialog
 BulletedListProp	: "Proprietăţile listei punctate (Bulleted List)",
 NumberedListProp	: "Proprietăţile listei numerotate (Numbered List)",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Tip",
 DlgLstTypeCircle	: "Cerc",
 DlgLstTypeDisc		: "Disc",
@@ -447,6 +452,15 @@ DlgDocLangDirLTR	: "stânga-dreapta (LTR)",
 DlgDocLangDirRTL	: "dreapta-stânga (RTL)",
 DlgDocLangCode		: "Codul limbii",
 DlgDocCharSet		: "Encoding setului de caractere",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Alt encoding al setului de caractere",
 
 DlgDocDocType		: "Document Type Heading",
@@ -476,6 +490,7 @@ DlgTemplatesTitle	: "Template-uri (şabloane) de conţinut",
 DlgTemplatesSelMsg	: "Vă rugăm selectaţi template-ul (şablonul) ce se va deschide în editor<br>(conţinutul actual va fi pierdut):",
 DlgTemplatesLoading	: "Se încarcă lista cu template-uri (şabloane). Vă rugăm aşteptaţi...",
 DlgTemplatesNoTpl	: "(Niciun template (şablon) definit)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "Despre",

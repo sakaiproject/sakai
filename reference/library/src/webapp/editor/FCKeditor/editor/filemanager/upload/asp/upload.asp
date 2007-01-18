@@ -72,6 +72,10 @@ Else
 	If ( Right( sServerDir, 1 ) <> "\" ) Then
 		sServerDir = sServerDir & "\"
 	End If
+	
+	If ( ConfigUseFileType = True ) Then
+		sServerDir = sServerDir & resourceType & "\"
+	End If 
 
 	Dim oFSO
 	Set oFSO = Server.CreateObject( "Scripting.FileSystemObject" )
@@ -98,8 +102,12 @@ Else
 			Exit Do
 		End If
 	Loop
-	Response.Write( sFilePath )
-	sFileUrl = ConfigUserFilesPath & sFileName
+
+	If ( ConfigUseFileType = True ) Then
+		sFileUrl = ConfigUserFilesPath & resourceType & "/" & sFileName
+	Else
+		sFileUrl = ConfigUserFilesPath & sFileName
+	End If
 
 	SendResults sErrorNumber, sFileUrl, sFileName, ""
 	

@@ -87,7 +87,7 @@ FCK.Preview = function()
 	if ( FCKConfig.FullPage )
 	{
 		if ( FCK.TempBaseTag.length > 0 )
-			sHTML = FCK.GetXHTML().replace( FCKRegexLib.HeadOpener, '$&' + FCK.TempBaseTag ) ;
+			sHTML = FCK.TempBaseTag + FCK.GetXHTML() ;
 		else
 			sHTML = FCK.GetXHTML() ;
 	}
@@ -128,9 +128,6 @@ FCK.SwitchEditMode = function( noUndo )
 	FCK.EditMode = bIsWysiwyg ? FCK_EDITMODE_SOURCE : FCK_EDITMODE_WYSIWYG ;
 
 	FCK.SetHTML( sHtml ) ;
-
-	if ( FCKBrowserInfo.IsGecko )
-		window.onresize() ;
 
 	// Set the Focus.
 	FCK.Focus() ;

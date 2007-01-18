@@ -259,6 +259,7 @@ DlgLnkPopTop		: "Pozycja w pionie",
 DlnLnkMsgNoUrl		: "Podaj adres URL",
 DlnLnkMsgNoEMail	: "Podaj adres e-mail",
 DlnLnkMsgNoAnchor	: "Wybierz etykietę",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Wybierz kolor",
@@ -375,8 +376,11 @@ DlgSpellManyChanges		: "Sprawdzanie zakończone: zmieniono %l słów",
 IeSpellDownload			: "Słownik nie jest zainstalowany. Chcesz go ściągnąć?",
 
 // Button Dialog
-DlgButtonText	: "Tekst (Wartość)",
-DlgButtonType	: "Typ",
+DlgButtonText		: "Tekst (Wartość)",
+DlgButtonType		: "Typ",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Nazwa",
@@ -425,6 +429,7 @@ DlgHiddenValue	: "Wartość",
 // Bulleted List Dialog
 BulletedListProp	: "Właściwości listy punktowanej",
 NumberedListProp	: "Właściwości listy numerowanej",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Typ",
 DlgLstTypeCircle	: "Koło",
 DlgLstTypeDisc		: "Dysk",
@@ -447,6 +452,15 @@ DlgDocLangDirLTR	: "Od lewej do prawej (LTR)",
 DlgDocLangDirRTL	: "Od prawej do lewej (RTL)",
 DlgDocLangCode		: "Kod języka",
 DlgDocCharSet		: "Kodowanie znaków",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Inne kodowanie znaków",
 
 DlgDocDocType		: "Nagłowek typu dokumentu",
@@ -476,6 +490,7 @@ DlgTemplatesTitle	: "Szablony zawartości",
 DlgTemplatesSelMsg	: "Wybierz szablon do otwarcia w edytorze<br>(obecna zawartość okna edytora zostanie utracona):",
 DlgTemplatesLoading	: "Ładowanie listy szablonów. Proszę czekać...",
 DlgTemplatesNoTpl	: "(Brak zdefiniowanych szablonów)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "O ...",

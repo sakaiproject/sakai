@@ -129,7 +129,7 @@
 
 	<cfoutput>
 	<div>
-	<textarea name="#this.instanceName#" rows="4" cols="40" style="WIDTH: #width#; HEIGHT: #height#">#HTMLEditFormat(this.value)#</textarea>
+	<textarea name="#this.instanceName#" rows="4" cols="40" style="WIDTH: #this.width#; HEIGHT: #this.height#">#HTMLEditFormat(this.value)#</textarea>
 	</div>
 	</cfoutput>
 

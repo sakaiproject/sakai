@@ -72,7 +72,7 @@ NumberedListLbl		: "Lista Numerada",
 NumberedList		: "Inserir/Eliminar Lista Numerada",
 BulletedListLbl		: "Marcas",
 BulletedList		: "Inserir/Eliminar Marcas",
-ShowTableBorders	: "Mostrar Bordes das Taboas",
+ShowTableBorders	: "Mostrar Bordes das Táboas",
 ShowDetails			: "Mostrar Marcas Parágrafo",
 Style				: "Estilo",
 FontFormat			: "Formato",
@@ -113,9 +113,9 @@ InsertCell			: "Inserir Cela",
 DeleteCells			: "Borrar Cela",
 MergeCells			: "Unir Celas",
 SplitCell			: "Partir Celas",
-TableDelete			: "Borrar Taboa",
+TableDelete			: "Borrar Táboa",
 CellProperties		: "Propriedades da Cela",
-TableProperties		: "Propriedades da Taboa",
+TableProperties		: "Propriedades da Táboa",
 ImageProperties		: "Propriedades Imaxe",
 FlashProperties		: "Propriedades Flash",
 
@@ -258,6 +258,7 @@ DlgLnkPopTop		: "Posición dende Arriba",
 DlnLnkMsgNoUrl		: "Por favor, escriba a ligazón URL",
 DlnLnkMsgNoEMail	: "Por favor, escriba o enderezo de e-mail",
 DlnLnkMsgNoAnchor	: "Por favor, seleccione un destino",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Seleccionar Color",
@@ -272,7 +273,7 @@ DlgSmileyTitle		: "Inserte un Smiley",
 DlgSpecialCharTitle	: "Seleccione Caracter Especial",
 
 // Table Dialog
-DlgTableTitle		: "Propiedades da Taboa",
+DlgTableTitle		: "Propiedades da Táboa",
 DlgTableRows		: "Filas",
 DlgTableColumns		: "Columnas",
 DlgTableBorder		: "Tamaño do Borde",
@@ -374,8 +375,11 @@ DlgSpellManyChanges		: "Corrección ortográfica rematada: %1 verbas substituida
 IeSpellDownload			: "O corrector ortográfico non está instalado. ¿Quere descargalo agora?",
 
 // Button Dialog
-DlgButtonText	: "Texto (Valor)",
-DlgButtonType	: "Tipo",
+DlgButtonText		: "Texto (Valor)",
+DlgButtonType		: "Tipo",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Nome",
@@ -424,6 +428,7 @@ DlgHiddenValue	: "Valor",
 // Bulleted List Dialog
 BulletedListProp	: "Propriedades das Marcas",
 NumberedListProp	: "Propriedades da Lista de Numeración",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Tipo",
 DlgLstTypeCircle	: "Círculo",
 DlgLstTypeDisc		: "Disco",
@@ -446,6 +451,15 @@ DlgDocLangDirLTR	: "Esquerda a Dereita (LTR)",
 DlgDocLangDirRTL	: "Dereita a Esquerda (RTL)",
 DlgDocLangCode		: "Código de Idioma",
 DlgDocCharSet		: "Codificación do Xogo de Caracteres",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Outra Codificación do Xogo de Caracteres",
 
 DlgDocDocType		: "Encabezado do Tipo de Documento",
@@ -475,6 +489,7 @@ DlgTemplatesTitle	: "Plantillas de Contido",
 DlgTemplatesSelMsg	: "Por favor, seleccione a plantilla a abrir no editor<br>(o contido actual perderase):",
 DlgTemplatesLoading	: "Cargando listado de plantillas. Por favor, espere...",
 DlgTemplatesNoTpl	: "(Non hai plantillas definidas)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "Acerca de",

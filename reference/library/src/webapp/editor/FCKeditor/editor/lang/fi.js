@@ -258,6 +258,7 @@ DlgLnkPopTop		: "Ylhäältä (px)",
 DlnLnkMsgNoUrl		: "Linkille on kirjoitettava URL",
 DlnLnkMsgNoEMail	: "Kirjoita sähköpostiosoite",
 DlnLnkMsgNoAnchor	: "Valitse ankkuri",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Valitse väri",
@@ -374,8 +375,11 @@ DlgSpellManyChanges		: "Tarkistus valmis: %1 sanaa muutettiin",
 IeSpellDownload			: "Oikeinkirjoituksen tarkistusta ei ole asennettu. Haluatko ladata sen nyt?",
 
 // Button Dialog
-DlgButtonText	: "Teksti (arvo)",
-DlgButtonType	: "Tyyppi",
+DlgButtonText		: "Teksti (arvo)",
+DlgButtonType		: "Tyyppi",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Nimi",
@@ -424,6 +428,7 @@ DlgHiddenValue	: "Arvo",
 // Bulleted List Dialog
 BulletedListProp	: "Luettelon ominaisuudet",
 NumberedListProp	: "Numeroinnin ominaisuudet",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Tyyppi",
 DlgLstTypeCircle	: "Kehä",
 DlgLstTypeDisc		: "Ympyrä",
@@ -446,6 +451,15 @@ DlgDocLangDirLTR	: "Vasemmalta oikealle (LTR)",
 DlgDocLangDirRTL	: "Oikealta vasemmalle (RTL)",
 DlgDocLangCode		: "Kielikoodi",
 DlgDocCharSet		: "Merkistäkoodaus",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Muu merkistäkoodaus",
 
 DlgDocDocType		: "Dokumentin tyyppi",
@@ -475,6 +489,7 @@ DlgTemplatesTitle	: "Sisältöpohjat",
 DlgTemplatesSelMsg	: "Valitse pohja editoriin<br>(aiempi sisältö menetetään):",
 DlgTemplatesLoading	: "Ladataan listaa pohjista. Hetkinen...",
 DlgTemplatesNoTpl	: "(Ei määriteltyjä pohjia)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "Editorista",

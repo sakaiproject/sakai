@@ -258,6 +258,7 @@ DlgLnkPopTop		: "右",
 DlnLnkMsgNoUrl		: "请输入超链接地址",
 DlnLnkMsgNoEMail	: "请输入电子邮件地址",
 DlnLnkMsgNoAnchor	: "请选择一个锚点",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "选择颜色",
@@ -374,8 +375,11 @@ DlgSpellManyChanges		: "拼写检查完成：更改了 %1 个单词",
 IeSpellDownload			: "拼写检查插件还没安装，你是否想现在就下载？",
 
 // Button Dialog
-DlgButtonText	: "标签(值)",
-DlgButtonType	: "类型",
+DlgButtonText		: "标签(值)",
+DlgButtonType		: "类型",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "名称",
@@ -424,6 +428,7 @@ DlgHiddenValue	: "初始值",
 // Bulleted List Dialog
 BulletedListProp	: "项目列表属性",
 NumberedListProp	: "编号列表属性",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "列表类型",
 DlgLstTypeCircle	: "圆圈",
 DlgLstTypeDisc		: "圆点",
@@ -446,6 +451,15 @@ DlgDocLangDirLTR	: "从左到右 (LTR)",
 DlgDocLangDirRTL	: "从右到左 (RTL)",
 DlgDocLangCode		: "语言代码",
 DlgDocCharSet		: "字符编码",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "其它字符编码",
 
 DlgDocDocType		: "文档类型",
@@ -475,6 +489,7 @@ DlgTemplatesTitle	: "内容模板",
 DlgTemplatesSelMsg	: "请选择编辑器内容模板<br>(当前内容将会被清除替换):",
 DlgTemplatesLoading	: "正在加载模板列表，请稍等...",
 DlgTemplatesNoTpl	: "(没有模板)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "关于",

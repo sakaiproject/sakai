@@ -258,6 +258,7 @@ DlgLnkPopTop		: "Posisi Atas",
 DlnLnkMsgNoUrl		: "Sila taip sambungan URL",
 DlnLnkMsgNoEMail	: "Sila taip alamat e-mail",
 DlnLnkMsgNoAnchor	: "Sila pilih pautan berkenaaan",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Pilihan Warna",
@@ -374,8 +375,11 @@ DlgSpellManyChanges		: "Pemeriksaan ejaan siap: %1 perkataan diubah",
 IeSpellDownload			: "Pemeriksa ejaan tidak dipasang. Adakah anda mahu muat turun sekarang?",
 
 // Button Dialog
-DlgButtonText	: "Teks (Nilai)",
-DlgButtonType	: "Jenis",
+DlgButtonText		: "Teks (Nilai)",
+DlgButtonType		: "Jenis",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Nama",
@@ -424,6 +428,7 @@ DlgHiddenValue	: "Nilai",
 // Bulleted List Dialog
 BulletedListProp	: "Ciri-ciri senarai berpeluru",
 NumberedListProp	: "Ciri-ciri senarai bernombor",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Jenis",
 DlgLstTypeCircle	: "Circle",
 DlgLstTypeDisc		: "Disc",	//MISSING
@@ -446,6 +451,15 @@ DlgDocLangDirLTR	: "Kiri ke Kanan (LTR)",
 DlgDocLangDirRTL	: "Kanan ke Kiri (RTL)",
 DlgDocLangCode		: "Kod Bahasa",
 DlgDocCharSet		: "Enkod Set Huruf",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Enkod Set Huruf yang Lain",
 
 DlgDocDocType		: "Jenis Kepala Dokumen",
@@ -475,6 +489,7 @@ DlgTemplatesTitle	: "Templat Kandungan",
 DlgTemplatesSelMsg	: "Sila pilih templat untuk dibuka oleh editor<br>(kandungan sebenar akan hilang):",
 DlgTemplatesLoading	: "Senarai Templat sedang diproses. Sila Tunggu...",
 DlgTemplatesNoTpl	: "(Tiada Templat Disimpan)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "Tentang",

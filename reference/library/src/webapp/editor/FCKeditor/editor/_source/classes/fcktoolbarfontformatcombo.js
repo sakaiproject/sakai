@@ -40,6 +40,9 @@ FCKToolbarFontFormatCombo.prototype.GetLabel = function()
 
 FCKToolbarFontFormatCombo.prototype.CreateItems = function( targetSpecialCombo )
 {
+	// Add the Editor Area CSS to the panel to create a realistic preview.
+	FCKTools.AppendStyleSheet( targetSpecialCombo._Panel.Document, FCKConfig.ToolbarComboPreviewCSS ) ;
+
 	// Get the format names from the language file.
 	var aNames = FCKLang['FontFormats'].split(';') ;
 	var oNames = {

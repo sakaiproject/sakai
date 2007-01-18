@@ -52,7 +52,7 @@ FCKCommands.GetCommand = function( commandName )
 		case 'Smiley'		: oCommand = new FCKDialogCommand( 'Smiley'		, FCKLang.DlgSmileyTitle		, 'dialog/fck_smiley.html'		, FCKConfig.SmileyWindowWidth, FCKConfig.SmileyWindowHeight ) ; break ;
 		case 'Table'		: oCommand = new FCKDialogCommand( 'Table'		, FCKLang.DlgTableTitle			, 'dialog/fck_table.html'		, 450, 250 ) ; break ;
 		case 'TableProp'	: oCommand = new FCKDialogCommand( 'Table'		, FCKLang.DlgTableTitle			, 'dialog/fck_table.html?Parent', 400, 250 ) ; break ;
-		case 'TableCellProp': oCommand = new FCKDialogCommand( 'TableCell'	, FCKLang.DlgCellTitle			, 'dialog/fck_tablecell.html'	, 500, 250 ) ; break ;
+		case 'TableCellProp': oCommand = new FCKDialogCommand( 'TableCell'	, FCKLang.DlgCellTitle			, 'dialog/fck_tablecell.html'	, 550, 250 ) ; break ;
 		case 'UniversalKey'	: oCommand = new FCKDialogCommand( 'UniversalKey', FCKLang.UniversalKeyboard	, 'dialog/fck_universalkey.html', 415, 300 ) ; break ;
 
 		case 'Style'		: oCommand = new FCKStyleCommand() ; break ;

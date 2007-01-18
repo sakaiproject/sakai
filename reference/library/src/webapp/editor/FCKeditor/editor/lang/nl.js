@@ -131,7 +131,7 @@ SelectionFieldProp	: "Eigenschappen selectieveld",
 TextareaProp		: "Eigenschappen tekstvak",
 FormProp			: "Eigenschappen formulier",
 
-FontFormats			: "Normaal;Met opmaak;Adres;Kop 1;Kop 2;Kop 3;Kop 4;Kop 5;Kop 6",
+FontFormats			: "Normaal;Met opmaak;Adres;Kop 1;Kop 2;Kop 3;Kop 4;Kop 5;Kop 6;Normaal (DIV)",
 
 // Alerts and Messages
 ProcessingXHTML		: "Verwerken XHTML. Even geduld aub...",
@@ -259,6 +259,7 @@ DlgLnkPopTop		: "Positie boven",
 DlnLnkMsgNoUrl		: "Geef de link van de URL",
 DlnLnkMsgNoEMail	: "Geef een e-mailadres",
 DlnLnkMsgNoAnchor	: "Selecteer een interne link",
+DlnLnkMsgInvPopName	: "De naam van de popup moet met een alfa-numerieke waarde beginnen, en mag geen spaties bevatten.",
 
 // Color Dialog
 DlgColorTitle		: "Selecteer kleur",
@@ -375,8 +376,11 @@ DlgSpellManyChanges		: "Klaar met spellingscontrole: %1 woorden aangepast",
 IeSpellDownload			: "De spellingscontrole niet geïnstalleerd. Wil je deze nu downloaden?",
 
 // Button Dialog
-DlgButtonText	: "Tekst (waarde)",
-DlgButtonType	: "Soort",
+DlgButtonText		: "Tekst (waarde)",
+DlgButtonType		: "Soort",
+DlgButtonTypeBtn	: "Knop",
+DlgButtonTypeSbm	: "Versturen",
+DlgButtonTypeRst	: "Leegmaken",
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Naam",
@@ -425,6 +429,7 @@ DlgHiddenValue	: "Waarde",
 // Bulleted List Dialog
 BulletedListProp	: "Eigenschappen opsommingslijst",
 NumberedListProp	: "Eigenschappen genummerde opsommingslijst",
+DlgLstStart			: "Start",
 DlgLstType			: "Soort",
 DlgLstTypeCircle	: "Cirkel",
 DlgLstTypeDisc		: "Schijf",
@@ -447,6 +452,15 @@ DlgDocLangDirLTR	: "Links naar rechts",
 DlgDocLangDirRTL	: "Rechts naar links",
 DlgDocLangCode		: "Taalcode",
 DlgDocCharSet		: "Karakterset-encoding",
+DlgDocCharSetCE		: "Centraal Europees",
+DlgDocCharSetCT		: "Traditioneel Chinees (Big5)",
+DlgDocCharSetCR		: "Cyriliaans",
+DlgDocCharSetGR		: "Grieks",
+DlgDocCharSetJP		: "Japans",
+DlgDocCharSetKR		: "Koreaans",
+DlgDocCharSetTR		: "Turks",
+DlgDocCharSetUN		: "Unicode (UTF-8)",
+DlgDocCharSetWE		: "West europees",
 DlgDocCharSetOther	: "Andere karakterset-encoding",
 
 DlgDocDocType		: "Opschrift documentsoort",
@@ -476,6 +490,7 @@ DlgTemplatesTitle	: "Inhoud sjabonen",
 DlgTemplatesSelMsg	: "Selecteer het sjabloon dat in de editor geopend moet worden (de actuele inhoud gaat verloren):",
 DlgTemplatesLoading	: "Bezig met laden sjabonen. Even geduld alstublieft...",
 DlgTemplatesNoTpl	: "(Geen sjablonen gedefinieerd)",
+DlgTemplatesReplace	: "Vervang de huidige inhoud",
 
 // About Dialog
 DlgAboutAboutTab	: "Over",

@@ -131,7 +131,7 @@ function SelectColor( wich )
 									<td nowrap="nowrap">
 										<span fcklang="DlgCellWidth">Width</span>:</td>
 									<td>
-										&nbsp;<input onkeypress="return IsDigit();" id="txtWidth" type="text" maxlength="4"
+										&nbsp;<input onkeypress="return IsDigit(event);" id="txtWidth" type="text" maxlength="4"
 											size="3" name="txtWidth" />&nbsp;<select id="selWidthType" name="selWidthType">
 												<option fcklang="DlgCellWidthPx" value="pixels" selected="selected">pixels</option>
 												<option fcklang="DlgCellWidthPc" value="percent">percent</option>
@@ -141,7 +141,7 @@ function SelectColor( wich )
 									<td nowrap="nowrap">
 										<span fcklang="DlgCellHeight">Height</span>:</td>
 									<td>
-										&nbsp;<input id="txtHeight" type="text" maxlength="4" size="3" name="txtHeight" onkeypress="return IsDigit();" />&nbsp;<span
+										&nbsp;<input id="txtHeight" type="text" maxlength="4" size="3" name="txtHeight" onkeypress="return IsDigit(event);" />&nbsp;<span
 											fcklang="DlgCellWidthPx">pixels</span></td>
 								</tr>
 								<tr>
@@ -199,7 +199,7 @@ function SelectColor( wich )
 										<span fcklang="DlgCellRowSpan">Rows Span</span>:</td>
 									<td>
 										&nbsp;
-										<input onkeypress="return IsDigit();" id="txtRowSpan" type="text" maxlength="3" size="2"
+										<input onkeypress="return IsDigit(event);" id="txtRowSpan" type="text" maxlength="3" size="2"
 											name="txtRows"></td>
 									<td>
 									</td>
@@ -209,7 +209,7 @@ function SelectColor( wich )
 										<span fcklang="DlgCellCollSpan">Columns Span</span>:</td>
 									<td>
 										&nbsp;
-										<input onkeypress="return IsDigit();" id="txtCollSpan" type="text" maxlength="2"
+										<input onkeypress="return IsDigit(event);" id="txtCollSpan" type="text" maxlength="2"
 											size="2" name="txtColumns"></td>
 									<td>
 									</td>

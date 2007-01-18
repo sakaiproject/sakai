@@ -20,8 +20,8 @@
 # Those characters are the Byte Order Mask (BOM) of the Unicode encoded files.
 # All FCKeditor files are Unicode encoded.
 #
-# Just rename this file to ".htaccess" and live it in the editor directory. 
-# There are no security issues on doing it. It just set the ".js" and ".css" 
+# Just rename this file to ".htaccess" and leave it in the editor directory. 
+# There are no security issues on doing it. It just sets the ".js" and ".css" 
 # files to their correct content types.
 #
 

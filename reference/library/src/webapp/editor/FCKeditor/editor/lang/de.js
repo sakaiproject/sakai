@@ -131,7 +131,7 @@ SelectionFieldProp	: "Auswahlfeld Eigenschaften",
 TextareaProp		: "Textfeld (mehrzeilig) Eigenschaften",
 FormProp			: "Formular Eigenschaften",
 
-FontFormats			: "Normal;Formatiert;Addresse;Überschrift 1;Überschrift 2;Überschrift 3;Überschrift 4;Überschrift 5;Überschrift 6",
+FontFormats			: "Normal;Formatiert;Addresse;Überschrift 1;Überschrift 2;Überschrift 3;Überschrift 4;Überschrift 5;Überschrift 6;Normal (DIV)",
 
 // Alerts and Messages
 ProcessingXHTML		: "Bearbeite XHTML. Bitte warten...",
@@ -259,6 +259,7 @@ DlgLnkPopTop		: "Obere Position",
 DlnLnkMsgNoUrl		: "Bitte geben Sie die Link-URL an",
 DlnLnkMsgNoEMail	: "Bitte geben Sie e-Mail Adresse an",
 DlnLnkMsgNoAnchor	: "Bitte wählen Sie einen Anker aus",
+DlnLnkMsgInvPopName	: "Der Name des Popups muss mit einem Buchstaben beginnen und darf keine Leerzeichen enthalten",
 
 // Color Dialog
 DlgColorTitle		: "Farbauswahl",
@@ -375,8 +376,11 @@ DlgSpellManyChanges		: "Rechtschreibprüfung abgeschlossen - %1 Wörter geänder
 IeSpellDownload			: "Rechtschreibprüfung nicht installiert. Möchten Sie sie jetzt herunterladen?",
 
 // Button Dialog
-DlgButtonText	: "Text (Wert)",
-DlgButtonType	: "Typ",
+DlgButtonText		: "Text (Wert)",
+DlgButtonType		: "Typ",
+DlgButtonTypeBtn	: "Button",
+DlgButtonTypeSbm	: "Absenden",
+DlgButtonTypeRst	: "Zurücksetzen",
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Name",
@@ -425,6 +429,7 @@ DlgHiddenValue	: "Wert",
 // Bulleted List Dialog
 BulletedListProp	: "Listen-Eigenschaften",
 NumberedListProp	: "Nummerierte Listen-Eigenschaften",
+DlgLstStart			: "Start",
 DlgLstType			: "Typ",
 DlgLstTypeCircle	: "Ring",
 DlgLstTypeDisc		: "Kreis",
@@ -447,6 +452,15 @@ DlgDocLangDirLTR	: "Links nach Rechts",
 DlgDocLangDirRTL	: "rechts nach Links",
 DlgDocLangCode		: "Sprachkürzel",
 DlgDocCharSet		: "Zeichenkodierung",
+DlgDocCharSetCE		: "Zentraleuropäisch",
+DlgDocCharSetCT		: "traditionell Chinesisch (Big5)",
+DlgDocCharSetCR		: "Kyrillisch",
+DlgDocCharSetGR		: "Griechisch",
+DlgDocCharSetJP		: "Japanisch",
+DlgDocCharSetKR		: "Koreanisch",
+DlgDocCharSetTR		: "Türkisch",
+DlgDocCharSetUN		: "Unicode (UTF-8)",
+DlgDocCharSetWE		: "Westeuropäisch",
 DlgDocCharSetOther	: "Andere Zeichenkodierung",
 
 DlgDocDocType		: "Dokumententyp",
@@ -476,6 +490,7 @@ DlgTemplatesTitle	: "Vorlagen",
 DlgTemplatesSelMsg	: "Klicken Sie auf eine Vorlage, um sie im Editor zu öffnen (der aktuelle Inhalt wird dabei gelöscht!):",
 DlgTemplatesLoading	: "Liste der Vorlagen wird geladen. Bitte warten...",
 DlgTemplatesNoTpl	: "(keine Vorlagen definiert)",
+DlgTemplatesReplace	: "Aktuellen Inhalt ersetzen",
 
 // About Dialog
 DlgAboutAboutTab	: "Über",

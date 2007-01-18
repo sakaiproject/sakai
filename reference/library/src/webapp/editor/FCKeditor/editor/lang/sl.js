@@ -258,6 +258,7 @@ DlgLnkPopTop		: "Lega na vrhu",
 DlnLnkMsgNoUrl		: "Vnesite URL povezave",
 DlnLnkMsgNoEMail	: "Vnesite elektronski naslov",
 DlnLnkMsgNoAnchor	: "Izberite zaznamek",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Izberite barvo",
@@ -374,8 +375,11 @@ DlgSpellManyChanges		: "Črkovanje je končano: Spremenjenih je bilo %1 besed",
 IeSpellDownload			: "Črkovalnik ni nameščen. Ali ga želite prenesti sedaj?",
 
 // Button Dialog
-DlgButtonText	: "Besedilo (Vrednost)",
-DlgButtonType	: "Tip",
+DlgButtonText		: "Besedilo (Vrednost)",
+DlgButtonType		: "Tip",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Ime",
@@ -424,6 +428,7 @@ DlgHiddenValue	: "Vrednost",
 // Bulleted List Dialog
 BulletedListProp	: "Lastnosti označenega seznama",
 NumberedListProp	: "Lastnosti oštevilčenega seznama",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Tip",
 DlgLstTypeCircle	: "Pikica",
 DlgLstTypeDisc		: "Kroglica",
@@ -446,6 +451,15 @@ DlgDocLangDirLTR	: "Od leve proti desni (LTR)",
 DlgDocLangDirRTL	: "Od desne proti levi (RTL)",
 DlgDocLangCode		: "Oznaka jezika",
 DlgDocCharSet		: "Kodna tabela",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Druga kodna tabela",
 
 DlgDocDocType		: "Glava tipa dokumenta",
@@ -475,6 +489,7 @@ DlgTemplatesTitle	: "Vsebinske predloge",
 DlgTemplatesSelMsg	: "Izberite predlogo, ki jo želite odpreti v urejevalniku<br>(trenutna vsebina bo izgubljena):",
 DlgTemplatesLoading	: "Nalagam seznam predlog. Prosim počakajte...",
 DlgTemplatesNoTpl	: "(Ni pripravljenih predlog)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "Vizitka",

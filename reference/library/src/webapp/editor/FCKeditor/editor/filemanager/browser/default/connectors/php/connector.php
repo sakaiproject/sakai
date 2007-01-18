@@ -18,6 +18,8 @@
  * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
  */
 
+ob_start() ;
+
 include('config.php') ;
 include('util.php') ;
 include('io.php') ;

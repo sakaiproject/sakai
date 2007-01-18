@@ -258,6 +258,7 @@ DlgLnkPopTop		: "Од врха екрана (пиксела)",
 DlnLnkMsgNoUrl		: "Унесите УРЛ линка",
 DlnLnkMsgNoEMail	: "Откуцајте адресу електронске поште",
 DlnLnkMsgNoAnchor	: "Одаберите сидро",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Одаберите боју",
@@ -374,8 +375,11 @@ DlgSpellManyChanges		: "Провера спеловања завршена:  %1 
 IeSpellDownload			: "Провера спеловања није инсталирана. Да ли желите да је скинете са Интернета?",
 
 // Button Dialog
-DlgButtonText	: "Текст (вредност)",
-DlgButtonType	: "Tип",
+DlgButtonText		: "Текст (вредност)",
+DlgButtonType		: "Tип",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Назив",
@@ -424,6 +428,7 @@ DlgHiddenValue	: "Вредност",
 // Bulleted List Dialog
 BulletedListProp	: "Особине Bulleted листе",
 NumberedListProp	: "Особине набројиве листе",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Тип",
 DlgLstTypeCircle	: "Круг",
 DlgLstTypeDisc		: "Disc",	//MISSING
@@ -446,6 +451,15 @@ DlgDocLangDirLTR	: "Слева надесно (LTR)",
 DlgDocLangDirRTL	: "Здесна налево (RTL)",
 DlgDocLangCode		: "Шифра језика",
 DlgDocCharSet		: "Кодирање скупа карактера",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Остала кодирања скупа карактера",
 
 DlgDocDocType		: "Заглавље типа документа",
@@ -475,6 +489,7 @@ DlgTemplatesTitle	: "Обрасци за садржај",
 DlgTemplatesSelMsg	: "Молимо Вас да одаберете образац који ће бити примењен на страницу (тренутни садржај ће бити обрисан):",
 DlgTemplatesLoading	: "Учитавам листу образаца. Мало стрпљења...",
 DlgTemplatesNoTpl	: "(Нема дефинисаних образаца)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "О едитору",

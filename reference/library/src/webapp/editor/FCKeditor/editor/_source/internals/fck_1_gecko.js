@@ -23,29 +23,14 @@ FCK.Description = "FCKeditor for Gecko Browsers" ;
 
 FCK.InitializeBehaviors = function()
 {
+	// When calling "SetHTML", the editing area IFRAME gets a fixed height. So we must recaulculate it.
+	Window_OnResize() ;
+
 	FCKFocusManager.AddWindow( this.EditorWindow ) ;
 
 	// Handle pasting operations.
 	var oOnKeyDown = function( e )
 	{
-
-		// START iCM Modifications
-		/*
-		// Need to amend carriage return key handling so inserts block element tags rather than BR all the time
-		if ( e.which == 13 && !e.shiftKey && !e.ctrlKey && !e.altKey && !FCKConfig.UseBROnCarriageReturn && !FCK.Events.FireEvent( "OnEnter" ) )
-		{
-			e.preventDefault() ;
-			e.stopPropagation() ;
-		}
-		// Amend backspace handling so correctly removes empty block elements i.e. those block elements containing nothing or
-		// just the bogus BR node
-		if ( e.which == 8 && !e.shiftKey && !e.ctrlKey && !e.altKey && !FCKConfig.UseBROnCarriageReturn && !FCK.Events.FireEvent( "OnBackSpace" ) )
-		{
-			e.preventDefault() ;
-			e.stopPropagation() ;
-		}
-		*/
-		// END iCM Modifications
 
 		var bPrevent ;
 

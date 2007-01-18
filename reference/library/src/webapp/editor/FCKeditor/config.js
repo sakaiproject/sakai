@@ -22,6 +22,14 @@ FCKConfig.EditorAreaCSS = FCKConfig.BasePath + 'css/fck_editorarea.css' ;
 
 FCKConfig.DocType = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">' ;
 
+FCKConfig.ToolbarComboPreviewCSS = '' ;
+
+FCKConfig.ProtectedSource.Add( /<script[\s\S]*?\/script>/gi ) ;       // <SCRIPT> tags.
+
+FCKConfig.ProcessNumericEntities = false ;
+
+FCKConfig.TemplateReplaceCheckbox = true ;
+
 FCKConfig.BaseHref = '' ;
 
 FCKConfig.FullPage = false ;

@@ -50,8 +50,7 @@
 <body>
 <h1>FCKeditor - ColdFusion Component (CFC) - Sample 2</h1>
 
-This sample displays a normal HTML form with a FCKeditor with full features enabled; invoked by a ColdFusion Component.<br>
-ColdFusion is a registered trademark and product of <a href="http://www.macromedia.com/software/coldfusion/" target="_blank">Macromedia, Inc</a>.
+This sample displays a normal HTML form with a FCKeditor with full features enabled; invoked by a ColdFusion Component.
 <hr>
 
 <form method="POST" action="#cgi.script_name#">
@@ -78,7 +77,7 @@ ColdFusion is a registered trademark and product of <a href="http://www.macromed
 <cfoutput>
 <br />
 <input type="submit" value="Submit">
-<br />
+<hr />
 </cfoutput>
 
 <cfdump 

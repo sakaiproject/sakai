@@ -259,6 +259,7 @@ DlgLnkPopTop		: "Superior",
 DlnLnkMsgNoUrl		: "Por favor, digite o endereço do Hiperlink",
 DlnLnkMsgNoEMail	: "Por favor, digite o endereço de e-mail",
 DlnLnkMsgNoAnchor	: "Por favor, selecione uma âncora",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Selecione uma Cor",
@@ -375,8 +376,11 @@ DlgSpellManyChanges		: "Verificação ortográfica encerrada: %1 foram alteradas
 IeSpellDownload			: "A verificação ortográfica não foi instalada. Você gostaria de realizar o download agora?",
 
 // Button Dialog
-DlgButtonText	: "Texto (Valor)",
-DlgButtonType	: "Tipo",
+DlgButtonText		: "Texto (Valor)",
+DlgButtonType		: "Tipo",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Nome",
@@ -425,6 +429,7 @@ DlgHiddenValue	: "Valor",
 // Bulleted List Dialog
 BulletedListProp	: "Formatar Marcadores",
 NumberedListProp	: "Formatar Numeração",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Tipo",
 DlgLstTypeCircle	: "Círculo",
 DlgLstTypeDisc		: "Disco",
@@ -447,6 +452,15 @@ DlgDocLangDirLTR	: "Esquerda para Direita (LTR)",
 DlgDocLangDirRTL	: "Direita para Esquerda (RTL)",
 DlgDocLangCode		: "Código do Idioma",
 DlgDocCharSet		: "Codificação de Caracteres",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Outra Codificação de Caracteres",
 
 DlgDocDocType		: "Cabeçalho Tipo de Documento",
@@ -476,12 +490,13 @@ DlgTemplatesTitle	: "Modelo de layout do conteúdo",
 DlgTemplatesSelMsg	: "Selecione um modelo de layout para ser aberto no editor<br>(o conteúdo atual será perdido):",
 DlgTemplatesLoading	: "Carregando a lista de modelos de layout. Aguarde...",
 DlgTemplatesNoTpl	: "(Não foram definidos modelos de layout)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "Sobre",
 DlgAboutBrowserInfoTab	: "Informações do Navegador",
-DlgAboutLicenseTab	: "License",	//MISSING
+DlgAboutLicenseTab	: "Licença",
 DlgAboutVersion		: "versão",
-DlgAboutLicense		: "Licenciado sobre os termos da GNU Lesser General Public License",
+DlgAboutLicense		: "Licenciado sob os termos da GNU Lesser General Public License",
 DlgAboutInfo		: "Para maiores informações visite"
 }

@@ -1,6 +1,6 @@
 <!--
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -133,11 +133,12 @@ function LoadFolders( folderPath )
 	// Get the parent folder path.
 	var sParentFolderPath ;
 	if ( folderPath != '/' )
-		sParentFolderPath = folderPath.substring(0, folderPath.lastIndexOf('/', folderPath.length - 2) + 1);
-	
+		sParentFolderPath = folderPath.substring( 0, folderPath.lastIndexOf( '/', folderPath.length - 2 ) + 1 ) ;
+
 	// Sakai specific check to prevent user getting stuck at top level with nothing to click
 	if (sParentFolderPath == '/')
-	    sParentFolderPath = null;
+		sParentFolderPath = null;
+
 	// Show/Hide the Up Folder.
 	oListManager.ShowUpFolder( sParentFolderPath ) ;
 	
@@ -176,18 +177,16 @@ function SetResourceType( type )
 {
 	oConnector.ResourceType = type ;
 
-        //Changed by Joshua Ryan for the Sakai Connector
-        LoadFolder( oConnector.CurrentFolder ); 
- 
-        //LoadFolders( '/' ) ;
+	//Changed by Joshua Ryan for the Sakai Connector
+	LoadFolders( oConnector.CurrentFolder ) ;
 }
 
 window.onload = function()
 {
 	oListManager.Init() ;
 
-        //Changed by Joshua Ryan for the Sakai Connector
-        LoadFolders( oConnector.CurrentFolder );
+	//Changed by Joshua Ryan for the Sakai Connector
+	LoadFolders( oConnector.CurrentFolder );
 }
 		</script>
 	</head>

@@ -55,6 +55,7 @@ FCKLanguageManager.AvailableLanguages =
 	'lv'		: 'Latvian',
 	'mn'		: 'Mongolian',
 	'ms'		: 'Malay',
+	'nb'		: 'Norwegian Bokmal',
 	'nl'		: 'Dutch',
 	'no'		: 'Norwegian',
 	'pl'		: 'Polish',

@@ -66,7 +66,7 @@ FCKToolbar.prototype.Create = function( parentElement )
 		this.MainElement = null ;
 	}
 
-	var oDoc = parentElement.ownerDocument ;	// This is IE 6+
+	var oDoc = FCKTools.GetElementDocument( parentElement ) ;
 
 	var e = this.MainElement = oDoc.createElement( 'table' ) ;
 	e.className = 'TB_Toolbar' ;
@@ -112,5 +112,5 @@ var FCKToolbarSeparator = function()
 
 FCKToolbarSeparator.prototype.Create = function( parentElement )
 {
-	parentElement.appendChild( parentElement.ownerDocument.createElement( 'div' ) ).className = 'TB_Separator' ;
+	FCKTools.AppendElement( parentElement, 'div' ).className = 'TB_Separator' ;
 }

@@ -45,6 +45,11 @@ a
 	color: #0000FF !important;	/* For Firefox... mark as important, otherwise it becomes black */
 }
 
+h3
+{
+	color: #000080;
+}
+
 /* 
 	Just uncomment the following block if you want to avoid spaces between 
 	paragraphs. Remember to apply the same style in your output front end page.

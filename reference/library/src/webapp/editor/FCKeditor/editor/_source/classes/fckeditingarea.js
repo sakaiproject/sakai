@@ -34,10 +34,10 @@ var FCKEditingArea = function( targetElement )
 /**
  * @param {String} html The complete HTML for the page, including DOCTYPE and the <html> tag.
  */
-FCKEditingArea.prototype.Start = function( html )
+FCKEditingArea.prototype.Start = function( html, secondCall )
 {
 	var eTargetElement	= this.TargetElement ;
-	var oTargetDocument	= eTargetElement.ownerDocument ;
+	var oTargetDocument	= FCKTools.GetElementDocument( eTargetElement ) ;
 	
 	// Remove all child nodes from the target.
 	while( eTargetElement.childNodes.length > 0 )
@@ -46,9 +46,7 @@ FCKEditingArea.prototype.Start = function( html )
 	if ( this.Mode == FCK_EDITMODE_WYSIWYG )
 	{
 		if ( FCKBrowserInfo.IsGecko )
-		{
 			html = html.replace( /(<body[^>]*>)\s*(<\/body>)/i, '$1' + GECKO_BOGUS + '$2' ) ;
-		}
 	
 		// Create the editing area IFRAME.
 		var oIFrame = this.IFrame = oTargetDocument.createElement( 'iframe' ) ;
@@ -59,6 +57,11 @@ FCKEditingArea.prototype.Start = function( html )
 		// Append the new IFRAME to the target.
 		eTargetElement.appendChild( oIFrame ) ;
 		
+		// IE has a bug with the <base> tag... it must have a </base> closer,
+		// otherwise the all sucessive tags will be set as children nodes of the <base>.
+		if ( FCKBrowserInfo.IsIE )
+			html = html.replace( /(<base[^>]*?)\s*\/?>(?!\s*<\/base>)/gi, '$1></base>' ) ;
+
 		// Get the window and document objects used to interact with the newly created IFRAME.
 		this.Window = oIFrame.contentWindow ;
 		
@@ -71,9 +74,17 @@ FCKEditingArea.prototype.Start = function( html )
 		oDoc.open() ;
 		oDoc.write( html ) ;
 		oDoc.close() ;
-
+		
+		// Firefox 1.0.x is buggy... ohh yes... so let's do it two times and it
+		// will magicaly work.
+		if ( FCKBrowserInfo.IsGecko10 && !secondCall )
+		{
+			this.Start( html, true ) ;
+			return ;
+		}
+		
 		this.Window._FCKEditingArea = this ;
-
+		
 		// FF 1.0.x is buggy... we must wait a lot to enable editing because
 		// sometimes the content simply disappears, for example when pasting
 		// "bla1!<img src='some_url'>!bla2" in the source and then switching
@@ -136,7 +147,7 @@ FCKEditingArea.prototype.MakeEditable = function()
 			// gives the same behavior that you have with IE. It works only if you are
 			// already inside a paragraph and it doesn't render correctly in the first enter.
 			// oDoc.execCommand( 'insertBrOnReturn', false, false ) ;
-			
+
 			// Tell Gecko (Firefox 1.5+) to enable or not live resizing of objects (by Alfonso Martinez)
 			oDoc.execCommand( 'enableObjectResizing', false, !FCKConfig.DisableObjectResizing ) ;
 			

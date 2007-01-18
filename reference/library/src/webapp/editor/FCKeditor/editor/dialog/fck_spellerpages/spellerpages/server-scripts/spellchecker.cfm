@@ -44,10 +44,10 @@ In most cases ISP will not allow the use of that tag for security reasons. Clien
 
 <!--- cfsavecontent is used to set the variable that will be returned with the results from aspell.
 If your using the new version of mx 6.1 you can  use the following cfexecute tag instead:
-<cfexecute name="C:\WINDOWS\SYSTEM32\cmd.exe" arguments="/c type c:\test\#tempfile#.txt | c:\aspell\bin\aspell -a" timeout="100" variable="results"></cfexecute> --->
+<cfexecute name="C:\WINDOWS\SYSTEM32\cmd.exe" arguments="/c type c:\test\#tempfile#.txt | c:\aspell\bin\aspell -a --encoding=utf-8 -H" timeout="100" variable="results"></cfexecute> --->
 
 <cfsavecontent variable="food">
-<cfexecute name="C:\WINDOWS\SYSTEM32\cmd.exe" arguments="/c type #tempFolder#\#tempfile#.txt | #apsell_dir#\aspell -a" timeout="100"></cfexecute>
+<cfexecute name="C:\WINDOWS\SYSTEM32\cmd.exe" arguments="/c type #tempFolder#\#tempfile#.txt | #apsell_dir#\aspell -a --encoding=utf-8 -H" timeout="100"></cfexecute>
 </cfsavecontent>
 
 <!--- remove temp file --->

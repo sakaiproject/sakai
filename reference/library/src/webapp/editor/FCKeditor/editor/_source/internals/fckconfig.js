@@ -78,16 +78,16 @@ FCKConfig.ProcessHiddenField = function()
 
 		if ( sKey == 'CustomConfigurationsPath' )	// The Custom Config File path must be loaded immediately.
 			FCKConfig[ sKey ] = sVal ;
-			
+
 		else if ( sVal.toLowerCase() == "true" )	// If it is a boolean TRUE.
 			this.PageConfig[ sKey ] = true ;
-			
+
 		else if ( sVal.toLowerCase() == "false" )	// If it is a boolean FALSE.
 			this.PageConfig[ sKey ] = false ;
-			
-		else if ( ! isNaN( sVal ) )					// If it is a number.
+
+		else if ( sVal.length > 0 && !isNaN( sVal ) )	// If it is a number.
 			this.PageConfig[ sKey ] = parseInt( sVal ) ;
-			
+
 		else										// In any other case it is a string.
 			this.PageConfig[ sKey ] = sVal ;
 	}
@@ -105,8 +105,15 @@ function FCKConfig_PreProcess()
 	var oConfig = FCKConfig ;
 	
 	// Force debug mode if fckdebug=true in the QueryString (main page).
-	if ( oConfig.AllowQueryStringDebug && (/fckdebug=true/i).test( window.top.location.search ) )
-		oConfig.Debug = true ;
+	if ( oConfig.AllowQueryStringDebug )
+	{
+		try
+		{
+			if ( (/fckdebug=true/i).test( window.top.location.search ) )
+				oConfig.Debug = true ;
+		}
+		catch (e) { /* Ignore it. Much probably we are inside a FRAME where the "top" is in another domain (security error). */ }
+	}
 
 	// Certifies that the "PluginsPath" configuration ends with a slash.
 	if ( !oConfig.PluginsPath.endsWith('/') )
@@ -116,6 +123,12 @@ function FCKConfig_PreProcess()
 	// In the last case, transform it in an array.
 	if ( typeof( oConfig.EditorAreaCSS ) == 'string' )
 		oConfig.EditorAreaCSS = [ oConfig.EditorAreaCSS ] ;
+
+	var sComboPreviewCSS = oConfig.ToolbarComboPreviewCSS ;
+	if ( !sComboPreviewCSS || sComboPreviewCSS.length == 0 )
+		oConfig.ToolbarComboPreviewCSS = oConfig.EditorAreaCSS ;
+	else if ( typeof( sComboPreviewCSS ) == 'string' )
+		oConfig.ToolbarComboPreviewCSS = [ sComboPreviewCSS ] ;
 }
 
 // Define toolbar sets collection.
@@ -134,7 +147,19 @@ FCKConfig.Plugins.Add = function( name, langs, path )
 // Expressions that defined parts of the raw HTML that must remain untouched
 // like custom tags, scripts, server side code, etc...
 FCKConfig.ProtectedSource = new Object() ;
-FCKConfig.ProtectedSource.RegexEntries = new Array() ;
+
+// Initialize the regex array with the default ones.
+FCKConfig.ProtectedSource.RegexEntries = [
+	// First of any other protection, we must protect all comments to avoid 
+	// loosing them (of course, IE related).
+	/<!--[\s\S]*?-->/g ,
+
+	// Script tags will also be forced to be protected, otherwise IE will execute them.
+	/<script[\s\S]*?<\/script>/gi,
+	
+	// <noscript> tags (get lost in IE and messed up in FF).
+	/<noscript[\s\S]*?<\/noscript>/gi
+] ;
 
 FCKConfig.ProtectedSource.Add = function( regexPattern )
 {
@@ -157,7 +182,6 @@ FCKConfig.ProtectedSource.Protect = function( html )
 	return html ;
 }
 
-
 FCKConfig.ProtectedSource.Revert = function( html, clearBin )
 {
 	function _Replace( m, opener, index )
@@ -169,7 +193,3 @@ FCKConfig.ProtectedSource.Revert = function( html, clearBin )
 
 	return html.replace( /(<|&lt;)!--\{PS..(\d+)\}--(>|&gt;)/g, _Replace ) ;
 }
-
-// First of any other protection, we must protect all comments to avoid 
-// loosing them (of course, IE related).
-FCKConfig.ProtectedSource.Add( /<!--[\s\S]*?-->/g ) ;

@@ -173,10 +173,10 @@ class FCKeditorConnector(object):
 				"Media": None
 				}
 		self.deniedExtensions = {
-				"File": [ "php","php2","php3","php4","php5","phtml","pwml","inc","asp","aspx","ascx","jsp","cfm","cfc","pl","bat","exe","com","dll","vbs","js","reg","cgi" ],
-				"Image": [ "php","php2","php3","php4","php5","phtml","pwml","inc","asp","aspx","ascx","jsp","cfm","cfc","pl","bat","exe","com","dll","vbs","js","reg","cgi" ],
-				"Flash": [ "php","php2","php3","php4","php5","phtml","pwml","inc","asp","aspx","ascx","jsp","cfm","cfc","pl","bat","exe","com","dll","vbs","js","reg","cgi" ],
-				"Media": [ "php","php2","php3","php4","php5","phtml","pwml","inc","asp","aspx","ascx","jsp","cfm","cfc","pl","bat","exe","com","dll","vbs","js","reg","cgi" ]
+				"File": [ "php","php2","php3","php4","php5","phtml","pwml","inc","asp","aspx","ascx","jsp","cfm","cfc","pl","bat","exe","com","dll","vbs","js","reg","cgi","htaccess" ],
+				"Image": [ "php","php2","php3","php4","php5","phtml","pwml","inc","asp","aspx","ascx","jsp","cfm","cfc","pl","bat","exe","com","dll","vbs","js","reg","cgi","htaccess" ],
+				"Flash": [ "php","php2","php3","php4","php5","phtml","pwml","inc","asp","aspx","ascx","jsp","cfm","cfc","pl","bat","exe","com","dll","vbs","js","reg","cgi","htaccess" ],
+				"Media": [ "php","php2","php3","php4","php5","phtml","pwml","inc","asp","aspx","ascx","jsp","cfm","cfc","pl","bat","exe","com","dll","vbs","js","reg","cgi","htaccess" ]
 				}
 
 	"""

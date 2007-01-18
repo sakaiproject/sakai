@@ -19,11 +19,12 @@
  * File Authors:
  * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
 -->
-<html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta name="robots" content="noindex, nofollow">
-		<script language="javascript">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="robots" content="noindex, nofollow" />
+	<script type="text/javascript">
 var oEditor = window.parent.InnerDialogLoaded() ;
 
 window.onload = function ()
@@ -150,6 +151,9 @@ function CleanWord( html )
 	// Remove Tags with XML namespace declarations: <o:p><\/o:p>
 	html = html.replace(/<\/?\w+:[^>]*>/gi, "") ;
 	
+	// Remove comments [SF BUG-1481861].
+	html = html.replace(/<\!--.*-->/g, "") ;
+	
 	html = html.replace( /<H\d>\s*<\/H\d>/gi, '' ) ;
 
 	html = html.replace( /<H1([^>]*)>/gi, '<div$1><b><font size="6">' ) ;
@@ -164,54 +168,63 @@ function CleanWord( html )
 	html = html.replace( /<(U|I|STRIKE)>&nbsp;<\/\1>/g, '&nbsp;' ) ;
 
 	// Remove empty tags (three times, just to be sure).
-	html = html.replace( /<([^\s>]+)[^>]*>\s*<\/\1>/g, '' ) ;
-	html = html.replace( /<([^\s>]+)[^>]*>\s*<\/\1>/g, '' ) ;
-	html = html.replace( /<([^\s>]+)[^>]*>\s*<\/\1>/g, '' ) ;
+	html = html.replace( /<([^\s>]+)(\s[^>]*)?>\s*<\/\1>/g, '' ) ;
+	html = html.replace( /<([^\s>]+)(\s[^>]*)?>\s*<\/\1>/g, '' ) ;
+	html = html.replace( /<([^\s>]+)(\s[^>]*)?>\s*<\/\1>/g, '' ) ;
 
 	// Transform <P> to <DIV>
-	var re = new RegExp("(<P)([^>]*>.*?)(<\/P>)","gi") ;	// Different because of a IE 5.0 error
+	var re = new RegExp( "(<P)([^>]*>.*?)(<\/P>)", "gi" ) ;	// Different because of a IE 5.0 error
 	html = html.replace( re, "<div$2<\/div>" ) ;
+	
+	// Fix relative anchor URLs (IE automatically adds the current page URL).
+	re = new RegExp( window.location + "#", "g" ) ;
+	html = html.replace( re, '#') ;
 
 	return html ;
 }
 
-		</script>
-	</head>
-	<body scroll="no" style="OVERFLOW: hidden">
-		<table height="98%" cellspacing="0" cellpadding="0" width="100%" border="0">
-			<tr>
-				<td>
-					<span fckLang="DlgPasteMsg2">Please paste inside the following box using the 
-						keyboard (<STRONG>Ctrl+V</STRONG>) and hit <STRONG>OK</STRONG>.</span>
-					<br>
-					&nbsp;
-				</td>
-			</tr>
-			<tr>
-				<td valign="top" height="100%" style="BORDER-RIGHT: #000000 1px solid; BORDER-TOP: #000000 1px solid; BORDER-LEFT: #000000 1px solid; BORDER-BOTTOM: #000000 1px solid">
-					<textarea id="txtData" style="BORDER-RIGHT: #000000 1px; BORDER-TOP: #000000 1px; DISPLAY: none; BORDER-LEFT: #000000 1px; WIDTH: 99%; BORDER-BOTTOM: #000000 1px; HEIGHT: 98%"></textarea>
-					<iframe id="frmData" src="../fckblank.html" height="98%" width="99%" frameborder="0" style="BORDER-RIGHT: #000000 1px; BORDER-TOP: #000000 1px; DISPLAY: none; BORDER-LEFT: #000000 1px; BORDER-BOTTOM: #000000 1px; BACKGROUND-COLOR: #ffffff">
-					</iframe>
-				</td>
-			</tr>
-			<tr id="oWordCommands">
-				<td>
-					<table border="0" cellpadding="0" cellspacing="0" width="100%">
-						<tr>
-							<td nowrap>
-								<input id="chkRemoveFont" type="checkbox" checked="checked"> <label for="chkRemoveFont" fckLang="DlgPasteIgnoreFont">
-									Ignore Font Face definitions</label>
-								<br>
-								<input id="chkRemoveStyles" type="checkbox"> <label for="chkRemoveStyles" fckLang="DlgPasteRemoveStyles">
-									Remove Styles definitions</label>
-							</td>
-							<td align="right" valign="top">
-								<input type="button" fckLang="DlgPasteCleanBox" value="Clean Up Box" onclick="CleanUpBox()">
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-		</table>
-	</body>
+	</script>
+</head>
+<body style="overflow: hidden">
+	<table cellspacing="0" cellpadding="0" width="100%" border="0" style="height: 98%">
+		<tr>
+			<td>
+				<span fcklang="DlgPasteMsg2">Please paste inside the following box using the keyboard
+					(<strong>Ctrl+V</strong>) and hit <strong>OK</strong>.</span>
+				<br />
+				&nbsp;
+			</td>
+		</tr>
+		<tr>
+			<td valign="top" height="100%" style="border-right: #000000 1px solid; border-top: #000000 1px solid;
+				border-left: #000000 1px solid; border-bottom: #000000 1px solid">
+				<textarea id="txtData" cols="80" rows="5" style="border: #000000 1px; display: none;
+					width: 99%; height: 98%"></textarea>
+				<iframe id="frmData" src="javascript:void(0)" height="98%" width="99%" frameborder="0"
+					style="border-right: #000000 1px; border-top: #000000 1px; display: none; border-left: #000000 1px;
+					border-bottom: #000000 1px; background-color: #ffffff"></iframe>
+			</td>
+		</tr>
+		<tr id="oWordCommands">
+			<td>
+				<table border="0" cellpadding="0" cellspacing="0" width="100%">
+					<tr>
+						<td nowrap="nowrap">
+							<input id="chkRemoveFont" type="checkbox" checked="checked" />
+							<label for="chkRemoveFont" fcklang="DlgPasteIgnoreFont">
+								Ignore Font Face definitions</label>
+							<br />
+							<input id="chkRemoveStyles" type="checkbox" />
+							<label for="chkRemoveStyles" fcklang="DlgPasteRemoveStyles">
+								Remove Styles definitions</label>
+						</td>
+						<td align="right" valign="top">
+							<input type="button" fcklang="DlgPasteCleanBox" value="Clean Up Box" onclick="CleanUpBox()" />
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</body>
 </html>

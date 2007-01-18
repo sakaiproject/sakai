@@ -75,9 +75,17 @@ FCKIcon.prototype.CreateIconElement = function( document )
 	}
 	else					// It is using a single icon image.
 	{
+		// This is not working well with IE. See notes bellow.
 		// <img class="TB_Button_Image" src="smiley.gif">
-		eIcon = document.createElement( 'IMG' ) ;
-		eIcon.src = this.Path ? this.Path : FCK_SPACER_PATH ;
+//		eIcon = document.createElement( 'IMG' ) ;
+//		eIcon.src = this.Path ? this.Path : FCK_SPACER_PATH ;
+
+		// IE makes the button 1px higher if using the <img> directly, so we
+		// are changing to the <div> system to clip the image correctly.
+		eIcon = document.createElement( 'DIV' ) ;
+		
+		var eIconImage = eIcon.appendChild( document.createElement( 'IMG' ) ) ;
+		eIconImage.src = this.Path ? this.Path : FCK_SPACER_PATH ;
 	}
 	
 	eIcon.className = 'TB_Button_Image' ;

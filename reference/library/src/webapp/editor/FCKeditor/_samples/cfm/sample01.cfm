@@ -34,8 +34,7 @@
 
 <h1>FCKeditor - ColdFusion - Sample 1</h1>
 	
-This sample displays a normal HTML form with a FCKeditor with full features enabled; invoked by a ColdFusion Custom Tag / Module.<br>
-ColdFusion is a registered trademark and product of <a href="http://www.macromedia.com/software/coldfusion/" target="_blank">Macromedia, Inc</a>.
+This sample displays a normal HTML form with a FCKeditor with full features enabled; invoked by a ColdFusion Custom Tag / Module.
 <hr>
 <form method="POST" action="#cgi.script_name#">
 </cfoutput>

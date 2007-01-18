@@ -258,6 +258,7 @@ DlgLnkPopTop		: "Позиція зверху",
 DlnLnkMsgNoUrl		: "Будь ласка, занесіть URL посилання",
 DlnLnkMsgNoEMail	: "Будь ласка, занесіть адрес эл. почты",
 DlnLnkMsgNoAnchor	: "Будь ласка, оберіть якір",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Оберіть колір",
@@ -374,8 +375,11 @@ DlgSpellManyChanges		: "Перевірку орфографії завершен
 IeSpellDownload			: "Модуль перевірки орфографії не встановлено. Бажаєтн завантажити його зараз?",
 
 // Button Dialog
-DlgButtonText	: "Текст (Значення)",
-DlgButtonType	: "Тип",
+DlgButtonText		: "Текст (Значення)",
+DlgButtonType		: "Тип",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Ім'я",
@@ -424,6 +428,7 @@ DlgHiddenValue	: "Значення",
 // Bulleted List Dialog
 BulletedListProp	: "Властивості маркованого списка",
 NumberedListProp	: "Властивості нумерованного списка",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Тип",
 DlgLstTypeCircle	: "Коло",
 DlgLstTypeDisc		: "Disc",	//MISSING
@@ -446,6 +451,15 @@ DlgDocLangDirLTR	: "Зліва на право (LTR)",
 DlgDocLangDirRTL	: "Зправа на лево (RTL)",
 DlgDocLangCode		: "Код мови",
 DlgDocCharSet		: "Кодування набору символів",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Інше кодування набору символів",
 
 DlgDocDocType		: "Заголовок типу документу",
@@ -475,6 +489,7 @@ DlgTemplatesTitle	: "Шаблони змісту",
 DlgTemplatesSelMsg	: "Оберіть, будь ласка, шаблон для відкриття в редакторі<br>(поточний зміст буде втрачено):",
 DlgTemplatesLoading	: "Завантаження списку шаблонів. Зачекайте, будь ласка...",
 DlgTemplatesNoTpl	: "(Не визначено жодного шаблону)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "Про програму",

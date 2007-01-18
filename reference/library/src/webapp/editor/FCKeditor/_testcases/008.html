@@ -17,14 +17,14 @@
  * File Authors:
  * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
 -->
-<html>
-	<head>
-		<title>FCKeditor - Sample</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta name="robots" content="noindex, nofollow">
-		<link href="testcases.css" rel="stylesheet" type="text/css">
-			<script type="text/javascript" src="../fckeditor.js"></script>
-			<script>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>FCKeditor - Sample</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="robots" content="noindex, nofollow" />
+	<link href="testcases.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="../fckeditor.js"></script>
+	<script type="text/javascript">
 
 function Validate()
 {
@@ -39,36 +39,31 @@ function Validate()
 	}
 }
 
-			</script>
-	</head>
-	<body>
-		<h1>FCKeditor - Test 008</h1>
-		<P>
-			<STRONG>Expected results</STRONG>: The editor content must be loaded and the 
-			submit button must post the editors html.<BR>
-			<STRONG>Configurations</STRONG>: Default<BR>
-			<STRONG>Steps to&nbsp;Reproduce</STRONG>:
-		</P>
-		<OL>
-			<LI>
-			Wait the editor to load.
-			<LI>
-			Select all the content with the mouse and delete it.
-			<LI>
-			Hit the "Save" button - an alert should popup.
-			<LI>
-			Insert some text.
-			<LI>
-			Hit the "Save" button and check the posted data.
-			<LI>
-			Close the data window.
-			<LI>
-			Press the "New Page" button.
-			<LI>
-				Hit the "Save" button - an alert should popup.</LI></OL>
-		<P>
-			<hr>
-		<P></P>
+	</script>
+</head>
+<body>
+	<h1>
+		FCKeditor - Test 008</h1>
+	<p>
+		<strong>Expected results</strong>: The editor content must be loaded and the submit
+		button must post the editors html.<br />
+		<strong>Configurations</strong>: Default<br />
+		<strong>Steps to&nbsp;Reproduce</strong>:
+	</p>
+	<ol>
+		<li>Wait the editor to load.</li>
+		<li>Select all the content with the mouse and delete it.</li>
+		<li>Hit the "Save" button - an alert should popup.</li>
+		<li>Insert some text.</li>
+		<li>Hit the "Save" button and check the posted data.</li>
+		<li>Close the data window.</li>
+		<li>Press the "New Page" button.</li>
+		<li>Hit the "Save" button - an alert should popup.</li>
+	</ol>
+	<p>
+		<hr />
+		<p>
+		</p>
 		<form action="sampleposteddata.asp" method="post" target="_blank" onsubmit="return Validate();">
 			<script type="text/javascript">
 <!--
@@ -84,5 +79,5 @@ oFCKeditor.Create() ;
 //-->
 			</script>
 		</form>
-	</body>
+</body>
 </html>

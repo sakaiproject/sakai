@@ -112,11 +112,14 @@ function Ok()
 		Cancel() ;
 }
 
-function Cancel()
+function Cancel( dontFireChange )
 {
-	// All dialog windows will fire the "OnSelectionChange" event, not matter
-	// the Ok or Cancel button have being pressed.
-	window.dialogArguments.Editor.FCK.Events.FireEvent( 'OnSelectionChange' ) ;
+	if ( !dontFireChange )
+	{
+		// All dialog windows, by default, will fire the "OnSelectionChange"
+		// event, no matter the Ok or Cancel button has been pressed.
+		window.dialogArguments.Editor.FCK.Events.FireEvent( 'OnSelectionChange' ) ;
+	}
 	window.close() ;
 }
 

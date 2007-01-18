@@ -10,8 +10,8 @@
  * 
  * "Support Open Source software. What about a donation today?"
  * 
- * File Name: no.js
- * 	Norwegian language file.
+ * File Name: nb.js
+ * 	Norwegian Bokmål language file.
  * 
  * File Authors:
  * 		Martin Kronstad (www.siteman.no) (martin.kronstad@gmail.com)
@@ -217,7 +217,7 @@ DlgLnkTargetTab		: "Mål",
 
 DlgLnkType			: "Lenketype",
 DlgLnkTypeURL		: "URL",
-DlgLnkTypeAnchor	: "Lenke til bokmerke i teksten",
+DlgLnkTypeAnchor	: "Bokmerk denne siden",
 DlgLnkTypeEMail		: "E-Post",
 DlgLnkProto			: "Protokoll",
 DlgLnkProtoOther	: "<annet>",
@@ -341,7 +341,7 @@ PasteAsText		: "Lim inn som ren tekst",
 PasteFromWord	: "Lim inn fra word",
 
 DlgPasteMsg2	: "Vennligst lim inn i den følgende boksen med tastaturet (<STRONG>Ctrl+V</STRONG>) og trykk <STRONG>OK</STRONG>.",
-DlgPasteIgnoreFont		: "Fjern skrifttyper",
+DlgPasteIgnoreFont		: "Ignorer fonter",
 DlgPasteRemoveStyles	: "Fjern stildefinisjoner",
 DlgPasteCleanBox		: "Tøm boksen",
 

@@ -258,6 +258,7 @@ DlgLnkPopTop		: "Od vrha ekrana (px)",
 DlnLnkMsgNoUrl		: "Unesite URL linka",
 DlnLnkMsgNoEMail	: "Otkucajte adresu elektronske pote",
 DlnLnkMsgNoAnchor	: "Odaberite sidro",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Odaberite boju",
@@ -374,8 +375,11 @@ DlgSpellManyChanges		: "Provera spelovanja završena: %1 reč(i) je izmenjeno",
 IeSpellDownload			: "Provera spelovanja nije instalirana. Da li želite da je skinete sa Interneta?",
 
 // Button Dialog
-DlgButtonText	: "Tekst (vrednost)",
-DlgButtonType	: "Tip",
+DlgButtonText		: "Tekst (vrednost)",
+DlgButtonType		: "Tip",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Naziv",
@@ -424,6 +428,7 @@ DlgHiddenValue	: "Vrednost",
 // Bulleted List Dialog
 BulletedListProp	: "Osobine nenabrojive liste",
 NumberedListProp	: "Osobine nabrojive liste",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Tip",
 DlgLstTypeCircle	: "Krug",
 DlgLstTypeDisc		: "Disc",	//MISSING
@@ -446,6 +451,15 @@ DlgDocLangDirLTR	: "Sleva nadesno (LTR)",
 DlgDocLangDirRTL	: "Zdesna nalevo (RTL)",
 DlgDocLangCode		: "Šifra jezika",
 DlgDocCharSet		: "Kodiranje skupa karaktera",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Ostala kodiranja skupa karaktera",
 
 DlgDocDocType		: "Zaglavlje tipa dokumenta",
@@ -475,6 +489,7 @@ DlgTemplatesTitle	: "Obrasci za sadržaj",
 DlgTemplatesSelMsg	: "Molimo Vas da odaberete obrazac koji ce biti primenjen na stranicu (trenutni sadržaj ce biti obrisan):",
 DlgTemplatesLoading	: "Učitavam listu obrazaca. Malo strpljenja...",
 DlgTemplatesNoTpl	: "(Nema definisanih obrazaca)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "O editoru",

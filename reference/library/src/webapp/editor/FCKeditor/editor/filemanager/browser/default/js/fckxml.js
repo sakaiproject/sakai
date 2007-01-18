@@ -25,10 +25,17 @@ var FCKXml = function()
 
 FCKXml.prototype.GetHttpRequest = function()
 {
-	if ( window.XMLHttpRequest )		// Gecko
+	// Gecko / IE7
+	if ( typeof(XMLHttpRequest) != 'undefined' )
 		return new XMLHttpRequest() ;
-	else if ( window.ActiveXObject )	// IE
-		return new ActiveXObject("MsXml2.XmlHttp") ;
+
+	// IE6
+	try { return new ActiveXObject("Msxml2.XMLHTTP") ; } 
+	catch(e) {}
+
+	// IE5
+	try { return new ActiveXObject("Microsoft.XMLHTTP") ; }
+	catch(e) {}
 }
 
 FCKXml.prototype.LoadUrl = function( urlToCall, asyncFunctionPointer )
@@ -71,7 +78,7 @@ FCKXml.prototype.LoadUrl = function( urlToCall, asyncFunctionPointer )
 
 FCKXml.prototype.SelectNodes = function( xpath )
 {
-	if ( document.all )		// IE
+	if ( navigator.userAgent.indexOf('MSIE') >= 0 )		// IE
 		return this.DOMDocument.selectNodes( xpath ) ;
 	else					// Gecko
 	{
@@ -94,7 +101,7 @@ FCKXml.prototype.SelectNodes = function( xpath )
 
 FCKXml.prototype.SelectSingleNode = function( xpath ) 
 {
-	if ( document.all )		// IE
+	if ( navigator.userAgent.indexOf('MSIE') >= 0 )		// IE
 		return this.DOMDocument.selectSingleNode( xpath ) ;
 	else					// Gecko
 	{

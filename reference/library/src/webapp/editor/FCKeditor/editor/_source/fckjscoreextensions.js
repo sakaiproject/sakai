@@ -34,6 +34,18 @@ String.prototype.Equals = function()
 	return false ;
 }
 
+String.prototype.ReplaceAll = function( searchArray, replaceArray )
+{
+	var replaced = this ;
+	
+	for ( var i = 0 ; i < searchArray.length ; i++ )
+	{
+		replaced = replaced.replace( searchArray[i], replaceArray[i] ) ;
+	}
+	
+	return replaced ;
+}
+
 Array.prototype.AddItem = function( item )
 {
 	var i = this.length ;

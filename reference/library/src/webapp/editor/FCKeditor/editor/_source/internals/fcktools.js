@@ -19,6 +19,17 @@
 
 var FCKTools = new Object() ;
 
+FCKTools.AppendStyleSheet = function( documentElement, cssFileUrlOrArray )
+{
+	if ( typeof( cssFileUrlOrArray ) == 'string' )
+		return this._AppendStyleSheet( documentElement, cssFileUrlOrArray ) ;
+	else
+	{
+		for ( var i = 0 ; i < cssFileUrlOrArray.length ; i++ )
+			this._AppendStyleSheet( documentElement, cssFileUrlOrArray[i] ) ;
+	}
+}
+
 /**
  * Gets the value of the hidden INPUT element that is associated to the editor.
  * This element has its ID set to the editor's instance name so the user refers
@@ -89,50 +100,16 @@ function FCKTools_SubmitReplacer()
 // Get the window object where the element is placed in.
 FCKTools.GetElementWindow = function( element )
 {
-	return FCKTools.GetDocumentWindow( element.ownerDocument ) ;
+	return this.GetDocumentWindow( this.GetElementDocument( element ) ) ;
 }
 
 FCKTools.GetDocumentWindow = function( doc )
 {
 	// With Safari, there is not way to retrieve the window from the document, so we must fix it.
 	if ( FCKBrowserInfo.IsSafari && !doc.parentWindow )
-		FCKTools.FixDocumentParentWindow( window.top ) ;
+		this.FixDocumentParentWindow( window.top ) ;
 	
 	return doc.parentWindow || doc.defaultView ;
-}
-
-FCKTools.GetElementPosition = function( el, relativeWindow )
-{
-	// Initializes the Coordinates object that will be returned by the function.
-	var c = { X:0, Y:0 } ;
-	
-	var oWindow = relativeWindow || window ;
-
-	// Loop throw the offset chain.
-	while ( el )
-	{
-		c.X += el.offsetLeft - el.scrollLeft ;
-		c.Y += el.offsetTop - el.scrollTop  ;
-
-		if ( el.offsetParent == null )
-		{
-			var oOwnerWindow = FCKTools.GetElementWindow( el ) ;
-			
-			if ( oOwnerWindow != oWindow )
-				el = oOwnerWindow.frameElement ;
-			else
-			{
-				c.X += el.scrollLeft ;
-				c.Y += el.scrollTop  ;
-				break ;
-			}
-		}
-		else
-			el = el.offsetParent ;
-	}
-
-	// Return the Coordinates object
-	return c ;
 }
 
 /*
@@ -169,7 +146,7 @@ FCKTools.HTMLEncode = function( text )
  */
 FCKTools.AddSelectOption = function( selectElement, optionText, optionValue )
 {
-	var oOption = selectElement.ownerDocument.createElement( "OPTION" ) ;
+	var oOption = FCKTools.GetElementDocument( selectElement ).createElement( "OPTION" ) ;
 
 	oOption.text	= optionText ;
 	oOption.value	= optionValue ;	
@@ -251,4 +228,9 @@ FCKTools.CreateEventListener = function( func, params )
 	} 
 
 	return f ;
+}
+
+FCKTools.GetElementDocument = function ( element )
+{
+	return element.ownerDocument || element.document ;
 }

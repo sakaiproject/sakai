@@ -22,70 +22,83 @@ var FCKeditorAPI ;
 
 function InitializeAPI()
 {
-	var oAPI ;
-	
-	if ( !( oAPI = FCKeditorAPI = window.parent.FCKeditorAPI ) )
+	if ( !( FCKeditorAPI = window.parent.FCKeditorAPI ) )
 	{
-		// Make the FCKeditorAPI object available in the parent window.
-		oAPI = FCKeditorAPI = window.parent.FCKeditorAPI = new Object() ;
-		oAPI.Version		= '2.3' ;
-		oAPI.VersionBuild	= '1054' ;
+		// Make the FCKeditorAPI object available in the parent window. Use 
+		// eval so it is independent from this window and so it will still be 
+		// available if the editor instance is removed ("Can't execute code
+		// from a freed script" error).
+		var sScript = '\
+			var FCKeditorAPI = {\
+				Version			: \'2.3.2\',\
+				VersionBuild	: \'1082\',\
+				__Instances		: new Object(),\
+				GetInstance		: function( instanceName )\
+				{\
+					return this.__Instances[ instanceName ] ;\
+				},\
+				_FunctionQueue	: {\
+					Functions	: new Array(),\
+					IsRunning	: false,\
+					Add			: function( functionToAdd )\
+					{\
+						this.Functions.push( functionToAdd ) ;\
+						if ( !this.IsRunning )\
+							this.StartNext() ;\
+					},\
+					StartNext	: function()\
+					{\
+						var aQueue = this.Functions ;\
+						if ( aQueue.length > 0 )\
+						{\
+							this.IsRunning = true ;\
+							aQueue[0].call() ;\
+						}\
+						else\
+							this.IsRunning = false ;\
+					},\
+					Remove		: function( func )\
+					{\
+						var aQueue = this.Functions ;\
+						var i = 0, fFunc ;\
+						while( fFunc = aQueue[ i ] )\
+						{\
+							if ( fFunc == func )\
+								aQueue.splice( i,1 ) ;\
+							i++ ;\
+						}\
+						this.StartNext() ;\
+					}\
+				}\
+			}' ;
 		
-		oAPI.__Instances = new Object() ;
-
-		// Function used to get a instance of an existing editor present in the 
-		// page.
-		oAPI.GetInstance = FCKeditorAPI_GetInstance ;
+		// In IE, the "eval" function is not always available (it works with
+		// the JavaScript samples, but not with the ASP ones, for example).
+		// So, let's use the execScript instead.
+		if ( window.parent.execScript )
+			window.parent.execScript( sScript, 'JavaScript' ) ;
+		else
+		{
+			if ( FCKBrowserInfo.IsGecko10 )
+			{
+				// FF 1.0.4 gives an error with the above request. The
+				// following seams to work well. It could become to official
+				// implementation for all browsers, but we need to check it.
+				eval.call( window.parent, sScript ) ;
+			}
+			else
+				window.parent.eval( sScript ) ;
+		}
 		
-		var oQueue = oAPI._FunctionQueue = new Object() ;
-		oQueue.Functions	= new Array() ;
-		oQueue.IsRunning	= false ;
-		oQueue.Add			= FCKeditorAPI_FunctionQueue_Add ;
-		oQueue.StartNext	= FCKeditorAPI_FunctionQueue_StartNext ;
-		oQueue.Remove		= FCKeditorAPI_FunctionQueue_Remove ;
+		FCKeditorAPI = window.parent.FCKeditorAPI ;
 	}
 
 	// Add the current instance to the FCKeditorAPI's instances collection.
-	oAPI.__Instances[ FCK.Name ] = FCK ;
+	FCKeditorAPI.__Instances[ FCK.Name ] = FCK ;
 }
 
-function FCKeditorAPI_GetInstance( instanceName )
+function FCKeditorAPI_Cleanup()
 {
-	return this.__Instances[ instanceName ] ;
+	FCKeditorAPI.__Instances[ FCK.Name ] = null ;
 }
-
-function FCKeditorAPI_FunctionQueue_Add( functionToAdd )
-{
-	this.Functions.push( functionToAdd ) ;
-
-	if ( !this.IsRunning )
-		this.StartNext() ;
-}
-
-function FCKeditorAPI_FunctionQueue_StartNext()
-{
-	var aQueue = this.Functions ;
-	
-	if ( aQueue.length > 0 )
-	{
-		this.IsRunning = true ;
-		FCKTools.RunFunction( aQueue[0] ) ;
-	}
-	else
-		this.IsRunning = false ;
-}
-
-function FCKeditorAPI_FunctionQueue_Remove( func )
-{
-	var aQueue = this.Functions ;
-	
-	var i = 0, fFunc ;
-	while( fFunc = aQueue[ i ] )
-	{
-		if ( fFunc == func )
-			aQueue.splice( i,1 ) ;
-		i++ ;
-	}
-
-	this.StartNext() ;
-}
+FCKTools.AddEventListener( window, 'unload', FCKeditorAPI_Cleanup ) ;	

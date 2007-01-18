@@ -142,27 +142,3 @@ FCKSelection.Delete = function()
 
 	return oSel ;
 }
-
-// START iCM MODIFICATIONS
-/*
-// Move the cursor position (the selection point) to a specific offset within a specific node
-// If no offset specified, the start of the node is assumed
-FCKSelection.SetCursorPosition = function ( oNode, nOffset )
-{
-	if ( typeof nOffset == "undefined" ) nOffset = 0 ;
-
-	var oSel = FCK.EditorWindow.getSelection() ;
-	var oRange = FCK.EditorDocument.createRange() ;
-	
-	oRange.setStart( oNode, nOffset ) ;
-	oRange.collapse( true ) ;
-	
-	oSel.removeAllRanges() ;
-	oSel.addRange( oRange );
-	
-	if ( oNode.scrollIntoView )
-		oNode.scrollIntoView( false );	
-}
-*/
-// END iCM MODIFICATIONS
-

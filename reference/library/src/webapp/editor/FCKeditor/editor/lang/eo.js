@@ -258,6 +258,7 @@ DlgLnkPopTop		: "Pozicio de Supro",
 DlnLnkMsgNoUrl		: "Bonvolu entajpi la URL-on",
 DlnLnkMsgNoEMail	: "Bonvolu entajpi la retadreson",
 DlnLnkMsgNoAnchor	: "Bonvolu elekti ankron",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Elekti",
@@ -374,8 +375,11 @@ DlgSpellManyChanges		: "Literumkontrolado finita: %1 vortoj ŝanĝitaj",
 IeSpellDownload			: "Literumada Kontrolilo ne instalita. Ĉu vi volas elŝuti ĝin nun?",
 
 // Button Dialog
-DlgButtonText	: "Teksto (Valoro)",
-DlgButtonType	: "Tipo",
+DlgButtonText		: "Teksto (Valoro)",
+DlgButtonType		: "Tipo",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Nomo",
@@ -424,6 +428,7 @@ DlgHiddenValue	: "Valoro",
 // Bulleted List Dialog
 BulletedListProp	: "Atributoj de Bula Listo",
 NumberedListProp	: "Atributoj de Numera Listo",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Tipo",
 DlgLstTypeCircle	: "Cirklo",
 DlgLstTypeDisc		: "Disc",	//MISSING
@@ -446,6 +451,15 @@ DlgDocLangDirLTR	: "De maldekstro dekstren (LTR)",
 DlgDocLangDirRTL	: "De dekstro maldekstren (LTR)",
 DlgDocLangCode		: "Lingvokodo",
 DlgDocCharSet		: "Signara Kodo",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Alia Signara Kodo",
 
 DlgDocDocType		: "Dokumenta Tipo",
@@ -475,6 +489,7 @@ DlgTemplatesTitle	: "Content Templates",	//MISSING
 DlgTemplatesSelMsg	: "Please select the template to open in the editor<br>(the actual contents will be lost):",	//MISSING
 DlgTemplatesLoading	: "Loading templates list. Please wait...",	//MISSING
 DlgTemplatesNoTpl	: "(No templates defined)",	//MISSING
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "Pri",

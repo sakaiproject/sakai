@@ -64,7 +64,7 @@ function FCKToolbarSet_Create( overhideLocation )
 				break ;
 
 			// Create the IFRAME that will hold the toolbar inside the target element.
-			var eToolbarIFrame = eToolbarTarget.ownerDocument.createElement( 'IFRAME' ) ;
+			var eToolbarIFrame = FCKTools.GetElementDocument( eToolbarTarget ).createElement( 'iframe' ) ;
 			eToolbarIFrame.frameBorder = 0 ;
 			eToolbarIFrame.width = '100%' ;
 			eToolbarIFrame.height = '10' ;
@@ -102,11 +102,7 @@ function FCK_OnBlur( editorInstance )
 	var eToolbarSet = editorInstance.ToolbarSet ;
 	
 	if ( eToolbarSet.CurrentInstance == editorInstance )
-	{
-//		var eIFrame = eToolbarSet._IFrame ;
-//		if ( eIFrame.ownerDocument.activeElement != eIFrame )
 		eToolbarSet.Disable() ;
-	}
 }
 
 function FCK_OnFocus( editorInstance )

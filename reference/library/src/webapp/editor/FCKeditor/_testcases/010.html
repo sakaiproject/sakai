@@ -17,14 +17,14 @@
  * File Authors:
  * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
 -->
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<title>FCKeditor - Sample</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<meta name="robots" content="noindex, nofollow">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="robots" content="noindex, nofollow" />
 	<link href="testcases.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="../fckeditor.js"></script>
-	<script>
+	<script type="text/javascript">
 
 function SubmitForm()
 {
@@ -45,8 +45,8 @@ function SetToolbar( toolbarName )
 		FCKeditor - Test 010</h1>
 	<p>
 		<strong>Expected results</strong>: The editor content must be loaded and the the
-		user must be able to change the toolbar dinamically (without reloading the page).<br>
-		<strong>Configurations</strong>: Default<br>
+		user must be able to change the toolbar dinamically (without reloading the page).<br />
+		<strong>Configurations</strong>: Default<br />
 		<strong>Steps to&nbsp;Reproduce</strong>:
 	</p>
 	<ol>
@@ -60,16 +60,14 @@ function SetToolbar( toolbarName )
 		<li>Select the "Default" toolbar.</li>
 		<li>Go to "WYSIWYG" view.</li>
 		<li>Hit submit button and check the posted data.</li></ol>
+	<hr />
 	<p>
-		<hr>
+		Select the toolbar you want to load:<br />
+		<select onchange="SetToolbar( this.value );">
+			<option value="Default" selected="selected">Default</option>
+			<option value="Basic">Basic</option>
+		</select>
 	</p>
-	Select the toolbar you want to load:<br>
-	<select onchange="SetToolbar( this.value );">
-		<option value="Default" selected>Default</option>
-		<option value="Basic">Basic</option>
-	</select>
-	<br>
-	<br>
 	<form action="sampleposteddata.asp" method="post" target="_blank">
 		<script type="text/javascript">
 <!--
@@ -84,8 +82,8 @@ oFCKeditor.Value	= 'This is some <strong>sample text</strong>. You are using <a 
 oFCKeditor.Create() ;
 //-->
 		</script>
-		<br>
-		<input type="submit" value="Submit">
+		<br />
+		<input type="submit" value="Submit" />
 	</form>
 </body>
 </html>

@@ -67,16 +67,20 @@ FCK.GetHTML = FCK.GetXHTML = function( format )
 			return FCK.EditingArea.Textarea.value ;
 
 	var sXHTML ;
-	
+	var oDoc = FCK.EditorDocument ;
+
 	if ( FCKConfig.FullPage )
-		sXHTML = FCKXHtml.GetXHTML( this.EditorDocument.getElementsByTagName( 'html' )[0], true, format ) ;
+		sXHTML = FCKXHtml.GetXHTML( oDoc.getElementsByTagName( 'html' )[0], true, format ) ;
 	else
 	{
-		if ( FCKConfig.IgnoreEmptyParagraphValue && this.EditorDocument.body.innerHTML == '<P>&nbsp;</P>' )
+		if ( FCKConfig.IgnoreEmptyParagraphValue && oDoc.body.innerHTML == '<P>&nbsp;</P>' )
 			sXHTML = '' ;
 		else
-			sXHTML = FCKXHtml.GetXHTML( this.EditorDocument.body, false, format ) ;
+			sXHTML = FCKXHtml.GetXHTML( oDoc.body, false, format ) ;
 	}
+	
+	// Restore protected attributes.
+	sXHTML = FCK.ProtectEventsRestore( sXHTML ) ;
 
 	if ( FCKBrowserInfo.IsIE )
 		sXHTML = sXHTML.replace( FCKRegexLib.ToReplace, '$1' ) ;
@@ -113,7 +117,9 @@ FCK.RegisterDoubleClickHandler = function( handlerFunction, tag )
 
 FCK.OnAfterSetHTML = function()
 {
-	FCKDocumentProcessor.Process( FCK.EditorDocument ) ;
+	FCKDocumentProcessor.Process( FCK.EditorDocument ) ;	
+	FCKUndo.SaveUndoStep() ;
+	FCK.Events.FireEvent( 'OnSelectionChange' ) ;
 	FCK.Events.FireEvent( 'OnAfterSetHTML' ) ;
 }
 
@@ -122,14 +128,43 @@ FCK.OnAfterSetHTML = function()
 FCK.ProtectUrls = function( html )
 {
 	// <A> href
-	html = html.replace( FCKRegexLib.ProtectUrlsAApo	, '$1$2$3$2 _fcksavedurl=$2$3$2' ) ;
-	html = html.replace( FCKRegexLib.ProtectUrlsANoApo	, '$1$2 _fcksavedurl="$2"' ) ;
+	html = html.replace( FCKRegexLib.ProtectUrlsA	, '$1$4$2$3$5$2 _fcksavedurl=$2$3$5$2' ) ;
 
 	// <IMG> src
-	html = html.replace( FCKRegexLib.ProtectUrlsImgApo	, '$1$2$3$2 _fcksavedurl=$2$3$2' ) ;
-	html = html.replace( FCKRegexLib.ProtectUrlsImgNoApo, '$1$2 _fcksavedurl="$2"' ) ;
+	html = html.replace( FCKRegexLib.ProtectUrlsImg	, '$1$4$2$3$5$2 _fcksavedurl=$2$3$5$2' ) ;
 	
 	return html ;
+}
+
+// Saves event attributes (like onclick) so they don't get executed while
+// editing.
+FCK.ProtectEvents = function( html )
+{
+	return html.replace( FCKRegexLib.TagsWithEvent, _FCK_ProtectEvents_ReplaceTags ) ;
+}
+
+// Replace all events attributes (like onclick).
+function _FCK_ProtectEvents_ReplaceTags( tagMatch )
+{
+	return tagMatch.replace( FCKRegexLib.EventAttributes, _FCK_ProtectEvents_ReplaceEvents ) ;
+}
+
+// Replace an event attribute with its respective __fckprotectedatt attribute.
+// The original event markup will be encoded and saved as the value of the new
+// attribute.
+function _FCK_ProtectEvents_ReplaceEvents( eventMatch, attName )
+{
+	return ' ' + attName + '_fckprotectedatt="' + eventMatch.ReplaceAll( [/&/g,/'/g,/"/g,/=/g,/</g,/>/g,/\r/g,/\n/g], ['&apos;','&#39;','&quot;','&#61;','&lt;','&gt;','&#10;','&#13;'] ) + '"' ;
+}
+
+FCK.ProtectEventsRestore = function( html )
+{
+	return html.replace( FCKRegexLib.ProtectedEvents, _FCK_ProtectEvents_RestoreEvents ) ;
+}
+
+function _FCK_ProtectEvents_RestoreEvents( match, encodedOriginal )
+{
+	return encodedOriginal.ReplaceAll( [/&#39;/g,/&quot;/g,/&#61;/g,/&lt;/g,/&gt;/g,/&#10;/g,/&#13;/g,/&apos;/g], ["'",'"','=','<','>','\r','\n','&'] ) ;
 }
 
 FCK.IsDirty = function()
@@ -148,7 +183,11 @@ FCK.SetHTML = function( html )
 	this.EditingArea.Mode = FCK.EditMode ;
 
 	if ( FCK.EditMode == FCK_EDITMODE_WYSIWYG )
-	{
+	{	
+		html = FCKConfig.ProtectedSource.Protect( html ) ;
+		html = FCK.ProtectEvents( html ) ;
+		html = FCK.ProtectUrls( html ) ;
+
 		// Firefox can't handle correctly the editing of the STRONG and EM tags. 
 		// We must replace them with B and I.
 		if ( FCKBrowserInfo.IsGecko )
@@ -158,16 +197,31 @@ FCK.SetHTML = function( html )
 			html = html.replace( FCKRegexLib.EmOpener, '<i$1' ) ;
 			html = html.replace( FCKRegexLib.EmCloser, '<\/i>' ) ;
 		}
-	
-		html = FCKConfig.ProtectedSource.Protect( html ) ;
-		html = FCK.ProtectUrls( html ) ;
+		else if ( FCKBrowserInfo.IsIE )
+		{
+			// IE doesn't support <abbr> and it breaks it. Let's protect it.
+			html = html.replace( FCKRegexLib.AbbrOpener, '<FCK:abbr$1' ) ;
+			html = html.replace( FCKRegexLib.AbbrCloser, '<\/FCK:abbr>' ) ;
+		}
 
-		var sHtml ;
+		var sHtml = '' ;
 
 		if ( FCKConfig.FullPage )
 		{
-			var sHtml ;
-
+			// The HTML must be fixed if the <head> is not available.
+			if ( !FCKRegexLib.HeadOpener.test( html ) )
+			{
+				// Check if the <html> is available.
+				if ( !FCKRegexLib.HtmlOpener.test( html ) )
+					html = '<html dir="' + FCKConfig.ContentLangDirection + '">' + html + '</html>' ;
+				
+				// Add the <head>.
+				html = html.replace( FCKRegexLib.HtmlOpener, '$&<head></head>' ) ;
+			}
+			
+			// Save the DOCTYPE.
+			FCK.DocTypeDeclaration = html.match( FCKRegexLib.DocTypeTag ) ;
+			
 			if ( FCKBrowserInfo.IsIE )
 				sHtml = FCK._GetBehaviorsStyle() ;
 			else if ( FCKConfig.ShowBorders ) 
@@ -196,12 +250,12 @@ FCK.SetHTML = function( html )
 			sHtml +=
 				'><head><title></title>' +
 				this._GetEditorAreaStyleTags() +
-				'<link href="css/fck_internal.css' + '" rel="stylesheet" type="text/css" _fcktemp="true" />' ;
+				'<link href="' + FCKConfig.FullBasePath + 'css/fck_internal.css' + '" rel="stylesheet" type="text/css" _fcktemp="true" />' ;
 
 			if ( FCKBrowserInfo.IsIE )
 				sHtml += FCK._GetBehaviorsStyle() ;
 			else if ( FCKConfig.ShowBorders ) 
-				sHtml += '<link href="css/fck_showtableborders_gecko.css" rel="stylesheet" type="text/css" _fcktemp="true" />' ;
+				sHtml += '<link href="' + FCKConfig.FullBasePath + 'css/fck_showtableborders_gecko.css" rel="stylesheet" type="text/css" _fcktemp="true" />' ;
 
 			sHtml += FCK.TempBaseTag ;
 			sHtml += '</head><body>' ;
@@ -225,6 +279,9 @@ FCK.SetHTML = function( html )
 		// Enables the context menu in the textarea.
 		this.EditingArea.Textarea._FCKShowContextMenu = true ;
 	}
+
+	if ( FCKBrowserInfo.IsGecko )
+		window.onresize() ;
 }
 
 function FCK_EditingArea_OnLoad()
@@ -246,8 +303,6 @@ function FCK_EditingArea_OnLoad()
 
 	// Attach the editor to the form onsubmit event
 	FCKTools.AttachToLinkedFieldFormSubmit( FCK.UpdateLinkedField ) ;
-
-	FCKUndo.SaveUndoStep() ;
 
 	FCK.SetStatus( FCK_STATUS_ACTIVE ) ;
 }
@@ -319,7 +374,7 @@ FCKFocusManager._ResetTimer = function()
 
 function FCKFocusManager_Win_OnBlur()
 {
-	if ( FCK && FCK.HasFocus )
+	if ( typeof(FCK) != 'undefined' && FCK.HasFocus )
 	{
 		FCKFocusManager._ResetTimer() ;
 		FCKFocusManager._Timer = window.setTimeout( FCKFocusManager_FireOnBlur, 100 ) ;

@@ -259,6 +259,7 @@ DlgLnkPopTop		: "Felső pozíció",
 DlnLnkMsgNoUrl		: "Adja meg a hivatkozás webcímét",
 DlnLnkMsgNoEMail	: "Adja meg az E-Mail címet",
 DlnLnkMsgNoAnchor	: "Válasszon egy horgonyt",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Színválasztás",
@@ -375,8 +376,11 @@ DlgSpellManyChanges		: "Helyesírás-ellenőrzés kész: %1 szó cserélve",
 IeSpellDownload			: "A helyesírás-ellenőrző nincs telepítve. Szeretné letölteni most?",
 
 // Button Dialog
-DlgButtonText	: "Szöveg (Érték)",
-DlgButtonType	: "Típus",
+DlgButtonText		: "Szöveg (Érték)",
+DlgButtonType		: "Típus",
+DlgButtonTypeBtn	: "Gomb",
+DlgButtonTypeSbm	: "Küldés",
+DlgButtonTypeRst	: "Alaphelyzet",
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Név",
@@ -425,6 +429,7 @@ DlgHiddenValue	: "Érték",
 // Bulleted List Dialog
 BulletedListProp	: "Felsorolás tulajdonságai",
 NumberedListProp	: "Számozás tulajdonságai",
+DlgLstStart			: "Start",
 DlgLstType			: "Formátum",
 DlgLstTypeCircle	: "Kör",
 DlgLstTypeDisc		: "Lemez",
@@ -447,6 +452,15 @@ DlgDocLangDirLTR	: "Balról jobbra",
 DlgDocLangDirRTL	: "Jobbról balra",
 DlgDocLangCode		: "Nyelv kód",
 DlgDocCharSet		: "Karakterkódolás",
+DlgDocCharSetCE		: "Közép-Európai",
+DlgDocCharSetCT		: "Kínai Tradicionális (Big5)",
+DlgDocCharSetCR		: "Cyrill",
+DlgDocCharSetGR		: "Görög",
+DlgDocCharSetJP		: "Japán",
+DlgDocCharSetKR		: "Koreai",
+DlgDocCharSetTR		: "Török",
+DlgDocCharSetUN		: "Unicode (UTF-8)",
+DlgDocCharSetWE		: "Nyugat-Európai",
 DlgDocCharSetOther	: "Más karakterkódolás",
 
 DlgDocDocType		: "Dokumentum típus fejléc",
@@ -476,6 +490,7 @@ DlgTemplatesTitle	: "Elérhető sablonok",
 DlgTemplatesSelMsg	: "Válassza ki melyik sablon nyíljon meg a szerkesztőben<br>(a jelenlegi tartalom elveszik):",
 DlgTemplatesLoading	: "Sablon lista betöltése. Kis türelmet...",
 DlgTemplatesNoTpl	: "(Nincs sablon megadva)",
+DlgTemplatesReplace	: "Kicseréli a jelenlegi tartalmat",
 
 // About Dialog
 DlgAboutAboutTab	: "Névjegy",

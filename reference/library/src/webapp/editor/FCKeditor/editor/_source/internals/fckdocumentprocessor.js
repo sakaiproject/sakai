@@ -142,7 +142,7 @@ FCKFlashProcessor.ProcessDocument = function( document )
 			oEmbed.parentNode.insertBefore( oImg, oEmbed ) ;
 			oEmbed.parentNode.removeChild( oEmbed ) ;
 
-//			oEmbed.setAttribute( '_fckdelete', 'true', 0) ;
+//			oEmbed.setAttribute( '_fcktemp', 'true', 0) ;
 //			oEmbed.style.display = 'none' ;
 //			oEmbed.hidden = true ;
 		}
@@ -173,58 +173,3 @@ FCK.GetRealElement = function( fakeElement )
 	
 	return e ;
 }
-
-// START iCM MODIFICATIONS
-/*
-var FCKTablesProcessor = FCKDocumentProcessor.AppendNew() ;
-FCKTablesProcessor.ProcessDocument = function( document )
-{
-	FCKTablesProcessor.CheckTablesNesting( document ) ;
-}
-
-// Ensure that tables are not incorrectly nested within P, H1, H2, etc tags
-FCKTablesProcessor.CheckTablesNesting = function( document )
-{
-	var aTables = document.getElementsByTagName( "TABLE" ) ;
-	var oParentNode ;
-	
-	for ( var i=0; i<aTables.length; i++ )
-	{
-		FCKTablesProcessor.CheckTableNesting( aTables[i] ) ;
-	}
-}
-
-// Corrects nesting of the supplied table as necessary.
-// Also called by fck_table.html to check that a newly inserted table is correctly nested.
-FCKTablesProcessor.CheckTableNesting = function( oTableNode )
-{
-	var oParentBlockNode = FCKTools.GetParentBlockNode( oTableNode.parentNode ) ;
-	
-	if ( oParentBlockNode && !FCKRegexLib.TableBlockElements.test( oParentBlockNode.nodeName ) )
-	{
-		// Create a new tag which holds the content of the child nodes located before the table
-		var oNode1 = FCK.EditorDocument.createElement( oParentBlockNode.tagName ) ;
-		var oFragment1 = FCKTools.GetDocumentFragment( oParentBlockNode, oParentBlockNode.firstChild, oTableNode, true, false, true ) ;
-		oNode1.appendChild( oFragment1 ) ;
-		FCKTools.SetElementAttributes( oNode1, oParentBlockNode.attributes ) ; 	// Transfer across any class attributes, etc
-	
-		// Create a new tag which holds the content of the child nodes located after the table
-		var oNode2 = FCK.EditorDocument.createElement( oParentBlockNode.tagName );
-		var oFragment2 = FCKTools.GetDocumentFragment( oParentBlockNode, oTableNode, oParentBlockNode.lastChild, false, true, true ) ;
-		oNode2.appendChild( oFragment2 ) ;
-		FCKTools.SetElementAttributes( oNode2, oParentBlockNode.attributes ) ; 	// Transfer across any class attributes, etc
-		
-		// Create a document fragment that contains the two new elements with the table element inbetween
-		var oNewNode = FCK.EditorDocument.createDocumentFragment() ;
-		if ( !FCKTools.NodeIsEmpty( oNode1 ) )
-			oNewNode.appendChild( oNode1 ) ;
-		oNewNode.appendChild( oTableNode ) ;
-		if ( !FCKTools.NodeIsEmpty( oNode2 ) )
-			oNewNode.appendChild( oNode2 ) ; 
-		
-		// Replace the existing parent node with the nodes in the fragment
-		oParentBlockNode.parentNode.replaceChild( oNewNode, oParentBlockNode ) ;
-	}
-}		
-*/
-// END iCM MODIFICATIONS

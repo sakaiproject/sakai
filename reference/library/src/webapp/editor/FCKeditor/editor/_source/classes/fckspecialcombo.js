@@ -167,7 +167,8 @@ FCKSpecialCombo.prototype.SetEnabled = function( isEnabled )
 
 FCKSpecialCombo.prototype.Create = function( targetElement )
 {
-	var eOuterTable = this._OuterTable = targetElement.appendChild( targetElement.ownerDocument.createElement( 'TABLE' ) ) ;
+	var oDoc = FCKTools.GetElementDocument( targetElement ) ;
+	var eOuterTable = this._OuterTable = targetElement.appendChild( oDoc.createElement( 'TABLE' ) ) ;
 	eOuterTable.cellPadding = 0 ;
 	eOuterTable.cellSpacing = 0 ;
 	
@@ -199,7 +200,7 @@ FCKSpecialCombo.prototype.Create = function( targetElement )
 	}
 	
 	// Create the main DIV element.
-	var oField = eOuterTable.rows[0].insertCell(-1).appendChild( targetElement.ownerDocument.createElement( 'DIV' ) ) ;
+	var oField = FCKTools.AppendElement( eOuterTable.rows[0].insertCell(-1), 'div' ) ;
 	if ( bShowLabel )
 	{
 		oField.className = 'SC_Field' ;

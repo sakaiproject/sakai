@@ -95,10 +95,13 @@ function FCK_ContextMenu_GetListener( listenerName )
 			return {
 			AddItems : function( menu, tag, tagName )
 			{
-				if ( FCK.GetNamedCommandState( 'Unlink' ) != FCK_TRISTATE_DISABLED )
+				var bInsideLink = ( tagName == 'A' || FCKSelection.HasAncestorNode( 'A' ) ) ;
+
+				if ( bInsideLink || FCK.GetNamedCommandState( 'Unlink' ) != FCK_TRISTATE_DISABLED )
 				{
 					menu.AddSeparator() ;
-					menu.AddItem( 'Link'	, FCKLang.EditLink		, 34 ) ;
+					if ( bInsideLink )
+						menu.AddItem( 'Link', FCKLang.EditLink		, 34 ) ;
 					menu.AddItem( 'Unlink'	, FCKLang.RemoveLink	, 35 ) ;
 				}
 			}} ;

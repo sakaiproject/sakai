@@ -259,6 +259,7 @@ DlgLnkPopTop		: "מיקום צד עליון",
 DlnLnkMsgNoUrl		: "נא להקליד את כתובת הקישור (URL)",
 DlnLnkMsgNoEMail	: "נא להקליד את כתובת הדוא''ל",
 DlnLnkMsgNoAnchor	: "נא לבחור עוגן במסמך",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "בחירת צבע",
@@ -375,8 +376,11 @@ DlgSpellManyChanges		: "בדיקות איות הסתיימה: %1 מילים שו
 IeSpellDownload			: "בודק האיות לא מותקן, האם אתה מעוניין להוריד?",
 
 // Button Dialog
-DlgButtonText	: "טקסט (ערך)",
-DlgButtonType	: "סוג",
+DlgButtonText		: "טקסט (ערך)",
+DlgButtonType		: "סוג",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "שם",
@@ -425,6 +429,7 @@ DlgHiddenValue	: "ערך",
 // Bulleted List Dialog
 BulletedListProp	: "מאפייני רשימה",
 NumberedListProp	: "מאפייני רשימה ממוספרת",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "סוג",
 DlgLstTypeCircle	: "עיגול",
 DlgLstTypeDisc		: "דיסק",
@@ -447,6 +452,15 @@ DlgDocLangDirLTR	: "שמאל לימין (LTR)",
 DlgDocLangDirRTL	: "ימין לשמאל (RTL)",
 DlgDocLangCode		: "קוד שפה",
 DlgDocCharSet		: "קידוד אותיות",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "קידוד אותיות אחר",
 
 DlgDocDocType		: "הגדרות סוג מסמך",
@@ -476,6 +490,7 @@ DlgTemplatesTitle	: "תביות תוכן",
 DlgTemplatesSelMsg	: "אנא בחר תבנית לפתיחה בעורך <BR>התוכן המקורי ימחק:",
 DlgTemplatesLoading	: "מעלה רשימת תבניות אנא המתן",
 DlgTemplatesNoTpl	: "(לא הוגדרו תבניות)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "אודות",

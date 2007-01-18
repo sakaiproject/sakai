@@ -258,6 +258,7 @@ DlgLnkPopTop		: "ទីតាំងខាងលើ",
 DlnLnkMsgNoUrl		: "សូមសរសេរ អាស័យដ្ឋាន URL",
 DlnLnkMsgNoEMail	: "សូមសរសេរ អាស័យដ្ឋាន អ៊ីមែល",
 DlnLnkMsgNoAnchor	: "សូមជ្រើសរើស យុថ្កា",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "ជ្រើសរើស ពណ៌",
@@ -374,8 +375,11 @@ DlgSpellManyChanges		: "ការពិនិត្យអក្ខរាវិ�
 IeSpellDownload			: "ពុំមានកម្មវិធីពិនិត្យអក្ខរាវិរុទ្ធ ។ តើចង់ទាញយកពីណា?",
 
 // Button Dialog
-DlgButtonText	: "អត្ថបទ(តំលៃ)",
-DlgButtonType	: "ប្រភេទ",
+DlgButtonText		: "អត្ថបទ(តំលៃ)",
+DlgButtonType		: "ប្រភេទ",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "ឈ្មោះ",
@@ -424,6 +428,7 @@ DlgHiddenValue	: "តំលៃ",
 // Bulleted List Dialog
 BulletedListProp	: "កំណត់បញ្ជីរង្វង់",
 NumberedListProp	: "កំណត់បញ្េជីលេខ",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "ប្រភេទ",
 DlgLstTypeCircle	: "រង្វង់",
 DlgLstTypeDisc		: "Disc",
@@ -446,6 +451,15 @@ DlgDocLangDirLTR	: "ពីឆ្វេងទៅស្ដាំ(LTR)",
 DlgDocLangDirRTL	: "ពីស្ដាំទៅឆ្វេង(RTL)",
 DlgDocLangCode		: "លេខកូតភាសា",
 DlgDocCharSet		: "កំណត់លេខកូតភាសា",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "កំណត់លេខកូតភាសាផ្សេងទៀត",
 
 DlgDocDocType		: "ប្រភេទក្បាលទំព័រ",
@@ -475,6 +489,7 @@ DlgTemplatesTitle	: "ឯកសារគំរូ របស់អត្ថន័�
 DlgTemplatesSelMsg	: "សូមជ្រើសរើសឯកសារគំរូ ដើម្បីបើកនៅក្នុងកម្មវិធីតាក់តែងអត្ថបទ<br>(អត្ថបទនឹងបាត់បង់):",
 DlgTemplatesLoading	: "កំពុងអានបញ្ជីឯកសារគំរូ ។ សូមរងចាំ...",
 DlgTemplatesNoTpl	: "(ពុំមានឯកសារគំរូត្រូវបានកំណត់)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "អំពី",

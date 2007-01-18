@@ -258,6 +258,7 @@ DlgLnkPopTop		: "दायीं तरफ",
 DlnLnkMsgNoUrl		: "लिंक URL टाइप करें",
 DlnLnkMsgNoEMail	: "ई-मेल पता टाइप करें",
 DlnLnkMsgNoAnchor	: "ऐंकर चुनें",
+DlnLnkMsgInvPopName	: "पॉप-अप का नाम अल्फाबेट से शुरू होना चाहिये और उसमें स्पेस नहीं होने चाहिए",
 
 // Color Dialog
 DlgColorTitle		: "रंग चुनें",
@@ -374,8 +375,11 @@ DlgSpellManyChanges		: "वर्तनी की जाँच : %1 शब्द
 IeSpellDownload			: "स्पॅल-चॅकर इन्स्टाल नहीं किया गया है। क्या आप इसे डा‌उनलोड करना चाहेंगे?",
 
 // Button Dialog
-DlgButtonText	: "टेक्स्ट (वैल्यू)",
-DlgButtonType	: "प्रकार",
+DlgButtonText		: "टेक्स्ट (वैल्यू)",
+DlgButtonType		: "प्रकार",
+DlgButtonTypeBtn	: "बटन",
+DlgButtonTypeSbm	: "सब्मिट",
+DlgButtonTypeRst	: "रिसेट",
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "नाम",
@@ -424,6 +428,7 @@ DlgHiddenValue	: "वैल्यू",
 // Bulleted List Dialog
 BulletedListProp	: "बुलॅट सूची प्रॉपर्टीज़",
 NumberedListProp	: "अंकीय सूची प्रॉपर्टीज़",
+DlgLstStart			: "प्रारम्भ",
 DlgLstType			: "प्रकार",
 DlgLstTypeCircle	: "गोल",
 DlgLstTypeDisc		: "डिस्क",
@@ -446,6 +451,15 @@ DlgDocLangDirLTR	: "बायें से दायें (LTR)",
 DlgDocLangDirRTL	: "दायें से बायें (RTL)",
 DlgDocLangCode		: "भाषा कोड",
 DlgDocCharSet		: "करेक्टर सॅट ऍन्कोडिंग",
+DlgDocCharSetCE		: "मध्य यूरोपीय (Central European)",
+DlgDocCharSetCT		: "चीनी (Chinese Traditional Big5)",
+DlgDocCharSetCR		: "सिरीलिक (Cyrillic)",
+DlgDocCharSetGR		: "यवन (Greek)",
+DlgDocCharSetJP		: "जापानी (Japanese)",
+DlgDocCharSetKR		: "कोरीयन (Korean)",
+DlgDocCharSetTR		: "तुर्की (Turkish)",
+DlgDocCharSetUN		: "यूनीकोड (UTF-8)",
+DlgDocCharSetWE		: "पश्चिम यूरोपीय (Western European)",
 DlgDocCharSetOther	: "अन्य करेक्टर सॅट ऍन्कोडिंग",
 
 DlgDocDocType		: "डॉक्यूमॅन्ट प्रकार शीर्षक",
@@ -475,6 +489,7 @@ DlgTemplatesTitle	: "कन्टेन्ट टॅम्प्लेट",
 DlgTemplatesSelMsg	: "ऍडिटर में ओपन करने हेतु टॅम्प्लेट चुनें(वर्तमान कन्टॅन्ट सेव नहीं होंगे):",
 DlgTemplatesLoading	: "टॅम्प्लेट सूची लोड की जा रही है। ज़रा ठहरें...",
 DlgTemplatesNoTpl	: "(कोई टॅम्प्लेट डिफ़ाइन नहीं किया गया है)",
+DlgTemplatesReplace	: "मूल शब्दों को बदलें",
 
 // About Dialog
 DlgAboutAboutTab	: "FCKEditor के बारे में",

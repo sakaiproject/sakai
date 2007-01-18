@@ -198,13 +198,9 @@ function LoadSelection()
 
 	// Get the actual Link href.
 	var sHRef = oLink.getAttribute( '_fcksavedurl' ) ;
-	if ( !sHRef || sHRef.length == 0 )
+	if ( sHRef == null )
 		sHRef = oLink.getAttribute( 'href' , 2 ) + '' ;
 	
-	// TODO: Wait stable version and remove the following commented lines.
-//	if ( sHRef.startsWith( FCK.BaseUrl ) )
-//		sHRef = sHRef.remove( 0, FCK.BaseUrl.length ) ;
-
 	// Look for a popup javascript link.
 	var oPopupMatch = oRegex.PopupUri.exec( sHRef ) ;
 	if( oPopupMatch )
@@ -446,7 +442,16 @@ function Ok()
 			sUri = GetE('cmbLinkProtocol').value + sUri ;
 
 			if( GetE('cmbTarget').value == 'popup' )
+			{
+				// Check the window name, according to http://www.w3.org/TR/html4/types.html#type-frame-target (IE throw erros with spaces).
+				if ( /(^[^a-zA-Z])|(\s)/.test( GetE('txtPopupName').value ) )
+				{
+					alert( FCKLang.DlnLnkMsgInvPopName ) ;
+					return false ;
+				}
+				
 				sUri = BuildPopupUri( sUri ) ;
+			}
 
 			break ;
 
@@ -484,39 +489,39 @@ function Ok()
 		oLink = oEditor.FCK.CreateLink( sUri ) ;
 	
 	if ( oLink )
-		sInnerHtml = oLink.innerHTML ;		// Save the innerHTML (IE changes it if it is like a URL).
+		sInnerHtml = oLink.innerHTML ;		// Save the innerHTML (IE changes it if it is like an URL).
 	else
 	{
 		// If no selection, use the uri as the link text (by dom, 2006-05-26)
 
 		sInnerHtml = sUri;
 
-		// try to built better text for empty link
-		switch (GetE('cmbLinkType').value)
+		// Built a better text for empty links.
+		switch ( GetE('cmbLinkType').value )
 		{
 			// anchor: use old behavior --> return true
 			case 'anchor':
 				sInnerHtml = sInnerHtml.replace( /^#/, '' ) ;
-				break;
+				break ;
 
 			// url: try to get path
 			case 'url':
-				var oLinkPathRegEx = new RegExp("//?([^?\"']+)([?].*)?$");
-				var asLinkPath = oLinkPathRegEx.exec( sUri );
+				var oLinkPathRegEx = new RegExp("//?([^?\"']+)([?].*)?$") ;
+				var asLinkPath = oLinkPathRegEx.exec( sUri ) ;
 				if (asLinkPath != null)
 					sInnerHtml = asLinkPath[1];  // use matched path
-				break;
+				break ;
 
 			// mailto: try to get email address
 			case 'email':
-				sInnerHtml = GetE('txtEMailAddress').value
-				break;
+				sInnerHtml = GetE('txtEMailAddress').value ;
+				break ;
 		}
 
-		// built new anchor and add link text
+		// Create a new (empty) anchor.
 		oLink = oEditor.FCK.CreateElement( 'a' ) ;
 	}
-	
+
 	oEditor.FCKUndo.SaveUndoStep() ;
 
 	oLink.href = sUri ;

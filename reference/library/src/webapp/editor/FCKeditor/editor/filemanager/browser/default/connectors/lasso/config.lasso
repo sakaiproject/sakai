@@ -52,7 +52,7 @@
 			'Media' = array('swf','fla','jpg','gif','jpeg','png','avi','mpg','mpeg')
 		),
 		'DeniedExtensions' = map(
-			'File' = array('php','php2','php3','php4','php5','phtml','pwml','inc','asp','aspx','ascx','jsp','cfm','cfc','pl','bat','exe','com','dll','vbs','js','reg','cgi','lasso','lassoapp'),
+			'File' = array('php','php2','php3','php4','php5','phtml','pwml','inc','asp','aspx','ascx','jsp','cfm','cfc','pl','bat','exe','com','dll','vbs','js','reg','cgi','lasso','lassoapp','htaccess'),
 			'Image' = array(),
 			'Flash' = array(),
 			'Media' = array()

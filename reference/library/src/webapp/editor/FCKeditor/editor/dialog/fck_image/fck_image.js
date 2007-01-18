@@ -63,6 +63,12 @@ function UpdateOriginal( resetSize )
 {
 	if ( !eImgPreview )
 		return ;
+	
+	if ( GetE('txtUrl').value.length == 0 )
+	{
+		oImageOriginal = null ;
+		return ;
+	}
 		
 	oImageOriginal = document.createElement( 'IMG' ) ;	// new Image() ;
 
@@ -111,13 +117,9 @@ function LoadSelection()
 {
 	if ( ! oImage ) return ;
 
-	var sUrl = GetAttribute( oImage, '_fcksavedurl', '' ) ;
-	if ( sUrl.length == 0 )
+	var sUrl = oImage.getAttribute( '_fcksavedurl' ) ;
+	if ( sUrl == null )
 		sUrl = GetAttribute( oImage, 'src', '' ) ;
-
-	// TODO: Wait stable version and remove the following commented lines.
-//	if ( sUrl.startsWith( FCK.BaseUrl ) )
-//		sUrl = sUrl.remove( 0, FCK.BaseUrl.length ) ;
 
 	GetE('txtUrl').value    = sUrl ;
 	GetE('txtAlt').value    = GetAttribute( oImage, 'alt', '' ) ;
@@ -168,8 +170,8 @@ function LoadSelection()
 
 	if ( oLink )
 	{
-		var sUrl = GetAttribute( oLink, '_fcksavedurl', '' ) ;
-		if ( sUrl.length == 0 )
+		var sUrl = oLink.getAttribute( '_fcksavedurl' ) ;
+		if ( sUrl == null )
 			sUrl = oLink.getAttribute('href',2) ;
 	
 		GetE('txtLnkUrl').value		= sUrl ;

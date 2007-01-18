@@ -258,6 +258,7 @@ DlgLnkPopTop		: "Viršutinė pozicija",
 DlnLnkMsgNoUrl		: "Prašome įvesti nuorodos URL",
 DlnLnkMsgNoEMail	: "Prašome įvesti el.pašto adresą",
 DlnLnkMsgNoAnchor	: "Prašome pasirinkti žymę",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Pasirinkite spalvą",
@@ -374,8 +375,11 @@ DlgSpellManyChanges		: "Rašybos tikrinimas baigtas: Pakeista %1 žodžių",
 IeSpellDownload			: "Rašybos tikrinimas neinstaliuotas. Ar Jūs norite jį dabar atsisiųsti?",
 
 // Button Dialog
-DlgButtonText	: "Tekstas (Reikšmė)",
-DlgButtonType	: "Tipas",
+DlgButtonText		: "Tekstas (Reikšmė)",
+DlgButtonType		: "Tipas",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Vardas",
@@ -424,6 +428,7 @@ DlgHiddenValue	: "Reikšmė",
 // Bulleted List Dialog
 BulletedListProp	: "Suženklinto sąrašo savybės",
 NumberedListProp	: "Numeruoto sąrašo savybės",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Tipas",
 DlgLstTypeCircle	: "Apskritimas",
 DlgLstTypeDisc		: "Diskas",
@@ -446,6 +451,15 @@ DlgDocLangDirLTR	: "Iš kairės į dešinę (LTR)",
 DlgDocLangDirRTL	: "Iš dešinės į kairę (RTL)",
 DlgDocLangCode		: "Kalbos kodas",
 DlgDocCharSet		: "Simbolių kodavimo lentelė",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Kita simbolių kodavimo lentelė",
 
 DlgDocDocType		: "Dokumento tipo antraštė",
@@ -475,6 +489,7 @@ DlgTemplatesTitle	: "Turinio šablonai",
 DlgTemplatesSelMsg	: "Pasirinkite norimą šabloną<br>(<b>Dėmesio!</b> esamas turinys bus prarastas):",
 DlgTemplatesLoading	: "Įkeliamas šablonų sąrašas. Prašome palaukti...",
 DlgTemplatesNoTpl	: "(Šablonų sąrašas tuščias)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "Apie",

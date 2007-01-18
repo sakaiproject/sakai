@@ -48,23 +48,25 @@ FCK.Paste = function()
 	if ( FCKConfig.ForcePasteAsPlainText )
 	{
 		FCK.PasteAsPlainText() ;	
-		return false ;
+		return ;
 	}
-	else if ( FCKConfig.AutoDetectPasteFromWord )
+
+	var sHTML = FCK.GetClipboardHTML() ;
+
+	if ( FCKConfig.AutoDetectPasteFromWord )
 	{
-		var sHTML = FCK.GetClipboardHTML() ;
 		var re = /<\w[^>]*(( class="?MsoNormal"?)|(="mso-))/gi ;
 		if ( re.test( sHTML ) )
 		{
 			if ( confirm( FCKLang["PasteWordConfirm"] ) )
 			{
 				FCK.PasteFromWord() ;
-				return false ;
+				return ;
 			}
 		}
 	}
-	else
-		return true ;
+
+	FCK.InsertHtml( sHTML ) ;	
 }
 
 FCK.PasteAsPlainText = function()
@@ -131,7 +133,8 @@ FCK.AttachToOnSelectionChange = function( functionPointer )
 */
 
 FCK.CreateLink = function( url )
-{	
+{
+	// Remove any existing link in the selection.
 	FCK.ExecuteNamedCommand( 'Unlink' ) ;
 
 	if ( url.length > 0 )
@@ -142,15 +145,19 @@ FCK.CreateLink = function( url )
 		// Use the internal "CreateLink" command to create the link.
 		FCK.ExecuteNamedCommand( 'CreateLink', sTempUrl ) ;
 
-		// Loof for the just create link.
+		// Look for the just create link.
 		var oLinks = this.EditorDocument.links ;
 
 		for ( i = 0 ; i < oLinks.length ; i++ )
 		{
-			if ( oLinks[i].href == sTempUrl )
+			var oLink = oLinks[i] ;
+			
+			if ( oLink.href == sTempUrl )
 			{
-				oLinks[i].href = url ;
-				return oLinks[i] ;
+				var sInnerHtml = oLink.innerHTML ;	// Save the innerHTML (IE changes it if it is like an URL).
+				oLink.href = url ;
+				oLink.innerHTML = sInnerHtml ;		// Restore the innerHTML.
+				return oLink ;
 			}
 		}
 	}

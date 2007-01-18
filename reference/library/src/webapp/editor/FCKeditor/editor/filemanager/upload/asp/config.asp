@@ -22,6 +22,11 @@
 Dim ConfigIsEnabled
 ConfigIsEnabled = False
 
+' Set if the file type must be considere in the target path. 
+' Ex: /UserFiles/Image/ or /UserFiles/File/
+Dim ConfigUseFileType
+ConfigUseFileType = False
+
 ' Path to user files relative to the document root.
 Dim ConfigUserFilesPath
 ConfigUserFilesPath = "/UserFiles/"

@@ -260,6 +260,7 @@ DlgLnkPopTop		: "Position fra toppen",
 DlnLnkMsgNoUrl		: "Indtast hyperlink URL!",
 DlnLnkMsgNoEMail	: "Indtast e-mailaddresse!",
 DlnLnkMsgNoAnchor	: "Vælg bogmærke!",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Vælg farve",
@@ -376,8 +377,11 @@ DlgSpellManyChanges		: "Stavekontrol færdig: %1 ord ændret",
 IeSpellDownload			: "Stavekontrol ikke installeret.<br>Vil du hente den nu?",
 
 // Button Dialog
-DlgButtonText	: "Tekst",
-DlgButtonType	: "Type",
+DlgButtonText		: "Tekst",
+DlgButtonType		: "Type",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Navn",
@@ -426,6 +430,7 @@ DlgHiddenValue	: "Værdi",
 // Bulleted List Dialog
 BulletedListProp	: "Egenskaber for punktopstilling",
 NumberedListProp	: "Egenskaber for talopstilling",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Type",
 DlgLstTypeCircle	: "Cirkel",
 DlgLstTypeDisc		: "Udfyldt cirkel",
@@ -448,6 +453,15 @@ DlgDocLangDirLTR	: "Fra venstre mod højre (LTR)",
 DlgDocLangDirRTL	: "Fra højre mod venstre (RTL)",
 DlgDocLangCode		: "Landekode",
 DlgDocCharSet		: "Tegnsæt kode",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Anden tegnsæt kode",
 
 DlgDocDocType		: "Dokumenttype kategori",
@@ -477,6 +491,7 @@ DlgTemplatesTitle	: "Indholdsskabeloner",
 DlgTemplatesSelMsg	: "Vælg den skabelon, som skal åbnes i editoren.<br>(Nuværende indhold vil blive overskrevet!):",
 DlgTemplatesLoading	: "Henter liste over skabeloner...",
 DlgTemplatesNoTpl	: "(Der er ikke defineret nogen skabelon!)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "Om",

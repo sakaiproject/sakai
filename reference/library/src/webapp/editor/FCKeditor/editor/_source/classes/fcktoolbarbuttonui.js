@@ -53,7 +53,7 @@ FCKToolbarButtonUI.prototype.Create = function( parentElement )
 		oMainElement = this.MainElement = null ;
 	}
 
-	var oDoc = parentElement.ownerDocument ;	// This is IE 6+
+	var oDoc = FCKTools.GetElementDocument( parentElement ) ;
 	
 	// Create the Main Element.
 	oMainElement = this.MainElement = oDoc.createElement( 'DIV' ) ;

@@ -97,6 +97,9 @@ function FCKContextMenu_AttachedElement_OnContextMenu( ev, fckContextMenu, el )
 
 	if ( fckContextMenu.OnBeforeOpen )
 		fckContextMenu.OnBeforeOpen.call( fckContextMenu, eTarget ) ;
+
+	if ( fckContextMenu._MenuBlock.Count() == 0 )
+		return false ;
 	
 	if ( fckContextMenu._Redraw )
 	{

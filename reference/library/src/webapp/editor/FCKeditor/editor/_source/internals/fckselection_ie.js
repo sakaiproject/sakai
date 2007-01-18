@@ -147,19 +147,5 @@ FCKSelection.Delete = function()
 
 	return oSel ;
 }
-// START iCM Modifications
-/*
-// Move the cursor position (the selection point) to a specific offset within a specific node
-// If no offset specified, the start of the node is assumed
-FCKSelection.SetCursorPosition = function ( oNode, nOffset )
-{
-	if ( typeof nOffset == "undefined" ) nOffset = 0 ;
 
-	FCK.Selection.SelectNode( oNode ) ; // Doesn't handle offsets currently but offset always zero at mo
-	FCK.Selection.Collapse( true ) ;
-	
-	oNode.scrollIntoView( false );	
-}
-*/
-// END iCM Modifications
 

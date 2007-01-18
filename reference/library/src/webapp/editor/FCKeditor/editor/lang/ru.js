@@ -98,13 +98,13 @@ Button			: "Кнопка",
 SelectionField	: "Список",
 ImageButton		: "Кнопка с изображением",
 
-FitWindow		: "Maximize the editor size",	//MISSING
+FitWindow		: "Развернуть окно редактора",
 
 // Context Menu
 EditLink			: "Вставить ссылку",
-CellCM				: "Cell",	//MISSING
-RowCM				: "Row",	//MISSING
-ColumnCM			: "Column",	//MISSING
+CellCM				: "Ячейка",
+RowCM				: "Строка",
+ColumnCM			: "Колонка",
 InsertRow			: "Вставить строку",
 DeleteRows			: "Удалить строки",
 InsertColumn		: "Вставить колонку",
@@ -258,6 +258,7 @@ DlgLnkPopTop		: "Позиция сверху",
 DlnLnkMsgNoUrl		: "Пожалуйста введите URL ссылки",
 DlnLnkMsgNoEMail	: "Пожалуйста введите адрес эл. почты",
 DlnLnkMsgNoAnchor	: "Пожалуйста выберете якорь",
+DlnLnkMsgInvPopName	: "Название вспывающего окна должно начинаться буквы и не может содержать пробелов",
 
 // Color Dialog
 DlgColorTitle		: "Выберите цвет",
@@ -374,8 +375,11 @@ DlgSpellManyChanges		: "Проверка орфографии закончена
 IeSpellDownload			: "Модуль проверки орфографии не установлен. Хотите скачать его сейчас?",
 
 // Button Dialog
-DlgButtonText	: "Текст (Значение)",
-DlgButtonType	: "Тип",
+DlgButtonText		: "Текст (Значение)",
+DlgButtonType		: "Тип",
+DlgButtonTypeBtn	: "Кнопка",
+DlgButtonTypeSbm	: "Отправить",
+DlgButtonTypeRst	: "Сбросить",
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Имя",
@@ -424,6 +428,7 @@ DlgHiddenValue	: "Значение",
 // Bulleted List Dialog
 BulletedListProp	: "Свойства маркированного списка",
 NumberedListProp	: "Свойства нумерованного списка",
+DlgLstStart			: "Начало",
 DlgLstType			: "Тип",
 DlgLstTypeCircle	: "Круг",
 DlgLstTypeDisc		: "Диск",
@@ -446,6 +451,15 @@ DlgDocLangDirLTR	: "Слева на право (LTR)",
 DlgDocLangDirRTL	: "Справа на лево (RTL)",
 DlgDocLangCode		: "Код языка",
 DlgDocCharSet		: "Кодировка набора символов",
+DlgDocCharSetCE		: "Центрально-европейская",
+DlgDocCharSetCT		: "Китайская традиционная (Big5)",
+DlgDocCharSetCR		: "Кириллица",
+DlgDocCharSetGR		: "Греческая",
+DlgDocCharSetJP		: "Японская",
+DlgDocCharSetKR		: "Корейская",
+DlgDocCharSetTR		: "Турецкая",
+DlgDocCharSetUN		: "Юникод (UTF-8)",
+DlgDocCharSetWE		: "Западно-европейская",
 DlgDocCharSetOther	: "Другая кодировка набора символов",
 
 DlgDocDocType		: "Заголовок типа документа",
@@ -475,11 +489,12 @@ DlgTemplatesTitle	: "Шаблоны содержимого",
 DlgTemplatesSelMsg	: "Пожалуйста выберете шаблон для открытия в редакторе<br>(текущее содержимое будет потеряно):",
 DlgTemplatesLoading	: "Загрузка списка шаблонов. Пожалуйста подождите...",
 DlgTemplatesNoTpl	: "(Ни одного шаблона не определено)",
+DlgTemplatesReplace	: "Заменить текущее содержание",
 
 // About Dialog
 DlgAboutAboutTab	: "О программе",
 DlgAboutBrowserInfoTab	: "Информация браузера",
-DlgAboutLicenseTab	: "License",	//MISSING
+DlgAboutLicenseTab	: "Лицензия",
 DlgAboutVersion		: "Версия",
 DlgAboutLicense		: "Лицензировано в соответствии с условиями GNU Lesser General Public License",
 DlgAboutInfo		: "Для большей информации, посетите"

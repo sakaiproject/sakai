@@ -23,6 +23,10 @@ global $Config ;
 // SECURITY: You must explicitelly enable this "uploader". 
 $Config['Enabled'] = false ;
 
+// Set if the file type must be considere in the target path. 
+// Ex: /UserFiles/Image/ or /UserFiles/File/
+$Config['UseFileType'] = false ;
+
 // Path to uploaded files relative to the document root.
 $Config['UserFilesPath'] = '/UserFiles/' ;
 

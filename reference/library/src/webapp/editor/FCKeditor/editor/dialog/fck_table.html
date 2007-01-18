@@ -17,12 +17,12 @@
  * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
 -->
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
-<html>
-	<head>
-		<title>Table Properties</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<meta name="robots" content="noindex, nofollow" />
-		<script type="text/javascript">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Table Properties</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="robots" content="noindex, nofollow" />
+	<script type="text/javascript">
 
 var oEditor = window.parent.InnerDialogLoaded() ;
 
@@ -175,81 +175,111 @@ function IsDigit( e )
 		) ;
 }
 
-		</script>
-	</head>
-	<body bottommargin="5" leftmargin="5" topmargin="5" rightmargin="5" scroll="no" style="OVERFLOW: hidden">
-		<table id="otable" cellSpacing="0" cellPadding="0" width="100%" border="0" height="100%">
-			<tr>
-				<td>
-					<table cellSpacing="1" cellPadding="1" width="100%" border="0">
-						<tr>
-							<td valign="top">
-								<table cellSpacing="0" cellPadding="0" border="0">
-									<tr>
-										<td><span fckLang="DlgTableRows">Rows</span>:</td>
-										<td>&nbsp;<input id="txtRows" type="text" maxLength="3" size="2" value="3" name="txtRows" onkeypress="return IsDigit(event);"></td>
-									</tr>
-									<tr>
-										<td><span fckLang="DlgTableColumns">Columns</span>:</td>
-										<td>&nbsp;<input id="txtColumns" type="text" maxLength="2" size="2" value="2" name="txtColumns" onkeypress="return IsDigit(event);"></td>
-									</tr>
-									<tr>
-										<td>&nbsp;</td>
-										<td>&nbsp;</td>
-									</tr>
-									<tr>
-										<td><span fckLang="DlgTableBorder">Border size</span>:</td>
-										<td>&nbsp;<INPUT id="txtBorder" type="text" maxLength="2" size="2" value="1" name="txtBorder" onkeypress="return IsDigit(event);"></td>
-									</tr>
-									<tr>
-										<td><span fckLang="DlgTableAlign">Alignment</span>:</td>
-										<td>&nbsp;<select id="selAlignment" name="selAlignment">
-												<option fckLang="DlgTableAlignNotSet" value="" selected>&lt;Not set&gt;</option>
-												<option fckLang="DlgTableAlignLeft" value="left">Left</option>
-												<option fckLang="DlgTableAlignCenter" value="center">Center</option>
-												<option fckLang="DlgTableAlignRight" value="right">Right</option>
-											</select></td>
-									</tr>
-								</table>
-							</td>
-							<td>&nbsp;&nbsp;&nbsp;</td>
-							<td align="right" valign="top">
-								<table cellSpacing="0" cellPadding="0" border="0">
-									<tr>
-										<td><span fckLang="DlgTableWidth">Width</span>:</td>
-										<td>&nbsp;<input id="txtWidth" type="text" maxLength="4" size="3" value="200" name="txtWidth" onkeypress="return IsDigit(event);"></td>
-										<td>&nbsp;<select id="selWidthType" name="selWidthType">
-												<option fckLang="DlgTableWidthPx" value="pixels" selected>pixels</option>
-												<option fckLang="DlgTableWidthPc" value="percent">percent</option>
-											</select></td>
-									</tr>
-									<tr>
-										<td><span fckLang="DlgTableHeight">Height</span>:</td>
-										<td>&nbsp;<INPUT id="txtHeight" type="text" maxLength="4" size="3" name="txtHeight" onkeypress="return IsDigit(event);"></td>
-										<td>&nbsp;<span fckLang="DlgTableWidthPx">pixels</span></td>
-									</tr>
-									<tr>
-										<td>&nbsp;</td>
-										<td>&nbsp;</td>
-										<td>&nbsp;</td>
-									</tr>
-									<tr>
-										<td nowrap><span fckLang="DlgTableCellSpace">Cell spacing</span>:</td>
-										<td>&nbsp;<input id="txtCellSpacing" type="text" maxLength="2" size="2" value="1" name="txtCellSpacing"
-												onkeypress="return IsDigit(event);"></td>
-										<td>&nbsp;</td>
-									</tr>
-									<tr>
-										<td nowrap><span fckLang="DlgTableCellPad">Cell padding</span>:</td>
-										<td>&nbsp;<input id="txtCellPadding" type="text" maxLength="2" size="2" value="1" name="txtCellPadding"
-												onkeypress="return IsDigit(event);"></td>
-										<td>&nbsp;</td>
-									</tr>
-								</table>
-							</td>
-						</tr>
-					</table>
-					<table cellSpacing="0" cellPadding="0" width="100%" border="0">
+	</script>
+</head>
+<body style="overflow: hidden">
+	<table id="otable" cellspacing="0" cellpadding="0" width="100%" border="0" style="height: 100%">
+		<tr>
+			<td>
+				<table cellspacing="1" cellpadding="1" width="100%" border="0">
+					<tr>
+						<td valign="top">
+							<table cellspacing="0" cellpadding="0" border="0">
+								<tr>
+									<td>
+										<span fcklang="DlgTableRows">Rows</span>:</td>
+									<td>
+										&nbsp;<input id="txtRows" type="text" maxlength="3" size="2" value="3" name="txtRows"
+											onkeypress="return IsDigit(event);" /></td>
+								</tr>
+								<tr>
+									<td>
+										<span fcklang="DlgTableColumns">Columns</span>:</td>
+									<td>
+										&nbsp;<input id="txtColumns" type="text" maxlength="2" size="2" value="2" name="txtColumns"
+											onkeypress="return IsDigit(event);" /></td>
+								</tr>
+								<tr>
+									<td>
+										&nbsp;</td>
+									<td>
+										&nbsp;</td>
+								</tr>
+								<tr>
+									<td>
+										<span fcklang="DlgTableBorder">Border size</span>:</td>
+									<td>
+										&nbsp;<input id="txtBorder" type="text" maxlength="2" size="2" value="1" name="txtBorder"
+											onkeypress="return IsDigit(event);" /></td>
+								</tr>
+								<tr>
+									<td>
+										<span fcklang="DlgTableAlign">Alignment</span>:</td>
+									<td>
+										&nbsp;<select id="selAlignment" name="selAlignment">
+											<option fcklang="DlgTableAlignNotSet" value="" selected="selected">&lt;Not set&gt;</option>
+											<option fcklang="DlgTableAlignLeft" value="left">Left</option>
+											<option fcklang="DlgTableAlignCenter" value="center">Center</option>
+											<option fcklang="DlgTableAlignRight" value="right">Right</option>
+										</select></td>
+								</tr>
+							</table>
+						</td>
+						<td>
+							&nbsp;&nbsp;&nbsp;</td>
+						<td align="right" valign="top">
+							<table cellspacing="0" cellpadding="0" border="0">
+								<tr>
+									<td>
+										<span fcklang="DlgTableWidth">Width</span>:</td>
+									<td>
+										&nbsp;<input id="txtWidth" type="text" maxlength="4" size="3" value="200" name="txtWidth"
+											onkeypress="return IsDigit(event);" /></td>
+									<td>
+										&nbsp;<select id="selWidthType" name="selWidthType">
+											<option fcklang="DlgTableWidthPx" value="pixels" selected="selected">pixels</option>
+											<option fcklang="DlgTableWidthPc" value="percent">percent</option>
+										</select></td>
+								</tr>
+								<tr>
+									<td>
+										<span fcklang="DlgTableHeight">Height</span>:</td>
+									<td>
+										&nbsp;<input id="txtHeight" type="text" maxlength="4" size="3" name="txtHeight" onkeypress="return IsDigit(event);" /></td>
+									<td>
+										&nbsp;<span fcklang="DlgTableWidthPx">pixels</span></td>
+								</tr>
+								<tr>
+									<td>
+										&nbsp;</td>
+									<td>
+										&nbsp;</td>
+									<td>
+										&nbsp;</td>
+								</tr>
+								<tr>
+									<td nowrap="nowrap">
+										<span fcklang="DlgTableCellSpace">Cell spacing</span>:</td>
+									<td>
+										&nbsp;<input id="txtCellSpacing" type="text" maxlength="2" size="2" value="1" name="txtCellSpacing"
+											onkeypress="return IsDigit(event);" /></td>
+									<td>
+										&nbsp;</td>
+								</tr>
+								<tr>
+									<td nowrap="nowrap">
+										<span fcklang="DlgTableCellPad">Cell padding</span>:</td>
+									<td>
+										&nbsp;<input id="txtCellPadding" type="text" maxlength="2" size="2" value="1" name="txtCellPadding"
+											onkeypress="return IsDigit(event);" /></td>
+									<td>
+										&nbsp;</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
+				<table cellspacing="0" cellpadding="0" width="100%" border="0">
 					<!--
 						<tr>
 						<td nowrap>
@@ -262,21 +292,25 @@ function IsDigit( e )
 										</script></td>
 						</tr>
 					-->
-						<tr>
-							<td nowrap><span fckLang="DlgTableCaption">Caption</span>:</td>
-							<td>&nbsp;</td>
-							<td width="100%" nowrap>&nbsp;
-								<input id="txtCaption" type="text" style="WIDTH: 100%"></td>
-						</tr>
-						<tr>
-							<td nowrap><span fckLang="DlgTableSummary">Summary</span>:</td>
-							<td>&nbsp;</td>
-							<td width="100%" nowrap>&nbsp;
-								<input id="txtSummary" type="text" style="WIDTH: 100%"></td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-		</table>
-	</body>
+					<tr>
+						<td nowrap="nowrap">
+							<span fcklang="DlgTableCaption">Caption</span>:&nbsp;</td>
+						<td>
+							&nbsp;</td>
+						<td width="100%" nowrap="nowrap">
+							<input id="txtCaption" type="text" style="width: 100%" /></td>
+					</tr>
+					<tr>
+						<td nowrap="nowrap">
+							<span fcklang="DlgTableSummary">Summary</span>:&nbsp;</td>
+						<td>
+							&nbsp;</td>
+						<td width="100%" nowrap="nowrap">
+							<input id="txtSummary" type="text" style="width: 100%" /></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</body>
 </html>

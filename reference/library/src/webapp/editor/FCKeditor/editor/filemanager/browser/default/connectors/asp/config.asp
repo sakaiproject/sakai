@@ -31,7 +31,7 @@ Set ConfigAllowedExtensions	= CreateObject( "Scripting.Dictionary" )
 Set ConfigDeniedExtensions	= CreateObject( "Scripting.Dictionary" )
 
 ConfigAllowedExtensions.Add	"File", ""
-ConfigDeniedExtensions.Add	"File", "php|php2|php3|php4|php5|phtml|pwml|inc|asp|aspx|ascx|jsp|cfm|cfc|pl|bat|exe|com|dll|vbs|js|reg|cgi"
+ConfigDeniedExtensions.Add	"File", "php|php2|php3|php4|php5|phtml|pwml|inc|asp|aspx|ascx|jsp|cfm|cfc|pl|bat|exe|com|dll|vbs|js|reg|cgi|htaccess"
 
 ConfigAllowedExtensions.Add	"Image", "jpg|gif|jpeg|png|bmp"
 ConfigDeniedExtensions.Add	"Image", ""

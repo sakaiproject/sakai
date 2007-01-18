@@ -75,11 +75,14 @@ $sFileUrl		= '' ;
 // Initializes the counter used to rename the file, if another one with the same name already exists.
 $iCounter = 0 ;
 
-// The the target directory.
+// Get the target directory.
 if ( isset( $Config['UserFilesAbsolutePath'] ) && strlen( $Config['UserFilesAbsolutePath'] ) > 0 )
 	$sServerDir = $Config['UserFilesAbsolutePath'] ;
 else 
 	$sServerDir = GetRootPath() . $Config["UserFilesPath"] ;
+
+if ( $Config['UseFileType'] )
+	$sServerDir .= $sType . '/' ;
 
 while ( true )
 {
@@ -104,7 +107,10 @@ while ( true )
 			umask( $oldumask ) ;
 		}
 		
-		$sFileUrl = $Config["UserFilesPath"] . $sFileName ;
+		if ( $Config['UseFileType'] )
+			$sFileUrl = $Config["UserFilesPath"] . $sType . '/' . $sFileName ;
+		else
+			$sFileUrl = $Config["UserFilesPath"] . $sFileName ;
 
 		break ;
 	}

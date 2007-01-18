@@ -50,7 +50,7 @@ FCKMenuItem.prototype.Create = function( parentTable )
 {
 	var bHasSubMenu = this.HasSubMenu ;
 	
-	var oDoc = parentTable.ownerDocument ;		// This is not IE 5.5
+	var oDoc = FCKTools.GetElementDocument( parentTable ) ;
 
 	// Add a row in the table to hold the menu item.
 	var r = this.MainElement = parentTable.insertRow(-1) ;

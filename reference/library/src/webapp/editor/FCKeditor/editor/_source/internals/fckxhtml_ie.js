@@ -23,11 +23,6 @@ FCKXHtml._GetMainXmlString = function()
 	return this.MainNode.xml ;
 }
 
-FCKXHtml._AppendEntity = function( xmlNode, entity )
-{
-	xmlNode.appendChild( this.XML.createEntityReference( entity ) ) ;
-}
-
 FCKXHtml._AppendAttributes = function( xmlNode, htmlNode, node, nodeName )
 {
 	var aAttributes = htmlNode.attributes ;
@@ -61,9 +56,6 @@ FCKXHtml._AppendAttributes = function( xmlNode, htmlNode, node, nodeName )
 			// We must use getAttribute to get it exactly as it is defined.
 			else if ( ! (sAttValue = htmlNode.getAttribute( sAttName, 2 ) ) )
 				sAttValue = oAttribute.nodeValue ;
-
-			if ( FCKConfig.ForceSimpleAmpersand && sAttValue.replace )
-				sAttValue = sAttValue.replace( /&/g, '___FCKAmp___' ) ;
 
 			this._AppendAttribute( node, sAttName, sAttValue ) ;
 		}
@@ -109,6 +101,9 @@ FCKXHtml.TagProcessors['input'] = function( node, htmlNode )
 	if ( htmlNode.value && !node.attributes.getNamedItem( 'value' ) )
 		FCKXHtml._AppendAttribute( node, 'value', htmlNode.value ) ;
 
+	if ( !node.attributes.getNamedItem( 'type' ) )
+		FCKXHtml._AppendAttribute( node, 'type', 'text' ) ;
+
 	return node ;
 }
 
@@ -119,29 +114,6 @@ FCKXHtml.TagProcessors['option'] = function( node, htmlNode )
 		FCKXHtml._AppendAttribute( node, 'selected', 'selected' ) ;
 
 	FCKXHtml._AppendChildNodes( node, htmlNode ) ;
-
-	return node ;
-}
-
-// There is a BUG in IE regarding the ABBR tag (it has no support for it).
-FCKXHtml.TagProcessors['abbr'] = function( node, htmlNode )
-{
-	// TODO: The XHTML processor duplicates the ABBR contents because of this 
-	// code. We should find some way to move to the node after the /ABBR in the
-	// _AppendChildNodes loop.
-
-	var oNextNode = htmlNode.nextSibling ;
-
-	while ( true )
-	{
-		if ( oNextNode && oNextNode.nodeName != '/ABBR' )
-		{
-			FCKXHtml._AppendNode( node, oNextNode ) ;
-			oNextNode = oNextNode.nextSibling ;
-		}
-		else
-			break ;
-	}
 
 	return node ;
 }
