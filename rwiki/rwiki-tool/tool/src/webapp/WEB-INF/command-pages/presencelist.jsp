@@ -20,7 +20,6 @@
  * limitations under the License.
  *
  **********************************************************************************/
- FIXME: i18n
 -->
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0" 
   xmlns:c="http://java.sun.com/jsp/jstl/core"
@@ -33,38 +32,39 @@
   
   <c:set var="presenceBean" value="${requestScope.rsacMap.presenceBean}"/>
   <c:set var="renderBean" value="${requestScope.rsacMap.renderBean}"/>
+  <c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>
 <div class="rwiki_comments" >
 	
 <div class="rwikicommentbody_0" >	
 	    <div class="rwikicommentheader">
-Users visits:
+<c:out value="${rlb.jsp_presence_user_visits}"/>:
 <jsp:element name="a">
 	<jsp:attribute name="href">#</jsp:attribute>
 	<jsp:attribute name="onclick">ajaxRefPopup(this,'<c:out value="${renderBean.openPageChatURL}" />',1); startChat('<c:out value="${renderBean.listPageChatURL}" />'); return false;</jsp:attribute>
-	Chat</jsp:element>
+	<c:out value="${rlb.jsp_presence_chat}"/></jsp:element>
 
 		</div>
 	<c:forEach var="presence"
 		  items="${presenceBean.pagePresence}" >
 		<div class="rwikicomenttext" >
 			<c:out value="${presence.user}" />&#160;   
-			<c:out value="${presence.age}" /> ago
+			<c:out value="${presence.age}" />&#160;<c:out value="${rlb.jsp_ago}"/>
 	     </div>
 	</c:forEach>
 </div>
 <div class="rwikicommentbody_1" >
 	    <div class="rwikicommentheader">
-Space visits:	
+<c:out value="${rlb.jsp_presence_space_visits}"/>:	
 <jsp:element name="a">
 	<jsp:attribute name="href">#</jsp:attribute>
 	<jsp:attribute name="onclick">ajaxRefPopup(this,'<c:out value="${renderBean.openSpaceChatURL}" />',1); startChat('<c:out value="${renderBean.listSpaceChatURL}" />'); return false;</jsp:attribute>
-	Chat</jsp:element>
+	<c:out value="${rlb.jsp_presence_chat}"/></jsp:element>
 		</div>
 <c:forEach var="presence"
 		  items="${presenceBean.spacePresence}" >
 		<div class="rwikicomenttext" >
 			<c:out value="${presence.user}" />&#160;  
-			<c:out value="${presence.age}" /> ago
+			<c:out value="${presence.age}" />&#160;<c:out value="${rlb.jsp_ago}"/>
 	     </div>
 </c:forEach>
  	</div>

@@ -20,7 +20,6 @@
  * limitations under the License.
  *
  **********************************************************************************/
- FIXME: i18n
 -->
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0"
   xmlns:c="http://java.sun.com/jsp/jstl/core"
@@ -36,9 +35,11 @@
   <c:set var="homeBean" value="${requestScope.rsacMap.homeBean}"/>
   <c:set var="realmEditBean" value="${requestScope.rsacMap.realmEditBean}"/>
   <c:set var="errorBean" value="${requestScope.rsacMap.errorBean}"/>
-  <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>
+  
+  <html xmlns="http://www.w3.org/1999/xhtml" lang="${rlb.jsp_lang}" xml:lang="${rlb.jsp_xml_lang}" >
     <head>
-      <title>Edit Section: <c:out value="${realmEditBean.localSpace}" /></title>
+      <title><c:out value="${rlb.jsp_edit_section}"/>: <c:out value="${realmEditBean.localSpace}" /></title>
       <jsp:expression>request.getAttribute("sakai.html.head")</jsp:expression>
     </head>
     <jsp:element name="body">
@@ -51,7 +52,7 @@
 	  <!-- Main page -->
 	  <div id="${rwikiContentStyle}" >
 
-	    <h3>Edit Section: <c:out value="${realmEditBean.localSpace}" /></h3>
+	    <h3><c:out value="${rlb.jsp_edit_section}"/>: <c:out value="${realmEditBean.localSpace}" /></h3>
 	    <c:if test="${fn:length(errorBean.errors) gt 0}">
 	      <!-- XXX This is hideous -->
 	      <p class="validation" style="clear: none;">
@@ -61,10 +62,17 @@
 	      </p>
 	    </c:if>
 	      <div class="rwikirenderedContent">
-		<p>Section is currently being editted by some other user.</p>
-		<p>Please either <a href="${realmEditBean.infoUrl}">go back to page info</a> or <a href="${realmEditBean.editRealmUrl}">attempt to edit again</a>.</p>
+		<p><c:out value="${rlb.jsp_section_being_edited}"/></p>
+		<p><c:out value="${rlb.jsp_section_being_edited_msg1}"/>
+		<a href="${realmEditBean.infoUrl}">
+		<c:out value="${rlb.jsp_section_being_edited_msg2}"/>
+		</a> 
+		<c:out value="${rlb.jsp_section_being_edited_msg3}"/> 
+		<a href="${realmEditBean.realmEditUrl}">
+		<c:out value="${rlb.jsp_section_being_edited_msg4}"/>
+		</a>.
+		</p>
 	      </div>
-<!--	    </form> -->
 	  </div>
 	</div>
       </div>

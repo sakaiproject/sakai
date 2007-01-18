@@ -34,5 +34,7 @@
 	<c:set var="currentContent" value="${currentRWikiObject.content}"/>
 	<c:set target="${currentRWikiObject}" property="content" value="${editBean.previousContent}"/>	    
 	<c:out value="${renderBean.previewPage}" escapeXml="false"/><br/>
+	This NEEDS to be Fixed! Broken by i18n
+	Previous: <c:out value="${editBean.previousContent}" escapeXml="false"/><br/>
 	<c:set target="${currentRWikiObject}" property="content" value="${currentContent}"/>	    
 </jsp:root>

@@ -20,7 +20,6 @@
  * limitations under the License.
  *
  **********************************************************************************/
- FIXME: i18n
 -->
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0" 
   xmlns:c="http://java.sun.com/jsp/jstl/core"
@@ -32,11 +31,12 @@
 <!-- this page delivers an DIV suitable for use by AJAX in the browser -->  
   
 <c:set var="presenceBean" value="${requestScope.rsacMap.presenceBean}"/>
+<c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>
 <div class="rwiki_comments" id="chatmessages" >	
 </div>
 <div class="rwiki_comments" >	
 <form action="?#" method="post" onsubmit="ajaxRefPopupPost(this,'?#',2,this); return false;" >
-	    Edit Comment<br/>
+	    <c:out value="${rlb.jsp_edit_comment}"/><br/>
 		<textarea cols="40" rows="5" name="content" id="content" >
 		</textarea>
 		<input type="hidden" name="action" value="chateditsave"/>
@@ -46,8 +46,8 @@
 		<input type="hidden" name="realm" value="${currentRWikiObject.realm }"/>
 		<br/>
 		<span class="act">
-		  <input type="submit" name="save" value="save" />
-		  <input type="button" value="cancel" onclick="popupClose(-1);"/>
+		  <input type="submit" name="save" value="${rlb.jsp_button_save}" />
+		  <input type="button" value="${rlb.jsp_button_cancel}" onclick="popupClose(-1);"/>
 		</span>
 	    </form>
 </div>

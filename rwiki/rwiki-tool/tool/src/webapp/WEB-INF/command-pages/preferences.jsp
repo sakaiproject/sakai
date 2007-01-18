@@ -36,7 +36,9 @@
   <c:set var="homeBean" value="${requestScope.rsacMap.homeBean}"/>
   <c:set var="preferencesBean" value="${requestScope.rsacMap.preferencesBean}"/>
   <c:set var="realmBean" value="${requestScope.rsacMap.realmBean}"/>
-  <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>
+ 
+  <html xmlns="http://www.w3.org/1999/xhtml" lang="${rlb.jsp_lang}" xml:lang="${rlb.jsp_xml_lang}">
     <head>
       <title>Info: <c:out value="${realmBean.localName}" /></title>
       <jsp:expression>request.getAttribute("sakai.html.head")</jsp:expression>
@@ -59,9 +61,10 @@
 							viewLinkName="View"
 							homeBean="${homeBean}"
 							viewBean="${viewBean}"
+							resourceLoaderBean="${rlb}"
 						        />
 	      <span class="rwiki_searchBox">
-		Search:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />
+		<c:out value="${rlb.jsp_search}"/>:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />
 		<input type="hidden" name="panel" value="Main" />
 		<input type="text" name="search" />
 	      </span>
@@ -72,34 +75,34 @@
 	  <c:set var="rwikiContentStyle"  value="rwiki_content" />
 	  <div id="${rwikiContentStyle}">
 	    <!-- CONTENT HERE -->
-	    <h3>Notifications for: <c:out value="${viewBean.localSpace}"/></h3>
+	    <h3><c:out value="${rlb.jsp_notifications_for}"/>: <c:out value="${viewBean.localSpace}"/></h3>
 	    <form action="?#" method="post">
 	      <p class="radio">
 		<c:choose>
 		  <c:when test="${preferencesBean.notificationLevel eq 'separate'}"><input type="radio" name="notificationLevel" id="notificationSeparate" value="separate" checked="checked"/></c:when>
 		  <c:otherwise><input type="radio" name="notificationLevel" id="notificationSeparate" value="separate"/></c:otherwise>
-		</c:choose><label for="notificationSeparate">Send me each notification separately</label>
+		</c:choose><label for="notificationSeparate"><c:out value="${rlb.jsp_notify_seperate}"/></label>
 	      </p>
 	      <p class="radio">
 		<c:choose>
 		  <c:when test="${preferencesBean.notificationLevel eq 'digest'}"><input type="radio" name="notificationLevel" value="digest" id="notificationDigest" checked="checked"/></c:when>
 		  <c:otherwise><input type="radio" name="notificationLevel" value="digest" id="notificationDigest"/></c:otherwise>
-		</c:choose><label for="notificationDigest">Send me one email per day summarizing all notifications</label>
+		</c:choose><label for="notificationDigest"><c:out value="${rlb.jsp_notify_summary}"/></label>
 	      </p>
 	      <p class="radio">
 		<c:choose>
 		  <c:when test="${preferencesBean.notificationLevel eq 'none'}"><input type="radio" name="notificationLevel" value="none" id="notificationNone" checked="checked"/></c:when>
 		  <c:otherwise><input type="radio" name="notificationLevel" value="none" id="notificationNone"/></c:otherwise>
-		</c:choose><label for="notificationNone">Do not send me notifications for this subspace</label>
+		</c:choose><label for="notificationNone"><c:out value="${rlb.jsp_notify_none}"/></label>
 	      </p>
 	      <p class="radio">
 		<c:choose>
 		  <c:when test="${preferencesBean.notificationLevel eq 'nopreference'}"><input type="radio" name="notificationLevel" value="nopreference" id="notificationNoPreference" checked="checked"/></c:when>
 		  <c:otherwise><input type="radio" name="notificationLevel" value="nopreference" id="notificationNoPreference"/></c:otherwise>
-		</c:choose><label for="notificationNoPreference">I do not have a preference</label>
+		</c:choose><label for="notificationNoPreference"><c:out value="${rlb.jsp_notify_no_preference}"/></label>
 	      </p>
-	      <input type="submit" name="save" value="Save"/>
-	      <input type="submit" name="save" value="Cancel"/>
+	      <input type="submit" name="save" value="${rlb.jsp_button_save}"/>
+	      <input type="submit" name="save" value="${rlb.jsp_button_cancel}"/>
 	      <input type="hidden" name="action" value="updatePreferences"/>
 	      <input type="hidden" name="pageName" value="${viewBean.pageName}"/>
 	    </form>

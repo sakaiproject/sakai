@@ -20,7 +20,6 @@
  * limitations under the License.
  *
  **********************************************************************************/
- FIXME: i18n
 -->
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0" 
   xmlns:c="http://java.sun.com/jsp/jstl/core"
@@ -41,9 +40,11 @@
   <c:set var="errorBean" value="${requestScope.rsacMap.errorBean}"/>
   <c:set var="editBean" value="${requestScope.rsacMap.editBean}"/>
   <c:set var="realmBean" value="${requestScope.rsacMap.realmBean}"/>
-  <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>
+  
+  <html xmlns="http://www.w3.org/1999/xhtml" lang="${rlb.jsp_lang}" xml:lang="${rlb.jsp_xml_lang}" >
     <head>
-      <title>Preview Changes To: <c:out value="${viewBean.localName}"/></title>
+      <title><c:out value="${rlb.jsp_preview_changes_to}"/>: <c:out value="${viewBean.localName}"/></title>
       <jsp:expression>request.getAttribute("sakai.html.head")</jsp:expression>
     </head>
     <jsp:element name="body">
@@ -53,19 +54,21 @@
       	<div class="portletBody">
       		<div class="navIntraTool">
 	  <form action="?#" method="get" class="rwiki_searchForm">
-	  	  	<rwiki:commandlinks 
+	       <rwiki:commandlinks 
 							useHomeLink="true"
 							useViewLink="true"
 							useEditLink="false"
 							useInfoLink="true"
 							useHistoryLink="false"
 							useWatchLink="false"
+							withNotification="${requestScope.rsacMap.withnotification}"
 							viewLinkName="View"
 							homeBean="${homeBean}"
-							viewBean="${viewBean}"
-						        />
+							viewBean="${realmBean}" 
+							resourceLoaderBean="${rlb}" 
+						        />	  
 		<span class="rwiki_searchBox">
-	    		Search:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />
+	    		<c:out value="${rlb.jsp_search}"/>:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />
 	    		<input type="hidden" name="panel" value="Main" />
 	    		<input type="text" name="search" />
 	    </span>
@@ -78,7 +81,7 @@
 	  <jsp:directive.include file="sidebar.jsp"/>
 	  <!-- Main page -->
 		<div id="${rwikiContentStyle}" >
-			<h3 title="Preview Changes: ${viewBean.pageName}">Preview Changes: <c:out value="${viewBean.localName}"/></h3>
+			<h3 title="Preview Changes: ${viewBean.pageName}"><c:out value="${rlb.jsp_preview_changes}"/>: <c:out value="${viewBean.localName}"/></h3>
 	    <div class="rwikiRenderBody">
 	      <div class="rwikiRenderedContent"> 
 		<c:set var="currentContent" value="${currentRWikiObject.content}"/>
@@ -103,30 +106,30 @@
 
 	      <p class="act">
 		<input type="hidden" name="action" value="edit" />
-		<input type="submit" name="preview" value="Back to Edit"/>
+		<input type="submit" name="preview" value="${rlb.jsp_button_back_to_edit}"/>
 	      </p>
 
 	      <div class="rwiki_docdetails">
 		<h3 onClick="expandcontent(this, 'pagedetails')" class="expandable" id="pagedetailsh3">
-		  <span class="showstate">&#160;</span>Document Properties
+		  <span class="showstate">&#160;</span><c:out value="${rlb.jsp_document_properties}"/>
 		</h3>
 		<div id="pagedetails" class="expandablecontent">
 		  <table cellspacing="0">
 		    <tbody>
 		      <tr>
-			<th>global page name</th>
+			<th><c:out value="${rlb.jsp_global_page_name}"/></th>
 			<td><c:out value="${viewBean.pageName}"/></td>
 		      </tr>
 		      <tr>
-			<th>page realm</th>
+			<th><c:out value="${rlb.jsp_page_realm}"/></th>
 			<td><c:out value="${currentRWikiObject.realm}"/></td>
 		      </tr>
 		      <tr>
-			<th>id</th>
+			<th><c:out value="${rlb.jsp_id}"/></th>
 			<td><c:out value="${currentRWikiObject.id}"/></td>
 		      </tr>
 		      <tr>
-			<th>last edited</th>
+			<th><c:out value="${rlb.jsp_last_edited}"/></th>
 			<td><c:out value="${currentRWikiObject.version}"/></td>
 		      </tr>
 		    </tbody>
