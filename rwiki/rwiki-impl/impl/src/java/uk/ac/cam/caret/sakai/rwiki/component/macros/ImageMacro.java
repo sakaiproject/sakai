@@ -28,30 +28,28 @@ import org.radeox.macro.BaseMacro;
 import org.radeox.macro.parameter.MacroParameter;
 import org.radeox.util.Encoder;
 
+import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderContext;
 
 /**
- * FIXME needs localisation
+ * 
  * 
  * @author ieb
  */
-// FIXME: Component
 public class ImageMacro extends BaseMacro
 {
-	private static String[] paramDescription = {
-			"1,img: URL to the image, image URL must be relative, or absolute but cannot be external, It may also startwith worksite:/ or sakai:/ if referencing resources in the worksite or the whole of sakai. When referencing resources in other worksites (eg sakai:/) you must include the site id ",
-			"2,alt: (optional) Alt text ",
-			"3,ext: (optional) ignored at the moment",
-			"4,class: (optional) css class applied to the image",
-			"5,target: (optional) Target window",
-			"6,title: (optional) Title the image, (will default to the same value as alt)",
-			"Remember if using positional parameters, you must include dummies for the optional parameters" };
 
-	private static String description = "Places an Image in the page";
 
 	public String[] getParamDescription()
 	{
-		return paramDescription;
+		return new String[] {
+				Messages.getString("ImageMacro.0"), //$NON-NLS-1$
+				Messages.getString("ImageMacro.1"), //$NON-NLS-1$
+				Messages.getString("ImageMacro.2"), //$NON-NLS-1$
+				Messages.getString("ImageMacro.3"), //$NON-NLS-1$
+				Messages.getString("ImageMacro.4"), //$NON-NLS-1$
+				Messages.getString("ImageMacro.5"), //$NON-NLS-1$
+				Messages.getString("ImageMacro.6") }; //$NON-NLS-1$
 	}
 
 	/*
@@ -61,12 +59,12 @@ public class ImageMacro extends BaseMacro
 	 */
 	public String getDescription()
 	{
-		return description;
+		return Messages.getString("ImageMacro.7"); //$NON-NLS-1$
 	}
 
 	public String getName()
 	{
-		return "image";
+		return "image"; //$NON-NLS-1$
 	}
 
 	/*
@@ -87,16 +85,16 @@ public class ImageMacro extends BaseMacro
 
 		if (params.getLength() > 0)
 		{
-			String img = params.get("img");
+			String img = params.get("img"); //$NON-NLS-1$
 			String alt = null, cssclass = null, target = null, title = null;
 			boolean qualifiedParams = img != null;
 			if (qualifiedParams)
 			{
-				alt = params.get("alt");
-				title = params.get("title");
+				alt = params.get("alt"); //$NON-NLS-1$
+				title = params.get("title"); //$NON-NLS-1$
 				//ext = params.get("ext");
-				cssclass = params.get("class");
-				target = params.get("target");
+				cssclass = params.get("class"); //$NON-NLS-1$
+				target = params.get("target"); //$NON-NLS-1$
 			}
 			else
 			{
@@ -113,60 +111,60 @@ public class ImageMacro extends BaseMacro
 				title = alt;
 			}
 
-			String link = params.get("link");
+			String link = params.get("link"); //$NON-NLS-1$
 
 			if (link != null)
 			{
 				link = context.convertLink(link);
 
-				writer.write("<a href=\"" + Encoder.escape(link) + "\"");
+				writer.write("<a href=\"" + Encoder.escape(link) + "\""); //$NON-NLS-1$ //$NON-NLS-2$
 				if (target != null)
 				{
-					writer.write("target=\"" + Encoder.escape(target) + "\"");
+					writer.write("target=\"" + Encoder.escape(target) + "\""); //$NON-NLS-1$ //$NON-NLS-2$
 				}
-				writer.write(">");
+				writer.write(">"); //$NON-NLS-1$
 			}
 
 			String imageName = img;
 			// for the moment, just allow anything, In the future we will
 			// do more processing and perhapse only allow resources
-			if (imageName.startsWith("http://")
-					|| imageName.startsWith("https://")
-					|| imageName.startsWith("ftp://")) 
+			if (imageName.startsWith("http://") //$NON-NLS-1$
+					|| imageName.startsWith("https://") //$NON-NLS-1$
+					|| imageName.startsWith("ftp://"))  //$NON-NLS-1$
 			{
 				throw new IllegalArgumentException(
-						"External URLs are not allowed, only relative or absolute");
+						Messages.getString("ImageMacro.23")); //$NON-NLS-1$
 			}
 
 			imageName = context.convertLink(imageName);
-			writer.write("<img src=\"");
+			writer.write("<img src=\""); //$NON-NLS-1$
 			writer.write(imageName);
-			writer.write("\" ");
+			writer.write("\" "); //$NON-NLS-1$
 			if (cssclass != null)
 			{
-				writer.write("class=\"");
+				writer.write("class=\""); //$NON-NLS-1$
 				writer.write(cssclass);
-				writer.write("\" ");
+				writer.write("\" "); //$NON-NLS-1$
 			}
 			if (alt != null)
 			{
-				writer.write("alt=\"" + Encoder.escape(alt) + "\" ");
+				writer.write("alt=\"" + Encoder.escape(alt) + "\" "); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			if (title != null)
 			{
-				writer.write("title=\"" + Encoder.escape(title) + "\" ");
+				writer.write("title=\"" + Encoder.escape(title) + "\" "); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			writer.write("border=\"0\"/>");
+			writer.write("border=\"0\"/>"); //$NON-NLS-1$
 
 			if (link != null)
 			{
-				writer.write("</a>");
+				writer.write("</a>"); //$NON-NLS-1$
 			}
 		}
 		else
 		{
 			throw new IllegalArgumentException(
-					"Number of arguments does not match");
+					Messages.getString("ImageMacro.34")); //$NON-NLS-1$
 		}
 		return;
 

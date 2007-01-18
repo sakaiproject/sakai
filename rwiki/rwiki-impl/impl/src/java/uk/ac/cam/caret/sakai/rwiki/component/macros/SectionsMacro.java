@@ -33,6 +33,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 
+import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderContext;
 
 /**
@@ -43,15 +44,13 @@ import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRend
  */
 public class SectionsMacro extends BaseMacro
 {
-	private static String[] paramDescription = {
-			"1,useids: (optional) if true will generate with ID's otherwise will use names, names it the default ",
-			"Remember if using positional parameters, you must include dummies for the optional parameters" };
 
-	private static String description = "Generate a list of links that point to section subsites";
 
 	public String[] getParamDescription()
 	{
-		return paramDescription;
+		return new String[] {
+			Messages.getString("SectionsMacro.0"), //$NON-NLS-1$
+			Messages.getString("SectionsMacro.1") }; //$NON-NLS-1$
 	}
 
 	/*
@@ -61,12 +60,12 @@ public class SectionsMacro extends BaseMacro
 	 */
 	public String getDescription()
 	{
-		return description;
+		return Messages.getString("SectionsMacro.2"); //$NON-NLS-1$
 	}
 
 	public String getName()
 	{
-		return "sakai-sections";
+		return "sakai-sections"; //$NON-NLS-1$
 	}
 
 	public void execute(Writer writer, MacroParameter params)
@@ -76,7 +75,7 @@ public class SectionsMacro extends BaseMacro
 		SpecializedRenderContext context = (SpecializedRenderContext) params
 				.getContext();
 
-		String useids = params.get("useids", 0);
+		String useids = params.get("useids", 0); //$NON-NLS-1$
 
 		String siteId = context.getSiteId();
 		
@@ -88,35 +87,35 @@ public class SectionsMacro extends BaseMacro
 		}
 		catch (IdUnusedException e)
 		{
-			throw new IllegalArgumentException("Invalid Site Id "+ siteId + " : "+e.getMessage());
+			throw new IllegalArgumentException(Messages.getString("SectionsMacro.5")+ siteId + " : "+e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		groups = site.getGroups();
 
 		for (Iterator is = groups.iterator(); is.hasNext();)
 		{
 			Group group = (Group) is.next();
-			String pageName = "";
+			String pageName = ""; //$NON-NLS-1$
 
-			if ("true".equals(useids))
+			if ("true".equals(useids)) //$NON-NLS-1$
 			{
-				pageName = group.getId() + "/Home";
+				pageName = group.getId() + "/Home"; //$NON-NLS-1$
 			}
 			else
 			{
 				if (site != null)
 				{
-					pageName = group.getReference() + "/";
+					pageName = group.getReference() + "/"; //$NON-NLS-1$
 				}
-				pageName += "section/" + group.getTitle() + "/Home";
+				pageName += "section/" + group.getTitle() + "/Home"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			writer.write("\n");
-			writer.write("* [ Section: ");
+			writer.write("\n"); //$NON-NLS-1$
+			writer.write("* [ Section: "); //$NON-NLS-1$
 			writer.write(group.getTitle());
-			writer.write("|");
+			writer.write("|"); //$NON-NLS-1$
 			writer.write(pageName);
-			writer.write("]");
+			writer.write("]"); //$NON-NLS-1$
 		}
-		writer.write("\n");
+		writer.write("\n"); //$NON-NLS-1$
 		return;
 	}
 }

@@ -38,7 +38,6 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiProperty;
  * @author ieb
  */
 
-// FIXME: Component
 public class DataMigrationSpecification implements DataMigrationController
 {
 	private static Log log = LogFactory

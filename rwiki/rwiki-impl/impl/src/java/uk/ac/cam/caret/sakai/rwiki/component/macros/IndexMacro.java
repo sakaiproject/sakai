@@ -28,6 +28,7 @@ import java.util.List;
 import org.radeox.macro.BaseMacro;
 import org.radeox.macro.parameter.MacroParameter;
 
+import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderContext;
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderEngine;
 import uk.ac.cam.caret.sakai.rwiki.service.api.PageLinkRenderer;
@@ -41,11 +42,8 @@ import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 public class IndexMacro extends BaseMacro
 {
 
-	private static final String description = "";
+	private static final String description = ""; //$NON-NLS-1$
 
-	private static final String[] paramDescription = {
-			"1:space, The space which to index, defaults to the space of the current page.",
-			"2:nohead, if nohead, the header line will not be produced" };
 
 	public String getDescription()
 	{
@@ -54,7 +52,9 @@ public class IndexMacro extends BaseMacro
 
 	public String[] getParamDescription()
 	{
-		return paramDescription;
+		return new String[]  {
+			Messages.getString("IndexMacro.1"), //$NON-NLS-1$
+			Messages.getString("IndexMacro.2") }; //$NON-NLS-1$
 	}
 
 	/*
@@ -64,7 +64,7 @@ public class IndexMacro extends BaseMacro
 	 */
 	public String getName()
 	{
-		return "index";
+		return "index"; //$NON-NLS-1$
 	}
 
 	/*
@@ -85,12 +85,12 @@ public class IndexMacro extends BaseMacro
 
 		plr.setCachable(false);
 
-		String space = params.get("space", 0);
-		if (space == null || "".equals(space.trim()))
+		String space = params.get("space", 0); //$NON-NLS-1$
+		if (space == null || "".equals(space.trim())) //$NON-NLS-1$
 		{
 			space = spRe.getSpace();
 		}
-		boolean nohead = "nohead".equals(params.get("nohead", 1));
+		boolean nohead = "nohead".equals(params.get("nohead", 1)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		RWikiObjectService objectService = context.getObjectService();
 
@@ -99,19 +99,19 @@ public class IndexMacro extends BaseMacro
 				+ NameHelper.SPACE_SEPARATOR);
 		Iterator it = subpages.iterator();
 
-		writer.write("<div class=\"index-list\">\n");
+		writer.write("<div class=\"index-list\">\n"); //$NON-NLS-1$
 		if (!nohead)
 		{
-			writer.write("  <p>Index of ");
+			writer.write(Messages.getString("IndexMacro.0")); //$NON-NLS-1$
 			writer.write(space);
-			writer.write("</p>\n");
+			writer.write("</p>\n"); //$NON-NLS-1$
 		}
 		{
 
 			String currentSpace = space;
 			char[] currentNameChars = currentSpace.toCharArray();
 			int currentSpaceIndex = currentNameChars.length;
-			writer.write("  <ul class=\"tree\">\n");
+			writer.write("  <ul class=\"tree\">\n"); //$NON-NLS-1$
 			while (it.hasNext())
 			{
 				RWikiObject next = (RWikiObject) it.next();
@@ -182,10 +182,10 @@ public class IndexMacro extends BaseMacro
 				emitSpaceChange(writer, currentNameChars, space.length(),
 						currentSpaceIndex, false);
 			}
-			writer.write("  </ul>\n");
+			writer.write("  </ul>\n"); //$NON-NLS-1$
 		}
 
-		writer.write("</div>\n");
+		writer.write("</div>\n"); //$NON-NLS-1$
 
 	}
 
@@ -228,29 +228,27 @@ public class IndexMacro extends BaseMacro
 	private void emitGoUp(Writer writer, char[] chars, int start, int end)
 			throws IOException
 	{
-		// TODO emit up
-		writer.write("<li><a href=\"#\" class=\"subspace-link\">");
+		writer.write("<li><a href=\"#\" class=\"subspace-link\">"); //$NON-NLS-1$
 		writer.write(chars, start, end - start + 1);
-		writer.write("</a>\n<ul>");
+		writer.write("</a>\n<ul>"); //$NON-NLS-1$
 	}
 
 	private void emitGoDown(Writer writer, char[] chars, int start, int end)
 			throws IOException
 	{
-		// TODO emit down
-		writer.write("</ul>\n</li>");
+		writer.write("</ul>\n</li>"); //$NON-NLS-1$
 	}
 
 	private void emitListItem(Writer writer, PageLinkRenderer plr,
 			char[] chars, int start) throws IOException
 	{
 
-		writer.write("<li>");
+		writer.write("<li>"); //$NON-NLS-1$
 		StringBuffer sb = new StringBuffer(chars.length * 3);
 		plr.appendLink(sb, new String(chars), new String(chars, start,
 				chars.length - start), null, true);
 		writer.write(sb.toString());
-		writer.write("</li>\n");
+		writer.write("</li>\n"); //$NON-NLS-1$
 	}
 
 }

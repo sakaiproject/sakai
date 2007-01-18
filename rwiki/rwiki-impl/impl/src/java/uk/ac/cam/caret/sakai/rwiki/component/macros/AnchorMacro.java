@@ -26,16 +26,15 @@ import java.io.Writer;
 import org.radeox.macro.BaseMacro;
 import org.radeox.macro.parameter.MacroParameter;
 
+import uk.ac.cam.caret.sakai.rwiki.component.Messages;
+
 public class AnchorMacro extends BaseMacro
 {
 
-	private static String[] paramDescription = { "1: An name to assign to this anchor." };
-
-	private static String description = "Creates an anchor around a section of rwiki rendered content.";
 
 	public String[] getParamDescription()
 	{
-		return paramDescription;
+		return new String[] { Messages.getString("AnchorMacro.0") }; //$NON-NLS-1$
 	}
 
 	/*
@@ -45,14 +44,14 @@ public class AnchorMacro extends BaseMacro
 	 */
 	public String getDescription()
 	{
-		return description;
+		return Messages.getString("AnchorMacro.1"); //$NON-NLS-1$ion;
 	}
 
 	public void execute(Writer writer, MacroParameter params)
 			throws IllegalArgumentException, IOException
 	{
 
-		writer.write("<a name='");
+		writer.write("<a name='"); //$NON-NLS-1$
 
 		char[] nameChars = params.get(0).toCharArray();
 		int end = 0;
@@ -67,17 +66,17 @@ public class AnchorMacro extends BaseMacro
 		{
 			writer.write(nameChars, 0, end);
 		}
-		writer.write("' class='anchorpoint'>");
+		writer.write("' class='anchorpoint'>"); //$NON-NLS-1$
 		if (params.getContent() != null)
 		{
 			writer.write(params.getContent());
 		}
-		writer.write("</a>");
+		writer.write("</a>"); //$NON-NLS-1$
 	}
 
 	public String getName()
 	{
-		return "anchor";
+		return "anchor"; //$NON-NLS-1$
 	}
 
 }

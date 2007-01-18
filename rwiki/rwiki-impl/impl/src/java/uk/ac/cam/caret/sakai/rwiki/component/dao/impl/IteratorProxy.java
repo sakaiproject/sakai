@@ -30,7 +30,6 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;
  * 
  * @author ieb
  */
-// FIXME: Component
 public class IteratorProxy implements Iterator
 {
 

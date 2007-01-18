@@ -37,7 +37,6 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiPermissions;
  * @author University of Michigan, CHEF Software Development Team
  * @version $Revision$
  */
-// FIXME: Component
 public abstract class RWikiObjectImpl implements RWikiObject
 {
 

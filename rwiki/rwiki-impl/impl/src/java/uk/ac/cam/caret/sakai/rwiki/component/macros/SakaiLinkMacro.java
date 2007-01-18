@@ -30,6 +30,7 @@ import org.radeox.macro.BaseLocaleMacro;
 import org.radeox.macro.parameter.MacroParameter;
 import org.radeox.util.Encoder;
 
+import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderContext;
 
 /**
@@ -40,18 +41,16 @@ import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRend
  */
 public class SakaiLinkMacro extends BaseLocaleMacro
 {
-	private static String[] paramDescription = {
-			"1,text: Text of the link ",
-			"2,url: URL of the link, if this is external and no target is specified, a new window will open ",
-			"3,img: (optional) if 'none' then no small URL image will be used",
-			"4,target: (optional) Target window, if 'none' is specified, the url will use the current window",
-			"Remember if using positional parameters, you must include dummies for the optional parameters" };
 
-	private static String description = "Generated a link";
 
 	public String[] getParamDescription()
 	{
-		return paramDescription;
+		return new String[] {
+			Messages.getString("SakaiLinkMacro.0"), //$NON-NLS-1$
+			Messages.getString("SakaiLinkMacro.1"), //$NON-NLS-1$
+			Messages.getString("SakaiLinkMacro.2"), //$NON-NLS-1$
+			Messages.getString("SakaiLinkMacro.3"), //$NON-NLS-1$
+			Messages.getString("SakaiLinkMacro.4") }; //$NON-NLS-1$
 	}
 
 	/*
@@ -61,12 +60,12 @@ public class SakaiLinkMacro extends BaseLocaleMacro
 	 */
 	public String getDescription()
 	{
-		return description;
+		return Messages.getString("SakaiLinkMacro.5"); //$NON-NLS-1$
 	}
 
 	public String getLocaleKey()
 	{
-		return "macro.link";
+		return "macro.link"; //$NON-NLS-1$
 	}
 
 	public void execute(Writer writer, MacroParameter params)
@@ -77,10 +76,10 @@ public class SakaiLinkMacro extends BaseLocaleMacro
 				.getContext();
 		RenderEngine engine = context.getRenderEngine();
 
-		String text = params.get("text", 0);
-		String url = params.get("url", 1);
-		String img = params.get("img", 2);
-		String target = params.get("target", 3);
+		String text = params.get("text", 0); //$NON-NLS-1$
+		String url = params.get("url", 1); //$NON-NLS-1$
+		String img = params.get("img", 2); //$NON-NLS-1$
+		String target = params.get("target", 3); //$NON-NLS-1$
 
 		// check for single url argument (text == url)
 		if (params.getLength() == 1)
@@ -95,19 +94,19 @@ public class SakaiLinkMacro extends BaseLocaleMacro
 			if (target == null)
 			{
 				// FIXME make the context have a method to do this check
-				if (url.startsWith("sakai:") || url.startsWith("worksite:/") || url.startsWith("saka-dropbox:/") || url.startsWith("dropbox:/") || url.indexOf(":/") < 0 || url.indexOf(":/") > 10)
+				if (url.startsWith("sakai:") || url.startsWith("worksite:/") || url.startsWith("saka-dropbox:/") || url.startsWith("dropbox:/") || url.indexOf(":/") < 0 || url.indexOf(":/") > 10) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 				{
-					target = "none";
+					target = "none"; //$NON-NLS-1$
 				}
 				else
 				{
-					target = "rwikiexternal";
+					target = "rwikiexternal"; //$NON-NLS-1$
 				}
 
 			}
 
-			writer.write("<span class=\"nobr\">");
-			if (!"none".equals(img) && engine instanceof ImageRenderEngine)
+			writer.write("<span class=\"nobr\">"); //$NON-NLS-1$
+			if (!"none".equals(img) && engine instanceof ImageRenderEngine) //$NON-NLS-1$
 			{
 				writer.write(((ImageRenderEngine) engine)
 						.getExternalImageLink());
@@ -115,19 +114,19 @@ public class SakaiLinkMacro extends BaseLocaleMacro
 			
 			url = context.convertLink(url);
 
-			writer.write("<a href=\"" + Encoder.escape(url) + "\"");
-			if (!"none".equals(target))
+			writer.write("<a href=\"" + Encoder.escape(url) + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+			if (!"none".equals(target)) //$NON-NLS-1$
 			{
-				writer.write(" target=\"" + Encoder.escape(target) + "\"");
+				writer.write(" target=\"" + Encoder.escape(target) + "\""); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			writer.write(">");
+			writer.write(">"); //$NON-NLS-1$
 			writer.write(text);
-			writer.write("</a></span>");
+			writer.write("</a></span>"); //$NON-NLS-1$
 		}
 		else
 		{
 			throw new IllegalArgumentException(
-					"link needs a name and a url as argument");
+					Messages.getString("SakaiLinkMacro.28")); //$NON-NLS-1$
 		}
 		return;
 	}

@@ -27,18 +27,18 @@ import java.io.Writer;
 import org.radeox.macro.BaseMacro;
 import org.radeox.macro.parameter.MacroParameter;
 
+import uk.ac.cam.caret.sakai.rwiki.component.Messages;
+
 public class BlockMacro extends BaseMacro
 {
-	private static String[] paramDescription = {
-			"1,class: The class to assign to this block.",
-			"id: An id to assign to this block.",
-			"anchor: An anchor to assign to this block" };
 
-	private static String description = "Places a div around a block of rwiki rendered content.";
 
 	public String[] getParamDescription()
 	{
-		return paramDescription;
+		return new String[] {
+			Messages.getString("BlockMacro.0"), //$NON-NLS-1$
+			Messages.getString("BlockMacro.1"), //$NON-NLS-1$
+			Messages.getString("BlockMacro.2") }; //$NON-NLS-1$
 	}
 
 	/*
@@ -48,12 +48,12 @@ public class BlockMacro extends BaseMacro
 	 */
 	public String getDescription()
 	{
-		return description;
+		return  Messages.getString("BlockMacro.3"); //$NON-NLS-1$
 	}
 
 	public String getName()
 	{
-		return "block";
+		return "block"; //$NON-NLS-1$
 	}
 
 	/*
@@ -66,35 +66,35 @@ public class BlockMacro extends BaseMacro
 			throws IllegalArgumentException, IOException
 	{
 
-		String cssClass = params.get("class");
+		String cssClass = params.get("class"); //$NON-NLS-1$
 		if (cssClass == null)
 		{
 			cssClass = params.get(0);
 			if (cssClass == null) {
 				// do nothing
-			} else if (cssClass.startsWith("id="))
+			} else if (cssClass.startsWith("id=")) //$NON-NLS-1$
 			{
 				cssClass = null;
 			}
-			else if (cssClass.startsWith("name="))
+			else if (cssClass.startsWith("name=")) //$NON-NLS-1$
 			{
 				cssClass = null;
 			}
 		}
-		String id = params.get("id");
+		String id = params.get("id"); //$NON-NLS-1$
 
-		String anchorName = params.get("name");
+		String anchorName = params.get("name"); //$NON-NLS-1$
 
-		writer.write("<div");
-		if (cssClass != null && !cssClass.equals(""))
+		writer.write("<div"); //$NON-NLS-1$
+		if (cssClass != null && !cssClass.equals("")) //$NON-NLS-1$
 		{
-			writer.write(" class='");
-			writer.write(cssClass.replaceAll("'", "&apos;"));
+			writer.write(" class='"); //$NON-NLS-1$
+			writer.write(cssClass.replaceAll("'", "&apos;")); //$NON-NLS-1$ //$NON-NLS-2$
 			writer.write('\'');
 		}
-		if (id != null && !id.equals(""))
+		if (id != null && !id.equals("")) //$NON-NLS-1$
 		{
-			writer.write(" id='");
+			writer.write(" id='"); //$NON-NLS-1$
 			char[] nameChars = id.toCharArray();
 			int end = 0;
 			for (int i = 0; i < nameChars.length; i++)
@@ -111,9 +111,9 @@ public class BlockMacro extends BaseMacro
 			writer.write('\'');
 		}
 		writer.write('>');
-		if (anchorName != null && !anchorName.equals(""))
+		if (anchorName != null && !anchorName.equals("")) //$NON-NLS-1$
 		{
-			writer.write("<a name=\"");
+			writer.write("<a name=\""); //$NON-NLS-1$
 			char[] nameChars = anchorName.toCharArray();
 			int end = 0;
 			for (int i = 0; i < nameChars.length; i++)
@@ -127,15 +127,15 @@ public class BlockMacro extends BaseMacro
 			{
 				writer.write(nameChars, 0, end);
 			}
-			writer.write("' class='anchorpoint'>");
-			writer.write("<!-- --></a>");
+			writer.write("' class='anchorpoint'>"); //$NON-NLS-1$
+			writer.write("<!-- --></a>"); //$NON-NLS-1$
 		}
 		if (params.getContent() != null)
 		{
-			writer.write("<p class=\"paragraph\">");
+			writer.write("<p class=\"paragraph\">"); //$NON-NLS-1$
 			writer.write(params.getContent());
-			writer.write("</p>");
+			writer.write("</p>"); //$NON-NLS-1$
 		}
-		writer.write("</div>");
+		writer.write("</div>"); //$NON-NLS-1$
 	}
 }

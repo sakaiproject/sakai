@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.radeox;
+package uk.ac.cam.caret.sakai.rwiki.component;
 
 import org.sakaiproject.util.ResourceLoader;
 
@@ -29,10 +29,9 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class Messages
 {
-	private static final String BUNDLE_NAME = "org.radeox.Messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "uk.ac.cam.caret.sakai.rwiki.bundle.Messages"; //$NON-NLS-1$
 
 	private static final ResourceLoader rl = new ResourceLoader(BUNDLE_NAME);
-
 
 	private Messages()
 	{

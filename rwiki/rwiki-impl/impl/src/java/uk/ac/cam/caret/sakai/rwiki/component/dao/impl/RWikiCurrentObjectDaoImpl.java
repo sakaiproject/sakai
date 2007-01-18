@@ -36,6 +36,7 @@ import org.hibernate.type.Type;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiCurrentObjectDao;
@@ -73,7 +74,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 				{
 					return session
 							.createQuery(
-									"select count(*) from RWikiCurrentObjectImpl r where r.name = ? ")
+									"select count(*) from RWikiCurrentObjectImpl r where r.name = ? ") //$NON-NLS-1$
 							.setParameter(0, name, Hibernate.STRING).list();
 				}
 
@@ -87,7 +88,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 		finally
 		{
 			long finish = System.currentTimeMillis();
-			TimeLogger.printTimer("RWikiObjectDaoImpl.exists: " + name, start,
+			TimeLogger.printTimer("RWikiObjectDaoImpl.exists: " + name, start, //$NON-NLS-1$
 					finish);
 		}
 	}
@@ -110,7 +111,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 						throws HibernateException
 				{
 					return session.createCriteria(RWikiCurrentObject.class)
-							.add(Expression.eq("name", name)).list();
+							.add(Expression.eq("name", name)).list(); //$NON-NLS-1$
 				}
 			};
 			List found = (List) getHibernateTemplate().execute(callback);
@@ -118,22 +119,22 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 			{
 				if (log.isDebugEnabled())
 				{
-					log.debug("Found " + found.size() + " objects with name "
+					log.debug("Found " + found.size() + " objects with name " //$NON-NLS-1$ //$NON-NLS-2$
 							+ name);
 				}
 				return null;
 			}
 			if (log.isDebugEnabled())
 			{
-				log.debug("Found " + found.size() + " objects with name "
-						+ name + " returning most recent one.");
+				log.debug("Found " + found.size() + " objects with name " //$NON-NLS-1$ //$NON-NLS-2$
+						+ name + " returning most recent one."); //$NON-NLS-1$
 			}
 			return (RWikiCurrentObject) proxyObject(found.get(0));
 		}
 		finally
 		{
 			long finish = System.currentTimeMillis();
-			TimeLogger.printTimer("RWikiObjectDaoImpl.findByGlobalName: "
+			TimeLogger.printTimer("RWikiObjectDaoImpl.findByGlobalName: " //$NON-NLS-1$
 					+ name, start, finish);
 		}
 	}
@@ -145,13 +146,13 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 			final String user, final String realm)
 	{
 
-		String[] criterias = criteria.split("\\s\\s*");
+		String[] criterias = criteria.split("\\s\\s*"); //$NON-NLS-1$
 
 		final StringBuffer expression = new StringBuffer();
 		final List criteriaList = new ArrayList();
 		criteriaList.add(realm);
-		criteriaList.add("%" + criteria.toLowerCase() + "%");
-		criteriaList.add("%" + criteria.toLowerCase() + "%");
+		criteriaList.add("%" + criteria.toLowerCase() + "%"); //$NON-NLS-1$ //$NON-NLS-2$
+		criteriaList.add("%" + criteria.toLowerCase() + "%"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// WARNING: In MySQL like does not produce a case sensitive search so
 		// this is Ok
@@ -160,16 +161,16 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 
 		for (int i = 0; i < criterias.length; i++)
 		{
-			if (!criterias[i].equals(""))
+			if (!criterias[i].equals("")) //$NON-NLS-1$
 			{
-				expression.append(" or lower(c.content) like ? ");
-				criteriaList.add("%" + criterias[i].toLowerCase() + "%");
+				expression.append(" or lower(c.content) like ? "); //$NON-NLS-1$
+				criteriaList.add("%" + criterias[i].toLowerCase() + "%"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
-		if (criteria.equals(""))
+		if (criteria.equals("")) //$NON-NLS-1$
 		{
-			expression.append(" or lower(c.content) like ? ");
-			criteriaList.add("%%");
+			expression.append(" or lower(c.content) like ? "); //$NON-NLS-1$
+			criteriaList.add("%%"); //$NON-NLS-1$
 		}
 		final Type[] types = new Type[criteriaList.size()];
 		for (int i = 0; i < types.length; i++)
@@ -184,15 +185,15 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 			{
 				return session
 						.createQuery(
-								"select distinct r "
-										+ "		from RWikiCurrentObjectImpl as r, "
-										+ "			RWikiCurrentObjectContentImpl as c "
-										+ "   where r.realm = ? and ("
-										+ " lower(r.name) like ? or "
-										+ "          lower(c.content) like ? "
-										+ expression.toString() + " ) and "
-										+ "			r.id = c.rwikiid "
-										+ "  order by r.name ").setParameters(
+								"select distinct r " //$NON-NLS-1$
+										+ "		from RWikiCurrentObjectImpl as r, " //$NON-NLS-1$
+										+ "			RWikiCurrentObjectContentImpl as c " //$NON-NLS-1$
+										+ "   where r.realm = ? and (" //$NON-NLS-1$
+										+ " lower(r.name) like ? or " //$NON-NLS-1$
+										+ "          lower(c.content) like ? " //$NON-NLS-1$
+										+ expression.toString() + " ) and " //$NON-NLS-1$
+										+ "			r.id = c.rwikiid " //$NON-NLS-1$
+										+ "  order by r.name ").setParameters( //$NON-NLS-1$
 								criteriaList.toArray(), types).list();
 
 			}
@@ -235,10 +236,9 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 		returnable.setRealm(realm);
 		returnable.setVersion(new Date());
 		returnable.setRevision(new Integer(0));
-		// FIXME internationalize!!
 
-		returnable.setContent("No page content exists for this "
-				+ "page, please create");
+		returnable.setContent(Messages.getString("RWikiCurrentObjectDaoImpl.30") //$NON-NLS-1$
+				+ Messages.getString("RWikiCurrentObjectDaoImpl.31")); //$NON-NLS-1$
 		return returnable;
 	}
 
@@ -253,9 +253,9 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 					throws HibernateException
 			{
 				return session.createCriteria(RWikiCurrentObject.class).add(
-						Expression.ge("version", since)).add(
-						Expression.eq("realm", realm)).addOrder(
-						Order.desc("version")).list();
+						Expression.ge("version", since)).add( //$NON-NLS-1$
+						Expression.eq("realm", realm)).addOrder( //$NON-NLS-1$
+						Order.desc("version")).list(); //$NON-NLS-1$
 			}
 		};
 		return new ListProxy((List) getHibernateTemplate().execute(callback),
@@ -273,9 +273,9 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 					throws HibernateException
 			{
 				return session.createQuery(
-						"select r.name " + "from RWikiCurrentObjectImpl r "
-								+ "where referenced like ?").setParameter(0,
-						"%::" + name + "::%", Hibernate.STRING).list();
+						"select r.name " + "from RWikiCurrentObjectImpl r " //$NON-NLS-1$ //$NON-NLS-2$
+								+ "where referenced like ?").setParameter(0, //$NON-NLS-1$
+						"%::" + name + "::%", Hibernate.STRING).list(); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		};
 		return new ListProxy((List) getHibernateTemplate().execute(callback),
@@ -297,7 +297,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 				{
 					return session.createCriteria(RWikiCurrentObject.class)
 							.add(
-									Expression.eq("id", reference
+									Expression.eq("id", reference //$NON-NLS-1$
 											.getRwikiobjectid())).list();
 				}
 			};
@@ -306,16 +306,16 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 			{
 				if (log.isDebugEnabled())
 				{
-					log.debug("Found " + found.size() + " objects with id "
+					log.debug("Found " + found.size() + " objects with id " //$NON-NLS-1$ //$NON-NLS-2$
 							+ reference.getRwikiobjectid());
 				}
 				return null;
 			}
 			if (log.isDebugEnabled())
 			{
-				log.debug("Found " + found.size() + " objects with id "
+				log.debug("Found " + found.size() + " objects with id " //$NON-NLS-1$ //$NON-NLS-2$
 						+ reference.getRwikiobjectid()
-						+ " returning most recent one.");
+						+ " returning most recent one."); //$NON-NLS-1$
 			}
 			return (RWikiCurrentObject) proxyObject(found.get(0));
 		}
@@ -323,7 +323,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 		{
 			long finish = System.currentTimeMillis();
 			TimeLogger.printTimer(
-					"RWikiCurrentObjectDaoImpl.getRWikiCurrentObject: "
+					"RWikiCurrentObjectDaoImpl.getRWikiCurrentObject: " //$NON-NLS-1$
 							+ reference.getName(), start, finish);
 		}
 	}
@@ -372,7 +372,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 					throws HibernateException
 			{
 				return session.createCriteria(RWikiCurrentObject.class)
-						.addOrder(Order.desc("version")).list();
+						.addOrder(Order.desc("version")).list(); //$NON-NLS-1$
 			}
 		};
 		return new ListProxy((List) getHibernateTemplate().execute(callback),
@@ -402,9 +402,9 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 						throws HibernateException, SQLException
 				{
 					return session.createQuery(
-							"select count(*) "
-									+ "from RWikiCurrentObjectImpl r "
-									+ "where r.realm = ?").setParameter(0,
+							"select count(*) " //$NON-NLS-1$
+									+ "from RWikiCurrentObjectImpl r " //$NON-NLS-1$
+									+ "where r.realm = ?").setParameter(0, //$NON-NLS-1$
 							group, Hibernate.STRING).list();
 				}
 
@@ -418,7 +418,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 		finally
 		{
 			long finish = System.currentTimeMillis();
-			TimeLogger.printTimer("RWikiObjectDaoImpl.getPageCount: " + group,
+			TimeLogger.printTimer("RWikiObjectDaoImpl.getPageCount: " + group, //$NON-NLS-1$
 					start, finish);
 		}
 	}
@@ -433,12 +433,12 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 			public Object doInHibernate(Session session)
 					throws HibernateException
 			{
-				String search = globalParentPageName.replaceAll("([A%_])",
-						"A$1");
+				String search = globalParentPageName.replaceAll("([A%_])", //$NON-NLS-1$
+						"A$1"); //$NON-NLS-1$
 				return session.createQuery(
-						"from RWikiCurrentObjectImpl as r "
-								+ "where r.name like concat(?,'%') escape 'A' "
-								+ "order by name asc").setParameter(0, search,
+						"from RWikiCurrentObjectImpl as r " //$NON-NLS-1$
+								+ "where r.name like concat(?,'%') escape 'A' " //$NON-NLS-1$
+								+ "order by name asc").setParameter(0, search, //$NON-NLS-1$
 						Hibernate.STRING).list();
 			}
 		};
@@ -456,12 +456,12 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 			public Object doInHibernate(Session session)
 					throws HibernateException
 			{
-				String search = globalParentPageName.replaceAll("([A%_])",
-						"A$1");
+				String search = globalParentPageName.replaceAll("([A%_])", //$NON-NLS-1$
+						"A$1"); //$NON-NLS-1$
 				return session.createQuery(
-						"from RWikiCurrentObjectImpl as r "
-								+ "where r.name like concat(?,'%') escape 'A' "
-								+ "order by name desc").setParameter(0, search,
+						"from RWikiCurrentObjectImpl as r " //$NON-NLS-1$
+								+ "where r.name like concat(?,'%') escape 'A' " //$NON-NLS-1$
+								+ "order by name desc").setParameter(0, search, //$NON-NLS-1$
 						Hibernate.STRING).list();
 			}
 		};
@@ -480,13 +480,13 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 			public Object doInHibernate(Session session)
 					throws HibernateException
 			{
-				String search = basepath.replaceAll("([A%_])", "A$1");
+				String search = basepath.replaceAll("([A%_])", "A$1"); //$NON-NLS-1$ //$NON-NLS-2$
 				return session
 						.createQuery(
-								"from RWikiCurrentObjectImpl as r "
-										+ "where r.name like concat(?,'%') escape 'A' "
-										+ "and r.version >= ? "
-										+ "order by r.version desc, r.name asc")
+								"from RWikiCurrentObjectImpl as r " //$NON-NLS-1$
+										+ "where r.name like concat(?,'%') escape 'A' " //$NON-NLS-1$
+										+ "and r.version >= ? " //$NON-NLS-1$
+										+ "order by r.version desc, r.name asc") //$NON-NLS-1$
 						.setParameters(new Object[] { search, time },
 								new Type[] { Hibernate.STRING, Hibernate.DATE })
 						.list();
@@ -505,7 +505,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 					throws HibernateException
 			{
 				return session.createQuery(
-						"select r.name " + "from RWikiCurrentObjectImpl  r ")
+						"select r.name " + "from RWikiCurrentObjectImpl  r ") //$NON-NLS-1$ //$NON-NLS-2$
 						.list();
 			}
 		};

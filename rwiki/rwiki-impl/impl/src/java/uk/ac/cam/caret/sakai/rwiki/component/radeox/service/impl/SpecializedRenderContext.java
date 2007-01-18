@@ -27,6 +27,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 
+import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
@@ -70,7 +71,7 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 		this.siteService = siteService;
 		
 		this.set(RWikiObject.class.getName(), rwikiObject);
-		this.set(RWikiObject.class.getName().concat(".name"), rwikiObject.getName());
+		this.set(RWikiObject.class.getName().concat(".name"), rwikiObject.getName()); //$NON-NLS-1$
 		this.set(RWikiObjectService.class.getName(), objectService);
 		this.set(RWikiSecurityService.class.getName(), securityService);
 		this.set(SiteService.class.getName(), siteService);
@@ -142,11 +143,11 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 		Reference ref = rwobjService.getReference(rwobj);
 
 		String siteContext = ref.getContext();
-		if (siteContext.startsWith("/site/"))
+		if (siteContext.startsWith("/site/")) //$NON-NLS-1$
 		{
 			String siteId = siteContext.substring(6);
 
-			int slash = siteId.indexOf("/");
+			int slash = siteId.indexOf("/"); //$NON-NLS-1$
 			if (slash != -1)
 			{
 				siteId = siteId.substring(0, slash - 1);
@@ -157,115 +158,115 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 	}
 	
 	public String convertLink(String link) {
-		if (link.startsWith("sakai:/"))
+		if (link.startsWith("sakai:/")) //$NON-NLS-1$
 		{
-			String refSiteUrl = link.substring("sakai:/".length());
-			if ( refSiteUrl.startsWith("/") ) {
+			String refSiteUrl = link.substring("sakai:/".length()); //$NON-NLS-1$
+			if ( refSiteUrl.startsWith("/") ) { //$NON-NLS-1$
 				refSiteUrl = refSiteUrl.substring(1);
 			}
-			String[] parts = refSiteUrl.split("/");
+			String[] parts = refSiteUrl.split("/"); //$NON-NLS-1$
 			if (parts == null || parts.length < 1)
 			{
-				return "Link Cant be resolved";
+				return Messages.getString("SpecializedRenderContext.7"); //$NON-NLS-1$
 			}
 
 			String refSiteId = parts[0];
-			String refSiteType = getSiteType(refSiteId, "group");
+			String refSiteType = getSiteType(refSiteId, "group"); //$NON-NLS-1$
 			
-			if ((refSiteId != null && refSiteId.startsWith("~")) || refSiteType == null)
+			if ((refSiteId != null && refSiteId.startsWith("~")) || refSiteType == null) //$NON-NLS-1$
 			{
-				String remLink = link.substring("sakai:/".length());
-				if ( remLink.startsWith("/") ) {
+				String remLink = link.substring("sakai:/".length()); //$NON-NLS-1$
+				if ( remLink.startsWith("/") ) { //$NON-NLS-1$
 					remLink = remLink.substring(1);
 				}
-				if ( remLink.startsWith("~") ) {
+				if ( remLink.startsWith("~") ) { //$NON-NLS-1$
 					remLink = remLink.substring(1);
 				}
-				link = "/access/content/user/"
+				link = "/access/content/user/" //$NON-NLS-1$
 						+ remLink;
 
 			}
 			else
 			{
-				link = "/access/content/group/"
-						+ link.substring("sakai:/".length());
+				link = "/access/content/group/" //$NON-NLS-1$
+						+ link.substring("sakai:/".length()); //$NON-NLS-1$
 			}
 		}
-		else if (link.startsWith("sakai-dropbox:/"))
+		else if (link.startsWith("sakai-dropbox:/")) //$NON-NLS-1$
 		{
-			String refSiteUrl = link.substring("sakai-dropbox:/".length());
-			if ( refSiteUrl.startsWith("/") ) {
+			String refSiteUrl = link.substring("sakai-dropbox:/".length()); //$NON-NLS-1$
+			if ( refSiteUrl.startsWith("/") ) { //$NON-NLS-1$
 				refSiteUrl = refSiteUrl.substring(1);
 			}
-			String[] parts = refSiteUrl.split("/");
+			String[] parts = refSiteUrl.split("/"); //$NON-NLS-1$
 			if (parts == null || parts.length < 1)
 			{
-				return "Link Cant be resolved";
+				return Messages.getString("SpecializedRenderContext.20"); //$NON-NLS-1$
 			}
 
 			String refSiteId = parts[0];
-			String refSiteType = getSiteType(refSiteId, "group");
+			String refSiteType = getSiteType(refSiteId, "group"); //$NON-NLS-1$
 			
-			if ((refSiteId != null && refSiteId.startsWith("~")) || refSiteType == null)
+			if ((refSiteId != null && refSiteId.startsWith("~")) || refSiteType == null) //$NON-NLS-1$
 			{
-				String remLink = link.substring("sakai-dropbox:/".length());
-				if ( remLink.startsWith("/") ) {
+				String remLink = link.substring("sakai-dropbox:/".length()); //$NON-NLS-1$
+				if ( remLink.startsWith("/") ) { //$NON-NLS-1$
 					remLink = remLink.substring(1);
 				}
-				if ( remLink.startsWith("~") ) {
+				if ( remLink.startsWith("~") ) { //$NON-NLS-1$
 					remLink = remLink.substring(1);
 				}
-				link = "/access/content/group-user/"
+				link = "/access/content/group-user/" //$NON-NLS-1$
 						+ remLink;
 
 			}
 			else
 			{
-				link = "/access/content/group-user/"
-						+ link.substring("sakai-dropbox:/".length());
+				link = "/access/content/group-user/" //$NON-NLS-1$
+						+ link.substring("sakai-dropbox:/".length()); //$NON-NLS-1$
 			}
 		}
-		else if (link.startsWith("worksite:/"))
+		else if (link.startsWith("worksite:/")) //$NON-NLS-1$
 		{
 			String siteId = getSiteId();
 			// need to check siteid
 			String siteType = getSiteType(siteId, null);
 			
-			if ((siteId != null && siteId.startsWith("~")) || siteType == null)
+			if ((siteId != null && siteId.startsWith("~")) || siteType == null) //$NON-NLS-1$
 			{
-				if ( siteId.startsWith("~") ) {
+				if ( siteId.startsWith("~") ) { //$NON-NLS-1$
 					siteId = siteId.substring(1);
 				}
-				link = "/access/content/user/" + siteId + "/"
-						+ link.substring("worksite:/".length());
+				link = "/access/content/user/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
+						+ link.substring("worksite:/".length()); //$NON-NLS-1$
 
 			}
 			else
 			{
-				link = "/access/content/group/" + siteId + "/"
-						+ link.substring("worksite:/".length());
+				link = "/access/content/group/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
+						+ link.substring("worksite:/".length()); //$NON-NLS-1$
 			}
 
 		}
-		else if (link.startsWith("dropbox:/"))
+		else if (link.startsWith("dropbox:/")) //$NON-NLS-1$
 		{
 			String siteId = getSiteId();
 			// need to check siteid
 			String siteType = getSiteType(siteId, null);
 			
-			if ((siteId != null && siteId.startsWith("~")) || siteType == null)
+			if ((siteId != null && siteId.startsWith("~")) || siteType == null) //$NON-NLS-1$
 			{
-				if ( siteId.startsWith("~") ) {
+				if ( siteId.startsWith("~") ) { //$NON-NLS-1$
 					siteId = siteId.substring(1);
 				}
-				link = "/access/content/group-user/" + siteId + "/"
-						+ link.substring("dropbox:/".length());
+				link = "/access/content/group-user/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
+						+ link.substring("dropbox:/".length()); //$NON-NLS-1$
 
 			}
 			else
 			{
-				link = "/access/content/group-user/" + siteId + "/"
-						+ link.substring("dropbox:/".length());
+				link = "/access/content/group-user/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
+						+ link.substring("dropbox:/".length()); //$NON-NLS-1$
 			}
 
 		}

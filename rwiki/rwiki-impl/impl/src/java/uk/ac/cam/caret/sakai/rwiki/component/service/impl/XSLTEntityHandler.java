@@ -56,6 +56,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RenderService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiEntity;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
@@ -100,7 +101,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	/**
 	 * dependency
 	 */
-	private String authZPrefix = "";
+	private String authZPrefix = ""; //$NON-NLS-1$
 
 	/**
 	 * dependency The base name of the xslt file, relative to context root.
@@ -144,7 +145,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		Object o = cm.get(name);
 		if (o == null)
 		{
-			log.error("Cant find Spring component named " + name);
+			log.error("Cant find Spring component named " + name); //$NON-NLS-1$
 		}
 		return o;
 	}
@@ -196,10 +197,10 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 
 		try
 		{
-			String skin = ServerConfigurationService.getString("skin.default");
-             String skinRepo = ServerConfigurationService.getString("skin.repo");
- 			request.setAttribute("sakai.skin.repo",skinRepo);
-			request.setAttribute("sakai.skin",skin);
+			String skin = ServerConfigurationService.getString("skin.default"); //$NON-NLS-1$
+             String skinRepo = ServerConfigurationService.getString("skin.repo"); //$NON-NLS-1$
+ 			request.setAttribute("sakai.skin.repo",skinRepo); //$NON-NLS-1$
+			request.setAttribute("sakai.skin",skin); //$NON-NLS-1$
 
 			setCurrentRequest(request);
 
@@ -238,23 +239,23 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 
 			{
 				AttributesImpl propA = new AttributesImpl();
-				propA.addAttribute("", SchemaNames.ATTR_REQUEST_PATH_INFO,
-						SchemaNames.ATTR_REQUEST_PATH_INFO, "string", request
+				propA.addAttribute("", SchemaNames.ATTR_REQUEST_PATH_INFO, //$NON-NLS-1$
+						SchemaNames.ATTR_REQUEST_PATH_INFO, "string", request //$NON-NLS-1$
 								.getPathInfo());
-				propA.addAttribute("", SchemaNames.ATTR_REQUEST_USER,
-						SchemaNames.ATTR_REQUEST_USER, "string", request
+				propA.addAttribute("", SchemaNames.ATTR_REQUEST_USER, //$NON-NLS-1$
+						SchemaNames.ATTR_REQUEST_USER, "string", request //$NON-NLS-1$
 								.getRemoteUser());
-				propA.addAttribute("", SchemaNames.ATTR_REQUEST_PROTOCOL,
-						SchemaNames.ATTR_REQUEST_PROTOCOL, "string", request
+				propA.addAttribute("", SchemaNames.ATTR_REQUEST_PROTOCOL, //$NON-NLS-1$
+						SchemaNames.ATTR_REQUEST_PROTOCOL, "string", request //$NON-NLS-1$
 								.getProtocol());
-				propA.addAttribute("", SchemaNames.ATTR_REQUEST_SERVER_NAME,
-						SchemaNames.ATTR_REQUEST_SERVER_NAME, "string", request
+				propA.addAttribute("", SchemaNames.ATTR_REQUEST_SERVER_NAME, //$NON-NLS-1$
+						SchemaNames.ATTR_REQUEST_SERVER_NAME, "string", request //$NON-NLS-1$
 								.getServerName());
-				propA.addAttribute("", SchemaNames.ATTR_REQUEST_SERVER_PORT,
-						SchemaNames.ATTR_REQUEST_SERVER_PORT, "string", String
+				propA.addAttribute("", SchemaNames.ATTR_REQUEST_SERVER_PORT, //$NON-NLS-1$
+						SchemaNames.ATTR_REQUEST_SERVER_PORT, "string", String //$NON-NLS-1$
 								.valueOf(request.getServerPort()));
-				propA.addAttribute("", SchemaNames.ATTR_REQUEST_REQUEST_URL,
-						SchemaNames.ATTR_REQUEST_REQUEST_URL, "string", String
+				propA.addAttribute("", SchemaNames.ATTR_REQUEST_REQUEST_URL, //$NON-NLS-1$
+						SchemaNames.ATTR_REQUEST_REQUEST_URL, "string", String //$NON-NLS-1$
 								.valueOf(request.getRequestURL()));
 
 				ch.startElement(SchemaNames.NS_CONTAINER,
@@ -280,20 +281,20 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 				String name = String.valueOf(key);
 				String value = String.valueOf(rp.getProperty(name));
 				AttributesImpl propA = new AttributesImpl();
-				propA.addAttribute("", SchemaNames.ATTR_NAME,
-						SchemaNames.ATTR_NAME, "string", name);
+				propA.addAttribute("", SchemaNames.ATTR_NAME, //$NON-NLS-1$
+						SchemaNames.ATTR_NAME, "string", name); //$NON-NLS-1$
 				addElement(ch, SchemaNames.NS_CONTAINER,
 						SchemaNames.EL_XMLPROPERTY,
 						SchemaNames.EL_NSXMLPROPERTY, propA, value);
 			}
 			{
 				AttributesImpl propA = new AttributesImpl();
-				propA.addAttribute("", SchemaNames.ATTR_NAME,
-						SchemaNames.ATTR_NAME, "string", "_handler");
+				propA.addAttribute("", SchemaNames.ATTR_NAME, //$NON-NLS-1$
+						SchemaNames.ATTR_NAME, "string", "_handler"); //$NON-NLS-1$ //$NON-NLS-2$
 				addElement(ch, SchemaNames.NS_CONTAINER,
 						SchemaNames.EL_XMLPROPERTY,
 						SchemaNames.EL_NSXMLPROPERTY, propA,
-						" XSLTEntity Handler");
+						" XSLTEntity Handler"); //$NON-NLS-1$
 			}
 			if (entity instanceof RWikiEntity)
 			{
@@ -302,8 +303,8 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 				{
 					RWikiObject rwo = rwe.getRWikiObject();
 					AttributesImpl propA = new AttributesImpl();
-					propA.addAttribute("", SchemaNames.ATTR_NAME,
-							SchemaNames.ATTR_NAME, "string", "_title");
+					propA.addAttribute("", SchemaNames.ATTR_NAME, //$NON-NLS-1$
+							SchemaNames.ATTR_NAME, "string", "_title"); //$NON-NLS-1$ //$NON-NLS-2$
 					addElement(ch, SchemaNames.NS_CONTAINER,
 							SchemaNames.EL_XMLPROPERTY,
 							SchemaNames.EL_NSXMLPROPERTY, propA,
@@ -313,8 +314,8 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 				else
 				{
 					AttributesImpl propA = new AttributesImpl();
-					propA.addAttribute("", SchemaNames.ATTR_NAME,
-							SchemaNames.ATTR_NAME, "string", "_title");
+					propA.addAttribute("", SchemaNames.ATTR_NAME, //$NON-NLS-1$
+							SchemaNames.ATTR_NAME, "string", "_title"); //$NON-NLS-1$ //$NON-NLS-2$
 					addElement(ch, SchemaNames.NS_CONTAINER,
 							SchemaNames.EL_XMLPROPERTY,
 							SchemaNames.EL_NSXMLPROPERTY, propA, entity
@@ -352,9 +353,9 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		}
 		catch (Throwable ex)
 		{
-			log.info("Failed to serialize " + ex.getMessage());
+			log.info("Failed to serialize " + ex.getMessage()); //$NON-NLS-1$
 			ex.printStackTrace();
-			throw new RuntimeException("Failed to serialise "
+			throw new RuntimeException(Messages.getString("XSLTEntityHandler.68") //$NON-NLS-1$
 					+ ex.getLocalizedMessage(), ex);
 		}
 		finally
@@ -423,7 +424,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		try {
 			renderedPage = render(rwo);
 		} catch (Exception e) {
-			renderedPage = "Exception occured during rendering " + rwo.getName() + "\n Exception: " + e.getClass() + " Message:\n" + e.getMessage();
+			renderedPage = Messages.getString("XSLTEntityHandler.32") + rwo.getName() + Messages.getString("XSLTEntityHandler.33") + e.getClass() + Messages.getString("XSLTEntityHandler.34") + e.getMessage(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			log.info(renderedPage, e);
 		}
 		String contentDigest = DigestHtml.digest(renderedPage);
@@ -433,32 +434,32 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		}
 		if (renderedPage == null || renderedPage.trim().length() == 0)
 		{
-			renderedPage = "no content on page";
+			renderedPage = Messages.getString("XSLTEntityHandler.35"); //$NON-NLS-1$
 		}
 		if (contentDigest == null || contentDigest.trim().length() == 0)
 		{
-			contentDigest = "no content on page";
+			contentDigest = Messages.getString("XSLTEntityHandler.36"); //$NON-NLS-1$
 		}
 		
 		
 		
-		String cdataEscapedRendered = renderedPage.replaceAll("]]>", "]]>]]&gt;<![CDATA[");
-		String cdataContentDigest = contentDigest.replaceAll("]]>", "]]>]]&gt;<![CDATA[");
+		String cdataEscapedRendered = renderedPage.replaceAll("]]>", "]]>]]&gt;<![CDATA["); //$NON-NLS-1$ //$NON-NLS-2$
+		String cdataContentDigest = contentDigest.replaceAll("]]>", "]]>]]&gt;<![CDATA["); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		renderedPage = "<content><rendered>" + renderedPage
-				+ "</rendered><rendered-cdata><![CDATA[" + cdataEscapedRendered  + "]]></rendered-cdata><contentdigest><![CDATA[" + cdataContentDigest
-				+ "]]></contentdigest></content>";
+		renderedPage = "<content><rendered>" + renderedPage //$NON-NLS-1$
+				+ "</rendered><rendered-cdata><![CDATA[" + cdataEscapedRendered  + "]]></rendered-cdata><contentdigest><![CDATA[" + cdataContentDigest //$NON-NLS-1$ //$NON-NLS-2$
+				+ "]]></contentdigest></content>"; //$NON-NLS-1$
 		
 		try {
 			parseToSAX(renderedPage, ch);			
 		} catch (SAXException ex) {
-			SimpleCoverage.cover("Failed to parse renderedPage from " + rwo.getName());
+			SimpleCoverage.cover("Failed to parse renderedPage from " + rwo.getName()); //$NON-NLS-1$
 			Attributes dummyAttributes = new AttributesImpl();
 			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ERROR,
 					SchemaNames.EL_NSERROR, dummyAttributes);
 			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ERRORDESC,
 					SchemaNames.EL_NSERRORDESC, dummyAttributes);
-			String s = "The Rendered Content did not parse correctly "
+			String s = Messages.getString("XSLTEntityHandler.46") //$NON-NLS-1$
 					+ ex.getMessage();
 			ch.characters(s.toCharArray(), 0, s.length());
 			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ERRORDESC,
@@ -573,11 +574,11 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		try
 		{
 			xmlReader = XMLReaderFactory
-					.createXMLReader("com.sun.org.apache.xerces.internal.parsers.SAXParser");
+					.createXMLReader("com.sun.org.apache.xerces.internal.parsers.SAXParser"); //$NON-NLS-1$
 		}
 		catch (SAXException e)
 		{
-			log.error("SAXException when creating XMLReader", e);
+			log.error("SAXException when creating XMLReader", e); //$NON-NLS-1$
 			//rethrow!!
 			throw e;
 		}
@@ -649,19 +650,19 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			// special check for group-user : the grant's in the user's My
 			// Workspace site
 			String parts[] = ref.getId().split(Entity.SEPARATOR);
-			if ((parts.length > 3) && (parts[1].equals("group-user")))
+			if ((parts.length > 3) && (parts[1].equals("group-user"))) //$NON-NLS-1$
 			{
 				rv.add(SiteService.siteReference(SiteService
 						.getUserSiteId(parts[3])));
 			}
 			// . how do we get a section by ID, I assume that the
 			if (paths.length > 4
-					&& ("group".equals(paths[3]) || "section".equals(paths[3])))
+					&& ("group".equals(paths[3]) || "section".equals(paths[3]))) //$NON-NLS-1$ //$NON-NLS-2$
 			{
 				// paths 2 is the site id, which will be of the same form as a
 				// group id
-				String[] testuuid = paths[2].split("-");
-				String[] uuidparts = paths[4].split("-");
+				String[] testuuid = paths[2].split("-"); //$NON-NLS-1$
+				String[] uuidparts = paths[4].split("-"); //$NON-NLS-1$
 				boolean isuuid = false;
 				String groupID = Entity.SEPARATOR + paths[1]
 						+ Entity.SEPARATOR + paths[2] + Entity.SEPARATOR
@@ -692,16 +693,16 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 						if (paths[4].equalsIgnoreCase(g.getTitle()))
 						{
 							groupID = g.getId();
-							log.debug("Found Match " + groupID);
+							log.debug("Found Match " + groupID); //$NON-NLS-1$
 							break;
 						}
 					}
-					log.debug("Converted ID " + groupID);
+					log.debug("Converted ID " + groupID); //$NON-NLS-1$
 
 				}
 				else
 				{
-					log.debug("Raw ID " + groupID);
+					log.debug("Raw ID " + groupID); //$NON-NLS-1$
 				}
 				rv.add(groupID);
 
@@ -715,11 +716,11 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			rv.add(SiteService.siteReference(parts[2]));
 
 			// site helper
-			rv.add("!site.helper");
+			rv.add("!site.helper"); //$NON-NLS-1$
 		}
 		catch (Throwable e)
 		{
-			log.error(this + " Problem ", e);
+			log.error(this + " Problem ", e); //$NON-NLS-1$
 		}
 
 		return rv;
@@ -747,10 +748,10 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		{
 			ex.printStackTrace();
 			System.err
-					.println("Please check that the xslt is in the classpath "
+					.println("Please check that the xslt is in the classpath " //$NON-NLS-1$
 							+ xslt);
 			throw new RuntimeException(
-					"Failed to initialise XSLTTransformer context with xslt "
+					"Failed to initialise XSLTTransformer context with xslt " //$NON-NLS-1$
 							+ xslt, ex);
 		}
 	}
@@ -786,7 +787,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		}
 		catch (Exception ex)
 		{
-			throw new RuntimeException("Failed to create Content Handler", ex);
+			throw new RuntimeException("Failed to create Content Handler", ex); //$NON-NLS-1$
 			/*
 			 * String stackTrace = null; try { StringWriter exw = new
 			 * StringWriter(); PrintWriter pw = new PrintWriter(exw);
@@ -820,9 +821,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		}
 		catch (Exception ex)
 		{
-			// XXX Hmm I don't like this but I'm not sure what the correct way
-			// to handle this is
-			throw new RuntimeException("Failed to create Content Handler", ex);
+			throw new RuntimeException("Failed to create Content Handler", ex); //$NON-NLS-1$
 			/*
 			 * String stackTrace = null; try { StringWriter exw = new
 			 * StringWriter(); PrintWriter pw = new PrintWriter(exw);
@@ -1006,8 +1005,8 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			String name = (String) e.nextElement();
 			Object attr = request.getAttribute(name);
 			AttributesImpl propA = new AttributesImpl();
-			propA.addAttribute("", SchemaNames.ATTR_NAME,
-					SchemaNames.ATTR_NAME, "string", name);
+			propA.addAttribute("", SchemaNames.ATTR_NAME, //$NON-NLS-1$
+					SchemaNames.ATTR_NAME, "string", name); //$NON-NLS-1$
 			if (attr instanceof Object[])
 			{
 				Object[] oattr = (Object[]) attr;
@@ -1058,8 +1057,8 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			String name = (String) e.nextElement();
 			String[] attr = request.getParameterValues(name);
 			AttributesImpl propA = new AttributesImpl();
-			propA.addAttribute("", SchemaNames.ATTR_NAME,
-					SchemaNames.ATTR_NAME, "string", name);
+			propA.addAttribute("", SchemaNames.ATTR_NAME, //$NON-NLS-1$
+					SchemaNames.ATTR_NAME, "string", name); //$NON-NLS-1$
 			ch.startElement(SchemaNames.NS_CONTAINER,
 					SchemaNames.EL_REQUEST_PARAM,
 					SchemaNames.EL_NSREQUEST_PARAM, propA);

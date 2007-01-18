@@ -36,6 +36,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 
+import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiEntity;
@@ -69,7 +70,7 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 		siteService = (SiteService) load(cm, SiteService.class.getName());
 		toolManager = (ToolManager) load(cm, ToolManager.class.getName());
 
-		List l = functionManager.getRegisteredFunctions("rwiki.");
+		List l = functionManager.getRegisteredFunctions("rwiki."); //$NON-NLS-1$
 		if (!l.contains(SECURE_READ))
 			functionManager.registerFunction(SECURE_READ);
 		if (!l.contains(SECURE_UPDATE))
@@ -87,7 +88,7 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 		Object o = cm.get(name);
 		if (o == null)
 		{
-			log.error("Cant find Spring component named " + name);
+			log.error("Cant find Spring component named " + name); //$NON-NLS-1$
 		}
 		return o;
 	}
@@ -118,7 +119,7 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 		catch (IdUnusedException e)
 		{
 			throw new PermissionException(
-					"You must access the RWiki through a proper site");
+					Messages.getString("RWikiSecurityServiceImpl.2")); //$NON-NLS-1$
 		}
 	}
 
@@ -165,14 +166,14 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 		// Turn into an entity and then get a reference
 		Reference ref = entityManager
 				.newReference(RWikiObjectService.REFERENCE_ROOT + pageSpace
-						+ ".");
+						+ "."); //$NON-NLS-1$
 		return ref.getReference();
 	}
 
 	public boolean checkRead(RWikiEntity rwe)
 	{
 		RWikiObject rwo = rwe.getRWikiObject();
-		String progress = "";
+		String progress = ""; //$NON-NLS-1$
 		long start = System.currentTimeMillis();
 		try
 		{
@@ -181,7 +182,7 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 
 			if (log.isDebugEnabled())
 			{
-				log.debug("checkRead for " + rwo.getName() + " by user: "
+				log.debug("checkRead for " + rwo.getName() + " by user: " //$NON-NLS-1$ //$NON-NLS-2$
 						+ user);
 			}
 
@@ -190,9 +191,9 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 			{
 				if (log.isDebugEnabled())
 				{
-					log.debug("User is owner and allowed to read");
+					log.debug("User is owner and allowed to read"); //$NON-NLS-1$
 				}
-				progress = progress + "1";
+				progress = progress + "1"; //$NON-NLS-1$
 				return true;
 			}
 
@@ -204,9 +205,9 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 			{
 				if (log.isDebugEnabled())
 				{
-					log.debug("User is in group and allowed to read");
+					log.debug("User is in group and allowed to read"); //$NON-NLS-1$
 				}
-				progress = progress + "2";
+				progress = progress + "2"; //$NON-NLS-1$
 				return true;
 			}
 
@@ -214,9 +215,9 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 			{
 				if (log.isDebugEnabled())
 				{
-					log.debug("Object is public read");
+					log.debug("Object is public read"); //$NON-NLS-1$
 				}
-				progress = progress + "3";
+				progress = progress + "3"; //$NON-NLS-1$
 				return true;
 			}
 
@@ -225,24 +226,24 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 				if (log.isDebugEnabled())
 				{
 					log
-							.debug("User is SuperAdmin for Realm thus default allowed to update");
+							.debug("User is SuperAdmin for Realm thus default allowed to update"); //$NON-NLS-1$
 				}
-				progress = progress + "4";
+				progress = progress + "4"; //$NON-NLS-1$
 				return true;
 			}
 
 			if (log.isDebugEnabled())
 			{
-				log.debug("Permission denied to read " + rwo.getName()
-						+ " by user: " + user);
+				log.debug("Permission denied to read " + rwo.getName() //$NON-NLS-1$
+						+ " by user: " + user); //$NON-NLS-1$
 			}
-			progress = progress + "5";
+			progress = progress + "5"; //$NON-NLS-1$
 			return false;
 		}
 		finally
 		{
 			long finish = System.currentTimeMillis();
-			TimeLogger.printTimer("canRead: " + progress, start, finish);
+			TimeLogger.printTimer("canRead: " + progress, start, finish); //$NON-NLS-1$
 		}
 	}
 
@@ -252,14 +253,14 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 		RWikiObject rwo = rwe.getRWikiObject();
 		if (log.isDebugEnabled())
 		{
-			log.debug("checkUpdate for " + rwo.getName() + " by user: " + user);
+			log.debug("checkUpdate for " + rwo.getName() + " by user: " + user); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		if (user != null && user.equals(rwo.getOwner())
 				&& (rwo.getOwnerWrite() || rwo.getOwnerAdmin()))
 		{
 			if (log.isDebugEnabled())
 			{
-				log.debug("User is owner and allowed to update");
+				log.debug("User is owner and allowed to update"); //$NON-NLS-1$
 			}
 			return true;
 		}
@@ -271,7 +272,7 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 		{
 			if (log.isDebugEnabled())
 			{
-				log.debug("User is in group and allowed to update");
+				log.debug("User is in group and allowed to update"); //$NON-NLS-1$
 			}
 			return true;
 		}
@@ -280,7 +281,7 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 		{
 			if (log.isDebugEnabled())
 			{
-				log.debug("Object is public write");
+				log.debug("Object is public write"); //$NON-NLS-1$
 			}
 			return true;
 		}
@@ -290,15 +291,15 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 			if (log.isDebugEnabled())
 			{
 				log
-						.debug("User is SuperAdmin for Realm thus default allowed to update");
+						.debug("User is SuperAdmin for Realm thus default allowed to update"); //$NON-NLS-1$
 			}
 			return true;
 		}
 
 		if (log.isDebugEnabled())
 		{
-			log.debug("Permission denied to update " + rwo.getName()
-					+ " by user: " + user);
+			log.debug("Permission denied to update " + rwo.getName() //$NON-NLS-1$
+					+ " by user: " + user); //$NON-NLS-1$
 		}
 		return false;
 	}
@@ -310,13 +311,13 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 
 		if (log.isDebugEnabled())
 		{
-			log.debug("checkAdmin for " + rwo.getName() + " by user: " + user);
+			log.debug("checkAdmin for " + rwo.getName() + " by user: " + user); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		if (user != null && user.equals(rwo.getOwner()) && rwo.getOwnerAdmin())
 		{
 			if (log.isDebugEnabled())
 			{
-				log.debug("User is owner and allowed to admin");
+				log.debug("User is owner and allowed to admin"); //$NON-NLS-1$
 			}
 			return true;
 		}
@@ -326,7 +327,7 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 		{
 			if (log.isDebugEnabled())
 			{
-				log.debug("User is in group and allowed to admin");
+				log.debug("User is in group and allowed to admin"); //$NON-NLS-1$
 			}
 			return true;
 		}
@@ -336,15 +337,15 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 			if (log.isDebugEnabled())
 			{
 				log
-						.debug("User is Super Admin for Realm thus default allowed to admin");
+						.debug("User is Super Admin for Realm thus default allowed to admin"); //$NON-NLS-1$
 			}
 			return true;
 		}
 
 		if (log.isDebugEnabled())
 		{
-			log.debug("Permission denied to admin " + rwo.getName()
-					+ " by user: " + user);
+			log.debug("Permission denied to admin " + rwo.getName() //$NON-NLS-1$
+					+ " by user: " + user); //$NON-NLS-1$
 		}
 		return false;
 	}

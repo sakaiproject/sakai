@@ -42,6 +42,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
+import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiCurrentObject;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiEntity;
@@ -60,7 +61,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.UserDisplayHelper;
 public class XLSTChangesHandler extends XSLTEntityHandler
 {
 
-	private static final String RFC822DATE = "EEE, dd MMM yyyy HH:mm:ss Z";
+	private static final String RFC822DATE = "EEE, dd MMM yyyy HH:mm:ss Z"; //$NON-NLS-1$
 
 	private RWikiObjectService rwikiObjectService = null;
 
@@ -112,27 +113,27 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 
 			{
 				AttributesImpl propA = new AttributesImpl();
-				propA.addAttribute("", SchemaNames.ATTR_REQUEST_PATH_INFO,
-						SchemaNames.ATTR_REQUEST_PATH_INFO, "string", request
+				propA.addAttribute("", SchemaNames.ATTR_REQUEST_PATH_INFO, //$NON-NLS-1$
+						SchemaNames.ATTR_REQUEST_PATH_INFO, "string", request //$NON-NLS-1$
 								.getPathInfo());
-				propA.addAttribute("", SchemaNames.ATTR_REQUEST_USER,
-						SchemaNames.ATTR_REQUEST_USER, "string", request
+				propA.addAttribute("", SchemaNames.ATTR_REQUEST_USER, //$NON-NLS-1$
+						SchemaNames.ATTR_REQUEST_USER, "string", request //$NON-NLS-1$
 								.getRemoteUser());
-				propA.addAttribute("", SchemaNames.ATTR_REQUEST_PROTOCOL,
-						SchemaNames.ATTR_REQUEST_PROTOCOL, "string", request
+				propA.addAttribute("", SchemaNames.ATTR_REQUEST_PROTOCOL, //$NON-NLS-1$
+						SchemaNames.ATTR_REQUEST_PROTOCOL, "string", request //$NON-NLS-1$
 								.getProtocol());
-				propA.addAttribute("", SchemaNames.ATTR_REQUEST_SERVER_NAME,
-						SchemaNames.ATTR_REQUEST_SERVER_NAME, "string", request
+				propA.addAttribute("", SchemaNames.ATTR_REQUEST_SERVER_NAME, //$NON-NLS-1$
+						SchemaNames.ATTR_REQUEST_SERVER_NAME, "string", request //$NON-NLS-1$
 								.getServerName());
-				propA.addAttribute("", SchemaNames.ATTR_REQUEST_SERVER_PORT,
-						SchemaNames.ATTR_REQUEST_SERVER_PORT, "string", String
+				propA.addAttribute("", SchemaNames.ATTR_REQUEST_SERVER_PORT, //$NON-NLS-1$
+						SchemaNames.ATTR_REQUEST_SERVER_PORT, "string", String //$NON-NLS-1$
 								.valueOf(request.getServerPort()));
-				propA.addAttribute("", SchemaNames.ATTR_REQUEST_REQUEST_URL,
-						SchemaNames.ATTR_REQUEST_REQUEST_URL, "string", String
+				propA.addAttribute("", SchemaNames.ATTR_REQUEST_REQUEST_URL, //$NON-NLS-1$
+						SchemaNames.ATTR_REQUEST_REQUEST_URL, "string", String //$NON-NLS-1$
 								.valueOf(request.getRequestURL()));
 
-				propA.addAttribute("", SchemaNames.ATTR_SERVER_URL,
-						SchemaNames.ATTR_SERVER_URL, "string",
+				propA.addAttribute("", SchemaNames.ATTR_SERVER_URL, //$NON-NLS-1$
+						SchemaNames.ATTR_SERVER_URL, "string", //$NON-NLS-1$
 						ServerConfigurationService.getServerUrl());
 
 				ch.startElement(SchemaNames.NS_CONTAINER,
@@ -163,9 +164,8 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 				AttributesImpl propA = new AttributesImpl();
 				addPropertyElement(name, value, ch);
 			}
-			addPropertyElement("_handler", " XSLTEntity Handler", ch);
+			addPropertyElement("_handler", " XSLTEntity Handler", ch); //$NON-NLS-1$ //$NON-NLS-2$
 
-			// XXX assumption that context is a Site.
 			Site site = (Site) siteService.getEntity(EntityManager.newReference(decodedReference.getContext()));
 			String title;
 			if (site != null) {
@@ -174,8 +174,8 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 				title = decodedReference.getContext();
 			}
 
-			addPropertyElement("_siteDisplay", title, ch);
-			addPropertyElement("_container", decodedReference.getContainer(), ch);
+			addPropertyElement("_siteDisplay", title, ch); //$NON-NLS-1$
+			addPropertyElement("_container", decodedReference.getContainer(), ch); //$NON-NLS-1$
 
 			if (entity instanceof RWikiEntity)
 			{
@@ -184,34 +184,31 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 				if (!rwe.isContainer())
 				{
 					RWikiObject rwo = rwe.getRWikiObject();
-					// XXX internationalization
-					title = "Change History for " + title + ":" + NameHelper.localizeName(rwo.getName(), decodedReference.getContext());					
+					title = Messages.getString("XLSTChangesHandler.19") + title + ":" + NameHelper.localizeName(rwo.getName(), decodedReference.getContext());					 //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				else
 				{
-					// XXX internationalization
 					if (decodedReference.getContainer() != null && decodedReference.getContainer().length() > 1) {
-						title = "Recent Changes in " + title + ":" + decodedReference.getContainer().substring(1);
+						title = Messages.getString("XLSTChangesHandler.21") + title + ":" + decodedReference.getContainer().substring(1); //$NON-NLS-1$ //$NON-NLS-2$
 					} else {
-						title = "Recent Changes in " + title;
+						title = Messages.getString("XLSTChangesHandler.23") + title; //$NON-NLS-1$
 					}
 					
 				}
 				
-				addPropertyElement("_title", title, ch);
+				addPropertyElement("_title", title, ch); //$NON-NLS-1$
 
 			}
 			
 			{
-				addPropertyElement("_description", ServerConfigurationService.getString("ui.service"), ch);
+				addPropertyElement("_description", ServerConfigurationService.getString("ui.service"), ch); //$NON-NLS-1$ //$NON-NLS-2$
 				
 			}
 			{
-				// XXX Internationalize 
 				// 2006-02-16T18:28:03+01:00
 				SimpleDateFormat sd = new SimpleDateFormat(
 						RFC822DATE);
-				addPropertyElement("_datestamp", sd
+				addPropertyElement("_datestamp", sd //$NON-NLS-1$
 						.format(new Date()), ch);
 			}
 
@@ -265,7 +262,7 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 		catch (Exception ex)
 		{
 			ex.printStackTrace();
-			throw new RuntimeException("Failed to serialise "
+			throw new RuntimeException("Failed to serialise " //$NON-NLS-1$
 					+ ex.getLocalizedMessage(), ex);
 		}
 	}
@@ -273,8 +270,8 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 	private void addPropertyElement(String property, String value, ContentHandler ch) throws SAXException
 	{
 		AttributesImpl propA = new AttributesImpl();
-		propA.addAttribute("", SchemaNames.ATTR_NAME,
-				SchemaNames.ATTR_NAME, "string", property);
+		propA.addAttribute("", SchemaNames.ATTR_NAME, //$NON-NLS-1$
+				SchemaNames.ATTR_NAME, "string", property); //$NON-NLS-1$
 		addElement(ch, SchemaNames.NS_CONTAINER,
 				SchemaNames.EL_XMLPROPERTY,
 				SchemaNames.EL_NSXMLPROPERTY, propA,
@@ -292,36 +289,36 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 		{
 			RWikiHistoryObject rwco = (RWikiHistoryObject) i.next();
 			AttributesImpl propA = new AttributesImpl();
-			propA.addAttribute("", SchemaNames.ATTR_ID, SchemaNames.ATTR_ID,
-					"string", rwco.getId());
+			propA.addAttribute("", SchemaNames.ATTR_ID, SchemaNames.ATTR_ID, //$NON-NLS-1$
+					"string", rwco.getId()); //$NON-NLS-1$
 			// FIXME why do we know about "@" here?!
-			propA.addAttribute("", SchemaNames.ATTR_NAME,
-					SchemaNames.ATTR_NAME, "string", rwco.getName() + "@"
+			propA.addAttribute("", SchemaNames.ATTR_NAME, //$NON-NLS-1$
+					SchemaNames.ATTR_NAME, "string", rwco.getName() + "@" //$NON-NLS-1$ //$NON-NLS-2$
 							+ rwco.getRevision());
-			propA.addAttribute("", SchemaNames.ATTR_LOCAL_NAME,
-					SchemaNames.ATTR_LOCAL_NAME, "string", NameHelper
+			propA.addAttribute("", SchemaNames.ATTR_LOCAL_NAME, //$NON-NLS-1$
+					SchemaNames.ATTR_LOCAL_NAME, "string", NameHelper //$NON-NLS-1$
 							.localizeName(rwo.getName(), rwo.getRealm()));
-			propA.addAttribute("", SchemaNames.ATTR_OWNER,
-					SchemaNames.ATTR_OWNER, "string", rwco.getOwner());
-			propA.addAttribute("", SchemaNames.ATTR_OWNER,
-					SchemaNames.ATTR_REALM, "string", rwco.getRealm());
+			propA.addAttribute("", SchemaNames.ATTR_OWNER, //$NON-NLS-1$
+					SchemaNames.ATTR_OWNER, "string", rwco.getOwner()); //$NON-NLS-1$
+			propA.addAttribute("", SchemaNames.ATTR_OWNER, //$NON-NLS-1$
+					SchemaNames.ATTR_REALM, "string", rwco.getRealm()); //$NON-NLS-1$
 			propA
-					.addAttribute("", SchemaNames.ATTR_REFERENCED,
-							SchemaNames.ATTR_REFERENCED, "string", rwco
+					.addAttribute("", SchemaNames.ATTR_REFERENCED, //$NON-NLS-1$
+							SchemaNames.ATTR_REFERENCED, "string", rwco //$NON-NLS-1$
 									.getReferenced());
-			propA.addAttribute("", SchemaNames.ATTR_SHA1,
-					SchemaNames.ATTR_SHA1, "string", rwco.getSha1());
-			propA.addAttribute("", SchemaNames.ATTR_USER,
-					SchemaNames.ATTR_USER, "string", rwco.getUser());
-			propA.addAttribute("", SchemaNames.ATTR_DISPLAY_USER,
-					SchemaNames.ATTR_DISPLAY_USER, "string", UserDisplayHelper
+			propA.addAttribute("", SchemaNames.ATTR_SHA1, //$NON-NLS-1$
+					SchemaNames.ATTR_SHA1, "string", rwco.getSha1()); //$NON-NLS-1$
+			propA.addAttribute("", SchemaNames.ATTR_USER, //$NON-NLS-1$
+					SchemaNames.ATTR_USER, "string", rwco.getUser()); //$NON-NLS-1$
+			propA.addAttribute("", SchemaNames.ATTR_DISPLAY_USER, //$NON-NLS-1$
+					SchemaNames.ATTR_DISPLAY_USER, "string", UserDisplayHelper //$NON-NLS-1$
 							.formatDisplayName(rwco.getUser()));
-			propA.addAttribute("", SchemaNames.ATTR_REVISION,
-					SchemaNames.ATTR_REVISION, "string", String.valueOf(rwco
+			propA.addAttribute("", SchemaNames.ATTR_REVISION, //$NON-NLS-1$
+					SchemaNames.ATTR_REVISION, "string", String.valueOf(rwco //$NON-NLS-1$
 							.getRevision()));
 			SimpleDateFormat sd = new SimpleDateFormat(RFC822DATE);
-			propA.addAttribute("", SchemaNames.ATTR_LAST_CHANGE,
-					SchemaNames.ATTR_LAST_CHANGE, "string", sd.format(rwco
+			propA.addAttribute("", SchemaNames.ATTR_LAST_CHANGE, //$NON-NLS-1$
+					SchemaNames.ATTR_LAST_CHANGE, "string", sd.format(rwco //$NON-NLS-1$
 							.getVersion()));
 
 			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_CHANGE,
@@ -354,34 +351,34 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 			nchanges++;
 			RWikiCurrentObject rwco = (RWikiCurrentObject) i.next();
 			AttributesImpl propA = new AttributesImpl();
-			propA.addAttribute("", SchemaNames.ATTR_ID, SchemaNames.ATTR_ID,
-					"string", rwco.getId());
-			propA.addAttribute("", SchemaNames.ATTR_NAME,
-					SchemaNames.ATTR_NAME, "string", rwco.getName());
-			propA.addAttribute("", SchemaNames.ATTR_LOCAL_NAME,
-					SchemaNames.ATTR_LOCAL_NAME, "string", NameHelper
+			propA.addAttribute("", SchemaNames.ATTR_ID, SchemaNames.ATTR_ID, //$NON-NLS-1$
+					"string", rwco.getId()); //$NON-NLS-1$
+			propA.addAttribute("", SchemaNames.ATTR_NAME, //$NON-NLS-1$
+					SchemaNames.ATTR_NAME, "string", rwco.getName()); //$NON-NLS-1$
+			propA.addAttribute("", SchemaNames.ATTR_LOCAL_NAME, //$NON-NLS-1$
+					SchemaNames.ATTR_LOCAL_NAME, "string", NameHelper //$NON-NLS-1$
 							.localizeName(rwco.getName(), rwco.getRealm()));
-			propA.addAttribute("", SchemaNames.ATTR_OWNER,
-					SchemaNames.ATTR_OWNER, "string", rwco.getOwner());
-			propA.addAttribute("", SchemaNames.ATTR_REALM,
-					SchemaNames.ATTR_REALM, "string", rwco.getRealm());
+			propA.addAttribute("", SchemaNames.ATTR_OWNER, //$NON-NLS-1$
+					SchemaNames.ATTR_OWNER, "string", rwco.getOwner()); //$NON-NLS-1$
+			propA.addAttribute("", SchemaNames.ATTR_REALM, //$NON-NLS-1$
+					SchemaNames.ATTR_REALM, "string", rwco.getRealm()); //$NON-NLS-1$
 			propA
-					.addAttribute("", SchemaNames.ATTR_REFERENCED,
-							SchemaNames.ATTR_REFERENCED, "string", rwco
+					.addAttribute("", SchemaNames.ATTR_REFERENCED, //$NON-NLS-1$
+							SchemaNames.ATTR_REFERENCED, "string", rwco //$NON-NLS-1$
 									.getReferenced());
-			propA.addAttribute("", SchemaNames.ATTR_SHA1,
-					SchemaNames.ATTR_SHA1, "string", rwco.getSha1());
-			propA.addAttribute("", SchemaNames.ATTR_USER,
-					SchemaNames.ATTR_USER, "string", rwco.getUser());
-			propA.addAttribute("", SchemaNames.ATTR_DISPLAY_USER,
-					SchemaNames.ATTR_DISPLAY_USER, "string", UserDisplayHelper
+			propA.addAttribute("", SchemaNames.ATTR_SHA1, //$NON-NLS-1$
+					SchemaNames.ATTR_SHA1, "string", rwco.getSha1()); //$NON-NLS-1$
+			propA.addAttribute("", SchemaNames.ATTR_USER, //$NON-NLS-1$
+					SchemaNames.ATTR_USER, "string", rwco.getUser()); //$NON-NLS-1$
+			propA.addAttribute("", SchemaNames.ATTR_DISPLAY_USER, //$NON-NLS-1$
+					SchemaNames.ATTR_DISPLAY_USER, "string", UserDisplayHelper //$NON-NLS-1$
 							.formatDisplayName(rwco.getUser()));
-			propA.addAttribute("", SchemaNames.ATTR_REVISION,
-					SchemaNames.ATTR_REVISION, "string", String.valueOf(rwco
+			propA.addAttribute("", SchemaNames.ATTR_REVISION, //$NON-NLS-1$
+					SchemaNames.ATTR_REVISION, "string", String.valueOf(rwco //$NON-NLS-1$
 							.getRevision()));
 			SimpleDateFormat sd = new SimpleDateFormat(RFC822DATE);
-			propA.addAttribute("", SchemaNames.ATTR_LAST_CHANGE,
-					SchemaNames.ATTR_LAST_CHANGE, "string", sd.format(rwco
+			propA.addAttribute("", SchemaNames.ATTR_LAST_CHANGE, //$NON-NLS-1$
+					SchemaNames.ATTR_LAST_CHANGE, "string", sd.format(rwco //$NON-NLS-1$
 							.getVersion()));
 			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_CHANGE,
 					SchemaNames.EL_NSCHANGE, propA);

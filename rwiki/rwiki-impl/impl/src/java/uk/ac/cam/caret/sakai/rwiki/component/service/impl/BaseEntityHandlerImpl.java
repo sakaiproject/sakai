@@ -61,7 +61,7 @@ public abstract class BaseEntityHandlerImpl implements EntityHandler
 	private boolean available = true;
 
 	/**
-	 * {@inheritDoc} TODO
+	 * {@inheritDoc} 
 	 */
 	public void setReference(String majorType, Reference ref, String reference)
 	{
@@ -83,7 +83,7 @@ public abstract class BaseEntityHandlerImpl implements EntityHandler
 	}
 
 	/**
-	 * {@inheritDoc} TODO
+	 * {@inheritDoc} 
 	 */
 	public boolean matches(String reference)
 	{
@@ -92,7 +92,7 @@ public abstract class BaseEntityHandlerImpl implements EntityHandler
 	}
 
 	/**
-	 * {@inheritDoc} TODO
+	 * {@inheritDoc} 
 	 */
 	public int getRevision(Reference reference)
 	{

@@ -28,7 +28,6 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiProperty;
  * 
  * @author ieb
  */
-// FIXME: Component
 public class RWikiPropertyImpl implements RWikiProperty
 {
 	private String id;

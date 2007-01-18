@@ -27,7 +27,6 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiCurrentObject;
 /**
  * @author ieb
  */
-// FIXME: Component
 public class RWikiCurrentObjectImpl extends RWikiObjectImpl implements
 		RWikiCurrentObject
 {

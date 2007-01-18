@@ -28,33 +28,33 @@ import java.io.Writer;
 import org.radeox.macro.BaseMacro;
 import org.radeox.macro.parameter.MacroParameter;
 
+import uk.ac.cam.caret.sakai.rwiki.component.Messages;
+
 /**
  * Basic ColorMacro to change the foreground color and background color of some
- * contents. FIXME needs localisation. May even need localisable naming!
+ * contents. 
  * 
  * @author andrew
  */
 public class ColorMacro extends BaseMacro
 {
 
-	private static final String COLOR_PARAM = "color";
+	private static final String COLOR_PARAM = "color"; //$NON-NLS-1$
 
-	private static final String BACKGROUND_COLOR_PARAM = "bgcolor";
+	private static final String BACKGROUND_COLOR_PARAM = "bgcolor"; //$NON-NLS-1$
 
-	private static final String[] paramDescription = {
-			"0,color: Change the foreground color of the contents",
-			"1,bgcolor: Change the background color of the contents" };
 
-	private static final String description = "Change the color of some text";
 
 	public String getName()
 	{
-		return "color";
+		return "color"; //$NON-NLS-1$
 	}
 
 	public String[] getParamDescription()
 	{
-		return paramDescription;
+		return new String[] {
+			Messages.getString("ColorMacro.2"), //$NON-NLS-1$
+			Messages.getString("ColorMacro.3") }; //$NON-NLS-1$
 	}
 
 	/*
@@ -64,13 +64,13 @@ public class ColorMacro extends BaseMacro
 	 */
 	public String getDescription()
 	{
-		return description;
+		return Messages.getString("ColorMacro.4"); //$NON-NLS-1$
 	}
 
 	public void execute(Writer writer, MacroParameter params)
 			throws IllegalArgumentException, IOException
 	{
-		writer.write("<span style='");
+		writer.write("<span style='"); //$NON-NLS-1$
 
 		String color = params.get(COLOR_PARAM);
 		String backgroundColor = params.get(BACKGROUND_COLOR_PARAM);
@@ -82,21 +82,21 @@ public class ColorMacro extends BaseMacro
 		}
 
 		// Parse color
-		writer.write(parse(color, "color: "));
+		writer.write(parse(color, "color: ")); //$NON-NLS-1$
 
-		writer.write(parse(backgroundColor, "background: "));
+		writer.write(parse(backgroundColor, "background: ")); //$NON-NLS-1$
 
-		writer.write("'>");
+		writer.write("'>"); //$NON-NLS-1$
 		if (params.getContent() != null)
 		{
 			writer.write(params.getContent());
 		}
-		writer.write("</span>");
+		writer.write("</span>"); //$NON-NLS-1$
 	}
 
 	private String parse(String color, String cssClass)
 	{
-		if (color == null) return "";
+		if (color == null) return ""; //$NON-NLS-1$
 
 		// simplest thing remove all (: ; /* */) from the CSS
 		char[] disallowedChars = { ':', ';', '/', '*', '{', '}', '"', '\'',
@@ -105,8 +105,8 @@ public class ColorMacro extends BaseMacro
 		{
 			if (color.indexOf(disallowedChars[i]) > 0)
 			{
-				throw new IllegalArgumentException("Color: " + color
-						+ " is not a real CSS color!");
+				throw new IllegalArgumentException(Messages.getString("ColorMacro.1") + color //$NON-NLS-1$
+						+ Messages.getString("ColorMacro.13")); //$NON-NLS-1$
 			}
 		}
 		return cssClass + color + ';';

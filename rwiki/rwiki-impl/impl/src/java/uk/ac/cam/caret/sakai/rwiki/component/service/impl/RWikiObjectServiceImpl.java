@@ -63,6 +63,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.component.dao.impl.ListProxy;
 import uk.ac.cam.caret.sakai.rwiki.component.model.impl.RWikiEntityImpl;
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiPermissionsImpl;
@@ -108,7 +109,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 */
 	private Map m_handlers = null;
 
-	public String createTemplatePageName = "default_template";
+	public String createTemplatePageName = "default_template"; //$NON-NLS-1$
 
 	private RWikiSecurityService wikiSecurityService;
 
@@ -139,7 +140,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 */
 	public void init()
 	{
-		log.debug("init start");
+		log.debug("init start"); //$NON-NLS-1$
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
 				.getInstance();
 		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
@@ -164,7 +165,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 		entityManager.registerEntityProducer(this,
 				RWikiObjectService.REFERENCE_ROOT);
-		if (ServerConfigurationService.getBoolean("wiki.notification", true))
+		if (ServerConfigurationService.getBoolean("wiki.notification", true)) //$NON-NLS-1$
 		{
 			// Email notification
 			// register a transient notification for resources
@@ -188,7 +189,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 					this.digestService));
 		}
 
-		log.debug("init end");
+		log.debug("init end"); //$NON-NLS-1$
 
 	}
 
@@ -197,7 +198,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		Object o = cm.get(name);
 		if (o == null)
 		{
-			log.error("Cant find Spring component named " + name);
+			log.error("Cant find Spring component named " + name); //$NON-NLS-1$
 		}
 		return o;
 	}
@@ -230,8 +231,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 			if (log.isDebugEnabled())
 			{
-				log.debug("Looking for object with name " + name + " in realm "
-						+ realm + " for user " + user);
+				log.debug("Looking for object with name " + name + " in realm " //$NON-NLS-1$ //$NON-NLS-2$
+						+ realm + " for user " + user); //$NON-NLS-1$
 			}
 
 			// May throw Permission Exception...
@@ -246,7 +247,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			finally
 			{
 				long finish = System.currentTimeMillis();
-				TimeLogger.printTimer("dao.findByGlobalName: " + name, start2,
+				TimeLogger.printTimer("dao.findByGlobalName: " + name, start2, //$NON-NLS-1$
 						finish);
 			}
 
@@ -259,8 +260,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 				if (!wikiSecurityService
 						.checkCreatePermission(permissionsReference))
 				{
-					throw new CreatePermissionException("User: " + user
-							+ " cannot create pages in realm: " + realm);
+					throw new CreatePermissionException("User: " + user //$NON-NLS-1$
+							+ " cannot create pages in realm: " + realm); //$NON-NLS-1$
 				}
 				returnable = cdao.createRWikiObject(name, realm);
 				// zero in on the correct space.
@@ -295,8 +296,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		finally
 		{
 			long finish = System.currentTimeMillis();
-			TimeLogger.printTimer("dao.GetRWikiObject: " + name + ", " + user
-					+ ", " + realm, start, finish);
+			TimeLogger.printTimer("dao.GetRWikiObject: " + name + ", " + user //$NON-NLS-1$ //$NON-NLS-2$
+					+ ", " + realm, start, finish); //$NON-NLS-1$
 		}
 	}
 
@@ -383,8 +384,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		}
 		else
 		{
-			throw new UpdatePermissionException("User: " + user
-					+ " doesn't have permission to update: " + name);
+			throw new UpdatePermissionException("User: " + user //$NON-NLS-1$
+					+ " doesn't have permission to update: " + name); //$NON-NLS-1$
 		}
 
 		if (permissions != null)
@@ -395,8 +396,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			}
 			else
 			{
-				throw new UpdatePermissionException("User: " + user
-						+ " doesn't have permission to update and admin: "
+				throw new UpdatePermissionException("User: " + user //$NON-NLS-1$
+						+ " doesn't have permission to update and admin: " //$NON-NLS-1$
 						+ name);
 			}
 		}
@@ -433,7 +434,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		}
 		catch (HibernateOptimisticLockingFailureException e)
 		{
-			throw new VersionException("Version has changed since: " + version,
+			throw new VersionException("Version has changed since: " + version, //$NON-NLS-1$
 					e);
 		}
 	}
@@ -451,7 +452,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	{
 		if (permissions == null)
 		{
-			throw new IllegalArgumentException("permissions must not be null");
+			throw new IllegalArgumentException("permissions must not be null"); //$NON-NLS-1$
 		}
 		String user = sessionManager.getCurrentSessionUserId();
 
@@ -492,15 +493,15 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			}
 			catch (HibernateOptimisticLockingFailureException e)
 			{
-				throw new VersionException("Version has changed since: "
+				throw new VersionException("Version has changed since: " //$NON-NLS-1$
 						+ version, e);
 			}
 
 		}
 		else
 		{
-			throw new UpdatePermissionException("User: " + user
-					+ " doesn't have permission to update and admin: " + name);
+			throw new UpdatePermissionException("User: " + user //$NON-NLS-1$
+					+ " doesn't have permission to update and admin: " + name); //$NON-NLS-1$
 		}
 
 	}
@@ -522,7 +523,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			RWikiHistoryObject rwho = hdao.createRWikiHistoryObject(rwo);
 
 			// set the content and increment the revision
-			rwo.setContent(content.replaceAll("\r\n?", "\n"));
+			rwo.setContent(content.replaceAll("\r\n?", "\n")); //$NON-NLS-1$ //$NON-NLS-2$
 			rwo.setRevision(new Integer(rwo.getRevision().intValue() + 1));
 
 			// render to get a list of links
@@ -592,9 +593,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			Iterator i = referenced.iterator();
 			while (i.hasNext())
 			{
-				sb.append("::").append(i.next());
+				sb.append("::").append(i.next()); //$NON-NLS-1$
 			}
-			sb.append("::");
+			sb.append("::"); //$NON-NLS-1$
 			rwo.setReferenced(sb.toString());
 
 			return rwho;
@@ -617,7 +618,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		finally
 		{
 			long finish = System.currentTimeMillis();
-			TimeLogger.printTimer("Exists: " + name, start, finish);
+			TimeLogger.printTimer("Exists: " + name, start, finish); //$NON-NLS-1$
 
 		}
 	}
@@ -751,7 +752,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 				if (lastComment != null)
 				{
 					String lastCommentName = lastComment.getName();
-					int lastp = lastCommentName.lastIndexOf(".");
+					int lastp = lastCommentName.lastIndexOf("."); //$NON-NLS-1$
 					if (lastp >= 0)
 					{
 						try {
@@ -763,7 +764,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 					}
 				}
 				String newCommentName = MessageFormat.format(
-						"{0}.{1,number,000}", new Object[] { name,
+						"{0}.{1,number,000}", new Object[] { name, //$NON-NLS-1$
 								new Integer(cnum) });
 				update(newCommentName, realm, version, content);
 				break;
@@ -796,7 +797,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	{
 		// RWikiCurrentObjectImpl rwco = new RWikiCurrentObjectImpl();
 		// rwco.setRwikiObjectContentDao(c)
-		return cdao.createRWikiObject("dummy", "dummy");
+		return cdao.createRWikiObject("dummy", "dummy"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/*
@@ -861,8 +862,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 		// prepare the buffer for the results log
 		StringBuffer results = new StringBuffer();
-		results.append("archiving Wiki Pages for ").append(siteId).append("\n");
-		log.debug("archiving Wiki Pages for " + siteId);
+		results.append(Messages.getString("RWikiObjectServiceImpl.32")).append(siteId).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		log.debug("archiving Wiki Pages for " + siteId); //$NON-NLS-1$
 		int npages = 0;
 		int nversions = 0;
 
@@ -881,13 +882,13 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			try
 			{
 
-				List l = cdao.findRWikiSubPages("/site/" + siteId);
+				List l = cdao.findRWikiSubPages("/site/" + siteId); //$NON-NLS-1$
 				for (Iterator i = l.iterator(); i.hasNext();)
 				{
 
 					RWikiObject rwo = (RWikiObject) i.next();
 					RWikiEntity rwe = (RWikiEntity) getEntity(rwo);
-					log.debug("Archiving " + rwo.getName());
+					log.debug("Archiving " + rwo.getName()); //$NON-NLS-1$
 					rwe.toXml(doc, stack);
 					npages++;
 					List lh = this.findRWikiHistoryObjects(rwo);
@@ -897,8 +898,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 						{
 							RWikiObject rwoh = (RWikiObject) ih.next();
 							RWikiEntity rwoeh = (RWikiEntity) getEntity(rwoh);
-							log.debug("Archiving " + rwoh.getName()
-									+ " version " + rwoh.getVersion());
+							log.debug("Archiving " + rwoh.getName() //$NON-NLS-1$
+									+ " version " + rwoh.getVersion()); //$NON-NLS-1$
 							rwoeh.toXml(doc, stack);
 							nversions++;
 						}
@@ -908,12 +909,12 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			catch (Exception any)
 			{
 				any.printStackTrace();
-				results.append("Error archiving pages from site: " + siteId
-						+ " " + any.toString() + "\n");
+				results.append(Messages.getString("RWikiObjectServiceImpl.31") + siteId //$NON-NLS-1$
+						+ " " + any.toString() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 
-			results.append("archiving: Completed ").append(npages).append(
-					" pages and ").append(nversions).append(" versions\n");
+			results.append(Messages.getString("RWikiObjectServiceImpl.30")).append(npages).append( //$NON-NLS-1$
+					Messages.getString("RWikiObjectServiceImpl.43")).append(nversions).append(Messages.getString("RWikiObjectServiceImpl.44")); //$NON-NLS-1$ //$NON-NLS-2$
 			stack.pop();
 		}
 		catch (IdUnusedException ex)
@@ -935,7 +936,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			String fromSiteId, Map attachmentNames, Map userIdTrans,
 			Set userListAllowImport)
 	{
-		log.info(" wiki Merge");
+		log.info(" wiki Merge"); //$NON-NLS-1$
 		// TODO Permissions ?
 		// stolen :) from BaseContentService
 		// get the system name: FROM_WT, FROM_CT, FROM_SAKAI
@@ -966,7 +967,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 			NodeList children = root.getChildNodes();
 			final int length = children.getLength();
-			log.info("Archive has " + length + " pages ");
+			log.info("Archive has " + length + " pages "); //$NON-NLS-1$ //$NON-NLS-2$
 			for (int i = 0; i < length; i++)
 			{
 				Node child = children.item(i);
@@ -977,10 +978,10 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 				{
 
 					RWikiCurrentObject archiverwo = cdao.createRWikiObject(
-							"dummy", "dummy");
+							"dummy", "dummy"); //$NON-NLS-1$ //$NON-NLS-2$
 					RWikiEntity rwe = (RWikiEntity) getEntity(archiverwo);
 					rwe.fromXml(element, defaultRealm);
-					log.info(" Merging " + archiverwo.getRevision() + ":"
+					log.info(" Merging " + archiverwo.getRevision() + ":" //$NON-NLS-1$ //$NON-NLS-2$
 							+ rwe.getReference());
 
 					// clear the ID to remove hibernate session issues and
@@ -1000,19 +1001,19 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 						{
 							nversions_reject++;
 							results
-									.append("Page ")
+									.append(Messages.getString("RWikiObjectServiceImpl.29")) //$NON-NLS-1$
 									.append(rwo.getName())
-									.append(" already exists with revision ")
+									.append(Messages.getString("RWikiObjectServiceImpl.28")) //$NON-NLS-1$
 									.append(rwo.getRevision())
 									.append(
-											" which is earlier than the revision from the archive ")
+											Messages.getString("RWikiObjectServiceImpl.54")) //$NON-NLS-1$
 									.append(archiverwo.getRevision())
 									.append(
-											" therefore I have rejected the merge from the archive,")
+											Messages.getString("RWikiObjectServiceImpl.55")) //$NON-NLS-1$
 									.append(
-											" please report this a bug to JIRA if you feel that")
+											Messages.getString("RWikiObjectServiceImpl.56")) //$NON-NLS-1$
 									.append(
-											" this functionality is required \n");
+											Messages.getString("RWikiObjectServiceImpl.57")); //$NON-NLS-1$
 						}
 						else
 						{
@@ -1035,16 +1036,16 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 							{
 								nversions_reject++;
 								results
-										.append("Page ")
+										.append(Messages.getString("RWikiObjectServiceImpl.58")) //$NON-NLS-1$
 										.append(rwo.getName())
 										.append(
-												" already exists with revision ")
+												Messages.getString("RWikiObjectServiceImpl.59")) //$NON-NLS-1$
 										.append(rwo.getRevision())
 										.append(
-												" therefore I have rejected the merge of"
-														+ " corresponding revision from the archive,"
-														+ " please report this a bug to JIRA if you feel that"
-														+ " this functionality is required \n");
+												Messages.getString("RWikiObjectServiceImpl.60") //$NON-NLS-1$
+														+ Messages.getString("RWikiObjectServiceImpl.61") //$NON-NLS-1$
+														+ Messages.getString("RWikiObjectServiceImpl.62") //$NON-NLS-1$
+														+ Messages.getString("RWikiObjectServiceImpl.63")); //$NON-NLS-1$
 							}
 						}
 
@@ -1070,49 +1071,49 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 						else
 						{
 							npages_errors++;
-							results.append("Created ").append(
-									savedrwo.getName()).append(" revision ")
+							results.append(Messages.getString("RWikiObjectServiceImpl.64")).append( //$NON-NLS-1$
+									savedrwo.getName()).append(Messages.getString("RWikiObjectServiceImpl.65")) //$NON-NLS-1$
 									.append(savedrwo.getRevision()).append(
-											" with version ").append(
+											Messages.getString("RWikiObjectServiceImpl.66")).append( //$NON-NLS-1$
 											savedrwo.getVersion().getTime())
-									.append(" date ").append(
-											savedrwo.getVersion()).append("\n");
+									.append(Messages.getString("RWikiObjectServiceImpl.67")).append( //$NON-NLS-1$
+											savedrwo.getVersion()).append("\n"); //$NON-NLS-1$
 							results
 									.append(
-											" WARNING: Check Sums do not match Archive Verions:")
+											Messages.getString("RWikiObjectServiceImpl.69")) //$NON-NLS-1$
 									.append(archiverwo.getSha1()).append(
-											" Merged Version:").append(
+											Messages.getString("RWikiObjectServiceImpl.70")).append( //$NON-NLS-1$
 											savedrwo.getSha1()).append(
-											"\nArchive Content:\n").append(
+											Messages.getString("RWikiObjectServiceImpl.71")).append( //$NON-NLS-1$
 											archiverwo.getContent()).append(
-											"\nSaved Content:\n").append(
-											savedrwo.getContent()).append("\n");
+											Messages.getString("RWikiObjectServiceImpl.72")).append( //$NON-NLS-1$
+											savedrwo.getContent()).append("\n"); //$NON-NLS-1$
 						}
 					}
 				}
 				catch (Exception ex)
 				{
 					npages_fail++;
-					log.error("Failed to add page ", ex);
-					results.append("Failed to add ").append(
-							element.getAttribute("page-name")).append(
-							" revision ").append(
-							element.getAttribute("revision")).append(
-							" because  ").append(ex.getMessage()).append("\n");
+					log.error("Failed to add page ", ex); //$NON-NLS-1$
+					results.append(Messages.getString("RWikiObjectServiceImpl.75")).append( //$NON-NLS-1$
+							element.getAttribute(Messages.getString("RWikiObjectServiceImpl.76"))).append( //$NON-NLS-1$
+							Messages.getString("RWikiObjectServiceImpl.77")).append( //$NON-NLS-1$
+							element.getAttribute(Messages.getString("RWikiObjectServiceImpl.78"))).append( //$NON-NLS-1$
+							Messages.getString("RWikiObjectServiceImpl.79")).append(ex.getMessage()).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 
 				}
 			}
 		}
 		catch (IdUnusedException ex)
 		{
-			results.append(" Problem locating Reference on site ").append(
-					siteId).append(" :").append(ex.getMessage()).append("\n");
+			results.append(Messages.getString("RWikiObjectServiceImpl.81")).append( //$NON-NLS-1$
+					siteId).append(" :").append(ex.getMessage()).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		results.append(" Wiki Merge Complete ").append(" Added ")
-				.append(npages).append(" pages with ").append(nversions)
-				.append(" revisions \nFound ").append(nversions_reject).append(
-						" rejects, ").append(npages_fail).append(" failures, ")
-				.append(npages_errors).append(" errors\n ");
+		results.append(Messages.getString("RWikiObjectServiceImpl.84")).append(Messages.getString("RWikiObjectServiceImpl.85")) //$NON-NLS-1$ //$NON-NLS-2$
+				.append(npages).append(Messages.getString("RWikiObjectServiceImpl.86")).append(nversions) //$NON-NLS-1$
+				.append(Messages.getString("RWikiObjectServiceImpl.87")).append(nversions_reject).append( //$NON-NLS-1$
+						Messages.getString("RWikiObjectServiceImpl.88")).append(npages_fail).append(Messages.getString("RWikiObjectServiceImpl.89")) //$NON-NLS-1$ //$NON-NLS-2$
+				.append(npages_errors).append(Messages.getString("RWikiObjectServiceImpl.90")); //$NON-NLS-1$
 		return results.toString();
 	}
 
@@ -1121,7 +1122,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 */
 	public String[] myToolIds()
 	{
-		String[] toolIds = { "sakai.rwiki" };
+		String[] toolIds = { "sakai.rwiki" }; //$NON-NLS-1$
 		return toolIds;
 	}
 
@@ -1132,36 +1133,35 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	public void transferCopyEntities(String fromContext, String toContext,
 			List ids)
 	{
-		log.debug("==================Doing WIki transfer");
-		// TODO Will check admin on each rwiki object
+		log.debug("==================Doing WIki transfer"); //$NON-NLS-1$
 		if (fromContext.equals(toContext))
 		{
 			log
-					.debug("===================Source and Target Context are identical, transfer ignored");
+					.debug("===================Source and Target Context are identical, transfer ignored"); //$NON-NLS-1$
 			return;
 		}
 		
 		// FIXME this needs to be moved out to a method!
-		if (!fromContext.startsWith("/"))
+		if (!fromContext.startsWith("/")) //$NON-NLS-1$
 		{
-			fromContext = "/site/" + fromContext;
+			fromContext = "/site/" + fromContext; //$NON-NLS-1$
 		}
-		if (!toContext.startsWith("/"))
+		if (!toContext.startsWith("/")) //$NON-NLS-1$
 		{
-			toContext = "/site/" + toContext;
+			toContext = "/site/" + toContext; //$NON-NLS-1$
 		}
-		if (fromContext.endsWith("/") && fromContext.length() > 1) {
+		if (fromContext.endsWith("/") && fromContext.length() > 1) { //$NON-NLS-1$
 			fromContext = fromContext.substring(0, fromContext.length() - 1);
 		}
-		if (toContext.endsWith("/") && toContext.length() > 1) {
+		if (toContext.endsWith("/") && toContext.length() > 1) { //$NON-NLS-1$
 			toContext = toContext.substring(0, toContext.length() - 1);
 		}
 
 
-		log.debug("=================Locating Pages in from Content of "
+		log.debug("=================Locating Pages in from Content of " //$NON-NLS-1$
 				+ fromContext);
-		List pages = findRWikiSubPages(fromContext.length() > 1 ? fromContext + "/" : fromContext);
-		log.debug("=================Found " + pages.size() + " Pages");
+		List pages = findRWikiSubPages(fromContext.length() > 1 ? fromContext + "/" : fromContext); //$NON-NLS-1$
+		log.debug("=================Found " + pages.size() + " Pages"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		for (Iterator i = pages.iterator(); i.hasNext();)
 		{
@@ -1187,8 +1187,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			if (transfer)
 			{
 				String pageName = rwo.getName();
-				log.debug("================Transfering page " + pageName
-						+ " from " + rwo.getRealm() + " to " + toContext);
+				log.debug("================Transfering page " + pageName //$NON-NLS-1$
+						+ " from " + rwo.getRealm() + " to " + toContext); //$NON-NLS-1$ //$NON-NLS-2$
 				// relocate the page name
 				pageName = NameHelper.localizeName(pageName, NameHelper
 						.localizeSpace(pageName, rwo.getRealm()));
@@ -1214,8 +1214,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 						if (!wikiSecurityService
 								.checkCreatePermission(permissionsReference))
 						{
-							throw new CreatePermissionException("User: " + user
-									+ " cannot create pages in realm: "
+							throw new CreatePermissionException("User: " + user //$NON-NLS-1$
+									+ " cannot create pages in realm: " //$NON-NLS-1$
 									+ pageName);
 						}
 						update(pageName, toContext, new Date(), rwo
@@ -1225,13 +1225,13 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 				}
 				catch (Throwable t)
 				{
-					log.error("================Failed to import " + pageName
-							+ " from " + fromContext + " to " + toContext);
+					log.error("================Failed to import " + pageName //$NON-NLS-1$
+							+ " from " + fromContext + " to " + toContext); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 			else
 			{
-				log.debug("=============Ignoring transfer of " + rwo.getName());
+				log.debug("=============Ignoring transfer of " + rwo.getName()); //$NON-NLS-1$
 			}
 		}
 
@@ -1375,9 +1375,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 				}
 				catch (Throwable t)
 				{
-					log.warn("Error getting wiki page via access :"
+					log.warn("Error getting wiki page via access :" //$NON-NLS-1$
 							+ ref.getReference());
-					log.debug("Stack trace was ", t);
+					log.debug("Stack trace was ", t); //$NON-NLS-1$
 					throw new RuntimeException(ref.getReference(), t);
 				}
 			}
@@ -1407,8 +1407,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	{
 		if (!APPLICATION_ID.equals(ref.getType()))
 			throw new RuntimeException(
-					"Request Routed to incorrect EntityProducer by the kernel expected "
-							+ APPLICATION_ID + " got " + ref.getType());
+					"Request Routed to incorrect EntityProducer by the kernel expected " //$NON-NLS-1$
+							+ APPLICATION_ID + " got " + ref.getType()); //$NON-NLS-1$
 
 	}
 
@@ -1514,7 +1514,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	private void disableWiki(String context)
 	{
 
-		// ? we are not going to delete the content, so do nothing TODO
+		// ? we are not going to delete the content, so do nothing 
 	}
 
 	/**
@@ -1574,7 +1574,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 */
 	public String createReference(String pageName)
 	{
-		return RWikiObjectService.REFERENCE_ROOT + pageName + ".";
+		return RWikiObjectService.REFERENCE_ROOT + pageName + "."; //$NON-NLS-1$
 	}
 
 	/**

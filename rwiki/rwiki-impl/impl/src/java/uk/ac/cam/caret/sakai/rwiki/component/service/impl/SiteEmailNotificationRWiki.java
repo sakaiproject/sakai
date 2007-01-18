@@ -46,6 +46,7 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.SiteEmailNotification;
 
+import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RenderService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiEntity;
@@ -141,11 +142,11 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 
 	protected String getSiteId(String context)
 	{
-		if (context.startsWith("/site/"))
+		if (context.startsWith("/site/")) //$NON-NLS-1$
 		{
-			context = context.substring("/site/".length());
+			context = context.substring("/site/".length()); //$NON-NLS-1$
 		}
-		int il = context.indexOf("/");
+		int il = context.indexOf("/"); //$NON-NLS-1$
 		if (il != -1)
 		{
 			context = context.substring(0, il);
@@ -183,14 +184,14 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 
 		// get the URL and resource name.
 		// StringBuffer buf = new StringBuffer();
-		String url = ServerConfigurationService.getAccessUrl() + ref.getUrl() + "html";
+		String url = ServerConfigurationService.getAccessUrl() + ref.getUrl() + "html"; //$NON-NLS-1$
 
 		String pageName = props.getProperty(RWikiEntity.RP_NAME);
 		String realm = props.getProperty(RWikiEntity.RP_REALM);
 		String localName = NameHelper.localizeName(pageName, realm);
 		String user = props.getProperty(RWikiEntity.RP_USER);
 		String moddate = new Date(Long.parseLong(props.getProperty(RWikiEntity.RP_VERSION))).toString();
-		String content = "";
+		String content = ""; //$NON-NLS-1$
 		try
 		{
 			RWikiEntity rwe = (RWikiEntity) rwikiObjectService.getEntity(ref);
@@ -211,11 +212,11 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 
 		}
 
-		String message = "A Wiki Page has been changed in the \"" + title + "\" site at "
-				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl()
-				+ ")  " + " \n" + " \n" + "	Location: site \"" + title + "\" > Wiki  > " + localName + "\n" + " Modified at: "
-				+ moddate + "\n" + " Modified by User: " + user + "\n" + " \n" + " 	Page: " + localName + " " + url + " \n" + " \n"
-				+ " Content: \n" + content + "\n";
+		String message = Messages.getString("SiteEmailNotificationRWiki.5") + title + Messages.getString("SiteEmailNotificationRWiki.6") //$NON-NLS-1$ //$NON-NLS-2$
+				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				+ ")  " + " \n" + " \n" + Messages.getString("SiteEmailNotificationRWiki.13") + title + "\" > Wiki  > " + localName + "\n" + Messages.getString("SiteEmailNotificationRWiki.16") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+				+ moddate + "\n" + Messages.getString("SiteEmailNotificationRWiki.18") + user + "\n" + " \n" + " 	Page: " + localName + " " + url + " \n" + " \n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
+				+ Messages.getString("SiteEmailNotificationRWiki.4") + content + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
 
 		return message;
 	}
@@ -233,7 +234,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 		String realm = props.getProperty(RWikiEntity.RP_REALM);
 		String localName = NameHelper.localizeName(pageName, realm);
 
-		String subjectHeader = "Subject: The wiki page " + localName + " has been modified";
+		String subjectHeader = Messages.getString("SiteEmailNotificationRWiki.27") + localName + Messages.getString("SiteEmailNotificationRWiki.28"); //$NON-NLS-1$ //$NON-NLS-2$
 		// the Subject
 		rv.add(subjectHeader);
 
@@ -252,10 +253,10 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 	protected String getTag(String newline, String title)
 	{
 		// tag the message
-		String rv = "----------------------\n" + "This automatic notification message was sent by "
-				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl()
-				+ ") from the " + title + " site.\n"
-				+ "You can modify how you receive notifications at My Workspace > Preferences.";
+		String rv = "----------------------\n" + Messages.getString("SiteEmailNotificationRWiki.30") //$NON-NLS-1$ //$NON-NLS-2$
+				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				+ Messages.getString("SiteEmailNotificationRWiki.3") + title + Messages.getString("SiteEmailNotificationRWiki.35") //$NON-NLS-1$ //$NON-NLS-2$
+				+ Messages.getString("SiteEmailNotificationRWiki.36"); //$NON-NLS-1$
 		/*
 		 * String rv = newline + "------" + newline + rb.getString("this") + " " + ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl() + ") " + rb.getString("forthe") + " " + title + " " +
 		 * rb.getString("site") + newline + rb.getString("youcan") + newline;
@@ -288,7 +289,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 		String preference = preferenceService.findPreferenceAt(user.getId(),
 				resourceReference, PreferenceService.MAIL_NOTIFCIATION);
 
-		if (preference == null || "".equals(preference))
+		if (preference == null || "".equals(preference)) //$NON-NLS-1$
 		{
 			return NotificationService.PREF_IGNORE;
 		}
@@ -356,7 +357,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 		}
 		catch (Exception any)
 		{
-			log.error("Exception in getRecipients()", any);
+			log.error("Exception in getRecipients()", any); //$NON-NLS-1$
 			return new Vector();
 		}
 	}

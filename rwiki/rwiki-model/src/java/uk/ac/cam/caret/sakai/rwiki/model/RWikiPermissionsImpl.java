@@ -25,7 +25,6 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiPermissions;
 /**
  * @author ieb
  */
-// FIXME: Component
 public class RWikiPermissionsImpl implements RWikiPermissions
 {
 	public static final int OWNER_READ_INDEX, OWNER_WRITE_INDEX,
@@ -234,18 +233,6 @@ public class RWikiPermissionsImpl implements RWikiPermissions
 		this.permissions[PUBLIC_WRITE_INDEX] = publicWrite;
 	}
 
-	/*
-	 * TODO: remove public static RWikiPermissions
-	 * getRWikiPermissions(RWikiObject rwo) { RWikiPermissions permissions = new
-	 * RWikiPermissionsImpl(); permissions.setOwnerRead(rwo.getOwnerRead());
-	 * permissions.setOwnerWrite(rwo.getOwnerWrite());
-	 * permissions.setOwnerAdmin(rwo.getOwnerAdmin());
-	 * permissions.setGroupRead(rwo.getGroupRead());
-	 * permissions.setGroupWrite(rwo.getGroupWrite());
-	 * permissions.setGroupAdmin(rwo.getGroupAdmin());
-	 * permissions.setPublicRead(rwo.getPublicRead());
-	 * permissions.setPublicWrite(rwo.getPublicWrite()); return permissions; }
-	 */
 	public String toString()
 	{
 		char[] perms = "o--- s--- p--".toCharArray();

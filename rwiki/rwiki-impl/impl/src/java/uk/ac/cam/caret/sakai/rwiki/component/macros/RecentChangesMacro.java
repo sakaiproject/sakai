@@ -35,6 +35,7 @@ import java.util.List;
 import org.radeox.macro.BaseMacro;
 import org.radeox.macro.parameter.MacroParameter;
 
+import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderContext;
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderEngine;
 import uk.ac.cam.caret.sakai.rwiki.service.api.PageLinkRenderer;
@@ -45,7 +46,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 import uk.ac.cam.caret.sakai.rwiki.utils.UserDisplayHelper;
 
 /**
- * FIXME needs localisation
+ * 
  * 
  * @author andrew
  */
@@ -53,13 +54,9 @@ import uk.ac.cam.caret.sakai.rwiki.utils.UserDisplayHelper;
 public class RecentChangesMacro extends BaseMacro
 {
 
-	private static String[] paramDescription = { "1: Optional, If format is yyyy-MM-dd Changes since date. If format is 30d number of days, If format is 12h, number of hours, defaults to last 30 days, " };
-
-	private static String description = "Expands to a list of recently changed pages";
-
 	public String[] getParamDescription()
 	{
-		return paramDescription;
+		return new String[] { Messages.getString("RecentChangesMacro.0") }; //$NON-NLS-1$
 	}
 
 	/*
@@ -69,12 +66,12 @@ public class RecentChangesMacro extends BaseMacro
 	 */
 	public String getDescription()
 	{
-		return description;
+		return Messages.getString("RecentChangesMacro.1"); //$NON-NLS-1$
 	}
 
 	public String getName()
 	{
-		return "recent-changes";
+		return "recent-changes"; //$NON-NLS-1$
 	}
 
 	public void execute(Writer writer, MacroParameter params)
@@ -106,10 +103,10 @@ public class RecentChangesMacro extends BaseMacro
 		if (params.getLength() == 1)
 		{
 
-			String dateAsString = params.get("date", 0);
+			String dateAsString = params.get("date", 0); //$NON-NLS-1$
 			if (dateAsString != null)
 			{
-				if (dateAsString.trim().endsWith("h"))
+				if (dateAsString.trim().endsWith("h")) //$NON-NLS-1$
 				{
 					int nHours = Integer.parseInt(dateAsString.trim()
 							.substring(0, dateAsString.trim().length() - 1));
@@ -117,7 +114,7 @@ public class RecentChangesMacro extends BaseMacro
 					cal.add(GregorianCalendar.HOUR, -nHours);
 					since = cal.getTime();
 				}
-				else if (dateAsString.trim().endsWith("d"))
+				else if (dateAsString.trim().endsWith("d")) //$NON-NLS-1$
 				{
 					int nDays = Integer.parseInt(dateAsString.trim().substring(
 							0, dateAsString.trim().length() - 1));
@@ -127,7 +124,7 @@ public class RecentChangesMacro extends BaseMacro
 				}
 				else
 				{
-					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+					SimpleDateFormat format = new SimpleDateFormat(Messages.getString("RecentChangesMacro.6")); //$NON-NLS-1$
 
 					try
 					{
@@ -136,22 +133,22 @@ public class RecentChangesMacro extends BaseMacro
 					catch (ParseException e)
 					{
 						writer
-								.write("<span class=\"error\"> Cannot parse: "
+								.write(Messages.getString("RecentChangesMacro.7") //$NON-NLS-1$
 										+ dateAsString
-										+ " must be of the format: yyyy-MM-dd or 30d or 12h Will assume past 30 days </span>");
+										+ Messages.getString("RecentChangesMacro.8")); //$NON-NLS-1$
 					}
 				}
 			}
 		}
-		writer.write("<span class=\"error\"> Changes since "
-				+ dateFormat.format(since) + "  </span>");
+		writer.write(Messages.getString("RecentChangesMacro.9") //$NON-NLS-1$
+				+ dateFormat.format(since) + "  </span>"); //$NON-NLS-1$
 
 		try
 		{
 
 			List wikiObjects = objectService.findChangedSince(since, realm);
 
-			writer.write("<div class=\"list\">");
+			writer.write("<div class=\"list\">"); //$NON-NLS-1$
 
 			Iterator iterator = wikiObjects.iterator();
 			while (iterator.hasNext())
@@ -168,12 +165,12 @@ public class RecentChangesMacro extends BaseMacro
 					
 					spRe.appendLink(buffer, linkName, linkName, null, true);
 					
-					writer.write("\n* ");
+					writer.write("\n* "); //$NON-NLS-1$
 					writer.write(buffer.toString());
 
-					writer.write(" was last modified "
+					writer.write(Messages.getString("RecentChangesMacro.13") //$NON-NLS-1$
 							+ dateFormat.format(object.getVersion()));
-					writer.write(" by "
+					writer.write(Messages.getString("RecentChangesMacro.14") //$NON-NLS-1$
 							+ UserDisplayHelper.formatDisplayName(object
 									.getUser()));
 				}
@@ -181,11 +178,11 @@ public class RecentChangesMacro extends BaseMacro
 			}
 
 			// SAK-2696
-			writer.write("\n</div>");
+			writer.write("\n</div>"); //$NON-NLS-1$
 		}
 		catch (PermissionException e)
 		{
-			writer.write("You do not have permission to search.");
+			writer.write(Messages.getString("RecentChangesMacro.16")); //$NON-NLS-1$
 			writer.write(e.toString());
 			e.printStackTrace(new PrintWriter(writer));
 

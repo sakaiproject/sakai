@@ -22,7 +22,6 @@ package uk.ac.cam.caret.sakai.rwiki.model;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObjectContent;
 
-// FIXME: Component
 
 public class RWikiObjectContentImpl implements RWikiObjectContent
 {

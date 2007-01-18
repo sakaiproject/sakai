@@ -28,6 +28,7 @@ import org.radeox.macro.BaseMacro;
 import org.radeox.macro.parameter.MacroParameter;
 import org.sakaiproject.site.api.Site;
 
+import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderContext;
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderEngine;
 
@@ -38,24 +39,21 @@ import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRend
  */
 public class WorksiteInfoMacro extends BaseMacro
 {
-	private static final String DESCRIPTION = "description";
+	private static final String DESCRIPTION = "description"; //$NON-NLS-1$
 
-	private static final String SHORTDESCRIPTION = "shortdescription";
+	private static final String SHORTDESCRIPTION = "shortdescription"; //$NON-NLS-1$
 
-	private static final String WIKISPACE = "wikispace";
+	private static final String WIKISPACE = "wikispace"; //$NON-NLS-1$
 
-	private static String[] paramDescription = {
-			"1,info: The type of info to provide, worksiteinfo:title gives Title (default), "
-					+ " worksiteinfo:description, "
-					+ " worksiteinfo:shortdescription, "
-					+ " worksiteinfo:wikispace ",
-			"Remember if using positional parameters, you must include dummies for the optional parameters" };
-
-	private static String description = "Generates worksite information";
 
 	public String[] getParamDescription()
 	{
-		return paramDescription;
+		return new String[] {
+			Messages.getString("WorksiteInfoMacro.3") //$NON-NLS-1$
+					+ Messages.getString("WorksiteInfoMacro.4") //$NON-NLS-1$
+					+ Messages.getString("WorksiteInfoMacro.5") //$NON-NLS-1$
+					+ Messages.getString("WorksiteInfoMacro.6"), //$NON-NLS-1$
+			Messages.getString("WorksiteInfoMacro.7") }; //$NON-NLS-1$
 	}
 
 	/*
@@ -65,12 +63,12 @@ public class WorksiteInfoMacro extends BaseMacro
 	 */
 	public String getDescription()
 	{
-		return description;
+		return Messages.getString("WorksiteInfoMacro.8"); //$NON-NLS-1$
 	}
 
 	public String getName()
 	{
-		return "worksiteinfo";
+		return "worksiteinfo"; //$NON-NLS-1$
 	}
 
 	public void execute(Writer writer, MacroParameter params)
@@ -82,7 +80,7 @@ public class WorksiteInfoMacro extends BaseMacro
 		SpecializedRenderEngine spRe = (SpecializedRenderEngine) context
 				.getRenderEngine();
 
-		String infotype = params.get("info", 0);
+		String infotype = params.get("info", 0); //$NON-NLS-1$
 		Site s = context.getSite();
 		if (s != null)
 		{
@@ -105,7 +103,7 @@ public class WorksiteInfoMacro extends BaseMacro
 		}
 		else
 		{
-			writer.write("No Site Found for page");
+			writer.write(Messages.getString("WorksiteInfoMacro.11")); //$NON-NLS-1$
 		}
 	}
 }

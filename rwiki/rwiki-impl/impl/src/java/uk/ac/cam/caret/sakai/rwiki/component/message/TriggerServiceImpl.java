@@ -95,8 +95,6 @@ public class TriggerServiceImpl implements TriggerService
 	 */
 	public void addTrigger(String user, String space, String page, String spec)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/*
@@ -106,8 +104,6 @@ public class TriggerServiceImpl implements TriggerService
 	 */
 	public void removeTrigger(Trigger trigger)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/*
@@ -117,8 +113,6 @@ public class TriggerServiceImpl implements TriggerService
 	 */
 	public void updateTrigger(Trigger trigger)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/*
@@ -129,7 +123,6 @@ public class TriggerServiceImpl implements TriggerService
 	 */
 	public List getUserTriggers(String user, String space, String page)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -141,7 +134,6 @@ public class TriggerServiceImpl implements TriggerService
 	 */
 	public List getUserTriggers(String user, String space)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -152,7 +144,6 @@ public class TriggerServiceImpl implements TriggerService
 	 */
 	public List getUserTriggers(String user)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -164,7 +155,6 @@ public class TriggerServiceImpl implements TriggerService
 	 */
 	public List getPageTriggers(String space, String page)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -175,7 +165,6 @@ public class TriggerServiceImpl implements TriggerService
 	 */
 	public List getSpaceTriggers(String space)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 

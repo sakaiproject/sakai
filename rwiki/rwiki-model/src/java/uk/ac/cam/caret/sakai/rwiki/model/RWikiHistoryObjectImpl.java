@@ -25,7 +25,6 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiHistoryObject;
 /**
  * @author ieb
  */
-// FIXME: Component
 public class RWikiHistoryObjectImpl extends RWikiObjectImpl implements
 		RWikiHistoryObject
 {
