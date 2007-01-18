@@ -20,7 +20,6 @@
  * limitations under the License.
  *
  **********************************************************************************/
- FIXME: i18n
 -->
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0" 
   xmlns:c="http://java.sun.com/jsp/jstl/core"
@@ -40,9 +39,11 @@
   <c:set var="reviewRenderBean" value="${requestScope.rsacMap.reviewRenderBean}"/>
   <c:set var="currentRWikiObject" value="${requestScope.rsacMap.currentRWikiObject}"/>
   <c:set var="homeBean" value="${requestScope.rsacMap.homeBean}"/>
-  <html xmlns="http://www.w3.org/1999/xhtml">
+  <c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>
+  
+  <html xmlns="http://www.w3.org/1999/xhtml" lang="${rlb.jsp_lang}" xml:lang="${rlb.jsp_xml_lang}" >
     <head>
-      <title>Review: <c:out value="${historyBean.localName}"/> Version: <c:out value="${interestedRevision}"/></title>
+      <title><c:out value="${rlb.jsp_review}"/>: <c:out value="${historyBean.localName}"/> <c:out value="${rlb.jsp_version}"/>: <c:out value="${interestedRevision}"/></title>
       <jsp:expression>request.getAttribute("sakai.html.head")</jsp:expression>
     </head>
     <jsp:element name="body">
@@ -63,9 +64,10 @@
 							viewLinkName="View Current"
 							homeBean="${homeBean}"
 							viewBean="${historyBean}"
+							resourceLoaderBean="${rlb}"
 						        />
 	    <span class="rwiki_searchBox">
-	    Search:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />
+	    <c:out value="${rlb.jsp_search}"/>:	<input type="hidden" name="action" value="${requestScope.rsacMap.searchTarget}" />
 	    <input type="hidden" name="panel" value="Main" />
 	    <input type="text" name="search" />
 	    </span>
@@ -79,17 +81,19 @@
 	  <!-- Main page -->
 		<div id="${rwikiContentStyle}" >
 			<h3>
-	      <c:out value="${historyBean.localName}"/> Version: <c:out value="${interestedRevision}"/>
+	      <c:out value="${historyBean.localName}"/> <c:out value="${rlb.jsp_version}"/>Version: <c:out value="${interestedRevision}"/>
 	    </h3>
 
 	    <p class="alert">
-	      You are viewing version <c:out value="${interestedRevision}"/>
-	      of this page, updated <fmt:formatDate type="both" value="${reviewRenderBean.rwikiObject.version}"/>. The current 
-	      version is 
+	      <c:out value="${rlb.jsp_review_alert1}"/>You are viewing version <c:out value="${interestedRevision}"/>
+	      <c:out value="${rlb.jsp_review_alert2}"/>of this page, updated <fmt:formatDate type="both" value="${reviewRenderBean.rwikiObject.version}"/>. 
+	      <c:out value="${rlb.jsp_review_alert3}"/>The current version is 
 	      <jsp:element name="a">
 		<jsp:attribute name="href"><c:out value="${historyBean.viewUrl}"/></jsp:attribute>
-		version <c:out value="${currentRWikiObject.revision}"/> 
-	      </jsp:element>, updated 
+			<jsp:body>
+				<c:out value="${rlb.jsp_review_version}"/>version <c:out value="${currentRWikiObject.revision}"/> 
+			</jsp:body>
+	      </jsp:element>, <c:out value="${rlb.jsp_review_updated}"/>updated 
 	      <fmt:formatDate type="both" value="${currentRWikiObject.version}"/>
 	    </p>
 	    <div class="rwikiRenderBody">
