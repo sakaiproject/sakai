@@ -20,5 +20,6 @@
     <module>samigo-pack</module>
     <module>samigo-qti</module>
     <module>samigo-services</module>
+    <module>samigo-cp</module>
   </modules>
 </project>
