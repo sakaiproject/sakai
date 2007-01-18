@@ -115,7 +115,7 @@ public class FCKConnectorServlet extends HttpServlet {
           
           Node root = createCommonXml(document, commandStr, type, currentFolder, "/access/content"+currentFolder);
           
-          if("GetFolders".equals(commandStr)) {
+          if ("GetFolders".equals(commandStr)) {
                getFolders(currentFolder, root, document);
           }
           else if ("GetFoldersAndFiles".equals(commandStr)) {
@@ -163,7 +163,6 @@ public class FCKConnectorServlet extends HttpServlet {
           }
           finally {  	  
 	          if (out != null) {
-		          out.flush();
 	        	  out.close();
 	          }
           }
@@ -209,10 +208,12 @@ public class FCKConnectorServlet extends HttpServlet {
                     while (iter.hasNext()) {
                     	
                         FileItem item = (FileItem) iter.next();
-                        if (item.isFormField()) 
+                        if (item.isFormField()) {
                              fields.put(item.getFieldName(), item.getString());
-                        else
+                        }
+                        else {
                              fields.put(item.getFieldName(), item);
+                        }
                     }
                     FileItem uplFile = (FileItem)fields.get("NewFile");
 
@@ -284,7 +285,6 @@ public class FCKConnectorServlet extends HttpServlet {
           }
           finally {	          
                if (out != null) {
-                    out.flush();
                     out.close();
                }
           }
@@ -316,8 +316,9 @@ public class FCKConnectorServlet extends HttpServlet {
                }
                else if (dir.split("/").length > 2) {
                     collection = ContentHostingService.getCollection(dir);
-                    if (collection != null && collection.getMembers() != null)
+                    if (collection != null && collection.getMembers() != null) {
                          foldersIterator = collection.getMembers().iterator();
+                    }
                }          
           }
           catch (Exception e) {    
@@ -378,7 +379,7 @@ public class FCKConnectorServlet extends HttpServlet {
                               // for linking in the FCK editor uses what is returned...
                               element.setAttribute("name", current.getProperties().getProperty(
                             		  current.getProperties().getNamePropDisplayName()));
-                              element.setAttribute("url", id.substring(id.lastIndexOf("/") + 1));
+                              element.setAttribute("url", current.getUrl());
                               
                               if (current.getProperties().getProperty(
                                             current.getProperties().getNamePropContentLength()) != null) {
