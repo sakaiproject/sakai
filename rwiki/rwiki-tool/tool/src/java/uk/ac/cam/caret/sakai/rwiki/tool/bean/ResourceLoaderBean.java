@@ -40,7 +40,8 @@ public class ResourceLoaderBean implements Map
 
 	private static final String RESOURCE_BUNDLE = "uk.ac.cam.caret.sakai.rwiki.tool.bundle.Messages";
 
-	private ResourceLoader rl = null;
+	private static final ResourceLoader rl = new ResourceLoader(RESOURCE_BUNDLE);
+
 
 	public ResourceLoaderBean()
 	{
@@ -49,7 +50,6 @@ public class ResourceLoaderBean implements Map
 
 	public void init(HttpServletRequest request)
 	{
-		rl = new ResourceLoader(RESOURCE_BUNDLE);
 		if (log.isDebugEnabled())
 		{
 			for (Iterator<String> i = rl.keySet().iterator(); i.hasNext();)
