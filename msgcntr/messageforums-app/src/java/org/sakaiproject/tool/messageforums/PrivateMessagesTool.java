@@ -1294,18 +1294,27 @@ public class PrivateMessagesTool
       // Any hidden users will be tacked on at the end
       String sendToString="";
       String sendToHiddenString = "";
-      for (int i = 0; i < selectedComposeToList.size(); i++)
-      {
-        MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(i));  
-        if(membershipItem != null)
-        {
-        	if (membershipItem.isViewable()) {
-        		sendToString +=membershipItem.getName()+"; " ;
-        	}
-        	else {
-        		sendToHiddenString += membershipItem.getName() + "; ";
-        	}
-        }          
+      
+      if (selectedComposeToList.size() == 1) {
+          MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(0));
+          if (membershipItem != null) {
+        	  sendToString +=membershipItem.getName()+"; " ;
+          }
+      }
+      else {
+    	  for (int i = 0; i < selectedComposeToList.size(); i++)
+    	  {
+    		  MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(i));  
+    		  if(membershipItem != null)
+    		  {
+    			  if (membershipItem.isViewable()) {
+    				  sendToString +=membershipItem.getName()+"; " ;
+    			  }
+    			  else {
+    				  sendToHiddenString += membershipItem.getName() + "; ";
+    			  }
+    		  }
+    	  }
       }
 
       if (! "".equals(sendToString)) {
@@ -1702,6 +1711,7 @@ public class PrivateMessagesTool
     // if only 1 recipient no need to check visibility
     String sendToString="";
     String sendToHiddenString="";
+    
     if (selectedComposeToList.size() == 1) {
         MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(0));
         if(membershipItem != null)
