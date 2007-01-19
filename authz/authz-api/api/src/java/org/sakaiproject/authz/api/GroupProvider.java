@@ -60,6 +60,14 @@ public interface GroupProvider
 	Map getGroupRolesForUser(String userId);
 
 	/**
+	 * Packs any number of simple ids into a compound id.
+	 * @param ids
+	 * 		The external group ids
+	 * @return a compound id
+	 */
+	public String packId(String[] ids);
+	
+	/**
 	 * Unpack a possibly compound id into it's component ids, returning at least the id unchanged if not compound.
 	 * 
 	 * @param id
