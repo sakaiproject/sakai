@@ -21,7 +21,7 @@
 	String rssLink = "";
 	if ( searchTerms != null && searchTerms.length() > 0 ) {
 		rssURL = searchBean.getToolUrl()+"/rss20?search="+java.net.URLEncoder.encode(searchBean.getSearch(),"UTF-8");
-		rssLink = "<link rel=\"alternate\" title=\"Sakai RSS Search for: "+searchTerms+" \" " 
+		rssLink = "<link rel=\"alternate\" title=\""+org.sakaiproject.search.tool.Messages.getString("jsp_search_for")+": "+searchTerms+" \" " 
  			+ " href=\""+rssURL+"\" type=\"application/rss+xml\" /> ";
     
 	}
@@ -29,7 +29,7 @@
 	        "<a href="+rssURL+"\" target=\"rss\" id=\"rssLink\" > " +
 	        "<img src=\"/library/image/transparent.gif\" title=\"RSS\" alt=\"RSS\" border=\"0\" /> " +
 	        "</a>" +
-			"Found {0} to {1} of {2} documents ({3} seconds) ";
+			org.sakaiproject.search.tool.Messages.getString("jsp_found_line");
 	
 	String termsFormat = "<span style=\"font-size:{1}em;\" ><a href=\"?panel=Main&search={0}\" >{0}</a></span> ";
 
@@ -38,18 +38,18 @@
   <head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
       <meta http-equiv="Content-Style-Type" content="text/css" />
-     <title>Search: <%= searchBean.getSearchTitle() %></title>
+     <title><%= org.sakaiproject.search.tool.Messages.getString("jsp_search") %>: <%= searchBean.getSearchTitle() %></title>
       <%= request.getAttribute("sakai.html.head") %>
       <%= rssLink %>  
       <link rel="search"
            type="application/opensearchdescription+xml" 
            href="<%= searchBean.getOpenSearchUrl() %>"
-           title="Worksite Search" />
+           title="<%= org.sakaiproject.search.tool.Messages.getString("jsp_worksite_search") %>" />
     <script type="text/javascript" >
         function searchLocalAddSherlock() {
         	addSherlockButton(
         	    "<%= searchBean.getSiteTitle() %>",
-        		"Sakai Search",
+        		"<%= org.sakaiproject.search.tool.Messages.getString("jsp_sakai_search") %>",
         		"<%= searchBean.getBaseUrl() %>");
         }
         appendLoader(searchLocalAddSherlock);
@@ -64,7 +64,7 @@
 	  <% if ( searchBean.hasAdmin() ) { %>
     <div class="navIntraTool">
 	  <span class="rwiki_pageLinks">
-	    <a href="<%= searchBean.getToolUrl() %>/admin/index">Admin</a>
+	    <a href="<%= searchBean.getToolUrl() %>/admin/index"><%= org.sakaiproject.search.tool.Messages.getString("jsp_admin") %></a>
 	  </span>
     </div>
 	  <% } %>
@@ -76,7 +76,7 @@
 		<div class="searchBox">
 			<form action="?#" method="get" class="inlineForm"  >  
 				<label for="search">
-					Search:  
+					<%= org.sakaiproject.search.tool.Messages.getString("jsp_search") %>:  
 				</label>
 				<input type="hidden" name="panel" value="Main" />
 				<input type="text" id="search"  name="search" size="42" maxlength="1024" value="<%= searchBean.getSearch() %>"/>
@@ -92,8 +92,8 @@
 	    <a href="#" id="addSherlockButton" >
 	    	<img src="/library/image/transparent.gif" 
 	    		border="0"   
-	    		title="Install Browser Search Plugin" 
-	    		alt="Install Browser Search Plugin" />
+	    		title="<%= org.sakaiproject.search.tool.Messages.getString("jsp_install_plugin") %>" 
+	    		alt="<%= org.sakaiproject.search.tool.Messages.getString("jsp_install_plugin") %>" />
 	    </a>
 -->
 	</span>
@@ -109,10 +109,10 @@
     </div>
     <div class="searchTabsContainer" >
 	   <span id="results" class="tabHeadOn" >        	
-		  <p class="tabhead" title="Results" ><a href="#" onClick="selectTabs('tagsTab','tabOn','tabOff','resultsTab','tabOff','tabOn','tags','tabHeadOn','tabHeadOff','results','tabHeadOff','tabHeadOn'); setMainFrameHeightNoScroll('<%= request.getAttribute("sakai.tool.placement.id") %>'); return false;" >Results</a></p>
+		  <p class="tabhead" title="Results" ><a href="#" onClick="selectTabs('tagsTab','tabOn','tabOff','resultsTab','tabOff','tabOn','tags','tabHeadOn','tabHeadOff','results','tabHeadOff','tabHeadOn'); setMainFrameHeightNoScroll('<%= request.getAttribute("sakai.tool.placement.id") %>'); return false;" ><%= org.sakaiproject.search.tool.Messages.getString("jsp_results") %></a></p>
        </span>
 	   <span id="tags" class="tabHeadOff" >        	
-		  <p class="tabhead" title="Tags" ><a href="#" onClick="selectTabs('tagsTab','tabOff','tabOn','resultsTab','tabOn','tabOff','tags','tabHeadOff','tabHeadOn','results','tabHeadOn','tabHeadOff'); setMainFrameHeightNoScroll('<%= request.getAttribute("sakai.tool.placement.id") %>'); return false;" >Tags</a></p>
+		  <p class="tabhead" title="Tags" ><a href="#" onClick="selectTabs('tagsTab','tabOff','tabOn','resultsTab','tabOn','tabOff','tags','tabHeadOff','tabHeadOn','results','tabHeadOn','tabHeadOff'); setMainFrameHeightNoScroll('<%= request.getAttribute("sakai.tool.placement.id") %>'); return false;" ><%= org.sakaiproject.search.tool.Messages.getString("jsp_tags") %></a></p>
     	</span>
     </div>
     <div class="searchResultsContainer" >
@@ -123,11 +123,7 @@
           </div>
 		  <div id="tagsTab" class="tabOff" >
 		     <div id="aboutTabs" >
-		     Tags, shows the top 100 terms in your search results. 
-		     The size of the term represents how many times it appears in the set of results
-		     shown in the Results tab. 
-		     The larger the term, the more frequently it appears in the search results.
-		     You can click on the word to perform a search on that word. 
+		     <%= org.sakaiproject.search.tool.Messages.getString("jsp_about_tags") %> 
 		     </div>
     	     <%= searchBean.getTerms(termsFormat,100,10,3,true) %>
     	  </div>
@@ -142,7 +138,7 @@
     {
     %>
     <p>
-    The search tool is not enabled, please ask your administrator to set search.experimental = true in sakai.properties
+    <%= org.sakaiproject.search.tool.Messages.getString("jsp_search_off_msg") %>
     </p>
     <%
     }

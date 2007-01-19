@@ -21,9 +21,6 @@
 
 package org.sakaiproject.search.tool;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
@@ -47,7 +44,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 /**
  * @author Ian Boston
  */
-// FIXME: Tool
 public class ControllerServlet extends HttpServlet
 {
 	public static Log log = LogFactory.getLog(ControllerServlet.class);

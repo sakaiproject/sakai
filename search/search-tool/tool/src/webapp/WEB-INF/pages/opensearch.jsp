@@ -8,15 +8,15 @@
 %>
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
                        xmlns:moz="http://www.mozilla.org/2006/browser/search/">
-   <ShortName>Sakai: <%= openSearchBean.getSiteName()%></ShortName>
-   <Description>Sakai Search Engine for Site: <%= openSearchBean.getSiteName()%></Description>
+   <ShortName><%= openSearchBean.getSystemName() %>Sakai: <%= openSearchBean.getSiteName()%></ShortName>
+   <Description><%= org.sakaiproject.search.tool.Messages.getString("jsp_sakai_search_for_site") %>: <%= openSearchBean.getSiteName()%></Description>
    <Image height="16" width="16" type="image/x-icon"><%= openSearchBean.getIconUrl()%></Image>
    <Query role="example" searchTerms="sakai" />
    <Developer>sakaiproject.org Development Team</Developer>
    <Attribution><%= openSearchBean.getAttibution() %></Attribution>
    <SyndicationRight><%= openSearchBean.getSindicationRight() %></SyndicationRight>
    <AdultContent><%= openSearchBean.getAdultContent() %></AdultContent>
-   <Language>en-us</Language>
+   <Language><%= org.sakaiproject.search.tool.Messages.getString("jsp_opensearch_lang") %></Language>
    <OutputEncoding>UTF-8</OutputEncoding>
    <InputEncoding>UTF-8</InputEncoding>   
    <Url type="text/html" method="GET" 

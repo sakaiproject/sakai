@@ -90,7 +90,7 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 		catch (IdUnusedException e)
 		{
 			throw new RuntimeException(
-					"You must access the Search through a woksite");
+					Messages.getString("searchbeanfact_siteerror"));
 		}
 	}
 
@@ -112,7 +112,7 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 		catch (IdUnusedException e)
 		{
 			throw new RuntimeException(
-					"You must access the Search through a woksite");
+					Messages.getString("searchbeanfact_siteerror"));
 		}
 	}
 
@@ -128,7 +128,7 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 		catch (IdUnusedException e)
 		{
 			throw new RuntimeException(
-					"You must access the Search through a woksite");
+					Messages.getString("searchbeanfact_siteerror"));
 		}
 	}
 
@@ -144,7 +144,7 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 		catch (IdUnusedException e)
 		{
 			throw new RuntimeException(
-					"You must access the Search through a woksite");
+					Messages.getString("searchbeanfact_siteerror"));
 		}
 	}
 
@@ -162,7 +162,7 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 		catch (IdUnusedException e)
 		{
 			throw new RuntimeException(
-					"You must access the Search through a woksite");
+					Messages.getString("searchbeanfact_siteerror"));
 		}	
 	}
 

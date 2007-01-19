@@ -26,7 +26,7 @@
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
       <meta http-equiv="Content-Style-Type" content="text/css" />
       <%= request.getAttribute("sakai.html.head") %>
-      <title>Sakai Search Title</title>
+      <title><%= org.sakaiproject.search.tool.Messages.getString("jsp_sakai_search_title") %></title>
     </head>
     <body 
     onload="<%= request.getAttribute("sakai.html.body.onload") %> parent.updCourier(doubleDeep, ignoreCourier); callAllLoaders();" 

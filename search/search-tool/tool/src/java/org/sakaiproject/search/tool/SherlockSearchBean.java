@@ -33,5 +33,9 @@ public interface SherlockSearchBean
 	 *
 	 */
 	void sendIcon(HttpServletResponse response);
-
+	 /**
+	 * get the name of the system
+	 * @return
+	 */
+	String getSystemName();
 }

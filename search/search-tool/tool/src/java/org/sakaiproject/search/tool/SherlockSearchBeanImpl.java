@@ -139,8 +139,12 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 			}
 		}
 
-		// TODO Auto-generated method stub
-
 	}
+	public String getSystemName()
+	{
+		return ServerConfigurationService.getString("ui.service","Sakai");
+	}
+
+
 
 }

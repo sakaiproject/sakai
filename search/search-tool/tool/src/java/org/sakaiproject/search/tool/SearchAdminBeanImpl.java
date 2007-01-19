@@ -178,7 +178,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	{
 		searchService.forceReload();
 		searchService.reload();
-		commandFeedback = "Reloaded Index";
+		commandFeedback = Messages.getString("searchadmin_reloadindex");
 	}
 
 
@@ -186,7 +186,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	private void doRemoveLock()
 	{
 		if ( !searchService.removeWorkerLock() ) {
-			commandFeedback  = "Failed to remove worker lock";
+			commandFeedback  = Messages.getString("searchadmin_failedremovewl");
 		}
 		
 	}
@@ -196,7 +196,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	 */
 	private void doRefreshStatus()
 	{
-		commandFeedback = "Ok";
+		commandFeedback = Messages.getString("searchadmin_statok");
 
 	}
 
@@ -211,7 +211,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 			throw new PermissionException(userName, "site.update", siteCheck);
 		}
 		searchService.refreshInstance();
-		commandFeedback = "Ok";
+		commandFeedback = Messages.getString("searchadmin_statok");;
 
 	}
 
@@ -227,7 +227,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 			throw new PermissionException(userName, "site.update", siteCheck);
 		}
 		searchService.rebuildInstance();
-		commandFeedback = "Ok";
+		commandFeedback = Messages.getString("searchadmin_statok");;
 
 	}
 
@@ -237,7 +237,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	private void doRefreshSite()
 	{
 		searchService.refreshSite(siteId);
-		commandFeedback = "Ok";
+		commandFeedback = Messages.getString("searchadmin_statok");;
 
 	}
 
@@ -247,7 +247,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	private void doRebuildSite()
 	{
 		searchService.rebuildSite(siteId);
-		commandFeedback = "Ok";
+		commandFeedback = Messages.getString("searchadmin_statok");;
 
 	}
 
@@ -256,7 +256,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	 */
 	public String getTitle()
 	{
-		return "Search Administration";
+		return Messages.getString("searchadmin_title");
 	}
 
 	/**
@@ -349,22 +349,22 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	{
 		StringBuffer sb = new StringBuffer();
 		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
-				COMMAND_REFRESHSTATUS, "Refresh Status","" }));
+				COMMAND_REFRESHSTATUS, Messages.getString("searchadmin_cmd_refreshstat"),"" }));
 		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
-				COMMAND_REBUILDSITE, "Rebuild Site Index","" }));
+				COMMAND_REBUILDSITE, Messages.getString("searchadmin_cmd_rebuildsiteind"),"" }));
 		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
-				COMMAND_REFRESHSITE, "Refresh Site Index","" }));
+				COMMAND_REFRESHSITE, Messages.getString("searchadmin_cmd_refreshsiteind"),"" }));
 		if (superUser)
 		{
 			sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
-				COMMAND_REBUILDINSTANCE, "Rebuild Whole Index","" }));
+				COMMAND_REBUILDINSTANCE, Messages.getString("searchadmin_cmd_rebuildind"),"" }));
 			sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
-				COMMAND_REFRESHINSTANCE, "Refresh Whole Index","" }));
+				COMMAND_REFRESHINSTANCE, Messages.getString("searchadmin_cmd_refreshind"),"" }));
 			sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
-				COMMAND_REMOVELOCK, "Remove Lock", 
-				"onClick=\"return confirm('Are you sure you want to remove the lock\\n Check there are no indexers running');\"" }));
+				COMMAND_REMOVELOCK, Messages.getString("searchadmin_cmd_removelock"), 
+				"onClick=\"return confirm('"+Messages.getString("searchadmin_cmd_removelockconfirm")+"');\"" }));
 			sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
-					COMMAND_RELOADINDEX, "Reload Index","" }));
+					COMMAND_RELOADINDEX, Messages.getString("searchadmin_cmd_reloadind"),"" }));
 		}
 		return sb.toString();
 	}

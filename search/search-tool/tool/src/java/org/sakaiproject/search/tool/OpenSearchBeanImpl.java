@@ -134,5 +134,10 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 	{
 		return currentSite.getTitle();
 	}
+	public String getSystemName()
+	{
+		return ServerConfigurationService.getString("ui.service","Sakai");
+	}
+
 
 }

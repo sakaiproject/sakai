@@ -18,8 +18,8 @@
 # 2. Something isn't supported
 # 3. Any notes you may have.
 <search 
-   name="Sakai: <%= sSearchBean.getSiteName() %>"
-   description="Sakai Search Tool for <%= sSearchBean.getSiteName() %>"
+   name="<%= sSearchBean.getSystemName() %>: <%= sSearchBean.getSiteName() %>"
+   description="<%= org.sakaiproject.search.tool.Messages.getString("jsp_sakai_search_for_site") %> <%= sSearchBean.getSiteName() %>"
    method="GET"
    action="<%= sSearchBean.getSearchURL() %>"
    queryCharset="UTF-8"

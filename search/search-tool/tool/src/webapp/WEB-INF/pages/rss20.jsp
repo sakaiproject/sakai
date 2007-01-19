@@ -25,10 +25,10 @@
 <rss version="2.0">
   <channel>
      <title>
-      <%= systemName %> Search RSS Feed <%= searchBean.getSearchTitle() %>
+      <%= systemName %> <%= org.sakaiproject.search.tool.Messages.getString("jsp_search_rss_feed") %> <%= searchBean.getSearchTitle() %>
      </title>
      <description>
-      <%= systemName %> Search RSS Feed <%= searchBean.getSearchTitle() %>
+      <%= systemName %> <%= org.sakaiproject.search.tool.Messages.getString("jsp_search_rss_feed") %> <%= searchBean.getSearchTitle() %>
      </description>
      <link>
      <%= request.getRequestURL() %>
@@ -36,7 +36,7 @@
      <lastBuildDate>
      <%= (new java.util.Date()).toString() %>
      </lastBuildDate>
-     <generator><%= systemName %> Search RSS Generator</generator>
+     <generator><%= systemName %> <%= org.sakaiproject.search.tool.Messages.getString("jsp_search_rss_generator") %></generator>
     		<%= searchBean.getSearchResults(searchItemFormat,errorMessageFormat) %>
      </channel>
 </rss>

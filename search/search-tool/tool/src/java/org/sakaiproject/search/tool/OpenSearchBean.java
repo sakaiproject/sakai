@@ -63,5 +63,10 @@ public interface OpenSearchBean
 	   * @return
 	   */
 	  String getHTMLSearchFormUrl();
+	  /**
+		 * get the name of the system
+		 * @return
+		 */
+		String getSystemName();
 
 }
