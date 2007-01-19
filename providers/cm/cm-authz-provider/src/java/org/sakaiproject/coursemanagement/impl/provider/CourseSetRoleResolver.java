@@ -50,13 +50,13 @@ public class CourseSetRoleResolver implements RoleResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public Map getUserRoles(CourseManagementService cmService, Section section) {
-		Map userRoleMap = new HashMap();
+	public Map<String, String> getUserRoles(CourseManagementService cmService, Section section) {
+		Map<String, String> userRoleMap = new HashMap<String, String>();
 
 		Set csEids = getCourseSetEids(cmService,section);
 		if(csEids.isEmpty()) {
 			if(log.isDebugEnabled()) log.debug("There are no course sets associated with section " + section.getEid());
-			return new HashMap();
+			return new HashMap<String, String>();
 		}
 		
 		// Iterate over the course set EIDs.  If the user is a member of any of the
@@ -87,8 +87,8 @@ public class CourseSetRoleResolver implements RoleResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public Map getGroupRoles(CourseManagementService cmService, String userEid) {
-		Map sectionRoles = new HashMap();
+	public Map<String, String> getGroupRoles(CourseManagementService cmService, String userEid) {
+		Map<String, String> sectionRoles = new HashMap<String, String>();
 		Map courseSetRoles = cmService.findCourseSetRoles(userEid);
 		
 		// Look at each of the course sets for which this user has a role
@@ -118,7 +118,7 @@ public class CourseSetRoleResolver implements RoleResolver {
 		return sectionRoles;
 	}
 
-	private Set getCourseSetEids(CourseManagementService cmService, Section section) {
+	private Set<String> getCourseSetEids(CourseManagementService cmService, Section section) {
 		// Look up the hierarchy for any course sets
 		CourseOffering co;
 		CanonicalCourse cc;
@@ -127,7 +127,7 @@ public class CourseSetRoleResolver implements RoleResolver {
 			cc = cmService.getCanonicalCourse(co.getCanonicalCourseEid());
 		} catch (IdNotFoundException ide) {
 			if(log.isDebugEnabled()) log.debug("Unable to find CM objects: " + ide);
-			return new HashSet();
+			return new HashSet<String>();
 		}
 		
 		if(log.isDebugEnabled()) log.debug("Found course offering " + co);
@@ -138,7 +138,7 @@ public class CourseSetRoleResolver implements RoleResolver {
 		Set xListedCanonCourses = cmService.getEquivalentCanonicalCourses(cc.getEid());
 
 		// Collect all of the CourseSet EIDs connected to this course or an equivalent
-		Set csEids = co.getCourseSetEids();
+		Set<String> csEids = co.getCourseSetEids();
 		if(log.isDebugEnabled()) log.debug("Course offering " + co.getEid() + " is a member of " + csEids.size() + " course sets");
 
 		// Collect all of the CourseSet EIDs for which these cross listed course offerings are a member

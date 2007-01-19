@@ -46,7 +46,7 @@ public class CourseManagementGroupProvider implements GroupProvider {
 	CourseManagementService cmService;
 			
 	/** The role resolvers to use when looking for CM roles in the hierarchy*/
-	List roleResolvers;
+	List<RoleResolver> roleResolvers;
 	
 	/** The ordered list of role preferences.  Roles earlier in the list are preferred to those later in the list. */
 	List<String> rolePreferences;
@@ -77,8 +77,8 @@ public class CourseManagementGroupProvider implements GroupProvider {
 		String[] sectionEids = unpackId(id);
 		if(log.isDebugEnabled()) log.debug(id + " is mapped to " + sectionEids.length + " sections");
 
-		for(Iterator rrIter = roleResolvers.iterator(); rrIter.hasNext();) {
-			RoleResolver rr = (RoleResolver)rrIter.next();
+		for(Iterator<RoleResolver> rrIter = roleResolvers.iterator(); rrIter.hasNext();) {
+			RoleResolver rr = rrIter.next();
 
 			for(int i=0; i < sectionEids.length; i++) {
 				String sectionEid = sectionEids[i];
@@ -173,7 +173,7 @@ public class CourseManagementGroupProvider implements GroupProvider {
 		this.cmService = cmService;
 	}
 
-	public void setRoleResolvers(List roleResolvers) {
+	public void setRoleResolvers(List<RoleResolver> roleResolvers) {
 		this.roleResolvers = roleResolvers;
 	}
 	

@@ -48,61 +48,71 @@ public class CourseOfferingRoleResolver implements RoleResolver {
 	/**
 	 * {@inheritDoc}
 	 */
-	public Map getUserRoles(CourseManagementService cmService, Section section) {
-		Map userRoleMap = new HashMap();
+	public Map<String, String> getUserRoles(CourseManagementService cmService, Section section) {
+		Map<String, String> userRoleMap = new HashMap<String, String>();
+		String coEid = section.getCourseOfferingEid();
+		
 		// Get the members of this course offering
-		Set coMembers = cmService.getCourseOfferingMemberships(section.getCourseOfferingEid());
-
-		// Get the members of equivalent course offerings, and add them to the set of all memberships
-		Set equivalentCourseOfferings = cmService.getEquivalentCourseOfferings(section.getCourseOfferingEid());
-		for(Iterator iter = equivalentCourseOfferings.iterator(); iter.hasNext();) {
-			CourseOffering equivCo = (CourseOffering)iter.next();
-			Set equivMembers = cmService.getCourseOfferingMemberships(equivCo.getEid());
-			if(equivMembers != null) {
-				coMembers.addAll(equivMembers);
-			}
+		Set<Membership> coMembers = cmService.getCourseOfferingMemberships(coEid);
+		Set<Membership> equivMembers = new HashSet<Membership>();
+		
+		// Get the members of equivalent course offerings, and add them to the set of equivalent memberships
+		Set<CourseOffering> equivalentCourseOfferings = cmService.getEquivalentCourseOfferings(coEid);
+		for(Iterator<CourseOffering> iter = equivalentCourseOfferings.iterator(); iter.hasNext();) {
+			CourseOffering equivCo = iter.next();
+			equivMembers.addAll(cmService.getCourseOfferingMemberships(equivCo.getEid()));
 		}
 
+		// Add the course offering memebers
+		addMemberRoles(userRoleMap, coMembers);
+		
+		// Add the equivalent course offering members (but don't override any roles in the original course offering)
+		addMemberRoles(userRoleMap, equivMembers);
+		
 		if(coMembers != null) {
-			if(log.isDebugEnabled()) log.debug(coMembers.size() +" members in course offering " + section.getCourseOfferingEid() + " and equivalents");
-			for(Iterator iter = coMembers.iterator(); iter.hasNext();) {
-				Membership membership = (Membership)iter.next();
-				if(log.isDebugEnabled()) log.debug("Adding " + membership.getUserId() +
-						" with role " + membership.getRole() + " for section " + section.getEid());
-				if(userRoleMap.containsKey(membership.getUserId())) {
-					log.warn("User " + membership.getUserId() + " is a member of multiple course offings (probably equivalents).  Their role in section " + section.getEid() + " is ambiguous");
-				} else {
-					String sakaiRole = convertRole(membership.getRole());
-					if(sakaiRole != null) {
-						userRoleMap.put(membership.getUserId(), sakaiRole);
-					}
-				}
-			}
 		}
 		return userRoleMap;
 	}
 
+	private void addMemberRoles(Map<String, String> userRoleMap, Set<Membership>coMembers) {
+		for(Iterator<Membership> iter = coMembers.iterator(); iter.hasNext();) {
+			Membership membership = iter.next();
+			if(userRoleMap.containsKey(membership.getUserId())) {
+				// Don't override existing roles in the map.
+			} else {
+				String sakaiRole = convertRole(membership.getRole());
+				if(sakaiRole != null) {
+					userRoleMap.put(membership.getUserId(), sakaiRole);
+				}
+			}
+		}
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
-	public Map getGroupRoles(CourseManagementService cmService, String userEid) {
-		Map sectionRoles = new HashMap();
+	public Map<String, String> getGroupRoles(CourseManagementService cmService, String userEid) {
+		Map<String, String> sectionRoles = new HashMap<String, String>();
 		
 		// Find all of the course offerings for which this user is a member
-		Map courseOfferingRoles = cmService.findCourseOfferingRoles(userEid);
+		Map<String, String> courseOfferingRoles = cmService.findCourseOfferingRoles(userEid);
 		if(log.isDebugEnabled()) log.debug("Found " + courseOfferingRoles.size() + " course offering roles for " + userEid);
 
 		// Add all of the equivalent course offerings-> role mappings for this user
-		Set coEids = new HashSet(courseOfferingRoles.keySet());
-		for(Iterator coIter = coEids.iterator(); coIter.hasNext();) {
-			String equivCoEid = (String)coIter.next();
-			// FIXME -- I think this is a bug... find should be passed a userEid
-			courseOfferingRoles.putAll(cmService.findCourseOfferingRoles(equivCoEid));
+		Set<String> coEids = new HashSet(courseOfferingRoles.keySet());
+		for(Iterator<String> coIter = coEids.iterator(); coIter.hasNext();) {
+			String coEid = coIter.next();
+			Set<CourseOffering> equivOfferings = cmService.getEquivalentCourseOfferings(coEid);
+			for(Iterator<CourseOffering> equivIter = equivOfferings.iterator(); equivIter.hasNext();) {
+				CourseOffering equiv = equivIter.next();
+				// Use the role in the original course offering for this equivalent course offering
+				courseOfferingRoles.put(equiv.getEid(), courseOfferingRoles.get(coEid));
+			}
 		}
 		
-		for(Iterator coIter = courseOfferingRoles.keySet().iterator(); coIter.hasNext();) {
-			String coEid = (String)coIter.next();
-			String coRole = (String)courseOfferingRoles.get(coEid);
+		for(Iterator<String> coIter = courseOfferingRoles.keySet().iterator(); coIter.hasNext();) {
+			String coEid = coIter.next();
+			String coRole = courseOfferingRoles.get(coEid);
 			
 			// If this role shouldn't be part of the site, ignore the membership in this course offering
 			String sakaiRole = convertRole(coRole);
@@ -113,10 +123,10 @@ public class CourseOfferingRoleResolver implements RoleResolver {
 			
 			if(log.isDebugEnabled()) log.debug(userEid + " has role=" + coRole + " in course offering " + coEid);
 			// Get the sections in each course offering
-			Set sections = cmService.getSections(coEid);
-			for(Iterator secIter = sections.iterator(); secIter.hasNext();) {
+			Set<Section> sections = cmService.getSections(coEid);
+			for(Iterator<Section> secIter = sections.iterator(); secIter.hasNext();) {
 				// Add the section EIDs and the converted *CourseOffering* role to the sectionRoles map
-				Section section = (Section)secIter.next();
+				Section section = secIter.next();
 				sectionRoles.put(section.getEid(), sakaiRole);
 			}
 		}
