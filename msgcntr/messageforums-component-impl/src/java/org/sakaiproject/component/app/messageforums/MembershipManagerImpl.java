@@ -3,7 +3,7 @@
  * $Id: MembershipManagerImpl.java 9227 2006-05-15 15:02:42Z cwen@iupui.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -84,7 +84,7 @@ public class MembershipManagerImpl implements MembershipManager{
    * 
    * @return Map of all course users with privacy status set
    */
-  private Map filterByPrivacyManager(List allCourseUsers, Map courseUserMap) {
+  private Map setPrivacyStatus(List allCourseUsers, Map courseUserMap) {
 	  
 	  List userIds = new ArrayList();
 	  Map results = new HashMap();
@@ -144,9 +144,9 @@ public class MembershipManagerImpl implements MembershipManager{
     /** filter member map */
     Map memberMap = getAllCourseMembers(filterFerpa, true, true);
     
-    if (filterFerpa) {
-    	memberMap = filterByPrivacyManager(allCourseUsers, memberMap);
-    }
+//    if (filterFerpa) {
+//    	memberMap = setPrivacyStatus(allCourseUsers, memberMap);
+//    }
     
     for (Iterator i = memberMap.entrySet().iterator(); i.hasNext();){
       
@@ -250,7 +250,7 @@ public class MembershipManagerImpl implements MembershipManager{
 		// TODO Auto-generated catch block
     	// e.printStackTrace();
     	LOG.warn(" User " + userId + " not defined");
-	}            
+	  }            
       
       if(user != null)
       {
@@ -260,29 +260,17 @@ public class MembershipManagerImpl implements MembershipManager{
       	memberItem.setUser(user);
       	memberItem.setRole(userRole);             
 
+      	// Don't want admin as part of the list
       	if(!(userId).equals("admin"))
       	{                                       
-      		if (filterFerpa){                       
-      			boolean ferpa_flag = false;
-      			ferpa_flag = !privacyManager.isViewable(getContextSiteId(), userId); 
-      			if (!ferpa_flag || securityService.unlock(memberItem.getUser(), 
-      					SiteService.SECURE_UPDATE_SITE,
-      					getContextSiteId())
-      					|| securityService.unlock(userDirectoryService.getCurrentUser(),
-      							SiteService.SECURE_UPDATE_SITE,
-      							getContextSiteId())
-      			){
-      				returnMap.put(memberItem.getId(), memberItem);
-      			}
-      		}
-      		else{
-      			returnMap.put(memberItem.getId(), memberItem);
-      		}
+  			returnMap.put(memberItem.getId(), memberItem);
       	}                                
       }
     }
-    
-    return returnMap;
+ 
+    // set FERPA status for all items in map - allCourseUsers
+    // needed by PrivacyManager to determine status
+    return setPrivacyStatus(getAllCourseUsers(), returnMap);
   }
   
     

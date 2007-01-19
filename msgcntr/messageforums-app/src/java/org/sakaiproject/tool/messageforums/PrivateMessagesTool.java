@@ -3,7 +3,7 @@
  * $Id: PrivateMessagesTool.java 9227 2006-05-15 15:02:42Z cwen@iupui.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -661,7 +661,7 @@ public class PrivateMessagesTool
     totalComposeToListRecipients = new ArrayList();
  
     courseMemberMap = membershipManager.getFilteredCourseMembers(true);
-
+//    courseMemberMap = membershipManager.getAllCourseMembers(true, true, true);
     List members = membershipManager.convertMemberMapToList(courseMemberMap);
 
     Set memberIds = new HashSet();
@@ -1307,9 +1307,18 @@ public class PrivateMessagesTool
         	}
         }          
       }
-//      sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space
-      sendToHiddenString=sendToHiddenString.substring(0, sendToHiddenString.length()-2); //remove last comma and space
-      aMsg.setRecipientsAsText(sendToString + "(" + sendToHiddenString + ")");
+
+      if (! "".equals(sendToString)) {
+    	  sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space
+      }
+      
+      if ("".equals(sendToHiddenString)) {
+    	  aMsg.setRecipientsAsText(sendToString);
+      }
+      else {
+    	  sendToHiddenString=sendToHiddenString.substring(0, sendToHiddenString.length()-2); //remove last comma and space
+    	  aMsg.setRecipientsAsText(sendToString + " (" + sendToHiddenString + ")");
+      }
       
     }
     //Add attachments
@@ -1649,7 +1658,7 @@ public class PrivateMessagesTool
     
     PrivateMessage currentMessage = getDetailMsg().getMsg() ;
         
-    //by default add current user
+    //by default add user who sent original message    
     for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {      
       MembershipItem membershipItem = (MembershipItem) i.next();                
       
@@ -1668,7 +1677,7 @@ public class PrivateMessagesTool
       return null ;
     }
 
-    if(getSelectedComposeToList().size()<1)
+    if(selectedComposeToList.size()<1)
     {
       setErrorMessage(getResourceBundleString(SELECT_RECIPIENT_LIST_FOR_REPLY));
       return null ;
@@ -1703,7 +1712,7 @@ public class PrivateMessagesTool
     else {
     	for (int i = 0; i < selectedComposeToList.size(); i++)
     	{
-    		MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(i));  
+    		MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(i));
     		if(membershipItem != null)
     		{
     			if (membershipItem.isViewable()) {
@@ -1716,13 +1725,16 @@ public class PrivateMessagesTool
     	}
     }
 
-	sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space    	
+    if (! "".equals(sendToString)) {
+  	  sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space
+    }
+
     if ("".equals(sendToHiddenString)) {
         rrepMsg.setRecipientsAsText(sendToString);
     }
     else {
     	sendToHiddenString=sendToHiddenString.substring(0, sendToHiddenString.length()-2); //remove last comma and space    
-    	rrepMsg.setRecipientsAsText(sendToString + "(" + sendToHiddenString + ")");
+    	rrepMsg.setRecipientsAsText(sendToString + " (" + sendToHiddenString + ")");
     }    
     
     //Add attachments
