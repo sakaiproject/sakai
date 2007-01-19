@@ -114,10 +114,16 @@
 </h:panelGrid>
 
 <div class="navPanel">
-<div class="itemNav" style="text-align: center;float:none">
-  <h:commandButton value="#{msgs.pvt_cmpmsg}" action="#{PrivateMessagesTool.processPvtMsgCompose}" onkeypress="document.forms[0].submit;" accesskey="n" />
+  <div style="float:left; display:inline; width: 33%; padding-top: 0.5em;">
+    <h:commandLink action="#{PrivateMessagesTool.processActionMarkCheckedAsRead}" id="markAsread"  value="#{msgs.cdfm_mark_check_as_read}"
+				title="#{msgs.cdfm_mark_check_as_read}" > 
+	  </h:commandLink>
+	</div>
+  <div style="text-align:center; float:none; display:inline; width:33%;">
+    <h:commandButton value="#{msgs.pvt_cmpmsg}" action="#{PrivateMessagesTool.processPvtMsgCompose}" onkeypress="document.forms[0].submit;" accesskey="n" />
   	<h:commandButton action="#{PrivateMessagesTool.processPvtMsgEmptyDelete}" rendered="#{PrivateMessagesTool.msgNavMode == 'Deleted'}" value="#{msgs.pvt_emptydelfol}" onkeypress="document.forms[0].submit;" accesskey="x" />
-</div>
+  </div>
+  <div style="float:right; display:inline; width:33%;"></div>
 </div>
 			
 	    			

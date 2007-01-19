@@ -106,6 +106,8 @@ public class PrivateMessagesTool
   private static final String CONFIRM_MSG_DELETE = "pvt_confirm_msg_delete";
   private static final String ENTER_SEARCH_TEXT = "pvt_enter_search_text";
   private static final String MOVE_MSG_ERROR = "pvt_move_msg_error";
+  private static final String NO_MARKED_READ_MESSAGE = "pvt_no_message_mark_read";
+  
   /**
    *Dependency Injected 
    */
@@ -2563,6 +2565,18 @@ public class PrivateMessagesTool
     {
         this.rearrageTopicMsgsThreaded(true);
     }
+    //  If "check all", update the decorated pmb to show selected
+    if (selectAll)
+    {
+    	Iterator searchIter = searchPvtMsgs.iterator();
+    	while (searchIter.hasNext())
+    	{
+    		PrivateMessageDecoratedBean searchMsg = (PrivateMessageDecoratedBean)searchIter.next();
+    		searchMsg.setIsSelected(true);
+    	}
+    	
+    	selectAll = false;
+    }
     return searchPvtMsgs;
   }
   public void setSearchPvtMsgs(List searchPvtMsgs)
@@ -3087,4 +3101,67 @@ public class PrivateMessagesTool
 	public void setMsgNavMode(String msgNavMode) {
 		this.msgNavMode = msgNavMode;
 	}	
+	
+	/**
+	 * @return
+	 */
+	public String processActionMarkCheckedAsRead()
+	{
+		return markCheckedMessages(true);
+	}
+	
+	/**
+	 * 
+	 * @param readStatus
+	 * @return
+	 */
+	private String markCheckedMessages(boolean readStatus)
+	{
+		List pvtMsgList = new ArrayList();
+		boolean msgSelected = false;
+		boolean searchMode = false;
+		
+		// determine if we are looking at search results or the main listing
+		if (searchPvtMsgs != null && !searchPvtMsgs.isEmpty())
+		{
+			searchMode = true;
+			pvtMsgList = searchPvtMsgs;
+		}
+		else
+		{
+			pvtMsgList = decoratedPvtMsgs;
+		}
+		
+		Iterator pvtMsgListIter = pvtMsgList.iterator(); 
+		while (pvtMsgListIter.hasNext())
+		{
+			PrivateMessageDecoratedBean decoMessage = (PrivateMessageDecoratedBean) pvtMsgListIter.next();
+			if(decoMessage.getIsSelected())
+			{
+				msgSelected = true;
+				prtMsgManager.markMessageAsReadForUser(decoMessage.getMsg());
+				
+				if (searchMode)
+				{
+					// Although the change was made in the db, the search
+					// view needs to be refreshed (it doesn't return to db)
+					decoMessage.setHasRead(true);
+					decoMessage.setIsSelected(false);
+				}
+			}      
+		}
+		
+		if (!msgSelected)
+		{
+			setErrorMessage(getResourceBundleString(NO_MARKED_READ_MESSAGE));
+			return null;
+		}
+		
+		if (searchMode)
+		{
+			return SEARCH_RESULT_MESSAGES_PG;
+		}
+		
+		return DISPLAY_MESSAGES_PG; 
+	}
 }

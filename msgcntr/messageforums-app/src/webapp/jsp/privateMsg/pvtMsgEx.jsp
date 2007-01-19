@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
-<<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.messageforums.bundle.Messages"/>
 </jsp:useBean>
 
@@ -24,51 +24,6 @@
 
 			<h:messages styleClass="alertMessage" id="errorMessages" />
 			<%@include file="msgHeader.jsp"%>
-<%--
-	  <h:dataTable styleClass="listHier" id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.searchPvtMsgs}" var="rcvdItems" >   
-		  <h:column>
-		    <f:facet name="header">		     
-		    </f:facet>
-		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}"/>
-		  </h:column>
-		  <h:column>
-		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_subject}"/>
-		    </f:facet>
-		      <h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" immediate="true">
-            <h:outputText value=" #{rcvdItems.msg.title}" rendered="#{rcvdItems.hasRead}"/>
-            <h:outputText style="font-weight:bold" value=" #{rcvdItems.msg.title}" rendered="#{!rcvdItems.hasRead}"/>
-            <f:param value="#{rcvdItems.msg.id}" name="current_msg_detail"/>
-          </h:commandLink>              
-		  </h:column>
-		  <h:column>
-		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_authby}"/>
-		    </f:facet>		     		    
-		     <h:outputText value="#{rcvdItems.msg.athor}" rendered="#{rcvdItems.hasRead}"/>
-		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.author}" rendered="#{!rcvdItems.hasRead}"/>
-		  </h:column>
-		  <h:column>
-		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_date}"/>
-		    </f:facet>
-		    <h:outputText value="#{rcvdItems.msg.created}" rendered="#{rcvdItems.hasRead}">
-		        <f:convertDateTime pattern="#{msgs.date_format}" />
-		    </h:outputText>
-		    <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.created}" rendered="#{!rcvdItems.hasRead}">
-		        <f:convertDateTime pattern="#{msgs.date_format}" />
-		    </h:outputText>
-		  </h:column>
-		  <h:column>
-		    <f:facet name="header">
-		       <h:outputText value="#{msgs.pvt_label}"/>
-		    </f:facet>
-		     <h:outputText value="#{rcvdItems.msg.label}" rendered="#{rcvdItems.hasRead}"/>
-		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.label}" rendered="#{!rcvdItems.hasRead}"/>
-		  </h:column>
-		</h:dataTable>
-
---%>
 
 
 	  <h:dataTable styleClass="listHier lines nolines" cellpadding="0" cellspacing="0"  id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.searchPvtMsgs}" var="rcvdItems" 
@@ -76,10 +31,10 @@
 		  <h:column>
 		    <f:facet name="header">
  					<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" 
- 					               rendered="#{PrivateMessagesTool.msgNavMode == 'Deleted'}" title="#{msgs.cdfm_checkall}" />
+ 					               title="#{msgs.cdfm_checkall}" />
 		     <%--<h:commandButton alt="SelectAll" image="/sakai-messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>--%>
 		    </f:facet>
-				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" rendered="#{PrivateMessagesTool.msgNavMode == 'Deleted'}"/>
+				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" />
 		  </h:column>
 		  <h:column>
 				<f:facet name="header">
@@ -93,7 +48,7 @@
 		    </f:facet>
 		      <h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" immediate="true" title=" #{rcvdItems.msg.title}">
             <h:outputText value=" #{rcvdItems.msg.title}" rendered="#{rcvdItems.hasRead}"/>
-            <h:outputText style="font-weight:bold" value=" #{rcvdItems.msg.title}" rendered="#{!rcvdItems.hasRead}"/>
+            <h:outputText styleClass="unreadMsg" value=" #{rcvdItems.msg.title}" rendered="#{!rcvdItems.hasRead}"/>
             <f:param value="#{rcvdItems.msg.id}" name="current_msg_detail"/>
           </h:commandLink>
 		  </h:column>			
@@ -102,7 +57,7 @@
 		       <h:outputText value="#{msgs.pvt_authby}"/>
 		    </f:facet>		     		    
 		     <h:outputText value="#{rcvdItems.msg.author}" rendered="#{rcvdItems.hasRead}"/>
-		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.author}" rendered="#{!rcvdItems.hasRead}"/>
+		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.msg.author}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.msgNavMode == 'Sent'}">
 		    <f:facet name="header">
@@ -139,8 +94,10 @@
 	  	columnClasses="attach,attach,specialLink,bogus,bogus,bogus">
 		  <h:column>
 		    <f:facet name="header">
+		    	<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" 
+ 					               title="#{msgs.cdfm_checkall}" />
 		    </f:facet>
-		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" rendered="#{PrivateMessagesTool.msgNavMode == 'Deleted'}"/>
+		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}"/>
 		  </h:column>
 		  <h:column>
 				<f:facet name="header">
