@@ -213,7 +213,10 @@
 	    	  <input type="hidden" name="smallchange" value="smallchange" />
 	    
 	      <div class="rwikirenderedContent">
+	   
 		<script type="text/javascript" >
+	      var yes_val='<c:out value="${rlb.jsp_yes}"/>';
+	      var no_val='<c:out value="${rlb.jsp_no}"/>';  
 		  <![CDATA[
 		  
 		  var NUMBER_OF_PERMISSIONS =0;
@@ -263,7 +266,7 @@
 		      el = document.getElementById(elId);
 		    }
 		    if (el != null) {
-		      el.innerHTML = enabled ? "<c:out value="${rlb.jsp_yes}"/>" : "<c:out value="${rlb.jsp_no}"/>";
+		      el.innerHTML = enabled ? yes_val : no_val;
 		    } 
 		  }
 
