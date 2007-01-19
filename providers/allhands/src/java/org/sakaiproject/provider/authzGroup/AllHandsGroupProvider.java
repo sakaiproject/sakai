@@ -165,7 +165,34 @@ public class AllHandsGroupProvider implements GroupProvider
 
 		return rv;
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String packId(String[] ids)
+	{
+		if(ids == null || ids.length == 0)
+		{
+			return null;
+		}
+		
+		if(ids.length == 1)
+		{
+			return ids[0];
+		}
+		
+		StringBuffer sb = new StringBuffer();
+		for(int i=0; i<ids.length; i++)
+		{
+			sb.append(ids[i]);
+			if(i < ids.length - 1)
+			{
+				sb.append("+");
+			}
+		}
+		return sb.toString();
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
