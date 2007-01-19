@@ -26,6 +26,9 @@
     <rubric>
     <xsl:value-of select="//section/qtimetadata/qtimetadatafield[3]/fieldentry"/>
     </rubric>
+    <attachment>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[4]/fieldentry"/>
+    </attachment>
   </sectionData>
 </xsl:template>
 

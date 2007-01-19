@@ -29,7 +29,8 @@ public interface SectionMetaDataIfc
   public static String KEYWORDS = "SECTION_KEYWORDS";
   public static String OBJECTIVES = "SECTION_OBJECTIVES";
   public static String RUBRICS = "SECTION_RUBRICS";
-
+  public static String ATTACHMENTS = "ATTACHMENTS";
+  
   Long getId();
 
   void setId(Long id);

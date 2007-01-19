@@ -140,7 +140,8 @@ public class Section extends ASIBaseClass
     setFieldentry("SECTION_OBJECTIVE", section.getSectionMetaDataByLabel(SectionMetaDataIfc.OBJECTIVES));
     setFieldentry("SECTION_KEYWORD", section.getSectionMetaDataByLabel(SectionMetaDataIfc.KEYWORDS));
     setFieldentry("SECTION_RUBRIC", section.getSectionMetaDataByLabel(SectionMetaDataIfc.RUBRICS));
- 
+    setFieldentry("ATTACHMENT", section.getSectionMetaDataByLabel(SectionMetaDataIfc.ATTACHMENTS));
+    
     // items
     ArrayList items = section.getItemArray();
     addItems(items);

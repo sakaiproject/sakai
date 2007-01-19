@@ -48,7 +48,6 @@ public class AttachmentHelper {
 		ContentResource contentResource = null;
 		int BUFFER_SIZE = 2048;
 		byte tempContent[] = new byte[BUFFER_SIZE];
-		//String fullFilePath = "C:\\Timmy.txt";
 		File file = null;
 		FileInputStream fileInputStream = null;
 		BufferedInputStream bufInputStream = null;

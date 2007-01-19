@@ -49,6 +49,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolItemIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -240,12 +241,14 @@ public class AuthoringHelper
         assessmentHelper.updateIPAddressSet(assessmentXml,
                                              securedIPAddressSet);
       }
+      /*
       Set attachmentSet = (Set) assessment.getAssessmentAttachmentSet();
+      
    	  if (attachmentSet !=null || attachmentSet.size() != 0)    	  
       {
         assessmentHelper.updateAttachmentSet(assessmentXml, attachmentSet);
       }
-
+      */
 
       assessmentHelper.updateMetaData(assessmentXml, assessment);
 
@@ -555,8 +558,7 @@ public class AuthoringHelper
         section.setTypeId(TypeIfc.DEFAULT_SECTION);
         section.setStatus(new Integer(1));
         section.setSequence(new Integer(sec + 1));
-
-
+        
         List itemList = exHelper.getItemXmlList(sectionXml);
         for (int itm = 0; itm < itemList.size(); itm++) // for each item
         {
@@ -598,9 +600,18 @@ public class AuthoringHelper
 
           section.addItem(item); // many to one
           itemService.saveItem(item);
+          
+          // if unzipLocation is not null, there might be item attachment
+          if (unzipLocation != null) {
+        	  exHelper.makeItemAttachmentSet(item, unzipLocation);
+          }
         } // ... end for each item
         assessmentService.saveOrUpdateSection(section);
-
+        
+        // if unzipLocation is not null, there might be section attachment
+        if (unzipLocation != null) {
+      	  exHelper.makeSectionAttachmentSet(section, sectionMap, unzipLocation);
+        }
       } // ... end for each section
 
       // and add ip address restriction, if any
@@ -616,11 +627,9 @@ public class AuthoringHelper
       //assessmentService.update(assessment);
       assessmentService.saveAssessment(assessment);
       
-      // if unzipLocation is not null, there might be attachment
+      // if unzipLocation is not null, there might be assessment attachment
       if (unzipLocation != null) {
-    	  // update attachment
-    	  exHelper.makeAttachmentSet(assessment, unzipLocation);
-    	  updateAttachment(assessment.getAssessmentAttachmentList(), (AssessmentIfc)assessment.getData());
+    	  exHelper.makeAssessmentAttachmentSet(assessment, unzipLocation);
       }
       
       return assessment;
@@ -849,19 +858,4 @@ public class AuthoringHelper
   {
     this.qtiVersion = qtiVersion;
   }
-
-  private void updateAttachment(List attachmentList, AssessmentIfc assessment) {
-		if (attachmentList == null || attachmentList.size() == 0) {
-			return;
-		}
-		List list = new ArrayList();
-		for (int i = 0; i < attachmentList.size(); i++) {
-			AssessmentAttachmentIfc a = (AssessmentAttachmentIfc) attachmentList.get(i);
-			a.setAssessment(assessment);
-			list.add(a);
-		}
-		// save new ones
-		AssessmentService assessmentService = new AssessmentService();
-		assessmentService.saveOrUpdateAttachments(list);
-	}
 }

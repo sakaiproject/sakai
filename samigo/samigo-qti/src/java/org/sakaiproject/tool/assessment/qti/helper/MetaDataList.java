@@ -142,6 +142,10 @@ public class MetaDataList
         else if (key.equalsIgnoreCase("ITEM_RUBRIC")){
         	item.addItemMetaData("RUBRIC", value);
         }
+        else if (key.equalsIgnoreCase("ATTACHMENT")) {
+      	  value = meta.substring(meta.indexOf("|") + 1);
+      	item.addItemMetaData(key, value);
+        }
         else {
         	log.debug("key now is " + key);
         item.addItemMetaData(key, value);
@@ -222,34 +226,34 @@ public class MetaDataList
       {
         key = AssessmentMetaDataIfc.AUTHORS;
       }
-      if ("ASSESSMENT_KEYWORDS".equals(key))
+      else if ("ASSESSMENT_KEYWORDS".equals(key))
       {
         key = AssessmentMetaDataIfc.KEYWORDS;
       }
-      if ("ASSESSMENT_OBJECTIVES".equals(key))
+      else if ("ASSESSMENT_OBJECTIVES".equals(key))
       {
         key = AssessmentMetaDataIfc.OBJECTIVES;
       }
-      if ("ASSESSMENT_RUBRICS".equals(key))
+      else if ("ASSESSMENT_RUBRICS".equals(key))
       {
         key = AssessmentMetaDataIfc.RUBRICS;
       }
-      if ("BGCOLOR".equals(key))
+      else if ("BGCOLOR".equals(key))
       {
         key = AssessmentMetaDataIfc.BGCOLOR;
       }
-      if ("BGIMG".equals(key))
+      else if ("BGIMG".equals(key))
       {
         key = AssessmentMetaDataIfc.BGIMAGE;
       }
-      if ("COLLECT_ITEM_METADATA".equals(key))
+      else if ("COLLECT_ITEM_METADATA".equals(key))
       {
         key = "hasMetaDataForQuestions";
 
       }
 
       // for backwards compatibility with version 1.5 exports.
-      if ("ASSESSMENT_RELEASED_TO".equals(key) &&
+      else if ("ASSESSMENT_RELEASED_TO".equals(key) &&
           value != null && value.indexOf("Authenticated Users") > -1)
       {
         log.debug(
@@ -257,11 +261,11 @@ public class MetaDataList
         value = AuthoringConstantStrings.ANONYMOUS;
       }
        
-      if ("SUBMISSION_MESSAGE".equalsIgnoreCase(key)){
+      else if ("SUBMISSION_MESSAGE".equalsIgnoreCase(key)){
     	  //log.debug("key is submsg " + key);
     	  // skip
       }
-      if ("ATTACHMENT".equalsIgnoreCase(key)) {
+      else if ("ATTACHMENT".equalsIgnoreCase(key)) {
     	  value = meta.substring(meta.indexOf("|") + 1);
     	  assessment.addAssessmentMetaData(key, value);
       }
