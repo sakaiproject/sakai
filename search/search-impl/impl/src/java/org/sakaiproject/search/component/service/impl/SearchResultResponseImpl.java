@@ -45,6 +45,7 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.TermFrequency;
+import org.sakaiproject.search.component.Messages;
 import org.xml.sax.Attributes;
 
 
@@ -95,9 +96,9 @@ public class SearchResultResponseImpl implements SearchResult
 		}
 		try
 		{
-			String title = (String)m.get("title");
+			String title = (String)m.get("title"); //$NON-NLS-1$
 			if ( title != null ) {
-				m.put("title", new String(Base64.decodeBase64(title.getBytes("UTF-8")),"UTF-8"));
+				m.put("title", new String(Base64.decodeBase64(title.getBytes("UTF-8")),"UTF-8")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 		}
 		catch (UnsupportedEncodingException e)
@@ -113,12 +114,12 @@ public class SearchResultResponseImpl implements SearchResult
 
 	public float getScore()
 	{
-		return Float.parseFloat((String)attributes.get("score"));
+		return Float.parseFloat((String)attributes.get("score")); //$NON-NLS-1$
 	}
 
 	public String getId()
 	{
-		return (String)attributes.get("sid");
+		return (String)attributes.get("sid"); //$NON-NLS-1$
 	}
 
 	public String[] getFieldNames()
@@ -159,25 +160,25 @@ public class SearchResultResponseImpl implements SearchResult
 
 	public String getUrl()
 	{
-		return (String) attributes.get("url");
+		return (String) attributes.get("url"); //$NON-NLS-1$
 	}
 
 	public String getTitle()
 	{
 		return StringUtils.escapeHtml((String) attributes
-				.get("title"), false);
+				.get("title"), false); //$NON-NLS-1$
 	}
 
 	public String getTool()
 	{
 		return StringUtils.escapeHtml((String) attributes
-				.get("tool"), false);
+				.get("tool"), false); //$NON-NLS-1$
 
 	}
 
 	public int getIndex()
 	{
-		return Integer.parseInt((String)attributes.get("index"));
+		return Integer.parseInt((String)attributes.get("index")); //$NON-NLS-1$
 	}
 
 	public String getSearchResult()
@@ -199,17 +200,17 @@ public class SearchResultResponseImpl implements SearchResult
 			String text = StringUtils.escapeHtml(sb.toString(), false);
 			TokenStream tokenStream = analyzer.tokenStream(
 					SearchService.FIELD_CONTENTS, new StringReader(text));
-			return hightlighter.getBestFragments(tokenStream, text, 5, " ... ");
+			return hightlighter.getBestFragments(tokenStream, text, 5, " ... "); //$NON-NLS-1$
 		}
 		catch (IOException e)
 		{
-			return "Error: " + e.getMessage();
+			return Messages.getString("SearchResultResponseImpl.11") + e.getMessage(); //$NON-NLS-1$
 		}
 	}
 
 	public String getReference()
 	{
-		return (String) attributes.get("reference");
+		return (String) attributes.get("reference"); //$NON-NLS-1$
 	}
 
 	public TermFrequency getTerms() throws IOException
@@ -219,22 +220,22 @@ public class SearchResultResponseImpl implements SearchResult
 
 	public void toXMLString(StringBuffer sb)
 	{
-		sb.append("<result");
-		sb.append(" index=\"").append(getIndex()).append("\" ");
-		sb.append(" score=\"").append(getScore()).append("\" ");
-		sb.append(" sid=\"").append(getId()).append("\" ");
-		sb.append(" reference=\"").append(getReference()).append("\" ");
+		sb.append("<result"); //$NON-NLS-1$
+		sb.append(" index=\"").append(getIndex()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" score=\"").append(getScore()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" sid=\"").append(getId()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" reference=\"").append(getReference()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		try
 		{
-			sb.append(" title=\"").append(
-					new String(Base64.encodeBase64(getTitle().getBytes("UTF-8")),"UTF-8")).append("\" ");
+			sb.append(" title=\"").append( //$NON-NLS-1$
+					new String(Base64.encodeBase64(getTitle().getBytes("UTF-8")),"UTF-8")).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		catch (UnsupportedEncodingException e)
 		{
-			sb.append(" title=\"").append(getTitle()).append("\" ");
+			sb.append(" title=\"").append(getTitle()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		sb.append(" tool=\"").append(getTool()).append("\" ");
-		sb.append(" url=\"").append(getUrl()).append("\" />");
+		sb.append(" tool=\"").append(getTool()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" url=\"").append(getUrl()).append("\" />"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 }

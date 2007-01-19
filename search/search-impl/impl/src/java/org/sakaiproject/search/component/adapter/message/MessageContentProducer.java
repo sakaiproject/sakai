@@ -48,6 +48,7 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
+import org.sakaiproject.search.component.Messages;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
 /**
@@ -92,8 +93,8 @@ public class MessageContentProducer implements EntityContentProducer
 
 		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
 
-		if ("true".equals(ServerConfigurationService.getString(
-				"search.experimental", "false")))
+		if ("true".equals(ServerConfigurationService.getString( //$NON-NLS-1$
+				"search.experimental", "false"))) //$NON-NLS-1$ //$NON-NLS-2$
 		{
 			for (Iterator i = addEvents.iterator(); i.hasNext();)
 			{
@@ -112,7 +113,7 @@ public class MessageContentProducer implements EntityContentProducer
 		Object o = cm.get(name);
 		if (o == null)
 		{
-			log.error("Cant find Spring component named " + name);
+			log.error("Cant find Spring component named " + name); //$NON-NLS-1$
 		}
 		return o;
 	}
@@ -152,30 +153,30 @@ public class MessageContentProducer implements EntityContentProducer
 				Class c = mh.getClass();
 				try
 				{
-					Method getSubject = c.getMethod("getSubject",
+					Method getSubject = c.getMethod("getSubject", //$NON-NLS-1$
 							new Class[] {});
 					Object o = getSubject.invoke(mh, new Object[] {});
-					sb.append("Subject: ").append(o.toString()).append("\n");
+					sb.append(Messages.getString("MessageContentProducer.5")).append(o.toString()).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				catch (Exception ex)
 				{
 					// no subject, and I dont mind
-					log.debug("Didnt get Subject  from " + mh, ex);
+					log.debug("Didnt get Subject  from " + mh, ex); //$NON-NLS-1$
 				}
 
-				sb.append("Message Headers\n");
-				sb.append("From ").append(mh.getFrom().getDisplayName())
-						.append("\n");
-				sb.append("Message Body\n");
+				sb.append(Messages.getString("MessageContentProducer.3")); //$NON-NLS-1$
+				sb.append(Messages.getString("MessageContentProducer.4")).append(mh.getFrom().getDisplayName()) //$NON-NLS-1$
+						.append("\n"); //$NON-NLS-1$
+				sb.append(Messages.getString("MessageContentProducer.11")); //$NON-NLS-1$
 				String mBody = m.getBody();
 
-				mBody = mBody.replaceAll("\\s+", " ");
-				mBody = mBody.replaceAll("<!--.*?-->", "");
-				mBody = mBody.replaceAll("&.*?;", "");
-				mBody = mBody.replaceAll("<.*?>", "");
+				mBody = mBody.replaceAll("\\s+", " "); //$NON-NLS-1$ //$NON-NLS-2$
+				mBody = mBody.replaceAll("<!--.*?-->", ""); //$NON-NLS-1$ //$NON-NLS-2$
+				mBody = mBody.replaceAll("&.*?;", ""); //$NON-NLS-1$ //$NON-NLS-2$
+				mBody = mBody.replaceAll("<.*?>", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
-				sb.append(mBody).append("\n");
-				log.debug("Message Content for " + cr.getReference() + " is "
+				sb.append(mBody).append("\n"); //$NON-NLS-1$
+				log.debug("Message Content for " + cr.getReference() + " is " //$NON-NLS-1$ //$NON-NLS-2$
 						+ sb.toString());
 
 				// resolve attachments
@@ -189,12 +190,12 @@ public class MessageContentProducer implements EntityContentProducer
 								.newEntityContentProducer(attr);
 						String attachementDigest = ecp.getContent(attr
 								.getEntity());
-						sb.append("Attachement: \n").append(attachementDigest)
-								.append("\n");
+						sb.append(Messages.getString("MessageContentProducer.23")).append(attachementDigest) //$NON-NLS-1$
+								.append("\n"); //$NON-NLS-1$
 					}
 					catch (Exception ex)
 					{
-						log.info(" Failed to digest attachement "
+						log.info(" Failed to digest attachement " //$NON-NLS-1$
 								+ ex.getMessage());
 					}
 				}
@@ -202,19 +203,19 @@ public class MessageContentProducer implements EntityContentProducer
 				return sb
 						.toString()
 						.replaceAll(
-								"[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\ud800-\\udfff\\uffff\\ufffe]",
-								"");
+								"[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\ud800-\\udfff\\uffff\\ufffe]", //$NON-NLS-1$
+								""); //$NON-NLS-1$
 			}
 			catch (IdUnusedException e)
 			{
-				throw new RuntimeException(" Failed to get message content ", e);
+				throw new RuntimeException(" Failed to get message content ", e); //$NON-NLS-1$
 			}
 			catch (PermissionException e)
 			{
-				throw new RuntimeException(" Failed to get message content ", e);
+				throw new RuntimeException(" Failed to get message content ", e); //$NON-NLS-1$
 			}
 		}
-		throw new RuntimeException(" Not a Message Entity " + cr);
+		throw new RuntimeException(" Not a Message Entity " + cr); //$NON-NLS-1$
 	}
 
 	/**
@@ -232,34 +233,34 @@ public class MessageContentProducer implements EntityContentProducer
 				Message m = ms.getMessage(ref);
 				MessageHeader mh = m.getHeader();
 				Class c = mh.getClass();
-				String subject = "Message ";
+				String subject = Messages.getString("MessageContentProducer.2"); //$NON-NLS-1$
 				try
 				{
-					Method getSubject = c.getMethod("getSubject",
+					Method getSubject = c.getMethod("getSubject", //$NON-NLS-1$
 							new Class[] {});
 					Object o = getSubject.invoke(mh, new Object[] {});
-					subject = "Subject: " + o.toString() + " ";
+					subject = Messages.getString("MessageContentProducer.33") + o.toString() + " "; //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				catch (Exception ex)
 				{
-					log.debug("Didnt get Subject  from " + mh);
+					log.debug("Didnt get Subject  from " + mh); //$NON-NLS-1$
 				}
 
-				String title = subject + "From "
+				String title = subject + Messages.getString("MessageContentProducer.36") //$NON-NLS-1$
 						+ mh.getFrom().getDisplayName();
 				return SearchUtils.getCleanString(title);
 
 			}
 			catch (IdUnusedException e)
 			{
-				throw new RuntimeException(" Failed to get message content ", e);
+				throw new RuntimeException(" Failed to get message content ", e); //$NON-NLS-1$
 			}
 			catch (PermissionException e)
 			{
-				throw new RuntimeException(" Failed to get message content ", e);
+				throw new RuntimeException(" Failed to get message content ", e); //$NON-NLS-1$
 			}
 		}
-		throw new RuntimeException(" Not a Message Entity " + cr);
+		throw new RuntimeException(" Not a Message Entity " + cr); //$NON-NLS-1$
 
 	}
 
@@ -313,7 +314,7 @@ public class MessageContentProducer implements EntityContentProducer
 			}
 			catch (Exception ex)
 			{
-				log.error("Got error on channel ", ex);
+				log.error("Got error on channel ", ex); //$NON-NLS-1$
 
 			}
 		}
@@ -469,7 +470,7 @@ public class MessageContentProducer implements EntityContentProducer
 			catch (Exception ex)
 			{
 				ex.printStackTrace();
-				log.warn("Failed to get channel " + chanellId);
+				log.warn("Failed to get channel " + chanellId); //$NON-NLS-1$
 
 			}
 		}
@@ -524,7 +525,7 @@ public class MessageContentProducer implements EntityContentProducer
 					catch (Exception ex)
 					{
 						ex.printStackTrace();
-						log.warn("Failed to get channel " + chanellId);
+						log.warn("Failed to get channel " + chanellId); //$NON-NLS-1$
 
 					}
 				}
@@ -540,7 +541,7 @@ public class MessageContentProducer implements EntityContentProducer
 			public void remove()
 			{
 				throw new UnsupportedOperationException(
-						"Remove not implemented");
+						"Remove not implemented"); //$NON-NLS-1$
 			}
 
 		};
@@ -558,19 +559,19 @@ public class MessageContentProducer implements EntityContentProducer
 				Message m = ms.getMessage(ref);
 				if (m == null)
 				{
-					log.debug("Rejected null message " + ref.getReference());
+					log.debug("Rejected null message " + ref.getReference()); //$NON-NLS-1$
 					return false;
 				}
 			}
 			catch (IdUnusedException e)
 			{
-				log.debug("Rejected Missing message or Collection "
+				log.debug("Rejected Missing message or Collection " //$NON-NLS-1$
 						+ ref.getReference());
 				return false;
 			}
 			catch (PermissionException e)
 			{
-				log.warn("Rejected private message " + ref.getReference());
+				log.warn("Rejected private message " + ref.getReference()); //$NON-NLS-1$
 				return false;
 			}
 			return true;

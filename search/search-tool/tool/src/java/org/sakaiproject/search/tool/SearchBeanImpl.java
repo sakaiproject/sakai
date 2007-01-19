@@ -537,7 +537,7 @@ public class SearchBeanImpl implements SearchBean
 	 */
 	public String getSearchTitle()
 	{
-		return Messages.getString("search_title") + getSearch();
+		return Messages.getString("search_title") + " " + getSearch();
 	}
 
 	/**

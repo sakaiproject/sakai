@@ -49,6 +49,7 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.TermFrequency;
+import org.sakaiproject.search.component.Messages;
 
 /**
  * @author ieb
@@ -98,7 +99,7 @@ public class SearchResultImpl implements SearchResult
 		}
 		catch (IOException e)
 		{
-			throw new RuntimeException("Cant determine score ", e);
+			throw new RuntimeException("Cant determine score ", e); //$NON-NLS-1$
 		}
 	}
 
@@ -197,11 +198,11 @@ public class SearchResultImpl implements SearchResult
 			String text = StringUtils.escapeHtml(sb.toString(), false);
 			TokenStream tokenStream = analyzer.tokenStream(
 					SearchService.FIELD_CONTENTS, new StringReader(text));
-			return hightlighter.getBestFragments(tokenStream, text, 5, " ... ");
+			return hightlighter.getBestFragments(tokenStream, text, 5, " ... "); //$NON-NLS-1$
 		}
 		catch (IOException e)
 		{
-			return "Error: " + e.getMessage();
+			return Messages.getString("SearchResultImpl.2") + e.getMessage(); //$NON-NLS-1$
 		}
 	}
 
@@ -217,22 +218,22 @@ public class SearchResultImpl implements SearchResult
 
 	public void toXMLString(StringBuffer sb)
 	{
-		sb.append("<result");
-		sb.append(" index=\"").append(getIndex()).append("\" ");
-		sb.append(" score=\"").append(getScore()).append("\" ");
-		sb.append(" sid=\"").append(getId()).append("\" ");
-		sb.append(" reference=\"").append(getReference()).append("\" ");
+		sb.append("<result"); //$NON-NLS-1$
+		sb.append(" index=\"").append(getIndex()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" score=\"").append(getScore()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" sid=\"").append(getId()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" reference=\"").append(getReference()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		try
 		{
-			sb.append(" title=\"").append(
-					new String(Base64.encodeBase64(getTitle().getBytes("UTF-8")),"UTF-8")).append("\" ");
+			sb.append(" title=\"").append( //$NON-NLS-1$
+					new String(Base64.encodeBase64(getTitle().getBytes("UTF-8")),"UTF-8")).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		catch (UnsupportedEncodingException e)
 		{
-			sb.append(" title=\"").append(getTitle()).append("\" ");
+			sb.append(" title=\"").append(getTitle()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		sb.append(" tool=\"").append(getTool()).append("\" ");
-		sb.append(" url=\"").append(getUrl()).append("\" />");
+		sb.append(" tool=\"").append(getTool()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" url=\"").append(getUrl()).append("\" />"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 }

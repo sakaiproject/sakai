@@ -35,6 +35,7 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.TermFrequency;
+import org.sakaiproject.search.component.Messages;
 import org.sakaiproject.search.filter.SearchItemFilter;
 
 
@@ -60,8 +61,8 @@ public class SearchSecurityFilter implements SearchItemFilter
 		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
 		if (entityManager == null)
 		{
-			log.error(" entityManager must be set");
-			throw new RuntimeException("Must set entityManager");
+			log.error(" entityManager must be set"); //$NON-NLS-1$
+			throw new RuntimeException("Must set entityManager"); //$NON-NLS-1$
 		}
 
 	}
@@ -71,7 +72,7 @@ public class SearchSecurityFilter implements SearchItemFilter
 		Object o = cm.get(name);
 		if (o == null)
 		{
-			log.error("Cant find Spring component named " + name);
+			log.error("Cant find Spring component named " + name); //$NON-NLS-1$
 		}
 		return o;
 	}
@@ -138,7 +139,7 @@ public class SearchSecurityFilter implements SearchItemFilter
 
 		public String getId()
 		{
-			return "";
+			return ""; //$NON-NLS-1$
 		}
 
 		public String[] getFieldNames()
@@ -159,12 +160,12 @@ public class SearchSecurityFilter implements SearchItemFilter
 
 		public String getUrl()
 		{
-			return "";
+			return ""; //$NON-NLS-1$
 		}
 
 		public String getTitle()
 		{
-			return "You do not have permission to view this search result, please contact the worksite administrator";
+			return Messages.getString("SearchSecurityFilter.5"); //$NON-NLS-1$
 		}
 
 		public int getIndex()
@@ -174,12 +175,12 @@ public class SearchSecurityFilter implements SearchItemFilter
 
 		public String getSearchResult()
 		{
-			return "";
+			return ""; //$NON-NLS-1$
 		}
 
 		public String getReference()
 		{
-			return "";
+			return ""; //$NON-NLS-1$
 		}
 
 		public TermFrequency getTerms() throws IOException
@@ -205,19 +206,19 @@ public class SearchSecurityFilter implements SearchItemFilter
 
 		public String getTool()
 		{
-			return "";
+			return ""; //$NON-NLS-1$
 		}
 
 		public void toXMLString(StringBuffer sb)
 		{
-			sb.append("<result");
-			sb.append(" index=\"0\" ");
-			sb.append(" score=\"0\" ");
-			sb.append(" sid=\"\" ");
-			sb.append(" reference=\"\" ");
-			sb.append(" title=\"\" ");
-			sb.append(" tool=\"\" ");
-			sb.append(" url=\"\" />");
+			sb.append("<result"); //$NON-NLS-1$
+			sb.append(" index=\"0\" "); //$NON-NLS-1$
+			sb.append(" score=\"0\" "); //$NON-NLS-1$
+			sb.append(" sid=\"\" "); //$NON-NLS-1$
+			sb.append(" reference=\"\" "); //$NON-NLS-1$
+			sb.append(" title=\"\" "); //$NON-NLS-1$
+			sb.append(" tool=\"\" "); //$NON-NLS-1$
+			sb.append(" url=\"\" />"); //$NON-NLS-1$
 		}
 
 	}

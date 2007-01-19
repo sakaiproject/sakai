@@ -69,6 +69,7 @@ import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchStatus;
 import org.sakaiproject.search.api.TermFrequency;
+import org.sakaiproject.search.component.Messages;
 import org.sakaiproject.search.filter.SearchItemFilter;
 import org.sakaiproject.search.index.IndexStorage;
 import org.sakaiproject.search.model.SearchWriterLock;
@@ -175,46 +176,46 @@ public class SearchServiceImpl implements SearchService
 		{
 			if (log.isDebugEnabled())
 			{
-				log.debug("init start");
-				log.debug("checking setup");
+				log.debug("init start"); //$NON-NLS-1$
+				log.debug("checking setup"); //$NON-NLS-1$
 			}
 			if (indexStorage == null)
 			{
-				log.error(" indexStorage must be set");
-				throw new RuntimeException("Must set indexStorage");
+				log.error(" indexStorage must be set"); //$NON-NLS-1$
+				throw new RuntimeException("Must set indexStorage"); //$NON-NLS-1$
 
 			}
 			if (searchIndexBuilder == null)
 			{
-				log.error(" searchIndexBuilder must be set");
-				throw new RuntimeException("Must set searchIndexBuilder");
+				log.error(" searchIndexBuilder must be set"); //$NON-NLS-1$
+				throw new RuntimeException("Must set searchIndexBuilder"); //$NON-NLS-1$
 			}
 			if (filter == null)
 			{
-				log.error("filter must be set, even if its a null filter");
-				throw new RuntimeException("Must set filter");
+				log.error("filter must be set, even if its a null filter"); //$NON-NLS-1$
+				throw new RuntimeException("Must set filter"); //$NON-NLS-1$
 			}
 			if (entityManager == null)
 			{
-				log.error("Entity Manager was not found");
-				throw new RuntimeException("Entity Manager was not found");
+				log.error("Entity Manager was not found"); //$NON-NLS-1$
+				throw new RuntimeException("Entity Manager was not found"); //$NON-NLS-1$
 			}
 			if (entityManager == null)
 			{
-				log.error("Event Tracking Service was not found");
+				log.error("Event Tracking Service was not found"); //$NON-NLS-1$
 				throw new RuntimeException(
-						"Event Tracking Service was not found");
+						"Event Tracking Service was not found"); //$NON-NLS-1$
 			}
 			if (sessionManager == null)
 			{
-				log.error("Session Manager was not found");
-				throw new RuntimeException("Session Manager was not found");
+				log.error("Session Manager was not found"); //$NON-NLS-1$
+				throw new RuntimeException("Session Manager was not found"); //$NON-NLS-1$
 			}
 			if (userDirectoryService == null)
 			{
-				log.error("User Directory Service was not found");
+				log.error("User Directory Service was not found"); //$NON-NLS-1$
 				throw new RuntimeException(
-						"User Directory Service was not found");
+						"User Directory Service was not found"); //$NON-NLS-1$
 			}
 
 			// register a transient notification for resources
@@ -232,13 +233,13 @@ public class SearchServiceImpl implements SearchService
 					notification.addFunction(function);
 					if (log.isDebugEnabled())
 					{
-						log.debug("Adding Search Register " + function);
+						log.debug("Adding Search Register " + function); //$NON-NLS-1$
 					}
 				}
 			}
 
 			// set the filter to any site related resource
-			notification.setResourceFilter("/");
+			notification.setResourceFilter("/"); //$NON-NLS-1$
 
 			// set the action
 			notification.setAction(new SearchNotificationAction(
@@ -265,12 +266,12 @@ public class SearchServiceImpl implements SearchService
 			initComplete = true;
 			if (log.isDebugEnabled())
 			{
-				log.debug("init end");
+				log.debug("init end"); //$NON-NLS-1$
 			}
 		}
 		catch (Throwable t)
 		{
-			log.error("Failed to start ", t);
+			log.error("Failed to start ", t); //$NON-NLS-1$
 		}
 
 	}
@@ -280,7 +281,7 @@ public class SearchServiceImpl implements SearchService
 		Object o = cm.get(name);
 		if (o == null)
 		{
-			log.error("Cant find Spring component named " + name);
+			log.error("Cant find Spring component named " + name); //$NON-NLS-1$
 		}
 		return o;
 	}
@@ -301,7 +302,7 @@ public class SearchServiceImpl implements SearchService
 	{
 		if (initComplete)
 			throw new RuntimeException(
-					" use register function at runtime, setTriggerFucntions is for Spring IoC only");
+					" use register function at runtime, setTriggerFucntions is for Spring IoC only"); //$NON-NLS-1$
 		this.triggerFunctions = triggerFunctions;
 	}
 
@@ -313,7 +314,7 @@ public class SearchServiceImpl implements SearchService
 		notification.addFunction(function);
 		if (log.isDebugEnabled())
 		{
-			log.debug("Adding Function " + function);
+			log.debug("Adding Function " + function); //$NON-NLS-1$
 		}
 	}
 
@@ -348,7 +349,7 @@ public class SearchServiceImpl implements SearchService
 			Query textQuery = qp.parse(searchTerms);
 			query.add(contextQuery, BooleanClause.Occur.MUST);
 			query.add(textQuery, BooleanClause.Occur.MUST);
-			log.info("Compiled Query is " + query.toString());
+			log.info("Compiled Query is " + query.toString()); //$NON-NLS-1$
 
 			if (localSearch.get() == null && searchServerUrl != null
 					&& searchServerUrl.length() > 0)
@@ -360,7 +361,7 @@ public class SearchServiceImpl implements SearchService
 					StringBuffer sb = new StringBuffer();
 					for (Iterator ci = contexts.iterator(); ci.hasNext();)
 					{
-						sb.append(ci.next()).append(";");
+						sb.append(ci.next()).append(";"); //$NON-NLS-1$
 					}
 					String contextParam = sb.toString();
 					post.setParameter(REST_CHECKSUM, digestCheck(userId,
@@ -374,7 +375,7 @@ public class SearchServiceImpl implements SearchService
 					
 					int status = httpClient.executeMethod(post);
 					if ( status != 200  ) {
-						throw new RuntimeException("Failed to perform remote search, http status was "+status);
+						throw new RuntimeException("Failed to perform remote search, http status was "+status); //$NON-NLS-1$
 					}
 
 					String response = post.getResponseBodyAsString();
@@ -385,7 +386,7 @@ public class SearchServiceImpl implements SearchService
 				catch (Exception ex)
 				{
 
-					log.error("Remote Search Failed ", ex);
+					log.error("Remote Search Failed ", ex); //$NON-NLS-1$
 					throw new IOException(ex.getMessage());
 				}
 
@@ -401,8 +402,8 @@ public class SearchServiceImpl implements SearchService
 					Sort indexSorter = (Sort) luceneSorters.get(sorterName);
 					if (log.isDebugEnabled())
 					{
-						log.debug("Using Filter " + filterName + ":"
-								+ indexFilter + " and " + sorterName + ":"
+						log.debug("Using Filter " + filterName + ":" //$NON-NLS-1$ //$NON-NLS-2$
+								+ indexFilter + " and " + sorterName + ":" //$NON-NLS-1$ //$NON-NLS-2$
 								+ indexSorter);
 					}
 					if (indexFilter != null && indexSorter != null)
@@ -424,7 +425,7 @@ public class SearchServiceImpl implements SearchService
 					}
 					if (log.isDebugEnabled())
 					{
-						log.debug("Got " + h.length() + " hits");
+						log.debug("Got " + h.length() + " hits"); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 					eventTrackingService.post(eventTrackingService.newEvent(
 							EVENT_SEARCH, EVENT_SEARCH_REF
@@ -437,18 +438,18 @@ public class SearchServiceImpl implements SearchService
 				else
 				{
 					throw new RuntimeException(
-							"Failed to start the Lucene Searche Engine");
+							"Failed to start the Lucene Searche Engine"); //$NON-NLS-1$
 				}
 			}
 
 		}
 		catch (ParseException e)
 		{
-			throw new RuntimeException("Failed to parse Query ", e);
+			throw new RuntimeException("Failed to parse Query ", e); //$NON-NLS-1$
 		}
 		catch (IOException e)
 		{
-			throw new RuntimeException("Failed to run Search ", e);
+			throw new RuntimeException("Failed to run Search ", e); //$NON-NLS-1$
 		}
 	}
 
@@ -475,7 +476,7 @@ public class SearchServiceImpl implements SearchService
 			{
 				if (log.isDebugEnabled())
 				{
-					log.debug("Reloading Index, force=" + reload);
+					log.debug("Reloading Index, force=" + reload); //$NON-NLS-1$
 				}
 				try
 				{
@@ -499,7 +500,7 @@ public class SearchServiceImpl implements SearchService
 						}
 						catch (Exception ex)
 						{
-							log.error("Failed to close old searcher ", ex);
+							log.error("Failed to close old searcher ", ex); //$NON-NLS-1$
 						}
 					}
 
@@ -514,8 +515,8 @@ public class SearchServiceImpl implements SearchService
 			{
 				if (log.isDebugEnabled())
 				{
-					log.debug("No Reload lastUpdate " + lastUpdate
-							+ " < lastReload " + reloadStart);
+					log.debug("No Reload lastUpdate " + lastUpdate //$NON-NLS-1$
+							+ " < lastReload " + reloadStart); //$NON-NLS-1$
 				}
 
 			}
@@ -555,7 +556,7 @@ public class SearchServiceImpl implements SearchService
 		SearchWriterLock lock = searchIndexBuilder.getCurrentLock();
 		List lockNodes = searchIndexBuilder.getNodeStatus();
 
-		return "Index Last Loaded " + lastLoad + " in " + loadTime + " seconds";
+		return Messages.getString("SearchServiceImpl.40") + lastLoad + Messages.getString("SearchServiceImpl.38") + loadTime + Messages.getString("SearchServiceImpl.37"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	public int getNDocs()
@@ -592,8 +593,8 @@ public class SearchServiceImpl implements SearchService
 
 	public SearchStatus getSearchStatus()
 	{
-		String ll = "not loaded";
-		String lt = "";
+		String ll = Messages.getString("SearchServiceImpl.36"); //$NON-NLS-1$
+		String lt = ""; //$NON-NLS-1$
 		if (reloadEnd != 0)
 		{
 			ll = (new Date(reloadEnd)).toString();
@@ -629,7 +630,7 @@ public class SearchServiceImpl implements SearchService
 				{
 					return MessageFormat
 							.format(
-									" due {0} <br> This Node activity ({5}) <br />Last {1} in {2}s <br> Current {3} {4}",
+									Messages.getString("SearchServiceImpl.35"), //$NON-NLS-1$
 									new Object[] {
 											lock.getExpires(),
 											searchIndexBuilder
@@ -644,7 +645,7 @@ public class SearchServiceImpl implements SearchService
 				}
 				else
 				{
-					return MessageFormat.format(" due {0}", new Object[] { lock
+					return MessageFormat.format(Messages.getString("SearchServiceImpl.39"), new Object[] { lock //$NON-NLS-1$
 							.getExpires() });
 				}
 			}
@@ -660,11 +661,11 @@ public class SearchServiceImpl implements SearchService
 					result[1] = swl.getExpires();
 					if (lock.getNodename().equals(swl.getNodename()))
 					{
-						result[2] = "running";
+						result[2] = Messages.getString("SearchServiceImpl.47"); //$NON-NLS-1$
 					}
 					else
 					{
-						result[2] = "idle";
+						result[2] = Messages.getString("SearchServiceImpl.48"); //$NON-NLS-1$
 					}
 					l.add(result);
 				}
@@ -830,7 +831,7 @@ public class SearchServiceImpl implements SearchService
 			if (!searchServer)
 			{
 				throw new Exception(
-						"Search Server is not enabled please set searchServer@org.sakaiproject.search.api.SearchService=true to enable ");
+						Messages.getString("SearchServiceImpl.49")); //$NON-NLS-1$
 			}
 			String[] useridA = (String[]) parameterMap.get(REST_USERID);
 			String[] searchTermsA = (String[]) parameterMap.get(REST_TERMS);
@@ -840,7 +841,7 @@ public class SearchServiceImpl implements SearchService
 			String[] seA = (String[]) parameterMap.get(REST_END);
 
 			StringBuffer sb = new StringBuffer();
-			sb.append("<?xml version=\"1.0\"?>");
+			sb.append("<?xml version=\"1.0\"?>"); //$NON-NLS-1$
 
 			boolean requestError = false;
 			if (useridA == null || useridA.length != 1)
@@ -894,13 +895,13 @@ public class SearchServiceImpl implements SearchService
 
 			if (requestError)
 			{
-				throw new Exception("Invalid Request ");
+				throw new Exception(Messages.getString("SearchServiceImpl.34")); //$NON-NLS-1$
 
 			}
 
 			int searchStart = Integer.parseInt(ss);
 			int searchEnd = Integer.parseInt(se);
-			String[] ctxa = contexts.split(";");
+			String[] ctxa = contexts.split(";"); //$NON-NLS-1$
 			List ctx = new ArrayList(ctxa.length);
 			for (int i = 0; i < ctxa.length; i++)
 			{
@@ -912,31 +913,31 @@ public class SearchServiceImpl implements SearchService
 				String check = digestCheck(userid, searchTerms);
 				if (!check.equals(checksum))
 				{
-					throw new Exception("Security Checksum is not valid");
+					throw new Exception(Messages.getString("SearchServiceImpl.53")); //$NON-NLS-1$
 				}
 			}
 
 			org.sakaiproject.tool.api.Session s = sessionManager.startSession();
-			User u = userDirectoryService.getUser("admin");
+			User u = userDirectoryService.getUser("admin"); //$NON-NLS-1$
 			s.setUserId(u.getId());
 			sessionManager.setCurrentSession(s);
-			localSearch.set("localsearch");
+			localSearch.set("localsearch"); //$NON-NLS-1$
 			try
 			{
 
 				SearchList sl = search(searchTerms, ctx, searchStart, searchEnd);
-				sb.append("<results ");
-				sb.append(" fullsize=\"").append(sl.getFullSize())
-						.append("\" ");
-				sb.append(" start=\"").append(sl.getStart()).append("\" ");
-				sb.append(" size=\"").append(sl.size()).append("\" ");
-				sb.append(" >");
+				sb.append("<results "); //$NON-NLS-1$
+				sb.append(" fullsize=\"").append(sl.getFullSize()) //$NON-NLS-1$
+						.append("\" "); //$NON-NLS-1$
+				sb.append(" start=\"").append(sl.getStart()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+				sb.append(" size=\"").append(sl.size()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+				sb.append(" >"); //$NON-NLS-1$
 				for (Iterator si = sl.iterator(); si.hasNext();)
 				{
 					SearchResult sr = (SearchResult) si.next();
 					sr.toXMLString(sb);
 				}
-				sb.append("</results>");
+				sb.append("</results>"); //$NON-NLS-1$
 				return sb.toString();
 			}
 			finally
@@ -948,20 +949,20 @@ public class SearchServiceImpl implements SearchService
 		catch (Exception ex)
 		{
 			StringBuffer sb = new StringBuffer();
-			sb.append("<?xml version=\"1.0\"?>");
-			sb.append("<fault>");
-			sb.append("<request>");
-			sb.append("<![CDATA[");
-			sb.append(" userid = ").append(userid).append("\n");
-			sb.append(" searchTerms = ").append(searchTerms).append("\n");
-			sb.append(" checksum = ").append(checksum).append("\n");
-			sb.append(" contexts = ").append(contexts).append("\n");
-			sb.append(" ss = ").append(ss).append("\n");
-			sb.append(" se = ").append(se).append("\n");
-			sb.append("]]>");
-			sb.append("</request>");
-			sb.append("<error>");
-			sb.append("<![CDATA[");
+			sb.append("<?xml version=\"1.0\"?>"); //$NON-NLS-1$
+			sb.append("<fault>"); //$NON-NLS-1$
+			sb.append("<request>"); //$NON-NLS-1$
+			sb.append("<![CDATA["); //$NON-NLS-1$
+			sb.append(" userid = ").append(userid).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(" searchTerms = ").append(searchTerms).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(" checksum = ").append(checksum).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(" contexts = ").append(contexts).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(" ss = ").append(ss).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(" se = ").append(se).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append("]]>"); //$NON-NLS-1$
+			sb.append("</request>"); //$NON-NLS-1$
+			sb.append("<error>"); //$NON-NLS-1$
+			sb.append("<![CDATA["); //$NON-NLS-1$
 			try
 			{
 				StringWriter sw = new StringWriter();
@@ -974,14 +975,14 @@ public class SearchServiceImpl implements SearchService
 			}
 			catch (Exception ex2)
 			{
-				sb.append("Failed to serialize exception " + ex.getMessage())
-						.append("\n");
-				sb.append("Case:  " + ex2.getMessage());
+				sb.append("Failed to serialize exception " + ex.getMessage()) //$NON-NLS-1$
+						.append("\n"); //$NON-NLS-1$
+				sb.append("Case:  " + ex2.getMessage()); //$NON-NLS-1$
 
 			}
-			sb.append("]]>");
-			sb.append("</error>");
-			sb.append("</fault>");
+			sb.append("]]>"); //$NON-NLS-1$
+			sb.append("</error>"); //$NON-NLS-1$
+			sb.append("</fault>"); //$NON-NLS-1$
 			return sb.toString();
 		}
 	}
@@ -989,9 +990,9 @@ public class SearchServiceImpl implements SearchService
 	private String digestCheck(String userid, String searchTerms)
 			throws GeneralSecurityException, IOException
 	{
-		MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+		MessageDigest sha1 = MessageDigest.getInstance("SHA1"); //$NON-NLS-1$
 		String chstring = sharedKey + userid + searchTerms;
-		return byteArrayToHexStr(sha1.digest(chstring.getBytes("UTF-8")));
+		return byteArrayToHexStr(sha1.digest(chstring.getBytes("UTF-8"))); //$NON-NLS-1$
 	}
 
 	private static String byteArrayToHexStr(byte[] data)

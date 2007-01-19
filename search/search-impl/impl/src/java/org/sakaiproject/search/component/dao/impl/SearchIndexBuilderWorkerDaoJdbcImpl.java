@@ -57,6 +57,7 @@ import org.sakaiproject.search.api.SearchIndexBuilderWorker;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.rdf.RDFIndexException;
 import org.sakaiproject.search.api.rdf.RDFSearchService;
+import org.sakaiproject.search.component.Messages;
 import org.sakaiproject.search.dao.SearchIndexBuilderWorkerDao;
 import org.sakaiproject.search.index.IndexStorage;
 import org.sakaiproject.search.model.SearchBuilderItem;
@@ -71,13 +72,13 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 		SearchIndexBuilderWorkerDao
 {
 
-	private static final String SEARCH_BUILDER_ITEM_FIELDS = " name, context,  searchaction, searchstate, version, id ";
+	private static final String SEARCH_BUILDER_ITEM_FIELDS = " name, context,  searchaction, searchstate, version, id "; //$NON-NLS-1$
 
-	private static final String SEARCH_BUILDER_ITEM_T = "searchbuilderitem";
+	private static final String SEARCH_BUILDER_ITEM_T = "searchbuilderitem"; //$NON-NLS-1$
 
-	private static final String SEARCH_BUILDER_ITEM_FIELDS_PARAMS = " ?, ?, ?,  ?, ?, ? ";
+	private static final String SEARCH_BUILDER_ITEM_FIELDS_PARAMS = " ?, ?, ?,  ?, ?, ? "; //$NON-NLS-1$
 
-	private static final String SEARCH_BUILDER_ITEM_FIELDS_UPDATE = " name = ?, context = ?,  searchaction = ?, searchstate = ?, version = ? where id = ? ";
+	private static final String SEARCH_BUILDER_ITEM_FIELDS_UPDATE = " name = ?, context = ?,  searchaction = ?, searchstate = ?, version = ? where id = ? "; //$NON-NLS-1$
 
 	private static Log log = LogFactory
 			.getLog(SearchIndexBuilderWorkerDaoJdbcImpl.class);
@@ -123,38 +124,38 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 		rdfSearchService = (RDFSearchService) load(cm, RDFSearchService.class
 				.getName(), false);
 
-		enabled = "true".equals(ServerConfigurationService.getString(
-				"search.experimental", "false"));
+		enabled = "true".equals(ServerConfigurationService.getString( //$NON-NLS-1$
+				"search.experimental", "false")); //$NON-NLS-1$ //$NON-NLS-2$
 		try
 		{
 			if (searchIndexBuilder == null)
 			{
-				log.error("Search Index Worker needs searchIndexBuilder ");
+				log.error("Search Index Worker needs searchIndexBuilder "); //$NON-NLS-1$
 			}
 			if (entityManager == null)
 			{
-				log.error("Search Index Worker needs EntityManager ");
+				log.error("Search Index Worker needs EntityManager "); //$NON-NLS-1$
 			}
 			if (indexStorage == null)
 			{
-				log.error("Search Index Worker needs indexStorage ");
+				log.error("Search Index Worker needs indexStorage "); //$NON-NLS-1$
 			}
 			if (rdfSearchService == null)
 			{
 				log
-						.info("No RDFSearchService has been defined, RDF Indexing not enabled");
+						.info("No RDFSearchService has been defined, RDF Indexing not enabled"); //$NON-NLS-1$
 			}
 			else
 			{
 				log
-						.warn("Experimental RDF Search Service is enabled using implementation "
+						.warn("Experimental RDF Search Service is enabled using implementation " //$NON-NLS-1$
 								+ rdfSearchService);
 			}
 
 		}
 		catch (Throwable t)
 		{
-			log.error("Failed to init ", t);
+			log.error("Failed to init ", t); //$NON-NLS-1$
 		}
 	}
 
@@ -165,7 +166,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 		{
 			if (aserror)
 			{
-				log.error("Cant find Spring component named " + name);
+				log.error("Cant find Spring component named " + name); //$NON-NLS-1$
 			}
 		}
 		return o;
@@ -194,7 +195,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 					{
 						// should only be getting pending
 						// items
-						log.warn(" Found Item that was not pending "
+						log.warn(" Found Item that was not pending " //$NON-NLS-1$
 								+ sbi.getName());
 						continue;
 					}
@@ -230,7 +231,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 					}
 					catch (IOException ex)
 					{
-						log.warn("Failed to delete Page ", ex);
+						log.warn("Failed to delete Page ", ex); //$NON-NLS-1$
 					}
 				}
 			}
@@ -275,7 +276,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 					if (ref == null)
 					{
 						log
-								.error("Unrecognised trigger object presented to index builder "
+								.error("Unrecognised trigger object presented to index builder " //$NON-NLS-1$
 										+ sbi);
 					}
 
@@ -299,20 +300,20 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 											.getSiteId(sbi.getName());
 									Site s = SiteService.getSite(siteId);
 									ToolConfiguration t = s
-											.getToolForCommonId("sakai.search");
+											.getToolForCommonId("sakai.search"); //$NON-NLS-1$
 									if (t == null)
 									{
 										indexDoc = false;
-										log.debug("Not indexing "
+										log.debug("Not indexing " //$NON-NLS-1$
 												+ sbi.getName()
-												+ " as it has no search tool");
+												+ " as it has no search tool"); //$NON-NLS-1$
 									}
 								}
 								catch (Exception ex)
 								{
 									indexDoc = false;
-									log.debug("Not indexing  " + sbi.getName()
-											+ " as it has no site", ex);
+									log.debug("Not indexing  " + sbi.getName() //$NON-NLS-1$
+											+ " as it has no site", ex); //$NON-NLS-1$
 
 								}
 							}
@@ -322,7 +323,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 
 								Document doc = new Document();
 								String container = ref.getContainer();
-								if (container == null) container = "";
+								if (container == null) container = ""; //$NON-NLS-1$
 								doc.add(new Field(SearchService.DATE_STAMP,
 										String.valueOf(System
 												.currentTimeMillis()),
@@ -409,9 +410,9 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 										if (values == null)
 										{
 											log
-													.info("Null Custom Properties value has been suppled by "
+													.info("Null Custom Properties value has been suppled by " //$NON-NLS-1$
 															+ sep
-															+ " in index "
+															+ " in index " //$NON-NLS-1$
 															+ key);
 										}
 										else
@@ -429,23 +430,23 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 									}
 								}
 
-								log.debug("Indexing Document " + doc);
+								log.debug("Indexing Document " + doc); //$NON-NLS-1$
 
 								indexWrite.addDocument(doc);
 
-								log.debug("Done Indexing Document " + doc);
+								log.debug("Done Indexing Document " + doc); //$NON-NLS-1$
 
 								processRDF(sep);
 
 							}
 							else
 							{
-								log.debug("Ignored Document " + ref.getId());
+								log.debug("Ignored Document " + ref.getId()); //$NON-NLS-1$
 							}
 						}
 						catch (Exception e1)
 						{
-							log.info(" Failed to index document cause: "
+							log.info(" Failed to index document cause: " //$NON-NLS-1$
 									+ e1.getMessage());
 						}
 						sbi.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
@@ -454,7 +455,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 					}
 					catch (Exception e1)
 					{
-						log.debug(" Failed to index document cause: "
+						log.debug(" Failed to index document cause: " //$NON-NLS-1$
 								+ e1.getMessage());
 					}
 					long endDocIndex = System.currentTimeMillis();
@@ -462,10 +463,10 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 					if ((endDocIndex - startDocIndex) > 60000L)
 					{
 						log
-								.warn("Slow index operation "
+								.warn("Slow index operation " //$NON-NLS-1$
 										+ String
 												.valueOf((endDocIndex - startDocIndex) / 1000)
-										+ " seconds to index "
+										+ " seconds to index " //$NON-NLS-1$
 										+ ref.getReference());
 					}
 					// update this node lock to indicate its
@@ -474,7 +475,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 					if (!worker.getLockTransaction(15L * 60L * 1000L, true))
 					{
 						throw new Exception(
-								"Transaction Lock Expired while indexing "
+								"Transaction Lock Expired while indexing " //$NON-NLS-1$
 										+ ref.getReference());
 					}
 
@@ -495,7 +496,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 
 			}
 			worker.setStartDocIndex(System.currentTimeMillis());
-			worker.setNowIndexing("-idle-");
+			worker.setNowIndexing(Messages.getString("SearchIndexBuilderWorkerDaoJdbcImpl.33")); //$NON-NLS-1$
 		}
 		finally
 		{
@@ -539,9 +540,9 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 		catch (Exception ex)
 		{
 			log
-					.warn("Failed to update state in database due to "
+					.warn("Failed to update state in database due to " //$NON-NLS-1$
 							+ ex.getMessage()
-							+ " this will be corrected on the next run of the IndexBuilder, no cause for alarm");
+							+ " this will be corrected on the next run of the IndexBuilder, no cause for alarm"); //$NON-NLS-1$
 		}
 		return 0;
 
@@ -567,7 +568,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 
 			totalDocs = runtimeToDo.size();
 
-			log.debug("Processing " + totalDocs + " documents");
+			log.debug("Processing " + totalDocs + " documents"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			if (totalDocs > 0)
 			{
@@ -593,7 +594,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 				}
 				catch (IOException e)
 				{
-					log.error("Failed to do Post Index Update", e);
+					log.error("Failed to do Post Index Update", e); //$NON-NLS-1$
 				}
 				// release lock
 
@@ -607,15 +608,15 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 				if (totalDocs > 0)
 				{
 					float docspersec = 1000 * ndocs / totalTime;
-					log.info("Completed Process List of " + totalDocs + " at "
-							+ docspersec + " documents/per second");
+					log.info("Completed Process List of " + totalDocs + " at " //$NON-NLS-1$ //$NON-NLS-2$
+							+ docspersec + " documents/per second"); //$NON-NLS-1$
 				}
 			}
 		}
 		catch (Exception ex)
 		{
-			log.warn("Failed to perform index cycle " + ex.getMessage());
-			log.debug("Traceback is ", ex);
+			log.warn("Failed to perform index cycle " + ex.getMessage()); //$NON-NLS-1$
+			log.debug("Traceback is ", ex); //$NON-NLS-1$
 		}
 		finally
 		{
@@ -648,10 +649,10 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 		ResultSet rst = null;
 		try
 		{
-			pst = connection.prepareStatement("select "
-					+ SEARCH_BUILDER_ITEM_FIELDS + " from "
-					+ SEARCH_BUILDER_ITEM_T + " where name like  ?  "
-					+ "   and   context <> ?  ");
+			pst = connection.prepareStatement("select " //$NON-NLS-1$
+					+ SEARCH_BUILDER_ITEM_FIELDS + " from " //$NON-NLS-1$
+					+ SEARCH_BUILDER_ITEM_T + " where name like  ?  " //$NON-NLS-1$
+					+ "   and   context <> ?  "); //$NON-NLS-1$
 			pst.clearParameters();
 			pst.setString(1, SearchBuilderItem.SITE_MASTER_PATTERN);
 			pst.setString(2, SearchBuilderItem.GLOBAL_CONTEXT);
@@ -693,15 +694,15 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 	private SearchBuilderItem getMasterItem(Connection connection)
 			throws SQLException
 	{
-		log.debug("get Master Items with " + connection);
+		log.debug("get Master Items with " + connection); //$NON-NLS-1$
 
 		PreparedStatement pst = null;
 		ResultSet rst = null;
 		try
 		{
-			pst = connection.prepareStatement("select "
-					+ SEARCH_BUILDER_ITEM_FIELDS + " from "
-					+ SEARCH_BUILDER_ITEM_T + " where name = ? ");
+			pst = connection.prepareStatement("select " //$NON-NLS-1$
+					+ SEARCH_BUILDER_ITEM_FIELDS + " from " //$NON-NLS-1$
+					+ SEARCH_BUILDER_ITEM_T + " where name = ? "); //$NON-NLS-1$
 			pst.clearParameters();
 			pst.setString(1, SearchBuilderItem.GLOBAL_MASTER);
 			rst = pst.executeQuery();
@@ -775,8 +776,8 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 			catch (SQLException sqlex)
 			{
 
-				pst = connection.prepareStatement("update "
-						+ SEARCH_BUILDER_ITEM_T + " set "
+				pst = connection.prepareStatement("update " //$NON-NLS-1$
+						+ SEARCH_BUILDER_ITEM_T + " set " //$NON-NLS-1$
 						+ SEARCH_BUILDER_ITEM_FIELDS_UPDATE);
 				populateStatement(pst, sbi);
 				pst.executeUpdate();
@@ -784,7 +785,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 		}
 		catch (SQLException ex)
 		{
-			log.warn("Failed ", ex);
+			log.warn("Failed ", ex); //$NON-NLS-1$
 			throw ex;
 		}
 		finally
@@ -805,10 +806,10 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 		PreparedStatement pst = null;
 		try
 		{
-			pst = connection.prepareStatement(" insert into "
-					+ SEARCH_BUILDER_ITEM_T + " ( "
-					+ SEARCH_BUILDER_ITEM_FIELDS + " ) values ( "
-					+ SEARCH_BUILDER_ITEM_FIELDS_PARAMS + " ) ");
+			pst = connection.prepareStatement(" insert into " //$NON-NLS-1$
+					+ SEARCH_BUILDER_ITEM_T + " ( " //$NON-NLS-1$
+					+ SEARCH_BUILDER_ITEM_FIELDS + " ) values ( " //$NON-NLS-1$
+					+ SEARCH_BUILDER_ITEM_FIELDS_PARAMS + " ) "); //$NON-NLS-1$
 			pst.clearParameters();
 			populateStatement(pst, sbi);
 			pst.executeUpdate();
@@ -832,15 +833,15 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 		PreparedStatement pst = null;
 		try
 		{
-			pst = connection.prepareStatement(" delete from "
-					+ SEARCH_BUILDER_ITEM_T + " where id = ? ");
+			pst = connection.prepareStatement(" delete from " //$NON-NLS-1$
+					+ SEARCH_BUILDER_ITEM_T + " where id = ? "); //$NON-NLS-1$
 			pst.clearParameters();
 			pst.setString(1, sbi.getId());
 			pst.execute();
 		}
 		catch (SQLException ex)
 		{
-			log.warn("Failed ", ex);
+			log.warn("Failed ", ex); //$NON-NLS-1$
 			throw ex;
 		}
 		finally
@@ -929,19 +930,19 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 		long start = System.currentTimeMillis();
 		try
 		{
-			log.debug("TXFind pending with " + connection);
+			log.debug("TXFind pending with " + connection); //$NON-NLS-1$
 
 			SearchBuilderItem masterItem = getMasterItem(connection);
 			Integer masterAction = getMasterAction(masterItem);
-			log.debug(" Master Item is " + masterItem.getName() + ":"
-					+ masterItem.getSearchaction() + ":"
-					+ masterItem.getSearchstate() + "::"
+			log.debug(" Master Item is " + masterItem.getName() + ":" //$NON-NLS-1$ //$NON-NLS-2$
+					+ masterItem.getSearchaction() + ":" //$NON-NLS-1$
+					+ masterItem.getSearchstate() + "::" //$NON-NLS-1$
 					+ masterItem.getVersion());
 			if (SearchBuilderItem.ACTION_REFRESH.equals(masterAction))
 			{
-				log.debug(" Master Action is " + masterAction);
-				log.debug("  REFRESH = " + SearchBuilderItem.ACTION_REFRESH);
-				log.debug("  RELOAD = " + SearchBuilderItem.ACTION_REBUILD);
+				log.debug(" Master Action is " + masterAction); //$NON-NLS-1$
+				log.debug("  REFRESH = " + SearchBuilderItem.ACTION_REFRESH); //$NON-NLS-1$
+				log.debug("  RELOAD = " + SearchBuilderItem.ACTION_REBUILD); //$NON-NLS-1$
 				// get a complete list of all items, before the master
 				// action version
 				// if there are none, update the master action action to
@@ -979,15 +980,15 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 			try
 			{
 				pst = connection
-						.prepareStatement("select "
+						.prepareStatement("select " //$NON-NLS-1$
 								+ SEARCH_BUILDER_ITEM_FIELDS
-								+ " from "
+								+ " from " //$NON-NLS-1$
 								+ SEARCH_BUILDER_ITEM_T
-								+ " where searchstate = ? and    searchaction <> ? and "
-								+ "        not ( name like ? )  order by version ");
-				lockedPst = connection.prepareStatement("update "
-						+ SEARCH_BUILDER_ITEM_T + " set searchstate = ? "
-						+ " where id = ?  and  searchstate = ? ");
+								+ " where searchstate = ? and    searchaction <> ? and " //$NON-NLS-1$
+								+ "        not ( name like ? )  order by version "); //$NON-NLS-1$
+				lockedPst = connection.prepareStatement("update " //$NON-NLS-1$
+						+ SEARCH_BUILDER_ITEM_T + " set searchstate = ? " //$NON-NLS-1$
+						+ " where id = ?  and  searchstate = ? "); //$NON-NLS-1$
 				pst.clearParameters();
 				pst.setInt(1, SearchBuilderItem.STATE_PENDING.intValue());
 				pst.setInt(2, SearchBuilderItem.ACTION_UNKNOWN.intValue());
@@ -1037,7 +1038,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 		finally
 		{
 			long finish = System.currentTimeMillis();
-			log.debug(" findPending took " + (finish - start) + " ms");
+			log.debug(" findPending took " + (finish - start) + " ms"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -1048,9 +1049,9 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 		ResultSet rst = null;
 		try
 		{
-			pst = connection.prepareStatement("select count(*) from "
+			pst = connection.prepareStatement("select count(*) from " //$NON-NLS-1$
 					+ SEARCH_BUILDER_ITEM_T
-					+ " where searchstate = ? and searchaction <> ?");
+					+ " where searchstate = ? and searchaction <> ?"); //$NON-NLS-1$
 			pst.clearParameters();
 			pst.setInt(1, SearchBuilderItem.STATE_PENDING.intValue());
 			pst.setInt(2, SearchBuilderItem.ACTION_UNKNOWN.intValue());
@@ -1085,7 +1086,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 		// delete all and return the master action only
 		// the caller will then rebuild the index from scratch
 		log
-				.debug("DELETE ALL RECORDS ==========================================================");
+				.debug("DELETE ALL RECORDS =========================================================="); //$NON-NLS-1$
 		Statement stm = null;
 		try
 		{
@@ -1093,22 +1094,22 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 			if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem
 					.getContext()))
 			{
-				stm.execute("delete from searchbuilderitem where name <> '"
-						+ SearchBuilderItem.GLOBAL_MASTER + "' ");
+				stm.execute("delete from searchbuilderitem where name <> '" //$NON-NLS-1$
+						+ SearchBuilderItem.GLOBAL_MASTER + "' "); //$NON-NLS-1$
 			}
 			else
 			{
-				stm.execute("delete from searchbuilderitem where context = '"
-						+ controlItem.getContext() + "' and name <> '"
-						+ controlItem.getName() + "' ");
+				stm.execute("delete from searchbuilderitem where context = '" //$NON-NLS-1$
+						+ controlItem.getContext() + "' and name <> '" //$NON-NLS-1$
+						+ controlItem.getName() + "' "); //$NON-NLS-1$
 
 			}
 
 			log
-					.debug("DONE DELETE ALL RECORDS ===========================================================");
+					.debug("DONE DELETE ALL RECORDS ==========================================================="); //$NON-NLS-1$
 			connection.commit();
 			log
-					.debug("ADD ALL RECORDS ===========================================================");
+					.debug("ADD ALL RECORDS ==========================================================="); //$NON-NLS-1$
 			long lastupdate = System.currentTimeMillis();
 			List contextList = new ArrayList();
 			if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem
@@ -1126,7 +1127,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 						if (searchIndexBuilder.isOnlyIndexSearchToolSites())
 						{
 							ToolConfiguration t = s
-									.getToolForCommonId("sakai.search");
+									.getToolForCommonId("sakai.search"); //$NON-NLS-1$
 							if (t != null)
 							{
 								contextList.add(s.getId());
@@ -1146,7 +1147,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 			for (Iterator c = contextList.iterator(); c.hasNext();)
 			{
 				String siteContext = (String) c.next();
-				log.info("Rebuild for " + siteContext);
+				log.info("Rebuild for " + siteContext); //$NON-NLS-1$
 				for (Iterator i = searchIndexBuilder.getContentProducers()
 						.iterator(); i.hasNext();)
 				{
@@ -1155,7 +1156,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 
 					Iterator contentIterator = null;
 					contentIterator = ecp.getSiteContentIterator(siteContext);
-					log.debug("Using ECP " + ecp);
+					log.debug("Using ECP " + ecp); //$NON-NLS-1$
 
 					int added = 0;
 					for (; contentIterator.hasNext();)
@@ -1167,15 +1168,15 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 									true))
 							{
 								throw new RuntimeException(
-										"Transaction Lock Expired while Rebuilding Index ");
+										"Transaction Lock Expired while Rebuilding Index "); //$NON-NLS-1$
 							}
 						}
 						String resourceName = (String) contentIterator.next();
-						log.debug("Checking " + resourceName);
+						log.debug("Checking " + resourceName); //$NON-NLS-1$
 						if (resourceName == null || resourceName.length() > 255)
 						{
 							log
-									.warn("Entity Reference Longer than 255 characters, ignored: Reference="
+									.warn("Entity Reference Longer than 255 characters, ignored: Reference=" //$NON-NLS-1$
 											+ resourceName);
 							continue;
 						}
@@ -1192,12 +1193,12 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 						}
 						catch (Exception ex)
 						{
-							log.info("No context for resource " + resourceName
-									+ " defaulting to none");
+							log.info("No context for resource " + resourceName //$NON-NLS-1$
+									+ " defaulting to none"); //$NON-NLS-1$
 						}
 						if (context == null || context.length() == 0)
 						{
-							context = "none";
+							context = "none"; //$NON-NLS-1$
 						}
 						sbi.setContext(context);
 						try
@@ -1206,16 +1207,16 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 						}
 						catch (SQLException sqlex)
 						{
-							log.error("Failed to update " + sqlex.getMessage());
+							log.error("Failed to update " + sqlex.getMessage()); //$NON-NLS-1$
 						}
 						connection.commit();
 
 					}
-					log.debug(" Added " + added);
+					log.debug(" Added " + added); //$NON-NLS-1$
 				}
 			}
 			log
-					.debug("DONE ADD ALL RECORDS ===========================================================");
+					.debug("DONE ADD ALL RECORDS ==========================================================="); //$NON-NLS-1$
 			controlItem.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
 			updateOrSave(connection, controlItem);
 			connection.commit();
@@ -1239,7 +1240,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 		// delete all and return the master action only
 		// the caller will then rebuild the index from scratch
 		log
-				.debug("UPDATE ALL RECORDS ==========================================================");
+				.debug("UPDATE ALL RECORDS =========================================================="); //$NON-NLS-1$
 		Statement stm = null;
 		try
 		{
@@ -1247,20 +1248,20 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 			if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem
 					.getContext()))
 			{
-				stm.execute("update searchbuilderitem set searchstate = "
+				stm.execute("update searchbuilderitem set searchstate = " //$NON-NLS-1$
 						+ SearchBuilderItem.STATE_PENDING
-						+ " where name not like '"
+						+ " where name not like '" //$NON-NLS-1$
 						+ SearchBuilderItem.SITE_MASTER_PATTERN
-						+ "' and name <> '" + SearchBuilderItem.GLOBAL_MASTER
-						+ "' ");
+						+ "' and name <> '" + SearchBuilderItem.GLOBAL_MASTER //$NON-NLS-1$
+						+ "' "); //$NON-NLS-1$
 
 			}
 			else
 			{
-				stm.execute("update searchbuilderitem set searchstate = "
+				stm.execute("update searchbuilderitem set searchstate = " //$NON-NLS-1$
 						+ SearchBuilderItem.STATE_PENDING
-						+ " where context = '" + controlItem.getContext()
-						+ "' and name <> '" + controlItem.getName() + "'");
+						+ " where context = '" + controlItem.getContext() //$NON-NLS-1$
+						+ "' and name <> '" + controlItem.getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			}
 			controlItem.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
