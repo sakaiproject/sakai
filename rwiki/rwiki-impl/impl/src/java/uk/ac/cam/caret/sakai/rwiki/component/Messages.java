@@ -29,7 +29,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class Messages
 {
-	private static final String BUNDLE_NAME = "uk.ac.cam.caret.sakai.rwiki.bundle.Messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "uk.ac.cam.caret.sakai.rwiki.component.bundle.Messages"; //$NON-NLS-1$
 
 	private static final ResourceLoader rl = new ResourceLoader(BUNDLE_NAME);
 

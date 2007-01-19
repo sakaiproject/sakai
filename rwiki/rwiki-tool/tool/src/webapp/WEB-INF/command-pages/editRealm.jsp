@@ -68,12 +68,12 @@
 		  <tbody>
 		    <tr id="permissions">
 		      <th><c:out value="${rlb.jsp_role_permissions}"/></th>
-		      <td><c:out value="${rlb.jsp_permissions_create}"/></td>
-		      <td><c:out value="${rlb.jsp_permissions_read}"/></td>
-		      <td><c:out value="${rlb.jsp_permissions_edit}"/></td>
-		      <!--<td><c:out value="${rlb.jsp_permissions_delete}"/></td>-->
-		      <td><c:out value="${rlb.jsp_permissions_admin}"/></td>
-		      <td><c:out value="${rlb.jsp_permissions_super_admin}"/></td>
+		      <td><c:out value="${rlb.jsp_permission_create}"/></td>
+		      <td><c:out value="${rlb.jsp_permission_read}"/></td>
+		      <td><c:out value="${rlb.jsp_permission_edit}"/></td>
+		      <!--<td><c:out value="${rlb.jsp_permission_delete}"/></td>-->
+		      <td><c:out value="${rlb.jsp_permission_admin}"/></td>
+		      <td><c:out value="${rlb.jsp_permission_super_admin}"/></td>
 		    </tr>
 		    <c:forEach var="role" items="${realmEditBean.roles}">
 		      <tr class="permissionsGroupRole">
@@ -149,8 +149,8 @@
 			    <input type="hidden" name="pageName" value="${realmEditBean.pageName}" />
 			    <input type="hidden" name="panel" value="Main"/>
 			    <input type="hidden" name="action" value="editRealm"/>
-			    <input type="submit" name="save" value="${rlb.jsp_button_save}"/>"/><c:out value=" "/>
-			    <input type="submit" name="save" value="${rlb.jsp_button_cancel}"/>"/>
+			    <input type="submit" name="save" value="${rlb.jsp_button_save}"/><c:out value=" "/>
+			    <input type="submit" name="save" value="${rlb.jsp_button_cancel}"/>
 			    <input type="hidden" name="realm" value="${realmEditBean.localSpace}"/>
 			  </p>
 			</div>
