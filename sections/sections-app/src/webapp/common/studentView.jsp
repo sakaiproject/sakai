@@ -27,7 +27,7 @@
 	        </h:selectOneMenu>
 		</x:div>
 	    
-        <sec:sectionTable cellpadding="0" cellspacing="0"
+        <sec:rowGroupTable cellpadding="0" cellspacing="0"
             id="studentViewSectionsTable"
             value="#{studentViewBean.sections}"
             var="section"
@@ -132,7 +132,7 @@
                     rendered="#{section.member}"/>
             </h:column>
     
-        </sec:sectionTable>
+        </sec:rowGroupTable>
 
         <x:div styleClass="verticalPadding" rendered="#{empty studentViewBean.sections && ! studentViewBean.siteWithoutSections}">
             <h:outputText value="#{msgs.student_view_no_sections_to_display}"/>
