@@ -277,7 +277,7 @@ public class DavServlet extends HttpServlet
 			{
 				// the following are recognized as full reference prefixe; if seen, the sort ref feature is not applied
 				if (!(prefix[0].equals("group") || prefix[0].equals("user") || prefix[0].equals("group-user")
-						|| prefix[0].equals("public") || prefix[0].equals("attachment")))
+						|| prefix[0].equals("public") || prefix[0].equals("private") || prefix[0].equals("attachment")))
 				{
 					String newPrefix = null;
 	
