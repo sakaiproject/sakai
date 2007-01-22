@@ -83,6 +83,7 @@ import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
+import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.Entity;
@@ -152,6 +153,42 @@ import org.w3c.dom.Text;
 public class ResourcesAction
 	extends PagedResourceHelperAction // VelocityPortletPaneledAction
 {
+	public static final List<ActionType> ACTIONS_ON_FOLDERS = new Vector<ActionType>();
+	
+	static
+	{
+		ACTIONS_ON_FOLDERS.add(ActionType.VIEW_METADATA);
+		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_METADATA);
+		ACTIONS_ON_FOLDERS.add(ActionType.COPY);
+		ACTIONS_ON_FOLDERS.add(ActionType.DELETE);
+		ACTIONS_ON_FOLDERS.add(ActionType.MOVE);
+		ACTIONS_ON_FOLDERS.add(ActionType.DUPLICATE);
+	}
+	
+	public static final List<ActionType> ACTIONS_ON_RESOURCES = new Vector<ActionType>();
+	
+	static
+	{
+		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_METADATA);
+		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_CONTENT);
+		ACTIONS_ON_RESOURCES.add(ActionType.REVISE_METADATA);
+		ACTIONS_ON_RESOURCES.add(ActionType.REVISE_CONTENT);
+		ACTIONS_ON_RESOURCES.add(ActionType.REPLACE_CONTENT);
+		ACTIONS_ON_RESOURCES.add(ActionType.COPY);
+		ACTIONS_ON_RESOURCES.add(ActionType.MOVE);
+		ACTIONS_ON_RESOURCES.add(ActionType.DELETE);
+		ACTIONS_ON_RESOURCES.add(ActionType.DUPLICATE);
+	}
+	
+	public static final List<ActionType> CREATION_ACTIONS = new Vector<ActionType>();
+	
+	static 
+	{
+		CREATION_ACTIONS.add(ActionType.NEW_UPLOAD);
+		CREATION_ACTIONS.add(ActionType.NEW_FOLDER);
+		CREATION_ACTIONS.add(ActionType.CREATE);
+	}
+	
 	public class ListItem
 	{
 		protected String name;
@@ -1425,11 +1462,82 @@ public class ResourcesAction
 				{
 					state.setAttribute(STATE_MODE, MODE_CREATE_WIZARD);
 				}
+				else if(ResourceToolAction.REVISE_CONTENT.equals(action.getId()))
+				{
+					Reference ref = pipe.getContentEntityReference();
+					try
+					{
+						ContentResourceEdit edit = ContentHostingService.editResource(ref.getId());
+						ResourcePropertiesEdit props = edit.getPropertiesEdit();
+						// update content
+						edit.setContent(pipe.getRevisedContent());
+						// update properties
+						if(action instanceof InteractionAction)
+						{
+							InteractionAction iAction = (InteractionAction) action;
+							Map revprops = pipe.getRevisedResourceProperties();
+							List propkeys = iAction.getRequiredPropertyKeys();
+							if(propkeys != null)
+							{
+								Iterator keyIt = propkeys.iterator();
+								while(keyIt.hasNext())
+								{
+									String key = (String) keyIt.next();
+									String value = (String) revprops.get(key);
+									if(value == null)
+									{
+										props.removeProperty(key);
+									}
+									else
+									{
+										// should we support multivalued properties?
+										props.addProperty(key, value);
+									}
+								}
+							}
+						}
+						// update mimetype
+						edit.setContentType(pipe.getRevisedMimeType());
+						ContentHostingService.commitResource(edit);
+					}
+					catch (PermissionException e)
+					{
+						// TODO Auto-generated catch block
+						logger.warn("PermissionException ", e);
+					}
+					catch (IdUnusedException e)
+					{
+						// TODO Auto-generated catch block
+						logger.warn("IdUnusedException ", e);
+					}
+					catch (TypeException e)
+					{
+						// TODO Auto-generated catch block
+						logger.warn("TypeException ", e);
+					}
+					catch (InUseException e)
+					{
+						// TODO Auto-generated catch block
+						logger.warn("InUseException ", e);
+					}
+					catch (OverQuotaException e)
+					{
+						// TODO Auto-generated catch block
+						logger.warn("OverQuotaException ", e);
+					}
+					catch (ServerOverloadException e)
+					{
+						// TODO Auto-generated catch block
+						logger.warn("ServerOverloadException ", e);
+					}
+					state.setAttribute(STATE_MODE, MODE_LIST);
+				}
 			}
 			else
 			{
 				// cleanup(toolSession, ResourceToolAction.PREFIX);
 			}
+			toolSession.removeAttribute(ResourceToolAction.DONE);
 		}
 
 		String template = null;
@@ -1715,22 +1823,36 @@ public class ResourcesAction
 				state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
 			}
 			Reference ref = EntityManager.newReference(selectedItem.getReference());
+			List actions = new Vector();
 			if(selectedItem.isCollection())
 			{
-				List actions = new Vector();
 				Collection types = registry.getTypes();
-				Iterator typeIt = types.iterator();
-				while(typeIt.hasNext())
+				Iterator<ActionType> actionTypeIt = CREATION_ACTIONS.iterator();
+				while(actionTypeIt.hasNext())
 				{
-					ResourceType type = (ResourceType) typeIt.next();
-					if(type.isCreateActionAllowed(ref))
+					ActionType actionType = actionTypeIt.next();
+					Iterator typeIt = types.iterator();
+					while(typeIt.hasNext())
 					{
-						User user = UserDirectoryService.getCurrentUser();
-						// TODO: get list of permissions and supply to helper 
-						actions.add(type.getCreateAction(ref, user, null));
+						ResourceType type = (ResourceType) typeIt.next();
+						if(type.isCreateActionAllowed(ref))
+						{
+							// User user = UserDirectoryService.getCurrentUser();
+							
+							List<ResourceToolAction> createActions = type.getActions(actionType);
+							if(createActions != null)
+							{
+								actions.addAll(createActions);
+							}
+						}
 					}
 				}
-				context.put("actions", actions);
+//				ResourceType type = registry.getType(ResourceType.TYPE_FOLDER);
+//				List<ResourceToolAction> otherActions = type.getActions(ACTIONS_ON_FOLDERS);
+//				if(otherActions != null)
+//				{
+//					actions.addAll(otherActions);
+//				}
 			}
 			else
 			{
@@ -1742,9 +1864,13 @@ public class ResourcesAction
 				{
 					type = registry.getType("file");
 				}
-				// TODO: get list of permissions and supply to helper 
-				context.put("actions", type.getActions(ref, null));
+				List<ResourceToolAction> fileActions = type.getActions(ACTIONS_ON_RESOURCES);
+				if(fileActions != null)
+				{
+					actions.addAll(fileActions);
+				}
 			}
+			context.put("actions", actions);
 		}
 		
 		

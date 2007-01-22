@@ -23,6 +23,7 @@ package org.sakaiproject.content.impl;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -247,6 +248,27 @@ public class BasicResourceToolActionPipe
 	public void setErrorMessage(String msg) 
 	{
 		this.errorMessage = msg;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceToolActionPipe#getContentstring()
+	 */
+	public String getContentstring()
+	{
+		String rv = null;
+		byte[] content = getContent();
+		if(content != null)
+		{
+			try
+			{
+				rv = new String( content, "UTF-8" );
+			}
+			catch(UnsupportedEncodingException e)
+			{
+				rv = new String( content );
+			}
+		}
+		return rv;
 	}
 
 }

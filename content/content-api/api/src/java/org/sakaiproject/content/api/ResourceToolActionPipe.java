@@ -68,6 +68,14 @@ public interface ResourceToolActionPipe
 	public byte[] getContent();
 	
 	/**
+	 * Used by helper to access current value of resource's "content" as a UTF-8 string. Return will be 
+	 * empty string to indicate no content is defined for resource or null to indicate 
+	 * that content should be accessed as an OutputStream because of size or type of content. 
+	 * @return
+	 */
+	public String getContentstring();
+	
+	/**
 	 * Used by helper to access a Reference object that fully identifies an existing ContentResource
 	 * involved in this action.  If the action is "create", the reference identifies a collection
 	 * within which a new resource is being created.  Otherwise the reference identifies a resource

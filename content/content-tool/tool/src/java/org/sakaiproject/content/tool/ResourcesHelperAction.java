@@ -42,6 +42,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Validator;
 
 public class ResourcesHelperAction extends VelocityPortletPaneledAction 
 {
@@ -108,6 +109,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
 		
+		context.put("validator", new Validator());
 		String mode = (String) state.getAttribute(ResourceToolAction.STATE_MODE);
 
 		if (mode == null)
@@ -222,9 +224,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ParameterParser params = data.getParameters ();
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		
-		Tool tool = ToolManager.getCurrentTool();
-		String url = (String) toolSession.getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
-		toolSession.removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+		//Tool tool = ToolManager.getCurrentTool();
+		//String url = (String) toolSession.getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+		//toolSession.removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
 		
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		pipe.setActionCanceled(true);

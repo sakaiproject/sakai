@@ -21,6 +21,9 @@
 
 package org.sakaiproject.content.api;
 
+import java.util.List;
+import java.util.Vector;
+
 /**
  * ResourceToolAction defines the way in which actions are described in a resource-type registration. 
  * Each action should have its own ResourceToolAction defined in the registration.  
@@ -139,7 +142,7 @@ public interface ResourceToolAction
 	public static final String ACCESS_PROPERTIES = "info";
 	public static final String DUPLICATE = "duplicate";
 	public static final String MOVE = "move";
-	
+		
 	/**
 	 * Prefix for all keys to Tool Session attributes used in messaging between ResourcesAction and
 	 * helpers related to registered resource tool actions. Removing all attributes whose keys begin
