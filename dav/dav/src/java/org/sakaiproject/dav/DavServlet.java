@@ -259,6 +259,20 @@ public class DavServlet extends HttpServlet
 	/** used to id a log message */
 	public static String ME = DavServlet.class.getName();
 
+        // can be called on id with or withing adjustid, since
+        // the prefixes we check for are not adjusted
+        protected boolean prohibited(String id) {
+	    if (id == null)
+		return false;
+	    if (id.startsWith("/attachment/") || id.equals("/attachment") ||
+		id.startsWith("/public/") || id.equals("/public") ||
+		(doProtected && id.toLowerCase().indexOf("/protected") >= 0 &&
+		 (!ContentHostingService.allowAddCollection(adjustId(id)))))
+		return true;
+	    return false;
+	}
+
+
 	/**
 	 * Adjust the id (a resource id) to map between any tricks we want to play and the real id for content hosting.
 	 * @param id the id to adjust.
@@ -1098,7 +1112,7 @@ public class DavServlet extends HttpServlet
 
 		String path = getRelativePathSAKAI(request);
 
-		if ((path == null) || path.toUpperCase().startsWith("/WEB-INF") || path.toUpperCase().startsWith("/META-INF"))
+		if ((path == null) || prohibited(path) || path.toUpperCase().startsWith("/WEB-INF") || path.toUpperCase().startsWith("/META-INF"))
 		{
 			response.sendError(HttpServletResponse.SC_NOT_FOUND, path);
 			return false;
@@ -1488,6 +1502,9 @@ public class DavServlet extends HttpServlet
 		// OK, it's a collection and we can read it. Do a listing.
 		// System.out.println("got to final check");
 
+	        if (prohibited(id))
+		    return;
+
 		String uri = req.getRequestURI();
 		PrintWriter out = null;
 
@@ -1501,6 +1518,7 @@ public class DavServlet extends HttpServlet
 			// I want to use relative paths in the listing,
 			// so we need to redirect if there's no trailing /
 			// for the usual reasons.
+			// --this doesn't actually work. without / it doesn't get here
 			if (!uri.endsWith("/"))
 			{
 				// System.out.println("need redirect");
@@ -1514,20 +1532,6 @@ public class DavServlet extends HttpServlet
 				{
 					// System.out.println("redirect failed");
 					return;
-				}
-			}
-
-			// can't do directory on any folder starting with protected
-			// Case-indepedent, based on display name.
-			if (doProtected)
-			{
-				ResourceProperties pl = x.getProperties();
-				if (pl.getProperty(ResourceProperties.PROP_DISPLAY_NAME).toLowerCase().indexOf("protected") == 0)
-				{
-					if (!ContentHostingService.allowAddCollection(adjustId(id)))
-					{
-						return;
-					}
 				}
 			}
 
@@ -1559,13 +1563,13 @@ public class DavServlet extends HttpServlet
 			// /group/db5a4d0c-3dfd-4d10-8018-41db42ac7c8b/
 			// /user/hedrick/
 
-			int slashes = countSlashes(id);
+			int slashes = countSlashes(adjustId(id));
 
 			if (slashes > 3)
 			{
 				// go up a level
-				String uplev = id.substring(0, id.length() - 1);
-				uplev = uplev.substring(0, uplev.lastIndexOf('/') + 1);
+				//String uplev = id.substring(0, id.length() - 1);
+				//uplev = uplev.substring(0, uplev.lastIndexOf('/') + 1);
 				out.println("<tr><td><a href=\"..\">Up one level</a></td><td><b>Folder</b>" + "</td><td>" + "</td><td>"
 						+ "</td><td>" + "</td></tr>");
 
@@ -1574,14 +1578,14 @@ public class DavServlet extends HttpServlet
 			while (xi.hasNext())
 			{
 				String xs = (String) xi.next();
-				String xss = xs.substring(id.length());
+				String xss = xs.substring(adjustId(id).length());
 
 				if (xss.endsWith("/"))
 				{
 					ContentCollection nextres = ContentHostingService.getCollection(adjustId(xs));
 					ResourceProperties properties = nextres.getProperties();
 					if (doProtected
-							&& properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME).toLowerCase().indexOf("protected") == 0)
+							&& xs.toLowerCase().indexOf("/protected") >= 0)
 					{
 						if (!ContentHostingService.allowAddCollection(adjustId(xs)))
 						{
@@ -1631,6 +1635,9 @@ public class DavServlet extends HttpServlet
 	 */
 	private String doContent(String id, HttpServletRequest req, HttpServletResponse res)
 	{
+	        if (prohibited(id))
+			return "You do not have permission to view this resource";
+
 		// resource or collection? check the properties (also finds bad id and checks permissions)
 		boolean isCollection = false;
 		try
@@ -1788,7 +1795,7 @@ public class DavServlet extends HttpServlet
 
 		if (path.endsWith("/")) path = path.substring(0, path.length() - 1);
 
-		if ((path.toUpperCase().startsWith("/WEB-INF")) || (path.toUpperCase().startsWith("/META-INF")))
+		if ((path.toUpperCase().startsWith("/WEB-INF")) || (path.toUpperCase().startsWith("/META-INF")) || prohibited(path))
 		{
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
 			return;
@@ -2046,6 +2053,7 @@ public class DavServlet extends HttpServlet
 						String newPath = currentPath;
 						if (!(newPath.endsWith("/"))) newPath += "/";
 						newPath += resourceName;
+						if (!(newPath.toLowerCase().indexOf("/protected") >= 0 && !ContentHostingService.allowAddCollection(newPath)))
 						stackBelow.push(newPath);
 						// if (M_log.isDebugEnabled()) M_log.debug("SAKAI found resource " + newPath);
 					}
@@ -2146,7 +2154,7 @@ public class DavServlet extends HttpServlet
 		}
 
 		String path = getRelativePathSAKAI(req);
-		if ((path.toUpperCase().startsWith("/WEB-INF")) || (path.toUpperCase().startsWith("/META-INF")))
+		if (prohibited(path) || (path.toUpperCase().startsWith("/WEB-INF")) || (path.toUpperCase().startsWith("/META-INF")))
 		{
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
 			return;
@@ -2311,7 +2319,7 @@ public class DavServlet extends HttpServlet
 
 		String path = getRelativePathSAKAI(req);
 
-		if ((path.toUpperCase().startsWith("/WEB-INF")) || (path.toUpperCase().startsWith("/META-INF")))
+		if (prohibited(path) || (path.toUpperCase().startsWith("/WEB-INF")) || (path.toUpperCase().startsWith("/META-INF")))
 		{
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
 			return;
@@ -2858,7 +2866,7 @@ public class DavServlet extends HttpServlet
 		// We don't want to allow just anyone to lock a resource.
 		// It seems reasonable to allow it only for someone who
 		// is allowed to modify it.
-		if (!ContentHostingService.allowUpdateResource(adjustId(path)))
+		if (prohibited(path) || !ContentHostingService.allowUpdateResource(adjustId(path)))
 		{
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN, path);
 			return;
@@ -3190,7 +3198,7 @@ public class DavServlet extends HttpServlet
 		// DAVExplorer and unlock it manually. That seems like a
 		// good compromise. At any rate, there needs to be some
 		// check here, which there wasn't originally.
-		if (!ContentHostingService.allowUpdateResource(adjustId(path)))
+		if (prohibited(path) || !ContentHostingService.allowUpdateResource(adjustId(path)))
 		{
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
 			return;
@@ -3465,13 +3473,13 @@ public class DavServlet extends HttpServlet
 
 		String path = getRelativePath(req);
 
-		if ((path.toUpperCase().startsWith("/WEB-INF")) || (path.toUpperCase().startsWith("/META-INF")))
+		if (prohibited(path) || (path.toUpperCase().startsWith("/WEB-INF")) || (path.toUpperCase().startsWith("/META-INF")))
 		{
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
 			return false;
 		}
 
-		if (destinationPath.equals(path))
+		if (prohibited(destinationPath) || destinationPath.equals(path))
 		{
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
 			return false;
@@ -3602,6 +3610,9 @@ public class DavServlet extends HttpServlet
 
 		// System.out.println("copyResource source="+source+" dest="+dest);
 
+		if (prohibited(source) || prohibited(dest))
+		    return false;
+
 		try
 		{
 			ContentHostingService.copy(adjustId(source), adjustId(dest));
@@ -3676,7 +3687,7 @@ public class DavServlet extends HttpServlet
 			IOException
 	{
 
-		if ((path.toUpperCase().startsWith("/WEB-INF")) || (path.toUpperCase().startsWith("/META-INF")))
+		if (prohibited(path) || (path.toUpperCase().startsWith("/WEB-INF")) || (path.toUpperCase().startsWith("/META-INF")))
 		{
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
 			return false;
@@ -3761,7 +3772,7 @@ public class DavServlet extends HttpServlet
 
 		if (debug > 1) if (M_log.isDebugEnabled()) M_log.debug("deleteCollection:" + path);
 
-		if ((path.toUpperCase().startsWith("/WEB-INF")) || (path.toUpperCase().startsWith("/META-INF")))
+		if (prohibited(path) || (path.toUpperCase().startsWith("/WEB-INF")) || (path.toUpperCase().startsWith("/META-INF")))
 		{
 			errorList.put(path, new Integer(SakaidavStatus.SC_FORBIDDEN));
 			return;
