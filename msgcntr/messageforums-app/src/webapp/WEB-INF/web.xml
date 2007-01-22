@@ -110,7 +110,8 @@
         <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
         <init-param>
             <param-name>default</param-name>
-            <param-value>synMain</param-value>
+            	<param-value>wait</param-value>
+<!--            <param-value>synMain</param-value> -->
         </init-param>
         <init-param>
             <param-name>path</param-name>

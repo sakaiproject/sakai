@@ -1,7 +1,10 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
-<f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
+
+<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+   <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.messageforums.bundle.Messages"/>
+</jsp:useBean>
 
 <html>
 
@@ -15,35 +18,7 @@
 	
 	// intervalid - id of call to progress() every 1/2 sec.
 	//					Put here so can clear on unload.
-	// text - holds the wait message.
-	// width, height - so when content is blank alert retains size.
 	var intervalid, index = 0;
-	var text = 'Loading...';
-	var width, height;
-
-	/*
-	 * Parses the GET parameters into a map
-	 */
-	function getParams() {
-		var url = location.search, i;
-
-		var start = url.indexOf("?");
-		if(start < 0)
-			return null;
-				
-		url = url.substring(start+1);
-		keyvalues = url.split("&");
-		
-		var map = new Object();
-		for(i = 0; i < keyvalues.length; i++) {
-			if(keyvalues[i].length > 0) {
-				var keyvalue = keyvalues[i].split("=");
-				map[keyvalue[0]] = unescape(keyvalue[1]);
-			}
-		}
-		return map;
-	}
-	
 
 	/*
 	 * Makes the '....' on the page expand
@@ -87,11 +62,10 @@
 	 * 2. an entire url (ex: url=http://www.somesite.com)
 	 */
 	function load() {
-//		intervalid = window.setInterval(progress, 500);	
 		setTimeout( function() {
-			var map = getParams();
-			var url = map['url'];
-			
+			var urlEl = document.getElementById("longPageLoad");
+			var url = urlEl.value;
+
 			// just page name, construct url from current href
 			if (isFilename(url)) {
 				var urlCurrent = window.location.href;
@@ -106,7 +80,7 @@
 			}
 
 			// GET parameter added so hack won't create an infinite call loop
-			location.href = url + '?time=1';
+			location.href = url;
 		}, 0);
 	}
 
@@ -120,9 +94,11 @@
 	
 // --></script>
 </head>
-<body onload="load()" onunload="unload()">
+
+  <body onload="load()" onunload="unload()">
 <f:view>
   <sakai:view>
+    <h:inputHidden id="longPageLoad" value="#{msgs.longPageLoad}" />
 <table width="99%" height="99%">
 <tr>
 	<td align="center" valign="middle">
@@ -140,6 +116,7 @@
 </table>
   </sakai:view>
 </f:view>
+
 </body>
 
 </html>

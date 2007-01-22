@@ -1,20 +1,3 @@
-<%@ page import="java.io.PrintWriter" %>
-
-<%
-	// first time. if param exists, we've come back.
-	// TODO: determine way to pass a GET parameter to wait directly.
-	if (! "1".equals(request.getParameter("time"))) {
-	   	PrintWriter writer = response.getWriter();
-   		writer.println("<script language='JavaScript'>var url = window.location.href;");
-  		writer.println("var lastSlash = url.lastIndexOf('/');");
-   		writer.println("url = url.substring(0, lastSlash+1) + 'wait?url=' + url.substring(lastSlash+1);");
-     	writer.println("window.location.href = url;");
-   		writer.println("</script>");
- 		return;
-	}
-	else {
-%>
-
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
@@ -166,7 +149,3 @@
 
   </sakai:view>
  </f:view>
-<%
- }
-%> 
- 
