@@ -476,6 +476,10 @@
       <from-outcome>importAssessment</from-outcome>
       <to-view-id>/jsf/qti/importAssessment.jsp</to-view-id>
     </navigation-case>
+	<navigation-case>
+      <from-outcome>chooseExportType</from-outcome>
+      <to-view-id>/jsf/qti/chooseExportType.jsp</to-view-id>
+    </navigation-case>
     <navigation-case>
       <from-outcome>editAssessmentSettings</from-outcome>
       <to-view-id>/jsf/author/authorSettings.jsp</to-view-id>
@@ -515,10 +519,6 @@
     <navigation-case>
       <from-outcome>previewItem</from-outcome>
       <to-view-id>/jsf/author/item/preview/previewItem.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>exportAssessment</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmRemoveAssessment</from-outcome>

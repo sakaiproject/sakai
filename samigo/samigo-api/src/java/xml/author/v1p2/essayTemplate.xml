@@ -23,6 +23,10 @@
         <fieldlabel>ITEM_RUBRIC</fieldlabel>
         <fieldentry/>
       </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ATTACHMENT</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
     </qtimetadata>
   </itemmetadata>
     <rubric>

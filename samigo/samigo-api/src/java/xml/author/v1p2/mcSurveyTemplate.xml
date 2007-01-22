@@ -27,7 +27,11 @@
         <fieldlabel>ITEM_RUBRIC</fieldlabel>
         <fieldentry/>
       </qtimetadatafield>
-		</qtimetadata>
+      <qtimetadatafield>
+        <fieldlabel>ATTACHMENT</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+	</qtimetadata>
 	</itemmetadata>
 	<rubric>
       <material>

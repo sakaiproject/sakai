@@ -27,6 +27,10 @@
         <fieldlabel>ITEM_RUBRIC</fieldlabel>
         <fieldentry/>
       </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ATTACHMENT</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
          <!--rshastri SAK 1824  -->
       <qtimetadatafield>
         <fieldlabel>hasRationale</fieldlabel>

@@ -23,6 +23,10 @@
         <fieldentry/>
       </qtimetadatafield>
       <qtimetadatafield>
+        <fieldlabel>ATTACHMENT</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
         <fieldlabel>TIMEALLOWED</fieldlabel>
         <fieldentry>30</fieldentry>
       </qtimetadatafield>

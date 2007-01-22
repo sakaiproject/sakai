@@ -24,9 +24,11 @@
 package org.sakaiproject.tool.assessment.qti.asi;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,6 +37,7 @@ import com.sun.org.apache.xerces.internal.dom.ElementImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -140,7 +143,7 @@ public class Section extends ASIBaseClass
     setFieldentry("SECTION_OBJECTIVE", section.getSectionMetaDataByLabel(SectionMetaDataIfc.OBJECTIVES));
     setFieldentry("SECTION_KEYWORD", section.getSectionMetaDataByLabel(SectionMetaDataIfc.KEYWORDS));
     setFieldentry("SECTION_RUBRIC", section.getSectionMetaDataByLabel(SectionMetaDataIfc.RUBRICS));
-    setFieldentry("ATTACHMENT", section.getSectionMetaDataByLabel(SectionMetaDataIfc.ATTACHMENTS));
+    setFieldentry("ATTACHMENT", getAttachment(section));
     
     // items
     ArrayList items = section.getItemArray();
@@ -542,6 +545,29 @@ public class Section extends ASIBaseClass
   public void setBasePath(String basePath)
   {
     this.basePath = basePath;
+  }
+  
+  private String getAttachment(SectionDataIfc section) {
+	  Set attachmentSet = (Set) section.getSectionAttachmentSet();
+   	  if (attachmentSet != null && attachmentSet.size() != 0) { 
+   		Iterator iter = attachmentSet.iterator();
+   		AttachmentData attachmentData = null;
+   		StringBuffer attachment = new StringBuffer();
+   		while (iter.hasNext())
+   		{
+   			attachmentData = (AttachmentData) iter.next();
+   			attachment.append(attachmentData.getResourceId());
+   			attachment.append("|");
+   			attachment.append(attachmentData.getFilename());
+   			attachment.append("|");
+   			attachment.append(attachmentData.getMimeType());
+   			attachment.append("\n");
+   		}
+   		return attachment.toString();
+   	  }
+   	  else {
+   		return null;
+   	  }
   }
 }
 

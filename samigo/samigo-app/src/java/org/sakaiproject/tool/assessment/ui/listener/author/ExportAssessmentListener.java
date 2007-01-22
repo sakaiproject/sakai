@@ -35,7 +35,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
- * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
+ * <p>Copyright: Copyright (c) 2004, 2005, 206, 2007 Sakai Project</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
  * @version $Id$
@@ -44,9 +44,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class ExportAssessmentListener implements ActionListener
 {
   private static Log log = LogFactory.getLog(ExportAssessmentListener.class);
-  private static ContextUtil cu;
-
-
 
   public ExportAssessmentListener()
   {
@@ -56,14 +53,14 @@ public class ExportAssessmentListener implements ActionListener
   {
     //log.info("ExportAssessmentListener");
     //log.info("ExportAssessmentListener processAction");
-    String assessmentId = (String) cu.lookupParam("assessmentId");
-    //log.info("ExportAssessmentListener assessmentId="+assessmentId);
-    XMLController xmlController = (XMLController) cu.lookupBean(
+    String assessmentId = (String) ContextUtil.lookupParam("assessmentId");
+    log.info("ExportAssessmentListener assessmentId="+assessmentId);
+    XMLController xmlController = (XMLController) ContextUtil.lookupBean(
                                           "xmlController");
     //log.info("ExportAssessmentListener xmlController.setId(assessmentId)");
     xmlController.setId(assessmentId);
-// debug
-//    xmlController.setQtiVersion(2);
+    // debug
+    // xmlController.setQtiVersion(2);
     //log.info("xmlController.setQtiVersion(1)");
     xmlController.setQtiVersion(1);
     //log.info("ExportAssessmentListener xmlController.displayAssessmentXml");

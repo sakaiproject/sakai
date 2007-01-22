@@ -24,13 +24,16 @@
 package org.sakaiproject.tool.assessment.qti.asi;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -155,7 +158,8 @@ public class Item extends ASIBaseClass
     setFieldentry("ITEM_KEYWORD",
       item.getItemMetaDataByLabel(ItemMetaDataIfc.KEYWORD));
     setFieldentry("ITEM_RUBRIC", item.getItemMetaDataByLabel(ItemMetaDataIfc.RUBRIC ));
- 
+    setFieldentry("ATTACHMENT", getAttachment(item));
+    
     // set TIMEALLOWED and NUM_OF_ATTEMPTS for audio recording questions:
     if (item.getDuration()!=null){
     	setFieldentry("TIMEALLOWED",
@@ -396,6 +400,29 @@ public class Item extends ASIBaseClass
   public void setBasePath(String basePath)
   {
     this.basePath = basePath;
+  }
+  
+  private String getAttachment(ItemDataIfc item) {
+	  Set attachmentSet = (Set) item.getItemAttachmentSet();
+   	  if (attachmentSet != null && attachmentSet.size() != 0) { 
+   		Iterator iter = attachmentSet.iterator();
+   		AttachmentData attachmentData = null;
+   		StringBuffer attachment = new StringBuffer();
+   		while (iter.hasNext())
+   		{
+   			attachmentData = (AttachmentData) iter.next();
+   			attachment.append(attachmentData.getResourceId());
+   			attachment.append("|");
+   			attachment.append(attachmentData.getFilename());
+   			attachment.append("|");
+   			attachment.append(attachmentData.getMimeType());
+   			attachment.append("\n");
+   		}
+   		return attachment.toString();
+   	  }
+   	  else {
+   		return null;
+   	  }
   }
 }
 

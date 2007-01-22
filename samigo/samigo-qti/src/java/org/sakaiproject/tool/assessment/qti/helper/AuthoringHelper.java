@@ -241,14 +241,13 @@ public class AuthoringHelper
         assessmentHelper.updateIPAddressSet(assessmentXml,
                                              securedIPAddressSet);
       }
-      /*
+      
       Set attachmentSet = (Set) assessment.getAssessmentAttachmentSet();
       
-   	  if (attachmentSet !=null || attachmentSet.size() != 0)    	  
+   	  if (attachmentSet != null && attachmentSet.size() != 0)    	  
       {
         assessmentHelper.updateAttachmentSet(assessmentXml, attachmentSet);
       }
-      */
 
       assessmentHelper.updateMetaData(assessmentXml, assessment);
 
