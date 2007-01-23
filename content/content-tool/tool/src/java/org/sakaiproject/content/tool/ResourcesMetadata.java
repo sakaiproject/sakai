@@ -29,6 +29,9 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
+import org.sakaiproject.content.api.ContentHostingHandler;
+import org.sakaiproject.content.api.ContentHostingHandlerResolver;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -75,7 +78,7 @@ public class ResourcesMetadata
 	public static final String NAMESPACE_DCTERMS_ABBREV = "dcterms:";
 	public static final String NAMESPACE_XSD = "http://www.w3.org/2001/XMLSchema#";
 	public static final String NAMESPACE_XSD_ABBREV = "xs:";
-	
+
 	protected static Integer NamespaceNumber = new Integer(0);
 	
 	public static final String PROPERTY_NAME_DC_TITLE = "title";
@@ -414,6 +417,29 @@ public class ResourcesMetadata
 								PROPERTY_WIDGET_DC_EDULEVEL
 							);
 
+	/* File System mount points */
+	public static final String PROPERTY_NAME_FSMOUNT_NAMESPACE = ContentHostingHandlerResolver.CHH_BEAN_NAME.split(":")[0];
+	public static final String PROPERTY_NAME_FSMOUNT_ACTIVE = ContentHostingHandlerResolver.CHH_BEAN_NAME.split(":")[1];
+	public static final String PROPERTY_LABEL_FSMOUNT_ACTIVE = rb.getString("label.fsmount_active");
+	public static final String PROPERTY_DESCRIPTION_FSMOUNT_ACTIVE = rb.getString("descr.fsmount_active");
+	// TYPE should be a BOOLEAN but that does not appear to be implemented -- miserable.
+	// Instead, we store a string and ask users to type "YES" or "NO".  Yes, this sucks.
+	public static final String PROPERTY_TYPE_FSMOUNT_ACTIVE = NAMESPACE_XSD + XSD_STRING;
+	public static final String PROPERTY_WIDGET_FSMOUNT_ACTIVE = WIDGET_STRING;
+	
+	public static final ResourcesMetadata PROPERTY_FSMOUNT_ACTIVE
+		= new ResourcesMetadata(
+								PROPERTY_NAME_FSMOUNT_NAMESPACE+":",
+								PROPERTY_NAME_FSMOUNT_ACTIVE, 
+								PROPERTY_LABEL_FSMOUNT_ACTIVE,
+								PROPERTY_DESCRIPTION_FSMOUNT_ACTIVE,
+								PROPERTY_TYPE_FSMOUNT_ACTIVE,
+								PROPERTY_WIDGET_FSMOUNT_ACTIVE
+							);
+	
+	
+	
+	
 	public static final ResourcesMetadata PROPERTY_DC_BOOLEAN
 		= new ResourcesMetadata(
 								NAMESPACE_XSD,

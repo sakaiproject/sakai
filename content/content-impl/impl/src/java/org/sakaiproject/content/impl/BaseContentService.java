@@ -61,6 +61,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentHostingHandler;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
@@ -7471,6 +7472,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public static final String MEMBER_ID = "sakai:member_id";
 	
 	public static final String RANK = "sakai:rank";
+	
+	
 
 	/**
 	 * @inheritDoc
@@ -8427,7 +8430,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * ContentCollection implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
-
 	public class BaseCollectionEdit extends BasicGroupAwareEdit implements ContentCollectionEdit, SessionBindingListener
 	{
 		/**
@@ -8580,6 +8582,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			m_access = other.getAccess();
 			m_groups.clear();
 			m_groups.addAll(other.getGroups());
+			chh = other.getContentHandler();
+			chh_vce = other.getVirtualContentEntity();
 
 			// setup for properties
 			m_properties = new BaseResourcePropertiesEdit();
@@ -9106,12 +9110,37 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return count;
 		}
 
-	} // class BaseCollection
+		/*************************************************************************************************************************************************************
+		 * ContentHostingHandler Support
+		 */
+
+		/**
+		 * Real storage does not have handlers
+		 */
+		private ContentHostingHandler chh = null;
+		private ContentEntity chh_vce = null; // the wrapped virtual content entity
+		public ContentHostingHandler getContentHandler() {return chh;}
+		public void setContentHandler(ContentHostingHandler chh) {this.chh = chh;}
+		public ContentEntity getVirtualContentEntity() {return chh_vce;}
+		public void setVirtualContentEntity(ContentEntity ce) {this.chh_vce = ce;}
+
+		public ContentEntity getMember(String nextId)
+		{
+			List l = getMemberResources();
+			for ( Iterator li = l.iterator(); li.hasNext(); ) {
+				ContentEntity ce = (ContentEntity) li.next();
+				if ( nextId.equals(ce.getId())) {
+					return ce;
+				}
+			}
+			return null;
+		}
+
+	} // class BaseCollectionEdit
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * ContentResource implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
-
 	public class BaseResourceEdit extends BasicGroupAwareEdit implements ContentResourceEdit, SessionBindingListener
 	{
 		/** The content type. */
@@ -9147,7 +9176,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			{
 				setFilePath(TimeService.newTime());
 			}
-
 		} // BaseResourceEdit
 
 		/**
@@ -9159,7 +9187,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		public BaseResourceEdit(ContentResource other)
 		{
 			set(other);
-
 		} // BaseResourceEdit
 
 		/**
@@ -9195,6 +9222,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			m_contentType = other.getContentType();
 			m_contentLength = other.getContentLength();
 			m_resourceType = other.getResourceType();
+			chh = other.getContentHandler();
+			chh_vce = other.getVirtualContentEntity();
 
 			// if there's a body in the other, reference it, else leave this one null
 			// Note: this treats the body byte array as immutable, so to update it one
@@ -9367,7 +9396,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				}
 				
 			}
-
 		} // BaseResourceEdit
 
 		/**
@@ -9467,6 +9495,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public int getContentLength()
 		{
+			// Use the CHH delegate, if there is one.
+			if (chh_vce != null) return ((ContentResource)chh_vce).getContentLength();
+
 			// if we have a body, use it's length
 			if (m_body != null) return m_body.length;
 
@@ -9482,8 +9513,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public String getContentType()
 		{
-			return ((m_contentType == null) ? "" : m_contentType);
+			// Use the CHH delegate, if there is one.
+			if (chh_vce != null) return ((ContentResource)chh_vce).getContentType();
 
+			return ((m_contentType == null) ? "" : m_contentType);
 		} // getContentType
 
 		/**
@@ -9495,6 +9528,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public byte[] getContent() throws ServerOverloadException
 		{
+			// Use the CHH delegate, if there is one.
+			if (chh_vce != null) return ((ContentResource)chh_vce).getContent();
+
 			// return the body bytes
 			byte[] rv = m_body;
 
@@ -9786,7 +9822,24 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			m_resourceType = type;
 		}
 
-	} // BaseResource
+		/**
+		 * real content resources dont have handlers
+		 */
+		private ContentHostingHandler chh = null;
+		private ContentEntity chh_vce = null; // the wrapped virtual content entity
+		public ContentHostingHandler getContentHandler() {return chh;}
+		public void setContentHandler(ContentHostingHandler chh) {this.chh = chh;}
+		public ContentEntity getVirtualContentEntity() {return chh_vce;}
+		public void setVirtualContentEntity(ContentEntity ce) {this.chh_vce = ce;}
+		
+		/**
+		 * ContentResources cant have members, so this always returns null
+		 */
+		public ContentEntity getMember(String nextId)
+		{
+			return null;
+		}
+	} // BaseResourceEdit
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Storage implementation

@@ -19,6 +19,8 @@
  *
  **********************************************************************************/
 
+
+// TODO: check against 15608
 package org.sakaiproject.content.impl;
 
 import java.io.File;
@@ -59,7 +61,8 @@ import org.w3c.dom.Element;
 
 /**
  * <p>
- * DbContentService is an extension of the BaseContentService with a database implementation.
+ * DbContentService is an extension of the BaseContentService with a database
+ * implementation.
  * </p>
  * <p>
  * The sql scripts in src/sql/chef_content.sql must be run on the database.
@@ -78,31 +81,41 @@ public class DbContentService extends BaseContentService
 
 	/** Table name for resources. */
 	protected String m_resourceBodyTableName = "CONTENT_RESOURCE_BODY_BINARY";
-	
+
 	/** Table name for entity-group relationships. */
 	protected String m_groupTableName = "CONTENT_ENTITY_GROUPS";
 
-	/** If true, we do our locks in the remote database, otherwise we do them here. */
+	/**
+	 * If true, we do our locks in the remote database, otherwise we do them
+	 * here.
+	 */
 	protected boolean m_locksInDb = true;
 
 	/** The extra field(s) to write to the database - collections. */
 	protected static final String[] COLLECTION_FIELDS = { "IN_COLLECTION" };
 
-	/** The extra field(s) to write to the database - resources - when we are doing bodys in files. */
-	protected static final String[] RESOURCE_FIELDS_FILE = { "IN_COLLECTION", "FILE_PATH" };
+	/**
+	 * The extra field(s) to write to the database - resources - when we are
+	 * doing bodys in files.
+	 */
+	protected static final String[] RESOURCE_FIELDS_FILE = { "IN_COLLECTION",
+	"FILE_PATH" };
 
-	/** The extra field(s) to write to the database - resources - when we are doing bodys the db. */
+	/**
+	 * The extra field(s) to write to the database - resources - when we are
+	 * doing bodys the db.
+	 */
 	protected static final String[] RESOURCE_FIELDS = { "IN_COLLECTION" };
-	
+
 	/** Table name for resources delete. */
 	protected String m_resourceDeleteTableName = "CONTENT_RESOURCE_DELETE";
 
 	/** Table name for resources delete. */
 	protected String m_resourceBodyDeleteTableName = "CONTENT_RESOURCE_BODY_BINARY_DELETE";
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+	/***************************************************************************
 	 * Constructors, Dependencies and their setter methods
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	 **************************************************************************/
 
 	/** Dependency: LockManager */
 	LockManager m_lockManager = null;
@@ -193,6 +206,9 @@ public class DbContentService extends BaseContentService
 	/** Configuration: to run the ddl on init or not. */
 	protected boolean m_autoDdl = false;
 
+	/* Virtual Content Hosting Handler -- handler which resolves virtual entities to real ones */
+	private ContentHostingHandlerResolverImpl contentHostingHandlerResolver = null;
+
 	/**
 	 * Configuration: to run the ddl on init or not.
 	 * 
@@ -216,15 +232,15 @@ public class DbContentService extends BaseContentService
 	}
 
 	// htripath-end
-	
+
 	public void setEntityGroupTableName(String name)
 	{
 		m_groupTableName = name;
 	}
-	
-	/**********************************************************************************************************************************************************************************************************************************************************
+
+	/***************************************************************************
 	 * Init and Destroy
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	 **************************************************************************/
 
 	/**
 	 * Final initialization, once all dependencies are set.
@@ -236,13 +252,16 @@ public class DbContentService extends BaseContentService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content");
+				m_sqlService.ddl(this.getClass().getClassLoader(),
+						"sakai_content");
 
 				// add the delete table
-				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_delete");
+				m_sqlService.ddl(this.getClass().getClassLoader(),
+				"sakai_content_delete");
 
 				// do the 2.1.0 conversions
-				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_2_1_0");
+				m_sqlService.ddl(this.getClass().getClassLoader(),
+				"sakai_content_2_1_0");
 			}
 
 			super.init();
@@ -254,8 +273,10 @@ public class DbContentService extends BaseContentService
 				convertToFile();
 			}
 
-			M_log.info("init(): tables: " + m_collectionTableName + " " + m_resourceTableName + " " + m_resourceBodyTableName + " " 
-					+ m_groupTableName + " locks-in-db: " + m_locksInDb + " bodyPath: " + m_bodyPath);
+			M_log.info("init(): tables: " + m_collectionTableName + " "
+					+ m_resourceTableName + " " + m_resourceBodyTableName + " "
+					+ m_groupTableName + " locks-in-db: " + m_locksInDb
+					+ " bodyPath: " + m_bodyPath);
 		}
 		catch (Throwable t)
 		{
@@ -294,9 +315,14 @@ public class DbContentService extends BaseContentService
 		throw new IdUnusedException(param);
 	}
 
-	public int getCollectionSize(String id) throws IdUnusedException, TypeException, PermissionException
+	public int getCollectionSize(String id) throws IdUnusedException,
+	TypeException, PermissionException
 	{
 
+		/*
+		 * Note: Content Hosting Handler This will only count local collection
+		 * information For the moment its only used by setPriority
+		 */
 		String wildcard;
 
 		if (id.endsWith("/"))
@@ -308,22 +334,31 @@ public class DbContentService extends BaseContentService
 			wildcard = id + "/%";
 		}
 
-		int fileCount = countQuery("select count(IN_COLLECTION) from CONTENT_RESOURCE where IN_COLLECTION like ?", wildcard);
-		int folderCount = countQuery("select count(IN_COLLECTION) from CONTENT_COLLECTION where IN_COLLECTION like ?", wildcard);;
-		return fileCount + folderCount;
+		int fileCount = countQuery(
+				"select count(IN_COLLECTION) from CONTENT_RESOURCE where IN_COLLECTION like ?",
+				wildcard);
+		int folderCount = countQuery(
+				"select count(IN_COLLECTION) from CONTENT_COLLECTION where IN_COLLECTION like ?",
+				wildcard);;
+				return fileCount + folderCount;
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+	/***************************************************************************
 	 * UUID Support
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	 **************************************************************************/
 
 	/**
-	 * For a given id, return its UUID (creating it if it does not already exist)
+	 * For a given id, return its UUID (creating it if it does not already
+	 * exist)
 	 */
 
 	public String getUuid(String id)
 	{
 
+		/*
+		 * Note: Content Hosting Handler This will only operate on local
+		 * resources The only thing that may not work is move.
+		 */
 		String uuid = null;
 
 		uuid = findUuid(id);
@@ -332,7 +367,8 @@ public class DbContentService extends BaseContentService
 
 		// UUID not found, so create one and store it
 
-		IdManager uuidManager = (IdManager) ComponentManager.get(IdManager.class);
+		IdManager uuidManager = (IdManager) ComponentManager
+		.get(IdManager.class);
 		uuid = uuidManager.createUuid();
 
 		setUuidInternal(id, uuid);
@@ -449,9 +485,9 @@ public class DbContentService extends BaseContentService
 		return id;
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+	/***************************************************************************
 	 * BaseContentService extensions
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	 **************************************************************************/
 
 	/**
 	 * Construct a Storage object.
@@ -460,14 +496,15 @@ public class DbContentService extends BaseContentService
 	 */
 	protected Storage newStorage()
 	{
-		return new DbStorage(new CollectionStorageUser(), new ResourceStorageUser(), (m_bodyPath != null));
+		return new DbStorage(new CollectionStorageUser(),
+				new ResourceStorageUser(), (m_bodyPath != null),
+				contentHostingHandlerResolver);
 
 	} // newStorage
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+	/***************************************************************************
 	 * Storage implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
+	 **************************************************************************/
 	protected class DbStorage implements Storage
 	{
 		/** A storage for collections. */
@@ -478,7 +515,11 @@ public class DbContentService extends BaseContentService
 
 		/** htripath- Storage for resources delete */
 		protected BaseDbSingleStorage m_resourceDeleteStore = null;
-		
+
+		protected BaseContentHostingHandlerResolver resolver = null;
+
+		private ThreadLocal stackMarker = new ThreadLocal();
+
 		/**
 		 * Construct.
 		 * 
@@ -487,8 +528,13 @@ public class DbContentService extends BaseContentService
 		 * @param resourceUser
 		 *        The StorageUser class to call back for creation of resource objects.
 		 */
-		public DbStorage(StorageUser collectionUser, StorageUser resourceUser, boolean bodyInFile)
+		public DbStorage(StorageUser collectionUser, StorageUser resourceUser, boolean bodyInFile,
+				BaseContentHostingHandlerResolver resolver)
 		{
+			this.resolver = resolver;
+			this.resolver.setResourceUser(resourceUser);
+			this.resolver.setCollectionUser(collectionUser);
+
 			// build the collection store - a single level store
 			m_collectionStore = new BaseDbSingleStorage(m_collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb,
 					"collection", collectionUser, m_sqlService);
@@ -497,10 +543,11 @@ public class DbContentService extends BaseContentService
 			m_resourceStore = new BaseDbSingleStorage(m_resourceTableName, "RESOURCE_ID", (bodyInFile ? RESOURCE_FIELDS_FILE
 					: RESOURCE_FIELDS), m_locksInDb, "resource", resourceUser, m_sqlService);
 
-			// htripath-build the resource for store of deleted record-single level store
+			// htripath-build the resource for store of deleted record-single
+			// level store
 			m_resourceDeleteStore = new BaseDbSingleStorage(m_resourceDeleteTableName, "RESOURCE_ID",
 					(bodyInFile ? RESOURCE_FIELDS_FILE : RESOURCE_FIELDS), m_locksInDb, "resource", resourceUser, m_sqlService);
-			
+
 		} // DbStorage
 
 		/**
@@ -523,16 +570,87 @@ public class DbContentService extends BaseContentService
 			m_resourceDeleteStore.close();
 		} // close
 
+		private class StackRef
+		{
+			protected int count = 0;
+		}
+
+		/**
+		 * increase the stack counter and return true if this is the top of the stack
+		 * 
+		 * @return
+		 */
+		private boolean in()
+		{
+			StackRef r = (StackRef) stackMarker.get();
+			if (r == null)
+			{
+				r = new StackRef();
+				stackMarker.set(r);
+			}
+			r.count++;
+			return r.count <= 1;// johnf@caret -- used to permit no self-recurses; now permits 0 or 2 (r.count == 1);
+		}
+
+		/**
+		 * decrement the stack counter on the thread
+		 */
+		private void out()
+		{
+			StackRef r = (StackRef) stackMarker.get();
+			if (r == null)
+			{
+				r = new StackRef();
+				stackMarker.set(r);
+			}
+			r.count--;
+			if (r.count < 0)
+			{
+				r.count = 0;
+			}
+		}
+
 		/** Collections * */
 
 		public boolean checkCollection(String id)
 		{
-			return m_collectionStore.checkResource(id);
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					return resolver.checkCollection(this, id);
+				}
+				else
+				{
+					return m_collectionStore.checkResource(id);
+				}
+			}
+			finally
+			{
+				out();
+			}
 		}
 
 		public ContentCollection getCollection(String id)
 		{
-			return (ContentCollection) m_collectionStore.getResource(id);
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					return resolver.getCollection(this, id);
+				}
+				else
+				{
+					return (ContentCollection) m_collectionStore.getResource(id);
+				}
+			}
+			finally
+			{
+				out();
+			}
+
 		}
 
 		/**
@@ -540,132 +658,352 @@ public class DbContentService extends BaseContentService
 		 */
 		public List getCollections(ContentCollection collection)
 		{
-			// limit to those whose reference path (based on id) matches the collection id
-			final String target = collection.getId();
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					return resolver.getCollections(this, collection);
+				}
+				else
+				{
+					// limit to those whose reference path (based on id) matches
+					// the
+					// collection id
+					final String target = collection.getId();
 
-			/*
-			 * // read all the records, then filter them to accept only those in this collection // Note: this is not desirable, as the read is linear to the database site -ggolden List rv = m_collectionStore.getSelectedResources( new Filter() { public
-			 * boolean accept(Object o) { // o is a String, the collection id return StringUtil.referencePath((String) o).equals(target); } } );
-			 */
+					/*
+					 * // read all the records, then filter them to accept only those in this collection // Note: this is not desirable, as the read is linear to the database site -ggolden List rv = m_collectionStore.getSelectedResources( new Filter() {
+					 * public boolean accept(Object o) { // o is a String, the collection id return StringUtil.referencePath((String) o).equals(target); } } );
+					 */
 
-			// read the records with a where clause to let the database select those in this collection
-			List rv = m_collectionStore.getAllResourcesWhere("IN_COLLECTION", target);
-
-			return rv;
+					// read the records with a where clause to let the database
+					// select
+					// those in this collection
+					return m_collectionStore.getAllResourcesWhere("IN_COLLECTION", target);
+				}
+			}
+			finally
+			{
+				out();
+			}
 
 		} // getCollections
 
 		public ContentCollectionEdit putCollection(String id)
 		{
-			return (ContentCollectionEdit) m_collectionStore.putResource(id, null);
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					return (ContentCollectionEdit) resolver.putCollection(this, id);
+				}
+				else
+				{
+					return (ContentCollectionEdit) m_collectionStore.putResource(id, null);
+				}
+			}
+			finally
+			{
+				out();
+			}
 		}
 
 		public ContentCollectionEdit editCollection(String id)
 		{
-			return (ContentCollectionEdit) m_collectionStore.editResource(id);
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					return (ContentCollectionEdit) resolver.editCollection(this, id);
+				}
+				else
+				{
+					return (ContentCollectionEdit) m_collectionStore.editResource(id);
+				}
+			}
+			finally
+			{
+				out();
+			}
 		}
 
 		// protected String externalResourceDeleteFileName(ContentResource resource)
 		// {
 		// return m_bodyPath + "/delete/" + ((BaseResourceEdit) resource).m_filePath;
 		// }
-		
+
 		// htripath -end
-		
+
 		public void cancelResource(ContentResourceEdit edit)
 		{
-			// clear the memory image of the body
-			byte[] body = ((BaseResourceEdit) edit).m_body;
-			((BaseResourceEdit) edit).m_body = null;
-		
-			m_resourceStore.cancelResource(edit);
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					resolver.cancelResource(this, edit);
+				}
+				else
+				{
+					// clear the memory image of the body
+					byte[] body = ((BaseResourceEdit) edit).m_body;
+					((BaseResourceEdit) edit).m_body = null;
+					m_resourceStore.cancelResource(edit);
+
+				}
+			}
+			finally
+			{
+				out();
+			}
 		}
 
 		public void commitCollection(ContentCollectionEdit edit)
 		{
-			m_collectionStore.commitResource(edit);
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					resolver.commitCollection(this, edit);
+				}
+				else
+				{
+					m_collectionStore.commitResource(edit);
+				}
+			}
+			finally
+			{
+				out();
+			}
 		}
 
 		public void cancelCollection(ContentCollectionEdit edit)
 		{
-			m_collectionStore.cancelResource(edit);
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					resolver.cancelCollection(this, edit);
+				}
+				else
+				{
+					m_collectionStore.cancelResource(edit);
+				}
+			}
+			finally
+			{
+				out();
+			}
+
 		}
 
 		public void removeCollection(ContentCollectionEdit edit)
 		{
-			m_collectionStore.removeResource(edit);
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					resolver.removeCollection(this, edit);
+				}
+				else
+				{
+					m_collectionStore.removeResource(edit);
+				}
+			}
+			finally
+			{
+				out();
+			}
 		}
 
 		/** Resources * */
 
 		public boolean checkResource(String id)
 		{
-			return m_resourceStore.checkResource(id);
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					return resolver.checkResource(this, id);
+				}
+				else
+				{
+					return m_resourceStore.checkResource(id);
+				}
+			}
+			finally
+			{
+				out();
+			}
 		}
 
 		public ContentResource getResource(String id)
 		{
-			return (ContentResource) m_resourceStore.getResource(id);
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					return (ContentResource) resolver.getResource(this, id);
+				}
+				else
+				{
+					return (ContentResource) m_resourceStore.getResource(id);
+				}
+			}
+			finally
+			{
+				out();
+			}
 		}
 
 		public List getResources(ContentCollection collection)
 		{
-			// limit to those whose reference path (based on id) matches the collection id
-			final String target = collection.getId();
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					return resolver.getResources(this, collection);
+				}
+				else
+				{
+					// limit to those whose reference path (based on id) matches
+					// the
+					// collection id
+					final String target = collection.getId();
 
-			/*
-			 * // read all the records, then filter them to accept only those in this collection // Note: this is not desirable, as the read is linear to the database site -ggolden List rv = m_resourceStore.getSelectedResources( new Filter() { public
-			 * boolean accept(Object o) { // o is a String, the resource id return StringUtil.referencePath((String) o).equals(target); } } );
-			 */
+					/*
+					 * // read all the records, then filter them to accept only those in this collection // Note: this is not desirable, as the read is linear to the database site -ggolden List rv = m_resourceStore.getSelectedResources( new Filter() {
+					 * public boolean accept(Object o) { // o is a String, the resource id return StringUtil.referencePath((String) o).equals(target); } } );
+					 */
 
-			// read the records with a where clause to let the database select those in this collection
-			List rv = m_resourceStore.getAllResourcesWhere("IN_COLLECTION", target);
-
-			return rv;
+					// read the records with a where clause to let the database
+					// select
+					// those in this collection
+					return m_resourceStore.getAllResourcesWhere("IN_COLLECTION", target);
+				}
+			}
+			finally
+			{
+				out();
+			}
 
 		} // getResources
 
 		public List getFlatResources(String collectionId)
 		{
-			return m_resourceStore.getAllResourcesWhereLike("IN_COLLECTION", collectionId + "%");
+			List rv = null;
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					rv = resolver.getFlatResources(this, collectionId);
+				}
+				else
+				{
+					rv = m_resourceStore.getAllResourcesWhereLike("IN_COLLECTION", collectionId + "%");
+				}
+				return rv;
+			}
+			finally
+			{
+				out();
+			}
 		}
 
 		public ContentResourceEdit putResource(String id)
 		{
-			return (ContentResourceEdit) m_resourceStore.putResource(id, null);
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					return (ContentResourceEdit) resolver.putResource(this, id);
+				}
+				else
+				{
+					return (ContentResourceEdit) m_resourceStore.putResource(id, null);
+				}
+			}
+			finally
+			{
+				out();
+			}
 		}
 
 		public ContentResourceEdit editResource(String id)
 		{
-			return (ContentResourceEdit) m_resourceStore.editResource(id);
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					return (ContentResourceEdit) resolver.editResource(this, id);
+				}
+				else
+				{
+					return (ContentResourceEdit) m_resourceStore.editResource(id);
+				}
+			}
+			finally
+			{
+				out();
+			}
 		}
 
 		public void commitResource(ContentResourceEdit edit) throws ServerOverloadException
 		{
 			// keep the body out of the XML
-			byte[] body = ((BaseResourceEdit) edit).m_body;
-			((BaseResourceEdit) edit).m_body = null;
-			m_resourceStore.commitResource(edit);
 
-			// update the resource body
-			if (body != null)
+			boolean goin = in();
+			try
 			{
-				// if we have been configured to use an external file system
-				if (m_bodyPath != null)
+				if (resolver != null && goin)
 				{
-					boolean ok = putResourceBodyFilesystem(edit, body);
-					if (!ok)
-					{
-						cancelResource(edit);
-						throw new ServerOverloadException("failed to write file");
-					}
+					resolver.commitResource(this, edit);
 				}
-
-				// otherwise use the database
 				else
 				{
-					putResourceBodyDb(edit, body);
+					byte[] body = ((BaseResourceEdit) edit).m_body;
+					((BaseResourceEdit) edit).m_body = null;
+
+					m_resourceStore.commitResource(edit);
+
+					// update the resource body
+					if (body != null)
+					{
+						// if we have been configured to use an external file
+						// system
+						if (m_bodyPath != null)
+						{
+							boolean ok = putResourceBodyFilesystem(edit, body);
+							if (!ok)
+							{
+								cancelResource(edit);
+								throw new ServerOverloadException("failed to write file");
+							}
+						}
+
+						// otherwise use the database
+						else
+						{
+							putResourceBodyDb(edit, body);
+						}
+					}
 				}
+			}
+			finally
+			{
+				out();
 			}
 		}
 
@@ -673,7 +1011,22 @@ public class DbContentService extends BaseContentService
 		/** Add resource to content_resouce_delete table for user deleted resources */
 		public ContentResourceEdit putDeleteResource(String id, String uuid, String userId)
 		{
-			return (ContentResourceEdit) m_resourceDeleteStore.putDeleteResource(id, uuid, userId, null);
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					return (ContentResourceEdit) resolver.putDeleteResource(this, id, uuid, userId);
+				}
+				else
+				{
+					return (ContentResourceEdit) m_resourceDeleteStore.putDeleteResource(id, uuid, userId, null);
+				}
+			}
+			finally
+			{
+				out();
+			}
 		}
 
 		/**
@@ -681,35 +1034,67 @@ public class DbContentService extends BaseContentService
 		 */
 		public void commitDeleteResource(ContentResourceEdit edit, String uuid)
 		{
-			// keep the body out of the XML
-			byte[] body = ((BaseResourceEdit) edit).m_body;
-			((BaseResourceEdit) edit).m_body = null;
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					resolver.commitDeleteResource(this, edit, uuid);
+				}
+				else
+				{
+					byte[] body = ((BaseResourceEdit) edit).m_body;
+					((BaseResourceEdit) edit).m_body = null;
 
-			// update properties in xml and delete locks
-			m_resourceDeleteStore.commitDeleteResource(edit, uuid);
+					// update properties in xml and delete locks
+					m_resourceDeleteStore.commitDeleteResource(edit, uuid);
+				}
+			}
+			finally
+			{
+				out();
+			}
+
 		}
 
 		public void removeResource(ContentResourceEdit edit)
 		{
 			// delete the body
-
-			// if we have been configured to use an external file system
-			if (m_bodyPath != null)
+			boolean goin = in();
+			try
 			{
-				delResourceBodyFilesystem(edit);
+				if (resolver != null && goin)
+				{
+					resolver.removeResource(this, edit);
+				}
+				else
+				{
+
+					// if we have been configured to use an external file system
+					if (m_bodyPath != null)
+					{
+						delResourceBodyFilesystem(edit);
+					}
+
+					// otherwise use the database
+					else
+					{
+						delResourceBodyDb(edit);
+					}
+
+					// clear the memory image of the body
+					byte[] body = ((BaseResourceEdit) edit).m_body;
+					((BaseResourceEdit) edit).m_body = null;
+
+					m_resourceStore.removeResource(edit);
+
+				}
+			}
+			finally
+			{
+				out();
 			}
 
-			// otherwise use the database
-			else
-			{
-				delResourceBodyDb(edit);
-			}
-
-			// clear the memory image of the body
-			byte[] body = ((BaseResourceEdit) edit).m_body;
-			((BaseResourceEdit) edit).m_body = null;
-
-			m_resourceStore.removeResource(edit);
 		}
 
 		/**
@@ -723,24 +1108,40 @@ public class DbContentService extends BaseContentService
 		 */
 		public byte[] getResourceBody(ContentResource resource) throws ServerOverloadException
 		{
-			if (((BaseResourceEdit) resource).m_contentLength <= 0)
+			boolean goin = in();
+			try
 			{
-				M_log.warn("getResourceBody(): non-positive content length: " + ((BaseResourceEdit) resource).m_contentLength
-						+ "  id: " + resource.getId());
-				return null;
+				if (resolver != null && goin)
+				{
+					return resolver.getResourceBody(this, resource);
+				}
+				else
+				{
+					if (((BaseResourceEdit) resource).m_contentLength <= 0)
+					{
+						M_log.warn("getResourceBody(): non-positive content length: "
+								+ ((BaseResourceEdit) resource).m_contentLength + "  id: " + resource.getId());
+						return null;
+					}
+
+					// if we have been configured to use an external file system
+					if (m_bodyPath != null)
+					{
+						return getResourceBodyFilesystem(resource);
+					}
+
+					// otherwise use the database
+					else
+					{
+						return getResourceBodyDb(resource);
+					}
+				}
+			}
+			finally
+			{
+				out();
 			}
 
-			// if we have been configured to use an external file system
-			if (m_bodyPath != null)
-			{
-				return getResourceBodyFilesystem(resource);
-			}
-
-			// otherwise use the database
-			else
-			{
-				return getResourceBodyDb(resource);
-			}
 		}
 
 		/**
@@ -763,6 +1164,7 @@ public class DbContentService extends BaseContentService
 			m_sqlService.dbReadBinary(sql, fields, body);
 
 			return body;
+
 		}
 
 		/**
@@ -804,28 +1206,44 @@ public class DbContentService extends BaseContentService
 				throw new ServerOverloadException("failed to read resource");
 				// return null;
 			}
+
 		}
 
 		// the body is already in the resource for this version of storage
 		public InputStream streamResourceBody(ContentResource resource) throws ServerOverloadException
 		{
-			if (((BaseResourceEdit) resource).m_contentLength <= 0)
+			boolean goin = in();
+			try
 			{
-				M_log.warn("getResourceBody(): non-positive content length: " + ((BaseResourceEdit) resource).m_contentLength
-						+ "  id: " + resource.getId());
-				return null;
-			}
+				if (resolver != null && goin)
+				{
+					return resolver.streamResourceBody(this, resource);
+				}
+				else
+				{
+					if (((BaseResourceEdit) resource).m_contentLength <= 0)
+					{
+						M_log.warn("streamResourceBody(): non-positive content length: "
+								+ ((BaseResourceEdit) resource).m_contentLength + "  id: " + resource.getId());
+						return null;
+					}
 
-			// if we have been configured to use an external file system
-			if (m_bodyPath != null)
-			{
-				return streamResourceBodyFilesystem(resource);
-			}
+					// if we have been configured to use an external file system
+					if (m_bodyPath != null)
+					{
+						return streamResourceBodyFilesystem(resource);
+					}
 
-			// otherwise use the database
-			else
+					// otherwise use the database
+					else
+					{
+						return streamResourceBodyDb(resource);
+					}
+				}
+			}
+			finally
 			{
-				return streamResourceBodyDb(resource);
+				out();
 			}
 		}
 
@@ -891,6 +1309,7 @@ public class DbContentService extends BaseContentService
 		 */
 		protected void putResourceBodyDb(ContentResourceEdit resource, byte[] body)
 		{
+
 			if ((body == null) || (body.length == 0)) return;
 
 			// delete the old
@@ -922,7 +1341,6 @@ public class DbContentService extends BaseContentService
 		 */
 		protected boolean putResourceBodyFilesystem(ContentResourceEdit resource, byte[] body)
 		{
-
 			// Do not create the files for resources with zero length bodies
 			if ((body == null) || (body.length == 0)) return true;
 
@@ -994,27 +1412,45 @@ public class DbContentService extends BaseContentService
 			}
 		}
 
-		public int getMemberCount(String collectionId) 
+		public int getMemberCount(String collectionId)
 		{
-			int fileCount = 0;
-			try 
+			boolean goin = in();
+			try
 			{
-				fileCount = countQuery("select count(IN_COLLECTION) from CONTENT_RESOURCE where IN_COLLECTION = ?", collectionId);
-			} 
-			catch (IdUnusedException e) 
-			{
-				// ignore -- means this is not a collection or the collection contains no files, so zero is right answer
+				if (resolver != null && goin)
+				{
+					return resolver.getMemberCount(this, collectionId);
+				}
+				else
+				{
+
+					int fileCount = 0;
+					try
+					{
+						fileCount = countQuery("select count(IN_COLLECTION) from CONTENT_RESOURCE where IN_COLLECTION = ?",
+								collectionId);
+					}
+					catch (IdUnusedException e)
+					{
+						// ignore -- means this is not a collection or the collection contains no files, so zero is right answer
+					}
+					int folderCount = 0;
+					try
+					{
+						folderCount = countQuery("select count(IN_COLLECTION) from CONTENT_COLLECTION where IN_COLLECTION = ?",
+								collectionId);
+					}
+					catch (IdUnusedException e)
+					{
+						// ignore -- means this is not a collection or the collection contains no folders, so zero is right answer
+					};
+					return fileCount + folderCount;
+				}
 			}
-			int folderCount = 0;
-			try 
+			finally
 			{
-				folderCount = countQuery("select count(IN_COLLECTION) from CONTENT_COLLECTION where IN_COLLECTION = ?", collectionId);
-			} 
-			catch (IdUnusedException e) 
-			{
-				// ignore -- means this is not a collection or the collection contains no folders, so zero is right answer
-			};
-			return fileCount + folderCount;
+				out();
+			}
 		}
 
 	} // DbStorage
@@ -1078,7 +1514,8 @@ public class DbContentService extends BaseContentService
 	}
 
 	/**
-	 * Create a file system body binary for any content_resource record that has a null file_path.
+	 * Create a file system body binary for any content_resource record that has
+	 * a null file_path.
 	 */
 	protected void convertToFile()
 	{
@@ -1126,7 +1563,9 @@ public class DbContentService extends BaseContentService
 						Element root = doc.getDocumentElement();
 						if (!root.getTagName().equals("resource"))
 						{
-							M_log.warn("convertToFile: XML root element not resource: " + root.getTagName());
+							M_log
+							.warn("convertToFile: XML root element not resource: "
+									+ root.getTagName());
 							return null;
 						}
 						BaseResourceEdit edit = new BaseResourceEdit(root);
@@ -1134,7 +1573,8 @@ public class DbContentService extends BaseContentService
 						// zero length?
 						if (edit.getContentLength() == 0)
 						{
-							M_log.warn("convertToFile: zero length body : " + id);
+							M_log.warn("convertToFile: zero length body : "
+									+ id);
 							return null;
 						}
 
@@ -1142,11 +1582,14 @@ public class DbContentService extends BaseContentService
 						String sql = "select RESOURCE_ID from CONTENT_RESOURCE_BODY_BINARY where (RESOURCE_ID = ?)";
 						Object[] fields = new Object[1];
 						fields[0] = id;
-						List found = m_sqlService.dbRead(sourceConnection, sql, fields, null);
+						List found = m_sqlService.dbRead(sourceConnection, sql,
+								fields, null);
 						if ((found == null) || (found.size() == 0))
 						{
 							// not found
-							M_log.warn("convertToFile: body not found in source : " + id);
+							M_log
+							.warn("convertToFile: body not found in source : "
+									+ id);
 							return null;
 						}
 
@@ -1154,13 +1597,15 @@ public class DbContentService extends BaseContentService
 						Time created = null;
 						try
 						{
-							created = edit.getProperties().getTimeProperty(ResourceProperties.PROP_CREATION_DATE);
+							created = edit.getProperties().getTimeProperty(
+									ResourceProperties.PROP_CREATION_DATE);
 						}
 						catch (Exception any)
 						{
 							try
 							{
-								created = edit.getProperties().getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
+								created = edit.getProperties().getTimeProperty(
+										ResourceProperties.PROP_MODIFIED_DATE);
 							}
 							catch (Exception e)
 							{
@@ -1174,13 +1619,16 @@ public class DbContentService extends BaseContentService
 						// read the body from the source
 						sql = "select BODY from CONTENT_RESOURCE_BODY_BINARY where (RESOURCE_ID = ?)";
 						byte[] body = new byte[edit.m_contentLength];
-						m_sqlService.dbReadBinary(sourceConnection, sql, fields, body);
+						m_sqlService.dbReadBinary(sourceConnection, sql,
+								fields, body);
 
 						// write the body to the file
-						boolean ok = ((DbStorage) m_storage).putResourceBodyFilesystem(edit, body);
+						boolean ok = ((DbStorage) m_storage)
+						.putResourceBodyFilesystem(edit, body);
 						if (!ok)
 						{
-							M_log.warn("convertToFile: body file failure : " + id + " file: " + edit.m_filePath);
+							M_log.warn("convertToFile: body file failure : "
+									+ id + " file: " + edit.m_filePath);
 							return null;
 						}
 
@@ -1197,7 +1645,8 @@ public class DbContentService extends BaseContentService
 						fields[2] = id;
 						m_sqlService.dbWrite(connection, sql, fields);
 
-						// m_logger.info(" ** converted: " + id + " size: " + edit.m_contentLength);
+						// m_logger.info(" ** converted: " + id + " size: " +
+						// edit.m_contentLength);
 						count.value++;
 						if ((count.value % 1000) == 0)
 						{
@@ -1209,7 +1658,8 @@ public class DbContentService extends BaseContentService
 					}
 					catch (Throwable e)
 					{
-						M_log.info(" ** exception converting : " + id + " : ", e);
+						M_log.info(" ** exception converting : " + id + " : ",
+								e);
 						return null;
 					}
 				}
@@ -1247,9 +1697,11 @@ public class DbContentService extends BaseContentService
 		return m_lockManager.getLocks(id);
 	}
 
-	public void lockObject(String id, String lockId, String subject, boolean system)
+	public void lockObject(String id, String lockId, String subject,
+			boolean system)
 	{
-		if (M_log.isDebugEnabled()) M_log.debug("lockObject has been called on: " + id);
+		if (M_log.isDebugEnabled())
+			M_log.debug("lockObject has been called on: " + id);
 		try
 		{
 			m_lockManager.lockObject(id, lockId, subject, system);
@@ -1275,7 +1727,8 @@ public class DbContentService extends BaseContentService
 
 	public boolean containsLockedNode(String id)
 	{
-		throw new RuntimeException("containsLockedNode has not been implemented");
+		throw new RuntimeException(
+				"containsLockedNode has not been implemented");
 	}
 
 	public void removeAllLocks(String id)
@@ -1286,6 +1739,17 @@ public class DbContentService extends BaseContentService
 	protected List getFlatResources(String parentId)
 	{
 		return m_storage.getFlatResources(parentId);
+	}
+
+	public ContentHostingHandlerResolverImpl getContentHostingHandlerResolver()
+	{
+		return contentHostingHandlerResolver;
+	}
+
+	public void setContentHostingHandlerResolver(
+			ContentHostingHandlerResolverImpl contentHostingHandlerResolver)
+	{
+		this.contentHostingHandlerResolver = contentHostingHandlerResolver;
 	}
 
 }

@@ -13410,6 +13410,10 @@ public class ResourcesAction
 			// dc.add(ResourcesMetadata.PROPERTY_DC_RIGHTS);
 			dc.add(ResourcesMetadata.PROPERTY_DC_AUDIENCE);
 			dc.add(ResourcesMetadata.PROPERTY_DC_EDULEVEL);
+			
+			/* Filesystem and file-like mount points */
+			dc.add(ResourcesMetadata.PROPERTY_FSMOUNT_ACTIVE);
+				
 			metadataGroups.add(dc);
 			state.setAttribute(STATE_METADATA_GROUPS, metadataGroups);
 		}

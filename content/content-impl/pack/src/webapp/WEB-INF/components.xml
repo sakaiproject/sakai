@@ -20,6 +20,8 @@
 		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
 		<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
  
+        <property name="contentHostingHandlerResolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
+ 
  		<property name="collectionTableName"><value>CONTENT_COLLECTION</value></property>
  		<property name="resourceTableName"><value>CONTENT_RESOURCE</value></property>
  		<property name="resourceBodyTableName"><value>CONTENT_RESOURCE_BODY_BINARY</value></property>
@@ -32,6 +34,17 @@
 		<property name="prioritySortEnabled"><value>true</value></property>
 		<property name="useResourceTypeRegistry"><value>true</value></property>
   	</bean>
+
+	<bean id="org.sakaiproject.content.api.ContentHostingHandlerResolver"
+			class="org.sakaiproject.content.impl.ContentHostingHandlerResolverImpl"
+			singleton="true">
+	</bean>
+
+	<bean id="uk.ac.cam.caret.ContentHostingHandlerFileSystemImpl.0000"
+			class="org.sakaiproject.content.impl.ContentHostingHandlerImplFileSystem"
+			singleton="true">
+			<property name="contentHostingHandlerResolver" ><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
+	</bean>
 
 	<bean id="org.sakaiproject.content.api.ContentTypeImageService"
 			class="org.sakaiproject.content.impl.BasicContentTypeImageService"

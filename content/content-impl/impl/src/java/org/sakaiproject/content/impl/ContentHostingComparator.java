@@ -80,7 +80,7 @@ public class ContentHostingComparator implements Comparator
 			Entity entity2 = (Entity) o2;
 			String str1 = entity1.getProperties().getProperty(property);
 			String str2 = entity2.getProperties().getProperty(property);
-			
+
 			if(str1 == null || str2 == null)
 			{
 				// ignore -- default to a different sort
@@ -141,6 +141,8 @@ public class ContentHostingComparator implements Comparator
 		}
 
 		// do a formatted interpretation - case insensitive
+		if (o1 == null) return -1;
+		if (o2 == null) return +1;
 		String s1 = ((Entity) o1).getProperties().getPropertyFormatted(property);
 		String s2 = ((Entity) o2).getProperties().getPropertyFormatted(property);
 		int rv = s1.compareToIgnoreCase(s2);

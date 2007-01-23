@@ -50,4 +50,35 @@ public interface ContentEntity extends GroupAwareEntity
 	 */
 	public String getResourceType();
 	
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public ContentHostingHandler getContentHandler();
+	
+	/**
+	 * 
+	 * @param chh
+	 */
+	public void setContentHandler(ContentHostingHandler chh);
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public ContentEntity getVirtualContentEntity();
+	
+	/**
+	 * 
+	 * @param ce
+	 */
+	public void setVirtualContentEntity(ContentEntity ce);
+	
+	/**
+	 * 
+	 * @param nextId
+	 * @return
+	 */
+	public ContentEntity getMember(String nextId);
 }
