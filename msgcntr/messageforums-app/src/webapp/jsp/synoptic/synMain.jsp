@@ -1,3 +1,27 @@
+<%@ page import="java.io.PrintWriter" %>
+<%@ page import="java.util.*, javax.faces.context.*, javax.faces.application.*,
+                 javax.faces.el.*, org.sakaiproject.tool.messageforums.ui.*"%>
+
+<%
+	/** if MyWorkspace, display wait page. **/
+	FacesContext context = FacesContext.getCurrentInstance();
+	Application app = context.getApplication();
+	ValueBinding binding = app.createValueBinding("#{mfSynopticBean}");
+	MessageForumSynopticBean mfsb = (MessageForumSynopticBean) binding.getValue(context);
+
+	// If user navigates back to tool and in myWorkspace, display wait page first.
+	if (! "1".equals(request.getParameter("time")) && mfsb.isMyWorkspace()) {
+	   	PrintWriter writer = response.getWriter();
+   		writer.println("<script language='JavaScript'>var url = window.location.href;");
+  		writer.println("var lastSlash = url.lastIndexOf('/');");
+   		writer.println("url = url.substring(0, lastSlash+1) + 'wait?url=' + url.substring(lastSlash+1);");
+     	writer.println("window.location.href = url;");
+   		writer.println("</script>");
+ 		return;
+	}
+	else {
+%>
+
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
@@ -149,3 +173,5 @@
 
   </sakai:view>
  </f:view>
+
+ <% } %>

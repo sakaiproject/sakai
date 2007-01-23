@@ -1,3 +1,5 @@
+<%@ page import="java.util.*, javax.faces.context.*, javax.faces.application.*,
+                 javax.faces.el.*, org.sakaiproject.tool.messageforums.ui.*"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
@@ -17,15 +19,28 @@
 	 */
 	
 	// intervalid - id of call to progress() every 1/2 sec.
-	//					Put here so can clear on unload.
+	//				Put here so can clear on unload.
+	// loading    - switch since load() done on body load
+	//				and also within script (for Safari).
 	var intervalid, index = 0;
+	var notloading = true;
+	
+	function getEl(id) {
+		if (document.getElementById) {
+			return  document.getElementById(id);
+		}
+		else if (document.all) {
+			return document.all[id];
+		}
+		alert('no getElById and no doc.all');
+	}
 
 	/*
 	 * Makes the '....' on the page expand
 	 */	
 	function progress()
 	{
-		var content = document.getElementById("progress");
+		var content = getEl("progress");
 		if (index++) {
 			text = content.innerHTML;
 			height = content.style.height;
@@ -35,7 +50,7 @@
 			content.style.height = height;			
 		}
 		else {
-			document.getElementById("progress").innerHTML = text;
+			document.getEl("progress").innerHTML = text;
 		}
 		index = index % 2;
 	}
@@ -62,8 +77,11 @@
 	 * 2. an entire url (ex: url=http://www.somesite.com)
 	 */
 	function load() {
+		if (notloading) {
+			notloading = true;
+
 		setTimeout( function() {
-			var urlEl = document.getElementById("longPageLoad");
+			var urlEl = getEl("longPageLoad");
 			var url = urlEl.value;
 
 			// just page name, construct url from current href
@@ -80,8 +98,10 @@
 			}
 
 			// GET parameter added so hack won't create an infinite call loop
-			location.href = url;
+			location.href = url + "?time=1";
 		}, 0);
+		
+		}
 	}
 
 	/*
@@ -95,18 +115,34 @@
 // --></script>
 </head>
 
-  <body onload="load()" onunload="unload()">
+<body onload="load()" onunload="unload()">
+ 
 <f:view>
   <sakai:view>
     <h:inputHidden id="longPageLoad" value="#{msgs.longPageLoad}" />
-<table width="99%" height="99%">
+
+<%  
+  /* if MyWorkspace, display wait gif and message. if not, just redirect to synMain. */
+  FacesContext context = FacesContext.getCurrentInstance();
+  Application app = context.getApplication();
+  ValueBinding binding = app.createValueBinding("#{mfSynopticBean}");
+  MessageForumSynopticBean mfsb = (MessageForumSynopticBean) binding.getValue(context);
+  
+  if (mfsb.isMyWorkspace()) {
+%>
+
+<table width="99%" height="90%">
 <tr>
 	<td align="center" valign="middle">
-		<table cellpadding="0" cellspacing="0">
+		<table cellpadding="0" cellspacing="0" width="16%">
 		<tr>
-		  <td width="40">
-			<span id="progress" class="alertMessage" style="text-decoration: blink;">
-				<h3><h:outputText value="#{msgs.loading_wait}" /></h3>
+		  <td>
+		  	<h:graphicImage value="images/wait_img.gif" />
+		  </td>
+		  <td>&nbsp;&nbsp;</td>
+		  <td align="right" width="50">
+			<span id="progress">
+				<h:outputText value="#{msgs.loading_wait}" style="font-size: 14pt;" />
 			</span>
 		  </td>
 		</tr>
@@ -114,9 +150,17 @@
 	</td>
 </tr>
 </table>
+
+<% } %>
+
   </sakai:view>
 </f:view>
 
 </body>
+
+<script language="JavaScript"> 
+	// some browsers ignore the first <body> tag, so add load() here
+	load();
+</script>
 
 </html>
