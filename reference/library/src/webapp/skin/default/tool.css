@@ -985,3 +985,13 @@ right now "namespaced" for mneme only to avoid any possible conflicts*/
 	padding:0 3px;
 	background: #ddd;
 }
+.samSection{
+	margin-left: 4em;
+	margin-right: 4em;
+	margin-top:2em;
+	margin-bottom:2em;
+}
+.samSectionHeader{
+	margin-left: -2em;
+	margin-right -2em;
+}
