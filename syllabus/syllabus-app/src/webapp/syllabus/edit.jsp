@@ -5,9 +5,9 @@
 <% response.setContentType("text/html; charset=UTF-8"); %>
 <f:view>
 
-<jsp:userBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
 	<jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.syllabus.bundle.Messages"/>
-</jsp:userBean>
+</jsp:useBean>
 
 	<sakai:view_container title="#{msgs.title_edit}">
 			<sakai:view_content>
