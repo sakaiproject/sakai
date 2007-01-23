@@ -68,7 +68,15 @@ public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
 //                                    
 //            /** expecting elements to exist in lookupOrderedList */
 //            return index1.compareTo(index2);
-            Date date1=((Topic) topic).getCreated();
+          	if(lookupOrderList.indexOf(((Topic) topic).getTitle()) >= 0 && lookupOrderList.indexOf(((Topic) otherTopic).getTitle()) < 0)
+          	{
+          		return -1;
+          	}
+          	if(lookupOrderList.indexOf(((Topic) topic).getTitle()) < 0 && lookupOrderList.indexOf(((Topic) otherTopic).getTitle()) >= 0)
+          	{
+          		return 1;
+          	}          	
+          	Date date1=((Topic) topic).getCreated();
             Date date2=((Topic) otherTopic).getCreated();
             return date1.compareTo(date2);
           }

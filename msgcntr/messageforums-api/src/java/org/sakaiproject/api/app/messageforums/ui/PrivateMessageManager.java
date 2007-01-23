@@ -82,7 +82,7 @@ public interface PrivateMessageManager {
     
     public PrivateForum initializePrivateMessageArea(Area area);        
     
-    public PrivateForum initializationHelper(PrivateForum forum);
+    public PrivateForum initializationHelper(PrivateForum forum, Area area);
     
     /** 
      * create private message with type

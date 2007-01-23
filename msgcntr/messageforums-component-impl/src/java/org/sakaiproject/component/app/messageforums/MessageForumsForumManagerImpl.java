@@ -78,7 +78,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final String QUERY_FOR_PRIVATE_TOPICS = "findPrivateTopicsByForumId";
 
     private static final String QUERY_BY_FORUM_OWNER = "findPrivateForumByOwner";
+    
+    private static final String QUERY_BY_FORUM_OWNER_AREA = "findPrivateForumByOwnerArea";
 
+    private static final String QUERY_BY_FORUM_OWNER_AREA_NULL = "findPrivateForumByOwnerAreaNull";
+    
     private static final String QUERY_BY_FORUM_ID = "findForumById";
     
     private static final String QUERY_BY_FORUM_ID_WITH_ATTACHMENTS = "findForumByIdWithAttachments";    
@@ -452,7 +456,44 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     }
 
     
+    public PrivateForum getPrivateForumByOwnerArea(final String owner, final Area area) {
 
+      if (owner == null || area == null) {
+          throw new IllegalArgumentException("Null Argument");
+      }
+
+      LOG.debug("getForumByOwnerArea executing with owner: " + owner + " and area:" + area);
+
+      HibernateCallback hcb = new HibernateCallback() {
+          public Object doInHibernate(Session session) throws HibernateException, SQLException {
+              Query q = session.getNamedQuery(QUERY_BY_FORUM_OWNER_AREA);
+              q.setParameter("owner", owner, Hibernate.STRING);
+              q.setParameter("area", area);
+              return q.uniqueResult();
+          }
+      };
+
+      return (PrivateForum) getHibernateTemplate().execute(hcb);
+    }
+
+    public PrivateForum getPrivateForumByOwnerAreaNull(final String owner) {
+
+      if (owner == null) {
+          throw new IllegalArgumentException("Null Argument");
+      }
+
+      LOG.debug("getForumByOwnerAreaNull executing with owner: " + owner);
+
+      HibernateCallback hcb = new HibernateCallback() {
+          public Object doInHibernate(Session session) throws HibernateException, SQLException {
+              Query q = session.getNamedQuery(QUERY_BY_FORUM_OWNER_AREA_NULL);
+              q.setParameter("owner", owner, Hibernate.STRING);
+              return q.uniqueResult();
+          }
+      };
+
+      return (PrivateForum) getHibernateTemplate().execute(hcb);
+    }
     
     public BaseForum getForumByIdWithAttachments(final Long forumId) {
       

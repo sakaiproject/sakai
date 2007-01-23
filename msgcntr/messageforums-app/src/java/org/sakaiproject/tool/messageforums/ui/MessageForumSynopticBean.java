@@ -1159,7 +1159,7 @@ public class MessageForumSynopticBean {
 	    if (area != null) {
 	    	if (area.getEnabled().booleanValue() || pvtMessageManager.isInstructor()){
 	    		PrivateForum pf = pvtMessageManager.initializePrivateMessageArea(area);
-	    		pf = pvtMessageManager.initializationHelper(pf);
+	    		pf = pvtMessageManager.initializationHelper(pf, area);
 	    		List pvtTopics = pf.getTopics();
 	    		Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);   //changed to date comparator
 	      

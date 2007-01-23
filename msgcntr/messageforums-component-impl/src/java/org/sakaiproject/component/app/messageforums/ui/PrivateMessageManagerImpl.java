@@ -154,7 +154,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     PrivateForum pf;
 
     /** create default user forum/topics if none exist */
-    if ((pf = forumManager.getPrivateForumByOwner(getCurrentUser())) == null)
+    if ((pf = forumManager.getPrivateForumByOwnerArea(getCurrentUser(), area)) == null)
     {      
       /** initialize collections */
       //getHibernateTemplate().initialize(area.getPrivateForumsSet());
@@ -187,7 +187,30 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       pf.addTopic(sentTopic);
       pf.addTopic(deletedTopic);
       //pf.addTopic(draftTopic);
+      pf.setArea(area);  
       
+      PrivateForum oldForum;
+      if ((oldForum = forumManager.getPrivateForumByOwnerAreaNull(getCurrentUser())) != null)
+      {
+    		oldForum = initializationHelper(oldForum);
+//    		getHibernateTemplate().initialize(oldForum.getTopicsSet());
+    		List pvtTopics = oldForum.getTopics();
+    		
+    		for(int i=0; i<pvtTopics.size(); i++)
+    		{
+    			PrivateTopic currentTopic = (PrivateTopic) pvtTopics.get(i);
+    			if(currentTopic != null)
+    			{
+    				if(!currentTopic.getTitle().equals("Received") && !currentTopic.getTitle().equals("Sent") && !currentTopic.getTitle().equals("Deleted") 
+    						&& !currentTopic.getTitle().equals("Drafts") && area.getContextId().equals(currentTopic.getContextId()))
+    				{
+    					currentTopic.setPrivateForum(pf);
+    		      forumManager.savePrivateForumTopic(currentTopic);
+    					pf.addTopic(currentTopic);
+    				}
+    			}
+    		}
+      }
       
       forumManager.savePrivateForum(pf);            
       
@@ -202,7 +225,15 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   public PrivateForum initializationHelper(PrivateForum forum){
     
     /** reget to load topic foreign keys */
-    PrivateForum pf = forumManager.getPrivateForumByOwner(getCurrentUser());
+  	PrivateForum pf = forumManager.getPrivateForumByOwnerAreaNull(getCurrentUser());
+    getHibernateTemplate().initialize(pf.getTopicsSet());    
+    return pf;
+  }
+
+  public PrivateForum initializationHelper(PrivateForum forum, Area area){
+    
+    /** reget to load topic foreign keys */
+  	PrivateForum pf = forumManager.getPrivateForumByOwnerArea(getCurrentUser(), area);
     getHibernateTemplate().initialize(pf.getTopicsSet());    
     return pf;
   }
@@ -940,7 +971,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       String userId = u.getId();
       
       /** determine if recipient has forwarding enabled */
-      PrivateForum pf = forumManager.getPrivateForumByOwner(userId);
+      Area currentArea = getAreaByContextIdAndTypeId(typeManager.getPrivateMessageAreaType());
+      PrivateForum pf = forumManager.getPrivateForumByOwnerArea(userId, currentArea);
       
       boolean forwardingEnabled = false;
       
@@ -1347,5 +1379,19 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       topicTypeUuid=typeManager.getCustomTopicType(topicTitle);
     }
     return topicTypeUuid;
+  }
+  
+  public Area getAreaByContextIdAndTypeId(final String typeId) {
+    LOG.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
+    HibernateCallback hcb = new HibernateCallback() {
+        public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            Query q = session.getNamedQuery("findAreaByContextIdAndTypeId");
+            q.setParameter("contextId", getContextId(), Hibernate.STRING);
+            q.setParameter("typeId", typeId, Hibernate.STRING);
+            return q.uniqueResult();
+        }
+    };
+
+    return (Area) getHibernateTemplate().execute(hcb);
   }
 }
