@@ -77,7 +77,7 @@
 	 * 2. an entire url (ex: url=http://www.somesite.com)
 	 */
 	function load() {
-	alert('load() called with value: ' + notloading);
+
 		if (notloading) {
 			notloading = false;
 
