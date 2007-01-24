@@ -22,6 +22,7 @@ package org.sakaiproject.component.section.sakai;
 
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -146,25 +147,32 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		// Set the defaults for non-mandatory sites
 		setSiteDefaults(site, appConfig, siteProps);
 		
-		// If this site is manually managed, we do nothing
+		// If this site is manually managed, it could have been just changed to be manual.
+		// In that case, we flip the formerly "provided" users to be non-provided so they stay in the section.
 		if("false".equals(siteProps.getProperty(CourseImpl.EXTERNALLY_MAINTAINED))) {
 			if(log.isDebugEnabled()) log.debug("SiteAdvisor " + this.getClass().getCanonicalName() + " stripping provider IDs from all sections in site " + site.getTitle() + ".  The site is internally managed.");
 			for(Iterator iter = site.getGroups().iterator(); iter.hasNext();) {
 				Group group = (Group)iter.next();
+				if(group.getProviderGroupId() == null) {
+					// This wasn't provided, so skip it
+					continue;
+				}
 				group.setProviderGroupId(null);
 				
 				// Add members to the groups based on the current (provided) memberships
 				Set members = group.getMembers();
 				for(Iterator memberIter = members.iterator(); memberIter.hasNext();) {
 					Member member = (Member)memberIter.next();
-					group.addMember(member.getUserId(), member.getRole().getId(), member.isActive(), false);
+					if(member.isProvided()) {
+						group.addMember(member.getUserId(), member.getRole().getId(), member.isActive(), false);
+					}
 				}
 			}
 			return;
 		}
 		
 		// This is an externally managed site.  Update the sections from CM.
-		replaceSectionsWithExternalSections(site);
+		syncSections(site);
 	}
 
     private boolean handlingMandatoryConfigs(ExternalIntegrationConfig appConfig, Site site) {
@@ -181,7 +189,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			siteProps.addProperty(CourseImpl.EXTERNALLY_MAINTAINED, Boolean.TRUE.toString());
 			siteProps.addProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED, Boolean.FALSE.toString());
 			siteProps.addProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED, Boolean.FALSE.toString());
-			replaceSectionsWithExternalSections(site);
+			syncSections(site);
 			return true;
 
 		default:
@@ -214,8 +222,8 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
      * @param site
      * @param appConfig
      */
-	private void replaceSectionsWithExternalSections(Site site) {
-		if(log.isInfoEnabled()) log.info("Replacing sections with externally managed sections in site " + site.getId());
+	private void syncSections(Site site) {
+		if(log.isInfoEnabled()) log.info("Synchronizing internal sections with externally defined sections in site " + site.getId());
 
 		// Use the group provider to split the complex string
 		if(groupProvider == null) {
@@ -224,27 +232,98 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			return;
 		}
 
-		// Get the existing groups from the site, and add them to a new collection so we can remove elements from the original collection
-		Collection<Group> groups = new HashSet<Group>(site.getGroups());
-		
-		// Remove all sections (this will be done by the SiteService impl anyhow, so there's no performance loss in doing a mass remove/readd of sections)
-		for(Iterator<Group> iter = groups.iterator(); iter.hasNext();) {
-			Group group = iter.next();
-			if(group.getProperties().getProperty(CourseSectionImpl.CATEGORY) != null) {
-				if(log.isDebugEnabled()) log.debug("Removing section " + group.getReference());
-				site.removeGroup(group);
-			}
-		}
-		
 		// Get the provider Ids associated with this site.  We can't use
 		// authzGroupService.getProviderIds(), since we're inspecting the provider IDs
 		// on the in-memory object, not what's in persistence
-		String[] providerIds = groupProvider.unpackId(site.getProviderGroupId());
+		String[] providerIdArray = groupProvider.unpackId(site.getProviderGroupId());
+		List<String> providerIdList = Arrays.asList(providerIdArray);
 
-		// Add new groups (decorated as sections) based on the site's providerIds
-		for(int i=0; i < providerIds.length; i++) {
-			addExternalCourseSectionToSite(site, providerIds[i]);
+		Set<Group> sectionsToSync = new HashSet<Group>();
+		
+		// Remove any formerly provided sections that are no longer in the list of provider ids,
+		// and sync existing sections if they are still listed in the provider ids.
+		if(site.getGroups() != null) {
+			for(Iterator<Group> iter = site.getGroups().iterator(); iter.hasNext();) {
+				Group group = iter.next();
+				String providerId = group.getProviderGroupId();
+				if(providerId == null) {
+					// This wasn't provided, so skip it
+					continue;
+				}
+				if(group.getProperties() == null || group.getProperties().getProperty(CourseSectionImpl.CATEGORY) == null) {
+					// This isn't a section, so skip it
+					continue;
+				}
+				if(providerIdList.contains(providerId)) {
+					if(log.isDebugEnabled()) log.debug("Synchronizing section " + group.getReference());
+					sectionsToSync.add(group);
+				} else {
+					if(log.isDebugEnabled()) log.debug("Removing section " + group.getReference());
+					iter.remove();
+				}
+			}
 		}
+		
+		// Sync existing sections
+		Set<String> sectionProviderIdsToSync = new HashSet<String>();
+		for(Iterator<Group> iter = sectionsToSync.iterator(); iter.hasNext();) {
+			Group group = iter.next();
+			sectionProviderIdsToSync.add(group.getProviderGroupId());
+			syncExternalCourseSectionWithSite(group);
+		}
+
+		// Add provided sections that we're not synchronizing
+		for(Iterator<String> iter = providerIdList.iterator(); iter.hasNext();) {
+			String providerId = iter.next();
+			if( ! sectionProviderIdsToSync.contains(providerId)) {
+				addExternalCourseSectionToSite(site, providerId);
+			}
+		}
+	}
+	
+	/**
+	 * Synchronizes the state of an internal CourseSection with the state of an externally
+	 * defined (CM) section.  This is done so meeting times, locations, etc are kept
+	 * in sync with changes made to these data outside Sakai.
+	 * 
+	 * @param group
+	 */
+	private void syncExternalCourseSectionWithSite(Group group) {
+		String providerId = group.getProviderGroupId();
+		Section officialSection = null;
+		try {
+			officialSection = courseManagementService.getSection(providerId);
+		} catch (IdNotFoundException ide) {
+			log.error("Site " + group.getContainingSite().getId() + " has a provider id, " + providerId + ", that has no matching section in CM.");
+			return;
+		}
+		decorateGroupWithCmSection(group, officialSection);
+	}
+
+	private CourseSection decorateGroupWithCmSection(Group group, Section officialSection) {
+		CourseSectionImpl section = new CourseSectionImpl(group);
+		
+		section.setTitle(officialSection.getTitle());
+		section.setCategory(officialSection.getCategory());
+		section.setMaxEnrollments(officialSection.getMaxSize());
+		Set officialMeetings = officialSection.getMeetings();
+		if(officialMeetings != null) {
+			List<Meeting> meetings = new ArrayList<Meeting>();
+			for(Iterator meetingIter = officialMeetings.iterator(); meetingIter.hasNext();) {
+				org.sakaiproject.coursemanagement.api.Meeting officialMeeting = (org.sakaiproject.coursemanagement.api.Meeting)meetingIter.next();
+				MeetingImpl meeting = new MeetingImpl(officialMeeting.getLocation(),
+						officialMeeting.getStartTime(), officialMeeting.getFinishTime(),
+						officialMeeting.isMonday(), officialMeeting.isTuesday(), officialMeeting.isWednesday(),
+						officialMeeting.isThursday(), officialMeeting.isFriday(), officialMeeting.isSaturday(), officialMeeting.isSunday());
+				meetings.add(meeting);
+			}
+			section.setMeetings(meetings);
+		}
+		// Ensure that the group is decorated properly, so the group properties are
+		// persisted with the correct section metadata
+		section.decorateGroup(group);
+		
+		return section;
 	}
 	
 	/**
@@ -269,33 +348,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		}
 		Group group = site.addGroup();
 		group.setProviderGroupId(sectionEid);
-		CourseSectionImpl section = new CourseSectionImpl(group);
-		
-		// The "decorating" metadata isn't yet part of the section, so set it manually
-		section.setTitle(officialSection.getTitle());
-		section.setCategory(officialSection.getCategory());
-		section.setMaxEnrollments(officialSection.getMaxSize());
-		Set officialMeetings = officialSection.getMeetings();
-		if(officialMeetings != null) {
-			List<Meeting> meetings = new ArrayList<Meeting>();
-			for(Iterator meetingIter = officialMeetings.iterator(); meetingIter.hasNext();) {
-				org.sakaiproject.coursemanagement.api.Meeting officialMeeting = (org.sakaiproject.coursemanagement.api.Meeting)meetingIter.next();
-				MeetingImpl meeting = new MeetingImpl(officialMeeting.getLocation(),
-						officialMeeting.getStartTime(), officialMeeting.getFinishTime(),
-						officialMeeting.isMonday(), officialMeeting.isTuesday(), officialMeeting.isWednesday(),
-						officialMeeting.isThursday(), officialMeeting.isFriday(), officialMeeting.isSaturday(), officialMeeting.isSunday());
-				meetings.add(meeting);
-			}
-			section.setMeetings(meetings);
-		}
-		// Ensure that the group is decorated properly, so the group properties are
-		// persisted with the correct section metadata
-		section.decorateGroup(group);
-	
-		// Ensure that the group has the correct provider ID
-		group.setProviderGroupId(sectionEid);
-		
-		return section;
+		return decorateGroupWithCmSection(group, officialSection);
 	}
 	
 	// SectionManager Methods
