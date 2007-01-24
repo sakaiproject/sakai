@@ -305,7 +305,8 @@ public class MembershipManagerImpl implements MembershipManager{
       	}
       } catch (UserNotDefinedException e) {
 		// TODO Auto-generated catch block
-		e.printStackTrace();
+		// e.printStackTrace();
+    	  LOG.warn(" User " + userId + " not defined");
 	}            
       
       if(user != null)
