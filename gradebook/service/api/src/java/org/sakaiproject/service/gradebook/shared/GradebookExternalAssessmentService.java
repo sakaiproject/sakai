@@ -1,3 +1,24 @@
+/**********************************************************************************
+*
+* $Id$
+*
+***********************************************************************************
+*
+* Copyright (c) 2007 The Regents of the University of California
+*
+* Licensed under the Educational Community License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.opensource.org/licenses/ecl1.php
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+**********************************************************************************/
 package org.sakaiproject.service.gradebook.shared;
 
 import java.util.Date;
@@ -9,7 +30,7 @@ import java.util.Map;
  * letting Gradebook users see those assignments alongside Gradebook-managed
  * assignments, and combine them when calculating a course grade. The Gradebook
  * application itself will not modify externally-managed assignments and scores.
- * 
+ *
  * <b>WARNING</b>: Because the Gradebook project team is not responsible for
  * defining the external clients' requirements, the Gradebook service does not
  * attempt to guess at their authorization needs. Our administrative and
@@ -113,7 +134,7 @@ public interface GradebookExternalAssessmentService {
 	 * Check to see if an assignment with the given external id already exists
 	 * in the given gradebook. This will give external assessment systems
 	 * a chance to avoid the ConflictingExternalIdException.
-	 * 
+	 *
 	 * @param gradebookUid The gradebook's unique identifier
 	 * @param externalId The external assessment's external identifier
 	 */
@@ -122,7 +143,7 @@ public interface GradebookExternalAssessmentService {
 
 	/**
 	 * Checks to see whether a gradebook with the given uid exists.
-	 * 
+	 *
 	 * @param gradebookUid
 	 *            The gradebook UID to check
 	 * @return Whether the gradebook exists
