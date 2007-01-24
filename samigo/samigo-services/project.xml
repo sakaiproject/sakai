@@ -23,11 +23,6 @@
   <dependencies>
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-entity-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
       <artifactId>sakai-entity-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
