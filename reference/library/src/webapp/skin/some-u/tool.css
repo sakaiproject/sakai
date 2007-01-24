@@ -115,10 +115,9 @@ tr.selectedMove .itemAction a:link,tr.selectedMove .itemAction a:visited{
 	margin: 0 .5em;
 	text-decoration: underline;
 	white-space: nowrap;
+		display:inline-block
 }
-* html .navIntraTool a, * html  .navIntraTool a:link{
-	display:inline-block
-}
+
 .navIntraTool a:visited, .portlet-menu a:visited{
 	color: #35b;
 	text-decoration: underline;

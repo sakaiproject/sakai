@@ -116,8 +116,6 @@ see: http://www.quirksmode.org/bugreports/archives/2005/07/Wrapped_inlinenowrap_
 	margin: 0 .5em;
 	text-decoration: underline;
 	white-space: nowrap;
-}
-* html .navIntraTool a, * html  .navIntraTool a:link{
 	display:inline-block
 }
 

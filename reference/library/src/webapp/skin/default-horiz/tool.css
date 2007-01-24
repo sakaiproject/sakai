@@ -115,11 +115,9 @@ see: http://www.quirksmode.org/bugreports/archives/2005/07/Wrapped_inlinenowrap_
 	margin-right:1em;
 	text-decoration: underline;
 	white-space: nowrap;
-}
-
-* html .navIntraTool a, * html  .navIntraTool a:link{
 	display:inline-block
 }
+
 .navIntraTool a:visited{
 	color: #35b;
 	text-decoration: underline;
