@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
 
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueriesAPI;
@@ -48,6 +49,7 @@ import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 
 public class InitAction extends HttpServlet{
 
@@ -136,5 +138,7 @@ private static Log log = LogFactory.getLog(InitAction.class);
     TypeServiceAPI typeServiceAPI = SamigoApiFactory.getInstance().getTypeServiceAPI();
     log.debug("TypeServiceAPI: " + typeServiceAPI);
 
+    AssessmentEntityProducer producer = (AssessmentEntityProducer) ComponentManager.get("org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer");
+    log.debug("AssessmentEntityProducer: "+producer);
   }
 }

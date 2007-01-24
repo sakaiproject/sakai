@@ -199,6 +199,11 @@
       </property>
     </bean>
 
+    <bean id="org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer"
+              class="org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer"
+              singleton="true" init-method="init" destroy-method="destroy">
+    </bean>
+
 </beans>
 
 
