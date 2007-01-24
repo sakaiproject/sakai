@@ -11,6 +11,7 @@
 <html>
 
 <head>
+<script src="js/frameAdjust.js" type="text/javascript"></script>
 <script language="Javascript"><!--
 	/*
 	 *	To use this, call this page with a GET parameter of "url"
@@ -24,6 +25,8 @@
 	//				and also within script (for Safari).
 	var intervalid, index = 0;
 	var notloading = true;
+	var images = new Array(12);
+	var imagesURI = new Array(12);
 	
 	function getEl(id) {
 		if (document.getElementById) {
@@ -32,7 +35,6 @@
 		else if (document.all) {
 			return document.all[id];
 		}
-		alert('no getElById and no doc.all');
 	}
 
 	/*
@@ -40,19 +42,10 @@
 	 */	
 	function progress()
 	{
-		var content = getEl("progress");
-		if (index++) {
-			text = content.innerHTML;
-			height = content.style.height;
-			width = content.style.width;
-			content.innerHTML = "";
-			content.style.width = width;
-			content.style.height = height;			
-		}
-		else {
-			document.getEl("progress").innerHTML = text;
-		}
-		index = index % 2;
+		var content = getEl('waitImg');
+		content.src = imagesURI[index++];
+
+		index = (index % 12);
 	}
 
 	/*
@@ -80,29 +73,38 @@
 
 		if (notloading) {
 			notloading = false;
-
-		setTimeout( function() {
-			var urlEl = getEl("longPageLoad");
-			var url = urlEl.value;
-
-			// just page name, construct url from current href
-			if (isFilename(url)) {
-				var urlCurrent = window.location.href;
-				var lastSlash = urlCurrent.lastIndexOf('/');
-
-				if (lastSlash > 0) {
-					url = urlCurrent.substring(0, lastSlash) + '/' + url;
-				}
-				else {
-					// what to do? what to do?
-				}
-			}
-
-			// GET parameter added so other page will know it
-			// was called by this wait page (and not from iframe)
-			location.href = url + "?time=1";
-		}, 500);
 		
+			// checking if ff browser since animated gif
+			// does not spin when href changed, so use AJAX
+			var agt=navigator.userAgent.toLowerCase();
+
+			if (agt.indexOf("firefox") != -1) {
+				getActualFile();
+			}
+			else {
+
+				setTimeout( function() {
+					var urlEl = getEl("longPageLoad");
+					var url = urlEl.value;
+
+					// just page name, construct url from current href
+					if (isFilename(url)) {
+						var urlCurrent = window.location.href;
+						var lastSlash = urlCurrent.lastIndexOf('/');
+
+						if (lastSlash > 0) {
+							url = urlCurrent.substring(0, lastSlash) + '/' + url;
+						}
+						else {
+						// what to do? what to do?
+						}
+
+						// GET parameter added so other page will know it
+						// was called by this wait page (and not from iframe)
+						location.href = url + "?time=1";
+					}
+				}, 0);
+			}
 		}
 	}
 
@@ -111,17 +113,55 @@
 	 * when actual page being loaded.
 	 */
 	function unload() {
+		// turn off animation when page finished
 		window.clearInterval(intervalid);
 	}
 	
+	function getActualFile()
+	{
+		var http;
+		http = new XMLHttpRequest();
+
+		var urlEl = getEl("longPageLoad");
+		var url = urlEl.value;
+
+		// just page name, construct url from current href
+		if (isFilename(url)) {
+			var urlCurrent = window.location.href;
+			var lastSlash = urlCurrent.lastIndexOf('/');
+
+			if (lastSlash > 0) {
+				url = urlCurrent.substring(0, lastSlash) + '/' + url;
+			}
+			else {
+				// what to do? what to do?
+			}
+		}
+
+		// GET parameter added so other page will know it
+		// was called by this wait page (and not from iframe)
+		http.open("GET", url + "?time=1", true);
+
+		http.onreadystatechange = function()
+		{
+			if (http.readyState == 4) {
+    			var response = http.responseText; 
+    			document.getElementById('result').innerHTML = response;
+    			adjustMainFrameHeight(self.name);
+ 	       }	 
+		}
+		
+		http.send(null);
+	}
+
 // --></script>
 </head>
 
-<body onload="load()" onunload="unload()">
- 
 <f:view>
   <sakai:view>
     <h:inputHidden id="longPageLoad" value="#{msgs.longPageLoad}" />
+
+	<f:verbatim><div id="result"></f:verbatim>
 
 <%  
   /* if MyWorkspace, display wait gif and message. if not, just redirect to synMain. */
@@ -132,14 +172,13 @@
   
   if (mfsb.isMyWorkspace()) {
 %>
-
 <table width="99%" height="90%">
 <tr>
 	<td align="center" valign="middle">
 		<table cellpadding="0" cellspacing="0" width="16%">
 		<tr>
 		  <td>
-		  	<h:graphicImage value="images/wait_img.gif" />
+		  	<h:graphicImage id="waitImg" value="images/wait_img.gif" />
 		  </td>
 		  <td>&nbsp;&nbsp;</td>
 		  <td align="right" width="50">
@@ -155,10 +194,12 @@
 
 <% } %>
 
+	<f:verbatim></div></f:verbatim>
+
   </sakai:view>
 </f:view>
 
-</body>
+<%-- </body> --%>
 
 <script language="JavaScript"> 
 	// some browsers ignore the first <body> tag, so add load() here
