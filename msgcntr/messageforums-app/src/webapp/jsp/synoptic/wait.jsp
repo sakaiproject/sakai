@@ -98,9 +98,10 @@
 				}
 			}
 
-			// GET parameter added so hack won't create an infinite call loop
+			// GET parameter added so other page will know it
+			// was called by this wait page (and not from iframe)
 			location.href = url + "?time=1";
-		}, 0);
+		}, 500);
 		
 		}
 	}
