@@ -8,7 +8,7 @@
 
 <f:view>
 <sakai:view>
-  <h:form id="DF-1">
+  <h:form id="msgForum">
 <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
 
       <h:panelGrid columns="2" summary="layout" width="100%"  styleClass="navPanel">

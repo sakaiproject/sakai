@@ -16,6 +16,7 @@
 				  <h:outputText value="#{msgs.cdfm_required}"/> <h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline"/>
 				</div>
 			   
+			   <h:messages styleClass="alertMessage" id="errorMessages" />
 			  
 		  <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout">
 			  <h:panelGroup styleClass="shorttext required">
@@ -30,7 +31,7 @@
 			     
 				<sakai:button_bar>
 			  	  <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFldInFldCreate}" value="#{msgs.pvt_add}" accesskey="s" styleClass="active" />
-			    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFldAddCancel}" value="#{msgs.pvt_cancel}" accesskey="x" />
+			    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReturnToFolderView}" value="#{msgs.pvt_cancel}" accesskey="x" />
 			  </sakai:button_bar>   
            
 		 </h:form>

@@ -41,11 +41,11 @@
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReply}" value="#{msgs.pvt_repmsg}" accesskey="r"/>
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMove}" value="#{msgs.pvt_move}" accesskey="m" />
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgDeleteConfirm}" value="#{msgs.pvt_delete}"  />
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgDetailCancel}" value="#{msgs.pvt_bktolist}" accesskey="x" />
+          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancelToListView}" value="#{msgs.pvt_bktolist}" accesskey="x" />
         </sakai:button_bar>        
         <sakai:button_bar rendered="#{PrivateMessagesTool.deleteConfirm}" >
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgDeleteConfirmYes}" value="#{msgs.pvt_delete}" accesskey="s" styleClass="active"/>
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="#{msgs.pvt_cancel}" accesskey="x" />
+          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancelToDetailView}" value="#{msgs.pvt_cancel}" accesskey="x" />
         </sakai:button_bar>
           
         <table class="itemSummary">
@@ -126,14 +126,13 @@
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReply}" value="#{msgs.pvt_repmsg}" accesskey="r"/>
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMove}" value="#{msgs.pvt_move}" accesskey="m" />
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgDeleteConfirm}" value="#{msgs.pvt_delete}"  />
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgDetailCancel}" value="#{msgs.pvt_bktolist}" accesskey="x" />
+          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancelToListView}" value="#{msgs.pvt_bktolist}" accesskey="x" />
         </sakai:button_bar>        
         <sakai:button_bar rendered="#{PrivateMessagesTool.deleteConfirm}" >
           <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgDeleteConfirmYes}" value="#{msgs.pvt_delete}" accesskey="s" styleClass="active"/>
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="#{msgs.pvt_cancel}" accesskey="x" />
+          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancelToDetailView}" value="#{msgs.pvt_cancel}" accesskey="x" />
         </sakai:button_bar>
 
-        
         
       </h:form>
 

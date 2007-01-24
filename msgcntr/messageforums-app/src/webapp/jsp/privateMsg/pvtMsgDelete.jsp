@@ -55,7 +55,7 @@
 
     <sakai:button_bar>
       <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMultiDelete}" value="#{msgs.pvt_delmsgs}" accesskey="s" styleClass="active"/>
-      <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancel}" value="#{msgs.pvt_cancel}" accesskey="x" />
+      <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancelToListView}" value="#{msgs.pvt_cancel}" accesskey="x" />
     </sakai:button_bar>
     
 		 </h:form>

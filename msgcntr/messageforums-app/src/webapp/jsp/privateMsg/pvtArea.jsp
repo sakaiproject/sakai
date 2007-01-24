@@ -45,7 +45,7 @@
     		        <h:outputText value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.pvt_lowercase_msg}" rendered="#{topic.totalNoMessages < 2}" styleClass="textPanelFooter"/>
 	    		      <h:outputText value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msgs}" rendered="#{topic.totalNoMessages > 1}" styleClass="textPanelFooter"/>
     		        <h:outputText value=" - #{topic.unreadNoMessages} #{msgs.pvt_unread}" rendered="#{topic.topic.title == 'Received'}" styleClass="textPanelFooter"/>
-    		        <h:outputText value="#{msgs.cdfm_closeb}" styleClass="textPanelFooter"/>
+    		        <h:outputText value=" #{msgs.cdfm_closeb}" styleClass="textPanelFooter"/>
     	        </h:panelGroup>
     	        <h:panelGroup rendered="#{!topic.topic.mutable}"><h:outputText value=" " /></h:panelGroup>
     	        <h:panelGroup  rendered="#{topic.topic.mutable}">
@@ -59,7 +59,7 @@
 	    			    </h:commandLink>
 	    		      <h:outputText value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.pvt_lowercase_msg}" styleClass="textPanelFooter" />
     		        <h:outputText value=" - #{topic.unreadNoMessages} #{msgs.pvt_unread}" rendered="#{topic.topic.title == 'Received' || topic.topic.title == 'Deleted'}" styleClass="textPanelFooter"/>
-    		        <h:outputText value="#{msgs.cdfm_closeb}" styleClass="textPanelFooter"/>
+    		        <h:outputText value=" #{msgs.cdfm_closeb}" styleClass="textPanelFooter"/>
     	        </h:panelGroup>
     	        <h:panelGroup styleClass="itemAction msgNav" rendered="#{topic.topic.mutable}">
   			        <h:commandLink action="#{PrivateMessagesTool.processPvtMsgFolderSettings}" title=" #{msgs.pvt_foldersettings}">

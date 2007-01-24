@@ -3,7 +3,7 @@
  * $Id: DiscussionForumTool.java 9227 2006-05-15 15:02:42Z cwen@iupui.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -173,6 +173,9 @@ public class DiscussionForumTool
   private static final String GRADE_GREATER_ZERO = "cdfm_grade_greater_than_zero";
   private static final String GRADE_DECIMAL_WARN = "cdfm_grade_decimal_warn";
   private static final String ALERT = "cdfm_alert";
+  
+  private static final String FROM_PAGE = "msgForum:mainOrForumOrTopic";
+  private String fromPage = null; // keep track of originating page for common functions
   
   private List forums = new ArrayList();
 
@@ -735,6 +738,7 @@ public class DiscussionForumTool
     }
 
     setForumBeanAssign();
+    setFromMainOrForumOrTopic();
     
     return FORUM_SETTING;
 
@@ -766,6 +770,8 @@ public class DiscussionForumTool
         attachments.add(new DecoratedAttachment((Attachment)attachList.get(i)));
       }
     }
+    
+    setFromMainOrForumOrTopic();
 
     return FORUM_SETTING_REVISE; //
   }
@@ -846,8 +852,9 @@ public class DiscussionForumTool
     }    
     saveForumSettings(false);
     
-    reset();
-    return MAIN;
+    //reset();
+    //return MAIN;
+    return processReturnToOriginatingPage();
   }
 
   /**
@@ -879,8 +886,9 @@ public class DiscussionForumTool
     }    
     saveForumSettings(true);
     
-    reset();
-    return MAIN;
+    //reset();
+    //return MAIN;
+    return processReturnToOriginatingPage();
   }
 
   private DiscussionForum saveForumSettings(boolean draft)
@@ -961,6 +969,7 @@ public class DiscussionForumTool
     }
     attachments.clear();
     prepareRemoveAttach.clear();
+    setFromMainOrForumOrTopic();
     return TOPIC_SETTING_REVISE;
   }
 
@@ -1010,7 +1019,10 @@ public class DiscussionForumTool
       {
         attachments.add(new DecoratedAttachment((Attachment)attachList.get(i)));
       }
-    }    
+    }  
+    
+    setFromMainOrForumOrTopic();
+    
     return TOPIC_SETTING_REVISE;
   }
 
@@ -1082,9 +1094,11 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(VALID_TOPIC_TITLE_WARN));
       return TOPIC_SETTING_REVISE;
     }
-    saveTopicSettings(false);    
-    reset();
-    return MAIN;
+    saveTopicSettings(false);  
+    
+    return processReturnToOriginatingPage();
+    //reset();
+    //return MAIN;
   }
 
   /**
@@ -1116,8 +1130,10 @@ public class DiscussionForumTool
       return MAIN;
     }
     saveTopicSettings(true);    
-    reset();
-    return MAIN;
+    //reset();
+    //return MAIN;
+    
+    return processReturnToOriginatingPage();
   }
 
   private String saveTopicSettings(boolean draft)
@@ -1221,6 +1237,7 @@ public class DiscussionForumTool
     }
 
     setTopicBeanAssign();
+    setFromMainOrForumOrTopic();
     
     return TOPIC_SETTING;
   }
@@ -1703,9 +1720,7 @@ public class DiscussionForumTool
              
     }
     if (forumManager.hasPreviousTopic(topic))
-    {
-      DiscussionTopic previousTopic= forumManager.getPreviousTopic(topic);
-      
+    {    
         decoTopic
           .setPreviousTopicId(forumManager.getPreviousTopic(topic).getId());
        
@@ -1788,7 +1803,7 @@ public class DiscussionForumTool
     {
       LOG.error(e.getMessage(), e);
       setErrorMessage(e.getMessage());
-      return "main";
+      return MAIN;
     }
     return ALL_MESSAGES;
   }
@@ -2812,7 +2827,7 @@ public class DiscussionForumTool
       LOG.error(e.getMessage(), e);
       setErrorMessage(e.getMessage());
       this.deleteMsg = false;
-      return "main";
+      return MAIN;
     }
 
     this.deleteMsg = false;
@@ -3325,7 +3340,7 @@ public class DiscussionForumTool
     if(!isNumber(gradePoint))
     {
       FacesContext currentContext = FacesContext.getCurrentInstance();
-      String uiComponentId = "DF-1:dfMsgGradeGradePoint";
+      String uiComponentId = "msgForum:dfMsgGradeGradePoint";
       FacesMessage validateMessage = new FacesMessage(getResourceBundleString(GRADE_GREATER_ZERO));
       validateMessage.setSeverity(FacesMessage.SEVERITY_ERROR);
       currentContext.addMessage(uiComponentId, validateMessage);
@@ -3335,7 +3350,7 @@ public class DiscussionForumTool
     else if(!isFewerDigit(gradePoint))
     {
       FacesContext currentContext = FacesContext.getCurrentInstance();
-      String uiComponentId = "DF-1:dfMsgGradeGradePoint";
+      String uiComponentId = "msgForum:dfMsgGradeGradePoint";
       FacesMessage validateMessage = new FacesMessage(getResourceBundleString(GRADE_DECIMAL_WARN));
       validateMessage.setSeverity(FacesMessage.SEVERITY_ERROR);
       currentContext.addMessage(uiComponentId, validateMessage); 
@@ -4334,5 +4349,36 @@ public class DiscussionForumTool
 
    public void setForumTable(UIData forumTable){
       this.forumTable=forumTable;
+   }
+   
+   public String processReturnToOriginatingPage()
+   {
+	   LOG.debug("processReturnToOriginatingPage()");
+	   if(fromPage != null)
+	   {
+		   String returnToPage = fromPage;
+		   fromPage = "";
+		   if(returnToPage.equals(ALL_MESSAGES) && selectedTopic != null)
+		   {
+			   selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
+			   return ALL_MESSAGES;
+		   }
+		   if(returnToPage.equals(FORUM_DETAILS) && selectedForum != null)
+		   {
+			   selectedForum = getDecoratedForum(selectedForum.getForum());
+			   return FORUM_DETAILS;
+		   }
+	   }
+
+	   return processActionHome();
+   }
+
+   private void setFromMainOrForumOrTopic()
+   {
+	   String originatingPage = getExternalParameterByKey(FROM_PAGE);
+	   if(originatingPage != null && (originatingPage.equals(MAIN) || originatingPage.equals(ALL_MESSAGES) || originatingPage.equals(FORUM_DETAILS)))
+	   {
+		   fromPage = originatingPage;
+	   }
    }
 }

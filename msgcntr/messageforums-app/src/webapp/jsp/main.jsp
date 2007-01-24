@@ -43,6 +43,8 @@
 					<h:inputHidden id="mainOrHp" value="main" />
           <%@include file="privateMsg/pvtArea.jsp"%>
         </mf:forumHideDivision>
+        
+        <h:inputHidden id="mainOrForumOrTopic" value="main" />
         <%@include file="discussionForum/area/dfArea.jsp"%>
       </h:form>
   </sakai:view>

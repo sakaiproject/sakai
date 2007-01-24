@@ -87,6 +87,9 @@
 				<f:verbatim></div></f:verbatim>
 				</h:column>
 		</h:dataTable>
+		
+		<h:inputHidden id="mainOrForumOrTopic" value="dfForumDetail" />
+		
 	 </h:form>
     </sakai:view>
 </f:view>

@@ -8,7 +8,7 @@
 
 <f:view>
 <sakai:view>
-	<h:form id="DF-1">
+	<h:form id="msgForum">
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
 		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
 		
@@ -170,6 +170,9 @@
 
 			</h:column>
 		</mf:hierDataTable>
+		
+		<h:inputHidden id="mainOrForumOrTopic" value="dfAllMessages" />
+		
 	</h:form>
 </sakai:view>
 </f:view>

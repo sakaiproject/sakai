@@ -213,7 +213,7 @@
                            >
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
           </h:commandButton>
-          <h:commandButton immediate="true" action="#{ForumTool.processActionHome}" id="cancel" 
+          <h:commandButton immediate="true" action="#{ForumTool.processReturnToOriginatingPage}" id="cancel" 
                            value="#{msgs.cdfm_button_bar_cancel} " accesskey="x" />
        </div>
 	 </h:form>

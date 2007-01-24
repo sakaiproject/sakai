@@ -36,7 +36,7 @@
  				
 			<sakai:button_bar>
 		    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMoveMessage}" value="#{msgs.pvt_move_msg}" accesskey="s" styleClass="active"/>
-		    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMoveCancel}" value="#{msgs.pvt_cancel}" accesskey="x" />
+		    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancelToDetailView}" value="#{msgs.pvt_cancel}" accesskey="x" />
 		  </sakai:button_bar>   
 	          
 		</h:form>

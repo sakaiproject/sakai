@@ -34,7 +34,7 @@
           
 			<sakai:button_bar>
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFldDelete}" value="#{msgs.pvt_delete}" accesskey="s" styleClass="active"/>
-		    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFldAddCancel}" value="#{msgs.pvt_cancel}" accesskey="x" />
+		    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReturnToFolderView}" value="#{msgs.pvt_cancel}" accesskey="x" />
 		  </sakai:button_bar>   
            
 		 </h:form>

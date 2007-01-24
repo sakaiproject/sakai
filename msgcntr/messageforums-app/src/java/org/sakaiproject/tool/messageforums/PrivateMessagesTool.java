@@ -987,7 +987,7 @@ public class PrivateMessagesTool
     return MAIN_PG;     
   }
   
-  public String processPvtMsgDetailCancel()
+  public String processPvtMsgCancelToListView()
   {
   	return DISPLAY_MESSAGES_PG;
   }
@@ -1115,7 +1115,7 @@ public class PrivateMessagesTool
     {      
       prtMsgManager.deletePrivateMessage(getDetailMsg().getMsg(), getPrivateMessageTypeFromContext(msgNavMode));      
     }
-    return MAIN_PG ;
+    return DISPLAY_MESSAGES_PG ;
   }
   
   //RESET form variable - required as the bean is in session and some attributes are used as helper for navigation
@@ -1134,11 +1134,7 @@ public class PrivateMessagesTool
    */ 
   public String processPvtMsgCompose() {
     this.setDetailMsg(new PrivateMessageDecoratedBean(messageManager.createPrivateMessage()));
-    String fromPage = getExternalParameterByKey(COMPOSE_FROM_PG);
-    if(fromPage != null && (fromPage.equals(MESSAGE_HOME_PG) || (fromPage.equals(MAIN_PG))))
-    {
-    	fromMainOrHp = fromPage;
-    }
+    setFromMainOrHp();
     LOG.debug("processPvtMsgCompose()");
     return "pvtMsgCompose" ;
   }
@@ -1150,7 +1146,7 @@ public class PrivateMessagesTool
     resetComposeContents();
     if(("privateMessages").equals(getMsgNavMode()))
     {
-      return MAIN_PG ; // if navigation is from main page
+    	return processPvtMsgReturnToMainOrHp();
     }
     else
     {
@@ -1766,7 +1762,7 @@ public class PrivateMessagesTool
     //reset contents
     resetComposeContents();
     
-    return MAIN_PG ;
+    return DISPLAY_MESSAGES_PG;
 
   }
  
@@ -1864,7 +1860,7 @@ public class PrivateMessagesTool
         prtMsgManager.deletePrivateMessage(element, getPrivateMessageTypeFromContext(msgNavMode)) ;        
       }      
     }
-    return MAIN_PG ;
+    return DISPLAY_MESSAGES_PG;
   }
 
   
@@ -2300,6 +2296,8 @@ public class PrivateMessagesTool
     String topicId=getExternalParameterByKey("pvtMsgTopicId") ;
     setSelectedTopicId(topicId);
     
+    setFromMainOrHp();
+    
     return MESSAGE_FOLDER_SETTING_PG;
   }
 
@@ -2317,11 +2315,17 @@ public class PrivateMessagesTool
   }
   
   public String processPvtMsgFolderSettingAdd() {
-    LOG.debug("processPvtMsgFolderSettingAdd()");    
+    LOG.debug("processPvtMsgFolderSettingAdd()");
+    
+    setFromMainOrHp();
+    this.setAddFolder("");  // make sure the input box is empty
+    
     return ADD_MESSAGE_FOLDER_PG ;
   }
   public String processPvtMsgFolderSettingDelete() {
     LOG.debug("processPvtMsgFolderSettingDelete()");
+    
+    setFromMainOrHp();
     
     String typeUuid = getPrivateMessageTypeFromContext(selectedTopicTitle);          
     
@@ -2337,11 +2341,24 @@ public class PrivateMessagesTool
     }    
   }
   
-  public String processPvtMsgFolderSettingCancel() 
+  public String processPvtMsgReturnToMainOrHp()
   {
-    LOG.debug("processPvtMsgFolderSettingCancel()");
-    
-    return MAIN_PG ;
+	  LOG.debug("processPvtMsgReturnToMainOrHp()");
+	    if(fromMainOrHp != null && (fromMainOrHp.equals(MESSAGE_HOME_PG) || (fromMainOrHp.equals(MAIN_PG))))
+	    {
+	    	String returnToPage = fromMainOrHp;
+			fromMainOrHp = "";
+			return returnToPage;
+	    }
+	    else
+	    {
+	    	return MAIN_PG ;
+	    }
+  }
+  
+  public String processPvtMsgReturnToFolderView() 
+  {
+	  return MESSAGE_FOLDER_SETTING_PG;
   }
   
   //Create a folder within a forum
@@ -2368,7 +2385,7 @@ public class PrivateMessagesTool
       //since PrivateMessagesTool has a session scope, 
       //reset addFolder to blank for new form
       addFolder = "";
-      return MAIN_PG ;
+      return processPvtMsgReturnToMainOrHp();
     }
   }
   
@@ -2423,8 +2440,8 @@ public class PrivateMessagesTool
       	prtMsgManager.savePrivateMessage(tmpPM);
       }
     }
-    
-    return MAIN_PG ;
+    setSelectedTopicTitle(newTopicTitle) ;
+    return MESSAGE_FOLDER_SETTING_PG ;
   }
   
   //Delete
@@ -2443,21 +2460,20 @@ public class PrivateMessagesTool
       PrivateMessage element = (PrivateMessage) iter.next();
       prtMsgManager.deletePrivateMessage(element, typeUuid);
     }
-    return MAIN_PG;
-  }
-  public String processPvtMsgFldAddCancel() 
-  {
-    LOG.debug("processPvtMsgFldAddCancel()");
-    
-    return MAIN_PG;
+    return processPvtMsgReturnToMainOrHp();
   }
   
   //create folder within folder
   public String processPvtMsgFolderInFolderAdd()
   {
-    LOG.debug("processPvtMsgFolderSettingAdd()");    
+    LOG.debug("processPvtMsgFolderSettingAdd()");  
+    
+    setFromMainOrHp();
+    this.setAddFolder("");
+    
     return ADD_FOLDER_IN_FOLDER_PG ;
   }
+  
   //create folder within Folder
   //TODO - add parent fodler id for this 
   public String processPvtMsgFldInFldCreate() 
@@ -2467,9 +2483,9 @@ public class PrivateMessagesTool
     PrivateTopic parentTopic=(PrivateTopic) prtMsgManager.getTopicByUuid(selectedTopicId);
     
     String createFolder=getAddFolder() ;
-    if(createFolder == null)
+    if(createFolder == null || createFolder.trim().length() == 0)
     {
-      setErrorMessage(ENTER_FOLDER_NAME);
+      setErrorMessage(getResourceBundleString(ENTER_FOLDER_NAME));
       return null ;
     } else {
       if(PVTMSG_MODE_RECEIVED.equals(createFolder) || PVTMSG_MODE_SENT.equals(createFolder)|| 
@@ -2482,7 +2498,9 @@ public class PrivateMessagesTool
       //create a typeUUID in commons
       String newTypeUuid= typeManager.getCustomTopicType(createFolder); 
       }
-      return MAIN_PG ;
+      
+      addFolder = "";
+      return processPvtMsgReturnToMainOrHp();
     }
   }
   ///////////////////// MOVE    //////////////////////
@@ -2550,10 +2568,10 @@ public class PrivateMessagesTool
    * 
    * @return
    */
-  public String processPvtMsgMoveCancel()
+  public String processPvtMsgCancelToDetailView()
   {
-    LOG.debug("processPvtMsgMoveCancel()");
-    
+    LOG.debug("processPvtMsgCancelToDetailView()");
+    this.deleteConfirm=false;
     return SELECTED_MESSAGE_PG ;
   }
   
@@ -3163,5 +3181,14 @@ public class PrivateMessagesTool
 		}
 		
 		return DISPLAY_MESSAGES_PG; 
+	}
+	
+	private void setFromMainOrHp()
+	{
+		String fromPage = getExternalParameterByKey(COMPOSE_FROM_PG);
+	    if(fromPage != null && (fromPage.equals(MESSAGE_HOME_PG) || (fromPage.equals(MAIN_PG))))
+	    {
+	    	fromMainOrHp = fromPage;
+	    }
 	}
 }
