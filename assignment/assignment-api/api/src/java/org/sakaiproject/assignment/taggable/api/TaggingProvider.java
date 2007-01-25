@@ -88,10 +88,9 @@ public interface TaggingProvider {
 	public TagList getTags(TaggableActivity activity);
 
 	/**
-	 * Method to get a unique service name for the provider. For example
-	 * "sakai.gmt".
+	 * Method to get a type name for the provider.
 	 * 
-	 * @return A unique identifier for this provider type.
+	 * @return A type name for this provider.
 	 */
 	public String getType();
 

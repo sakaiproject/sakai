@@ -47,7 +47,8 @@ public class TaggingManagerImpl implements TaggingManager {
 
 	public TaggableActivityProducer findProducerByRef(String ref) {
 		TaggableActivityProducer producer;
-		for (Iterator<TaggableActivityProducer> i = taggableActivityProducers.iterator(); i.hasNext();) {
+		for (Iterator<TaggableActivityProducer> i = taggableActivityProducers
+				.iterator(); i.hasNext();) {
 			producer = i.next();
 			if (producer.checkReference(ref)) {
 				return producer;
@@ -62,7 +63,8 @@ public class TaggingManagerImpl implements TaggingManager {
 
 	public TaggableActivityProducer findProducerByType(String type) {
 		TaggableActivityProducer producer;
-		for (Iterator<TaggableActivityProducer> i = taggableActivityProducers.iterator(); i.hasNext();) {
+		for (Iterator<TaggableActivityProducer> i = taggableActivityProducers
+				.iterator(); i.hasNext();) {
 			producer = i.next();
 			if (producer.getType().equals(type)) {
 				return producer;
@@ -73,7 +75,8 @@ public class TaggingManagerImpl implements TaggingManager {
 
 	public TaggingProvider findProviderByType(String type) {
 		TaggingProvider provider;
-		for (Iterator<TaggingProvider> i = taggingProviders.iterator(); i.hasNext();) {
+		for (Iterator<TaggingProvider> i = taggingProviders.iterator(); i
+				.hasNext();) {
 			provider = i.next();
 			if (provider.getType().equals(type)) {
 				return provider;
@@ -84,14 +87,20 @@ public class TaggingManagerImpl implements TaggingManager {
 
 	public List<TaggableActivity> getActivities(String context) {
 		List<TaggableActivity> activities = new ArrayList<TaggableActivity>();
-		for (Iterator<TaggableActivityProducer> i = taggableActivityProducers.iterator(); i.hasNext();) {
+		for (Iterator<TaggableActivityProducer> i = taggableActivityProducers
+				.iterator(); i.hasNext();) {
 			activities.addAll(i.next().getActivities(context));
 		}
 		return activities;
 	}
 
 	public TaggableActivity getActivity(String activityRef) {
-		return findProducerByRef(activityRef).getActivity(activityRef);
+		TaggableActivity activity = null;
+		TaggableActivityProducer producer = findProducerByRef(activityRef);
+		if (producer != null) {
+			activity = producer.getActivity(activityRef);
+		}
+		return activity;
 	}
 
 	public List<TaggableActivityProducer> getProducers() {
@@ -117,7 +126,7 @@ public class TaggingManagerImpl implements TaggingManager {
 	public void registerProvider(TaggingProvider provider) {
 		taggingProviders.add(provider);
 	}
-	
+
 	public boolean isTaggable() {
 		return !taggingProviders.isEmpty();
 	}

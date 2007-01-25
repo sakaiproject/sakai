@@ -3600,9 +3600,7 @@ public class AssignmentAction extends PagedResourceActionII
 		Map<String, ? extends Object> helperParms = helperInfo
 				.getParameterMap();
 
-		for (Iterator<String> keys = helperParms.keySet().iterator(); keys
-				.hasNext();) {
-			String key = keys.next();
+		for (String key : helperParms.keySet()) {
 			state.setAttribute(key, helperParms.get(key));
 		}
 	} // doHelp_activity

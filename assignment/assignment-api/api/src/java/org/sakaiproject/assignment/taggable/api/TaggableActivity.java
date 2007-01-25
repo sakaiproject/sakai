@@ -31,7 +31,8 @@ import java.util.List;
 public interface TaggableActivity {
 
 	/**
-	 * @return A reference for this activity.
+	 * @return A reference for this activity. This needs to return a valid
+	 *         reference to an activity.
 	 */
 	public String getReference();
 

@@ -37,6 +37,12 @@ public interface TaggingHelperInfo {
 	public String getHelperId();
 
 	/**
+	 * @return The provider of the helper that this tagging helper information
+	 *         relates to.
+	 */
+	public TaggingProvider getProvider();
+
+	/**
 	 * @return A string for the 'title' attribute of an anchor to the helper.
 	 */
 	public String getTitle();
@@ -47,8 +53,7 @@ public interface TaggingHelperInfo {
 	public String getText();
 
 	/**
-	 * @return A map of parameter names and values to pass to the
-	 *         helper.
+	 * @return A map of parameter names and values to pass to the helper.
 	 */
 	public Map<String, ? extends Object> getParameterMap();
 }

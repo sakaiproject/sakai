@@ -23,7 +23,6 @@ package org.sakaiproject.assignment.taggable.api;
 
 import java.util.List;
 
-
 /**
  * A service that produces activities that can be tagged.
  * 
@@ -59,10 +58,9 @@ public interface TaggableActivityProducer {
 	public String getName();
 
 	/**
-	 * Method to get a unique name for the producing service. For example
-	 * "sakai.assignment".
+	 * Method to get a type name for the producing service.
 	 * 
-	 * @return A unique identifier for this service type.
+	 * @return A type name for this service.
 	 */
 	public String getType();
 
@@ -80,7 +78,7 @@ public interface TaggableActivityProducer {
 	 * 
 	 * @param activityRef
 	 *            The reference for the taggable activity.
-	 * @return The activity identified by the given identifier.
+	 * @return The activity referenced by the given string.
 	 */
 	public TaggableActivity getActivity(String activityRef);
 
@@ -89,7 +87,7 @@ public interface TaggableActivityProducer {
 	 * 
 	 * @param itemRef
 	 *            The reference for the taggable item.
-	 * @return The item identified by the given identifier.
+	 * @return The item referenced by the given string.
 	 */
 	public TaggableItem getItem(String itemRef);
 }
