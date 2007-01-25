@@ -50,7 +50,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** how many students to recognize (1.. this). */
-	protected int m_courseStudents = 22;
+	protected int m_courseStudents = 250;
 
 	/**
 	 * Set how many students to recognize.
@@ -89,6 +89,9 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 			}
 
 			m_info.put("instructor", new Info("instructor", "The", "Instructor", "instructor@local.host"));
+			m_info.put("instructor1", new Info("instructor1", "The", "Instructor1", "instructor1@local.host"));
+			m_info.put("instructor2", new Info("instructor2", "The", "Instructor2", "instructor2@local.host"));
+			m_info.put("da1", new Info("da1", "Dept", "Admin", "da1@local.host"));
 			m_info.put("ta", new Info("ta", "The", "Teaching-Assistant", "ta@local.host"));
 
 			M_log.info("init()");
