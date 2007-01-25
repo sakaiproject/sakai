@@ -464,8 +464,10 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 					new java.util.Date(this.file.lastModified()).toString());
 			wrappedMe.getProperties().addProperty(ResourceProperties.PROP_ORIGINAL_FILENAME, this.basePath + this.relativePath);
 			wrappedMe.getProperties().addProperty(ResourceProperties.PROP_DESCRIPTION, this.relativePath);
+
 			// resource-only properties
 			wrappedMe.getProperties().addProperty(ResourceProperties.PROP_CONTENT_LENGTH, "" + this.getContentLengthLong());
+			wrappedMe.getProperties().addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString());
 		}
 
 		/**
@@ -615,7 +617,7 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 			wrappedMe.getProperties().addProperty(ResourceProperties.PROP_DESCRIPTION, this.relativePath);
 
 			// collection-only properties
-			wrappedMe.getProperties().addProperty(ResourceProperties.PROP_IS_COLLECTION, "YES");
+			wrappedMe.getProperties().addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.TRUE.toString());
 		}
 
 		/**
@@ -732,9 +734,11 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 
 	public int getMemberCount(ContentEntity edit)
 	{
-		if (!(edit instanceof ContentCollectionFileSystem)) return 0;
-		ContentCollectionFileSystem ccfs = (ContentCollectionFileSystem) edit;
-		return ccfs.getMemberCount();
+		if (edit instanceof ContentCollectionFileSystem)
+			return ((ContentCollectionFileSystem) edit).getMemberCount();
+		if (edit.getVirtualContentEntity() instanceof ContentCollectionFileSystem)
+			return ((ContentCollectionFileSystem) (edit.getVirtualContentEntity())).getMemberCount();
+		return 0;
 	}
 
 }

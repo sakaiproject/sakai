@@ -118,6 +118,7 @@ public class ContentHostingHandlerResolverImpl implements BaseContentHostingHand
 	 */
 	private ContentEntity getVirtualChild(String finalId, ContentEntity ce, boolean exact)
 	{
+		if (ce==null) return null;  // entirely empty resources tool
 		String thisid = ce.getId();
 		if (finalId.equals(thisid))
 		{
