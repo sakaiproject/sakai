@@ -49,7 +49,7 @@
 					<table>
 						#foreach($root in $roots)
 							<tr>
-								<td #if($root.isSelected())bgcolor="red"#end onclick="selectItem('$root.id');" valign="top">
+								<td #if($root.isSelected())bgcolor="red"#end onclick="selectItem('$root.id');" valign="top" title="$item.hoverText">
 									$root.name
 								</td>
 							</tr>
@@ -67,9 +67,9 @@
 										<table>
 											#foreach($item in $folder)
 												<tr>
-													<td #if($item.isSelected())bgcolor="red"#end onclick="selectItem('$item.id');">
+													<td #if($item.isSelected())bgcolor="red"#end onclick="selectItem('$item.id');" valign="top" title="$item.hoverText">
 														#if("$selectedItemId" == "$item.id")
-															<a name="selected-item" id="selected-item">$item.name</a>
+															<a href="$item.accessUrl" target="_blank">$item.name</a>
 														#else
 															$item.name
 														#end

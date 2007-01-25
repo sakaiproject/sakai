@@ -125,10 +125,10 @@ public interface ResourceType
 	 * length.  The string may identify the type of this resource or more specific information. 
 	 * The string should be localized.  If no value is supplied, a default hover-string will be 
 	 * used.
-	 * @param reference A reference to the resource that's being displayed
+	 * @param member The resource that's being displayed
 	 * @return
 	 */
-	public String getLocalizedHoverText(Reference reference);
+	public String getLocalizedHoverText(ContentEntity member);
 	
 	/**
 	 * Should the Resources tool support hiding and scheduled release and/or retraction for items of this type?

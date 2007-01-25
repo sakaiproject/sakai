@@ -169,8 +169,8 @@ public class ResourcesAction
 	
 	static
 	{
-		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_METADATA);
 		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_CONTENT);
+		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_METADATA);
 		ACTIONS_ON_RESOURCES.add(ActionType.REVISE_METADATA);
 		ACTIONS_ON_RESOURCES.add(ActionType.REVISE_CONTENT);
 		ACTIONS_ON_RESOURCES.add(ActionType.REPLACE_CONTENT);
@@ -198,7 +198,17 @@ public class ResourcesAction
 		protected Set permissions;
 		protected boolean selected;
 		protected boolean collection;
+		protected String hoverText;
+		protected String accessUrl;
 		
+		/**
+		 * @return the hoverText
+		 */
+		public String getHoverText()
+		{
+			return this.hoverText;
+		}
+
 		/**
 		 * @return the collection
 		 */
@@ -310,6 +320,30 @@ public class ResourcesAction
 		public void setActions(List actions)
 		{
 			this.actions = actions;
+		}
+
+		/**
+		 * @param hover
+		 */
+		public void setHoverText(String hover)
+		{
+			this.hoverText = hover;
+		}
+
+		/**
+		 * @return the accessUrl
+		 */
+		public String getAccessUrl()
+		{
+			return this.accessUrl;
+		}
+
+		/**
+		 * @param accessUrl the accessUrl to set
+		 */
+		public void setAccessUrl(String accessUrl)
+		{
+			this.accessUrl = accessUrl;
 		}
 	}
 	
@@ -1730,6 +1764,11 @@ public class ResourcesAction
 		context.put("selectedItemId", selectedItemId);
 		String folderId = null;
 		
+		// need a list of folders (ListItem objects) for one root in context as $folders
+		List folders = new Vector();
+		ContentCollection collection = null;
+		ContentEntity selectedItem = null;
+		
 		// need a list of roots (ListItem objects) in context as $roots
 		List roots = new Vector();
 		Map othersites = ContentHostingService.getCollectionMap();
@@ -1741,20 +1780,43 @@ public class ResourcesAction
 			ListItem root = new ListItem();
 			root.setId(rootId);
 			root.setName(rootName);
+			root.setHoverText(rootName);
+			
 			if(selectedItemId != null && selectedItemId.startsWith(rootId))
 			{
 				root.setSelected(true);
 				folderId = rootId;
+				try
+				{
+					selectedItem = ContentHostingService.getCollection(rootId);
+				}
+				catch (IdUnusedException e)
+				{
+					// TODO Auto-generated catch block
+					logger.warn("IdUnusedException ", e);
+				}
+				catch (TypeException e)
+				{
+					// TODO Auto-generated catch block
+					logger.warn("TypeException ", e);
+				}
+				catch (PermissionException e)
+				{
+					// TODO Auto-generated catch block
+					logger.warn("PermissionException ", e);
+				}
 			}
 			roots.add(root);
 		}
 		// sort by name?
 		context.put("roots", roots);
 		
-		// need a list of folders (ListItem objects) for one root in context as $folders
-		List folders = new Vector();
-		ContentCollection collection = null;
-		ContentEntity selectedItem = null;
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
 		
 		while(folderId != null)
 		{
@@ -1777,9 +1839,18 @@ public class ResourcesAction
 					String itemId = member.getId();
 					ResourceProperties props = member.getProperties();
 					String itemName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+					String resourceType = member.getResourceType();
+					ResourceType typeDef = registry.getType(resourceType);
+					String hover = itemName;
+					if(typeDef != null)
+					{
+						hover = typeDef.getLocalizedHoverText(member);
+					}
 					ListItem item = new ListItem();
 					item.setId(itemId);
 					item.setName(itemName);
+					item.setHoverText(hover);
+					item.setAccessUrl(member.getUrl());
 					if(selectedItemId != null && selectedItemId.startsWith(itemId))
 					{
 						selectedItem = member;
@@ -1816,12 +1887,6 @@ public class ResourcesAction
 		
 		if(selectedItem != null)
 		{
-			ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
-			if(registry == null)
-			{
-				registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
-				state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
-			}
 			Reference ref = EntityManager.newReference(selectedItem.getReference());
 			List actions = new Vector();
 			if(selectedItem.isCollection())
@@ -1871,8 +1936,8 @@ public class ResourcesAction
 				}
 			}
 			context.put("actions", actions);
+			
 		}
-		
 		
 		return "content/sakai_resources_columns";
 	}

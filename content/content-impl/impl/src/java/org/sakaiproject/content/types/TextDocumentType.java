@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
@@ -564,9 +565,9 @@ public class TextDocumentType extends BaseResourceType
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ResourceType#getLocalizedHoverText(org.sakaiproject.entity.api.Reference)
 	 */
-	public String getLocalizedHoverText(Reference reference)
+	public String getLocalizedHoverText(ContentEntity member)
 	{
-		return rb.getString("addt.text");
+		return rb.getString("type.text");
 	}
 
 	/* (non-Javadoc)

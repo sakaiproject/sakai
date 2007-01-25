@@ -32,6 +32,7 @@ import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
@@ -483,9 +484,9 @@ public class HtmlDocumentType extends BaseResourceType
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ResourceType#getLocalizedHoverText(org.sakaiproject.entity.api.Reference)
 	 */
-	public String getLocalizedHoverText(Reference reference)
+	public String getLocalizedHoverText(ContentEntity member)
 	{
-		return rb.getString("addh.doc");
+		return rb.getString("type.html");
 	}
 
 	/* (non-Javadoc)

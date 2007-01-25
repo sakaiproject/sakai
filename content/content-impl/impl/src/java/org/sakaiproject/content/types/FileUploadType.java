@@ -33,6 +33,7 @@ import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
@@ -531,9 +532,9 @@ public class FileUploadType extends BaseResourceType
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ResourceType#getLocalizedHoverText(org.sakaiproject.entity.api.Reference)
 	 */
-	public String getLocalizedHoverText(Reference reference)
+	public String getLocalizedHoverText(ContentEntity member)
 	{
-		return rb.getString("add.upload");
+		return rb.getString("type.upload");
 	}
 	
 	/* (non-Javadoc)
