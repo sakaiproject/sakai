@@ -129,73 +129,129 @@
 		CourseManagement-backed Group and Course Providers
 	-->
 
+
+
+	<bean id="gradebookServiceTemplate"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+		abstract="true">
+		<property name="transactionManager">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="get*">PROPAGATION_REQUIRED,readOnly,+org.sakaiproject.service.gradebook.shared.GradebookException</prop>
+				<prop key="is*">PROPAGATION_REQUIRED,readOnly,+org.sakaiproject.service.gradebook.shared.GradebookException</prop>
+				<prop key="*">PROPAGATION_REQUIRED,+org.sakaiproject.service.gradebook.shared.GradebookException</prop>
+			</props>
+		</property>
+	</bean>
+
+<!--
+	The CM-based group provider makes heavy use of the CM service.  So, if we're
+	using the CM RI, wrap the group provider in a transaction proxy so we
+	can take advantage of hibernate's session-level caching.  If you are using another
+	CM implementation, you should ensure that it performs aggressive caching, since
+	calls from the CM-based group provider to the CM service are plentiful.
+-->
+
 	<bean id="org.sakaiproject.authz.api.GroupProvider"
-			class="org.sakaiproject.coursemanagement.impl.provider.CourseManagementGroupProvider"
-			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
-			<property name="cmService">
-				<ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+		singleton="true">
+			<property name="transactionManager">
+				<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 			</property>
-			<property name="rolePreferences">
-				<list>
-					<value>Instructor</value>
-					<value>Teaching Assistant</value>
-					<value>Student</value>
-				</list>
+			<property name="transactionAttributes">
+				<props>
+					<prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+				</props>
 			</property>
-			<property name="roleResolvers">
-				<list>
-					<bean class="org.sakaiproject.coursemanagement.impl.provider.SectionRoleResolver">
-						<property name="roleMap">
-							<map>
-								<entry key="I" value="Instructor" />
-								<entry key="S" value="Student" />
-								<entry key="GSI" value="Teaching Assistant"/>
-							</map>
-						</property>
-						<property name="officialInstructorRole" value="Instructor" />
-						<property name="enrollmentStatusRoleMap">
-							<map>
-								<entry key="enrolled" value="Student" />
-								<entry key="waitlisted" value="Student" />
-							</map>
-						</property>
-					</bean>
-					<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseOfferingRoleResolver">
-						<property name="roleMap">
-							<map>
-								<entry key="CourseAdmin" value="Instructor" />
-								<entry key="I" value="Instructor" />
-							</map>
-						</property>
-					</bean>
-					<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseSetRoleResolver">
-						<property name="roleMap">
-							<map>
-								<entry key="DeptAdmin" value="Instructor" />
-							</map>
-						</property>
-					</bean>
-				</list>
+			<property name="target">
+				<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseManagementGroupProvider"
+					init-method="init"
+					destroy-method="destroy">
+					<property name="cmService">
+						<ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+					</property>
+					<property name="rolePreferences">
+						<list>
+							<value>Instructor</value>
+							<value>Teaching Assistant</value>
+							<value>Student</value>
+						</list>
+					</property>
+					<property name="roleResolvers">
+						<list>
+							<bean class="org.sakaiproject.coursemanagement.impl.provider.SectionRoleResolver">
+								<property name="roleMap">
+									<map>
+										<entry key="I" value="Instructor" />
+										<entry key="S" value="Student" />
+										<entry key="GSI" value="Teaching Assistant"/>
+									</map>
+								</property>
+								<property name="officialInstructorRole" value="Instructor" />
+								<property name="enrollmentStatusRoleMap">
+									<map>
+										<entry key="enrolled" value="Student" />
+										<entry key="waitlisted" value="Student" />
+									</map>
+								</property>
+							</bean>
+							<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseOfferingRoleResolver">
+								<property name="roleMap">
+									<map>
+										<entry key="CourseAdmin" value="Instructor" />
+										<entry key="I" value="Instructor" />
+									</map>
+								</property>
+							</bean>
+							<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseSetRoleResolver">
+								<property name="roleMap">
+									<map>
+										<entry key="DeptAdmin" value="Instructor" />
+									</map>
+								</property>
+							</bean>
+						</list>
+					</property>
+				</bean>
 			</property>
 	</bean>
 	
+<!--
+	The CM-based legacy CM provider makes heavy use of the CM service.  So, if we're
+	using the CM RI, wrap the legacy CM provider in a transaction proxy so we
+	can take advantage of hibernate's session-level caching.  If you are using another
+	CM implementation, you should ensure that it performs aggressive caching, since
+	calls from the CM-based legacy CM provider to the CM service are plentiful.
+-->
 	<bean id="org.sakaiproject.site.api.CourseManagementProvider"
-		class="org.sakaiproject.coursemanagement.impl.provider.CourseManagementProviderCMImpl">
-			<property name="cmService">
-				<ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+			<property name="transactionManager">
+				<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 			</property>
-			<property name="cmGroupProvider">
-				<ref bean="org.sakaiproject.authz.api.GroupProvider"/>
+			<property name="transactionAttributes">
+				<props>
+					<prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+				</props>
 			</property>
-			<property name="uds">
-				<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
-			</property>
-			<property name="sectionMappingRoles">
-				<list>
-					<value>Instructor</value>
-				</list>
+			<property name="target">
+				<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseManagementProviderCMImpl">
+					<property name="cmService">
+						<ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+					</property>
+					<property name="cmGroupProvider">
+						<ref bean="org.sakaiproject.authz.api.GroupProvider"/>
+					</property>
+					<property name="uds">
+						<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+					</property>
+					<property name="sectionMappingRoles">
+						<list>
+							<value>Instructor</value>
+						</list>
+					</property>
+				</bean>
 			</property>
 	</bean>
 
