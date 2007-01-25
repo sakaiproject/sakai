@@ -35,6 +35,13 @@
       <enabled>true</enabled>
     </releases>
   </pluginRepository>
+  <pluginRepository>
+    <id>Sakai Plugin Repo</id>
+    <url>http://source.sakaiproject.org/maven2</</url>
+    <releases>
+      <enabled>true</enabled>
+    </releases>
+  </pluginRepository>
 </pluginRepositories>
 <repositories>
     <repository>
