@@ -55,18 +55,18 @@
 		    <h:dataTable styleClass="listHier lines nolines" id="attmsg" width="100%" value="#{ForumTool.attachments}" var="eachAttach"   rendered="#{!empty ForumTool.attachments}"
 			columnClasses="attach,bogus,specialLink itemAction,bogus,bogus">
 			  <h:column rendered="#{!empty ForumTool.attachments}">
-				  <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}" alt="" />
-				  <h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}" alt="" />
-				  <h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}"/>
-				  <h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
-				  <h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}" alt="" />
-				  <h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}" alt="" />
+				  <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt="" />
+				  <h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/html'}" alt="" />
+				  <h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/pdf'}"/>
+				  <h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
+				  <h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/plain'}" alt="" />
+				  <h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/msword'}" alt="" />
 				</h:column>
 				  <h:column>
 					  <f:facet name="header">
 						<h:outputText value="#{msgs.cdfm_title}"/>
 					</f:facet>
-					  <h:outputText value="#{eachAttach.attachmentName}"/>			
+					  <h:outputText value="#{eachAttach.attachment.attachmentName}"/>			
 				</h:column>
 				<h:column>
 				  <h:commandLink action="#{ForumTool.processDeleteAttach}" 
@@ -74,21 +74,21 @@
 								onfocus="document.forms[0].onsubmit();"
 								title="#{msgs.cdfm_remove}">
 				    <h:outputText value="#{msgs.cdfm_remove}"/>
-<%--									<f:param value="#{eachAttach.attachmentId}" name="dfmsg_current_attach"/>--%>
-					<f:param value="#{eachAttach.attachmentId}" name="dfmsg_current_attach"/>
+<%--									<f:param value="#{eachAttach.attachment.attachmentId}" name="dfmsg_current_attach"/>--%>
+					<f:param value="#{eachAttach.attachment.attachmentId}" name="dfmsg_current_attach"/>
 				  </h:commandLink>
 			  </h:column>
 			  <h:column rendered="#{!empty ForumTool.attachments}">
 			    <f:facet name="header">
 				  <h:outputText value="#{msgs.cdfm_attsize}" />
 				</f:facet>
-				<h:outputText value="#{eachAttach.attachmentSize}"/>
+				<h:outputText value="#{eachAttach.attachment.attachmentSize}"/>
 			  </h:column>
 			  <h:column rendered="#{!empty ForumTool.attachments}">
 			    <f:facet name="header">
 		  		  <h:outputText value="#{msgs.cdfm_atttype}" />
 				</f:facet>
-				<h:outputText value="#{eachAttach.attachmentType}"/>
+				<h:outputText value="#{eachAttach.attachment.attachmentType}"/>
 			  </h:column>
 			</h:dataTable>   
   
@@ -146,20 +146,20 @@
 	    <h:panelGroup rendered="#{!empty ForumTool.selectedMessage.message.attachments}">
 	      <h:dataTable value="#{ForumTool.selectedMessage.message.attachments}" var="eachAttach"  rendered="#{!empty ForumTool.selectedMessage.message.attachments}" columnClasses="attach,bogus" styleClass="attachList">
 					  <h:column rendered="#{!empty ForumTool.selectedMessage.message.attachments}">
-						  <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}" alt="" />
-							<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}" alt="" />
-							<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}" alt="" />
-							<h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
-							<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}" alt="" />
-							<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}" alt="" />
+						  <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt="" />
+							<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/html'}" alt="" />
+							<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/pdf'}" alt="" />
+							<h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
+							<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/plain'}" alt="" />
+							<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/msword'}" alt="" />
 							</h:column>
 								<h:column>
-<%--							<h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
-							  <h:outputText value="#{eachAttach.attachmentName}"/>
+<%--							<h:outputLink value="#{eachAttach.attachment.attachmentUrl}" target="_blank">
+							  <h:outputText value="#{eachAttach.attachment.attachmentName}"/>
 							  </h:outputLink>--%>
 							<h:outputLink value="#{ForumTool.attachmentUrl}" target="_blank">
-							  <f:param name="attachmentId" value="#{eachAttach.attachmentId}"/>
-							  <h:outputText value="#{eachAttach.attachmentName}"/>
+							  <f:param name="attachmentId" value="#{eachAttach.attachment.attachmentId}"/>
+							  <h:outputText value="#{eachAttach.attachment.attachmentName}"/>
 							</h:outputLink>
 					  </h:column>
 					</h:dataTable>
