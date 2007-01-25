@@ -96,5 +96,11 @@ public interface FilePickerHelper
 	 */
 	public static final String FILE_PICKER_SHOW_WORKSPACE = "sakaiproject.filepicker.show_workspace";
 
+	/**
+	 * The name of the state or tool-session attribute indicating the id of the collection that should be shown
+	 * as the default location to look for attachments for a particular invocation of the filepicker.
+	 */
+	public static final String DEFAULT_COLLECTION_ID = "sakaiproject.filepicker.default_collection_id";
+
 
 }

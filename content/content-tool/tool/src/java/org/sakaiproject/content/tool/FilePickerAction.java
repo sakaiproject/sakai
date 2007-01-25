@@ -205,6 +205,9 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 
 		sstate.setAttribute(ResourcesAction.STATE_ATTACH_FILTER, toolSession
 				.getAttribute(FilePickerHelper.FILE_PICKER_RESOURCE_FILTER));
+		
+		sstate.setAttribute(ResourcesAction.STATE_ATTACH_COLLECTION_ID, 
+				toolSession.getAttribute(FilePickerHelper.DEFAULT_COLLECTION_ID));
 	}
 
 	protected void initMessage(ToolSession toolSession, SessionState sstate)
