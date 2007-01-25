@@ -129,23 +129,6 @@
 		CourseManagement-backed Group and Course Providers
 	-->
 
-
-
-	<bean id="gradebookServiceTemplate"
-		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
-		abstract="true">
-		<property name="transactionManager">
-			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
-		</property>
-		<property name="transactionAttributes">
-			<props>
-				<prop key="get*">PROPAGATION_REQUIRED,readOnly,+org.sakaiproject.service.gradebook.shared.GradebookException</prop>
-				<prop key="is*">PROPAGATION_REQUIRED,readOnly,+org.sakaiproject.service.gradebook.shared.GradebookException</prop>
-				<prop key="*">PROPAGATION_REQUIRED,+org.sakaiproject.service.gradebook.shared.GradebookException</prop>
-			</props>
-		</property>
-	</bean>
-
 <!--
 	The CM-based group provider makes heavy use of the CM service.  So, if we're
 	using the CM RI, wrap the group provider in a transaction proxy so we
