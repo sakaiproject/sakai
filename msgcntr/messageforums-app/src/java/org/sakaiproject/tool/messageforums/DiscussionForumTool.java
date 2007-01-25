@@ -1970,7 +1970,7 @@ public class DiscussionForumTool
       				ref.getProperties().getNamePropContentType()));
       		thisAttach.setAttachmentId(ref.getId());
       		//thisAttach.setAttachmentUrl(ref.getUrl());
-      		thisAttach.setAttachmentUrl("");
+      		thisAttach.setAttachmentUrl("/url");
       		
       		attachments.add(new DecoratedAttachment(thisAttach));
       	}

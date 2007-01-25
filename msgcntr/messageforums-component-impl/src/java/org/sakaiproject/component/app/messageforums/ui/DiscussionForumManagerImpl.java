@@ -1879,7 +1879,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       }
       //tempString.replaceAll(" ", "%20");
       //attach.setAttachmentUrl(newString);
-      attach.setAttachmentUrl("");
+      attach.setAttachmentUrl("/url");
 
       return attach;
     }
