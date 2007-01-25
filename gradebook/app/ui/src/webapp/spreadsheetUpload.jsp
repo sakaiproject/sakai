@@ -13,14 +13,14 @@
             <%@include file="/inc/globalMessages.jspf"%>
             <p/>
             <h:panelGrid cellpadding="0" cellspacing="0" columns="3" columnClasses="itemName" styleClass="itemSummary">
-                <h:outputLabel for="title" id="titleLabel" value="Title"/>
+                <h:outputLabel for="title" id="titleLabel" value="#{msgs.upload_view_title}"/>
                 <h:inputText id="title" value="#{spreadsheetUploadBean.title}" required="true">
                     <f:validateLength minimum="1" maximum="255"/>
                 </h:inputText>
                 <h:message for="title" styleClass="validationEmbedded" />
 
                 <h:outputLabel for="fileupload">
-                    <h:outputText id="fileuploadLabel" value="Choose a File"/>
+                    <h:outputText id="fileuploadLabel" value="#{msgs.upload_view_choose_file}"/>
                 </h:outputLabel>
                 <t:inputFileUpload id="fileupload" value="#{spreadsheetUploadBean.upFile}" storage="file"required="true" accept="text/csv"/>
                 <h:message for="fileupload" styleClass="validationEmbedded" />
