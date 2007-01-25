@@ -235,8 +235,14 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		// Get the provider Ids associated with this site.  We can't use
 		// authzGroupService.getProviderIds(), since we're inspecting the provider IDs
 		// on the in-memory object, not what's in persistence
-		String[] providerIdArray = groupProvider.unpackId(site.getProviderGroupId());
-		List<String> providerIdList = Arrays.asList(providerIdArray);
+		String siteProviderId = site.getProviderGroupId();
+		List<String> providerIdList;
+		if(StringUtils.trimToNull(siteProviderId) == null) {
+			providerIdList = new ArrayList<String>();
+		} else {
+			String[] providerIdArray = groupProvider.unpackId(siteProviderId);
+			providerIdList = Arrays.asList(providerIdArray);			
+		}
 
 		Set<Group> sectionsToSync = new HashSet<Group>();
 		
