@@ -38,17 +38,6 @@
 	}
 
 	/*
-	 * Makes the '....' on the page expand
-	 */	
-	function progress()
-	{
-		var content = getEl('waitImg');
-		content.src = imagesURI[index++];
-
-		index = (index % 12);
-	}
-
-	/*
 	 * Determines if parameter is just a filename.
 	 */
 	 function isFilename(fn) {
@@ -103,7 +92,7 @@
 						// was called by this wait page (and not from iframe)
 						location.href = url + "?time=1";
 					}
-				}, 0);
+				}, 150);
 			}
 		}
 	}
@@ -116,7 +105,12 @@
 		// turn off animation when page finished
 		window.clearInterval(intervalid);
 	}
-	
+
+	/*
+	 * For FF browsers, animated gif freezes when href changed,
+	 * so use AJAX to get redirected page.
+	 *
+	 */	
 	function getActualFile()
 	{
 		var http;
@@ -159,8 +153,13 @@
 
 <f:view>
   <sakai:view>
+  	  <sakai:script contextBase="/sakai-messageforums-tool" path="/js/popupscripts.js"/>
+  
+  	<%-- Used to store where to redirect to so javascript can grab it. --%>
     <h:inputHidden id="longPageLoad" value="#{msgs.longPageLoad}" />
 
+	<%-- Firefox browser needs to use AJAX to get actual page. Retrieved page then
+		 stuffed into this div --%>
 	<f:verbatim><div id="result"></f:verbatim>
 
 <%  
@@ -199,10 +198,8 @@
   </sakai:view>
 </f:view>
 
-<%-- </body> --%>
-
 <script language="JavaScript"> 
-	// some browsers ignore the first <body> tag, so add load() here
+	// Call javascript function to grab actual long loading page
 	load();
 </script>
 
