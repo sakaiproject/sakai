@@ -210,6 +210,14 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     				}
     			}
     		}
+    		if(oldForum.getAutoForward() != null)
+    		{
+    			pf.setAutoForward(oldForum.getAutoForward());
+    		}
+    		if(oldForum.getAutoForwardEmail() != null)
+    		{
+    			pf.setAutoForwardEmail(oldForum.getAutoForwardEmail());
+    		}      
       }
       
       forumManager.savePrivateForum(pf);            
@@ -973,11 +981,16 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       /** determine if recipient has forwarding enabled */
       Area currentArea = getAreaByContextIdAndTypeId(typeManager.getPrivateMessageAreaType());
       PrivateForum pf = forumManager.getPrivateForumByOwnerArea(userId, currentArea);
+      PrivateForum oldPf = forumManager.getPrivateForumByOwnerAreaNull(userId);
       
       boolean forwardingEnabled = false;
       
       if (pf != null && pf.getAutoForward().booleanValue()){
         forwardingEnabled = true;
+      }
+      if( pf == null && oldPf != null && oldPf.getAutoForward().booleanValue())
+      {
+      	forwardingEnabled = true;
       }
       
       List additionalHeaders = new ArrayList(1);
@@ -1051,8 +1064,16 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
         (currentUserAsString.equals(userId) ? Boolean.TRUE : Boolean.FALSE);      
       
       if (!asEmail && forwardingEnabled){
-          emailService.send(u.getEmail(), pf.getAutoForwardEmail(), message.getTitle(), 
+      	  if(pf != null)
+      	  {
+      	  	emailService.send(u.getEmail(), pf.getAutoForwardEmail(), message.getTitle(), 
               bodyString, u.getEmail(), null, additionalHeaders);
+      	  }
+      	  else if(oldPf != null)
+      	  {
+      	  	emailService.send(u.getEmail(), oldPf.getAutoForwardEmail(), message.getTitle(), 
+                bodyString, u.getEmail(), null, additionalHeaders);      	  	
+      	  }
           
           // use forwarded address if set
           
