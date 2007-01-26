@@ -18,17 +18,114 @@
 %>
 
 <f:view>
-  <sakai:view title="#{msgs.cdfm_message_pvtarea}">
-<!--jsp/privateMsg/pvtMsgHpView.jsp-->    
-      <h:form id="msgForum">
-        <div class="breadCrumb specialLinks">
-			<h3>
-			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/> /
-			<h:outputText value="#{msgs.pvt_message_nav}"/>
-		  </h3>
-        </div>
-				<h:inputHidden id="mainOrHp" value="pvtMsgHpView" />
-        <%@include file="pvtArea.jsp"%>
-      </h:form>
-  </sakai:view>
-</f:view> 
+	<sakai:view title="#{msgs.cdfm_message_pvtarea}">
+		<!--jsp/privateMsg/pvtMsgHpView.jsp-->
+		<h:form id="msgForum">
+
+			<h:panelGrid columns="2" summary="layout" width="100%"
+				styleClass="navPanel  specialLink">
+				<h:panelGroup>
+					<f:verbatim>
+						<div class="breadCrumb">
+						<h3>
+					</f:verbatim>
+					<h:commandLink action="#{PrivateMessagesTool.processActionHome}"
+						value="#{msgs.cdfm_message_forums}"
+						title=" #{msgs.cdfm_message_forums}" />
+					<f:verbatim>
+						<h:outputText value=" / " />
+					</f:verbatim>
+					<h:outputText value="#{msgs.pvt_message_nav}" />
+					<f:verbatim>
+						</h3>
+						</div>
+					</f:verbatim>
+				</h:panelGroup>
+				<h:panelGroup styleClass="itemNav">
+					<h:commandLink action="#{PrivateMessagesTool.processPvtMsgCompose}"
+						title=" #{msgs.pvt_compose}">
+						<h:outputText value="#{msgs.pvt_compose}" />
+					</h:commandLink>
+					<f:verbatim>
+						<h:outputText value=" | "
+							rendered="#{ForumTool.selectedForum.changeSettings}" />
+					</f:verbatim>
+					<h:commandLink
+						action="#{PrivateMessagesTool.processPvtMsgFolderSettingAdd}"
+						title=" #{msgs.pvt_newfolder}">
+						<h:outputText value="#{msgs.pvt_newfolder}" />
+					</h:commandLink>
+				</h:panelGroup>
+			</h:panelGrid>
+
+			<h:dataTable value="#{PrivateMessagesTool.decoratedForum}"
+				var="forum" rendered="#{PrivateMessagesTool.pvtAreaEnabled}"
+				cellpadding="0" cellspacing="0" styleClass="hierItemBlockWrapper" style="width: 100%;">
+				<h:column>
+
+					<h:dataTable id="privateForums" value="#{forum.topics}" var="topic"
+						width="99%" cellpadding="0" cellspacing="0" style="margin:0;">
+						<h:column>
+
+							<h:panelGrid columns="2" summary="layout" width="100%"
+												   cellpadding="0" cellspacing="0" styleClass="listHier"
+								           style="margin:0">
+								<h:panelGroup rendered="#{!topic.topic.mutable}">
+									<h:graphicImage url="/images/dir_closed.gif" alt="" />
+									<h:commandLink action="#{PrivateMessagesTool.processPvtMsgTopic}"
+										             immediate="true" title=" #{topic.topic.title}">
+										<h:outputText value="  " />
+										<h:outputText value="#{topic.topic.title}" />
+										<f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId" />
+									</h:commandLink>
+									<h:outputText	value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.pvt_lowercase_msg}"
+										            rendered="#{topic.totalNoMessages < 2}"
+										            styleClass="textPanelFooter" />
+									<h:outputText	value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msgs}"
+										            rendered="#{topic.totalNoMessages > 1}"
+										            styleClass="textPanelFooter" />
+									<h:outputText	value=" - #{topic.unreadNoMessages} #{msgs.pvt_unread}"
+										            rendered="#{topic.topic.title == 'Received'}"
+										            styleClass="textPanelFooter" />
+									<h:outputText value=" #{msgs.cdfm_closeb}" styleClass="textPanelFooter" />
+								</h:panelGroup>
+								<h:panelGroup rendered="#{!topic.topic.mutable}">
+									<h:outputText value=" " />
+								</h:panelGroup>
+								<h:panelGroup rendered="#{topic.topic.mutable}">
+									<h:graphicImage url="/images/dir_closed.gif" alt="" />
+									<h:commandLink action="#{PrivateMessagesTool.processPvtMsgTopic}"
+										             immediate="true" title=" #{topic.topic.title}">
+
+										<h:outputText value="  " />
+										<h:outputText value="#{topic.topic.title}" />
+										<f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId" />
+									</h:commandLink>
+									<h:outputText	value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.pvt_lowercase_msg}"
+										            styleClass="textPanelFooter" />
+									<h:outputText value=" - #{topic.unreadNoMessages} #{msgs.pvt_unread}"
+										            rendered="#{topic.topic.title == 'Received' || topic.topic.title == 'Deleted'}"
+										            styleClass="textPanelFooter" />
+									<h:outputText value=" #{msgs.cdfm_closeb}"
+										            styleClass="textPanelFooter" />
+								</h:panelGroup>
+								<h:panelGroup styleClass="itemAction msgNav"
+									            rendered="#{topic.topic.mutable}">
+									<h:commandLink action="#{PrivateMessagesTool.processPvtMsgFolderSettings}"
+										             title=" #{msgs.pvt_foldersettings}">
+										<h:outputText value="#{msgs.pvt_foldersettings}" />
+										<f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId" />
+									</h:commandLink>
+								</h:panelGroup>
+							</h:panelGrid>
+
+						</h:column>
+					</h:dataTable>
+				</h:column>
+			</h:dataTable>
+
+			<h:inputHidden id="mainOrHp" value="pvtMsgHpView" />
+
+		</h:form>
+	</sakai:view>
+</f:view>
