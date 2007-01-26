@@ -70,6 +70,14 @@
     </dependency>
     <dependency>
       
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-component-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
