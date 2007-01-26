@@ -2503,9 +2503,9 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			CalendarEvent eventFromXml = (CalendarEvent) newResource(this, el);
 
 			// check security 
-         if ( ! allowEditEvent( eventFromXml.getId() ) )
+         if ( ! allowAddEvent() )
 			   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
-                                          AUTH_MODIFY_CALENDAR_ANY, getReference());
+                                          AUTH_ADD_CALENDAR, getReference());
 			// reserve a calendar event with this id from the info store - if it's in use, this will return null
 			CalendarEventEdit event = m_storage.putEvent(this, eventFromXml.getId());
 			if (event == null)
