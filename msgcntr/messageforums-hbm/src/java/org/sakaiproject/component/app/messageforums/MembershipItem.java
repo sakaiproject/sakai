@@ -139,7 +139,7 @@ import org.sakaiproject.user.api.User;
       return typeCompareResult;
     }
     else{
-      return this.name.compareTo(item.name);
+      return (this.name).toLowerCase().compareTo((item.name).toLowerCase());
     }        
   }
 
