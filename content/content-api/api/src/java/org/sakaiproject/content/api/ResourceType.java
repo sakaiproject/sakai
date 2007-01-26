@@ -66,42 +66,10 @@ public interface ResourceType
 	public ResourceToolAction getAction(String actionId);
 	
 	/**
-	 * Access an ordered list of actions (objects of type ResourceToolAction) 
-	 * that can be offered to the current user in the Resources tool's list view.
-	 * @param entityRef The Reference object for the entity whose actions are requested.
-	 * @param permissions The names of the content permissions held by the current user in the resource's containing collection. 
-	 * @return
-	 */
-	public List getActions(Reference entityRef, Set permissions);
-	
-	/**
-	 * Access an ordered list of actions (objects of type ResourceToolAction) 
-	 * that can be offered to a particular user in the Resources tool's list view 
-	 * with respect to a particular resource of thetype described by this ResourceType object.
-	 * @param entityRef The Reference object for the entity whose actions are requested.
-	 * @param user The user for which the question is being asked.
-	 * @param permissions The names of the content permissions held by the current user in the resource's containing collection. 
-	 * @return
-	 */
-	public List getActions(Reference entityRef, User user, Set permissions);
-	
-	/**
-	 * If the specified user is allowed to create new resources of this type 
-	 * in the specified collection, return the ResourceToolAction describing 
-	 * the part of the create action that handles the "content" of the resource. 
-	 * Throw an UnsupportedOperationException if no create action is defined 
-	 * for this type. 
-	 * @param collectionRef The Reference object for the collection in which the resource would be created.
-	 * @param user The user for which the question is being asked.
-	 * @param permissions The names of the content permissions held by the current user in the resource's containing collection. 
-	 * @return
-	 */
-	public ResourceToolAction getCreateAction(Reference collectionRef, User user, Set permissions);
-	
-	/**
-	 * Retrieve a reference for the location of the icon for this type.
+	 * Retrieve a reference for the location of the icon for this type. This should  
+	 * be relative to the image library in "/reference/library/src/webapp/image/".  
+	 * For example, the plain-text image is "sakai/text.gif";
 	 * If null, the mimetype of the resource will be used to find an icon.
-	 * The reference should refer to an icon in the l
 	 * @return
 	 */
 	public String getIconLocation();

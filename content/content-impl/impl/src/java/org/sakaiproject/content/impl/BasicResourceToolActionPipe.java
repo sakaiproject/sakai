@@ -53,6 +53,8 @@ public class BasicResourceToolActionPipe
 	protected ResourceToolAction action;
 	private boolean actionCompleted;
 	private String errorMessage;
+	private boolean actionCanceled;
+	private boolean errorEncountered;
 	
 	/**
 	 * @return the helperId
@@ -192,26 +194,22 @@ public class BasicResourceToolActionPipe
 
 	public boolean isActionCanceled() 
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return this.actionCanceled;
 	}
 
 	public boolean isErrorEncountered() 
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return this.errorEncountered;
 	}
 
 	public void setActionCanceled(boolean actionCanceled) 
 	{
-		// TODO Auto-generated method stub
-		
+		this.actionCanceled = actionCanceled;
 	}
 
 	public void setErrorEncountered(boolean errorEncountered) 
 	{
-		// TODO Auto-generated method stub
-		
+		this.errorEncountered = errorEncountered;
 	}
 
 	public void setResourceProperty(String key, List list) 
@@ -226,8 +224,7 @@ public class BasicResourceToolActionPipe
 
 	public void setRevisedResourceProperty(String name, List list) 
 	{
-		// TODO Auto-generated method stub
-		
+		this.revisedPropertyValues.put(name, list);
 	}
 
 	public boolean isActionCompleted() 

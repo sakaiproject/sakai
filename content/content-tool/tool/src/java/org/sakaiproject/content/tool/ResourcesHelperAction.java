@@ -235,6 +235,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
 		
+		
 	}
 	
 	public void doContinue(RunData data)
@@ -245,7 +246,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		String content = params.getString("content");
 		if(content == null)
 		{
-			addAlert(state, "Please enter the contents of the text document");
+			addAlert(state, rb.getString("text.notext"));
 			return;
 		}
 		ToolSession toolSession = SessionManager.getCurrentToolSession();

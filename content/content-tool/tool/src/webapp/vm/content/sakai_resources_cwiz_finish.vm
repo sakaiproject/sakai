@@ -97,7 +97,7 @@
 	</p>
 	<form name="propertyForm" id="propertyForm" action="#toolLinkParam("ResourcesAction" "doCompleteCreateWizard" "flow=update")" method="post">
 		<input type="hidden" name="sakai_action" id="sakai_action" value="doCompleteCreateWizard" />
-		<input type="hidden" name="user_action" id="user_action" value="continue" />
+		<input type="hidden" name="user_action" id="user_action" value="save" />
 		<p class="shorttext">
 			<span class="reqStar">*</span>
 			<label for="name">
@@ -389,7 +389,7 @@
 	
 		<p class="act">
 			<input type="button" class="active" id="finish_button" onclick="document.getElementById('user_action').value='save';submitform('propertyForm');" value="$tlang.getString("add.submit")" accesskey="s" />
-			<input type="button" id="cancel_button" onclick="javascript:document.getElementById('user_action').action='cancel';submitform('propertyForm');" value="$tlang.getString("gen.cancel")" accesskey="x" />
+			<input type="button" id="cancel_button" onclick="javascript:document.getElementById('user_action').value='cancel';submitform('propertyForm');" value="$tlang.getString("gen.cancel")" accesskey="x" />
 		</p>
 		
 	</form>

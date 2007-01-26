@@ -178,6 +178,9 @@ public interface ResourceToolAction
 	public ActionType getActionType();
 	
 	/**
+	 * Access a very short localized string that will be used as a label for this action in the user interface.  
+	 * If string is longer than about 20 characters, it may be truncated. Shorter strings (less than 10 characters)
+	 * are preferred.  If this method returns null, the Resources tool will assign a label based on the ActionType. 
 	 * @return
 	 */
 	public String getLabel();

@@ -189,6 +189,60 @@ public class ResourcesAction
 		CREATION_ACTIONS.add(ActionType.CREATE);
 	}
 	
+	public class Labeler
+	{
+		public String getLabel(ResourceToolAction action)
+		{
+			String label = action.getLabel();
+			if(label == null)
+			{
+				switch(action.getActionType())
+				{
+				case NEW_UPLOAD:
+					label = trb.getString("create.uploads");
+					break;
+				case NEW_FOLDER:
+					label = trb.getString("create.folder");
+					break;
+				case CREATE:
+					label = trb.getString("action.create");
+					break;
+				case COPY:
+					label = trb.getString("action.copy");
+					break;
+				case DUPLICATE:
+					label = trb.getString("action.duplicate");
+					break;
+				case DELETE:
+					label = trb.getString("action.delete");
+					break;
+				case MOVE:
+					label = trb.getString("action.move");
+					break;
+				case VIEW_METADATA:
+					label = trb.getString("action.info");
+					break;
+				case REVISE_METADATA:
+					label = trb.getString("action.props");
+					break;
+				case VIEW_CONTENT:
+					label = trb.getString("action.access");
+					break;
+				case REVISE_CONTENT:
+					label = trb.getString("action.revise");
+					break;
+				case REPLACE_CONTENT:
+					label = trb.getString("action.replace");
+					break;
+				default:
+					label = action.getId();
+					break;
+				}
+			}
+			return label;
+		}
+	}
+	
 	public class ListItem
 	{
 		protected String name;
@@ -1117,6 +1171,9 @@ public class ResourcesAction
 	/** Resource bundle using current language locale */
     private static ResourceLoader rb = new ResourceLoader("content");
 
+	/** Resource bundle using current language locale */
+    private static ResourceLoader trb = new ResourceLoader("types");
+
     private static final Log logger = LogFactory.getLog(ResourcesAction.class);
 
 	/** Name of state attribute containing a list of opened/expanded collections */
@@ -1720,7 +1777,8 @@ public class ResourcesAction
 			}
 			else
 			{
-				// cleanup(toolSession, ResourceToolAction.PREFIX);
+				//cleanup(toolSession, ResourceToolAction.PREFIX);
+				state.setAttribute(STATE_MODE, MODE_LIST);
 			}
 			toolSession.removeAttribute(ResourceToolAction.DONE);
 		}
@@ -2133,6 +2191,7 @@ public class ResourcesAction
 				}
 			}
 			context.put("actions", actions);
+			context.put("labeler", new Labeler());
 			
 		}
 		
@@ -2179,6 +2238,9 @@ public class ResourcesAction
 		
 		String user_action = params.getString("user_action");
 		
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		
 		if(user_action == null)
 		{
 			
@@ -2198,8 +2260,6 @@ public class ResourcesAction
 				ContentResourceEdit resource = ContentHostingService.addResource (collectionId + name);
 				
 				String resourceType = null;
-				ToolSession toolSession = SessionManager.getCurrentToolSession();
-				ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 				if(pipe != null)
 				{
 					ResourceToolAction action = pipe.getAction();
@@ -2384,35 +2444,29 @@ public class ResourcesAction
 
 				state.setAttribute(STATE_MODE, MODE_LIST);
 			} 
-			catch (IdUnusedException e1) 
+			catch (IdUnusedException e) 
 			{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				logger.warn("IdUnusedException", e);
 			} 
-			catch (TypeException e1) 
+			catch (TypeException e) 
 			{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				logger.warn("TypeException", e);
 			} 
-			catch (PermissionException e1) 
+			catch (PermissionException e) 
 			{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				logger.warn("PermissionException", e);
 			} 
 			catch (IdInvalidException e) 
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("IdInvalidException", e);
 			} 
 			catch (InconsistentException e) 
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("InconsistentException", e);
 			} 
 			catch (ServerOverloadException e) 
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("ServerOverloadException", e);
 			}
 			catch (IdUsedException e)
 			{
@@ -2428,8 +2482,23 @@ public class ResourcesAction
 		}
 		else if(user_action.equals("cancel"))
 		{
-			// 
-			// iAction.cancelAction(null, pipe.getInitializationId());
+			if(pipe != null)
+			{
+				ResourceToolAction action = pipe.getAction();
+				if(action == null)
+				{
+					
+				}
+				else 
+				{
+					if(action instanceof InteractionAction)
+					{
+						InteractionAction iAction = (InteractionAction) action;
+						iAction.cancelAction(null, pipe.getInitializationId());
+					}
+				}
+			}
+			state.setAttribute(STATE_MODE, MODE_LIST);
 		}
 	}
 	
@@ -2514,7 +2583,6 @@ public class ResourcesAction
 				} 
 				catch (ServerOverloadException e) 
 				{
-					// TODO Auto-generated catch block
 					logger.warn(this + ".doDispatchAction ServerOverloadException", e);
 				}
 			}
