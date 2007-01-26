@@ -4522,7 +4522,8 @@ public class ResourcesAction
 		while(it.hasNext())
 		{
 			ChefBrowseItem folder = (ChefBrowseItem) it.next();
-			addAlert(state, rb.getString("folder2") + " " + folder.getName() + " " + rb.getString("contain2") + " ");
+			String[] args = { folder.getName() };
+			addAlert(state, rb.getFormattedMessage("folder.notempty", args) + " ");
 		}
 
 		//  %%STATE_MODE_RESOURCES%%
