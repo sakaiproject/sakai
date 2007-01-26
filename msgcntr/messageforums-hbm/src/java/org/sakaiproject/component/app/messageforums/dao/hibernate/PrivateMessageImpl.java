@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -35,6 +36,9 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
     private Boolean externalEmail;
     private String externalEmailAddress;
     private String recipientsAsText;
+    
+    public static Comparator RECIPIENT_LIST_COMPARATOR_ASC;
+    public static Comparator RECIPIENT_LIST_COMPARATOR_DESC;
     
     // indecies for hibernate
     //private int tindex;   
@@ -111,5 +115,41 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
         
         user.setPrivateMessage(null);
         recipients.remove(user);
-    }		
+    }	
+    
+    // SORT BY RECIPIENT
+    static
+    {
+    	RECIPIENT_LIST_COMPARATOR_ASC = new Comparator()
+    	{
+    		public int compare(Object pvtMsg, Object otherPvtMsg)
+    		{
+    			if (pvtMsg != null && otherPvtMsg != null
+    					&& pvtMsg instanceof PrivateMessage && otherPvtMsg instanceof PrivateMessage)
+    			{
+    				String msg1 = ((PrivateMessage) pvtMsg).getRecipientsAsText().toLowerCase();
+    				String msg2 = ((PrivateMessage) otherPvtMsg).getRecipientsAsText().toLowerCase();
+    				return msg1.compareTo(msg2);
+    			}
+    			return -1;
+
+    		}
+    	};
+
+    	RECIPIENT_LIST_COMPARATOR_DESC = new Comparator()
+    	{
+    		public int compare(Object pvtMsg, Object otherPvtMsg)
+    		{
+    			if (pvtMsg != null && otherPvtMsg != null
+    					&& pvtMsg instanceof PrivateMessage && otherPvtMsg instanceof PrivateMessage)
+    			{
+    				String msg1 = ((PrivateMessage) pvtMsg).getRecipientsAsText().toLowerCase();
+    				String msg2 = ((PrivateMessage) otherPvtMsg).getRecipientsAsText().toLowerCase();
+    				return msg2.compareTo(msg1);
+    			}
+    			return -1;
+
+    		}
+    	};
+    }
 }

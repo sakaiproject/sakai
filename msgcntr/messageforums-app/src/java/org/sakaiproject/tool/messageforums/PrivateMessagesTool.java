@@ -52,12 +52,12 @@ import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
@@ -444,12 +444,22 @@ public class PrivateMessagesTool
           PrivateMessageManager.SORT_DESC);
     }
     else if (SORT_TO_ASC.equals(sortType)){
-    	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_TO,
-          PrivateMessageManager.SORT_ASC);
+        // the recipient list is stored as a CLOB in Oracle, so we cannot use the
+    	// db query to obtain the sorted list - cannot order by CLOB
+    	/*decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_TO,
+          PrivateMessageManager.SORT_ASC);*/
+    	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,
+    	          PrivateMessageManager.SORT_ASC);
+    	Collections.sort(decoratedPvtMsgs, PrivateMessageImpl.RECIPIENT_LIST_COMPARATOR_ASC);
     }        
     else if (SORT_TO_DESC.equals(sortType)){
-    	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_TO,
-          PrivateMessageManager.SORT_DESC);
+    	// the recipient list is stored as a CLOB in Oracle, so we cannot use the
+    	// db query to obtain the sorted list - cannot order by CLOB
+    	/*decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_TO,
+          PrivateMessageManager.SORT_DESC);*/
+    	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,
+    	          PrivateMessageManager.SORT_ASC);
+    	Collections.sort(decoratedPvtMsgs, PrivateMessageImpl.RECIPIENT_LIST_COMPARATOR_DESC);
     }        
     else if (SORT_ATTACHMENT_ASC.equals(sortType)){
     	decoratedPvtMsgs= prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_ATTACHMENT,
