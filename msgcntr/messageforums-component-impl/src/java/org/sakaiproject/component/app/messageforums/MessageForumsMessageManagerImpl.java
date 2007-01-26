@@ -331,6 +331,9 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         status.setUserId(getCurrentUser());
         status.setRead(new Boolean(read));
         
+        Message message = (Message) getMessageById(messageId);
+        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_READ, getEventMessage(message), false));
+        
         getHibernateTemplate().saveOrUpdate(status);
     }
     
@@ -423,7 +426,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         } else {
             eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(message), false));
         }
-
+        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_RESPONSE, getEventMessage(message), false));
+        
         LOG.info("message " + message.getId() + " saved successfully");
     }
 

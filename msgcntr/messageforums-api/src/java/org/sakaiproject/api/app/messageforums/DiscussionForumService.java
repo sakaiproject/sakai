@@ -36,5 +36,7 @@ public interface DiscussionForumService extends EntityProducer
 	public static final String EVENT_RESOURCE_WRITE = "msgcntr.revise";
 
 	public static final String EVENT_RESOURCE_REMOVE = "msgcntr.delete";
-
+	
+	public static final String EVENT_RESOURCE_RESPONSE = "msgcntr.response";
+	
 }
