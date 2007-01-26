@@ -71,6 +71,9 @@ public class SectionRoleResolver implements RoleResolver {
 			Set enrollments = cmService.getEnrollments(section.getEnrollmentSet().getEid());
 			for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
 				Enrollment enr = (Enrollment)iter.next();
+				if(enr.isDropped()) {
+					continue;
+				}
 				String roleFromEnrollmentStatus = (String)enrollmentStatusRoleMap.get(enr.getEnrollmentStatus());
 
 				// Only add the enrollment if it's not dropped and it has an enrollment role mapping
