@@ -69,7 +69,7 @@ public class PreferencesBean {
         courseGradeDetailsTableSortAscending = true;
         courseGradeDetailsTableSortColumn = SORT_BY_NAME;
 
-        defaultMaxDisplayedScoreRows = 20;
+        defaultMaxDisplayedScoreRows = 50;
     }
 
 	// Paging preferences
