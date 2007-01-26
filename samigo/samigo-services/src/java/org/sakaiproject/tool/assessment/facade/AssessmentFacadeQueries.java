@@ -29,6 +29,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 // import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
@@ -101,6 +103,8 @@ import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.cover.ToolManager;
+// import org.sakaiproject.util.Validator;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -1457,12 +1461,21 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 	public String getRelativePath(String url, String protocol) {
 		// replace whitespace with %20
 		url = replaceSpace(url);
-		String location = url;
 		int index = url.lastIndexOf(protocol);
 		if (index == 0) {
-			location = url.substring(protocol.length());
+			url = url.substring(protocol.length());
 		}
+		String location = url.replaceAll("//", "__");
+		log.debug("****url=" + url);
+		log.debug("****location=" + location);
 		return location;
+	}
+
+	private String replaceSlash(String tempString) {
+		Pattern p = Pattern.compile("//");
+		Matcher matcher = p.matcher(tempString);
+		String newString = matcher.replaceAll("__");
+		return newString;
 	}
 
 	private String replaceSpace(String tempString) {
@@ -1790,10 +1803,10 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		ArrayList newList = new ArrayList();
 		for (int i = 0; i < list.size(); i++) {
 			AssessmentData a = (AssessmentData) list.get(i);
-			System.out.println("protocol:"
-					+ ServerConfigurationService.getAccessUrl());
+			log.debug("****protocol:"
+					+ ServerConfigurationService.getServerUrl());
 			AssessmentData new_a = prepareAssessment(a,
-					ServerConfigurationService.getAccessUrl());
+					ServerConfigurationService.getServerUrl());
 			newList.add(new_a);
 		}
 		getHibernateTemplate().saveOrUpdateAll(newList); // write
@@ -2101,47 +2114,26 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		Iterator o = sectionAttachmentSet.iterator();
 		while (o.hasNext()) {
 			SectionAttachment sectionAttachment = (SectionAttachment) o.next();
-			try {
-				// create a copy of the resource
-				ContentResource cr = ContentHostingService
-						.getResource(sectionAttachment.getResourceId());
-				ContentResource cr_copy = ContentHostingService
-						.addAttachmentResource(sectionAttachment.getFilename(),
-								cr.getContentType(), cr.getContent(), cr
-										.getProperties());
+			// create a copy of the resource
+			AssessmentService service = new AssessmentService();
+			ContentResource cr_copy = service.createCopyOfContentResource(
+					sectionAttachment.getResourceId(), sectionAttachment
+							.getFilename());
 
-				// get relative path
-				String url = getRelativePath(cr_copy.getUrl(), protocol);
+			// get relative path
+			String url = getRelativePath(cr_copy.getUrl(), protocol);
 
-				SectionAttachment newSectionAttachment = new SectionAttachment(
-						null, newSection, cr_copy.getId(), sectionAttachment
-								.getFilename(),
-						sectionAttachment.getMimeType(), sectionAttachment
-								.getFileSize(), sectionAttachment
-								.getDescription(), url, sectionAttachment
-								.getIsLink(), sectionAttachment.getStatus(),
-						sectionAttachment.getCreatedBy(), sectionAttachment
-								.getCreatedDate(), sectionAttachment
-								.getLastModifiedBy(), sectionAttachment
-								.getLastModifiedDate());
-				h.add(newSectionAttachment);
-			} catch (PermissionException e) {
-				log.warn(e.getMessage());
-			} catch (IdUnusedException e) {
-				log.warn(e.getMessage());
-			} catch (TypeException e) {
-				log.warn(e.getMessage());
-			} catch (IdInvalidException e) {
-				log.warn(e.getMessage());
-			} catch (InconsistentException e) {
-				log.warn(e.getMessage());
-			} catch (IdUsedException e) {
-				log.warn(e.getMessage());
-			} catch (OverQuotaException e) {
-				log.warn(e.getMessage());
-			} catch (ServerOverloadException e) {
-				log.warn(e.getMessage());
-			}
+			SectionAttachment newSectionAttachment = new SectionAttachment(
+					null, newSection, cr_copy.getId(), sectionAttachment
+							.getFilename(), sectionAttachment.getMimeType(),
+					sectionAttachment.getFileSize(), sectionAttachment
+							.getDescription(), url, sectionAttachment
+							.getIsLink(), sectionAttachment.getStatus(),
+					sectionAttachment.getCreatedBy(), sectionAttachment
+							.getCreatedDate(), sectionAttachment
+							.getLastModifiedBy(), sectionAttachment
+							.getLastModifiedDate());
+			h.add(newSectionAttachment);
 		}
 		return h;
 	}
@@ -2153,49 +2145,26 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		while (o.hasNext()) {
 			AssessmentAttachment assessmentAttachment = (AssessmentAttachment) o
 					.next();
-			try {
-				// create a copy of the resource
-				ContentResource cr = ContentHostingService
-						.getResource(assessmentAttachment.getResourceId());
-				ContentResource cr_copy = ContentHostingService
-						.addAttachmentResource(assessmentAttachment
-								.getFilename(), cr.getContentType(), cr
-								.getContent(), cr.getProperties());
+			// create a copy of the resource
+			AssessmentService service = new AssessmentService();
+			ContentResource cr_copy = service.createCopyOfContentResource(
+					assessmentAttachment.getResourceId(), assessmentAttachment
+							.getFilename());
 
-				// get relative path
-				String url = getRelativePath(cr_copy.getUrl(), protocol);
+			// get relative path
+			String url = getRelativePath(cr_copy.getUrl(), protocol);
 
-				AssessmentAttachment newAssessmentAttachment = new AssessmentAttachment(
-						null, newAssessment, cr_copy.getId(),
-						assessmentAttachment.getFilename(),
-						assessmentAttachment.getMimeType(),
-						assessmentAttachment.getFileSize(),
-						assessmentAttachment.getDescription(), url,
-						assessmentAttachment.getIsLink(), assessmentAttachment
-								.getStatus(), assessmentAttachment
-								.getCreatedBy(), assessmentAttachment
-								.getCreatedDate(), assessmentAttachment
-								.getLastModifiedBy(), assessmentAttachment
-								.getLastModifiedDate());
-				h.add(newAssessmentAttachment);
-			} catch (PermissionException e) {
-				log.warn(e.getMessage());
-			} catch (IdUnusedException e) {
-				log.warn(e.getMessage());
-			} catch (TypeException e) {
-				log.warn(e.getMessage());
-			} catch (IdInvalidException e) {
-				log.warn(e.getMessage());
-			} catch (InconsistentException e) {
-				log.warn(e.getMessage());
-			} catch (IdUsedException e) {
-				log.warn(e.getMessage());
-			} catch (OverQuotaException e) {
-				log.warn(e.getMessage());
-			} catch (ServerOverloadException e) {
-				log.warn(e.getMessage());
-			}
-
+			AssessmentAttachment newAssessmentAttachment = new AssessmentAttachment(
+					null, newAssessment, cr_copy.getId(), assessmentAttachment
+							.getFilename(), assessmentAttachment.getMimeType(),
+					assessmentAttachment.getFileSize(), assessmentAttachment
+							.getDescription(), url, assessmentAttachment
+							.getIsLink(), assessmentAttachment.getStatus(),
+					assessmentAttachment.getCreatedBy(), assessmentAttachment
+							.getCreatedDate(), assessmentAttachment
+							.getLastModifiedBy(), assessmentAttachment
+							.getLastModifiedDate());
+			h.add(newAssessmentAttachment);
 		}
 		return h;
 	}

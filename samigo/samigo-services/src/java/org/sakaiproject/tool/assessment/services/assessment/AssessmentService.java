@@ -56,6 +56,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.cover.ToolManager;
 
 /**
  * The AssessmentService calls the service locator to reach the manager on the
@@ -581,7 +582,9 @@ public class AssessmentService {
 		try {
 			// create a copy of the resource
 			ContentResource cr = ContentHostingService.getResource(resourceId);
-			cr_copy = ContentHostingService.addAttachmentResource(filename, cr
+			cr_copy = ContentHostingService.addAttachmentResource(filename, 
+					ToolManager.getCurrentPlacement().getContext(), 
+					ToolManager.getTool("sakai.samigo").getTitle(), cr
 					.getContentType(), cr.getContent(), cr.getProperties());
 		} catch (IdInvalidException e) {
 			log.warn(e.getMessage());
