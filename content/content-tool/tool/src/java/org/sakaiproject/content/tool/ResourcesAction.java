@@ -2592,7 +2592,7 @@ public class ResourcesAction
 		else if(action instanceof ServiceLevelAction)
 		{
 			ServiceLevelAction sAction = (ServiceLevelAction) action;
-			sAction.invokeAction(reference);
+			sAction.initializeAction(reference);
 			switch(sAction.getActionType())
 			{
 				case COPY:
@@ -2628,6 +2628,10 @@ public class ResourcesAction
 				default:
 					break;
 			}
+			// not quite right for actions involving user interaction in Resources tool.
+			// For example, with delete, this should be after the confirmation and actual deletion
+			// Need mechanism to remember to do it later
+			sAction.finalizeAction(reference);
 			
 		}
 	}

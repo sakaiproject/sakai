@@ -77,12 +77,6 @@ public class UrlResourceType extends BaseResourceType
 			return rb.getString("action.copy");
 		}
 
-		public void invokeAction(Reference reference) 
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
 		public boolean isMultipleItemAction() 
 		{
 			return true;
@@ -91,6 +85,33 @@ public class UrlResourceType extends BaseResourceType
 		public String getTypeId() 
 		{
 			return typeId;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void cancelAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void finalizeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void initializeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
 		}
 
 	}
@@ -169,12 +190,6 @@ public class UrlResourceType extends BaseResourceType
 			return rb.getString("action.delete"); 
 		}
 
-		public void invokeAction(Reference reference) 
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
 		public boolean isMultipleItemAction() 
 		{
 			return true;
@@ -183,6 +198,33 @@ public class UrlResourceType extends BaseResourceType
 		public String getTypeId() 
 		{
 			return typeId;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void cancelAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void finalizeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void initializeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
 		}
 
 	}
@@ -207,12 +249,6 @@ public class UrlResourceType extends BaseResourceType
 			return rb.getString("action.duplicate"); 
 		}
 
-		public void invokeAction(Reference reference) 
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
 		public boolean isMultipleItemAction() 
 		{
 			// TODO Auto-generated method stub
@@ -222,6 +258,33 @@ public class UrlResourceType extends BaseResourceType
 		public String getTypeId() 
 		{
 			return typeId;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void cancelAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void finalizeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void initializeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
 		}
 
 	}
@@ -246,12 +309,6 @@ public class UrlResourceType extends BaseResourceType
 			return rb.getString("action.move"); 
 		}
 
-		public void invokeAction(Reference reference) 
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
 		public boolean isMultipleItemAction() 
 		{
 			// TODO Auto-generated method stub
@@ -261,6 +318,33 @@ public class UrlResourceType extends BaseResourceType
 		public String getTypeId() 
 		{
 			return typeId;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void cancelAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void finalizeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void initializeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
 		}
 
 	}

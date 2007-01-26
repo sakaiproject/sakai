@@ -23,6 +23,7 @@ package org.sakaiproject.content.api;
 
 import org.sakaiproject.entity.api.Reference;
 
+
 /**
  * 
  *
@@ -30,11 +31,31 @@ import org.sakaiproject.entity.api.Reference;
 public interface ServiceLevelAction extends ResourceToolAction
 {
 	/**
-	 * This method effects this action on the entity specified.
-	 * @param params
+	 * This method is invoked before the Resources tool does its part of the action
+	 * in case the registrant needs to participate in the action at that point.
+	 * @param reference A reference to the entity with respect to which the action is taken
 	 */
-	public void invokeAction(Reference reference);
+	public void initializeAction(Reference reference);
 	
+	/**
+	 * This method is invoked after the Resources tool does its part of the action
+	 * in case the registrant needs to participate in the action at that point.  Will
+	 * not be invoked after cancelAction(Reference reference) is invoked.
+	 * @param entity A reference to the entity  with respect to which the action is taken
+	 */
+	public void finalizeAction(Reference reference);
+	
+	/**
+	 * This method is invoked if the Resources tool cancels the action after invoking 
+	 * the initializeAction(Reference reference) method in case the registrant needs to 
+	 * clean up a canceled action at that point. Will not be invoked after 
+	 * finalizeAction(Reference reference) is invoked.
+	 * @param entity A reference to the entity  with respect to which the action is taken
+	 */
+	public void cancelAction(Reference reference);
+	
+	// ignored for now
+	// will deal with actions on multiple items (like copy, move, delete)
 	public boolean isMultipleItemAction();
 	
 }
