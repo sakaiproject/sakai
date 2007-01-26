@@ -2863,15 +2863,6 @@ public class DavServlet extends HttpServlet
 
 		lock.path = path;
 
-		// We don't want to allow just anyone to lock a resource.
-		// It seems reasonable to allow it only for someone who
-		// is allowed to modify it.
-		if (prohibited(path) || !ContentHostingService.allowUpdateResource(adjustId(path)))
-		{
-			resp.sendError(SakaidavStatus.SC_FORBIDDEN, path);
-			return;
-		}
-
 		// Retrieve the resources
 		// DirContext resources = getResources();
 		DirContextSAKAI resources = getResourcesSAKAI();
@@ -2892,6 +2883,18 @@ public class DavServlet extends HttpServlet
 		{
 			exists = false;
 		}
+
+		// We don't want to allow just anyone to lock a resource.
+		// It seems reasonable to allow it only for someone who
+		// is allowed to modify it.
+		if (prohibited(path) || 
+		    !(exists ? ContentHostingService.allowUpdateResource(adjustId(path)) :
+		      ContentHostingService.allowAddResource(adjustId(path))))
+		{
+			resp.sendError(SakaidavStatus.SC_FORBIDDEN, path);
+			return;
+		}
+
 
 		Enumeration locksList = null;
 
@@ -3198,7 +3201,17 @@ public class DavServlet extends HttpServlet
 		// DAVExplorer and unlock it manually. That seems like a
 		// good compromise. At any rate, there needs to be some
 		// check here, which there wasn't originally.
-		if (prohibited(path) || !ContentHostingService.allowUpdateResource(adjustId(path)))
+
+		// when creating, we know whether the resource exists, so we
+		// can check add or update appropriately. Here we don't, and
+		// I think it's faster just to do both checks.  In fact
+		// I believe allowAddResource doesn't currently check whether
+		// the resource exists, so it would be safe to use alone, but
+		// that seems like a bad assumption to make.
+		if (prohibited(path) ||
+		    !(ContentHostingService.allowAddResource(adjustId(path)) ||
+		      ContentHostingService.allowUpdateResource(adjustId(path))))
+
 		{
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
 			return;
