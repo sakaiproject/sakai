@@ -11,6 +11,10 @@
 		</h3>
 
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#set($submitTime=false)
+		#set($submitTime=$submission.getTimeSubmitted())
+		#set($returnTime=false)
+		#set($returnTime=$submission.getTimeReturned())
 			<table class="itemSummary" summary="$tlang.getString("stuviewgrad.thegradet")">
 				<tr>
 					<th>
@@ -37,8 +41,6 @@
 					</th>
 					<td>
 						## get submit time
-						#set($submitTime=false)
-						#set($submitTime=$submission.getTimeSubmitted())
 						#if($!submitTime)$submitTime.toStringLocalFull()#end<br />
 					</td>
 				</tr>
@@ -56,14 +58,14 @@
 						#end
 					#else
 						#if ($submission.Returned)
-							#if ($submission.getTimeReturned().after($submission.getTimeSubmitted()))
-								$tlang.getString("gen.returned") $submission.getTimeReturned().toStringLocalFull()
+							#if ($!returnTime && $!submitTime && $returnTime.after($submitTime))
+								$tlang.getString("gen.returned") $returnTime.toStringLocalFull()
 								#if ($submission.Graded)	
 									, $submission.GradeDisplay
 								#end
-							#else
-								Re-submitted $submission.getTimeSubmitted().toStringLocalFull()
-								#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+							#elseif ($!submitTime)
+								Re-submitted $submitTime.toStringLocalFull()
+								#if ($submitTime.after($assignment.DueTime))
 									<span class="highlight"> $tlang.getString("gen.late")</span>
 								#end
 							#end

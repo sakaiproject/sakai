@@ -269,6 +269,8 @@
 						#set($submissionReturned=$!submission.returned)
 						#set($submissionSubmitted=$!submission.submitted)
 						#set($submissionProperties=$!submission.getProperties())
+						#set($submitTime=false)
+						#set ($submitTime = $submission.getTimeSubmitted())
 					#end
 					## who can see the assignment?
 					## for instructor(one can add or update assignment), show all non-draft assignment, plus those draft assignment he can update
@@ -331,7 +333,8 @@
 										</div>
 									#else
 										#if ($!allowAddAssignment)
-											#if ($!submission)
+											## still for instructor, different view
+											#if ($!submission && $!submitTime)
 												#set($allowResubmitNumber=$!submissionProperties.getProperty($!allowResubmitNumberProp))
 												#if(!$!allowResubmitNumber.equals("0"))
 													#set($allowResubmitCloseTimeString=$!submissionProperties.getProperty($!allowResubmitCloseTimeProp))
@@ -359,7 +362,9 @@
 											#end
 										#else
 											#if($!allowSubmit)
-												#if ($!submission)
+												## for those who can submit
+												#if ($!submission && $!submitTime)
+													## is there a submission already?
 													#set($allowResubmitNumber=$!submissionProperties.getProperty($!allowResubmitNumberProp))
 													#if(!$!allowResubmitNumber.equals("0"))
 														#set($allowResubmitCloseTimeString=$!submissionProperties.getProperty($!allowResubmitCloseTimeProp))
@@ -446,9 +451,7 @@
 									#end
 								#else
 									#if ($!submission)
-										#set($submitTime=false)
-										#set ($submitTime = $s.getTimeSubmitted())
-										#if ($submissionSubmitted)
+										#if ($submissionSubmitted && $submitTime)
 											#if ($submissionReturned)
 												#if ($!submitTime && $submission.TimeReturned.after($submitTime) || !$submitTime)
 													$tlang.getString("gen.returned")
@@ -471,11 +474,13 @@
 												#if ($!submitTime && $submitTime.after($assignment.DueTime))
 													<span class="highlight">$tlang.getString("gen.late2")</span>
 												#end
-											<!--missing -if saved...In progress-->
 											#end
-										  #else
+										#elseif (!$submissionSubmitted)
+											## drafts
 											<span class="highlight">$tlang.getString("gen.dra2")</span> $tlang.getString("gen.inpro")
-										  #end
+										#else
+											$tlang.getString("gen.notsta")
+										#end
 									#else
 										$tlang.getString("gen.notsta")
 									#end
