@@ -49,8 +49,18 @@
 					<table>
 						#foreach($root in $roots)
 							<tr>
-								<td #if($root.isSelected())bgcolor="red"#end onclick="selectItem('$root.id');" valign="top" title="$item.hoverText">
-									$root.name
+								<td #if($root.isSelected())bgcolor="yellow"#end onclick="selectItem('$root.id');" valign="top" title="$item.hoverText">
+									#if("$selectedItemId" == "$root.id")
+										<a href="$root.accessUrl" target="_blank">
+											<img src="#imageLink($root.iconLocation)" alt="$root.label" />
+											&nbsp;
+											$root.name
+										</a>
+									#else
+										<img src="#imageLink($root.iconLocation)" alt="$root.label" />
+										&nbsp;
+										$root.name
+									#end
 								</td>
 							</tr>
 						#end
@@ -67,10 +77,16 @@
 										<table>
 											#foreach($item in $folder)
 												<tr>
-													<td #if($item.isSelected())bgcolor="red"#end onclick="selectItem('$item.id');" valign="top" title="$item.hoverText">
+													<td #if($item.isSelected())bgcolor="yellow"#end onclick="selectItem('$item.id');" valign="top" title="$item.hoverText">
 														#if("$selectedItemId" == "$item.id")
-															<a href="$item.accessUrl" target="_blank">$item.name</a>
+															<a href="$item.accessUrl" target="_blank">
+																<img src="#imageLink($item.iconLocation)" alt="$item.label" />
+																&nbsp;
+																$item.name
+															</a>
 														#else
+															<img src="#imageLink($item.iconLocation)" alt="$item.label" />
+															&nbsp;
 															$item.name
 														#end
 													</td>

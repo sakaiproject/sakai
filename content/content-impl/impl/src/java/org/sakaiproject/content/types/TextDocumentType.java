@@ -466,11 +466,11 @@ public class TextDocumentType extends BaseResourceType
 		this.userDirectoryService = (UserDirectoryService) ComponentManager.get("org.sakaiproject.user.api.UserDirectoryService");
 
 		actions.put(ResourceToolAction.CREATE, new TextDocumentCreateAction());
-		actions.put(ResourceToolAction.ACCESS_CONTENT, new TextDocumentAccessAction());
+		// actions.put(ResourceToolAction.ACCESS_CONTENT, new TextDocumentAccessAction());
 		actions.put(ResourceToolAction.REVISE_CONTENT, new TextDocumentReviseAction());
 		actions.put(ResourceToolAction.DUPLICATE, new TextDocumentDuplicateAction());
-		actions.put(ResourceToolAction.COPY, new TextDocumentCopyAction());
-		actions.put(ResourceToolAction.MOVE, new TextDocumentMoveAction());
+		// actions.put(ResourceToolAction.COPY, new TextDocumentCopyAction());
+		// actions.put(ResourceToolAction.MOVE, new TextDocumentMoveAction());
 		actions.put(ResourceToolAction.DELETE, new TextDocumentDeleteAction());
 
 		// initialize actionMap with an empty List for each ActionType

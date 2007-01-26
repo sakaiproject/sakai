@@ -200,7 +200,91 @@ public class ResourcesAction
 		protected boolean collection;
 		protected String hoverText;
 		protected String accessUrl;
+		protected String iconLocation;
+		protected String mimetype;
+		private String resourceType;
 		
+		/**
+		 * @param entity
+		 */
+		public ListItem(ContentEntity entity)
+		{
+			ResourceProperties props = entity.getProperties();
+			this.accessUrl = entity.getUrl();
+			this.collection = entity.isCollection();
+			this.id = entity.getId();
+			this.name = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			// this.permissions
+			this.selected = false;
+			
+			ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			this.resourceType = entity.getResourceType(); 
+			ResourceType typeDef = registry.getType(resourceType);
+			this.hoverText = this.name;
+			if(typeDef != null)
+			{
+				this.hoverText = typeDef.getLocalizedHoverText(entity);
+			}
+
+			if(this.collection)
+			{
+				ContentCollection coll = (ContentCollection) entity;
+				this.members = coll.getMembers();
+				this.iconLocation = ContentTypeImageService.getContentTypeImage("folder");
+			}
+			else 
+			{
+				ContentResource resource = (ContentResource) entity;
+				this.mimetype = resource.getContentType();
+				if(this.mimetype == null)
+				{
+					
+				}
+				this.iconLocation = ContentTypeImageService.getContentTypeImage(this.mimetype);
+			}
+				
+		}
+
+		/**
+		 * 
+		 */
+		public ListItem(String entityId)
+		{
+			this.id = entityId;
+		}
+
+		/**
+		 * @return the mimetype
+		 */
+		public String getMimetype()
+		{
+			return this.mimetype;
+		}
+
+		/**
+		 * @param mimetype the mimetype to set
+		 */
+		public void setMimetype(String mimetype)
+		{
+			this.mimetype = mimetype;
+		}
+
+		/**
+		 * @return the iconLocation
+		 */
+		public String getIconLocation()
+		{
+			return this.iconLocation;
+		}
+
+		/**
+		 * @param iconLocation the iconLocation to set
+		 */
+		public void setIconLocation(String iconLocation)
+		{
+			this.iconLocation = iconLocation;
+		}
+
 		/**
 		 * @return the hoverText
 		 */
@@ -434,6 +518,67 @@ public class ResourcesAction
 			if(propertyValues != null)
 			{
 				this.propertyValues.putAll(propertyValues);
+			}
+		}
+		
+		public EditItem(ContentEntity entity)
+		{
+			ResourceProperties props = entity.getProperties();
+			this.accessMode = entity.getAccess();
+			//this.canSetQuota = 
+			//this.collection = 
+			this.collectionId = entity.getContainingCollection().getId();
+			this.createdBy = props.getProperty(ResourceProperties.PROP_CREATOR);
+			this.modifiedBy = props.getProperty(ResourceProperties.PROP_MODIFIED_BY);
+			try
+			{
+				this.createdTime = props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE);
+				this.modifiedTime = props.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
+			}
+			catch (EntityPropertyNotDefinedException e1)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("EntityPropertyNotDefinedException ", e1);
+			}
+			catch (EntityPropertyTypeException e1)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("EntityPropertyTypeException ", e1);
+			}
+			this.displayName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			this.entityId = entity.getId();
+			this.groups = new TreeSet( entity.getGroupObjects() );
+			// this.hasQuota = 
+			this.hidden = entity.isHidden();
+			// this.notification = entity.
+			// this.prioritySortOrder = props.getLongProperty()
+			// this.propertyValues = props;
+			// this.quota = 
+			this.releaseDate = entity.getReleaseDate();
+			this.resourceType = entity.getResourceType();
+			this.retractDate = entity.getRetractDate();
+			// this.siteCollectionId = 
+			// this.version
+			
+			if(entity.isCollection())
+			{
+				ContentCollection collection = (ContentCollection) entity;
+				// this.hasPrioritySort = collection.;
+				
+			}
+			else
+			{
+				ContentResource resource = (ContentResource) entity;
+				try
+				{
+					this.content = resource.getContent();
+				}
+				catch (ServerOverloadException e)
+				{
+					// TODO Auto-generated catch block
+					logger.warn("ServerOverloadException ", e);
+				}
+				// this.uuid = resource.
 			}
 		}
 		
@@ -1295,6 +1440,7 @@ public class ResourcesAction
 	private static final String MODE_DAV = "webdav";
 	private static final String MODE_CREATE = "create";
 	private static final String MODE_CREATE_WIZARD = "createWizard";
+	private static final String MODE_DELETE_FINISH = "deleteFinish";
 
 	public  static final String MODE_HELPER = "helper";
 	private static final String MODE_DELETE_CONFIRM = "deleteConfirm";
@@ -1330,6 +1476,7 @@ public class ResourcesAction
 
 	private static final String TEMPLATE_MORE = "content/chef_resources_more";
 	private static final String TEMPLATE_DELETE_CONFIRM = "content/chef_resources_deleteConfirm";
+	private static final String TEMPLATE_DELETE_FINISH = "content/sakai_resources_deleteFinish";
 	private static final String TEMPLATE_PROPERTIES = "content/chef_resources_properties";
 	// private static final String TEMPLATE_REPLACE = "_replace";
 	private static final String TEMPLATE_REORDER = "content/chef_resources_reorder";
@@ -1452,6 +1599,10 @@ public class ResourcesAction
 	public static final String UTF_8_ENCODING = "UTF-8";
 
 	public static final String ACTION_DELIMITER = ":";
+
+	protected static final String STATE_DELETE_SET = "resources.delete_set";
+
+	protected static final String STATE_NON_EMPTY_DELETE_SET = "resources.non-empty_delete_set";
 
 
 	/**
@@ -1636,6 +1787,11 @@ public class ResourcesAction
 			// build the context for the basic step of delete confirm page
 			template = buildDeleteConfirmContext (portlet, context, data, state);
 		}
+		else if (mode.equals (MODE_DELETE_FINISH))
+		{
+			// build the context for the basic step of delete confirm page
+			template = buildDeleteFinishContext (portlet, context, data, state);
+		}
 		else if (mode.equals (MODE_MORE))
 		{
 			// build the context to display the property list
@@ -1662,6 +1818,55 @@ public class ResourcesAction
 		return template;
 
 	}	// buildMainPanelContext
+
+	/**
+	 * @param portlet
+	 * @param context
+	 * @param data
+	 * @param state
+	 * @return
+	 */
+	private String buildDeleteFinishContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	{
+		context.put("tlang",rb);
+		context.put ("collectionId", state.getAttribute (STATE_COLLECTION_ID) );
+
+		//%%%% FIXME
+		context.put ("collectionPath", state.getAttribute (STATE_COLLECTION_PATH));
+
+		List deleteItems = (List) state.getAttribute(STATE_DELETE_SET);
+		List nonEmptyFolders = (List) state.getAttribute(STATE_NON_EMPTY_DELETE_SET);
+
+		context.put ("deleteItems", deleteItems);
+
+		Iterator it = nonEmptyFolders.iterator();
+		while(it.hasNext())
+		{
+			ListItem folder = (ListItem) it.next();
+			String[] args = { folder.getName() };
+			String msg = rb.getFormattedMessage("folder.notempty", args) + " ";
+			addAlert(state, msg);
+		}
+
+		//  %%STATE_MODE_RESOURCES%%
+		//not show the public option when in dropbox mode
+		if (RESOURCES_MODE_RESOURCES.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+		{
+			context.put("dropboxMode", Boolean.FALSE);
+		}
+		else if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+		{
+			// not show the public option or notification when in dropbox mode
+			context.put("dropboxMode", Boolean.TRUE);
+		}
+		context.put("homeCollection", (String) state.getAttribute (STATE_HOME_COLLECTION_ID));
+		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
+		context.put ("resourceProperties", ContentHostingService.newResourceProperties ());
+
+		// String template = (String) getContext(data).get("template");
+		return TEMPLATE_DELETE_FINISH;
+
+	}
 
 	/**
 	 * Iterate over attributes in ToolSession and remove all attributes starting with a particular prefix.
@@ -1777,10 +1982,11 @@ public class ResourcesAction
 		{
 			String rootId = (String) it.next();
 			String rootName = (String) othersites.get(rootId);
-			ListItem root = new ListItem();
-			root.setId(rootId);
+			ListItem root = new ListItem(rootId);
 			root.setName(rootName);
 			root.setHoverText(rootName);
+			root.setAccessUrl(ContentHostingService.getUrl(rootId));
+			root.setIconLocation(ContentTypeImageService.getContentTypeImage("folder"));
 			
 			if(selectedItemId != null && selectedItemId.startsWith(rootId))
 			{
@@ -1837,21 +2043,8 @@ public class ResourcesAction
 				{
 					ContentEntity member = (ContentEntity) memberIt.next();
 					String itemId = member.getId();
-					ResourceProperties props = member.getProperties();
-					String itemName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-					String resourceType = member.getResourceType();
-					ResourceType typeDef = registry.getType(resourceType);
-					String hover = itemName;
-					if(typeDef != null)
-					{
-						hover = typeDef.getLocalizedHoverText(member);
-					}
-					ListItem item = new ListItem();
-					item.setId(itemId);
-					item.setName(itemName);
-					item.setHoverText(hover);
-					item.setAccessUrl(member.getUrl());
-					if(selectedItemId != null && selectedItemId.startsWith(itemId))
+					ListItem item = new ListItem(member);
+					if(selectedItemId != null && (selectedItemId.equals(itemId) || (member.isCollection() && selectedItemId.startsWith(itemId))))
 					{
 						selectedItem = member;
 						item.setSelected(true);
@@ -1859,6 +2052,10 @@ public class ResourcesAction
 						{
 							folderId = itemId;
 						}
+					}
+					else
+					{
+						item.setSelected(false);
 					}
 					folder.add(item);
 				}
@@ -2318,7 +2515,7 @@ public class ResourcesAction
 				catch (ServerOverloadException e) 
 				{
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.warn(this + ".doDispatchAction ServerOverloadException", e);
 				}
 			}
 
@@ -2328,6 +2525,42 @@ public class ResourcesAction
 		{
 			ServiceLevelAction sAction = (ServiceLevelAction) action;
 			sAction.invokeAction(reference);
+			switch(sAction.getActionType())
+			{
+				case COPY:
+					break;
+				case DUPLICATE:
+					duplicateItem(state, selectedItemId, ContentHostingService.getContainingCollectionId(selectedItemId));
+					break;
+				case DELETE:
+					deleteItem(state, selectedItemId);
+					if (state.getAttribute(STATE_MESSAGE) == null)
+					{
+						// need new context
+						state.setAttribute (STATE_MODE, MODE_DELETE_FINISH);
+					}
+					break;
+				case MOVE:
+					break;
+				case VIEW_METADATA:
+					break;
+				case CUSTOM_TOOL_ACTION:
+					// do nothing
+					break;
+				case NEW_UPLOAD:
+					break;
+				case NEW_FOLDER:
+					break;
+				case CREATE:
+					break;
+				case REVISE_CONTENT:
+					break;
+				case REPLACE_CONTENT:
+					break;
+				default:
+					break;
+			}
+			
 		}
 	}
 	
@@ -4219,10 +4452,6 @@ public class ResourcesAction
 			ChefBrowseItem folder = (ChefBrowseItem) it.next();
 			addAlert(state, rb.getString("folder2") + " " + folder.getName() + " " + rb.getString("contain2") + " ");
 		}
-
-		// find the ContentTypeImage service
-		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
-		context.put ("service", state.getAttribute (STATE_CONTENT_SERVICE));
 
 		//  %%STATE_MODE_RESOURCES%%
 		//not show the public option when in dropbox mode
@@ -7661,6 +7890,124 @@ public class ResourcesAction
 	}	// doDelete
 
 	/**
+	* doDelete to delete the selected collection or resource items
+	*/
+	public void doFinalizeDelete( RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		// cancel copy if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
+		{
+			initCopyContext(state);
+		}
+
+		// cancel move if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
+		{
+			initMoveContext(state);
+		}
+
+		ParameterParser params = data.getParameters ();
+
+		List items = (List) state.getAttribute(STATE_DELETE_SET);
+
+		// Vector deleteIds = (Vector) state.getAttribute (STATE_DELETE_IDS);
+
+		// delete the lowest item in the hireachy first
+		Hashtable deleteItems = new Hashtable();
+		// String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
+		int maxDepth = 0;
+		int depth = 0;
+
+		Iterator it = items.iterator();
+		while(it.hasNext())
+		{
+			ListItem item = (ListItem) it.next();
+			String[] parts = item.getId().split(Entity.SEPARATOR);
+			depth = parts.length;
+			if (depth > maxDepth)
+			{
+				maxDepth = depth;
+			}
+			List v = (List) deleteItems.get(new Integer(depth));
+			if(v == null)
+			{
+				v = new Vector();
+			}
+			v.add(item);
+			deleteItems.put(new Integer(depth), v);
+		}
+
+		boolean isCollection = false;
+		for (int j=maxDepth; j>0; j--)
+		{
+			List v = (List) deleteItems.get(new Integer(j));
+			if (v==null)
+			{
+				v = new Vector();
+			}
+			Iterator itemIt = v.iterator();
+			while(itemIt.hasNext())
+			{
+				ListItem item = (ListItem) itemIt.next();
+				try
+				{
+					if (item.isCollection())
+					{
+						ContentHostingService.removeCollection(item.getId());
+					}
+					else
+					{
+						ContentHostingService.removeResource(item.getId());
+					}
+				}
+				catch (PermissionException e)
+				{
+					addAlert(state, rb.getString("notpermis6") + " " + item.getName() + ". ");
+				}
+				catch (IdUnusedException e)
+				{
+					addAlert(state,RESOURCE_NOT_EXIST_STRING);
+				}
+				catch (TypeException e)
+				{
+					addAlert(state, rb.getString("deleteres") + " " + item.getName() + " " + rb.getString("wrongtype"));
+				}
+				catch (ServerOverloadException e)
+				{
+					addAlert(state, rb.getString("failed"));
+				}
+				catch (InUseException e)
+				{
+					addAlert(state, rb.getString("deleteres") + " " + item.getName() + " " + rb.getString("locked"));
+				}// try - catch
+				catch(RuntimeException e)
+				{
+					logger.debug("ResourcesAction.doDelete ***** Unknown Exception ***** " + e.getMessage());
+					addAlert(state, rb.getString("failed"));
+				}
+			}	// for
+
+		}	// for
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			// delete sucessful
+			state.setAttribute (STATE_MODE, MODE_LIST);
+			state.removeAttribute(STATE_DELETE_SET);
+			state.removeAttribute(STATE_NON_EMPTY_DELETE_SET);
+
+			if (((String) state.getAttribute (STATE_SELECT_ALL_FLAG)).equals (Boolean.TRUE.toString()))
+			{
+				state.setAttribute (STATE_SELECT_ALL_FLAG, Boolean.FALSE.toString());
+			}
+
+		}	// if-else
+
+	}	// doDelete
+
+	/**
 	* doCancel to return to the previous state
 	*/
 	public static void doCancel ( RunData data)
@@ -10651,7 +10998,6 @@ public class ResourcesAction
 	public void doDeleteconfirm ( RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		Set deleteIdSet  = new TreeSet();
 
 		// cancel copy if there is one in progress
 		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
@@ -10665,6 +11011,7 @@ public class ResourcesAction
 			initMoveContext(state);
 		}
 
+		Set deleteIdSet  = new TreeSet();
 		String[] deleteIds = data.getParameters ().getStrings ("selectedMembers");
 		if (deleteIds == null)
 		{
@@ -10674,91 +11021,8 @@ public class ResourcesAction
 		else
 		{
 			deleteIdSet.addAll(Arrays.asList(deleteIds));
-			List deleteItems = new Vector();
-			List notDeleteItems = new Vector();
-			List nonEmptyFolders = new Vector();
-			List roots = (List) state.getAttribute(STATE_COLLECTION_ROOTS);
-			if(roots == null)
-			{
-				
-			}
-			Iterator rootIt = roots.iterator();
-			while(rootIt.hasNext())
-			{
-				ChefBrowseItem root = (ChefBrowseItem) rootIt.next();
-
-				List members = root.getMembers();
-				Iterator memberIt = members.iterator();
-				while(memberIt.hasNext())
-				{
-					ChefBrowseItem member = (ChefBrowseItem) memberIt.next();
-					if(deleteIdSet.contains(member.getId()))
-					{
-						if(member.isFolder())
-						{
-							if(ContentHostingService.allowRemoveCollection(member.getId()))
-							{
-								deleteItems.add(member);
-								if(! member.isEmpty())
-								{
-									nonEmptyFolders.add(member);
-								}
-							}
-							else
-							{
-								notDeleteItems.add(member);
-							}
-						}
-						else if(ContentHostingService.allowRemoveResource(member.getId()))
-						{
-							deleteItems.add(member);
-						}
-						else
-						{
-							notDeleteItems.add(member);
-						}
-					}
-				}
-			}
-
-			if(! notDeleteItems.isEmpty())
-			{
-				String notDeleteNames = "";
-				boolean first_item = true;
-				Iterator notIt = notDeleteItems.iterator();
-				while(notIt.hasNext())
-				{
-					ChefBrowseItem item = (ChefBrowseItem) notIt.next();
-					if(first_item)
-					{
-						notDeleteNames = item.getName();
-						first_item = false;
-					}
-					else if(notIt.hasNext())
-					{
-						notDeleteNames += ", " + item.getName();
-					}
-					else
-					{
-						notDeleteNames += " and " + item.getName();
-					}
-				}
-				addAlert(state, rb.getString("notpermis14") + notDeleteNames);
-			}
-
-
-			/*
-					//htripath-SAK-1712 - Set new collectionId as resources are not deleted under 'more' requirement.
-					if(state.getAttribute(STATE_MESSAGE) == null){
-					  String newCollectionId=ContentHostingService.getContainingCollectionId(currentId);
-					  state.setAttribute(STATE_COLLECTION_ID, newCollectionId);
-					}
-			*/
-
-			// delete item
-			state.setAttribute (STATE_DELETE_ITEMS, deleteItems);
-			state.setAttribute (STATE_DELETE_ITEMS_NOT_EMPTY, nonEmptyFolders);
-		}	// if-else
+			deleteItems(state, deleteIdSet);
+		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
@@ -10768,6 +11032,198 @@ public class ResourcesAction
 
 
 	}	// doDeleteconfirm
+
+	/**
+	 * @param state
+	 * @param deleteIdSet
+	 * @param deleteIds
+	 */
+	protected void deleteItems(SessionState state, Set deleteIdSet)
+	{
+		List deleteItems = new Vector();
+		List notDeleteItems = new Vector();
+		List nonEmptyFolders = new Vector();
+		List roots = (List) state.getAttribute(STATE_COLLECTION_ROOTS);
+		if(roots == null)
+		{
+			
+		}
+		Iterator rootIt = roots.iterator();
+		while(rootIt.hasNext())
+		{
+			ChefBrowseItem root = (ChefBrowseItem) rootIt.next();
+
+			List members = root.getMembers();
+			Iterator memberIt = members.iterator();
+			while(memberIt.hasNext())
+			{
+				ChefBrowseItem member = (ChefBrowseItem) memberIt.next();
+				if(deleteIdSet.contains(member.getId()))
+				{
+					if(member.isFolder())
+					{
+						if(ContentHostingService.allowRemoveCollection(member.getId()))
+						{
+							deleteItems.add(member);
+							if(! member.isEmpty())
+							{
+								nonEmptyFolders.add(member);
+							}
+						}
+						else
+						{
+							notDeleteItems.add(member);
+						}
+					}
+					else if(ContentHostingService.allowRemoveResource(member.getId()))
+					{
+						deleteItems.add(member);
+					}
+					else
+					{
+						notDeleteItems.add(member);
+					}
+				}
+			}
+		}
+
+		if(! notDeleteItems.isEmpty())
+		{
+			String notDeleteNames = "";
+			boolean first_item = true;
+			Iterator notIt = notDeleteItems.iterator();
+			while(notIt.hasNext())
+			{
+				ChefBrowseItem item = (ChefBrowseItem) notIt.next();
+				if(first_item)
+				{
+					notDeleteNames = item.getName();
+					first_item = false;
+				}
+				else if(notIt.hasNext())
+				{
+					notDeleteNames += ", " + item.getName();
+				}
+				else
+				{
+					notDeleteNames += " and " + item.getName();
+				}
+			}
+			addAlert(state, rb.getString("notpermis14") + notDeleteNames);
+		}
+
+
+		/*
+				//htripath-SAK-1712 - Set new collectionId as resources are not deleted under 'more' requirement.
+				if(state.getAttribute(STATE_MESSAGE) == null){
+				  String newCollectionId=ContentHostingService.getContainingCollectionId(currentId);
+				  state.setAttribute(STATE_COLLECTION_ID, newCollectionId);
+				}
+		*/
+
+		state.setAttribute (STATE_DELETE_ITEMS, deleteItems);
+		state.setAttribute (STATE_DELETE_ITEMS_NOT_EMPTY, nonEmptyFolders);
+	}
+
+	/**
+	 * @param state
+	 * @param deleteIdSet
+	 */
+	protected void deleteItem(SessionState state, String itemId)
+	{
+		List deleteItems = new Vector();
+		List notDeleteItems = new Vector();
+		List nonEmptyFolders = new Vector();
+		
+		boolean isFolder = itemId.endsWith(Entity.SEPARATOR);
+		
+		try
+		{
+			ContentEntity entity = null;
+			if(isFolder)
+			{
+				entity = ContentHostingService.getCollection(itemId);
+			}
+			else
+			{
+				entity = ContentHostingService.getResource(itemId);
+			}
+			
+			ListItem member = new ListItem(entity);
+			
+			if(isFolder)
+			{
+				ContentCollection collection = (ContentCollection) entity;
+				if(ContentHostingService.allowRemoveCollection(itemId))
+				{
+					deleteItems.add(member);
+					if(collection.getMemberCount() > 0)
+					{
+						nonEmptyFolders.add(member);
+					}
+				}
+				else
+				{
+					notDeleteItems.add(member);
+				}
+			}
+			else if(ContentHostingService.allowRemoveResource(member.getId()))
+			{
+				deleteItems.add(member);
+			}
+			else
+			{
+				notDeleteItems.add(member);
+			}
+		}
+		catch (IdUnusedException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("IdUnusedException ", e);
+		}
+		catch (TypeException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("TypeException ", e);
+		}
+		catch (PermissionException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("PermissionException ", e);
+		}
+		
+
+		if(! notDeleteItems.isEmpty())
+		{
+			String notDeleteNames = "";
+			boolean first_item = true;
+			Iterator notIt = notDeleteItems.iterator();
+			while(notIt.hasNext())
+			{
+				ListItem item = (ListItem) notIt.next();
+				if(first_item)
+				{
+					notDeleteNames = item.getName();
+					first_item = false;
+				}
+				else if(notIt.hasNext())
+				{
+					notDeleteNames += ", " + item.getName();
+				}
+				else
+				{
+					notDeleteNames += " and " + item.getName();
+				}
+			}
+			addAlert(state, rb.getString("notpermis14") + notDeleteNames);
+		}
+
+		if(state.getAttribute(STATE_MESSAGE) == null)
+		{
+			state.setAttribute (STATE_DELETE_SET, deleteItems);
+			state.setAttribute (STATE_NON_EMPTY_DELETE_SET, nonEmptyFolders);
+		}
+	}
 
 
 	/**
@@ -12578,9 +13034,7 @@ public class ResourcesAction
 			
 			Reference ref = EntityManager.newReference(entity.getReference());
 
-			item = new ListItem();
-			item.setId(entityId);
-			item.setCollection(isCollection);
+			item = new ListItem(entity);
 			
 			/*
 			 * calculate permissions for this entity.  If its access mode is 
@@ -13047,6 +13501,17 @@ public class ResourcesAction
 
 		String collectionId = params.getString ("collectionId");
 
+		duplicateItem(state, itemId, collectionId);
+
+	}	// doPasteitem
+
+	/**
+	 * @param state
+	 * @param itemId
+	 * @param collectionId
+	 */
+	protected static void duplicateItem(SessionState state, String itemId, String collectionId)
+	{
 		String originalDisplayName = NULL_STRING;
 
 		try
@@ -13153,8 +13618,7 @@ public class ResourcesAction
 				state.setAttribute (STATE_COPY_FLAG, Boolean.FALSE.toString());
 			}
 		}
-
-	}	// doPasteitem
+	}
 
 	/**
 	* Fire up the permissions editor for the current folder's permissions

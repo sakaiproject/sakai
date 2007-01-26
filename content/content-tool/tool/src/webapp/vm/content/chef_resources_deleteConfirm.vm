@@ -5,24 +5,6 @@
 	<h3>
 		$tlang.getString("del.del")
 	</h3>
-	#*
-	<div class ="breadCrumb">
-		$tlang.getString("gen.location")
-		<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" alt= "$tlang.getString('gen.folder')" border="0" />
-		#foreach ($id in $collectionPath)
-			#if ($dropboxMode && $id==$homeCollection)
-				$siteTitle Drop Box /
-			#else
-				$validator.escapeHtml($service.getProperties($id).getPropertyFormatted($resourceProperties.NamePropDisplayName)) /
-			#end
-		#end
-		#if ($dropboxMode && $collectionId==$homeCollection)
-			$siteTitle Drop Box
-		#else
-			$validator.escapeHtml($service.getProperties($collectionId).getPropertyFormatted($resourceProperties.NamePropDisplayName))
-		#end
-	</div>
-	*#
 	<form action="#toolForm("ResourcesAction")" name="deleteFileForm" method="post" >
 		<input type="hidden" name="deleteResourceIds" value="$deleteResourceIds" />
 		<input type="hidden" name="view" value="general" />
@@ -47,11 +29,7 @@
 					<tr>
 						<td headers="title">
 							<h4>
-								#if($member.isFolder())
-									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" alt ="$tlang.getString('gen.folder)" />
-								#else
-									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($member.type))" alt ="($member.type)" />
-								#end
+								<img src = "#imageLink($member.iconLocation)" alt ="$member.label" />
 								<a href="$member.url" target="_blank">
 									$member.name
 								</a>
