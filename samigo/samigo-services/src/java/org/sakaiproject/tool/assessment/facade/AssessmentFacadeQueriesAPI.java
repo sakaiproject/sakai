@@ -40,156 +40,167 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 
-public interface AssessmentFacadeQueriesAPI
-{
+public interface AssessmentFacadeQueriesAPI {
 
-  public IdImpl getId(String id);
+	public IdImpl getId(String id);
 
-  public IdImpl getId(Long id);
+	public IdImpl getId(Long id);
 
-  public IdImpl getId(long id);
+	public IdImpl getId(long id);
 
-  public IdImpl getAssessmentId(String id);
+	public IdImpl getAssessmentId(String id);
 
-  public IdImpl getAssessmentId(Long id);
+	public IdImpl getAssessmentId(Long id);
 
-  public IdImpl getAssessmentId(long id);
+	public IdImpl getAssessmentId(long id);
 
-  public IdImpl getAssessmentTemplateId(String id);
+	public IdImpl getAssessmentTemplateId(String id);
 
-  public IdImpl getAssessmentTemplateId(Long id);
+	public IdImpl getAssessmentTemplateId(Long id);
 
-  public IdImpl getAssessmentTemplateId(long id);
+	public IdImpl getAssessmentTemplateId(long id);
 
-  public Long addTemplate();
+	public Long addTemplate();
 
-  public void removeTemplate(Long assessmentId);
+	public void removeTemplate(Long assessmentId);
 
-  public Long addAssessment(Long assessmentTemplateId);
+	public Long addAssessment(Long assessmentTemplateId);
 
-  public AssessmentBaseData load(Long id);
+	public AssessmentBaseData load(Long id);
 
-  public AssessmentTemplateData loadTemplate(Long assessmentTemplateId);
+	public AssessmentTemplateData loadTemplate(Long assessmentTemplateId);
 
-  public AssessmentData loadAssessment(Long assessmentId);
+	public AssessmentData loadAssessment(Long assessmentId);
 
-  /* The following methods are real
-   *
-   */
-  public AssessmentTemplateFacade getAssessmentTemplate(
-      Long assessmentTemplateId);
+	/*
+	 * The following methods are real
+	 * 
+	 */
+	public AssessmentTemplateFacade getAssessmentTemplate(
+			Long assessmentTemplateId);
 
-  public ArrayList getAllAssessmentTemplates();
+	public ArrayList getAllAssessmentTemplates();
 
-  public ArrayList getAllActiveAssessmentTemplates();
+	public ArrayList getAllActiveAssessmentTemplates();
 
-  /**
-   *
-   * @return a list of AssessmentTemplateFacade. However, it is IMPORTANT to note
-   * that it is not a full object, it contains merely assessmentBaseId (which is
-   * the templateId) & title. This methods is used when a list of template titles
-   * is required for displaying purposes.
-   */
-  public ArrayList getTitleOfAllActiveAssessmentTemplates();
+	/**
+	 * 
+	 * @return a list of AssessmentTemplateFacade. However, it is IMPORTANT to
+	 *         note that it is not a full object, it contains merely
+	 *         assessmentBaseId (which is the templateId) & title. This methods
+	 *         is used when a list of template titles is required for displaying
+	 *         purposes.
+	 */
+	public ArrayList getTitleOfAllActiveAssessmentTemplates();
 
-  public AssessmentFacade getAssessment(Long assessmentId);
+	public AssessmentFacade getAssessment(Long assessmentId);
 
-  public void removeAssessment(Long assessmentId);
+	public void removeAssessment(Long assessmentId);
 
-  public AssessmentData cloneAssessmentFromTemplate(AssessmentTemplateData t);
+	public AssessmentData cloneAssessmentFromTemplate(AssessmentTemplateData t);
 
-  /** This method is the same as createAssessment() except that no default
-   *  section will be created with the assessment.
-   */
-  public AssessmentFacade createAssessmentWithoutDefaultSection(String title,
-      String description, Long typeId, Long templateId) throws Exception;
+	/**
+	 * This method is the same as createAssessment() except that no default
+	 * section will be created with the assessment.
+	 */
+	public AssessmentFacade createAssessmentWithoutDefaultSection(String title,
+			String description, Long typeId, Long templateId) throws Exception;
 
-  public AssessmentFacade createAssessment(String title, String description,
-      Long typeId, Long templateId) throws Exception;
+	public AssessmentFacade createAssessment(String title, String description,
+			Long typeId, Long templateId) throws Exception;
 
-  public ArrayList getAllAssessments(String orderBy);
+	public ArrayList getAllAssessments(String orderBy);
 
-  public ArrayList getAllActiveAssessments(String orderBy);
+	public ArrayList getAllActiveAssessments(String orderBy);
 
-  public ArrayList getBasicInfoOfAllActiveAssessments(String orderBy,
-      boolean ascending);
+	public ArrayList getBasicInfoOfAllActiveAssessments(String orderBy,
+			boolean ascending);
 
-  public ArrayList getBasicInfoOfAllActiveAssessmentsByAgent(String orderBy,
-      String siteAgentId, boolean ascending);
+	public ArrayList getBasicInfoOfAllActiveAssessmentsByAgent(String orderBy,
+			String siteAgentId, boolean ascending);
 
-  public ArrayList getBasicInfoOfAllActiveAssessmentsByAgent(String orderBy,
-      String siteAgentId);
+	public ArrayList getBasicInfoOfAllActiveAssessmentsByAgent(String orderBy,
+			String siteAgentId);
 
-  public AssessmentFacade getBasicInfoOfAnAssessment(Long assessmentId);
+	public AssessmentFacade getBasicInfoOfAnAssessment(Long assessmentId);
 
-  public ArrayList getSettingsOfAllActiveAssessments(String orderBy);
+	public ArrayList getSettingsOfAllActiveAssessments(String orderBy);
 
-  public ArrayList getAllAssessments(int pageSize, int pageNumber,
-      String orderBy);
+	public ArrayList getAllAssessments(int pageSize, int pageNumber,
+			String orderBy);
 
-  public int getQuestionSize(final Long assessmentId);
+	public int getQuestionSize(final Long assessmentId);
 
-  public void deleteAllSecuredIP(AssessmentIfc assessment);
+	public void deleteAllSecuredIP(AssessmentIfc assessment);
 
-  public void saveOrUpdate(AssessmentFacade assessment);
+	public void saveOrUpdate(AssessmentFacade assessment);
 
-  public void saveOrUpdate(AssessmentTemplateData template);
+	public void saveOrUpdate(AssessmentTemplateData template);
 
-  public void deleteTemplate(Long templateId);
+	public void deleteTemplate(Long templateId);
 
-  public SectionFacade addSection(Long assessmentId);
+	public SectionFacade addSection(Long assessmentId);
 
-  public SectionFacade getSection(Long sectionId);
+	public SectionFacade getSection(Long sectionId);
 
-  public void removeSection(Long sectionId);
+	public void removeSection(Long sectionId);
 
-  public SectionData loadSection(Long sectionId);
+	public SectionData loadSection(Long sectionId);
 
-  public void saveOrUpdateSection(SectionFacade section);
+	public void saveOrUpdateSection(SectionFacade section);
 
-  /**
-   * This method move a set of questions form one section to another
-   * @param sourceSectionId
-   * @param destSectionId
-   */
-  public void moveAllItems(Long sourceSectionId, Long destSectionId);
+	/**
+	 * This method move a set of questions form one section to another
+	 * 
+	 * @param sourceSectionId
+	 * @param destSectionId
+	 */
+	public void moveAllItems(Long sourceSectionId, Long destSectionId);
 
-  public ArrayList getBasicInfoOfAllActiveAssessmentTemplates(String orderBy);
+	public ArrayList getBasicInfoOfAllActiveAssessmentTemplates(String orderBy);
 
-  public void checkForQuestionPoolItem(AssessmentData assessment,
-      HashMap qpItemHash);
+	public void checkForQuestionPoolItem(AssessmentData assessment,
+			HashMap qpItemHash);
 
-  public void checkForQuestionPoolItem(SectionData section, HashMap qpItemHash);
+	public void checkForQuestionPoolItem(SectionData section, HashMap qpItemHash);
 
-  public void removeAllItems(Long sourceSectionId);
+	public void removeAllItems(Long sourceSectionId);
 
-  public boolean assessmentTitleIsUnique(Long assessmentBaseId, String title, Boolean isTemplate);
+	public boolean assessmentTitleIsUnique(Long assessmentBaseId, String title,
+			Boolean isTemplate);
 
-  public List getAssessmentByTemplate(Long templateId);
+	public List getAssessmentByTemplate(Long templateId);
 
-  public List getDefaultMetaDataSet();
+	public List getDefaultMetaDataSet();
 
-  public void deleteAllMetaData(AssessmentBaseIfc assessment);
+	public void deleteAllMetaData(AssessmentBaseIfc assessment);
 
-  public ItemAttachmentIfc createItemAttachment(ItemDataIfc item, 
-    String resourceId, String filename, String protocol);
+	public ItemAttachmentIfc createItemAttachment(ItemDataIfc item,
+			String resourceId, String filename, String protocol);
 
-  public void removeItemAttachment(Long itemAttachmentId);
+	public void removeItemAttachment(Long itemAttachmentId);
 
-  public void updateAssessmentLastModifiedInfo(AssessmentFacade assessmentFacade);
+	public void updateAssessmentLastModifiedInfo(
+			AssessmentFacade assessmentFacade);
 
-  public SectionAttachmentIfc createSectionAttachment(SectionDataIfc section, 
-    String resourceId, String filename, String protocol);
+	public SectionAttachmentIfc createSectionAttachment(SectionDataIfc section,
+			String resourceId, String filename, String protocol);
 
-  public void removeSectionAttachment(Long sectionAttachmentId);
+	public void removeSectionAttachment(Long sectionAttachmentId);
 
-  public AssessmentAttachmentIfc createAssessmentAttachment(AssessmentIfc assessment, 
-    String resourceId, String filename, String protocol);
+	public AssessmentAttachmentIfc createAssessmentAttachment(
+			AssessmentIfc assessment, String resourceId, String filename,
+			String protocol);
 
-  public void removeAssessmentAttachment(Long assessmentAttachmentId);
+	public void removeAssessmentAttachment(Long assessmentAttachmentId);
 
-  public AttachmentData createEmailAttachment(String resourceId, String filename, String protocol);
+	public AttachmentData createEmailAttachment(String resourceId,
+			String filename, String protocol);
 
-  public void saveOrUpdateAttachments(List list);
+	public void saveOrUpdateAttachments(List list);
+
+	public void copyAllAssessments(String fromContext, String toContext);
+	
+	public List getAllActiveAssessmentsByAgent(String fromContext);
 
 }

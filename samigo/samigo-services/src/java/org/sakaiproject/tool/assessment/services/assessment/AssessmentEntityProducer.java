@@ -44,8 +44,8 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 
 	public void transferCopyEntities(String fromContext, String toContext,
 			List ids) {
-		// TODO Auto-generated method stub
-
+		AssessmentService service = new AssessmentService();
+		service.copyAllAssessments(fromContext, toContext);
 	}
 
 	public String archive(String siteId, Document doc, Stack stack,
