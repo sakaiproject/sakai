@@ -155,7 +155,7 @@ public class PublishAssessmentListener
         PublishedAssessmentService();
     PublishedAssessmentFacade pub = null;
     try {
-       pub = publishedAssessmentService.publishAssessment(assessment, ContextUtil.getProtocol());
+       pub = publishedAssessmentService.publishAssessment(assessment);
     } catch (AssignmentHasIllegalPointsException gbe) {
        // Right now gradebook can only accept assessements with totalPoints > 0 
        // this  might change later

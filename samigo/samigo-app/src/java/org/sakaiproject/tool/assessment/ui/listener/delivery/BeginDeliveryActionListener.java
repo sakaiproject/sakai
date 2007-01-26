@@ -308,7 +308,7 @@ public class BeginDeliveryActionListener implements ActionListener
         AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
         try {
           PublishedAssessmentFacade tempPub = publishedAssessmentService.publishPreviewAssessment(
-            assessment, ContextUtil.getProtocol());
+            assessment);
           publishedId = tempPub.getPublishedAssessmentId().toString();
           // clone pub from tempPub, clone is not in anyway bound to the DB session
           pub = tempPub.clonePublishedAssessment();
