@@ -1,0 +1,52 @@
+#start_response()
+<!-- portlet.vm -->
+<div class="portlet">
+        <a href="${portalTopUrl}" title="need title here">Sites</a> 
+#if ($currentSite)
+         -> <a href="${currentSite.siteUrl}" title="${currentSite.siteTitle}">
+<span>${currentSite.siteTitle}</span></a>
+#end
+#if ($currentPlacement)
+         -> <a href="${currentPlacement.toolResetActionUrl}" target="${currentPlacement.toolPlacementIDJS}"
+               >${currentPlacement.toolTitle}</a>
+#end
+#if (${currentPlacement.toolShowHelpButton})
+             &nbsp;(<a accesskey="h" href="${currentPlacement.toolHelpActionUrl}" title="${sitHelp}"
+                target="_blank" onclick="openWindow('${currentPlacement.toolHelpActionUrl}', 'Help',
+                'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">?</a>)
+#end
+#if ($currentPlacement)
+#includeToolBody($currentPlacement)
+#else
+#if ($currentSite)
+<ul>
+#foreach ( $page in $pageNavTools ) 
+#if ($page.isPage)
+<li><a href="${page.pagerefUrl}" title="${page.pageTitle}" target="_new">${page.pageTitle}</a>
+<BR> We have a page ${page.pageId}
+jsToolId = ${page.jsPageId}
+title = ${page.pageTitle}
+toolrefUrl = ${page.pagerefUrl}
+#else
+<li><a href="${page.toolrefUrl}" title="${page.toolTitle}">${page.toolTitle}</a>
+<!--
+<BR> We have a tool ${page.toolId}
+jsToolId = ${page.jsToolId}
+title = ${page.toolTitle}
+toolrefUrl = ${page.toolrefUrl}
+-->
+#end
+#end
+</ul>
+#else
+<ul>
+#foreach ( $site in $allSites ) 
+  <li><a href="${site.siteUrl}" title="${site.siteTitle}">
+  <span>${site.siteTitle}</span>
+  </a></li>
+#end 
+#end
+#end
+</div>
+<!-- end portlet.vm -->
+#end_response()

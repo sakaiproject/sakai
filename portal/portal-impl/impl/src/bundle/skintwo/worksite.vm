@@ -1,5 +1,6 @@
 #start_response()
 <!-- end worksite.vm -->
+HELLO FROM WORKSITE
 #includeWorksite()
 <!-- worksite.vm -->
 #end_response()

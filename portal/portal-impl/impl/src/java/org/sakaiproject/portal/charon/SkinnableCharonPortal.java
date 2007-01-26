@@ -312,6 +312,111 @@ public class SkinnableCharonPortal extends HttpServlet  {
         err.report(req, res, t);
     }
 
+    /*
+     * Produce a portlet like view with the navigation all at the top with implicit reset
+     */
+    protected void doPortlet(HttpServletRequest req, HttpServletResponse res,
+                             Session session, String siteId, String toolId,
+                             String toolContextPath) throws ToolException, IOException {
+        // check to default site id
+	String parsedSiteId = siteId;
+	String errorMessage = null;
+
+        if (session.getUserId() == null) {
+            String forceLogin = req.getParameter(PARAM_FORCE_LOGIN);
+            if (forceLogin == null || "yes".equalsIgnoreCase(forceLogin)
+                || "true".equalsIgnoreCase(forceLogin)) {
+                doLogin(req, res, session, req.getPathInfo(), false);
+                return;
+            }
+        }
+
+        // find the site, for visiting
+        Site site = null;
+        try {
+            site = getSiteVisit(siteId);
+        }
+        catch (IdUnusedException e) {
+	    errorMessage = "Unable to find site: " + siteId;
+	    siteId = null;
+	    toolId = null;
+        }
+        catch (PermissionException e) {
+            if (session.getUserId() == null) {
+                // doLogin(req, res, session, req.getPathInfo(), false);
+		// return;
+	    	errorMessage = "No permission for anynymous user to view site: " + siteId;
+            } else {
+	    	errorMessage = "No permission to view site: " + siteId;
+            }
+            siteId = null;
+	    toolId = null;  //  Tool needs the site and needs it to be visitable
+        }
+
+	// Get the Tool Placement
+        ToolConfiguration placement = null;
+	if ( site != null && toolId != null ) {
+            placement = SiteService.findTool(toolId);
+            if (placement == null) {
+		errorMessage = "Unable to find tool placement "+toolId;
+		toolId = null;                
+            }
+	   
+            boolean thisTool = allowTool(site, placement);
+            // System.out.println(" Allow Tool Display -" +
+            // placement.getTitle() + " retval = " + thisTool);
+            if ( ! thisTool ) {
+		errorMessage = "No permission to view tool placement "+toolId;
+	        toolId = null;
+		placement = null;
+	    }
+	}
+
+        // form a context sensitive title
+        String title = ServerConfigurationService.getString("ui.service");
+	if ( site != null ) {
+		title = title + ":" +  site.getTitle();
+		if ( placement != null ) title = title + " : " + placement.getTitle();
+	}
+
+        // start the response
+        String siteType = null;
+	String siteSkin = null;
+	if ( site != null ) {
+            siteType = calcSiteType(siteId);
+	    siteSkin = site.getSkin();
+	}
+
+        PortalRenderContext rcontext = startPageContext(siteType, title, siteSkin, req);
+
+	// Make the top Url where the "top" url is
+	String portalTopUrl = Web.serverUrl(req)
+                    + ServerConfigurationService.getString("portalPath") + "/"
+                    + "portlet" + "/";
+
+	rcontext.put("portalTopUrl",portalTopUrl);
+
+	if ( placement != null ) {
+            Map m = includeTool(res, req, placement);
+	    if ( m != null ) rcontext.put("currentPlacement",m);
+	}
+
+	if ( site != null ) {
+	    Map m = convertSiteToContext(req, site, "portlet", siteId);
+	    if ( m != null ) rcontext.put("currentSite",m);
+            includePageList(rcontext, req,  session, site, null, toolContextPath,
+                "portlet", false, true);
+	}
+
+	List mySites = getAllSites(req, session, true);
+        List l = convertSitesToContext(req, mySites, "portlet", siteId);
+	rcontext.put("allSites", l);
+
+        includeBottom(rcontext);
+
+        sendResponse(rcontext, res, "portlet");
+    }
+
     protected void doGallery(HttpServletRequest req, HttpServletResponse res,
                              Session session, String siteId, String pageId,
                              String toolContextPath) throws ToolException, IOException {
@@ -380,7 +485,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
             .getSkin(), req);
 
         // the 'little' top area
-        includeGalleryNav(rcontext, req, session, siteId);
+        includeGalleryNav(rcontext, req, session, siteId, "gallery");
 
         includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
             "gallery");
@@ -388,25 +493,6 @@ public class SkinnableCharonPortal extends HttpServlet  {
         includeBottom(rcontext);
 
         sendResponse(rcontext, res, "gallery");
-    }
-
-    protected void doGalleryTabs(HttpServletRequest req,
-                                 HttpServletResponse res, Session session, String siteId)
-        throws IOException {
-        String skin = SiteService.getSiteSkin(siteId);
-
-        PortalRenderContext rcontext = startPageContext("", "Site Navigation",
-            skin, req);
-
-        // Remove the logout button from gallery since it is designed to be
-        // included within
-        // some other application (like a portal) which will want to control
-        // logout.
-
-        // includeTabs(out, req, session, siteId, "gallery", true);
-        includeTabs(rcontext, req, session, siteId, "gallery", false);
-
-        sendResponse(rcontext, res, "gallery-tabs");
     }
 
     /**
@@ -479,9 +565,9 @@ public class SkinnableCharonPortal extends HttpServlet  {
                     .makePath(parts, 3, parts.length));
             }
 
-            // These reet urls simply set a session value to indicate to reset
+            // These reset urls simply set a session value to indicate to reset
             // state and then redirect
-            // This is necessary os that hte URL is clean and we do not see
+            // This is necessary os that the URL is clean and we do not see
             // resets on refresh
             else if ((parts.length > 2) && (parts[1].equals("tool-reset"))) {
                 String toolUrl = req.getContextPath() + "/tool" + Web.makePath(parts, 2, parts.length);
@@ -493,19 +579,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
                 portalService.setResetState("true");
                 resetDone = true;
                 res.sendRedirect(toolUrl);
-
-            /**
-             * Title frames were no longer used in 2.3 and are not supported in 2.4
-             * so we emit a WARN message here to help people with derived classes figure
-             * out the new way.
-             */
-
-            // TODO: Remove after 2.4
-            } else if ((parts.length > 2) && (parts[1].equals("title"))) {
-            	M_log
-                	.warn("The /title/ form of portal URLs is no longer supported in Sakai 2.4 and later");
             }
-
             // recognize a dispatch the 'page' option (tools on a page)
             else if ((parts.length == 3) && (parts[1].equals("page"))) {
                 // Resolve the placements of the form
@@ -532,6 +606,53 @@ public class SkinnableCharonPortal extends HttpServlet  {
 
                 doWorksite(req, res, session, parts[2], pageId, req
                     .getContextPath()
+                    + req.getServletPath());
+            }
+
+	    // Implement the dense portlet-style portal
+            else if ((parts.length >= 2) && (parts[1].equals("portlet"))) {
+
+                // /portal/portlet/site-id
+                String siteId = null;
+                if (parts.length >= 3) {
+                    siteId = parts[2];
+                }
+
+	        // This is a pop-up page - it does exactly the same as /portal/page
+                // /portal/portlet/site-id/page/page-id
+	        //           1       2      3     4
+                String pageId = null;
+                if ((parts.length == 5) && (parts[3].equals("page"))) {
+                    doPage(req, res, session, parts[4], req.getContextPath()
+                        + req.getServletPath());
+		    return;
+                }
+
+		// /portal/tool-reset
+		//    0       2
+		// Tool Prior to the reset
+		// /portal/portlet/site-id/tool-reset/toolId
+		//    0      1       2         3        4
+                String toolId = null;
+                if ( (siteId != null ) && (parts.length == 5) && (parts[3].equals("tool-reset"))) {
+		    toolId = parts[4];
+                    String toolUrl = req.getContextPath() + "/portlet/" + siteId + "/tool" + Web.makePath(parts, 4, parts.length);
+                    String queryString = req.getQueryString();
+                    if (queryString != null) {
+                        toolUrl = toolUrl + "?" + queryString;
+                    }
+                    portalService.setResetState("true");
+                    resetDone = true;
+                    res.sendRedirect(toolUrl);
+                }
+
+		// Tool after the reset
+		// /portal/portlet/site-id/tool/toolId
+                if ((parts.length == 5) && (parts[3].equals("tool"))) {
+		    toolId = parts[4];
+                }
+
+                doPortlet(req, res, session, siteId, toolId, req.getContextPath()
                     + req.getServletPath());
             }
 
@@ -572,16 +693,6 @@ public class SkinnableCharonPortal extends HttpServlet  {
 
                 doSite(req, res, session, siteId, pageId, req.getContextPath()
                     + req.getServletPath());
-            }
-
-            // recognize site tabs
-            else if ((parts.length == 3) && (parts[1].equals("site_tabs"))) {
-                doSiteTabs(req, res, session, parts[2]);
-            }
-
-            // recognize gallery tabs
-            else if ((parts.length == 3) && (parts[1].equals("gallery_tabs"))) {
-                doGalleryTabs(req, res, session, parts[2]);
             }
 
             // recognize nav login
@@ -1139,21 +1250,6 @@ public class SkinnableCharonPortal extends HttpServlet  {
 
     }
 
-    protected void doSiteTabs(HttpServletRequest req, HttpServletResponse res,
-                              Session session, String siteId) throws IOException {
-        // get the site's skin
-        String skin = SiteService.getSiteSkin(siteId);
-
-        // start the response
-        PortalRenderContext rcontext = startPageContext("", "Site Navigation",
-            skin, req);
-
-        includeLogo(rcontext, req, session, siteId);
-        includeTabs(rcontext, req, session, siteId, "site", false);
-
-        sendResponse(rcontext, res, "site-tabs");
-    }
-
     /**
      * Do direct tool, takes the url, stored the destination and the target
      * iframe in the session constructs and outer url and when a request comes
@@ -1550,22 +1646,12 @@ public class SkinnableCharonPortal extends HttpServlet  {
     }
 
     protected void includeGalleryNav(PortalRenderContext rcontext,
-                                     HttpServletRequest req, Session session, String siteId) {
+                                     HttpServletRequest req, Session session, String siteId, String prefix) {
         if (rcontext.uses(INCLUDE_GALLERY_NAV)) {
 
             boolean loggedIn = session.getUserId() != null;
             boolean topLogin = ServerConfigurationService.getBoolean(
                 "top.login", true);
-
-            String siteNavUrl = null;
-
-            if (loggedIn) {
-                siteNavUrl = Web.returnUrl(req, "/gallery_tabs/"
-                    + Web.escapeUrl(siteId));
-            } else {
-                siteNavUrl = Web.returnUrl(req, "/nav_login_gallery/"
-                    + Web.escapeUrl(siteId));
-            }
 
             // outer blocks and jump-to links
             String accessibilityURL = ServerConfigurationService
@@ -1589,7 +1675,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
 
             try {
                 if (loggedIn) {
-                    includeTabs(rcontext, req, session, siteId, "gallery",
+                    includeTabs(rcontext, req, session, siteId, prefix,
                         false);
                 } else {
                     includeGalleryLogin(rcontext, req, session, siteId);
@@ -1834,6 +1920,133 @@ public class SkinnableCharonPortal extends HttpServlet  {
         return retval;
     }
 
+    /*
+     * Produce a page and/or a tool list
+     * 
+     * doPage = true is best for the tabs-based portal and for RSS - these think in terms of pages
+     *
+     * doPage = false is best for the portlet-style - it unrolls all of the tools unless a page is marked
+     * as a popup.  If the page is a popup - it is left a page and marked as such.
+     *
+     * restTools = true - generate resetting tool URLs.
+     */
+
+    // TODO: Refactor code in other functions to use this code rather than doing it inline
+    protected void includePageList(PortalRenderContext rcontext,
+                                  HttpServletRequest req, Session session, Site site, SitePage page,
+                                  String toolContextPath, String portalPrefix, boolean doPages, 
+				  boolean resetTools) throws IOException {
+        if (rcontext.uses(INCLUDE_PAGE_NAV)) {
+
+            String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
+                + Web.escapeUrl(getSiteEffectiveId(site)) + "/page/");
+	    String toolUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
+                + Web.escapeUrl(getSiteEffectiveId(site))) ;
+	    if ( resetTools ) {
+		toolUrl = toolUrl + "/tool-reset/";
+	    } else {
+		toolUrl = toolUrl + "/tool/";
+	    }
+		
+            String pagePopupUrl = Web.returnUrl(req, "/page/");
+            boolean showHelp = ServerConfigurationService.getBoolean(
+                "display.help.menu", true);
+            boolean loggedIn = session.getUserId() != null;
+            String iconUrl = site.getIconUrlFull();
+            boolean published = site.isPublished();
+            String type = site.getType();
+
+            rcontext.put("toolNavPublished", Boolean.valueOf(published));
+            rcontext.put("toolNavType", type);
+            rcontext.put("toolNavIconUrl", iconUrl);
+            rcontext.put("toolNavSitToolsHead", Web.escapeHtml(rb
+                .getString("sit.toolshead")));
+
+            // order the pages based on their tools and the tool order for the
+            // site
+            // type
+            List pages = site.getOrderedPages();
+
+            // gsilver - counter for tool accesskey attributes of <a>
+            // int count = 0;
+
+            List l = new ArrayList();
+            for (Iterator i = pages.iterator(); i.hasNext();) {
+
+                SitePage p = (SitePage) i.next();
+                // check if current user has permission to see page
+                // we will draw page button if it have permission to see at least
+                List pTools = p.getTools();
+                Iterator iPt = pTools.iterator();
+
+                boolean allowPage = false;
+                while (iPt.hasNext()) {
+                    ToolConfiguration placement = (ToolConfiguration) iPt
+                        .next();
+
+                    boolean thisTool = allowTool(site, placement);
+                    if (thisTool) allowPage = true;
+                    // System.out.println(" Allow Tool -" + tool.getTitle() + "
+                    // retval = " + thisTool + " page=" + allowPage);
+                }
+
+                if (!allowPage) continue;
+
+               	boolean current = (page!=null && p.getId().equals(page.getId()) && !p.isPopUp());
+                String pagerefUrl = pageUrl + Web.escapeUrl(p.getId());
+
+                if ( doPages || p.isPopUp() ) {
+                    Map m = new HashMap();
+		    m.put("isPage",Boolean.valueOf(true));
+               	    m.put("current", Boolean.valueOf(current));
+                    m.put("ispopup", Boolean.valueOf(p.isPopUp()));
+                    m.put("pagePopupUrl", pagePopupUrl);
+                    m.put("pageTitle", Web.escapeHtml(p.getTitle()));
+                    m.put("pageId", Web.escapeUrl(p.getId()));
+                    m.put("jsPageId", Web.escapeJavascript(p.getId()));
+                    m.put("pagerefUrl", pagerefUrl);
+
+		    // TODO: Check to see if this is right in Ian's code - check the vm's
+                    m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
+                    m.put("htmlPageTitle", Web.escapeHtml(p.getTitle()));
+                    m.put("pageIdWeb", Web.escapeUrl(p.getId()));
+		    // End of Ian backwards compatibility
+
+                    l.add(m);
+		    continue;
+		}
+
+		// Loop through the tools again and Unroll the tools
+                iPt = pTools.iterator();
+
+                while (iPt.hasNext()) {
+                    ToolConfiguration placement = (ToolConfiguration) iPt
+                        .next();
+
+                    String toolrefUrl = toolUrl + Web.escapeUrl(placement.getId());
+
+                    Map m = new HashMap();
+		    m.put("isPage",Boolean.valueOf(false));
+                    m.put("toolId", Web.escapeUrl(placement.getId()));
+                    m.put("jsToolId", Web.escapeJavascript(placement.getId()));
+                    m.put("toolTitle", Web.escapeHtml(placement.getTitle()));
+                    m.put("toolrefUrl", toolrefUrl);
+                    l.add(m);
+                }
+
+            }
+            rcontext.put("pageNavTools", l);
+
+            String helpUrl = ServerConfigurationService.getHelpUrl(null);
+            rcontext.put("pageNavShowHelp", Boolean.valueOf(showHelp));
+            rcontext.put("pageNavHelpUrl", helpUrl);
+
+            rcontext.put("pageNavSitContentshead", Web.escapeHtml(rb
+                .getString("sit.contentshead")));
+        }
+
+    }
+
     protected void includePageNav(PortalRenderContext rcontext,
                                   HttpServletRequest req, Session session, Site site, SitePage page,
                                   String toolContextPath, String portalPrefix) throws IOException {
@@ -2052,6 +2265,147 @@ public class SkinnableCharonPortal extends HttpServlet  {
 	return mySites;
     }
 
+    /* 
+     * Get All Sites for the current user.  If the user is not logged in we return the 
+     * list of publically viewable gateway sites.
+     *
+     * @param includeMyWorkspace When this is true - include the user's My Workspace as the 
+     * first parameter.  If false, do not include the MyWorkspace anywhere in the list.
+     *
+     * Some uses - such as the portlet styled portal or the rss styled portal simply want all of the
+     * sites with the MyWorkspace first.  Other portals like the basic tabbed portal treats 
+     * My Workspace separately from all of the rest of the workspaces.
+     */
+     
+    protected List getAllSites(HttpServletRequest req, Session session,
+                               boolean includeMyWorkspace) throws IOException {
+
+            boolean loggedIn = session.getUserId() != null;
+
+	    // Get the list of sites in the right order
+	    List mySites;
+	    if ( ! loggedIn ) {
+            	// collect the Publically Viewable Sites
+            	mySites = getGatewaySites();
+	    } else {
+            	// collect the user's sites
+            	mySites = SiteService.getSites(
+                	org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
+                	null, null, null,
+                	org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC,
+                	null);
+
+                // collect the user's preferences
+                List prefExclude = new Vector();
+                List prefOrder = new Vector();
+                if (session.getUserId() != null) {
+                    Preferences prefs = PreferencesService.getPreferences(session
+                        .getUserId());
+                    ResourceProperties props = prefs
+                        .getProperties("sakai:portal:sitenav");
+
+                    List l = props.getPropertyList("exclude");
+                    if (l != null) {
+                        prefExclude = l;
+                    }
+
+                    l = props.getPropertyList("order");
+                    if (l != null) {
+                        prefOrder = l;
+                    }
+                }
+
+                // remove all in exclude from mySites
+                mySites.removeAll(prefExclude);
+
+                // Prepare to put sites in the right order
+                List ordered = new Vector();
+
+	    	// First, place or remove MyWorkspace as requested
+	    	Site myWorkspace = getMyWorkspace(session);
+		if ( myWorkspace !=  null ) {
+			if ( includeMyWorkspace ) 
+	        	{
+				ordered.add(myWorkspace);
+			} 
+			else 
+			{
+                    		int pos = indexOf(myWorkspace.getId(), mySites);
+                    		if (pos != -1) mySites.remove(pos);
+                    	}
+		}
+
+		// re-order mySites to have order first, the rest later
+                for (Iterator i = prefOrder.iterator(); i.hasNext();) {
+                    String id = (String) i.next();
+
+                    // find this site in the mySites list
+                    int pos = indexOf(id, mySites);
+                    if (pos != -1) {
+                        // move it from mySites to order
+                        Site s = (Site) mySites.get(pos);
+                        ordered.add(s);
+                        mySites.remove(pos);
+                    }
+                }
+
+                // pick up the rest of the sites
+                ordered.addAll(mySites);
+                mySites = ordered;
+            }  // End if ( loggedIn )
+
+/*            for (Iterator i = mySites.iterator(); i.hasNext();) {
+                Site s = (Site) i.next();
+                System.out.println("Site:"+Web.escapeHtml(s.getTitle())+" id="+s.getId());
+            }
+*/
+	    return mySites;
+    }
+
+    protected Site getMyWorkspace(Session session)
+    {
+        String siteId = SiteService.getUserSiteId(session.getUserId());
+
+	// Make sure we can visit
+        Site site = null;
+        try {
+            site = getSiteVisit(siteId);
+        }
+        catch (IdUnusedException e) {
+            site = null;
+        }
+        catch (PermissionException e) {
+            site = null;
+        }
+
+	return site;
+    }
+
+    protected Map convertSiteToContext(HttpServletRequest req, Site s, String prefix, String siteId)
+    {
+	if ( s == null ) return null;
+       	Map m = new HashMap();
+       	m.put("isCurrentSite", Boolean.valueOf(siteId != null && s.getId().equals(siteId)));
+       	m.put("siteTitle", Web.escapeHtml(s.getTitle()));
+       	String siteUrl = Web.serverUrl(req)
+           	  + ServerConfigurationService.getString("portalPath")
+           	  + "/" + prefix + "/"
+           	  + Web.escapeUrl(getSiteEffectiveId(s));
+       	m.put("siteUrl", siteUrl);
+	return m;
+    }
+
+    protected List convertSitesToContext(HttpServletRequest req, List mySites, String prefix, String siteId)
+    {
+            List l = new ArrayList();
+            // first n tabs
+            for (Iterator i = mySites.iterator(); i.hasNext();) {
+                Site s = (Site) i.next();
+               l.add(convertSiteToContext(req, s, prefix, siteId) );
+            }
+	    return l;
+    }
+
     protected void includeTabs(PortalRenderContext rcontext,
                                HttpServletRequest req, Session session, String siteId,
                                String prefix, boolean addLogout) throws IOException {
@@ -2248,22 +2602,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
             rcontext.put("tabsSitWorksite", Web.escapeHtml(rb
                 .getString("sit.worksite")));
 
-            List l = new ArrayList();
-            // first n tabs
-            for (Iterator i = mySites.iterator(); i.hasNext();) {
-                Map m = new HashMap();
-                Site s = (Site) i.next();
-                m.put("isCurrentSite", Boolean
-                    .valueOf(s.getId().equals(siteId)));
-                m.put("siteTitle", Web.escapeHtml(s.getTitle()));
-                String siteUrl = Web.serverUrl(req)
-                    + ServerConfigurationService.getString("portalPath")
-                    + "/" + prefix + "/"
-                    + Web.escapeUrl(getSiteEffectiveId(s));
-                m.put("siteUrl", siteUrl);
-                l.add(m);
-
-            }
+            List l = convertSitesToContext(req, mySites, prefix, siteId);
             rcontext.put("tabsSites", l);
 
             rcontext.put("tabsHasExtraTitle", Boolean

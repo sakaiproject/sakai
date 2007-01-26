@@ -62,9 +62,15 @@
 ##		toolMap.put("toolContentPortTitle", Web.escapeHtml(rb
 ##				.getString("sit.contentporttit")));
 ##
-#macro( includeTool $toolPlacement )
-#if (${toolPlacement.hasRenderResult})
+#macro( includeTool $toolPlacement)
 <div class="portlet">
+#includeToolTitle( $toolPlacement )
+#includeToolBody( $toolPlacement )
+</div>
+#end
+
+#macro( includeToolTitle $toolPlacement )
+#if (${toolPlacement.hasRenderResult})
 	<div class="portletTitleWrap">
 		<div class="portletTitle">
 			<div class="title">
@@ -86,13 +92,7 @@
 			</div>
 		</div>
 	</div>
-
-	<div class="portletMainWrap">
-	    ${toolPlacement.toolRenderResult.getContent()}
-	</div>
-</div>
 #else
-<div class="portlet">
 	<div class="portletTitleWrap">
 		<div class="portletTitle">
 			<div class="title">
@@ -114,7 +114,15 @@
 			</div>
 		</div>
 	</div>
+#end
+#end
 
+#macro( includeToolBody $toolPlacement )
+#if (${toolPlacement.hasRenderResult})
+	<div class="portletMainWrap">
+	    ${toolPlacement.toolRenderResult.getContent()}
+	</div>
+#else
 	<div class="portletMainWrap">
 		<iframe	name="${toolPlacement.toolPlacementIDJS}" id="${toolPlacement.toolPlacementIDJS}" title="${toolPlacement.toolTitle}" 
 			class ="portletMainIframe"
@@ -127,7 +135,6 @@
 			src="${toolPlacement.toolUrl}?panel=Main">
 		</iframe>
 	</div>
-</div>
 #end
 #end
 ##------------------------------------------------------------------------------------------
@@ -362,7 +369,7 @@
 				<a  accesskey="6" href="${pageNavHelpUrl}" target="_blank" 
 					onclick="openWindow('${pageNavHelpUrl}', 
 					'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); 
-					return false">"
+					return false">
 					<span>${sitHelp}</span>
 				</a>
 				</li>
