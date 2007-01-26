@@ -33,21 +33,12 @@
 					$tlang.getString("gen.title1")
 				</a>
 				</th>
-## gsilver - take out access column				
-##				<th id="access">
-##					$tlang.getString("gen.access")
-##				</th>
-
 				<th id="creator">
 					$tlang.getString("gen.created")
 				</th>
 				<th id="modified">
 					$tlang.getString("gen.last1")
 				</th>
-## gsilver - take out size column
-##				<th id="size">
-##					$tlang.getString("gen.size")
-##			</th>
 				<th id="postion">
 					$tlang.getString("gen.position")
 				</th>
@@ -66,10 +57,6 @@
 							$root.name
 						</h3>	
 					</td>
-## gsilver - take out action column					
-##					<td headers="actions">
-##					</td>
-## gsilver - adjust colspan to account for new col number
 					<td colspan="5">
 					</td>
 				</tr>	
@@ -81,12 +68,12 @@
 						</td>
 						<td headers="moveUp" class="moveUp">
 							<a#if($count <= 1) style="display:none;"#end href="#" onclick="moveRow(this,'up')" title="$tlang.getString("sort.moveup")">
-								<img src="#imageLink("sakai/arrowUp.gif")" alt="move item up" border="0">
+								<img src="#imageLink("sakai/arrowUp.gif")" alt="$tlang.getString("sort.moveup")" border="0">
 							</a>
 						</td>
 						<td headers="moveDown" class="moveDown">
 							<a href="#"#if($count >= $collectionMembers.size())  style="display:none;"#end onclick="moveRow(this,'down')" title="$tlang.getString("sort.movedn")">
-								<img src="#imageLink("sakai/arrowDown.gif")" alt="move item down" border="0">
+								<img src="#imageLink("sakai/arrowDown.gif")" alt="$tlang.getString("sort.movedn")" border="0">
 							</a>
 						</td>
 						<td headers="title" style="text-indent: 1em;" class="specialLink">
@@ -99,31 +86,12 @@
 								$member.name
 							</h4>	
 						</td>
-#* gsilver - take out access column
-						#set($effectiveAccess = $member.effectiveAccess)
-						<td headers="access" title="$member.effectiveGroups">
-							#if($member.isPubviewInherited() || $member.isPubview())
-								$tlang.getString("access.public")
-							#elseif($member.isInDropbox())
-								$tlang.getString("access.dropbox")
-							#elseif("$effectiveAccess" == "$INHERITED_ACCESS" || "$effectiveAccess" == "$SITE_ACCESS")
-								$tlang.getString("access.site")
-							#elseif("$effectiveAccess" == "$GROUP_ACCESS")
-								$tlang.getString("access.group")
-							#end
-						</td>
-*#
 						<td headers="creator">
 							$member.createdBy
 						</td>
 						<td headers="modified">
 							$member.ModifiedTime
 						</td>
-## gsilver - take out  size  column						
-##						<td headers="size">
-##							$member.size
-##						</td>
-						
 						<td headers="position">
 							<select name="position_$validator.escapeUrl("$member.id")" onChange="moveRow(this,this.value);">
 								#foreach($i in [1..$collectionMembers.size()])
@@ -232,20 +200,11 @@
 				
 				if (rowsArray[curRow].tagName == "TR") {
 					if (curRow == targetRow) {
-## gsilver - target a class/value instead					
 						rowsArray[curRow].id = "selectedReorder";
-## gsilver - give the first cell in the row a special class						
 						rowsArray[curRow].cells[0].className = "arrowHere";
 						
-##						rowsArray[curRow].style.background = "red";
-##						rowsArray[curRow].style.color = "white";
-						// We updated the H4s below in the innermost loop
 					} else {
-## gsilver - let standard redenring take place via the old class					
 							rowsArray[curRow].id = "sortable";		
-
-##						rowsArray[curRow].style.background = "white";
-##						rowsArray[curRow].style.color = "black";
 					}
 				}
 				
