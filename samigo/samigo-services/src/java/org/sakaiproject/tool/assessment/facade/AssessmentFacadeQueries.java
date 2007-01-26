@@ -1465,17 +1465,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		if (index == 0) {
 			url = url.substring(protocol.length());
 		}
-		String location = url.replaceAll("//", "__");
-		log.debug("****url=" + url);
-		log.debug("****location=" + location);
-		return location;
-	}
-
-	private String replaceSlash(String tempString) {
-		Pattern p = Pattern.compile("//");
-		Matcher matcher = p.matcher(tempString);
-		String newString = matcher.replaceAll("__");
-		return newString;
+		return url;
 	}
 
 	private String replaceSpace(String tempString) {
