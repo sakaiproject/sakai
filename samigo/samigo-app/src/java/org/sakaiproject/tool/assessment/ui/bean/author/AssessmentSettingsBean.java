@@ -203,8 +203,11 @@ public class AssessmentSettingsBean
     try {
       //1.  set the template info
       AssessmentService service = new AssessmentService();
-      AssessmentTemplateIfc template = service.getAssessmentTemplate(
+      AssessmentTemplateIfc template = null;
+      if (assessment.getAssessmentTemplateId()!=null){
+        template = service.getAssessmentTemplate(
           assessment.getAssessmentTemplateId().toString());
+      }
       if (template != null){
         setNoTemplate(false);
         this.templateTitle = template.getTitle();
