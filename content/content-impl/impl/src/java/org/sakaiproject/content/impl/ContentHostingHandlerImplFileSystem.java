@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Stack;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
@@ -27,9 +29,12 @@ import org.w3c.dom.Element;
  */
 public class ContentHostingHandlerImplFileSystem implements ContentHostingHandler
 {
+	private static final Log log = LogFactory.getLog(ContentHostingHandlerImplFileSystem.class);
+
 	public final static String XML_NODE_NAME = "mountpoint";
 
 	public final static String XML_ATTRIBUTE_NAME = "path";
+	public final static String XML_ATTRIBUTE_HIDDEN = "showHiddenFiles";
 
 	public final static boolean SHOW_FULL_PATHS = false; /* list full paths in the file list view */
 
@@ -68,8 +73,8 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 		for (java.util.Iterator i = l.listIterator(); i.hasNext();)
 		{
 			String id = (String) i.next();
-			ContentEntityFileSystem cefs = resolveToFileOrDirectory(ccfs.realParent, ccfs.basePath, id
-					.substring(ccfs.realParent.getId().length() + 1), this);
+			ContentEntityFileSystem cefs = resolveToFileOrDirectory(ccfs.realParent, ccfs.basePath,
+					id.substring(ccfs.realParent.getId().length() + 1), this, ccfs.showHiddenFiles);
 			if (cefs instanceof ContentCollectionFileSystem) collections.add(cefs.wrap());
 		}
 		return collections;
@@ -112,7 +117,7 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 		return l;
 	}
 	protected ContentEntityFileSystem resolveToFileOrDirectory(ContentEntity realParent, String basePath, String relativePath,
-			ContentHostingHandler chh)
+			ContentHostingHandler chh, boolean showHiddenFiles)
 	{
 		// return a file (resource) or a directory (collection) as appropriate
 		while (relativePath.length() > 0 && relativePath.charAt(0) == '/')
@@ -125,13 +130,13 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 		java.io.File f = new java.io.File(newpath);
 		if (f.isDirectory())
 		{
-			ContentEntityFileSystem cefs = new ContentCollectionFileSystem(realParent, basePath, relativePath, chh);
+			ContentEntityFileSystem cefs = new ContentCollectionFileSystem(realParent, basePath, relativePath, chh, showHiddenFiles);
 			cefs.wrap();
 			return cefs;
 		}
 		else
 		{
-			ContentEntityFileSystem cefs = new ContentResourceFileSystem(realParent, basePath, relativePath, chh);
+			ContentEntityFileSystem cefs = new ContentResourceFileSystem(realParent, basePath, relativePath, chh, showHiddenFiles);
 			cefs.wrap();
 			return cefs;
 		}
@@ -144,6 +149,7 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 		// construct a new ContentEntityFileSystem and return it
 		try
 		{
+			boolean showHiddenFiles = false;
 			byte[] xml = ((ContentResource) edit).getContent();
 			if (xml == null) return null;
 			javax.xml.parsers.DocumentBuilder db = javax.xml.parsers.DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -159,20 +165,27 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 					break;
 				}
 			if (node_mountpoint == null) return null;
+			
 			org.w3c.dom.Node node_basepath = node_mountpoint.getAttributes().getNamedItem(XML_ATTRIBUTE_NAME);
 			if (node_basepath == null) return null;
 			final String basepath = node_basepath.getNodeValue();
+			
+			org.w3c.dom.Node node_hiddenFiles = node_mountpoint.getAttributes().getNamedItem(XML_ATTRIBUTE_HIDDEN);
+			if (node_hiddenFiles != null)
+				showHiddenFiles = Boolean.parseBoolean(node_hiddenFiles.getNodeValue());
+			
 			if (basepath == null || basepath.equals("")) return null; // invalid mountpoint specification
 
 			String relativePath = finalId.substring(edit.getId().length());
-			ContentEntityFileSystem cefs = resolveToFileOrDirectory(edit, basepath, relativePath, this);
+			ContentEntityFileSystem cefs = resolveToFileOrDirectory(edit, basepath, relativePath, this, showHiddenFiles);
 			Edit ce = cefs.wrap();
 			if (ce == null) return null; // happens when the requested URL requires a log on but the user is not logged on
 			return (ContentEntity) ce;
 		}
 		catch (Exception e)
 		{
-			return null;
+			log.warn("Invalid XML for the mountpoint ["+edit.getId()+"]");
+			return edit; // return the real parent; semantic compatibility for DSpace/LNI ResolverImpl
 		}
 	}
 
@@ -217,6 +230,8 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 		protected String basePath;
 
 		protected ContentEntity realParent;
+		
+		protected boolean showHiddenFiles; // set by resolveToFileOrDirectory; read by derived classes
 
 		/**
 		 * Object reference to the content hosting handler which looks after this virtual content resource.
@@ -245,12 +260,13 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 		 * @param filename -
 		 *        filename or URI of the file or directory to represent
 		 */
-		public ContentEntityFileSystem(ContentEntity realParent, String basePath, String relativePath, ContentHostingHandler chh)
+		public ContentEntityFileSystem(ContentEntity realParent, String basePath, String relativePath, ContentHostingHandler chh, boolean showHiddenFiles)
 		{
 			this.realParent = realParent;
 			this.basePath = basePath;
 			this.relativePath = relativePath;
 			this.chh = chh;
+			this.showHiddenFiles = showHiddenFiles;
 			this.file = new java.io.File(basePath + relativePath);
 
 			int lastSlash = relativePath.lastIndexOf('/');
@@ -276,7 +292,7 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 		 */
 		public ContentCollection getContainingCollection()
 		{
-			return (ContentCollection) resolveToFileOrDirectory(realParent, basePath, parentRelativePath, chh);
+			return (ContentCollection) resolveToFileOrDirectory(realParent, basePath, parentRelativePath, chh, showHiddenFiles);
 		}
 
 		/**
@@ -319,7 +335,7 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 		public ContentEntity getMember(String nextId)
 		{
 			String newpath = nextId.substring(realParent.getId().length()); // cut real parent's ID off the start of the string
-			return resolveToFileOrDirectory(realParent, basePath, newpath, chh);
+			return resolveToFileOrDirectory(realParent, basePath, newpath, chh, showHiddenFiles);
 		}
 
 		/* Junk required by GroupAwareEntity superinterface */
@@ -365,7 +381,7 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 
 		public boolean isHidden()
 		{
-			return realParent.isHidden();
+			return realParent.isHidden() || file.isHidden() || file.getName().startsWith(".");
 		}
 
 		public boolean isAvailable()
@@ -426,9 +442,9 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 	 */
 	public class ContentResourceFileSystem extends ContentEntityFileSystem implements ContentResource
 	{
-		public ContentResourceFileSystem(ContentEntity realParent, String basePath, String relativePath, ContentHostingHandler chh)
+		public ContentResourceFileSystem(ContentEntity realParent, String basePath, String relativePath, ContentHostingHandler chh, boolean showHiddenFiles)
 		{
-			super(realParent, basePath, relativePath, chh);
+			super(realParent, basePath, relativePath, chh, showHiddenFiles);
 		}
 
 		protected Edit wrap()
@@ -538,7 +554,7 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 			}
 			catch (Exception e)
 			{
-				return null;
+				return null;  // file in unavailable / no-longer exists, so return null
 			}
 		}
 
@@ -554,6 +570,7 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 			}
 			catch (Exception e)
 			{
+				// file is unavailable / no-longer exists, so return null
 			}
 			return null;
 		}
@@ -571,11 +588,12 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 	 */
 	public class ContentCollectionFileSystem extends ContentEntityFileSystem implements ContentCollection
 	{
-		public ContentCollectionFileSystem(ContentEntity realParent, String basePath, String relativePath, ContentHostingHandler chh)
+		public ContentCollectionFileSystem(ContentEntity realParent, String basePath, String relativePath, ContentHostingHandler chh, boolean showHiddenFiles)
 		{
 			super(realParent, basePath,
-					(relativePath.length() > 0 && relativePath.charAt(relativePath.length() - 1) != '/') ? relativePath + "/"
-							: relativePath, chh);
+					(relativePath.length() > 0 && relativePath.charAt(relativePath.length() - 1) != '/')
+					 ? relativePath + "/" : relativePath,
+					chh, showHiddenFiles);
 		}
 
 		protected Edit wrap()
@@ -648,18 +666,22 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 				String[] contents = file.list();
 				java.util.ArrayList mems = new java.util.ArrayList(contents.length);
 
-				String newpath = getId(); // was realParent.getId() + relativePath;
+				String newpath = getId();
 				if (newpath.charAt(newpath.length() - 1) != '/') newpath = newpath + "/";
 				for (int x = 0; x < contents.length; ++x)
-					if (new java.io.File(newpath + contents[x]).isDirectory())
+				{
+					java.io.File ftmp = new java.io.File(newpath + contents[x]);
+					if (!showHiddenFiles && (ftmp.isHidden() || ftmp.getName().startsWith(".")) ) continue;
+					if (ftmp.isDirectory())
 						mems.add(newpath + contents[x] + "/");
 					else
 						mems.add(newpath + contents[x]);
+				}
 				return mems;
 			}
 			catch (Exception e)
 			{
-				
+				log.warn("Unable to list members of virtual collection ["+getId()+"]");
 			}
 			return new java.util.ArrayList();
 		}
@@ -707,7 +729,11 @@ public class ContentHostingHandlerImplFileSystem implements ContentHostingHandle
 
 		public int getMemberCount()
 		{
-			return file.list().length;
+			int count=0;
+			String[] contents = file.list();
+			for (int x = 0; x < contents.length; ++x)
+				if (showHiddenFiles || (!file.isHidden() && !file.getName().startsWith(".")) ) count++;
+			return count;
 		}
 
 		public String getResourceType()
