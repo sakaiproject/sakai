@@ -1336,73 +1336,78 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		}
 	}
 
-	  public boolean assessmentTitleIsUnique(final Long assessmentBaseId, String title, Boolean isTemplate) {
-		    title = title.trim();
-		    final String currentSiteId = AgentFacade.getCurrentSiteId();
-		    final String agentString = AgentFacade.getAgentString();
-		    List list;
-		    boolean isUnique = true;
-		    String query="";
-		    if (isTemplate.booleanValue()){ // templates are person scoped
-		      query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
-		              " from AssessmentTemplateData a, AuthorizationData z where "+
-		              " a.title=? and a.assessmentBaseId!=? and a.createdBy=? and a.status=1";
+	public boolean assessmentTitleIsUnique(final Long assessmentBaseId,
+			String title, Boolean isTemplate) {
+		title = title.trim();
+		final String currentSiteId = AgentFacade.getCurrentSiteId();
+		final String agentString = AgentFacade.getAgentString();
+		List list;
+		boolean isUnique = true;
+		String query = "";
+		if (isTemplate.booleanValue()) { // templates are person scoped
+			query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"
+					+ " from AssessmentTemplateData a, AuthorizationData z where "
+					+ " a.title=? and a.assessmentBaseId!=? and a.createdBy=? and a.status=1";
 
-		      final String hql = query;
-		      final String titlef = title;
-		      HibernateCallback hcb = new HibernateCallback(){
-		      	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-		      		Query q = session.createQuery(hql);
-		      		q.setString(0, titlef);
-		      		q.setLong(1, assessmentBaseId.longValue());
-		      		q.setString(2, agentString);
-		      		return q.list();
-		      	};
-		      };
-		      list = getHibernateTemplate().executeFind(hcb);
-		      
-//		      list = getHibernateTemplate().find(query,
-//		                  new Object[]{title,assessmentBaseId,agentString},
-//		                  new org.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
-		    }
-		    else{ // assessments are site scoped
-		      query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
-		              " from AssessmentData a, AuthorizationData z where "+
-		              " a.title=? and a.assessmentBaseId!=? and z.functionId='EDIT_ASSESSMENT' and " +
-		              " a.assessmentBaseId=z.qualifierId and z.agentIdString=?";
+			final String hql = query;
+			final String titlef = title;
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session)
+						throws HibernateException, SQLException {
+					Query q = session.createQuery(hql);
+					q.setString(0, titlef);
+					q.setLong(1, assessmentBaseId.longValue());
+					q.setString(2, agentString);
+					return q.list();
+				};
+			};
+			list = getHibernateTemplate().executeFind(hcb);
 
-		      final String hql = query;
-		      final String titlef = title;
-		      HibernateCallback hcb = new HibernateCallback(){
-		      	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-		      		Query q = session.createQuery(hql);
-		      		q.setString(0, titlef);
-		      		q.setLong(1, assessmentBaseId.longValue());
-		      		q.setString(2, currentSiteId);
-		      		return q.list();
-		      	};
-		      };
-		      list = getHibernateTemplate().executeFind(hcb);
-		      
-//		      list = getHibernateTemplate().find(query,
-//		                  new Object[]{title,assessmentBaseId,currentSiteId},
-//		                  new org.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
-		    }
-		    if (list.size()>0){ 
-		      // query in mysql & hsqldb are not case sensitive, check that title found is indeed what we
-		      // are looking
-		      for (int i=0; i<list.size();i++){  
-		        AssessmentBaseIfc a = (AssessmentBaseIfc) list.get(i);
-		        if ((title).equals(a.getTitle().trim())){
-		          isUnique = false;
-		          break;
+			// list = getHibernateTemplate().find(query,
+			// new Object[]{title,assessmentBaseId,agentString},
+			// new org.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG,
+			// Hibernate.STRING});
+		} else { // assessments are site scoped
+			query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate)"
+					+ " from AssessmentData a, AuthorizationData z where "
+					+ " a.title=? and a.assessmentBaseId!=? and z.functionId='EDIT_ASSESSMENT' and "
+					+ " a.assessmentBaseId=z.qualifierId and z.agentIdString=?";
+
+			final String hql = query;
+			final String titlef = title;
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session)
+						throws HibernateException, SQLException {
+					Query q = session.createQuery(hql);
+					q.setString(0, titlef);
+					q.setLong(1, assessmentBaseId.longValue());
+					q.setString(2, currentSiteId);
+					return q.list();
+				};
+			};
+			list = getHibernateTemplate().executeFind(hcb);
+
+			// list = getHibernateTemplate().find(query,
+			// new Object[]{title,assessmentBaseId,currentSiteId},
+			// new org.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG,
+			// Hibernate.STRING});
+		}
+		if (list.size() > 0) {
+			// query in mysql & hsqldb are not case sensitive, check that title
+			// found is indeed what we
+			// are looking
+			for (int i = 0; i < list.size(); i++) {
+				AssessmentBaseIfc a = (AssessmentBaseIfc) list.get(i);
+				if ((title).equals(a.getTitle().trim())) {
+					isUnique = false;
+					break;
+				}
 			}
-		      }
-		    }
-		    return isUnique;
-		  }
+		}
+		return isUnique;
+	}
 
-	  public List getAssessmentByTemplate(final Long templateId) {
+	public List getAssessmentByTemplate(final Long templateId) {
 		final String query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate) "
 				+ " from AssessmentData a where a.assessmentTemplateId=?";
 
