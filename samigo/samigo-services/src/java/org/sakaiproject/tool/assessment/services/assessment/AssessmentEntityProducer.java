@@ -30,7 +30,7 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 			EntityManager.registerEntityProducer(this, Entity.SEPARATOR
 					+ "samigo");
 		} catch (Exception e) {
-			log.warn("Error registering MetaObj Entity Producer", e);
+			log.warn("Error registering Samigo Entity Producer", e);
 		}
 	}
 
