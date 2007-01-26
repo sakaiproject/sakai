@@ -578,6 +578,9 @@ public class AssessmentService {
 
 	public ContentResource createCopyOfContentResource(String resourceId,
 			String filename) {
+		// trouble using Validator, so use string replacement instead
+		// java.lang.NoClassDefFoundError: org/sakaiproject/util/Validator
+		filename = filename.replaceAll("http://","http:__");
 		ContentResource cr_copy = null;
 		try {
 			// create a copy of the resource
