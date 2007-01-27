@@ -155,7 +155,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
 
     private Properties contentTypes = null;
 
-	private PortalService portalService;
+    private PortalService portalService;
 
     private static final ThreadLocal staticCacheHolder = new ThreadLocal();
 
@@ -341,7 +341,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
         // find the site, for visiting
         Site site = null;
         try {
-            site = getSiteVisit(siteId);
+            site = portalService.getSiteVisit(siteId);
         }
         catch (IdUnusedException e) {
 	    errorMessage = "Unable to find site: " + siteId;
@@ -369,7 +369,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
 		toolId = null;                
             }
 	   
-            boolean thisTool = allowTool(site, placement);
+            boolean thisTool = portalService.allowTool(site, placement);
             // System.out.println(" Allow Tool Display -" +
             // placement.getTitle() + " retval = " + thisTool);
             if ( ! thisTool ) {
@@ -380,7 +380,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
 	}
 
 	// Get the user's My WorkSpace and its ID
-	Site myWorkspaceSite = getMyWorkspace(session);
+	Site myWorkspaceSite = portalService.getMyWorkspace(session);
 	String myWorkspaceSiteId = null;
 	if ( myWorkspaceSite != null ) {
 		myWorkspaceSiteId = myWorkspaceSite.getId();
@@ -417,14 +417,14 @@ public class SkinnableCharonPortal extends HttpServlet  {
 	}
 
 	if ( site != null ) {
-	    Map m = convertSiteToContext(req, site, "portlet", siteId, myWorkspaceSiteId);
+	    Map m = portalService.convertSiteToMap(req, site, "portlet", siteId, myWorkspaceSiteId);
 	    if ( m != null ) rcontext.put("currentSite",m);
             includePageList(rcontext, req,  session, site, null, toolContextPath,
                 "portlet", false, true);
 	}
 
-	List mySites = getAllSites(req, session, true);
-        List l = convertSitesToContext(req, mySites, "portlet", siteId, myWorkspaceSiteId);
+	List mySites = portalService.getAllSites(req, session, true);
+        List l = portalService.convertSitesToMaps(req, mySites, "portlet", siteId, myWorkspaceSiteId);
 	rcontext.put("allSites", l);
 
         includeLogin(rcontext, req, session);
@@ -459,7 +459,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
         // find the site, for visiting
         Site site = null;
         try {
-            site = getSiteVisit(siteId);
+            site = portalService.getSiteVisit(siteId);
         }
         catch (IdUnusedException e) {
             doError(req, res, session, ERROR_GALLERY);
@@ -1158,7 +1158,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
         // find the site, for visiting
         Site site = null;
         try {
-            site = getSiteVisit(siteId);
+            site = portalService.getSiteVisit(siteId);
         }
         catch (IdUnusedException e) {
             doError(req, res, session, ERROR_SITE);
@@ -1522,7 +1522,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
         // find the site, for visiting
         Site site = null;
         try {
-            site = getSiteVisit(siteId);
+            site = portalService.getSiteVisit(siteId);
         }
         catch (IdUnusedException e) {
             doError(req, res, session, ERROR_WORKSITE);
@@ -1878,7 +1878,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
                     ToolConfiguration placement = (ToolConfiguration) i.next();
 
                     if (site != null) {
-                        boolean thisTool = allowTool(site, placement);
+                        boolean thisTool = portalService.allowTool(site, placement);
                         // System.out.println(" Allow Tool Display -" +
                         // placement.getTitle() + " retval = " + thisTool);
                         if (!thisTool) continue; // Skip this tool if not
@@ -1912,28 +1912,6 @@ public class SkinnableCharonPortal extends HttpServlet  {
         }
     }
 
-    private boolean allowTool(Site site, Placement placement) {
-        if (placement == null || site == null) return true; // No way to render
-        // an opinion
-
-        boolean retval = true;
-
-        String TOOL_CFG_FUNCTIONS = "functions.require";
-        Properties roleConfig = placement.getConfig();
-        String roleList = roleConfig.getProperty(TOOL_CFG_FUNCTIONS);
-
-        // allow by default, when no config keys are present
-        if (roleList != null && roleList.trim().length() > 0) {
-            String[] result = roleConfig.getProperty(TOOL_CFG_FUNCTIONS).split(
-                "\\,");
-            for (int x = 0; x < result.length; x++) {
-                if (!SecurityService.unlock(result[x].trim(), site
-                    .getReference())) retval = false;
-            }
-        }
-        return retval;
-    }
-
     /*
      * Produce a page and/or a tool list
      * 
@@ -1955,9 +1933,9 @@ public class SkinnableCharonPortal extends HttpServlet  {
             boolean loggedIn = session.getUserId() != null;
 
             String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
-                + Web.escapeUrl(getSiteEffectiveId(site)) + "/page/");
+                + Web.escapeUrl(portalService.getSiteEffectiveId(site)) + "/page/");
 	    String toolUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
-                + Web.escapeUrl(getSiteEffectiveId(site))) ;
+                + Web.escapeUrl(portalService.getSiteEffectiveId(site))) ;
 	    if ( resetTools ) {
 		toolUrl = toolUrl + "/tool-reset/";
 	    } else {
@@ -1999,7 +1977,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
                     ToolConfiguration placement = (ToolConfiguration) iPt
                         .next();
 
-                    boolean thisTool = allowTool(site, placement);
+                    boolean thisTool = portalService.allowTool(site, placement);
                     if (thisTool) allowPage = true;
                     // System.out.println(" Allow Tool -" + tool.getTitle() + "
                     // retval = " + thisTool + " page=" + allowPage);
@@ -2132,218 +2110,12 @@ public class SkinnableCharonPortal extends HttpServlet  {
                     includeTabs(rcontext, req, session, siteId, "site", false);
                 } else {
                     includeLogo(rcontext, req, session, siteId);
-		    if ( doGatewaySiteList() ) includeTabs(rcontext, req, session, siteId, "site", false);
+		    if ( portalService.doGatewaySiteList() ) includeTabs(rcontext, req, session, siteId, "site", false);
                 }
             }
             catch (Exception any) {
             }
         }
-    }
-
-    // Determine if we are to do multiple tabs for the anonymous view (Gateway)
-    private boolean doGatewaySiteList()
-    {
-	String gatewaySiteListPref = ServerConfigurationService.getString("gatewaySiteList");
-	if ( gatewaySiteListPref == null ) return false;
-	return ( gatewaySiteListPref.trim().length() > 0 );
-    }
-
-    // Return the list of tabs for the anonymous view (Gateway)
-    private String[] getGatewaySiteList()
-    {
-	String gatewaySiteListPref = ServerConfigurationService.getString("gatewaySiteList");
-
-	if ( gatewaySiteListPref == null ) return null;
-	if ( gatewaySiteListPref.trim().length() < 1 ) return null;
-
-	String[] gatewaySites = gatewaySiteListPref.split(",");
-	if ( gatewaySites.length < 1 ) return null;
-
-	return gatewaySites;
-    }
-
-    // Get the sites which are to be displayed for the gateway
-    private List getGatewaySites()
-    {
-	List mySites = new Vector();
-	String[] gatewaySiteIds = getGatewaySiteList();
-	if ( gatewaySiteIds == null ) 
-	{
-		return mySites;  // An empty list - deal with this higher up in the food chain
-	}
-
-	// Loop throught the sites making sure they exist and are visitable
-	for ( int i = 0; i < gatewaySiteIds.length; i++ ) 
-	{
-	    String siteId = gatewaySiteIds[i];
-	
-            Site site = null;
-            try {
-                site = getSiteVisit(siteId);
-            }
-            catch (IdUnusedException e) {
-		continue;
-            }
-            catch (PermissionException e) {
-		continue;
-            }
-
-	    if ( site != null ) {
-		mySites.add(site);
-	    }
-        }
-
-	if ( mySites.size() < 1 ) {
-            M_log
-                .warn("No suitable gateway sites found, gatewaySiteList preference had "
-			+gatewaySiteIds.length+" sites.");
-	}
-
-	return mySites;
-    }
-
-    /* 
-     * Get All Sites for the current user.  If the user is not logged in we return the 
-     * list of publically viewable gateway sites.
-     *
-     * @param includeMyWorkspace When this is true - include the user's My Workspace as the 
-     * first parameter.  If false, do not include the MyWorkspace anywhere in the list.
-     *
-     * Some uses - such as the portlet styled portal or the rss styled portal simply want all of the
-     * sites with the MyWorkspace first.  Other portals like the basic tabbed portal treats 
-     * My Workspace separately from all of the rest of the workspaces.
-     */
-     
-    protected List getAllSites(HttpServletRequest req, Session session,
-                               boolean includeMyWorkspace) throws IOException {
-
-            boolean loggedIn = session.getUserId() != null;
-
-	    // Get the list of sites in the right order
-	    List mySites;
-	    if ( ! loggedIn ) {
-            	// collect the Publically Viewable Sites
-            	mySites = getGatewaySites();
-	    } else {
-            	// collect the user's sites
-            	mySites = SiteService.getSites(
-                	org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-                	null, null, null,
-                	org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC,
-                	null);
-
-                // collect the user's preferences
-                List prefExclude = new Vector();
-                List prefOrder = new Vector();
-                if (session.getUserId() != null) {
-                    Preferences prefs = PreferencesService.getPreferences(session
-                        .getUserId());
-                    ResourceProperties props = prefs
-                        .getProperties("sakai:portal:sitenav");
-
-                    List l = props.getPropertyList("exclude");
-                    if (l != null) {
-                        prefExclude = l;
-                    }
-
-                    l = props.getPropertyList("order");
-                    if (l != null) {
-                        prefOrder = l;
-                    }
-                }
-
-                // remove all in exclude from mySites
-                mySites.removeAll(prefExclude);
-
-                // Prepare to put sites in the right order
-                List ordered = new Vector();
-
-	    	// First, place or remove MyWorkspace as requested
-	    	Site myWorkspace = getMyWorkspace(session);
-		if ( myWorkspace !=  null ) {
-			if ( includeMyWorkspace ) 
-	        	{
-				ordered.add(myWorkspace);
-			} 
-			else 
-			{
-                    		int pos = indexOf(myWorkspace.getId(), mySites);
-                    		if (pos != -1) mySites.remove(pos);
-                    	}
-		}
-
-		// re-order mySites to have order first, the rest later
-                for (Iterator i = prefOrder.iterator(); i.hasNext();) {
-                    String id = (String) i.next();
-
-                    // find this site in the mySites list
-                    int pos = indexOf(id, mySites);
-                    if (pos != -1) {
-                        // move it from mySites to order
-                        Site s = (Site) mySites.get(pos);
-                        ordered.add(s);
-                        mySites.remove(pos);
-                    }
-                }
-
-                // pick up the rest of the sites
-                ordered.addAll(mySites);
-                mySites = ordered;
-            }  // End if ( loggedIn )
-
-/*            for (Iterator i = mySites.iterator(); i.hasNext();) {
-                Site s = (Site) i.next();
-                System.out.println("Site:"+Web.escapeHtml(s.getTitle())+" id="+s.getId());
-            }
-*/
-	    return mySites;
-    }
-
-    protected Site getMyWorkspace(Session session)
-    {
-        String siteId = SiteService.getUserSiteId(session.getUserId());
-
-	// Make sure we can visit
-        Site site = null;
-        try {
-            site = getSiteVisit(siteId);
-        }
-        catch (IdUnusedException e) {
-            site = null;
-        }
-        catch (PermissionException e) {
-            site = null;
-        }
-
-	return site;
-    }
-
-    protected Map convertSiteToContext(HttpServletRequest req, Site s, String prefix, 
-	String currentSiteId, String myWorkspaceSiteId)
-    {
-	if ( s == null ) return null;
-       	Map m = new HashMap();
-       	m.put("isCurrentSite", Boolean.valueOf(currentSiteId != null && s.getId().equals(currentSiteId)));
-       	m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null && s.getId().equals(myWorkspaceSiteId)));
-       	m.put("siteTitle", Web.escapeHtml(s.getTitle()));
-       	String siteUrl = Web.serverUrl(req)
-           	  + ServerConfigurationService.getString("portalPath")
-           	  + "/" + prefix + "/"
-           	  + Web.escapeUrl(getSiteEffectiveId(s));
-       	m.put("siteUrl", siteUrl);
-	return m;
-    }
-
-    protected List convertSitesToContext(HttpServletRequest req, List mySites, String prefix,
-	String currentSiteId, String myWorkspaceSiteId)
-    {
-            List l = new ArrayList();
-            // first n tabs
-            for (Iterator i = mySites.iterator(); i.hasNext();) {
-                Site s = (Site) i.next();
-               l.add(convertSiteToContext(req, s, prefix, currentSiteId, myWorkspaceSiteId) );
-            }
-	    return l;
     }
 
     protected void includeTabs(PortalRenderContext rcontext,
@@ -2370,7 +2142,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
             int tabsToDisplay = prefTabs;
 
 	    // Get the list of sites in the right order, don't include My WorkSpace
-	    List mySites = getAllSites(req, session, false);
+	    List mySites = portalService.getAllSites(req, session, false);
 	    if ( ! loggedIn ) {
 		prefTabs =  ServerConfigurationService.getInt("gatewaySiteListDisplayCount",prefTabs);
 	    } else {
@@ -2505,7 +2277,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
             rcontext.put("tabsSitWorksite", Web.escapeHtml(rb
                 .getString("sit.worksite")));
 
-            List l = convertSitesToContext(req, mySites, prefix, siteId, myWorkspaceSiteId);
+            List l = portalService.convertSitesToMaps(req, mySites, prefix, siteId, myWorkspaceSiteId);
             rcontext.put("tabsSites", l);
 
             rcontext.put("tabsHasExtraTitle", Boolean
@@ -2534,7 +2306,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
                     String siteUrl = Web.serverUrl(req)
                         + ServerConfigurationService
                         .getString("portalPath") + "/" + prefix
-                        + "/" + getSiteEffectiveId(s);
+                        + "/" + portalService.getSiteEffectiveId(s);
                     m.put("siteTitle", Web.escapeHtml(s.getTitle()));
                     m.put("siteUrl", siteUrl);
                     l.add(m);
@@ -2787,6 +2559,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
      * @return The index position in siteList of the site with site id = value,
      *         or -1 if not found.
      */
+/*
     protected int indexOf(String value, List siteList) {
         for (int i = 0; i < siteList.size(); i++) {
             Site site = (Site) siteList.get(i);
@@ -2797,6 +2570,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
 
         return -1;
     }
+*/
 
     /**
      * Check for any just expired sessions and redirect
@@ -2848,62 +2622,6 @@ public class SkinnableCharonPortal extends HttpServlet  {
             return SiteService.getUserSiteId(userId);
         }
     }
-
-    /**
-     * If this is a user site, return an id based on the user EID, otherwise
-     * just return the site id.
-     *
-     * @param site The site.
-     * @return The effective site id.
-     */
-    protected String getSiteEffectiveId(Site site) {
-        if (SiteService.isUserSite(site.getId())) {
-            try {
-                String userId = SiteService.getSiteUserId(site.getId());
-                String eid = UserDirectoryService.getUserEid(userId);
-                return SiteService.getUserSiteId(eid);
-            }
-            catch (UserNotDefinedException e) {
-                M_log
-                    .warn("getSiteEffectiveId: user eid not found for user site: "
-                        + site.getId());
-            }
-        }
-
-        return site.getId();
-    }
-
-    /**
-     * Do the getSiteVisit, but if not found and the id is a user site, try
-     * translating from user EID to ID.
-     *
-     * @param siteId The Site Id.
-     * @return The Site.
-     * @throws PermissionException If not allowed.
-     * @throws IdUnusedException   If not found.
-     */
-    protected Site getSiteVisit(String siteId) throws PermissionException,
-        IdUnusedException {
-        try {
-            return SiteService.getSiteVisit(siteId);
-        }
-        catch (IdUnusedException e) {
-            if (SiteService.isUserSite(siteId)) {
-                try {
-                    String userEid = SiteService.getSiteUserId(siteId);
-                    String userId = UserDirectoryService.getUserId(userEid);
-                    String alternateSiteId = SiteService.getUserSiteId(userId);
-                    return SiteService.getSiteVisit(alternateSiteId);
-                }
-                catch (UserNotDefinedException ee) {
-                }
-            }
-
-            // re-throw if that didn't work
-            throw e;
-        }
-    }
-
 
     // Static registered files
     // -------------------------------------------------------------
