@@ -108,6 +108,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
      * making them log in (like worksite, site, and tool URLs).
      */
     protected static final String PARAM_FORCE_LOGIN = "force.login";
+    protected static final String PARAM_FORCE_LOGOUT = "force.logout";
 
 
     /**
@@ -319,12 +320,18 @@ public class SkinnableCharonPortal extends HttpServlet  {
                              Session session, String siteId, String toolId,
                              String toolContextPath) throws ToolException, IOException {
         // check to default site id
-	String parsedSiteId = siteId;
 	String errorMessage = null;
+
+        String forceLogout= req.getParameter(PARAM_FORCE_LOGOUT);
+        if ("yes".equalsIgnoreCase(forceLogout)
+                || "true".equalsIgnoreCase(forceLogout)) {
+                doLogout(req, res, session, "/portlet");
+		return;
+	}
 
         if (session.getUserId() == null) {
             String forceLogin = req.getParameter(PARAM_FORCE_LOGIN);
-            if (forceLogin == null || "yes".equalsIgnoreCase(forceLogin)
+            if ("yes".equalsIgnoreCase(forceLogin)
                 || "true".equalsIgnoreCase(forceLogin)) {
                 doLogin(req, res, session, req.getPathInfo(), false);
                 return;
@@ -372,6 +379,13 @@ public class SkinnableCharonPortal extends HttpServlet  {
 	    }
 	}
 
+	// Get the user's My WorkSpace and its ID
+	Site myWorkspaceSite = getMyWorkspace(session);
+	String myWorkspaceSiteId = null;
+	if ( myWorkspaceSite != null ) {
+		myWorkspaceSiteId = myWorkspaceSite.getId();
+	}
+
         // form a context sensitive title
         String title = ServerConfigurationService.getString("ui.service");
 	if ( site != null ) {
@@ -395,6 +409,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
                     + "portlet" + "/";
 
 	rcontext.put("portalTopUrl",portalTopUrl);
+	rcontext.put("loggedIn",Boolean.valueOf(session.getUserId() != null));
 
 	if ( placement != null ) {
             Map m = includeTool(res, req, placement);
@@ -402,16 +417,17 @@ public class SkinnableCharonPortal extends HttpServlet  {
 	}
 
 	if ( site != null ) {
-	    Map m = convertSiteToContext(req, site, "portlet", siteId);
+	    Map m = convertSiteToContext(req, site, "portlet", siteId, myWorkspaceSiteId);
 	    if ( m != null ) rcontext.put("currentSite",m);
             includePageList(rcontext, req,  session, site, null, toolContextPath,
                 "portlet", false, true);
 	}
 
 	List mySites = getAllSites(req, session, true);
-        List l = convertSitesToContext(req, mySites, "portlet", siteId);
+        List l = convertSitesToContext(req, mySites, "portlet", siteId, myWorkspaceSiteId);
 	rcontext.put("allSites", l);
 
+        includeLogin(rcontext, req, session);
         includeBottom(rcontext);
 
         sendResponse(rcontext, res, "portlet");
@@ -628,9 +644,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
 		    return;
                 }
 
-		// /portal/tool-reset
-		//    0       2
-		// Tool Prior to the reset
+		// Tool resetting URL - clear state and forward to the real tool URL
 		// /portal/portlet/site-id/tool-reset/toolId
 		//    0      1       2         3        4
                 String toolId = null;
@@ -2304,11 +2318,13 @@ public class SkinnableCharonPortal extends HttpServlet  {
 	return site;
     }
 
-    protected Map convertSiteToContext(HttpServletRequest req, Site s, String prefix, String siteId)
+    protected Map convertSiteToContext(HttpServletRequest req, Site s, String prefix, 
+	String currentSiteId, String myWorkspaceSiteId)
     {
 	if ( s == null ) return null;
        	Map m = new HashMap();
-       	m.put("isCurrentSite", Boolean.valueOf(siteId != null && s.getId().equals(siteId)));
+       	m.put("isCurrentSite", Boolean.valueOf(currentSiteId != null && s.getId().equals(currentSiteId)));
+       	m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null && s.getId().equals(myWorkspaceSiteId)));
        	m.put("siteTitle", Web.escapeHtml(s.getTitle()));
        	String siteUrl = Web.serverUrl(req)
            	  + ServerConfigurationService.getString("portalPath")
@@ -2318,13 +2334,14 @@ public class SkinnableCharonPortal extends HttpServlet  {
 	return m;
     }
 
-    protected List convertSitesToContext(HttpServletRequest req, List mySites, String prefix, String siteId)
+    protected List convertSitesToContext(HttpServletRequest req, List mySites, String prefix,
+	String currentSiteId, String myWorkspaceSiteId)
     {
             List l = new ArrayList();
             // first n tabs
             for (Iterator i = mySites.iterator(); i.hasNext();) {
                 Site s = (Site) i.next();
-               l.add(convertSiteToContext(req, s, prefix, siteId) );
+               l.add(convertSiteToContext(req, s, prefix, currentSiteId, myWorkspaceSiteId) );
             }
 	    return l;
     }
@@ -2348,6 +2365,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
 
             boolean loggedIn = session.getUserId() != null;
 	    boolean curMyWorkspace = false;
+ 	    String myWorkspaceSiteId = null;
             int prefTabs = 4;
             int tabsToDisplay = prefTabs;
 
@@ -2367,14 +2385,20 @@ public class SkinnableCharonPortal extends HttpServlet  {
                     catch (UserNotDefinedException e) {
                     }
                 }
+
+		// TODO: Clean this mess up and just put the workspace in the context 
+		// and let the vm figure it out using isMyWorkSpace
                 curMyWorkspace = ((siteId == null) || (SiteService
                     .isUserSite(siteId) && ((SiteService.getSiteUserId(siteId)
                     .equals(curUserId) || SiteService.getSiteUserId(siteId)
                     .equals(curUserEid)))));
 
                 // if this is a My Workspace, it gets its own tab and should not be
-                // considered in the other tab logic
-                if (curMyWorkspace) siteId = null;
+                // considered in the other tab logic - but save the ID for later
+                if (curMyWorkspace) { 
+			myWorkspaceSiteId = siteId;
+			siteId = null;
+		}
 
                 // collect the user's preferences
                 if (session.getUserId() != null) {
@@ -2481,7 +2505,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
             rcontext.put("tabsSitWorksite", Web.escapeHtml(rb
                 .getString("sit.worksite")));
 
-            List l = convertSitesToContext(req, mySites, prefix, siteId);
+            List l = convertSitesToContext(req, mySites, prefix, siteId, myWorkspaceSiteId);
             rcontext.put("tabsSites", l);
 
             rcontext.put("tabsHasExtraTitle", Boolean

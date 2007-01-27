@@ -1,4 +1,6 @@
 ##
+##        rcontext.put("loggedIn",Boolean.value(session.getUserId() != null));
+##
 ##                    m.put("isPage",Boolean.valueOf(true));
 ##                    m.put("current", Boolean.valueOf(current));
 ##                    m.put("ispopup", Boolean.valueOf(p.isPopUp()));
@@ -88,11 +90,28 @@ function hidePresence()
 	window.document.getElementById('portletpresencewrapper').style.visibility = 'hidden';
 }
 </script>
+#end
+#end
 <div class="portletpresencebutton" >
-<a href-"#" onMouseOver="showPresence();" onMouseOut="hidePresence();">Users Present</a>
+#if (${pageNavShowPresenceLoggedIn})
+#if ($currentSite)
+#if ( ! $currentSite.isMyWorkspace )
+<a href-"#" onMouseOver="showPresence();" onMouseOut="hidePresence();">Users Present</a> | 
+#end
+#end
+#end
+#if ( $loggedIn ) 
+<a href="${portalTopUrl}?force.logout=yes">Log Out</a>
+#else
+<a href="${portalTopUrl}?force.login=yes">Log In</a>
+#end
 </div>
-#end
-#end
+##
+## Bottom takes up a lot of space - we leave it in comments - perhaps a smaller version is better
+##
+<!--
+#includeBottom()
+-->
 </div>
 <!-- end portlet.vm -->
 #end_response()
