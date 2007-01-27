@@ -1,0 +1,44 @@
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" 
+     xmlns:sy="http://purl.org/rss/1.0/modules/syndication/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<channel>
+<title>
+#if ($currentSite) 
+${currentSite.siteTitle}
+<link>${currentSite.siteUrl}</link>
+#else
+Sakai RSS Feed
+<link>http://www.sakaiproject.org/</link> 
+#end
+</title> 
+<ttl>60</ttl>
+<language>en-us</language>
+<!--
+<pubDate>$publishDate</pubDate>
+<lastBuildDate>$buildDate</lastBuildDate>
+-->
+<docs /> 
+#if ($currentSite)
+#foreach ( $page in $pageNavTools ) 
+<item>
+#if ($page.isPage)
+<title>${page.jsPageTitle}</title>
+<link>${page.pageRefUrl}</link>
+<description>${page.jsPageTitle}</description>
+#else
+<title>${page.jsToolTitle}</title>
+<link>${page.toolRefUrl}</link>
+<description>${page.jsToolTitle}</description>
+#end
+</item>
+#end
+#else
+#foreach ( $site in $allSites ) 
+<item>
+<title>${site.siteTitle}</title>
+<link>${site.siteUrl}</link>
+<description>${site.siteTitle}</description>
+</item>
+#end 
+#end
+</channel>
+</rss>

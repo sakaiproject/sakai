@@ -234,7 +234,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
 
         showSnoop(rcontext, true, getServletConfig(), req);
 
-        sendResponse(rcontext, res, "error");
+        sendResponse(rcontext, res, "error", null);
     }
 
     private void showSnoop(PortalRenderContext rcontext, boolean b,
@@ -491,7 +491,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
 
         includeBottom(rcontext);
 
-        sendResponse(rcontext, res, "gallery");
+        sendResponse(rcontext, res, "gallery", null);
     }
 
     /**
@@ -667,7 +667,32 @@ public class SkinnableCharonPortal extends HttpServlet  {
 
                 PortalRenderContext rcontext = includePortal(req, res, session, siteId, toolId, req.getContextPath()
                     + req.getServletPath(), "portlet", /* doPages */ false, /* resetTools */ true );
-		sendResponse(rcontext, res, "portlet");
+		sendResponse(rcontext, res, "portlet", null);
+            }
+
+	    // Implement the dense rss portal
+            else if ((parts.length >= 2) && (parts[1].equals("rss"))) {
+
+                // /portal/portlet/site-id
+                String siteId = null;
+                if (parts.length >= 3) {
+                    siteId = parts[2];
+                }
+
+	        // This is a pop-up page - it does exactly the same as /portal/page
+                // /portal/portlet/site-id/page/page-id
+	        //           1       2      3     4
+                String pageId = null;
+                if ((parts.length == 5) && (parts[3].equals("page"))) {
+                    doPage(req, res, session, parts[4], req.getContextPath()
+                        + req.getServletPath());
+		    return;
+                }
+
+                PortalRenderContext rcontext = includePortal(req, res, session, siteId, 
+		    /* toolId */ null, req.getContextPath() + req.getServletPath(), 
+		    /* prefix */ "rss", /* doPages */ true, /* resetTools */ false );
+		sendResponse(rcontext, res, "rss", "text/xml");
             }
 
             // recognize a dispatch the 'gallery' option (site tabs + pages
@@ -873,7 +898,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
 
         includeLogo(rcontext, req, session, siteId);
 
-        sendResponse(rcontext, res, "login");
+        sendResponse(rcontext, res, "login", null);
     }
 
     protected void doNavLoginGallery(HttpServletRequest req,
@@ -885,7 +910,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
 
         includeGalleryLogin(rcontext, req, session, siteId);
         // end the response
-        sendResponse(rcontext, res, "gallery-login");
+        sendResponse(rcontext, res, "gallery-login", null);
     }
 
     protected void doPage(HttpServletRequest req, HttpServletResponse res,
@@ -928,7 +953,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
 
         includePage(rcontext, res, req, page, toolContextPath, "contentFull");
 
-        sendResponse(rcontext, res, "page");
+        sendResponse(rcontext, res, "page", null);
     }
 
     private PortalRenderContext startPageContext(String siteType, String title,
@@ -1208,7 +1233,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
         includeBottom(rcontext);
 
         // end the response
-        sendResponse(rcontext, res, "site");
+        sendResponse(rcontext, res, "site", null);
     }
 
     // Checks to see which form of tool or page placement we have. The normal
@@ -1567,7 +1592,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
             "worksite");
 
         // end the response
-        sendResponse(rcontext, res, "worksite");
+        sendResponse(rcontext, res, "worksite", null);
     }
 
     protected String getScriptPath() {
@@ -1998,7 +2023,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
                     m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
                     m.put("pageId", Web.escapeUrl(p.getId()));
                     m.put("jsPageId", Web.escapeJavascript(p.getId()));
-                    m.put("pagerefUrl", pagerefUrl);
+                    m.put("pageRefUrl", pagerefUrl);
                     l.add(m);
 		    continue;
 		}
@@ -2497,9 +2522,14 @@ public class SkinnableCharonPortal extends HttpServlet  {
     }
 
     protected void sendResponse(PortalRenderContext rcontext,
-                                HttpServletResponse res, String template) throws IOException {
+                                HttpServletResponse res, String template,
+				String contentType) throws IOException {
         // headers
-        res.setContentType("text/html; charset=UTF-8");
+	if ( contentType == null ) {
+            res.setContentType("text/html; charset=UTF-8");
+	} else {
+            res.setContentType(contentType);
+	}
         res.addDateHeader("Expires", System.currentTimeMillis()
             - (1000L * 60L * 60L * 24L * 365L));
         res.addDateHeader("Last-Modified", System.currentTimeMillis());
@@ -2600,7 +2630,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
         throws IOException {
         PortalRenderContext rcontext = startPageContext("", null, null, null);
         rcontext.put("redirectUrl", url);
-        sendResponse(rcontext, res, "portal-redirect");
+        sendResponse(rcontext, res, "portal-redirect", null);
     }
 
     /**
