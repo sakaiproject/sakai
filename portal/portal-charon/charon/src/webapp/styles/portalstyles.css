@@ -9,3 +9,23 @@ div.skinselection {
     left: 2px;
     z-index: 1;
 }
+
+div.portletpresence {
+    position: absolute;
+    top: 30px;
+    right: 100px;
+    z-index: 2;
+}
+
+div.portletpresencewrapper {
+    background-color:#F7F7F7; 
+    layer-background-color:#F7F7F7;
+    visibility: hidden;
+}
+
+div.portletpresencebutton {
+    position: absolute;
+    top: 0px;
+    right: 100px;
+    z-index: 1;
+}

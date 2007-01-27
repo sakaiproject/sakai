@@ -1938,6 +1938,8 @@ public class SkinnableCharonPortal extends HttpServlet  {
 				  boolean resetTools) throws IOException {
         if (rcontext.uses(INCLUDE_PAGE_NAV)) {
 
+            boolean loggedIn = session.getUserId() != null;
+
             String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
                 + Web.escapeUrl(getSiteEffectiveId(site)) + "/page/");
 	    String toolUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
@@ -1951,7 +1953,6 @@ public class SkinnableCharonPortal extends HttpServlet  {
             String pagePopupUrl = Web.returnUrl(req, "/page/");
             boolean showHelp = ServerConfigurationService.getBoolean(
                 "display.help.menu", true);
-            boolean loggedIn = session.getUserId() != null;
             String iconUrl = site.getIconUrlFull();
             boolean published = site.isPublished();
             String type = site.getType();
@@ -2038,19 +2039,8 @@ public class SkinnableCharonPortal extends HttpServlet  {
 
             rcontext.put("pageNavSitContentshead", Web.escapeHtml(rb
                 .getString("sit.contentshead")));
-        }
 
-    }
-
-    protected void includePageNav(PortalRenderContext rcontext,
-                                  HttpServletRequest req, Session session, Site site, SitePage page,
-                                  String toolContextPath, String portalPrefix) throws IOException {
-        if (rcontext.uses(INCLUDE_PAGE_NAV)) {
-
-            includePageList(rcontext, req,  session, site, null, toolContextPath,
-                portalPrefix, true, "true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET)));
-
-            boolean loggedIn = session.getUserId() != null;
+	    // Handle Presense
 	    boolean showPresence = ServerConfigurationService.getBoolean(
                  "display.users.present", true);
             String presenceUrl = Web.returnUrl(req, "/presence/"
@@ -2063,6 +2053,18 @@ public class SkinnableCharonPortal extends HttpServlet  {
             rcontext.put("pageNavShowPresenceLoggedIn", Boolean
                 .valueOf(showPresence && loggedIn));
             rcontext.put("pageNavPresenceUrl", presenceUrl);
+        }
+
+    }
+
+    protected void includePageNav(PortalRenderContext rcontext,
+                                  HttpServletRequest req, Session session, Site site, SitePage page,
+                                  String toolContextPath, String portalPrefix) throws IOException {
+        if (rcontext.uses(INCLUDE_PAGE_NAV)) {
+
+            includePageList(rcontext, req,  session, site, null, toolContextPath,
+                portalPrefix, true, "true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET)));
+
         }
 
     }

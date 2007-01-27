@@ -20,6 +20,7 @@
     <script type="text/javascript" language="JavaScript" src="/library/scripts/portalscripts.js"></script>
 </head>
 <body class="portalBody">
+<!--
 <div class="skinselection" >
 <form id="skinselect" action="#" method="GET" name="skinselect">
 	<select name="portalskin" id="portalskin" onchange="skinselect.submit();" >
@@ -33,6 +34,7 @@
 	</select>
 </form>
 </div>
+-->
 #if ( $pageTop )
 	<script type="text/javascript" language="JavaScript">
 	var sakaiPortalWindow = "";

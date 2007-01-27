@@ -6,10 +6,10 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface PortalService
 {
-	/**
-	 * A portal request scope attribute that reprenset the placement id of the current request.
-	 * It should be a string, and should be implimented where the request is portlet dispatched.
-	 */
+    /**
+     * A portal request scope attribute that reprenset the placement id of the current request.
+     * It should be a string, and should be implimented where the request is portlet dispatched.
+     */
     public static final String PLACEMENT_ATTRIBUTE = PortalService.class.getName()+"_placementid";
 
     /**
