@@ -1,5 +1,7 @@
 #start_response()
 <!-- page.vm -->
-#includePage()
+<div id="container" $pageSiteType >
+#includePageBody()
+</div>
 <!-- end page.vm -->
 #end_response()

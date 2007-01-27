@@ -185,7 +185,7 @@
 #macro( includeLogin  )
 #if (!${loginTopLogin})
 	<div id="loginLinks">
-		<a href="${loginLogInOutUrl}" target="_parent" title="${loginMessage}">
+		<a href="${loginLogInOutUrl}" title="${loginMessage}">
 #if (${loginHasImage1}) 
 			<img src="${loginImage1}"/>
 #else
@@ -193,7 +193,7 @@
 #end
 		</a>
 #if (${loginHasLogInOutUrl2})
-		<a href="${loginLogInOutUrl2}" target="_parent" title="${loginMessage2}">
+		<a href="${loginLogInOutUrl2}" title="${loginMessage2}">
 #if (${loginHasImage2}) 
 			<img alt="${loginMessage2}" src="${loginImage2}"/>
 #else
@@ -203,7 +203,7 @@
 #end
 	</div>
 #else
-	<form id="loginForm" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded" target="_parent">
+	<form id="loginForm" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded">
 		<label for="eid">${loginEidWording}</label>
 		<input name="eid" id="eid" type="text" />
 		<label for="pw">${loginPwWording}</label>
@@ -254,14 +254,14 @@
 #if ($tabsCurMyWorkspace)
 				<li class="selectedTab"><a href="#"><span>${tabsSitMyWorkspace}</span></a></li>
 #else
-				<li><a href="${tabsSiteUrl}" target="_parent" title="${tabsSitMyWorkspace}"><span>${tabsSitMyWorkspace}</span></a></li>
+				<li><a href="${tabsSiteUrl}" title="${tabsSitMyWorkspace}"><span>${tabsSitMyWorkspace}</span></a></li>
 #end
 #end
 #foreach ( $site in $tabsSites ) 
 #if (${site.isCurrentSite})
 				<li class="selectedTab"><a href="#"><span>${site.siteTitle}</span></a></li>
 #else
-				<li><a href="${site.siteUrl}" target="_parent" title="${site.siteTitle} ${tabsSitMyWorkspace}">
+				<li><a href="${site.siteUrl}" title="${site.siteTitle} ${tabsSitMyWorkspace}">
 					<span>${site.siteTitle}</span>
 				</a></li>
 #end
@@ -287,7 +287,7 @@
 #end
 #if ($tabsAddLogout)
 		<div class="galleryLogin">
-			<a href="$tabsLogoutUrl" target="_parent">$tabsSitLog</a>
+			<a href="$tabsLogoutUrl">$tabsSitLog</a>
 		</div>
 	</div>
 
@@ -308,21 +308,22 @@
 #includePage()
 #end
 ##------------------------------------------------------------------------------------------
-##
-## -- from includePageNav
+## -- from includePageList ( doPage=true )
 ##------------------------------------------------------------------------------------------
 ##
 ##		rcontext.put("pageNavPublished",Boolean.valueOf(published));
 ##		rcontext.put("pageNavType",type);
 ##		rcontext.put("pageNavIconUrl",iconUrl);
 ##		rcontext.put("pageNavSitToolsHead",Web.escapeHtml(rb.getString("sit.toolshead")));
-##			m.put("current",Boolean.valueOf(current));
-##			m.put("ispopup",Boolean.valueOf(p.isPopUp()));
-##			m.put("pagePopupUrl",pagePopupUrl);
-##			m.put("pageIdWeb",Web.escapeUrl(p.getId()));
-##			m.put("jsPageTitle",Web.escapeJavascript(p.getTitle()));
-##			m.put("htmlPageTitle",Web.escapeHtml(p.getTitle()));
-##			m.put("pagerefUrl",pagerefUrl);
+##                    m.put("isPage",Boolean.valueOf(true));
+##                    m.put("current", Boolean.valueOf(current));
+##                    m.put("ispopup", Boolean.valueOf(p.isPopUp()));
+##                    m.put("pagePopupUrl", pagePopupUrl);
+##                    m.put("pageTitle", Web.escapeHtml(p.getTitle()));
+##                    m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
+##                    m.put("pageId", Web.escapeUrl(p.getId()));
+##                    m.put("jsPageId", Web.escapeJavascript(p.getId()));
+##                    m.put("pagerefUrl", pagerefUrl);
 ##		rcontext.put("pageNavTools",l);		
 ##		rcontext.put("pageNavShowHelp",Boolean.valueOf(showHelp));
 ##		rcontext.put("pageNavHelpUrl",helpUrl);
@@ -355,12 +356,12 @@
 				<li class="selectedTool"><a class="selected" href="#">
 #else
 #if (${page.ispopup})
-				<li><a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageIdWeb}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+				<li><a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
 #else
 				<li><a href="${page.pagerefUrl}" >
 #end
 #end
-						<span>${page.htmlPageTitle}</span>
+						<span>${page.pageTitle}</span>
 					</a>
 				</li>
 #end
@@ -397,10 +398,8 @@
 ## rcontext.put("pageColumn0Tools", toolList);
 ## rcontext.put("pageColumn1Tools", toolList);
 ##------------------------------------------------------------------------------------------
-#macro( includePage   ) 	
-<!-- start includePage -->		
-<div id="container" $pageSiteType >
-#includePageNav()
+#macro( includePageBody ) 	
+<!-- start includePageBody -->		
 	<div id="$pageWrapperClass">
 		<div id="$pageColumnLayout">
 #foreach ( $tool in $pageColumn0Tools ) 
@@ -418,6 +417,21 @@
 	<div>
 #includeBottom()
 	</div>
+<!-- end includePageBody -->
+#end
+##------------------------------------------------------------------------------------------
+##
+## from Include Page
+## rcontext.put("pageWrapperClass", wrapperClass);
+## rcontext.put("pageColumnLayout", Integer.valueOf(page.getLayout()));
+## rcontext.put("pageColumn0Tools", toolList);
+## rcontext.put("pageColumn1Tools", toolList);
+##------------------------------------------------------------------------------------------
+#macro( includePage ) 	
+<!-- start includePage -->		
+<div id="container" $pageSiteType >
+#includePageNav()
+#includePageBody()
 </div>
 <!-- end includePage -->		
 #end

@@ -1956,10 +1956,12 @@ public class SkinnableCharonPortal extends HttpServlet  {
             boolean published = site.isPublished();
             String type = site.getType();
 
-            rcontext.put("toolNavPublished", Boolean.valueOf(published));
-            rcontext.put("toolNavType", type);
-            rcontext.put("toolNavIconUrl", iconUrl);
-            rcontext.put("toolNavSitToolsHead", Web.escapeHtml(rb
+System.out.println("AAAAAA isPublished "+published);
+
+            rcontext.put("pageNavPublished", Boolean.valueOf(published));
+            rcontext.put("pageNavType", type);
+            rcontext.put("pageNavIconUrl", iconUrl);
+            rcontext.put("pageNavSitToolsHead", Web.escapeHtml(rb
                 .getString("sit.toolshead")));
 
             // order the pages based on their tools and the tool order for the
@@ -2002,16 +2004,10 @@ public class SkinnableCharonPortal extends HttpServlet  {
                     m.put("ispopup", Boolean.valueOf(p.isPopUp()));
                     m.put("pagePopupUrl", pagePopupUrl);
                     m.put("pageTitle", Web.escapeHtml(p.getTitle()));
+                    m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
                     m.put("pageId", Web.escapeUrl(p.getId()));
                     m.put("jsPageId", Web.escapeJavascript(p.getId()));
                     m.put("pagerefUrl", pagerefUrl);
-
-		    // TODO: Check to see if this is right in Ian's code - check the vm's
-                    m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
-                    m.put("htmlPageTitle", Web.escapeHtml(p.getTitle()));
-                    m.put("pageIdWeb", Web.escapeUrl(p.getId()));
-		    // End of Ian backwards compatibility
-
                     l.add(m);
 		    continue;
 		}
@@ -2030,6 +2026,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
                     m.put("toolId", Web.escapeUrl(placement.getId()));
                     m.put("jsToolId", Web.escapeJavascript(placement.getId()));
                     m.put("toolTitle", Web.escapeHtml(placement.getTitle()));
+                    m.put("jsToolTitle", Web.escapeJavascript(placement.getTitle()));
                     m.put("toolrefUrl", toolrefUrl);
                     l.add(m);
                 }
@@ -2052,86 +2049,14 @@ public class SkinnableCharonPortal extends HttpServlet  {
                                   String toolContextPath, String portalPrefix) throws IOException {
         if (rcontext.uses(INCLUDE_PAGE_NAV)) {
 
+            includePageList(rcontext, req,  session, site, null, toolContextPath,
+                portalPrefix, true, "true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET)));
+
+            boolean loggedIn = session.getUserId() != null;
+	    boolean showPresence = ServerConfigurationService.getBoolean(
+                 "display.users.present", true);
             String presenceUrl = Web.returnUrl(req, "/presence/"
                 + Web.escapeUrl(site.getId()));
-
-            // If we have turned on auto-state reset on navigation, we generate
-            // the
-            // "site-reset" "worksite-reset" and "gallery-reset" urls
-            if ("true".equals(ServerConfigurationService
-                .getString(CONFIG_AUTO_RESET))) {
-                portalPrefix = portalPrefix + "-reset";
-            }
-
-            String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
-                + Web.escapeUrl(getSiteEffectiveId(site)) + "/page/");
-            String pagePopupUrl = Web.returnUrl(req, "/page/");
-            boolean showPresence = ServerConfigurationService.getBoolean(
-                "display.users.present", true);
-            boolean showHelp = ServerConfigurationService.getBoolean(
-                "display.help.menu", true);
-            boolean loggedIn = session.getUserId() != null;
-            String iconUrl = site.getIconUrlFull();
-            boolean published = site.isPublished();
-            String type = site.getType();
-
-            rcontext.put("pageNavPublished", Boolean.valueOf(published));
-            rcontext.put("pageNavType", type);
-            rcontext.put("pageNavIconUrl", iconUrl);
-            rcontext.put("pageNavSitToolsHead", Web.escapeHtml(rb
-                .getString("sit.toolshead")));
-
-            // order the pages based on their tools and the tool order for the
-            // site
-            // type
-            List pages = site.getOrderedPages();
-
-            // gsilver - counter for tool accesskey attributes of <a>
-            // int count = 0;
-
-            List l = new ArrayList();
-            for (Iterator i = pages.iterator(); i.hasNext();) {
-                Map m = new HashMap();
-
-                SitePage p = (SitePage) i.next();
-                // check if current user has permission to see page
-                // will draw page button if it have permission to see at least
-                // one
-                // tool
-                List pTools = p.getTools();
-                Iterator iPt = pTools.iterator();
-
-                boolean allowPage = false;
-                while (iPt.hasNext()) {
-                    ToolConfiguration placement = (ToolConfiguration) iPt
-                        .next();
-
-                    boolean thisTool = allowTool(site, placement);
-                    if (thisTool) allowPage = true;
-                    // System.out.println(" Allow Tool -" + tool.getTitle() + "
-                    // retval = " + thisTool + " page=" + allowPage);
-                }
-
-                if (!allowPage) continue;
-
-                boolean current = (p.getId().equals(page.getId()) && !p
-                    .isPopUp());
-                String pagerefUrl = pageUrl + Web.escapeUrl(p.getId());
-
-                m.put("current", Boolean.valueOf(current));
-                m.put("ispopup", Boolean.valueOf(p.isPopUp()));
-                m.put("pagePopupUrl", pagePopupUrl);
-                m.put("pageIdWeb", Web.escapeUrl(p.getId()));
-                m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
-                m.put("htmlPageTitle", Web.escapeHtml(p.getTitle()));
-                m.put("pagerefUrl", pagerefUrl);
-                l.add(m);
-            }
-            rcontext.put("pageNavTools", l);
-
-            String helpUrl = ServerConfigurationService.getHelpUrl(null);
-            rcontext.put("pageNavShowHelp", Boolean.valueOf(showHelp));
-            rcontext.put("pageNavHelpUrl", helpUrl);
 
             rcontext.put("pageNavSitPresenceTitle", Web.escapeHtml(rb
                 .getString("sit.presencetitle")));
@@ -2140,8 +2065,6 @@ public class SkinnableCharonPortal extends HttpServlet  {
             rcontext.put("pageNavShowPresenceLoggedIn", Boolean
                 .valueOf(showPresence && loggedIn));
             rcontext.put("pageNavPresenceUrl", presenceUrl);
-            rcontext.put("pageNavSitContentshead", Web.escapeHtml(rb
-                .getString("sit.contentshead")));
         }
 
     }
@@ -2428,21 +2351,11 @@ public class SkinnableCharonPortal extends HttpServlet  {
             int prefTabs = 4;
             int tabsToDisplay = prefTabs;
 
-	    // Get the list of sites in the right order
-	    List mySites;
+	    // Get the list of sites in the right order, don't include My WorkSpace
+	    List mySites = getAllSites(req, session, false);
 	    if ( ! loggedIn ) {
-            	// collect the Publically Viewable Sites
-            	mySites = getGatewaySites();
-		// System.out.println(" gateway mySites count =" + mySites.size());
 		prefTabs =  ServerConfigurationService.getInt("gatewaySiteListDisplayCount",prefTabs);
 	    } else {
-            	// collect the user's sites
-            	mySites = SiteService.getSites(
-                	org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-                	null, null, null,
-                	org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC,
-                	null);
-
                 // is the current site the end user's My Workspace?
                 // Note: the site id can match the user's id or eid
                 String curUserId = session.getUserId();
@@ -2464,8 +2377,6 @@ public class SkinnableCharonPortal extends HttpServlet  {
                 if (curMyWorkspace) siteId = null;
 
                 // collect the user's preferences
-                List prefExclude = new Vector();
-                List prefOrder = new Vector();
                 if (session.getUserId() != null) {
                     Preferences prefs = PreferencesService.getPreferences(session
                         .getUserId());
@@ -2476,39 +2387,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
                     }
                     catch (Exception any) {
                     }
-
-                    List l = props.getPropertyList("exclude");
-                    if (l != null) {
-                        prefExclude = l;
-                    }
-
-                    l = props.getPropertyList("order");
-                    if (l != null) {
-                        prefOrder = l;
-                    }
                 }
-
-                // remove all in exclude from mySites
-                mySites.removeAll(prefExclude);
-
-                // re-order mySites to have order first, the rest later
-                List ordered = new Vector();
-                for (Iterator i = prefOrder.iterator(); i.hasNext();) {
-                    String id = (String) i.next();
-
-                    // find this site in the mySites list
-                    int pos = indexOf(id, mySites);
-                    if (pos != -1) {
-                        // move it from mySites to order
-                        Site s = (Site) mySites.get(pos);
-                        ordered.add(s);
-                        mySites.remove(pos);
-                    }
-                }
-
-                // pick up the rest of the sites
-                ordered.addAll(mySites);
-                mySites = ordered;
             }  // End if ( loggedIn )
 
 	    // Prepare for display across the top...

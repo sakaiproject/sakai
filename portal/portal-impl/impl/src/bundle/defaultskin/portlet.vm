@@ -1,3 +1,21 @@
+##
+##                    m.put("isPage",Boolean.valueOf(true));
+##                    m.put("current", Boolean.valueOf(current));
+##                    m.put("ispopup", Boolean.valueOf(p.isPopUp()));
+##                    m.put("pagePopupUrl", pagePopupUrl);
+##                    m.put("pageTitle", Web.escapeHtml(p.getTitle()));
+##                    m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
+##                    m.put("pageId", Web.escapeUrl(p.getId()));
+##                    m.put("jsPageId", Web.escapeJavascript(p.getId()));
+##                    m.put("pagerefUrl", pagerefUrl);
+##
+##                    m.put("isPage",Boolean.valueOf(false));
+##                    m.put("toolId", Web.escapeUrl(placement.getId()));
+##                    m.put("jsToolId", Web.escapeJavascript(placement.getId()));
+##                    m.put("toolTitle", Web.escapeHtml(placement.getTitle()));
+##                    m.put("jsToolTitle", Web.escapeJavascript(placement.getTitle()));
+##                    m.put("toolrefUrl", toolrefUrl);
+##
 #start_response()
 <!-- portlet.vm -->
 <div class="portlet">
@@ -22,7 +40,8 @@
 <ul>
 #foreach ( $page in $pageNavTools ) 
 #if ($page.isPage)
-<li><a href="${page.pagerefUrl}" title="${page.pageTitle}" target="_new">${page.pageTitle}</a>
+## This must be a popup - so we treat it as a popup
+<li><a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.jsPageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">${page.pageTitle}</a></li>
 <BR> We have a page ${page.pageId}
 jsToolId = ${page.jsPageId}
 title = ${page.pageTitle}
