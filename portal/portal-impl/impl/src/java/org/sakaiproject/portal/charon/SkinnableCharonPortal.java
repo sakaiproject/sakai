@@ -316,27 +316,12 @@ public class SkinnableCharonPortal extends HttpServlet  {
     /*
      * Produce a portlet like view with the navigation all at the top with implicit reset
      */
-    protected void doPortlet(HttpServletRequest req, HttpServletResponse res,
+    private PortalRenderContext includePortal(HttpServletRequest req, HttpServletResponse res,
                              Session session, String siteId, String toolId,
-                             String toolContextPath) throws ToolException, IOException {
-        // check to default site id
+                             String toolContextPath, String prefix, boolean doPages, boolean resetTools) 
+	throws ToolException, IOException {
+
 	String errorMessage = null;
-
-        String forceLogout= req.getParameter(PARAM_FORCE_LOGOUT);
-        if ("yes".equalsIgnoreCase(forceLogout)
-                || "true".equalsIgnoreCase(forceLogout)) {
-                doLogout(req, res, session, "/portlet");
-		return;
-	}
-
-        if (session.getUserId() == null) {
-            String forceLogin = req.getParameter(PARAM_FORCE_LOGIN);
-            if ("yes".equalsIgnoreCase(forceLogin)
-                || "true".equalsIgnoreCase(forceLogin)) {
-                doLogin(req, res, session, req.getPathInfo(), false);
-                return;
-            }
-        }
 
         // find the site, for visiting
         Site site = null;
@@ -350,8 +335,6 @@ public class SkinnableCharonPortal extends HttpServlet  {
         }
         catch (PermissionException e) {
             if (session.getUserId() == null) {
-                // doLogin(req, res, session, req.getPathInfo(), false);
-		// return;
 	    	errorMessage = "No permission for anynymous user to view site: " + siteId;
             } else {
 	    	errorMessage = "No permission to view site: " + siteId;
@@ -406,7 +389,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
 	// Make the top Url where the "top" url is
 	String portalTopUrl = Web.serverUrl(req)
                     + ServerConfigurationService.getString("portalPath") + "/"
-                    + "portlet" + "/";
+                    + prefix + "/";
 
 	rcontext.put("portalTopUrl",portalTopUrl);
 	rcontext.put("loggedIn",Boolean.valueOf(session.getUserId() != null));
@@ -417,20 +400,20 @@ public class SkinnableCharonPortal extends HttpServlet  {
 	}
 
 	if ( site != null ) {
-	    Map m = portalService.convertSiteToMap(req, site, "portlet", siteId, myWorkspaceSiteId);
+	    Map m = portalService.convertSiteToMap(req, site, prefix, siteId, myWorkspaceSiteId);
 	    if ( m != null ) rcontext.put("currentSite",m);
             includePageList(rcontext, req,  session, site, null, toolContextPath,
-                "portlet", false, true);
+                prefix, doPages, resetTools);
 	}
 
 	List mySites = portalService.getAllSites(req, session, true);
-        List l = portalService.convertSitesToMaps(req, mySites, "portlet", siteId, myWorkspaceSiteId);
+        List l = portalService.convertSitesToMaps(req, mySites, prefix, siteId, myWorkspaceSiteId);
 	rcontext.put("allSites", l);
 
         includeLogin(rcontext, req, session);
         includeBottom(rcontext);
 
-        sendResponse(rcontext, res, "portlet");
+	return rcontext;
     }
 
     protected void doGallery(HttpServletRequest req, HttpServletResponse res,
@@ -666,8 +649,25 @@ public class SkinnableCharonPortal extends HttpServlet  {
 		    toolId = parts[4];
                 }
 
-                doPortlet(req, res, session, siteId, toolId, req.getContextPath()
-                    + req.getServletPath());
+        	String forceLogout= req.getParameter(PARAM_FORCE_LOGOUT);
+        	if ("yes".equalsIgnoreCase(forceLogout)
+                	|| "true".equalsIgnoreCase(forceLogout)) {
+                	doLogout(req, res, session, "/portlet");
+				return;
+		}
+	
+        	if (session.getUserId() == null) {
+            		String forceLogin = req.getParameter(PARAM_FORCE_LOGIN);
+            		if ("yes".equalsIgnoreCase(forceLogin)
+                		|| "true".equalsIgnoreCase(forceLogin)) {
+                		doLogin(req, res, session, req.getPathInfo(), false);
+                		return;
+            		}
+        	}
+
+                PortalRenderContext rcontext = includePortal(req, res, session, siteId, toolId, req.getContextPath()
+                    + req.getServletPath(), "portlet", /* doPages */ false, /* resetTools */ true );
+		sendResponse(rcontext, res, "portlet");
             }
 
             // recognize a dispatch the 'gallery' option (site tabs + pages
