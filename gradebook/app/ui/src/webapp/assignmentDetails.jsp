@@ -4,15 +4,7 @@
 
 <f:view>
 
-  <f:verbatim>
-  <script type="text/javascript">
-  	initDynamicSizeCheck( "gbForm:gradingTable_", ":Comment", ":CommentSize", 255,
-  </f:verbatim>
-  <h:outputText value="\"#{msgs.assignment_details_comments_size_dynamic}\"" escape="false"/>
-  <f:verbatim>
-  	);
-  </script>
-  </f:verbatim>
+
 
   <div class="portletBody">
 	<h:form id="gbForm">
@@ -208,17 +200,14 @@
 							styleClass="tier0"/>
 					</h:panelGroup>
 				</f:facet>
-				<h:message for="Score" styleClass="validationEmbedded gbMessageAdjustForContent"/>
-				<h:message for="Comment" styleClass="validationEmbedded gbMessageAdjustForContent"/>
+				<h:message for="Score" styleClass="validationEmbedded gbMessageAdjustForContent"/>				
 				<x:div styleClass="gbTextOnRow" rendered="#{!scoreRow.commentEditable}">
 					<h:outputText value="#{scoreRow.commentText}"/>
 				</x:div>
 				<x:div rendered="#{scoreRow.commentEditable}">
 					<h:inputTextarea id="Comment" value="#{scoreRow.commentText}"
 						rows="4" cols="35">
-						<f:validateLength maximum="255" />
 					</h:inputTextarea>
-					<x:div id="CommentSize" styleClass="gbSizeCheckMessage"><h:outputText value="#{msgs.assignment_details_comments_size_limit}"/></x:div>
 				</x:div>
 			</h:column>
 		</x:dataTable>
