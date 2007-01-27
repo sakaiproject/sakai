@@ -1956,8 +1956,6 @@ public class SkinnableCharonPortal extends HttpServlet  {
             boolean published = site.isPublished();
             String type = site.getType();
 
-System.out.println("AAAAAA isPublished "+published);
-
             rcontext.put("pageNavPublished", Boolean.valueOf(published));
             rcontext.put("pageNavType", type);
             rcontext.put("pageNavIconUrl", iconUrl);

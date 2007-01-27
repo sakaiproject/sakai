@@ -41,11 +41,14 @@
 #foreach ( $page in $pageNavTools ) 
 #if ($page.isPage)
 ## This must be a popup - so we treat it as a popup
-<li><a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.jsPageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">${page.pageTitle}</a></li>
-<BR> We have a page ${page.pageId}
+<li><a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+${page.pageTitle}</a></li>
+<!--
+We have a page ${page.pageId}
 jsToolId = ${page.jsPageId}
 title = ${page.pageTitle}
 toolrefUrl = ${page.pagerefUrl}
+-->
 #else
 <li><a href="${page.toolrefUrl}" title="${page.toolTitle}">${page.toolTitle}</a>
 <!--
