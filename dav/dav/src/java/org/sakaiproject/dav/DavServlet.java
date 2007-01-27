@@ -136,6 +136,8 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdLengthException;
+import org.sakaiproject.exception.IdUniquenessException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.InconsistentException;
@@ -3456,6 +3458,75 @@ public class DavServlet extends HttpServlet
 
 	} // getDestinationPath
 
+    private ResourcePropertiesEdit duplicateResourceProperties(ResourceProperties properties, String id) {
+
+	ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties();
+	try {
+
+	    if (properties == null) return resourceProperties;
+
+	    // loop throuh the properties
+	    Iterator propertyNames = properties.getPropertyNames();
+	    while (propertyNames.hasNext()) {
+		String propertyName = (String) propertyNames.next();
+		if (!propertyName.equals(ResourceProperties.PROP_DISPLAY_NAME))
+		    resourceProperties.addProperty(propertyName, properties.getProperty(propertyName));
+	    }
+
+	} catch (Exception e) {
+	    return resourceProperties;
+	}
+
+	return resourceProperties;
+
+
+    } // duplicateResourceProperties
+
+
+    // better than before, but rather than copyIntoFolder we really need to write our own recursive
+    // code. There are two problems; (1) copyIntoFolder will add .bin when there is no extension (2) it
+    // doesn't check for "/protected"  The current code is the minimum necessary to support OS X.
+
+    private void copyCollection(String id, String new_id) 
+	throws IdUnusedException, PermissionException, TypeException, IdUnusedException, IdLengthException, IdUsedException, IdUniquenessException, IdInvalidException, InUseException, InconsistentException, OverQuotaException, ServerOverloadException {
+
+	if (!id.endsWith("/"))
+	  id = id + "/";
+
+	if (!new_id.endsWith("/"))
+	  new_id = new_id + "/";
+
+
+	ContentCollection thisCollection = ContentHostingService.getCollection(id);
+
+	List members = thisCollection.getMembers();
+	 
+	ResourceProperties properties = thisCollection.getProperties();
+	ResourcePropertiesEdit newProps = duplicateResourceProperties(properties, thisCollection.getId());
+
+	String name = new_id;
+	if (name.endsWith("/"))
+	    name = name.substring(0, name.length()-1);
+	int i = name.lastIndexOf("/");
+	if (i >= 0)
+	    name = name.substring(i+1);
+	newProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+
+	ContentCollection newCollection = ContentHostingService.addCollection(new_id, newProps);
+
+	Iterator memberIt = members.iterator();
+	while (memberIt.hasNext()) {
+	    String member_id = (String) memberIt.next();
+
+	    // this isn't perfect. It only protects the top two levels of directory
+	    if (!(doProtected && member_id.toLowerCase().indexOf("/protected") >= 0 &&
+		  (!ContentHostingService.allowAddCollection(adjustId(member_id)))))
+		ContentHostingService.copyIntoFolder(member_id, new_id);
+	}
+
+    }
+
+
 	/**
 	 * Copy a resource.
 	 * 
@@ -3607,59 +3678,110 @@ public class DavServlet extends HttpServlet
 	private boolean copyResource(DirContextSAKAI resources, Hashtable errorList, String source, String dest)
 	{
 
-		/*
-		 * Object object = null; try { object = resources.lookup(source); } catch (NamingException e) { } if (object instanceof DirContext) { try { resources.createSubcontext(dest); } catch (NamingException e) { errorList.put (dest, new
-		 * Integer(SakaidavStatus.SC_CONFLICT)); return false; } try { NamingEnumeration enumer = resources.list(source); while (enumer.hasMoreElements()) { NameClassPair ncPair = (NameClassPair) enumer.nextElement(); String childDest = dest; if
-		 * (!childDest.equals("/")) childDest += "/"; childDest += ncPair.getName(); String childSrc = source; if (!childSrc.equals("/")) childSrc += "/"; childSrc += ncPair.getName(); copyResource(resources, errorList, childSrc, childDest); } } catch
-		 * (NamingException e) { errorList.put (dest, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR)); return false; } } else { if (object instanceof Resource) { try { resources.bind(dest, object); } catch (NamingException e) { errorList.put
-		 * (source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR)); return false; } } else { errorList.put (source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR)); return false; } } return true;
-		 */
 		if (debug > 1) if (M_log.isDebugEnabled()) M_log.debug("Copy: " + source + " To: " + dest);
-
-		errorList.put(source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
 
 		source = fixDirPathSAKAI(source);
 		dest = fixDirPathSAKAI(dest);
 
 		// System.out.println("copyResource source="+source+" dest="+dest);
 
-		if (prohibited(source) || prohibited(dest))
+		if (prohibited(source) || prohibited(dest)) {
+		    errorList.put(source, new Integer(SakaidavStatus.SC_FORBIDDEN));
 		    return false;
+		}
+
+		source = adjustId(source);
+		dest = adjustId(dest);
 
 		try
 		{
+		    boolean isCollection = ContentHostingService.getProperties(source).getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
+		    String destfolder = null;
+		    String tempname = null;
+
+		    if (isCollection)
+			copyCollection(adjustId(source), adjustId(dest));
+		    else
 			ContentHostingService.copy(adjustId(source), adjustId(dest));
+		}
+		catch (EntityPropertyNotDefinedException e)
+		{
+		    //	System.out.println("propnotdef " + e);
+		    errorList.put(source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
+		    return false;
+		}
+		catch (EntityPropertyTypeException e)
+		{
+		    // System.out.println("propntype " + e);
+		    errorList.put(source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
+		    return false;
+		}
+		catch (IdUsedException e)
+		    // internal error because caller checked for this
+		{
+		    // System.out.println("idunused " + e);
+		    errorList.put(source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
+		    return false;
+		}
+		catch (IdUniquenessException e)
+		{
+		    // System.out.println("iduniqu " + e);
+		    errorList.put(source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
+		    return false;
+		}
+		catch (IdLengthException e)
+		{
+		    // System.out.println("idlen " + e);
+		    errorList.put(source, new Integer(SakaidavStatus.SC_FORBIDDEN));
+		    return false;
+		}
+		catch (InconsistentException e)
+		{
+		    // System.out.println("inconsis " + e);
+		    errorList.put(source, new Integer(SakaidavStatus.SC_CONFLICT));
+		    return false;
 		}
 		catch (PermissionException e)
 		{
-			return false;
+		    // System.out.println("perm " + e);
+		    errorList.put(source, new Integer(SakaidavStatus.SC_FORBIDDEN));
+		    return false;
 		}
 		catch (InUseException e)
 		{
-			return false;
+		    // System.out.println("in use " + e);
+		    errorList.put(source, new Integer(SakaidavStatus.SC_CONFLICT));
+		    return false;
 		}
 		catch (IdUnusedException e)
 		{
-			return false;
-		}
-		catch (IdUsedException e)
-		{
-			// Resource not found (this is actually the normal case)
+		    // System.out.println("unused " + e);
+		    errorList.put(source, new Integer(SakaidavStatus.SC_NOT_FOUND));
+		    return false;
 		}
 		catch (OverQuotaException e)
 		{
-			M_log.warn("SAKAIDavServlet.copyResource() - OverQuota " + source);
-			return false;
+		    // System.out.println("quota " + e);
+		    errorList.put(source, new Integer(SakaidavStatus.SC_FORBIDDEN));
+		    return false;
+		}
+		catch (IdInvalidException e)
+		{
+		    // System.out.println("quota " + e);
+		    errorList.put(source, new Integer(SakaidavStatus.SC_FORBIDDEN));
+		    return false;
 		}
 		catch (TypeException e)
 		{
-			M_log.warn("SAKAIDavServlet.copyResource() - TypeException " + source);
-			return false;
+		    // System.out.println("type " + e);
+		    errorList.put(source, new Integer(SakaidavStatus.SC_FORBIDDEN));
+		    return false;
 		}
 		catch (ServerOverloadException e)
 		{
-			M_log.warn("SAKAIDavServlet.copyResource() ServerOverloadException:" + source);
-			return false;
+		    // System.out.println("overload " + e);
+		    errorList.put(source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
+		    return false;
 		}
 
 		// We did not have an error
