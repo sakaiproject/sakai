@@ -325,7 +325,7 @@
 ##                    m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
 ##                    m.put("pageId", Web.escapeUrl(p.getId()));
 ##                    m.put("jsPageId", Web.escapeJavascript(p.getId()));
-##                    m.put("pagerefUrl", pagerefUrl);
+##                    m.put("pageRefUrl", pageRefUrl);
 ##		rcontext.put("pageNavTools",l);		
 ##		rcontext.put("pageNavShowHelp",Boolean.valueOf(showHelp));
 ##		rcontext.put("pageNavHelpUrl",helpUrl);
@@ -360,7 +360,7 @@
 #if (${page.ispopup})
 				<li><a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
 #else
-				<li><a href="${page.pagerefUrl}" >
+				<li><a href="${page.pageRefUrl}" >
 #end
 #end
 						<span>${page.pageTitle}</span>
