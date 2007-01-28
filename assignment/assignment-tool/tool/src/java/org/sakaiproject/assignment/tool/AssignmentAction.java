@@ -5706,7 +5706,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		if (state.getAttribute(SORTED_ASC) == null)
 		{
-			state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+			state.setAttribute(SORTED_ASC, Boolean.FALSE.toString());
 		}
 
 		if (state.getAttribute(SORTED_GRADE_SUBMISSION_BY) == null)
