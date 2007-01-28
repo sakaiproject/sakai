@@ -38,7 +38,7 @@ import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
-import org.sakaiproject.content.types.BaseResourceType;
+import org.sakaiproject.content.util.BaseResourceType;
 import org.sakaiproject.content.types.FileUploadType.FileUploadAccessAction;
 import org.sakaiproject.content.types.FileUploadType.FileUploadCopyAction;
 import org.sakaiproject.content.types.FileUploadType.FileUploadCreateAction;

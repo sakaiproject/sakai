@@ -40,7 +40,7 @@ import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
-import org.sakaiproject.content.types.BaseResourceType;
+import org.sakaiproject.content.util.BaseResourceType;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;

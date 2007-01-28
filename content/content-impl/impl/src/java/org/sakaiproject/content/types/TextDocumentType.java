@@ -43,6 +43,7 @@ import org.sakaiproject.content.types.FileUploadType.FileUploadDeleteAction;
 import org.sakaiproject.content.types.FileUploadType.FileUploadDuplicateAction;
 import org.sakaiproject.content.types.FileUploadType.FileUploadMoveAction;
 import org.sakaiproject.content.types.FileUploadType.FileUploadReviseAction;
+import org.sakaiproject.content.util.BaseResourceType;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;

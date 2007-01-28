@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.content.types;
+package org.sakaiproject.content.util;
 
 import java.util.Set;
 import java.util.TreeSet;
