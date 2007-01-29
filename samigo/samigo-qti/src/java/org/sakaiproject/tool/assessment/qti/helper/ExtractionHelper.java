@@ -55,7 +55,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
@@ -986,7 +985,7 @@ public class ExtractionHelper
   {
 	// first check if there is any attachment
 	// if no attachment - no action is needed
-	String attachment = assessment.getAssessmentMetaDataByLabel("ATTACHMENT");
+	String attachment = assessment.getAssessmentAttachmentMetaData();
 	if (attachment == null) {
 	  	return;
 	}
@@ -998,7 +997,7 @@ public class ExtractionHelper
         
     AssessmentAttachmentIfc assessmentAttachment;
     String[] attachmentArray = attachment.split("\\n");
-    List list = new ArrayList();
+    HashSet set = new HashSet();
     for (int i = 0; i < attachmentArray.length; i++) {
     	String[] attachmentInfo = attachmentArray[i].split("\\|");
     	String fullFilePath = unzipLocation + "/" + attachmentInfo[0];
@@ -1008,11 +1007,9 @@ public class ExtractionHelper
     	AssessmentService assessmentService = new AssessmentService();
     	assessmentAttachment = assessmentService.createAssessmentAttachment(assessment, contentResource.getId(), filename, getProtocol());
     	assessmentAttachment.setAssessment((AssessmentIfc)assessment.getData());
-    	list.add(assessmentAttachment);
+    	set.add(assessmentAttachment);
     }
-	// save new ones
-	AssessmentService assessmentService = new AssessmentService();
-	assessmentService.saveOrUpdateAttachments(list);
+    assessment.setAssessmentAttachmentSet(set);
   }
   
   /**
@@ -1035,7 +1032,7 @@ public class ExtractionHelper
         
     SectionAttachmentIfc sectionAttachment;
     String[] attachmentArray = attachment.split("\\n");
-    List list = new ArrayList();
+    HashSet set = new HashSet();
     for (int i = 0; i < attachmentArray.length; i++) {
     	String[] attachmentInfo = attachmentArray[i].split("\\|");
     	String fullFilePath = unzipLocation + "/" + attachmentInfo[0];
@@ -1045,11 +1042,9 @@ public class ExtractionHelper
     	AssessmentService assessmentService = new AssessmentService();
     	sectionAttachment = assessmentService.createSectionAttachment(section, contentResource.getId(), filename, getProtocol());
     	sectionAttachment.setSection(section.getData());
-    	list.add(sectionAttachment);
+    	set.add(sectionAttachment);
     }
-	// save new ones
-	AssessmentService assessmentService = new AssessmentService();
-	assessmentService.saveOrUpdateAttachments(list);
+    section.setSectionAttachmentSet(set);
   }
   
   /**
@@ -1060,7 +1055,7 @@ public class ExtractionHelper
   {
 	// first check if there is any attachment
 	// if no attachment - no action is needed
-	String attachment = item.getItemMetaDataByLabel("ATTACHMENT");
+	String attachment = item.getItemAttachmentMetaData();
 	if (attachment == null || attachment.equals("")) {
 	  	return;
 	}
@@ -1072,7 +1067,7 @@ public class ExtractionHelper
         
     ItemAttachmentIfc itemAttachment;
     String[] attachmentArray = attachment.split("\\n");
-    List list = new ArrayList();
+    HashSet set = new HashSet();
     for (int i = 0; i < attachmentArray.length; i++) {
     	String[] attachmentInfo = attachmentArray[i].split("\\|");
     	String fullFilePath = unzipLocation + "/" + attachmentInfo[0];
@@ -1082,11 +1077,9 @@ public class ExtractionHelper
     	AssessmentService assessmentService = new AssessmentService();
     	itemAttachment = assessmentService.createItemAttachment(item, contentResource.getId(), filename, getProtocol());
     	itemAttachment.setItem(item.getData());
-    	list.add(itemAttachment);
+    	set.add(itemAttachment);
     }
-	// save new ones
-	AssessmentService assessmentService = new AssessmentService();
-	assessmentService.saveOrUpdateAttachments(list);
+    item.setItemAttachmentSet(set);
   }
   
   // Copied from ContextUtil.java

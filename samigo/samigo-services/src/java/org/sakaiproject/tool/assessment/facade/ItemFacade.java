@@ -96,7 +96,8 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
   private HashMap itemFeedbackMap = new HashMap();
   private TypeFacade itemTypeFacade;
   private Set itemAttachmentSet;
-
+  private String itemAttachmentMetaData;
+  
   /** ItemFacade is the class that is exposed to developer
    *  It contains some of the useful methods specified in
    *  org.osid.assessment.Item and it implements
@@ -1041,4 +1042,11 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
     return list;
   }
 
+  public void addItemAttachmentMetaData(String entry) {
+	  itemAttachmentMetaData = entry;
+  }
+  
+  public String getItemAttachmentMetaData() {
+	  return itemAttachmentMetaData;
+  }
 }

@@ -84,6 +84,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.SectionAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
+import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
@@ -2188,4 +2189,26 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		return h;
 	}
 
+  
+  public String getAssessmentSiteId (String assessmentId){
+	    String query =
+	        "select a from AuthorizationData a where "+
+	        " a.functionId='EDIT_ASSESSMENT' and a.qualifierId="+assessmentId;
+	    List l = getHibernateTemplate().find(query);
+	    if (l.size()>0){
+	      AuthorizationData a = (AuthorizationData) l.get(0);
+	      return a.getAgentIdString();
+	    }
+	    else return null;
+  }
+  
+  public String getAssessmentCreatedBy(String assessmentId) {
+    String query = "select a from AssessmentData a where a.assessmentBaseId = " + assessmentId;
+    List l = getHibernateTemplate().find(query);
+    if (l.size()>0){
+    	AssessmentData a = (AssessmentData) l.get(0);
+      return a.getCreatedBy();
+    }
+    else return null;
+  }
 }

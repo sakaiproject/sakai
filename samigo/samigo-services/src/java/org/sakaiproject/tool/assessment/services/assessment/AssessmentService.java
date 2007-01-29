@@ -631,4 +631,12 @@ public class AssessmentService {
 
 	}
 
+	  public String getAssessmentSiteId(String assessmentId){
+		    return PersistenceService.getInstance().getAssessmentFacadeQueries().getAssessmentSiteId(assessmentId);
+	  }
+
+	  public String getAssessmentCreatedBy(String assessmentId){
+		    return PersistenceService.getInstance().getAssessmentFacadeQueries().getAssessmentCreatedBy(assessmentId);
+	  }
+
 }

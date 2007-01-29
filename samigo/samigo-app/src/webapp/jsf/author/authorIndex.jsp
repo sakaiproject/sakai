@@ -167,14 +167,17 @@
         <h:outputText value=" #{msg.separator} " 
           rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}" />
 
-    <h:outputLink value="#" title="#{msg.t_exportAssessment}"
-      rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}" 
-      onclick=
-      "window.open( '/samigo/jsf/qti/exportAssessment.xml?exportAssessmentId=#{coreAssessment.assessmentBaseId}','_qti_export', 'toolbar=no,menubar=yes,personalbar=no,width=600,height=190,scrollbars=no,resizable=no');"
-onkeypress=
-      "window.open( '/samigo/jsf/qti/exportAssessment.xml?exportAssessmentId=#{coreAssessment.assessmentBaseId}','_qti_export', 'toolbar=no,menubar=yes,personalbar=no,width=600,height=190,scrollbars=no,resizable=no');"
-       ><h:outputText id="linkExport" value="#{msg.link_export}"/>
-      </h:outputLink>
+      <h:outputText value=" #{msg.separator} " 
+          rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}" />
+
+      <h:commandLink title="#{msg.t_exportAssessment}" id="exportAssessment" immediate="true" 
+        rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}"
+        action="chooseExportType">
+        <h:outputText id="linkExport" value="#{msg.link_export}"/>
+        <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ChooseExportTypeListener" />
+      </h:commandLink>
+
 </span>
     </h:column>
     <h:column>

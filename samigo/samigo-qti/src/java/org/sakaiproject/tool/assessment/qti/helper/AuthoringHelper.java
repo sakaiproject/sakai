@@ -43,13 +43,10 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolItemIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -596,21 +593,20 @@ public class AuthoringHelper
           item.setSection(section); // one to many
 // update metadata with PARTID
 	  item.addItemMetaData(ItemMetaData.PARTID, section.getSectionId().toString());
-
-          section.addItem(item); // many to one
-          itemService.saveItem(item);
           
           // if unzipLocation is not null, there might be item attachment
           if (unzipLocation != null) {
         	  exHelper.makeItemAttachmentSet(item, unzipLocation);
           }
+          section.addItem(item); // many to one
+          itemService.saveItem(item);
         } // ... end for each item
-        assessmentService.saveOrUpdateSection(section);
         
         // if unzipLocation is not null, there might be section attachment
         if (unzipLocation != null) {
       	  exHelper.makeSectionAttachmentSet(section, sectionMap, unzipLocation);
         }
+        assessmentService.saveOrUpdateSection(section);
       } // ... end for each section
 
       // and add ip address restriction, if any
@@ -623,14 +619,11 @@ public class AuthoringHelper
         exHelper.makeSecuredIPAddressSet(assessment, allowIp);
       }
       
-      //assessmentService.update(assessment);
-      assessmentService.saveAssessment(assessment);
-      
       // if unzipLocation is not null, there might be assessment attachment
       if (unzipLocation != null) {
     	  exHelper.makeAssessmentAttachmentSet(assessment, unzipLocation);
       }
-      
+      assessmentService.saveAssessment(assessment);
       return assessment;
     }
     catch (Exception e)

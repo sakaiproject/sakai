@@ -556,7 +556,7 @@ public class Section extends ASIBaseClass
    		while (iter.hasNext())
    		{
    			attachmentData = (AttachmentData) iter.next();
-   			attachment.append(attachmentData.getResourceId());
+   			attachment.append(attachmentData.getResourceId().replaceAll(" ", ""));
    			attachment.append("|");
    			attachment.append(attachmentData.getFilename());
    			attachment.append("|");

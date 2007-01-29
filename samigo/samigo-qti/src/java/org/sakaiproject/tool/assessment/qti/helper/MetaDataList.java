@@ -30,6 +30,7 @@ import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 
@@ -100,7 +101,7 @@ public class MetaDataList
    * @param metadataList extraction-created list of "|" key value pairs
    * @param item the item
    */
-  public void addTo(ItemDataIfc item)
+  public void addTo(ItemFacade item)
   {
     if (metadataList == null)
     {
@@ -144,7 +145,7 @@ public class MetaDataList
         }
         else if (key.equalsIgnoreCase("ATTACHMENT")) {
       	  value = meta.substring(meta.indexOf("|") + 1);
-      	item.addItemMetaData(key, value);
+      	  item.addItemAttachmentMetaData(value);
         }
         else {
         	log.debug("key now is " + key);
@@ -265,10 +266,12 @@ public class MetaDataList
     	  //log.debug("key is submsg " + key);
     	  // skip
       }
+
       else if ("ATTACHMENT".equalsIgnoreCase(key)) {
     	  value = meta.substring(meta.indexOf("|") + 1);
-    	  assessment.addAssessmentMetaData(key, value);
+    	  assessment.addAssessmentAttachmentMetaData(value);
       }
+
       else if (st.hasMoreTokens())
       {
         value = st.nextToken().trim();

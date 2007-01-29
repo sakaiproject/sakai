@@ -81,7 +81,8 @@ public class AssessmentBaseFacade
   private Set assessmentMetaDataSet = new HashSet();
   private HashMap assessmentMetaDataMap = new HashMap();
   private Set securedIPAddressSet;
-
+  private String assessmentAttachmentMetaData;
+  
   /** AssessmentBaseFacade is the class that is exposed to developer
    *  It contains some of the useful methods specified in
    *  org.osid.assessment.Assessment and it implements
@@ -780,6 +781,14 @@ public class AssessmentBaseFacade
 
   public void updateAssessmentMetaData(String label, String entry) {
     addAssessmentMetaData(label,entry);
+  }
+
+  public void addAssessmentAttachmentMetaData(String entry) {
+	  assessmentAttachmentMetaData = entry;
+  }
+  
+  public String getAssessmentAttachmentMetaData() {
+	  return assessmentAttachmentMetaData;
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws IOException {

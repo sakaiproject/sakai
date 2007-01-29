@@ -9,7 +9,7 @@
 <%--
 ***********************************************************************************
 *
-* Copyright (c) 2004, 2005, 2006, 2007 The Sakai Foundation.
+* Copyright (c) 2007 The Sakai Foundation.
 *
 * Licensed under the Educational Community License, Version 1.0 (the"License");
 * you may not use this file except in compliance with the License.
@@ -36,33 +36,17 @@
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <script language="javascript" style="text/JavaScript">
-function getSelectedType(url){
+function getSelectedType(qtiUrl, cpUrl){
  var tables= document.getElementsByTagName("TABLE");
   for (var i = 0; i < tables.length; i++) {
     if ( tables[i].id.indexOf("exportType") >=0){
 	  if (tables[i].getElementsByTagName("INPUT")[0].checked) {
-		alert("qti");
-		window.open( url, '_qti_export', 'toolbar=no,menubar=yes,personalbar=no,width=600,height=190,scrollbars=no,resizable=no');
+		//alert("qti");
+		window.open( qtiUrl, '_qti_export', 'toolbar=no,menubar=yes,personalbar=no,width=600,height=190,scrollbars=no,resizable=no');
 	  }
 	  else {
-	    alert("cp.....");
-		//var handle =
-		//window.open('/samigo/servlet/DownloadAllMedia?publishedId=34&publishedItemId=125&createdBy=&assessmentName=File%20Upload&partNumber=&anonymous=true&scoringType=1&sakai.tool.placement.id=e74f4210-d1ae-4d94-0028-339b71e47787', null, 'toolbar=no,menubar=no,personalbar=no,width=0,height=0,scrollbars=no,resizable=no');
-			
-		window.location = '/samigo/servlet/DownloadAllMedia?publishedId=34&publishedItemId=125&createdBy=&assessmentName=File%20Upload&partNumber=&anonymous=true&scoringType=1&sakai.tool.placement.id=e74f4210-d1ae-4d94-0028-339b71e47787';
-
-		//var newindex = 0;
-		//for (i=0; i<document.links.length; i++) {
-		//	if(document.links[i].id == "downloadCP") {
-		//		newindex = i;
-		//		break;
-		//	}
-		//}
-
-		//document.links[newindex].onclick();	
-		//var t = document.getElementById("exportAssessmentForm:test");
-		//alert(t);
-		//t.onclick();	
+	    //alert("cp.....");
+		window.location = cpUrl;
 	  }
 	}
   }
@@ -103,16 +87,11 @@ function getSelectedType(url){
     <br/>
      <%-- activates the valueChangeListener --%>
      <h:commandButton value="#{msg.export}" type="submit"
-       style="act" onclick="getSelectedType( '/samigo/jsf/qti/exportAssessment.xml?exportAssessmentId=#{assessmentBean.assessmentId}','_qti_export'); return false;" />
+       style="act" onclick="getSelectedType( '/samigo/jsf/qti/exportAssessment.xml?exportAssessmentId=#{assessmentBean.assessmentId}','/samigo/servlet/DownloadCP?&assessmentId=#{assessmentBean.assessmentId}'); return false;" />
      <%-- immediate=true bypasses the valueChangeListener --%>
      <h:commandButton value="#{msg.export_cancel_action}" type="submit"
        style="act" action="author" immediate="true"/>
   </div>
-
-  		<h:outputLink title="#{msg.t_fileUpload}" id="test"  value="/samigo/servlet/DownloadAllMedia?publishedId=34&publishedItemId=125&createdBy=&assessmentName=File%20Upload&partNumber=&anonymous=true&scoringType=1&sakai.tool.placement.id=e74f4210-d1ae-4d94-0028-339b71e47787"  target="new_window">
-		<h:outputText escape="false" value="#{msg.download_all}" />
-		</h:outputLink>
-
  </h:form>
 </div>
  <!-- end content -->
