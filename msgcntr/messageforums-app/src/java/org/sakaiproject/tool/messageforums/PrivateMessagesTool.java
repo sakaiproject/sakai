@@ -380,8 +380,9 @@ public class PrivateMessagesTool
   	/** support for sorting */
   	/* if the view was changed to "All Messages", we want to retain the previous
   	 * sort setting. Otherwise, the user has selected a different sort setting.
+  	 * Also retain sort setting if user has hit "Check All"
   	 */
-  	if (!viewChanged || sortType == null)
+  	if ((!viewChanged || sortType == null) && !selectAll)
   	{
   		String sortColumnParameter = getExternalParameterByKey("sortColumn");
 
@@ -1900,7 +1901,7 @@ public class PrivateMessagesTool
   public String processCheckAll()
   {
     LOG.debug("processCheckAll()");
-    selectAll= !selectAll;
+    selectAll= true;
     
     return null;
   }
