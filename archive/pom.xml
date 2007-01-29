@@ -20,7 +20,6 @@
     <module>import-api</module>
     <module>import-handlers/announcement-handlers</module>
     <module>import-handlers/content-handlers</module>
-    <module>import-handlers/sam-handlers</module>
     <module>import-impl</module>
     <module>import-pack</module>
     <module>import-parsers/common-cartridge</module>
