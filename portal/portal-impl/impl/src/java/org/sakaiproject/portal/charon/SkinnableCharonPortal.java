@@ -80,6 +80,24 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.ToolURLManagerImpl;
 import org.sakaiproject.util.Web;
 
+// Added for Synpotic
+import java.util.Date;
+import java.text.SimpleDateFormat;
+
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.message.api.Message;
+import org.sakaiproject.message.api.MessageHeader;
+import org.sakaiproject.announcement.cover.AnnouncementService;
+import org.sakaiproject.announcement.api.AnnouncementMessage;
+import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
+import org.sakaiproject.discussion.cover.DiscussionService;
+import org.sakaiproject.discussion.api.DiscussionMessage;
+import org.sakaiproject.discussion.api.DiscussionMessageHeader;
+import org.sakaiproject.chat.cover.ChatService;
+import org.sakaiproject.chat.api.ChatMessage;
+import org.sakaiproject.chat.api.ChatMessageHeader;
+
 /**
  * <p/>
  * Charon is the Sakai Site based portal.
@@ -318,7 +336,8 @@ public class SkinnableCharonPortal extends HttpServlet  {
      */
     private PortalRenderContext includePortal(HttpServletRequest req, HttpServletResponse res,
                              Session session, String siteId, String toolId,
-                             String toolContextPath, String prefix, boolean doPages, boolean resetTools) 
+                             String toolContextPath, String prefix, boolean doPages, 
+			     boolean resetTools, boolean includeSummary) 
 	throws ToolException, IOException {
 
 	String errorMessage = null;
@@ -403,11 +422,11 @@ public class SkinnableCharonPortal extends HttpServlet  {
 	    Map m = portalService.convertSiteToMap(req, site, prefix, siteId, myWorkspaceSiteId);
 	    if ( m != null ) rcontext.put("currentSite",m);
             includePageList(rcontext, req,  session, site, null, toolContextPath,
-                prefix, doPages, resetTools);
+                prefix, doPages, resetTools, includeSummary);
 	}
 
 	List mySites = portalService.getAllSites(req, session, true);
-        List l = portalService.convertSitesToMaps(req, mySites, prefix, siteId, myWorkspaceSiteId);
+        List l = xconvertSitesToMaps(req, mySites, prefix, siteId, myWorkspaceSiteId, includeSummary);
 	rcontext.put("allSites", l);
 
         includeLogin(rcontext, req, session);
@@ -665,8 +684,9 @@ public class SkinnableCharonPortal extends HttpServlet  {
             		}
         	}
 
-                PortalRenderContext rcontext = includePortal(req, res, session, siteId, toolId, req.getContextPath()
-                    + req.getServletPath(), "portlet", /* doPages */ false, /* resetTools */ true );
+                PortalRenderContext rcontext = includePortal(req, res, session, siteId, 
+		    toolId, req.getContextPath() + req.getServletPath(), "portlet", 
+		    /* doPages */ false, /* resetTools */ true, /* includeSummary */ false );
 		sendResponse(rcontext, res, "portlet", null);
             }
 
@@ -679,7 +699,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
                     siteId = parts[2];
                 }
 
-	        // This is a pop-up page - it does exactly the same as /portal/page
+	        // This is a rss page - it does exactly the same as /portal/page
                 // /portal/portlet/site-id/page/page-id
 	        //           1       2      3     4
                 String pageId = null;
@@ -691,7 +711,8 @@ public class SkinnableCharonPortal extends HttpServlet  {
 
                 PortalRenderContext rcontext = includePortal(req, res, session, siteId, 
 		    /* toolId */ null, req.getContextPath() + req.getServletPath(), 
-		    /* prefix */ "rss", /* doPages */ true, /* resetTools */ false );
+		    /* prefix */ "rss", /* doPages */ true, /* resetTools */ false,
+		    /* includeSummary */ true);
 		sendResponse(rcontext, res, "rss", "text/xml");
             }
 
@@ -1482,8 +1503,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
                                String toolContextPath, String toolPathInfo) throws ToolException {
 
         // if there is a stored request state, and path, extract that from the
-        // session and
-        // reinstance it
+        // session and reinstance it
 
         // let the tool do the the work (forward)
         if (enableDirect) {
@@ -1520,8 +1540,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
         IOException {
 
         // if there is a stored request state, and path, extract that from the
-        // session and
-        // reinstance it
+        // session and reinstance it
 
         // generate the forward to the tool page placement
         String portalPlacementUrl = "/portal" + getPortalPageUrl(p);
@@ -1533,8 +1552,6 @@ public class SkinnableCharonPortal extends HttpServlet  {
     private String getPortalPageUrl(ToolConfiguration p) {
         return "/site/" + p.getSiteId() + "/page/" + p.getPageId();
     }
-
-
 
     protected void doWorksite(HttpServletRequest req, HttpServletResponse res,
                               Session session, String siteId, String pageId,
@@ -1952,7 +1969,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
     protected void includePageList(PortalRenderContext rcontext,
                                   HttpServletRequest req, Session session, Site site, SitePage page,
                                   String toolContextPath, String portalPrefix, boolean doPages, 
-				  boolean resetTools) throws IOException {
+				  boolean resetTools, boolean includeSummary) throws IOException {
         if (rcontext.uses(INCLUDE_PAGE_NAV)) {
 
             boolean loggedIn = session.getUserId() != null;
@@ -1981,12 +1998,8 @@ public class SkinnableCharonPortal extends HttpServlet  {
                 .getString("sit.toolshead")));
 
             // order the pages based on their tools and the tool order for the
-            // site
-            // type
+            // site type
             List pages = site.getOrderedPages();
-
-            // gsilver - counter for tool accesskey attributes of <a>
-            // int count = 0;
 
             List l = new ArrayList();
             for (Iterator i = pages.iterator(); i.hasNext();) {
@@ -1996,6 +2009,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
                 // we will draw page button if it have permission to see at least
                 List pTools = p.getTools();
                 Iterator iPt = pTools.iterator();
+		String toolsOnPage = null;
 
                 boolean allowPage = false;
                 while (iPt.hasNext()) {
@@ -2003,11 +2017,23 @@ public class SkinnableCharonPortal extends HttpServlet  {
                         .next();
 
                     boolean thisTool = portalService.allowTool(site, placement);
-                    if (thisTool) allowPage = true;
-                    // System.out.println(" Allow Tool -" + tool.getTitle() + "
+                    // System.out.println(" Allow Tool -" + placement.getTitle() + "
                     // retval = " + thisTool + " page=" + allowPage);
+// System.out.println("Tool "+placement.getTitle()+" type="+placement.getToolId());
+                    if (thisTool) 
+		    { 
+			allowPage = true;
+		    	if ( toolsOnPage == null )
+		    	{
+			    toolsOnPage = placement.getToolId();
+			} else {
+			    toolsOnPage = toolsOnPage + ":" + placement.getToolId();
+			}
+		    }
                 }
+// System.out.println("toolsOnPage = "+toolsOnPage);
 
+		//  Do not include pages we are not supposed to see
                 if (!allowPage) continue;
 
                	boolean current = (page!=null && p.getId().equals(page.getId()) && !p.isPopUp());
@@ -2024,6 +2050,8 @@ public class SkinnableCharonPortal extends HttpServlet  {
                     m.put("pageId", Web.escapeUrl(p.getId()));
                     m.put("jsPageId", Web.escapeJavascript(p.getId()));
                     m.put("pageRefUrl", pagerefUrl);
+		    if ( toolsOnPage != null ) m.put("toolsOnPage", toolsOnPage);
+		    if ( includeSummary ) summarizePage(m, site, p);
                     l.add(m);
 		    continue;
 		}
@@ -2041,6 +2069,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
 		    m.put("isPage",Boolean.valueOf(false));
                     m.put("toolId", Web.escapeUrl(placement.getId()));
                     m.put("jsToolId", Web.escapeJavascript(placement.getId()));
+		    m.put("toolRegistryId", placement.getToolId() );
                     m.put("toolTitle", Web.escapeHtml(placement.getTitle()));
                     m.put("jsToolTitle", Web.escapeJavascript(placement.getTitle()));
                     m.put("toolrefUrl", toolrefUrl);
@@ -2079,8 +2108,10 @@ public class SkinnableCharonPortal extends HttpServlet  {
                                   String toolContextPath, String portalPrefix) throws IOException {
         if (rcontext.uses(INCLUDE_PAGE_NAV)) {
 
-            includePageList(rcontext, req,  session, site, null, toolContextPath,
-                portalPrefix, true, "true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET)));
+            includePageList(rcontext, req,  session, site, null, toolContextPath, portalPrefix, 
+		/* doPages */ true, 
+		/* resetTools */ "true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET)),
+		/* includeSummary */ false);
 
         }
 
@@ -2854,6 +2885,256 @@ public class SkinnableCharonPortal extends HttpServlet  {
         }
     }
 
+// NEW STUFF
+
+    protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
+
+    /* 
+     * Temporarily set a placement with the site id as the context - we do not set a tool ID
+     * this will not be a rich enough placement to do *everything* but for those services
+     * which call 
+     *
+     *     ToolManager.getCurrentPlacement().getContext()
+     *
+     * to contextualize their information - it wil be sufficient.
+     */
+
+    public boolean setTemporaryPlacement(Site site)
+    {
+	if ( site == null ) return false;
+
+	Placement ppp = ToolManager.getCurrentPlacement();
+	if ( ppp != null && site.getId().equals(ppp.getContext())) {
+		return true;
+	}
+
+	// Create a site-only placement
+        org.sakaiproject.util.Placement placement = new org.sakaiproject.util.Placement(
+            "portal-temporary", /* toolId */ null, /* tool */ null , 
+            /* config */ null, /* context */ site.getId(), /* title */ null);
+
+	ThreadLocalManager.set(CURRENT_PLACEMENT, placement);
+
+	// Debugging
+	ppp = ToolManager.getCurrentPlacement();
+	if ( ppp == null ) {
+		System.out.println("WARNING portal-temporary placement not set - null");
+	} else {
+		String cont = ppp.getContext();
+		if ( site.getId().equals(cont) ) {
+			return true;
+		} else {
+			System.out.println("WARNING portal-temporary placement mismatch site="+site.getId()+" context="+cont);
+		}
+	}
+	return false;
+    }
+
+    public boolean summarizePage(Map m, Site site, SitePage page)
+    {
+        List pTools = page.getTools();
+        Iterator iPt = pTools.iterator();
+        while (iPt.hasNext()) {
+            ToolConfiguration placement = (ToolConfiguration) iPt.next();
+
+            if ( summarizeTool(m, site, placement.getToolId()) ) {
+		return true;
+	    }
+        }
+	return false;
+    }
+
+    public boolean summarizeTool(Map m, Site site, String toolIdentifier)
+    {
+	if ( "sakai.motd".equals(toolIdentifier) ) {
+		return summarizeMotd(m, site);
+        } else if ( "sakai.chat".equals(toolIdentifier) ) {
+		return summarizeChat(m, site);
+        } else if ( "sakai.discussion".equals(toolIdentifier) ) {
+		return summarizeDiscussion(m, site);
+        } else if ( "sakai.announcements".equals(toolIdentifier) ) {
+		return summarizeAnnounce(m, site, null);
+	} 
+
+	// Put in a conservative publish date
+        m.put("rssPubDate", getDateAsRFC822String(new Date(site.getModifiedTime().getTime())));
+	return false;
+
+    }
+
+    public boolean summarizeMotd(Map m, Site site)
+    {
+	return summarizeAnnounce(m, site, "/announcement/channel/!site/motd");
+    }
+
+    public boolean summarizeAnnounce(Map m, Site site, String channel)
+    {
+	setTemporaryPlacement(site);
+
+	long startTime = System.currentTimeMillis() - (30 /*days*/ * 24l * 60l * 60l * 1000l);
+	if ( channel == null ) channel = AnnouncementService.getInstance().channelReference(site.getId(), SiteService.MAIN_CONTAINER);
+
+	try {
+	    List messages = AnnouncementService.getInstance().getMessages(channel, TimeService.newTime(startTime), /* items */ 5, false, false, false);
+            Iterator iMsg = messages.iterator();
+	    Time pubDate = null;
+	    String summaryText = null;
+            while (iMsg.hasNext()) {
+                AnnouncementMessage item  = (AnnouncementMessage) iMsg.next();
+	        AnnouncementMessageHeader header = item.getAnnouncementHeader();
+		Time newTime = header.getDate();
+	        if ( pubDate == null || newTime.before(pubDate) ) pubDate = newTime;
+		String newText = header.getSubject() + ", " + header.getFrom().getDisplayName() + ", " + header.getDate().toStringLocalFull();
+		if ( summaryText == null ) {
+		    summaryText = newText;
+		} else {
+		    summaryText = summaryText + "<br>\r\n" + newText;
+		}
+	    }
+	    if ( pubDate != null ) {
+                m.put("rssPubDate", getDateAsRFC822String(new Date(pubDate.getTime())));
+	    }
+	    if ( summaryText != null ) {
+                m.put("rssDescription", Web.escapeHtml(summaryText));
+		return true;
+	    }
+	}
+	catch (PermissionException e) {
+	    System.out.println("summarizeAnnounce Permisison Exception");
+	    return false;
+	}
+	return false;
+    }
+
+    public boolean summarizeDiscussion(Map m, Site site)
+    {
+	setTemporaryPlacement(site);
+
+	long startTime = System.currentTimeMillis() - (30 /*days*/ * 24l * 60l * 60l * 1000l);
+	String channel = DiscussionService.getInstance().channelReference(site.getId(), SiteService.MAIN_CONTAINER);
+
+	try {
+	    List messages = DiscussionService.getInstance().getMessages(channel, TimeService.newTime(startTime), /* items */ 5, false, false, false);
+            Iterator iMsg = messages.iterator();
+	    Time pubDate = null;
+	    String summaryText = null;
+            while (iMsg.hasNext()) {
+                DiscussionMessage item  = (DiscussionMessage) iMsg.next();
+	        DiscussionMessageHeader header = item.getDiscussionHeader();
+		Time newTime = header.getDate();
+	        if ( pubDate == null || newTime.before(pubDate) ) pubDate = newTime;
+		String newText = header.getSubject() + ", " + header.getFrom().getDisplayName() + ", " + header.getDate().toStringLocalFull();
+		if ( summaryText == null ) {
+		    summaryText = newText;
+		} else {
+		    summaryText = summaryText + "<br>\r\n" + newText;
+		}
+	    }
+	    if ( pubDate != null ) {
+                m.put("rssPubDate", getDateAsRFC822String(new Date(pubDate.getTime())));
+	    }
+	    if ( summaryText != null ) {
+                m.put("rssDescription", Web.escapeHtml(summaryText));
+		return true;
+	    }
+	}
+	catch (PermissionException e) {
+	    System.out.println("summarizeDiscusison Permisison Exception");
+	    return false;
+	}
+	return false;
+    }
+
+    public boolean summarizeChat(Map m, Site site)
+    {
+	setTemporaryPlacement(site);
+	long startTime = System.currentTimeMillis() - (30 /*days*/ * 24l * 60l * 60l * 1000l);
+	String channel = ChatService.getInstance().channelReference(site.getId(), SiteService.MAIN_CONTAINER);
+
+	try {
+	    List messages = ChatService.getInstance().getMessages(channel, TimeService.newTime(startTime), /* items */ 5, false, false, false);
+            Iterator iMsg = messages.iterator();
+	    Time pubDate = null;
+	    String summaryText = null;
+            while (iMsg.hasNext()) {
+                ChatMessage item  = (ChatMessage) iMsg.next();
+	        ChatMessageHeader header = item.getChatHeader();
+		Time newTime = header.getDate();
+	        if ( pubDate == null || newTime.before(pubDate) ) pubDate = newTime;
+		String newtext;
+		String body = item.getBody();
+		if ( body.length() > 50 ) body = body.substring(1,49);
+		String newText = body + ", " + header.getFrom().getDisplayName() + ", " + header.getDate().toStringLocalFull();
+		if ( summaryText == null ) {
+		    summaryText = newText;
+		} else {
+		    summaryText = summaryText + "<br>\r\n" + newText;
+		}
+	    }
+	    if ( pubDate != null ) {
+                m.put("rssPubDate", getDateAsRFC822String(new Date(pubDate.getTime())));
+	    }
+	    if ( summaryText != null ) {
+                m.put("rssDescription", Web.escapeHtml(summaryText));
+		return true;
+	    }
+	}
+	catch (PermissionException e) {
+	    System.out.println("SummarizeChat Permisison Exception");
+	    return false;
+	}
+	return false;
+    }
+
+    // TODO: Move RFC822 Formatting into 
+    // sakai/util/util-impl/impl/src/java/org/sakaiproject/time/impl/MyTime.java
+    public static SimpleDateFormat RFC822DATEFORMAT 
+        // = new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss' 'Z", Locale.US);
+        = new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss' 'Z");
+
+    public static String getDateAsRFC822String(Date date)
+    {
+        return RFC822DATEFORMAT.format(date);
+    }
+
+
+    public Map xconvertSiteToMap(HttpServletRequest req, Site s, String prefix,
+        String currentSiteId, String myWorkspaceSiteId, boolean includeSummary)
+    {
+        if ( s == null ) return null;
+        Map m = new HashMap();
+        m.put("isCurrentSite", Boolean.valueOf(currentSiteId != null && s.getId().equals(currentSiteId)));
+        m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null && s.getId().equals(myWorkspaceSiteId)));
+        m.put("siteTitle", Web.escapeHtml(s.getTitle()));
+        m.put("siteDescription", Web.escapeHtml(s.getDescription()));
+        String siteUrl = Web.serverUrl(req)
+                  + ServerConfigurationService.getString("portalPath")
+                  + "/" + prefix + "/"
+                  + Web.escapeUrl(portalService.getSiteEffectiveId(s));
+        m.put("siteUrl", siteUrl);
+
+	if ( includeSummary ) summarizeAnnounce(m, s, null);
+        return m;
+    }
+
+    public List xconvertSitesToMaps(HttpServletRequest req, List mySites, String prefix,
+        String currentSiteId, String myWorkspaceSiteId, boolean includeSummary)
+    {   
+            List l = new ArrayList();
+	    boolean motdDone = false;
+            // first n tabs
+            for (Iterator i = mySites.iterator(); i.hasNext();) {
+                Site s = (Site) i.next();
+	
+        	Map m = xconvertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId, includeSummary);
+		if ( includeSummary && m.get("rssDescription") == null ) {
+		    summarizeMotd(m, s);
+		    motdDone = true;
+		}
+               l.add(m);
+            }
+            return l;
+    }
 
 
 }

@@ -21,13 +21,23 @@ Sakai RSS Feed
 #foreach ( $page in $pageNavTools ) 
 <item>
 #if ($page.isPage)
-<title>${page.jsPageTitle}</title>
+<title>${page.pageTitle}</title>
 <link>${page.pageRefUrl}</link>
-<description>${page.jsPageTitle}</description>
+#if (! $page.rssDescription )
+<description>${page.pageTitle}</description>
+#end
 #else
 <title>${page.jsToolTitle}</title>
 <link>${page.toolRefUrl}</link>
-<description>${page.jsToolTitle}</description>
+#if ( ! $page.rssDescription)
+<description>${page.toolTitle}</description>
+#end
+#end
+#if ($page.rssDescription)
+<description>${page.rssDescription}</description>
+#end
+#if ( $page.rssPubDate ) 
+<pubDate>${page.rssPubDate}</pubDate>
 #end
 </item>
 #end
@@ -36,7 +46,14 @@ Sakai RSS Feed
 <item>
 <title>${site.siteTitle}</title>
 <link>${site.siteUrl}</link>
+#if ( $site.rssDescription )
+<description>${site.rssDescription}</description>
+#else
 <description>${site.siteTitle}</description>
+#end
+#if ( $site.rssPubDate ) 
+<pubDate>${site.rssPubDate}</pubDate>
+#end
 </item>
 #end 
 #end

@@ -453,6 +453,7 @@ public class PortalServiceImpl implements PortalService
        	m.put("isCurrentSite", Boolean.valueOf(currentSiteId != null && s.getId().equals(currentSiteId)));
        	m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null && s.getId().equals(myWorkspaceSiteId)));
        	m.put("siteTitle", Web.escapeHtml(s.getTitle()));
+       	m.put("siteDescription", Web.escapeHtml(s.getDescription()));
        	String siteUrl = Web.serverUrl(req)
            	  + ServerConfigurationService.getString("portalPath")
            	  + "/" + prefix + "/"
