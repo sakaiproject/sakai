@@ -21,5 +21,6 @@
     <module>samigo-qti</module>
     <module>samigo-services</module>
     <module>samigo-cp</module>
+    <module>samigo-archive/sam-handlers</module>
   </modules>
 </project>
