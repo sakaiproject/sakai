@@ -205,7 +205,10 @@ public class ResourcesAction
 					label = trb.getString("create.folder");
 					break;
 				case CREATE:
-					label = trb.getString("action.create");
+					ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+					ResourceType typedef = registry.getType(action.getTypeId());
+					String[] args = { typedef.getLabel() };
+					label = trb.getFormattedMessage("create.unknown", args);
 					break;
 				case COPY:
 					label = trb.getString("action.copy");
