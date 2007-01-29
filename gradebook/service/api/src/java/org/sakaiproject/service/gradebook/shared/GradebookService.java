@@ -22,7 +22,10 @@
  **********************************************************************************/
 package org.sakaiproject.service.gradebook.shared;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This is the externally exposed API of the gradebook application.
@@ -102,6 +105,38 @@ public interface GradebookService {
 	public boolean isAssignmentDefined(String gradebookUid,
 			String assignmentTitle) throws GradebookNotFoundException;
 
+	/**
+	 * Get an archivable definition of gradebook data suitable for migration
+	 * between sites. Assignment definitions and the currently selected grading
+	 * scale are included. Student view options and all information related
+	 * to specific students or instructors (such as scores) are not.
+	 * @param gradebookUid
+	 * @return a versioned XML string
+	 */
+	public String getGradebookDefinitionXml(String gradebookUid);
+	
+	/**
+	 * Attempt to merge archived gradebook data (notably the assignnments) into a new gradebook.
+	 * 
+	 * Assignment definitions whose names match assignments that are already in
+	 * the targeted gradebook will be skipped.
+	 * 
+	 * Imported assignments will not automatically be released to students, even if they
+	 * were released in the original gradebook.
+	 * 
+	 * Externally managed assessments will not be imported, since such imports
+	 * should be handled by the external assessment engine.
+	 * 
+	 * If possible, the targeted gradebook's selected grading scale will be set
+	 * to match the archived grading scale. If there are any mismatches that make
+	 * this impossible, the existing grading scale will be left alone, but assignment
+	 * imports will still happen.
+	 * 
+	 * @param toGradebookUid
+	 * @param fromGradebookXml
+	 */
+	public void mergeGradebookDefinitionXml(String toGradebookUid, String fromGradebookXml);
+	
 	// Site management hooks.
 
 	/**

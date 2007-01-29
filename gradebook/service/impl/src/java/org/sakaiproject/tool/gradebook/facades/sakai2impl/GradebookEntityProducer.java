@@ -22,24 +22,29 @@
 
 package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.entity.api.ContextObserver;
+import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.importer.api.HandlesImportable;
+import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
  * Implements the Sakai EntityProducer approach to integration of tool-specific
  * storage with site management.
  */
-public class GradebookEntityProducer extends BaseEntityProducer implements ContextObserver {
+public class GradebookEntityProducer extends BaseEntityProducer implements ContextObserver, EntityTransferrer, HandlesImportable {
     private static final Log log = LogFactory.getLog(GradebookEntityProducer.class);
 
     private String[] toolIdArray;
     private GradebookFrameworkService gradebookFrameworkService;
+    private GradebookService gradebookService;
 
 	public void setToolIds(List toolIds) {
 		if (log.isDebugEnabled()) log.debug("setToolIds(" + toolIds + ")");
@@ -88,7 +93,36 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 		}
 	}
 
+	public void transferCopyEntities(String fromContext, String toContext, List ids) {
+		String fromGradebookXml = gradebookService.getGradebookDefinitionXml(fromContext);
+		gradebookService.mergeGradebookDefinitionXml(toContext, fromGradebookXml);
+	}
+
 	public void setGradebookFrameworkService(GradebookFrameworkService gradebookFrameworkService) {
 		this.gradebookFrameworkService = gradebookFrameworkService;
+	}
+
+	public void setGradebookService(GradebookService gradebookService) {
+		this.gradebookService = gradebookService;
+	}
+		
+	////////////////////////////////////////////////////////////////
+	// TODO Speculative support for future migration / import / export starts here.
+
+	public static final String GRADEBOOK_DEFINITION_TYPE = "sakai-gradebook";
+
+	public boolean canHandleType(String typeName) {
+		return (typeName.equals(GRADEBOOK_DEFINITION_TYPE));
+	}
+
+	public void handle(Importable importable, String siteId) {
+		if (importable.getTypeName().equals(GRADEBOOK_DEFINITION_TYPE)) {
+			gradebookService.mergeGradebookDefinitionXml(siteId, ((XmlImportable)importable).getXmlData());
+		}
+	}
+	
+	public List<Importable> getAllImportables(String contextId) {
+		List<Importable> importables = new ArrayList<Importable>();
+		return importables;
 	}
 }

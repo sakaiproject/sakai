@@ -23,28 +23,25 @@
 package org.sakaiproject.tool.gradebook;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class GradingScale implements Serializable, Comparable {
-	private static final Log log = LogFactory.getLog(GradingScale.class);
-
 	private Long id;
 	private int version;
 
 	private String uid;
 	private String name;
-	private List grades;
-	private Map defaultBottomPercents;	// From grade to percentage
+	private List<String> grades;
+	private Map<String, Double> defaultBottomPercents;	// From grade to percentage
 	private boolean unavailable;
 
-	public Map getDefaultBottomPercents() {
+	public Map<String, Double> getDefaultBottomPercents() {
 		return defaultBottomPercents;
 	}
-	public void setDefaultBottomPercents(Map defaultBottomPercents) {
+	public void setDefaultBottomPercents(Map<String, Double> defaultBottomPercents) {
 		this.defaultBottomPercents = defaultBottomPercents;
 	}
 	public String getUid() {
@@ -59,10 +56,10 @@ public class GradingScale implements Serializable, Comparable {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public List getGrades() {
+	public List<String> getGrades() {
 		return grades;
 	}
-	public void setGrades(List grades) {
+	public void setGrades(List<String> grades) {
 		this.grades = grades;
 	}
 	public boolean isUnavailable() {

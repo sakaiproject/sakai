@@ -22,19 +22,46 @@
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook.test;
 
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.sakaiproject.component.gradebook.GradebookDefinition;
+import org.sakaiproject.component.gradebook.VersionedExternalizable;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.facade.Role;
-
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
+import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+
+import com.thoughtworks.xstream.converters.ConversionException;
 
 /**
  * Test the service methods which interact with internally maintained data.
@@ -83,6 +110,148 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
 
         // Add an external assessment.
         gradebookExternalAssessmentService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, null, "Samigo");
+    }
+    
+    public void testGradebookMigration() throws Exception {    	
+    	setAuthnId(INSTRUCTOR_UID);
+ 		Gradebook gradebook = gradebookManager.getGradebook(GRADEBOOK_UID);
+    	
+ 		// Collect the default grade mappings for future reference.
+    	GradeMapping defaultGradeMapping = gradebook.getSelectedGradeMapping();
+    	GradeMapping nonDefaultGradeMapping = null;
+    	for (GradeMapping gradeMapping : gradebook.getGradeMappings()) {
+    		if (!gradeMapping.getName().equals(defaultGradeMapping.getName())) {
+    			nonDefaultGradeMapping = gradeMapping;
+    			break;
+    		}
+    	}
+    	String firstGrade = nonDefaultGradeMapping.getGradingScale().getGrades().get(0);
+    	double originalFirstGradeValue = nonDefaultGradeMapping.getGradeMap().get(firstGrade).doubleValue();
+    	if (log.isDebugEnabled()) log.debug("nonDefaultGradeMapping=" + nonDefaultGradeMapping.getGradingScale().getUid() + ", firstGrade=" + firstGrade + ", value=" + originalFirstGradeValue);
+
+    	gradebookManager.createAssignment(gradebook.getId(), "Duplicate", new Double(100), null, Boolean.TRUE, Boolean.TRUE);
+    	gradebookManager.createAssignment(gradebook.getId(), "Released", new Double(50), null, Boolean.FALSE, Boolean.TRUE);
+    	nonDefaultGradeMapping.getGradeMap().put(firstGrade, new Double(originalFirstGradeValue - 1.0));
+    	gradebook.setSelectedGradeMapping(nonDefaultGradeMapping);
+		gradebook.setAssignmentsDisplayed(false);	// Override the defaults
+		gradebook.setCourseGradeDisplayed(true);
+    	gradebookManager.updateGradebook(gradebook);
+    	
+    	String gradebookXml = gradebookService.getGradebookDefinitionXml(GRADEBOOK_UID);
+    	GradebookDefinition gradebookDefinition = (GradebookDefinition)VersionedExternalizable.fromXml(gradebookXml);
+    	if (log.isDebugEnabled()) log.debug("gradebookXml=" + gradebookXml);
+    	
+    	// Create the target gradebook.
+    	String migrateToUid = "MigrateTo";
+ 		Gradebook newGradebook = getNewGradebook(migrateToUid);
+		gradebookManager.createAssignment(newGradebook.getId(), "Duplicate", new Double(1.0), new Date(), Boolean.FALSE, Boolean.FALSE);
+
+    	// Try to merge the old definition in.
+ 		gradebookService.mergeGradebookDefinitionXml(migrateToUid, gradebookXml);
+ 		newGradebook = gradebookManager.getGradebook(migrateToUid);
+ 		
+ 		// Make sure the old assignments were merged in.
+ 		List assignments = gradebookService.getAssignments(migrateToUid);
+ 		Map<String, Assignment>assignmentMap = new HashMap<String, Assignment>();
+ 		for (Object obj : assignments) {
+ 			Assignment assignment = (Assignment)obj;
+ 			assignmentMap.put(assignment.getName(), assignment);
+ 		}
+ 		Assert.assertTrue(assignmentMap.containsKey(ASN_TITLE));
+    	
+    	// All assignments should be unreleased even if they were released in the original.
+		Assignment released = assignmentMap.get("Released");
+		Assert.assertTrue(!released.isReleased());
+		Assert.assertTrue(released.isCounted());
+    	
+    	// Externally managed assessments should not be included.
+		Assert.assertTrue(!assignmentMap.containsKey(EXT_TITLE_1));
+		
+    	// Assignments with duplicate names shouldn't override existing assignments.
+		Assignment duplicate = assignmentMap.get("Duplicate");
+		Assert.assertTrue(duplicate.getPoints().doubleValue() == 1.0);
+    	
+    	// Student view options should stay as they were.
+		Assert.assertTrue(newGradebook.isAssignmentsDisplayed());
+		Assert.assertTrue(!newGradebook.isCourseGradeDisplayed());
+    	
+    	// Carry over the old gradebook's selected grading scheme if possible.
+		GradeMapping migratedGradeMapping = newGradebook.getSelectedGradeMapping();
+		Assert.assertTrue(migratedGradeMapping.getName().equals(nonDefaultGradeMapping.getName()));
+		Assert.assertTrue(migratedGradeMapping.getGradeMap().get(firstGrade).doubleValue() != originalFirstGradeValue);
+    	
+    	// If the old grading scheme is not available to the new gradebook, leave
+    	// the new gradebook's grading scheme alone.
+		List newMappings = new ArrayList();
+        GradingScaleDefinition def = new GradingScaleDefinition();
+        def.setUid("BettingScale");
+        def.setName("Just One Grading Scale");
+        def.setGrades(Arrays.asList(new Object[] {"Win", "Draw", "Lose"}));
+        def.setDefaultBottomPercents(Arrays.asList(new Object[] {new Double(80), new Double(40), new Double(0)}));
+        newMappings.add(def);
+        gradebookFrameworkService.setAvailableGradingScales(newMappings);
+        getNewGradebook("BettingGradebook");
+ 		gradebookXml = gradebookService.getGradebookDefinitionXml("BettingGradebook");
+ 		gradebookService.mergeGradebookDefinitionXml(migrateToUid, gradebookXml);
+ 		newGradebook = gradebookManager.getGradebook(migrateToUid);
+		Assert.assertTrue(newGradebook.getSelectedGradeMapping().getName().equals(nonDefaultGradeMapping.getName()));
+    	
+    	// Test the Externalizable feature.
+    	ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+    	ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
+    	gradebookDefinition.writeExternal(objOut);
+    	objOut.close();	// Required to close the XML string
+    	if (log.isDebugEnabled()) log.debug("externalized gradebook=" + byteOut.toString("UTF-8"));
+    	GradebookDefinition restoredGradebookDefinition = new GradebookDefinition();
+    	restoredGradebookDefinition.readExternal(new ObjectInputStream(new ByteArrayInputStream(byteOut.toByteArray())));
+    	if (log.isDebugEnabled()) log.debug("restored gradebook=" + restoredGradebookDefinition);
+    }
+    
+    private Gradebook getNewGradebook(String gradebookUid) {
+    	integrationSupport.createCourse(gradebookUid, gradebookUid, false, false, false);
+    	gradebookFrameworkService.addGradebook(gradebookUid, gradebookUid);
+		integrationSupport.addSiteMembership(INSTRUCTOR_UID, gradebookUid, Role.INSTRUCTOR);
+ 		return gradebookManager.getGradebook(gradebookUid);
+    }
+
+    public void testGradebookMigrationVersioning() throws Exception {
+    	setAuthnId(INSTRUCTOR_UID);
+    	String gradebookXml = gradebookService.getGradebookDefinitionXml(GRADEBOOK_UID);
+
+    	DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    	Document document = documentBuilder.parse(new InputSource(new StringReader(gradebookXml)));
+    	Element gradebookElement = document.getDocumentElement();
+    	String versionXml = gradebookElement.getAttribute(VersionedExternalizable.VERSION_ATTRIBUTE);
+    	Assert.assertTrue(versionXml.equals(GradebookDefinition.EXTERNALIZABLE_VERSION));
+    	
+    	// Mess with the converter's mind and make sure it's displeased.
+    	gradebookElement.removeAttribute(VersionedExternalizable.VERSION_ATTRIBUTE);
+    	gradebookElement.setAttribute(VersionedExternalizable.VERSION_ATTRIBUTE, "Who are you kidding?");
+    	try {
+    		String newXml = documentToString(document);
+    		VersionedExternalizable.fromXml(newXml);
+    		fail();
+    	} catch (ConversionException e) {
+    	}
+    }
+
+    public static String documentToString(Document doc) {
+		String result = null;
+    	try {
+    		// Work around JDK 1.5 issue.
+    		System.setProperty("javax.xml.transform.TransformerFactory", "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
+			Transformer transformer = TransformerFactory.newInstance().newTransformer();
+			ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+			transformer.transform(new DOMSource(doc.getDocumentElement()), new StreamResult(byteOut));
+			if (byteOut != null) {
+				result = byteOut.toString("UTF-8");
+			}
+		} catch (TransformerException e) {
+			log.error(e);
+		} catch (UnsupportedEncodingException e) {
+			log.error(e);
+		}
+		return result;
     }
     
     public void testStudentRebuff() throws Exception {

@@ -41,38 +41,16 @@ public class GradeMapping implements Serializable, Comparable {
 	protected int version;
 
 	protected Gradebook gradebook;
-	protected Map gradeMap;
-
-	/*
-	protected List grades;
-	protected List defaultValues;
-	*/
-
+	protected Map<String, Double> gradeMap;
 	private GradingScale gradingScale;
-
-	/*
-		<subclass name="org.sakaiproject.tool.gradebook.PassNotPassMapping" discriminator-value="1" />
-		<subclass name="org.sakaiproject.tool.gradebook.LetterGradeMapping" discriminator-value="2" />
-		<subclass name="org.sakaiproject.tool.gradebook.LetterGradePlusMinusMapping" discriminator-value="3" />
-	*/
 
 	public GradeMapping() {
 	}
 
 	public GradeMapping(GradingScale gradingScale) {
 		setGradingScale(gradingScale);
-		gradeMap = new HashMap(gradingScale.getDefaultBottomPercents());
-/*
-		Iterator gradesIter = getGradingScale().getGrades().iterator();
-		Iterator defaultValuesIter = getGradingScale().getDefaultBottomPercents().iterator();
-		while (gradesIter.hasNext()) {
-			String grade = (String)gradesIter.next();
-			Double value = (Double)defaultValuesIter.next();
-			gradeMap.put(grade, value);
-		}
-*/
+		gradeMap = new HashMap<String, Double>(gradingScale.getDefaultBottomPercents());
 	}
-
 
 	public String getName() {
 		return getGradingScale().getName();
@@ -84,10 +62,10 @@ public class GradeMapping implements Serializable, Comparable {
 	public void setDefaultValues() {
 		GradingScale gradingScale = getGradingScale();
 		if (gradingScale != null) {
-			gradeMap = new HashMap(gradingScale.getDefaultBottomPercents());
+			gradeMap = new HashMap<String, Double>(gradingScale.getDefaultBottomPercents());
 		} else {
 			// Backward compatibility with pre-grading-scale mappings.
-			gradeMap = new HashMap();
+			gradeMap = new HashMap<String, Double>();
 			Iterator defaultValuesIter = getDefaultValues().iterator();
 			Iterator gradesIter = getGrades().iterator();
 			while (gradesIter.hasNext()) {
@@ -106,14 +84,6 @@ public class GradeMapping implements Serializable, Comparable {
 		return getGradingScale().getGrades();
 	}
 
-    // TODO Move this display-control logic to the UI layer where it belongs.
-    // (What's really important is whether the score value is 0 or null.)
-/*
-    public String getLowestGrade() {
-    	Object[] grades = getGrades().toArray();
-        return (String)grades[grades.length - 1];
-    }
-*/
 	/**
 	 *
 	 * @return A List of the default grade values. Only used for backward
@@ -129,19 +99,6 @@ public class GradeMapping implements Serializable, Comparable {
 	public Double getValue(String grade) {
 		return (Double) gradeMap.get(grade);
 	}
-
-    /**
-     * Maps a grade to a percentage value.
-     *
-     * @param grade The grade being mapped
-     * @param percentage The percentage value to map to the grade
-     */
-    public void putValue(String grade, Double percentage) {
-        if(!getGrades().contains(grade)) {
-            throw new IllegalArgumentException("The grade " + grade + " is not appropriate for '" + getName() + "' grade mappings.");
-        }
-        gradeMap.put(grade, percentage);
-    }
 
 	/**
 	 * This algorithm is slow, since it checks each grade option, starting from
@@ -203,7 +160,7 @@ public class GradeMapping implements Serializable, Comparable {
 	/**
 	 * @return Returns the gradeMap.
 	 */
-	public Map getGradeMap() {
+	public Map<String, Double> getGradeMap() {
 		return gradeMap;
 	}
 
@@ -211,7 +168,7 @@ public class GradeMapping implements Serializable, Comparable {
 	 * @param gradeMap
 	 *            The gradeMap to set.
 	 */
-	public void setGradeMap(Map gradeMap) {
+	public void setGradeMap(Map<String, Double> gradeMap) {
 		this.gradeMap = gradeMap;
 	}
 

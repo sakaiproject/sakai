@@ -23,6 +23,7 @@ package org.sakaiproject.component.gradebook;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,20 +31,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.StaleObjectStateException;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
+import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
+import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradebookProperty;
 import org.sakaiproject.tool.gradebook.facades.Authn;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
@@ -51,6 +60,8 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * logic, but not exposed to external callers.
  */
 public abstract class BaseHibernateManager extends HibernateDaoSupport {
+	private static final Log log = LogFactory.getLog(BaseHibernateManager.class);
+	
     // Oracle will throw a SQLException if we put more than this into a
     // "WHERE tbl.col IN (:paramList)" query.
     public static int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 1000;
@@ -198,6 +209,113 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 			setLong(1, assignment.getId().longValue()).
 			uniqueResult();
 	}
+
+    public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased) throws ConflictingAssignmentNameException, StaleObjectModificationException {
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+                int numNameConflicts = ((Integer)session.createQuery(
+                        "select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+                        setString(0, name).
+                        setEntity(1, gb).
+                        uniqueResult()).intValue();
+                if(numNameConflicts > 0) {
+                    throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
+                }
+
+                   Assignment asn = new Assignment();
+                   asn.setGradebook(gb);
+                   asn.setName(name);
+                   asn.setPointsPossible(points);
+                   asn.setDueDate(dueDate);
+                   if (isNotCounted != null) {
+                       asn.setNotCounted(isNotCounted.booleanValue());
+                   }
+
+                   if(isReleased!=null){
+                       asn.setReleased(isReleased.booleanValue());
+                   }
+
+                   // Save the new assignment
+                   Long id = (Long)session.save(asn);
+
+                   return id;
+               }
+           };
+
+           return (Long)getHibernateTemplate().execute(hc);
+    }
+
+    public void updateGradebook(final Gradebook gradebook) throws StaleObjectModificationException {
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                // Get the gradebook and selected mapping from persistence
+                Gradebook gradebookFromPersistence = (Gradebook)session.load(
+                        gradebook.getClass(), gradebook.getId());
+                GradeMapping mappingFromPersistence = gradebookFromPersistence.getSelectedGradeMapping();
+
+                // If the mapping has changed, and there are explicitly entered
+                // course grade records, disallow this update.
+                if (!mappingFromPersistence.getId().equals(gradebook.getSelectedGradeMapping().getId())) {
+                    if(isExplicitlyEnteredCourseGradeRecords(gradebook.getId())) {
+                        throw new IllegalStateException("Selected grade mapping can not be changed, since explicit course grades exist.");
+                    }
+                }
+
+                // Evict the persisted objects from the session and update the gradebook
+                // so the new grade mapping is used in the sort column update
+                //session.evict(mappingFromPersistence);
+                for(Iterator iter = gradebookFromPersistence.getGradeMappings().iterator(); iter.hasNext();) {
+                    session.evict(iter.next());
+                }
+                session.evict(gradebookFromPersistence);
+                try {
+                    session.update(gradebook);
+                    session.flush();
+                } catch (StaleObjectStateException e) {
+                    throw new StaleObjectModificationException(e);
+                }
+
+                return null;
+            }
+        };
+        getHibernateTemplate().execute(hc);
+    }
+
+    public boolean isExplicitlyEnteredCourseGradeRecords(final Long gradebookId) {
+        final Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
+        if (studentUids.isEmpty()) {
+            return false;
+        }
+
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                Integer total;
+                if (studentUids.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+                    Query q = session.createQuery(
+                            "select count(cgr) from CourseGradeRecord as cgr where cgr.enteredGrade is not null and cgr.gradableObject.gradebook.id=:gradebookId and cgr.studentId in (:studentUids)");
+                    q.setLong("gradebookId", gradebookId.longValue());
+                    q.setParameterList("studentUids", studentUids);
+                    total = (Integer)q.list().get(0);
+                    if (log.isInfoEnabled()) log.info("total number of explicitly entered course grade records = " + total);
+                } else {
+                    total = new Integer(0);
+                    Query q = session.createQuery(
+                            "select cgr.studentId from CourseGradeRecord as cgr where cgr.enteredGrade is not null and cgr.gradableObject.gradebook.id=:gradebookId");
+                    q.setLong("gradebookId", gradebookId.longValue());
+                    for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
+                        String studentId = (String)iter.next();
+                        if (studentUids.contains(studentId)) {
+                            total = new Integer(1);
+                            break;
+                        }
+                    }
+                }
+                return total;
+            }
+        };
+        return ((Integer)getHibernateTemplate().execute(hc)).intValue() > 0;
+    }
 
 	public Authn getAuthn() {
         return authn;

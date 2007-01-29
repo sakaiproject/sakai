@@ -23,54 +23,120 @@
 **********************************************************************************/
 package org.sakaiproject.service.gradebook.shared;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
- * This is the externally exposed definition of a Gradebook assignment.
+ * JavaBean to hold data associated with a Gradebook assignment.
  * The Course Grade is not considered an assignment.
  */
-public interface Assignment {
-	public String getGradebookUid();
+public class Assignment implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+    private String name;
+    private Double points;
+    private Date dueDate;
+    private boolean counted;
+    private boolean externallyMaintained;
+    private String externalId;
+    private String externalAppName;
+    private boolean released;
+
+    public Assignment() {
+    }
 
 	/**
 	 * @return Returns the name of the assignment. The assignment name is unique among
-	 *         currently defined assignments. However, it is not a safe UID for persistance.
-	 *         An assignment can be renamed. Also, an assignment can be deleted and a
+	 *         currently defined assignments. However, it is not a safe UID for persistance,
+	 *         since an assignment can be renamed. Also, an assignment can be deleted and a
 	 *         new assignment can be created re-using the old name.
 	 */
-	public String getName();
+	public String getName() {
+		return name;
+	}
 
 	/**
 	 * @return Returns the total points the assignment is worth.
 	 */
-	public Double getPoints();
+	public Double getPoints() {
+		return points;
+	}
 
 	/**
 	 * @return Returns the due date for the assignment, or null if none is defined.
 	 */
-	public Date getDueDate();
+	public Date getDueDate() {
+		return dueDate;
+	}
 
     /**
      * @return Returns true if the assignment is maintained by some software
      *         other than the Gradebook itself.
      */
-    public boolean isExternallyMaintained();
+    public boolean isExternallyMaintained() {
+    	return externallyMaintained;
+    }
 
     /**
      *
      * @return true if the assignment has been released for view to students
      */
+    public boolean isReleased() {
+    	return released;
+    }
 
-    public boolean isReleased();
     /**
      *
-     * @return Returns the externalAppName
+     * @return Returns the externalAppName, or null if the assignment is
+     * maintained by the Gradebook
      */
-    public String getExternalAppName();
+    public String getExternalAppName() {
+    	return externalAppName;
+    }
+
     /**
      *
-     * @return Returns the external Id
+     * @return Returns the external Id, or null if the assignment is
+     * maintained by the Gradebook
      */
-    public String getExternalId();
+    public String getExternalId() {
+    	return externalId;
+    }
+
+	public boolean isCounted() {
+		return counted;
+	}
+
+	public void setCounted(boolean notCounted) {
+		this.counted = notCounted;
+	}
+
+	public void setPoints(Double points) {
+		this.points = points;
+	}
+
+	public void setDueDate(Date dueDate) {
+		this.dueDate = dueDate;
+	}
+
+	public void setExternalAppName(String externalAppName) {
+		this.externalAppName = externalAppName;
+	}
+
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+
+	public void setExternallyMaintained(boolean externallyMaintained) {
+		this.externallyMaintained = externallyMaintained;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setReleased(boolean released) {
+		this.released = released;
+	}
 
 }

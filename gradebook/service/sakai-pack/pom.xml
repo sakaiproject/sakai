@@ -31,20 +31,15 @@
     </dependency>
 
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>
   </dependencies>
   <build>
-    
-    
-    
-    
-    
-    
-    
+
+
     <resources>
       <resource>
         <directory>src/resources</directory>
@@ -52,3 +47,24 @@
     </resources>
   </build>
 </project>
+
+Per Ian's message ("If you are not and you make a change to a project.xml file or add
+maven.xml and dont know how to change the pom.xml, put some raw text
+after the last xml tag in the pom.xml saying whats been done....."), I added the following to project.xml :
+
+		<dependency>
+			<id>xstream</id>
+			<version>1.2.1</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-import-api</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>

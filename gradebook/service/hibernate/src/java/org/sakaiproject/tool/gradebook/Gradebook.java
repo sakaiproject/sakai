@@ -42,7 +42,7 @@ public class Gradebook implements Serializable {
     private int version;
     private String name;
     private GradeMapping selectedGradeMapping;
-    private Set gradeMappings;
+    private Set<GradeMapping> gradeMappings;
     private boolean assignmentsDisplayed;
     private boolean courseGradeDisplayed;
     private boolean allAssignmentsEntered;
@@ -116,13 +116,13 @@ public class Gradebook implements Serializable {
 	/**
 	 * @return Returns the gradeMappings.
 	 */
-	public Set getGradeMappings() {
+	public Set<GradeMapping> getGradeMappings() {
 		return gradeMappings;
 	}
 	/**
 	 * @param gradeMappings The gradeMappings to set.
 	 */
-	public void setGradeMappings(Set gradeMappings) {
+	public void setGradeMappings(Set<GradeMapping> gradeMappings) {
 		this.gradeMappings = gradeMappings;
 	}
 	/**

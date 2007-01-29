@@ -124,6 +124,9 @@
 		<property name="gradebookFrameworkService">
 			<ref bean="org_sakaiproject_service_gradebook_GradebookFrameworkService" />
 		</property>
+		<property name="gradebookService">
+			<ref bean="org_sakaiproject_service_gradebook_GradebookService" />
+		</property>
 		<property name="toolIds">
 		    <list>
 				<value>sakai.gradebook.tool</value>

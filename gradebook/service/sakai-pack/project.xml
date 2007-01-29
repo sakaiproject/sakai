@@ -19,6 +19,24 @@
                 <war.bundle>true</war.bundle>
             </properties>
     	</dependency>
+
+		<dependency>
+			<id>xstream</id>
+			<version>1.2.1</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-import-api</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
     </dependencies>
 
 	<build>

@@ -79,9 +79,6 @@
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 		<dependency>
 			<groupId>sakaiproject</groupId>
@@ -159,6 +156,17 @@
 			<groupId>dom4j</groupId>
 			<artifactId>dom4j</artifactId>
 			<version>1.4</version>
+		</dependency>
+
+		<dependency>
+			<id>xstream</id>
+			<version>1.2.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-import-api</artifactId>
+			<version>${sakai.version}</version>
 		</dependency>
 
 	</dependencies>

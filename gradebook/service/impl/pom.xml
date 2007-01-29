@@ -31,14 +31,14 @@
     </dependency>
 
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-hibernate</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-api</artifactId>
       <version>${sakai.version}</version>
@@ -46,7 +46,7 @@
     </dependency>
 <!-- Section Awareness -->
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
       <version>${sakai.version}</version>
@@ -55,7 +55,7 @@
 <!-- TODO Come up with a way to make the dependencies deployment-sensitive. -->
 <!-- Needed for standalone user directory -->
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-integrationsupport</artifactId>
       <version>${sakai.version}</version>
@@ -63,14 +63,14 @@
     </dependency>
 <!-- JSF needed for standalone authn -->
     <dependency>
-      
+
       <groupId>myfaces</groupId>
       <artifactId>myfaces-all</artifactId>
       <version>1.1.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
 <!--id: servletapi -->
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
@@ -79,136 +79,152 @@
     </dependency>
 <!-- Sakai2 Dependencies -->
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-tool-api</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-authz-api</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-site-api</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-entity-api</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-user-api</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-db-api</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>1.8.0.5</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.artifactId}</artifactId>
       <version>${sakai.spring.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>aopalliance</groupId>
       <artifactId>aopalliance</artifactId>
       <version>1.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>jta</groupId>
       <artifactId>jta</artifactId>
       <version>h2.1.8</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>${sakai.hibernate.groupId}</groupId>
       <artifactId>${sakai.hibernate.artifactId}</artifactId>
       <version>${sakai.hibernate.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>ehcache</groupId>
       <artifactId>ehcache</artifactId>
       <version>1.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
       <version>2.1_3</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>odmg</groupId>
       <artifactId>odmg</artifactId>
       <version>3.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
       <version>3.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>commons-digester</groupId>
       <artifactId>commons-digester</artifactId>
       <version>1.6</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
       <version>1.7.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>dom4j</groupId>
       <artifactId>dom4j</artifactId>
       <version>1.4</version>
       <scope>provided</scope>
     </dependency>
+
   </dependencies>
 </project>
+
+Per Ian's message ("If you are not and you make a change to a project.xml file or add
+maven.xml and dont know how to change the pom.xml, put some raw text
+after the last xml tag in the pom.xml saying whats been done....."), I added the following to project.xml :
+
+		<dependency>
+			<id>xstream</id>
+			<version>1.2.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-import-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
