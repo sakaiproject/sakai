@@ -1,3 +1,7 @@
+2006/01/29 - Version 0.5.9
+------------------------------
+- STAT-25: New msgcntr Events need to be added to SiteStats
+
 2006/01/17 - Version 0.5.8
 ------------------------------
 - STAT-24: Overview page may generate bug report if site has no members
