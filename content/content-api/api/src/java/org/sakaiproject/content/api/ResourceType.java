@@ -38,9 +38,11 @@ public interface ResourceType
 	public static final String TYPE_URL = "org.sakaiproject.content.types.urlResource";
 	public static final String TYPE_UPLOAD = "org.sakaiproject.content.types.fileUpload";
 	public static final String TYPE_FOLDER = "org.sakaiproject.content.types.folder";
+	public static final String TYPE_METAOBJ = "metaobj";
 	
 	public static final String MIME_TYPE_TEXT = "text/plain";
 	public static final String MIME_TYPE_HTML = "text/html";
+	public static final String MIME_TYPE_METAOBJ = "application/x-osp";
 	
 	/**
 	 * Access the action specified by the parameter.  If the action is defined for this resource type,

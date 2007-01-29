@@ -38,6 +38,7 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
+import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.util.BaseResourceType;
@@ -48,7 +49,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class FileUploadType extends BaseResourceType 
 {
-	protected String typeId = "file";
+	protected String typeId = ResourceType.TYPE_UPLOAD;
 	protected String helperId = "sakai.resource.type.helper";
 	
 	/** Resource bundle using current language locale */

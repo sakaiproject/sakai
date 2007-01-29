@@ -36,6 +36,7 @@ import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
+import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.util.BaseResourceType;
@@ -61,7 +62,7 @@ public class HtmlDocumentType extends BaseResourceType
 	protected Map<String, ResourceToolAction> actions = new Hashtable<String, ResourceToolAction>();	
 	protected UserDirectoryService userDirectoryService;
 	
-	protected String typeId = "text/html";
+	protected String typeId = ResourceType.TYPE_HTML;
 	protected String helperId = "sakai.resource.type.helper";
 	
 	public class HtmlDocumentCopyAction implements ServiceLevelAction
@@ -469,11 +470,11 @@ public class HtmlDocumentType extends BaseResourceType
 		this.userDirectoryService = (UserDirectoryService) ComponentManager.get("org.sakaiproject.user.api.UserDirectoryService");
 		
 		actions.put(ResourceToolAction.CREATE, new HtmlDocumentCreateAction());
-		actions.put(ResourceToolAction.ACCESS_CONTENT, new HtmlDocumentAccessAction());
-		actions.put(ResourceToolAction.REVISE_CONTENT, new HtmlDocumentAccessAction());
+		//actions.put(ResourceToolAction.ACCESS_CONTENT, new HtmlDocumentAccessAction());
+		actions.put(ResourceToolAction.REVISE_CONTENT, new HtmlDocumentReviseAction());
 		actions.put(ResourceToolAction.DUPLICATE, new HtmlDocumentDuplicateAction());
-		actions.put(ResourceToolAction.COPY, new HtmlDocumentCopyAction());
-		actions.put(ResourceToolAction.MOVE, new HtmlDocumentMoveAction());
+		//actions.put(ResourceToolAction.COPY, new HtmlDocumentCopyAction());
+		//actions.put(ResourceToolAction.MOVE, new HtmlDocumentMoveAction());
 		actions.put(ResourceToolAction.DELETE, new HtmlDocumentDeleteAction());
 
 		// initialize actionMap with an empty List for each ActionType

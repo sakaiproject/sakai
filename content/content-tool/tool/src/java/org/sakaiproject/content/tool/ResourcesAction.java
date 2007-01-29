@@ -272,7 +272,7 @@ public class ResourcesAction
 			this.selected = false;
 			
 			ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
-			this.resourceType = entity.getResourceType(); 
+			this.resourceType = entity.getResourceType();
 			ResourceType typeDef = registry.getType(resourceType);
 			this.hoverText = this.name;
 			if(typeDef != null)

@@ -40,6 +40,7 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
@@ -259,7 +260,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		String resourceType = pipe.getAction().getTypeId();
 		
-		pipe.setRevisedContent(content.getBytes());
 		pipe.setRevisedMimeType(pipe.getMimeType());
 		if(ResourceType.TYPE_TEXT.equals(resourceType))
 		{
@@ -267,8 +267,16 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 		else if(ResourceType.TYPE_HTML.equals(resourceType))
 		{
+			StringBuffer alertMsg = new StringBuffer();
+			content = FormattedText.processHtmlDocument(content, alertMsg);
 			pipe.setRevisedMimeType(ResourceType.MIME_TYPE_HTML);
+			if (alertMsg.length() > 0)
+			{
+				addAlert(state, alertMsg.toString());
+				return;
+			}
 		}
+		pipe.setRevisedContent(content.getBytes());
 		pipe.setActionCanceled(false);
 		pipe.setErrorEncountered(false);
 		pipe.setActionCompleted(true);
