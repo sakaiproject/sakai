@@ -123,6 +123,7 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 	
 	public List<Importable> getAllImportables(String contextId) {
 		List<Importable> importables = new ArrayList<Importable>();
+		importables.add(new XmlImportable(GRADEBOOK_DEFINITION_TYPE, gradebookService.getGradebookDefinitionXml(contextId)));
 		return importables;
 	}
 }
