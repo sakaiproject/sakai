@@ -956,20 +956,7 @@ public class SiteAction extends PagedResourceActionII
 				{
 					context.put("typeSelected", types.get(0));
 				}
-				List terms = CourseManagementService.getTerms();
-				List termsForSiteCreation = new Vector();
-				if (terms != null && terms.size() >0)
-				{
-					for (int i=0; i<terms.size();i++)
-					{
-						Term t = (Term) terms.get(i);
-						if (!t.getEndTime().before(TimeService.newTime()))
-						{
-							// don't show those terms which have ended already
-							termsForSiteCreation.add(t);
-						}
-					}
-				}
+				List termsForSiteCreation = getAvailableTerms();
 				if (termsForSiteCreation.size() > 0)
 				{
 					context.put("termList", termsForSiteCreation);
@@ -1709,7 +1696,9 @@ public class SiteAction extends PagedResourceActionII
 				context.put("titleEditableSiteType", state.getAttribute(TITLE_EDITABLE_SITE_TYPE));
 				context.put("type", site.getType());
 				
-				siteType = (String) state.getAttribute(STATE_SITE_TYPE);
+				List terms = CourseManagementService.getTerms();
+				
+				siteType = (String) state.getAttribute(STATE_SITE_TYPE); 
 				if (siteType != null && siteType.equalsIgnoreCase("course"))
 				{ 
 					context.put("isCourseSite", Boolean.TRUE);
@@ -1723,7 +1712,6 @@ public class SiteAction extends PagedResourceActionII
 						context.put("selectedIcon",site.getIconUrl());
 					}
 					
-					terms = CourseManagementService.getTerms();
 					if (terms != null && terms.size() >0)
 					{
 						context.put("termList", terms);
@@ -2246,6 +2234,8 @@ public class SiteAction extends PagedResourceActionII
 			if (sType != null && sType.equals("course"))
 			{
 				context.put("isCourseSite", Boolean.TRUE);
+				context.put("currentTermId", site.getProperties().getProperty(PROP_SITE_TERM));
+				context.put("termList", getAvailableTerms());
 			}
 			else
 			{
@@ -2260,6 +2250,7 @@ public class SiteAction extends PagedResourceActionII
 				context.put("siteDuplicated", Boolean.TRUE);
 				context.put("duplicatedName", state.getAttribute(SITE_DUPLICATED_NAME));
 			}
+			
 			return (String)getContext(data).get("template") + TEMPLATE[29];
 		case 36:
 			/*
@@ -2563,6 +2554,26 @@ public class SiteAction extends PagedResourceActionII
     return (String)getContext(data).get("template") + TEMPLATE[0];
 
   } // buildContextForTemplate
+	
+  // obtain a list of available terms
+  private List getAvailableTerms() 
+  {
+	  	List terms = CourseManagementService.getTerms();
+		List termsForSiteCreation = new Vector();
+		if (terms != null && terms.size() >0)
+		{
+			for (int i=0; i<terms.size();i++)
+			{
+				Term t = (Term) terms.get(i);
+				if (!t.getEndTime().before(TimeService.newTime()))
+				{
+					// don't show those terms which have ended already
+					termsForSiteCreation.add(t);
+				}
+			}
+		}
+		return termsForSiteCreation;
+  }
 
   /**
    * Launch the Page Order Helper Tool -- for ordering, adding and customizing pages
@@ -6811,6 +6822,16 @@ public class SiteAction extends PagedResourceActionII
 								{
 									//if goes here, IdService or SiteService has done something wrong.
 									M_log.warn(this + "Exception" + e1 + ":"+ nSiteId + "when duplicating site");
+								}
+								
+								if (site.getType().equals("course"))
+								{
+									// for course site, need to read in the input for term information
+									String termId = StringUtil.trimToNull(params.getString("selectTerm"));
+									if (termId != null)
+									{
+										site.getPropertiesEdit().addProperty(PROP_SITE_TERM, termId);
+									}
 								}
 
 								try

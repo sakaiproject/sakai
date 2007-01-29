@@ -22,7 +22,28 @@
 						$tlang.getString("sitdup.sitti")
 					</label>
 					<input type="text" name="title" id="title" maxlength="20" size="20" value="" />
-				</p>	
+				</p>
+				#if ($!isCourseSite)
+						<p class="shorttext required">
+									<span class ="reqStar"> *</span>
+									<label for="selectTerm">
+										$tlang.getString("sitetype.acater")
+									</label>	
+									<select name="selectTerm" id="selectTerm" onchange="javascript:selectCourseType();">
+										#foreach($term in $termList)
+											<option value ="$term.Id"
+												#if ($!currentTermId && $term.getId().equals($currentTermId))
+														selected="selected"
+												#elseif ($term.isCurrentTerm())
+														selected="selected"
+												#end
+											>
+											$term.Id
+											</option>
+										#end
+									</select> 
+								</p>
+						#end	
 				<input type="hidden" name="back" value="12" />
 				<input type="hidden" name="continue" value="12" />
 			#else
