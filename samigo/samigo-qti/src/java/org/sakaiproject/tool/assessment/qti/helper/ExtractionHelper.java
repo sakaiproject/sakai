@@ -1244,6 +1244,9 @@ public class ExtractionHelper
     {
       item.setScore(new Float(score));
     }
+    else {
+    	item.setScore(new Float(0));
+    }
     item.setHint( (String) itemMap.get("hint"));
     if (notNullOrEmpty(hasRationale))
     {
