@@ -167,9 +167,6 @@
         <h:outputText value=" #{msg.separator} " 
           rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}" />
 
-      <h:outputText value=" #{msg.separator} " 
-          rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}" />
-
       <h:commandLink title="#{msg.t_exportAssessment}" id="exportAssessment" immediate="true" 
         rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}"
         action="chooseExportType">
