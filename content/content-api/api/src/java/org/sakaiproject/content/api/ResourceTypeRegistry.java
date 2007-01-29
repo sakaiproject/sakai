@@ -63,6 +63,8 @@ public interface ResourceTypeRegistry
 	 */
 	public Collection getTypes(Filter filter);
 	
+	public String mimetype2resourcetype(String contentType);
+	
 	/**
 	 * Create a new "pipe" that can be used as a conduit of information between the Resources tool 
 	 * and a helper that handles some part of an action. 

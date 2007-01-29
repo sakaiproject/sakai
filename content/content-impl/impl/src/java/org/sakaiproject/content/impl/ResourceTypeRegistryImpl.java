@@ -152,4 +152,35 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 		return action;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceTypeRegistry#mimetype2resourcetype(java.lang.String)
+	 */
+	public String mimetype2resourcetype(String contentType)
+	{
+		String typeId = ResourceType.TYPE_UPLOAD;
+		
+		if(ResourceType.MIME_TYPE_HTML.equals(contentType))
+		{
+			typeId = ResourceType.TYPE_HTML;
+		}
+		else if(ResourceType.MIME_TYPE_TEXT.equals(contentType))
+		{
+			typeId = ResourceType.TYPE_TEXT;
+		}
+		else if("text/url".equals(contentType))
+		{
+			typeId = ResourceType.TYPE_URL;
+		}
+		else if(ResourceType.MIME_TYPE_METAOBJ.equals(contentType))
+		{
+			typeId = ResourceType.TYPE_METAOBJ;
+		}
+		else
+		{
+			// do nothing -- use ResourceType.TYPE_UPLOAD
+		}
+		
+		return typeId;
+	}
+
 }

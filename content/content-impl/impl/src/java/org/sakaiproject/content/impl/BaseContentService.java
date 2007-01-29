@@ -9288,31 +9288,13 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			catch (Exception ignore)
 			{
 			}
-			String resourceType = StringUtil.trimToNull(el.getAttribute("resource-type"));
-			if(resourceType == null)
+			ResourceTypeRegistry registry = getResourceTypeRegistry();
+			String typeId = StringUtil.trimToNull(el.getAttribute("resource-type"));
+			if(typeId == null || registry.getType(typeId) == null)
 			{
-				if("text/html".equals(contentType))
-				{
-					resourceType = ResourceType.TYPE_HTML;
-				}
-				else if("text/plain".equals(contentType))
-				{
-					resourceType = ResourceType.TYPE_TEXT;
-				}
-				else if("text/url".equals(contentType))
-				{
-					resourceType = ResourceType.TYPE_URL;
-				}
-				else if("application/x-osp".equals(contentType))
-				{
-					resourceType = "formItem";
-				}
-				else
-				{
-					resourceType = ResourceType.TYPE_UPLOAD;
-				}
+				typeId = registry.mimetype2resourcetype(contentType);
 			}
-			setResourceType(resourceType);
+			setResourceType(typeId);
 
 			String enc = StringUtil.trimToNull(el.getAttribute("body"));
 			if (enc != null)
