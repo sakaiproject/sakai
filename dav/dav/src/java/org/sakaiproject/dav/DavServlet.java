@@ -267,7 +267,6 @@ public class DavServlet extends HttpServlet
 	    if (id == null)
 		return false;
 	    if (id.startsWith("/attachment/") || id.equals("/attachment") ||
-		id.startsWith("/public/") || id.equals("/public") ||
 		(doProtected && id.toLowerCase().indexOf("/protected") >= 0 &&
 		 (!ContentHostingService.allowAddCollection(adjustId(id)))))
 		return true;
