@@ -63,6 +63,13 @@ public interface ResourceTypeRegistry
 	 */
 	public Collection getTypes(Filter filter);
 	
+	/**
+	 * In converting to the type registry, we need to use mimetype in some cases as a way to identify
+	 * the resource-type of some existing resources.  This method handles the mapping from mimetype
+	 * to resource-type.
+	 * @param contentType A mime type
+	 * @return The "resource-type" for items with the given mime-type.
+	 */
 	public String mimetype2resourcetype(String contentType);
 	
 	/**

@@ -61,7 +61,7 @@ public class TextDocumentType extends BaseResourceType
 	protected EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>> actionMap = new EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>>(ResourceToolAction.ActionType.class);
 
 	protected Map<String, ResourceToolAction> actions = new Hashtable<String, ResourceToolAction>();	
-	protected String typeId = TYPE_TEXT;
+	protected String typeId = ResourceType.TYPE_TEXT;
 	protected String helperId = "sakai.resource.type.helper";
 
 	protected UserDirectoryService userDirectoryService;
@@ -620,15 +620,6 @@ public class TextDocumentType extends BaseResourceType
 		return rv;
 	}
 
-	public ResourceToolAction getCreateAction(Reference collectionRef, User user, Set permissions) 
-	{
-		if(! this.isCreateActionAllowed(collectionRef, user))
-		{
-			return null;
-		}
-		return actions.get(ResourceToolAction.CREATE);
-	}
-	
 	public String getIconLocation() 
 	{
 		// TODO Auto-generated method stub
@@ -643,26 +634,6 @@ public class TextDocumentType extends BaseResourceType
 	public String getLabel() 
 	{
 		return rb.getString("type.text");
-	}
-	
-	public boolean isActionAllowed(String actionId, Reference entityRef, User user) 
-	{
-		// TODO Auto-generated method stub
-		return true;
-	}
-	
-	public boolean isCreateActionAllowed(Reference collectionRef) 
-	{
-		return this.isCreateActionAllowed(collectionRef, null);
-	}
-	
-	public boolean isCreateActionAllowed(Reference collectionRef, User user) 
-	{
-		if(user == null)
-		{
-			user = userDirectoryService.getCurrentUser();
-		}
-		return this.isActionAllowed(ResourceToolAction.CREATE, collectionRef, user);
 	}
 	
 	/* (non-Javadoc)

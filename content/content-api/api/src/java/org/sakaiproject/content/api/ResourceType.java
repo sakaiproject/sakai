@@ -142,32 +142,4 @@ public interface ResourceType
 	 */
 	public boolean hasRightsDialog();
 	
-	/**
-	 * Determine whether a particular action is enabled for this resource type 
-	 * on a particular resource for a particular user.
-	 * @param collectionRef The Reference object for the collection in which the resource would be created.
-	 * @param user The user for which the question is being asked.
-	 * @return true if a create action is allowed, false otherwise.
-	 */
-	public boolean isActionAllowed(String actionId, Reference entityRef, User user);
-	
-	/**
-	 * Determine whether a create action is enabled for this type on a 
-	 * particular collection for the current user. Throw an UnsupportedOperationException 
-	 * if no create action is defined for this type.
-	 * @param collectionRef The Reference object for the collection in which the resource would be created.
-	 * @return true if a create action is allowed, false otherwise.
-	 */
-	public boolean isCreateActionAllowed(Reference collectionRef);
-	
-	/**
-	 * Determine whether a create action is enabled for this type on a particular 
-	 * collection for a particular user. Throw an UnsupportedOperationException 
-	 * if no create action is defined for this type.
-	 * @param collectionRef The Reference object for the collection in which the resource would be created.
-	 * @param user The user for which the question is being asked.
-	 * @return true if a create action is allowed, false otherwise.
-	 */
-	public boolean isCreateActionAllowed(Reference collectionRef, User user);
-	
 }

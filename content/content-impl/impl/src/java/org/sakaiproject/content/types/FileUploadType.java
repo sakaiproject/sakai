@@ -572,15 +572,6 @@ public class FileUploadType extends BaseResourceType
 		return rv;
 	}
 
-	public ResourceToolAction getCreateAction(Reference collectionRef, User user, Set permissions) 
-	{
-		if(! this.isCreateActionAllowed(collectionRef, user))
-		{
-			return null;
-		}
-		return (ResourceToolAction) actions.get(ResourceToolAction.CREATE);
-	}
-	
 	public String getIconLocation() 
 	{
 		// TODO Auto-generated method stub
@@ -597,26 +588,6 @@ public class FileUploadType extends BaseResourceType
 		return rb.getString("type.upload");
 	}
 	
-	public boolean isActionAllowed(String actionId, Reference entityRef, User user) 
-	{
-		// TODO Auto-generated method stub
-		return true;
-	}
-	
-	public boolean isCreateActionAllowed(Reference collectionRef) 
-	{
-		return this.isCreateActionAllowed(collectionRef, null);
-	}
-	
-	public boolean isCreateActionAllowed(Reference collectionRef, User user) 
-	{
-		if(user == null)
-		{
-			user = userDirectoryService.getCurrentUser();
-		}
-		return this.isActionAllowed(ResourceToolAction.CREATE, collectionRef, user);
-	}
-
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ResourceType#getLocalizedHoverText(org.sakaiproject.entity.api.Reference)
 	 */

@@ -463,11 +463,11 @@ public class UrlResourceType extends BaseResourceType
 		this.userDirectoryService = (UserDirectoryService) ComponentManager.get("org.sakaiproject.user.api.UserDirectoryService");
 		
 		actions.put(ResourceToolAction.CREATE, new UrlResourceCreateAction());
-		actions.put(ResourceToolAction.ACCESS_CONTENT, new UrlResourceAccessAction());
+		//actions.put(ResourceToolAction.ACCESS_CONTENT, new UrlResourceAccessAction());
 		actions.put(ResourceToolAction.REVISE_CONTENT, new UrlResourceReviseAction());
 		actions.put(ResourceToolAction.DUPLICATE, new UrlResourceDuplicateAction());
-		actions.put(ResourceToolAction.COPY, new UrlResourceCopyAction());
-		actions.put(ResourceToolAction.MOVE, new UrlResourceMoveAction());
+		//actions.put(ResourceToolAction.COPY, new UrlResourceCopyAction());
+		//actions.put(ResourceToolAction.MOVE, new UrlResourceMoveAction());
 		actions.put(ResourceToolAction.DELETE, new UrlResourceDeleteAction());
 		
 		// initialize actionMap with an empty List for each ActionType
@@ -514,15 +514,6 @@ public class UrlResourceType extends BaseResourceType
 		return rv;
 	}
 
-	public ResourceToolAction getCreateAction(Reference collectionRef, User user, Set permissions) 
-	{
-		if(! this.isCreateActionAllowed(collectionRef, user))
-		{
-			return null;
-		}
-		return (ResourceToolAction) actions.get(ResourceToolAction.CREATE);
-	}
-	
 	public String getIconLocation() 
 	{
 		// TODO Auto-generated method stub
@@ -537,25 +528,6 @@ public class UrlResourceType extends BaseResourceType
 	public String getLabel() 
 	{
 		return rb.getString("type.url");
-	}
-	
-	public boolean isActionAllowed(String actionId, Reference entityRef, User user) 
-	{
-		return actions.containsKey(actionId);
-	}
-	
-	public boolean isCreateActionAllowed(Reference collectionRef) 
-	{
-		return this.isCreateActionAllowed(collectionRef, null);
-	}
-	
-	public boolean isCreateActionAllowed(Reference collectionRef, User user) 
-	{
-		if(user == null)
-		{
-			user = userDirectoryService.getCurrentUser();
-		}
-		return this.isActionAllowed(ResourceToolAction.CREATE, collectionRef, user);
 	}
 	
 	/* (non-Javadoc)

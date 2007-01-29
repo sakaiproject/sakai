@@ -505,31 +505,6 @@ public class HtmlDocumentType extends BaseResourceType
 		return (ResourceToolAction) actions.get(actionId);
 	}
 
-	public List getActions(Reference entityRef, Set permissions) 
-	{
-		// TODO: use entityRef to filter actions
-		List rv = new Vector();
-		rv.addAll(actions.values());
-		return rv;
-	}
-
-	public List getActions(Reference entityRef, User user, Set permissions) 
-	{
-		// TODO: use entityRef and user to filter actions
-		List rv = new Vector();
-		rv.addAll(actions.values());
-		return rv;
-	}
-
-	public ResourceToolAction getCreateAction(Reference collectionRef, User user, Set permissions) 
-	{
-		if(! this.isCreateActionAllowed(collectionRef, user))
-		{
-			return null;
-		}
-		return (ResourceToolAction) actions.get(ResourceToolAction.CREATE);
-	}
-	
 	public String getIconLocation() 
 	{
 		// TODO Auto-generated method stub
@@ -544,26 +519,6 @@ public class HtmlDocumentType extends BaseResourceType
 	public String getLabel() 
 	{
 		return rb.getString("type.html");
-	}
-	
-	public boolean isActionAllowed(String actionId, Reference entityRef, User user) 
-	{
-		// TODO Auto-generated method stub
-		return true;
-	}
-	
-	public boolean isCreateActionAllowed(Reference collectionRef) 
-	{
-		return this.isCreateActionAllowed(collectionRef, null);
-	}
-	
-	public boolean isCreateActionAllowed(Reference collectionRef, User user) 
-	{
-		if(user == null)
-		{
-			user = userDirectoryService.getCurrentUser();
-		}
-		return this.isActionAllowed(ResourceToolAction.CREATE, collectionRef, user);
 	}
 	
 	/* (non-Javadoc)

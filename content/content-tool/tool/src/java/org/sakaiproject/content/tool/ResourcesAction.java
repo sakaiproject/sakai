@@ -2155,15 +2155,11 @@ public class ResourcesAction
 					while(typeIt.hasNext())
 					{
 						ResourceType type = (ResourceType) typeIt.next();
-						if(type.isCreateActionAllowed(ref))
+						
+						List<ResourceToolAction> createActions = type.getActions(actionType);
+						if(createActions != null)
 						{
-							// User user = UserDirectoryService.getCurrentUser();
-							
-							List<ResourceToolAction> createActions = type.getActions(actionType);
-							if(createActions != null)
-							{
-								actions.addAll(createActions);
-							}
+							actions.addAll(createActions);
 						}
 					}
 				}
