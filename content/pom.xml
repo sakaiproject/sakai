@@ -19,5 +19,6 @@
     <module>content-impl/pack</module>
     <module>content-tool</module>
     <module>content-tool/tool</module>
+    <module>content-util/util</module>
   </modules>
 </project>

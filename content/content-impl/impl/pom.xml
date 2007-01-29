@@ -30,6 +30,13 @@
     <dependency>
       
       <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-content-util</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-content-lock-hbm</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
