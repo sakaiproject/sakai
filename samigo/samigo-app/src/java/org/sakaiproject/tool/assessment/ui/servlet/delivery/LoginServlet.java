@@ -162,10 +162,13 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
       }
       else{ // notAuthorized
         if (!isAuthenticated){
-          if (AgentFacade.isStandaloneEnvironment())
-            path = "/jsf/delivery/login.faces";
+          if (AgentFacade.isStandaloneEnvironment()) {
+        	  delivery.setActionString(null);
+        	  path = "/jsf/delivery/login.faces";
+          }
           else{
             relativePath = false;
+            delivery.setActionString(null);
             path = "/authn/login?url=" + URLEncoder.encode(req.getRequestURL().toString()+"?id="+alias, "UTF-8");
 	  }
         }
