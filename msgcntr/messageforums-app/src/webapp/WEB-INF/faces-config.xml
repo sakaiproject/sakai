@@ -5,7 +5,7 @@
   "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
 <faces-config>
     <application>
-        <message-bundle>org.sakaiproject.tool.messageforums.bundle.Messages</message-bundle>
+        <message-bundle>org.sakaiproject.api.app.messagecenter.bundle.Messages</message-bundle>
         <locale-config>
             <default-locale>en</default-locale>
             <supported-locale>de</supported-locale>

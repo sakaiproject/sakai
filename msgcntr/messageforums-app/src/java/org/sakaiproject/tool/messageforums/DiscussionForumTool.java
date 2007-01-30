@@ -66,6 +66,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager; 
 import org.sakaiproject.user.api.User; 
 import org.sakaiproject.user.cover.UserDirectoryService; 
+import org.sakaiproject.util.ResourceLoader;
 
 import org.sakaiproject.api.app.messageforums.PermissionsMask;
 import org.sakaiproject.tool.api.ToolSession;
@@ -137,6 +138,8 @@ public class DiscussionForumTool
   private static final String FORUM_ID = "forumId";
   private static final String MESSAGE_ID = "messageId";
   private static final String REDIRECT_PROCESS_ACTION = "redirectToProcessAction";
+
+  private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
 
   private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS = "cdfm_insufficient_privileges";
   private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_ORGANIZE = "cdfm_insufficient_privileges";
@@ -4160,10 +4163,12 @@ public class DiscussionForumTool
      public List getPostingOptions()
       {
         List postingOptions = new ArrayList();
-        postingOptions.add(new SelectItem(PermissionBean.NONE,PermissionBean.NONE));
-        postingOptions.add(new SelectItem(PermissionBean.OWN,PermissionBean.OWN));
-        postingOptions.add(new SelectItem(PermissionBean.ALL,PermissionBean.ALL));    
-        
+        postingOptions.add(new SelectItem(PermissionBean.getResourceBundleString(PermissionBean.NONE),
+        									PermissionBean.getResourceBundleString(PermissionBean.NONE)));
+        postingOptions.add(new SelectItem(PermissionBean.getResourceBundleString(PermissionBean.OWN),
+        									PermissionBean.getResourceBundleString(PermissionBean.OWN)));
+        postingOptions.add(new SelectItem(PermissionBean.getResourceBundleString(PermissionBean.ALL),
+        									PermissionBean.getResourceBundleString(PermissionBean.ALL)));
         return postingOptions;
       }
      
@@ -4250,12 +4255,19 @@ public class DiscussionForumTool
 		public void setTotalGroupsUsersList(List totalGroupsUsersList) {
 			this.totalGroupsUsersList = totalGroupsUsersList;
 		}
-		
+
+		/**
+		 * Pulls messages from bundle
+		 * 
+		 * @param key
+		 * 			Key of message to get
+		 * 
+		 * @return
+		 * 			String for key passed in or [missing: key] if not found
+		 */
 	    public static String getResourceBundleString(String key) 
 	    {
-	        String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
-	        Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
-	        ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
+	        final ResourceBundle rb = ResourceBundle.getBundle(MESSAGECENTER_BUNDLE);
 	        return rb.getString(key);
 	    }
 

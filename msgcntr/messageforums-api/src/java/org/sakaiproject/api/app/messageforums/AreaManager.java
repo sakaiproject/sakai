@@ -36,5 +36,5 @@ public interface AreaManager
   public Area getAreaByType(final String typeId);  
   public Area getPrivateArea();
   public Area getDiscusionArea();
-
+  public String getResourceBundleString(String key);
 }

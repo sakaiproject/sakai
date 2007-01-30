@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.hibernate.Hibernate;
@@ -66,6 +67,7 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.ResourceLoader;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -90,7 +92,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   private SessionManager sessionManager;  
   private EmailService emailService;
   
-
+  private static final String MESSAGES_TITLE = "pvt_message_nav";
+  private static final String PVT_RECEIVED = "pvt_received";
+  private static final String PVT_SENT = "pvt_sent";
+  private static final String PVT_DELETED = "pvt_deleted";
+ 
   public void init()
   {
     ;
@@ -159,19 +165,19 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       /** initialize collections */
       //getHibernateTemplate().initialize(area.getPrivateForumsSet());
             
-      pf = forumManager.createPrivateForum("Private Messages");
+      pf = forumManager.createPrivateForum(getResourceBundleString(MESSAGES_TITLE));
       
       //area.addPrivateForum(pf);
       //pf.setArea(area);
       //areaManager.saveArea(area);
       
-      PrivateTopic receivedTopic = forumManager.createPrivateForumTopic("Received", true,false,
+      PrivateTopic receivedTopic = forumManager.createPrivateForumTopic(getResourceBundleString(PVT_RECEIVED), true,false,
           userId, pf.getId());     
 
-      PrivateTopic sentTopic = forumManager.createPrivateForumTopic("Sent", true,false,
+      PrivateTopic sentTopic = forumManager.createPrivateForumTopic(getResourceBundleString(PVT_SENT), true,false,
           userId, pf.getId());      
 
-      PrivateTopic deletedTopic = forumManager.createPrivateForumTopic("Deleted", true,false,
+      PrivateTopic deletedTopic = forumManager.createPrivateForumTopic(getResourceBundleString(PVT_DELETED), true,false,
           userId, pf.getId());      
 
       //PrivateTopic draftTopic = forumManager.createPrivateForumTopic("Drafts", true,false,
@@ -245,10 +251,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     getHibernateTemplate().initialize(pf.getTopicsSet());    
     return pf;
   }
-  
-
-  
-  
 
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#savePrivateMessage(org.sakaiproject.api.app.messageforums.Message)
@@ -380,7 +382,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   {
     return false;
   }
-
   
   public void createTopicFolderInForum(PrivateForum pf, String folderName)
   {
@@ -453,11 +454,16 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     return forumManager.getTopicByUuid(topicUuid);
   }
   
+  public static final String PVTMSG_MODE_RECEIVED = "pvt_received";
+  public static final String PVTMSG_MODE_SENT = "pvt_sent";
+  public static final String PVTMSG_MODE_DELETE = "pvt_deleted";
+  public static final String PVTMSG_MODE_DRAFT = "pvt_drafts";
   
-  public static final String PVTMSG_MODE_RECEIVED = "Received";
+/*  public static final String PVTMSG_MODE_RECEIVED = "Received";
   public static final String PVTMSG_MODE_SENT = "Sent";
   public static final String PVTMSG_MODE_DELETE = "Deleted";
-  public static final String PVTMSG_MODE_DRAFT = "Drafts";
+  public static final String PVTMSG_MODE_DRAFT = "Drafts"; */
+
   public void movePvtMsgTopic(PrivateMessage message, Topic oldTopic, Topic newTopic)
   {
     List recipients= message.getRecipients();
@@ -1379,7 +1385,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   public String getTopicTypeUuid(String topicTitle)
   {
     String topicTypeUuid;
-    if((PVTMSG_MODE_RECEIVED).equals(topicTitle))
+/*    if((PVTMSG_MODE_RECEIVED).equals(topicTitle))
     {
       topicTypeUuid=typeManager.getReceivedPrivateMessageType();
     }
@@ -1399,7 +1405,28 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     {
       topicTypeUuid=typeManager.getCustomTopicType(topicTitle);
     }
-    return topicTypeUuid;
+*/
+    if(getResourceBundleString(PVTMSG_MODE_RECEIVED).equals(topicTitle))
+    {
+      topicTypeUuid=typeManager.getReceivedPrivateMessageType();
+    }
+    else if(getResourceBundleString(PVTMSG_MODE_SENT).equals(topicTitle))
+    {
+      topicTypeUuid=typeManager.getSentPrivateMessageType();
+    }
+    else if(getResourceBundleString(PVTMSG_MODE_DELETE).equals(topicTitle))
+    {
+      topicTypeUuid=typeManager.getDeletedPrivateMessageType();
+    }
+    else if(getResourceBundleString(PVTMSG_MODE_DRAFT).equals(topicTitle))
+    {
+      topicTypeUuid=typeManager.getDraftPrivateMessageType();
+    }
+    else
+    {
+      topicTypeUuid=typeManager.getCustomTopicType(topicTitle);
+    }
+return topicTypeUuid;
   }
   
   public Area getAreaByContextIdAndTypeId(final String typeId) {
@@ -1414,5 +1441,23 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     };
 
     return (Area) getHibernateTemplate().execute(hcb);
+  }
+  
+  /**
+   * Gets Strings from Message Bundle (specifically for titles)
+   * TODO: pull directly from bundle instead of using areaManager
+   * 		as an intermediary
+   * 
+   * @param key
+   * 			Message bundle key for String wanted
+   * 
+   * @return
+   * 			String requested or "[missing key: key]" if not found
+   */
+  public String getResourceBundleString(String key) 
+  {
+//	 ResourceBundle rb = ResourceBundle.getBundle(MESSAGECENTER_BUNDLE);
+
+      return areaManager.getResourceBundleString(key);
   }
 }

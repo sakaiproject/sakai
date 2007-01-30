@@ -165,16 +165,9 @@ public class MessageForumSynopticBean {
 	/** Used to determine if there are sites to display on page */
 	private boolean sitesToView;
 	private boolean sitesToViewSet = false;
-	private boolean pmEnabled;
 	
 	/** Decorated Bean to store stats for individual site */
 	private DecoratedCompiledMessageStats siteInfo = null;
-
-	/** Resource loader to grab bundle messages */
-	private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.messageforums.bundle.Messages");
-	
-	/** Used to display no site selected error message on Options page */
-	private final String NO_SITE_SELECTED_MSG = "syn_no_site_selected";
 
 	/** to get accces to log file */
 	private static final Log LOG = LogFactory.getLog(MessageForumSynopticBean.class);
@@ -240,7 +233,7 @@ public class MessageForumSynopticBean {
 
 		final boolean where = SiteService.isUserSite(siteId);
 
-		LOG.debug("Result of determinig if My Workspace: " + where);
+		LOG.debug("Result of determining if My Workspace: " + where);
 
 		return where;
 	}
@@ -360,7 +353,7 @@ public class MessageForumSynopticBean {
 			}
 			catch (IdUnusedException e) {
 				// Mucho weirdness, found by getSites() but now cannot find
-				LOG.error("IdUnusedException will accessing site to determine user role");
+				LOG.error("IdUnusedException while accessing site to determine user role");
 			}
 			
 			if (curSite != null) {
@@ -1119,7 +1112,7 @@ public class MessageForumSynopticBean {
 		Iterator lsi = mySites.iterator();
 
 		if (!lsi.hasNext()) {
-			LOG.warn("User " + SessionManager.getCurrentSessionUserId() + " does not belong to any sites.");
+			LOG.debug("User " + SessionManager.getCurrentSessionUserId() + " does not belong to any sites.");
 
 			return mySites;
 		}

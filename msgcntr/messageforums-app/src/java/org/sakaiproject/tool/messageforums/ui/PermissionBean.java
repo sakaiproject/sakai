@@ -23,18 +23,24 @@ package org.sakaiproject.tool.messageforums.ui;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import javax.faces.model.SelectItem;
 
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
+import org.sakaiproject.util.ResourceLoader;
 
 public class PermissionBean {
   
-  public static final String OWN = "Own";
-  public static final String ALL = "All";
-  public static final String NONE = "None";
+  /** Path to bundle messages */
+  private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
+
+  /** Keys for bundle messages */
+  public static final String OWN = "perm_own";
+  public static final String ALL = "perm_all";
+  public static final String NONE = "perm_none";
   
   private String selectedLevel;
   private DBMembershipItem item;
@@ -285,13 +291,13 @@ public class PermissionBean {
   {
     if(getDeleteAny())
     {
-      return ALL;
+      return getResourceBundleString(ALL);
     }
     if(getDeleteOwn())
     {
-      return OWN;
+      return getResourceBundleString(OWN);
     }         
-    return NONE;
+    return getResourceBundleString(NONE);
   }
 
   /**
@@ -299,17 +305,17 @@ public class PermissionBean {
    */
   public void setDeletePostings(String deletePosting)
   {
-    if(deletePosting.equals(ALL))
+    if(deletePosting.equals(getResourceBundleString(ALL)))
     {
       setDeleteAny(true);
       setDeleteOwn(true);
     }
-    else if(deletePosting.equals(OWN))
+    else if(deletePosting.equals(getResourceBundleString(OWN)))
     {
       setDeleteAny(false);
       setDeleteOwn(true);
     }
-    else if(deletePosting.equals(NONE))
+    else if(deletePosting.equals(getResourceBundleString(NONE)))
     {
       setDeleteAny(false);
       setDeleteOwn(false);
@@ -321,15 +327,18 @@ public class PermissionBean {
    */
   public String getRevisePostings()
   {
+    String test = getResourceBundleString(NONE);
+	  
     if(getReviseAny())
     {
-      return ALL;
+      test = getResourceBundleString(ALL);
     }
     if(getReviseOwn())
     {
-      return OWN;
+      test = getResourceBundleString(OWN);
     }         
-    return NONE;
+//    return getResourceBundleString(NONE);
+    return test;
   }
 
   /**
@@ -337,17 +346,17 @@ public class PermissionBean {
    */
   public void setRevisePostings(String revisePostings)
   {
-    if(revisePostings.equals(ALL))
+    if(revisePostings.equals(getResourceBundleString(ALL)))
     {
       setReviseAny(true);
       setReviseOwn(true);
     }
-    else if(revisePostings.equals(OWN))
+    else if(revisePostings.equals(getResourceBundleString(OWN)))
     {
       setReviseAny(false);
       setReviseOwn(true);
     }
-    else if(revisePostings.equals(NONE))
+    else if(revisePostings.equals(getResourceBundleString(NONE)))
     {
       setReviseAny(false);
       setReviseOwn(false);
@@ -360,6 +369,21 @@ public class PermissionBean {
   public DBMembershipItem getItem()
   {
     return item;
+  }
+
+	/**
+	 * Pulls messages from bundle
+	 * 
+	 * @param key
+	 * 			Key of message to get
+	 * 
+	 * @return
+	 * 			String for key passed in or [missing: key] if not found
+	 */
+  public static String getResourceBundleString(String key) 
+  {
+      final ResourceBundle rb = ResourceBundle.getBundle(MESSAGECENTER_BUNDLE);
+      return rb.getString(key);
   }
 
  

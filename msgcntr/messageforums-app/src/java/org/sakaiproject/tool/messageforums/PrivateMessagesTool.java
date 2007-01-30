@@ -27,9 +27,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.ResourceBundle;
-import java.util.Locale;
+import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -67,10 +66,10 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.messageforums.ui.DecoratedAttachment;
 import org.sakaiproject.tool.messageforums.ui.PrivateForumDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
-import org.sakaiproject.tool.messageforums.ui.DecoratedAttachment;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -80,11 +79,13 @@ public class PrivateMessagesTool
 {
   
   private static final Log LOG = LogFactory.getLog(PrivateMessagesTool.class);
-  private static final String MESSAGECENTER_PRIVACY_URL = "messagecenter.privacy.url";
 
+  private static final String MESSAGECENTER_PRIVACY_URL = "messagecenter.privacy.url";
   private static final String MESSAGECENTER_PRIVACY_TEXT = "messagecenter.privacy.text";
 
-  
+  private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
+ 
+  private static final ResourceBundle rb = ResourceBundle.getBundle(MESSAGECENTER_BUNDLE);
   /**
    * List individual private messages details
    */
@@ -3099,9 +3100,8 @@ public class PrivateMessagesTool
 	
     public static String getResourceBundleString(String key) 
     {
-        String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
-        Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
-        ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
+//        String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
+//       Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
         return rb.getString(key);
     }
 

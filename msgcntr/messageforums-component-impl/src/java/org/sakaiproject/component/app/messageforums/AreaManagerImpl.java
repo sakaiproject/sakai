@@ -23,28 +23,28 @@ package org.sakaiproject.component.app.messageforums;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.ResourceBundle;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.collection.PersistentSet;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.BaseForum;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.UserPermissionManager;
-import org.sakaiproject.api.app.messageforums.DiscussionForumService;
-import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -53,7 +53,12 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
     private static final String QUERY_AREA_BY_CONTEXT_AND_TYPE_ID = "findAreaByContextIdAndTypeId";
     private static final String QUERY_AREA_BY_TYPE = "findAreaByType";
-    
+
+    // TODO: pull titles from bundle
+    private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
+    private static final String MESSAGES_TITLE = "cdfm_message_pvtarea";
+    private static final String FORUMS_TITLE = "cdfm_discussion_forums";
+
     private IdManager idManager;
 
     private MessageForumsForumManager forumManager;
@@ -126,7 +131,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         if (area == null) {
             area = createArea(typeManager.getPrivateMessageAreaType(), null);
             area.setContextId(getContextId());
-            area.setName("Private Messages");
+            area.setName(getResourceBundleString(MESSAGES_TITLE));
             area.setEnabled(Boolean.FALSE);
             area.setHidden(Boolean.TRUE);
             area.setLocked(Boolean.FALSE);
@@ -140,7 +145,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         Area area = getAreaByContextIdAndTypeId(typeManager.getDiscussionForumType());
         if (area == null) {
             area = createArea(typeManager.getDiscussionForumType(), null);
-            area.setName("Disucssion Area");
+            area.setName(getResourceBundleString(FORUMS_TITLE));
             area.setEnabled(Boolean.TRUE);
             area.setHidden(Boolean.TRUE);
             area.setLocked(Boolean.FALSE);
@@ -305,4 +310,19 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         //return "MessageCenter::" + getCurrentUser() + "::" + object.toString();
     }
 
+    /**
+     * Gets Strings from Message Bundle (specifically for titles)
+     * 
+     * @param key
+     * 			Message bundle key for String wanted
+     * 
+     * @return
+     * 			String requested or "[missing key: key]" if not found
+     */
+    public String getResourceBundleString(String key) 
+    {
+    	final ResourceBundle rb = ResourceBundle.getBundle(MESSAGECENTER_BUNDLE);
+        return rb.getString(key);
+    }
+	
 }

@@ -23,7 +23,7 @@ package org.sakaiproject.component.app.messageforums.exception;
 public class LockedException extends RuntimeException {
     
     public LockedException() {
-        super("Generic Message Center Locked Exception");
+        super("Generic Message & Forums Locked Exception");
     }
 
     public LockedException(String message) {

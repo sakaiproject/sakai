@@ -2,7 +2,7 @@
 
 <registration>
 	<tool id="sakai.messagecenter"
-		  title="Message Center"
+		  title="Messages &amp; Forums"
 		  description="For using the message forums or private mail for a site.">			
 		<category name="course" />
 		<category name="project" />	

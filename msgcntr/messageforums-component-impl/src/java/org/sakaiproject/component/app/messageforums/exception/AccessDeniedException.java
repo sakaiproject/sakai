@@ -23,7 +23,7 @@ package org.sakaiproject.component.app.messageforums.exception;
 public class AccessDeniedException extends RuntimeException {
 
     public AccessDeniedException() {
-        super("Generic Message Center Access Denied Exception");
+        super("Generic Message & Forums Access Denied Exception");
     }
 
     public AccessDeniedException(String message) {

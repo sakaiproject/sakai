@@ -72,7 +72,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     Area a1 = new AreaImpl();
     a1.setContextId("context1");
     a1.setHidden(Boolean.FALSE);
-    a1.setName("Private Message Area");
+    a1.setName("Messages Area");
     a1.setCreated(new Date());
     a1.setCreatedBy("admin");
     a1.setModified(new Date());
@@ -96,7 +96,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pfm1.setModified(new Date());
     pfm1.setModifiedBy("the moderator");
     pfm1.setShortDescription("short description");
-    pfm1.setTitle("Private Messages");
+    pfm1.setTitle("Messages");
     pfm1.setTopics((getPrivateTopics()));
     // pfm1.setType(new TypeImpl());
     pfm1.setAutoForward(Boolean.TRUE);
@@ -429,7 +429,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     Area a2 = new AreaImpl();
     a2.setContextId("context2");
     a2.setHidden(Boolean.FALSE);
-    a2.setName("Discussion Forums");
+    a2.setName("Forums");
     a2.setCreated(new Date());
     a2.setCreatedBy("john doe");
     a2.setModified(new Date());
