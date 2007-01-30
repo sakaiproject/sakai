@@ -210,9 +210,9 @@
       <version>1.4</version>
     </dependency>
     <dependency>
-	<groupId>xstream</groupId>
+	<groupId>com.thoughtworks.xstream</groupId>
 	<artifactId>xstream</artifactId>
-      <version>1.2</version>
+      <version>1.2.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
