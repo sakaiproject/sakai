@@ -133,9 +133,27 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceTypeRegistry#newPipe(java.lang.String, org.sakaiproject.content.api.ResourceToolAction)
+	 */
 	public ResourceToolActionPipe newPipe(String initializationId, ResourceToolAction action) 
 	{
-		return new BasicResourceToolActionPipe(initializationId, action);
+		ResourceToolActionPipe pipe = null;
+		
+		switch(action.getActionType())
+		{
+			case NEW_UPLOAD:
+				pipe = new BasicMultiFileUploadPipe(initializationId, action);
+				break;
+			case NEW_FOLDER:
+				pipe = new BasicMultiFileUploadPipe(initializationId, action);
+				break;
+			default:
+				pipe = new BasicResourceToolActionPipe(initializationId, action);
+				break;	
+		}
+		
+		return pipe;
 	}
 
 	/* (non-Javadoc)
@@ -167,7 +185,7 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 		{
 			typeId = ResourceType.TYPE_TEXT;
 		}
-		else if("text/url".equals(contentType))
+		else if(ResourceType.MIME_TYPE_URL.equals(contentType))
 		{
 			typeId = ResourceType.TYPE_URL;
 		}

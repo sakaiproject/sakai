@@ -55,6 +55,7 @@ public class BasicResourceToolActionPipe
 	private String errorMessage;
 	private boolean actionCanceled;
 	private boolean errorEncountered;
+	private String fileName;
 	
 	/**
 	 * @return the helperId
@@ -266,6 +267,35 @@ public class BasicResourceToolActionPipe
 			}
 		}
 		return rv;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceToolActionPipe#getFileName()
+	 */
+	public String getFileName()
+	{
+		return this.fileName;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceToolActionPipe#getFileUploadSize()
+	 */
+	public int getFileUploadSize()
+	{
+		int rv = 0;
+		if(this.revisedContent != null)
+		{
+			rv = this.revisedContent.length;
+		}
+		return rv;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceToolActionPipe#setFileName(java.lang.String)
+	 */
+	public void setFileName(String fileName)
+	{
+		this.fileName = fileName;
 	}
 
 }

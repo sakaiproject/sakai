@@ -93,6 +93,20 @@ public interface ResourceToolActionPipe
 	public OutputStream getContentStream();
 	
 	/**
+	 * Used only for actions of type ResourceToolAction.ActionType.NEW_UPLOAD.
+	 * Retains the name of a file that has been uploaded recently as a reminder 
+	 * in the user interface.
+	 * @return
+	 */
+	public String getFileName();
+	
+	/**
+	 * Used only for actions of type ResourceToolAction.ActionType.NEW_UPLOAD.
+	 * @return
+	 */
+	public int getFileUploadSize();
+	
+	/**
 	 * Used by helper to access current mimetype of resource. Null value or empy string 
 	 * indicates that mimetype is irrelevant or unavailable.
 	 * @return
@@ -301,4 +315,12 @@ public interface ResourceToolActionPipe
 	 * @param helperId
 	 */
 	public void setHelperId(String helperId);
+
+	/**
+	 * Used only for actions of type ResourceToolAction.ActionType.NEW_UPLOAD.
+	 * Retains the name of a file that has been uploaded recently as a reminder 
+	 * in the user interface.
+	 * @param fileName
+	 */
+	public void setFileName(String fileName);
 }

@@ -142,6 +142,8 @@ public interface ResourceToolAction
 	public static final String ACCESS_PROPERTIES = "info";
 	public static final String DUPLICATE = "duplicate";
 	public static final String MOVE = "move";
+	
+	public static final String ACTION_DELIMITER = ":";
 		
 	/**
 	 * Prefix for all keys to Tool Session attributes used in messaging between ResourcesAction and

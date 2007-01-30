@@ -238,6 +238,7 @@ public class ResourcesAction
 					label = trb.getString("action.replace");
 					break;
 				default:
+					logger.info("No label provided for ResourceToolAction: " + action.getTypeId() + ResourceToolAction.ACTION_DELIMITER + action.getId());
 					label = action.getId();
 					break;
 				}
@@ -1200,7 +1201,7 @@ public class ResourcesAction
 	public static final String STATE_RESOURCES_HELPER_MODE = "resources.resources_helper_mode";
 
 	/** state attribute for the maximum size for file upload */
-	private static final String STATE_FILE_UPLOAD_MAX_SIZE = "resources.file_upload_max_size";
+	static final String STATE_FILE_UPLOAD_MAX_SIZE = "resources.file_upload_max_size";
 	
 	/** state attribute indicating whether users in current site should be denied option of making resources public */
 	private static final String STATE_PREVENT_PUBLIC_DISPLAY = "resources.prevent_public_display";
@@ -1658,8 +1659,6 @@ public class ResourcesAction
 
 	public static final String UTF_8_ENCODING = "UTF-8";
 
-	public static final String ACTION_DELIMITER = ":";
-
 	protected static final String STATE_DELETE_SET = "resources.delete_set";
 
 	protected static final String STATE_NON_EMPTY_DELETE_SET = "resources.non-empty_delete_set";
@@ -1681,7 +1680,7 @@ public class ResourcesAction
 		org.sakaiproject.content.api.ContentHostingService contentHostingService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute(STATE_CONTENT_SERVICE);
 
 		context.put("copyright_alert_url", COPYRIGHT_ALERT_URL);
-		context.put("ACTION_DELIMITER", ACTION_DELIMITER);
+		context.put("ACTION_DELIMITER", ResourceToolAction.ACTION_DELIMITER);
 		
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
@@ -2511,7 +2510,7 @@ public class ResourcesAction
 		String action_string = params.getString("action");
 		String selectedItemId = params.getString("selectedItemId");
 		
-		String[] parts = action_string.split(ACTION_DELIMITER);
+		String[] parts = action_string.split(ResourceToolAction.ACTION_DELIMITER);
 		String typeId = parts[0];
 		String actionId = parts[1];
 		

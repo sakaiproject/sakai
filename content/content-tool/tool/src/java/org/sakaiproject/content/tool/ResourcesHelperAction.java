@@ -22,6 +22,8 @@
 package org.sakaiproject.content.tool;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +33,7 @@ import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
+import org.sakaiproject.content.api.MultiFileUploadPipe;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
@@ -40,6 +43,7 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
@@ -58,6 +62,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	protected  static final String CREATE_HTML_TEMPLATE = "resources/sakai_create_html";
 	protected  static final String CREATE_TEXT_TEMPLATE = "resources/sakai_create_text";
 	protected  static final String CREATE_UPLOAD_TEMPLATE = "resources/sakai_create_upload";
+	protected  static final String CREATE_UPLOADS_TEMPLATE = "resources/sakai_create_uploads";
 	protected  static final String CREATE_URL_TEMPLATE = "resources/sakai_create_url";
 	
 	protected  static final String REVISE_HTML_TEMPLATE = "resources/sakai_revise_html";
@@ -129,17 +134,66 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		String template = "";
 
-		if(ResourceToolAction.CREATE.equals(actionId))
+		switch(pipe.getAction().getActionType())
 		{
+		case CREATE:
 			template = buildCreateContext(portlet, context, data, state);
-		}
-		else if(ResourceToolAction.REVISE_CONTENT.equals(actionId))
-		{
+			break;
+		case REVISE_CONTENT:
 			template = buildReviseContext(portlet, context, data, state);
+			break;
+		case REPLACE_CONTENT:
+			template = buildReplaceContext(portlet, context, data, state);
+			break;
+		case NEW_UPLOAD:
+			template = buildUploadFilesContext(portlet, context, data, state);
+			break;
+		default:
+			// hmmmm
+			break;
 		}
 		
 		return template;
 	}
+
+	/**
+	 * @param portlet
+	 * @param context
+	 * @param data
+	 * @param state
+	 * @return
+	 */
+	protected String buildUploadFilesContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	{
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+
+		MultiFileUploadPipe pipe = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		
+		List<ResourceToolActionPipe> pipes = pipe.getPipes();
+		
+		context.put("pipes", pipes);
+		
+		
+
+		return CREATE_UPLOADS_TEMPLATE;
+	}
+
+
+
+	/**
+	 * @param portlet
+	 * @param context
+	 * @param data
+	 * @param state
+	 * @return
+	 */
+	protected String buildReplaceContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
 
 	public String buildAccessContext(VelocityPortlet portlet,
 			Context context,
@@ -276,6 +330,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				return;
 			}
 		}
+		else if(ResourceType.TYPE_URL.equals(resourceType))
+		{
+			pipe.setRevisedMimeType(ResourceType.MIME_TYPE_URL);
+		}
+	
 		pipe.setRevisedContent(content.getBytes());
 		pipe.setActionCanceled(false);
 		pipe.setErrorEncountered(false);
@@ -285,6 +344,88 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 	}
 
+	public void doUpload(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters ();
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		
+		String max_file_size_mb = (String) state.getAttribute(ResourcesAction.STATE_FILE_UPLOAD_MAX_SIZE);
+		int max_bytes = 1024 * 1024;
+		try
+		{
+			max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
+		}
+		catch(Exception e)
+		{
+			// if unable to parse an integer from the value
+			// in the properties file, use 1 MB as a default
+			max_file_size_mb = "1";
+			max_bytes = 1024 * 1024;
+		}
+
+		//Tool tool = ToolManager.getCurrentTool();
+		//String url = (String) toolSession.getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+		//toolSession.removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+		
+		MultiFileUploadPipe mfp = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		
+		String flow = params.getString("flow");
+
+		List<ResourceToolActionPipe> pipes = mfp.getPipes();
+		int i = 0;
+		Iterator<ResourceToolActionPipe> pipeIt = pipes.iterator();
+		while(pipeIt.hasNext())
+		{
+			i++;
+			ResourceToolActionPipe pipe = pipeIt.next();
+			
+			FileItem fileitem = null;
+			try
+			{
+				fileitem = params.getFileItem("content" + i);
+			}
+			catch(Exception e)
+			{
+				// TODO: use logger
+				e.printStackTrace();
+			}
+			if(fileitem == null)
+			{
+				// "The user submitted a file to upload but it was too big!"
+				addAlert(state, rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
+			}
+			else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0)
+			{
+				addAlert(state, rb.getString("choosefile7"));
+			}
+			else if (fileitem.getFileName().length() > 0)
+			{
+				String filename = Validator.getFileName(fileitem.getFileName());
+				byte[] bytes = fileitem.get();
+				String contentType = fileitem.getContentType();
+
+				pipe.setRevisedContent(bytes);
+				pipe.setRevisedMimeType(contentType);
+				pipe.setFileName(filename);
+			}
+		}
+
+		if("addfile".equals(flow))
+		{
+			mfp.addFile();
+		}
+		else if("save".equals(flow))
+		{
+			mfp.setActionCanceled(false);
+			mfp.setErrorEncountered(false);
+			mfp.setActionCompleted(true);
+			
+			toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+		}
+
+	}
+	
 	protected void initHelper(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();

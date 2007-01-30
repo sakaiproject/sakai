@@ -165,7 +165,7 @@ public class FileUploadType extends BaseResourceType
 
 		public String getLabel() 
 		{
-			return rb.getString("create.upload"); 
+			return rb.getString("create.uploads"); 
 		}
 
 		public String getTypeId() 
