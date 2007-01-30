@@ -33,6 +33,7 @@ import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.coursemanagement.api.Section;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.site.api.Course;
 import org.sakaiproject.site.api.CourseManagementProvider;
 import org.sakaiproject.site.api.CourseMember;
@@ -71,7 +72,14 @@ public class CourseManagementProviderCMImpl implements CourseManagementProvider 
 	private static ResourceLoader rb = new ResourceLoader("CourseManagementProviderCMImpl");
 
 	public Course getCourse(String courseId) {
-		return getLegacyCourseFromCmSection(cmService.getSection(courseId));
+		Section section = null;
+		try {
+			section = cmService.getSection(courseId);
+		} catch (IdNotFoundException idnfe) {
+			if(log.isInfoEnabled()) log.info(idnfe);
+			return null;
+		}
+		return getLegacyCourseFromCmSection(section);
 	}
 
 	private Course getLegacyCourseFromCmSection(Section section) {
@@ -130,7 +138,13 @@ public class CourseManagementProviderCMImpl implements CourseManagementProvider 
 	}
 
 	public List getCourseMembers(String courseId) {
-		Section section = cmService.getSection(courseId);
+		Section section = null;
+		try {
+			section = cmService.getSection(courseId);
+		} catch (IdNotFoundException idnfe) {
+			if(log.isInfoEnabled()) log.info(idnfe);
+			return new ArrayList();
+		}
 		Map userRoles = cmGroupProvider.getUserRolesForGroup(courseId);
 		List members = new ArrayList();
 		for(Iterator iter = userRoles.keySet().iterator(); iter.hasNext();) {
@@ -171,7 +185,13 @@ public class CourseManagementProviderCMImpl implements CourseManagementProvider 
 	}
 
 	public String getCourseName(String courseId) {
-		Section sec = cmService.getSection(courseId);
+		Section sec = null;
+		try {
+			sec = cmService.getSection(courseId);
+		} catch (IdNotFoundException idnfe) {
+			if (log.isInfoEnabled()) log.info("Can't find a section with that eid, returning eid rather than a title", idnfe);
+			return courseId;
+		}
 		return sec.getTitle();
 	}
 
