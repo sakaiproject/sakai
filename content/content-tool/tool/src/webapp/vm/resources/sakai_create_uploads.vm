@@ -15,14 +15,25 @@
 		#set($i = 0)
 		#foreach($pipe in $pipes)
 			#set($i = $i + 1)
-			<p class="shorttext">
-				<label for="content$i">$tlang.getString("label.upload")</label>
-				#if($pipe.fileUploadSize && $pipe.fileUploadSize > 0)
-					$pipe.fileName
-				#else
-					<input type="file" name="content$i" id="content$i" />
-				#end
-			</p>
+			#if($pipe.fileUploadSize && $pipe.fileUploadSize > 0)
+				<p class="shorttext">
+					<label for="content$i">$tlang.getString("label.upload")</label>
+					<table>
+						<tr><td>
+						$pipe.fileName
+						</td></tr>
+						<tr><td>
+						$tlang.getString("label.replace")
+						<input type="file" name="content$i" id="content$i" class ="upload" />
+						</td></tr>
+					</table>
+				</p>
+			#else
+				<p class="shorttext">
+					<label for="content$i">$tlang.getString("label.upload")</label>
+					<input type="file" name="content$i" id="content$i" class ="upload" />
+				</p>
+			#end
 		#end
 		<p class="act">
 			<input type="button" name="addfile" id="addfile" onclick="javascript:showNotif('submitnotif01','addfile','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doUpload")&flow=addfile';submitform('addContentForm');" value="$tlang.getString("create.addfile")" />

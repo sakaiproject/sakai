@@ -1702,16 +1702,17 @@ public class ResourcesAction
 			else if(pipe.isActionCompleted())
 			{
 				ResourceToolAction action = pipe.getAction();
+				// use ActionType for this 
 				if(ResourceToolAction.CREATE.equals(action.getId()))
 				{
 					state.setAttribute(STATE_MODE, MODE_CREATE_WIZARD);
 				}
 				else if(ResourceToolAction.REVISE_CONTENT.equals(action.getId()))
 				{
-					Reference ref = pipe.getContentEntityReference();
+					ContentEntity entity = pipe.getContentEntity();
 					try
 					{
-						ContentResourceEdit edit = ContentHostingService.editResource(ref.getId());
+						ContentResourceEdit edit = ContentHostingService.editResource(entity.getId());
 						ResourcePropertiesEdit props = edit.getPropertiesEdit();
 						// update content
 						edit.setContent(pipe.getRevisedContent());
@@ -1988,9 +1989,9 @@ public class ResourcesAction
 				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
 			}
 
-			Reference collectionRef = pipe.getContentEntityReference();
+			ContentEntity collection = pipe.getContentEntity();
 
-			List items = newEditItems(collectionRef.getId(), pipe.getAction().getTypeId(), encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), defaultRetractDate, new Integer(1));
+			List items = newEditItems(collection.getId(), pipe.getAction().getTypeId(), encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), defaultRetractDate, new Integer(1));
 
 			ChefEditItem item = (ChefEditItem) items.get(0);
 			item.setContent(pipe.getContent());
@@ -2538,15 +2539,15 @@ public class ResourcesAction
 			
 			state.setAttribute(STATE_CREATE_WIZARD_COLLECTION_ID, selectedItemId);
 			
+			ContentEntity entity = (ContentEntity) reference.getEntity();
 			InteractionAction iAction = (InteractionAction) action;
 			String intitializationId = iAction.initializeAction(reference);
 			ResourceToolActionPipe pipe = registry.newPipe(intitializationId, action);
-			pipe.setContentEntityReference(reference);
+			pipe.setContentEntity(entity);
 			pipe.setHelperId(iAction.getHelperId());
 			
 			toolSession.setAttribute(ResourceToolAction.ACTION_PIPE, pipe);
 
-			ContentEntity entity = (ContentEntity) reference.getEntity();
 			ResourceProperties props = entity.getProperties();
 
 			List propKeys = iAction.getRequiredPropertyKeys();

@@ -76,13 +76,12 @@ public interface ResourceToolActionPipe
 	public String getContentstring();
 	
 	/**
-	 * Used by helper to access a Reference object that fully identifies an existing ContentResource
-	 * involved in this action.  If the action is "create", the reference identifies a collection
-	 * within which a new resource is being created.  Otherwise the reference identifies a resource
-	 * of the type involved in this action. 
+	 * Used by helper to access an existing ContentEntity involved in this action.  If the action 
+	 * is "create", the entity is a collection within which a new resource is being created.  
+	 * Otherwise the entity is a resource of the type involved in this action. 
 	 * @return
 	 */
-	public Reference getContentEntityReference();
+	public ContentEntity getContentEntity();
 	
 	/**
 	 * Used by helper to access current value of resource's "content" in cases where size 
@@ -210,13 +209,12 @@ public interface ResourceToolActionPipe
 	public void setContent(byte[] content);
 	
 	/**
-	 * Used by ResourcesAction to provide a Reference that fully identifies an existing ContentResource
-	 * involved in this action.  If the action is "create", the reference identifies a collection
-	 * within which a new resource is being created.  Otherwise the reference identifies a resource
-	 * of the type involved in this action. 
-	 * @param reference
+	 * Used by ResourcesAction to provide an existing ContentEntity involved in this action.  
+	 * If the action is "create", the entity is a collection within which a new resource is 
+	 * being created.  Otherwise the entity is a resource of the type involved in this action. 
+	 * @param entity
 	 */
-	public void setContentEntityReference(Reference reference);
+	public void setContentEntity(ContentEntity entity);
 	
 	/**
 	 * Used by ResourcesAction to provide helper with alternative access to current value of resource's "content".

@@ -364,10 +364,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			max_bytes = 1024 * 1024;
 		}
 
-		//Tool tool = ToolManager.getCurrentTool();
-		//String url = (String) toolSession.getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
-		//toolSession.removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
-		
 		MultiFileUploadPipe mfp = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		
 		String flow = params.getString("flow");

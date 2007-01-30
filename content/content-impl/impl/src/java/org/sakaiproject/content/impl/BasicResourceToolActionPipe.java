@@ -28,6 +28,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.entity.api.Reference;
@@ -40,7 +41,7 @@ public class BasicResourceToolActionPipe
 	implements ResourceToolActionPipe 
 {
 	protected byte[] content;
-	protected Reference contentEntityReference;
+	protected ContentEntity contentEntity;
 	protected OutputStream contentOutputStream;
 	protected String contentType;
 	protected String initializationId;
@@ -84,9 +85,9 @@ public class BasicResourceToolActionPipe
 		return this.content;
 	}
 
-	public Reference getContentEntityReference() 
+	public ContentEntity getContentEntity() 
 	{
-		return this.contentEntityReference;
+		return this.contentEntity;
 	}
 
 	public OutputStream getContentStream() 
@@ -134,9 +135,9 @@ public class BasicResourceToolActionPipe
 		this.content = content;
 	}
 
-	public void setContentEntityReference(Reference reference) 
+	public void setContentEntity(ContentEntity entity) 
 	{
-		this.contentEntityReference = reference;
+		this.contentEntity = entity;
 	}
 
 	public void setContentStream(OutputStream ostream) 
