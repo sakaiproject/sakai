@@ -149,5 +149,14 @@ public interface GradebookExternalAssessmentService {
 	 * @return Whether the gradebook exists
 	 */
 	public boolean isGradebookDefined(String gradebookUid);
+	
+	/**
+	 * Break the connection between an external assessment engine and an assessment which
+	 * it created, giving it up to the Gradebook application to control from now on.
+	 * 
+	 * @param gradebookUid
+	 * @param externalId
+	 */
+	public void setExternalAssessmentToGradebookAssignment(String gradebookUid, String externalId);
 
 }

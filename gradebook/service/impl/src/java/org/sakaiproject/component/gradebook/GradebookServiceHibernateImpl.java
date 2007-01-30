@@ -261,6 +261,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 	}
 
+	public void addAssignment(String gradebookUid, org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition) {
+        // Ensure that points is > zero.
+		Double points = assignmentDefinition.getPoints();
+        if ((points == null) || (points.doubleValue() <= 0)) {
+            throw new AssignmentHasIllegalPointsException("Points must be > 0");
+        }
+
+		Gradebook gradebook = getGradebook(gradebookUid);
+		createAssignment(gradebook.getId(), assignmentDefinition.getName(), points, assignmentDefinition.getDueDate(), !assignmentDefinition.isCounted(), assignmentDefinition.isReleased());
+	}
+
     public Authz getAuthz() {
         return authz;
     }

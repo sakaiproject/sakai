@@ -137,6 +137,13 @@ public interface GradebookService {
 	 */
 	public void mergeGradebookDefinitionXml(String toGradebookUid, String fromGradebookXml);
 	
+	/**
+	 * Create a new Gradebook-managed assignment.
+	 * 
+	 * @param assignmentDefinition
+	 */
+	public void addAssignment(String gradebookUid, Assignment assignmentDefinition);
+	
 	// Site management hooks.
 
 	/**

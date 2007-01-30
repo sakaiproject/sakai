@@ -53,7 +53,10 @@ import org.sakaiproject.component.gradebook.VersionedExternalizable;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.facade.Role;
+import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
+import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -319,4 +322,72 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
 			}
 		}
 	}
+
+    public void testAddAssignment() throws Exception {    	
+    	setAuthnId(INSTRUCTOR_UID);
+ 		
+ 		// Create an assignment definition.
+ 		String assignmentName = "Client-Created Quiz";
+ 		Assignment assignmentDefinition = new Assignment();
+ 		assignmentDefinition.setName(assignmentName);
+ 		assignmentDefinition.setPoints(new Double(50));
+ 		gradebookService.addAssignment(GRADEBOOK_UID, assignmentDefinition);
+ 		
+ 		// Make sure it's there and we can grade it.
+		gradebookService.setAssignmentScore(GRADEBOOK_UID, assignmentName, STUDENT_IN_SECTION_UID, new Double(49), "Service Test");
+		Double score = gradebookService.getAssignmentScore(GRADEBOOK_UID, assignmentName, STUDENT_IN_SECTION_UID);
+		Assert.assertTrue(score.doubleValue() == 49.0);		
+ 		
+ 		// Make sure we can't add duplicate names.
+ 		assignmentDefinition.setPoints(new Double(40));
+ 		try {
+ 			gradebookService.addAssignment(GRADEBOOK_UID, assignmentDefinition);
+ 			fail();
+ 		} catch (ConflictingAssignmentNameException e) {}
+		
+ 		// Make sure we don't accept zero-score assignments (at present).
+ 		assignmentDefinition.setName("Illegal Assignment");
+ 		assignmentDefinition.setPoints(new Double(0));
+ 		try {
+ 			gradebookService.addAssignment(GRADEBOOK_UID, assignmentDefinition);
+ 			fail();
+ 		} catch (AssignmentHasIllegalPointsException e) {}
+    }
+    
+    public void testMoveExternalToInternal() throws Exception {
+        // Add an external assessment score.
+        gradebookExternalAssessmentService.updateExternalAssessmentScore(GRADEBOOK_UID, EXT_ID_1, STUDENT_IN_SECTION_UID, new Double(5));
+        
+        // Break the relationship off.
+        gradebookExternalAssessmentService.setExternalAssessmentToGradebookAssignment(GRADEBOOK_UID, EXT_ID_1);
+        
+        // Make sure that the internal-access APIs work now.
+    	setAuthnId(INSTRUCTOR_UID);
+        Double score = gradebookService.getAssignmentScore(GRADEBOOK_UID, EXT_TITLE_1, STUDENT_IN_SECTION_UID);
+        Assert.assertTrue(score.doubleValue() == 5.0);
+        gradebookService.setAssignmentScore(GRADEBOOK_UID, EXT_TITLE_1, STUDENT_IN_SECTION_UID, new Double(10), "A Friend");
+        score = gradebookService.getAssignmentScore(GRADEBOOK_UID, EXT_TITLE_1, STUDENT_IN_SECTION_UID);
+        Assert.assertTrue(score.doubleValue() == 10.0);
+        
+        // Make sure that the external-management fields are nulled out.
+        List assignments = gradebookService.getAssignments(GRADEBOOK_UID);
+        org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = null;
+        for (Object obj : assignments) {
+        	org.sakaiproject.service.gradebook.shared.Assignment asgn = (org.sakaiproject.service.gradebook.shared.Assignment)obj;
+        	if (asgn.getName().equals(EXT_TITLE_1)) {
+        		assignmentDefinition = asgn;
+        		break;
+        	}
+        }
+        Assert.assertTrue(!assignmentDefinition.isExternallyMaintained());
+        Assert.assertTrue(assignmentDefinition.getExternalAppName() == null);
+        
+        // Make sure that the external-management APIs don't work any more.
+        try {
+        	gradebookExternalAssessmentService.updateExternalAssessmentScore(GRADEBOOK_UID, EXT_ID_1, STUDENT_IN_SECTION_UID, new Double(5));
+        	fail();
+        } catch (AssessmentNotFoundException e) {
+        }
+    }
+
 }

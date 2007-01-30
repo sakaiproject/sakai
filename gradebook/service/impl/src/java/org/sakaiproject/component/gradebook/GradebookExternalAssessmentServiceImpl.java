@@ -324,4 +324,23 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         return (assignment != null);
 	}
 
+	public void setExternalAssessmentToGradebookAssignment(final String gradebookUid, final String externalId) {
+        final Assignment assignment = getExternalAssignment(gradebookUid, externalId);
+        if (assignment == null) {
+            throw new AssessmentNotFoundException("There is no assessment id=" + externalId + " in gradebook uid=" + gradebookUid);
+        }
+        assignment.setExternalAppName(null);
+        assignment.setExternalId(null);
+        assignment.setExternalInstructorLink(null);
+        assignment.setExternalStudentLink(null);
+        assignment.setExternallyMaintained(false);
+        getHibernateTemplate().execute(new HibernateCallback() {
+        	public Object doInHibernate(Session session) throws HibernateException {
+                session.update(assignment);
+                if (log.isInfoEnabled()) log.info("Externally-managed assignment " + externalId + " moved to Gradebook management in gradebookUid=" + gradebookUid + " by userUid=" + getUserUid());
+                return null;
+        	}
+        });
+	}
+
 }
