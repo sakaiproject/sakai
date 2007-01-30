@@ -142,6 +142,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
       if (toolSession != null) {
          toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS);
          toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_RESOURCE_FILTER);
+         toolSession.removeAttribute(FilePickerHelper.DEFAULT_COLLECTION_ID);
       }
 	}
 
