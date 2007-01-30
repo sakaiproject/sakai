@@ -5059,10 +5059,11 @@ public class AssignmentAction extends PagedResourceActionII
 			while (submissions.hasNext())
 			{
 				AssignmentSubmission s = (AssignmentSubmission) submissions.next();
-				AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(s.getReference());
-				String grade = s.getGrade();
 				if (s.getGraded())
 				{
+					AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(s.getReference());
+					String grade = s.getGrade();
+					
 					boolean withGrade = state.getAttribute(WITH_GRADES) != null ? ((Boolean) state.getAttribute(WITH_GRADES))
 							.booleanValue() : false;
 					if (withGrade)
@@ -5078,14 +5079,15 @@ public class AssignmentAction extends PagedResourceActionII
 						// for the assignment tool without grade option, no grade is needed
 						sEdit.setGradeReleased(true);
 					}
+					
+					// also set the return status
+					sEdit.setReturned(true);
+					sEdit.setTimeReturned(TimeService.newTime());
+					sEdit.setHonorPledgeFlag(Boolean.FALSE.booleanValue());
+					
+					AssignmentService.commitEdit(sEdit);
 				}
 
-				// also set the return status
-				sEdit.setReturned(true);
-				sEdit.setTimeReturned(TimeService.newTime());
-				sEdit.setHonorPledgeFlag(Boolean.FALSE.booleanValue());
-
-				AssignmentService.commitEdit(sEdit);
 			} // while
 
 			// add grades into Gradebook
