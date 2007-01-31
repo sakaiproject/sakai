@@ -17,7 +17,7 @@
 		<version name="lockId" />
 
 		<property name="title" type="string">
-			<column name="title" unique-key="uniqueGradebook" length="36" not-null="true" index="POSTEM_GB_TITLE_I" />
+			<column name="title" unique-key="uniqueGradebook" length="256" not-null="true" index="POSTEM_GB_TITLE_I" />
 		</property>
 
 		<property name="context" type="string">
