@@ -69,6 +69,83 @@ public class TextDocumentType extends BaseResourceType
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("types");
 	
+	public class TextDocumentPropertiesAction implements ServiceLevelAction
+	{
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void cancelAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void finalizeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void initializeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#isMultipleItemAction()
+		 */
+		public boolean isMultipleItemAction()
+		{
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			// TODO Auto-generated method stub
+			return ResourceToolAction.ActionType.REVISE_METADATA;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getId()
+		 */
+		public String getId()
+		{
+			// TODO Auto-generated method stub
+			return ResourceToolAction.REVISE_METADATA;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getLabel()
+		 */
+		public String getLabel()
+		{
+			// TODO Auto-generated method stub
+			return rb.getString("action.props");
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getTypeId()
+		 */
+		public String getTypeId()
+		{
+			// TODO Auto-generated method stub
+			return typeId;
+		}
+		
+	}
+
 	public class TextDocumentCopyAction implements ServiceLevelAction
 	{
 
@@ -571,6 +648,7 @@ public class TextDocumentType extends BaseResourceType
 		actions.put(ResourceToolAction.CREATE, new TextDocumentCreateAction());
 		// actions.put(ResourceToolAction.ACCESS_CONTENT, new TextDocumentAccessAction());
 		actions.put(ResourceToolAction.REVISE_CONTENT, new TextDocumentReviseAction());
+		actions.put(ResourceToolAction.REVISE_METADATA, new TextDocumentPropertiesAction());
 		actions.put(ResourceToolAction.DUPLICATE, new TextDocumentDuplicateAction());
 		// actions.put(ResourceToolAction.COPY, new TextDocumentCopyAction());
 		// actions.put(ResourceToolAction.MOVE, new TextDocumentMoveAction());

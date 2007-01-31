@@ -60,6 +60,83 @@ public class FileUploadType extends BaseResourceType
 	protected Map<String, ResourceToolAction> actions = new Hashtable<String, ResourceToolAction>();	
 	protected UserDirectoryService userDirectoryService;
 	
+	public class FileUploadPropertiesAction implements ServiceLevelAction
+	{
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void cancelAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void finalizeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void initializeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#isMultipleItemAction()
+		 */
+		public boolean isMultipleItemAction()
+		{
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			// TODO Auto-generated method stub
+			return ResourceToolAction.ActionType.REVISE_METADATA;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getId()
+		 */
+		public String getId()
+		{
+			// TODO Auto-generated method stub
+			return ResourceToolAction.REVISE_METADATA;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getLabel()
+		 */
+		public String getLabel()
+		{
+			// TODO Auto-generated method stub
+			return rb.getString("action.props");
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getTypeId()
+		 */
+		public String getTypeId()
+		{
+			// TODO Auto-generated method stub
+			return typeId;
+		}
+		
+	}
+
 	public class FileUploadCopyAction implements ServiceLevelAction
 	{
 		/* (non-Javadoc)
@@ -520,11 +597,12 @@ public class FileUploadType extends BaseResourceType
 		this.userDirectoryService = (UserDirectoryService) ComponentManager.get("org.sakaiproject.user.api.UserDirectoryService");
 		
 		actions.put(ResourceToolAction.CREATE, new FileUploadCreateAction());
-		actions.put(ResourceToolAction.ACCESS_CONTENT, new FileUploadAccessAction());
-		actions.put(ResourceToolAction.REVISE_CONTENT, new FileUploadReviseAction());
+		//actions.put(ResourceToolAction.ACCESS_CONTENT, new FileUploadAccessAction());
+		//actions.put(ResourceToolAction.REVISE_CONTENT, new FileUploadReviseAction());
+		actions.put(ResourceToolAction.REVISE_METADATA, new FileUploadPropertiesAction());
 		actions.put(ResourceToolAction.DUPLICATE, new FileUploadDuplicateAction());
-		actions.put(ResourceToolAction.COPY, new FileUploadCopyAction());
-		actions.put(ResourceToolAction.MOVE, new FileUploadMoveAction());
+		//actions.put(ResourceToolAction.COPY, new FileUploadCopyAction());
+		//actions.put(ResourceToolAction.MOVE, new FileUploadMoveAction());
 		actions.put(ResourceToolAction.DELETE, new FileUploadDeleteAction());
 		
 		// initialize actionMap with an empty List for each ActionType

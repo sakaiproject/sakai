@@ -65,6 +65,83 @@ public class HtmlDocumentType extends BaseResourceType
 	protected String typeId = ResourceType.TYPE_HTML;
 	protected String helperId = "sakai.resource.type.helper";
 	
+	public class HtmlDocumentPropertiesAction implements ServiceLevelAction
+	{
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void cancelAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void finalizeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void initializeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#isMultipleItemAction()
+		 */
+		public boolean isMultipleItemAction()
+		{
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			// TODO Auto-generated method stub
+			return ResourceToolAction.ActionType.REVISE_METADATA;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getId()
+		 */
+		public String getId()
+		{
+			// TODO Auto-generated method stub
+			return ResourceToolAction.REVISE_METADATA;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getLabel()
+		 */
+		public String getLabel()
+		{
+			// TODO Auto-generated method stub
+			return rb.getString("action.props");
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getTypeId()
+		 */
+		public String getTypeId()
+		{
+			// TODO Auto-generated method stub
+			return typeId;
+		}
+		
+	}
+
 	public class HtmlDocumentCopyAction implements ServiceLevelAction
 	{
 		/* (non-Javadoc)
@@ -472,6 +549,7 @@ public class HtmlDocumentType extends BaseResourceType
 		actions.put(ResourceToolAction.CREATE, new HtmlDocumentCreateAction());
 		//actions.put(ResourceToolAction.ACCESS_CONTENT, new HtmlDocumentAccessAction());
 		actions.put(ResourceToolAction.REVISE_CONTENT, new HtmlDocumentReviseAction());
+		actions.put(ResourceToolAction.REVISE_METADATA, new HtmlDocumentPropertiesAction());
 		actions.put(ResourceToolAction.DUPLICATE, new HtmlDocumentDuplicateAction());
 		//actions.put(ResourceToolAction.COPY, new HtmlDocumentCopyAction());
 		//actions.put(ResourceToolAction.MOVE, new HtmlDocumentMoveAction());

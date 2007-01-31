@@ -561,7 +561,24 @@ public class ResourcesAction
 		protected boolean hasQuota = false;
 		protected boolean canSetQuota = false;
 		protected String quota;
+		protected String description;
 		
+		/**
+		 * @return the description
+		 */
+		public String getDescription()
+		{
+			return this.description;
+		}
+
+		/**
+		 * @param description the description to set
+		 */
+		public void setDescription(String description)
+		{
+			this.description = description;
+		}
+
 		/**
 		 * @param entityId
 		 * @param collectionId
@@ -605,6 +622,7 @@ public class ResourcesAction
 				logger.warn("EntityPropertyTypeException ", e1);
 			}
 			this.displayName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			this.description = props.getProperty(ResourceProperties.PROP_DESCRIPTION);
 			this.entityId = entity.getId();
 			this.groups = new TreeSet( entity.getGroupObjects() );
 			// this.hasQuota = 
@@ -623,10 +641,11 @@ public class ResourcesAction
 			{
 				ContentCollection collection = (ContentCollection) entity;
 				// this.hasPrioritySort = collection.;
-				
+				this.collection = true;
 			}
 			else
 			{
+				this.collection = false;
 				ContentResource resource = (ContentResource) entity;
 				try
 				{
@@ -1503,6 +1522,7 @@ public class ResourcesAction
 	private static final String MODE_CREATE = "create";
 	private static final String MODE_CREATE_WIZARD = "createWizard";
 	private static final String MODE_DELETE_FINISH = "deleteFinish";
+	private static final String MODE_REVISE_METADATA = "revise_metadata";
 
 	public  static final String MODE_HELPER = "helper";
 	private static final String MODE_DELETE_CONFIRM = "deleteConfirm";
@@ -1542,6 +1562,8 @@ public class ResourcesAction
 	private static final String TEMPLATE_PROPERTIES = "content/chef_resources_properties";
 	// private static final String TEMPLATE_REPLACE = "_replace";
 	private static final String TEMPLATE_REORDER = "content/chef_resources_reorder";
+
+	private static final String TEMPLATE_REVISE_METADATA = "content/sakai_resources_properties";
 
 	/** the site title */
 	private static final String STATE_SITE_TITLE = "site_title";
@@ -1663,6 +1685,12 @@ public class ResourcesAction
 	protected static final String STATE_DELETE_SET = "resources.delete_set";
 
 	protected static final String STATE_NON_EMPTY_DELETE_SET = "resources.non-empty_delete_set";
+
+	protected static final String STATE_REVISE_PROPERTIES_ENTITY_ID = "resources.revise_properties_entity_id";
+
+	protected static final String STATE_REVISE_PROPERTIES_ITEM = "resources.revise_properties_item";
+	
+	protected static final String STATE_REVISE_PROPERTIES_ACTION = "resources.revise_properties_action";
 
 
 	/**
@@ -1796,10 +1824,70 @@ public class ResourcesAction
 		{
 			template = buildWebdavContext (portlet, context, data, state);
 		}
+		else if(mode.equals(MODE_REVISE_METADATA))
+		{
+			template = buildReviseMetadataContext(portlet, context, data, state);
+		}
 
 		return template;
 
 	}	// buildMainPanelContext
+
+	/**
+	 * @param portlet
+	 * @param context
+	 * @param data
+	 * @param state
+	 * @return
+	 */
+	private String buildReviseMetadataContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	{
+		// complete the create wizard
+		String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
+		if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
+		{
+			defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
+			state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
+		}
+
+		String encoding = data.getRequest().getCharacterEncoding();
+
+		Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
+		if(defaultRetractDate == null)
+		{
+			defaultRetractDate = TimeService.newTime();
+			state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
+		}
+
+		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+		if(preventPublicDisplay == null)
+		{
+			preventPublicDisplay = Boolean.FALSE;
+			state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+		}
+		
+		String entityId = (String) state.getAttribute(STATE_REVISE_PROPERTIES_ENTITY_ID);
+		String refstr = ContentHostingService.getReference(entityId);
+		Reference ref = EntityManager.newReference(refstr);
+		ContentEntity entity = (ContentEntity) ref.getEntity();
+
+		EditItem item = new  EditItem(entity);
+		
+		context.put("item", item);
+		state.setAttribute(STATE_REVISE_PROPERTIES_ITEM, item);
+		
+		if(ContentHostingService.isAvailabilityEnabled())
+		{
+			context.put("availability_is_enabled", Boolean.TRUE);
+		}
+		
+		context.put("SITE_ACCESS", AccessMode.SITE.toString());
+		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
+		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
+		context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
+		
+		return TEMPLATE_REVISE_METADATA;
+	}
 
 	/**
 	 * @param state
@@ -2333,6 +2421,12 @@ public class ResourcesAction
 						}
 					}
 				}
+				ResourceType folderType = registry.getType(ResourceType.TYPE_FOLDER);
+				List<ResourceToolAction> folderActions = folderType.getActions(ACTIONS_ON_FOLDERS);
+				if(folderActions != null)
+				{
+					actions.addAll(folderActions);
+				}
 //				ResourceType type = registry.getType(ResourceType.TYPE_FOLDER);
 //				List<ResourceToolAction> otherActions = type.getActions(ACTIONS_ON_FOLDERS);
 //				if(otherActions != null)
@@ -2348,7 +2442,7 @@ public class ResourcesAction
 				ResourceType type = registry.getType(resourceType);
 				if(type == null)
 				{
-					type = registry.getType("file");
+					type = registry.getType(ResourceType.TYPE_UPLOAD);
 				}
 				List<ResourceToolAction> fileActions = type.getActions(ACTIONS_ON_RESOURCES);
 				if(fileActions != null)
@@ -2358,10 +2452,221 @@ public class ResourcesAction
 			}
 			context.put("actions", actions);
 			context.put("labeler", new Labeler());
-			
 		}
 		
 		return "content/sakai_resources_columns";
+	}
+	
+	public void doReviseProperties(RunData data)
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		
+		// get the parameter-parser
+		ParameterParser params = data.getParameters();
+		
+		String user_action = params.getString("user_action");
+		
+		if(user_action.equals("save"))
+		{
+			String entityId = (String) state.getAttribute(STATE_REVISE_PROPERTIES_ENTITY_ID);
+			EditItem item = (EditItem) state.getAttribute(STATE_REVISE_PROPERTIES_ITEM);
+			ResourceToolAction action = (ResourceToolAction) state.getAttribute(STATE_REVISE_PROPERTIES_ACTION);
+			String name = params.getString("name");
+			String description = params.getString("description");
+			String resourceType = action.getTypeId();
+			// rights
+			String copyright = params.getString("copyright");
+			String newcopyright = params.getString("newcopyright");
+			boolean copyrightAlert = params.getBoolean("copyrightAlert");
+			
+			// availability
+			boolean hidden = params.getBoolean("hidden");
+			boolean use_start_date = params.getBoolean("use_start_date");
+			boolean use_end_date = params.getBoolean("use_end_date");
+			Time releaseDate = null;
+			Time retractDate = null;
+			
+			if(use_start_date)
+			{
+				int begin_year = params.getInt("release_year");
+				int begin_month = params.getInt("release_month");
+				int begin_day = params.getInt("release_day");
+				int begin_hour = params.getInt("release_hour");
+				int begin_min = params.getInt("release_min");
+				String release_ampm = params.getString("release_ampm");
+				if("pm".equals(release_ampm))
+				{
+					begin_hour += 12;
+				}
+				else if(begin_hour == 12)
+				{
+					begin_hour = 0;
+				}
+				releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
+			}
+			
+			if(use_end_date)
+			{
+				int end_year = params.getInt("retract_year");
+				int end_month = params.getInt("retract_month");
+				int end_day = params.getInt("retract_day");
+				int end_hour = params.getInt("retract_hour");
+				int end_min = params.getInt("retract_min");
+				String retract_ampm = params.getString("retract_ampm");
+				if("pm".equals(retract_ampm))
+				{
+					end_hour += 12;
+				}
+				else if(end_hour == 12)
+				{
+					end_hour = 0;
+				}
+				retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
+			}
+			
+			// access
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+			if(preventPublicDisplay == null)
+			{
+				preventPublicDisplay = Boolean.FALSE;
+				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+			}
+			
+			String access_mode = params.getString("access_mode");
+			SortedSet groups = new TreeSet();
+			
+			if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
+			{
+				// we inherit more than one group and must check whether group access changes at this item
+				String[] access_groups = params.getStrings("access_groups");
+				
+				SortedSet new_groups = new TreeSet();
+				if(access_groups != null)
+				{
+					new_groups.addAll(Arrays.asList(access_groups));
+				}
+				//new_groups = item.convertToRefs(new_groups);
+				
+//				Collection inh_grps = null;
+//				//item.getInheritedGroupRefs();
+//				boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
+//				
+//				if(groups_are_inherited)
+//				{
+//					new_groups.clear();
+//					item.setEntityGroupRefs(new_groups);
+//					item.setAccess(AccessMode.INHERITED.toString());
+//				}
+//				else
+//				{
+//					item.setEntityGroupRefs(new_groups);
+//					item.setAccess(AccessMode.GROUPED.toString());
+//				}
+//				
+//				item.setPubview(false);
+			}
+			else if(PUBLIC_ACCESS.equals(access_mode))
+			{
+//				if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
+//				{
+//					item.setPubview(true);
+//					item.setAccess(AccessMode.INHERITED.toString());
+//				}
+			}
+			else if(AccessMode.INHERITED.toString().equals(access_mode))
+			{
+//				item.setAccess(AccessMode.INHERITED.toString());
+//				item.clearGroups();
+//				item.setPubview(false);
+			}
+
+			// notification
+			int noti = NotificationService.NOTI_NONE;
+			// %%STATE_MODE_RESOURCES%%
+			if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+			{
+				// set noti to none if in dropbox mode
+				noti = NotificationService.NOTI_NONE;
+			}
+			else
+			{
+				// read the notification options
+				String notification = params.getString("notify");
+				if ("r".equals(notification))
+				{
+					noti = NotificationService.NOTI_REQUIRED;
+				}
+				else if ("o".equals(notification))
+				{
+					noti = NotificationService.NOTI_OPTIONAL;
+				}
+			}
+			
+
+			// set to public access if allowed and requested
+			if(!preventPublicDisplay.booleanValue() && PUBLIC_ACCESS.equals(access_mode))
+			{
+				ContentHostingService.setPubView(entityId, true);
+			}
+			
+
+			try 
+			{
+				if(item.isCollection())
+				{
+					ContentCollectionEdit entity = ContentHostingService.editCollection(entityId);
+					ResourcePropertiesEdit resourceProperties = entity.getPropertiesEdit();
+					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+					resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
+					entity.setAvailability(hidden, releaseDate, retractDate);
+					ContentHostingService.commitCollection(entity);
+				}
+				else
+				{
+					ContentResourceEdit entity = ContentHostingService.editResource(entityId);
+					entity.setResourceType(resourceType);
+					ResourcePropertiesEdit resourceProperties = entity.getPropertiesEdit();
+					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+					resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
+					entity.setAvailability(hidden, releaseDate, retractDate);
+					ContentHostingService.commitResource(entity, noti);
+				}
+
+				state.setAttribute(STATE_MODE, MODE_LIST);
+			} 
+			catch (IdUnusedException e) 
+			{
+				logger.warn("IdUnusedException", e);
+			} 
+			catch (TypeException e) 
+			{
+				logger.warn("TypeException", e);
+			} 
+			catch (PermissionException e) 
+			{
+				logger.warn("PermissionException", e);
+			} 
+			catch (ServerOverloadException e) 
+			{
+				logger.warn("ServerOverloadException", e);
+			}
+			catch (OverQuotaException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("OverQuotaException ", e);
+			}
+			catch (InUseException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("InUseException ", e);
+			}
+			
+		}
+		else if(user_action.equals("cancel"))
+		{
+			state.setAttribute(STATE_MODE, MODE_LIST);
+		}
 	}
 	
 	public void doShowMembers(RunData data)
@@ -2787,6 +3092,11 @@ public class ResourcesAction
 				case MOVE:
 					break;
 				case VIEW_METADATA:
+					break;
+				case REVISE_METADATA:
+					state.setAttribute(STATE_REVISE_PROPERTIES_ENTITY_ID, selectedItemId);
+					state.setAttribute(STATE_REVISE_PROPERTIES_ACTION, action);
+					state.setAttribute (STATE_MODE, MODE_REVISE_METADATA);
 					break;
 				case CUSTOM_TOOL_ACTION:
 					// do nothing
