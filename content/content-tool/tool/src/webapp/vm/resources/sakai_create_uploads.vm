@@ -11,32 +11,19 @@
 		$tlang.getString("instr.upload")
 	</p>
 	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")"  enctype="multipart/form-data">
-		#set($count = $pipes.size())
-		#set($i = 0)
-		#foreach($pipe in $pipes)
-			#set($i = $i + 1)
-			#if($pipe.fileUploadSize && $pipe.fileUploadSize > 0)
-				<p class="shorttext">
-					<label for="content$i">$tlang.getString("label.upload")</label>
-					<table>
-						<tr><td>
-						$pipe.fileName
-						</td></tr>
-						<tr><td>
-						$tlang.getString("label.replace")
-						<input type="file" name="content$i" id="content$i" class ="upload" />
-						</td></tr>
-					</table>
-				</p>
-			#else
+		<div id="addFileDiv">
+			<input type="hidden" name="fileCount" id="fileCount" value="$pipes.size()" />
+			#set($i = 0)
+			#foreach($pipe in $pipes)
+				#set($i = $i + 1)
 				<p class="shorttext">
 					<label for="content$i">$tlang.getString("label.upload")</label>
 					<input type="file" name="content$i" id="content$i" class ="upload" />
 				</p>
 			#end
-		#end
+		</div>
 		<p class="act">
-			<input type="button" name="addfile" id="addfile" onclick="javascript:showNotif('submitnotif01','addfile','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doUpload")&flow=addfile';submitform('addContentForm');" value="$tlang.getString("create.addfile")" />
+			<input type="button" name="addfile" id="addfile" onclick="javascript:addFileInput();" value="$tlang.getString("create.addfile")" />
 			<span class="submitnotif" id="submitnotif01" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 		</p>
 		<p class="act">
@@ -59,6 +46,34 @@
 		{
 			theForm.submit();
 		}
+	}
+	function addFileInput()
+	{
+		var counter = document.getElementById("fileCount");
+		var fileInputDiv = document.getElementById("addFileDiv");
+		var count = new Number(counter.value) + 1;
+		counter.value = count;
+		
+		var ptag = document.createElement("p");
+		ptag.setAttribute("className","shorttext");
+		ptag.setAttribute("class","shorttext");
+		
+		var label = document.createElement("label");
+		label.setAttribute("for","content" + count);
+		label.setAttribute("htmlFor","content" + count);
+		
+		var text = document.createTextNode("$tlang.getString("label.upload")");
+		label.appendChild(text);
+		ptag.appendChild(label);
+		
+		var file = document.createElement("input");
+		file.setAttribute("type","file");
+		file.setAttribute("name","content" + count);
+		file.setAttribute("id","content" + count);
+		ptag.appendChild(file);
+		fileInputDiv.appendChild(ptag);
+		
+		setMainFrameHeight(window.name);
 	}
 	-->
 </script>

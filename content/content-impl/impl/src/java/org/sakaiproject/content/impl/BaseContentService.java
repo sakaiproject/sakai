@@ -2614,6 +2614,121 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return edit;
 
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String, java.lang.String, java.lang.String, int)
+	 */
+	public ContentResourceEdit addResource(String collectionId, String basename, String extension, int maximum_tries) 
+		throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, 
+		IdUnusedException, OverQuotaException, ServerOverloadException
+	{
+		// check the id's validity (this may throw IdInvalidException)
+		// use only the "name" portion, separated at the end
+		try
+		{
+			checkCollection(collectionId);
+		}
+		catch (TypeException e)
+		{
+			throw new IdUnusedException(collectionId);
+		}
+		
+		if(basename == null)
+		{
+			throw new IdInvalidException("");
+		}
+		
+		if(extension == null)
+		{
+			extension = "";
+		}
+		else
+		{
+			extension = extension.trim();
+			if(extension.equals("") || extension.startsWith("."))
+			{
+				// do nothing
+			}
+			else
+			{
+				extension = "." + extension;
+			}
+		}
+		
+		basename = Validator.escapeResourceName(basename.trim());
+		extension = Validator.escapeResourceName(extension);
+		
+		String name = basename + extension;
+		String id = collectionId + name;
+		
+		BaseResourceEdit edit = null;
+		
+		int attempts = 0;
+		boolean done = false;
+		while(!done  && attempts < maximum_tries)
+		{
+			try
+			{
+				edit = (BaseResourceEdit) addResource(id);
+				done = true;
+				
+				// add live properties
+				addLiveResourceProperties(edit);
+				
+				ResourceProperties props = edit.getPropertiesEdit();
+				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+
+				// track event
+				edit.setEvent(EVENT_RESOURCE_ADD);
+			}
+			catch(InconsistentException inner_e)
+			{
+				throw new IdInvalidException(id);
+			}
+			catch(IdUsedException e)
+			{
+				SortedSet siblings = new TreeSet();
+				try
+				{
+					ContentCollection collection = findCollection(collectionId);
+					siblings.addAll(collection.getMembers());
+				}
+				catch (TypeException inner_e)
+				{
+					throw new IdUnusedException(collectionId);
+				}
+
+				boolean trying = true;
+				
+				// see end of loop for condition that enforces attempts <= limit)
+				do
+				{
+					attempts++;
+					name = basename + "-" + attempts + extension;
+					id = collectionId + name;
+
+					if (attempts > maximum_tries)
+					{
+						throw new IdUniquenessException(id);
+					}
+					
+					if (id.length() > MAXIMUM_RESOURCE_ID_LENGTH)
+					{
+						throw new IdLengthException(id);
+					}
+				}
+				while (siblings.contains(id));
+			}
+			
+		}
+//		if (edit == null)
+//		{
+//			throw new IdUniquenessException(id);
+//		}
+
+		return edit;
+
+	}
 
 	/**
 	 * Create a new resource with the given resource name used as a resource id within the specified collection or (if that id is already in use) with a resource id based on a variation on the name to achieve a unique id, provided a unique id can be found

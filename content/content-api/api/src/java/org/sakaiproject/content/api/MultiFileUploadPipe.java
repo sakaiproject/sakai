@@ -38,4 +38,9 @@ public interface MultiFileUploadPipe extends ResourceToolActionPipe
 	 * @return
 	 */
 	List<ResourceToolActionPipe> getPipes();
+	
+	/**
+	 * @param count
+	 */
+	public void setFileCount(int count);
 }

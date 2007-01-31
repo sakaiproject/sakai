@@ -77,6 +77,7 @@ import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.InteractionAction;
+import org.sakaiproject.content.api.MultiFileUploadPipe;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
@@ -1703,12 +1704,87 @@ public class ResourcesAction
 			{
 				ResourceToolAction action = pipe.getAction();
 				// use ActionType for this 
-				if(ResourceToolAction.CREATE.equals(action.getId()))
+				switch(action.getActionType())
 				{
+				case CREATE:
 					state.setAttribute(STATE_MODE, MODE_CREATE_WIZARD);
-				}
-				else if(ResourceToolAction.REVISE_CONTENT.equals(action.getId()))
-				{
+					break;
+				case NEW_UPLOAD:
+					MultiFileUploadPipe mfp = (MultiFileUploadPipe) pipe;
+					Iterator<ResourceToolActionPipe> pipeIt = mfp.getPipes().iterator();
+					while(pipeIt.hasNext())
+					{
+						ResourceToolActionPipe fp = pipeIt.next();
+						String collectionId = pipe.getContentEntity().getId();
+						String name = fp.getFileName();
+						if(name == null || name.trim().equals(""))
+						{
+							continue;
+						}
+						String basename = name.trim();
+						String extension = "";
+						if(name.contains("."))
+						{
+							String[] parts = name.split("\\.");
+							basename = parts[0];
+							if(parts.length > 1)
+							{
+								extension = parts[parts.length - 1];
+							}
+							
+							for(int i = 1; i < parts.length - 1; i++)
+							{
+								basename += "." + parts[i];
+								// extension = parts[i + 1];
+							}
+						}
+						try
+						{
+							ContentResourceEdit resource = ContentHostingService.addResource(collectionId,basename,extension,MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+							resource.setContent(fp.getRevisedContent());
+							resource.setContentType(fp.getRevisedMimeType());
+							resource.setResourceType(pipe.getAction().getTypeId());
+							ContentHostingService.commitResource(resource, NotificationService.NOTI_NONE);
+						}
+						catch (PermissionException e)
+						{
+							// TODO Auto-generated catch block
+							logger.warn("PermissionException ", e);
+						}
+						catch (IdUnusedException e)
+						{
+							// TODO Auto-generated catch block
+							logger.warn("IdUsedException ", e);
+						}
+						catch (IdInvalidException e)
+						{
+							// TODO Auto-generated catch block
+							logger.warn("IdInvalidException ", e);
+						}
+						catch (IdUniquenessException e)
+						{
+							// TODO Auto-generated catch block
+							logger.warn("IdUniquenessException ", e);
+						}
+						catch (IdLengthException e)
+						{
+							// TODO Auto-generated catch block
+							logger.warn("IdLengthException ", e);
+						}
+						catch (OverQuotaException e)
+						{
+							// TODO Auto-generated catch block
+							logger.warn("OverQuotaException ", e);
+						}
+						catch (ServerOverloadException e)
+						{
+							// TODO Auto-generated catch block
+							logger.warn("ServerOverloadException ", e);
+						}
+					}
+					toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+					break;
+				case REVISE_CONTENT:
 					ContentEntity entity = pipe.getContentEntity();
 					try
 					{
@@ -1775,13 +1851,13 @@ public class ResourcesAction
 						// TODO Auto-generated catch block
 						logger.warn("ServerOverloadException ", e);
 					}
+					toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+					state.setAttribute(STATE_MODE, MODE_LIST);
+					break;
+				default:
 					state.setAttribute(STATE_MODE, MODE_LIST);
 				}
-			}
-			else
-			{
-				//cleanup(toolSession, ResourceToolAction.PREFIX);
-				state.setAttribute(STATE_MODE, MODE_LIST);
+				
 			}
 			toolSession.removeAttribute(ResourceToolAction.DONE);
 		}
@@ -2292,6 +2368,15 @@ public class ResourcesAction
 				ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
 				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 				
+				Map values = pipe.getRevisedResourceProperties();
+				Iterator valueIt = values.keySet().iterator();
+				while(valueIt.hasNext())
+				{
+					String pname = (String) valueIt.next();
+					String pvalue = (String) values.get(pname);
+					resourceProperties.addProperty(pname, pvalue);
+				}
+				
 				// description
 				String description = params.getString("description");
 				resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
@@ -2542,6 +2627,7 @@ public class ResourcesAction
 			ContentEntity entity = (ContentEntity) reference.getEntity();
 			InteractionAction iAction = (InteractionAction) action;
 			String intitializationId = iAction.initializeAction(reference);
+			
 			ResourceToolActionPipe pipe = registry.newPipe(intitializationId, action);
 			pipe.setContentEntity(entity);
 			pipe.setHelperId(iAction.getHelperId());

@@ -72,4 +72,21 @@ public class BasicMultiFileUploadPipe extends BasicResourceToolActionPipe
 		return new Vector(pipes);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.MultiFileUploadPipe#setFileCount(int)
+	 */
+	public void setFileCount(int count)
+	{
+		while(pipes.size() < count)
+		{
+			ResourceToolActionPipe newPipe = registry.newPipe(initializationId, action);
+			pipes.add(newPipe);
+		}
+		
+		while(pipes.size() > count)
+		{
+			pipes.remove(pipes.size() - 1);
+		}
+	}
+
 }

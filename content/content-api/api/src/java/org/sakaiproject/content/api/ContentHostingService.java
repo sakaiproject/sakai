@@ -1530,5 +1530,42 @@ public interface ContentHostingService extends EntityProducer
 	 * @return true if the entityId could identify a collection, false otherwise.
 	 */
 	public boolean isCollection(String entityId);
+
+	/**
+	 * Attempt to create a new resource in a particular collection.  Ideally, this method will create
+	 * a new resource in the collection identified by the first parameter, collectionId, with a name
+	 * formed by concatenating the basename and the extension.  If the extension is not null or empty 
+	 * and does not start with a period ('.'), a period will be prepended to the extension. If the name 
+	 * formed by concatenating the basename and the extension, some number of attempts may be made to 
+	 * find a unique name for the resource in the collection by adding a dash ('-') and a number to the
+	 * basename.  The fourth parameter, "maximum_tries", will determine the number of attempts to find 
+	 * a unique name for the resource in the collection. The numbers appended to the basename will start
+	 * with '1' and increase by 1 until a unique name is found or the maximum value is reached.   
+	 * 
+	 * @param collectionId
+	 * @param basename
+	 * @param extension
+	 * @param maximum_tries
+	 * @exception PermissionException
+	 *            if the user does not have permission to add a resource to the containing collection.
+	 * @exception IdUnusedException
+	 *            if the collectionId does not identify an existing collection. 
+	 * @exception IdUniquenessException
+	 *            if a unique resource id cannot be found before the limit on the number of attempts is reached.
+	 * @exception IdLengthException
+	 *            if the resource id exceeds the maximum number of characters for a valid resource id.
+	 * @exception IdInvalidException
+	 *            if the resource id is invalid.
+	 * @exception InconsistentException
+	 *            if the containing collection does not exist.
+	 * @exception OverQuotaException
+	 *            if this would result in being over quota.
+	 * @exception ServerOverloadException
+	 *            if the server is configured to write the resource body to the filesystem and the save fails.
+	 * @return
+	 */
+	public ContentResourceEdit addResource(String collectionId, String basename, String extension, int maximum_tries)
+		throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, 
+			IdUnusedException, OverQuotaException, ServerOverloadException;
 	
 }

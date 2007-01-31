@@ -22,7 +22,6 @@
 package org.sakaiproject.content.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.content.api.ContentCollectionEdit;
 
 /**
  * <p>
@@ -982,12 +981,27 @@ public class ContentHostingService
 	 * @param entityId
 	 * @return
 	 */
-	public static boolean isCollection(String entityId)
+	public static boolean isCollection(java.lang.String entityId)
 	{
 		org.sakaiproject.content.api.ContentHostingService service = getInstance();
 		if (service == null) return false;
 
 		return service.isCollection(entityId);
+	}
+
+	public static org.sakaiproject.content.api.ContentResourceEdit addResource(java.lang.String collectionId, java.lang.String basename, java.lang.String extension, int maximum_tries) 
+		throws org.sakaiproject.exception.PermissionException, 
+			org.sakaiproject.exception.IdUniquenessException, 
+			org.sakaiproject.exception.IdLengthException, 
+			org.sakaiproject.exception.IdInvalidException, 
+			org.sakaiproject.exception.IdUnusedException, 
+			org.sakaiproject.exception.OverQuotaException, 
+			org.sakaiproject.exception.ServerOverloadException
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return null;
+
+		return service.addResource(collectionId, basename, extension, maximum_tries);
 	}
 
 }

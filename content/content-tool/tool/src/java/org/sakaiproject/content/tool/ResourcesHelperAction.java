@@ -366,26 +366,25 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 		MultiFileUploadPipe mfp = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		
-		String flow = params.getString("flow");
-
+		int count = params.getInt("fileCount");
+		mfp.setFileCount(count);
+		
 		List<ResourceToolActionPipe> pipes = mfp.getPipes();
-		int i = 0;
-		Iterator<ResourceToolActionPipe> pipeIt = pipes.iterator();
-		while(pipeIt.hasNext())
+		for(int i = 0; i < pipes.size(); i++)
 		{
-			i++;
-			ResourceToolActionPipe pipe = pipeIt.next();
+			ResourceToolActionPipe pipe = pipes.get(i);
 			
 			FileItem fileitem = null;
 			try
 			{
-				fileitem = params.getFileItem("content" + i);
+				fileitem = params.getFileItem("content" + (i + 1));
 			}
 			catch(Exception e)
 			{
 				// TODO: use logger
 				e.printStackTrace();
 			}
+			
 			if(fileitem == null)
 			{
 				// "The user submitted a file to upload but it was too big!"
@@ -407,18 +406,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			}
 		}
 
-		if("addfile".equals(flow))
-		{
-			mfp.addFile();
-		}
-		else if("save".equals(flow))
-		{
-			mfp.setActionCanceled(false);
-			mfp.setErrorEncountered(false);
-			mfp.setActionCompleted(true);
-			
-			toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
-		}
+		mfp.setActionCanceled(false);
+		mfp.setErrorEncountered(false);
+		mfp.setActionCompleted(true);
+		
+		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
 
 	}
 	
