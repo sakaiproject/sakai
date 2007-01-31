@@ -145,16 +145,20 @@ public class CSV {
 				if (ii == length - 1 && csv.charAt(ii) != '\n'
 						&& csv.charAt(ii) != '\r') {
 					if (csv.charAt(ii) == delimiter) {
+						
+						it = truncateIt(it);						
 						current.add((it.length() == 0) ? " " : it.toString());
 						current.add("");
 					} else {
 						it.append(csv.charAt(ii));
+						it = truncateIt(it);
 						current.add((it.length() == 0) ? " " : it.toString());
 					}
 					all.add(current);
 					break;
 				}
 				if (csv.charAt(ii) == delimiter) {
+					it = truncateIt(it);
 					current.add((it.length() == 0) ? " " : it.toString());
 					it = new StringBuffer();
 					// this line would trim leading spaces per the spec, but not trailing
@@ -165,7 +169,8 @@ public class CSV {
 				} else if (csv.charAt(ii) == '\r' || csv.charAt(ii) == '\n') {
 					if (ii < length - 1 && csv.charAt(ii + 1) == '\n') {
 						ii++;
-					}		
+					}	
+					it = truncateIt(it);
 					current.add((it.length() == 0) ? " " : it.toString());
 					it = new StringBuffer();
 		            all.add(current);
@@ -242,5 +247,22 @@ public class CSV {
 		}
 		total++;
 		return total;
+	}
+	
+	/**
+	 * we need to truncate any data greater than 4000 chars for the db
+	 * @param buffer
+	 * @return
+	 */
+	private static StringBuffer truncateIt(StringBuffer buffer)
+	{
+		if (buffer.length() > 4000)   // truncate text longer than 4000 chars
+		{
+			String truncatedString = buffer.substring(0, 4000);
+			buffer = new StringBuffer();
+			buffer.append(truncatedString);
+		}
+		
+		return buffer;
 	}
 }
