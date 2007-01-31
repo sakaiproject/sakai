@@ -74,6 +74,8 @@
 		fileInputDiv.appendChild(ptag);
 		
 		setMainFrameHeight(window.name);
+		focus_path = [ "content" + count ];
+		setFocus(focus_path);
 	}
 	-->
 </script>

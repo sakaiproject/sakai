@@ -1702,162 +1702,7 @@ public class ResourcesAction
 			}
 			else if(pipe.isActionCompleted())
 			{
-				ResourceToolAction action = pipe.getAction();
-				// use ActionType for this 
-				switch(action.getActionType())
-				{
-				case CREATE:
-					state.setAttribute(STATE_MODE, MODE_CREATE_WIZARD);
-					break;
-				case NEW_UPLOAD:
-					MultiFileUploadPipe mfp = (MultiFileUploadPipe) pipe;
-					Iterator<ResourceToolActionPipe> pipeIt = mfp.getPipes().iterator();
-					while(pipeIt.hasNext())
-					{
-						ResourceToolActionPipe fp = pipeIt.next();
-						String collectionId = pipe.getContentEntity().getId();
-						String name = fp.getFileName();
-						if(name == null || name.trim().equals(""))
-						{
-							continue;
-						}
-						String basename = name.trim();
-						String extension = "";
-						if(name.contains("."))
-						{
-							String[] parts = name.split("\\.");
-							basename = parts[0];
-							if(parts.length > 1)
-							{
-								extension = parts[parts.length - 1];
-							}
-							
-							for(int i = 1; i < parts.length - 1; i++)
-							{
-								basename += "." + parts[i];
-								// extension = parts[i + 1];
-							}
-						}
-						try
-						{
-							ContentResourceEdit resource = ContentHostingService.addResource(collectionId,basename,extension,MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
-							resource.setContent(fp.getRevisedContent());
-							resource.setContentType(fp.getRevisedMimeType());
-							resource.setResourceType(pipe.getAction().getTypeId());
-							ContentHostingService.commitResource(resource, NotificationService.NOTI_NONE);
-						}
-						catch (PermissionException e)
-						{
-							// TODO Auto-generated catch block
-							logger.warn("PermissionException ", e);
-						}
-						catch (IdUnusedException e)
-						{
-							// TODO Auto-generated catch block
-							logger.warn("IdUsedException ", e);
-						}
-						catch (IdInvalidException e)
-						{
-							// TODO Auto-generated catch block
-							logger.warn("IdInvalidException ", e);
-						}
-						catch (IdUniquenessException e)
-						{
-							// TODO Auto-generated catch block
-							logger.warn("IdUniquenessException ", e);
-						}
-						catch (IdLengthException e)
-						{
-							// TODO Auto-generated catch block
-							logger.warn("IdLengthException ", e);
-						}
-						catch (OverQuotaException e)
-						{
-							// TODO Auto-generated catch block
-							logger.warn("OverQuotaException ", e);
-						}
-						catch (ServerOverloadException e)
-						{
-							// TODO Auto-generated catch block
-							logger.warn("ServerOverloadException ", e);
-						}
-					}
-					toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
-					break;
-				case REVISE_CONTENT:
-					ContentEntity entity = pipe.getContentEntity();
-					try
-					{
-						ContentResourceEdit edit = ContentHostingService.editResource(entity.getId());
-						ResourcePropertiesEdit props = edit.getPropertiesEdit();
-						// update content
-						edit.setContent(pipe.getRevisedContent());
-						// update properties
-						if(action instanceof InteractionAction)
-						{
-							InteractionAction iAction = (InteractionAction) action;
-							Map revprops = pipe.getRevisedResourceProperties();
-							List propkeys = iAction.getRequiredPropertyKeys();
-							if(propkeys != null)
-							{
-								Iterator keyIt = propkeys.iterator();
-								while(keyIt.hasNext())
-								{
-									String key = (String) keyIt.next();
-									String value = (String) revprops.get(key);
-									if(value == null)
-									{
-										props.removeProperty(key);
-									}
-									else
-									{
-										// should we support multivalued properties?
-										props.addProperty(key, value);
-									}
-								}
-							}
-						}
-						// update mimetype
-						edit.setContentType(pipe.getRevisedMimeType());
-						ContentHostingService.commitResource(edit);
-					}
-					catch (PermissionException e)
-					{
-						// TODO Auto-generated catch block
-						logger.warn("PermissionException ", e);
-					}
-					catch (IdUnusedException e)
-					{
-						// TODO Auto-generated catch block
-						logger.warn("IdUnusedException ", e);
-					}
-					catch (TypeException e)
-					{
-						// TODO Auto-generated catch block
-						logger.warn("TypeException ", e);
-					}
-					catch (InUseException e)
-					{
-						// TODO Auto-generated catch block
-						logger.warn("InUseException ", e);
-					}
-					catch (OverQuotaException e)
-					{
-						// TODO Auto-generated catch block
-						logger.warn("OverQuotaException ", e);
-					}
-					catch (ServerOverloadException e)
-					{
-						// TODO Auto-generated catch block
-						logger.warn("ServerOverloadException ", e);
-					}
-					toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
-					state.setAttribute(STATE_MODE, MODE_LIST);
-					break;
-				default:
-					state.setAttribute(STATE_MODE, MODE_LIST);
-				}
-				
+				finishAction(state, toolSession, pipe);
 			}
 			toolSession.removeAttribute(ResourceToolAction.DONE);
 		}
@@ -1955,6 +1800,188 @@ public class ResourcesAction
 		return template;
 
 	}	// buildMainPanelContext
+
+	/**
+	 * @param state
+	 * @param toolSession
+	 * @param pipe
+	 */
+	protected void finishAction(SessionState state, ToolSession toolSession, ResourceToolActionPipe pipe)
+	{
+		ResourceToolAction action = pipe.getAction();
+		// use ActionType for this 
+		switch(action.getActionType())
+		{
+		case CREATE:
+			state.setAttribute(STATE_MODE, MODE_CREATE_WIZARD);
+			break;
+		case NEW_UPLOAD:
+			createResources(pipe);
+			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+			break;
+		case REVISE_CONTENT:
+			reviseContent(pipe);
+			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+			state.setAttribute(STATE_MODE, MODE_LIST);
+			break;
+		default:
+			state.setAttribute(STATE_MODE, MODE_LIST);
+		}
+	}
+
+	/**
+	 * @param pipe
+	 * @param action
+	 */
+	private void reviseContent(ResourceToolActionPipe pipe)
+	{
+		ResourceToolAction action = pipe.getAction();
+		ContentEntity entity = pipe.getContentEntity();
+		try
+		{
+			ContentResourceEdit edit = ContentHostingService.editResource(entity.getId());
+			ResourcePropertiesEdit props = edit.getPropertiesEdit();
+			// update content
+			edit.setContent(pipe.getRevisedContent());
+			// update properties
+			if(action instanceof InteractionAction)
+			{
+				InteractionAction iAction = (InteractionAction) action;
+				Map revprops = pipe.getRevisedResourceProperties();
+				List propkeys = iAction.getRequiredPropertyKeys();
+				if(propkeys != null)
+				{
+					Iterator keyIt = propkeys.iterator();
+					while(keyIt.hasNext())
+					{
+						String key = (String) keyIt.next();
+						String value = (String) revprops.get(key);
+						if(value == null)
+						{
+							props.removeProperty(key);
+						}
+						else
+						{
+							// should we support multivalued properties?
+							props.addProperty(key, value);
+						}
+					}
+				}
+			}
+			// update mimetype
+			edit.setContentType(pipe.getRevisedMimeType());
+			ContentHostingService.commitResource(edit);
+		}
+		catch (PermissionException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("PermissionException ", e);
+		}
+		catch (IdUnusedException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("IdUnusedException ", e);
+		}
+		catch (TypeException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("TypeException ", e);
+		}
+		catch (InUseException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("InUseException ", e);
+		}
+		catch (OverQuotaException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("OverQuotaException ", e);
+		}
+		catch (ServerOverloadException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("ServerOverloadException ", e);
+		}
+	}
+
+	/**
+	 * @param pipe
+	 */
+	private void createResources(ResourceToolActionPipe pipe)
+	{
+		MultiFileUploadPipe mfp = (MultiFileUploadPipe) pipe;
+		Iterator<ResourceToolActionPipe> pipeIt = mfp.getPipes().iterator();
+		while(pipeIt.hasNext())
+		{
+			ResourceToolActionPipe fp = pipeIt.next();
+			String collectionId = pipe.getContentEntity().getId();
+			String name = fp.getFileName();
+			if(name == null || name.trim().equals(""))
+			{
+				continue;
+			}
+			String basename = name.trim();
+			String extension = "";
+			if(name.contains("."))
+			{
+				String[] parts = name.split("\\.");
+				basename = parts[0];
+				if(parts.length > 1)
+				{
+					extension = parts[parts.length - 1];
+				}
+				
+				for(int i = 1; i < parts.length - 1; i++)
+				{
+					basename += "." + parts[i];
+					// extension = parts[i + 1];
+				}
+			}
+			try
+			{
+				ContentResourceEdit resource = ContentHostingService.addResource(collectionId,basename,extension,MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+				resource.setContent(fp.getRevisedContent());
+				resource.setContentType(fp.getRevisedMimeType());
+				resource.setResourceType(pipe.getAction().getTypeId());
+				ContentHostingService.commitResource(resource, NotificationService.NOTI_NONE);
+			}
+			catch (PermissionException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("PermissionException ", e);
+			}
+			catch (IdUnusedException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("IdUsedException ", e);
+			}
+			catch (IdInvalidException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("IdInvalidException ", e);
+			}
+			catch (IdUniquenessException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("IdUniquenessException ", e);
+			}
+			catch (IdLengthException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("IdLengthException ", e);
+			}
+			catch (OverQuotaException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("OverQuotaException ", e);
+			}
+			catch (ServerOverloadException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("ServerOverloadException ", e);
+			}
+		}
+	}
 
 	/**
 	 * @param portlet
