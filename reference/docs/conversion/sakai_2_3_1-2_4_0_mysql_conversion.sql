@@ -144,3 +144,11 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 ----------------------------------------------------------------------------------------------------------------------------------------
 ALTER TABLE SAKAI_SITE ADD (CUSTOM_PAGE_ORDERED CHAR(1) DEFAULT '0' CHECK (CUSTOM_PAGE_ORDERED IN (1, 0)));
 
+----------------------------------------------------------------------------------------------------------------------------------------
+-- Post'em table changes needed for 2.4.0 
+----------------------------------------------------------------------------------------------------------------------------------------
+-- SAK-8232
+ALTER TABLE SAKAI_POSTEM_STUDENT_GRADES MODIFY grade VARCHAR(4000);
+
+-- SAK-6948
+ALTER TABLE SAKAI_POSTEM_GRADEBOOK MODIFY title VARCHAR(256) not null;
