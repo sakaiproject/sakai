@@ -1567,5 +1567,26 @@ public interface ContentHostingService extends EntityProducer
 	public ContentResourceEdit addResource(String collectionId, String basename, String extension, int maximum_tries)
 		throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, 
 			IdUnusedException, OverQuotaException, ServerOverloadException;
+
+	/**
+	 * @param collectionId
+	 * @param name
+	 * @return
+	 * @exception PermissionException
+	 *            if the user does not have permission to add a resource to the containing collection.
+	 * @exception TypeException 
+	 *            if the collectionId is not in the form to identify a collection. 
+	 * @exception IdUnusedException
+	 *            if the collectionId does not identify an existing collection. 
+	 * @exception IdUnusedException
+	 *            if the collection id for the proposed name already exists in this collection.
+	 * @exception IdLengthException
+	 *            if the new collection id exceeds the maximum number of characters for a valid collection id.
+	 * @exception IdInvalidException
+	 *            if the resource id is invalid.
+	 */
+	public ContentCollectionEdit addCollection(String collectionId, String name)
+		throws PermissionException, IdUnusedException, IdUsedException, 
+				IdLengthException, IdInvalidException, TypeException;
 	
 }

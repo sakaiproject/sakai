@@ -72,6 +72,7 @@ import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.content.types.FileUploadType;
+import org.sakaiproject.content.types.FolderType;
 import org.sakaiproject.content.types.HtmlDocumentType;
 import org.sakaiproject.content.types.TextDocumentType;
 import org.sakaiproject.content.types.UrlResourceType;
@@ -618,6 +619,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		if(usingResourceTypeRegistry())
 		{
 			this.getResourceTypeRegistry().register(new FileUploadType());
+			this.getResourceTypeRegistry().register(new FolderType());
 			this.getResourceTypeRegistry().register(new TextDocumentType());
 			this.getResourceTypeRegistry().register(new HtmlDocumentType());
 			this.getResourceTypeRegistry().register(new UrlResourceType());
@@ -1504,6 +1506,59 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return addValidPermittedCollection(id);
 	}
 
+	/**
+	 * @param collectionId
+	 * @param name
+	 * @return
+	 * @exception PermissionException
+	 *            if the user does not have permission to add a resource to the containing collection.
+	 * @exception IdUnusedException
+	 *            if the collectionId does not identify an existing collection. 
+	 * @exception IdUnusedException
+	 *            if the collection id for the proposed name already exists in this collection.
+	 * @exception IdLengthException
+	 *            if the new collection id exceeds the maximum number of characters for a valid collection id.
+	 * @exception IdInvalidException
+	 *            if the resource id is invalid.
+	 */
+	public ContentCollectionEdit addCollection(String collectionId, String name)
+		throws PermissionException, IdUnusedException, IdUsedException, 
+				IdLengthException, IdInvalidException, TypeException
+	{
+		// check the id's validity (this may throw IdInvalidException)
+		// use only the "name" portion, separated at the end
+		Validator.checkResourceId(name);
+		checkCollection(collectionId);
+		
+		String id = collectionId + name.trim();
+		if (id.length() > MAXIMUM_RESOURCE_ID_LENGTH)
+		{
+			throw new IdLengthException(id);
+		}
+
+
+		// collection must also end in the separator (we fix it)
+		if (!id.endsWith(Entity.SEPARATOR))
+		{
+			id = id + Entity.SEPARATOR;
+		}
+
+		// check security
+		unlock(AUTH_RESOURCE_ADD, id);
+
+		ContentCollectionEdit edit = null;
+		
+		try
+		{
+			edit = addValidPermittedCollection(id);
+		}
+		catch(InconsistentException e)
+		{
+			throw new IdUnusedException(collectionId);
+		}
+		
+		return edit;
+	}
 	/**
 	 * Create a new collection with the given resource id, locked for update. Must commitCollection() to make official, or cancelCollection() when done!
 	 * 

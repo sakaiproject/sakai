@@ -507,7 +507,6 @@ public class HtmlDocumentType extends BaseResourceType
 
 	public String getIconLocation() 
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 	

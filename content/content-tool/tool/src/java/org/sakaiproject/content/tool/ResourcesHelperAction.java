@@ -63,6 +63,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	protected  static final String CREATE_TEXT_TEMPLATE = "resources/sakai_create_text";
 	protected  static final String CREATE_UPLOAD_TEMPLATE = "resources/sakai_create_upload";
 	protected  static final String CREATE_UPLOADS_TEMPLATE = "resources/sakai_create_uploads";
+	protected  static final String CREATE_FOLDERS_TEMPLATE = "resources/sakai_create_folders";
 	protected  static final String CREATE_URL_TEMPLATE = "resources/sakai_create_url";
 	
 	protected  static final String REVISE_HTML_TEMPLATE = "resources/sakai_revise_html";
@@ -148,6 +149,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		case NEW_UPLOAD:
 			template = buildUploadFilesContext(portlet, context, data, state);
 			break;
+		case NEW_FOLDER:
+			template = buildNewFoldersContext(portlet, context, data, state);
+			break;
 		default:
 			// hmmmm
 			break;
@@ -155,6 +159,30 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		return template;
 	}
+
+	/**
+	 * @param portlet
+	 * @param context
+	 * @param data
+	 * @param state
+	 * @return
+	 */
+	private String buildNewFoldersContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	{
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+
+		MultiFileUploadPipe pipe = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		
+		List<ResourceToolActionPipe> pipes = pipe.getPipes();
+		
+		context.put("pipes", pipes);
+		
+		
+
+		return CREATE_FOLDERS_TEMPLATE;
+	}
+
+
 
 	/**
 	 * @param portlet
@@ -334,6 +362,20 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		{
 			pipe.setRevisedMimeType(ResourceType.MIME_TYPE_URL);
 		}
+		else if(ResourceType.TYPE_FOLDER.equals(resourceType))
+		{
+			MultiFileUploadPipe mfp = (MultiFileUploadPipe) pipe;
+			int count = params.getInt("folderCount");
+			mfp.setFileCount(count);
+			
+			List<ResourceToolActionPipe> pipes = mfp.getPipes();
+			for(int i = 0; i < pipes.size(); i++)
+			{
+				ResourceToolActionPipe fp = pipes.get(i);
+				String folderName = params.getString("folder" + (i + 1));
+				fp.setFileName(folderName);
+			}
+		}
 	
 		pipe.setRevisedContent(content.getBytes());
 		pipe.setActionCanceled(false);
@@ -344,6 +386,36 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 	}
 
+	public void doCreateFolders(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters ();
+
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		
+		MultiFileUploadPipe pipe = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		
+		String resourceType = pipe.getAction().getTypeId();
+		
+		int count = params.getInt("folderCount");
+		pipe.setFileCount(count);
+		
+		List<ResourceToolActionPipe> pipes = pipe.getPipes();
+		for(int i = 0; i < pipes.size(); i++)
+		{
+			ResourceToolActionPipe fp = pipes.get(i);
+			String folderName = params.getString("folder" + (i + 1));
+			fp.setFileName(folderName);
+		}
+
+		pipe.setActionCanceled(false);
+		pipe.setErrorEncountered(false);
+		pipe.setActionCompleted(true);
+		
+		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+
+	}
+	
 	public void doUpload(RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());

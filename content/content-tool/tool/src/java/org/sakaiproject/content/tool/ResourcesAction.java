@@ -1819,6 +1819,10 @@ public class ResourcesAction
 			createResources(pipe);
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			break;
+		case NEW_FOLDER:
+			createFolders(state, pipe);
+			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+			break;
 		case REVISE_CONTENT:
 			reviseContent(pipe);
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
@@ -1826,6 +1830,66 @@ public class ResourcesAction
 			break;
 		default:
 			state.setAttribute(STATE_MODE, MODE_LIST);
+		}
+	}
+
+	/**
+	 * @param pipe
+	 * @param state 
+	 */
+	protected void createFolders(SessionState state, ResourceToolActionPipe pipe)
+	{
+		String collectionId = pipe.getContentEntity().getId();
+		MultiFileUploadPipe mfp = (MultiFileUploadPipe) pipe;
+		Iterator<ResourceToolActionPipe> pipeIt = mfp.getPipes().iterator();
+		while(pipeIt.hasNext())
+		{
+			ResourceToolActionPipe fp = pipeIt.next();
+			String name = fp.getFileName();
+			if(name == null || name.trim().equals(""))
+			{
+				continue;
+			}
+			try
+			{
+				ContentCollectionEdit edit = ContentHostingService.addCollection(collectionId, name);
+				ResourcePropertiesEdit props = edit.getPropertiesEdit();
+				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+				ContentHostingService.commitCollection(edit);
+			}
+			catch (PermissionException e)
+			{
+				addAlert(state, trb.getString("alert.perm"));
+				break;
+			}
+			catch (IdInvalidException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("IdInvalidException ", e);
+			}
+			catch (IdUsedException e)
+			{
+				String[] args = { name };
+				addAlert(state, trb.getFormattedMessage("alert.exists", args));
+				// logger.warn("IdUsedException ", e);
+			}
+			catch (IdUnusedException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("IdUnusedException ", e);
+				break;
+			}
+			catch (IdLengthException e)
+			{
+				String[] args = { name };
+				addAlert(state, trb.getFormattedMessage("alert.toolong", args));
+				logger.warn("IdLengthException ", e);
+			}
+			catch (TypeException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("TypeException id=" + collectionId + name, e);
+			}
 		}
 	}
 
