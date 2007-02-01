@@ -1649,7 +1649,12 @@ public class ItemHelper12Impl extends ItemHelperBase
   {
     log.debug("addAnswerFeedback()");
     log.debug("answer feedback value: " + value);
-    value =  "<![CDATA[" + value + "]]>";
+    if (value == null) {
+    	value = "<![CDATA[]]>";
+    }
+    else {
+    	value = "<![CDATA[" + value + "]]>";
+    }
     String respCond = "item/resprocessing/respcondition[" + responseNo + "]";
     updateItemXml(itemXml, respCond + "/setvar", "" + currentPerItemScore);
     updateItemXml(itemXml,
