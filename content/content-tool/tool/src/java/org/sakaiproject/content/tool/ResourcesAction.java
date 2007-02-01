@@ -562,23 +562,9 @@ public class ResourcesAction
 		protected boolean canSetQuota = false;
 		protected String quota;
 		protected String description;
+		protected boolean useReleaseDate;
+		protected boolean useRetractDate;
 		
-		/**
-		 * @return the description
-		 */
-		public String getDescription()
-		{
-			return this.description;
-		}
-
-		/**
-		 * @param description the description to set
-		 */
-		public void setDescription(String description)
-		{
-			this.description = description;
-		}
-
 		/**
 		 * @param entityId
 		 * @param collectionId
@@ -632,8 +618,10 @@ public class ResourcesAction
 			// this.propertyValues = props;
 			// this.quota = 
 			this.releaseDate = entity.getReleaseDate();
-			this.resourceType = entity.getResourceType();
 			this.retractDate = entity.getRetractDate();
+			this.useReleaseDate = (this.releaseDate != null);
+			this.useRetractDate = (this.retractDate != null);
+			this.resourceType = entity.getResourceType();
 			// this.siteCollectionId = 
 			// this.version
 			
@@ -682,6 +670,54 @@ public class ResourcesAction
 		public void update(ResourceToolActionPipe pipe)
 		{
 			// TODO: update the EditItem based on the pipe
+		}
+
+		/**
+		 * @return the useRetractDate
+		 */
+		public boolean useRetractDate()
+		{
+			return this.useRetractDate;
+		}
+
+		/**
+		 * @param useRetractDate the useRetractDate to set
+		 */
+		public void setUseRetractDate(boolean useRetractDate)
+		{
+			this.useRetractDate = useRetractDate;
+		}
+
+		/**
+		 * @return the useReleaseDate
+		 */
+		public boolean useReleaseDate()
+		{
+			return this.useReleaseDate;
+		}
+
+		/**
+		 * @param useReleaseDate the useReleaseDate to set
+		 */
+		public void setUseReleaseDate(boolean useReleaseDate)
+		{
+			this.useReleaseDate = useReleaseDate;
+		}
+
+		/**
+		 * @return the description
+		 */
+		public String getDescription()
+		{
+			return this.description;
+		}
+
+		/**
+		 * @param description the description to set
+		 */
+		public void setDescription(String description)
+		{
+			this.description = description;
 		}
 
 		/**
