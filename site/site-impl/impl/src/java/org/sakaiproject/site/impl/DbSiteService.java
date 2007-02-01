@@ -655,6 +655,19 @@ public abstract class DbSiteService extends BaseSiteService
 				// join with the SITE_USER table
 				join = "SAKAI_SITE_USER";
 			}
+			if (sort==SortType.CREATED_BY_ASC || sort==SortType.CREATED_BY_DESC || sort==SortType.MODIFIED_BY_ASC || sort==SortType.MODIFIED_BY_DESC)
+			{
+				// join with SITE_USER_ID_MAP table
+				if (join != null)
+				{
+					join += ", SAKAI_USER_ID_MAP";
+				}
+				else
+				{
+					join = "SAKAI_USER_ID_MAP";
+				}
+			}
+				
 
 			// add propertyCriteria if specified
 			if ((propertyCriteria != null) && (propertyCriteria.size() > 0))
@@ -665,7 +678,19 @@ public abstract class DbSiteService extends BaseSiteService
 							.append("SAKAI_SITE.SITE_ID in (select SITE_ID from SAKAI_SITE_PROPERTY where NAME = ? and UPPER(VALUE) like UPPER(?)) and ");
 				}
 			}
-
+			
+			// where sorted by createdby, need to join with SAKAI_USER_ID_MAP in order to find out the user eid
+			if (sort==SortType.CREATED_BY_ASC || sort==SortType.CREATED_BY_DESC )
+			{
+				// add more to where clause
+				where.append("SAKAI_SITE.CREATEDBY = SAKAI_USER_ID_MAP.USER_ID and ");
+			}
+			else if (sort==SortType.MODIFIED_BY_ASC || sort==SortType.MODIFIED_BY_DESC)
+			{
+				// sort by modifiedby
+				where.append("SAKAI_SITE.MODIFIEDBY = SAKAI_USER_ID_MAP.USER_ID and ");
+			}
+			
 			// add order by if needed
 			String order = null;
 			if (sort == SortType.ID_ASC)
@@ -702,19 +727,19 @@ public abstract class DbSiteService extends BaseSiteService
 			}
 			else if (sort == SortType.CREATED_BY_ASC)
 			{
-				order = "SAKAI_SITE.CREATEDBY ASC";
+				order = "SAKAI_USER_ID_MAP.EID ASC";
 			}
 			else if (sort == SortType.CREATED_BY_DESC)
 			{
-				order = "SAKAI_SITE.CREATEDBY DESC";
+				order = "SAKAI_USER_ID_MAP.EID DESC";
 			}
 			else if (sort == SortType.MODIFIED_BY_ASC)
 			{
-				order = "SAKAI_SITE.MODIFIEDBY ASC";
+				order = "SAKAI_USER_ID_MAP.EID ASC";
 			}
 			else if (sort == SortType.MODIFIED_BY_DESC)
 			{
-				order = "SAKAI_SITE.MODIFIEDBY DESC";
+				order = "SAKAI_USER_ID_MAP.EID DESC";
 			}
 			else if (sort == SortType.CREATED_ON_ASC)
 			{
