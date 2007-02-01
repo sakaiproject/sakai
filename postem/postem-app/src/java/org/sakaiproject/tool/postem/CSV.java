@@ -40,6 +40,8 @@ public class CSV {
 	
 	public static final char COMMA_DELIM = ',';
 	public static final char TAB_DELIM = '\t';
+	
+	public static final int MAX_COL_LENGTH = 2000;
 
 	// private boolean withHeaders = true;
 
@@ -250,15 +252,15 @@ public class CSV {
 	}
 	
 	/**
-	 * we need to truncate any data greater than 4000 chars for the db
+	 * we need to truncate any data greater than MAX_COL_LENGTH chars for the db
 	 * @param buffer
 	 * @return
 	 */
 	private static StringBuffer truncateIt(StringBuffer buffer)
 	{
-		if (buffer.length() > 4000)   // truncate text longer than 4000 chars
+		if (buffer.length() > MAX_COL_LENGTH)   // truncate text longer than MAX_COL_LENGTH
 		{
-			String truncatedString = buffer.substring(0, 4000);
+			String truncatedString = buffer.substring(0, MAX_COL_LENGTH);
 			buffer = new StringBuffer();
 			buffer.append(truncatedString);
 		}
