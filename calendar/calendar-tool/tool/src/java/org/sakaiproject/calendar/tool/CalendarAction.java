@@ -4861,7 +4861,7 @@ extends VelocityPortletStateAction
 	 * Action doCustomDate is requested when the user specifies a start/end date
 	 * to filter the list view.
 	 */
-	public void doCustomDate(RunData data, Context context)
+	public void doCustomdate(RunData data, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		String peid = ((JetspeedRunData)data).getJs_peid();
@@ -4883,10 +4883,6 @@ extends VelocityPortletStateAction
 		String startingDateStr = sM + "/" + sD + "/" + sY;
 		String endingDateStr   = eM + "/" + eD + "/" + eY;
 		
-		// Get the start/end dates from the user.
-		//String startingDateStr = data.getParameters().getString(TIME_FILTER_SETTING_CUSTOM_START_DATE_VAR);
-		//String endingDateStr = data.getParameters().getString(TIME_FILTER_SETTING_CUSTOM_END_DATE_VAR);
-
 		// Pass in a buffer for a possible error message.
 		StringBuffer errorMessage = new StringBuffer();
 		
@@ -4897,7 +4893,7 @@ extends VelocityPortletStateAction
 			addAlert(sstate, errorMessage.toString());
 		}
 		
-	}   // doCustomDate
+	}   // doCustomdate
 	
 	/**
 	 * Action doFilter is requested when the user clicks on the list box

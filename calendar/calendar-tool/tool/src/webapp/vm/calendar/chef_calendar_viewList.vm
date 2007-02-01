@@ -32,7 +32,7 @@
 				</form>
 			</div>	
 			<div class="shorttext">
-				<form name="listform2" class="inlineForm" method="post" action="#toolForm("SiteAction")">
+				<form name="listform2" class="inlineForm" method="post" action="#toolForm("$action")">
 					<input type="hidden" value="$tlang.getString('view.gotoday')" name="eventSubmit_doFilter" />
 					<label for="timeFilterOption">$tlang.getString('view.show')</label>
 					<select name="timeFilterOption" onchange="blur();document.listform2.submit();" id="timeFilterOption">
@@ -46,12 +46,7 @@
 				</form>
 			</div>	
 			#if ($timeFilterOption == "SHOW_CUSTOM_RANGE")
-				<form name="listform1" method="post" action="#toolForm("SiteAction")">
-				#*	$tlang.getString('viewl.start')<input name="customStartDate" type="text" value="$customStartDate" size="10">
-							&nbsp;
-							$tlang.getString('viewl.end')<input name="customEndDate" type="text" value="$customEndDate" size="10">
-							&nbsp;
-				*#
+				<form name="listform1" method="post" action="#toolForm("$action")">
 					<div class="shorttext">
 						<label for="customStartMonth">$tlang.getString('viewl.st')</label>
 						#chef_dateselectionwidget("customStartYear" "customStartMonth" "customStartDay" $ddStartYear $ddEndYear $customStartYear $customStartMonth $customStartDay)
@@ -60,8 +55,8 @@
 					<label for="customEndMonth">$tlang.getString('viewl.ed')&nbsp;</label>
 					#chef_dateselectionwidget("customEndYear" "customEndMonth" "customEndDay" $ddStartYear $ddEndYear $customEndYear $customEndMonth $customEndDay)
 				</div>	
+				<p class="labelindnt">	<input name="eventSubmit_doCustomdate" type="submit" value="$tlang.getString('view.apply')" /></p>
 				</form>
-				<p class="labelindnt">	<input name="eventSubmit_doCustomDate" type="submit" value="$tlang.getString('view.apply')" /></p>
 
 			#end
 		</div>
