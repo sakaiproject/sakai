@@ -255,18 +255,22 @@ public class MessageForumSynopticBean {
 		}
 	}
 
+	/**
+	 * @return
+	 * 		TRUE if (Private) Messages enabled, FALSE otherwise
+	 */
 	public boolean isPmEnabled() {
 		final Area area = pvtMessageManager.getPrivateMessageArea();
 		
 		return (area != null) && area.getEnabled().booleanValue();
 	}
 
+	/**
+	 * @return 
+	 * 		DecoratedCompiledMessageStats for a single site
+	 */
 	public DecoratedCompiledMessageStats getSiteInfo() {
-		if (siteInfo == null) {
-			siteInfo = getSiteContents();
-		}
-		
-		return siteInfo;
+		return getSiteContents();
 	}
 
 	public void setSiteInfo(DecoratedCompiledMessageStats siteInfo) {
