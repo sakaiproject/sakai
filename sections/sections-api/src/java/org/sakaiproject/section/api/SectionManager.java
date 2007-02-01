@@ -448,18 +448,20 @@ public interface SectionManager {
 	 * Info tool:
 	 * 
 	 * <ul>
-	 * 	<li><b>ALWAYS_MANUAL</b> - The section Info tool does not allow for
+	 * 	<li><b>MANUAL_MANDATORY</b> - The section Info tool does not allow for
 	 * externally managed sections, and sections will never be created automatically</li>
 	 * 
-	 * 	<li><b>OPTIONAL_MULTIPLE</b> - The section Info tool allows the user
+	 * 	<li><b>MANUAL_DEFAULT</b> - The section Info tool allows the user
 	 * to choose whether sections should be internally or externally managed.
-	 * Sections will be generated for sites associated with multiple rosters.</li>
+	 * Sections will not be generated for sites unless a site maintainer switches the
+	 * default "manual" setting to automatic.</li>
 	 * 
-	 * 	<li><b>OPTIONAL_ALL</b> - The section Info tool allows the user
+	 * 	<li><b>AUTOMATIC_DEFAULT</b> - The section Info tool allows the user
 	 * to choose whether sections should be internally or externally managed.
-	 * Sections will be generated for sites associated with any number of rosters.</li>
+	 * Sections will be generated for sites associated with any number of rosters.
+	 * The default setting for new sites will be automatic management of sections.</li>
 	 * 
-	 * 	<li><b>ALWAYS_AUTOMATIC</b> - The section Info tool does not allow
+	 * 	<li><b>AUTOMATIC_MANDATORY</b> - The section Info tool does not allow
 	 * for internally managed sections.  Add sections are created automatically, based
 	 * on the rosters associated with the site.</li>
 	 * </ul>
