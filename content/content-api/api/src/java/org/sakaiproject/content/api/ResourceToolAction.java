@@ -126,11 +126,26 @@ public interface ResourceToolAction
 		VIEW_METADATA,
 		
 		/**
+		 * Paste Moved Items -- Handled by Resources tool.  Requires content.new permission.  The action 
+		 * 		is only available after a MOVE action and before some other action that
+		 * 		cancels the PASTE_MOVED.
+		 */
+		PASTE_MOVED,
+		
+		/**
+		 * Paste Copied Items -- Handled by Resources tool.  Requires content.new permission.  The action 
+		 * 		is only available after a COPY action and before some other action that
+		 * 		cancels the PASTE_COPIED.
+		 */
+		PASTE_COPIED,
+		
+		/**
 		 * Custom action -- Handled by helper.  May be interactive or service-level.  Custom actions
 		 * 		must implement the CustomToolAction interface to provide Resources tool with a way to 
 		 * 		determine permissions, as well as either InteractionAction or ServiceLevelAction.
 		 */
 		CUSTOM_TOOL_ACTION
+		
 	}
 	
 	public static final String CREATE = "create";
@@ -142,6 +157,8 @@ public interface ResourceToolAction
 	public static final String ACCESS_PROPERTIES = "info";
 	public static final String DUPLICATE = "duplicate";
 	public static final String MOVE = "move";
+	public static final String PASTE_MOVED = "paste_moved";
+	public static final String PASTE_COPIED = "paste_copied";
 	
 	public static final String ACTION_DELIMITER = ":";
 		

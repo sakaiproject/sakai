@@ -69,6 +69,42 @@ public class TextDocumentType extends BaseResourceType
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("types");
 	
+	public TextDocumentType()
+	{
+		this.userDirectoryService = (UserDirectoryService) ComponentManager.get("org.sakaiproject.user.api.UserDirectoryService");
+
+		actions.put(ResourceToolAction.CREATE, new TextDocumentCreateAction());
+		// actions.put(ResourceToolAction.ACCESS_CONTENT, new TextDocumentAccessAction());
+		actions.put(ResourceToolAction.REVISE_CONTENT, new TextDocumentReviseAction());
+		actions.put(ResourceToolAction.REVISE_METADATA, new TextDocumentPropertiesAction());
+		actions.put(ResourceToolAction.COPY, new TextDocumentCopyAction());
+		actions.put(ResourceToolAction.DUPLICATE, new TextDocumentDuplicateAction());
+		// actions.put(ResourceToolAction.MOVE, new TextDocumentMoveAction());
+		actions.put(ResourceToolAction.DELETE, new TextDocumentDeleteAction());
+
+		// initialize actionMap with an empty List for each ActionType
+		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())
+		{
+			actionMap.put(type, new Vector<ResourceToolAction>());
+		}
+		
+		// for each action in actions, add a link in actionMap
+		Iterator<String> it = actions.keySet().iterator();
+		while(it.hasNext())
+		{
+			String id = it.next();
+			ResourceToolAction action = actions.get(id);
+			List<ResourceToolAction> list = actionMap.get(action.getActionType());
+			if(list == null)
+			{
+				list = new Vector<ResourceToolAction>();
+				actionMap.put(action.getActionType(), list);
+			}
+			list.add(action);
+		}
+		
+	}
+
 	public class TextDocumentPropertiesAction implements ServiceLevelAction
 	{
 
@@ -641,42 +677,6 @@ public class TextDocumentType extends BaseResourceType
 
 
 	
-	public TextDocumentType()
-	{
-		this.userDirectoryService = (UserDirectoryService) ComponentManager.get("org.sakaiproject.user.api.UserDirectoryService");
-
-		actions.put(ResourceToolAction.CREATE, new TextDocumentCreateAction());
-		// actions.put(ResourceToolAction.ACCESS_CONTENT, new TextDocumentAccessAction());
-		actions.put(ResourceToolAction.REVISE_CONTENT, new TextDocumentReviseAction());
-		actions.put(ResourceToolAction.REVISE_METADATA, new TextDocumentPropertiesAction());
-		actions.put(ResourceToolAction.DUPLICATE, new TextDocumentDuplicateAction());
-		// actions.put(ResourceToolAction.COPY, new TextDocumentCopyAction());
-		// actions.put(ResourceToolAction.MOVE, new TextDocumentMoveAction());
-		actions.put(ResourceToolAction.DELETE, new TextDocumentDeleteAction());
-
-		// initialize actionMap with an empty List for each ActionType
-		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())
-		{
-			actionMap.put(type, new Vector<ResourceToolAction>());
-		}
-		
-		// for each action in actions, add a link in actionMap
-		Iterator<String> it = actions.keySet().iterator();
-		while(it.hasNext())
-		{
-			String id = it.next();
-			ResourceToolAction action = actions.get(id);
-			List<ResourceToolAction> list = actionMap.get(action.getActionType());
-			if(list == null)
-			{
-				list = new Vector<ResourceToolAction>();
-				actionMap.put(action.getActionType(), list);
-			}
-			list.add(action);
-		}
-		
-	}
-
 	public ResourceToolAction getAction(String actionId) 
 	{
 		return actions.get(actionId);

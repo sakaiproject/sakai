@@ -60,6 +60,168 @@ public class FolderType extends BaseResourceType
 	protected Map<String, ResourceToolAction> actions = new Hashtable<String, ResourceToolAction>();	
 	protected UserDirectoryService userDirectoryService;
 	
+	public FolderType()
+	{
+		this.userDirectoryService = (UserDirectoryService) ComponentManager.get("org.sakaiproject.user.api.UserDirectoryService");
+		
+		actions.put(ResourceToolAction.PASTE_MOVED, new FolderPasteMovedAction());
+		actions.put(ResourceToolAction.PASTE_COPIED, new FolderPasteCopiedAction());
+		actions.put(ResourceToolAction.CREATE, new FolderCreateAction());
+		actions.put(ResourceToolAction.REVISE_METADATA, new FolderPropertiesAction());
+		//actions.put(ResourceToolAction.DUPLICATE, new FolderDuplicateAction());
+		//actions.put(ResourceToolAction.COPY, new FolderCopyAction());
+		//actions.put(ResourceToolAction.MOVE, new FolderMoveAction());
+		actions.put(ResourceToolAction.DELETE, new FolderDeleteAction());
+		
+		// initialize actionMap with an empty List for each ActionType
+		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())
+		{
+			actionMap.put(type, new Vector<ResourceToolAction>());
+		}
+		
+		// for each action in actions, add a link in actionMap
+		Iterator<String> it = actions.keySet().iterator();
+		while(it.hasNext())
+		{
+			String id = it.next();
+			ResourceToolAction action = actions.get(id);
+			List<ResourceToolAction> list = actionMap.get(action.getActionType());
+			if(list == null)
+			{
+				list = new Vector<ResourceToolAction>();
+				actionMap.put(action.getActionType(), list);
+			}
+			list.add(action);
+		}
+		
+
+	}
+
+
+	public class FolderPasteMovedAction implements ServiceLevelAction
+	{
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.PASTE_MOVED;
+		}
+
+
+		public String getId() 
+		{
+			return ResourceToolAction.PASTE_MOVED;
+		}
+
+		public String getLabel() 
+		{
+			return rb.getString("action.finmove");
+		}
+
+		public boolean isMultipleItemAction() 
+		{
+			return false;
+		}
+
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void cancelAction(Reference reference)
+		{
+			// do nothing
+			
+		}
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void finalizeAction(Reference reference)
+		{
+			// do nothing
+			
+		}
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void initializeAction(Reference reference)
+		{
+			// do nothing
+			
+		}
+
+	}
+
+	public class FolderPasteCopiedAction implements ServiceLevelAction
+	{
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.PASTE_COPIED;
+		}
+
+
+		public String getId() 
+		{
+			return ResourceToolAction.PASTE_COPIED;
+		}
+
+		public String getLabel() 
+		{
+			return rb.getString("action.fincopy");
+		}
+
+		public boolean isMultipleItemAction() 
+		{
+			return false;
+		}
+
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void cancelAction(Reference reference)
+		{
+			// do nothing
+			
+		}
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void finalizeAction(Reference reference)
+		{
+			// do nothing
+			
+		}
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void initializeAction(Reference reference)
+		{
+			// do nothing
+			
+		}
+
+	}
+
 	public class FolderCopyAction implements ServiceLevelAction
 	{
 		/* (non-Javadoc)
@@ -92,24 +254,11 @@ public class FolderType extends BaseResourceType
 		}
 
 		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermission()
-		 */
-		public Set getPermission()
-		{
-			Set rv = new TreeSet();
-			rv.add(ContentHostingService.AUTH_RESOURCE_READ);
-			rv.add(ContentHostingService.AUTH_RESOURCE_ALL_GROUPS);
-			rv.add(ContentHostingService.AUTH_RESOURCE_HIDDEN);
-			return rv;
-		}
-
-
-		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
 		 */
 		public void cancelAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -119,7 +268,7 @@ public class FolderType extends BaseResourceType
 		 */
 		public void finalizeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -129,7 +278,7 @@ public class FolderType extends BaseResourceType
 		 */
 		public void initializeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -140,13 +289,13 @@ public class FolderType extends BaseResourceType
 
 		public void cancelAction(Reference reference, String initializationId) 
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
 		public void finalizeAction(Reference reference, String initializationId) 
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -225,7 +374,7 @@ public class FolderType extends BaseResourceType
 		 */
 		public void cancelAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -234,7 +383,7 @@ public class FolderType extends BaseResourceType
 		 */
 		public void finalizeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -243,7 +392,7 @@ public class FolderType extends BaseResourceType
 		 */
 		public void initializeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -271,7 +420,6 @@ public class FolderType extends BaseResourceType
 
 		public boolean isMultipleItemAction() 
 		{
-			// TODO Auto-generated method stub
 			return false;
 		}
 		
@@ -285,7 +433,7 @@ public class FolderType extends BaseResourceType
 		 */
 		public void cancelAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -294,7 +442,7 @@ public class FolderType extends BaseResourceType
 		 */
 		public void finalizeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -303,7 +451,7 @@ public class FolderType extends BaseResourceType
 		 */
 		public void initializeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -317,7 +465,7 @@ public class FolderType extends BaseResourceType
 		 */
 		public void cancelAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -326,7 +474,7 @@ public class FolderType extends BaseResourceType
 		 */
 		public void finalizeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -335,7 +483,7 @@ public class FolderType extends BaseResourceType
 		 */
 		public void initializeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -344,7 +492,6 @@ public class FolderType extends BaseResourceType
 		 */
 		public boolean isMultipleItemAction()
 		{
-			// TODO Auto-generated method stub
 			return false;
 		}
 
@@ -353,7 +500,6 @@ public class FolderType extends BaseResourceType
 		 */
 		public ActionType getActionType()
 		{
-			// TODO Auto-generated method stub
 			return ResourceToolAction.ActionType.REVISE_METADATA;
 		}
 
@@ -362,7 +508,6 @@ public class FolderType extends BaseResourceType
 		 */
 		public String getId()
 		{
-			// TODO Auto-generated method stub
 			return ResourceToolAction.REVISE_METADATA;
 		}
 
@@ -371,7 +516,6 @@ public class FolderType extends BaseResourceType
 		 */
 		public String getLabel()
 		{
-			// TODO Auto-generated method stub
 			return rb.getString("action.props");
 		}
 
@@ -380,7 +524,6 @@ public class FolderType extends BaseResourceType
 		 */
 		public String getTypeId()
 		{
-			// TODO Auto-generated method stub
 			return typeId;
 		}
 		
@@ -408,7 +551,6 @@ public class FolderType extends BaseResourceType
 
 		public boolean isMultipleItemAction() 
 		{
-			// TODO Auto-generated method stub
 			return true;
 		}
 		
@@ -422,7 +564,7 @@ public class FolderType extends BaseResourceType
 		 */
 		public void cancelAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -431,7 +573,7 @@ public class FolderType extends BaseResourceType
 		 */
 		public void finalizeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -440,7 +582,7 @@ public class FolderType extends BaseResourceType
 		 */
 		public void initializeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -451,13 +593,13 @@ public class FolderType extends BaseResourceType
 
 		public void cancelAction(Reference reference, String initializationId) 
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
 		public void finalizeAction(Reference reference, String initializationId) 
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -510,13 +652,13 @@ public class FolderType extends BaseResourceType
 
 		public void cancelAction(Reference reference, String initializationId) 
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
 		public void finalizeAction(Reference reference, String initializationId) 
 		{
-			// TODO Auto-generated method stub
+			// do nothing
 			
 		}
 
@@ -555,43 +697,6 @@ public class FolderType extends BaseResourceType
 
 	}
 		
-	public FolderType()
-	{
-		this.userDirectoryService = (UserDirectoryService) ComponentManager.get("org.sakaiproject.user.api.UserDirectoryService");
-		
-		actions.put(ResourceToolAction.CREATE, new FolderCreateAction());
-		//actions.put(ResourceToolAction.ACCESS_CONTENT, new FolderAccessAction());
-		actions.put(ResourceToolAction.REVISE_CONTENT, new FolderReviseAction());
-		actions.put(ResourceToolAction.REVISE_METADATA, new FolderPropertiesAction());
-		//actions.put(ResourceToolAction.DUPLICATE, new FolderDuplicateAction());
-		//actions.put(ResourceToolAction.COPY, new FolderCopyAction());
-		//actions.put(ResourceToolAction.MOVE, new FolderMoveAction());
-		actions.put(ResourceToolAction.DELETE, new FolderDeleteAction());
-		
-		// initialize actionMap with an empty List for each ActionType
-		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())
-		{
-			actionMap.put(type, new Vector<ResourceToolAction>());
-		}
-		
-		// for each action in actions, add a link in actionMap
-		Iterator<String> it = actions.keySet().iterator();
-		while(it.hasNext())
-		{
-			String id = it.next();
-			ResourceToolAction action = actions.get(id);
-			List<ResourceToolAction> list = actionMap.get(action.getActionType());
-			if(list == null)
-			{
-				list = new Vector<ResourceToolAction>();
-				actionMap.put(action.getActionType(), list);
-			}
-			list.add(action);
-		}
-		
-
-	}
-
 	public ResourceToolAction getAction(String actionId) 
 	{
 		return (ResourceToolAction) actions.get(actionId);
@@ -599,7 +704,6 @@ public class FolderType extends BaseResourceType
 
 	public String getIconLocation() 
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
@@ -618,7 +722,7 @@ public class FolderType extends BaseResourceType
 	 */
 	public String getLocalizedHoverText(ContentEntity member)
 	{
-		return rb.getString("type.upload");
+		return rb.getString("type.folder");
 	}
 	
 	/* (non-Javadoc)
