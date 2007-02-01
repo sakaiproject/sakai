@@ -21,91 +21,102 @@
 #start_response()
 <!-- portlet.vm -->
 <div class="portlet">
+	<div id="pda-portlet-menu">
         <a href="${portalTopUrl}" title="need title here">Sites</a> 
-#if ($currentSite)
-         -> <a href="${currentSite.siteUrl}" title="${currentSite.siteTitle}">
-<span>${currentSite.siteTitle}</span></a>
-#end
-#if ($currentPlacement)
-         -> <a href="${currentPlacement.toolResetActionUrl}" target="${currentPlacement.toolPlacementIDJS}"
+		  #if ($currentSite)
+			 	> <a href="${currentSite.siteUrl}" title="${currentSite.siteTitle}">
+				<span>${currentSite.siteTitle}</span>
+				</a>
+			#end
+			#if ($currentPlacement)
+         	 > <a href="${currentPlacement.toolResetActionUrl}" target="${currentPlacement.toolPlacementIDJS}"
                >${currentPlacement.toolTitle}</a>
-#end
-#if (${currentPlacement.toolShowHelpButton})
+			#end
+			#if (${currentPlacement.toolShowHelpButton})
              &nbsp;(<a accesskey="h" href="${currentPlacement.toolHelpActionUrl}" title="${sitHelp}"
                 target="_blank" onclick="openWindow('${currentPlacement.toolHelpActionUrl}', 'Help',
                 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">?</a>)
-#end
-#if ($currentPlacement)
-#includeToolBody ( $currentPlacement )
-#else
-#if ($currentSite)
-<ul>
-#foreach ( $page in $pageNavTools ) 
-#if ($page.isPage)
-## This must be a popup - so we treat it as a popup
-<li><a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
-${page.pageTitle}</a></li>
-#else
-<li><a href="${page.toolrefUrl}" title="${page.toolTitle}">${page.toolTitle}</a>
-#end
-#end
-</ul>
-#else
-<ul>
-#foreach ( $site in $allSites ) 
-  <li><a href="${site.siteUrl}" title="${site.siteTitle}">
-  <span>${site.siteTitle}</span>
-  </a></li>
-#end 
-</ul>
-#end
-#end
-#if ($currentSite)
-#if (${pageNavShowPresenceLoggedIn})
-<div class="portletpresence" id="portletletprecense" >
-                <div class="portletpresencewrapper" id="portletpresencewrapper">
-                        <div id="presenceTitle">${pageNavSitPresenceTitle}</div>
-                        <iframe name="presenceIframe" id="presenceIframe" title="${pageNavSitPresenceTitle}"
-                                frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${pageNavPresenceUrl}" >
-                        </iframe>
-                </div>
-</div>
-<script>
-function togglePresence()
-{
-    if ( window.document.getElementById('portletpresencewrapper').style.visibility == 'hidden' ) {
-	showPresence();
-    } else {
-	hodePresence();
-    }
-}
+			 #end
+			<div class="portletpresencebutton" >
+				#if (${pageNavShowPresenceLoggedIn})
+					#if ($currentSite)
+						#if ( ! $currentSite.isMyWorkspace )
+							<a href-"#" onMouseOver="showPresence();" onMouseOut="hidePresence();">Users Present</a> | 
+						#end
+					#end
+				#end
+				#if ( $loggedIn ) 
+				<a href="${portalTopUrl}?force.logout=yes">Log Out</a>
+				#else
+				<a href="${portalTopUrl}?force.login=yes">Log In</a>
+				#end
+			</div>
+		</div> <!--end of menu bar -->
+	#if ($currentPlacement)
+		#includeToolBody ( $currentPlacement )
+	#else
+		#if ($currentSite)
+			<ul id="pda-portlet-page-menu"> 
+			#foreach ( $page in $pageNavTools ) 
+				#if ($page.isPage)
+					## This must be a popup - so we treat it as a popup
+					<li>
+						<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+							${page.pageTitle}
+						</a>
+				</li>
+				#else
+					<li>
+						<a href="${page.toolrefUrl}" title="${page.toolTitle}">${page.toolTitle}</a>
+					</li>
+				#end
+			#end
+			</ul>
+		#else
+			<ul id="pda-portlet-site-menu"> 
+			#foreach ( $site in $allSites ) 
+			  <li>
+					<a href="${site.siteUrl}" title="${site.siteTitle}">
+						<span>${site.siteTitle}</span>
+				  </a>
+			  </li>
+			#end 
+		</ul>
+		#end
+	#end
+	#if ($currentSite)
+		#if (${pageNavShowPresenceLoggedIn})
+			<div class="portletpresence" id="portletletprecense" >
+				 <div class="portletpresencewrapper" id="portletpresencewrapper">
+					##not needed   <div id="presenceTitle">${pageNavSitPresenceTitle}</div>
+							<iframe name="presenceIframe" id="presenceIframe" title="${pageNavSitPresenceTitle}"
+									  frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${pageNavPresenceUrl}" >
+							</iframe>
+				 </div>
+			 </div>
+			<script>
+			function togglePresence()
+			{
+				 if ( window.document.getElementById('portletpresencewrapper').style.visibility == 'hidden' ) {
+				showPresence();
+				 } else {
+				hodePresence();
+				 }
+			}
+			
+			function showPresence()
+			{
+				window.document.getElementById('portletpresencewrapper').style.visibility = 'visible';
+			}
+			
+			function hidePresence()
+			{
+				window.document.getElementById('portletpresencewrapper').style.visibility = 'hidden';
+			}
+			</script>
+		#end
+	#end
 
-function showPresence()
-{
-	window.document.getElementById('portletpresencewrapper').style.visibility = 'visible';
-}
-
-function hidePresence()
-{
-	window.document.getElementById('portletpresencewrapper').style.visibility = 'hidden';
-}
-</script>
-#end
-#end
-<div class="portletpresencebutton" >
-#if (${pageNavShowPresenceLoggedIn})
-#if ($currentSite)
-#if ( ! $currentSite.isMyWorkspace )
-<a href-"#" onMouseOver="showPresence();" onMouseOut="hidePresence();">Users Present</a> | 
-#end
-#end
-#end
-#if ( $loggedIn ) 
-<a href="${portalTopUrl}?force.logout=yes">Log Out</a>
-#else
-<a href="${portalTopUrl}?force.login=yes">Log In</a>
-#end
-</div>
 ##
 ## Bottom takes up a lot of space - we leave it in comments - perhaps a smaller version is better
 ##
