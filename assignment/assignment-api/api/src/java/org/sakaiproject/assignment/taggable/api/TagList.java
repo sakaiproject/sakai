@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2006 The Sakai Foundation.
+ * Copyright (c) 2006, 2007 The Sakai Foundation.
  *
  * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,9 @@ package org.sakaiproject.assignment.taggable.api;
 import java.util.List;
 
 /**
- * A specialized list that can give column names for the data that the objects
- * in the list can provide.
+ * A specialized list that can provide column information in the form of a
+ * {@link TagColumn} for each field that the {@link Tag} objects in the list can
+ * provide.
  * 
  * @author The Sakai Foundation.
  * @see Tag
@@ -33,12 +34,39 @@ import java.util.List;
 public interface TagList extends List<Tag> {
 
 	/**
-	 * Method to get a list of the column names that the objects in this tag
-	 * list can provide data for.
+	 * Method to get a particular {@link TagColumn} object from the list of
+	 * columns identified by the given name.
 	 * 
-	 * @return A list of column names that the objects in this tag list can
-	 *         provide data for.
-	 * @see Tag#getFieldData()
+	 * @param name
+	 *            The name that identifies that column to retrieve.
+	 * @return The {@link TagColumn} object.
+	 * @see #getColumns()
 	 */
-	public List<String> getColumns();
+	public TagColumn getColumn(String name);
+
+	/**
+	 * Method to get a list of {@link TagColumn} that the {@link Tag} objects in
+	 * this list can provide data for.
+	 * 
+	 * @return A list of {@link TagColumn} that the {@link Tag} objects in this
+	 *         list can provide data for.
+	 * @see Tag#getField(String)
+	 * @see Tag#getFields()
+	 */
+	public List<TagColumn> getColumns();
+
+	/**
+	 * Method to sort the {@link Tag} objects in this list by the fields
+	 * represented by the given {@link TagColumn}.
+	 * 
+	 * @param column
+	 *            The tag column to sort by. This may be null, indicating a
+	 *            default sort column.
+	 * @param ascending
+	 *            True if the objects should be assorted in ascending order,
+	 *            false otherwise.
+	 * @see Tag#getField(String)
+	 * @see Tag#getFields()
+	 */
+	public void sort(TagColumn column, boolean ascending);
 }

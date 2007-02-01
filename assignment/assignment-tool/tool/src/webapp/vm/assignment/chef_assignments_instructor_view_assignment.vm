@@ -1,4 +1,19 @@
 <div class="portletBody">
+	#if ($taggable)
+		#if (!$activityHelpers.isEmpty())
+			<div class="navIntraTool">
+				#set ($first = true)
+				#foreach ($helperInfo in $activityHelpers)
+					#if (!$first)
+						| <a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($assignment.Reference)&providerType=$validator.escapeUrl($helperInfo.provider.type)")" title="$!helperInfo.description">$!helperInfo.name</a>
+					#else
+						#set ($first = false)
+						<a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($assignment.Reference)&providerType=$validator.escapeUrl($helperInfo.provider.type)")" title="$!helperInfo.description">$!helperInfo.name</a>
+					#end
+				#end
+			</div>
+		#end
+	#end
 	<h3>
 		$tlang.getString("viewassig.viewass1")
 	</h3>

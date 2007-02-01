@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2006, 2007 The Sakai Foundation.
+ * Copyright (c) 2007 The Sakai Foundation.
  *
  * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,39 +21,38 @@
 
 package org.sakaiproject.assignment.taggable.api;
 
-import java.util.Map;
-
 /**
- * An object that can provide the necessary data to interact with a specific
- * helper tool.
+ * Represents a specific column in a {@link TagList}.
  * 
  * @author The Sakai Foundation.
  */
-public interface TaggingHelperInfo {
+public interface TagColumn {
 
 	/**
-	 * @return The identifier of the helper that will be called.
+	 * Method to get the displayable name of this column.
+	 * 
+	 * @return The displayable column name.
 	 */
-	public String getHelperId();
+	public String getDisplayName();
 
 	/**
-	 * @return The provider of the helper that this tagging helper information
-	 *         relates to.
-	 */
-	public TaggingProvider getProvider();
-
-	/**
-	 * @return The description of this helper.
-	 */
-	public String getDescription();
-
-	/**
-	 * @return The name of this helper.
+	 * Method to get the name that identifies this column.
+	 * 
+	 * @return The name that identifies this column.
 	 */
 	public String getName();
 
 	/**
-	 * @return A map of parameter names and values to pass to the helper.
+	 * Method to get a string describing this column.
+	 * 
+	 * @return The description of this column.
 	 */
-	public Map<String, ? extends Object> getParameterMap();
+	public String getDescription();
+
+	/**
+	 * Method to determine if this column is sortable.
+	 * 
+	 * @return True if this column is sortable, false otherwise.
+	 */
+	public boolean isSortable();
 }

@@ -53,13 +53,12 @@ public interface Tag extends Entity {
 
 	/**
 	 * Method to get a specific field of data for this tag based on a specific
-	 * column from the list returned by
-	 * {@link TagList#getColumns() TagList.getColumns}.
+	 * column from the list returned by {@link TagList#getColumns()}.
 	 * 
 	 * @param column
-	 *            The name for the column that matches a specific field of data
-	 *            in this tag.
+	 *            The {@link TagColumn} object representing the specific field
+	 *            of data to retrieve from this tag.
 	 * @return The data for the field associated with the given column.
 	 */
-	public String getField(String column);
+	public String getField(TagColumn column);
 }

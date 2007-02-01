@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  *
  * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,11 +49,13 @@ import org.sakaiproject.assignment.cover.AssignmentService;
 import org.sakaiproject.assignment.taggable.api.TaggingHelperInfo;
 import org.sakaiproject.assignment.taggable.api.TaggingManager;
 import org.sakaiproject.assignment.taggable.api.TaggingProvider;
+import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider;
+import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Pager;
+import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Sort;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.AuthzGroupService;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -534,6 +536,13 @@ public class AssignmentAction extends PagedResourceActionII
 	/** is current user allowed to grade assignment? */
 	private static final String STATE_ALLOW_GRADE_SUBMISSION = "state_allow_grade_submission";
 
+	/** property for previous feedback attachments **/
+	private static final String PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS = "prop_submission_previous_feedback_attachments";
+	
+	/** the user and submission list for list of submissions page */
+	private static final String USER_SUBMISSIONS = "user_submissions";
+	
+	/** ************************* Taggable constants ************************** */
 	/** tagging provider type that will provide the appropriate helper */
 	private static final String PROVIDER_TYPE = "providerType";
 
@@ -546,22 +555,18 @@ public class AssignmentAction extends PagedResourceActionII
 	/** Reference to an assignment submission object */
 	private static final String SUBMISSION_REF = "submissionRef";
 	
-	/** For storing an instance of the TaggingManager */
-	protected TaggingManager taggingManager = (TaggingManager) ComponentManager.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
-	
-	/** property for previous feedback attachments **/
-	private static final String PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS = "prop_submission_previous_feedback_attachments";
-	
-	/** the user and submission list for list of submissions page */
-	private static final String USER_SUBMISSIONS = "user_submissions";
+	/** session attribute for list of decorated tagging providers */
+	private static final String PROVIDER_LIST = "providerList";
 	
 	/**
 	 * central place for dispatching the build routines based on the state name
 	 */
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
+		TaggingManager taggingManager = (TaggingManager) ComponentManager
+				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
 		if (taggingManager.isTaggable()) {
-			context.put("taggable", true);
+			context.put("taggable", Boolean.valueOf(true));
 		}
 		
 		String template = null;
@@ -727,10 +732,19 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		context.put("context", (String) state.getAttribute(STATE_CONTEXT_STRING));
 
+		TaggingManager taggingManager = (TaggingManager) ComponentManager
+				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
 		if (taggingManager.isTaggable()) {
-			context.put("providers", taggingManager.getProviders());
+			String mode = (String) state.getAttribute(STATE_MODE);
+			List<DecoratedTaggingProvider> providers = (List) state
+					.getAttribute(mode + PROVIDER_LIST);
+			if (providers == null) {
+				providers = initDecoratedProviders();
+				state.setAttribute(mode + PROVIDER_LIST, providers);
+			}
+			context.put("providers", providers);
 		}
-		
+
 		User user = (User) state.getAttribute(STATE_USER);
 		String currentAssignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
 		try
@@ -798,10 +812,19 @@ public class AssignmentAction extends PagedResourceActionII
 
 		String aId = (String) state.getAttribute(VIEW_ASSIGNMENT_ID);
 
+		TaggingManager taggingManager = (TaggingManager) ComponentManager
+				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
 		if (taggingManager.isTaggable()) {
-			context.put("providers", taggingManager.getProviders());
+			String mode = (String) state.getAttribute(STATE_MODE);
+			List<DecoratedTaggingProvider> providers = (List) state
+					.getAttribute(mode + PROVIDER_LIST);
+			if (providers == null) {
+				providers = initDecoratedProviders();
+				state.setAttribute(mode + PROVIDER_LIST, providers);
+			}
+			context.put("providers", providers);
 		}
-		
+
 		try
 		{
 			Assignment currentAssignment = AssignmentService.getAssignment(aId);
@@ -865,10 +888,19 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 		
+		TaggingManager taggingManager = (TaggingManager) ComponentManager
+				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
 		if (taggingManager.isTaggable()) {
-			context.put("providers", taggingManager.getProviders());
+			String mode = (String) state.getAttribute(STATE_MODE);
+			List<DecoratedTaggingProvider> providers = (List) state
+					.getAttribute(mode + PROVIDER_LIST);
+			if (providers == null) {
+				providers = initDecoratedProviders();
+				state.setAttribute(mode + PROVIDER_LIST, providers);
+			}
+			context.put("providers", providers);
 		}
-		
+
 		try
 		{
 			AssignmentSubmission s = AssignmentService.getSubmission((String) state.getAttribute(VIEW_GRADE_SUBMISSION_ID));
@@ -894,6 +926,8 @@ f
 	 */
 	protected String build_list_assignments_context(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
+		TaggingManager taggingManager = (TaggingManager) ComponentManager
+				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
 		if (taggingManager.isTaggable()) {
 			context.put("providers", taggingManager.getProviders());
 		}
@@ -1627,6 +1661,8 @@ f
 			addAlert(state, rb.getString("youarenot14"));
 		}
 
+		TaggingManager taggingManager = (TaggingManager) ComponentManager
+				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
 		if (taggingManager.isTaggable()) {
 			context.put("providers", taggingManager.getProviders());
 		}
@@ -1661,8 +1697,28 @@ f
 	protected String build_instructor_view_assignment_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
+		TaggingManager taggingManager = (TaggingManager) ComponentManager
+				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
 		if (taggingManager.isTaggable()) {
-			context.put("providers", taggingManager.getProviders());
+			String mode = (String) state.getAttribute(STATE_MODE);
+			List<DecoratedTaggingProvider> providers = (List) state
+					.getAttribute(mode + PROVIDER_LIST);
+			if (providers == null) {
+				providers = initDecoratedProviders();
+				state.setAttribute(mode + PROVIDER_LIST, providers);
+			}
+			List<TaggingHelperInfo> activityHelpers = new ArrayList<TaggingHelperInfo>();
+			for (DecoratedTaggingProvider provider : providers) {
+				TaggingHelperInfo helper = provider
+						.getProvider()
+						.getActivityHelperInfo(
+								(String) state.getAttribute(VIEW_ASSIGNMENT_ID));
+				if (helper != null) {
+					activityHelpers.add(helper);
+				}
+			}
+			context.put("activityHelpers", activityHelpers);
+			context.put("providers", providers);
 		}
 
 		context.put("tlang", rb);
@@ -3528,6 +3584,8 @@ f
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
 
+		TaggingManager taggingManager = (TaggingManager) ComponentManager
+				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
 		TaggingProvider provider = taggingManager.findProviderByType(params
 				.getString(PROVIDER_TYPE));
 
@@ -3557,6 +3615,8 @@ f
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
 
+		TaggingManager taggingManager = (TaggingManager) ComponentManager
+				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
 		TaggingProvider provider = taggingManager.findProviderByType(params
 				.getString(PROVIDER_TYPE));
 
@@ -3586,6 +3646,8 @@ f
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
 
+		TaggingManager taggingManager = (TaggingManager) ComponentManager
+				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
 		TaggingProvider provider = taggingManager.findProviderByType(params
 				.getString(PROVIDER_TYPE));
 
@@ -6088,6 +6150,71 @@ f
 		}
 	} // doSort_grade_submission
 
+	public void doSort_tags(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		ParameterParser params = data.getParameters();
+
+		String criteria = params.getString("criteria");
+		String providerType = params.getString(PROVIDER_TYPE);
+
+		String mode = (String) state.getAttribute(STATE_MODE);
+		
+		List<DecoratedTaggingProvider> providers = (List) state
+				.getAttribute(mode + PROVIDER_LIST);
+
+		for (DecoratedTaggingProvider dtp : providers) {
+			if (dtp.getProvider().getType().equals(providerType)) {
+				Sort sort = dtp.getSort();
+				if (sort.getSort().equals(criteria)) {
+					sort.setAscending(sort.isAscending() ? false : true);
+				} else {
+					sort.setSort(criteria);
+					sort.setAscending(true);
+				}
+				break;
+			}
+		}
+	}
+	
+	public void doPage_tags(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		ParameterParser params = data.getParameters();
+
+		String page = params.getString("page");
+		String pageSize = params.getString("pageSize");
+		String providerType = params.getString(PROVIDER_TYPE);
+
+		String mode = (String) state.getAttribute(STATE_MODE);
+		
+		List<DecoratedTaggingProvider> providers = (List) state
+				.getAttribute(mode + PROVIDER_LIST);
+
+		for (DecoratedTaggingProvider dtp : providers) {
+			if (dtp.getProvider().getType().equals(providerType)) {
+				Pager pager = dtp.getPager();
+				pager.setPageSize(Integer.valueOf(pageSize));
+				if (Pager.FIRST.equals(page)) {
+					pager.setFirstItem(0);
+				} else if (Pager.PREVIOUS.equals(page)) {
+					pager.setFirstItem(pager.getFirstItem()
+							- pager.getPageSize());
+				} else if (Pager.NEXT.equals(page)) {
+					pager.setFirstItem(pager.getFirstItem()
+							+ pager.getPageSize());
+				} else if (Pager.LAST.equals(page)) {
+					pager.setFirstItem((pager.getTotalItems() / pager
+							.getPageSize())
+							* pager.getPageSize());
+				}
+				break;			
+			}
+		}
+	}
+	
 	/**
 	 * the UserSubmission clas
 	 */
@@ -7900,5 +8027,15 @@ f
 		}
 		
 		
+	}
+	
+	private List<DecoratedTaggingProvider> initDecoratedProviders() {
+		TaggingManager taggingManager = (TaggingManager) ComponentManager
+				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+		List<DecoratedTaggingProvider> providers = new ArrayList<DecoratedTaggingProvider>();
+		for (TaggingProvider provider : taggingManager.getProviders()) {
+			providers.add(new DecoratedTaggingProvider(provider));
+		}
+		return providers;
 	}
 }

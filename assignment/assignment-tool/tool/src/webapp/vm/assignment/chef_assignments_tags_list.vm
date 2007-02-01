@@ -1,13 +1,64 @@
 #foreach ($provider in $providers)
-	#if ($provider.allowViewTags())
-		<h4>$provider.getName() $tlang.getString("tag.tags")</h4>
+	#if ($provider.getProvider().allowViewTags())
+		<h4>$provider.getProvider().getName() $tlang.getString("tag.tags")</h4>
 		#set ($tagList = $provider.getTags($assignment))
 		#if (!$tagList.isEmpty())
+			<div class="listNav">
+				#set ($pager = $provider.getPager())
+				<div  class="instruction">
+					$tlang.getString("gen.viewing") $pager.getFirstItemNumber() - $pager.getLastItemNumber() $tlang.getString("gen.of") $pager.getTotalItems() $tlang.getString("gen.items")
+				</div>
+				<form class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
+					<input type="hidden" name="sakai_action" value="doPage_tags"/>
+					<input type="hidden" name="providerType" value="$provider.getProvider().getType()"/>
+					#if ($pager.canFirst())
+						<input type="submit" name="page" value="|&lt;" title="$tlang.getString("gen.first")" />
+					#else
+						<input type="submit" value="|&lt;" disabled="disabled" />
+					#end
+					#if ($pager.canPrevious())
+						<input type="submit" name="page" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" accesskey="p" />
+					#else
+						<input type="submit" value="&lt;" disabled="disabled" />
+					#end
+						<label for="pageSize" class="skip">$tlang.getString("newassig.selectmessage")</label>
+						<select name="pageSize" onchange="blur(); form.submit(); return false;">
+							#foreach ($i in $!pager.getPageSizes())
+								<option value="$i" #if($pager.getPageSize() == $i) selected="selected" #end>$tlang.getString("list.show") $i $tlang.getString("list.itemsper")</option>
+							#end
+						</select>
+					#if ($pager.canNext())
+						<input type="submit" name="page" value="&gt;" title="$tlang.getString('gen.next') $pagesize" accesskey="n" />
+					#else
+						<input type="submit" value="&gt;" disabled="disabled" />
+					#end
+					#if ($pager.canLast())
+						<input type="submit" name="page" value="&gt;|" title="$tlang.getString('gen.last')" />
+					#else
+						<input type="submit" value="&gt;|" disabled="disabled" />
+					#end
+				</form>
+			</div>
 			<table class="listHier lines nolines" border="0" cellspacing="0" summary="Table contains list of tags associated with current assignment.">
-				#set ($columns = $tagList.getColumns())
+				#set ($columns = $provider.getColumns($assignment))
 				<tr>
 					#foreach ($column in $columns)
-						<th>$column</th>
+						#if ($column.isSortable())
+							<th><a href="#"
+								   onclick="location='#toolLinkParam("AssignmentAction" "doSort_tags" "criteria=$column.name&providerType=$provider.provider.type")'; return false;"
+								   title="$!column.getDescription()">
+								$!column.getDisplayName()
+								#if ($provider.getSort().getSort().equals($!column.getName()))
+									#if ($provider.getSort().isAscending())
+										<img id="sortascendinglastname" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+									#else
+										<img id="sortdescendinglastname" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+									#end
+								#end
+							</a></th>
+						#else
+							<th>$column.getDisplayName()</th>
+						#end
 					#end
 				</tr>
 				#foreach ($tag in $tagList)

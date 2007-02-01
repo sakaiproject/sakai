@@ -62,7 +62,7 @@
 					#set ($helperInfo = false)
 					#set ($helperInfo = $provider.getItemsHelperInfo($assignment.reference))
 					#if ($helperInfo)
-						| <a href="#toolLinkParam("$action" "doHelp_items" "activityRef=$validator.escapeUrl($assignment.Reference)&providerType=$validator.escapeUrl($provider.type)")" title="$!helperInfo.title">$!helperInfo.text</a>
+						| <a href="#toolLinkParam("$action" "doHelp_items" "activityRef=$validator.escapeUrl($assignment.Reference)&providerType=$validator.escapeUrl($provider.type)")" title="$!helperInfo.description">$!helperInfo.name</a>
 					#end
 				#end
 			#end
@@ -259,7 +259,7 @@
 											#set ($helperInfo = false)
 											#set ($helperInfo = $provider.getItemHelperInfo($item.reference))
 											#if ($helperInfo)
-												| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerType=$validator.escapeUrl($provider.type)")" title="$!helperInfo.title">$!helperInfo.text</a>
+												| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerType=$validator.escapeUrl($provider.type)")" title="$!helperInfo.description">$!helperInfo.name</a>
 											#end
 										#end
 									</div>
