@@ -760,7 +760,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
-			addAlert(state, "Cannot find the assignment.");
+			addAlert(state, rb.getString("cannot_find_assignment"));
 		}
 		catch (PermissionException e)
 		{
@@ -779,7 +779,7 @@ public class AssignmentAction extends PagedResourceActionII
 		boolean allowSubmit = AssignmentService.allowAddSubmission((String) state.getAttribute(STATE_CONTEXT_STRING));
 		if (!allowSubmit)
 		{
-			addAlert(state, "You are not allowed to submit to this assignment. ");
+			addAlert(state, rb.getString("not_allowed_to_submit"));
 		}
 		context.put("allowSubmit", new Boolean(allowSubmit));
 
@@ -809,7 +809,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
-			addAlert(state, "Cannot find the assignment.");
+			addAlert(state, rb.getString("cannot_find_assignment"));
 		}
 		catch (PermissionException e)
 		{
@@ -881,12 +881,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, "You are not allowed to get the submission to this assignment. ");
+			addAlert(state, rb.getString("not_allowed_to_get_submission"));
 		}
 
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_STUDENT_VIEW_GRADE;
-
+f
 	} // build_student_view_grade_context
 
 	/**
@@ -1385,7 +1385,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, "You are not allowed to view the assignment submission. ");
+			addAlert(state, rb.getString("not_allowed_to_view"));
 		}
 
 		// assignment submission
@@ -1458,7 +1458,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, "You are not allowed to view the assignment submission. ");
+			addAlert(state, rb.getString("not_allowed_to_view"));
 		}
 
 		context.put("user", state.getAttribute(STATE_USER));
@@ -1544,7 +1544,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, "You are not allowed to view the assignment submission. ");
+			addAlert(state, rb.getString("not_allowed_to_view"));
 		}
 
 		User user = (User) state.getAttribute(STATE_USER);
@@ -1922,7 +1922,7 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 					    catch(Exception e)
 				        {
-				        		Log.warn("chef", "Cannot find assignment " + assignmentRef + ": " + e.getMessage());
+				        		Log.warn("chef", rb.getString("cannot_find_assignment") + assignmentRef + ": " + e.getMessage());
 				        }
 					}
 					else if (associateGradebookAssignment != null && isExternalAssociateAssignmentDefined)
@@ -1936,7 +1936,7 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 					    catch(Exception e)
 				        {
-				        		Log.warn("chef", "Cannot find assignment " + assignmentRef + ": " + e.getMessage());
+				        		Log.warn("chef", rb.getString("cannot_find_assignment") + assignmentRef + ": " + e.getMessage());
 				        }
 					}
 					
@@ -2099,7 +2099,7 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				catch (Exception e)
 				{
-					Log.warn("chef", "Cannot find assignment " + assignmentRef + ": " + e.getMessage());
+					Log.warn("chef", rb.getString("cannot_find_assignment") + assignmentRef + ": " + e.getMessage());
 				}
 			} // updateRemoveSubmission != null
 		} // if gradebook exists
@@ -2177,7 +2177,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, "You are not allowed to view the assignment submission. ");
+			addAlert(state, rb.getString("not_allowed_to_view"));
 		} // try
 
 	} // doView_submission
@@ -2743,7 +2743,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			catch (PermissionException e)
 			{
-				addAlert(state, "You are not allowed to view the assignment submission. ");
+				addAlert(state, rb.getString("not_allowed_to_view"));
 			}
 		}
 
@@ -2989,7 +2989,7 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					catch (PermissionException e)
 					{
-						addAlert(state, "You do not have permission to edit the submission. ");
+						addAlert(state, rb.getString("no_permissiion_to_edit_submission"));
 					}
 					catch (InUseException e)
 					{
@@ -3036,7 +3036,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			catch (PermissionException e)
 			{
-				addAlert(state, "You are not allowed to view the assignment submission. ");
+				addAlert(state, rb.getString("not_allowed_to_view"));
 			}
 
 		} // if
@@ -3892,7 +3892,7 @@ public class AssignmentAction extends PagedResourceActionII
 							// making new announcement
 							header.setSubject(/* subject */rb.getString("assig6") + " " + title);
 							message.setBody(/* body */rb.getString("opedat") + " "
-									+ FormattedText.convertPlaintextToFormattedText(title) + " is "
+									+ FormattedText.convertPlaintextToFormattedText(title) + rb.getString("is")
 									+ openTime.toStringLocalFull() + ". ");
 						}
 						else
@@ -3900,7 +3900,7 @@ public class AssignmentAction extends PagedResourceActionII
 							// revised announcement
 							header.setSubject(/* subject */rb.getString("assig5") + " " + title);
 							message.setBody(/* body */rb.getString("newope") + " "
-									+ FormattedText.convertPlaintextToFormattedText(title) + " is "
+									+ FormattedText.convertPlaintextToFormattedText(title) + rb.getString("is")
 									+ openTime.toStringLocalFull() + ". ");
 						}
 
@@ -4982,7 +4982,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, "You are not allowed to view the assignment submission. ");
+			addAlert(state, rb.getString("not_allowed_to_view"));
 		}
 
 		try
@@ -5028,7 +5028,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, "You are not allowed to view the assignment submission. ");
+			addAlert(state, rb.getString("not_allowed_to_view"));
 		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -5526,7 +5526,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, "You are not allowed to view the assignment submission. ");
+			addAlert(state, rb.getString("not_allowed_to_view"));
 		}
 		
 		// allow resubmit number and due time
