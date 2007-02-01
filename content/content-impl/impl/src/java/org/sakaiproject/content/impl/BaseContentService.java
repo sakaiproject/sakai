@@ -8890,6 +8890,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				Object obj = it.next();
 				if (obj == null) continue;
 
+				// do not count the size of virtual objects
+				if (obj instanceof BaseCollectionEdit && ((BaseCollectionEdit)obj).getVirtualContentEntity() != null) continue;
+				
 				// if a resource, add the body size
 				if (obj instanceof ContentResource)
 				{
