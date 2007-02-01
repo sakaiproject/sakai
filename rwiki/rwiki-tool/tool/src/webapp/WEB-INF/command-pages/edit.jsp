@@ -84,22 +84,27 @@
 			    </span>
 			  </form>
 			</div>
-			<c:set var="rwikiContentStyle"  value="rwiki_content" />
+			<c:choose>
+			<c:when test="${rightRenderBean.hasContent}" >
+				<c:set var="rwikiContentStyle"  value="withsidebar" />	
+			</c:when>
+			<c:otherwise>
+				<c:set var="rwikiContentStyle"  value="nosidebar" />    
+			</c:otherwise>
+			</c:choose>
+	 
 			<jsp:directive.include file="breadcrumb.jsp"/>
 		    <!-- Creates the right hand sidebar -->
-		    <c:if test="${rightRenderBean.hasContent}">
-		      <jsp:directive.include file="sidebar-switcher.jsp"/>
-		    </c:if>
-		    <jsp:directive.include file="sidebar.jsp"/>
+		    
+		    
+		    
+		    
 		    <!-- Main page -->
-	  <div id="${rwikiContentStyle}" >
-	  <!--
-	  The bread crumbs tell us which page we are on
-	    <div class="pageName" title="${viewBean.pageName}"><c:out value="${viewBean.localName}"/></div>
-	  -->
-        <div class="tabcontainer" >
+		    
+	<div id="rwiki_head" >
+		<div id="rwiki_tabholder">
 	        <ul class="tabs" >
-				<li id="edit" class="tabHeadOn" >
+			<li id="edit" class="tabHeadOn" >
 			   <jsp:element name="p" >
 			   	<jsp:attribute name="class" >tabhead</jsp:attribute>
 			   	<jsp:attribute name="title" ><c:out value="${rlb.jsp_edit}"/></jsp:attribute>
@@ -107,6 +112,35 @@
 		       		<a href="#" onClick="selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOn','tabOff','editTab','tabOff','tabOn','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn'); return false;" ><c:out value="${rlb.jsp_edit}"/></a>
 		       	</jsp:body>
 		       </jsp:element>
+		    </li>
+		    <li id="preview" class="tabHeadOff"  >
+		    	<jsp:element name="p" >
+			   		<jsp:attribute name="class" >tabhead</jsp:attribute>
+			   		<jsp:attribute name="title" ><c:out value="${rlb.jsp_preview}"/></jsp:attribute>
+		        	<jsp:body>
+				   		<a href="#" onClick="selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOff','tabOn','editTab','tabOn','tabOff','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOff','tabHeadOn','edit','tabHeadOn','tabHeadOff'); previewContent('content','previewContent', 'pageVersion', 'realm','pageName','?' ); return false;" ><c:out value="${rlb.jsp_preview}"/></a>
+				    </jsp:body>
+				</jsp:element>
+		    </li>
+		    <li id="autosave" class="autoSaveOffClass" >
+		    	<jsp:element name="p" >
+			   		<jsp:attribute name="class" >tabhead</jsp:attribute>
+			   		<jsp:attribute name="title" ><c:out value="${rlb.jsp_recovered_content}"/></jsp:attribute>
+		        	<jsp:body>
+						<a href="#" onClick="selectTabs('autosaveTab','tabOff','tabOn','previewTab','tabOn','tabOff','editTab','tabOn','tabOff','autosave','tabHeadOff','tabHeadOn','preview','tabHeadOn','tabHeadOff','edit','tabHeadOn','tabHeadOff'); return false;" ><c:out value="${rlb.jsp_recovered_content}"/></a>
+				   </jsp:body>
+				</jsp:element>
+		    </li>
+		    </ul>
+		</div>
+				    
+		<jsp:directive.include file="sidebar-switcher.jsp"/>		     
+		 
+	 </div>
+		       
+		       
+	  <div id="rwiki_content" class="${rwikiContentStyle}" >
+		       
 		       <div id="editTab" class="tabOn" >
 			       <form action="?#" method="post" id="editForm"  >
 				      <c:if test="${fn:length(errorBean.errors) gt 0}">
@@ -159,7 +193,7 @@
 						</pre>
 				      </c:if>
 			      
-				      <div class="longtext">
+				      <div>
 						<div id="textarea_outer_sizing_divx">
 						  <div id="textarea_inner_sizing_divx">
 						    <jsp:directive.include file="edittoolbar.jsp"/>
@@ -224,16 +258,9 @@
 						</p>
 				      </div>
 			    	</form>
-		    	</div>
-		    </li>
-		    <li id="preview" class="tabHeadOff"  >
-		    	<jsp:element name="p" >
-			   		<jsp:attribute name="class" >tabhead</jsp:attribute>
-			   		<jsp:attribute name="title" ><c:out value="${rlb.jsp_preview}"/></jsp:attribute>
-		        	<jsp:body>
-				   		<a href="#" onClick="selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOff','tabOn','editTab','tabOn','tabOff','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOff','tabHeadOn','edit','tabHeadOn','tabHeadOff'); previewContent('content','previewContent', 'pageVersion', 'realm','pageName','?' ); return false;" ><c:out value="${rlb.jsp_preview}"/></a>
-				    </jsp:body>
-				</jsp:element>
+		    	</div> <!-- end of edit tab -->
+		    	
+		    	
 		        <div id="previewTab" class="tabOff" >	        
 					<div class="rwikiRenderedContent" id="previewContent" >
 			      		<c:if test="${editBean.saveType eq 'preview'}">
@@ -243,16 +270,9 @@
 				  			<c:set target="${currentRWikiObject}" property="content" value="${currentContent}"/>	    
 			        	</c:if>
 					</div>
-		        </div>      
-		    </li>
-		    <li id="autosave" class="autoSaveOffClass" >
-		    	<jsp:element name="p" >
-			   		<jsp:attribute name="class" >tabhead</jsp:attribute>
-			   		<jsp:attribute name="title" ><c:out value="${rlb.jsp_recovered_content}"/></jsp:attribute>
-		        	<jsp:body>
-						<a href="#" onClick="selectTabs('autosaveTab','tabOff','tabOn','previewTab','tabOn','tabOff','editTab','tabOn','tabOff','autosave','tabHeadOff','tabHeadOn','preview','tabHeadOn','tabHeadOff','edit','tabHeadOn','tabHeadOff'); return false;" ><c:out value="${rlb.jsp_recovered_content}"/></a>
-				   </jsp:body>
-				</jsp:element>
+		        </div> <!-- end of previewTab -->
+		        
+		              
 				<div id="autosaveTab" class="tabOff" >
 		    	   	<p class="shorttext">
 		    			<jsp:element name="input" >
@@ -279,15 +299,17 @@
 			   				<jsp:attribute name="value" ><c:out value="${rlb.jsp_none}"/></jsp:attribute>
 						</jsp:element>	
 		   			</p>
-		   			<div class="longtext">
+		   			<div>
 			    		<textarea cols="60" rows="25" name="restoreContent" id="restoreContent"  readonly="readonly" ><c:out value="${rlb.jsp_no_restored_content}"/>
 			    		</textarea>
 					</div>
-				</div>
-			</li>
-		   </ul>
-	   </div>
-	  </div>
+				</div> <!-- endof autosave tab -->
+				
+				
+	  </div> <!-- end of content div -->
+  		
+  	  <jsp:directive.include file="sidebar.jsp"/>
+	  
 	</div>
       </div>
       <jsp:directive.include file="footer.jsp"/>

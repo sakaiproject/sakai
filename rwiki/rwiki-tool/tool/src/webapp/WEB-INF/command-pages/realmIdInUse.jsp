@@ -47,10 +47,9 @@
       <jsp:directive.include file="header.jsp"/>
       <div id="rwiki_container">
 	<div class="portletBody">
-	  <c:set var="rwikiContentStyle"  value="rwiki_content" />
 
 	  <!-- Main page -->
-	  <div id="${rwikiContentStyle}" >
+	  <div id="rwiki_content" class="nosiderbar" >
 
 	    <h3><c:out value="${rlb.jsp_edit_section}"/>: <c:out value="${realmEditBean.localSpace}" /></h3>
 	    <c:if test="${fn:length(errorBean.errors) gt 0}">

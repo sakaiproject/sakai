@@ -74,13 +74,23 @@
 	    </span>
 	  </form>
 	</div>
-		<c:set var="rwikiContentStyle"  value="rwiki_content" />
+	<c:choose>
+	
+	  <c:when test="${rightRenderBean.hasContent}" >
+		 <c:set var="rwikiContentStyle"  value="withsidebar" />	
+	  </c:when>
+	  <c:otherwise>
+		 <c:set var="rwikiContentStyle"  value="nosidebar" />    
+	  </c:otherwise>
+	</c:choose>
 		
 	  <jsp:directive.include file="breadcrumb.jsp"/>
-	  <!-- Creates the right hand sidebar -->
-	  <jsp:directive.include file="sidebar.jsp"/>
+	  <div id="rwiki_head" >				    
+		<jsp:directive.include file="sidebar-switcher.jsp"/>		     
+	  </div>
+	  
 	  <!-- Main page -->
-		<div id="${rwikiContentStyle}" >
+	  <div id="rwiki_content" class="${rwikiContentStyle}" >
 			<h3 title="Preview Changes: ${viewBean.pageName}"><c:out value="${rlb.jsp_preview_changes}"/>: <c:out value="${viewBean.localName}"/></h3>
 	    <div class="rwikiRenderBody">
 	      <div class="rwikiRenderedContent"> 
@@ -145,6 +155,9 @@
 	      </div>
 	    </form>
 	  </div>
+	  
+	  <jsp:directive.include file="sidebar.jsp"/>
+	  
 	</div>
       </div>
       <jsp:directive.include file="footer.jsp"/>

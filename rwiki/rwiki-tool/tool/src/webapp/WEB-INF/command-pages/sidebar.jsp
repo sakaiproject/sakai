@@ -11,35 +11,23 @@
   <c:set var="permissionsBeanRight" value="${requestScope.rsacMap.permissionsBean}"/>
   <c:set var="permissionsBeanObject" value="${permissionsBeanRight.rwikiObject}"/>
   <c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>
-  <c:choose>
-  <c:when test="${rightRenderBean.hasContent}" >
-    <div id="rwiki_sidebar" >
-      <div class="rwiki_renderedContent">
+  <c:if test="${rightRenderBean.hasContent}" >
+  <div style="display: block;" id="rwiki_sidebar">
+    <div class="rwiki_renderedContent">
       <c:out value="${rightRenderBean.renderedPage}" escapeXml="false"/>
     </div>
-  <c:set target="${permissionsBeanRight}" property="rwikiObject" value="${rightRenderBean.rwikiObject}"/>
-  <c:if test="${permissionsBeanRight.updateAllowed}">
-    <span class="instruction" >
+  	<c:set target="${permissionsBeanRight}" property="rwikiObject" value="${rightRenderBean.rwikiObject}"/>
+  	<c:if test="${permissionsBeanRight.updateAllowed}">
+    	<span class="instruction" >
     	<jsp:element name="a">
     		<jsp:attribute name="href"><c:out value="${rightRenderBean.editUrl}"/></jsp:attribute>
     		<jsp:body>
     			<c:out value="${rlb.jsp_edit}"/>: <c:out value="${rightRenderBean.localisedPageName}"/>
     		</jsp:body>
     	</jsp:element>
-    </span> 
+    	</span> 
+  	</c:if>
+  	<c:set target="${permissionsBeanRight}" property="rwikiObject" value="${permissionsBeanObject}"/>
+  </div>
   </c:if>
-  <c:set target="${permissionsBeanRight}" property="rwikiObject" value="${permissionsBeanObject}"/>
-    </div>
-  </c:when>
-  <c:otherwise>
-  <!--  
-  <c:set target="${permissionsBeanRight}" property="rwikiObject" value="${rightRenderBean.rwikiObject}"/>
-  <c:if test="${permissionsBeanRight.updateAllowed}">
-    <span class="rwiki_create_sidebar" ><jsp:element name="a"><jsp:attribute name="href"><c:out value="${rightRenderBean.editUrl}"/></jsp:attribute>add sidebar</jsp:element></span> 
-  </c:if>
-  -->
-    <c:set var="rwikiContentStyle"  value="rwiki_content_nosidebar" />
-    
-  </c:otherwise>
-  </c:choose>
 </jsp:root>

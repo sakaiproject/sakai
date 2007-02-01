@@ -69,7 +69,6 @@
 	</form>
       </div>
 
-      	<c:set var="rwikiContentStyle"  value="rwiki_content" />
       	
 	<jsp:directive.include file="breadcrumb.jsp"/>
 	<!-- Creates the right hand sidebar -->
@@ -87,7 +86,7 @@
 	<jsp:useBean id="searchViewBean" class="uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean"/>
 	<jsp:setProperty name="searchViewBean" value="${currentLocalSpace}" property="localSpace"/>
 	
-      	<div id="${rwikiContentStyle}" >
+      	<div id="rwiki_content" class="nosidebar" >
 		    	
  			  		<c:forEach var="foundItem" items="${searchResults}" >
      		<p>

@@ -1,0 +1,23 @@
+
+a.editToolBar, 
+a:visited.editToolBar     {
+    border: 1px solid #efefde;	
+    cursor: default;   
+     
+    padding-top: 8px;
+    padding-bottom: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+    
+}
+a:hover.editToolBar, 
+    a:active.editToolBar     {
+	border: 1px solid #316ac5;	
+    cursor: default;    
+    
+    padding-top: 8px;
+    padding-bottom: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+    
+}

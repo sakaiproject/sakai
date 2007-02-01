@@ -69,9 +69,11 @@
 	  </form>
 	</div>
 	  <jsp:directive.include file="breadcrumb.jsp"/>
-	  <!-- Creates the right hand sidebar -->
-	  <!--<jsp:directive.include file="sidebar.jsp"/>-->
+	  <div id="rwiki_head" >				    
+		<jsp:directive.include file="sidebar-switcher.jsp"/>		     
+	  </div>
 	  <!-- Main page -->
+	  
 	  <div id="rwiki_content" class="nosidebar">
 	    <h3>
 	      <c:out value="${rlb.jsp_page_differences}"/>: <c:out value="${historyBean.localName}"/>

@@ -91,6 +91,13 @@
 				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/asyncload.js" > </script>
 				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/logger.js" > </script>
 				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/autosave.js" > </script>
+				<!--[if IE 6]>
+				<link href="/sakai-rwiki-tool/styles/wikiStyleIE6.css" type="text/css" rel="stylesheet" media="all" > </link>
+				<![endif]-->
+				<!--[if IE 7]>
+				<link href="/sakai-rwiki-tool/styles/wikiStyleIE7.css" type="text/css" rel="stylesheet" media="all" > </link>
+				<![endif]-->
+				
 				]]>
 				
 				

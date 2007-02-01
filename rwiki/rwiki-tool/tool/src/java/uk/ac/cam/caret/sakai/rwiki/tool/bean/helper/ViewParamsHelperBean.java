@@ -171,7 +171,7 @@ public class ViewParamsHelperBean
 			saveType = saveType.toLowerCase();
 		}
 
-		withBreadcrumbs = request.getParameter(ViewBean.PARAM_BREADCRUMB_NAME);
+		withBreadcrumbs =  "0".equals(request.getParameter(ViewBean.PARAM_BREADCRUMB_NAME))?"0":"1";
 
 	}
 

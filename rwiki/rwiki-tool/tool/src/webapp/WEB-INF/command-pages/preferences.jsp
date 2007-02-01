@@ -70,10 +70,23 @@
 	      </span>
 	    </form>
 	  </div>
+	  <c:choose>
+			<c:when test="${rightRenderBean.hasContent}" >
+				<c:set var="rwikiContentStyle"  value="withsidebar" />	
+			</c:when>
+			<c:otherwise>
+				<c:set var="rwikiContentStyle"  value="nosidebar" />    
+			</c:otherwise>
+	  </c:choose>
 	  <jsp:directive.include file="breadcrumb.jsp"/>
-	  <jsp:directive.include file="sidebar.jsp"/>
-	  <c:set var="rwikiContentStyle"  value="rwiki_content" />
-	  <div id="${rwikiContentStyle}">
+	  
+	  
+	  <div id="rwiki_head" >				    
+		<jsp:directive.include file="sidebar-switcher.jsp"/>		     
+	  </div>
+	  
+	  
+	  <div id="rwiki_content" class="${rwikiContentStyle}">
 	    <!-- CONTENT HERE -->
 	    <h3><c:out value="${rlb.jsp_notifications_for}"/>: <c:out value="${viewBean.localSpace}"/></h3>
 	    <form action="?#" method="post">
@@ -106,6 +119,9 @@
 	      <input type="hidden" name="action" value="updatePreferences"/>
 	      <input type="hidden" name="pageName" value="${viewBean.pageName}"/>
 	    </form>
+	    	  
+	    <jsp:directive.include file="sidebar.jsp"/>
+	    
 	  </div>
 	</div>
       </div>

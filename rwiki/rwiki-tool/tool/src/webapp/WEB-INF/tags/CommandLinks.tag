@@ -18,27 +18,15 @@ if (usePrinterLink != null && usePrinterLink.booleanValue()) {
     <jsp:attribute name="href"><jsp:expression>org.sakaiproject.util.Web.escapeHtml(viewBean.getRssAccessUrl())</jsp:expression></jsp:attribute>
 	<jsp:attribute name="target">rssfeed</jsp:attribute>
 	<jsp:attribute name="id">rssLink</jsp:attribute>
-	<jsp:body>
-		<jsp:element name="img">
-			<jsp:attribute name="src">/library/image/transparent.gif</jsp:attribute> 
-			<jsp:attribute name="alt"><jsp:expression>resourceLoaderBean.getString("jsp_rss_feed_changes")</jsp:expression></jsp:attribute>
-			<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_rss_feed_changes")</jsp:expression></jsp:attribute> 
-			<jsp:attribute name="border">0</jsp:attribute>
-		</jsp:element>
-	</jsp:body>
+	<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_rss_feed_changes")</jsp:expression></jsp:attribute> 
+	<jsp:body>&#160;</jsp:body>
 </jsp:element>
 <jsp:element name="a">
 	<jsp:attribute name="href"><jsp:expression>org.sakaiproject.util.Web.escapeHtml(viewBean.getPublicViewUrl())</jsp:expression></jsp:attribute>
 	<jsp:attribute name="target">_blank</jsp:attribute>
 	<jsp:attribute name="id">printerFriendlyLink</jsp:attribute>
-	<jsp:body>
-		<jsp:element name="img">
-			<jsp:attribute name="src">/library/image/transparent.gif</jsp:attribute> 		
-			<jsp:attribute name="alt"><jsp:expression>resourceLoaderBean.getString("jsp_printer_friendly")</jsp:expression></jsp:attribute>
-			<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_printer_friendly")</jsp:expression></jsp:attribute>
-			<jsp:attribute name="border">0</jsp:attribute>
-		</jsp:element>	
-	</jsp:body>
+	<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_printer_friendly")</jsp:expression></jsp:attribute>
+	<jsp:body>&#160;</jsp:body>
 </jsp:element>
 <jsp:scriptlet>
 }
@@ -49,19 +37,8 @@ if (useHomeLink == null || useHomeLink.booleanValue()) {
 </jsp:scriptlet>
 <jsp:element name="a">
 	<jsp:attribute name="id">homeLink</jsp:attribute>
-	<jsp:attribute name="href"><jsp:expression>org.sakaiproject.util.Web.escapeHtml(homeBean.getHomeLinkUrl())</jsp:expression>
-	</jsp:attribute>
-	<jsp:body>
-		<jsp:element name="img">
-			<jsp:attribute name="border">0</jsp:attribute>
-			<jsp:attribute name="src">/library/image/transparent.gif</jsp:attribute>
-			<jsp:attribute name="alt"><jsp:expression>resourceLoaderBean.getString("jsp_wiki_home")</jsp:expression></jsp:attribute>
-			<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_wiki_home")</jsp:expression></jsp:attribute>
-		</jsp:element>	
-	</jsp:body>
-</jsp:element>
-<jsp:element name="a">
 	<jsp:attribute name="href"><jsp:expression>org.sakaiproject.util.Web.escapeHtml(homeBean.getHomeLinkUrl())</jsp:expression></jsp:attribute>
+	<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_wiki_home")</jsp:expression></jsp:attribute>
 	<jsp:body><jsp:expression>homeBean.getHomeLinkValue()</jsp:expression></jsp:body>
 </jsp:element>
 <jsp:scriptlet>
@@ -71,17 +48,7 @@ if (useViewLink == null || useViewLink.booleanValue()) {
 <jsp:element name="a">
 	<jsp:attribute name="id">viewLink</jsp:attribute>
 	<jsp:attribute name="href"><jsp:expression>org.sakaiproject.util.Web.escapeHtml(viewBean.getViewUrl())</jsp:expression></jsp:attribute>
-	<jsp:body>
-		<jsp:element name="img">
-		<jsp:attribute name="border">0</jsp:attribute>
-			<jsp:attribute name="src">/library/image/transparent.gif</jsp:attribute>
-			<jsp:attribute name="alt"><jsp:expression>resourceLoaderBean.getString("jsp_view")</jsp:expression></jsp:attribute>
-			<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_view")</jsp:expression></jsp:attribute>
-		</jsp:element>	
-	</jsp:body>
-</jsp:element>
-<jsp:element name="a">
-	<jsp:attribute name="href"><jsp:expression>org.sakaiproject.util.Web.escapeHtml(viewBean.getViewUrl())</jsp:expression></jsp:attribute>
+	<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_view")</jsp:expression></jsp:attribute>
 	<jsp:body><jsp:expression>viewLinkName</jsp:expression></jsp:body>
 </jsp:element>
 <jsp:scriptlet>
@@ -91,17 +58,7 @@ if (useEditLink == null || useEditLink.booleanValue()) {
 <jsp:element name="a">
 	<jsp:attribute name="id">editLink</jsp:attribute>
 	<jsp:attribute name="href"><jsp:expression>org.sakaiproject.util.Web.escapeHtml(viewBean.getEditUrl())</jsp:expression></jsp:attribute>
-	<jsp:body>
-		<jsp:element name="img">
-			<jsp:attribute name="border">0</jsp:attribute>
-			<jsp:attribute name="src">/library/image/transparent.gif</jsp:attribute>
-			<jsp:attribute name="alt"><jsp:expression>resourceLoaderBean.getString("jsp_edit")</jsp:expression></jsp:attribute>
 			<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_edit")</jsp:expression></jsp:attribute>
-		</jsp:element>	
-	</jsp:body>
-</jsp:element>
-<jsp:element name="a">
-	<jsp:attribute name="href"><jsp:expression>org.sakaiproject.util.Web.escapeHtml(viewBean.getEditUrl())</jsp:expression></jsp:attribute>
 	<jsp:body><jsp:expression>resourceLoaderBean.getString("jsp_edit")</jsp:expression></jsp:body>
 </jsp:element>
 <jsp:scriptlet>
@@ -111,19 +68,9 @@ if (useInfoLink == null || useInfoLink.booleanValue()) {
 <jsp:element name="a">
 	<jsp:attribute name="id">infoLink</jsp:attribute>
 	<jsp:attribute name="href"><jsp:expression>org.sakaiproject.util.Web.escapeHtml(viewBean.getInfoUrl())</jsp:expression></jsp:attribute>
+	<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_info")</jsp:expression></jsp:attribute>
 	<jsp:attribute name="class">rwiki_currentPage</jsp:attribute>
-	<jsp:body>
-		<jsp:element name="img">
-			<jsp:attribute name="border">0</jsp:attribute>
-			<jsp:attribute name="src">/library/image/transparent.gif</jsp:attribute>
-			<jsp:attribute name="alt"><jsp:expression>resourceLoaderBean.getString("jsp_info")</jsp:expression></jsp:attribute>
-			<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_info")</jsp:expression></jsp:attribute>
-		</jsp:element>	
-	</jsp:body>
-</jsp:element>
-<jsp:element name="a">
-	<jsp:attribute name="href"><jsp:expression>org.sakaiproject.util.Web.escapeHtml(viewBean.getInfoUrl())</jsp:expression></jsp:attribute>
-	<jsp:attribute name="class">rwiki_currentPage</jsp:attribute><jsp:body><jsp:expression>resourceLoaderBean.getString("jsp_info")</jsp:expression></jsp:body>
+	<jsp:body><jsp:expression>resourceLoaderBean.getString("jsp_info")</jsp:expression></jsp:body>
 </jsp:element>
 <jsp:scriptlet>
 }
@@ -132,17 +79,7 @@ if (useHistoryLink == null || useHistoryLink.booleanValue()) {
 <jsp:element name="a">
 	<jsp:attribute name="id">historyLink</jsp:attribute>
 	<jsp:attribute name="href"><jsp:expression>org.sakaiproject.util.Web.escapeHtml(viewBean.getHistoryUrl())</jsp:expression></jsp:attribute>
-	<jsp:body>
-		<jsp:element name="img">
-			<jsp:attribute name="border">0</jsp:attribute>
-			<jsp:attribute name="src">/library/image/transparent.gif</jsp:attribute>
-			<jsp:attribute name="alt"><jsp:expression>resourceLoaderBean.getString("jsp_history")</jsp:expression></jsp:attribute>
-			<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_history")</jsp:expression></jsp:attribute>
-		</jsp:element>	
-	</jsp:body>
-</jsp:element>
-<jsp:element name="a">
-	<jsp:attribute name="href"><jsp:expression>org.sakaiproject.util.Web.escapeHtml(viewBean.getHistoryUrl())</jsp:expression></jsp:attribute>
+	<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_history")</jsp:expression></jsp:attribute>
 	<jsp:body><jsp:expression>resourceLoaderBean.getString("jsp_history")</jsp:expression></jsp:body>
 </jsp:element>
 <jsp:scriptlet>
@@ -153,17 +90,7 @@ if (useWatchLink == null || useWatchLink.booleanValue()) {
 <jsp:element name="a">
 	<jsp:attribute name="id">watchLink</jsp:attribute>
 	<jsp:attribute name="href"><jsp:expression>org.sakaiproject.util.Web.escapeHtml(viewBean.getPreferencesUrl())</jsp:expression></jsp:attribute>
-	<jsp:body>
-		<jsp:element name="img">
-			<jsp:attribute name="border">0</jsp:attribute>
-			<jsp:attribute name="src">/library/image/transparent.gif</jsp:attribute>
-			<jsp:attribute name="alt"><jsp:expression>resourceLoaderBean.getString("jsp_watch_for_changes")</jsp:expression></jsp:attribute>
-			<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_watch_for_changes")</jsp:expression></jsp:attribute>
-		</jsp:element>	
-	</jsp:body>
-</jsp:element>
-<jsp:element name="a">
-	<jsp:attribute name="href"><jsp:expression>org.sakaiproject.util.Web.escapeHtml(viewBean.getPreferencesUrl())</jsp:expression></jsp:attribute>
+	<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_watch_for_changes")</jsp:expression></jsp:attribute>
 	<jsp:body><jsp:expression>resourceLoaderBean.getString("jsp_watch")</jsp:expression></jsp:body>
 </jsp:element>
 <jsp:scriptlet>

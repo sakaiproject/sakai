@@ -20,27 +20,29 @@
  * limitations under the License.
  *
  **********************************************************************************/
+
+
 -->
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" 
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
 	version="2.0">
   <jsp:directive.page language="java"
     contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" />
+   <c:if test="${rightRenderBean.hasContent}" > 
       <c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>    
-<div id="sidebar_switcher">
-  <div id="sidebar_switch_on">
+<div id="rwiki_sidebar_switcher">
     <jsp:element name="a">
+    	<jsp:attribute name="id">sidebar_switch_on</jsp:attribute>      
     	<jsp:attribute name="href">#</jsp:attribute>
     	<jsp:attribute name="onclick">showSidebar('<jsp:expression>request.getAttribute("sakai.tool.placement.id")</jsp:expression>')</jsp:attribute>
-    	<jsp:body><c:out value="${rlb.jsp_show_help_sidebar}"/></jsp:body>
+    	<jsp:body>(+)</jsp:body>
     </jsp:element>
-  </div>
-  <div id="sidebar_switch_off">
     <jsp:element name="a">
+    	<jsp:attribute name="id">sidebar_switch_off</jsp:attribute>      
     	<jsp:attribute name="href">#</jsp:attribute>
     	<jsp:attribute name="onclick">hideSidebar('<jsp:expression>request.getAttribute("sakai.tool.placement.id")</jsp:expression>')</jsp:attribute>
-    	<jsp:body><c:out value="${rlb.jsp_hide_help_sidebar}"/></jsp:body>
+    	<jsp:body>(-)</jsp:body>
     </jsp:element>
-  </div>
 </div>
+    </c:if>
 </jsp:root>

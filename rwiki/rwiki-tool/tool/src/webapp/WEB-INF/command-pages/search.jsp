@@ -70,19 +70,30 @@
 	  </span>
 	</form>
       </div>
+			<c:choose>
+      
+      <c:when test="${rightRenderBean.hasContent}" >
+		<c:set var="rwikiContentStyle"  value="withsidebar" />	
+	  </c:when>
+	  <c:otherwise>
+		<c:set var="rwikiContentStyle"  value="nosidebar" />    
+	  </c:otherwise>
+      
+			</c:choose>
 
-      	<c:set var="rwikiContentStyle"  value="rwiki_content" />
       	
 	<jsp:directive.include file="breadcrumb.jsp"/>
-	<!-- Creates the right hand sidebar -->
-	<jsp:directive.include file="sidebar.jsp"/>
+	<div id="rwiki_head" >				    
+		<jsp:directive.include file="sidebar-switcher.jsp"/>		     
+	</div>
+	
 
+    <div id="rwiki_content" class="${rwikiContentStyle}" >
 	<h3><c:out value="${rlb.jsp_search}"/>: <c:out value="${searchBean.search}"/></h3>
 
 	<c:set var="searchResults" value="${searchBean.searchResults}"/>
 	<jsp:useBean id="searchViewBean" class="uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean"/>
 	<jsp:setProperty name="searchViewBean" value="${currentLocalSpace}" property="localSpace"/>
-      	<div id="${rwikiContentStyle}" >
       		<p>
 	  	<c:choose>
 		  	<c:when test="${fn:length(searchResults) gt 0 }">
@@ -108,6 +119,8 @@
 	    
 	  </p>
 	</div>
+	<!-- Creates the right hand sidebar -->
+	<jsp:directive.include file="sidebar.jsp"/>
 
       </div>
       </div>

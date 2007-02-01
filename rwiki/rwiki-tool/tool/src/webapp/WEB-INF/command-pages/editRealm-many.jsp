@@ -48,10 +48,9 @@
       <jsp:directive.include file="header.jsp"/>
       <div id="rwiki_container">
 	<div class="portletBody">
-	  <c:set var="rwikiContentStyle"  value="rwiki_content" />
 
 	  <!-- Main page -->
-	  <div id="${rwikiContentStyle}" >
+	  <div id="rwiki_content" class="nosidebar" >
 
 	    <h3><c:out value="${rlb.jsp_edit_acl_title}"/>: <c:out value="${realmBean.pageName}" /></h3>
 	    <c:if test="${fn:length(errorBean.errors) gt 0}">

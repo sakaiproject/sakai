@@ -19,23 +19,37 @@
  *
  **********************************************************************************/
  
-
+ 
+ 
+ 
+  
+/* tabbing contaner */
 ul.tabs {
    position: relative;
+   margin-top: 0px;
+   margin-left: 30px;
+   margin-bottom: 0px;
+   margin-right: 0px;
 }
+
+/* class tor tab headding */
 .tabhead {
    margin-top: 2px;
    margin-bottom: 2px;
 }
+/* tab links */
 ul.tabs li a {
    text-decoration: none;
    padding-top: 0px;
 }
+/* highlighting of tabs */
 ul.tabs li a:hover {
    text-decoration: none;   
 }
+/* turn off a tab header */
 ul.tabs li.tabHeadOff
 {
+    zoom:1;
     float:left;
     list-style-type:none;
     list-style: none;
@@ -45,43 +59,48 @@ ul.tabs li.tabHeadOff
     border-left: 1px solid #ccc;
     border-top: 1px solid #ccc;
     border-right: 1px solid #ccc;
-    background-color: #cccccc;
+    background-color: #eee;
 }
 
+/* turn on tab header */
 ul.tabs li.tabHeadOn 
 {
+    zoom:1;
     float:left;
     list-style-type:none;
     list-style: none;
     margin-left: 1px;
     padding-left: 5px;
     padding-right: 5px;
+    border-bottom: none;
     border-left: 1px solid #ccc;
     border-top: 1px solid #ccc;
     border-right: 1px solid #ccc;
-    background-color: #ffffff;
+    background-color: #fff;
 }
 
-ul.tabs div.tabOff
+/* turn the tab content off */
+div.tabOff
  {
+    zoom:1;
+   clear: left;
    width:100%;
-   position: absolute;
    display: none;
    float: left;
    left: 0px;
    z-index: 4;
    left: -9000px;
-   padding-bottom: 20px;
 }
 
-ul.tabs div.tabOn
+/* trunf the tab content on, nested inside  */
+div.tabOn
 {
+    zoom:1;
+   clear: left;
    width:100%;
-   position: absolute;
    display: block;
    left: 0px;
    z-index: 5;
-   padding-bottom: 20px;
    
 }
 
@@ -91,6 +110,7 @@ li.autoSaveOffClass {
 }
  
 #rwiki_container {
+
   height: 100%;
   width: 100%;
 }
@@ -104,142 +124,122 @@ li.autoSaveOffClass {
 }
 
 
+#homeLink {
+	background: url(/sakai-rwiki-tool/images/silk/icons/application_home.png) center left no-repeat;
+}
+
 #rssLink {
 	float: right;
 	background: url(/sakai-rwiki-tool/images/feed.png) center right no-repeat;
 }
-
-#rssLink img {
-	margin: 0;
-	vertical-align: text-bottom;
-	width: 16px !important;
-}
-
-#printerFriendlyLink img {
-	margin: 0;
-	vertical-align: text-bottom;
-	width: 16px !important;
-}
-
-
-
 #printerFriendlyLink {
 	float: right;
 	background: url(/sakai-rwiki-tool/images/printer.png) center right no-repeat;
 }
 
-#homeLink {
-	background: url(/sakai-rwiki-tool/images/silk/icons/application_home.png) center left no-repeat;
-        margin-right: 0;
-        padding-bottom: 3px;
-}
-#homeLink img {
-	vertical-align: text-bottom;
-	width: 16px !important;
-}
-
 #viewLink {
 	background: url(/sakai-rwiki-tool/images/silk/icons/application_view_detail.png) center left no-repeat;
-        margin-right: 0;
-        padding-bottom: 3px;
-}
-#viewLink img {
-	vertical-align: text-bottom;
-	width: 16px !important;
 }
 #editLink {
 	background: url(/sakai-rwiki-tool/images/silk/icons/application_edit.png) center left no-repeat;
-        margin-right: 0;
-        padding-bottom: 3px;
 }
-#editLink img {
-	vertical-align: text-bottom;
-	width: 16px !important;
-}
-
 #infoLink {
 	background: url(/sakai-rwiki-tool/images/silk/icons/information.png) center left no-repeat;
-        margin-right: 0;
-        padding-bottom: 3px;
-}
-#infoLink img {
-	vertical-align: text-bottom;
-	width: 16px !important;
 }
 
 #historyLink {
 	background: url(/sakai-rwiki-tool/images/silk/icons/time.png) center left no-repeat;
-        margin-right: 0;
-        padding-bottom: 3px;
-}
-#historyLink img {
-	vertical-align: text-bottom;
-	width: 16px !important;
 }
 #watchLink {
 	background: url(/sakai-rwiki-tool/images/silk/icons/email_go.png) center left no-repeat;
-        margin-right: 0;
-        padding-bottom: 3px;
-}
-#watchLink img {
-	vertical-align: text-bottom;
-	width: 16px !important;
 }
 
-#toolbarButtonSave {
-	background: url(/sakai-rwiki-tool/images/silk/icons/page_save.png) center center no-repeat;
+
+.rwiki_pageLinks a:link,
+.rwiki_pageLinks a:visited
+ {
+    padding:3px;
+    background-position:left;
+    background-repeat: no-repeat;
+    padding-left:18px;
 }
+
+
+
+#toolbarButtonSave  {
+    background: url(/sakai-rwiki-tool/images/silk/icons/page_save.png) center center no-repeat;
+}
+
+
 
 #toolbarButtonBold {
 	background: url(/sakai-rwiki-tool/images/silk/icons/text_bold.png) center center no-repeat;
 }
-#toolbarButtonItalic {
+
+#toolbarButtonItalic { 
 	background: url(/sakai-rwiki-tool/images/silk/icons/text_italic.png) center center no-repeat;
 }
+
 #toolbarButtonSuper {
 	background: url(/sakai-rwiki-tool/images/silk/icons/text_superscript.png) center center no-repeat;
 }
-#toolbarButtonSub {
+
+#toolbarButtonSub  {
 	background: url(/sakai-rwiki-tool/images/silk/icons/text_subscript.png) center center no-repeat;
 }
+
 #toolbarButtonHeading {
 }
+
 #toolbarButtonTable {
 	background: url(/sakai-rwiki-tool/images/silk/icons/table.png) center center no-repeat;
 }
+
 #toolbarButtonLink {
 	background: url(/sakai-rwiki-tool/images/silk/icons/world_link.png) center center no-repeat;
 }
+
 #toolbarButtonImage {
 	background: url(/sakai-rwiki-tool/images/silk/icons/picture.png) center center no-repeat;
 }
 
-.editToolBar img {
-	vertical-align: text-bottom;
-	width: 16px !important;
+a.editToolBar, 
+a:visited.editToolBar     {
+    border: 1px solid #efefde;	
+    cursor: default;   
+
+    padding-top: 2px;
+    padding-bottom: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+         
+}
+a:hover.editToolBar, 
+    a:active.editToolBar     {
+	border: 1px solid #316ac5;	
+    cursor: default;    
+    padding-top: 2px;
+    padding-bottom: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+        
+   
 }
 
 .editToolBarContainer {
     background-color: #efefde;
-    width: 102%;
+    height:1.6em;
+    padding:2px;
+    border:1px solid #ccc;
 }
 
-a.editToolBar, a:visited.editToolBar {
-	border: 1px solid #efefde;	
-    padding: 2px;	
-    cursor: default;    
-}
 
 .editToolBarContainer select {
+    zoom:1;
+   font-size:.9em;
    border: 1px solid #efeffe;
-
 }
 
-
-a:hover.editToolBar, a:active.editToolBar {
-	border: 1px solid #316ac5;	
-	background-color: #c1d2ee;
-}
 
 a.anchorpoint {
   vertical-align: top;
@@ -249,62 +249,124 @@ a.anchorpoint {
   padding: 10px 10px 10px 30px;
 }
 
-#rwiki_content {
-  margin-right: 220px;
-  border-right: 1px dashed #e9e9e9;
-  padding: 5px 10px 5px 5px;
+
+/* head is the edit page headder */
+#rwiki_head {
+	background-color:#eee;
+	height:100%;
+	overflow:hidden;
 }
+/* surrounds the tabs */
+#rwiki_tabholder{
+	float:left;
+	height:100%;
+	width:60%;
+}
+/* contains the on off switchers */	
+#rwiki_switcher{
+	float:right;
+	text-align: left;
+}	
+/* the link for the show link *.
+#rwiki_sidebar_switch_on a{
+	float:right;
+}	
+/* this link for the hide link */
+#rwiki_sidebar_switch_off a{
+	float:right;
+}	
 
 
+/* this causes the content area to expand to 100% */
+#rwiki_content,
 .nosidebar#rwiki_content {
-  margin-right: 0px;
-  border-right: 0px;
-  padding: 5px 10px 0px 0px;
+  float: none;
+  width:97%;
+  padding: 5px 5px 2px 2px;
+  overflow: hidden;  
 }
+
+.withsidebar#rwiki_content {
+  float: left;
+  width:75%;
+  border-right: 1px dashed #e9e9e9;
+  padding: 5px 10px 2px 2px;
+}
+
+
+#rwiki_content textarea,
+.nosiderbar#rwiki_content{
+  border: 1px solid #cccccc;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  width: 99%;
+  font-size: 100%;
+}
+/* this causes the textarea to expand to 100% */
+.withsidebar#rwiki_content textarea {
+  border: 1px solid #cccccc;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  width: 100%;
+  font-size: 100%;
+}
+
+/* you have to use padding to make it fit */
+
+#rwiki_sidebar {
+    width: 20%;
+    float:right;
+    padding: 5px;
+    margin: 0;
+    margin-left: 5px;
+    background-color:#eee;
+}
+
+
+/*
+I dont think these are needed any more
 
 #rwiki_content_nosidebar{
   margin-right: 0px;
   border-right: 0px;
-  padding: 5px 10px 0px 0px;
+  padding: 5px 10px 2px 2px;
 } 
-
-#rwiki_container textarea {
-  border: 1px solid #cccccc;
-  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
-  width: 100%;
-  margin-right: 10px;
-  font-size: 100%;
-}
 
 #textarea_outer_sizing_div {
   width: 90%;
 }
 
 #textarea_inner_sizing_div {
+  clear: both;
   width: 100%;
 }
+*/
 
-#sidebar_switch_on { display: none;}
+
+
+
+#sidebar_switch_on { 
+        float: right;
+        padding-right: 18px;
+	display: none;
+	background: url(/sakai-rwiki-tool/images/silk/icons/arrow_left.png) center right no-repeat;
+
+}
+#sidebar_switch_off { 
+        float: right;
+        padding-right: 18px;
+	display: block;
+	background: url(/sakai-rwiki-tool/images/silk/icons/arrow_right.png) center right no-repeat;
+}
+/*
+Not needed any more
 #sidebar_switcher {
 	float: right;
-	width: 190px;
-	\width: 200px;
-	w\idth: 190px;
+        width:21%;
 	margin: 0;
 	margin-left: 5px;
-	padding: 10px 5px 5px 0px;
+	padding: 0px 5px 5px 0px;
 }
+*/
 
-#rwiki_sidebar {
-	clear: right;
-	float: right;
-	width: 190px;
-	\width: 200px;
-	w\idth: 190px;
-	margin: 0;
-	margin-left: 5px;
-	padding: 10px 5px 5px 0px;
-}
 
 .rwiki_previousContent {
 	width: 90%;

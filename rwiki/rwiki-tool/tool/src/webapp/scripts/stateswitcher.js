@@ -551,14 +551,14 @@ function hideSidebar(id) {
   document.getElementById('rwiki_content').className = 'nosidebar';
   document.getElementById('sidebar_switch_on').style.display='block';
   document.getElementById('sidebar_switch_off').style.display='none';
-  setMainFrameHeightNoScroll(id, false);
+  sizeFrameAfterAjax();
 }
 function showSidebar(id) {
   document.getElementById('rwiki_sidebar').style.display='block';
-  document.getElementById('rwiki_content').className = '';
+  document.getElementById('rwiki_content').className = 'withsidebar';
   document.getElementById('sidebar_switch_on').style.display='none';
   document.getElementById('sidebar_switch_off').style.display='block';
-  setMainFrameHeightNoScroll(id, false);
+  sizeFrameAfterAjax();
 }
 var previewDiv;
 function previewContent(contentId,previewId,pageVersionId,realmId,pageNameId,url) {
@@ -631,7 +631,12 @@ function sizeFrameAfterAjax(el) {
                         // every other browser!
                         height = offsetH;
                 }
-                var tl = getAbsolutePos(popupDivStack[istack]);
+                
+                
+                // loop round all elements in this dom and find the max y extent
+                var tl = findMaxExtent(document,0);
+//                var tl = getAbsolutePos(el);
+                
                 var sh = el.scrollHeight;
                 var oh = el.offsetHeight;
                 var ch = el.clientHeight;
@@ -654,7 +659,14 @@ function sizeFrameAfterAjax(el) {
               //alert(s);
 		     }
 }
-
+function findMaxExtend(el,y) {
+    var ab = getAbsolutePos(el);
+    if ( ab.y > y ) y = el.y;
+	for ( i = 0; i < el.childNodes.length; i++ ) {
+		y = findMaxExtent(el.childNodes[i],y);		
+	}
+	return y;
+}
 
 function selectTabs() {
 	var work = selectTabs.arguments;

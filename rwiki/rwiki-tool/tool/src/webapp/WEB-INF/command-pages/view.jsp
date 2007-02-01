@@ -82,14 +82,23 @@
 	    </span>
 	  </form>
 	</div>
-      <c:set var="rwikiContentStyle"  value="rwiki_content" />
+	<c:choose>
+	<c:when test="${rightRenderBean.hasContent}" >
+		<c:set var="rwikiContentStyle"  value="withsidebar" />	
+	</c:when>
+	<c:otherwise>
+		<c:set var="rwikiContentStyle"  value="nosidebar" />    
+	</c:otherwise>
+	</c:choose>
       <!--.AJAX COMMENTS.-->
       <!--<jsp:directive.include file="comments.jsp"/>-->
 	  <jsp:directive.include file="breadcrumb.jsp"/>
-	  <!-- Creates the right hand sidebar -->
-	  <jsp:directive.include file="sidebar.jsp"/>
+	  <div id="rwiki_head" >				    
+		<jsp:directive.include file="sidebar-switcher.jsp"/>		     
+	  </div>
+	  
 	  <!-- Main page -->
-	  <div id="${rwikiContentStyle}" >
+	  <div id="rwiki_content" class="${rwikiContentStyle}" >
 	    <div class="rwikiRenderBody">
 	      <div class="rwikiRenderedContent"> 
 		<c:out value="${renderBean.renderedPage}" escapeXml="false"/><br/>	    
@@ -98,9 +107,12 @@
 	  </div>
 	 <div class="lastmodified" >
 	 <c:out value="${renderBean.localisedPageName}"/>
-	 <c:out value="${rlb.jsp_last_modified_by}" /> <rwiki:formatDisplayName name="${currentRWikiObject.user }"/> <c:out value="${rlb.jsp_on}" /> <fmt:formatDate type="both" value="${currentRWikiObject.version}" /> 
+	 <c:out value=" ${rlb.jsp_last_modified_by}" /> <rwiki:formatDisplayName name="${currentRWikiObject.user }"/> <c:out value="${rlb.jsp_on}" /> <fmt:formatDate type="both" value="${currentRWikiObject.version}" /> 
 	 </div>
-	</div>
+	 <!-- Creates the right hand sidebar -->
+	 <jsp:directive.include file="sidebar.jsp"/>
+	 
+	  </div>
       </div>
       <jsp:directive.include file="comments.jsp"/>
       <!--.JS LOGGING.-->

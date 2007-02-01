@@ -191,13 +191,23 @@
 	      </span>
 	    </form>
 	  </div>
-	  <c:set var="rwikiContentStyle"  value="rwiki_content" />
+	<c:choose>
+	  <c:when test="${rightRenderBean.hasContent}" >
+		<c:set var="rwikiContentStyle"  value="withsidebar" />	
+	  </c:when>
+	  <c:otherwise>
+		<c:set var="rwikiContentStyle"  value="nosidebar" />    
+	  </c:otherwise>
+	</c:choose>
+	  
 
 	  <jsp:directive.include file="breadcrumb.jsp"/>
-	  <!-- Creates the right hand sidebar -->
-	  <jsp:directive.include file="sidebar.jsp"/>
+	  <div id="rwiki_head" >				    
+		<jsp:directive.include file="sidebar-switcher.jsp"/>		     
+	  </div>
+	  
 	  <!-- Main page -->
-	  <div id="${rwikiContentStyle}" >
+	  <div id="rwiki_content" class="${rwikiContentStyle}" >
 
 	    <h3><c:out value="${rlb.jsp_info}"/>: <c:out value="${realmBean.localName}" /></h3>
 	    <c:if test="${fn:length(errorBean.errors) gt 0}">
@@ -739,8 +749,13 @@
 
 	    </form>
 	  </div>
+	  
+	  
+	  <!-- Creates the right hand sidebar -->
+	  <jsp:directive.include file="sidebar.jsp"/>
+	  
 	</div>
-      </div>
+    </div>
     <jsp:directive.include file="footer.jsp"/>
     </jsp:element>
     
