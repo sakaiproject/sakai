@@ -491,4 +491,9 @@ public class PublishedAssessmentService {
         getBasicInfoOfPublishedAssessment(new Long(publishedId));
    }
 
+   public String getPublishedAssessmentSiteId(String publishedAssessmentId) {
+	    return PersistenceService.getInstance().
+       getPublishedAssessmentFacadeQueries().
+       getPublishedAssessmentSiteId(publishedAssessmentId);
+  }
 }

@@ -103,9 +103,15 @@
   <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
     <h:commandButton accesskey="#{msg.a_return}" type="submit" value="#{msg.button_return}" action="select"
        rendered="#{delivery.actionString=='takeAssessment'}" />
-    <h:commandButton accesskey="#{msg.a_ok}" value="#{msg.button_ok}" type="button" 
-       rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
-       style="act" onclick="javascript:window.open('login.faces','_top')" onkeypress="javascript:window.open('login.faces','_top')" />
+
+    <h:commandButton accesskey="#{msg.a_return}" value="#{msg.button_return}" type="button" 
+       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.anonymousLogin}"
+       style="act" onclick="javascript:window.open('#{delivery.selectURL}','_top')" onkeypress="javascript:window.open('#{delivery.selectURL}','_top')" />
+
+	<h:commandButton accesskey="#{msg.a_return}" value="#{msg.button_return}" type="button" 
+       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin}"
+       style="act" onclick="javascript:window.open('#{delivery.portal}','_top')" onkeypress="javascript:window.open('#{delivery.portal}','_top')" />
+
   </h:panelGrid>
 </div>
 

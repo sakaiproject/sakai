@@ -43,6 +43,10 @@ import javax.servlet.ServletContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
@@ -74,6 +78,8 @@ import org.sakaiproject.tool.api.Placement;
 import java.text.SimpleDateFormat;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.exception.IdUnusedException;
+
 
 /**
  *
@@ -2600,6 +2606,17 @@ public class DeliveryBean
    return ServerConfigurationService.getString("portalPath");
   }
 
+  public String getSelectURL(){
+	  StringBuffer url = new StringBuffer(ServerConfigurationService.getString("portalPath"));
+	  url.append("/site/");
+	  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+	  String currentSiteId = publishedAssessmentService.getPublishedAssessmentSiteId(getAssessmentId());
+	  url.append(currentSiteId);
+	  url.append("/page/");
+	  url.append(getCurrentPageId(currentSiteId));
+	  return url.toString();
+  }
+
   public String getTimerId()
   {
       return timerId;
@@ -2609,6 +2626,44 @@ public class DeliveryBean
   {
     this.timerId = timerId;
   }
+
+	private Site getCurrentSite(String id) {
+		Site site = null;
+		//Placement placement = ToolManager.getCurrentPlacement();
+		//String currentSiteId = placement.getContext();
+		try {
+			site = SiteService.getSite(id);
+		} catch (IdUnusedException e) {
+			log.error(e.getMessage());
+			e.printStackTrace();
+		}
+		return site;
+	}
+	
+	private String getCurrentPageId(String id) {
+		Site currentSite = getCurrentSite(id);
+		if (currentSite == null) {
+			return "";
+		}
+		SitePage page = null;
+		String toolId = null;
+		try {
+			// get page
+			List pageList = currentSite.getPages();
+			for (int i = 0; i < pageList.size(); i++) {
+				page = (SitePage) pageList.get(i);
+				List pageToolList = page.getTools();
+				toolId = ((ToolConfiguration) pageToolList.get(0)).getTool().getId();
+				if (toolId.equalsIgnoreCase("sakai.samigo")) {
+					return page.getId();
+				}
+			}
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+		}
+		return "";
+	}
+
 
 
 }

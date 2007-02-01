@@ -93,15 +93,6 @@ import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
 import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InconsistentException;
-import org.sakaiproject.exception.OverQuotaException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.exception.TypeException;
 
 public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		implements PublishedAssessmentFacadeQueriesAPI {
@@ -1897,4 +1888,16 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		return (PublishedAssessmentData) list.get(0);
 	}
 
+	  public String getPublishedAssessmentSiteId(String publishedAssessmentId) {
+		    String query = "select a from AuthorizationData a " +
+		    		"where a.functionId = 'TAKE_PUBLISHED_ASSESSMENT' and " 
+		    		+ "a.qualifierId = " + publishedAssessmentId;
+		    
+		    List l = getHibernateTemplate().find(query);
+		    if (l.size()>0){
+		    	AuthorizationData a = (AuthorizationData) l.get(0);
+		      return a.getAgentIdString();
+		    }
+		    else return null;
+		  }
 }
