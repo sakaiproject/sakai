@@ -918,7 +918,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_STUDENT_VIEW_GRADE;
-f
+
 	} // build_student_view_grade_context
 
 	/**
