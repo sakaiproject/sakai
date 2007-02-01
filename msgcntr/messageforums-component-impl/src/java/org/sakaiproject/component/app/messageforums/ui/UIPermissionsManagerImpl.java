@@ -184,27 +184,25 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       return true;
     }
+    
     try
-    {   
-    	DBMembershipItem item = getAreaItemByUserRole();
-    	
-    	if (item == null){
-    		return false;
-    	}
-    	
-    	PermissionLevel level = item.getPermissionLevel();
-    	
-    	if (level == null){
-    		return false;
-    	}
-    	
-    	return (level.getNewForum() == null) ? false : level.getNewForum().booleanValue();                       
+    {
+      Iterator iter = getAreaItemsByCurrentUser();
+      while (iter.hasNext())
+      {
+        DBMembershipItem item = (DBMembershipItem) iter.next();
+        if (item.getPermissionLevel().getNewForum().booleanValue())
+        {
+          return true;
+        }
+      }
     }
     catch (Exception e)
     {
-      LOG.warn(e.getMessage(), e);
+      LOG.error(e.getMessage(), e);
       return false;
     }
+    return false;
   }
 
   /**
@@ -228,27 +226,25 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       return true;
     }
+    
     try
-    {    	
-      DBMembershipItem item = getAreaItemByUserRole();
-    	
-    	if (item == null){
-    		return false;
-    	}
-    	
-    	PermissionLevel level = item.getPermissionLevel();
-    	
-    	if (level == null){
-    		return false;
-    	}
-    	
-    	return (level.getNewForum() == null) ? false : level.getNewForum().booleanValue();       	      
+    {
+      Iterator iter = getForumItemsByCurrentUser(forum);
+      while (iter.hasNext())
+      {
+        DBMembershipItem item = (DBMembershipItem) iter.next();
+        if (item.getPermissionLevel().getChangeSettings().booleanValue())
+        {
+          return true;
+        }
+      }
     }
     catch (Exception e)
     {
-      LOG.warn(e.getMessage(), e);
+      LOG.error(e.getMessage(), e);
       return false;
     }
+    return false;
   }
 
   /**   
@@ -855,6 +851,53 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return forumManager.getDBMember(membershipItems, getCurrentUserRole(),
       DBMembershipItem.TYPE_ROLE);
   }
+  
+  private Iterator getAreaItemsByCurrentUser()
+  { 
+  	if (LOG.isDebugEnabled())
+    {
+      LOG.debug("getAreaItemsByCurrentUser()");
+    }	 
+  	
+  	List areaItems = new ArrayList();
+  	
+    Set membershipItems = forumManager.getDiscussionForumArea()
+      .getMembershipItemSet();
+    DBMembershipItem item = forumManager.getDBMember(membershipItems, getCurrentUserRole(),
+      DBMembershipItem.TYPE_ROLE);
+    
+    if (item != null){
+        areaItems.add(item);
+    }
+    
+    //  for group awareness
+    try
+    {
+    	Site currentSite = SiteService.getSite(toolManager.getCurrentPlacement().getContext());   
+
+    	Collection groups = currentSite.getGroups();    
+    	for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
+    	{
+    		Group currentGroup = (Group) groupIterator.next();  
+    		currentGroup.getTitle();
+
+    		if(currentGroup.getMember(getCurrentUserId()) != null)
+    		{
+    			DBMembershipItem groupItem = forumManager.getDBMember(membershipItems, currentGroup.getTitle(),
+    					DBMembershipItem.TYPE_GROUP);
+    			if (groupItem != null){
+    				areaItems.add(groupItem);
+    			}
+    		}
+    	}
+    }
+    catch(IdUnusedException iue)
+    {
+    	iue.printStackTrace();
+    }
+    
+    return areaItems.iterator();
+  }
 
   private Iterator getForumItemsByCurrentUser(DiscussionForum forum)
   {
@@ -866,6 +909,32 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     
     if (item != null){
       forumItems.add(item);
+    }
+    
+	//  for group awareness
+    try
+    {
+    	Site currentSite = SiteService.getSite(toolManager.getCurrentPlacement().getContext());   
+
+    	Collection groups = currentSite.getGroups();    
+    	for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
+    	{
+    		Group currentGroup = (Group) groupIterator.next();  
+    		currentGroup.getTitle();
+
+    		if(currentGroup.getMember(getCurrentUserId()) != null)
+    		{
+    			DBMembershipItem groupItem = forumManager.getDBMember(membershipItems, currentGroup.getTitle(),
+    					DBMembershipItem.TYPE_GROUP);
+    			if (groupItem != null){
+    				forumItems.add(groupItem);
+    			}
+    		}
+    	}
+    }
+    catch(IdUnusedException iue)
+    {
+    	iue.printStackTrace();
     }
 
 //    Iterator iter = membershipItems.iterator();
