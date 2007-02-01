@@ -189,8 +189,8 @@ public abstract class ToolServlet extends VmServlet
 		{
 			// map the request to the helper
 			ActiveTool tool = ActiveToolManager.getActiveTool(helper);
-			String context = req.getContextPath() + req.getServletPath() + (req.getPathInfo() == null ? "" : req.getPathInfo());
-			String toolPath = "";
+			String context = req.getContextPath() + req.getServletPath();
+			String toolPath = req.getPathInfo() == null ? "/" : req.getPathInfo();
 			tool.help(req, res, context, toolPath);
 			return;
 		}
