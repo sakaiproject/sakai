@@ -77,6 +77,10 @@ public class SubmitTimedAssessmentThread extends TimerTask
           ag.setStatus(AssessmentGradingIfc.AUTO_GRADED); // this will change status 0 -> 1
           ag.setIsLate(islate(ag.getPublishedAssessmentId()));
           ag.setSubmittedDate(new Date());
+          // SAK-7302, users taking a timed assessment may exit without completing the assessment
+          // set these two scores to 0 instaed of null
+    	  if (ag.getFinalScore() == null) ag.setFinalScore(new Float("0"));
+    	  if (ag.getTotalAutoScore() == null) ag.setTotalAutoScore(new Float("0"));
           service.saveOrUpdateAssessmentGrading(ag);
           log.debug("**** 4a. time's up, timeLeft+latency buffer reached, saved to DB");
         }
