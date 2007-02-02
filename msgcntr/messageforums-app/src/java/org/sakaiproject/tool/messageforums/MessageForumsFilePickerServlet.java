@@ -163,6 +163,16 @@ public class MessageForumsFilePickerServlet extends JsfTool {
         if (path == null)
             path = "/";
 
+        // if synoptic helper is obscuring add attachment helper, remove it
+        final int helperIndex = path.indexOf("sakai.filepicker");
+        
+        // filepicker helper should be first part of path
+        if (helperIndex > 1 ) {
+        	path = path.substring(helperIndex-1);
+        	target = path;
+        }
+        
+        // 
         // 0 parts means the path was just "/", otherwise parts[0] = "",
         // parts[1] = item id, parts[2] if present is "edit"...
         String[] parts = path.split("/");
