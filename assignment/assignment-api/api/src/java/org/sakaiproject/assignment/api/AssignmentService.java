@@ -113,6 +113,13 @@ public interface AssignmentService extends EntityProducer, TaggableActivityProdu
 
 	/** The Reference type for a submissions zip. */
 	public static final String REF_TYPE_SUBMISSIONS = "submissions";
+	
+	// the three choices for Gradebook Integration
+	public static final String GRADEBOOK_INTEGRATION_NO = "no";
+	public static final String GRADEBOOK_INTEGRATION_ADD = "add";
+	public static final String GRADEBOOK_INTEGRATION_ASSOCIATE = "associate";
+	// and the prop name
+	public static final String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = "new_assignment_add_to_gradebook";
 
 	/**
 	 * Check permissions for adding an Assignment.

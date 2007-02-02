@@ -102,6 +102,11 @@ public class AssignmentService
 	public static java.lang.String REF_TYPE_SUBMISSIONS = org.sakaiproject.assignment.api.AssignmentService.REF_TYPE_SUBMISSIONS;
 
 	public static java.lang.String REF_TYPE_SITE_GROUPS = org.sakaiproject.assignment.api.AssignmentService.REF_TYPE_SITE_GROUPS;
+	
+	public static java.lang.String GRADEBOOK_INTEGRATION_NO = org.sakaiproject.assignment.api.AssignmentService.GRADEBOOK_INTEGRATION_NO;
+	public static java.lang.String GRADEBOOK_INTEGRATION_ADD = org.sakaiproject.assignment.api.AssignmentService.GRADEBOOK_INTEGRATION_ADD;
+	public static java.lang.String GRADEBOOK_INTEGRATION_ASSOCIATE = org.sakaiproject.assignment.api.AssignmentService.GRADEBOOK_INTEGRATION_ASSOCIATE;
+	public static java.lang.String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = org.sakaiproject.assignment.api.AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT;
 
 	public static boolean allowAddAssignment(java.lang.String param0)
 	{
