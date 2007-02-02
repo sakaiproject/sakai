@@ -274,6 +274,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 				{
 					returnable.setContent(template.getContent());
 					returnable.setPermissions(template.getPermissions());
+					returnable.setGroupWrite(true); 
+					returnable.setGroupRead(true);  //SAK SAK-8234
 					returnable.setUser(user);
 					returnable.setOwner(user);
 					returnable.setRealm(realm);
