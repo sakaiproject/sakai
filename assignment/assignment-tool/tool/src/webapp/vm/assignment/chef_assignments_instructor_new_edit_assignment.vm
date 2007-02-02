@@ -364,17 +364,17 @@
 					$!tlang.getString('grading')
 					<div class="checkbox  indnt2" style="display:$!addToGBDisplay">
 						## hide the assignment list from Gradebook when clicked
-						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_no" value="$!gradebookChoice_no" #if($!gradebookChoice.equals("$!gradebookChoice_no"))checked#end onclick="document.getElementById('$!name_AssociateGradebookAssignment').style.display = 'none';" >
+						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_no" value="$!gradebookChoice_no" #if($!gradebookChoice.equals("$!gradebookChoice_no"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'none';" >
 						<label for="$!gradebookChoice_no">$tlang.getString("grading.no")</label>
 						<br/>
 						## hide the assignment list from Gradebook when clicked
-						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_add" value="$!gradebookChoice_add" #if($!gradebookChoice.equals("$!gradebookChoice_add"))checked#end onclick="document.getElementById('$!name_AssociateGradebookAssignment').style.display = 'none';" >
+						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_add" value="$!gradebookChoice_add" #if($!gradebookChoice.equals("$!gradebookChoice_add"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'none';" >
 						<label for="$!gradebookChoice_add">$tlang.getString("grading.add")</label>
 						<br/>
 						## if there exists properiate assignment entries in Gradebook
 						#if ($!gradebookAssignments.size() > 0) 
 							## show the assignment list from Gradebook when clicked
-							<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_associate" value="$!gradebookChoice_associate" #if($!gradebookChoice.equals("$!gradebookChoice_associate"))checked#end onclick="document.getElementById('$!name_AssociateGradebookAssignment').style.display = 'block';" >
+							<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_associate" value="$!gradebookChoice_associate" #if($!gradebookChoice.equals("$!gradebookChoice_associate"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'block';" >
 							<label for="$!gradebookChoice_associate">$tlang.getString("grading.associate")</label>
 						#end
 					</div>
@@ -387,7 +387,7 @@
 					#else
 						#set ($gbListDisplay="none")
 					#end
-					<p id="$!name_AssociateGradebookAssignment" class="checkbox  indnt2" style="display:$gbListDisplay">
+					<p id="gradebookList" class="checkbox  indnt2" style="display:$gbListDisplay">
 						<select name="$!name_AssociateGradebookAssignment" >
 							<option  value="">$tlang.getString("grading.select")</option>
 							#foreach ($aAssignment in $!gradebookAssignments)
