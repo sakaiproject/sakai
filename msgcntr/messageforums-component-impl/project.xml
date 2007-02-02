@@ -34,13 +34,7 @@
   	  		<groupId>sakaiproject</groupId>
         	<artifactId>sakai-messageforums-hbm</artifactId>
 			<version>${sakai.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-common-edu-person-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>		
+		</dependency>	
 		
 		<dependency>
 			<groupId>sakaiproject</groupId>

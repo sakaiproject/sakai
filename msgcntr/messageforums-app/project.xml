@@ -88,11 +88,6 @@
          	<artifactId>sakai-gradebook-service-api</artifactId> 
 	     	<version>${sakai.version}</version>            
  		</dependency> 
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-edu-person-api</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>commons-logging</groupId>
