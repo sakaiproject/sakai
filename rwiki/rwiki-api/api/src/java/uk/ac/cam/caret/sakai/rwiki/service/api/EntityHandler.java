@@ -99,7 +99,7 @@ public interface EntityHandler
 	 * @param res
 	 *        the servlet response object
 	 */
-	void outputContent(Entity entity, HttpServletRequest request,
+	void outputContent(Entity entity, Entity sidebar, HttpServletRequest request,
 			HttpServletResponse res);
 
 	/**

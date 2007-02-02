@@ -56,15 +56,30 @@
 	  <c:if test="${requestScope.rsacMap.withBreadcrumbs}">
 	  	<jsp:directive.include file="publicbreadcrumb.jsp"/>
 	  </c:if>
+	  	<c:choose>
+	<c:when test="${rightRenderBean.hasContent}" >
+		<c:set var="rwikiContentStyle"  value="withsidebar" />	
+	</c:when>
+	<c:otherwise>
+		<c:set var="rwikiContentStyle"  value="nosidebar" />    
+	</c:otherwise>
+	</c:choose>
+	  <div id="rwiki_head" >				    
+		<jsp:directive.include file="sidebar-switcher.jsp"/>		     
+	  </div>
+	  
 	  <!-- Creates the right hand sidebar -->
 	  <!-- Main page -->
-	  <div id="rwiki_content" class="nosidebar">
+	  <div id="rwiki_content" class="${rwikiContentStyle}">
 	    <div class="rwikiRenderBody">
 	      <div class="rwikiRenderedContent"> 
 		<c:out value="${renderBean.publicRenderedPage}" escapeXml="false"/><br/>	    
 	      </div>
 	    </div>
 	  </div>
+	 <!-- Creates the right hand sidebar -->
+	 <jsp:directive.include file="sidebar.jsp"/>
+	  
 	</div>
       </div>
       <jsp:directive.include file="footer.jsp"/>

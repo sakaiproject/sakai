@@ -197,6 +197,8 @@ public class SchemaNames
 	 * 
 	 */
 	public static final String EL_ENTITY = "entity";
+	
+	public static final String EL_SIDEBAR = "sidebar";
 
 	public static final String EL_ERROR = "error";
 
@@ -232,6 +234,8 @@ public class SchemaNames
 
 	public static final String EL_NSREQUEST_PROPERTIES = "request-properties";
 
+	public static final String EL_NSSIDEBAR = "sidebar";
+	
 	public static final String EL_NSENTITY = "entity";
 
 	public static final String EL_NSRENDEREDCONTENT = "rendered-content";
@@ -287,5 +291,6 @@ public class SchemaNames
 	public static final String ATTR_LOCAL_NAME = "local-name";
 
 	public static final String ATTR_DISPLAY_USER = "user-display";
+
 
 }

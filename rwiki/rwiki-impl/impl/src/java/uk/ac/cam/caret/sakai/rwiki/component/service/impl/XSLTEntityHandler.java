@@ -189,7 +189,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	/**
 	 * {@inheritDoc}
 	 */
-	public void outputContent(final Entity entity,
+	public void outputContent(final Entity entity, final Entity sideBar,
 			final HttpServletRequest request, final HttpServletResponse res)
 	{
 		if (!isAvailable()) return;
@@ -344,6 +344,37 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			}
 			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ENTITY,
 					SchemaNames.EL_NSENTITY);
+			
+			
+			if (sideBar != null && sideBar instanceof RWikiEntity)
+			{
+
+				RWikiEntity rwe = (RWikiEntity) entity;
+				RWikiObject rwo = rwe.getRWikiObject();
+				ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_SIDEBAR, SchemaNames.EL_NSENTITY,dummyAttributes);
+				
+				ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_XMLPROPERTIES, SchemaNames.EL_NSXMLPROPERTIES,dummyAttributes);
+				AttributesImpl propA = new AttributesImpl();
+				propA.addAttribute("", SchemaNames.ATTR_NAME, //$NON-NLS-1$
+						SchemaNames.ATTR_NAME, "string", "_title"); //$NON-NLS-1$ //$NON-NLS-2$
+				addElement(ch, SchemaNames.NS_CONTAINER, SchemaNames.EL_XMLPROPERTY, SchemaNames.EL_NSXMLPROPERTY, propA,
+						NameHelper.localizeName(rwo.getName(), rwo.getRealm()));
+				ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_XMLPROPERTIES, SchemaNames.EL_NSXMLPROPERTIES);
+
+				RWikiEntity sbrwe = (RWikiEntity) sideBar;
+				RWikiObject sbrwo = sbrwe.getRWikiObject();
+				ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_RENDEREDCONTENT, SchemaNames.EL_NSRENDEREDCONTENT,
+						dummyAttributes);
+				renderToXML(sbrwo, ch);
+				ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_RENDEREDCONTENT, SchemaNames.EL_NSRENDEREDCONTENT);
+
+				ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_SIDEBAR, SchemaNames.EL_NSENTITY);
+
+			} 
+			
+			
+			
+			
 			ch.endElement(SchemaNames.NS_CONTAINER,
 					SchemaNames.EL_ENTITYSERVICE,
 					SchemaNames.EL_NSENTITYSERVICE);

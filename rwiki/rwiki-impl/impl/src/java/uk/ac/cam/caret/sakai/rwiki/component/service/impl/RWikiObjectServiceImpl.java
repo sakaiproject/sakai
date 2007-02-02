@@ -1334,10 +1334,29 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 						if (!rwe.isContainer())
 						{
 							RWikiObject rwo = rwe.getRWikiObject();
+							
 							if (wikiSecurityService
-									.checkRead((RWikiEntity) getEntity(rwo)))
+									.checkRead(rwe))
 							{
-								eh.outputContent(entity, req, res);
+								String space = NameHelper.localizeSpace(rwo.getName(), rwo.getRealm());
+								RWikiEntity sideBar = null;
+								if (exists("view_right", space))
+								{
+									try
+									{
+										RWikiObject rwoSB = getRWikiObject("view_right", space);
+										sideBar = (RWikiEntity) getEntity(rwoSB);
+										if (!wikiSecurityService.checkRead(sideBar))
+										{
+											sideBar = null;
+										}
+									}
+									catch (Exception ex)
+									{
+										sideBar = null;
+									}
+								}
+								eh.outputContent(entity, sideBar, req, res);
 							}
 							else
 							{
@@ -1352,7 +1371,25 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 							if (wikiSecurityService.checkGetPermission(ref
 									.getReference()))
 							{
-								eh.outputContent(entity, req, res);
+								String space = rwe.getReference();
+								RWikiEntity sideBar = null;
+								if (exists("view_right", space))
+								{
+									try
+									{
+										RWikiObject rwoSB = getRWikiObject("view_right", space);
+										sideBar = (RWikiEntity) getEntity(rwoSB);
+										if (!wikiSecurityService.checkRead(sideBar))
+										{
+											sideBar = null;
+										}
+									}
+									catch (Exception ex)
+									{
+										sideBar = null;
+									}
+								}
+								eh.outputContent(entity, sideBar, req, res);
 							}
 							else
 							{

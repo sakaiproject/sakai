@@ -45,20 +45,55 @@
                 <link href="{$skinRepo}/{$skin}/tool.css" type="text/css" rel="stylesheet"
                     media="all"/>
                 <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"/>
+                <xsl:text disable-output-escaping="yes" >
+                <![CDATA[
+				<!--[if IE 6]>
+				<link href="/sakai-rwiki-tool/styles/wikiStyleIE6.css" type="text/css" rel="stylesheet" media="all" > </link>
+				<![endif]-->
+				<!--[if IE 7]>
+				<link href="/sakai-rwiki-tool/styles/wikiStyleIE7.css" type="text/css" rel="stylesheet" media="all" > </link>
+				<![endif]-->				
+				]]>
+				</xsl:text>
             </head>
             <body>
               <div class="publicview" >
                 <div id="rwiki_container">
                     <div class="portletBody">
-                        <div id="rwiki_content_nosidebar">
+                    <xsl:choose>
+                     <xsl:when test="/entity-service/sidebar/rendered-content/content/rendered" >
+						<div id="rwiki_sidebar_switcher">
+    						<a id="sidebar_switch_on" href="#" onclick="showSidebar('pubview')" >(+)</a>
+    						<a id="sidebar_switch_off" href="#" onclick="hideSidebar('pubview')" >(-)</a>
+    					</div>
+                        <div id="rwiki_content" class="withsidebar">
                             <h3><xsl:value-of select="/entity-service/entity/properties/property[@name='_title']" /></h3>
                             <div class="rwikiRenderBody">
-                                <div class="rwikiRenderedContent">
+                                <div class="rwiki_RenderedContent">
 				  <xsl:copy-of select="/entity-service/entity/rendered-content/content/rendered/node()"/>
                                 </div>
                             </div>
                         </div>
+                        <div style="display: block;" id="rwiki_sidebar">
+                        <div class="rwiki_renderedContent">
+                  <xsl:copy-of select="/entity-service/sidebar/rendered-content/content/rendered/node()"/>
+    					</div>
+    					</div>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <div id="rwiki_content" class="nosidebar">
+                            <h3><xsl:value-of select="/entity-service/entity/properties/property[@name='_title']" /></h3>
+                            <div class="rwikiRenderBody">
+                                <div class="rwiki_RenderedContent">
+				  <xsl:copy-of select="/entity-service/entity/rendered-content/content/rendered/node()"/>
+                                </div>
+                            </div>
+                        </div>
+                      </xsl:otherwise>
+             
+                    </xsl:choose>
                     </div>
+                    
                 </div>
                 </div>
             </body>
