@@ -4166,6 +4166,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							ResourcePropertiesEdit p = nAssignment.getPropertiesEdit();
 							p.clear();
 							p.addAll(oAssignment.getProperties());
+							
+							// one more touch on the gradebook-integration link
+							if (p.getProperty(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT).equals(GRADEBOOK_INTEGRATION_ASSOCIATE))
+							{
+								// assignments are imported as drafts;
+								// mark the integration with "add" for now, later when user posts the assignment, the corresponding assignment will be created in gradebook.
+								p.addProperty(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, GRADEBOOK_INTEGRATION_ADD);
+							}
+							
 							// update live properties
 							addLiveProperties(p);
 							// complete the edit
