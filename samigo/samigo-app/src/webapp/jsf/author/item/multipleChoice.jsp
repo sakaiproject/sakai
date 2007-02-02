@@ -138,7 +138,7 @@
  </h:panelGroup>
         <!-- WYSIWYG -->
 
-   <samigo:wysiwyg rows="140" value="#{answer.text}" >
+   <samigo:wysiwyg rows="140" value="#{answer.text}" hasToggle="yes" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
  
@@ -148,7 +148,7 @@
         <!-- WYSIWYG -->
 
 <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || assessmentSettings.feedbackAuthoring ne '1'}">
-         <samigo:wysiwyg rows="140" value="#{answer.feedback}">
+         <samigo:wysiwyg rows="140" value="#{answer.feedback}" hasToggle="yes" >
            <f:validateLength maximum="4000"/>
          </samigo:wysiwyg>
   </h:panelGroup>
@@ -231,7 +231,7 @@
   
 
 <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" >
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 </h:panelGrid>
@@ -240,7 +240,7 @@
 
   <!-- WYSIWYG -->
    <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}"  >
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}"  hasToggle="yes" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 </h:panelGrid>

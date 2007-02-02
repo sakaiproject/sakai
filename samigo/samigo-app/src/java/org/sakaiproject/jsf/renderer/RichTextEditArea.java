@@ -23,6 +23,7 @@ package org.sakaiproject.jsf.renderer;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
@@ -86,6 +87,13 @@ public class RichTextEditArea extends Renderer
 
     }
 
+    boolean valueHasRichText = false;
+    	if((String) value != null){
+    		//really simple regex to detect presence of any html tags in the value        
+    		valueHasRichText = Pattern.compile(".*(<)[^\n^<]+(>).*", Pattern.CASE_INSENSITIVE).matcher((String) value).matches();
+    	}
+    	String hasToggle = (String) component.getAttributes().get("hasToggle");
+    
     //fixes SAK-3116, I'm not sure if this logic really belongs in a renderer, but it 
     //need to happen before the wysiwig is written or the editor tries to be too smart 
     value = FormattedText.escapeHtmlFormattedTextarea((String) value);
@@ -159,7 +167,7 @@ public class RichTextEditArea extends Renderer
 
     if (editor.equals("FCKeditor")) {
       encodeFCK(writer, contextPath, (String) value, outCol, 
-              outRow, justArea, clientId); 
+              outRow, justArea, clientId, valueHasRichText, hasToggle); 
     }
     else 
     {
@@ -380,27 +388,43 @@ public class RichTextEditArea extends Renderer
 
    
   private void encodeFCK(ResponseWriter writer, String contextPath, String value, String outCol, 
-         String outRow, String justArea, String clientId) throws IOException
+         String outRow, String justArea, String clientId, boolean valueHasRichText, String hasToggle) throws IOException
   {
-
+	  //come up w/ rows/cols for the textarea if needed
+	  int textBoxRows = (new Integer(outRow).intValue()/20);
+	  int textBoxCols = (new Integer(outRow).intValue()/3);
+	   
     //fck's tool bar can get pretty big
     if (new Integer(outRow).intValue() < 300) 
     {
          outRow = (new Integer(outRow).intValue() + 100) + "";
     }
 
-    writer.write("<textarea name=\"" + clientId + "_textinput\" id=\"" + clientId + "_textinput\">");
+    //figure out if the toggle should be on
+    boolean shouldToggle = ( (hasToggle != null) && (hasToggle.equals("yes")) && !valueHasRichText);
+    
+    if(shouldToggle)
+    {    	
+    	writer.write("<div class=\"toggle_link_container\"><a class=\"toggle_link\" id=\"" +clientId+ "_toggle\" href=\"javascript:chef_setupformattedtextarea('" +  clientId + "',true);\">Rich Formatting>></a></div>\n");
+    }
+    
+    writer.write("<textarea name=\"" + clientId + "_textinput\" id=\"" + clientId + "_textinput\" rows=\""+ textBoxRows + "\" cols=\""+ textBoxCols + "\" class=\"simple_text_area\">");
     writer.write((String) value);
     writer.write("</textarea>");
 
     writer.write("\n\t<script type=\"text/javascript\" src=\"" + FCK_BASE + FCK_SCRIPT + "\"></script>");
 
     writer.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");
-    writer.write("\n  if(document.wysiwyg==undefined)");
-    writer.write("\n  {");
-    writer.write("\n    document.wysiwyg = \"FCKeditor\"");
-    writer.write("\n  }");
-    writer.write("\n\nfunction chef_setupformattedtextarea(textarea_id){\n");
+    writer.write("function chef_setupformattedtextarea(client_id,shouldToggle){\n");
+    
+    writer.write("\tvar textarea_id = client_id + \"_textinput\";\n");    
+    
+    //if toggling is on, hide the toggle when the user goes to richText
+    writer.write("\tif(shouldToggle){\n");
+    writer.write("\t\tvar toggle_id = client_id + \"_toggle\";\n");
+    writer.write("\tvar oToggleDiv = document.getElementById(toggle_id);\n");
+    writer.write("\toToggleDiv.style.display=\"none\";\n");
+    writer.write("\t}\n");
 
     writer.write("var oFCKeditor = new FCKeditor(textarea_id);\n");
     writer.write("\n\toFCKeditor.BasePath = \"" + FCK_BASE + "\";");
@@ -445,7 +469,12 @@ public class RichTextEditArea extends Renderer
     
     writer.write("\n\n\toFCKeditor.ReplaceTextarea();\n\t}\n</script>");
 
-    writer.write("<script type=\"text/javascript\" defer=\"1\">chef_setupformattedtextarea('" + clientId + "_textinput');</script>");
+    writer.write("</script>\n");
+    
+    //if toggling is off or the content is already rich, make the editor show up immediately
+    if(!shouldToggle){
+    writer.write("<script type=\"text/javascript\" defer=\"1\">chef_setupformattedtextarea('" + clientId + "',false);</script>");
+    }    	
 
   }
 

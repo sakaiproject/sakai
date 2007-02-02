@@ -315,6 +315,15 @@
     </attribute>
 
     <attribute>
+      <name>hasToggle</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        starts rich text editor out as a plain text editor with a action link above it to enable the rich text functionality (speeds page load in browser)
+      </description>
+    </attribute>	
+
+    <attribute>
       <name>binding</name>
       <required>false</required>
       <rtexprvalue>false</rtexprvalue>
