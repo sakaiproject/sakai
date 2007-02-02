@@ -33,8 +33,6 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
-import org.sakaiproject.api.common.edu.person.SakaiPerson;
-import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -57,7 +55,6 @@ public class MembershipManagerImpl implements MembershipManager{
           
   private SiteService siteService;
   private UserDirectoryService userDirectoryService;
-  private SakaiPersonManager sakaiPersonManager;
   private AuthzGroupService authzGroupService;
   private ToolManager toolManager;
   private SecurityService securityService;
@@ -354,11 +351,6 @@ public class MembershipManagerImpl implements MembershipManager{
   public void setSiteService(SiteService siteService)
   {
     this.siteService = siteService;
-  }
-
-  public void setSakaiPersonManager(SakaiPersonManager sakaiPersonManager)
-  {
-    this.sakaiPersonManager = sakaiPersonManager;
   }
 
   public void setUserDirectoryService(UserDirectoryService userDirectoryService)

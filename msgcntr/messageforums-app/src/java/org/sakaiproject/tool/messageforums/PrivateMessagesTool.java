@@ -52,7 +52,6 @@ import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
-import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
@@ -116,7 +115,6 @@ public class PrivateMessagesTool
   private MessageForumsMessageManager messageManager;
   private MessageForumsForumManager forumManager;
   private ErrorMessages errorMessages;
-  private SakaiPersonManager sakaiPersonManager;
   private MembershipManager membershipManager;
     
   /** Dependency Injected   */
@@ -273,15 +271,6 @@ public class PrivateMessagesTool
   public void setTypeManager(MessageForumsTypeManager typeManager)
   {
     this.typeManager = typeManager;
-  }
-
-  
-  /**
-   * @param sakaiPersonManager The sakaiPersonManager to set.
-   */
-  public void setSakaiPersonManager(SakaiPersonManager sakaiPersonManager)
-  {
-    this.sakaiPersonManager = sakaiPersonManager;
   }
 
   public void initializePrivateMessageArea()

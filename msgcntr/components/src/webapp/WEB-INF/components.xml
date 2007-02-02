@@ -420,9 +420,6 @@
                 <property name="userDirectoryService">
 				    <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
 				</property>
-                <property name="sakaiPersonManager">
-                  <ref bean="org.sakaiproject.api.common.edu.person.SakaiPersonManager"/>
-                </property>
                 <property name="authzGroupService">
                   <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
                 </property>
