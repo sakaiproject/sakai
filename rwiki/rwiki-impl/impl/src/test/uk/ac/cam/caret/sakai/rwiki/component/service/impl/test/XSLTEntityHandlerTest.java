@@ -599,7 +599,7 @@ public class XSLTEntityHandlerTest extends TestCase
 			MockHttpServletResponse response = new MockHttpServletResponse();
 			eh.setXslt(test[i]);
 			eh.init();
-			eh.outputContent(rwe, request, response);
+			eh.outputContent(rwe, rwe, request, response);
 			logger.info(response.getContentAsString());
 		}
 		long start = System.currentTimeMillis();
@@ -609,7 +609,7 @@ public class XSLTEntityHandlerTest extends TestCase
 			for (int i = 0; i < test.length; i++)
 			{
 				MockHttpServletResponse response = new MockHttpServletResponse();
-				eh.outputContent(rwe, request, response);
+				eh.outputContent(rwe, rwe, request, response);
 			}
 		}
 		float timet = (float) 1.0 * (System.currentTimeMillis() - start);
@@ -671,7 +671,7 @@ public class XSLTEntityHandlerTest extends TestCase
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		xeh.init();
-		xeh.outputContent(rwe, request, response);
+		xeh.outputContent(rwe, rwe, request, response);
 		File f = new File("testoutput.rtf");
 		FileOutputStream fo = new FileOutputStream(f);
 		fo.write(response.getContentAsByteArray());
@@ -682,7 +682,7 @@ public class XSLTEntityHandlerTest extends TestCase
 		for (int j = 0; j < iters; j++)
 		{
 			response = new MockHttpServletResponse();
-			xeh.outputContent(rwe, request, response);
+			xeh.outputContent(rwe, rwe, request, response);
 		}
 		float timet = (float) 1.0 * (System.currentTimeMillis() - start);
 		float tper = (float) (timet / (1.0 * iters));
@@ -743,7 +743,7 @@ public class XSLTEntityHandlerTest extends TestCase
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		xeh.init();
-		xeh.outputContent(rwe, request, response);
+		xeh.outputContent(rwe, rwe,  request, response);
 		File f = new File("testoutput.pdf");
 		FileOutputStream fo = new FileOutputStream(f);
 		fo.write(response.getContentAsByteArray());
@@ -754,7 +754,7 @@ public class XSLTEntityHandlerTest extends TestCase
 		for (int j = 0; j < iters; j++)
 		{
 			response = new MockHttpServletResponse();
-			xeh.outputContent(rwe, request, response);
+			xeh.outputContent(rwe, rwe, request, response);
 		}
 		float timet = (float) 1.0 * (System.currentTimeMillis() - start);
 		float tper = (float) (timet / (1.0 * iters));
@@ -813,7 +813,7 @@ public class XSLTEntityHandlerTest extends TestCase
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		xeh.init();
-		xeh.outputContent(rwe, request, response);
+		xeh.outputContent(rwe, rwe, request, response);
 		File f = new File("testoutputfop.xml");
 		FileOutputStream fo = new FileOutputStream(f);
 		fo.write(response.getContentAsByteArray());
@@ -824,7 +824,7 @@ public class XSLTEntityHandlerTest extends TestCase
 		for (int j = 0; j < iters; j++)
 		{
 			response = new MockHttpServletResponse();
-			xeh.outputContent(rwe, request, response);
+			xeh.outputContent(rwe, rwe, request, response);
 		}
 		float timet = (float) 1.0 * (System.currentTimeMillis() - start);
 		float tper = (float) (timet / (1.0 * iters));
@@ -883,7 +883,7 @@ public class XSLTEntityHandlerTest extends TestCase
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		xeh.init();
-		xeh.outputContent(rwe, request, response);
+		xeh.outputContent(rwe, rwe, request, response);
 		File f = new File("testoutput.xml");
 		FileOutputStream fo = new FileOutputStream(f);
 		fo.write(response.getContentAsByteArray());
@@ -894,7 +894,7 @@ public class XSLTEntityHandlerTest extends TestCase
 		for (int j = 0; j < iters; j++)
 		{
 			response = new MockHttpServletResponse();
-			xeh.outputContent(rwe, request, response);
+			xeh.outputContent(rwe, rwe, request, response);
 		}
 		float timet = (float) 1.0 * (System.currentTimeMillis() - start);
 		float tper = (float) (timet / (1.0 * iters));
