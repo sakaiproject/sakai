@@ -241,11 +241,6 @@ public class SiteAction extends PagedResourceActionII
 	
 	/** Name of the state attribute holding the site list View selected */
 	private static final String STATE_VIEW_SELECTED = "site.view.selected";
-		
-	/** the list of View selection options **/
-	private String ALL_MY_SITES = rb.getString("java.allmy");//"All My Sites";
-	private String MYWORKSPACE = rb.getString("java.my");//"My Workspace";
-	private String GRADTOOLS = rb.getString("java.gradtools");//"gradtools";
 	
 	/** Names of lists related to tools */
 	private static final String STATE_TOOL_REGISTRATION_LIST = "toolRegistrationList"; 
@@ -324,21 +319,12 @@ public class SiteAction extends PagedResourceActionII
 	/** The null/empty string */
 	private static final String NULL_STRING = "";
 	
-	/** The alert message shown when no site has been selected for the requested action. */
-	private String NO_SITE_SELECTED_STRING = rb.getString("java.nosites");
-	
-	/** The alert message shown when Revise... has been clicked but more than one site was checked */
-	private String MORE_THAN_ONE_SITE_SELECTED_STRING = rb.getString("java.please"); 
-	
 	/** The state attribute alerting user of a sent course request */
 	private static final String REQUEST_SENT = "site.request.sent";
 	
 	/** The state attributes in the make public vm */
 	private static final String STATE_JOINABLE = "state_joinable";
 	private static final String STATE_JOINERROLE = "state_joinerRole";
-	
-	/** Invalid email address warning */
-	private String INVALID_EMAIL = rb.getString("java.theemail");
 	
 	/** the list of selected user */
 	private static final String STATE_SELECTED_USER_LIST = "state_selected_user_list";
@@ -770,27 +756,27 @@ public class SiteAction extends PagedResourceActionII
 				Hashtable views = new Hashtable();
 				if (SecurityService.isSuperUser())
 				{
-					views.put(ALL_MY_SITES, ALL_MY_SITES);
-					views.put(MYWORKSPACE + " sites", MYWORKSPACE);
+					views.put(rb.getString("java.allmy"), rb.getString("java.allmy"));
+					views.put(rb.getString("java.my") + " " + rb.getString("java.sites"), rb.getString("java.my"));
 					for(int sTypeIndex = 0; sTypeIndex < sTypes.size(); sTypeIndex++)
 					{
 						String type = (String) sTypes.get(sTypeIndex);
-						views.put(type + " sites", type);
+						views.put(type + " " + rb.getString("java.sites"), type);
 					}
 					if (hasGradSites.equalsIgnoreCase("true"))
 					{
-						views.put(GRADTOOLS + " sites", GRADTOOLS);
+						views.put(rb.getString("java.gradtools") + " " + rb.getString("java.sites"), rb.getString("java.gradtools"));
 					}
 					if(state.getAttribute(STATE_VIEW_SELECTED) == null)
 					{
-						state.setAttribute(STATE_VIEW_SELECTED, ALL_MY_SITES);
+						state.setAttribute(STATE_VIEW_SELECTED, rb.getString("java.allmy"));
 					}
 					context.put("superUser", Boolean.TRUE);
 				}
 				else
 				{
 					context.put("superUser", Boolean.FALSE);
-					views.put(ALL_MY_SITES, ALL_MY_SITES);
+					views.put(rb.getString("java.allmy"), rb.getString("java.allmy"));
 					
 					// if there is a GradToolsStudent choice inside
 					boolean remove = false;
@@ -831,13 +817,13 @@ public class SiteAction extends PagedResourceActionII
 					}
 					if (!remove)
 					{
-						views.put(GRADTOOLS + " sites", GRADTOOLS);
+						views.put(rb.getString("java.gradtools") + " " + rb.getString("java.sites"), rb.getString("java.gradtools"));
 					}
 					
 					//default view
 					if(state.getAttribute(STATE_VIEW_SELECTED) == null)
 					{
-						state.setAttribute(STATE_VIEW_SELECTED, ALL_MY_SITES);
+						state.setAttribute(STATE_VIEW_SELECTED, rb.getString("java.allmy"));
 					}
 				}
 				context.put("views", views);
@@ -3017,12 +3003,12 @@ public class SiteAction extends PagedResourceActionII
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null)
 				{
-					if (view.equals(ALL_MY_SITES))
+					if (view.equals(rb.getString("java.allmy")))
 					{
 						//search for non-user sites, using the criteria
 						size = SiteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.NON_USER, null, search, null);
 					}
-					else if (view.equals(MYWORKSPACE))
+					else if (view.equals(rb.getString("java.my")))
 					{	
 						//search for a specific user site for the particular user id in the criteria - exact match only
 						try
@@ -3032,7 +3018,7 @@ public class SiteAction extends PagedResourceActionII
 						}
 						catch (IdUnusedException e) {}
 					}
-					else if (view.equalsIgnoreCase(GRADTOOLS))
+					else if (view.equalsIgnoreCase(rb.getString("java.gradtools")))
 					{	
 						//search for gradtools sites
 						size = SiteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.NON_USER, state.getAttribute(GRADTOOLS_SITE_TYPES), search, null);
@@ -3059,7 +3045,7 @@ public class SiteAction extends PagedResourceActionII
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view!= null)
 				{
-					if (view.equals(ALL_MY_SITES))
+					if (view.equals(rb.getString("java.allmy")))
 					{
 						view = null;
 						//add my workspace if any
@@ -3079,7 +3065,7 @@ public class SiteAction extends PagedResourceActionII
 						}
 						size += SiteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, search, null);
 					}
-					else if (view.equalsIgnoreCase(GRADTOOLS))
+					else if (view.equalsIgnoreCase(rb.getString("java.gradtools")))
 					{	
 						//search for gradtools sites
 						size += SiteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, state.getAttribute(GRADTOOLS_SITE_TYPES), search, null);
@@ -3143,13 +3129,13 @@ public class SiteAction extends PagedResourceActionII
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null)
 				{
-					if (view.equals(ALL_MY_SITES))
+					if (view.equals(rb.getString("java.allmy")))
 					{
 						//search for non-user sites, using the criteria
 						return SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.NON_USER,
 								null, search, null, sortType, new PagingPosition(first, last));
 					}
-					else if (view.equalsIgnoreCase(MYWORKSPACE))
+					else if (view.equalsIgnoreCase(rb.getString("java.my")))
 					{	
 						//search for a specific user site for the particular user id in the criteria - exact match only
 						List rv = new Vector();
@@ -3162,7 +3148,7 @@ public class SiteAction extends PagedResourceActionII
 	
 						return rv;
 					}
-					else if (view.equalsIgnoreCase(GRADTOOLS))
+					else if (view.equalsIgnoreCase(rb.getString("java.gradtools")))
 					{	
 						//search for gradtools sites
 						return SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.NON_USER,
@@ -3195,7 +3181,7 @@ public class SiteAction extends PagedResourceActionII
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view!= null)
 				{
-					if (view.equals(ALL_MY_SITES))
+					if (view.equals(rb.getString("java.allmy")))
 					{
 						view = null;
 						//add my workspace if any
@@ -3216,7 +3202,7 @@ public class SiteAction extends PagedResourceActionII
 						rv.addAll(SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
 								null, search, null, sortType, new PagingPosition(first, last)));
 					}
-					else if (view.equalsIgnoreCase(GRADTOOLS))
+					else if (view.equalsIgnoreCase(rb.getString("java.gradtools")))
 					{	
 						//search for a specific user site for the particular user id in the criteria - exact match only
 						rv.addAll(SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
@@ -3359,7 +3345,7 @@ public class SiteAction extends PagedResourceActionII
 		ParameterParser params = data.getParameters ();
 		if (params.getStrings ("selectedMembers") == null)
 		{
-			addAlert(state, NO_SITE_SELECTED_STRING);
+			addAlert(state, rb.getString("java.nosites"));
 			state.setAttribute(STATE_TEMPLATE_INDEX, "0");
 			return;
 		}
@@ -3490,7 +3476,7 @@ public class SiteAction extends PagedResourceActionII
 		//check form filled out correctly
 		if (params.getStrings ("selectedMembers") == null)
 		{
-			addAlert(state, NO_SITE_SELECTED_STRING);
+			addAlert(state, rb.getString("java.nosites"));
 			state.setAttribute(STATE_TEMPLATE_INDEX, "0");
 			return;
 		}
@@ -3500,7 +3486,7 @@ public class SiteAction extends PagedResourceActionII
 		{
 			if(chosenList.size() != 1)
 			{
-				addAlert(state, MORE_THAN_ONE_SITE_SELECTED_STRING);
+				addAlert(state, rb.getString("java.please"));
 				state.setAttribute(STATE_TEMPLATE_INDEX, "0");
 				return;
 			}
@@ -6501,7 +6487,7 @@ public class SiteAction extends PagedResourceActionII
 					if(email.length() > 0 && (email.indexOf("@") == -1 || parts.length != 2 || parts[0].length() == 0 || !Validator.checkEmailLocal(parts[0])))
 					{
 						// invalid email
-						addAlert(state, email + " "+rb.getString("java.invalid") + INVALID_EMAIL);
+						addAlert(state, email + " "+rb.getString("java.invalid") + rb.getString("java.theemail"));
 					}
 					state.setAttribute(FORM_SITEINFO_CONTACT_EMAIL, email);
 					
@@ -7474,7 +7460,7 @@ public class SiteAction extends PagedResourceActionII
 			if(email.length() > 0 && (email.indexOf("@") == -1 || parts.length != 2 || parts[0].length() == 0 || !Validator.checkEmailLocal(parts[0])))
 			{
 				// invalid email
-				addAlert(state, email + " "+rb.getString("java.invalid") + INVALID_EMAIL);
+				addAlert(state, email + " "+rb.getString("java.invalid") + rb.getString("java.theemail"));
 			}
 			siteInfo.site_contact_email = email;
 		}
@@ -7687,7 +7673,7 @@ public class SiteAction extends PagedResourceActionII
 				{
 					if (!Validator.checkEmailLocal(alias))
 					{
-						addAlert(state, INVALID_EMAIL);
+						addAlert(state, rb.getString("java.theemail"));
 					}
 					else
 					{
@@ -8750,7 +8736,7 @@ public class SiteAction extends PagedResourceActionII
 					}
 					else if (!Validator.checkEmailLocal(parts[0]))
 					{
-						addAlert(state, emailInIdAccount + " "+rb.getString("java.emailaddress") + INVALID_EMAIL);
+						addAlert(state, emailInIdAccount + " "+rb.getString("java.emailaddress") + rb.getString("java.theemail"));
 					}
 					else if (emailInIdAccount != null && !isValidDomain(emailInIdAccount))
 					{
@@ -10074,7 +10060,7 @@ public class SiteAction extends PagedResourceActionII
 					{
 						if (!Validator.checkEmailLocal(emailId))
 						{
-							addAlert(state, INVALID_EMAIL);
+							addAlert(state, rb.getString("java.theemail"));
 						}
 						else
 						{
