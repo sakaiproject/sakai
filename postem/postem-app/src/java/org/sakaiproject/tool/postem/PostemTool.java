@@ -106,7 +106,7 @@ public class PostemTool {
 	protected boolean gradebooksExist = true;
 	
 	private static final int TEMPLATE_MAX_LENGTH = 4000;
-	private static final int TITLE_MAX_LENGTH = 256;
+	private static final int TITLE_MAX_LENGTH = 255;
 	
 	private static final String COMMA_DELIM_STR = "comma";
 	private static final String TAB_DELIM_STR = "tab";
