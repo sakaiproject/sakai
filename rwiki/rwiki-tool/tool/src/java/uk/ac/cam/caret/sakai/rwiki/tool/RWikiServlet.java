@@ -254,16 +254,17 @@ public class RWikiServlet extends HttpServlet
 		if (RequestHelper.TITLE_PANEL.equals(request
 				.getParameter(RequestHelper.PANEL))) return false;
 
-		if (!request.getRequestURL().toString().equals(
-				request.getContextPath() + request.getServletPath()))
-		{
-			return false;
-		}
 
 		String action = request.getParameter(RequestHelper.ACTION);
-		if (action != null && action.length() > 0) return false;
+		if (action != null && action.length() > 0) {
+			return false;
+		}
 		String pageName = request.getParameter(ViewBean.PAGE_NAME_PARAM);
-		return (pageName == null || pageName.trim().length() == 0);
+		if  (pageName == null || pageName.trim().length() == 0) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
