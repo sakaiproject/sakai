@@ -24,3 +24,6 @@
     <module>rwiki-util/util</module>
   </modules>
 </project>
+
+
+Breaking M2 build to test notificaton
