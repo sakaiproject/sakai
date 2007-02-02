@@ -26,12 +26,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.Namespace;
+import org.dom4j.QName;
+import org.dom4j.io.DOMWriter;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -47,29 +52,32 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
- * <p>Copyright: Copyright (c) 2007 Sakai</p>
+ * <p>
+ * Copyright: Copyright (c) 2007 Sakai
+ * </p>
+ * 
  * @version $Id: ManifestGenerator 9273 2006-05-10 22:34:28Z daisyf@stanford.edu $
  */
 
 public class ManifestGenerator {
 	private static Log log = LogFactory.getLog(ManifestGenerator.class);
+
 	private String assessmentId;
+
 	private HashMap contentMap = new HashMap();
-	
+
 	public ManifestGenerator(String assessmentId) {
 		this.assessmentId = assessmentId;
 	}
-	
+
 	public String getManifest() {
-		Document doc = null;
+		org.w3c.dom.Document document = null;
 		try {
-			doc = readXMLDocument();
+			Document doc = readXMLDocument();
+			document = new DOMWriter().write(doc);
 		} catch (ParserConfigurationException e) {
 			log.error(e.getMessage());
 			e.printStackTrace();
@@ -79,76 +87,90 @@ public class ManifestGenerator {
 		} catch (IOException e) {
 			log.error(e.getMessage());
 			e.printStackTrace();
+		} catch (DocumentException e) {
+			log.error(e.getMessage());
+			e.printStackTrace();
 		}
-		String xmlString = XmlUtil.getDOMString(doc);
+		String xmlString = XmlUtil.getDOMString(document);
 		String newXmlString = xmlString;
 		if (xmlString.startsWith("<?xml version")) {
-			newXmlString = xmlString.replaceFirst("version=\"1.0\"", "version=\"1.0\"  encoding=\"UTF-8\"");
+			newXmlString = xmlString.replaceFirst("version=\"1.0\"",
+					"version=\"1.0\"  encoding=\"UTF-8\"");
 		}
 		log.debug(newXmlString);
 		return newXmlString;
 	}
-	
+
 	public HashMap getContentMap() {
 		return contentMap;
 	}
 
-	private Document readXMLDocument()
-			throws ParserConfigurationException, SAXException, IOException {
-		
-		DocumentBuilderFactory builderFactory = DocumentBuilderFactory
-		.newInstance();
-		DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
-		Document document = documentBuilder.newDocument();
-		
-		Element manifestElement = document.createElement("manifest");
-		manifestElement.setAttribute("identifier", "Manifest1");
-		document.appendChild(manifestElement);
-		
-		Element organizationsElement = document.createElement("organizations");
-		manifestElement.appendChild(organizationsElement);
-		
-		Element resourcesElement = document.createElement("resources");
-		manifestElement.appendChild(resourcesElement);
-		
-		Element resourceElement = document.createElement("resource");
-		resourceElement.setAttribute("identifier", "Resource1");
-		resourcesElement.appendChild(resourceElement);
-		
+	private Document readXMLDocument() throws ParserConfigurationException,
+			SAXException, IOException {
+
+		Document document = DocumentHelper.createDocument();
+		Element root = document.addElement("root");
+		root.addAttribute("identifier", "Manifest1");
+		// Set up the necessary namespaces
+		root.setQName(new QName("manifest", new Namespace(null,
+				"http://www.imsglobal.org/xsd/imscp_v1p1")));
+		root.add(new Namespace("imsmd",
+				"http://www.imsglobal.org/xsd/imsmd_v1p2"));
+		root.add(new Namespace("xsi",
+				"http://www.w3.org/2001/XMLSchema-instance"));
+
+		root.addAttribute("xsi:schemaLocation",
+				"http://www.imsglobal.org/xsd/imscp_v1p1 "
+						+ "http://www.imsglobal.org/xsd/imscp_v1p1.xsd "
+						+ "http://www.imsglobal.org/xsd/imsmd_v1p2 "
+						+ "http://www.imsglobal.org/xsd/imsmd_v1p2.xsd ");
+
+		root.addElement("organizations");
+
+		Element resourcesElement = DocumentHelper.createElement("resources");
+		root.add(resourcesElement);
+
+		Element resourceElement = DocumentHelper.createElement("resource");
+		resourceElement.addAttribute("identifier", "Resource1");
+		resourcesElement.add(resourceElement);
+
 		getAttachments();
 		Iterator iter = contentMap.keySet().iterator();
 		Element fileElement = null;
-		Node fileText = null;
 		String filename = null;
-		while(iter.hasNext()) {
+		while (iter.hasNext()) {
 			filename = ((String) iter.next()).replaceAll(" ", "");
-			fileElement = document.createElement("file");
-			fileText = document.createTextNode(filename);
-			fileElement.setAttribute("href", filename);
-			fileElement.appendChild(fileText);
-			resourceElement.appendChild(fileElement);
+			fileElement = resourceElement.addElement("file");
+			fileElement.addAttribute("href", filename);
 		}
-        return document;
+		return document;
 	}
-	
+
 	private void getAttachments() {
 		try {
 			AssessmentService assessmentService = new AssessmentService();
-			AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
-		
+			AssessmentFacade assessment = assessmentService
+					.getAssessment(assessmentId);
+
 			// Assessment attachment
-			AssessmentData assessmentData = (AssessmentData) assessment.getData();
-			Set assessmentAttachmentSet = assessmentData.getAssessmentAttachmentSet();
-			Iterator assessmentAttachmentIter = assessmentAttachmentSet.iterator();
-			byte [] content = null;
-			String resourceId = null; // resoureId is also the filename (whole path) in the zip file
+			AssessmentData assessmentData = (AssessmentData) assessment
+					.getData();
+			Set assessmentAttachmentSet = assessmentData
+					.getAssessmentAttachmentSet();
+			Iterator assessmentAttachmentIter = assessmentAttachmentSet
+					.iterator();
+			byte[] content = null;
+			String resourceId = null; // resoureId is also the filename (whole
+			// path) in the zip file
 			while (assessmentAttachmentIter.hasNext()) {
-				AssessmentAttachment assessmentAttachment = (AssessmentAttachment) assessmentAttachmentIter.next();
+				AssessmentAttachment assessmentAttachment = (AssessmentAttachment) assessmentAttachmentIter
+						.next();
 				resourceId = assessmentAttachment.getResourceId();
-				content = ContentHostingService.getResource(resourceId).getContent();
+				content = ContentHostingService.getResource(resourceId)
+						.getContent();
 				contentMap.put(resourceId.replace(" ", ""), content);
 			}
-			
+
 			// Section attachment
 			Set sectionSet = assessment.getSectionSet();
 			Iterator sectionIter = sectionSet.iterator();
@@ -162,16 +184,19 @@ public class ManifestGenerator {
 			Iterator itemAttachmentIter = null;
 			ItemAttachment itemAttachment = null;
 			while (sectionIter.hasNext()) {
-				sectionData = (SectionData) ((SectionFacade) sectionIter.next()).getData();
+				sectionData = (SectionData) ((SectionFacade) sectionIter.next())
+						.getData();
 				sectionAttachmentSet = sectionData.getSectionAttachmentSet();
 				sectionAttachmentIter = sectionAttachmentSet.iterator();
 				while (sectionAttachmentIter.hasNext()) {
-					sectionAttachment = (SectionAttachment) sectionAttachmentIter.next();
+					sectionAttachment = (SectionAttachment) sectionAttachmentIter
+							.next();
 					resourceId = sectionAttachment.getResourceId();
-					content = ContentHostingService.getResource(resourceId).getContent();
+					content = ContentHostingService.getResource(resourceId)
+							.getContent();
 					contentMap.put(resourceId.replace(" ", ""), content);
 				}
-				
+
 				itemSet = sectionData.getItemSet();
 				Iterator itemIter = itemSet.iterator();
 				while (itemIter.hasNext()) {
@@ -179,14 +204,16 @@ public class ManifestGenerator {
 					itemAttachmentSet = itemData.getItemAttachmentSet();
 					itemAttachmentIter = itemAttachmentSet.iterator();
 					while (itemAttachmentIter.hasNext()) {
-						itemAttachment = (ItemAttachment) itemAttachmentIter.next();
+						itemAttachment = (ItemAttachment) itemAttachmentIter
+								.next();
 						resourceId = itemAttachment.getResourceId();
-						content = ContentHostingService.getResource(resourceId).getContent();
+						content = ContentHostingService.getResource(resourceId)
+								.getContent();
 						contentMap.put(resourceId.replace(" ", ""), content);
 					}
 				}
 			}
-		
+
 		} catch (PermissionException e) {
 			log.error(e.getMessage());
 			e.printStackTrace();

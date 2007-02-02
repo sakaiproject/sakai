@@ -986,7 +986,7 @@ public class ExtractionHelper
 	// first check if there is any attachment
 	// if no attachment - no action is needed
 	String attachment = assessment.getAssessmentAttachmentMetaData();
-	if (attachment == null) {
+	if (attachment == null || "".equals(attachment)) {
 	  	return;
 	}
 	
@@ -1021,7 +1021,7 @@ public class ExtractionHelper
 	// first check if there is any attachment
 	// if no attachment - no action is needed
 	String attachment = (String) sectionMap.get("attachment");
-	if (attachment == null || attachment.equals("")) {
+	if (attachment == null || "".equals(attachment)) {
 	  	return;
 	}
 	
@@ -1056,7 +1056,7 @@ public class ExtractionHelper
 	// first check if there is any attachment
 	// if no attachment - no action is needed
 	String attachment = item.getItemAttachmentMetaData();
-	if (attachment == null || attachment.equals("")) {
+	if (attachment == null || "".equals(attachment)) {
 	  	return;
 	}
 	
