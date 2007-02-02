@@ -85,8 +85,7 @@ public class SakaiLinkMacro extends BaseLocaleMacro
 		if (params.getLength() == 1)
 		{
 			url = text;
-			text = Encoder.toEntity(text.charAt(0))
-					+ Encoder.escape(text.substring(1));
+			text = Encoder.escape(text);
 		}
 
 		if (url != null && text != null)
@@ -113,11 +112,12 @@ public class SakaiLinkMacro extends BaseLocaleMacro
 			}
 			
 			url = context.convertLink(url);
+			
 
-			writer.write("<a href=\"" + Encoder.escape(url) + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+			writer.write("<a href=\"" + url + "\""); //$NON-NLS-1$ //$NON-NLS-2$
 			if (!"none".equals(target)) //$NON-NLS-1$
 			{
-				writer.write(" target=\"" + Encoder.escape(target) + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+				writer.write(" target=\"" + target + "\""); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			writer.write(">"); //$NON-NLS-1$
 			writer.write(text);

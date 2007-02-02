@@ -117,10 +117,10 @@ public class ImageMacro extends BaseMacro
 			{
 				link = context.convertLink(link);
 
-				writer.write("<a href=\"" + Encoder.escape(link) + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+				writer.write("<a href=\"" + link + "\""); //$NON-NLS-1$ //$NON-NLS-2$
 				if (target != null)
 				{
-					writer.write("target=\"" + Encoder.escape(target) + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+					writer.write("target=\"" + target + "\""); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				writer.write(">"); //$NON-NLS-1$
 			}

@@ -72,7 +72,7 @@ public class UrlFilter extends LocaleRegexTokenFilter implements CacheFilter
 
 		buffer.append(formatter.format(new Object[] {
 				externalImage,
-				Encoder.escape(result.group(2)),
+				result.group(2),
 				Encoder.toEntity(result.group(2).charAt(0))
 						+ result.group(2).substring(1) }));
 		return;

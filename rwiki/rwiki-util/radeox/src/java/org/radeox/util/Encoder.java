@@ -25,12 +25,12 @@ package org.radeox.util;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import org.radeox.regex.MatchResult;
 import org.radeox.regex.Matcher;
 import org.radeox.regex.Pattern;
 import org.radeox.regex.Substitution;
+
 
 /*
  * Escapes and encodes Strings for web usage @author stephan
@@ -40,47 +40,74 @@ import org.radeox.regex.Substitution;
 
 public class Encoder
 {
-	private final static String DELIMITER = "&\"'<>";
+	
 
-	private final static Map ESCAPED_CHARS = new HashMap();
+	public static final char HIGHEST_CHARACTER = '>';
+
+	public static final char[][] specialChars = new char[HIGHEST_CHARACTER + 1][];
+	static
+	{
+		specialChars['>'] = "&gt;".toCharArray();
+		specialChars['<'] = "&lt;".toCharArray();
+		specialChars['&'] = "&amp;".toCharArray();
+		specialChars['"'] = "&#34;".toCharArray();
+		specialChars['\''] = "&#39;".toCharArray();
+	}
+	private final static Map<String,String> ESCAPED_CHARS = new HashMap<String,String>();
+	static {
+		ESCAPED_CHARS.put("&gt;", ">");
+		ESCAPED_CHARS.put("&lt;", "<");
+		ESCAPED_CHARS.put("&amp;", "&");
+		ESCAPED_CHARS.put("&quot;", "\"");
+		ESCAPED_CHARS.put("&#39;", "'");
+	}
+
+	public static String escape(String toEscape)
+	{
+		char[] chars = toEscape.toCharArray();
+		int lastEscapedBefore = 0;
+		StringBuffer escapedString = null;
+		for (int i = 0; i < chars.length; i++)
+		{
+			if (chars[i] <= HIGHEST_CHARACTER)
+			{
+				char[] escapedPortion = specialChars[chars[i]];
+				if (escapedPortion != null)
+				{
+					if (lastEscapedBefore == 0)
+					{
+						escapedString = new StringBuffer(chars.length + 5);
+					}
+					if (lastEscapedBefore < i)
+					{
+						escapedString.append(chars, lastEscapedBefore, i
+								- lastEscapedBefore);
+					}
+					lastEscapedBefore = i + 1;
+					escapedString.append(escapedPortion);
+				}
+			}
+		}
+
+		if (lastEscapedBefore == 0)
+		{
+			return toEscape;
+		}
+
+		if (lastEscapedBefore < chars.length)
+		{
+			escapedString.append(chars, lastEscapedBefore, chars.length
+					- lastEscapedBefore);
+		}
+
+		return escapedString.toString();
+	}
+
+
 	// private final static Pattern entityPattern =
 	// Pattern.compile("&(#?[0-9a-fA-F]+);");
 
-	static
-	{
-		ESCAPED_CHARS.put("&", toEntity('&'));
-		ESCAPED_CHARS.put("\"", toEntity('"'));
-		ESCAPED_CHARS.put("'", toEntity('\''));
-		ESCAPED_CHARS.put(">", toEntity('>'));
-		ESCAPED_CHARS.put("<", toEntity('<'));
-	}
 
-	/**
-	 * Encoder special characters that may occur in a HTML so it can be
-	 * displayed safely.
-	 * 
-	 * @param str
-	 *        the original string
-	 * @return the escaped string
-	 */
-	public static String escape(String str)
-	{
-		StringBuffer result = new StringBuffer();
-		StringTokenizer tokenizer = new StringTokenizer(str, DELIMITER, true);
-		while (tokenizer.hasMoreTokens())
-		{
-			String currentToken = tokenizer.nextToken();
-			if (ESCAPED_CHARS.containsKey(currentToken))
-			{
-				result.append(ESCAPED_CHARS.get(currentToken));
-			}
-			else
-			{
-				result.append(currentToken);
-			}
-		}
-		return result.toString();
-	}
 
 	public static String unescape(String str)
 	{
@@ -102,6 +129,13 @@ public class Encoder
 
 	public static String toEntity(int c)
 	{
+		if (c <= HIGHEST_CHARACTER)
+		{
+			char[] escapedPortion = specialChars[c];
+			if ( escapedPortion != null ) {
+				return new String(escapedPortion);
+			}
+		}
 		return "&#" + c + ";";
 	}
 
