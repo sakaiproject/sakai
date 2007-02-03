@@ -494,7 +494,7 @@
 			#end
 		</h4>
 		#if ($itemAlertMessage)
-			<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($itemAlertMessage)</div>
+			<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
 			<div style="display:block;clear:both" ></div>
 		#end
 		######################## ================ Properties of Item ================ ########################
@@ -894,9 +894,9 @@
 	
 		######################## ================ Add Button, Back Button ================ ########################
 		<p class="act">
-				<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif','saveChanges','createForm');document.getElementById('flow').value='create'; submitform('createForm');"  value="$tlang.getString("gen.add")" accesskey="s" />
-				<input type="button" name="cancel" onclick="javascript:document.getElementById('createForm').action='#toolLinkParam("ResourcesAction" "doCreateitem" "flow=cancel")';submitform('createForm');"   value="$tlang.getString("gen.cancel")" accesskey="x" />
-				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
+				<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif','saveChanges','createForm');document.getElementById('flow').value='create'; submitform('createForm');"  value="$tlang.getString("label.update")" accesskey="s" />
+				<input type="button" name="cancel" onclick="javascript:document.getElementById('createForm').action='#toolLinkParam("ResourcesAction" "doCreateitem" "flow=cancel")';submitform('createForm');"   value="$tlang.getString("label.cancel")" accesskey="x" />
+				<span id="submitnotif" style="visibility:hidden">$tlang.getString("label.proces")</span>
 		</p>
 	</form>
 </div>

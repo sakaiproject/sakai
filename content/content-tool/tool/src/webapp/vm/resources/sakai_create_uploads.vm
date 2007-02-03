@@ -4,7 +4,7 @@
 		$tlang.getString("create.uploads")
 	</h4>
 	#if ($itemAlertMessage)
-		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($itemAlertMessage)</div>
+		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
 		<div style="display:block;clear:both" ></div>
 	#end
 	<p class="instr">
@@ -24,12 +24,12 @@
 		</div>
 		<p class="act">
 			<input type="button" name="addfile" id="addfile" onclick="javascript:addFileInput();" value="$tlang.getString("create.addfile")" />
-			<span class="submitnotif" id="submitnotif01" style="visibility:hidden">$tlang.getString("gen.proces")</span>
+			<span class="submitnotif" id="submitnotif01" style="visibility:hidden">$tlang.getString("label.proces")</span>
 		</p>
 		<p class="act">
-			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doUpload")&flow=save';submitform('addContentForm');" value="$tlang.getString("create.continue")" accesskey="s" />
-			<input type="button" name="cancel" onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("create.cancel")" accesskey="x" />
-			<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
+			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doUpload")&flow=save';submitform('addContentForm');" value="$tlang.getString("label.continue")" accesskey="s" />
+			<input type="button" name="cancel" onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
+			<span id="submitnotif" style="visibility:hidden">$tlang.getString("label.proces")</span>
 		</p>
 	</form>
 </div>

@@ -1,0 +1,81 @@
+<!-- resources/sakai_create_text.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
+<div class="portletBody">
+	<h4>
+		$tlang.getString("create.folder")
+	</h4>
+	#if ($itemAlertMessage)
+		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
+		<div style="display:block;clear:both" ></div>
+	#end
+	<p class="instr">
+		$tlang.getString("instr.folder")
+	</p>
+	<form name="addFolderForm" id="addFolderForm" method="post" action="#toolForm("ResourcesHelperAction")">
+		<div id="addFolderDiv">
+			<input type="hidden" name="folderCount" id="folderCount" value="$pipes.size()" />
+			#set($i = 0)
+			#foreach($pipe in $pipes)
+				#set($i = $i + 1)
+				<p class="shorttext">
+					<label for="folder$i">$tlang.getString("label.folder")</label>
+					<input type="text" name="folder$i" id="folder$i" value="" />
+				</p>
+			#end
+		</div>
+		<p class="act">
+			<input type="button" name="addfile" id="addfile" onclick="javascript:addFileInput();" value="$tlang.getString("label.addFolder")" />
+			<span class="submitnotif" id="submitnotif01" style="visibility:hidden">$tlang.getString("label.proces")</span>
+		</p>
+		<p class="act">
+			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif','saveChanges','addFolderForm');document.getElementById('addFolderForm').action='#toolLink("ResourcesHelperAction" "doCreateFolders")&flow=save';submitform('addFolderForm');" value="$tlang.getString("label.continue")" accesskey="s" />
+			<input type="button" name="cancel" onclick="javascript:document.getElementById('addFolderForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addFolderForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
+			<span id="submitnotif" style="visibility:hidden">$tlang.getString("label.proces")</span>
+		</p>
+	</form>
+</div>
+<script type="text/javascript" language="JavaScript">
+	<!--
+	function submitform(id)
+	{
+		var theForm = document.getElementById(id);
+		if(theForm && theForm.onsubmit)
+		{
+			theForm.onsubmit();
+		}
+		if(theForm && theForm.submit)
+		{
+			theForm.submit();
+		}
+	}
+	function addFileInput()
+	{
+		var counter = document.getElementById("folderCount");
+		var folderInputDiv = document.getElementById("addFolderDiv");
+		var count = new Number(counter.value) + 1;
+		counter.value = count;
+		
+		var ptag = document.createElement("p");
+		ptag.setAttribute("className","shorttext");
+		ptag.setAttribute("class","shorttext");
+		
+		var label = document.createElement("label");
+		label.setAttribute("for","folder" + count);
+		label.setAttribute("htmlFor","folder" + count);
+		
+		var text = document.createTextNode("$tlang.getString("label.folder")");
+		label.appendChild(text);
+		ptag.appendChild(label);
+		
+		var folder = document.createElement("input");
+		folder.setAttribute("type","text");
+		folder.setAttribute("name","folder" + count);
+		folder.setAttribute("id","folder" + count);
+		ptag.appendChild(folder);
+		folderInputDiv.appendChild(ptag);
+		
+		setMainFrameHeight(window.name);
+		focus_path = [ "folder" + count ];
+		setFocus(focus_path);
+	}
+	-->
+</script>
