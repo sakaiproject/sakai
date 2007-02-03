@@ -23,7 +23,7 @@
 			#end
 		</div>
 		<p class="act">
-			<input type="button" name="addfile" id="addfile" onclick="javascript:addFileInput();" value="$tlang.getString("create.addfile")" />
+			<input type="button" name="addfile" id="addfile" onclick="javascript:addFileInput();" value="$tlang.getString("label.addfile")" />
 			<span class="submitnotif" id="submitnotif01" style="visibility:hidden">$tlang.getString("label.proces")</span>
 		</p>
 		<p class="act">

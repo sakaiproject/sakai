@@ -81,9 +81,10 @@ public class BasicResourceType implements ResourceType
 	/**
 	 * 
 	 */
-	public BasicResourceType(String id)
+	public BasicResourceType(String id, Localizer localizer)
 	{
 		this.id = id;
+		this.localizer = localizer;
 	}
 	
 	/**
