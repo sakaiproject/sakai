@@ -378,7 +378,7 @@ function uncheckOther(field){
 </h:panelGroup>
 
   <!-- *** TIMED *** -->
-<h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessment_isInstructorEditable==true or assessmentSettings.valueMap.timedAssessmentAutoSubmit_isInstructorEditable==true}" >
+<h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessment_isInstructorEditable==true}" >
   <samigo:hideDivision title="#{msg.heading_timed_assessment}">
     <f:verbatim><div class="tier2"></f:verbatim>
 <%--DEBUGGING:
