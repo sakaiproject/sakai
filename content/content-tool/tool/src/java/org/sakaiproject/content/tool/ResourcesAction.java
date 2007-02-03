@@ -151,7 +151,7 @@ import org.w3c.dom.Text;
 * @author University of Michigan, CHEF Software Development Team
 * @version $Revision$
 */
-public class ResourcesAction
+public class ResourcesAction 
 	extends PagedResourceHelperAction // VelocityPortletPaneledAction
 {
 	public static final List<ActionType> CONTENT_NEW_ACTIONS = new Vector<ActionType>();
@@ -1942,6 +1942,14 @@ public class ResourcesAction
 		ContentEntity entity = (ContentEntity) ref.getEntity();
 
 		EditItem item = new  EditItem(entity);
+		if(item.getReleaseDate() == null)
+		{
+			item.setReleaseDate(TimeService.newTime());
+		}
+		if(item.getRetractDate() == null)
+		{
+			item.setRetractDate(defaultRetractDate);
+		}
 		
 		context.put("item", item);
 		state.setAttribute(STATE_REVISE_PROPERTIES_ITEM, item);
