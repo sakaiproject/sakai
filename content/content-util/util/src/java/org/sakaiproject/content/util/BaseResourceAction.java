@@ -21,6 +21,7 @@
 
 package org.sakaiproject.content.util;
 
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ResourceToolAction;
 
 /**
@@ -35,6 +36,7 @@ public class BaseResourceAction implements ResourceToolAction {
    protected ActionType actionType;
    protected String typeId;
    protected boolean available = true;
+   protected Localizer localizer = null;
 
 
    public BaseResourceAction(String id, ActionType actionType, String typeId) {
@@ -74,8 +76,14 @@ public class BaseResourceAction implements ResourceToolAction {
     * @return
     */
    public String getLabel() {
-      // return null to let the resources tool handle the label for standard actions
-      return null;
+	   	// if a Localizer is defined, use it to get the localized label
+	   	// otherwise return null to let the resources tool handle the label for standard actions
+		String label = null;
+		if(this.localizer != null)
+		{
+			label = this.localizer.getLabel();
+		}
+		return label;
    }
 
 	/* (non-Javadoc)
@@ -84,6 +92,25 @@ public class BaseResourceAction implements ResourceToolAction {
 	public boolean available(String context)
 	{
 		return this.available;
+	}
+	
+	public void setLocalizer(Localizer localizer)
+	{
+		this.localizer = localizer;
+	}
+	
+	/**
+	 * 
+	 * 
+	 *
+	 */
+	public interface Localizer
+	{
+		/**
+		 *
+		 * @return
+		 */
+		public String getLabel();
 	}
 	
 }

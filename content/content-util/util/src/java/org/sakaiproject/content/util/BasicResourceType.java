@@ -68,7 +68,7 @@ public class BasicResourceType implements ResourceType
 
 	protected String iconLocation;
 	
-	protected Localizer localizer;
+	protected Localizer localizer = null;
 	
 	protected boolean hasRightsDialog = true;
 	protected boolean hasPublicDialog = true;
@@ -81,10 +81,9 @@ public class BasicResourceType implements ResourceType
 	/**
 	 * 
 	 */
-	public BasicResourceType(String id, Localizer localizer)
+	public BasicResourceType(String id)
 	{
 		this.id = id;
-		this.localizer = localizer;
 	}
 	
 	/**
@@ -165,7 +164,12 @@ public class BasicResourceType implements ResourceType
 	 */
 	public String getLabel()
 	{
-		return this.localizer.getLabel();
+		String rv = null;
+		if(this.localizer != null)
+		{
+			rv = this.localizer.getLabel();
+		}
+		return rv;
 	}
 
 	/* (non-Javadoc)
@@ -173,7 +177,12 @@ public class BasicResourceType implements ResourceType
 	 */
 	public String getLocalizedHoverText(ContentEntity member)
 	{
-		return this.localizer.getLocalizedHoverText(member);
+		String rv = null;
+		if(this.localizer != null)
+		{
+			rv = this.localizer.getLocalizedHoverText(member);
+		}
+		return rv;
 	}
 
 	/* (non-Javadoc)
