@@ -40,9 +40,12 @@ import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 public class BasicResourceType implements ResourceType
 {
 	/**
-	 * 
-	 * 
-	 *
+	 * Localizer provides a way for the registrant to take charge of localizing labels 
+	 * without extending BasicResourceType.  In defining types, a registrant can create
+	 * instances of BasicResourceType, implement the Localizer interface with methods
+	 * that provide localized strings, and set the localizer.  Subsequent invocation of
+	 * BasicResourceType.getLabel() and BasicResourceType.getLocalizedHoverText(entity) 
+	 * will use the Localizer to supply labels.
 	 */
 	public interface Localizer
 	{
@@ -57,7 +60,7 @@ public class BasicResourceType implements ResourceType
 		 * @param member
 		 * @return
 		 */
-		public String getLocalizedHoverText(ContentEntity member);
+		public String getLocalizedHoverText(ContentEntity entity);
 	}
 	
 	protected Map<ActionType,List<ResourceToolAction>> actionTypeMap = new Hashtable<ActionType,List<ResourceToolAction>>();
@@ -175,12 +178,12 @@ public class BasicResourceType implements ResourceType
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ResourceType#getLocalizedHoverText(org.sakaiproject.content.api.ContentEntity)
 	 */
-	public String getLocalizedHoverText(ContentEntity member)
+	public String getLocalizedHoverText(ContentEntity entity)
 	{
 		String rv = null;
 		if(this.localizer != null)
 		{
-			rv = this.localizer.getLocalizedHoverText(member);
+			rv = this.localizer.getLocalizedHoverText(entity);
 		}
 		return rv;
 	}

@@ -100,9 +100,11 @@ public class BaseResourceAction implements ResourceToolAction {
 	}
 	
 	/**
-	 * 
-	 * 
-	 *
+	 * Localizer provides a way for the registrant to take charge of localizing labels 
+	 * without extending BaseResourceAction.  In defining actions, a registrant can create
+	 * instances of BaseResourceAction, implement the Localizer interface with a method
+	 * that provides localized strings, and set the localizer.  Subsequent invocation of
+	 * BaseResourceAction.getLabel() will use the Localizer to supply labels.
 	 */
 	public interface Localizer
 	{
