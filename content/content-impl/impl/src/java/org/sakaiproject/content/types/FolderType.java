@@ -101,6 +101,14 @@ public class FolderType extends BaseResourceType
 	public class FolderPasteMovedAction implements ServiceLevelAction
 	{
 		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+        
+		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */
 		public ActionType getActionType()
@@ -162,6 +170,14 @@ public class FolderType extends BaseResourceType
 
 	public class FolderPasteCopiedAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+        
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */
@@ -225,6 +241,14 @@ public class FolderType extends BaseResourceType
 	public class FolderCopyAction implements ServiceLevelAction
 	{
 		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+		
+		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */
 		public ActionType getActionType()
@@ -286,6 +310,13 @@ public class FolderType extends BaseResourceType
 
 	public class FolderCreateAction implements InteractionAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
 
 		public void cancelAction(Reference reference, String initializationId) 
 		{
@@ -341,6 +372,14 @@ public class FolderType extends BaseResourceType
 
 	public class FolderDeleteAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+        
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */
@@ -401,6 +440,14 @@ public class FolderType extends BaseResourceType
 	public class FolderDuplicateAction implements ServiceLevelAction
 	{
 		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+        
+		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */
 		public ActionType getActionType()
@@ -459,6 +506,13 @@ public class FolderType extends BaseResourceType
 	
 	public class FolderPropertiesAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
 
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
@@ -532,6 +586,14 @@ public class FolderType extends BaseResourceType
 	public class FolderMoveAction implements ServiceLevelAction
 	{
 		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+		
+		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */
 		public ActionType getActionType()
@@ -590,6 +652,13 @@ public class FolderType extends BaseResourceType
 
 	public class FolderReviseAction implements InteractionAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
 
 		public void cancelAction(Reference reference, String initializationId) 
 		{
@@ -645,6 +714,14 @@ public class FolderType extends BaseResourceType
 	
 	public class FolderAccessAction implements InteractionAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+
 		public String initializeAction(Reference reference) 
 		{
 			return null;

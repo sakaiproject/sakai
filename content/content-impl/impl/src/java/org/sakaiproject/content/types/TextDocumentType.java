@@ -107,6 +107,13 @@ public class TextDocumentType extends BaseResourceType
 
 	public class TextDocumentPropertiesAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
 
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
@@ -184,6 +191,13 @@ public class TextDocumentType extends BaseResourceType
 
 	public class TextDocumentCopyAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
 
 		public String getId() 
 		{
@@ -244,6 +258,14 @@ public class TextDocumentType extends BaseResourceType
 
 	public class TextDocumentCreateAction implements InteractionAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+
 		public void cancelAction(Reference reference, String initializationId) 
 		{
 			// TODO Auto-generated method stub
@@ -299,6 +321,14 @@ public class TextDocumentType extends BaseResourceType
 
 	public class TextDocumentDeleteAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */
@@ -358,6 +388,14 @@ public class TextDocumentType extends BaseResourceType
 
 	public class TextDocumentDuplicateAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */
@@ -419,6 +457,14 @@ public class TextDocumentType extends BaseResourceType
 	public class TextDocumentMoveAction implements ServiceLevelAction
 	{
 		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+
+		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */
 		public ActionType getActionType()
@@ -478,6 +524,13 @@ public class TextDocumentType extends BaseResourceType
 
 	public class TextDocumentReviseAction implements InteractionAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
 
 		public void cancelAction(Reference reference, String initializationId) 
 		{
@@ -533,6 +586,13 @@ public class TextDocumentType extends BaseResourceType
 	
 	public class TextDocumentAccessAction implements InteractionAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
 
 		public void cancelAction(Reference reference, String initializationId) 
 		{
@@ -589,6 +649,14 @@ public class TextDocumentType extends BaseResourceType
 	
 	public class ReviseMetadataAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */

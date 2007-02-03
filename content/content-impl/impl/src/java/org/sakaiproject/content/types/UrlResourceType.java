@@ -60,6 +60,13 @@ public class UrlResourceType extends BaseResourceType
 
 	public class UrlResourcePropertiesAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
 
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
@@ -138,6 +145,14 @@ public class UrlResourceType extends BaseResourceType
 	public class UrlResourceCopyAction implements ServiceLevelAction
 	{
 		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+
+		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */
 		public ActionType getActionType()
@@ -196,6 +211,14 @@ public class UrlResourceType extends BaseResourceType
 
 	public class UrlResourceCreateAction implements InteractionAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+
 		public String initializeAction(Reference reference) 
 		{
 			return null;
@@ -250,6 +273,14 @@ public class UrlResourceType extends BaseResourceType
 
 	public class UrlResourceDeleteAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */
@@ -309,6 +340,14 @@ public class UrlResourceType extends BaseResourceType
 
 	public class UrlResourceDuplicateAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */
@@ -370,6 +409,14 @@ public class UrlResourceType extends BaseResourceType
 	public class UrlResourceMoveAction implements ServiceLevelAction
 	{
 		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+
+		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */
 		public ActionType getActionType()
@@ -429,6 +476,14 @@ public class UrlResourceType extends BaseResourceType
 
 	public class UrlResourceReviseAction implements InteractionAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+
 		public String initializeAction(Reference reference) 
 		{
 			return null;
@@ -483,6 +538,14 @@ public class UrlResourceType extends BaseResourceType
 	
 	public class UrlResourceAccessAction implements InteractionAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+
 		public String initializeAction(Reference reference) 
 		{
 			return null;

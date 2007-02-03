@@ -94,7 +94,6 @@ public class FileUploadType extends BaseResourceType
 			list.add(action);
 		}
 		
-
 	}
 
 	public class FileUploadPropertiesAction implements ServiceLevelAction
@@ -171,6 +170,14 @@ public class FileUploadType extends BaseResourceType
 			// TODO Auto-generated method stub
 			return typeId;
 		}
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
 		
 	}
 
@@ -247,6 +254,13 @@ public class FileUploadType extends BaseResourceType
 			
 		}
 
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
 	}
 
 	public class FileUploadCreateAction implements InteractionAction
@@ -303,17 +317,12 @@ public class FileUploadType extends BaseResourceType
 		}
 
 		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermission()
-		 */
-		public Set getPermission()
-		{
-			Set rv = new TreeSet();
-			rv.add(ContentHostingService.AUTH_RESOURCE_ADD);
-			rv.add(ContentHostingService.AUTH_RESOURCE_ALL_GROUPS);
-			rv.add(ContentHostingService.AUTH_RESOURCE_HIDDEN);
-			return rv;
-		}
-
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
 	}
 
 	public class FileUploadDeleteAction implements ServiceLevelAction
@@ -386,6 +395,13 @@ public class FileUploadType extends BaseResourceType
 			
 		}
 
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
 	}
 
 	public class FileUploadDuplicateAction implements ServiceLevelAction
@@ -458,6 +474,13 @@ public class FileUploadType extends BaseResourceType
 			
 		}
 
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
 	}
 
 	public class FileUploadMoveAction implements ServiceLevelAction
@@ -518,6 +541,13 @@ public class FileUploadType extends BaseResourceType
 			
 		}
 
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
 	}
 
 	public class FileUploadReviseAction implements InteractionAction
@@ -573,6 +603,13 @@ public class FileUploadType extends BaseResourceType
 			return null;
 		}
 
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
 	}
 	
 	public class FileUploadAccessAction implements InteractionAction
@@ -627,6 +664,13 @@ public class FileUploadType extends BaseResourceType
 			return null;
 		}
 
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
 	}
 		
 	public ResourceToolAction getAction(String actionId) 

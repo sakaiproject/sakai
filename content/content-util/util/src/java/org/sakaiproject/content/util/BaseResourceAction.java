@@ -34,6 +34,7 @@ public class BaseResourceAction implements ResourceToolAction {
    protected String id;
    protected ActionType actionType;
    protected String typeId;
+   protected boolean available = true;
 
 
    public BaseResourceAction(String id, ActionType actionType, String typeId) {
@@ -76,4 +77,13 @@ public class BaseResourceAction implements ResourceToolAction {
       // return null to let the resources tool handle the label for standard actions
       return null;
    }
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+	 */
+	public boolean available(String context)
+	{
+		return this.available;
+	}
+	
 }

@@ -2573,6 +2573,16 @@ public class ResourcesAction
 			{
 				actions.addAll(contentNewOnParentActions);
 			}
+			// filter -- remove actions that are not available to the current user in the context of this item
+			Iterator<ResourceToolAction> actionIt = actions.iterator();
+			while(actionIt.hasNext())
+			{
+				ResourceToolAction action = actionIt.next();
+				if(! action.available(ref.getContext()))
+				{
+					actionIt.remove();
+				}
+			}
 			context.put("actions", actions);
 			context.put("labeler", new Labeler());
 		}

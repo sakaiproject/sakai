@@ -67,6 +67,13 @@ public class HtmlDocumentType extends BaseResourceType
 	
 	public class HtmlDocumentPropertiesAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
 
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
@@ -145,6 +152,14 @@ public class HtmlDocumentType extends BaseResourceType
 	public class HtmlDocumentCopyAction implements ServiceLevelAction
 	{
 		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+        
+		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */
 		public ActionType getActionType()
@@ -203,6 +218,14 @@ public class HtmlDocumentType extends BaseResourceType
 
 	public class HtmlDocumentCreateAction implements InteractionAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+        
 		public String initializeAction(Reference reference) 
 		{
 			return null;
@@ -257,6 +280,14 @@ public class HtmlDocumentType extends BaseResourceType
 
 	public class HtmlDocumentDeleteAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+		
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */
@@ -316,6 +347,14 @@ public class HtmlDocumentType extends BaseResourceType
 
 	public class HtmlDocumentDuplicateAction implements ServiceLevelAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */
@@ -377,6 +416,14 @@ public class HtmlDocumentType extends BaseResourceType
 	public class HtmlDocumentMoveAction implements ServiceLevelAction
 	{
 		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+
+		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
 		 */
 		public ActionType getActionType()
@@ -436,6 +483,14 @@ public class HtmlDocumentType extends BaseResourceType
 
 	public class HtmlDocumentReviseAction implements InteractionAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+
 		public String initializeAction(Reference reference) 
 		{
 			return null;
@@ -490,6 +545,14 @@ public class HtmlDocumentType extends BaseResourceType
 	
 	public class HtmlDocumentAccessAction implements InteractionAction
 	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return true;
+        }
+
 		public String initializeAction(Reference reference) 
 		{
 			return null;

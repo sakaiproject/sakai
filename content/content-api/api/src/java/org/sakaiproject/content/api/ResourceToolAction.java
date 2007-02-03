@@ -204,4 +204,11 @@ public interface ResourceToolAction
 	 */
 	public String getLabel();
 	
+	/**
+	 * Should the resources tool make this action available to the current user in the specified context?
+	 * @param context
+	 * @return
+	 */
+	public boolean available(String context);
+	
 }
