@@ -503,7 +503,7 @@
 			  <td>&#160;</td>
 			</tr>
 			<tr id="permissionsPublic">
-			  <th><c:out value="${rlb.jsp_history_versions}"/><a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'publichelp'); return false;"
+			  <th><c:out value="${rlb.jsp_public}"/><a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'publichelp'); return false;"
 			      onMouseOut="hidePopup('publichelp');" >?</a></th>
 			  <td></td>
 			  <td>
