@@ -292,5 +292,13 @@ public class SchemaNames
 
 	public static final String ATTR_DISPLAY_USER = "user-display";
 
+	public static final String EL_PAGEVISITS = "page-visits";
+	
+	public static final String EL_NSPAGEVISITS = "page-visits";
 
+	public static final String EL_PAGEVISIT = "page-visit";
+
+	public static final String EL_NSPAGEVISIT = "page-visit";
+
+	public static final String ATTR_URL = "url";
 }

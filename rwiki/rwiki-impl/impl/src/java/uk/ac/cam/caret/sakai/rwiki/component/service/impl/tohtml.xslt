@@ -60,6 +60,17 @@
               <div class="publicview" >
                 <div id="rwiki_container">
                     <div class="portletBody">
+                    
+                    <!-- page visit track -->
+                    <xsl:for-each select="/entity-service/page-visits/page-visit" >
+                  		<a href="{@url}"><xsl:value-of select="." /></a>
+                  		<xsl:if test="position() != last()"  >
+                  		  &gt;
+                  		</xsl:if>   
+                    </xsl:for-each>
+                    
+                    
+                    
                     <xsl:choose>
                      <xsl:when test="/entity-service/sidebar/rendered-content/content/rendered" >
 						<div id="rwiki_sidebar_switcher">

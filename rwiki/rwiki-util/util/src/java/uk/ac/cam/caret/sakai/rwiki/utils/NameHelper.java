@@ -298,5 +298,10 @@ public class NameHelper
 		int index = globalName.lastIndexOf(SPACE_SEPARATOR);
 		return globalName.substring(0, index);
 	}
+	public static String localizeSpace(final String globalPageName)
+	{
+		int index = globalPageName.lastIndexOf(SPACE_SEPARATOR);
+		return globalPageName.substring(0, index);
+	}
 
 }
