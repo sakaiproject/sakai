@@ -24,6 +24,7 @@ package org.sakaiproject.chat.impl;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Properties;
@@ -41,6 +42,7 @@ import org.sakaiproject.chat.api.ChatService;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -56,6 +58,8 @@ import org.sakaiproject.message.api.MessageHeaderEdit;
 import org.sakaiproject.message.impl.BaseMessageService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.cover.TimeService;
+
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -563,6 +567,45 @@ public abstract class BaseChatService extends BaseMessageService implements Chat
 	{
 		return "chat";
 	}
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * getSummary implementation
+	 *********************************************************************************************************************************************************************************************************************************************************/
+        public Map getSummary(String channel, int items, int days)
+                        throws org.sakaiproject.exception.IdUsedException, org.sakaiproject.exception.IdInvalidException,
+                        org.sakaiproject.exception.PermissionException
+        {
+            long startTime = System.currentTimeMillis() - (days * 24l * 60l * 60l * 1000l);
+
+            List messages = getMessages(channel, TimeService.newTime(startTime), items, false, false, false);
+            Iterator iMsg = messages.iterator();
+            Time pubDate = null;
+            String summaryText = null;
+            Map m = new HashMap();
+            while (iMsg.hasNext()) {
+                ChatMessage item  = (ChatMessage) iMsg.next();
+                ChatMessageHeader header = item.getChatHeader();
+                Time newTime = header.getDate();
+                if ( pubDate == null || newTime.before(pubDate) ) pubDate = newTime;
+                String newtext;
+                String body = item.getBody();
+                if ( body.length() > 50 ) body = body.substring(1,49);
+                String newText = body + ", " + header.getFrom().getDisplayName() + ", " + header.getDate().toStringLocalFull();
+                if ( summaryText == null ) {
+                    summaryText = newText;
+                } else {
+                    summaryText = summaryText + "<br>\r\n" + newText;
+                }
+            }
+            if ( pubDate != null ) {
+                m.put(Summary.PROP_PUBDATE, pubDate.toStringRFC822Local());
+            }
+            if ( summaryText != null ) {
+                m.put(Summary.PROP_DESCRIPTION, summaryText);
+                return m;
+            }
+	    return null;
+        }
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * ChatChannel implementation
