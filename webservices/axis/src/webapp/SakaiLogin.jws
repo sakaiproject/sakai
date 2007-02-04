@@ -99,5 +99,23 @@ public class SakaiLogin
                 return true;
         }
 
+    public boolean logout(String id) 
+	throws AxisFault, InterruptedException
+    {
+	 Session s = SessionManager.getSession(id);
+
+         if (s == null)
+           {
+              throw new AxisFault("Session "+id+" is not active");
+           }
+        SessionManager.setCurrentSession(s);
+
+	// Pause for 1000ms so UsageSessionService doesn't get confused - SAK-7452
+	Thread.sleep(1000);
+
+	UsageSessionService.logout();
+
+	return true;
+   }
 }
 
