@@ -86,19 +86,35 @@ public class WorksiteInfoMacro extends BaseMacro
 		{
 			if (DESCRIPTION.equals(infotype))
 			{
-				writer.write(s.getDescription());
+				String desc = s.getDescription();
+				if ( desc == null ) {
+					desc = "";
+				}
+				writer.write(desc);
 			}
 			else if (SHORTDESCRIPTION.equals(infotype))
 			{
-				writer.write(s.getShortDescription());
+				String desc = s.getShortDescription();
+				if ( desc == null ) {
+					desc = "";
+				}
+				writer.write(desc);
 			}
 			else if (WIKISPACE.equals(infotype))
 			{
-				writer.write(spRe.getSpace());
+				String desc = spRe.getSpace();
+				if ( desc == null ) {
+					desc = "";
+				}
+				writer.write(desc);
 			}
 			else
 			{
-				writer.write(s.getTitle());
+				String desc = s.getTitle();
+				if ( desc == null ) {
+					desc = "";
+				}
+				writer.write(desc);
 			}
 		}
 		else
