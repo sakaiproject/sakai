@@ -290,4 +290,14 @@ public class AnnouncementService
 
 		return service.archive(param0, param1, param2, param3, param4);
 	}
+
+        public static java.util.Map getSummary( java.lang.String param0, int param1, int param2)
+                        throws org.sakaiproject.exception.IdUsedException, org.sakaiproject.exception.IdInvalidException,
+                        org.sakaiproject.exception.PermissionException
+        {
+                org.sakaiproject.announcement.api.AnnouncementService service = getInstance();
+                if (service == null) return null;
+
+                return service.getSummary(param0, param1, param2);
+        }
 }

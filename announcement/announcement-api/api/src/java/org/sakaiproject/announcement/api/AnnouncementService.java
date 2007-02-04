@@ -21,6 +21,8 @@
 
 package org.sakaiproject.announcement.api;
 
+import java.util.Map;
+
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -115,4 +117,23 @@ public interface AnnouncementService extends MessageService
 	 */
 	public AnnouncementChannelEdit addAnnouncementChannel(String ref) throws IdUsedException, IdInvalidException,
 			PermissionException;
+
+      /**
+         * Get a summary of an Announcement Channel
+         * 
+         * @param ref
+         *        The channel reference.
+         * @param items
+         *        Maximum number of items to return
+         * @param days
+         *        Maximum number of dayes to peer back
+         * @return The Map containnt the Summary
+         * @exception IdUsedException
+         *            if the id is not unique.
+         * @exception IdInvalidException
+         *            if the id is not made up of valid characters.
+         * @exception PermissionException
+         *            if the user does not have permission to add a channel.
+         */
+        public Map getSummary(String ref, int items, int days) throws IdUsedException, IdInvalidException, PermissionException;
 }
