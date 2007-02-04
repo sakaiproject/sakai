@@ -322,6 +322,8 @@ public class SkinnableCharonPortal extends HttpServlet  {
 			     boolean resetTools, boolean includeSummary) 
 	throws ToolException, IOException {
 
+	boolean expandSites = true;
+
 	String errorMessage = null;
 
         // find the site, for visiting
@@ -400,16 +402,21 @@ public class SkinnableCharonPortal extends HttpServlet  {
 	    if ( m != null ) rcontext.put("currentPlacement",m);
 	}
 
+	boolean loggedIn = session.getUserId() != null;
+
 	if ( site != null ) {
-	    Map m = portalService.convertSiteToMap(req, site, prefix, 
-		siteId, myWorkspaceSiteId, /* includeSummary */ false);
+	    Map m = xconvertSiteToMap(req, site, prefix, 
+		siteId, myWorkspaceSiteId, /* includeSummary */ false,
+                /* expandSite  */ true, /* includePages */ true, 
+                resetTools, doPages, toolContextPath, loggedIn );
+
 	    if ( m != null ) rcontext.put("currentSite",m);
-            includePageList(rcontext, req,  session, site, null, toolContextPath,
-                prefix, doPages, resetTools, includeSummary);
 	}
 
 	List mySites = portalService.getAllSites(req, session, true);
-        List l = portalService.convertSitesToMaps(req, mySites, prefix, siteId, myWorkspaceSiteId, includeSummary);
+        List l = xconvertSitesToMaps(req, mySites, prefix, siteId, myWorkspaceSiteId, includeSummary,
+                /* expandSite  */ true, /* includePages */ true, 
+                resetTools, doPages, toolContextPath, loggedIn );
 	rcontext.put("allSites", l);
 
         includeLogin(rcontext, req, session);
@@ -417,6 +424,59 @@ public class SkinnableCharonPortal extends HttpServlet  {
 
 	return rcontext;
     }
+
+    public List xconvertSitesToMaps(HttpServletRequest req, List mySites, String prefix,
+        String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
+	boolean expandSite, boolean includePages, 
+        boolean resetTools, boolean doPages, String toolContextPath, boolean loggedIn)
+    {
+            List l = new ArrayList();
+            boolean motdDone = false;
+            for (Iterator i = mySites.iterator(); i.hasNext();) {
+                Site s = (Site) i.next();
+
+                Map m = xconvertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId, includeSummary,
+                    /* expandSite  */ true, /* includePages */ true, 
+                    resetTools, doPages, toolContextPath, loggedIn );
+
+                if ( includeSummary && m.get("rssDescription") == null ) {
+                    portalService.summarizeTool(m, s, "sakai.motd");
+                }
+                l.add(m);
+            }
+            return l;
+    }
+
+    public Map xconvertSiteToMap(HttpServletRequest req, Site s, String prefix,
+        String currentSiteId, String myWorkspaceSiteId, boolean includeSummary, 
+	boolean expandSite, boolean includePages, 
+        boolean resetTools, boolean doPages, String toolContextPath, boolean loggedIn)
+    {               
+        if ( s == null ) return null;
+        Map m = new HashMap();
+        m.put("isCurrentSite", Boolean.valueOf(currentSiteId != null && s.getId().equals(currentSiteId)));
+        m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null && s.getId().equals(myWorkspaceSiteId)));
+        m.put("siteTitle", Web.escapeHtml(s.getTitle()));
+        m.put("siteDescription", Web.escapeHtml(s.getDescription()));
+        String siteUrl = Web.serverUrl(req)
+                  + ServerConfigurationService.getString("portalPath") + "/" ;
+        if ( prefix != null ) siteUrl = siteUrl + prefix + "/";
+        siteUrl = siteUrl + Web.escapeUrl(portalService.getSiteEffectiveId(s));
+        m.put("siteUrl", siteUrl);
+
+        if ( includeSummary ) {
+            portalService.summarizeTool(m, s, "sakai.announce");
+        }
+	if ( expandSite ) {
+System.out.println("Expanding pages....");
+   	    Map pageMap = pageListToMap(req, loggedIn, s, /* SitePage */ null,
+                                  toolContextPath, prefix, doPages,
+                                  resetTools, includeSummary) ;
+	    m.put("sitePages", pageMap);
+       }	
+
+        return m;
+    } 
 
     protected void doGallery(HttpServletRequest req, HttpServletResponse res,
                              Session session, String siteId, String pageId,
@@ -674,7 +734,8 @@ public class SkinnableCharonPortal extends HttpServlet  {
             }
 
 	    // Implement the dense rss portal
-            else if ((parts.length >= 2) && (parts[1].equals("rss"))) {
+            else if ( (parts.length >= 2) && 
+		( parts[1].equals("rss") || parts[1].equals("atom") || parts[1].equals("opml") ) )  {
 
                 // /portal/portlet/site-id
                 String siteId = null;
@@ -696,7 +757,7 @@ public class SkinnableCharonPortal extends HttpServlet  {
 		    /* toolId */ null, req.getContextPath() + req.getServletPath(), 
 		    /* prefix */ "site", /* doPages */ true, /* resetTools */ false,
 		    /* includeSummary */ true);
-		sendResponse(rcontext, res, "rss", "text/xml");
+		sendResponse(rcontext, res, parts[1], "text/xml");
             }
 
             // recognize a dispatch the 'gallery' option (site tabs + pages
@@ -2082,6 +2143,151 @@ public class SkinnableCharonPortal extends HttpServlet  {
             rcontext.put("pageNavPresenceUrl", presenceUrl);
         }
 
+    }
+
+    /*
+     * Produce a page and/or a tool list
+     * 
+     * doPage = true is best for the tabs-based portal and for RSS - these think in terms of pages
+     *
+     * doPage = false is best for the portlet-style - it unrolls all of the tools unless a page is marked
+     * as a popup.  If the page is a popup - it is left a page and marked as such.
+     *
+     * restTools = true - generate resetting tool URLs.
+     */
+
+    // TODO: Refactor code in other functions to use this code rather than doing it inline
+    protected Map pageListToMap(HttpServletRequest req, boolean loggedIn, Site site, SitePage page,
+                                  String toolContextPath, String portalPrefix, boolean doPages, 
+				  boolean resetTools, boolean includeSummary) {
+
+	    Map theMap = new HashMap();
+
+            String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
+                + Web.escapeUrl(portalService.getSiteEffectiveId(site)) + "/page/");
+	    String toolUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
+                + Web.escapeUrl(portalService.getSiteEffectiveId(site))) ;
+	    if ( resetTools ) {
+		toolUrl = toolUrl + "/tool-reset/";
+	    } else {
+		toolUrl = toolUrl + "/tool/";
+	    }
+		
+            String pagePopupUrl = Web.returnUrl(req, "/page/");
+            boolean showHelp = ServerConfigurationService.getBoolean(
+                "display.help.menu", true);
+            String iconUrl = site.getIconUrlFull();
+            boolean published = site.isPublished();
+            String type = site.getType();
+
+            theMap.put("pageNavPublished", Boolean.valueOf(published));
+            theMap.put("pageNavType", type);
+            theMap.put("pageNavIconUrl", iconUrl);
+            theMap.put("pageNavSitToolsHead", Web.escapeHtml(rb
+                .getString("sit.toolshead")));
+
+            // order the pages based on their tools and the tool order for the
+            // site type
+            List pages = site.getOrderedPages();
+
+            List l = new ArrayList();
+            for (Iterator i = pages.iterator(); i.hasNext();) {
+
+                SitePage p = (SitePage) i.next();
+                // check if current user has permission to see page
+                // we will draw page button if it have permission to see at least
+                List pTools = p.getTools();
+                Iterator iPt = pTools.iterator();
+		String toolsOnPage = null;
+
+                boolean allowPage = false;
+                while (iPt.hasNext()) {
+                    ToolConfiguration placement = (ToolConfiguration) iPt
+                        .next();
+
+                    boolean thisTool = portalService.allowTool(site, placement);
+                    // System.out.println(" Allow Tool -" + placement.getTitle() + "
+                    // retval = " + thisTool + " page=" + allowPage);
+                    if (thisTool) 
+		    { 
+			allowPage = true;
+		    	if ( toolsOnPage == null )
+		    	{
+			    toolsOnPage = placement.getToolId();
+			} else {
+			    toolsOnPage = toolsOnPage + ":" + placement.getToolId();
+			}
+		    }
+                }
+
+		//  Do not include pages we are not supposed to see
+                if (!allowPage) continue;
+
+               	boolean current = (page!=null && p.getId().equals(page.getId()) && !p.isPopUp());
+                String pagerefUrl = pageUrl + Web.escapeUrl(p.getId());
+
+                if ( doPages || p.isPopUp() ) {
+                    Map m = new HashMap();
+		    m.put("isPage",Boolean.valueOf(true));
+               	    m.put("current", Boolean.valueOf(current));
+                    m.put("ispopup", Boolean.valueOf(p.isPopUp()));
+                    m.put("pagePopupUrl", pagePopupUrl);
+                    m.put("pageTitle", Web.escapeHtml(p.getTitle()));
+                    m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
+                    m.put("pageId", Web.escapeUrl(p.getId()));
+                    m.put("jsPageId", Web.escapeJavascript(p.getId()));
+                    m.put("pageRefUrl", pagerefUrl);
+		    if ( toolsOnPage != null ) m.put("toolsOnPage", toolsOnPage);
+		    if ( includeSummary ) portalService.summarizePage(m, site, p);
+                    l.add(m);
+		    continue;
+		}
+
+		// Loop through the tools again and Unroll the tools
+                iPt = pTools.iterator();
+
+                while (iPt.hasNext()) {
+                    ToolConfiguration placement = (ToolConfiguration) iPt
+                        .next();
+
+                    String toolrefUrl = toolUrl + Web.escapeUrl(placement.getId());
+
+                    Map m = new HashMap();
+		    m.put("isPage",Boolean.valueOf(false));
+                    m.put("toolId", Web.escapeUrl(placement.getId()));
+                    m.put("jsToolId", Web.escapeJavascript(placement.getId()));
+		    m.put("toolRegistryId", placement.getToolId() );
+                    m.put("toolTitle", Web.escapeHtml(placement.getTitle()));
+                    m.put("jsToolTitle", Web.escapeJavascript(placement.getTitle()));
+                    m.put("toolrefUrl", toolrefUrl);
+                    l.add(m);
+                }
+
+            }
+            theMap.put("pageNavTools", l);
+
+            String helpUrl = ServerConfigurationService.getHelpUrl(null);
+            theMap.put("pageNavShowHelp", Boolean.valueOf(showHelp));
+            theMap.put("pageNavHelpUrl", helpUrl);
+
+            theMap.put("pageNavSitContentshead", Web.escapeHtml(rb
+                .getString("sit.contentshead")));
+
+	    // Handle Presense
+	    boolean showPresence = ServerConfigurationService.getBoolean(
+                 "display.users.present", true);
+            String presenceUrl = Web.returnUrl(req, "/presence/"
+                + Web.escapeUrl(site.getId()));
+
+            theMap.put("pageNavSitPresenceTitle", Web.escapeHtml(rb
+                .getString("sit.presencetitle")));
+            theMap.put("pageNavSitPresenceFrameTitle", Web.escapeHtml(rb
+                .getString("sit.presenceiframetit")));
+            theMap.put("pageNavShowPresenceLoggedIn", Boolean
+                .valueOf(showPresence && loggedIn));
+            theMap.put("pageNavPresenceUrl", presenceUrl);
+
+	    return theMap;
     }
 
     protected void includePageNav(PortalRenderContext rcontext,

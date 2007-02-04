@@ -1,0 +1,53 @@
+#macro( opmlPages $thisSite )
+<!-- opmlPages -->
+    <outline text="${site.siteTitle}" link="${site.siteUrl}"
+    #if ( $site.rssPubdate ) 
+      dateCreated="${site.rssPubdate}"
+    #end
+    >
+    #if ( $thisSite.sitePages.pageNavTools ) 
+      #foreach ( $page in $thisSite.sitePages.pageNavTools ) 
+        <outline
+        #if ($page.isPage)
+          title="${page.pageTitle}"
+          link="${page.pageRefUrl}"
+        #else
+          title="${page.jsToolTitle}"
+          link="${page.toolRefUrl}"
+        #end
+        #if ( $page.rssPubdate ) 
+          dateCreated="${page.rssPubdate}"
+        #end
+	>
+        </outline>
+      #end
+    #end
+    </outline>
+#end
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<opml version="1.0">
+<head>
+#if ($currentSite) 
+  <!-- Single site -->
+  <title>${currentSite.siteTitle}</title>
+  <link>${currentSite.siteUrl}</link>
+#else
+  <!-- All sites -->
+  <title>Sakai OPML Feed</title>
+  <link>http://www.sakaiproject.org</link>
+#end
+##		<dateCreated>Thu, 12 Sep 2003 23:35:52 GMT</dateCreated>
+##		<dateModified>Fri, 12 Sep 2003 23:45:37 GMT</dateModified>
+##		<ownerName>NewsForHumans</ownerName>
+##		<ownerEmail>newsfor@news4humans.com</ownerEmail>
+</head>
+<body>
+#if ($currentSite)
+    #opmlPages ( $currentSite ) 
+#else
+  #foreach ( $site in $allSites ) 
+    #opmlPages ( $site ) 
+  #end 
+#end
+</body>
+</opml>
