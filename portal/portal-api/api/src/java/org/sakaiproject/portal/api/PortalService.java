@@ -6,7 +6,7 @@ import java.util.Map;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
-
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -64,13 +64,17 @@ public interface PortalService
 	Site getMyWorkspace(Session session);
 
 	Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
-        	String currentSiteId, String myWorkspaceSiteId);
+        	String currentSiteId, String myWorkspaceSiteId, boolean includeSummary);
 
-	List convertSitesToMaps(HttpServletRequest req, List mySites, String prefix,
-        	String currentSiteId, String myWorkspaceSiteId);
+    	public List convertSitesToMaps(HttpServletRequest req, List mySites, String prefix,
+        	String currentSiteId, String myWorkspaceSiteId, boolean includeSummary);
 
 	Site getSiteVisit(String siteId) throws PermissionException,
         	IdUnusedException;
 
 	String getSiteEffectiveId(Site site);
+
+    	boolean summarizePage(Map m, Site site, SitePage page);
+
+    	boolean summarizeTool(Map m, Site site, String toolIdentifier);
 }

@@ -29,6 +29,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 
 import org.sakaiproject.util.Web;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
@@ -40,6 +41,17 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.authz.cover.SecurityService;
+
+// Added for Synpotic
+import org.sakaiproject.util.MapUtil;
+
+import org.sakaiproject.announcement.cover.AnnouncementService;
+import org.sakaiproject.discussion.cover.DiscussionService;
+import org.sakaiproject.chat.cover.ChatService;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+
+import org.sakaiproject.entity.api.Summary;
 
 public class PortalServiceImpl implements PortalService
 {
@@ -445,33 +457,150 @@ public class PortalServiceImpl implements PortalService
 	return site;
     }
 
-    public Map convertSiteToMap(HttpServletRequest req, Site s, String prefix, 
-	String currentSiteId, String myWorkspaceSiteId)
+    public Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
+        String currentSiteId, String myWorkspaceSiteId, boolean includeSummary)
     {
-	if ( s == null ) return null;
-       	Map m = new HashMap();
-       	m.put("isCurrentSite", Boolean.valueOf(currentSiteId != null && s.getId().equals(currentSiteId)));
-       	m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null && s.getId().equals(myWorkspaceSiteId)));
-       	m.put("siteTitle", Web.escapeHtml(s.getTitle()));
-       	m.put("siteDescription", Web.escapeHtml(s.getDescription()));
-       	String siteUrl = Web.serverUrl(req)
-           	  + ServerConfigurationService.getString("portalPath")
-           	  + "/" + prefix + "/"
-           	  + Web.escapeUrl(getSiteEffectiveId(s));
-       	m.put("siteUrl", siteUrl);
-	return m;
+        if ( s == null ) return null;
+        Map m = new HashMap();
+        m.put("isCurrentSite", Boolean.valueOf(currentSiteId != null && s.getId().equals(currentSiteId)));
+        m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null && s.getId().equals(myWorkspaceSiteId)));
+        m.put("siteTitle", Web.escapeHtml(s.getTitle()));
+        m.put("siteDescription", Web.escapeHtml(s.getDescription()));
+        String siteUrl = Web.serverUrl(req)
+                  + ServerConfigurationService.getString("portalPath") + "/" ;
+        if ( prefix != null ) siteUrl = siteUrl + prefix + "/";
+        siteUrl = siteUrl + Web.escapeUrl(getSiteEffectiveId(s));
+        m.put("siteUrl", siteUrl);
+
+        if ( includeSummary ) {
+            summarizeTool(m, s, "sakai.announce");
+        }
+
+        return m;
     }
 
+   protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
+
+    /* 
+     * Temporarily set a placement with the site id as the context - we do not set a tool ID
+     * this will not be a rich enough placement to do *everything* but for those services
+     * which call 
+     *
+     *     ToolManager.getCurrentPlacement().getContext()
+     *
+     * to contextualize their information - it wil be sufficient.
+     */
+
+    public boolean setTemporaryPlacement(Site site)
+    {
+        if ( site == null ) return false;
+
+        Placement ppp = ToolManager.getCurrentPlacement();
+        if ( ppp != null && site.getId().equals(ppp.getContext())) {
+                return true;
+        }
+
+        // Create a site-only placement
+        org.sakaiproject.util.Placement placement = new org.sakaiproject.util.Placement(
+            "portal-temporary", /* toolId */ null, /* tool */ null ,
+            /* config */ null, /* context */ site.getId(), /* title */ null);
+
+        ThreadLocalManager.set(CURRENT_PLACEMENT, placement);
+
+        // Debugging
+        ppp = ToolManager.getCurrentPlacement();
+        if ( ppp == null ) {
+                System.out.println("WARNING portal-temporary placement not set - null");
+        } else {
+                String cont = ppp.getContext();
+                if ( site.getId().equals(cont) ) {
+                        return true;
+                } else {
+                        System.out.println("WARNING portal-temporary placement mismatch site="+site.getId()+" context="+cont);
+                }
+        }
+        return false;
+    }
+
+
+    public boolean summarizePage(Map m, Site site, SitePage page)
+    {
+        List pTools = page.getTools();
+        Iterator iPt = pTools.iterator();
+        while (iPt.hasNext()) {
+            ToolConfiguration placement = (ToolConfiguration) iPt.next();
+
+            if ( summarizeTool(m, site, placement.getToolId()) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean summarizeTool(Map m, Site site, String toolIdentifier)
+    {
+        setTemporaryPlacement(site);
+        Map newMap = null;
+        if ( "sakai.motd".equals(toolIdentifier) ) {
+                try {
+                     String channel = "/announcement/channel/!site/motd";
+                     newMap = AnnouncementService.getSummary(channel, 5, 30);
+                } catch (Exception e) {
+                     newMap = null;
+                }
+        } else if ( "sakai.chat".equals(toolIdentifier) ) {
+                try {
+                     String channel = ChatService.getInstance().channelReference(site.getId(), SiteService.MAIN_CONTAINER);
+                     newMap = ChatService.getSummary(channel, 5, 30);
+                } catch (Exception e) {
+                     newMap = null;
+                }
+        } else if ( "sakai.discussion".equals(toolIdentifier) ) {
+                try {
+                     String channel = DiscussionService.getInstance().channelReference(site.getId(), SiteService.MAIN_CONTAINER);
+                     newMap = ChatService.getSummary(channel, 5, 30);
+                } catch (Exception e) {
+                     newMap = null;
+                }
+        } else if ( "sakai.announcements".equals(toolIdentifier) ) {
+                try {
+                     String channel = AnnouncementService.getInstance().channelReference(site.getId(), SiteService.MAIN_CONTAINER);
+                     newMap = AnnouncementService.getSummary(channel, 5, 30);
+                } catch (Exception e) {
+                     newMap = null;
+                }
+        }
+
+        if ( newMap != null )
+        {
+                return ( MapUtil.copyHtml(m,"rssDescription",newMap,Summary.PROP_DESCRIPTION) &&
+                    MapUtil.copy(m,"rssPubdate", newMap, Summary.PROP_PUBDATE) ) ;
+        }
+        else
+        {
+                m.put("rssDescription", (site.getModifiedTime().toStringRFC822Local()));
+                return false;
+        }
+
+    }
+
+
     public List convertSitesToMaps(HttpServletRequest req, List mySites, String prefix,
-	String currentSiteId, String myWorkspaceSiteId)
+        String currentSiteId, String myWorkspaceSiteId, boolean includeSummary)
     {
             List l = new ArrayList();
-            // first n tabs
+            boolean motdDone = false;
             for (Iterator i = mySites.iterator(); i.hasNext();) {
                 Site s = (Site) i.next();
-               l.add(convertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId) );
+
+                Map m = convertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId, includeSummary);
+
+                if ( includeSummary && m.get("rssDescription") == null ) {
+                    summarizeTool(m, s, "sakai.motd");
+                }
+                l.add(m);
             }
-	    return l;
+            return l;
     }
 
     /**

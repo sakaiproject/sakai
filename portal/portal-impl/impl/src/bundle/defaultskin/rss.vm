@@ -12,10 +12,6 @@ Sakai RSS Feed
 </title> 
 <ttl>60</ttl>
 <language>en-us</language>
-<!--
-<pubDate>$publishDate</pubDate>
-<lastBuildDate>$buildDate</lastBuildDate>
--->
 <docs /> 
 #if ($currentSite)
 #foreach ( $page in $pageNavTools ) 
@@ -36,8 +32,8 @@ Sakai RSS Feed
 #if ($page.rssDescription)
 <description>${page.rssDescription}</description>
 #end
-#if ( $page.rssPubDate ) 
-<pubDate>${page.rssPubDate}</pubDate>
+#if ( $page.rssPubdate ) 
+<pubDate>${page.rssPubdate}</pubDate>
 #end
 </item>
 #end
@@ -51,8 +47,8 @@ Sakai RSS Feed
 #else
 <description>${site.siteTitle}</description>
 #end
-#if ( $site.rssPubDate ) 
-<pubDate>${site.rssPubDate}</pubDate>
+#if ( $site.rssPubdate ) 
+<pubDate>${site.rssPubdate}</pubDate>
 #end
 </item>
 #end 
