@@ -457,28 +457,6 @@ public class PortalServiceImpl implements PortalService
 	return site;
     }
 
-    public Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
-        String currentSiteId, String myWorkspaceSiteId, boolean includeSummary)
-    {
-        if ( s == null ) return null;
-        Map m = new HashMap();
-        m.put("isCurrentSite", Boolean.valueOf(currentSiteId != null && s.getId().equals(currentSiteId)));
-        m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null && s.getId().equals(myWorkspaceSiteId)));
-        m.put("siteTitle", Web.escapeHtml(s.getTitle()));
-        m.put("siteDescription", Web.escapeHtml(s.getDescription()));
-        String siteUrl = Web.serverUrl(req)
-                  + ServerConfigurationService.getString("portalPath") + "/" ;
-        if ( prefix != null ) siteUrl = siteUrl + prefix + "/";
-        siteUrl = siteUrl + Web.escapeUrl(getSiteEffectiveId(s));
-        m.put("siteUrl", siteUrl);
-
-        if ( includeSummary ) {
-            summarizeTool(m, s, "sakai.announce");
-        }
-
-        return m;
-    }
-
    protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
 
     /* 
@@ -539,6 +517,8 @@ public class PortalServiceImpl implements PortalService
 
     public boolean summarizeTool(Map m, Site site, String toolIdentifier)
     {
+	if ( site == null ) return false;
+
         setTemporaryPlacement(site);
         Map newMap = null;
         if ( "sakai.motd".equals(toolIdentifier) ) {
@@ -582,25 +562,6 @@ public class PortalServiceImpl implements PortalService
                 return false;
         }
 
-    }
-
-
-    public List convertSitesToMaps(HttpServletRequest req, List mySites, String prefix,
-        String currentSiteId, String myWorkspaceSiteId, boolean includeSummary)
-    {
-            List l = new ArrayList();
-            boolean motdDone = false;
-            for (Iterator i = mySites.iterator(); i.hasNext();) {
-                Site s = (Site) i.next();
-
-                Map m = convertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId, includeSummary);
-
-                if ( includeSummary && m.get("rssDescription") == null ) {
-                    summarizeTool(m, s, "sakai.motd");
-                }
-                l.add(m);
-            }
-            return l;
     }
 
     /**

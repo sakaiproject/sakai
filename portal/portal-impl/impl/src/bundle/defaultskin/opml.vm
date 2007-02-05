@@ -1,8 +1,7 @@
 #macro( opmlPages $thisSite )
-<!-- opmlPages -->
-    <outline text="${site.siteTitle}" link="${site.siteUrl}"
-    #if ( $site.rssPubdate ) 
-      dateCreated="${site.rssPubdate}"
+    <outline text="${thisSite.siteTitle}" link="${thisSite.siteUrl}"
+    #if ( $thisSite.rssPubdate ) 
+      dateCreated="$thisSite.rssPubdate}"
     #end
     >
     #if ( $thisSite.sitePages.pageNavTools ) 
@@ -28,11 +27,9 @@
 <opml version="1.0">
 <head>
 #if ($currentSite) 
-  <!-- Single site -->
   <title>${currentSite.siteTitle}</title>
   <link>${currentSite.siteUrl}</link>
 #else
-  <!-- All sites -->
   <title>Sakai OPML Feed</title>
   <link>http://www.sakaiproject.org</link>
 #end

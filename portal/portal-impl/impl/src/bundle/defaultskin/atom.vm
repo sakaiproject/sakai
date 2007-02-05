@@ -15,7 +15,7 @@ Sakai RSS Feed
 Sakai Collaboration and Learning Environment
 </generator>
 #if ($currentSite)
-  #foreach ( $page in $pageNavTools ) 
+  #foreach ( $page in $currentSite.sitePages.pageNavTools ) 
     <entry>
     #if ($page.isPage)
       <title type="text">${page.pageTitle}</title>

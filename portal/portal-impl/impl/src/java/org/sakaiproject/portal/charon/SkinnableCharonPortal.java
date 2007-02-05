@@ -319,10 +319,8 @@ public class SkinnableCharonPortal extends HttpServlet  {
     private PortalRenderContext includePortal(HttpServletRequest req, HttpServletResponse res,
                              Session session, String siteId, String toolId,
                              String toolContextPath, String prefix, boolean doPages, 
-			     boolean resetTools, boolean includeSummary) 
+			     boolean resetTools, boolean includeSummary, boolean expandSite) 
 	throws ToolException, IOException {
-
-	boolean expandSites = true;
 
 	String errorMessage = null;
 
@@ -405,18 +403,16 @@ public class SkinnableCharonPortal extends HttpServlet  {
 	boolean loggedIn = session.getUserId() != null;
 
 	if ( site != null ) {
-	    Map m = xconvertSiteToMap(req, site, prefix, 
-		siteId, myWorkspaceSiteId, /* includeSummary */ false,
-                /* expandSite  */ true, /* includePages */ true, 
-                resetTools, doPages, toolContextPath, loggedIn );
-
+	    Map m = convertSiteToMap(req, site, prefix, 
+		siteId, myWorkspaceSiteId, includeSummary,
+                /* expandSite */ true, resetTools, doPages, toolContextPath, loggedIn );
 	    if ( m != null ) rcontext.put("currentSite",m);
 	}
 
 	List mySites = portalService.getAllSites(req, session, true);
-        List l = xconvertSitesToMaps(req, mySites, prefix, siteId, myWorkspaceSiteId, includeSummary,
-                /* expandSite  */ true, /* includePages */ true, 
-                resetTools, doPages, toolContextPath, loggedIn );
+        List l = convertSitesToMaps(req, mySites, prefix, siteId, 
+                myWorkspaceSiteId, includeSummary,
+                expandSite, resetTools, doPages, toolContextPath, loggedIn );
 	rcontext.put("allSites", l);
 
         includeLogin(rcontext, req, session);
@@ -425,9 +421,9 @@ public class SkinnableCharonPortal extends HttpServlet  {
 	return rcontext;
     }
 
-    public List xconvertSitesToMaps(HttpServletRequest req, List mySites, String prefix,
+    public List convertSitesToMaps(HttpServletRequest req, List mySites, String prefix,
         String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
-	boolean expandSite, boolean includePages, 
+	boolean expandSite, 
         boolean resetTools, boolean doPages, String toolContextPath, boolean loggedIn)
     {
             List l = new ArrayList();
@@ -435,9 +431,8 @@ public class SkinnableCharonPortal extends HttpServlet  {
             for (Iterator i = mySites.iterator(); i.hasNext();) {
                 Site s = (Site) i.next();
 
-                Map m = xconvertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId, includeSummary,
-                    /* expandSite  */ true, /* includePages */ true, 
-                    resetTools, doPages, toolContextPath, loggedIn );
+                Map m = convertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId, includeSummary,
+                    expandSite,  resetTools, doPages, toolContextPath, loggedIn );
 
                 if ( includeSummary && m.get("rssDescription") == null ) {
                     portalService.summarizeTool(m, s, "sakai.motd");
@@ -447,9 +442,9 @@ public class SkinnableCharonPortal extends HttpServlet  {
             return l;
     }
 
-    public Map xconvertSiteToMap(HttpServletRequest req, Site s, String prefix,
+    public Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
         String currentSiteId, String myWorkspaceSiteId, boolean includeSummary, 
-	boolean expandSite, boolean includePages, 
+	boolean expandSite, 
         boolean resetTools, boolean doPages, String toolContextPath, boolean loggedIn)
     {               
         if ( s == null ) return null;
@@ -468,7 +463,6 @@ public class SkinnableCharonPortal extends HttpServlet  {
             portalService.summarizeTool(m, s, "sakai.announce");
         }
 	if ( expandSite ) {
-System.out.println("Expanding pages....");
    	    Map pageMap = pageListToMap(req, loggedIn, s, /* SitePage */ null,
                                   toolContextPath, prefix, doPages,
                                   resetTools, includeSummary) ;
@@ -729,35 +723,44 @@ System.out.println("Expanding pages....");
 
                 PortalRenderContext rcontext = includePortal(req, res, session, siteId, 
 		    toolId, req.getContextPath() + req.getServletPath(), "portlet", 
-		    /* doPages */ false, /* resetTools */ true, /* includeSummary */ false );
+		    /* doPages */ false, /* resetTools */ true, 
+		    /* includeSummary */ false, /* expandSite */ false);
+
 		sendResponse(rcontext, res, "portlet", null);
             }
 
-	    // Implement the dense rss portal
+	    // Implement the three forms of the rss portal
             else if ( (parts.length >= 2) && 
-		( parts[1].equals("rss") || parts[1].equals("atom") || parts[1].equals("opml") ) )  {
+		( parts[1].equals("rss") || parts[1].equals("atom") || 
+		  parts[1].equals("opml") ) )  {
 
-                // /portal/portlet/site-id
+                // /portal/rss/site-id
                 String siteId = null;
                 if (parts.length >= 3) {
                     siteId = parts[2];
                 }
 
-	        // This is a rss page - it does exactly the same as /portal/page
-                // /portal/portlet/site-id/page/page-id
-	        //           1       2      3     4
-                String pageId = null;
-                if ((parts.length == 5) && (parts[3].equals("page"))) {
-                    doPage(req, res, session, parts[4], req.getContextPath()
-                        + req.getServletPath());
-		    return;
-                }
-
-                PortalRenderContext rcontext = includePortal(req, res, session, siteId, 
-		    /* toolId */ null, req.getContextPath() + req.getServletPath(), 
-		    /* prefix */ "site", /* doPages */ true, /* resetTools */ false,
-		    /* includeSummary */ true);
-		sendResponse(rcontext, res, parts[1], "text/xml");
+		if ( parts[1].equals("atom") ) {
+                    PortalRenderContext rcontext = includePortal(req, res, session, siteId, 
+		        /* toolId */ null, req.getContextPath() + req.getServletPath(), 
+		        /* prefix */ "site", /* doPages */ true, /* resetTools */ false,
+		        /* includeSummary */ true, /* expandSite */  false);
+		    // sendResponse(rcontext, res, parts[1], "application/atom+xml");
+		    sendResponse(rcontext, res, parts[1], "text/xml");
+		} else if ( parts[1].equals("rss") ) {
+                    PortalRenderContext rcontext = includePortal(req, res, session, siteId, 
+		        /* toolId */ null, req.getContextPath() + req.getServletPath(), 
+		        /* prefix */ "site", /* doPages */ true, /* resetTools */ false,
+		        /* includeSummary */ true, /* expandSite */  false);
+		    sendResponse(rcontext, res, parts[1], "text/xml");
+		} else  {  // opml
+                    PortalRenderContext rcontext = includePortal(req, res, session, siteId, 
+		        /* toolId */ null, req.getContextPath() + req.getServletPath(), 
+		        /* prefix */ "site", /* doPages */ true, /* resetTools */ false,
+		        /* includeSummary */ false, /* expandSite */  true);
+		    // sendResponse(rcontext, res, parts[1], "text/x-opml");
+		    sendResponse(rcontext, res, parts[1], "text/xml");
+		}
             }
 
             // recognize a dispatch the 'gallery' option (site tabs + pages
@@ -2369,6 +2372,7 @@ System.out.println("Expanding pages....");
 
             // for skinning
             String siteType = calcSiteType(siteId);
+	    String origPrefix = prefix;
 
             // If we have turned on auto-state reset on navigation, we generate
             // the
@@ -2520,8 +2524,11 @@ System.out.println("Expanding pages....");
             rcontext.put("tabsSitWorksite", Web.escapeHtml(rb
                 .getString("sit.worksite")));
 
-            List l = portalService.convertSitesToMaps(req, mySites, prefix, 
-			siteId, myWorkspaceSiteId, /* includeSummary */ false);
+            List l = convertSitesToMaps(req, mySites, origPrefix, siteId, myWorkspaceSiteId, 
+		/* includeSummary */ false, /* expandSite */ false, 
+		/* resetTools */ "true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET)),
+		/* doPages */ true,  /* toolContextPath */ null , loggedIn );
+
             rcontext.put("tabsSites", l);
 
             rcontext.put("tabsHasExtraTitle", Boolean

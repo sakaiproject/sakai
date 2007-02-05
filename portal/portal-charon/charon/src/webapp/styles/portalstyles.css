@@ -6,7 +6,7 @@
 #pda-portlet-menu{
 	background-color:#29c;
 	color:#fff;
-	font-size:85%;
+	font-size:100%;
 	padding:3px;
 }
 #pda-portlet-menu a{
@@ -20,7 +20,7 @@
 	color:#ff0;
 }	
 #pda-portlet-site-menu, #pda-portlet-page-menu{
-	font-size:90%;
+	font-size:100%%;
 	margin:1em;
 	padding:1em;	
 	list-style:none;

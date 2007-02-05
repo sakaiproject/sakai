@@ -63,12 +63,6 @@ public interface PortalService
 
 	Site getMyWorkspace(Session session);
 
-	Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
-        	String currentSiteId, String myWorkspaceSiteId, boolean includeSummary);
-
-    	public List convertSitesToMaps(HttpServletRequest req, List mySites, String prefix,
-        	String currentSiteId, String myWorkspaceSiteId, boolean includeSummary);
-
 	Site getSiteVisit(String siteId) throws PermissionException,
         	IdUnusedException;
 

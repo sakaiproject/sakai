@@ -57,7 +57,7 @@
 	#else
 		#if ($currentSite)
 			<ul id="pda-portlet-page-menu"> 
-			#foreach ( $page in $pageNavTools ) 
+  			#foreach ( $page in $currentSite.sitePages.pageNavTools ) 
 				#if ($page.isPage)
 					## This must be a popup - so we treat it as a popup
 					<li>
