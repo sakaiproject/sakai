@@ -22,6 +22,7 @@
 package org.sakaiproject.message.api;
 
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -272,6 +273,25 @@ public interface MessageService extends EntityProducer
 	 * @return A List (String) of channel id for channels withing the context.
 	 */
 	public List getChannelIds(String context);
+
+        /**
+         * Get a summary of an Announcement Channel
+         * 
+         * @param ref
+         *        The channel reference.
+         * @param items
+         *        Maximum number of items to return
+         * @param days
+         *        Maximum number of dayes to peer back
+         * @return The Map containnt the Summary
+         * @exception IdUsedException
+         *            if the id is not unique.
+         * @exception IdInvalidException
+         *            if the id is not made up of valid characters.
+         * @exception PermissionException
+         *            if the user does not have permission to add a channel.
+         */
+        public Map getSummary(String ref, int items, int days) throws IdUsedException, IdInvalidException, PermissionException;
 
 } // MessageService
 

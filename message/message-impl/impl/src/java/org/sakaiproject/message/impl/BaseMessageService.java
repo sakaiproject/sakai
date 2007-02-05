@@ -49,6 +49,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
@@ -4461,4 +4462,51 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			return true;
 		}
 	}
+
+	protected String getSummaryFromHeader(Message item, MessageHeader header)
+	{
+            String newtext;
+            String body = item.getBody();
+            if ( body.length() > 50 ) body = body.substring(1,49);
+            String newText = body + ", " + header.getFrom().getDisplayName() + ", " + header.getDate().toStringLocalFull();
+	    return newText;
+	}
+
+
+        /**********************************************************************************************************************************************************************************************************************************************************
+         * getSummary implementation
+         *********************************************************************************************************************************************************************************************************************************************************/
+        public Map getSummary(String channel, int items, int days)
+                        throws org.sakaiproject.exception.IdUsedException, org.sakaiproject.exception.IdInvalidException,
+                        org.sakaiproject.exception.PermissionException
+        {
+            long startTime = System.currentTimeMillis() - (days * 24l * 60l * 60l * 1000l);
+
+            List messages = getMessages(channel, m_timeService.newTime(startTime), items, false, false, false);
+            Iterator iMsg = messages.iterator();
+            Time pubDate = null;
+            String summaryText = null;
+            Map m = new HashMap();
+            while (iMsg.hasNext()) {
+                Message item  = (Message) iMsg.next();
+                MessageHeader header = item.getHeader();
+                Time newTime = header.getDate();
+                if ( pubDate == null || newTime.before(pubDate) ) pubDate = newTime;
+                String newText = getSummaryFromHeader(item, header);
+                if ( summaryText == null ) {
+                    summaryText = newText;
+                } else {
+                    summaryText = summaryText + "<br>\r\n" + newText;
+                }
+            }
+            if ( pubDate != null ) {
+                m.put(Summary.PROP_PUBDATE, pubDate.toStringRFC822Local());
+            }
+            if ( summaryText != null ) {
+                m.put(Summary.PROP_DESCRIPTION, summaryText);
+                return m;
+            }
+            return null;
+        }
+
 }
