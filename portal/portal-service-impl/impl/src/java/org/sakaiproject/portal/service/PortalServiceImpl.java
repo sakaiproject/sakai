@@ -289,12 +289,16 @@ public class PortalServiceImpl implements PortalService
     }
 
     // Return the list of tabs for the anonymous view (Gateway)
+    // If we have a list of sites, return that - if not simply pull in the single 
+    // Gateway site
     private String[] getGatewaySiteList()
     {
 	String gatewaySiteListPref = ServerConfigurationService.getString("gatewaySiteList");
 
-	if ( gatewaySiteListPref == null ) return null;
-	if ( gatewaySiteListPref.trim().length() < 1 ) return null;
+	if ( gatewaySiteListPref == null || gatewaySiteListPref.trim().length() < 1) {
+                gatewaySiteListPref = ServerConfigurationService.getGatewaySiteId();
+	}
+	if ( gatewaySiteListPref == null || gatewaySiteListPref.trim().length() < 1 ) return null;
 
 	String[] gatewaySites = gatewaySiteListPref.split(",");
 	if ( gatewaySites.length < 1 ) return null;
