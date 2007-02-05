@@ -46,6 +46,7 @@ import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.Web;
 import org.sakaiproject.vm.ActionURL;
 
 /**
@@ -64,7 +65,10 @@ public abstract class ToolServlet extends VmServlet
 	/** ToolSession attribute name holding the helper id, if we are in helper mode. NOTE: promote to Tool -ggolden */
 	protected static final String HELPER_ID = "sakai.tool.helper.id";
 
-	/**
+   /** used to pull helper info from the request url path **/
+   private static final String HELPER_EXT = ".helper";
+
+   /**
 	 * Add some standard references to the vm context.
 	 * 
 	 * @param request
@@ -153,6 +157,11 @@ public abstract class ToolServlet extends VmServlet
 	 */
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException
 	{
+      // see if we have a helper request
+      if (sendToHelper(req, res, req.getPathInfo())) {
+         return;
+      }
+
 		// get the panel
 		String panel = ((ParameterParser) req.getAttribute(ATTR_PARAMS)).getString(ActionURL.PARAM_PANEL);
 		if (panel == null) panel = MAIN_PANEL;
@@ -187,11 +196,18 @@ public abstract class ToolServlet extends VmServlet
 		Tool me = ToolManager.getCurrentTool();
 		if ((helper != null) && (!helper.equals(me.getId())))
 		{
-			// map the request to the helper
-			ActiveTool tool = ActiveToolManager.getActiveTool(helper);
-			String context = req.getContextPath() + req.getServletPath();
-			String toolPath = req.getPathInfo() == null ? "/" : req.getPathInfo();
-			tool.help(req, res, context, toolPath);
+         toolSession.removeAttribute(helperId);
+         String newUrl = req.getContextPath() + req.getServletPath() +
+            (req.getPathInfo() == null ? "" : req.getPathInfo()) + "/" + helper + HELPER_EXT;
+
+         try
+         {
+            res.sendRedirect(newUrl);
+         }
+         catch (IOException e)
+         {
+            M_log.warn("redirecting to helper to: " + newUrl + " : " + e.toString());
+         }
 			return;
 		}
 
@@ -222,7 +238,7 @@ public abstract class ToolServlet extends VmServlet
 
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		toolSession.setAttribute(HELPER_ID + panel, helperId);
-
+               
 		// the done URL - this url and the extra parameter to indicate done
 		// also make sure the panel is indicated - assume that it needs to be main, assuming that helpers are taking over the entire tool response
 		String doneUrl = req.getContextPath() + req.getServletPath() + (req.getPathInfo() == null ? "" : req.getPathInfo()) + "?"
@@ -588,6 +604,39 @@ public abstract class ToolServlet extends VmServlet
 		return menu;
 
 	} // getMenu
+
+   protected boolean sendToHelper(HttpServletRequest req, HttpServletResponse res, String target) throws ToolException {
+      String path = req.getPathInfo();
+      if (path == null) {
+         path = "/";
+      }
+
+      // 0 parts means the path was just "/", otherwise parts[0] = "",
+      // parts[1] = item id, parts[2] if present is "edit"...
+      String[] parts = path.split("/");
+
+      if (parts.length < 2) {
+         return false;
+      }
+
+      if (!parts[1].endsWith(HELPER_EXT)) {
+         return false;
+      }
+
+      ToolSession toolSession = SessionManager.getCurrentToolSession();
+
+      // calc helper id
+      int posEnd = parts[1].lastIndexOf(".");
+
+      String helperId = target.substring(1, posEnd + 1);
+      ActiveTool helperTool = ActiveToolManager.getActiveTool(helperId);
+
+      String context = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 2);
+      String toolPath = Web.makePath(parts, 2, parts.length);
+      helperTool.help(req, res, context, toolPath);
+
+      return true; // was handled as helper call
+   }
 
 } // class ToolServlet
 
