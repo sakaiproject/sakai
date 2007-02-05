@@ -8,6 +8,17 @@
 <f:view>
   <sakai:view>
   	<h:form id="dfStatisticsForm">
+  		
+  		<h:panelGrid columns="1" summary="layout" width="100%" styleClass="navPanel  specialLink">
+          <h:panelGroup>
+          	 <f:verbatim><div class="breadCrumb"><h3></f:verbatim>
+			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/>
+			      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+			      <h:outputText value="#{msgs.stat_list}" />
+			    <f:verbatim></h3></div></f:verbatim>
+          </h:panelGroup>
+        </h:panelGrid>
+  	
   	
   		<h:dataTable styleClass="listHier lines nolines" id="members" value="#{mfStatisticsBean.allUserStatistics}" var="stat" rendered="true"
    	 		columnClasses="specialLink,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
@@ -19,7 +30,9 @@
 						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.nameSort && !mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_name}"/>
 					</h:commandLink>
   				</f:facet>
-  				<h:commandLink action="#{ForumTool.processActionStatisticsUser}" immediate="true" title=" #{stat.siteUser}">
+  				<h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{stat.siteUser}">
+  				    <f:param value="#{stat.siteUserId}" name="siteUserId"/>
+  				    <f:param value="#{stat.siteUser}" name="siteUser"/>
 				   	<h:outputText value="#{stat.siteUser}" />
 	          	</h:commandLink>
 			</h:column>

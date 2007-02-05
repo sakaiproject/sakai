@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,11 +45,13 @@ import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
+import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.UnreadStatus;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
@@ -70,6 +73,7 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
+
 
 public class MessageForumStatisticsBean {
 	
@@ -155,8 +159,75 @@ public class MessageForumStatisticsBean {
 	}
 	/* === End DecoratedCompiledMessageStatistics === */
 	
+	public class DecoratedCompiledUserStatistics {
+		private String siteName;
+		private String siteId;
+		private String siteUser;
+		private String siteUserId;
+		private String forumTitle;
+		private Date forumDate;
+		private String forumSubject;
+		
+		public String getSiteName(){
+			return this.siteName;
+		}
+		
+		public void setSiteName(String newValue){
+			this.siteName = newValue;
+		}
+		
+		public String getSiteId(){
+			return this.siteId;
+		}
+		
+		public void setSiteId(String newValue){
+			this.siteId = newValue;
+		}
+		
+		public String getSiteUser(){
+			return this.siteUser;
+		}
+		
+		public void setSiteUser(String newValue){
+			this.siteUser = newValue;
+		}
+		
+		public String getSiteUserId(){
+			return this.siteUserId;
+		}
+		
+		public void setSiteUserId(String newValue){
+			this.siteUserId = newValue;
+		}
+		
+		public String getForumTitle(){
+			return this.forumTitle;
+		}
+		
+		public void setForumTitle(String newValue){
+			this.forumTitle = newValue;
+		}
+		
+		public Date getForumDate(){
+			return forumDate;
+		}
+		
+		public void setForumDate(Date newValue){
+			this.forumDate = newValue;
+		}
+		
+		public String getForumSubject(){
+			return forumSubject;
+		}
+		
+		public void setForumSubject(String newValue){
+			this.forumSubject = newValue;
+		}
+	}
+	
 	/** Decorated Bean to store stats for user **/
 	public DecoratedCompiledMessageStatistics userInfo = null;
+	public DecoratedCompiledUserStatistics userAuthoredInfo = null;
 	
 	private Map courseMemberMap;
 	protected boolean ascending = true;
@@ -168,6 +239,14 @@ public class MessageForumStatisticsBean {
 	private static final String READ_SORT = "sort_by_num_read";
 	private static final String UNREAD_SORT = "sort_by_num_unread";
 	private static final String PERCENT_READ_SORT = "sort_by_percent_read";
+	private static final String SITE_USER_ID = "siteUserId";
+	private static final String SITE_USER = "siteUser";
+	
+	private static final String FORUM_STATISTICS = "dfStatisticsList";
+	private static final String FORUM_STATISTICS_USER = "dfStatisticsUser";
+	
+	public String selectedSiteUserId = null;
+	public String selectedSiteUser = null;
 	
 	//Comparatibles
 	public static Comparator NameComparatorAsc;
@@ -180,6 +259,7 @@ public class MessageForumStatisticsBean {
 	public static Comparator ReadComparatorDesc;
 	public static Comparator UnreadComparatorDesc;
 	public static Comparator PercentReadComparatorDesc;
+	public static Comparator DateComparaterDesc;
 	
 	public Map getCourseMemberMap(){
 		return this.courseMemberMap;
@@ -212,6 +292,14 @@ public class MessageForumStatisticsBean {
 		this.forumManager = forumManager;
 	}
 	
+	
+	public String getSelectedSiteUserId(){
+		return this.selectedSiteUserId;
+	}
+	
+	public String getSelectedSiteUser(){
+		return this.selectedSiteUser;
+	}
 	
 	public void setUiPermissionsManager(UIPermissionsManager uiPermissionsManager){
 		this.uiPermissionsManager = uiPermissionsManager;
@@ -281,6 +369,85 @@ public class MessageForumStatisticsBean {
 	       	statistics.add(userInfo);
 	    }
 		sortStatistics(statistics);
+		return statistics;
+	}
+	
+	public List getUserAuthoredStatistics(){
+		final List statistics = new ArrayList();
+		
+		//get all of the forum topics user has authored
+		final List topicsList = forumManager.getDiscussionForums();
+
+		final Iterator forumIter = topicsList.iterator();
+
+		while (forumIter.hasNext()) {
+			final DiscussionForum df = (DiscussionForum) forumIter.next();
+
+			final List topics = df.getTopics();
+			final Iterator topicIter = topics.iterator();
+
+			while (topicIter.hasNext()) {
+				final Topic topic = (Topic) topicIter.next();
+				
+				if (uiPermissionsManager.isRead((DiscussionTopic) topic, df)) {
+					List messageList = messageManager.findMessagesByTopicId(topic.getId());
+					final Iterator messageIter = messageList.iterator();
+					while(messageIter.hasNext()){
+						final Message mes = (Message) messageIter.next();
+						
+						if(mes.getCreatedBy().equals(selectedSiteUserId)){
+							userAuthoredInfo = new DecoratedCompiledUserStatistics();
+							userAuthoredInfo.setSiteUserId(selectedSiteUserId);
+							userAuthoredInfo.setForumTitle(topic.getTitle());
+							userAuthoredInfo.setForumDate(mes.getCreated());
+							userAuthoredInfo.setForumSubject(mes.getBody());
+							statistics.add(userAuthoredInfo);
+						}
+					}
+				}
+			}
+		}
+		Collections.sort(statistics, DateComparaterDesc);
+		return statistics;
+	}
+	
+	public List getUserReadStatistics(){
+		final List statistics = new ArrayList();
+		
+		//get all of the forum topics user has authored
+		final List topicsList = forumManager.getDiscussionForums();
+
+		final Iterator forumIter = topicsList.iterator();
+
+		while (forumIter.hasNext()) {
+			final DiscussionForum df = (DiscussionForum) forumIter.next();
+
+			final List topics = df.getTopics();
+			final Iterator topicIter = topics.iterator();
+
+			while (topicIter.hasNext()) {
+				final Topic topic = (Topic) topicIter.next();
+				
+				if (uiPermissionsManager.isRead((DiscussionTopic) topic, df)) {
+					List messageList = messageManager.findMessagesByTopicId(topic.getId());
+					final Iterator messageIter = messageList.iterator();
+					while(messageIter.hasNext()){
+						final Message mes = (Message) messageIter.next();
+						//UnreadStatus status = messageManager.findUnreadStatusByUserId(topic.getId(), mes.getId(), selectedSiteUserId);
+						
+						//if(status != null){
+							userAuthoredInfo = new DecoratedCompiledUserStatistics();
+							userAuthoredInfo.setSiteUserId(selectedSiteUserId);
+							userAuthoredInfo.setForumTitle(topic.getTitle());
+							userAuthoredInfo.setForumDate(mes.getCreated());
+							userAuthoredInfo.setForumSubject(mes.getBody());
+							statistics.add(userAuthoredInfo);
+						//}
+					}
+				}
+			}
+		}
+		Collections.sort(statistics, DateComparaterDesc);
 		return statistics;
 	}
 	
@@ -400,6 +567,9 @@ public class MessageForumStatisticsBean {
 	
 	
 	static {
+		/**
+		 * Comparators for DecoratedCompileMessageStatistics
+		 */
 		NameComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				String name1 = ((DecoratedCompiledMessageStatistics) item).getSiteUser().toUpperCase();
@@ -494,5 +664,46 @@ public class MessageForumStatisticsBean {
 				}
 			}
 		};
+		
+		/**
+		 * Comparator for DecoratedCompiledUserStatistics
+		 */
+		
+		DateComparaterDesc = new Comparator(){
+			public int compare(Object item, Object anotherItem){
+				Date date1 = ((DecoratedCompiledUserStatistics) item).getForumDate();
+				Date date2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumDate();
+				return date2.compareTo(date1);
+			}
+		};
 	}
+	
+	/**
+	 * Actions
+	 */
+	
+	/**
+	   * @return
+	   */
+	public String processActionStatisticsUser()
+	{
+		LOG.debug("processActionStatisticsUser");
+		selectedSiteUserId = getExternalParameterByKey(SITE_USER_ID);
+		selectedSiteUser = getExternalParameterByKey(SITE_USER);
+		return FORUM_STATISTICS_USER;
+	}
+	
+	
+	
+	
+	  // **************************************** helper methods**********************************
+
+	  private String getExternalParameterByKey(String parameterId)
+	  {    
+	    ExternalContext context = FacesContext.getCurrentInstance()
+	        .getExternalContext();
+	    Map paramMap = context.getRequestParameterMap();
+	    
+	    return (String) paramMap.get(parameterId);    
+	  }
 }

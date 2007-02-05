@@ -453,15 +453,6 @@ public class DiscussionForumTool
   /**
    * @return
    */
-  public String processActionStatisticsUser()
-  {
-	  LOG.debug("processActionStatisticsUser");
-	  return FORUM_STATISTICS_USER;
-  }
-  
-  /**
-   * @return
-   */
   public String processActionTemplateSettings()
   {
     LOG.debug("processActionTemplateSettings()");

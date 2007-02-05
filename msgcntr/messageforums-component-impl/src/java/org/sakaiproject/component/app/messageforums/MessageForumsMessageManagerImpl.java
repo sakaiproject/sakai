@@ -330,9 +330,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
     }
 
-    public UnreadStatus findUnreadStatus(final Long topicId, final Long messageId) {
-        if (messageId == null || topicId == null) {
-            LOG.error("findUnreadStatus failed with topicId: " + topicId + ", messageId: " + messageId);
+    public UnreadStatus findUnreadStatusByUserId(final Long topicId, final Long messageId, final String userId){
+    	if (messageId == null || topicId == null || userId == null) {
+            LOG.error("findUnreadStatusByUserId failed with topicId: " + topicId + ", messageId: " + messageId
+            		+ ", userId: " + userId);
             throw new IllegalArgumentException("Null Argument");
         }
 
@@ -343,12 +344,21 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
                 Query q = session.getNamedQuery(QUERY_UNREAD_STATUS);
                 q.setParameter("topicId", topicId, Hibernate.LONG);
                 q.setParameter("messageId", messageId, Hibernate.LONG);
-                q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                q.setParameter("userId", userId, Hibernate.STRING);
                 return q.uniqueResult();
             }
         };
 
-        return (UnreadStatus) getHibernateTemplate().execute(hcb);        
+        return (UnreadStatus) getHibernateTemplate().execute(hcb);
+    }
+    
+    public UnreadStatus findUnreadStatus(final Long topicId, final Long messageId) {
+        if (messageId == null || topicId == null) {
+            LOG.error("findUnreadStatus failed with topicId: " + topicId + ", messageId: " + messageId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        return findUnreadStatusByUserId(topicId, messageId, getCurrentUser());       
     }
 
     public void deleteUnreadStatus(Long topicId, Long messageId) {
