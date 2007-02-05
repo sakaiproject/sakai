@@ -103,4 +103,9 @@ public interface FilePickerHelper
 	public static final String DEFAULT_COLLECTION_ID = "sakaiproject.filepicker.default_collection_id";
 
 
+   /**
+    * this variable is used to tell the helper to initialize.  this is optional in most cases
+    */
+   public static final String START_HELPER = "sakaiproject.filepicker.startHelper";
+
 }

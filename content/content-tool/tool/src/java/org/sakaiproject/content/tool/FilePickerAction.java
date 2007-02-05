@@ -152,9 +152,10 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		String mode = (String) sstate.getAttribute(ResourcesAction.STATE_MODE);
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 
-		if (mode == null)
+		if (mode == null || toolSession.getAttribute(FilePickerHelper.START_HELPER) != null)
 		{
-			mode = initHelperAction(portlet, context, rundata, sstate, toolSession);
+         toolSession.removeAttribute(FilePickerHelper.START_HELPER);
+         mode = initHelperAction(portlet, context, rundata, sstate, toolSession);
 		}
 
 		return ResourcesAction.buildHelperContext(portlet, context, rundata, sstate);
