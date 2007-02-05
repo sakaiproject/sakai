@@ -260,7 +260,7 @@
 				$tlang.getString("gen.stusub")
 			</label>
 			<select name="$name_SubmissionType" id="subType">
-				#foreach ($i in [1..3])
+				#foreach ($i in [1..$!value_totalSubmissionTypes])
 					#if ($i == $value_SubmissionType)
 						<option value="$i" selected="selected">$submissionTypeTable.get($i)</option>
 					#else
@@ -524,7 +524,7 @@
 				</div>
 			#end	
 			<p class="act">
-				#if (!$assignment.draft)
+				#if ($!assignment && !$assignment.draft)
 					<input accesskey ="s" type="button" class="active" name="post" value="$tlang.getString("gen.pos")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='post';document.newAssignmentForm.submit();return false;" />
 					<input accesskey ="v" type="button" name="preview" value="$tlang.getString("gen.pre")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='preview';document.newAssignmentForm.submit();return false;" />
 				#else

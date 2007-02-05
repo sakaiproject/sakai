@@ -79,6 +79,11 @@ public interface Assignment extends Entity, Comparable, TaggableActivity
 
 	/** Text and/or attachment assignment type */
 	public static final int TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION = 3;
+	
+	/** Non-electronic assignment type */
+	public static final int NON_ELECTRONIC_ASSIGNMENT_SUBMISSION = 4;
+	
+	public static final int[] SUBMISSION_TYPES = {TEXT_ONLY_ASSIGNMENT_SUBMISSION,ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION,TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION,NON_ELECTRONIC_ASSIGNMENT_SUBMISSION};
 
 	/** Honor Pledge not yet set */
 	public static final int HONOR_PLEDGE_NOT_SET = -1;

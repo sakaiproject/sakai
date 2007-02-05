@@ -290,10 +290,14 @@
 								#end
 							#end
 						</ul>
-					#end	
-					<h4>$tlang.getString("gen.staass")</h4>
-					## 1- text only; 2-attachment only; 3-text and attachment
-					#if (($value_SubmissionType==1) || ($value_SubmissionType==3))
+					#end
+					#if ($value_SubmissionType == 4)##for non-electronic submission type
+						<h4>$tlang.getString("gen.subm")</h4>
+						<p class="instruction">$tlang.getString("nonelec_instruction")</p>
+					#else	
+						<h4>$tlang.getString("gen.staass")</h4>
+						## 1- text only; 2-attachment only; 3-text and attachment
+						#if (($value_SubmissionType==1) || ($value_SubmissionType==3))
 								<div class="instruction">
 									#if ($value_SubmissionType==1)
 										$tlang.getString("viewassig.theassall5")
@@ -302,29 +306,29 @@
 									#end
 								</div>
 								<textarea cols="80" rows="8" wrap="virtual" name="textarea" id="textarea" disabled="disabled">&nbsp;</textarea>						
-					#end
-					#if (($value_SubmissionType==2) || ($value_SubmissionType==3)) 
-						#if ($value_SubmissionType==2)
-							<div class="instruction">
-								$tlang.getString("viewassig.theassall3")
+						#end
+						#if (($value_SubmissionType==2) || ($value_SubmissionType==3)) 
+							#if ($value_SubmissionType==2)
+								<div class="instruction">
+									$tlang.getString("viewassig.theassall3")
+								</div>
+							#end
+							<h4>	
+								$tlang.getString("gen.att")
+							</h4>	
+							<p class="instruction">$tlang.getString("gen.noatt")</p>
+							<div class="act">
+								<input type="button" name="eventSubmit_doAttachments" value="$tlang.getString("gen.addatt")" accesskey="a" disabled="disabled" />
 							</div>
 						#end
-						<h4>	
-							$tlang.getString("gen.att")
-						</h4>	
-						<p class="instruction">$tlang.getString("gen.noatt")</p>
-						<div class="act">
-							<input type="button" name="eventSubmit_doAttachments" value="$tlang.getString("gen.addatt")" accesskey="a" disabled="disabled" />
-						</div>
+						## if honor pledge is required
+						#if ($value_CheckAddHonorPledge!="1")
+							<p class="checkbox">$tlang.getString("gen.honple2")<input name="Yes" id="yes" type="checkbox" value="" disabled="disabled" /><label for="yes"> $tlang.getString("gen.yes")</label>
+							<br />$tlang.getString("gen.youmus")</p>
+						#end
 					#end
-					## if honor pledge is required
-					#if ($value_CheckAddHonorPledge!="1")
-						<p class="checkbox">$tlang.getString("gen.honple2")<input name="Yes" id="yes" type="checkbox" value="" disabled="disabled" /><label for="yes"> $tlang.getString("gen.yes")</label>
-						<br />$tlang.getString("gen.youmus")</p>
-					#end
-				</div>
+					</div>
 				#else
-
 				<p class="discTria">
 							<a href="#toolLink("ResourcesAction" "doShow_preview_assignment_student_view")" title="$tlang.getString("prevassig.shostuvie")">
 								<img src = "#imageLink("sakai/expand.gif")" border="0" title="$tlang.getString("prevassig.shostuvie")" alt="$tlang.getString("prevassig.shostuvie")" hspace="0" /></a>$tlang.getString("gen.stuvie")

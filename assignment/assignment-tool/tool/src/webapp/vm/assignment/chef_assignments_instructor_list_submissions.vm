@@ -45,17 +45,23 @@
 		$!tlang.getString('submissionsfor') "$assignment.getTitle()"
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	
+	#set ($submissionType = $assignment.getContent().getTypeOfSubmission())
+	
 	#if ($!siteUsers.size() == 0)
 		<p class="instruction">
 			$tlang.getString("nostudent")
 		</p>
 	#else
 		<div class="navIntraTool">
-			<a href="$accessPointUrl" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
+			#if ($submissionType != 4)
+				## exclude the link for non-electronic submission
+				<a href="$accessPointUrl" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a> | 
+			#end
 			#if ($withGrade)
-				| <a href="#toolLinkParam("$action" "doRelease_grades" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('relgrad')">$!tlang.getString('relgrad')</a>
+				<a href="#toolLinkParam("$action" "doRelease_grades" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('relgrad')">$!tlang.getString('relgrad')</a>
 			#else
-				| <a href="#toolLinkParam("$action" "doRelease_grades" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('relcommented')">$!tlang.getString('relcommented')</a>
+				<a href="#toolLinkParam("$action" "doRelease_grades" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('relcommented')">$!tlang.getString('relcommented')</a>
 			#end
 			#if ($taggable)
 				#foreach ($provider in $providers)
@@ -270,13 +276,18 @@
 								#end
 							</td>
 							<td headers="submitted">
-								#if ($!submission)
-									#if($!submitTime)$submitTime.toStringLocalFull()#end
-									#if ($!submitTime && $submitTime.after($assignment.DueTime))
-										<span class="highlight">$tlang.getString("gen.late2")</span> 
-									#end
+								#if ($submissionType == 4)
+									## show "Non-electronic" when the assignment is for this type
+									$tlang.getString("nonelec")
 								#else
-									$tlang.getString("listsub.nosub")
+									#if ($!submission)
+										#if($!submitTime)$submitTime.toStringLocalFull()#end
+										#if ($!submitTime && $submitTime.after($assignment.DueTime))
+											<span class="highlight">$tlang.getString("gen.late2")</span> 
+										#end
+									#else
+										$tlang.getString("listsub.nosub")
+									#end
 								#end
 							</td>
 							<td headers="status">
@@ -401,7 +412,7 @@
 				$tlang.getString("gen.stusub2")
 			</th>
 			<td>
-				$submissionTypeTable.get($assignment.getContent().getTypeOfSubmission())
+				$submissionTypeTable.get($submissionType)
 			</td>
 		</tr>
 		<tr valign="top"> 

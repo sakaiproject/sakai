@@ -48,22 +48,25 @@
 						$!submitterNames
 					</td>
 				</tr>
-				<tr>
-					<th>
-						$tlang.getString("gen.subm5") 
-					</th>
-					<td>
-						## get submission time
-						#set($timeSubmitted=false)
-						#set($timeSubmitted=$submission.TimeSubmitted)
-						#if ($!timeSubmitted)
-							$!timeSubmitted.toStringLocalFull()
-						#end
-						#if ($!timeSubmitted && $timeSubmitted.after($assignment.DueTime))
-							<span class="highlight">$tlang.getString("gen.late2")</span>
-						#end
-					</td>
-				</tr>
+				#if ($!submissionType != 4)
+					## exclude non-electronic type of submission
+					<tr>
+						<th>
+							$tlang.getString("gen.subm5") 
+						</th>
+						<td>
+							## get submission time
+							#set($timeSubmitted=false)
+							#set($timeSubmitted=$submission.TimeSubmitted)
+							#if ($!timeSubmitted)
+								$!timeSubmitted.toStringLocalFull()
+							#end
+							#if ($!timeSubmitted && $timeSubmitted.after($assignment.DueTime))
+								<span class="highlight">$tlang.getString("gen.late2")</span>
+							#end
+						</td>
+					</tr>
+				#end
 				<tr>
 					<th>
 						$tlang.getString("gen.status2") 

@@ -158,6 +158,7 @@
 					</tr>
 					#foreach ($submission in $submissions)
 						#set ($assignment = $submission.getAssignment())
+						#set ($submissionType = $assignment.Content.TypeOfSubmission)
 						<tr>
 							<td headers="studentname">
 								#set ($submitterNames = "")
@@ -223,17 +224,21 @@
 									#end
 							</td>
 							<td headers="submitted">
-								#if ($!submission)
-									#if ($submission.submitted)
-										#set($timeSubmitted=false)
-										#set($timeSubmitted=$submission.TimeSubmitted)
-										#if($!timeSubmitted)
-											$!timeSubmitted.toStringLocalFull()
-										#end
-										#if ($!timeSubmitted && $timeSubmitted.after($assignment.DueTime))
-											<span class="highlight">
-												$tlang.getString("gen.late2")
-											</span>
+								#if ($!submissionType == 4)
+									$tlang.getString("nonelec")
+								#else
+									#if ($!submission)
+										#if ($submission.submitted)
+											#set($timeSubmitted=false)
+											#set($timeSubmitted=$submission.TimeSubmitted)
+											#if($!timeSubmitted)
+												$!timeSubmitted.toStringLocalFull()
+											#end
+											#if ($!timeSubmitted && $timeSubmitted.after($assignment.DueTime))
+												<span class="highlight">
+													$tlang.getString("gen.late2")
+												</span>
+											#end
 										#end
 									#end
 								#end

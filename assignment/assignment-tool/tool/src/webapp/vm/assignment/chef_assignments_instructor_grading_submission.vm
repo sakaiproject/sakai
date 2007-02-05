@@ -40,8 +40,8 @@
 			#end
 			</span>
 		</h3>
-		## 1- text only; 2-attachment only; 3-text and attachment
-		#set ( $submissionType = $assignment.getContent().TypeOfSubmission)
+		## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic
+		#set ( $submissionType = $assignment.Content.TypeOfSubmission)
 		<table class="itemSummary" cellspacing="0" summary="$tlang.getString("gen.assdet")">
 #*			<tr>
 				<th>
@@ -82,22 +82,26 @@
 					$!submitterNames
 				</td>
 			</tr>
-			<tr>
-				<th>
-					$tlang.getString("gen.subm5")
-				</th>	
-				<td>
-					## get submission time
-					#set($timeSubmitted=false)
-					#set($timeSubmitted=$submission.TimeSubmitted)
-					#if ($!timeSubmitted)
-						$!timeSubmitted.toStringLocalFull()
-					#end
-					#if ($!timeSubmitted && $timeSubmitted.after($assignment.DueTime))
-						<span class="highlight">$tlang.getString("gen.late2")</span>
-					#end
-				</td>
-			</tr>
+			#if ($!submissionType != 4)
+				## exclude non-electronic type of submission
+				<tr>
+					<th>
+						$tlang.getString("gen.subm5")
+					</th>	
+					<td>
+				 	$tlang.getString("nonelec")
+						## get submission time
+						#set($timeSubmitted=false)
+						#set($timeSubmitted=$submission.TimeSubmitted)
+						#if ($!timeSubmitted)
+							$!timeSubmitted.toStringLocalFull()
+						#end
+						#if ($!timeSubmitted && $timeSubmitted.after($assignment.DueTime))
+							<span class="highlight">$tlang.getString("gen.late2")</span>
+						#end
+					</td>
+				</tr>
+			#end
 			#if ($withGrade)
 				<tr>
 					<th>
@@ -168,12 +172,15 @@
 					</ul>
 				#end	
 			#end	## show the assignment content
-			<h3>$tlang.getString("gen.submission")</h3>
-				## if there is a text
-				#if ($submissionType!=2)
-					<h4>
+			<h3>$tlang.getString("gen.subm")</h3>
+				#if ($submissionType == 4)
+					## if this is non-electronic submission
+					<p class="instruction">$tlang.getString("nonelec_instruction2")</p>
+				#elseif ($submissionType!=2)
+					## if there is a text
+					<p class="instruction">
 						$tlang.getString("gen.submittedtext")
-					</h4>
+					</p>
 					<p class="instruction">$tlang.getString("gradingsub.belisthe")</p>
 					<table border="0" summary="layout"><tr><td>
 					<textarea name="$name_feedback_text" id="$name_feedback_text" rows="30" wrap="virtual" cols="80">$cheffeedbackhelper.escapeAssignmentFeedbackTextarea("$!value_feedback_text")</textarea>		
@@ -189,7 +196,7 @@
 				#end
 				## submitted attachment
 				
-				 #if ($submissionType!=1) ## do not show attach messages if no attach are allowed...
+				 #if ($submissionType!=1 && $submissionType!=4) ## do not show attach messages if no attach are allowed...
 					<h4>$tlang.getString("gen.stuatt")</h4>
 					#set ($size = 0)
 					#set ($size = 0)

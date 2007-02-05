@@ -1138,6 +1138,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		context.put("value_Sections", state.getAttribute(NEW_ASSIGNMENT_SECTION));
 		context.put("value_SubmissionType", state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE));
+		context.put("value_totalSubmissionTypes", Assignment.SUBMISSION_TYPES.length);
 		context.put("value_GradeType", state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE));
 		// format to show one decimal place
 		String maxGrade = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
@@ -3775,6 +3776,50 @@ public class AssignmentAction extends PagedResourceActionII
 				oAssociateGradebookAssignment = aPropertiesEdit.getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 				editAssignmentProperties(a, checkAddDueTime, checkAutoAnnounce, addtoGradebook, associateGradebookAssignment, allowResubmitNumber, aPropertiesEdit);
 				
+				// in case of non-electronic submission, create submissions for all students and mark it as submitted
+				if (ac.getTypeOfSubmission()== Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+				{
+					String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+					String authzGroupId = SiteService.siteReference(contextString);
+					List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers(a.getReference());
+					try
+					{
+						AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupId);
+						Set grants = group.getUsers();
+						for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
+						{
+							String userId = (String) iUserIds.next();
+							try
+							{
+								User u = UserDirectoryService.getUser(userId);
+								// only include those users that can submit to this assignment
+								if (u != null && allowAddSubmissionUsers.contains(u))
+								{
+									if (AssignmentService.getSubmission(a.getReference(), u) == null)
+									{
+										// construct fake submissions for grading purpose
+										AssignmentSubmissionEdit submission = AssignmentService.addSubmission(contextString, a.getId());
+										submission.removeSubmitter(UserDirectoryService.getCurrentUser());
+										submission.addSubmitter(u);
+										submission.setTimeSubmitted(TimeService.newTime());
+										submission.setSubmitted(true);
+										submission.setAssignment(a);
+										AssignmentService.commitEdit(submission);
+									}
+								}
+							}
+							catch (Exception e)
+							{
+								Log.warn("chef", this + e.toString() + " here userId = " + userId);
+							}
+						}
+					}
+					catch (Exception e)
+					{
+						Log.warn("chef", e.getMessage() + " authGroupId=" + authzGroupId);
+					}
+				}
+				
 				// comment the changes to Assignment object
 				commitAssignmentEdit(state, post, ac, a, title, openTime, dueTime, closeTime, enableCloseDate, s, range, groups);
 	
@@ -5983,6 +6028,7 @@ public class AssignmentAction extends PagedResourceActionII
 		n.put(new Integer(1), rb.getString("inlin"));
 		n.put(new Integer(2), rb.getString("attaonly"));
 		n.put(new Integer(3), rb.getString("inlinatt"));
+		n.put(new Integer(4), rb.getString("nonelec"));
 		return n;
 
 	} // submissionTypeTable
@@ -7321,7 +7367,6 @@ public class AssignmentAction extends PagedResourceActionII
 									AssignmentSubmissionEdit s = AssignmentService.addSubmission(contextString, a.getId());
 									s.removeSubmitter(UserDirectoryService.getCurrentUser());
 									s.addSubmitter(u);
-									// submitted by without submit time
 									s.setSubmitted(true);
 									s.setAssignment(a);
 									AssignmentService.commitEdit(s);
