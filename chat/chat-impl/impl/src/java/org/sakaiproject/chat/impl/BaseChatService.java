@@ -569,45 +569,6 @@ public abstract class BaseChatService extends BaseMessageService implements Chat
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * getSummary implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
-        public Map getSummary(String channel, int items, int days)
-                        throws org.sakaiproject.exception.IdUsedException, org.sakaiproject.exception.IdInvalidException,
-                        org.sakaiproject.exception.PermissionException
-        {
-            long startTime = System.currentTimeMillis() - (days * 24l * 60l * 60l * 1000l);
-
-            List messages = getMessages(channel, TimeService.newTime(startTime), items, false, false, false);
-            Iterator iMsg = messages.iterator();
-            Time pubDate = null;
-            String summaryText = null;
-            Map m = new HashMap();
-            while (iMsg.hasNext()) {
-                ChatMessage item  = (ChatMessage) iMsg.next();
-                ChatMessageHeader header = item.getChatHeader();
-                Time newTime = header.getDate();
-                if ( pubDate == null || newTime.before(pubDate) ) pubDate = newTime;
-                String newtext;
-                String body = item.getBody();
-                if ( body.length() > 50 ) body = body.substring(1,49);
-                String newText = body + ", " + header.getFrom().getDisplayName() + ", " + header.getDate().toStringLocalFull();
-                if ( summaryText == null ) {
-                    summaryText = newText;
-                } else {
-                    summaryText = summaryText + "<br>\r\n" + newText;
-                }
-            }
-            if ( pubDate != null ) {
-                m.put(Summary.PROP_PUBDATE, pubDate.toStringRFC822Local());
-            }
-            if ( summaryText != null ) {
-                m.put(Summary.PROP_DESCRIPTION, summaryText);
-                return m;
-            }
-	    return null;
-        }
-
-	/**********************************************************************************************************************************************************************************************************************************************************
 	 * ChatChannel implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
