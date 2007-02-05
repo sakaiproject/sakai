@@ -53,8 +53,14 @@ public interface MessageForumsMessageManager {
 
     public int findMessageCountByTopicId(Long topicId);
 
+    public int findAuhtoredMessageCountByTopicIdByUserId(final Long topicId, final String userId);
+    
+    public int findUnreadMessageCountByTopicIdByUserId(Long topicId, String userId);
+    
     public int findUnreadMessageCountByTopicId(Long topicId);
 
+    public int findReadMessageCountByTopicIdByUserId(Long topicId, String userId);
+    
     public int findReadMessageCountByTopicId(Long topicId);
 
     public List findDiscussionForumMessageCountsForAllSites(final List siteList);

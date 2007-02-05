@@ -7,6 +7,8 @@
   <h:outputText id="draft_space3" value="  &nbsp;  " escape="false" />
   <mf:forum_bar_link id="template_organize" title="#{msgs.cdfm_organize}" value="#{msgs.cdfm_organize} " action="#{ForumTool.processActionTemplateOrganize}" rendered="#{ForumTool.instructor}"/>    
      
+  <h:outputText id="draft_space4" value="  &nbsp;  " escape="false" />
+  <mf:forum_bar_link id="template_statistic" title="#{msgs.cdfm_statistic}" value="#{msgs.cdfm_statistics}" action="#{ForumTool.processActionStatistics}" rendered="#{ForumTool.instructor}" />
 
 <!--jsp/discussionForum/area/dfArea.jsp-->
   <h:dataTable id="forums" value="#{ForumTool.forums}" width="100%" var="forum" cellpadding="0" cellspacing="0" summary="layout">

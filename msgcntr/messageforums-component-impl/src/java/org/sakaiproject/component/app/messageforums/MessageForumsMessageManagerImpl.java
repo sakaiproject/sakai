@@ -63,6 +63,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     //private static final String QUERY_ATTACHMENT_BY_ID = "findAttachmentById";
     private static final String QUERY_BY_MESSAGE_ID_WITH_ATTACHMENTS = "findMessageByIdWithAttachments";
     private static final String QUERY_COUNT_BY_READ = "findReadMessageCountByTopicId";
+    private static final String QUERY_COUNT_BY_AUTHORED = "findAuhtoredMessageCountByTopicId";
     private static final String QUERY_BY_TOPIC_ID = "findMessagesByTopicId";
     private static final String QUERY_UNREAD_STATUS = "findUnreadStatusForMessage";
     private static final String QUERY_CHILD_MESSAGES = "finalAllChildMessages";
@@ -209,7 +210,68 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return (List) getHibernateTemplate().execute(hcb);        
             
     }
+    
+    /**
+     * FOR STATISTICS TOOL:
+     * 		Returns the number of read messages by topic for specified user
+     */
+    
+    public int findAuhtoredMessageCountByTopicIdByUserId(final Long topicId, final String userId){
+    	if (topicId == null || userId == null) {
+            LOG.error("findAuthoredMessageCountByTopicIdByUserId failed with topicId: " + topicId + 
+            			" and userId: " + userId);
+            throw new IllegalArgumentException("Null Argument");
+        }
 
+        LOG.debug("findAuthoredMessageCountByTopicIdByUserId executing with topicId: " + topicId + 
+        				" and userId: " + userId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_COUNT_BY_AUTHORED);
+                q.setParameter("topicId", topicId, Hibernate.LONG);
+                q.setParameter("userId", userId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return ((Integer) getHibernateTemplate().execute(hcb)).intValue(); 
+    }
+    
+    public int findReadMessageCountByTopicIdByUserId(final Long topicId, final String userId) {
+        if (topicId == null || userId == null) {
+            LOG.error("findReadMessageCountByTopicIdByUserId failed with topicId: " + topicId + 
+            			" and userId: " + userId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findReadMessageCountByTopicIdByUserId executing with topicId: " + topicId + 
+        				" and userId: " + userId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_COUNT_BY_READ);
+                q.setParameter("topicId", topicId, Hibernate.LONG);
+                q.setParameter("userId", userId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
+    }
+
+   public int findUnreadMessageCountByTopicIdByUserId(final Long topicId, final String userId){
+	   if (topicId == null || userId == null) {
+           LOG.error("findUnreadMessageCountByTopicIdByUserId failed with topicId: " + topicId + 
+        		   		" and userId: " + userId);
+           throw new IllegalArgumentException("Null Argument");
+       }
+
+       LOG.debug("findUnreadMessageCountByTopicIdByUserId executing with topicId: " + topicId);
+
+       return findMessageCountByTopicId(topicId) - findReadMessageCountByTopicIdByUserId(topicId, userId);
+   }
+    
    public int findUnreadMessageCountByTopicId(final Long topicId) {
         if (topicId == null) {
             LOG.error("findUnreadMessageCountByTopicId failed with topicId: " + topicId);
@@ -227,18 +289,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             throw new IllegalArgumentException("Null Argument");
         }
 
-        LOG.debug("findReadMessageCountByTopicId executing with topicId: " + topicId);
-
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_COUNT_BY_READ);
-                q.setParameter("topicId", topicId, Hibernate.LONG);
-                q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
-                return q.uniqueResult();
-            }
-        };
-
-        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
+        return (Integer) findReadMessageCountByTopicIdByUserId(topicId, getCurrentUser());
     }
 
     public List findMessagesByTopicId(final Long topicId) {

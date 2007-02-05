@@ -116,6 +116,8 @@ public class DiscussionForumTool
   private static final String THREADED_VIEW = "dfThreadedView";
   private static final String UNREAD_VIEW = "dfUnreadView";
   private static final String GRADE_MESSAGE = "dfMsgGrade";
+  private static final String FORUM_STATISTICS = "dfStatisticsList";
+  private static final String FORUM_STATISTICS_USER = "dfStatisticsUser";
   
   private static final String PERMISSION_MODE_TEMPLATE = "template";
   private static final String PERMISSION_MODE_FORUM = "forum";
@@ -445,9 +447,18 @@ public class DiscussionForumTool
   public String processActionStatistics()
   {
     LOG.debug("processActionStatistics()");
-    return MAIN;
+    return FORUM_STATISTICS;
   }
-
+  
+  /**
+   * @return
+   */
+  public String processActionStatisticsUser()
+  {
+	  LOG.debug("processActionStatisticsUser");
+	  return FORUM_STATISTICS_USER;
+  }
+  
   /**
    * @return
    */
