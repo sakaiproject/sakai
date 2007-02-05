@@ -21,14 +21,19 @@
 
 package org.sakaiproject.content.tool;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -44,8 +49,12 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -100,6 +109,14 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.metaobj.shared.control.SchemaBean;
+import org.sakaiproject.metaobj.shared.mgt.HomeFactory;
+import org.sakaiproject.metaobj.shared.mgt.ReadableObjectHome;
+import org.sakaiproject.metaobj.shared.mgt.StructuredArtifactValidationService;
+import org.sakaiproject.metaobj.shared.mgt.home.StructuredArtifactHomeInterface;
+import org.sakaiproject.metaobj.shared.model.ElementBean;
+import org.sakaiproject.metaobj.shared.model.ValidationError;
+import org.sakaiproject.metaobj.utils.xml.SchemaNode;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.Term;
@@ -108,6 +125,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -120,7 +138,12 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.Xml;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 /**
 * <p>ResourceAction is a ContentHosting application</p>
@@ -1356,6 +1379,8 @@ public class ResourcesAction
 	private static final String STATE_STACK_EDIT_ITEM = "resources.stack_edit_item";
 	private static final String STATE_STACK_EDIT_INTENT = "resources.stack_edit_intent";
 
+	private static final String STATE_SHOW_FORM_ITEMS = "resources.show_form_items";
+
 	private static final String STATE_STACK_EDIT_ITEM_TITLE = "resources.stack_title";
 
 	/************** the create contexts *****************************************/
@@ -1366,17 +1391,24 @@ public class ResourcesAction
 	public static final String STATE_CREATE_TYPE = "resources.create_type";
 	public static final String STATE_CREATE_COLLECTION_ID = "resources.create_collection_id";
 	public static final String STATE_CREATE_NUMBER = "resources.create_number";
+	public static final String STATE_STRUCTOBJ_TYPE = "resources.create_structured_object_type";
+	public static final String STATE_STRUCTOBJ_TYPE_READONLY = "resources.create_structured_object_type_readonly";
 
 	public static final String STATE_STACK_CREATE_TYPE = "resources.stack_create_type";
 	public static final String STATE_STACK_CREATE_COLLECTION_ID = "resources.stack_create_collection_id";
 	public static final String STATE_STACK_CREATE_NUMBER = "resources.stack_create_number";
+	public static final String STATE_STACK_STRUCTOBJ_TYPE = "resources.stack_create_structured_object_type";
+	public static final String STATE_STACK_STRUCTOBJ_TYPE_READONLY = "resources.stack_create_structured_object_type_readonly";
 
 	private static final String STATE_STACK_CREATE_ITEMS = "resources.stack_create_items";
 	private static final String STATE_STACK_CREATE_ACTUAL_COUNT = "resources.stack_create_actual_count";
+	private static final String STATE_STACK_STRUCTOBJ_ROOTNAME = "resources.stack_create_structured_object_root";
 
 	private static final String STATE_CREATE_ALERTS = "resources.create_alerts";
 	protected static final String STATE_CREATE_MESSAGE = "resources.create_message";
 	private static final String STATE_CREATE_MISSING_ITEM = "resources.create_missing_item";
+	private static final String STATE_STRUCTOBJ_HOMES = "resources.create_structured_object_home";
+	private static final String STATE_STACK_STRUCT_OBJ_SCHEMA = "resources.stack_create_structured_object_schema";
 
 	private static final String MIME_TYPE_DOCUMENT_PLAINTEXT = "text/plain";
 	private static final String MIME_TYPE_DOCUMENT_HTML = "text/html";
@@ -1385,6 +1417,7 @@ public class ResourcesAction
 	public static final String TYPE_FOLDER = "folder";
 	public static final String TYPE_UPLOAD = "file";
 	public static final String TYPE_URL = "Url";
+	public static final String TYPE_FORM = MIME_TYPE_STRUCTOBJ;
 	public static final String TYPE_HTML = MIME_TYPE_DOCUMENT_HTML;
 	public static final String TYPE_TEXT = MIME_TYPE_DOCUMENT_PLAINTEXT;
 
@@ -1423,6 +1456,13 @@ public class ResourcesAction
 
 	/** The name of the state attribute for "new-item" attachment indicating the id of the item to edit */
 	public static final String STATE_ATTACH_ITEM_ID = "resources.attach_collection_id";
+
+	/** The name of the state attribute for "new-item" attachment indicating the id of the form-type if item-type 
+	 * is TYPE_FORM (ignored otherwise) */
+	public static final String STATE_ATTACH_FORM_ID = "resources.attach_form_id";
+
+	/** The name of the state attribute indicating which form field a resource should be attached to */
+	public static final String STATE_ATTACH_FORM_FIELD = "resources.attach_form_field";
 
 	/************** the helper context (file-picker) *****************************************/
 
@@ -4515,11 +4555,26 @@ public class ResourcesAction
 		context.put("new_items", new_items);
 		current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
 
+		String show_form_items = (String) current_stack_frame.get(STATE_SHOW_FORM_ITEMS);
+		if(show_form_items == null)
+		{
+			show_form_items = (String) state.getAttribute(STATE_SHOW_FORM_ITEMS);
+			if(show_form_items != null)
+			{
+				current_stack_frame.put(STATE_SHOW_FORM_ITEMS,show_form_items);
+			}
+		}
+		if(show_form_items != null)
+		{
+			context.put("show_form_items", show_form_items);
+		}
+
 		context.put("TYPE_FOLDER", TYPE_FOLDER);
 		context.put("TYPE_UPLOAD", TYPE_UPLOAD);
 		context.put("TYPE_HTML", TYPE_HTML);
 		context.put("TYPE_TEXT", TYPE_TEXT);
 		context.put("TYPE_URL", TYPE_URL);
+		context.put("TYPE_FORM", TYPE_FORM);
 
 		// copyright
 		copyrightChoicesIntoContext(state, context);
@@ -4532,6 +4587,64 @@ public class ResourcesAction
 			context.put("availability_is_enabled", Boolean.TRUE);
 		}
 		
+		if(TYPE_FORM.equals(itemType))
+		{
+			setupStructuredObjects(state);
+			List listOfHomes = (List) current_stack_frame.get(STATE_STRUCTOBJ_HOMES);
+			if(listOfHomes == null)
+			{
+				listOfHomes = (List) state.getAttribute(STATE_STRUCTOBJ_HOMES);
+			}
+			context.put("homes", listOfHomes);
+
+			String formtype = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE);
+			if(formtype == null)
+			{
+				formtype = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE);
+				if(formtype == null)
+				{
+					formtype = "";
+				}
+				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
+			}
+			context.put("formtype", formtype);
+
+			String formtype_readonly = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE_READONLY);
+			if(formtype_readonly == null)
+			{
+				formtype_readonly = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE_READONLY);
+				if(formtype_readonly == null)
+				{
+					formtype_readonly = Boolean.FALSE.toString();
+				}
+				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE_READONLY, formtype_readonly);
+			}
+			if(formtype_readonly != null && formtype_readonly.equals(Boolean.TRUE.toString()))
+			{
+				context.put("formtype_readonly", formtype_readonly);
+			}
+
+			String rootname = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_ROOTNAME);
+			context.put("rootname", rootname);
+
+			context.put("STRING", ResourcesMetadata.WIDGET_STRING);
+			context.put("TEXTAREA", ResourcesMetadata.WIDGET_TEXTAREA);
+			context.put("BOOLEAN", ResourcesMetadata.WIDGET_BOOLEAN);
+			context.put("INTEGER", ResourcesMetadata.WIDGET_INTEGER);
+			context.put("DOUBLE", ResourcesMetadata.WIDGET_DOUBLE);
+			context.put("DATE", ResourcesMetadata.WIDGET_DATE);
+			context.put("TIME", ResourcesMetadata.WIDGET_TIME);
+			context.put("DATETIME", ResourcesMetadata.WIDGET_DATETIME);
+			context.put("ANYURI", ResourcesMetadata.WIDGET_ANYURI);
+			context.put("ENUM", ResourcesMetadata.WIDGET_ENUM);
+			context.put("NESTED", ResourcesMetadata.WIDGET_NESTED);
+			context.put("WYSIWYG", ResourcesMetadata.WIDGET_WYSIWYG);
+
+			context.put("today", TimeService.newTime());
+
+			context.put("DOT", ResourcesMetadata.DOT);
+		}
+
 		return TEMPLATE_ITEMTYPE;
 	}
 
@@ -4711,6 +4824,17 @@ public class ResourcesAction
 		if(state.getAttribute(STATE_HELPER_CHANGED) != null)
 		{
 			context.put("list_has_changed", "true");
+		}
+
+		String form_field = (String) current_stack_frame.get(ResourcesAction.STATE_ATTACH_FORM_FIELD);
+		if(form_field == null)
+		{
+			form_field = (String) state.getAttribute(ResourcesAction.STATE_ATTACH_FORM_FIELD);
+			if(form_field != null)
+			{
+				current_stack_frame.put(ResourcesAction.STATE_ATTACH_FORM_FIELD, form_field);
+				state.removeAttribute(ResourcesAction.STATE_ATTACH_FORM_FIELD);
+			}
 		}
 
 		// find the ContentTypeImage service
@@ -5382,6 +5506,20 @@ public class ResourcesAction
 		context.put("REVISE", INTENT_REVISE_FILE);
 		context.put("REPLACE", INTENT_REPLACE_FILE);
 
+		String show_form_items = (String) current_stack_frame.get(STATE_SHOW_FORM_ITEMS);
+		if(show_form_items == null)
+		{
+			show_form_items = (String) state.getAttribute(STATE_SHOW_FORM_ITEMS);
+			if(show_form_items != null)
+			{
+				current_stack_frame.put(STATE_SHOW_FORM_ITEMS,show_form_items);
+			}
+		}
+		if(show_form_items != null)
+		{
+			context.put("show_form_items", show_form_items);
+		}
+
 		Collection groups = ContentHostingService.getGroupsWithReadAccess(collectionId);
 		// TODO: does this method filter groups for this subcollection??
 		if(! groups.isEmpty())
@@ -5412,6 +5550,55 @@ public class ResourcesAction
 
 		context.put("item", item);
 
+		if(item.isStructuredArtifact())
+		{
+			context.put("formtype", item.getFormtype());
+			current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, item.getFormtype());
+
+			List listOfHomes = (List) current_stack_frame.get(STATE_STRUCTOBJ_HOMES);
+			if(listOfHomes == null)
+			{
+				ResourcesAction.setupStructuredObjects(state);
+				listOfHomes = (List) current_stack_frame.get(STATE_STRUCTOBJ_HOMES);
+			}
+			context.put("homes", listOfHomes);
+
+			String formtype_readonly = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE_READONLY);
+			if(formtype_readonly == null)
+			{
+				formtype_readonly = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE_READONLY);
+				if(formtype_readonly == null)
+				{
+					formtype_readonly = Boolean.FALSE.toString();
+				}
+				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE_READONLY, formtype_readonly);
+			}
+			if(formtype_readonly != null && formtype_readonly.equals(Boolean.TRUE.toString()))
+			{
+				context.put("formtype_readonly", formtype_readonly);
+			}
+
+			String rootname = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_ROOTNAME);
+			context.put("rootname", rootname);
+
+			context.put("STRING", ResourcesMetadata.WIDGET_STRING);
+			context.put("TEXTAREA", ResourcesMetadata.WIDGET_TEXTAREA);
+			context.put("BOOLEAN", ResourcesMetadata.WIDGET_BOOLEAN);
+			context.put("INTEGER", ResourcesMetadata.WIDGET_INTEGER);
+			context.put("DOUBLE", ResourcesMetadata.WIDGET_DOUBLE);
+			context.put("DATE", ResourcesMetadata.WIDGET_DATE);
+			context.put("TIME", ResourcesMetadata.WIDGET_TIME);
+			context.put("DATETIME", ResourcesMetadata.WIDGET_DATETIME);
+			context.put("ANYURI", ResourcesMetadata.WIDGET_ANYURI);
+			context.put("ENUM", ResourcesMetadata.WIDGET_ENUM);
+			context.put("NESTED", ResourcesMetadata.WIDGET_NESTED);
+			context.put("WYSIWYG", ResourcesMetadata.WIDGET_WYSIWYG);
+
+			context.put("today", TimeService.newTime());
+
+			context.put("TRUE", Boolean.TRUE.toString());
+		}
+		
 		if(ContentHostingService.isAvailabilityEnabled())
 		{
 			context.put("availability_is_enabled", Boolean.TRUE);
@@ -5640,6 +5827,7 @@ public class ResourcesAction
 
 		state.setAttribute(STATE_CREATE_ALERTS, new HashSet());
 		current_stack_frame.put(STATE_CREATE_MISSING_ITEM, new HashSet());
+		current_stack_frame.remove(STATE_STACK_STRUCTOBJ_TYPE);
 
 		current_stack_frame.put(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_CREATE_INIT);
 		state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_CREATE_INIT);
@@ -5959,6 +6147,25 @@ public class ResourcesAction
 				}
 			}
 		}
+		else if(flow.equals("create") && TYPE_FORM.equals(itemType))
+		{
+			captureMultipleValues(state, params, true);
+			alerts = (Set) state.getAttribute(STATE_CREATE_ALERTS);
+			if(alerts == null)
+			{
+				alerts = new HashSet();
+				state.setAttribute(STATE_CREATE_ALERTS, alerts);
+			}
+			if(alerts.isEmpty())
+			{
+				createStructuredArtifacts(state);
+				alerts = (Set) state.getAttribute(STATE_CREATE_ALERTS);
+				if(alerts.isEmpty())
+				{
+					pop = true;
+				}
+			}
+		}
 		else if(flow.equals("create"))
 		{
 			captureMultipleValues(state, params, true);
@@ -5970,6 +6177,58 @@ public class ResourcesAction
 			}
 			alerts.add("Invalid item type");
 			state.setAttribute(STATE_CREATE_ALERTS, alerts);
+		}
+		else if(flow.equals("updateDocType"))
+		{
+			// captureMultipleValues(state, params, false);
+			String formtype = params.getString("formtype");
+			if(formtype == null || formtype.equals(""))
+			{
+				alerts.add("Must select a form type");
+				missing.add("formtype");
+			}
+			current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
+			//setupStructuredObjects(state);
+		}
+		else if(flow.equals("addInstance"))
+		{
+			captureMultipleValues(state, params, false);
+			String field = params.getString("field");
+			List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
+			if(new_items == null)
+			{
+				String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
+				if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
+				{
+					defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
+					state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
+				}
+
+				String encoding = data.getRequest().getCharacterEncoding();
+				
+				Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
+				if(defaultRetractDate == null)
+				{
+					defaultRetractDate = TimeService.newTime();
+					state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
+				}
+
+				new_items = newEditItems(collectionId, itemType, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), defaultRetractDate, CREATE_MAX_ITEMS);
+
+				current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
+
+			}
+			ChefEditItem item = (ChefEditItem) new_items.get(0);
+			addInstance(field, item.getProperties());
+			ResourcesMetadata form = item.getForm();
+			List flatList = form.getFlatList();
+			item.setProperties(flatList);
+		}
+		else if(flow.equals("linkResource") && TYPE_FORM.equals(itemType))
+		{
+			captureMultipleValues(state, params, false);
+			createLink(data, state);
+			
 		}
 		else if(flow.equals("showOptional"))
 		{
@@ -6161,7 +6420,7 @@ public class ResourcesAction
 		}
 		else
 		{
-			//current_stack_frame.put(ResourcesAction.STATE_ATTACH_FORM_FIELD, field);
+			current_stack_frame.put(ResourcesAction.STATE_ATTACH_FORM_FIELD, field);
 		}
 
 		//state.setAttribute(ResourcesAction.STATE_MODE, ResourcesAction.MODE_HELPER);
@@ -6196,6 +6455,439 @@ public class ResourcesAction
 		}
 
 	}
+
+	/**
+	 * Add a new StructuredArtifact to ContentHosting for each ChefEditItem in the state attribute named STATE_STACK_CREATE_ITEMS.
+	 * The number of items to be added is indicated by the state attribute named STATE_STACK_CREATE_NUMBER, and
+	 * the items are added to the collection identified by the state attribute named STATE_STACK_CREATE_COLLECTION_ID.
+	 * @param state
+	 */
+	private static void createStructuredArtifacts(SessionState state)
+		{
+		Map current_stack_frame = peekAtStack(state);
+		
+		String collectionId = (String) current_stack_frame.get(STATE_STACK_CREATE_COLLECTION_ID);
+		if(collectionId == null || collectionId.trim().length() == 0)
+		{
+			collectionId = (String) state.getAttribute(STATE_CREATE_COLLECTION_ID);
+			if(collectionId == null || collectionId.trim().length() == 0)
+			{
+				collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+			}
+			current_stack_frame.put(STATE_STACK_CREATE_COLLECTION_ID, collectionId);
+		}
+
+		List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
+		if(new_items == null)
+		{
+			String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
+			if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
+			{
+				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
+				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
+			}
+			String itemType = (String) current_stack_frame.get(STATE_STACK_CREATE_TYPE);
+			if(itemType == null)
+			{
+				itemType = (String) state.getAttribute(STATE_CREATE_TYPE);
+				if(itemType == null)
+				{
+					itemType = ResourcesAction.TYPE_FORM;
+				}
+				current_stack_frame.put(STATE_STACK_CREATE_TYPE, itemType);
+			}
+			String encoding = (String) state.getAttribute(STATE_ENCODING);
+			
+			Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
+			if(defaultRetractDate == null)
+			{
+				defaultRetractDate = TimeService.newTime();
+				state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
+			}
+
+			new_items = newEditItems(collectionId, itemType, encoding, defaultCopyrightStatus, true, defaultRetractDate, CREATE_MAX_ITEMS);
+			current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
+		}
+
+		Set alerts = (Set) state.getAttribute(STATE_CREATE_ALERTS);
+		if(alerts == null)
+		{
+			alerts = new HashSet();
+			state.setAttribute(STATE_CREATE_ALERTS, alerts);
+		}
+
+		Integer number = (Integer) current_stack_frame.get(STATE_STACK_CREATE_NUMBER);
+		if(number == null)
+		{
+			number = (Integer) state.getAttribute(STATE_CREATE_NUMBER);
+		if(number == null)
+		{
+			number = new Integer(1);
+			}
+			current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
+		}
+		int numberOfItems = number.intValue();
+
+		SchemaBean rootSchema = (SchemaBean) current_stack_frame.get(STATE_STACK_STRUCT_OBJ_SCHEMA);
+		SchemaNode rootNode = rootSchema.getSchema();
+
+		outerloop: for(int i = 0; i < numberOfItems; i++)
+		{
+			ChefEditItem item = (ChefEditItem) new_items.get(i);
+			if(item.isBlank())
+			{
+				continue;
+			}
+			SaveArtifactAttempt attempt = new SaveArtifactAttempt(item, rootNode);
+			validateStructuredArtifact(attempt);
+			List errors = attempt.getErrors();
+
+			if(errors.isEmpty())
+			{
+			try
+			{
+					ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties ();
+				resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, item.getName());
+				resourceProperties.addProperty (ResourceProperties.PROP_DESCRIPTION, item.getDescription());
+					resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_ENCODING, UTF_8_ENCODING);
+					resourceProperties.addProperty(ResourceProperties.PROP_STRUCTOBJ_TYPE, item.getFormtype());
+					resourceProperties.addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, org.sakaiproject.metaobj.shared.mgt.MetaobjEntityManager.METAOBJ_ENTITY_PREFIX);
+				List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
+				saveMetadata(resourceProperties, metadataGroups, item);
+					String filename = Validator.escapeResourceName(item.getName()).trim();
+					String extension = ".xml";
+					int attemptNum = 0;
+					String attemptStr = "";
+					String newResourceId = collectionId + filename + attemptStr + extension;
+
+					if(newResourceId.length() > ContentHostingService.MAXIMUM_RESOURCE_ID_LENGTH)
+					{
+						alerts.add(rb.getString("toolong") + " " + newResourceId);
+						continue outerloop;
+					}
+					
+				SortedSet groups = new TreeSet(item.getEntityGroupRefs());
+				groups.retainAll(item.getAllowedAddGroupRefs());
+
+					boolean hidden = false;
+
+					Time releaseDate = null;
+					Time retractDate = null;
+					
+				if(ContentHostingService.isAvailabilityEnabled())
+				{
+						hidden = item.isHidden();
+						
+						if(item.useReleaseDate())
+						{
+							releaseDate = item.getReleaseDate();
+						}
+						
+						if(item.useRetractDate())
+						{
+							retractDate = item.getRetractDate();
+					}
+				}
+				
+					try
+					{
+						ContentResource resource = ContentHostingService.addResource (filename + extension,
+																					collectionId,
+																					MAXIMUM_ATTEMPTS_FOR_UNIQUENESS,
+																					MIME_TYPE_STRUCTOBJ,
+																					item.getContent(),
+																					resourceProperties,
+																					groups,
+																					hidden,
+																					releaseDate,
+																					retractDate,
+																					item.getNotification());
+
+
+				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+				if(preventPublicDisplay == null)
+				{
+					preventPublicDisplay = Boolean.FALSE;
+					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+				}
+						if(! preventPublicDisplay.booleanValue() && item.isPubview())
+				{
+							ContentHostingService.setPubView(resource.getId(), true);
+				}
+				
+						String mode = (String) state.getAttribute(STATE_MODE);
+						if(MODE_HELPER.equals(mode))
+			{
+							String helper_mode = (String) state.getAttribute(STATE_RESOURCES_HELPER_MODE);
+							if(helper_mode != null && MODE_ATTACHMENT_NEW_ITEM_INIT.equals(helper_mode))
+			{
+								// add to the attachments vector
+								List attachments = EntityManager.newReferenceList();
+								Reference ref = EntityManager.newReference(ContentHostingService.getReference(resource.getId()));
+								attachments.add(ref);
+								cleanupState(state);
+								state.setAttribute(STATE_ATTACHMENTS, attachments);
+			}
+							else
+							{
+								Object attach_links = current_stack_frame.get(STATE_ATTACH_LINKS);
+								if(attach_links == null)
+								{
+									attach_links = state.getAttribute(STATE_ATTACH_LINKS);
+									if(attach_links != null)
+									{
+										current_stack_frame.put(STATE_ATTACH_LINKS, attach_links);
+									}
+								}
+
+								if(attach_links == null)
+								{
+									attachItem(resource.getId(), state);
+								}
+								else
+								{
+									attachLink(resource.getId(), state);
+								}
+							}
+						}
+					}
+					catch(PermissionException e)
+					{
+						alerts.add(rb.getString("notpermis12"));
+						continue outerloop;
+					}
+					catch(IdInvalidException e)
+					{
+						alerts.add(rb.getString("title") + " " + e.getMessage ());
+						continue outerloop;
+					}
+					catch(IdLengthException e)
+					{
+						alerts.add(rb.getString("toolong") + " " + e.getMessage());
+						continue outerloop;
+					}
+					catch(IdUniquenessException e)
+					{
+						alerts.add("Could not add this item to this folder");
+						continue outerloop;
+					}
+					catch(InconsistentException e)
+					{
+						alerts.add(RESOURCE_INVALID_TITLE_STRING);
+						continue outerloop;
+					}
+					catch(OverQuotaException e)
+					{
+						alerts.add(rb.getString("overquota"));
+						continue outerloop;
+					}
+					catch(ServerOverloadException e)
+					{
+						alerts.add(rb.getString("failed"));
+						continue outerloop;
+					} 
+				}
+				catch(RuntimeException e)
+				{
+					logger.debug("ResourcesAction.createStructuredArtifacts ***** Unknown Exception ***** " + e.getMessage());
+					alerts.add(rb.getString("failed"));
+				}
+
+				SortedSet currentMap = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				if(currentMap == null)
+				{
+					currentMap = new TreeSet();
+					state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
+				}
+				if(!currentMap.contains(collectionId))
+				{
+					currentMap.add (collectionId);
+					//state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
+
+					// add this folder id into the set to be event-observed
+					addObservingPattern(collectionId, state);
+				}
+			}
+			else
+			{
+				Iterator errorIt = errors.iterator();
+				while(errorIt.hasNext())
+				{
+					ValidationError error = (ValidationError) errorIt.next();
+					alerts.add(error.getDefaultMessage());
+				}
+			}
+
+		}
+		state.setAttribute(STATE_CREATE_ALERTS, alerts);
+
+	}
+
+	/**
+	 * Convert from a hierarchical list of ResourcesMetadata objects to an org.w3.dom.Document,
+	 * then to a string representation, then to a metaobj ElementBean.  Validate the ElementBean
+	 * against a SchemaBean.  If it validates, save the string representation. Otherwise, on
+	 * return, the parameter contains a non-empty list of ValidationError objects describing the
+	 * problems.
+	 * @param attempt A wrapper for the ChefEditItem object which contains the hierarchical list of
+	 * ResourcesMetadata objects for this form.  Also contains an initially empty list of
+	 * ValidationError objects that describes any of the problems found in validating the form.
+	 */
+	private static void validateStructuredArtifact(SaveArtifactAttempt attempt)
+	{
+		ChefEditItem item = attempt.getItem();
+		ResourcesMetadata form = item.getForm();
+
+		Stack processStack = new Stack();
+		processStack.push(form);
+		Map parents = new Hashtable();
+		Document doc = Xml.createDocument();
+
+		int count = 0;
+
+		while(!processStack.isEmpty())
+		{
+			Object object = processStack.pop();
+			if(object instanceof ResourcesMetadata)
+			{
+
+				ResourcesMetadata element = (ResourcesMetadata) object;
+				Element node = doc.createElement(element.getLocalname());
+
+				if(element.isNested())
+				{
+					processStack.push(new ElementCarrier(node, element.getDottedname()));
+					List children = element.getNestedInstances();
+					//List children = element.getNested();
+
+					for(int k = children.size() - 1; k >= 0; k--)
+					{
+						ResourcesMetadata child = (ResourcesMetadata) children.get(k);
+						processStack.push(child);
+						parents.put(child.getDottedname(), node);
+					}
+				}
+				else
+				{
+					List values = element.getInstanceValues();
+					Iterator valueIt = values.iterator();
+					while(valueIt.hasNext())
+					{
+						Object value = valueIt.next();
+						if(value == null)
+						{
+							// do nothing
+							continue;
+						}
+						else if(value instanceof String)
+						{
+							if("".equals((String) value))
+							{
+								continue;
+							}
+							node.appendChild(doc.createTextNode((String)value));
+						}
+						else if(value instanceof Time)
+						{
+							Time time = (Time) value;
+							TimeBreakdown breakdown = time.breakdownLocal();
+							int year = breakdown.getYear();
+							int month = breakdown.getMonth();
+							int day = breakdown.getDay();
+							String date = "" + year + (month < 10 ? "-0" : "-") + month + (day < 10 ? "-0" : "-") + day;
+							node.appendChild(doc.createTextNode(date));
+						}
+						else if(value instanceof Date)
+						{
+							Date date = (Date) value;
+							SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+							String formatted = df.format(date);
+							node.appendChild(doc.createTextNode(formatted));
+						}
+						else if(value instanceof Reference)
+						{
+							node.appendChild(doc.createTextNode(((Reference)value).getId()));
+						}
+						else
+						{
+							node.appendChild(doc.createTextNode(value.toString()));
+						}
+					}
+					
+					if(node.hasChildNodes())
+					{
+						Element parent = (Element) parents.get(element.getDottedname());
+						if(parent == null)
+						{
+							doc.appendChild(node);
+							count++;
+						}
+						else
+						{
+							parent.appendChild(node);
+						}
+					}
+				}
+			}
+			else if(object instanceof ElementCarrier)
+			{
+				ElementCarrier carrier = (ElementCarrier) object;
+				Element node = carrier.getElement();
+				Element parent = (Element) parents.get(carrier.getParent());
+				if(parent == null)
+				{
+					doc.appendChild(node);
+					count++;
+				}
+				else
+				{
+					parent.appendChild(node);
+				}
+			}
+
+		}
+
+		String content = Xml.writeDocumentToString(doc);
+		item.setContent(content);
+
+		StructuredArtifactValidationService validator = (StructuredArtifactValidationService) ComponentManager.get("org.sakaiproject.metaobj.shared.mgt.StructuredArtifactValidationService");
+		List errors = new ArrayList();
+
+		// convert the String representation to an ElementBean object.  If that fails,
+		// add an error and return.
+		ElementBean bean = null;
+
+		SAXBuilder builder = new SAXBuilder();
+		StringReader reader = new StringReader(content);
+		try
+		{
+			org.jdom.Document jdoc = builder.build(reader);
+			bean = new ElementBean(jdoc.getRootElement(), attempt.getSchema(), true);
+		}
+		catch (JDOMException e)
+		{
+			// add message to list of errors
+			errors.add(new ValidationError("","",null,"JDOMException"));
+		}
+		catch (IOException e)
+		{
+			// add message to list of errors
+			errors.add(new ValidationError("","",null,"IOException"));
+		}
+
+		// call this.validate(bean, rootSchema, errors) and add results to errors list.
+		if(bean == null)
+		{
+			// add message to list of errors
+			errors.add(new ValidationError("","",null,"Bean is null"));
+		}
+		else
+		{
+			errors.addAll(validator.validate(bean));
+		}
+		attempt.setErrors(errors);
+
+	}	// validateStructuredArtifact
 
 	/**
 	 * Add a new folder to ContentHosting for each ChefEditItem in the state attribute named STATE_STACK_CREATE_ITEMS.
@@ -6626,6 +7318,45 @@ public class ResourcesAction
 		state.setAttribute(STATE_CREATE_ALERTS, alerts);
 
 	}	// createFiles
+
+	/**
+	 * Process user's request to add an instance of a particular field to a structured object.
+	 * @param data
+	 */
+	public static void doInsertValue(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters ();
+
+		captureMultipleValues(state, params, false);
+
+		Map current_stack_frame = peekAtStack(state);
+
+		String field = params.getString("field");
+
+		ChefEditItem item = null;
+		String mode = (String) state.getAttribute(STATE_MODE);
+		if (MODE_CREATE.equals(mode))
+		{
+			int index = params.getInt("index");
+
+			List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
+			if(new_items != null)
+			{
+				item = (ChefEditItem) new_items.get(index);
+			}
+		}
+		else if(MODE_EDIT.equals(mode))
+		{
+			item = (ChefEditItem) current_stack_frame.get(STATE_STACK_EDIT_ITEM);
+		}
+
+		if(item != null)
+		{
+			addInstance(field, item.getProperties());
+		}
+
+	}	// doInsertValue
 
 	/**
 	 * Search a flat list of ResourcesMetadata properties for one whose localname matches "field".
@@ -7075,7 +7806,7 @@ public class ResourcesAction
 			}
 			else
 			{
-				//field = (String) current_stack_frame.get(STATE_ATTACH_FORM_FIELD);
+				field = (String) current_stack_frame.get(STATE_ATTACH_FORM_FIELD);
 			}
 		}
 
@@ -7112,7 +7843,7 @@ public class ResourcesAction
 			if(edit_item != null)
 			{
 				Reference ref = (Reference) attachments.get(0);
-				//edit_item.setPropertyValue(fieldname, index, ref);
+				edit_item.setPropertyValue(fieldname, index, ref);
 			}
 		}
 	}
@@ -7541,6 +8272,7 @@ public class ResourcesAction
 		context.put("TYPE_HTML", TYPE_HTML);
 		context.put("TYPE_TEXT", TYPE_TEXT);
 		context.put("TYPE_URL", TYPE_URL);
+		context.put("TYPE_FORM", TYPE_FORM);
 		
 		context.put("SITE_ACCESS", AccessMode.SITE.toString());
 		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
@@ -7580,6 +8312,17 @@ public class ResourcesAction
 		}
 		context.put("collectionId", collectionId);
 
+		String field = (String) current_stack_frame.get(STATE_ATTACH_FORM_FIELD);
+		if(field == null)
+		{
+			field = (String) state.getAttribute(STATE_ATTACH_FORM_FIELD);
+			if(field != null)
+			{
+				current_stack_frame.put(STATE_ATTACH_FORM_FIELD, field);
+				state.removeAttribute(STATE_ATTACH_FORM_FIELD);
+			}
+		}
+		
 		String msg = (String) state.getAttribute(STATE_CREATE_MESSAGE);
 		if (msg != null)
 		{
@@ -7648,6 +8391,21 @@ public class ResourcesAction
 			context.put("theGroupsInThisSite", theGroupsInThisSite);
 		}
 		
+		setupStructuredObjects(state);
+		String show_form_items = (String) current_stack_frame.get(STATE_SHOW_FORM_ITEMS);
+		if(show_form_items == null)
+		{
+			show_form_items = (String) state.getAttribute(STATE_SHOW_FORM_ITEMS);
+			if(show_form_items != null)
+			{
+				current_stack_frame.put(STATE_SHOW_FORM_ITEMS,show_form_items);
+			}
+		}
+		if(show_form_items != null)
+		{
+			context.put("show_form_items", show_form_items);
+		}
+
 		// copyright
 		copyrightChoicesIntoContext(state, context);
 
@@ -7675,6 +8433,48 @@ public class ResourcesAction
 		}
 		*/
 
+		if(TYPE_FORM.equals(itemType))
+		{
+			List listOfHomes = (List) current_stack_frame.get(STATE_STRUCTOBJ_HOMES);
+			if(listOfHomes == null)
+			{
+				setupStructuredObjects(state);
+				listOfHomes = (List) current_stack_frame.get(STATE_STRUCTOBJ_HOMES);
+			}
+			context.put("homes", listOfHomes);
+
+			String formtype = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE);
+			if(formtype == null)
+			{
+				formtype = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE);
+				if(formtype == null)
+				{
+					formtype = "";
+				}
+				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
+			}
+			context.put("formtype", formtype);
+
+			String rootname = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_ROOTNAME);
+			context.put("rootname", rootname);
+
+			context.put("STRING", ResourcesMetadata.WIDGET_STRING);
+			context.put("TEXTAREA", ResourcesMetadata.WIDGET_TEXTAREA);
+			context.put("BOOLEAN", ResourcesMetadata.WIDGET_BOOLEAN);
+			context.put("INTEGER", ResourcesMetadata.WIDGET_INTEGER);
+			context.put("DOUBLE", ResourcesMetadata.WIDGET_DOUBLE);
+			context.put("DATE", ResourcesMetadata.WIDGET_DATE);
+			context.put("TIME", ResourcesMetadata.WIDGET_TIME);
+			context.put("DATETIME", ResourcesMetadata.WIDGET_DATETIME);
+			context.put("ANYURI", ResourcesMetadata.WIDGET_ANYURI);
+			context.put("ENUM", ResourcesMetadata.WIDGET_ENUM);
+			context.put("NESTED", ResourcesMetadata.WIDGET_NESTED);
+			context.put("WYSIWYG", ResourcesMetadata.WIDGET_WYSIWYG);
+
+			context.put("today", TimeService.newTime());
+
+			context.put("DOT", ResourcesMetadata.DOT);
+		}
 		Set missing = (Set) current_stack_frame.remove(STATE_CREATE_MISSING_ITEM);
 		context.put("missing", missing);
 
@@ -8380,6 +9180,18 @@ public class ResourcesAction
 				String url = new String(content);
 				item.setFilename(url);
 			}
+			else if(item.isStructuredArtifact())
+			{
+				String formtype = properties.getProperty(ResourceProperties.PROP_STRUCTOBJ_TYPE);
+				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
+				current_stack_frame.put(STATE_STACK_EDIT_ITEM, item);
+				setupStructuredObjects(state);
+				Document doc = Xml.readDocumentFromString(new String(content));
+				Element root = doc.getDocumentElement();
+				importStructuredArtifact(root, item.getForm());
+				List flatList = item.getForm().getFlatList();
+				item.setProperties(flatList);
+			}
 			else if(item.isHtml() || item.isPlaintext() || item.isFileUpload())
 			{
 				String filename = properties.getProperty(ResourceProperties.PROP_ORIGINAL_FILENAME);
@@ -8570,6 +9382,385 @@ public class ResourcesAction
 
 	}
    
+   /**
+	 * This method updates the session state with information needed to create or modify
+	 * structured artifacts in the resources tool.  Among other things, it obtains a list
+	 * of "forms" available to the user and places that list in state indexed as
+	 * "STATE_STRUCTOBJ_HOMES".  If the current formtype is known (in state indexed as
+	 * "STATE_STACK_STRUCTOBJ_TYPE"), the list of properties associated with that form type is
+	 * generated.  If we are in a "create" context, the properties are added to each of
+	 * the items in the list of items indexed as "STATE_STACK_CREATE_ITEMS".  If we are in an
+	 * "edit" context, the properties are added to the current item being edited (a state
+	 * attribute indexed as "STATE_STACK_EDIT_ITEM").  The metaobj SchemaBean associated with
+	 * the current form and its root SchemaNode object are also placed in state for later
+	 * reference.
+	 */
+	public static void setupStructuredObjects(SessionState state)
+	{
+		Map current_stack_frame = peekAtStack(state);
+
+		String formtype = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE);
+		if(formtype == null)
+		{
+			formtype = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE);
+			if(formtype == null)
+			{
+				formtype = "";
+			}
+			current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
+		}
+
+		HomeFactory factory = (HomeFactory) ComponentManager.get("homeFactory");
+
+		Map homes = factory.getHomes(StructuredArtifactHomeInterface.class);
+		List listOfHomes = new Vector();
+		Iterator it = homes.keySet().iterator();
+		while(it.hasNext())
+		{
+			String key = (String) it.next();
+			try
+			{
+				Object obj = homes.get(key);
+				listOfHomes.add(obj);
+			}
+			catch(Exception ignore)
+			{}
+		}
+      
+      final Comparator worksiteHomesComparator = new Comparator() {
+         public int compare(Object o1, Object o2) {
+                return ((ReadableObjectHome)o1).getType().getDescription().toLowerCase().compareTo(((ReadableObjectHome)o2).getType().getDescription().toLowerCase());
+         }
+      };
+      
+      Collections.sort(listOfHomes, worksiteHomesComparator);
+      
+		current_stack_frame.put(STATE_STRUCTOBJ_HOMES, listOfHomes);
+		if(!listOfHomes.isEmpty())
+		{
+			current_stack_frame.put(STATE_SHOW_FORM_ITEMS, Boolean.TRUE.toString());
+		}
+
+		StructuredArtifactHomeInterface home = null;
+		SchemaBean rootSchema = null;
+		ResourcesMetadata elements = null;
+
+		if(formtype == null || formtype.equals(""))
+		{
+			formtype = "";
+			current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
+		}
+		else if(listOfHomes.isEmpty())
+		{
+			// hmmm
+		}
+		else
+		{
+			try
+			{
+				home = (StructuredArtifactHomeInterface) factory.getHome(formtype);
+			}
+			catch(NullPointerException ignore)
+			{
+				home = null;
+			}
+		}
+
+		if(home != null)
+		{
+			rootSchema = new SchemaBean(home.getRootNode(), home.getSchema(), formtype, home.getType().getDescription());
+			List fields = rootSchema.getFields();
+			String docRoot = rootSchema.getFieldName();
+			elements = new ResourcesMetadata("", docRoot, "", "", ResourcesMetadata.WIDGET_NESTED, ResourcesMetadata.WIDGET_NESTED);
+			elements.setDottedparts(docRoot);
+			elements.setContainer(null);
+
+			elements = createHierarchicalList(elements, fields, 1);
+
+			String instruction = home.getInstruction();
+
+			current_stack_frame.put(STATE_STACK_STRUCTOBJ_ROOTNAME, docRoot);
+			current_stack_frame.put(STATE_STACK_STRUCT_OBJ_SCHEMA, rootSchema);
+
+			List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
+			if(new_items != null)
+			{
+				Integer number = (Integer) current_stack_frame.get(STATE_STACK_CREATE_NUMBER);
+				if(number == null)
+				{
+					number = (Integer) state.getAttribute(STATE_CREATE_NUMBER);
+					current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
+				}
+				if(number == null)
+				{
+					number = new Integer(1);
+					current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
+				}
+				List flatList = elements.getFlatList();
+
+				for(int i = 0; i < number.intValue(); i++)
+				{
+					//%%%%% doing this wipes out data that's been stored previously
+
+					ChefEditItem item = (ChefEditItem) new_items.get(i);
+					item.setRootname(docRoot);
+					item.setFormtype(formtype);
+					item.setInstruction(instruction);
+					item.setProperties(flatList);
+					item.setForm(elements);
+				}
+				current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
+			}
+			else if(current_stack_frame.get(STATE_STACK_EDIT_ITEM) != null)
+			{
+				ChefEditItem item = (ChefEditItem) current_stack_frame.get(STATE_STACK_EDIT_ITEM);
+				item.setRootname(docRoot);
+				item.setFormtype(formtype);
+				item.setInstruction(instruction);
+				item.setForm(elements);
+			}
+		}
+
+	}	// setupStructuredArtifacts
+
+	/**
+	 * This method navigates through a list of SchemaNode objects representing fields in a form,
+	 * creates a ResourcesMetadata object for each field and adds those as nested fields within
+	 * a root element.  If a field contains nested fields, a recursive call adds nested fields
+	 * in the corresponding ResourcesMetadata object.
+	 * @param element The root element to which field descriptions are added.
+	 * @param fields A list of metaobj SchemaNode objects.
+	 * @param depth The depth of nesting, corresponding to the amount of indent that will be used
+	 * when displaying the list.
+	 * @return The update root element.
+	 */
+	private static ResourcesMetadata createHierarchicalList(ResourcesMetadata element, List fields, int depth)
+	{
+		List properties = new Vector();
+		for(Iterator fieldIt = fields.iterator(); fieldIt.hasNext(); )
+		{
+			SchemaBean field = (SchemaBean) fieldIt.next();
+			SchemaNode node = field.getSchema();
+			Map annotations = field.getAnnotations();
+			Pattern pattern = null;
+			String localname = field.getFieldName();
+			String description = field.getDescription();
+			String label = (String) annotations.get("label");
+			if(label == null || label.trim().equals(""))
+			{
+				label = description;
+			}
+
+			String richText = (String) annotations.get("isRichText");
+			boolean isRichText = richText != null && richText.equalsIgnoreCase(Boolean.TRUE.toString());
+
+			Class javaclass = node.getObjectType();
+			String typename = javaclass.getName();
+			String widget = ResourcesMetadata.WIDGET_STRING;
+			int length =  0;
+			List enumerals = null;
+
+			if(field.getFields().size() > 0)
+			{
+				widget = ResourcesMetadata.WIDGET_NESTED;
+			}
+			else if(node.hasEnumerations())
+			{
+				enumerals = node.getEnumeration();
+				typename = String.class.getName();
+				widget = ResourcesMetadata.WIDGET_ENUM;
+			}
+			else if(typename.equals(String.class.getName()))
+			{
+				length = node.getType().getMaxLength();
+				String baseType = node.getType().getBaseType();
+
+				if(isRichText)
+				{
+					widget = ResourcesMetadata.WIDGET_WYSIWYG;
+				}
+				else if(baseType.trim().equalsIgnoreCase(ResourcesMetadata.NAMESPACE_XSD_ABBREV + ResourcesMetadata.XSD_NORMALIZED_STRING))
+				{
+					widget = ResourcesMetadata.WIDGET_STRING;
+					if(length > 50)
+					{
+						length = 50;
+					}
+				}
+				else if(length > 100 || length < 1)
+				{
+					widget = ResourcesMetadata.WIDGET_TEXTAREA;
+				}
+				else if(length > 50)
+				{
+					length = 50;
+				}
+
+				pattern = node.getType().getPattern();
+			}
+			else if(typename.equals(Date.class.getName()))
+			{
+				widget = ResourcesMetadata.WIDGET_DATE;
+			}
+			else if(typename.equals(Boolean.class.getName()))
+			{
+				widget = ResourcesMetadata.WIDGET_BOOLEAN;
+			}
+			else if(typename.equals(URI.class.getName()))
+			{
+				widget = ResourcesMetadata.WIDGET_ANYURI;
+			}
+			else if(typename.equals(Number.class.getName()))
+			{
+				widget = ResourcesMetadata.WIDGET_INTEGER;
+
+				//length = node.getType().getTotalDigits();
+				length = INTEGER_WIDGET_LENGTH;
+			}
+			else if(typename.equals(Double.class.getName()))
+			{
+				widget = ResourcesMetadata.WIDGET_DOUBLE;
+				length = DOUBLE_WIDGET_LENGTH;
+			}
+			int minCard = node.getMinOccurs();
+			int maxCard = node.getMaxOccurs();
+			if(maxCard < 1)
+			{
+				maxCard = Integer.MAX_VALUE;
+			}
+			if(minCard < 0)
+			{
+				minCard = 0;
+			}
+			minCard = java.lang.Math.max(0,minCard);
+			maxCard = java.lang.Math.max(1,maxCard);
+			int currentCount = java.lang.Math.min(java.lang.Math.max(1,minCard),maxCard);
+
+			ResourcesMetadata prop = new ResourcesMetadata(element.getDottedname(), localname, label, description, typename, widget);
+			List parts = new Vector(element.getDottedparts());
+			parts.add(localname);
+			prop.setDottedparts(parts);
+			prop.setContainer(element);
+			if(ResourcesMetadata.WIDGET_NESTED.equals(widget))
+			{
+				prop = createHierarchicalList(prop, field.getFields(), depth + 1);
+			}
+			prop.setMinCardinality(minCard);
+			prop.setMaxCardinality(maxCard);
+			prop.setCurrentCount(currentCount);
+			prop.setDepth(depth);
+
+			if(enumerals != null)
+			{
+				prop.setEnumeration(enumerals);
+			}
+			if(length > 0)
+			{
+				prop.setLength(length);
+			}
+
+			if(pattern != null)
+			{
+				prop.setPattern(pattern);
+			}
+
+			properties.add(prop);
+		}
+
+		element.setNested(properties);
+
+		return element;
+
+	}	// createHierarchicalList
+
+	/**
+	 * This method captures property values from an org.w3c.dom.Document and inserts them
+	 * into a hierarchical list of ResourcesMetadata objects which describes the structure
+	 * of the form.  The values are added by inserting nested instances into the properties.
+	 *
+	 * @param element	An org.w3c.dom.Element containing values to be imported.
+	 * @param properties	A hierarchical list of ResourcesMetadata objects describing a form
+	 */
+	public static void importStructuredArtifact(Node node, ResourcesMetadata property)
+	{
+		if(property == null || node == null)
+		{
+			return;
+		}
+
+		String tagname = property.getLocalname();
+		String nodename = node.getLocalName();
+		if(! tagname.equals(nodename))
+		{
+			// return;
+		}
+
+		if(property.getNested().size() == 0)
+		{
+			boolean value_found = false;
+			Node child = node.getFirstChild();
+			while(! value_found && child != null)
+			{
+				if(child.getNodeType() == Node.TEXT_NODE)
+				{
+					Text value = (Text) child;
+					if(ResourcesMetadata.WIDGET_DATE.equals(property.getWidget()) || ResourcesMetadata.WIDGET_DATETIME.equals(property.getWidget()) || ResourcesMetadata.WIDGET_TIME.equals(property.getWidget()))
+					{
+						SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+						Time time = TimeService.newTime();
+						try
+						{
+							Date date = df.parse(value.getData());
+							time = TimeService.newTime(date.getTime());
+						}
+						catch(Exception ignore)
+						{
+							// use "now" as default in that case
+						}
+						property.setValue(0, time);
+					}
+					else if(ResourcesMetadata.WIDGET_ANYURI.equals(property.getWidget()))
+					{
+						Reference ref = EntityManager.newReference(ContentHostingService.getReference(value.getData()));
+						property.setValue(0, ref);
+					}
+					else
+					{
+						property.setValue(0, value.getData());
+					}
+				}
+				child = child.getNextSibling();
+			}
+		}
+		else if(node instanceof Element)
+		{
+			// a nested element
+			Iterator nestedIt = property.getNested().iterator();
+			while(nestedIt.hasNext())
+			{
+				ResourcesMetadata prop = (ResourcesMetadata) nestedIt.next();
+				NodeList nodes = ((Element) node).getElementsByTagName(prop.getLocalname());
+				if(nodes == null)
+				{
+					continue;
+				}
+				for(int i = 0; i < nodes.getLength(); i++)
+				{
+					Node n = nodes.item(i);
+					if(n != null)
+					{
+						ResourcesMetadata instance = prop.addInstance();
+						if(instance != null)
+						{
+							importStructuredArtifact(n, instance);
+						}
+					}
+				}
+			}
+		}
+
+	}	// importStructuredArtifact
+
 	protected static String validateURL(String url) throws MalformedURLException
 	{
 		if (url.equals (NULL_STRING))
@@ -8619,7 +9810,7 @@ public class ResourcesAction
 
 	/**
 	 * Retrieve values for an item from edit context.  Edit context contains just one item at a time of a known type
-	 * (folder, file, text document, etc).  This method retrieves the data apppropriate to the
+	 * (folder, file, text document, structured-artifact, etc).  This method retrieves the data apppropriate to the
 	 * type and updates the values of the ChefEditItem stored as the STATE_STACK_EDIT_ITEM attribute in state.
 	 * @param state
 	 * @param params
@@ -8801,8 +9992,33 @@ public class ResourcesAction
 				}
 			}
 		}
+		else if(item.isStructuredArtifact())
+		{
+			String formtype = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE);
+			if(formtype == null)
+			{
+				formtype = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE);
+				if(formtype == null)
+				{
+					formtype = "";
+				}
+				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
+			}
+			String formtype_check = params.getString("formtype");
 
-		if(! item.isFolder() && ! item.isUrl())
+			if(formtype_check == null || formtype_check.equals(""))
+			{
+				alerts.add(rb.getString("type"));
+				item.setMissing("formtype");
+			}
+			else if(formtype_check.equals(formtype))
+			{
+				item.setFormtype(formtype);
+				capturePropertyValues(params, item, item.getProperties());
+			}
+		}
+
+		if(! item.isFolder() && ! item.isStructuredArtifact() && ! item.isUrl())
 		{
 			String mime_category = params.getString("mime_category");
 			String mime_subtype = params.getString("mime_subtype");
@@ -9335,6 +10551,34 @@ public class ResourcesAction
 				}
 			}
 		}
+		else if(item.isStructuredArtifact())
+		{
+			String formtype = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE);
+			if(formtype == null)
+			{
+				formtype = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE);
+				if(formtype == null)
+				{
+					formtype = "";
+				}
+				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
+			}
+			String formtype_check = params.getString("formtype");
+
+			if(formtype_check == null || formtype_check.equals(""))
+			{
+				item_alerts.add("Must select a form type");
+				item.setMissing("formtype");
+			}
+			else if(formtype_check.equals(formtype))
+			{
+				item.setFormtype(formtype);
+				capturePropertyValues(params, item, item.getProperties());
+				// blank_entry = false;
+			}
+			item.setMimeType(MIME_TYPE_STRUCTOBJ);
+
+		}
 		if(item.isFileUpload() || item.isHtml() || item.isPlaintext())
 		{
 			BasicRightsAssignment rightsObj = item.getRights();
@@ -9643,7 +10887,7 @@ public class ResourcesAction
 
 	/**
 	 * Retrieve values for one or more items from create context.  Create context contains up to ten items at a time
-	 * all of the same type (folder, file, text document, etc).  This method retrieves the data
+	 * all of the same type (folder, file, text document, structured-artifact, etc).  This method retrieves the data
 	 * apppropriate to the type and updates the values of the ChefEditItem objects stored as the STATE_STACK_CREATE_ITEMS
 	 * attribute in state. If the third parameter is "true", missing/incorrect user inputs will generate error messages
 	 * and attach flags to the input elements.
@@ -9913,6 +11157,15 @@ public class ResourcesAction
 			doToggle_intent(data);
 			return;
 		}
+		else if(flow.equals("addInstance"))
+		{
+			String field = params.getString("field");
+			addInstance(field, item.getProperties());
+			ResourcesMetadata form = item.getForm();
+			List flatList = form.getFlatList();
+			item.setProperties(flatList);
+			return;
+		}
 		else if(flow.equals("linkResource"))
 		{
 			// captureMultipleValues(state, params, false);
@@ -9926,6 +11179,20 @@ public class ResourcesAction
 
 
 		Set alerts = (Set) state.getAttribute(STATE_EDIT_ALERTS);
+
+		if(item.isStructuredArtifact())
+		{
+			SchemaBean bean = (SchemaBean) current_stack_frame.get(STATE_STACK_STRUCT_OBJ_SCHEMA);
+			SaveArtifactAttempt attempt = new SaveArtifactAttempt(item, bean.getSchema());
+			validateStructuredArtifact(attempt);
+
+			Iterator errorIt = attempt.getErrors().iterator();
+			while(errorIt.hasNext())
+			{
+				ValidationError error = (ValidationError) errorIt.next();
+				alerts.add(error.getDefaultMessage());
+			}
+		}
 
 		if(alerts.isEmpty())
 		{
@@ -10010,6 +11277,11 @@ public class ResourcesAction
 					if(item.isUrl())
 					{
 						redit.setContent(item.getFilename().getBytes());
+					}
+					else if(item.isStructuredArtifact())
+					{
+						redit.setContentType(item.getMimeType());
+						redit.setContent(item.getContent());
 					}
 					else if(item.contentHasChanged())
 					{
@@ -11192,6 +12464,8 @@ public class ResourcesAction
 		state.removeAttribute(STATE_SITE_TITLE);
 		state.removeAttribute(STATE_SORT_ASC);
 		state.removeAttribute(STATE_SORT_BY);
+		state.removeAttribute(STATE_STACK_STRUCTOBJ_TYPE);
+		state.removeAttribute(STATE_STACK_STRUCTOBJ_TYPE_READONLY);
 		state.removeAttribute(STATE_INITIALIZED);
 		state.removeAttribute(VelocityPortletPaneledAction.STATE_HELPER);
 
@@ -11430,6 +12704,16 @@ public class ResourcesAction
 		state.setAttribute (STATE_HOME_COLLECTION_ID, home);
 		state.setAttribute (STATE_COLLECTION_ID, home);
 		state.setAttribute (STATE_NAVIGATION_ROOT, home);
+
+		HomeFactory factory = (HomeFactory) ComponentManager.get("homeFactory");
+		if(factory != null)
+		{
+			Map homes = factory.getHomes(StructuredArtifactHomeInterface.class);
+			if(! homes.isEmpty())
+			{
+				state.setAttribute(STATE_SHOW_FORM_ITEMS, Boolean.TRUE.toString());
+			}
+		}
 
 		// state.setAttribute (STATE_COLLECTION_ID, state.getAttribute (STATE_HOME_COLLECTION_ID));
 
@@ -14881,6 +16165,9 @@ public class ResourcesAction
 		protected boolean m_contentTypeHasChanged;
 		protected int m_notification = NotificationService.NOTI_NONE;
 
+		protected String m_formtype;
+		protected String m_rootname;
+		protected Map m_structuredArtifact;
 		protected List m_properties;
 
 		protected Set m_metadataGroupsShowing;
@@ -14917,6 +16204,7 @@ public class ResourcesAction
 			m_contentHasChanged = false;
 			m_contentTypeHasChanged = false;
 			m_metadata = new Hashtable();
+			m_structuredArtifact = new Hashtable();
 			m_metadataGroupsShowing = new HashSet();
 			m_mimetype = type;
 			m_content = null;
@@ -14924,10 +16212,13 @@ public class ResourcesAction
 			m_notification = NotificationService.NOTI_NONE;
 			m_hasQuota = false;
 			m_canSetQuota = false;
+			m_formtype = "";
+			m_rootname = "";
 			m_missingInformation = new HashSet();
 			m_hasBeenAdded = false;
 			m_properties = new Vector();
 			m_isBlank = true;
+			m_instruction = "";
 			m_ccRightsownership = "";
 			m_ccLicense = "";
 			// m_copyrightStatus = ServerConfigurationService.getString("default.copyright");
@@ -15037,6 +16328,29 @@ public class ResourcesAction
 		}
 
 		/**
+		 * Record a value for instructions to be displayed to the user in the editor (for Form Items).
+		 * @param instruction The value of the instructions.
+		 */
+		public void setInstruction(String instruction)
+		{
+			if(instruction == null)
+			{
+				instruction = "";
+			}
+
+			m_instruction = instruction.trim();
+		}
+
+		/**
+		 * Access instructions to be displayed to the user in the editor (for Form Items).
+		 * @return The instructions.
+		 */
+		public String getInstruction()
+		{
+			return m_instruction;
+		}
+
+		/**
 		 * Set the character encoding type that will be used when converting content body between strings and byte arrays.
 		 * Default is UTF_8_ENCODING.
 		 * @param encoding A valid name for a character set encoding scheme (@see java.lang.Charset)
@@ -15075,6 +16389,24 @@ public class ResourcesAction
 		}
 
 		/**
+		 * Change the root ResourcesMetadata object that defines the form for a Structured Artifact.
+		 * @param form
+		 */
+		public void setForm(ResourcesMetadata form)
+		{
+			m_form = form;
+		}
+
+		/**
+		 * Access the root ResourcesMetadata object that defines the form for a Structured Artifact.
+		 * @return the form.
+		 */
+		public ResourcesMetadata getForm()
+		{
+			return m_form;
+		}
+
+		/**
 		 * @param properties
 		 */
 		public void setProperties(List properties)
@@ -15086,6 +16418,28 @@ public class ResourcesAction
 		public List getProperties()
 		{
 			return m_properties;
+		}
+
+
+
+		/**
+		 * Replace current values of Structured Artifact with new values.
+		 * @param map The new values.
+		 */
+		public void setValues(Map map)
+		{
+			m_structuredArtifact = map;
+
+		}
+
+		/**
+		 * Access the entire set of values stored in the Structured Artifact
+		 * @return The set of values.
+		 */
+		public Map getValues()
+		{
+			return m_structuredArtifact;
+
 		}
 
 		/**
@@ -15140,7 +16494,7 @@ public class ResourcesAction
 		 */
 		public boolean isFileUpload()
 		{
-			return !isFolder() && !isUrl() && !isHtml() && !isPlaintext();
+			return !isFolder() && !isUrl() && !isHtml() && !isPlaintext() && !isStructuredArtifact();
 		}
 
 		/**
@@ -15203,6 +16557,22 @@ public class ResourcesAction
 				return "";
 			}
 			return this.m_mimetype.substring(index + 1);
+		}
+
+		/**
+		 * @param formtype
+		 */
+		public void setFormtype(String formtype)
+		{
+			m_formtype = formtype;
+		}
+
+		/**
+		 * @return
+		 */
+		public String getFormtype()
+		{
+			return m_formtype;
 		}
 
 		/**
@@ -15412,6 +16782,13 @@ public class ResourcesAction
 			return TYPE_URL.equals(m_type) || ResourceProperties.TYPE_URL.equals(m_mimetype);
 		}
 		/**
+		 * @return true if content-type of item indicates it represents a URL, false otherwise
+		 */
+		public boolean isStructuredArtifact()
+		{
+			return TYPE_FORM.equals(m_type);
+		}
+		/**
 		 * @return true if content-type of item is "text/text" (plain text), false otherwise
 		 */
 		public boolean isPlaintext()
@@ -15456,6 +16833,74 @@ public class ResourcesAction
 			return m_notification;
 		}
 
+		/**
+		 * @return Returns the artifact.
+		 */
+		public Map getStructuredArtifact()
+		{
+			return m_structuredArtifact;
+		}
+		/**
+		 * @param artifact The artifact to set.
+		 */
+		public void setStructuredArtifact(Map artifact)
+		{
+			this.m_structuredArtifact = artifact;
+		}
+		/**
+		 * @param name
+		 * @param value
+		 */
+		public void setValue(String name, Object value)
+		{
+			setValue(name, 0, value);
+		}
+		/**
+		 * @param name
+		 * @param index
+		 * @param value
+		 */
+		public void setValue(String name, int index, Object value)
+		{
+			List list = getList(name);
+			try
+			{
+				list.set(index, value);
+			}
+			catch(ArrayIndexOutOfBoundsException e)
+			{
+				list.add(value);
+			}
+			m_structuredArtifact.put(name, list);
+		}
+		/**
+		 * Access a value of a structured artifact field of type String.
+		 * @param name	The name of the field to access.
+		 * @return the value, or null if the named field is null or not a String.
+		 */
+		public String getString(String name)
+		{
+			if(m_structuredArtifact == null)
+			{
+				m_structuredArtifact = new Hashtable();
+			}
+			Object value = m_structuredArtifact.get(name);
+			String rv = "";
+			if(value == null)
+			{
+				// do nothing
+			}
+			else if(value instanceof String)
+			{
+				rv = (String) value;
+			}
+			else
+			{
+				rv = value.toString();
+			}
+			return rv;
+		}
+
 		public Object getValue(String name, int index)
 		{
 			List list = getList(name);
@@ -15472,16 +16917,154 @@ public class ResourcesAction
 
 		}
 
+		public Object getPropertyValue(String name)
+		{
+			return getPropertyValue(name, 0);
+		}
+
 		/**
-         *
-         * @param name
-         * @return
-         */
-        private List getList(String name)
-        {
-	        // TODO Auto-generated method stub
+		 * Access a particular value in a Structured Artifact, as identified by the parameter "name".  This
+		 * implementation of the method assumes that the name is a series of String identifiers delimited
+		 * by the ResourcesAction.ResourcesMetadata.DOT String.
+		 * @param name The delimited identifier for the item.
+		 * @return The value identified by the name, or null if the name does not identify a valid item.
+		 */
+		public Object getPropertyValue(String name, int index)
+		{
+			String[] names = name.split(ResourcesMetadata.DOT);
+			Object rv = null;
+			if(m_properties == null)
+			{
+				m_properties = new Vector();
+			}
+			Iterator it = m_properties.iterator();
+			while(rv == null && it.hasNext())
+			{
+				ResourcesMetadata prop = (ResourcesMetadata) it.next();
+				if(name.equals(prop.getDottedname()))
+				{
+					rv = prop.getValue(index);
+				}
+			}
+			return rv;
+
+		}
+
+		public void setPropertyValue(String name, Object value)
+		{
+			setPropertyValue(name, 0, value);
+		}
+
+		/**
+		 * Access a particular value in a Structured Artifact, as identified by the parameter "name".  This
+		 * implementation of the method assumes that the name is a series of String identifiers delimited
+		 * by the ResourcesAction.ResourcesMetadata.DOT String.
+		 * @param name The delimited identifier for the item.
+		 * @return The value identified by the name, or null if the name does not identify a valid item.
+		 */
+		public void setPropertyValue(String name, int index, Object value)
+		{
+			if(m_properties == null)
+			{
+				m_properties = new Vector();
+			}
+			boolean found = false;
+			Iterator it = m_properties.iterator();
+			while(!found && it.hasNext())
+			{
+				ResourcesMetadata prop = (ResourcesMetadata) it.next();
+				if(name.equals(prop.getDottedname()))
+				{
+					found = true;
+					prop.setValue(index, value);
+				}
+			}
+
+		}
+
+		/**
+		 * Access a particular value in a Structured Artifact, as identified by the parameter "name".  This
+		 * implementation of the method assumes that the name is a series of String identifiers delimited
+		 * by the ResourcesAction.ResourcesMetadata.DOT String.
+		 * @param name The delimited identifier for the item.
+		 * @return The value identified by the name, or null if the name does not identify a valid item.
+		 */
+		public Object getValue(String name)
+		{
+			String[] names = name.split(ResourcesMetadata.DOT);
+			Object rv = m_structuredArtifact;
+			if(rv != null && (rv instanceof Map) && ((Map) rv).isEmpty())
+			{
+				rv = null;
+			}
+			for(int i = 1; rv != null && i < names.length; i++)
+			{
+				if(rv instanceof Map)
+				{
+					rv = ((Map) rv).get(names[i]);
+				}
+				else
+				{
+					rv = null;
+				}
+			}
+			return rv;
+
+		}
+
+		/**
+		 * Access a list of values associated with a named property of a structured artifact.
+		 * @param name The name of the property.
+		 * @return The list of values associated with that name, or an empty list if the property is not defined.
+		 */
+		public List getList(String name)
+		{
+			if(m_structuredArtifact == null)
+			{
+				m_structuredArtifact = new Hashtable();
+			}
+			Object value = m_structuredArtifact.get(name);
+			List rv = new Vector();
+			if(value == null)
+			{
+				m_structuredArtifact.put(name, rv);
+			}
+			else if(value instanceof Collection)
+			{
+				rv.addAll((Collection)value);
+			}
+			else
+			{
+				rv.add(value);
+			}
+			return rv;
+
+		}
+
+		/**
+		 * @return
+		 */
+		/*
+		public Element exportStructuredArtifact(List properties)
+		{
 	        return null;
-        }
+		}
+		*/
+
+		/**
+		 * @return Returns the name of the root of a structured artifact definition.
+		 */
+		public String getRootname()
+		{
+			return m_rootname;
+		}
+		/**
+		 * @param rootname The name to be assigned for the root of a structured artifact.
+		 */
+		public void setRootname(String rootname)
+		{
+			m_rootname = rootname;
+		}
 
 		/**
 		 * Add a property name to the list of properties missing from the input.
@@ -15943,6 +17526,68 @@ public class ResourcesAction
 		public void setParent(String parent)
 		{
 			this.parent = parent;
+		}
+
+	}
+
+	public static class SaveArtifactAttempt
+	{
+		protected ChefEditItem item;
+		protected List errors;
+		protected SchemaNode schema;
+
+		public SaveArtifactAttempt(ChefEditItem item, SchemaNode schema)
+		{
+			this.item = item;
+			this.schema = schema;
+		}
+
+		/**
+		 * @return Returns the errors.
+		 */
+		public List getErrors()
+		{
+			return errors;
+		}
+
+		/**
+		 * @param errors The errors to set.
+		 */
+		public void setErrors(List errors)
+		{
+			this.errors = errors;
+		}
+
+		/**
+		 * @return Returns the item.
+		 */
+		public ChefEditItem getItem()
+		{
+			return item;
+		}
+
+		/**
+		 * @param item The item to set.
+		 */
+		public void setItem(ChefEditItem item)
+		{
+			this.item = item;
+		}
+
+		/**
+		 * @return Returns the schema.
+		 */
+		public SchemaNode getSchema()
+		{
+			return schema;
+		}
+
+		/**
+		 * @param schema The schema to set.
+		 */
+		public void setSchema(SchemaNode schema)
+		{
+			this.schema = schema;
 		}
 
 	}
