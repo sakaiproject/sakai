@@ -5,7 +5,7 @@
 ${currentSite.siteTitle}
 </title> 
 <link>${currentSite.siteUrl}</link>
-<link rel="alternate" type="text/html">${title}</link>
+<link rel="alternate" type="text/html">${currentSite.siteTitle}</link>
 #else
 Sakai RSS Feed
 </title> 

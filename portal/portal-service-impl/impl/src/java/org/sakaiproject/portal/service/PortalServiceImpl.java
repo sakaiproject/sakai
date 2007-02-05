@@ -558,7 +558,7 @@ public class PortalServiceImpl implements PortalService
         }
         else
         {
-                m.put("rssDescription", (site.getModifiedTime().toStringRFC822Local()));
+                m.put("rssPubDate", (site.getModifiedTime().toStringRFC822Local()));
                 return false;
         }
 
