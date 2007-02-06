@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Map;
 import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 
 import javax.faces.component.EditableValueHolder;
 import javax.faces.component.UIComponent;
@@ -33,10 +32,12 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 
+import org.sakaiproject.jsf.util.LocaleUtil;
 import org.sakaiproject.jsf.util.RendererUtil;
 
 public class PagerRenderer extends Renderer
 {	
+	private static final String BUNDLE_NAME = "org.sakaiproject.jsf.bundle.pager";
 	
 	public void encodeBegin(FacesContext context, UIComponent component) throws IOException
 	{
@@ -48,17 +49,17 @@ public class PagerRenderer extends Renderer
 		String clientId = component.getClientId(context);
 		//String formId = getFormId(context, component);
 		
+		int pageSize = getInt(context, component, "pageSize", 0);
 		int totalItems = getInt(context, component, "totalItems", 0);
 		int firstItem = getInt(context, component, "firstItem", 0);
-		int pageSize = getInt(context, component, "pageSize", 0);
 		int lastItem = getInt(context, component, "lastItem", -1);
 		
 		// in case we are rendering before decode()ing we need to adjust the states 
 		adjustState(context, component, firstItem, lastItem, pageSize, totalItems, firstItem, lastItem, pageSize);
 
+		pageSize = getInt(context, component, "pageSize", 0);
 		totalItems = getInt(context, component, "totalItems", 0);
 		firstItem = getInt(context, component, "firstItem", 0);
-		pageSize = getInt(context, component, "pageSize", 0);
 		lastItem = getInt(context, component, "lastItem", -1);
 		
 		// get stuff for pageing buttons
@@ -76,12 +77,20 @@ public class PagerRenderer extends Renderer
 		String labelPrev = getString(context, component, "textPrev", "<");
 		String labelNext = getString(context, component, "textNext", ">");
 		String labelLast = getString(context, component, "textLast", ">|");		
-		// TODO: i18n titles
 		String textItem = getString(context, component, "textItem", "items");
-		String titleFirst = "First "+pageSize+" "+textItem;
-		String titlePrev = "Previous "+pageSize+" "+textItem;
-		String titleNext = "Next "+pageSize+" "+textItem;
-		String titleLast = "Last "+pageSize+" "+textItem;
+		String titleFirst = MessageFormat.format(
+				getString(context, component, "titleFirst", "First {0} {1}"),
+				pageSize, textItem);
+		String titlePrev = MessageFormat.format(
+				getString(context, component, "titlePrev", "Previous {0} {1}"),
+				pageSize, textItem);
+		String titleNext = MessageFormat.format(
+				getString(context, component, "titleNext", "Next {0} {1}"),
+				pageSize, textItem);
+		String titleLast = MessageFormat.format(
+				getString(context, component, "titleLast", "Last {0} {1}"),
+				pageSize, textItem);
+
 		// TODO: Do this elsewhere? (component vs renderer)
 		boolean disabledFirst = (firstItem == 0);
 		boolean disabledPrev = (firstItem == 0);
@@ -339,9 +348,6 @@ public class PagerRenderer extends Renderer
 		return def;
 	}
 	
-	/** TODO: How should resource bundles be handled? */
-	/** ConfigurationResource m_configurationResource = new ConfigurationResource(); */
-	
 	/**
 	 * Return the attribute value; whether from plain attributes,
 	 * ValueBinding, or the widget resource bundle.
@@ -353,27 +359,17 @@ public class PagerRenderer extends Renderer
 		if (ret != null) return ret;
 		
 		// next try the widget resource bundle
-		String str = getFromBundle(context, "pager_"+name);
+		String str = null;
+		try {
+			str = LocaleUtil.getLocalizedString(context, BUNDLE_NAME, "pager_"+name);
+		} catch (MissingResourceException e) {
+			// Returning null is fine here.
+			// TODO Distinguish between the dynamic variables we expect to find as an
+			// attribute and the static settings we expect to find in a resource bundle,
+			// rather than hiding which is which.
+		}
 		if (str != null && str.length() > 0) return str;
 		
 		return null;
 	}
-	
-	private static final String BUNDLE_NAME = "org.sakaiproject.jsf.bundle.pager";
-	/** Return a string gotten from this widget's resource bundle */ 
-	private static String getFromBundle(FacesContext context, String name)
-	{
-		try
-		{
-			return ResourceBundle.getBundle(BUNDLE_NAME, RendererUtil.getLocale(context)).getString(name);
-		}
-		catch (MissingResourceException e)
-		{
-			// ignore this since there may not be a default in the bundle
-			return null;
-		}
-	}
 }
-
-
-

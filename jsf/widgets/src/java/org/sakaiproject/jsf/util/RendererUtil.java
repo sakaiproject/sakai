@@ -458,18 +458,6 @@ public class RendererUtil
         out.endElement("select");
     }
 
-    /** Return the Locale from the FacesContext */
-    public static Locale getLocale(FacesContext context)
-    {
-        Locale locale = null;
-        UIViewRoot viewRoot = context.getViewRoot();
-        if (viewRoot != null)
-            locale = viewRoot.getLocale();
-        if (locale == null)
-            locale = Locale.getDefault();
-        return locale;
-    }
-
     /** Return the form ID of the form containing the given component */
     public static String getFormId(FacesContext context, UIComponent component)
     {
