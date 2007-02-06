@@ -36,6 +36,7 @@ import javax.faces.event.FacesEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.jsf.util.LocaleUtil;
 import org.sakaiproject.tool.gradebook.ui.MessagingBean;
 
 /**
@@ -228,11 +229,8 @@ public class FacesUtil {
      * @param key The key to look up the localized string
      */
     public static String getLocalizedString(FacesContext context, String key) {
-        String bundleName = context.getApplication().getMessageBundle();
-        Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
-        ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
-        if (logger.isDebugEnabled()) logger.debug("getLocalizedString; locale=" + locale.getDisplayName() + ", bundleName=" + bundleName + ", rb=" + rb.getLocale() + ", rb getCountry()=" + rb.getLocale().getCountry());
-        return rb.getString(key);
+        String bundleName = context.getApplication().getMessageBundle();        
+    	return LocaleUtil.getLocalizedString(context, bundleName, key);
     }
 
     /**
