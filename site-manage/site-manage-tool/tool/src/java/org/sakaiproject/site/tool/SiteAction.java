@@ -6060,7 +6060,7 @@ public class SiteAction extends PagedResourceActionII
 					}
 				}
 				
-				if (hadMaintainUser != realmEdit.getUsersHasRole(maintainRoleString).isEmpty())
+				if (hadMaintainUser  && realmEdit.getUsersHasRole(maintainRoleString).isEmpty())
 				{
 					// if after update, the "had maintain type user" status changed, show alert message and don't save the update
 					addAlert(state, rb.getString("sitegen.siteinfolist.nomaintainuser") + maintainRoleString + ".");
