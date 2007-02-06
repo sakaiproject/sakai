@@ -1385,27 +1385,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   public String getTopicTypeUuid(String topicTitle)
   {
     String topicTypeUuid;
-/*    if((PVTMSG_MODE_RECEIVED).equals(topicTitle))
-    {
-      topicTypeUuid=typeManager.getReceivedPrivateMessageType();
-    }
-    else if((PVTMSG_MODE_SENT).equals(topicTitle))
-    {
-      topicTypeUuid=typeManager.getSentPrivateMessageType();
-    }
-    else if((PVTMSG_MODE_DELETE).equals(topicTitle))
-    {
-      topicTypeUuid=typeManager.getDeletedPrivateMessageType();
-    }
-    else if((PVTMSG_MODE_DRAFT).equals(topicTitle))
-    {
-      topicTypeUuid=typeManager.getDraftPrivateMessageType();
-    }
-    else
-    {
-      topicTypeUuid=typeManager.getCustomTopicType(topicTitle);
-    }
-*/
+
     if(getResourceBundleString(PVTMSG_MODE_RECEIVED).equals(topicTitle))
     {
       topicTypeUuid=typeManager.getReceivedPrivateMessageType();

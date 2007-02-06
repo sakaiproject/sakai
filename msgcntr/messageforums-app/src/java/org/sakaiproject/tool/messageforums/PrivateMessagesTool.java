@@ -21,6 +21,7 @@
 package org.sakaiproject.tool.messageforums;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -62,6 +63,11 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -85,6 +91,7 @@ public class PrivateMessagesTool
   private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
  
   private static final ResourceBundle rb = ResourceBundle.getBundle(MESSAGECENTER_BUNDLE);
+  
   /**
    * List individual private messages details
    */
@@ -107,6 +114,12 @@ public class PrivateMessagesTool
   private static final String ENTER_SEARCH_TEXT = "pvt_enter_search_text";
   private static final String MOVE_MSG_ERROR = "pvt_move_msg_error";
   private static final String NO_MARKED_READ_MESSAGE = "pvt_no_message_mark_read";
+  
+  /** Used to determine if this is combined tool or not */
+  private static final String MESSAGECENTER_TOOL_ID = "sakai.messagecenter";
+  private static final String MESSAGECENTER_HELPER_TOOL_ID = "sakai.messageforums.helper";
+  private static final String MESSAGES_TOOL_ID = "sakai.messages";
+  private static final String FORUMS_TOOL_ID = "sakai.forums";
   
   /**
    *Dependency Injected 
@@ -139,6 +152,7 @@ public class PrivateMessagesTool
   public static final String MOVE_MESSAGE_PG="pvtMsgMove";
   public static final String ADD_FOLDER_IN_FOLDER_PG="pvtMsgFolderInFolderAdd";
   public static final String ADD_MESSAGE_FOLDER_PG="pvtMsgFolderAdd";
+  public static final String PVTMSG_COMPOSE = "pvtMsgCompose";
   
   /** portlet configuration parameter values**/
   public static final String PVTMSG_MODE_RECEIVED = "Received";
@@ -637,6 +651,10 @@ public class PrivateMessagesTool
   {
     return selectedComposeToList;
   }
+  
+  private String getSiteId() {
+	  return ToolManager.getCurrentPlacement().getContext();
+  }
     
   private String getContextSiteId() 
   {
@@ -985,7 +1003,14 @@ public class PrivateMessagesTool
    */  
   public String processPvtMsgCancel() {
     LOG.debug("processPvtMsgCancel()");
-    return MAIN_PG;     
+    
+    // Return to Messages & Forums page or Messages page
+    if (isMessagesandForums()) {
+    	return MAIN_PG;
+    }
+    else {
+    	return MESSAGE_HOME_PG;
+    }
   }
   
   public String processPvtMsgCancelToListView()
@@ -1137,7 +1162,7 @@ public class PrivateMessagesTool
     this.setDetailMsg(new PrivateMessageDecoratedBean(messageManager.createPrivateMessage()));
     setFromMainOrHp();
     LOG.debug("processPvtMsgCompose()");
-    return "pvtMsgCompose" ;
+    return PVTMSG_COMPOSE;
   }
   
   
@@ -1218,7 +1243,14 @@ public class PrivateMessagesTool
 
     	return DISPLAY_MESSAGES_PG;
     }
-    return MAIN_PG;    
+
+    // Return to Messages & Forums page or Messages page
+    if (isMessagesandForums()) {
+    	return MAIN_PG;
+    }
+    else {
+    	return MESSAGE_HOME_PG;
+    }
   }
      
   /**
@@ -1256,7 +1288,13 @@ public class PrivateMessagesTool
     
     if(getMsgNavMode().equals(""))
     {
-      return MAIN_PG ; // if navigation is from main page
+    	// Return to Messages & Forums page or Messages page
+        if (isMessagesandForums()) {
+        	return MAIN_PG;
+        }
+        else {
+        	return MESSAGE_HOME_PG;
+        }
     }
     else
     {
@@ -2016,6 +2054,7 @@ public class PrivateMessagesTool
       return null;
     }
   }
+  
   //Process remove attachment 
   public String processDeleteAttach()
   {
@@ -2253,7 +2292,13 @@ public class PrivateMessagesTool
       }
              
       prtMsgManager.saveAreaAndForumSettings(area, forum);
-      return MAIN_PG;
+
+      if (isMessagesandForums()) {
+    	  return MAIN_PG;
+      }
+      else {
+    	  return MESSAGE_HOME_PG;
+      }
     }
     
   }
@@ -2561,7 +2606,13 @@ public class PrivateMessagesTool
 	    moveToTopic="";
 	    moveToNewTopic="";
 	    
-	    return MAIN_PG ;
+	    // Return to Messages & Forums page or Messages page
+	    if (isMessagesandForums()) {
+	    	return MAIN_PG;
+	    }
+	    else {
+	    	return MESSAGE_HOME_PG;
+	    }
     }
   }
   
@@ -3089,8 +3140,6 @@ public class PrivateMessagesTool
 	
     public static String getResourceBundleString(String key) 
     {
-//        String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
-//       Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
         return rb.getString(key);
     }
 
@@ -3190,5 +3239,123 @@ public class PrivateMessagesTool
 	    {
 	    	fromMainOrHp = fromPage;
 	    }
+	}
+
+	/**
+	 * @return TRUE if within Messages & Forums tool, FALSE otherwise
+	 */
+	public boolean isMessagesandForums() {
+		
+		if (messageManager.currentToolMatch(MESSAGECENTER_HELPER_TOOL_ID)) {
+			return isMessageForumsPageInSite();
+		}
+		else {
+			return messageManager.currentToolMatch(MESSAGECENTER_TOOL_ID);
+		}
+}
+	
+	/**
+	 * @return TRUE if within Messages tool, FALSE otherwise
+	 */
+	public boolean isMessages() {
+		if (messageManager.currentToolMatch(MESSAGECENTER_HELPER_TOOL_ID)) {
+			return isMessagesPageInSite();
+		}
+		else {
+			return messageManager.currentToolMatch(MESSAGES_TOOL_ID);
+		}
+	}
+	
+	/**
+	 * @return TRUE if within Forums tool, FALSE otherwise
+	 */
+	public boolean isForums() {
+		if (messageManager.currentToolMatch(MESSAGECENTER_HELPER_TOOL_ID)) {
+			return isForumsPageInSite();
+		}
+		else {
+			return messageManager.currentToolMatch(FORUMS_TOOL_ID);
+		}
+	}
+	
+	/**
+	 * @return TRUE if Message Forums (Message Center) exists in this site,
+	 *         FALSE otherwise
+	 */
+	public boolean isMessageForumsPageInSite() {
+		boolean mfToolExists = false;
+
+		try {
+			final Site thisSite = SiteService.getSite(getSiteId());
+
+			mfToolExists = isMessageForumsPageInSite(thisSite);
+
+		} catch (IdUnusedException e) {
+			LOG.error("IdUnusedException while trying to check if site has Messsages & Forums tool.");
+		}
+
+		return mfToolExists;
+	}
+
+	/**
+	 * @return TRUE if Messages & Forums (Message Center) exists in this site,
+	 *         FALSE otherwise
+	 */
+	private boolean isMessageForumsPageInSite(Site thisSite) {
+		return messageManager.isToolInSite(thisSite, MESSAGECENTER_TOOL_ID);
+	}
+	
+	/**
+	 * @return TRUE if Messages tool exists in this site,
+	 *         FALSE otherwise
+	 */
+	public boolean isForumsPageInSite() {
+		boolean mfToolExists = false;
+
+		try {
+			final Site thisSite = SiteService.getSite(getSiteId());
+
+			mfToolExists = isForumsPageInSite(thisSite);
+
+		} catch (IdUnusedException e) {
+			LOG.error("IdUnusedException while trying to check if site has Forums tool.");
+		}
+
+		return mfToolExists;
+	}
+
+	/**
+	 * @return TRUE if Forums tool exists in this site,
+	 *         FALSE otherwise
+	 */
+	private boolean isForumsPageInSite(Site thisSite) {
+		return messageManager.isToolInSite(thisSite, FORUMS_TOOL_ID);
+	}
+
+	/**
+	 * @return TRUE if Messages tool exists in this site,
+	 *         FALSE otherwise
+	 */
+	public boolean isMessagesPageInSite() {
+		boolean mfToolExists = false;
+
+		try {
+			final Site thisSite = SiteService.getSite(getSiteId());
+
+			mfToolExists = isMessagesPageInSite(thisSite);
+
+		} catch (IdUnusedException e) {
+			LOG.error("IdUnusedException while trying to check if site has Messages tool.");
+		}
+
+		return mfToolExists;
+	}
+
+	/**
+	 * @return TRUE if Messages tool exists in this site,
+	 *         FALSE otherwise
+	 */
+	private boolean isMessagesPageInSite(Site thisSite) {
+		return messageManager.isToolInSite(thisSite, MESSAGES_TOOL_ID);
 	}
 }

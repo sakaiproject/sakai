@@ -38,10 +38,12 @@
 			<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel">
         <h:panelGroup>
           	<f:verbatim><div class="breadCrumb specialLink"><h3></f:verbatim>
-			      <h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/>
-            <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+				  <h:panelGroup rendered="#{PrivateMessagesTool.messagesandForums}" >
+				  	<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title="#{msgs.cdfm_message_forums}"/>
+				  	<f:verbatim><h:outputText value=" / " /></f:verbatim>
+				  </h:panelGroup>
 	  		      <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.pvt_message_nav}" title=" #{msgs.cdfm_message_forums}"/>
-            <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+	              <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
 	 		      <h:outputText value="#{PrivateMessagesTool.msgNavMode}"/>
 			    <f:verbatim></h3></div></f:verbatim>
         </h:panelGroup>

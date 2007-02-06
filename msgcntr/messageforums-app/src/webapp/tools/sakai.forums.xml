@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+		id="sakai.forums"
+		title="Forums"
+		description="Display forums and topics of a particular site">
+
+		<configuration name="help.id" value="sakai.messagecenter" type="final" />
+	</tool>
+
+</registration>

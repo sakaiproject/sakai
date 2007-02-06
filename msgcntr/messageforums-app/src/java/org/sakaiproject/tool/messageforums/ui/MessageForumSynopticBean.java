@@ -94,6 +94,9 @@ public class MessageForumSynopticBean {
 		private int unreadForumsAmt;
 		private String mcPageURL;
 		private String privateMessagesUrl;
+		private boolean messagesandForums;
+		private boolean messages;
+		private boolean forums;
 		
 		public String getSiteName() {
 			return siteName;
@@ -142,12 +145,38 @@ public class MessageForumSynopticBean {
 		public void setPrivateMessagesUrl(String privateMessagesUrl) {
 			this.privateMessagesUrl = privateMessagesUrl;
 		}
+
+		public boolean isMessagesandForums() {
+			return messagesandForums;
+		}
+
+		public void setMessagesandForums(boolean messagesandForums) {
+			this.messagesandForums = messagesandForums;
+		}
+
+		public boolean isMessages() {
+			return messages;
+		}
+
+		public void setMessages(boolean messages) {
+			this.messages = messages;
+		}
+
+		public boolean isForums() {
+			return forums;
+		}
+
+		public void setForums(boolean forums) {
+			this.forums = forums;
+		}
 	}
 
 /* =========== End of DecoratedCompiledMessageStats =========== */
 
 	/** Used to determine if MessageCenter tool part of site */
 	private final String MESSAGE_CENTER_ID = "sakai.messagecenter";
+	private final String FORUMS_TOOL_ID = "sakai.forums";
+	private final String MESSAGES_TOOL_ID = "sakai.messages";
 
 	/** Used to get contextId when tool on MyWorkspace to set all private messages to Read status */
 	private final String CONTEXTID="contextId";
@@ -628,6 +657,16 @@ public class MessageForumSynopticBean {
 				dcms.setMcPageURL(getMCPageURL(siteId));
 				dcms.setPrivateMessagesUrl(generatePrivateTopicMessagesUrl(siteId));
 				
+				try {
+					dcms.setMessagesandForums(isMessageForumsPageInSite(getSite(siteId)));
+					dcms.setMessages(isMessagesPageInSite(getSite(siteId)));
+					dcms.setForums(isForumsPageInSite(getSite(siteId)));
+				}
+				catch (IdUnusedException e) {
+					LOG.error("IdUnusedException while trying to determine what tools are in site "
+									+ siteId + "to set decorated synoptic messages & forums bean values.");
+				}
+
 				contents.add(dcms);
 				
 				sitesToView = true;
@@ -693,7 +732,7 @@ public class MessageForumSynopticBean {
 			dcms.setSiteId(siteId);
 
 			// Put check here because if not in site, skip
-			if (isMessageForumsPageInSite(site)) {
+			if (isMessageForumsPageInSite(site) || isMessagesPageInSite(site)) {
 
 				// ************ checking for unread private messages for this site ************  
 				if (siteId.equals(pmCounts[0])) {
@@ -716,8 +755,13 @@ public class MessageForumSynopticBean {
 						hasPrivate = true;
 					}
 				}
+				else {
+					dcms.setUnreadPrivateAmt(0);
+					hasPrivate = true;
+				}
+			}
 				
-
+			if (isMessageForumsPageInSite(site) || isForumsPageInSite(site)) {
 				// ************ check for unread discussion forum messages on this site ************
 				if (siteId.equals(unreadDFCount[0])) {
 					dcms.setUnreadForumsAmt(((Integer) unreadDFCount[1]).intValue());
@@ -730,17 +774,27 @@ public class MessageForumSynopticBean {
 						hasDF = true;
 					}
 				}
+			}
 
-				// ************ get the page URL for Message Center************
-				// only if unread messages, ie, only if row will appear on page 
-				if (hasPrivate || hasDF) {
-					dcms.setMcPageURL(getMCPageURL(siteId));
-					dcms.setPrivateMessagesUrl(generatePrivateTopicMessagesUrl(siteId));
+			// ************ get the page URL for Message Center************
+			// only if unread messages, ie, only if row will appear on page 
+			if (hasPrivate || hasDF) {
+				dcms.setMcPageURL(getMCPageURL(siteId));
+				dcms.setPrivateMessagesUrl(generatePrivateTopicMessagesUrl(siteId));
 
-					contents.add(dcms);
-					
-					sitesToView = true;
+				try {
+					dcms.setMessagesandForums(isMessageForumsPageInSite(getSite(siteId)));
+					dcms.setMessages(isMessagesPageInSite(getSite(siteId)));
+					dcms.setForums(isForumsPageInSite(getSite(siteId)));
 				}
+				catch (IdUnusedException e) {
+					LOG.error("IdUnusedException while trying to determine what tools are in site "
+									+ siteId + "to set decorated synoptic messages & forums bean values.");
+				}
+
+				contents.add(dcms);
+				
+				sitesToView = true;
 			}
 		}
 		
@@ -782,7 +836,7 @@ public class MessageForumSynopticBean {
 		
 		// Check if tool within site
 		// if so, get stats for just this site
-		if (isMessageForumsPageInSite()) {
+		if (isMessageForumsPageInSite() || isMessagesPageInSite()) {
 			int unreadPrivate = 0;
 
 			dcms.setSiteName(getSiteName());
@@ -805,7 +859,9 @@ public class MessageForumSynopticBean {
 				dcms.setUnreadPrivateAmt(0);
 				dcms.setPrivateMessagesUrl(getMCPageURL());
 			}
+		}
 
+		if (isMessageForumsPageInSite() || isForumsPageInSite()) {
 			// Number of unread forum messages is a little harder
 			// need to loop through all topics and add them up
 			final List topicsList = forumManager.getDiscussionForums();
@@ -838,6 +894,10 @@ public class MessageForumSynopticBean {
 		return dcms;
 	}
 
+	public boolean isAnyMFToolInSite() {
+		return isMessageForumsPageInSite() || isMessagesPageInSite() || isForumsPageInSite();
+	}
+	
 	/**
 	 * Returns List of decoratedCompiledMessageStats. Called by
 	 * jsp page and main processing of list to be displayed.
@@ -953,9 +1013,6 @@ public class MessageForumSynopticBean {
 	}
 
 	/**
-	 * Returns TRUE if Message Forums (Message Center) exists in this site,
-	 * FALSE otherwise Called if tool placed on home page of a site
-	 * 
 	 * @return TRUE if Message Forums (Message Center) exists in this site,
 	 *         FALSE otherwise
 	 */
@@ -975,16 +1032,83 @@ public class MessageForumSynopticBean {
 	}
 
 	/**
-	 * Returns TRUE if Message Forums (Message Center) exists in this site,
-	 * FALSE otherwise Called if tool placed on My Workspace
-	 * 
-	 * @return TRUE if Message Forums (Message Center) exists in this site,
+	 * @return TRUE if Messages & Forums (Message Center) exists in this site,
 	 *         FALSE otherwise
 	 */
 	private boolean isMessageForumsPageInSite(Site thisSite) {
-		Collection toolsInSite = thisSite.getTools(MESSAGE_CENTER_ID);
+		return isToolInSite(thisSite, MESSAGE_CENTER_ID);
+	}
+	
+	/**
+	 * @return TRUE if Messages tool exists in this site,
+	 *         FALSE otherwise
+	 */
+	public boolean isForumsPageInSite() {
+		boolean mfToolExists = false;
+
+		try {
+			final Site thisSite = getSite(getContext());
+
+			mfToolExists = isForumsPageInSite(thisSite);
+
+		} catch (IdUnusedException e) {
+			LOG.error("IdUnusedException while trying to check if site has MF tool.");
+		}
+
+		return mfToolExists;
+	}
+
+	/**
+	 * @return TRUE if Forums tool exists in this site,
+	 *         FALSE otherwise
+	 */
+	private boolean isForumsPageInSite(Site thisSite) {
+		return isToolInSite(thisSite, FORUMS_TOOL_ID);
+	}
+
+	/**
+	 * @return TRUE if Messages tool exists in this site,
+	 *         FALSE otherwise
+	 */
+	public boolean isMessagesPageInSite() {
+		boolean mfToolExists = false;
+
+		try {
+			final Site thisSite = getSite(getContext());
+
+			mfToolExists = isMessagesPageInSite(thisSite);
+
+		} catch (IdUnusedException e) {
+			LOG.error("IdUnusedException while trying to check if site has MF tool.");
+		}
+
+		return mfToolExists;
+	}
+
+	/**
+	 * @return TRUE if Messages tool exists in this site,
+	 *         FALSE otherwise
+	 */
+	private boolean isMessagesPageInSite(Site thisSite) {
+		return isToolInSite(thisSite, MESSAGES_TOOL_ID);
+	}
+
+	/**
+	 * Return TRUE if tool with id passed in exists in site passed in
+	 * FALSE otherwise.
+	 * 
+	 * @param thisSite
+	 * 			Site object to check
+	 * @param toolId
+	 * 			Tool id to be checked
+	 * 
+	 * @return
+	 */
+	private boolean isToolInSite(Site thisSite, String toolId) {
+		Collection toolsInSite = thisSite.getTools(toolId);
 
 		return ! toolsInSite.isEmpty();
+		
 	}
 
 	/**
@@ -1009,12 +1133,35 @@ public class MessageForumSynopticBean {
 	    String url = null;
 	    
 	    try {
-		    mcTool = SiteService.getSite(siteId).getToolForCommonId(MESSAGE_CENTER_ID);	    	
+	    	String toolId = "";
+	    	final Site site = getSite(siteId);
+	    	
+	    	if (isMessageForumsPageInSite(site)) {
+	    		toolId = MESSAGE_CENTER_ID;
+	    	}
+	    	else if (isMessagesPageInSite(site)) {
+	    		toolId = MESSAGES_TOOL_ID;
+	    	}
+	    	else if (isForumsPageInSite(site)) {
+	    		toolId = FORUMS_TOOL_ID;
+	    	}
 
-		    if (mcTool != null) {
-		    	url = ServerConfigurationService.getPortalUrl() + "/directtool/"
-		    					+ mcTool.getId() + "/sakai.messageforums.helper.helper/main";
-		    }
+    		mcTool = site.getToolForCommonId(toolId);
+
+	    	if (mcTool != null) {
+	    		if (toolId == MESSAGE_CENTER_ID) {
+	    			url = ServerConfigurationService.getPortalUrl() + "/directtool/"
+	    							+ mcTool.getId() + "/sakai.messageforums.helper.helper/main";
+	    		}
+	    		else if (toolId == MESSAGES_TOOL_ID) {
+	    			url = ServerConfigurationService.getPortalUrl() + "/directtool/"
+	    							+ mcTool.getId() + "/sakai.messageforums.helper.helper/privateMsg/pvtMsgHpView";
+	    		}
+	    		else if (toolId == FORUMS_TOOL_ID) {
+	    			url = ServerConfigurationService.getPortalUrl() + "/directtool/"
+	    							+ mcTool.getId() + "/sakai.messageforums.helper.helper/discussionForum/forumsOnly/dfForums";
+	    		}
+	    	}
 		}
 		catch (IdUnusedException e) {
 			// Weirdness since site ids used gotten from SiteService
@@ -1128,7 +1275,8 @@ public class MessageForumSynopticBean {
 			Site site = (Site) lsi.next();
 
 			// filter out unpublished or no messsage center
-			if (site.isPublished() && isMessageForumsPageInSite(site)) {
+			if (site.isPublished() && (isMessageForumsPageInSite(site)
+					|| isForumsPageInSite(site) || isMessagesPageInSite(site))) {
 				siteList.add(site.getId());
 			}
 		}
@@ -1168,7 +1316,20 @@ public class MessageForumSynopticBean {
 	    	String url = null;
 	    
 	    	try {
-	    		mcTool = SiteService.getSite(contextId).getToolForCommonId(MESSAGE_CENTER_ID);	    	
+		    	String toolId = "";
+		    	final Site site = SiteService.getSite(contextId);
+		    	
+		    	if (isMessageForumsPageInSite(site)) {
+		    		toolId = MESSAGE_CENTER_ID;
+		    	}
+		    	else if (isMessagesPageInSite(site)) {
+		    		toolId = MESSAGES_TOOL_ID;
+		    	}
+		    	else if (isForumsPageInSite(site)) {
+		    		toolId = FORUMS_TOOL_ID;
+		    	}
+
+	    		mcTool = site.getToolForCommonId(toolId);
 
 	    		if (mcTool != null) {
 	    			url = ServerConfigurationService.getPortalUrl() + "/directtool/"

@@ -22,6 +22,7 @@ package org.sakaiproject.component.app.messageforums;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -42,8 +43,10 @@ import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
@@ -806,4 +809,39 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
   	return null;
   }
 
-}
+	/**
+	 * Returns true if the tool with the id passed in exists in the
+	 * current site.
+	 * 
+	 * @param toolId
+	 * 			The tool id to search for.
+	 * 
+	 * @return
+	 * 			TRUE if tool exists, FALSE otherwise.
+	 */
+	public boolean currentToolMatch(String toolId) {
+		final Tool curTool = ToolManager.getCurrentTool();
+			
+		if (toolId.equals(curTool.getId())) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Return TRUE if tool with id passed in exists in site passed in
+	 * FALSE otherwise.
+	 * 
+	 * @param thisSite
+	 * 			Site object to check
+	 * @param toolId
+	 * 			Tool id to be checked
+	 * 
+	 * @return
+	 */
+	public boolean isToolInSite(Site thisSite, String toolId) {
+		Collection toolsInSite = thisSite.getTools(toolId);
+
+		return ! toolsInSite.isEmpty();
+	}	}

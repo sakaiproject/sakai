@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+		id="sakai.messages"
+		title="Messages"
+		description="Display messages to/from users of a particular site">
+
+		<configuration name="help.id" value="sakai.messagecenter" type="final" />
+	</tool>
+
+</registration>

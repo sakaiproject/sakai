@@ -22,8 +22,22 @@
 		<!--jsp/privateMsg/pvtMsgHpView.jsp-->
 		<h:form id="msgForum">
 
+		<h:panelGroup rendered="#{PrivateMessagesTool.messages && PrivateMessagesTool.instructor}">
+			<sakai:tool_bar>
+				<h:panelGroup rendered="#{! PrivateMessagesTool.dispError}" >
+        			<sakai:tool_bar_item value="#{msgs.pvt_compose}" action="#{PrivateMessagesTool.processPvtMsgCompose}" />
+					<f:verbatim><span>| &nbsp; </span></f:verbatim>
+					<h:outputText value=" " />
+        			<sakai:tool_bar_item value=" #{msgs.pvt_newfolder}" action="#{PrivateMessagesTool.processPvtMsgFolderSettingAdd}"  />
+					<f:verbatim><span>| &nbsp; </span></f:verbatim>
+ 				</h:panelGroup>
+ 				
+ 				<sakai:tool_bar_item value=" #{msgs.pvt_settings}" action="#{PrivateMessagesTool.processPvtMsgSettings}" />
+ 			</sakai:tool_bar>
+ 		</h:panelGroup>
+ 		
 			<h:panelGrid columns="2" summary="layout" width="100%"
-				styleClass="navPanel  specialLink">
+				styleClass="navPanel  specialLink" >
 				<h:panelGroup>
 					<f:verbatim>
 						<div class="breadCrumb">
@@ -31,31 +45,38 @@
 					</f:verbatim>
 					<h:commandLink action="#{PrivateMessagesTool.processActionHome}"
 						value="#{msgs.cdfm_message_forums}"
-						title=" #{msgs.cdfm_message_forums}" />
-					<f:verbatim>
-						<h:outputText value=" / " />
-					</f:verbatim>
-					<h:outputText value="#{msgs.pvt_message_nav}" />
+						title=" #{msgs.cdfm_message_forums}" 
+						rendered="#{PrivateMessagesTool.messagesandForums}" />
+					<h:outputText value=" /" rendered="#{PrivateMessagesTool.messagesandForums}" />
+					<h:outputText value=" #{msgs.pvt_message_nav}" />
 					<f:verbatim>
 						</h3>
 						</div>
 					</f:verbatim>
 				</h:panelGroup>
-				<h:panelGroup styleClass="itemNav">
+
+				<h:panelGroup styleClass="itemNav" rendered="#{PrivateMessagesTool.messagesandForums}" >
 					<h:commandLink action="#{PrivateMessagesTool.processPvtMsgCompose}"
 						title=" #{msgs.pvt_compose}">
 						<h:outputText value="#{msgs.pvt_compose}" />
 					</h:commandLink>
-					<f:verbatim>
-						<h:outputText value=" | "
-							rendered="#{ForumTool.selectedForum.changeSettings}" />
-					</f:verbatim>
+
+					<h:outputText value=" | " rendered="#{ForumTool.selectedForum.changeSettings}" />
+
 					<h:commandLink
 						action="#{PrivateMessagesTool.processPvtMsgFolderSettingAdd}"
 						title=" #{msgs.pvt_newfolder}">
 						<h:outputText value="#{msgs.pvt_newfolder}" />
 					</h:commandLink>
 				</h:panelGroup>
+
+				<h:outputText value=" " rendered="#{PrivateMessagesTool.messages}" />
+				
+				<h:panelGroup rendered="#{PrivateMessagesTool.messages && PrivateMessagesTool.dispError}" >
+				  <f:verbatim><br /></f:verbatim>
+	 			  <h:outputText value="#{msgs.pvt_hlprpgerror}" styleClass="instruction" />
+				</h:panelGroup>
+
 			</h:panelGrid>
 
 			<h:dataTable value="#{PrivateMessagesTool.decoratedForum}"

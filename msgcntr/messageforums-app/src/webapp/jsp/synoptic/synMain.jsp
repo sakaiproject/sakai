@@ -37,77 +37,83 @@
 
 	  <h:panelGroup rendered="#{mfSynopticBean.myWorkspace}" > 
 
-	<h:outputText value="#{msgs.syn_no_sites}" rendered="#{! mfSynopticBean.sitesToView}" />
+		<h:outputText value="#{msgs.syn_no_sites}" rendered="#{! mfSynopticBean.sitesToView}" />
 
-	 <%-- ===== Display when in MyWorkspace ===== --%>
-	 <h:dataTable value="#{mfSynopticBean.contents}" var="eachSite" styleClass="listHier lines nolines"
-	 		rendered = "#{mfSynopticBean.sitesToView}" >
+		<%-- ===== Display when in MyWorkspace ===== --%>
+	 	<h:dataTable value="#{mfSynopticBean.contents}" var="eachSite" styleClass="listHier lines nolines"
+	 			rendered = "#{mfSynopticBean.sitesToView}" >
  
-       	<h:column>
-			<f:facet name="header">
-			 <h:outputText  value="#{msgs.syn_site_heading}"/>
-			</f:facet>
-			<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
-			<h:outputText escape="false" value="#{eachSite.mcPageURL}';\">" />
+       		<h:column>
+				<f:facet name="header">
+			 		<h:outputText  value="#{msgs.syn_site_heading}"/>
+				</f:facet>
+				<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
+				<h:outputText escape="false" value="#{eachSite.mcPageURL}';\">" />
 			
-			<h:outputText value="#{eachSite.siteName}" title="#{msgs.syn_goto_mc}" />
-			<f:verbatim></a></f:verbatim>
-	   	</h:column>
+				<h:outputText value="#{eachSite.siteName}" title="#{msgs.syn_goto_mc}" />
+				<f:verbatim></a></f:verbatim>
+	   		</h:column>
 
-		<h:column>
-			<f:facet name="header">
- 				<h:outputText  value="#{msgs.syn_private_heading}"/>
- 			</f:facet>
- 			<%-- === To create a link to Message Center home page === --%>
-			<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
-			<h:outputText escape="false" value="#{eachSite.privateMessagesUrl}';\">" />
-			<h:outputText value="#{eachSite.unreadPrivateAmt}" title="#{msgs.syn_goto_messages}" rendered="#{eachSite.unreadPrivateAmt > 0}" />
-			<f:verbatim></a></f:verbatim>
-			<h:outputText value="  " rendered="#{eachSite.unreadPrivateAmt > 0}" />
+			<h:column>
+				<f:facet name="header">
+ 					<h:outputText  value="#{msgs.syn_private_heading}"/>
+ 				</f:facet>
 
- 			<h:commandLink action="synMain"
-				actionListener="#{mfSynopticBean.processReadAll}"
-				rendered="#{eachSite.unreadPrivateAmt > 0}"
-				styleClass="active">
-					<h:graphicImage id="waveImg" url="/images/silk/email_edit.png" title="#{msgs.syn_mark_as_read}"
-						onmouseover="ImageRollOver(this, '/sakai-messageforums-tool/images/silk/email_open.png');"
-						onmouseout="ImageRollOver(this, '/sakai-messageforums-tool/images/silk/email_edit.png');"
-						rendered="#{eachSite.unreadPrivateAmt > 0}" />
-					<f:param name="contextId" value="#{eachSite.siteId}" />
-			</h:commandLink>
+				<h:panelGroup rendered="#{eachSite.messagesandForums || eachSite.messages}" >			
+	 				<%-- === To create a link to Message Center home page === --%>
+					<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
+					<h:outputText escape="false" value="#{eachSite.privateMessagesUrl}';\">" />
+					<h:outputText value="#{eachSite.unreadPrivateAmt}" title="#{msgs.syn_goto_messages}" rendered="#{eachSite.unreadPrivateAmt > 0}" />
+					<f:verbatim></a></f:verbatim>
+					<h:outputText value="  " rendered="#{eachSite.unreadPrivateAmt > 0}" />
 
-			<h:outputText value="#{msgs.syn_no_messages}" rendered="#{eachSite.unreadPrivateAmt == 0}" />			
-		</h:column>
+		 			<h:commandLink action="synMain"
+						actionListener="#{mfSynopticBean.processReadAll}"
+						rendered="#{eachSite.unreadPrivateAmt > 0}"
+						styleClass="active">
+							<h:graphicImage id="waveImg" url="/images/silk/email_edit.png" title="#{msgs.syn_mark_as_read}"
+								onmouseover="ImageRollOver(this, '/sakai-messageforums-tool/images/silk/email_open.png');"
+								onmouseout="ImageRollOver(this, '/sakai-messageforums-tool/images/silk/email_edit.png');"
+								rendered="#{eachSite.unreadPrivateAmt > 0}" />
+							<f:param name="contextId" value="#{eachSite.siteId}" />
+					</h:commandLink>
+				
+					<h:outputText value="#{msgs.syn_no_messages}" rendered="#{eachSite.unreadPrivateAmt == 0}" />			
+				</h:panelGroup>
+			</h:column>
 
-		<h:column>
-			<f:facet name="header">
-				<h:outputText  value="#{msgs.syn_discussion_heading}"/>
- 			</f:facet>
-			<!-- === To create a link to Message Center home page === -->
-			<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
-			<h:outputText escape="false" value="#{eachSite.mcPageURL}';\">" />
+			<h:column>
+				<f:facet name="header">
+					<h:outputText  value="#{msgs.syn_discussion_heading}"/>
+ 				</f:facet>
+ 				
+				<h:panelGroup rendered="#{eachSite.messagesandForums || eachSite.forums}" > 				
+					<!-- === To create a link to Message Center home page === -->
+					<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
+					<h:outputText escape="false" value="#{eachSite.mcPageURL}';\">" />
 			
-			<h:outputText value="#{eachSite.unreadForumsAmt}" title="#{msgs.syn_goto_forums}" rendered="#{eachSite.unreadForumsAmt > 0}" />
-			<f:verbatim></a></f:verbatim>
-			<h:outputText value="  " rendered="#{eachSite.unreadForumsAmt > 0}" />
+					<h:outputText value="#{eachSite.unreadForumsAmt}" title="#{msgs.syn_goto_forums}" rendered="#{eachSite.unreadForumsAmt > 0}" />
+					<f:verbatim></a></f:verbatim>
+					<h:outputText value="  " rendered="#{eachSite.unreadForumsAmt > 0}" />
 
-			<h:graphicImage url="/images/silk/email.png" rendered="#{eachSite.unreadForumsAmt > 0}" />
+					<h:graphicImage url="/images/silk/email.png" rendered="#{eachSite.unreadForumsAmt > 0}" />
 
-			<h:outputText value="#{msgs.syn_no_messages}" rendered="#{eachSite.unreadForumsAmt == 0}" />
-		</h:column>
-	 </h:dataTable>
-
-   </h:panelGroup>
+					<h:outputText value="#{msgs.syn_no_messages}" rendered="#{eachSite.unreadForumsAmt == 0}" />
+				</h:panelGroup>
+			</h:column>
+	 	</h:dataTable>
+	</h:panelGroup>
 
 	<%-- ====== Dispaly for homepage of a site ===== --%>
 	
-	<%-- *** Display this if Message Center is not part of site *** --%>
-	<h:outputText value="#{msgs.syn_no_mc}" rendered="#{(! mfSynopticBean.myWorkspace) && ! mfSynopticBean.messageForumsPageInSite}" />
+	<%-- *** Display this if Message & Forums or either piece is not part of site *** --%>
+	<h:outputText value="#{msgs.syn_no_mc}" rendered="#{(! mfSynopticBean.myWorkspace) && (! mfSynopticBean.anyMFToolInSite)}" />
 
 	<%-- *** Display this if Message Center is part of site *** --%>
 	<h:panelGrid columns="2" styleClass="listHier lines nolines"
-		rendered="#{(! mfSynopticBean.myWorkspace) && mfSynopticBean.messageForumsPageInSite}" >
-		<h:panelGroup>
+		rendered="#{(! mfSynopticBean.myWorkspace) && mfSynopticBean.anyMFToolInSite}" >
+		
+		<h:panelGroup rendered="#{mfSynopticBean.messageForumsPageInSite || mfSynopticBean.messagesPageInSite}" >
 			<h:panelGroup rendered="#{mfSynopticBean.pmEnabled}" >
 				<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
 				<h:outputText escape="false" value="#{mfSynopticBean.siteInfo.privateMessagesUrl}';\">" />
@@ -119,7 +125,7 @@
 			</h:panelGroup>
 		</h:panelGroup>
 		
-		<h:panelGroup>
+		<h:panelGroup rendered="#{mfSynopticBean.messageForumsPageInSite || mfSynopticBean.messagesPageInSite}" >
 			<h:outputText value="#{msgs.syn_no_messages}" rendered="#{mfSynopticBean.siteInfo.unreadPrivateAmt == 0}" />
 
 			<h:panelGroup rendered="#{mfSynopticBean.siteInfo.unreadPrivateAmt > 0}" >
@@ -139,7 +145,7 @@
 			</h:panelGroup>
 		</h:panelGroup>
 		
-		<h:panelGroup>
+		<h:panelGroup rendered="#{mfSynopticBean.messageForumsPageInSite || mfSynopticBean.forumsPageInSite}">
 			<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
 			<h:outputText escape="false" value="#{mfSynopticBean.siteInfo.mcPageURL}';\">" />
 
@@ -147,7 +153,7 @@
 			<f:verbatim></a></f:verbatim>
 		</h:panelGroup>
 
-		<h:panelGroup>
+		<h:panelGroup rendered="#{mfSynopticBean.messageForumsPageInSite || mfSynopticBean.forumsPageInSite}">
 			<h:outputText value="#{msgs.syn_no_messages}" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt == 0}" />
 			
 			<h:panelGroup rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}" >

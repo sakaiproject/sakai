@@ -13,7 +13,11 @@
       <h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel  specialLink">
         <h:panelGroup>
           	<f:verbatim><div class="breadCrumb"><h3></f:verbatim>
-			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/>
+          		<%-- Display the proper home page link: either Messages & Forums OR Forums --%>
+			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
+			      		rendered="#{ForumTool.messagesandForums}" />
+			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
+			      		rendered="#{ForumTool.forumsTool}" />
 			      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
 			      <h:outputText value="#{ForumTool.selectedForum.forum.title}" />
 			    <f:verbatim></h3></div></f:verbatim>

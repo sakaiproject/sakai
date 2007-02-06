@@ -6,7 +6,7 @@
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
 <f:view>
-  <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
+
   <sakai:view title="#{msgs.cdfm_reply_tool_bar_message}">
 <!--jsp/dfMessageReply.jsp-->    
       <h:form id="dfCompose">

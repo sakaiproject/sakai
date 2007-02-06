@@ -25,27 +25,35 @@
 				<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
 				<%--gsilver:if layout="table" is needed,  need rendered attr here so that no empty tables  are put in the response - leaving undefined here so that it reverts to layout="list" --%> 
 				<h:messages styleClass="alertMessage" id="errorMessages"/>  		
-  		 
+  
   		  <%-- include hide division here so that pvtArea can be used w/o div in isolated view --%>	
   		  <mf:forumHideDivision title="#{msgs.pvtarea_name}" id="_test_div" 
-                        rendered="#{PrivateMessagesTool.pvtAreaEnabled || PrivateMessagesTool.instructor}">
+					rendered="#{PrivateMessagesTool.pvtAreaEnabled || PrivateMessagesTool.instructor}">
+
 <%
   String thisId = request.getParameter("panel");
   if (thisId == null) 
   {
     thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
   }
-
 %>
-<script type="text/javascript">
-  setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
-</script> 
-					<h:inputHidden id="mainOrHp" value="main" />
-          <%@include file="privateMsg/pvtArea.jsp"%>
-        </mf:forumHideDivision>
+			<script type="text/javascript">
+  				setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+			</script> 
+		
+			<h:inputHidden id="mainOrHp" value="main" />
         
-        <h:inputHidden id="mainOrForumOrTopic" value="main" />
-        <%@include file="discussionForum/area/dfArea.jsp"%>
+   	    	<%@include file="privateMsg/pvtArea.jsp"%>
+        </mf:forumHideDivision>
+
+
+		<%-- include hide division here so that dfArea can be used w/o div within Forums tool --%>        
+		<mf:forumHideDivision title="#{msgs.cdfm_discussion_forums}" id="_test_div" >
+	        <%@include file="discussionForum/area/dfArea.jsp"%>
+        	<h:inputHidden id="mainOrForumOrTopic" value="main" />
+
+    	</mf:forumHideDivision>
+    	    
       </h:form>
   </sakai:view>
 </f:view> 

@@ -44,6 +44,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -323,6 +324,5 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     {
     	final ResourceBundle rb = ResourceBundle.getBundle(MESSAGECENTER_BUNDLE);
         return rb.getString(key);
-    }
-	
+    }	
 }

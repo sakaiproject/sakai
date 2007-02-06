@@ -103,6 +103,7 @@ public class DiscussionForumTool
    * List individual forum details
    */
   private static final String MAIN = "main";
+  private static final String FORUMS_MAIN = "forumsMain";
   private static final String TEMPLATE_SETTING = "dfTemplateSettings";
   private static final String TEMPLATE_ORGANIZE = "dfTemplateOrganize";
   private static final String FORUM_DETAILS = "dfForumDetail";
@@ -140,6 +141,10 @@ public class DiscussionForumTool
   private static final String FORUM_ID = "forumId";
   private static final String MESSAGE_ID = "messageId";
   private static final String REDIRECT_PROCESS_ACTION = "redirectToProcessAction";
+
+  private static final String MESSAGECENTER_TOOL_ID = "sakai.messagecenter";
+  private static final String MESSAGECENTER_HELPER_TOOL_ID = "sakai.messageforums.helper";
+  private static final String FORUMS_TOOL_ID = "sakai.forums";
 
   private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
 
@@ -296,8 +301,8 @@ public class DiscussionForumTool
   public String processActionHome()
   {
     LOG.debug("processActionHome()");
-    reset();
-    return MAIN;
+   	reset();
+    return gotoMain();
   }
 
   /**
@@ -463,7 +468,7 @@ public class DiscussionForumTool
     if(!isInstructor())
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS));
-      return MAIN;
+      return gotoMain();
     }
     return TEMPLATE_SETTING;
   }
@@ -481,7 +486,7 @@ public class DiscussionForumTool
     if(!isInstructor())
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_ORGANIZE));
-      return MAIN;
+      return gotoMain();
     }
     return TEMPLATE_ORGANIZE;
   }
@@ -552,13 +557,14 @@ public class DiscussionForumTool
     if(!isInstructor())
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS));
-      return MAIN;
+      return gotoMain();
     }    
     
     Area area = areaManager.getDiscusionArea();
     setObjectPermissions(area);
     areaManager.saveArea(area);
-    return MAIN;
+    
+    return gotoMain();
   }
 
   /**
@@ -570,7 +576,7 @@ public class DiscussionForumTool
     if(!isInstructor())
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_ORGANIZE));
-      return MAIN;
+      return gotoMain();
     }
     
     for(Iterator i = forums.iterator(); i.hasNext(); ) {
@@ -586,7 +592,7 @@ public class DiscussionForumTool
     //reload the forums so they change position in the list
     forums = null;
     
-    return MAIN;
+	return gotoMain();
   }
 
   /**
@@ -598,7 +604,7 @@ public class DiscussionForumTool
     if(!isInstructor())
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS));
-      return MAIN;
+      return gotoMain();
     }
     
     Area area = null;
@@ -637,7 +643,7 @@ public class DiscussionForumTool
     if (getDecoratedForum() == null)
     {
       LOG.error("Forum not found");
-      return MAIN;
+      return gotoMain();
     }
     return FORUM_DETAILS;
   }
@@ -653,13 +659,13 @@ public class DiscussionForumTool
     if (selectedForum == null)
     {
       LOG.debug("There is no forum selected for deletion");
-      return MAIN;
+      return gotoMain();
     }
 //  TODO:
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_DELETE_FORUM));
-      return MAIN;
+      return gotoMain();
     }
     selectedForum.setMarkForDeletion(true);
     return FORUM_SETTING;
@@ -677,11 +683,11 @@ public class DiscussionForumTool
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO));
-      return MAIN;
-    }
+      return gotoMain();
+   }
     forumManager.deleteForum(selectedForum.getForum());
     reset();
-    return MAIN;
+    return gotoMain();
   }
 
   /**
@@ -711,7 +717,7 @@ public class DiscussionForumTool
     else
     {
       setErrorMessage(getResourceBundleString(USER_NOT_ALLOWED_CREATE_FORUM));
-      return MAIN;
+      return gotoMain();
     }
   }
 
@@ -728,13 +734,13 @@ public class DiscussionForumTool
     if ((forumId) == null)
     {
       setErrorMessage(getResourceBundleString(INVALID_SELECTED_FORUM));
-      return MAIN;
+      return gotoMain();
     }
     DiscussionForum forum = forumManager.getForumById(new Long(forumId));
     if(!uiPermissionsManager.isChangeSettings(forum))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
-      return MAIN;
+      return gotoMain();
     }
     selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
     if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
@@ -760,12 +766,12 @@ public class DiscussionForumTool
     if ((selectedForum) == null)
     {
       setErrorMessage(getResourceBundleString(FORUM_NOT_FOUND));
-      return MAIN;
+      return gotoMain();
     }
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
-      return MAIN;
+      return gotoMain();
     }
     List attachList = selectedForum.getForum().getAttachments();
     if (attachList != null)
@@ -806,14 +812,14 @@ public class DiscussionForumTool
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
-      return MAIN;
+      return gotoMain();
     }   
     
     DiscussionForum forum = saveForumSettings(false);    
     if(!uiPermissionsManager.isNewTopic(selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CREATE_TOPIC));
-      return MAIN;
+      return gotoMain();
     }    
     selectedTopic = createTopic(forum.getId());
     if (selectedTopic == null)
@@ -821,7 +827,7 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(FAILED_NEW_TOPIC));
       attachments.clear();
       prepareRemoveAttach.clear();
-      return MAIN;
+      return gotoMain();
     }
     attachments.clear();
     prepareRemoveAttach.clear();
@@ -846,7 +852,7 @@ public class DiscussionForumTool
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
-      return MAIN;
+      return gotoMain();
     }
     if(selectedForum!=null && selectedForum.getForum()!=null && 
         (selectedForum.getForum().getTitle()==null 
@@ -880,7 +886,7 @@ public class DiscussionForumTool
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
-      return MAIN;
+      return gotoMain();
     }
     if(selectedForum!=null && selectedForum.getForum()!=null && 
         (selectedForum.getForum().getTitle()==null 
@@ -965,12 +971,12 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(FAILED_NEW_TOPIC));
       attachments.clear();
       prepareRemoveAttach.clear();
-      return MAIN;
+      return gotoMain();
     }
     if(!uiPermissionsManager.isNewTopic(selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CREATE_TOPIC));
-      return MAIN;
+      return gotoMain();
     }
     attachments.clear();
     prepareRemoveAttach.clear();
@@ -999,7 +1005,7 @@ public class DiscussionForumTool
     {
       setErrorMessage(getResourceBundleString(TOPIC_WITH_ID) + getExternalParameterByKey(TOPIC_ID)
           + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
-      return MAIN;
+      return gotoMain();
     }
   
     setSelectedForumForCurrentTopic(topic);
@@ -1015,7 +1021,7 @@ public class DiscussionForumTool
     if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
-      return MAIN;
+      return gotoMain();
     }
     List attachList = selectedTopic.getTopic().getAttachments();
     if (attachList != null)
@@ -1059,7 +1065,7 @@ public class DiscussionForumTool
     if (forumId == null)
     {
       setErrorMessage(getResourceBundleString(PARENT_FORUM_NOT_FOUND));
-      return MAIN;
+      return gotoMain();
     }
     selectedTopic = null;
     selectedTopic = createTopic(forumId);
@@ -1068,7 +1074,8 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(FAILED_NEW_TOPIC));
       attachments.clear();
       prepareRemoveAttach.clear();
-      return MAIN;
+
+      return gotoMain();
     }
     attachments.clear();
     prepareRemoveAttach.clear();
@@ -1132,7 +1139,7 @@ public class DiscussionForumTool
     if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
-      return MAIN;
+      return gotoMain();
     }
     saveTopicSettings(true);    
     //reset();
@@ -1168,7 +1175,7 @@ public class DiscussionForumTool
         //    .saveTopicMessagePermissions(topic, topicMessagePermissions);
       }
     }
-    return MAIN;
+    return gotoMain();
   }
 
   /**
@@ -1181,12 +1188,12 @@ public class DiscussionForumTool
     if (selectedTopic == null)
     {
       LOG.debug("There is no topic selected for deletion");
-      return MAIN;
+      return gotoMain();
     }
     if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
-      return MAIN;
+      return gotoMain();
     }
     selectedTopic.setMarkForDeletion(true);
     return TOPIC_SETTING;
@@ -1205,11 +1212,11 @@ public class DiscussionForumTool
     if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
-      return MAIN;
+      return gotoMain();
     }
     forumManager.deleteTopic(selectedTopic.getTopic());
     reset();
-    return MAIN;
+    return gotoMain();
   }
 
   /**
@@ -1226,13 +1233,13 @@ public class DiscussionForumTool
             getExternalParameterByKey(TOPIC_ID)));
     if (topic == null)
     {
-      return MAIN;
+      return gotoMain();
     }
     setSelectedForumForCurrentTopic(topic);
     if(!uiPermissionsManager.isChangeSettings(topic,selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
-      return MAIN;
+      return gotoMain();
     }
     selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
         uiPermissionsManager, forumManager);
@@ -1254,13 +1261,13 @@ public class DiscussionForumTool
     if (redirectTo == null)
     {
       setErrorMessage(getResourceBundleString(NOT_FOUND_REDIRECT_PAGE));
-      return MAIN;
+      return gotoMain();
     }
   
     if (redirectTo.equals("displayHome"))
     {
       displayHomeWithExtendedForumDescription();
-      return MAIN;
+      return gotoMain();
     }
     if (redirectTo.equals("processActionDisplayForum"))
     {
@@ -1274,7 +1281,7 @@ public class DiscussionForumTool
       }  
        return FORUM_DETAILS;
     }
-    return MAIN;
+    return gotoMain();
   }
   /**
    * @return
@@ -1286,7 +1293,7 @@ public class DiscussionForumTool
     if (redirectTo == null)
     {
       setErrorMessage(getResourceBundleString(NOT_FOUND_REDIRECT_PAGE));
-      return MAIN;
+      return gotoMain();
     }
     if (redirectTo.equals("displayHome"))
     {
@@ -1329,7 +1336,7 @@ public class DiscussionForumTool
       return GRADE_MESSAGE;
     }
 
-    return MAIN;
+    return gotoMain();
 
   }
 
@@ -1381,12 +1388,12 @@ public class DiscussionForumTool
     if (messageId == null)
     {
       setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
-      return MAIN;
+      return gotoMain();
     }
     if (topicId == null)
     {
       setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
-      return MAIN;
+      return gotoMain();
     }
     // Message message=forumManager.getMessageById(new Long(messageId));
     Message message = messageManager.getMessageByIdWithAttachments(new Long(
@@ -1396,7 +1403,7 @@ public class DiscussionForumTool
     if (message == null)
     {
       setErrorMessage(getResourceBundleString(MESSAGE_WITH_ID) + messageId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
-      return MAIN;
+      return gotoMain();
     }
     message = messageManager.getMessageByIdWithAttachments(message.getId());
     selectedMessage = new DiscussionMessageBean(message, messageManager);
@@ -1639,7 +1646,7 @@ public class DiscussionForumTool
       }
 
     }
-    return MAIN;
+    return gotoMain();
   }
   
   /**
@@ -1694,7 +1701,7 @@ public class DiscussionForumTool
       }
 
     }
-    return MAIN;
+    return gotoMain();
   }
 
   /**
@@ -1791,7 +1798,7 @@ public class DiscussionForumTool
         {
           LOG.error(e.getMessage(), e);
           setErrorMessage(getResourceBundleString(UNABLE_RETRIEVE_TOPIC));
-          return MAIN;
+          return gotoMain();
         }
 
         setSelectedForumForCurrentTopic(topic);
@@ -1801,14 +1808,14 @@ public class DiscussionForumTool
       {
         LOG.error("Topic with id '" + externalTopicId + "' not found");
         setErrorMessage(getResourceBundleString(TOPIC_WITH_ID) + externalTopicId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
-        return MAIN;
+        return gotoMain();
       }
     }
     catch (Exception e)
     {
       LOG.error(e.getMessage(), e);
       setErrorMessage(e.getMessage());
-      return MAIN;
+      return gotoMain();
     }
     return ALL_MESSAGES;
   }
@@ -2133,7 +2140,7 @@ public class DiscussionForumTool
 
     if (redirectTo == null)
     {
-      return MAIN;
+      return gotoMain();
     }
     if (redirectTo.equals("dfCompose"))
     {
@@ -2172,7 +2179,7 @@ public class DiscussionForumTool
       return "dfTopicReply";
     }
 
-    return MAIN;
+    return gotoMain();
   }
 
   public String getUserId()
@@ -2832,7 +2839,7 @@ public class DiscussionForumTool
       LOG.error(e.getMessage(), e);
       setErrorMessage(e.getMessage());
       this.deleteMsg = false;
-      return MAIN;
+      return gotoMain();
     }
 
     this.deleteMsg = false;
@@ -4395,4 +4402,68 @@ public class DiscussionForumTool
 		   fromPage = originatingPage;
 	   }
    }
+   
+	/**
+	 * @return TRUE if within Messages & Forums tool, FALSE otherwise
+	 */
+	public boolean isMessagesandForums() {
+		
+		if (messageManager.currentToolMatch(MESSAGECENTER_HELPER_TOOL_ID)) {
+			try {
+				return isMessageForumsPageInSite(SiteService.getSite(ToolManager.getCurrentPlacement().getContext()));
+			} catch (IdUnusedException e) {
+				// TODO Auto-generated catch block
+				LOG.error("IdUnusedException attempting to determine if Messages & Forums tool is part of site. Using id " + ToolManager.getCurrentPlacement().getContext());
+			}
+		}
+		else {
+			return messageManager.currentToolMatch(MESSAGECENTER_TOOL_ID);
+		}
+		
+		return false;
+}
+	
+	/**
+	 * @return TRUE if within Forums tool, FALSE otherwise
+	 */
+	public boolean isForumsTool() {
+		if (messageManager.currentToolMatch(MESSAGECENTER_HELPER_TOOL_ID)) {
+			try {
+				return isForumsPageInSite(SiteService.getSite(ToolManager.getCurrentPlacement().getContext()));
+			} catch (IdUnusedException e) {
+				// TODO Auto-generated catch block
+				LOG.error("IdUnusedException attempting to determine if Forums tool is part of site. Using id " + ToolManager.getCurrentPlacement().getContext());
+			}
+		}
+		else {
+			return messageManager.currentToolMatch(FORUMS_TOOL_ID);
+		}
+		
+		return false;
+	}
+	
+   private String gotoMain() {
+	    if (isForumsTool()) {
+	    	return FORUMS_MAIN;
+	    }
+	    else {
+	    	return MAIN;
+	    }
+   }
+   
+	/**
+	 * @return TRUE if Messages & Forums (Message Center) exists in this site,
+	 *         FALSE otherwise
+	 */
+	private boolean isMessageForumsPageInSite(Site thisSite) {
+		return messageManager.isToolInSite(thisSite, MESSAGECENTER_TOOL_ID);
+	}
+	
+	/**
+	 * @return TRUE if Messages & Forums (Message Center) exists in this site,
+	 *         FALSE otherwise
+	 */
+	private boolean isForumsPageInSite(Site thisSite) {
+		return messageManager.isToolInSite(thisSite, FORUMS_TOOL_ID);
+	}
 }

@@ -1,14 +1,34 @@
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
+                 
+<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+   <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
+</jsp:useBean>
 
-  <mf:forum_bar_link id="create_forum" title="#{msgs.cdfm_new_forum}" value=" #{msgs.cdfm_new_forum}" action="#{ForumTool.processActionNewForum}" rendered="#{ForumTool.newForum}"/>    
-   
-  <h:outputText id="draft_space2" value="  &nbsp;  " escape="false" />
-  <mf:forum_bar_link id="template_setting" title="#{msgs.cdfm_template_setting}" value="#{msgs.cdfm_template_setting} " action="#{ForumTool.processActionTemplateSettings}" rendered="#{ForumTool.instructor}"/>    
-     
-  <h:outputText id="draft_space3" value="  &nbsp;  " escape="false" />
-  <mf:forum_bar_link id="template_organize" title="#{msgs.cdfm_organize}" value="#{msgs.cdfm_organize} " action="#{ForumTool.processActionTemplateOrganize}" rendered="#{ForumTool.instructor}"/>    
-  <h:outputText id="draft_space4" value="  &nbsp;  " escape="false" />
-  <mf:forum_bar_link id="template_statistic" title="#{msgs.cdfm_statistics}" value="#{msgs.cdfm_statistics}" action="#{ForumTool.processActionStatistics}" rendered="#{ForumTool.instructor}" />
+<f:view>
+  <sakai:view title="#{msgs.cdfm_discussion_forums}">
 
+	<h:form id="msgForum">
+	
+		<h:panelGroup rendered="#{PrivateMessagesTool.instructor}">
+			<sakai:tool_bar>
+        		<sakai:tool_bar_item value="#{msgs.cdfm_new_forum}" action="#{ForumTool.processActionNewForum}" />
+				<f:verbatim><span>| &nbsp; </span></f:verbatim>
+      
+        		<sakai:tool_bar_item value=" #{msgs.cdfm_organize}" action="#{ForumTool.processActionTemplateOrganize}"  />
+				<f:verbatim><span>| &nbsp; </span></f:verbatim> 
+
+ 				<sakai:tool_bar_item value=" #{msgs.cdfm_template_setting}" action="#{ForumTool.processActionTemplateSettings}" />
+ 				<f:verbatim><span>| &nbsp; </span></f:verbatim> 
+
+  				<sakai:tool_bar_item value=" #{msgs.stat_list}" action="#{ForumTool.processActionStatistics}" />
+ 			</sakai:tool_bar>
+ 		</h:panelGroup>
+ 	
+ 	<div><h3><h:outputText value="#{msgs.cdfm_discussion_forums}" /></h3></div>
+ 	
 <!--jsp/discussionForum/area/dfArea.jsp-->
   <h:dataTable id="forums" value="#{ForumTool.forums}" width="100%" var="forum" cellpadding="0" cellspacing="0" summary="layout">
     <h:column rendered="#{! forum.nonePermission}">
@@ -179,3 +199,6 @@
 	  </h:column>
   </h:dataTable>
  
+ 		</h:form>
+ 	</sakai:view>
+ </f:view>

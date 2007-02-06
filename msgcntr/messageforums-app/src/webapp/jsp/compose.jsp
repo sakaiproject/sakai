@@ -12,7 +12,10 @@
 		<!-- compose.jsp -->
   			<div class="breadCrumb specialLink">
 				<h3>	
-				  <h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title="#{msgs.cdfm_message_forums}"/> /
+				  <h:panelGroup rendered="#{PrivateMessagesTool.messagesandForums}" >
+				  	<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title="#{msgs.cdfm_message_forums}"/>
+				  	<f:verbatim>&nbsp; / </f:verbatim>
+				  </h:panelGroup>
 				  <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.cdfm_message_pvtarea}" title=" #{msgs.cdfm_message_pvtarea}"/> /
 				  <h:outputText value="#{msgs.pvt_compose1}" />
 				</h3>

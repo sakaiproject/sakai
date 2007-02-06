@@ -9,9 +9,11 @@
   <sakai:view title="#{msgs.pvt_reply}">
     <h:form id="pvtMsgReply">
   			<div class="breadCrumb">
-				<h3>
-  			  <h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/> /
-  			  <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.cdfm_message_pvtarea}" title=" #{msgs.cdfm_message_pvtarea}"/> /
+			  <h3>
+				<h:panelGroup rendered="#{PrivateMessagesTool.messagesandForums}" >
+				  <h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums} / " title="#{msgs.cdfm_message_forums}"/>
+			    </h:panelGroup>
+  			    <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.cdfm_message_pvtarea}" title=" #{msgs.cdfm_message_pvtarea}"/> /
 				<h:outputText value="#{msgs.pvt_reply}" />
 				</h3>
 			</div>

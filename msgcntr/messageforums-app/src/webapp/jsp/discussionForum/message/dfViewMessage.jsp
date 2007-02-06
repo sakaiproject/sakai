@@ -13,7 +13,10 @@
 		  <h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel">
 		    <h:panelGroup styleClass="breadCrumb">
 				<f:verbatim><h3></f:verbatim>
-				<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/> 
+			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
+			      		rendered="#{ForumTool.messagesandForums}" />
+			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
+			      		rendered="#{ForumTool.forumsTool}" />
 				<f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
 				<h:commandLink action="#{ForumTool.processActionDisplayForum}" value="#{ForumTool.selectedForum.forum.title}" 
                          title=" #{ForumTool.selectedForum.forum.title}">
