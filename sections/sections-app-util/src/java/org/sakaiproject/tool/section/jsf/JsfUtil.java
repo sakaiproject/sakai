@@ -4,17 +4,17 @@
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006 The Regents of the University of California and The Regents of the University of Michigan
- * 
- * Licensed under the Educational Community License, Version 1.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.opensource.org/licenses/ecl1.php
- * 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  **********************************************************************************/
@@ -26,6 +26,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -34,13 +36,13 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.section.api.facade.manager.ResourceLoader;
 import org.sakaiproject.jsf.util.ConversionUtil;
+import org.sakaiproject.jsf.util.LocaleUtil;
 import org.sakaiproject.tool.section.jsf.MessagingBean;
 
 /**
  * A utility to help deal with common tasks in JSF.
- * 
+ *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
@@ -53,7 +55,7 @@ public class JsfUtil {
 	 * be displayed in the Section Info UI.
 	 */
 	public static final String TIME_PATTERN_DISPLAY = "h:mm";
-	
+
 
 	/**
 	 * As part of the crutch for JSF's inability to do validation on relative
@@ -61,14 +63,14 @@ public class JsfUtil {
 	 * format complete times (with hours, minutes, and am/pm marker).
 	 */
 	public static final String TIME_PATTERN_LONG = "h:mm a";
-	
+
 	/**
 	 * As part of the crutch for JSF's inability to do validation on relative
 	 * values in different components.  This pattern defines how to parse and
 	 * format abberviated times (with only hours and am/pm marker).
 	 */
 	public static final String TIME_PATTERN_SHORT = "h a";
-	
+
 	/**
 	 * To cut down on configuration noise, allow access to request-scoped beans from
 	 * session-scoped beans, and so on, this method lets the caller try to find
@@ -87,7 +89,7 @@ public class JsfUtil {
 	/**
      * Adds an error message for display on a page when the page is guaranteed
      * not to be displayed via a redirect.
-	 * 
+	 *
 	 * @param message
 	 */
 	public static void addErrorMessage(String message) {
@@ -97,7 +99,7 @@ public class JsfUtil {
 	/**
      * Adds an error message for display on a component when the page is guaranteed
      * not to be displayed via a redirect.
-	 * 
+	 *
 	 * @param message
 	 * @param componentId
 	 */
@@ -108,7 +110,7 @@ public class JsfUtil {
 	/**
      * Adds an info message for display on a page when the page is guaranteed
      * not to be displayed via a redirect.
-	 * 
+	 *
 	 * @param message
 	 */
 	public static void addInfoMessage(String message) {
@@ -118,7 +120,7 @@ public class JsfUtil {
     /**
      * Adds an info message for display on a page even if faces sends the user
      * to the page via a redirect.
-     * 
+     *
      * @param message
      */
 	public static void addRedirectSafeInfoMessage(String message) {
@@ -129,7 +131,7 @@ public class JsfUtil {
     /**
      * Adds a warning message for display on a page even if faces sends the user
      * to the page via a redirect.
-     * 
+     *
      * @param message
      */
     public static void addRedirectSafeWarnMessage(String message) {
@@ -141,14 +143,13 @@ public class JsfUtil {
      * Gets a localized message from the message bundle.
      */
     public static String getLocalizedMessage(String key) {
-    	ResourceLoader rl = (ResourceLoader)resolveVariable("org.sakaiproject.section.api.facade.manager.ResourceLoader");
-        return rl.getString(key);
+    	return LocaleUtil.getLocalizedString(FacesContext.getCurrentInstance(), "sections", key);
 	}
-	
+
     /**
      * Gets a localized message from the message bundle and formats it using the
      * parameter array.
-     * 
+     *
      * @param key
      * @param params
      * @return
@@ -163,7 +164,7 @@ public class JsfUtil {
 	/**
 	 * Gets a value from the request parameter map, as provided by the faces
 	 * context.
-	 * 
+	 *
 	 * @param string
 	 * @return
 	 */
@@ -171,10 +172,10 @@ public class JsfUtil {
 		return (String)FacesContext.getCurrentInstance()
 		.getExternalContext().getRequestParameterMap().get(string);
 	}
-	
+
 	/**
 	 * Converts a string and a boolean (am) into a java.sql.Time object.
-	 * 
+	 *
 	 * @param str
 	 * @param am
 	 * @return
@@ -190,7 +191,7 @@ public class JsfUtil {
 		} else {
 			str = str + " PM";
 		}
-		
+
 		String pattern = (str.indexOf(':') != -1) ? JsfUtil.TIME_PATTERN_LONG : JsfUtil.TIME_PATTERN_SHORT;
 		SimpleDateFormat sdf = new SimpleDateFormat(pattern);
 		Date date;
@@ -201,7 +202,7 @@ public class JsfUtil {
 		}
 		return ConversionUtil.convertDateToTime(date, am);
 	}
-	
+
 	public static String convertTimeToString(Time time) {
 		if(time == null) {
 			return null;

@@ -47,7 +47,7 @@
         <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.StudentViewBean</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
-    
+
     <managed-bean>
         <description>Overview Bean</description>
         <managed-bean-name>overviewBean</managed-bean-name>
@@ -121,9 +121,9 @@
         <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.PreferencesBean</managed-bean-class>
         <managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
-			<property-name>resourceLoader</property-name>
-            <value>#{org_sakaiproject_section_api_facade_manager_ResourceLoader}</value>
+			<property-name>configured</property-name>
+            <value>true</value>
 		</managed-property>
     </managed-bean>
-    
+
 </faces-config>

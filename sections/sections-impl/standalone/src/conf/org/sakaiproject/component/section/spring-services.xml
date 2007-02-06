@@ -11,7 +11,4 @@
     </bean>
     <bean id="org.sakaiproject.id.api.IdManager"
         class="org.sakaiproject.id.impl.UuidV4IdComponent"/>
-	<bean id="org.sakaiproject.section.api.facade.manager.ResourceLoader"
-		class="org.sakaiproject.component.section.facade.impl.standalone.ResourceLoaderStandaloneImpl"/>
-
 </beans>

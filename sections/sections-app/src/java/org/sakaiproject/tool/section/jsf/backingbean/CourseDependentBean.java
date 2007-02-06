@@ -31,6 +31,7 @@ import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.jsf.util.LocaleUtil;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
 import org.sakaiproject.section.api.coursemanagement.Course;
@@ -110,7 +111,7 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	}
 
 	protected String getCategoryName(String categoryId) {
-		Locale locale = getCourseBean().getPrefs().getResourceLoader().getLocale();
+		Locale locale = LocaleUtil.getLocale(FacesContext.getCurrentInstance());
 		return getCourseBean().sectionManager.getCategoryName(categoryId, locale);
 	}
 	

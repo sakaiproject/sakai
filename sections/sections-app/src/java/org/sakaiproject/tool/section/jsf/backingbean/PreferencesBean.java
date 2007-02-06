@@ -20,7 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.tool.section.jsf.backingbean;
 
-import org.sakaiproject.section.api.facade.manager.ResourceLoader;
+import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
  * Stores user preferences for table sorting and paging.  These preferences are
@@ -34,8 +34,6 @@ public class PreferencesBean extends CourseDependentBean {
 	
 	private static final long serialVersionUID = 1L;
 
-	private ResourceLoader resourceLoader;
-	
 	public PreferencesBean() {
 		overviewSortColumn = "title";
 		overviewSortAscending = true;
@@ -48,7 +46,7 @@ public class PreferencesBean extends CourseDependentBean {
 	public void init() {
 		// Get the max name length for displaying names from the app's properties file.
 		// We can't do this in the constructor, since we need to wait for our dependencies.
-        maxNameLength = Integer.parseInt(resourceLoader.getString("max_name_length"));
+        maxNameLength = Integer.parseInt(JsfUtil.getLocalizedMessage("max_name_length"));
 	}
 	
 	protected int maxNameLength;
@@ -99,18 +97,6 @@ public class PreferencesBean extends CourseDependentBean {
 	}
 	public int getMaxNameLength() {
 		return maxNameLength;
-	}
-	
-	public ResourceLoader getResourceLoader() {
-		return resourceLoader;
-	}
-
-	// Dependency injection
-	public void setResourceLoader(ResourceLoader resourceLoader) {
-		this.resourceLoader = resourceLoader;
-		
-		// TODO This is a hack... fix it
-		init();
 	}
 
 	public boolean isEditStudentSectionsSortAscending() {

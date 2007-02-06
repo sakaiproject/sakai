@@ -10,8 +10,4 @@
 
     <bean id="org.sakaiproject.section.api.facade.manager.Context"
         class="org.sakaiproject.tool.section.facade.sakai.ContextSakaiImpl"/>
-
-	<bean id="org.sakaiproject.section.api.facade.manager.ResourceLoader"
-		class="org.sakaiproject.tool.section.facade.sakai.ResourceLoaderSakaiImpl"/>
-
 </beans>
