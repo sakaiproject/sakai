@@ -81,7 +81,7 @@ sorting actions for table:
     <h:column>
       <f:facet name="header">
        <h:panelGroup>
-        <h:commandLink title="#{msg.t_sortTitle}" id="taketitle" rendered="#{select.takeableSortOrder!='title'}">
+        <h:commandLink title="#{msg.t_sortTitle}" id="taketitle1" rendered="#{select.takeableSortOrder!='title'}">
           <f:param name="takeableSortType" value="title" />
           <f:param name="takeAscending" value="true" />
           <f:actionListener
@@ -89,13 +89,13 @@ sorting actions for table:
           <h:outputText  value="#{msg.title} "  rendered="#{select.takeableSortOrder!='title'}" />
         </h:commandLink>
           <h:outputText  value="#{msg.title} " styleClass="currentSort" rendered="#{select.takeableSortOrder=='title'}" />
-          <h:commandLink title="#{msg.t_sortTitle}" rendered="#{select.takeableSortOrder=='title' && select.takeableAscending }">
+          <h:commandLink title="#{msg.t_sortTitle}" id="taketitle2" rendered="#{select.takeableSortOrder=='title' && select.takeableAscending }">
            <f:param name="takeAscending" value="false" />
            <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
              <h:graphicImage alt="#{msg.alt_sortTitleDescending}" rendered="#{select.takeableAscending}" url="/images/sortascending.gif"/>
           </h:commandLink>
-          <h:commandLink title="#{msg.t_sortTitle}" rendered="#{select.takeableSortOrder=='title'&& !select.takeableAscending }">
+          <h:commandLink title="#{msg.t_sortTitle}" id="taketitle3" rendered="#{select.takeableSortOrder=='title'&& !select.takeableAscending }">
            <f:param name="takeAscending" value="true" />
            <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
@@ -103,7 +103,7 @@ sorting actions for table:
           </h:commandLink>
        </h:panelGroup>
       </f:facet>
-      <h:commandLink title="#{msg.t_takeAssessment}" action="beginAssessment" >
+      <h:commandLink title="#{msg.t_takeAssessment}" id="takeAssessment" action="beginAssessment" >
         <f:param name="publishedId" value="#{takeable.assessmentId}" />
         <f:param name="actionString" value="takeAssessment"/>
         <f:actionListener
@@ -114,7 +114,7 @@ sorting actions for table:
     <h:column>
       <f:facet name="header">
        <h:panelGroup>
-        <h:commandLink title="#{msg.t_sortDueDate}" id="takedue" rendered="#{select.takeableSortOrder!='due'}">
+        <h:commandLink title="#{msg.t_sortDueDate}" id="takedue1" rendered="#{select.takeableSortOrder!='due'}">
           <f:param name="takeableSortType" value="due" />
           <f:param name="takeAscending" value="true" />
           <f:actionListener
@@ -122,13 +122,13 @@ sorting actions for table:
           <h:outputText value="#{msg.date_due} " rendered="#{select.takeableSortOrder!='due'}" />
         </h:commandLink>
         <h:outputText value="#{msg.date_due} " styleClass="currentSort" rendered="#{select.takeableSortOrder=='due'}" />
-        <h:commandLink title="#{msg.t_sortDueDate}" rendered="#{select.takeableSortOrder=='due' && select.takeableAscending }">
+        <h:commandLink title="#{msg.t_sortDueDate}" id="takedue2" rendered="#{select.takeableSortOrder=='due' && select.takeableAscending }">
           <f:param name="takeAscending" value="false" />
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
           <h:graphicImage alt="#{msg.alt_sortDueDateDescending}" rendered="#{select.takeableAscending}" url="/images/sortascending.gif"/>
         </h:commandLink>
-        <h:commandLink title="#{msg.t_sortDueDate}" rendered="#{select.takeableSortOrder=='due'&& !select.takeableAscending }">
+        <h:commandLink title="#{msg.t_sortDueDate}" id="takedue3" rendered="#{select.takeableSortOrder=='due'&& !select.takeableAscending }">
            <f:param name="takeAscending" value="true" />
            <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
