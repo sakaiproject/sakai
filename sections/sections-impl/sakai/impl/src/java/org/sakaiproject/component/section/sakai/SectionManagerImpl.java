@@ -571,13 +571,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 	 * {@inheritDoc}
 	 */
 	public List<String> getSectionCategories(String siteContext) {
-		List categoryObjects =  courseManagementService.getSectionCategories();
-		List<String> categoryIds = new ArrayList<String>();
-		for(Iterator iter = categoryObjects.iterator(); iter.hasNext();) {
-			SectionCategory cat = (SectionCategory)iter.next();
-			categoryIds.add(cat.getCategoryCode());
-		}
-		return categoryIds;
+		return  courseManagementService.getSectionCategories();
 	}
 
 	/**
