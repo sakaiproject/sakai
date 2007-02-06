@@ -22,7 +22,6 @@
 package org.sakaiproject.content.impl;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -31,12 +30,10 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
-import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.javax.Filter;
 
 public class ResourceTypeRegistryImpl implements ResourceTypeRegistry 
@@ -196,6 +193,7 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 		else
 		{
 			// do nothing -- use ResourceType.TYPE_UPLOAD
+			typeId = ResourceType.TYPE_UPLOAD;
 		}
 		
 		return typeId;

@@ -146,9 +146,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseContentService.class);
 
-	/** Number of times to attempt to find a unique resource id when copying or moving a resource */
-	protected static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
-	
 	protected static final long END_OF_TIME = 8000L * 365L * 24L * 60L * 60L * 1000L;
 	protected static final long START_OF_TIME = 365L * 24L * 60L * 60L * 1000L;
 	

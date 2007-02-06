@@ -149,6 +149,9 @@ public interface ContentHostingService extends EntityProducer
 	/** The maximum number of characters allowed in a new resource ID: make is so the reference, /content/<id>, is 255 or less */
 	public static final int MAXIMUM_RESOURCE_ID_LENGTH = 247;
 	
+	/** Number of times to attempt to find a unique resource id when copying or moving a resource */
+	public static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
+	
 	/** 
 	 * When assigning default priority (for "priority" sort) folders come before files, 
 	 * so files get "priority" much higher than folders.  Add the offset to folder priorities  

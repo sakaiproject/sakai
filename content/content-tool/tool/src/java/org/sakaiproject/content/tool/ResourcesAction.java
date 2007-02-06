@@ -1771,7 +1771,7 @@ public class ResourcesAction
 											RunData data,
 											SessionState state)
 	{
-		context.put("tlang",rb);
+		//context.put("tlang",rb);
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
 		
@@ -1912,6 +1912,27 @@ public class ResourcesAction
 	 */
 	private String buildReviseMetadataContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
+		context.put("tlang", trb);
+		
+		ResourceToolAction action = (ResourceToolAction) state.getAttribute(STATE_REVISE_PROPERTIES_ACTION);
+		context.put("action", action);
+		
+		String typeId = action.getTypeId();
+		
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		
+		ResourceType type = registry.getType(typeId);
+		context.put("type", type);
+		
+		copyrightChoicesIntoContext(state, context);
+		
+		context.put("required", trb.getFormattedMessage("instr.require", new String[]{"<span class=\"reqStarInline\">*</span>"}));
+		
 		// complete the create wizard
 		String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
 		if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
@@ -2222,7 +2243,7 @@ public class ResourcesAction
 	 */
 	private String buildDeleteFinishContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
-		context.put("tlang",rb);
+		context.put("tlang",trb);
 		context.put ("collectionId", state.getAttribute (STATE_COLLECTION_ID) );
 
 		//%%%% FIXME
@@ -2283,6 +2304,8 @@ public class ResourcesAction
 
 	public String buildCreateWizardContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
 	{
+		context.put("tlang",trb);
+		
 		String template = "content/sakai_resources_cwiz_finish";
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
@@ -2352,7 +2375,7 @@ public class ResourcesAction
 	 */
 	public String buildColumnsContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
 	{
-		context.put("tlang",rb);
+		context.put("tlang",trb);
 		
 		// need to check permissions
 		
@@ -2763,6 +2786,32 @@ public class ResourcesAction
 					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 					resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
 					entity.setAvailability(hidden, releaseDate, retractDate);
+					
+					if(copyright == null || copyright.trim().length() == 0)
+					{
+						resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
+					}
+					else
+					{
+						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_CHOICE, copyright);
+					}
+					if(newcopyright == null || newcopyright.trim().length() == 0)
+					{
+						resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT);
+					}
+					else
+					{
+						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT, newcopyright);
+					}
+					if (copyrightAlert)
+					{
+						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_ALERT, Boolean.TRUE.toString());
+					}
+					else
+					{
+						resourceProperties.removeProperty (ResourceProperties.PROP_COPYRIGHT_ALERT);
+					}
+					
 					ContentHostingService.commitResource(entity, noti);
 				}
 
@@ -2914,6 +2963,31 @@ public class ResourcesAction
 				String copyright = params.getString("copyright");
 				String newcopyright = params.getString("newcopyright");
 				boolean copyrightAlert = params.getBoolean("copyrightAlert");
+				
+				if(copyright == null || copyright.trim().length() == 0)
+				{
+					resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
+				}
+				else
+				{
+					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_CHOICE, copyright);
+				}
+				if(newcopyright == null || newcopyright.trim().length() == 0)
+				{
+					resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT);
+				}
+				else
+				{
+					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT, newcopyright);
+				}
+				if (copyrightAlert)
+				{
+					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_ALERT, Boolean.TRUE.toString());
+				}
+				else
+				{
+					resourceProperties.removeProperty (ResourceProperties.PROP_COPYRIGHT_ALERT);
+				}
 				
 				// availability
 				boolean hidden = params.getBoolean("hidden");
