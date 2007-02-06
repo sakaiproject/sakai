@@ -332,41 +332,43 @@ public class MessageForumStatisticsBean {
 	        userInfo = new DecoratedCompiledMessageStatistics();
 	        
 	        String name = item.getName();
-	        String userId = item.getUser().getId();
-	        userInfo.setSiteUser(name);
-	        userInfo.setSiteUserId(userId);
-	        
-	      	//Number of authored, read, unread, and percent forum messages is a little harder
-			// need to loop through all topics and add them up
-			final List topicsList = forumManager.getDiscussionForums();
-			int authoredForum = 0 , readForum = 0, unreadForum = 0, totalForum = 0;
-
-			final Iterator forumIter = topicsList.iterator();
-
-			while (forumIter.hasNext()) {
-				final DiscussionForum df = (DiscussionForum) forumIter.next();
-
-				final List topics = df.getTopics();
-				final Iterator topicIter = topics.iterator();
-
-				while (topicIter.hasNext()) {
-					final Topic topic = (Topic) topicIter.next();
-					
-					if (uiPermissionsManager.isRead((DiscussionTopic) topic, df)) {
-						totalForum += messageManager.findMessageCountByTopicId(topic.getId());
-						authoredForum += messageManager.findAuhtoredMessageCountByTopicIdByUserId(topic.getId(), userId);
-						unreadForum += messageManager.findUnreadMessageCountByTopicIdByUserId(topic.getId(), userId);
-						readForum += messageManager.findReadMessageCountByTopicIdByUserId(topic.getId(), userId);
+	        if(null != item.getUser()){
+		        String userId = item.getUser().getId();
+		        userInfo.setSiteUser(name);
+		        userInfo.setSiteUserId(userId);
+		        
+		      	//Number of authored, read, unread, and percent forum messages is a little harder
+				// need to loop through all topics and add them up
+				final List topicsList = forumManager.getDiscussionForums();
+				int authoredForum = 0 , readForum = 0, unreadForum = 0, totalForum = 0;
+	
+				final Iterator forumIter = topicsList.iterator();
+	
+				while (forumIter.hasNext()) {
+					final DiscussionForum df = (DiscussionForum) forumIter.next();
+	
+					final List topics = df.getTopics();
+					final Iterator topicIter = topics.iterator();
+	
+					while (topicIter.hasNext()) {
+						final Topic topic = (Topic) topicIter.next();
+						
+						if (uiPermissionsManager.isRead((DiscussionTopic) topic, df)) {
+							totalForum += messageManager.findMessageCountByTopicId(topic.getId());
+							authoredForum += messageManager.findAuhtoredMessageCountByTopicIdByUserId(topic.getId(), userId);
+							unreadForum += messageManager.findUnreadMessageCountByTopicIdByUserId(topic.getId(), userId);
+							readForum += messageManager.findReadMessageCountByTopicIdByUserId(topic.getId(), userId);
+						}
 					}
 				}
-			}
-			final Double percentRead = (new Double(readForum) / new Double(totalForum));
-	        userInfo.setAuthoredForumsAmt(authoredForum);
-	        userInfo.setReadForumsAmt(readForum);
-	        userInfo.setUnreadForumsAmt(unreadForum);
-	        userInfo.setPercentReadFOrumsAmt(percentRead);
-	        
-	       	statistics.add(userInfo);
+				final Double percentRead = (new Double(readForum) / new Double(totalForum));
+		        userInfo.setAuthoredForumsAmt(authoredForum);
+		        userInfo.setReadForumsAmt(readForum);
+		        userInfo.setUnreadForumsAmt(unreadForum);
+		        userInfo.setPercentReadFOrumsAmt(percentRead);
+		        
+		       	statistics.add(userInfo);
+	        }
 	    }
 		sortStatistics(statistics);
 		return statistics;
