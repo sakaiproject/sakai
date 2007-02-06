@@ -1,4 +1,4 @@
-##<!-- chef_show.vm, use with org.chefproject.ContentListAction.java -->
+<!-- chef_resources_show.vm, use with ResourcesAction.java -->
 ###############################################################
 ##### deprecated -- not used in refactored resources tool #####
 ###############################################################

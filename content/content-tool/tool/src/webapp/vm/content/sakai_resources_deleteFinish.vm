@@ -1,4 +1,4 @@
-<!-- chef_resources_deleteConfirm.vm, version: $Revision:  $, use with org.sakaiproject.tool.content.ResourcesAction.java -->
+<!-- chef_resources_deleteFinish.vm, version: $Revision:  $, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <div class="portletBody">
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>#end
 	<div class="alertMessage">$tlang.getString("del.sure")</div><div style="display:block;clear:both" ></div>
