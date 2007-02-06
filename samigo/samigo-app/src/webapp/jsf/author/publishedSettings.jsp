@@ -67,6 +67,15 @@
 <div class="tier1">
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
 
+<h:outputLink value="#" title="#{summary_msg.t_showDivs}" onclick="showDivs();" onkeypress="showDivs();">
+<h:outputText value="#{summary_msg.open}"/>
+</h:outputLink>
+<h:outputText value=" | " />
+<h:outputLink value="#" title="#{summary_msg.t_hideDivs}" onclick="hideDivs();" onkeypress="hideDivs();">
+<h:outputText value="#{summary_msg.close}"/>
+</h:outputLink>
+<h:outputText value="#{summary_msg.allMenus}"/>
+
   <samigo:hideDivision id="div1" title="#{msg.t_assessmentIntroduction}" >
 <div class="tier2">
     <h:panelGrid columns="2" columnClasses="shorttext"
