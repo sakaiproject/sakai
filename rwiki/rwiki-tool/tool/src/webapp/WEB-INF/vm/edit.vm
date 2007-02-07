@@ -1,0 +1,206 @@
+#set( $permissionsBean = ${requestScope.permissionsBean} )
+#if (!${permissionsBean.updateAllowed} )
+#include ("permission.vm")
+#end
+#set( $viewBean = ${requestScope.viewBean} )
+#set( $currentRWikiObject = ${requestScope.currentRWikiObject} )
+#set( $renderBean = ${requestScope.renderBean} )
+#set( $rightRenderBean = ${requestScope.editRightRenderBean} )
+#set( $errorBean = ${requestScope.errorBean} ) 
+#set( $editBean = ${requestScope.editBean} )
+#set( $nameHelperBean = ${requestScope.nameHelperBean} )
+#set( $homeBean = ${requestScope.homeBean} )
+#set( $rlb = ${requestScope.resourceLoaderBean} )
+#set( $title = "${rlb.jsp_edit}: ${viewBean.localName}" )
+#header(${title} false )  
+<div id="rwiki_container">
+  <div class="portletBody">
+	<div class="navIntraTool">
+	  <form action="?#" method="get" class="rwiki_searchForm">
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
+	  	 #commandlinks(true true true "View"	true  true true true ${requestScope.Withnotification}	${homeBean} ${viewBean} ${rlb} ) 
+	    <span class="rwiki_searchBox">
+	      ${rlb.jsp_search}:	
+	      <input type="hidden" name="action" value="${requestScope.SearchTarget}" />
+	      <input type="hidden" name="panel" value="Main" />
+	      <input type="text" name="search" />
+	    </span>
+	  </form>
+	</div>
+	
+	#if (${rightRenderBean.hasContent})
+		#set( $rwikiContentStyle = "withsidebar" )
+	#else
+		#set( $rwikiContentStyle = "nosidebar" )
+	#end
+	
+	#breadcrumbs()
+	
+	<div id="rwiki_head" >		
+		<div id="rwiki_tabholder">
+	        <ul class="tabs" >
+			<li id="edit" class="tabHeadOn" >
+	  		  <p class="tabhead" title="${rlb.jsp_edit}" >
+		       <a href="#" onClick="selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOn','tabOff','editTab','tabOff','tabOn','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn'); return false;" >
+		       ${rlb.jsp_edit}
+		       </a>
+		     </p>
+		    </li>
+		    <li id="preview" class="tabHeadOff"  >
+		    	<p class="tabhead" title="${rlb.jsp_preview}">
+				   		<a href="#" onClick="selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOff','tabOn','editTab','tabOn','tabOff','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOff','tabHeadOn','edit','tabHeadOn','tabHeadOff'); previewContent('content','previewContent', 'pageVersion', 'realm','pageName','?' ); return false;" >
+				   		${rlb.jsp_preview}
+				   		</a>
+		    </li>
+		    <li id="autosave" class="autoSaveOffClass" >
+		    	<p class="tabhead" title="${rlb.jsp_recovered_content}" >
+						   <a href="#" onClick="selectTabs('autosaveTab','tabOff','tabOn','previewTab','tabOn','tabOff','editTab','tabOn','tabOff','autosave','tabHeadOff','tabHeadOn','preview','tabHeadOn','tabHeadOff','edit','tabHeadOn','tabHeadOff'); return false;" >
+						   ${rlb.jsp_recovered_content}
+         </a>
+       </p>
+		    </li>
+		    </ul>
+		</div>
+		#sidebar_switcher()
+	</div>
+	
+	
+	<div id="rwiki_content" class="${rwikiContentStyle}" >
+	
+			       
+		    <div id="editTab" class="tabOn" >
+			       <form action="?#" method="post" id="editForm"  >
+				      #if (${errorBean.errors.size()} > 0)
+						       <p class="validation" style="clear: none;">
+						       #foreach ( $error in ${errorBean.errors} )
+						          ${error}
+						       #end
+						       </p>
+				      #end
+			
+				      #if ( ${editBean.saveType} && ${editBean.saveType} != "preview" && !$editBean.saveType.startsWith("attach") )
+						      #if ( ${editBean.saveType} == "revert" )
+						         #set( ${editBean.previousContent} = ${requestScope.getPageRevisionContent(${currentRWikiObject},${editBean.previousRevision})} )
+						      #end
+					      	<p class="longtext">
+					      		<label for="submittedContent">${rlb.jsp_submitted_content}</label>
+						       <input id="submittedContent" type="hidden" name="submittedContent" value="${editBean.previousContent}" />
+						      </p>
+						      <pre class="rwiki_previousContent" >
+						          ${editBean.previousContent}
+						      </pre>
+				      #end
+				      #if ( ${editBean.saveType} && "preview" == ${editBean.saveType} && ${nameHelperBean.submittedContent} )
+						      <p class="longtext">
+						         <label for="submittedContent">${rlb.jsp_submitted_prior_content}</label>
+						         <input type="hidden" name="submittedContent" value="${nameHelperBean.submittedContent}" />
+						      </p>
+						      <pre class="rwiki_previousContent">
+						         ${nameHelperBean.submittedContent}
+						      </pre>
+				      #end
+				      #if ( ${editBean.saveType} && ${editBean.saveType.startsWith("attach")} && ${nameHelperBean.submittedContent} )
+						      <p class="longtext">
+						         <label for="submittedContent">${rlb.jsp_submitted_prior_content_attach}</label>
+						         <input type="hidden" name="submittedContent" value="${nameHelperBean.submittedContent}" />
+						      </p>
+						      <pre class="rwiki_previousContent">
+						         ${nameHelperBean.submittedContent}
+						      </pre>
+				      #end
+				      <div>
+						      <div id="textarea_outer_sizing_divx">
+						        <div id="textarea_inner_sizing_divx">
+						           #edittoolbar()
+						           #if ( ${editBean.saveType} && ("preview" ==  ${editBean.saveType}|| ${editBean.saveType.startsWith("attach")}) )
+						           <textarea cols="60" 
+						                     rows="25" 
+						                     name="content" 
+						                     id="content" 
+						                     onselect="storeCaret(this)" 
+						                     onclick="storeCaret(this)" 
+						                     onkeyup="storeCaret(this)" >${editBean.previousContent}</textarea>
+						 	         #else
+						           <textarea cols="60" 
+						                     rows="25" 
+						                     name="content" 
+						                     id="content" 
+						                     onselect="storeCaret(this)" 
+						                     onclick="storeCaret(this)" 
+						                     onkeyup="storeCaret(this)" >${currentRWikiObject.content}</textarea>
+								         #end
+						        </div>
+						      </div>
+						      <input type="hidden" name="action" value="save"/>
+						      <input type="hidden" name="panel" value="Main"/>
+						      #if ( ${editBean.saveType} && (${editBean.saveType} == 'preview' || ${editBean.saveType.startsWith("attach")}) )
+   						      <input type="hidden" name="version" id="pageVersion" 
+						                value="${editBean.previousVersion}" />
+						      #else
+   						      <input type="hidden" name="version" id="pageVersion" 
+						                value="${currentRWikiObject.version.time}" />
+						      #end
+												<input type="hidden" name="pageName" id="pageName" value="${currentRWikiObject.name}" />
+												<input type="hidden" name="realm" id="realm" value="${currentRWikiObject.realm}" />
+				      </div>
+				      <div class="rwiki_editControl" id="editControl">
+						       <p class="act">
+					  		       #if (${requestScope.withnotification} )
+					  			        <input type="checkbox" name="smallchange" value="smallchange" /> ${rlb.jsp_minor_change}<br />
+					  			      #end
+					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_save}"  /> 
+					  		       #if (( ( ${editBean.saveType} && ( "preview" == ${editBean.saveType}  || ${editBean.saveType.startsWith("attach")} ) ) && ${nameHelperBean.submittedContent} ) || ( ${editBean.saveType} && ${editBean.saveType} != "preview" ) && !${editBean.saveType.statsWith("attach")} ))
+					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_overwrite}"  />
+					 		        #end 
+					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_cancel}"  />
+						       </p>
+				      </div>
+			    	</form>
+		    	</div> <!-- end of edit tab -->
+		    	
+		    	
+		     <div id="previewTab" class="tabOff" >	        
+					    <div class="rwikiRenderedContent" id="previewContent" >
+			      		#if ( ${editBean.saveType} && ${editBean.saveType} == "preview" )
+				  			     #set ( ${currentContent} = ${currentRWikiObject.content} )
+				  			     #set ( ${currentRWikiObject.content} = ${editBean.previousContent} )	    
+				  								${renderBean.previewPage}<br/>
+				  			     #set ( ${currentRWikiObject.content} = ${currentContent} )	    
+			        #end
+					    </div>
+		     </div> <!-- end of previewTab -->
+		        
+		              
+				   <div id="autosaveTab" class="tabOff" >
+		    	  <p class="shorttext">
+		    			  <input 
+		    			    type="button" 
+		    			    id="restoreButton" 
+		    			    name="restoreButton" 
+		    			    title="${rlb.jsp_button_restore_saved_edit}"
+		    			    onClick="restoreSavedContent('pageVersion', 'content', 'restoreContent','restoreVersion','restoreDate','autosave','autoSaveOffClass' ); selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOn','tabOff','editTab','tabOff','tabOn','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn'); return false;"
+		    			    />
+		   			</p>
+		    	 <p class="shorttext">
+		   				<label for="restoreVersion" >${rlb.jsp_auto_save_version}</label>
+		   				<input id="restoreVersion" name="restoreVersion" value="${rlb.jsp_none}" />
+		   			</p>
+		   			<p class="shorttext">
+		   				<label for="restoreDate" >${rlb.jsp_auto_save_date}</label>
+		   				<input id="restoreDate" name="restoreDate" value="${rlb.jsp_none}" />
+		   			</p>
+		   			 <div>
+			    		 <textarea cols="60" rows="25" name="restoreContent" id="restoreContent"  readonly="readonly" >${rlb.jsp_no_restored_content}</textarea>
+					    </div>
+			 	  </div> <!-- endof autosave tab -->	
+	  </div>
+#sidebar()
+	 
+  </div>
+</div>
+#footer()
+
+

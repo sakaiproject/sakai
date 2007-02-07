@@ -77,7 +77,7 @@ public class HelperCommand implements HttpCommand
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand#execute(javax.servlet.http.HttpServletRequest,
 	 *      javax.servlet.http.HttpServletResponse)
 	 */
-	public void execute(HttpServletRequest request, HttpServletResponse response)
+	public void execute(Dispatcher dispatcher, HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
 	{
 

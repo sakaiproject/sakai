@@ -1,0 +1,55 @@
+#set($searchBean = ${requestScope.searchBean})
+#set($rightRenderBean = ${requestScope.searchRightRenderBean})
+#set($recentlyVisitedBean = ${requestScope.recentlyVisitedBean})
+#set(${recentlyVisitedBean.searchPage} = ${searchBean})
+#set($homeBean = ${requestScope.homeBean})
+#set($rlb = ${requestScope.resourceLoaderBean})
+#set($title = "${rlb.jsp_search}: ${searchBean.search}")
+#header(${title} false)  
+<div id="rwiki_container">
+  <div class="portletBody">
+	<div class="navIntraTool">
+	  <form action="?#" method="get" class="rwiki_searchForm">
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
+	  	 #commandlinks(true false false "View"	false  false false false false	${homeBean} "" ${rlb} ) 
+	    <span class="rwiki_searchBox">
+	      ${rlb.jsp_search}:	
+	      <input type="hidden" name="action" value="${requestScope.searchTarget}" />
+	      <input type="hidden" name="panel" value="Main" />
+	      <input type="text" name="search" />
+	    </span>
+	  </form>
+	</div>
+	
+	#if (${rightRenderBean.hasContent})
+		#set($rwikiContentStyle = "withsidebar")
+	#else
+		#set($rwikiContentStyle = "nosidebar")
+	#end
+	#breadcrumbs()
+	<div id="rwiki_head" >				    
+		#sidebar_switcher()
+	</div>
+	<div id="rwiki_content" class="${rwikiContentStyle}" >
+		<h3>${rlb.jsp_search}: ${searchBean.search}</h3>
+
+		#set($searchResults = ${searchBean.searchResults})
+		#set($searchViewBean = ${util.newViewBean($requestScope)})
+      	<p>
+      	#if ( $searchResults.size() > 0 ) 
+      		#foreach( $result in $searchResults )
+      		   #set( $searchViewBean.pageName  = ${result.name})
+      	    <a href="${util.escapeHtml(${searchViewBean.viewUrl})}" >${searchViewBean.localName}</a>
+      		#end
+      	#else
+      		${rlb.jsp_no_results_found}</b>
+	  	#end
+	  	</p>
+	 </div>
+	 #sidebar()
+  </div>
+</div>
+#footer()

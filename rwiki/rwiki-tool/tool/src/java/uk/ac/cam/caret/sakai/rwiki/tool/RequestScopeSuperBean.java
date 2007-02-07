@@ -20,6 +20,7 @@
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.tool;
 
+import java.util.Date;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -918,4 +919,11 @@ public class RequestScopeSuperBean
 		return b;
 	}
 	
+	public String getPageRevisionContent(RWikiObject currentRWikiObject,int previousRevision) {
+		RWikiObject  rwo = objectService.getRWikiHistoryObject(currentRWikiObject, previousRevision);
+		if ( rwo == null ) {
+			return "";
+		} 
+		return rwo.getContent();
+	}
 }

@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -96,7 +95,7 @@ public class SaveCommand implements HttpCommand
 		return o;
 	}
 
-	public void execute(HttpServletRequest request, HttpServletResponse response)
+	public void execute(Dispatcher dispatcher, HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
 	{
 
@@ -126,7 +125,7 @@ public class SaveCommand implements HttpCommand
 		else if (save.equals(EditBean.PREVIEW_VALUE))
 		{
 			vphb.setSaveState(ViewParamsHelperBean.SAVE_PREVIEW);
-			this.previewDispatch(request, response);
+			this.previewDispatch(dispatcher,request, response);
 			return;
 		}
 		else if (save.equals(EditBean.LINK_ATTACHMENT_VALUE)
@@ -175,7 +174,7 @@ public class SaveCommand implements HttpCommand
 		else if (save.equals(EditBean.CANCEL_VALUE))
 		{
 			vphb.setSaveState(ViewParamsHelperBean.SAVE_CANCEL);
-			this.cancelDispatch(request, response);
+			this.cancelDispatch(dispatcher,request, response);
 			ViewBean vb = new ViewBean(name, realm);
 			String requestURL = request.getRequestURL().toString();
 			sessionManager.getCurrentToolSession().setAttribute(
@@ -197,18 +196,18 @@ public class SaveCommand implements HttpCommand
 
 			// redirect probably back to the edit page
 			vphb.setSaveState(ViewParamsHelperBean.SAVE_VERSION_EXCEPTION);
-			this.contentChangedDispatch(request, response);
+			this.contentChangedDispatch(dispatcher,request, response);
 			return;
 		}
 		catch (PermissionException e)
 		{
 			// Redirect back to a no permission page...
-			this.noUpdateAllowed(request, response);
+			this.noUpdateAllowed(dispatcher,request, response);
 			return;
 		}
 		// Successful update
 		vphb.setSaveState(ViewParamsHelperBean.SAVE_OK);
-		this.successfulUpdateDispatch(request, response);
+		this.successfulUpdateDispatch(dispatcher,request, response);
 		ViewBean vb = new ViewBean(name, realm);
 		String requestURL = request.getRequestURL().toString();
 		sessionManager.getCurrentToolSession().setAttribute(
@@ -223,48 +222,43 @@ public class SaveCommand implements HttpCommand
 		objectService.update(name, realm, versionDate, content);
 	}
 
-	private void cancelDispatch(HttpServletRequest request,
+	private void cancelDispatch(Dispatcher dispatcher,HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		RequestDispatcher rd = request.getRequestDispatcher(cancelPath);
-		rd.forward(request, response);
+		dispatcher.dispatch(cancelPath,request, response);
 	}
 
-	private void previewDispatch(HttpServletRequest request,
+	private void previewDispatch(Dispatcher dispatcher,HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		RequestDispatcher rd = request.getRequestDispatcher(previewPath);
-		rd.forward(request, response);
+		dispatcher.dispatch(previewPath,request, response);
 	}
 	
 
 
-	protected void successfulUpdateDispatch(HttpServletRequest request,
+	protected void successfulUpdateDispatch(Dispatcher dispatcher,HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		RequestDispatcher rd = request.getRequestDispatcher(successfulPath);
-		rd.forward(request, response);
+		dispatcher.dispatch(successfulPath,request, response);
 	}
 
-	private void contentChangedDispatch(HttpServletRequest request,
+	private void contentChangedDispatch(Dispatcher dispatcher,HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
 		ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
 		ResourceLoaderBean rlb = ResourceLoaderHelperBean.getResourceLoader(request);
 		errorBean
 				.addError(rlb.getString("save.content_changed","Content has changed since you last viewed it. Please update the new content or overwrite it with the submitted content."));
-		RequestDispatcher rd = request.getRequestDispatcher(contentChangedPath);
-		rd.forward(request, response);
+		dispatcher.dispatch(contentChangedPath,request, response);
 	}
 
-	private void noUpdateAllowed(HttpServletRequest request,
+	private void noUpdateAllowed(Dispatcher dispatcher,HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
 		ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
 		ResourceLoaderBean rlb = ResourceLoaderHelperBean.getResourceLoader(request);
 		errorBean.addError(rlb.getString("save.noupdate_permission","You do not have permission to update this page."));
-		RequestDispatcher rd = request.getRequestDispatcher(noUpdatePath);
-		rd.forward(request, response);
+		dispatcher.dispatch(noUpdatePath,request, response);
 	}
 
 	public String getSuccessfulPath()

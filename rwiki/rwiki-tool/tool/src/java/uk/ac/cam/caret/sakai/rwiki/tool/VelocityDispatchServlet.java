@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  *
  * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,49 +19,49 @@
  *
  **********************************************************************************/
 
-package uk.ac.cam.caret.sakai.rwiki.tool.command;
+package uk.ac.cam.caret.sakai.rwiki.tool;
 
 import java.io.IOException;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
-
 /**
- * The command that simply dispatches to the set servletPath.
- * 
- * @author andrew
+ * @author ieb
  */
-public class SimpleCommand implements HttpCommand
+public class VelocityDispatchServlet extends HttpServlet
 {
 
-	private String servletPath;
+	private VelocityInlineDispatcher inlineDispatcher;
 
-	public void execute(Dispatcher dispatcher, HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException
-	{
-		// So far we need do nothing except dispatch
-		dispatcher.dispatch(servletPath, request, response);
-
-	}
-
-	/**
-	 * @return the path to the jsp file
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.servlet.GenericServlet#init(javax.servlet.ServletConfig)
 	 */
-	public String getServletPath()
+	@Override
+	public void init(ServletConfig config) throws ServletException
 	{
-		return servletPath;
+		super.init(config);
+		ServletContext context = config.getServletContext();
+		inlineDispatcher = new VelocityInlineDispatcher();
+		inlineDispatcher.init(context);
 	}
 
-	/**
-	 * @param servletPath
-	 *        the path to the jsp file
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
-	public void setServletPath(String servletPath)
+	@Override
+	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
-		this.servletPath = servletPath;
+		inlineDispatcher.dispatch(request.getPathInfo(), request, response);
 	}
+
 
 }

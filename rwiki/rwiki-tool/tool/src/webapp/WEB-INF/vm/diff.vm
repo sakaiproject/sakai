@@ -1,0 +1,96 @@
+#set ( $historyBean = ${requestScope.historyBean} )
+#set ( $currentRWikiObject = ${requestScope.currentRWikiObject} )
+#set ( $rightRenderBean = ${requestScope.diffRightRenderBean} )
+#set ( $diffBean = ${requestScope.diffBean} )
+#set ( $homeBean = ${requestScope.homeBean} )
+#set ( $rlb = ${requestScope.resourceLoaderBean} )
+#set( $title = "${rlb.jsp_title_diff}: ${historyBean.localName}" )
+#header(${title} false )  
+<div id="rwiki_container">
+  <div class="portletBody">
+	<div class="navIntraTool">
+	  <form action="?#" method="get" class="rwiki_searchForm">
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
+	  	 #commandlinks(true true true "View Current"	false  false true true false	${homeBean} ${historyBean} ${rlb} ) 
+	    <span class="rwiki_searchBox">
+	      ${rlb.jsp_search}:	
+	      <input type="hidden" name="action" value="${requestScope.SearchTarget}" />
+	      <input type="hidden" name="panel" value="Main" />
+	      <input type="text" name="search" />
+	    </span>
+	  </form>
+	</div>
+	
+	#if (${rightRenderBean.hasContent})
+		#set( $rwikiContentStyle = "withsidebar" )
+	#else
+		#set( $rwikiContentStyle = "nosidebar" )
+	#end
+	
+	#breadcrumbs()
+	<div id="rwiki_head" >				    
+		#sidebar_switcher()
+	</div>
+	<div id="rwiki_content" class="${rwikiContentStyle}" >
+	
+		    <h3>
+	      ${rlb.jsp_page_differences}: ${historyBean.localName}
+	      (${rlb.jsp_page_version} ${diffBean.left.revision}
+	      vs ${diffBean.right.revision})
+	    </h3>
+	    <div class="differences">
+	      <table class="colordiff">
+		      <tr>
+		       <td class="pageLeft">
+		        #set ( ${historyBean.interestedRevision} = ${diffBean.left.revision} )
+		        <a href="${util.escapeHtml(${historyBean.viewRevisionUrl})}" >${rlb.jsp_page_version} ${diffBean.left.revision}</a>
+		        <br/>
+		        (${rlb.jsp_page_modified}: 
+		        #formatDateTime(${diffBean.left.version}) 
+		        ${rlb.jsp_by} 
+		        #formatDisplayName(${diffBean.left.user})
+		       </td>
+		       <td class="pageRight">
+		        #set ( ${historyBean.interestedRevision} = ${diffBean.right.revision} )
+		        <a href="${util.escapeHtml(${historyBean.viewRevisionUrl})} >${rlb.jsp_page_version} ${diffBean.right.revision}</a>
+		        <br/>
+		        (${rlb.jsp_page_modified}: 
+		        #formatDateTime(${diffBean.right.version})
+		        ${rlb.jsp_by} 
+		        #formatDisplayName(${diffBean.right.user})
+		        </td>
+	    	  </tr>
+		      ${diffBean.genericDiffBean.colorDiffTable}
+	      </table>
+	    </div>
+	    <table border="0" cellpadding="0" cellspacing="0" class="keytable">
+	      <tr>
+		       <td colspan="2" class="keytablehead">Key</td>
+	      </tr>
+	      <tr>
+		       <td width="50%" class="deletedLeft">${rlb.jsp_page_diff_deleted}</td>
+		       <td width="50%" class="deletedRight">&nbsp;</td>
+	      </tr>
+	      <tr>
+		       <td colspan="2" class="changedLeft"><div align="center">${rlb.jsp_page_diff_changed}</div></td>
+	      </tr>
+	      <tr>
+		       <td width="50%" class="addedLeft">&nbsp;</td>
+		       <td width="50%" class="addedRight">Added</td>
+	      </tr>
+	    </table>
+	</div>
+	
+	
+	</div>
+	#sidebar()
+	 
+  </div>
+</div>
+#footer()
+
+
+

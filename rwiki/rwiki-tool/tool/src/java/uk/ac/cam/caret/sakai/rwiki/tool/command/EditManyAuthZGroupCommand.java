@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -94,7 +93,7 @@ public class EditManyAuthZGroupCommand implements HttpCommand
 	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.HttpCommand#execute(javax.servlet.http.HttpServletRequest,
 	 *      javax.servlet.http.HttpServletResponse)
 	 */
-	public void execute(HttpServletRequest request, HttpServletResponse response)
+	public void execute(Dispatcher dispatcher, HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
 	{
 
@@ -113,7 +112,7 @@ public class EditManyAuthZGroupCommand implements HttpCommand
 			if (saveType == null || saveType.equals(""))
 			{
 				// Begin a realmEdit...
-				editDispatch(request, response);
+				editDispatch(dispatcher,request, response);
 				return;
 			}
 			else if (saveType.equals(AuthZGroupEditBean.CANCEL_VALUE))
@@ -123,7 +122,7 @@ public class EditManyAuthZGroupCommand implements HttpCommand
 				// locking in authz group
 				// is optimistic
 				// realmService.cancelEdit(realmEdit);
-				cancelDispatch(request, response);
+				cancelDispatch(dispatcher,request, response);
 
 				String pageName = vphb.getGlobalName();
 				String realm = vphb.getLocalSpace();
@@ -155,7 +154,7 @@ public class EditManyAuthZGroupCommand implements HttpCommand
 					realmService.save(group);
 				}
 
-				successfulDispatch(request, response);
+				successfulDispatch(dispatcher, request, response);
 
 				String pageName = vphb.getGlobalName();
 				String realm = vphb.getLocalSpace();
@@ -169,13 +168,13 @@ public class EditManyAuthZGroupCommand implements HttpCommand
 		}
 		catch (GroupNotDefinedException e)
 		{
-			unknownRealmDispatch(request, response);
+			unknownRealmDispatch(dispatcher,request, response);
 			return;
 		}
 		catch (AuthzPermissionException e)
 		{
 			// redirect to permission denied page
-			permissionDeniedDispatch(request, response);
+			permissionDeniedDispatch(dispatcher,request, response);
 			return;
 		}
 
@@ -243,42 +242,35 @@ public class EditManyAuthZGroupCommand implements HttpCommand
 
 
 
-	private void successfulDispatch(HttpServletRequest request,
+	private void successfulDispatch(Dispatcher dispatcher,HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		dispatch(request, response, successfulPath);
+		dispatcher.dispatch(successfulPath,request, response );
 	}
 
-	private void dispatch(HttpServletRequest request,
-			HttpServletResponse response, String path) throws ServletException,
-			IOException
-	{
-		RequestDispatcher rd = request.getRequestDispatcher(path);
-		rd.forward(request, response);
-	}
 
-	private void cancelDispatch(HttpServletRequest request,
+	private void cancelDispatch(Dispatcher dispatcher, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		dispatch(request, response, cancelEditPath);
+		dispatcher.dispatch(cancelEditPath,request, response );
 	}
 
-	private void editDispatch(HttpServletRequest request,
+	private void editDispatch(Dispatcher dispatcher,HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		dispatch(request, response, editRealmPath);
+		dispatcher.dispatch(editRealmPath,request, response );
 	}
 
-	private void permissionDeniedDispatch(HttpServletRequest request,
+	private void permissionDeniedDispatch(Dispatcher dispatcher,HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		dispatch(request, response, permissionPath);
+		dispatcher.dispatch(permissionPath, request, response );
 	}
 
-	private void unknownRealmDispatch(HttpServletRequest request,
+	private void unknownRealmDispatch(Dispatcher dispatcher,HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		dispatch(request, response, unknownRealmPath);
+		dispatcher.dispatch(unknownRealmPath,request, response );
 	}
 
 	private void updateRole(Role role, String escapedId, Map map)

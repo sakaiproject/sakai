@@ -40,6 +40,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.PrePopulateBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
+import uk.ac.cam.caret.sakai.rwiki.tool.command.Dispatcher;
 import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
 import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
@@ -65,6 +66,8 @@ public class RWikiServlet extends HttpServlet
 	private String headerScriptSource;
 
 	private String footerScript;
+	
+	private Dispatcher dispatcher = null;
 
 	public void init(ServletConfig servletConfig) throws ServletException
 	{
@@ -98,6 +101,10 @@ public class RWikiServlet extends HttpServlet
 		{
 
 		}
+		
+		
+		String basePath = servletConfig.getServletContext().getRealPath("/");
+		dispatcher = new MapDispatcher(sc);
 
 	}
 
@@ -166,7 +173,7 @@ public class RWikiServlet extends HttpServlet
 		finish = System.currentTimeMillis();
 		TimeLogger.printTimer("Response Preamble Complete", start, finish);
 		start = System.currentTimeMillis();
-		command.execute(request, response);
+		command.execute(dispatcher,request, response);
 		finish = System.currentTimeMillis();
 
 		TimeLogger.printTimer("Response Complete", start, finish);

@@ -1,0 +1,147 @@
+#set( $historyBean = ${requestScope.historyBean} )
+#set( $renderBean = ${requestScope.renderBean} )
+#set( $rightRenderBean  = ${requestScope.infoRightRenderBean} )
+#set( $reverseHistoryHelperBean = ${requestScope.reverseHistoryHelperBean} )
+#set( $permissionsBean = ${requestScope.permissionsBean} )
+#set( $referencesBean = ${requestScope.referencesBean} )
+#set( $homeBean = ${requestScope.homeBean} )
+#set( $rlb = ${requestScope.resourceLoaderBean} )
+#set( $title = "${rlb.jsp_info}: ${historyBean.localName}" )
+#header(${title} false )  
+
+
+#helppopup( "versionhelp"  ${rlb.jsp_history_versions} ${rlb.jsp_history_versions_help} )
+#helppopup( "userhelp" ${rlb.jsp_history_user} ${rlb.jsp_history_user_help} )
+#helppopup( "datehelp" ${rlb.jsp_history_date} ${rlb.jsp_history_date_help} )
+#helppopup( "changeshelp" ${rlb.jsp_history_changes} ${rlb.jsp_history_changes_help} )
+#helppopup( "reverthelp" ${rlb.jsp_history_revert} ${rlb.jsp_history_revert_help} )
+#helppopup( "changedhelp" ${rlb.jsp_history_content} ${rlb.jsp_history_content_help} )
+#helppopup1( "permissionshelp" ${rlb.jsp_history_permissions_help} )
+  	
+<div id="rwiki_container">
+  <div class="portletBody">
+	<div class="navIntraTool">
+	  <form action="?#" method="get" class="rwiki_searchForm">
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
+	  	 #commandlinks(true true true "View"	true  true true true ${requestScope.Withnotification}	${homeBean} ${historyBean} ${rlb} ) 
+	    <span class="rwiki_searchBox">
+	      ${rlb.jsp_search}:	
+	      <input type="hidden" name="action" value="${requestScope.SearchTarget}" />
+	      <input type="hidden" name="panel" value="Main" />
+	      <input type="text" name="search" />
+	    </span>
+	  </form>
+	</div>
+	
+	#if (${rightRenderBean.hasContent})
+		#set( $rwikiContentStyle = "withsidebar" )
+	#else
+		#set( $rwikiContentStyle = "nosidebar" )
+	#end
+	
+	#breadcrumbs()
+	<div id="rwiki_head" >				    
+		#sidebar_switcher()
+	</div>
+	<div id="rwiki_content" class="${rwikiContentStyle}" >
+	 <h3>${rlb.jsp_history}: ${historyBean.localName}</h3>
+	 <div class="rwikirenderedContent">
+	  <table class="rwiki_history" summary="Page History">
+		  <tr>
+			  <th>${rlb.jsp_history_version}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'versionhelp'); return false;"
+				  onMouseOut="hidePopup('versionhelp');" >?</a></th>
+			  <th>${rlb.jsp_history_user}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'userhelp'); return false;"
+				  onMouseOut="hidePopup('userhelp');" >?</a></th>
+			  <th>${rlb.jsp_history_date}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'datehelp'); return false;"
+				  onMouseOut="hidePopup('datehelp');" >?</a></th>
+			  <th colspan="2">${rlb.jsp_history_changes}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'changeshelp'); return false;"
+				  onMouseOut="hidePopup('changeshelp');" >?</a></th>
+		   <th>
+     #if (${permissionsBean.updateAllowed})
+		  			${rlb.jsp_history_revert}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'reverthelp'); return false;"
+		  				onMouseOut="hidePopup('reverthelp');" >?</a>
+		  	#else
+		  			&nbsp;
+		  	#end
+		   </th>
+			  <th>${rlb.jsp_history_changed} <a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'changedhelp'); return false;"
+				  onMouseOut="hidePopup('changedhelp');" >?</a>
+			  </th>
+			  <th>${rlb.jsp_history_permissions}  <a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'permissionshelp'); return false;"
+				  onMouseOut="hidePopup('permissionshelp');" >?</a>
+			  </th>
+		  </tr>
+		  <tr>
+		   <td>
+		    <a href="${util.escapeHtml(${historyBean.viewUrl})}" >
+		      ${rlb.jsp_history_current}  (${renderBean.rwikiObject.revision})
+		    </a>
+		   </td>
+		   <td>
+		    #formatDisplayName(${renderBean.rwikiObject.user})
+		   </td>
+		   <td>&nbsp;</td>
+		   <td colspan="2">&nbsp;</td>
+		   <td>&nbsp;</td>
+		  </tr>
+		  #foreach ( $historyObject in ${reverseHistoryHelperBean.reverseHistory} )
+		     #set( ${historyBean.interestedRevision} = ${historyObject.revision} )
+		  <tr>
+		   <td>
+		     <a href="${util.escapeHtml(${historyBean.viewRevisionUrl})}" >
+			      V.${historyObject.revision}
+		      </a>
+		   </td>
+		   <td>
+		   #formatDisplayName(${historyObject.user})
+		   </td>
+		   <td>
+		   #formatDateTime(${historyObject.version})
+		   </td>
+		   <td>
+		      <a href="${util.escapeHtml(${historyBean.diffToCurrentUrl})}" >
+			       ${rlb.jsp_history_to_current}
+		      </a>
+		   </td>
+		   <td>
+		      #if (${historyObject.revision} > 0)
+			     <a href="${util.escapeHtml(${historyBean.diffToPreviousUrl})}" >
+			      ${rlb.jsp_history_to_previous}
+			     </a>
+			     #end
+		   </td>
+		   <td>
+		      #if (${permissionsBean.updateAllowed})
+			     <a href="${util.escapeHtml(${historyBean.revertToRevisionUrl})}" 
+			      onclick="return confirm('${rlb.jsp_history_version_msg1}${historyObject.revision} ${rlb.jsp_history_version_msg2}');"
+			      >
+			       Revert to this version
+			     </a>
+			     #else
+			     &nbsp;
+			     #end
+		   </td>
+		  	<td>
+		  		 #if (${reverseHistoryHelperBean.theSame})
+		  		  #set ( $sameas = ${historyObject.revision} - 1 )
+		  				Content same as V.${sameas}
+		  			#end
+		  	</td>
+		  	<td>
+		  		${historyObject.permissions}
+		  	</td>
+		  </tr>
+		#end
+	      </table>
+	    </div> <!-- rwikirenderedcontent -->
+	    
+	  </div>
+	 #sidebar()
+	 
+  </div>
+</div>
+#footer()
+

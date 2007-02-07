@@ -1,0 +1,60 @@
+#set( $viewBean = ${requestScope.ViewBean} )  
+#set( $renderBean = ${requestScope.RenderBean} )
+#set( $rightRenderBean = ${requestScope.ViewRightRenderBean} )
+#set( $permissionsBean = ${requestScope.PermissionsBean} )
+#set( $homeBean = ${requestScope.HomeBean} )
+#set( $recentlyVisitedBean = ${requestScope.RecentlyVisitedBean} )
+#set( $currentRWikiObject = ${requestScope.CurrentRWikiObject} )
+#set( $rlb = ${requestScope.ResourceLoaderBean} )
+
+#set(${recentlyVisitedBean.ViewPage}=${viewBean})  
+#set( $title = "${rlb.jsp_view}: ${renderBean.localisedPageName}" )
+#header(${title} ${viewBean} )  
+<div id="rwiki_container">
+  <div class="portletBody">
+	<div class="navIntraTool">
+	  <form action="?#" method="get" class="rwiki_searchForm">
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
+	  	 #commandlinks(true true true "View"	true  true true true ${requestScope.Withnotification}	${homeBean} ${viewBean} ${rlb} ) 
+	    <span class="rwiki_searchBox">
+	      ${rlb.jsp_search}:	
+	      <input type="hidden" name="action" value="${requestScope.SearchTarget}" />
+	      <input type="hidden" name="panel" value="Main" />
+	      <input type="text" name="search" />
+	    </span>
+	  </form>
+	</div>
+	
+	#if (${rightRenderBean.hasContent})
+		#set( $rwikiContentStyle = "withsidebar" )
+	#else
+		#set( $rwikiContentStyle = "nosidebar" )
+	#end
+	
+	#breadcrumbs()
+	<div id="rwiki_head" >				    
+		#sidebar_switcher()
+	</div>
+	<div id="rwiki_content" class="${rwikiContentStyle}" >
+	    <div class="rwikiRenderBody">
+	      <div class="rwikiRenderedContent"> 
+			${renderBean.renderedPage}<br/>	    
+	      </div>
+	    </div>
+	  </div>
+	 <div class="lastmodified" >
+	 	${renderBean.localisedPageName}
+	 	${rlb.jsp_last_modified_by} 
+	 	#formatDisplayName(${currentRWikiObject.user})
+	 	${rlb.jsp_on}
+	 	#formatDateTime($currentRWikiObject.version) 
+	 </div>
+	 #sidebar()
+	 
+  </div>
+</div>
+#comments()
+#footer()

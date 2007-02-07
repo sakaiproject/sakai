@@ -1,0 +1,107 @@
+#set( $rightRenderBean = ${requestScope.infoRightRenderBean} )
+#set( $homeBean = ${requestScope.homeBean} )
+#set( $realmEditBean = ${requestScope.realmEditBean} )
+#set( $errorBean = ${requestScope.errorBean} )
+#set( $rlb = ${requestScope.resourceLoaderBean} )
+#set( $title = "${rlb.jsp_edit_section}: ${realmEditBean.localSpace}" )
+#header(${title} false )  
+<div id="rwiki_container">
+  <div class="portletBody">
+	<div class="navIntraTool">
+	  <form action="?#" method="get" class="rwiki_searchForm">
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
+	  	 #commandlinks(true false false "View"	false  false false false false	${homeBean} ${viewBean} ${rlb} ) 
+	  </form>
+	 </div>
+		
+	 <div id="rwiki_content" class="nosidebar" >
+	    <h3>${rlb.jsp_edit_section}: ${realmEditBean.localSpace}</h3>
+	    #if ( ${errorBean.errors.size()}  > 0 )
+	      <p class="validation" style="clear: none;">
+		       #foreach( $error in ${errorBean.errors} )
+		        ${error}
+		       #end
+		     </p>
+	    #end
+	    <form action="?#" method="post">
+	      <div class="rwikirenderedContent">
+		       <table class="rwiki_info" cellspacing="0" summary="Site Permissions" >
+		         <tbody>
+		           <tr id="permissions">
+		             <th>${rlb.jsp_role_permissions}</th>
+		             <td>${rlb.jsp_permission_create}</td>
+		             <td>${rlb.jsp_permission_read}</td>
+		             <td>${rlb.jsp_permission_edit}</td>
+		             <td>${rlb.jsp_permission_admin}</td>
+		             <td>${rlb.jsp_permission_super_admin}</td>
+		           </tr>
+		        #foreach( $role in ${realmEditBean.roles} )
+		           <tr class="permissionsGroupRole">
+			             <th>${role.id}</th>
+			             <td>
+			             #if (${role.secureCreate} )
+			               <input type="checkbox" name="create_${role.id}" checked="checked"/>
+			             #else
+			               <input type="checkbox" name="create_${role.id}"/>
+			             #end
+			             </td>
+			             <td>
+			             #if (${role.secureRead} )
+   			            <input type="checkbox" name="read_${role.id}" checked="checked"/>
+			             #else
+			               <input type="checkbox" name="read_${role.id}"/>
+			             #end
+			             </td>
+   			          <td>
+			             #if (${role.secureUpdate} )
+			               <input type="checkbox" name="update_${role.id}" checked="checked"/>
+			             #else
+			               <input type="checkbox" name="update_${role.id}"/>
+   			          #end
+			             </td>
+			             <td>
+			             #if (${role.secureAdmin})
+			               <input type="checkbox" name="admin_${role.id}" checked="checked"/>
+   			          #else
+			               <input type="checkbox" name="admin_${role.id}"/>
+			             #end
+			             </td>
+			             <td>
+   			          #if (${role.secureSuperAdmin})
+			               <input type="checkbox" name="superadmin_${role.id}" checked="checked"/>
+			             #else
+			               <input type="checkbox" name="superadmin_${role.id}"/>
+			             #end
+   			          </td>
+		           </tr>
+		        #end
+		           <tr>
+		              <td colspan="7">
+			               <div class="rwiki_editControl">
+			                  <p class="act">
+			                     <input type="hidden" name="pageName" value="${realmEditBean.pageName}" />
+			                     <input type="hidden" name="panel" value="Main"/>
+			                     <input type="hidden" name="action" value="editRealm"/>
+			                     <input type="submit" name="save" value="${rlb.jsp_button_save}"/> 
+			                     <input type="submit" name="save" value="${rlb.jsp_button_cancel}"/>
+			                     <input type="hidden" name="realm" value="${realmEditBean.localSpace}"/>
+			                  </p>
+			               </div>
+		              </td>
+		           </tr>
+		         </tbody>
+		       </table>
+	      </div>
+	    </form>
+	 </div>
+	 
+ </div>
+</div>
+#footer()
+
+
+
+

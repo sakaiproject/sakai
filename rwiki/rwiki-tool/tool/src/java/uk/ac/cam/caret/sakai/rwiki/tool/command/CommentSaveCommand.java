@@ -43,7 +43,7 @@ public class CommentSaveCommand extends SaveCommand
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.command.SaveCommand#successfulUpdateDispatch(javax.servlet.http.HttpServletRequest,
 	 *      javax.servlet.http.HttpServletResponse)
 	 */
-	protected void successfulUpdateDispatch(HttpServletRequest request,
+	protected void successfulUpdateDispatch(Dispatcher dispatcher,HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
 		RequestScopeSuperBean rssb = RequestScopeSuperBean
@@ -93,7 +93,7 @@ public class CommentSaveCommand extends SaveCommand
 		// force a refresh
 		rssb.getCurrentPageName(true);
 		rssb.getCurrentRWikiObject(true);
-		super.successfulUpdateDispatch(request, response);
+		super.successfulUpdateDispatch(dispatcher,request, response);
 	}
 
 }

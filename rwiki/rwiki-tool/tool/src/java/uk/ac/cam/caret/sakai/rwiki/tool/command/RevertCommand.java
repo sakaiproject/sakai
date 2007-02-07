@@ -24,7 +24,6 @@ package uk.ac.cam.caret.sakai.rwiki.tool.command;
 import java.io.IOException;
 import java.util.Date;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -83,7 +82,7 @@ public class RevertCommand implements HttpCommand
 		return o;
 	}
 
-	public void execute(HttpServletRequest request, HttpServletResponse response)
+	public void execute(Dispatcher dispatcher, HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
 	{
 
@@ -115,17 +114,17 @@ public class RevertCommand implements HttpCommand
 			editBean.setPreviousVersion(version);
 			editBean.setSaveType("revert");
 
-			this.contentChangedDispatch(request, response);
+			this.contentChangedDispatch(dispatcher,request, response);
 			return;
 		}
 		catch (PermissionException e)
 		{
 			// Fail to revert!
-			this.noUpdateAllowed(request, response);
+			this.noUpdateAllowed(dispatcher,request, response);
 			return;
 		}
 		// Successful reversion
-		this.successfulUpdateDispatch(request, response);
+		this.successfulUpdateDispatch(dispatcher,request, response);
 		// set the state to view
 		ViewBean vb = new ViewBean(name, realm);
 		String requestURL = request.getRequestURL().toString();
@@ -135,14 +134,13 @@ public class RevertCommand implements HttpCommand
 
 	}
 
-	private void successfulUpdateDispatch(HttpServletRequest request,
+	private void successfulUpdateDispatch(Dispatcher dispatcher,HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		RequestDispatcher rd = request.getRequestDispatcher(successfulPath);
-		rd.forward(request, response);
+		dispatcher.dispatch(successfulPath,request, response);
 	}
 
-	private void contentChangedDispatch(HttpServletRequest request,
+	private void contentChangedDispatch(Dispatcher dispatcher,HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
 		ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
@@ -150,19 +148,17 @@ public class RevertCommand implements HttpCommand
 		errorBean
 				.addError(rlb.getString("revertcmd.content_changed","Content has changed since you last viewed it. Please update the new content or overwrite it with the submitted content."));
 
-		RequestDispatcher rd = request.getRequestDispatcher(contentChangedPath);
-		rd.forward(request, response);
+		dispatcher.dispatch(contentChangedPath,request, response);
 	}
 
-	private void noUpdateAllowed(HttpServletRequest request,
+	private void noUpdateAllowed(Dispatcher dispatcher,HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
 		ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
 		ResourceLoaderBean rlb = ResourceLoaderHelperBean.getResourceLoaderBean();
 		errorBean.addError(rlb.getString("revertcmd.noupdate_allowed","You do not have permission to update this page."));
 
-		RequestDispatcher rd = request.getRequestDispatcher(noUpdatePath);
-		rd.forward(request, response);
+		dispatcher.dispatch(noUpdatePath,request, response);
 	}
 
 	public String getContentChangedPath()

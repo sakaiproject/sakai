@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  *
  * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package uk.ac.cam.caret.sakai.rwiki.tool.api;
+
+package uk.ac.cam.caret.sakai.rwiki.tool.command;
 
 import java.io.IOException;
 
@@ -26,12 +27,19 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import uk.ac.cam.caret.sakai.rwiki.tool.command.Dispatcher;
-
-
-public interface HttpCommand
+/**
+ * @author ieb
+ *
+ */
+public interface Dispatcher
 {
 
-	void execute(Dispatcher dispatcher, HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException;
+	/**
+	 * @param path
+	 * @param request
+	 * @param response
+	 * @throws IOException 
+	 */
+	void dispatch(String path, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException;
+
 }

@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -100,7 +99,7 @@ public class AddAttachmentReturnCommand implements HttpCommand
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand#execute(javax.servlet.http.HttpServletRequest,
 	 *      javax.servlet.http.HttpServletResponse)
 	 */
-	public void execute(HttpServletRequest request, HttpServletResponse response)
+	public void execute(Dispatcher dispatcher,HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
 	{
 
@@ -157,8 +156,7 @@ public class AddAttachmentReturnCommand implements HttpCommand
 		session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
 
 		// finally dispatch to edit
-		RequestDispatcher rd = request.getRequestDispatcher(editPath);
-		rd.forward(request, response);
+		dispatcher.dispatch(editPath, request, response);
 
 	}
 

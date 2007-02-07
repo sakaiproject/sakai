@@ -1,0 +1,84 @@
+#set( $viewBean = ${requestScope.ViewBean} )  
+#set( $homeBean = ${requestScope.HomeBean} )
+#set( $preferencesBean = ${requestScope.preferencesBean})
+#set( $realmBean = ${requestScope.realmBean})
+#set( $rlb = ${requestScope.ResourceLoaderBean} )
+
+#set( $title = "${rlb.jsp_info}: ${realmBean.localName}" )
+#header(${title} ${viewBean} )  
+<div id="rwiki_container">
+  <div class="portletBody">
+	<div class="navIntraTool">
+	  <form action="?#" method="get" class="rwiki_searchForm">
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
+	  	 #commandlinks(true true true "View"	true  true true true ${requestScope.Withnotification}	${homeBean} ${viewBean} ${rlb} ) 
+	    <span class="rwiki_searchBox">
+	      ${rlb.jsp_search}:	
+	      <input type="hidden" name="action" value="${requestScope.SearchTarget}" />
+	      <input type="hidden" name="panel" value="Main" />
+	      <input type="text" name="search" />
+	    </span>
+	  </form>
+	</div>
+	
+	#if (${rightRenderBean.hasContent})
+		#set( $rwikiContentStyle = "withsidebar" )
+	#else
+		#set( $rwikiContentStyle = "nosidebar" )
+	#end
+	
+	#breadcrumbs()
+	<div id="rwiki_head" >				    
+		#sidebar_switcher()
+	</div>
+	<div id="rwiki_content" class="${rwikiContentStyle}" >
+	    <h3>${rlb.jsp_notifications_for}: ${viewBean.localSpace}</h3>
+	    <form action="?#" method="post">
+	     <p class="radio">
+		     #if ( ${preferencesBean.notificationLevel} == "separate") 
+		     		<input type="radio" name="notificationLevel" id="notificationSeparate" value="separate" checked="checked"/>
+		     #else
+		       <input type="radio" name="notificationLevel" id="notificationSeparate" value="separate"/>
+		     #end
+		       <label for="notificationSeparate">${rlb.jsp_notify_seperate}</label>
+	     </p>
+	     <p class="radio">
+							#if (${preferencesBean.notificationLevel} == "digest")
+									<input type="radio" name="notificationLevel" value="digest" id="notificationDigest" checked="checked"/>
+							#else
+									<input type="radio" name="notificationLevel" value="digest" id="notificationDigest"/>
+							#end<label for="notificationDigest">${rlb.jsp_notify_summary}</label>
+	     </p>
+	     <p class="radio">
+		     #if (${preferencesBean.notificationLevel} == "none")
+		       <input type="radio" name="notificationLevel" value="none" id="notificationNone" checked="checked"/>
+		     #else
+		     		<input type="radio" name="notificationLevel" value="none" id="notificationNone"/>
+		     #end
+		       <label for="notificationNone">${rlb.jsp_notify_none}</label>
+	     </p>
+	     <p class="radio">
+		     #if (${preferencesBean.notificationLevel} == "nopreference")
+		       <input type="radio" name="notificationLevel" value="nopreference" id="notificationNoPreference" checked="checked"/>
+		     #else
+									<input type="radio" name="notificationLevel" value="nopreference" id="notificationNoPreference"/>
+							#end
+						 <label for="notificationNoPreference">${rlb.jsp_notify_no_preference}</label>
+	     </p>
+	     <input type="submit" name="save" value="${rlb.jsp_button_save}"/>
+	     <input type="submit" name="save" value="${rlb.jsp_button_cancel}"/>
+	     <input type="hidden" name="action" value="updatePreferences"/>
+	     <input type="hidden" name="pageName" value="${viewBean.pageName}"/>
+	    </form>
+	 #sidebar()
+	 
+  </div>
+</div>
+#footer()
+  
+	  
+	  
+	

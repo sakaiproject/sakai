@@ -1,0 +1,24 @@
+#set( $viewBean = ${requestScope.ViewBean} )  
+#set( $homeBean = ${requestScope.HomeBean} )
+#set( $rlb = ${requestScope.ResourceLoaderBean} )
+#header(${rlb.jsp_permission_denied} false )  
+<div id="rwiki_container">
+  <div class="portletBody">
+	<div class="navIntraTool">
+	  <form action="?#" method="get" class="rwiki_searchForm">
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
+	  	 #commandlinks(false false false "View" false  false false false false	${homeBean} ${viewBean} ${rlb} ) 
+	  </form>
+	</div>
+		
+	#breadcrumbs()
+	<div id="rwiki_content" class="nosidebar" >
+					<h3>${rlb.jsp_permission_denied}</h3>
+					<p>${rlb.jsp_permission_denied_message}</p>
+	</div>
+  </div>
+</div>
+#footer()

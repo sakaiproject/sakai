@@ -23,7 +23,6 @@ package uk.ac.cam.caret.sakai.rwiki.tool.command;
 
 import java.io.IOException;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -79,7 +78,7 @@ public class UpdatePreferencesCommand implements HttpCommand
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand#execute(javax.servlet.http.HttpServletRequest,
 	 *      javax.servlet.http.HttpServletResponse)
 	 */
-	public void execute(HttpServletRequest request, HttpServletResponse response)
+	public void execute(Dispatcher dispatcher,HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
 	{
 
@@ -117,18 +116,17 @@ public class UpdatePreferencesCommand implements HttpCommand
 			}
 
 		}
-		this.successfulUpdateDispatch(request, response);
+		this.successfulUpdateDispatch(dispatcher,request, response);
 
 		String requestURL = request.getRequestURL().toString();
 		SessionManager.getCurrentToolSession().setAttribute(
 				RWikiServlet.SAVED_REQUEST_URL, requestURL + vb.getInfoUrl());
 	}
 
-	private void successfulUpdateDispatch(HttpServletRequest request,
+	private void successfulUpdateDispatch(Dispatcher dispatcher, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		RequestDispatcher rd = request.getRequestDispatcher(successfulPath);
-		rd.forward(request, response);
+		dispatcher.dispatch(successfulPath, request, response);
 	}
 
 

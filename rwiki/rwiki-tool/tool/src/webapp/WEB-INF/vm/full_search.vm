@@ -1,0 +1,79 @@
+#set( $searchBean = ${requestScope.fullSearchBean}	)
+#set( $currentLocalSpace = ${requestScope.currentLocalSpace} )
+#set( $rightRenderBean = ${requestScope.searchRightRenderBean} )
+#set( $recentlyVisitedBean = ${requestScope.recentlyVisitedBean} )
+#set( $homeBean = ${requestScope.homeBean} )
+#set( $rlb = ${requestScope.resourceLoaderBean} )
+#set( $title = "${rlb.jsp_search}: ${searchBean.search}" )
+#header(${title} false )  
+<div id="rwiki_container">
+  <div class="portletBody">
+	<div class="navIntraTool">
+	  <form action="?#" method="get" class="rwiki_searchForm">
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
+	  	 #commandlinks(true false false "View"	false  false false false false	${homeBean} false ${rlb} ) 
+	    <span class="rwiki_searchBox">
+	      ${rlb.jsp_search}:	
+	      <input type="hidden" name="action" value="${requestScope.SearchTarget}" />
+	      <input type="hidden" name="panel" value="Main" />
+	      <input type="text" name="search" />
+	    </span>
+	  </form>
+	</div>
+	
+	#if (${rightRenderBean.hasContent})
+		#set( $rwikiContentStyle = "withsidebar" )
+	#else
+		#set( $rwikiContentStyle = "nosidebar" )
+	#end
+	
+	#breadcrumbs()
+	<div id="rwiki_head" >				    
+		#sidebar_switcher()
+	</div>
+	
+#set ($searchBean.pagesize = 10 )
+#set ($searchResults = ${searchBean.searchResults} )
+#set ($searchPages = ${searchBean.searchPages} )
+#set ($requestSearchPages = ${searchBean.requestPage} )
+	<h3>${rlb.jsp_search}: ${searchBean.search}</h3>
+	<p>
+     ${rlb.jsp_search_took} ${searchBean.timeTaken} ${rlb.jsp_ms_found} ${searchBean.nresults}
+ </p>
+
+#set ($searchViewBean = ${util.newViewBean($requestScope)} ) 
+#set ($searchViewBean.localSpace = $currentLocalSpace)
+	
+	<div id="rwiki_content" class="${rwikiContentStyle}" >
+	
+	 #foreach( $foundItem in ${searchResults} )
+     <p>
+     		${foundItem.index}&nbsp;<a href="${util.escapeHtml(${foundItem.url})}" >${foundItem.title}</a><br />
+     		${rlb.jsp_search_content}: <br />
+     		${foundItem.searchResult} <br />
+     		<span style="font-size: smaller;" >${rlb.jsp_search_realms}:<br />
+     		 #foreach( $realm in ${foundItem.valueMap.realm} )
+     		    			${realm}<br />
+		    	 #end
+     		 <br />
+     		 ${rlb.jsp_search_score}: ${foundItem.score}
+				   </span>	  		  
+	  		</p>
+		#end
+		<p>
+		  ${rlb.jsp_search_result_page}:
+		  #foreach( $pages in ${searchPages} )
+		    		<a href="${util.escapeHtml(${pages.fullSearchLinkUrl})}" >${pages.page}</a>&nbsp;
+		  #end
+		</p>
+	</div>
+	 #sidebar()
+	 
+  </div>
+</div>
+#footer()
+
+

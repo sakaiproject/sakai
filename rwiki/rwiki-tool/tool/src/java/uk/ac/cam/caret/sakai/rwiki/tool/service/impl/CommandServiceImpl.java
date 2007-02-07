@@ -26,7 +26,6 @@ import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,6 +38,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.CommandService;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
+import uk.ac.cam.caret.sakai.rwiki.tool.command.Dispatcher;
 import uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
@@ -75,13 +75,13 @@ public class CommandServiceImpl implements CommandService
 			this.command = command;
 		}
 
-		public void execute(HttpServletRequest request,
+		public void execute(Dispatcher dispatcher, HttpServletRequest request,
 				HttpServletResponse response) throws ServletException,
 				IOException
 		{
 			try
 			{
-				command.execute(request, response);
+				command.execute(dispatcher,request, response);
 			}
 			catch (Exception e)
 			{
@@ -89,8 +89,7 @@ public class CommandServiceImpl implements CommandService
 				{
 					request.setAttribute(PageContext.EXCEPTION, e);
 				}
-				RequestDispatcher rd = request.getRequestDispatcher(errorPath);
-				rd.forward(request, response);
+				dispatcher.dispatch(errorPath, request, response);
 			}
 		}
 	}
@@ -105,7 +104,7 @@ public class CommandServiceImpl implements CommandService
 			log.debug("Created command " + action);
 		}
 
-		public void execute(HttpServletRequest request,
+		public void execute(Dispatcher dispatcher,HttpServletRequest request,
 				HttpServletResponse response) throws ServletException,
 				IOException
 		{
@@ -115,11 +114,10 @@ public class CommandServiceImpl implements CommandService
 			long start1 = System.currentTimeMillis();
 			start = System.currentTimeMillis();
 			log.debug(" Going to " + actionPath);
-			RequestDispatcher rd = request.getRequestDispatcher(actionPath);
 			long start2 = System.currentTimeMillis();
 			try
 			{
-				rd.forward(request, response);
+				dispatcher.dispatch(actionPath, request, response);
 				if ( trackReads && "view".equals(action) ) {
 					RequestScopeSuperBean rssb = RequestScopeSuperBean.getInstance();
 					String ref = rssb.getCurrentRWikiObjectReference();
@@ -133,8 +131,7 @@ public class CommandServiceImpl implements CommandService
 			{
 				if (e.getRootCause() instanceof PermissionException)
 				{
-					rd = request.getRequestDispatcher(permissionPath);
-					rd.forward(request, response);
+					dispatcher.dispatch(permissionPath, request, response);
 				}
 				else
 				{
@@ -142,14 +139,12 @@ public class CommandServiceImpl implements CommandService
 					{
 						request.setAttribute(PageContext.EXCEPTION, e);
 					}
-					rd = request.getRequestDispatcher(errorPath);
-					rd.forward(request, response);
+					dispatcher.dispatch(errorPath, request, response);
 				}
 			}
 			catch (PermissionException e)
 			{
-				rd = request.getRequestDispatcher(permissionPath);
-				rd.forward(request, response);
+				dispatcher.dispatch(permissionPath, request, response);
 			}
 			finally
 			{

@@ -23,7 +23,6 @@ package uk.ac.cam.caret.sakai.rwiki.tool.command;
 
 import java.io.IOException;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,7 +38,7 @@ import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 public class BasicHttpCommand implements HttpCommand
 {
 	private static Log log = LogFactory.getLog(BasicHttpCommand.class);
-
+	
 	private String servletPath;
 
 	/*
@@ -48,13 +47,13 @@ public class BasicHttpCommand implements HttpCommand
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.HttpCommand#execute(javax.servlet.http.HttpServletRequest,
 	 *      javax.servlet.http.HttpServletResponse)
 	 */
-	public void execute(HttpServletRequest request, HttpServletResponse response)
+	public void execute(Dispatcher dispatcher, HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
 	{
 		this.beforeDispatch(request, response);
 		if (!response.isCommitted())
 		{
-			this.dispatch(request, response);
+			this.dispatch(dispatcher,request, response);
 			this.afterDispatch(request, response);
 		}
 	}
@@ -71,11 +70,11 @@ public class BasicHttpCommand implements HttpCommand
 		// EMPTY
 	}
 
-	public void dispatch(HttpServletRequest request,
+	public void dispatch(Dispatcher dispatcher, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		RequestDispatcher rd = request.getRequestDispatcher(servletPath);
-		rd.forward(request, response);
+		
+		dispatcher.dispatch(servletPath,request, response);
 	}
 
 	public String getServletPath()
@@ -87,5 +86,6 @@ public class BasicHttpCommand implements HttpCommand
 	{
 		this.servletPath = servletPath;
 	}
+
 
 }

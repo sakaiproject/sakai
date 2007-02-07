@@ -1,0 +1,51 @@
+#set ( $historyBean = ${requestScope.historyBean} ) 
+#set ( $renderBean = ${requestScope.reviewRenderBean} )
+#set ( $rightRenderBean = ${requestScope.reviewRightRenderBean} )
+#set ( $permissionsBean = ${requestScope.permissionsBean} )
+#set ( $interestedRevision = ${requestScope.reviewHelperBean.interestedRevision} )
+#set ( $reviewRenderBean = ${requestScope.reviewRenderBean} )
+#set ( $currentRWikiObject = ${requestScope.currentRWikiObject} )
+#set ( $homeBean = ${requestScope.homeBean} )
+#set ( $rlb = ${requestScope.resourceLoaderBean} )
+#set ( $title = "${rlb.jsp_review}: ${historyBean.localName} ${rlb.jsp_version}: ${interestedRevision}" )
+#header(${title} ${historyBean} )  
+<div id="rwiki_container">
+  <div class="portletBody">
+	<div class="navIntraTool">
+	  <form action="?#" method="get" class="rwiki_searchForm">
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	  	 #commandlinks(true true false "View"	false  false true false false	${homeBean} ${historyBean} ${rlb} ) 
+	  </form>
+	</div>
+	
+	#if (${rightRenderBean.hasContent})
+		#set( $rwikiContentStyle = "withsidebar" )
+	#else
+		#set( $rwikiContentStyle = "nosidebar" )
+	#end
+	
+	#breadcrumbs()
+	<div id="rwiki_head" >				    
+		#sidebar_switcher()
+	</div>
+	<div id="rwiki_content" class="${rwikiContentStyle}" >
+	    <div class="rwikiRenderBody">
+	      <div class="rwikiRenderedContent"> 
+			${renderBean.renderedPage}<br/>	    
+	      </div>
+	    </div>
+	  </div>
+	 <div class="lastmodified" >
+	 	${renderBean.localisedPageName}
+	 	${rlb.jsp_last_modified_by} 
+	 	#formatDisplayName(${currentRWikiObject.user})
+	 	${rlb.jsp_on}
+	 	#formatDateTime(${currentRWikiObject.version}) 
+	 </div>
+	 #sidebar()
+	 
+  </div>
+</div>
+#footer()
