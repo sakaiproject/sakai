@@ -45,12 +45,9 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
 
     // View maintenance fields - serializable.
     private String userDisplayName;
-    private double totalPointsEarned;
-    private double totalPointsScored;
     private double percent;
     private boolean courseGradeReleased;
     private String courseGrade;
-    private String cumulativeCourseGrade;
     private boolean assignmentsReleased;
     private boolean anyNotCounted;
 
@@ -149,12 +146,9 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
     }
 
     public class AssignmentGradeRow implements Serializable {
-
         private Assignment assignment;
         private AssignmentGradeRecord gradeRecord;
         private List comments;
-
-
 
         public AssignmentGradeRow(Assignment assignment) {
         	this.assignment = assignment;
@@ -212,10 +206,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
         courseGradeReleased = gradebook.isCourseGradeDisplayed();
         assignmentsReleased = gradebook.isAssignmentsDisplayed();
 
-        // Reset the points, percentages, and row styles
-        totalPointsEarned = 0;
-        totalPointsScored = 0;
-        //percent = 0;
+        // Reset the row styles
         rowStyles = new StringBuffer();
 
         // Display course grade if we've been instructed to.
@@ -265,9 +256,6 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
             for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
                 AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
                 if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getPointsEarned() + " to totalPointsEarned");
-                if(asnGr.getPointsEarned()!=null && asnGr.getAssignment().isCounted()){
-                    totalPointsEarned += asnGr.getPointsEarned().doubleValue();
-                }
                 // Update the AssignmentGradeRow in the map
                 AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
                 asnGradeRow.setGradeRecord(asnGr);
@@ -286,19 +274,6 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
                     if(logger.isDebugEnabled())logger.debug("assignment has no associated comment");
                 }
             }
-
-            if(logger.isDebugEnabled())logger.debug("calculating total points scored from " +assignments.size() + "assignments");
-            for(Iterator it = assignments.iterator(); it.hasNext();){
-                Assignment assignment  = (Assignment)it.next();
-                if(assignment.isCounted()){
-                    totalPointsScored = totalPointsScored +assignment.getPointsPossible().doubleValue();
-                }
-                if(logger.isDebugEnabled()) logger.debug("total points scored " + totalPointsScored);
-            }
-
-            if(logger.isDebugEnabled())logger.debug("total points scored is " +totalPointsScored);
-
-
 
             assignmentGradeRows = new ArrayList(asnMap.values());
 
@@ -326,10 +301,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
                     rowStyles.append(",");
                 }
             }
-
-
         }
-
     }
 
     /**
@@ -363,18 +335,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
         pct = bd.doubleValue();
         return pct;
     }
-    /**
-     * @return Returns the totalPointsEarned.
-     */
-    public double getTotalPointsEarned() {
-        return totalPointsEarned;
-    }
-    /**
-     * @return Returns the totalPointsScored.
-     */
-    public double getTotalPointsScored() {
-        return totalPointsScored;
-    }
+
     /**
      * @return Returns the userDisplayName.
      */
@@ -428,17 +389,6 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
     public boolean isAnyNotCounted() {
         return anyNotCounted;
     }
-
-
-    public String getCumulativeCourseGrade() {
-        return cumulativeCourseGrade;
-    }
-
-    public void setCumulativeCourseGrade(String cumulativeCourseGrade) {
-
-        this.cumulativeCourseGrade = cumulativeCourseGrade;
-    }
-
 }
 
 

@@ -17,18 +17,13 @@
 			columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary">
-			<h:outputText value="#{msgs.student_view_cumulative_score}"/>
-            <h:outputText value="#{msgs.student_view_not_released}" rendered="#{!studentViewBean.courseGradeReleased}"/>
-            <h:outputFormat value="#{msgs.student_view_cumulative_score_details}" rendered="#{studentViewBean.courseGradeReleased}">
-				<f:param value="#{studentViewBean.totalPointsEarned}" />
-				<f:param value="#{studentViewBean.totalPointsScored}" />
-				<f:param value="#{studentViewBean.percent}" />
-			</h:outputFormat>
-
 			<h:outputText value="#{msgs.student_view_course_grade}" />
 			<h:panelGroup>
 				<h:outputText value="#{msgs.student_view_not_released}" rendered="#{!studentViewBean.courseGradeReleased}"/>
-				<h:outputText value="#{studentViewBean.courseGrade}" rendered="#{studentViewBean.courseGradeReleased}"/>
+				<h:outputFormat value="#{msgs.student_view_course_grade_details}" rendered="#{studentViewBean.courseGradeReleased}">
+					<f:param value="#{studentViewBean.courseGrade}" />
+					<f:param value="#{studentViewBean.percent}" />
+				</h:outputFormat>
 				<h:outputText value="#{msgs.student_view_not_counted_assignments}" rendered="#{studentViewBean.anyNotCounted && studentViewBean.courseGradeReleased}" escape="false"/>
 			</h:panelGroup>
 		</h:panelGrid>
