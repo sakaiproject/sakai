@@ -60,6 +60,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -84,7 +85,7 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
     private static final String STUDENT_IN_SECTION_UID = "StudentInLab";
     private static final String STUDENT_NOT_IN_SECTION_UID = "StudentNotInLab";
     private static final Double ASN_POINTS = new Double(40.0);
-//    private static final String  = "";
+    private Long asnId;
 
     /**
      * @see org.springframework.test.AbstractTransactionalSpringContextTests#onSetUpInTransaction()
@@ -109,7 +110,7 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
 		integrationSupport.addSectionMembership(TA_UID, section.getUuid(), Role.TA);
 
         // Add an internal assignment.
-        gradebookManager.createAssignment(gradebook.getId(), ASN_TITLE, ASN_POINTS, new Date(), Boolean.FALSE,Boolean.FALSE);
+        asnId = gradebookManager.createAssignment(gradebook.getId(), ASN_TITLE, ASN_POINTS, new Date(), Boolean.FALSE,Boolean.FALSE);
 
         // Add an external assessment.
         gradebookExternalAssessmentService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, null, "Samigo");
@@ -314,7 +315,15 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
 				gradebookService.setAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID, new Double(39), "Service Test");
 				score = gradebookService.getAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID);
 				Assert.assertTrue(score.doubleValue() == 39.0);
-
+				
+				// Make sure a record was made in the history log.
+				List studentUids = Arrays.asList(new String[] {
+						STUDENT_IN_SECTION_UID,
+					});
+				GradingEvents gradingEvents = gradebookManager.getGradingEvents(gradebookManager.getAssignment(asnId), studentUids);
+				List events = gradingEvents.getEvents(STUDENT_IN_SECTION_UID);
+				Assert.assertTrue(events.size() == 1);
+				
 				// Also test the case where there's a score already there.
 				gradebookService.setAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID, new Double(37), "Different Service Test");
 				score = gradebookService.getAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID);

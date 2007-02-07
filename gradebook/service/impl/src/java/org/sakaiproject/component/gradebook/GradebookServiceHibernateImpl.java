@@ -49,6 +49,7 @@ import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
@@ -177,6 +178,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				gradeRecord.setGraderId(graderId);
 				gradeRecord.setDateRecorded(now);
 				session.saveOrUpdate(gradeRecord);
+				
+				session.save(new GradingEvent(assignment, graderId, studentUid, score));
+				
 				// Sync database.
 				session.flush();
 				session.clear();
