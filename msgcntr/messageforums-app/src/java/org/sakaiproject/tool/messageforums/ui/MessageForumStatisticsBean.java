@@ -224,6 +224,7 @@ public class MessageForumStatisticsBean {
 			this.forumSubject = newValue;
 		}
 	}
+	/* === End DecoratedCompiledUserStatistics == */
 	
 	/** Decorated Bean to store stats for user **/
 	public DecoratedCompiledMessageStatistics userInfo = null;
@@ -361,7 +362,11 @@ public class MessageForumStatisticsBean {
 						}
 					}
 				}
-				final Double percentRead = (new Double(readForum) / new Double(totalForum));
+				Double percentRead = 0.0;
+				//check to see if there are more than 0 messages in this forum
+				if(totalForum > 0){
+					percentRead = (new Double(readForum) / new Double(totalForum));
+				}
 		        userInfo.setAuthoredForumsAmt(authoredForum);
 		        userInfo.setReadForumsAmt(readForum);
 		        userInfo.setUnreadForumsAmt(unreadForum);
@@ -402,7 +407,7 @@ public class MessageForumStatisticsBean {
 							userAuthoredInfo.setSiteUserId(selectedSiteUserId);
 							userAuthoredInfo.setForumTitle(topic.getTitle());
 							userAuthoredInfo.setForumDate(mes.getCreated());
-							userAuthoredInfo.setForumSubject(mes.getBody());
+							userAuthoredInfo.setForumSubject(mes.getTitle());
 							statistics.add(userAuthoredInfo);
 						}
 					}
@@ -442,7 +447,7 @@ public class MessageForumStatisticsBean {
 							userAuthoredInfo.setSiteUserId(selectedSiteUserId);
 							userAuthoredInfo.setForumTitle(topic.getTitle());
 							userAuthoredInfo.setForumDate(mes.getCreated());
-							userAuthoredInfo.setForumSubject(mes.getBody());
+							userAuthoredInfo.setForumSubject(mes.getTitle());
 							statistics.add(userAuthoredInfo);
 						}
 					}
