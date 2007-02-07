@@ -379,15 +379,7 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
         Assert.assertTrue(score.doubleValue() == 10.0);
         
         // Make sure that the external-management fields are nulled out.
-        List assignments = gradebookService.getAssignments(GRADEBOOK_UID);
-        org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = null;
-        for (Object obj : assignments) {
-        	org.sakaiproject.service.gradebook.shared.Assignment asgn = (org.sakaiproject.service.gradebook.shared.Assignment)obj;
-        	if (asgn.getName().equals(EXT_TITLE_1)) {
-        		assignmentDefinition = asgn;
-        		break;
-        	}
-        }
+        org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = getAssignmentDefinition(GRADEBOOK_UID, EXT_TITLE_1);
         Assert.assertTrue(!assignmentDefinition.isExternallyMaintained());
         Assert.assertTrue(assignmentDefinition.getExternalAppName() == null);
         
@@ -398,5 +390,79 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
         } catch (AssessmentNotFoundException e) {
         }
     }
+    
+    private org.sakaiproject.service.gradebook.shared.Assignment getAssignmentDefinition(String gradebookUid, String assignmentTitle) {
+        org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = null;
+        List assignments = gradebookService.getAssignments(gradebookUid);
+        for (Object obj : assignments) {
+        	org.sakaiproject.service.gradebook.shared.Assignment asgn = (org.sakaiproject.service.gradebook.shared.Assignment)obj;
+        	if (asgn.getName().equals(assignmentTitle)) {
+        		assignmentDefinition = asgn;
+        		break;
+        	}
+        }
+        return assignmentDefinition;
+    }
+    
+    public void testUpdateAssignment() throws Exception {
+    	setAuthnId(INSTRUCTOR_UID);
+    	org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = getAssignmentDefinition(GRADEBOOK_UID, ASN_TITLE);
+    	
+    	// Make sure we can change the points even if a student's been scored.
+    	double oldPoints = assignmentDefinition.getPoints();
+    	gradebookService.setAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID, new Double(39), "Service Test");
+    	assignmentDefinition.setPoints(oldPoints * 2);
+    	gradebookService.updateAssignment(GRADEBOOK_UID, ASN_TITLE, assignmentDefinition);
+    	assignmentDefinition = getAssignmentDefinition(GRADEBOOK_UID, ASN_TITLE);
+    	Assert.assertTrue(assignmentDefinition.getPoints().doubleValue() != oldPoints);
+    	
+    	// Make sure we can change the assignment title.
+    	String newAsnTitle = "Changed Quiz";
+    	assignmentDefinition.setName(newAsnTitle);
+    	gradebookService.updateAssignment(GRADEBOOK_UID, ASN_TITLE, assignmentDefinition);
+    	assignmentDefinition = getAssignmentDefinition(GRADEBOOK_UID, ASN_TITLE);
+    	Assert.assertTrue(assignmentDefinition == null);
+    	assignmentDefinition = getAssignmentDefinition(GRADEBOOK_UID, newAsnTitle);
+    	Assert.assertTrue(assignmentDefinition != null);
+    	
+    	// Check for duplicate assignment titles.
+    	assignmentDefinition.setName(EXT_TITLE_1);
+    	try {
+    		gradebookService.updateAssignment(GRADEBOOK_UID, newAsnTitle, assignmentDefinition);
+    		fail();
+    	} catch (ConflictingAssignmentNameException e) {
+    	}
+   	
+    	// Don't allow changes to externally-managed assessments.
+    	assignmentDefinition = getAssignmentDefinition(GRADEBOOK_UID, EXT_TITLE_1);
+    	assignmentDefinition.setExternallyMaintained(false);
+    	assignmentDefinition.setPoints(10.0);
+    	try {
+    		gradebookService.updateAssignment(GRADEBOOK_UID, EXT_TITLE_1, assignmentDefinition);
+    		fail();
+    	} catch (SecurityException e) {
+    	}
+   	
+    	// Don't change a Gradebook-managed assignment into an externally-managed assessment.
+    	assignmentDefinition = getAssignmentDefinition(GRADEBOOK_UID, newAsnTitle);
+    	assignmentDefinition.setExternallyMaintained(true);
+    	assignmentDefinition.setExternalAppName("Mr. Sparkle");
+    	try {
+    		gradebookService.updateAssignment(GRADEBOOK_UID, newAsnTitle, assignmentDefinition);
+    		fail();
+    	} catch (SecurityException e) {
+    	}
+  	
+    	// Don't let students change assignment defintions.
+    	assignmentDefinition = getAssignmentDefinition(GRADEBOOK_UID, newAsnTitle);
+    	setAuthnId(STUDENT_IN_SECTION_UID);
+    	assignmentDefinition.setPoints(10.0);
+    	try {
+    		gradebookService.updateAssignment(GRADEBOOK_UID, newAsnTitle, assignmentDefinition);
+    		fail();
+    	} catch (SecurityException e) {
+    	}
+    	
+   }
 
 }

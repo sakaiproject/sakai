@@ -144,6 +144,21 @@ public interface GradebookService {
 	 */
 	public void addAssignment(String gradebookUid, Assignment assignmentDefinition);
 	
+	/**
+	 * Modify the definition of an existing Gradebook-managed assignment.
+	 * 
+	 * Clients should be aware that it's allowed to change the points value of an
+	 * assignment even if students have already been scored on it. Any existing
+	 * scores will not be adjusted.
+	 * 
+	 * This method cannot be used to modify the defintions of externally-managed
+	 * assessments or to make Gradebook-managed assignments externally managed. 
+	 * 
+	 * @param assignmentName the name of the assignment that needs to be changed
+	 * @param assignmentDefinition the new properties of the assignment
+	 */
+	public void updateAssignment(String gradebookUid, String assignmentName, Assignment assignmentDefinition);
+	
 	// Site management hooks.
 
 	/**

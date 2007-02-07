@@ -630,28 +630,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         throws ConflictingAssignmentNameException, StaleObjectModificationException {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-                // Ensure that we don't have the assignment in the session, since
-                // we need to compare the existing one in the db to our edited assignment
-                session.evict(assignment);
-
-                Assignment asnFromDb = (Assignment)session.load(Assignment.class, assignment.getId());
-                int numNameConflicts = ((Integer)session.createQuery(
-                        "select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false and go.id != ?").
-                        setString(0, assignment.getName()).
-                        setEntity(1, assignment.getGradebook()).
-                        setLong(2, assignment.getId().longValue()).
-                        uniqueResult()).intValue();
-                if(numNameConflicts > 0) {
-                    throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
-                }
-
-                if (!asnFromDb.getPointsPossible().equals(assignment.getPointsPossible()) ||
-                	(asnFromDb.isNotCounted() != assignment.isNotCounted())) {
-                }
-
-                session.evict(asnFromDb);
-                session.update(assignment);
-
+            	updateAssignment(assignment, session);
                 return null;
             }
         };

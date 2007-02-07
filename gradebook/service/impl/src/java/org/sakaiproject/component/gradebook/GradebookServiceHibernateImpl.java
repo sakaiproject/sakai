@@ -266,6 +266,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
 	public void addAssignment(String gradebookUid, org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition) {
+		if (!getAuthz().isUserAbleToEditAssessments(gradebookUid)) {
+			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to add an assignment");
+			throw new SecurityException("You do not have permission to perform this operation");
+		}
+
         // Ensure that points is > zero.
 		Double points = assignmentDefinition.getPoints();
         if ((points == null) || (points.doubleValue() <= 0)) {
@@ -274,6 +279,39 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		Gradebook gradebook = getGradebook(gradebookUid);
 		createAssignment(gradebook.getId(), assignmentDefinition.getName(), points, assignmentDefinition.getDueDate(), !assignmentDefinition.isCounted(), assignmentDefinition.isReleased());
+	}
+
+	public void updateAssignment(final String gradebookUid, final String assignmentName, final org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition) {		
+		if (!getAuthz().isUserAbleToEditAssessments(gradebookUid)) {
+			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to change the definition of assignment " + assignmentName);
+			throw new SecurityException("You do not have permission to perform this operation");
+		}
+		
+		// This method is for Gradebook-managed assignments only.
+		if (assignmentDefinition.isExternallyMaintained()) {
+			log.error("User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to set assignment " + assignmentName + " to be externally maintained");
+			throw new SecurityException("You do not have permission to perform this operation");
+		}
+
+		getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentName, session);
+				if (assignment == null) {
+					throw new AssessmentNotFoundException("There is no assignment named " + assignmentName + " in gradebook " + gradebookUid);
+				}
+				if (assignment.isExternallyMaintained()) {
+					log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to change the definition of externally maintained assignment " + assignmentName);
+					throw new SecurityException("You do not have permission to perform this operation");
+				}
+				assignment.setCounted(assignmentDefinition.isCounted());
+				assignment.setDueDate(assignmentDefinition.getDueDate());
+				assignment.setName(assignmentDefinition.getName());
+				assignment.setPointsPossible(assignmentDefinition.getPoints());
+				assignment.setReleased(assignmentDefinition.isReleased());
+				updateAssignment(assignment, session);
+				return null;
+			}
+		});
 	}
 
     public Authz getAuthz() {

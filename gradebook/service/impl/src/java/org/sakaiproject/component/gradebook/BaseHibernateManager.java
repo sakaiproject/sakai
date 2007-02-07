@@ -202,7 +202,28 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 			uniqueResult();
 	}
 
-	protected AssignmentGradeRecord getAssignmentGradeRecord(Assignment assignment, String studentUid, Session session) throws HibernateException {
+	protected void updateAssignment(Assignment assignment, Session session)
+		throws ConflictingAssignmentNameException, HibernateException {
+		// Ensure that we don't have the assignment in the session, since
+		// we need to compare the existing one in the db to our edited assignment
+		session.evict(assignment);
+
+		Assignment asnFromDb = (Assignment)session.load(Assignment.class, assignment.getId());
+		int numNameConflicts = ((Integer)session.createQuery(
+				"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false and go.id != ?").
+				setString(0, assignment.getName()).
+				setEntity(1, assignment.getGradebook()).
+				setLong(2, assignment.getId().longValue()).
+				uniqueResult()).intValue();
+		if(numNameConflicts > 0) {
+			throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
+		}
+
+		session.evict(asnFromDb);
+		session.update(assignment);
+	}
+
+    protected AssignmentGradeRecord getAssignmentGradeRecord(Assignment assignment, String studentUid, Session session) throws HibernateException {
 		return (AssignmentGradeRecord)session.createQuery(
 			"from AssignmentGradeRecord as agr where agr.studentId=? and agr.gradableObject.id=?").
 			setString(0, studentUid).
