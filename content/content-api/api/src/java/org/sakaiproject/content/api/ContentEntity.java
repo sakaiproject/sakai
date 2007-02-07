@@ -50,7 +50,6 @@ public interface ContentEntity extends GroupAwareEntity
 	 */
 	public String getResourceType();
 	
-	
 	/**
 	 * 
 	 * @return
@@ -81,4 +80,5 @@ public interface ContentEntity extends GroupAwareEntity
 	 * @return
 	 */
 	public ContentEntity getMember(String nextId);
+	
 }

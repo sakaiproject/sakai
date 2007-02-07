@@ -4223,20 +4223,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	protected String moveResource(ContentResourceEdit thisResource, String new_id) throws PermissionException, IdUnusedException,
 			TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException
 	{
-		ResourceProperties properties = thisResource.getProperties();
-		ResourcePropertiesEdit newProps = duplicateResourceProperties(properties, thisResource.getId());
-
-		String displayName = newProps.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 		String fileName = isolateName(new_id);
 		String folderId = isolateContainingId(new_id);
 
+		ResourceProperties properties = thisResource.getProperties();
+		String displayName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 		if (displayName == null && fileName != null)
 		{
-			newProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fileName);
 			displayName = fileName;
 		}
+		String new_displayName = displayName;
 
-		if (M_log.isDebugEnabled()) M_log.debug("moveResource displayname=" + displayName + " fileName=" + fileName);
+		if (M_log.isDebugEnabled()) M_log.debug("moveResource displayname=" + new_displayName + " fileName=" + fileName);
 
 		String basename = fileName;
 		String extension = "";
@@ -4255,12 +4253,23 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// copy the resource to the new location
 			try
 			{
-				ContentResource newResource = addResource(new_id, thisResource.getContentType(), thisResource.getContent(),
-						newProps, thisResource.getGroups(), NotificationService.NOTI_NONE);
-
-				// use the creator and creation-date of the original instead of the copy
-				BaseResourceEdit resource = (BaseResourceEdit) m_storage.editResource(newResource.getId());
-				ResourcePropertiesEdit props = resource.getPropertiesEdit();
+				ContentResourceEdit edit = addResource(new_id);
+				edit.setContentType(thisResource.getContentType());
+				edit.setContent(thisResource.getContent());
+				edit.setResourceType(thisResource.getResourceType());
+				edit.setAvailability(thisResource.isHidden(), thisResource.getReleaseDate(), thisResource.getRetractDate());
+				Collection groups = thisResource.getGroups();
+				if(groups == null || groups.isEmpty())
+				{
+					// do nothing
+				}
+				else
+				{
+					edit.setGroupAccess(groups);
+				}
+				
+				ResourcePropertiesEdit props = edit.getPropertiesEdit();
+				addProperties(props, properties);
 				String creator = properties.getProperty(ResourceProperties.PROP_CREATOR);
 				if (creator != null && !creator.trim().equals(""))
 				{
@@ -4271,7 +4280,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				{
 					props.addProperty(ResourceProperties.PROP_CREATION_DATE, created);
 				}
-				m_storage.commitResource(resource);
+				m_storage.commitResource(edit);
+				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, new_displayName);
+				
+				m_storage.removeResource(thisResource);
 
 				if (M_log.isDebugEnabled()) M_log.debug("moveResource successful");
 				still_trying = false;
@@ -4300,7 +4312,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				}
 				attempt++;
 				new_id = folderId + basename + "-" + attempt + extension;
-				newProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName + "-" + attempt);
+				new_displayName = displayName + " (" + attempt + ")";
 			}
 		}
 
@@ -4445,21 +4457,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public String copyResource(ContentResource resource, String new_id) throws PermissionException, IdUnusedException,
 			TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException
 	{
-		ResourceProperties properties = resource.getProperties();
-		ResourcePropertiesEdit newProps = duplicateResourceProperties(properties, resource.getId());
-
-		String displayName = newProps.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 		String fileName = isolateName(new_id);
 		fileName = Validator.escapeResourceName(fileName);
 		String folderId = isolateContainingId(new_id);
 
+		ResourceProperties properties = resource.getProperties();
+		String displayName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 		if (displayName == null && fileName != null)
 		{
-			newProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fileName);
 			displayName = fileName;
 		}
-
-		if (M_log.isDebugEnabled()) M_log.debug("copyResource displayname=" + displayName + " fileName=" + fileName);
+		String new_displayName = displayName;
+		if (M_log.isDebugEnabled()) M_log.debug("copyResource displayname=" + new_displayName + " fileName=" + fileName);
 
 		String basename = fileName;
 		String extension = "";
@@ -4478,9 +4487,26 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// copy the resource to the new location
 			try
 			{
-				ContentResource newResource = addResource(new_id, resource.getContentType(), resource.getContent(), newProps,
-						resource.getGroups(), 
-						NotificationService.NOTI_NONE);
+				ContentResourceEdit edit = addResource(new_id);
+				edit.setContentType(resource.getContentType());
+				edit.setContent(resource.getContent());
+				edit.setResourceType(resource.getResourceType());
+				ResourcePropertiesEdit newProps = edit.getPropertiesEdit();
+				
+				addProperties(newProps, properties);
+				newProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, new_displayName);
+				Collection groups = resource.getGroups();
+				if(groups == null || groups.isEmpty())
+				{
+					// do nothing
+				}
+				else
+				{
+					edit.setGroupAccess(groups);
+				}
+				edit.setAvailability(resource.isHidden(), resource.getReleaseDate(), resource.getRetractDate());
+				
+				commitResource(edit,NotificationService.NOTI_NONE);
 				if (M_log.isDebugEnabled()) M_log.debug("copyResource successful");
 				still_trying = false;
 			}
@@ -4508,10 +4534,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				}
 				attempt++;
 				new_id = folderId + basename + "-" + attempt + extension;
-				newProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName + " (" + attempt + ")");
-
+				new_displayName = displayName + " (" + attempt + ")";
 				// Could come up with a naming convention to add versions here
-				// throw new PermissionException(UsageSessionService.getSessionUserId(), null, null);
 			}
 		}
 		return new_id;
