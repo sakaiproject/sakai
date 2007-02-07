@@ -317,6 +317,7 @@ public class ResourcesAction
 			if(typeDef != null)
 			{
 				this.hoverText = typeDef.getLocalizedHoverText(entity);
+				this.iconLocation = typeDef.getIconLocation();
 			}
 
 			if(this.collection)
@@ -333,7 +334,10 @@ public class ResourcesAction
 				{
 					
 				}
-				this.iconLocation = ContentTypeImageService.getContentTypeImage(this.mimetype);
+				if(this.iconLocation == null)
+				{
+					this.iconLocation = ContentTypeImageService.getContentTypeImage(this.mimetype);
+				}
 			}
 				
 		}
