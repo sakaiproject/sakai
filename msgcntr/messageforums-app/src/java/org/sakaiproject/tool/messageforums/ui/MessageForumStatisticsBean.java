@@ -435,16 +435,16 @@ public class MessageForumStatisticsBean {
 					final Iterator messageIter = messageList.iterator();
 					while(messageIter.hasNext()){
 						final Message mes = (Message) messageIter.next();
-						//UnreadStatus status = messageManager.findUnreadStatusByUserId(topic.getId(), mes.getId(), selectedSiteUserId);
+						UnreadStatus status = messageManager.findUnreadStatusByUserId(topic.getId(), mes.getId(), selectedSiteUserId);
 						
-						//if(status != null){
+						if(status != null){
 							userAuthoredInfo = new DecoratedCompiledUserStatistics();
 							userAuthoredInfo.setSiteUserId(selectedSiteUserId);
 							userAuthoredInfo.setForumTitle(topic.getTitle());
 							userAuthoredInfo.setForumDate(mes.getCreated());
 							userAuthoredInfo.setForumSubject(mes.getBody());
 							statistics.add(userAuthoredInfo);
-						//}
+						}
 					}
 				}
 			}
