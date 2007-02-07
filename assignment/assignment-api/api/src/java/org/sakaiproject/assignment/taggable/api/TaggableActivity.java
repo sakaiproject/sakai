@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2006 The Sakai Foundation.
+ * Copyright (c) 2006, 2007 The Sakai Foundation.
  *
  * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,19 @@
 
 package org.sakaiproject.assignment.taggable.api;
 
-import java.util.List;
-
 /**
  * An activity that can be tagged.
  * 
  * @author The Sakai Foundation.
  */
 public interface TaggableActivity {
+
+	/**
+	 * Method to get the base object that is wrapped as an activity.
+	 * 
+	 * @return The base object.
+	 */
+	public Object getObject();
 
 	/**
 	 * @return A reference for this activity. This needs to return a valid
@@ -50,19 +55,6 @@ public interface TaggableActivity {
 	 * @return The context of this activity.
 	 */
 	public String getContext();
-
-	/**
-	 * @return A list of items for this activity.
-	 */
-	public List<TaggableItem> getItems();
-
-	/**
-	 * @param userId
-	 *            The identifier of the user who submitted the items for this
-	 *            activity.
-	 * @return items submitted for this activity.
-	 */
-	public List<TaggableItem> getItems(String userId);
 
 	/**
 	 * @return This activity's producer.

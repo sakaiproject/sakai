@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2006 The Sakai Foundation.
+ * Copyright (c) 2006, 2007 The Sakai Foundation.
  *
  * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ public class TaggingManagerImpl implements TaggingManager {
 	protected List<TaggingProvider> taggingProviders = new ArrayList<TaggingProvider>();
 
 	public void init() {
-		logger.info(this + ".init()");
+		logger.info("init()");
 	}
 
 	public TaggableActivityProducer findProducerByRef(String ref) {
@@ -61,44 +61,41 @@ public class TaggingManagerImpl implements TaggingManager {
 		return findProducerByRef(ref).getContext(ref);
 	}
 
-	public TaggableActivityProducer findProducerByType(String type) {
-		TaggableActivityProducer producer;
-		for (Iterator<TaggableActivityProducer> i = taggableActivityProducers
-				.iterator(); i.hasNext();) {
-			producer = i.next();
-			if (producer.getType().equals(type)) {
-				return producer;
+	public TaggableActivityProducer findProducerById(String id) {
+		TaggableActivityProducer producer = null;
+		for (TaggableActivityProducer p : taggableActivityProducers) {
+			if (p.getId().equals(id)) {
+				producer = p;
 			}
 		}
-		return null;
+		return producer;
 	}
 
-	public TaggingProvider findProviderByType(String type) {
-		TaggingProvider provider;
-		for (Iterator<TaggingProvider> i = taggingProviders.iterator(); i
-				.hasNext();) {
-			provider = i.next();
-			if (provider.getType().equals(type)) {
-				return provider;
+	public TaggingProvider findProviderById(String id) {
+		TaggingProvider provider = null;
+		for (TaggingProvider p : taggingProviders) {
+			if (p.getId().equals(id)) {
+				provider = p;
 			}
 		}
-		return null;
+		return provider;
 	}
 
-	public List<TaggableActivity> getActivities(String context) {
+	public List<TaggableActivity> getActivities(String context,
+			TaggingProvider provider) {
 		List<TaggableActivity> activities = new ArrayList<TaggableActivity>();
-		for (Iterator<TaggableActivityProducer> i = taggableActivityProducers
-				.iterator(); i.hasNext();) {
-			activities.addAll(i.next().getActivities(context));
+		for (TaggableActivityProducer producer : taggableActivityProducers) {
+			activities.addAll(producer.getActivities(context, provider));
 		}
 		return activities;
 	}
 
-	public TaggableActivity getActivity(String activityRef) {
+	public TaggableActivity getActivity(String activityRef,
+			TaggingProvider provider) {
 		TaggableActivity activity = null;
 		TaggableActivityProducer producer = findProducerByRef(activityRef);
 		if (producer != null) {
-			activity = producer.getActivity(activityRef);
+			activity = producer.getActivity(activityRef, provider);
 		}
 		return activity;
 	}
@@ -111,12 +108,19 @@ public class TaggingManagerImpl implements TaggingManager {
 		return taggingProviders;
 	}
 
-	public TaggableItem getItem(String itemRef) {
-		return findProducerByRef(itemRef).getItem(itemRef);
+	public TaggableItem getItem(String itemRef, TaggingProvider provider) {
+		return findProducerByRef(itemRef).getItem(itemRef, provider);
 	}
 
-	public List<TaggableItem> getItems(String activityRef) {
-		return getActivity(activityRef).getItems();
+	public List<TaggableItem> getItems(String activityRef,
+			TaggingProvider provider) {
+		List<TaggableItem> items = new ArrayList<TaggableItem>();
+		TaggableActivityProducer producer = findProducerByRef(activityRef);
+		if (producer != null) {
+			items = producer.getItems(getActivity(activityRef, provider),
+					provider);
+		}
+		return items;
 	}
 
 	public void registerProducer(TaggableActivityProducer producer) {

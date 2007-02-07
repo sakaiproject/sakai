@@ -535,8 +535,8 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String USER_SUBMISSIONS = "user_submissions";
 	
 	/** ************************* Taggable constants ************************** */
-	/** tagging provider type that will provide the appropriate helper */
-	private static final String PROVIDER_TYPE = "providerType";
+	/** identifier of tagging provider that will provide the appropriate helper */
+	private static final String PROVIDER_ID = "providerId";
 
 	/** Reference to an activity */
 	private static final String ACTIVITY_REF = "activityRef";
@@ -3579,8 +3579,8 @@ public class AssignmentAction extends PagedResourceActionII
 
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
 				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
-		TaggingProvider provider = taggingManager.findProviderByType(params
-				.getString(PROVIDER_TYPE));
+		TaggingProvider provider = taggingManager.findProviderById(params
+				.getString(PROVIDER_ID));
 
 		String activityRef = params.getString(ACTIVITY_REF);
 
@@ -3610,8 +3610,8 @@ public class AssignmentAction extends PagedResourceActionII
 
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
 				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
-		TaggingProvider provider = taggingManager.findProviderByType(params
-				.getString(PROVIDER_TYPE));
+		TaggingProvider provider = taggingManager.findProviderById(params
+				.getString(PROVIDER_ID));
 
 		String itemRef = params.getString(ITEM_REF);
 
@@ -3641,8 +3641,8 @@ public class AssignmentAction extends PagedResourceActionII
 
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
 				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
-		TaggingProvider provider = taggingManager.findProviderByType(params
-				.getString(PROVIDER_TYPE));
+		TaggingProvider provider = taggingManager.findProviderById(params
+				.getString(PROVIDER_ID));
 
 		String activityRef = params.getString(ACTIVITY_REF);
 
@@ -6195,7 +6195,7 @@ public class AssignmentAction extends PagedResourceActionII
 		ParameterParser params = data.getParameters();
 
 		String criteria = params.getString("criteria");
-		String providerType = params.getString(PROVIDER_TYPE);
+		String providerId = params.getString(PROVIDER_ID);
 
 		String mode = (String) state.getAttribute(STATE_MODE);
 		
@@ -6203,7 +6203,7 @@ public class AssignmentAction extends PagedResourceActionII
 				.getAttribute(mode + PROVIDER_LIST);
 
 		for (DecoratedTaggingProvider dtp : providers) {
-			if (dtp.getProvider().getType().equals(providerType)) {
+			if (dtp.getProvider().getId().equals(providerId)) {
 				Sort sort = dtp.getSort();
 				if (sort.getSort().equals(criteria)) {
 					sort.setAscending(sort.isAscending() ? false : true);
@@ -6224,7 +6224,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		String page = params.getString("page");
 		String pageSize = params.getString("pageSize");
-		String providerType = params.getString(PROVIDER_TYPE);
+		String providerId = params.getString(PROVIDER_ID);
 
 		String mode = (String) state.getAttribute(STATE_MODE);
 		
@@ -6232,7 +6232,7 @@ public class AssignmentAction extends PagedResourceActionII
 				.getAttribute(mode + PROVIDER_LIST);
 
 		for (DecoratedTaggingProvider dtp : providers) {
-			if (dtp.getProvider().getType().equals(providerType)) {
+			if (dtp.getProvider().getId().equals(providerId)) {
 				Pager pager = dtp.getPager();
 				pager.setPageSize(Integer.valueOf(pageSize));
 				if (Pager.FIRST.equals(page)) {

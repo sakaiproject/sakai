@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2006 The Sakai Foundation.
+ * Copyright (c) 2006, 2007 The Sakai Foundation.
  *
  * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,40 +39,41 @@ public interface TaggingProvider {
 	public boolean allowViewTags();
 
 	/**
-	 * Method to get the necessary data to invoke a helper
-	 * tool for tagging the activity identified by the given ref.
+	 * Method to get the necessary data to invoke a helper tool for tagging the
+	 * activity identified by the given ref.
 	 * 
 	 * @param activityRef
 	 *            The reference to the activity that is to be tagged.
-	 * @return An object containing the data to invoke the
-	 *         appropriate helper tool. Returns null if this is not supported or
-	 *         if the current user doesn't have permission to access the helper.
+	 * @return An object containing the data to invoke the appropriate helper
+	 *         tool. Returns null if this is not supported or if the current
+	 *         user doesn't have permission to access the helper.
 	 * @see TaggingHelperInfo
 	 */
 	public TaggingHelperInfo getActivityHelperInfo(String activityRef);
 
 	/**
-	 * Method to get the necessary data to invoke a helper
-	 * tool for tagging items that belong to the given activity.
+	 * Method to get the necessary data to invoke a helper tool for tagging
+	 * items that belong to the given activity.
 	 * 
 	 * @param activityRef
-	 *            The reference to the activity that contains the items to be tagged.
-	 * @return An object containing the data to invoke the
-	 *         appropriate helper tool. Returns null if this is not supported or
-	 *         if the current user doesn't have permission to access the helper.
+	 *            The reference to the activity that contains the items to be
+	 *            tagged.
+	 * @return An object containing the data to invoke the appropriate helper
+	 *         tool. Returns null if this is not supported or if the current
+	 *         user doesn't have permission to access the helper.
 	 * @see TaggingHelperInfo
 	 */
 	public TaggingHelperInfo getItemsHelperInfo(String activityRef);
 
 	/**
-	 * Method to get the necessary data to invoke a helper
-	 * tool for tagging the given item.
+	 * Method to get the necessary data to invoke a helper tool for tagging the
+	 * given item.
 	 * 
 	 * @param itemRef
 	 *            The reference to the item that is to be tagged.
-	 * @return An object containing the data to invoke the
-	 *         appropriate helper tool. Returns null if this is not supported or
-	 *         if the current user doesn't have permission to access the helper.
+	 * @return An object containing the data to invoke the appropriate helper
+	 *         tool. Returns null if this is not supported or if the current
+	 *         user doesn't have permission to access the helper.
 	 * @see TaggingHelperInfo
 	 */
 	public TaggingHelperInfo getItemHelperInfo(String itemRef);
@@ -88,11 +89,11 @@ public interface TaggingProvider {
 	public TagList getTags(TaggableActivity activity);
 
 	/**
-	 * Method to get a type name for the provider.
+	 * Method to get a unique identifier for this provider.
 	 * 
-	 * @return A type name for this provider.
+	 * @return A unique identifier for this provider.
 	 */
-	public String getType();
+	public String getId();
 
 	/**
 	 * Method to get a displayable name for the provider. For example "Goal

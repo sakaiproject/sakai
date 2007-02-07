@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2006 The Sakai Foundation.
+ * Copyright (c) 2006, 2007 The Sakai Foundation.
  *
  * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,36 +58,86 @@ public interface TaggableActivityProducer {
 	public String getName();
 
 	/**
-	 * Method to get a type name for the producing service.
+	 * Method to get the unique identifier for this producing service.
 	 * 
-	 * @return A type name for this service.
+	 * @return A unique identifier for this service.
 	 */
-	public String getType();
+	public String getId();
 
 	/**
 	 * Method to get a list of all taggable activities within the given context.
 	 * 
 	 * @param context
 	 *            The context to search.
-	 * @return A list of all taggable activities within the given context.
+	 * @param provider
+	 *            The provider that is getting the activities. This allows the
+	 *            producer to selectively return different lists of activities
+	 *            depending on the given provider.
+	 * @return A list, possibly empty, of all taggable activities within the
+	 *         given context.
 	 */
-	public List<TaggableActivity> getActivities(String context);
+	public List<TaggableActivity> getActivities(String context,
+			TaggingProvider provider);
 
 	/**
 	 * Method to get a taggable activity by reference string.
 	 * 
 	 * @param activityRef
-	 *            The reference for the taggable activity.
-	 * @return The activity referenced by the given string.
+	 *            A reference for the taggable activity.
+	 * @param provider
+	 *            The provider that is getting the activity. This allows the
+	 *            producer to selectively return an activity, or none at all,
+	 *            depending on the given provider.
+	 * @return The taggable activity, or null if no such activity exists or the
+	 *         provider cannot access it.
 	 */
-	public TaggableActivity getActivity(String activityRef);
+	public TaggableActivity getActivity(String activityRef,
+			TaggingProvider provider);
+
+	/**
+	 * Method to get a list of items for an activity.
+	 * 
+	 * @param activity
+	 *            The activity that contains the items to retrieve.
+	 * @param provider
+	 *            The provider that is getting the items. This allows the
+	 *            producer to selectively return different lists of items
+	 *            depending on the given provider.
+	 * @return A list of items for the given activity.
+	 */
+	public List<TaggableItem> getItems(TaggableActivity activity,
+			TaggingProvider provider);
+
+	/**
+	 * Method to get a list of items belonging to a specific user for an
+	 * activity.
+	 * 
+	 * @param activity
+	 *            The activity that contains the items to retrieve.
+	 * @param userId
+	 *            The identifier of the user who submitted the items for the
+	 *            given activity.
+	 * @param provider
+	 *            The provider that is getting the items. This allows the
+	 *            producer to selectively return different lists of items
+	 *            depending on the given provider.
+	 * @return A list of items submitted by the specified user for the given
+	 *         activity.
+	 */
+	public List<TaggableItem> getItems(TaggableActivity activity,
+			String userId, TaggingProvider provider);
 
 	/**
 	 * Method to get a taggable item by reference string.
 	 * 
 	 * @param itemRef
 	 *            The reference for the taggable item.
-	 * @return The item referenced by the given string.
+	 * @param provider
+	 *            The provider that is getting the item. This allows the
+	 *            producer to selectively return an item, or none at all,
+	 *            depending on the given provider.
+	 * @return The taggable item, or null if no such item exists or the provider
+	 *         cannot access it.
 	 */
-	public TaggableItem getItem(String itemRef);
+	public TaggableItem getItem(String itemRef, TaggingProvider provider);
 }

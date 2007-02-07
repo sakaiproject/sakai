@@ -10,7 +10,7 @@
 				</div>
 				<form class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 					<input type="hidden" name="sakai_action" value="doPage_tags"/>
-					<input type="hidden" name="providerType" value="$provider.getProvider().getType()"/>
+					<input type="hidden" name="providerId" value="$provider.getProvider().getId()"/>
 					#if ($pager.canFirst())
 						<input type="submit" name="page" value="|&lt;" title="$tlang.getString("gen.first")" />
 					#else
@@ -45,7 +45,7 @@
 					#foreach ($column in $columns)
 						#if ($column.isSortable())
 							<th><a href="#"
-								   onclick="location='#toolLinkParam("AssignmentAction" "doSort_tags" "criteria=$column.name&providerType=$provider.provider.type")'; return false;"
+								   onclick="location='#toolLinkParam("AssignmentAction" "doSort_tags" "criteria=$column.name&providerId=$provider.provider.id")'; return false;"
 								   title="$!column.getDescription()">
 								$!column.getDisplayName()
 								#if ($provider.getSort().getSort().equals($!column.getName()))

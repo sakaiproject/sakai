@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2006 The Sakai Foundation.
+ * Copyright (c) 2006, 2007 The Sakai Foundation.
  *
  * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,13 +34,13 @@ import java.util.List;
 public interface TaggingManager {
 
 	/**
-	 * Method to get a taggable activity producer by unique service type.
+	 * Method to get a taggable activity producer by identifier.
 	 * 
-	 * @param type
-	 *            A unique service type identifier.
+	 * @param id
+	 *            A unique producer identifier.
 	 * @return A taggable activity producer.
 	 */
-	public TaggableActivityProducer findProducerByType(String type);
+	public TaggableActivityProducer findProducerById(String id);
 
 	/**
 	 * Method to get the taggable activity producer that handles this reference.
@@ -53,13 +53,13 @@ public interface TaggingManager {
 	public TaggableActivityProducer findProducerByRef(String ref);
 
 	/**
-	 * Method to get a tagging provider by unique service type.
+	 * Method to get a tagging provider by identifier.
 	 * 
-	 * @param type
-	 *            A unique service type identifier.
+	 * @param id
+	 *            A unique provider identifier.
 	 * @return A tagging provider.
 	 */
-	public TaggingProvider findProviderByType(String type);
+	public TaggingProvider findProviderById(String id);
 
 	/**
 	 * Method for a taggable activity producer to register itself with the
@@ -94,18 +94,30 @@ public interface TaggingManager {
 	 * 
 	 * @param context
 	 *            The context to search.
-	 * @return A list of all taggable activities within the given context.
+	 * @param provider
+	 *            The provider that is getting the activities. This allows the
+	 *            producers to selectively return different lists of activities
+	 *            depending on the given provider.
+	 * @return A list, possibly empty, of all taggable activities within the
+	 *         given context that are accessible by the given tagging provider.
 	 */
-	public List<TaggableActivity> getActivities(String context);
+	public List<TaggableActivity> getActivities(String context,
+			TaggingProvider provider);
 
 	/**
 	 * Method to get a taggable activity by reference string.
 	 * 
 	 * @param activityRef
 	 *            A reference for the taggable activity.
-	 * @return The taggable activity, or null if no such activity exists.
+	 * @param provider
+	 *            The provider that is getting the activity. This allows the
+	 *            producer to selectively return an activity, or none at all,
+	 *            depending on the given provider.
+	 * @return The taggable activity, or null if no such activity exists or the
+	 *         provider cannot access it.
 	 */
-	public TaggableActivity getActivity(String activityRef);
+	public TaggableActivity getActivity(String activityRef,
+			TaggingProvider provider);
 
 	/**
 	 * Method to get a list of the currently registered taggable activity
@@ -127,9 +139,14 @@ public interface TaggingManager {
 	 * 
 	 * @param itemRef
 	 *            The reference for the taggable item.
-	 * @return The taggable item, or null if no such item exists.
+	 * @param provider
+	 *            The provider that is getting the item. This allows the
+	 *            producer to selectively return an item, or none at all,
+	 *            depending on the given provider.
+	 * @return The taggable item, or null if no such item exists or the provider
+	 *         cannot access it.
 	 */
-	public TaggableItem getItem(String itemRef);
+	public TaggableItem getItem(String itemRef, TaggingProvider provider);
 
 	/**
 	 * Method to get a list of taggable items for the activity identified by the
@@ -137,9 +154,14 @@ public interface TaggingManager {
 	 * 
 	 * @param activityRef
 	 *            The reference for the taggable activity.
-	 * @return A list of taggable items.
+	 * @param provider
+	 *            The provider that is getting the items. This allows the
+	 *            producers to selectively return different lists of items for
+	 *            the referenced activity depending on the given provider.
+	 * @return A list, possibly empty, of taggable items.
 	 */
-	public List<TaggableItem> getItems(String activityRef);
+	public List<TaggableItem> getItems(String activityRef,
+			TaggingProvider provider);
 
 	/**
 	 * Method to determine if there are any tagging providers available.

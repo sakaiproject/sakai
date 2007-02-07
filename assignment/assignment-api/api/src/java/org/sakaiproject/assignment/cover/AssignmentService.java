@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -27,31 +27,29 @@ import java.util.Vector;
 
 import org.sakaiproject.assignment.taggable.api.TaggableActivity;
 import org.sakaiproject.assignment.taggable.api.TaggableItem;
+import org.sakaiproject.assignment.taggable.api.TaggingProvider;
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * <p>
- * AssignmentService is a static Cover for the {@link org.sakaiproject.assignment.api.AssignmentService AssignmentService}; see that interface for usage details.
+ * AssignmentService is a static Cover for the
+ * {@link org.sakaiproject.assignment.api.AssignmentService AssignmentService};
+ * see that interface for usage details.
  * </p>
  */
-public class AssignmentService
-{
+public class AssignmentService {
 	/**
 	 * Access the component instance: special cover only method.
 	 * 
 	 * @return the component instance.
 	 */
-	public static org.sakaiproject.assignment.api.AssignmentService getInstance()
-	{
-		if (ComponentManager.CACHE_COMPONENTS)
-		{
+	public static org.sakaiproject.assignment.api.AssignmentService getInstance() {
+		if (ComponentManager.CACHE_COMPONENTS) {
 			if (m_instance == null)
 				m_instance = (org.sakaiproject.assignment.api.AssignmentService) ComponentManager
 						.get(org.sakaiproject.assignment.api.AssignmentService.class);
 			return m_instance;
-		}
-		else
-		{
+		} else {
 			return (org.sakaiproject.assignment.api.AssignmentService) ComponentManager
 					.get(org.sakaiproject.assignment.api.AssignmentService.class);
 		}
@@ -102,532 +100,589 @@ public class AssignmentService
 	public static java.lang.String REF_TYPE_SUBMISSIONS = org.sakaiproject.assignment.api.AssignmentService.REF_TYPE_SUBMISSIONS;
 
 	public static java.lang.String REF_TYPE_SITE_GROUPS = org.sakaiproject.assignment.api.AssignmentService.REF_TYPE_SITE_GROUPS;
-	
+
 	public static java.lang.String GRADEBOOK_INTEGRATION_NO = org.sakaiproject.assignment.api.AssignmentService.GRADEBOOK_INTEGRATION_NO;
+
 	public static java.lang.String GRADEBOOK_INTEGRATION_ADD = org.sakaiproject.assignment.api.AssignmentService.GRADEBOOK_INTEGRATION_ADD;
+
 	public static java.lang.String GRADEBOOK_INTEGRATION_ASSOCIATE = org.sakaiproject.assignment.api.AssignmentService.GRADEBOOK_INTEGRATION_ASSOCIATE;
+
 	public static java.lang.String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = org.sakaiproject.assignment.api.AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT;
-	
-	public static boolean allowAddAssignment(java.lang.String param0)
-	{
+
+	public static boolean allowAddAssignment(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return false;
+		if (service == null)
+			return false;
 
 		return service.allowAddAssignment(param0);
 	}
 
-	public static boolean allowAddSiteAssignment(java.lang.String param0)
-	{
+	public static boolean allowAddSiteAssignment(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return false;
+		if (service == null)
+			return false;
 
 		return service.allowAddSiteAssignment(param0);
 	}
 
-	public static java.util.Collection getGroupsAllowAddAssignment(java.lang.String param0)
-	{
+	public static java.util.Collection getGroupsAllowAddAssignment(
+			java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return new Vector();
+		if (service == null)
+			return new Vector();
 
 		return service.getGroupsAllowAddAssignment(param0);
 	}
 
-	public static boolean allowGetAssignment(java.lang.String param0)
-	{
+	public static boolean allowGetAssignment(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return false;
+		if (service == null)
+			return false;
 
 		return service.allowGetAssignment(param0);
 	}
 
-	public static boolean allowUpdateAssignment(java.lang.String param0)
-	{
+	public static boolean allowUpdateAssignment(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return false;
+		if (service == null)
+			return false;
 
 		return service.allowUpdateAssignment(param0);
 	}
 
-	public static boolean allowRemoveAssignment(java.lang.String param0)
-	{
+	public static boolean allowRemoveAssignment(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return false;
+		if (service == null)
+			return false;
 
 		return service.allowRemoveAssignment(param0);
 	}
 
-	public static boolean allowAddAssignmentContent(java.lang.String param0)
-	{
+	public static boolean allowAddAssignmentContent(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return false;
+		if (service == null)
+			return false;
 
 		return service.allowAddAssignmentContent(param0);
 	}
 
-	public static boolean allowGetAssignmentContent(java.lang.String param0)
-	{
+	public static boolean allowGetAssignmentContent(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return false;
+		if (service == null)
+			return false;
 
 		return service.allowGetAssignmentContent(param0);
 	}
 
-	public static boolean allowUpdateAssignmentContent(java.lang.String param0)
-	{
+	public static boolean allowUpdateAssignmentContent(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return false;
+		if (service == null)
+			return false;
 
 		return service.allowUpdateAssignmentContent(param0);
 	}
 
-	public static boolean allowRemoveAssignmentContent(java.lang.String param0)
-	{
+	public static boolean allowRemoveAssignmentContent(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return false;
+		if (service == null)
+			return false;
 
 		return service.allowRemoveAssignmentContent(param0);
 	}
 
-	public static boolean allowAddSubmission(java.lang.String param0)
-	{
+	public static boolean allowAddSubmission(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return false;
+		if (service == null)
+			return false;
 
 		return service.allowAddSubmission(param0);
 	}
 
-	public static java.util.List allowAddSubmissionUsers(java.lang.String param0)
-	{
+	public static java.util.List allowAddSubmissionUsers(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.allowAddSubmissionUsers(param0);
 	}
 
-	public static java.util.List allowAddAssignmentUsers(java.lang.String param0)
-	{
+	public static java.util.List allowAddAssignmentUsers(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.allowAddAssignmentUsers(param0);
 	}
 
-	public static boolean allowGetSubmission(java.lang.String param0)
-	{
+	public static boolean allowGetSubmission(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return false;
+		if (service == null)
+			return false;
 
 		return service.allowGetSubmission(param0);
 	}
 
-	public static boolean allowUpdateSubmission(java.lang.String param0)
-	{
+	public static boolean allowUpdateSubmission(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return false;
+		if (service == null)
+			return false;
 
 		return service.allowUpdateSubmission(param0);
 	}
 
-	public static boolean allowRemoveSubmission(java.lang.String param0)
-	{
+	public static boolean allowRemoveSubmission(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return false;
+		if (service == null)
+			return false;
 
 		return service.allowRemoveSubmission(param0);
 	}
 
-	public static boolean allowGradeSubmission(String param0)
-	{
+	public static boolean allowGradeSubmission(String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return false;
+		if (service == null)
+			return false;
 
 		return service.allowGradeSubmission(param0);
 	}
 
-	public static org.sakaiproject.assignment.api.AssignmentEdit addAssignment(java.lang.String param0)
-			throws org.sakaiproject.exception.PermissionException
-	{
+	public static org.sakaiproject.assignment.api.AssignmentEdit addAssignment(
+			java.lang.String param0)
+			throws org.sakaiproject.exception.PermissionException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.addAssignment(param0);
 	}
 
-	public static org.sakaiproject.assignment.api.AssignmentEdit mergeAssignment(org.w3c.dom.Element param0)
-			throws org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.IdUsedException,
-			org.sakaiproject.exception.PermissionException
-	{
+	public static org.sakaiproject.assignment.api.AssignmentEdit mergeAssignment(
+			org.w3c.dom.Element param0)
+			throws org.sakaiproject.exception.IdInvalidException,
+			org.sakaiproject.exception.IdUsedException,
+			org.sakaiproject.exception.PermissionException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.mergeAssignment(param0);
 	}
 
-	public static org.sakaiproject.assignment.api.AssignmentEdit addDuplicateAssignment(java.lang.String param0,
-			java.lang.String param1) throws org.sakaiproject.exception.IdInvalidException,
-			org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.IdUsedException,
-			org.sakaiproject.exception.IdUnusedException
-	{
+	public static org.sakaiproject.assignment.api.AssignmentEdit addDuplicateAssignment(
+			java.lang.String param0, java.lang.String param1)
+			throws org.sakaiproject.exception.IdInvalidException,
+			org.sakaiproject.exception.PermissionException,
+			org.sakaiproject.exception.IdUsedException,
+			org.sakaiproject.exception.IdUnusedException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.addDuplicateAssignment(param0, param1);
 	}
 
-	public static void removeAssignment(org.sakaiproject.assignment.api.AssignmentEdit param0)
-			throws org.sakaiproject.exception.PermissionException
-	{
+	public static void removeAssignment(
+			org.sakaiproject.assignment.api.AssignmentEdit param0)
+			throws org.sakaiproject.exception.PermissionException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return;
+		if (service == null)
+			return;
 
 		service.removeAssignment(param0);
 	}
 
-	public static org.sakaiproject.assignment.api.AssignmentEdit editAssignment(java.lang.String param0)
-			throws org.sakaiproject.exception.IdUnusedException, org.sakaiproject.exception.PermissionException,
-			org.sakaiproject.exception.InUseException
-	{
+	public static org.sakaiproject.assignment.api.AssignmentEdit editAssignment(
+			java.lang.String param0)
+			throws org.sakaiproject.exception.IdUnusedException,
+			org.sakaiproject.exception.PermissionException,
+			org.sakaiproject.exception.InUseException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.editAssignment(param0);
 	}
 
-	public static void commitEdit(org.sakaiproject.assignment.api.AssignmentContentEdit param0)
-	{
+	public static void commitEdit(
+			org.sakaiproject.assignment.api.AssignmentContentEdit param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return;
+		if (service == null)
+			return;
 
 		service.commitEdit(param0);
 	}
 
-	public static void commitEdit(org.sakaiproject.assignment.api.AssignmentEdit param0)
-	{
+	public static void commitEdit(
+			org.sakaiproject.assignment.api.AssignmentEdit param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return;
+		if (service == null)
+			return;
 
 		service.commitEdit(param0);
 	}
 
-	public static void commitEdit(org.sakaiproject.assignment.api.AssignmentSubmissionEdit param0)
-	{
+	public static void commitEdit(
+			org.sakaiproject.assignment.api.AssignmentSubmissionEdit param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return;
+		if (service == null)
+			return;
 
 		service.commitEdit(param0);
 	}
 
-	public static void cancelEdit(org.sakaiproject.assignment.api.AssignmentSubmissionEdit param0)
-	{
+	public static void cancelEdit(
+			org.sakaiproject.assignment.api.AssignmentSubmissionEdit param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return;
+		if (service == null)
+			return;
 
 		service.cancelEdit(param0);
 	}
 
-	public static void cancelEdit(org.sakaiproject.assignment.api.AssignmentContentEdit param0)
-	{
+	public static void cancelEdit(
+			org.sakaiproject.assignment.api.AssignmentContentEdit param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return;
+		if (service == null)
+			return;
 
 		service.cancelEdit(param0);
 	}
 
-	public static void cancelEdit(org.sakaiproject.assignment.api.AssignmentEdit param0)
-	{
+	public static void cancelEdit(
+			org.sakaiproject.assignment.api.AssignmentEdit param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return;
+		if (service == null)
+			return;
 
 		service.cancelEdit(param0);
 	}
 
-	public static org.sakaiproject.assignment.api.AssignmentContentEdit addAssignmentContent(java.lang.String param0)
-			throws org.sakaiproject.exception.PermissionException
-	{
+	public static org.sakaiproject.assignment.api.AssignmentContentEdit addAssignmentContent(
+			java.lang.String param0)
+			throws org.sakaiproject.exception.PermissionException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.addAssignmentContent(param0);
 	}
 
-	public static org.sakaiproject.assignment.api.AssignmentContentEdit mergeAssignmentContent(org.w3c.dom.Element param0)
-			throws org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.IdUsedException,
-			org.sakaiproject.exception.PermissionException
-	{
+	public static org.sakaiproject.assignment.api.AssignmentContentEdit mergeAssignmentContent(
+			org.w3c.dom.Element param0)
+			throws org.sakaiproject.exception.IdInvalidException,
+			org.sakaiproject.exception.IdUsedException,
+			org.sakaiproject.exception.PermissionException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.mergeAssignmentContent(param0);
 	}
 
-	public static org.sakaiproject.assignment.api.AssignmentContentEdit addDuplicateAssignmentContent(java.lang.String param0,
-			java.lang.String param1) throws org.sakaiproject.exception.IdInvalidException,
-			org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.IdUnusedException
-	{
+	public static org.sakaiproject.assignment.api.AssignmentContentEdit addDuplicateAssignmentContent(
+			java.lang.String param0, java.lang.String param1)
+			throws org.sakaiproject.exception.IdInvalidException,
+			org.sakaiproject.exception.PermissionException,
+			org.sakaiproject.exception.IdUnusedException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.addDuplicateAssignmentContent(param0, param1);
 	}
 
-	public static void removeAssignmentContent(org.sakaiproject.assignment.api.AssignmentContentEdit param0)
+	public static void removeAssignmentContent(
+			org.sakaiproject.assignment.api.AssignmentContentEdit param0)
 			throws org.sakaiproject.assignment.api.AssignmentContentNotEmptyException,
-			org.sakaiproject.exception.PermissionException
-	{
+			org.sakaiproject.exception.PermissionException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return;
+		if (service == null)
+			return;
 
 		service.removeAssignmentContent(param0);
 	}
 
-	public static org.sakaiproject.assignment.api.AssignmentContentEdit editAssignmentContent(java.lang.String param0)
-			throws org.sakaiproject.exception.IdUnusedException, org.sakaiproject.exception.PermissionException,
-			org.sakaiproject.exception.InUseException
-	{
+	public static org.sakaiproject.assignment.api.AssignmentContentEdit editAssignmentContent(
+			java.lang.String param0)
+			throws org.sakaiproject.exception.IdUnusedException,
+			org.sakaiproject.exception.PermissionException,
+			org.sakaiproject.exception.InUseException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.editAssignmentContent(param0);
 	}
 
-	public static org.sakaiproject.assignment.api.AssignmentSubmissionEdit addSubmission(java.lang.String param0,
-			java.lang.String param1) throws org.sakaiproject.exception.PermissionException
-	{
+	public static org.sakaiproject.assignment.api.AssignmentSubmissionEdit addSubmission(
+			java.lang.String param0, java.lang.String param1)
+			throws org.sakaiproject.exception.PermissionException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.addSubmission(param0, param1);
 	}
 
-	public static org.sakaiproject.assignment.api.AssignmentSubmissionEdit mergeSubmission(org.w3c.dom.Element param0)
-			throws org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.IdUsedException,
-			org.sakaiproject.exception.PermissionException
-	{
+	public static org.sakaiproject.assignment.api.AssignmentSubmissionEdit mergeSubmission(
+			org.w3c.dom.Element param0)
+			throws org.sakaiproject.exception.IdInvalidException,
+			org.sakaiproject.exception.IdUsedException,
+			org.sakaiproject.exception.PermissionException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.mergeSubmission(param0);
 	}
 
-	public static void removeSubmission(org.sakaiproject.assignment.api.AssignmentSubmissionEdit param0)
-			throws org.sakaiproject.exception.PermissionException
-	{
+	public static void removeSubmission(
+			org.sakaiproject.assignment.api.AssignmentSubmissionEdit param0)
+			throws org.sakaiproject.exception.PermissionException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return;
+		if (service == null)
+			return;
 
 		service.removeSubmission(param0);
 	}
 
-	public static org.sakaiproject.assignment.api.AssignmentSubmissionEdit editSubmission(java.lang.String param0)
-			throws org.sakaiproject.exception.IdUnusedException, org.sakaiproject.exception.PermissionException,
-			org.sakaiproject.exception.InUseException
-	{
+	public static org.sakaiproject.assignment.api.AssignmentSubmissionEdit editSubmission(
+			java.lang.String param0)
+			throws org.sakaiproject.exception.IdUnusedException,
+			org.sakaiproject.exception.PermissionException,
+			org.sakaiproject.exception.InUseException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.editSubmission(param0);
 	}
 
-	public static java.util.Iterator getAssignmentContents(org.sakaiproject.user.api.User param0)
-	{
+	public static java.util.Iterator getAssignmentContents(
+			org.sakaiproject.user.api.User param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.getAssignmentContents(param0);
 	}
 
-	public static org.sakaiproject.assignment.api.Assignment getAssignment(java.lang.String param0)
-			throws org.sakaiproject.exception.IdUnusedException, org.sakaiproject.exception.PermissionException
-	{
+	public static org.sakaiproject.assignment.api.Assignment getAssignment(
+			java.lang.String param0)
+			throws org.sakaiproject.exception.IdUnusedException,
+			org.sakaiproject.exception.PermissionException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.getAssignment(param0);
 	}
 
-	public static org.sakaiproject.assignment.api.AssignmentContent getAssignmentContent(java.lang.String param0)
-			throws org.sakaiproject.exception.IdUnusedException, org.sakaiproject.exception.PermissionException
-	{
+	public static org.sakaiproject.assignment.api.AssignmentContent getAssignmentContent(
+			java.lang.String param0)
+			throws org.sakaiproject.exception.IdUnusedException,
+			org.sakaiproject.exception.PermissionException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.getAssignmentContent(param0);
 	}
 
-	public static org.sakaiproject.assignment.api.AssignmentSubmission getSubmission(java.lang.String param0)
-			throws org.sakaiproject.exception.IdUnusedException, org.sakaiproject.exception.PermissionException
-	{
+	public static org.sakaiproject.assignment.api.AssignmentSubmission getSubmission(
+			java.lang.String param0)
+			throws org.sakaiproject.exception.IdUnusedException,
+			org.sakaiproject.exception.PermissionException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.getSubmission(param0);
 	}
 
-	public static org.sakaiproject.assignment.api.AssignmentSubmission getSubmission(java.lang.String param0,
-			org.sakaiproject.user.api.User param1) throws org.sakaiproject.exception.IdUnusedException,
-			org.sakaiproject.exception.PermissionException
-	{
+	public static org.sakaiproject.assignment.api.AssignmentSubmission getSubmission(
+			java.lang.String param0, org.sakaiproject.user.api.User param1)
+			throws org.sakaiproject.exception.IdUnusedException,
+			org.sakaiproject.exception.PermissionException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.getSubmission(param0, param1);
 	}
 
-	public static java.util.Iterator getAssignments(org.sakaiproject.assignment.api.AssignmentContent param0)
-	{
+	public static java.util.Iterator getAssignments(
+			org.sakaiproject.assignment.api.AssignmentContent param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.getAssignments(param0);
 	}
 
-	public static java.util.Iterator getAssignmentsForContext(java.lang.String param0)
-	{
+	public static java.util.Iterator getAssignmentsForContext(
+			java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.getAssignmentsForContext(param0);
 	}
-	
-	public static java.util.Iterator getAssignmentsForContext(java.lang.String param0, java.lang.String param1)
-	{
+
+	public static java.util.Iterator getAssignmentsForContext(
+			java.lang.String param0, java.lang.String param1) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.getAssignmentsForContext(param0, param1);
 	}
-	
-	
-	public static java.util.List getListAssignmentsForContext(java.lang.String param0)
-	{
+
+	public static java.util.List getListAssignmentsForContext(
+			java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.getListAssignmentsForContext(param0);
 	}
 
-	public static java.util.Iterator getSubmissions(org.sakaiproject.assignment.api.Assignment param0)
-	{
+	public static java.util.Iterator getSubmissions(
+			org.sakaiproject.assignment.api.Assignment param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.getSubmissions(param0);
 	}
 
-	public static byte[] getGradesSpreadsheet(java.lang.String param0) throws org.sakaiproject.exception.IdUnusedException,
-			org.sakaiproject.exception.PermissionException
-	{
+	public static byte[] getGradesSpreadsheet(java.lang.String param0)
+			throws org.sakaiproject.exception.IdUnusedException,
+			org.sakaiproject.exception.PermissionException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.getGradesSpreadsheet(param0);
 	}
 
-	public static byte[] getSubmissionsZip(java.lang.String param0) throws org.sakaiproject.exception.IdUnusedException,
-			org.sakaiproject.exception.PermissionException
-	{
+	public static byte[] getSubmissionsZip(java.lang.String param0)
+			throws org.sakaiproject.exception.IdUnusedException,
+			org.sakaiproject.exception.PermissionException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.getSubmissionsZip(param0);
 	}
 
-	public static java.lang.String assignmentReference(java.lang.String param0, java.lang.String param1)
-	{
+	public static java.lang.String assignmentReference(java.lang.String param0,
+			java.lang.String param1) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.assignmentReference(param0, param1);
 	}
 
-	public static java.lang.String contentReference(java.lang.String param0, java.lang.String param1)
-	{
+	public static java.lang.String contentReference(java.lang.String param0,
+			java.lang.String param1) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.contentReference(param0, param1);
 	}
 
-	public static java.lang.String submissionReference(java.lang.String param0, java.lang.String param1, java.lang.String param2)
-	{
+	public static java.lang.String submissionReference(java.lang.String param0,
+			java.lang.String param1, java.lang.String param2) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.submissionReference(param0, param1, param2);
 	}
 
-	public static java.lang.String gradesSpreadsheetReference(java.lang.String param0, java.lang.String param1)
-	{
+	public static java.lang.String gradesSpreadsheetReference(
+			java.lang.String param0, java.lang.String param1) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.gradesSpreadsheetReference(param0, param1);
 	}
 
-	public static java.lang.String submissionsZipReference(java.lang.String param0, java.lang.String param1)
-	{
+	public static java.lang.String submissionsZipReference(
+			java.lang.String param0, java.lang.String param1) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.submissionsZipReference(param0, param1);
 	}
 
-	public static java.lang.String merge(java.lang.String param0, org.w3c.dom.Element param1, java.lang.String param2,
-			java.lang.String param3, java.util.Map param4, java.util.HashMap param5, Set param6)
-	{
+	public static java.lang.String merge(java.lang.String param0,
+			org.w3c.dom.Element param1, java.lang.String param2,
+			java.lang.String param3, java.util.Map param4,
+			java.util.HashMap param5, Set param6) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
-		return service.merge(param0, param1, param2, param3, param4, param5, param6);
+		return service.merge(param0, param1, param2, param3, param4, param5,
+				param6);
 	}
 
-	public static java.lang.String getLabel()
-	{
+	public static java.lang.String getLabel() {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.getLabel();
 	}
 
-	public static java.lang.String archive(java.lang.String param0, org.w3c.dom.Document param1, java.util.Stack param2,
-			java.lang.String param3, java.util.List param4)
-	{
+	public static java.lang.String archive(java.lang.String param0,
+			org.w3c.dom.Document param1, java.util.Stack param2,
+			java.lang.String param3, java.util.List param4) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
+		if (service == null)
+			return null;
 
 		return service.archive(param0, param1, param2, param3, param4);
 	}
 
-	public static String getType()
-	{
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
-
-		return service.getType();
-	}
-
-	public static String getName()
-	{
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return null;
-
-		return service.getName();		
-	}
-
-	public static List getActivities(String context) {
+	public static String getId() {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null)
 			return null;
 
-		return service.getActivities(context);
+		return service.getId();
 	}
 
-	public static TaggableActivity getActivity(String activityRef) {
+	public static String getName() {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null)
 			return null;
 
-		return service.getActivity(activityRef);
+		return service.getName();
+	}
+
+	public static List<TaggableActivity> getActivities(String context,
+			TaggingProvider provider) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getActivities(context, provider);
+	}
+
+	public static TaggableActivity getActivity(String activityRef,
+			TaggingProvider provider) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getActivity(activityRef, provider);
 	}
 
 	public static boolean checkReference(String ref) {
@@ -646,26 +701,26 @@ public class AssignmentService
 		return service.getContext(ref);
 	}
 
-	public static TaggableItem getItem(String itemRef) {
+	public static TaggableItem getItem(String itemRef, TaggingProvider provider) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null)
 			return null;
 
-		return service.getItem(itemRef);
+		return service.getItem(itemRef, provider);
 	}
-	
-	public static boolean getAllowGroupAssignments()
-	{
+
+	public static boolean getAllowGroupAssignments() {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return false;
+		if (service == null)
+			return false;
 
 		return service.getAllowGroupAssignments();
 	}
-	
-	public static boolean getAllowGroupAssignmentsInGradebook()
-	{
+
+	public static boolean getAllowGroupAssignmentsInGradebook() {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return false;
+		if (service == null)
+			return false;
 
 		return service.getAllowGroupAssignmentsInGradebook();
 	}

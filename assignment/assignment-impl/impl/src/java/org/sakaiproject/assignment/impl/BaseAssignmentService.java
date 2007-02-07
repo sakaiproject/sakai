@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -57,11 +57,11 @@ import org.sakaiproject.assignment.api.AssignmentEdit;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
-import org.sakaiproject.assignment.api.AssignmentTaggableSubmission;
 import org.sakaiproject.assignment.taggable.api.TaggableActivity;
 import org.sakaiproject.assignment.taggable.api.TaggableActivityProducer;
 import org.sakaiproject.assignment.taggable.api.TaggableItem;
 import org.sakaiproject.assignment.taggable.api.TaggingManager;
+import org.sakaiproject.assignment.taggable.api.TaggingProvider;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -88,7 +88,6 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
@@ -4206,44 +4205,93 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		return null;
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+	/***************************************************************************
 	 * TaggableActivityProducer Implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	 **************************************************************************/
 
-	public String getType() {
+	public String getId() {
 		return APPLICATION_ID;
 	}
 
 	public String getName() {
-		return rb.getString("assig7");
+		return rb.getString("service_name");
 	}
 
-	public List getActivities(String context) {
-		List assignments = getAssignments(context);
-		for (Iterator i = assignments.iterator(); i.hasNext();) {
-			BaseAssignment assignment = (BaseAssignment) i.next();
+	public List<TaggableActivity> getActivities(String context,
+			TaggingProvider provider) {
+		// We aren't picky about the provider, so ignore that argument.
+		List<TaggableActivity> activities = new ArrayList<TaggableActivity>();
+		List<BaseAssignment> assignments = getAssignments(context);
+		for (BaseAssignment assignment : assignments) {
 			assignment.setProducer(this);
+			TaggableActivity activity = (TaggableActivity) assignment;
+			activities.add(activity);
 		}
-		return assignments;
+		return activities;
 	}
 
-	public TaggableActivity getActivity(String activityRef) {
-		if (activityRef.startsWith(REFERENCE_ROOT)) {
+	public TaggableActivity getActivity(String activityRef,
+			TaggingProvider provider) {
+		// We aren't picky about the provider, so ignore that argument.
+		TaggableActivity activity = null;
+		if (checkReference(activityRef)) {
 			try {
-				return (TaggableActivity) getAssignment(activityRef);
+				BaseAssignment assignment = (BaseAssignment) getAssignment(activityRef);
+				assignment.setProducer(this);
+				activity = (TaggableActivity) assignment;
 			} catch (IdUnusedException iue) {
-				M_log.warn(this + ".getLinkableActivity(): " + iue);
+				M_log.error(iue.getMessage(), iue);
 			} catch (PermissionException pe) {
-				M_log.warn(this + ".getLinkableActivity(): " + pe);
+				M_log.error(pe.getMessage(), pe);
 			}
 		}
-		return null;
+		return activity;
 	}
 
-	public TaggableItem getItem(String itemRef) {
-		if (itemRef.startsWith(REFERENCE_ROOT)) {
+	public List getItems(TaggableActivity activity, TaggingProvider provider) {
+		// We aren't picky about the provider, so ignore that argument.
+		List items = new ArrayList();
+		Assignment assignment = (Assignment) activity.getObject();
+		for (Iterator<AssignmentSubmission> i = getSubmissions(assignment); i
+				.hasNext();) {
+			AssignmentSubmission submission = i.next();
+			for (Object submitterId : submission.getSubmitterIds()) {
+				items.add(new BaseTaggableSubmission(submission,
+						(String) submitterId));
+			}
+		}
+		return items;
+	}
+
+	public List getItems(TaggableActivity activity, String userId,
+			TaggingProvider provider) {
+		// We aren't picky about the provider, so ignore that argument.
+		List returned = new ArrayList();
+		try {
+			Assignment assignment = (Assignment) activity.getObject();
+			AssignmentSubmission submission = getSubmission(assignment
+					.getReference(), UserDirectoryService.getUser(userId));
+			if (submission != null) {
+				TaggableItem item = new BaseTaggableSubmission(submission,
+						userId);
+				returned.add(item);
+			}
+		} catch (IdUnusedException iue) {
+			M_log.error(iue.getMessage(), iue);
+		} catch (PermissionException pe) {
+			M_log.error(pe.getMessage(), pe);
+		} catch (UserNotDefinedException unde) {
+			M_log.error(unde.getMessage(), unde);
+		}
+		return returned;
+	}
+
+	public TaggableItem getItem(String itemRef, TaggingProvider provider) {
+		// We aren't picky about the provider, so ignore that argument.
+		TaggableItem item = null;
+		if (checkReference(itemRef)) {
 			try {
-				return new BaseTaggableSubmission(
+				item = new BaseTaggableSubmission(
 						getSubmission(parseSubmissionRef(itemRef)),
 						parseAuthor(itemRef));
 			} catch (IdUnusedException iue) {
@@ -4252,19 +4300,19 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				M_log.error(pe.getMessage(), pe);
 			}
 		}
-		return null;
+		return item;
 	}
-	
+
 	public boolean checkReference(String ref) {
 		return ref.startsWith(REFERENCE_ROOT);
 	}
-	
+
 	public String getContext(String ref) {
 		return m_entityManager.newReference(ref).getContext();
 	}
-	
+
 	protected static final String ITEM_REF_SEPARATOR = "@";
-	
+
 	protected String parseSubmissionRef(String itemRef) {
 		return itemRef.split(ITEM_REF_SEPARATOR)[0];
 	}
@@ -4866,7 +4914,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		} // compareTo
 
 		/***********************************************************************
-		 * LinkableActivity implementation
+		 * TaggableActivity implementation
 		 **********************************************************************/
 
 		protected TaggableActivityProducer producer;
@@ -4882,27 +4930,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		public String getDescription() {
 			return "";
 		}
-
-		public List getItems() {
-			List items = new ArrayList();
-			for (Iterator i = getSubmissions(this); i.hasNext();)
-				items.addAll(((BaseAssignmentSubmission) i.next())
-						.getTaggableSubmissions());
-			return items;
-		}
-
-		public List getItems(String userId) {
-			TaggableItem item = null;
-			try {
-				item = ((BaseAssignmentSubmission) getSubmission(this
-						.getReference(), UserDirectoryService.getUser(userId)))
-						.getTaggableSubmission(userId);
-			} catch (Exception e) {
-				M_log.warn(this + ".getItem(): " + e);
-			}
-			List returned = new ArrayList();
-			returned.add(item);
-			return returned;
+		
+		public Object getObject() {
+			return this;
 		}
 
 	} // BaseAssignment
@@ -7141,8 +7171,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		} // compareTo
 		
-		public List getTaggableSubmissions() {
-			List list = new ArrayList();
+		public List<TaggableItem> getTaggableSubmissions() {
+			List<TaggableItem> list = new ArrayList<TaggableItem>();
 			for (Iterator i = m_submitters.iterator(); i.hasNext();) {
 				String submitterId = (String) i.next();
 				list.add(new BaseTaggableSubmission(this, submitterId));
@@ -7150,19 +7180,20 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return list;
 		}
 
-		public AssignmentTaggableSubmission getTaggableSubmission(String submitterId) {
-			AssignmentTaggableSubmission taggableSub = null;
+		public TaggableItem getTaggableSubmission(String submitterId) {
+			TaggableItem taggableSub = null;
 			if (m_submitters.contains(submitterId))
 				taggableSub = new BaseTaggableSubmission(this, submitterId);
 			return taggableSub;
 		}
+		
 	} // AssignmentSubmission
 	
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * TaggableSubmission implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	/***************************************************************************
+	 * TaggableItem implementation
+	 **************************************************************************/
 
-	public class BaseTaggableSubmission implements AssignmentTaggableSubmission {
+	public class BaseTaggableSubmission implements TaggableItem {
 
 		protected AssignmentSubmission submission;
 
@@ -7209,7 +7240,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return (TaggableActivity) submission.getAssignment();
 		}
 
-		public AssignmentSubmission getAssignmentSubmission() {
+		public Object getObject() {
 			return submission;
 		}
 	}
