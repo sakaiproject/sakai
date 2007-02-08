@@ -21,7 +21,13 @@
 
 package org.sakaiproject.tool.cover;
 
+import java.util.List;
+import java.io.File;
+
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.api.Tool;
+
+import org.w3c.dom.Document;
 
 /**
  * <p>
@@ -132,6 +138,22 @@ public class ActiveToolManager
 		if (manager == null) return;
 
 		manager.register(param0, param1);
+	}
+
+        public static List<Tool> parseTools(File param0)
+	{
+		org.sakaiproject.tool.api.ActiveToolManager manager = getInstance();
+		if (manager == null) return null;
+
+		return manager.parseTools(param0);
+	}
+
+        public static List<Tool> parseTools(Document param0)
+	{
+		org.sakaiproject.tool.api.ActiveToolManager manager = getInstance();
+		if (manager == null) return null;
+
+		return manager.parseTools(param0);
 	}
 
 	public static org.sakaiproject.tool.api.ActiveTool getActiveTool(java.lang.String param0)

@@ -21,6 +21,8 @@
 
 package org.sakaiproject.tool.api;
 
+import java.util.List;
+
 import java.io.File;
 import java.io.InputStream;
 
@@ -58,6 +60,18 @@ public interface ActiveToolManager extends ToolManager
 	 * @param toolXmlFile The file of Tool schema XML in which tools to be added to the registry are to be found.
 	 */
 	void register(InputStream toolXmlStream, ServletContext config);
+
+	/**
+	 * Parse a registration file and return a list of Tool Registrations
+	 * @param toolXmlFile The file of Tool schema XML in which tools to be added to the registry are to be found.
+	 */
+	List<Tool> parseTools(File toolXmlFile);
+
+	/**
+	 * Parse a registration file and return a list of Tool Registrations
+	 * @param toolXmlFile The file of Tool schema XML in which tools to be added to the registry are to be found.
+	 */
+	List<Tool> parseTools(Document toolXml);
 
 	/**
 	 * Find a tool with this well known id in the registry.

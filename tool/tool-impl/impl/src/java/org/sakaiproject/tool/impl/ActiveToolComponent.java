@@ -31,6 +31,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -144,81 +146,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 			// for tool
 			if (rootElement.getTagName().equals("tool"))
 			{
-				org.sakaiproject.util.Tool tool = new org.sakaiproject.util.Tool();
-
-				tool.setId(rootElement.getAttribute("id").trim());
-				tool.setTitle(rootElement.getAttribute("title").trim());
-				tool.setDescription(rootElement.getAttribute("description").trim());
-				tool.setHome(StringUtil.trimToNull(rootElement.getAttribute("home")));
-
-				if ("tool".equals(rootElement.getAttribute("accessSecurity")))
-				{
-					tool.setAccessSecurity(Tool.AccessSecurity.TOOL);
-				}
-				else
-				{
-					tool.setAccessSecurity(Tool.AccessSecurity.PORTAL);
-				}
-
-				// collect values for these collections
-				Properties finalConfig = new Properties();
-				Properties mutableConfig = new Properties();
-				Set categories = new HashSet();
-				Set keywords = new HashSet();
-
-				NodeList kids = rootElement.getChildNodes();
-				final int kidsLength = kids.getLength();
-				for (int k = 0; k < kidsLength; k++)
-				{
-					Node kidNode = kids.item(k);
-					if (kidNode.getNodeType() != Node.ELEMENT_NODE) continue;
-					Element kidElement = (Element) kidNode;
-
-					// for configuration
-					if (kidElement.getTagName().equals("configuration"))
-					{
-						String name = kidElement.getAttribute("name").trim();
-						String value = kidElement.getAttribute("value").trim();
-						String type = kidElement.getAttribute("type").trim();
-						if (name.length() > 0)
-						{
-							if ("final".equals(type))
-							{
-								finalConfig.put(name, value);
-							}
-							else
-							{
-								mutableConfig.put(name, value);
-							}
-						}
-					}
-
-					// for category
-					if (kidElement.getTagName().equals("category"))
-					{
-						String name = kidElement.getAttribute("name").trim();
-						if (name.length() > 0)
-						{
-							categories.add(name);
-						}
-					}
-
-					// for keyword
-					if (kidElement.getTagName().equals("keyword"))
-					{
-						String name = kidElement.getAttribute("name").trim();
-						if (name.length() > 0)
-						{
-							keywords.add(name);
-						}
-					}
-				}
-
-				// set the tool's collected values
-				tool.setRegisteredConfig(finalConfig, mutableConfig);
-				tool.setCategories(categories);
-				tool.setKeywords(keywords);
-
+				org.sakaiproject.util.Tool tool = parseToolRegistration(rootElement);
 				register(tool, context);
 			}
 
@@ -229,6 +157,141 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 				functionManager().registerFunction(function);
 			}
 		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public List<Tool> parseTools(File toolXmlFile)
+	{
+		if ( ! toolXmlFile.canRead() ) return null;
+
+                String path = toolXmlFile.getAbsolutePath();
+                if (!path.endsWith(".xml"))
+                {
+                        M_log.info("register: skiping non .xml file: " + path);
+                        return null;
+                }
+
+                M_log.info("parse-file: " + path);
+
+                Document doc = Xml.readDocument(path);
+		if ( doc == null ) return null;
+		return parseTools(doc);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public List<Tool> parseTools(Document toolXml)
+	{
+
+		List<Tool> retval = new ArrayList<Tool> ();
+		Element root = toolXml.getDocumentElement();
+		if (!root.getTagName().equals("registration"))
+		{
+			M_log.info("register: invalid root element (expecting \"registration\"): " + root.getTagName());
+			return null;
+		}
+
+		// read the children nodes (tools)
+		NodeList rootNodes = root.getChildNodes();
+		final int rootNodesLength = rootNodes.getLength();
+		for (int i = 0; i < rootNodesLength; i++)
+		{
+			Node rootNode = rootNodes.item(i);
+			if (rootNode.getNodeType() != Node.ELEMENT_NODE) continue;
+			Element rootElement = (Element) rootNode;
+
+			// for tool
+			if (rootElement.getTagName().equals("tool"))
+			{
+				org.sakaiproject.util.Tool tool = parseToolRegistration(rootElement);
+				retval.add(tool);
+			}
+
+		}
+		if ( retval.size() < 1 ) return null;
+		return retval;
+	}
+
+	private org.sakaiproject.util.Tool parseToolRegistration(Element rootElement)
+	{
+		org.sakaiproject.util.Tool tool = new org.sakaiproject.util.Tool();
+
+		tool.setId(rootElement.getAttribute("id").trim());
+		tool.setTitle(rootElement.getAttribute("title").trim());
+		tool.setDescription(rootElement.getAttribute("description").trim());
+		tool.setHome(StringUtil.trimToNull(rootElement.getAttribute("home")));
+
+		if ("tool".equals(rootElement.getAttribute("accessSecurity")))
+		{
+			tool.setAccessSecurity(Tool.AccessSecurity.TOOL);
+		}
+		else
+		{
+			tool.setAccessSecurity(Tool.AccessSecurity.PORTAL);
+		}
+
+		// collect values for these collections
+		Properties finalConfig = new Properties();
+		Properties mutableConfig = new Properties();
+		Set categories = new HashSet();
+		Set keywords = new HashSet();
+		NodeList kids = rootElement.getChildNodes();
+		final int kidsLength = kids.getLength();
+		for (int k = 0; k < kidsLength; k++)
+		{
+			Node kidNode = kids.item(k);
+			if (kidNode.getNodeType() != Node.ELEMENT_NODE) continue;
+			Element kidElement = (Element) kidNode;
+
+			// for configuration
+			if (kidElement.getTagName().equals("configuration"))
+			{
+				String name = kidElement.getAttribute("name").trim();
+				String value = kidElement.getAttribute("value").trim();
+				String type = kidElement.getAttribute("type").trim();
+				if (name.length() > 0)
+				{
+					if ("final".equals(type))
+					{
+						finalConfig.put(name, value);
+					}
+					else
+					{
+						mutableConfig.put(name, value);
+					}
+				}
+			}
+
+			// for category
+			if (kidElement.getTagName().equals("category"))
+			{
+				String name = kidElement.getAttribute("name").trim();
+				if (name.length() > 0)
+				{
+					categories.add(name);
+				}
+			}
+
+			// for keyword
+			if (kidElement.getTagName().equals("keyword"))
+			{
+				String name = kidElement.getAttribute("name").trim();
+				if (name.length() > 0)
+				{
+					keywords.add(name);
+				}
+			}
+		}
+
+		// set the tool's collected values
+		tool.setRegisteredConfig(finalConfig, mutableConfig);
+		tool.setCategories(categories);
+		tool.setKeywords(keywords);
+
+		return tool;
 	}
 
 	/**
