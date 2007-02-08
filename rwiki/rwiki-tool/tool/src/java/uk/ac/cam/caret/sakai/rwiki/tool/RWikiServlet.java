@@ -21,6 +21,7 @@
 package uk.ac.cam.caret.sakai.rwiki.tool;
 
 import java.io.IOException;
+import java.util.Enumeration;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -41,6 +42,7 @@ import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.PrePopulateBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.command.Dispatcher;
+import uk.ac.cam.caret.sakai.rwiki.tool.command.SaveCommand;
 import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
 import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
@@ -131,10 +133,8 @@ public class RWikiServlet extends HttpServlet
 	public void execute(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
 	{
-		long finish = System.currentTimeMillis();
-		long start = System.currentTimeMillis();
-		TimeLogger.printTimer("Response Start Marker", start, finish);
 
+		
 		if (wac == null)
 		{
 			wac = WebApplicationContextUtils
@@ -148,6 +148,8 @@ public class RWikiServlet extends HttpServlet
 		}
 		log.debug("========================Page Start==========");
 		request.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
+		
+		
 		String targetURL = persistState(request);
 		if (targetURL != null && targetURL.trim().length() > 0)
 		{
@@ -170,23 +172,9 @@ public class RWikiServlet extends HttpServlet
 
 		HttpCommand command = helper.getCommandForRequest(request);
 
-		finish = System.currentTimeMillis();
-		TimeLogger.printTimer("Response Preamble Complete", start, finish);
-		start = System.currentTimeMillis();
+		
 		command.execute(dispatcher,request, response);
-		finish = System.currentTimeMillis();
 
-		TimeLogger.printTimer("Response Complete", start, finish);
-		if ((finish - start) > 500)
-		{
-			log.debug("Slow Wiki Page " + (finish - start) + " ms URL "
-					+ request.getRequestURL() + "?" + request.getQueryString());
-		}
-		else if (TimeLogger.getLogResponse())
-		{
-			log.info("Wiki Page Response " + (finish - start) + " ms URL "
-					+ request.getRequestURL() + "?" + request.getQueryString());
-		}
 		request.removeAttribute(Tool.NATIVE_URL);
 		log.debug("=====================Page End=============");
 	}
@@ -260,6 +248,10 @@ public class RWikiServlet extends HttpServlet
 	{
 		if (RequestHelper.TITLE_PANEL.equals(request
 				.getParameter(RequestHelper.PANEL))) return false;
+		
+		if ( request.getPathInfo() != null && request.getPathInfo().startsWith("/helper/") ) {
+			return false;
+		}
 
 
 		String action = request.getParameter(RequestHelper.ACTION);

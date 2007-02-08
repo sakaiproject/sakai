@@ -99,7 +99,6 @@ public class MapDispatcher implements Dispatcher
 		if ( dispatcher == null ) {
 			dispatcher = defaultDispatcher;
 		}
-		
 		dispatcher.dispatch(targetpath, request, response);
 	}
 

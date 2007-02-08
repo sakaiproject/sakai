@@ -108,13 +108,8 @@ public class CommandServiceImpl implements CommandService
 				HttpServletResponse response) throws ServletException,
 				IOException
 		{
-			long start = System.currentTimeMillis();
 			String actionPath = MessageFormat.format(template,
 					new Object[] { action });
-			long start1 = System.currentTimeMillis();
-			start = System.currentTimeMillis();
-			log.debug(" Going to " + actionPath);
-			long start2 = System.currentTimeMillis();
 			try
 			{
 				dispatcher.dispatch(actionPath, request, response);
@@ -146,27 +141,6 @@ public class CommandServiceImpl implements CommandService
 			{
 				dispatcher.dispatch(permissionPath, request, response);
 			}
-			finally
-			{
-				long finish = System.currentTimeMillis();
-				if ((start2 - start) > 20)
-				{
-					long i1 = start1 - start;
-					long i2 = start2 - start1;
-					long i3 = finish - start2;
-					long i4 = finish - start;
-					log
-							.warn("Defult Command Service Dispatch Preamble taking too long, "
-									+ "Message Format "
-									+ i1
-									+ " ms, getRequestDispatch "
-									+ i2
-									+ " ms, forward "
-									+ i3
-									+ " ms, overall "
-									+ i4 + " ms");
-				}
-			}
 		}
 
 	}
@@ -189,6 +163,7 @@ public class CommandServiceImpl implements CommandService
 	public HttpCommand getCommand(String commandName)
 	{
 
+		
 		HttpCommand command = (HttpCommand) commandMap.get(commandName);
 
 		if (command == null)

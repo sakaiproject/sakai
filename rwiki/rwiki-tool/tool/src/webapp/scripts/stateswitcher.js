@@ -132,7 +132,8 @@ function addAttachment(textareaid, formid, editcontrolid, type) {
     store = "0:0";
   }
 
-  editcontrol.innerHTML += "<input type='hidden' name='save' value='Attach" + type + "'/><input type='hidden' name='caretPosition' value='"+ store + "'/>";
+  
+  editcontrol.innerHTML += "<input type='hidden' name='save' value='attach" + type + "'/><input type='hidden' name='caretPosition' value='"+ store + "'/>";
   form.submit();
 }
 

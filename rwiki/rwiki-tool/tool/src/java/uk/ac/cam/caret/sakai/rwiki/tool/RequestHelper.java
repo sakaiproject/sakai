@@ -77,6 +77,7 @@ public class RequestHelper
 			action = defaultAction;
 		}
 
+		
 		return commandService.getCommand(action);
 	}
 
