@@ -195,9 +195,6 @@ public class MessageForumSynopticBean {
 	private boolean sitesToView;
 	private boolean sitesToViewSet = false;
 	
-	/** Decorated Bean to store stats for individual site */
-	private DecoratedCompiledMessageStats siteInfo = null;
-
 	/** to get accces to log file */
 	private static final Log LOG = LogFactory.getLog(MessageForumSynopticBean.class);
 
@@ -300,10 +297,6 @@ public class MessageForumSynopticBean {
 	 */
 	public DecoratedCompiledMessageStats getSiteInfo() {
 		return getSiteContents();
-	}
-
-	public void setSiteInfo(DecoratedCompiledMessageStats siteInfo) {
-		this.siteInfo = siteInfo;
 	}
 
 	/**
@@ -1218,8 +1211,6 @@ public class MessageForumSynopticBean {
 				// TODO: construct query to be one roundtrip to DB
 				for (Iterator iter = privateMessages.iterator(); iter.hasNext();) {
 					pvtMessageManager.markMessageAsReadForUser((PrivateMessage) iter.next());
-				
-				siteInfo.setUnreadPrivateAmt(0);
 				}
 			}
 		}
