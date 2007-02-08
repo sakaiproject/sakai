@@ -63,6 +63,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.Validator;
@@ -404,13 +406,13 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 					// get permissions for "from" site
 					Set membershipItemSet = fromForum.getMembershipItemSet();
-					List roleIdList = getSiteRoleIds(toContext);
+					List allowedPermNames = this.getSiteRolesAndGroups(toContext);
 
-					if (membershipItemSet != null && !membershipItemSet.isEmpty() && roleIdList != null && !roleIdList.isEmpty()) {
+					if (membershipItemSet != null && !membershipItemSet.isEmpty() && allowedPermNames != null && !allowedPermNames.isEmpty()) {
 						Iterator membershipIter = membershipItemSet.iterator();
 						while (membershipIter.hasNext()) {
 							DBMembershipItem oldItem = (DBMembershipItem)membershipIter.next();
-							if(roleIdList.contains(oldItem.getName())) {
+							if(allowedPermNames.contains(oldItem.getName())) {
 
 								DBMembershipItem newItem = getMembershipItemCopy(oldItem);
 								if (newItem != null) {
@@ -480,11 +482,11 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 							// Get/set the topic's permissions
 							Set topicMembershipItemSet = fromTopic.getMembershipItemSet();
 
-							if (topicMembershipItemSet != null && !topicMembershipItemSet.isEmpty() && roleIdList != null && !roleIdList.isEmpty()) {
+							if (topicMembershipItemSet != null && !topicMembershipItemSet.isEmpty() && allowedPermNames != null && !allowedPermNames.isEmpty()) {
 								Iterator membershipIter = topicMembershipItemSet.iterator();
 								while (membershipIter.hasNext()) {
 									DBMembershipItem oldItem = (DBMembershipItem)membershipIter.next();
-									if(roleIdList.contains(oldItem.getName())) {
+									if(allowedPermNames.contains(oldItem.getName())) {
 										DBMembershipItem newItem = getMembershipItemCopy(oldItem);
 										if (newItem != null) {
 											permissionManager.saveDBMembershipItem(newItem);
@@ -633,19 +635,18 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 												}
 												// PERMISSIONS
 												else if(forumChildElement.getTagName().equals(PERMISSIONS)) {
-													Set membershipItemSet = getMembershipItemSetFromPermissionElement(forumChildElement);
-													List roleIdList = getSiteRoleIds(siteId);
-													if (membershipItemSet != null && membershipItemSet.size() > 0 && roleIdList != null && !roleIdList.isEmpty()) {
+													Set membershipItemSet = getMembershipItemSetFromPermissionElement(forumChildElement, siteId);
+													if (membershipItemSet != null && membershipItemSet.size() > 0) {
 														Iterator membershipIter = membershipItemSet.iterator();
 														while (membershipIter.hasNext()) {
 															DBMembershipItem oldItem = (DBMembershipItem)membershipIter.next();
-															if(roleIdList.contains(oldItem.getName())) {
+
 																DBMembershipItem newItem = getMembershipItemCopy(oldItem);
 																if (newItem != null) {
 																	permissionManager.saveDBMembershipItem(newItem);
 																	dfForum.addMembershipItem(newItem);
 																}
-															}
+	
 														}
 													}
 												}
@@ -760,19 +761,17 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 															}
 
 															else if (propertiesElement.getTagName().equals(PERMISSIONS)) {
-																Set membershipItemSet = getMembershipItemSetFromPermissionElement(propertiesElement);
-																List roleIdList = getSiteRoleIds(siteId);
-																if (membershipItemSet != null && membershipItemSet.size() > 0 && roleIdList != null && !roleIdList.isEmpty()) {
+																Set membershipItemSet = getMembershipItemSetFromPermissionElement(propertiesElement, siteId);
+																if (membershipItemSet != null && membershipItemSet.size() > 0) {
 																	Iterator membershipIter = membershipItemSet.iterator();
 																	while (membershipIter.hasNext()) {
 																		DBMembershipItem oldItem = (DBMembershipItem)membershipIter.next();
-																		if(roleIdList.contains(oldItem.getName())) {
-																			DBMembershipItem newItem = getMembershipItemCopy(oldItem);
-																			if (newItem != null) {
-																				permissionManager.saveDBMembershipItem(newItem);
-																				dfTopic.addMembershipItem(newItem);
-																			}
+																		DBMembershipItem newItem = getMembershipItemCopy(oldItem);
+																		if (newItem != null) {
+																			permissionManager.saveDBMembershipItem(newItem);
+																			dfTopic.addMembershipItem(newItem);
 																		}
+
 																	}
 																}
 															}
@@ -950,8 +949,10 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		return null;
 	}
 	
-	private Set getMembershipItemSetFromPermissionElement(Element permissionsElement) {
+	private Set getMembershipItemSetFromPermissionElement(Element permissionsElement, String siteId) {
 		Set membershipItemSet = new HashSet();
+		List allowedPermNames = getSiteRolesAndGroups(siteId);
+		List allowedPermLevels = permissionManager.getOrderedPermissionLevelNames();
 
 		NodeList permissionsNodes = permissionsElement.getChildNodes();
 		for (int m=0; m < permissionsNodes.getLength(); m++)
@@ -966,35 +967,39 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 								permissionElement.getAttribute(PERMISSION_TYPE) != null) {
 							String permissionName = permissionElement.getAttribute(PERMISSION_NAME);
 							String permissionLevelName = permissionElement.getAttribute(PERMISSION_LEVEL_NAME);
-							Integer permissionType = new Integer(permissionElement.getAttribute(PERMISSION_TYPE));
-							DBMembershipItem membershipItem = permissionManager.createDBMembershipItem(permissionName, permissionLevelName, permissionType);
+							if (allowedPermNames != null && allowedPermLevels != null && allowedPermNames.contains(permissionName) && allowedPermLevels.contains(permissionLevelName))
+							{
 
-							if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM.equals(membershipItem.getPermissionLevelName())){
-								NodeList customPermNodes = permissionElement.getChildNodes();
-								for (int l=0; l < customPermNodes.getLength(); l++)
-								{
-									Node customPermNode = customPermNodes.item(l);
-									if (customPermNode.getNodeType() == Node.ELEMENT_NODE)
+								Integer permissionType = new Integer(permissionElement.getAttribute(PERMISSION_TYPE));
+								DBMembershipItem membershipItem = permissionManager.createDBMembershipItem(permissionName, permissionLevelName, permissionType);
+
+								if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM.equals(membershipItem.getPermissionLevelName())){
+									NodeList customPermNodes = permissionElement.getChildNodes();
+									for (int l=0; l < customPermNodes.getLength(); l++)
 									{
-										Element customPermElement = (Element)customPermNode;
-										if (customPermElement.getTagName().equals(CUSTOM_PERMISSIONS)) {
-											PermissionsMask mask = new PermissionsMask();
-											List customPermList = permissionManager.getCustomPermissions();
-											for (int c=0; c < customPermList.size(); c++) {
-												String customPermName = (String) customPermList.get(c);
-												Boolean hasPermission = new Boolean(customPermElement.getAttribute(customPermName));
-												mask.put(customPermName, hasPermission);
-											}
+										Node customPermNode = customPermNodes.item(l);
+										if (customPermNode.getNodeType() == Node.ELEMENT_NODE)
+										{
+											Element customPermElement = (Element)customPermNode;
+											if (customPermElement.getTagName().equals(CUSTOM_PERMISSIONS)) {
+												PermissionsMask mask = new PermissionsMask();
+												List customPermList = permissionManager.getCustomPermissions();
+												for (int c=0; c < customPermList.size(); c++) {
+													String customPermName = (String) customPermList.get(c);
+													Boolean hasPermission = new Boolean(customPermElement.getAttribute(customPermName));
+													mask.put(customPermName, hasPermission);
+												}
 
-											PermissionLevel level = permissionManager.createPermissionLevel(membershipItem.getName(), typeManager.getCustomLevelType(), mask);
-											membershipItem.setPermissionLevel(level);
+												PermissionLevel level = permissionManager.createPermissionLevel(membershipItem.getPermissionLevelName(), typeManager.getCustomLevelType(), mask);
+												membershipItem.setPermissionLevel(level);
+											}
 										}
 									}
 								}
+								// save DBMembershipItem here to get an id so we can add to the set
+								permissionManager.saveDBMembershipItem(membershipItem);
+								membershipItemSet.add(membershipItem);
 							}
-							// save DBMembershiptItem here to get an id so we can add to the set
-							permissionManager.saveDBMembershipItem(membershipItem);
-							membershipItemSet.add(membershipItem);
 						}
 
 					} catch (NumberFormatException nfe) {
@@ -1008,10 +1013,10 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		return membershipItemSet;
 	}
 	
-	private List getSiteRoleIds(String contextId) {
+	private List getSiteRolesAndGroups(String contextId) {
 		// get the roles in the site
 		AuthzGroup realm;
-		List roleIdList = new ArrayList();
+		List rolesAndGroups = new ArrayList();
 		try
 		{      
 			realm = AuthzGroupService.getAuthzGroup("/site/" + contextId);
@@ -1025,15 +1030,27 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 					Role role = (Role) roleIter.next();
 					if (role != null) 
 					{
-						roleIdList.add(role.getId());
+						rolesAndGroups.add(role.getId());
 					}
 				}
 			}
+			
+			// get any groups/sections in site
+			Site currentSite = SiteService.getSite(contextId); 
+			  Collection groups = currentSite.getGroups();
+			  for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
+		      {
+		        Group currentGroup = (Group) groupIterator.next(); 
+		        rolesAndGroups.add(currentGroup.getTitle());
+		      }
 		} catch (GroupNotDefinedException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}  
-		return roleIdList;
+			LOG.error("GroupNotDefinedException retrieving site's roles and groups", e);
+		} catch (Exception e) {
+			LOG.error("Exception retrieving site's roles and groups", e);
+		}
+		
+		return rolesAndGroups;
 	}
 	
 	private DBMembershipItem getMembershipItemCopy(DBMembershipItem itemToCopy) {
@@ -1049,7 +1066,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 				mask.put(customPermName, hasPermission);
 			}
 
-			PermissionLevel level = permissionManager.createPermissionLevel(newItem.getName(), typeManager.getCustomLevelType(), mask);
+			PermissionLevel level = permissionManager.createPermissionLevel(newItem.getPermissionLevelName(), typeManager.getCustomLevelType(), mask);
 			newItem.setPermissionLevel(level);
 		}
 		return newItem;
