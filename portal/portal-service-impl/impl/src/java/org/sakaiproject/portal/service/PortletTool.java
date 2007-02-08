@@ -25,12 +25,22 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.List;
+import java.util.Iterator;
+
+import java.io.File;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.servlet.ServletContext;
 
 import org.apache.pluto.descriptors.portlet.PortletDD;
 import org.apache.pluto.internal.InternalPortletContext;
 import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.cover.ActiveToolManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * <p>
@@ -39,6 +49,9 @@ import org.sakaiproject.portal.api.PortalService;
  */
 public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 {
+    	/** Our log (commons).  */
+    	private static Log M_log = LogFactory.getLog(PortletTool.class);
+
 	/** The access security. */
 	protected PortletTool.AccessSecurity m_accessSecurity = PortletTool.AccessSecurity.PORTAL;
 
@@ -66,23 +79,62 @@ public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 	/** The title string. */
 	protected String m_title = null;
 
+	/** The parsed tool registration (if any) **/
+	protected Tool m_tool = null;
 
 	public PortletTool(PortletDD pdd, InternalPortletContext portlet, ServletContext portalContext)
 	{
-		m_id = "portlet."+portlet.getApplicationId()+"."+pdd.getPortletName();
-		m_categories.add("myworkspace");
-		m_categories.add("project");
-		m_categories.add("course");
-		if ( pdd.getPortletInfo() != null ) {
-			m_description = "Auto Registered Portlet "+pdd.getPortletInfo().getTitle();
-			m_title = "Portlet: "+pdd.getPortletInfo().getShortTitle();
-		} else {
-			m_description = "Auto Registered Portlet "+pdd.getPortletName();
-			m_title = "Portlet: "+pdd.getPortletName();
+		String portletSupport = ServerConfigurationService.getString("portlet.support");
+
+		String portletName = pdd.getPortletName();
+		String appName = portlet.getApplicationId();
+		String homePath = ServerConfigurationService.getSakaiHomePath()+"/portlets/";
+		String portletReg = homePath+appName+"/"+portletName+".xml";
+
+		File toolRegFile = new File(portletReg);
+		if ( ! toolRegFile.canRead() ) 
+		{
+			portletReg  = homePath+portletName+".xml";
+			toolRegFile = new File(portletReg);
 		}
+
+		// Attempt to read and parse the registraiton file
+		List<Tool> toolRegs = ActiveToolManager.parseTools(new File(portletReg));
+
+		// We ignore the tool registrations other than the first
+		if ( toolRegs != null && toolRegs.size() > 0 ) 
+		{
+			Tool t = toolRegs.get(0);
+			m_id = t.getId();
+			m_title = t.getTitle();
+			m_description = t.getDescription();
+			m_categories = t.getCategories();
+       			// get the FinalConfig from the tool and make a copy 
+			// locally as we will add information
+      			Properties rv = t.getFinalConfig();
+       			m_finalConfig.putAll(rv);
+			m_keywords = t.getKeywords();
+			m_mutableConfig = t.getMutableConfig();
+			// RegisteredConfig is derived in the getter of this class
+			M_log.info("Portlet registered from tool registration with Sakai toolId="+m_id);
+		} else {
+			m_id = "portlet."+portlet.getApplicationId()+"."+pdd.getPortletName();
+			m_description = pdd.getPortletName();
+			m_title = pdd.getPortletName();
+
+			if ( "stealth".equals(portletSupport) ) {
+				M_log.info("Portlet stealth-registered with Sakai toolId="+m_id);
+			} else {
+				m_categories.add("myworkspace");
+				m_categories.add("project");
+				m_categories.add("course");
+				M_log.info("Portlet auto-registered with Sakai toolId="+m_id);
+			}
+		}
+
+		// Indicate that these tools are indeed portlets and where to dispatch the portlet
 		m_finalConfig.setProperty(PortalService.TOOL_PORTLET_CONTEXT_PATH, portlet.getApplicationId());
 		m_finalConfig.setProperty(PortalService.TOOL_PORTLET_NAME, pdd.getPortletName());
-		
 	}
 
 	/**
