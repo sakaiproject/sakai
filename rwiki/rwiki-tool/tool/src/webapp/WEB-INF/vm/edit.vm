@@ -67,12 +67,12 @@
 		#sidebar_switcher()
 	</div>
 	
+	<form action="?#" method="post" id="editForm"  >
 	
 	<div id="rwiki_content" class="${rwikiContentStyle}" >
 	
 			       
 		    <div id="editTab" class="tabOn" >
-			       <form action="?#" method="post" id="editForm"  >
 				      #if (${errorBean.errors.size()} > 0)
 						       <p class="validation" style="clear: none;">
 						       #foreach ( $error in ${errorBean.errors} )
@@ -158,19 +158,33 @@
 					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_cancel}"  />
 						       </p>
 				      </div>
-			    	</form>
 		    	</div> <!-- end of edit tab -->
 		    	
 		    	
 		     <div id="previewTab" class="tabOff" >	        
-					    <div class="rwikiRenderedContent" id="previewContent" >
-			      		#if ( ${editBean.saveType} && ${editBean.saveType} == "preview" )
-				  			     #set ( ${currentContent} = ${currentRWikiObject.content} )
-				  			     #set ( ${currentRWikiObject.content} = ${editBean.previousContent} )	    
-				  								${renderBean.previewPage}<br/>
-				  			     #set ( ${currentRWikiObject.content} = ${currentContent} )	    
-			        #end
-					    </div>
+						      <div id="textarea_outer_sizing_divx">
+						        <div id="textarea_inner_sizing_divx">
+						           #previewtoolbar()
+					            <div class="rwikiRenderedContent" id="previewContent" >
+			      		         #if ( ${editBean.saveType} && ${editBean.saveType} == "preview" )
+				  			             #set ( ${currentContent} = ${currentRWikiObject.content} )
+				  			             #set ( ${currentRWikiObject.content} = ${editBean.previousContent} )	    
+				  								        ${renderBean.previewPage}<br/>
+				  			             #set ( ${currentRWikiObject.content} = ${currentContent} )	    
+			                 #end
+					            </div>
+					         </div>
+					       </div>
+				        <div class="rwiki_editControl" id="editControl2">
+						         <p class="act">
+					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_save}"  /> 
+					  		       #if (( ( ${editBean.saveType} && ( "preview" == ${editBean.saveType}  || ${editBean.saveType.startsWith("attach")} ) ) && ${nameHelperBean.submittedContent} ) || ( ${editBean.saveType} && ${editBean.saveType} != "preview" ) && !${editBean.saveType.statsWith("attach")} ))
+					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_overwrite}"  />
+					 		        #end 
+					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_cancel}"  />
+						       </p>
+				      </div>
+					            
 		     </div> <!-- end of previewTab -->
 		        
 		              
@@ -197,6 +211,8 @@
 					    </div>
 			 	  </div> <!-- endof autosave tab -->	
 	  </div>
+	  </form>
+	  
 #sidebar()
 	 
   </div>

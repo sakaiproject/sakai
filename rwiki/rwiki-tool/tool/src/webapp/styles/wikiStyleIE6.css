@@ -21,6 +21,28 @@ a:hover.editToolBar,
     padding-right: 8px;
     
 }
+a.previewToolBar, 
+a:visited.previewToolBar     {
+    border: 1px solid #efefde;	
+    cursor: default;   
+     
+    padding-top: 8px;
+    padding-bottom: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+    
+}
+a:hover.previewToolBar, 
+    a:active.previewToolBar     {
+	border: 1px solid #316ac5;	
+    cursor: default;    
+    
+    padding-top: 8px;
+    padding-bottom: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+    
+}
 
 .renderedContent table {
  table-layout: fixed;

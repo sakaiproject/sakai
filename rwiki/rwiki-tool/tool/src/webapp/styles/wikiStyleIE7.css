@@ -12,3 +12,16 @@ a:hover.editToolBar,
     cursor: default;  
     padding: 8px 8px 5px 8px;
 }
+a.previewToolBar, 
+a:visited.previewToolBar     {
+    border: 1px solid #efefde;	
+    cursor: default;    
+    padding: 8px 8px 5px 8px;
+}
+a:hover.previewToolBar, 
+    a:active.previewToolBar     {
+	border: 1px solid #316ac5;	
+	background-color: #c1d2ee;
+    cursor: default;  
+    padding: 8px 8px 5px 8px;
+}
