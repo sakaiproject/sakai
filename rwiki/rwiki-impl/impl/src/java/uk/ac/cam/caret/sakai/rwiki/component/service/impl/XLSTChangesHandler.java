@@ -70,7 +70,7 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 	/**
 	 * {@inheritDoc}
 	 */
-	public void outputContent(Entity entity, HttpServletRequest request,
+	public void outputContent(Entity entity, Entity sidebar, HttpServletRequest request,
 			HttpServletResponse res)
 	{
 		if (!isAvailable()) return;

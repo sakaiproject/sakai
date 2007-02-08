@@ -32,56 +32,62 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 
-
 /**
  * @author ieb
- *
  */
-public class PageVisits 
+public class PageVisits
 {
 	private static final int MAX_SIZE = 10;
+
 	private Stack<String> s = new Stack<String>();
-	
-	public PageVisits() {
-		
+
+	public PageVisits()
+	{
+
 	}
-	
-	public void addPage(String globalPageName) {
+
+	public void addPage(String globalPageName)
+	{
 		s.remove(globalPageName);
 		s.push(globalPageName);
-		while ( s.size() > MAX_SIZE ) {
+		while (s.size() > MAX_SIZE)
+		{
 			s.remove(0);
 		}
 	}
-	
-	public List<String[]> getPageNames(String type) {
+
+	public List<String[]> getPageNames(String type)
+	{
 		List<String[]> l = new ArrayList<String[]>();
-		String localSpace = NameHelper.localizeSpace(s.peek());
-		for (String pagename : s)
+		if (s.size() > 0)
 		{
-			String[] pagespec = new String[2];
-			pagespec[0] = ServerConfigurationService.getAccessUrl()
-			+ RWikiObjectService.REFERENCE_ROOT + encode(pagename) + "." + type;
-			pagespec[1] = NameHelper.localizeName(pagename, localSpace);
-			l.add(pagespec);
+			String localSpace = NameHelper.localizeSpace(s.peek());
+			for (String pagename : s)
+			{
+				String[] pagespec = new String[2];
+				pagespec[0] = ServerConfigurationService.getAccessUrl() + RWikiObjectService.REFERENCE_ROOT + encode(pagename)
+						+ "." + type;
+				pagespec[1] = NameHelper.localizeName(pagename, localSpace);
+				l.add(pagespec);
+			}
 		}
 		return l;
 	}
-	
-	private String encode(String toEncode) {
+
+	private String encode(String toEncode)
+	{
 		try
-		{		
+		{
 			String encoded = URLEncoder.encode(toEncode, "UTF-8");
 			encoded = encoded.replaceAll("\\+", "%20").replaceAll("%2F", "/");
-			
-			return encoded; 
+
+			return encoded;
 
 		}
 		catch (UnsupportedEncodingException e)
 		{
-			throw new IllegalStateException("UTF-8 Encoding is not supported when encoding: "  + toEncode + ": " + e.getMessage());
+			throw new IllegalStateException("UTF-8 Encoding is not supported when encoding: " + toEncode + ": " + e.getMessage());
 		}
 	}
-
 
 }
