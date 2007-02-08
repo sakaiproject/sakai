@@ -41,11 +41,6 @@
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-site-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
   </dependencies>
   <build>
     

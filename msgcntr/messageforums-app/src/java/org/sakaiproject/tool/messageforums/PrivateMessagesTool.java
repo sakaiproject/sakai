@@ -3283,26 +3283,15 @@ public class PrivateMessagesTool
 	 *         FALSE otherwise
 	 */
 	public boolean isMessageForumsPageInSite() {
-		boolean mfToolExists = false;
-
-		try {
-			final Site thisSite = SiteService.getSite(getSiteId());
-
-			mfToolExists = isMessageForumsPageInSite(thisSite);
-
-		} catch (IdUnusedException e) {
-			LOG.error("IdUnusedException while trying to check if site has Messsages & Forums tool.");
-		}
-
-		return mfToolExists;
+		return isMessageForumsPageInSite(getSiteId());
 	}
 
 	/**
 	 * @return TRUE if Messages & Forums (Message Center) exists in this site,
 	 *         FALSE otherwise
 	 */
-	private boolean isMessageForumsPageInSite(Site thisSite) {
-		return messageManager.isToolInSite(thisSite, MESSAGECENTER_TOOL_ID);
+	private boolean isMessageForumsPageInSite(String siteId) {
+		return messageManager.isToolInSite(siteId, MESSAGECENTER_TOOL_ID);
 	}
 	
 	/**
@@ -3310,26 +3299,15 @@ public class PrivateMessagesTool
 	 *         FALSE otherwise
 	 */
 	public boolean isForumsPageInSite() {
-		boolean mfToolExists = false;
-
-		try {
-			final Site thisSite = SiteService.getSite(getSiteId());
-
-			mfToolExists = isForumsPageInSite(thisSite);
-
-		} catch (IdUnusedException e) {
-			LOG.error("IdUnusedException while trying to check if site has Forums tool.");
-		}
-
-		return mfToolExists;
+		return isForumsPageInSite(getSiteId());
 	}
 
 	/**
 	 * @return TRUE if Forums tool exists in this site,
 	 *         FALSE otherwise
 	 */
-	private boolean isForumsPageInSite(Site thisSite) {
-		return messageManager.isToolInSite(thisSite, FORUMS_TOOL_ID);
+	private boolean isForumsPageInSite(String siteId) {
+		return messageManager.isToolInSite(siteId, FORUMS_TOOL_ID);
 	}
 
 	/**
@@ -3337,25 +3315,14 @@ public class PrivateMessagesTool
 	 *         FALSE otherwise
 	 */
 	public boolean isMessagesPageInSite() {
-		boolean mfToolExists = false;
-
-		try {
-			final Site thisSite = SiteService.getSite(getSiteId());
-
-			mfToolExists = isMessagesPageInSite(thisSite);
-
-		} catch (IdUnusedException e) {
-			LOG.error("IdUnusedException while trying to check if site has Messages tool.");
-		}
-
-		return mfToolExists;
+		return isMessagesPageInSite(getSiteId());
 	}
 
 	/**
 	 * @return TRUE if Messages tool exists in this site,
 	 *         FALSE otherwise
 	 */
-	private boolean isMessagesPageInSite(Site thisSite) {
-		return messageManager.isToolInSite(thisSite, MESSAGES_TOOL_ID);
+	private boolean isMessagesPageInSite(String siteId) {
+		return messageManager.isToolInSite(siteId, MESSAGES_TOOL_ID);
 	}
 }

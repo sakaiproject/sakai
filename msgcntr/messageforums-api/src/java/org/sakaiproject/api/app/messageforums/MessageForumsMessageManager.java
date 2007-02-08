@@ -23,8 +23,6 @@ package org.sakaiproject.api.app.messageforums;
 import java.util.Date;
 import java.util.List;
 
-import org.sakaiproject.site.api.Site;
-
 public interface MessageForumsMessageManager {
 
     public Attachment createAttachment();
@@ -100,6 +98,6 @@ public interface MessageForumsMessageManager {
     
     public boolean currentToolMatch(String toolId);
     
-	public boolean isToolInSite(Site thisSite, String toolId);
+	public boolean isToolInSite(String siteId, String toolId);
 }
 

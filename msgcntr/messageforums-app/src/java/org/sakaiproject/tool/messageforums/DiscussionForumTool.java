@@ -4409,18 +4409,11 @@ public class DiscussionForumTool
 	public boolean isMessagesandForums() {
 		
 		if (messageManager.currentToolMatch(MESSAGECENTER_HELPER_TOOL_ID)) {
-			try {
-				return isMessageForumsPageInSite(SiteService.getSite(ToolManager.getCurrentPlacement().getContext()));
-			} catch (IdUnusedException e) {
-				// TODO Auto-generated catch block
-				LOG.error("IdUnusedException attempting to determine if Messages & Forums tool is part of site. Using id " + ToolManager.getCurrentPlacement().getContext());
-			}
+				return isMessageForumsPageInSite(ToolManager.getCurrentPlacement().getContext());
 		}
 		else {
 			return messageManager.currentToolMatch(MESSAGECENTER_TOOL_ID);
 		}
-		
-		return false;
 }
 	
 	/**
@@ -4428,18 +4421,11 @@ public class DiscussionForumTool
 	 */
 	public boolean isForumsTool() {
 		if (messageManager.currentToolMatch(MESSAGECENTER_HELPER_TOOL_ID)) {
-			try {
-				return isForumsPageInSite(SiteService.getSite(ToolManager.getCurrentPlacement().getContext()));
-			} catch (IdUnusedException e) {
-				// TODO Auto-generated catch block
-				LOG.error("IdUnusedException attempting to determine if Forums tool is part of site. Using id " + ToolManager.getCurrentPlacement().getContext());
-			}
+				return isForumsPageInSite(ToolManager.getCurrentPlacement().getContext());
 		}
 		else {
 			return messageManager.currentToolMatch(FORUMS_TOOL_ID);
 		}
-		
-		return false;
 	}
 	
    private String gotoMain() {
@@ -4455,15 +4441,15 @@ public class DiscussionForumTool
 	 * @return TRUE if Messages & Forums (Message Center) exists in this site,
 	 *         FALSE otherwise
 	 */
-	private boolean isMessageForumsPageInSite(Site thisSite) {
-		return messageManager.isToolInSite(thisSite, MESSAGECENTER_TOOL_ID);
+	private boolean isMessageForumsPageInSite(String siteId) {
+		return messageManager.isToolInSite(siteId, MESSAGECENTER_TOOL_ID);
 	}
 	
 	/**
 	 * @return TRUE if Messages & Forums (Message Center) exists in this site,
 	 *         FALSE otherwise
 	 */
-	private boolean isForumsPageInSite(Site thisSite) {
-		return messageManager.isToolInSite(thisSite, FORUMS_TOOL_ID);
+	private boolean isForumsPageInSite(String siteId) {
+		return messageManager.isToolInSite(siteId, FORUMS_TOOL_ID);
 	}
 }

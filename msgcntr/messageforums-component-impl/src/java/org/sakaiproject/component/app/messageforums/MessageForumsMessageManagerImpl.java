@@ -27,34 +27,35 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
-import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
 import org.sakaiproject.component.app.messageforums.exception.LockedException;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -840,8 +841,21 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 	 * 
 	 * @return
 	 */
-	public boolean isToolInSite(Site thisSite, String toolId) {
-		Collection toolsInSite = thisSite.getTools(toolId);
+	public boolean isToolInSite(String siteId, String toolId) {
+		Site thisSite;
+		try {
+			thisSite = SiteService.getSite(siteId);
+			
+			Collection toolsInSite = thisSite.getTools(toolId);
 
-		return ! toolsInSite.isEmpty();
-	}	}
+			return ! toolsInSite.isEmpty();
+		} 
+		catch (IdUnusedException e) {
+			// Weirdness - should not happen
+			LOG.error("IdUnusedException attempting to get site for id " + siteId + " to check if tool " 
+							+ "with id " + toolId + " is in it.");
+		}
+		
+		return false;
+	}
+}
