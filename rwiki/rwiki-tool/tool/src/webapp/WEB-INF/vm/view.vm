@@ -44,7 +44,6 @@
 			${renderBean.renderedPage}<br/>	    
 	      </div>
 	    </div>
-	  </div>
 	 <div class="lastmodified" >
 	 	${renderBean.localisedPageName}
 	 	${rlb.jsp_last_modified_by} 
@@ -52,9 +51,11 @@
 	 	${rlb.jsp_on}
 	 	#formatDateTime($currentRWikiObject.version) 
 	 </div>
+	 
+  #comments()
+	  </div>
 	 #sidebar()
 	 
   </div>
 </div>
-#comments()
 #footer()

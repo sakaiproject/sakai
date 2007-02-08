@@ -278,14 +278,6 @@ a.anchorpoint {
 
 
 /* this causes the content area to expand to 100% */
-#rwiki_content,
-.nosidebar#rwiki_content {
-  float: none;
-  width:97%;
-  padding: 5px 5px 2px 2px;
-  overflow: hidden;  
-}
-
 .withsidebar#rwiki_content {
   float: left;
   width:75%;
@@ -293,9 +285,16 @@ a.anchorpoint {
   padding: 5px 10px 2px 2px;
 }
 
+.nosidebar#rwiki_content {
+  float: none;
+  width:97%;
+  padding: 5px 5px 2px 2px;
+  overflow: hidden;  
+}
 
-#rwiki_content textarea,
-.nosiderbar#rwiki_content{
+
+
+.nosidebar#rwiki_content textarea {
   border: 1px solid #cccccc;
   font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
   width: 99%;

@@ -286,15 +286,17 @@ function initTree(el) {
 			startingPoint = 0;
 			childUL = null;
 			for(j=0;j<li.childNodes.length;j++) {
-				if(li.childNodes[j].tagName && li.childNodes[j].tagName.toLowerCase() == 'div') {
+			    if ( li.childNodes[j].tagName != null ) {
+				if( li.childNodes[j].tagName.toLowerCase() == 'div') {
 					startingPoint = j + 1;
 					continue;
 				}
 
-				if(li.childNodes[j].tagName && li.childNodes[j].tagName.toLowerCase() == 'ul') {
+				if( li.childNodes[j].tagName.toLowerCase() == 'ul') {
 					childUL = li.childNodes[j];
 					stoppingPoint = j;
 					break;					
+				}
 				}
 			}
 				
@@ -634,12 +636,19 @@ function sizeFrameAfterAjax(el) {
                 
                 
                 // loop round all elements in this dom and find the max y extent
-                var tl = findMaxExtent(document,0);
-//                var tl = getAbsolutePos(el);
+                var tl = 0;
+                var sh = 0;
+                if ( el != null ) {
+                  tl = getAbsolutePos(el);
                 
-                var sh = el.scrollHeight;
-                var oh = el.offsetHeight;
-                var ch = el.clientHeight;
+                  sh = el.scrollHeight;
+                  var oh = el.offsetHeight;
+                  var ch = el.clientHeight;
+                } else {
+                  tl = findMaxExtent(document,0);
+                  tl = tl+50;
+                  sh = 0;
+                }
                 var bottom = tl.y + sh;
  
                 // here we fudge to get a little bigger
@@ -656,14 +665,17 @@ function sizeFrameAfterAjax(el) {
                 " ch "+ch+
                 " Set height to: " + newHeight;
 //              window.status = s;
-              //alert(s);
+//              alert(s);
+//		     } else {
+//		      alert(" No placement Fame for "+placementid);
 		     }
 }
-function findMaxExtend(el,y) {
+function findMaxExtent(el,y) {
     var ab = getAbsolutePos(el);
-    if ( ab.y > y ) y = el.y;
+    if ( ab.y > y ) y = ab.y;
 	for ( i = 0; i < el.childNodes.length; i++ ) {
-		y = findMaxExtent(el.childNodes[i],y);		
+	    ab = getAbsolutePos(el.childNodes[i]);
+	    if ( ab.y > y ) y = ab.y;
 	}
 	return y;
 }
