@@ -96,7 +96,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   private static final String PVT_RECEIVED = "pvt_received";
   private static final String PVT_SENT = "pvt_sent";
   private static final String PVT_DELETED = "pvt_deleted";
- 
+  
   public void init()
   {
     ;
@@ -1065,6 +1065,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
       String bodyString = body.toString();
       
+      /** determines if default in sakai.properties is set, if not will make a reasonable default */
+      String defaultEmail = "notifications@" + ServerConfigurationService.getServerName();
+      String systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail);
+      
       /** determine if current user is equal to recipient */
       Boolean isRecipientCurrentUser = 
         (currentUserAsString.equals(userId) ? Boolean.TRUE : Boolean.FALSE);      
@@ -1072,12 +1076,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       if (!asEmail && forwardingEnabled){
       	  if(pf != null)
       	  {
-      	  	emailService.send(u.getEmail(), pf.getAutoForwardEmail(), message.getTitle(), 
+      	  	emailService.send(systemEmail, pf.getAutoForwardEmail(), message.getTitle(), 
               bodyString, u.getEmail(), null, additionalHeaders);
       	  }
       	  else if(oldPf != null)
       	  {
-      	  	emailService.send(u.getEmail(), oldPf.getAutoForwardEmail(), message.getTitle(), 
+      	  	emailService.send(systemEmail, oldPf.getAutoForwardEmail(), message.getTitle(), 
                 bodyString, u.getEmail(), null, additionalHeaders);      	  	
       	  }
           
@@ -1089,7 +1093,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
           recipientList.add(receiver);                    
       }      
       else if (asEmail){
-        emailService.send(u.getEmail(), u.getEmail(), message.getTitle(), 
+        emailService.send(systemEmail, u.getEmail(), message.getTitle(), 
             bodyString, u.getEmail(), null, additionalHeaders);
       }      
       else{        
