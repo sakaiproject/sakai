@@ -1861,9 +1861,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				// saving a submission
 				EventTrackingService.post(EventTrackingService.newEvent(EVENT_SAVE_ASSIGNMENT_SUBMISSION, submissionRef, true));
 			}
-			else if (submittedTime != null && returnedTime != null && returnedTime.after(submittedTime))
+			else if (returnedTime == null && !s.getReturned() && (submittedTime == null /*grading non-submissions*/
+																|| (submittedTime != null && (s.getTimeLastModified().getTime() - submittedTime.getTime()) > 1000*60 /*make sure the last modified time is at least one minute after the submit time*/)))
 			{
-				// grading, releasing or returning a submission
+				// graded and saved before releasing it
+				EventTrackingService.post(EventTrackingService.newEvent(EVENT_GRADE_ASSIGNMENT_SUBMISSION, submissionRef, true));
+			}
+			else if (returnedTime != null && s.getGraded() && (submittedTime == null/*returning non-submissions*/ 
+											|| (submittedTime != null && returnedTime.after(submittedTime))/*returning normal submissions*/ 
+											|| (submittedTime != null && submittedTime.after(returnedTime) && s.getTimeLastModified().after(submittedTime))/*grading the resubmitted assignment*/))
+			{
+				// releasing a submitted assignment or releasing grade to an unsubmitted assignment
 				EventTrackingService.post(EventTrackingService.newEvent(EVENT_GRADE_ASSIGNMENT_SUBMISSION, submissionRef, true));
 			}
 			else
