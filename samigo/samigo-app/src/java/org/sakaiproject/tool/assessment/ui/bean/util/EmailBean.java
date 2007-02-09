@@ -33,6 +33,7 @@ import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -217,7 +218,7 @@ public class EmailBean implements Serializable {
 			        	AttachmentData attach = assessmentService.createEmailAttachment(
 			        			resourceId, 
 			        			ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()),
-			        			ContextUtil.getProtocol());
+			        			ServerConfigurationService.getServerUrl());
 				
 			        	newAttachmentList.add(attach);
 			        	

@@ -39,6 +39,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
@@ -1005,7 +1006,7 @@ public class ExtractionHelper
     	AttachmentHelper attachementHelper = new AttachmentHelper();
     	ContentResource contentResource = attachementHelper.createContentResource(fullFilePath, filename, attachmentInfo[2]);
     	AssessmentService assessmentService = new AssessmentService();
-    	assessmentAttachment = assessmentService.createAssessmentAttachment(assessment, contentResource.getId(), filename, getProtocol());
+    	assessmentAttachment = assessmentService.createAssessmentAttachment(assessment, contentResource.getId(), filename, ServerConfigurationService.getServerUrl());
     	assessmentAttachment.setAssessment((AssessmentIfc)assessment.getData());
     	set.add(assessmentAttachment);
     }
@@ -1040,7 +1041,7 @@ public class ExtractionHelper
     	AttachmentHelper attachementHelper = new AttachmentHelper();
     	ContentResource contentResource = attachementHelper.createContentResource(fullFilePath, filename, attachmentInfo[2]);
     	AssessmentService assessmentService = new AssessmentService();
-    	sectionAttachment = assessmentService.createSectionAttachment(section, contentResource.getId(), filename, getProtocol());
+    	sectionAttachment = assessmentService.createSectionAttachment(section, contentResource.getId(), filename, ServerConfigurationService.getServerUrl());
     	sectionAttachment.setSection(section.getData());
     	set.add(sectionAttachment);
     }
@@ -1075,26 +1076,12 @@ public class ExtractionHelper
     	AttachmentHelper attachementHelper = new AttachmentHelper();
     	ContentResource contentResource = attachementHelper.createContentResource(fullFilePath, filename, attachmentInfo[2]);
     	AssessmentService assessmentService = new AssessmentService();
-    	itemAttachment = assessmentService.createItemAttachment(item, contentResource.getId(), filename, getProtocol());
+    	itemAttachment = assessmentService.createItemAttachment(item, contentResource.getId(), filename, ServerConfigurationService.getServerUrl());
     	itemAttachment.setItem(item.getData());
     	set.add(itemAttachment);
     }
     item.setItemAttachmentSet(set);
   }
-  
-  // Copied from ContextUtil.java
-  // Although it is not good copying codes, but because the packaging structure, we cannot
-  // make a call to ContextUtil without repackaging. Therefore, just add this simple method
-  // here for now.
-  private String getProtocol(){
-	    FacesContext context = FacesContext.getCurrentInstance();
-	    ExternalContext extContext = context.getExternalContext();
-	    String server = ( (javax.servlet.http.HttpServletRequest) extContext.
-	                       getRequest()).getRequestURL().toString();
-	    int index = server.indexOf(extContext.getRequestContextPath() + "/"); 
-	    String protocol = server.substring(0, index);
-	    return protocol;
-	  }
   
   /**
    * Update questionpool from the extracted properties.

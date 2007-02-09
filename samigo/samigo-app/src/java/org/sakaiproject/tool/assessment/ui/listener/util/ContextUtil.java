@@ -43,6 +43,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.springframework.web.context.WebApplicationContext;
 
 /**
@@ -355,13 +356,7 @@ public static ArrayList paramArrayValueLike(String paramPart)
   }
 
   public static String getProtocol(){
-    FacesContext context = FacesContext.getCurrentInstance();
-    ExternalContext extContext = context.getExternalContext();
-    String server = ( (javax.servlet.http.HttpServletRequest) extContext.
-                       getRequest()).getRequestURL().toString();
-    int index = server.indexOf(extContext.getRequestContextPath() + "/"); 
-    String protocol = server.substring(0, index);
-    return protocol;
+    return ServerConfigurationService.getServerUrl();
   }
  
   public static String stringWYSIWYG(String s){// this is to detect an empty in WYSIWYG FF1.5
