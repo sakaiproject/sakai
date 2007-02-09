@@ -99,12 +99,11 @@
        <h:outputText value="No Time Limit" />
     </h:panelGroup>
 
-
-    <h:outputLabel value="#{msg.num_subs}" />
+    <h:outputLabel value="#{msg.num_subs}" rendered="#{!delivery.anonymousLogin}"/>
     <h:outputText value="#{delivery.settings.maxAttempts} (#{delivery.submissionsRemaining} #{msg.remaining})"
-       rendered="#{!delivery.settings.unlimitedAttempts}"/>
+       rendered="#{!delivery.settings.unlimitedAttempts && !delivery.anonymousLogin}"/>
     <h:outputText value="#{msg.unlimited_}"
-       rendered="#{delivery.settings.unlimitedAttempts}"/>
+       rendered="#{delivery.settings.unlimitedAttempts && !delivery.anonymousLogin}"/>
 
     <h:outputLabel value="#{msg.feedback}" />
     <h:panelGroup>
