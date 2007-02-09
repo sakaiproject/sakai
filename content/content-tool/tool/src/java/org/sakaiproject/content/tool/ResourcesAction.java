@@ -602,6 +602,9 @@ public class ResourcesAction
 		protected String description;
 		protected boolean useReleaseDate;
 		protected boolean useRetractDate;
+		protected String copyrightStatus;
+		protected String copyrightInfo;
+		protected boolean copyrightAlert = false;
 		
 		/**
 		 * @param entityId
@@ -682,7 +685,19 @@ public class ResourcesAction
 					// TODO Auto-generated catch block
 					logger.warn("ServerOverloadException ", e);
 				}
-				// this.uuid = resource.
+				this.copyrightStatus = props.getProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
+				this.copyrightInfo = props.getProperty(ResourceProperties.PROP_COPYRIGHT);
+				String crAlert = props.getProperty(ResourceProperties.PROP_COPYRIGHT_ALERT);
+				if(crAlert != null && Boolean.TRUE.toString().equalsIgnoreCase(crAlert))
+				{
+					this.copyrightAlert = true;
+				}
+				else
+				{
+					this.copyrightAlert = false;
+				}
+				
+ 				// this.uuid = resource.
 			}
 		}
 		
@@ -1263,6 +1278,54 @@ public class ResourcesAction
 		{
 			this.version = version;
 		}
+
+		/**
+         * @return the copyrightAlert
+         */
+        public boolean hasCopyrightAlert()
+        {
+        	return copyrightAlert;
+        }
+
+		/**
+         * @param copyrightAlert the copyrightAlert to set
+         */
+        public void setCopyrightAlert(boolean copyrightAlert)
+        {
+        	this.copyrightAlert = copyrightAlert;
+        }
+
+		/**
+         * @return the copyrightInfo
+         */
+        public String getCopyrightInfo()
+        {
+        	return copyrightInfo;
+        }
+
+		/**
+         * @param copyrightInfo the copyrightInfo to set
+         */
+        public void setCopyrightInfo(String copyrightInfo)
+        {
+        	this.copyrightInfo = copyrightInfo;
+        }
+
+		/**
+         * @return the copyrightStatus
+         */
+        public String getCopyrightStatus()
+        {
+        	return copyrightStatus;
+        }
+
+		/**
+         * @param copyrightStatus the copyrightStatus to set
+         */
+        public void setCopyrightStatus(String copyrightStatus)
+        {
+        	this.copyrightStatus = copyrightStatus;
+        }
 
 	}
 	
@@ -2351,20 +2414,35 @@ public class ResourcesAction
 
 			ContentEntity collection = pipe.getContentEntity();
 
-			List items = newEditItems(collection.getId(), pipe.getAction().getTypeId(), encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), defaultRetractDate, new Integer(1));
+			String typeId = pipe.getAction().getTypeId();
+			List items = newEditItems(collection.getId(), typeId, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), defaultRetractDate, new Integer(1));
 
 			ChefEditItem item = (ChefEditItem) items.get(0);
 			item.setContent(pipe.getContent());
 			item.setMimeType(pipe.getMimeType());
-			
 			context.put("item", item);
 			
 			state.setAttribute(STATE_CREATE_WIZARD_ITEM, item);
+			
+			ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+			if(registry == null)
+			{
+				registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+				state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+			}
+			ResourceType typeDef = registry.getType(typeId);
+			context.put("type", typeDef);
+			
+			context.put("title", (new Labeler()).getLabel(pipe.getAction()));
+			context.put("instruction", trb.getFormattedMessage("instr.create", new String[]{typeDef.getLabel()}));
+			context.put("required", trb.getFormattedMessage("instr.require", new String[]{"<span class=\"reqStarInline\">*</span>"}));
 			
 			if(ContentHostingService.isAvailabilityEnabled())
 			{
 				context.put("availability_is_enabled", Boolean.TRUE);
 			}
+			
+			copyrightChoicesIntoContext(state, context);
 			
 			context.put("SITE_ACCESS", AccessMode.SITE.toString());
 			context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
@@ -2938,14 +3016,6 @@ public class ResourcesAction
 				resource.setResourceType(resourceType);
 				resource.setContent(pipe.getRevisedContent());		// item.getContent()
 				resource.setContentType(pipe.getRevisedMimeType());		// item.getMimeType()
-				
-				
-//						resourceProperties,
-//						groups,
-//						hidden,
-//						releaseDate,
-//						retractDate,
-//						item.getNotification());
 				
 				ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
 				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
@@ -16656,61 +16726,71 @@ public class ResourcesAction
 		/**
 		 * @return Returns the copyrightInfo.
 		 */
-		public String getCopyrightInfo() {
+		public String getCopyrightInfo() 
+		{
 			return m_copyrightInfo;
 		}
 		/**
 		 * @param copyrightInfo The copyrightInfo to set.
 		 */
-		public void setCopyrightInfo(String copyrightInfo) {
+		public void setCopyrightInfo(String copyrightInfo) 
+		{
 			m_copyrightInfo = copyrightInfo;
 		}
 		/**
 		 * @return Returns the copyrightStatus.
 		 */
-		public String getCopyrightStatus() {
+		public String getCopyrightStatus() 
+		{
 			return m_copyrightStatus;
 		}
 		/**
 		 * @param copyrightStatus The copyrightStatus to set.
 		 */
-		public void setCopyrightStatus(String copyrightStatus) {
+		public void setCopyrightStatus(String copyrightStatus) 
+		{
 			m_copyrightStatus = copyrightStatus;
 		}
 		/**
 		 * @return Returns the description.
 		 */
-		public String getDescription() {
+		public String getDescription() 
+		{
 			return m_description;
 		}
 		/**
 		 * @param description The description to set.
 		 */
-		public void setDescription(String description) {
+		public void setDescription(String description) 
+		{
 			m_description = description;
 		}
 		/**
 		 * @return Returns the filename.
 		 */
-		public String getFilename() {
+		public String getFilename() 
+		{
 			return m_filename;
 		}
 		/**
 		 * @param filename The filename to set.
 		 */
-		public void setFilename(String filename) {
+		public void setFilename(String filename) 
+		{
 			m_filename = filename;
 		}
 		/**
 		 * @return Returns the metadata.
 		 */
-		public Map getMetadata() {
+		public Map getMetadata() 
+		{
 			return m_metadata;
 		}
 		/**
 		 * @param metadata The metadata to set.
 		 */
-		public void setMetadata(Map metadata) {
+		public void setMetadata(Map metadata) 
+		{
 			m_metadata = metadata;
 		}
 		/**
@@ -16721,11 +16801,18 @@ public class ResourcesAction
 		{
 			m_metadata.put(name, value);
 		}
+		
+		/**
+		 * @return
+		 */
 		public boolean isSitePossible()
 		{
 			return !m_pubview_inherited && !isGroupInherited() && !isSingleGroupInherited();
 		}
 		
+		/**
+		 * @return
+		 */
 		public boolean isGroupPossible()
 		{
 			// Collection groups = getPossibleGroups();
@@ -16734,6 +16821,9 @@ public class ResourcesAction
 
 		}
 		
+		/**
+		 * @return
+		 */
 		public boolean isGroupInherited()
 		{
 			return AccessMode.INHERITED.toString().equals(this.m_access) && AccessMode.GROUPED.toString().equals(m_inheritedAccess);
@@ -16754,6 +16844,9 @@ public class ResourcesAction
 					// && this.m_oldInheritedGroups.size() == 1;
 		}
 		
+		/**
+		 * @return
+		 */
 		public String getSingleGroupTitle()
 		{
 			return (String) rb.getFormattedMessage("access.title4", new Object[]{getGroupNames()});
@@ -16778,6 +16871,7 @@ public class ResourcesAction
 		{
 			return m_content;
 		}
+		
 		/**
 		 * @return Returns the content as a String.
 		 */
@@ -16797,12 +16891,14 @@ public class ResourcesAction
 			}
 			return rv;
 		}
+		
 		/**
 		 * @param content The content to set.
 		 */
 		public void setContent(byte[] content) {
 			m_content = content;
 		}
+		
 		/**
 		 * @param content The content to set.
 		 */
@@ -16816,42 +16912,54 @@ public class ResourcesAction
 				m_content = content.getBytes();
 			}
 		}
+		
 		/**
 		 * @return Returns the canSetQuota.
 		 */
 		public boolean canSetQuota() {
 			return m_canSetQuota;
 		}
+		
 		/**
 		 * @param canSetQuota The canSetQuota to set.
 		 */
-		public void setCanSetQuota(boolean canSetQuota) {
+		public void setCanSetQuota(boolean canSetQuota) 
+		{
 			m_canSetQuota = canSetQuota;
 		}
+		
 		/**
 		 * @return Returns the hasQuota.
 		 */
-		public boolean hasQuota() {
+		public boolean hasQuota() 
+		{
 			return m_hasQuota;
 		}
+		
 		/**
 		 * @param hasQuota The hasQuota to set.
 		 */
-		public void setHasQuota(boolean hasQuota) {
+		public void setHasQuota(boolean hasQuota) 
+		{
 			m_hasQuota = hasQuota;
 		}
+		
 		/**
 		 * @return Returns the quota.
 		 */
-		public String getQuota() {
+		public String getQuota() 
+		{
 			return m_quota;
 		}
+		
 		/**
 		 * @param quota The quota to set.
 		 */
-		public void setQuota(String quota) {
+		public void setQuota(String quota) 
+		{
 			m_quota = quota;
 		}
+		
 		/**
 		 * @return true if content-type of item indicates it represents a URL, false otherwise
 		 */
@@ -16859,6 +16967,7 @@ public class ResourcesAction
 		{
 			return TYPE_URL.equals(m_type) || ResourceProperties.TYPE_URL.equals(m_mimetype);
 		}
+		
 		/**
 		 * @return true if content-type of item indicates it represents a URL, false otherwise
 		 */
@@ -16866,6 +16975,7 @@ public class ResourcesAction
 		{
 			return TYPE_FORM.equals(m_type);
 		}
+		
 		/**
 		 * @return true if content-type of item is "text/text" (plain text), false otherwise
 		 */
@@ -16873,6 +16983,7 @@ public class ResourcesAction
 		{
 			return MIME_TYPE_DOCUMENT_PLAINTEXT.equals(m_mimetype) || MIME_TYPE_DOCUMENT_PLAINTEXT.equals(m_type);
 		}
+		
 		/**
 		 * @return true if content-type of item is "text/html" (an html document), false otherwise
 		 */
@@ -16881,31 +16992,49 @@ public class ResourcesAction
 			return MIME_TYPE_DOCUMENT_HTML.equals(m_mimetype) || MIME_TYPE_DOCUMENT_HTML.equals(m_type);
 		}
 
+		/**
+		 * @return
+		 */
 		public boolean contentHasChanged()
 		{
 			return m_contentHasChanged;
 		}
 
+		/**
+		 * @param changed
+		 */
 		public void setContentHasChanged(boolean changed)
 		{
 			m_contentHasChanged = changed;
 		}
 
+		/**
+		 * @return
+		 */
 		public boolean contentTypeHasChanged()
 		{
 			return m_contentTypeHasChanged;
 		}
 
+		/**
+		 * @param changed
+		 */
 		public void setContentTypeHasChanged(boolean changed)
 		{
 			m_contentTypeHasChanged = changed;
 		}
 
+		/**
+		 * @param notification
+		 */
 		public void setNotification(int notification)
 		{
 			m_notification = notification;
 		}
 
+		/**
+		 * @return
+		 */
 		public int getNotification()
 		{
 			return m_notification;
@@ -16918,6 +17047,7 @@ public class ResourcesAction
 		{
 			return m_structuredArtifact;
 		}
+		
 		/**
 		 * @param artifact The artifact to set.
 		 */
@@ -16925,6 +17055,7 @@ public class ResourcesAction
 		{
 			this.m_structuredArtifact = artifact;
 		}
+		
 		/**
 		 * @param name
 		 * @param value
@@ -16933,6 +17064,7 @@ public class ResourcesAction
 		{
 			setValue(name, 0, value);
 		}
+		
 		/**
 		 * @param name
 		 * @param index
@@ -16951,6 +17083,7 @@ public class ResourcesAction
 			}
 			m_structuredArtifact.put(name, list);
 		}
+		
 		/**
 		 * Access a value of a structured artifact field of type String.
 		 * @param name	The name of the field to access.
@@ -16979,6 +17112,11 @@ public class ResourcesAction
 			return rv;
 		}
 
+		/**
+		 * @param name
+		 * @param index
+		 * @return
+		 */
 		public Object getValue(String name, int index)
 		{
 			List list = getList(name);
@@ -16995,6 +17133,10 @@ public class ResourcesAction
 
 		}
 
+		/**
+		 * @param name
+		 * @return
+		 */
 		public Object getPropertyValue(String name)
 		{
 			return getPropertyValue(name, 0);
@@ -17028,6 +17170,10 @@ public class ResourcesAction
 
 		}
 
+		/**
+		 * @param name
+		 * @param value
+		 */
 		public void setPropertyValue(String name, Object value)
 		{
 			setPropertyValue(name, 0, value);
@@ -17136,6 +17282,7 @@ public class ResourcesAction
 		{
 			return m_rootname;
 		}
+		
 		/**
 		 * @param rootname The name to be assigned for the root of a structured artifact.
 		 */

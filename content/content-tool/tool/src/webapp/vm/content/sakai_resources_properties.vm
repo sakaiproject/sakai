@@ -302,12 +302,12 @@
 					#if($item.isPubviewPossible())
 						<p class="checkbox">
 							<input type="radio" name="access_mode" id="access_mode_public" value="public" #if($!item.isPubview()) checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='none';"  />
-							<label for="access_mode_public">$tlang.getString("edit.access2")</label>
+							<label for="access_mode_public">$tlang.getString("access.title2")</label>
 						</p>
 					#end
 					<p class="checkbox">
 						<input type="radio" name="access_mode" id="access_mode_$INHERITED_ACCESS" value="$INHERITED_ACCESS" #if(!$item.isPubview() && ("$!item.access" == "$SITE_ACCESS" || "$!item.access" == "$INHERITED_ACCESS")) checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='none';"  />
-						<label for="access_mode_site">$tlang.getString("edit.access3")</label>
+						<label for="access_mode_site">$tlang.getString("access.title3")</label>
 					</p>
 					
 					#if($item.isGroupPossible())
@@ -318,23 +318,23 @@
 						#end
 						<p class="checkbox">
 							<input type="radio" name="access_mode" id="access_mode_$GROUP_ACCESS" value="$GROUP_ACCESS" #if("$!item.access" == "$GROUP_ACCESS") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='block';"  />
-							<label for="access_mode_$GROUP_ACCESS">$tlang.getString("edit.access4")</label>
+							<label for="access_mode_$GROUP_ACCESS">$tlang.getString("access.title4")</label>
 						</p>
 					#end
 				</div>
 			#end
 			#if($item.isGroupPossible())
-				<table id="groupTable" class="listHier lines labelindnt" border="0" style="width:80%;display:$listDisplay" cellspacing="0" summary="$tlang.getString("edit.group3")">
-					<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
+				<table id="groupTable" class="listHier lines labelindnt" border="0" style="width:80%;display:$listDisplay" cellspacing="0" summary="$tlang.getString("access.group3")">
+					<caption class="skip" style="display:none">$tlang.getString("access.title4")</caption>
 					<tr>
 						<th id="selectAllGroups" style="width:2em;padding-left:.4em">
 							<input type="checkbox" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'access_groups')"  />
 						</th>
 						<th id="groupname">
-							$tlang.getString("edit.group1")
+							$tlang.getString("access.group1")
 						</th>
 						<th id ="groupdescription">
-							$tlang.getString("edit.group2")
+							$tlang.getString("access.group2")
 						</th>
 					</tr>
 					#set($theGroups = $item.allSiteGroups)

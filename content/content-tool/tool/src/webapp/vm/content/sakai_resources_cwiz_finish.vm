@@ -3,18 +3,18 @@
 #macro (custom_dateselectionwidget $yearselect_id $monthselect_id $dayselect_id $earliestYear $latestYear $yearSelected $monthSelected $daySelected $onChangeAction)
 	#set($yearList = [$earliestYear .. $latestYear])
     <select name="$monthselect_id" id="$monthselect_id" onchange="blur(); $onChangeAction">  
-      #if ($monthSelected == 1) <option value="1" selected="selected">$tlang.getString("jan")</option> #else <option value="1">$tlang.getString("jan")</option> #end
- 		#if ($monthSelected == 2) <option value="2" selected="selected">$tlang.getString("feb")</option> #else <option value="2">$tlang.getString("feb")</option> #end
-		#if ($monthSelected == 3) <option value="3" selected="selected">$tlang.getString("mar")</option> #else <option value="3">$tlang.getString("mar")</option> #end
-		#if ($monthSelected == 4) <option value="4" selected="selected">$tlang.getString("apr")</option> #else <option value="4">$tlang.getString("apr")</option> #end
-		#if ($monthSelected == 5) <option value="5" selected="selected">$tlang.getString("may")</option> #else <option value="5">$tlang.getString("may")</option> #end
-		#if ($monthSelected == 6) <option value="6" selected="selected">$tlang.getString("jun")</option> #else <option value="6">$tlang.getString("jun")</option> #end
-		#if ($monthSelected == 7) <option value="7" selected="selected">$tlang.getString("jul")</option> #else <option value="7">$tlang.getString("jul")</option> #end
-		#if ($monthSelected == 8) <option value="8" selected="selected">$tlang.getString("aug")</option> #else <option value="8">$tlang.getString("aug")</option> #end
-		#if ($monthSelected == 9) <option value="9" selected="selected">$tlang.getString("sep")</option> #else <option value="9">$tlang.getString("sep")</option> #end
-		#if ($monthSelected == 10) <option value="10" selected="selected">$tlang.getString("oct")</option> #else <option value="10">$tlang.getString("oct")</option> #end
-		#if ($monthSelected == 11) <option value="11" selected="selected">$tlang.getString("nov")</option> #else <option value="11">$tlang.getString("nov")</option> #end
-		#if ($monthSelected == 12) <option value="12" selected="selected">$tlang.getString("dec")</option> #else <option value="12">$tlang.getString("dec")</option> #end
+      #if ($monthSelected == 1) <option value="1" selected="selected">$tlang.getString("month.jan")</option> #else <option value="1">$tlang.getString("month.jan")</option> #end
+ 		#if ($monthSelected == 2) <option value="2" selected="selected">$tlang.getString("month.feb")</option> #else <option value="2">$tlang.getString("month.feb")</option> #end
+		#if ($monthSelected == 3) <option value="3" selected="selected">$tlang.getString("month.mar")</option> #else <option value="3">$tlang.getString("month.mar")</option> #end
+		#if ($monthSelected == 4) <option value="4" selected="selected">$tlang.getString("month.apr")</option> #else <option value="4">$tlang.getString("month.apr")</option> #end
+		#if ($monthSelected == 5) <option value="5" selected="selected">$tlang.getString("month.may")</option> #else <option value="5">$tlang.getString("month.may")</option> #end
+		#if ($monthSelected == 6) <option value="6" selected="selected">$tlang.getString("month.jun")</option> #else <option value="6">$tlang.getString("month.jun")</option> #end
+		#if ($monthSelected == 7) <option value="7" selected="selected">$tlang.getString("month.jul")</option> #else <option value="7">$tlang.getString("month.jul")</option> #end
+		#if ($monthSelected == 8) <option value="8" selected="selected">$tlang.getString("month.aug")</option> #else <option value="8">$tlang.getString("month.aug")</option> #end
+		#if ($monthSelected == 9) <option value="9" selected="selected">$tlang.getString("month.sep")</option> #else <option value="9">$tlang.getString("month.sep")</option> #end
+		#if ($monthSelected == 10) <option value="10" selected="selected">$tlang.getString("month.oct")</option> #else <option value="10">$tlang.getString("month.oct")</option> #end
+		#if ($monthSelected == 11) <option value="11" selected="selected">$tlang.getString("month.nov")</option> #else <option value="11">$tlang.getString("month.nov")</option> #end
+		#if ($monthSelected == 12) <option value="12" selected="selected">$tlang.getString("month.dec")</option> #else <option value="12">$tlang.getString("month.dec")</option> #end
     </select>
     <select name="$dayselect_id" id="$dayselect_id" onchange="blur(); $onChangeAction">
 	    #foreach($d in [1..31])
@@ -88,35 +88,38 @@
 ##
 <div class="portletBody">
 	<h3>
-		$tlang.getString("add.props") 
+		$title 
 	</h3>
-	
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">
-		$tlang.getString("add.instr") $tlang.getString("add.require") <span class="reqStarInline">*</span>
+		$instruction
+		$required
 	</p>
+	
 	<form name="propertyForm" id="propertyForm" action="#toolLinkParam("ResourcesAction" "doCompleteCreateWizard" "flow=update")" method="post">
 		<input type="hidden" name="sakai_action" id="sakai_action" value="doCompleteCreateWizard" />
 		<input type="hidden" name="user_action" id="user_action" value="save" />
 		<p class="shorttext">
 			<span class="reqStar">*</span>
 			<label for="name">
-				$tlang.getString("gen.title") 
+				$tlang.getString("title.name") 
 			</label>
 			<input type="text" size="40" id="name" name="name" value="$validator.escapeHtml("$!item.name")" />
-		</p>	
-		<p class="shorttext">
-			<label for="description">
-				$tlang.getString("gen.description")
-			</label>
-			<textarea id="description" name="description" rows="2" cols="40" wrap="virtual">$validator.escapeHtmlTextarea("$!item.description")</textarea>
-		</p>	
-		#if ($item.isFileUpload() || $item.isHtml() || $item.isPlaintext()) 
+		</p>
+		#if($type.hasDescription())
+			<p class="shorttext">
+				<label for="description">
+					$tlang.getString("title.description")
+				</label>
+				<textarea id="description" name="description" rows="2" cols="40" wrap="virtual">$validator.escapeHtmlTextarea("$!item.description")</textarea>
+			</p>
+		#end	
+		#if($type.hasRightsDialog()) 
 			#if ($!copyrightTypes)
 				<p class="shorttext">
 					<span class="reqStar">*</span>
 					<label for="copyright">
-						$tlang.getString("edit.cstatus")
+						$tlang.getString("cright.status")
 					</label>	
 					<select name="copyright" id ="copyright" onchange="javascript:updateCopyright(this);">
 						#foreach ($copyright in $copyrightTypes)
@@ -124,7 +127,7 @@
 						#end
 					</select>
 					#if ($!fairuseurl)
-						(<a href="$fairuseurl" target="_blank" title="[$tlang.getString('gen.newwin')]"><span class="skip"> [$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.fairuse")</a>)
+						(<a href="$fairuseurl" target="_blank" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.fairuse")</a>)
 					#end
 				</p>
 				<div id="copyright_status">
@@ -132,7 +135,7 @@
 						<p class="shorttext">
 							<span class="reqStar">*</span>
 							<label for="newcopyright">
-								$tlang.getString("edit.cinfo")
+								$tlang.getString("cright.info")
 							</label>	
 							<textarea name="newcopyright" id="newcopyright" rows="2" cols="40" wrap="virtual" >$validator.escapeHtmlTextarea("$!item.copyrightInfo")</textarea>
 						</p>	
@@ -144,14 +147,13 @@
 					<tr>
 						<td style="width:180px;padding-left:1em;vertical-align:top">
 							<label for="copyrightAlert">
-								$tlang.getString("edit.calert")
+								$tlang.getString("cright.alert")
 							</label>
 						</td>
 						<td style="vertical-align:top">
 							<input type="checkbox" name="copyrightAlert" id ="copyrightAlert" value="true" #if($item.hasCopyrightAlert())checked="checked"#end style="border:none" />
-							$tlang.getString("edit.display1")
-							<a href="#" onclick="javascript:openSampleCopyrightWindow();"   title="[$tlang.getString('gen.newwin')]"><span class="skip">[$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.display2")</a>
-							$tlang.getString("edit.display3")
+							$tlang.getString("cright.display")
+							(<a href="#" onclick="javascript:openSampleCopyrightWindow();"   title="[$tlang.getString('cright.newwin')]"><span class="skip">[$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.show")</a>)
 						</td>
 					</tr>
 				</table>
@@ -159,122 +161,122 @@
 		#end
 		
 		######### begin availability section ##########
-		#if($availability_is_enabled && !$item.isInWorkspace() && !$dropboxMode)
-		<h4>$tlang.getString("avail.title")</h4>
-		<div  class="labelindnt">
-			<table>
-				<tr>
-					<td>
-						<input type="radio" name="hidden" id="hidden_false" value="false" #if(!$item.isHidden())checked="checked" #end/>
-					</td>
-					<td colspan="4">
-						<label for="hidden_false">
-							$tlang.getString("avail.show")
-						</label>
-					</td>
-				</tr>
-				<tr>
-					<td>
-					</td>
-					<td>
-						<input type="checkbox" name="use_start_date" id="use_start_date" value="true" #if($item.useReleaseDate())checked="checked" #end/>
-					</td>
-					<td colspan="3">
-						<label for="use_start_date">
-							$tlang.getString("avail.start")
-						</label>
-					</td>
-				</tr>
-				<tr>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-						<label for="release_year">Date:</label>
-					</td>
-					<td>
-						<label for="release_hour">Time:</label>
-					</td>
-				</tr>
-				#set($yearX = $item.releaseDate.breakdownLocal().year)
-				#set($year0 = $yearX - 4)
-				#set($yearN = $yearX + 4)
-				#set($monthX = $item.releaseDate.breakdownLocal().month)
-				#set($dayX = $item.releaseDate.breakdownLocal().day)
-				<tr>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-						#custom_dateselectionwidget("release_year" "release_month" "release_day" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false').checked=true;document.getElementById('use_start_date').checked=true;")
-					</td>
-					<td>
-						#custom_timeSelectionWidget("release" $item.releaseDate "document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false').checked=true;document.getElementById('use_start_date').checked=true;")
-					</td>
-				</tr>
-				<tr>
-					<td>
-					</td>
-					<td>
-						<input type="checkbox" name="use_end_date" id="use_end_date" value="true" #if($item.useRetractDate())checked="checked" #end/>
-					</td>
-					<td colspan="4">
-						<label for="use_end_date">
-							$tlang.getString("avail.end")
-						</label>
-					</td>
-				</tr>
-				<tr>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-						<label for="retract_year">Date:</label>
-					</td>
-					<td>
-						<label for="retract_time">Time:</label>
-					</td>
-				</tr>
-				#set($yearX = $item.retractDate.breakdownLocal().year)
-				#set($year0 = $yearX - 4)
-				#set($yearN = $yearX + 4)
-				#set($monthX = $item.retractDate.breakdownLocal().month)
-				#set($dayX = $item.retractDate.breakdownLocal().day)
-				<tr>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-						#custom_dateselectionwidget("retract_year" "retract_month" "retract_day" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_true$i').checked=false;document.getElementById('hidden_false$i').checked=true;document.getElementById('use_end_date$i').checked=true;")
-					</td>
-					<td>
-						#custom_timeSelectionWidget("retract" $item.retractDate "document.getElementById('hidden_true$i').checked=false;document.getElementById('hidden_false$i').checked=true;document.getElementById('use_end_date$i').checked=true;")
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<input type="radio" name="hidden" id="hidden_true" value="true" #if($item.isHidden())checked="checked" #end/>
-					</td>
-					<td colspan="4">
-						<label for="hidden_true">
-							$tlang.getString("avail.hide")
-						</label>
-					</td>
-				</tr>
-			</table>
-		</div>
+		#if($availability_is_enabled && $type.hasAvailabilityDialog() && !$item.isInWorkspace() && !$dropboxMode)
+			<h4>$tlang.getString("title.availability")</h4>
+			<div  class="labelindnt">
+				<table>
+					<tr>
+						<td>
+							<input type="radio" name="hidden" id="hidden_false" value="false" #if(!$item.isHidden())checked="checked" #end/>
+						</td>
+						<td colspan="4">
+							<label for="hidden_false">
+								$tlang.getString("avail.show")
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<td>
+						</td>
+						<td>
+							<input type="checkbox" name="use_start_date" id="use_start_date" value="true" #if($item.useReleaseDate())checked="checked" #end/>
+						</td>
+						<td colspan="3">
+							<label for="use_start_date">
+								$tlang.getString("avail.start")
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<td>
+						</td>
+						<td>
+						</td>
+						<td>
+						</td>
+						<td>
+							<label for="release_year">Date:</label>
+						</td>
+						<td>
+							<label for="release_hour">Time:</label>
+						</td>
+					</tr>
+					#set($yearX = $item.releaseDate.breakdownLocal().year)
+					#set($year0 = $yearX - 4)
+					#set($yearN = $yearX + 4)
+					#set($monthX = $item.releaseDate.breakdownLocal().month)
+					#set($dayX = $item.releaseDate.breakdownLocal().day)
+					<tr>
+						<td>
+						</td>
+						<td>
+						</td>
+						<td>
+						</td>
+						<td>
+							#custom_dateselectionwidget("release_year" "release_month" "release_day" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false').checked=true;document.getElementById('use_start_date').checked=true;")
+						</td>
+						<td>
+							#custom_timeSelectionWidget("release" $item.releaseDate "document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false').checked=true;document.getElementById('use_start_date').checked=true;")
+						</td>
+					</tr>
+					<tr>
+						<td>
+						</td>
+						<td>
+							<input type="checkbox" name="use_end_date" id="use_end_date" value="true" #if($item.useRetractDate())checked="checked" #end/>
+						</td>
+						<td colspan="4">
+							<label for="use_end_date">
+								$tlang.getString("avail.end")
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<td>
+						</td>
+						<td>
+						</td>
+						<td>
+						</td>
+						<td>
+							<label for="retract_year">Date:</label>
+						</td>
+						<td>
+							<label for="retract_time">Time:</label>
+						</td>
+					</tr>
+					#set($yearX = $item.retractDate.breakdownLocal().year)
+					#set($year0 = $yearX - 4)
+					#set($yearN = $yearX + 4)
+					#set($monthX = $item.retractDate.breakdownLocal().month)
+					#set($dayX = $item.retractDate.breakdownLocal().day)
+					<tr>
+						<td>
+						</td>
+						<td>
+						</td>
+						<td>
+						</td>
+						<td>
+							#custom_dateselectionwidget("retract_year" "retract_month" "retract_day" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_true$i').checked=false;document.getElementById('hidden_false$i').checked=true;document.getElementById('use_end_date$i').checked=true;")
+						</td>
+						<td>
+							#custom_timeSelectionWidget("retract" $item.retractDate "document.getElementById('hidden_true$i').checked=false;document.getElementById('hidden_false$i').checked=true;document.getElementById('use_end_date$i').checked=true;")
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<input type="radio" name="hidden" id="hidden_true" value="true" #if($item.isHidden())checked="checked" #end/>
+						</td>
+						<td colspan="4">
+							<label for="hidden_true">
+								$tlang.getString("avail.hide")
+							</label>
+						</td>
+					</tr>
+				</table>
+			</div>
 		#end
 		######### end availability section ##########
 		
@@ -282,7 +284,7 @@
 		## Should initial access to this resource or collection be determined
 		## for "site" (standard sakai permissions), "grouped" or "public"?
 		## do not show any access options if in dropbox
-		#if(!$dropboxMode)
+		#if($type.hasGroupsDialog() && !$dropboxMode)
 			#set ($listDisplay="none")
 			## show access options only if public view is allowed or there are groups in the site
 			#if($item.isPubviewInherited())
@@ -303,12 +305,12 @@
 					#if($item.isPubviewPossible())
 						<p class="checkbox">
 							<input type="radio" name="access_mode" id="access_mode_public" value="public" #if($!item.isPubview()) checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='none';"  />
-							<label for="access_mode_public">$tlang.getString("edit.access2")</label>
+							<label for="access_mode_public">$tlang.getString("access.title2")</label>
 						</p>
 					#end
 					<p class="checkbox">
 						<input type="radio" name="access_mode" id="access_mode_$INHERITED_ACCESS" value="$INHERITED_ACCESS" #if(!$item.isPubview() && ("$!item.access" == "$SITE_ACCESS" || "$!item.access" == "$INHERITED_ACCESS")) checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='none';"  />
-						<label for="access_mode_site">$tlang.getString("edit.access3")</label>
+						<label for="access_mode_site">$tlang.getString("access.title3")</label>
 					</p>
 					
 					#if($item.isGroupPossible())
@@ -319,23 +321,23 @@
 						#end
 						<p class="checkbox">
 							<input type="radio" name="access_mode" id="access_mode_$GROUP_ACCESS" value="$GROUP_ACCESS" #if("$!item.access" == "$GROUP_ACCESS") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='block';"  />
-							<label for="access_mode_$GROUP_ACCESS">$tlang.getString("edit.access4")</label>
+							<label for="access_mode_$GROUP_ACCESS">$tlang.getString("access.title4")</label>
 						</p>
 					#end
 				</div>
 			#end
 			#if($item.isGroupPossible())
-				<table id="groupTable" class="listHier lines labelindnt" border="0" style="width:80%;display:$listDisplay" cellspacing="0" summary="$tlang.getString("edit.group3")">
-					<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
+				<table id="groupTable" class="listHier lines labelindnt" border="0" style="width:80%;display:$listDisplay" cellspacing="0" summary="$tlang.getString("access.group3")">
+					<caption class="skip" style="display:none">$tlang.getString("access.title4")</caption>
 					<tr>
 						<th id="selectAllGroups" style="width:2em;padding-left:.4em">
 							<input type="checkbox" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'access_groups')"  />
 						</th>
 						<th id="groupname">
-							$tlang.getString("edit.group1")
+							$tlang.getString("access.group1")
 						</th>
-						<th id ="groupdescription">
-							$tlang.getString("edit.group2")
+						<th id="groupdescription">
+							$tlang.getString("access.group2")
 						</th>
 					</tr>
 					#set($theGroups = $item.allSiteGroups)
@@ -370,7 +372,7 @@
 		########## end access section ###########
 	
 		#if (!$dropboxMode)
-			#if (!$item.isFolder())
+			#if ($type.hasNotificationDialog())
 				#if ($notification)
 					<p class="shorttext">
 						<label for="notify">
@@ -388,8 +390,8 @@
 		
 	
 		<p class="act">
-			<input type="button" class="active" id="finish_button" onclick="document.getElementById('user_action').value='save';submitform('propertyForm');" value="$tlang.getString("add.submit")" accesskey="s" />
-			<input type="button" id="cancel_button" onclick="javascript:document.getElementById('user_action').value='cancel';submitform('propertyForm');" value="$tlang.getString("gen.cancel")" accesskey="x" />
+			<input type="button" class="active" id="finish_button" onclick="document.getElementById('user_action').value='save';submitform('propertyForm');" value="$tlang.getString("label.finish")" accesskey="s" />
+			<input type="button" id="cancel_button" onclick="javascript:document.getElementById('user_action').value='cancel';submitform('propertyForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 		</p>
 		
 	</form>
@@ -457,7 +459,7 @@
 		if(new_value == "$USE_THIS_COPYRIGHT")
 		{
 			inner_html = "<p class=\"shorttext\">\n<span class=\"reqStar\">*</span>\n" 
-						+ "<label for=\"newcopyright\">\n$tlang.getString("edit.cinfo")\n</label>\n"
+						+ "<label for=\"newcopyright\">\n$tlang.getString("cright.info")\n</label>\n"
 						+ "<textarea name=\"newcopyright\" id=\"newcopyright\" rows=\"2\" cols=\"40\" wrap=\"virtual\" ></textarea>\n</p>\n";	
 		}
 		else
