@@ -7015,19 +7015,19 @@ public class ResourcesAction
 		catch (JDOMException e)
 		{
 			// add message to list of errors
-			errors.add(new ValidationError("","",null,"JDOMException"));
+			errors.add(new ValidationError("", "","",null,"JDOMException"));
 		}
 		catch (IOException e)
 		{
 			// add message to list of errors
-			errors.add(new ValidationError("","",null,"IOException"));
+			errors.add(new ValidationError("","","",null,"IOException"));
 		}
 
 		// call this.validate(bean, rootSchema, errors) and add results to errors list.
 		if(bean == null)
 		{
 			// add message to list of errors
-			errors.add(new ValidationError("","",null,"Bean is null"));
+			errors.add(new ValidationError("","","",null,"Bean is null"));
 		}
 		else
 		{
