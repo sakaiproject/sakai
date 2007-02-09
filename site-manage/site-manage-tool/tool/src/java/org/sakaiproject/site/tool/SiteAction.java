@@ -6716,20 +6716,13 @@ public class SiteAction extends PagedResourceActionII
 					else
 					{
 						List importSites = new ArrayList(Arrays.asList(params.getStrings("importSites")));
-						Hashtable sites = (Hashtable) state.getAttribute(STATE_IMPORT_SITES);
-						if (sites == null)
-						{
-							sites = new Hashtable();
-						}
+						Hashtable sites = new Hashtable();
 						for (index = 0; index < importSites.size(); index ++)
 						{
 							try
 							{
 								Site s = SiteService.getSite((String) importSites.get(index));
-								if	(!sites.containsKey(s))
-								{
-									sites.put(s, new Vector());
-								}
+								sites.put(s, new Vector());
 							}
 							catch (IdUnusedException e)
 							{	
