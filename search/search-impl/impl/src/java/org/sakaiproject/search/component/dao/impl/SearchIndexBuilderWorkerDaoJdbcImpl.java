@@ -446,8 +446,8 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 						}
 						catch (Exception e1)
 						{
-							log.info(" Failed to index document cause: " //$NON-NLS-1$
-									+ e1.getMessage());
+							log.info(" Failed to index document for "+ref.getId()+" cause: " //$NON-NLS-1$
+									+ e1.getMessage(),e1);
 						}
 						sbi.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
 						updateOrSave(connection, sbi);

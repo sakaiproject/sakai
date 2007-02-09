@@ -129,15 +129,22 @@ public class MessageContentProducer implements EntityContentProducer
 	/**
 	 * {@inheritDoc}
 	 */
+	public Reader getContentReader(Entity cr, int minWordLength)
+	{
+		return new StringReader(getContent(cr,minWordLength));
+	}
 	public Reader getContentReader(Entity cr)
 	{
 		return new StringReader(getContent(cr));
+	}
+	public String getContent(Entity cr) {
+		return getContent(cr,3);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getContent(Entity cr)
+	public String getContent(Entity cr, int minWordLength)
 	{
 		Reference ref = entityManager.newReference(cr.getReference());
 		EntityProducer ep = ref.getEntityProducer();
@@ -200,11 +207,7 @@ public class MessageContentProducer implements EntityContentProducer
 					}
 				}
 
-				return sb
-						.toString()
-						.replaceAll(
-								"[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\ud800-\\udfff\\uffff\\ufffe]", //$NON-NLS-1$
-								""); //$NON-NLS-1$
+				return SearchUtils.getCleanString(sb.toString(), minWordLength);
 			}
 			catch (IdUnusedException e)
 			{
@@ -248,7 +251,7 @@ public class MessageContentProducer implements EntityContentProducer
 
 				String title = subject + Messages.getString("MessageContentProducer.36") //$NON-NLS-1$
 						+ mh.getFrom().getDisplayName();
-				return SearchUtils.getCleanString(title);
+				return SearchUtils.getCleanString(title,3);
 
 			}
 			catch (IdUnusedException e)

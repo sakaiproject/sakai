@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,58 +42,89 @@ public class HtmlContentDigester extends BaseContentDigester
 {
 	private static Log log = LogFactory.getLog(HtmlContentDigester.class);
 
+	private boolean useRegexParser = true;
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.sakaiproject.search.component.adapter.contenthosting.ContentDigester#getContent(org.sakaiproject.content.api.ContentResource)
 	 */
-	public String getContent(ContentResource contentResource)
+	public String getContent(ContentResource contentResource, int minWordLength)
+
 	{
-		if ( contentResource != null && 
-				contentResource.getContentLength() > maxDigestSize  ) {
-			throw new RuntimeException("Attempt to get too much content as a string on "+contentResource.getReference());
-		}
-		InputStream contentStream = null;
-		Tidy tidy = new Tidy();
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		try
+		if (contentResource != null && contentResource.getContentLength() > maxDigestSize)
 		{
-			
-			contentStream = contentResource.streamContent();
-			tidy.setQuiet(true);
-			tidy.setShowWarnings(false);
-			tidy.setOnlyErrors(true);
-			tidy.parse(contentStream, baos);
-			
-			String tidyOut = SearchUtils.getCleanString(new String(baos.toByteArray()));
-			log.debug("Tidy Output was "+tidyOut);
-			return DigestHtml.digest(tidyOut);
-			
+			throw new RuntimeException("Attempt to get too much content as a string on " + contentResource.getReference());
 		}
-		catch (ServerOverloadException e)
+		if (useRegexParser)
 		{
-			throw new RuntimeException("Failed get Resource Content ", e);
-		}
-		finally
-		{
-			if (baos != null)
+			try
 			{
-				try
+				String content = new String(contentResource.getContent());
+				StringBuffer sb = new StringBuffer();
+				for (Iterator<String> i = new RegexParser(content); i.hasNext();)
 				{
-					baos.close();
+					String s = i.next();
+					if (s.length() > 0)
+					{
+						SearchUtils.filterWordLength(s, sb, minWordLength);
+					}
 				}
-				catch (IOException e)
-				{
-				}
+				return sb.toString();
 			}
-			if (contentStream != null)
+			catch (ServerOverloadException ex)
 			{
-				try
+				throw new RuntimeException("Failed get Resource Content ", ex);
+
+			}
+		}
+		else
+		{
+
+			InputStream contentStream = null;
+			Tidy tidy = new Tidy();
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			try
+			{
+
+				contentStream = contentResource.streamContent();
+				log.info("Raw Content was " + contentStream);
+				tidy.setQuiet(true);
+				tidy.setShowWarnings(false);
+				tidy.setOnlyErrors(true);
+				tidy.parse(contentStream, baos);
+
+				String tidyOut = SearchUtils.getCleanString(new String(baos.toByteArray()), minWordLength);
+				log.info(contentResource.getReference() + " Tidy Output was " + tidyOut);
+				log.debug("Tidy Output was " + tidyOut);
+				return DigestHtml.digest(tidyOut);
+
+			}
+			catch (ServerOverloadException e)
+			{
+				throw new RuntimeException("Failed get Resource Content ", e);
+			}
+			finally
+			{
+				if (baos != null)
 				{
-					contentStream.close();
+					try
+					{
+						baos.close();
+					}
+					catch (IOException e)
+					{
+					}
 				}
-				catch (IOException e)
+				if (contentStream != null)
 				{
+					try
+					{
+						contentStream.close();
+					}
+					catch (IOException e)
+					{
+					}
 				}
 			}
 		}
@@ -101,11 +133,11 @@ public class HtmlContentDigester extends BaseContentDigester
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.search.component.adapter.contenthosting.ContentDigester#getContentReader(org.sakaiproject.content.api.ContentResource)
+	 * @see org.sakaiproject.search.component.adapter.contenthosting.ContentDigester#getContentReader(org.sakaiproject.content.api.ContentResource, int)
 	 */
-	public Reader getContentReader(ContentResource contentResource)
+	public Reader getContentReader(ContentResource contentResource, int minWordlength)
 	{
-		// we cant stream it, as Tidy wont allow us to
-		return new StringReader(getContent(contentResource));
+		// TODO Auto-generated method stub
+		return new StringReader(getContent(contentResource, minWordlength));
 	}
 }

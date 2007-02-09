@@ -29,20 +29,21 @@ import java.io.Reader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.search.api.SearchUtils;
 
 /**
  * @author ieb
  */
-public class DefaultFullContentDigester implements ContentDigester
+public class DefaultFullContentDigester extends DefaultContentDigester
 {
 	private static final Log log = LogFactory
 			.getLog(DefaultFullContentDigester.class);
 	
 	private int maxDigestSize = 1024 * 1024 * 5; // 5M
 
-	public String getContent(ContentResource contentResource)
+	public String getContent(ContentResource contentResource, int minWordLenght)
 	{
-		if ( contentResource != null && 
+		if ( contentResource != null && !isBinary(contentResource) &&  
 				contentResource.getContentLength() > maxDigestSize ) {
 			throw new RuntimeException("Attempt to get too much content as a string on "+contentResource.getReference());
 		}
@@ -57,7 +58,7 @@ public class DefaultFullContentDigester implements ContentDigester
 					content[i] = ' ';
 				}
 			}
-			return new String(content);
+			return SearchUtils.getCleanString(new String(content),minWordLenght);
 		}
 		catch (Exception e)
 		{
@@ -65,7 +66,7 @@ public class DefaultFullContentDigester implements ContentDigester
 		}
 	}
 
-	public Reader getContentReader(ContentResource contentResource)
+	public Reader getContentReader(ContentResource contentResource,int minWordLength)
 	{ 
  		InputStream contentStream = null;
  		// we dont close this as its used to stream,

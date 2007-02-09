@@ -33,6 +33,7 @@
   </bean>
    <bean id="defaultDigester" 
       class="org.sakaiproject.search.component.adapter.contenthosting.DefaultContentDigester"
+      init-method="init" 
       >
    </bean> 
    <bean id="pdfContentDigester" 

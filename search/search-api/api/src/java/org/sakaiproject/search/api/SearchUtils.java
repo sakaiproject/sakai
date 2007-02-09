@@ -23,7 +23,66 @@ package org.sakaiproject.search.api;
 
 public class SearchUtils
 {
-	public static String getCleanString(String text ) {
-		return text.replaceAll("[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\ud800-\\udfff\\uffff\\ufffe]", "");
+	public static String getCleanString(String text, int minWordLength ) {
+		text = text.replaceAll("[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\ud800-\\udfff\\uffff\\ufffe]", "");
+		if ( minWordLength == -1 ) {
+			return text;
+		}
+		return filterWordLength(text, null, minWordLength).toString();
 	}
+
+	/**
+	 * @param string
+	 * @param sb 
+	 * @param minWordLength
+	 * @return
+	 */
+	public static StringBuffer filterWordLength(String string, StringBuffer sb, int minWordLength)
+	{
+		
+		char[] content = string.toCharArray();
+		if ( sb == null ) {
+			sb = new StringBuffer();
+		}
+		if ( minWordLength == -1 ) {
+			sb.append(string);
+			return sb;
+		}
+		int startOfWord = -1;
+		for (int i = 0; i < content.length; i++)
+		{
+			// only take words longer than 3 charaters
+			
+			if (!Character.isLetterOrDigit(content[i]))
+			{
+				if ( startOfWord != -1 && (i-startOfWord) > minWordLength) {
+					if ( !Character.isLetterOrDigit(content[startOfWord]) ) {
+						content[startOfWord] = ' ';
+					} else if ( (sb.length() > 0) &&  sb.charAt(sb.length()-1) != ' ' ) {
+						sb.append(' ');
+					}
+					String word = new String(content,startOfWord,i-startOfWord);
+					sb.append(word);
+				}
+				startOfWord = i;
+			} else {
+				if ( startOfWord == -1 ) {
+					startOfWord = i-1;
+					if ( startOfWord == -1 ) {
+						startOfWord = 0;
+					}
+				}
+			}
+		}
+		if ( startOfWord != -1 && (content.length-startOfWord-1) > minWordLength) {
+			if ( !Character.isLetterOrDigit(content[startOfWord]) ) {
+				content[startOfWord] = ' ';
+			}
+			String word = new String(content,startOfWord,content.length-startOfWord);
+			sb.append(word).append(" ");
+		}
+		return sb;
+	}
+	
+	
 }

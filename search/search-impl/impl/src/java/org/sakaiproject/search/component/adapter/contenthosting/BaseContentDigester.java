@@ -59,19 +59,6 @@ public abstract class BaseContentDigester implements ContentDigester
 
 	private HashMap mimeTypes = null;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.component.adapter.contenthosting.ContentDigester#getContent(org.sakaiproject.content.api.ContentResource)
-	 */
-	public abstract String getContent(ContentResource contentResource);
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.component.adapter.contenthosting.ContentDigester#getContentReader(org.sakaiproject.content.api.ContentResource)
-	 */
-	public abstract Reader getContentReader(ContentResource contentResource);
 
 	/*
 	 * (non-Javadoc)

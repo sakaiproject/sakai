@@ -113,13 +113,19 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 	{
 		return false;
 	}
+	public Reader getContentReader(Entity cr, int minWordLength) {
+		return null;
+	}
 
 	public Reader getContentReader(Entity cr)
 	{
 		return null;
 	}
+	public String getContent(Entity cr) {
+		return getContent(cr,3);
+	}
 
-	public String getContent(Entity cr)
+	public String getContent(Entity cr, int minWordLength)
 	{
 		RWikiEntity rwe = (RWikiEntity) cr;
 		RWikiObject rwo = rwe.getRWikiObject();
@@ -128,8 +134,7 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		String renderedPage = renderService.renderPage(rwo, pageSpace,
 				objectService.getComponentPageLinkRender(pageSpace));
 
-		SearchUtils.getCleanString(renderedPage);
-		return DigestHtml.digest(renderedPage);
+		return SearchUtils.getCleanString(DigestHtml.digest(renderedPage),minWordLength);
 
 	}
 
@@ -137,7 +142,7 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 	{
 		RWikiEntity rwe = (RWikiEntity) cr;
 		RWikiObject rwo = rwe.getRWikiObject();
-		return SearchUtils.getCleanString(rwo.getName());
+		return SearchUtils.getCleanString(rwo.getName(),3);
 	}
 
 	public boolean matches(Reference ref)

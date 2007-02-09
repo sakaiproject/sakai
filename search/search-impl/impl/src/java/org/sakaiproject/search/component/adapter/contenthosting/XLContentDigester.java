@@ -47,7 +47,8 @@ public class XLContentDigester extends BaseContentDigester
 	 * 
 	 * @see org.sakaiproject.search.component.adapter.contenthosting.BaseContentDigester#getContent(org.sakaiproject.content.api.ContentResource)
 	 */
-	public String getContent(ContentResource contentResource)
+	
+	public String getContent(ContentResource contentResource,int minWordLength)
 	{
 		if ( contentResource != null && 
 				contentResource.getContentLength() > maxDigestSize  ) {
@@ -79,7 +80,7 @@ public class XLContentDigester extends BaseContentDigester
 					}
 				}
 			}
-			return SearchUtils.getCleanString(sb.toString());
+			return SearchUtils.getCleanString(sb.toString(),minWordLength);
 		}
 		catch (Exception e)
 		{
@@ -107,9 +108,10 @@ public class XLContentDigester extends BaseContentDigester
 	 * 
 	 * @see org.sakaiproject.search.component.adapter.contenthosting.BaseContentDigester#getContentReader(org.sakaiproject.content.api.ContentResource)
 	 */
-	public Reader getContentReader(ContentResource contentResource)
+	
+	public Reader getContentReader(ContentResource contentResource, int minWordLength)
 	{
-		return new StringReader(getContent(contentResource));
+		return new StringReader(getContent(contentResource,minWordLength));
 	}
-
+	
 }

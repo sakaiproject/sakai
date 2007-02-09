@@ -38,8 +38,8 @@ import org.sakaiproject.search.api.SearchUtils;
 public class PDFContentDigester extends BaseContentDigester
 {
 	private static Log log = LogFactory.getLog(PDFContentDigester.class);
-
-	public String getContent(ContentResource contentResource)
+	
+	public String getContent(ContentResource contentResource, int minWordLength)
 	{
 		if ( contentResource != null && 
 				contentResource.getContentLength() > maxDigestSize  ) {
@@ -55,7 +55,7 @@ public class PDFContentDigester extends BaseContentDigester
 			pddoc = PDDocument.load(contentStream);
 			String text = stripper.getText(pddoc);
 			pddoc.close();
-			return SearchUtils.getCleanString(text);
+			return SearchUtils.getCleanString(text,minWordLength);
 		}
 		catch (Exception ex)
 		{
@@ -80,10 +80,11 @@ public class PDFContentDigester extends BaseContentDigester
 			}
 		}
 	}
-
-	public Reader getContentReader(ContentResource contentResource)
+	public Reader getContentReader(ContentResource contentResource, int minWordLength)
 	{
-		return new StringReader(getContent(contentResource));
+		return new StringReader(getContent(contentResource,minWordLength));
 	}
+
+	
 
 }

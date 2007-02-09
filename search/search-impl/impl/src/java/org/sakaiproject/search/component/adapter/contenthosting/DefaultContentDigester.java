@@ -20,8 +20,10 @@
  **********************************************************************************/
 package org.sakaiproject.search.component.adapter.contenthosting;
 
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,16 +38,45 @@ public class DefaultContentDigester implements ContentDigester
 {
 	private static final Log log = LogFactory
 			.getLog(DefaultContentDigester.class);
+	private static final int MAX_DIGEST_SIZE =  1024 * 1024 * 5;
+	private Properties binaryTypes = null;
 	
-	public String getContent(ContentResource contentResource)
+	public void init() {
+		try
+		{
+		    binaryTypes = new Properties();
+		    InputStream pi = getClass().getResourceAsStream("/org/sakaiproject/search/component/bundle/binarytypes.properties");
+			binaryTypes.load(pi);
+		    pi.close();
+		}
+		catch (Exception e)
+		{
+			log.error("Cant find binary types file /org/sakaiproject/search/component/bundle/binarytypes.properties in class path",e);
+			System.exit(-1);
+		}
+	    
+	}
+	
+	
+	public String getContent(ContentResource contentResource, int minWordLength)
 	{
 		try
 		{
 			ResourceProperties  rp  = contentResource.getProperties();
 			StringBuffer sb = new StringBuffer();
-			sb.append(rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME)).append(" ");
-			sb.append(rp.getProperty(ResourceProperties.PROP_DESCRIPTION));
-			return SearchUtils.getCleanString(sb.toString());
+			SearchUtils.filterWordLength(rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME),sb,minWordLength).append(" ");
+			SearchUtils.filterWordLength(rp.getProperty(ResourceProperties.PROP_DESCRIPTION),sb,minWordLength).append(" ");
+			
+			if ( !isBinary(contentResource) && contentResource.getContentLength() < MAX_DIGEST_SIZE ) {
+				try
+				{
+					SearchUtils.filterWordLength(new String(contentResource.getContent()),sb, minWordLength);
+				}
+				catch (Exception e)
+				{
+				}
+			} 
+			return SearchUtils.getCleanString(sb.toString(),0);
 		}
 		catch (Exception e)
 		{
@@ -53,15 +84,27 @@ public class DefaultContentDigester implements ContentDigester
 		}
 	}
 
-	public Reader getContentReader(ContentResource contentResource)
+	/**
+	 * @param contentResource
+	 * @return
+	 */
+	public boolean isBinary(ContentResource contentResource)
+	{
+		String mimeType = contentResource.getContentType();
+		return "true".equals(binaryTypes.get(mimeType));
+	}
+
+	
+	public Reader getContentReader(ContentResource contentResource, int minWordlength)
 	{ 
-		return new StringReader(getContent(contentResource));
+		return new StringReader(getContent(contentResource,minWordlength));
 	}
 
 	public boolean accept(String mimeType)
 	{
 		return true;
 	}
+
 
 
 

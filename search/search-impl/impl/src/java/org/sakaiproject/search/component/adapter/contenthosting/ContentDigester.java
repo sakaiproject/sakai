@@ -32,19 +32,6 @@ import org.sakaiproject.content.api.ContentResource;
 public interface ContentDigester
 {
 
-	/**
-	 * Get the digested content as a string
-	 * @param contentResource
-	 * @return
-	 */
-	String getContent(ContentResource contentResource);
-
-	/**
-	 * get the digested content as a Reader
-	 * @param contentResource
-	 * @return
-	 */
-	Reader getContentReader(ContentResource contentResource);
 
 	/**
 	 * Can the mime type be handled by this digester
@@ -53,5 +40,19 @@ public interface ContentDigester
 	 */
 
 	boolean accept(String mimeType);
+
+	/**
+	 * @param contentResource
+	 * @param minWordLength minimum acceptable word length
+	 * @return
+	 */
+	String getContent(ContentResource contentResource, int minWordLength);
+
+	/**
+	 * @param contentResource
+	 * @param minWordlength
+	 * @return
+	 */
+	Reader getContentReader(ContentResource contentResource, int minWordlength);
 
 }
