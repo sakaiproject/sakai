@@ -11,7 +11,7 @@
 		<table class="itemSummary" cellspacing="0">
 			<tr>
 				<th>$tlang.getString("gen.from")</th>
-				<td>$validator.escapeHtml($validator.escapeHtml($message.Header.From.DisplayName))</td>
+				<td>$validator.escapeHtml($message.Header.From.DisplayName)</td>
 			</tr>
 			<tr>
 				<th>$tlang.getString("gen.date")</th> 
