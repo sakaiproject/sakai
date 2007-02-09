@@ -451,18 +451,24 @@ public class GradingService
   public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment)
   {
     try {
+      /*	
+      // Comment out the whole IF section because the only thing we do here is to 
+      // update the itemGradingSet. However, this update is redundant as it will
+      // be updated in saveOrUpdateAssessmentGrading(assessment).
       if (assessment.getAssessmentGradingId()!=null 
           && assessment.getAssessmentGradingId().longValue()>0){
-	//1. if assessmentGrading contain itemGrading, we want to insert/update itemGrading first
+	    //1. if assessmentGrading contain itemGrading, we want to insert/update itemGrading first
         Set itemGradingSet = assessment.getItemGradingSet(); 
         Iterator iter = itemGradingSet.iterator();
         while (iter.hasNext()) {
         	ItemGradingData itemGradingData = (ItemGradingData) iter.next();
         	log.debug("date = " + itemGradingData.getSubmittedDate());
         }
-        
-	saveOrUpdateAll(itemGradingSet);
+        // The following line seems redundant. I cannot see a reason why we need to save the itmeGradingSet
+        // here and then again in following saveOrUpdateAssessmentGrading(assessment). Comment it out.    
+	    //saveOrUpdateAll(itemGradingSet);
       }
+      */
       // this will update itemGradingSet and assessmentGrading. May as well, otherwise I would have
       // to reload assessment again
       PersistenceService.getInstance().

@@ -341,7 +341,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 		}
 		else {
 			log.debug("Persist to db otherwise");
-			service.saveOrUpdateAssessmentGrading(adata);
+			// The following line seems redundant. I cannot see a reason why we need to save the adata here
+			// and then again in following service.storeGrades(). Comment it out.
+			//service.saveOrUpdateAssessmentGrading(adata);
 			log.debug("*** 3. before storingGrades, did all the removes and adds " + (new Date()));
 			// 3. let's build three HashMap with (publishedItemId, publishedItem),
 			// (publishedItemTextId, publishedItem), (publishedAnswerId,
