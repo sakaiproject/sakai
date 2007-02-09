@@ -23,7 +23,7 @@
 			<input type="hidden" name="assignmentContentId" value="$!value_assignmentcontent_id" />
 			#if (!$preview_assignment_assignment_hide_flag)
 					<p class="discTria">
-						<a href="#toolLink("ResourcesAction" "doHide_preview_assignment_assignment")" title="$tlang.getString("prevassig.hidass")">
+						<a href="#toolLink("$action" "doHide_preview_assignment_assignment")" title="$tlang.getString("prevassig.hidass")">
 							<img src = "#imageLink("sakai/collapse.gif")" border="0" title="$tlang.getString("prevassig.hidass")" alt="$tlang.getString("prevassig.hidass")" hspace="0" /></a>
 							$tlang.getString("prevassig.hidass"): $validator.escapeHtml($value_Title)
 					</p>		
@@ -198,14 +198,14 @@
 							#end	
 			#else
 				<p class="discTria">			
-					<a href="#toolLink("ResourcesAction" "doShow_preview_assignment_assignment")" title="$tlang.getString("prevassig.shoass")">
+					<a href="#toolLink("$action" "doShow_preview_assignment_assignment")" title="$tlang.getString("prevassig.shoass")">
 						<img src = "#imageLink("sakai/expand.gif")" border="0" title="$tlang.getString("prevassig.shoass")" alt="$tlang.getString("prevassig.shoass")" hspace="0" /></a>
 						$tlang.getString("prevassig.shoass"): $validator.escapeHtml($value_Title)
 				</p>	
 			#end
 			#if (!$preview_assignment_student_view_hide_flag)
 				<p class="discTria">
-					<a href="#toolLink("ResourcesAction" "doHide_preview_assignment_student_view")" title="	">
+					<a href="#toolLink("$action" "doHide_preview_assignment_student_view")" title="	">
 						<img src = "#imageLink("sakai/collapse.gif")" border="0" title="$tlang.getString("prevassig.hidstuvie")" alt="$tlang.getString("prevassig.hidstuvie")" hspace="0" /></a>$tlang.getString("gen.stuvie")
 				</p>		
 				<div class="inopPanel">
@@ -330,7 +330,7 @@
 					</div>
 				#else
 				<p class="discTria">
-							<a href="#toolLink("ResourcesAction" "doShow_preview_assignment_student_view")" title="$tlang.getString("prevassig.shostuvie")">
+							<a href="#toolLink("$action" "doShow_preview_assignment_student_view")" title="$tlang.getString("prevassig.shostuvie")">
 								<img src = "#imageLink("sakai/expand.gif")" border="0" title="$tlang.getString("prevassig.shostuvie")" alt="$tlang.getString("prevassig.shostuvie")" hspace="0" /></a>$tlang.getString("gen.stuvie")
 				</p>				
 			#end
