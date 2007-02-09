@@ -56,6 +56,15 @@ public class GradingScale implements Serializable, Comparable {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	/**
+	 * Because the Gradebook now supports non-calculated manual-only grades with
+	 * no percentage equivalent, it is possible for the list of grades to include
+	 * codes that are not included in the defaultBottomPercents map. In other
+	 * words, callers shouldn't expect getDefaultBottomPercents.keySet() to be
+	 * equivalent to this list.
+	 * @return list of supported grade codes, ordered from highest to lowest
+	 */
 	public List<String> getGrades() {
 		return grades;
 	}

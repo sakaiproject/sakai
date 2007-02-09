@@ -20,7 +20,8 @@
 			<h:outputText value="#{msgs.student_view_course_grade}" />
 			<h:panelGroup>
 				<h:outputText value="#{msgs.student_view_not_released}" rendered="#{!studentViewBean.courseGradeReleased}"/>
-				<h:outputFormat value="#{msgs.student_view_course_grade_details}" rendered="#{studentViewBean.courseGradeReleased}">
+				<h:outputText value="#{studentViewBean.courseGrade}" rendered="#{studentViewBean.courseGradeReleased && studentViewBean.percent == null}"/>
+				<h:outputFormat value="#{msgs.student_view_course_grade_details}" rendered="#{studentViewBean.courseGradeReleased && studentViewBean.percent != null}">
 					<f:param value="#{studentViewBean.courseGrade}" />
 					<f:param value="#{studentViewBean.percent}" />
 				</h:outputFormat>

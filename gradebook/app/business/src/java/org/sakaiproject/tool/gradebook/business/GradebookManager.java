@@ -115,9 +115,9 @@ public interface GradebookManager {
      * @param studentUids
      * @return
      */
-    public List getPointsEarnedCourseGradeRecordsWithStats(CourseGrade courseGrade, Collection studentUids);
+    public List<CourseGradeRecord> getPointsEarnedCourseGradeRecordsWithStats(CourseGrade courseGrade, Collection studentUids);
     
-    public List getPointsEarnedCourseGradeRecords(CourseGrade courseGrade, Collection studentUids, Collection assignments, Map scoreMap);
+    public List<CourseGradeRecord> getPointsEarnedCourseGradeRecords(CourseGrade courseGrade, Collection studentUids, Collection assignments, Map scoreMap);
     public void addToGradeRecordMap(Map gradeRecordMap, List gradeRecords);
    
     /**

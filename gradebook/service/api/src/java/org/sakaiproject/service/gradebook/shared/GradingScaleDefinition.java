@@ -21,19 +21,17 @@
 **********************************************************************************/
 package org.sakaiproject.service.gradebook.shared;
 
-import java.util.*;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  */
 public class GradingScaleDefinition {
-    private static final Log log = LogFactory.getLog(GradingScaleDefinition.class);
 	private String uid;
 	private String name;
-	private List grades;
-	private List defaultBottomPercents;
+	private List<String> grades;
+	private List<Double> defaultBottomPercents;
 
 	public String getUid() {
 		return uid;
@@ -47,25 +45,30 @@ public class GradingScaleDefinition {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public List getGrades() {
+	public List<String> getGrades() {
 		return grades;
 	}
-	public void setGrades(List grades) {
+	public void setGrades(List<String> grades) {
 		this.grades = grades;
 	}
-	public List getDefaultBottomPercents() {
+	public List<Double> getDefaultBottomPercents() {
 		return defaultBottomPercents;
 	}
-	public void setDefaultBottomPercents(List defaultBottomPercents) {
+	public void setDefaultBottomPercents(List<Object> defaultBottomPercents) {
 		// Depending on how this was called, the list may
-		// be of Double or String objects. Convert the strings.
-		List doubleScores = new ArrayList();
+		// be of Double, String, emtpy String, or null objects. Convert the strings.
+		List<Double> doubleScores = new ArrayList<Double>();
 		for (Iterator iter = defaultBottomPercents.iterator(); iter.hasNext(); ) {
 			Object obj = iter.next();
 			if (obj instanceof String) {
-				obj = new Double((String)obj);
+				String str = (String)obj;
+				if (str.trim().length() == 0) {
+					obj = null;
+				} else {
+					obj = new Double((String)obj);
+				}
 			}
-			doubleScores.add(obj);
+			doubleScores.add((Double)obj);
 		}
 		this.defaultBottomPercents = doubleScores;
 	}

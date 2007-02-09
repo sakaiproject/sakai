@@ -23,7 +23,6 @@
 package org.sakaiproject.tool.gradebook;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * A CourseGrade is a GradableObject that represents the overall course grade
@@ -51,31 +50,34 @@ public class CourseGrade extends GradableObject {
 
 	//// Bean getters and setters ////
 
-	/**
-     * Calculate the mean for all enrollments, counting null grades as zero.
-     *
-	 * @see org.sakaiproject.tool.gradebook.GradableObject#calculateMean(java.util.Collection, int)
+    /**
+	 * Calculate the mean course grade (whether entered or calulated) as a
+	 * percentage for all enrollments, counting null grades as zero, but leaving
+	 * students who've explicitly been given non-percentage-valued manual-only
+	 * course grades (such as "I" for incomplete) out of the calculation.
 	 */
-	protected Double calculateMean(Collection grades, int numEnrollments) {
-		for (int i = 0; i < (numEnrollments - grades.size()); i++) {
-			grades.add(new Double(0));
-		}
+    public void calculateStatistics(Collection<CourseGradeRecord> gradeRecords, int numEnrollments) {
+        // Ungraded but enrolled students count as if they have 0% in the course.
+        int numScored = numEnrollments - gradeRecords.size();
+        double total = 0;
 
-        if (grades == null || grades.size() == 0) {
-			return null;
-		}
+        for (CourseGradeRecord record : gradeRecords) {
+            Double score = record.getGradeAsPercentage();
 
-		double total = 0;
-		for (Iterator iter = grades.iterator(); iter.hasNext();) {
-			Double grade = (Double) iter.next();
-			if (grade == null) {
-                grade = new Double(0);
-			}
-			total += grade.doubleValue();
-		}
-		return new Double(total / grades.size());
-	}
+            // Skip manual-only course grades.
+        	if ((record.getEnteredGrade() != null) && (score == null)) {
+        		continue;
+        	}
+        	
+        	if (score != null) {
+        		total += score.doubleValue();
+        	}
+        	numScored++;
+        }
+        if (numScored == 0) {
+        	mean = null;
+        } else {
+        	mean = new Double(total / numScored);
+        }
+    }
 }
-
-
-

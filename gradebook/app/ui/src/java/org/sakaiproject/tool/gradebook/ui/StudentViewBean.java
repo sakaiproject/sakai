@@ -45,7 +45,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
 
     // View maintenance fields - serializable.
     private String userDisplayName;
-    private double percent;
+    private Double percent;
     private boolean courseGradeReleased;
     private String courseGrade;
     private boolean assignmentsReleased;
@@ -214,11 +214,9 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
             CourseGradeRecord gradeRecord = getGradebookManager().getStudentCourseGradeRecord(gradebook, getUserUid());
             if (gradeRecord != null) {
                 courseGrade = gradeRecord.getDisplayGrade();
-                try{
-                    percent = gradeRecord.getGradeAsPercentage().doubleValue();
-                }catch(NullPointerException npe){
-                    if(logger.isDebugEnabled())logger.debug(npe + "currently no grade is available ");
-                }
+                // Note that the percentage will be null for a manual-only grade
+                // code (such as "I" for incomplete).
+                percent = gradeRecord.getGradeAsPercentage();
             }
         }
         //get grade comments and load them into a map assignmentId->comment
@@ -322,13 +320,19 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
     public boolean isCourseGradeReleased() {
         return courseGradeReleased;
     }
+    public boolean isCourseGradePercentageShown() {
+    	return courseGradeReleased && (percent != null);
+    }
     public boolean isAssignmentsReleased() {
         return assignmentsReleased;
     }
     /**
      * @return Returns the percent.
      */
-    public double getPercent() {
+    public Double getPercent() {
+    	if (percent == null) {
+    		return null;
+    	}
         double pct = 0;
         BigDecimal bd = new BigDecimal(percent);
         bd = bd.setScale(2,BigDecimal.ROUND_DOWN);

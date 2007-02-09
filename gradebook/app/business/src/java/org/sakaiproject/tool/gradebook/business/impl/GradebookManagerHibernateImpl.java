@@ -524,10 +524,10 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     public List getAssignmentsWithStats(final Long gradebookId, final String sortBy, final boolean ascending) {
         Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
         List assignments = getAssignments(gradebookId);
-        List gradeRecords = getAllAssignmentGradeRecords(gradebookId, studentUids);
+        List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecords(gradebookId, studentUids);
         for (Iterator iter = assignments.iterator(); iter.hasNext(); ) {
         	Assignment assignment = (Assignment)iter.next();
-        	assignment.calculateStatistics(gradeRecords, studentUids.size());
+        	assignment.calculateStatistics(gradeRecords);
         }
         sortAssignments(assignments, sortBy, ascending);
         return assignments;
@@ -538,15 +538,15 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         List assignments = getAssignments(gradebookId);
         CourseGrade courseGrade = getCourseGrade(gradebookId);
         Map gradeRecordMap = new HashMap();
-        List gradeRecords = getAllAssignmentGradeRecords(gradebookId, studentUids);
+        List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecords(gradebookId, studentUids);
         addToGradeRecordMap(gradeRecordMap, gradeRecords);
         
         for (Iterator iter = assignments.iterator(); iter.hasNext(); ) {
         	Assignment assignment = (Assignment)iter.next();
-        	assignment.calculateStatistics(gradeRecords, studentUids.size());
+        	assignment.calculateStatistics(gradeRecords);
         }
         
-        List courseGradeRecords = getPointsEarnedCourseGradeRecords(courseGrade, studentUids, assignments, gradeRecordMap);
+        List<CourseGradeRecord> courseGradeRecords = getPointsEarnedCourseGradeRecords(courseGrade, studentUids, assignments, gradeRecordMap);
         courseGrade.calculateStatistics(courseGradeRecords, studentUids.size());
         
         sortAssignments(assignments, sortBy, ascending);
@@ -619,8 +619,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	Assignment assignment = getAssignment(assignmentId);
     	Long gradebookId = assignment.getGradebook().getId();
         Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
-        List gradeRecords = getAssignmentGradeRecords(assignment, studentUids);
-        assignment.calculateStatistics(gradeRecords, studentUids.size());
+        List<AssignmentGradeRecord> gradeRecords = getAssignmentGradeRecords(assignment, studentUids);
+        assignment.calculateStatistics(gradeRecords);
         return assignment;
     }
 

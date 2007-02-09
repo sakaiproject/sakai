@@ -190,7 +190,7 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
         GradingScaleDefinition def = new GradingScaleDefinition();
         def.setUid("BettingScale");
         def.setName("Just One Grading Scale");
-        def.setGrades(Arrays.asList(new Object[] {"Win", "Draw", "Lose"}));
+        def.setGrades(Arrays.asList(new String[] {"Win", "Draw", "Lose"}));
         def.setDefaultBottomPercents(Arrays.asList(new Object[] {new Double(80), new Double(40), new Double(0)}));
         newMappings.add(def);
         gradebookFrameworkService.setAvailableGradingScales(newMappings);

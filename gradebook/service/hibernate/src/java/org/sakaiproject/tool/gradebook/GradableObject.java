@@ -147,36 +147,6 @@ public abstract class GradableObject implements Serializable {
         this.removed = removed;
     }
 
-    /**
-     * Calculates the mean score for all students on this GradableObject.
-     *
-     * @param gradeRecords The grade records for this gradable object
-     * @param numEnrollments The total number of enrollments in this gradebook
-     * to consider when calculating statistics
-     */
-    public void calculateStatistics(Collection gradeRecords, int numEnrollments) {
-        List grades = new ArrayList(); // Keep track of all of the grades (as Doubles)
-        for(Iterator gradeIter = gradeRecords.iterator(); gradeIter.hasNext();) {
-            AbstractGradeRecord record = (AbstractGradeRecord)gradeIter.next();
-            // Skip grade records that don't apply to this gradable object
-            if(!record.getGradableObject().equals(this)) {
-                continue;
-            }
-            grades.add(record.getGradeAsPercentage());
-        }
-        mean = calculateMean(grades, numEnrollments);
-    }
-
-    /**
-     * Calculates the mean value of the Double values passed.  The collection of
-     * grades contains Doubles and potentially nulls.
-     *
-     * @param grades A collection of grades as percentage values (Doubles)
-     *
-     * @return The mean of all entered grades
-     */
-    protected abstract Double calculateMean(Collection grades, int numEnrollments);
-
     public String toString() {
         return new ToStringBuilder(this).
         append("id", id).

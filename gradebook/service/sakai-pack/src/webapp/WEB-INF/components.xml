@@ -232,7 +232,9 @@
 
 		<!--
 			You could use a configuration like this to disable the plus-minus scale,
-			add a new scale, and change the name displayed for "Letter Grades".
+			add a new scale, change the name displayed for "Letter Grades" and their
+			default values, and add manual-only non-percentage mapped grades to the
+			"Pass / Not Pass" scale to allow for "I"ncompletes.
 		-->
 <!--
 		<property name="availableGradingScales">
@@ -286,6 +288,23 @@
 							<value>20.0</value>
 							<value>10.0</value>
 							<value>00.0</value>
+						</list>
+					</property>
+				</bean>
+				<bean class="org.sakaiproject.service.gradebook.shared.GradingScaleDefinition">
+					<property name="uid" value="PassNotPassMapping"/>
+					<property name="name" value="Pass / Not Pass"/>
+					<property name="grades">
+						<list>
+							<value>P</value>
+							<value>NP</value>
+							<value>I</value>
+						</list>
+					</property>
+					<property name="defaultBottomPercents">
+						<list>
+							<value>75.0</value>
+							<value>0.0</value>
 						</list>
 					</property>
 				</bean>

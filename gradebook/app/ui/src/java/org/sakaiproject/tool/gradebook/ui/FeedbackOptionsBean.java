@@ -36,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradingScale;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 /**
@@ -129,11 +130,15 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 		// Set up UI table view.
 		gradeRows = new ArrayList();
 		GradeMapping selectedGradeMapping = localGradebook.getSelectedGradeMapping();
+		GradingScale gradingScale = selectedGradeMapping.getGradingScale();
 		for (Iterator iter = selectedGradeMapping.getGrades().iterator(); iter.hasNext(); ) {
 			String grade = (String)iter.next();
-			// Until we support letter-only grades (such as "Incomplete")
-			// the bottom grade of every scale has an uneditable value of 0.
-			boolean editable = iter.hasNext();
+			
+			// Bottom grades (with a lower bound of 0%) and manual-only
+			// grades (which have no percentage equivalent) are not
+			// editable.
+			Double d = gradingScale.getDefaultBottomPercents().get(grade);
+			boolean editable = ((d != null) && (d.doubleValue() > 0.0));
 			gradeRows.add(new GradeRow(selectedGradeMapping, grade, editable));
 		}
 	}
@@ -194,21 +199,37 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 
 	private boolean isMappingValid(GradeMapping gradeMapping) {
 		boolean valid = true;
+		GradingScale scale = gradeMapping.getGradingScale();
 		Double previousPercentage = null;
 		for (Iterator iter = gradeMapping.getGrades().iterator(); iter.hasNext(); ) {
-            String grade = (String)iter.next();
-            Double percentage = (Double)gradeMapping.getValue(grade);
+			String grade = (String)iter.next();
+			Double percentage = (Double)gradeMapping.getValue(grade);
 			if (log.isDebugEnabled()) log.debug("checking percentage " + percentage + " for validity");
 
-			if (percentage == null) {
-				FacesUtil.addUniqueErrorMessage(getLocalizedString("feedback_options_require_all_values"));
-				valid = false;
-			} else if (percentage.doubleValue() < 0) {
-				FacesUtil.addUniqueErrorMessage(getLocalizedString("feedback_options_require_positive"));
-				valid = false;
-			} else if ((previousPercentage != null) && (previousPercentage.doubleValue() < percentage.doubleValue())) {
-				FacesUtil.addUniqueErrorMessage(getLocalizedString("feedback_options_require_descending_order"));
-				valid = false;
+			// Grades that are percentage-based need to remain percentage-based,
+			// be in descending order, and end with 0.
+			// Manual-only grades (which aren't associated with a percentage) always
+			// follow the lowest percentage-based grade, and must stay manual-only.
+			boolean manualOnly = (scale.getDefaultBottomPercents().get(grade) == null);
+
+			if (manualOnly) {
+				if (percentage != null) {
+					// This shouldn't happen, given the UI.
+					if (log.isErrorEnabled()) log.error("User " + getUserUid() + " attempted to set manual-only grade '" + grade + "' to be worth " + percentage + " percent");
+					percentage = null;
+					valid = false;
+				}
+			} else {
+				if (percentage == null) {
+					FacesUtil.addUniqueErrorMessage(getLocalizedString("feedback_options_require_all_values"));
+					valid = false;
+				} else if (percentage.doubleValue() < 0) {
+					FacesUtil.addUniqueErrorMessage(getLocalizedString("feedback_options_require_positive"));
+					valid = false;
+				} else if ((previousPercentage != null) && (previousPercentage.doubleValue() < percentage.doubleValue())) {
+					FacesUtil.addUniqueErrorMessage(getLocalizedString("feedback_options_require_descending_order"));
+					valid = false;
+				}
 			}
 			previousPercentage = percentage;
 		}

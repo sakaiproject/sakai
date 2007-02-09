@@ -22,10 +22,12 @@
 
 package org.sakaiproject.tool.gradebook;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * An Assignment is the basic unit that composes a gradebook.  It represents a
@@ -315,29 +317,29 @@ public class Assignment extends GradableObject {
     }
 
     /**
-     * returns the mean score for students with entered grades.
-	 */
-    protected Double calculateMean(Collection grades, int numEnrollments) {
-        if(grades == null || grades.size() == 0) {
-            return null;
-        }
-
-        // The numEnrollments argument is unused in this method.
-        // Only actually entered grades count towards the calculation.
+     * Calculate the mean score for students with entered grades.
+     */
+    public void calculateStatistics(Collection<AssignmentGradeRecord> gradeRecords) {
         int numScored = 0;
         double total = 0;
-        for(Iterator iter = grades.iterator(); iter.hasNext();) {
-            Double grade = (Double)iter.next();
-            if(grade == null) {
+        for (AssignmentGradeRecord record : gradeRecords) {
+            // Skip grade records that don't apply to this gradable object
+            if(!record.getGradableObject().equals(this)) {
                 continue;
             }
-            numScored++;
-            total += grade.doubleValue();
+            Double score = record.getGradeAsPercentage();
+            if (score == null) {
+            	continue;
+            } else {
+            	total += score.doubleValue();
+            	numScored++;
+            }
         }
         if (numScored == 0) {
-        	return null;
+        	mean = null;
+        } else {
+        	mean = new Double(total / numScored);
         }
-        return new Double(total / numScored);
     }
 }
 

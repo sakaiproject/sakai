@@ -33,14 +33,10 @@ import java.util.Set;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
-import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.LetterGradeMapping;
@@ -51,15 +47,14 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
  *
  */
 public class CalculationsTest extends TestCase {
-	private static final Log log = LogFactory.getLog(CalculationsTest.class);
-
-    private Gradebook gradebook;
+	private Gradebook gradebook;
     private CourseGrade courseGrade;
     private GradeMapping gradeMap;
     private Assignment homework1;
     private Assignment homework2;
     private Assignment homework3;
-    private List gradeRecords;
+    private List<AssignmentGradeRecord> gradeRecords;
+    private List<CourseGradeRecord> courseGradeRecords;
     private Set assignments;
 
 	protected void setUp() throws Exception {
@@ -90,7 +85,7 @@ public class CalculationsTest extends TestCase {
         gradeRecords = generateGradeRecords(homework1, 101);
         gradeRecords.addAll(generateGradeRecords(homework2, 101));
         gradeRecords.addAll(generateGradeRecords(homework3, 101));
-        gradeRecords.addAll(generateGradeRecords(courseGrade, 30));
+        courseGradeRecords = generateCourseGradeRecords(courseGrade, 30);
     }
 	
 	public static double getTotalPointsPossible(Collection assignments) {
@@ -117,7 +112,7 @@ public class CalculationsTest extends TestCase {
 	 * @throws Exception
 	 */
     public void testAssignmentStatisticsCalculation() throws Exception {
-        homework1.calculateStatistics(gradeRecords, 101);
+        homework1.calculateStatistics(gradeRecords);
 
         // 101 students, each getting from 0 to 100 points out of 200 possible = 25% average
         Assert.assertTrue(homework1.getMean().equals(new Double(25)));
@@ -129,7 +124,7 @@ public class CalculationsTest extends TestCase {
      * @throws Exception
      */
     public void testCourseGradeStatisticsCalculation() throws Exception {
-        courseGrade.calculateStatistics(gradeRecords, 30); // We generated 30 course grade records
+        courseGrade.calculateStatistics(courseGradeRecords, 30); // We generated 30 course grade records
 
         Double firstMean = courseGrade.getMean();
         // An equal number of A's B's and C's should lead to a mean grade of B
@@ -160,33 +155,49 @@ public class CalculationsTest extends TestCase {
     }
 
     /**
-     * Generates a list of grade records.  For assignment grade records, the
+     * Generates a list of assignment grade records. The
      * number of points earned is equal to the index of the grade record in the
-     * list.  For course grade records, the entered grade is equal to either 75,
-     * 85, or 95 percent.
+     * list.
      *
      * @param go The gradable object to assign to the generated records
      * @param gradeRecordsToGenerate The number of generate records to generate.
      *
      * @return A list of grade records
      */
-    private List generateGradeRecords(GradableObject go, int gradeRecordsToGenerate) {
-        String[] grades = {"A", "B", "C"};
-        List records = new ArrayList();
-        AbstractGradeRecord record;
+    private List<AssignmentGradeRecord> generateGradeRecords(Assignment go, int gradeRecordsToGenerate) {
+        List<AssignmentGradeRecord> records = new ArrayList<AssignmentGradeRecord>();
+        AssignmentGradeRecord record;
         // Add 101 records for the gradableObject
         for(int i = 0; i < gradeRecordsToGenerate; i++) {
-            if(go.isCourseGrade()) {
-                record = new CourseGradeRecord();
-                ((CourseGradeRecord)record).setEnteredGrade(grades[i%3]);
-            } else {
-                record = new AssignmentGradeRecord();
-                ((AssignmentGradeRecord)record).setPointsEarned(new Double(i));
-            }
+        	record = new AssignmentGradeRecord();
+        	record.setPointsEarned(new Double(i));
+        	record.setGradableObject(go);
+        	record.setStudentId("studentId");
+        	records.add(record);
+        }
+        return records;
+    }
 
-            record.setGradableObject(go);
-            record.setStudentId("studentId");
-            records.add(record);
+    /**
+     * Generates a list of course grade records. The entered grade is equal to 
+     * either 75, 85, or 95 percent.
+     *
+     * @param go The gradable object to assign to the generated records
+     * @param gradeRecordsToGenerate The number of generate records to generate.
+     *
+     * @return A list of grade records
+     */
+    private List<CourseGradeRecord> generateCourseGradeRecords(CourseGrade go, int gradeRecordsToGenerate) {
+        String[] grades = {"A", "B", "C"};
+        List<CourseGradeRecord> records = new ArrayList<CourseGradeRecord>();
+        CourseGradeRecord record;
+        // Add 101 records for the gradableObject
+        for(int i = 0; i < gradeRecordsToGenerate; i++) {
+        	record = new CourseGradeRecord();
+        	record.setEnteredGrade(grades[i%3]);
+        	record.setGradableObject(go);
+        	record.setStudentId("studentId");
+        	records.add(record);
         }
         return records;
     }
@@ -206,8 +217,8 @@ public class CalculationsTest extends TestCase {
 	public void testNullScoresNotAveraged() throws Exception {
 		Assignment asn = new Assignment(gradebook, "homework1", new Double(10), new Date());
 		int numEnrollments = 10;
-		List records = new ArrayList();
-		List courseRecords = new ArrayList();
+		List<AssignmentGradeRecord> records = new ArrayList<AssignmentGradeRecord>();
+		List<CourseGradeRecord> courseRecords = new ArrayList<CourseGradeRecord>();
 		for (int i = 0; i < numEnrollments; i++) {
 			Double score = (i == 0) ? asn.getPointsPossible() : null;
 			records.add(new AssignmentGradeRecord(asn, "student" + i, score));
@@ -219,18 +230,18 @@ public class CalculationsTest extends TestCase {
 			cgr.initNonpersistentFields(asn.getPointsPossible(), scoreVal);
 			courseRecords.add(cgr);
 		}
-		asn.calculateStatistics(records, numEnrollments);
+		asn.calculateStatistics(records);
 		Double mean = asn.getMean();
 		Assert.assertEquals(new Double(100), mean);
 		courseGrade.calculateStatistics(courseRecords, numEnrollments);
 		mean = courseGrade.getMean();
 		Assert.assertEquals(new Double(10), mean);
 
-		records = new ArrayList();
+		records = new ArrayList<AssignmentGradeRecord>();
 		for (int i = 0; i < numEnrollments; i++) {
 			records.add(new AssignmentGradeRecord(asn, "student" + i, null));
 		}
-		asn.calculateStatistics(records, numEnrollments);
+		asn.calculateStatistics(records);
 		mean = asn.getMean();
 		Assert.assertEquals(null, mean);
 	}

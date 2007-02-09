@@ -80,7 +80,7 @@ public class GradeMapping implements Serializable, Comparable {
 	 *
 	 * @return An (ordered) collection of the available grade values
 	 */
-	public Collection getGrades() {
+	public Collection<String> getGrades() {
 		return getGradingScale().getGrades();
 	}
 
@@ -89,7 +89,7 @@ public class GradeMapping implements Serializable, Comparable {
 	 * @return A List of the default grade values. Only used for backward
 	 * compatibility to pre-grading-scale mappings.
 	 */
-	public List getDefaultValues() {
+	public List<Double> getDefaultValues() {
 		throw new UnsupportedOperationException("getDefaultValues called for GradeMapping " + getName() + " in Gradebook " + getGradebook());
     }
 

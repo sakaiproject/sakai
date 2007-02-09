@@ -26,10 +26,13 @@ import java.util.*;
 
 import junit.framework.Assert;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
+import org.sakaiproject.tool.gradebook.CourseGrade;
+import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.GradingScale;
@@ -74,7 +77,7 @@ public class GradeMappingTest extends GradebookTestBase {
         GradingScaleDefinition def = new GradingScaleDefinition();
         def.setUid("LoseWinScale");
         def.setName("Win, Lose, or Draw");
-        def.setGrades(Arrays.asList(new Object[] {"Win", "Draw", "Lose"}));
+        def.setGrades(Arrays.asList(new String[] {"Win", "Draw", "Lose"}));
         def.setDefaultBottomPercents(Arrays.asList(new Object[] {new Double(80), new Double(40), new Double(0)}));
         newMappings.add(def);
 
@@ -141,7 +144,7 @@ public class GradeMappingTest extends GradebookTestBase {
         GradingScaleDefinition def = new GradingScaleDefinition();
         def.setUid("JustOneScale");
         def.setName("Just One Grading Scale");
-        def.setGrades(Arrays.asList(new Object[] {"Win", "Draw", "Lose"}));
+        def.setGrades(Arrays.asList(new String[] {"Win", "Draw", "Lose"}));
         def.setDefaultBottomPercents(Arrays.asList(new Object[] {new Double(80), new Double(40), new Double(0)}));
         newMappings.add(def);
         gradebookFrameworkService.setAvailableGradingScales(newMappings);
@@ -159,4 +162,100 @@ public class GradeMappingTest extends GradebookTestBase {
     	Assert.assertTrue(gradeMapping.getName().equals(def.getName()));
     }
 
+    public void testManualOnlyGrades() throws Exception {
+    	String scaleUid = "TheNineties";
+    	List<GradingScaleDefinition> newMappings = new ArrayList<GradingScaleDefinition>();
+    	GradingScaleDefinition def = new GradingScaleDefinition();
+    	def.setUid(scaleUid);
+    	def.setName("Nineties Grading");
+    	def.setGrades(Arrays.asList(new String[] {"Wicked", "Slacker", "Whatever", "Whoa", "As If"}));
+    	def.setDefaultBottomPercents(Arrays.asList(new Object[] {new Double(100), new Double(0), null, "", null}));
+    	newMappings.add(def);
+    	gradebookFrameworkService.setAvailableGradingScales(newMappings);
+    	gradebookFrameworkService.setDefaultGradingScale(scaleUid);
+
+    	String gradebookUid = "ManualGB";
+    	gradebookFrameworkService.addGradebook(gradebookUid, gradebookUid);
+    	integrationSupport.createCourse(gradebookUid, gradebookUid, false, false, false);
+    	Gradebook gradebook = gradebookManager.getGradebook(gradebookUid);
+    	GradeMapping gradeMapping = gradebook.getSelectedGradeMapping();
+    	Assert.assertTrue(gradeMapping.getName().equals(def.getName()));
+
+    	// Make sure the ordering sticks.
+    	Collection<String> grades = gradeMapping.getGrades();
+    	int pos = 0;
+    	for (String grade : grades) {
+    		Assert.assertTrue(grade.equals(def.getGrades().get(pos++)));
+    	}
+
+    	// Make sure we get the right bottom grade.
+    	String grade = gradeMapping.getGrade(1.0);
+    	Assert.assertTrue(grade.equals("Slacker"));
+    	grade = gradeMapping.getGrade(0.0);
+    	Assert.assertTrue(grade.equals("Slacker"));
+
+    	// To make testing dead-simple, we make student UIDs equal to
+    	// the grades we intent to give them.
+    	Set<String> students = new HashSet<String>(def.getGrades());
+    	addUsersEnrollments(gradebook, students);
+
+    	CourseGrade courseGrade = gradebookManager.getCourseGrade(gradebook.getId());
+    	List<CourseGradeRecord> gradeRecords = new ArrayList<CourseGradeRecord>();
+    	for (String studentAndGrade : students) {
+    		CourseGradeRecord record = new CourseGradeRecord(courseGrade, studentAndGrade);
+    		record.setEnteredGrade(studentAndGrade);
+    		gradeRecords.add(record);
+    	}
+    	gradebookManager.updateCourseGradeRecords(courseGrade, gradeRecords);
+
+    	// Make sure we can assign a manual-only grade to a student.
+    	CourseGradeRecord gradeRecord = gradebookManager.getStudentCourseGradeRecord(gradebook, "Whoa");
+    	log.warn("For Whoa, gradeRecord=" + gradeRecord);
+    	log.warn("  entered=" + gradeRecord.getEnteredGrade() + ", display=" + gradeRecord.getDisplayGrade());
+    	Assert.assertTrue(gradeRecord.getDisplayGrade().equals("Whoa"));
+
+    	// Test the sorting of assigned grades. Need to make sure that the manual-only
+    	// entered grades keep their positions relative to the bottom of the grading scale.
+    	gradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, students);
+
+    	//  a) Shuffle the records by sorting them alphabetically.
+    	Comparator<CourseGradeRecord> comparator = new Comparator<CourseGradeRecord>() {
+    		public int compare(CourseGradeRecord cgr1, CourseGradeRecord cgr2) {
+    			return cgr1.getStudentId().compareTo(cgr2.getStudentId());
+    		}
+    	};
+    	Collections.sort(gradeRecords, comparator);
+    	Assert.assertTrue(gradeRecords.get(0).getStudentId().equals("As If"));
+
+    	//  b) Now try the "override grade" sort, which should be percentage based except
+    	//     for the manual-only grades.
+    	Collections.sort(gradeRecords, CourseGradeRecord.getOverrideComparator(gradeMapping));
+    	Collections.reverse(gradeRecords);	// Grading scale is highest to lowest.
+    	pos = 0;
+    	for (String gradeCode : grades) {
+    		log.warn("pos=" + pos + ", gradeCode=" + gradeCode + ", record=" + gradeRecords.get(pos).getDisplayGrade());
+    		Assert.assertTrue(gradeCode.equals(gradeRecords.get(pos++).getDisplayGrade()));
+    	}
+
+    	// Make sure we can't accidentally get a letter grade from a null input.
+    	grade = gradeMapping.getGrade(null);
+    	Assert.assertTrue(grade == null);
+    	
+    	// Make sure manual-only grades aren't included in calculating the average course grade,
+    	// but that null (calculated) grades are.
+    	List<CourseGradeRecord> newGradeRecords = new ArrayList<CourseGradeRecord>();
+    	gradeRecord = gradeRecords.remove(0);
+    	gradeRecord.setEnteredGrade("Wicked");	// Worth 100%
+    	newGradeRecords.add(gradeRecord);
+    	gradeRecord = gradeRecords.remove(0);
+    	gradeRecord.setEnteredGrade(null);	// Worth 0
+    	newGradeRecords.add(gradeRecord);
+    	for (CourseGradeRecord record : gradeRecords) {
+    		record.setEnteredGrade("Whatever");	// Manual-only
+    		newGradeRecords.add(record);
+    	}
+    	gradebookManager.updateCourseGradeRecords(courseGrade, newGradeRecords);
+    	gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, students);
+    	Assert.assertTrue(courseGrade.getMean() == 50.0);
+    }
 }

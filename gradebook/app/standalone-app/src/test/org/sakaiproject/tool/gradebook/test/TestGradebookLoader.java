@@ -23,11 +23,13 @@
 package org.sakaiproject.tool.gradebook.test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.component.section.support.IntegrationSupport;
 import org.sakaiproject.component.section.support.UserManager;
+import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
@@ -57,8 +59,46 @@ public class TestGradebookLoader extends GradebookLoaderBase {
 	public void setIntegrationSupport(IntegrationSupport integrationSupport) {
 		this.integrationSupport = integrationSupport;
 	}
+	
+	private void loadGradingScales() {
+    	List<GradingScaleDefinition> newMappings = new ArrayList<GradingScaleDefinition>();
+    	GradingScaleDefinition def;
+ 
+    	def = new GradingScaleDefinition();
+    	def.setUid("LetterGradePlusMinusMapping");
+    	def.setName("Letter Grades with +/-");
+    	def.setGrades(Arrays.asList(new String[] {"A+", "A", "A-", "B+", 
+    			"B", "B-", "C+", "C", 
+    			"C-", "D+", "D", "D-", 
+    			"F", "I", "NR"}));
+    	def.setDefaultBottomPercents(Arrays.asList(new Object[] {new Double(100.0), new Double(95.0), new Double(90.0), new Double(87.0), 
+    			new Double(83.0), new Double(80.0), new Double(77.0), new Double(73.0), 
+    			new Double(70.0), new Double(67.0), new Double(63.0), new Double(60.0), 
+    			new Double(0), null, null}));
+    	newMappings.add(def);
+    	 
+    	def = new GradingScaleDefinition();
+    	def.setUid("LetterGradeMapping");
+    	def.setName("Letter Grades");
+    	def.setGrades(Arrays.asList(new String[] {"A", "B", "C", "D", "F", "I"}));
+    	def.setDefaultBottomPercents(Arrays.asList(new Object[] {new Double(90.0), new Double(80.0), new Double(70.0), new Double(60.0), new Double(0), null}));
+    	newMappings.add(def);
+
+    	def = new GradingScaleDefinition();
+    	def.setUid("PassNotPassMapping");
+    	def.setName("Pass / Not Pass");
+    	def.setGrades(Arrays.asList(new String[] {"P", "NP"}));
+    	def.setDefaultBottomPercents(Arrays.asList(new Object[] {new Double(75), new Double(0)}));
+    	newMappings.add(def);
+
+    	gradebookFrameworkService.setAvailableGradingScales(newMappings);
+    	gradebookFrameworkService.setDefaultGradingScale("LetterGradePlusMinusMapping");
+
+	}
 
 	public void testLoadGradebooks() throws Exception {
+		loadGradingScales();
+		
         List gradebooks = new ArrayList();
         List gradebookUids = new ArrayList();
 
@@ -97,5 +137,3 @@ public class TestGradebookLoader extends GradebookLoaderBase {
         setComplete();
 	}
 }
-
-

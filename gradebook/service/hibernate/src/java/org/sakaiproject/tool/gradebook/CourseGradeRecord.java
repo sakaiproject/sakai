@@ -23,6 +23,7 @@
 package org.sakaiproject.tool.gradebook;
 
 import java.util.Comparator;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -36,14 +37,11 @@ public class CourseGradeRecord extends AbstractGradeRecord {
     private Double autoCalculatedGrade;  // Not persisted
     private Double calculatedPointsEarned;	// Not persisted
 
-    public static Comparator calcComparator;
+    public static Comparator<CourseGradeRecord> calcComparator;
 
     static {
-        calcComparator = new Comparator() {
-            public int compare(Object o1, Object o2) {
-                CourseGradeRecord cgr1 = (CourseGradeRecord)o1;
-                CourseGradeRecord cgr2 = (CourseGradeRecord)o2;
-
+        calcComparator = new Comparator<CourseGradeRecord>() {
+            public int compare(CourseGradeRecord cgr1, CourseGradeRecord cgr2) {
                 if(cgr1 == null && cgr2 == null) {
                     return 0;
                 }
@@ -58,11 +56,9 @@ public class CourseGradeRecord extends AbstractGradeRecord {
         };
     }
 
-    public static Comparator getOverrideComparator(final GradeMapping mapping) {
-        return new Comparator() {
-            public int compare(Object o1, Object o2) {
-                CourseGradeRecord cgr1 = (CourseGradeRecord)o1;
-                CourseGradeRecord cgr2 = (CourseGradeRecord)o2;
+    public static Comparator<CourseGradeRecord> getOverrideComparator(final GradeMapping mapping) {
+        return new Comparator<CourseGradeRecord>() {
+            public int compare(CourseGradeRecord cgr1, CourseGradeRecord cgr2) {
 
                 if(cgr1 == null && cgr2 == null) {
                     return 0;
@@ -76,17 +72,17 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 
                 String enteredGrade1 = StringUtils.trimToEmpty(cgr1.getEnteredGrade());
                 String enteredGrade2 = StringUtils.trimToEmpty(cgr2.getEnteredGrade());
-
-                if(!mapping.getGrades().contains(enteredGrade1) && !mapping.getGrades().contains(enteredGrade2)) {
-                    return 0; // neither of these are valid grades (they are probably empty strings)
+                
+                // Grading scales are always defined in descending order.
+                List<String> grades = mapping.getGradingScale().getGrades();
+                int gradePos1 = -1;
+                int gradePos2 = -1;
+                for (int i = 0; (i < grades.size()) && ((gradePos1 == -1) || (gradePos2 == -1)); i++) {
+                	String grade = grades.get(i);
+                	if (grade.equals(enteredGrade1)) gradePos1 = i;
+                	if (grade.equals(enteredGrade2)) gradePos2 = i;
                 }
-                if(!mapping.getGrades().contains(enteredGrade1)) {
-                    return -1;
-                }
-                if(!mapping.getGrades().contains(enteredGrade2)) {
-                    return 1;
-                }
-                return mapping.getValue(enteredGrade1).compareTo(mapping.getValue(enteredGrade2));
+                return gradePos2 - gradePos1;
             }
         };
 
