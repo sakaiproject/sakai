@@ -21,9 +21,9 @@
 <module>portal-render-impl/pack</module>
 <module>portal-service-impl/impl</module>
 <module>portal-service-impl/pack</module>
-<module>portal-tool/tool</module>
+<module>portal-tool/tool</module> 
 <module>portal-util/util</module>
 <module>portal-shared-deploy</module>
-<module>portal-portlet-tool/tool</module>
+<!-- <module>portal-portlet-tool/tool</module> -->
  </modules>
 </project>
