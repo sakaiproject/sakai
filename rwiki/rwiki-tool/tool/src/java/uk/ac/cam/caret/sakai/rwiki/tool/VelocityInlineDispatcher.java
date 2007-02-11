@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.RuntimeConstants;
 import org.sakaiproject.util.Web;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ResourceLoaderBean;
@@ -91,6 +90,8 @@ public class VelocityInlineDispatcher implements Dispatcher
 		{
 			vengine.getTemplate(inlineMacros);
 			String filePath = path + ".vm";
+			response.setContentType("text/html");
+			response.setCharacterEncoding("UTF-8");
 			vengine.mergeTemplate(filePath,
 					vcontext,
 					response.getWriter());
