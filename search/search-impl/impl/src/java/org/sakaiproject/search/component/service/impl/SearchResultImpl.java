@@ -191,7 +191,7 @@ public class SearchResultImpl implements SearchResult
 					Entity entity = ref.getEntity();
 					EntityContentProducer sep = searchIndexBuilder
 							.newEntityContentProducer(ref);
-					sb.append(sep.getContent(entity,0));
+					sb.append(sep.getContent(entity));
 				}
 			}
 

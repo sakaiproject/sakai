@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
@@ -33,6 +34,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.component.adapter.util.DigestHtml;
+import org.sakaiproject.util.StringUtil;
 import org.w3c.tidy.Tidy;
 
 /**
@@ -42,32 +44,32 @@ public class HtmlContentDigester extends BaseContentDigester
 {
 	private static Log log = LogFactory.getLog(HtmlContentDigester.class);
 
-	private boolean useRegexParser = true;
+	private boolean useDirectParser = true;
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.sakaiproject.search.component.adapter.contenthosting.ContentDigester#getContent(org.sakaiproject.content.api.ContentResource)
 	 */
-	public String getContent(ContentResource contentResource, int minWordLength)
+	public String getContent(ContentResource contentResource)
 
 	{
 		if (contentResource != null && contentResource.getContentLength() > maxDigestSize)
 		{
 			throw new RuntimeException("Attempt to get too much content as a string on " + contentResource.getReference());
 		}
-		if (useRegexParser)
+		if (useDirectParser)
 		{
 			try
 			{
-				String content = new String(contentResource.getContent());
-				StringBuffer sb = new StringBuffer();
-				for (Iterator<String> i = new RegexParser(content); i.hasNext();)
+				String content = new String(contentResource.getContent(),"UTF-8");
+				StringBuilder sb = new StringBuilder();
+				for (Iterator<String> i = new HTMLParser(content); i.hasNext();)
 				{
 					String s = i.next();
 					if (s.length() > 0)
 					{
-						SearchUtils.filterWordLength(s, sb, minWordLength);
+						SearchUtils.appendCleanString(s, sb);
 					}
 				}
 				return sb.toString();
@@ -76,6 +78,10 @@ public class HtmlContentDigester extends BaseContentDigester
 			{
 				throw new RuntimeException("Failed get Resource Content ", ex);
 
+			}
+			catch (UnsupportedEncodingException e)
+			{
+				throw new RuntimeException("Failed get Resource Content ", e);
 			}
 		}
 		else
@@ -94,13 +100,17 @@ public class HtmlContentDigester extends BaseContentDigester
 				tidy.setOnlyErrors(true);
 				tidy.parse(contentStream, baos);
 
-				String tidyOut = SearchUtils.getCleanString(new String(baos.toByteArray()), minWordLength);
+				String tidyOut = SearchUtils.appendCleanString(new String(baos.toByteArray(),"UTF-8"),null).toString();
 				log.info(contentResource.getReference() + " Tidy Output was " + tidyOut);
 				log.debug("Tidy Output was " + tidyOut);
 				return DigestHtml.digest(tidyOut);
 
 			}
 			catch (ServerOverloadException e)
+			{
+				throw new RuntimeException("Failed get Resource Content ", e);
+			}
+			catch (UnsupportedEncodingException e)
 			{
 				throw new RuntimeException("Failed get Resource Content ", e);
 			}
@@ -135,9 +145,9 @@ public class HtmlContentDigester extends BaseContentDigester
 	 * 
 	 * @see org.sakaiproject.search.component.adapter.contenthosting.ContentDigester#getContentReader(org.sakaiproject.content.api.ContentResource, int)
 	 */
-	public Reader getContentReader(ContentResource contentResource, int minWordlength)
+	public Reader getContentReader(ContentResource contentResource)
 	{
 		// TODO Auto-generated method stub
-		return new StringReader(getContent(contentResource, minWordlength));
+		return new StringReader(getContent(contentResource));
 	}
 }

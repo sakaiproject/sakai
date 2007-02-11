@@ -49,6 +49,7 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.component.Messages;
+import org.sakaiproject.search.component.adapter.contenthosting.HTMLParser;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
 /**
@@ -129,22 +130,15 @@ public class MessageContentProducer implements EntityContentProducer
 	/**
 	 * {@inheritDoc}
 	 */
-	public Reader getContentReader(Entity cr, int minWordLength)
-	{
-		return new StringReader(getContent(cr,minWordLength));
-	}
 	public Reader getContentReader(Entity cr)
 	{
 		return new StringReader(getContent(cr));
-	}
-	public String getContent(Entity cr) {
-		return getContent(cr,3);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getContent(Entity cr, int minWordLength)
+	public String getContent(Entity cr)
 	{
 		Reference ref = entityManager.newReference(cr.getReference());
 		EntityProducer ep = ref.getEntityProducer();
@@ -156,14 +150,16 @@ public class MessageContentProducer implements EntityContentProducer
 				MessageService ms = (MessageService) ep;
 				Message m = ms.getMessage(ref);
 				MessageHeader mh = m.getHeader();
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				Class c = mh.getClass();
 				try
 				{
 					Method getSubject = c.getMethod("getSubject", //$NON-NLS-1$
 							new Class[] {});
 					Object o = getSubject.invoke(mh, new Object[] {});
-					sb.append(Messages.getString("MessageContentProducer.5")).append(o.toString()).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+					sb.append(Messages.getString("MessageContentProducer.5"));
+					SearchUtils.appendCleanString(o.toString(),sb);
+					sb.append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				catch (Exception ex)
 				{
@@ -172,17 +168,18 @@ public class MessageContentProducer implements EntityContentProducer
 				}
 
 				sb.append(Messages.getString("MessageContentProducer.3")); //$NON-NLS-1$
-				sb.append(Messages.getString("MessageContentProducer.4")).append(mh.getFrom().getDisplayName()) //$NON-NLS-1$
-						.append("\n"); //$NON-NLS-1$
+				sb.append(Messages.getString("MessageContentProducer.4"));
+				SearchUtils.appendCleanString(mh.getFrom().getDisplayName(),sb); //$NON-NLS-1$
+				sb.append("\n"); //$NON-NLS-1$
 				sb.append(Messages.getString("MessageContentProducer.11")); //$NON-NLS-1$
 				String mBody = m.getBody();
 
-				mBody = mBody.replaceAll("\\s+", " "); //$NON-NLS-1$ //$NON-NLS-2$
-				mBody = mBody.replaceAll("<!--.*?-->", ""); //$NON-NLS-1$ //$NON-NLS-2$
-				mBody = mBody.replaceAll("&.*?;", ""); //$NON-NLS-1$ //$NON-NLS-2$
-				mBody = mBody.replaceAll("<.*?>", ""); //$NON-NLS-1$ //$NON-NLS-2$
-
-				sb.append(mBody).append("\n"); //$NON-NLS-1$
+				for ( HTMLParser hp = new HTMLParser(mBody); hp.hasNext(); ) {
+					SearchUtils.appendCleanString(hp.next(), sb);
+					sb.append(" ");
+				}
+				
+				sb.append("\n"); //$NON-NLS-1$
 				log.debug("Message Content for " + cr.getReference() + " is " //$NON-NLS-1$ //$NON-NLS-2$
 						+ sb.toString());
 
@@ -207,7 +204,7 @@ public class MessageContentProducer implements EntityContentProducer
 					}
 				}
 
-				return SearchUtils.getCleanString(sb.toString(), minWordLength);
+				return sb.toString();
 			}
 			catch (IdUnusedException e)
 			{
@@ -251,7 +248,7 @@ public class MessageContentProducer implements EntityContentProducer
 
 				String title = subject + Messages.getString("MessageContentProducer.36") //$NON-NLS-1$
 						+ mh.getFrom().getDisplayName();
-				return SearchUtils.getCleanString(title,3);
+				return SearchUtils.appendCleanString(title,null).toString();
 
 			}
 			catch (IdUnusedException e)

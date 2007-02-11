@@ -44,7 +44,7 @@ public class PPTContentDigester extends BaseContentDigester
 	 * @see org.sakaiproject.search.component.adapter.contenthosting.BaseContentDigester#getContent(org.sakaiproject.content.api.ContentResource)
 	 */
 	
-	public String getContent(ContentResource contentResource, int minWordLength)
+	public String getContent(ContentResource contentResource)
 	{
 		if ( contentResource != null && 
 				contentResource.getContentLength() > maxDigestSize  ) {
@@ -56,10 +56,11 @@ public class PPTContentDigester extends BaseContentDigester
 		{
 			contentStream = contentResource.streamContent();
 			PowerPointExtractor pptExtractor = new PowerPointExtractor(contentStream);
-			StringBuffer sb = new StringBuffer();
-			sb.append(pptExtractor.getText()).append(" ").append(
-					pptExtractor.getNotes());
-			return SearchUtils.getCleanString(sb.toString(),minWordLength);
+			StringBuilder sb = new StringBuilder();
+			SearchUtils.appendCleanString(pptExtractor.getText(), sb);
+			sb.append(" ");
+			SearchUtils.appendCleanString(pptExtractor.getNotes(), sb);
+			return sb.toString();
 		}
 		catch (Exception e)
 		{
@@ -87,9 +88,9 @@ public class PPTContentDigester extends BaseContentDigester
 	 * @see org.sakaiproject.search.component.adapter.contenthosting.BaseContentDigester#getContentReader(org.sakaiproject.content.api.ContentResource)
 	 */
 	
-	public Reader getContentReader(ContentResource contentResource, int minWordLength)
+	public Reader getContentReader(ContentResource contentResource)
 	{
-		return new StringReader(getContent(contentResource,minWordLength));
+		return new StringReader(getContent(contentResource));
 	}
 
 }

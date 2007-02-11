@@ -41,7 +41,7 @@ public class DefaultFullContentDigester extends DefaultContentDigester
 	
 	private int maxDigestSize = 1024 * 1024 * 5; // 5M
 
-	public String getContent(ContentResource contentResource, int minWordLenght)
+	public String getContent(ContentResource contentResource)
 	{
 		if ( contentResource != null && !isBinary(contentResource) &&  
 				contentResource.getContentLength() > maxDigestSize ) {
@@ -49,16 +49,7 @@ public class DefaultFullContentDigester extends DefaultContentDigester
 		}
 		try
 		{
-			char[] content = (new String(contentResource.getContent()))
-					.toCharArray();
-			for (int i = 0; i < content.length; i++)
-			{
-				if (!Character.isLetterOrDigit(content[i]))
-				{
-					content[i] = ' ';
-				}
-			}
-			return SearchUtils.getCleanString(new String(content),minWordLenght);
+			return SearchUtils.appendCleanString(new String(contentResource.getContent(),"UTF-8"), null).toString();
 		}
 		catch (Exception e)
 		{
@@ -66,7 +57,7 @@ public class DefaultFullContentDigester extends DefaultContentDigester
 		}
 	}
 
-	public Reader getContentReader(ContentResource contentResource,int minWordLength)
+	public Reader getContentReader(ContentResource contentResource)
 	{ 
  		InputStream contentStream = null;
  		// we dont close this as its used to stream,

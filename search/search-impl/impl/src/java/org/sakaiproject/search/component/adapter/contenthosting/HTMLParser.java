@@ -21,9 +21,11 @@
 
 package org.sakaiproject.search.component.adapter.contenthosting;
 
-import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Properties;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,23 +33,30 @@ import org.apache.commons.logging.LogFactory;
 /**
  * @author ieb
  */
-public class RegexParser implements Iterator<String>
+public class HTMLParser implements Iterator<String>
 {
-	private static Log log = LogFactory.getLog(RegexParser.class);
+	private static Log log = LogFactory.getLog(HTMLParser.class);
 
 	private static final char[][] IGNORE_TAGS = new char[][] { "script".toCharArray(), "head".toCharArray(), "style".toCharArray() };
 
 	private static final String PAD = "                                                                                                                   ";
 
-	private static final Properties entities = new Properties();
+	private static final Map<String,String> entities = new HashMap<String,String>();
 
 	static
 	{
 		try
 		{
-			InputStream is = RegexParser.class.getResourceAsStream("/org/sakaiproject/search/component/bundle/htmlentities.properties");
-			entities.load(is);
-			is.close();
+			BufferedReader br = new BufferedReader(new InputStreamReader(HTMLParser.class
+					.getResourceAsStream("/org/sakaiproject/search/component/bundle/htmlentities.properties")));
+			for ( String line = br.readLine(); line != null; line = br.readLine() ) {
+				if ( !line.startsWith("#") )   {
+				String[] parts = line.split("=");
+				char code = (char) Integer.parseInt(parts[1]);
+					entities.put(parts[0], new String(new char[] { code }));
+				}
+			}
+			br.close();
 		}
 		catch (Exception ex)
 		{
@@ -71,7 +80,7 @@ public class RegexParser implements Iterator<String>
 
 	private int last = 0;
 
-	public RegexParser(String content)
+	public HTMLParser(String content)
 	{
 		cbuf = content.toCharArray();
 		current = 0;
@@ -219,53 +228,61 @@ public class RegexParser implements Iterator<String>
 		String t = "";
 		if (notxml || !ignoreBefore)
 		{
-			StringBuilder sb = new StringBuilder();
-			for (int i = last; i < current; i++)
+			if (true)
 			{
-				if (cbuf[i] == '&')
+				StringBuilder sb = new StringBuilder();
+
+				for (int i = last; i < current; i++)
 				{
-					if (cbuf[i + 1] == '#')
+					if (cbuf[i] == '&')
 					{
-						for (int j = i; j < current; j++)
+						if (cbuf[i + 1] == '#')
 						{
-							if (cbuf[j] == ';')
+							for (int j = i; j < current; j++)
 							{
-								String entity = new String(cbuf, i + 2, j - (i + 2));
-								sb.append((char) Integer.decode(entity).intValue());
-								i = j;
-								break;
+								if (cbuf[j] == ';')
+								{
+									String entity = new String(cbuf, i + 2, j - (i + 2));
+									sb.append((char) Integer.decode(entity).intValue());
+									i = j;
+									break;
+								}
+							}
+						}
+						else
+						{
+							for (int j = i; j < current; j++)
+							{
+								if (cbuf[j] == ';')
+								{
+
+									String entity = new String(cbuf, i, j - i + 1);
+									String s = (String) entities.get(entity);
+									if (s == null)
+									{
+										s = entity;
+									}
+									else if (s.length() > 0)
+									{
+										sb.append(s.charAt(0));
+									}
+									i = j;
+									break;
+								}
 							}
 						}
 					}
 					else
 					{
-						for (int j = i; j < current; j++)
-						{
-							if (cbuf[j] == ';')
-							{
-
-								String entity = new String(cbuf, i, j - i + 1);
-								String s = (String) entities.get(entity);
-								if (s == null)
-								{
-									s = entity;
-								}
-								else if (s.length() > 1)
-								{
-									sb.append(s.charAt(1));
-								}
-								i = j;
-								break;
-							}
-						}
+						sb.append(cbuf[i]);
 					}
 				}
-				else
-				{
-					sb.append(cbuf[i]);
-				}
+				t = sb.toString();
 			}
-			t = sb.toString();
+			else
+			{
+				t = new String(cbuf, last, current - last);
+			}
 		}
 		last = tagend + 1;
 		current = last;

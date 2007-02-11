@@ -39,13 +39,13 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
+import org.sakaiproject.search.component.adapter.contenthosting.HTMLParser;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RenderService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiEntity;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
-import uk.ac.cam.caret.sakai.rwiki.utils.DigestHtml;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 
 public class RWikiEntityContentProducer implements EntityContentProducer
@@ -113,19 +113,13 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 	{
 		return false;
 	}
-	public Reader getContentReader(Entity cr, int minWordLength) {
-		return null;
-	}
 
 	public Reader getContentReader(Entity cr)
 	{
 		return null;
 	}
-	public String getContent(Entity cr) {
-		return getContent(cr,3);
-	}
 
-	public String getContent(Entity cr, int minWordLength)
+	public String getContent(Entity cr)
 	{
 		RWikiEntity rwe = (RWikiEntity) cr;
 		RWikiObject rwo = rwe.getRWikiObject();
@@ -133,8 +127,11 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		String pageSpace = NameHelper.localizeSpace(pageName, rwo.getRealm());
 		String renderedPage = renderService.renderPage(rwo, pageSpace,
 				objectService.getComponentPageLinkRender(pageSpace));
-
-		return SearchUtils.getCleanString(DigestHtml.digest(renderedPage),minWordLength);
+		StringBuilder sb = new StringBuilder();
+		for ( HTMLParser hp = new HTMLParser(renderedPage); hp.hasNext(); ) {
+			SearchUtils.appendCleanString(hp.next(), sb);
+		}
+		return sb.toString();
 
 	}
 
@@ -142,7 +139,7 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 	{
 		RWikiEntity rwe = (RWikiEntity) cr;
 		RWikiObject rwo = rwe.getRWikiObject();
-		return SearchUtils.getCleanString(rwo.getName(),3);
+		return SearchUtils.appendCleanString(rwo.getName(),null).toString();
 	}
 
 	public boolean matches(Reference ref)

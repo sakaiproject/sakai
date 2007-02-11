@@ -45,7 +45,7 @@ public class WordContentDigester extends BaseContentDigester
 	 * @see org.sakaiproject.search.component.adapter.contenthosting.BaseContentDigester#getContent(org.sakaiproject.content.api.ContentResource)
 	 */
 	
-	public String getContent(ContentResource contentResource,int minWordLength)
+	public String getContent(ContentResource contentResource)
 	{
 		if ( contentResource != null && 
 				contentResource.getContentLength() > maxDigestSize  ) {
@@ -57,12 +57,13 @@ public class WordContentDigester extends BaseContentDigester
 			contentStream = contentResource.streamContent();
 			WordExtractor wordExtractor = new WordExtractor(contentStream);
 			String[] paragraphs = wordExtractor.getParagraphText();
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < paragraphs.length; i++)
 			{
-				sb.append(paragraphs[i]).append(" ");
+				SearchUtils.appendCleanString(paragraphs[i],sb);
+				sb.append(" ");
 			}
-			return SearchUtils.getCleanString(sb.toString(),minWordLength);
+			return sb.toString();
 		}
 		catch (Exception e)
 		{
@@ -90,9 +91,9 @@ public class WordContentDigester extends BaseContentDigester
 	 * @see org.sakaiproject.search.component.adapter.contenthosting.BaseContentDigester#getContentReader(org.sakaiproject.content.api.ContentResource)
 	 */
 	
-	public Reader getContentReader(ContentResource contentResource, int minWordLength)
+	public Reader getContentReader(ContentResource contentResource)
 	{
-		return new StringReader(getContent(contentResource,minWordLength));
+		return new StringReader(getContent(contentResource));
 	}
 
 }

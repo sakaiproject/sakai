@@ -171,11 +171,8 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		return false;
 	}
 
-	public Reader getContentReader(Entity cr) {
-		return getContentReader(cr,3);
-	}
 
-	public Reader getContentReader(Entity cr, int minWordLength)
+	public Reader getContentReader(Entity cr)
 	{
 		ContentResource contentResource;
 		try
@@ -195,7 +192,7 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		Reader reader = null;
 		try
 		{
-			reader = digester.getContentReader(contentResource,minWordLength);
+			reader = digester.getContentReader(contentResource);
 		}
 		catch (Exception ex)
 		{
@@ -204,7 +201,7 @@ public class ContentHostingContentProducer implements EntityContentProducer
 			{
 				try
 				{
-					reader = defaultDigester.getContentReader(contentResource,minWordLength);
+					reader = defaultDigester.getContentReader(contentResource);
 				}
 				catch (Exception ex2)
 				{
@@ -248,7 +245,7 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		String content = null;
 		try
 		{
-			content = digester.getContent(contentResource,minWordLenght);
+			content = digester.getContent(contentResource);
 		}
 		catch (Exception ex)
 		{
@@ -257,7 +254,7 @@ public class ContentHostingContentProducer implements EntityContentProducer
 			{
 				try
 				{
-					content = defaultDigester.getContent(contentResource,minWordLenght);
+					content = defaultDigester.getContent(contentResource);
 				}
 				catch (Exception ex2)
 				{

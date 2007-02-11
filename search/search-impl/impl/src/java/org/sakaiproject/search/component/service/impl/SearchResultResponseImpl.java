@@ -195,7 +195,7 @@ public class SearchResultResponseImpl implements SearchResult
 			Entity entity = ref.getEntity();
 			EntityContentProducer sep = searchIndexBuilder
 					.newEntityContentProducer(ref);
-			sb.append(sep.getContent(entity,0));
+			sb.append(sep.getContent(entity));
 
 			String text = StringUtils.escapeHtml(sb.toString(), false);
 			TokenStream tokenStream = analyzer.tokenStream(

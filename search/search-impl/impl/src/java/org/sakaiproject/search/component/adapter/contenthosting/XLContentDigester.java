@@ -48,7 +48,7 @@ public class XLContentDigester extends BaseContentDigester
 	 * @see org.sakaiproject.search.component.adapter.contenthosting.BaseContentDigester#getContent(org.sakaiproject.content.api.ContentResource)
 	 */
 	
-	public String getContent(ContentResource contentResource,int minWordLength)
+	public String getContent(ContentResource contentResource)
 	{
 		if ( contentResource != null && 
 				contentResource.getContentLength() > maxDigestSize  ) {
@@ -59,7 +59,7 @@ public class XLContentDigester extends BaseContentDigester
 		{
 			contentStream = contentResource.streamContent();
 			HSSFWorkbook workbook = new HSSFWorkbook(contentStream);
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			int nsheets = workbook.getNumberOfSheets();
 
 			for (int i = 0; i < nsheets; i++)
@@ -76,11 +76,12 @@ public class XLContentDigester extends BaseContentDigester
 					{
 						HSSFCell cell = row.getCell(c);
 						HSSFRichTextString cstr = cell.getRichStringCellValue();
-						sb.append(cstr.getString()).append(" ");
+						SearchUtils.appendCleanString(cstr.getString(),sb);
+						sb.append(" ");
 					}
 				}
 			}
-			return SearchUtils.getCleanString(sb.toString(),minWordLength);
+			return sb.toString();
 		}
 		catch (Exception e)
 		{
@@ -109,9 +110,9 @@ public class XLContentDigester extends BaseContentDigester
 	 * @see org.sakaiproject.search.component.adapter.contenthosting.BaseContentDigester#getContentReader(org.sakaiproject.content.api.ContentResource)
 	 */
 	
-	public Reader getContentReader(ContentResource contentResource, int minWordLength)
+	public Reader getContentReader(ContentResource contentResource)
 	{
-		return new StringReader(getContent(contentResource,minWordLength));
+		return new StringReader(getContent(contentResource));
 	}
 	
 }

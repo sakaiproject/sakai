@@ -39,7 +39,7 @@ public class PDFContentDigester extends BaseContentDigester
 {
 	private static Log log = LogFactory.getLog(PDFContentDigester.class);
 	
-	public String getContent(ContentResource contentResource, int minWordLength)
+	public String getContent(ContentResource contentResource)
 	{
 		if ( contentResource != null && 
 				contentResource.getContentLength() > maxDigestSize  ) {
@@ -55,7 +55,7 @@ public class PDFContentDigester extends BaseContentDigester
 			pddoc = PDDocument.load(contentStream);
 			String text = stripper.getText(pddoc);
 			pddoc.close();
-			return SearchUtils.getCleanString(text,minWordLength);
+			return SearchUtils.appendCleanString(text,null).toString();
 		}
 		catch (Exception ex)
 		{
@@ -80,9 +80,9 @@ public class PDFContentDigester extends BaseContentDigester
 			}
 		}
 	}
-	public Reader getContentReader(ContentResource contentResource, int minWordLength)
+	public Reader getContentReader(ContentResource contentResource)
 	{
-		return new StringReader(getContent(contentResource,minWordLength));
+		return new StringReader(getContent(contentResource));
 	}
 
 	

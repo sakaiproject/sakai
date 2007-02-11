@@ -43,16 +43,14 @@ public interface ContentDigester
 
 	/**
 	 * @param contentResource
-	 * @param minWordLength minimum acceptable word length
 	 * @return
 	 */
-	String getContent(ContentResource contentResource, int minWordLength);
+	String getContent(ContentResource contentResource);
 
 	/**
 	 * @param contentResource
-	 * @param minWordlength
 	 * @return
 	 */
-	Reader getContentReader(ContentResource contentResource, int minWordlength);
+	Reader getContentReader(ContentResource contentResource);
 
 }

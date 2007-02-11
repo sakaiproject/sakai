@@ -58,25 +58,25 @@ public class DefaultContentDigester implements ContentDigester
 	}
 	
 	
-	public String getContent(ContentResource contentResource, int minWordLength)
+	public String getContent(ContentResource contentResource)
 	{
 		try
 		{
 			ResourceProperties  rp  = contentResource.getProperties();
-			StringBuffer sb = new StringBuffer();
-			SearchUtils.filterWordLength(rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME),sb,minWordLength).append(" ");
-			SearchUtils.filterWordLength(rp.getProperty(ResourceProperties.PROP_DESCRIPTION),sb,minWordLength).append(" ");
+			StringBuilder sb = new StringBuilder();
+			sb.append(rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME)).append(" ");
+			sb.append(rp.getProperty(ResourceProperties.PROP_DESCRIPTION)).append(" ");
 			
 			if ( !isBinary(contentResource) && contentResource.getContentLength() < MAX_DIGEST_SIZE ) {
 				try
 				{
-					SearchUtils.filterWordLength(new String(contentResource.getContent()),sb, minWordLength);
+					SearchUtils.appendCleanString(new String(contentResource.getContent(),"UTF-8"), sb);
 				}
 				catch (Exception e)
 				{
 				}
 			} 
-			return SearchUtils.getCleanString(sb.toString(),0);
+			return sb.toString();
 		}
 		catch (Exception e)
 		{
@@ -95,14 +95,19 @@ public class DefaultContentDigester implements ContentDigester
 	}
 
 	
-	public Reader getContentReader(ContentResource contentResource, int minWordlength)
-	{ 
-		return new StringReader(getContent(contentResource,minWordlength));
-	}
 
 	public boolean accept(String mimeType)
 	{
 		return true;
+	}
+
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.component.adapter.contenthosting.ContentDigester#getContentReader(org.sakaiproject.content.api.ContentResource)
+	 */
+	public Reader getContentReader(ContentResource contentResource)
+	{
+		return new StringReader(getContent(contentResource));
 	}
 
 

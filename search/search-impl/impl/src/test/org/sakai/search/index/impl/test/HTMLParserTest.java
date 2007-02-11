@@ -28,22 +28,22 @@ import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.Properties;
 
-import org.sakaiproject.search.api.SearchUtils;
-import org.sakaiproject.search.component.adapter.contenthosting.RegexParser;
-
 import junit.framework.TestCase;
+
+import org.sakaiproject.search.api.SearchUtils;
+import org.sakaiproject.search.component.adapter.contenthosting.HTMLParser;
 
 /**
  * @author ieb
  *
  */
-public class RegexParserTest extends TestCase
+public class HTMLParserTest extends TestCase
 {
 
 	/**
 	 * @param arg0
 	 */
-	public RegexParserTest(String arg0)
+	public HTMLParserTest(String arg0)
 	{
 		super(arg0);
 	}
@@ -72,9 +72,10 @@ public class RegexParserTest extends TestCase
 		for ( Iterator tests = p.keySet().iterator(); tests.hasNext(); ) {
 			
 			String tname = (String)tests.next();
-			StringBuffer sb = new StringBuffer();
-			for ( Iterator<String> i = new RegexParser(loadFile(p.getProperty(tname))); i.hasNext();) {
-				SearchUtils.filterWordLength(i.next(), sb, 3);
+			StringBuilder sb = new StringBuilder();
+			for ( Iterator<String> i = new HTMLParser(loadFile(p.getProperty(tname))); i.hasNext();) {
+				String n = i.next();
+				SearchUtils.appendCleanString(n, sb);
 			}
 			String result = sb.toString();
 			System.err.println("Result is "+result);
@@ -92,7 +93,7 @@ public class RegexParserTest extends TestCase
 	private String loadFile(String property) throws IOException
 	{
 		System.err.println("Loading :"+property+":");
-		BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(property)));
+		BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(property),"UTF-8"));
 		StringBuffer sb = new StringBuffer();
 		for ( String s = br.readLine(); s != null; s = br.readLine()) {
 			sb.append(s).append("\n");

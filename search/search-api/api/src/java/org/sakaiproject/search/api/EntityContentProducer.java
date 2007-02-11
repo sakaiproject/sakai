@@ -52,17 +52,10 @@ public interface EntityContentProducer
 	/**
 	 * Get a reader for the supplied content resource
 	 * 
-	 * @param cr
+	 * @param cr 
 	 * @return
 	 */
 	Reader getContentReader(Entity cr);
-	/**
-	 * 
-	 * @param cr
-	 * @param minWordLength
-	 * @return
-	 */
-	Reader getContentReader(Entity cr, int minWordLength);
 
 	/**
 	 * Get the content as a string
@@ -72,13 +65,6 @@ public interface EntityContentProducer
 	 */
 	String getContent(Entity cr);
 	
-	/**
-	 * 
-	 * @param cr
-	 * @param minWordLength
-	 * @return
-	 */
-	String getContent(Entity cr, int minWordLength);
 
 	/**
 	 * get the title for the content
