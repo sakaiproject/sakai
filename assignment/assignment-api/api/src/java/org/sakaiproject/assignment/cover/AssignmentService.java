@@ -724,4 +724,12 @@ public class AssignmentService {
 
 		return service.getAllowGroupAssignmentsInGradebook();
 	}
+	
+	public static boolean canSubmit(String param0, org.sakaiproject.assignment.api.Assignment param1) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return false;
+
+		return service.canSubmit(param0, param1);
+	}
 }

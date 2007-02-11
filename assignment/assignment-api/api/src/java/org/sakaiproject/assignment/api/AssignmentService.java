@@ -707,4 +707,9 @@ public interface AssignmentService extends EntityProducer, TaggableActivityProdu
 	 */
 	public boolean getAllowGroupAssignmentsInGradebook();
 	
+	/**
+	 * Whether the current user can submit
+	 */
+	public boolean canSubmit(String context, Assignment a);
+	
 }

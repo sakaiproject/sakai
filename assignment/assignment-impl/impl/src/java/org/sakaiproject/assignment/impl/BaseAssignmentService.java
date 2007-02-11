@@ -4212,6 +4212,94 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	{
 		return null;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean canSubmit(String context, Assignment a)
+	{
+		// return false if not allowed to submit at all
+		if (!allowAddSubmission(context)) return false;
+		
+		String userId = SessionManager.getCurrentSessionUserId();
+		try
+		{
+			// get user
+			User u = UserDirectoryService.getUser(userId);
+			
+			Time currentTime = TimeService.newTime();
+			
+			// return false if the assignment is draft or is not open yet
+			Time openTime = a.getOpenTime();
+			if (a.getDraft() || (openTime != null && openTime.after(currentTime)))
+			{
+				return false;
+			}
+			
+			// return false if the current time has passed the assignment close time
+			Time closeTime = a.getCloseTime();
+			if (closeTime != null && currentTime.after(closeTime))
+				return false;
+			
+			// get user's submission
+			AssignmentSubmission submission = null;
+			
+			try
+			{
+				submission = getSubmission(a.getReference(), u);
+			}
+			catch (IdUnusedException e)
+			{
+				M_log.warn(e.getMessage(), e);
+			}
+			catch (PermissionException e)
+			{
+				M_log.warn(e.getMessage(), e);
+			}
+			
+			if (submission == null)
+			{
+				// return true if there is no submission yet
+				return true;
+			}
+			else
+			{
+				if (!submission.getSubmitted())
+				{
+					// return true for drafted submissions
+					return true;
+				}
+				else
+				{
+					if (!submission.getReturned())
+					{
+						// return false if the submission has been submitted, but not returned yet
+						return false;
+					}
+					else
+					{
+						// returned 
+						if (submission.getTimeReturned().after(submission.getTimeSubmitted()) && submission.getResubmissionNum()!=0)
+						{
+							// return true for returned submission but allow for resubmit
+							return true;
+						}
+						else
+						{
+							// return false otherwise
+							return false;
+						}
+					}
+				}
+			}
+		}
+		catch (UserNotDefinedException e)
+		{
+			// cannot find user
+			M_log.warn(e.getMessage(), e);
+			return false;
+		}
+	}
 
 	/***************************************************************************
 	 * TaggableActivityProducer Implementation
@@ -7193,6 +7281,34 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			if (m_submitters.contains(submitterId))
 				taggableSub = new BaseTaggableSubmission(this, submitterId);
 			return taggableSub;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		public int getResubmissionNum()
+		{
+			String numString = StringUtil.trimToNull(m_properties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
+			return numString != null?Integer.valueOf(numString).intValue():0;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		public Time getCloseTime()
+		{
+			String closeTimeString = StringUtil.trimToNull(m_properties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME));
+			if (closeTimeString != null)
+			{
+				// return the close time if it is set
+				return TimeService.newTime(Long.parseLong(closeTimeString));
+			}
+			else
+			{
+				// else use the assignment close time setting
+				Assignment a = getAssignment();
+				return a!=null?a.getCloseTime():null;	
+			}
 		}
 		
 	} // AssignmentSubmission

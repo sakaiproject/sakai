@@ -394,11 +394,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 	private static final String NEW_ASSIGNMENT_GROUPS = "new_assignment_groups";
 	
-	// number of resubmissions allowed
-	private static final String ALLOW_RESUBMIT_NUMBER = "allow_resubmit_number";
-	
 	// submission level of resubmit due time
-	private static final String ALLOW_RESUBMIT_CLOSETIME = "allow_resubmit_closeTime";
 	private static final String ALLOW_RESUBMIT_CLOSEMONTH = "allow_resubmit_closeMonth";
 	private static final String ALLOW_RESUBMIT_CLOSEDAY = "allow_resubmit_closeDay";
 	private static final String ALLOW_RESUBMIT_CLOSEYEAR = "allow_resubmit_closeYear";
@@ -1013,8 +1009,8 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("allowSubmit", new Boolean(allowSubmit));
 		
 		// related to resubmit settings
-		context.put("allowResubmitNumberProp", ALLOW_RESUBMIT_NUMBER);
-		context.put("allowResubmitCloseTimeProp", ALLOW_RESUBMIT_CLOSETIME);
+		context.put("allowResubmitNumberProp", AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
+		context.put("allowResubmitCloseTimeProp", AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
 
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_LIST_ASSIGNMENTS;
@@ -1110,7 +1106,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("withGradebook", Boolean.valueOf(isGradebookDefined()));
 		
 		// number of resubmissions allowed
-		context.put("name_allowResubmitNumber", ALLOW_RESUBMIT_NUMBER);
+		context.put("name_allowResubmitNumber", AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
 
 		// set the values
 		context.put("value_title", state.getAttribute(NEW_ASSIGNMENT_TITLE));
@@ -1152,9 +1148,9 @@ public class AssignmentAction extends PagedResourceActionII
 		if (s == null) s = "1";
 		context.put("value_CheckAddHonorPledge", s);
 		// number of resubmissions allowed
-		if (state.getAttribute(ALLOW_RESUBMIT_NUMBER) != null)
+		if (state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
 		{
-			context.put("value_allowResubmitNumber", Integer.valueOf((String) state.getAttribute(ALLOW_RESUBMIT_NUMBER)));
+			context.put("value_allowResubmitNumber", Integer.valueOf((String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER)));
 		}
 		else
 		{
@@ -1445,7 +1441,7 @@ public class AssignmentAction extends PagedResourceActionII
 				context.put("name_CloseHour", ALLOW_RESUBMIT_CLOSEHOUR);
 				context.put("name_CloseMin", ALLOW_RESUBMIT_CLOSEMIN);
 				context.put("name_CloseAMPM", ALLOW_RESUBMIT_CLOSEAMPM);
-				String closeTimeString =(String) state.getAttribute(ALLOW_RESUBMIT_CLOSETIME);
+				String closeTimeString =(String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
 				Time time = null;
 				if (closeTimeString != null)
 				{
@@ -1501,16 +1497,16 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("name_feedback_text", GRADE_SUBMISSION_FEEDBACK_TEXT);
 		context.put("name_feedback_attachment", GRADE_SUBMISSION_FEEDBACK_ATTACHMENT);
 		context.put("name_grade", GRADE_SUBMISSION_GRADE);
-		context.put("name_allowResubmitNumber", ALLOW_RESUBMIT_NUMBER);
+		context.put("name_allowResubmitNumber", AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
 
 		// values
 		context.put("value_grade_assignment_id", state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID));
 		context.put("value_feedback_comment", state.getAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT));
 		context.put("value_feedback_text", state.getAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT));
 		context.put("value_feedback_attachment", state.getAttribute(ATTACHMENTS));
-		if (state.getAttribute(ALLOW_RESUBMIT_NUMBER) != null)
+		if (state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
 		{
-			context.put("value_allowResubmitNumber", Integer.valueOf((String) state.getAttribute(ALLOW_RESUBMIT_NUMBER)));
+			context.put("value_allowResubmitNumber", Integer.valueOf((String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER)));
 		}
 
 		// format to show one decimal place in grade
@@ -1598,8 +1594,8 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("comment_open", COMMENT_OPEN);
 		context.put("comment_close", COMMENT_CLOSE);
 
-		context.put("allowResubmitNumber", state.getAttribute(ALLOW_RESUBMIT_NUMBER));
-		String closeTimeString =(String) state.getAttribute(ALLOW_RESUBMIT_CLOSETIME);
+		context.put("allowResubmitNumber", state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
+		String closeTimeString =(String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
 		if (closeTimeString != null)
 		{
 			// close time for resubmit
@@ -2596,21 +2592,21 @@ public class AssignmentAction extends PagedResourceActionII
 				sEdit.setHonorPledgeFlag(Boolean.FALSE.booleanValue());
 			}
 
-			if (state.getAttribute(ALLOW_RESUBMIT_NUMBER) != null)
+			if (state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
 			{
 				// get resubmit number
 				ResourcePropertiesEdit pEdit = sEdit.getPropertiesEdit();
-				pEdit.addProperty(ALLOW_RESUBMIT_NUMBER, (String) state.getAttribute(ALLOW_RESUBMIT_NUMBER));
+				pEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, (String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
 			
 				if (state.getAttribute(ALLOW_RESUBMIT_CLOSEYEAR) != null)
 				{
 					// get resubmit time
 					Time closeTime = getAllowSubmitCloseTime(state);
-					pEdit.addProperty(ALLOW_RESUBMIT_CLOSETIME, String.valueOf(closeTime.getTime()));
+					pEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(closeTime.getTime()));
 				}
 				else
 				{
-					pEdit.removeProperty(ALLOW_RESUBMIT_CLOSETIME);
+					pEdit.removeProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
 				}
 			}
 
@@ -2810,43 +2806,57 @@ public class AssignmentAction extends PagedResourceActionII
 	public void doPost_submission(RunData data)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		ParameterParser params = data.getParameters();
 
-		// retrieve the submission text (as formatted text)
-		boolean checkForFormattingErrors = true; // the student is submitting something - so check for errors
-		String text = processFormattedTextFromBrowser(state, params.getCleanString(VIEW_SUBMISSION_TEXT), checkForFormattingErrors);
-
-		if (text == null)
-		{
-			text = (String) state.getAttribute(VIEW_SUBMISSION_TEXT);
-		}
-		else
-		{
-			state.setAttribute(VIEW_SUBMISSION_TEXT, text);
-		}
-
-		String honorPledgeYes = params.getString(VIEW_SUBMISSION_HONOR_PLEDGE_YES);
-		if (honorPledgeYes == null)
-		{
-			honorPledgeYes = (String) state.getAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES);
-		}
-
-		if (honorPledgeYes == null)
-		{
-			honorPledgeYes = "false";
-		}
-
-		User u = (User) state.getAttribute(STATE_USER);
+		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		String aReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
 		Assignment a = null;
-		String assignmentId = "";
-		if (state.getAttribute(STATE_MESSAGE) == null)
+		try
 		{
-			try
+			a = AssignmentService.getAssignment(aReference);
+		}
+		catch (IdUnusedException e)
+		{
+			addAlert(state, rb.getString("cannotfin2"));
+		}
+		catch (PermissionException e)
+		{
+			addAlert(state, rb.getString("youarenot14"));
+		}
+		
+		if (AssignmentService.canSubmit(contextString, a))
+		{
+			ParameterParser params = data.getParameters();
+	
+			// retrieve the submission text (as formatted text)
+			boolean checkForFormattingErrors = true; // the student is submitting something - so check for errors
+			String text = processFormattedTextFromBrowser(state, params.getCleanString(VIEW_SUBMISSION_TEXT), checkForFormattingErrors);
+	
+			if (text == null)
 			{
-				a = AssignmentService.getAssignment(aReference);
+				text = (String) state.getAttribute(VIEW_SUBMISSION_TEXT);
+			}
+			else
+			{
+				state.setAttribute(VIEW_SUBMISSION_TEXT, text);
+			}
+	
+			String honorPledgeYes = params.getString(VIEW_SUBMISSION_HONOR_PLEDGE_YES);
+			if (honorPledgeYes == null)
+			{
+				honorPledgeYes = (String) state.getAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES);
+			}
+	
+			if (honorPledgeYes == null)
+			{
+				honorPledgeYes = "false";
+			}
+	
+			User u = (User) state.getAttribute(STATE_USER);
+			String assignmentId = "";
+			if (state.getAttribute(STATE_MESSAGE) == null)
+			{
 				assignmentId = a.getId();
-
+	
 				if (a.getContent().getHonorPledge() != 1)
 				{
 					if (!Boolean.valueOf(honorPledgeYes).booleanValue())
@@ -2885,216 +2895,207 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 				}
 			}
-			catch (IdUnusedException e)
+	
+			if ((state.getAttribute(STATE_MESSAGE) == null) && (a != null))
 			{
-				addAlert(state, rb.getString("cannotfin2"));
-			}
-			catch (PermissionException e)
-			{
-				addAlert(state, rb.getString("youarenot14"));
-			}
-		}
-
-		if ((state.getAttribute(STATE_MESSAGE) == null) && (a != null))
-		{
-			try
-			{
-				AssignmentSubmission submission = AssignmentService.getSubmission(a.getReference(), u);
-				if (submission != null)
+				try
 				{
-					// the submission already exists, change the text and honor pledge value, post it
-					try
+					AssignmentSubmission submission = AssignmentService.getSubmission(a.getReference(), u);
+					if (submission != null)
 					{
-						AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(submission.getReference());
-						sEdit.setSubmittedText(text);
-						sEdit.setHonorPledgeFlag(Boolean.valueOf(honorPledgeYes).booleanValue());
-						sEdit.setTimeSubmitted(TimeService.newTime());
-						sEdit.setSubmitted(true);
-
-						// for resubmissions
-						// when resubmit, keep the Returned flag on till the instructor grade again.
-						if (sEdit.getReturned())
+						// the submission already exists, change the text and honor pledge value, post it
+						try
 						{
-							ResourcePropertiesEdit sPropertiesEdit = sEdit.getPropertiesEdit();
-							if (sEdit.getGraded())
+							AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(submission.getReference());
+							sEdit.setSubmittedText(text);
+							sEdit.setHonorPledgeFlag(Boolean.valueOf(honorPledgeYes).booleanValue());
+							sEdit.setTimeSubmitted(TimeService.newTime());
+							sEdit.setSubmitted(true);
+	
+							// for resubmissions
+							// when resubmit, keep the Returned flag on till the instructor grade again.
+							if (sEdit.getReturned())
 							{
-								// add the current grade into previous grade histroy
-								String previousGrades = (String) sEdit.getProperties().getProperty(
-										ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
-								if (previousGrades == null)
+								ResourcePropertiesEdit sPropertiesEdit = sEdit.getPropertiesEdit();
+								if (sEdit.getGraded())
 								{
-									previousGrades = (String) sEdit.getProperties().getProperty(
-											ResourceProperties.PROP_SUBMISSION_PREVIOUS_GRADES);
-									if (previousGrades != null)
+									// add the current grade into previous grade histroy
+									String previousGrades = (String) sEdit.getProperties().getProperty(
+											ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
+									if (previousGrades == null)
 									{
-										int typeOfGrade = a.getContent().getTypeOfGrade();
-										if (typeOfGrade == 3)
+										previousGrades = (String) sEdit.getProperties().getProperty(
+												ResourceProperties.PROP_SUBMISSION_PREVIOUS_GRADES);
+										if (previousGrades != null)
 										{
-											// point grade assignment type
-											// some old unscaled grades, need to scale the number and remove the old property
-											String[] grades = StringUtil.split(previousGrades, " ");
-											String newGrades = "";
-											for (int jj = 0; jj < grades.length; jj++)
+											int typeOfGrade = a.getContent().getTypeOfGrade();
+											if (typeOfGrade == 3)
 											{
-												String grade = grades[jj];
-												if (grade.indexOf(".") == -1)
+												// point grade assignment type
+												// some old unscaled grades, need to scale the number and remove the old property
+												String[] grades = StringUtil.split(previousGrades, " ");
+												String newGrades = "";
+												for (int jj = 0; jj < grades.length; jj++)
 												{
-													// show the grade with decimal point
-													grade = grade.concat(".0");
+													String grade = grades[jj];
+													if (grade.indexOf(".") == -1)
+													{
+														// show the grade with decimal point
+														grade = grade.concat(".0");
+													}
+													newGrades = newGrades.concat(grade + " ");
 												}
-												newGrades = newGrades.concat(grade + " ");
+												previousGrades = newGrades;
 											}
-											previousGrades = newGrades;
+											sPropertiesEdit.removeProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_GRADES);
 										}
-										sPropertiesEdit.removeProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_GRADES);
+										else
+										{
+											previousGrades = "";
+										}
 									}
-									else
-									{
-										previousGrades = "";
-									}
+									previousGrades = previousGrades.concat(sEdit.getGradeDisplay() + " ");
+	
+									sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES,
+											previousGrades);
+	
+									// clear the current grade and make the submission ungraded
+									sEdit.setGraded(false);
+									sEdit.setGrade("");
+									sEdit.setGradeReleased(false);
 								}
-								previousGrades = previousGrades.concat(sEdit.getGradeDisplay() + " ");
-
-								sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES,
-										previousGrades);
-
-								// clear the current grade and make the submission ungraded
-								sEdit.setGraded(false);
-								sEdit.setGrade("");
-								sEdit.setGradeReleased(false);
-							}
-
-							// keep the history of assignment feed back text
-							String feedbackTextHistory = sPropertiesEdit
-									.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT) != null ? sPropertiesEdit
-									.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT)
-									: "";
-							feedbackTextHistory = sEdit.getFeedbackText() + "\n" + feedbackTextHistory;
-							sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT,
-									feedbackTextHistory);
-
-							// keep the history of assignment feed back comment
-							String feedbackCommentHistory = sPropertiesEdit
-									.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT) != null ? sPropertiesEdit
-									.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT)
-									: "";
-							feedbackCommentHistory = sEdit.getFeedbackComment() + "\n" + feedbackCommentHistory;
-							sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT,
-									feedbackCommentHistory);
-							
-							// keep the history of assignment feed back comment
-							String feedbackAttachmentHistory = sPropertiesEdit
-									.getProperty(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS) != null ? sPropertiesEdit
-									.getProperty(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS)
-									: "";
-							List feedbackAttachments = sEdit.getFeedbackAttachments();
-							for (int k = 0; k<feedbackAttachments.size();k++)
-							{
-								feedbackAttachmentHistory = ((Reference) feedbackAttachments.get(k)).getReference() + "," + feedbackAttachmentHistory;
-							}
-							
-							sPropertiesEdit.addProperty(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS,
-									feedbackAttachmentHistory);
-
-							// reset the previous grading context
-							sEdit.setFeedbackText("");
-							sEdit.setFeedbackComment("");
-							sEdit.clearFeedbackAttachments();
-
-							// decrease the allow_resubmit_number
-							if (sPropertiesEdit.getProperty(ALLOW_RESUBMIT_NUMBER) != null)
-							{
-								int number = Integer.parseInt(sPropertiesEdit.getProperty(ALLOW_RESUBMIT_NUMBER));
-								// minus 1 from the submit number
-								if (number>=1)
+	
+								// keep the history of assignment feed back text
+								String feedbackTextHistory = sPropertiesEdit
+										.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT) != null ? sPropertiesEdit
+										.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT)
+										: "";
+								feedbackTextHistory = sEdit.getFeedbackText() + "\n" + feedbackTextHistory;
+								sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT,
+										feedbackTextHistory);
+	
+								// keep the history of assignment feed back comment
+								String feedbackCommentHistory = sPropertiesEdit
+										.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT) != null ? sPropertiesEdit
+										.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT)
+										: "";
+								feedbackCommentHistory = sEdit.getFeedbackComment() + "\n" + feedbackCommentHistory;
+								sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT,
+										feedbackCommentHistory);
+								
+								// keep the history of assignment feed back comment
+								String feedbackAttachmentHistory = sPropertiesEdit
+										.getProperty(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS) != null ? sPropertiesEdit
+										.getProperty(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS)
+										: "";
+								List feedbackAttachments = sEdit.getFeedbackAttachments();
+								for (int k = 0; k<feedbackAttachments.size();k++)
 								{
-									sPropertiesEdit.addProperty(ALLOW_RESUBMIT_NUMBER, String.valueOf(number-1));
+									feedbackAttachmentHistory = ((Reference) feedbackAttachments.get(k)).getReference() + "," + feedbackAttachmentHistory;
+								}
+								
+								sPropertiesEdit.addProperty(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS,
+										feedbackAttachmentHistory);
+	
+								// reset the previous grading context
+								sEdit.setFeedbackText("");
+								sEdit.setFeedbackComment("");
+								sEdit.clearFeedbackAttachments();
+	
+								// decrease the allow_resubmit_number
+								if (sPropertiesEdit.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
+								{
+									int number = Integer.parseInt(sPropertiesEdit.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
+									// minus 1 from the submit number
+									if (number>=1)
+									{
+										sPropertiesEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, String.valueOf(number-1));
+									}
 								}
 							}
-						}
-						// sEdit.addSubmitter (u);
-						sEdit.setAssignment(a);
-
-						// add attachments
-						List attachments = (List) state.getAttribute(ATTACHMENTS);
-						if (attachments != null)
-						{
-							// clear the old attachments first
-							sEdit.clearSubmittedAttachments();
-
-							// add each new attachment
-							Iterator it = attachments.iterator();
-							while (it.hasNext())
+							// sEdit.addSubmitter (u);
+							sEdit.setAssignment(a);
+	
+							// add attachments
+							List attachments = (List) state.getAttribute(ATTACHMENTS);
+							if (attachments != null)
 							{
-								sEdit.addSubmittedAttachment((Reference) it.next());
+								// clear the old attachments first
+								sEdit.clearSubmittedAttachments();
+	
+								// add each new attachment
+								Iterator it = attachments.iterator();
+								while (it.hasNext())
+								{
+									sEdit.addSubmittedAttachment((Reference) it.next());
+								}
 							}
+	
+							AssignmentService.commitEdit(sEdit);
 						}
-
-						AssignmentService.commitEdit(sEdit);
+						catch (IdUnusedException e)
+						{
+							addAlert(state, rb.getString("cannotfin2") + " " + a.getTitle());
+						}
+						catch (PermissionException e)
+						{
+							addAlert(state, rb.getString("no_permissiion_to_edit_submission"));
+						}
+						catch (InUseException e)
+						{
+							addAlert(state, rb.getString("somelsis") + " " + rb.getString("submiss"));
+						}
 					}
-					catch (IdUnusedException e)
+					else
 					{
-						addAlert(state, rb.getString("cannotfin2") + " " + a.getTitle());
-					}
-					catch (PermissionException e)
-					{
-						addAlert(state, rb.getString("no_permissiion_to_edit_submission"));
-					}
-					catch (InUseException e)
-					{
-						addAlert(state, rb.getString("somelsis") + " " + rb.getString("submiss"));
-					}
+						// new submission, post it
+						try
+						{
+							AssignmentSubmissionEdit edit = AssignmentService.addSubmission(contextString, assignmentId);
+							edit.setSubmittedText(text);
+							edit.setHonorPledgeFlag(Boolean.valueOf(honorPledgeYes).booleanValue());
+							edit.setTimeSubmitted(TimeService.newTime());
+							edit.setSubmitted(true);
+							// edit.addSubmitter (u);
+							edit.setAssignment(a);
+	
+							// add attachments
+							List attachments = (List) state.getAttribute(ATTACHMENTS);
+							if (attachments != null)
+							{
+								// add each attachment
+								Iterator it = attachments.iterator();
+								while (it.hasNext())
+								{
+									edit.addSubmittedAttachment((Reference) it.next());
+								}
+							}
+	
+							AssignmentService.commitEdit(edit);
+						}
+						catch (PermissionException e)
+						{
+							addAlert(state, rb.getString("youarenot13"));
+						}
+					} // if -else
 				}
-				else
+				catch (IdUnusedException e)
 				{
-					// new submission, post it
-					try
-					{
-						AssignmentSubmissionEdit edit = AssignmentService.addSubmission((String) state
-								.getAttribute(STATE_CONTEXT_STRING), assignmentId);
-						edit.setSubmittedText(text);
-						edit.setHonorPledgeFlag(Boolean.valueOf(honorPledgeYes).booleanValue());
-						edit.setTimeSubmitted(TimeService.newTime());
-						edit.setSubmitted(true);
-						// edit.addSubmitter (u);
-						edit.setAssignment(a);
-
-						// add attachments
-						List attachments = (List) state.getAttribute(ATTACHMENTS);
-						if (attachments != null)
-						{
-							// add each attachment
-							Iterator it = attachments.iterator();
-							while (it.hasNext())
-							{
-								edit.addSubmittedAttachment((Reference) it.next());
-							}
-						}
-
-						AssignmentService.commitEdit(edit);
-					}
-					catch (PermissionException e)
-					{
-						addAlert(state, rb.getString("youarenot13"));
-					}
-				} // if -else
-			}
-			catch (IdUnusedException e)
+					addAlert(state, rb.getString("cannotfin5"));
+				}
+				catch (PermissionException e)
+				{
+					addAlert(state, rb.getString("not_allowed_to_view"));
+				}
+	
+			} // if
+	
+			if (state.getAttribute(STATE_MESSAGE) == null)
 			{
-				addAlert(state, rb.getString("cannotfin5"));
+				state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+				state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
 			}
-			catch (PermissionException e)
-			{
-				addAlert(state, rb.getString("not_allowed_to_view"));
-			}
-
-		} // if
-
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
-			state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
-		}
+		}	// if
 
 	} // doPost_submission
 
@@ -3420,10 +3421,10 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
 		// allow resubmission numbers
-		String nString = params.getString(ALLOW_RESUBMIT_NUMBER);
+		String nString = params.getString(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
 		if (nString != null)
 		{
-			state.setAttribute(ALLOW_RESUBMIT_NUMBER, nString);
+			state.setAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, nString);
 		}
 		
 
@@ -3735,7 +3736,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 			String associateGradebookAssignment = (String) state.getAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 			
-			String allowResubmitNumber = state.getAttribute(ALLOW_RESUBMIT_NUMBER) != null?(String) state.getAttribute(ALLOW_RESUBMIT_NUMBER):null;
+			String allowResubmitNumber = state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null?(String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER):null;
 
 			// the attachments
 			List attachments = (List) state.getAttribute(ATTACHMENTS);
@@ -4308,7 +4309,7 @@ public class AssignmentAction extends PagedResourceActionII
 		// allow resubmit number
 		if (allowResubmitNumber != null)
 		{
-			aPropertiesEdit.addProperty(ALLOW_RESUBMIT_NUMBER, allowResubmitNumber);
+			aPropertiesEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, allowResubmitNumber);
 		}
 	}
 
@@ -5070,9 +5071,9 @@ public class AssignmentAction extends PagedResourceActionII
 		try
 		{
 			a = AssignmentService.getAssignment((String) state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID));
-			if (a.getProperties().getProperty(ALLOW_RESUBMIT_NUMBER) != null)
+			if (a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
 			{
-				allowResubmitNumber= a.getProperties().getProperty(ALLOW_RESUBMIT_NUMBER);
+				allowResubmitNumber= a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
 			}
 		}
 		catch (IdUnusedException e)
@@ -5109,9 +5110,9 @@ public class AssignmentAction extends PagedResourceActionII
 			state.setAttribute(GRADE_SUBMISSION_GRADE, s.getGrade());
 			
 			ResourceProperties p = s.getProperties();
-			if (p.getProperty(ALLOW_RESUBMIT_NUMBER) != null)
+			if (p.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
 			{
-				allowResubmitNumber = p.getProperty(ALLOW_RESUBMIT_NUMBER);
+				allowResubmitNumber = p.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
 			}
 			else if (p.getProperty(GRADE_SUBMISSION_ALLOW_RESUBMIT) != null)
 			{
@@ -5119,7 +5120,7 @@ public class AssignmentAction extends PagedResourceActionII
 				allowResubmitNumber = "1";
 			}
 			
-			state.setAttribute(ALLOW_RESUBMIT_NUMBER, allowResubmitNumber);
+			state.setAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, allowResubmitNumber);
 		}
 		catch (IdUnusedException e)
 		{
@@ -5629,10 +5630,10 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
 		// allow resubmit number and due time
-		if (params.getString(ALLOW_RESUBMIT_NUMBER) != null)
+		if (params.getString(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
 		{
-			String allowResubmitNumberString = params.getString(ALLOW_RESUBMIT_NUMBER);
-			state.setAttribute(ALLOW_RESUBMIT_NUMBER, params.getString(ALLOW_RESUBMIT_NUMBER));
+			String allowResubmitNumberString = params.getString(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
+			state.setAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, params.getString(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
 		
 			if (Integer.parseInt(allowResubmitNumberString) != 0)
 			{
@@ -5657,7 +5658,7 @@ public class AssignmentAction extends PagedResourceActionII
 					closeHour = 0;
 				}
 				Time closeTime = TimeService.newTimeLocal(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0);
-				state.setAttribute(ALLOW_RESUBMIT_CLOSETIME, String.valueOf(closeTime.getTime()));
+				state.setAttribute(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(closeTime.getTime()));
 				// validate date
 				if (closeTime.before(TimeService.newTime()))
 				{
@@ -5677,7 +5678,7 @@ public class AssignmentAction extends PagedResourceActionII
 				state.removeAttribute(ALLOW_RESUBMIT_CLOSEHOUR);
 				state.removeAttribute(ALLOW_RESUBMIT_CLOSEMIN);
 				state.removeAttribute(ALLOW_RESUBMIT_CLOSEAMPM);
-				state.removeAttribute(ALLOW_RESUBMIT_CLOSETIME);
+				state.removeAttribute(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
 			}
 		}
 	}
