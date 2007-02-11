@@ -21,6 +21,13 @@
 
 package org.sakaiproject.search.index.impl;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.sakaiproject.search.index.AnalyzerFactory;
@@ -31,10 +38,34 @@ import org.sakaiproject.search.index.AnalyzerFactory;
  */
 public class StandardAnalyzerFactory implements AnalyzerFactory
 {
+	
+	private static final Log log = LogFactory.getLog(SnowballAnalyzerFactory.class);
+
+	private static String[] stopWords = null;
+	static
+	{
+		try
+		{
+			ArrayList<String> al = new ArrayList<String>();
+			BufferedReader br = new BufferedReader(new InputStreamReader(SnowballAnalyzerFactory.class
+					.getResourceAsStream("/org/sakaiproject/search/component/bundle/stopwords.txt")));
+			for (String line = br.readLine(); line != null; line = br.readLine())
+			{
+				al.add(line.trim());
+			}
+			br.close();
+			stopWords = al.toArray(new String[0]);
+		}
+		catch (Exception ex)
+		{
+			log.error("Failed to load Stop words into Analyzer", ex);
+		}
+	}
+
 
 	public Analyzer newAnalyzer()
 	{
-		return new StandardAnalyzer();
+		return new StandardAnalyzer(stopWords);
 	}
 
 }
