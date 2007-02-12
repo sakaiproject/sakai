@@ -38,6 +38,15 @@
       </description>
     </attribute>
     <attribute>
+      <name>toolCssHref</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        The URL of a stylesheet whose link should go between the base
+        Sakai stylesheet and the installation skin stylesheet.
+      </description>
+    </attribute>
+    <attribute>
       <name>binding</name>
       <required>false</required>
       <rtexprvalue>false</rtexprvalue>

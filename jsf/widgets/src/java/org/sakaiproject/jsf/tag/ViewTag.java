@@ -31,6 +31,7 @@ import org.sakaiproject.jsf.util.TagUtil;
 public class ViewTag extends UIComponentTag
 {
 	private String m_title = null;
+	private String m_toolCssHref = null;
 
 	public String getComponentType()
 	{
@@ -52,11 +53,20 @@ public class ViewTag extends UIComponentTag
 		super.setProperties(component);
 
 		TagUtil.setString(component, "title", m_title);
+		TagUtil.setString(component, "toolCssHref", m_toolCssHref);
 	}
 
 	public void setTitle(String string)
 	{
 		m_title = string;
+	}
+
+	public String getToolCssHref() {
+		return m_toolCssHref;
+	}
+
+	public void setToolCssHref(String cssHref) {
+		m_toolCssHref = cssHref;
 	}
 }
 

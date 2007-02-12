@@ -53,16 +53,22 @@ public class ViewRenderer extends Renderer
 		if (!renderAsFragment(context))
 		{
 			// The stylesheets and javascripts to include are really the portal's responsibility
-			// so get them from the portal through the request attributes
-
-			String headInclude = (String) req.getAttribute("sakai.html.head");
-			String bodyonload = (String) req.getAttribute("sakai.html.body.onload");
-
-			if (headInclude == null || headInclude.length() == 0)
-			{
+			// so get them from the portal through the request attributes.
+			// Any tool-specific stylesheets need to be placed after Sakai's base CSS (so that
+			// tool-specific overrides can take place), but before the installation's skin CSS
+			// (so that the tool can be skinned).
+			String headBaseCss = (String)req.getAttribute("sakai.html.head.css.base");
+			if (headBaseCss == null || headBaseCss.length() == 0) {
 				// include default stylesheet
-				headInclude = "<link href=\"/sakai-jsf-resource/css/sakai.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+				headBaseCss = "<link href=\"/sakai-jsf-resource/css/sakai.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 			}
+			String toolCssHref = (String) RendererUtil.getAttribute(context, component, "toolCssHref");
+			if (toolCssHref != null) {
+				toolCssHref = "<link href=\"" + toolCssHref + "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+			}			
+			String headSkinCss = (String)req.getAttribute("sakai.html.head.css.skin");
+			String headJs = (String)req.getAttribute("sakai.html.head.js");
+			String bodyonload = (String) req.getAttribute("sakai.html.body.onload");
 
 			writer.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
 			writer.write("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">\n");
@@ -75,7 +81,10 @@ public class ViewRenderer extends Renderer
 				writer.write("</title>\n");
 			}
 
-			writer.write(headInclude);
+			writer.write(headBaseCss);
+			if (toolCssHref != null) writer.write(toolCssHref);
+			if (headSkinCss != null) writer.write(headSkinCss);
+			if (headJs != null) writer.write(headJs);
 
 			writer.write("</head>\n");
 
