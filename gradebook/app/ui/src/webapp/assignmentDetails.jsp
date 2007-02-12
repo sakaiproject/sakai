@@ -62,7 +62,7 @@
 
 				<h:outputText id="averageLabel" value="#{msgs.assignment_details_average}" rendered="#{overviewBean.userAbleToGradeAll}"/>
 				<h:outputText id="average" value="#{assignmentDetailsBean.assignment.formattedMean}" rendered="#{overviewBean.userAbleToGradeAll}">
-					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE"/>
+					<f:convertNumber type="percent" integerOnly="true" />
 				</h:outputText>
 
 				<h:outputText id="dueDateLabel" value="#{msgs.assignment_details_due_date}"/>
@@ -200,7 +200,7 @@
 							styleClass="tier0"/>
 					</h:panelGroup>
 				</f:facet>
-				<h:message for="Score" styleClass="validationEmbedded gbMessageAdjustForContent"/>				
+				<h:message for="Score" styleClass="validationEmbedded gbMessageAdjustForContent"/>
 				<x:div styleClass="gbTextOnRow" rendered="#{!scoreRow.commentEditable}">
 					<h:outputText value="#{scoreRow.commentText}"/>
 				</x:div>

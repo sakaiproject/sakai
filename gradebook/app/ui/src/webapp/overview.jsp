@@ -83,7 +83,7 @@
 		        </f:facet>
 
 				<h:outputText value="#{gradableObject.formattedMean}">
-					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE"/>
+					<f:convertNumber type="percent" integerOnly="true" />
 				</h:outputText>
 			</h:column>
 			<h:column>
