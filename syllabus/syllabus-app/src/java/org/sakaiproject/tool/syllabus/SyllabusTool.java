@@ -40,9 +40,11 @@ import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.api.app.syllabus.SyllabusService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -527,7 +529,7 @@ public class SyllabusTool
 	this.evilTagMsg = evilTagMsg;
   }
 
-public String processDeleteCancel()
+  public String processDeleteCancel()
   {
     //logger.info(this + ".processDeleteCancel() in SyllabusTool.");
 
@@ -1785,5 +1787,16 @@ public String processDeleteCancel()
   public void setCurrentRediredUrl(String currentRediredUrl) 
   {
 	this.currentRediredUrl = currentRediredUrl;
+  }
+
+  /**
+   * @return
+   * 	String url if using an external url or
+   * 	'#' so current page appears in new window
+   */
+  public String getPrintFriendlyUrl()
+  {
+	  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
+					+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "printFriendly";
   }
 }

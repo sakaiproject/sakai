@@ -56,6 +56,11 @@
 			<artifactId>sakai-component</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-component-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
 		
 		<dependency>
 			<groupId>sakaiproject</groupId>
