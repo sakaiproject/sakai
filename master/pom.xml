@@ -71,6 +71,15 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
+    <repository>
+      <id>Pluto Repor</id>
+      <name>Pluto Dev Repository</name>
+      <layout>default</layout>
+            <url>http://people.apache.org/builds/portals-pluto/m2-staging-repository</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
   </repositories>
   <dependencies>
 <!-- provided by the JDK, here to ensure its not packaged in child poms 
