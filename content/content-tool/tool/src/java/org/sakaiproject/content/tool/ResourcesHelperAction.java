@@ -22,12 +22,16 @@
 package org.sakaiproject.content.tool;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -53,6 +57,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 {
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("types");
+
+	/** the logger for this class */
+    private static final Log logger = LogFactory.getLog(ResourcesHelperAction.class);
 
 	protected  static final String ACCESS_HTML_TEMPLATE = "resources/sakai_access_html";
 	protected  static final String ACCESS_TEXT_TEMPLATE = "resources/sakai_access_text";
@@ -453,8 +460,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			}
 			catch(Exception e)
 			{
-				// TODO: use logger
-				e.printStackTrace();
+				logger.warn("Exception ", e);
 			}
 			
 			if(fileitem == null)
@@ -469,12 +475,21 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			else if (fileitem.getFileName().length() > 0)
 			{
 				String filename = Validator.getFileName(fileitem.getFileName());
-				byte[] bytes = fileitem.get();
-				String contentType = fileitem.getContentType();
-
-				pipe.setRevisedContent(bytes);
-				pipe.setRevisedMimeType(contentType);
-				pipe.setFileName(filename);
+				InputStream stream;
+                stream = fileitem.getInputStream();
+                if(stream == null)
+                {
+                	byte[] bytes = fileitem.get();
+                	pipe.setRevisedContent(bytes);
+                }
+                else
+                {
+                    pipe.setRevisedContentStream(stream);
+                }
+                String contentType = fileitem.getContentType();
+                //pipe.setRevisedContent(bytes);
+                pipe.setRevisedMimeType(contentType);
+                pipe.setFileName(filename);
 			}
 		}
 

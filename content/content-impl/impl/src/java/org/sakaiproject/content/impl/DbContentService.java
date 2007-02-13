@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -21,12 +21,17 @@
 
 
 // TODO: check against 15608
+
 package org.sakaiproject.content.impl;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.Collection;
@@ -115,6 +120,9 @@ public class DbContentService extends BaseContentService
 
 	/** Table name for resources delete. */
 	protected String m_resourceBodyDeleteTableName = "CONTENT_RESOURCE_BODY_BINARY_DELETE";
+	
+	/** The chunk size used when streaming (100k). */
+	protected static final int STREAM_BUFFER_SIZE = 102400;
 
 	/***************************************************************************
 	 * Constructors, Dependencies and their setter methods
@@ -976,33 +984,65 @@ public class DbContentService extends BaseContentService
 				}
 				else
 				{
-					byte[] body = ((BaseResourceEdit) edit).m_body;
-					((BaseResourceEdit) edit).m_body = null;
-
-					m_resourceStore.commitResource(edit);
-
-					// update the resource body
-					if (body != null)
+					BaseResourceEdit redit = (BaseResourceEdit) edit;
+					if(redit.m_body == null)
 					{
-						// if we have been configured to use an external file
-						// system
-						if (m_bodyPath != null)
+						if(redit.m_contentStream == null)
 						{
-							boolean ok = putResourceBodyFilesystem(edit, body);
-							if (!ok)
-							{
-								cancelResource(edit);
-								throw new ServerOverloadException("failed to write file");
-							}
+							// no body and no stream
+							M_log.warn("attempt to commit ContentResource with no body and no stream: " + edit.getReference());
+							
 						}
-
-						// otherwise use the database
 						else
 						{
-							putResourceBodyDb(edit, body);
+							// if we have been configured to use an external file system
+							if (m_bodyPath != null)
+							{
+								boolean ok = putResourceBodyFilesystem(edit, redit.m_contentStream);
+								if (!ok)
+								{
+									cancelResource(edit);
+									throw new ServerOverloadException("failed to write file");
+								}
+							}
+	
+							// otherwise use the database
+							else
+							{
+								putResourceBodyDb(edit, redit.m_contentStream);
+							}
+						}
+					}
+					else 
+					{
+						byte[] body = ((BaseResourceEdit) edit).m_body;
+						((BaseResourceEdit) edit).m_body = null;
+	
+						// update the resource body
+						if (body != null)
+						{
+							// if we have been configured to use an external file
+							// system
+							if (m_bodyPath != null)
+							{
+								boolean ok = putResourceBodyFilesystem(edit, body);
+								if (!ok)
+								{
+									cancelResource(edit);
+									throw new ServerOverloadException("failed to write file");
+								}
+							}
+	
+							// otherwise use the database
+							else
+							{
+								putResourceBodyDb(edit, body);
+							}
 						}
 					}
 				}
+				
+				m_resourceStore.commitResource(edit);
 			}
 			finally
 			{
@@ -1333,6 +1373,149 @@ public class DbContentService extends BaseContentService
 			 * ((BaseResource)resource).m_body);
 			 */
 		}
+		
+		/**
+         * @param edit
+         * @param stream
+         */
+        protected void putResourceBodyDb(ContentResourceEdit edit, InputStream stream)
+        {
+			// Do not create the files for resources with zero length bodies
+			if ((stream == null)) return;
+       	
+			ByteArrayOutputStream bstream = new ByteArrayOutputStream();
+			
+			int byteCount = 0;
+
+			// chunk
+			byte[] chunk = new byte[STREAM_BUFFER_SIZE];
+			int lenRead;
+			try
+            {
+	            while ((lenRead = stream.read(chunk)) != -1)
+	            {
+	            	bstream.write(chunk, 0, lenRead);
+	            	byteCount += lenRead;
+	            }
+	            
+	            edit.setContentLength(byteCount);
+            }
+            catch (IOException e)
+            {
+	            // TODO Auto-generated catch block
+	            M_log.warn("IOException ", e);
+            }
+            finally
+            {
+            	if(stream != null)
+            	{
+            		try
+                    {
+	                    stream.close();
+                    }
+                    catch (IOException e)
+                    {
+	                    // TODO Auto-generated catch block
+	                    M_log.warn("IOException ", e);
+                    }
+            	}
+            }
+
+            if(bstream != null && bstream.size() > 0)
+            {
+            	putResourceBodyDb(edit, bstream.toByteArray());
+            }
+        }
+
+
+
+		/**
+         * @param edit
+         * @param stream
+         * @return
+         */
+        private boolean putResourceBodyFilesystem(ContentResourceEdit resource, InputStream stream)
+        {
+			// Do not create the files for resources with zero length bodies
+			if ((stream == null)) return true;
+
+			// form the file name
+			File file = new File(externalResourceFileName(resource));
+
+			// delete the old
+			if (file.exists())
+			{
+				file.delete();
+			}
+
+			FileOutputStream out = null;
+			
+			// add the new
+			try
+			{
+				// make sure all directories are there
+				File container = file.getParentFile();
+				if (container != null)
+				{
+					container.mkdirs();
+				}
+
+				// write the file
+				out = new FileOutputStream(file);
+				
+				int byteCount = 0;
+				// chunk
+				byte[] chunk = new byte[STREAM_BUFFER_SIZE];
+				int lenRead;
+				while ((lenRead = stream.read(chunk)) != -1)
+				{
+					out.write(chunk, 0, lenRead);
+					byteCount += lenRead;
+				}
+				
+				resource.setContentLength(byteCount);
+			}
+//			catch (Throwable t)
+//			{
+//				M_log.warn(": failed to write resource: " + resource.getId() + " : " + t);
+//				return false;
+//			}
+			catch(IOException e)
+			{
+				M_log.warn("IOException", e);
+				return false;
+			}
+			finally
+			{
+				if(stream != null)
+				{
+					try
+                    {
+						stream.close();
+                    }
+                    catch (IOException e)
+                    {
+	                    // TODO Auto-generated catch block
+	                    M_log.warn("IOException ", e);
+                    }
+				}
+				
+				if(out != null)
+				{
+					try
+	                {
+		                out.close();
+	                }
+	                catch (IOException e)
+	                {
+		                // TODO Auto-generated catch block
+		                M_log.warn("IOException ", e);
+	                }
+				}
+			}
+
+			return true;
+        }
 
 		/**
 		 * Write the resource body to the external file system. The file name is the m_bodyPath with the resource id appended.

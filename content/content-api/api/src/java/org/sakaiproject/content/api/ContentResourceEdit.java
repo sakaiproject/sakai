@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -20,6 +20,9 @@
  **********************************************************************************/
 
 package org.sakaiproject.content.api;
+
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.entity.api.Edit;
@@ -55,6 +58,11 @@ public interface ContentResourceEdit
 	 * @param string
 	 */
 	public void setResourceType(String string);
+
+	/**
+     * @param stream
+     */
+    public void setContent(InputStream stream);
 
 }	// ContentResourceEdit
 

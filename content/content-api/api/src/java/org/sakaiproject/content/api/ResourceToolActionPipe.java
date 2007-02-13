@@ -22,11 +22,8 @@
 package org.sakaiproject.content.api;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
-
-import org.sakaiproject.entity.api.Reference;
 
 /**
  * ResourceToolActionPipe provides a conduit through which ResourcesAction and an 
@@ -89,7 +86,7 @@ public interface ResourceToolActionPipe
 	 * that content should be accessed as a byte array. 
 	 * @return
 	 */
-	public OutputStream getContentStream();
+	public InputStream getContentStream();
 	
 	/**
 	 * Used only for actions of type ResourceToolAction.ActionType.NEW_UPLOAD.
@@ -220,7 +217,7 @@ public interface ResourceToolActionPipe
 	 * Used by ResourcesAction to provide helper with alternative access to current value of resource's "content".
 	 * @param content
 	 */
-	public void setContentStream(OutputStream ostream);
+	public void setContentStream(InputStream ostream);
 	
 	/**
 	 * Used by ResourcesAction to provide helper with mimetype of resource. 
@@ -278,9 +275,9 @@ public interface ResourceToolActionPipe
 
 	/**
 	 * Used by helper to provide ResourcesAction with revised value of resource's "content".
-	 * @param istream
+	 * @param stream
 	 */
-	public void setRevisedContentStream(InputStream istream);
+	public void setRevisedContentStream(InputStream stream);
 	
 	/**
 	 * Used by helper to provide ResourcesAction with revised mimetype of resource. 

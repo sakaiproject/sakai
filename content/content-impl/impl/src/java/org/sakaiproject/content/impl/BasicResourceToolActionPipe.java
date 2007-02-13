@@ -22,7 +22,6 @@
 package org.sakaiproject.content.impl;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 import java.util.List;
@@ -31,18 +30,13 @@ import java.util.Map;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
 
 public class BasicResourceToolActionPipe 
 	implements ResourceToolActionPipe 
 {
 	protected byte[] content;
 	protected ContentEntity contentEntity;
-	protected OutputStream contentOutputStream;
+	protected InputStream contentInputStream;
 	protected String contentType;
 	protected String initializationId;
 	protected Map propertyValues = new Hashtable();
@@ -90,9 +84,9 @@ public class BasicResourceToolActionPipe
 		return this.contentEntity;
 	}
 
-	public OutputStream getContentStream() 
+	public InputStream getContentStream() 
 	{
-		return this.contentOutputStream;
+		return this.contentInputStream;
 	}
 
 	public String getMimeType() 
@@ -140,9 +134,9 @@ public class BasicResourceToolActionPipe
 		this.contentEntity = entity;
 	}
 
-	public void setContentStream(OutputStream ostream) 
+	public void setContentStream(InputStream ostream) 
 	{
-		this.contentOutputStream = ostream;
+		this.contentInputStream = ostream;
 	}
 
 	public void setMimeType(String type) 

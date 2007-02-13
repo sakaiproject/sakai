@@ -22,6 +22,8 @@
 package org.sakaiproject.content.tool;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -2160,7 +2162,23 @@ public class ResourcesAction
 			ContentResourceEdit edit = ContentHostingService.editResource(entity.getId());
 			ResourcePropertiesEdit props = edit.getPropertiesEdit();
 			// update content
-			edit.setContent(pipe.getRevisedContent());
+			byte[] content = pipe.getRevisedContent();
+			if(content == null)
+			{
+				InputStream stream = pipe.getRevisedContentStream();
+				if(stream == null)
+				{
+					logger.warn("pipe with null content and null stream: " + pipe.getFileName());
+				}
+				else
+				{
+					edit.setContent(stream);
+				}
+			}
+			else
+			{
+				edit.setContent(content);
+			}
 			// update properties
 			if(action instanceof InteractionAction)
 			{
@@ -2258,7 +2276,25 @@ public class ResourcesAction
 			try
 			{
 				ContentResourceEdit resource = ContentHostingService.addResource(collectionId,basename,extension,MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
-				resource.setContent(fp.getRevisedContent());
+				
+				byte[] content = fp.getRevisedContent();
+				if(content == null)
+				{
+					InputStream stream = fp.getRevisedContentStream();
+					if(stream == null)
+					{
+						logger.warn("pipe with null content and null stream: " + pipe.getFileName());
+					}
+					else
+					{
+						resource.setContent(stream);
+					}
+				}
+				else
+				{
+					resource.setContent(content);
+				}
+
 				resource.setContentType(fp.getRevisedMimeType());
 				resource.setResourceType(pipe.getAction().getTypeId());
 				ContentHostingService.commitResource(resource, NotificationService.NOTI_NONE);
@@ -3014,8 +3050,26 @@ public class ResourcesAction
 				}
 				
 				resource.setResourceType(resourceType);
-				resource.setContent(pipe.getRevisedContent());		// item.getContent()
-				resource.setContentType(pipe.getRevisedMimeType());		// item.getMimeType()
+				
+				byte[] content = pipe.getRevisedContent();
+				if(content == null)
+				{
+					InputStream stream = pipe.getRevisedContentStream();
+					if(stream == null)
+					{
+						logger.warn("pipe with null content and null stream: " + pipe.getFileName());
+					}
+					else
+					{
+						resource.setContent(stream);
+					}
+				}
+				else
+				{
+					resource.setContent(content);
+				}
+
+				resource.setContentType(pipe.getRevisedMimeType());
 				
 				ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
 				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);

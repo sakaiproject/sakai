@@ -5729,21 +5729,62 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		Entity rv = null;
 
-		try
-		{
-			ResourceProperties props = getProperties(ref.getId());
-			if (props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION))
+		ResourceProperties props = null;
+        try
+        {
+	        props = getProperties(ref.getId());
+			boolean isCollection = false;
+			try
+	        {
+		        isCollection = props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
+	        }
+	        catch (EntityPropertyNotDefinedException ignore)
+	        {
+	        	// do nothing -- it's not a collection unless PROP_IS_COLLECTION is defined 
+	        }
+	        catch (EntityPropertyTypeException e)
+	        {
+		        // Log this and assume it's not a collection
+	        	M_log.warn("EntityPropertyTypeException: PROP_IS_COLLECTION not boolean for " + ref.getReference());
+	        }
+			if (isCollection)
 			{
-				rv = getCollection(ref.getId());
+				try
+	            {
+		            rv = getCollection(ref.getId());
+	            }
+	            catch (TypeException e)
+	            {
+		            // in that case try to get it as a resource
+	            	rv = getResource(ref.getId());
+	            }
 			}
 			else
 			{
-				rv = getResource(ref.getId());
+				try
+	            {
+		            rv = getResource(ref.getId());
+	            }
+	            catch (TypeException e)
+	            {
+		            // in that case try to get it as a collection
+	            	rv = getCollection(ref.getId());
+	            }
 			}
-		}
-		catch (Exception e)
-		{
-		}
+        }
+        catch (PermissionException e)
+        {
+	        M_log.warn("PermissionException " + ref.getReference());
+        }
+        catch (IdUnusedException e)
+        {
+        	M_log.warn("IdUnusedException " + ref.getReference());
+        }
+        catch (TypeException e)
+        {
+            // TODO Auto-generated catch block
+        	M_log.warn("TypeException " + ref.getReference());
+        }
 
 		return rv;
 	}
@@ -9352,6 +9393,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		/** The file system path, post root, for file system stored body binary. */
 		protected String m_filePath = null;
 
+		protected InputStream m_contentStream;
+
 		/**
 		 * Construct.
 		 * 
@@ -9712,6 +9755,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 			if ((rv == null) && (m_contentLength > 0))
 			{
+				// todo: try to get the body from the stream
+				
+				
 				// TODO: we do not store the body with the object, so as not to cache the body bytes -ggolden
 				rv = m_storage.getResourceBody(this);
 				// m_body = rv;
@@ -9813,6 +9859,22 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 
 		} // setContent
+		
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ContentResourceEdit#setContent(java.io.OutputStream)
+         */
+        public void setContent(InputStream stream)
+        {
+			if (stream == null)
+			{
+				M_log.warn("setContent(): null stream");
+				return;
+			}
+
+	        m_contentStream = stream;
+	        // m_contentLength = 
+        }
+
 
 		/**
 		 * Serialize the resource into XML, adding an element to the doc under the top of the stack element.
@@ -10015,6 +10077,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			return null;
 		}
+
 	} // BaseResourceEdit
 
 	/**********************************************************************************************************************************************************************************************************************************************************
