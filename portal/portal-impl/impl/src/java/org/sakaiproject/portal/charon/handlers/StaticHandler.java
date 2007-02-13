@@ -50,7 +50,7 @@ public abstract class StaticHandler extends BasePortalHandler
 		contentTypes = new Properties();
 		try
 		{
-			contentTypes.load(this.getClass().getResourceAsStream("staticcontenttypes.properties"));
+			contentTypes.load(this.getClass().getResourceAsStream("/org/sakaiproject/portal/charon/staticcontenttypes.properties"));
 		}
 		catch (IOException e)
 		{
