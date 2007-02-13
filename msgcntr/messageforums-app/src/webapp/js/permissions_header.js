@@ -41,7 +41,7 @@ function setCorrespondingLevel(checkBox){
     //alert(roleValue);
     var lev=selectLevel.options[selectLevel.selectedIndex].text;
     //alert(lev);
-    var newval=roleValue+"("+lev+")";
+    var newval=roleValue+" ("+lev+")";
     //alert(newval);
 
     role.options[var2[2]]=new Option(newval, roleValue, true);
@@ -178,7 +178,7 @@ function setCorrespondingCheckboxes(checkBox){
 
     roleValue=role.options[var2[2]].value;
     var lev=selectLevel.options[selectLevel.selectedIndex].text;
-    var newval=roleValue+"("+lev+")";
+    var newval=roleValue+" ("+lev+")";
     role.options[var2[2]]=new Option(newval, roleValue, true);
     role.options[var2[2]].selected=true;
   }
