@@ -194,10 +194,10 @@ public class GalleryHandler extends SiteHandler
 			rcontext.put("galleryHasAccessibilityURL", Boolean.valueOf((accessibilityURL != null && accessibilityURL != "")));
 
 			rcontext.put("galleryAccessibilityURL", accessibilityURL);
-			rcontext.put("gallarySitAccessibility", Web.escapeHtml(rb.getString("sit.accessibility")));
-			rcontext.put("gallarySitJumpcontent", Web.escapeHtml(rb.getString("sit.jumpcontent")));
-			rcontext.put("gallarySitJumptools", Web.escapeHtml(rb.getString("sit.jumptools")));
-			rcontext.put("gallarySitJumpworksite", Web.escapeHtml(rb.getString("sit.jumpworksite")));
+//			rcontext.put("gallarySitAccessibility", Web.escapeHtml(rb.getString("sit_accessibility")));
+//			rcontext.put("gallarySitJumpcontent", Web.escapeHtml(rb.getString("sit_jumpcontent")));
+//			rcontext.put("gallarySitJumptools", Web.escapeHtml(rb.getString("sit_jumptools")));
+//			rcontext.put("gallarySitJumpworksite", Web.escapeHtml(rb.getString("sit_")));
 			rcontext.put("gallaryLoggedIn", Boolean.valueOf(loggedIn));
 
 			try

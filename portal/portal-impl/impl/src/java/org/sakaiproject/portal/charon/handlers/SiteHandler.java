@@ -223,10 +223,10 @@ public class SiteHandler extends WorksiteHandler
 			String accessibilityURL = ServerConfigurationService.getString("accessibility.url");
 			rcontext.put("siteNavHasAccessibilityURL", Boolean.valueOf((accessibilityURL != null && accessibilityURL != "")));
 			rcontext.put("siteNavAccessibilityURL", accessibilityURL);
-			rcontext.put("siteNavSitAccessability", Web.escapeHtml(rb.getString("sit.accessibility")));
-			rcontext.put("siteNavSitJumpContent", Web.escapeHtml(rb.getString("sit.jumpcontent")));
-			rcontext.put("siteNavSitJumpTools", Web.escapeHtml(rb.getString("sit.jumptools")));
-			rcontext.put("siteNavSitJumpWorksite", Web.escapeHtml(rb.getString("sit.jumpworksite")));
+//			rcontext.put("siteNavSitAccessability", Web.escapeHtml(rb.getString("sit_accessibility")));
+//			rcontext.put("siteNavSitJumpContent", Web.escapeHtml(rb.getString("sit_jumpcontent")));
+//			rcontext.put("siteNavSitJumpTools", Web.escapeHtml(rb.getString("sit_jumptools")));
+//			rcontext.put("siteNavSitJumpWorksite", Web.escapeHtml(rb.getString("sit_jumpworksite")));
 
 			rcontext.put("siteNavLoggedIn", Boolean.valueOf(loggedIn));
 
@@ -436,11 +436,11 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			rcontext.put("tabsCssClass", cssClass);
-			rcontext.put("tabsSitWorksiteHead", Web.escapeHtml(rb.getString("sit.worksiteshead")));
+//			rcontext.put("tabsSitWorksiteHead", Web.escapeHtml(rb.getString("sit_worksiteshead")));
 			rcontext.put("tabsCurMyWorkspace", Boolean.valueOf(curMyWorkspace));
-			rcontext.put("tabsSitMyWorkspace", rb.getString("sit.mywor"));
+//			rcontext.put("tabsSitMyWorkspace", rb.getString("sit_mywor"));
 
-			rcontext.put("tabsSitWorksite", Web.escapeHtml(rb.getString("sit.worksite")));
+//			rcontext.put("tabsSitWorksite", Web.escapeHtml(rb.getString("sit_worksite")));
 
 			List<Map> l = portal.convertSitesToMaps(req, mySites, origPrefix, siteId, myWorkspaceSiteId,
 			/* includeSummary */false, /* expandSite */false,
@@ -458,8 +458,8 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			rcontext.put("tabsMoreSitesShow", Boolean.valueOf(moreSites.size() > 0));
-			rcontext.put("tabsSitMore", Web.escapeHtml(rb.getString("sit.more")));
-			rcontext.put("tabsSitSelectMessage", Web.escapeHtml(rb.getString("sit.selectmessage")));
+//			rcontext.put("tabsSitMore", Web.escapeHtml(rb.getString("sit_more")));
+//			rcontext.put("tabsSitSelectMessage", Web.escapeHtml(rb.getString("sit_selectmessage")));
 			// more dropdown
 			if (moreSites.size() > 0)
 			{
@@ -485,7 +485,7 @@ public class SiteHandler extends WorksiteHandler
 			{
 				String logoutUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/logout_gallery";
 				rcontext.put("tabsLogoutUrl", logoutUrl);
-				rcontext.put("tabsSitLog", Web.escapeHtml(rb.getString("sit.log")));
+//				rcontext.put("tabsSitLog", Web.escapeHtml(rb.getString("sit_log")));
 			}
 		}
 	}

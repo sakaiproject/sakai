@@ -61,8 +61,6 @@
 ##		toolMap.put("toolShowResetButton", Boolean.valueOf(showResetButton));
 ##		toolMap.put("toolShowHelpButton", Boolean.valueOf(showHelpButton));
 ##		toolMap.put("toolHelpActionUrl", helpActionUrl);
-##		toolMap.put("toolContentPortTitle", Web.escapeHtml(rb
-##				.getString("sit.contentporttit")));
 ##
 #macro( includeTool $toolPlacement)
 <div class="portlet">
@@ -77,18 +75,18 @@
 		<div class="portletTitle">
 			<div class="title">
 #if (${toolPlacement.toolShowResetButton})
-                <a href="${toolPlacement.toolResetActionUrl}" target="${toolPlacement.toolPlacementIDJS}" title="${sitReset}">
-                        <img src="/library/image/transparent.gif" alt="${sitReset}" border="1" />
+                <a href="${toolPlacement.toolResetActionUrl}" target="${toolPlacement.toolPlacementIDJS}" title="${rloader.sit_reset}">
+                        <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" />
                 </a>
 #end
 				<h2>${toolPlacement.toolRenderResult.getTitle()}</h2>
 			</div>
 			<div class="action">
 #if (${toolPlacement.toolShowHelpButton})
-		<a accesskey="h" href="${toolPlacement.toolHelpActionUrl}" title="${sitHelp}" 
+		<a accesskey="h" href="${toolPlacement.toolHelpActionUrl}" title="${rloader.sit_help}" 
 		 target="_blank" onclick="openWindow('${toolPlacement.toolHelpActionUrl}', 'Help',
 		  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
-			<img src="/library/image/transparent.gif"  alt="${sitHelp}" border="0" />
+			<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" />
 		</a>
 #end
 			</div>
@@ -107,10 +105,10 @@
 			</div>
 			<div class="action">
 #if (${toolPlacement.toolShowHelpButton})
-		<a accesskey="h" href="${toolPlacement.toolHelpActionUrl}" title="${sitHelp}" 
+		<a accesskey="h" href="${toolPlacement.toolHelpActionUrl}" title="${rloader.sit_help}" 
 		 target="_blank" onclick="openWindow('${toolPlacement.toolHelpActionUrl}', 'Help',
 		  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
-			<img src="/library/image/transparent.gif"  alt="${sitHelp}" border="0" />
+			<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" />
 		</a>
 #end
 			</div>
@@ -222,11 +220,8 @@
 ##includeTabs
 ##
 ##		rcontext.put("tabsCssClass",cssClass);
-##		rcontext.put("tabsSitWorksiteHead",Web.escapeHtml(rb.getString("sit.worksiteshead")));
 ##		rcontext.put("tabsCurMyWorkspace",Boolean.valueOf(curMyWorkspace));
-##		rcontext.put("tabsSitMyWorkspace",rb.getString("sit.mywor"));
 ##		rcontext.put("tabsSiteUrl",mySiteUrl);
-##		rcontext.put("tabsSitWorksite",Web.escapeHtml(rb.getString("sit.worksite")));
 ##			m.put("isCurrentSite",Boolean.valueOf(s.getId().equals(siteId)));
 ##			m.put("siteTitle",Web.escapeHtml(s.getTitle()));
 ##			m.put("siteUrl",Web.escapeHtml(s.getTitle()));
@@ -234,15 +229,12 @@
 ##		rcontext.put("tabsHasExtraTitle",Boolean.valueOf(extraTitle != null));
 ##			rcontext.put("tabsExtraTitle",Web.escapeHtml(extraTitle));
 ##			
-##			rcontext.put("tabsSitSelectMessage",Web.escapeHtml(rb.getString("sit.selectmessage")));
-##			rcontext.put("tabsSitMore",Web.escapeHtml(rb.getString("sit.more")));
 ##				m.put("title",Web.escapeHtml(s.getTitle()));
 ##				m.put("url",siteUrl);
 ##			rcontext.put("tabsMoreSites",l);
 ##
 ##		rcontext.put("tabsAddLogout",Boolean.valueOf(addLogout));
 ##			rcontext.put("tabsLogoutUrl",logoutUrl);
-##			rcontext.put("tabsSitLog",Web.escapeHtml(rb.getString("sit.log")));
 ##------------------------------------------------------------------------------------------
 #macro( includeTabs  )
 <!-- start includeTabs -->
@@ -250,20 +242,20 @@
 	<div id="siteNav">
 		<div id="linkNav">
 			<a id="sitetabs" class="skip" name="sitetabs"></a>
-			<h1 class="skip">${tabsSitWorksiteHead}</h1>
+			<h1 class="skip">${rloader.sit_worksiteshead}</h1>
 			<ul id="siteLinkList">
 #if (${siteNavLoggedIn})
 #if ($tabsCurMyWorkspace)
-				<li class="selectedTab"><a href="#"><span>${tabsSitMyWorkspace}</span></a></li>
+				<li class="selectedTab"><a href="#"><span>${rloader.sit_mywor}</span></a></li>
 #else
-				<li><a href="${tabsSiteUrl}" title="${tabsSitMyWorkspace}"><span>${tabsSitMyWorkspace}</span></a></li>
+				<li><a href="${tabsSiteUrl}" title="${rloader.sit_mywor}"><span>${rloader.sit_mywor}</span></a></li>
 #end
 #end
 #foreach ( $site in $tabsSites ) 
 #if (${site.isCurrentSite})
 				<li class="selectedTab"><a href="#"><span>${site.siteTitle}</span></a></li>
 #else
-				<li><a href="${site.siteUrl}" title="${site.siteTitle} ${tabsSitMyWorkspace}">
+				<li><a href="${site.siteUrl}" title="${site.siteTitle} ${rloader.sit_mywor}">
 					<span>${site.siteTitle}</span>
 				</a></li>
 #end
@@ -278,9 +270,9 @@
 		</div>
 #if ($tabsMoreSitesShow)
 		<div id="selectNav">
-			<span class="skip">${tabsSitSelectMessage}</span>
+			<span class="skip">${rloader.sit_selectmessage}</span>
 			<select onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">
-				<option value="" selected="selected">${tabsSitMore}</option>
+				<option value="" selected="selected">${rloader.sit_more}</option>
 #foreach( $site in $tabsMoreSites )
 				<option title="${site.siteTitle}" value="${site.siteUrl}">${site.siteTitle}</option> 
 #end	
@@ -289,7 +281,7 @@
 #end
 #if ($tabsAddLogout)
 		<div class="galleryLogin">
-			<a href="$tabsLogoutUrl">$tabsSitLog</a>
+			<a href="$tabsLogoutUrl">${rloader.sit_log}</a>
 		</div>
 	</div>
 
@@ -316,7 +308,6 @@
 ##		rcontext.put("pageNavPublished",Boolean.valueOf(published));
 ##		rcontext.put("pageNavType",type);
 ##		rcontext.put("pageNavIconUrl",iconUrl);
-##		rcontext.put("pageNavSitToolsHead",Web.escapeHtml(rb.getString("sit.toolshead")));
 ##                    m.put("isPage",Boolean.valueOf(true));
 ##                    m.put("current", Boolean.valueOf(current));
 ##                    m.put("ispopup", Boolean.valueOf(p.isPopUp()));
@@ -330,10 +321,7 @@
 ##		rcontext.put("pageNavShowHelp",Boolean.valueOf(showHelp));
 ##		rcontext.put("pageNavHelpUrl",helpUrl);
 ##
-##		rcontext.put("pageNavSitPresenceTitle",Web.escapeHtml(rb.getString("sit.presencetitle")));
-##		rcontext.put("pageNavSitPresenceFrameTitle",Web.escapeHtml(rb.getString("sit.presenceiframetit")));
 ##		rcontext.put("pageNavPresenceUrk",presenceUrl);
-##		rcontext.put("pageNavSitContentshead",Web.escapeHtml(rb.getString("sit.contentshead")));
 ##		
 #macro( includePageNav   )
 <!-- start includePageNav -->
@@ -350,7 +338,7 @@
 #end
 		</div>
 		<a id="totoolmenu" class="skip" name="totoolmenu"></a>
-		<h1 class="skip">$pageNavSitToolsHead</h1>
+		<h1 class="skip">${rloader.sit_toolshead}</h1>
 		<div id="toolMenu">
 			<ul>
 #foreach( $page in $pageNavTools )
@@ -373,7 +361,7 @@
 					onclick="openWindow('${pageNavHelpUrl}', 
 					'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); 
 					return false">
-					<span>${sitHelp}</span>
+					<span>${rloader.sit_help}</span>
 				</a>
 				</li>
 #end
@@ -381,14 +369,14 @@
 		</div>
 #if (${pageNavShowPresenceLoggedIn})
 		<div id="presenceWrapper">
-			<div id="presenceTitle">${pageNavSitPresenceTitle}</div>
-			<iframe name="presenceIframe" id="presenceIframe" title="${pageNavSitPresenceTitle}"
+			<div id="presenceTitle">${rloader.sit_presencetitle}</div>
+			<iframe name="presenceIframe" id="presenceIframe" title="${rloader.sit_presencetitle}"
 				frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${pageNavPresenceUrl}" >
 			</iframe>
 		</div>
 #end
 	</div>
-	<h1 class="skip">${pageNavSitContentshead}</h1>
+	<h1 class="skip">${rloader.sit_contentshead}</h1>
 	<a id="tocontent" class="skip" name="tocontent"></a>
 <!-- end includePageNav -->
 #end		
@@ -442,14 +430,6 @@
 ## includeGalleryNav
 ##		rcontext.put("galleryHasAccessibilityURL", Boolean.valueOf((accessibilityURL != null && accessibilityURL != "")));
 ##		rcontext.put("galleryAccessibilityURL", accessibilityURL);
-##		rcontext.put("gallarySitAccessibility", Web.escapeHtml(rb
-##				.getString("sit.accessibility")));
-##		rcontext.put("gallarySitJumpcontent", Web.escapeHtml(rb
-##				.getString("sit.jumpcontent")));
-##		rcontext.put("gallarySitJumptools", Web.escapeHtml(rb
-##				.getString("sit.jumptools")));
-##		rcontext.put("gallarySitJumpworksite", Web.escapeHtml(rb
-##				.getString("sit.jumpworksite")));
 ##		rcontext.put("gallaryLoggedIn", Boolean.valueOf(loggedIn));
 ##
 ##------------------------------------------------------------------------------------------
@@ -459,11 +439,11 @@
 	<div id="portalContainer">
 		<div id="skipNav">
 #if ($galleryHasAccessibilityURL)
-			<a href="$galleryAccessibilityURL" class="skip" title="$gallarySitAccessibility" accesskey="0">$gallarySitAccessibility</a>
+			<a href="$galleryAccessibilityURL" class="skip" title="${rloader.sit_accessibility}" accesskey="0">${rloader.sit_accessibility}</a>
 #end
-			<a href="#tocontent"  class="skip" title="$gallarySitJumpcontent" accesskey="c">$gallarySitJumpcontent</a>
-			<a href="#totoolmenu"  class="skip" title="$gallarySitJumptools" accesskey="l">$gallarySitJumptools</a>
-			<a href="#sitetabs" class="skip" title="$gallarySitJumpworksite" accesskey="w">$gallarySitJumpworksite</a>
+			<a href="#tocontent"  class="skip" title="${rloader.sit_jumpcontent}" accesskey="c">${rloader.sit_jumpcontent}</a>
+			<a href="#totoolmenu"  class="skip" title="${rloader.sit_jumptools}" accesskey="l">${rloader.sit_jumptools}</a>
+			<a href="#sitetabs" class="skip" title="${rloader.sit_jumpworksite}" accesskey="w">${rloader.sit_jumpworksite}</a>
 		</div>
 #if (${gallaryLoggedIn})
 		<div id="headerMax">
@@ -504,10 +484,6 @@
 ##------------------------------------------------------------------------------------------
 ##        rcontext.put("siteNavHasAccessibilityURL",Boolean.valueOf((accessibilityURL != null && accessibilityURL != "")));
 ##        rcontext.put("siteNavAccessibilityURL",accessibilityURL);
-##        rcontext.put("siteNavSitAccessability",Web.escapeHtml(rb.getString("sit.accessibility")));
-##        rcontext.put("siteNavSitJumpContent",Web.escapeHtml(rb.getString("sit.jumpcontent")));
-##        rcontext.put("siteNavSitJumpTools",Web.escapeHtml(rb.getString("sit.jumptools")));
-##        rcontext.put("siteNavSitJumpWorksite",Web.escapeHtml(rb.getString("sit.jumpworksite")));
 ##        
 ##        rcontext.put("siteNavLoggedIn",Boolean.valueOf(loggedIn));
 #macro( includeSiteNav  )
@@ -516,19 +492,19 @@
 	<div id="portalContainer">
 		<div id="skipNav">
 #if ($siteNavHasAccessibilityURL)
-			<a href="$siteNavAccessibilityURL" class="skip" title="$siteNavSitAccessability" accesskey="0">
-				$siteNavSitAccessability
+			<a href="$siteNavAccessibilityURL" class="skip" title="${rloader.sit_accessibility}" accesskey="0">
+				${rloader.sit_accessibility}
 			</a>
 #end
 
-			<a href="#tocontent"  class="skip" title="$siteNavSitJumpContent" accesskey="c">
-			$siteNavSitJumpContent
+			<a href="#tocontent"  class="skip" title="${rloader.sit_jumpcontent}" accesskey="c">
+			${rloader.sit_jumpcontent}
 			</a>
-			<a href="#totoolmenu"  class="skip" title="$siteNavSitJumpTools" accesskey="l">
-				$siteNavSitJumpTools
+			<a href="#totoolmenu"  class="skip" title="${rloader.sit_jumptools}" accesskey="l">
+				${rloader.sit_jumptools}
 			</a>
-			<a href="#sitetabs" class="skip" title="$siteNavSitJumpWorksite" accesskey="w">
-				$siteNavSitJumpWorksite
+			<a href="#sitetabs" class="skip" title="${rloader.sit_jumpworksite}" accesskey="w">
+				${rloader.sit_jumpworksite}
 			</a>
 		</div>
 #if (${tabsSites})
@@ -562,7 +538,7 @@
 	</div>
 	<div id="footerInfo">
 #foreach ( $pb in $bottomNavPoweredBy )
-		<span class="skip">${bottomNavSitNewWindow}</span>	
+		<span class="skip">${rloader.site_newwindow}</span>	
 		<a href="${pb.poweredByUrl}" target="_blank">
 				<img border="0" src="${pb.poweredByImage}" alt="${pb.poweredByAltText}" /></a>
 #end

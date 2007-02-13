@@ -27,7 +27,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -110,7 +109,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	/**
 	 * messages.
 	 */
-	private static ResourceLoader rb = new ResourceLoader("sitenav");
+	private static ResourceLoader rloader = new ResourceLoader("sitenav");
 
 	/**
 	 * Parameter value to indicate to look up a tool ID within a site
@@ -769,8 +768,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("pageTitle", Web.escapeHtml(title));
 		rcontext.put("pageScriptPath", getScriptPath());
 		rcontext.put("pageTop", Boolean.valueOf(true));
-		rcontext.put("sitHelp", Web.escapeHtml(rb.getString("sit.help")));
-		rcontext.put("sitReset", Web.escapeHtml(rb.getString("sit.reset")));
+		rcontext.put("rloader",rloader);
+//		rcontext.put("sitHelp", Web.escapeHtml(rb.getString("sit_help")));
+//		rcontext.put("sitReset", Web.escapeHtml(rb.getString("sit_reset")));
 
 		if (siteType != null && siteType.length() > 0)
 		{
@@ -1073,7 +1073,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("bottomNav", l);
 			}
 
-			rcontext.put("bottomNavSitNewWindow", Web.escapeHtml(rb.getString("site.newwindow")));
+//			rcontext.put("bottomNavSitNewWindow", Web.escapeHtml(rb.getString("site_newwindow")));
 
 			if ((poweredByUrl != null) && (poweredByImage != null) && (poweredByAltText != null)
 					&& (poweredByUrl.length == poweredByImage.length) && (poweredByUrl.length == poweredByAltText.length))
@@ -1148,7 +1148,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 					// check for a login text override
 					message = StringUtil.trimToNull(ServerConfigurationService.getString("login.text"));
-					if (message == null) message = rb.getString("log.login");
+					if (message == null) message = rloader.getString("log.login");
 
 					// check for an image for the login
 					image1 = StringUtil.trimToNull(ServerConfigurationService.getString("login.icon"));
@@ -1171,7 +1171,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 				// check for a logout text override
 				message = StringUtil.trimToNull(ServerConfigurationService.getString("logout.text"));
-				if (message == null) message = rb.getString("sit.log");
+				if (message == null) message = rloader.getString("sit_log");
 
 				// check for an image for the logout
 				image1 = StringUtil.trimToNull(ServerConfigurationService.getString("logout.icon"));
@@ -1203,12 +1203,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				Tool loginTool = ToolManager.getTool("sakai.login");
 				String eidWording = null;
 				String pwWording = null;
-				eidWording = StringUtil.trimToNull(rb.getString("log.userid"));
-				pwWording = StringUtil.trimToNull(rb.getString("log.pass"));
+				eidWording = StringUtil.trimToNull(rloader.getString("log.userid"));
+				pwWording = StringUtil.trimToNull(rloader.getString("log.pass"));
 
 				if (eidWording == null) eidWording = "eid";
 				if (pwWording == null) pwWording = "pw";
-				String loginWording = rb.getString("log.login");
+				String loginWording = rloader.getString("log.login");
 
 				rcontext.put("loginPortalPath", ServerConfigurationService.getString("portalPath"));
 				rcontext.put("loginEidWording", eidWording);
@@ -1260,7 +1260,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		theMap.put("pageNavPublished", Boolean.valueOf(published));
 		theMap.put("pageNavType", type);
 		theMap.put("pageNavIconUrl", iconUrl);
-		theMap.put("pageNavSitToolsHead", Web.escapeHtml(rb.getString("sit.toolshead")));
+//		theMap.put("pageNavSitToolsHead", Web.escapeHtml(rb.getString("sit_toolshead")));
 
 		// order the pages based on their tools and the tool order for the
 		// site type
@@ -1350,14 +1350,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		theMap.put("pageNavShowHelp", Boolean.valueOf(showHelp));
 		theMap.put("pageNavHelpUrl", helpUrl);
 
-		theMap.put("pageNavSitContentshead", Web.escapeHtml(rb.getString("sit.contentshead")));
+//		theMap.put("pageNavSitContentshead", Web.escapeHtml(rb.getString("sit_contentshead")));
 
 		// Handle Presense
 		boolean showPresence = ServerConfigurationService.getBoolean("display.users.present", true);
 		String presenceUrl = Web.returnUrl(req, "/presence/" + Web.escapeUrl(site.getId()));
 
-		theMap.put("pageNavSitPresenceTitle", Web.escapeHtml(rb.getString("sit.presencetitle")));
-		theMap.put("pageNavSitPresenceFrameTitle", Web.escapeHtml(rb.getString("sit.presenceiframetit")));
+//		theMap.put("pageNavSitPresenceTitle", Web.escapeHtml(rb.getString("sit_presencetitle")));
+//		theMap.put("pageNavSitPresenceFrameTitle", Web.escapeHtml(rb.getString("sit_presenceiframetit")));
 		theMap.put("pageNavShowPresenceLoggedIn", Boolean.valueOf(showPresence && loggedIn));
 		theMap.put("pageNavPresenceUrl", presenceUrl);
 
@@ -1532,7 +1532,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		try
 		{
+			System.err.println("Render "+template);
 			rengine.render(template, rcontext, out);
+			System.err.println("Render Done "+template);
 		}
 		catch (Exception e)
 		{

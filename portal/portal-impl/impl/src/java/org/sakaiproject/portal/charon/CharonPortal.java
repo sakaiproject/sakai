@@ -642,12 +642,12 @@ public class CharonPortal extends HttpServlet
 	{
 		return ("\t\t<a accesskey=\"h\""
 			+ " href=\"" + helpActionUrl + "\" "
- 			+ " title=\"" + Web.escapeHtml(rb.getString("sit.help")) + "\" "
+ 			+ " title=\"" + Web.escapeHtml(rb.getString("sit_help")) + "\" "
 			+ " target=\"_blank\" "
 			+ " onclick=\"openWindow('" + helpActionUrl + "', 'Help'"
 			+ ", 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
 			+ "<img src=\"/library/image/transparent.gif\""
-			+ " alt=\"" + Web.escapeHtml(rb.getString("sit.help")) + "\""
+			+ " alt=\"" + Web.escapeHtml(rb.getString("sit_help")) + "\""
 			+ " border=\"0\" /></a>\n");
 	}
 
@@ -1604,7 +1604,7 @@ public class CharonPortal extends HttpServlet
 			for (int i = 0; i < poweredByUrl.length; i++)
 			{
 				out.println("	<span class=\"skip\">"
-						+ Web.escapeHtml(rb.getString("site.newwindow"))
+						+ Web.escapeHtml(rb.getString("site_newwindow"))
 						+ "</span>	<a href=\"" + poweredByUrl[i]
 						+ "\" target=\"_blank\">" + "<img border=\"0\" src=\""
 						+ poweredByImage[i] + "\" alt=\"" + poweredByAltText[i]
@@ -1615,7 +1615,7 @@ public class CharonPortal extends HttpServlet
 		{
 			out
 					.println("		<span class=\"skip\">"
-							+ Web.escapeHtml(rb.getString("site.newwindow"))
+							+ Web.escapeHtml(rb.getString("site_newwindow"))
 							+ "</span><a href=\"http://sakaiproject.org\" target=\"_blank\">"
 							+ "<img border=\"0\" src=\"/library/image/sakai_powered.gif\" alt=\"Powered by Sakai\" /></a>");
 		}
@@ -1675,23 +1675,23 @@ public class CharonPortal extends HttpServlet
 		{
 			out.println("<a href=\"" + accessibilityURL
 					+ "\" class=\"skip\" title=\""
-					+ Web.escapeHtml(rb.getString("sit.accessibility"))
+					+ Web.escapeHtml(rb.getString("sit_accessibility"))
 					+ "\" accesskey=\"0\">"
-					+ Web.escapeHtml(rb.getString("sit.accessibility"))
+					+ Web.escapeHtml(rb.getString("sit_accessibility"))
 					+ "</a>");
 		}
 		out.println("	<a href=\"#tocontent\"  class=\"skip\" title=\""
-				+ Web.escapeHtml(rb.getString("sit.jumpcontent"))
+				+ Web.escapeHtml(rb.getString("sit_jumpcontent"))
 				+ "\" accesskey=\"c\">"
-				+ Web.escapeHtml(rb.getString("sit.jumpcontent")) + "</a>");
+				+ Web.escapeHtml(rb.getString("sit_jumpcontent")) + "</a>");
 		out.println("	<a href=\"#totoolmenu\"  class=\"skip\" title=\""
-				+ Web.escapeHtml(rb.getString("sit.jumptools"))
+				+ Web.escapeHtml(rb.getString("sit_jumptools"))
 				+ "\" accesskey=\"l\">"
-				+ Web.escapeHtml(rb.getString("sit.jumptools")) + "</a>");
+				+ Web.escapeHtml(rb.getString("sit_jumptools")) + "</a>");
 		out.println("	<a href=\"#sitetabs\" class=\"skip\" title=\""
-				+ Web.escapeHtml(rb.getString("sit.jumpworksite"))
+				+ Web.escapeHtml(rb.getString("sit_jumpworksite"))
 				+ "\" accesskey=\"w\">"
-				+ Web.escapeHtml(rb.getString("sit.jumpworksite")) + "</a>");
+				+ Web.escapeHtml(rb.getString("sit_jumpworksite")) + "</a>");
 		out.println("</div>");
 		if (loggedIn)
 		{
@@ -1825,7 +1825,7 @@ public class CharonPortal extends HttpServlet
 			// check for a logout text override
 			message = StringUtil.trimToNull(ServerConfigurationService
 					.getString("logout.text"));
-			if (message == null) message = rb.getString("sit.log");
+			if (message == null) message = rb.getString("sit_log");
 
 			// check for an image for the logout
 			image1 = StringUtil.trimToNull(ServerConfigurationService
@@ -2047,7 +2047,7 @@ public class CharonPortal extends HttpServlet
 		out
 				.println("	<a id=\"totoolmenu\" class=\"skip\" name=\"totoolmenu\"></a>");
 		out.println("	<h1 class=\"skip\">"
-				+ Web.escapeHtml(rb.getString("sit.toolshead")) + "</h1>");
+				+ Web.escapeHtml(rb.getString("sit_toolshead")) + "</h1>");
 
 		out.println("	<div id=\"toolMenu\">");
 		out.println("		<ul>");
@@ -2140,7 +2140,7 @@ public class CharonPortal extends HttpServlet
 							+ "onclick=\"openWindow('"
 							+ helpUrl
 							+ "', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
-							+ "<span>" + rb.getString("sit.help")
+							+ "<span>" + rb.getString("sit_help")
 							+ "</span></a>");
 
 			out.println("			</li>");
@@ -2154,13 +2154,13 @@ public class CharonPortal extends HttpServlet
 				+ Web.escapeUrl(site.getId()));
             out.println("	<div id=\"presenceWrapper\">");
 			out.println("		<div id=\"presenceTitle\">");
-			out.println(Web.escapeHtml(rb.getString("sit.presencetitle")));
+			out.println(Web.escapeHtml(rb.getString("sit_presencetitle")));
 			out.println("	</div>");
                     out.println("	<iframe ");
 			out.println("		name=\"presenceIframe\"");
 			out.println("		id=\"presenceIframe\"");
 			out.println("		title=\""
-					+ Web.escapeHtml(rb.getString("sit.presenceiframetit"))
+					+ Web.escapeHtml(rb.getString("sit_presenceiframetit"))
 					+ "\"");
 			out.println("		frameborder=\"0\"");
 			out.println("		marginwidth=\"0\"");
@@ -2176,7 +2176,7 @@ public class CharonPortal extends HttpServlet
 		// target of "jump to content" link and header for content
 
 		out.println("	<h1 class=\"skip\">"
-				+ Web.escapeHtml(rb.getString("sit.contentshead")) + "</h1>");
+				+ Web.escapeHtml(rb.getString("sit_contentshead")) + "</h1>");
 		out
 				.println("	<a id=\"tocontent\" class=\"skip\" name=\"tocontent\"></a>");
 
@@ -2219,23 +2219,23 @@ public class CharonPortal extends HttpServlet
 		{
 			out.println("<a href=\"" + accessibilityURL
 					+ "\" class=\"skip\" title=\""
-					+ Web.escapeHtml(rb.getString("sit.accessibility"))
+					+ Web.escapeHtml(rb.getString("sit_accessibility"))
 					+ "\" accesskey=\"0\">"
-					+ Web.escapeHtml(rb.getString("sit.accessibility"))
+					+ Web.escapeHtml(rb.getString("sit_accessibility"))
 					+ "</a>");
 		}
 		out.println("<a href=\"#tocontent\"  class=\"skip\" title=\""
-				+ Web.escapeHtml(rb.getString("sit.jumpcontent"))
+				+ Web.escapeHtml(rb.getString("sit_jumpcontent"))
 				+ "\" accesskey=\"c\">"
-				+ Web.escapeHtml(rb.getString("sit.jumpcontent")) + "</a>");
+				+ Web.escapeHtml(rb.getString("sit_jumpcontent")) + "</a>");
 		out.println("<a href=\"#totoolmenu\"  class=\"skip\" title=\""
-				+ Web.escapeHtml(rb.getString("sit.jumptools"))
+				+ Web.escapeHtml(rb.getString("sit_jumptools"))
 				+ "\" accesskey=\"l\">"
-				+ Web.escapeHtml(rb.getString("sit.jumptools")) + "</a>");
+				+ Web.escapeHtml(rb.getString("sit_jumptools")) + "</a>");
 		out.println("<a href=\"#sitetabs\" class=\"skip\" title=\""
-				+ Web.escapeHtml(rb.getString("sit.jumpworksite"))
+				+ Web.escapeHtml(rb.getString("sit_jumpworksite"))
 				+ "\" accesskey=\"w\">"
-				+ Web.escapeHtml(rb.getString("sit.jumpworksite")) + "</a>");
+				+ Web.escapeHtml(rb.getString("sit_jumpworksite")) + "</a>");
 		out.println("</div>");
 		if (loggedIn)
 		{
@@ -2466,7 +2466,7 @@ public class CharonPortal extends HttpServlet
 		out
 				.println("				<a id=\"sitetabs\" class=\"skip\" name=\"sitetabs\"></a>");
 		out.println("				<h1 class=\"skip\">"
-				+ Web.escapeHtml(rb.getString("sit.worksiteshead")) + "</h1>");
+				+ Web.escapeHtml(rb.getString("sit_worksiteshead")) + "</h1>");
 
 		out.println("				<ul id=\"siteLinkList\">");
 
@@ -2474,7 +2474,7 @@ public class CharonPortal extends HttpServlet
 		if (curMyWorkspace)
 		{
 			out.println("						<li class=\"selectedTab\"><a href=\"#\"><span>"
-					+ rb.getString("sit.mywor") + "</span></a></li>");
+					+ rb.getString("sit_mywor") + "</span></a></li>");
 		}
 		else
 		{
@@ -2483,7 +2483,7 @@ public class CharonPortal extends HttpServlet
 					+ prefix + "/"
 					+ Web.escapeUrl(getUserEidBasedSiteId(session.getUserId()));
 			out.println("						<li><a href=\"" + siteUrl + "\" target=\"_parent\" title=\""
-					+ Web.escapeHtml(rb.getString("sit.mywor")) + "\"><span>" + Web.escapeHtml(rb.getString("sit.mywor")) + "</span></a></li>");
+					+ Web.escapeHtml(rb.getString("sit_mywor")) + "\"><span>" + Web.escapeHtml(rb.getString("sit_mywor")) + "</span></a></li>");
 		}
 
 		// first n tabs
@@ -2501,7 +2501,7 @@ public class CharonPortal extends HttpServlet
 			{
 				String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/" + Web.escapeUrl(getSiteEffectiveId(s));
 				out.println("							<li><a href=\"" + siteUrl + "\" target=\"_parent\" title=\"" + Web.escapeHtml(s.getTitle())
-						+ " " + Web.escapeHtml(rb.getString("sit.worksite")) + "\"><span>" + Web.escapeHtml(s.getTitle()) + "</span></a></li>");
+						+ " " + Web.escapeHtml(rb.getString("sit_worksite")) + "\"><span>" + Web.escapeHtml(s.getTitle()) + "</span></a></li>");
 			}
 		}
 
@@ -2522,14 +2522,14 @@ public class CharonPortal extends HttpServlet
 		if (moreSites.size() > 0)
 		{
 			out.println("			<div id=\"selectNav\"><span class=\"skip\">"
-					+ Web.escapeHtml(rb.getString("sit.selectmessage"))
+					+ Web.escapeHtml(rb.getString("sit_selectmessage"))
 					+ "</span>");
 			out.println("				<select ");
 			out
 					.println("						onchange=\"if (this.options[this.selectedIndex].value != '')"
 							+ " { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }\">");
 			out.println("					<option value=\"\" selected=\"selected\">"
-					+ Web.escapeHtml(rb.getString("sit.more")) + "</option>");
+					+ Web.escapeHtml(rb.getString("sit_more")) + "</option>");
 
 			for (Iterator i = moreSites.iterator(); i.hasNext();)
 			{
@@ -2539,7 +2539,7 @@ public class CharonPortal extends HttpServlet
 						+ "/" + prefix + "/" + getSiteEffectiveId(s);
 				out.println("						<option title=\""
 						+ Web.escapeHtml(s.getTitle()) + " "
-						+ Web.escapeHtml(rb.getString("sit.worksite"))
+						+ Web.escapeHtml(rb.getString("sit_worksite"))
 						+ "\" value=\"" + siteUrl + "\">"
 						+ Web.escapeHtml(s.getTitle()) + "</option> ");
 			}
@@ -2555,7 +2555,7 @@ public class CharonPortal extends HttpServlet
 					+ "/logout_gallery";
 			out.println("<div class=\"galleryLogin\">");
 			out.println("	<a href=\"" + logoutUrl + "\" target=\"_parent\">"
-					+ Web.escapeHtml(rb.getString("sit.log")) + "</a>");
+					+ Web.escapeHtml(rb.getString("sit_log")) + "</a>");
 			out.println("</div>");
 		}
 		// out.println(" </tr>");
@@ -2656,9 +2656,9 @@ public class CharonPortal extends HttpServlet
                        String resetUrl = PortalStringUtil.replaceFirst(toolUrl,"/tool/","/tool-reset/");
                        out.write("\t\t<a href=\"" + resetUrl + "?panel=Main\" "
 					+ " target=\"" + Web.escapeJavascript("Main" + placement.getId()) + "\""
-					+ " title=\"" + Web.escapeHtml(rb.getString("sit.reset")) 
+					+ " title=\"" + Web.escapeHtml(rb.getString("sit_reset")) 
 					+ "\"><img src=\"/library/image/transparent.gif\" alt=\"" 
-					+ Web.escapeHtml(rb.getString("sit.reset")) + "\" border=\"1\" /></a>");
+					+ Web.escapeHtml(rb.getString("sit_reset")) + "\" border=\"1\" /></a>");
 		}
 		out.write("<h2>" + result.getTitle() + "\n" + "\t</h2></div>\n");
 		out.write("\t<div class=\"action\">\n");

@@ -33,7 +33,7 @@
                >${currentPlacement.toolTitle}</a>
 			#end
 			#if (${currentPlacement.toolShowHelpButton})
-             &nbsp;(<a accesskey="h" href="${currentPlacement.toolHelpActionUrl}" title="${sitHelp}"
+             &nbsp;(<a accesskey="h" href="${currentPlacement.toolHelpActionUrl}" title="${rloader.sit_help}"
                 target="_blank" onclick="openWindow('${currentPlacement.toolHelpActionUrl}', 'Help',
                 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">?</a>)
 			 #end
@@ -88,8 +88,8 @@
 		#if (${pageNavShowPresenceLoggedIn})
 			<div class="portletpresence" id="portletletprecense" >
 				 <div class="portletpresencewrapper" id="portletpresencewrapper">
-					##not needed   <div id="presenceTitle">${pageNavSitPresenceTitle}</div>
-							<iframe name="presenceIframe" id="presenceIframe" title="${pageNavSitPresenceTitle}"
+					##not needed   <div id="presenceTitle">${rloader.sit_presencetitle}</div>
+							<iframe name="presenceIframe" id="presenceIframe" title="${rloader.sit_presencetitle}"
 									  frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${pageNavPresenceUrl}" >
 							</iframe>
 				 </div>

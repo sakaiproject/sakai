@@ -4,12 +4,12 @@
 	<div id="siteNav">
 		<div id="linkNav">
 			<a id="sitetabs" class="skip" name="sitetabs"></a>
-			<h1 class="skip">${tabsSitWorksiteHead}</h1>
+			<h1 class="skip">${rloader.sit_worksiteshead}</h1>
 			<ul id="siteLinkList">
 #if ($tabsCurMyWorkspace)
-				<li class="selectedTab"><a href="#"><span>${tabsSitMyWorkspace}</span></a></li>
+				<li class="selectedTab"><a href="#"><span>${rloader.sit_mywor}</span></a></li>
 #else
-				<li><a href="${tabsSiteUrl}" target="_parent" title="${tabsSitMyWorkspace}"><span>${tabsSitMyWorkspace}</span></a></li>
+				<li><a href="${tabsSiteUrl}" target="_parent" title="${rloader.sit_mywor}"><span>${rloader.sit_mywor}</span></a></li>
 #end
 #foreach ( $site in $tabsSites ) 
 #if (${site.isCurrentSite})
@@ -25,9 +25,9 @@
 			</ul>
 		</div>
 		<div id="selectNav">
-			<span class="skip">${tabsSitSelectMessage}</span>
+			<span class="skip">${rloader.sit_selectmessage}</span>
 			<select onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">
-				<option value="" selected="selected">${tabsSitMore}</option>
+				<option value="" selected="selected">${rloader.sit_more}</option>
 #foreach ( $site in $tabsSites ) 
 #if (!${site.isCurrentSite})
 				<option title="${site.siteTitle}" value="${site.siteUrl}">${site.siteTitle}</option> 
@@ -42,7 +42,7 @@
 		</div>
 #if ($tabsAddLogout)
 		<div class="galleryLogin">
-			<a href="$tabsLogoutUrl" target="_parent">$tabsSitLog</a>
+			<a href="$tabsLogoutUrl" target="_parent">${rlaoder.sit_log}</a>
 		</div>
 	</div>
 
@@ -62,19 +62,19 @@
 	<div id="portalContainer">
 		<div id="skipNav">
 #if ($siteNavHasAccessibilityURL)
-			<a href="$siteNavAccessibilityURL" class="skip" title="$siteNavSitAccessability" accesskey="0">
-				$siteNavSitAccessability
+			<a href="$siteNavAccessibilityURL" class="skip" title="${rloader.sit_accessibility}" accesskey="0">
+				${rlaoder.sit_accessibility}
 			</a>
 #end
 
-			<a href="#tocontent"  class="skip" title="$siteNavSitJumpContent" accesskey="c">
-			$siteNavSitJumpContent
+			<a href="#tocontent"  class="skip" title="${rloader.sit_jumpcontent}" accesskey="c">
+			${rloader.sit_jumpcontent}
 			</a>
-			<a href="#totoolmenu"  class="skip" title="$siteNavSitJumpTools" accesskey="l">
-				$siteNavSitJumpTools
+			<a href="#totoolmenu"  class="skip" title="${rloader.sit_jumptools}" accesskey="l">
+				${rloader.sit_jumptools}
 			</a>
-			<a href="#sitetabs" class="skip" title="$siteNavSitJumpWorksite" accesskey="w">
-				$siteNavSitJumpWorksite
+			<a href="#sitetabs" class="skip" title="${rloader.sit_jumpworksite}" accesskey="w">
+				${rloader.sit_jumpworksite}
 			</a>
 		</div>
 #if (${siteNavLoggedIn})
@@ -103,11 +103,11 @@
 	<div id="portalContainer">
 		<div id="skipNav">
 #if ($galleryHasAccessibilityURL)
-			<a href="$galleryAccessibilityURL" class="skip" title="$gallarySitAccessibility" accesskey="0">$gallarySitAccessibility</a>
+			<a href="$galleryAccessibilityURL" class="skip" title="${rloader.sit_accessibility}" accesskey="0">${rloader.sit_accessibility}</a>
 #end
-			<a href="#tocontent"  class="skip" title="$gallarySitJumpcontent" accesskey="c">$gallarySitJumpcontent</a>
-			<a href="#totoolmenu"  class="skip" title="$gallarySitJumptools" accesskey="l">$gallarySitJumptools</a>
-			<a href="#sitetabs" class="skip" title="$gallarySitJumpworksite" accesskey="w">$gallarySitJumpworksite</a>
+			<a href="#tocontent"  class="skip" title="${rloader.sit_jumpcontent}" accesskey="c">${rloader.sit_jumpcontent}</a>
+			<a href="#totoolmenu"  class="skip" title="${rloader.sit_jumptools}" accesskey="l">${rloader.sit_jumptools}</a>
+			<a href="#sitetabs" class="skip" title="${rloader.sit_jumpworksite}" accesskey="w">${rloader.sit_jumpworksite}</a>
 		</div>
 #if (${gallaryLoggedIn})
 		<div id="headerMax">

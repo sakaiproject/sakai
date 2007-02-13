@@ -210,7 +210,7 @@ public class WorksiteHandler  extends PageHandler
 			rcontext.put("pageNavPublished", Boolean.valueOf(published));
 			rcontext.put("pageNavType", type);
 			rcontext.put("pageNavIconUrl", iconUrl);
-			rcontext.put("pageNavSitToolsHead", Web.escapeHtml(rb.getString("sit.toolshead")));
+//			rcontext.put("pageNavSitToolsHead", Web.escapeHtml(rb.getString("sit_toolshead")));
 
 			// order the pages based on their tools and the tool order for the
 			// site type
@@ -300,14 +300,14 @@ public class WorksiteHandler  extends PageHandler
 			rcontext.put("pageNavShowHelp", Boolean.valueOf(showHelp));
 			rcontext.put("pageNavHelpUrl", helpUrl);
 
-			rcontext.put("pageNavSitContentshead", Web.escapeHtml(rb.getString("sit.contentshead")));
+//			rcontext.put("pageNavSitContentshead", Web.escapeHtml(rb.getString("sit_contentshead")));
 
 			// Handle Presense
 			boolean showPresence = ServerConfigurationService.getBoolean("display.users.present", true);
 			String presenceUrl = Web.returnUrl(req, "/presence/" + Web.escapeUrl(site.getId()));
 
-			rcontext.put("pageNavSitPresenceTitle", Web.escapeHtml(rb.getString("sit.presencetitle")));
-			rcontext.put("pageNavSitPresenceFrameTitle", Web.escapeHtml(rb.getString("sit.presenceiframetit")));
+//			rcontext.put("pageNavSitPresenceTitle", Web.escapeHtml(rb.getString("sit_presencetitle")));
+//			rcontext.put("pageNavSitPresenceFrameTitle", Web.escapeHtml(rb.getString("sit_presenceiframetit")));
 			rcontext.put("pageNavShowPresenceLoggedIn", Boolean.valueOf(showPresence && loggedIn));
 			rcontext.put("pageNavPresenceUrl", presenceUrl);
 		}

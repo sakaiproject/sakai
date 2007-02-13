@@ -36,6 +36,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.portal.charon.PortalRenderContext;
 import org.sakaiproject.portal.charon.PortalRenderEngine;
+import org.sakaiproject.util.ResourceLoader;
 import org.w3c.tidy.Tidy;
 
 /**
@@ -46,6 +47,8 @@ import org.w3c.tidy.Tidy;
  */
 public class MockCharonPortal extends HttpServlet
 {
+
+	private static ResourceLoader rloader = new ResourceLoader("sitenav");
 
 	/** Our log (commons). */
 	private static Log log = LogFactory.getLog(MockCharonPortal.class);
@@ -186,8 +189,8 @@ public class MockCharonPortal extends HttpServlet
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("pageSiteType", "class=\"siteType\" ");
 		rcontext.put("toolParamResetState", "PARM_STATE_RESET");
-		rcontext.put("sitHelp", "Help");
-		rcontext.put("sitReset", "Reset");
+		rcontext.put("rloader",rloader);
+
 
 		return rcontext;
 	}
@@ -239,7 +242,7 @@ public class MockCharonPortal extends HttpServlet
 			rcontext.put("bottomNav", l);
 		}
 
-		rcontext.put("bottomNavSitNewWindow", "site.newwindow");
+		rcontext.put("bottomNavSitNewWindow", "site_newwindow");
 		{
 
 			List l = new ArrayList();
@@ -280,10 +283,10 @@ public class MockCharonPortal extends HttpServlet
 		rcontext.put("galleryHasAccessibilityURL", Boolean.valueOf(true));
 
 		rcontext.put("galleryAccessibilityURL", "accessibilityURL");
-		rcontext.put("gallarySitAccessibility", "sit.accessibility");
-		rcontext.put("gallarySitJumpcontent", "sit.jumpcontent");
-		rcontext.put("gallarySitJumptools", "sit.jumptools");
-		rcontext.put("gallarySitJumpworksite", "sit.jumpworksite");
+//		rcontext.put("gallarySitAccessibility", "sit_accessibility");
+//		rcontext.put("gallarySitJumpcontent", "sit_jumpcontent");
+//		rcontext.put("gallarySitJumptools", "sit_jumptools");
+//		rcontext.put("gallarySitJumpworksite", "sit_jumpworksite");
 		rcontext.put("gallaryLoggedIn", Boolean.valueOf(true));
 		includeTabs(rcontext);
 
@@ -345,7 +348,7 @@ public class MockCharonPortal extends HttpServlet
 		rcontext.put("pageNavPublished", Boolean.valueOf(true));
 		rcontext.put("pageNavType", "type");
 		rcontext.put("pageNavIconUrl", "iconUrl");
-		rcontext.put("pageNavSitToolsHead", "sit.toolshead");
+//		rcontext.put("pageNavSitToolsHead", "sit_toolshead");
 
 		List l = new ArrayList();
 		Map m = new HashMap();
@@ -369,13 +372,13 @@ public class MockCharonPortal extends HttpServlet
 
 		rcontext.put("pageNavShowHelp", Boolean.valueOf(true));
 		rcontext.put("pageNavHelpUrl", "helpUrl");
-		rcontext.put("pageNavSitHelp", "sit.help");
+//		rcontext.put("pageNavSitHelp", "sit_help");
 
-		rcontext.put("pageNavSitPresenceTitle", "sit.presencetitle");
-		rcontext.put("pageNavSitPresenceFrameTitle", "sit.presenceiframetit");
+//		rcontext.put("pageNavSitPresenceTitle", "sit_presencetitle");
+//		rcontext.put("pageNavSitPresenceFrameTitle", "sit_presenceiframetit");
 		rcontext.put("pageNavShowPresenceLoggedIn", Boolean.valueOf(true));
 		rcontext.put("pageNavPresenceUrl", "presenceUrl");
-		rcontext.put("pageNavSitContentshead", "sit.contentshead");
+//		rcontext.put("pageNavSitContentshead", "sit_contentshead");
 
 	}
 
@@ -384,10 +387,10 @@ public class MockCharonPortal extends HttpServlet
 	{
 		rcontext.put("siteNavHasAccessibilityURL", Boolean.valueOf((true)));
 		rcontext.put("siteNavAccessibilityURL", "accessibilityURL");
-		rcontext.put("siteNavSitAccessability", "sit.accessibility");
-		rcontext.put("siteNavSitJumpContent", "sit.jumpcontent");
-		rcontext.put("siteNavSitJumpTools", "sit.jumptools");
-		rcontext.put("siteNavSitJumpWorksite", "sit.jumpworksite");
+//		rcontext.put("siteNavSitAccessability", "sit_accessibility");
+//		rcontext.put("siteNavSitJumpContent", "sit_jumpcontent");
+//		rcontext.put("siteNavSitJumpTools", "sit_jumptools");
+//		rcontext.put("siteNavSitJumpWorksite", "sit_jumpworksite");
 
 		rcontext.put("siteNavLoggedIn", Boolean.valueOf(true));
 
@@ -399,11 +402,11 @@ public class MockCharonPortal extends HttpServlet
 	{
 
 		rcontext.put("tabsCssClass", "cssClass");
-		rcontext.put("tabsSitWorksiteHead", "sit.worksiteshead");
+//		rcontext.put("tabsSitWorksiteHead", "sit_worksiteshead");
 		rcontext.put("tabsCurMyWorkspace", Boolean.valueOf(true));
-		rcontext.put("tabsSitMyWorkspace", "sit.mywor");
+//		rcontext.put("tabsSitMyWorkspace", "sit_mywor");
 		rcontext.put("tabsSiteUrl", "mySiteUrl");
-		rcontext.put("tabsSitWorksite", "sit.worksite");
+//		rcontext.put("tabsSitWorksite", "sit_worksite");
 
 		List l = new ArrayList();
 		{
@@ -421,8 +424,8 @@ public class MockCharonPortal extends HttpServlet
 
 		rcontext.put("tabsExtraTitle", "Web.escapeHtml(extraTitle)");
 		rcontext.put("tabsMoreSitesShow", Boolean.valueOf(true));
-		rcontext.put("tabsSitSelectMessage", "sit.selectmessage");
-		rcontext.put("tabsSitMode", "sit.more");
+//		rcontext.put("tabsSitSelectMessage", "sit_selectmessage");
+//		rcontext.put("tabsSitMode", "sit_more");
 		{
 			Map m = new HashMap();
 
@@ -435,7 +438,7 @@ public class MockCharonPortal extends HttpServlet
 
 		rcontext.put("tabsAddLogout", Boolean.valueOf(true));
 		rcontext.put("tabsLogoutUrl", "logoutUrl");
-		rcontext.put("tabsSitLog", "sit.log");
+//		rcontext.put("tabsSitLog", "sit_log");
 	}
 
 	protected Map includeTool() throws IOException

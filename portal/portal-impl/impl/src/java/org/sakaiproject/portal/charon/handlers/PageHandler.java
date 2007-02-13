@@ -45,7 +45,6 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * @author ieb
@@ -53,7 +52,6 @@ import org.sakaiproject.util.ResourceLoader;
 public class PageHandler extends BasePortalHandler
 {
 
-	protected static ResourceLoader rb = new ResourceLoader("sitenav");
 
 	private static final String INCLUDE_PAGE = "include-page";
 
