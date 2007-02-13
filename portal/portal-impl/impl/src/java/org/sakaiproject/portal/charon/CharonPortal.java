@@ -63,15 +63,15 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BasicAuth;
-import org.sakaiproject.util.ErrorReporter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.util.ToolURLManagerImpl;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.render.cover.ToolRenderService;
 import org.sakaiproject.portal.render.api.RenderResult;
+import org.sakaiproject.portal.util.ErrorReporter;
+import org.sakaiproject.portal.util.ToolURLManagerImpl;
 
 /**
  * <p>

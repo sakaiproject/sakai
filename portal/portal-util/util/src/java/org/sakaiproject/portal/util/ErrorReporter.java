@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.util;
+package org.sakaiproject.portal.util;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -44,6 +44,8 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Web;
 
 /**
  * <p>

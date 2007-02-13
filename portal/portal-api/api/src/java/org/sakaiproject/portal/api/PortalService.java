@@ -1,17 +1,8 @@
 package org.sakaiproject.portal.api;
 
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
-import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.api.Session;
 
 public interface PortalService
 {
@@ -54,21 +45,4 @@ public interface PortalService
 
 	Iterator<PortletApplicationDescriptor> getRegisteredApplications();
 
-	boolean allowTool(Site site, Placement placement);
-
-	boolean doGatewaySiteList();
-
-	List getAllSites(HttpServletRequest req, Session session,
-                               boolean includeMyWorkspace) throws IOException;
-
-	Site getMyWorkspace(Session session);
-
-	Site getSiteVisit(String siteId) throws PermissionException,
-        	IdUnusedException;
-
-	String getSiteEffectiveId(Site site);
-
-    	boolean summarizePage(Map m, Site site, SitePage page);
-
-    	boolean summarizeTool(Map m, Site site, String toolIdentifier);
 }

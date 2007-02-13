@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.sakaiproject.util;
+package org.sakaiproject.portal.util;
 
 import java.util.HashMap;
 import java.util.Iterator;

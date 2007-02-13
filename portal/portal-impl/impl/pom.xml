@@ -169,28 +169,5 @@
       </resource>
     </resources>
     <sourceDirectory>src/java</sourceDirectory>
-<!--
- 		<unitTestSourceDirectory>src/test</unitTestSourceDirectory>
-    		<unitTest>
-      	<includes>**/*Test</includes>
-      	<resources>
-    	  		<resource>
-      			<directory>${basedir}/src/testBundle</directory>
-	  			<includes>
-	    				<include>**/*.*</include>
-	  			</includes>
-	  			<filtering>false</filtering>
-	   		</resource>
-			<resource>
-	  			<directory>${basedir}/src/bundle</directory>
-	  			<includes>
-					<include>**/*.properties</include>
-					<include>**/*.vm</include>
-	  			</includes>
-	  			<filtering>false</filtering>
-			</resource>
-      	</resources>
-    </unitTest>
--->
   </build>
 </project>

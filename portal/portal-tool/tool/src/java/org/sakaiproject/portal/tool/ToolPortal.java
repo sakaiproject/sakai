@@ -46,9 +46,9 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ToolURL;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.util.ErrorReporter;
+import org.sakaiproject.portal.util.ErrorReporter;
 import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.util.ToolURLManagerImpl;
+import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.util.Web;
 
 /**
