@@ -62,12 +62,7 @@
 ##		toolMap.put("toolShowHelpButton", Boolean.valueOf(showHelpButton));
 ##		toolMap.put("toolHelpActionUrl", helpActionUrl);
 ##
-#macro( includeTool $toolPlacement)
-<div class="portlet">
-#includeToolTitle( $toolPlacement )
-#includeToolBody( $toolPlacement )
-</div>
-#end
+
 
 #macro( includeToolTitle $toolPlacement )
 #if (${toolPlacement.hasRenderResult})
@@ -137,6 +132,15 @@
 	</div>
 #end
 #end
+
+#macro( includeTool $tool)
+<div class="portlet">
+#includeToolTitle( $tool )
+#includeToolBody( $tool )
+</div>
+#end
+
+
 ##------------------------------------------------------------------------------------------
 ##
 ## includeLogo

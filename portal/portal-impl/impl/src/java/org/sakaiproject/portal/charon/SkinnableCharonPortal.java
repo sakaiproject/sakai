@@ -1532,9 +1532,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		try
 		{
-			System.err.println("Render "+template);
 			rengine.render(template, rcontext, out);
-			System.err.println("Render Done "+template);
 		}
 		catch (Exception e)
 		{

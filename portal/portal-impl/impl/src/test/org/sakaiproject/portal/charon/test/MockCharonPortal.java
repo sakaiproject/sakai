@@ -124,30 +124,6 @@ public class MockCharonPortal extends HttpServlet
 		sendResponse(rcontext, "gallery-tabs");
 	}
 
-	public void doTitle() throws IOException
-	{
-		includeTitle();
-	}
-
-	/**
-	 * Output the content of the title frame for a tool.
-	 */
-	protected void includeTitle() throws IOException
-	{
-
-		PortalRenderContext rcontext = startPageContext();
-
-		rcontext.put("titleShowResetButton", Boolean.valueOf(true));
-		rcontext.put("titleResetActionUrl", "resetActionUrl");
-		rcontext.put("titleShowHelpButton", Boolean.valueOf(true));
-		rcontext.put("titleHelpActionUrl", "helpActionUrl");
-
-		rcontext.put("titleToolResetNow", Boolean.valueOf(true));
-
-		rcontext.put("titleMainFrameId", "mainFrameId");
-		rcontext.put("titleMainFrameUrl", "mainFrameUrl");
-		sendResponse(rcontext, "tool-title");
-	}
 
 	public void doNavLogin() throws IOException
 	{

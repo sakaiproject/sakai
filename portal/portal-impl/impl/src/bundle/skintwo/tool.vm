@@ -1,6 +1,0 @@
-#start_response()
-<!-- tool.vm -->
-HELLO FORM TOOL
-#includeTool()
-<!-- end tool.vm -->
-#end_response()

@@ -60,7 +60,6 @@ public class PortalRenderTest extends TestCase
 		mock.doPage();
 		mock.doSite();
 		mock.doSiteTabs();
-		mock.doTitle();
 		mock.doWorksite();
 		} catch ( Exception ex ) {
 			ex.printStackTrace();
