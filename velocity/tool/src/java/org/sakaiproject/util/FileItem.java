@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -22,6 +22,8 @@
 package org.sakaiproject.util;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
@@ -32,6 +34,9 @@ import java.io.UnsupportedEncodingException;
  */
 public class FileItem
 {
+	/** The chunk size used when streaming (100k). */
+	protected static final int STREAM_BUFFER_SIZE = 102400;
+
 	/** Body stored in memory, filled in using this stream. */
 	protected ByteArrayOutputStream m_body = new ByteArrayOutputStream();
 
@@ -42,6 +47,9 @@ public class FileItem
 
 	/** file type. */
 	protected String m_type = null;
+
+	/** Stream from which body can be read */ 
+	protected InputStream m_inputStream;
 
 	/**
 	 * Construct
@@ -55,6 +63,9 @@ public class FileItem
 	{
 		if (fileName != null) m_name = fileName.trim();
 		if (fileType != null) m_type = fileType.trim();
+		m_body = null;
+		m_bodyBytes = null;
+		m_inputStream = null;
 	}
 
 	public FileItem(String fileName, String fileType, byte[] body)
@@ -63,6 +74,16 @@ public class FileItem
 		if (fileType != null) m_type = fileType.trim();
 		m_body = null;
 		m_bodyBytes = body;
+		m_inputStream = null;
+	}
+
+	public FileItem(String fileName, String fileType, InputStream stream)
+	{
+		if (fileName != null) m_name = fileName.trim();
+		if (fileType != null) m_type = fileType.trim();
+		m_body = null;
+		m_bodyBytes = null;
+		m_inputStream = stream;
 	}
 
 	/**
@@ -85,6 +106,12 @@ public class FileItem
 	public String getString()
 	{
 		String rv = null;
+		
+		if(m_body == null && m_bodyBytes == null && this.m_inputStream != null)
+		{
+			stream2bodyBytes();
+		}
+		
 		try
 		{
 			// this should give us byte for byte translation, no encoding/decoding
@@ -112,6 +139,11 @@ public class FileItem
 	 */
 	public byte[] get()
 	{
+		if(m_body == null && m_bodyBytes == null && this.m_inputStream != null)
+		{
+			stream2bodyBytes();
+		}
+		
 		if (m_body != null)
 		{
 			byte[] content = m_body.toByteArray();
@@ -125,11 +157,58 @@ public class FileItem
 			return content;
 		}
 	}
+	
+	/**
+	 * Access the input stream from which the body can be read.
+	 * @return
+	 */
+	public InputStream getInputStream()
+	{
+		return this.m_inputStream;
+	}
 
 	/**
 	 */
 	OutputStream getOutputStream()
 	{
 		return m_body;
+	}
+	
+	protected void stream2bodyBytes()
+	{
+		if(this.m_inputStream != null)
+		{
+			m_body = new ByteArrayOutputStream();
+			
+			// chunk
+			byte[] chunk = new byte[STREAM_BUFFER_SIZE];
+			int lenRead;
+			try
+            {
+	            while ((lenRead = this.m_inputStream.read(chunk)) != -1)
+	            {
+	            	m_body.write(chunk, 0, lenRead);
+	            }
+            }
+            catch (IOException ignoree)
+            {
+            }
+            finally
+            {
+            	if(m_inputStream != null)
+            	{
+            		try
+                    {
+            			m_inputStream.close();
+            			m_inputStream = null;
+                    }
+                    catch (IOException e)
+                    {
+                    }
+            	}
+            }
+
+
+		}
 	}
 }

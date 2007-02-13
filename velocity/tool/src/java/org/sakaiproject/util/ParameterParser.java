@@ -21,6 +21,7 @@
 
 package org.sakaiproject.util;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
@@ -215,9 +216,17 @@ public class ParameterParser
 		if (o != null && o instanceof org.apache.commons.fileupload.FileItem)
 		{
 			org.apache.commons.fileupload.FileItem item = (org.apache.commons.fileupload.FileItem) o;
-			return new FileItem(item.getName(), item.getContentType(), item.get());
+			try
+            {
+	            return new FileItem(item.getName(), item.getContentType(), item.getInputStream());
+            }
+            catch (IOException e)
+            {
+            	return new FileItem(item.getName(), item.getContentType(), item.get());
+            }
 		}
 
 		return null;
 	}
+	
 }
