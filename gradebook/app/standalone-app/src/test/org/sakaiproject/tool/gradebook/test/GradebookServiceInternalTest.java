@@ -56,8 +56,11 @@ import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
+import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
+import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvents;
@@ -461,8 +464,35 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
     		gradebookService.updateAssignment(GRADEBOOK_UID, newAsnTitle, assignmentDefinition);
     		fail();
     	} catch (SecurityException e) {
-    	}
-    	
+    	}    	
    }
+    
+    public void testAssignmentScoreComment() throws Exception {
+    	setAuthnId(INSTRUCTOR_UID);
+    	
+    	// Comment on a student score as if the Gradebook application was doing it.
+    	org.sakaiproject.tool.gradebook.Assignment assignment = gradebookManager.getAssignment(asnId);
+    	List<AssignmentGradeRecord> gradeRecords = new ArrayList<AssignmentGradeRecord>();
+    	List<Comment> comments = Arrays.asList(new Comment[] {new Comment(STUDENT_IN_SECTION_UID, "First comment", assignment)});
+    	gradebookManager.updateAssignmentGradesAndComments(assignment, gradeRecords, comments);
+    	
+    	// Make sure we don't get a comment for the student who doesn't have one.
+    	CommentDefinition commentDefinition = gradebookService.getAssignmentScoreComment(GRADEBOOK_UID, ASN_TITLE, STUDENT_NOT_IN_SECTION_UID);
+    	Assert.assertTrue(commentDefinition == null);
+    	
+    	// Make sure we can retrieve the comment.
+    	commentDefinition = gradebookService.getAssignmentScoreComment(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID);
+    	Assert.assertTrue(commentDefinition.getAssignmentName().equals(ASN_TITLE));
+    	Assert.assertTrue(commentDefinition.getCommentText().equals("First comment"));
+    	Assert.assertTrue(commentDefinition.getGraderUid().equals(INSTRUCTOR_UID));
+    	Assert.assertTrue(commentDefinition.getStudentUid().equals(STUDENT_IN_SECTION_UID));
+    	
+    	// Now change the comment.
+    	setAuthnId(TA_UID);
+    	gradebookService.setAssignmentScoreComment(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID, "Second comment");
+    	commentDefinition = gradebookService.getAssignmentScoreComment(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID);
+    	Assert.assertTrue(commentDefinition.getCommentText().equals("Second comment"));
+    	Assert.assertTrue(commentDefinition.getGraderUid().equals(TA_UID));
+    }
 
 }

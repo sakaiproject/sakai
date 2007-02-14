@@ -22,12 +22,9 @@
 
 package org.sakaiproject.tool.gradebook;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * An Assignment is the basic unit that composes a gradebook.  It represents a

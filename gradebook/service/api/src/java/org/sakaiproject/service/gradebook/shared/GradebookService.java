@@ -81,6 +81,21 @@ public interface GradebookService {
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
+	 * Get the comment (if any) currently provided for the given combination
+	 * of student and assignment. 
+	 * 
+	 * @param gradebookUid
+	 * @param assignmentName
+	 * @param studentUid
+	 * @return null if no comment is avaailable
+	 * @throws GradebookNotFoundException
+	 * @throws AssessmentNotFoundException
+	 */
+	public CommentDefinition getAssignmentScoreComment(String gradebookUid,
+			String assignmentName, String studentUid)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
+
+	/**
 	 * Besides the declared exceptions, possible runtime exceptions include:
 	 * <ul>
 	 * <li> SecurityException - If the current user is not authorized to grade
@@ -95,6 +110,21 @@ public interface GradebookService {
 	 */
 	public void setAssignmentScore(String gradebookUid, String assignmentName,
 			String studentUid, Double score, String clientServiceDescription)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
+
+	/**
+	 * Provide a student-viewable comment on the score (or lack of score) associated
+	 * with the given assignment.
+	 * 
+	 * @param gradebookUid
+	 * @param assignmentName
+	 * @param studentUid
+	 * @param comment a plain text comment, or null to remove any currrent comment
+	 * @throws GradebookNotFoundException
+	 * @throws AssessmentNotFoundException
+	 */
+	public void setAssignmentScoreComment(String gradebookUid, String assignmentName,
+			String studentUid, String comment)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**

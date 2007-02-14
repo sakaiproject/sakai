@@ -36,9 +36,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
+import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -47,6 +49,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
@@ -189,6 +192,50 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		});
 
 		if (log.isInfoEnabled()) log.info("Score updated in gradebookUid=" + gradebookUid + ", assignmentName=" + assignmentName + " by userUid=" + getUserUid() + " from client=" + clientServiceDescription + ", new score=" + score);
+	}
+	
+	private Comment getInternalComment(String gradebookUid, String assignmentName, String studentUid, Session session) {
+		Query q = session.createQuery(
+		"from Comment as c where c.studentId=:studentId and c.gradableObject.gradebook.uid=:gradebookUid and c.gradableObject.name=:assignmentName");
+		q.setParameter("studentId", studentUid);
+		q.setParameter("gradebookUid", gradebookUid);
+		q.setParameter("assignmentName", assignmentName);
+		return (Comment)q.uniqueResult();		
+	}
+
+	public CommentDefinition getAssignmentScoreComment(final String gradebookUid, final String assignmentName, final String studentUid) throws GradebookNotFoundException, AssessmentNotFoundException {
+		CommentDefinition commentDefinition = null;
+        Comment comment = (Comment)getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+            	return getInternalComment(gradebookUid, assignmentName, studentUid, session);
+            }
+        });
+        if (comment != null) {
+        	commentDefinition = new CommentDefinition();
+        	commentDefinition.setAssignmentName(assignmentName);
+        	commentDefinition.setCommentText(comment.getCommentText());
+        	commentDefinition.setDateRecorded(comment.getDateRecorded());
+        	commentDefinition.setGraderUid(comment.getGraderId());
+        	commentDefinition.setStudentUid(comment.getStudentId());
+        }
+		return commentDefinition;
+	}
+
+	public void setAssignmentScoreComment(final String gradebookUid, final String assignmentName, final String studentUid, final String commentText) throws GradebookNotFoundException, AssessmentNotFoundException {
+		getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+        		Comment comment = getInternalComment(gradebookUid, assignmentName, studentUid, session);
+        		if (comment == null) {
+        			comment = new Comment(studentUid, commentText, getAssignmentWithoutStats(gradebookUid, assignmentName, session));
+        		} else {
+        			comment.setCommentText(commentText);
+        		}
+				comment.setGraderId(authn.getUserUid());
+				comment.setDateRecorded(new Date());
+				session.saveOrUpdate(comment);
+            	return null;
+            }
+		});
 	}
 
 	public String getGradebookDefinitionXml(String gradebookUid) {
