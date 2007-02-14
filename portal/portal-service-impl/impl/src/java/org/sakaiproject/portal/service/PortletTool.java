@@ -119,8 +119,10 @@ public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 			M_log.info("Portlet registered from tool registration with Sakai toolId="+m_id);
 		} else {
 			m_id = "portlet."+portlet.getApplicationId()+"."+pdd.getPortletName();
-			m_description = pdd.getPortletName();
-			m_title = pdd.getPortletName();
+			m_title = pdd.getPortletInfo().getShortTitle();
+			if ( m_title == null ) m_title = pdd.getPortletName();
+			m_description = pdd.getPortletInfo().getTitle();
+			if ( m_description == null ) m_description = pdd.getPortletName();
 
 			if ( "stealth".equals(portletSupport) ) {
 				M_log.info("Portlet stealth-registered with Sakai toolId="+m_id);
