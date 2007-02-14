@@ -11,7 +11,8 @@ import org.sakaiproject.portal.render.api.ToolRenderService;
 import org.sakaiproject.portal.render.portlet.services.SakaiPortalCallbackService;
 import org.sakaiproject.portal.render.portlet.services.SakaiPortalContext;
 import org.sakaiproject.portal.render.portlet.services.SakaiPortletContainerServices;
-import org.sakaiproject.portal.render.portlet.servlet.SakaiServletRequest;
+// TODO: Review by David
+// import org.sakaiproject.portal.render.portlet.servlet.SakaiServletRequest;
 import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateAccess;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateEncoder;
@@ -95,7 +96,18 @@ public class PortletToolRenderService implements ToolRenderService {
 
             try {
                 PortletContainer portletContainer = getPortletContainer(context);
-                portletContainer.doAction(window, new SakaiServletRequest(request, state), response);
+
+                // TODO: Review by David - I nned to make sure that I fully understand
+                // Understand why we go through this fuss to make parameters come from state
+                // rather than the request object - thus breaking everything - Chuck
+                // Note that in Pluto - they do no such wrapping or parameter faking
+                // "pluto-portal-driver/src/main/java/org/apache/pluto/driver/PortalDriverServlet.java" line 118 of 192 -
+                // This is related to making the user-added parameters direct on the URL modifications
+                // in the state encoding process.
+
+                // portletContainer.doAction(window, new SakaiServletRequest(request, state), response);
+
+                portletContainer.doAction(window, request, response);
             } catch (PortletException e) {
                 throw new ToolRenderException(e.getMessage(), e);
             } catch (PortletContainerException e) {
@@ -103,7 +115,8 @@ public class PortletToolRenderService implements ToolRenderService {
             } finally {
                 state.setAction(false);
             }
-            return false;
+            // TODO: This was false - but makes no sense to be false - check with David - /Chuck
+            return true;
         }
         return true;
     }
@@ -136,7 +149,8 @@ public class PortletToolRenderService implements ToolRenderService {
 
         try {
 
-            final HttpServletRequest req = new SakaiServletRequest(request, state);
+            // TODO: Review David
+            // final HttpServletRequest req = new SakaiServletRequest(request, state);
             final PortletContainer portletContainer = getPortletContainer(context);
 
             return new RenderResult() {
@@ -146,7 +160,9 @@ public class PortletToolRenderService implements ToolRenderService {
                     if (bufferedResponse == null) {
                         bufferedResponse = new BufferedServletResponse(response);
                         try {
-                            portletContainer.doRender(window, req, bufferedResponse);
+                            // TODO: Review David
+                            // portletContainer.doRender(window, req, bufferedResponse);
+                            portletContainer.doRender(window, request, bufferedResponse);
                         }
                         catch (PortletException e) {
                             throw new ToolRenderException(e.getMessage(), e);
@@ -167,7 +183,9 @@ public class PortletToolRenderService implements ToolRenderService {
 
                 public String getTitle() throws ToolRenderException {
                     renderResponse();
-                    return PortletStateAccess.getPortletState(req, window.getId().getStringId()).getTitle();
+                    // TODO: Review David
+                    //return PortletStateAccess.getPortletState(req, window.getId().getStringId()).getTitle();
+                    return PortletStateAccess.getPortletState(request, window.getId().getStringId()).getTitle();
                 }
 
             };

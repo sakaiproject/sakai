@@ -82,11 +82,19 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder {
 
         Map parms = portletState.getParameters();
         Iterator it = parms.entrySet().iterator();
+
+        // TODO: Needs review by David
+        // Switch to placing explicit parameters right on the URL to save the need for wrapping the request
+        // The problem is that when you wrap the request in SakaiServletRequest and return parameters
+        // only from state - you lose the prameters *in* the form
+
+        String normalParms  = "";
         while (it.hasNext()) {
             Map.Entry entry = (Map.Entry) it.next();
             Object o = entry.getValue();
             if(o instanceof String) {
-                p.setProperty("" + entry.getKey(), o.toString());
+                // p.setProperty("" + entry.getKey(), o.toString());
+                normalParms  = normalParms  + "&" + entry.getKey() + "=" + o.toString();
             }
             else {
                 String[] vals = (String[])o;
@@ -101,7 +109,8 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder {
                     }
                     sb.append(vals[i]);
                 }
-                p.setProperty("" + entry.getKey(), sb.toString());
+                // p.setProperty("" + entry.getKey(), sb.toString());
+                normalParms  = normalParms  + "&" + entry.getKey() + "=" + sb.toString();
             }
         }
 
@@ -116,7 +125,7 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder {
             throw new IllegalStateException("This should never occor");
         }
 
-        return urlSafeEncoder.encode(out.toByteArray());
+        return urlSafeEncoder.encode(out.toByteArray()) + normalParms ;
     }
 
     public PortletState decode(String uri) {
