@@ -23,10 +23,6 @@
 package org.sakaiproject.tool.gradebook;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -110,7 +106,15 @@ public abstract class GradableObject implements Serializable {
 	public void setMean(Double mean) {
 		this.mean = mean;
 	}
+	
 	/**
+	 * This should really only be a field in Assignment objects, since
+	 * the string describing CourseGrade needs to allow for localization.
+	 * Unfortunately, such we keep CourseGrade and Assignment objects in
+	 * the same table, and since we want Assignment names to be enforced
+	 * as non-nullable, we're stuck with a bogus CourseGrade "name" field
+	 * for now. The UI will have to be smart enough to disregard it.
+	 * 
 	 * @return Returns the name.
 	 */
 	public String getName() {

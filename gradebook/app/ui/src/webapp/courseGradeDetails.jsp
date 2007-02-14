@@ -11,7 +11,7 @@
 		<!-- Course Grade Summary -->
 		<sakai:flowState bean="#{courseGradeDetailsBean}" />
 
-		<h2><h:outputText value="#{courseGradeDetailsBean.courseGrade.name}"/></h2>
+		<h2><h:outputText value="#{msgs.course_grade_name}"/></h2>
 
 		<div class="instruction"><h:outputText value="#{msgs.course_grade_details_instruction}" escape="false"/></div>
 

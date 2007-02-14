@@ -48,7 +48,7 @@
 
 				<!-- Course grade link -->
 				<h:commandLink action="courseGradeDetails" rendered="#{gradableObject.courseGrade}"  styleClass="courseGrade">
-					<h:outputText value="#{gradableObject.name}" />
+					<h:outputText value="#{msgs.course_grade_name}" />
 				</h:commandLink>
 			</h:column>
 			<h:column>

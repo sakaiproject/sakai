@@ -31,7 +31,8 @@ import java.util.Collection;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  */
 public class CourseGrade extends GradableObject {
-    public static final String COURSE_GRADE_NAME = "Course Grade";
+	// Should only be used to fill in the DB column.
+    private static final String COURSE_GRADE_NAME = "Course Grade";
 
     public static String SORT_BY_OVERRIDE_GRADE = "override";
     public static String SORT_BY_CALCULATED_GRADE = "autoCalc";

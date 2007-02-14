@@ -27,7 +27,15 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -42,6 +50,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
+import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
@@ -213,7 +222,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
                     header = getLocalizedString("course_grade_details_course_grade_column_name");
                 }
             } else {
-                header = go.getName();
+                header = ((Assignment)go).getName();
             }
 			createCell(headerRow, (short)(i+2)).setCellValue(header); // Skip the first two columns
 		}
@@ -289,7 +298,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
                     header = getLocalizedString("course_grade_details_course_grade_column_name");
                 }
             } else {
-                header = go.getName();
+                header = ((Assignment)go).getName();
             }
 			appendQuoted(sb, header);
 			if(goIter.hasNext()) {

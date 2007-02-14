@@ -42,6 +42,7 @@ import org.apache.myfaces.component.html.ext.HtmlDataTable;
 import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
+import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
@@ -67,11 +68,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		}
 		public GradableObjectColumn(GradableObject gradableObject) {
 			id = gradableObject.getId();
-			if (gradableObject.isCourseGrade()) {
-				name = getLocalizedString("roster_course_grade_column_name");
-			} else {
-				name = gradableObject.getName();
-			}
+			name = getColumnHeader(gradableObject);
 		}
 
 		public Long getId() {
@@ -147,7 +144,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         	List scoreSortedEnrollments = new ArrayList();
 			for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
 				AbstractGradeRecord agr = (AbstractGradeRecord)iter.next();
-				if(agr.getGradableObject().getName().equals(sortColumn)) {
+				if(getColumnHeader(agr.getGradableObject()).equals(sortColumn)) {
 					scoreSortedEnrollments.add(enrollmentMap.get(agr.getStudentId()));
 				}
 			}
@@ -167,6 +164,14 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
             studentRows.add(new StudentRow(enrollment));
         }
 
+	}
+	
+	private String getColumnHeader(GradableObject gradableObject) {
+		if (gradableObject.isCourseGrade()) {
+			return getLocalizedString("roster_course_grade_column_name");
+		} else {
+			return ((Assignment)gradableObject).getName();
+		}		
 	}
 
 	// The roster table uses assignments as columns, and therefore the component
@@ -217,11 +222,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
                 sortHeader.setId(ASSIGNMENT_COLUMN_PREFIX + "sorthdr_" + colpos);
                 sortHeader.setRendererType("org.apache.myfaces.SortHeader");	// Yes, this is necessary.
                 sortHeader.setArrow(true);
-                if(iter.hasNext()) {
-                    sortHeader.setColumnName(columnData.getName());
-                } else {
-                    sortHeader.setColumnName(CourseGrade.COURSE_GRADE_NAME);
-                }
+                sortHeader.setColumnName(columnData.getName());
                 sortHeader.setActionListener(app.createMethodBinding("#{rosterBean.sort}", new Class[] {ActionEvent.class}));
 
                 // Allow word-wrapping on assignment name columns.
