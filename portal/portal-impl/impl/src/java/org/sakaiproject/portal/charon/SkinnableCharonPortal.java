@@ -495,7 +495,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			if (includeSummary && m.get("rssDescription") == null)
 			{
-				siteHelper.summarizeTool(m, s, "sakai.motd");
+				if ( ! motdDone ) {
+					siteHelper.summarizeTool(m, s, "sakai.motd");
+					motdDone = true;
+				} else {
+					siteHelper.summarizeTool(m, s, "sakai.announcements");
+				}
+				
 			}
 			l.add(m);
 		}
