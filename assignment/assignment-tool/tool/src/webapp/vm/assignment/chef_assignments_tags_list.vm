@@ -70,7 +70,7 @@
 				#end
 			</table>
 		#else
-			<div class="alertMessage">$tlang.getString("tag.emptylist")</div>
+			<div class="information">$tlang.getString("tag.emptylist")</div>
 		#end
 	#end
 #end
