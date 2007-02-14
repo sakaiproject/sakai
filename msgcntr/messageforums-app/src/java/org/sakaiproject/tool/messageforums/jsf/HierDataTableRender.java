@@ -131,6 +131,13 @@ public class HierDataTableRender extends HtmlBasicRenderer
 			Iterator columns = getColumns(data);
 			while (columns.hasNext()) {
 				UIColumn column = (UIColumn) columns.next();
+				//write column for arrows
+				if(column.getId().endsWith("_msg_subject")){
+					writer.startElement("th", null);
+					writer.writeAttribute("scope", "col", null);
+					writer.endElement("th");
+					writer.writeText("\n", null);
+				}
 				writer.startElement("th", column);
 				if (headerClass != null) {
 					writer.writeAttribute("class", headerClass, "headerClass");
@@ -308,6 +315,36 @@ public class HierDataTableRender extends HtmlBasicRenderer
 				// Identify the next renderable column
 				UIColumn column = (UIColumn) kids.next();
 				
+				
+				//check if we need the arraow column
+				// if this is the _msg_subject column, then quickly add an arrow column
+				if(column.getId().endsWith("_msg_subject")){
+					writer.startElement("td", null);
+					if (columnStyles > 0) {
+						writer.writeAttribute("class", columnClasses[columnStyle++],
+						"columnClasses");
+						if (columnStyle >= columnStyles) {
+							columnStyle = 0;
+						}
+					}
+					if(hasChildBoolean && dmb.getDepth()==0)
+					{
+						writer.write(" <img src=\""   + BARIMG + "\" style=\"" + CURSOR + "\" id=\"_id_" + new Integer(hideDivNo).toString() + "__img_hide_division_\"" +
+								" onclick=\"");
+						int childNo = getTotalChildNo(dmb, msgBeanList);
+						String hideTr = "";
+						for(int i=0; i<childNo; i++)
+						{
+							hideTr += "javascript:showHideDiv('_id_" + new Integer(hideDivNo+i).toString() + "', '" +  RESOURCE_PATH + "');";
+						}
+						writer.write(hideTr);
+						writer.write("setMainFrameHeight('Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId().replace("-","x") + "');");
+						writer.write("\" />");
+					}
+					writer.endElement("td");
+					writer.writeText("\n", null);
+				}
+				
 				// Render the beginning of this cell
 				writer.startElement("td", column);
 				if (columnStyles > 0) {
@@ -318,29 +355,34 @@ public class HierDataTableRender extends HtmlBasicRenderer
 					}
 				}
 				
-				if(dmb != null && dmb.getDepth() > 0)
+				if(dmb != null) // && dmb.getDepth() > 0)
 				{
 					if(column.getId().endsWith("_msg_subject"))
 					{
-						String indent = "";
-						int indentInt = dmb.getDepth() * 4;
-						for(int i=0; i<indentInt; i++)
-						{
-							indent += "&nbsp;";
-						}
-						writer.write(indent);
+						// rjlowe: using padding-left: 1em instead of &nbsp;
+					    writer.writeAttribute("style","padding-left:" + dmb.getDepth() + "em;", "style");
+						
+						//String indent = "";
+						//int indentInt = dmb.getDepth() * 4;
+						//for(int i=0; i<indentInt; i++)
+						//{
+						//	indent += "&nbsp;";
+						//}
+						//writer.write(indent);
 					}
 				}
-				else
+				// rjlowe: arrow is now in it's own column, see above
+				/***
+				if(dmb.getDepth() == 0)
 				{
 					if(column.getId().endsWith("_msg_subject"))
 					{
 						//if(hasChildBoolean)
+						
+						
 						if(hasChildBoolean && dmb.getDepth()==0)
 						{
-/*							writer.write("  <img src=\""   + BARIMG + "\" style=\"" + CURSOR + "\" id=\"_id_" + new Integer(hideDivNo).toString() + "__img_hide_division_\"" +
-									" onclick=\"javascript:showHideDiv('_id_" + new Integer(hideDivNo).toString() + "', '" +  RESOURCE_PATH + "');\" />");*/
-							writer.write("  <img src=\""   + BARIMG + "\" style=\"" + CURSOR + "\" id=\"_id_" + new Integer(hideDivNo).toString() + "__img_hide_division_\"" +
+							writer.write(" <img src=\""   + BARIMG + "\" style=\"position:absolute;left:-1em;" + CURSOR + "\" id=\"_id_" + new Integer(hideDivNo).toString() + "__img_hide_division_\"" +
 									" onclick=\"");
 							int childNo = getTotalChildNo(dmb, msgBeanList);
 							String hideTr = "";
@@ -349,10 +391,12 @@ public class HierDataTableRender extends HtmlBasicRenderer
 								hideTr += "javascript:showHideDiv('_id_" + new Integer(hideDivNo+i).toString() + "', '" +  RESOURCE_PATH + "');";
 							}
 							writer.write(hideTr);
+							writer.write("setMainFrameHeight('Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId().replace("-","x") + "');");
 							writer.write("\" />");
 						}
 					}
 				}
+				***/
 				// Render the contents of this cell by iterating over
 				// the kids of our kids
 				grandkids = getChildren(column);
