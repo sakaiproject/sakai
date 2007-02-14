@@ -49,9 +49,13 @@ public abstract class BasePortalHandler implements PortalHandler
 
 	public abstract int doGet( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException;
 
+	/*
+	 * Make sure to override this and call doGet() if this handler wants to support JSR-168 portlets 
+	 */
 	public int doPost( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException {
 		return NEXT;
 	}
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.portal.charon.PortalHandler#deregister(org.sakaiproject.portal.charon.Portal)
 	 */
@@ -59,6 +63,7 @@ public abstract class BasePortalHandler implements PortalHandler
 	{
 		this.portal = null;
 	}
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.portal.charon.PortalHandler#register(org.sakaiproject.portal.charon.Portal)
 	 */

@@ -75,6 +75,11 @@ public class SiteHandler extends WorksiteHandler
 		urlFragment = "site";
 	}
 
+        @Override
+        public int doPost( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException {
+                return doGet(parts, req, res, session);
+        }
+
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res, Session session)
 			throws PortalHandlerException

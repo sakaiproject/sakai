@@ -41,6 +41,13 @@ public class PortletHandler  extends PageHandler
 	}
 
 	@Override
+	public int doPost( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session)
+			throws PortalHandlerException
+	{
+		return doGet(parts, req, res, session);
+	}
+
+	@Override
 	public int doGet( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session)
 			throws PortalHandlerException
 	{
@@ -107,10 +114,10 @@ public class PortletHandler  extends PageHandler
 				}
 			}
 
-			PortalRenderContext rcontext = portal.includePortal(req, res, session, siteId, toolId, req.getContextPath()
-					+ req.getServletPath(), "portlet",
-			/* doPages */false, /* resetTools */true,
-			/* includeSummary */false, /* expandSite */false);
+			PortalRenderContext rcontext = portal.includePortal(req, res, session, 
+			   siteId, toolId, req.getContextPath() + req.getServletPath(), "portlet",
+			   /* doPages */false, /* resetTools */true,
+			   /* includeSummary */false, /* expandSite */false);
 
 			portal.sendResponse(rcontext, res, "portlet", null);
 			return END;
