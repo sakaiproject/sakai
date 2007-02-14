@@ -59,6 +59,9 @@ public class BaseRole implements Role
 
 	/** The role description. */
 	protected String m_description = null;
+	
+	/** Whether this is a provider-only role */
+	protected boolean m_providerOnly;
 
 	/** Active flag. */
 	protected boolean m_active = false;
@@ -87,6 +90,7 @@ public class BaseRole implements Role
 	{
 		m_id = id;
 		m_description = ((BaseRole) other).m_description;
+		m_providerOnly = ((BaseRole) other).m_providerOnly;
 		m_locks = new HashSet();
 		m_locks.addAll(((BaseRole) other).m_locks);
 	}
@@ -107,6 +111,8 @@ public class BaseRole implements Role
 		{
 			m_description = StringUtil.trimToNull(Xml.decodeAttribute(el, "description-enc"));
 		}
+		
+		if("true".equalsIgnoreCase(el.getAttribute("provider-only"))) m_providerOnly = true;
 
 		// the children (abilities)
 		NodeList children = el.getChildNodes();
@@ -155,6 +161,9 @@ public class BaseRole implements Role
 
 		// encode the description
 		if (m_description != null) Xml.encodeAttribute(role, "description-enc", m_description);
+
+		// encode the provider only flag
+		if (m_providerOnly) Xml.encodeAttribute(role, "provider-only", "true");
 
 		// locks
 		for (Iterator a = m_locks.iterator(); a.hasNext();)
@@ -216,6 +225,14 @@ public class BaseRole implements Role
 	/**
 	 * {@inheritDoc}
 	 */
+	public boolean isProviderOnly()
+	{
+		return m_providerOnly;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean isAllowed(String lock)
 	{
 		return m_locks.contains(lock);
@@ -237,6 +254,14 @@ public class BaseRole implements Role
 	public void setDescription(String description)
 	{
 		m_description = StringUtil.trimToNull(description);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setProviderOnly(boolean providerOnly)
+	{
+		m_providerOnly = providerOnly;
 	}
 
 	/**

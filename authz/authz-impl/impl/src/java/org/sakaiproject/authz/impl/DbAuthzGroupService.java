@@ -24,6 +24,7 @@ package org.sakaiproject.authz.impl;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -513,7 +514,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			// read the role descriptions
 			if ("mysql".equals(sqlService().getVendor()))
 			{
-				sql = "select ROLE_NAME, DESCRIPTION "
+				sql = "select ROLE_NAME, DESCRIPTION, PROVIDER_ONLY "
 					+ "from SAKAI_REALM_ROLE inner join SAKAI_REALM_ROLE_DESC inner join SAKAI_REALM "
 					+ "on SAKAI_REALM_ROLE.ROLE_KEY = SAKAI_REALM_ROLE_DESC.ROLE_KEY and SAKAI_REALM.REALM_KEY = SAKAI_REALM_ROLE_DESC.REALM_KEY "
 					+ "where REALM_ID = ?";
@@ -523,7 +524,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			{
                 sql = "select "
                     + "(select ROLE_NAME from SAKAI_REALM_ROLE where SAKAI_REALM_ROLE.ROLE_KEY = SAKAI_REALM_ROLE_DESC.ROLE_KEY), "
-                    + "DESCRIPTION "
+                    + "DESCRIPTION, PROVIDER_ONLY "
                     + "from SAKAI_REALM_ROLE_DESC where REALM_KEY in (select REALM_KEY from SAKAI_REALM where REALM_ID = ?)";		
 			}
 
@@ -536,6 +537,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 						// get the fields
 						String roleName = result.getString(1);
 						String description = result.getString(2);
+						boolean providerOnly = "1".equals(result.getString(3));
 
 						// find the role - create it if needed
 						// Note: if the role does not yet exist, it has no functions
@@ -548,6 +550,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 						// set the description
 						role.setDescription(description);
+						
+						// set the provider only flag
+						role.setProviderOnly(providerOnly);
 
 						return null;
 					}
@@ -879,7 +884,10 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				}
 
 				Object[] fields3 = new Object[3];
+				Object[] roleDescFields = new Object[4];
+
 				fields3[0] = caseId(edit.getId());
+				roleDescFields[0] = caseId(edit.getId());
 
 				// write all the role definitions for the realm
 				statement = "insert into SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY) values ("
@@ -887,15 +895,16 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 						+ "(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = ?), "
 						+ "(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?))";
 				// and the role descriptions
-				String stmt2 = "insert into SAKAI_REALM_ROLE_DESC (REALM_KEY, ROLE_KEY, DESCRIPTION) values("
+				String stmt2 = "insert into SAKAI_REALM_ROLE_DESC (REALM_KEY, ROLE_KEY, DESCRIPTION, PROVIDER_ONLY) values("
 						+ "(select REALM_KEY from SAKAI_REALM where REALM_ID = ?), "
-						+ "(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = ?), ?)";
+						+ "(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = ?), ?, ?)";
 				for (Iterator iRoles = ((BaseAuthzGroup) edit).m_roles.values().iterator(); iRoles.hasNext();)
 				{
 					Role role = (Role) iRoles.next();
 
 					// write the role's function entries
 					fields3[1] = role.getId();
+					roleDescFields[1] = role.getId();
 					for (Iterator iFunctions = role.getAllowedFunctions().iterator(); iFunctions.hasNext();)
 					{
 						String function = (String) iFunctions.next();
@@ -903,11 +912,14 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 						fields3[2] = function;
 						m_sql.dbWrite(connection, statement, fields3);
 					}
-
+					
 					// and the description -
 					// lets always write it even if null so we can help keep the role defined even if it has no functions
-					fields3[2] = role.getDescription();
-					m_sql.dbWrite(connection, stmt2, fields3);
+					roleDescFields[2] = role.getDescription();
+					
+					// and the provider_only flag
+					roleDescFields[3] = role.isProviderOnly() ? '1' : '0';
+					m_sql.dbWrite(connection, stmt2, roleDescFields);
 				}
 
 				// write all the role grants for the realm
@@ -1036,7 +1048,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 					statement = "delete from SAKAI_REALM_ROLE_DESC where REALM_KEY in (select REALM_KEY from SAKAI_REALM where REALM_ID = ?)";
 					m_sql.dbWrite(connection, statement, fields);
 				}
-								
+
 				// delete the realm and properties
 				super.removeResource(connection, edit, ((BaseAuthzGroup) edit).getKey());
 

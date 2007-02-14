@@ -47,6 +47,14 @@ public interface Role extends Comparable, Serializable
 	String getDescription();
 
 	/**
+	 * Whether this Role is assignable only by a provider (true) or if the role can
+	 * be manipulated by users (false).
+	 * 
+	 * @return Whether the role is assignable only by a provider.
+	 */
+	boolean isProviderOnly();
+	
+	/**
 	 * Test if users with this role are allowed to perform this named function.
 	 * 
 	 * @param function
@@ -69,6 +77,13 @@ public interface Role extends Comparable, Serializable
 	 *        The role description.
 	 */
 	void setDescription(String description);
+
+	/**
+	 * Sets the provider only flag.
+	 * 
+	 * @param providerOnly
+	 */
+	void setProviderOnly(boolean providerOnly);
 
 	/**
 	 * Add this function to the set of functions that users with this role are allowed to perform.
