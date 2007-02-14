@@ -38,7 +38,7 @@
                 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">?</a>)
 			 #end
 			<div class="portletpresencebutton" >
-				#if (${pageNavShowPresenceLoggedIn})
+				#if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
 					#if ($currentSite)
 						#if ( ! $currentSite.isMyWorkspace )
 							<a href-"#" onMouseOver="showPresence();" onMouseOut="hidePresence();">Users Present</a> | 
@@ -85,13 +85,12 @@
 		#end
 	#end
 	#if ($currentSite)
-		#if (${pageNavShowPresenceLoggedIn})
+		#if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
 			<div class="portletpresence" id="portletletprecense" >
 				 <div class="portletpresencewrapper" id="portletpresencewrapper">
-					##not needed   <div id="presenceTitle">${rloader.sit_presencetitle}</div>
-							<iframe name="presenceIframe" id="presenceIframe" title="${rloader.sit_presencetitle}"
-									  frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${pageNavPresenceUrl}" >
-							</iframe>
+					<iframe name="presenceIframe" id="presenceIframe" title="${currentSite.sitePages.pageNavSitPresenceTitle}"
+							  frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${currentSite.sitePages.pageNavPresenceUrl}" >
+					</iframe>
 				 </div>
 			 </div>
 			<script>
