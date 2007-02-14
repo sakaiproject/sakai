@@ -501,7 +501,7 @@ public class XmlStringBuffer
       int size = newElementList.size();
       if(size > 1)
       {
-        log.warn("UPDATING MORE THAN ONE ELEMENT");
+        log.info("UPDATING MORE THAN ONE ELEMENT");
       }
 
       if((aIndex == -1) && (size != 0))
