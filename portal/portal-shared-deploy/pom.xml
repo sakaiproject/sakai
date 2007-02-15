@@ -18,7 +18,7 @@
     <dependency>
       <groupId>org.apache.pluto</groupId>
       <artifactId>pluto-container</artifactId>
-      <version>1.1.0</version>
+      <version>${sakai.pluto.version}</version>
     </dependency>
     <dependency>
       <groupId>javax.portlet</groupId>
@@ -28,17 +28,17 @@
     <dependency>
       <groupId>org.apache.pluto</groupId>
       <artifactId>pluto-descriptor-api</artifactId>
-      <version>1.1.0</version>
+      <version>${sakai.pluto.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.pluto</groupId>
       <artifactId>pluto-descriptor-impl</artifactId>
-      <version>1.1.0</version>
+      <version>${sakai.pluto.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.pluto</groupId>
       <artifactId>pluto-taglib</artifactId>
-      <version>1.1.0</version>
+      <version>${sakai.pluto.version}</version>
     </dependency>
     <dependency>
       <groupId>castor</groupId>

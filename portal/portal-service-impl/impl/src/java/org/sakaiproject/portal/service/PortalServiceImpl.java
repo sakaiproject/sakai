@@ -91,135 +91,110 @@ public class PortalServiceImpl implements PortalService
 
 	public Iterator<PortletApplicationDescriptor> getRegisteredApplications()
 	{
-		try
-		{
-			PortletRegistryService registry = PortletContextManager
-					.getManager();
-			final Iterator apps = registry.getRegisteredPortletApplications();
-			return new Iterator<PortletApplicationDescriptor>()
-			{
-
-				public boolean hasNext()
-				{
-					return apps.hasNext();
-				}
-
-				public PortletApplicationDescriptor next()
-				{
-					final InternalPortletContext pc = (InternalPortletContext) apps
-							.next();
-
-					final PortletAppDD appDD = pc
-							.getPortletApplicationDefinition();
-					return new PortletApplicationDescriptor()
-					{
-
-						public String getApplicationContext()
-						{
-							return pc.getPortletContextName();
-						}
-
-						public String getApplicationId()
-						{
-							return pc.getApplicationId();
-						}
-
-						public String getApplicationName()
-						{
-							return pc.getApplicationId();
-						}
-
-						public Iterator<PortletDescriptor> getPortlets()
-						{
-							if (appDD != null)
-							{
-								List portlets = appDD.getPortlets();
-
-								final Iterator portletsI = portlets.iterator();
-								return new Iterator<PortletDescriptor>()
-								{
-
-									public boolean hasNext()
-									{
-										return portletsI.hasNext();
-									}
-
-									public PortletDescriptor next()
-									{
-										final PortletDD pdd = (PortletDD) portletsI
-												.next();
-										return new PortletDescriptor()
-										{
-
-											public String getPortletId()
-											{
-												return pdd.getPortletName();
-											}
-
-											public String getPortletName()
-											{
-												return pdd.getPortletName();
-											}
-
-										};
-									}
-
-									public void remove()
-									{
-									}
-
-								};
-							}
-							else
-							{
-								log
-										.warn(" Portlet Application has no portlets "
-												+ pc.getPortletContextName());
-								return new Iterator<PortletDescriptor>()
-								{
-
-									public boolean hasNext()
-									{
-										return false;
-									}
-
-									public PortletDescriptor next()
-									{
-										return null;
-									}
-
-									public void remove()
-									{
-									}
-
-								};
-							}
-						}
-
-					};
-				}
-
-				public void remove()
-				{
-				}
-
-			};
-		}
-		catch (PortletContainerException e)
-		{
-			log.error("Failed to get portlet applications ", e);
-		}
+		PortletRegistryService registry = PortletContextManager
+				.getManager();
+		final Iterator apps = registry.getRegisteredPortletApplications();
 		return new Iterator<PortletApplicationDescriptor>()
 		{
 
 			public boolean hasNext()
 			{
-				return false;
+				return apps.hasNext();
 			}
 
 			public PortletApplicationDescriptor next()
 			{
-				return null;
+				final InternalPortletContext pc = (InternalPortletContext) apps
+						.next();
+
+				final PortletAppDD appDD = pc
+						.getPortletApplicationDefinition();
+				return new PortletApplicationDescriptor()
+				{
+
+					public String getApplicationContext()
+					{
+						return pc.getPortletContextName();
+					}
+
+					public String getApplicationId()
+					{
+						return pc.getApplicationId();
+					}
+
+					public String getApplicationName()
+					{
+						return pc.getApplicationId();
+					}
+
+					public Iterator<PortletDescriptor> getPortlets()
+					{
+						if (appDD != null)
+						{
+							List portlets = appDD.getPortlets();
+
+							final Iterator portletsI = portlets.iterator();
+							return new Iterator<PortletDescriptor>()
+							{
+
+								public boolean hasNext()
+								{
+									return portletsI.hasNext();
+								}
+
+								public PortletDescriptor next()
+								{
+									final PortletDD pdd = (PortletDD) portletsI
+											.next();
+									return new PortletDescriptor()
+									{
+
+										public String getPortletId()
+										{
+											return pdd.getPortletName();
+										}
+
+										public String getPortletName()
+										{
+											return pdd.getPortletName();
+										}
+
+									};
+								}
+
+								public void remove()
+								{
+								}
+
+							};
+						}
+						else
+						{
+							log
+									.warn(" Portlet Application has no portlets "
+											+ pc.getPortletContextName());
+							return new Iterator<PortletDescriptor>()
+							{
+
+								public boolean hasNext()
+								{
+									return false;
+								}
+
+								public PortletDescriptor next()
+								{
+									return null;
+								}
+
+								public void remove()
+								{
+								}
+
+							};
+						}
+					}
+
+				};
 			}
 
 			public void remove()
