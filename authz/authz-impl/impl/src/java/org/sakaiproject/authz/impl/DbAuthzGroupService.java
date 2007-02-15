@@ -149,6 +149,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
+				sqlService().ddl(this.getClass().getClassLoader(), "sakai_realm_2_4_0_001");
 				sqlService().ddl(this.getClass().getClassLoader(), "sakai_realm");
 			}
 
