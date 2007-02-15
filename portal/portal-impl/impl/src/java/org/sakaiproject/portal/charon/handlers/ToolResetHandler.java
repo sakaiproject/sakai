@@ -24,7 +24,7 @@ package org.sakaiproject.portal.charon.handlers;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.portal.charon.PortalHandlerException;
+import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.Web;
 

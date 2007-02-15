@@ -19,13 +19,12 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.portal.charon;
+package org.sakaiproject.portal.api;
 
 import java.io.Writer;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.sakaiproject.portal.charon.velocity.VelocityPortalRenderEngine;
 
 /**
  * Repesents the API used by the protal to comunicate with the RenderEngine
@@ -36,11 +35,6 @@ import org.sakaiproject.portal.charon.velocity.VelocityPortalRenderEngine;
 public interface PortalRenderEngine
 {
 
-	/**
-	 * the default render engine impliemtnation
-	 */
-	public static final String DEFAULT_RENDER_ENGINE = VelocityPortalRenderEngine.class
-			.getName();
 
 	/**
 	 * Initialise the render engine

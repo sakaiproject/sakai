@@ -14,6 +14,7 @@ import org.apache.pluto.descriptors.portlet.PortletDD;
 import org.apache.pluto.internal.InternalPortletContext;
 import org.apache.pluto.spi.optional.PortletRegistryService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.portal.api.PortalRenderEngine;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortletApplicationDescriptor;
 import org.sakaiproject.portal.api.PortletDescriptor;
@@ -29,6 +30,8 @@ public class PortalServiceImpl implements PortalService
 	 * Parameter to force state reset
 	 */
 	public static final String PARM_STATE_RESET = "sakai.state.reset";
+
+	private PortalRenderEngine renderEngine;
 
 	public StoredState getStoredState()
 	{
@@ -225,6 +228,34 @@ public class PortalServiceImpl implements PortalService
 
 		};
 	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.portal.api.PortalService#getRenderEngine(javax.servlet.http.HttpServletRequest)
+	 */
+	public PortalRenderEngine getRenderEngine(HttpServletRequest request)
+	{
+		// at this point we ignore request but we might use ut to return more than one render engine
+		
+		return renderEngine;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.portal.api.PortalService#addRenderEngine(org.sakaiproject.portal.api.PortalRenderEngine)
+	 */
+	public void addRenderEngine(PortalRenderEngine vengine)
+	{
+
+		this.renderEngine = vengine;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.portal.api.PortalService#removeRenderEngine(org.sakaiproject.portal.api.PortalRenderEngine)
+	 */
+	public void removeRenderEngine(PortalRenderEngine vengine)
+	{
+		this.renderEngine = null;
+	}
+	
 
 
 }

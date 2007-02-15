@@ -29,7 +29,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
-import org.sakaiproject.portal.charon.PortalRenderContext;
+import org.sakaiproject.portal.api.PortalRenderContext;
+import org.sakaiproject.portal.api.PortalRenderEngine;
 
 /**
  * A render context based on the velocity context
@@ -45,6 +46,8 @@ public class VelocityPortalRenderContext implements PortalRenderContext
 	private boolean debug = false;
 
 	private Map options = null;
+	
+	private PortalRenderEngine renderEngine = null;
 
 	public boolean isDebug()
 	{
@@ -145,6 +148,18 @@ public class VelocityPortalRenderContext implements PortalRenderContext
 	public void setOptions(Map options)
 	{
 		this.options = options;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.portal.api.PortalRenderContext#getRenderEngine()
+	 */
+	public PortalRenderEngine getRenderEngine()
+	{
+		return renderEngine;
+	}
+	public void setRenderEngine(PortalRenderEngine renderEngine)
+	{
+		this.renderEngine = renderEngine;
 	}
 
 }

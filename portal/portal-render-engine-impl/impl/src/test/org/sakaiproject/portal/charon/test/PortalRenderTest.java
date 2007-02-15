@@ -19,37 +19,51 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.portal.charon;
+package org.sakaiproject.portal.charon.test;
 
+import junit.framework.TestCase;
 /**
- * This interface represent the Render Context, it allows the portal implementation to 
- * put values into the render context. There is a utility dump method to dump the context.
- * Instances of this class should be created per request via an Implimention of the RenderContextEngine
+ * A unit test that performs a template render test, checking for XMTML compliance. You should check the 
+ * transcript for resutls. The test will not fail.
  * @author ieb
  *
  */
-public interface PortalRenderContext
+public class PortalRenderTest extends TestCase
 {
 
-	/**
-	 * Set a value agaaisnt a Key, normally a value might be a String, Collection or a Map, but
-	 * depending on the render engine technology other objects may be acceptable.
-	 * @param string
-	 * @param value
-	 */
-	void put(String string, Object value);
+	public static void main(String[] args)
+	{
+	}
 
-	/** 
-	 * Converr the render context to a string suitable for dumping to a log file or console.
-	 * @return
-	 */
-	String dump();
+	public PortalRenderTest(String arg0) throws Exception
+	{
+		super(arg0);
+	}
 
-	/**
-	 * Return true if the context needs this part of the portal
-	 * @param includeOption
-	 * @return
-	 */
-	boolean uses(String includeOption);
+	protected void setUp() throws Exception
+	{
+		super.setUp();
+	}
+
+	protected void tearDown() throws Exception
+	{
+		super.tearDown();
+	}
+	public void testAllTemplates() throws Exception {
+		try {
+		MockCharonPortal mock = new MockCharonPortal();
+		//mock.doError();
+		mock.doGalleryTabs();
+		mock.doGallery();
+		mock.doNavLogin();
+		mock.doNavLoginGallery();
+		mock.doPage();
+		mock.doSite();
+		mock.doSiteTabs();
+		mock.doWorksite();
+		} catch ( Exception ex ) {
+			ex.printStackTrace();
+		}
+	}
 
 }

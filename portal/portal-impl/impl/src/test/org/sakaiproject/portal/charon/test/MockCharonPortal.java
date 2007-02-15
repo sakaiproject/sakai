@@ -34,8 +34,8 @@ import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.portal.charon.PortalRenderContext;
-import org.sakaiproject.portal.charon.PortalRenderEngine;
+import org.sakaiproject.portal.api.PortalRenderContext;
+import org.sakaiproject.portal.api.PortalRenderEngine;
 import org.sakaiproject.util.ResourceLoader;
 import org.w3c.tidy.Tidy;
 
@@ -57,7 +57,8 @@ public class MockCharonPortal extends HttpServlet
 
 	public MockCharonPortal() throws Exception 
 	{
-		String renderEngineClass = PortalRenderEngine.DEFAULT_RENDER_ENGINE;
+		String renderEngineClass = "THIS NEEDS FIXING";
+			//VelocityPortalRenderEngine.class.getName();
 
 		Class c = Class.forName(renderEngineClass);
 		rengine = (PortalRenderEngine) c.newInstance();
@@ -123,7 +124,6 @@ public class MockCharonPortal extends HttpServlet
 
 		sendResponse(rcontext, "gallery-tabs");
 	}
-
 
 	public void doNavLogin() throws IOException
 	{

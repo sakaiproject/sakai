@@ -27,8 +27,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.portal.charon.Portal;
-import org.sakaiproject.portal.charon.PortalHandlerException;
+import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;

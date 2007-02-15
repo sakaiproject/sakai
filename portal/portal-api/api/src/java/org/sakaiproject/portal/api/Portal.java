@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.portal.charon;
+package org.sakaiproject.portal.api;
 
 import java.io.IOException;
 import java.util.List;
@@ -84,6 +84,7 @@ public interface Portal
 
 
 	/**
+	 * prepare the response and send it to the render engine
 	 * @param rcontext
 	 * @param res
 	 * @param string
@@ -93,6 +94,7 @@ public interface Portal
 	void sendResponse(PortalRenderContext rcontext, HttpServletResponse res, String string, String string2) throws IOException;
 
 	/**
+	 * get the placement for the request
 	 * @param req
 	 * @param res
 	 * @param session
@@ -106,6 +108,7 @@ public interface Portal
 
 
 	/**
+	 * perform login
 	 * @param req
 	 * @param res
 	 * @param session
@@ -116,6 +119,7 @@ public interface Portal
 	void doLogin(HttpServletRequest req, HttpServletResponse res, Session session, String string, boolean b) throws ToolException;
 
 	/**
+	 * perform logout
 	 * @param req
 	 * @param res
 	 * @param session
@@ -131,7 +135,7 @@ public interface Portal
 
 
 	/**
-	 * 
+	 * get a new render context from the render engine
 	 * @param siteType
 	 * @param title
 	 * @param skin
@@ -141,6 +145,7 @@ public interface Portal
 	PortalRenderContext startPageContext(String siteType, String title, String skin, HttpServletRequest request);
 
 	/**
+	 * perform a redirect if logged out
 	 * @param res
 	 * @return
 	 * @throws IOException 
@@ -148,6 +153,7 @@ public interface Portal
 	boolean redirectIfLoggedOut(HttpServletResponse res) throws IOException;
 
 	/**
+	 * get the portal page URL base on the tool supplied
 	 * @param siteTool
 	 * @return
 	 */
@@ -155,6 +161,7 @@ public interface Portal
 
 
 	/**
+	 * populate the model with error status
 	 * @param req
 	 * @param res
 	 * @param session
@@ -165,6 +172,7 @@ public interface Portal
 	void doError(HttpServletRequest req, HttpServletResponse res, Session session, int error_worksite2) throws ToolException, IOException;
 
 	/**
+	 * forward to a portal url
 	 * @param tool
 	 * @param req
 	 * @param res
@@ -178,6 +186,7 @@ public interface Portal
 	void forwardPortal(ActiveTool tool, HttpServletRequest req, HttpServletResponse res, ToolConfiguration siteTool, String skin, String toolContextPath, String toolPathInfo) throws ToolException, IOException;
 
 	/**
+	 * setup in preparation for a forward
 	 * @param req
 	 * @param res
 	 * @param p
@@ -186,11 +195,13 @@ public interface Portal
 	void setupForward(HttpServletRequest req, HttpServletResponse res, Placement p, String skin) throws ToolException;
 
 	/**
+	 * include the model section that relates to the bottom of the page.
 	 * @param rcontext
 	 */
 	void includeBottom(PortalRenderContext rcontext);
 
 	/**
+	 * work out the type of the site based on the site id.
 	 * @param siteId
 	 * @return
 	 */
@@ -198,6 +209,7 @@ public interface Portal
 
 
 	/**
+	 * include the part od the view tree needed to render login
 	 * @param rcontext
 	 * @param req
 	 * @param session
@@ -206,6 +218,7 @@ public interface Portal
 
 
 	/**
+	 * forward the request to a tool
 	 * @param tool
 	 * @param req
 	 * @param res
@@ -220,13 +233,14 @@ public interface Portal
 
 
 	/**
+	 * get the site id for the user
 	 * @param userId
 	 * @return
 	 */
 	String getUserEidBasedSiteId(String userId);
 
 	/**
-	 * 
+	 * convert sites into a map for the view tree
 	 * @param req
 	 * @param mySites
 	 * @param prefix
@@ -246,7 +260,7 @@ public interface Portal
 
 
 	/**
-	 * 
+	 * convert a single site into a map
 	 * @param req
 	 * @param s
 	 * @param prefix
@@ -265,7 +279,7 @@ public interface Portal
 			boolean loggedIn);
 
 	/**
-	 * 
+	 * populate the view tree for the model
 	 * @param req
 	 * @param res
 	 * @param session
@@ -286,6 +300,7 @@ public interface Portal
 			boolean expandSite) throws ToolException, IOException;
 
 	/**
+	 * include the tool part of the view tree
 	 * @param res
 	 * @param req
 	 * @param placement

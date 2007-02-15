@@ -4,6 +4,8 @@ import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 
+
+
 public interface PortalService
 {
     /**
@@ -44,5 +46,23 @@ public interface PortalService
 	StoredState newStoredState(String string, String string2);
 
 	Iterator<PortletApplicationDescriptor> getRegisteredApplications();
+
+	/**
+	 * get a render engine possibly based on the request
+	 * @param request
+	 * @return
+	 */
+	PortalRenderEngine getRenderEngine(HttpServletRequest request);
+
+	/**
+	 * add a render engine to the available render engines.
+	 * @param vengine
+	 */
+	void addRenderEngine(PortalRenderEngine vengine);
+	/**
+	 * remove a render engine from the avaialble render engines
+	 * @param vengine
+	 */
+	void removeRenderEngine(PortalRenderEngine vengine);
 
 }

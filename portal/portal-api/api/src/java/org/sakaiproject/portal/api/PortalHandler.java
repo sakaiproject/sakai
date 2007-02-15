@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.portal.charon;
+package org.sakaiproject.portal.api;
 
 import java.io.IOException;
 
@@ -28,7 +28,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.tool.api.Session;
 
 /**

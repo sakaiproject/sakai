@@ -36,8 +36,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.runtime.RuntimeConstants;
-import org.sakaiproject.portal.charon.PortalRenderContext;
-import org.sakaiproject.portal.charon.PortalRenderEngine;
+import org.sakaiproject.portal.api.PortalRenderContext;
+import org.sakaiproject.portal.api.PortalRenderEngine;
 
 /**
  * A velocity render engine adapter
@@ -84,6 +84,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	public PortalRenderContext newRenderContext(HttpServletRequest request)
 	{
 		VelocityPortalRenderContext rc = new VelocityPortalRenderContext();
+		rc.setRenderEngine(this);
 		rc.setDebug(debug);
 		// this is just for testing, it should be in the path or portal to
 		// ensure that the skin remains.

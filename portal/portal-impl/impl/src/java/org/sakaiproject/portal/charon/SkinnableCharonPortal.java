@@ -42,6 +42,10 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.PortalHandler;
+import org.sakaiproject.portal.api.PortalRenderContext;
+import org.sakaiproject.portal.api.PortalRenderEngine;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.charon.handlers.AtomHandler;
@@ -119,8 +123,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private BasicAuth basicAuth = null;
 
 	private boolean enableDirect = false;
-
-	private PortalRenderEngine rengine;
 
 	private PortalService portalService;
 
@@ -761,6 +763,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	public PortalRenderContext startPageContext(String siteType, String title, String skin, HttpServletRequest request)
 	{
+		PortalRenderEngine rengine = portalService.getRenderEngine(request);
 		PortalRenderContext rcontext = rengine.newRenderContext(request);
 
 		if (skin == null)
@@ -1395,24 +1398,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		enableDirect = portalService.isEnableDirect();
 
-		// this should be a spring bean, but for the moment I dont want to bind
-		// to spring.
-		String renderEngineClass = config.getInitParameter("renderEngineImpl");
-		if (renderEngineClass == null || renderEngineClass.trim().length() == 0)
-		{
-			renderEngineClass = PortalRenderEngine.DEFAULT_RENDER_ENGINE;
-		}
 
-		try
-		{
-			Class c = Class.forName(renderEngineClass);
-			rengine = (PortalRenderEngine) c.newInstance();
-			rengine.init();
-		}
-		catch (Exception e)
-		{
-			throw new ServletException("Failed to start velocity ", e);
-		}
 
 		galleryHandler = new GalleryHandler();
 		worksiteHandler = new WorksiteHandler();
@@ -1538,6 +1524,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		try
 		{
+			PortalRenderEngine rengine = rcontext.getRenderEngine();
 			rengine.render(template, rcontext, out);
 		}
 		catch (Exception e)

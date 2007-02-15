@@ -26,7 +26,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.portal.charon.PortalHandlerException;
+import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.util.ErrorReporter;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;

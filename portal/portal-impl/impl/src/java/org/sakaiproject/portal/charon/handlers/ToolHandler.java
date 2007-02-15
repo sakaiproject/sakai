@@ -28,8 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.portal.charon.Portal;
-import org.sakaiproject.portal.charon.PortalHandlerException;
+import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;

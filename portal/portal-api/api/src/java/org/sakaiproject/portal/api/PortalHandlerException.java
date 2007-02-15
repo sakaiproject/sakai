@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.portal.charon;
+package org.sakaiproject.portal.api;
 
 /**
  * @author ieb
