@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -55,9 +56,16 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 
 	private List availablePortalSkins;
 
+	private ServletContext context;
+
 	public void init() throws Exception
 	{
 		vengine = new VelocityEngine();
+
+		
+		vengine.setApplicationAttribute(ServletContext.class.getName(),
+				context);
+
 
 		vengine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
 				"org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
@@ -148,9 +156,9 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		{
 			skin = "defaultskin";
 		}
-		vengine.getTemplate("defaultskin/macros.vm");
-		vengine.getTemplate(skin + "/macros.vm");
-		vengine.mergeTemplate(skin + "/" + template + ".vm",
+		vengine.getTemplate("/vm/defaultskin/macros.vm");
+		vengine.getTemplate("/vm/" + skin + "/macros.vm");
+		vengine.mergeTemplate("/vm/" + skin + "/" + template + ".vm",
 				((VelocityPortalRenderContext) rcontext).getVelocityContext(),
 				out);
 
@@ -164,6 +172,22 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	public void setDebug(boolean debug)
 	{
 		this.debug = debug;
+	}
+
+	/**
+	 * @return the context
+	 */
+	public ServletContext getContext()
+	{
+		return context;
+	}
+
+	/**
+	 * @param context the context to set
+	 */
+	public void setContext(ServletContext context)
+	{
+		this.context = context;
 	}
 
 }
