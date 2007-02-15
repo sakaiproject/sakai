@@ -143,7 +143,6 @@ public class DiscussionForumTool
   private static final String REDIRECT_PROCESS_ACTION = "redirectToProcessAction";
 
   private static final String MESSAGECENTER_TOOL_ID = "sakai.messagecenter";
-  private static final String MESSAGECENTER_HELPER_TOOL_ID = "sakai.messageforums.helper";
   private static final String FORUMS_TOOL_ID = "sakai.forums";
 
   private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
@@ -4406,26 +4405,15 @@ public class DiscussionForumTool
 	/**
 	 * @return TRUE if within Messages & Forums tool, FALSE otherwise
 	 */
-	public boolean isMessagesandForums() {
-		
-		if (messageManager.currentToolMatch(MESSAGECENTER_HELPER_TOOL_ID)) {
-				return isMessageForumsPageInSite(ToolManager.getCurrentPlacement().getContext());
-		}
-		else {
-			return messageManager.currentToolMatch(MESSAGECENTER_TOOL_ID);
-		}
-}
+	public boolean isMessagesandForums() {		
+		return messageManager.currentToolMatch(MESSAGECENTER_TOOL_ID);
+	}
 	
 	/**
 	 * @return TRUE if within Forums tool, FALSE otherwise
 	 */
 	public boolean isForumsTool() {
-		if (messageManager.currentToolMatch(MESSAGECENTER_HELPER_TOOL_ID)) {
-				return isForumsPageInSite(ToolManager.getCurrentPlacement().getContext());
-		}
-		else {
-			return messageManager.currentToolMatch(FORUMS_TOOL_ID);
-		}
+		return messageManager.currentToolMatch(FORUMS_TOOL_ID);
 	}
 	
    private String gotoMain() {

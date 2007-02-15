@@ -3245,37 +3245,14 @@ public class PrivateMessagesTool
 	 * @return TRUE if within Messages & Forums tool, FALSE otherwise
 	 */
 	public boolean isMessagesandForums() {
-		
-		if (messageManager.currentToolMatch(MESSAGECENTER_HELPER_TOOL_ID)) {
-			return isMessageForumsPageInSite();
-		}
-		else {
-			return messageManager.currentToolMatch(MESSAGECENTER_TOOL_ID);
-		}
-}
+		return messageManager.currentToolMatch(MESSAGECENTER_TOOL_ID);
+	}
 	
 	/**
 	 * @return TRUE if within Messages tool, FALSE otherwise
 	 */
 	public boolean isMessages() {
-		if (messageManager.currentToolMatch(MESSAGECENTER_HELPER_TOOL_ID)) {
-			return isMessagesPageInSite();
-		}
-		else {
-			return messageManager.currentToolMatch(MESSAGES_TOOL_ID);
-		}
-	}
-	
-	/**
-	 * @return TRUE if within Forums tool, FALSE otherwise
-	 */
-	public boolean isForums() {
-		if (messageManager.currentToolMatch(MESSAGECENTER_HELPER_TOOL_ID)) {
-			return isForumsPageInSite();
-		}
-		else {
-			return messageManager.currentToolMatch(FORUMS_TOOL_ID);
-		}
+		return messageManager.currentToolMatch(MESSAGES_TOOL_ID);
 	}
 	
 	/**
@@ -3294,22 +3271,6 @@ public class PrivateMessagesTool
 		return messageManager.isToolInSite(siteId, MESSAGECENTER_TOOL_ID);
 	}
 	
-	/**
-	 * @return TRUE if Messages tool exists in this site,
-	 *         FALSE otherwise
-	 */
-	public boolean isForumsPageInSite() {
-		return isForumsPageInSite(getSiteId());
-	}
-
-	/**
-	 * @return TRUE if Forums tool exists in this site,
-	 *         FALSE otherwise
-	 */
-	private boolean isForumsPageInSite(String siteId) {
-		return messageManager.isToolInSite(siteId, FORUMS_TOOL_ID);
-	}
-
 	/**
 	 * @return TRUE if Messages tool exists in this site,
 	 *         FALSE otherwise

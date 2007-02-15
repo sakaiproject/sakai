@@ -73,6 +73,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private static final String QUERY_CHILD_MESSAGES = "finalAllChildMessages";
     //private static final String ID = "id";
 
+    private static final String MESSAGECENTER_HELPER_TOOL_ID = "sakai.messageforums.helper";
+
     private IdManager idManager;                      
 
     private MessageForumsTypeManager typeManager;
@@ -821,9 +823,13 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 	 * 			TRUE if tool exists, FALSE otherwise.
 	 */
 	public boolean currentToolMatch(String toolId) {
-		final Tool curTool = ToolManager.getCurrentTool();
-			
-		if (toolId.equals(curTool.getId())) {
+		String curToolId = ToolManager.getCurrentTool().getId();
+		
+		if (curToolId.equals(MESSAGECENTER_HELPER_TOOL_ID)) {
+			curToolId = ToolManager.getCurrentPlacement().getTool().getId();
+		}
+
+		if (toolId.equals(curToolId)) {
 			return true;
 		}
 		
