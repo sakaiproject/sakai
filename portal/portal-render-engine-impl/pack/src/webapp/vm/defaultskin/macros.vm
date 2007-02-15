@@ -14,10 +14,42 @@
 <!--[if gte IE 5]><![if lt IE 7]>
     <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
 <![endif]><![endif]-->
+
+
+
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <title>${pageTitle}</title>
     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}/headscripts.js"></script>
+    
+    
+    
+    
     <script type="text/javascript" language="JavaScript" src="/library/scripts/portalscripts.js"></script>
+
+#if ( ${styleable} )
+
+<script type="text/javascript" 
+    	language="JavaScript" 
+    	src="/portal/scripts/styleable.js" >
+    </script>
+    
+    <script type="text/javascript" 
+            language="JavaScript">
+    window.onload = insertStyleAbleStyles;
+    </script>
+    
+#if ( ${styleableStyleSheet} )
+	<style type="text/css" title="StyleAble">${styleableStyleSheet}</style>
+#end
+
+#if ( ${styleableJS} )
+	<script type="text/javascript" language="JavaScript">
+	${styleableJS} 
+	</script>
+#end
+
+#end
+
 </head>
 <body class="portalBody">
 <!--

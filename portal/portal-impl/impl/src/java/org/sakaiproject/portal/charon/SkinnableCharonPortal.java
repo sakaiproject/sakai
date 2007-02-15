@@ -961,6 +961,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			bodyonload.append("setMainFrameHeight('" + element + "');");
 		}
 		bodyonload.append("setFocus(focus_path);");
+		
+		
 
 		// to force all non-legacy tools to use the standard css
 		// to help in transition (needs corresponding entry in properties)
@@ -976,6 +978,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		req.setAttribute("sakai.html.head.css.skin", headCssToolSkin);
 		req.setAttribute("sakai.html.head.js", headJs);
 		req.setAttribute("sakai.html.body.onload", bodyonload.toString());
+		
+		portalService.getRenderEngine(req).setupForward(req, res, p, skin);
 	}
 
 	/**

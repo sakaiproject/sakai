@@ -30,6 +30,7 @@ import java.util.Properties;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
@@ -37,14 +38,15 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.runtime.RuntimeConstants;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalRenderEngine;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.SessionManager;
 
 import ca.utoronto.atrc.transformable.styleable.sakai.cover.StyleAbleService;
 import ca.utoronto.atrc.transformable.common.UnknownIdException;
 import ca.utoronto.atrc.transformable.sakaipreferences.cover.TransformAblePrefsService;
- 
 
 /**
  * A velocity render engine adapter
@@ -53,8 +55,7 @@ import ca.utoronto.atrc.transformable.sakaipreferences.cover.TransformAblePrefsS
  */
 public class VelocityPortalRenderEngine implements PortalRenderEngine
 {
-	private static final Log log = LogFactory
-			.getLog(VelocityPortalRenderEngine.class);
+	private static final Log log = LogFactory.getLog(VelocityPortalRenderEngine.class);
 
 	private VelocityEngine vengine;
 
@@ -64,26 +65,19 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 
 	private ServletContext context;
 
-	private boolean stylable = false;
+	private boolean styleAble = false;
 
 	public void init() throws Exception
 	{
+		styleAble = ServerConfigurationService.getBoolean("portal.styleable", false);
 		vengine = new VelocityEngine();
 
-		
-		vengine.setApplicationAttribute(ServletContext.class.getName(),
-				context);
+		vengine.setApplicationAttribute(ServletContext.class.getName(), context);
 
-
-		vengine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
-				"org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
-		vengine
-				.setProperty("runtime.log.logsystem.log4j.category",
-						"ve.portal");
+		vengine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
+		vengine.setProperty("runtime.log.logsystem.log4j.category", "ve.portal");
 		Properties p = new Properties();
-		p
-				.load(this.getClass().getResourceAsStream(
-						"portalvelocity.properties"));
+		p.load(this.getClass().getResourceAsStream("portalvelocity.properties"));
 		vengine.init(p);
 		availablePortalSkins = new ArrayList();
 		Map m = new HashMap();
@@ -106,9 +100,10 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		// ensure that the skin remains.
 
 		rc.put("pageSkins", availablePortalSkins);
-		rc.put("stylableStyleSheet", generateStyleAbleStyleSheet());
-		rc.put("stylableJS", generateStyleAbleJavaScript());
-		
+		rc.put("styleableStyleSheet", generateStyleAbleStyleSheet());
+		rc.put("styleableJS", generateStyleAbleJavaScript());
+		rc.put("styleable", styleAble );
+
 		String portalSkin = "defaultskin";
 
 		if (request != null)
@@ -144,24 +139,21 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		try
 		{
 			Properties p = new Properties();
-			p.load(this.getClass().getResourceAsStream(
-					"/"+portalSkin + "/options.properties"));
+			p.load(this.getClass().getResourceAsStream("/" + portalSkin + "/options.properties"));
 			rc.setOptions(p);
 		}
 		catch (Exception ex)
 		{
-			log.info("No options loaded ",ex);
+			log.info("No options loaded ", ex);
 
 		}
 
 		return rc;
 	}
 
-	public void render(String template, PortalRenderContext rcontext, Writer out)
-			throws Exception
+	public void render(String template, PortalRenderContext rcontext, Writer out) throws Exception
 	{
-		Context vc = ((VelocityPortalRenderContext) rcontext)
-				.getVelocityContext();
+		Context vc = ((VelocityPortalRenderContext) rcontext).getVelocityContext();
 		String skin = (String) vc.get("pageCurrentSkin");
 		if (skin == null || skin.length() == 0)
 		{
@@ -170,66 +162,56 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		vengine.getTemplate("/vm/defaultskin/macros.vm");
 		vengine.getTemplate("/vm/" + skin + "/macros.vm");
 		vengine.mergeTemplate("/vm/" + skin + "/" + template + ".vm",
-				((VelocityPortalRenderContext) rcontext).getVelocityContext(),
-				out);
+				((VelocityPortalRenderContext) rcontext).getVelocityContext(), out);
 
 	}
 
-	
-	private String generateStyleAbleStyleSheet() {
-		if ( stylable  )  {
+	private String generateStyleAbleStyleSheet()
+	{
+		if (styleAble)
+		{
 			String userId = getCurrentUserId();
-			try {
-				ca.utoronto.atrc.transformable.common.prefs.Preferences prefsForUser
-						= TransformAblePrefsService.getTransformAblePreferences(userId);
+			try
+			{
+				ca.utoronto.atrc.transformable.common.prefs.Preferences prefsForUser = TransformAblePrefsService
+						.getTransformAblePreferences(userId);
 				return StyleAbleService.generateStyleSheet(prefsForUser);
-				
-/*
- 
- 				if (styleSheet == null) {
-					return "";
-				} else {
-					String styleElement = "<style type=\"text/css\" title=\"StyleAble\">\n"
-							+ styleSheet + "</style>\n";
-					return styleElement;
-				}
-*/
-			} catch (UnknownIdException e) {
-				// Return an empty style element if we cannot retrieve preferences
+			}
+			catch (UnknownIdException e)
+			{
 				return null;
 			}
 		}
 		return null;
 	}
-	
-	
+
 	/**
 	 * @return null if no JavaScript is needed
 	 */
-	private String generateStyleAbleJavaScript() {
-		String userId = getCurrentUserId();
-		try {
-			ca.utoronto.atrc.transformable.common.prefs.Preferences prefsForUser
-					= TransformAblePrefsService.getTransformAblePreferences(userId);
-			String javaScript = StyleAbleService.generateJavaScript(prefsForUser);
-			if (javaScript == null) {
-				return null;
-			} else {
-				String scriptElement = "<script "
-					+ "type=\"text/javascript\" language=\"JavaScript\">\n"
-					+ javaScript + "\n</script>\n";
-				return scriptElement;
+	private String generateStyleAbleJavaScript()
+	{
+		if (styleAble)
+		{
+			String userId = getCurrentUserId();
+			try
+			{
+				ca.utoronto.atrc.transformable.common.prefs.Preferences prefsForUser = TransformAblePrefsService
+						.getTransformAblePreferences(userId);
+				return StyleAbleService.generateJavaScript(prefsForUser);
 			}
-		} catch (UnknownIdException e) {
-			return null;
+			catch (UnknownIdException e)
+			{
+				return null;
+			}
 		}
+		return null;
 	}
-	
-	private String getCurrentUserId() {
+
+	private String getCurrentUserId()
+	{
 		return SessionManager.getCurrentSession().getUserId();
 	}
-	
-	
+
 	public boolean isDebug()
 	{
 		return debug;
@@ -249,11 +231,61 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	}
 
 	/**
-	 * @param context the context to set
+	 * @param context
+	 *        the context to set
 	 */
 	public void setContext(ServletContext context)
 	{
 		this.context = context;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.portal.api.PortalRenderEngine#setupForward(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, org.sakaiproject.tool.api.Placement, java.lang.String)
+	 */
+	public void setupForward(HttpServletRequest req, HttpServletResponse res, Placement p, String skin)
+	{
+		String headJs = (String) req.getAttribute("sakai.html.head.js");
+		String headCss = (String) req.getAttribute("sakai.html.head.css");
+		String bodyonload = (String) req.getAttribute("sakai.html.body.onload");
+		String customUserCss = generateStyleAbleStyleSheet();
+		if (customUserCss != null)
+		{
+			customUserCss = "<style type=\"text/css\" title=\"StyleAble\">\n" + customUserCss + "</style>\n";
+			headCss = headCss + customUserCss;
+		}
+		String head = headCss + headJs;
+
+		String styleAbleJs = generateStyleAbleJavaScript();
+		if (styleAbleJs != null)
+		{
+			styleAbleJs = "<script " + "type=\"text/javascript\" language=\"JavaScript\">\n" + styleAbleJs + "\n</script>\n";
+			head = head + styleAbleJs;
+		}
+		bodyonload = bodyonload + "styleableonload();";
+
+		req.setAttribute("sakai.html.head", head);
+		req.setAttribute("sakai.html.head.css", headCss);
+		req.setAttribute("sakai.html.head.js", headJs);
+		req.setAttribute("sakai.html.body.onload", bodyonload);
+
+	}
+
+	/**
+	 * @return the stylable
+	 */
+	public boolean isStyleAble()
+	{
+		return styleAble;
+	}
+
+	/**
+	 * @param stylable the stylable to set
+	 */
+	public void setStyleAble(boolean styleAble)
+	{
+		this.styleAble = styleAble;
 	}
 
 }

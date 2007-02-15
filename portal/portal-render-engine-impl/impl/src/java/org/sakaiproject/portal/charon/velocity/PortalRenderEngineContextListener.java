@@ -57,7 +57,6 @@ public class PortalRenderEngineContextListener implements ServletContextListener
 	{
 		try
 		{
-			
 			vengine = new VelocityPortalRenderEngine();
 			vengine.setContext(event.getServletContext());
 			vengine.init();

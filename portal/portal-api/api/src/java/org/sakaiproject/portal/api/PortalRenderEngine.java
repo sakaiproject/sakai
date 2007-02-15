@@ -24,6 +24,9 @@ package org.sakaiproject.portal.api;
 import java.io.Writer;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.sakaiproject.tool.api.Placement;
 
 
 /**
@@ -63,5 +66,13 @@ public interface PortalRenderEngine
 	 */
 	void render(String template, PortalRenderContext rcontext, Writer out)
 			throws Exception;
+
+	/**
+	 * @param req
+	 * @param res
+	 * @param p
+	 * @param skin
+	 */
+	void setupForward(HttpServletRequest req, HttpServletResponse res, Placement p, String skin);
 
 }
