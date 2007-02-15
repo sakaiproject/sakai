@@ -93,7 +93,7 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder {
             Map.Entry entry = (Map.Entry) it.next();
             Object o = entry.getValue();
             if(o instanceof String) {
-                // p.setProperty("" + entry.getKey(), o.toString());
+                p.setProperty("" + entry.getKey(), o.toString());
                 normalParms  = normalParms  + "&" + entry.getKey() + "=" + o.toString();
             }
             else {
@@ -109,7 +109,7 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder {
                     }
                     sb.append(vals[i]);
                 }
-                // p.setProperty("" + entry.getKey(), sb.toString());
+                p.setProperty("" + entry.getKey(), sb.toString());
                 normalParms  = normalParms  + "&" + entry.getKey() + "=" + sb.toString();
             }
         }

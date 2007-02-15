@@ -12,7 +12,7 @@ import org.sakaiproject.portal.render.portlet.services.SakaiPortalCallbackServic
 import org.sakaiproject.portal.render.portlet.services.SakaiPortalContext;
 import org.sakaiproject.portal.render.portlet.services.SakaiPortletContainerServices;
 // TODO: Review by David
-// import org.sakaiproject.portal.render.portlet.servlet.SakaiServletRequest;
+import org.sakaiproject.portal.render.portlet.servlet.SakaiServletRequest;
 import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateAccess;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateEncoder;
@@ -150,7 +150,7 @@ public class PortletToolRenderService implements ToolRenderService {
         try {
 
             // TODO: Review David
-            // final HttpServletRequest req = new SakaiServletRequest(request, state);
+            final HttpServletRequest req = new SakaiServletRequest(request, state);
             final PortletContainer portletContainer = getPortletContainer(context);
 
             return new RenderResult() {
@@ -161,8 +161,8 @@ public class PortletToolRenderService implements ToolRenderService {
                         bufferedResponse = new BufferedServletResponse(response);
                         try {
                             // TODO: Review David
-                            // portletContainer.doRender(window, req, bufferedResponse);
-                            portletContainer.doRender(window, request, bufferedResponse);
+                            portletContainer.doRender(window, req, bufferedResponse);
+                            // portletContainer.doRender(window, request, bufferedResponse);
                         }
                         catch (PortletException e) {
                             throw new ToolRenderException(e.getMessage(), e);
@@ -184,8 +184,8 @@ public class PortletToolRenderService implements ToolRenderService {
                 public String getTitle() throws ToolRenderException {
                     renderResponse();
                     // TODO: Review David
-                    //return PortletStateAccess.getPortletState(req, window.getId().getStringId()).getTitle();
-                    return PortletStateAccess.getPortletState(request, window.getId().getStringId()).getTitle();
+                    return PortletStateAccess.getPortletState(req, window.getId().getStringId()).getTitle();
+                    // return PortletStateAccess.getPortletState(request, window.getId().getStringId()).getTitle();
                 }
 
             };
