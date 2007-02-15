@@ -39,6 +39,12 @@ import org.apache.velocity.context.Context;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalRenderEngine;
+import org.sakaiproject.tool.cover.SessionManager;
+
+import ca.utoronto.atrc.transformable.styleable.sakai.cover.StyleAbleService;
+import ca.utoronto.atrc.transformable.common.UnknownIdException;
+import ca.utoronto.atrc.transformable.sakaipreferences.cover.TransformAblePrefsService;
+ 
 
 /**
  * A velocity render engine adapter
@@ -57,6 +63,8 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	private List availablePortalSkins;
 
 	private ServletContext context;
+
+	private boolean stylable = false;
 
 	public void init() throws Exception
 	{
@@ -98,6 +106,9 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		// ensure that the skin remains.
 
 		rc.put("pageSkins", availablePortalSkins);
+		rc.put("stylableStyleSheet", generateStyleAbleStyleSheet());
+		rc.put("stylableJS", generateStyleAbleJavaScript());
+		
 		String portalSkin = "defaultskin";
 
 		if (request != null)
@@ -164,6 +175,61 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 
 	}
 
+	
+	private String generateStyleAbleStyleSheet() {
+		if ( stylable  )  {
+			String userId = getCurrentUserId();
+			try {
+				ca.utoronto.atrc.transformable.common.prefs.Preferences prefsForUser
+						= TransformAblePrefsService.getTransformAblePreferences(userId);
+				return StyleAbleService.generateStyleSheet(prefsForUser);
+				
+/*
+ 
+ 				if (styleSheet == null) {
+					return "";
+				} else {
+					String styleElement = "<style type=\"text/css\" title=\"StyleAble\">\n"
+							+ styleSheet + "</style>\n";
+					return styleElement;
+				}
+*/
+			} catch (UnknownIdException e) {
+				// Return an empty style element if we cannot retrieve preferences
+				return null;
+			}
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * @return null if no JavaScript is needed
+	 */
+	private String generateStyleAbleJavaScript() {
+		String userId = getCurrentUserId();
+		try {
+			ca.utoronto.atrc.transformable.common.prefs.Preferences prefsForUser
+					= TransformAblePrefsService.getTransformAblePreferences(userId);
+			String javaScript = StyleAbleService.generateJavaScript(prefsForUser);
+			if (javaScript == null) {
+				return null;
+			} else {
+				String scriptElement = "<script "
+					+ "type=\"text/javascript\" language=\"JavaScript\">\n"
+					+ javaScript + "\n</script>\n";
+				return scriptElement;
+			}
+		} catch (UnknownIdException e) {
+			return null;
+		}
+	}
+	
+	private String getCurrentUserId() {
+		return SessionManager.getCurrentSession().getUserId();
+	}
+	
+	
 	public boolean isDebug()
 	{
 		return debug;
