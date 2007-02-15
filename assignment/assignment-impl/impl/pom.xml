@@ -20,8 +20,23 @@
     <deploy.target/>
   </properties>
   <dependencies>
+
     <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-component</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+                
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-gradebook-service-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
       
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-assignment-api</artifactId>
       <version>${sakai.version}</version>
