@@ -1,5 +1,0 @@
-#start_response()
-<!-- gallery-tabs.vm -->
-#includeTabsSkinTwo()
-<!-- end gallery-tabs.vm -->
-#end_response()

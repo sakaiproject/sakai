@@ -1,6 +1,0 @@
-#start_response()
-<!-- site.vm -->
-HELLO FROM SITE
-#includeSiteNavSkinTwo()
-<!-- end site.vm -->
-#end_response()

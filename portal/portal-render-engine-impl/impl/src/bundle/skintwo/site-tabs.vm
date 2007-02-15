@@ -1,6 +1,0 @@
-#start_response()
-<!-- site-tabs.vm -->
-#includeLogo()
-#includeTabsSkinTwo()
-<!-- end site-tabs.vm -->
-#end_response()

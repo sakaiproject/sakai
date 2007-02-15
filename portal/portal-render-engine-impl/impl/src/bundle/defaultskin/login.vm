@@ -1,5 +1,0 @@
-#start_response()
-<!-- login.vm -->
-#includeLogo()
-<!-- end login.vm -->
-#end_response()

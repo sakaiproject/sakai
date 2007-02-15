@@ -1,5 +1,0 @@
-#start_response()
-<!-- gallery.vm -->
-#includeGalleryNavSkinTwo()
-<!-- end gallery.vm -->
-#end_response()

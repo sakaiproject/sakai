@@ -1,6 +1,0 @@
-#start_response()
-<!-- page.vm -->
-HELLO FROM PAGE
-#includePage()
-<!-- end page.vm -->
-#end_response()
