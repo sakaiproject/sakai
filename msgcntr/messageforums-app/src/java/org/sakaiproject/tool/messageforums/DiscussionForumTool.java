@@ -114,6 +114,7 @@ public class DiscussionForumTool
   private static final String MESSAGE_COMPOSE = "dfCompose";
   private static final String MESSAGE_VIEW = "dfViewMessage";
   private static final String ALL_MESSAGES = "dfAllMessages";
+  private static final String EXPANDED_VIEW = "dfExpandAllView";
   private static final String THREADED_VIEW = "dfThreadedView";
   private static final String UNREAD_VIEW = "dfUnreadView";
   private static final String GRADE_MESSAGE = "dfMsgGrade";
@@ -195,6 +196,8 @@ public class DiscussionForumTool
   private String composeLabel;
   private String searchText = "";
   private String selectedMessageView = ALL_MESSAGES;
+  private boolean selectedMessageShow = false;
+  private String selectedMessageOrganize = "thread"; 
   private boolean deleteMsg;
   private boolean displayUnreadOnly;
   private boolean errorSynch = false;
@@ -204,8 +207,9 @@ public class DiscussionForumTool
   // private boolean attachCaneled = false;
   // private ArrayList oldAttachments = new ArrayList();
   // private List allAttachments = new ArrayList();
-  private boolean threaded = false;
-  private String expanded = "true";
+  private boolean threaded = true;
+  private boolean expandedView = false;
+  private String expanded = "false";
   private boolean disableLongDesc = false;
   private boolean isDisplaySearchedMessages;
   private List siteMembers = new ArrayList();
@@ -2191,6 +2195,66 @@ public class DiscussionForumTool
     return forumManager.isInstructor();
   }
 
+  /**
+   * @return
+   */
+  public String processDfMsgMarkMsgAsRead()
+  {
+	    String messageId = getExternalParameterByKey(MESSAGE_ID);
+	    String topicId = getExternalParameterByKey(TOPIC_ID);
+	    if (messageId == null)
+	    {
+	      setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
+	      return gotoMain();
+	    }
+	    if (topicId == null)
+	    {
+	      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
+	      return gotoMain();
+	    }
+	    // Message message=forumManager.getMessageById(new Long(messageId));
+	    Message message = messageManager.getMessageByIdWithAttachments(new Long(
+	        messageId));
+	    messageManager.markMessageReadForUser(new Long(topicId),
+	        new Long(messageId), true);
+	    if (message == null)
+	    {
+	      setErrorMessage(getResourceBundleString(MESSAGE_WITH_ID) + messageId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
+	      return gotoMain();
+	    }
+	    return displayTopicById(TOPIC_ID); // reconstruct topic again;
+  }
+  
+  public String processDfMsgReplyMsgFromEntire()
+  {
+	  	String messageId = getExternalParameterByKey(MESSAGE_ID);
+	    String topicId = getExternalParameterByKey(TOPIC_ID);
+	    if (messageId == null)
+	    {
+	      setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
+	      return gotoMain();
+	    }
+	    if (topicId == null)
+	    {
+	      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
+	      return gotoMain();
+	    }
+	    // Message message=forumManager.getMessageById(new Long(messageId));
+	    Message message = messageManager.getMessageByIdWithAttachments(new Long(
+	        messageId));
+	    messageManager.markMessageReadForUser(new Long(topicId),
+	        new Long(messageId), true);
+	    if (message == null)
+	    {
+	      setErrorMessage(getResourceBundleString(MESSAGE_WITH_ID) + messageId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
+	      return gotoMain();
+	    }
+	    message = messageManager.getMessageByIdWithAttachments(message.getId());
+	    selectedMessage = new DiscussionMessageBean(message, messageManager);
+	    
+	    return processDfMsgReplyMsg();
+  }
+  
   public String processDfMsgReplyMsg()
   {
     if(selectedMessage.getMessage().getTitle() != null && !selectedMessage.getMessage().getTitle().startsWith("Re: "))
@@ -3087,6 +3151,11 @@ public class DiscussionForumTool
   {
     return expanded;
   }
+  
+  public boolean getExpandedView()
+  {
+	  return expandedView;
+  }
 
   public void setExpanded(String expanded)
   {
@@ -3175,8 +3244,7 @@ public class DiscussionForumTool
   
   public void rearrageTopicMsgsThreaded()
   {
- 
- 
+  
   	List msgsList = selectedTopic.getMessages();
   	List orderedList = new ArrayList();
   	
@@ -3195,6 +3263,7 @@ public class DiscussionForumTool
   			}
   		}
   	}
+  	
   	selectedTopic.setMessages(orderedList);
  
   }
@@ -3583,6 +3652,41 @@ public class DiscussionForumTool
   {
     this.selectedMessageView = selectedMessageView;
   }
+  
+  /**
+   * @return Returns the selectedMessageShow.
+   */
+  public Boolean getSelectedMessageShow()
+  {
+    return selectedMessageShow;
+  }
+
+  /**
+   * @param selectedMessageShow
+   *          The selectedMessageShow to set.
+   */
+  public void setSelectedMessageShow(Boolean selectedMessageShow)
+  {
+    this.selectedMessageShow = selectedMessageShow;
+  }
+  
+  /**
+   * @return Returns the selectedMessagOrganize.
+   */
+  public String getSelectedMessageOrganize()
+  {
+    return selectedMessageOrganize;
+  }
+
+  /**
+   * @param selectedMessageOrganize
+   *          The selectedMessageOrganize to set.
+   */
+  public void setSelectedMessageOrganize(String selectedMessageOrganize)
+  {
+    this.selectedMessageOrganize = selectedMessageOrganize;
+  }
+  
 
   /**
    * @return Returns the displayUnreadOnly.
@@ -3591,7 +3695,7 @@ public class DiscussionForumTool
   {
     return displayUnreadOnly;
   }
-
+  
   /**
    * @param vce
    */
@@ -3604,15 +3708,16 @@ public class DiscussionForumTool
     searchText="";
     String changeView = (String) vce.getNewValue();
     this.displayUnreadOnly = false;
+    //expandedView = false;
     if (changeView == null)
     {
-      threaded = false;
+      //threaded = false;
       setErrorMessage(getResourceBundleString(FAILED_REND_MESSAGE));
       return;
     }
     if (changeView.equals(ALL_MESSAGES))
     {
-      threaded = false;
+      //threaded = false;
       setSelectedMessageView(ALL_MESSAGES);
       
       DiscussionTopic topic = null;
@@ -3625,37 +3730,92 @@ public class DiscussionForumTool
     else
       if (changeView.equals(UNREAD_VIEW))
       {
-      	threaded = false;
+      	//threaded = false;
         this.displayUnreadOnly = true;
         return;
       }
+    /*
       else
-        if (changeView.equals(THREADED_VIEW))
-        {
-          threaded = true;
-          expanded = "true";
-          return;
-        }
+    	if (changeView.equals(EXPANDED_VIEW))
+    	{
+    		threaded = false;
+    		expandedView = true;
+    		return;
+    	}
         else
-          if (changeView.equals("expand"))
+          if (changeView.equals(THREADED_VIEW))
           {
             threaded = true;
             expanded = "true";
             return;
           }
           else
-            if (changeView.equals("collapse"))
+            if (changeView.equals("expand"))
             {
               threaded = true;
-              expanded = "false";
+              expanded = "true";
               return;
             }
             else
-            {
-              threaded = false;
-              setErrorMessage(getResourceBundleString(VIEW_UNDER_CONSTRUCT));
-              return;
-            }
+              if (changeView.equals("collapse"))
+              {
+                threaded = true;
+                expanded = "false";
+                return;
+              }
+              */
+              else
+              {
+                //threaded = false;
+                setErrorMessage(getResourceBundleString(VIEW_UNDER_CONSTRUCT));
+                return;
+              }
+  }
+  
+  public void processValueChangedForMessageShow(ValueChangeEvent vce){
+	  if (LOG.isDebugEnabled())
+	      LOG.debug("processValueChangeForMessageView(ValueChangeEvent " + vce
+	          + ")");
+	  isDisplaySearchedMessages=false;
+	  searchText="";
+	  Boolean changeShow = (Boolean) vce.getNewValue();
+	  if (changeShow == null){
+		  //threaded = false;
+	      setErrorMessage(getResourceBundleString(FAILED_REND_MESSAGE));
+	      return;
+	  }
+	  expandedView = changeShow;
+	  if (changeShow){
+		  //threaded = false;
+		  expandedView = true;
+	      return;
+	  }
+	  else if (!changeShow){
+		  expandedView = false;
+	  }
+  }
+  
+  public void processValueChangedForMessageOrganize(ValueChangeEvent vce){
+	  if (LOG.isDebugEnabled())
+	      LOG.debug("processValueChangeForMessageView(ValueChangeEvent " + vce
+	          + ")");
+	  isDisplaySearchedMessages=false;
+	  searchText="";
+	  expanded="false";
+	  String changeOrganize = (String) vce.getNewValue();
+	  if (changeOrganize == null){
+		  //threaded = false;
+	      setErrorMessage(getResourceBundleString(FAILED_REND_MESSAGE));
+	      return;
+	  }
+	  if(changeOrganize.equals("thread")){
+		  threaded = true;
+	  }
+	  else{
+		  threaded = false;
+	  }
+		  
+	  return;
   }
   
   public boolean getErrorSynch()
@@ -3711,6 +3871,14 @@ public class DiscussionForumTool
   /**
    * @return
    */
+  public String processActionMarkAllAsRead()
+  {
+	  return markAllMessages(true);
+  }
+  
+  /**
+   * @return
+   */
   public String processActionMarkCheckedAsRead()
   {
     return markCheckedMessages(true);
@@ -3749,6 +3917,28 @@ public class DiscussionForumTool
     return displayTopicById(TOPIC_ID); // reconstruct topic again;
   }
 
+  private String markAllMessages(boolean readStatus)
+  {
+	  if (selectedTopic == null)
+	    {
+	      setErrorMessage(getResourceBundleString(LOST_ASSOCIATE));
+	      return ALL_MESSAGES;
+	    }
+	    List messages = selectedTopic.getMessages();
+	    if (messages == null || messages.size() < 1)
+	    {
+	      setErrorMessage(getResourceBundleString(NO_MARKED_READ_MESSAGE));
+	      return ALL_MESSAGES;
+	    }
+	    Iterator iter = messages.iterator();
+	    while (iter.hasNext())
+	    {
+	      DiscussionMessageBean decoMessage = (DiscussionMessageBean) iter.next();
+	      forumManager.markMessageAs(decoMessage.getMessage(), readStatus);
+
+	    }
+	    return displayTopicById(TOPIC_ID); // reconstruct topic again;
+  }
   
   /**
    * @return Returns the isDisplaySearchedMessages.
@@ -4356,12 +4546,14 @@ public class DiscussionForumTool
 	
 	public List getMessages() {
 
-		if(displayUnreadOnly) {
+		if(displayUnreadOnly && !threaded) {
 			return selectedTopic.getUnreadMessages();
-		}
-		else {
+			
+		}else if(displayUnreadOnly && threaded){
+			return selectedTopic.getUnreadMessagesInThreads();
+			
+		}else
 			return selectedTopic.getMessages();
-		}
 	}
    public UIData getForumTable(){
       return forumTable;

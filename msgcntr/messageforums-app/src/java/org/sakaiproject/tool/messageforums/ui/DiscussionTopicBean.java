@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
+import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 
@@ -605,6 +606,48 @@ public class DiscussionTopicBean
 		}
 
 		return unreadMessages;
+	}
+	
+	public List getUnreadMessagesInThreads(){
+  		//remove all the threads that have been completely read
+  		
+  		return recursivelyGetUnreadMessagesInThreads(messages, 0);
+	}
+	
+	public List recursivelyGetUnreadMessagesInThreads(List curList, int depth){
+  		List unreadList = new ArrayList();
+  		List threadPart = new ArrayList();
+  		Boolean foundUnRead = false;
+  		DiscussionMessageBean newHead = null;
+
+  		for(int i=0; i<curList.size(); i++){
+  			DiscussionMessageBean dmb = (DiscussionMessageBean)curList.get(i);
+  			//check either replys to no-one, or replys to current head
+  			if(dmb.getDepth() == depth){
+  				if(foundUnRead && newHead != null){
+  					unreadList.add(newHead);
+  					unreadList.addAll(recursivelyGetUnreadMessagesInThreads(threadPart, ++depth));
+  				}
+  				newHead = dmb;
+  				threadPart = new ArrayList();
+  				foundUnRead = false;
+  			}else
+  				threadPart.add(dmb);
+
+  			if(!dmb.isRead()){
+  				foundUnRead = true;   
+  			}
+  		
+  		}
+
+  		if(foundUnRead && newHead != null){
+  			unreadList.add(newHead);
+  			//unreadList.addAll(threadPart);
+  			if(threadPart.size() > 0)
+  				unreadList.addAll(recursivelyGetUnreadMessagesInThreads(threadPart, ++depth));
+  		}
+  		return unreadList;
+
 	}
 
 	public ArrayList getAttachList()
