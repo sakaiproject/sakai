@@ -39,10 +39,12 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -114,7 +116,26 @@ public class SavePublishedSettingsListener
    	control.setDueDate(assessmentSettings.getDueDate());
    	control.setFeedbackDate(assessmentSettings.getFeedbackDate());
 
+    //#3 Feedback
+   	AssessmentFeedbackIfc feedback = (AssessmentFeedbackIfc) assessment.getAssessmentFeedback();
+    if (feedback == null){
+      feedback = new AssessmentFeedback();
+      // need to fix feeback so it can take AssessmentFacade later
+      feedback.setAssessmentBase(assessment.getData());
+    }
+    if (assessmentSettings.getFeedbackDelivery()!=null)
+     feedback.setFeedbackDelivery(new Integer(assessmentSettings.getFeedbackDelivery()));
     
+    feedback.setShowStudentResponse(Boolean.valueOf(assessmentSettings.getShowStudentResponse()));
+    feedback.setShowCorrectResponse(Boolean.valueOf(assessmentSettings.getShowCorrectResponse()));
+    feedback.setShowStudentScore(Boolean.valueOf(assessmentSettings.getShowStudentScore()));
+    feedback.setShowStudentQuestionScore(Boolean.valueOf(assessmentSettings.getShowStudentQuestionScore()));
+    feedback.setShowQuestionLevelFeedback(Boolean.valueOf(assessmentSettings.getShowQuestionLevelFeedback()));
+    feedback.setShowSelectionLevelFeedback(Boolean.valueOf(assessmentSettings.getShowSelectionLevelFeedback()));
+    feedback.setShowGraderComments(Boolean.valueOf(assessmentSettings.getShowGraderComments()));
+    feedback.setShowStatistics(Boolean.valueOf(assessmentSettings.getShowStatistics()));
+    assessment.setAssessmentFeedback(feedback);
+
     // check if the score is > 0, Gradebook doesn't allow assessments with total
 	// point = 0.
 		boolean error = false;

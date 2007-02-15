@@ -48,6 +48,46 @@
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>">
 
+<script language="javascript" style="text/JavaScript">
+
+// By convention we start all feedback JSF ids with "feedback".
+var feedbackIdFlag = "assessmentSettingsAction:feedback";
+var noFeedback = "3";
+
+// If we select "No Feedback will be displayed to the student"
+// it will disable and uncheck feedback as well as blank out text, otherwise,
+// if a different radio button is selected, we reenable feedback checkboxes & text.
+function disableAllFeedbackCheck(feedbackType)
+{
+  var feedbacks = document.getElementsByTagName('INPUT');
+  for (i=0; i<feedbacks.length; i++)
+  {
+	  
+    if (feedbacks[i].name.indexOf(feedbackIdFlag)==0)
+	  {
+      if (feedbackType == noFeedback)
+      {
+        if (feedbacks[i].type == 'checkbox')
+		{
+          feedbacks[i].checked = false;
+          feedbacks[i].disabled = true;
+        }
+        else if (feedbacks[i].type == 'text')
+        {
+          feedbacks[i].value = "";
+          feedbacks[i].disabled = true;
+        }
+      }
+      else
+      {
+        feedbacks[i].disabled = false;
+      }
+    }
+  }
+  document.forms[0].submit();
+}
+</script>
+
 <div class="portletBody">
 <!-- content... -->
 <h:form id="assessmentSettingsAction">
@@ -360,77 +400,140 @@
 
     <div class="longtext"><h:outputLabel value="#{msg.feedback_delivery}" /></div><div class="tier3">
     <h:panelGroup>
-      <h:panelGrid columns="1"  >
-        <h:selectOneRadio id="feedbackDelivery"  disabled="true"
+      <h:panelGrid columns="1" rendered="#{publishedSettings.valueMap.feedbackAuthoring_isInstructorEditable!=true}" >
+        <h:selectOneRadio id="feedbackDelivery1"  disabled="true" 
              value="#{publishedSettings.feedbackDelivery}"
            layout="pageDirection">
           <f:selectItem itemValue="1" itemLabel="#{msg.immediate_feedback}"/>
           <f:selectItem itemValue="3" itemLabel="#{msg.no_feedback}"/>
           <f:selectItem itemValue="2" itemLabel="#{msg.feedback_by_date}"/>
         </h:selectOneRadio>
+
         <h:panelGroup>
         <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-<h:inputText value="#{publishedSettings.feedbackDateString}" size="25" disabled="true"/>
-
-<%-- REMOVED AS NOT ABLE TO DISABLE DATEPICKER
-        <samigo:datePicker value="#{publishedSettings.feedbackDateString}" size="25" id="feedbackDate"/>
-      --%>
+		<h:inputText value="#{publishedSettings.feedbackDateString}" size="25" disabled="true"/>
         </h:panelGroup>
+      </h:panelGrid>
+
+      <h:panelGrid columns="1" rendered="#{publishedSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}" >
+  		<h:selectOneRadio id="feedbackDelivery2" rendered="#{publishedSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}"
+             value="#{publishedSettings.feedbackDelivery}"
+           layout="pageDirection" onclick="disableAllFeedbackCheck(this.value);">
+          <f:selectItem itemValue="1" itemLabel="#{msg.immediate_feedback}"/>
+          <f:selectItem itemValue="3" itemLabel="#{msg.no_feedback}"/>
+          <f:selectItem itemValue="2" itemLabel="#{msg.feedback_by_date}"/>
+        </h:selectOneRadio>
+        <samigo:datePicker value="#{publishedSettings.feedbackDateString}" size="25" id="feedbackDate">
+          <f:convertDateTime pattern="#{genMsg.output_date_picker}" />
+        </samigo:datePicker>
       </h:panelGrid>
     </h:panelGroup>
 </div><div class="longtext">
    <h:outputLabel value="#{summary_msg.select_feedback_comp}" /></div><div class="tier3">
-    <h:panelGroup>
+    <h:panelGroup rendered="#{publishedSettings.valueMap.feedbackAuthoring_isInstructorEditable!=true}">
       <h:panelGrid columns="2"  >
        <h:panelGroup>
-          <h:selectBooleanCheckbox  disabled="true"
+          <h:selectBooleanCheckbox  disabled="true" id="feedbackCheckbox11"
               value="#{publishedSettings.showStudentResponse}"/>
           <h:outputText value="#{msg.student_response}" />
         </h:panelGroup>
        <h:panelGroup>
-          <h:selectBooleanCheckbox  disabled="true"
+          <h:selectBooleanCheckbox  disabled="true" id="feedbackCheckbox12"
               value="#{publishedSettings.showQuestionLevelFeedback}"/>
           <h:outputText value="#{msg.question_level_feedback}" />
        </h:panelGroup>
 
         <h:panelGroup>
-          <h:selectBooleanCheckbox  disabled="true"
+          <h:selectBooleanCheckbox  disabled="true" id="feedbackCheckbox13"
               value="#{publishedSettings.showCorrectResponse}"/>
           <h:outputText value="#{msg.correct_response}" />
         </h:panelGroup>
 
        <h:panelGroup>
-          <h:selectBooleanCheckbox  disabled="true"
+          <h:selectBooleanCheckbox  disabled="true" id="feedbackCheckbox14"
              value="#{publishedSettings.showSelectionLevelFeedback}"/>
           <h:outputText value="#{msg.selection_level_feedback}" />
         </h:panelGroup>
 
         <h:panelGroup>
-          <h:selectBooleanCheckbox  disabled="true"
+          <h:selectBooleanCheckbox  disabled="true" id="feedbackCheckbox15"
               value="#{publishedSettings.showStudentScore}"/>
           <h:outputText value="#{msg.student_assessment_score}" />
         </h:panelGroup>
 
         <h:panelGroup>
-          <h:selectBooleanCheckbox  disabled="true"
+          <h:selectBooleanCheckbox  disabled="true" id="feedbackCheckbox16"
               value="#{publishedSettings.showGraderComments}"/>
           <h:outputText value="#{msg.grader_comments}" />
         </h:panelGroup>
 
         <h:panelGroup>
-          <h:selectBooleanCheckbox  disabled="true"
+          <h:selectBooleanCheckbox  disabled="true" id="feedbackCheckbox17"
               value="#{publishedSettings.showStudentQuestionScore}"/>
           <h:outputText value="#{msg.student_question_score}" />
         </h:panelGroup>
        
         <h:panelGroup>
-          <h:selectBooleanCheckbox  disabled="true"
+          <h:selectBooleanCheckbox  disabled="true" id="feedbackCheckbox18"
               value="#{publishedSettings.showStatistics}"/>
           <h:outputText value="#{msg.statistics_and_histogram}" />
         </h:panelGroup>
    
       </h:panelGrid>
-    </h:panelGroup></div></div>
+    </h:panelGroup>
+	
+	<h:panelGroup rendered="#{publishedSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}">
+      <h:panelGrid columns="2"  >
+       <h:panelGroup>
+          <h:selectBooleanCheckbox id="feedbackCheckbox21"
+              value="#{publishedSettings.showStudentResponse}"/>
+          <h:outputText value="#{msg.student_response}" />
+        </h:panelGroup>
+       <h:panelGroup>
+          <h:selectBooleanCheckbox id="feedbackCheckbox22"
+              value="#{publishedSettings.showQuestionLevelFeedback}"/>
+          <h:outputText value="#{msg.question_level_feedback}" />
+       </h:panelGroup>
+
+        <h:panelGroup>
+          <h:selectBooleanCheckbox id="feedbackCheckbox23"
+              value="#{publishedSettings.showCorrectResponse}"/>
+          <h:outputText value="#{msg.correct_response}" />
+        </h:panelGroup>
+
+       <h:panelGroup>
+          <h:selectBooleanCheckbox id="feedbackCheckbox24"
+             value="#{publishedSettings.showSelectionLevelFeedback}"/>
+          <h:outputText value="#{msg.selection_level_feedback}" />
+        </h:panelGroup>
+
+        <h:panelGroup>
+          <h:selectBooleanCheckbox id="feedbackCheckbox25"
+              value="#{publishedSettings.showStudentScore}"/>
+          <h:outputText value="#{msg.student_assessment_score}" />
+        </h:panelGroup>
+
+        <h:panelGroup>
+          <h:selectBooleanCheckbox id="feedbackCheckbox26"
+              value="#{publishedSettings.showGraderComments}"/>
+          <h:outputText value="#{msg.grader_comments}" />
+        </h:panelGroup>
+
+        <h:panelGroup>
+          <h:selectBooleanCheckbox id="feedbackCheckbox27"
+              value="#{publishedSettings.showStudentQuestionScore}"/>
+          <h:outputText value="#{msg.student_question_score}" />
+        </h:panelGroup>
+       
+        <h:panelGroup>
+          <h:selectBooleanCheckbox id="feedbackCheckbox28"
+              value="#{publishedSettings.showStatistics}"/>
+          <h:outputText value="#{msg.statistics_and_histogram}" />
+        </h:panelGroup>
+   
+      </h:panelGrid>
+    </h:panelGroup>
+	</div></div>
   </samigo:hideDivision>
 
   <!-- *** GRADING *** -->
