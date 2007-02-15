@@ -14,7 +14,12 @@ function setCorrespondingLevel(checkBox){
   newResponse=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":newR");
   r2R=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":newRtoR");
   newTopic=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":newTopic");
+  
   postGrades=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":postGrades");
+  // may not have a gradebook so checkbox may not be on page
+  // if it is, get its value, if not, set it to false
+  var postGradesChecked = (postGrades) ? postGrades.checked : false;
+      
   read=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":read");
   revisePostings=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":revisePostings")
   reviseAny=getReviseAny(revisePostings);
@@ -28,7 +33,7 @@ function setCorrespondingLevel(checkBox){
     }
     else{
       //var newArray = [changeSettings.checked,deleteAny,deleteOwn,markAsRead.checked, movePosting.checked, newForum.checked, newResponse.checked, r2R.checked, newTopic.checked, postGrades.checked, read.checked, reviseAny, reviseOwn, moderatePostings.checked];
-      var newArray = [changeSettings.checked,markAsRead.checked, newForum.checked, newResponse.checked, r2R.checked, newTopic.checked, postGrades.checked, read.checked, reviseAny, reviseOwn];
+      var newArray = [changeSettings.checked,markAsRead.checked, newForum.checked, newResponse.checked, r2R.checked, newTopic.checked, postGradesChecked, read.checked, reviseAny, reviseOwn];
       //alert(newArray);
       //alert(checkLevel(newArray));
       setIndexWithTextValue(selectLevel, checkLevel(newArray));
