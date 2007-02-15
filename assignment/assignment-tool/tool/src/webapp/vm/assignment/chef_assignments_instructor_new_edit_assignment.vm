@@ -388,16 +388,11 @@
 						#set ($gbListDisplay="none")
 					#end
 					<p id="gradebookList" class="checkbox  indnt2" style="display:$gbListDisplay">
-						<select name="$!name_AssociateGradebookAssignment" >
+					 <select name="$!name_AssociateGradebookAssignment" >
 							<option  value="">$tlang.getString("grading.select")</option>
 							#foreach ($aAssignment in $!gradebookAssignments)
-								#if ($aAssignment.isExternallyMaintained())
-									## for external assignment
-									<option  value="$aAssignment.getExternalId()" #if($!associateGradebookAssignment.equals($aAssignment.getExternalId()))selected="selected"#end)>$aAssignment.Name</option>
-								#else
-									## for internal assignment
-									<option  value="$aAssignment.Name" #if($!associateGradebookAssignment.equals($aAssignment.Name))selected="selected"#end)>$aAssignment.Name</option>
-								#end
+								## for internal assignment
+								<option  value="$aAssignment.Name" #if($!associateGradebookAssignment.equals($aAssignment.Name))selected="selected"#end)>$aAssignment.Name</option>
 							#end
 						</select>
 					</p>

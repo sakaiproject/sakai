@@ -29,6 +29,7 @@ import org.sakaiproject.assignment.taggable.api.TaggableActivity;
 import org.sakaiproject.assignment.taggable.api.TaggableItem;
 import org.sakaiproject.assignment.taggable.api.TaggingProvider;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.time.api.Time;
 
 /**
  * <p>
@@ -106,6 +107,8 @@ public class AssignmentService {
 	public static java.lang.String GRADEBOOK_INTEGRATION_ADD = org.sakaiproject.assignment.api.AssignmentService.GRADEBOOK_INTEGRATION_ADD;
 
 	public static java.lang.String GRADEBOOK_INTEGRATION_ASSOCIATE = org.sakaiproject.assignment.api.AssignmentService.GRADEBOOK_INTEGRATION_ASSOCIATE;
+
+	public static java.lang.String NEW_ASSIGNMENT_ADD_TO_GRADEBOOK = org.sakaiproject.assignment.api.AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK;
 
 	public static java.lang.String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = org.sakaiproject.assignment.api.AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT;
 
@@ -731,5 +734,21 @@ public class AssignmentService {
 			return false;
 
 		return service.canSubmit(param0, param1);
+	}
+	
+	public static void integrateGradebook (String param0, String param1, String param2, String param3, String param4, int param5, Time param6, String param7, String param8){
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return;
+
+		service.integrateGradebook(param0, param1, param2, param3, param4, param5, param6, param7, param8);
+	}
+	
+	public static boolean isGradebookDefined(){
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return false;
+
+		return service.isGradebookDefined();
 	}
 }

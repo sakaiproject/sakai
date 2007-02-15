@@ -32,6 +32,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.w3c.dom.Element;
 
@@ -118,8 +119,10 @@ public interface AssignmentService extends EntityProducer, TaggableActivityProdu
 	public static final String GRADEBOOK_INTEGRATION_NO = "no";
 	public static final String GRADEBOOK_INTEGRATION_ADD = "add";
 	public static final String GRADEBOOK_INTEGRATION_ASSOCIATE = "associate";
+	public static final String NEW_ASSIGNMENT_ADD_TO_GRADEBOOK = "new_assignment_add_to_gradebook";
+
 	// and the prop name
-	public static final String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = "new_assignment_add_to_gradebook";
+	public static final String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = "prop_new_assignment_add_to_gradebook";
 
 	/**
 	 * Check permissions for adding an Assignment.
@@ -712,4 +715,23 @@ public interface AssignmentService extends EntityProducer, TaggableActivityProdu
 	 */
 	public boolean canSubmit(String context, Assignment a);
 	
+	/**
+	 *  Is Gradebook defined for the site?
+	 */
+	public boolean isGradebookDefined();
+	
+	/**
+	 * integration with gradebook
+	 *
+	 * @param assignmentRef Assignment reference
+	 * @param associateGradebookAssignment The title for the associated GB assignment
+	 * @param addUpdateRemoveAssignment "add" for adding the assignment; "update" for updating the assignment; "remove" for remove assignment
+	 * @param oldAssignment_title The original assignment title
+	 * @param newAssignment_title The updated assignment title
+	 * @param newAssignment_maxPoints The maximum point of the assignment
+	 * @param newAssignment_dueTime The due time of the assignment
+	 * @param submissionRef Any submission grade need to be updated? Do bulk update if null
+	 * @param updateRemoveSubmission "update" for update submission;"remove" for remove submission
+	 */
+	public void integrateGradebook (String assignmentRef, String associateGradebookAssignment, String addUpdateRemoveAssignment, String oldAssignment_title, String newAssignment_title, int newAssignment_maxPoints, Time newAssignment_dueTime, String submissionRef, String updateRemoveSubmission);
 }
