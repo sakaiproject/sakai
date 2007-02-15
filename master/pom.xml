@@ -81,6 +81,15 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
+    <repository>
+      <id>Transformable Repo</id>
+      <name>Transformable Repository</name>
+      <layout>default</layout>
+            <url>http://transformable.atrc.utoronto.ca/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
   </repositories>
   <dependencies>
 <!-- provided by the JDK, here to ensure its not packaged in child poms 
