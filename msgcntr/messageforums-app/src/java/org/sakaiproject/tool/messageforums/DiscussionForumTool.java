@@ -3807,6 +3807,12 @@ public class DiscussionForumTool
 	  searchText="";
 	  expanded="false";
 	  String changeOrganize = (String) vce.getNewValue();
+	  
+	  DiscussionTopic topic = null;
+      topic = forumManager.getTopicById(selectedTopic.getTopic().getId());
+      setSelectedForumForCurrentTopic(topic);
+      selectedTopic = getDecoratedTopic(topic);
+	  
 	  if (changeOrganize == null){
 		  //threaded = false;
 	      setErrorMessage(getResourceBundleString(FAILED_REND_MESSAGE));
