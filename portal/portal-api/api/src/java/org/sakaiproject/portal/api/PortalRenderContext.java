@@ -41,7 +41,7 @@ public interface PortalRenderContext
 	void put(String string, Object value);
 
 	/** 
-	 * Converr the render context to a string suitable for dumping to a log file or console.
+	 * Convert the render context to a string suitable for dumping to a log file or console.
 	 * @return
 	 */
 	String dump();

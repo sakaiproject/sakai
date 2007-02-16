@@ -22,8 +22,9 @@
 package org.sakaiproject.portal.api;
 
 /**
+ * Throw when a portal handler fails to handle a request
  * @author ieb
- *
+ * 
  */
 public class PortalHandlerException extends Exception
 {

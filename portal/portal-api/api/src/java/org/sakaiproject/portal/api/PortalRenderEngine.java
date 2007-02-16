@@ -68,6 +68,8 @@ public interface PortalRenderEngine
 			throws Exception;
 
 	/**
+	 * prepare for a forward operation in the render engine, this might include modifying
+	 * the request attributes.
 	 * @param req
 	 * @param res
 	 * @param p

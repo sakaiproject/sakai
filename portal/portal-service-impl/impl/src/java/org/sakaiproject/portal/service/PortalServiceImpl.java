@@ -1,7 +1,9 @@
 package org.sakaiproject.portal.service;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -14,6 +16,7 @@ import org.apache.pluto.descriptors.portlet.PortletDD;
 import org.apache.pluto.internal.InternalPortletContext;
 import org.apache.pluto.spi.optional.PortletRegistryService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalRenderEngine;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortletApplicationDescriptor;
@@ -31,7 +34,7 @@ public class PortalServiceImpl implements PortalService
 	 */
 	public static final String PARM_STATE_RESET = "sakai.state.reset";
 
-	private PortalRenderEngine renderEngine;
+	private Map<String,PortalRenderEngine> renderEngines = new HashMap<String, PortalRenderEngine>();
 
 	public StoredState getStoredState()
 	{
@@ -207,28 +210,32 @@ public class PortalServiceImpl implements PortalService
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.portal.api.PortalService#getRenderEngine(javax.servlet.http.HttpServletRequest)
 	 */
-	public PortalRenderEngine getRenderEngine(HttpServletRequest request)
+	public PortalRenderEngine getRenderEngine(String context, HttpServletRequest request)
 	{
 		// at this point we ignore request but we might use ut to return more than one render engine
 		
-		return renderEngine;
+		if ( context == null || context.length() == 0 ) {
+			context = Portal.DEFAULT_PORTAL_CONTEXT;
+		}
+		
+		return renderEngines.get(context);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.portal.api.PortalService#addRenderEngine(org.sakaiproject.portal.api.PortalRenderEngine)
 	 */
-	public void addRenderEngine(PortalRenderEngine vengine)
+	public void addRenderEngine(String context, PortalRenderEngine vengine)
 	{
 
-		this.renderEngine = vengine;
+		this.renderEngines.put(context, vengine);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.portal.api.PortalService#removeRenderEngine(org.sakaiproject.portal.api.PortalRenderEngine)
 	 */
-	public void removeRenderEngine(PortalRenderEngine vengine)
+	public void removeRenderEngine(String context, PortalRenderEngine vengine)
 	{
-		this.renderEngine = null;
+		this.renderEngines.put(context,null);
 	}
 	
 

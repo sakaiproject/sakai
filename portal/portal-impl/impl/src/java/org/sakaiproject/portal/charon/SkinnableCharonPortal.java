@@ -134,6 +134,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	private static final String INCLUDE_TITLE = "include-title";
 
+
 	private PortalSiteHelper siteHelper = new PortalSiteHelper();
 
 	private HashMap<String, PortalHandler> handlerMap = new HashMap<String, PortalHandler>();
@@ -143,6 +144,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private WorksiteHandler worksiteHandler;
 
 	private SiteHandler siteHandler;
+
+	private String portalContext;
+	
+	public String getPortalContext() {
+		return portalContext;
+	}
 
 	/**
 	 * Shutdown the servlet.
@@ -763,7 +770,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	public PortalRenderContext startPageContext(String siteType, String title, String skin, HttpServletRequest request)
 	{
-		PortalRenderEngine rengine = portalService.getRenderEngine(request);
+		PortalRenderEngine rengine = portalService.getRenderEngine(portalContext,request);
 		PortalRenderContext rcontext = rengine.newRenderContext(request);
 
 		if (skin == null)
@@ -979,7 +986,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		req.setAttribute("sakai.html.head.js", headJs);
 		req.setAttribute("sakai.html.body.onload", bodyonload.toString());
 		
-		portalService.getRenderEngine(req).setupForward(req, res, p, skin);
+		portalService.getRenderEngine(portalContext,req).setupForward(req, res, p, skin);
 	}
 
 	/**
@@ -1394,6 +1401,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 		super.init(config);
 
+		portalContext = config.getInitParameter("portal.context");
+		if ( portalContext == null || portalContext.length() == 0 ) {
+			portalContext = DEFAULT_PORTAL_CONTEXT;
+		}
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
 		M_log.info("init()");
 

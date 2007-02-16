@@ -36,6 +36,8 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 
 /**
+ * This interface represents a portal and is used mainly by portal handlers that
+ * will not know the details of the portal implimentation.
  * @author ieb
  *
  */
@@ -67,6 +69,11 @@ public interface Portal
 	public static final String ATTR_SITE_PAGE = "sakai.portal.site.";
 
 	/**
+	 * The default portal name is none is specified.
+	 */
+	public static final String DEFAULT_PORTAL_CONTEXT = "charon";
+
+	/**
 	 * Configuration option to enable/disable state reset on navigation change
 	 */
 	public static final String CONFIG_AUTO_RESET = "portal.experimental.auto.reset";
@@ -85,48 +92,58 @@ public interface Portal
 
 	/**
 	 * prepare the response and send it to the render engine
+	 * 
 	 * @param rcontext
 	 * @param res
-	 * @param string
-	 * @param string2
-	 * @throws IOException 
+	 * @param template
+	 * @param contentType
+	 * @throws IOException
 	 */
-	void sendResponse(PortalRenderContext rcontext, HttpServletResponse res, String string, String string2) throws IOException;
+	void sendResponse(PortalRenderContext rcontext, HttpServletResponse res, String template, String contentType) throws IOException;
+
 
 	/**
 	 * get the placement for the request
+	 * 
 	 * @param req
 	 * @param res
 	 * @param session
-	 * @param string
-	 * @param b
+	 * @param placementId
+	 * @param doPage
 	 * @return
-	 * @throws ToolException 
+	 * @throws ToolException
 	 */
-	String getPlacement(HttpServletRequest req, HttpServletResponse res, Session session, String string, boolean b) throws ToolException;
-
+	String getPlacement(HttpServletRequest req, HttpServletResponse res, Session session, String placementId, boolean doPage)
+	throws ToolException;
 
 
 	/**
 	 * perform login
+	 * 
 	 * @param req
 	 * @param res
 	 * @param session
-	 * @param string
-	 * @param b
-	 * @throws ToolException 
+	 * @param returnPath
+	 * @param skipContainer
+	 * @throws ToolException
 	 */
-	void doLogin(HttpServletRequest req, HttpServletResponse res, Session session, String string, boolean b) throws ToolException;
+	void doLogin(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath, boolean skipContainer)
+	throws ToolException;
 
 	/**
-	 * perform logout
+	 * Process a logout
+	 * 
 	 * @param req
+	 *        Request object
 	 * @param res
+	 *        Response object
 	 * @param session
-	 * @param string
-	 * @throws ToolException 
+	 *        Current session
+	 * @param returnPath
+	 *        if not null, the path to use for the end-user browser redirect after the logout is complete. Leave null to use the configured logged out URL.
+	 * @throws ToolException
 	 */
-	void doLogout(HttpServletRequest req, HttpServletResponse res, Session session, String string) throws ToolException;
+	void doLogout(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath) throws ToolException;
 
 
 
@@ -162,14 +179,16 @@ public interface Portal
 
 	/**
 	 * populate the model with error status
+	 * 
 	 * @param req
 	 * @param res
 	 * @param session
-	 * @param error_worksite2
-	 * @throws IOException 
-	 * @throws ToolException 
+	 * @param mode
+	 * @throws ToolException
+	 * @throws IOException
 	 */
-	void doError(HttpServletRequest req, HttpServletResponse res, Session session, int error_worksite2) throws ToolException, IOException;
+	void doError(HttpServletRequest req, HttpServletResponse res, Session session, int mode) throws ToolException,
+	IOException;
 
 	/**
 	 * forward to a portal url
@@ -311,6 +330,13 @@ public interface Portal
 
 
 
+	/**
+	 * Get the context name of the portal. This is the name used to identify the portal implimentation in the portal 
+	 * service and to other parts of the system. Typically portals will be registered with the portal service
+	 * using a name and render engines and PortalHandlers will connect to named portals. 
+	 * @return
+	 */
+	String getPortalContext();
 
 
 

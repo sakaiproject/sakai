@@ -1,3 +1,24 @@
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2005, 2006 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
 package org.sakaiproject.portal.api;
 
 import java.util.Iterator;
@@ -29,40 +50,91 @@ public interface PortalService
     public static final String TOOL_PORTLET_NAME = "portlet-name";
     
     
+    /**
+     * ste the state of the portal reset flag.
+     * @param state
+     */
 	void  setResetState(String state);
 	
+	/**
+	 * get the state of the state of the portal reset flag
+	 * @return
+	 */
 	String getResetState();
 
+	/**
+	 * get the StoredState object that is used to hold initial request state 
+	 * on direct access to a portlet state or on GET or POST that requires other initial
+	 * actions.
+	 * @return
+	 */
 	StoredState getStoredState();
 
+	/**
+	 * Was a reset requested
+	 * @param req
+	 * @return
+	 */
 	boolean isResetRequested(HttpServletRequest req);
 
+	/**
+	 * set the StoredState of the request for later retrieval
+	 * @param storedstate
+	 */
 	void setStoredState(StoredState storedstate);
 
+	/**
+	 * Is the direct URL mechnism enabled in the configation file.
+	 * @return
+	 */
 	boolean isEnableDirect();
 
+	/**
+	 * Get the parameter used to communicate reset state operations on the URL
+	 * @return
+	 */
 	String getResetStateParam();
 
-	StoredState newStoredState(String string, String string2);
+	/**
+	 * Create a new Stored State 
+	 * @param marker the mark within the URL
+	 * @param replacement and the replacement text on restoration
+	 * @return
+	 */
+	StoredState newStoredState(String marker, String replacement);
 
+	/**
+	 * Get an Iterator of Portlet Application  Descriptors from the whole of the application
+	 * @return
+	 */
 	Iterator<PortletApplicationDescriptor> getRegisteredApplications();
 
 	/**
 	 * get a render engine possibly based on the request
+	 * @param context - the context from whcih to take the render engine.
 	 * @param request
 	 * @return
 	 */
-	PortalRenderEngine getRenderEngine(HttpServletRequest request);
+	PortalRenderEngine getRenderEngine(String context, HttpServletRequest request);
 
 	/**
 	 * add a render engine to the available render engines.
-	 * @param vengine
+	 * @param context - the context to rengister the render engine in, as there may be more
+	 * than one portal in a sakai instance, you need to register the render engine
+	 * against a context. The context should match the context used by the portal to 
+	 * retrieve its render engine. This is dependant on the Portal implementation details.
+	 * @param vengine the render engine implementation to register with the portal service
+	 * 
 	 */
-	void addRenderEngine(PortalRenderEngine vengine);
+	void addRenderEngine(String context, PortalRenderEngine vengine);
 	/**
 	 * remove a render engine from the avaialble render engines
+	 * @param context - the context to deregister the render engine from, as there may be more
+	 * than one portal in a sakai instance, you need to deregister the render engine
+	 * from a context. The context should match the context used by the portal to 
+	 * retrieve its render engine. This is dependant on the Portal implementation details.
 	 * @param vengine
 	 */
-	void removeRenderEngine(PortalRenderEngine vengine);
+	void removeRenderEngine(String context, PortalRenderEngine vengine);
 
 }

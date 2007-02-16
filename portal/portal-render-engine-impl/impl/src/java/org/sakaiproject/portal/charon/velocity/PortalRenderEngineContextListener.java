@@ -26,6 +26,7 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.cover.PortalService;
 
 /**
@@ -44,7 +45,7 @@ public class PortalRenderEngineContextListener implements ServletContextListener
 	 */
 	public void contextDestroyed(ServletContextEvent arg0)
 	{
-		PortalService.getInstance().removeRenderEngine(vengine);
+		PortalService.getInstance().removeRenderEngine(Portal.DEFAULT_PORTAL_CONTEXT,vengine);
 
 	}
 
@@ -60,7 +61,7 @@ public class PortalRenderEngineContextListener implements ServletContextListener
 			vengine = new VelocityPortalRenderEngine();
 			vengine.setContext(event.getServletContext());
 			vengine.init();
-			PortalService.getInstance().addRenderEngine(vengine);
+			PortalService.getInstance().addRenderEngine(Portal.DEFAULT_PORTAL_CONTEXT,vengine);
 		}
 		catch (Exception ex)
 		{
