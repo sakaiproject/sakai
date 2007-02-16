@@ -4518,6 +4518,16 @@ public class AssignmentAction extends PagedResourceActionII
 					// there is no submission to this assignment yet, delete the assignment record completely
 					try
 					{
+						TaggingManager taggingManager = (TaggingManager) ComponentManager
+								.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+
+						if (taggingManager.isTaggable()) {
+							for (TaggingProvider provider : taggingManager
+									.getProviders()) {
+								provider.removeTags(aEdit);
+							}
+						}
+						
 						AssignmentService.removeAssignment(aEdit);
 					}
 					catch (PermissionException e)
@@ -4644,6 +4654,16 @@ public class AssignmentAction extends PagedResourceActionII
 				AssignmentEdit a = AssignmentService.editAssignment(currentId);
 				try
 				{
+					TaggingManager taggingManager = (TaggingManager) ComponentManager
+							.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+
+					if (taggingManager.isTaggable()) {
+						for (TaggingProvider provider : taggingManager
+								.getProviders()) {
+							provider.removeTags(a);
+						}
+					}
+			
 					AssignmentService.removeAssignment(a);
 				}
 				catch (PermissionException e)

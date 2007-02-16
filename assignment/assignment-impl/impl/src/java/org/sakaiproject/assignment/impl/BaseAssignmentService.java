@@ -4312,6 +4312,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	/***************************************************************************
 	 * TaggableActivityProducer Implementation
 	 **************************************************************************/
+	
+	public boolean allowRemoveTags(TaggableActivity activity) {
+		return unlockCheck(SECURE_REMOVE_ASSIGNMENT, activity.getReference());
+	}
+
+	public boolean allowRemoveTags(TaggableItem item) {
+		return unlockCheck(SECURE_REMOVE_ASSIGNMENT_SUBMISSION,
+				parseSubmissionRef(item.getReference()));
+	}
 
 	public String getId() {
 		return APPLICATION_ID;

@@ -21,6 +21,8 @@
 
 package org.sakaiproject.assignment.taggable.api;
 
+import org.sakaiproject.exception.PermissionException;
+
 /**
  * A provider of tagging capabilities for services that produce taggable
  * activities.
@@ -47,7 +49,6 @@ public interface TaggingProvider {
 	 * @return An object containing the data to invoke the appropriate helper
 	 *         tool. Returns null if this is not supported or if the current
 	 *         user doesn't have permission to access the helper.
-	 * @see TaggingHelperInfo
 	 */
 	public TaggingHelperInfo getActivityHelperInfo(String activityRef);
 
@@ -61,7 +62,6 @@ public interface TaggingProvider {
 	 * @return An object containing the data to invoke the appropriate helper
 	 *         tool. Returns null if this is not supported or if the current
 	 *         user doesn't have permission to access the helper.
-	 * @see TaggingHelperInfo
 	 */
 	public TaggingHelperInfo getItemsHelperInfo(String activityRef);
 
@@ -74,7 +74,6 @@ public interface TaggingProvider {
 	 * @return An object containing the data to invoke the appropriate helper
 	 *         tool. Returns null if this is not supported or if the current
 	 *         user doesn't have permission to access the helper.
-	 * @see TaggingHelperInfo
 	 */
 	public TaggingHelperInfo getItemHelperInfo(String itemRef);
 
@@ -102,4 +101,33 @@ public interface TaggingProvider {
 	 * @return A displayable name for this provider.
 	 */
 	public String getName();
+
+	/**
+	 * Method to remove all tags from this activity. This method should check
+	 * with the activity's producer using
+	 * {@link TaggableActivityProducer#allowRemoveTags(TaggableActivity)} to
+	 * make sure the user has permission to perform this action.
+	 * 
+	 * @param activity
+	 *            The activity from which to remove tags.
+	 * @throws PermissionException
+	 *             Exception thrown if current user is not allowed to remove
+	 *             tags from the given activity.
+	 */
+	public void removeTags(TaggableActivity activity)
+			throws PermissionException;
+
+	/**
+	 * Method to remove all tags from this item. This method should check with
+	 * the item's producer using
+	 * {@link TaggableActivityProducer#allowRemoveTags(TaggableItem)} to make
+	 * sure the user has permission to perform this action.
+	 * 
+	 * @param item
+	 *            The item from which to remove tags.
+	 * @throws PermissionException
+	 *             Exception thrown if current user is not allowed to remove
+	 *             tags from the given item.
+	 */
+	public void removeTags(TaggableItem item) throws PermissionException;
 }

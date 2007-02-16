@@ -31,6 +31,37 @@ import java.util.List;
 public interface TaggableActivityProducer {
 
 	/**
+	 * Method to determine if the current user has permission to remove tags
+	 * from the given activity. This should be checked by
+	 * {@link TaggingProvider#removeTags(TaggableActivity)} before removing
+	 * tags. While {@link TaggingProvider} objects determine tagging access
+	 * given an activity, the producer has control over who can remove the
+	 * activity (ex. deletion) and, therefore, who can remove tags from the
+	 * activity.
+	 * 
+	 * @param activity
+	 *            The activity to check permission against.
+	 * @return True if the current user is allowed to delete the specified
+	 *         activity, false otherwise.
+	 */
+	public boolean allowRemoveTags(TaggableActivity activity);
+
+	/**
+	 * Method to determine if the current user has permission to remove tags
+	 * from the given item. This should be checked by
+	 * {@link TaggingProvider#removeTags(TaggableItem)} before removing tags.
+	 * While {@link TaggingProvider} objects determine tagging access given an
+	 * item, the producer has control over who can remove the item (ex.
+	 * deletion) and, therefore, who can remove tags from the item.
+	 * 
+	 * @param item
+	 *            The item to check permission against.
+	 * @return True if the current user is allowed to delete the specified item,
+	 *         false otherwise.
+	 */
+	public boolean allowRemoveTags(TaggableItem item);
+
+	/**
 	 * Method to check if this producer handles the given reference.
 	 * 
 	 * @param ref
