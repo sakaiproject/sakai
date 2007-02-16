@@ -2,6 +2,7 @@ package org.sakaiproject.portal.render.portlet.servlet;
 
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
@@ -11,12 +12,12 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 
-public class SakaiServletRequest extends HttpServletRequestWrapper
+public class SakaiServletActionRequest extends HttpServletRequestWrapper
 {
 
 	private PortletState state;
 
-	public SakaiServletRequest(HttpServletRequest servletRequest,
+	public SakaiServletActionRequest(HttpServletRequest servletRequest,
 			PortletState state)
 	{
 		super(servletRequest);
@@ -25,22 +26,46 @@ public class SakaiServletRequest extends HttpServletRequestWrapper
 
 	public String getParameter(String string)
 	{
-		return (String) state.getParameters().get(string);
+		String param = super.getParameter(string);
+		if ( isEmpty(param) ) {
+			return (String) state.getParameters().get(string);
+		} 
+		return param;
 	}
 
+	/**
+	 * @param param
+	 * @return
+	 */
+	private boolean isEmpty(String param)
+	{
+		return (param == null || param.length() == 0);
+	}
+
+	@SuppressWarnings("unchecked")
 	public Map getParameterMap()
 	{
-		return new HashMap(state.getParameters());
+		Map paramMap = new HashMap(state.getParameters());
+		Map requestParamMap = super.getParameterMap();
+		for ( Iterator<String> i = requestParamMap.keySet().iterator(); i.hasNext(); ) {
+			String s = i.next();
+			paramMap.put(s, requestParamMap.get(s));
+		}
+		return paramMap;
 	}
 
 	public Enumeration getParameterNames()
 	{
-		return new Vector(state.getParameters().keySet()).elements();
+		return new Vector(getParameterMap().keySet()).elements();
 	}
 
 	public String[] getParameterValues(String string)
 	{
-		return (String[]) state.getParameters().get(string);
+		String[] v = super.getParameterValues(string);
+		if ( v == null ) {
+			return (String[]) state.getParameters().get(string);
+		} 
+		return v;
 	}
 
 	/**
@@ -58,4 +83,5 @@ public class SakaiServletRequest extends HttpServletRequestWrapper
 			return super.getAttribute(attributeName);
 		}
 	}
+	
 }

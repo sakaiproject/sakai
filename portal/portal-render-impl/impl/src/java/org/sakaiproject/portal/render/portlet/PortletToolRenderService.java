@@ -12,6 +12,7 @@ import org.sakaiproject.portal.render.portlet.services.SakaiPortalCallbackServic
 import org.sakaiproject.portal.render.portlet.services.SakaiPortalContext;
 import org.sakaiproject.portal.render.portlet.services.SakaiPortletContainerServices;
 // TODO: Review by David
+import org.sakaiproject.portal.render.portlet.servlet.SakaiServletActionRequest;
 import org.sakaiproject.portal.render.portlet.servlet.SakaiServletRequest;
 import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateAccess;
@@ -105,9 +106,9 @@ public class PortletToolRenderService implements ToolRenderService {
                 // This is related to making the user-added parameters direct on the URL modifications
                 // in the state encoding process.
 
-                // portletContainer.doAction(window, new SakaiServletRequest(request, state), response);
+                portletContainer.doAction(window, new SakaiServletActionRequest(request, state), response);
 
-                portletContainer.doAction(window, request, response);
+                // portletContainer.doAction(window, request, response);
             } catch (PortletException e) {
                 throw new ToolRenderException(e.getMessage(), e);
             } catch (PortletContainerException e) {
