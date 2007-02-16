@@ -22,6 +22,7 @@ package org.sakaiproject.api.app.messageforums;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public interface MessageForumsMessageManager {
 
@@ -99,5 +100,6 @@ public interface MessageForumsMessageManager {
     public boolean currentToolMatch(String toolId);
     
 	public boolean isToolInSite(String siteId, String toolId);
-}
 
+	public Map getReadStatusForMessagesWithId(List msgIds, String userId);
+}

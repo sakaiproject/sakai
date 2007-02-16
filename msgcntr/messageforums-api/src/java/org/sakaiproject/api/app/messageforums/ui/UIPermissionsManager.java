@@ -20,8 +20,12 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.messageforums.ui;
 
+import java.util.Iterator;
+import java.util.Set;
+
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
+import org.sakaiproject.api.app.messageforums.Area;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -110,4 +114,10 @@ public interface UIPermissionsManager
    * @return
    */
   public boolean isMarkAsRead(DiscussionTopic topic, DiscussionForum forum);
+  
+  public Set getAreaItemsSet(Area area);
+
+  public Set getForumItemsSet(DiscussionForum forum);
+  
+  public Set getTopicItemsSet(DiscussionTopic topic);
 }

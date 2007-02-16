@@ -39,6 +39,8 @@ public interface MessageForumsForumManager {
   
     public List getForumByTypeAndContext(final String typeUuid);
     
+    public List getForumByTypeAndContextWithTopicsAllAttachments(final String typeUuid);
+    
     public List getForumByTypeAndContext(final String typeUuid, final String contextId);
       
     public Topic getTopicByIdWithAttachments(final Long topicId);
@@ -161,4 +163,8 @@ public interface MessageForumsForumManager {
     public PrivateForum getPrivateForumByOwnerArea(final String owner, final Area area);
 
     public PrivateForum getPrivateForumByOwnerAreaNull(final String owner);
+    
+    public PrivateForum getPrivateForumByOwnerAreaWithAllTopics(final String owner, final Area area);
+    
+    public PrivateForum getPrivateForumByOwnerAreaNullWithAllTopics(final String owner);
 }

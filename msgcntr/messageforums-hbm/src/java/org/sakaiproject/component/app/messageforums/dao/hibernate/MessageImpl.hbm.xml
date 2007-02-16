@@ -327,6 +327,13 @@
     ]]>    
   </query>
 
+  <query name="findReadStatusByMsgIds">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us 
+    		where 
+    		us.userId = :userId and 
+    		us.messageId in ( :msgIds )
+    ]]>
+  </query>
 </hibernate-mapping>
 
 

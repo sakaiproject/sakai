@@ -97,6 +97,11 @@ public interface DiscussionForumManager
    * @return
    */
   public List getDiscussionForums();
+  
+  /**
+   * @return
+   */
+  public List getDiscussionForumsWithTopics();
 
   /**
    * @return
@@ -350,4 +355,6 @@ public interface DiscussionForumManager
    * @return
    */
   public Attachment createDFAttachment(String attachId, String name);
+  
+  public Map getReadStatusForMessagesWithId(List msgIds, String userId);
 }

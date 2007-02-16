@@ -267,14 +267,56 @@ public class PermissionLevelImpl extends MutableEntityImpl
     int result = 17;
     
     try{
-      PropertyDescriptor[] propDescriptors = PropertyUtils.getPropertyDescriptors(this);
-      for (int i = 0; i < propDescriptors.length; i++){
-    	  if (propDescriptors[i].getPropertyType().equals(Boolean.class)){
-          Boolean bThis = (Boolean) PropertyUtils.getProperty(this, propDescriptors[i].getName());          
-          int temp = (bThis == null) ? 0 : bThis.hashCode();
-          result = result + temp;
-    	  }
-      }
+//      PropertyDescriptor[] propDescriptors = PropertyUtils.getPropertyDescriptors(this);
+//      for (int i = 0; i < propDescriptors.length; i++){
+//    	  if (propDescriptors[i].getPropertyType().equals(Boolean.class)){
+//          Boolean bThis = (Boolean) PropertyUtils.getProperty(this, propDescriptors[i].getName());          
+//          int temp = (bThis == null) ? 0 : bThis.hashCode();
+//          result = result + temp;
+//    	  }
+//      }
+    		Boolean bThis = this.getChangeSettings();         
+    		int temp = (bThis == null) ? 0 : bThis.hashCode();
+    		result = result + temp;
+    		bThis = this.getDeleteAny();         
+    		temp = (bThis == null) ? 0 : bThis.hashCode();
+    		result = result + temp;
+    		bThis = this.getDeleteOwn();         
+    		temp = (bThis == null) ? 0 : bThis.hashCode();
+    		result = result + temp;
+    		bThis = this.getMarkAsRead();         
+    		temp = (bThis == null) ? 0 : bThis.hashCode();
+    		result = result + temp;
+    		bThis = this.getMovePosting();         
+    		temp = (bThis == null) ? 0 : bThis.hashCode();
+    		result = result + temp;
+    		bThis = this.getNewForum();         
+    		temp = (bThis == null) ? 0 : bThis.hashCode();
+    		result = result + temp;
+    		bThis = this.getNewResponse();         
+    		temp = (bThis == null) ? 0 : bThis.hashCode();
+    		result = result + temp;
+    		bThis = this.getNewResponseToResponse();         
+    		temp = (bThis == null) ? 0 : bThis.hashCode();
+    		result = result + temp;
+    		bThis = this.getNewTopic();         
+    		temp = (bThis == null) ? 0 : bThis.hashCode();
+    		result = result + temp;
+    		bThis = this.getPostToGradebook();         
+    		temp = (bThis == null) ? 0 : bThis.hashCode();
+    		result = result + temp;
+    		bThis = this.getRead();         
+    		temp = (bThis == null) ? 0 : bThis.hashCode();
+    		result = result + temp;
+    		bThis = this.getReviseAny();         
+    		temp = (bThis == null) ? 0 : bThis.hashCode();
+    		result = result + temp;
+    		bThis = this.getReviseOwn();         
+    		temp = (bThis == null) ? 0 : bThis.hashCode();
+    		result = result + temp;
+    		bThis = this.getModeratePostings();         
+    		temp = (bThis == null) ? 0 : bThis.hashCode();
+    		result = result + temp;
     }
     catch(Exception e){
     	throw new Error(e);

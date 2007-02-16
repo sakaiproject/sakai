@@ -23,11 +23,14 @@ package org.sakaiproject.component.app.messageforums;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.Set;
 
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -37,6 +40,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
+import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
@@ -61,11 +65,14 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	private AreaManager areaManager;
 	private Boolean autoDdl;
 	
-	private Map defaultPermissionsMap = new HashMap();
+	private Map defaultPermissionsMap;
 	
 	private static final String QUERY_BY_TYPE_UUID = "findPermissionLevelByTypeUuid";
 	private static final String QUERY_ORDERED_LEVEL_NAMES = "findOrderedPermissionLevelNames";
-	
+	private static final String QUERY_BY_AREA_ALL_FORUMS_MEMBERSHIP = "findAllMembershipItemsForForumsForSite";
+	private static final String QUERY_GET_ALL_TOPICS = "findAllTopicsForSite";
+	private static final String QUERY_BY_TOPIC_IDS_ALL_TOPIC_MEMBERSHIP = "findAllMembershipItemsForTopicsForSite";
+	private static final String QUERY_BY_AREA_ID_ALL_MEMBERSHIP =	"findAllMembershipItemsForSite";
 	
 	
 			
@@ -81,7 +88,9 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
       {
         LOG.warn(this + ".init(): ", t);
       }
-    }      
+    }  
+    
+    loadInitialDefaultPermissionLevel();
     
     /** test creation of permission mask and author level
     PermissionsMask mask = new PermissionsMask();
@@ -367,13 +376,9 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 			LOG.debug("getDefaultPermissionLevel executing with typeUuid: " + typeUuid);
 		}
 		
+		if(defaultPermissionsMap != null && defaultPermissionsMap.get(typeUuid) != null)
+			return (PermissionLevel)defaultPermissionsMap.get(typeUuid);
 		
-		//PermissionLevel temp = (PermissionLevel) defaultPermissionsMap.get(typeUuid);		
-		//if (temp != null){
-		//	return temp;
-		//}
-		
-				
 		HibernateCallback hcb = new HibernateCallback() {
       public Object doInHibernate(Session session) throws HibernateException, SQLException {
           Query q = session.getNamedQuery(QUERY_BY_TYPE_UUID);
@@ -383,10 +388,6 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
     };
 					
     PermissionLevel returnedLevel = (PermissionLevel) getHibernateTemplate().execute(hcb);
-    
-    //if (returnedLevel != null){
-    //	defaultPermissionsMap.put(typeUuid, returnedLevel);
-    //}
     
     return returnedLevel;
   }	
@@ -483,5 +484,130 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	public void setAreaManager(AreaManager areaManager) {
 		this.areaManager = areaManager;
 	}
+	
+	public List getAllMembershipItemsForForumsForSite(final Long areaId)
+	{
+		if (LOG.isDebugEnabled())
+		{
+			LOG.debug("getAllMembershipItemsForForumsForSite executing");
+		}
+		
+		HibernateCallback hcb = new HibernateCallback() 
+		{
+      public Object doInHibernate(Session session) throws HibernateException, SQLException 
+      {
+        Query q = session.getNamedQuery(QUERY_BY_AREA_ALL_FORUMS_MEMBERSHIP);
+        q.setParameter("areaId", areaId, Hibernate.LONG);
+        return q.list();
+      }
+    };
+					
+    return (List) getHibernateTemplate().execute(hcb);
+	}
 
+	private List getAllTopicsForSite(final Long areaId)
+	{
+		if (LOG.isDebugEnabled())
+		{
+			LOG.debug("getAllTopicsForSite executing");
+		}
+		
+		HibernateCallback hcb = new HibernateCallback() 
+		{
+      public Object doInHibernate(Session session) throws HibernateException, SQLException 
+      {
+        Query q = session.getNamedQuery(QUERY_GET_ALL_TOPICS);
+        q.setParameter("areaId", areaId, Hibernate.LONG);
+        return q.list();
+      }
+    };
+    List topicList = (List) getHibernateTemplate().execute(hcb);
+    List ids = new ArrayList();
+    
+    try
+    {
+    	Class dti = Class.forName("org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl");
+    	if(topicList != null)
+    	{
+    		for(int i=0; i<topicList.size(); i++)
+    		{
+    			Object[] thisObject =(Object[]) topicList.get(i);
+    			if(thisObject != null)
+    			{
+    				for(int j=0; j<thisObject.length; j++)
+    				{
+    					Object thisTopic = (Object) thisObject[j];
+    					if(thisTopic != null && thisTopic.getClass().equals(dti))
+    					{
+    						ids.add(((Topic)thisTopic).getId());
+    						break;
+    					}
+    				}
+    			}
+    		}
+    	}
+    }
+    catch(Exception e)
+    {
+    	LOG.error("PermissionLevelManagerImpl.getAllTopicsForSite--" + e);
+    }
+    
+    return ids;
+	}
+    
+	public List getAllMembershipItemsForTopicsForSite(final Long areaId)
+	{
+		final List topicIds = this.getAllTopicsForSite(areaId);
+		
+		if(topicIds != null && topicIds.size() >0)
+		{
+			HibernateCallback hcb1 = new HibernateCallback() 
+			{
+				public Object doInHibernate(Session session) throws HibernateException, SQLException 
+				{
+					Query q = session.getNamedQuery(QUERY_BY_TOPIC_IDS_ALL_TOPIC_MEMBERSHIP);
+					q.setParameterList("topicIdList", topicIds);
+					return q.list();
+				}
+			};
+			return (List) getHibernateTemplate().execute(hcb1);
+		}
+		else
+			return new ArrayList();
+	}
+	
+	private void loadInitialDefaultPermissionLevel()
+	{
+		if (LOG.isDebugEnabled()){
+			LOG.debug("loadInitialDefaultPermissionLevel executing");
+		}
+		
+		defaultPermissionsMap = new HashMap();
+		
+		defaultPermissionsMap.put(typeManager.getOwnerLevelType(), getDefaultOwnerPermissionLevel());
+		defaultPermissionsMap.put(typeManager.getAuthorLevelType(), getDefaultAuthorPermissionLevel());
+		defaultPermissionsMap.put(typeManager.getNoneditingAuthorLevelType(), getDefaultNoneditingAuthorPermissionLevel());
+		defaultPermissionsMap.put(typeManager.getContributorLevelType(), getDefaultContributorPermissionLevel());
+		defaultPermissionsMap.put(typeManager.getReviewerLevelType(), getDefaultReviewerPermissionLevel());
+		defaultPermissionsMap.put(typeManager.getNoneLevelType(), getDefaultNonePermissionLevel());	
+	}
+
+	public void deleteMembershipItems(Set membershipSet)
+	{
+		if(membershipSet != null)
+		{
+			Iterator iter = membershipSet.iterator();
+			Set permissionLevels = new HashSet();
+			while(iter.hasNext())
+			{
+				DBMembershipItem item = (DBMembershipItem) iter.next();
+				if(item != null && item.getPermissionLevel() != null && PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM.equals(item.getPermissionLevelName()))
+				{
+					permissionLevels.add((PermissionLevel)item.getPermissionLevel());
+				}
+			}
+			getHibernateTemplate().deleteAll(membershipSet);
+			getHibernateTemplate().deleteAll(permissionLevels);
+		}
+	}
 }

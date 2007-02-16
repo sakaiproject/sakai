@@ -43,7 +43,7 @@
     </bean>
 	    
     <bean id="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager" 
-        class="org.sakaiproject.component.app.messageforums.MessageForumsTypeManagerImpl">
+        class="org.sakaiproject.component.app.messageforums.MessageForumsTypeManagerImpl" init-method="init" singleton="true">
         <property name="typeManager">
             <ref bean="org.sakaiproject.api.common.type.TypeManager"/>
         </property>          

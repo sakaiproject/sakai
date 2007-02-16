@@ -23,6 +23,8 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.OpenForum;
+import org.sakaiproject.api.app.messageforums.Area;
 
  /**
    * DBMembership Item for storing different types of membership user/group/role
@@ -37,6 +39,8 @@ import org.sakaiproject.api.app.messageforums.Topic;
    private String permissionLevelName;
    private PermissionLevel permissionLevel;
    private Topic topic;
+   private OpenForum forum;
+   private Area area;
         
 public DBMembershipItemImpl(){
      
@@ -131,6 +135,30 @@ public DBMembershipItemImpl(){
   {    
     return id.hashCode();
   }
+
+
+	public Area getArea()
+	{
+		return area;
+	}
+
+
+	public void setArea(Area area)
+	{
+		this.area = area;
+	}
+
+
+	public OpenForum getForum()
+	{
+		return forum;
+	}
+
+
+	public void setForum(OpenForum forum)
+	{
+		this.forum = forum;
+	}
 	   
 }
  

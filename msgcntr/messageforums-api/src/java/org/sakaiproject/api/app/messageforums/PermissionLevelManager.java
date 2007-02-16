@@ -21,6 +21,7 @@
 package org.sakaiproject.api.app.messageforums;
 
 import java.util.List;
+import java.util.Set;
 
 import org.sakaiproject.api.app.messageforums.PermissionsMask;
 
@@ -46,5 +47,8 @@ public interface PermissionLevelManager {
     public  List getOrderedPermissionLevelNames(); 
     public Boolean getCustomPermissionByName(String customPermissionName, PermissionLevel permissionLevel);
     public List getCustomPermissions();
-	 
+  	public List getAllMembershipItemsForForumsForSite(final Long areaId);
+  	public List getAllMembershipItemsForTopicsForSite(final Long areaId);
+  	public void deleteMembershipItems(Set membershipSet);
+  	
 }

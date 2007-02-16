@@ -57,7 +57,7 @@
         <key column="surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl"/>            
     </set>    
-    <set name="membershipItemSet" lazy="false" cascade="all-delete-orphan">
+    <set name="membershipItemSet" lazy="true" cascade="all-delete-orphan">
         <key column="a_surrogateKey"/>
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl"/>
     </set>
@@ -65,20 +65,31 @@
   </class>
 
   <query name="findAreaById">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as area where area.id = :id]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as area 
+  		left join fetch area.membershipItemSet  
+	    where area.id = :id	
+    ]]>
   </query>
 
   <query name="findAreaByUuid">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as area where area.uuid = :uuid]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as area 
+	  	left join fetch area.membershipItemSet
+    	where area.uuid = :uuid
+    ]]>
   </query>
   
   <query name="findAreaByContextIdAndTypeId">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as area where area.contextId = :contextId and area.typeUuid = :typeId]]>
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as area 
+    	left join fetch area.membershipItemSet
+    	where area.contextId = :contextId and area.typeUuid = :typeId
+    ]]>
   </query>    
   
   <query name="findAreaByType">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl as area 
-             where area.typeUuid = :typeId]]>
+    	left join fetch area.membershipItemSet		
+      where area.typeUuid = :typeId
+    ]]>
   </query>    
   
 </hibernate-mapping>

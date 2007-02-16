@@ -80,8 +80,12 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final String QUERY_BY_FORUM_OWNER = "findPrivateForumByOwner";
     
     private static final String QUERY_BY_FORUM_OWNER_AREA = "findPrivateForumByOwnerArea";
+    
+    private static final String QUERY_BY_FORUM_OWNER_AREA_WITH_TOPICS = "findPrivateForumByOwnerAreaWithTopics";
 
     private static final String QUERY_BY_FORUM_OWNER_AREA_NULL = "findPrivateForumByOwnerAreaNull";
+
+    private static final String QUERY_BY_FORUM_OWNER_AREA_NULL_WITH_ALL_TOPICS = "findPrivateForumByOwnerAreaNullWithAllTopics";
     
     private static final String QUERY_BY_FORUM_ID = "findForumById";
     
@@ -91,6 +95,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     
     private static final String QUERY_BY_TYPE_AND_CONTEXT = "findForumByTypeAndContext";
     private static final String QUERY_BY_FORUM_ID_AND_TOPICS = "findForumByIdWithTopics";
+    private static final String QUERY_BY_TYPE_AND_CONTEXT_WITH_ALL_INFO = "findForumByTypeAndContextWithAllInfo";
 
            
     private static final String QUERY_TOPIC_WITH_MESSAGES_AND_ATTACHMENTS = "findTopicByIdWithMessagesAndAttachments";        
@@ -1069,5 +1074,94 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private String getEventMessage(Object object, String context) {
     	return "/MessageCenter/site/" + context + "/" + object.toString() + "/" + getCurrentUser(); 
     }
+
+		public List getForumByTypeAndContextWithTopicsAllAttachments(final String typeUuid)
+		{
+			if (typeUuid == null) {
+				throw new IllegalArgumentException("Null Argument");
+			}      
+
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Query q = session.getNamedQuery(QUERY_BY_TYPE_AND_CONTEXT_WITH_ALL_INFO);
+					q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
+					q.setParameter("contextId", getContextId(), Hibernate.STRING);
+					return q.list();
+				}
+			};
+
+			BaseForum tempForum = null;
+			Set resultSet = new HashSet();
+			List temp = (ArrayList) getHibernateTemplate().execute(hcb);
+
+			for (Iterator i = temp.iterator(); i.hasNext();)
+			{
+				Object[] results = (Object[]) i.next();        
+
+				if (results != null) {
+					if (results[0] instanceof BaseForum) {
+						tempForum = (BaseForum)results[0];
+						tempForum.setArea((Area)results[1]);            
+					} else {
+						tempForum = (BaseForum)results[1];
+						tempForum.setArea((Area)results[0]);
+					}
+					resultSet.add(tempForum);
+				}
+			}
+
+			List resultList = Util.setToList(resultSet);
+			Collections.sort(resultList, FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC);
+
+			// Now that the list is sorted, lets index the forums
+			int sort_index = 1;
+			for(Iterator i = resultList.iterator(); i.hasNext(); ) {
+				tempForum = (BaseForum)i.next();
+
+				tempForum.setSortIndex(new Integer(sort_index++));
+			}
+
+			return resultList;      
+		}
+
+		public PrivateForum getPrivateForumByOwnerAreaWithAllTopics(final String owner, final Area area)
+		{
+
+      if (owner == null || area == null) {
+          throw new IllegalArgumentException("Null Argument");
+      }
+
+      LOG.debug("getForumByOwnerArea executing with owner: " + owner + " and area:" + area);
+
+      HibernateCallback hcb = new HibernateCallback() {
+          public Object doInHibernate(Session session) throws HibernateException, SQLException {
+              Query q = session.getNamedQuery(QUERY_BY_FORUM_OWNER_AREA_WITH_TOPICS);
+              q.setParameter("owner", owner, Hibernate.STRING);
+              q.setParameter("area", area);
+              return q.uniqueResult();
+          }
+      };
+
+      return (PrivateForum) getHibernateTemplate().execute(hcb);
+		}
+
+		public PrivateForum getPrivateForumByOwnerAreaNullWithAllTopics(final String owner)
+		{
+			if (owner == null) {
+				throw new IllegalArgumentException("Null Argument");
+			}
+
+			LOG.debug("getForumByOwnerAreaNull executing with owner: " + owner);
+
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Query q = session.getNamedQuery(QUERY_BY_FORUM_OWNER_AREA_NULL_WITH_ALL_TOPICS);
+					q.setParameter("owner", owner, Hibernate.STRING);
+					return q.uniqueResult();
+				}
+			};
+
+			return (PrivateForum) getHibernateTemplate().execute(hcb);
+		}
 
 }

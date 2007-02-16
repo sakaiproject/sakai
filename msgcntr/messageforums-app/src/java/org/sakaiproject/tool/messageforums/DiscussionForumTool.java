@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -386,15 +387,50 @@ public class DiscussionForumTool
         e1.printStackTrace(); 
       }
       forums = new ArrayList();
-      List tempForum = forumManager.getDiscussionForums();
+      //List tempForum = forumManager.getDiscussionForums();
+      List tempForum = forumManager.getDiscussionForumsWithTopics();
       if (tempForum == null)
       {
         return null;
       }
       Iterator iterForum = tempForum.iterator();
+      Map unreadMap = new HashMap();
+      List msgIds = new ArrayList();
       while (iterForum.hasNext())
       {
-        DiscussionForum forum = (DiscussionForum) iterForum.next();
+      	DiscussionForum forum = (DiscussionForum) iterForum.next();
+      	if(forum != null)
+      	{
+      		List topicList = forum.getTopics();
+      		if(topicList != null)
+      		{
+      			for(int i=0; i<topicList.size(); i++)
+      			{
+      				Topic thisTopic = (Topic) topicList.get(i);
+      				if(thisTopic != null)
+      				{
+      					List msgList = thisTopic.getMessages();
+      					if(msgList != null)
+      					{
+      						for(int j=0; j<msgList.size(); j++)
+      						{
+      							Message tempMsg = (Message)msgList.get(j);
+      							if(tempMsg != null && !tempMsg.getDraft().booleanValue())
+      							{
+      								msgIds.add(tempMsg.getId());
+      							}
+      						}
+      					}
+      				}
+      			}
+      		}
+      	}
+      }
+      unreadMap = forumManager.getReadStatusForMessagesWithId(msgIds, getUserId());
+      iterForum = tempForum.iterator();
+      while (iterForum.hasNext())
+      {
+      	DiscussionForum forum = (DiscussionForum) iterForum.next();
         if (forum == null)
         {
           return forums;
@@ -411,8 +447,9 @@ public class DiscussionForumTool
             ||forum.getCreatedBy().equals(
             SessionManager.getCurrentSessionUserId()))
         { 
-          DiscussionForumBean decoForum = getDecoratedForum(forum);
-          decoForum.setGradeAssign("Default_0");
+          //DiscussionForumBean decoForum = getDecoratedForum(forum);
+        	DiscussionForumBean decoForum = getDecoratedForumWithPersistentForumAndTopics(forum, unreadMap);
+        	decoForum.setGradeAssign("Default_0");
           for(int i=0; i<assignments.size(); i++)
           {
             if(((String)((SelectItem)assignments.get(i)).getLabel()).equals(forum.getDefaultAssignName()))
@@ -1581,6 +1618,74 @@ public class DiscussionForumTool
     return decoForum;
   }
 
+  private DiscussionForumBean getDecoratedForumWithPersistentForumAndTopics(DiscussionForum forum, Map unreadMap)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("getDecoratedForum(DiscussionForum" + forum + ")");
+    }
+    DiscussionForumBean decoForum = new DiscussionForumBean(forum,
+        uiPermissionsManager, forumManager);
+    if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
+    {
+    	decoForum.setReadFullDesciption(true);
+    }
+    List temp_topics = forum.getTopics();
+    if (temp_topics == null)
+    {
+      return decoForum;
+    }
+    Iterator iter = temp_topics.iterator();
+    while (iter.hasNext())
+    {
+      DiscussionTopic topic = (DiscussionTopic) iter.next();
+//    TODO: put this logic in database layer
+      if (topic.getDraft().equals(Boolean.FALSE)||
+          (topic.getDraft().equals(Boolean.TRUE)&&topic.getCreatedBy().equals(SessionManager.getCurrentSessionUserId()))
+          ||isInstructor()
+          ||SecurityService.isSuperUser()||topic.getCreatedBy().equals(
+          SessionManager.getCurrentSessionUserId()))
+      { 
+        if (topic != null)
+        {
+          DiscussionTopicBean decoTopic = new DiscussionTopicBean(topic, forum,
+              uiPermissionsManager, forumManager);
+          if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
+          {
+          	decoTopic.setReadFullDesciption(true);
+          }
+
+          int totalMsgNumber = 0;
+          int readMsgNumber = 0;
+          if(topic.getMessages() != null)
+          {
+          	List thisMessageList = topic.getMessages();
+          	for(int i=0; i<thisMessageList.size(); i++)
+          	{
+          		Message thisMsg = (Message)thisMessageList.get(i);
+          		if(thisMsg != null && !thisMsg.getDraft().booleanValue())
+          		{
+          			totalMsgNumber++;
+          			if(unreadMap.get(thisMsg.getId()) != null && ((Boolean)unreadMap.get(thisMsg.getId())).booleanValue())
+          			{
+          				readMsgNumber++;
+          			}
+          		}
+          	}
+          }
+          if(totalMsgNumber > 0 )
+          {
+          	decoTopic.setTotalNoMessages(totalMsgNumber);
+          	decoTopic.setUnreadNoMessages(totalMsgNumber -readMsgNumber);
+          }
+          //decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
+          //decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
+          decoForum.addTopic(decoTopic);
+        }
+      } 
+    }
+    return decoForum;
+  }
   /**
    * @return DiscussionForumBean
    */
@@ -3995,22 +4100,27 @@ public class DiscussionForumTool
     Set membershipItems = null;
     
     if (PERMISSION_MODE_TEMPLATE.equals(getPermissionMode())){
-    	membershipItems = forumManager.getDiscussionForumArea().getMembershipItemSet();
+    	//membershipItems = forumManager.getDiscussionForumArea().getMembershipItemSet();
+    	membershipItems = uiPermissionsManager.getAreaItemsSet(forumManager.getDiscussionForumArea());
     }
     else if (PERMISSION_MODE_FORUM.equals(getPermissionMode())){    	
-    	membershipItems = selectedForum.getForum().getMembershipItemSet();
+    	//membershipItems = selectedForum.getForum().getMembershipItemSet();
+    	membershipItems = uiPermissionsManager.getForumItemsSet(selectedForum.getForum());
     	
     	if (membershipItems == null || membershipItems.size() == 0){
-    		membershipItems = forumManager.getDiscussionForumArea().getMembershipItemSet();
+    		//membershipItems = forumManager.getDiscussionForumArea().getMembershipItemSet();
+    		membershipItems = uiPermissionsManager.getAreaItemsSet(forumManager.getDiscussionForumArea());
     	}
     }
     else if (PERMISSION_MODE_TOPIC.equals(getPermissionMode())){    	
-    	membershipItems = selectedTopic.getTopic().getMembershipItemSet();
+    	//membershipItems = selectedTopic.getTopic().getMembershipItemSet();
+    	membershipItems = uiPermissionsManager.getTopicItemsSet(selectedTopic.getTopic());
     	
     	if (membershipItems == null || membershipItems.size() == 0){
     		//membershipItems = forumManager.getDiscussionForumArea().getMembershipItemSet();
     		if (selectedForum != null && selectedForum.getForum() != null){
-    		  membershipItems = selectedForum.getForum().getMembershipItemSet();
+    		  //membershipItems = selectedForum.getForum().getMembershipItemSet();
+    			membershipItems = uiPermissionsManager.getForumItemsSet(selectedForum.getForum());
     		}
     	}
     } 
@@ -4258,23 +4368,32 @@ public class DiscussionForumTool
   
   public void setObjectPermissions(Object target){
   	Set membershipItemSet = null;
+  	Set oldMembershipItemSet = null;
     
   	DiscussionForum forum = null;
   	Area area = null;
-  	Topic topic = null;
+  	//Topic topic = null;
+  	DiscussionTopic topic = null;
   	
     /** get membership item set */    
     if (target instanceof DiscussionForum){
     	forum = ((DiscussionForum) target);
-    	membershipItemSet = forum.getMembershipItemSet();
+    	//membershipItemSet = forum.getMembershipItemSet();
+    	//membershipItemSet = uiPermissionsManager.getForumItemsSet(forum);
+    	oldMembershipItemSet = uiPermissionsManager.getForumItemsSet(forum);
     }
     else if (target instanceof Area){
     	area = ((Area) target);
-    	membershipItemSet = area.getMembershipItemSet();
+    	//membershipItemSet = area.getMembershipItemSet();
+    	//membershipItemSet = uiPermissionsManager.getAreaItemsSet();
+    	oldMembershipItemSet = uiPermissionsManager.getAreaItemsSet(area);
     }
     else if (target instanceof Topic){
-    	topic = ((Topic) target);
-    	membershipItemSet = topic.getMembershipItemSet();
+    	//topic = ((Topic) target);
+    	//membershipItemSet = topic.getMembershipItemSet();
+    	topic = ((DiscussionTopic) target);
+    	//membershipItemSet = uiPermissionsManager.getTopicItemsSet(topic);
+    	oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet(topic);
     }
      
     if (membershipItemSet != null){
@@ -4319,6 +4438,12 @@ public class DiscussionForumTool
         permissionLevelManager.saveDBMembershipItem(membershipItem);
         membershipItemSet.add(membershipItem);
       }
+      
+      if( ((area != null && area.getId() != null) || 
+      		(forum != null && forum.getId() != null) || 
+      		(topic != null && topic.getId() != null)) 
+      		&& oldMembershipItemSet != null)
+      	permissionLevelManager.deleteMembershipItems(oldMembershipItemSet);
       
       if (target instanceof DiscussionForum){
       	forum.setMembershipItemSet(membershipItemSet);

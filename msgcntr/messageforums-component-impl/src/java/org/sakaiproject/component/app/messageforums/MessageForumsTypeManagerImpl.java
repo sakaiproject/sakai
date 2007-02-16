@@ -20,6 +20,9 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
@@ -64,11 +67,13 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   private static final String NONE = "None Permission Level";  
   private static final String CUSTOM = "Custom Permission Level";
   
+  private Map initPermissionTypes;
+  
   private TypeManager typeManager;
 
   public void init()
   {
-    ;
+    loadInitialDefaultPermissionType();
   }
 
   /**
@@ -85,6 +90,12 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   
   public String getOwnerLevelType(){
   	LOG.debug("getOwnerLevelType()");
+  	
+  	if(initPermissionTypes != null && initPermissionTypes.get(OWNER) != null)
+  	{
+  		return (String) initPermissionTypes.get(OWNER);
+  	}
+  	
     Type type = typeManager.getType(AUTHORITY, DOMAIN, OWNER);
     if (type != null)
     {
@@ -99,6 +110,11 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   
   public String getAuthorLevelType(){
   	LOG.debug("getAuthorLevelType()");
+  	if(initPermissionTypes != null && initPermissionTypes.get(AUTHOR) != null)
+  	{
+  		return (String) initPermissionTypes.get(AUTHOR);
+  	}
+  	
     Type type = typeManager.getType(AUTHORITY, DOMAIN, AUTHOR);
     if (type != null)
     {
@@ -113,6 +129,11 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   
   public String getNoneditingAuthorLevelType(){
   	LOG.debug("getNoneditingAuthorLevelType()");
+  	if(initPermissionTypes != null && initPermissionTypes.get(NONEDITING_AUTHOR) != null)
+  	{
+  		return (String) initPermissionTypes.get(NONEDITING_AUTHOR);
+  	}
+
     Type type = typeManager.getType(AUTHORITY, DOMAIN, NONEDITING_AUTHOR);
     if (type != null)
     {
@@ -127,6 +148,11 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   
   public String getReviewerLevelType(){
   	LOG.debug("getReviewerLevelType()");
+  	if(initPermissionTypes != null && initPermissionTypes.get(REVIEWER) != null)
+  	{
+  		return (String) initPermissionTypes.get(REVIEWER);
+  	}
+  	
     Type type = typeManager.getType(AUTHORITY, DOMAIN, REVIEWER);
     if (type != null)
     {
@@ -141,6 +167,11 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   
   public String getContributorLevelType(){
   	LOG.debug("getContributorLevelType()");
+  	if(initPermissionTypes != null && initPermissionTypes.get(CONTRIBUTOR) != null)
+  	{
+  		return (String) initPermissionTypes.get(CONTRIBUTOR);
+  	}
+  	
     Type type = typeManager.getType(AUTHORITY, DOMAIN, CONTRIBUTOR);
     if (type != null)
     {
@@ -155,6 +186,11 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   
   public String getNoneLevelType(){
   	LOG.debug("getNoneLevelType()");
+  	if(initPermissionTypes != null && initPermissionTypes.get(NONE) != null)
+  	{
+  		return (String) initPermissionTypes.get(NONE);
+  	}
+  	
     Type type = typeManager.getType(AUTHORITY, DOMAIN, NONE);
     if (type != null)
     {
@@ -169,6 +205,11 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   
   public String getCustomLevelType(){
   	LOG.debug("getCustomLevelType()");
+  	if(initPermissionTypes != null && initPermissionTypes.get(CUSTOM) != null)
+  	{
+  		return (String) initPermissionTypes.get(CUSTOM);
+  	}
+  	
     Type type = typeManager.getType(AUTHORITY, DOMAIN, CUSTOM);
     if (type != null)
     {
@@ -446,4 +487,17 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
     else
     	return null;
   }
+  
+  private void loadInitialDefaultPermissionType()
+  {
+  	initPermissionTypes = new HashMap();
+  	
+  	initPermissionTypes.put(OWNER, getOwnerLevelType());
+  	initPermissionTypes.put(AUTHOR, getAuthorLevelType());
+  	initPermissionTypes.put(NONEDITING_AUTHOR, getNoneditingAuthorLevelType());
+  	initPermissionTypes.put(REVIEWER, getReviewerLevelType());
+  	initPermissionTypes.put(CONTRIBUTOR, getContributorLevelType());
+  	initPermissionTypes.put(NONE, getNoneLevelType());
+  	initPermissionTypes.put(CUSTOM, getCustomLevelType());
+ }
 }

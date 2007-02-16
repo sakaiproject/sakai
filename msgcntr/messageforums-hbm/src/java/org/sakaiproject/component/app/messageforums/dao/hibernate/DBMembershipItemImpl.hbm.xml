@@ -43,6 +43,43 @@
         not-null="false" cascade="save-update" unique="false"
         lazy="false"/>
                
+      <many-to-one name="forum" column="of_surrogateKey"
+        class="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl"
+        not-null="false" cascade="save-update" unique="false"
+        lazy="false"/>  
+
+      <many-to-one name="area" column="a_surrogateKey"
+        class="org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl"
+        not-null="false" cascade="save-update" unique="false"
+        lazy="false"/>  
   </class>
     
+   <query name="findAllMembershipItemsForForumsForSite">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
+		    join membership.forum as forum
+		    join forum.area as area
+		    left join fetch membership.permissionLevel
+		    where
+		    area.id = :areaId
+		]]>
+  </query>
+ 
+  <query name="findAllTopicsForSite">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+		    join topic.openForum as forum
+		    join forum.area as area
+		    where
+		    area.id = :areaId
+		]]>
+  </query>
+
+   <query name="findAllMembershipItemsForTopicsForSite">
+     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
+		     join membership.topic as topic
+		     left join fetch membership.permissionLevel
+		     where
+		     topic.id in ( :topicIdList )
+		 ]]>
+  </query>
+
 </hibernate-mapping>

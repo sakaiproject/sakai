@@ -22,12 +22,14 @@ package org.sakaiproject.component.app.messageforums.ui;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -42,6 +44,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.app.messageforums.TestUtil;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -51,6 +54,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -861,9 +865,15 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   	
   	List areaItems = new ArrayList();
   	
-    Set membershipItems = forumManager.getDiscussionForumArea()
-      .getMembershipItemSet();
-    DBMembershipItem item = forumManager.getDBMember(membershipItems, getCurrentUserRole(),
+		if (ThreadLocalManager.get("message_center_permission_set") == null || !((Boolean)ThreadLocalManager.get("message_center_permission_set")).booleanValue())
+		{
+			initMembershipForSite();
+		}
+
+//		Set membershipItems = forumManager.getDiscussionForumArea()
+//      .getMembershipItemSet();
+		Set areaItemsInThread = (Set) ThreadLocalManager.get("message_center_membership_area");
+    DBMembershipItem item = forumManager.getDBMember(areaItemsInThread, getCurrentUserRole(),
       DBMembershipItem.TYPE_ROLE);
     
     if (item != null){
@@ -883,8 +893,10 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
     		if(currentGroup.getMember(getCurrentUserId()) != null)
     		{
-    			DBMembershipItem groupItem = forumManager.getDBMember(membershipItems, currentGroup.getTitle(),
-    					DBMembershipItem.TYPE_GROUP);
+//    			DBMembershipItem groupItem = forumManager.getDBMember(membershipItems, currentGroup.getTitle(),
+//    					DBMembershipItem.TYPE_GROUP);
+    			DBMembershipItem groupItem = forumManager.getDBMember(areaItemsInThread, currentGroup.getTitle(),
+    				DBMembershipItem.TYPE_GROUP);
     			if (groupItem != null){
     				areaItems.add(groupItem);
     			}
@@ -899,13 +911,54 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return areaItems.iterator();
   }
 
+  public Set getAreaItemsSet(Area area)
+  {
+		if (ThreadLocalManager.get("message_center_permission_set") == null || !((Boolean)ThreadLocalManager.get("message_center_permission_set")).booleanValue())
+		{
+			initMembershipForSite();
+		}
+		Set allAreaSet = (Set) ThreadLocalManager.get("message_center_membership_area");
+		Set returnSet = new HashSet();
+		Iterator iter = allAreaSet.iterator();
+		while(iter.hasNext())
+		{
+			DBMembershipItemImpl thisItem = (DBMembershipItemImpl)iter.next();
+			if(thisItem.getArea() != null && area.getId() != null && area.getId().equals(thisItem.getArea().getId()))
+			{
+				returnSet.add((DBMembershipItem)thisItem);
+			}
+		}
+
+		return returnSet;
+  }
+  
   private Iterator getForumItemsByCurrentUser(DiscussionForum forum)
   {
     List forumItems = new ArrayList();
-    Set membershipItems = forum.getMembershipItemSet();
+    //Set membershipItems = forum.getMembershipItemSet();
     
-    DBMembershipItem item = forumManager.getDBMember(membershipItems, getCurrentUserRole(),
-        DBMembershipItem.TYPE_ROLE);
+
+		if (ThreadLocalManager.get("message_center_permission_set") == null || !((Boolean)ThreadLocalManager.get("message_center_permission_set")).booleanValue())
+		{
+			initMembershipForSite();
+		}
+
+		Set forumItemsInThread = (Set) ThreadLocalManager.get("message_center_membership_forum");
+		Set thisForumItemSet = new HashSet();
+		Iterator iter = forumItemsInThread.iterator();
+		while(iter.hasNext())
+		{
+			DBMembershipItemImpl thisItem = (DBMembershipItemImpl)iter.next();
+			if(thisItem.getForum() != null && forum.getId().equals(thisItem.getForum().getId()))
+			{
+				thisForumItemSet.add((DBMembershipItem)thisItem);
+			}
+		}
+    
+//    DBMembershipItem item = forumManager.getDBMember(membershipItems, getCurrentUserRole(),
+//        DBMembershipItem.TYPE_ROLE);
+		DBMembershipItem item = forumManager.getDBMember(thisForumItemSet, getCurrentUserRole(),
+			DBMembershipItem.TYPE_ROLE);
     
     if (item != null){
       forumItems.add(item);
@@ -924,8 +977,10 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
     		if(currentGroup.getMember(getCurrentUserId()) != null)
     		{
-    			DBMembershipItem groupItem = forumManager.getDBMember(membershipItems, currentGroup.getTitle(),
-    					DBMembershipItem.TYPE_GROUP);
+//    			DBMembershipItem groupItem = forumManager.getDBMember(membershipItems, currentGroup.getTitle(),
+//    					DBMembershipItem.TYPE_GROUP);
+    			DBMembershipItem groupItem = forumManager.getDBMember(thisForumItemSet, currentGroup.getTitle(),
+    				DBMembershipItem.TYPE_GROUP);
     			if (groupItem != null){
     				forumItems.add(groupItem);
     			}
@@ -955,11 +1010,51 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return forumItems.iterator();
   }
 
+  public Set getForumItemsSet(DiscussionForum forum)
+  {
+		if (ThreadLocalManager.get("message_center_permission_set") == null || !((Boolean)ThreadLocalManager.get("message_center_permission_set")).booleanValue())
+		{
+			initMembershipForSite();
+		}
+
+		Set allForumSet = (Set) ThreadLocalManager.get("message_center_membership_forum");
+		Set returnSet = new HashSet();
+		Iterator iter = allForumSet.iterator();
+		while(iter.hasNext())
+		{
+			DBMembershipItemImpl thisItem = (DBMembershipItemImpl)iter.next();
+			if(thisItem.getForum() != null && forum.getId() != null && forum.getId().equals(thisItem.getForum().getId()))
+			{
+				returnSet.add((DBMembershipItem)thisItem);
+			}
+		}
+
+		return returnSet;
+  }
+  
   private Iterator getTopicItemsByCurrentUser(DiscussionTopic topic)
   {
     List topicItems = new ArrayList();
-    Set membershipItems = topic.getMembershipItemSet();
-    DBMembershipItem item = forumManager.getDBMember(membershipItems, getCurrentUserRole(),
+    
+		if (ThreadLocalManager.get("message_center_permission_set") == null || !((Boolean)ThreadLocalManager.get("message_center_permission_set")).booleanValue())
+		{
+			initMembershipForSite();
+		}
+
+		Set topicItemsInThread = (Set) ThreadLocalManager.get("message_center_membership_topic");
+		Set thisTopicItemSet = new HashSet();
+		Iterator iter = topicItemsInThread.iterator();
+		while(iter.hasNext())
+		{
+			DBMembershipItemImpl thisItem = (DBMembershipItemImpl)iter.next();
+			if(thisItem.getTopic() != null && topic.getId().equals(thisItem.getTopic().getId()))
+			{
+				thisTopicItemSet.add((DBMembershipItem)thisItem);
+			}
+		}
+    
+//    Set membershipItems = topic.getMembershipItemSet();
+    DBMembershipItem item = forumManager.getDBMember(thisTopicItemSet, getCurrentUserRole(),
         DBMembershipItem.TYPE_ROLE);
 
     if (item != null){
@@ -979,8 +1074,10 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
     		if(currentGroup.getMember(getCurrentUserId()) != null)
     		{
-    			DBMembershipItem groupItem = forumManager.getDBMember(membershipItems, currentGroup.getTitle(),
-    					DBMembershipItem.TYPE_GROUP);
+//    			DBMembershipItem groupItem = forumManager.getDBMember(membershipItems, currentGroup.getTitle(),
+//    					DBMembershipItem.TYPE_GROUP);
+    			DBMembershipItem groupItem = forumManager.getDBMember(thisTopicItemSet, currentGroup.getTitle(),
+    				DBMembershipItem.TYPE_GROUP);
     			if (groupItem != null){
     				topicItems.add(groupItem);
     			}
@@ -1008,6 +1105,28 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 //      }
 //    }
     return topicItems.iterator();
+  }
+  
+  public Set getTopicItemsSet(DiscussionTopic topic)
+  {
+		if (ThreadLocalManager.get("message_center_permission_set") == null || !((Boolean)ThreadLocalManager.get("message_center_permission_set")).booleanValue())
+		{
+			initMembershipForSite();
+		}
+
+		Set allTopicSet = (Set) ThreadLocalManager.get("message_center_membership_topic");
+		Set returnSet = new HashSet();
+		Iterator iter = allTopicSet.iterator();
+		while(iter.hasNext())
+		{
+			DBMembershipItemImpl thisItem = (DBMembershipItemImpl)iter.next();
+			if(thisItem.getTopic() != null && topic.getId() != null && topic.getId().equals(thisItem.getTopic().getId()))
+			{
+				returnSet.add((DBMembershipItem)thisItem);
+			}
+		}
+		
+		return returnSet;
   }
   
   /**
@@ -1201,5 +1320,34 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
     return false;
   }
+  
+  private void initMembershipForSite()
+  {
+		if (ThreadLocalManager.get("message_center_permission_set") != null && ((Boolean)ThreadLocalManager.get("message_center_permission_set")).booleanValue())
+		{
+			return;
+		}
+		Area dfa = forumManager.getDiscussionForumArea();
+    Set areaItems = dfa.getMembershipItemSet();
+  	List forumItemsList = permissionLevelManager.getAllMembershipItemsForForumsForSite(dfa.getId());
+  	List topicItemsList = permissionLevelManager.getAllMembershipItemsForTopicsForSite(dfa.getId());
 
+  	Set forumItems = new HashSet();
+  	for(int i=0; i<forumItemsList.size(); i++)
+  	{
+  		if(forumItemsList.get(i) != null)
+  			forumItems.add(((Object[])forumItemsList.get(i))[0]);
+  	}
+  	Set topicItems = new HashSet();
+  	for(int i=0; i<topicItemsList.size(); i++)
+  	{
+  		if(topicItemsList.get(i) != null)
+  			topicItems.add(((Object[])topicItemsList.get(i))[0]);
+  	}  	
+
+  	ThreadLocalManager.set("message_center_membership_area", areaItems);
+  	ThreadLocalManager.set("message_center_membership_forum", forumItems);
+  	ThreadLocalManager.set("message_center_membership_topic", topicItems);
+		ThreadLocalManager.set("message_center_permission_set", new Boolean(true));
+  }
 }

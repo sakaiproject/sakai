@@ -230,7 +230,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       
     }    
     else{      
-       getHibernateTemplate().initialize(pf.getTopicsSet());              
+       //getHibernateTemplate().initialize(pf.getTopicsSet());   
+    	 pf = forumManager.getPrivateForumByOwnerAreaWithAllTopics(getCurrentUser(), area);
     }
    
     return pf;
@@ -239,16 +240,18 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   public PrivateForum initializationHelper(PrivateForum forum){
     
     /** reget to load topic foreign keys */
-  	PrivateForum pf = forumManager.getPrivateForumByOwnerAreaNull(getCurrentUser());
-    getHibernateTemplate().initialize(pf.getTopicsSet());    
+  	//PrivateForum pf = forumManager.getPrivateForumByOwnerAreaNull(getCurrentUser());
+    //getHibernateTemplate().initialize(pf.getTopicsSet());    
+  	PrivateForum pf = forumManager.getPrivateForumByOwnerAreaNullWithAllTopics(getCurrentUser());
     return pf;
   }
 
   public PrivateForum initializationHelper(PrivateForum forum, Area area){
     
     /** reget to load topic foreign keys */
-  	PrivateForum pf = forumManager.getPrivateForumByOwnerArea(getCurrentUser(), area);
-    getHibernateTemplate().initialize(pf.getTopicsSet());    
+  	//PrivateForum pf = forumManager.getPrivateForumByOwnerArea(getCurrentUser(), area);
+    //getHibernateTemplate().initialize(pf.getTopicsSet());    
+  	PrivateForum pf = forumManager.getPrivateForumByOwnerAreaWithAllTopics(getCurrentUser(), area);
     return pf;
   }
 

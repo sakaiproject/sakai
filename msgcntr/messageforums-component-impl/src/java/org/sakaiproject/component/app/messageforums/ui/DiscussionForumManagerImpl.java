@@ -1778,15 +1778,17 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   {
       	
     DBMembershipItem membershipItem = null;
+    DBMembershipItem membershipItemIter;
     
     if (originalSet != null){
       Iterator iter = originalSet.iterator();
       while (iter.hasNext())
       {
-        membershipItem = (DBMembershipItem) iter.next();
-        if (membershipItem.getType().equals(type)
-            && membershipItem.getName().equals(name))
+      	membershipItemIter = (DBMembershipItem) iter.next();
+        if (membershipItemIter.getType().equals(type)
+            && membershipItemIter.getName().equals(name))
         {
+        	membershipItem = membershipItemIter;
           break;
         }
       }
@@ -1889,5 +1891,18 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       return null;
     }
   }
+
+	public List getDiscussionForumsWithTopics()
+	{
+    LOG.debug("getDiscussionForumsWithTopics()");
+    return forumManager.getForumByTypeAndContextWithTopicsAllAttachments(typeManager
+        .getDiscussionForumType());
+	}
+
+	public Map getReadStatusForMessagesWithId(List msgIds, String userId)
+	{
+    LOG.debug("getDiscussionForumsWithTopics()");
+    return messageManager.getReadStatusForMessagesWithId(msgIds, userId);
+	}
  
 }
