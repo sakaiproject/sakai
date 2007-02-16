@@ -22,23 +22,22 @@ package org.sakaiproject.tool.messageforums;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.component.UIData;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpServletResponse;
-import javax.faces.component.UIData;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,42 +53,38 @@ import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
+import org.sakaiproject.api.app.messageforums.PermissionsMask;
+import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
-
-//grading
-import org.sakaiproject.api.app.messageforums.PrivateMessage; 
-import org.sakaiproject.service.gradebook.shared.GradebookService; 
-import org.sakaiproject.service.gradebook.shared.Assignment; 
-import org.sakaiproject.component.cover.ComponentManager; 
-import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager; 
-import org.sakaiproject.user.api.User; 
-import org.sakaiproject.user.cover.UserDirectoryService; 
-import org.sakaiproject.util.ResourceLoader;
-
-import org.sakaiproject.api.app.messageforums.PermissionsMask;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.component.app.messageforums.MembershipItem;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.AuthzGroupService;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.app.messageforums.MembershipItem;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.messageforums.ui.DecoratedAttachment;
 import org.sakaiproject.tool.messageforums.ui.DiscussionForumBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
 import org.sakaiproject.tool.messageforums.ui.PermissionBean;
-import org.sakaiproject.tool.messageforums.ui.DecoratedAttachment;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -4028,10 +4023,14 @@ public class DiscussionForumTool
     try
     {      
       realm = AuthzGroupService.getAuthzGroup(getContextSiteId());
+      
       Set roles1 = realm.getRoles();
+
       if (roles1 != null && roles1.size() > 0)
       {
-        Iterator roleIter = roles1.iterator();
+    	List rolesList = sortRoles(roles1);
+    	
+        Iterator roleIter = rolesList.iterator();
         while (roleIter.hasNext())
         {
           Role role = (Role) roleIter.next();
@@ -4051,16 +4050,19 @@ public class DiscussionForumTool
         
       if(includeGroup)
       {
-     currentSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());   
+    	  currentSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());   
       
-     Collection groups = currentSite.getGroups();    
-      for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
-      {
-        Group currentGroup = (Group) groupIterator.next();  
-        DBMembershipItem item = forumManager.getAreaDBMember(membershipItems,currentGroup.getTitle(), DBMembershipItem.TYPE_GROUP);
-        siteMembers.add(new SelectItem(currentGroup.getTitle(), currentGroup.getTitle() + " ("+item.getPermissionLevel().getName()+")"));
-        permissions.add(new PermissionBean(item, permissionLevelManager));
-      }
+    	  Collection groups = currentSite.getGroups();
+
+    	  groups = sortGroups(groups);
+    	  
+    	  for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
+    	  {
+    		  Group currentGroup = (Group) groupIterator.next();  
+    		  DBMembershipItem item = forumManager.getAreaDBMember(membershipItems,currentGroup.getTitle(), DBMembershipItem.TYPE_GROUP);
+    		  siteMembers.add(new SelectItem(currentGroup.getTitle(), currentGroup.getTitle() + " ("+item.getPermissionLevel().getName()+")"));
+    		  permissions.add(new PermissionBean(item, permissionLevelManager));
+    	  }
       }
     }
     catch (IdUnusedException e)
@@ -4074,7 +4076,53 @@ public class DiscussionForumTool
     return siteMembers;
   }
 
-  
+
+  /**
+   * Takes roles defined and sorts them alphabetically by id
+   * so when displayed will be in order.
+   * 
+   * @param roles
+   * 			Set of defined roles
+   * 
+   * @return
+   * 			Set of defined roles sorted
+   */
+  private List sortRoles(Set roles) {
+	  final List rolesList = new ArrayList();
+	  
+	  rolesList.addAll(roles);
+	  
+	  final AuthzGroupComparator authzGroupComparator = new AuthzGroupComparator("id", true);
+	  
+	  Collections.sort(rolesList, authzGroupComparator);
+	  
+	  return rolesList;
+  }
+  /**
+   * Takes groups defined and sorts them alphabetically by title
+   * so will be in some order when displayed on permission widget.
+   * 
+   * @param groups
+   * 			Collection of groups to be sorted
+   * 
+   * @return
+   * 		Collection of groups in sorted order
+   */
+  private Collection sortGroups(Collection groups) {
+	  List sortGroupsList = new ArrayList();
+
+	  sortGroupsList.addAll(groups);
+	  
+	  final GroupComparator groupComparator = new GroupComparator("title", true);
+	  
+	  Collections.sort(sortGroupsList, groupComparator);
+	  
+	  groups.clear();
+	  
+	  groups.addAll(sortGroupsList);
+	  
+	  return groups;
+  }
   /**
    * @return siteId
    */
