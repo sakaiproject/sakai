@@ -22,8 +22,10 @@
 package org.sakaiproject.portal.api;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+
 
 
 
@@ -136,5 +138,38 @@ public interface PortalService
 	 * @param vengine
 	 */
 	void removeRenderEngine(String context, PortalRenderEngine vengine);
+
+	/**
+	 * Add a PortalHandler to the portal Handler map for the named context.
+	 * @param portal
+	 * @param handler
+	 */
+	void addHandler(Portal portal, PortalHandler handler);
+
+	/**
+	 * Remove the Portal Handler identitied by the URL fragment associated with the portal Context
+	 * @param portal
+	 * @param urlFragment
+	 */
+	void removeHandler(Portal portal, String urlFragment);
+
+	/**
+	 * Get the PortalHandler map for the portal Context.
+	 * @param portal
+	 * @return
+	 */
+	Map<String, PortalHandler> getHandlerMap(Portal portal);
+
+	/**
+	 * Add a portal to the portal service
+	 * @param portal
+	 */
+	void removePortal(Portal portal);
+
+	/**
+	 * Remove a portal from the portal service this should perform all the necessary cleanup
+	 * @param portal
+	 */
+	void addPortal(Portal portal);
 
 }

@@ -137,7 +137,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	private PortalSiteHelper siteHelper = new PortalSiteHelper();
 
-	private HashMap<String, PortalHandler> handlerMap = new HashMap<String, PortalHandler>();
+//	private HashMap<String, PortalHandler> handlerMap = new HashMap<String, PortalHandler>();
 
 	private GalleryHandler galleryHandler;
 
@@ -157,6 +157,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public void destroy()
 	{
 		M_log.info("destroy()");
+		portalService.removePortal(this);
 
 		super.destroy();
 	}
@@ -590,6 +591,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// get the parts (the first will be "")
 			String[] parts = option.split("/");
 
+			Map<String,PortalHandler> handlerMap = portalService.getHandlerMap(this);
 			PortalHandler ph = handlerMap.get(parts[1]);
 			if (ph != null)
 			{
@@ -838,6 +840,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			// get the parts (the first will be "")
 			String[] parts = option.split("/");
+
+			Map<String,PortalHandler> handlerMap = portalService.getHandlerMap(this);
 
 			PortalHandler ph = handlerMap.get(parts[1]);
 			if (ph != null)
@@ -1412,6 +1416,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		basicAuth.init();
 
 		enableDirect = portalService.isEnableDirect();
+		// do this before adding handlers to prevent handlers registering 2 times.
+		// if the handlers were already there they will be re-registered,
+		// but when they are added again, they will be replaced.
+		// warning messages will appear, but the end state will be the same.
+		portalService.addPortal(this);
 
 
 
@@ -1419,7 +1428,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		worksiteHandler = new WorksiteHandler();
 		siteHandler = new SiteHandler();
 
-		addHandler(new ToolHandler());
 		addHandler(siteHandler);
 
 		addHandler(new ToolHandler());
@@ -1445,6 +1453,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		addHandler(new StaticStylesHandler());
 		addHandler(new StaticScriptsHandler());
 		addHandler(new DirectToolHandler());
+		
+		
 
 	}
 
@@ -1455,33 +1465,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 */
 	private void addHandler(PortalHandler handler)
 	{
-		synchronized (handlerMap)
-		{
-			String urlFragment = handler.getUrlFragment();
-			PortalHandler ph = handlerMap.get(urlFragment);
-			if (ph != null)
-			{
-				handler.deregister(this);
-				M_log.warn("Handler Present on  " + urlFragment + " will replace " + ph + " with " + handler);
-			}
-			handler.register(this, portalService, getServletContext());
-			handlerMap.put(urlFragment, handler);
-
-			M_log.info("URL /portal/" + urlFragment + " will be handled by " + handler);
-		}
+		portalService.addHandler(this, handler);
 	}
 
 	private void removeHandler(String urlFragment)
 	{
-		synchronized (handlerMap)
-		{
-			PortalHandler ph = handlerMap.get(urlFragment);
-			if (ph != null)
-			{
-				ph.deregister(this);
-				M_log.warn("Handler Present on  " + urlFragment + " " + ph + " will be removed ");
-			}
-		}
+		portalService.removeHandler(this,urlFragment);
 	}
 
 	/**

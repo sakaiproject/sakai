@@ -1,5 +1,6 @@
 package org.sakaiproject.portal.service;
 
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -9,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.pluto.PortletContainerException;
 import org.apache.pluto.core.PortletContextManager;
 import org.apache.pluto.descriptors.portlet.PortletAppDD;
 import org.apache.pluto.descriptors.portlet.PortletDD;
@@ -17,6 +17,7 @@ import org.apache.pluto.internal.InternalPortletContext;
 import org.apache.pluto.spi.optional.PortletRegistryService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalRenderEngine;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortletApplicationDescriptor;
@@ -34,7 +35,11 @@ public class PortalServiceImpl implements PortalService
 	 */
 	public static final String PARM_STATE_RESET = "sakai.state.reset";
 
-	private Map<String,PortalRenderEngine> renderEngines = new HashMap<String, PortalRenderEngine>();
+	private Map<String, PortalRenderEngine> renderEngines = new HashMap<String, PortalRenderEngine>();
+
+	private Map<String, Map<String, PortalHandler>> handlerMaps = new HashMap<String, Map<String, PortalHandler>>();
+
+	private Map<String, Portal> portals = new HashMap<String, Portal>();
 
 	public StoredState getStoredState()
 	{
@@ -71,14 +76,12 @@ public class PortalServiceImpl implements PortalService
 
 	public boolean isEnableDirect()
 	{
-		return "true".equals(ServerConfigurationService.getString(
-				"charon.directurl", "true"));
+		return "true".equals(ServerConfigurationService.getString("charon.directurl", "true"));
 	}
 
 	public boolean isResetRequested(HttpServletRequest req)
 	{
-		return "true".equals(req.getParameter(PARM_STATE_RESET))
-				|| "true".equals(getResetState());
+		return "true".equals(req.getParameter(PARM_STATE_RESET)) || "true".equals(getResetState());
 	}
 
 	public String getResetStateParam()
@@ -94,8 +97,7 @@ public class PortalServiceImpl implements PortalService
 
 	public Iterator<PortletApplicationDescriptor> getRegisteredApplications()
 	{
-		PortletRegistryService registry = PortletContextManager
-				.getManager();
+		PortletRegistryService registry = PortletContextManager.getManager();
 		final Iterator apps = registry.getRegisteredPortletApplications();
 		return new Iterator<PortletApplicationDescriptor>()
 		{
@@ -107,11 +109,9 @@ public class PortalServiceImpl implements PortalService
 
 			public PortletApplicationDescriptor next()
 			{
-				final InternalPortletContext pc = (InternalPortletContext) apps
-						.next();
+				final InternalPortletContext pc = (InternalPortletContext) apps.next();
 
-				final PortletAppDD appDD = pc
-						.getPortletApplicationDefinition();
+				final PortletAppDD appDD = pc.getPortletApplicationDefinition();
 				return new PortletApplicationDescriptor()
 				{
 
@@ -147,8 +147,7 @@ public class PortalServiceImpl implements PortalService
 
 								public PortletDescriptor next()
 								{
-									final PortletDD pdd = (PortletDD) portletsI
-											.next();
+									final PortletDD pdd = (PortletDD) portletsI.next();
 									return new PortletDescriptor()
 									{
 
@@ -173,9 +172,7 @@ public class PortalServiceImpl implements PortalService
 						}
 						else
 						{
-							log
-									.warn(" Portlet Application has no portlets "
-											+ pc.getPortletContextName());
+							log.warn(" Portlet Application has no portlets " + pc.getPortletContextName());
 							return new Iterator<PortletDescriptor>()
 							{
 
@@ -207,37 +204,181 @@ public class PortalServiceImpl implements PortalService
 		};
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.portal.api.PortalService#getRenderEngine(javax.servlet.http.HttpServletRequest)
 	 */
 	public PortalRenderEngine getRenderEngine(String context, HttpServletRequest request)
 	{
 		// at this point we ignore request but we might use ut to return more than one render engine
-		
-		if ( context == null || context.length() == 0 ) {
+
+		if (context == null || context.length() == 0)
+		{
 			context = Portal.DEFAULT_PORTAL_CONTEXT;
 		}
 		
-		return renderEngines.get(context);
+
+		return (PortalRenderEngine) safeGet(renderEngines, context);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.portal.api.PortalService#addRenderEngine(org.sakaiproject.portal.api.PortalRenderEngine)
 	 */
 	public void addRenderEngine(String context, PortalRenderEngine vengine)
 	{
 
-		this.renderEngines.put(context, vengine);
+		safePut(renderEngines, context, vengine);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.portal.api.PortalService#removeRenderEngine(org.sakaiproject.portal.api.PortalRenderEngine)
 	 */
 	public void removeRenderEngine(String context, PortalRenderEngine vengine)
 	{
-		this.renderEngines.put(context,null);
+		safePut(renderEngines, context, null);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.portal.api.PortalService#addHandler(java.lang.String, org.sakaiproject.portal.api.PortalHandler)
+	 */
+	public void addHandler(Portal portal, PortalHandler handler)
+	{
+		String portalContext = portal.getPortalContext();
+		Map<String, PortalHandler> handlerMap = getHandlerMap(portal);
+		String urlFragment = handler.getUrlFragment();
+		PortalHandler ph = (PortalHandler) safeGet(handlerMap, urlFragment);
+		if (ph != null)
+		{
+			handler.deregister(portal);
+			log.warn("Handler Present on  " + urlFragment + " will replace " + ph + " with " + handler);
+		}
+		handler.register(portal, this, portal.getServletContext());
+		safePut(handlerMap, urlFragment, handler);
+
+		log.info("URL " + portalContext + ":/" + urlFragment + " will be handled by " + handler);
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.portal.api.PortalService#getHandlerMap(java.lang.String)
+	 */
+	public Map<String, PortalHandler> getHandlerMap(Portal portal)
+	{
+		return getHandlerMap(portal, true);
 	}
 	
+	@SuppressWarnings("unchecked")
+	private Map<String, PortalHandler> getHandlerMap(Portal portal, boolean create)
+	{
+		String portalContext = portal.getPortalContext();
+		Map<String, PortalHandler> handlerMap = (Map<String, PortalHandler>) safeGet(handlerMaps, portalContext);
+		if (create && handlerMap == null)
+		{
+			handlerMap = new HashMap<String, PortalHandler>();
+			safePut(handlerMaps, portalContext, handlerMap);
+		}
+		return handlerMap;
+	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.portal.api.PortalService#removeHandler(java.lang.String, java.lang.String) This method it NOT thread safe, but the likelyhood of a co
+	 */
+	public void removeHandler(Portal portal, String urlFragment)
+	{
+		Map<String, PortalHandler> handlerMap = getHandlerMap(portal, false);
+		if (handlerMap != null)
+		{
+			PortalHandler ph = (PortalHandler) safeGet(handlerMap, urlFragment);
+			if (ph != null)
+			{
+				ph.deregister(portal);
+				safePut(handlerMap, urlFragment, null);
+				log.warn("Handler Present on  " + urlFragment + " " + ph + " will be removed ");
+			}
+		}
+	}
 
+	/**
+	 * @param handlerMap
+	 * @param urlFragment
+	 * @param object
+	 */
+	@SuppressWarnings("unchecked")
+	private void safePut(Map map, String key, Object object)
+	{
+		int i = 3;
+		while (i > 0)
+		{
+			try
+			{
+				map.put(key, object);
+				i = -1;
+			}
+			catch (ConcurrentModificationException ex)
+			{
+				i--;
+			}
+		}
+		if (i != -1)
+		{
+			map.put(key, object);
+		}
+	}
+
+	private Object safeGet(Map map, String key)
+	{
+		int i = 3;
+		while (i > 0)
+		{
+			try
+			{
+				return map.get(key);
+			}
+			catch (ConcurrentModificationException ex)
+			{
+				
+				i--;
+			}
+		}
+		return map.get(key);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.portal.api.PortalService#addPortal(org.sakaiproject.portal.api.Portal)
+	 */
+	public void addPortal(Portal portal)
+	{
+		String portalContext = portal.getPortalContext();
+		safePut(portals, portalContext, portal);
+		// reconnect any handlers 
+		Map<String,PortalHandler> phm = getHandlerMap(portal);
+		for ( Iterator<PortalHandler> pIterator = phm.values().iterator(); pIterator.hasNext(); ) {
+			PortalHandler ph = pIterator.next();
+			ph.register(portal, this, portal.getServletContext());
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.portal.api.PortalService#removePortal(org.sakaiproject.portal.api.Portal)
+	 */
+	public void removePortal(Portal portal)
+	{
+		String portalContext = portal.getPortalContext();
+		safePut(portals,portalContext,null);
+	}
 }
