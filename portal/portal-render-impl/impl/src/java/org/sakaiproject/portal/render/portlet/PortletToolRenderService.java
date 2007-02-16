@@ -98,13 +98,16 @@ public class PortletToolRenderService implements ToolRenderService {
             try {
                 PortletContainer portletContainer = getPortletContainer(context);
 
-                // TODO: Review by David - I nned to make sure that I fully understand
+                // T O D O: Review by David - I nned to make sure that I fully understand
                 // Understand why we go through this fuss to make parameters come from state
                 // rather than the request object - thus breaking everything - Chuck
                 // Note that in Pluto - they do no such wrapping or parameter faking
                 // "pluto-portal-driver/src/main/java/org/apache/pluto/driver/PortalDriverServlet.java" line 118 of 192 -
                 // This is related to making the user-added parameters direct on the URL modifications
                 // in the state encoding process.
+                
+                // ieb: the SakaiServletActionRequest merges window state with request state,
+                // request state taking precidence.
 
                 portletContainer.doAction(window, new SakaiServletActionRequest(request, state), response);
 
