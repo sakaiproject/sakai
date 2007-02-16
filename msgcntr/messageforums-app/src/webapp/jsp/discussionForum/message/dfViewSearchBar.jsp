@@ -1,7 +1,7 @@
 
 <f:verbatim><br /></f:verbatim>
 <!--jsp/discussionForum/message/dfViewSearchBar.jsp-->
-<h:panelGrid columns="6" styleClass="navPanel" width="60%" summary="layout">
+<h:panelGrid columns="6" styleClass="navPanel" width="500px" summary="layout">
   <%--
   <h:panelGroup styleClass="viewNav">
     <h:outputLabel value="#{msgs.msg_view}" for="select_label" />
@@ -17,7 +17,7 @@
 	</h:panelGroup>
    --%>
 	<h:panelGroup styleClass="msgNav">
-   		<h:outputText value="View" />
+   		<h:outputText value="#{msgs.msg_view}" />
     </h:panelGroup>
     <h:panelGroup>
    		<h:selectOneRadio id="select_label" onchange="this.form.submit();" layout="pageDirection"
@@ -27,21 +27,23 @@
    		</h:selectOneRadio>
     </h:panelGroup>
     <h:panelGroup styleClass="msgNav"> 
-   		<h:outputText value="Show" />
+   		<h:outputText value="#{msgs.msg_show}" />
     </h:panelGroup>
     <h:panelGroup>
-   		<h:selectBooleanCheckbox id="show_checkbox" onchange="this.form.submit();"
-   			valueChangeListener="#{ForumTool.processValueChangedForMessageShow}" value="#{ForumTool.selectedMessageShow}"/>
-		<h:outputText value="Entire Message" />
+		<h:selectOneRadio id="show_label" onchange="this.form.submit();" layout="pageDirection"
+			valueChangeListener="#{ForumTool.processValueChangedForMessageShow}" value="#{ForumTool.selectedMessageShow}">
+			<f:selectItem itemValue="dfSubjectOnly" itemLabel="#{msgs.msg_show_subject}" />
+			<f:selectItem itemValue="dfEntireMsg" itemLabel="#{msgs.msg_show_entire}" />
+		</h:selectOneRadio>
     </h:panelGroup>
     <h:panelGroup styleClass="msgNav">
-   		<h:outputText value="Organize" />
+   		<h:outputText value="#{msgs.msg_organize}" />
     </h:panelGroup>
     <h:panelGroup>
     	<h:selectOneRadio id="organize_label" onchange="this.form.submit();" layout="pageDirection"
     		valueChangeListener="#{ForumTool.processValueChangedForMessageOrganize}" value="#{ForumTool.selectedMessageOrganize}">
-    			<f:selectItem itemValue="thread" itemLabel="By thread" />
-    			<f:selectItem itemValue="date" itemLabel="By date" />
+    			<f:selectItem itemValue="thread" itemLabel="#{msgs.msg_organize_thread}" />
+    			<f:selectItem itemValue="date" itemLabel="#{msgs.msg_organize_date}" />
     	</h:selectOneRadio>
     </h:panelGroup>
 </h:panelGrid>

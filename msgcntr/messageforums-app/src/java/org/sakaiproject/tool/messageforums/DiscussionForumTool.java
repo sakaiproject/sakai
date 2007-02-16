@@ -114,6 +114,8 @@ public class DiscussionForumTool
   private static final String MESSAGE_COMPOSE = "dfCompose";
   private static final String MESSAGE_VIEW = "dfViewMessage";
   private static final String ALL_MESSAGES = "dfAllMessages";
+  private static final String SUBJECT_ONLY = "dfSubjectOnly";
+  private static final String ENTIRE_MSG = "dfEntireMsg";
   private static final String EXPANDED_VIEW = "dfExpandAllView";
   private static final String THREADED_VIEW = "dfThreadedView";
   private static final String UNREAD_VIEW = "dfUnreadView";
@@ -196,7 +198,7 @@ public class DiscussionForumTool
   private String composeLabel;
   private String searchText = "";
   private String selectedMessageView = ALL_MESSAGES;
-  private boolean selectedMessageShow = false;
+  private String selectedMessageShow = SUBJECT_ONLY;
   private String selectedMessageOrganize = "thread"; 
   private boolean deleteMsg;
   private boolean displayUnreadOnly;
@@ -3656,7 +3658,7 @@ public class DiscussionForumTool
   /**
    * @return Returns the selectedMessageShow.
    */
-  public Boolean getSelectedMessageShow()
+  public String getSelectedMessageShow()
   {
     return selectedMessageShow;
   }
@@ -3665,7 +3667,7 @@ public class DiscussionForumTool
    * @param selectedMessageShow
    *          The selectedMessageShow to set.
    */
-  public void setSelectedMessageShow(Boolean selectedMessageShow)
+  public void setSelectedMessageShow(String selectedMessageShow)
   {
     this.selectedMessageShow = selectedMessageShow;
   }
@@ -3778,20 +3780,22 @@ public class DiscussionForumTool
 	          + ")");
 	  isDisplaySearchedMessages=false;
 	  searchText="";
-	  Boolean changeShow = (Boolean) vce.getNewValue();
+	  String changeShow = (String) vce.getNewValue();
 	  if (changeShow == null){
 		  //threaded = false;
 	      setErrorMessage(getResourceBundleString(FAILED_REND_MESSAGE));
 	      return;
 	  }
-	  expandedView = changeShow;
-	  if (changeShow){
+	  if (changeShow.equals(ENTIRE_MSG)){
 		  //threaded = false;
+		  selectedMessageShow = ENTIRE_MSG;
 		  expandedView = true;
 	      return;
 	  }
-	  else if (!changeShow){
+	  else {
+		  selectedMessageShow = SUBJECT_ONLY;
 		  expandedView = false;
+		  return;
 	  }
   }
   
