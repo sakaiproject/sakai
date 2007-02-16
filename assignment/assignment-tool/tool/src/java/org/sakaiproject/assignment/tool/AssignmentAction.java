@@ -4869,6 +4869,8 @@ public class AssignmentAction extends PagedResourceActionII
 				// integrate with Gradebook
 				String associateGradebookAssignment = StringUtil.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
 				AssignmentService.integrateGradebook(aReference, associateGradebookAssignment, null, a.getTitle(), a.getTitle(), -1, null, null, "update");
+				// set the gradebook assignment to be released to student
+				AssignmentService.releaseGradebookAssignment(associateGradebookAssignment, true);
 			}
 		}
 		catch (IdUnusedException e)

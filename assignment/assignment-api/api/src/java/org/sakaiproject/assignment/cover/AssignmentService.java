@@ -751,4 +751,12 @@ public class AssignmentService {
 
 		return service.isGradebookDefined();
 	}
+	
+	public static void releaseGradebookAssignment(String param0, boolean param1){
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return;
+
+		service.releaseGradebookAssignment(param0, param1);
+	}
 }

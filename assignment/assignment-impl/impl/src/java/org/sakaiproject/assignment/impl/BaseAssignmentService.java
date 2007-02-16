@@ -9226,6 +9226,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			 		assignmentDefinition.setName(newAssignment_title);
 			 		assignmentDefinition.setPoints(new Double(newAssignment_maxPoints/10.0));
 			 		assignmentDefinition.setDueDate(new Date(newAssignment_dueTime.getTime()));
+			 		assignmentDefinition.setReleased(false);
 			 		g.addAssignment(gradebookUid, assignmentDefinition);
 				}
 				else if (addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ASSOCIATE))
@@ -9347,6 +9348,42 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			} // updateRemoveSubmission != null
 		} // if gradebook exists
 	} // integrateGradebook
+	
+	/**
+	 * @inheritDoc
+	 */
+	public void releaseGradebookAssignment(String assignmentTitle, boolean release)
+	{
+		boolean gradebookExists = isGradebookDefined();
+
+		if (gradebookExists)
+		{
+			GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+			String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+			
+			if (g.isAssignmentDefined(gradebookUid, assignmentTitle))
+			{
+				// find the right assignment
+				List assignments = g.getAssignments(gradebookUid);
+				org.sakaiproject.service.gradebook.shared.Assignment a = null;
+				for (Iterator i = assignments.iterator(); a == null && i.hasNext();)
+				{
+					org.sakaiproject.service.gradebook.shared.Assignment tmp = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
+					if (tmp.getName().equals(assignmentTitle))
+					{
+						a = tmp;
+					}
+				}
+
+				if (a != null)
+				{
+					//set the release status
+					a.setReleased(release);
+					g.updateAssignment(gradebookUid, assignmentTitle, a);
+				}
+			}
+		}	
+	}	// releaseGradebookAssignment
 	
 } // BaseAssignmentService
 

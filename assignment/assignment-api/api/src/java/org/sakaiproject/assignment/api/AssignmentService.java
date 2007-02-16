@@ -734,4 +734,11 @@ public interface AssignmentService extends EntityProducer, TaggableActivityProdu
 	 * @param updateRemoveSubmission "update" for update submission;"remove" for remove submission
 	 */
 	public void integrateGradebook (String assignmentRef, String associateGradebookAssignment, String addUpdateRemoveAssignment, String oldAssignment_title, String newAssignment_title, int newAssignment_maxPoints, Time newAssignment_dueTime, String submissionRef, String updateRemoveSubmission);
+
+	/**
+	 * release the associated Gradebook assignment to student or not
+	 * @param assignmentTitle The title of Gradebook assignment
+	 * @param release true if releasing the assignment;false otherwise
+	 */
+	public void releaseGradebookAssignment(String assignmentTitle, boolean release);
 }
