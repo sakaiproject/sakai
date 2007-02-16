@@ -603,6 +603,7 @@ hr.itemSeparator{
 /* SECTION 8 FORM ELEMENTS
 	all form elements are formed by a label/input pair wrapped in a block - with JSF based tools it is another matter 
 	.shorttext - label / input (type=text)
+	.filepicker - label / input (type=file)
 	.longtext - label / textarea
 	.checkbox - input (type=checkbox or radio)
 	*/
@@ -610,19 +611,20 @@ hr.itemSeparator{
 /*	see: create a resource*/
 	
 /*these two have a border that needs to match the background to avoid some tedious problems in IE*/	
-.shorttext,.longtext{
+.shorttext,.longtext,.filepicker{
 	margin: .4em 1em;
 	border: 1px solid #fff;
 }
 .shorttext{
 	clear:both;
 }
-.shorttext label{
+.shorttext label,.filepicker  label{
 	margin-right: 1em;
 	width: 14.5em;
 	font-weight: normal;
 	float: left;
 }
+
 
 .shorttext input{
 	padding: .1em .3em;
