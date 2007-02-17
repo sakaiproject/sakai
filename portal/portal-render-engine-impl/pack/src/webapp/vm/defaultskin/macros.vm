@@ -30,7 +30,7 @@
 
 <script type="text/javascript" 
     	language="JavaScript" 
-    	src="/portal/scripts/styleable.js" >
+    	src="/sakai-preferable-tool/js/styleable.js" >
     </script>
     
     <script type="text/javascript" 
