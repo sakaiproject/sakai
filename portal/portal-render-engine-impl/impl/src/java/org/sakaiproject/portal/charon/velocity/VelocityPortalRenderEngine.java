@@ -44,9 +44,10 @@ import org.sakaiproject.portal.api.PortalRenderEngine;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.SessionManager;
 
-/*
- * import ca.utoronto.atrc.transformable.styleable.sakai.cover.StyleAbleService; import ca.utoronto.atrc.transformable.common.UnknownIdException; import ca.utoronto.atrc.transformable.sakaipreferences.cover.TransformAblePrefsService;
- */
+import ca.utoronto.atrc.transformable.styleable.sakai.cover.StyleAbleService;
+import ca.utoronto.atrc.transformable.common.UnknownIdException;
+import ca.utoronto.atrc.transformable.sakaipreferences.cover.TransformAblePrefsService;
+
 /**
  * A velocity render engine adapter
  * 
@@ -99,9 +100,9 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		// ensure that the skin remains.
 
 		rc.put("pageSkins", availablePortalSkins);
-		/*
-		 * rc.put("styleableStyleSheet", generateStyleAbleStyleSheet()); rc.put("styleableJS", generateStyleAbleJavaScript()); rc.put("styleable", styleAble);
-		 */
+		rc.put("styleableStyleSheet", generateStyleAbleStyleSheet());
+		rc.put("styleableJS", generateStyleAbleJavaScript());
+		rc.put("styleable", styleAble);
 		String portalSkin = "defaultskin";
 
 		if (request != null)
@@ -164,17 +165,52 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 
 	}
 
-	/*
-	 * private String generateStyleAbleStyleSheet() { if (styleAble) { String userId = getCurrentUserId(); try { ca.utoronto.atrc.transformable.common.prefs.Preferences prefsForUser = TransformAblePrefsService .getTransformAblePreferences(userId); return
-	 * StyleAbleService.generateStyleSheet(prefsForUser); } catch (UnknownIdException e) { return null; } } return null; }
-	 */
+	private String generateStyleAbleStyleSheet()
+	{
+		if (styleAble)
+		{
+			String userId = getCurrentUserId();
+			try
+			{
+				ca.utoronto.atrc.transformable.common.prefs.Preferences prefsForUser = TransformAblePrefsService
+						.getTransformAblePreferences(userId);
+				return StyleAbleService.generateStyleSheet(prefsForUser);
+			}
+			catch (UnknownIdException e)
+			{
+				return null;
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * @return null if no JavaScript is needed
 	 */
-	/*
-	 * private String generateStyleAbleJavaScript() { if (styleAble) { String userId = getCurrentUserId(); try { ca.utoronto.atrc.transformable.common.prefs.Preferences prefsForUser = TransformAblePrefsService .getTransformAblePreferences(userId); return
-	 * StyleAbleService.generateJavaScript(prefsForUser); } catch (UnknownIdException e) { return null; } } return null; } private String getCurrentUserId() { return SessionManager.getCurrentSession().getUserId(); }
-	 */
+	private String generateStyleAbleJavaScript()
+	{
+		if (styleAble)
+		{
+			String userId = getCurrentUserId();
+			try
+			{
+				ca.utoronto.atrc.transformable.common.prefs.Preferences prefsForUser = TransformAblePrefsService
+						.getTransformAblePreferences(userId);
+				return StyleAbleService.generateJavaScript(prefsForUser);
+			}
+			catch (UnknownIdException e)
+			{
+				return null;
+			}
+		}
+		return null;
+	}
+
+	private String getCurrentUserId()
+	{
+		return SessionManager.getCurrentSession().getUserId();
+	}
+
 	public boolean isDebug()
 	{
 		return debug;
@@ -209,12 +245,29 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	 */
 	public void setupForward(HttpServletRequest req, HttpServletResponse res, Placement p, String skin)
 	{
-		/*
-		 * String headJs = (String) req.getAttribute("sakai.html.head.js"); String headCss = (String) req.getAttribute("sakai.html.head.css"); String bodyonload = (String) req.getAttribute("sakai.html.body.onload"); String customUserCss =
-		 * generateStyleAbleStyleSheet(); if (customUserCss != null) { customUserCss = "<style type=\"text/css\" title=\"StyleAble\">\n" + customUserCss + "</style>\n"; headCss = headCss + customUserCss; } String head = headCss + headJs; String
-		 * styleAbleJs = generateStyleAbleJavaScript(); if (styleAbleJs != null) { styleAbleJs = "<script " + "type=\"text/javascript\" language=\"JavaScript\">\n" + styleAbleJs + "\n</script>\n"; head = head + styleAbleJs; } bodyonload = bodyonload +
-		 * "styleableonload();"; req.setAttribute("sakai.html.head", head); req.setAttribute("sakai.html.head.css", headCss); req.setAttribute("sakai.html.head.js", headJs); req.setAttribute("sakai.html.body.onload", bodyonload);
-		 */
+
+		String headJs = (String) req.getAttribute("sakai.html.head.js");
+		String headCss = (String) req.getAttribute("sakai.html.head.css");
+		String bodyonload = (String) req.getAttribute("sakai.html.body.onload");
+		String customUserCss = generateStyleAbleStyleSheet();
+		if (customUserCss != null)
+		{
+			customUserCss = "<style type=\"text/css\" title=\"StyleAble\">\n" + customUserCss + "</style>\n";
+			headCss = headCss + customUserCss;
+		}
+		String head = headCss + headJs;
+		String styleAbleJs = generateStyleAbleJavaScript();
+		if (styleAbleJs != null)
+		{
+			styleAbleJs = "<script " + "type=\"text/javascript\" language=\"JavaScript\">\n" + styleAbleJs + "\n</script>\n";
+			head = head + styleAbleJs;
+		}
+		bodyonload = bodyonload + "styleableonload();";
+		req.setAttribute("sakai.html.head", head);
+		req.setAttribute("sakai.html.head.css", headCss);
+		req.setAttribute("sakai.html.head.js", headJs);
+		req.setAttribute("sakai.html.body.onload", bodyonload);
+
 	}
 
 	/**
