@@ -44,7 +44,8 @@ public class SessionRequestHolder
 
 	private Map parameterMap;
 
-	public SessionRequestHolder(HttpServletRequest request, String marker, String replacement)
+	public SessionRequestHolder(HttpServletRequest request, String marker,
+			String replacement)
 	{
 		headers = new Hashtable();
 		Enumeration e = request.getHeaderNames();
@@ -66,11 +67,11 @@ public class SessionRequestHolder
 			Object o = i.next();
 			parameterMap.put(o, m.get(o));
 		}
-		contextPath = PortalStringUtil.replaceFirst(request.getContextPath(),marker,replacement);
+		contextPath = PortalStringUtil.replaceFirst(request.getContextPath(), marker,
+				replacement);
 		method = request.getMethod();
 		queryString = request.getQueryString();
 	}
-
 
 	public String getContextPath()
 	{

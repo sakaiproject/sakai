@@ -15,6 +15,7 @@ import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.api.ToolRenderException;
 import org.sakaiproject.portal.render.api.ToolRenderService;
+import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -27,13 +28,13 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ToolURL;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.util.Web;
 
 public class FragmentToolRenderService implements ToolRenderService
 {
 
 	private static final String TOOL_FRAGMENT_PRODUCER_ID = "fragment-producer";
+
 	private PortalService portal;
 
 	public FragmentToolRenderService()
@@ -45,9 +46,8 @@ public class FragmentToolRenderService implements ToolRenderService
 	 * placement is handled by the FragmentToolRenderService, this should return
 	 * true, then the render will be invoked.
 	 */
-	public boolean accept(ToolConfiguration configuration,
-			HttpServletRequest request, HttpServletResponse response,
-			ServletContext context)
+	public boolean accept(ToolConfiguration configuration, HttpServletRequest request,
+			HttpServletResponse response, ServletContext context)
 	{
 		return isFragmentTool(configuration);
 	}
@@ -65,9 +65,8 @@ public class FragmentToolRenderService implements ToolRenderService
 		return true;
 	}
 
-	public boolean preprocess(HttpServletRequest request,
-			HttpServletResponse response, ServletContext context)
-			throws IOException
+	public boolean preprocess(HttpServletRequest request, HttpServletResponse response,
+			ServletContext context) throws IOException
 	{
 		// for fragments there is no preprocessing, as this is all performed in
 		// the render cycle
@@ -75,9 +74,8 @@ public class FragmentToolRenderService implements ToolRenderService
 	}
 
 	public RenderResult render(final ToolConfiguration toolConfiguration,
-			final HttpServletRequest request,
-			final HttpServletResponse response, ServletContext context)
-			throws IOException, ToolRenderException
+			final HttpServletRequest request, final HttpServletResponse response,
+			ServletContext context) throws IOException, ToolRenderException
 	{
 		if (isFragmentTool(toolConfiguration))
 		{
@@ -96,41 +94,38 @@ public class FragmentToolRenderService implements ToolRenderService
 						if (session.getUserId() == null)
 						{
 							option = "/site/"
-									+ ServerConfigurationService
-											.getGatewaySiteId();
+									+ ServerConfigurationService.getGatewaySiteId();
 						}
 						else
 						{
 							option = "/site/"
-									+ SiteService.getUserSiteId(session
-											.getUserId());
+									+ SiteService.getUserSiteId(session.getUserId());
 						}
 					}
 
 					// get the parts (the first will be "")
 					String[] parts = option.split("/");
 
-
 					try
 					{
 						doTool(toolConfiguration, request, response, session,
 								toolConfiguration.getId(), request.getContextPath()
 										+ request.getServletPath()
-										+ Web.makePath(parts, 1, 3), Web.makePath(
-										parts, 3, parts.length));
+										+ Web.makePath(parts, 1, 3), Web.makePath(parts,
+										3, parts.length));
 					}
 					catch (Exception e)
 					{
-						throw new ToolRenderException("Failed to perform render ",e);
+						throw new ToolRenderException("Failed to perform render ", e);
 					}
-					
+
 					// include will render to the output stream
 					return "";
 				}
 
 				public String getTitle() throws ToolRenderException
 				{
-			        return Web.escapeHtml(toolConfiguration.getTitle());
+					return Web.escapeHtml(toolConfiguration.getTitle());
 				}
 
 			};
@@ -140,14 +135,14 @@ public class FragmentToolRenderService implements ToolRenderService
 		return null;
 	}
 
-	protected void doTool(ToolConfiguration toolConfiguration,
-			HttpServletRequest req, HttpServletResponse res, Session session,
-			String placementId, String toolContextPath, String toolPathInfo)
-			throws ToolException, IOException
+	protected void doTool(ToolConfiguration toolConfiguration, HttpServletRequest req,
+			HttpServletResponse res, Session session, String placementId,
+			String toolContextPath, String toolPathInfo) throws ToolException,
+			IOException
 	{
 
 		// Reset the tool state if requested
-		if (  portal.isResetRequested(req) ) 
+		if (portal.isResetRequested(req))
 		{
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placementId);
@@ -155,8 +150,7 @@ public class FragmentToolRenderService implements ToolRenderService
 		}
 
 		// find the tool registered for this
-		ActiveTool tool = ActiveToolManager.getActiveTool(toolConfiguration
-				.getToolId());
+		ActiveTool tool = ActiveToolManager.getActiveTool(toolConfiguration.getToolId());
 		if (tool == null)
 		{
 			throw new ToolRenderException(
@@ -175,21 +169,19 @@ public class FragmentToolRenderService implements ToolRenderService
 			}
 			catch (IdUnusedException e)
 			{
-				throw new ToolRenderException(
-						"No site permissions found for site "
-								+ toolConfiguration.getSiteId());
+				throw new ToolRenderException("No site permissions found for site "
+						+ toolConfiguration.getSiteId());
 			}
 			catch (PermissionException e)
 			{
-				throw new ToolRenderException(
-						"Permission Deined for placement "
-								+ toolConfiguration.getId() + " in "
-								+ toolConfiguration.getSiteId());
+				throw new ToolRenderException("Permission Deined for placement "
+						+ toolConfiguration.getId() + " in "
+						+ toolConfiguration.getSiteId());
 			}
 		}
 
-		forwardTool(tool, req, res, toolConfiguration, toolConfiguration
-				.getSkin(), toolContextPath, toolPathInfo);
+		forwardTool(tool, req, res, toolConfiguration, toolConfiguration.getSkin(),
+				toolContextPath, toolPathInfo);
 	}
 
 	/**
@@ -205,8 +197,8 @@ public class FragmentToolRenderService implements ToolRenderService
 	 * @throws ToolException
 	 */
 	protected void forwardTool(ActiveTool tool, HttpServletRequest req,
-			HttpServletResponse res, Placement p, String skin,
-			String toolContextPath, String toolPathInfo) throws ToolException
+			HttpServletResponse res, Placement p, String skin, String toolContextPath,
+			String toolPathInfo) throws ToolException
 	{
 
 		// if there is a stored request state, and path, extract that from the
@@ -228,12 +220,10 @@ public class FragmentToolRenderService implements ToolRenderService
 				Placement splacement = ss.getPlacement();
 				String stoolContext = ss.getToolContextPath();
 				String stoolPathInfo = ss.getToolPathInfo();
-				ActiveTool stool = ActiveToolManager.getActiveTool(p
-						.getToolId());
+				ActiveTool stool = ActiveToolManager.getActiveTool(p.getToolId());
 				String sskin = ss.getSkin();
 				req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
-				stool.include(sreq, res, splacement, stoolContext,
-						stoolPathInfo);
+				stool.include(sreq, res, splacement, stoolContext, stoolPathInfo);
 				portal.setStoredState(null);
 			}
 		}
@@ -246,8 +236,8 @@ public class FragmentToolRenderService implements ToolRenderService
 	}
 
 	public void setPortalService(PortalService portal)
-	{		
-		this.portal = portal;	
+	{
+		this.portal = portal;
 	}
 
 	public void reset(ToolConfiguration configuration)

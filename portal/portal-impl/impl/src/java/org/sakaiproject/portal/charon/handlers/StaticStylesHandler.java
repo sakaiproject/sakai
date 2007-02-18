@@ -29,32 +29,35 @@ import org.sakaiproject.tool.api.Session;
 
 /**
  * @author ieb
- *
  */
-public class StaticStylesHandler  extends StaticHandler
+public class StaticStylesHandler extends StaticHandler
 {
-	public StaticStylesHandler() {
+	public StaticStylesHandler()
+	{
 		urlFragment = "styles";
 	}
 
 	@Override
-	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
-		
-		
 
 		if ((parts.length >= 2) && parts[1].equals("styles"))
 		{
-			try {
+			try
+			{
 				doStatic(req, res, parts);
 				return END;
-			} catch ( Exception ex ) {
+			}
+			catch (Exception ex)
+			{
 				throw new PortalHandlerException(ex);
 			}
-		} else {
+		}
+		else
+		{
 			return NEXT;
 		}
 	}
-
 
 }

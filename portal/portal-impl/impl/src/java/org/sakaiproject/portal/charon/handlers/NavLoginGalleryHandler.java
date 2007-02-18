@@ -36,13 +36,14 @@ import org.sakaiproject.tool.api.Session;
 public class NavLoginGalleryHandler extends GalleryHandler
 {
 
-	public NavLoginGalleryHandler() {
+	public NavLoginGalleryHandler()
+	{
 		urlFragment = "nav_login_gallery";
 	}
 
 	@Override
-	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res, Session session)
-			throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
 		if ((parts.length == 3) && (parts[1].equals("nav_login_gallery")))
 		{
@@ -62,8 +63,8 @@ public class NavLoginGalleryHandler extends GalleryHandler
 		}
 	}
 
-	public void doNavLoginGallery(HttpServletRequest req, HttpServletResponse res, Session session, String siteId)
-			throws IOException
+	public void doNavLoginGallery(HttpServletRequest req, HttpServletResponse res,
+			Session session, String siteId) throws IOException
 	{
 		// start the response
 

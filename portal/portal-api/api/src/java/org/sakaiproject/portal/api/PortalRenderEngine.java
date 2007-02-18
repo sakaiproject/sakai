@@ -28,16 +28,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.tool.api.Placement;
 
-
 /**
- * Repesents the API used by the protal to comunicate with the RenderEngine
+ * Repesents the API used by the protal to comunicate with the RenderEngine 
  * implimentation.
  * 
  * @author ieb
  */
 public interface PortalRenderEngine
 {
-
 
 	/**
 	 * Initialise the render engine
@@ -47,17 +45,17 @@ public interface PortalRenderEngine
 	void init() throws Exception;
 
 	/**
-	 * generate a non thread safe render context for the current
+	 * generate a non thread safe render context for the current 
 	 * request/thread/operation
-	 * @param request 
 	 * 
+	 * @param request
 	 * @return
 	 */
 	PortalRenderContext newRenderContext(HttpServletRequest request);
 
 	/**
-	 * Render a PortalRenderContext against a template. The real template may be
-	 * based on a skining name, out output will be send to the Writer
+	 * Render a PortalRenderContext against a template. The real template may 
+	 * be based on a skining name, out output will be send to the Writer
 	 * 
 	 * @param template
 	 * @param rcontext
@@ -68,13 +66,15 @@ public interface PortalRenderEngine
 			throws Exception;
 
 	/**
-	 * prepare for a forward operation in the render engine, this might include modifying
-	 * the request attributes.
+	 * prepare for a forward operation in the render engine, this might include 
+	 * modifying the request attributes.
+	 * 
 	 * @param req
 	 * @param res
 	 * @param p
 	 * @param skin
 	 */
-	void setupForward(HttpServletRequest req, HttpServletResponse res, Placement p, String skin);
+	void setupForward(HttpServletRequest req, HttpServletResponse res, Placement p,
+			String skin);
 
 }

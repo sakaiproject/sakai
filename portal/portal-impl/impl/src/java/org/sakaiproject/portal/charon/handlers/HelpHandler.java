@@ -40,24 +40,28 @@ import org.sakaiproject.util.Web;
  */
 public class HelpHandler extends BasePortalHandler
 {
-	public HelpHandler() {
+	public HelpHandler()
+	{
 		urlFragment = "help";
 	}
+
 	@Override
-	public int doPost( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException {
+	public int doPost(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
+	{
 		return doGet(parts, req, res, session);
 	}
 
 	@Override
-	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res, Session session)
-			throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
 		if ((parts.length >= 2) && (parts[1].equals("help")))
 		{
 			try
 			{
-				doHelp(req, res, session, req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 2), Web
-						.makePath(parts, 2, parts.length));
+				doHelp(req, res, session, req.getContextPath() + req.getServletPath()
+						+ Web.makePath(parts, 1, 2), Web.makePath(parts, 2, parts.length));
 				return END;
 			}
 			catch (Exception ex)
@@ -71,8 +75,9 @@ public class HelpHandler extends BasePortalHandler
 		}
 	}
 
-	public void doHelp(HttpServletRequest req, HttpServletResponse res, Session session, String toolContextPath, String toolPathInfo)
-			throws ToolException, IOException
+	public void doHelp(HttpServletRequest req, HttpServletResponse res, Session session,
+			String toolContextPath, String toolPathInfo) throws ToolException,
+			IOException
 	{
 		// permission check - none
 
@@ -90,10 +95,12 @@ public class HelpHandler extends BasePortalHandler
 		// form a placement based on ... help TODO: is this enough?
 		// Note: the placement is transient, but will always have the same id
 		// and (null) context
-		org.sakaiproject.util.Placement placement = new org.sakaiproject.util.Placement("help", tool.getId(), tool, null, null,
-				null);
+		org.sakaiproject.util.Placement placement = new org.sakaiproject.util.Placement(
+				"help", tool.getId(), tool, null, null, null);
 
-		portal.forwardTool(tool, req, res, placement, skin, toolContextPath, toolPathInfo);
+		portal
+				.forwardTool(tool, req, res, placement, skin, toolContextPath,
+						toolPathInfo);
 	}
 
 }

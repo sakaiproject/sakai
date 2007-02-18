@@ -28,24 +28,28 @@ public interface PortletApplicationDescriptor
 
 	/**
 	 * The name of the portlet
+	 * 
 	 * @return
 	 */
 	String getApplicationName();
 
 	/**
 	 * The name of the context (servlet context)
+	 * 
 	 * @return
 	 */
 	String getApplicationContext();
 
 	/**
 	 * The application ID
+	 * 
 	 * @return
 	 */
 	String getApplicationId();
 
 	/**
 	 * An interator of portlet descriptions
+	 * 
 	 * @return
 	 */
 	Iterator<PortletDescriptor> getPortlets();

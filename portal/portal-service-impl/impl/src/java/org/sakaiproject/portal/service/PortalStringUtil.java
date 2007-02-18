@@ -21,12 +21,12 @@
 
 package org.sakaiproject.portal.service;
 
-
-public class PortalStringUtil 
+public class PortalStringUtil
 {
 	/**
-	 * replaces the first occurance of a string without reverting to regex or creating arrays/vectors etc
-	 * could also have used StringUtil for this perpose, but wanted something simpler.
+	 * replaces the first occurance of a string without reverting to regex or
+	 * creating arrays/vectors etc could also have used StringUtil for this
+	 * perpose, but wanted something simpler.
 	 * 
 	 * @param path
 	 * @param marker
@@ -35,14 +35,16 @@ public class PortalStringUtil
 	 */
 	public static String replaceFirst(String path, String marker, String replacement)
 	{
-		if ( path == null ) {
+		if (path == null)
+		{
 			return path;
 		}
 		int i = path.indexOf(marker);
-		if ( i >= 0  ) {
-			String before = path.substring(0,i);
-			String after = path.substring(i+marker.length());
-			return before+replacement+after;
+		if (i >= 0)
+		{
+			String before = path.substring(0, i);
+			String after = path.substring(i + marker.length());
+			return before + replacement + after;
 		}
 		return path;
 	}

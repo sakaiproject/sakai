@@ -46,7 +46,7 @@ public class VelocityPortalRenderContext implements PortalRenderContext
 	private boolean debug = false;
 
 	private Map options = null;
-	
+
 	private PortalRenderEngine renderEngine = null;
 
 	public boolean isDebug()
@@ -92,25 +92,21 @@ public class VelocityPortalRenderContext implements PortalRenderContext
 	{
 		if (o instanceof Map)
 		{
-			sb.append("Property ").append(key).append(":").append(o).append(
-					"\n");
+			sb.append("Property ").append(key).append(":").append(o).append("\n");
 			dumpMap(sb, key, (Map) o);
 		}
 		else if (o instanceof Collection)
 		{
-			sb.append("Property ").append(key).append(":").append(o).append(
-					"\n");
+			sb.append("Property ").append(key).append(":").append(o).append("\n");
 			dumpCollection(sb, key, (Collection) o);
 		}
 		else
 		{
-			sb.append("Property ").append(key).append(":").append(o).append(
-					"\n");
+			sb.append("Property ").append(key).append(":").append(o).append("\n");
 		}
 	}
 
-	private void dumpCollection(StringBuffer sb, Object key,
-			Collection collection)
+	private void dumpCollection(StringBuffer sb, Object key, Collection collection)
 	{
 		int n = 0;
 		for (Iterator i = collection.iterator(); i.hasNext();)
@@ -132,8 +128,8 @@ public class VelocityPortalRenderContext implements PortalRenderContext
 
 	public boolean uses(String includeOption)
 	{
-		
-		if (options == null || includeOption == null )
+
+		if (options == null || includeOption == null)
 		{
 			return true;
 		}
@@ -150,13 +146,16 @@ public class VelocityPortalRenderContext implements PortalRenderContext
 		this.options = options;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.portal.api.PortalRenderContext#getRenderEngine()
 	 */
 	public PortalRenderEngine getRenderEngine()
 	{
 		return renderEngine;
 	}
+
 	public void setRenderEngine(PortalRenderEngine renderEngine)
 	{
 		this.renderEngine = renderEngine;

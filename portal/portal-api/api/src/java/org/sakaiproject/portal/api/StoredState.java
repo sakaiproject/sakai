@@ -25,27 +25,75 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.tool.api.Placement;
 
+/**
+ * Stored state is used to store the request state over a number of requests,
+ * It is used to restore state over a login sequence of during a direct placement 
+ * into a tool state.
+ * @author ieb
+ *
+ */
 public interface StoredState
 {
 
+	/**
+	 * 
+	 * @return
+	 */
 	String getToolContextPath();
 
+	/**
+	 * 
+	 * @param req
+	 * @return
+	 */
 	HttpServletRequest getRequest(HttpServletRequest req);
 
+	/**
+	 * 
+	 * @return
+	 */
 	Placement getPlacement();
 
+	/**
+	 * 
+	 * @return
+	 */
 	String getToolPathInfo();
 
+	/**
+	 * 
+	 * @return
+	 */
 	String getSkin();
 
+	/**
+	 * 
+	 * @param req
+	 */
 	void setRequest(HttpServletRequest req);
 
+	/**
+	 * 
+	 * @param siteTool
+	 */
 	void setPlacement(Placement siteTool);
 
+	/**
+	 * 
+	 * @param toolContextPath
+	 */
 	void setToolContextPath(String toolContextPath);
 
+	/**
+	 * 
+	 * @param toolPathInfo
+	 */
 	void setToolPathInfo(String toolPathInfo);
 
+	/**
+	 * 
+	 * @param skin
+	 */
 	void setSkin(String skin);
 
 }

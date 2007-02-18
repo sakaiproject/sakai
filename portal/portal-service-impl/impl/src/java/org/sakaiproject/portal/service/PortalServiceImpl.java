@@ -76,12 +76,14 @@ public class PortalServiceImpl implements PortalService
 
 	public boolean isEnableDirect()
 	{
-		return "true".equals(ServerConfigurationService.getString("charon.directurl", "true"));
+		return "true".equals(ServerConfigurationService.getString("charon.directurl",
+				"true"));
 	}
 
 	public boolean isResetRequested(HttpServletRequest req)
 	{
-		return "true".equals(req.getParameter(PARM_STATE_RESET)) || "true".equals(getResetState());
+		return "true".equals(req.getParameter(PARM_STATE_RESET))
+				|| "true".equals(getResetState());
 	}
 
 	public String getResetStateParam()
@@ -172,7 +174,8 @@ public class PortalServiceImpl implements PortalService
 						}
 						else
 						{
-							log.warn(" Portlet Application has no portlets " + pc.getPortletContextName());
+							log.warn(" Portlet Application has no portlets "
+									+ pc.getPortletContextName());
 							return new Iterator<PortletDescriptor>()
 							{
 
@@ -211,13 +214,13 @@ public class PortalServiceImpl implements PortalService
 	 */
 	public PortalRenderEngine getRenderEngine(String context, HttpServletRequest request)
 	{
-		// at this point we ignore request but we might use ut to return more than one render engine
+		// at this point we ignore request but we might use ut to return more
+		// than one render engine
 
 		if (context == null || context.length() == 0)
 		{
 			context = Portal.DEFAULT_PORTAL_CONTEXT;
 		}
-		
 
 		return (PortalRenderEngine) safeGet(renderEngines, context);
 	}
@@ -246,7 +249,8 @@ public class PortalServiceImpl implements PortalService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.portal.api.PortalService#addHandler(java.lang.String, org.sakaiproject.portal.api.PortalHandler)
+	 * @see org.sakaiproject.portal.api.PortalService#addHandler(java.lang.String,
+	 *      org.sakaiproject.portal.api.PortalHandler)
 	 */
 	public void addHandler(Portal portal, PortalHandler handler)
 	{
@@ -257,12 +261,14 @@ public class PortalServiceImpl implements PortalService
 		if (ph != null)
 		{
 			handler.deregister(portal);
-			log.warn("Handler Present on  " + urlFragment + " will replace " + ph + " with " + handler);
+			log.warn("Handler Present on  " + urlFragment + " will replace " + ph
+					+ " with " + handler);
 		}
 		handler.register(portal, this, portal.getServletContext());
 		safePut(handlerMap, urlFragment, handler);
 
-		log.info("URL " + portalContext + ":/" + urlFragment + " will be handled by " + handler);
+		log.info("URL " + portalContext + ":/" + urlFragment + " will be handled by "
+				+ handler);
 
 	}
 
@@ -275,12 +281,13 @@ public class PortalServiceImpl implements PortalService
 	{
 		return getHandlerMap(portal, true);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private Map<String, PortalHandler> getHandlerMap(Portal portal, boolean create)
 	{
 		String portalContext = portal.getPortalContext();
-		Map<String, PortalHandler> handlerMap = (Map<String, PortalHandler>) safeGet(handlerMaps, portalContext);
+		Map<String, PortalHandler> handlerMap = (Map<String, PortalHandler>) safeGet(
+				handlerMaps, portalContext);
 		if (create && handlerMap == null)
 		{
 			handlerMap = new HashMap<String, PortalHandler>();
@@ -292,7 +299,9 @@ public class PortalServiceImpl implements PortalService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.portal.api.PortalService#removeHandler(java.lang.String, java.lang.String) This method it NOT thread safe, but the likelyhood of a co
+	 * @see org.sakaiproject.portal.api.PortalService#removeHandler(java.lang.String,
+	 *      java.lang.String) This method it NOT thread safe, but the likelyhood
+	 *      of a co
 	 */
 	public void removeHandler(Portal portal, String urlFragment)
 	{
@@ -304,7 +313,8 @@ public class PortalServiceImpl implements PortalService
 			{
 				ph.deregister(portal);
 				safePut(handlerMap, urlFragment, null);
-				log.warn("Handler Present on  " + urlFragment + " " + ph + " will be removed ");
+				log.warn("Handler Present on  " + urlFragment + " " + ph
+						+ " will be removed ");
 			}
 		}
 	}
@@ -347,7 +357,7 @@ public class PortalServiceImpl implements PortalService
 			}
 			catch (ConcurrentModificationException ex)
 			{
-				
+
 				i--;
 			}
 		}
@@ -363,9 +373,11 @@ public class PortalServiceImpl implements PortalService
 	{
 		String portalContext = portal.getPortalContext();
 		safePut(portals, portalContext, portal);
-		// reconnect any handlers 
-		Map<String,PortalHandler> phm = getHandlerMap(portal);
-		for ( Iterator<PortalHandler> pIterator = phm.values().iterator(); pIterator.hasNext(); ) {
+		// reconnect any handlers
+		Map<String, PortalHandler> phm = getHandlerMap(portal);
+		for (Iterator<PortalHandler> pIterator = phm.values().iterator(); pIterator
+				.hasNext();)
+		{
 			PortalHandler ph = pIterator.next();
 			ph.register(portal, this, portal.getServletContext());
 		}
@@ -379,6 +391,6 @@ public class PortalServiceImpl implements PortalService
 	public void removePortal(Portal portal)
 	{
 		String portalContext = portal.getPortalContext();
-		safePut(portals,portalContext,null);
+		safePut(portals, portalContext, null);
 	}
 }

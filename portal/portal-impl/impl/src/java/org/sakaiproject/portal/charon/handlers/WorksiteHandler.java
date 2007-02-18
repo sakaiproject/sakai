@@ -47,24 +47,27 @@ import org.sakaiproject.util.Web;
 /**
  * @author ieb
  */
-public class WorksiteHandler  extends PageHandler
+public class WorksiteHandler extends PageHandler
 {
 	private static final String INCLUDE_WORKSITE = "include-worksite";
-	
+
 	private static final String INCLUDE_PAGE_NAV = "include-page-nav";
 
-	public WorksiteHandler() {
+	public WorksiteHandler()
+	{
 		urlFragment = "worksite";
 	}
 
-        @Override
-        public int doPost( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException {
-                return doGet(parts, req, res, session);
-        }
+	@Override
+	public int doPost(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
+	{
+		return doGet(parts, req, res, session);
+	}
 
 	@Override
-	public int doGet( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session)
-			throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
 		if ((parts.length >= 3) && (parts[1].equals("worksite")))
 		{
@@ -77,7 +80,8 @@ public class WorksiteHandler  extends PageHandler
 					pageId = parts[4];
 				}
 
-				doWorksite(req, res, session, parts[2], pageId, req.getContextPath() + req.getServletPath());
+				doWorksite(req, res, session, parts[2], pageId, req.getContextPath()
+						+ req.getServletPath());
 				return END;
 			}
 			catch (Exception ex)
@@ -90,8 +94,10 @@ public class WorksiteHandler  extends PageHandler
 			return NEXT;
 		}
 	}
-	public void doWorksite(HttpServletRequest req, HttpServletResponse res, Session session, String siteId, String pageId,
-			String toolContextPath) throws ToolException, IOException
+
+	public void doWorksite(HttpServletRequest req, HttpServletResponse res,
+			Session session, String siteId, String pageId, String toolContextPath)
+			throws ToolException, IOException
 	{
 		// if no page id, see if there was a last page visited for this site
 		if (pageId == null)
@@ -144,59 +150,69 @@ public class WorksiteHandler  extends PageHandler
 		session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, page.getId());
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : " + site.getTitle() + " : " + page.getTitle();
+		String title = ServerConfigurationService.getString("ui.service") + " : "
+				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response
 		String siteType = portal.calcSiteType(siteId);
-		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site.getSkin(), req);
+		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
+				.getSkin(), req);
 
-		includeWorksite(rcontext, res, req, session, site, page, toolContextPath, "worksite");
+		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
+				"worksite");
 
 		// end the response
 		portal.sendResponse(rcontext, res, "worksite", null);
 	}
 
-	public void includeWorksite(PortalRenderContext rcontext, HttpServletResponse res, HttpServletRequest req, Session session,
-			Site site, SitePage page, String toolContextPath, String portalPrefix) throws IOException
+	public void includeWorksite(PortalRenderContext rcontext, HttpServletResponse res,
+			HttpServletRequest req, Session session, Site site, SitePage page,
+			String toolContextPath, String portalPrefix) throws IOException
 	{
 		if (rcontext.uses(INCLUDE_WORKSITE))
 		{
 
 			// add the page navigation with presence
-			includePageNav(rcontext, req, session, site, page, toolContextPath, portalPrefix);
+			includePageNav(rcontext, req, session, site, page, toolContextPath,
+					portalPrefix);
 
 			// add the page
-		    includePage(rcontext, res, req, page, toolContextPath, "content");
+			includePage(rcontext, res, req, page, toolContextPath, "content");
 		}
 	}
 
-	public void includePageNav(PortalRenderContext rcontext, HttpServletRequest req, Session session, Site site, SitePage page,
-			String toolContextPath, String portalPrefix) throws IOException
+	public void includePageNav(PortalRenderContext rcontext, HttpServletRequest req,
+			Session session, Site site, SitePage page, String toolContextPath,
+			String portalPrefix) throws IOException
 	{
 		if (rcontext.uses(INCLUDE_PAGE_NAV))
 		{
 
-			includePageList(rcontext, req, session, site, null, toolContextPath, portalPrefix,
-			/* doPages */true,
-			/* resetTools */"true".equals(ServerConfigurationService.getString(Portal.CONFIG_AUTO_RESET)),
-			/* includeSummary */false);
+			includePageList(rcontext, req, session, site, null, toolContextPath,
+					portalPrefix,
+					/* doPages */true,
+					/* resetTools */"true".equals(ServerConfigurationService
+							.getString(Portal.CONFIG_AUTO_RESET)),
+					/* includeSummary */false);
 
 		}
 
 	}
-	
-	protected void includePageList(PortalRenderContext rcontext, HttpServletRequest req, Session session, Site site, SitePage page,
-			String toolContextPath, String portalPrefix, boolean doPages, boolean resetTools, boolean includeSummary)
-			throws IOException
+
+	protected void includePageList(PortalRenderContext rcontext, HttpServletRequest req,
+			Session session, Site site, SitePage page, String toolContextPath,
+			String portalPrefix, boolean doPages, boolean resetTools,
+			boolean includeSummary) throws IOException
 	{
 		if (rcontext.uses(INCLUDE_PAGE_NAV))
 		{
 
 			boolean loggedIn = session.getUserId() != null;
 
-			String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(site))
-					+ "/page/");
-			String toolUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(site)));
+			String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
+					+ Web.escapeUrl(siteHelper.getSiteEffectiveId(site)) + "/page/");
+			String toolUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
+					+ Web.escapeUrl(siteHelper.getSiteEffectiveId(site)));
 			if (resetTools)
 			{
 				toolUrl = toolUrl + "/tool-reset/";
@@ -207,7 +223,8 @@ public class WorksiteHandler  extends PageHandler
 			}
 
 			String pagePopupUrl = Web.returnUrl(req, "/page/");
-			boolean showHelp = ServerConfigurationService.getBoolean("display.help.menu", true);
+			boolean showHelp = ServerConfigurationService.getBoolean("display.help.menu",
+					true);
 			String iconUrl = site.getIconUrlFull();
 			boolean published = site.isPublished();
 			String type = site.getType();
@@ -215,7 +232,8 @@ public class WorksiteHandler  extends PageHandler
 			rcontext.put("pageNavPublished", Boolean.valueOf(published));
 			rcontext.put("pageNavType", type);
 			rcontext.put("pageNavIconUrl", iconUrl);
-//			rcontext.put("pageNavSitToolsHead", Web.escapeHtml(rb.getString("sit_toolshead")));
+			// rcontext.put("pageNavSitToolsHead",
+			// Web.escapeHtml(rb.getString("sit_toolshead")));
 
 			// order the pages based on their tools and the tool order for the
 			// site type
@@ -227,7 +245,8 @@ public class WorksiteHandler  extends PageHandler
 
 				SitePage p = (SitePage) i.next();
 				// check if current user has permission to see page
-				// we will draw page button if it have permission to see at least
+				// we will draw page button if it have permission to see at
+				// least
 				List pTools = p.getTools();
 				Iterator iPt = pTools.iterator();
 				String toolsOnPage = null;
@@ -238,7 +257,8 @@ public class WorksiteHandler  extends PageHandler
 					ToolConfiguration placement = (ToolConfiguration) iPt.next();
 
 					boolean thisTool = siteHelper.allowTool(site, placement);
-					// System.out.println(" Allow Tool -" + placement.getTitle() + "
+					// System.out.println(" Allow Tool -" + placement.getTitle()
+					// + "
 					// retval = " + thisTool + " page=" + allowPage);
 					if (thisTool)
 					{
@@ -257,7 +277,8 @@ public class WorksiteHandler  extends PageHandler
 				// Do not include pages we are not supposed to see
 				if (!allowPage) continue;
 
-				boolean current = (page != null && p.getId().equals(page.getId()) && !p.isPopUp());
+				boolean current = (page != null && p.getId().equals(page.getId()) && !p
+						.isPopUp());
 				String pagerefUrl = pageUrl + Web.escapeUrl(p.getId());
 
 				if (doPages || p.isPopUp())
@@ -305,19 +326,24 @@ public class WorksiteHandler  extends PageHandler
 			rcontext.put("pageNavShowHelp", Boolean.valueOf(showHelp));
 			rcontext.put("pageNavHelpUrl", helpUrl);
 
-//			rcontext.put("pageNavSitContentshead", Web.escapeHtml(rb.getString("sit_contentshead")));
+			// rcontext.put("pageNavSitContentshead",
+			// Web.escapeHtml(rb.getString("sit_contentshead")));
 
 			// Handle Presense
-			boolean showPresence = ServerConfigurationService.getBoolean("display.users.present", true);
-			String presenceUrl = Web.returnUrl(req, "/presence/" + Web.escapeUrl(site.getId()));
+			boolean showPresence = ServerConfigurationService.getBoolean(
+					"display.users.present", true);
+			String presenceUrl = Web.returnUrl(req, "/presence/"
+					+ Web.escapeUrl(site.getId()));
 
-//			rcontext.put("pageNavSitPresenceTitle", Web.escapeHtml(rb.getString("sit_presencetitle")));
-//			rcontext.put("pageNavSitPresenceFrameTitle", Web.escapeHtml(rb.getString("sit_presenceiframetit")));
-			rcontext.put("pageNavShowPresenceLoggedIn", Boolean.valueOf(showPresence && loggedIn));
+			// rcontext.put("pageNavSitPresenceTitle",
+			// Web.escapeHtml(rb.getString("sit_presencetitle")));
+			// rcontext.put("pageNavSitPresenceFrameTitle",
+			// Web.escapeHtml(rb.getString("sit_presenceiframetit")));
+			rcontext.put("pageNavShowPresenceLoggedIn", Boolean.valueOf(showPresence
+					&& loggedIn));
 			rcontext.put("pageNavPresenceUrl", presenceUrl);
 		}
 
 	}
-
 
 }

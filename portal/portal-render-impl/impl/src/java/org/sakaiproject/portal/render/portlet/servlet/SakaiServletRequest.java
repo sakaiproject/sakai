@@ -16,28 +16,31 @@ public class SakaiServletRequest extends HttpServletRequestWrapper
 
 	private PortletState state;
 
-	public SakaiServletRequest(HttpServletRequest servletRequest,
-			PortletState state)
+	public SakaiServletRequest(HttpServletRequest servletRequest, PortletState state)
 	{
 		super(servletRequest);
 		this.state = state;
 	}
 
+	@Override
 	public String getParameter(String string)
 	{
 		return (String) state.getParameters().get(string);
 	}
 
+	@Override
 	public Map getParameterMap()
 	{
 		return new HashMap(state.getParameters());
 	}
 
+	@Override
 	public Enumeration getParameterNames()
 	{
 		return new Vector(state.getParameters().keySet()).elements();
 	}
 
+	@Override
 	public String[] getParameterValues(String string)
 	{
 		return (String[]) state.getParameters().get(string);

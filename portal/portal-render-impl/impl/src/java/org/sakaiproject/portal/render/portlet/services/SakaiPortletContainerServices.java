@@ -1,30 +1,36 @@
 package org.sakaiproject.portal.render.portlet.services;
 
+import javax.portlet.PortalContext;
+
 import org.apache.pluto.RequiredContainerServices;
 import org.apache.pluto.spi.PortalCallbackService;
 
-import javax.portlet.PortalContext;
-
 /**
  */
-public class SakaiPortletContainerServices implements RequiredContainerServices{
+public class SakaiPortletContainerServices implements RequiredContainerServices
+{
 
-    private PortalContext portalContext;
-    private PortalCallbackService portalCallbackService;
+	private PortalContext portalContext;
 
-    public PortalContext getPortalContext() {
-        return portalContext;
-    }
+	private PortalCallbackService portalCallbackService;
 
-    public void setPortalContext(PortalContext portalContext) {
-        this.portalContext = portalContext;
-    }
+	public PortalContext getPortalContext()
+	{
+		return portalContext;
+	}
 
-    public PortalCallbackService getPortalCallbackService() {
-        return portalCallbackService;
-    }
+	public void setPortalContext(PortalContext portalContext)
+	{
+		this.portalContext = portalContext;
+	}
 
-    public void setPortalCallbackService(PortalCallbackService portalCallbackService) {
-        this.portalCallbackService = portalCallbackService;
-    }
+	public PortalCallbackService getPortalCallbackService()
+	{
+		return portalCallbackService;
+	}
+
+	public void setPortalCallbackService(PortalCallbackService portalCallbackService)
+	{
+		this.portalCallbackService = portalCallbackService;
+	}
 }

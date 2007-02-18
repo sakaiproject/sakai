@@ -1,68 +1,70 @@
 package org.sakaiproject.portal.render.portlet.services.state;
 
-import junit.framework.TestCase;
-
-import javax.portlet.WindowState;
-import javax.portlet.PortletMode;
-
-import org.sakaiproject.portal.render.portlet.services.state.PortletState;
-
 import java.util.HashMap;
 import java.util.Map;
 
-public class EnhancedPortletStateEncoderTest extends TestCase {
+import javax.portlet.PortletMode;
+import javax.portlet.WindowState;
 
-    private EnhancedPortletStateEncoder encoder;
+import junit.framework.TestCase;
 
-    public void setUp() {
-        encoder = new EnhancedPortletStateEncoder();
-        encoder.setUrlSafeEncoder(new BasicWebRecoder());
-    }
+public class EnhancedPortletStateEncoderTest extends TestCase
+{
 
-    public void testEncodeDecode() {
-        Map parms = new HashMap();
-        parms.put("one", "oneValue");
-        parms.put("two", "twoValue");
-        parms.put("three", new String[] { "threeOne", "threeTwo", null} );
+	private EnhancedPortletStateEncoder encoder;
 
-        PortletState state = new PortletState("id");
-        state.setAction(true);
-        state.setSecure(true);
-        state.setWindowState(WindowState.MAXIMIZED);
-        state.setPortletMode(PortletMode.EDIT);
-        state.setParameters(parms);
+	@Override
+	public void setUp()
+	{
+		encoder = new EnhancedPortletStateEncoder();
+		encoder.setUrlSafeEncoder(new BasicWebRecoder());
+	}
 
-        String uriSafe = encoder.encode(state);
+	public void testEncodeDecode()
+	{
+		Map parms = new HashMap();
+		parms.put("one", "oneValue");
+		parms.put("two", "twoValue");
+		parms.put("three", new String[] { "threeOne", "threeTwo", null });
 
-        assertNotNull(uriSafe);
-        assertEquals(-1, uriSafe.indexOf(" "));
-        assertEquals(-1, uriSafe.indexOf("/"));
-        assertEquals(-1, uriSafe.indexOf(":"));
-        assertEquals(-1, uriSafe.indexOf("="));
-        assertEquals(-1, uriSafe.indexOf("?"));
-        assertEquals(-1, uriSafe.indexOf("&"));
+		PortletState state = new PortletState("id");
+		state.setAction(true);
+		state.setSecure(true);
+		state.setWindowState(WindowState.MAXIMIZED);
+		state.setPortletMode(PortletMode.EDIT);
+		state.setParameters(parms);
 
-        PortletState read = encoder.decode(uriSafe);
+		String uriSafe = encoder.encode(state);
 
-        assertEquals(state.getId(), read.getId());
-        assertEquals(state.isAction(), read.isAction());
-        assertEquals(state.isSecure(), read.isSecure());
-        assertEquals(state.getWindowState(), read.getWindowState());
-        assertEquals(state.getPortletMode(), read.getPortletMode());
-        assertEquals(3, read.getParameters().size());
+		assertNotNull(uriSafe);
+		assertEquals(-1, uriSafe.indexOf(" "));
+		assertEquals(-1, uriSafe.indexOf("/"));
+		assertEquals(-1, uriSafe.indexOf(":"));
+		assertEquals(-1, uriSafe.indexOf("="));
+		assertEquals(-1, uriSafe.indexOf("?"));
+		assertEquals(-1, uriSafe.indexOf("&"));
 
-        String[] one = (String[])read.getParameters().get("one");
-        assertEquals(1, one.length);
-        assertEquals("oneValue", one[0]);
+		PortletState read = encoder.decode(uriSafe);
 
-        String[] two = (String[])read.getParameters().get("two");
-        assertEquals(1, two.length);
-        assertEquals("twoValue", two[0]);
+		assertEquals(state.getId(), read.getId());
+		assertEquals(state.isAction(), read.isAction());
+		assertEquals(state.isSecure(), read.isSecure());
+		assertEquals(state.getWindowState(), read.getWindowState());
+		assertEquals(state.getPortletMode(), read.getPortletMode());
+		assertEquals(3, read.getParameters().size());
 
-        String[] three = (String[])read.getParameters().get("three");
-        assertEquals(2, three.length);
-        assertEquals("threeOne", three[0]);
-        assertEquals("threeTwo", three[1]);
+		String[] one = (String[]) read.getParameters().get("one");
+		assertEquals(1, one.length);
+		assertEquals("oneValue", one[0]);
 
-    }
+		String[] two = (String[]) read.getParameters().get("two");
+		assertEquals(1, two.length);
+		assertEquals("twoValue", two[0]);
+
+		String[] three = (String[]) read.getParameters().get("three");
+		assertEquals(2, three.length);
+		assertEquals("threeOne", three[0]);
+		assertEquals("threeTwo", three[1]);
+
+	}
 }

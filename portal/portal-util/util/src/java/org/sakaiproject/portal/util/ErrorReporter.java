@@ -49,7 +49,8 @@ import org.sakaiproject.util.Web;
 
 /**
  * <p>
- * ErrorReporter helps with end-user formatted error reporting, user feedback collection, logging and emailing for uncaught throwable based errors.
+ * ErrorReporter helps with end-user formatted error reporting, user feedback
+ * collection, logging and emailing for uncaught throwable based errors.
  * </p>
  */
 public class ErrorReporter
@@ -64,8 +65,8 @@ public class ErrorReporter
 	{
 	}
 
-	/** Following two methods borrowed from RWikiObjectImpl.java **/
-	
+	/** Following two methods borrowed from RWikiObjectImpl.java * */
+
 	private static MessageDigest shatemplate = null;
 
 	public static String computeSha1(String content)
@@ -112,7 +113,7 @@ public class ErrorReporter
 		}// end for loop
 		return output.toUpperCase();
 	}// end byteArrayToHexStr
-	
+
 	/**
 	 * Format the full stack trace.
 	 * 
@@ -128,8 +129,14 @@ public class ErrorReporter
 		{
 			for (int i = 0; i < st.length; i++)
 			{
-				buf.append("\n    at " + st[i].getClassName() + "." + st[i].getMethodName() + "("
-						+ ((st[i].isNativeMethod()) ? "Native Method" : (st[i].getFileName() + ":" + st[i].getLineNumber())) + ")");
+				buf.append("\n    at "
+						+ st[i].getClassName()
+						+ "."
+						+ st[i].getMethodName()
+						+ "("
+						+ ((st[i].isNativeMethod()) ? "Native Method" : (st[i]
+								.getFileName()
+								+ ":" + st[i].getLineNumber())) + ")");
 			}
 			buf.append("\n");
 		}
@@ -138,7 +145,8 @@ public class ErrorReporter
 	}
 
 	/**
-	 * Format a one-level stack trace, just showing the place where the exception occurred (the first entry in the stack trace).
+	 * Format a one-level stack trace, just showing the place where the
+	 * exception occurred (the first entry in the stack trace).
 	 * 
 	 * @param t
 	 *        The throwable.
@@ -150,15 +158,21 @@ public class ErrorReporter
 		StringBuffer buf = new StringBuffer();
 		if (st != null && st.length > 0)
 		{
-			buf.append("\n    at " + st[1].getClassName() + "." + st[1].getMethodName() + "("
-					+ ((st[1].isNativeMethod()) ? "Native Method" : (st[1].getFileName() + ":" + st[1].getLineNumber())) + ")\n");
+			buf.append("\n    at "
+					+ st[1].getClassName()
+					+ "."
+					+ st[1].getMethodName()
+					+ "("
+					+ ((st[1].isNativeMethod()) ? "Native Method" : (st[1].getFileName()
+							+ ":" + st[1].getLineNumber())) + ")\n");
 		}
 
 		return buf.toString();
 	}
 
 	/**
-	 * Compute the cause of a throwable, checking for the special ServletException case, and the points-to-self case.
+	 * Compute the cause of a throwable, checking for the special
+	 * ServletException case, and the points-to-self case.
 	 * 
 	 * @param t
 	 *        The throwable.
@@ -184,7 +198,8 @@ public class ErrorReporter
 	}
 
 	/**
-	 * Format a throwable for display: list the various throwables drilling down the cause, and full stacktrack for the final cause.
+	 * Format a throwable for display: list the various throwables drilling down
+	 * the cause, and full stacktrack for the final cause.
 	 * 
 	 * @param t
 	 *        The throwable.
@@ -193,12 +208,14 @@ public class ErrorReporter
 	protected String throwableDisplay(Throwable t)
 	{
 		StringBuffer buf = new StringBuffer();
-		buf.append(t.toString() + ((getCause(t) == null) ? (getStackTrace(t)) : getOneTrace(t)));
+		buf.append(t.toString()
+				+ ((getCause(t) == null) ? (getStackTrace(t)) : getOneTrace(t)));
 		while (getCause(t) != null)
 		{
 			t = getCause(t);
 			buf.append("caused by: ");
-			buf.append(t.toString() + ((getCause(t) == null) ? (getStackTrace(t)) : getOneTrace(t)));
+			buf.append(t.toString()
+					+ ((getCause(t) == null) ? (getStackTrace(t)) : getOneTrace(t)));
 		}
 
 		return buf.toString();
@@ -221,92 +238,107 @@ public class ErrorReporter
 	 *        The request URI.
 	 * @param userReport
 	 *        The end user comments.
-	 * @param object 
-	 * @param placementDisplay 
+	 * @param object
+	 * @param placementDisplay
 	 */
-	protected void logAndMail(String usageSessionId, String userId,
-			String time, String problem, String problemdigest,
-			String requestURI, String userReport)
+	protected void logAndMail(String usageSessionId, String userId, String time,
+			String problem, String problemdigest, String requestURI, String userReport)
 	{
-		logAndMail(usageSessionId, userId, time, problem, problemdigest,
-				requestURI, "", "", userReport);
+		logAndMail(usageSessionId, userId, time, problem, problemdigest, requestURI, "",
+				"", userReport);
 	}
-	protected void logAndMail(String usageSessionId, String userId, String time, String problem, String problemdigest, String requestURI, String requestDisplay, String placementDisplay,String userReport)
+
+	protected void logAndMail(String usageSessionId, String userId, String time,
+			String problem, String problemdigest, String requestURI,
+			String requestDisplay, String placementDisplay, String userReport)
 	{
 		// log
-		M_log.warn(rb.getString("bugreport.bugreport") + " " + rb.getString("bugreport.user") + ": " + userId + " "
-				+ rb.getString("bugreport.usagesession") + ": " + usageSessionId + " " + rb.getString("bugreport.time")
-				+ ": " + time + " " + rb.getString("bugreport.usercomment") + ": " + userReport + " " + rb.getString("bugreport.stacktrace") + "\n" + problem + "\n" + placementDisplay + "\n" + requestDisplay );
+		M_log.warn(rb.getString("bugreport.bugreport") + " "
+				+ rb.getString("bugreport.user") + ": " + userId + " "
+				+ rb.getString("bugreport.usagesession") + ": " + usageSessionId + " "
+				+ rb.getString("bugreport.time") + ": " + time + " "
+				+ rb.getString("bugreport.usercomment") + ": " + userReport + " "
+				+ rb.getString("bugreport.stacktrace") + "\n" + problem + "\n"
+				+ placementDisplay + "\n" + requestDisplay);
 
 		// mail
 		String emailAddr = ServerConfigurationService.getString("portal.error.email");
-		
+
 		if (emailAddr != null)
 		{
 			String uSessionInfo = "";
 			UsageSession usageSession = UsageSessionService.getSession();
-			
-			if (usageSession != null )
+
+			if (usageSession != null)
 			{
-				uSessionInfo = rb.getString("bugreport.useragent") + ": " +  usageSession.getUserAgent() + "\n"
-				+ rb.getString("bugreport.browserid") + ": " + usageSession.getBrowserId()+ "\n"
-				+ rb.getString("bugreport.ip") + ": " + usageSession.getIpAddress() + "\n";
+				uSessionInfo = rb.getString("bugreport.useragent") + ": "
+						+ usageSession.getUserAgent() + "\n"
+						+ rb.getString("bugreport.browserid") + ": "
+						+ usageSession.getBrowserId() + "\n"
+						+ rb.getString("bugreport.ip") + ": "
+						+ usageSession.getIpAddress() + "\n";
 			}
-			
+
 			String pathInfo = "";
 			if (requestURI != null)
 			{
-				pathInfo = rb.getString("bugreport.path") + ": " + requestURI + "\n"; 
+				pathInfo = rb.getString("bugreport.path") + ": " + requestURI + "\n";
 			}
-						
+
 			User user = null;
 			String userName = null;
 			String userMail = null;
 			String userEid = null;
-			if (userId != null) {
-				try {
+			if (userId != null)
+			{
+				try
+				{
 					user = UserDirectoryService.getUser(userId);
 					userName = user.getDisplayName();
 					userMail = user.getEmail();
 					userEid = user.getEid();
 				}
-				catch (Exception e) {
+				catch (Exception e)
+				{
 					// nothing
 				}
 			}
-			
+
 			String userComment = "";
 			if (userReport != null)
 			{
-				userComment = rb.getString("bugreport.usercomment")	+ ":\n\n" + userReport + "\n\n\n"; 
-			} 
-	
-			String from = "\"" + ServerConfigurationService.getString("ui.service", "Sakai") + "\"<no-reply@"
-					+ ServerConfigurationService.getServerName() + ">";
-			
-			String subject = rb.getString("bugreport.bugreport") + ": " + problemdigest + " / " + usageSessionId;
-			
-			String body = rb.getString("bugreport.user") + ": " + userEid + " (" + userName + ")\n"
-					+ rb.getString("bugreport.email") + ": " + userMail + "\n"		
-					+ rb.getString("bugreport.usagesession") + ": " + usageSessionId + "\n"
-					+ rb.getString("bugreport.digest") + ": " + problemdigest + "\n"
-					+ rb.getString("bugreport.version-sakai") + ": " + ServerConfigurationService.getString("version.sakai") + "\n"
-					+ rb.getString("bugreport.version-service") + ": " + ServerConfigurationService.getString("version.service") + "\n"
-					+ rb.getString("bugreport.appserver") + ": " + ServerConfigurationService.getServerId() + "\n"
-					+ uSessionInfo
-					+ pathInfo
-					+ rb.getString("bugreport.time") + ": " + time + "\n\n\n" 
-					+ userComment 
-					+ rb.getString("bugreport.stacktrace") + ":\n\n" + problem 
-					+ "\n\n" + placementDisplay
-					+ "\n\n" + requestDisplay;
+				userComment = rb.getString("bugreport.usercomment") + ":\n\n"
+						+ userReport + "\n\n\n";
+			}
+
+			String from = "\""
+					+ ServerConfigurationService.getString("ui.service", "Sakai")
+					+ "\"<no-reply@" + ServerConfigurationService.getServerName() + ">";
+
+			String subject = rb.getString("bugreport.bugreport") + ": " + problemdigest
+					+ " / " + usageSessionId;
+
+			String body = rb.getString("bugreport.user") + ": " + userEid + " ("
+					+ userName + ")\n" + rb.getString("bugreport.email") + ": "
+					+ userMail + "\n" + rb.getString("bugreport.usagesession") + ": "
+					+ usageSessionId + "\n" + rb.getString("bugreport.digest") + ": "
+					+ problemdigest + "\n" + rb.getString("bugreport.version-sakai")
+					+ ": " + ServerConfigurationService.getString("version.sakai") + "\n"
+					+ rb.getString("bugreport.version-service") + ": "
+					+ ServerConfigurationService.getString("version.service") + "\n"
+					+ rb.getString("bugreport.appserver") + ": "
+					+ ServerConfigurationService.getServerId() + "\n" + uSessionInfo
+					+ pathInfo + rb.getString("bugreport.time") + ": " + time + "\n\n\n"
+					+ userComment + rb.getString("bugreport.stacktrace") + ":\n\n"
+					+ problem + "\n\n" + placementDisplay + "\n\n" + requestDisplay;
 
 			EmailService.send(from, emailAddr, subject, body, null, null, null);
 		}
 	}
 
 	/**
-	 * Handle the inital report of an error, from an uncaught throwable, with a user display.
+	 * Handle the inital report of an error, from an uncaught throwable, with a
+	 * user display.
 	 * 
 	 * @param req
 	 *        The request.
@@ -320,7 +352,8 @@ public class ErrorReporter
 		String headInclude = (String) req.getAttribute("sakai.html.head");
 		String bodyOnload = (String) req.getAttribute("sakai.html.body.onload");
 		Time reportTime = TimeService.newTime();
-		String time = reportTime.toStringLocalDate() + " " + reportTime.toStringLocalTime24(); 
+		String time = reportTime.toStringLocalDate() + " "
+				+ reportTime.toStringLocalTime24();
 		String usageSessionId = UsageSessionService.getSessionId();
 		String userId = SessionManager.getCurrentSessionUserId();
 		String requestDisplay = requestDisplay(req);
@@ -342,15 +375,19 @@ public class ErrorReporter
 		{
 			// headers
 			res.setContentType("text/html; charset=UTF-8");
-			res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
+			res.addDateHeader("Expires", System.currentTimeMillis()
+					- (1000L * 60L * 60L * 24L * 365L));
 			res.addDateHeader("Last-Modified", System.currentTimeMillis());
-			res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
+			res
+					.addHeader("Cache-Control",
+							"no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
 			res.addHeader("Pragma", "no-cache");
 
 			PrintWriter out = res.getWriter();
 			out
 					.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
-			out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
+			out
+					.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
 			if (headInclude != null)
 			{
 				out.println("<head>");
@@ -363,8 +400,7 @@ public class ErrorReporter
 			out.println("<p>" + rb.getString("bugreport.statement") + "<br /><br /></p>");
 
 			out.println("<h4>" + rb.getString("bugreport.sendtitle") + "</h4>");
-			out
-					.println("<p>" + rb.getString("bugreport.sendinstructions") + "</p>");
+			out.println("<p>" + rb.getString("bugreport.sendinstructions") + "</p>");
 
 			out.println("<form action=\"" + postAddr + "\" method=\"POST\">");
 			out.println("<input type=\"hidden\" name=\"problem\" value=\"");
@@ -376,28 +412,36 @@ public class ErrorReporter
 			out.println("<input type=\"hidden\" name=\"problemPlacement\" value=\"");
 			out.println(Web.escapeHtml(placementDisplay));
 			out.println("\">");
-			out.println("<input type=\"hidden\" name=\"problemdigest\" value=\"" + problemdigest + "\">");
-			out.println("<input type=\"hidden\" name=\"session\" value=\"" + usageSessionId + "\">");
+			out.println("<input type=\"hidden\" name=\"problemdigest\" value=\""
+					+ problemdigest + "\">");
+			out.println("<input type=\"hidden\" name=\"session\" value=\""
+					+ usageSessionId + "\">");
 			out.println("<input type=\"hidden\" name=\"user\" value=\"" + userId + "\">");
 			out.println("<input type=\"hidden\" name=\"time\" value=\"" + time + "\">");
 
-			out.println("<table class=\"itemSummary\" cellspacing=\"5\" cellpadding=\"5\">");
+			out
+					.println("<table class=\"itemSummary\" cellspacing=\"5\" cellpadding=\"5\">");
 			out.println("<tbody>");
 			out.println("<tr>");
-			out.println("<td><textarea rows=\"10\" cols=\"60\" name=\"comment\"></textarea></td>");
+			out
+					.println("<td><textarea rows=\"10\" cols=\"60\" name=\"comment\"></textarea></td>");
 			out.println("</tr>");
 			out.println("</tbody>");
 			out.println("</table>");
 			out.println("<div class=\"act\">");
-			out.println("<input type=\"submit\" value=\"" + rb.getString("bugreport.sendsubmit") + "\">");
+			out.println("<input type=\"submit\" value=\""
+					+ rb.getString("bugreport.sendsubmit") + "\">");
 			out.println("</div>");
 			out.println("</form><br />");
 
 			out.println("<h4>" + rb.getString("bugreport.recoverytitle") + "</h4>");
 			out.println("<p>" + rb.getString("bugreport.recoveryinstructions") + "");
-			out.println("<ul><li>" + rb.getString("bugreport.recoveryinstructions1") + "</li>");
-			out.println("<li>" + rb.getString("bugreport.recoveryinstructions2") + "</li>");
-			out.println("<li>" + rb.getString("bugreport.recoveryinstructions3") + "</li></ul><br /><br /></p>");
+			out.println("<ul><li>" + rb.getString("bugreport.recoveryinstructions1")
+					+ "</li>");
+			out.println("<li>" + rb.getString("bugreport.recoveryinstructions2")
+					+ "</li>");
+			out.println("<li>" + rb.getString("bugreport.recoveryinstructions3")
+					+ "</li></ul><br /><br /></p>");
 
 			out.println("<h4>" + rb.getString("bugreport.detailstitle") + "</h4>");
 			out.println("<p>" + rb.getString("bugreport.detailsnote") + "</p>");
@@ -405,7 +449,8 @@ public class ErrorReporter
 			out.println(problem);
 			out.println();
 			out.println(rb.getString("bugreport.user") + ": " + userId + "\n");
-			out.println(rb.getString("bugreport.usagesession") + ": " + usageSessionId + "\n");
+			out.println(rb.getString("bugreport.usagesession") + ": " + usageSessionId
+					+ "\n");
 			out.println(rb.getString("bugreport.time") + ": " + time + "\n");
 			out.println("</pre></p>");
 
@@ -413,7 +458,8 @@ public class ErrorReporter
 			out.println("</html>");
 
 			// log and send the preliminary email
-			logAndMail(usageSessionId, userId, time, problem, problemdigest, requestURI, requestDisplay, placementDisplay, null);
+			logAndMail(usageSessionId, userId, time, problem, problemdigest, requestURI,
+					requestDisplay, placementDisplay, null);
 		}
 		catch (Throwable any)
 		{
@@ -427,15 +473,18 @@ public class ErrorReporter
 		try
 		{
 			Placement p = ToolManager.getCurrentPlacement();
-			if ( p != null ) {
-			sb.append(rb.getString("bugreport.placement")).append("\n");
-			sb.append(rb.getString("bugreport.placement.id")).append(
-					p.getToolId()).append("\n");
-			sb.append(rb.getString("bugreport.placement.context")).append(
-					p.getContext()).append("\n");
-			sb.append(rb.getString("bugreport.placement.title")).append(
-					p.getTitle()).append("\n");
-			} else {
+			if (p != null)
+			{
+				sb.append(rb.getString("bugreport.placement")).append("\n");
+				sb.append(rb.getString("bugreport.placement.id")).append(p.getToolId())
+						.append("\n");
+				sb.append(rb.getString("bugreport.placement.context")).append(
+						p.getContext()).append("\n");
+				sb.append(rb.getString("bugreport.placement.title")).append(p.getTitle())
+						.append("\n");
+			}
+			else
+			{
 				sb.append(rb.getString("bugreport.placement")).append("\n");
 				sb.append(rb.getString("bugreport.placement.none")).append("\n");
 			}
@@ -487,8 +536,8 @@ public class ErrorReporter
 					request.getRemotePort()).append("\n");
 			sb.append(rb.getString("bugreport.request.remoteuser")).append(
 					request.getRemoteUser()).append("\n");
-			sb.append(rb.getString("bugreport.request.requestedsession"))
-					.append(request.getRequestedSessionId()).append("\n");
+			sb.append(rb.getString("bugreport.request.requestedsession")).append(
+					request.getRequestedSessionId()).append("\n");
 			sb.append(rb.getString("bugreport.request.requesturl")).append(
 					request.getRequestURL()).append("\n");
 			sb.append(rb.getString("bugreport.request.scheme")).append(
@@ -503,36 +552,30 @@ public class ErrorReporter
 						.hasMoreElements();)
 				{
 					String headerValue = (String) he.nextElement();
-					sb.append(rb.getString("bugreport.request.header")).append(
-							headerName).append(":").append(headerValue).append(
-							"\n");
+					sb.append(rb.getString("bugreport.request.header"))
+							.append(headerName).append(":").append(headerValue).append(
+									"\n");
 				}
 			}
-			sb.append(rb.getString("bugreport.request.parameters"))
-					.append("\n");
-			for (Enumeration e = request.getParameterNames(); e
-					.hasMoreElements();)
+			sb.append(rb.getString("bugreport.request.parameters")).append("\n");
+			for (Enumeration e = request.getParameterNames(); e.hasMoreElements();)
 			{
 				String parameterName = (String) e.nextElement();
-				String[] paramvalues = request
-						.getParameterValues(parameterName);
+				String[] paramvalues = request.getParameterValues(parameterName);
 				for (int i = 0; i < paramvalues.length; i++)
 				{
-					sb.append(rb.getString("bugreport.request.parameter"))
-							.append(parameterName).append(":").append(i)
-							.append(":").append(paramvalues[i]).append("\n");
+					sb.append(rb.getString("bugreport.request.parameter")).append(
+							parameterName).append(":").append(i).append(":").append(
+							paramvalues[i]).append("\n");
 				}
 			}
-			sb.append(rb.getString("bugreport.request.attributes"))
-					.append("\n");
-			for (Enumeration e = request.getAttributeNames(); e
-					.hasMoreElements();)
+			sb.append(rb.getString("bugreport.request.attributes")).append("\n");
+			for (Enumeration e = request.getAttributeNames(); e.hasMoreElements();)
 			{
 				String attributeName = (String) e.nextElement();
 				Object attribute = request.getAttribute(attributeName);
 				sb.append(rb.getString("bugreport.request.attribute")).append(
-						attributeName).append(":").append(attribute).append(
-						"\n");
+						attributeName).append(":").append(attribute).append("\n");
 			}
 			HttpSession session = request.getSession(false);
 			if (session != null)
@@ -542,18 +585,15 @@ public class ErrorReporter
 						session.getCreationTime()).append("\n");
 				sb.append(rb.getString("bugreport.session.lastaccess")).append(
 						session.getLastAccessedTime()).append("\n");
-				sb.append(rb.getString("bugreport.session.maxinactive"))
-						.append(session.getMaxInactiveInterval()).append("\n");
-				sb.append(rb.getString("bugreport.session.attributes")).append(
-						"\n");
-				for (Enumeration e = session.getAttributeNames(); e
-						.hasMoreElements();)
+				sb.append(rb.getString("bugreport.session.maxinactive")).append(
+						session.getMaxInactiveInterval()).append("\n");
+				sb.append(rb.getString("bugreport.session.attributes")).append("\n");
+				for (Enumeration e = session.getAttributeNames(); e.hasMoreElements();)
 				{
 					String attributeName = (String) e.nextElement();
 					Object attribute = session.getAttribute(attributeName);
-					sb.append(rb.getString("bugreport.session.attribute"))
-							.append(attributeName).append(":")
-							.append(attribute).append("\n");
+					sb.append(rb.getString("bugreport.session.attribute")).append(
+							attributeName).append(":").append(attribute).append("\n");
 				}
 
 			}
@@ -587,12 +627,15 @@ public class ErrorReporter
 		String problemPlacement = req.getParameter("problemPlacement");
 
 		// log and send the followup email
-		logAndMail(session, user, time, problem, problemdigest, null, problemRequest, problemPlacement, comment);
+		logAndMail(session, user, time, problem, problemdigest, null, problemRequest,
+				problemPlacement, comment);
 
 		// always redirect from a post
 		try
 		{
-			res.sendRedirect(res.encodeRedirectURL(ServerConfigurationService.getPortalUrl() + "/error-reported"));
+			res.sendRedirect(res.encodeRedirectURL(ServerConfigurationService
+					.getPortalUrl()
+					+ "/error-reported"));
 		}
 		catch (IOException e)
 		{
@@ -625,15 +668,19 @@ public class ErrorReporter
 		{
 			// headers
 			res.setContentType("text/html; charset=UTF-8");
-			res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
+			res.addDateHeader("Expires", System.currentTimeMillis()
+					- (1000L * 60L * 60L * 24L * 365L));
 			res.addDateHeader("Last-Modified", System.currentTimeMillis());
-			res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
+			res
+					.addHeader("Cache-Control",
+							"no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
 			res.addHeader("Pragma", "no-cache");
 
 			PrintWriter out = res.getWriter();
 			out
 					.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
-			out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
+			out
+					.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
 			if (headInclude != null)
 			{
 				out.println("<head>");
@@ -650,9 +697,12 @@ public class ErrorReporter
 
 			out.println("<h4>" + rb.getString("bugreport.recoverytitle") + "</h4>");
 			out.println("<p>" + rb.getString("bugreport.recoveryinstructions") + "");
-			out.println("<ul><li>" + rb.getString("bugreport.recoveryinstructions1") + "</li>");
-			out.println("<li>" + rb.getString("bugreport.recoveryinstructions2") + "</li>");
-			out.println("<li>" + rb.getString("bugreport.recoveryinstructions3") + "</li></ul><br /><br /></p>");
+			out.println("<ul><li>" + rb.getString("bugreport.recoveryinstructions1")
+					+ "</li>");
+			out.println("<li>" + rb.getString("bugreport.recoveryinstructions2")
+					+ "</li>");
+			out.println("<li>" + rb.getString("bugreport.recoveryinstructions3")
+					+ "</li></ul><br /><br /></p>");
 
 			out.println("</body>");
 			out.println("</html>");

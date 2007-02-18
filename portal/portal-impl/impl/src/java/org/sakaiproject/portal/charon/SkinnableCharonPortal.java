@@ -134,10 +134,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	private static final String INCLUDE_TITLE = "include-title";
 
-
 	private PortalSiteHelper siteHelper = new PortalSiteHelper();
 
-//	private HashMap<String, PortalHandler> handlerMap = new HashMap<String, PortalHandler>();
+	// private HashMap<String, PortalHandler> handlerMap = new HashMap<String,
+	// PortalHandler>();
 
 	private GalleryHandler galleryHandler;
 
@@ -146,8 +146,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private SiteHandler siteHandler;
 
 	private String portalContext;
-	
-	public String getPortalContext() {
+
+	public String getPortalContext()
+	{
 		return portalContext;
 	}
 
@@ -162,8 +163,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		super.destroy();
 	}
 
-	public void doError(HttpServletRequest req, HttpServletResponse res, Session session, int mode) throws ToolException,
-			IOException
+	public void doError(HttpServletRequest req, HttpServletResponse res, Session session,
+			int mode) throws ToolException, IOException
 	{
 		if (ThreadLocalManager.get(ATTR_ERROR) == null)
 		{
@@ -174,17 +175,23 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 				case ERROR_SITE:
 				{
-					siteHandler.doSite(req, res, session, "!error", null, req.getContextPath() + req.getServletPath());
+					siteHandler.doSite(req, res, session, "!error", null, req
+							.getContextPath()
+							+ req.getServletPath());
 					break;
 				}
 				case ERROR_GALLERY:
 				{
-					galleryHandler.doGallery(req, res, session, "!error", null, req.getContextPath() + req.getServletPath());
+					galleryHandler.doGallery(req, res, session, "!error", null, req
+							.getContextPath()
+							+ req.getServletPath());
 					break;
 				}
 				case ERROR_WORKSITE:
 				{
-					worksiteHandler.doWorksite(req, res, session, "!error", null, req.getContextPath() + req.getServletPath());
+					worksiteHandler.doWorksite(req, res, session, "!error", null, req
+							.getContextPath()
+							+ req.getServletPath());
 					break;
 				}
 			}
@@ -206,7 +213,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		sendResponse(rcontext, res, "error", null);
 	}
 
-	private void showSnoop(PortalRenderContext rcontext, boolean b, ServletConfig servletConfig, HttpServletRequest req)
+	private void showSnoop(PortalRenderContext rcontext, boolean b,
+			ServletConfig servletConfig, HttpServletRequest req)
 	{
 		Enumeration e = null;
 
@@ -288,20 +296,22 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 	}
 
-	protected void doThrowableError(HttpServletRequest req, HttpServletResponse res, Throwable t)
+	protected void doThrowableError(HttpServletRequest req, HttpServletResponse res,
+			Throwable t)
 	{
 		ErrorReporter err = new ErrorReporter();
 		err.report(req, res, t);
 	}
-	
-	
+
 	/*
-	 * Produce a portlet like view with the navigation all at the top with implicit reset
+	 * Produce a portlet like view with the navigation all at the top with
+	 * implicit reset
 	 */
-	public PortalRenderContext includePortal(HttpServletRequest req, HttpServletResponse res, Session session, String siteId,
-			String toolId, String toolContextPath, String prefix, boolean doPages, boolean resetTools, boolean includeSummary,
-			boolean expandSite) throws ToolException, IOException
-	{ 
+	public PortalRenderContext includePortal(HttpServletRequest req,
+			HttpServletResponse res, Session session, String siteId, String toolId,
+			String toolContextPath, String prefix, boolean doPages, boolean resetTools,
+			boolean includeSummary, boolean expandSite) throws ToolException, IOException
+	{
 
 		String errorMessage = null;
 
@@ -381,7 +391,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		PortalRenderContext rcontext = startPageContext(siteType, title, siteSkin, req);
 
 		// Make the top Url where the "top" url is
-		String portalTopUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/";
+		String portalTopUrl = Web.serverUrl(req)
+				+ ServerConfigurationService.getString("portalPath") + "/";
 		if (prefix != null) portalTopUrl = portalTopUrl + prefix + "/";
 
 		rcontext.put("portalTopUrl", portalTopUrl);
@@ -397,14 +408,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		if (site != null)
 		{
-			Map m = convertSiteToMap(req, site, prefix, siteId, myWorkspaceSiteId, includeSummary,
-			/* expandSite */true, resetTools, doPages, toolContextPath, loggedIn);
+			Map m = convertSiteToMap(req, site, prefix, siteId, myWorkspaceSiteId,
+					includeSummary,
+					/* expandSite */true, resetTools, doPages, toolContextPath, loggedIn);
 			if (m != null) rcontext.put("currentSite", m);
 		}
 
 		List mySites = siteHelper.getAllSites(req, session, true);
-		List l = convertSitesToMaps(req, mySites, prefix, siteId, myWorkspaceSiteId, includeSummary, expandSite, resetTools,
-				doPages, toolContextPath, loggedIn);
+		List l = convertSitesToMaps(req, mySites, prefix, siteId, myWorkspaceSiteId,
+				includeSummary, expandSite, resetTools, doPages, toolContextPath,
+				loggedIn);
 		rcontext.put("allSites", l);
 
 		includeLogin(rcontext, req, session);
@@ -413,7 +426,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		return rcontext;
 	}
 
-	public Map includeTool(HttpServletResponse res, HttpServletRequest req, ToolConfiguration placement) throws IOException
+	public Map includeTool(HttpServletResponse res, HttpServletRequest req,
+			ToolConfiguration placement) throws IOException
 	{
 
 		// find the tool registered for this
@@ -431,11 +445,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// tools on the page.
 		// let the tool do some the work (include) (see note above)
 
-		String toolUrl = ServerConfigurationService.getToolUrl() + "/" + Web.escapeUrl(placement.getId()) + "/";
+		String toolUrl = ServerConfigurationService.getToolUrl() + "/"
+				+ Web.escapeUrl(placement.getId()) + "/";
 		String titleString = Web.escapeHtml(placement.getTitle());
 
 		// Reset the tool state if requested
-		if ("true".equals(req.getParameter(portalService.getResetStateParam())) || "true".equals(portalService.getResetState()))
+		if ("true".equals(req.getParameter(portalService.getResetStateParam()))
+				|| "true".equals(portalService.getResetState()))
 		{
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placement.getId());
@@ -445,22 +461,29 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// emit title information
 
 		// for the reset button
-		boolean showResetButton = !"false".equals(placement.getConfig().getProperty(Portal.TOOLCONFIG_SHOW_RESET_BUTTON));
-		String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, "/tool/", "/tool-reset/") + "?panel=Main";
+		boolean showResetButton = !"false".equals(placement.getConfig().getProperty(
+				Portal.TOOLCONFIG_SHOW_RESET_BUTTON));
+		String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, "/tool/",
+				"/tool-reset/")
+				+ "?panel=Main";
 
 		// for the help button
 		// get the help document ID from the tool config (tool registration
 		// usually).
 		// The help document ID defaults to the tool ID
-		boolean helpEnabledGlobally = ServerConfigurationService.getBoolean("display.help.icon", true);
-		boolean helpEnabledInTool = !"false".equals(placement.getConfig().getProperty(Portal.TOOLCONFIG_SHOW_HELP_BUTTON));
+		boolean helpEnabledGlobally = ServerConfigurationService.getBoolean(
+				"display.help.icon", true);
+		boolean helpEnabledInTool = !"false".equals(placement.getConfig().getProperty(
+				Portal.TOOLCONFIG_SHOW_HELP_BUTTON));
 		boolean showHelpButton = helpEnabledGlobally && helpEnabledInTool;
 
 		String helpActionUrl = "";
 		if (showHelpButton)
 		{
-			String helpDocUrl = placement.getConfig().getProperty(Portal.TOOLCONFIG_HELP_DOCUMENT_URL);
-			String helpDocId = placement.getConfig().getProperty(Portal.TOOLCONFIG_HELP_DOCUMENT_ID);
+			String helpDocUrl = placement.getConfig().getProperty(
+					Portal.TOOLCONFIG_HELP_DOCUMENT_URL);
+			String helpDocId = placement.getConfig().getProperty(
+					Portal.TOOLCONFIG_HELP_DOCUMENT_ID);
 			if (helpDocUrl != null && helpDocUrl.length() > 0)
 			{
 				helpActionUrl = helpDocUrl;
@@ -476,11 +499,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 
 		Map<String, Object> toolMap = new HashMap<String, Object>();
-		RenderResult result = ToolRenderService.render(placement, req, res, getServletContext());
+		RenderResult result = ToolRenderService.render(placement, req, res,
+				getServletContext());
 		toolMap.put("toolRenderResult", result);
 		toolMap.put("hasRenderResult", Boolean.valueOf(true));
 		toolMap.put("toolUrl", toolUrl);
-		toolMap.put("toolPlacementIDJS", Web.escapeJavascript("Main" + placement.getId()));
+		toolMap
+				.put("toolPlacementIDJS", Web
+						.escapeJavascript("Main" + placement.getId()));
 		toolMap.put("toolResetActionUrl", resetActionUrl);
 		toolMap.put("toolTitle", titleString);
 		toolMap.put("toolShowResetButton", Boolean.valueOf(showResetButton));
@@ -489,10 +515,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		return toolMap;
 	}
 
-
-	public List<Map> convertSitesToMaps(HttpServletRequest req, List mySites, String prefix, String currentSiteId,
-			String myWorkspaceSiteId, boolean includeSummary, boolean expandSite, boolean resetTools, boolean doPages,
-			String toolContextPath, boolean loggedIn)
+	public List<Map> convertSitesToMaps(HttpServletRequest req, List mySites,
+			String prefix, String currentSiteId, String myWorkspaceSiteId,
+			boolean includeSummary, boolean expandSite, boolean resetTools,
+			boolean doPages, String toolContextPath, boolean loggedIn)
 	{
 		List<Map> l = new ArrayList<Map>();
 		boolean motdDone = false;
@@ -500,35 +526,43 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			Site s = (Site) i.next();
 
-			Map m = convertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId, includeSummary, expandSite, resetTools,
-					doPages, toolContextPath, loggedIn);
+			Map m = convertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId,
+					includeSummary, expandSite, resetTools, doPages, toolContextPath,
+					loggedIn);
 
 			if (includeSummary && m.get("rssDescription") == null)
 			{
-				if ( ! motdDone ) {
+				if (!motdDone)
+				{
 					siteHelper.summarizeTool(m, s, "sakai.motd");
 					motdDone = true;
-				} else {
+				}
+				else
+				{
 					siteHelper.summarizeTool(m, s, "sakai.announcements");
 				}
-				
+
 			}
 			l.add(m);
 		}
 		return l;
 	}
 
-	public Map convertSiteToMap(HttpServletRequest req, Site s, String prefix, String currentSiteId, String myWorkspaceSiteId,
-			boolean includeSummary, boolean expandSite, boolean resetTools, boolean doPages, String toolContextPath,
-			boolean loggedIn)
+	public Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
+			String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
+			boolean expandSite, boolean resetTools, boolean doPages,
+			String toolContextPath, boolean loggedIn)
 	{
 		if (s == null) return null;
 		Map<String, Object> m = new HashMap<String, Object>();
-		m.put("isCurrentSite", Boolean.valueOf(currentSiteId != null && s.getId().equals(currentSiteId)));
-		m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null && s.getId().equals(myWorkspaceSiteId)));
+		m.put("isCurrentSite", Boolean.valueOf(currentSiteId != null
+				&& s.getId().equals(currentSiteId)));
+		m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null
+				&& s.getId().equals(myWorkspaceSiteId)));
 		m.put("siteTitle", Web.escapeHtml(s.getTitle()));
 		m.put("siteDescription", Web.escapeHtml(s.getDescription()));
-		String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/";
+		String siteUrl = Web.serverUrl(req)
+				+ ServerConfigurationService.getString("portalPath") + "/";
 		if (prefix != null) siteUrl = siteUrl + prefix + "/";
 		siteUrl = siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s));
 		m.put("siteUrl", siteUrl);
@@ -539,8 +573,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 		if (expandSite)
 		{
-			Map pageMap = pageListToMap(req, loggedIn, s, /* SitePage */null, toolContextPath, prefix, doPages, resetTools,
-					includeSummary);
+			Map pageMap = pageListToMap(req, loggedIn, s, /* SitePage */null,
+					toolContextPath, prefix, doPages, resetTools, includeSummary);
 			m.put("sitePages", pageMap);
 		}
 
@@ -557,7 +591,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * @throws javax.servlet.ServletException.
 	 * @throws java.io.IOException.
 	 */
-	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
+	protected void doGet(HttpServletRequest req, HttpServletResponse res)
+			throws ServletException, IOException
 	{
 
 		int stat = PortalHandler.NEXT;
@@ -591,7 +626,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// get the parts (the first will be "")
 			String[] parts = option.split("/");
 
-			Map<String,PortalHandler> handlerMap = portalService.getHandlerMap(this);
+			Map<String, PortalHandler> handlerMap = portalService.getHandlerMap(this);
 			PortalHandler ph = handlerMap.get(parts[1]);
 			if (ph != null)
 			{
@@ -601,7 +636,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 
 				List<PortalHandler> urlHandlers;
-				for (Iterator<PortalHandler> i = handlerMap.values().iterator(); i.hasNext();)
+				for (Iterator<PortalHandler> i = handlerMap.values().iterator(); i
+						.hasNext();)
 				{
 					ph = i.next();
 					stat = ph.doGet(parts, req, res, session);
@@ -618,64 +654,182 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 
 			/*
-			 * // recognize and dispatch the 'tool' option: [1] = "tool", [2] = // placement id (of a site's tool placement), rest for the tool if ((parts.length > 2) && (parts[1].equals("tool"))) { // Resolve the placements of the form //
-			 * /portal/tool/sakai.resources?sakai.site=~csev String toolPlacement = getPlacement(req, res, session, parts[2], false); if (toolPlacement == null) { return; } parts[2] = toolPlacement; doTool(req, res, session, parts[2], req.getContextPath() +
-			 * req.getServletPath() + Web.makePath(parts, 1, 3), Web .makePath(parts, 3, parts.length)); } else if (enableDirect && (parts.length > 2) && (parts[1].equals("directtool"))) { // Resolve the placements of the form //
-			 * /portal/tool/sakai.resources?sakai.site=~csev String toolPlacement = getPlacement(req, res, session, parts[2], false); if (toolPlacement == null) { return; } parts[2] = toolPlacement; doDirectTool(req, res, session, parts[2],
-			 * req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3), Web.makePath(parts, 3, parts.length)); } // These reset urls simply set a session value to indicate to reset // state and then redirect // This is necessary os that
-			 * the URL is clean and we do not see // resets on refresh else
+			 * // recognize and dispatch the 'tool' option: [1] = "tool", [2] = //
+			 * placement id (of a site's tool placement), rest for the tool if
+			 * ((parts.length > 2) && (parts[1].equals("tool"))) { // Resolve
+			 * the placements of the form //
+			 * /portal/tool/sakai.resources?sakai.site=~csev String
+			 * toolPlacement = getPlacement(req, res, session, parts[2], false);
+			 * if (toolPlacement == null) { return; } parts[2] = toolPlacement;
+			 * doTool(req, res, session, parts[2], req.getContextPath() +
+			 * req.getServletPath() + Web.makePath(parts, 1, 3), Web
+			 * .makePath(parts, 3, parts.length)); } else if (enableDirect &&
+			 * (parts.length > 2) && (parts[1].equals("directtool"))) { //
+			 * Resolve the placements of the form //
+			 * /portal/tool/sakai.resources?sakai.site=~csev String
+			 * toolPlacement = getPlacement(req, res, session, parts[2], false);
+			 * if (toolPlacement == null) { return; } parts[2] = toolPlacement;
+			 * doDirectTool(req, res, session, parts[2], req.getContextPath() +
+			 * req.getServletPath() + Web.makePath(parts, 1, 3),
+			 * Web.makePath(parts, 3, parts.length)); } // These reset urls
+			 * simply set a session value to indicate to reset // state and then
+			 * redirect // This is necessary os that the URL is clean and we do
+			 * not see // resets on refresh else
 			 */
 			/*
-			 * if ((parts.length > 2) && (parts[1].equals("tool-reset"))) { String toolUrl = req.getContextPath() + "/tool" + Web.makePath(parts, 2, parts.length); // Make sure to add the parameters such as panel=Main String queryString =
-			 * req.getQueryString(); if (queryString != null) { toolUrl = toolUrl + "?" + queryString; } portalService.setResetState("true"); resetDone = true; res.sendRedirect(toolUrl); } // recognize a dispatch the 'page' option (tools on a page) else
+			 * if ((parts.length > 2) && (parts[1].equals("tool-reset"))) {
+			 * String toolUrl = req.getContextPath() + "/tool" +
+			 * Web.makePath(parts, 2, parts.length); // Make sure to add the
+			 * parameters such as panel=Main String queryString =
+			 * req.getQueryString(); if (queryString != null) { toolUrl =
+			 * toolUrl + "?" + queryString; }
+			 * portalService.setResetState("true"); resetDone = true;
+			 * res.sendRedirect(toolUrl); } // recognize a dispatch the 'page'
+			 * option (tools on a page) else
 			 */
 			/*
-			 * if ((parts.length == 3) && (parts[1].equals("page"))) { // Resolve the placements of the form // /portal/page/sakai.resources?sakai.site=~csev String pagePlacement = getPlacement(req, res, session, parts[2], true); if (pagePlacement ==
-			 * null) { return; } parts[2] = pagePlacement; doPage(req, res, session, parts[2], req.getContextPath() + req.getServletPath()); }
+			 * if ((parts.length == 3) && (parts[1].equals("page"))) { //
+			 * Resolve the placements of the form //
+			 * /portal/page/sakai.resources?sakai.site=~csev String
+			 * pagePlacement = getPlacement(req, res, session, parts[2], true);
+			 * if (pagePlacement == null) { return; } parts[2] = pagePlacement;
+			 * doPage(req, res, session, parts[2], req.getContextPath() +
+			 * req.getServletPath()); }
 			 */
 			/*
-			 * // recognize a dispatch the 'worksite' option (pages navigation + // tools on a page) else if ((parts.length >= 3) && (parts[1].equals("worksite"))) { // recognize an optional page/pageid String pageId = null; if ((parts.length == 5) &&
-			 * (parts[3].equals("page"))) { pageId = parts[4]; } doWorksite(req, res, session, parts[2], pageId, req.getContextPath() + req.getServletPath()); } // Implement the dense portlet-style portal else
+			 * // recognize a dispatch the 'worksite' option (pages navigation + //
+			 * tools on a page) else if ((parts.length >= 3) &&
+			 * (parts[1].equals("worksite"))) { // recognize an optional
+			 * page/pageid String pageId = null; if ((parts.length == 5) &&
+			 * (parts[3].equals("page"))) { pageId = parts[4]; } doWorksite(req,
+			 * res, session, parts[2], pageId, req.getContextPath() +
+			 * req.getServletPath()); } // Implement the dense portlet-style
+			 * portal else
 			 */
 			/*
-			 * if ((parts.length >= 2) && (parts[1].equals("portlet"))) { // /portal/portlet/site-id String siteId = null; if (parts.length >= 3) { siteId = parts[2]; } // This is a pop-up page - it does exactly the same as /portal/page //
-			 * /portal/portlet/site-id/page/page-id // 1 2 3 4 String pageId = null; if ((parts.length == 5) && (parts[3].equals("page"))) { doPage(req, res, session, parts[4], req.getContextPath() + req.getServletPath()); return; } // Tool resetting URL -
-			 * clear state and forward to the real tool URL // /portal/portlet/site-id/tool-reset/toolId // 0 1 2 3 4 String toolId = null; if ((siteId != null) && (parts.length == 5) && (parts[3].equals("tool-reset"))) { toolId = parts[4]; String toolUrl =
-			 * req.getContextPath() + "/portlet/" + siteId + "/tool" + Web.makePath(parts, 4, parts.length); String queryString = req.getQueryString(); if (queryString != null) { toolUrl = toolUrl + "?" + queryString; }
-			 * portalService.setResetState("true"); resetDone = true; res.sendRedirect(toolUrl); } // Tool after the reset // /portal/portlet/site-id/tool/toolId if ((parts.length == 5) && (parts[3].equals("tool"))) { toolId = parts[4]; } String
-			 * forceLogout = req.getParameter(PARAM_FORCE_LOGOUT); if ("yes".equalsIgnoreCase(forceLogout) || "true".equalsIgnoreCase(forceLogout)) { doLogout(req, res, session, "/portlet"); return; } if (session.getUserId() == null) { String forceLogin =
-			 * req.getParameter(PARAM_FORCE_LOGIN); if ("yes".equalsIgnoreCase(forceLogin) || "true".equalsIgnoreCase(forceLogin)) { doLogin(req, res, session, req.getPathInfo(), false); return; } } PortalRenderContext rcontext = includePortal(req, res,
-			 * session, siteId, toolId, req.getContextPath() + req.getServletPath(), "portlet", / * doPages * /false, /* resetTools * /true, / * includeSummary * /false, /* expandSite * /false); sendResponse(rcontext, res, "portlet", null); } // Implement
-			 * the three forms of the rss portal else
+			 * if ((parts.length >= 2) && (parts[1].equals("portlet"))) { //
+			 * /portal/portlet/site-id String siteId = null; if (parts.length >=
+			 * 3) { siteId = parts[2]; } // This is a pop-up page - it does
+			 * exactly the same as /portal/page //
+			 * /portal/portlet/site-id/page/page-id // 1 2 3 4 String pageId =
+			 * null; if ((parts.length == 5) && (parts[3].equals("page"))) {
+			 * doPage(req, res, session, parts[4], req.getContextPath() +
+			 * req.getServletPath()); return; } // Tool resetting URL - clear
+			 * state and forward to the real tool URL //
+			 * /portal/portlet/site-id/tool-reset/toolId // 0 1 2 3 4 String
+			 * toolId = null; if ((siteId != null) && (parts.length == 5) &&
+			 * (parts[3].equals("tool-reset"))) { toolId = parts[4]; String
+			 * toolUrl = req.getContextPath() + "/portlet/" + siteId + "/tool" +
+			 * Web.makePath(parts, 4, parts.length); String queryString =
+			 * req.getQueryString(); if (queryString != null) { toolUrl =
+			 * toolUrl + "?" + queryString; }
+			 * portalService.setResetState("true"); resetDone = true;
+			 * res.sendRedirect(toolUrl); } // Tool after the reset //
+			 * /portal/portlet/site-id/tool/toolId if ((parts.length == 5) &&
+			 * (parts[3].equals("tool"))) { toolId = parts[4]; } String
+			 * forceLogout = req.getParameter(PARAM_FORCE_LOGOUT); if
+			 * ("yes".equalsIgnoreCase(forceLogout) ||
+			 * "true".equalsIgnoreCase(forceLogout)) { doLogout(req, res,
+			 * session, "/portlet"); return; } if (session.getUserId() == null) {
+			 * String forceLogin = req.getParameter(PARAM_FORCE_LOGIN); if
+			 * ("yes".equalsIgnoreCase(forceLogin) ||
+			 * "true".equalsIgnoreCase(forceLogin)) { doLogin(req, res, session,
+			 * req.getPathInfo(), false); return; } } PortalRenderContext
+			 * rcontext = includePortal(req, res, session, siteId, toolId,
+			 * req.getContextPath() + req.getServletPath(), "portlet", / *
+			 * doPages * /false, /* resetTools * /true, / * includeSummary *
+			 * /false, /* expandSite * /false); sendResponse(rcontext, res,
+			 * "portlet", null); } // Implement the three forms of the rss
+			 * portal else
 			 */
 			/*
-			 * if ((parts.length >= 2) && (parts[1].equals("rss") || parts[1].equals("atom") || parts[1].equals("opml"))) { if (parts[1].equals("atom")) { // /portal/rss/site-id String siteId = null; if (parts.length >= 3) { siteId = parts[2]; }
-			 * PortalRenderContext rcontext = includePortal(req, res, session, siteId, /* toolId * /null, req.getContextPath() + req.getServletPath(), /* prefix * /"site", /* doPages * /true, /* resetTools * /false, /* includeSummary * /true, /*
-			 * expandSite * /false); // sendResponse(rcontext, res, parts[1], "application/atom+xml"); sendResponse(rcontext, res, parts[1], "text/xml"); } else if (parts[1].equals("rss")) { // /portal/rss/site-id String siteId = null; if (parts.length >=
-			 * 3) { siteId = parts[2]; } PortalRenderContext rcontext = includePortal(req, res, session, siteId, /* toolId * /null, req.getContextPath() + req.getServletPath(), /* prefix * /"site", /* doPages * /true, /* resetTools * /false, /*
-			 * includeSummary * /true, /* expandSite * /false); sendResponse(rcontext, res, parts[1], "text/xml"); } else { // opml // /portal/rss/site-id String siteId = null; if (parts.length >= 3) { siteId = parts[2]; } PortalRenderContext rcontext =
-			 * includePortal(req, res, session, siteId, /* toolId * /null, req.getContextPath() + req.getServletPath(), /* prefix * /"site", /* doPages * /true, /* resetTools * /false, /* includeSummary * /false, /* expandSite * /true); //
-			 * sendResponse(rcontext, res, parts[1], "text/x-opml"); sendResponse(rcontext, res, parts[1], "text/xml"); } } // recognize a dispatch the 'gallery' option (site tabs + pages // navigation + tools on a page) else
+			 * if ((parts.length >= 2) && (parts[1].equals("rss") ||
+			 * parts[1].equals("atom") || parts[1].equals("opml"))) { if
+			 * (parts[1].equals("atom")) { // /portal/rss/site-id String siteId =
+			 * null; if (parts.length >= 3) { siteId = parts[2]; }
+			 * PortalRenderContext rcontext = includePortal(req, res, session,
+			 * siteId, /* toolId * /null, req.getContextPath() +
+			 * req.getServletPath(), /* prefix * /"site", /* doPages * /true, /*
+			 * resetTools * /false, /* includeSummary * /true, /* expandSite *
+			 * /false); // sendResponse(rcontext, res, parts[1],
+			 * "application/atom+xml"); sendResponse(rcontext, res, parts[1],
+			 * "text/xml"); } else if (parts[1].equals("rss")) { //
+			 * /portal/rss/site-id String siteId = null; if (parts.length >= 3) {
+			 * siteId = parts[2]; } PortalRenderContext rcontext =
+			 * includePortal(req, res, session, siteId, /* toolId * /null,
+			 * req.getContextPath() + req.getServletPath(), /* prefix * /"site", /*
+			 * doPages * /true, /* resetTools * /false, /* includeSummary *
+			 * /true, /* expandSite * /false); sendResponse(rcontext, res,
+			 * parts[1], "text/xml"); } else { // opml // /portal/rss/site-id
+			 * String siteId = null; if (parts.length >= 3) { siteId = parts[2]; }
+			 * PortalRenderContext rcontext = includePortal(req, res, session,
+			 * siteId, /* toolId * /null, req.getContextPath() +
+			 * req.getServletPath(), /* prefix * /"site", /* doPages * /true, /*
+			 * resetTools * /false, /* includeSummary * /false, /* expandSite *
+			 * /true); // sendResponse(rcontext, res, parts[1], "text/x-opml");
+			 * sendResponse(rcontext, res, parts[1], "text/xml"); } } //
+			 * recognize a dispatch the 'gallery' option (site tabs + pages //
+			 * navigation + tools on a page) else
 			 */
 			/*
-			 * if ((parts.length >= 2) && (parts[1].equals("gallery"))) { // recognize an optional page/pageid String pageId = null; if ((parts.length == 5) && (parts[3].equals("page"))) { pageId = parts[4]; } // site might be specified String siteId =
-			 * null; if (parts.length >= 3) { siteId = parts[2]; } doGallery(req, res, session, siteId, pageId, req.getContextPath() + req.getServletPath()); } // recognize a dispatch the 'site' option (site logo and tabs + // pages navigation + tools on
-			 * a page) else
+			 * if ((parts.length >= 2) && (parts[1].equals("gallery"))) { //
+			 * recognize an optional page/pageid String pageId = null; if
+			 * ((parts.length == 5) && (parts[3].equals("page"))) { pageId =
+			 * parts[4]; } // site might be specified String siteId = null; if
+			 * (parts.length >= 3) { siteId = parts[2]; } doGallery(req, res,
+			 * session, siteId, pageId, req.getContextPath() +
+			 * req.getServletPath()); } // recognize a dispatch the 'site'
+			 * option (site logo and tabs + // pages navigation + tools on a
+			 * page) else
 			 */
 
 			/*
-			 * if ((parts.length >= 2) && (parts[1].equals("site"))) { // recognize an optional page/pageid String pageId = null; if ((parts.length == 5) && (parts[3].equals("page"))) { pageId = parts[4]; } // site might be specified String siteId = null;
-			 * if (parts.length >= 3) { siteId = parts[2]; } doSite(req, res, session, siteId, pageId, req.getContextPath() + req.getServletPath()); } // recognize nav login else if ((parts.length == 3) && (parts[1].equals("nav_login"))) { doNavLogin(req,
-			 * res, session, parts[2]); // recognize nav login for the gallery else if ((parts.length == 3) && (parts[1].equals("nav_login_gallery"))) { doNavLoginGallery(req, res, session, parts[2]); } // recognize presence else if ((parts.length >= 3) &&
-			 * (parts[1].equals("presence"))) { doPresence(req, res, session, parts[2], req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3), Web.makePath(parts, 3, parts.length)); } // recognize help else if ((parts.length >= 2) &&
-			 * (parts[1].equals("help"))) { doHelp(req, res, session, req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 2), Web.makePath( parts, 2, parts.length)); } // recognize and dispatch the 'login' option else if ((parts.length ==
-			 * 2) && (parts[1].equals("relogin"))) { // Note: here we send a null path, meaning we will NOT set it as // a possible return path // we expect we are in the middle of a login screen processing, // and it's already set (user login button is
-			 * "ulogin") -ggolden doLogin(req, res, session, null, false); } // recognize and dispatch the 'login' option else if ((parts.length == 2) && (parts[1].equals("login"))) { doLogin(req, res, session, "", false); } // recognize and dispatch the
-			 * 'login' options else if ((parts.length == 2) && ((parts[1].equals("xlogin")))) { doLogin(req, res, session, "", true); } // recognize and dispatch the 'login' option for gallery else if ((parts.length == 2) &&
-			 * (parts[1].equals("login_gallery"))) { doLogin(req, res, session, "/gallery", false); } // recognize and dispatch the 'logout' option else if ((parts.length == 2) && (parts[1].equals("logout"))) { doLogout(req, res, session, null); } //
-			 * recognize and dispatch the 'logout' option for gallery else if ((parts.length == 2) && (parts[1].equals("logout_gallery"))) { doLogout(req, res, session, "/gallery"); } // recognize error done else if ((parts.length >= 2) &&
-			 * (parts[1].equals("error-reported"))) { doErrorDone(req, res); } else if ((parts.length >= 2) && (parts[1].equals("styles"))) { doStatic(req, res, parts); } else if ((parts.length >= 2) && (parts[1].equals("scripts"))) { doStatic(req, res,
-			 * parts); } // handle an unrecognized request else { doError(req, res, session, ERROR_SITE); }
+			 * if ((parts.length >= 2) && (parts[1].equals("site"))) { //
+			 * recognize an optional page/pageid String pageId = null; if
+			 * ((parts.length == 5) && (parts[3].equals("page"))) { pageId =
+			 * parts[4]; } // site might be specified String siteId = null; if
+			 * (parts.length >= 3) { siteId = parts[2]; } doSite(req, res,
+			 * session, siteId, pageId, req.getContextPath() +
+			 * req.getServletPath()); } // recognize nav login else if
+			 * ((parts.length == 3) && (parts[1].equals("nav_login"))) {
+			 * doNavLogin(req, res, session, parts[2]); // recognize nav login
+			 * for the gallery else if ((parts.length == 3) &&
+			 * (parts[1].equals("nav_login_gallery"))) { doNavLoginGallery(req,
+			 * res, session, parts[2]); } // recognize presence else if
+			 * ((parts.length >= 3) && (parts[1].equals("presence"))) {
+			 * doPresence(req, res, session, parts[2], req.getContextPath() +
+			 * req.getServletPath() + Web.makePath(parts, 1, 3),
+			 * Web.makePath(parts, 3, parts.length)); } // recognize help else
+			 * if ((parts.length >= 2) && (parts[1].equals("help"))) {
+			 * doHelp(req, res, session, req.getContextPath() +
+			 * req.getServletPath() + Web.makePath(parts, 1, 2), Web.makePath(
+			 * parts, 2, parts.length)); } // recognize and dispatch the 'login'
+			 * option else if ((parts.length == 2) &&
+			 * (parts[1].equals("relogin"))) { // Note: here we send a null
+			 * path, meaning we will NOT set it as // a possible return path //
+			 * we expect we are in the middle of a login screen processing, //
+			 * and it's already set (user login button is "ulogin") -ggolden
+			 * doLogin(req, res, session, null, false); } // recognize and
+			 * dispatch the 'login' option else if ((parts.length == 2) &&
+			 * (parts[1].equals("login"))) { doLogin(req, res, session, "",
+			 * false); } // recognize and dispatch the 'login' options else if
+			 * ((parts.length == 2) && ((parts[1].equals("xlogin")))) {
+			 * doLogin(req, res, session, "", true); } // recognize and dispatch
+			 * the 'login' option for gallery else if ((parts.length == 2) &&
+			 * (parts[1].equals("login_gallery"))) { doLogin(req, res, session,
+			 * "/gallery", false); } // recognize and dispatch the 'logout'
+			 * option else if ((parts.length == 2) &&
+			 * (parts[1].equals("logout"))) { doLogout(req, res, session, null); } //
+			 * recognize and dispatch the 'logout' option for gallery else if
+			 * ((parts.length == 2) && (parts[1].equals("logout_gallery"))) {
+			 * doLogout(req, res, session, "/gallery"); } // recognize error
+			 * done else if ((parts.length >= 2) &&
+			 * (parts[1].equals("error-reported"))) { doErrorDone(req, res); }
+			 * else if ((parts.length >= 2) && (parts[1].equals("styles"))) {
+			 * doStatic(req, res, parts); } else if ((parts.length >= 2) &&
+			 * (parts[1].equals("scripts"))) { doStatic(req, res, parts); } //
+			 * handle an unrecognized request else { doError(req, res, session,
+			 * ERROR_SITE); }
 			 */
 		}
 		catch (Throwable t)
@@ -692,8 +846,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	}
 
-	public void doLogin(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath, boolean skipContainer)
-			throws ToolException
+	public void doLogin(HttpServletRequest req, HttpServletResponse res, Session session,
+			String returnPath, boolean skipContainer) throws ToolException
 	{
 		try
 		{
@@ -741,10 +895,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * @param session
 	 *        Current session
 	 * @param returnPath
-	 *        if not null, the path to use for the end-user browser redirect after the logout is complete. Leave null to use the configured logged out URL.
+	 *        if not null, the path to use for the end-user browser redirect
+	 *        after the logout is complete. Leave null to use the configured
+	 *        logged out URL.
 	 * @throws IOException
 	 */
-	public void doLogout(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath) throws ToolException
+	public void doLogout(HttpServletRequest req, HttpServletResponse res,
+			Session session, String returnPath) throws ToolException
 	{
 		// where to go after
 		if (returnPath == null)
@@ -770,9 +927,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		tool.help(req, res, context, "/logout");
 	}
 
-	public PortalRenderContext startPageContext(String siteType, String title, String skin, HttpServletRequest request)
+	public PortalRenderContext startPageContext(String siteType, String title,
+			String skin, HttpServletRequest request)
 	{
-		PortalRenderEngine rengine = portalService.getRenderEngine(portalContext,request);
+		PortalRenderEngine rengine = portalService
+				.getRenderEngine(portalContext, request);
 		PortalRenderContext rcontext = rengine.newRenderContext(request);
 
 		if (skin == null)
@@ -786,9 +945,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("pageTitle", Web.escapeHtml(title));
 		rcontext.put("pageScriptPath", getScriptPath());
 		rcontext.put("pageTop", Boolean.valueOf(true));
-		rcontext.put("rloader",rloader);
-//		rcontext.put("sitHelp", Web.escapeHtml(rb.getString("sit_help")));
-//		rcontext.put("sitReset", Web.escapeHtml(rb.getString("sit_reset")));
+		rcontext.put("rloader", rloader);
+		// rcontext.put("sitHelp", Web.escapeHtml(rb.getString("sit_help")));
+		// rcontext.put("sitReset", Web.escapeHtml(rb.getString("sit_reset")));
 
 		if (siteType != null && siteType.length() > 0)
 		{
@@ -814,7 +973,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
+	protected void doPost(HttpServletRequest req, HttpServletResponse res)
+			throws ServletException, IOException
 	{
 		int stat = PortalHandler.NEXT;
 		try
@@ -841,7 +1001,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// get the parts (the first will be "")
 			String[] parts = option.split("/");
 
-			Map<String,PortalHandler> handlerMap = portalService.getHandlerMap(this);
+			Map<String, PortalHandler> handlerMap = portalService.getHandlerMap(this);
 
 			PortalHandler ph = handlerMap.get(parts[1]);
 			if (ph != null)
@@ -852,7 +1012,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 
 				List<PortalHandler> urlHandlers;
-				for (Iterator<PortalHandler> i = handlerMap.values().iterator(); i.hasNext();)
+				for (Iterator<PortalHandler> i = handlerMap.values().iterator(); i
+						.hasNext();)
 				{
 					ph = i.next();
 					stat = ph.doPost(parts, req, res, session);
@@ -869,14 +1030,35 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 
 			/*
-			 * // recognize and dispatch the 'tool' option: [1] = "tool", [2] = // placement id (of a site's tool placement), rest for the tool if ((parts.length > 2) && (parts[1].equals("tool"))) { doTool(req, res, session, parts[2], req.getContextPath() +
-			 * req.getServletPath() + Web.makePath(parts, 1, 3), Web .makePath(parts, 3, parts.length)); } else if (enableDirect && (parts.length > 2) && (parts[1].equals("directtool"))) { // Resolve the placements of the form //
-			 * /portal/tool/sakai.resources?sakai.site=~csev String toolPlacement = getPlacement(req, res, session, parts[2], false); if (toolPlacement == null) { return; } parts[2] = toolPlacement; doDirectTool(req, res, session, parts[2],
-			 * req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3), Web.makePath(parts, 3, parts.length)); /** Title frames were no longer used in 2.3 and are not supported in 2.4 so we emit a WARN message here to help people with
-			 * derived classes figure out the new way. / // TODO: Remove after 2.4 } else if ((parts.length > 2) && (parts[1].equals("title"))) { M_log.warn("The /title/ form of portal URLs is no longer supported in Sakai 2.4 and later"); } // recognize
-			 * and dispatch the 'login' options else if ((parts.length == 2) && ((parts[1].equals("login") || (parts[1].equals("xlogin")) || (parts[1].equals("relogin"))))) { postLogin(req, res, session, parts[1]); } // recognize help { doHelp(req, res,
-			 * session, req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 2), Web.makePath( parts, 2, parts.length)); } // recognize error feedback else if ((parts.length >= 2) && (parts[1].equals("error-report"))) { doErrorReport(req,
-			 * res); } // handle an unrecognized request else { doError(req, res, session, ERROR_SITE); }
+			 * // recognize and dispatch the 'tool' option: [1] = "tool", [2] = //
+			 * placement id (of a site's tool placement), rest for the tool if
+			 * ((parts.length > 2) && (parts[1].equals("tool"))) { doTool(req,
+			 * res, session, parts[2], req.getContextPath() +
+			 * req.getServletPath() + Web.makePath(parts, 1, 3), Web
+			 * .makePath(parts, 3, parts.length)); } else if (enableDirect &&
+			 * (parts.length > 2) && (parts[1].equals("directtool"))) { //
+			 * Resolve the placements of the form //
+			 * /portal/tool/sakai.resources?sakai.site=~csev String
+			 * toolPlacement = getPlacement(req, res, session, parts[2], false);
+			 * if (toolPlacement == null) { return; } parts[2] = toolPlacement;
+			 * doDirectTool(req, res, session, parts[2], req.getContextPath() +
+			 * req.getServletPath() + Web.makePath(parts, 1, 3),
+			 * Web.makePath(parts, 3, parts.length)); /** Title frames were no
+			 * longer used in 2.3 and are not supported in 2.4 so we emit a WARN
+			 * message here to help people with derived classes figure out the
+			 * new way. / // TODO: Remove after 2.4 } else if ((parts.length >
+			 * 2) && (parts[1].equals("title"))) { M_log.warn("The /title/ form
+			 * of portal URLs is no longer supported in Sakai 2.4 and later"); } //
+			 * recognize and dispatch the 'login' options else if ((parts.length ==
+			 * 2) && ((parts[1].equals("login") || (parts[1].equals("xlogin")) ||
+			 * (parts[1].equals("relogin"))))) { postLogin(req, res, session,
+			 * parts[1]); } // recognize help { doHelp(req, res, session,
+			 * req.getContextPath() + req.getServletPath() + Web.makePath(parts,
+			 * 1, 2), Web.makePath( parts, 2, parts.length)); } // recognize
+			 * error feedback else if ((parts.length >= 2) &&
+			 * (parts[1].equals("error-report"))) { doErrorReport(req, res); } //
+			 * handle an unrecognized request else { doError(req, res, session,
+			 * ERROR_SITE); }
 			 */
 		}
 		catch (Throwable t)
@@ -885,7 +1067,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 	}
 
-	protected void doErrorReport(HttpServletRequest req, HttpServletResponse res) throws ToolException, IOException
+	protected void doErrorReport(HttpServletRequest req, HttpServletResponse res)
+			throws ToolException, IOException
 	{
 		setupForward(req, res, null, null);
 
@@ -907,8 +1090,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	// to login
 	// processing and return null to the caller.
 
-	public String getPlacement(HttpServletRequest req, HttpServletResponse res, Session session, String placementId, boolean doPage)
-			throws ToolException
+	public String getPlacement(HttpServletRequest req, HttpServletResponse res,
+			Session session, String placementId, boolean doPage) throws ToolException
 	{
 
 		String siteId = req.getParameter(PARAM_SAKAI_SITE);
@@ -931,7 +1114,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// punt
 			if (session.getUserId() == null)
 			{
-				doLogin(req, res, session, req.getPathInfo() + "?sakai.site=" + res.encodeURL(siteId), false);
+				doLogin(req, res, session, req.getPathInfo() + "?sakai.site="
+						+ res.encodeURL(siteId), false);
 				return null;
 			}
 			return placementId; // cannot resolve placement
@@ -952,13 +1136,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	}
 
-	public void setupForward(HttpServletRequest req, HttpServletResponse res, Placement p, String skin) throws ToolException
+	public void setupForward(HttpServletRequest req, HttpServletResponse res,
+			Placement p, String skin) throws ToolException
 	{
 		// setup html information that the tool might need (skin, body on load,
 		// js includes, etc).
-		if (skin == null || skin.length() == 0) skin = ServerConfigurationService.getString("skin.default");
+		if (skin == null || skin.length() == 0)
+			skin = ServerConfigurationService.getString("skin.default");
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
-		String headCssToolBase = "<link href=\"" + skinRepo
+		String headCssToolBase = "<link href=\""
+				+ skinRepo
 				+ "/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 		String headCssToolSkin = "<link href=\"" + skinRepo + "/" + skin
 				+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
@@ -972,8 +1159,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			bodyonload.append("setMainFrameHeight('" + element + "');");
 		}
 		bodyonload.append("setFocus(focus_path);");
-		
-		
 
 		// to force all non-legacy tools to use the standard css
 		// to help in transition (needs corresponding entry in properties)
@@ -989,15 +1174,17 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		req.setAttribute("sakai.html.head.css.skin", headCssToolSkin);
 		req.setAttribute("sakai.html.head.js", headJs);
 		req.setAttribute("sakai.html.body.onload", bodyonload.toString());
-		
-		portalService.getRenderEngine(portalContext,req).setupForward(req, res, p, skin);
+
+		portalService.getRenderEngine(portalContext, req).setupForward(req, res, p, skin);
 	}
 
 	/**
-	 * Forward to the tool - but first setup JavaScript/CSS etc that the tool will render
+	 * Forward to the tool - but first setup JavaScript/CSS etc that the tool
+	 * will render
 	 */
-	public void forwardTool(ActiveTool tool, HttpServletRequest req, HttpServletResponse res, Placement p, String skin,
-			String toolContextPath, String toolPathInfo) throws ToolException
+	public void forwardTool(ActiveTool tool, HttpServletRequest req,
+			HttpServletResponse res, Placement p, String skin, String toolContextPath,
+			String toolPathInfo) throws ToolException
 	{
 
 		// if there is a stored request state, and path, extract that from the
@@ -1036,8 +1223,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	}
 
-	public void forwardPortal(ActiveTool tool, HttpServletRequest req, HttpServletResponse res, ToolConfiguration p, String skin,
-			String toolContextPath, String toolPathInfo) throws ToolException, IOException
+	public void forwardPortal(ActiveTool tool, HttpServletRequest req,
+			HttpServletResponse res, ToolConfiguration p, String skin,
+			String toolContextPath, String toolPathInfo) throws ToolException,
+			IOException
 	{
 
 		// if there is a stored request state, and path, extract that from the
@@ -1075,15 +1264,20 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 		if (rcontext.uses(INCLUDE_BOTTOM))
 		{
-			String copyright = ServerConfigurationService.getString("bottom.copyrighttext");
+			String copyright = ServerConfigurationService
+					.getString("bottom.copyrighttext");
 			String service = ServerConfigurationService.getString("ui.service", "Sakai");
-			String serviceVersion = ServerConfigurationService.getString("version.service", "?");
-			String sakaiVersion = ServerConfigurationService.getString("version.sakai", "?");
+			String serviceVersion = ServerConfigurationService.getString(
+					"version.service", "?");
+			String sakaiVersion = ServerConfigurationService.getString("version.sakai",
+					"?");
 			String server = ServerConfigurationService.getServerId();
 			String[] bottomNav = ServerConfigurationService.getStrings("bottomnav");
 			String[] poweredByUrl = ServerConfigurationService.getStrings("powered.url");
-			String[] poweredByImage = ServerConfigurationService.getStrings("powered.img");
-			String[] poweredByAltText = ServerConfigurationService.getStrings("powered.alt");
+			String[] poweredByImage = ServerConfigurationService
+					.getStrings("powered.img");
+			String[] poweredByAltText = ServerConfigurationService
+					.getStrings("powered.alt");
 
 			{
 				List<Object> l = new ArrayList<Object>();
@@ -1097,10 +1291,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("bottomNav", l);
 			}
 
-//			rcontext.put("bottomNavSitNewWindow", Web.escapeHtml(rb.getString("site_newwindow")));
+			// rcontext.put("bottomNavSitNewWindow",
+			// Web.escapeHtml(rb.getString("site_newwindow")));
 
-			if ((poweredByUrl != null) && (poweredByImage != null) && (poweredByAltText != null)
-					&& (poweredByUrl.length == poweredByImage.length) && (poweredByUrl.length == poweredByAltText.length))
+			if ((poweredByUrl != null) && (poweredByImage != null)
+					&& (poweredByAltText != null)
+					&& (poweredByUrl.length == poweredByImage.length)
+					&& (poweredByUrl.length == poweredByAltText.length))
 			{
 				{
 					List<Object> l = new ArrayList<Object>();
@@ -1135,7 +1332,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 	}
 
-	public void includeLogin(PortalRenderContext rcontext, HttpServletRequest req, Session session)
+	public void includeLogin(PortalRenderContext rcontext, HttpServletRequest req,
+			Session session)
 	{
 		if (rcontext.uses(INCLUDE_LOGIN))
 		{
@@ -1153,7 +1351,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// check for the top.login (where the login fields are present
 			// instead
 			// of a login link, but ignore it if container.login is set
-			boolean topLogin = Boolean.TRUE.toString().equalsIgnoreCase(ServerConfigurationService.getString("top.login"));
+			boolean topLogin = Boolean.TRUE.toString().equalsIgnoreCase(
+					ServerConfigurationService.getString("top.login"));
 			boolean containerLogin = Boolean.TRUE.toString().equalsIgnoreCase(
 					ServerConfigurationService.getString("container.login"));
 			if (containerLogin) topLogin = false;
@@ -1164,26 +1363,34 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				// we don't need any of this if we are doing top login
 				if (!topLogin)
 				{
-					logInOutUrl += ServerConfigurationService.getString("portalPath") + "/login";
+					logInOutUrl += ServerConfigurationService.getString("portalPath")
+							+ "/login";
 
 					// let the login url be overridden by configuration
-					String overrideLoginUrl = StringUtil.trimToNull(ServerConfigurationService.getString("login.url"));
+					String overrideLoginUrl = StringUtil
+							.trimToNull(ServerConfigurationService.getString("login.url"));
 					if (overrideLoginUrl != null) logInOutUrl = overrideLoginUrl;
 
 					// check for a login text override
-					message = StringUtil.trimToNull(ServerConfigurationService.getString("login.text"));
+					message = StringUtil.trimToNull(ServerConfigurationService
+							.getString("login.text"));
 					if (message == null) message = rloader.getString("log.login");
 
 					// check for an image for the login
-					image1 = StringUtil.trimToNull(ServerConfigurationService.getString("login.icon"));
+					image1 = StringUtil.trimToNull(ServerConfigurationService
+							.getString("login.icon"));
 
 					// check for a possible second, xlogin link
-					if (Boolean.TRUE.toString().equalsIgnoreCase(ServerConfigurationService.getString("xlogin.enabled")))
+					if (Boolean.TRUE.toString().equalsIgnoreCase(
+							ServerConfigurationService.getString("xlogin.enabled")))
 					{
 						// get the text and image as configured
-						message2 = StringUtil.trimToNull(ServerConfigurationService.getString("xlogin.text"));
-						image2 = StringUtil.trimToNull(ServerConfigurationService.getString("xlogin.icon"));
-						logInOutUrl2 = ServerConfigurationService.getString("portalPath") + "/xlogin";
+						message2 = StringUtil.trimToNull(ServerConfigurationService
+								.getString("xlogin.text"));
+						image2 = StringUtil.trimToNull(ServerConfigurationService
+								.getString("xlogin.icon"));
+						logInOutUrl2 = ServerConfigurationService.getString("portalPath")
+								+ "/xlogin";
 					}
 				}
 			}
@@ -1191,14 +1398,17 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// if logged in they get logout
 			else
 			{
-				logInOutUrl += ServerConfigurationService.getString("portalPath") + "/logout";
+				logInOutUrl += ServerConfigurationService.getString("portalPath")
+						+ "/logout";
 
 				// check for a logout text override
-				message = StringUtil.trimToNull(ServerConfigurationService.getString("logout.text"));
+				message = StringUtil.trimToNull(ServerConfigurationService
+						.getString("logout.text"));
 				if (message == null) message = rloader.getString("sit_log");
 
 				// check for an image for the logout
-				image1 = StringUtil.trimToNull(ServerConfigurationService.getString("logout.icon"));
+				image1 = StringUtil.trimToNull(ServerConfigurationService
+						.getString("logout.icon"));
 
 				// since we are doing logout, cancel top.login
 				topLogin = false;
@@ -1213,7 +1423,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("loginImage1", image1);
 				rcontext.put("image1HasImage1", Boolean.valueOf(image1 != null));
 				rcontext.put("loginLogInOutUrl2", logInOutUrl2);
-				rcontext.put("loginHasLogInOutUrl2", Boolean.valueOf(logInOutUrl2 != null));
+				rcontext.put("loginHasLogInOutUrl2", Boolean
+						.valueOf(logInOutUrl2 != null));
 				rcontext.put("loginMessage2", message2);
 				rcontext.put("loginImage2", image2);
 				rcontext.put("image1HasImage2", Boolean.valueOf(image2 != null));
@@ -1234,38 +1445,50 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				if (pwWording == null) pwWording = "pw";
 				String loginWording = rloader.getString("log.login");
 
-				rcontext.put("loginPortalPath", ServerConfigurationService.getString("portalPath"));
+				rcontext.put("loginPortalPath", ServerConfigurationService
+						.getString("portalPath"));
 				rcontext.put("loginEidWording", eidWording);
 				rcontext.put("loginPwWording", pwWording);
 				rcontext.put("loginWording", loginWording);
 
 				// setup for the redirect after login
-				session.setAttribute(Tool.HELPER_DONE_URL, ServerConfigurationService.getPortalUrl());
+				session.setAttribute(Tool.HELPER_DONE_URL, ServerConfigurationService
+						.getPortalUrl());
 			}
 		}
 	}
 
 	/*
-	 * Produce a page and/or a tool list doPage = true is best for the tabs-based portal and for RSS - these think in terms of pages doPage = false is best for the portlet-style - it unrolls all of the tools unless a page is marked as a popup. If the page
-	 * is a popup - it is left a page and marked as such. restTools = true - generate resetting tool URLs.
+	 * Produce a page and/or a tool list doPage = true is best for the
+	 * tabs-based portal and for RSS - these think in terms of pages doPage =
+	 * false is best for the portlet-style - it unrolls all of the tools unless
+	 * a page is marked as a popup. If the page is a popup - it is left a page
+	 * and marked as such. restTools = true - generate resetting tool URLs.
 	 */
 
-	// TODO: Refactor code in other functions to use this code rather than doing it inline
+	// TODO: Refactor code in other functions to use this code rather than doing
+	// it inline
 	/*
-	 * Produce a page and/or a tool list doPage = true is best for the tabs-based portal and for RSS - these think in terms of pages doPage = false is best for the portlet-style - it unrolls all of the tools unless a page is marked as a popup. If the page
-	 * is a popup - it is left a page and marked as such. restTools = true - generate resetting tool URLs.
+	 * Produce a page and/or a tool list doPage = true is best for the
+	 * tabs-based portal and for RSS - these think in terms of pages doPage =
+	 * false is best for the portlet-style - it unrolls all of the tools unless
+	 * a page is marked as a popup. If the page is a popup - it is left a page
+	 * and marked as such. restTools = true - generate resetting tool URLs.
 	 */
 
-	// TODO: Refactor code in other functions to use this code rather than doing it inline
-	protected Map pageListToMap(HttpServletRequest req, boolean loggedIn, Site site, SitePage page, String toolContextPath,
-			String portalPrefix, boolean doPages, boolean resetTools, boolean includeSummary)
+	// TODO: Refactor code in other functions to use this code rather than doing
+	// it inline
+	protected Map pageListToMap(HttpServletRequest req, boolean loggedIn, Site site,
+			SitePage page, String toolContextPath, String portalPrefix, boolean doPages,
+			boolean resetTools, boolean includeSummary)
 	{
 
 		Map<String, Object> theMap = new HashMap<String, Object>();
 
-		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(site))
-				+ "/page/");
-		String toolUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(site)));
+		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
+				+ Web.escapeUrl(siteHelper.getSiteEffectiveId(site)) + "/page/");
+		String toolUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
+				+ Web.escapeUrl(siteHelper.getSiteEffectiveId(site)));
 		if (resetTools)
 		{
 			toolUrl = toolUrl + "/tool-reset/";
@@ -1276,7 +1499,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 
 		String pagePopupUrl = Web.returnUrl(req, "/page/");
-		boolean showHelp = ServerConfigurationService.getBoolean("display.help.menu", true);
+		boolean showHelp = ServerConfigurationService.getBoolean("display.help.menu",
+				true);
 		String iconUrl = site.getIconUrlFull();
 		boolean published = site.isPublished();
 		String type = site.getType();
@@ -1284,7 +1508,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		theMap.put("pageNavPublished", Boolean.valueOf(published));
 		theMap.put("pageNavType", type);
 		theMap.put("pageNavIconUrl", iconUrl);
-//		theMap.put("pageNavSitToolsHead", Web.escapeHtml(rb.getString("sit_toolshead")));
+		// theMap.put("pageNavSitToolsHead",
+		// Web.escapeHtml(rb.getString("sit_toolshead")));
 
 		// order the pages based on their tools and the tool order for the
 		// site type
@@ -1326,7 +1551,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// Do not include pages we are not supposed to see
 			if (!allowPage) continue;
 
-			boolean current = (page != null && p.getId().equals(page.getId()) && !p.isPopUp());
+			boolean current = (page != null && p.getId().equals(page.getId()) && !p
+					.isPopUp());
 			String pagerefUrl = pageUrl + Web.escapeUrl(p.getId());
 
 			if (doPages || p.isPopUp())
@@ -1374,24 +1600,32 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		theMap.put("pageNavShowHelp", Boolean.valueOf(showHelp));
 		theMap.put("pageNavHelpUrl", helpUrl);
 
-//		theMap.put("pageNavSitContentshead", Web.escapeHtml(rb.getString("sit_contentshead")));
+		// theMap.put("pageNavSitContentshead",
+		// Web.escapeHtml(rb.getString("sit_contentshead")));
 
 		// Handle Presense
-		boolean showPresence = ServerConfigurationService.getBoolean("display.users.present", true);
-		String presenceUrl = Web.returnUrl(req, "/presence/" + Web.escapeUrl(site.getId()));
+		boolean showPresence = ServerConfigurationService.getBoolean(
+				"display.users.present", true);
+		String presenceUrl = Web.returnUrl(req, "/presence/"
+				+ Web.escapeUrl(site.getId()));
 
-//		theMap.put("pageNavSitPresenceTitle", Web.escapeHtml(rb.getString("sit_presencetitle")));
-//		theMap.put("pageNavSitPresenceFrameTitle", Web.escapeHtml(rb.getString("sit_presenceiframetit")));
-		theMap.put("pageNavShowPresenceLoggedIn", Boolean.valueOf(showPresence && loggedIn));
+		// theMap.put("pageNavSitPresenceTitle",
+		// Web.escapeHtml(rb.getString("sit_presencetitle")));
+		// theMap.put("pageNavSitPresenceFrameTitle",
+		// Web.escapeHtml(rb.getString("sit_presenceiframetit")));
+		theMap.put("pageNavShowPresenceLoggedIn", Boolean.valueOf(showPresence
+				&& loggedIn));
 		theMap.put("pageNavPresenceUrl", presenceUrl);
 
 		return theMap;
 	}
 
-	public void includeWorksite(PortalRenderContext rcontext, HttpServletResponse res, HttpServletRequest req, Session session,
-			Site site, SitePage page, String toolContextPath, String portalPrefix) throws IOException
+	public void includeWorksite(PortalRenderContext rcontext, HttpServletResponse res,
+			HttpServletRequest req, Session session, Site site, SitePage page,
+			String toolContextPath, String portalPrefix) throws IOException
 	{
-		worksiteHandler.includeWorksite(rcontext, res, req, session, site, page, toolContextPath, portalPrefix);
+		worksiteHandler.includeWorksite(rcontext, res, req, session, site, page,
+				toolContextPath, portalPrefix);
 	}
 
 	/**
@@ -1406,7 +1640,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		super.init(config);
 
 		portalContext = config.getInitParameter("portal.context");
-		if ( portalContext == null || portalContext.length() == 0 ) {
+		if (portalContext == null || portalContext.length() == 0)
+		{
 			portalContext = DEFAULT_PORTAL_CONTEXT;
 		}
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
@@ -1416,13 +1651,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		basicAuth.init();
 
 		enableDirect = portalService.isEnableDirect();
-		// do this before adding handlers to prevent handlers registering 2 times.
+		// do this before adding handlers to prevent handlers registering 2
+		// times.
 		// if the handlers were already there they will be re-registered,
 		// but when they are added again, they will be replaced.
 		// warning messages will appear, but the end state will be the same.
 		portalService.addPortal(this);
-
-
 
 		galleryHandler = new GalleryHandler();
 		worksiteHandler = new WorksiteHandler();
@@ -1453,8 +1687,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		addHandler(new StaticStylesHandler());
 		addHandler(new StaticScriptsHandler());
 		addHandler(new DirectToolHandler());
-		
-		
 
 	}
 
@@ -1470,7 +1702,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	private void removeHandler(String urlFragment)
 	{
-		portalService.removeHandler(this,urlFragment);
+		portalService.removeHandler(this, urlFragment);
 	}
 
 	/**
@@ -1481,8 +1713,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * @param session
 	 * @throws IOException
 	 */
-	protected void postLogin(HttpServletRequest req, HttpServletResponse res, Session session, String loginPath)
-			throws ToolException
+	protected void postLogin(HttpServletRequest req, HttpServletResponse res,
+			Session session, String loginPath) throws ToolException
 	{
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
 		String context = req.getContextPath() + req.getServletPath() + "/" + loginPath;
@@ -1506,8 +1738,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("sessionToolSession", ts);
 	}
 
-	public void sendResponse(PortalRenderContext rcontext, HttpServletResponse res, String template, String contentType)
-			throws IOException
+	public void sendResponse(PortalRenderContext rcontext, HttpServletResponse res,
+			String template, String contentType) throws IOException
 	{
 		// headers
 		if (contentType == null)
@@ -1518,9 +1750,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			res.setContentType(contentType);
 		}
-		res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
+		res.addDateHeader("Expires", System.currentTimeMillis()
+				- (1000L * 60L * 60L * 24L * 365L));
 		res.addDateHeader("Last-Modified", System.currentTimeMillis());
-		res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
+		res
+				.addHeader("Cache-Control",
+						"no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
 		res.addHeader("Pragma", "no-cache");
 
 		// get the writer
@@ -1539,7 +1774,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	}
 
 	/**
-	 * Returns the type ("course", "project", "workspace", "mySpecialSiteType", etc) of the given site; special handling of returning "workspace" for user workspace sites. This method is tightly coupled to site skinning.
+	 * Returns the type ("course", "project", "workspace", "mySpecialSiteType",
+	 * etc) of the given site; special handling of returning "workspace" for
+	 * user workspace sites. This method is tightly coupled to site skinning.
 	 */
 	public String calcSiteType(String siteId)
 	{
@@ -1571,7 +1808,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 		Exception e = new Exception();
 		StackTraceElement se = e.getStackTrace()[1];
-		M_log.info("Log marker " + se.getMethodName() + ":" + se.getFileName() + ":" + se.getLineNumber());
+		M_log.info("Log marker " + se.getMethodName() + ":" + se.getFileName() + ":"
+				+ se.getLineNumber());
 	}
 
 	/**
@@ -1581,10 +1819,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 *        The site id to find.
 	 * @param siteList
 	 *        The list of Site objects.
-	 * @return The index position in siteList of the site with site id = value, or -1 if not found.
+	 * @return The index position in siteList of the site with site id = value,
+	 *         or -1 if not found.
 	 */
 	/*
-	 * protected int indexOf(String value, List siteList) { for (int i = 0; i < siteList.size(); i++) { Site site = (Site) siteList.get(i); if (site.equals(value)) { return i; } } return -1; }
+	 * protected int indexOf(String value, List siteList) { for (int i = 0; i <
+	 * siteList.size(); i++) { Site site = (Site) siteList.get(i); if
+	 * (site.equals(value)) { return i; } } return -1; }
 	 */
 
 	/**
@@ -1613,7 +1854,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * @param url
 	 *        The redirect url
 	 */
-	protected void sendPortalRedirect(HttpServletResponse res, String url) throws IOException
+	protected void sendPortalRedirect(HttpServletResponse res, String url)
+			throws IOException
 	{
 		PortalRenderContext rcontext = startPageContext("", null, null, null);
 		rcontext.put("redirectUrl", url);
@@ -1621,7 +1863,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	}
 
 	/**
-	 * Compute the string that will identify the user site for this user - use the EID if possible
+	 * Compute the string that will identify the user site for this user - use
+	 * the EID if possible
 	 * 
 	 * @param userId
 	 *        The user id

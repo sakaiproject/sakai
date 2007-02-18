@@ -29,39 +29,45 @@ import org.sakaiproject.tool.api.Session;
 
 /**
  * @author ieb
- *
  */
-public class ReLoginHandler  extends BasePortalHandler
+public class ReLoginHandler extends BasePortalHandler
 {
-	public ReLoginHandler() {
+	public ReLoginHandler()
+	{
 		urlFragment = "relogin";
 	}
 
-        @Override
-        public int doPost( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException {
-                return doGet(parts, req, res, session);
-        }
+	@Override
+	public int doPost(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
+	{
+		return doGet(parts, req, res, session);
+	}
 
 	@Override
-	public int doGet( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
 		if ((parts.length == 2) && (parts[1].equals("relogin")))
 		{
-			try {
+			try
+			{
 				// Note: here we send a null path, meaning we will NOT set it as
 				// a possible return path
 				// we expect we are in the middle of a login screen processing,
 				// and it's already set (user login button is "ulogin") -ggolden
 				portal.doLogin(req, res, session, null, false);
 				return END;
-			} catch ( Exception ex ) {
+			}
+			catch (Exception ex)
+			{
 				throw new PortalHandlerException(ex);
 			}
-		} else {
+		}
+		else
+		{
 			return NEXT;
 		}
 	}
-	
-	
 
 }

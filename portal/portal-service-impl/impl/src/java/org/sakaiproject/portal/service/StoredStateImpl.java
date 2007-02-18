@@ -77,7 +77,8 @@ public class StoredStateImpl implements StoredState
 	{
 		if (toolContextPath != null)
 		{
-			this.toolContextPath = PortalStringUtil.replaceFirst(toolContextPath,marker, replacement);
+			this.toolContextPath = PortalStringUtil.replaceFirst(toolContextPath, marker,
+					replacement);
 		}
 		else
 		{
@@ -94,7 +95,8 @@ public class StoredStateImpl implements StoredState
 	{
 		if (toolPathInfo != null)
 		{
-			this.toolPathInfo = PortalStringUtil.replaceFirst(toolPathInfo,marker, replacement);
+			this.toolPathInfo = PortalStringUtil.replaceFirst(toolPathInfo, marker,
+					replacement);
 		}
 		else
 		{

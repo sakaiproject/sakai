@@ -58,31 +58,31 @@ import org.sakaiproject.util.Web;
 public class SiteHandler extends WorksiteHandler
 {
 
-
 	private static final String INCLUDE_SITE_NAV = "include-site-nav";
-	
-	private static final String INCLUDE_LOGO = "include-logo";
-	
-	private static final String INCLUDE_TABS = "include-tabs";
 
+	private static final String INCLUDE_LOGO = "include-logo";
+
+	private static final String INCLUDE_TABS = "include-tabs";
 
 	private static final Log log = LogFactory.getLog(SiteHandler.class);
 
-
 	private PortalSiteHelper siteHelper = new PortalSiteHelper();
 
-	public SiteHandler() {
+	public SiteHandler()
+	{
 		urlFragment = "site";
 	}
 
-        @Override
-        public int doPost( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException {
-                return doGet(parts, req, res, session);
-        }
+	@Override
+	public int doPost(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
+	{
+		return doGet(parts, req, res, session);
+	}
 
 	@Override
-	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res, Session session)
-			throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
 		if ((parts.length >= 2) && (parts[1].equals("site")))
 		{
@@ -102,7 +102,8 @@ public class SiteHandler extends WorksiteHandler
 					siteId = parts[2];
 				}
 
-				doSite(req, res, session, siteId, pageId, req.getContextPath() + req.getServletPath());
+				doSite(req, res, session, siteId, pageId, req.getContextPath()
+						+ req.getServletPath());
 				return END;
 			}
 			catch (Exception ex)
@@ -116,8 +117,9 @@ public class SiteHandler extends WorksiteHandler
 		}
 	}
 
-	public void doSite(HttpServletRequest req, HttpServletResponse res, Session session, String siteId, String pageId,
-			String toolContextPath) throws ToolException, IOException
+	public void doSite(HttpServletRequest req, HttpServletResponse res, Session session,
+			String siteId, String pageId, String toolContextPath) throws ToolException,
+			IOException
 	{
 		// default site if not set
 		if (siteId == null)
@@ -183,11 +185,13 @@ public class SiteHandler extends WorksiteHandler
 		session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, page.getId());
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : " + site.getTitle() + " : " + page.getTitle();
+		String title = ServerConfigurationService.getString("ui.service") + " : "
+				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response
 		String siteType = portal.calcSiteType(siteId);
-		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site.getSkin(), req);
+		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
+				.getSkin(), req);
 
 		// the 'full' top area
 		includeSiteNav(rcontext, req, session, siteId);
@@ -200,7 +204,8 @@ public class SiteHandler extends WorksiteHandler
 		portal.sendResponse(rcontext, res, "site", null);
 	}
 
-	protected void includeSiteNav(PortalRenderContext rcontext, HttpServletRequest req, Session session, String siteId)
+	protected void includeSiteNav(PortalRenderContext rcontext, HttpServletRequest req,
+			Session session, String siteId)
 	{
 		if (rcontext.uses(INCLUDE_SITE_NAV))
 		{
@@ -225,13 +230,19 @@ public class SiteHandler extends WorksiteHandler
 				siteNavClass = "sitenav-log";
 			}
 
-			String accessibilityURL = ServerConfigurationService.getString("accessibility.url");
-			rcontext.put("siteNavHasAccessibilityURL", Boolean.valueOf((accessibilityURL != null && accessibilityURL != "")));
+			String accessibilityURL = ServerConfigurationService
+					.getString("accessibility.url");
+			rcontext.put("siteNavHasAccessibilityURL", Boolean
+					.valueOf((accessibilityURL != null && accessibilityURL != "")));
 			rcontext.put("siteNavAccessibilityURL", accessibilityURL);
-//			rcontext.put("siteNavSitAccessability", Web.escapeHtml(rb.getString("sit_accessibility")));
-//			rcontext.put("siteNavSitJumpContent", Web.escapeHtml(rb.getString("sit_jumpcontent")));
-//			rcontext.put("siteNavSitJumpTools", Web.escapeHtml(rb.getString("sit_jumptools")));
-//			rcontext.put("siteNavSitJumpWorksite", Web.escapeHtml(rb.getString("sit_jumpworksite")));
+			// rcontext.put("siteNavSitAccessability",
+			// Web.escapeHtml(rb.getString("sit_accessibility")));
+			// rcontext.put("siteNavSitJumpContent",
+			// Web.escapeHtml(rb.getString("sit_jumpcontent")));
+			// rcontext.put("siteNavSitJumpTools",
+			// Web.escapeHtml(rb.getString("sit_jumptools")));
+			// rcontext.put("siteNavSitJumpWorksite",
+			// Web.escapeHtml(rb.getString("sit_jumpworksite")));
 
 			rcontext.put("siteNavLoggedIn", Boolean.valueOf(loggedIn));
 
@@ -245,7 +256,8 @@ public class SiteHandler extends WorksiteHandler
 				else
 				{
 					includeLogo(rcontext, req, session, siteId);
-					if (siteHelper.doGatewaySiteList()) includeTabs(rcontext, req, session, siteId, "site", false);
+					if (siteHelper.doGatewaySiteList())
+						includeTabs(rcontext, req, session, siteId, "site", false);
 				}
 			}
 			catch (Exception any)
@@ -254,8 +266,8 @@ public class SiteHandler extends WorksiteHandler
 		}
 	}
 
-	public void includeLogo(PortalRenderContext rcontext, HttpServletRequest req, Session session, String siteId)
-			throws IOException
+	public void includeLogo(PortalRenderContext rcontext, HttpServletRequest req,
+			Session session, String siteId) throws IOException
 	{
 		if (rcontext.uses(INCLUDE_LOGO))
 		{
@@ -275,8 +287,10 @@ public class SiteHandler extends WorksiteHandler
 			portal.includeLogin(rcontext, req, session);
 		}
 	}
-	public void includeTabs(PortalRenderContext rcontext, HttpServletRequest req, Session session, String siteId, String prefix,
-			boolean addLogout) throws IOException
+
+	public void includeTabs(PortalRenderContext rcontext, HttpServletRequest req,
+			Session session, String siteId, String prefix, boolean addLogout)
+			throws IOException
 	{
 
 		if (rcontext.uses(INCLUDE_TABS))
@@ -289,7 +303,8 @@ public class SiteHandler extends WorksiteHandler
 			// If we have turned on auto-state reset on navigation, we generate
 			// the
 			// "site-reset" "worksite-reset" and "gallery-reset" urls
-			if ("true".equals(ServerConfigurationService.getString(Portal.CONFIG_AUTO_RESET)))
+			if ("true".equals(ServerConfigurationService
+					.getString(Portal.CONFIG_AUTO_RESET)))
 			{
 				prefix = prefix + "-reset";
 			}
@@ -300,11 +315,13 @@ public class SiteHandler extends WorksiteHandler
 			int prefTabs = 4;
 			int tabsToDisplay = prefTabs;
 
-			// Get the list of sites in the right order, don't include My WorkSpace
+			// Get the list of sites in the right order, don't include My
+			// WorkSpace
 			List<Site> mySites = siteHelper.getAllSites(req, session, false);
 			if (!loggedIn)
 			{
-				prefTabs = ServerConfigurationService.getInt("gatewaySiteListDisplayCount", prefTabs);
+				prefTabs = ServerConfigurationService.getInt(
+						"gatewaySiteListDisplayCount", prefTabs);
 			}
 			else
 			{
@@ -323,12 +340,15 @@ public class SiteHandler extends WorksiteHandler
 					}
 				}
 
-				// TODO: Clean this mess up and just put the workspace in the context
+				// TODO: Clean this mess up and just put the workspace in the
+				// context
 				// and let the vm figure it out using isMyWorkSpace
-				curMyWorkspace = ((siteId == null) || (SiteService.isUserSite(siteId) && ((SiteService.getSiteUserId(siteId)
-						.equals(curUserId) || SiteService.getSiteUserId(siteId).equals(curUserEid)))));
+				curMyWorkspace = ((siteId == null) || (SiteService.isUserSite(siteId) && ((SiteService
+						.getSiteUserId(siteId).equals(curUserId) || SiteService
+						.getSiteUserId(siteId).equals(curUserEid)))));
 
-				// if this is a My Workspace, it gets its own tab and should not be
+				// if this is a My Workspace, it gets its own tab and should not
+				// be
 				// considered in the other tab logic - but save the ID for later
 				if (curMyWorkspace)
 				{
@@ -339,8 +359,10 @@ public class SiteHandler extends WorksiteHandler
 				// collect the user's preferences
 				if (session.getUserId() != null)
 				{
-					Preferences prefs = PreferencesService.getPreferences(session.getUserId());
-					ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
+					Preferences prefs = PreferencesService.getPreferences(session
+							.getUserId());
+					ResourceProperties props = prefs
+							.getProperties("sakai:portal:sitenav");
 					try
 					{
 						prefTabs = (int) props.getLongProperty("tabs");
@@ -359,7 +381,7 @@ public class SiteHandler extends WorksiteHandler
 				int remove = mySites.size() - tabsToDisplay;
 				for (int i = 0; i < remove; i++)
 				{
-					Site site = (Site) mySites.get(tabsToDisplay);
+					Site site = mySites.get(tabsToDisplay);
 
 					// add to more unless it's the current site (it will get an
 					// extra tag)
@@ -411,16 +433,20 @@ public class SiteHandler extends WorksiteHandler
 							try
 							{
 								String userId = UserDirectoryService.getUserId(userEid);
-								Site site = SiteService.getSite(SiteService.getUserSiteId(userId));
+								Site site = SiteService.getSite(SiteService
+										.getUserSiteId(userId));
 								extraTitle = site.getTitle();
 							}
 							catch (UserNotDefinedException ee)
 							{
-								log.warn("includeTabs: cur site not found (not ~eid): " + siteId);
+								log.warn("includeTabs: cur site not found (not ~eid): "
+										+ siteId);
 							}
 							catch (IdUnusedException ee)
 							{
-								log.warn("includeTabs: cur site not found (assumed ~eid, didn't find site): " + siteId);
+								log
+										.warn("includeTabs: cur site not found (assumed ~eid, didn't find site): "
+												+ siteId);
 							}
 						}
 						else
@@ -431,26 +457,37 @@ public class SiteHandler extends WorksiteHandler
 				}
 			}
 
-			String cssClass = (siteType != null) ? "siteNavWrap " + siteType : "siteNavWrap";
+			String cssClass = (siteType != null) ? "siteNavWrap " + siteType
+					: "siteNavWrap";
 
 			if (loggedIn)
 			{
-				String mySiteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/"
-						+ Web.escapeUrl(portal.getUserEidBasedSiteId(session.getUserId()));
+				String mySiteUrl = Web.serverUrl(req)
+						+ ServerConfigurationService.getString("portalPath")
+						+ "/"
+						+ prefix
+						+ "/"
+						+ Web
+								.escapeUrl(portal.getUserEidBasedSiteId(session
+										.getUserId()));
 				rcontext.put("tabsSiteUrl", mySiteUrl);
 			}
 
 			rcontext.put("tabsCssClass", cssClass);
-//			rcontext.put("tabsSitWorksiteHead", Web.escapeHtml(rb.getString("sit_worksiteshead")));
+			// rcontext.put("tabsSitWorksiteHead",
+			// Web.escapeHtml(rb.getString("sit_worksiteshead")));
 			rcontext.put("tabsCurMyWorkspace", Boolean.valueOf(curMyWorkspace));
-//			rcontext.put("tabsSitMyWorkspace", rb.getString("sit_mywor"));
+			// rcontext.put("tabsSitMyWorkspace", rb.getString("sit_mywor"));
 
-//			rcontext.put("tabsSitWorksite", Web.escapeHtml(rb.getString("sit_worksite")));
+			// rcontext.put("tabsSitWorksite",
+			// Web.escapeHtml(rb.getString("sit_worksite")));
 
-			List<Map> l = portal.convertSitesToMaps(req, mySites, origPrefix, siteId, myWorkspaceSiteId,
-			/* includeSummary */false, /* expandSite */false,
-			/* resetTools */"true".equals(ServerConfigurationService.getString(Portal.CONFIG_AUTO_RESET)),
-			/* doPages */true, /* toolContextPath */null, loggedIn);
+			List<Map> l = portal.convertSitesToMaps(req, mySites, origPrefix, siteId,
+					myWorkspaceSiteId,
+					/* includeSummary */false, /* expandSite */false,
+					/* resetTools */"true".equals(ServerConfigurationService
+							.getString(Portal.CONFIG_AUTO_RESET)),
+					/* doPages */true, /* toolContextPath */null, loggedIn);
 
 			rcontext.put("tabsSites", l);
 
@@ -463,8 +500,10 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			rcontext.put("tabsMoreSitesShow", Boolean.valueOf(moreSites.size() > 0));
-//			rcontext.put("tabsSitMore", Web.escapeHtml(rb.getString("sit_more")));
-//			rcontext.put("tabsSitSelectMessage", Web.escapeHtml(rb.getString("sit_selectmessage")));
+			// rcontext.put("tabsSitMore",
+			// Web.escapeHtml(rb.getString("sit_more")));
+			// rcontext.put("tabsSitSelectMessage",
+			// Web.escapeHtml(rb.getString("sit_selectmessage")));
 			// more dropdown
 			if (moreSites.size() > 0)
 			{
@@ -476,8 +515,9 @@ public class SiteHandler extends WorksiteHandler
 					Map<String, Object> m = new HashMap<String, Object>();
 
 					Site s = (Site) i.next();
-					String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/"
-							+ siteHelper.getSiteEffectiveId(s);
+					String siteUrl = Web.serverUrl(req)
+							+ ServerConfigurationService.getString("portalPath") + "/"
+							+ prefix + "/" + siteHelper.getSiteEffectiveId(s);
 					m.put("siteTitle", Web.escapeHtml(s.getTitle()));
 					m.put("siteUrl", siteUrl);
 					l.add(m);
@@ -488,9 +528,12 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("tabsAddLogout", Boolean.valueOf(addLogout));
 			if (addLogout)
 			{
-				String logoutUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/logout_gallery";
+				String logoutUrl = Web.serverUrl(req)
+						+ ServerConfigurationService.getString("portalPath")
+						+ "/logout_gallery";
 				rcontext.put("tabsLogoutUrl", logoutUrl);
-//				rcontext.put("tabsSitLog", Web.escapeHtml(rb.getString("sit_log")));
+				// rcontext.put("tabsSitLog",
+				// Web.escapeHtml(rb.getString("sit_log")));
 			}
 		}
 	}

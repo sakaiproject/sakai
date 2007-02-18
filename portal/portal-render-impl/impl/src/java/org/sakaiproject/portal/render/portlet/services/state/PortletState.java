@@ -1,205 +1,236 @@
 package org.sakaiproject.portal.render.portlet.services.state;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import javax.portlet.PortletMode;
-import javax.portlet.WindowState;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Collections;
+
+import javax.portlet.PortletMode;
+import javax.portlet.WindowState;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
  */
-public class PortletState implements Serializable {
+public class PortletState implements Serializable
+{
 
-    private static final Log LOG =
-        LogFactory.getLog(PortletState.class);
+	private static final Log LOG = LogFactory.getLog(PortletState.class);
 
-    //
-    // Session Scoped State
-    //
-    private String id;
-    private boolean action;
-    private boolean secure;
-    private Map parameters;
-    
+	//
+	// Session Scoped State
+	//
+	private String id;
 
-    // Transient state
+	private boolean action;
 
-    private transient PortletMode portletMode;
-    private transient WindowState windowState;
+	private boolean secure;
 
-    //
-    // Request scoped state
-    //
+	private Map parameters;
 
-    private String title;
-    private Map requestProperties;
-    private Map responseProperties;
+	// Transient state
 
+	private transient PortletMode portletMode;
 
+	private transient WindowState windowState;
 
-    public PortletState(String id) {
-        this.id = id;
-        portletMode = PortletMode.VIEW;
-        windowState = WindowState.NORMAL;
-        parameters = new HashMap();
-    }
+	//
+	// Request scoped state
+	//
 
+	private String title;
 
-    public PortletState(PortletState currentState) {
-        this(currentState.getId());
-        setAction(currentState.isAction());
-        setSecure(currentState.isSecure());
-        getParameters().putAll(currentState.getParameters());
-        setPortletMode(currentState.getPortletMode());
-        setWindowState(currentState.getWindowState());
-    }
+	private Map requestProperties;
 
+	private Map responseProperties;
 
-    public String getId() {
-        return id;
-    }
+	public PortletState(String id)
+	{
+		this.id = id;
+		portletMode = PortletMode.VIEW;
+		windowState = WindowState.NORMAL;
+		parameters = new HashMap();
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public PortletState(PortletState currentState)
+	{
+		this(currentState.getId());
+		setAction(currentState.isAction());
+		setSecure(currentState.isSecure());
+		getParameters().putAll(currentState.getParameters());
+		setPortletMode(currentState.getPortletMode());
+		setWindowState(currentState.getWindowState());
+	}
 
-    public boolean isAction() {
-        return action;
-    }
+	public String getId()
+	{
+		return id;
+	}
 
-    public void setAction(boolean action) {
-        this.action = action;
-    }
+	public void setId(String id)
+	{
+		this.id = id;
+	}
 
-    public boolean isSecure() {
-        return secure;
-    }
+	public boolean isAction()
+	{
+		return action;
+	}
 
-    public void setSecure(boolean secure) {
-        this.secure = secure;
-    }
+	public void setAction(boolean action)
+	{
+		this.action = action;
+	}
 
-    public Map getParameters() {
-        return new HashMap(parameters);
-    }
+	public boolean isSecure()
+	{
+		return secure;
+	}
 
-    public void setParameters(Map parameters) {
-        this.parameters = parameters;
-    }
+	public void setSecure(boolean secure)
+	{
+		this.secure = secure;
+	}
 
-    public void clearParameters() {
-        this.parameters.clear();
-    }
+	public Map getParameters()
+	{
+		return new HashMap(parameters);
+	}
 
-    public PortletMode getPortletMode() {
-        return portletMode;
-    }
+	public void setParameters(Map parameters)
+	{
+		this.parameters = parameters;
+	}
 
-    public void setPortletMode(PortletMode portletMode) {
-        this.portletMode = portletMode;
-    }
+	public void clearParameters()
+	{
+		this.parameters.clear();
+	}
 
-    public WindowState getWindowState() {
-        return windowState;
-    }
+	public PortletMode getPortletMode()
+	{
+		return portletMode;
+	}
 
-    public void setWindowState(WindowState windowState) {
-        this.windowState = windowState;
-    }
+	public void setPortletMode(PortletMode portletMode)
+	{
+		this.portletMode = portletMode;
+	}
 
-//
-// request scoped state
-//
+	public WindowState getWindowState()
+	{
+		return windowState;
+	}
 
-    public String getTitle() {
-        return title;
-    }
+	public void setWindowState(WindowState windowState)
+	{
+		this.windowState = windowState;
+	}
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+	//
+	// request scoped state
+	//
 
-    public Map getRequestProperties() {
-        return requestProperties;
-    }
+	public String getTitle()
+	{
+		return title;
+	}
 
-    public void setRequestProperties(Map requestProperties) {
-        this.requestProperties = requestProperties;
-    }
+	public void setTitle(String title)
+	{
+		this.title = title;
+	}
 
-    public Map getResponseProperties() {
-        return responseProperties;
-    }
+	public Map getRequestProperties()
+	{
+		return requestProperties;
+	}
 
-    public void setResponseProperties(Map responseProperties) {
-        this.responseProperties = responseProperties;
-    }
+	public void setRequestProperties(Map requestProperties)
+	{
+		this.requestProperties = requestProperties;
+	}
 
+	public Map getResponseProperties()
+	{
+		return responseProperties;
+	}
 
+	public void setResponseProperties(Map responseProperties)
+	{
+		this.responseProperties = responseProperties;
+	}
 
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 
-        PortletState that = (PortletState) o;
+		PortletState that = (PortletState) o;
 
-        if (action != that.action) return false;
-        if (secure != that.secure) return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (parameters != null ? !parameters.equals(that.parameters) : that.parameters != null) return false;
-        if (portletMode != null ? !portletMode.equals(that.portletMode) : that.portletMode != null) return false;
-        if (windowState != null ? !windowState.equals(that.windowState) : that.windowState != null) return false;
+		if (action != that.action) return false;
+		if (secure != that.secure) return false;
+		if (id != null ? !id.equals(that.id) : that.id != null) return false;
+		if (parameters != null ? !parameters.equals(that.parameters)
+				: that.parameters != null) return false;
+		if (portletMode != null ? !portletMode.equals(that.portletMode)
+				: that.portletMode != null) return false;
+		if (windowState != null ? !windowState.equals(that.windowState)
+				: that.windowState != null) return false;
 
-        return true;
-    }
+		return true;
+	}
 
-    public int hashCode() {
-        int result;
-        result = (id != null ? id.hashCode() : 0);
-        result = 31 * result + (action ? 1 : 0);
-        result = 31 * result + (secure ? 1 : 0);
-        result = 31 * result + (parameters != null ? parameters.hashCode() : 0);
-        result = 31 * result + (portletMode != null ? portletMode.hashCode() : 0);
-        result = 31 * result + (windowState != null ? windowState.hashCode() : 0);
-        return result;
-    }
+	@Override
+	public int hashCode()
+	{
+		int result;
+		result = (id != null ? id.hashCode() : 0);
+		result = 31 * result + (action ? 1 : 0);
+		result = 31 * result + (secure ? 1 : 0);
+		result = 31 * result + (parameters != null ? parameters.hashCode() : 0);
+		result = 31 * result + (portletMode != null ? portletMode.hashCode() : 0);
+		result = 31 * result + (windowState != null ? windowState.hashCode() : 0);
+		return result;
+	}
 
-// Serialization
+	// Serialization
 
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Serializing PortletState [action=" + action + "]");
-        }
+	private void writeObject(ObjectOutputStream out) throws IOException
+	{
+		if (LOG.isDebugEnabled())
+		{
+			LOG.debug("Serializing PortletState [action=" + action + "]");
+		}
 
-        out.writeObject(id);
-        out.writeBoolean(action);
-        out.writeBoolean(secure);
-        out.writeObject(parameters);
-        out.writeObject(portletMode.toString());
-        out.writeObject(windowState.toString());
-    }
+		out.writeObject(id);
+		out.writeBoolean(action);
+		out.writeBoolean(secure);
+		out.writeObject(parameters);
+		out.writeObject(portletMode.toString());
+		out.writeObject(windowState.toString());
+	}
 
-    private void readObject(ObjectInputStream in) throws IOException,
-        ClassNotFoundException {
+	private void readObject(ObjectInputStream in) throws IOException,
+			ClassNotFoundException
+	{
 
-        id = in.readObject().toString();
-        action = in.readBoolean();
-        secure = in.readBoolean();
-        parameters = (Map) in.readObject();
-        portletMode = new PortletMode(in.readObject().toString());
-        windowState = new WindowState(in.readObject().toString());
-        
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Deserializing PortletState [action=" + action + "]");
-        }
+		id = in.readObject().toString();
+		action = in.readBoolean();
+		secure = in.readBoolean();
+		parameters = (Map) in.readObject();
+		portletMode = new PortletMode(in.readObject().toString());
+		windowState = new WindowState(in.readObject().toString());
 
-    }
+		if (LOG.isDebugEnabled())
+		{
+			LOG.debug("Deserializing PortletState [action=" + action + "]");
+		}
+
+	}
 }

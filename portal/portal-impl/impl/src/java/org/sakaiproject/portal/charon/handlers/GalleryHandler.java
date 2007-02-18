@@ -39,7 +39,6 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
-import org.sakaiproject.util.Web;
 
 /**
  * @author ieb
@@ -48,16 +47,19 @@ public class GalleryHandler extends SiteHandler
 {
 
 	private static final String INCLUDE_GALLERY_NAV = "include-gallery-nav";
+
 	private static final String INCLUDE_GALLERY_LOGIN = "include-gallery-login";
 
 	private PortalSiteHelper siteHelper = new PortalSiteHelper();
-	public GalleryHandler() {
+
+	public GalleryHandler()
+	{
 		urlFragment = "gallery";
 	}
 
 	@Override
-	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res, Session session)
-			throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
 		if ((parts.length >= 2) && (parts[1].equals("gallery")))
 		{
@@ -77,7 +79,8 @@ public class GalleryHandler extends SiteHandler
 					siteId = parts[2];
 				}
 
-				doGallery(req, res, session, siteId, pageId, req.getContextPath() + req.getServletPath());
+				doGallery(req, res, session, siteId, pageId, req.getContextPath()
+						+ req.getServletPath());
 				return END;
 			}
 			catch (Exception ex)
@@ -91,8 +94,9 @@ public class GalleryHandler extends SiteHandler
 		}
 	}
 
-	public void doGallery(HttpServletRequest req, HttpServletResponse res, Session session, String siteId, String pageId,
-			String toolContextPath) throws ToolException, IOException
+	public void doGallery(HttpServletRequest req, HttpServletResponse res,
+			Session session, String siteId, String pageId, String toolContextPath)
+			throws ToolException, IOException
 	{
 		// check to default site id
 		if (siteId == null)
@@ -100,7 +104,8 @@ public class GalleryHandler extends SiteHandler
 			if (session.getUserId() == null)
 			{
 				String forceLogin = req.getParameter(Portal.PARAM_FORCE_LOGIN);
-				if (forceLogin == null || "yes".equalsIgnoreCase(forceLogin) || "true".equalsIgnoreCase(forceLogin))
+				if (forceLogin == null || "yes".equalsIgnoreCase(forceLogin)
+						|| "true".equalsIgnoreCase(forceLogin))
 				{
 					portal.doLogin(req, res, session, req.getPathInfo(), false);
 					return;
@@ -164,24 +169,27 @@ public class GalleryHandler extends SiteHandler
 		session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, page.getId());
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : " + site.getTitle() + " : " + page.getTitle();
+		String title = ServerConfigurationService.getString("ui.service") + " : "
+				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response
 		String siteType = portal.calcSiteType(siteId);
-		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site.getSkin(), req);
+		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
+				.getSkin(), req);
 
 		// the 'little' top area
 		includeGalleryNav(rcontext, req, session, siteId, "gallery");
 
-		includeWorksite(rcontext, res, req, session, site, page, toolContextPath, "gallery");
+		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
+				"gallery");
 
 		portal.includeBottom(rcontext);
 
 		portal.sendResponse(rcontext, res, "gallery", null);
 	}
 
-	protected void includeGalleryNav(PortalRenderContext rcontext, HttpServletRequest req, Session session, String siteId,
-			String prefix)
+	protected void includeGalleryNav(PortalRenderContext rcontext,
+			HttpServletRequest req, Session session, String siteId, String prefix)
 	{
 		if (rcontext.uses(INCLUDE_GALLERY_NAV))
 		{
@@ -190,14 +198,20 @@ public class GalleryHandler extends SiteHandler
 			boolean topLogin = ServerConfigurationService.getBoolean("top.login", true);
 
 			// outer blocks and jump-to links
-			String accessibilityURL = ServerConfigurationService.getString("accessibility.url");
-			rcontext.put("galleryHasAccessibilityURL", Boolean.valueOf((accessibilityURL != null && accessibilityURL != "")));
+			String accessibilityURL = ServerConfigurationService
+					.getString("accessibility.url");
+			rcontext.put("galleryHasAccessibilityURL", Boolean
+					.valueOf((accessibilityURL != null && accessibilityURL != "")));
 
 			rcontext.put("galleryAccessibilityURL", accessibilityURL);
-//			rcontext.put("gallarySitAccessibility", Web.escapeHtml(rb.getString("sit_accessibility")));
-//			rcontext.put("gallarySitJumpcontent", Web.escapeHtml(rb.getString("sit_jumpcontent")));
-//			rcontext.put("gallarySitJumptools", Web.escapeHtml(rb.getString("sit_jumptools")));
-//			rcontext.put("gallarySitJumpworksite", Web.escapeHtml(rb.getString("sit_")));
+			// rcontext.put("gallarySitAccessibility",
+			// Web.escapeHtml(rb.getString("sit_accessibility")));
+			// rcontext.put("gallarySitJumpcontent",
+			// Web.escapeHtml(rb.getString("sit_jumpcontent")));
+			// rcontext.put("gallarySitJumptools",
+			// Web.escapeHtml(rb.getString("sit_jumptools")));
+			// rcontext.put("gallarySitJumpworksite",
+			// Web.escapeHtml(rb.getString("sit_")));
 			rcontext.put("gallaryLoggedIn", Boolean.valueOf(loggedIn));
 
 			try
@@ -218,8 +232,8 @@ public class GalleryHandler extends SiteHandler
 
 	}
 
-	protected void includeGalleryLogin(PortalRenderContext rcontext, HttpServletRequest req, Session session, String siteId)
-			throws IOException
+	protected void includeGalleryLogin(PortalRenderContext rcontext,
+			HttpServletRequest req, Session session, String siteId) throws IOException
 	{
 		if (rcontext.uses(INCLUDE_GALLERY_LOGIN))
 		{

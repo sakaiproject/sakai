@@ -33,36 +33,46 @@ import org.sakaiproject.tool.api.ToolException;
 
 /**
  * @author ieb
- *
  */
 public class ErrorDoneHandler extends BasePortalHandler
 {
-	
-	public ErrorDoneHandler() {
+
+	public ErrorDoneHandler()
+	{
 		urlFragment = "error-reported";
 	}
+
 	@Override
-	public int doPost( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException {
+	public int doPost(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
+	{
 		return doGet(parts, req, res, session);
 	}
 
-
 	@Override
-	public int doGet( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
 		if ((parts.length >= 2) && (parts[1].equals("error-reported")))
 		{
-			try {
+			try
+			{
 				doErrorDone(req, res);
 				return END;
-			} catch ( Exception ex ) {
+			}
+			catch (Exception ex)
+			{
 				throw new PortalHandlerException(ex);
 			}
-		} else {
+		}
+		else
+		{
 			return NEXT;
 		}
 	}
-	public void doErrorDone(HttpServletRequest req, HttpServletResponse res) throws ToolException, IOException
+
+	public void doErrorDone(HttpServletRequest req, HttpServletResponse res)
+			throws ToolException, IOException
 	{
 		portal.setupForward(req, res, null, null);
 

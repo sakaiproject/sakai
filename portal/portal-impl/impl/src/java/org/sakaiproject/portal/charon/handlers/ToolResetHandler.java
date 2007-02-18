@@ -31,21 +31,23 @@ import org.sakaiproject.util.Web;
 /**
  * @author ieb
  */
-public class ToolResetHandler  extends BasePortalHandler
+public class ToolResetHandler extends BasePortalHandler
 {
-	public ToolResetHandler() {
+	public ToolResetHandler()
+	{
 		urlFragment = "tool-reset";
 	}
 
 	@Override
-	public int doGet( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session)
-			throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
 		if ((parts.length > 2) && (parts[1].equals("tool-reset")))
 		{
 			try
 			{
-				String toolUrl = req.getContextPath() + "/tool" + Web.makePath(parts, 2, parts.length);
+				String toolUrl = req.getContextPath() + "/tool"
+						+ Web.makePath(parts, 2, parts.length);
 				// Make sure to add the parameters such as panel=Main
 				String queryString = req.getQueryString();
 				if (queryString != null)

@@ -29,32 +29,35 @@ import org.sakaiproject.tool.api.Session;
 
 /**
  * @author ieb
- *
  */
-public class LoginHandler  extends BasePortalHandler
+public class LoginHandler extends BasePortalHandler
 {
 
-	public LoginHandler() {
+	public LoginHandler()
+	{
 		urlFragment = "login";
 	}
 
 	@Override
-	public int doGet( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
 		if ((parts.length == 2) && (parts[1].equals("login")))
 		{
-			try {
+			try
+			{
 				portal.doLogin(req, res, session, "", false);
 				return END;
-			} catch ( Exception ex ) {
+			}
+			catch (Exception ex)
+			{
 				throw new PortalHandlerException(ex);
 			}
-		} else {
+		}
+		else
+		{
 			return NEXT;
 		}
 	}
-
-
-
 
 }

@@ -30,37 +30,44 @@ import org.sakaiproject.tool.api.Session;
 
 /**
  * @author ieb
- *
  */
-public class OpmlHandler  extends BasePortalHandler
+public class OpmlHandler extends BasePortalHandler
 {
-	public OpmlHandler() {
+	public OpmlHandler()
+	{
 		urlFragment = "opml";
 	}
 
 	@Override
-	public int doGet( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 2) && parts[1].equals("opml") )
+		if ((parts.length >= 2) && parts[1].equals("opml"))
 		{
-			try {
+			try
+			{
 				String siteId = null;
 				if (parts.length >= 3)
 				{
 					siteId = parts[2];
 				}
 
-				PortalRenderContext rcontext = portal.includePortal(req, res, session, siteId,
-				/* toolId */null, req.getContextPath() + req.getServletPath(),
-				/* prefix */"site", /* doPages */true, /* resetTools */false,
-				/* includeSummary */false, /* expandSite */true);
+				PortalRenderContext rcontext = portal.includePortal(req, res, session,
+						siteId,
+						/* toolId */null, req.getContextPath() + req.getServletPath(),
+						/* prefix */"site", /* doPages */true, /* resetTools */false,
+						/* includeSummary */false, /* expandSite */true);
 				// sendResponse(rcontext, res, parts[1], "text/x-opml");
 				portal.sendResponse(rcontext, res, parts[1], "text/xml");
 				return END;
-			} catch ( Exception ex ) {
+			}
+			catch (Exception ex)
+			{
 				throw new PortalHandlerException(ex);
 			}
-		} else {
+		}
+		else
+		{
 			return NEXT;
 		}
 	}

@@ -29,31 +29,35 @@ import org.sakaiproject.tool.api.Session;
 
 /**
  * @author ieb
- *
  */
-public class LogoutGalleryHandler  extends BasePortalHandler
+public class LogoutGalleryHandler extends BasePortalHandler
 {
-	public LogoutGalleryHandler() {
+	public LogoutGalleryHandler()
+	{
 		urlFragment = "logout_gallery";
 	}
 
 	@Override
-	public int doGet( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
 
 		if ((parts.length == 2) && (parts[1].equals("logout_gallery")))
 		{
-			try {
+			try
+			{
 				portal.doLogout(req, res, session, "/gallery");
 				return END;
-			} catch ( Exception ex ) {
+			}
+			catch (Exception ex)
+			{
 				throw new PortalHandlerException(ex);
 			}
-		} else {
+		}
+		else
+		{
 			return NEXT;
 		}
 	}
-
-
 
 }

@@ -32,31 +32,38 @@ import org.sakaiproject.tool.api.Session;
 
 /**
  * @author ieb
- *
  */
-public class NavLoginHandler  extends SiteHandler
+public class NavLoginHandler extends SiteHandler
 {
-	public NavLoginHandler() {
+	public NavLoginHandler()
+	{
 		urlFragment = "nav_login";
 	}
 
 	@Override
-	public int doGet( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
-        if ((parts.length == 3) && (parts[1].equals("nav_login")))
+		if ((parts.length == 3) && (parts[1].equals("nav_login")))
 		{
-			try {
+			try
+			{
 				doNavLogin(req, res, session, parts[2]);
 				return END;
-			} catch ( Exception ex ) {
+			}
+			catch (Exception ex)
+			{
 				throw new PortalHandlerException(ex);
 			}
-		} else {
+		}
+		else
+		{
 			return NEXT;
 		}
 	}
 
-	public void doNavLogin(HttpServletRequest req, HttpServletResponse res, Session session, String siteId) throws IOException
+	public void doNavLogin(HttpServletRequest req, HttpServletResponse res,
+			Session session, String siteId) throws IOException
 	{
 		// start the response
 		PortalRenderContext rcontext = portal.startPageContext("", "Login", null, req);

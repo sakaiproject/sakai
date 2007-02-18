@@ -17,19 +17,20 @@ public class SakaiServletActionRequest extends HttpServletRequestWrapper
 
 	private PortletState state;
 
-	public SakaiServletActionRequest(HttpServletRequest servletRequest,
-			PortletState state)
+	public SakaiServletActionRequest(HttpServletRequest servletRequest, PortletState state)
 	{
 		super(servletRequest);
 		this.state = state;
 	}
 
+	@Override
 	public String getParameter(String string)
 	{
 		String param = super.getParameter(string);
-		if ( isEmpty(param) ) {
+		if (isEmpty(param))
+		{
 			return (String) state.getParameters().get(string);
-		} 
+		}
 		return param;
 	}
 
@@ -42,29 +43,34 @@ public class SakaiServletActionRequest extends HttpServletRequestWrapper
 		return (param == null || param.length() == 0);
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public Map getParameterMap()
 	{
 		Map paramMap = new HashMap(state.getParameters());
 		Map requestParamMap = super.getParameterMap();
-		for ( Iterator<String> i = requestParamMap.keySet().iterator(); i.hasNext(); ) {
+		for (Iterator<String> i = requestParamMap.keySet().iterator(); i.hasNext();)
+		{
 			String s = i.next();
 			paramMap.put(s, requestParamMap.get(s));
 		}
 		return paramMap;
 	}
 
+	@Override
 	public Enumeration getParameterNames()
 	{
 		return new Vector(getParameterMap().keySet()).elements();
 	}
 
+	@Override
 	public String[] getParameterValues(String string)
 	{
 		String[] v = super.getParameterValues(string);
-		if ( v == null ) {
+		if (v == null)
+		{
 			return (String[]) state.getParameters().get(string);
-		} 
+		}
 		return v;
 	}
 
@@ -83,5 +89,5 @@ public class SakaiServletActionRequest extends HttpServletRequestWrapper
 			return super.getAttribute(attributeName);
 		}
 	}
-	
+
 }

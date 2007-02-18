@@ -52,26 +52,27 @@ import org.sakaiproject.tool.api.ToolException;
 public class PageHandler extends BasePortalHandler
 {
 
-
 	private static final String INCLUDE_PAGE = "include-page";
 
 	private static final Log log = LogFactory.getLog(PageHandler.class);
 
 	protected PortalSiteHelper siteHelper = new PortalSiteHelper();
 
-
-	public PageHandler() {
+	public PageHandler()
+	{
 		urlFragment = "page";
 	}
 
-        @Override
-        public int doPost( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException {
-                return doGet(parts, req, res, session);
-        }
+	@Override
+	public int doPost(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
+	{
+		return doGet(parts, req, res, session);
+	}
 
 	@Override
-	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res, Session session)
-			throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
 		if ((parts.length == 3) && (parts[1].equals("page")))
 		{
@@ -79,14 +80,16 @@ public class PageHandler extends BasePortalHandler
 			{
 				// Resolve the placements of the form
 				// /portal/page/sakai.resources?sakai.site=~csev
-				String pagePlacement = portal.getPlacement(req, res, session, parts[2], true);
+				String pagePlacement = portal.getPlacement(req, res, session, parts[2],
+						true);
 				if (pagePlacement == null)
 				{
 					return ABORT;
 				}
 				parts[2] = pagePlacement;
 
-				doPage(req, res, session, parts[2], req.getContextPath() + req.getServletPath());
+				doPage(req, res, session, parts[2], req.getContextPath()
+						+ req.getServletPath());
 				return END;
 			}
 			catch (Exception ex)
@@ -100,8 +103,8 @@ public class PageHandler extends BasePortalHandler
 		}
 	}
 
-	public void doPage(HttpServletRequest req, HttpServletResponse res, Session session, String pageId, String toolContextPath)
-			throws ToolException, IOException
+	public void doPage(HttpServletRequest req, HttpServletResponse res, Session session,
+			String pageId, String toolContextPath) throws ToolException, IOException
 	{
 		// find the page from some site
 		SitePage page = SiteService.findPage(pageId);
@@ -137,25 +140,32 @@ public class PageHandler extends BasePortalHandler
 		}
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : " + site.getTitle() + " : " + page.getTitle();
+		String title = ServerConfigurationService.getString("ui.service") + " : "
+				+ site.getTitle() + " : " + page.getTitle();
 
 		String siteType = portal.calcSiteType(site.getId());
 		// start the response
-		PortalRenderContext rcontext = portal.startPageContext(siteType, title, page.getSkin(), req);
+		PortalRenderContext rcontext = portal.startPageContext(siteType, title, page
+				.getSkin(), req);
 
 		includePage(rcontext, res, req, page, toolContextPath, "contentFull");
 
 		portal.sendResponse(rcontext, res, "page", null);
 	}
-	public void includePage(PortalRenderContext rcontext, HttpServletResponse res, HttpServletRequest req, SitePage page,
-			String toolContextPath, String wrapperClass) throws IOException
+
+	public void includePage(PortalRenderContext rcontext, HttpServletResponse res,
+			HttpServletRequest req, SitePage page, String toolContextPath,
+			String wrapperClass) throws IOException
 	{
 		if (rcontext.uses(INCLUDE_PAGE))
 		{
 
 			// divs to wrap the tools
 			rcontext.put("pageWrapperClass", wrapperClass);
-			rcontext.put("pageColumnLayout", (page.getLayout() == SitePage.LAYOUT_DOUBLE_COL) ? "col1of2" : "col1");
+			rcontext
+					.put("pageColumnLayout",
+							(page.getLayout() == SitePage.LAYOUT_DOUBLE_COL) ? "col1of2"
+									: "col1");
 			Site site = null;
 			try
 			{
@@ -164,7 +174,8 @@ public class PageHandler extends BasePortalHandler
 			catch (Exception ignoreMe)
 			{
 				// Non fatal - just assume null
-				if (log.isTraceEnabled()) log.trace("includePage unable to find site for page " + page.getId());
+				if (log.isTraceEnabled())
+					log.trace("includePage unable to find site for page " + page.getId());
 			}
 			{
 				List<Map> toolList = new ArrayList<Map>();
@@ -191,7 +202,8 @@ public class PageHandler extends BasePortalHandler
 				rcontext.put("pageColumn0Tools", toolList);
 			}
 
-			rcontext.put("pageTwoColumn", Boolean.valueOf(page.getLayout() == SitePage.LAYOUT_DOUBLE_COL));
+			rcontext.put("pageTwoColumn", Boolean
+					.valueOf(page.getLayout() == SitePage.LAYOUT_DOUBLE_COL));
 
 			// do the second column if needed
 			if (page.getLayout() == SitePage.LAYOUT_DOUBLE_COL)
@@ -211,6 +223,5 @@ public class PageHandler extends BasePortalHandler
 			}
 		}
 	}
-
 
 }

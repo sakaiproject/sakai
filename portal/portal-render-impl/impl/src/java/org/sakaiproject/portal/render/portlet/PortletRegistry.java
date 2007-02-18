@@ -6,7 +6,6 @@ import java.util.Properties;
 
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.render.api.ToolRenderException;
-import org.sakaiproject.portal.render.portlet.services.SakaiPortletContainerServices;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
 
@@ -54,19 +53,19 @@ public class PortletRegistry
 	 */
 	public SakaiPortletWindow getPortletWindow(String placementId)
 	{
-		return (SakaiPortletWindow) portletWindows.get(placementId);
+		return portletWindows.get(placementId);
 	}
 
-	private void createPortletWindow(Placement placement)
-			throws ToolRenderException
+	private void createPortletWindow(Placement placement) throws ToolRenderException
 	{
 		SakaiPortletConfig pc = new SakaiPortletConfig(placement);
-		if ( ! pc.isPortletConfig() ) {
+		if (!pc.isPortletConfig())
+		{
 			return;
 		}
 		String windowId = placement.getId();
-		SakaiPortletWindow window = new SakaiPortletWindow(windowId,
-				pc.contextPath, pc.portletName);
+		SakaiPortletWindow window = new SakaiPortletWindow(windowId, pc.contextPath,
+				pc.portletName);
 		portletWindows.put(windowId, window);
 	}
 
@@ -79,7 +78,9 @@ public class PortletRegistry
 	public class SakaiPortletConfig
 	{
 		private String portletName = null;
+
 		private String contextPath = null;
+
 		private boolean portlet = false;
 
 		public SakaiPortletConfig(Placement placement)
@@ -88,14 +89,13 @@ public class PortletRegistry
 			{
 				return;
 			}
-			
+
 			Properties toolProperties = placement.getPlacementConfig();
 			if (toolProperties != null)
 			{
 				contextPath = toolProperties
 						.getProperty(PortalService.TOOL_PORTLET_CONTEXT_PATH);
-				portletName = toolProperties
-						.getProperty(PortalService.TOOL_PORTLET_NAME);
+				portletName = toolProperties.getProperty(PortalService.TOOL_PORTLET_NAME);
 			}
 			Properties configProperties = placement.getConfig();
 			if (configProperties != null)
@@ -111,10 +111,12 @@ public class PortletRegistry
 							.getProperty(PortalService.TOOL_PORTLET_NAME);
 				}
 			}
-			portlet =  !(isEmpty(contextPath) || isEmpty(portletName));
+			portlet = !(isEmpty(contextPath) || isEmpty(portletName));
 
 		}
-		public boolean isPortletConfig() {
+
+		public boolean isPortletConfig()
+		{
 			return portlet;
 		}
 

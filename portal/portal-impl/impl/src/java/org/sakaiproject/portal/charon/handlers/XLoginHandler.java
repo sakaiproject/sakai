@@ -29,33 +29,41 @@ import org.sakaiproject.tool.api.Session;
 
 /**
  * @author ieb
- *
  */
-public class XLoginHandler  extends BasePortalHandler
+public class XLoginHandler extends BasePortalHandler
 {
-	public XLoginHandler() {
+	public XLoginHandler()
+	{
 		urlFragment = "xlogin";
 	}
+
 	@Override
-	public int doPost( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException {
+	public int doPost(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
+	{
 		return doGet(parts, req, res, session);
 	}
 
 	@Override
-	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
 		if ((parts.length == 2) && ((parts[1].equals("xlogin"))))
 		{
-			try {
+			try
+			{
 				portal.doLogin(req, res, session, "", true);
 				return END;
-			} catch ( Exception ex ) {
+			}
+			catch (Exception ex)
+			{
 				throw new PortalHandlerException(ex);
 			}
-		} else {
+		}
+		else
+		{
 			return NEXT;
 		}
 	}
-
 
 }

@@ -1,57 +1,68 @@
 package org.sakaiproject.portal.render.portlet;
 
-import org.sakaiproject.portal.render.portlet.services.state.PortletState;
+import javax.portlet.PortletMode;
+import javax.portlet.WindowState;
+
 import org.apache.pluto.PortletWindow;
 import org.apache.pluto.PortletWindowID;
+import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 
-import javax.portlet.WindowState;
-import javax.portlet.PortletMode;
+public class SakaiPortletWindow implements PortletWindow
+{
 
-public class SakaiPortletWindow implements PortletWindow {
+	private String contextPath;
 
-    private String contextPath;
-    private String portletName;
+	private String portletName;
 
-    private PortletState state;
+	private PortletState state;
 
-    public SakaiPortletWindow(String windowId, String contextPath, String portletName) {
-        this.contextPath = contextPath;
-        this.portletName = portletName;
-        this.state = new PortletState(windowId);
-    }
+	public SakaiPortletWindow(String windowId, String contextPath, String portletName)
+	{
+		this.contextPath = contextPath;
+		this.portletName = portletName;
+		this.state = new PortletState(windowId);
+	}
 
+	public PortletState getState()
+	{
+		return state;
+	}
 
-    public PortletState getState() {
-        return state;
-    }
+	public void setState(PortletState state)
+	{
+		this.state = state;
+	}
 
-    public void setState(PortletState state) {
-        this.state = state;
-    }
+	public PortletWindowID getId()
+	{
+		return new SakaiPortletWindowId();
+	}
 
-    public PortletWindowID getId() {
-        return new SakaiPortletWindowId();
-    }
+	public String getContextPath()
+	{
+		return contextPath;
+	}
 
-    public String getContextPath() {
-        return contextPath;
-    }
+	public String getPortletName()
+	{
+		return portletName;
+	}
 
-    public String getPortletName() {
-        return portletName;
-    }
+	public WindowState getWindowState()
+	{
+		return state.getWindowState();
+	}
 
-    public WindowState getWindowState() {
-        return state.getWindowState();
-    }
+	public PortletMode getPortletMode()
+	{
+		return state.getPortletMode();
+	}
 
-    public PortletMode getPortletMode() {
-        return state.getPortletMode();
-    }
-
-    class SakaiPortletWindowId implements PortletWindowID {
-        public String getStringId() {
-            return state.getId();
-        }
-    }
+	class SakaiPortletWindowId implements PortletWindowID
+	{
+		public String getStringId()
+		{
+			return state.getId();
+		}
+	}
 }

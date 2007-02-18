@@ -28,7 +28,6 @@ public class SakaiPortletRegistryListener implements PortletRegistryListener
 
 	private ActiveToolManager activeToolManager;
 
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -53,11 +52,10 @@ public class SakaiPortletRegistryListener implements PortletRegistryListener
 					iPortlet = ipc;
 				}
 			}
-			for (Iterator<PortletDD> i = appDD.getPortlets().iterator(); i
-					.hasNext();)
+			for (Iterator<PortletDD> i = appDD.getPortlets().iterator(); i.hasNext();)
 			{
 				PortletDD pdd = i.next();
-				PortletTool tool = new PortletTool( pdd,iPortlet, portalContext);
+				PortletTool tool = new PortletTool(pdd, iPortlet, portalContext);
 				String portlentName = pdd.getPortletName();
 				activeToolManager.register(tool, portalContext);
 
@@ -65,7 +63,7 @@ public class SakaiPortletRegistryListener implements PortletRegistryListener
 		}
 		catch (Exception e)
 		{
-			log.warn("Failed to register portlets as tools ",e);
+			log.warn("Failed to register portlets as tools ", e);
 		}
 	}
 
@@ -99,7 +97,8 @@ public class SakaiPortletRegistryListener implements PortletRegistryListener
 	}
 
 	/**
-	 * @param activeToolManager the activeToolManager to set
+	 * @param activeToolManager
+	 *        the activeToolManager to set
 	 */
 	public void setActiveToolManager(ActiveToolManager activeToolManager)
 	{

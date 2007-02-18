@@ -31,15 +31,16 @@ import org.sakaiproject.tool.api.Session;
 /**
  * @author ieb
  */
-public class RssHandler  extends BasePortalHandler
+public class RssHandler extends BasePortalHandler
 {
-	public RssHandler() {
+	public RssHandler()
+	{
 		urlFragment = "rss";
 	}
 
 	@Override
-	public int doGet( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session)
-			throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
 		if ((parts.length >= 2) && (parts[1].equals("rss")))
 		{
@@ -52,10 +53,11 @@ public class RssHandler  extends BasePortalHandler
 					siteId = parts[2];
 				}
 
-				PortalRenderContext rcontext = portal.includePortal(req, res, session, siteId,
-				/* toolId */null, req.getContextPath() + req.getServletPath(),
-				/* prefix */"site", /* doPages */true, /* resetTools */false,
-				/* includeSummary */true, /* expandSite */false);
+				PortalRenderContext rcontext = portal.includePortal(req, res, session,
+						siteId,
+						/* toolId */null, req.getContextPath() + req.getServletPath(),
+						/* prefix */"site", /* doPages */true, /* resetTools */false,
+						/* includeSummary */true, /* expandSite */false);
 				portal.sendResponse(rcontext, res, parts[1], "text/xml");
 				return END;
 			}
@@ -70,6 +72,5 @@ public class RssHandler  extends BasePortalHandler
 		}
 
 	}
-
 
 }

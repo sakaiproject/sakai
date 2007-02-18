@@ -48,34 +48,40 @@ import org.sakaiproject.util.Web;
  */
 public class DirectToolHandler extends BasePortalHandler
 {
-	public DirectToolHandler() {
+	public DirectToolHandler()
+	{
 		urlFragment = "directtool";
 	}
+
 	@Override
-	public int doPost( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException {
+	public int doPost(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
+	{
 		return doGet(parts, req, res, session);
 	}
 
-	
-    @Override
-	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res, Session session)
-			throws PortalHandlerException
+	@Override
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
-		if (portalService.isEnableDirect() && (parts.length > 2) && (parts[1].equals("directtool")))
+		if (portalService.isEnableDirect() && (parts.length > 2)
+				&& (parts[1].equals("directtool")))
 		{
 			try
 			{
 				// Resolve the placements of the form
 				// /portal/tool/sakai.resources?sakai.site=~csev
-				String toolPlacement = portal.getPlacement(req, res, session, parts[2], false);
+				String toolPlacement = portal.getPlacement(req, res, session, parts[2],
+						false);
 				if (toolPlacement == null)
 				{
 					return ABORT;
 				}
 				parts[2] = toolPlacement;
 
-				return doDirectTool(req, res, session, parts[2], req.getContextPath() + req.getServletPath()
-						+ Web.makePath(parts, 1, 3), Web.makePath(parts, 3, parts.length));
+				return doDirectTool(req, res, session, parts[2], req.getContextPath()
+						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web.makePath(
+						parts, 3, parts.length));
 			}
 			catch (Exception ex)
 			{
@@ -87,8 +93,11 @@ public class DirectToolHandler extends BasePortalHandler
 			return NEXT;
 		}
 	}
+
 	/**
-	 * Do direct tool, takes the url, stored the destination and the target iframe in the session constructs and outer url and when a request comes in that matches the stored iframe it ejects the destination address
+	 * Do direct tool, takes the url, stored the destination and the target
+	 * iframe in the session constructs and outer url and when a request comes
+	 * in that matches the stored iframe it ejects the destination address
 	 * 
 	 * @param req
 	 * @param res
@@ -100,8 +109,9 @@ public class DirectToolHandler extends BasePortalHandler
 	 * @throws ToolException
 	 * @throws IOException
 	 */
-	public int doDirectTool(HttpServletRequest req, HttpServletResponse res, Session session, String placementId,
-			String toolContextPath, String toolPathInfo) throws ToolException, IOException
+	public int doDirectTool(HttpServletRequest req, HttpServletResponse res,
+			Session session, String placementId, String toolContextPath,
+			String toolPathInfo) throws ToolException, IOException
 	{
 		if (portal.redirectIfLoggedOut(res)) return ABORT;
 
@@ -114,7 +124,8 @@ public class DirectToolHandler extends BasePortalHandler
 		}
 
 		// Reset the tool state if requested
-		if ("true".equals(req.getParameter(portalService.getResetStateParam())) || "true".equals(portalService.getResetState()))
+		if ("true".equals(req.getParameter(portalService.getResetStateParam()))
+				|| "true".equals(portalService.getResetState()))
 		{
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placementId);
@@ -157,7 +168,8 @@ public class DirectToolHandler extends BasePortalHandler
 					ss.setSkin(siteTool.getSkin());
 					portalService.setStoredState(ss);
 
-					portal.doLogin(req, res, session, portal.getPortalPageUrl(siteTool), false);
+					portal.doLogin(req, res, session, portal.getPortalPageUrl(siteTool),
+							false);
 				}
 				else
 				{
@@ -175,12 +187,10 @@ public class DirectToolHandler extends BasePortalHandler
 		ss.setSkin(siteTool.getSkin());
 		portalService.setStoredState(ss);
 
-		portal.forwardPortal(tool, req, res, siteTool, siteTool.getSkin(), toolContextPath, toolPathInfo);
+		portal.forwardPortal(tool, req, res, siteTool, siteTool.getSkin(),
+				toolContextPath, toolPathInfo);
 		return END;
 
 	}
-
-	
-
 
 }

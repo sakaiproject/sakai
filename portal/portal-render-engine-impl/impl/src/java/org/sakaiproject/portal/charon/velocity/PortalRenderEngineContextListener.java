@@ -35,7 +35,9 @@ import org.sakaiproject.portal.api.cover.PortalService;
 public class PortalRenderEngineContextListener implements ServletContextListener
 {
 
-	private static final Log log = LogFactory.getLog(PortalRenderEngineContextListener.class);
+	private static final Log log = LogFactory
+			.getLog(PortalRenderEngineContextListener.class);
+
 	private VelocityPortalRenderEngine vengine;
 
 	/*
@@ -45,7 +47,8 @@ public class PortalRenderEngineContextListener implements ServletContextListener
 	 */
 	public void contextDestroyed(ServletContextEvent arg0)
 	{
-		PortalService.getInstance().removeRenderEngine(Portal.DEFAULT_PORTAL_CONTEXT,vengine);
+		PortalService.getInstance().removeRenderEngine(Portal.DEFAULT_PORTAL_CONTEXT,
+				vengine);
 
 	}
 
@@ -61,11 +64,15 @@ public class PortalRenderEngineContextListener implements ServletContextListener
 			vengine = new VelocityPortalRenderEngine();
 			vengine.setContext(event.getServletContext());
 			vengine.init();
-			PortalService.getInstance().addRenderEngine(Portal.DEFAULT_PORTAL_CONTEXT,vengine);
+			PortalService.getInstance().addRenderEngine(Portal.DEFAULT_PORTAL_CONTEXT,
+					vengine);
 		}
 		catch (Exception ex)
 		{
-			log.error("Failed to register render engine with the portal service, this is probably fatal ", ex);
+			log
+					.error(
+							"Failed to register render engine with the portal service, this is probably fatal ",
+							ex);
 		}
 
 	}

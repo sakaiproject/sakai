@@ -38,23 +38,26 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class StaticHandler extends BasePortalHandler
 {
-	
-	
+
 	private Properties contentTypes = null;
 
 	private static final ThreadLocal<StaticCache[]> staticCacheHolder = new ThreadLocal<StaticCache[]>();
 
 	private static final Log log = LogFactory.getLog(StaticHandler.class);
 
-	public StaticHandler() {
+	public StaticHandler()
+	{
 		contentTypes = new Properties();
 		try
 		{
-			contentTypes.load(this.getClass().getResourceAsStream("/org/sakaiproject/portal/charon/staticcontenttypes.properties"));
+			contentTypes.load(this.getClass().getResourceAsStream(
+					"/org/sakaiproject/portal/charon/staticcontenttypes.properties"));
 		}
 		catch (IOException e)
 		{
-			throw new RuntimeException("Failed to load Static Content Types (staticcontenttypes.properties) ", e);
+			throw new RuntimeException(
+					"Failed to load Static Content Types (staticcontenttypes.properties) ",
+					e);
 		}
 
 	}
@@ -67,11 +70,12 @@ public abstract class StaticHandler extends BasePortalHandler
 	 * @param parts
 	 * @throws IOException
 	 */
-	public void doStatic(HttpServletRequest req, HttpServletResponse res, String[] parts) throws IOException
+	public void doStatic(HttpServletRequest req, HttpServletResponse res, String[] parts)
+			throws IOException
 	{
 		try
 		{
-			StaticCache[] staticCache = (StaticCache[]) staticCacheHolder.get();
+			StaticCache[] staticCache = staticCacheHolder.get();
 			if (staticCache == null)
 			{
 				staticCache = new StaticCache[100];
@@ -285,6 +289,5 @@ public abstract class StaticHandler extends BasePortalHandler
 		res.getOutputStream().write(sc.buffer);
 
 	}
-
 
 }

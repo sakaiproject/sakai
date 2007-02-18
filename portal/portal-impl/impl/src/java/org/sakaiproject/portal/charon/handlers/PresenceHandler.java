@@ -41,34 +41,42 @@ import org.sakaiproject.util.Web;
 
 /**
  * @author ieb
- *
  */
-public class PresenceHandler  extends BasePortalHandler
+public class PresenceHandler extends BasePortalHandler
 {
-	public PresenceHandler() {
+	public PresenceHandler()
+	{
 		urlFragment = "presence";
 	}
 
 	@Override
-	public int doGet( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
 
 		if ((parts.length >= 3) && (parts[1].equals("presence")))
 		{
-			try {
-				doPresence(req, res, session, parts[2], req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3),
-						Web.makePath(parts, 3, parts.length));
-			    return END;
-			} catch ( Exception ex ) {
+			try
+			{
+				doPresence(req, res, session, parts[2], req.getContextPath()
+						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web.makePath(
+						parts, 3, parts.length));
+				return END;
+			}
+			catch (Exception ex)
+			{
 				throw new PortalHandlerException(ex);
 			}
-		} else {
+		}
+		else
+		{
 			return NEXT;
 		}
 	}
 
-	public void doPresence(HttpServletRequest req, HttpServletResponse res, Session session, String siteId, String toolContextPath,
-			String toolPathInfo) throws ToolException, IOException
+	public void doPresence(HttpServletRequest req, HttpServletResponse res,
+			Session session, String siteId, String toolContextPath, String toolPathInfo)
+			throws ToolException, IOException
 	{
 		// permission check - visit the site
 		Site site = null;
@@ -110,10 +118,12 @@ public class PresenceHandler  extends BasePortalHandler
 		// site's presence...
 		// Note: the placement is transient, but will always have the same id
 		// and context based on the siteId
-		Placement placement = new org.sakaiproject.util.Placement(siteId + "-presence", tool.getId(), tool,
-				null, siteId, null);
+		Placement placement = new org.sakaiproject.util.Placement(siteId + "-presence",
+				tool.getId(), tool, null, siteId, null);
 
-		portal.forwardTool(tool, req, res, placement, skin, toolContextPath, toolPathInfo);
+		portal
+				.forwardTool(tool, req, res, placement, skin, toolContextPath,
+						toolPathInfo);
 	}
 
 }

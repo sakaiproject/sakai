@@ -21,26 +21,24 @@
 
 package org.sakaiproject.portal.service;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.List;
-import java.util.Iterator;
-
-import java.io.File;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import javax.servlet.ServletContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.pluto.descriptors.portlet.PortletDD;
+import org.apache.pluto.descriptors.portlet.PortletInfoDD;
 import org.apache.pluto.internal.InternalPortletContext;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ActiveToolManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * <p>
@@ -49,8 +47,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
  */
 public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 {
-    	/** Our log (commons).  */
-    	private static Log M_log = LogFactory.getLog(PortletTool.class);
+	/** Our log (commons). */
+	private static Log M_log = LogFactory.getLog(PortletTool.class);
 
 	/** The access security. */
 	protected PortletTool.AccessSecurity m_accessSecurity = PortletTool.AccessSecurity.PORTAL;
@@ -61,7 +59,10 @@ public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 	/** The description string. */
 	protected String m_description = null;
 
-	/** The configuration properties that are set by registration and may not be changed by confguration. */
+	/**
+	 * The configuration properties that are set by registration and may not be
+	 * changed by confguration.
+	 */
 	protected Properties m_finalConfig = new Properties();
 
 	/** Home destination. */
@@ -79,22 +80,23 @@ public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 	/** The title string. */
 	protected String m_title = null;
 
-	/** The parsed tool registration (if any) **/
+	/** The parsed tool registration (if any) * */
 	protected Tool m_tool = null;
 
-	public PortletTool(PortletDD pdd, InternalPortletContext portlet, ServletContext portalContext)
+	public PortletTool(PortletDD pdd, InternalPortletContext portlet,
+			ServletContext portalContext)
 	{
 		String portletSupport = ServerConfigurationService.getString("portlet.support");
 
 		String portletName = pdd.getPortletName();
 		String appName = portlet.getApplicationId();
-		String homePath = ServerConfigurationService.getSakaiHomePath()+"/portlets/";
-		String portletReg = homePath+appName+"/"+portletName+".xml";
+		String homePath = ServerConfigurationService.getSakaiHomePath() + "/portlets/";
+		String portletReg = homePath + appName + "/" + portletName + ".xml";
 
 		File toolRegFile = new File(portletReg);
-		if ( ! toolRegFile.canRead() ) 
+		if (!toolRegFile.canRead())
 		{
-			portletReg  = homePath+portletName+".xml";
+			portletReg = homePath + portletName + ".xml";
 			toolRegFile = new File(portletReg);
 		}
 
@@ -102,40 +104,52 @@ public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 		List<Tool> toolRegs = ActiveToolManager.parseTools(new File(portletReg));
 
 		// We ignore the tool registrations other than the first
-		if ( toolRegs != null && toolRegs.size() > 0 ) 
+		if (toolRegs != null && toolRegs.size() > 0)
 		{
 			Tool t = toolRegs.get(0);
 			m_id = t.getId();
 			m_title = t.getTitle();
 			m_description = t.getDescription();
 			m_categories = t.getCategories();
-       			// get the FinalConfig from the tool and make a copy 
+			// get the FinalConfig from the tool and make a copy
 			// locally as we will add information
-      			Properties rv = t.getFinalConfig();
-       			m_finalConfig.putAll(rv);
+			Properties rv = t.getFinalConfig();
+			m_finalConfig.putAll(rv);
 			m_keywords = t.getKeywords();
 			m_mutableConfig = t.getMutableConfig();
 			// RegisteredConfig is derived in the getter of this class
-			M_log.info("Portlet registered from tool registration with Sakai toolId="+m_id);
-		} else {
-			m_id = "portlet."+portlet.getApplicationId()+"."+pdd.getPortletName();
-			m_title = pdd.getPortletInfo().getShortTitle();
-			if ( m_title == null ) m_title = pdd.getPortletName();
-			m_description = pdd.getPortletInfo().getTitle();
-			if ( m_description == null ) m_description = pdd.getPortletName();
+			M_log.info("Portlet registered from tool registration with Sakai toolId="
+					+ m_id);
+		}
+		else
+		{
+			m_id = "portlet." + portlet.getApplicationId() + "." + pdd.getPortletName();
+			PortletInfoDD pidd = pdd.getPortletInfo();
+			if (pidd != null)
+			{
+				m_title = pidd.getShortTitle();
+				m_description = pidd.getTitle();
+			}
+			if (m_title == null) m_title = pdd.getPortletName();
+			if (m_description == null) m_description = pdd.getPortletName();
 
-			if ( "stealth".equals(portletSupport) ) {
-				M_log.info("Portlet stealth-registered with Sakai toolId="+m_id);
-			} else {
+			if ("stealth".equals(portletSupport))
+			{
+				M_log.info("Portlet stealth-registered with Sakai toolId=" + m_id);
+			}
+			else
+			{
 				m_categories.add("myworkspace");
 				m_categories.add("project");
 				m_categories.add("course");
-				M_log.info("Portlet auto-registered with Sakai toolId="+m_id);
+				M_log.info("Portlet auto-registered with Sakai toolId=" + m_id);
 			}
 		}
 
-		// Indicate that these tools are indeed portlets and where to dispatch the portlet
-		m_finalConfig.setProperty(PortalService.TOOL_PORTLET_CONTEXT_PATH, portlet.getApplicationId());
+		// Indicate that these tools are indeed portlets and where to dispatch
+		// the portlet
+		m_finalConfig.setProperty(PortalService.TOOL_PORTLET_CONTEXT_PATH, portlet
+				.getApplicationId());
 		m_finalConfig.setProperty(PortalService.TOOL_PORTLET_NAME, pdd.getPortletName());
 	}
 
@@ -144,7 +158,8 @@ public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 	 */
 	public int compareTo(Object obj)
 	{
-		// let it throw a class case exception if the obj is not some sort of Tool
+		// let it throw a class case exception if the obj is not some sort of
+		// Tool
 		org.sakaiproject.tool.api.Tool tool = (org.sakaiproject.tool.api.Tool) obj;
 
 		// do an id based
@@ -154,6 +169,7 @@ public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean equals(Object obj)
 	{
 		if (!(obj instanceof PortletTool))
@@ -239,7 +255,8 @@ public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 	 */
 	public Properties getRegisteredConfig()
 	{
-		// combine the final and mutable, and return a copy so that it is read only
+		// combine the final and mutable, and return a copy so that it is read
+		// only
 		Properties rv = new Properties();
 		rv.putAll(m_finalConfig);
 		rv.putAll(m_mutableConfig);
@@ -257,6 +274,7 @@ public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public int hashCode()
 	{
 		return getId().hashCode();

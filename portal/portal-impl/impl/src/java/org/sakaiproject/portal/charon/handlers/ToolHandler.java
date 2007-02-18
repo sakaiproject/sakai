@@ -44,50 +44,60 @@ import org.sakaiproject.util.Web;
 
 /**
  * @author ieb
- *
  */
-public class ToolHandler  extends BasePortalHandler
+public class ToolHandler extends BasePortalHandler
 {
-	public ToolHandler() {
+	public ToolHandler()
+	{
 		urlFragment = "tool";
 	}
-	
+
 	@Override
-	public int doPost( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException {
+	public int doPost(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
+	{
 		return doGet(parts, req, res, session);
 	}
 
-	
 	@Override
-	public int doGet( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
 		// recognize and dispatch the 'tool' option: [1] = "tool", [2] =
 		// placement id (of a site's tool placement), rest for the tool
 		if ((parts.length > 2) && (parts[1].equals("tool")))
 		{
-			try {
-			// Resolve the placements of the form
-			// /portal/tool/sakai.resources?sakai.site=~csev
-			String toolPlacement = portal.getPlacement(req, res, session, parts[2], false);
-			if (toolPlacement == null)
+			try
 			{
-				return ABORT;
-			}
-			parts[2] = toolPlacement;
+				// Resolve the placements of the form
+				// /portal/tool/sakai.resources?sakai.site=~csev
+				String toolPlacement = portal.getPlacement(req, res, session, parts[2],
+						false);
+				if (toolPlacement == null)
+				{
+					return ABORT;
+				}
+				parts[2] = toolPlacement;
 
-			doTool(req, res, session, parts[2], req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3), Web
-					.makePath(parts, 3, parts.length));
-			return END;
-			} catch ( Exception  ex ) {
+				doTool(req, res, session, parts[2], req.getContextPath()
+						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web.makePath(
+						parts, 3, parts.length));
+				return END;
+			}
+			catch (Exception ex)
+			{
 				throw new PortalHandlerException(ex);
 			}
-		} else {
-		  return NEXT;
+		}
+		else
+		{
+			return NEXT;
 		}
 	}
 
-	public void doTool(HttpServletRequest req, HttpServletResponse res, Session session, String placementId,
-			String toolContextPath, String toolPathInfo) throws ToolException, IOException
+	public void doTool(HttpServletRequest req, HttpServletResponse res, Session session,
+			String placementId, String toolContextPath, String toolPathInfo)
+			throws ToolException, IOException
 	{
 
 		if (portal.redirectIfLoggedOut(res)) return;
@@ -101,7 +111,8 @@ public class ToolHandler  extends BasePortalHandler
 		}
 
 		// Reset the tool state if requested
-		if ("true".equals(req.getParameter(portalService.getResetStateParam())) || "true".equals(portalService.getResetState()))
+		if ("true".equals(req.getParameter(portalService.getResetStateParam()))
+				|| "true".equals(portalService.getResetState()))
 		{
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placementId);
@@ -145,9 +156,8 @@ public class ToolHandler  extends BasePortalHandler
 			}
 		}
 
-		portal.forwardTool(tool, req, res, siteTool, siteTool.getSkin(), toolContextPath, toolPathInfo);
+		portal.forwardTool(tool, req, res, siteTool, siteTool.getSkin(), toolContextPath,
+				toolPathInfo);
 	}
-
-
 
 }

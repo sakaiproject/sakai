@@ -25,12 +25,14 @@ public interface PortletDescriptor
 
 	/**
 	 * The name of the portlet
+	 * 
 	 * @return
 	 */
 	String getPortletName();
 
 	/**
 	 * the ID of the portlet
+	 * 
 	 * @return
 	 */
 	String getPortletId();

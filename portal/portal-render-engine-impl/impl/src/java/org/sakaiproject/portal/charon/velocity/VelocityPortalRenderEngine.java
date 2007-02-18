@@ -44,9 +44,9 @@ import org.sakaiproject.portal.api.PortalRenderEngine;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.SessionManager;
 
-import ca.utoronto.atrc.transformable.styleable.sakai.cover.StyleAbleService;
 import ca.utoronto.atrc.transformable.common.UnknownIdException;
 import ca.utoronto.atrc.transformable.sakaipreferences.cover.TransformAblePrefsService;
+import ca.utoronto.atrc.transformable.styleable.sakai.cover.StyleAbleService;
 
 /**
  * A velocity render engine adapter
@@ -74,7 +74,8 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 
 		vengine.setApplicationAttribute(ServletContext.class.getName(), context);
 
-		vengine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
+		vengine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
+				"org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
 		vengine.setProperty("runtime.log.logsystem.log4j.category", "ve.portal");
 		Properties p = new Properties();
 		p.load(this.getClass().getResourceAsStream("portalvelocity.properties"));
@@ -138,7 +139,8 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		try
 		{
 			Properties p = new Properties();
-			p.load(this.getClass().getResourceAsStream("/" + portalSkin + "/options.properties"));
+			p.load(this.getClass().getResourceAsStream(
+					"/" + portalSkin + "/options.properties"));
 			rc.setOptions(p);
 		}
 		catch (Exception ex)
@@ -150,7 +152,8 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		return rc;
 	}
 
-	public void render(String template, PortalRenderContext rcontext, Writer out) throws Exception
+	public void render(String template, PortalRenderContext rcontext, Writer out)
+			throws Exception
 	{
 		Context vc = ((VelocityPortalRenderContext) rcontext).getVelocityContext();
 		String skin = (String) vc.get("pageCurrentSkin");
@@ -241,9 +244,12 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.portal.api.PortalRenderEngine#setupForward(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, org.sakaiproject.tool.api.Placement, java.lang.String)
+	 * @see org.sakaiproject.portal.api.PortalRenderEngine#setupForward(javax.servlet.http.HttpServletRequest,
+	 *      javax.servlet.http.HttpServletResponse,
+	 *      org.sakaiproject.tool.api.Placement, java.lang.String)
 	 */
-	public void setupForward(HttpServletRequest req, HttpServletResponse res, Placement p, String skin)
+	public void setupForward(HttpServletRequest req, HttpServletResponse res,
+			Placement p, String skin)
 	{
 
 		String headJs = (String) req.getAttribute("sakai.html.head.js");
@@ -252,14 +258,17 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		String customUserCss = generateStyleAbleStyleSheet();
 		if (customUserCss != null)
 		{
-			customUserCss = "<style type=\"text/css\" title=\"StyleAble\">\n" + customUserCss + "</style>\n";
+			customUserCss = "<style type=\"text/css\" title=\"StyleAble\">\n"
+					+ customUserCss + "</style>\n";
 			headCss = headCss + customUserCss;
 		}
 		String head = headCss + headJs;
 		String styleAbleJs = generateStyleAbleJavaScript();
 		if (styleAbleJs != null)
 		{
-			styleAbleJs = "<script " + "type=\"text/javascript\" language=\"JavaScript\">\n" + styleAbleJs + "\n</script>\n";
+			styleAbleJs = "<script "
+					+ "type=\"text/javascript\" language=\"JavaScript\">\n" + styleAbleJs
+					+ "\n</script>\n";
 			head = head + styleAbleJs;
 		}
 		bodyonload = bodyonload + "styleableonload();";

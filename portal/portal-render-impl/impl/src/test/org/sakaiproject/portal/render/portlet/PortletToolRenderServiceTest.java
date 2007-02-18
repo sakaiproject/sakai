@@ -5,11 +5,12 @@ import junit.framework.TestCase;
 /**
  *
  */
-public class PortletToolRenderServiceTest extends TestCase {
+public class PortletToolRenderServiceTest extends TestCase
+{
 
-    public void testSomething() {
-        
-    }
+	public void testSomething()
+	{
 
-    
+	}
+
 }

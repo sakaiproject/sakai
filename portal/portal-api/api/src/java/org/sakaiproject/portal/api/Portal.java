@@ -37,15 +37,14 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 
 /**
- * This interface represents a portal and is used mainly by portal handlers that
+ * This interface represents a portal and is used mainly by portal handlers that 
  * will not know the details of the portal implimentation.
+ * 
  * @author ieb
- *
  */
 public interface Portal
 {
-	
-	
+
 	/**
 	 * Error response modes.
 	 */
@@ -54,16 +53,21 @@ public interface Portal
 	public static final int ERROR_GALLERY = 1;
 
 	public static final int ERROR_WORKSITE = 2;
+
 	/**
-	 * Parameter value to allow anonymous users of gallery mode to be sent to the gateway site as anonymous user (like the /portal URL) instead of making them log in (like worksite, site, and tool URLs).
+	 * Parameter value to allow anonymous users of gallery mode to be 
+	 * sent to the gateway site as anonymous user (like the /portal URL) instead of 
+	 * making them log in (like worksite, site, and tool URLs).
 	 */
 	public static final String PARAM_FORCE_LOGIN = "force.login";
 
 	public static final String PARAM_FORCE_LOGOUT = "force.logout";
+
 	/**
 	 * ThreadLocal attribute set while we are processing an error.
 	 */
 	public static final String ATTR_ERROR = "org.sakaiproject.portal.error";
+
 	/**
 	 * Session attribute root for storing a site's last page visited - just append the site id.
 	 */
@@ -90,7 +94,6 @@ public interface Portal
 
 	public static final String TOOLCONFIG_HELP_DOCUMENT_URL = "help.url";
 
-
 	/**
 	 * prepare the response and send it to the render engine
 	 * 
@@ -100,8 +103,8 @@ public interface Portal
 	 * @param contentType
 	 * @throws IOException
 	 */
-	void sendResponse(PortalRenderContext rcontext, HttpServletResponse res, String template, String contentType) throws IOException;
-
+	void sendResponse(PortalRenderContext rcontext, HttpServletResponse res,
+			String template, String contentType) throws IOException;
 
 	/**
 	 * get the placement for the request
@@ -114,9 +117,8 @@ public interface Portal
 	 * @return
 	 * @throws ToolException
 	 */
-	String getPlacement(HttpServletRequest req, HttpServletResponse res, Session session, String placementId, boolean doPage)
-	throws ToolException;
-
+	String getPlacement(HttpServletRequest req, HttpServletResponse res, Session session,
+			String placementId, boolean doPage) throws ToolException;
 
 	/**
 	 * perform login
@@ -128,8 +130,8 @@ public interface Portal
 	 * @param skipContainer
 	 * @throws ToolException
 	 */
-	void doLogin(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath, boolean skipContainer)
-	throws ToolException;
+	void doLogin(HttpServletRequest req, HttpServletResponse res, Session session,
+			String returnPath, boolean skipContainer) throws ToolException;
 
 	/**
 	 * Process a logout
@@ -141,42 +143,41 @@ public interface Portal
 	 * @param session
 	 *        Current session
 	 * @param returnPath
-	 *        if not null, the path to use for the end-user browser redirect after the logout is complete. Leave null to use the configured logged out URL.
+	 *        if not null, the path to use for the end-user browser redirect after 
+	 *        the logout is complete. Leave null to use the configured logged out URL.
 	 * @throws ToolException
 	 */
-	void doLogout(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath) throws ToolException;
-
-
-
-
-
-
+	void doLogout(HttpServletRequest req, HttpServletResponse res, Session session,
+			String returnPath) throws ToolException;
 
 	/**
 	 * get a new render context from the render engine
+	 * 
 	 * @param siteType
 	 * @param title
 	 * @param skin
 	 * @param request
 	 * @return
 	 */
-	PortalRenderContext startPageContext(String siteType, String title, String skin, HttpServletRequest request);
+	PortalRenderContext startPageContext(String siteType, String title, String skin,
+			HttpServletRequest request);
 
 	/**
 	 * perform a redirect if logged out
+	 * 
 	 * @param res
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	boolean redirectIfLoggedOut(HttpServletResponse res) throws IOException;
 
 	/**
 	 * get the portal page URL base on the tool supplied
+	 * 
 	 * @param siteTool
 	 * @return
 	 */
 	String getPortalPageUrl(ToolConfiguration siteTool);
-
 
 	/**
 	 * populate the model with error status
@@ -188,11 +189,12 @@ public interface Portal
 	 * @throws ToolException
 	 * @throws IOException
 	 */
-	void doError(HttpServletRequest req, HttpServletResponse res, Session session, int mode) throws ToolException,
-	IOException;
+	void doError(HttpServletRequest req, HttpServletResponse res, Session session,
+			int mode) throws ToolException, IOException;
 
 	/**
 	 * forward to a portal url
+	 * 
 	 * @param tool
 	 * @param req
 	 * @param res
@@ -200,45 +202,52 @@ public interface Portal
 	 * @param skin
 	 * @param toolContextPath
 	 * @param toolPathInfo
-	 * @throws IOException 
-	 * @throws ToolException 
+	 * @throws IOException
+	 * @throws ToolException
 	 */
-	void forwardPortal(ActiveTool tool, HttpServletRequest req, HttpServletResponse res, ToolConfiguration siteTool, String skin, String toolContextPath, String toolPathInfo) throws ToolException, IOException;
+	void forwardPortal(ActiveTool tool, HttpServletRequest req, HttpServletResponse res,
+			ToolConfiguration siteTool, String skin, String toolContextPath,
+			String toolPathInfo) throws ToolException, IOException;
 
 	/**
 	 * setup in preparation for a forward
+	 * 
 	 * @param req
 	 * @param res
 	 * @param p
 	 * @param skin
 	 */
-	void setupForward(HttpServletRequest req, HttpServletResponse res, Placement p, String skin) throws ToolException;
+	void setupForward(HttpServletRequest req, HttpServletResponse res, Placement p,
+			String skin) throws ToolException;
 
 	/**
 	 * include the model section that relates to the bottom of the page.
+	 * 
 	 * @param rcontext
 	 */
 	void includeBottom(PortalRenderContext rcontext);
 
 	/**
 	 * work out the type of the site based on the site id.
+	 * 
 	 * @param siteId
 	 * @return
 	 */
 	String calcSiteType(String siteId);
 
-
 	/**
 	 * include the part od the view tree needed to render login
+	 * 
 	 * @param rcontext
 	 * @param req
 	 * @param session
 	 */
-	void includeLogin(PortalRenderContext rcontext, HttpServletRequest req, Session session);
-
+	void includeLogin(PortalRenderContext rcontext, HttpServletRequest req,
+			Session session);
 
 	/**
 	 * forward the request to a tool
+	 * 
 	 * @param tool
 	 * @param req
 	 * @param res
@@ -246,14 +255,15 @@ public interface Portal
 	 * @param skin
 	 * @param toolContextPath
 	 * @param toolPathInfo
-	 * @throws ToolException 
+	 * @throws ToolException
 	 */
-	void forwardTool(ActiveTool tool, HttpServletRequest req, HttpServletResponse res, Placement placement, String skin, String toolContextPath, String toolPathInfo) throws ToolException;
-
-
+	void forwardTool(ActiveTool tool, HttpServletRequest req, HttpServletResponse res,
+			Placement placement, String skin, String toolContextPath, String toolPathInfo)
+			throws ToolException;
 
 	/**
 	 * get the site id for the user
+	 * 
 	 * @param userId
 	 * @return
 	 */
@@ -261,6 +271,7 @@ public interface Portal
 
 	/**
 	 * convert sites into a map for the view tree
+	 * 
 	 * @param req
 	 * @param mySites
 	 * @param prefix
@@ -274,13 +285,14 @@ public interface Portal
 	 * @param loggedIn
 	 * @return
 	 */
-	List<Map> convertSitesToMaps(HttpServletRequest req, List mySites, String prefix, String currentSiteId,
-			String myWorkspaceSiteId, boolean includeSummary, boolean expandSite, boolean resetTools, boolean doPages,
+	List<Map> convertSitesToMaps(HttpServletRequest req, List mySites, String prefix,
+			String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
+			boolean expandSite, boolean resetTools, boolean doPages,
 			String toolContextPath, boolean loggedIn);
-
 
 	/**
 	 * convert a single site into a map
+	 * 
 	 * @param req
 	 * @param s
 	 * @param prefix
@@ -294,12 +306,14 @@ public interface Portal
 	 * @param loggedIn
 	 * @return
 	 */
-	Map convertSiteToMap(HttpServletRequest req, Site s, String prefix, String currentSiteId, String myWorkspaceSiteId,
-			boolean includeSummary, boolean expandSite, boolean resetTools, boolean doPages, String toolContextPath,
-			boolean loggedIn);
+	Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
+			String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
+			boolean expandSite, boolean resetTools, boolean doPages,
+			String toolContextPath, boolean loggedIn);
 
 	/**
 	 * populate the view tree for the model
+	 * 
 	 * @param req
 	 * @param res
 	 * @param session
@@ -315,37 +329,39 @@ public interface Portal
 	 * @throws ToolException
 	 * @throws IOException
 	 */
-	PortalRenderContext includePortal(HttpServletRequest req, HttpServletResponse res, Session session, String siteId,
-			String toolId, String toolContextPath, String prefix, boolean doPages, boolean resetTools, boolean includeSummary,
+	PortalRenderContext includePortal(HttpServletRequest req, HttpServletResponse res,
+			Session session, String siteId, String toolId, String toolContextPath,
+			String prefix, boolean doPages, boolean resetTools, boolean includeSummary,
 			boolean expandSite) throws ToolException, IOException;
 
 	/**
 	 * include the tool part of the view tree
+	 * 
 	 * @param res
 	 * @param req
 	 * @param placement
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	Map includeTool(HttpServletResponse res, HttpServletRequest req, ToolConfiguration placement) throws IOException;
-
-
+	Map includeTool(HttpServletResponse res, HttpServletRequest req,
+			ToolConfiguration placement) throws IOException;
 
 	/**
-	 * Get the context name of the portal. This is the name used to identify the portal implimentation in the portal 
-	 * service and to other parts of the system. Typically portals will be registered with the portal service
-	 * using a name and render engines and PortalHandlers will connect to named portals. 
+	 * Get the context name of the portal. This is the name used to identify the 
+	 * portal implimentation in the portal service and to other parts of the system.
+	 * Typically portals will be registered with the portal service using a name 
+	 * and render engines and
+	 * PortalHandlers will connect to named portals.
+	 * 
 	 * @return
 	 */
 	String getPortalContext();
 
-
 	/**
 	 * Get the servlet context associated with the portal
+	 * 
 	 * @return
 	 */
 	ServletContext getServletContext();
-
-
 
 }

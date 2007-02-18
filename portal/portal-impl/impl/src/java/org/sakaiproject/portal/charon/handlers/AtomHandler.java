@@ -30,20 +30,22 @@ import org.sakaiproject.tool.api.Session;
 
 /**
  * @author ieb
- *
  */
 public class AtomHandler extends BasePortalHandler
 {
-	public AtomHandler() {
+	public AtomHandler()
+	{
 		urlFragment = "atom";
 	}
-	
+
 	@Override
-	public int doGet( String[] parts, HttpServletRequest req, HttpServletResponse res, Session session) throws PortalHandlerException
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 2) && parts[1].equals("atom") )
+		if ((parts.length >= 2) && parts[1].equals("atom"))
 		{
-			try {
+			try
+			{
 
 				// /portal/rss/site-id
 				String siteId = null;
@@ -51,21 +53,26 @@ public class AtomHandler extends BasePortalHandler
 				{
 					siteId = parts[2];
 				}
-				
-				PortalRenderContext rcontext = portal.includePortal(req, res, session, siteId,
-				/* toolId */null, req.getContextPath() + req.getServletPath(),
-				/* prefix */"site", /* doPages */true, /* resetTools */false,
-				/* includeSummary */true, /* expandSite */false);
-				// sendResponse(rcontext, res, parts[1], "application/atom+xml");
+
+				PortalRenderContext rcontext = portal.includePortal(req, res, session,
+						siteId,
+						/* toolId */null, req.getContextPath() + req.getServletPath(),
+						/* prefix */"site", /* doPages */true, /* resetTools */false,
+						/* includeSummary */true, /* expandSite */false);
+				// sendResponse(rcontext, res, parts[1],
+				// "application/atom+xml");
 				portal.sendResponse(rcontext, res, parts[1], "text/xml");
 				return END;
-			} catch ( Exception ex ) {
+			}
+			catch (Exception ex)
+			{
 				throw new PortalHandlerException(ex);
 			}
-		} else {
+		}
+		else
+		{
 			return NEXT;
 		}
 	}
-
 
 }
