@@ -28,17 +28,6 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
-<!-- I think this may cause problems,
-   A second copy of the component manager should not be bundled with a pack
-        <dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-component-impl</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
--->
                 <dependency>
                         <groupId>sakaiproject</groupId>
                         <artifactId>sakai-tool-util</artifactId>
@@ -85,7 +74,7 @@
       <dependency>
           <groupId>org.apache.pluto</groupId>
           <artifactId>pluto-container</artifactId>
-          <version>1.1.0-SNAPSHOT</version>
+          <version>${sakai.pluto.version}</version>
           <properties>
               <deploy.target>shared</deploy.target>
           </properties>
@@ -102,7 +91,7 @@
       <dependency>
           <groupId>org.apache.pluto</groupId>
           <artifactId>pluto-descriptor-api</artifactId>
-          <version>1.1.0-SNAPSHOT</version>
+          <version>${sakai.pluto.version}</version>
           <properties>
               <deploy.target>shared</deploy.target>
           </properties>
@@ -111,7 +100,7 @@
       <dependency>
           <groupId>org.apache.pluto</groupId>
           <artifactId>pluto-descriptor-impl</artifactId>
-          <version>1.1.0-SNAPSHOT</version>
+          <version>${sakai.pluto.version}</version>
           <properties>
               <deploy.target>shared</deploy.target>
           </properties>
@@ -120,7 +109,7 @@
       <dependency>
           <groupId>org.apache.pluto</groupId>
           <artifactId>pluto-taglib</artifactId>
-          <version>1.1.0-SNAPSHOT</version>
+          <version>${sakai.pluto.version}</version>
           <properties>
               <deploy.target>shared</deploy.target>
           </properties>
