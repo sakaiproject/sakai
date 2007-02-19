@@ -526,7 +526,6 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
     
     try
     {
-    	Class dti = Class.forName("org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl");
     	if(topicList != null)
     	{
     		for(int i=0; i<topicList.size(); i++)
@@ -537,7 +536,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
     				for(int j=0; j<thisObject.length; j++)
     				{
     					Object thisTopic = (Object) thisObject[j];
-    					if(thisTopic != null && thisTopic.getClass().equals(dti))
+    					if(thisTopic instanceof Topic)
     					{
     						ids.add(((Topic)thisTopic).getId());
     						break;

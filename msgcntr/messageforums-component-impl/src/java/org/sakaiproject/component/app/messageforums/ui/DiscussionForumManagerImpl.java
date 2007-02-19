@@ -1904,5 +1904,12 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     LOG.debug("getDiscussionForumsWithTopics()");
     return messageManager.getReadStatusForMessagesWithId(msgIds, userId);
 	}
- 
+
+	public List getDiscussionForumsWithTopicsMembershipNoAttachments(String contextId)
+	{
+    LOG.debug("getDiscussionForumsWithTopicsMembershipNoAttachments()");
+    return forumManager.getForumByTypeAndContextWithTopicsMembership(typeManager
+        .getDiscussionForumType(), contextId);
+	}
+
 }

@@ -96,6 +96,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final String QUERY_BY_TYPE_AND_CONTEXT = "findForumByTypeAndContext";
     private static final String QUERY_BY_FORUM_ID_AND_TOPICS = "findForumByIdWithTopics";
     private static final String QUERY_BY_TYPE_AND_CONTEXT_WITH_ALL_INFO = "findForumByTypeAndContextWithAllInfo";
+    private static final String QUERY_BY_TYPE_AND_CONTEXT_WITH_ALL_TOPICS_MEMBERSHIP = "findForumByTypeAndContextWithTopicsMemberhips";
 
            
     private static final String QUERY_TOPIC_WITH_MESSAGES_AND_ATTACHMENTS = "findTopicByIdWithMessagesAndAttachments";        
@@ -1123,6 +1124,56 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
 			return resultList;      
 		}
+		
+		public List getForumByTypeAndContextWithTopicsMembership(final String typeUuid, final String contextId)
+		{
+			if (typeUuid == null || contextId == null) {
+				throw new IllegalArgumentException("Null Argument");
+			}      
+
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Query q = session.getNamedQuery(QUERY_BY_TYPE_AND_CONTEXT_WITH_ALL_TOPICS_MEMBERSHIP);
+					q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
+					q.setParameter("contextId", getContextId(), Hibernate.STRING);
+					return q.list();
+				}
+			};
+
+			BaseForum tempForum = null;
+			Set resultSet = new HashSet();
+			List temp = (ArrayList) getHibernateTemplate().execute(hcb);
+
+			for (Iterator i = temp.iterator(); i.hasNext();)
+			{
+				Object[] results = (Object[]) i.next();        
+
+				if (results != null) {
+					if (results[0] instanceof BaseForum) {
+						tempForum = (BaseForum)results[0];
+						tempForum.setArea((Area)results[1]);            
+					} else {
+						tempForum = (BaseForum)results[1];
+						tempForum.setArea((Area)results[0]);
+					}
+					resultSet.add(tempForum);
+				}
+			}
+
+			List resultList = Util.setToList(resultSet);
+			Collections.sort(resultList, FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC);
+
+			// Now that the list is sorted, lets index the forums
+			int sort_index = 1;
+			for(Iterator i = resultList.iterator(); i.hasNext(); ) {
+				tempForum = (BaseForum)i.next();
+
+				tempForum.setSortIndex(new Integer(sort_index++));
+			}
+
+			return resultList;      
+		}
+
 
 		public PrivateForum getPrivateForumByOwnerAreaWithAllTopics(final String owner, final Area area)
 		{

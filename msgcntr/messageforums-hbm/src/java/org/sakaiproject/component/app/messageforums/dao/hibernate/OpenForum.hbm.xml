@@ -171,4 +171,16 @@
 
     ]]>
   </query>
+
+  <query name="findForumByTypeAndContextWithTopicsMemberhips">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl as f
+             join f.area as a
+             left join fetch f.membershipItemSet
+             left join fetch f.topicsSet as topic
+             left join fetch topic.membershipItemSet
+             where f.typeUuid = :typeUuid and
+             a.contextId = :contextId             
+
+    ]]>
+  </query>
 </hibernate-mapping>
