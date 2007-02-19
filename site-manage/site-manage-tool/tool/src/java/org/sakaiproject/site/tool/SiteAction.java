@@ -416,6 +416,9 @@ public class SiteAction extends PagedResourceActionII
   	
   	//  Special tool id for Home page
   	private static final String HOME_TOOL_ID = "home";
+  	
+  	// the string marks the protocol part in url
+  	private static final String PROTOCOL_STRING = "://";
   
 	/**
 	* Populate the state object, if needed.
@@ -6470,6 +6473,10 @@ public class SiteAction extends PagedResourceActionII
 						String icon = StringUtil.trimToNull(params.getString("icon"));		
 						if (icon != null)
 						{
+							if (icon.endsWith(PROTOCOL_STRING))
+							{
+								addAlert(state, rb.getString("alert.protocol"));
+							}
 							state.setAttribute(FORM_SITEINFO_ICON_URL, icon);
 						}
 						else
