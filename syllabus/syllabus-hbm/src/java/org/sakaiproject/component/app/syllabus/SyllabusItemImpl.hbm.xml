@@ -25,7 +25,7 @@
         </property>       
 
         <property name="contextId">
-            <column name="contextId" unique-key="uniqueSyllabus" length="36"
+            <column name="contextId" unique-key="uniqueSyllabus" length="256"
                 not-null="true" index="syllabus_contextId" />
         </property>
 
