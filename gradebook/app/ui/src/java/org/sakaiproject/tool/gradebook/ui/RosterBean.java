@@ -286,7 +286,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     public void exportCSV(ActionEvent event){
 
         if(logger.isInfoEnabled()) logger.info("exporting course grade as Excel for gradebook " + getGradebookUid());
-        String filePrefix = getLocalizedString("export_course_grade_prefix");
+        String filePrefix = getLocalizedString("export_gradebook_prefix");
 
         List formattedData = getExportFormatterBean().getExportRows(gradableObjects,workingEnrollments);
         getDataExportBean().writeAsCsv(formattedData,getFileName(filePrefix));
@@ -295,7 +295,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     public void exportExcel(ActionEvent event){
 
         if(logger.isInfoEnabled()) logger.info("exporting course grade as Excel for gradebook " + getGradebookUid());
-        String filePrefix = getLocalizedString("export_course_grade_prefix");
+        String filePrefix = getLocalizedString("export_gradebook_prefix");
 
         List formattedData = getExportFormatterBean().getExportRows(gradableObjects,workingEnrollments);
         getDataExportBean().writeAsExcel(formattedData,getFileName(filePrefix));
