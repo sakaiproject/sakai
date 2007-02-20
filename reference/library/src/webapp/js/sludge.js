@@ -21,7 +21,7 @@
 
 // functions for Sludge applications
 
-function setMainFrameHeight(id)
+function setMainFrameHeightFancy(id)
 {
 	// only if we have a parent with an element by our id
 	if (parent && parent.document && parent.document.getElementById(id))
