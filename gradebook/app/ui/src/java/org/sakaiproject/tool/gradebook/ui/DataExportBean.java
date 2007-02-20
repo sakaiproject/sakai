@@ -51,8 +51,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 public class DataExportBean implements Serializable {
 
     private static final Log logger = LogFactory.getLog(DataExportBean.class);
-
-
     /**
      * parser a List of strings
      * into a string
@@ -92,7 +90,9 @@ public class DataExportBean implements Serializable {
     private HSSFWorkbook listToExcelConverter(List formattedData,String gradebookName){
         HSSFWorkbook wb = new HSSFWorkbook();
         // Excel can not handle sheet names with > 31 characters, and can't handle /\*?[] characters
-        HSSFSheet sheet = wb.createSheet(gradebookName);
+        String safeGradebookName = StringUtils.left(gradebookName.replaceAll("\\W", "_"), 30);
+
+        HSSFSheet sheet = wb.createSheet(safeGradebookName);
         // iterate through the rows
         Iterator it = formattedData.iterator();
         int rowcount = 0;
@@ -131,13 +131,13 @@ public class DataExportBean implements Serializable {
             out.write(csvString.getBytes());
             out.flush();
         } catch (IOException e) {
-            logger.error(e);
+            if(logger.isErrorEnabled())logger.error(e);
             e.printStackTrace();
         } finally {
             try {
                 if (out != null) out.close();
             } catch (IOException e) {
-                logger.error(e);
+                if(logger.isErrorEnabled())logger.error(e);
                 e.printStackTrace();
             }
         }
@@ -199,13 +199,13 @@ public class DataExportBean implements Serializable {
                 wb.write(out);
                 out.flush();
             } catch (IOException e) {
-                logger.error(e);
+                if(logger.isErrorEnabled())logger.error(e);
                 e.printStackTrace();
             } finally {
                 try {
                     if (out != null) out.close();
                 } catch (IOException e) {
-                    logger.error(e);
+                    if(logger.isErrorEnabled())logger.error(e);
                     e.printStackTrace();
                 }
             }

@@ -111,7 +111,7 @@ public class RosterExportFormatterBean extends GradebookDependentBean implements
 
             EnrollmentRecord enr = (EnrollmentRecord)enrIter.next();
             Map studentMap = (Map)gradeRecordMap.get(enr.getUser().getUserUid());
-            logger.debug("userid = "+ enr.getUser().getUserUid());
+            if(logger.isDebugEnabled())logger.debug("userid = "+ enr.getUser().getUserUid());
             row.add(enr.getUser().getDisplayId());
             row.add(enr.getUser().getSortName());
             for(Iterator goIter = gradableObjects.iterator(); goIter.hasNext();) {
@@ -126,17 +126,6 @@ public class RosterExportFormatterBean extends GradebookDependentBean implements
             }
             formattedRows.add(row);
         }
-
-        Iterator iterator = formattedRows.iterator();
-        while(iterator.hasNext()){
-           List row = (ArrayList) iterator.next();
-           Iterator rowiterator = row.iterator();
-            while(rowiterator.hasNext()){
-             logger.debug(rowiterator.next());
-            }
-            logger.debug("\n");
-        }
-
         return formattedRows;
     }
 
