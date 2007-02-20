@@ -41,7 +41,40 @@
 		  <h4>
 		     <h:outputText value="#{msgs.cdfm_message}" /> 
 		  </h4>
+		    
+		    <h:inputHidden id="msgHidden" value="#{ForumTool.selectedMessage.message.body}" />
+		    <input type="button" value="Insert Original Message Text" onClick="InsertHTML();" /><br/>
             <sakai:rich_text_area value="#{ForumTool.composeBody}" rows="17" columns="70"/>
+            <script language="javascript" type="text/javascript">
+            var textareas = document.getElementsByTagName("textarea");
+	        var rteId = textareas.item(0).id;
+	        
+	        function FCKeditor_OnComplete( editorInstance )
+	        {
+	          // clears the FCK editor after initial loading
+	          editorInstance.SetHTML( "" );
+	        }
+	        
+	        // set the previous message variable
+	        var messagetext = document.forms['dfCompose'].elements['dfCompose:msgHidden'].value;
+	        
+            function InsertHTML() 
+            { 
+              // These lines will write to the original textarea and makes the quoting work when FCK is not present
+              var finalhtml = '<b><i>Original Message:</i></b><br/><b><i><h:outputText value="#{msgs.cdfm_from}" /></i></b> <i><h:outputText value="#{ForumTool.selectedMessage.message.author}" /><h:outputText value=" #{msgs.cdfm_openb}" /><h:outputText value="#{ForumTool.selectedMessage.message.created}" ><f:convertDateTime pattern="#{msgs.date_format}" /></h:outputText><h:outputText value="#{msgs.cdfm_closeb}" /></i><br/><b><i><h:outputText value="#{msgs.cdfm_subject}" /></i></b> <i><h:outputText value="#{ForumTool.selectedMessage.message.title}" /></i><br/><br/><i>' + messagetext + '</i><br/><br/>';
+              document.forms['dfCompose'].elements[rteId].value = finalhtml;
+              // Get the editor instance that we want to interact with.
+              var oEditor = FCKeditorAPI.GetInstance(rteId);
+              // Check the active editing mode.
+              if ( oEditor.EditMode == FCK_EDITMODE_WYSIWYG )
+              {
+              // Insert the desired HTML.
+              oEditor.InsertHtml( finalhtml );
+              }
+              else alert( 'You must be on WYSIWYG mode!' );
+            }
+            </script>
+            
 <%--********************* Attachment *********************--%>	
 	        <h4>
 	          <h:outputText value="#{msgs.cdfm_att}"/>
@@ -174,7 +207,7 @@
       <sakai:button_bar>
         <sakai:button_bar_item action="#{ForumTool.processDfReplyMsgPost}" value="#{msgs.cdfm_button_bar_post_message}" accesskey="s" styleClass="active" />
     <%--    <sakai:button_bar_item action="#{ForumTool.processDfReplyMsgSaveDraft}" value="#{msgs.cdfm_button_bar_save_draft}" /> --%>
-        <sakai:button_bar_item action="#{ForumTool.processDfReplyMsgCancel}" value="#{msgs.cdfm_button_bar_cancel}" immediate="true" accesskey="x" />
+        <sakai:button_bar_item action="#{ForumTool.processDfReplyMsgCancel}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />
       </sakai:button_bar>
 
 <script type="text/javascript">
