@@ -69,18 +69,7 @@
 		</managed-property>
 	</managed-bean>
 
-	<managed-bean>
-		<description>Student roster for a gradebook</description>
-		<managed-bean-name>rosterBean</managed-bean-name>
-		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.RosterBean</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
-		<managed-property>
-			<property-name>pageName</property-name>
-			<value>roster</value>
-		</managed-property>
-	</managed-bean>
-
-	<managed-bean>
+    <managed-bean>
 		<description>Student's view of a gradebook</description>
 		<managed-bean-name>studentViewBean</managed-bean-name>
 		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.StudentViewBean</managed-bean-class>
@@ -164,10 +153,17 @@
     </managed-bean>
 
     <managed-bean>
+        <managed-bean-name>exportFormatterBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.ExportFormatterBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
         <managed-bean-name>exportBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.gradebook.ui.ExportBean</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
+
 
     <managed-bean>
         <managed-bean-name>spreadsheetUploadBean</managed-bean-name>
@@ -194,6 +190,46 @@
         <managed-property>
             <property-name>pageName</property-name>
             <value>removeSpreadsheet</value>
+        </managed-property>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>genericExportFormatterBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.RosterExportFormatterBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>dataExportBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.DataExportBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+
+    <managed-bean>
+        <managed-bean-name>exportFormatterBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.RosterExportFormatterBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+
+    <managed-bean>
+        <description>Student roster for a gradebook</description>
+        <managed-bean-name>rosterBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.RosterBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+        <managed-property>
+            <property-name>pageName</property-name>
+            <value>roster</value>
+        </managed-property>
+        <managed-property>
+            <property-name>exportFormatterBean</property-name>
+            <value>#{exportFormatterBean}</value>
+        </managed-property>
+
+        <managed-property>
+            <property-name>dataExportBean</property-name>
+            <value>#{dataExportBean}</value>
         </managed-property>
     </managed-bean>
 

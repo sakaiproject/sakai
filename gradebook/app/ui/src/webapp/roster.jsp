@@ -48,13 +48,13 @@
 			<h:commandButton
 				id="exportExcel"
 				value="#{msgs.roster_export_excel}"
-				actionListener="#{exportBean.exportRosterExcel}"
+				actionListener="#{rosterBean.exportExcel}"
 				rendered="#{!rosterBean.emptyEnrollments}"
 				/>
 			<h:commandButton
 				id="exportCsv"
 				value="#{msgs.roster_export_csv}"
-				actionListener="#{exportBean.exportRosterCsv}"
+				actionListener="#{rosterBean.exportCSV}"
 				rendered="#{!rosterBean.emptyEnrollments}"
 				/>
 		</p>
