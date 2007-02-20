@@ -5,7 +5,7 @@
 	<extend>../../../master/project.xml</extend>
 	<name>portal-render</name>
 	<groupId>sakaiproject</groupId>
-	<id>portal</id>
+	<id>portal-render</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>

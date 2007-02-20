@@ -45,6 +45,7 @@
       <artifactId>castor</artifactId>
       <version>1.0</version>
     </dependency>
+
    <dependency>
       <groupId>xerces</groupId>
       <artifactId>xercesImpl</artifactId>
