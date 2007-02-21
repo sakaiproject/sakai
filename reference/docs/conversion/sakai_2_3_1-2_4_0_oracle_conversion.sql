@@ -16,6 +16,9 @@ alter table osp_scaffolding add preview number(1,0);
 update osp_list_config set selected_columns = replace(selected_columns, 'name', 'title') where selected_columns like '%name%';
 update osp_list_config set selected_columns = replace(selected_columns, 'siteName', 'site.title') where selected_columns like '%siteName%';
 
+--Updating for a change to the synoptic view for portfolio worksites
+update sakai_site_tool_property set name='siteTypeList', value='portfolio,PortfolioAdmin' where value='portfolioWorksites';
+
 
 -- Samigo SAK-6790 conversion
 alter table SAM_ASSESSMENTBASE_T MODIFY (CREATEDBY varchar(255) , LASTMODIFIEDBY varchar(255));
