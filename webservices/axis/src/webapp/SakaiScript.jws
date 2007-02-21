@@ -226,6 +226,20 @@ public String changeUserPassword( String sessionid, String eid, String password)
 	return "success";
 }
 
+public String getUserEmail( String sessionid ) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	User user = UserDirectoryService.getCurrentUser();
+	return user.getEmail();
+}
+
+public String getUserDisplayName( String sessionid ) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	User user = UserDirectoryService.getCurrentUser();
+	return user.getDisplayName();
+}
+
 //addNewRealm
 public String addNewAuthzGroup(String sessionid, String groupid) throws AxisFault
 {
