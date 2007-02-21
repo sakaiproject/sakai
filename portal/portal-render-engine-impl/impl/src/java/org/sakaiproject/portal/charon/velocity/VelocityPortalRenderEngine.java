@@ -253,28 +253,35 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	{
 
 		String headJs = (String) req.getAttribute("sakai.html.head.js");
-		String headCss = (String) req.getAttribute("sakai.html.head.css");
+		String headCssToolBase = (String) req.getAttribute("sakai.html.head.css.base");
+		String headCssToolSkin = (String) req.getAttribute("sakai.html.head.css.skin");
 		String bodyonload = (String) req.getAttribute("sakai.html.body.onload");
 		String customUserCss = generateStyleAbleStyleSheet();
 		if (customUserCss != null)
 		{
 			customUserCss = "<style type=\"text/css\" title=\"StyleAble\">\n"
 					+ customUserCss + "</style>\n";
-			headCss = headCss + customUserCss;
+		} else {
+			customUserCss = "";
 		}
-		String head = headCss + headJs;
 		String styleAbleJs = generateStyleAbleJavaScript();
 		if (styleAbleJs != null)
 		{
 			styleAbleJs = "<script "
 					+ "type=\"text/javascript\" language=\"JavaScript\">\n" + styleAbleJs
 					+ "\n</script>\n";
-			head = head + styleAbleJs;
+			headJs = headJs + styleAbleJs;
 		}
+		headCssToolSkin = headCssToolSkin + customUserCss;
+		String headCss = headCssToolBase + headCssToolSkin + customUserCss;
+		String head = headCss + headJs;
+		
 		bodyonload = bodyonload + "styleableonload();";
 		req.setAttribute("sakai.html.head", head);
 		req.setAttribute("sakai.html.head.css", headCss);
 		req.setAttribute("sakai.html.head.js", headJs);
+		req.setAttribute("sakai.html.head.css.base", headCssToolBase);
+		req.setAttribute("sakai.html.head.css.skin", headCssToolSkin);
 		req.setAttribute("sakai.html.body.onload", bodyonload);
 
 	}
