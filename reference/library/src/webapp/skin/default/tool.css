@@ -675,6 +675,9 @@ you loose the native buttonishness affordance of the os/browser */
 .act .active {
 	color:#27d
 }
+.act .active[disabled="disabled"] {
+	color:gray
+}
 
 /*SECTION 10 DATA PANELS*/
 .highlightPanel
