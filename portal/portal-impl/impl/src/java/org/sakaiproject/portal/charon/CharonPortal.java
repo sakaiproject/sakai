@@ -2750,9 +2750,6 @@ public class CharonPortal extends HttpServlet
 					+ Web.escapeHtml(extraTitle) + "</span></a></li>");
 		}
 
-		out
-				.println("					<li style=\"display:none;border-width:0\" class=\"fixTabsIE\">"
-						+ "<a href=\"javascript:void(0);\">#x20;</a></li>");
 		out.println("				</ul>");
 		out.println("			</div>");
 
