@@ -54,7 +54,7 @@
 			<h:commandButton
 				id="exportCsv"
 				value="#{msgs.roster_export_csv}"
-				actionListener="#{rosterBean.exportCSV}"
+				actionListener="#{rosterBean.exportCsv}"
 				rendered="#{!rosterBean.emptyEnrollments}"
 				/>
 		</p>

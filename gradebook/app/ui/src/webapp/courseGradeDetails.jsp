@@ -141,12 +141,12 @@
 				/>
 			<h:commandButton
 				value="#{msgs.course_grade_details_export_excel}"
-				actionListener="#{exportBean.exportCourseGradeExcel}"
+				actionListener="#{courseGradeDetailsBean.exportExcel}"
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
 				/>
 			<h:commandButton
 				value="#{msgs.course_grade_details_export_csv}"
-				actionListener="#{exportBean.exportCourseGradeCsv}"
+				actionListener="#{courseGradeDetailsBean.exportCsv}"
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
 				/>
 			<h:commandButton
@@ -156,6 +156,7 @@
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
 				/>
 		</p>
+
 	  </h:form>
 	</div>
 </f:view>

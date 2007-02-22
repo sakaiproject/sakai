@@ -22,9 +22,12 @@
 
 package org.sakaiproject.tool.gradebook.jsf;
 
-import java.text.MessageFormat;
 import java.math.BigDecimal;
-import java.util.*;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -33,11 +36,13 @@ import javax.faces.component.UIInput;
 import javax.faces.component.UIParameter;
 import javax.faces.context.FacesContext;
 import javax.faces.event.FacesEvent;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.jsf.util.LocaleUtil;
 import org.sakaiproject.tool.gradebook.ui.MessagingBean;
+import org.sakaiproject.tool.gradebook.ui.SpreadsheetDataFileWriter;
 
 /**
  * A noninstantiable utility class, because every JSF project needs one.
@@ -293,6 +298,51 @@ public class FacesUtil {
 			return rawValue;
 		}
 	}
+	
+	/**
+	 * Download a spreadsheet file containing the input list of data.
+	 * 
+	 * @param spreadsheetData a list of rows, beginning with a header row, each being a list
+	 * @param fileName not including the file extension, since that's format-dependent
+	 */
+	public static void downloadSpreadsheetData(List<List<Object>> spreadsheetData, String fileName, SpreadsheetDataFileWriter fileWriter) {
+        FacesContext faces = FacesContext.getCurrentInstance();
+        HttpServletResponse response = (HttpServletResponse)faces.getExternalContext().getResponse();
+        protectAgainstInstantDeletion(response);
+       	fileWriter.writeDataToResponse(spreadsheetData, fileName, response);
+       	faces.responseComplete();
+	}
+
+    /**
+     * Try to head off a problem with downloading files from a secure HTTPS
+     * connection to Internet Explorer.
+     *
+     * When IE sees it's talking to a secure server, it decides to treat all hints
+     * or instructions about caching as strictly as possible. Immediately upon
+     * finishing the download, it throws the data away.
+     *
+     * Unfortunately, the way IE sends a downloaded file on to a helper
+     * application is to use the cached copy. Having just deleted the file,
+     * it naturally isn't able to find it in the cache. Whereupon it delivers
+     * a very misleading error message like:
+     * "Internet Explorer cannot download roster from sakai.yoursite.edu.
+     * Internet Explorer was not able to open this Internet site. The requested
+     * site is either unavailable or cannot be found. Please try again later."
+     *
+     * There are several ways to turn caching off, and so to be safe we use
+     * several ways to turn it back on again.
+     *
+     * This current workaround should let IE users save the files to disk.
+     * Unfortunately, errors may still occur if a user attempts to open the
+     * file directly in a helper application from a secure web server.
+     *
+     * TODO Keep checking on the status of this.
+     */
+    private static void protectAgainstInstantDeletion(HttpServletResponse response) {
+        response.reset();	// Eliminate the added-on stuff
+        response.setHeader("Pragma", "public");	// Override old-style cache control
+        response.setHeader("Cache-Control", "public, must-revalidate, post-check=0, pre-check=0, max-age=0");	// New-style
+    }
 }
 
 

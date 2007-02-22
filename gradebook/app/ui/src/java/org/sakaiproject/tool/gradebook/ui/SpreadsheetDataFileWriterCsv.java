@@ -20,7 +20,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.gradebook.jsf;
+package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -37,14 +37,10 @@ import org.apache.commons.logging.LogFactory;
  * Chinese) is not supported correctly, for example. Use Excel-formatted output if at all
  * possible.
  */
-public class SpreadsheetDataDownloaderCsv extends SpreadsheetDataDownloaderBase {
-	private static final Log log = LogFactory.getLog(SpreadsheetDataDownloaderCsv.class);
+public class SpreadsheetDataFileWriterCsv implements SpreadsheetDataFileWriter {
+	private static final Log log = LogFactory.getLog(SpreadsheetDataFileWriterCsv.class);
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.tool.gradebook.jsf.SpreadsheetDataDownloaderBase#writeDataToResponse(java.util.List, java.lang.String, javax.servlet.http.HttpServletResponse)
-	 */
-	@Override
-	protected void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
+	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
 		response.setContentType("text/comma-separated-values");
 		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".csv");
 		

@@ -27,9 +27,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.event.ActionEvent;
 
@@ -37,6 +39,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
@@ -215,6 +218,72 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		// Let the user know.
 		FacesUtil.addMessage(getLocalizedString("course_grade_details_grades_saved"));
 	}
+	
+	// Download spreadsheet of course grades. It's very likely that insitutions will
+	// want to customize this somewhere along the way.
+	
+    public void exportCsv(ActionEvent event){
+        if(logger.isInfoEnabled()) logger.info("exporting course grade as CSV for gradebook " + getGradebookUid());
+        FacesUtil.downloadSpreadsheetData(getSpreadsheetData(), 
+        		getDownloadFileName(getLocalizedString("export_course_grade_prefix")), 
+        		new SpreadsheetDataFileWriterCsv());
+    }
+
+    public void exportExcel(ActionEvent event){
+        if(logger.isInfoEnabled()) logger.info("exporting course grade as Excel for gradebook " + getGradebookUid());
+        FacesUtil.downloadSpreadsheetData(getSpreadsheetData(), 
+        		getDownloadFileName(getLocalizedString("export_course_grade_prefix")), 
+        		new SpreadsheetDataFileWriterXls());
+    }
+    
+    private List<List<Object>> getSpreadsheetData() {
+    	// Get the full list of filtered enrollments and scores (not just the current page's worth).
+    	List filteredEnrollments = getWorkingEnrollments();
+    	Collections.sort(filteredEnrollments, ENROLLMENT_NAME_COMPARATOR);
+    	Set<String> studentUids = new HashSet<String>();
+    	for (Iterator iter = filteredEnrollments.iterator(); iter.hasNext(); ) {
+    		EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
+    		studentUids.add(enrollment.getUser().getUserUid());
+    	}
+
+		CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
+		List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentUids);
+		Map filteredGradesMap = new HashMap();
+		getGradebookManager().addToGradeRecordMap(filteredGradesMap, courseGradeRecords);
+     	return getSpreadsheetData(filteredEnrollments, courseGrade, filteredGradesMap);
+    }
+    
+    private List<List<Object>> getSpreadsheetData(List enrollments, CourseGrade courseGrade, Map gradesMap) {
+    	List<List<Object>> spreadsheetData = new ArrayList<List<Object>>();
+
+    	// Build column headers.
+        List<Object> headerRow = new ArrayList<Object>();
+        headerRow.add(getLocalizedString("export_student_id"));
+        headerRow.add(getLocalizedString("export_student_name"));
+        headerRow.add(getLocalizedString("course_grade_details_course_grade_column_name"));
+        spreadsheetData.add(headerRow);
+        
+        // Build student grade rows.
+        for (Object enrollment : enrollments) {
+        	User student = ((EnrollmentRecord)enrollment).getUser();
+        	String studentUid = student.getUserUid();
+        	Map studentMap = (Map)gradesMap.get(studentUid);
+        	List<Object> row = new ArrayList<Object>();
+        	row.add(student.getDisplayId());
+        	row.add(student.getSortName());
+        	String grade = null;
+        	if (studentMap != null) {
+        		CourseGradeRecord gradeRecord = (CourseGradeRecord)studentMap.get(courseGrade.getId()); 
+    			if (gradeRecord != null) {
+    				grade = gradeRecord.getDisplayGrade();
+    			}
+        	}
+        	row.add(grade);
+        	spreadsheetData.add(row);
+        }
+    	
+    	return spreadsheetData;
+    }
 
 	public List getScoreRows() {
 		return scoreRows;

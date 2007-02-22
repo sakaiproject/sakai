@@ -22,12 +22,14 @@
 
 package org.sakaiproject.tool.gradebook.ui;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
@@ -36,8 +38,6 @@ import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 public abstract class GradebookDependentBean extends InitializableBean {
-	private static final Log logger = LogFactory.getLog(GradebookDependentBean.class);
-
 	private String pageName;
 
 	/**
@@ -217,4 +217,27 @@ public abstract class GradebookDependentBean extends InitializableBean {
     public void setPageName(String pageName) {
     	this.pageName = pageName;
     }
+
+
+   	/**
+     * Generates a default filename (minus the extension) for a download from this Gradebook. 
+     *
+	 * @param   prefix for filename
+	 * @return The appropriate filename for the export
+	 */
+    public String getDownloadFileName(String prefix) {
+		Date now = new Date();
+		DateFormat df = new SimpleDateFormat(getLocalizedString("export_filename_date_format"));
+		StringBuffer fileName = new StringBuffer(prefix);
+        String gbName = getGradebook().getName();
+        if(StringUtils.trimToNull(gbName) != null) {
+            gbName = gbName.replaceAll("\\s", "_"); // replace whitespace with '_'
+            fileName.append("-");
+            fileName.append(gbName);
+        }
+		fileName.append("-");
+		fileName.append(df.format(now));
+		return fileName.toString();
+	}
+
 }

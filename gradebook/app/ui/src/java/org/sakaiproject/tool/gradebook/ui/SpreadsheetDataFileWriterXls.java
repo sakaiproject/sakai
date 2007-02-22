@@ -20,7 +20,7 @@
 *
 **********************************************************************************/
 
-package org.sakaiproject.tool.gradebook.jsf;
+package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -39,14 +39,10 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 /**
  *
  */
-public class SpreadsheetDataDownloaderXls extends SpreadsheetDataDownloaderBase {
-	private static final Log log = LogFactory.getLog(SpreadsheetDataDownloaderXls.class);
+public class SpreadsheetDataFileWriterXls implements SpreadsheetDataFileWriter {
+	private static final Log log = LogFactory.getLog(SpreadsheetDataFileWriter.class);
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.tool.gradebook.jsf.SpreadsheetDataDownloaderBase#writeDataToResponse(java.util.List, java.lang.String, javax.servlet.http.HttpServletResponse)
-	 */
-	@Override
-	protected void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
+	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
 		response.setContentType("application/vnd.ms-excel");
 		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".xls");
 

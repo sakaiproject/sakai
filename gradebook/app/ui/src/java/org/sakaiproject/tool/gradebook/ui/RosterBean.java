@@ -23,11 +23,8 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,7 +38,6 @@ import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.component.html.ext.HtmlDataTable;
@@ -54,8 +50,7 @@ import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.jsf.AssignmentPointsConverter;
-import org.sakaiproject.tool.gradebook.jsf.SpreadsheetDataDownloaderCsv;
-import org.sakaiproject.tool.gradebook.jsf.SpreadsheetDataDownloaderXls;
+import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 /**
  * Backing bean for the visible list of assignments in the gradebook.
@@ -291,16 +286,18 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         getPreferencesBean().setRosterTableSortColumn(sortColumn);
     }
 
-    public void exportCSV(ActionEvent event){
-        if(logger.isInfoEnabled()) logger.info("exporting course grade as CSV for gradebook " + getGradebookUid());
-        SpreadsheetDataDownloaderCsv downloader = new SpreadsheetDataDownloaderCsv();
-        downloader.download(getSpreadsheetData(), getFileName(getLocalizedString("export_gradebook_prefix")));
+    public void exportCsv(ActionEvent event){
+        if(logger.isInfoEnabled()) logger.info("exporting roster as CSV for gradebook " + getGradebookUid());
+        FacesUtil.downloadSpreadsheetData(getSpreadsheetData(), 
+        		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
+        		new SpreadsheetDataFileWriterCsv());
     }
 
     public void exportExcel(ActionEvent event){
-        if(logger.isInfoEnabled()) logger.info("exporting course grade as Excel for gradebook " + getGradebookUid());
-        SpreadsheetDataDownloaderXls downloader = new SpreadsheetDataDownloaderXls();
-        downloader.download(getSpreadsheetData(), getFileName(getLocalizedString("export_gradebook_prefix")));
+        if(logger.isInfoEnabled()) logger.info("exporting roster as Excel for gradebook " + getGradebookUid());
+        FacesUtil.downloadSpreadsheetData(getSpreadsheetData(), 
+        		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
+        		new SpreadsheetDataFileWriterXls());
     }
     
     private List<List<Object>> getSpreadsheetData() {
@@ -313,7 +310,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     		studentUids.add(enrollment.getUser().getUserUid());
     	}
 
-		Map filteredGradesMap = new HashMap();    	
+		Map filteredGradesMap = new HashMap();
     	List gradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), studentUids);
         getGradebookManager().addToGradeRecordMap(filteredGradesMap, gradeRecords);
         
@@ -366,25 +363,4 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     	
     	return spreadsheetData;
     }
-
-   	/**
-     * Gets the filename for the export
-     *
-	 * @param   prefix fro filename
-	 * @return The appropriate filename for the export
-	 */
-    private String getFileName(String prefix) {
-		Date now = new Date();
-		DateFormat df = new SimpleDateFormat(getLocalizedString("export_filename_date_format"));
-		StringBuffer fileName = new StringBuffer(prefix);
-        String gbName = getGradebook().getName();
-        if(StringUtils.trimToNull(gbName) != null) {
-            gbName = gbName.replaceAll("\\s", "_"); // replace whitespace with '_'
-            fileName.append("-");
-            fileName.append(gbName);
-        }
-		fileName.append("-");
-		fileName.append(df.format(now));
-		return fileName.toString();
-	}
 }

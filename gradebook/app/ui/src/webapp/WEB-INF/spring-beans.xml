@@ -5,7 +5,6 @@
 
 	<!--
 		This Spring configuration file sets up the shared business logic of the application.
-
 	-->
 
 	<!-- Gradebook Manager -->
@@ -56,11 +55,5 @@
 			</list>
 		</property>
 	</bean>
-
-   <!-- sets up spreadsheetbean session -->
-
-
-
-
 
 </beans>
