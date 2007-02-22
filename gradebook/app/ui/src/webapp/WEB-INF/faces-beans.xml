@@ -153,12 +153,6 @@
     </managed-bean>
 
     <managed-bean>
-        <managed-bean-name>exportBean</managed-bean-name>
-        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.ExportBean</managed-bean-class>
-        <managed-bean-scope>request</managed-bean-scope>
-    </managed-bean>
-
-    <managed-bean>
         <managed-bean-name>spreadsheetUploadBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetUploadBean</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
