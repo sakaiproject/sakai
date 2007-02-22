@@ -2467,7 +2467,7 @@ public class SiteAction extends PagedResourceActionII
     		bar = new MenuImpl(portlet, data, (String) state.getAttribute(STATE_ACTION));
 		if (SiteService.allowUpdateSite(site.getId()) || SiteService.allowUpdateGroupMembership(site.getId()))
 		{
-			bar.add( new MenuEntry(rb.getString("java.new"), "doGroup_new"));
+			bar.add( new MenuEntry(rb.getString("editgroup.new"), "doGroup_new"));
 		}
 		context.put("menu", bar);
 		
