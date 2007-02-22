@@ -631,10 +631,10 @@ public class CharonPortal extends HttpServlet
                 M_log.warn("doTitle(): The /title/ form of portal URLs is no longer supported in Sakai 2.4 and later");
 	}
 
-        private void includeTitle(ActiveTool tool, HttpServletRequest req,
-                        HttpServletResponse res, ToolConfiguration placement, String skin,
-                        String toolContextPath, String toolPathInfo) throws IOException
-        {
+    private void includeTitle(ActiveTool tool, HttpServletRequest req,
+            HttpServletResponse res, ToolConfiguration placement, String skin,
+            String toolContextPath, String toolPathInfo) throws IOException
+    {
                 M_log.warn("includeTitle(): The /title/ form of portal URLs is no longer supported in Sakai 2.4 and later");
 	}
 
@@ -1461,7 +1461,7 @@ public class CharonPortal extends HttpServlet
 
 	}
 
-	private String getPortalPageUrl(ToolConfiguration p)
+	protected String getPortalPageUrl(ToolConfiguration p)
 	{
 		return "/site/" + p.getSiteId() + "/page/" + p.getPageId();
 	}
@@ -1980,7 +1980,7 @@ public class CharonPortal extends HttpServlet
 		out.println("</div>");
 	}
 
-	private boolean allowTool(Site site, Placement placement)
+	protected boolean allowTool(Site site, Placement placement)
 	{
 		if ( placement == null || site == null ) return true;  // No way to render an opinion
 
