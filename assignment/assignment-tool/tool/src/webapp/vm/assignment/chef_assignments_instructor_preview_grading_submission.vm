@@ -214,10 +214,10 @@
 				</p>
 			#end
 			<p class="act">
-				<input accesskey="s" name="eventSubmit_doReturn_preview_grade_submission" type="submit" value="$tlang.getString("gen.retustud")" title="$tlang.getString("gen.retustudtit")" class="active" />
-				<input accesskey="d" name="eventSubmit_doSave_preview_grade_submission" type="submit" value="$tlang.getString("gen.sav")" />
+				<input accesskey="d" name="eventSubmit_doSave_preview_grade_submission" type="submit" value="$tlang.getString("gen.sav")" title="$tlang.getString("gen.savdratit")" class="active" />
+				<input accesskey="s" name="eventSubmit_doReturn_preview_grade_submission" type="submit" value="$tlang.getString("gen.retustud")" title="$tlang.getString("gen.retustudtit")" />
 				<input accesskey="r" name="eventSubmit_doCancel_preview_grade_submission" type="submit" value="$tlang.getString("gen.revi")" />
-				<input accesskey="d" name="eventSubmit_doSave_preview_grade_submission" type="submit" value="$tlang.getString("gen.savdra")" />				
+				## need a cancel here that returns the view to the grading list
 			</p>											
 		</form>
 </div>
