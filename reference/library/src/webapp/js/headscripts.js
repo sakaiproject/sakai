@@ -283,7 +283,10 @@ function setMainFrameHeight(id)
 		// here we fudge to get a little bigger
 		//gsilver: changing this from 50 to 10, and adding extra bottom padding to the portletBody		
 		var newHeight = height + 10;
-		
+		//contributed patch from hedrick@rutgers.edu (for very long documents)
+		if (newHeight > 32760)
+		newHeight = 32760;
+	
 		// no need to be smaller than...
 		//if (height < 200) height = 200;
 		objToResize.height=newHeight + "px";
