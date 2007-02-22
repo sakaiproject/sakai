@@ -33,16 +33,15 @@
 <div class="titlepage"><div><div><h3 class="title">
 <a name="install-env-jinstall"></a>2.1. Verify Java Installation</h3></div></div></div>
 
-            <p>Check to see if you have Java (version 1.4.2 or higher) installed on your system
-                by running the following command (sample output from a *nix system):</p>
+            <p>Check to see if you have Java (version 1.5) installed on your system by running
+                the following command (sample output from a *nix system):</p>
             <pre class="screen">
 $ java -version
 java version "1.5.0_06"
 Java(TM) 2 Runtime Environment, Standard Edition (build 1.5.0_06-b05)
 Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
-            <p>If you're going to be building the source (i.e. if you chose the source install)
-                then you'll want to make sure that you have also installed the full J2SE, and not
-                just the JRE.</p>
+            <p>You'll want to make sure that you have also installed the full J2SE, and not just
+                the JRE (Sakai includes .jsp and .jws files which require some compilation).</p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">JRE vs. JDK vs. J2SE vs. J2EE</h3>
 
@@ -51,12 +50,12 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
                     environment" which allows you to execute compiled Java bytecode, and for many
                     platforms this is all you usually get by default - for the very good reason that
                     the average user just wants to run programs, and doesn't need to be building
-                    code. The JRE is what Tomcat needs to start up, and if all you're installing is
-                    the Sakai demo or binary, then the JRE will suffice for you.</p>
-                <p> To build the Sakai source, however, you'll need the JDK, which stands for
-                    "Java Developer's Kit." To both build and run Sakai you'll therefore need a
-                    combination of both the JDK and the JRE, and, happily, Sun makes this available
-                    as a unit: the J2SE (the "Java 2 Standard Edition").</p>
+                    code.</p>
+                <p> To run Sakai, however, you'll also need the JDK (Sakai includes some .jws and .jsp
+                    files which are not pre-compiled), which stands for "Java Developer's Kit." To
+                    both build and run Sakai you'll therefore need a combination of both the JDK and
+                    the JRE, and, happily, Sun makes this available as a unit: the J2SE (the "Java 2
+                    Standard Edition").</p>
                 <p>If you go to the Sun site for a download, you may also run across the J2EE
                     (the "Enterprise Edition"), or even the J2ME (the "Micro Edition"). Don't
                     trouble yourself with these, unless you know of a particular reason why you may
@@ -142,44 +141,6 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
 </tr>
 </tbody>
 </table></div>
-            <p>Finally, you'll need to set an environment variable that will increase the size
-                and performance of your JVM ("Java Virtual Machine": the default JVM settings are
-                unfortunately not sufficient for Sakai), and the variable is named
-                    <span><strong class="command">JAVA_OPTS</strong></span>. The value suggested below should be suitable for
-                developers or demo installations.</p>
-            <div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td>
-<span class="term">Windows:</span></td>
-<td>
-                        <p> Create a new environment variable <span><strong class="command">JAVA_OPTS</strong></span> to
-                            hold the value "<span><strong class="command">-server -Xmx512m -Xms512m -XX:PermSize=128m
-                                -XX:MaxPermSize=196m -XX:NewSize=192m
-                            -XX:MaxNewSize=384m</strong></span>". </p>
-                    </td>
-</tr>
-<tr>
-<td>
-<span class="term">Mac/*nix:</span></td>
-<td>
-                        <p>
-                            <span><strong class="command">export JAVA_OPTS="-server -Xmx512m -Xms512m -XX:PermSize=128m
-                                -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m"</strong></span>
-                        </p>
-                    </td>
-</tr>
-</tbody>
-</table></div>
-            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
-<h3 class="title">More on JVM Tuning</h3>
-
-                <p>The above <span><strong class="command">JAVA_OPTS</strong></span> settings are, it must be emphasized
-                    once again, minimal. For settings more suitable for production servers, see the
-                        <a href="install-config.html#install-config-jvm" title="4.4. JVM Tuning">JVM Tuning</a> section of
-                    Post-Installation Configuration.</p>
-            </div>
             <p>You should test that these variables are set correctly. In both Windows XP and
                 *nix operating systems you can simply start a new shell and type the
                 <span><strong class="command">set</strong></span> command to see your environment variables.</p>
@@ -188,25 +149,35 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
 <div class="titlepage"><div><div><h3 class="title">
 <a name="install-env-tinstall"></a>2.3. Install Tomcat</h3></div></div></div>
 
-            <p>Sakai 2.2.0 was QA'ed with Tomcat 5.5.17, and so that's the version we recommend,
+            <p>Sakai 2.3.1 was QA'ed with Tomcat 5.5.17, and so that's the version we recommend,
                 although the latest stable version will most likely not present problems. Tomcat can
                 be downloaded as a binary from <a href="http://tomcat.apache.org/download-55.cgi" target="_top">http://tomcat.apache.org/download-55.cgi</a>. The distribution you want is
                 the one labeled <span class="emphasis"><em>Core</em></span>, along with the <span class="emphasis"><em>JDK 1.4
-                    Compatibility Package</em></span> (even if you're using Java 1.5, some portions
-                of the Sakai code will require the compatibility package, and Sakai won't start up
-                without it). The Tomcat 5.5 instructions will tell you that Java 1.5 is required,
-                but it's not, so long as you have the 1.4 Compatibility package.</p>
+                    Compatibility Package</em></span> (even though you're using Java 1.5, some Sakai
+                dependencies will require the compatibility package, and Sakai won't start up
+                without it).</p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Tomcat on Windows</h3>
 
                 <p>Windows users have the option of either downloading an .exe Tomcat installer
                     (for installing Tomcat as a service) or a .zip binary. Although either may
                     serve, they are however not entirely equivalent when it comes to operational
-                    details, and for brevity's sake it's recommended that you grab the .zip. Sakai
-                    requires some tuning of the JVM, and the service install manages these settings
-                    through the registry rather than environment variables (see Tomcat installation
-                    instructions on the Apache site if you're committed to installing Tomcat as a
-                    service).</p>
+                    details, and for control and brevity's sake the main instructions will assume
+                    that you grabbed the .zip. You can turn the .zip install into a service install
+                    later, however, by running <span><strong class="command">service.bat</strong></span> from the bin
+                    directory, e.g.</p>
+                <pre class="screen">
+C:\tomcat\bin&gt; service.bat install</pre>
+                <p>You can add a service name as a second argument to that script. The default is
+                    "Tomcat5". You can likewise uninstall the service by replacing "install" with
+                    "remove". Then to get the configuration window, just run this at the command
+                    prompt:</p>
+                <pre class="screen">
+C:\tomcat\bin&gt; tomcat5w //ES//Tomcat5</pre>
+                <p>Replace "Tomcat5" with whatever service name you chose for the install. You'll
+                    want to set the service to startup automatically ("Startup Type" under the
+                    General tab).</p>
+                <p>Also be sure to read the Windows note in the <a href="install-config.html#install-config-jvm" title="4.5. JVM Tuning">JVM Tuning</a> section of <a href="install-config.html" title="4. Post-Installation Configuration">Post-Installation Configuration</a>.</p>
             </div>
             <p>Unpack the Tomcat archive at your desired location, and unpack the compatibility
                 package directly on top of it. From this point forward these instructions will refer
@@ -262,8 +233,8 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
 <a name="install-env-minstall"></a>2.5. Install Maven</h3></div></div></div>
 
             <p>Maven is the build tool used by Sakai, and the latest stable release (currently
-                1.0.2) can be downloaded from <a href="http://maven.apache.org/start/download.html" target="_top">
-                    http://maven.apache.org/start/download.html</a></p>
+                1.0.2) can be downloaded from <a href="http://maven.apache.org/maven-1.x/start/download.html" target="_top">
+                    http://maven.apache.org/maven-1.x/start/download.html</a></p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Newer versions of Maven</h3>
 

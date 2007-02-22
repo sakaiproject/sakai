@@ -1,227 +1,238 @@
-                              2.2.0 Release Notes
+                              2.3.1 Release Notes
 
    --------------------------------------------------------------------------
 
    Table of Contents
 
-   1. What's New
-                1.1. Enhancements
-                1.2. New Tools
+   1. Overview
 
-   2. Migration Issues
+   2. Migration
+
                 2.1. Database Conversion
-                2.2. Framework Changes
-                2.3. Provider Changes
-                2.4. Skin Changes
+                2.2. Skin Update
+                2.3. Configuration changes
 
-   3. Maintenance Branch
+   3. What's New
+
+                3.1. Tool Promotions
+                3.2. Tool Enhancements
+                3.3. Other Enhancements
 
    4. Fixes Included in this Release
 
    5. Open Issues
 
-1. What's New
+   6. Maintenance Branch
 
-  1.1. Enhancements
+1. Overview
 
-    1.1.1. Framework Refactoring
+   +------------------------------------------------------------------------+
+   | Security Update: 2.3.1 adds critical security and performance fixes to |
+   | the 2.3.0 release, and should therefore be taken to simply supersede   |
+   | 2.3.0. Anyone running an unpatched 2.3.0 should upgrade to 2.3.1       |
+   | immediately. Unpatched systems could allow a user to view all          |
+   | attachments on the system through the browser (SAK-7288) as well   |
+   | as alter or delete them through a WebDAV client (SAK-7672).        |
+   +------------------------------------------------------------------------+
 
-   The 2.2.0 release marks the culmination of a significant effort to
-   restructure the framework into more logical functional/architectural
-   units, paving the way for multiple, focused teams to work in parallel on
-   moving the framework and legacy code forward.
+   The Sakai 2.3 series as a whole presents more in the way of feature
+   enhancements and less in the way of API changes than 2.2. Three new
+   provisional tools have been added, while two very successful provisional
+   tools have been promoted to the enterprise bundle (for details see below).
+   Several existing tools have seen significant enhancements, along with
+   general improvements for the portal and configuration options in
+   sakai.properties.
 
-   These changes in themselves do not have a direct functional impact, but
-   they are echoed by a change in the organization of Sakai's subversion
-   repository, and many services and packages have different names from those
-   in 2.1. To see more discussion of migration issues that may result, see
-   below.
+   These release notes highlight salient enhancements and required migration
+   steps, while links to complete lists of fixed and open issues specific to
+   2.3.1 are available below.
 
-    1.1.2. Group Awareness
-
-   Group awareness has been extended to three additional tools: Resources,
-   Assignments, and Schedule. That is to say, the contents of each of those
-   tools can have their access restricted to specific groups, as they are
-   defined by site maintainers in the Site Info tool.
-
-    1.1.3. EID/UID Separation
-
-   For the last few releases we've been working to introduce the concept of
-   "internal" and "external" identifiers in Sakai in the user records. We
-   started with a single identifier that had to play both of these roles, and
-   have been tweaking the code to separate these out. For 2.2.0 we have
-   completed this separation. It is now possible for an institution to, for
-   example, alter the enterprise IDs of their users without losing access to
-   their sites and materials in Sakai. For a thorough discussion of these
-   changes, see the doc reference/docs/architecture/sakai_id_eid.doc (or in
-   subversion at:
-   https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_id_eid.doc)
-
-    1.1.4. FCKeditor
-
-   The FCKeditor WYSIWYG editor was available in 2.1, but not the default. In
-   2.2.0 it has become the default editor. HTMLArea is still included,
-   however, and the default editor may be overridden in sakai.properties by
-   altering the following setting:
-
- # specify the wysiwyg editor
- wysiwyg.editor=FCKeditor
-
-    1.1.5. Included Skins
-
-   The three highest-scoring skins from the recent skins contest have been
-   included in the distribution. You can make any of these your default skin
-   by using the following property in sakai.properties (other possible values
-   are commented out in the example below):
-
- # The default skin for sites without a skin setting
- # skin.default=gen-u
- # skin.default=examp-u
- # skin.default=some-u
- skin.default=default
-
-    1.1.6. Updated Help Content
-
-   Help content in 2.1 was out of date, reflecting only version 2.0 of the
-   software. The help content has been updated for 2.2.0, along with some
-   style improvements. To see the ongoing work of the Help project, visit
-   their space in Confluence:
-
-   http://bugs.sakaiproject.org/confluence/display/HELP/Home
-
-    1.1.7. New translations
-
-   New interface translations for French and Catalan, as well as updated
-   Japanese translations, are available in this release. See
-   reference/docs/readme_i18n.txt for more information.
-
-  1.2. New Tools
-
-    1.2.1. Open Source Portfolio
-
-   2.2.0 marks closer integration with the Open Source Portfolio, an existing
-   suite of tools supporting portfolio activities, and which are available in
-   this release as provisional tools. Using OSP, individuals can collect
-   items, reflect, design portfolios, and publish them to designated
-   audiences. Instructors and program administrators are able to provide
-   structure and guidance to an individual's work that include step-by-step
-   (sequential) wizards, matrices of goals/standards, and hierarchies to
-   organize related work.
-
-    1.2.2. Provisional Tools
-
-   Sakai 2.2.0 has added four new provisional tools
-
-     * Message Center: a tool combining a discussion forum with private
-       messaging.
-
-     * Search: a tool providing a Google-like search of all site content.
-
-     * Summary Calendar: a synoptic calendar view that may be used in either
-       the My Workspace or the Home page of course/project sites, including
-       an event summary from either all the sites to which a user is a member
-       (if in My Workspace) or the events of a particular site (if in that
-       site).
-
-     * Post 'Em: an automated reporting system that enables faculty to post
-       grades and comments without compromising student privacy. Post `Em
-       accepts CSV files, empowering faculty to track student grades in a
-       spreadsheet application of their choice.
-
-   You can find more details about these and all other provisional tools on
-   the provisional tools page.
-
-2. Migration Issues
+2. Migration
 
   2.1. Database Conversion
 
-   There are database schema changes between 2.1.2 and 2.2.0, and the
-   conversion scripts to be applied - in distinct versions for MySQL and
+   A DB conversion script is required for a database migration from 2.2.1 to
+   2.3.1 (there were no DB schema changes introduced in 2.2.2 or 2.2.3).
+   There is also a conversion script for a move from 2.3.0 to 2.3.1, for
+   those who may be already running 2.3.0, but the 2.3.0 release should be
+   bypassed altogether by those who are upgrading from a 2.2 release.
+
+  Note
+
+   DB conversions require the successive application of all intermediate
+   scripts, e.g., a migration from 2.2.0 will require two conversions: one
+   from 2.2.0 to 2.2.1, and one from 2.2.1 to 2.3.1 (again, there were no DB
+   schema changes introduced in 2.2.2 and 2.2.3, and while there is a conversion script for a 2.3.0 to 2.3.1 conversion for those who may have already migrated to 2.3.0, the 2.2.1-2.3.0 conversion had a significant gradebook error, and is no longer made available).  The 2.3.0 release has been superseded, and is no longer even a waystation in the database conversion process.
+
+   The conversion scripts to be applied - in distinct versions for MySQL and
    Oracle, respectively - are found in the reference/docs/conversion folder
    of the release or on subversion:
+   
+   https://source.sakaiproject.org/svn/reference/tags/sakai_2-3-1/docs/conversion
 
-MySQL:  https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql
-Oracle: https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql
+  2.2. Skin Update
 
-   In the same directory you'll also find conversion scripts for earlier
-   Sakai versions. Migration from an earlier version will require the
-   successive application of all intermediate conversion scripts. You cannot,
-   for example, move from 2.1.1 to 2.2.0 by applying a single DB script. You
-   will need to move first from 2.1.1 to 2.1.2, and then to 2.2.0.
+   Portal changes (see below) have reduced the number of frames that Sakai
+   uses, and 2.2 skins will need to be adapted as a result. The changes are
+   however few in number, and they are described in Appendix I of:
+   https://source.sakaiproject.org/svn/reference/tags/sakai_2-3-1/docs/architecture/sakai_skin.doc
 
-  Examine before using
+  2.3. Configuration changes
 
-   As a general rule, be sure to read through these conversion scripts before
-   applying them. They do not take into account any special customizations
-   you may have made - such as new roles, or the deployment of additional
-   tools - and they may complicate your migration with unintended
-   consequences if you execute the script blindly.
+   Among the enhancements of 2.3 are improved configuration options. The
+   sakai.properties settings below are new and optional.
 
-   For the 2.2.0 release, the Message Center tool offers one such particular
-   example. A number of schools deployed Message Center in 2.1.x production,
-   before it was yet a provisional tool. Now that it is a provisional tool,
-   the conversion scripts were written to introduce its tables, and thus
-   assume that Message Center is a new tool for your deployment. If it isn't,
-   you'll want to comment out the portions of the conversion script that
-   treat it, and instead perform the following conversions:
+     * For disabling new Resources features
 
-  MySQL:  ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR(255);
-          ALTER TABLE MFR_OPEN_FORUM_T ADD DEFAULTASSIGNNAME VARCHAR(255);
-          ALTER TABLE MFR_MESSAGE_T ADD GRADEASSIGNMENTNAME VARCHAR(255);
-          ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR(255);
-          
-  Oracle: ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
-          ALTER TABLE MFR_OPEN_FORUM_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
-          ALTER TABLE MFR_MESSAGE_T ADD GRADEASSIGNMENTNAME VARCHAR2(255) NULL;
-          ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;
+ # set to false to disable the release/retract and hiding of resources in ContentHostingService
+ # if this setting is left out of sakai.properties, the availability features should be enabled
+ # by default
+ availabilityChecksEnabled@org.sakaiproject.content.api.ContentHostingService = true
 
-  2.2. Framework Changes
+ # set to false to disable custom sorts within folders in ContentHostingService
+ # if this setting is left out of sakai.properties, the priority sorts should be
+ # enabled by default
+ prioritySortEnabled@org.sakaiproject.content.api.ContentHostingService = true
 
-   The 2.2 refactoring means that many package names have changed, and these
-   differences will mainly be encountered in sakai.properties settings with
-   bean references. It's best to not try to use a sakai.properties from a
-   previous release, and instead start with the sample in
-   reference/docs/sakai.properties.
+     * For configuring threaded view for Message Center
 
-   Any custom code, such as providers, may also need revision. See below for
-   more discussion of providers in particular.
+ mc.threadedview=true
 
-  2.3. Provider Changes
+     * For handling tool stealthing in a more flexible way (these settings
+       override default stealthing).
 
-   As mentioned above, 2.2.0 introduces a separation of external user
-   identifiers from Sakai's internal user ids. Any custom
-   UserDirectoryProvider will need some alteration to account for this, along
-   with changes to its import statements and declarations that stem from API
-   changes. Below is a list of changes that a typical provider should
-   require:
+ visibleTools@org.sakaiproject.tool.api.ActiveToolManager=
+ hiddenTools@org.sakaiproject.tool.api.ActiveToolManager=
 
-    1. Import statements altered to reflect new package names.
+     * For switching off the saving of tool state
 
-    2. A search and replace to turn getters and setters from, e.g., 'getId'
-       to 'getEid'.
+ portal.experimental.auto.reset=true
 
-    3. Revise the project.xml files in both the provider module and
-       'component' with the appropriate UDP location.
+3. What's New
 
-    4. Change the Spring bean declaration in component.xml.
+   For a more complete treatment of all available tools, see the Sakai
+   Tools page on Confluence.
 
-    5. The UDP class may implement the DisplayAdvisorUDP interface
-       (optional), and the two additional methods this pulls in.
+  3.1. Tool Promotions
 
-   Be sure to review the SampleUserDirectoryProvider, and compare it against
-   the sample for previous releases:
+    3.1.1. New Enterprise Bundle Tools
 
-   https://source.sakaiproject.org/svn/providers/tags/sakai_2-2-0/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java
+     * Rwiki
 
-  2.4. Skin Changes
+     * Calendar Summary
 
-   A number of CSS changes will need to be made to any 2.1 skins in order to
-   adapt them to 2.2.0. These changes - including conversion steps - are
-   thoroughly documented in the appendices of the skin document available in
-   reference/docs/architecture/sakai_skin.doc, or in subversion at:
-   https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_skin.doc
+    3.1.2. New Provisional Tools
 
-3. Maintenance Branch
+     * Blog: for collaborative blogging among members of a particular site.
+
+     * Linktool: for calling external applications in Sakai (e.g. those
+       written in PHP).
+
+     * Podcasts: a podcasting tool which takes advantage of the Resources
+       tool for storage, but displays podcasts in a user friendly way and
+       provides an RSS feed for access through one's favorite podcatcher.
+
+  3.2. Tool Enhancements
+
+     * Assignments: ability to link to previously-created gradebook items.
+
+     * Gradebook: now includes selective release and import
+
+     * Message Center: now includes the option of a threaded view,
+       configurable in sakai.properties
+       (http://bugs.sakaiproject.org/jira/browse/SAK-4899 - see section
+       2.3 above)
+
+     * Resources: now includes timed release and custom ordering.
+
+     * Roster: uses a new API to manage privacy.
+
+     * RWiki: now includes commenting and RSS notifications
+       (http://bugs.sakaiproject.org/jira/browse/SAK-4295)
+
+     * Tests & Quizzes (Samigo): (see the Samigo release notes for more
+       complete details)
+
+          * allowing instructors to attach any file to a question (
+            http://bugs.sakaiproject.org/jira/browse/SAK-4396)
+
+          * bulk downloading of uploaded file answers (
+            http://bugs.sakaiproject.org/jira/browse/SAK-4396)
+
+          * filtered views for grading (
+            http://bugs.sakaiproject.org/jira/browse/SAK-4573)
+
+          * a pager/search box for grading (
+            http://bugs.sakaiproject.org/jira/browse/SAK-4402)
+
+          * a new question type: numeric response (
+            http://bugs.sakaiproject.org/jira/browse/SAK-6325)
+
+          * java.policy requirement for audio recording questions removed
+
+  3.3. Other Enhancements
+
+     * Accessibility: Site navigation and tool titles are now contained in
+       the main document, which eliminates several iFrames and makes
+       navigation more seamless (see "CSS changes" below for more detail).
+       Repaired problem with Help opening on tab. Accesskeys revised to
+       reflect UK eCommerce standards.
+
+     * CSS Changes: mostly to make possible the rendering of site navigation
+       and tool title content. How these 2 things get displayed is now
+       radically different - they will look the same mostly, but they will
+       now behave decently. Things like really testing for 800X600
+       resolution, ungodly long site titles, etc. are now possible.
+
+     * Portal:
+
+          * Left-hand buttons are now permissions-based (
+            http://bugs.sakaiproject.org/jira/browse/SAK-4120). Each tool
+            in its registration file indicates the Sakai functions which are
+            needed for the execution of the respective tool. For example, the
+            Presentation tool is completely non-functional without
+            content.read so the following line is added to the tool
+            registration:
+
+ <configuration name="functions.require" value="content.read" />
+
+            You can specify more than one security function using commas. The
+            implication is "AND" so if two functions are specfied the user
+            must have both permissions.
+
+          * Added a capability to deep link URLs through Charon into tools -
+            this is still under some debate so folks should use caution when
+            trying to use this...it might change.
+
+     * Course Management API: The API is in - Josh (jholtzman@berkeley.edu)
+       has providers and Quartz Jobs that you can use if you prefer to
+       integrate your SIS data using the CM approach.
+
+     * Basic Auth: Initially inspired by Rwiki RSS requirements, but it can
+       be used with any portal or access servlet URL (
+       http://bugs.sakaiproject.org/jira/browse/SAK-4295).
+
+     * Refactored Import: includes limited support for importing packages
+       formatted according to our current understanding of the IMS Common
+       Cartridge specification (which is however still in development).
+
+     * Partial Swedish translation
+
+4. Fixes Included in this Release
+
+   Sakai 2.3.1 fixes the following issues:
+
+   http://source.sakaiproject.org/release/2.3.1/fixed-issues.html
+
+5. Open Issues
+
+   The list of known issues with Sakai 2.3.1 is found at:
+
+   http://source.sakaiproject.org/release/2.3.1/open-issues.html
+
+   See in particular the "Important Issues" noted at the top of the list.
+
+6. Maintenance Branch
 
    The code of each release has a corresponding maintenance branch, which is
    patched with fixes in an ongoing way by a branch manager - effectively
@@ -230,26 +241,11 @@ Oracle: https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conv
    fixes for any given Sakai version.
 
    These maintenance branches may be checked out through subversion; they are
-   labeled with an 'x' replacing their minor version number, e.g. '2-2-x'.
-   You can check out the 2.2 maintenance branch with the following command:
+   labeled with an 'x' replacing their minor version number, e.g. '2-3-x'.
+   You can check out the 2.3 maintenance branch with the following command:
 
-   svn export https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/
+   svn co https://source.sakaiproject.org/svn/sakai/branches/sakai_2-3-x/
 
    If you come upon an important fix that you believe should be included in
    the branch (and perhaps isn't yet), feel free to bring it to the attention
    of the branch manager, Lance Speelmon (lance@indiana.edu).
-
-4. Fixes Included in this Release
-
-   Sakai 2.2.0 fixes the following issues from previous releases:
-
-   http://source.sakaiproject.org/release/2.2.0/fixed-issues.html
-
-5. Open Issues
-
-   The list of known issues with Sakai 2.2.0 at the time of release is found
-   at:
-
-   http://source.sakaiproject.org/release/2.2.0/open-issues.html
-
-   See in particular the "Important Issues" noted at the top of the list.

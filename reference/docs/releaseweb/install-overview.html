@@ -7,12 +7,6 @@
 <meta name="generator" content="DocBook XSL Stylesheets V1.70.0">
 <link rel="start" href="install-overview.html" title="Installation Guide">
 <link rel="next" href="install-env.html" title="2. Set up Environment">
-<!-- Hacky fix to IE float problem -->
-<!--[if IE]>
-             <style type="text/css">
-              .note {float: right;}
-             </style>
-<![endif]-->
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div id="frame">
@@ -31,7 +25,7 @@
 <div class="article" lang="en">
 <div class="titlepage">
 <div><div><h1 class="title">
-<a name="id2408073"></a>Installation Guide</h1></div></div>
+<a name="id2503171"></a>Installation Guide</h1></div></div>
 <hr>
 </div>
 <div class="toc">
@@ -64,9 +58,10 @@
 <dd><dl>
 <dt><span class="sect2"><a href="install-config.html#install-config-folder">4.1. Create folder for properties file</a></span></dt>
 <dt><span class="sect2"><a href="install-config.html#install-config-skprop">4.2. The sakai.properties file</a></span></dt>
-<dt><span class="sect2"><a href="install-config.html#install-config-email">4.3. Email configuration</a></span></dt>
-<dt><span class="sect2"><a href="install-config.html#install-config-jvm">4.4. JVM Tuning</a></span></dt>
-<dt><span class="sect2"><a href="install-config.html#install-config-test">4.5. Test Sakai</a></span></dt>
+<dt><span class="sect2"><a href="install-config.html#install-config-proxy">4.3. HTTP proxy</a></span></dt>
+<dt><span class="sect2"><a href="install-config.html#install-config-email">4.4. Email configuration</a></span></dt>
+<dt><span class="sect2"><a href="install-config.html#install-config-jvm">4.5. JVM Tuning</a></span></dt>
+<dt><span class="sect2"><a href="install-config.html#install-config-test">4.6. Test Sakai</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="install-dbconfig.html">5. Database Configuration</a></span></dt>
 <dd><dl>
@@ -74,13 +69,15 @@
 <dt><span class="sect2"><a href="install-dbconfig.html#install-dbconfig-drivers">5.2. Deploy Drivers</a></span></dt>
 <dt><span class="sect2"><a href="install-dbconfig.html#install-dbconfig-create">5.3. Create Database and User</a></span></dt>
 <dt><span class="sect2"><a href="install-dbconfig.html#install-dbconfig-properties">5.4. Database Properties</a></span></dt>
+<dt><span class="sect2"><a href="install-dbconfig.html#install-dbconfig-performance">5.5. Configuring for Performance</a></span></dt>
+<dt><span class="sect2"><a href="install-dbconfig.html#install-dbconfig-startup">5.6. Startup</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="install-software.html">6. Getting Started with the Software</a></span></dt>
 <dd><dl>
 <dt><span class="sect2"><a href="install-software.html#install-software-gateway">6.1. The Gateway Page</a></span></dt>
-<dt><span class="sect2"><a href="install-software.html#id2531758">6.2. My Workspace</a></span></dt>
-<dt><span class="sect2"><a href="install-software.html#id2531793">6.3. Other Sites</a></span></dt>
-<dt><span class="sect2"><a href="install-software.html#id2531853">6.4. Admin Tools</a></span></dt>
+<dt><span class="sect2"><a href="install-software.html#id2627024">6.2. My Workspace</a></span></dt>
+<dt><span class="sect2"><a href="install-software.html#id2627060">6.3. Other Sites</a></span></dt>
+<dt><span class="sect2"><a href="install-software.html#id2627120">6.4. Admin Tools</a></span></dt>
 <dt><span class="sect2"><a href="install-software.html#install-software-tools">6.5. Experimenting with Tools</a></span></dt>
 <dt><span class="sect2"><a href="install-software.html#install-software-learn">6.6. Where to Learn More</a></span></dt>
 </dl></dd>
@@ -102,7 +99,7 @@
 <div class="titlepage"><div><div><h3 class="title">
 <a name="install-overview-choose"></a>1.1. Choose an Install Type</h3></div></div></div>
 
-            <p>Sakai 2.2.0 downloads are available for three different installation methods: </p>
+            <p>Sakai downloads are available for three different installation methods on <a href="../" target="_top">http://sakaiproject.org/release</a>: </p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -110,10 +107,11 @@
 <td>
 <span class="term">Demo:</span></td>
 <td>
-                            <p>This archive provides the quickest and easiest way to try out
-                                Sakai. It includes the Tomcat container and pre-built webapps, so
-                                that the only prerequisite for getting started is Java (v. 1.4.2 or
-                                higher).</p>
+                            <p>This archive includes the Tomcat container and pre-built webapps,
+                                so that the only prerequisite for getting started is Java (v. 1.5).
+                                While not intended for large-scale implementations, it is suitable
+                                for evaluating the software and small-scale pilot implementations on
+                                single servers.</p>
                         </td>
 </tr>
 <tr>
@@ -121,10 +119,11 @@
 <span class="term">Binary:</span></td>
 <td>
                             <p>This archive is a kind of Tomcat overlay. If you have a working
-                                Tomcat appropriately configured, the binary installation provides a
-                                quick way to drop the Sakai application bundle into place without
-                                requiring a maven build. This may be a good choice if you know you
-                                don't need to make any code-level changes.</p>
+                                Tomcat appropriately configured - including the database connection
+                                - the binary installation provides a quick way to drop the Sakai
+                                application bundle into place without requiring a maven build. This
+                                may be a good choice if you know you don't need to make any
+                                code-level changes.</p>
                         </td>
 </tr>
 <tr>
@@ -132,10 +131,10 @@
 <span class="term">Source:</span></td>
 <td>
                             <p>This archive includes only the source code to build Sakai, and
-                                therefore calls for separate, preparatory installations of Tomcat
-                                and the Maven build tool, along with (most likely) a preferred
-                                database. The installation and configuration of these components
-                                comprises the bulk of this installation guide.</p>
+                                therefore calls for preparatory installations of Tomcat and the
+                                Maven build tool, along with (most likely) a preferred database. The
+                                installation and configuration of these various components comprises
+                                the bulk of this installation guide.</p>
                         </td>
 </tr>
 </tbody>
@@ -164,19 +163,20 @@
 <td>
 <span class="term">Windows:</span></td>
 <td>
-                            <p>
-                                <a href="http://source.sakaiproject.org/release/2.2.0/sakai_2-2-0/sakai-demo_2-2-0.zip" target="_top">demo archive</a>
-                            </p>
-                        </td>
+                                <p>
+                                    <a href="../2.3.1/sakai_2-3-1/sakai-demo_2-3-1.zip" target="_top">demo
+                                        archive</a>
+                                </p>
+                            </td>
 </tr>
 <tr>
 <td>
 <span class="term">Mac/*nix:</span></td>
 <td>
-                            <p>
-                                <a href="http://source.sakaiproject.org/release/2.2.0/sakai_2-2-0/sakai-demo_2-2-0.tar.gz" target="_top">demo archive</a>
-                            </p>
-                        </td>
+                                <p>
+                                    <a href="../2.3.1/sakai_2-3-1/sakai-demo_2-3-1.tar.gz" target="_top">demo archive</a>
+                                </p>
+                            </td>
 </tr>
 </tbody>
 </table></div>
@@ -211,7 +211,7 @@
             <p>Once Tomcat is started up, you can point your browser to <a href="http://localhost:8080/portal" target="_top">http://localhost:8080/portal</a>. This
                 will bring you to the Sakai gateway site, from which you can create new accounts and
                 log in to the syste. For more orienting tips on how to begin using Sakai, skip ahead
-                to <a href="install-software.html" title="6. Getting Started with the Software">Getting Started with the Software</a>.</p>
+                to <a href="install-software.html" title="6. Getting Started with the Software">Getting Started</a>.</p>
             <p>To stop the demo:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -236,45 +236,50 @@
 </tr>
 </tbody>
 </table></div>
-<p></p>
-            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
-<h3 class="title">Special notes about the Demo installation</h3>
-
-                <div class="variablelist"><table border="0">
-<col align="left" valign="top">
+            <div class="informaltable1">
+                <table border="1">
+<colgroup>
+<col>
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td>
-<span class="term">Data storage:</span></td>
+                                <p>Data storage:</p>
+                            </td>
 <td>
-                            <p>The data for a demo installation is stored in a HypersonicSQL
-                                database (HSQLDB) which is stored in memory and then written out to
-                                files when Tomcat is shut down. These files are located at
+                                <p>The data for a demo installation is stored in a HypersonicSQL
+                                    database (HSQLDB) which is stored in memory and then written out to
+                                    files when Tomcat is shut down. These files are located at
                                     <code class="filename">sakai-demo/sakai/db/sakai.db.*</code>.</p>
-                        </td>
+                            </td>
 </tr>
 <tr>
 <td>
-<span class="term">Email not configured:</span></td>
+                                <p>Email not configured:</p>
+                            </td>
 <td>
-                            <p>The Sakai demo is configured to neither send nor receive
-                            email.</p>
-                        </td>
+                                <p>The Sakai demo is configured to neither send nor receive
+                                    email.</p>
+                            </td>
 </tr>
 </tbody>
-</table></div>
+</table>
             </div>
+
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
 <a name="install-overview-binary"></a>1.3. Binary Installation</h3></div></div></div>
 
             <p>The Binary installation of Sakai provides a shortcut for those that already have
-                Tomcat in place and configured as needed (see <a href="install-env.html" title="2. Set up Environment">Set up
-                    Environment</a> for details on Tomcat configuration), and it does so by
-                providing a pre-built Sakai that can simply be dropped into place. All you need to
-                do is unpack the binary archive at the root Tomcat directory, and the appropriate
-                wars, jars, etc., will be deposited in the correct locations.</p>
+                Tomcat in place and configured as needed (including the database connection: see
+                    <a href="install-env.html" title="2. Set up Environment">Set up Environment</a> for details on Tomcat
+                configuration, and <a href="install-dbconfig.html" title="5. Database Configuration">Database Configuration</a>
+                for database details), and it does so by providing a pre-built Sakai that can simply
+                be dropped into place. All you need to do is unpack the binary archive at the root
+                Tomcat directory, and the appropriate wars, jars, etc., for the Sakai application
+                will be deposited in the correct locations.</p>
             <p>If you wish to configure a binary installation you'll need to manually create a
                     <code class="filename">sakai</code> directory in <span><strong class="command">$CATALINA_HOME</strong></span> to
                 hold your <code class="filename">sakai.properties</code> file, as described in <a href="install-config.html" title="4. Post-Installation Configuration">Post-Installation Configuration</a>.</p>
@@ -314,68 +319,11 @@
 <div class="titlepage"><div><div><h3 class="title">
 <a name="install-overview-migrating"></a>1.5. Migrating from a Previous Release</h3></div></div></div>
 
-            <p>Since there have been a number of changes in tools, DB schema, and APIs, migrating
-                to 2.2 from a previous release requires close attention to detail. Be sure to go
-                over the <a href="release-notes.html" target="_top">release notes</a> carefully, and a
-                few key hurdles are identified below:</p>
-            <div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td>
-<span class="term">sakai.properties:</span></td>
-<td>
-                        <p>The 2.2 framework refactoring means that many package names have
-                            changed, and these differences will mainly be encountered in
-                                <code class="filename">sakai.properties</code> settings which reference
-                            beans. It's best to not try to use a
-                            <code class="filename">sakai.properties</code> from a previous release, and
-                            instead start with the sample in
-                                <code class="filename">reference/docs/sakai.properties</code>.</p>
-                    </td>
-</tr>
-<tr>
-<td>
-<span class="term">DB conversion scripts:</span></td>
-<td>
-                        <p>Every release has DB conversion scripts, and 2.2 is no exception. Be
-                            sure, however, to read these scripts over carefully before executing
-                            them on your production data. They do not take into account any special
-                            customizations you may have done, and you may need to alter them for
-                            your situation. See the <a href="install-dbconfig.html" title="5. Database Configuration">Database
-                                Configuration</a> section for more details.</p>
-                    </td>
-</tr>
-<tr>
-<td>
-<span class="term">Provisional tools:</span></td>
-<td>
-                        <p>A few contrib tools that schools may have already put into production
-                            are now provisional with the 2.2 release. The DB conversion scripts in
-                            particular assume that these new provisional tools are not represented
-                            in your schema, and attempt to introduce them. If you have already
-                            deployed <span class="emphasis"><em>Message Center</em></span>, <span class="emphasis"><em>Post
-                            'Em</em></span>, <span class="emphasis"><em>Search</em></span>, or <span class="emphasis"><em>Summary
-                                Calendar</em></span> on a production system, you'll want to be sure
-                            to avoid running the portions of the conversion scripts that pertain to
-                            them. Again, see the <a href="install-dbconfig.html" title="5. Database Configuration">Database
-                                Configuration</a> section for more details.</p>
-                    </td>
-</tr>
-<tr>
-<td>
-<span class="term">Providers:</span></td>
-<td>
-                        <p>Among the changes that 2.2 introduces is a separation of external user
-                            identifiers from Sakai's internal user ids. Any custom
-                                <code class="filename">UserDirectoryProvider</code> will need some alteration
-                            to account for this, along with changes to its import statements and
-                            declarations that stem from API changes. See the <a href="release-notes.html" target="_top">release notes</a> for more
-                        details.</p>
-                    </td>
-</tr>
-</tbody>
-</table></div>
+            <p>Migration from an earlier version of Sakai typically involves a database
+                conversion (for which scripts are supplied with the release), an update to any
+                custom skins, and possibly changes to any custom code (see the <a href="release-notes.html" target="_top">Release Notes</a> to learn if this is the case).</p>
+
+            <p>For links to the conversion scripts, see the <a href="install-dbconfig.html" target="_top">Database Configuration</a> section of this guide.</p>
         </div>
     </div>
 

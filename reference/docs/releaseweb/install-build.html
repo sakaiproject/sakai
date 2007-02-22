@@ -29,6 +29,8 @@
 <div class="titlepage"><div><div><h2 class="title">
 <a name="install-build"></a>3. Build and Deploy</h2></div></div></div>
 
+        <p>Sakai uses Apache's <span class="emphasis"><em>Maven</em></span> build tool to compile and deploy its
+            modules.</p>
         <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">How Sakai uses Maven</h3>
 
@@ -36,7 +38,7 @@
                 need to learn more about how Sakai uses Maven. To find the most detailed such
                 documentation, look for <code class="filename">sakai_maven.doc</code> in
                     <code class="filename">reference/docs/architecture</code> of the source archive or on
-                subversion at: <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_maven.doc" target="_top">https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_maven.doc</a></p>
+                subversion at: <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-3-1/docs/architecture/sakai_maven.doc" target="_top">https://source.sakaiproject.org/svn/reference/tags/sakai_2-3-1/docs/architecture/sakai_maven.doc</a></p>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
@@ -46,11 +48,13 @@
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Getting the Code from Subversion</h3>
 
-                <p>Alternatively, you may check out the source code from subversion.  You might wish to do this, for example, in order to grab the <span class="emphasis"><em>maintenance branch</em></span>, which will include the latest set of bug fixes.  To check out the maintenance branch, you can use the following
-                    command:</p>
-                <pre class="screen">svn export https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/</pre>
+                <p>Alternatively, you may check out the source code from subversion. You might
+                    wish to do this, for example, in order to grab the <span class="emphasis"><em>maintenance
+                    branch</em></span>, which will include the latest set of bug fixes. To check out
+                    the maintenance branch, you can use the following command:</p>
+                <pre class="screen">svn export https://source.sakaiproject.org/svn/sakai/branches/sakai_2-3-x/</pre>
                 <p>In which case you could skip the unpacking step below, and your root directory
-                    would be sakai_2-2-x instead of sakai-src.</p>
+                    would be sakai_2-3-x instead of sakai-src.</p>
             </div>
         </div>
         <div class="sect2" lang="en">
@@ -72,7 +76,7 @@
 
                 <p>Subsequent builds would be advised to add the "clean" phase by using the
                     command <span><strong class="command">maven cln bld dpl</strong></span>, or the equivalent shortcut:
-                        <span><strong class="command">maven sakai</strong></span>. See the <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_maven.doc" target="_top">sakai_maven.doc</a> for more details.</p>
+                        <span><strong class="command">maven sakai</strong></span>. See the <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-3-1/docs/architecture/sakai_maven.doc" target="_top">sakai_maven.doc</a> for more details.</p>
             </div>
             <p>This will run for quite a few minutes with fairly verbose output, particularly
                 when it's your first build. Maven will download any dependencies into the local

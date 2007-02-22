@@ -33,10 +33,10 @@
 <div class="titlepage"><div><div><h3 class="title">
 <a name="install-dbconfig-migrating"></a>5.1. Migrating from an Earlier Version</h3></div></div></div>
 
-            <p>There are database schema changes between 2.1.2 and 2.2.0, and the conversion
-                scripts to be applied - in distinct versions for MySQL and Oracle, respectively -
-                are found in the <code class="filename">reference/docs/updating</code> folder of the release
-                or on subversion:</p>
+            <p>A database conversion is typically required between Sakai versions. Database
+                conversion scripts - in distinct versions for MySQL and Oracle, respectively - are
+                found in the <code class="filename">reference/docs/conversion</code> folder of the release or
+                on subversion:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -45,7 +45,7 @@
 <span class="term">MySQL:</span></td>
 <td>
                         <p>
-                            <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql" target="_top">https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql</a>
+                            <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-3-1/docs/conversion/sakai_2_2_1-2_3_1_mysql_conversion.sql" target="_top">https://source.sakaiproject.org/svn/reference/tags/sakai_2-3-1/docs/conversion/sakai_2_2_1-2_3_1_mysql_conversion.sql</a>
                         </p>
                     </td>
 </tr>
@@ -54,7 +54,7 @@
 <span class="term">Oracle:</span></td>
 <td>
                         <p>
-                            <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql" target="_top">https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql</a>
+                            <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-3-1/docs/conversion/sakai_2_2_1-2_3_1_oracle_conversion.sql" target="_top">https://source.sakaiproject.org/svn/reference/tags/sakai_2-3-1/docs/conversion/sakai_2_2_1-2_3_1_oracle_conversion.sql</a>
                         </p>
                     </td>
 </tr>
@@ -62,9 +62,12 @@
 </table></div>
             <p>In the same directory you'll also find conversion scripts for earlier Sakai
                 versions. Migration from an earlier version will require the successive application
-                of all intermediate scripts. You cannot, for example, move from 2.1.1 to 2.2.0 by
-                applying a single script. You will need to move first from 2.1.1 to 2.1.2, and then
-                to 2.2.0.</p>
+                of all intermediate scripts. You cannot, for example, move from 2.2.0 to 2.3.1 by
+                applying a single script. You will need to move first from 2.2.0 to 2.2.1, and then
+                from 2.2.1 to 2.3.1 (there was no database conversion between 2.2.1 and 2.2.2, and
+                while there is a conversion script from 2.3.0 to 2.3.1 for those who may have
+                already migrated to 2.3.0, the 2.2.1-2.3.0 conversion had a significant gradebook
+                error, and is no longer made available).</p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Examine before using</h3>
 
@@ -73,54 +76,19 @@
                     have made - such as new roles, or the deployment of additional tools - and they
                     may complicate your migration with unintended consequences if you execute them
                     blindly.</p>
-                <p>For the 2.2.0 release, the <span class="emphasis"><em>Message Center</em></span> tool offers one
-                    such particular example. A number of schools deployed <span class="emphasis"><em>Message
-                    Center</em></span> in 2.1.x production, before it was yet a provisional tool. Now
-                    that it is a provisional tool, the conversion scripts were written to introduce
-                    its tables, and thus assume that <span class="emphasis"><em>Message Center</em></span> is a new
-                    tool for your deployment. If it isn't, you'll want to comment out the portions
-                    of the conversion script that treat it, and instead perform the following
-                    conversions:</p>
-                <div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td>
-<span class="term">MySQL:</span></td>
-<td>
-                            <pre class="screen">
-ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR(255);
-ALTER TABLE MFR_OPEN_FORUM_T ADD DEFAULTASSIGNNAME VARCHAR(255);
-ALTER TABLE MFR_MESSAGE_T ADD GRADEASSIGNMENTNAME VARCHAR(255);
-ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR(255);</pre>
-                        </td>
-</tr>
-<tr>
-<td>
-<span class="term">Oracle:</span></td>
-<td>
-                            <pre class="screen">
-ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
-ALTER TABLE MFR_OPEN_FORUM_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
-ALTER TABLE MFR_MESSAGE_T ADD GRADEASSIGNMENTNAME VARCHAR2(255) NULL;
-ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
-                        </td>
-</tr>
-</tbody>
-</table></div>
             </div>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
 <a name="install-dbconfig-drivers"></a>5.2. Deploy Drivers</h3></div></div></div>
 
-            <p>The supported production-grade databases include MySQL 4.1.12+ (but MySQL 5.0 has
-                not yet been adequately tested for it to be recommended for production) and Oracle
-                9i+. The version of the JDBC driver (or connector) is also important: for MySQL a
-                3.1.12+ connector should be used, while for Oracle the 10g driver must be used, even
-                if the database is Oracle 9i. These drivers should be copied into your
-                    <code class="filename">$CATALINA_HOME/common/lib</code> directory, and they are available
-                from the official sites:</p>
+            <p>The supported production-grade databases include MySQL 4.1.12+ (but MySQL 5.0 is
+                not yet recommended for production - see the <a href="install-dbconfig.html#install-dbconfig-performance" title="5.5. Configuring for Performance">Configuration for Performance</a>
+                section below) and Oracle 9i+. The version of the JDBC driver (or connector) is also
+                important: for MySQL a 3.1.12+ connector should be used, while for Oracle the 10g
+                driver must be used, even if the database is Oracle 9i. These drivers should be
+                copied into your <code class="filename">$CATALINA_HOME/common/lib</code> directory, and they
+                are available from the official sites:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -152,9 +120,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
                     installations running against Oracle, even when the database is Oracle 9i.</p>
 
                 <p>Problems have been reported for both the 3.1.10 and 3.1.11 MySQL drivers.
-                    3.1.12 is the recommended version since it has the greatest weight of production
-                    experience behind hit, however early testing of 3.1.13 has not yet revealed any
-                    significant issues.</p>
+                    3.1.12+ will be adequate, but 3.1.14 is the latest recommended version.</p>
             </div>
         </div>
         <div class="sect2" lang="en">
@@ -249,8 +215,19 @@ defaultTransactionIsolationString@javax.sql.BaseDataSource=TRANSACTION_READ_COMM
 </tr>
 </tbody>
 </table></div>
-            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
-<h3 class="title">Oracle Performance</h3>
+        </div>
+        <div class="sect2" lang="en">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="install-dbconfig-performance"></a>5.5. Configuring for Performance</h3></div></div></div>
+
+            <p>Larger institutions have found the database to be the bottleneck when it comes to
+                Sakai performance. Some additional DB configuration settings may be worth
+                considering.</p>
+            <div class="sect3" lang="en">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="install-dbconfig-performance-oracle"></a>5.5.1. Oracle Performance</h4></div></div></div>
+
+
 
                 <p>Oracle may have performance problems with some of the SQL settings that work
                     for HSQL and MySQL. Sakai installations using Oracle should strongly consider
@@ -266,11 +243,103 @@ testOnBorrow@javax.sql.BaseDataSource=false</pre>
                     validating the connection on each transaction caused problems in at least one
                     large production environment (University of Michigan).</p>
             </div>
+            <div class="sect3" lang="en">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="install-dbconfig-performance-mysql"></a>5.5.2. MySQL Performance</h4></div></div></div>
+
+                <p>MySQL performance can be considerably improved by caching queries (Oracle does
+                    this already, without any extra configuration). You can set this in
+                    sakai.properties by altering the connection string (i.e. this will replace the
+                    simpler value indicated above) as below, all on one line.</p>
+                <pre class="screen">     url@javax.sql.BaseDataSource=jdbc:mysql://localhost:3306/sakai?useUnicode=true&amp;characterEncoding=UTF-8
+&amp;useServerPrepStmts=false&amp;cachePrepStmts=true&amp;prepStmtCacheSize=4096&amp;prepStmtCacheSqlLimit=4096</pre>
+                <p>(all one line)</p>
+                <p>The parameter that enables use of the query cache is
+                    'useServerPrepStmts=false', while the others (cachePrepStmts=true,
+                    prepStmtCacheSize=4096, and prepStmtCacheSqlLimit=4096) are for caching the
+                    parsing of prepared statements on the server side. Based on production
+                    experience, we'd recommend a query cache size of 64M, configurable in
+                    /etc/my.cnf like this:</p>
+                <pre class="screen">
+[mysqld]
+query_cache_size = 64M</pre>
+                <p>There are some other settable properties for the query cache, but there
+                    doesn't seem to be a need to change the defaults. To learn more, you can visit:</p>
+                <div class="itemizedlist"><ul>
+<li>
+                        <p>
+                            <a href="http://dev.mysql.com/doc/refman/4.1/en/query-cache-configuration.html" target="_top">http://dev.mysql.com/doc/refman/4.1/en/query-cache-configuration.html</a>
+                        </p>
+                    </li>
+<li>
+                        <p>
+                            <a href="http://dev.mysql.com/doc/refman/4.1/en/connector-j-reference-configuration-properties.html" target="_top">http://dev.mysql.com/doc/refman/4.1/en/connector-j-reference-configuration-properties.html</a>
+                        </p>
+                    </li>
+</ul></div>
+                <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">MySQL 5</h3>
+
+                    <p>The above configuration properties work for MySQL 4.1 only. The connection
+                        parameters that allow MySQL caching on MySQL 4 cause problems with bit types
+                        on MySQL 5. We will likely have a better answer for the next Sakai release,
+                        but the issue was not resolved in time for Sakai 2.3. In the interim the
+                        basic, non-caching string must be used for MySQL 5, and since this means
+                        poorer performance, MySQL 5 is currently not recommended for
+                    production.</p>
+                </div>
+            </div>
+            <div class="sect3" lang="en">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="install-dbconfig-performance-linuxio"></a>5.5.3. Disk I/O on Linux (SLES9/RHEL4)</h4></div></div></div>
+
+                <p>A Linux database server may see big disk-hanging delays (especially if the DB
+                    and the web server are on the same machine) under load. This appears to be a
+                    side effect of the default SLES9 I/O scheduler, CFQ. The Deadline scheduler,
+                    which has a maximum latency for serving requests, is therefore a better choice
+                    for database operations - although pages may still render slowly under load,
+                    performance will degrade more gracefully, avoiding hangs, and provide some
+                    feedback to users.</p>
+                <p>To switch to the Deadline scheduler, the boot parameter elevator=deadline must
+                    be passed to the kernel that's being used. You can do so by editing the
+                        <code class="filename">/etc/grub.conf</code> file and adding the parameter to the
+                    kernel that's being used:</p>
+                <pre class="screen">
+title Red Hat Enterprise Linux AS (2.4.21-32.0.1.ELhugemem)
+    root (hd0,0)
+    kernel /vmlinuz-2.4.21-32.0.1.ELhugemem ro root=/dev/sda2 elevator=deadline reboot=warm
+    initrd /initrd-2.4.21-32.0.1.ELhugemem.img</pre>
+                <p>Make sure to reboot the system to activate the new scheduler. You can also see
+                    these links for more information:</p>
+                <div class="itemizedlist"><ul>
+<li>
+                        <p>
+                            <a href="http://www.puschitz.com/TuningLinuxForOracle.shtml" target="_top">http://www.puschitz.com/TuningLinuxForOracle.shtml</a>
+                        </p>
+                    </li>
+<li>
+                        <p>
+                            <a href="http://nextre.it/oracledocs/ioscheduler_01.html" target="_top">http://nextre.it/oracledocs/ioscheduler_01.html</a>
+                        </p>
+                    </li>
+<li>
+                        <p>
+                            <a href="http://www.open-mag.com/features/Vol_104/SLES9/SLES9.htm" target="_top">http://www.open-mag.com/features/Vol_104/SLES9/SLES9.htm</a>
+                        </p>
+                    </li>
+</ul></div>
+            </div>
+        </div>
+        <div class="sect2" lang="en">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="install-dbconfig-startup"></a>5.6. Startup</h3></div></div></div>
+
+
             <p>Once you've configured the database appropriately, you need only stop and restart
                 Tomcat. As Tomcat is coming up you can watch its log to see if there are any
                 database connection errors (see the <a href="install-tshoot.html#install-tshoot-startup" title="7.2. Tomcat Startup Issues">Troubleshooting</a> section).</p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
-<h3 class="title">Oracle and Tests&amp;Quizzes</h3>
+<h3 class="title">Oracle and Tests &amp; Quizzes</h3>
 
                 <p>If you're running Oracle you should check the datatype of the
                     <span><strong class="command">MEDIA</strong></span> column in the <span><strong class="command">SAM_MEDIA_T</strong></span> table.

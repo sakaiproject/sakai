@@ -40,7 +40,7 @@
 
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2258970"></a>7.1.1. JAR download failures</h4></div></div></div>
+<a name="id2334657"></a>7.1.1. JAR download failures</h4></div></div></div>
 
                 <p>A first build of Maven on a fresh installation may warn of numerous jar
                     download failures if you include the <span class="emphasis"><em>clean</em></span> phase. This is a
@@ -59,7 +59,7 @@
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2259035"></a>7.1.2. Out of Memory errors</h4></div></div></div>
+<a name="id2334716"></a>7.1.2. Out of Memory errors</h4></div></div></div>
 
                 <p>You may find that your machine runs out of memory while it is building Sakai.
                     As it turns out, maven does not read <span><strong class="command">JAVA_OPTS</strong></span> when it starts
@@ -72,7 +72,7 @@ export MAVEN_OPTS="-Xmx384m -XX:PermSize=48m"</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2259068"></a>7.1.3. Uninformative failure messages</h4></div></div></div>
+<a name="id2334749"></a>7.1.3. Uninformative failure messages</h4></div></div></div>
 
                 <p>If you need more detailed output to track down a build error, maven can be run
                     in debug mode by adding the -x argument, e.g. <span><strong class="command">maven
@@ -80,7 +80,7 @@ export MAVEN_OPTS="-Xmx384m -XX:PermSize=48m"</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2259088"></a>7.1.4. Building only a single module</h4></div></div></div>
+<a name="id2334769"></a>7.1.4. Building only a single module</h4></div></div></div>
 
                 <p>If you'd like to have the Sakai build targets and goals available for building
                     only a single module (i.e. instead of rebuilding the entire source tree again to
@@ -103,7 +103,7 @@ maven plugin:download -DgroupId=sakaiproject -DartifactId=sakai -Dversion=2.2</p
 
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2259133"></a>7.2.1. Finding the Tomcat logs</h4></div></div></div>
+<a name="id2334814"></a>7.2.1. Finding the Tomcat logs</h4></div></div></div>
 
                 <p>Once you have Sakai installed, configured and started, you can monitor Sakai
                     by watching the logs. The log level for the standard Sakai source code and the
@@ -193,27 +193,7 @@ bin/startup.sh; tail -f logs/catalina.out</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2259343"></a>7.2.2. Startup halts with <span class="emphasis"><em>destroy</em></span> messages</h4></div></div></div>
-
-                <p>If you see those <span class="emphasis"><em>destroy</em></span> messages, that's the end of it.
-                    Tomcat is not coming up, and you'll need to go back and change something before
-                    it will.</p>
-                <p>Unfortunately, there are quite a number of reasons this might have happened.
-                    The simplest such cause is that you have not added the Tomcat compatibility
-                    package to your installation (see <a href="install-env.html#install-env-tinstall" title="2.3. Install Tomcat">Set up
-                        Build Environment</a>). All the other cases involve some problem with
-                    your code or platform; these problems are more subtle, and the associated
-                        <code class="filename">catalina.out</code> messages are usually not very helpful in
-                    tracking them down.</p>
-                <p>To aid in debugging these problems, Josh Holtzman of Berkeley has created what
-                    he calls a "Noisy Spring" jar. You can find a full explanation and a link to the
-                    jar in the <span class="emphasis"><em>Sakaipedia</em></span> at <a href="http://bugs.sakaiproject.org/confluence/display/ENC/Noisy+Spring+JAR" target="_top">http://bugs.sakaiproject.org/confluence/display/ENC/Noisy+Spring+JAR</a>.
-                    Deploying this jar will produce a more Shakespearian death in its
-                verbosity.</p>
-            </div>
-            <div class="sect3" lang="en">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="id2259416"></a>7.2.3. "Unsupported major.minor version 49.0"</h4></div></div></div>
+<a name="id2335027"></a>7.2.2. "Unsupported major.minor version 49.0"</h4></div></div></div>
 
                 <p>If this message appears in catalina.out during startup, it means that you've
                     built Sakai for Java 1.5, but your JRE is 1.4. Go back to the <a href="install-env.html#install-env-jenv" title="2.2. Verify Java Environment Variables">Set up Build Environment</a> section and
@@ -221,7 +201,7 @@ bin/startup.sh; tail -f logs/catalina.out</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2259439"></a>7.2.4. "java.net.BindException: Address already in use"</h4></div></div></div>
+<a name="id2335052"></a>7.2.3. "java.net.BindException: Address already in use"</h4></div></div></div>
 
                 <p>If this message appears in catalina.out during startup, it means that some
                     other application is already running on the port you've assigned for this Tomcat
