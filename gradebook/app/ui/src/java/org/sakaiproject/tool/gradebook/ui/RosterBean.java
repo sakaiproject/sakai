@@ -23,9 +23,17 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
-import java.util.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.faces.application.Application;
 import javax.faces.component.UIColumn;
@@ -33,18 +41,21 @@ import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.StringUtils;
 import org.apache.myfaces.component.html.ext.HtmlDataTable;
 import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.jsf.AssignmentPointsConverter;
+import org.sakaiproject.tool.gradebook.jsf.SpreadsheetDataDownloaderCsv;
+import org.sakaiproject.tool.gradebook.jsf.SpreadsheetDataDownloaderXls;
 
 /**
  * Backing bean for the visible list of assignments in the gradebook.
@@ -57,10 +68,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 
 	// View maintenance fields - serializable.
 	private List gradableObjectColumns;	// Needed to build table columns
-    private List gradableObjects;
     private List workingEnrollments;
-    private ExportFormatterBean exportFormatterBean;
-    private DataExportBean dataExportBean;
 
     public class GradableObjectColumn implements Serializable {
 		private Long id;
@@ -118,10 +126,10 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	protected void init() {
 		super.init();
 
-		gradableObjects = getGradebookManager().getAssignments(getGradebookId());
+		List assignments = getGradebookManager().getAssignments(getGradebookId());
 		CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
 		gradableObjectColumns = new ArrayList();
-		for (Iterator iter = gradableObjects.iterator(); iter.hasNext(); ) {
+		for (Iterator iter = assignments.iterator(); iter.hasNext(); ) {
 			gradableObjectColumns.add(new GradableObjectColumn((GradableObject)iter.next()));
 		}
 		gradableObjectColumns.add(new GradableObjectColumn(courseGrade));
@@ -135,7 +143,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         getGradebookManager().addToGradeRecordMap(gradeRecordMap, gradeRecords);
 		if (logger.isDebugEnabled()) logger.debug("init - gradeRecordMap.keySet().size() = " + gradeRecordMap.keySet().size());
 
-		List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, enrollmentMap.keySet(), gradableObjects, gradeRecordMap);
+		List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, enrollmentMap.keySet(), assignments, gradeRecordMap);
 		Collections.sort(courseGradeRecords, CourseGradeRecord.calcComparator);
         getGradebookManager().addToGradeRecordMap(gradeRecordMap, courseGradeRecords);
         gradeRecords.addAll(courseGradeRecords);
@@ -167,7 +175,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         }
 
 	}
-
+	
 	private String getColumnHeader(GradableObject gradableObject) {
 		if (gradableObject.isCourseGrade()) {
 			return getLocalizedString("roster_course_grade_column_name");
@@ -284,41 +292,82 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     }
 
     public void exportCSV(ActionEvent event){
-
-        if(logger.isInfoEnabled()) logger.info("exporting course grade as Excel for gradebook " + getGradebookUid());
-        String filePrefix = getLocalizedString("export_gradebook_prefix");
-
-        List formattedData = getExportFormatterBean().getExportRows(gradableObjects,workingEnrollments);
-        getDataExportBean().writeAsCsv(formattedData,getFileName(filePrefix));
+        if(logger.isInfoEnabled()) logger.info("exporting course grade as CSV for gradebook " + getGradebookUid());
+        SpreadsheetDataDownloaderCsv downloader = new SpreadsheetDataDownloaderCsv();
+        downloader.download(getSpreadsheetData(), getFileName(getLocalizedString("export_gradebook_prefix")));
     }
 
     public void exportExcel(ActionEvent event){
-
         if(logger.isInfoEnabled()) logger.info("exporting course grade as Excel for gradebook " + getGradebookUid());
-        String filePrefix = getLocalizedString("export_gradebook_prefix");
+        SpreadsheetDataDownloaderXls downloader = new SpreadsheetDataDownloaderXls();
+        downloader.download(getSpreadsheetData(), getFileName(getLocalizedString("export_gradebook_prefix")));
+    }
+    
+    private List<List<Object>> getSpreadsheetData() {
+    	// Get the full list of filtered enrollments and scores (not just the current page's worth).
+    	List filteredEnrollments = getWorkingEnrollments();
+    	Collections.sort(filteredEnrollments, ENROLLMENT_NAME_COMPARATOR);
+    	Set<String> studentUids = new HashSet<String>();
+    	for (Iterator iter = filteredEnrollments.iterator(); iter.hasNext(); ) {
+    		EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
+    		studentUids.add(enrollment.getUser().getUserUid());
+    	}
 
-        List formattedData = getExportFormatterBean().getExportRows(gradableObjects,workingEnrollments);
-        getDataExportBean().writeAsExcel(formattedData,getFileName(filePrefix));
+		Map filteredGradesMap = new HashMap();    	
+    	List gradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), studentUids);
+        getGradebookManager().addToGradeRecordMap(filteredGradesMap, gradeRecords);
+        
+		List gradableObjects = getGradebookManager().getAssignments(getGradebookId());
+		CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
+		List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentUids, gradableObjects, filteredGradesMap);
+        getGradebookManager().addToGradeRecordMap(filteredGradesMap, courseGradeRecords);
+        gradableObjects.add(courseGrade);
+    	return getSpreadsheetData(filteredEnrollments, filteredGradesMap, gradableObjects);
+    }
+    
+    private List<List<Object>> getSpreadsheetData(List enrollments, Map gradesMap, List gradableObjects) {
+    	List<List<Object>> spreadsheetData = new ArrayList<List<Object>>();
+
+    	// Build column headers.
+        List<Object> headerRow = new ArrayList<Object>();
+        headerRow.add(getLocalizedString("export_student_id"));
+        headerRow.add(getLocalizedString("export_student_name"));
+        for (Object gradableObject : gradableObjects) {
+        	String colName = null;
+         	if (gradableObject instanceof Assignment) {
+         		colName = ((Assignment)gradableObject).getName();
+         	} else if (gradableObject instanceof CourseGrade) {
+         		colName = getLocalizedString("roster_course_grade_column_name");
+         	}
+        	headerRow.add(colName);
+        }
+        spreadsheetData.add(headerRow);
+        
+        // Build student score rows.
+        for (Object enrollment : enrollments) {
+        	User student = ((EnrollmentRecord)enrollment).getUser();
+        	String studentUid = student.getUserUid();
+        	Map studentMap = (Map)gradesMap.get(studentUid);
+        	List<Object> row = new ArrayList<Object>();
+        	row.add(student.getDisplayId());
+        	row.add(student.getSortName());
+        	for (Object gradableObject : gradableObjects) {
+        		Double score = null;
+        		if (studentMap != null) {
+        			AbstractGradeRecord gradeRecord = (AbstractGradeRecord)studentMap.get(((GradableObject)gradableObject).getId()); 
+        			if (gradeRecord != null) {
+        				score = gradeRecord.getPointsEarned();
+        			}
+        		}
+    			row.add(score);
+        	}
+        	spreadsheetData.add(row);
+        }
+    	
+    	return spreadsheetData;
     }
 
-    public DataExportBean getDataExportBean() {
-        return dataExportBean;
-    }
-
-    public void setDataExportBean(DataExportBean dataExportBean) {
-        this.dataExportBean = dataExportBean;
-    }
-
-    public ExportFormatterBean getExportFormatterBean() {
-        return exportFormatterBean;
-    }
-
-    public void setExportFormatterBean(ExportFormatterBean exportFormatterBean) {
-        this.exportFormatterBean = exportFormatterBean;
-    }
-
-
-    	/**
+   	/**
      * Gets the filename for the export
      *
 	 * @param   prefix fro filename

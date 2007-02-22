@@ -92,7 +92,7 @@ public abstract class EnrollmentTableBean
 	// real sections (e.g., "All Sections" or "Unassigned Students".
 	private Integer selectedSectionFilterValue = new Integer(ALL_SECTIONS_SELECT_VALUE);
 	private List sectionFilterSelectItems;
-	private transient List availableSections;	// The real sections accessible by this user
+	private List availableSections;	// The real sections accessible by this user
 
 	// We only store grader UIDs in the grading event history, but the
 	// log displays grader names instead. This map cuts down on possibly expensive

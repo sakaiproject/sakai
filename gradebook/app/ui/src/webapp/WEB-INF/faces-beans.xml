@@ -1,4 +1,4 @@
-﻿<?xml version="1.0"?>
+<?xml version="1.0"?>
 <!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN" "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
 <faces-config>
 	<managed-bean>
@@ -153,17 +153,10 @@
     </managed-bean>
 
     <managed-bean>
-        <managed-bean-name>exportFormatterBean</managed-bean-name>
-        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.ExportFormatterBean</managed-bean-class>
-        <managed-bean-scope>request</managed-bean-scope>
-    </managed-bean>
-
-    <managed-bean>
         <managed-bean-name>exportBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.gradebook.ui.ExportBean</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
-
 
     <managed-bean>
         <managed-bean-name>spreadsheetUploadBean</managed-bean-name>
@@ -194,26 +187,6 @@
     </managed-bean>
 
     <managed-bean>
-        <managed-bean-name>genericExportFormatterBean</managed-bean-name>
-        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.RosterExportFormatterBean</managed-bean-class>
-        <managed-bean-scope>request</managed-bean-scope>
-    </managed-bean>
-
-    <managed-bean>
-        <managed-bean-name>dataExportBean</managed-bean-name>
-        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.DataExportBean</managed-bean-class>
-        <managed-bean-scope>request</managed-bean-scope>
-    </managed-bean>
-
-
-    <managed-bean>
-        <managed-bean-name>exportFormatterBean</managed-bean-name>
-        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.RosterExportFormatterBean</managed-bean-class>
-        <managed-bean-scope>request</managed-bean-scope>
-    </managed-bean>
-
-
-    <managed-bean>
         <description>Student roster for a gradebook</description>
         <managed-bean-name>rosterBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.gradebook.ui.RosterBean</managed-bean-class>
@@ -221,15 +194,6 @@
         <managed-property>
             <property-name>pageName</property-name>
             <value>roster</value>
-        </managed-property>
-        <managed-property>
-            <property-name>exportFormatterBean</property-name>
-            <value>#{exportFormatterBean}</value>
-        </managed-property>
-
-        <managed-property>
-            <property-name>dataExportBean</property-name>
-            <value>#{dataExportBean}</value>
         </managed-property>
     </managed-bean>
 
