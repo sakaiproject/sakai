@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <bean id="org.sakaiproject.portal.api.PortalService"
+          class="org.sakaiproject.portal.service.PortalServiceImpl"
+          singleton="true">
+    </bean>
+    <bean id="org.sakaiproject.portal.api.PortalService.portletRegistryListener"
+          class="org.sakaiproject.portal.service.SakaiPortletRegistryListener"
+          singleton="true"
+          init-method="init"
+          destroy-method="destroy" >
+       <property name="activeToolManager" ><ref bean="org.sakaiproject.tool.api.ActiveToolManager" /></property>
+    </bean>
+
+</beans>

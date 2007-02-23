@@ -1,0 +1,72 @@
+
+#headerMax{
+	overflow:visible;
+ }
+
+#pda-portlet-menu{
+	background-color:#29c;
+	color:#fff;
+	font-size:100%;
+	padding:3px;
+}
+#pda-portlet-menu a{
+	color:#fff;
+	text-decoration:none;
+}	
+#pda-portlet-menu a:hover{
+	color:#ff0;
+}
+#pda-portlet-menu a:hover{
+	color:#ff0;
+}	
+#pda-portlet-site-menu, #pda-portlet-page-menu{
+	font-size:100%%;
+	margin:1em;
+	padding:1em;	
+	list-style:none;
+	line-height:1.5em;
+}
+
+#pda-portlet-site-menu a, #pda-portlet-page-menu a{
+	color:#29c;
+	text-decoration:none;
+}	
+#pda-portlet-site-menu a:hover, #pda-portlet-page-menu a:hover{
+	text-decoration:underline;
+}
+
+div.skinselection {
+    position: absolute;
+    top: 400px;
+    left: 2px;
+    z-index: 1;
+}
+
+div.portletpresence {
+    position: absolute;
+    top: 20px;
+    right: 5px;
+    z-index: 2;
+}
+
+#presenceTitle{
+	display:none;
+}
+
+div.portletpresencewrapper {
+	background-color:#F0F0F0; 
+	border:1px solid #bbb;
+    layer-background-color:F0F0F0;
+    visibility: hidden;
+}
+
+div.portletpresencebutton {
+    position: absolute;
+    top: 3px;
+    right: 5px;
+    z-index: 1;
+}
+
+div.portletloginarea {
+
+}
