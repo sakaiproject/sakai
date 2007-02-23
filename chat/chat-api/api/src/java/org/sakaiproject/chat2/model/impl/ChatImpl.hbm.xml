@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.chat2.model" default-lazy="false" >
+
+    <class
+        name="ChatChannel"
+        table="CHAT2_CHANNEL" lazy="true">
+        
+        <id name="id" length="36" type="org.sakaiproject.metaobj.shared.IdType" column="ID">
+           <generator class="org.sakaiproject.metaobj.shared.IdGenerator"/>
+        </id>
+    	<property name="nextId" column="NEXT_ID" type="string" length="36" not-null="true" />
+    	<property name="context" column="CONTEXT" type="string" length="36" not-null="true" />
+    	<property name="creationDate" column="CREATION_DATE" type="date" />
+        
+        <property name="title" type="string" length="64" />
+        <!-- don't link the channel to the messages because there could be "too many" -->
+        <!--  
+        <list name="reportDefinitionParams" cascade="all-delete-orphan" inverse="true"
+            lazy="true">
+            <key column="reportDefParamId" />
+            <index column="seq_num" />
+            <one-to-many class="ReportDefinitionParam" />
+        </list>
+        <set name="xsls" cascade="all-delete-orphan" inverse="true"
+            lazy="true">
+            <key column="reportXslId" />
+            <one-to-many class="ReportXsl" />
+        </set>
+        -->
+    </class>
+    <class
+        name="ChatMessage"
+        table="CHAT2_MESSAGE" lazy="true">
+        
+        <id name="id" length="36"
+            type="org.sakaiproject.metaobj.shared.IdType" column="ID">
+            <generator class="org.sakaiproject.metaobj.shared.IdGenerator" />
+        </id>
+        <many-to-one name="chatChannel" column="CHANNEL_ID" class="ChatChannel" cascade="delete" />
+            
+    	<property name="draft" column="DRAFT" type="boolean" />
+    	<property name="pubView" column="PUBVIEW" type="boolean" />
+    	<property name="owner" column="OWNER" type="string" length="96" not-null="true" />
+        
+    	<property name="messageDate" column="MESSAGE_DATE" type="date" />
+    	<property name="body" column="BODY" type="text" not-null="true" />
+    </class>
+    
+    <query name="findChannelsInContext">
+		from ChatChannel c WHERE c.context=?
+   </query>
+   <query name="getAllChannelMessages">
+   		from ChatMessage m WHERE m.chatChannel=?
+   	</query>
+<!--  
+    <query name="findResultsByUser">
+		from ReportResult r WHERE r.userId=?
+   </query>
+    
+    <query name="findReportsByUser">
+		from Report r WHERE r.userId=? AND r.isLive=1 AND r.display=1
+   </query>
+    
+    <query name="findResultsByReport">
+		from ReportResult rr WHERE rr.report=?
+   </query>
+    -->
+</hibernate-mapping>
