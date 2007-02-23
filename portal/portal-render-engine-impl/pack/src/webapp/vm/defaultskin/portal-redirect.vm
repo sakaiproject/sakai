@@ -1,0 +1,3 @@
+<script type="text/javascript" language="JavaScript">
+	portalWindowRefresh('$redirectUrl');
+</script>

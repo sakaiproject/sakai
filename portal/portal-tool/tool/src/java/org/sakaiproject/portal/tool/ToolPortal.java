@@ -34,6 +34,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.portal.util.ErrorReporter;
+import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -46,9 +48,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ToolURL;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.util.ErrorReporter;
 import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.util.ToolURLManagerImpl;
 import org.sakaiproject.util.Web;
 
 /**
@@ -65,6 +65,7 @@ public class ToolPortal extends HttpServlet
 	 * 
 	 * @return servlet information.
 	 */
+	@Override
 	public String getServletInfo()
 	{
 		return "Sakai Tool Portal";
@@ -77,6 +78,7 @@ public class ToolPortal extends HttpServlet
 	 *        The servlet config.
 	 * @throws ServletException
 	 */
+	@Override
 	public void init(ServletConfig config) throws ServletException
 	{
 		super.init(config);
@@ -87,6 +89,7 @@ public class ToolPortal extends HttpServlet
 	/**
 	 * Shutdown the servlet.
 	 */
+	@Override
 	public void destroy()
 	{
 		M_log.info("destroy()");
@@ -104,14 +107,17 @@ public class ToolPortal extends HttpServlet
 	 * @throws ServletException.
 	 * @throws IOException.
 	 */
-	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse res)
+			throws ServletException, IOException
 	{
 		try
 		{
 			// get the Sakai session
 			Session session = SessionManager.getCurrentSession();
 
-			// our path is /placement-id/tool-destination, but we want to include anchors and parameters in the destination...
+			// our path is /placement-id/tool-destination, but we want to
+			// include anchors and parameters in the destination...
 			String path = req.getPathInfo();
 			if ((path == null) || (path.length() <= 1)) throw new Exception("no path");
 
@@ -123,8 +129,8 @@ public class ToolPortal extends HttpServlet
 			String toolPath = null;
 			if (parts.length == 2) toolPath = "/" + parts[1];
 
-			boolean success = doTool(req, res, session, placementId, req.getContextPath() + req.getServletPath() + "/"
-					+ placementId, toolPath);
+			boolean success = doTool(req, res, session, placementId, req.getContextPath()
+					+ req.getServletPath() + "/" + placementId, toolPath);
 
 		}
 		catch (Throwable t)
@@ -146,8 +152,9 @@ public class ToolPortal extends HttpServlet
 	 * @throws ToolException
 	 * @throws IOException
 	 */
-	protected boolean doTool(HttpServletRequest req, HttpServletResponse res, Session session, String placementId,
-			String toolContextPath, String toolPathInfo) throws ToolException, IOException
+	protected boolean doTool(HttpServletRequest req, HttpServletResponse res,
+			Session session, String placementId, String toolContextPath,
+			String toolPathInfo) throws ToolException, IOException
 	{
 		// find the tool from some site
 		// TODO: all placements are from sites? -ggolden
@@ -158,7 +165,8 @@ public class ToolPortal extends HttpServlet
 		ActiveTool tool = ActiveToolManager.getActiveTool(siteTool.getToolId());
 		if (tool == null) return false;
 
-		// permission check - visit the site (unless the tool is configured to bypass)
+		// permission check - visit the site (unless the tool is configured to
+		// bypass)
 		if (tool.getAccessSecurity() == Tool.AccessSecurity.PORTAL)
 		{
 			Site site = null;
@@ -177,20 +185,24 @@ public class ToolPortal extends HttpServlet
 			}
 		}
 
-		// if the path is not set, and we are expecting one, we need to compute the path and redirect
+		// if the path is not set, and we are expecting one, we need to compute
+		// the path and redirect
 		// we expect a path only if the tool has a registered home -ggolden
 		if ((toolPathInfo == null) && (tool.getHome() != null))
 		{
 			// what path? The one last visited, or home
-			ToolSession toolSession = SessionManager.getCurrentSession().getToolSession(placementId);
-			String redirectPath = (String) toolSession.getAttribute(ActiveTool.TOOL_ATTR_CURRENT_DESTINATION);
+			ToolSession toolSession = SessionManager.getCurrentSession().getToolSession(
+					placementId);
+			String redirectPath = (String) toolSession
+					.getAttribute(ActiveTool.TOOL_ATTR_CURRENT_DESTINATION);
 			if (redirectPath == null)
 			{
 				redirectPath = tool.getHome();
 			}
 
 			// redirect with this tool path
-			String redirectUrl = ServerConfigurationService.getServerUrl() + toolContextPath + redirectPath;
+			String redirectUrl = ServerConfigurationService.getServerUrl()
+					+ toolContextPath + redirectPath;
 			res.sendRedirect(res.encodeRedirectURL(redirectUrl));
 			return true;
 		}
@@ -198,8 +210,10 @@ public class ToolPortal extends HttpServlet
 		// store the path as the current path, if we are doing this
 		if (tool.getHome() != null)
 		{
-			ToolSession toolSession = SessionManager.getCurrentSession().getToolSession(placementId);
-			toolSession.setAttribute(ActiveTool.TOOL_ATTR_CURRENT_DESTINATION, toolPathInfo);
+			ToolSession toolSession = SessionManager.getCurrentSession().getToolSession(
+					placementId);
+			toolSession.setAttribute(ActiveTool.TOOL_ATTR_CURRENT_DESTINATION,
+					toolPathInfo);
 		}
 
 		// prepare for the forward
@@ -228,13 +242,16 @@ public class ToolPortal extends HttpServlet
 	 * @throws ServletException.
 	 * @throws IOException.
 	 */
-	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse res)
+			throws ServletException, IOException
 	{
 		doGet(req, res);
 	}
 
 	/**
-	 * Setup the request attributes with information used by the tools in their response.
+	 * Setup the request attributes with information used by the tools in their
+	 * response.
 	 * 
 	 * @param req
 	 * @param res
@@ -242,12 +259,16 @@ public class ToolPortal extends HttpServlet
 	 * @param skin
 	 * @throws ToolException
 	 */
-	protected void setupForward(HttpServletRequest req, HttpServletResponse res, Placement p, String skin) throws ToolException
+	protected void setupForward(HttpServletRequest req, HttpServletResponse res,
+			Placement p, String skin) throws ToolException
 	{
-		// setup html information that the tool might need (skin, body on load, js includes, etc).
-		if (skin == null || skin.length() == 0) skin = ServerConfigurationService.getString("skin.default");
+		// setup html information that the tool might need (skin, body on load,
+		// js includes, etc).
+		if (skin == null || skin.length() == 0)
+			skin = ServerConfigurationService.getString("skin.default");
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
-		String headCssToolBase = "<link href=\"" + skinRepo
+		String headCssToolBase = "<link href=\""
+				+ skinRepo
 				+ "/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 		String headCssToolSkin = "<link href=\"" + skinRepo + "/" + skin
 				+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";

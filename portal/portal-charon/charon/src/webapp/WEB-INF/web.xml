@@ -5,6 +5,11 @@
     <display-name>portal</display-name>
     <description>port</description>
 
+    <!-- the tool listener is to register portlets -->
+    <listener>
+		<listener-class>org.sakaiproject.util.ToolListener</listener-class>
+	</listener>
+	
     <filter>
         <filter-name>sakai.request</filter-name>
         <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
@@ -35,7 +40,7 @@
 
     <servlet>
         <servlet-name>sakai.portal.charon</servlet-name>
-        <servlet-class>org.sakaiproject.portal.charon.CharonPortal</servlet-class>
+        <servlet-class>org.sakaiproject.portal.charon.SkinnableCharonPortal</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
@@ -43,5 +48,6 @@
         <servlet-name>sakai.portal.charon</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
+	
 
 </web-app>

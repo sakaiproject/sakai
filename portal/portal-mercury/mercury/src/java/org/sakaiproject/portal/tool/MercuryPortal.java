@@ -43,7 +43,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Placement;
@@ -55,13 +54,8 @@ import org.sakaiproject.tool.api.ToolURL;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.user.api.Authentication;
-import org.sakaiproject.user.api.AuthenticationException;
-import org.sakaiproject.user.api.Evidence;
-import org.sakaiproject.user.cover.AuthenticationManager;
-import org.sakaiproject.util.ErrorReporter;
-import org.sakaiproject.util.IdPwEvidence;
-import org.sakaiproject.util.ToolURLManagerImpl;
+import org.sakaiproject.portal.util.ErrorReporter;
+import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.util.Web;
 
 /**
@@ -187,10 +181,6 @@ public class MercuryPortal extends HttpServlet
 			{
 				doLogout(req, res, session);
 			}
-			else if ((parts.length == 3) && (parts[1].equals("loginx")))
-			{
-				doLoginx(req, res, parts[2], session);
-			}
 
 			// recognize and dispatch a tool request option: parts[2] is the context, parts[1] is a known tool id, parts[3..n] are for the tool
 			else if (parts.length >= 3)
@@ -256,16 +246,6 @@ public class MercuryPortal extends HttpServlet
 		if ((session.getUserId() == null) && (session.getUserEid() == null))
 		{
 			out.println("<p><a href=\"" + Web.returnUrl(req, "/login") + "\">login</a></p>");
-			
-			String[] loginIds = ServerConfigurationService.getStrings("mercury.login");
-			int i = 0;
-			if (loginIds != null)
-			{
-				for (String loginId : loginIds)
-				{
-					out.println("<p><a href=\"" + Web.returnUrl(req, "/loginx/" + Integer.toString(i++)) + "\">login: " + loginId + "</a></p>");
-				}
-			}
 		}
 		else
 		{
@@ -382,37 +362,6 @@ public class MercuryPortal extends HttpServlet
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
 		String context = req.getContextPath() + req.getServletPath() + "/login";
 		tool.help(req, res, context, null);
-	}
-
-	protected void doLoginx(HttpServletRequest req, HttpServletResponse res, String which, Session session) throws ToolException, IOException
-	{
-		String[] loginIds = ServerConfigurationService.getStrings("mercury.login");
-		String[] loginPws = ServerConfigurationService.getStrings("mercury.password");
-		
-		int i = Integer.parseInt(which);
-		String eid = loginIds[i];
-		String pw = loginPws[i];
-
-		Evidence e = new IdPwEvidence(eid, pw);
-
-		// authenticate
-		try
-		{
-			if ((eid.length() == 0) || (pw.length() == 0))
-			{
-				throw new AuthenticationException("missing required fields");
-			}
-
-			Authentication a = AuthenticationManager.authenticate(e);
-
-			// login the user
-			UsageSessionService.login(a, req);
-		}
-		catch (AuthenticationException ex)
-		{
-		}
-		
-		doHome(req, res, session);
 	}
 
 	/**
