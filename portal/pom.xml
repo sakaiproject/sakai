@@ -27,6 +27,5 @@
 <module>portal-util/util</module>
 <module>portal-shared-deploy</module>
 <!-- <module>portal-portlet-tool/tool</module> -->
-<module>transformable</module>
  </modules>
 </project>
