@@ -107,6 +107,15 @@ public class CourierTool extends HttpServlet
 				// refresh our presence at the location (placement)
 				if (M_log.isDebugEnabled()) M_log.debug("setting presence: " + placementId);
 				PresenceService.setPresence(placementId);
+            
+            // the 3rd part. if it has one dash then it's the add on from  \/ the head script:
+            //    updateReq.open("GET", url + "/" + new Date().getTime() + "-" + Math.random() + "?auto=true", true);
+            if(parts.length >= 3 && parts[2].split("-").length != 1) {
+               String subContextId = parts[2];
+               // refresh our presence at the location (placement)
+               if (M_log.isDebugEnabled()) M_log.debug("setting presence subcontext: " + subContextId);
+               PresenceService.setPresence(subContextId);
+            }
 			}
 		}
 
