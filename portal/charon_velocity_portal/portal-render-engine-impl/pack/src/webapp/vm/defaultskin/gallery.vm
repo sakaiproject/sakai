@@ -1,6 +1,0 @@
-#start_response()
-<!-- gallery.vm -->
-#includeGalleryNav()
-######includeWorksite()
-<!-- end gallery.vm -->
-#end_response()

@@ -1,5 +1,0 @@
-#start_response()
-<!-- gallery-login.vm -->
-#includeGalleryLogin()
-<!-- end gallery-login.vm -->
-#end_response()
