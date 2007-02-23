@@ -231,6 +231,11 @@
             <redirect/>
         </navigation-case> 
         <navigation-case>
+        	<from-outcome>dfViewThread</from-outcome>
+        	<to-view-id>/jsp/discussionForum/message/dfViewThread.jsp</to-view-id>
+        	<redirect/>
+        </navigation-case>
+        <navigation-case>
             <from-outcome>dfAllMessages</from-outcome>
             <to-view-id>/jsp/discussionForum/message/dfAllMessages.jsp</to-view-id>
             <redirect/>

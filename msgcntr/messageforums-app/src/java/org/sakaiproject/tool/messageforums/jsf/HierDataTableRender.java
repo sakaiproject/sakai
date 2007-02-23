@@ -96,6 +96,10 @@ public class HierDataTableRender extends HtmlBasicRenderer
 		ResponseWriter writer = context.getResponseWriter();
 		writer.startElement("table", data);
 		writeIdAttributeIfNecessary(context, writer, component);
+		String noArrows = (String) data.getAttributes().get("noarrows");
+		if(noArrows == null){
+			noArrows = "";
+		}
 		String styleClass = (String) data.getAttributes().get("styleClass");
 		if (styleClass != null) {
 			writer.writeAttribute("class", styleClass, "styleClass");
@@ -129,10 +133,11 @@ public class HierDataTableRender extends HtmlBasicRenderer
 			writer.startElement("tr", data);
 			writer.writeText("\n", null);
 			Iterator columns = getColumns(data);
+			UIColumn oldColumn = null;
 			while (columns.hasNext()) {
 				UIColumn column = (UIColumn) columns.next();
-				//write column for arrows
-				if(column.getId().endsWith("_msg_subject")){
+				//write column for arrows... only if last column did not specify arrows
+				if(column.getId().endsWith("_msg_subject") && !oldColumn.getId().endsWith("_toggle") && !noArrows.equals("true")){
 					writer.startElement("th", null);
 					writer.writeAttribute("scope", "col", null);
 					writer.endElement("th");
@@ -149,6 +154,7 @@ public class HierDataTableRender extends HtmlBasicRenderer
 				}
 				writer.endElement("th");
 				writer.writeText("\n", null);
+				oldColumn = column;
 			}
 			writer.endElement("tr");
 			writer.writeText("\n", null);
@@ -230,6 +236,10 @@ public class HierDataTableRender extends HtmlBasicRenderer
 		ValueBinding msgsBinding = component.getValueBinding("value");
 		List msgBeanList = (List)msgsBinding.getValue(context);
 		
+		String noArrows = (String) data.getAttributes().get("noarrows");
+		if(noArrows == null){
+			noArrows = "";
+		}
 		// Set up variables we will need
 		String columnClasses[] = getColumnClasses(data);
 		int columnStyle = 0;
@@ -288,14 +298,18 @@ public class HierDataTableRender extends HtmlBasicRenderer
 			// Render the beginning of this row
 			////writer.startElement("tr", data);
 			//////
-			if(dmb.getDepth() > 0)
+			if(dmb.getDepth() > 0 && !noArrows.equals("true"))
 			{
 				//////writer.write("<div style=\"display:none\"  id=\"_id_" + new Integer(hideDivNo).toString() + "__hide_division_" + "\">");
 				writer.write("<tr style=\"display:none\" id=\"_id_" + new Integer(hideDivNo).toString() + "__hide_division_" + "\">");
 			}
-			else
+			else if(dmb.getDepth() > 0)
 			{
 				writer.write("<tr>");
+			}
+			else 
+			{
+				writer.write("<tr class=\"hierItemBlock\">");
 			}
 			
 			if (rowStyles > 0) {
@@ -310,6 +324,7 @@ public class HierDataTableRender extends HtmlBasicRenderer
 			// Iterate over the child UIColumn components for each row
 			columnStyle = 0;
 			kids = getColumns(data);
+			Boolean toggleWritten = false;
 			while (kids.hasNext()) {
 				
 				// Identify the next renderable column
@@ -318,7 +333,7 @@ public class HierDataTableRender extends HtmlBasicRenderer
 				
 				//check if we need the arraow column
 				// if this is the _msg_subject column, then quickly add an arrow column
-				if(column.getId().endsWith("_msg_subject")){
+				if((column.getId().endsWith("_msg_subject") || column.getId().endsWith("_toggle")) && !toggleWritten && !noArrows.equals("true")){
 					writer.startElement("td", null);
 					if (columnStyles > 0) {
 						writer.writeAttribute("class", columnClasses[columnStyle++],
@@ -343,6 +358,10 @@ public class HierDataTableRender extends HtmlBasicRenderer
 					}
 					writer.endElement("td");
 					writer.writeText("\n", null);
+					toggleWritten = true;
+				}
+				if(column.getId().endsWith("_toggle")){
+					continue;
 				}
 				
 				// Render the beginning of this cell
@@ -354,7 +373,6 @@ public class HierDataTableRender extends HtmlBasicRenderer
 						columnStyle = 0;
 					}
 				}
-				
 				if(dmb != null) // && dmb.getDepth() > 0)
 				{
 					if(column.getId().endsWith("_msg_subject"))

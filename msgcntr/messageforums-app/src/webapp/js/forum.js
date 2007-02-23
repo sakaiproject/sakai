@@ -115,7 +115,7 @@ function unCheck(field)
 }
 
 function toggleDisplay(obj) {
-    var el = document.getTheElement(obj);
+    var el = getTheElement(obj);
     if ( el.style.display != 'none' ) {
         el.style.display = 'none';
     }

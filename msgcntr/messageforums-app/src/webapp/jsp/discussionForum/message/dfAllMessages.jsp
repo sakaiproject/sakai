@@ -62,203 +62,118 @@
 	<mf:htmlShowArea  id="forum_fullDescription" hideBorder="false"	 value="#{ForumTool.selectedTopic.topic.extendedDescription}" rendered="#{ForumTool.selectedTopic.readFullDesciption}"/> 
 				 <%@include file="dfViewSearchBar.jsp"%>
      <%-- gsilver:need a rendered attribute here that will toggle the display of the table (if messages) or a textblock (class="instruction") if there are no messages--%> 				
-   	<h:dataTable styleClass="listHier lines nolines" id="messages" value="#{ForumTool.messages}" var="message" rendered="#{!ForumTool.threaded && !ForumTool.expandedView}"
-   	 columnClasses="attach,attach,attach,specialLink,bogus,bogus" cellpadding="0" cellspacing="0">
-			<h:column rendered="#{!ForumTool.threaded}">
-				<f:facet name="header">
-					<h:commandLink action="#{ForumTool.processCheckAll}" value="#{msgs.cdfm_checkall}" title="#{msgs.cdfm_checkall}" />
-				</f:facet>
-				<h:selectBooleanCheckbox value="#{message.selected}"  rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
-				<h:selectBooleanCheckbox value="#{message.selected}"  rendered="#{!message.read}"/>
-			</h:column>
-			<h:column rendered="#{!ForumTool.threaded}">
-				<f:facet name="header">
-					<h:graphicImage value="/images/attachment.gif" alt="#{msgs.msg_has_attach}"/>
-				</f:facet>
-				<h:graphicImage value="/images/attachment.gif" alt="#{msgs.msg_has_attach}" rendered="#{message.hasAttachment && message.read && !ForumTool.displayUnreadOnly}"/>
-				<h:graphicImage value="/images/attachment.gif" alt="#{msgs.msg_has_attach}" rendered="#{message.hasAttachment && !message.read}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header">
-					<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" />
-				</f:facet>
-				<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" />
-			</h:column>
-			<h:column rendered="#{!ForumTool.threaded}">
-				<f:facet name="header">
-					<h:outputText value="#{msgs.cdfm_subject}" />
-				</f:facet>
-				<h:commandLink action="#{ForumTool.processActionDisplayMessage}" immediate="true" title=" #{message.message.title}">
-				   	<h:outputText value="#{message.message.title}" rendered="#{message.read && !ForumTool.displayUnreadOnly}" />
-    	        	<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read}"/>
-        	    	<f:param value="#{message.message.id}" name="messageId"/>
-        	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
-        	    	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-	          	</h:commandLink>
-			</h:column>
-
-			<h:column rendered="#{!ForumTool.threaded}">
-				<f:facet name="header">
-					<h:outputText value="#{msgs.cdfm_authoredby}" />
-				</f:facet>
-				 	<h:outputText value="#{message.message.author}" rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
-    	        	<h:outputText styleClass="unreadMsg" value="#{message.message.author}" rendered="#{!message.read}"/>
-
-			</h:column>
-
-			<h:column rendered="#{!ForumTool.threaded}">
-				<f:facet name="header">
-					<h:outputText value="#{msgs.cdfm_date}" />
-				</f:facet>
-				 	<h:outputText value="#{message.message.created}" rendered="#{message.read && !ForumTool.displayUnreadOnly}">
-					 	<f:convertDateTime pattern="#{msgs.date_format}" />
-				 	</h:outputText>
-    	        	<h:outputText styleClass="unreadMsg" value="#{message.message.created}" rendered="#{!message.read}">
-					 	<f:convertDateTime pattern="#{msgs.date_format}" />
-					</h:outputText>
-			</h:column>
-		<%--TODO:// Implement me:
-			<h:column>
-				<f:facet name="header">
-					<h:outputText value="#{msgs.cdfm_label}" />
-				</f:facet>
-				<h:outputText value="#{message.message.label}" rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
-    	        <h:outputText style="font-weight:bold;" value="#{message.message.label}" rendered="#{!message.read}"/>
-
-			</h:column>  	--%>
-		</h:dataTable>
-		
-		
-		<%--rjlowe: Expanded View to show the message bodies, but not threaded --%>
-		<h:dataTable id="expandedMessages" value="#{ForumTool.messages}" var="message" rendered="#{!ForumTool.threaded && ForumTool.expandedView}"
-   	 		styleClass="listHier" cellpadding="0" cellspacing="0" width="100%" columnClasses="attach,bogus">
-			<h:column rendered="#{!ForumTool.threaded}">
-					<f:verbatim><div class="hierItemBlock"></f:verbatim>
-
-							<f:verbatim><h4 class="textPanelHeader"></f:verbatim>
-								<h:outputText value="#{message.message.title}" rendered="#{message.read}" />
-								<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read}" />
-				   	    	<f:verbatim> &nbsp; &ndash; &nbsp; </f:verbatim>
-				   	    	<h:outputText value="#{message.message.author}" rendered="#{message.read}" />
-				   	    	<h:outputText styleClass="unreadMsg" value="#{message.message.author}" rendered="#{!message.read }" />
-				   	        <f:verbatim>&nbsp; (</f:verbatim>
-				   	        	<h:outputText value="#{message.message.created}" rendered="#{message.read}">
-				   	        		<f:convertDateTime pattern="#{msgs.date_format}" />
-				   	       		</h:outputText>
-				   	       		<h:outputText styleClass="unreadMsg" value="#{message.message.created}" rendered="#{!message.read}">
-				   	        		<f:convertDateTime pattern="#{msgs.date_format}" />
-				   	       		</h:outputText>
-				   	        <f:verbatim>) &nbsp; </f:verbatim>
-				   	        <h:commandLink action="#{ForumTool.processDfMsgMarkMsgAsRead}">
-	                           		<f:param value="#{message.message.id}" name="messageId"/>
-        	    					<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
-        	    					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-   						   	        <h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" />
-                           	</h:commandLink>
-				   	        <f:verbatim><div class="specialLink"></f:verbatim>
-				   	        	<h:commandLink action="#{ForumTool.processDfMsgReplyMsgFromEntire}" value="#{msgs.cdfm_button_bar_reply_to_msg}" 
-	                           		rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}">
-	                           		<f:param value="#{message.message.id}" name="messageId"/>
-        	    					<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
-        	    					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-	                           	</h:commandLink>
-	                           	<f:verbatim><span>| &nbsp; </span></f:verbatim>
-	                           	<h:commandLink action="#{ForumTool.processDfMsgReplyTp}" value="#{msgs.cdfm_button_bar_reply_to_topic}" 
-		                         	rendered="#{ForumTool.selectedTopic.isNewResponse}"/>
-				   	        	
-							<f:verbatim></div></f:verbatim>
-				   	        <f:verbatim></h4></f:verbatim>
-
-		  			<h:outputText value="#{message.message.body}" rendered="#{message.read}" />
-		  			<h:outputText styleClass="unreadMsg" value="#{message.message.body}" rendered="#{!message.read}" />
-					<f:verbatim></div></f:verbatim>
-			</h:column>
-		</h:dataTable>
-		
-		<%--rjlowe: Expanded View to show the message bodies, threaded --%>
-		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.messages}" var="message" rendered="#{ForumTool.threaded && ForumTool.expandedView}"
-   	 		styleClass="listHier" cellpadding="0" cellspacing="0" width="100%" columnClasses="attach,bogus">
-			<h:column id="_msg_subject">
-					<f:verbatim><div class="hierItemBlock" style="padding-top:0;margin-top:0;"></f:verbatim>
-
-							<f:verbatim><h4 class="textPanelHeader"></f:verbatim>
-								<h:outputText value="#{message.message.title}" rendered="#{message.read}" />
-								<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read}" />
-				   	    	<f:verbatim> &nbsp; &ndash; &nbsp; </f:verbatim>
-				   	    	<h:outputText value="#{message.message.author}" rendered="#{message.read}" />
-				   	    	<h:outputText styleClass="unreadMsg" value="#{message.message.author}" rendered="#{!message.read }" />
-				   	        <f:verbatim>&nbsp; (</f:verbatim>
-				   	        	<h:outputText value="#{message.message.created}" rendered="#{message.read}">
-				   	        		<f:convertDateTime pattern="#{msgs.date_format}" />
-				   	       		</h:outputText>
-				   	       		<h:outputText styleClass="unreadMsg" value="#{message.message.created}" rendered="#{!message.read}">
-				   	        		<f:convertDateTime pattern="#{msgs.date_format}" />
-				   	       		</h:outputText>
-				   	        <f:verbatim>) &nbsp; </f:verbatim>
-				   	         <h:commandLink action="#{ForumTool.processDfMsgMarkMsgAsRead}">
-	                           		<f:param value="#{message.message.id}" name="messageId"/>
-        	    					<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
-        	    					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-   						   	        <h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" />
-                           	</h:commandLink>
-				   	        <f:verbatim><div class="specialLink"></f:verbatim>
-				   	        	<h:commandLink action="#{ForumTool.processDfMsgReplyMsgFromEntire}" value="#{msgs.cdfm_button_bar_reply_to_msg}" 
-	                           		rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}">
-	                           		<f:param value="#{message.message.id}" name="messageId"/>
-        	    					<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
-        	    					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-	                           	</h:commandLink>
-	                           	<f:verbatim><span> | </span></f:verbatim>
-	                           	<h:commandLink action="#{ForumTool.processDfMsgReplyTp}" value="#{msgs.cdfm_button_bar_reply_to_topic}" 
-		                         	rendered="#{ForumTool.selectedTopic.isNewResponse}"/>
-				   	        	
-							<f:verbatim></div></f:verbatim>
-				   	        <f:verbatim></h4></f:verbatim>
-
-		  			<h:outputText value="#{message.message.body}" rendered="#{message.read}" />
-		  			<h:outputText styleClass="unreadMsg" value="#{message.message.body}" rendered="#{!message.read}" />
-					<f:verbatim></div></f:verbatim>
-			</h:column>
-		</mf:hierDataTable>
-		
-		
+   		
 		<%-- gsilver:this table outputs a row for each indented message that starts with e <script /> element - not allowed as the child of <tbody />
 			Also the threading seems off. Finnaly - the threading indent shoud be done with a 1em padding per indent instead of by use of &nbsp;--%>
-		<mf:hierDataTable styleClass="listHier lines nolines" id="messagesInHierDataTable" value="#{ForumTool.messages}" var="message" rendered="#{ForumTool.threaded && !ForumTool.expandedView}" expanded="#{ForumTool.expanded}"
-		                  columnClasses="attach,attach,attach,attach,bogus,bogus,bogus" cellspacing="0" cellpadding="0">
-			<h:column rendered="#{ForumTool.threaded}">
+		<mf:hierDataTable styleClass="hierItemBlockWrapper listHier lines nolines" id="messagesInHierDataTable" value="#{ForumTool.messages}" var="message" expanded="#{ForumTool.expanded}"
+		                  columnClasses="attach,bogus,bogus,bogus" cellspacing="0" cellpadding="0">
+	<%--
+			<h:column>
 				<f:facet name="header">
 					<h:commandLink action="#{ForumTool.processCheckAll}" value="#{msgs.cdfm_checkall}" title="#{msgs.cdfm_checkall}"/>
 				</f:facet>
 				<h:selectBooleanCheckbox value="#{message.selected}"  rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
 				<h:selectBooleanCheckbox value="#{message.selected}"  rendered="#{!message.read}"/>
 			</h:column>
-			<h:column rendered="#{ForumTool.threaded}">
+	--%>
+	<%--
+			<h:column>
 				<f:facet name="header">
 					<h:graphicImage value="/images/attachment.gif" alt="#{msgs.msg_has_attach}" />
 				</f:facet>
 				<h:graphicImage value="/images/attachment.gif" rendered="#{message.hasAttachment}" alt="#{msgs.msg_has_attach}"/>
 			</h:column>
+	--%>
+	<%--
 			<h:column>
 				<f:facet name="header">
 					<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" />
 				</f:facet>
-				<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" />
+				<h:commandLink action="#{ForumTool.processDfMsgMarkMsgAsRead}">
+	                <f:param value="#{message.message.id}" name="messageId"/>
+        	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+        	    	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+	   	        	<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" />
+               	</h:commandLink>
 			</h:column>
-			<h:column id="_msg_subject" rendered="#{ForumTool.threaded}">
+	--%>
+			<%--
+			<h:column rendered="#{message.depth == 0}" id="_thread_line">
+					<f:verbatim><div class="hierItemBlockWrapper" style="padding-top:0;margin-top:0;"></f:verbatim>
+							<h:commandLink action="#{ForumTool.processActionDisplayThread}" immediate="true" title="#{message.message.title}"
+								rendered="#{message.depth == 0}">
+							   	<h:outputText value="#{message.message.title}" rendered="#{message.read}" />
+			    	        	<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read}"/>
+			        	    	<f:param value="#{message.message.id}" name="messageId"/>
+			        	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+			        	    	<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
+				          	</h:commandLink>
+								
+				   	    	<f:verbatim> &nbsp; &ndash; &nbsp; </f:verbatim>
+				   	    	<h:outputText value="#{message.message.author}" rendered="#{message.read}" />
+				   	    	<h:outputText styleClass="unreadMsg" value="#{message.message.author}" rendered="#{!message.read }" />
+				   	        <f:verbatim>&nbsp; (</f:verbatim>
+				   	        	<h:outputText value="#{message.message.created}" rendered="#{message.read}">
+				   	        		<f:convertDateTime pattern="#{msgs.date_format}" />
+				   	       		</h:outputText>
+				   	       		<h:outputText styleClass="unreadMsg" value="#{message.message.created}" rendered="#{!message.read}">
+				   	        		<f:convertDateTime pattern="#{msgs.date_format}" />
+				   	       		</h:outputText>
+				   	        <f:verbatim>) &nbsp; </f:verbatim>
+				   	 <f:verbatim></div></f:verbatim>
+			</h:column>
+			--%>
+			<h:column id="_toggle">
 				<f:facet name="header">
-					<h:outputText value="#{msgs.cdfm_subject}" />
+					<h:commandLink action="#{ForumTool.processActionToggleExpanded}" immediate="true">
+						<h:graphicImage value="/images/expand.gif" rendered="#{ForumTool.expanded == 'true'}" />
+						<h:graphicImage value="/images/collapse.gif" rendered="#{ForumTool.expanded != 'true'}" />
+					</h:commandLink>
 				</f:facet>
-				<h:commandLink action="#{ForumTool.processActionDisplayMessage}" immediate="true" title=" #{message.message.title}">
+			</h:column>
+			
+			<h:column id="_msg_subject">
+				<f:facet name="header">
+					<h:outputText value="Thread" /> <%-- Don't forget --%>
+				</f:facet>
+
+				<%-- Rendered to view current thread only --%>
+				<h:commandLink action="#{ForumTool.processActionDisplayThread}" immediate="true" title="#{message.message.title}"
+					rendered="#{message.depth == 0}">
 				   	<h:outputText value="#{message.message.title}" rendered="#{message.read}" />
     	        	<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read}"/>
         	    	<f:param value="#{message.message.id}" name="messageId"/>
         	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
         	    	<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
 	          	</h:commandLink>
+
+
+				<%-- Rendered to view current message only --%>
+				<h:commandLink action="#{ForumTool.processActionDisplayMessage}" immediate="true" title=" #{message.message.title}"
+					rendered="#{message.depth != 0}">
+				   	<h:outputText value="#{message.message.title}" rendered="#{message.read}" />
+    	        	<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read}"/>
+        	    	<f:param value="#{message.message.id}" name="messageId"/>
+        	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+        	    	<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
+	          	</h:commandLink>
+	          	
+	          	<h:outputText value="  " />
+				
+	          	<h:commandLink action="#{ForumTool.processDfMsgMarkMsgAsRead}">
+	                <f:param value="#{message.message.id}" name="messageId"/>
+        	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+        	    	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+	   	        	<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" />
+               	</h:commandLink>
+               	
+               	<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0}"
+               		value="<br /> #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msg} - #{topic.unreadNoMessages} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
+
+				<h:outputText escape="false" value="<br />" />
 			</h:column>
 
-			<h:column rendered="#{ForumTool.threaded}">
+			<h:column>
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_authoredby}" />
 				</f:facet>
@@ -267,7 +182,7 @@
 
 			</h:column>
 
-			<h:column rendered="#{ForumTool.threaded}">
+			<h:column>
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_date}" />
 				</f:facet>

@@ -109,6 +109,7 @@ public class DiscussionForumTool
   private static final String TOPIC_SETTING_REVISE = "dfReviseTopicSettings";
   private static final String MESSAGE_COMPOSE = "dfCompose";
   private static final String MESSAGE_VIEW = "dfViewMessage";
+  private static final String THREAD_VIEW = "dfViewThread";
   private static final String ALL_MESSAGES = "dfAllMessages";
   private static final String SUBJECT_ONLY = "dfSubjectOnly";
   private static final String ENTIRE_MSG = "dfEntireMsg";
@@ -127,6 +128,8 @@ public class DiscussionForumTool
   private DiscussionTopicBean selectedTopic;
   private DiscussionTopicBean searchResults;
   private DiscussionMessageBean selectedMessage;
+  private DiscussionMessageBean selectedThreadHead;
+  private List selectedThread = new ArrayList();
   private UIData  forumTable;
   private List groupsUsersList;   
   private List totalGroupsUsersList;
@@ -195,7 +198,7 @@ public class DiscussionForumTool
   private String searchText = "";
   private String selectedMessageView = ALL_MESSAGES;
   private String selectedMessageShow = SUBJECT_ONLY;
-  private String selectedMessageOrganize = "thread"; 
+  private String selectedMessageOrganize = "date"; 
   private boolean deleteMsg;
   private boolean displayUnreadOnly;
   private boolean errorSynch = false;
@@ -205,7 +208,7 @@ public class DiscussionForumTool
   // private boolean attachCaneled = false;
   // private ArrayList oldAttachments = new ArrayList();
   // private List allAttachments = new ArrayList();
-  private boolean threaded = true;
+  private boolean threaded = false;
   private boolean expandedView = false;
   private String expanded = "false";
   private boolean disableLongDesc = false;
@@ -980,10 +983,10 @@ public class DiscussionForumTool
   public DiscussionTopicBean getSelectedTopic()
   {
  
-  	if(threaded)
-  	{
+  	//if(threaded)
+  	//{
   	  rearrageTopicMsgsThreaded();
-  	}
+  	//}
   	setMessageBeanPreNextStatus();
   	
  
@@ -1411,6 +1414,95 @@ public class DiscussionForumTool
   public DiscussionMessageBean getSelectedMessage()
   {
     return selectedMessage;
+  }
+  
+  /**
+   * @return Returns the selectedThread.
+   */
+  public DiscussionMessageBean getSelectedThreadHead()
+  {
+	  return selectedThreadHead;
+  }
+  
+  /**
+   * @return Returns an array of Messages for the current selected thread
+   */
+  public List getSelectedThread()
+  {
+	  return selectedThread;	  
+  }
+  
+  /**
+   * @return
+   */
+  public String processActionDisplayThread()
+  {
+	    LOG.debug("processActionDisplayMessage()");
+
+	    String threadId = getExternalParameterByKey(MESSAGE_ID);
+	    String topicId = getExternalParameterByKey(TOPIC_ID);
+	    if (threadId == null)
+	    {
+	      setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
+	      return gotoMain();
+	    }
+	    if (topicId == null)
+	    {
+	      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
+	      return gotoMain();
+	    }
+	    // Message message=forumManager.getMessageById(new Long(messageId));
+	    Message threadMessage = messageManager.getMessageByIdWithAttachments(new Long(
+	        threadId));
+	    messageManager.markMessageReadForUser(new Long(topicId),
+	        new Long(threadId), true);
+	    if (threadMessage == null)
+	    {
+	      setErrorMessage(getResourceBundleString(MESSAGE_WITH_ID) + threadId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
+	      return gotoMain();
+	    }
+	    threadMessage = messageManager.getMessageByIdWithAttachments(threadMessage.getId());
+	    selectedThreadHead = new DiscussionMessageBean(threadMessage, messageManager);
+	    DiscussionTopic topic=forumManager.getTopicById(new Long(
+	        getExternalParameterByKey(TOPIC_ID)));
+	    setSelectedForumForCurrentTopic(topic);
+	    selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
+	        uiPermissionsManager, forumManager);
+	    if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
+	    {
+	    	selectedTopic.setReadFullDesciption(true);
+	    }
+	    setTopicBeanAssign();
+	    String currentForumId = getExternalParameterByKey(FORUM_ID);
+	    if (currentForumId != null && (!currentForumId.trim().equals(""))
+	        && (!currentForumId.trim().equals("null")))
+	    {
+	      DiscussionForum forum = forumManager
+	          .getForumById(new Long(currentForumId));
+	      selectedForum = getDecoratedForum(forum);
+	      setForumBeanAssign();
+	      selectedTopic.getTopic().setBaseForum(forum);
+	    }
+	    selectedTopic = getDecoratedTopic(forumManager.getTopicById(new Long(
+	        getExternalParameterByKey(TOPIC_ID))));
+	    setTopicBeanAssign();
+	    getSelectedTopic();
+	    List msgsList = selectedTopic.getMessages();
+	    List orderedList = new ArrayList();
+	    selectedThread = new ArrayList();
+	    
+	    for(int i=0; i<msgsList.size(); i++){
+	    	if(((DiscussionMessageBean)msgsList.get(i)).getMessage().getId().equals(selectedThreadHead.getMessage().getId())){
+	    		((DiscussionMessageBean) msgsList.get(i)).setDepth(0);
+	    		selectedThread.add((DiscussionMessageBean)msgsList.get(i));
+	    		break;
+	    	}
+	    }
+
+	    recursiveGetThreadedMsgs(msgsList, orderedList, selectedThreadHead);
+	    selectedThread.addAll(orderedList);
+	    
+	    return THREAD_VIEW;	  
   }
 
   /**
@@ -1885,7 +1977,7 @@ public class DiscussionForumTool
       LOG.debug("processActionDisplayTopicById(String" + externalTopicId + ")");
     }
     String topicId = null;
-
+    //threaded = true;
     selectedTopic = null;
     try
     {
@@ -3798,6 +3890,15 @@ public class DiscussionForumTool
     return displayUnreadOnly;
   }
   
+  public void processActionToggleExpanded()
+  {
+	  if(expanded.equals("true")){
+		  expanded = "false";
+	  } else {
+		  expanded = "true";
+	  }
+  }
+  
   /**
    * @param vce
    */
@@ -4728,7 +4829,12 @@ public class DiscussionForumTool
 	}
 	
 	public List getMessages() {
-
+		if(displayUnreadOnly){
+			return selectedTopic.getUnreadMessages();
+		}
+		else
+			return selectedTopic.getMessages();
+		/****
 		if(displayUnreadOnly && !threaded) {
 			return selectedTopic.getUnreadMessages();
 			
@@ -4737,6 +4843,7 @@ public class DiscussionForumTool
 			
 		}else
 			return selectedTopic.getMessages();
+		****/
 	}
    public UIData getForumTable(){
       return forumTable;

@@ -503,7 +503,7 @@
     </attribute>
   </tag>
   
-    <tag>
+  <tag>
     <name>hierDataTable</name>
     <tag-class>org.sakaiproject.tool.messageforums.jsf.HierDataTableTag</tag-class>
     <tei-class>com.sun.faces.taglib.FacesTagExtraInfo</tei-class>
@@ -881,6 +881,14 @@
       <description>
       	Expand all rows or not.
       </description>
+    </attribute>
+    <attribute>
+    	<name>noarrows</name>
+    	<required>false</required>
+    	<rtexprvalue>false</rtexprvalue>
+    	<description>
+    		Toggle to display the collapsing arrows or not
+    	</description>
     </attribute>
   </tag>
   

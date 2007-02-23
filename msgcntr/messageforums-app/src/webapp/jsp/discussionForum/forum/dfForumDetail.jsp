@@ -34,6 +34,8 @@
 				  </h:commandLink>
         </h:panelGroup>
       </h:panelGrid>
+      <f:verbatim><div class="hierItemBlockWrapper"></f:verbatim>
+      	<f:verbatim><div class="hierItemBlock"></f:verbatim>
 		  <p class="textPanel">
 		  <h:outputText value="#{ForumTool.selectedForum.forum.shortDescription}" />
 		  </p>
@@ -54,7 +56,7 @@
 				<mf:htmlShowArea value="#{ForumTool.selectedForum.forum.extendedDescription}" 
 		                     rendered="#{ForumTool.selectedForum.readFullDesciption}" 
 		                     hideBorder="false" />
-
+		<f:verbatim></div></f:verbatim>
 		<h:dataTable id="topics" styleClass="topicBloc" value="#{ForumTool.selectedForum.topics}" var="topic" width="100%"  cellspacing="0" cellpadding="0">
 			<h:column rendered="#{! topic.nonePermission}">
 			<f:verbatim><div class="hierItemBlockChild"></f:verbatim>	
@@ -91,7 +93,7 @@
 				<f:verbatim></div></f:verbatim>
 				</h:column>
 		</h:dataTable>
-		
+		<f:verbatim></div></f:verbatim>
 		<h:inputHidden id="mainOrForumOrTopic" value="dfForumDetail" />
 		
 	 </h:form>
