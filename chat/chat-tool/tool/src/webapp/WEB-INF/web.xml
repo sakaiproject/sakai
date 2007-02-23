@@ -19,8 +19,15 @@
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
 
+    <listener>
+        <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+    
 	<!-- the vm handling servlet : used direct by name, not by URL path -->
-	<servlet>
+	<!--  <servlet>
 		<servlet-name>
 		   sakai.vm
 		</servlet-name>
@@ -47,9 +54,53 @@
         </init-param>
         <load-on-startup>1</load-on-startup>
      </servlet>
+     -->
+	<!-- the faces handling xml -->
+	
+    <context-param>
+        <param-name>com.sun.faces.validateXml</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    <context-param>
+        <param-name>com.sun.faces.verifyObjects</param-name>
+        <param-value>true</param-value>
+    </context-param>
 
-    <listener>
-        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
-    </listener>
+    <context-param>
+       <param-name>contextConfigLocation</param-name>
+       <param-value>/WEB-INF/faces-config.xml</param-value>
+    </context-param>
+    <servlet>
+        <servlet-name>Faces Servlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup> 2 </load-on-startup>
+    </servlet>
+    
+    <servlet>
+<!--      <servlet-name>sakai.syllabus.filepicker</servlet-name>-->
+      <servlet-name>sakai.chat</servlet-name>
+      <servlet-class>org.sakaiproject.jsf.util.HelperAwareJsfTool</servlet-class>
+        <init-param>
+            <param-name>path</param-name>
+            <param-value>/jsp</param-value>
+        </init-param>
+
+        <init-param>
+            <param-name>default</param-name>
+            <!-- the path is inserted before and .jsp inserted after -->
+            <param-value>main</param-value>
+        </init-param>
+         <init-param>
+            <param-name>default.last.view</param-name>
+            <param-value>false</param-value>
+        </init-param>
+      <load-on-startup>1</load-on-startup>
+   </servlet>
+
+
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.jsf</url-pattern>
+    </servlet-mapping>
 
 </web-app>

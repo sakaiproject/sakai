@@ -3,6 +3,52 @@
 
 <beans>
 
+
+    <bean id="org.theospi.tool.reports.ReportsHibernateBean"
+        class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="mappingResources">
+            <list>
+                <value>
+                    org/sakaiproject/chat2/model/impl/ChatImpl.hbm.xml
+                </value>
+            </list>
+        </property>
+    </bean>
+
+
+    <bean id="org.sakaiproject.chat2.model.ChatManager"
+        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+        </property>
+        <property name="target">
+            <bean
+                class="org.sakaiproject.chat2.model.impl.ChatManagerImpl"
+                singleton="true" init-method="init">
+                <property name="sessionFactory">
+                    <ref
+                        bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+                </property>
+     			<property name="idManager"><ref bean="idManager"/></property>
+               <property name="authzManager">
+                  <ref bean="org.sakaiproject.metaobj.security.AuthorizationFacade"/>
+               </property>
+		       <property name="toolManager">
+		          <ref bean="org.sakaiproject.tool.api.ActiveToolManager"/>
+		       </property>
+                <!-- 
+               <property name="securityService">
+                  <ref bean="org.sakaiproject.authz.api.SecurityService"/>
+               </property> -->
+            </bean>
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+    
 	<bean id="org.sakaiproject.chat.api.ChatService"
 			class="org.sakaiproject.chat.impl.DbChatService"
 			init-method="init"
@@ -27,5 +73,6 @@
  		<property name="locksInDb"><value>false</value></property>
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
 	</bean>
+	
 
 </beans>

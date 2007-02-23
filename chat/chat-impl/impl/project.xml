@@ -128,6 +128,18 @@
 			<version>${sakai.version}</version>
 		</dependency>
 
+     <dependency>
+       <groupId>sakaiproject</groupId>
+       <artifactId>sakai-metaobj-tool-lib</artifactId>
+       <version>${sakai.version}</version>
+     </dependency>
+
+     <dependency>
+       <groupId>sakaiproject</groupId>
+       <artifactId>sakai-metaobj-api</artifactId>
+       <version>${sakai.version}</version>
+     </dependency>
+
 		<dependency>
 			<groupId>servletapi</groupId>
 			<artifactId>servletapi</artifactId>
@@ -139,6 +151,19 @@
 			<artifactId>commons-logging</artifactId>
 			<version>1.0.4</version>
 		</dependency>
+
+      <dependency>
+         <groupId>${sakai.hibernate.groupId}</groupId>
+         <artifactId>${sakai.hibernate.artifactId}</artifactId>
+         <version>${sakai.hibernate.version}</version>
+      </dependency>
+
+        <dependency>
+            <groupId>${sakai.spring.groupId}</groupId>
+            <artifactId>${sakai.spring.artifactId}</artifactId>
+            <version>${sakai.spring.version}</version>          
+        </dependency>
+        
 
 	</dependencies>
 
