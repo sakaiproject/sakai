@@ -88,6 +88,7 @@ private String removeAllQuestions; // 1=Yes, 0=No
 private SectionFacade section;
 private AssessmentIfc assessment;
 private String destSectionId; //destinated section where questions will be moved to
+private String randomDrawType;
 
 private String numberSelected;
 private String selectedPool;  // pool id for the item to be added to
@@ -754,4 +755,35 @@ private List attachmentList;
   {
       this.resourceHash = resourceHash;
   }
+  
+  public ArrayList getRandomDrawList(){
+
+	    ArrayList list = new ArrayList();
+
+	    FacesContext context=FacesContext.getCurrentInstance();
+	    ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
+
+	    SelectItem selection = new SelectItem();
+	    //selection.setLabel((String)rb.getObject("by"));
+	    selection.setLabel("By Student");
+	    selection.setValue("1");
+	    list.add(selection);
+	    
+	    selection = new SelectItem();
+	    selection.setLabel("By Submission");
+	    selection.setValue("2");
+	    list.add(selection);
+	    
+	    return list;
+	  }
+
+  public String getRandomDrawType() {
+      return randomDrawType;
+  }
+
+  public void setRandomDrawType(String randomDrawType)
+  {
+      this.randomDrawType = randomDrawType;
+  }
+  
 }

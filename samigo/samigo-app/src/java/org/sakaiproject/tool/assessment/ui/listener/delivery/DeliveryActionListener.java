@@ -640,7 +640,8 @@ public class DeliveryActionListener
       //questionCount = secFacade.getItemSet().size();
       // need to  get ItemArraySort, insteand of getItemSet, to return corr number for random draw parts
       ArrayList itemlist = secFacade.getItemArray();
-      long seed = (long) AgentFacade.getAgentString().hashCode();
+      long seed = getSeed(secFacade, delivery, (long) AgentFacade.getAgentString().hashCode());
+
       ArrayList sortedlist = getItemArraySortedWithRandom(secFacade, itemlist, seed); 
       questionCount = sortedlist.size();
 
@@ -722,10 +723,10 @@ public class DeliveryActionListener
     long seed = 0;
     if (delivery.getActionMode()==DeliveryBean.GRADE_ASSESSMENT) {
       StudentScoresBean studentscorebean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
-      seed = (long) studentscorebean.getStudentId().hashCode();
+      seed = getSeed(part, delivery, (long) studentscorebean.getStudentId().hashCode());
     }
     else {
-      seed = (long) AgentFacade.getAgentString().hashCode();
+      seed = getSeed(part, delivery, (long) AgentFacade.getAgentString().hashCode());
     }
     itemSet= getItemArraySortedWithRandom(part, itemlist, seed);
 
@@ -811,7 +812,7 @@ public class DeliveryActionListener
     //SectionContentsBean sec = new SectionContentsBean();
     SectionContentsBean sec = new SectionContentsBean(part);
     ArrayList itemlist = part.getItemArray();
-    long seed = (long) AgentFacade.getAgentString().hashCode();
+    long seed = getSeed(part, delivery, (long) AgentFacade.getAgentString().hashCode());
     ArrayList itemSet= getItemArraySortedWithRandom(part, itemlist, seed);
 
     sec.setQuestions(itemSet.size());
@@ -1892,10 +1893,10 @@ public class DeliveryActionListener
       long seed = 0;
       if (delivery.getActionMode()==DeliveryBean.GRADE_ASSESSMENT) {
         StudentScoresBean studentscorebean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
-        seed = (long) studentscorebean.getStudentId().hashCode();
+        seed = getSeed(section, delivery, (long) studentscorebean.getStudentId().hashCode());
       }
       else {
-        seed = (long) AgentFacade.getAgentString().hashCode();
+        seed = getSeed(section, delivery, (long) AgentFacade.getAgentString().hashCode());
       }
       ArrayList sortedlist = getItemArraySortedWithRandom(section, itemlist, seed);
       i2 = sortedlist.iterator();
@@ -2060,6 +2061,23 @@ public class DeliveryActionListener
     String timerId = (String) ContextUtil.lookupParam("timerId");
     log.debug("***timerId="+timerId);
     return timerId;
+  }
+  
+  private long getSeed(SectionDataIfc sectionData, DeliveryBean delivery, long userSeed) {
+	  long seed = 0;
+	  if ((sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_DRAW_TYPE)!=null) && (sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_DRAW_TYPE).equals(SectionDataIfc.BY_USER_ID))) {
+		  seed = userSeed;
+	  }
+	  else {
+		  AssessmentGradingData ag = delivery.getAssessmentGrading();
+		  if (ag == null) { // this happens during preview assessment
+			  seed = userSeed;
+		  }
+		  else {
+			  seed = ag.getAssessmentGradingId().longValue();
+		  }
+	  }
+	  return seed;
   }
 
 }

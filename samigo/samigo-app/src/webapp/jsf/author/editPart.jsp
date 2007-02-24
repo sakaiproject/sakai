@@ -130,6 +130,11 @@
      <!--f:selectItems value="#{sectionBean.poolsAvailable}" /-->
   <!--/h:selectOneMenu-->
    <h:inputText id="numSelected" disabled="#{sectionBean.type == '1'}" value="#{sectionBean.numberSelected}" />
+
+  <h:selectOneRadio value="#{sectionBean.randomDrawType}" layout="pageDirection" disabled="#{sectionBean.type == '1'}" id="randomDrawType">
+     <f:selectItems value="#{sectionBean.randomDrawList}" />
+  </h:selectOneRadio>
+
 </h:panelGrid>
 
 

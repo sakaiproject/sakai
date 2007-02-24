@@ -183,6 +183,8 @@ public class SavePartListener
 
           section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW, poolname);
         }
+        
+        section.addSectionMetaData(SectionDataIfc.RANDOM_DRAW_TYPE, sectionBean.getRandomDrawType());
       }
     }
 
