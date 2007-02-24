@@ -169,18 +169,12 @@
             <groupId>jsf</groupId>
             <artifactId>jsf-api</artifactId>
             <version>1.1.01</version>
-        <properties>
-            <war.bundle>true</war.bundle>
-        </properties>
         </dependency>
     
         <dependency>
             <groupId>jsf</groupId>
             <artifactId>jsf-impl</artifactId>
             <version>1.1.01</version>
-        <properties>
-            <war.bundle>true</war.bundle>
-        </properties>
         </dependency>
         
         <dependency>
@@ -204,46 +198,31 @@
         <dependency>
             <groupId>org.sakaiproject</groupId>
             <artifactId>sakai-jsf-tool</artifactId>
-            <version>${sakai.version}</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>        
+            <version>${sakai.version}</version>      
         </dependency>
 
         <dependency>
             <groupId>org.sakaiproject</groupId>
             <artifactId>sakai-jsf-app</artifactId>
-            <version>${sakai.version}</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>        
+            <version>${sakai.version}</version>       
         </dependency>
 
         <dependency>
             <groupId>org.sakaiproject</groupId>
             <artifactId>sakai-jsf-widgets</artifactId>
-            <version>${sakai.version}</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>        
+            <version>${sakai.version}</version>    
         </dependency>
 
         <dependency>
             <groupId>org.sakaiproject</groupId>
             <artifactId>sakai-jsf-widgets-sun</artifactId>
-            <version>${sakai.version}</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>        
+            <version>${sakai.version}</version>       
         </dependency>
         
         <dependency>
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
             <version>1.6</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
         </dependency>
 
         <dependency>
@@ -255,19 +234,13 @@
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>1.7.0</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>        
+            <version>1.7.0</version>     
         </dependency>
 
         <dependency>
             <groupId>taglibs</groupId>
             <artifactId>standard</artifactId>
-            <version>1.0.4</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>        
+            <version>1.0.4</version>     
         </dependency>
 
 
