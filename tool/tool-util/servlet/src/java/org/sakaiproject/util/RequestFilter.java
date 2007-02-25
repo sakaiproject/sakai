@@ -21,9 +21,11 @@
 
 package org.sakaiproject.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -43,11 +45,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -58,7 +60,8 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 
 /**
- * RequestFilter Filters all requests to Sakai tools. It is responsible for keeping the Sakai session, done using a cookie to the end user's browser storing the user's session id.
+ * RequestFilter Filters all requests to Sakai tools. It is responsible for keeping the Sakai session, done using a cookie to the
+ * end user's browser storing the user's session id.
  */
 public class RequestFilter implements Filter
 {
@@ -101,7 +104,10 @@ public class RequestFilter implements Filter
 	/** Config parameter which to control character encoding to apply to the request. Default is UTF-8. */
 	public static final String CONFIG_CHARACTER_ENCODING = "encoding";
 
-	/** Config parameter to control whether the request filter parses file uploads. Default is true. If false, the tool will need to provide its own upload filter that executes BEFORE the Sakai request filter. */
+	/**
+	 * Config parameter to control whether the request filter parses file uploads. Default is true. If false, the tool will need to
+	 * provide its own upload filter that executes BEFORE the Sakai request filter.
+	 */
 	public static final String CONFIG_UPLOAD_ENABLED = "upload.enabled";
 
 	/**
@@ -112,20 +118,46 @@ public class RequestFilter implements Filter
 	 */
 	public static final String CONFIG_UPLOAD_MAX = "upload.max";
 
-	/** System property to control the maximum allowed upload size (in MEGABYTES) from the browser. Default is 1 (one megabyte). This is an aggregate limit on the sum of all files included in a single request. */
+	/**
+	 * System property to control the maximum allowed upload size (in MEGABYTES) from the browser. Default is 1 (one megabyte). This
+	 * is an aggregate limit on the sum of all files included in a single request.
+	 */
 	public static final String SYSTEM_UPLOAD_MAX = "sakai.content.upload.max";
 
-	/** System property to control the maximum allowed upload size (in MEGABYTES) from any other method - system wide, request filter, or per-request. */
+	/**
+	 * System property to control the maximum allowed upload size (in MEGABYTES) from any other method - system wide, request
+	 * filter, or per-request.
+	 */
 	public static final String SYSTEM_UPLOAD_CEILING = "sakai.content.upload.ceiling";
 
-	/** Config parameter (in bytes) to control the threshold at which to store uploaded files on-disk (temporarily) instead of in-memory. Default is 1024 bytes. */
+	/**
+	 * Config parameter (in bytes) to control the threshold at which to store uploaded files on-disk (temporarily) instead of
+	 * in-memory. Default is 1024 bytes.
+	 */
 	public static final String CONFIG_UPLOAD_THRESHOLD = "upload.threshold";
 
 	/**
-	 * Config parameter that specifies the absolute path of a temporary directory in which to store file uploads. Default is the servlet container temporary directory. Note that this is TRANSIENT storage, used by the commons-fileupload API. The files must
-	 * be renamed or otherwise processed (by the tool through the commons-fileupload API) in order for the data to become permenant.
+	 * Config parameter to continue (or abort, if false) upload field processing if there's a file upload max size exceeded
+	 * exception.
+	 */
+	protected static final String CONFIG_CONTINUE = "upload.continueOverMax";
+
+	/**
+	 * Config parameter to treat the max upload size as for the individual files in the request (or, if false, for the entire
+	 * request).
+	 */
+	protected static final String CONFIG_MAX_PER_FILE = "upload.maxPerFile";
+
+	/**
+	 * Config parameter that specifies the absolute path of a temporary directory in which to store file uploads. Default is the
+	 * servlet container temporary directory. Note that this is TRANSIENT storage, used by the commons-fileupload API. The files
+	 * must be renamed or otherwise processed (by the tool through the commons-fileupload API) in order for the data to become
+	 * permenant.
 	 */
 	public static final String CONFIG_UPLOAD_DIR = "upload.dir";
+
+	/** System property to control the temporary directory in which to store file uploads. */
+	public static final String SYSTEM_UPLOAD_DIR = "sakai.content.upload.dir";
 
 	/** Config parameter to set the servlet context for context based session (overriding the servlet's context name). */
 	public static final String CONFIG_CONTEXT = "context";
@@ -190,6 +222,12 @@ public class RequestFilter implements Filter
 	protected String m_uploadTempDir = null;
 
 	protected boolean m_displayModJkWarning = true;
+
+	/** Default is to abort further upload processing if the max is exceeded. */
+	protected boolean m_uploadContinue = false;
+
+	/** Default is to treat the m_uploadMaxSize as for the entire request, not per file. */
+	protected boolean m_uploadMaxPerFile = false;
 
 	/**
 	 * Wraps a request object so we can override some standard behavior.
@@ -394,7 +432,8 @@ public class RequestFilter implements Filter
 	}
 
 	/**
-	 * Request wrapper that exposes the parameters parsed from the multipart/mime file upload (along with parameters from the request).
+	 * Request wrapper that exposes the parameters parsed from the multipart/mime file upload (along with parameters from the
+	 * request).
 	 */
 	static class WrappedRequestFileUpload extends HttpServletRequestWrapper
 	{
@@ -463,6 +502,9 @@ public class RequestFilter implements Filter
 		ServletResponse curResponse = (ServletResponse) ThreadLocalManager.get(CURRENT_HTTP_RESPONSE);
 		boolean cleared = false;
 
+		// keep track of temp files with this request that need to be deleted on the way out
+		List<FileItem> tempFiles = new ArrayList<FileItem>();
+
 		try
 		{
 			ThreadLocalManager.set(CURRENT_REMOTE_USER, Boolean.valueOf(m_sakaiRemoteUser));
@@ -491,7 +533,7 @@ public class RequestFilter implements Filter
 			handleCharacterEncoding(req, resp);
 
 			// handle file uploads
-			req = handleFileUpload(req, resp);
+			req = handleFileUpload(req, resp, tempFiles);
 
 			// if we have already filtered this request, pass it on
 			if (req.getAttribute(ATTR_FILTERED) != null)
@@ -565,12 +607,29 @@ public class RequestFilter implements Filter
 				ThreadLocalManager.set(CURRENT_HTTP_REQUEST, curRequest);
 				ThreadLocalManager.set(CURRENT_HTTP_RESPONSE, curResponse);
 			}
-			
+
+			// delete any temp files
+			deleteTempFiles(tempFiles);
+
 			if (M_log.isDebugEnabled())
 			{
 				long elapsedTime = System.currentTimeMillis() - startTime;
 				M_log.debug("request timing (ms): " + elapsedTime);
 			}
+		}
+	}
+
+	/**
+	 * If any of these files exist, delete them.
+	 * 
+	 * @param tempFiles
+	 *        The file items to delete.
+	 */
+	protected void deleteTempFiles(List<FileItem> tempFiles)
+	{
+		for (FileItem item : tempFiles)
+		{
+			item.delete();
 		}
 	}
 
@@ -634,6 +693,7 @@ public class RequestFilter implements Filter
 		{
 			m_characterEncoding = filterConfig.getInitParameter(CONFIG_CHARACTER_ENCODING);
 		}
+
 		if (filterConfig.getInitParameter(CONFIG_CHARACTER_ENCODING_ENABLED) != null)
 		{
 			m_characterEncodingEnabled = Boolean.valueOf(filterConfig.getInitParameter(CONFIG_CHARACTER_ENCODING_ENABLED))
@@ -645,7 +705,8 @@ public class RequestFilter implements Filter
 			m_uploadEnabled = Boolean.valueOf(filterConfig.getInitParameter(CONFIG_UPLOAD_ENABLED)).booleanValue();
 		}
 
-		// get the maximum allowed upload size from the system property - use if not overriden, and also use as the ceiling if that is not defined.
+		// get the maximum allowed upload size from the system property - use if not overriden, and also use as the ceiling if that
+		// is not defined.
 		if (System.getProperty(SYSTEM_UPLOAD_MAX) != null)
 		{
 			m_uploadMaxSize = Long.valueOf(System.getProperty(SYSTEM_UPLOAD_MAX)).longValue() * 1024L * 1024L;
@@ -664,18 +725,44 @@ public class RequestFilter implements Filter
 			m_uploadCeiling = Long.valueOf(System.getProperty(SYSTEM_UPLOAD_CEILING)).longValue() * 1024L * 1024L;
 		}
 
+		// get the system wide settin, if present, for the temp dir
+		if (System.getProperty(SYSTEM_UPLOAD_DIR) != null)
+		{
+			m_uploadTempDir = System.getProperty(SYSTEM_UPLOAD_DIR);
+		}
+
+		// override with our configuration for temp dir, if set
 		if (filterConfig.getInitParameter(CONFIG_UPLOAD_DIR) != null)
 		{
 			m_uploadTempDir = filterConfig.getInitParameter(CONFIG_UPLOAD_DIR);
 		}
+
 		if (filterConfig.getInitParameter(CONFIG_UPLOAD_THRESHOLD) != null)
 		{
 			m_uploadThreshold = Integer.valueOf(filterConfig.getInitParameter(CONFIG_UPLOAD_THRESHOLD)).intValue();
 		}
+
+		if (filterConfig.getInitParameter(CONFIG_CONTINUE) != null)
+		{
+			m_uploadContinue = Boolean.valueOf(filterConfig.getInitParameter(CONFIG_CONTINUE)).booleanValue();
+		}
+
+		if (filterConfig.getInitParameter(CONFIG_MAX_PER_FILE) != null)
+		{
+			m_uploadMaxPerFile = Boolean.valueOf(filterConfig.getInitParameter(CONFIG_MAX_PER_FILE)).booleanValue();
+		}
+
+		// Note: if set to continue processing max exceeded uploads, we only support per-file max, not overall max
+		if (m_uploadContinue && !m_uploadMaxPerFile)
+		{
+			M_log.warn("overridding " + CONFIG_MAX_PER_FILE + " setting: must be 'true' with " + CONFIG_CONTINUE + " ='true'");
+			m_uploadMaxPerFile = true;
+		}
 	}
 
 	/**
-	 * If setting character encoding is enabled for this filter, and there isn't already a character encoding on the request, then set the encoding.
+	 * If setting character encoding is enabled for this filter, and there isn't already a character encoding on the request, then
+	 * set the encoding.
 	 */
 	protected void handleCharacterEncoding(HttpServletRequest req, HttpServletResponse resp) throws UnsupportedEncodingException
 	{
@@ -688,15 +775,17 @@ public class RequestFilter implements Filter
 	}
 
 	/**
-	 * if the filter is configured to parse file uploads, AND the request is multipart (typically a file upload), then parse the request.
+	 * if the filter is configured to parse file uploads, AND the request is multipart (typically a file upload), then parse the
+	 * request.
 	 * 
-	 * @return If there is a file upload, and the filter handles it, return the wrapped request that has the results of the parsed file upload. Parses the files using Apache commons-fileuplaod. Exposes the results through a wrapped request. Files are
-	 *         available like: fileItem = (FileItem) request.getAttribute("myHtmlFileUploadId");
+	 * @return If there is a file upload, and the filter handles it, return the wrapped request that has the results of the parsed
+	 *         file upload. Parses the files using Apache commons-fileuplaod. Exposes the results through a wrapped request. Files
+	 *         are available like: fileItem = (FileItem) request.getAttribute("myHtmlFileUploadId");
 	 */
-	protected HttpServletRequest handleFileUpload(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
-			UnsupportedEncodingException
+	protected HttpServletRequest handleFileUpload(HttpServletRequest req, HttpServletResponse resp, List<FileItem> tempFiles)
+			throws ServletException, UnsupportedEncodingException
 	{
-		if (!m_uploadEnabled || !FileUpload.isMultipartContent(req) || req.getAttribute(ATTR_UPLOADS_DONE) != null)
+		if (!m_uploadEnabled || !ServletFileUpload.isMultipartContent(req) || req.getAttribute(ATTR_UPLOADS_DONE) != null)
 		{
 			return req;
 		}
@@ -709,12 +798,24 @@ public class RequestFilter implements Filter
 		Map map = new HashMap();
 
 		// parse using commons-fileupload
-		DiskFileUpload upload = new DiskFileUpload();
+
+		// Create a factory for disk-based file items
+		DiskFileItemFactory factory = new DiskFileItemFactory();
+
+		// set the factory parameters: the temp dir and the keep-in-memory-if-smaller threshold
+		if (m_uploadTempDir != null) factory.setRepository(new File(m_uploadTempDir));
+		if (m_uploadThreshold > 0) factory.setSizeThreshold(m_uploadThreshold);
+
+		// Create a new file upload handler
+		ServletFileUpload upload = new ServletFileUpload(factory);
+
+		// set the encoding
 		String encoding = req.getCharacterEncoding();
-		if (m_uploadTempDir != null) upload.setRepositoryPath(m_uploadTempDir);
-		if (m_uploadThreshold > 0) upload.setSizeThreshold(m_uploadThreshold);
-		if (m_uploadMaxSize > 0) upload.setSizeMax(m_uploadMaxSize);
 		if (encoding != null && encoding.length() > 0) upload.setHeaderEncoding(encoding);
+
+		// set the max upload size
+		long uploadMax = -1;
+		if (m_uploadMaxSize > 0) uploadMax = m_uploadMaxSize;
 
 		// check for request-scoped override to upload.max (value in megs)
 		String override = req.getParameter(CONFIG_UPLOAD_MAX);
@@ -723,9 +824,7 @@ public class RequestFilter implements Filter
 			try
 			{
 				// get the max in bytes
-				long max = Long.parseLong(override) * 1024L * 1024L;
-				// set the upload max
-				upload.setSizeMax(max);
+				uploadMax = Long.parseLong(override) * 1024L * 1024L;
 			}
 			catch (NumberFormatException e)
 			{
@@ -734,16 +833,35 @@ public class RequestFilter implements Filter
 		}
 
 		// limit to the ceiling
-		if (upload.getSizeMax() > m_uploadCeiling)
+		if (uploadMax > m_uploadCeiling)
 		{
-			M_log.warn("Upload size exceeds ceiling: " + ((upload.getSizeMax() / 1024L) / 1024L) + " > " + ((m_uploadCeiling / 1024L) / 1024L) + " megs");
+			M_log.warn("Upload size exceeds ceiling: " + ((uploadMax / 1024L) / 1024L) + " > "
+					+ ((m_uploadCeiling / 1024L) / 1024L) + " megs");
 
-			upload.setSizeMax(m_uploadCeiling);
+			uploadMax = m_uploadCeiling;
+		}
+
+		// to let commons-fileupload throw the exception on over-max, and also halt full processing of input fields
+		if (!m_uploadContinue)
+		{
+			// TODO: when we switch to commons-fileupload 1.2
+			// // either per file or overall request, as configured
+			// if (m_uploadMaxPerFile)
+			// {
+			// upload.setFileSizeMax(uploadMax);
+			// }
+			// else
+			// {
+			// upload.setSizeMax(uploadMax);
+			// }
+
+			upload.setSizeMax(uploadMax);
 		}
 
 		try
 		{
 			// parse multipart encoded parameters
+			boolean uploadOk = true;
 			List list = upload.parseRequest(req);
 			for (int i = 0; i < list.size(); i++)
 			{
@@ -756,7 +874,10 @@ public class RequestFilter implements Filter
 					Object obj = map.get(item.getFieldName());
 					if (obj == null)
 					{
-						map.put(item.getFieldName(), new String[] { str });
+						map.put(item.getFieldName(), new String[]
+						{
+							str
+						});
 					}
 					else if (obj instanceof String[])
 					{
@@ -779,10 +900,35 @@ public class RequestFilter implements Filter
 				}
 				else
 				{
-					req.setAttribute(item.getFieldName(), item);
+					// collect it for delete at the end of the request
+					tempFiles.add(item);
+
+					// check the max, unless we are letting commons-fileupload throw exception on max exceeded
+					// Note: the continue option assumes the max is per-file, not overall.
+					if (m_uploadContinue && (item.getSize() > uploadMax))
+					{
+						uploadOk = false;
+
+						M_log.info("Upload size limit exceeded: " + ((uploadMax / 1024L) / 1024L));
+
+						req.setAttribute("upload.status", "size_limit_exceeded");
+						// TODO: for 1.2 commons-fileupload, switch this to a FileSizeLimitExceededException
+						req.setAttribute("upload.exception", new FileUploadBase.SizeLimitExceededException("", item.getSize(),
+								uploadMax));
+						req.setAttribute("upload.limit", new Long((uploadMax / 1024L) / 1024L));
+					}
+					else
+					{
+						req.setAttribute(item.getFieldName(), item);
+					}
 				}
 			}
-			req.setAttribute("upload.status", "ok");
+
+			// unless we had an upload file that exceeded max, set the upload status to "ok"
+			if (uploadOk)
+			{
+				req.setAttribute("upload.status", "ok");
+			}
 		}
 		catch (FileUploadBase.SizeLimitExceededException ex)
 		{
@@ -794,6 +940,17 @@ public class RequestFilter implements Filter
 			req.setAttribute("upload.exception", ex);
 			req.setAttribute("upload.limit", new Long((upload.getSizeMax() / 1024L) / 1024L));
 		}
+		// TODO: put in for commons-fileupload 1.2
+		// catch (FileUploadBase.FileSizeLimitExceededException ex)
+		// {
+		// M_log.info("Upload size limit exceeded: " + ((upload.getFileSizeMax() / 1024L) / 1024L));
+		//
+		// // DON'T throw an exception, instead note the exception
+		// // so that the tool down-the-line can handle the problem
+		// req.setAttribute("upload.status", "size_limit_exceeded");
+		// req.setAttribute("upload.exception", ex);
+		// req.setAttribute("upload.limit", new Long((upload.getFileSizeMax() / 1024L) / 1024L));
+		// }
 		catch (FileUploadException ex)
 		{
 			M_log.info("Unexpected exception in upload parsing", ex);
@@ -836,7 +993,8 @@ public class RequestFilter implements Filter
 				M_log.info("no sakai.serverId system property set - mod_jk load balancing will not function properly");
 
 				// only display warning once
-				// FYI this is not thread safe, but the side effects are negligible and not worth the overhead of synchronizing -lance
+				// FYI this is not thread safe, but the side effects are negligible and not worth the overhead of synchronizing
+				// -lance
 				m_displayModJkWarning = false;
 			}
 
@@ -877,7 +1035,8 @@ public class RequestFilter implements Filter
 		// if no cookie, try finding a non-cookie session based on the remote user / principal
 		else
 		{
-			// Note: use principal instead of remote user to avoid any possible confusion with the remote user set by single-signon auth.
+			// Note: use principal instead of remote user to avoid any possible confusion with the remote user set by single-signon
+			// auth.
 			// Principal is set by our Dav interface, which this is desined to cover. -ggolden
 			// String remoteUser = req.getRemoteUser();
 			Principal principal = req.getUserPrincipal();
@@ -1065,7 +1224,8 @@ public class RequestFilter implements Filter
 	}
 
 	/**
-	 * Compute the URL that would return to this server based on the current request. Note: this method is a duplicate of one in the util/Web.java
+	 * Compute the URL that would return to this server based on the current request. Note: this method is a duplicate of one in the
+	 * util/Web.java
 	 * 
 	 * @param req
 	 *        The request.
