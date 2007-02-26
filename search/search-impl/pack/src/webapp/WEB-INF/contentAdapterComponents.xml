@@ -25,23 +25,23 @@
 <beans>
  
  
-  <bean id="contentHostingSearchAdapter"
+  <bean id="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer"
      class="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" 
      init-method="init" 
      >
-     <property name="defaultDigester"><ref bean="defaultDigester"/></property>
+     <property name="defaultDigester"><ref bean="org.sakaiproject.search.component.adapter.contenthosting.DefaultContentDigester"/></property>
   </bean>
-   <bean id="defaultDigester" 
+   <bean id="org.sakaiproject.search.component.adapter.contenthosting.DefaultContentDigester" 
       class="org.sakaiproject.search.component.adapter.contenthosting.DefaultContentDigester"
       init-method="init" 
       >
    </bean> 
-   <bean id="pdfContentDigester" 
+   <bean id="org.sakaiproject.search.component.adapter.contenthosting.PDFContentDigester" 
      class="org.sakaiproject.search.component.adapter.contenthosting.PDFContentDigester"
      init-method="init" 
      destroy-method="destroy"
      >
-     <property name="contentProducer" ><ref bean="contentHostingSearchAdapter" /></property>
+     <property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
      <property name="mimeTypes">
         <map>
            <entry key="application/pdf"><value>application/pdf</value></entry>
@@ -49,12 +49,12 @@
         </map>
      </property>
   </bean> 
-  <bean id="htmlContentDigester" 
+  <bean id="org.sakaiproject.search.component.adapter.contenthosting.HtmlContentDigester" 
      class="org.sakaiproject.search.component.adapter.contenthosting.HtmlContentDigester"
      init-method="init" 
      destroy-method="destroy"
      >
-     <property name="contentProducer" ><ref bean="contentHostingSearchAdapter" /></property>
+     <property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
      <property name="mimeTypes">
         <map>
            <entry key="application/xhtml+xml"><value>application/xhtml+xml</value></entry>
@@ -64,11 +64,11 @@
         </map>
      </property>
   </bean> 
-  <bean id="pptContentDigester" 
+  <bean id="org.sakaiproject.search.component.adapter.contenthosting.PPTContentDigester" 
      class="org.sakaiproject.search.component.adapter.contenthosting.PPTContentDigester"
      init-method="init" 
      destroy-method="destroy" >
-     <property name="contentProducer" ><ref bean="contentHostingSearchAdapter" /></property>
+     <property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
      <property name="mimeTypes">
         <map>
            <entry key="application/ms-powerpoint" ><value>application/ms-powerpoint</value></entry>
@@ -82,12 +82,12 @@
         </map>
      </property>
   </bean> 
-  <bean id="wordContentDigester" 
+  <bean id="org.sakaiproject.search.component.adapter.contenthosting.WordContentDigester" 
      class="org.sakaiproject.search.component.adapter.contenthosting.WordContentDigester"
      init-method="init" 
      destroy-method="destroy"
      >
-     <property name="contentProducer" ><ref bean="contentHostingSearchAdapter" /></property>
+     <property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
      <property name="mimeTypes">
         <map>
            <entry key="application/msword"><value>application/msword</value></entry>
@@ -98,12 +98,12 @@
         </map>
      </property>
   </bean> 
-    <bean id="xlContentDigester" 
+    <bean id="org.sakaiproject.search.component.adapter.contenthosting.XLContentDigester" 
      class="org.sakaiproject.search.component.adapter.contenthosting.XLContentDigester"
      init-method="init" 
      destroy-method="destroy"
      >
-       <property name="contentProducer" ><ref bean="contentHostingSearchAdapter" /></property>
+       <property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
        <property name="mimeTypes">
           <map>
              <entry key="application/msexcel"><value>application/msexcel</value></entry>

@@ -38,7 +38,7 @@ public class DefaultContentDigester implements ContentDigester
 {
 	private static final Log log = LogFactory
 			.getLog(DefaultContentDigester.class);
-	private static final int MAX_DIGEST_SIZE =  1024 * 1024 * 5;
+	private int maxDigestSize =  1024 * 1024 * 20;
 	private Properties binaryTypes = null;
 	
 	public void init() {
@@ -67,7 +67,7 @@ public class DefaultContentDigester implements ContentDigester
 			sb.append(rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME)).append(" ");
 			sb.append(rp.getProperty(ResourceProperties.PROP_DESCRIPTION)).append(" ");
 			
-			if ( !isBinary(contentResource) && contentResource.getContentLength() < MAX_DIGEST_SIZE ) {
+			if ( !isBinary(contentResource) && contentResource.getContentLength() < maxDigestSize ) {
 				try
 				{
 					SearchUtils.appendCleanString(new String(contentResource.getContent(),"UTF-8"), sb);
@@ -108,6 +108,24 @@ public class DefaultContentDigester implements ContentDigester
 	public Reader getContentReader(ContentResource contentResource)
 	{
 		return new StringReader(getContent(contentResource));
+	}
+
+
+	/**
+	 * @return the maxDigestSize
+	 */
+	public int getMaxDigestSize()
+	{
+		return maxDigestSize;
+	}
+
+
+	/**
+	 * @param maxDigestSize the maxDigestSize to set
+	 */
+	public void setMaxDigestSize(int maxDigestSize)
+	{
+		this.maxDigestSize = maxDigestSize;
 	}
 
 
