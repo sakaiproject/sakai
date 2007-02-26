@@ -4,7 +4,7 @@
 <beans>
 
 
-    <bean id="org.theospi.tool.reports.ReportsHibernateBean"
+    <bean id="org.sakaiproject.chat2.model.ChatHibernateBean"
         class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
         <property name="mappingResources">
             <list>
