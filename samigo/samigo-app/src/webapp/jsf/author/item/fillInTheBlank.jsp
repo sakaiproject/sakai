@@ -77,7 +77,7 @@
 <br/>
   <h:panelGrid>
    <samigo:wysiwyg
-     rows="280" value="#{itemauthor.currentItem.itemText}" >
+     rows="280" value="#{itemauthor.currentItem.itemText}">
     <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
   </h:panelGrid>
@@ -120,22 +120,24 @@
   </h:selectOneMenu>
 </h:panelGrid>
 <%-- FEEDBACK --%>
- <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
 <f:verbatim><div class="longtext"></f:verbatim>
- <h:outputLabel value="#{msg.correct_incorrect_an}" />
+ <h:outputLabel value="#{msg.correct_incorrect_an}" rendered="#{assessmentSettings.feedbackAuthoring ne '2'}"/>
 <f:verbatim> <div class="tier2"></f:verbatim>
-  <h:panelGrid>
+  
+  <h:panelGrid rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
    <h:outputText value="#{msg.correct_answer_opti}" />
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" >
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
+  </h:panelGrid>
+
+  <h:panelGrid rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
    <h:outputText value="#{msg.incorrect_answer_op}" />
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" >
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
   </h:panelGrid>
  <f:verbatim> </div></div></f:verbatim>
-</h:panelGroup>
  <%-- METADATA --%>
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
 <f:verbatim></f:verbatim>

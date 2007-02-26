@@ -72,7 +72,7 @@
   <!-- WYSIWYG -->
 
   <h:panelGrid width="50%">
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}"  >
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
   </h:panelGrid>
@@ -140,8 +140,8 @@
    <h:outputLabel value="#{msg.feedback_optional}<br />" />
 
 
-  <h:panelGrid width="50%">
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}"  >
+  <h:panelGrid >
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
   </h:panelGrid>

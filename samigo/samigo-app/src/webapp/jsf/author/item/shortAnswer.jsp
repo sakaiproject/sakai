@@ -113,7 +113,7 @@
 
  <!-- WYSIWYG -->
  <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrAnswer}" >
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrAnswer}" hasToggle="yes">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 </h:panelGrid>
@@ -122,7 +122,7 @@
   <h:outputText value="#{msg.feedback_optional}" />
  <h:panelGrid>
    <!-- WYSIWYG  -->
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" >
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 </h:panelGrid>

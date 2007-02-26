@@ -288,11 +288,11 @@ function uncheckOther(field){
 
         <%-- SAM-363: this is a work around given samigo:wysiwyg does not support disabled --%>
        
-        <h:panelGroup rendered="#{assessmentSettings.valueMap.description_isInstructorEditable==true}">
-          <samigo:wysiwyg rows="140" value="#{assessmentSettings.description}"  >
+        <h:panelGrid rendered="#{assessmentSettings.valueMap.description_isInstructorEditable==true}">
+          <samigo:wysiwyg rows="140" value="#{assessmentSettings.description}" hasToggle="yes" >
            <f:validateLength maximum="4000"/>
          </samigo:wysiwyg>
-        </h:panelGroup>
+        </h:panelGrid>
 
        <!-- ASSESSMENT ATTACHMENTS -->
        <h:panelGroup>
@@ -532,15 +532,15 @@ function uncheckOther(field){
 <h:panelGroup rendered="#{assessmentSettings.valueMap.submissionMessage_isInstructorEditable==true or assessmentSettings.valueMap.finalPageURL_isInstructorEditable==true}" >
   <samigo:hideDivision title="#{msg.heading_submission_message}" >
    <f:verbatim><div class="tier2"></f:verbatim>
-    <h:panelGroup rendered="#{assessmentSettings.valueMap.submissionMessage_isInstructorEditable==true}">
-    <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel value="#{msg.submission_message}" /> <f:verbatim><br/></f:verbatim>
+    <h:panelGrid rendered="#{assessmentSettings.valueMap.submissionMessage_isInstructorEditable==true}">
+    <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel value="aaa#{msg.submission_message}" /> <f:verbatim><br/></f:verbatim>
 
 <%-- TODO: DETERMINE IF WE CAN USE RENDERED --%>
-       <samigo:wysiwyg rows="140" value="#{assessmentSettings.submissionMessage}"  >
+       <samigo:wysiwyg rows="140" value="#{assessmentSettings.submissionMessage}" hasToggle="yes" >
          <f:validateLength maximum="4000"/>
        </samigo:wysiwyg>
 <f:verbatim></div></f:verbatim>
-    </h:panelGroup>
+    </h:panelGrid>
     <f:verbatim><br/></f:verbatim>
     <h:panelGroup rendered="#{assessmentSettings.valueMap.finalPageURL_isInstructorEditable==true}">
      <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel for="finalPageUrl" value="#{msg.submission_final_page_url}" /> <f:verbatim><br/></f:verbatim>

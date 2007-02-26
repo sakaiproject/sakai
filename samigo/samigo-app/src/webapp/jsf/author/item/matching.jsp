@@ -92,7 +92,7 @@
   <br/>
   <!-- WYSIWYG -->
   <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.instruction}" >
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.instruction}">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 
@@ -164,14 +164,14 @@
    
           <h:outputText value=" Choice"/>
 <h:panelGrid>
-  <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.choice}">
+  <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.choice}" hasToggle="yes">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 </h:panelGrid>
           <h:outputText value=" Match"/>
 
  <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.match}">
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.match}" hasToggle="yes">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 
@@ -181,26 +181,27 @@
  <!-- Match FEEDBACK -->
 
 <div class="tier2">
-  <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '1'}">
-  <h:outputText value="#{msg.correct_match_feedback_opt}" />
-<f:verbatim><br/></f:verbatim>
+  
 <!-- WYSIWYG -->
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.corrMatchFeedback}">
+<h:panelGrid rendered="#{assessmentSettings.feedbackAuthoring ne '1'}">
+  <h:outputText value="#{msg.correct_match_feedback_opt}"/>
+  <f:verbatim><br/></f:verbatim>
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.corrMatchFeedback}" hasToggle="yes">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
+   </h:panelGrid>
   <f:verbatim><br/></f:verbatim>
 
-  <h:outputText value="#{msg.incorrect_match_feedback_opt}" />
-
-
- <f:verbatim><br/></f:verbatim>
   <!-- WYSIWYG -->
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.incorrMatchFeedback}" >
+  <h:panelGrid rendered="#{assessmentSettings.feedbackAuthoring ne '1'}">
+   <h:outputText value="#{msg.incorrect_match_feedback_opt}"/>
+   <f:verbatim><br/></f:verbatim>
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.incorrMatchFeedback}" hasToggle="yes">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
+</h:panelGrid>
 
 <f:verbatim><br/></f:verbatim>
-</h:panelGroup>
   </div>
 
 
@@ -261,26 +262,30 @@
 
 
  <!-- 8 FEEDBACK -->
- <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
   <f:verbatim></f:verbatim>
 <f:verbatim><div class="longtext"></f:verbatim>
-  <h:outputLabel value="#{msg.correct_incorrect_an}" />
+  <h:outputLabel value="#{msg.correct_incorrect_an}" rendered="#{assessmentSettings.feedbackAuthoring ne '2'}"/>
 <f:verbatim><br/></br/></div><div class="tier2"></f:verbatim>
 
-  <h:outputText value="#{msg.correct_answer_opti}" /><f:verbatim><br/></f:verbatim>
 
-  <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}"  >
+ <h:panelGrid rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
+  <h:outputText value="#{msg.correct_answer_opti}" />
+  <f:verbatim><br/></f:verbatim>
+
+  <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
+ </h:panelGrid>
 <f:verbatim><br/></f:verbatim>
 
-  <h:outputText value="#{msg.incorrect_answer_op}" />
-<f:verbatim><br/></f:verbatim>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}"  >
+ <h:panelGrid rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
+  <h:outputText value="#{msg.incorrect_answer_op}"/>
+  <f:verbatim><br/></f:verbatim>
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
+ </h:panelGrid>
 <f:verbatim><br/></div></f:verbatim>
-  </h:panelGroup>
 
 <!-- METADATA -->
 

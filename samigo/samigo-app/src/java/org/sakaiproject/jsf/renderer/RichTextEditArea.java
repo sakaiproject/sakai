@@ -33,6 +33,7 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.ToolManager; 
 import org.sakaiproject.content.cover.ContentHostingService; 
 import org.sakaiproject.util.FormattedText;
@@ -405,26 +406,44 @@ public class RichTextEditArea extends Renderer
     
     if(shouldToggle)
     {    	
-    	writer.write("<div class=\"toggle_link_container\"><a class=\"toggle_link\" id=\"" +clientId+ "_toggle\" href=\"javascript:chef_setupformattedtextarea('" +  clientId + "',true);\">Rich Formatting>></a></div>\n");
+    	String show_hide_editor = (String) ContextUtil.getLocalizedString(
+			"org.sakaiproject.tool.assessment.bundle.AuthorMessages", "show_hide_editor");
+    	writer.write("<div class=\"toggle_link_container\"><a class=\"toggle_link\" id=\"" +clientId+ "_toggle\" href=\"javascript:show_hide_editor('" +  clientId + "');\">" + show_hide_editor + "</a></div>\n");
     }
     
     writer.write("<textarea name=\"" + clientId + "_textinput\" id=\"" + clientId + "_textinput\" rows=\""+ textBoxRows + "\" cols=\""+ textBoxCols + "\" class=\"simple_text_area\">");
     writer.write((String) value);
     writer.write("</textarea>");
-
+    writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + clientId + "_textinput_current_status\" value=\"firsttime\">");
+    
     writer.write("\n\t<script type=\"text/javascript\" src=\"" + FCK_BASE + FCK_SCRIPT + "\"></script>");
 
     writer.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");
+    
+    writer.write("\nfunction show_hide_editor(client_id){");
+    writer.write("\n\tvar status =  document.getElementById(client_id + '_textinput_current_status');");
+    writer.write("\n\tif (status.value == \"firsttime\") {");
+    writer.write("\n\t\tstatus.value = \"expaneded\";");
+    writer.write("\n\t\tchef_setupformattedtextarea(client_id, true);\n\t}");
+    writer.write("\n\telse if (status.value == \"collapsed\") {");
+    writer.write("\n\t\tstatus.value = \"expaneded\";");
+    writer.write("\n\t\texpandMenu(client_id);\n\t}");
+    writer.write("\n\telse if (status.value == \"expaneded\") {");
+    writer.write("\n\t\tstatus.value = \"collapsed\";");
+    writer.write("\n\t\tcollapseMenu(client_id);\n\t}");    
+    writer.write("\n}\n");
+  
+    
     writer.write("function chef_setupformattedtextarea(client_id,shouldToggle){\n");
     
     writer.write("\tvar textarea_id = client_id + \"_textinput\";\n");    
     
     //if toggling is on, hide the toggle when the user goes to richText
-    writer.write("\tif(shouldToggle){\n");
-    writer.write("\t\tvar toggle_id = client_id + \"_toggle\";\n");
-    writer.write("\tvar oToggleDiv = document.getElementById(toggle_id);\n");
-    writer.write("\toToggleDiv.style.display=\"none\";\n");
-    writer.write("\t}\n");
+    //writer.write("\tif(shouldToggle){\n");
+    //writer.write("\t\tvar toggle_id = client_id + \"_toggle\";\n");
+    //writer.write("\tvar oToggleDiv = document.getElementById(toggle_id);\n");
+    //writer.write("\toToggleDiv.style.display=\"none\";\n");
+    //writer.write("\t}\n");
 
     writer.write("var oFCKeditor = new FCKeditor(textarea_id);\n");
     writer.write("\n\toFCKeditor.BasePath = \"" + FCK_BASE + "\";");
@@ -467,8 +486,18 @@ public class RichTextEditArea extends Renderer
 
     }
     
-    writer.write("\n\n\toFCKeditor.ReplaceTextarea();\n\t}\n</script>");
+    writer.write("\n\n\toFCKeditor.ReplaceTextarea();\n\t}\n");
 
+    writer.write("\nfunction collapseMenu(client_id){");
+    writer.write("\n\tvar editor = FCKeditorAPI.GetInstance(client_id + '_textinput');");
+    writer.write("\n\teditor.ToolbarSet.Collapse();");
+    writer.write("\n}\n");
+    
+    writer.write("\nfunction expandMenu(client_id){");
+    writer.write("\n\tvar editor = FCKeditorAPI.GetInstance(client_id + '_textinput');");
+    writer.write("\n\teditor.ToolbarSet.Expand();");
+    writer.write("\n}\n");
+    
     writer.write("</script>\n");
     
     //if toggling is off or the content is already rich, make the editor show up immediately
