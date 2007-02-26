@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -69,6 +69,9 @@ public abstract class SessionComponent implements SessionManager
 
 	/** Key in the ThreadLocalManager for binding our current tool session. */
 	protected final static String CURRENT_TOOL_SESSION = "org.sakaiproject.api.kernel.session.current.tool";
+
+	/** Key in the ThreadLocalManager for access to the current servlet context (from tool-util/servlet/RequestFilter). */
+	protected final static String CURRENT_SERVLET_CONTEXT = "org.sakaiproject.util.RequestFilter.servlet_context";
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
@@ -666,7 +669,7 @@ public abstract class SessionComponent implements SessionManager
 		 */
 		public ServletContext getServletContext()
 		{
-			throw new UnsupportedOperationException();
+			return (ServletContext) threadLocalManager().get(CURRENT_SERVLET_CONTEXT);
 		}
 
 		/**
@@ -1071,7 +1074,7 @@ public abstract class SessionComponent implements SessionManager
 		 */
 		public ServletContext getServletContext()
 		{
-			throw new UnsupportedOperationException();
+			return (ServletContext) threadLocalManager().get(CURRENT_SERVLET_CONTEXT);
 		}
 
 		/**

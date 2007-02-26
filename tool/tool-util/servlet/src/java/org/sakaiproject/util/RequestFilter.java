@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -35,6 +35,7 @@ import java.util.Map;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -189,6 +190,9 @@ public class RequestFilter implements Filter
 	/** Key in the ThreadLocalManager for access to the current http response object. */
 	public final static String CURRENT_HTTP_RESPONSE = "org.sakaiproject.util.RequestFilter.http_response";
 
+	/** Key in the ThreadLocalManager for access to the current servlet context. */
+	public final static String CURRENT_SERVLET_CONTEXT = "org.sakaiproject.util.RequestFilter.servlet_context";
+
 	/** The "." character */
 	protected static final String DOT = ".";
 
@@ -228,6 +232,9 @@ public class RequestFilter implements Filter
 
 	/** Default is to treat the m_uploadMaxSize as for the entire request, not per file. */
 	protected boolean m_uploadMaxPerFile = false;
+
+	/** The servlet context for the filter. */
+	protected ServletContext m_servletContext = null;
 
 	/**
 	 * Wraps a request object so we can override some standard behavior.
@@ -511,6 +518,9 @@ public class RequestFilter implements Filter
 			ThreadLocalManager.set(CURRENT_HTTP_SESSION, new Integer(m_sakaiHttpSession));
 			ThreadLocalManager.set(CURRENT_CONTEXT, m_contextId);
 
+			// make the servlet context available
+			ThreadLocalManager.set(CURRENT_SERVLET_CONTEXT, m_servletContext);
+
 			// we are expecting HTTP stuff
 			if (!((requestObj instanceof HttpServletRequest) && (responseObj instanceof HttpServletResponse)))
 			{
@@ -641,6 +651,9 @@ public class RequestFilter implements Filter
 	 */
 	public void init(FilterConfig filterConfig) throws ServletException
 	{
+		// capture the servlet context for later user
+		m_servletContext = filterConfig.getServletContext();
+
 		if (filterConfig.getInitParameter(CONFIG_SESSION) != null)
 		{
 			String s = filterConfig.getInitParameter(CONFIG_SESSION);
@@ -682,7 +695,7 @@ public class RequestFilter implements Filter
 		}
 		else
 		{
-			m_contextId = filterConfig.getServletContext().getServletContextName();
+			m_contextId = m_servletContext.getServletContextName();
 			if (m_contextId == null)
 			{
 				m_contextId = toString();
