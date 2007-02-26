@@ -162,7 +162,9 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 			skin = "defaultskin";
 		}
 		vengine.getTemplate("/vm/defaultskin/macros.vm");
-		vengine.getTemplate("/vm/" + skin + "/macros.vm");
+		if ( !"defaultskin".equals(skin) ) {
+			vengine.getTemplate("/vm/" + skin + "/macros.vm");
+		}
 		vengine.mergeTemplate("/vm/" + skin + "/" + template + ".vm",
 				((VelocityPortalRenderContext) rcontext).getVelocityContext(), out);
 
