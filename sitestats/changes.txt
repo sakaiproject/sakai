@@ -1,3 +1,7 @@
+2007/02/26 - Version_trunk
+------------------------------
+- added property dbUpdateInterval@StatsUpdateManager to control db updates interval
+
 2006/01/29 - Version 0.5.9
 ------------------------------
 - STAT-25: New msgcntr Events need to be added to SiteStats

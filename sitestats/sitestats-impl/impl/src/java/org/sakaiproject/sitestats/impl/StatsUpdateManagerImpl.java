@@ -63,7 +63,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private List				updateQueue			= new ArrayList();
 	private Object				semaphore			= new Object();
 	private boolean				threadsRunning		= true;
-	public long					sleepTime			= 4000L;
+	public long					dbUpdateInterval	= 4000L;
 
 	private List				registeredEvents	= null;
 	
@@ -73,6 +73,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	
 	public void setUsageSessionService(UsageSessionService uss){
 		this.M_uss = uss;
+	}
+	
+	public void setDbUpdateInterval(long dbUpdateInterval){
+		this.dbUpdateInterval = dbUpdateInterval;
 	}
 
 	
@@ -134,7 +138,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				if(!threadsRunning) break;
 				try{
 					synchronized (semaphore){
-						semaphore.wait(sleepTime);
+						semaphore.wait(dbUpdateInterval);
 					}
 				}catch(InterruptedException e){
 					LOG.warn("Failed to sleep statistics update thread",e);

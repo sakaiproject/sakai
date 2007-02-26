@@ -74,6 +74,7 @@
 		lazy-init="true"
 		init-method="init"
 		destroy-method="destroy">
+		<property name="dbUpdateInterval" value="4000"/>
 		<property name="sessionFactory">
 			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		</property>
