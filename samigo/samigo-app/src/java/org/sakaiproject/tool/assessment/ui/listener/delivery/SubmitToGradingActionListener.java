@@ -696,7 +696,14 @@ public class SubmitToGradingActionListener implements ActionListener {
 			if (authorType != null && authorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
 				log.debug("Random draw from questonpool");
 				itemArrayList = publishedSectionData.getItemArray();
-				long seed = (long) AgentFacade.getAgentString().hashCode();
+			   	long seed = 0;
+				if ((publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_DRAW_TYPE)!=null) && (publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_DRAW_TYPE).equals(SectionDataIfc.BY_USER_ID))) {
+					seed = (long) AgentFacade.getAgentString().hashCode();
+				}
+				else {
+					seed = assessmentGradingData.getAssessmentGradingId().longValue();
+				 }
+
 				Collections.shuffle(itemArrayList,  new Random(seed));
 				
 				Integer numberToBeDrawn = new Integer(0);
