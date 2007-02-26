@@ -161,6 +161,8 @@ public class WorksiteHandler extends PageHandler
 		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
 				"worksite");
 
+		portal.includeBottom(rcontext);
+
 		// end the response
 		portal.sendResponse(rcontext, res, "worksite", null);
 	}
@@ -179,6 +181,7 @@ public class WorksiteHandler extends PageHandler
 			// add the page
 			includePage(rcontext, res, req, page, toolContextPath, "content");
 		}
+		
 	}
 
 	public void includePageNav(PortalRenderContext rcontext, HttpServletRequest req,
