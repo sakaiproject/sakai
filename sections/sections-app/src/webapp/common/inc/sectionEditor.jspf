@@ -1,10 +1,10 @@
 		<h:inputHidden id="elementToFocus" value="#{bean.elementToFocus}"/>
 	
-		<x:div rendered="#{not empty bean.sections}" styleClass="verticalPadding">
+		<t:div rendered="#{not empty bean.sections}" styleClass="verticalPadding">
 			<%/* Add space if the table isn't rendered */%>
-		</x:div>
+		</t:div>
 
-		<x:dataTable
+		<t:dataTable
 			id="sectionTable"
 			value="#{bean.sections}"
 			var="section"
@@ -28,19 +28,19 @@
 
 					<h:outputLabel for="maxEnrollmentInput" value="#{msgs.section_max_size}" styleClass="formLabel"/>
 					<h:panelGroup>
-						<x:selectOneRadio id="limit" layout="spread" value="#{section.limitSize}" onclick="updateLimit(this)">
+						<t:selectOneRadio id="limit" layout="spread" value="#{section.limitSize}" onclick="updateLimit(this)">
 							<f:selectItem itemValue="false" itemLabel="#{msgs.sections_unlimited}"/>
 							<f:selectItem itemValue="true" itemLabel="#{msgs.sections_limited}"/>
-						</x:selectOneRadio>
-						<x:div>
-							<x:radio for="limit" index="0" />
-						</x:div>
-						<x:div>
+						</t:selectOneRadio>
+						<t:div>
+							<t:radio for="limit" index="0" />
+						</t:div>
+						<t:div>
 							<h:message for="maxEnrollmentInput" styleClass="validationEmbedded"/>
-							<x:radio for="limit" index="1" />
+							<t:radio for="limit" index="1" />
 							<h:outputText value=" &nbsp; " escape="false"/>
 							<h:inputText id="maxEnrollmentInput" value="#{section.maxEnrollments}"/>
-						</x:div>
+						</t:div>
 					</h:panelGroup>
 
 					<% // Logistics %>
@@ -51,7 +51,7 @@
 							<% // One column per meeting.  Use a div to add a line break in the form controls %>
 							<h:column>
 								<h:panelGroup>
-									<x:div styleClass="paddedMeetingRow">
+									<t:div styleClass="paddedMeetingRow">
 										<h:selectBooleanCheckbox id="monday" value="#{meeting.monday}"/>
 										<h:outputLabel for="monday" value="#{msgs.day_of_week_monday}"/>
 							
@@ -72,35 +72,35 @@
 							
 										<h:selectBooleanCheckbox id="sunday" value="#{meeting.sunday}"/>
 										<h:outputLabel for="sunday" value="#{msgs.day_of_week_sunday}"/>
-									</x:div>
+									</t:div>
 		
-									<x:div styleClass="indent">
+									<t:div styleClass="indent">
 										<h:message for="startTime" styleClass="validationEmbedded"/>
 										<h:message for="endTime" styleClass="validationEmbedded"/>
 										<h:outputFormat value="#{msgs.section_start_time} "/>
 										<h:inputText id="startTime" value="#{meeting.startTimeString}" size="18" onfocus="clearIfDefaultString(this, '#{msgs.section_start_time_default}')" />
 
-										<x:selectOneRadio id="startTimeAm" layout="spread" value="#{meeting.startTimeAmString}">
+										<t:selectOneRadio id="startTimeAm" layout="spread" value="#{meeting.startTimeAmString}">
 											<f:selectItem itemValue="true" itemLabel="#{msgs.time_of_day_am_cap}"/>
 											<f:selectItem itemValue="false" itemLabel="#{msgs.time_of_day_pm_cap}"/>
-										</x:selectOneRadio>
-										<x:radio for="startTimeAm" index="0" />
-										<x:radio for="startTimeAm" index="1" />
+										</t:selectOneRadio>
+										<t:radio for="startTimeAm" index="0" />
+										<t:radio for="startTimeAm" index="1" />
 										<h:outputText value=" &nbsp; &nbsp; " escape="false" />
 					
 										<h:outputFormat value=" #{msgs.section_end_time} "/>
 										<h:inputText  id="endTime" value="#{meeting.endTimeString}"  size="18" onfocus="clearIfDefaultString(this, '#{msgs.section_end_time_default}')" />
-										<x:selectOneRadio id="endTimeAm" layout="spread" value="#{meeting.endTimeAmString}">
+										<t:selectOneRadio id="endTimeAm" layout="spread" value="#{meeting.endTimeAmString}">
 											<f:selectItem itemValue="true" itemLabel="#{msgs.time_of_day_am_cap}"/>
 											<f:selectItem itemValue="false" itemLabel="#{msgs.time_of_day_pm_cap}"/>
-										</x:selectOneRadio>
-										<x:radio for="endTimeAm" index="0" />
-										<x:radio for="endTimeAm" index="1" />
+										</t:selectOneRadio>
+										<t:radio for="endTimeAm" index="0" />
+										<t:radio for="endTimeAm" index="1" />
 										<h:outputText value=" &nbsp; &nbsp; " escape="false" />
 			
 										<h:outputFormat value=" #{msgs.section_location} "/>
 										<h:inputText id="location" value="#{meeting.location}" maxlength="20" />
-									</x:div>
+									</t:div>
 								</h:panelGroup>
 							</h:column>
 						</h:dataTable>
@@ -113,8 +113,8 @@
 
 				</h:panelGrid>
 			</h:column>
-		</x:dataTable>
+		</t:dataTable>
 	
-		<x:div rendered="#{empty bean.sections}" styleClass="verticalPadding">
+		<t:div rendered="#{empty bean.sections}" styleClass="verticalPadding">
 			<%/* Add space if the table isn't rendered */%>
-		</x:div>
+		</t:div>

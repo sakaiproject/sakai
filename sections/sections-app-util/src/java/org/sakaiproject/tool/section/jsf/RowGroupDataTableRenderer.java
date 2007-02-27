@@ -3,28 +3,18 @@ package org.sakaiproject.tool.section.jsf;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.myfaces.renderkit.html.HtmlRendererUtils;
-import org.apache.myfaces.renderkit.html.HTML;
+import org.apache.myfaces.shared_impl.renderkit.JSFAttr;
+import org.apache.myfaces.shared_impl.renderkit.html.HtmlRendererUtils;
+import org.apache.myfaces.shared_impl.renderkit.html.HTML;
 import org.apache.myfaces.renderkit.html.ext.HtmlTableRenderer;
-import org.apache.myfaces.util.ArrayUtils;
-import org.apache.myfaces.util.StringUtils;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIData;
-import javax.faces.component.html.HtmlDataTable;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.io.IOException;
 
-/**
- * Author:Louis Majanja <louis@media.berkeley.edu>
- * Date: Jan 18, 2007
- * Time: 1:07:32 PM
- */
 public class RowGroupDataTableRenderer extends HtmlTableRenderer {
 	private static final Log log = LogFactory.getLog(RowGroupDataTableRenderer.class);
 
@@ -32,59 +22,13 @@ public class RowGroupDataTableRenderer extends HtmlTableRenderer {
 	public static final String CATEGORY_HEADER_STYLE_CLASS = "categoryHeader";
 	public static final String FIRST_CATEGORY_HEADER_STYLE_CLASS = "firstCategoryHeader";
 
-	protected String generateRowClasses(UIComponent component) {
-		UIData uiData = (UIData) component;
-
-		// The data in this table
-		List rowData = (List)uiData.getValue();
-
-		// A list of classes for the data in the table
-		List<String> rowClassList = new ArrayList<String>();
-
-		// Iterate over the data in the table, adding RowGroup header classes to the list when theRowGroup changes
-		String currentCategory = null;
-		for(Iterator iter = rowData.iterator(); iter.hasNext();) {
-			RowGroupable rowGroupable = (RowGroupable)iter.next();
-			if( ! rowGroupable.getRowGroupId().equals(currentCategory)) {
-				if(rowClassList.isEmpty()) {
-					rowClassList.add(FIRST_CATEGORY_HEADER_STYLE_CLASS);
-				} else {
-					rowClassList.add(CATEGORY_HEADER_STYLE_CLASS);
-				}
-			}
-			// Whether this is a new RowGroup or not, add the section row
-			rowClassList.add(SECTION_STYLE_CLASS);
-
-			// Update the current catgory
-			currentCategory = rowGroupable.getRowGroupId();
-		}
-
-		// Build the rowClass string
-		StringBuffer sb = new StringBuffer();
-		for(Iterator iter = rowClassList.iterator(); iter.hasNext();) {
-			sb.append(iter.next());
-			if(iter.hasNext()) {
-				sb.append(",");
-			}
-		}
-		String rowClass = sb.toString();
-		return rowClass;
-	}
-
 	public void encodeInnerHtml(FacesContext facesContext, UIComponent component)throws IOException {
 
 		UIData uiData = (UIData) component;
 		ResponseWriter writer = facesContext.getResponseWriter();
 
-		// Insert the proper row class for the RowGroup headers
-		String rowClasses = generateRowClasses(component);
-
-
-		String columnClasses = ((HtmlDataTable) component).getColumnClasses();
-
-		Iterator rowStyleIterator = new StyleIterator(rowClasses);
-		StyleIterator columnStyleIterator = new StyleIterator(columnClasses);
-
+		Styles styles = getStyles(uiData);
+		
 		int first = uiData.getFirst();
 		int rows = uiData.getRows();
 		int rowCount = uiData.getRowCount();
@@ -104,14 +48,13 @@ public class RowGroupDataTableRenderer extends HtmlTableRenderer {
                 log.warn("Row is not available. Rowindex = " + i);
 				return;
 			}
-			columnStyleIterator.reset();
 
 			int columns = component.getChildCount();
-			renderCategoryRow(i, columns, uiData, writer, rowStyleIterator);
+			renderCategoryRow(i, columns, uiData, writer, i==first);
 
 			beforeRow(facesContext, uiData);
 			HtmlRendererUtils.writePrettyLineSeparator(facesContext);
-			renderRowStart(facesContext, writer, uiData, rowStyleIterator);
+			renderRowStart(facesContext, writer, uiData, styles, i);
 
 			List children = component.getChildren();
 			for (int j = 0, size = component.getChildCount(); j < size; j++)
@@ -119,7 +62,7 @@ public class RowGroupDataTableRenderer extends HtmlTableRenderer {
 				UIComponent child = (UIComponent) children.get(j);
 				if(child.isRendered())
 				{
-					encodeColumnChild(facesContext, writer, uiData, child, columnStyleIterator);
+					encodeColumnChild(facesContext, writer, uiData, child, styles, j);
 				}
 			}
 			renderRowEnd(facesContext, writer, uiData);
@@ -128,7 +71,7 @@ public class RowGroupDataTableRenderer extends HtmlTableRenderer {
 		}
 	}
 
-	private void renderCategoryRow(int rowNumber, int columns, UIData uiData, ResponseWriter writer, Iterator rowStyleIterator) throws IOException {
+	private void renderCategoryRow(int rowNumber, int columns, UIData uiData, ResponseWriter writer, boolean firstCategory) throws IOException {
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 
 		// Cast the uiData into our custom component
@@ -150,6 +93,12 @@ public class RowGroupDataTableRenderer extends HtmlTableRenderer {
 			return;
 		}
 
+		// For Daisy's CM Home tool
+		if (rowNumber == 0){
+			// reset rowGroupDataTable.category
+			rowGroupDataTable.category = null;
+		}
+
 		// Is this section different from the previous RowGroup?
 		if( ! rowGroupable.getRowGroupId().equals(rowGroupDataTable.category)) {
 			// Update the SectionTable's current RowGroup
@@ -158,7 +107,19 @@ public class RowGroupDataTableRenderer extends HtmlTableRenderer {
 			// Render a table row for the RowGroup header
 			beforeRow(facesContext, uiData);
 			HtmlRendererUtils.writePrettyLineSeparator(facesContext);
-			renderRowStart(facesContext, writer, uiData, rowStyleIterator);
+
+	        writer.startElement(HTML.TR_ELEM, uiData);
+	    	if(firstCategory) {
+	            writer.writeAttribute(HTML.CLASS_ATTR, FIRST_CATEGORY_HEADER_STYLE_CLASS, null);
+	    	} else {
+	            writer.writeAttribute(HTML.CLASS_ATTR, CATEGORY_HEADER_STYLE_CLASS, null);
+	        }
+	        
+	        Object rowId = uiData.getAttributes().get(JSFAttr.ROW_ID);
+
+	        if (rowId != null) {
+	            writer.writeAttribute(HTML.ID_ATTR, rowId.toString(), null);
+	        }
 
 			// Render a single colspanned cell displaying the current RowGroup
 			writer.startElement(HTML.TD_ELEM, uiData);
@@ -170,56 +131,5 @@ public class RowGroupDataTableRenderer extends HtmlTableRenderer {
 			afterRow(facesContext, uiData);
 		}
 	}
-
-	private static class StyleIterator implements Iterator
-	{
-		//~ Instance fields
-		// ------------------------------------------------------------------------
-
-		private String[] _style;
-		private int _idx = 0;
-
-		//~ Constructors
-		// ---------------------------------------------------------------------------
-		StyleIterator(String styles)
-		{
-			_style = (styles == null) ? ArrayUtils.EMPTY_STRING_ARRAY : StringUtils.trim(StringUtils
-					.splitShortString(styles, ','));
-		}
-
-		/**
-		 * @see java.util.Iterator#hasNext()
-		 */
-		public boolean hasNext()
-		{
-			return _style.length > 0;
-		}
-
-		/**
-		 * @see java.util.Iterator#next()
-		 */
-		public Object next()
-		{
-			if(hasNext())
-			{
-				return _style[_idx++ % _style.length];
-			}
-			throw new NoSuchElementException("no style defined");
-		}
-
-		/**
-		 * @see java.util.Iterator#remove()
-		 */
-		public void remove()
-		{
-			throw new UnsupportedOperationException("remove is not supported");
-		}
-
-		public void reset()
-		{
-			_idx = 0;
-		}
-	}
-
-
+    
 }

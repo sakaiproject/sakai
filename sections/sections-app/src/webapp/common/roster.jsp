@@ -4,9 +4,9 @@
 
     <sakai:flowState bean="#{rosterBean}"/>
 
-    <x:aliasBean alias="#{viewName}" value="roster">
+    <t:aliasBean alias="#{viewName}" value="roster">
         <%@include file="/inc/navMenu.jspf"%>
-    </x:aliasBean>
+    </t:aliasBean>
 
 	<div class="instructions">
 		<h3 class="instructions"><h:outputText value="#{msgs.roster_page_header}"/></h3>
@@ -16,33 +16,33 @@
 
     <%@include file="/inc/globalMessages.jspf"%>
 
-	<x:div>
+	<t:div>
 		<h:outputText value="#{msgs.roster_view_students}"/>
         <h:selectOneMenu value="#{rosterBean.filter}" onchange="this.form.submit()" rendered="#{rosterBean.sectionAssignable}">
             <f:selectItems value="#{rosterBean.filterItems}"/>
         </h:selectOneMenu>
         <h:outputText value="#{msgs.filter_all_sections}" rendered="#{ ! rosterBean.sectionAssignable}"/>
-	</x:div>
+	</t:div>
 	
     <h:panelGrid styleClass="sectionContainerNav" columns="2" columnClasses="sectionLeftNav,sectionRightNav">
-        <x:div>
+        <t:div>
             <h:inputText id="search" value="#{rosterBean.searchText}"
                 onfocus="clearIfDefaultString(this, '#{msgs.roster_search_text}')"/>
             <h:commandButton value="#{msgs.roster_search_button}" actionListener="#{rosterBean.search}"/>
             <h:commandButton value="#{msgs.roster_clear_button}" actionListener="#{rosterBean.clearSearch}"/>
-        </x:div>
+        </t:div>
         
-        <x:div>
+        <t:div>
             <sakai:pager
                 id="pager"
                 totalItems="#{rosterBean.enrollmentsSize}"
                 firstItem="#{rosterBean.firstRow}"
                 pageSize="#{preferencesBean.rosterMaxDisplayedRows}"
                 textStatus="#{msgs.roster_pager_status}" />
-        </x:div>
+        </t:div>
     </h:panelGrid>
     
-    <x:dataTable cellpadding="0" cellspacing="0"
+    <t:dataTable cellpadding="0" cellspacing="0"
         id="sectionsTable"
         value="#{rosterBean.enrollments}"
         var="enrollment"
@@ -52,9 +52,9 @@
         styleClass="listHier rosterTable">
         <h:column>
             <f:facet name="header">
-                <x:commandSortHeader columnName="studentName" immediate="true" arrow="true">
+                <t:commandSortHeader columnName="studentName" immediate="true" arrow="true">
                     <h:outputText value="#{msgs.roster_table_header_name}" />
-                </x:commandSortHeader>
+                </t:commandSortHeader>
             </f:facet>
             <h:commandLink
                 action="editStudentSections"
@@ -68,16 +68,16 @@
         </h:column>
         <h:column>
             <f:facet name="header">
-                <x:commandSortHeader columnName="displayId" immediate="true" arrow="true">
+                <t:commandSortHeader columnName="displayId" immediate="true" arrow="true">
                     <h:outputText value="#{msgs.roster_table_header_id}" />
-                </x:commandSortHeader>
+                </t:commandSortHeader>
             </f:facet>
             <h:outputText value="#{enrollment.user.displayId}"/>
         </h:column>
         
         <%/* A dynamic number of section columns will be appended here by the backing bean */%>
     
-    </x:dataTable>
+    </t:dataTable>
 </h:form>
 </div>
 </f:view>

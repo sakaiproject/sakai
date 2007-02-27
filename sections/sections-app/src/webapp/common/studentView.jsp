@@ -12,20 +12,20 @@
 
         <h3><h:outputText value="#{msgs.student_view_page_header}"/></h3>
     
-        <x:div styleClass="instructions" rendered="#{not empty studentViewBean.instructions}">
+        <t:div styleClass="instructions" rendered="#{not empty studentViewBean.instructions}">
             <h:outputText value="#{studentViewBean.instructions}"/>
-        </x:div>
+        </t:div>
 
         <%@include file="/inc/globalMessages.jspf"%>
 
-		<x:div>
+		<t:div>
 			<h:outputText value="#{msgs.student_view_view}"/>
 	        <h:selectOneMenu value="#{studentViewBean.filter}" onchange="this.form.submit()">
                 <f:selectItem itemLabel="#{msgs.student_view_all} #{msgs.student_view_sections}" itemValue=""/>
                 <f:selectItem itemLabel="#{msgs.student_view_my} #{msgs.student_view_sections}" itemValue="MY"/>
 	            <f:selectItems value="#{studentViewBean.categorySelectItems}"/>
 	        </h:selectOneMenu>
-		</x:div>
+		</t:div>
 	    
         <sec:rowGroupTable cellpadding="0" cellspacing="0"
             id="studentViewSectionsTable"
@@ -39,9 +39,9 @@
     
             <h:column>
                 <f:facet name="header">
-                    <x:commandSortHeader columnName="title" immediate="true" arrow="true">
+                    <t:commandSortHeader columnName="title" immediate="true" arrow="true">
                         <h:outputText value="#{msgs.student_view_header_title}" />
-                    </x:commandSortHeader>
+                    </t:commandSortHeader>
                 </f:facet>
                 <h:outputText value="#{section.title}"  styleClass="studentSectionInfo" rendered="#{section.member}"/>
                 <h:outputText value="#{section.title}"  rendered="#{ ! section.member}"/>
@@ -49,63 +49,63 @@
 
             <h:column>
                 <f:facet name="header">
-                    <x:commandSortHeader columnName="instructor" immediate="true" arrow="true">
+                    <t:commandSortHeader columnName="instructor" immediate="true" arrow="true">
                         <h:outputText value="#{msgs.student_view_header_instructor}" />
-                    </x:commandSortHeader>
+                    </t:commandSortHeader>
                 </f:facet>
-                <x:dataList id="instructorName"
+                <t:dataList id="instructorName"
                     var="instructorName"
                     value="#{section.instructorNames}"
                     layout="simple">
-                    <x:div>
+                    <t:div>
                         <h:outputText value="#{instructorName}" />
-                    </x:div>
-               </x:dataList>
+                    </t:div>
+               </t:dataList>
             </h:column>
 
 	        <h:column>
 	            <f:facet name="header">
-	                <x:commandSortHeader columnName="meetingDays" immediate="false" arrow="true">
+	                <t:commandSortHeader columnName="meetingDays" immediate="false" arrow="true">
 	                	<h:outputText value="#{msgs.student_view_header_day}" />
-	                </x:commandSortHeader>
+	                </t:commandSortHeader>
 	            </f:facet>
-	            <x:dataList id="meetingDayList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
-		            <x:div>
+	            <t:dataList id="meetingDayList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
+		            <t:div>
 		            	<h:outputText value="#{meeting.abbreviatedDays}"/>
-		            </x:div>
-	            </x:dataList>
+		            </t:div>
+	            </t:dataList>
 	        </h:column>
             <h:column>
                 <f:facet name="header">
-                    <x:commandSortHeader columnName="meetingTimes" immediate="true" arrow="true">
+                    <t:commandSortHeader columnName="meetingTimes" immediate="true" arrow="true">
                         <h:outputText value="#{msgs.student_view_header_time}" />
-                    </x:commandSortHeader>
+                    </t:commandSortHeader>
                 </f:facet>
-	            <x:dataList id="meetingTimeList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
-		            <x:div>
+	            <t:dataList id="meetingTimeList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
+		            <t:div>
 			            <h:outputText value="#{meeting.times}"/>
-		            </x:div>
-	            </x:dataList>
+		            </t:div>
+	            </t:dataList>
             </h:column>
                         
             <h:column>
                 <f:facet name="header">
-                    <x:commandSortHeader columnName="location" immediate="true" arrow="true">
+                    <t:commandSortHeader columnName="location" immediate="true" arrow="true">
                         <h:outputText value="#{msgs.student_view_header_location}" />
-                    </x:commandSortHeader>
+                    </t:commandSortHeader>
                 </f:facet>
-	            <x:dataList id="meetingLocationList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
-		            <x:div>
+	            <t:dataList id="meetingLocationList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
+		            <t:div>
 		            	<h:outputText value="#{meeting.location}"/>
-		            </x:div>
-	            </x:dataList>
+		            </t:div>
+	            </t:dataList>
             </h:column>
 
             <h:column>
                 <f:facet name="header">
-                    <x:commandSortHeader columnName="available" immediate="true" arrow="true">
+                    <t:commandSortHeader columnName="available" immediate="true" arrow="true">
                         <h:outputText value="#{msgs.student_view_header_available}" />
-                    </x:commandSortHeader>
+                    </t:commandSortHeader>
                 </f:facet>
             	<h:outputText value="#{section.spotsAvailable}"/>
             </h:column>
@@ -134,13 +134,13 @@
     
         </sec:rowGroupTable>
 
-        <x:div styleClass="verticalPadding" rendered="#{empty studentViewBean.sections && ! studentViewBean.siteWithoutSections}">
+        <t:div styleClass="verticalPadding" rendered="#{empty studentViewBean.sections && ! studentViewBean.siteWithoutSections}">
             <h:outputText value="#{msgs.student_view_no_sections_to_display}"/>
-        </x:div>
+        </t:div>
 
-        <x:div styleClass="verticalPadding" rendered="#{studentViewBean.siteWithoutSections}">
+        <t:div styleClass="verticalPadding" rendered="#{studentViewBean.siteWithoutSections}">
             <h:outputText value="#{msgs.no_sections_available}"/>
-        </x:div>
+        </t:div>
 
 </h:form>
 </div>

@@ -9,9 +9,9 @@
             <f:verbatim>
                 <input type="button" onclick="removeUser();" value="&lt;"/>
             </f:verbatim>
-            <x:div styleClass="verticalPadding">
+            <t:div styleClass="verticalPadding">
                 <h:outputText value="#{msgs.transfer_membership_move_all}"/>
-            </x:div>
+            </t:div>
             <f:verbatim>
                 <input type="button" onclick="addAll();" value="&gt;&gt;"/>
             </f:verbatim>

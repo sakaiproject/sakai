@@ -4,9 +4,9 @@
 
     <sakai:flowState bean="#{overviewBean}"/>
 
-    <x:aliasBean alias="#{viewName}" value="overview">
+    <t:aliasBean alias="#{viewName}" value="overview">
         <%@include file="/inc/navMenu.jspf"%>
-    </x:aliasBean>
+    </t:aliasBean>
 
 	<div class="instructions">
 		<h3 class="instructions">
@@ -19,9 +19,9 @@
 
     <%@include file="/inc/globalMessages.jspf"%>
 
-    <x:aliasBean alias="#{filterBean}" value="#{overviewBean}">
+    <t:aliasBean alias="#{filterBean}" value="#{overviewBean}">
         <%@include file="/inc/sectionFilter.jspf"%>
-    </x:aliasBean>
+    </t:aliasBean>
 
     <sec:rowGroupTable cellpadding="0" cellspacing="0"
         id="sectionsTable"
@@ -31,18 +31,19 @@
         sortAscending="#{preferencesBean.overviewSortAscending}"
         styleClass="listHier sectionTable"
         columnClasses="leftIndent,left,left,left,left,right,right,center"
+        rowClasses="groupRow"
         >
     
         <h:column>
             <f:facet name="header">
-                <x:commandSortHeader columnName="title" immediate="false" arrow="true">
+                <t:commandSortHeader columnName="title" immediate="false" arrow="true">
                 <h:outputText value="#{msgs.overview_table_header_name}" />
-                </x:commandSortHeader>
+                </t:commandSortHeader>
             </f:facet>
-            <x:div>
+            <t:div>
                 <h:outputText value="#{section.title}"/>
-            </x:div>
-            <x:div styleClass="itemAction">
+            </t:div>
+            <t:div styleClass="itemAction">
                 <h:panelGroup rendered="#{ ! overviewBean.externallyManaged && overviewBean.sectionManagementEnabled}">
                     <h:commandLink action="editSection" value="#{msgs.overview_link_edit}">
                         <f:param name="sectionUuid" value="#{section.uuid}"/>
@@ -69,72 +70,72 @@
                             <f:param name="sectionUuid" value="#{section.uuid}"/>
                     </h:commandLink>
                 </h:panelGroup>
-            </x:div>
+            </t:div>
         </h:column>
         <h:column>
             <f:facet name="header">
-                <x:commandSortHeader columnName="managers" immediate="false" arrow="true">
+                <t:commandSortHeader columnName="managers" immediate="false" arrow="true">
                 <h:outputText value="#{msgs.overview_table_header_managers}" />
-                </x:commandSortHeader>
+                </t:commandSortHeader>
             </f:facet>
-            <x:dataList id="instructorName"
+            <t:dataList id="instructorName"
                 var="instructorName"
                 value="#{section.instructorNames}"
                 layout="simple">
-                    <x:div>
+                    <t:div>
                         <h:outputText value="#{instructorName}" />
-                    </x:div>
-            </x:dataList>
+                    </t:div>
+            </t:dataList>
         </h:column>
         <h:column>
             <f:facet name="header">
-                <x:commandSortHeader columnName="meetingDays" immediate="false" arrow="true">
+                <t:commandSortHeader columnName="meetingDays" immediate="false" arrow="true">
                 	<h:outputText value="#{msgs.overview_table_header_day}" />
-                </x:commandSortHeader>
+                </t:commandSortHeader>
             </f:facet>
-            <x:dataList id="meetingDayList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
-	            <x:div>
+            <t:dataList id="meetingDayList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
+	            <t:div>
 	            	<h:outputText value="#{meeting.abbreviatedDays}"/>
-	            </x:div>
-            </x:dataList>
+	            </t:div>
+            </t:dataList>
         </h:column>
         <h:column>
             <f:facet name="header">
-                <x:commandSortHeader columnName="meetingTimes" immediate="false" arrow="true">
+                <t:commandSortHeader columnName="meetingTimes" immediate="false" arrow="true">
                 	<h:outputText value="#{msgs.overview_table_header_time}" />
-                </x:commandSortHeader>
+                </t:commandSortHeader>
             </f:facet>
-            <x:dataList id="meetingTimeList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
-	            <x:div>
+            <t:dataList id="meetingTimeList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
+	            <t:div>
 		            <h:outputText value="#{meeting.times}"/>
-	            </x:div>
-            </x:dataList>
+	            </t:div>
+            </t:dataList>
         </h:column>
         <h:column>
             <f:facet name="header">
-                <x:commandSortHeader columnName="location" immediate="false" arrow="true">
+                <t:commandSortHeader columnName="location" immediate="false" arrow="true">
                     <h:outputText value="#{msgs.overview_table_header_location}" />
-                </x:commandSortHeader>
+                </t:commandSortHeader>
             </f:facet>
-            <x:dataList id="meetingLocationList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
-	            <x:div>
+            <t:dataList id="meetingLocationList" value="#{section.decoratedMeetings}" var="meeting" layout="simple">
+	            <t:div>
 	            	<h:outputText value="#{meeting.location}"/>
-	            </x:div>
-            </x:dataList>
+	            </t:div>
+            </t:dataList>
         </h:column>
         <h:column>
             <f:facet name="header">
-                <x:commandSortHeader columnName="totalEnrollments" immediate="false" arrow="true">
+                <t:commandSortHeader columnName="totalEnrollments" immediate="false" arrow="true">
                     <h:outputText value="#{msgs.overview_table_header_current_size}" />
-                </x:commandSortHeader>
+                </t:commandSortHeader>
             </f:facet>
             <h:outputText value="#{section.totalEnrollments}"/>
         </h:column>
         <h:column>
             <f:facet name="header">
-                <x:commandSortHeader columnName="available" immediate="false" arrow="true">
+                <t:commandSortHeader columnName="available" immediate="false" arrow="true">
                     <h:outputText value="#{msgs.overview_table_header_available}" />
-                </x:commandSortHeader>
+                </t:commandSortHeader>
             </f:facet>
             <h:outputText value="#{section.spotsAvailable}"/>
         </h:column>
@@ -146,16 +147,16 @@
         </h:column>
     </sec:rowGroupTable>
 
-    <x:div styleClass="verticalPadding" rendered="#{empty overviewBean.sections}">
+    <t:div styleClass="verticalPadding" rendered="#{empty overviewBean.sections}">
         <h:outputText value="#{msgs.no_sections_available}"/>
         <h:outputText value="#{msgs.no_sections_instructions}" rendered="#{overviewBean.sectionManagementEnabled}"/>
-    </x:div>
+    </t:div>
 
-    <x:div rendered="#{overviewBean.deleteRendered}" styleClass="verticalPadding">
+    <t:div rendered="#{overviewBean.deleteRendered}" styleClass="verticalPadding">
         <%/* Add space before the buttons */%>
-    </x:div>
+    </t:div>
 
-    <x:div styleClass="act">
+    <t:div styleClass="act">
         <h:commandButton
             action="#{overviewBean.confirmDelete}"
             value="#{msgs.overview_delete}"
@@ -166,7 +167,7 @@
             action="overview"
             value="#{msgs.overview_cancel}"
             rendered="#{overviewBean.deleteRendered}"/>
-    </x:div>
+    </t:div>
 
 </h:form>
 </div>

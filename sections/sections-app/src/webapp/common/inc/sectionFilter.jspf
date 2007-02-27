@@ -1,6 +1,6 @@
 
 
-	<x:div rendered="#{filterBean.displaySplitFilter}">
+	<t:div rendered="#{filterBean.displaySplitFilter}">
 
 		<h:outputText value="#{msgs.student_view_view}"/>
 
@@ -14,10 +14,10 @@
 			<f:selectItems value="#{filterBean.categorySelectItems}"/>
 		</h:selectOneMenu>
 
-	</x:div>
+	</t:div>
 
 
-	<x:div rendered="#{filterBean.displaySingleFilter}">
+	<t:div rendered="#{filterBean.displaySingleFilter}">
 
 		<h:outputText value="#{msgs.student_view_view_all}"/>
 
@@ -26,10 +26,10 @@
 			<f:selectItems value="#{filterBean.categorySelectItems}"/>
 		</h:selectOneMenu>
 
-	</x:div>
+	</t:div>
 
 	
-	<x:div rendered="#{filterBean.displayCompactFilter}">
+	<t:div rendered="#{filterBean.displayCompactFilter}">
 
 		<h:outputText value="#{msgs.student_view_view}"/>
 
@@ -38,5 +38,5 @@
 			<f:selectItem itemLabel="#{msgs.filter_my_sections}" itemValue="MY"/>
 		</h:selectOneMenu>
 
-	</x:div>
+	</t:div>
 	

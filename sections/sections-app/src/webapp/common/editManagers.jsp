@@ -5,9 +5,9 @@
     <sakai:flowState bean="#{editManagersBean}"/>
 
     <h:panelGroup rendered="#{ ! editManagersBean.externallyManaged}">
-        <x:aliasBean alias="#{viewName}" value="editManagers">
+        <t:aliasBean alias="#{viewName}" value="editManagers">
             <%@include file="/inc/navMenu.jspf"%>
-        </x:aliasBean>
+        </t:aliasBean>
     </h:panelGroup>
 
         <h3><h:outputText value="#{msgs.edit_manager_page_header}"/></h3>
@@ -18,15 +18,15 @@
         <h:panelGrid id="transferTable" columns="3" columnClasses="available,transferButtons,selected">
         
             <h:panelGroup>
-                <x:div>
+                <t:div>
                     <h:outputText value="#{msgs.edit_manager_available_label}"/>
-                </x:div>
+                </t:div>
                         
-                <x:div>
+                <t:div>
                     <h:selectManyListbox id="availableUsers" size="20" style="width:250px;">
                         <f:selectItems value="#{editManagersBean.availableUsers}"/>
                     </h:selectManyListbox>
-                </x:div>
+                </t:div>
             </h:panelGroup>
         
             <%@include file="/inc/transferButtons.jspf"%>
@@ -36,28 +36,28 @@
                     <f:param value="#{editManagersBean.abbreviatedSectionTitle}"/>
                 </h:outputFormat>
 
-                <x:div>
+                <t:div>
                     <h:selectManyListbox id="selectedUsers" size="20" style="width:250px;">
                         <f:selectItems value="#{editManagersBean.selectedUsers}"/>
                     </h:selectManyListbox>
-                </x:div>
+                </t:div>
             </h:panelGroup>
 
-            <x:div style="width:200px;">
+            <t:div style="width:200px;">
                 <h:outputText value="#{msgs.edit_manager_ta_note}"/>
-            </x:div>
+            </t:div>
     
-            <x:div>
+            <t:div>
                 <h:outputText value=" "/>
-            </x:div>
+            </t:div>
 
-            <x:div>
+            <t:div>
                 <h:outputText value=" "/>
-            </x:div>
+            </t:div>
 
         </h:panelGrid>
         
-        <x:div styleClass="act">
+        <t:div styleClass="act">
             <h:commandButton
                 action="#{editManagersBean.update}"
                 onclick="highlightUsers()"
@@ -69,7 +69,7 @@
                 action="#{editManagersBean.cancel}"
                 immediate="true"
                 value="#{msgs.edit_manager_cancel}"/>
-        </x:div>
+        </t:div>
 </h:form>
 </div>
 </f:view>

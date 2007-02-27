@@ -102,7 +102,7 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 		return getCourseBean().sectionManager.getCourse(getSiteContext());
 	}
 	
-	protected List getAllSiteSections() {
+	protected List<CourseSection> getAllSiteSections() {
 		return getCourseBean().sectionManager.getSections(getSiteContext());
 	}
 

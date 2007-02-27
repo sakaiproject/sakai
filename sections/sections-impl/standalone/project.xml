@@ -19,11 +19,11 @@
 
     <dependencies>
         <!-- Standalone authn, authz, and context use faces context and http session -->
-        <dependency>
-            <groupId>myfaces</groupId>
-            <artifactId>myfaces</artifactId>
-            <version>1.0.9</version>
-        </dependency>
+		<dependency>
+			<groupId>myfaces</groupId>
+			<artifactId>myfaces-api</artifactId>
+			<version>1.1.5</version>
+		</dependency>
         <dependency>
             <id>servletapi</id>
             <version>2.4</version>

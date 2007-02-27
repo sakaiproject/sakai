@@ -1,4 +1,4 @@
-<x:div styleClass="navIntraTool">
+<t:div styleClass="navIntraTool">
 
     <h:commandLink action="overview" immediate="true" rendered="#{viewName ne 'overview'}">
         <h:outputText value="#{msgs.nav_overview}"/>
@@ -25,4 +25,4 @@
 	    </h:commandLink>
 	    <h:outputText value="#{msgs.nav_options}" rendered="#{viewName eq 'options'}" styleClass="currentView" />
 	</h:panelGroup>
-</x:div>
+</t:div>

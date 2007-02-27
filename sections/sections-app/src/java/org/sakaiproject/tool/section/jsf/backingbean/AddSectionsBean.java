@@ -49,9 +49,10 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(AddSectionsBean.class);
 	
-	private int numToAdd;
+	private Integer numToAdd;
 	private String category;
 	private List<SelectItem> categoryItems;
+	private List<SelectItem> numSectionsSelectItems;
 	private List<CourseSection> sections;
 	private String rowStyleClasses;
 	private 	String elementToFocus;
@@ -63,6 +64,13 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 	public void init() {
 		if(log.isDebugEnabled()) log.debug("sections = " + sections);
 		if(log.isDebugEnabled()) log.debug("sectionsChanged = " + sectionsChanged);
+
+		numSectionsSelectItems = new ArrayList<SelectItem>(10);
+		for(int i=0; i < 10;) {
+			Integer currVal = ++i;
+			numSectionsSelectItems.add(new SelectItem(currVal));
+		}
+		if(numToAdd == null) numToAdd = 1;
 		
 		if(sections == null || sectionsChanged) {
 			if(log.isDebugEnabled()) log.debug("initializing add sections bean");
@@ -81,8 +89,13 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 	 * 
 	 * @param event
 	 */
-	public void processChangeSections(ValueChangeEvent event) {
-		if(log.isDebugEnabled()) log.debug("processing a ui change in sections to add");
+	public void processChangeNumSections(ValueChangeEvent event) {
+		if(log.isDebugEnabled()) log.debug("processing a ui change in number of sections to add");
+		sectionsChanged = true;
+	}
+	
+	public void processChangeSectionsCategory(ValueChangeEvent event) {
+		if(log.isDebugEnabled()) log.debug("processing a ui change in category of sections to add");
 		sectionsChanged = true;
 	}
 	
@@ -98,6 +111,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 	 *
 	 */
 	private void populateSections() {
+		if(log.isDebugEnabled()) log.debug("populating sections");
 		Course course = getCourse();
 		
 		sections = new ArrayList<CourseSection>();
@@ -188,7 +202,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 	 * @return
 	 */
 	protected boolean validationFails() {
-		Collection existingSections = getAllSiteSections();
+		Collection<CourseSection> existingSections = getAllSiteSections();
 
 		// Keep track of whether a validation failure occurs
 		boolean validationFailure = false;
@@ -209,6 +223,10 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 						"section_add_failure_duplicate_title", new String[] {sectionModel.getTitle()}), componentId);
 				validationFailure = true;
 			}
+			
+			// Add this new section to the list of existing sections, so any other new sections don't conflict with this section's title
+			existingSections.add(sectionModel);
+			
 			
 			// Ensure that the user didn't choose to limit the size of the section without specifying a max size
 			if(Boolean.TRUE.toString().equals(sectionModel.getLimitSize()) && sectionModel.getMaxEnrollments() == null) {
@@ -399,8 +417,12 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 		this.numToAdd = numToAdd;
 	}
 
-	public List getCategoryItems() {
+	public List<SelectItem> getCategoryItems() {
 		return categoryItems;
+	}
+
+	public List<SelectItem> getNumSectionsSelectItems() {
+		return numSectionsSelectItems;
 	}
 	
 	public List<CourseSection> getSections() {
@@ -418,5 +440,4 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 	public void setElementToFocus(String scrollDepth) {
 		this.elementToFocus = scrollDepth;
 	}
-
 }

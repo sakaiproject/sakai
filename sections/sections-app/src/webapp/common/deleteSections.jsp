@@ -4,9 +4,9 @@
 
     <sakai:flowState bean="#{overviewBean}"/>
 
-    <x:aliasBean alias="#{viewName}" value="overview">
+    <t:aliasBean alias="#{viewName}" value="overview">
         <%@include file="/inc/navMenu.jspf"%>
-    </x:aliasBean>
+    </t:aliasBean>
 
 	<h3 class="instructions">
 	    <h:outputFormat value="#{msgs.overview_page_header}">
@@ -14,28 +14,28 @@
 	    </h:outputFormat>
 	</h3>
 
-    <x:div styleClass="alertMessage">
+    <t:div styleClass="alertMessage">
         <h:outputText value="#{msgs.overview_delete_section_confirmation_pre}"/>
-        <x:dataList
+        <t:dataList
             id="deleteSectionsTable"
             value="#{overviewBean.sectionsToDelete}"
             var="section"
             layout="unorderedList">
             <h:outputText value="#{section.title}"/>
-        </x:dataList>
+        </t:dataList>
     
-        <x:div>
+        <t:div>
             <h:outputText value="#{msgs.overview_delete_section_confirmation_post}"/>
-        </x:div>
+        </t:div>
     
-        <x:div styleClass="act deleteButtons">
+        <t:div styleClass="act deleteButtons">
             <h:commandButton
                 action="#{overviewBean.deleteSections}"
                 value="#{msgs.overview_delete_short}"
                 styleClass="active" />
             <h:commandButton action="overview" value="#{msgs.overview_cancel}"/>
-        </x:div>        
-    </x:div>
+        </t:div>        
+    </t:div>
 
 </h:form>
 </div>
