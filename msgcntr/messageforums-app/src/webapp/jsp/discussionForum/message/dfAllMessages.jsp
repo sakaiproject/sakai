@@ -12,6 +12,17 @@
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
 		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
 		
+		<sakai:tool_bar>
+				<sakai:tool_bar_item value="#{msgs.cdfm_container_title_thread}" action="#{ForumTool.processAddMessage}" id="df_compose_message_dfAllMessages"
+		  			rendered="#{ForumTool.selectedTopic.isNewResponse}" />
+      			
+      			<sakai:tool_bar_item value="#{msgs.cdfm_flat_view}" action="#{ForumTool.processActionDisplayFlatView}" />
+      			
+        		<sakai:tool_bar_item action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}" 
+					rendered="#{ForumTool.instructor}" />
+ 		</sakai:tool_bar>
+ 			
+		
 			  <h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel specialLink">
 			    <h:panelGroup>
 					<f:verbatim><div class="breadCrumb specialLink"><h3></f:verbatim>
@@ -43,9 +54,9 @@
 					 </h:commandLink>
 				 </h:panelGroup>
 			  </h:panelGrid>
-			  <p class="textPanel">
-				<h:outputText   value="#{ForumTool.selectedTopic.topic.shortDescription}" />
-				</p>
+			<h:outputText escape="false" value="<p class='textPanel'>" rendered="#{ForumTool.selectedTopic.topic.shortDescription} != ''}" />
+				<h:outputText   value="#{ForumTool.selectedTopic.topic.shortDescription}" rendered="#{ForumTool.selectedTopic.topic.shortDescription} != ''}" />
+			<h:outputText escape="false" value="</p>" rendered="#{ForumTool.selectedTopic.topic.shortDescription} != ''}" />
 				<p class="textPanelFooter specialLink">
 					<h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayExtendedDescription}" rendered="#{ForumTool.selectedTopic.hasExtendedDesciption}"
 						id="topic_extended_show" value="#{msgs.cdfm_read_full_description}" title="#{msgs.cdfm_read_full_description}">
@@ -58,9 +69,9 @@
 						<f:param value="processActionDisplayTopic" name="redirectToProcessAction"/>
 					</h:commandLink>
 				</p>	
-
+				<br />
 	<mf:htmlShowArea  id="forum_fullDescription" hideBorder="false"	 value="#{ForumTool.selectedTopic.topic.extendedDescription}" rendered="#{ForumTool.selectedTopic.readFullDesciption}"/> 
-				 <%@include file="dfViewSearchBar.jsp"%>
+				<%--<%@include file="dfViewSearchBar.jsp"%> --%>
      <%-- gsilver:need a rendered attribute here that will toggle the display of the table (if messages) or a textblock (class="instruction") if there are no messages--%> 				
    		
 		<%-- gsilver:this table outputs a row for each indented message that starts with e <script /> element - not allowed as the child of <tbody />
@@ -167,8 +178,9 @@
 	   	        	<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" />
                	</h:commandLink>
                	
-               	<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0}"
-               		value="<br /> #{msgs.cdfm_openb} #{message.childCount} #{msgs.cdfm_lowercase_msg} - #{message.childUnread} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
+               	<h:outputText escape="false" value="<br />&nbsp;" />
+               	<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount > 0}"
+               		value="#{msgs.cdfm_openb} #{message.childCount} #{msgs.cdfm_lowercase_msg} - #{message.childUnread} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
 
 			</h:column>
 

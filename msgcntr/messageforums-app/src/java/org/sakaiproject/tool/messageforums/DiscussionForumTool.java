@@ -69,6 +69,7 @@ import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -115,6 +116,7 @@ public class DiscussionForumTool
   private static final String ENTIRE_MSG = "dfEntireMsg";
   private static final String EXPANDED_VIEW = "dfExpandAllView";
   private static final String THREADED_VIEW = "dfThreadedView";
+  private static final String FLAT_VIEW = "dfFlatView";
   private static final String UNREAD_VIEW = "dfUnreadView";
   private static final String GRADE_MESSAGE = "dfMsgGrade";
   private static final String FORUM_STATISTICS = "dfStatisticsList";
@@ -1269,9 +1271,14 @@ public class DiscussionForumTool
     
     setEditMode(false);
     setPermissionMode(PERMISSION_MODE_TOPIC);
-    DiscussionTopic topic = (DiscussionTopic) forumManager
-        .getTopicByIdWithAttachments(new Long(
-            getExternalParameterByKey(TOPIC_ID)));
+    DiscussionTopic topic = null;
+    if(getExternalParameterByKey(TOPIC_ID) != ""){
+	    topic = (DiscussionTopic) forumManager
+	        .getTopicByIdWithAttachments(new Long(
+	            getExternalParameterByKey(TOPIC_ID)));
+    } else if(selectedTopic != null) {
+    	topic = selectedTopic.getTopic();
+    }
     if (topic == null)
     {
       return gotoMain();
@@ -1455,18 +1462,34 @@ public class DiscussionForumTool
   /**
    * @return
    */
+  public String processActionDisplayFlatView()
+  {
+	  return FLAT_VIEW;
+  }
+  
+  /**
+   * @return
+   */
+  public String processActionDisplayThreadedView()
+  {
+	  return ALL_MESSAGES;
+  }
+  
+  /**
+   * @return
+   */
   public String processActionDisplayThread()
   {
 	    LOG.debug("processActionDisplayMessage()");
 
 	    String threadId = getExternalParameterByKey(MESSAGE_ID);
 	    String topicId = getExternalParameterByKey(TOPIC_ID);
-	    if (threadId == null)
+	    if (threadId == "")
 	    {
 	      setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
 	      return gotoMain();
 	    }
-	    if (topicId == null)
+	    if (topicId == "")
 	    {
 	      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
 	      return gotoMain();
@@ -1512,11 +1535,23 @@ public class DiscussionForumTool
 	    List orderedList = new ArrayList();
 	    selectedThread = new ArrayList();
 	    
+	    Boolean foundHead = false;
+	    Boolean foundAfterHead = false;
+	    
 	    for(int i=0; i<msgsList.size(); i++){
 	    	if(((DiscussionMessageBean)msgsList.get(i)).getMessage().getId().equals(selectedThreadHead.getMessage().getId())){
 	    		((DiscussionMessageBean) msgsList.get(i)).setDepth(0);
 	    		selectedThread.add((DiscussionMessageBean)msgsList.get(i));
-	    		break;
+	    		foundHead = true;
+	    	}
+	    	else if(((DiscussionMessageBean)msgsList.get(i)).getMessage().getInReplyTo() == null && foundHead && !foundAfterHead) {
+	    		selectedThreadHead.setHasNextThread(true);
+	    		selectedThreadHead.setNextThreadId(((DiscussionMessageBean)msgsList.get(i)).getMessage().getId());
+	    		foundAfterHead = true;
+	    	} 
+	    	else if (((DiscussionMessageBean)msgsList.get(i)).getMessage().getInReplyTo() == null && !foundHead) {
+	    		selectedThreadHead.setHasPreThread(true);
+	    		selectedThreadHead.setPreThreadId(((DiscussionMessageBean)msgsList.get(i)).getMessage().getId());
 	    	}
 	    }
 
@@ -3508,7 +3543,7 @@ public class DiscussionForumTool
   
   	List msgsList = selectedTopic.getMessages();
   	List orderedList = new ArrayList();
-  	List finalList = new ArrayList();
+  	List threadList = new ArrayList();
   	
   	if(msgsList != null)
   	{
@@ -3517,8 +3552,8 @@ public class DiscussionForumTool
   			DiscussionMessageBean dmb = (DiscussionMessageBean)msgsList.get(i);
   			if(dmb.getMessage().getInReplyTo() == null)
   			{
+  				threadList.add(dmb);
   				dmb.setDepth(0);
-  				 				
   				orderedList.add(dmb);
   				//for performance speed - operate with existing selectedTopic msgs instead of getting from manager through DB again 
   				//recursiveGetThreadedMsgs(msgsList, orderedList, dmb);
@@ -4261,7 +4296,8 @@ public class DiscussionForumTool
 	      forumManager.markMessageAs(decoMessage.getMessage(), readStatus);
 
 	    }
-	    return displayTopicById(TOPIC_ID); // reconstruct topic again;
+	    //return displayTopicById(TOPIC_ID); // reconstruct topic again;
+	    return processActionDisplayThread();
   }
   
   /**
@@ -5038,4 +5074,12 @@ public class DiscussionForumTool
 	private boolean isForumsPageInSite(String siteId) {
 		return messageManager.isToolInSite(siteId, FORUMS_TOOL_ID);
 	}
+	
+	 public String getPrintFriendlyUrl()
+	  {
+		  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
+						+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
+						+ Entity.SEPARATOR + "message" + Entity.SEPARATOR 
+						+ "printFriendly";
+	  }
 }

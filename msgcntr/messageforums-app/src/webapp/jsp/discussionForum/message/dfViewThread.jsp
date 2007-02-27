@@ -12,7 +12,16 @@
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
 		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
 		
-
+		<sakai:tool_bar>
+				<sakai:tool_bar_item action="#{ForumTool.processDfMsgReplyThread}" value="#{msgs.cdfm_reply_thread}" 
+		  			rendered="#{ForumTool.selectedTopic.isNewResponse}" />
+		  		
+		  		<%--
+		  		<sakai:tool_bar_item action="#{ForumTool.processActionMarkAllAsRead}" value="#{msgs.cdfm_mark_all_as_read}" 
+					rendered="#{ForumTool.selectedTopic.isMarkAsRead}" />
+      			--%>
+ 		</sakai:tool_bar>
+			<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel specialLink">
 			    <h:panelGroup>
 					<f:verbatim><div class="breadCrumb specialLink"><h3></f:verbatim>
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
@@ -32,7 +41,23 @@
 				  	  <h:outputText value="#{ForumTool.selectedThreadHead.message.title}" />
 					  <f:verbatim></h3></div></f:verbatim>
 				 </h:panelGroup>
-
+				 
+				 <h:panelGroup styleClass="itemNav">
+				   <h:outputText   value="#{msgs.cdfm_previous_thread}"  rendered="#{!ForumTool.selectedThreadHead.hasPreThread}" />
+					 <h:commandLink action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_previous_thread}"  rendered="#{ForumTool.selectedThreadHead.hasPreThread}">
+						 <f:param value="#{ForumTool.selectedThreadHead.preThreadId}" name="messageId"/>
+						 <f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+						 <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+					 </h:commandLink>
+					 <f:verbatim><h:outputText  id="blankSpace1" value=" |  " /></f:verbatim>				
+					 <h:outputText   value="#{msgs.cdfm_next_thread}" rendered="#{!ForumTool.selectedThreadHead.hasNextThread}" />
+					 <h:commandLink action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_next_thread}" rendered="#{ForumTool.selectedThreadHead.hasNextThread}">
+						<f:param value="#{ForumTool.selectedThreadHead.nextThreadId}" name="messageId"/>
+						<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+					 </h:commandLink>
+				 </h:panelGroup>
+			</h:panelGrid>
 
 				 <%@include file="dfViewSearchBarThread.jsp"%>
 		
@@ -97,8 +122,7 @@
 						<f:verbatim><div style="clear:both;height:.1em"></div></f:verbatim>
                      <f:verbatim></h4></f:verbatim>
 
-		  			<mf:htmlShowArea value="#{message.message.body}" hideBorder="true" rendered="#{message.read}" />
-		  			<h:outputText styleClass="unreadMsg" value="#{message.message.body}" rendered="#{!message.read}" />
+		  			<mf:htmlShowArea value="#{message.message.body}" hideBorder="true" />
 				<f:verbatim></div></f:verbatim>
 			</h:column>
 		</h:dataTable>
@@ -164,8 +188,7 @@
 						<f:verbatim><div style="clear:both;height:.1em"></div></f:verbatim>
                      <f:verbatim></h4></f:verbatim>
 
-		  			<mf:htmlShowArea value="#{message.message.body}" hideBorder="true" rendered="#{message.read}" />
-		  			<h:outputText styleClass="unreadMsg" value="#{message.message.body}" rendered="#{!message.read}" />
+		  			<mf:htmlShowArea value="#{message.message.body}" hideBorder="true"/>
 				<f:verbatim></div></f:verbatim>
 			</h:column>
 		</mf:hierDataTable>

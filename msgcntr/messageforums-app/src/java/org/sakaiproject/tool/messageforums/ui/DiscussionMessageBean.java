@@ -48,6 +48,10 @@ public class DiscussionMessageBean
   private boolean hasChild;
   private int childUnread;
   private int childCount;
+  private boolean hasNextThread;
+  private boolean hasPreThread;
+  private long nextThreadId;
+  private long preThreadId;
 
   private MessageForumsMessageManager messageManager;
 
@@ -233,5 +237,37 @@ public class DiscussionMessageBean
   public void setChildCount(int newValue){
 	  childCount = newValue;
   }
-	
+  
+  public boolean getHasNextThread(){
+	  return hasNextThread;
+  }
+  
+  public void setHasNextThread(boolean newValue){
+	  hasNextThread = newValue;
+  }
+  
+  public boolean getHasPreThread(){
+	  return hasPreThread;
+  }
+  
+  public void setHasPreThread(boolean newValue){
+	  hasPreThread = newValue;
+  }
+  
+  public long getNextThreadId(){
+	  return nextThreadId;
+  }
+  
+  public void setNextThreadId(long newValue){
+	  nextThreadId = newValue;
+  }
+  
+  public long getPreThreadId(){
+	  return preThreadId;
+  }
+  
+  public void setPreThreadId(long newValue){
+	  preThreadId = newValue;
+  }
+  
 }
