@@ -141,8 +141,9 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 				{
 					Element dfElement = doc.createElement(MESSAGEFORUM);
 
-					List forums = dfManager.getDiscussionForumsByContextId(siteId);
-
+					//List forums = dfManager.getDiscussionForumsByContextId(siteId);
+					List forums = dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(siteId);
+					
 					if (forums != null && !forums.isEmpty())
 					{
 						Iterator forumsIter = forums.iterator();
@@ -385,7 +386,8 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		{
 			LOG.debug("transfer copy mc items by transferCopyEntities");
 
-			List fromDfList = dfManager.getDiscussionForumsByContextId(fromContext);
+			//List fromDfList = dfManager.getDiscussionForumsByContextId(fromContext);
+			List fromDfList = dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(fromContext);
 
 			if (fromDfList != null && !fromDfList.isEmpty()) {
 				for (int currForum = 0; currForum < fromDfList.size(); currForum++) {

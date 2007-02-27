@@ -357,4 +357,6 @@ public interface DiscussionForumManager
   public Attachment createDFAttachment(String attachId, String name);
   
   public Map getReadStatusForMessagesWithId(List msgIds, String userId);
+  
+  public List getDiscussionForumsWithTopicsMembershipNoAttachments(String contextId);
 }
