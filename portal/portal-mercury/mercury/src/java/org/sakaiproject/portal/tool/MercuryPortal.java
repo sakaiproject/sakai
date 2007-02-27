@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -43,7 +43,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.portal.util.ErrorReporter;
+import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
@@ -54,14 +57,18 @@ import org.sakaiproject.tool.api.ToolURL;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.portal.util.ErrorReporter;
-import org.sakaiproject.portal.util.ToolURLManagerImpl;
+import org.sakaiproject.user.api.Authentication;
+import org.sakaiproject.user.api.AuthenticationException;
+import org.sakaiproject.user.api.Evidence;
+import org.sakaiproject.user.cover.AuthenticationManager;
+import org.sakaiproject.util.IdPwEvidence;
 import org.sakaiproject.util.Web;
 
 /**
  * <p>
- * Mercury is the Sakai developers portal. It can be used while developing a new Sakai application to invoke the tool in the way that the tool will be invoked by any of the Sakai navigation / portal technologies. Mercury is easier to use in development
- * because you don't have to setup a Site or build SuperStructure to test your application.
+ * Mercury is the Sakai developers portal. It can be used while developing a new Sakai application to invoke the tool in the way that the tool will be
+ * invoked by any of the Sakai navigation / portal technologies. Mercury is easier to use in development because you don't have to setup a Site or
+ * build SuperStructure to test your application.
  * </p>
  * <p>
  * Mercury supports a few URL patterns, but those give you the ability to:
@@ -181,12 +188,16 @@ public class MercuryPortal extends HttpServlet
 			{
 				doLogout(req, res, session);
 			}
+			else if ((parts.length == 3) && (parts[1].equals("loginx")))
+			{
+				doLoginx(req, res, parts[2], session);
+			}
 
 			// recognize and dispatch a tool request option: parts[2] is the context, parts[1] is a known tool id, parts[3..n] are for the tool
 			else if (parts.length >= 3)
 			{
-				doTool(req, res, session, parts[1], parts[2], req.getContextPath() + req.getServletPath()
-						+ Web.makePath(parts, 1, 3), Web.makePath(parts, 3, parts.length));
+				doTool(req, res, session, parts[1], parts[2], req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3), Web.makePath(
+						parts, 3, parts.length));
 			}
 
 			// handle an unrecognized request
@@ -246,6 +257,16 @@ public class MercuryPortal extends HttpServlet
 		if ((session.getUserId() == null) && (session.getUserEid() == null))
 		{
 			out.println("<p><a href=\"" + Web.returnUrl(req, "/login") + "\">login</a></p>");
+
+			String[] loginIds = ServerConfigurationService.getStrings("mercury.login");
+			int i = 0;
+			if (loginIds != null)
+			{
+				for (String loginId : loginIds)
+				{
+					out.println("<p><a href=\"" + Web.returnUrl(req, "/loginx/" + Integer.toString(i++)) + "\">login: " + loginId + "</a></p>");
+				}
+			}
 		}
 		else
 		{
@@ -267,10 +288,9 @@ public class MercuryPortal extends HttpServlet
 		{
 			Tool t = (Tool) i.next();
 			String toolUrl = Web.returnUrl(req, "/" + t.getId() + "/mercury");
-			out.println("<tr><td><a href=\"" + toolUrl + "\">" + t.getId() + "</a></td><td>" + t.getTitle() + "</td><td>"
-					+ t.getDescription() + "</td><td>" + printConfiguration(t.getFinalConfig()) + "</td><td>"
-					+ printConfiguration(t.getMutableConfig()) + "</td><td>" + printCategories(t.getCategories()) + "</td><td>"
-					+ printKeywords(t.getKeywords()) + "</td></tr>");
+			out.println("<tr><td><a href=\"" + toolUrl + "\">" + t.getId() + "</a></td><td>" + t.getTitle() + "</td><td>" + t.getDescription()
+					+ "</td><td>" + printConfiguration(t.getFinalConfig()) + "</td><td>" + printConfiguration(t.getMutableConfig()) + "</td><td>"
+					+ printCategories(t.getCategories()) + "</td><td>" + printKeywords(t.getKeywords()) + "</td></tr>");
 		}
 		out.println("</table>");
 
@@ -304,10 +324,9 @@ public class MercuryPortal extends HttpServlet
 		{
 			Tool t = (Tool) i.next();
 			String toolUrl = Web.returnUrl(req, "/" + t.getId() + "/mercury");
-			out.println("<tr><td><a href=\"" + toolUrl + "\">" + t.getId() + "</a></td><td>" + t.getTitle() + "</td><td>"
-					+ t.getDescription() + "</td><td>" + printConfiguration(t.getFinalConfig()) + "</td><td>"
-					+ printConfiguration(t.getMutableConfig()) + "</td><td>" + printCategories(t.getCategories()) + "</td><td>"
-					+ printKeywords(t.getKeywords()) + "</td></tr>");
+			out.println("<tr><td><a href=\"" + toolUrl + "\">" + t.getId() + "</a></td><td>" + t.getTitle() + "</td><td>" + t.getDescription()
+					+ "</td><td>" + printConfiguration(t.getFinalConfig()) + "</td><td>" + printConfiguration(t.getMutableConfig()) + "</td><td>"
+					+ printCategories(t.getCategories()) + "</td><td>" + printKeywords(t.getKeywords()) + "</td></tr>");
 		}
 		out.println("</table>");
 
@@ -323,10 +342,9 @@ public class MercuryPortal extends HttpServlet
 		{
 			Tool t = (Tool) i.next();
 			String toolUrl = Web.returnUrl(req, "/" + t.getId() + "/mercury");
-			out.println("<tr><td><a href=\"" + toolUrl + "\">" + t.getId() + "</a></td><td>" + t.getTitle() + "</td><td>"
-					+ t.getDescription() + "</td><td>" + printConfiguration(t.getFinalConfig()) + "</td><td>"
-					+ printConfiguration(t.getMutableConfig()) + "</td><td>" + printCategories(t.getCategories()) + "</td><td>"
-					+ printKeywords(t.getKeywords()) + "</td></tr>");
+			out.println("<tr><td><a href=\"" + toolUrl + "\">" + t.getId() + "</a></td><td>" + t.getTitle() + "</td><td>" + t.getDescription()
+					+ "</td><td>" + printConfiguration(t.getFinalConfig()) + "</td><td>" + printConfiguration(t.getMutableConfig()) + "</td><td>"
+					+ printCategories(t.getCategories()) + "</td><td>" + printKeywords(t.getKeywords()) + "</td></tr>");
 		}
 		out.println("</table>");
 
@@ -364,6 +382,37 @@ public class MercuryPortal extends HttpServlet
 		tool.help(req, res, context, null);
 	}
 
+	protected void doLoginx(HttpServletRequest req, HttpServletResponse res, String which, Session session) throws ToolException, IOException
+	{
+		String[] loginIds = ServerConfigurationService.getStrings("mercury.login");
+		String[] loginPws = ServerConfigurationService.getStrings("mercury.password");
+
+		int i = Integer.parseInt(which);
+		String eid = loginIds[i];
+		String pw = loginPws[i];
+
+		Evidence e = new IdPwEvidence(eid, pw);
+
+		// authenticate
+		try
+		{
+			if ((eid.length() == 0) || (pw.length() == 0))
+			{
+				throw new AuthenticationException("missing required fields");
+			}
+
+			Authentication a = AuthenticationManager.authenticate(e);
+
+			// login the user
+			UsageSessionService.login(a, req);
+		}
+		catch (AuthenticationException ex)
+		{
+		}
+
+		doHome(req, res, session);
+	}
+
 	/**
 	 * Process a logout - borrowed from CharonPortal.java
 	 * 
@@ -389,8 +438,8 @@ public class MercuryPortal extends HttpServlet
 		tool.help(req, res, context, "/logout");
 	}
 
-	protected void doTool(HttpServletRequest req, HttpServletResponse res, Session session, String toolId, String context,
-			String toolContextPath, String toolPathInfo) throws ToolException, IOException
+	protected void doTool(HttpServletRequest req, HttpServletResponse res, Session session, String toolId, String context, String toolContextPath,
+			String toolPathInfo) throws ToolException, IOException
 	{
 		ActiveTool tool = ActiveToolManager.getActiveTool(toolId);
 		if (tool == null)
@@ -507,8 +556,8 @@ public class MercuryPortal extends HttpServlet
 			// recognize and dispatch a tool request option: parts[2] is the context, parts[1] is a known tool id, parts[3..n] are for the tool
 			else if (parts.length >= 3)
 			{
-				postTool(req, res, session, parts[1], parts[2], req.getContextPath() + req.getServletPath()
-						+ Web.makePath(parts, 1, 3), Web.makePath(parts, 3, parts.length));
+				postTool(req, res, session, parts[1], parts[2], req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3), Web
+						.makePath(parts, 3, parts.length));
 			}
 
 			// handle an unrecognized request
@@ -534,8 +583,8 @@ public class MercuryPortal extends HttpServlet
 	{
 	}
 
-	protected void postTool(HttpServletRequest req, HttpServletResponse res, Session session, String toolId, String context,
-			String toolContextPath, String toolPathInfo) throws ToolException, IOException
+	protected void postTool(HttpServletRequest req, HttpServletResponse res, Session session, String toolId, String context, String toolContextPath,
+			String toolPathInfo) throws ToolException, IOException
 	{
 		ActiveTool tool = ActiveToolManager.getActiveTool(toolId);
 		if (tool == null)
@@ -561,17 +610,15 @@ public class MercuryPortal extends HttpServlet
 	/**
 	 * Forward to the tool - setup JavaScript/CSS etc that the tool will render
 	 */
-	protected void forwardTool(ActiveTool tool, HttpServletRequest req, HttpServletResponse res, Placement p,
-			String toolContextPath, String toolPathInfo) throws ToolException
+	protected void forwardTool(ActiveTool tool, HttpServletRequest req, HttpServletResponse res, Placement p, String toolContextPath,
+			String toolPathInfo) throws ToolException
 	{
 		String skin = ServerConfigurationService.getString("skin.default");
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
 
 		// setup html information that the tool might need (skin, body on load, js includes, etc).
-		String headCssToolBase = "<link href=\"" + skinRepo
-				+ "/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
-		String headCssToolSkin = "<link href=\"" + skinRepo + "/" + skin
-				+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+		String headCssToolBase = "<link href=\"" + skinRepo + "/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+		String headCssToolSkin = "<link href=\"" + skinRepo + "/" + skin + "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 		String headCss = headCssToolBase + headCssToolSkin;
 		String headJs = "<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n";
 		String head = headCss + headJs;
@@ -615,8 +662,7 @@ public class MercuryPortal extends HttpServlet
 		{
 			out.println("session: " + s.getId() + " user id: " + s.getUserId() + " enterprise id: " + s.getUserEid() + " started: "
 					+ DateFormat.getDateInstance().format(new Date(s.getCreationTime())) + " accessed: "
-					+ DateFormat.getDateInstance().format(new Date(s.getLastAccessedTime())) + " inactive after: "
-					+ s.getMaxInactiveInterval());
+					+ DateFormat.getDateInstance().format(new Date(s.getLastAccessedTime())) + " inactive after: " + s.getMaxInactiveInterval());
 			if (html) out.println("<br />");
 		}
 
@@ -628,9 +674,8 @@ public class MercuryPortal extends HttpServlet
 		}
 		else
 		{
-			out.println("tool session: " + ts.getId() + " started: "
-					+ DateFormat.getDateInstance().format(new Date(ts.getCreationTime())) + " accessed: "
-					+ DateFormat.getDateInstance().format(new Date(ts.getLastAccessedTime())));
+			out.println("tool session: " + ts.getId() + " started: " + DateFormat.getDateInstance().format(new Date(ts.getCreationTime()))
+					+ " accessed: " + DateFormat.getDateInstance().format(new Date(ts.getLastAccessedTime())));
 			if (html) out.println("<br />");
 		}
 	}
