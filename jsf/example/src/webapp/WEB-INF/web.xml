@@ -208,7 +208,7 @@
 	<!--
     <filter>
         <filter-name>extensionsFilter</filter-name>
-        <filter-class>org.apache.myfaces.component.html.util.ExtensionsFilter</filter-class>
+        <filter-class>org.apache.myfaces.webapp.filter.ExtensionsFilter</filter-class>
         <init-param>
             <param-name>uploadMaxFileSize</param-name>
             <param-value>1m</param-value>
