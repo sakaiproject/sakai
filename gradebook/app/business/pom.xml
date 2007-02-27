@@ -76,6 +76,14 @@
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
+
+
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-event-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
 <!-- sakai2 plugin -->
 <!--
 			The Gradebook itself has no need of a Uuid generator.
