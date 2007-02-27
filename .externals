@@ -33,7 +33,7 @@ search			https://source.sakaiproject.org/svn/search/trunk
 site-manage		https://source.sakaiproject.org/svn/site-manage/trunk
 announcement		https://source.sakaiproject.org/svn/announcement/trunk
 mailarchive		https://source.sakaiproject.org/svn/mailarchive/trunk
-chat			-r21814 https://source.sakaiproject.org/svn/chat/trunk
+chat			https://source.sakaiproject.org/svn/chat/trunk
 discussion		https://source.sakaiproject.org/svn/discussion/trunk
 message			https://source.sakaiproject.org/svn/message/trunk
 web			https://source.sakaiproject.org/svn/web/trunk
