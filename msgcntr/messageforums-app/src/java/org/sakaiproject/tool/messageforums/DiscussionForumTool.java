@@ -198,7 +198,7 @@ public class DiscussionForumTool
   private String searchText = "";
   private String selectedMessageView = ALL_MESSAGES;
   private String selectedMessageShow = SUBJECT_ONLY;
-  private String selectedMessageOrganize = "date"; 
+  private String selectedMessageOrganize = "thread"; 
   private boolean deleteMsg;
   private boolean displayUnreadOnly;
   private boolean errorSynch = false;
@@ -208,9 +208,10 @@ public class DiscussionForumTool
   // private boolean attachCaneled = false;
   // private ArrayList oldAttachments = new ArrayList();
   // private List allAttachments = new ArrayList();
-  private boolean threaded = false;
+  private boolean threaded = true;
   private boolean expandedView = false;
   private String expanded = "false";
+  private boolean orderAsc = true;
   private boolean disableLongDesc = false;
   private boolean isDisplaySearchedMessages;
   private List siteMembers = new ArrayList();
@@ -791,7 +792,7 @@ public class DiscussionForumTool
     setForumBeanAssign();
     setFromMainOrForumOrTopic();
     
-    return FORUM_SETTING;
+    return FORUM_SETTING_REVISE;
 
   }
 
@@ -1291,7 +1292,8 @@ public class DiscussionForumTool
     setTopicBeanAssign();
     setFromMainOrForumOrTopic();
     
-    return TOPIC_SETTING;
+    //return TOPIC_SETTING;
+    return TOPIC_SETTING_REVISE;
   }
 
   public String processActionToggleDisplayForumExtendedDescription()
@@ -1429,7 +1431,25 @@ public class DiscussionForumTool
    */
   public List getSelectedThread()
   {
-	  return selectedThread;	  
+	  List returnArray = new ArrayList();
+	  returnArray = selectedThread;
+	  if(displayUnreadOnly){
+		  ArrayList tempmes = new ArrayList();
+		  for(int i = returnArray.size()-1; i >= 0; i--){
+			  if(!((DiscussionMessageBean)returnArray.get(i)).isRead()){
+				  tempmes.add(returnArray.get(i));
+			  }
+		  }
+		  returnArray = tempmes;
+	  }
+	  if (!orderAsc){
+		  ArrayList tempmes = new ArrayList();
+		  for(int i = returnArray.size()-1; i >= 0; i--){
+			  tempmes.add(returnArray.get(i));
+		  }
+		  return tempmes;
+	  } else
+		  return returnArray;
   }
   
   /**
@@ -1465,6 +1485,7 @@ public class DiscussionForumTool
 	    selectedThreadHead = new DiscussionMessageBean(threadMessage, messageManager);
 	    DiscussionTopic topic=forumManager.getTopicById(new Long(
 	        getExternalParameterByKey(TOPIC_ID)));
+	    selectedMessage = selectedThreadHead;
 	    setSelectedForumForCurrentTopic(topic);
 	    selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
 	        uiPermissionsManager, forumManager);
@@ -2459,6 +2480,40 @@ public class DiscussionForumTool
     return "dfMessageReply";
   }
 
+  public String processDfMsgReplyThread()
+  {
+	  //we have to get the depth 0 message that this is in response to
+	  DiscussionMessageBean cur = selectedMessage;
+	  int depth = 0;
+	  long messageId = 0;
+	  while(cur.getDepth() > 0){
+		  depth = cur.getDepth();
+		  messageId = cur.getMessage().getInReplyTo().getId();
+		  cur = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(cur.getMessage().getInReplyTo().getId()), messageManager);
+		  cur.setDepth(--depth);
+	  }
+	  selectedMessage = cur;
+	  List tempMsgs = selectedTopic.getMessages();
+	    if(tempMsgs != null)
+	    {
+	    	for(int i=0; i<tempMsgs.size(); i++)
+	    	{
+	    		DiscussionMessageBean thisDmb = (DiscussionMessageBean)tempMsgs.get(i);
+	    		if(((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getId().toString().equals(messageId))
+	    		{
+	    			selectedMessage.setDepth(thisDmb.getDepth());
+	    			selectedMessage.setHasNext(thisDmb.getHasNext());
+	    			selectedMessage.setHasPre(thisDmb.getHasPre());
+	    			break;
+	    		}
+	    	}
+	    }
+	  composeTitle = "Re: " + selectedMessage.getMessage().getTitle();
+	  
+	  
+	  return "dfMessageReplyThread";
+  }
+  
   public String processDfMsgReplyTp()
   {
     return "dfTopicReply";
@@ -2665,7 +2720,7 @@ public class DiscussionForumTool
 
     this.attachments.clear();
 
-    return ALL_MESSAGES;
+    return THREAD_VIEW; //ALL_MESSAGES;
   }
 
   public String processDfReplyMsgSaveDraft()
@@ -2983,6 +3038,18 @@ public class DiscussionForumTool
     this.attachments.clear();
 
     return ALL_MESSAGES;
+  }
+  
+  public String processDfReplyThreadCancel()
+  {
+	  this.errorSynch = false;
+	    this.composeBody = null;
+	    this.composeLabel = null;
+	    this.composeTitle = null;
+
+	    this.attachments.clear();
+
+	    return THREAD_VIEW;
   }
 
   public String processDfReplyTopicPost()
@@ -3441,6 +3508,7 @@ public class DiscussionForumTool
   
   	List msgsList = selectedTopic.getMessages();
   	List orderedList = new ArrayList();
+  	List finalList = new ArrayList();
   	
   	if(msgsList != null)
   	{
@@ -3450,10 +3518,12 @@ public class DiscussionForumTool
   			if(dmb.getMessage().getInReplyTo() == null)
   			{
   				dmb.setDepth(0);
+  				 				
   				orderedList.add(dmb);
   				//for performance speed - operate with existing selectedTopic msgs instead of getting from manager through DB again 
   				//recursiveGetThreadedMsgs(msgsList, orderedList, dmb);
-  				recursiveGetThreadedMsgsFromList(msgsList, orderedList, dmb);
+  				//use arrays so as to pass by reference during recursion
+  				recursiveGetThreadedMsgsFromListWithCounts(msgsList, orderedList, dmb, new int[1], new int[1]);
   			}
   		}
   	}
@@ -3487,9 +3557,35 @@ public class DiscussionForumTool
 		}
  
   }
-
+  
   private void recursiveGetThreadedMsgsFromList(List msgsList, List returnList,
-      DiscussionMessageBean currentMsg)
+	      DiscussionMessageBean currentMsg)
+	  {
+	    for (int i = 0; i < msgsList.size(); i++)
+	    {
+	      DiscussionMessageBean thisMsgBean = (DiscussionMessageBean) msgsList
+	          .get(i);
+	      Message thisMsg = thisMsgBean.getMessage();
+	      if (thisMsg.getInReplyTo() != null
+	          && thisMsg.getInReplyTo().getId().equals(
+	              currentMsg.getMessage().getId()))
+	      {
+	        /*
+	         * DiscussionMessageBean dmb = new DiscussionMessageBean(thisMsg, messageManager);
+	         * dmb.setDepth(currentMsg.getDepth() + 1); returnList.add(dmb);
+	         * this.recursiveGetThreadedMsgsFromList(msgsList, returnList, dmb);
+	         */
+
+	        thisMsgBean.setDepth(currentMsg.getDepth() + 1);
+	        returnList.add(thisMsgBean);
+	        this
+	            .recursiveGetThreadedMsgsFromList(msgsList, returnList, thisMsgBean);
+	      }
+	    }
+	  }
+
+  private void recursiveGetThreadedMsgsFromListWithCounts(List msgsList, List returnList,
+      DiscussionMessageBean currentMsg, int[] childCount, int[] childUnread)
   {
     for (int i = 0; i < msgsList.size(); i++)
     {
@@ -3505,12 +3601,18 @@ public class DiscussionForumTool
          * dmb.setDepth(currentMsg.getDepth() + 1); returnList.add(dmb);
          * this.recursiveGetThreadedMsgsFromList(msgsList, returnList, dmb);
          */
+    	childCount[0]++;
+    	if(!thisMsgBean.isRead()){
+    		childUnread[0]++;
+    	}
         thisMsgBean.setDepth(currentMsg.getDepth() + 1);
         returnList.add(thisMsgBean);
         this
-            .recursiveGetThreadedMsgsFromList(msgsList, returnList, thisMsgBean);
+            .recursiveGetThreadedMsgsFromListWithCounts(msgsList, returnList, thisMsgBean, childCount, childUnread);
       }
     }
+    currentMsg.setChildCount(childCount[0]);
+    currentMsg.setChildUnread(childUnread[0]);
   }
   
   public String processDfGradeCancel() 
@@ -4006,7 +4108,7 @@ public class DiscussionForumTool
 	          + ")");
 	  isDisplaySearchedMessages=false;
 	  searchText="";
-	  expanded="false";
+	  //expanded="false";
 	  String changeOrganize = (String) vce.getNewValue();
 	  
 	  DiscussionTopic topic = null;
@@ -4021,9 +4123,20 @@ public class DiscussionForumTool
 	  }
 	  if(changeOrganize.equals("thread")){
 		  threaded = true;
-	  }
-	  else{
+		  orderAsc = true;
+		  displayUnreadOnly = false;
+	  } else if(changeOrganize.equals("date_desc")){
 		  threaded = false;
+		  orderAsc = false;
+		  displayUnreadOnly = false;
+	  } else if(changeOrganize.equals("date")){
+		  orderAsc = true;
+		  threaded = false;
+		  displayUnreadOnly = false;
+	  } else if (changeOrganize.equals("unread")){
+		  orderAsc = true;
+		  threaded = false;
+		  displayUnreadOnly = true;
 	  }
 		  
 	  return;
@@ -4832,6 +4945,9 @@ public class DiscussionForumTool
 		if(displayUnreadOnly){
 			return selectedTopic.getUnreadMessages();
 		}
+		//else if (!orderAsc ){
+		//	return selectedTopic.getMessagesDesc();
+		//}
 		else
 			return selectedTopic.getMessages();
 		/****

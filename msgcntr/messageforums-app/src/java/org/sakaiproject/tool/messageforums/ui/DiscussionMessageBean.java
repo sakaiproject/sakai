@@ -46,6 +46,8 @@ public class DiscussionMessageBean
   private boolean hasNext;
   private boolean hasPre;
   private boolean hasChild;
+  private int childUnread;
+  private int childCount;
 
   private MessageForumsMessageManager messageManager;
 
@@ -215,5 +217,21 @@ public class DiscussionMessageBean
 		}
 		return decoAttachList;
 	}
-
+  
+  public int getChildUnread(){
+	  return childUnread;
+  }
+  
+  public void setChildUnread(int newValue){
+	  childUnread = newValue;
+  }
+  
+  public int getChildCount(){
+	  return childCount;
+  }
+  
+  public void setChildCount(int newValue){
+	  childCount = newValue;
+  }
+	
 }

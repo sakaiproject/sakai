@@ -168,9 +168,8 @@
                	</h:commandLink>
                	
                	<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0}"
-               		value="<br /> #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msg} - #{topic.unreadNoMessages} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
+               		value="<br /> #{msgs.cdfm_openb} #{message.childCount} #{msgs.cdfm_lowercase_msg} - #{message.childUnread} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
 
-				<h:outputText escape="false" value="<br />" />
 			</h:column>
 
 			<h:column>

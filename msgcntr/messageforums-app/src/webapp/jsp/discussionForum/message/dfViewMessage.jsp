@@ -72,11 +72,12 @@
 		  <mf:htmlShowArea value="#{ForumTool.selectedTopic.topic.extendedDescription}" 
 		                   rendered="#{ForumTool.selectedTopic.readFullDesciption}" 
 		                   hideBorder="false" />
-			
+	
+		
 		<sakai:button_bar rendered="#{!ForumTool.deleteMsg}">
 	    <sakai:button_bar_item action="#{ForumTool.processDfMsgReplyMsg}" value="#{msgs.cdfm_button_bar_reply_to_msg}" 
 	                           rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}" />
-	    <sakai:button_bar_item action="#{ForumTool.processDfMsgReplyTp}" value="#{msgs.cdfm_button_bar_reply_to_topic}" 
+	    <sakai:button_bar_item action="#{ForumTool.processDfMsgReplyThread}" value="#{msgs.cdfm_button_bar_reply_to_thread}" 
 		                         rendered="#{ForumTool.selectedTopic.isNewResponse}" />
       <sakai:button_bar_item action="#{ForumTool.processDfMsgGrd}" value="#{msgs.cdfm_button_bar_grade}" 
                              rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}"  /> 
@@ -99,6 +100,9 @@
       		&& ForumTool.selectedMessage.hasChild}"/>--%>
     </sakai:button_bar>
     
+	<f:verbatim><div class="hierItemBlock"></f:verbatim>
+	<f:verbatim><h4 class="textPanelHeader"></f:verbatim>
+	
     <h:panelGrid columns="3" styleClass="itemSummary" style="width: 100%;">
     	<h:outputText value="#{msgs.cdfm_subject}"/>
     	<h:outputText value="#{ForumTool.selectedMessage.message.title}"/>
@@ -148,11 +152,12 @@
     </h:panelGrid>
     
 		
-		<hr class="itemSeparator" />
-		
+		<%-- <hr class="itemSeparator" /> --%>
+		<f:verbatim></h4></f:verbatim>
     
 			<mf:htmlShowArea value="#{ForumTool.selectedMessage.message.body}" hideBorder="true" />
 			
+	<f:verbatim></div></f:verbatim>
     <sakai:button_bar rendered="#{!ForumTool.deleteMsg}">
 	    <sakai:button_bar_item action="#{ForumTool.processDfMsgReplyMsg}" value="#{msgs.cdfm_button_bar_reply_to_msg}" 
 	                           rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}" />

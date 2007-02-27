@@ -13,7 +13,7 @@
         <h:outputText styleClass="alertMessage" value="#{msgs.cdfm_reply_deleted}" rendered="#{ForumTool.errorSynch}" />
 	
 
-		  <h3><h:outputText value="#{msgs.cdfm_reply_tool_bar_message}"  /></h3>
+		  <h3><h:outputText value="#{msgs.cdfm_reply_thread_tool_bar_message}"  /></h3>
       <h4><h:outputText value="#{ForumTool.selectedForum.forum.title}" />
 		    <h:outputText value=" - "/>
 	      <h:outputText value="#{ForumTool.selectedTopic.topic.title}"/>
@@ -210,7 +210,7 @@
       <sakai:button_bar>
         <sakai:button_bar_item action="#{ForumTool.processDfReplyMsgPost}" value="#{msgs.cdfm_button_bar_post_message}" accesskey="s" styleClass="active" />
     <%--    <sakai:button_bar_item action="#{ForumTool.processDfReplyMsgSaveDraft}" value="#{msgs.cdfm_button_bar_save_draft}" /> --%>
-        <sakai:button_bar_item action="#{ForumTool.processDfReplyMsgCancel}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />
+        <sakai:button_bar_item action="#{ForumTool.processDfReplyThreadCancel}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />
       </sakai:button_bar>
 
 <script type="text/javascript">

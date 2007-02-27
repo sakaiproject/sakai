@@ -10,7 +10,7 @@
 <sakai:script contextBase="/sakai-messageforums-tool" path="/js/permissions_header.js"/>
 <sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
 <!--jsp/discussionForum/permissions/permissions_include.jsp-->
-<mf:forumHideDivision title="#{msgs.cdfm_permissions}" id="cntrl_perm" hideByDefault="true" >
+<mf:forumHideDivision title="#{msgs.cdfm_permissions}" id="cntrl_perm" hideByDefault="false" >
 
   <h:panelGrid  columns="2" summary="layout">
 	  <h:panelGroup styleClass="shorttext">

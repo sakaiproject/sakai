@@ -49,20 +49,19 @@
                             <h:outputText value="#{message.message.title}" rendered="#{message.read}" />
      						<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read}" />
                            
-   				   	    	<h:outputText value=" - #{message.message.author}" rendered="#{message.read}" />
-   				   	    	<h:outputText styleClass="unreadMsg" value=" - #{message.message.author}" rendered="#{!message.read }" />
-
 		        	    	<f:param value="#{message.message.id}" name="messageId"/>
 		        	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 		        	    	<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
 			          	</h:commandLink>
 
+   				   	    	<h:outputText value=" - #{message.message.author}" rendered="#{message.read}" />
+   				   	    	<h:outputText styleClass="unreadMsg" value=" - #{message.message.author}" rendered="#{!message.read }" />
    
-                           <h:outputText value=" ( #{message.message.created} ) " rendered="#{message.read}">
-   				   	         <f:convertDateTime pattern="#{msgs.date_format}" />
+                           <h:outputText value="#{message.message.created}" rendered="#{message.read}">
+   				   	         <f:convertDateTime pattern="#{msgs.date_format_paren}" />
    				   	      </h:outputText>
-   				   	      <h:outputText styleClass="unreadMsg" value=" ( #{message.message.created} ) " rendered="#{!message.read}">
-   				   	      	<f:convertDateTime pattern="#{msgs.date_format}" />
+   				   	      <h:outputText styleClass="unreadMsg" value="#{message.message.created}" rendered="#{!message.read}">
+   				   	      	<f:convertDateTime pattern="#{msgs.date_format_paren}" />
    				   	      </h:outputText>
                            
    				   	      <h:commandLink action="#{ForumTool.processDfMsgMarkMsgAsRead}" rendered="#{!message.read}"> 
@@ -116,20 +115,20 @@
                         
                             <h:outputText value="#{message.message.title}" rendered="#{message.read}" />
      						<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read}" />
-                           
-   				   	    	<h:outputText value=" - #{message.message.author}" rendered="#{message.read}" />
-   				   	    	<h:outputText styleClass="unreadMsg" value=" - #{message.message.author}" rendered="#{!message.read }" />
 
 		        	    	<f:param value="#{message.message.id}" name="messageId"/>
 		        	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 		        	    	<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
 			          	</h:commandLink>
+			          	
+			          	<h:outputText value=" - #{message.message.author}" rendered="#{message.read}" />
+   			   	    	<h:outputText styleClass="unreadMsg" value=" - #{message.message.author}" rendered="#{!message.read }" />
    
-                           <h:outputText value=" ( #{message.message.created} ) " rendered="#{message.read}">
-   				   	         <f:convertDateTime pattern="#{msgs.date_format}" />
+                           <h:outputText value="#{message.message.created}" rendered="#{message.read}">
+   				   	         <f:convertDateTime pattern="#{msgs.date_format_paren}" />
    				   	      </h:outputText>
-   				   	      <h:outputText styleClass="unreadMsg" value=" ( #{message.message.created} ) " rendered="#{!message.read}">
-   				   	      	<f:convertDateTime pattern="#{msgs.date_format}" />
+   				   	      <h:outputText styleClass="unreadMsg" value="#{message.message.created}" rendered="#{!message.read}">
+   				   	      	<f:convertDateTime pattern="#{msgs.date_format_paren}" />
    				   	      </h:outputText>
                            
    				   	      <h:commandLink action="#{ForumTool.processDfMsgMarkMsgAsRead}" rendered="#{!message.read}"> 
