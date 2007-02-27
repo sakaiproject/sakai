@@ -121,4 +121,11 @@ public class LocalSectionModel implements CourseSection, Serializable {
 	public String getUuid() {
 		return uuid;
 	}
+
+	/**
+	 * Enterprise ID is not needed in this app.
+	 */
+	public String getEid() {
+		return null;
+	}
 }

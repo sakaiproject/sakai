@@ -57,6 +57,7 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 	public static final String FRIDAY = "sections_friday";
 	public static final String SATURDAY = "sections_saturday";
 	public static final String SUNDAY = "sections_sunday";
+	public static final String EID = "sections_eid";
 
 	// Fields from Site Group
 	protected String description;
@@ -68,7 +69,8 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     protected Integer maxEnrollments;
     protected List<Meeting> meetings;
     protected String title;
-
+    protected String eid;
+    
     // Transient holder for the framework group being decorated.
     private transient Group group;
     
@@ -125,6 +127,21 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 			} catch(NumberFormatException nfe) {
 				if(log.isDebugEnabled()) log.debug("can not parse integer property for " + CourseSectionImpl.MAX_ENROLLMENTS);
 			}
+		}
+		
+		// Get the EID from the group.  If the EID property exists, use it.  If it doesn't
+		// exist, but the group has a provider ID, copy the provider ID to the EID field.
+		String groupEid = StringUtils.trimToNull(props.getProperty(CourseSectionImpl.EID));
+		if(groupEid == null) {
+			// Try the provider ID
+			String providerId = StringUtils.trimToNull(group.getProviderGroupId());
+			if(providerId != null) {
+				// There is a provider id, so update the group and this section
+				props.addProperty(CourseSectionImpl.EID, providerId);
+				this.eid = providerId;
+			}
+		} else {
+			this.eid = groupEid;
 		}
 
 		// Parse the meetings for this group. Use a field that can't be null, such as "monday" (which must be T/F)
@@ -264,6 +281,11 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     		props.addProperty(CourseSectionImpl.MAX_ENROLLMENTS, maxEnrollments.toString());
     	}
 
+    	// If we have a non-null eid, update the group.
+    	if(StringUtils.trimToNull(eid) != null) {
+    		props.addProperty(CourseSectionImpl.EID, eid);
+    	}
+    	
     	// Add the properties that containing the meeting metadata
     	StringBuffer locationBuffer = new StringBuffer();
 
@@ -411,6 +433,14 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 
 	public void setCourse(Course course) {
 		this.course = course;
+	}
+
+	public String getEid() {
+		return eid;
+	}
+
+	public void setEid(String eid) {
+		this.eid = eid;
 	}
 
 	public String getDescription() {

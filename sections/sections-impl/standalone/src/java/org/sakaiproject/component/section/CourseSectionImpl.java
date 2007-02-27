@@ -157,4 +157,11 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 		}
 		
 	}
+
+	/**
+	 * Standalone does not support the notion of enterprise-defined CourseSections.
+	 */
+	public String getEid() {
+		return null;
+	}
 }

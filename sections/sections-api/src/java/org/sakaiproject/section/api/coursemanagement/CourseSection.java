@@ -35,6 +35,15 @@ public interface CourseSection extends LearningContext {
 	 * @return
 	 */
 	public Course getCourse();
+	
+	/**
+	 * The enterprise ID of this CourseSection.  CourseSections that model Sections from
+	 * the CM service have enterprise IDs.  Manually created CourseSections have an
+	 * EID of null.
+	 * 
+	 * @return The enterprise ID of the Section that this CourseSection models.
+	 */
+	public String getEid();
 
     /**
      * Gets the category ID of this CourseSection.  Students may be enrolled in
