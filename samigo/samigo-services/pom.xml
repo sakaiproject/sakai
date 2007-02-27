@@ -509,6 +509,26 @@
       <version>1.2-RC1</version>
       <scope>provided</scope>
     </dependency>
+
+    <!-- Samigo Lite -->
+    <dependency>
+      <groupId>ims</groupId>
+        <artifactId>imsqti</artifactId>
+      <version>1.2</version>
+    </dependency>
+      
+      <dependency>
+      <groupId>xmlbeans</groupId>
+        <artifactId>xbean</artifactId>
+      <version>2.2.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>xmlbeans</groupId>
+      <artifactId>jsr173</artifactId>
+      <jar>jsr173_1.0_api.jar</jar>
+    </dependency>
+
   </dependencies>
   <build>
     

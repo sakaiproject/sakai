@@ -86,6 +86,12 @@
     <!-- AuthorAssessmentListener.createAssessment() read param from AuthorBean to
       create the assessment  -->
 
+	<h:commandButton id="samLiteCreate" value="#{msg.button_samlite}" immediate="true" type="submit" 
+      rendered="#{samLiteBean.visible}" accesskey="#{msg.a_samlite}"
+      action="#{author.getOutcome}">
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.samlite.NameListener" />
+    </h:commandButton>
+
     <!-- action=createAssessment if privilege is granted, otherwise =author --> 
     <h:commandButton type="submit" value="#{msg.button_create}" action="#{author.getOutcome}" accesskey="#{msg.a_create}">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
