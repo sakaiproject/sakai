@@ -91,7 +91,16 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
-  </repositories>
+    <repository>
+    	<id>apache-repo</id>
+    	<name>apache-repo</name>
+    	<layout>default</layout>
+    	<url>http://myfaces.zones.apache.org/dist/maven-repository</url>
+		<snapshots>
+			<enabled>false</enabled>
+		</snapshots>
+    </repository>
+</repositories>
   <dependencies>
 <!-- provided by the JDK, here to ensure its not packaged in child poms 
      child poms may still override if necessary -->
