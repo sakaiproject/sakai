@@ -4,9 +4,9 @@
 	<div class="portletBody">
 	  <h:form id="gbForm">
 
-		<x:aliasBean alias="#{bean}" value="#{courseGradeDetailsBean}">
+		<t:aliasBean alias="#{bean}" value="#{courseGradeDetailsBean}">
 			<%@include file="/inc/appMenu.jspf"%>
-		</x:aliasBean>
+		</t:aliasBean>
 
 		<!-- Course Grade Summary -->
 		<sakai:flowState bean="#{courseGradeDetailsBean}" />
@@ -37,12 +37,12 @@
 
 		<%@include file="/inc/globalMessages.jspf"%>
 
-		<x:aliasBean alias="#{bean}" value="#{courseGradeDetailsBean}">
+		<t:aliasBean alias="#{bean}" value="#{courseGradeDetailsBean}">
 			<%@include file="/inc/filterPaging.jspf"%>
-		</x:aliasBean>
+		</t:aliasBean>
 
 		<!-- Grading Table -->
-		<x:dataTable cellpadding="0" cellspacing="0"
+		<t:dataTable cellpadding="0" cellspacing="0"
 			id="gradingTable"
 			value="#{courseGradeDetailsBean.scoreRows}"
 			var="scoreRow"
@@ -53,25 +53,25 @@
 			styleClass="listHier">
 			<h:column>
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="studentSortName" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
+		            <t:commandSortHeader columnName="studentSortName" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
 						<h:outputText value="#{msgs.assignment_details_student_name}"/>
-		            </x:commandSortHeader>
+		            </t:commandSortHeader>
 				</f:facet>
 				<h:outputText value="#{scoreRow.enrollment.user.sortName}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="studentDisplayId" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
+		            <t:commandSortHeader columnName="studentDisplayId" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
 						<h:outputText value="#{msgs.assignment_details_student_id}"/>
-		            </x:commandSortHeader>
+		            </t:commandSortHeader>
 				</f:facet>
 				<h:outputText value="#{scoreRow.enrollment.user.displayId}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="pointsEarned" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
+		            <t:commandSortHeader columnName="pointsEarned" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
 						<h:outputText value="#{msgs.assignment_details_points}"/>
-		            </x:commandSortHeader>
+		            </t:commandSortHeader>
 				</f:facet>
 				<h:outputText value="#{scoreRow.courseGradeRecord.pointsEarned}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
@@ -79,9 +79,9 @@
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="autoCalc" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
+		            <t:commandSortHeader columnName="autoCalc" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
 						<h:outputText value="#{msgs.course_grade_details_calculated_grade}"/>
-		            </x:commandSortHeader>
+		            </t:commandSortHeader>
 				</f:facet>
 				<h:outputText value="#{scoreRow.calculatedLetterGrade}"/>
 				<h:outputText value=" ("/>
@@ -102,11 +102,11 @@
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="override" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
+		            <t:commandSortHeader columnName="override" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
 						<h:outputText value="#{msgs.course_grade_details_grade}"/>
-		            </x:commandSortHeader>
+		            </t:commandSortHeader>
 				</f:facet>
-				<x:div styleClass="shorttext">
+				<t:div styleClass="shorttext">
 					<h:inputText
 						id="Grade"
 						value="#{scoreRow.enteredGrade}"
@@ -114,16 +114,16 @@
 						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.COURSE_GRADE" />
 					</h:inputText>
-				</x:div>
+				</t:div>
 			</h:column>
 			<h:column>
 				<h:message for="Grade" styleClass="validationEmbedded" />
 			</h:column>
-		</x:dataTable>
+		</t:dataTable>
 
-		<x:aliasBean alias="#{bean}" value="#{courseGradeDetailsBean}">
+		<t:aliasBean alias="#{bean}" value="#{courseGradeDetailsBean}">
 			<%@include file="/inc/gradingEventLogs.jspf"%>
-		</x:aliasBean>
+		</t:aliasBean>
 
 		<p class="instruction">
 			<h:outputText value="#{msgs.course_grade_details_no_enrollments}" rendered="#{courseGradeDetailsBean.emptyEnrollments}" />

@@ -1,8 +1,8 @@
 <%/*
 	Common application navigation links.
-	Accessed via <x:aliasBean alias="#{bean}" value="#{realPageBean}">...</x:aliasBean> .
+	Accessed via <t:aliasBean alias="#{bean}" value="#{realPageBean}">...</t:aliasBean> .
 */%>
-<x:div styleClass="navIntraTool">
+<t:div styleClass="navIntraTool">
 	<h:commandLink action="overview" immediate="true" rendered="#{bean.pageName ne 'overview'}">
 		<h:outputText value="#{msgs.appmenu_overview}"/>
 	</h:commandLink>
@@ -34,4 +34,4 @@
         <h:outputText value="#{msgs.appmenu_import_upload}" rendered="#{bean eq spreadsheetUploadBean}" styleClass="currentView" />
 
 	</h:panelGroup>
-</x:div>
+</t:div>

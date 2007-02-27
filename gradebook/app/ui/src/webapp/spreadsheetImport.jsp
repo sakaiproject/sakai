@@ -1,9 +1,9 @@
 <f:view>
     <div class="portletBody">
         <h:form id="gbForm">
-              <x:aliasBean alias="#{bean}" value="#{spreadsheetUploadBean}">
+              <t:aliasBean alias="#{bean}" value="#{spreadsheetUploadBean}">
                 <%@include file="/inc/appMenu.jspf"%>
-            </x:aliasBean>
+            </t:aliasBean>
             <sakai:flowState bean="#{spreadsheetUploadBean}" />
             <h2><h:outputText value="#{msgs.import_assignment_page_title}"/></h2>
             <div class="instruction">
@@ -31,7 +31,7 @@
                     <h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.import_assignment_due_date}"/>
                     <h:outputText style="font-weight:normal;" value=" #{msgs.date_entry_format_description}"/>
                 </h:panelGroup>
-                <x:inputCalendar id="dueDate" value="#{spreadsheetUploadBean.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true" popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" />
+                <t:inputCalendar id="dueDate" value="#{spreadsheetUploadBean.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true" popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" />
                 <h:message for="dueDate" styleClass="validationEmbedded" />
 
                 <h:outputLabel for="selectCommentColumn" id="commentsLabel" value="#{msgs.import_assignment_comments}"/>

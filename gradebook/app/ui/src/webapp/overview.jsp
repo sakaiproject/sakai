@@ -1,9 +1,9 @@
 <f:view>
   <div class="portletBody">
 	<h:form id="gbForm">
-	  <x:aliasBean alias="#{bean}" value="#{overviewBean}">
+	  <t:aliasBean alias="#{bean}" value="#{overviewBean}">
 		<%@include file="/inc/appMenu.jspf"%>
-	  </x:aliasBean>
+	  </t:aliasBean>
 
 	  <sakai:flowState bean="#{overviewBean}" />
 
@@ -24,7 +24,7 @@
 		<%@include file="/inc/globalMessages.jspf"%>
 
 		<h4><h:outputText value="#{msgs.overview_assignments_title}"/></h4>
-		<x:dataTable cellpadding="0" cellspacing="0"
+		<t:dataTable cellpadding="0" cellspacing="0"
 			id="assignmentsTable"
 			value="#{overviewBean.gradableObjects}"
 			var="gradableObject"
@@ -35,9 +35,9 @@
 			styleClass="listHier narrowTable">
 			<h:column>
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="name" immediate="true" arrow="true">
+		            <t:commandSortHeader columnName="name" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.overview_assignments_header_name}" />
-		            </x:commandSortHeader>
+		            </t:commandSortHeader>
 		        </f:facet>
 
 				<!-- Assignment / Assessment link -->
@@ -53,9 +53,9 @@
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="dueDate" immediate="true" arrow="true">
+		            <t:commandSortHeader columnName="dueDate" immediate="true" arrow="true">
 						<h:outputText value="#{msgs.overview_assignments_header_due_date}"/>
-		            </x:commandSortHeader>
+		            </t:commandSortHeader>
 		        </f:facet>
 
 				<h:outputText value="#{gradableObject.dueDate}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate != null}">
@@ -66,9 +66,9 @@
 
             <h:column>
 				<f:facet name="header">
-                    <x:commandSortHeader columnName="released" immediate="true" arrow="true">
+                    <t:commandSortHeader columnName="released" immediate="true" arrow="true">
                         <h:outputText value="#{msgs.overview_released}"/>
-                    </x:commandSortHeader>
+                    </t:commandSortHeader>
                 </f:facet>
 				<h:outputText value="#{msgs.overview_released_true}" rendered="#{!gradableObject.courseGrade && gradableObject.released == true }"/>
 				<h:outputText value="#{msgs.overview_released_false}" rendered="#{!gradableObject.courseGrade && gradableObject.released == false}"/>
@@ -77,9 +77,9 @@
 
             <h:column rendered="#{overviewBean.userAbleToGradeAll}">
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="mean" immediate="true" arrow="true">
+		            <t:commandSortHeader columnName="mean" immediate="true" arrow="true">
 						<h:outputText value="#{msgs.overview_assignments_header_average}"/>
-		            </x:commandSortHeader>
+		            </t:commandSortHeader>
 		        </f:facet>
 
 				<h:outputText value="#{gradableObject.formattedMean}">
@@ -88,9 +88,9 @@
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="pointsPossible" immediate="true" arrow="true">
+		            <t:commandSortHeader columnName="pointsPossible" immediate="true" arrow="true">
 						<h:outputText value="#{msgs.overview_assignments_header_points}"/>
-		            </x:commandSortHeader>
+		            </t:commandSortHeader>
 		        </f:facet>
 				<h:outputText value="#{gradableObject}" escape="false" rendered="#{!gradableObject.courseGrade}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.ASSIGNMENT_POINTS"/>
@@ -102,7 +102,7 @@
 			<h:column>
 				<h:outputText value="from #{gradableObject.externalAppName}" rendered="#{! gradableObject.courseGrade && ! empty gradableObject.externalAppName}"/>
 			</h:column>
-		</x:dataTable>
+		</t:dataTable>
 
 	  </h:form>
 	</div>

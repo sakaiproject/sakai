@@ -4,9 +4,9 @@
     <div class="portletBody">
         <h:form id="form">
 
-              <x:aliasBean alias="#{bean}" value="#{spreadsheetUploadBean}">
+              <t:aliasBean alias="#{bean}" value="#{spreadsheetUploadBean}">
                 <%@include file="/inc/appMenu.jspf"%>
-            </x:aliasBean>
+            </t:aliasBean>
 
             <sakai:flowState bean="#{spreadsheetUploadBean}" />
 

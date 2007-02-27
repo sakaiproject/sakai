@@ -33,7 +33,7 @@
 			<f:verbatim><fieldset>
 			<legend></f:verbatim><h:outputText value="#{msgs.student_view_assignments}"/><f:verbatim></legend></f:verbatim>
 
-			<x:dataTable cellpadding="0" cellspacing="0"
+			<t:dataTable cellpadding="0" cellspacing="0"
 				id="studentViewTable"
 				value="#{studentViewBean.assignmentGradeRows}"
 				var="row"
@@ -45,18 +45,18 @@
 				styleClass="listHier wideTable">
 				<h:column>
 					<f:facet name="header">
-						<x:commandSortHeader columnName="name" immediate="true" arrow="true">
+						<t:commandSortHeader columnName="name" immediate="true" arrow="true">
 							<h:outputText value="#{msgs.student_view_title}"/>
-						</x:commandSortHeader>
+						</t:commandSortHeader>
 					</f:facet>
 
 					<h:outputText value="#{row.assignment.name}" />
 				</h:column>
 				<h:column>
 					<f:facet name="header">
-						<x:commandSortHeader columnName="dueDate" immediate="true" arrow="true">
+						<t:commandSortHeader columnName="dueDate" immediate="true" arrow="true">
 							<h:outputText value="#{msgs.student_view_due_date}"/>
-						</x:commandSortHeader>
+						</t:commandSortHeader>
 					</f:facet>
 
 					<h:outputText value="#{row.assignment.dueDate}" rendered="#{row.assignment.dueDate != null}">
@@ -66,9 +66,9 @@
 				</h:column>
 				<h:column>
 					<f:facet name="header">
-						<x:commandSortHeader columnName="pointsEarned" immediate="true" arrow="true">
+						<t:commandSortHeader columnName="pointsEarned" immediate="true" arrow="true">
 							<h:outputText value="#{msgs.student_view_score}"/>
-						</x:commandSortHeader>
+						</t:commandSortHeader>
 					</f:facet>
 
                     <h:outputText value="#{row.gradeRecord}" escape="false" rendered="#{studentViewBean.courseGradeReleased}">
@@ -81,9 +81,9 @@
                 </h:column>
                 <h:column>
 					<f:facet name="header">
-						<x:commandSortHeader columnName="pointsPossible" immediate="true" arrow="true">
+						<t:commandSortHeader columnName="pointsPossible" immediate="true" arrow="true">
                             <h:outputText value="#{msgs.student_view_points}"/>
-                        </x:commandSortHeader>
+                        </t:commandSortHeader>
                     </f:facet>
                     <h:outputText value="#{row.assignment}" escape="false" rendered="#{studentViewBean.courseGradeReleased}">
                         <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.ASSIGNMENT_POINTS"/>
@@ -105,11 +105,11 @@
                 <h:column>
                     <h:outputText value="#{row.assignment.externalAppName}" />
                 </h:column>
-            </x:dataTable>
+            </t:dataTable>
 
-            <x:aliasBean alias="#{bean}" value="#{studentViewBean}">
+            <t:aliasBean alias="#{bean}" value="#{studentViewBean}">
                 <%@include file="/inc/comment.jspf"%>
-            </x:aliasBean>
+            </t:aliasBean>
 
 
 

@@ -45,10 +45,6 @@
 		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
 		<load-on-startup>3</load-on-startup>
 	</servlet>
-	<context-param>
-    	<param-name>javax.faces.CONFIG_FILES</param-name>
-    	<param-value>/WEB-INF/faces-config.xml</param-value>
-  	</context-param>
 
 	<servlet-mapping>
 		<servlet-name>Faces Servlet</servlet-name>

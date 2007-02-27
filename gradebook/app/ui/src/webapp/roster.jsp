@@ -1,19 +1,19 @@
 <f:view>
 	<div class="portletBody">
 	  <h:form id="gbForm">
-		<x:aliasBean alias="#{bean}" value="#{rosterBean}">
+		<t:aliasBean alias="#{bean}" value="#{rosterBean}">
 			<%@include file="/inc/appMenu.jspf"%>
-		</x:aliasBean>
+		</t:aliasBean>
 
 		<sakai:flowState bean="#{rosterBean}" />
 
 		<h2><h:outputText value="#{msgs.roster_page_title}"/></h2>
 
-		<x:aliasBean alias="#{bean}" value="#{rosterBean}">
+		<t:aliasBean alias="#{bean}" value="#{rosterBean}">
 			<%@include file="/inc/filterPaging.jspf"%>
-		</x:aliasBean>
+		</t:aliasBean>
 
-		<x:dataTable cellpadding="0" cellspacing="0"
+		<t:dataTable cellpadding="0" cellspacing="0"
 			id="rosterTable"
 			styleClass="listHier"
 			value="#{rosterBean.studentRows}"
@@ -23,22 +23,22 @@
 			var="row">
 			<h:column id="studentNameData">
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="studentSortName" immediate="true" arrow="true" actionListener="#{rosterBean.sort}">
+		            <t:commandSortHeader columnName="studentSortName" immediate="true" arrow="true" actionListener="#{rosterBean.sort}">
 		                <h:outputText value="#{msgs.roster_student_name}"/>
-		            </x:commandSortHeader>
+		            </t:commandSortHeader>
 		        </f:facet>
 				<h:outputText value="#{row.sortName}"/>
 			</h:column>
 			<h:column id="studentIdData">
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="studentDisplayId" immediate="true" arrow="true" actionListener="#{rosterBean.sort}">
+		            <t:commandSortHeader columnName="studentDisplayId" immediate="true" arrow="true" actionListener="#{rosterBean.sort}">
 		                <h:outputText value="#{msgs.roster_student_id}"/>
-		            </x:commandSortHeader>
+		            </t:commandSortHeader>
 		        </f:facet>
 				<h:outputText value="#{row.displayId}"/>
 			</h:column>
 			<%/* Assignment columns will be dynamically appended, starting here. */%>
-		</x:dataTable>
+		</t:dataTable>
 
 		<p class="instruction">
 			<h:outputText value="#{msgs.roster_no_enrollments}" rendered="#{rosterBean.emptyEnrollments}" />

@@ -2,9 +2,9 @@
   <div class="portletBody">
 	<h:form id="gbForm">
 
-		<x:aliasBean alias="#{bean}" value="#{addAssignmentBean}">
+		<t:aliasBean alias="#{bean}" value="#{addAssignmentBean}">
 			<%@include file="/inc/appMenu.jspf"%>
-		</x:aliasBean>
+		</t:aliasBean>
 
 		<sakai:flowState bean="#{addAssignmentBean}" />
 
@@ -15,9 +15,9 @@
 
 		<h4><h:outputText value="#{msgs.add_assignment_header}"/></h4>
 
-		<x:aliasBean alias="#{bean}" value="#{addAssignmentBean}">
+		<t:aliasBean alias="#{bean}" value="#{addAssignmentBean}">
 			<%@include file="/inc/assignmentEditing.jspf"%>
-		</x:aliasBean>
+		</t:aliasBean>
 
 		<p class="act calendarPadding">
 			<h:commandButton

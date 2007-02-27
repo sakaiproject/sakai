@@ -1,9 +1,9 @@
 <f:view>
   <div class="portletBody">
 	<h:form id="gbForm">
-		<x:aliasBean alias="#{bean}" value="#{feedbackOptionsBean}">
+		<t:aliasBean alias="#{bean}" value="#{feedbackOptionsBean}">
 			<%@include file="/inc/appMenu.jspf"%>
-		</x:aliasBean>
+		</t:aliasBean>
 
 		<sakai:flowState bean="#{feedbackOptionsBean}" />
 
@@ -53,7 +53,7 @@
 		</p>
 
 <!-- GRADE MAPPING TABLE -->
-		<x:dataTable cellpadding="0" cellspacing="0"
+		<t:dataTable cellpadding="0" cellspacing="0"
 			id="mappingTable"
 			value="#{feedbackOptionsBean.gradeRows}"
 			var="gradeRow"
@@ -76,7 +76,7 @@
 					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
 				<h:message for="mappingValue" styleClass="validationEmbedded" />
 			</h:column>
-		</x:dataTable>
+		</t:dataTable>
 
 		</div> <!-- END INDNT1 -->
 

@@ -1,6 +1,6 @@
 <%/*
 	Assignment creation and editing.
-	Accessed via <x:aliasBean alias="#{bean}" value="#{realPageBean}">...</x:aliasBean> .
+	Accessed via <t:aliasBean alias="#{bean}" value="#{realPageBean}">...</t:aliasBean> .
 */%>
 <%@include file="/inc/globalMessages.jspf"%>
 
@@ -23,7 +23,7 @@
 		<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.add_assignment_due_date}"/>
 		<h:outputText style="font-weight:normal;" value=" #{msgs.date_entry_format_description}"/>
 	</h:panelGroup>
-    <x:inputCalendar id="dueDate" value="#{bean.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true" popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" />
+    <t:inputCalendar id="dueDate" value="#{bean.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true" popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" />
 	<h:message for="dueDate" styleClass="validationEmbedded" />
 </h:panelGrid>
 

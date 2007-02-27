@@ -9,9 +9,9 @@
   <div class="portletBody">
 	<h:form id="gbForm">
 
-		<x:aliasBean alias="#{bean}" value="#{assignmentDetailsBean}">
+		<t:aliasBean alias="#{bean}" value="#{assignmentDetailsBean}">
 			<%@include file="/inc/appMenu.jspf"%>
-		</x:aliasBean>
+		</t:aliasBean>
 
 		<sakai:flowState bean="#{assignmentDetailsBean}" />
 
@@ -120,11 +120,11 @@
 
 		<%@include file="/inc/globalMessages.jspf"%>
 
-		<x:aliasBean alias="#{bean}" value="#{assignmentDetailsBean}">
+		<t:aliasBean alias="#{bean}" value="#{assignmentDetailsBean}">
 			<%@include file="/inc/filterPaging.jspf"%>
-		</x:aliasBean>
+		</t:aliasBean>
 
-		<x:dataTable cellpadding="0" cellspacing="0"
+		<t:dataTable cellpadding="0" cellspacing="0"
 			id="gradingTable"
 			value="#{assignmentDetailsBean.scoreRows}"
 			var="scoreRow"
@@ -136,23 +136,23 @@
 			styleClass="listHier narrowerTable">
 			<h:column>
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="studentSortName" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
+		            <t:commandSortHeader columnName="studentSortName" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
 						<h:outputText value="#{msgs.assignment_details_student_name}" styleClass="tier0"/>
-		            </x:commandSortHeader>
+		            </t:commandSortHeader>
 				</f:facet>
-				<x:div styleClass="gbTextOnRow">
+				<t:div styleClass="gbTextOnRow">
 					<h:outputText value="#{scoreRow.enrollment.user.sortName}"/>
-				</x:div>
+				</t:div>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="studentDisplayId" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
+		            <t:commandSortHeader columnName="studentDisplayId" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
 						<h:outputText value="#{msgs.assignment_details_student_id}" styleClass="tier0"/>
-		            </x:commandSortHeader>
+		            </t:commandSortHeader>
 				</f:facet>
-				<x:div styleClass="gbTextOnRow">
+				<t:div styleClass="gbTextOnRow">
 					<h:outputText value="#{scoreRow.enrollment.user.displayId}"/>
-				</x:div>
+				</t:div>
 			</h:column>
 
 			<h:column>
@@ -168,12 +168,12 @@
 
 			<h:column>
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="studentScore" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
+		            <t:commandSortHeader columnName="studentScore" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
 						<h:outputText value="#{msgs.assignment_details_points}"/>
-		            </x:commandSortHeader>
+		            </t:commandSortHeader>
 				</f:facet>
 
-				<x:div styleClass="shorttext">
+				<t:div styleClass="shorttext">
 					<h:inputText id="Score" value="#{scoreRow.score}" size="4" rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}" style="text-align:right;"
 						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
@@ -184,7 +184,7 @@
 					<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.assignment.externallyMaintained}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 					</h:outputText>
-				</x:div>
+				</t:div>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
@@ -201,20 +201,20 @@
 					</h:panelGroup>
 				</f:facet>
 				<h:message for="Score" styleClass="validationEmbedded gbMessageAdjustForContent"/>
-				<x:div styleClass="gbTextOnRow" rendered="#{!scoreRow.commentEditable}">
+				<t:div styleClass="gbTextOnRow" rendered="#{!scoreRow.commentEditable}">
 					<h:outputText value="#{scoreRow.commentText}"/>
-				</x:div>
-				<x:div rendered="#{scoreRow.commentEditable}">
+				</t:div>
+				<t:div rendered="#{scoreRow.commentEditable}">
 					<h:inputTextarea id="Comment" value="#{scoreRow.commentText}"
 						rows="4" cols="35">
 					</h:inputTextarea>
-				</x:div>
+				</t:div>
 			</h:column>
-		</x:dataTable>
+		</t:dataTable>
 
-		<x:aliasBean alias="#{bean}" value="#{assignmentDetailsBean}">
+		<t:aliasBean alias="#{bean}" value="#{assignmentDetailsBean}">
 			<%@include file="/inc/gradingEventLogs.jspf"%>
-		</x:aliasBean>
+		</t:aliasBean>
 
 		<p class="instruction">
 			<h:outputText value="#{msgs.assignment_details_no_enrollments}" rendered="#{assignmentDetailsBean.emptyEnrollments}" />

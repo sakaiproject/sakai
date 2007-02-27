@@ -1,9 +1,9 @@
 <f:view>
 	<div class="portletBody">
 	  <h:form id="gbForm">
-		<x:aliasBean alias="#{bean}" value="#{removeAssignmentBean}">
+		<t:aliasBean alias="#{bean}" value="#{removeAssignmentBean}">
 			<%@include file="/inc/appMenu.jspf"%>
-		</x:aliasBean>
+		</t:aliasBean>
 
 		<sakai:flowState bean="#{removeAssignmentBean}" />
 

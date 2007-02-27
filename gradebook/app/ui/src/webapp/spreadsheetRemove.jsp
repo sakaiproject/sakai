@@ -17,9 +17,9 @@
 <f:view>
 	<div class="portletBody">
 	  <h:form id="gbForm">
-		<x:aliasBean alias="#{bean}" value="#{spreadsheetRemoveBean}">
+		<t:aliasBean alias="#{bean}" value="#{spreadsheetRemoveBean}">
 			<%@include file="/inc/appMenu.jspf"%>
-		</x:aliasBean>
+		</t:aliasBean>
          <sakai:flowState bean="#{spreadsheetRemoveBean}" />         
         <h2><h:outputText value="#{msgs.remove_spreadsheet_page_title}"/></h2>
 
