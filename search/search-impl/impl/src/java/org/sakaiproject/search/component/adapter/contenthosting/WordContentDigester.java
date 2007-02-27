@@ -27,7 +27,9 @@ import java.io.StringReader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.search.api.SearchUtils;
 
@@ -38,6 +40,10 @@ public class WordContentDigester extends BaseContentDigester
 {
 
 	private static Log log = LogFactory.getLog(WordContentDigester.class);
+	
+	static {
+		System.setProperty("org.apache.poi.util.POILogger", "org.apache.poi.util.NullLogger");
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -55,14 +61,14 @@ public class WordContentDigester extends BaseContentDigester
 		try
 		{
 			contentStream = contentResource.streamContent();
-			WordExtractor wordExtractor = new WordExtractor(contentStream);
-			String[] paragraphs = wordExtractor.getParagraphText();
+			POIFSFileSystem poifs = new POIFSFileSystem(contentStream);
+			HWPFDocument hwpf = new HWPFDocument(poifs);
+			WordExtractor wordExtractor = new WordExtractor(hwpf);
+		
+			String paragraphs = wordExtractor.getTextFromPieces();
+			
 			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < paragraphs.length; i++)
-			{
-				SearchUtils.appendCleanString(paragraphs[i],sb);
-				sb.append(" ");
-			}
+			SearchUtils.appendCleanString(paragraphs,sb);
 			return sb.toString();
 		}
 		catch (Exception e)

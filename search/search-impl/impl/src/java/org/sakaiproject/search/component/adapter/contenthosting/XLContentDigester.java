@@ -42,6 +42,10 @@ public class XLContentDigester extends BaseContentDigester
 {
 	private static Log log = LogFactory.getLog(XLContentDigester.class);
 
+	static {
+		System.setProperty("org.apache.poi.util.POILogger", "org.apache.poi.util.NullLogger");
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
