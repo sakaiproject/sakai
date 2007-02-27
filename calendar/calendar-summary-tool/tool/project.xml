@@ -127,16 +127,32 @@
 		</dependency>
         
         
-        <!-- JSP, JSF & MyFaces 1.1.1 -->
-        <dependency>
-            <groupId>myfaces</groupId>
-            <artifactId>myfaces-all</artifactId>
-            <version>1.1.1</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
-        </dependency>
-        <!--  New for myfaces 1.1.1 update -->
+        <!-- JSP, JSF & MyFaces 1.1 -->
+		<dependency>
+			<groupId>myfaces</groupId>
+			<artifactId>myfaces-api</artifactId>
+			<version>1.1.5</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		<dependency>
+			<groupId>myfaces</groupId>
+			<artifactId>myfaces-impl</artifactId>
+			<version>1.1.5</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		<dependency>
+			<groupId>myfaces</groupId>
+			<artifactId>tomahawk</artifactId>
+			<version>1.1.3</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+        <!--  New for myfaces 1.1 update -->
 		<dependency>
 			<groupId>commons-validator</groupId>
 			<artifactId>commons-validator</artifactId>
@@ -145,14 +161,6 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
-        <dependency>
-            <groupId>myfaces</groupId>
-            <artifactId>tomahawk</artifactId>
-            <version>1.1.1</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
-        </dependency>
         <dependency>
 			<groupId>jstl</groupId>
 			<artifactId>jstl</artifactId>

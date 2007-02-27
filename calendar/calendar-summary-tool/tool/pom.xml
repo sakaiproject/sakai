@@ -128,11 +128,21 @@
     </dependency>
 <!-- JSP, JSF & MyFaces 1.1.1 -->
     <dependency>
-      
-      <groupId>myfaces</groupId>
-      <artifactId>myfaces-all</artifactId>
-      <version>1.1.1</version>
+      <groupId>org.apache.myfaces.core</groupId>
+      <artifactId>myfaces-api</artifactId>
+      <version>1.1.5</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.myfaces.core</groupId>
+      <artifactId>myfaces-impl</artifactId>
+      <version>1.1.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.myfaces.tomahawk</groupId>
+      <artifactId>tomahawk</artifactId>
+      <version>1.1.3</version>
+    </dependency>
+
 <!--  New for myfaces 1.1.1 update -->
     <dependency>
       
@@ -142,9 +152,9 @@
     </dependency>
     <dependency>
       
-      <groupId>myfaces</groupId>
+      <groupId>org.apache.myfaces.tomahawk</groupId>
       <artifactId>tomahawk</artifactId>
-      <version>1.1.1</version>
+      <version>1.1.3</version>
     </dependency>
     <dependency>
       
