@@ -71,8 +71,8 @@
 
   <!-- WYSIWYG -->
 
-  <h:panelGrid width="50%">
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" >
+  <h:panelGrid>
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
   </h:panelGrid>

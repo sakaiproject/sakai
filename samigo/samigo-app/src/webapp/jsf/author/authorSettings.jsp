@@ -533,7 +533,7 @@ function uncheckOther(field){
   <samigo:hideDivision title="#{msg.heading_submission_message}" >
    <f:verbatim><div class="tier2"></f:verbatim>
     <h:panelGrid rendered="#{assessmentSettings.valueMap.submissionMessage_isInstructorEditable==true}">
-    <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel value="aaa#{msg.submission_message}" /> <f:verbatim><br/></f:verbatim>
+    <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel value="#{msg.submission_message}" /> <f:verbatim><br/></f:verbatim>
 
 <%-- TODO: DETERMINE IF WE CAN USE RENDERED --%>
        <samigo:wysiwyg rows="140" value="#{assessmentSettings.submissionMessage}" hasToggle="yes" >

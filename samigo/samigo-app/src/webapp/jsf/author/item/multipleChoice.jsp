@@ -75,7 +75,7 @@
   <!-- WYSIWYG -->
    
   <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" >
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes">
      <f:validateLength minimum="1" maximum="4000"/>
    </samigo:wysiwyg>
 
@@ -137,21 +137,22 @@
 </h:commandLink>
  </h:panelGroup>
         <!-- WYSIWYG -->
-
+ <h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{answer.text}" hasToggle="yes" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
- 
+ </h:panelGrid>
+
  
           <h:outputText value="#{msg.feedback_optional}" rendered="#{itemauthor.target == 'questionpool' || assessmentSettings.feedbackAuthoring ne '1'}" />
     
         <!-- WYSIWYG -->
 
-<h:panelGroup rendered="#{itemauthor.target == 'questionpool' || assessmentSettings.feedbackAuthoring ne '1'}">
+<h:panelGrid rendered="#{itemauthor.target == 'questionpool' || assessmentSettings.feedbackAuthoring ne '1'}">
          <samigo:wysiwyg rows="140" value="#{answer.feedback}" hasToggle="yes" >
            <f:validateLength maximum="4000"/>
          </samigo:wysiwyg>
-  </h:panelGroup>
+  </h:panelGrid>
 
         </h:panelGrid>
 </h:column>

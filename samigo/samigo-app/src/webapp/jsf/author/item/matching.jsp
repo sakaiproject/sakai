@@ -92,7 +92,7 @@
   <br/>
   <!-- WYSIWYG -->
   <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.instruction}">
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.instruction}" hasToggle="yes">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 

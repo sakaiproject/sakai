@@ -75,8 +75,8 @@
   <h:outputText value="#{msg.show_hide}<br />#{msg.editor}" escape="false"/>
   </h:panelGrid>
     --%>
-  <h:panelGrid width="50%">
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}">
+  <h:panelGrid>
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes">
      <f:validateLength minimum="1" maximum="4000"/>
    </samigo:wysiwyg>
   </h:panelGrid>
