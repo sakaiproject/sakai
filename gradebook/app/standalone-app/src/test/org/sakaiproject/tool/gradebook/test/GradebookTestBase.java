@@ -42,6 +42,7 @@ import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
+import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
 import org.sakaiproject.tool.gradebook.facades.test.AuthnTestImpl;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 
@@ -65,6 +66,7 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
     protected UserDirectoryService userDirectoryService;
 	protected IntegrationSupport integrationSupport;
 	protected UserManager userManager;
+    protected EventTrackingService eventTrackingService;
 
     protected void onSetUpInTransaction() throws Exception {
         authn = (Authn)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_Authn");
@@ -77,6 +79,7 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
         userDirectoryService = (UserDirectoryService)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_UserDirectoryService");
         integrationSupport = (IntegrationSupport)applicationContext.getBean("org.sakaiproject.component.section.support.IntegrationSupport");
         userManager = (UserManager)applicationContext.getBean("org.sakaiproject.component.section.support.UserManager");
+        eventTrackingService = (EventTrackingService) applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_EventTrackingService");
     }
 
     /**

@@ -98,6 +98,12 @@
 	      <version>0.1-dev</version>
 	      <url>http://brutus.apache.org/gump/public/jakarta-commons-sandbox/commons-id/</url>
 	    </dependency>
+	    
+	     <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-event-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
 
 <!-- End Sakai2 Dependencies -->
 

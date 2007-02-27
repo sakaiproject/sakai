@@ -32,9 +32,12 @@
 		</property>
 		<property name="authz">
 			<ref bean="org_sakaiproject_tool_gradebook_facades_Authz" />
-		</property>
+		</property>        
+        <property name="eventTrackingService">
+            <ref bean="org_sakaiproject_tool_gradebook_facades_EventTrackingService"/>
+        </property>
 
-		<!-- Temporary support for deprecated methods. -->
+        <!-- Temporary support for deprecated methods. -->
 		<property name="frameworkService">
 			<ref bean="org_sakaiproject_service_gradebook_GradebookFrameworkService" />
 		</property>

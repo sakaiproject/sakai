@@ -51,20 +51,25 @@
 		</managed-property>
 		<managed-property>
 			<description>Section Awareness Service</description>
-			<property-name>sectionAwareness</property-name>
-			<value>#{org_sakaiproject_section_api_SectionAwareness}</value>
-		</managed-property>
-		<managed-property>
-			<description>User Directory Service</description>
-			<property-name>userDirectoryService</property-name>
-			<value>#{org_sakaiproject_tool_gradebook_facades_UserDirectoryService}</value>
-		</managed-property>
-	</managed-bean>
+            <property-name>sectionAwareness</property-name>
+            <value>#{org_sakaiproject_section_api_SectionAwareness}</value>
+        </managed-property>
+        <managed-property>
+            <description>User Directory Service</description>
+            <property-name>userDirectoryService</property-name>
+            <value>#{org_sakaiproject_tool_gradebook_facades_UserDirectoryService}</value>
+        </managed-property>
+        <managed-property>
+            <description>Event Tracking Service</description>
+            <property-name>eventTrackingService</property-name>
+            <value>#{org_sakaiproject_tool_gradebook_facades_EventTrackingService}</value>
+        </managed-property>
+    </managed-bean>
 
-	<!-- Navigation -->
+    <!-- Navigation -->
 
-	<navigation-rule>
-		<from-view-id>*</from-view-id>
+    <navigation-rule>
+        <from-view-id>*</from-view-id>
 		<navigation-case>
 			<from-outcome>selectGradebook</from-outcome>
 			<to-view-id>/standalone/selectGradebook.jsp</to-view-id>

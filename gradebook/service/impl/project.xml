@@ -154,22 +154,28 @@
 
 		<dependency>
 			<groupId>dom4j</groupId>
-			<artifactId>dom4j</artifactId>
-			<version>1.4</version>
-		</dependency>
+            <artifactId>dom4j</artifactId>
+            <version>1.4</version>
+        </dependency>
 
-		<dependency>
-			<id>xstream</id>
-			<version>1.2.1</version>
-		</dependency>
+        <dependency>
+            <id>xstream</id>
+            <version>1.2.1</version>
+        </dependency>
 
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-import-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-import-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
 
-	</dependencies>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-event-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+
+    </dependencies>
 
 </project>
 

@@ -23,23 +23,30 @@
 	<!-- Required facade definitions -->
 	<!-- <import resource="spring-facades.xml" /> -->
 
-	<bean id="org_sakaiproject_tool_gradebook_facades_Authn"
-		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.AuthnSakai2Impl">
-	</bean>
+    <bean id="org_sakaiproject_tool_gradebook_facades_Authn"
+          class="org.sakaiproject.tool.gradebook.facades.sakai2impl.AuthnSakai2Impl">
+    </bean>
 
-	<bean id="org_sakaiproject_tool_gradebook_facades_Authz"
-		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.AuthzSakai2Impl"
-		init-method="init">
-		<property name="sectionAwareness"><ref bean="org.sakaiproject.section.api.SectionAwareness"/></property>
-		<property name="authn"><ref bean="org_sakaiproject_tool_gradebook_facades_Authn"/></property>
-	</bean>
+    <bean id="org_sakaiproject_tool_gradebook_facades_Authz"
+          class="org.sakaiproject.tool.gradebook.facades.sakai2impl.AuthzSakai2Impl"
+          init-method="init">
+        <property name="sectionAwareness"><ref bean="org.sakaiproject.section.api.SectionAwareness"/></property>
+        <property name="authn"><ref bean="org_sakaiproject_tool_gradebook_facades_Authn"/></property>
+    </bean>
 
-	<!-- Service implementation hook-up with Sakai DB -->
+    <bean id="org_sakaiproject_tool_gradebook_facades_EventTrackingService"
+          class="org.sakaiproject.tool.gradebook.facades.sakai2impl.EventTrackingServiceSakai2Impl">
+        <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+    </bean>
 
-	<bean id="org_sakaiproject_service_gradebook_GradebookFrameworkServiceTarget"
-		class="org.sakaiproject.component.gradebook.GradebookFrameworkServiceImpl"
-		name="org.sakaiproject.service.gradebook.GradebookFrameworkServiceTarget">
-		<property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+
+
+    <!-- Service implementation hook-up with Sakai DB -->
+
+    <bean id="org_sakaiproject_service_gradebook_GradebookFrameworkServiceTarget"
+          class="org.sakaiproject.component.gradebook.GradebookFrameworkServiceImpl"
+          name="org.sakaiproject.service.gradebook.GradebookFrameworkServiceTarget">
+        <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
 		<property name="authn">
 			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
 		</property>
@@ -56,25 +63,28 @@
 
 	<bean id="org_sakaiproject_service_gradebook_GradebookServiceTarget"
 		class="org.sakaiproject.component.gradebook.GradebookServiceHibernateImpl"
-		name="org.sakaiproject.service.gradebook.GradebookServiceTarget">
-		<property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
-		<property name="sectionAwareness">
-			<ref bean="org.sakaiproject.section.api.SectionAwareness" />
-		</property>
-		<property name="authn">
-			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
-		</property>
-		<property name="authz">
-			<ref bean="org_sakaiproject_tool_gradebook_facades_Authz" />
-		</property>
+        name="org.sakaiproject.service.gradebook.GradebookServiceTarget">
+        <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+        <property name="sectionAwareness">
+            <ref bean="org.sakaiproject.section.api.SectionAwareness" />
+        </property>
+        <property name="authn">
+            <ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
+        </property>
+        <property name="authz">
+            <ref bean="org_sakaiproject_tool_gradebook_facades_Authz" />
+        </property>
+        <property name="eventTrackingService">
+            <ref bean="org_sakaiproject_tool_gradebook_facades_EventTrackingService"/>
+        </property>
 
-		<!-- Temporary support for deprecated methods. -->
-		<property name="frameworkService">
-			<ref bean="org_sakaiproject_service_gradebook_GradebookFrameworkService" />
-		</property>
-		<property name="externalAssessmentService">
-			<ref bean="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService" />
-		</property>
+        <!-- Temporary support for deprecated methods. -->
+        <property name="frameworkService">
+            <ref bean="org_sakaiproject_service_gradebook_GradebookFrameworkService" />
+        </property>
+        <property name="externalAssessmentService">
+            <ref bean="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService" />
+        </property>
 	</bean>
 
 	<bean id="gradebookServiceTemplate"

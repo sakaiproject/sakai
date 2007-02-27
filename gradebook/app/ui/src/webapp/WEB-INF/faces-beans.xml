@@ -36,7 +36,12 @@
 			<property-name>contextManagementService</property-name>
 			<value>#{org_sakaiproject_tool_gradebook_facades_ContextManagement}</value>
 		</managed-property>
-		<!-- This setter comes last. -->
+        <managed-property>
+			<description>Event Tracking Service</description>
+			<property-name>eventTrackingService</property-name>
+			<value>#{org_sakaiproject_tool_gradebook_facades_EventTrackingService}</value>
+		</managed-property>
+        <!-- This setter comes last. -->
 		<managed-property>
 			<description>Initialization hook</description>
 			<property-name>configured</property-name>

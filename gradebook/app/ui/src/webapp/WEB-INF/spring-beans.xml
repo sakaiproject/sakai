@@ -18,7 +18,10 @@
 				<property name="authn">
 					<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
 				</property>
-			</bean>
+                <property name="eventTrackingService">
+                    <ref bean="org_sakaiproject_tool_gradebook_facades_EventTrackingService"/>
+                </property>
+            </bean>
 		</property>
 	</bean>
 

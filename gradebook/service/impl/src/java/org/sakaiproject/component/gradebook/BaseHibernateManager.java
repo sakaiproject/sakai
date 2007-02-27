@@ -52,6 +52,7 @@ import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradebookProperty;
 import org.sakaiproject.tool.gradebook.facades.Authn;
+import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -61,13 +62,14 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public abstract class BaseHibernateManager extends HibernateDaoSupport {
 	private static final Log log = LogFactory.getLog(BaseHibernateManager.class);
-	
+
     // Oracle will throw a SQLException if we put more than this into a
     // "WHERE tbl.col IN (:paramList)" query.
     public static int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 1000;
 
     protected SectionAwareness sectionAwareness;
     protected Authn authn;
+    protected EventTrackingService eventTrackingService;
 
     // Local cache of static-between-deployment properties.
     protected Map propertiesMap = new HashMap();
@@ -355,5 +357,18 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     public void setSectionAwareness(SectionAwareness sectionAwareness) {
         this.sectionAwareness = sectionAwareness;
     }
+
+    protected EventTrackingService getEventTrackingService() {
+        return eventTrackingService;
+    }
+
+    public void setEventTrackingService(EventTrackingService eventTrackingService) {
+        this.eventTrackingService = eventTrackingService;
+    }
+
+    public void postEvent(String message,String objectReference){        
+       eventTrackingService.postEvent(message,objectReference);
+    }
+
 
 }

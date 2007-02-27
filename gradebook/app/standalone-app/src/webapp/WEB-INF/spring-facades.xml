@@ -25,7 +25,13 @@
 		<property name="authn"><ref bean="org_sakaiproject_tool_gradebook_facades_Authn"/></property>
 	</bean>
 
-	<!-- External ContextManagement Service -->
+    <!-- External Event Tracking Service -->
+    <bean id="org_sakaiproject_tool_gradebook_facades_EventTrackingService"
+        class="org.sakaiproject.tool.gradebook.facades.standalone.EventTrackingServiceStandaloneImpl">       
+    </bean>
+
+
+    <!-- External ContextManagement Service -->
 	<bean id="org_sakaiproject_tool_gradebook_facades_ContextManagement"
 		class="org.sakaiproject.tool.gradebook.facades.standalone.ContextManagementStandaloneImpl">
 	</bean>
