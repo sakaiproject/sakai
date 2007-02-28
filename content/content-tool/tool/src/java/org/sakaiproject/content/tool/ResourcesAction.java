@@ -5580,7 +5580,7 @@ public class ResourcesAction
 
 	}	// doInsertValue
 
-	public static void doAttachitem(RunData data)
+	public void doAttachitem(RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters ();
@@ -5608,245 +5608,6 @@ public class ResourcesAction
 		else
 		{
 			attachLink(itemId, state);
-		}
-
-		state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_SELECT_INIT);
-		// popFromStack(state);
-		// resetCurrentMode(state);
-
-	}
-
-	public static void doAttachupload(RunData data)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		ParameterParser params = data.getParameters ();
-
-		Map current_stack_frame = peekAtStack(state);
-
-		String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
-		int max_bytes = 1024 * 1024;
-		try
-		{
-			max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
-		}
-		catch(Exception e)
-		{
-			// if unable to parse an integer from the value
-			// in the properties file, use 1 MB as a default
-			max_file_size_mb = "1";
-			max_bytes = 1024 * 1024;
-		}
-
-		FileItem fileitem = null;
-		try
-		{
-			fileitem = params.getFileItem("upload");
-		}
-		catch(Exception e)
-		{
-
-		}
-		if(fileitem == null)
-		{
-			// "The user submitted a file to upload but it was too big!"
-			addAlert(state, rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
-		}
-		else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0)
-		{
-			addAlert(state, rb.getString("choosefile7"));
-		}
-		else if (fileitem.getFileName().length() > 0)
-		{
-			String filename = Validator.getFileName(fileitem.getFileName());
-			byte[] bytes = fileitem.get();
-			String contentType = fileitem.getContentType();
-
-			if(bytes.length >= max_bytes)
-			{
-				addAlert(state, rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
-			}
-			else if(bytes.length > 0)
-			{
-				// we just want the file name part - strip off any drive and path stuff
-				String name = Validator.getFileName(filename);
-				String resourceId = Validator.escapeResourceName(name);
-
-				// make a set of properties to add for the new resource
-				ResourcePropertiesEdit props = ContentHostingService.newResourceProperties();
-				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-				props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
-
-				// make an attachment resource for this URL
-				try
-				{
-					String siteId = ToolManager.getCurrentPlacement().getContext();
-
-					String toolName = (String) current_stack_frame.get(STATE_ATTACH_TOOL_NAME);
-					if(toolName == null)
-					{
-						toolName = (String) state.getAttribute(STATE_ATTACH_TOOL_NAME);
-						if(toolName == null)
-						{
-							toolName = ToolManager.getCurrentPlacement().getTitle();
-						}
-						current_stack_frame.put(STATE_ATTACH_TOOL_NAME, toolName);
-					}
-
-					ContentResource attachment = ContentHostingService.addAttachmentResource(resourceId, siteId, toolName, contentType, bytes, props);
-
-					List new_items = (List) current_stack_frame.get(STATE_HELPER_NEW_ITEMS);
-					if(new_items == null)
-					{
-						new_items = (List) state.getAttribute(STATE_HELPER_NEW_ITEMS);
-						if(new_items == null)
-						{
-							new_items = new Vector();
-						}
-						current_stack_frame.put(STATE_HELPER_NEW_ITEMS, new_items);
-					}
-
-					String containerId = ContentHostingService.getContainingCollectionId (attachment.getId());
-					String accessUrl = attachment.getUrl();
-
-					AttachItem item = new AttachItem(attachment.getId(), filename, containerId, accessUrl);
-					item.setContentType(contentType);
-					new_items.add(item);
-					//check -- jim
-					state.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
-
-					current_stack_frame.put(STATE_HELPER_NEW_ITEMS, new_items);
-				}
-				catch (PermissionException e)
-				{
-					addAlert(state, rb.getString("notpermis4"));
-				}
-				catch(OverQuotaException e)
-				{
-					addAlert(state, rb.getString("overquota"));
-				}
-				catch(ServerOverloadException e)
-				{
-					addAlert(state, rb.getString("failed"));
-				}
-				catch(IdInvalidException ignore)
-				{
-					// other exceptions should be caught earlier
-				}
-				catch(InconsistentException ignore)
-				{
-					// other exceptions should be caught earlier
-				}
-				catch(IdUsedException ignore)
-				{
-					// other exceptions should be caught earlier
-				}
-				catch(RuntimeException e)
-				{
-					logger.debug("ResourcesAction.doAttachupload ***** Unknown Exception ***** " + e.getMessage());
-					addAlert(state, rb.getString("failed"));
-				}
-			}
-			else
-			{
-				addAlert(state, rb.getString("choosefile7"));
-			}
-		}
-
-		state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_SELECT_INIT);
-		//popFromStack(state);
-		//resetCurrentMode(state);
-
-	}	// doAttachupload
-
-	public static void doAttachurl(RunData data)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		ParameterParser params = data.getParameters ();
-
-		Map current_stack_frame = peekAtStack(state);
-
-		String url = params.getCleanString("url");
-
-		ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties ();
-		resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, url);
-		resourceProperties.addProperty (ResourceProperties.PROP_DESCRIPTION, url);
-
-		resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString());
-
-		try
-		{
-			url = validateURL(url);
-
-			byte[] newUrl = url.getBytes();
-			String newResourceId = Validator.escapeResourceName(url);
-
-			String siteId = ToolManager.getCurrentPlacement().getContext();
-			String toolName = (String) current_stack_frame.get(STATE_ATTACH_TOOL_NAME);
-			if(toolName == null)
-			{
-				toolName = (String) state.getAttribute(STATE_ATTACH_TOOL_NAME);
-				if(toolName == null)
-				{
-					toolName = ToolManager.getCurrentPlacement().getTitle();
-				}
-				current_stack_frame.put(STATE_ATTACH_TOOL_NAME, toolName);
-			}
-
-			ContentResource attachment = ContentHostingService.addAttachmentResource(newResourceId, siteId, toolName, ResourceProperties.TYPE_URL, newUrl, resourceProperties);
-
-			List new_items = (List) current_stack_frame.get(STATE_HELPER_NEW_ITEMS);
-			if(new_items == null)
-			{
-				new_items = (List) state.getAttribute(STATE_HELPER_NEW_ITEMS);
-				if(new_items == null)
-				{
-					new_items = new Vector();
-				}
-				current_stack_frame.put(STATE_HELPER_NEW_ITEMS, new_items);
-			}
-
-			String containerId = ContentHostingService.getContainingCollectionId (attachment.getId());
-			String accessUrl = attachment.getUrl();
-
-			AttachItem item = new AttachItem(attachment.getId(), url, containerId, accessUrl);
-			item.setContentType(ResourceProperties.TYPE_URL);
-			new_items.add(item);
-			state.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
-			current_stack_frame.put(STATE_HELPER_NEW_ITEMS, new_items);
-		}
-		catch(MalformedURLException e)
-		{
-			// invalid url
-			addAlert(state, rb.getString("validurl") + " \"" + url + "\" " + rb.getString("invalid"));
-		}
-		catch (PermissionException e)
-		{
-			addAlert(state, rb.getString("notpermis4"));
-		}
-		catch(OverQuotaException e)
-		{
-			addAlert(state, rb.getString("overquota"));
-		}
-		catch(ServerOverloadException e)
-		{
-			addAlert(state, rb.getString("failed"));
-		}
-		catch(IdInvalidException ignore)
-		{
-			// other exceptions should be caught earlier
-		}
-		catch(IdUsedException ignore)
-		{
-			// other exceptions should be caught earlier
-		}
-		catch(InconsistentException ignore)
-		{
-			// other exceptions should be caught earlier
-		}
-		catch(RuntimeException e)
-		{
-			logger.debug("ResourcesAction.doAttachurl ***** Unknown Exception ***** " + e.getMessage());
-			addAlert(state, rb.getString("failed"));
 		}
 
 		state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_SELECT_INIT);
@@ -5905,7 +5666,7 @@ public class ResourcesAction
 
 	}	// doRemoveitem
 
-	public static void doAddattachments(RunData data)
+	public void doAddattachments(RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters ();
@@ -8795,538 +8556,6 @@ public class ResourcesAction
 		return collectionPath;
 	}
 
-	/**
-	 * Get the items in this folder that should be seen.
-	 * @param collectionId - String version of
-	 * @param expandedCollections - Hash of collection resources
-	 * @param sortedBy  - pass through to ContentHostingComparator
-	 * @param sortedAsc - pass through to ContentHostingComparator
-	 * @param parent - The folder containing this item
-	 * @param isLocal - true if navigation root and home collection id of site are the same, false otherwise
-	 * @param state - The session state
-	 * @return a List of ChefBrowseItem objects
-	 */
-	protected static List getListView(String collectionId, Set highlightedItems, ChefBrowseItem parent, boolean isLocal, SessionState state)
-	{
-		// find the ContentHosting service
-		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
-
-		boolean need_to_expand_all = Boolean.TRUE.toString().equals((String)state.getAttribute(STATE_NEED_TO_EXPAND_ALL));
-		
-		Comparator userSelectedSort = (Comparator) state.getAttribute(STATE_LIST_VIEW_SORT);
-		Comparator defaultComparator = (Comparator) state.getAttribute(STATE_DEFAULT_SORT);
-		
-		Map expandedFolderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
-		if(expandedFolderSortMap == null)
-		{
-			expandedFolderSortMap = new Hashtable();
-			state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, expandedFolderSortMap);
-		}
-		
-		SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-		if(expandedCollections == null)
-		{
-			expandedCollections = new TreeSet();
-			state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
-		}
-		String mode = (String) state.getAttribute (STATE_MODE);
-
-		List newItems = new LinkedList();
-		try
-		{
-			// get the collection
-			// try using existing resource first
-			ContentCollection collection = null;
-
-			// get the collection
-			collection = contentService.getCollection(collectionId);
-			if(need_to_expand_all || expandedCollections.contains(collectionId))
-			{
-				Comparator comparator = null;
-				if(userSelectedSort != null)
-				{
-					comparator = userSelectedSort;
-				}
-				else
-				{
-					boolean hasCustomSort = false;
-					try
-					{
-						hasCustomSort = collection.getProperties().getBooleanProperty(ResourceProperties.PROP_HAS_CUSTOM_SORT);
-					}
-					catch(Exception e)
-					{
-						// ignore -- let value be false
-					}
-					if(hasCustomSort)
-					{
-						comparator = contentService.newContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true);
-					}
-					else
-					{
-						comparator = defaultComparator;
-					}
-				}
-				expandedFolderSortMap.put(collectionId, comparator);
-				expandedCollections.add(collectionId);
-				// state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, expandedFolderSortMap);
-			}
-
-			String dummyId = collectionId.trim();
-			if(dummyId.endsWith(Entity.SEPARATOR))
-			{
-				dummyId += "dummy";
-			}
-			else
-			{
-				dummyId += Entity.SEPARATOR + "dummy";
-			}
-
-			boolean canRead = false;
-			boolean canDelete = false;
-			boolean canRevise = false;
-			boolean canAddFolder = false;
-			boolean canAddItem = false;
-			boolean canUpdate = false;
-			int depth = 0;
-
-			if(parent == null || ! parent.canRead())
-			{
-				canRead = contentService.allowGetCollection(collectionId);
-			}
-			else
-			{
-				canRead = parent.canRead();
-			}
-			if(parent == null || ! parent.canDelete())
-			{
-				canDelete = contentService.allowRemoveCollection(collectionId);
-			}
-			else
-			{
-				canDelete = parent.canDelete();
-			}
-			if(parent == null || ! parent.canRevise())
-			{
-				canRevise = contentService.allowUpdateCollection(collectionId);
-			}
-			else
-			{
-				canRevise = parent.canRevise();
-			}
-			if(parent == null || ! parent.canAddFolder())
-			{
-				canAddFolder = contentService.allowAddCollection(dummyId);
-			}
-			else
-			{
-				canAddFolder = parent.canAddFolder();
-			}
-			if(parent == null || ! parent.canAddItem())
-			{
-				canAddItem = contentService.allowAddResource(dummyId);
-			}
-			else
-			{
-				canAddItem = parent.canAddItem();
-			}
-			if(parent == null || ! parent.canUpdate())
-			{
-				canUpdate = AuthzGroupService.allowUpdate(collectionId);
-			}
-			else
-			{
-				canUpdate = parent.canUpdate();
-			}
-			if(parent != null)
-			{
-				depth = parent.getDepth() + 1;
-			}
-
-			if(canAddItem)
-			{
-				state.setAttribute(STATE_PASTE_ALLOWED_FLAG, Boolean.TRUE.toString());
-			}
-			// each child will have it's own delete status based on: delete.own or delete.any
-			boolean hasDeletableChildren = true; 
-         
-			// may have perms to copy in another folder, even if no perms in this folder
-			boolean hasCopyableChildren = canRead; 
-
-			String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
-
-			ResourceProperties cProperties = collection.getProperties();
-			String folderName = cProperties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-			if(collectionId.equals(homeCollectionId))
-			{
-				folderName = (String) state.getAttribute(STATE_HOME_COLLECTION_DISPLAY_NAME);
-			}
-			ChefBrowseItem folder = new ChefBrowseItem(collectionId, folderName, "folder");
-			if(parent == null)
-			{
-				folder.setRoot(collectionId);
-			}
-			else
-			{
-				folder.setRoot(parent.getRoot());
-			}
-			
-			boolean isInDropbox = contentService.isInDropbox(collectionId);
-			folder.setInDropbox(isInDropbox);
-			
-			BasicRightsAssignment rightsObj = new BasicRightsAssignment(folder.getItemNum(), cProperties);
-			folder.setRights(rightsObj);
-			
-			AccessMode access = collection.getAccess();
-			if(access == null || AccessMode.SITE == access)
-			{
-				folder.setAccess(AccessMode.INHERITED.toString());
-			}
-			else
-			{
-				folder.setAccess(access.toString());
-			}
-			
-			AccessMode inherited_access = collection.getInheritedAccess();
-			if(inherited_access == null || AccessMode.SITE == inherited_access)
-			{
-				folder.setInheritedAccess(AccessMode.INHERITED.toString());
-			}
-			else
-			{
-				folder.setInheritedAccess(inherited_access.toString());
-			}
-			
-			Collection access_groups = collection.getGroupObjects();
-			if(access_groups == null)
-			{
-				access_groups = new Vector();
-			}
-			folder.setGroups(access_groups);
-			Collection inherited_access_groups = collection.getInheritedGroupObjects();
-			if(inherited_access_groups == null)
-			{
-				inherited_access_groups = new Vector();
-			}
-			folder.setInheritedGroups(inherited_access_groups);
-			
-			if(parent != null && (parent.isPubview() || parent.isPubviewInherited()))
-			{
-				folder.setPubviewInherited(true);
-				folder.setPubview(false);
-			}
-			else if(contentService.isPubView(folder.getId()))
-			{
-				folder.setPubview(true);
-			}
-
-			if(highlightedItems == null || highlightedItems.isEmpty())
-			{
-				// do nothing
-			}
-			else if(parent != null && parent.isHighlighted())
-			{
-				folder.setInheritsHighlight(true);
-				folder.setHighlighted(true);
-			}
-			else if(highlightedItems.contains(collectionId))
-			{
-				folder.setHighlighted(true);
-				folder.setInheritsHighlight(false);
-			}
-
-			String containerId = contentService.getContainingCollectionId (collectionId);
-			folder.setContainer(containerId);
-
-			folder.setCanRead(canRead);
-			folder.setCanRevise(canRevise);
-			folder.setCanAddItem(canAddItem);
-			folder.setCanAddFolder(canAddFolder);
-			folder.setCanDelete(canDelete);
-			folder.setCanUpdate(canUpdate);
-			
-			folder.setAvailable(collection.isAvailable());
-
-			try
-			{
-				Time createdTime = cProperties.getTimeProperty(ResourceProperties.PROP_CREATION_DATE);
-				String createdTimeString = createdTime.toStringLocalShortDate();
-				folder.setCreatedTime(createdTimeString);
-			}
-			catch(Exception e)
-			{
-				String createdTimeString = cProperties.getProperty(ResourceProperties.PROP_CREATION_DATE);
-				folder.setCreatedTime(createdTimeString);
-			}
-			try
-			{
-				String createdBy = getUserProperty(cProperties, ResourceProperties.PROP_CREATOR).getDisplayName();
-				folder.setCreatedBy(createdBy);
-			}
-			catch(Exception e)
-			{
-				String createdBy = cProperties.getProperty(ResourceProperties.PROP_CREATOR);
-				folder.setCreatedBy(createdBy);
-			}
-			try
-			{
-				Time modifiedTime = cProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
-				String modifiedTimeString = modifiedTime.toStringLocalShortDate();
-				folder.setModifiedTime(modifiedTimeString);
-			}
-			catch(Exception e)
-			{
-				String modifiedTimeString = cProperties.getProperty(ResourceProperties.PROP_MODIFIED_DATE);
-				folder.setModifiedTime(modifiedTimeString);
-			}
-			try
-			{
-				String modifiedBy = getUserProperty(cProperties, ResourceProperties.PROP_MODIFIED_BY).getDisplayName();
-				folder.setModifiedBy(modifiedBy);
-			}
-			catch(Exception e)
-			{
-				String modifiedBy = cProperties.getProperty(ResourceProperties.PROP_MODIFIED_BY);
-				folder.setModifiedBy(modifiedBy);
-			}
-
-			String url = contentService.getUrl(collectionId);
-			folder.setUrl(url);
-			
-			// get the "size' of the collection, meaning the number of members one level down
-			int collection_size = collection.getMemberCount(); // newMembers.size();
-			folder.setIsEmpty(collection_size < 1);
-			folder.setSortable(ContentHostingService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < EXPANDABLE_FOLDER_SIZE_LIMIT);
-			Integer expansionLimit = (Integer) state.getAttribute(STATE_EXPANDABLE_FOLDER_SIZE_LIMIT);
-			if(expansionLimit == null)
-			{
-				expansionLimit = new Integer(EXPANDABLE_FOLDER_SIZE_LIMIT);
-			}
-			folder.setIsTooBig(collection_size > expansionLimit.intValue());
-				
-			folder.setDepth(depth);
-			newItems.add(folder);
-
-			if(need_to_expand_all || expandedFolderSortMap.keySet().contains(collectionId))
-			{
-				// Get the collection members from the 'new' collection
-				List newMembers = collection.getMemberResources();
-				
-				Comparator comparator = userSelectedSort;
-				if(comparator == null)
-				{
-					comparator = (Comparator) expandedFolderSortMap.get(collectionId);
-					if(comparator == null)
-					{
-						comparator = defaultComparator;
-					}
-				}
-
-				Collections.sort(newMembers, comparator);
-
-				// loop thru the (possibly) new members and add to the list
-				Iterator it = newMembers.iterator();
-				while(it.hasNext())
-				{
-					ContentEntity resource = (ContentEntity) it.next();
-					ResourceProperties props = resource.getProperties();
-
-					String itemId = resource.getId();
-					
-					if(contentService.isAvailabilityEnabled() && ! contentService.isAvailable(itemId))
-					{
-						continue;
-					}
-
-					if(resource.isCollection())
-					{
-						List offspring = getListView(itemId, highlightedItems, folder, isLocal, state);
-
-						if(! offspring.isEmpty())
-						{
-							ChefBrowseItem child = (ChefBrowseItem) offspring.get(0);
-							hasDeletableChildren = hasDeletableChildren || child.hasDeletableChildren();
-							hasCopyableChildren = hasCopyableChildren || child.hasCopyableChildren();
-						}
-
-						// add all the items in the subfolder to newItems
-						newItems.addAll(offspring);
-					}
-					else
-					{
-						AccessMode access_mode = ((GroupAwareEntity) resource).getAccess();
-						if(access_mode == null)
-						{
-							access_mode = AccessMode.INHERITED;
-						}
-						else if(access_mode == AccessMode.GROUPED)
-						{
-							if(! contentService.allowGetResource(resource.getId()))
-							{
-								continue;
-							}
-						}
-						
-						String itemType = ((ContentResource)resource).getContentType();
-						String itemName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-						ChefBrowseItem newItem = new ChefBrowseItem(itemId, itemName, itemType);
-						
-						boolean isLocked = contentService.isLocked(itemId);
-						newItem.setLocked(isLocked);
-						
-						boolean isAvailable = folder.isAvailable();
-						if(isAvailable)
-						{
-							isAvailable = resource.isAvailable();
-						}
-						newItem.setAvailable(isAvailable);
-
-						newItem.setAccess(access_mode.toString());
-						newItem.setInheritedAccess(folder.getEffectiveAccess());
-
-						newItem.setInDropbox(isInDropbox);
-						
-						BasicRightsAssignment rightsObj2 = new BasicRightsAssignment(newItem.getItemNum(), props);
-						newItem.setRights(rightsObj2);
-						Collection groups = ((GroupAwareEntity) resource).getGroupObjects();
-						if(groups == null)
-						{
-							groups = new Vector();
-						}
-						Collection inheritedGroups = folder.getGroups();
-						if(inheritedGroups == null || inheritedGroups.isEmpty())
-						{
-							inheritedGroups = folder.getInheritedGroups();
-						}
-						newItem.setGroups(groups);	
-						newItem.setInheritedGroups(inheritedGroups);
-
-						newItem.setContainer(collectionId);
-						newItem.setRoot(folder.getRoot());
-
-						// delete and revise permissions based on item (not parent)
-						newItem.setCanDelete(contentService.allowRemoveResource(itemId) && ! isLocked);
-						newItem.setCanRevise(contentService.allowUpdateResource(itemId)); 
-						newItem.setCanRead(canRead);
-						newItem.setCanCopy(canRead); // may have perms to copy in another folder, even if no perms in this folder
-						newItem.setCanAddItem(canAddItem); // true means this user can add an item in the folder containing this item (used for "duplicate")
-
-						if(highlightedItems == null || highlightedItems.isEmpty())
-						{
-							// do nothing
-						}
-						else if(folder.isHighlighted())
-						{
-							newItem.setInheritsHighlight(true);
-							newItem.setHighlighted(true);
-						}
-						else if(highlightedItems.contains(itemId))
-						{
-							newItem.setHighlighted(true);
-							newItem.setInheritsHighlight(false);
-						}
-
-						try
-						{
-							Time createdTime = props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE);
-							String createdTimeString = createdTime.toStringLocalShortDate();
-							newItem.setCreatedTime(createdTimeString);
-						}
-						catch(Exception e)
-						{
-							String createdTimeString = props.getProperty(ResourceProperties.PROP_CREATION_DATE);
-							newItem.setCreatedTime(createdTimeString);
-						}
-						try
-						{
-							String createdBy = getUserProperty(props, ResourceProperties.PROP_CREATOR).getDisplayName();
-							newItem.setCreatedBy(createdBy);
-						}
-						catch(Exception e)
-						{
-							String createdBy = props.getProperty(ResourceProperties.PROP_CREATOR);
-							newItem.setCreatedBy(createdBy);
-						}
-						try
-						{
-							Time modifiedTime = props.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
-							String modifiedTimeString = modifiedTime.toStringLocalShortDate();
-							newItem.setModifiedTime(modifiedTimeString);
-						}
-						catch(Exception e)
-						{
-							String modifiedTimeString = props.getProperty(ResourceProperties.PROP_MODIFIED_DATE);
-							newItem.setModifiedTime(modifiedTimeString);
-						}
-						try
-						{
-							String modifiedBy = getUserProperty(props, ResourceProperties.PROP_MODIFIED_BY).getDisplayName();
-							newItem.setModifiedBy(modifiedBy);
-						}
-						catch(Exception e)
-						{
-							String modifiedBy = props.getProperty(ResourceProperties.PROP_MODIFIED_BY);
-							newItem.setModifiedBy(modifiedBy);
-						}
-
-						if(folder.isPubview() || folder.isPubviewInherited())
-						{
-							newItem.setPubviewInherited(true);
-							newItem.setPubview(false);
-						}
-						else if(contentService.isPubView(resource.getId()))
-						{
-							newItem.setPubview(true);
-						}
-
-						String size = props.getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH);
-						newItem.setSize(size);
-
-						String target = Validator.getResourceTarget(props.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
-						newItem.setTarget(target);
-
-						String newUrl = contentService.getUrl(itemId);
-						newItem.setUrl(newUrl);
-
-						try
-						{
-							boolean copyrightAlert = props.getBooleanProperty(ResourceProperties.PROP_COPYRIGHT_ALERT);
-							newItem.setCopyrightAlert(copyrightAlert);
-						}
-						catch(Exception e)
-						{}
-						newItem.setDepth(depth + 1);
-
-						if (checkItemFilter((ContentResource)resource, newItem, state)) 
-						{
-							newItems.add(newItem);
-						}
-					}
-				}
-
-			}
-			folder.seDeletableChildren(hasDeletableChildren);
-			folder.setCopyableChildren(hasCopyableChildren);
-			// return newItems;
-		}
-		catch (IdUnusedException ignore)
-		{
-			// this condition indicates a site that does not have a resources collection (mercury?)
-		}
-		catch (TypeException e)
-		{
-			addAlert(state, "TypeException.");
-		}
-		catch (PermissionException e)
-		{
-			// ignore -- we'll just skip this collection since user lacks permission to access it.
-			//addAlert(state, "PermissionException");
-		}
-
-		return newItems;
-
-	}	// getListView
-	
 	protected static boolean checkItemFilter(ContentResource resource, ChefBrowseItem newItem, SessionState state) 
 	{
 		ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_ATTACH_FILTER);
@@ -9408,138 +8637,6 @@ public class ResourcesAction
 		}	// if-else
 
 	}	// doCopyitem
-
-	/**
-	* Paste the previously copied item(s)
-	*/
-	public static void doPasteitems ( RunData data)
-	{
-		ParameterParser params = data.getParameters ();
-
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		List items = (List) state.getAttribute(STATE_COPIED_IDS);
-
-		String collectionId = params.getString ("collectionId");
-
-		Iterator itemIter = items.iterator();
-		while (itemIter.hasNext())
-		{
-			// get the copied item to be pasted
-			String itemId = (String) itemIter.next();
-
-			String originalDisplayName = NULL_STRING;
-
-			try
-			{
-				String id = ContentHostingService.copyIntoFolder(itemId, collectionId);
-				String mode = (String) state.getAttribute(STATE_MODE);
-				if(MODE_HELPER.equals(mode))
-				{
-					String helper_mode = (String) state.getAttribute(STATE_RESOURCES_HELPER_MODE);
-					if(helper_mode != null && MODE_ATTACHMENT_NEW_ITEM.equals(helper_mode))
-					{
-						// add to the attachments vector
-						List attachments = EntityManager.newReferenceList();
-						Reference ref = EntityManager.newReference(ContentHostingService.getReference(id));
-						attachments.add(ref);
-						cleanupState(state);
-						state.setAttribute(STATE_ATTACHMENTS, attachments);
-					}
-					else
-					{
-						if(state.getAttribute(STATE_ATTACH_LINKS) == null)
-						{
-							attachItem(id, state);
-						}
-						else
-						{
-							attachLink(id, state);
-						}
-					}
-				}
-			}
-			catch (PermissionException e)
-			{
-				addAlert(state, rb.getString("notpermis8") + " " + originalDisplayName + ". ");
-			}
-			catch (IdUnusedException e)
-			{
-				addAlert(state,RESOURCE_NOT_EXIST_STRING);
-			}
-			catch (InUseException e)
-			{
-				addAlert(state, rb.getString("someone") + " " + originalDisplayName);
-			}
-			catch (TypeException e)
-			{
-				addAlert(state, rb.getString("pasteitem") + " " + originalDisplayName + " " + rb.getString("mismatch"));
-			}
-			catch(IdUsedException e)
-			{
-				addAlert(state, rb.getString("toomany"));
-			}
-			catch(IdLengthException e)
-			{
-				addAlert(state, rb.getString("toolong") + " " + e.getMessage());
-			}
-			catch(IdUniquenessException e)
-			{
-				addAlert(state, "Could not add this item to this folder");
-			}
-			catch(ServerOverloadException e)
-			{
-				addAlert(state, rb.getString("failed"));
-			}
-			catch(InconsistentException e)
-			{
-				addAlert(state, rb.getString("recursive") + " " + itemId);
-			}
-			catch (OverQuotaException e)
-			{
-				addAlert(state, rb.getString("overquota"));
-			}	// try-catch
-			catch(RuntimeException e)
-			{
-				logger.debug("ResourcesAction.doPasteitems ***** Unknown Exception ***** " + e.getMessage());
-				addAlert(state, rb.getString("failed"));
-			}
-
-			if (state.getAttribute(STATE_MESSAGE) == null)
-			{
-				// delete sucessful
-				String mode = (String) state.getAttribute(STATE_MODE);
-				if(MODE_HELPER.equals(mode))
-				{
-					state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_SELECT);
-				}
-				else
-				{
-					state.setAttribute (STATE_MODE, MODE_LIST);
-				}
-
-				// try to expand the collection
-				SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-				if(expandedCollections == null)
-				{
-					expandedCollections = new TreeSet();
-					state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
-				}
-				if(! expandedCollections.contains(collectionId))
-				{
-					expandedCollections.add(collectionId);
-				}
-
-				// reset the copy flag
-				if (((String)state.getAttribute (STATE_COPY_FLAG)).equals (Boolean.TRUE.toString()))
-				{
-					state.setAttribute (STATE_COPY_FLAG, Boolean.FALSE.toString());
-				}
-			}
-
-		}
-
-	}	// doPasteitems
 
 	/**
 	* Paste the item(s) selected to be moved
@@ -13372,205 +12469,6 @@ public class ResourcesAction
 		return found;
 	}
 
-	public static void attachItem(String itemId, SessionState state)
-	{
-		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
-
-		Map current_stack_frame = peekAtStack(state);
-
-		List new_items = (List) current_stack_frame.get(STATE_HELPER_NEW_ITEMS);
-		if(new_items == null)
-		{
-			new_items = (List) state.getAttribute(STATE_HELPER_NEW_ITEMS);
-			if(new_items == null)
-			{
-				new_items = new Vector();
-			}
-			current_stack_frame.put(STATE_HELPER_NEW_ITEMS, new_items);
-		}
-
-		boolean found = false;
-		Iterator it = new_items.iterator();
-		while(!found && it.hasNext())
-		{
-			AttachItem item = (AttachItem) it.next();
-			if(item.getId().equals(itemId))
-			{
-				found = true;
-			}
-		}
-
-		if(!found)
-		{
-			try
-			{
-				ContentResource res = contentService.getResource(itemId);
-				ResourceProperties props = res.getProperties();
-
-				ResourcePropertiesEdit newprops = contentService.newResourceProperties();
-				newprops.set(props);
-
-				byte[] bytes = res.getContent();
-				String contentType = res.getContentType();
-				String filename = Validator.getFileName(itemId);
-				String resourceId = Validator.escapeResourceName(filename);
-
-				String siteId = ToolManager.getCurrentPlacement().getContext();
-				String toolName = (String) current_stack_frame.get(STATE_ATTACH_TOOL_NAME);
-				if(toolName == null)
-				{
-					toolName = (String) state.getAttribute(STATE_ATTACH_TOOL_NAME);
-					if(toolName == null)
-					{
-						toolName = ToolManager.getCurrentPlacement().getTitle();
-					}
-					current_stack_frame.put(STATE_ATTACH_TOOL_NAME, toolName);
-				}
-
-				ContentResource attachment = ContentHostingService.addAttachmentResource(resourceId, siteId, toolName, contentType, bytes, props);
-
-				String displayName = newprops.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-				String containerId = contentService.getContainingCollectionId (attachment.getId());
-				String accessUrl = attachment.getUrl();
-
-				AttachItem item = new AttachItem(attachment.getId(), displayName, containerId, accessUrl);
-				item.setContentType(contentType);
-				new_items.add(item);
-				state.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
-			}
-			catch (PermissionException e)
-			{
-				addAlert(state, rb.getString("notpermis4"));
-			}
-			catch(OverQuotaException e)
-			{
-				addAlert(state, rb.getString("overquota"));
-			}
-			catch(ServerOverloadException e)
-			{
-				addAlert(state, rb.getString("failed"));
-			}
-			catch(IdInvalidException ignore)
-			{
-				// other exceptions should be caught earlier
-			}
-			catch(TypeException ignore)
-			{
-				// other exceptions should be caught earlier
-			}
-			catch(IdUnusedException ignore)
-			{
-				// other exceptions should be caught earlier
-			}
-			catch(IdUsedException ignore)
-			{
-				// other exceptions should be caught earlier
-			}
-			catch(InconsistentException ignore)
-			{
-				// other exceptions should be caught earlier
-			}
-			catch(RuntimeException e)
-			{
-				logger.debug("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
-				addAlert(state, rb.getString("failed"));
-			}
-		}
-		current_stack_frame.put(STATE_HELPER_NEW_ITEMS, new_items);
-	}
-
-	public static void attachLink(String itemId, SessionState state)
-	{
-		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
-
-		Map current_stack_frame = peekAtStack(state);
-
-		List new_items = (List) current_stack_frame.get(STATE_HELPER_NEW_ITEMS);
-		if(new_items == null)
-		{
-			new_items = (List) state.getAttribute(STATE_HELPER_NEW_ITEMS);
-			if(new_items == null)
-			{
-				new_items = new Vector();
-			}
-			current_stack_frame.put(STATE_HELPER_NEW_ITEMS, new_items);
-		}
-
-		Integer max_cardinality = (Integer) current_stack_frame.get(STATE_ATTACH_CARDINALITY);
-		if(max_cardinality == null)
-		{
-			max_cardinality = (Integer) state.getAttribute(STATE_ATTACH_CARDINALITY);
-			if(max_cardinality == null)
-			{
-				max_cardinality = CARDINALITY_MULTIPLE;
-			}
-			current_stack_frame.put(STATE_ATTACH_CARDINALITY, max_cardinality);
-		}
-
-		boolean found = false;
-		Iterator it = new_items.iterator();
-		while(!found && it.hasNext())
-		{
-			AttachItem item = (AttachItem) it.next();
-			if(item.getId().equals(itemId))
-			{
-				found = true;
-			}
-		}
-
-		if(!found)
-		{
-			try
-			{
-				ContentResource res = contentService.getResource(itemId);
-				ResourceProperties props = res.getProperties();
-
-				String contentType = res.getContentType();
-				String filename = Validator.getFileName(itemId);
-				String resourceId = Validator.escapeResourceName(filename);
-
-				String siteId = ToolManager.getCurrentPlacement().getContext();
-				String toolName = (String) current_stack_frame.get(STATE_ATTACH_TOOL_NAME);
-				if(toolName == null)
-				{
-					toolName = (String) state.getAttribute(STATE_ATTACH_TOOL_NAME);
-					if(toolName == null)
-					{
-						toolName = ToolManager.getCurrentPlacement().getTitle();
-					}
-					current_stack_frame.put(STATE_ATTACH_TOOL_NAME, toolName);
-				}
-
-				String displayName = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-				String containerId = contentService.getContainingCollectionId (itemId);
-				String accessUrl = res.getUrl();
-
-				AttachItem item = new AttachItem(itemId, displayName, containerId, accessUrl);
-				item.setContentType(contentType);
-				new_items.add(item);
-				state.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
-			}
-			catch (PermissionException e)
-			{
-				addAlert(state, rb.getString("notpermis4"));
-			}
-			catch(TypeException ignore)
-			{
-				// other exceptions should be caught earlier
-			}
-			catch(IdUnusedException ignore)
-			{
-				// other exceptions should be caught earlier
-			}
-			catch(RuntimeException e)
-			{
-				logger.debug("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
-				addAlert(state, rb.getString("failed"));
-			}
-		}
-		current_stack_frame.put(STATE_HELPER_NEW_ITEMS, new_items);
-	}
-
 	/**
 	* Build the context for creating folders and items
 	*/
@@ -17196,5 +16094,1107 @@ public class ResourcesAction
 		current_stack_frame.put(STATE_STACK_EDIT_INTENT, intent);
 
 	}	// doToggle_intent
+
+	/**
+	 * Get the items in this folder that should be seen.
+	 * @param collectionId - String version of
+	 * @param expandedCollections - Hash of collection resources
+	 * @param sortedBy  - pass through to ContentHostingComparator
+	 * @param sortedAsc - pass through to ContentHostingComparator
+	 * @param parent - The folder containing this item
+	 * @param isLocal - true if navigation root and home collection id of site are the same, false otherwise
+	 * @param state - The session state
+	 * @return a List of ChefBrowseItem objects
+	 */
+	protected static List getListView(String collectionId, Set highlightedItems, ChefBrowseItem parent, boolean isLocal, SessionState state)
+	{
+		// find the ContentHosting service
+		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+
+		boolean need_to_expand_all = Boolean.TRUE.toString().equals((String)state.getAttribute(STATE_NEED_TO_EXPAND_ALL));
+		
+		Comparator userSelectedSort = (Comparator) state.getAttribute(STATE_LIST_VIEW_SORT);
+		Comparator defaultComparator = (Comparator) state.getAttribute(STATE_DEFAULT_SORT);
+		
+		Map expandedFolderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
+		if(expandedFolderSortMap == null)
+		{
+			expandedFolderSortMap = new Hashtable();
+			state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, expandedFolderSortMap);
+		}
+		
+		SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		if(expandedCollections == null)
+		{
+			expandedCollections = new TreeSet();
+			state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+		}
+		String mode = (String) state.getAttribute (STATE_MODE);
+
+		List newItems = new LinkedList();
+		try
+		{
+			// get the collection
+			// try using existing resource first
+			ContentCollection collection = null;
+
+			// get the collection
+			collection = contentService.getCollection(collectionId);
+			if(need_to_expand_all || expandedCollections.contains(collectionId))
+			{
+				Comparator comparator = null;
+				if(userSelectedSort != null)
+				{
+					comparator = userSelectedSort;
+				}
+				else
+				{
+					boolean hasCustomSort = false;
+					try
+					{
+						hasCustomSort = collection.getProperties().getBooleanProperty(ResourceProperties.PROP_HAS_CUSTOM_SORT);
+					}
+					catch(Exception e)
+					{
+						// ignore -- let value be false
+					}
+					if(hasCustomSort)
+					{
+						comparator = contentService.newContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true);
+					}
+					else
+					{
+						comparator = defaultComparator;
+					}
+				}
+				expandedFolderSortMap.put(collectionId, comparator);
+				expandedCollections.add(collectionId);
+				// state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, expandedFolderSortMap);
+			}
+
+			String dummyId = collectionId.trim();
+			if(dummyId.endsWith(Entity.SEPARATOR))
+			{
+				dummyId += "dummy";
+			}
+			else
+			{
+				dummyId += Entity.SEPARATOR + "dummy";
+			}
+
+			boolean canRead = false;
+			boolean canDelete = false;
+			boolean canRevise = false;
+			boolean canAddFolder = false;
+			boolean canAddItem = false;
+			boolean canUpdate = false;
+			int depth = 0;
+
+			if(parent == null || ! parent.canRead())
+			{
+				canRead = contentService.allowGetCollection(collectionId);
+			}
+			else
+			{
+				canRead = parent.canRead();
+			}
+			if(parent == null || ! parent.canDelete())
+			{
+				canDelete = contentService.allowRemoveCollection(collectionId);
+			}
+			else
+			{
+				canDelete = parent.canDelete();
+			}
+			if(parent == null || ! parent.canRevise())
+			{
+				canRevise = contentService.allowUpdateCollection(collectionId);
+			}
+			else
+			{
+				canRevise = parent.canRevise();
+			}
+			if(parent == null || ! parent.canAddFolder())
+			{
+				canAddFolder = contentService.allowAddCollection(dummyId);
+			}
+			else
+			{
+				canAddFolder = parent.canAddFolder();
+			}
+			if(parent == null || ! parent.canAddItem())
+			{
+				canAddItem = contentService.allowAddResource(dummyId);
+			}
+			else
+			{
+				canAddItem = parent.canAddItem();
+			}
+			if(parent == null || ! parent.canUpdate())
+			{
+				canUpdate = AuthzGroupService.allowUpdate(collectionId);
+			}
+			else
+			{
+				canUpdate = parent.canUpdate();
+			}
+			if(parent != null)
+			{
+				depth = parent.getDepth() + 1;
+			}
+
+			if(canAddItem)
+			{
+				state.setAttribute(STATE_PASTE_ALLOWED_FLAG, Boolean.TRUE.toString());
+			}
+			// each child will have it's own delete status based on: delete.own or delete.any
+			boolean hasDeletableChildren = true; 
+         
+			// may have perms to copy in another folder, even if no perms in this folder
+			boolean hasCopyableChildren = canRead; 
+
+			String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+
+			ResourceProperties cProperties = collection.getProperties();
+			String folderName = cProperties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			if(collectionId.equals(homeCollectionId))
+			{
+				folderName = (String) state.getAttribute(STATE_HOME_COLLECTION_DISPLAY_NAME);
+			}
+			ChefBrowseItem folder = new ChefBrowseItem(collectionId, folderName, "folder");
+			if(parent == null)
+			{
+				folder.setRoot(collectionId);
+			}
+			else
+			{
+				folder.setRoot(parent.getRoot());
+			}
+			
+			boolean isInDropbox = contentService.isInDropbox(collectionId);
+			folder.setInDropbox(isInDropbox);
+			
+			BasicRightsAssignment rightsObj = new BasicRightsAssignment(folder.getItemNum(), cProperties);
+			folder.setRights(rightsObj);
+			
+			AccessMode access = collection.getAccess();
+			if(access == null || AccessMode.SITE == access)
+			{
+				folder.setAccess(AccessMode.INHERITED.toString());
+			}
+			else
+			{
+				folder.setAccess(access.toString());
+			}
+			
+			AccessMode inherited_access = collection.getInheritedAccess();
+			if(inherited_access == null || AccessMode.SITE == inherited_access)
+			{
+				folder.setInheritedAccess(AccessMode.INHERITED.toString());
+			}
+			else
+			{
+				folder.setInheritedAccess(inherited_access.toString());
+			}
+			
+			Collection access_groups = collection.getGroupObjects();
+			if(access_groups == null)
+			{
+				access_groups = new Vector();
+			}
+			folder.setGroups(access_groups);
+			Collection inherited_access_groups = collection.getInheritedGroupObjects();
+			if(inherited_access_groups == null)
+			{
+				inherited_access_groups = new Vector();
+			}
+			folder.setInheritedGroups(inherited_access_groups);
+			
+			if(parent != null && (parent.isPubview() || parent.isPubviewInherited()))
+			{
+				folder.setPubviewInherited(true);
+				folder.setPubview(false);
+			}
+			else if(contentService.isPubView(folder.getId()))
+			{
+				folder.setPubview(true);
+			}
+
+			if(highlightedItems == null || highlightedItems.isEmpty())
+			{
+				// do nothing
+			}
+			else if(parent != null && parent.isHighlighted())
+			{
+				folder.setInheritsHighlight(true);
+				folder.setHighlighted(true);
+			}
+			else if(highlightedItems.contains(collectionId))
+			{
+				folder.setHighlighted(true);
+				folder.setInheritsHighlight(false);
+			}
+
+			String containerId = contentService.getContainingCollectionId (collectionId);
+			folder.setContainer(containerId);
+
+			folder.setCanRead(canRead);
+			folder.setCanRevise(canRevise);
+			folder.setCanAddItem(canAddItem);
+			folder.setCanAddFolder(canAddFolder);
+			folder.setCanDelete(canDelete);
+			folder.setCanUpdate(canUpdate);
+			
+			folder.setAvailable(collection.isAvailable());
+
+			try
+			{
+				Time createdTime = cProperties.getTimeProperty(ResourceProperties.PROP_CREATION_DATE);
+				String createdTimeString = createdTime.toStringLocalShortDate();
+				folder.setCreatedTime(createdTimeString);
+			}
+			catch(Exception e)
+			{
+				String createdTimeString = cProperties.getProperty(ResourceProperties.PROP_CREATION_DATE);
+				folder.setCreatedTime(createdTimeString);
+			}
+			try
+			{
+				String createdBy = getUserProperty(cProperties, ResourceProperties.PROP_CREATOR).getDisplayName();
+				folder.setCreatedBy(createdBy);
+			}
+			catch(Exception e)
+			{
+				String createdBy = cProperties.getProperty(ResourceProperties.PROP_CREATOR);
+				folder.setCreatedBy(createdBy);
+			}
+			try
+			{
+				Time modifiedTime = cProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
+				String modifiedTimeString = modifiedTime.toStringLocalShortDate();
+				folder.setModifiedTime(modifiedTimeString);
+			}
+			catch(Exception e)
+			{
+				String modifiedTimeString = cProperties.getProperty(ResourceProperties.PROP_MODIFIED_DATE);
+				folder.setModifiedTime(modifiedTimeString);
+			}
+			try
+			{
+				String modifiedBy = getUserProperty(cProperties, ResourceProperties.PROP_MODIFIED_BY).getDisplayName();
+				folder.setModifiedBy(modifiedBy);
+			}
+			catch(Exception e)
+			{
+				String modifiedBy = cProperties.getProperty(ResourceProperties.PROP_MODIFIED_BY);
+				folder.setModifiedBy(modifiedBy);
+			}
+
+			String url = contentService.getUrl(collectionId);
+			folder.setUrl(url);
+			
+			// get the "size' of the collection, meaning the number of members one level down
+			int collection_size = collection.getMemberCount(); // newMembers.size();
+			folder.setIsEmpty(collection_size < 1);
+			folder.setSortable(ContentHostingService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < EXPANDABLE_FOLDER_SIZE_LIMIT);
+			Integer expansionLimit = (Integer) state.getAttribute(STATE_EXPANDABLE_FOLDER_SIZE_LIMIT);
+			if(expansionLimit == null)
+			{
+				expansionLimit = new Integer(EXPANDABLE_FOLDER_SIZE_LIMIT);
+			}
+			folder.setIsTooBig(collection_size > expansionLimit.intValue());
+				
+			folder.setDepth(depth);
+			newItems.add(folder);
+
+			if(need_to_expand_all || expandedFolderSortMap.keySet().contains(collectionId))
+			{
+				// Get the collection members from the 'new' collection
+				List newMembers = collection.getMemberResources();
+				
+				Comparator comparator = userSelectedSort;
+				if(comparator == null)
+				{
+					comparator = (Comparator) expandedFolderSortMap.get(collectionId);
+					if(comparator == null)
+					{
+						comparator = defaultComparator;
+					}
+				}
+
+				Collections.sort(newMembers, comparator);
+
+				// loop thru the (possibly) new members and add to the list
+				Iterator it = newMembers.iterator();
+				while(it.hasNext())
+				{
+					ContentEntity resource = (ContentEntity) it.next();
+					ResourceProperties props = resource.getProperties();
+
+					String itemId = resource.getId();
+					
+					if(contentService.isAvailabilityEnabled() && ! contentService.isAvailable(itemId))
+					{
+						continue;
+					}
+
+					if(resource.isCollection())
+					{
+						List offspring = getListView(itemId, highlightedItems, folder, isLocal, state);
+
+						if(! offspring.isEmpty())
+						{
+							ChefBrowseItem child = (ChefBrowseItem) offspring.get(0);
+							hasDeletableChildren = hasDeletableChildren || child.hasDeletableChildren();
+							hasCopyableChildren = hasCopyableChildren || child.hasCopyableChildren();
+						}
+
+						// add all the items in the subfolder to newItems
+						newItems.addAll(offspring);
+					}
+					else
+					{
+						AccessMode access_mode = ((GroupAwareEntity) resource).getAccess();
+						if(access_mode == null)
+						{
+							access_mode = AccessMode.INHERITED;
+						}
+						else if(access_mode == AccessMode.GROUPED)
+						{
+							if(! contentService.allowGetResource(resource.getId()))
+							{
+								continue;
+							}
+						}
+						
+						String itemType = ((ContentResource)resource).getContentType();
+						String itemName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+						ChefBrowseItem newItem = new ChefBrowseItem(itemId, itemName, itemType);
+						
+						boolean isLocked = contentService.isLocked(itemId);
+						newItem.setLocked(isLocked);
+						
+						boolean isAvailable = folder.isAvailable();
+						if(isAvailable)
+						{
+							isAvailable = resource.isAvailable();
+						}
+						newItem.setAvailable(isAvailable);
+
+						newItem.setAccess(access_mode.toString());
+						newItem.setInheritedAccess(folder.getEffectiveAccess());
+
+						newItem.setInDropbox(isInDropbox);
+						
+						BasicRightsAssignment rightsObj2 = new BasicRightsAssignment(newItem.getItemNum(), props);
+						newItem.setRights(rightsObj2);
+						Collection groups = ((GroupAwareEntity) resource).getGroupObjects();
+						if(groups == null)
+						{
+							groups = new Vector();
+						}
+						Collection inheritedGroups = folder.getGroups();
+						if(inheritedGroups == null || inheritedGroups.isEmpty())
+						{
+							inheritedGroups = folder.getInheritedGroups();
+						}
+						newItem.setGroups(groups);	
+						newItem.setInheritedGroups(inheritedGroups);
+
+						newItem.setContainer(collectionId);
+						newItem.setRoot(folder.getRoot());
+
+						// delete and revise permissions based on item (not parent)
+						newItem.setCanDelete(contentService.allowRemoveResource(itemId) && ! isLocked);
+						newItem.setCanRevise(contentService.allowUpdateResource(itemId)); 
+						newItem.setCanRead(canRead);
+						newItem.setCanCopy(canRead); // may have perms to copy in another folder, even if no perms in this folder
+						newItem.setCanAddItem(canAddItem); // true means this user can add an item in the folder containing this item (used for "duplicate")
+
+						if(highlightedItems == null || highlightedItems.isEmpty())
+						{
+							// do nothing
+						}
+						else if(folder.isHighlighted())
+						{
+							newItem.setInheritsHighlight(true);
+							newItem.setHighlighted(true);
+						}
+						else if(highlightedItems.contains(itemId))
+						{
+							newItem.setHighlighted(true);
+							newItem.setInheritsHighlight(false);
+						}
+
+						try
+						{
+							Time createdTime = props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE);
+							String createdTimeString = createdTime.toStringLocalShortDate();
+							newItem.setCreatedTime(createdTimeString);
+						}
+						catch(Exception e)
+						{
+							String createdTimeString = props.getProperty(ResourceProperties.PROP_CREATION_DATE);
+							newItem.setCreatedTime(createdTimeString);
+						}
+						try
+						{
+							String createdBy = getUserProperty(props, ResourceProperties.PROP_CREATOR).getDisplayName();
+							newItem.setCreatedBy(createdBy);
+						}
+						catch(Exception e)
+						{
+							String createdBy = props.getProperty(ResourceProperties.PROP_CREATOR);
+							newItem.setCreatedBy(createdBy);
+						}
+						try
+						{
+							Time modifiedTime = props.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
+							String modifiedTimeString = modifiedTime.toStringLocalShortDate();
+							newItem.setModifiedTime(modifiedTimeString);
+						}
+						catch(Exception e)
+						{
+							String modifiedTimeString = props.getProperty(ResourceProperties.PROP_MODIFIED_DATE);
+							newItem.setModifiedTime(modifiedTimeString);
+						}
+						try
+						{
+							String modifiedBy = getUserProperty(props, ResourceProperties.PROP_MODIFIED_BY).getDisplayName();
+							newItem.setModifiedBy(modifiedBy);
+						}
+						catch(Exception e)
+						{
+							String modifiedBy = props.getProperty(ResourceProperties.PROP_MODIFIED_BY);
+							newItem.setModifiedBy(modifiedBy);
+						}
+
+						if(folder.isPubview() || folder.isPubviewInherited())
+						{
+							newItem.setPubviewInherited(true);
+							newItem.setPubview(false);
+						}
+						else if(contentService.isPubView(resource.getId()))
+						{
+							newItem.setPubview(true);
+						}
+
+						String size = props.getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH);
+						newItem.setSize(size);
+
+						String target = Validator.getResourceTarget(props.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
+						newItem.setTarget(target);
+
+						String newUrl = contentService.getUrl(itemId);
+						newItem.setUrl(newUrl);
+
+						try
+						{
+							boolean copyrightAlert = props.getBooleanProperty(ResourceProperties.PROP_COPYRIGHT_ALERT);
+							newItem.setCopyrightAlert(copyrightAlert);
+						}
+						catch(Exception e)
+						{}
+						newItem.setDepth(depth + 1);
+
+						if (checkItemFilter((ContentResource)resource, newItem, state)) 
+						{
+							newItems.add(newItem);
+						}
+					}
+				}
+
+			}
+			folder.seDeletableChildren(hasDeletableChildren);
+			folder.setCopyableChildren(hasCopyableChildren);
+			// return newItems;
+		}
+		catch (IdUnusedException ignore)
+		{
+			// this condition indicates a site that does not have a resources collection (mercury?)
+		}
+		catch (TypeException e)
+		{
+			addAlert(state, "TypeException.");
+		}
+		catch (PermissionException e)
+		{
+			// ignore -- we'll just skip this collection since user lacks permission to access it.
+			//addAlert(state, "PermissionException");
+		}
+
+		return newItems;
+
+	}	// getListView
+	
+	public static void doAttachupload(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters ();
+
+		Map current_stack_frame = peekAtStack(state);
+
+		String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
+		int max_bytes = 1024 * 1024;
+		try
+		{
+			max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
+		}
+		catch(Exception e)
+		{
+			// if unable to parse an integer from the value
+			// in the properties file, use 1 MB as a default
+			max_file_size_mb = "1";
+			max_bytes = 1024 * 1024;
+		}
+
+		FileItem fileitem = null;
+		try
+		{
+			fileitem = params.getFileItem("upload");
+		}
+		catch(Exception e)
+		{
+
+		}
+		if(fileitem == null)
+		{
+			// "The user submitted a file to upload but it was too big!"
+			addAlert(state, rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
+		}
+		else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0)
+		{
+			addAlert(state, rb.getString("choosefile7"));
+		}
+		else if (fileitem.getFileName().length() > 0)
+		{
+			String filename = Validator.getFileName(fileitem.getFileName());
+			byte[] bytes = fileitem.get();
+			String contentType = fileitem.getContentType();
+
+			if(bytes.length >= max_bytes)
+			{
+				addAlert(state, rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
+			}
+			else if(bytes.length > 0)
+			{
+				// we just want the file name part - strip off any drive and path stuff
+				String name = Validator.getFileName(filename);
+				String resourceId = Validator.escapeResourceName(name);
+
+				// make a set of properties to add for the new resource
+				ResourcePropertiesEdit props = ContentHostingService.newResourceProperties();
+				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+				props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
+
+				// make an attachment resource for this URL
+				try
+				{
+					String siteId = ToolManager.getCurrentPlacement().getContext();
+
+					String toolName = (String) current_stack_frame.get(STATE_ATTACH_TOOL_NAME);
+					if(toolName == null)
+					{
+						toolName = (String) state.getAttribute(STATE_ATTACH_TOOL_NAME);
+						if(toolName == null)
+						{
+							toolName = ToolManager.getCurrentPlacement().getTitle();
+						}
+						current_stack_frame.put(STATE_ATTACH_TOOL_NAME, toolName);
+					}
+
+					ContentResource attachment = ContentHostingService.addAttachmentResource(resourceId, siteId, toolName, contentType, bytes, props);
+
+					List new_items = (List) current_stack_frame.get(STATE_HELPER_NEW_ITEMS);
+					if(new_items == null)
+					{
+						new_items = (List) state.getAttribute(STATE_HELPER_NEW_ITEMS);
+						if(new_items == null)
+						{
+							new_items = new Vector();
+						}
+						current_stack_frame.put(STATE_HELPER_NEW_ITEMS, new_items);
+					}
+
+					String containerId = ContentHostingService.getContainingCollectionId (attachment.getId());
+					String accessUrl = attachment.getUrl();
+
+					AttachItem item = new AttachItem(attachment.getId(), filename, containerId, accessUrl);
+					item.setContentType(contentType);
+					new_items.add(item);
+					//check -- jim
+					state.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
+
+					current_stack_frame.put(STATE_HELPER_NEW_ITEMS, new_items);
+				}
+				catch (PermissionException e)
+				{
+					addAlert(state, rb.getString("notpermis4"));
+				}
+				catch(OverQuotaException e)
+				{
+					addAlert(state, rb.getString("overquota"));
+				}
+				catch(ServerOverloadException e)
+				{
+					addAlert(state, rb.getString("failed"));
+				}
+				catch(IdInvalidException ignore)
+				{
+					// other exceptions should be caught earlier
+				}
+				catch(InconsistentException ignore)
+				{
+					// other exceptions should be caught earlier
+				}
+				catch(IdUsedException ignore)
+				{
+					// other exceptions should be caught earlier
+				}
+				catch(RuntimeException e)
+				{
+					logger.debug("ResourcesAction.doAttachupload ***** Unknown Exception ***** " + e.getMessage());
+					addAlert(state, rb.getString("failed"));
+				}
+			}
+			else
+			{
+				addAlert(state, rb.getString("choosefile7"));
+			}
+		}
+
+		state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_SELECT_INIT);
+		//popFromStack(state);
+		//resetCurrentMode(state);
+
+	}	// doAttachupload
+
+	public static void doAttachurl(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters ();
+
+		Map current_stack_frame = peekAtStack(state);
+
+		String url = params.getCleanString("url");
+
+		ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties ();
+		resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, url);
+		resourceProperties.addProperty (ResourceProperties.PROP_DESCRIPTION, url);
+
+		resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString());
+
+		try
+		{
+			url = validateURL(url);
+
+			byte[] newUrl = url.getBytes();
+			String newResourceId = Validator.escapeResourceName(url);
+
+			String siteId = ToolManager.getCurrentPlacement().getContext();
+			String toolName = (String) current_stack_frame.get(STATE_ATTACH_TOOL_NAME);
+			if(toolName == null)
+			{
+				toolName = (String) state.getAttribute(STATE_ATTACH_TOOL_NAME);
+				if(toolName == null)
+				{
+					toolName = ToolManager.getCurrentPlacement().getTitle();
+				}
+				current_stack_frame.put(STATE_ATTACH_TOOL_NAME, toolName);
+			}
+
+			ContentResource attachment = ContentHostingService.addAttachmentResource(newResourceId, siteId, toolName, ResourceProperties.TYPE_URL, newUrl, resourceProperties);
+
+			List new_items = (List) current_stack_frame.get(STATE_HELPER_NEW_ITEMS);
+			if(new_items == null)
+			{
+				new_items = (List) state.getAttribute(STATE_HELPER_NEW_ITEMS);
+				if(new_items == null)
+				{
+					new_items = new Vector();
+				}
+				current_stack_frame.put(STATE_HELPER_NEW_ITEMS, new_items);
+			}
+
+			String containerId = ContentHostingService.getContainingCollectionId (attachment.getId());
+			String accessUrl = attachment.getUrl();
+
+			AttachItem item = new AttachItem(attachment.getId(), url, containerId, accessUrl);
+			item.setContentType(ResourceProperties.TYPE_URL);
+			new_items.add(item);
+			state.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
+			current_stack_frame.put(STATE_HELPER_NEW_ITEMS, new_items);
+		}
+		catch(MalformedURLException e)
+		{
+			// invalid url
+			addAlert(state, rb.getString("validurl") + " \"" + url + "\" " + rb.getString("invalid"));
+		}
+		catch (PermissionException e)
+		{
+			addAlert(state, rb.getString("notpermis4"));
+		}
+		catch(OverQuotaException e)
+		{
+			addAlert(state, rb.getString("overquota"));
+		}
+		catch(ServerOverloadException e)
+		{
+			addAlert(state, rb.getString("failed"));
+		}
+		catch(IdInvalidException ignore)
+		{
+			// other exceptions should be caught earlier
+		}
+		catch(IdUsedException ignore)
+		{
+			// other exceptions should be caught earlier
+		}
+		catch(InconsistentException ignore)
+		{
+			// other exceptions should be caught earlier
+		}
+		catch(RuntimeException e)
+		{
+			logger.debug("ResourcesAction.doAttachurl ***** Unknown Exception ***** " + e.getMessage());
+			addAlert(state, rb.getString("failed"));
+		}
+
+		state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_SELECT_INIT);
+		// popFromStack(state);
+		// resetCurrentMode(state);
+
+	}	// doAttachurl
+
+	/**
+	* Paste the previously copied item(s)
+	*/
+	public static void doPasteitems ( RunData data)
+	{
+		ParameterParser params = data.getParameters ();
+
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		List items = (List) state.getAttribute(STATE_COPIED_IDS);
+
+		String collectionId = params.getString ("collectionId");
+
+		Iterator itemIter = items.iterator();
+		while (itemIter.hasNext())
+		{
+			// get the copied item to be pasted
+			String itemId = (String) itemIter.next();
+
+			String originalDisplayName = NULL_STRING;
+
+			try
+			{
+				String id = ContentHostingService.copyIntoFolder(itemId, collectionId);
+				String mode = (String) state.getAttribute(STATE_MODE);
+				if(MODE_HELPER.equals(mode))
+				{
+					String helper_mode = (String) state.getAttribute(STATE_RESOURCES_HELPER_MODE);
+					if(helper_mode != null && MODE_ATTACHMENT_NEW_ITEM.equals(helper_mode))
+					{
+						// add to the attachments vector
+						List attachments = EntityManager.newReferenceList();
+						Reference ref = EntityManager.newReference(ContentHostingService.getReference(id));
+						attachments.add(ref);
+						cleanupState(state);
+						state.setAttribute(STATE_ATTACHMENTS, attachments);
+					}
+					else
+					{
+						if(state.getAttribute(STATE_ATTACH_LINKS) == null)
+						{
+							attachItem(id, state);
+						}
+						else
+						{
+							attachLink(id, state);
+						}
+					}
+				}
+			}
+			catch (PermissionException e)
+			{
+				addAlert(state, rb.getString("notpermis8") + " " + originalDisplayName + ". ");
+			}
+			catch (IdUnusedException e)
+			{
+				addAlert(state,RESOURCE_NOT_EXIST_STRING);
+			}
+			catch (InUseException e)
+			{
+				addAlert(state, rb.getString("someone") + " " + originalDisplayName);
+			}
+			catch (TypeException e)
+			{
+				addAlert(state, rb.getString("pasteitem") + " " + originalDisplayName + " " + rb.getString("mismatch"));
+			}
+			catch(IdUsedException e)
+			{
+				addAlert(state, rb.getString("toomany"));
+			}
+			catch(IdLengthException e)
+			{
+				addAlert(state, rb.getString("toolong") + " " + e.getMessage());
+			}
+			catch(IdUniquenessException e)
+			{
+				addAlert(state, "Could not add this item to this folder");
+			}
+			catch(ServerOverloadException e)
+			{
+				addAlert(state, rb.getString("failed"));
+			}
+			catch(InconsistentException e)
+			{
+				addAlert(state, rb.getString("recursive") + " " + itemId);
+			}
+			catch (OverQuotaException e)
+			{
+				addAlert(state, rb.getString("overquota"));
+			}	// try-catch
+			catch(RuntimeException e)
+			{
+				logger.debug("ResourcesAction.doPasteitems ***** Unknown Exception ***** " + e.getMessage());
+				addAlert(state, rb.getString("failed"));
+			}
+
+			if (state.getAttribute(STATE_MESSAGE) == null)
+			{
+				// delete sucessful
+				String mode = (String) state.getAttribute(STATE_MODE);
+				if(MODE_HELPER.equals(mode))
+				{
+					state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_SELECT);
+				}
+				else
+				{
+					state.setAttribute (STATE_MODE, MODE_LIST);
+				}
+
+				// try to expand the collection
+				SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				if(expandedCollections == null)
+				{
+					expandedCollections = new TreeSet();
+					state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+				}
+				if(! expandedCollections.contains(collectionId))
+				{
+					expandedCollections.add(collectionId);
+				}
+
+				// reset the copy flag
+				if (((String)state.getAttribute (STATE_COPY_FLAG)).equals (Boolean.TRUE.toString()))
+				{
+					state.setAttribute (STATE_COPY_FLAG, Boolean.FALSE.toString());
+				}
+			}
+
+		}
+
+	}	// doPasteitems
+
+	public static void attachItem(String itemId, SessionState state)
+	{
+		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+
+		Map current_stack_frame = peekAtStack(state);
+
+		List new_items = (List) current_stack_frame.get(STATE_HELPER_NEW_ITEMS);
+		if(new_items == null)
+		{
+			new_items = (List) state.getAttribute(STATE_HELPER_NEW_ITEMS);
+			if(new_items == null)
+			{
+				new_items = new Vector();
+			}
+			current_stack_frame.put(STATE_HELPER_NEW_ITEMS, new_items);
+		}
+
+		boolean found = false;
+		Iterator it = new_items.iterator();
+		while(!found && it.hasNext())
+		{
+			AttachItem item = (AttachItem) it.next();
+			if(item.getId().equals(itemId))
+			{
+				found = true;
+			}
+		}
+
+		if(!found)
+		{
+			try
+			{
+				ContentResource res = contentService.getResource(itemId);
+				ResourceProperties props = res.getProperties();
+
+				ResourcePropertiesEdit newprops = contentService.newResourceProperties();
+				newprops.set(props);
+
+				byte[] bytes = res.getContent();
+				String contentType = res.getContentType();
+				String filename = Validator.getFileName(itemId);
+				String resourceId = Validator.escapeResourceName(filename);
+
+				String siteId = ToolManager.getCurrentPlacement().getContext();
+				String toolName = (String) current_stack_frame.get(STATE_ATTACH_TOOL_NAME);
+				if(toolName == null)
+				{
+					toolName = (String) state.getAttribute(STATE_ATTACH_TOOL_NAME);
+					if(toolName == null)
+					{
+						toolName = ToolManager.getCurrentPlacement().getTitle();
+					}
+					current_stack_frame.put(STATE_ATTACH_TOOL_NAME, toolName);
+				}
+
+				ContentResource attachment = ContentHostingService.addAttachmentResource(resourceId, siteId, toolName, contentType, bytes, props);
+
+				String displayName = newprops.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
+				String containerId = contentService.getContainingCollectionId (attachment.getId());
+				String accessUrl = attachment.getUrl();
+
+				AttachItem item = new AttachItem(attachment.getId(), displayName, containerId, accessUrl);
+				item.setContentType(contentType);
+				new_items.add(item);
+				state.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
+			}
+			catch (PermissionException e)
+			{
+				addAlert(state, rb.getString("notpermis4"));
+			}
+			catch(OverQuotaException e)
+			{
+				addAlert(state, rb.getString("overquota"));
+			}
+			catch(ServerOverloadException e)
+			{
+				addAlert(state, rb.getString("failed"));
+			}
+			catch(IdInvalidException ignore)
+			{
+				// other exceptions should be caught earlier
+			}
+			catch(TypeException ignore)
+			{
+				// other exceptions should be caught earlier
+			}
+			catch(IdUnusedException ignore)
+			{
+				// other exceptions should be caught earlier
+			}
+			catch(IdUsedException ignore)
+			{
+				// other exceptions should be caught earlier
+			}
+			catch(InconsistentException ignore)
+			{
+				// other exceptions should be caught earlier
+			}
+			catch(RuntimeException e)
+			{
+				logger.debug("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
+				addAlert(state, rb.getString("failed"));
+			}
+		}
+		current_stack_frame.put(STATE_HELPER_NEW_ITEMS, new_items);
+	}
+
+	public static void attachLink(String itemId, SessionState state)
+	{
+		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+
+		Map current_stack_frame = peekAtStack(state);
+
+		List new_items = (List) current_stack_frame.get(STATE_HELPER_NEW_ITEMS);
+		if(new_items == null)
+		{
+			new_items = (List) state.getAttribute(STATE_HELPER_NEW_ITEMS);
+			if(new_items == null)
+			{
+				new_items = new Vector();
+			}
+			current_stack_frame.put(STATE_HELPER_NEW_ITEMS, new_items);
+		}
+
+		Integer max_cardinality = (Integer) current_stack_frame.get(STATE_ATTACH_CARDINALITY);
+		if(max_cardinality == null)
+		{
+			max_cardinality = (Integer) state.getAttribute(STATE_ATTACH_CARDINALITY);
+			if(max_cardinality == null)
+			{
+				max_cardinality = CARDINALITY_MULTIPLE;
+			}
+			current_stack_frame.put(STATE_ATTACH_CARDINALITY, max_cardinality);
+		}
+
+		boolean found = false;
+		Iterator it = new_items.iterator();
+		while(!found && it.hasNext())
+		{
+			AttachItem item = (AttachItem) it.next();
+			if(item.getId().equals(itemId))
+			{
+				found = true;
+			}
+		}
+
+		if(!found)
+		{
+			try
+			{
+				ContentResource res = contentService.getResource(itemId);
+				ResourceProperties props = res.getProperties();
+
+				String contentType = res.getContentType();
+				String filename = Validator.getFileName(itemId);
+				String resourceId = Validator.escapeResourceName(filename);
+
+				String siteId = ToolManager.getCurrentPlacement().getContext();
+				String toolName = (String) current_stack_frame.get(STATE_ATTACH_TOOL_NAME);
+				if(toolName == null)
+				{
+					toolName = (String) state.getAttribute(STATE_ATTACH_TOOL_NAME);
+					if(toolName == null)
+					{
+						toolName = ToolManager.getCurrentPlacement().getTitle();
+					}
+					current_stack_frame.put(STATE_ATTACH_TOOL_NAME, toolName);
+				}
+
+				String displayName = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
+				String containerId = contentService.getContainingCollectionId (itemId);
+				String accessUrl = res.getUrl();
+
+				AttachItem item = new AttachItem(itemId, displayName, containerId, accessUrl);
+				item.setContentType(contentType);
+				new_items.add(item);
+				state.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
+			}
+			catch (PermissionException e)
+			{
+				addAlert(state, rb.getString("notpermis4"));
+			}
+			catch(TypeException ignore)
+			{
+				// other exceptions should be caught earlier
+			}
+			catch(IdUnusedException ignore)
+			{
+				// other exceptions should be caught earlier
+			}
+			catch(RuntimeException e)
+			{
+				logger.debug("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
+				addAlert(state, rb.getString("failed"));
+			}
+		}
+		current_stack_frame.put(STATE_HELPER_NEW_ITEMS, new_items);
+	}
 
 }	// ResourcesAction
