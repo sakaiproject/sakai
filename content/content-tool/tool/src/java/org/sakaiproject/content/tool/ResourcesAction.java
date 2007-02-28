@@ -4118,7 +4118,7 @@ public class ResourcesAction
 				//other_sites.addAll(readAllResources(state));
 				//all_roots.addAll(other_sites);
 
-				List messages = prepPage(state);
+				List messages = obsoletePrepPage(state);
 				context.put("other_sites", messages);
 				all_roots.addAll(messages);
 
@@ -4409,33 +4409,25 @@ public class ResourcesAction
 			expandedCollections.add(collectionId);
 
 			state.removeAttribute(STATE_PASTE_ALLOWED_FLAG);
+			
+			ContentCollection collection = ContentHostingService.getCollection(collectionId);
+			
+			ListItem item = getListItem(collection, null, false, expandedCollections);
 
 			//List all_roots = new Vector();
 			List this_site = new Vector();
 			
-			List members = getListView(collectionId, highlightedItems, (ChefBrowseItem) null, navRoot.equals(homeCollectionId), state);
-
-			// List members = getBrowseItems(collectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, navRoot.equals(homeCollectionId), state);
-			if(members != null && members.size() > 0)
+			if(atHome && dropboxMode)
 			{
-				ChefBrowseItem root = (ChefBrowseItem) members.remove(0);
-				showRemoveAction = showRemoveAction || root.hasDeletableChildren();
-				showMoveAction = showMoveAction || root.hasDeletableChildren();
-				showCopyAction = showCopyAction || root.hasCopyableChildren();
-
-				if(atHome && dropboxMode)
-				{
-					root.setName(siteTitle + " " + rb.getString("gen.drop"));
-				}
-				else if(atHome)
-				{
-					root.setName(siteTitle + " " + rb.getString("gen.reso"));
-				}
-				context.put("site", root);
-				root.addMembers(members);
-				this_site.add(root);
-				//all_roots.add(root);
+				item.setName(siteTitle + " " + rb.getString("gen.drop"));
 			}
+			else if(atHome)
+			{
+				item.setName(siteTitle + " " + rb.getString("gen.reso"));
+			}
+			context.put("site", item);
+			this_site.add(item);
+			//all_roots.add(root);
 			context.put ("this_site", this_site);
 
 			boolean show_all_sites = false;
@@ -4457,7 +4449,7 @@ public class ResourcesAction
 				//other_sites.addAll(readAllResources(state));
 				//all_roots.addAll(other_sites);
 
-				List messages = prepPage(state);
+				List messages = obsoletePrepPage(state);
 				context.put("other_sites", messages);
 
 				if (state.getAttribute(STATE_NUM_MESSAGES) != null)
@@ -9601,7 +9593,7 @@ public class ResourcesAction
 	* Develop a list of all the site collections that there are to page.
 	* Sort them as appropriate, and apply search criteria.
 	*/
-	protected static List readAllResources(SessionState state)
+	protected List readAllResources(SessionState state)
 	{
 		List other_sites = new Vector();
 
@@ -9610,12 +9602,12 @@ public class ResourcesAction
 		{
 			collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
 		}
-//		SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-//		if(expandedCollections == null)
-//		{
-//			expandedCollections = new TreeSet();
-//			state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
-//		}
+		SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		if(expandedCollections == null)
+		{
+			expandedCollections = new TreeSet();
+			state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+		}
 		
 		// set the sort values
 		String sortedBy = (String) state.getAttribute (STATE_SORT_BY);
@@ -9641,20 +9633,27 @@ public class ResourcesAction
 		String wsCollectionId = ContentHostingService.getSiteCollection(wsId);
 		if(! collectionId.equals(wsCollectionId))
 		{
-			List members = getListView(wsCollectionId, highlightedItems, (ChefBrowseItem) null, false, state);
-
-            //List members = getBrowseItems(wsCollectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, false, state);
-            if(members != null && members.size() > 0)
-		    {
-		        ChefBrowseItem root = (ChefBrowseItem) members.remove(0);
-				showRemoveAction = showRemoveAction || root.hasDeletableChildren();
-				showMoveAction = showMoveAction || root.hasDeletableChildren();
-				showCopyAction = showCopyAction || root.hasCopyableChildren();
-				
-		        root.addMembers(members);
-		        root.setName(userName + " " + rb.getString("gen.wsreso"));
-		        other_sites.add(root);
-		    }
+            try
+            {
+            	ContentCollection wsCollection = ContentHostingService.getCollection(wsCollectionId);
+				ListItem wsRoot = getListItem(wsCollection, null, false, expandedCollections);
+		        other_sites.add(wsRoot);
+            }
+            catch (IdUnusedException e)
+            {
+	            // TODO Auto-generated catch block
+	            logger.warn("IdUnusedException ", e);
+            }
+            catch (TypeException e)
+            {
+	            // TODO Auto-generated catch block
+	            logger.warn("TypeException ", e);
+            }
+            catch (PermissionException e)
+            {
+	            // TODO Auto-generated catch block
+	            logger.warn("PermissionException ", e);
+            }
 		}
 		
         	// add all other sites user has access to
@@ -9701,7 +9700,7 @@ public class ResourcesAction
 	* Prepare the current page of site collections to display.
 	* @return List of ChefBrowseItem objects to display on this page.
 	*/
-	protected static List prepPage(SessionState state)
+	protected List prepPage(SessionState state)
 	{
 		List rv = new Vector();
 
@@ -9841,7 +9840,7 @@ public class ResourcesAction
 		}
 
 		// save which message is at the top of the page
-		ChefBrowseItem itemAtTheTopOfThePage = (ChefBrowseItem) allMessages.get(posStart);
+		ListItem itemAtTheTopOfThePage = (ListItem) allMessages.get(posStart);
 		state.setAttribute(STATE_TOP_PAGE_MESSAGE_ID, itemAtTheTopOfThePage.getId());
 		state.setAttribute(STATE_TOP_MESSAGE_INDEX, new Integer(posStart));
 
@@ -9889,7 +9888,7 @@ public class ResourcesAction
 			}
 			
 			// update the view message
-			state.setAttribute(STATE_VIEW_ID, ((ChefBrowseItem) allMessages.get(viewPos)).getId());
+			state.setAttribute(STATE_VIEW_ID, ((ListItem) allMessages.get(viewPos)).getId());
 			
 			// if the view message is no longer on the current page, adjust the page
 			// Note: next time through this will get processed
@@ -9931,12 +9930,12 @@ public class ResourcesAction
 	* @param id The message id.
 	* @return The index position in the list of the message with this id, or -1 if not found.
 	*/
-	protected static int findResourceInList(List resources, String id)
+	protected int findResourceInList(List resources, String id)
 	{
 		for (int i = 0; i < resources.size(); i++)
 		{
 			// if this is the one, return this index
-			if (((ChefBrowseItem) (resources.get(i))).getId().equals(id)) return i;
+			if (((ListItem) (resources.get(i))).getId().equals(id)) return i;
 		}
 
 		// not found
@@ -9980,6 +9979,7 @@ public class ResourcesAction
 	} // isolateName
 
 	/////////////////////////////////////////////////////////////////////////// Methods, Classes, Statics to be deprecated/removed
+	
 	/**
 	 * Internal class that encapsulates all information about a resource that is needed in the browse mode.
 	 * This is being phased out as we switch to the resources type registry.
@@ -13594,9 +13594,9 @@ public class ResourcesAction
 			{
 
 				state.setAttribute(STATE_HIGHLIGHTED_ITEMS, highlightedItems);
-				other_sites.addAll(readAllResources(state));
+				//other_sites.addAll(readAllResources(state));
 
-				List messages = prepPage(state);
+				List messages = obsoletePrepPage(state);
 				context.put("other_sites", messages);
 
 				if (state.getAttribute(STATE_NUM_MESSAGES) != null)
@@ -17197,4 +17197,233 @@ public class ResourcesAction
 		current_stack_frame.put(STATE_HELPER_NEW_ITEMS, new_items);
 	}
 
+	/**
+	* Prepare the current page of site collections to display.
+	* @return List of ChefBrowseItem objects to display on this page.
+	*/
+	protected static List obsoletePrepPage(SessionState state)
+	{
+		List rv = new Vector();
+
+		// access the page size
+		int pageSize = ((Integer) state.getAttribute(STATE_PAGESIZE)).intValue();
+
+		// cleanup prior prep
+		state.removeAttribute(STATE_NUM_MESSAGES);
+
+		// are we going next or prev, first or last page?
+		boolean goNextPage = state.getAttribute(STATE_GO_NEXT_PAGE) != null;
+		boolean goPrevPage = state.getAttribute(STATE_GO_PREV_PAGE) != null;
+		boolean goFirstPage = state.getAttribute(STATE_GO_FIRST_PAGE) != null;
+		boolean goLastPage = state.getAttribute(STATE_GO_LAST_PAGE) != null;
+		state.removeAttribute(STATE_GO_NEXT_PAGE);
+		state.removeAttribute(STATE_GO_PREV_PAGE);
+		state.removeAttribute(STATE_GO_FIRST_PAGE);
+		state.removeAttribute(STATE_GO_LAST_PAGE);
+
+		// are we going next or prev message?
+		boolean goNext = state.getAttribute(STATE_GO_NEXT) != null;
+		boolean goPrev = state.getAttribute(STATE_GO_PREV) != null;
+		state.removeAttribute(STATE_GO_NEXT);
+		state.removeAttribute(STATE_GO_PREV);
+
+		// read all channel messages
+		List allMessages = null; // readAllResources(state);
+
+		if (allMessages == null)
+		{
+			return rv;
+		}
+		
+		String messageIdAtTheTopOfThePage = null;
+		Object topMsgId = state.getAttribute(STATE_TOP_PAGE_MESSAGE_ID);
+		if(topMsgId == null)
+		{
+			// do nothing
+		}
+		else if(topMsgId instanceof Integer)
+		{
+			messageIdAtTheTopOfThePage = ((Integer) topMsgId).toString();
+		}
+		else if(topMsgId instanceof String)
+		{
+			messageIdAtTheTopOfThePage = (String) topMsgId;
+		}
+
+		// if we have no prev page and do have a top message, then we will stay "pinned" to the top
+		boolean pinToTop = (	(messageIdAtTheTopOfThePage != null)
+							&&	(state.getAttribute(STATE_PREV_PAGE_EXISTS) == null)
+							&&	!goNextPage && !goPrevPage && !goNext && !goPrev && !goFirstPage && !goLastPage);
+
+		// if we have no next page and do have a top message, then we will stay "pinned" to the bottom
+		boolean pinToBottom = (	(messageIdAtTheTopOfThePage != null)
+							&&	(state.getAttribute(STATE_NEXT_PAGE_EXISTS) == null)
+							&&	!goNextPage && !goPrevPage && !goNext && !goPrev && !goFirstPage && !goLastPage);
+
+		// how many messages, total
+		int numMessages = allMessages.size();
+
+		if (numMessages == 0)
+		{
+			return rv;
+		}
+
+		// save the number of messges
+		state.setAttribute(STATE_NUM_MESSAGES, new Integer(numMessages));
+
+		// find the position of the message that is the top first on the page
+		int posStart = 0;
+		if (messageIdAtTheTopOfThePage != null)
+		{
+			// find the next page
+			posStart = 0; //findResourceInList(allMessages, messageIdAtTheTopOfThePage);
+
+			// if missing, start at the top
+			if (posStart == -1)
+			{
+				posStart = 0;
+			}
+		}
+		
+		// if going to the next page, adjust
+		if (goNextPage)
+		{
+			posStart += pageSize;
+		}
+
+		// if going to the prev page, adjust
+		else if (goPrevPage)
+		{
+			posStart -= pageSize;
+			if (posStart < 0) posStart = 0;
+		}
+		
+		// if going to the first page, adjust
+		else if (goFirstPage)
+		{
+			posStart = 0;
+		}
+		
+		// if going to the last page, adjust
+		else if (goLastPage)
+		{
+			posStart = numMessages - pageSize;
+			if (posStart < 0) posStart = 0;
+		}
+
+		// pinning
+		if (pinToTop)
+		{
+			posStart = 0;
+		}
+		else if (pinToBottom)
+		{
+			posStart = numMessages - pageSize;
+			if (posStart < 0) posStart = 0;
+		}
+
+		// get the last page fully displayed
+		if (posStart + pageSize > numMessages)
+		{
+			posStart = numMessages - pageSize;
+			if (posStart < 0) posStart = 0;
+		}
+
+		// compute the end to a page size, adjusted for the number of messages available
+		int posEnd = posStart + (pageSize-1);
+		if (posEnd >= numMessages) posEnd = numMessages-1;
+		int numMessagesOnThisPage = (posEnd - posStart) + 1;
+
+		// select the messages on this page
+		for (int i = posStart; i <= posEnd; i++)
+		{
+			rv.add(allMessages.get(i));
+		}
+
+		// save which message is at the top of the page
+		ChefBrowseItem itemAtTheTopOfThePage = (ChefBrowseItem) allMessages.get(posStart);
+		state.setAttribute(STATE_TOP_PAGE_MESSAGE_ID, itemAtTheTopOfThePage.getId());
+		state.setAttribute(STATE_TOP_MESSAGE_INDEX, new Integer(posStart));
+
+
+		// which message starts the next page (if any)
+		int next = posStart + pageSize;
+		if (next < numMessages)
+		{
+			state.setAttribute(STATE_NEXT_PAGE_EXISTS, "");
+		}
+		else
+		{
+			state.removeAttribute(STATE_NEXT_PAGE_EXISTS);
+		}
+
+		// which message ends the prior page (if any)
+		int prev = posStart - 1;
+		if (prev >= 0)
+		{
+			state.setAttribute(STATE_PREV_PAGE_EXISTS, "");
+		}
+		else
+		{
+			state.removeAttribute(STATE_PREV_PAGE_EXISTS);
+		}
+
+		if (state.getAttribute(STATE_VIEW_ID) != null)
+		{
+			int viewPos = 0; //findResourceInList(allMessages, (String) state.getAttribute(STATE_VIEW_ID));
+	
+			// are we moving to the next message
+			if (goNext)
+			{
+				// advance
+				viewPos++;
+				if (viewPos >= numMessages) viewPos = numMessages-1;
+			}
+	
+			// are we moving to the prev message
+			if (goPrev)
+			{
+				// retreat
+				viewPos--;
+				if (viewPos < 0) viewPos = 0;
+			}
+			
+			// update the view message
+			state.setAttribute(STATE_VIEW_ID, ((ChefBrowseItem) allMessages.get(viewPos)).getId());
+			
+			// if the view message is no longer on the current page, adjust the page
+			// Note: next time through this will get processed
+			if (viewPos < posStart)
+			{
+				state.setAttribute(STATE_GO_PREV_PAGE, "");
+			}
+			else if (viewPos > posEnd)
+			{
+				state.setAttribute(STATE_GO_NEXT_PAGE, "");
+			}
+			
+			if (viewPos > 0)
+			{
+				state.setAttribute(STATE_PREV_EXISTS,"");
+			}
+			else
+			{
+				state.removeAttribute(STATE_PREV_EXISTS);
+			}
+			
+			if (viewPos < numMessages-1)
+			{
+				state.setAttribute(STATE_NEXT_EXISTS,"");
+			}
+			else
+			{
+				state.removeAttribute(STATE_NEXT_EXISTS);
+			}			
+		}
+
+		return rv;
+
+	}	// prepPage
+
+	
 }	// ResourcesAction
