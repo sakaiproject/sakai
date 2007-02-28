@@ -43,6 +43,10 @@ public class ToolBarRenderer extends Renderer
 
   public void encodeBegin(FacesContext context, UIComponent component) throws IOException
   {
+	if(!component.isRendered()){
+		//tool_bar tag is not to be rendered, return now
+		return;
+	}
     ResponseWriter writer = context.getResponseWriter();
     writer.write("<div class=\"navIntraTool\">");
 

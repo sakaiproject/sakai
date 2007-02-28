@@ -218,6 +218,16 @@
         within the closest parent component that is a naming container.
       </description>
     </attribute>
+    
+    <attribute>
+    	<name>rendered</name>
+    	<required>false</required>
+    	<rtexprvalue>false</rtexprvalue>
+    	<type>boolean</type>
+    	<description>
+    	  Determine if this component is to be rendered.
+    	</description>
+    </attribute>
   </tag>
 
 
