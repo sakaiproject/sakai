@@ -1469,146 +1469,148 @@ public class ResourcesAction
     private static ResourceLoader trb = new ResourceLoader("types");
 
     private static final Log logger = LogFactory.getLog(ResourcesAction.class);
+    
+    public static final String PREFIX = "resources.";
 
 	/** Name of state attribute containing a list of opened/expanded collections */
-	private static final String STATE_EXPANDED_COLLECTIONS = "resources.expanded_collections";
+	private static final String STATE_EXPANDED_COLLECTIONS = PREFIX + "expanded_collections";
 
 	/** Name of state attribute for status of initialization.  */
-	private static final String STATE_INITIALIZED = "resources.initialized";
+	private static final String STATE_INITIALIZED = PREFIX + "initialized";
 
 	/** The content hosting service in the State. */
-	private static final String STATE_CONTENT_SERVICE = "resources.content_service";
+	private static final String STATE_CONTENT_SERVICE = PREFIX + "content_service";
 
 	/** The content type image lookup service in the State. */
-	private static final String STATE_CONTENT_TYPE_IMAGE_SERVICE = "resources.content_type_image_service";
+	private static final String STATE_CONTENT_TYPE_IMAGE_SERVICE = PREFIX + "content_type_image_service";
 	
-	private static final String STATE_RESOURCES_TYPE_REGISTRY = "resources.type_registry";
+	private static final String STATE_RESOURCES_TYPE_REGISTRY = PREFIX + "type_registry";
 
 	/** The resources, helper or dropbox mode. */
-	public static final String STATE_MODE_RESOURCES = "resources.resources_mode";
+	public static final String STATE_MODE_RESOURCES = PREFIX + "resources_mode";
 
 	/** The resources, helper or dropbox mode. */
-	public static final String STATE_RESOURCES_HELPER_MODE = "resources.resources_helper_mode";
+	public static final String STATE_RESOURCES_HELPER_MODE = PREFIX + "resources_helper_mode";
 
 	/** state attribute for the maximum size for file upload */
-	static final String STATE_FILE_UPLOAD_MAX_SIZE = "resources.file_upload_max_size";
+	static final String STATE_FILE_UPLOAD_MAX_SIZE = PREFIX + "file_upload_max_size";
 	
 	/** state attribute indicating whether users in current site should be denied option of making resources public */
-	private static final String STATE_PREVENT_PUBLIC_DISPLAY = "resources.prevent_public_display";
+	private static final String STATE_PREVENT_PUBLIC_DISPLAY = PREFIX + "prevent_public_display";
 
 	/** The name of a state attribute indicating whether the resources tool/helper is allowed to show all sites the user has access to */
-	public static final String STATE_SHOW_ALL_SITES = "resources.allow_user_to_see_all_sites";
+	public static final String STATE_SHOW_ALL_SITES = PREFIX + "allow_user_to_see_all_sites";
 
 	/** The name of a state attribute indicating whether the wants to see other sites if that is enabled */
-	public static final String STATE_SHOW_OTHER_SITES = "resources.user_chooses_to_see_other_sites";
+	public static final String STATE_SHOW_OTHER_SITES = PREFIX + "user_chooses_to_see_other_sites";
 
 	/** The user copyright string */
-	private static final String	STATE_MY_COPYRIGHT = "resources.mycopyright";
+	private static final String	STATE_MY_COPYRIGHT = PREFIX + "mycopyright";
 
 	/** copyright path -- MUST have same value as AccessServlet.COPYRIGHT_PATH */
 	public static final String COPYRIGHT_PATH = Entity.SEPARATOR + "copyright";
 
 	/** The collection id being browsed. */
-	private static final String STATE_COLLECTION_ID = "resources.collection_id";
+	private static final String STATE_COLLECTION_ID = PREFIX + "collection_id";
 
 	/** The id of the "home" collection (can't go up from here.) */
-	private static final String STATE_HOME_COLLECTION_ID = "resources.collection_home";
+	private static final String STATE_HOME_COLLECTION_ID = PREFIX + "collection_home";
 
 	/** The display name of the "home" collection (can't go up from here.) */
-	private static final String STATE_HOME_COLLECTION_DISPLAY_NAME = "resources.collection_home_display_name";
+	private static final String STATE_HOME_COLLECTION_DISPLAY_NAME = PREFIX + "collection_home_display_name";
 	
 	/** name of state attribute for the default retract time */
-	protected static final String STATE_DEFAULT_RETRACT_TIME = "resources.default_retract_time";
+	protected static final String STATE_DEFAULT_RETRACT_TIME = PREFIX + "default_retract_time";
 
 	/** The collection id path */
-	private static final String STATE_COLLECTION_PATH = "resources.collection_path";
+	private static final String STATE_COLLECTION_PATH = PREFIX + "collection_path";
 
 	/** The name of the state attribute containing BrowseItems for all content collections the user has access to */
-	private static final String STATE_COLLECTION_ROOTS = "resources.collection_rootie_tooties";
+	private static final String STATE_COLLECTION_ROOTS = PREFIX + "collection_rootie_tooties";
 
 	/** The sort by */
-	private static final String STATE_SORT_BY = "resources.sort_by";
+	private static final String STATE_SORT_BY = PREFIX + "sort_by";
 
 	/** The sort ascending or decending */
-	private static final String STATE_SORT_ASC = "resources.sort_asc";
+	private static final String STATE_SORT_ASC = PREFIX + "sort_asc";
 
 	/** The copy flag */
-	private static final String STATE_COPY_FLAG = "resources.copy_flag";
+	private static final String STATE_COPY_FLAG = PREFIX + "copy_flag";
 
 	/** The cut flag */
-	private static final String STATE_CUT_FLAG = "resources.cut_flag";
+	private static final String STATE_CUT_FLAG = PREFIX + "cut_flag";
 
 	/** The can-paste flag */
-	private static final String STATE_PASTE_ALLOWED_FLAG = "resources.can_paste_flag";
+	private static final String STATE_PASTE_ALLOWED_FLAG = PREFIX + "can_paste_flag";
 
 	/** The move flag */
-	private static final String STATE_MOVE_FLAG = "resources.move_flag";
+	private static final String STATE_MOVE_FLAG = PREFIX + "move_flag";
 
 	/** The select all flag */
-	private static final String STATE_SELECT_ALL_FLAG = "resources.select_all_flag";
+	private static final String STATE_SELECT_ALL_FLAG = PREFIX + "select_all_flag";
 
 	/** The name of the state attribute indicating whether the hierarchical list is expanded */
-	private static final String STATE_EXPAND_ALL_FLAG = "resources.expand_all_flag";
+	private static final String STATE_EXPAND_ALL_FLAG = PREFIX + "expand_all_flag";
 
 	/** The name of the state attribute indicating whether the hierarchical list needs to be expanded */
-	private static final String STATE_NEED_TO_EXPAND_ALL = "resources.need_to_expand_all";
+	private static final String STATE_NEED_TO_EXPAND_ALL = PREFIX + "need_to_expand_all";
 
 	/** The name of the state attribute containing a java.util.Set with the id's of selected items */
-	private static final String STATE_LIST_SELECTIONS = "resources.ignore_delete_selections";
+	private static final String STATE_LIST_SELECTIONS = PREFIX + "ignore_delete_selections";
 
 	/** The root of the navigation breadcrumbs for a folder, either the home or another site the user belongs to */
-	private static final String STATE_NAVIGATION_ROOT = "resources.navigation_root";
+	private static final String STATE_NAVIGATION_ROOT = PREFIX + "navigation_root";
 
 	/************** the more context *****************************************/
 
 	/** The more id */
-	private static final String STATE_MORE_ID = "resources.more_id";
+	private static final String STATE_MORE_ID = PREFIX + "more_id";
 
 	/** The more collection id */
-	private static final String STATE_MORE_COLLECTION_ID = "resources.more_collection_id";
+	private static final String STATE_MORE_COLLECTION_ID = PREFIX + "more_collection_id";
 
 	/************** the edit context *****************************************/
 
 	/** The edit id */
-	public static final String STATE_EDIT_ID = "resources.edit_id";
-	public static final String STATE_STACK_EDIT_ID = "resources.stack_edit_id";
-	public static final String STATE_EDIT_COLLECTION_ID = "resources.stack_edit_collection_id";
-	public static final String STATE_STACK_EDIT_COLLECTION_ID = "resources.stack_edit_collection_id";
+	public static final String STATE_EDIT_ID = PREFIX + "edit_id";
+	public static final String STATE_STACK_EDIT_ID = PREFIX + "stack_edit_id";
+	public static final String STATE_EDIT_COLLECTION_ID = PREFIX + "stack_edit_collection_id";
+	public static final String STATE_STACK_EDIT_COLLECTION_ID = PREFIX + "stack_edit_collection_id";
 
-	private static final String STATE_EDIT_ALERTS = "resources.edit_alerts";
-	private static final String STATE_STACK_EDIT_ITEM = "resources.stack_edit_item";
-	private static final String STATE_STACK_EDIT_INTENT = "resources.stack_edit_intent";
+	private static final String STATE_EDIT_ALERTS = PREFIX + "edit_alerts";
+	private static final String STATE_STACK_EDIT_ITEM = PREFIX + "stack_edit_item";
+	private static final String STATE_STACK_EDIT_INTENT = PREFIX + "stack_edit_intent";
 
-	private static final String STATE_SHOW_FORM_ITEMS = "resources.show_form_items";
+	private static final String STATE_SHOW_FORM_ITEMS = PREFIX + "show_form_items";
 
-	private static final String STATE_STACK_EDIT_ITEM_TITLE = "resources.stack_title";
+	private static final String STATE_STACK_EDIT_ITEM_TITLE = PREFIX + "stack_title";
 
 	/************** the create contexts *****************************************/
 
-	public static final String STATE_SUSPENDED_OPERATIONS_STACK = "resources.suspended_operations_stack";
-	public static final String STATE_SUSPENDED_OPERATIONS_STACK_DEPTH = "resources.suspended_operations_stack_depth";
+	public static final String STATE_SUSPENDED_OPERATIONS_STACK = PREFIX + "suspended_operations_stack";
+	public static final String STATE_SUSPENDED_OPERATIONS_STACK_DEPTH = PREFIX + "suspended_operations_stack_depth";
 
-	public static final String STATE_CREATE_TYPE = "resources.create_type";
-	public static final String STATE_CREATE_COLLECTION_ID = "resources.create_collection_id";
-	public static final String STATE_CREATE_NUMBER = "resources.create_number";
-	public static final String STATE_STRUCTOBJ_TYPE = "resources.create_structured_object_type";
-	public static final String STATE_STRUCTOBJ_TYPE_READONLY = "resources.create_structured_object_type_readonly";
+	public static final String STATE_CREATE_TYPE = PREFIX + "create_type";
+	public static final String STATE_CREATE_COLLECTION_ID = PREFIX + "create_collection_id";
+	public static final String STATE_CREATE_NUMBER = PREFIX + "create_number";
+	public static final String STATE_STRUCTOBJ_TYPE = PREFIX + "create_structured_object_type";
+	public static final String STATE_STRUCTOBJ_TYPE_READONLY = PREFIX + "create_structured_object_type_readonly";
 
-	public static final String STATE_STACK_CREATE_TYPE = "resources.stack_create_type";
-	public static final String STATE_STACK_CREATE_COLLECTION_ID = "resources.stack_create_collection_id";
-	public static final String STATE_STACK_CREATE_NUMBER = "resources.stack_create_number";
-	public static final String STATE_STACK_STRUCTOBJ_TYPE = "resources.stack_create_structured_object_type";
-	public static final String STATE_STACK_STRUCTOBJ_TYPE_READONLY = "resources.stack_create_structured_object_type_readonly";
+	public static final String STATE_STACK_CREATE_TYPE = PREFIX + "stack_create_type";
+	public static final String STATE_STACK_CREATE_COLLECTION_ID = PREFIX + "stack_create_collection_id";
+	public static final String STATE_STACK_CREATE_NUMBER = PREFIX + "stack_create_number";
+	public static final String STATE_STACK_STRUCTOBJ_TYPE = PREFIX + "stack_create_structured_object_type";
+	public static final String STATE_STACK_STRUCTOBJ_TYPE_READONLY = PREFIX + "stack_create_structured_object_type_readonly";
 
-	private static final String STATE_STACK_CREATE_ITEMS = "resources.stack_create_items";
-	private static final String STATE_STACK_CREATE_ACTUAL_COUNT = "resources.stack_create_actual_count";
-	private static final String STATE_STACK_STRUCTOBJ_ROOTNAME = "resources.stack_create_structured_object_root";
+	private static final String STATE_STACK_CREATE_ITEMS = PREFIX + "stack_create_items";
+	private static final String STATE_STACK_CREATE_ACTUAL_COUNT = PREFIX + "stack_create_actual_count";
+	private static final String STATE_STACK_STRUCTOBJ_ROOTNAME = PREFIX + "stack_create_structured_object_root";
 
-	private static final String STATE_CREATE_ALERTS = "resources.create_alerts";
-	protected static final String STATE_CREATE_MESSAGE = "resources.create_message";
-	private static final String STATE_CREATE_MISSING_ITEM = "resources.create_missing_item";
-	private static final String STATE_STRUCTOBJ_HOMES = "resources.create_structured_object_home";
-	private static final String STATE_STACK_STRUCT_OBJ_SCHEMA = "resources.stack_create_structured_object_schema";
+	private static final String STATE_CREATE_ALERTS = PREFIX + "create_alerts";
+	protected static final String STATE_CREATE_MESSAGE = PREFIX + "create_message";
+	private static final String STATE_CREATE_MISSING_ITEM = PREFIX + "create_missing_item";
+	private static final String STATE_STRUCTOBJ_HOMES = PREFIX + "create_structured_object_home";
+	private static final String STATE_STACK_STRUCT_OBJ_SCHEMA = PREFIX + "stack_create_structured_object_schema";
 
 	private static final String MIME_TYPE_DOCUMENT_PLAINTEXT = "text/plain";
 	private static final String MIME_TYPE_DOCUMENT_HTML = "text/html";
@@ -1630,39 +1632,39 @@ public class ResourcesAction
 
 	/************** the metadata extension of edit/create contexts *****************************************/
 
-	private static final String STATE_METADATA_GROUPS = "resources.metadata.types";
+	private static final String STATE_METADATA_GROUPS = PREFIX + "metadata.types";
 
 	private static final String INTENT_REVISE_FILE = "revise";
 	private static final String INTENT_REPLACE_FILE = "replace";
 
 	/** State attribute for where there is at least one attachment before invoking attachment tool */
-	public static final String STATE_HAS_ATTACHMENT_BEFORE = "resources.has_attachment_before";
+	public static final String STATE_HAS_ATTACHMENT_BEFORE = PREFIX + "has_attachment_before";
 
 	/** The name of the state attribute containing a list of new items to be attached */
-	private static final String STATE_HELPER_NEW_ITEMS = "resources.helper_new_items";
+	private static final String STATE_HELPER_NEW_ITEMS = PREFIX + "helper_new_items";
 
 	/** The name of the state attribute indicating that the list of new items has changed */
-	private static final String STATE_HELPER_CHANGED = "resources.helper_changed";
+	private static final String STATE_HELPER_CHANGED = PREFIX + "helper_changed";
 
 
 	/** The name of the optional state attribute indicating the id of the collection that should be treated as the "home" collection */
-	public static final String STATE_ATTACH_COLLECTION_ID = "resources.attach_collection_id";
+	public static final String STATE_ATTACH_COLLECTION_ID = PREFIX + "attach_collection_id";
 
 	/** The name of the state attribute containing the name of the tool that invoked Resources as attachment helper */
-	public static final String STATE_ATTACH_TOOL_NAME = "resources.attach_tool_name";
+	public static final String STATE_ATTACH_TOOL_NAME = PREFIX + "attach_tool_name";
 
 	/** The name of the state attribute for "new-item" attachment indicating the type of item */
-	public static final String STATE_ATTACH_TEXT = "resources.attach_text";
+	public static final String STATE_ATTACH_TEXT = PREFIX + "attach_text";
 
 	/** The name of the state attribute for "new-item" attachment indicating the id of the item to edit */
-	public static final String STATE_ATTACH_ITEM_ID = "resources.attach_collection_id";
+	public static final String STATE_ATTACH_ITEM_ID = PREFIX + "attach_collection_id";
 
 	/** The name of the state attribute for "new-item" attachment indicating the id of the form-type if item-type 
 	 * is TYPE_FORM (ignored otherwise) */
-	public static final String STATE_ATTACH_FORM_ID = "resources.attach_form_id";
+	public static final String STATE_ATTACH_FORM_ID = PREFIX + "attach_form_id";
 
 	/** The name of the state attribute indicating which form field a resource should be attached to */
-	public static final String STATE_ATTACH_FORM_FIELD = "resources.attach_form_field";
+	public static final String STATE_ATTACH_FORM_FIELD = PREFIX + "attach_form_field";
 
 	/************** the helper context (file-picker) *****************************************/
 
@@ -1670,20 +1672,20 @@ public class ResourcesAction
 	 *  State attribute for the Vector of References, one for each attachment.
 	 *  Using tools can pre-populate, and can read the results from here. 
 	 */
-	public static final String STATE_ATTACHMENTS = "resources.state_attachments";
+	public static final String STATE_ATTACHMENTS = PREFIX + "state_attachments";
 	
 	/**
 	 *  The name of the state attribute indicating that the file picker should return links to
 	 *  existing resources in an existing collection rather than copying it to the hidden attachments
 	 *  area.  If this value is not set, all attachments are to copies in the hidden attachments area.
 	 */
-	public static final String STATE_ATTACH_LINKS = "resources.state_attach_links";
+	public static final String STATE_ATTACH_LINKS = PREFIX + "state_attach_links";
 
 	/** 
 	 * The name of the state attribute for the maximum number of items to attach. The attribute value will be an Integer, 
 	 * usually CARDINALITY_SINGLE or CARDINALITY_MULTIPLE. 
 	 */
-	public static final String STATE_ATTACH_CARDINALITY = "resources.state_attach_cardinality";
+	public static final String STATE_ATTACH_CARDINALITY = PREFIX + "state_attach_cardinality";
 
 	/** A constant indicating maximum of one item can be attached. */
 	public static final Integer CARDINALITY_SINGLE = FilePickerHelper.CARDINALITY_SINGLE;
@@ -1694,20 +1696,20 @@ public class ResourcesAction
 	/**
 	 *  The name of the state attribute for the title when a tool uses Resources as attachment helper (for create or attach but not for edit mode) 
 	 */
-	public static final String STATE_ATTACH_TITLE = "resources.state_attach_title_text";
+	public static final String STATE_ATTACH_TITLE = PREFIX + "state_attach_title_text";
 
 	/** 
 	 * The name of the state attribute for the instructions when a tool uses Resources as attachment helper 
 	 * (for create or attach but not for edit mode) 
 	 */
-	public static final String STATE_ATTACH_INSTRUCTION = "resources.state_attach_instruction_text";
+	public static final String STATE_ATTACH_INSTRUCTION = PREFIX + "state_attach_instruction_text";
 
 	/** 
 	 * State Attribute for the org.sakaiproject.content.api.ContentResourceFilter
 	 * object that the current filter should honor.  If this is set to null, then all files will
 	 * be selectable and viewable 
 	 */
-	   public static final String STATE_ATTACH_FILTER = "resources.state_attach_filter";
+	   public static final String STATE_ATTACH_FILTER = PREFIX + "state_attach_filter";
 
 	/**
 	 * @deprecated use STATE_ATTACH_TITLE and STATE_ATTACH_INSTRUCTION instead
@@ -1717,73 +1719,73 @@ public class ResourcesAction
 	/**
 	 *  the name of the state attribute indicating that the user canceled out of the helper.  Is set only if the user canceled out of the helper. 
 	 */
-	public static final String STATE_HELPER_CANCELED_BY_USER = "resources.state_attach_canceled_by_user";
+	public static final String STATE_HELPER_CANCELED_BY_USER = PREFIX + "state_attach_canceled_by_user";
 	
 	/**
 	 *  The name of the state attribute indicating that dropboxes should be shown as places from which
 	 *  to select attachments. The value should be a List of user-id's.  The file picker will attempt to show 
 	 *  the dropbox for each user whose id is included in the list. If this 
 	 */
-	public static final String STATE_ATTACH_SHOW_DROPBOXES = "resources.state_attach_show_dropboxes";
+	public static final String STATE_ATTACH_SHOW_DROPBOXES = PREFIX + "state_attach_show_dropboxes";
 
 	/**
 	 *  The name of the state attribute indicating that the current user's workspace Resources collection 
 	 *  should be shown as places from which to select attachments. The value should be "true".  The file picker will attempt to show 
 	 *  the workspace if this attribute is set to "true". 
 	 */
-	public static final String STATE_ATTACH_SHOW_WORKSPACE = "resources.state_attach_show_workspace";
+	public static final String STATE_ATTACH_SHOW_WORKSPACE = PREFIX + "state_attach_show_workspace";
 	
 	
 	/************** the columns context *****************************************/
 
-	public static final String STATE_COLUMN_ITEM_ID = "resources.state_column_item_id";
+	public static final String STATE_COLUMN_ITEM_ID = PREFIX + "state_column_item_id";
 
 	
 	
 	/************** the delete context *****************************************/
 
 	/** The delete ids */
-	private static final String STATE_DELETE_IDS = "resources.delete_ids";
+	private static final String STATE_DELETE_IDS = PREFIX + "delete_ids";
 
 	/** The not empty delete ids */
-	private static final String STATE_NOT_EMPTY_DELETE_IDS = "resource.not_empty_delete_ids";
+	private static final String STATE_NOT_EMPTY_DELETE_IDS = PREFIX + "not_empty_delete_ids";
 
 	/** The name of the state attribute containing a list of ChefBrowseItem objects corresponding to resources selected for deletion */
-	private static final String STATE_DELETE_ITEMS = "resources.delete_items";
+	private static final String STATE_DELETE_ITEMS = PREFIX + "delete_items";
 
 	/** The name of the state attribute containing a list of ChefBrowseItem objects corresponding to nonempty folders selected for deletion */
-	private static final String STATE_DELETE_ITEMS_NOT_EMPTY = "resources.delete_items_not_empty";
+	private static final String STATE_DELETE_ITEMS_NOT_EMPTY = PREFIX + "delete_items_not_empty";
 
 	/** The name of the state attribute containing a list of ChefBrowseItem objects selected for deletion that cannot be deleted */
-	private static final String STATE_DELETE_ITEMS_CANNOT_DELETE = "resources.delete_items_cannot_delete";
+	private static final String STATE_DELETE_ITEMS_CANNOT_DELETE = PREFIX + "delete_items_cannot_delete";
 
 	/************** the cut items context *****************************************/
 
 	/** The cut item ids */
-	private static final String STATE_CUT_IDS = "resources.revise_cut_ids";
+	private static final String STATE_CUT_IDS = PREFIX + "revise_cut_ids";
 
 	/************** the copied items context *****************************************/
 
 	/** The copied item ids */
-	private static final String STATE_COPIED_IDS = "resources.revise_copied_ids";
+	private static final String STATE_COPIED_IDS = PREFIX + "revise_copied_ids";
 
 	/** The copied item id */
-	private static final String STATE_COPIED_ID = "resources.revise_copied_id";
+	private static final String STATE_COPIED_ID = PREFIX + "revise_copied_id";
 
 	/************** the moved items context *****************************************/
 
 	/** The copied item ids */
-	private static final String STATE_MOVED_IDS = "resources.revise_moved_ids";
+	private static final String STATE_MOVED_IDS = PREFIX + "revise_moved_ids";
 	
 	/************** the reorder context *****************************************/
 
-	protected static final String STATE_REORDER_FOLDER = "resources.reorder_folder_id";
+	protected static final String STATE_REORDER_FOLDER = PREFIX + "reorder_folder_id";
 
 	/** The property (column) to sort by in the reorder context */
-	protected static final String STATE_REORDER_SORT_BY = "resources.reorder_sort_by";
+	protected static final String STATE_REORDER_SORT_BY = PREFIX + "reorder_sort_by";
 	
 	/** The sort ascending or decending for the reorder context */
-	protected static final String STATE_REORDER_SORT_ASC = "resources.sort_asc";
+	protected static final String STATE_REORDER_SORT_ASC = PREFIX + "sort_asc";
 
 	/** Modes. */
 	private static final String MODE_LIST = "list";
@@ -1800,7 +1802,7 @@ public class ResourcesAction
 	private static final String MODE_PROPERTIES = "properties";
 	private static final String MODE_REORDER = "reorder";
 
-	private static final String STATE_LIST_PREFERENCE = "resources.state_list_preference";
+	private static final String STATE_LIST_PREFERENCE = PREFIX + "state_list_preference";
 	private static final String LIST_COLUMNS = "columns";
 	private static final String LIST_HIERARCHY = "hierarchy";
 
@@ -1836,7 +1838,7 @@ public class ResourcesAction
 	private static final String TEMPLATE_REVISE_METADATA = "content/sakai_resources_properties";
 
 	/** the site title */
-	private static final String STATE_SITE_TITLE = "site_title";
+	private static final String STATE_SITE_TITLE = PREFIX + "site_title";
 
 	/** copyright related info */
 	private static final String COPYRIGHT_TYPES = "copyright_types";
@@ -1851,7 +1853,7 @@ public class ResourcesAction
 	private static final String COPYRIGHT_ALERT_URL = ServerConfigurationService.getAccessUrl() + COPYRIGHT_PATH;
 	
 	/** state attribute indicating whether we're using the Creative Commons dialog instead of the "old" copyright dialog */
-	protected static final String STATE_USING_CREATIVE_COMMONS = "resources.usingCreativeCommons";
+	protected static final String STATE_USING_CREATIVE_COMMONS = PREFIX + "usingCreativeCommons";
 
 	private static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
 
@@ -1868,24 +1870,24 @@ public class ResourcesAction
 	protected static final int EXPANDABLE_FOLDER_SIZE_LIMIT = 256;
 
 	/** Name of state attribute indicating number of members for a collection at which this tool should refuse to expand the collection. */
-	private static final String STATE_EXPANDABLE_FOLDER_SIZE_LIMIT = "resources.expandable_folder_size_limit";
+	private static final String STATE_EXPANDABLE_FOLDER_SIZE_LIMIT = PREFIX + "expandable_folder_size_limit";
 
-	protected static final String STATE_SHOW_REMOVE_ACTION = "resources.show_remove_action";
+	protected static final String STATE_SHOW_REMOVE_ACTION = PREFIX + "show_remove_action";
 
-	protected static final String STATE_SHOW_MOVE_ACTION = "resources.show_move_action";
+	protected static final String STATE_SHOW_MOVE_ACTION = PREFIX + "show_move_action";
 
-	protected static final String STATE_SHOW_COPY_ACTION = "resources.show_copy_action";
+	protected static final String STATE_SHOW_COPY_ACTION = PREFIX + "show_copy_action";
 
-	protected static final String STATE_HIGHLIGHTED_ITEMS = "resources.highlighted_items";
+	protected static final String STATE_HIGHLIGHTED_ITEMS = PREFIX + "highlighted_items";
 
 	/** The default number of site collections per page. */
 	protected static final int DEFAULT_PAGE_SIZE = 50;
 
 	protected static final String PARAM_PAGESIZE = "collections_per_page";
 
-	protected static final String STATE_TOP_MESSAGE_INDEX = "resources.top_message_index";
+	protected static final String STATE_TOP_MESSAGE_INDEX = PREFIX + "top_message_index";
 
-	protected static final String STATE_REMOVED_ATTACHMENTS = "resources.removed_attachments";
+	protected static final String STATE_REMOVED_ATTACHMENTS = PREFIX + "removed_attachments";
 	
 	/********* Global constants *********/
 
@@ -1922,9 +1924,9 @@ public class ResourcesAction
 	public static final String RESOURCES_MODE_HELPER = "helper";
 
 	/** The from state name */
-	private static final String STATE_FROM = "resources.from";
+	private static final String STATE_FROM = PREFIX + "from";
 
-	private static final String STATE_ENCODING = "resources.encoding";
+	private static final String STATE_ENCODING = PREFIX + "encoding";
 
 	private static final String DELIM = "@";
 
@@ -1936,31 +1938,31 @@ public class ResourcesAction
 
 	/************************** Comparators **************************/
 	
-	protected static final String STATE_LIST_VIEW_SORT = "resources.list_view_sort";
+	protected static final String STATE_LIST_VIEW_SORT = PREFIX + "list_view_sort";
 
-	protected static final String STATE_REORDER_SORT = "resources.reorder_sort";
+	protected static final String STATE_REORDER_SORT = PREFIX + "reorder_sort";
 
-	protected static final String STATE_DEFAULT_SORT = "resources.default_sort";
+	protected static final String STATE_DEFAULT_SORT = PREFIX + "default_sort";
 
-	protected static final String STATE_EXPANDED_FOLDER_SORT_MAP = "resources.expanded_folder_sort_map";
+	protected static final String STATE_EXPANDED_FOLDER_SORT_MAP = PREFIX + "expanded_folder_sort_map";
 
-	protected static final String STATE_CREATE_WIZARD_ACTION = "resources.create_wizard_action";
+	protected static final String STATE_CREATE_WIZARD_ACTION = PREFIX + "create_wizard_action";
 
-	protected static final String STATE_CREATE_WIZARD_ITEM = "resources.create_wizard_item";
+	protected static final String STATE_CREATE_WIZARD_ITEM = PREFIX + "create_wizard_item";
 
-	protected static final String STATE_CREATE_WIZARD_COLLECTION_ID = "resources.create_wizard_collection_id";
+	protected static final String STATE_CREATE_WIZARD_COLLECTION_ID = PREFIX + "create_wizard_collection_id";
 
 	public static final String UTF_8_ENCODING = "UTF-8";
 
-	protected static final String STATE_DELETE_SET = "resources.delete_set";
-	protected static final String STATE_NON_EMPTY_DELETE_SET = "resources.non-empty_delete_set";
+	protected static final String STATE_DELETE_SET = PREFIX + "delete_set";
+	protected static final String STATE_NON_EMPTY_DELETE_SET = PREFIX + "non-empty_delete_set";
 
-	protected static final String STATE_REVISE_PROPERTIES_ENTITY_ID = "resources.revise_properties_entity_id";
-	protected static final String STATE_REVISE_PROPERTIES_ITEM = "resources.revise_properties_item";
-	protected static final String STATE_REVISE_PROPERTIES_ACTION = "resources.revise_properties_action";
+	protected static final String STATE_REVISE_PROPERTIES_ENTITY_ID = PREFIX + "revise_properties_entity_id";
+	protected static final String STATE_REVISE_PROPERTIES_ITEM = PREFIX + "revise_properties_item";
+	protected static final String STATE_REVISE_PROPERTIES_ACTION = PREFIX + "revise_properties_action";
 	
-	protected static final String STATE_ITEM_TO_BE_COPIED = "resources.item_to_be_copied";
-	protected static final String STATE_ITEM_TO_BE_MOVED = "resources.item_to_be_moved";
+	protected static final String STATE_ITEM_TO_BE_COPIED = PREFIX + "item_to_be_copied";
+	protected static final String STATE_ITEM_TO_BE_MOVED = PREFIX + "item_to_be_moved";
 
 
 	/**
@@ -6687,6 +6689,11 @@ public class ResourcesAction
 
 	}
    
+	/**
+	 * @param url
+	 * @return
+	 * @throws MalformedURLException
+	 */
 	protected static String validateURL(String url) throws MalformedURLException
 	{
 		if (url.equals (NULL_STRING))
@@ -6717,7 +6724,7 @@ public class ResourcesAction
 					if(matcher.matches())
 					{
 						// if URL has "unknown" protocol, check remaider with
-						// "http" protocol and accept input it that validates.
+						// "http" protocol and accept input if that validates.
 						URL test = new URL("http://" + matcher.group(2));
 					}
 					else
