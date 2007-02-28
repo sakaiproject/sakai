@@ -39,7 +39,7 @@
 			<label for="$tlang.getString('group.description')">
 				$tlang.getString("group.description")
 			</label>
-			<textarea wrap="virtual" name="$tlang.getString('group.description')" id="$tlang.getString('group.description')"  rows="3" cols="50">$validator.escapeHtml($!description)</textarea>
+			<textarea wrap="virtual" name="$tlang.getString('group.description')" id="$tlang.getString('group.description')"  rows="3" cols="50">$validator.escapeHtmlTextarea($!description)</textarea>
 		</p>
 		<h4>
 			$tlang.getString("editgroup.membership")
