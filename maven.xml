@@ -15,13 +15,13 @@
 		<!-- clear the deploy area -->
 		<delete dir="${basedir}/target/demo/"/>
 		
-		<!-- expand the tomcat 5.5.17 zip from the repo into the target -->
-		<ant:unzip src="${maven.repo.local}/tomcat/zips/apache-tomcat-5.5.17.zip"
+		<!-- expand the tomcat 5.5.20 zip from the repo into the target -->
+		<ant:unzip src="${maven.repo.local}/tomcat/zips/apache-tomcat-5.5.20.zip"
 					dest="${basedir}/target/demo/"
 					overwrite="true" />
 
 		<!-- deploy sakai to this area -->
-		<j:set var="maven.tomcat.home" value="${basedir}/target/demo/apache-tomcat-5.5.17/" />
+		<j:set var="maven.tomcat.home" value="${basedir}/target/demo/apache-tomcat-5.5.20/" />
 		<attainGoal name="sakai:build" />
 		<attainGoal name="sakai:deploy" />
 
