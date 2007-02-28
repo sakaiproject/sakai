@@ -68,17 +68,6 @@ public class QTIService
     }
   }
  
-  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation, String templateId) {
-    testQtiVersion(qtiVersion);
-
-    try {
-      AuthoringHelper helper = new AuthoringHelper(qtiVersion);
-      return helper.createImportedAssessment(document, unzipLocation, templateId);
-    } catch (Exception ex) {
-      throw new QTIServiceException(ex);
-    }
-  }
-
   /**
    * Import an assessment XML document in QTI format, extract & persist the data.
    * @param document the assessment XML document in QTI format
