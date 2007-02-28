@@ -6,6 +6,8 @@
 		id="sakai.messages"
 		title="Messages"
 		description="Display messages to/from users of a particular site">
+		<category name="course" />
+		<category name="project" />	
 
 		<configuration name="help.id" value="sakai.messagecenter" type="final" />
 	</tool>

@@ -6,6 +6,8 @@
 		id="sakai.forums"
 		title="Forums"
 		description="Display forums and topics of a particular site">
+		<category name="course" />
+		<category name="project" />	
 
 		<configuration name="help.id" value="sakai.messagecenter" type="final" />
 	</tool>
