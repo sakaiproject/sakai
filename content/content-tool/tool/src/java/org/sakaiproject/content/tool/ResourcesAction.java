@@ -7438,18 +7438,6 @@ public class ResourcesAction
 				String url = new String(content);
 				item.setFilename(url);
 			}
-			else if(item.isStructuredArtifact())
-			{
-				String formtype = properties.getProperty(ResourceProperties.PROP_STRUCTOBJ_TYPE);
-				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
-				current_stack_frame.put(STATE_STACK_EDIT_ITEM, item);
-				setupStructuredObjects(state);
-				Document doc = Xml.readDocumentFromString(new String(content));
-				Element root = doc.getDocumentElement();
-				importStructuredArtifact(root, item.getForm());
-				List flatList = item.getForm().getFlatList();
-				item.setProperties(flatList);
-			}
 			else if(item.isHtml() || item.isPlaintext() || item.isFileUpload())
 			{
 				String filename = properties.getProperty(ResourceProperties.PROP_ORIGINAL_FILENAME);
@@ -7640,385 +7628,6 @@ public class ResourcesAction
 
 	}
    
-   /**
-	 * This method updates the session state with information needed to create or modify
-	 * structured artifacts in the resources tool.  Among other things, it obtains a list
-	 * of "forms" available to the user and places that list in state indexed as
-	 * "STATE_STRUCTOBJ_HOMES".  If the current formtype is known (in state indexed as
-	 * "STATE_STACK_STRUCTOBJ_TYPE"), the list of properties associated with that form type is
-	 * generated.  If we are in a "create" context, the properties are added to each of
-	 * the items in the list of items indexed as "STATE_STACK_CREATE_ITEMS".  If we are in an
-	 * "edit" context, the properties are added to the current item being edited (a state
-	 * attribute indexed as "STATE_STACK_EDIT_ITEM").  The metaobj SchemaBean associated with
-	 * the current form and its root SchemaNode object are also placed in state for later
-	 * reference.
-	 */
-	public static void setupStructuredObjects(SessionState state)
-	{
-		Map current_stack_frame = peekAtStack(state);
-
-		String formtype = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE);
-		if(formtype == null)
-		{
-			formtype = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE);
-			if(formtype == null)
-			{
-				formtype = "";
-			}
-			current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
-		}
-
-		HomeFactory factory = (HomeFactory) ComponentManager.get("homeFactory");
-
-		Map homes = factory.getHomes(StructuredArtifactHomeInterface.class);
-		List listOfHomes = new Vector();
-		Iterator it = homes.keySet().iterator();
-		while(it.hasNext())
-		{
-			String key = (String) it.next();
-			try
-			{
-				Object obj = homes.get(key);
-				listOfHomes.add(obj);
-			}
-			catch(Exception ignore)
-			{}
-		}
-      
-      final Comparator worksiteHomesComparator = new Comparator() {
-         public int compare(Object o1, Object o2) {
-                return ((ReadableObjectHome)o1).getType().getDescription().toLowerCase().compareTo(((ReadableObjectHome)o2).getType().getDescription().toLowerCase());
-         }
-      };
-      
-      Collections.sort(listOfHomes, worksiteHomesComparator);
-      
-		current_stack_frame.put(STATE_STRUCTOBJ_HOMES, listOfHomes);
-		if(!listOfHomes.isEmpty())
-		{
-			current_stack_frame.put(STATE_SHOW_FORM_ITEMS, Boolean.TRUE.toString());
-		}
-
-		StructuredArtifactHomeInterface home = null;
-		SchemaBean rootSchema = null;
-		ResourcesMetadata elements = null;
-
-		if(formtype == null || formtype.equals(""))
-		{
-			formtype = "";
-			current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
-		}
-		else if(listOfHomes.isEmpty())
-		{
-			// hmmm
-		}
-		else
-		{
-			try
-			{
-				home = (StructuredArtifactHomeInterface) factory.getHome(formtype);
-			}
-			catch(NullPointerException ignore)
-			{
-				home = null;
-			}
-		}
-
-		if(home != null)
-		{
-			rootSchema = new SchemaBean(home.getRootNode(), home.getSchema(), formtype, home.getType().getDescription());
-			List fields = rootSchema.getFields();
-			String docRoot = rootSchema.getFieldName();
-			elements = new ResourcesMetadata("", docRoot, "", "", ResourcesMetadata.WIDGET_NESTED, ResourcesMetadata.WIDGET_NESTED);
-			elements.setDottedparts(docRoot);
-			elements.setContainer(null);
-
-			elements = createHierarchicalList(elements, fields, 1);
-
-			String instruction = home.getInstruction();
-
-			current_stack_frame.put(STATE_STACK_STRUCTOBJ_ROOTNAME, docRoot);
-			current_stack_frame.put(STATE_STACK_STRUCT_OBJ_SCHEMA, rootSchema);
-
-			List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
-			if(new_items != null)
-			{
-				Integer number = (Integer) current_stack_frame.get(STATE_STACK_CREATE_NUMBER);
-				if(number == null)
-				{
-					number = (Integer) state.getAttribute(STATE_CREATE_NUMBER);
-					current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
-				}
-				if(number == null)
-				{
-					number = new Integer(1);
-					current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
-				}
-				List flatList = elements.getFlatList();
-
-				for(int i = 0; i < number.intValue(); i++)
-				{
-					//%%%%% doing this wipes out data that's been stored previously
-
-					ChefEditItem item = (ChefEditItem) new_items.get(i);
-					item.setRootname(docRoot);
-					item.setFormtype(formtype);
-					item.setInstruction(instruction);
-					item.setProperties(flatList);
-					item.setForm(elements);
-				}
-				current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
-			}
-			else if(current_stack_frame.get(STATE_STACK_EDIT_ITEM) != null)
-			{
-				ChefEditItem item = (ChefEditItem) current_stack_frame.get(STATE_STACK_EDIT_ITEM);
-				item.setRootname(docRoot);
-				item.setFormtype(formtype);
-				item.setInstruction(instruction);
-				item.setForm(elements);
-			}
-		}
-
-	}	// setupStructuredArtifacts
-
-	/**
-	 * This method navigates through a list of SchemaNode objects representing fields in a form,
-	 * creates a ResourcesMetadata object for each field and adds those as nested fields within
-	 * a root element.  If a field contains nested fields, a recursive call adds nested fields
-	 * in the corresponding ResourcesMetadata object.
-	 * @param element The root element to which field descriptions are added.
-	 * @param fields A list of metaobj SchemaNode objects.
-	 * @param depth The depth of nesting, corresponding to the amount of indent that will be used
-	 * when displaying the list.
-	 * @return The update root element.
-	 */
-	private static ResourcesMetadata createHierarchicalList(ResourcesMetadata element, List fields, int depth)
-	{
-		List properties = new Vector();
-		for(Iterator fieldIt = fields.iterator(); fieldIt.hasNext(); )
-		{
-			SchemaBean field = (SchemaBean) fieldIt.next();
-			SchemaNode node = field.getSchema();
-			Map annotations = field.getAnnotations();
-			Pattern pattern = null;
-			String localname = field.getFieldName();
-			String description = field.getDescription();
-			String label = (String) annotations.get("label");
-			if(label == null || label.trim().equals(""))
-			{
-				label = description;
-			}
-
-			String richText = (String) annotations.get("isRichText");
-			boolean isRichText = richText != null && richText.equalsIgnoreCase(Boolean.TRUE.toString());
-
-			Class javaclass = node.getObjectType();
-			String typename = javaclass.getName();
-			String widget = ResourcesMetadata.WIDGET_STRING;
-			int length =  0;
-			List enumerals = null;
-
-			if(field.getFields().size() > 0)
-			{
-				widget = ResourcesMetadata.WIDGET_NESTED;
-			}
-			else if(node.hasEnumerations())
-			{
-				enumerals = node.getEnumeration();
-				typename = String.class.getName();
-				widget = ResourcesMetadata.WIDGET_ENUM;
-			}
-			else if(typename.equals(String.class.getName()))
-			{
-				length = node.getType().getMaxLength();
-				String baseType = node.getType().getBaseType();
-
-				if(isRichText)
-				{
-					widget = ResourcesMetadata.WIDGET_WYSIWYG;
-				}
-				else if(baseType.trim().equalsIgnoreCase(ResourcesMetadata.NAMESPACE_XSD_ABBREV + ResourcesMetadata.XSD_NORMALIZED_STRING))
-				{
-					widget = ResourcesMetadata.WIDGET_STRING;
-					if(length > 50)
-					{
-						length = 50;
-					}
-				}
-				else if(length > 100 || length < 1)
-				{
-					widget = ResourcesMetadata.WIDGET_TEXTAREA;
-				}
-				else if(length > 50)
-				{
-					length = 50;
-				}
-
-				pattern = node.getType().getPattern();
-			}
-			else if(typename.equals(Date.class.getName()))
-			{
-				widget = ResourcesMetadata.WIDGET_DATE;
-			}
-			else if(typename.equals(Boolean.class.getName()))
-			{
-				widget = ResourcesMetadata.WIDGET_BOOLEAN;
-			}
-			else if(typename.equals(URI.class.getName()))
-			{
-				widget = ResourcesMetadata.WIDGET_ANYURI;
-			}
-			else if(typename.equals(Number.class.getName()))
-			{
-				widget = ResourcesMetadata.WIDGET_INTEGER;
-
-				//length = node.getType().getTotalDigits();
-				length = INTEGER_WIDGET_LENGTH;
-			}
-			else if(typename.equals(Double.class.getName()))
-			{
-				widget = ResourcesMetadata.WIDGET_DOUBLE;
-				length = DOUBLE_WIDGET_LENGTH;
-			}
-			int minCard = node.getMinOccurs();
-			int maxCard = node.getMaxOccurs();
-			if(maxCard < 1)
-			{
-				maxCard = Integer.MAX_VALUE;
-			}
-			if(minCard < 0)
-			{
-				minCard = 0;
-			}
-			minCard = java.lang.Math.max(0,minCard);
-			maxCard = java.lang.Math.max(1,maxCard);
-			int currentCount = java.lang.Math.min(java.lang.Math.max(1,minCard),maxCard);
-
-			ResourcesMetadata prop = new ResourcesMetadata(element.getDottedname(), localname, label, description, typename, widget);
-			List parts = new Vector(element.getDottedparts());
-			parts.add(localname);
-			prop.setDottedparts(parts);
-			prop.setContainer(element);
-			if(ResourcesMetadata.WIDGET_NESTED.equals(widget))
-			{
-				prop = createHierarchicalList(prop, field.getFields(), depth + 1);
-			}
-			prop.setMinCardinality(minCard);
-			prop.setMaxCardinality(maxCard);
-			prop.setCurrentCount(currentCount);
-			prop.setDepth(depth);
-
-			if(enumerals != null)
-			{
-				prop.setEnumeration(enumerals);
-			}
-			if(length > 0)
-			{
-				prop.setLength(length);
-			}
-
-			if(pattern != null)
-			{
-				prop.setPattern(pattern);
-			}
-
-			properties.add(prop);
-		}
-
-		element.setNested(properties);
-
-		return element;
-
-	}	// createHierarchicalList
-
-	/**
-	 * This method captures property values from an org.w3c.dom.Document and inserts them
-	 * into a hierarchical list of ResourcesMetadata objects which describes the structure
-	 * of the form.  The values are added by inserting nested instances into the properties.
-	 *
-	 * @param element	An org.w3c.dom.Element containing values to be imported.
-	 * @param properties	A hierarchical list of ResourcesMetadata objects describing a form
-	 */
-	public static void importStructuredArtifact(Node node, ResourcesMetadata property)
-	{
-		if(property == null || node == null)
-		{
-			return;
-		}
-
-		String tagname = property.getLocalname();
-		String nodename = node.getLocalName();
-		if(! tagname.equals(nodename))
-		{
-			// return;
-		}
-
-		if(property.getNested().size() == 0)
-		{
-			boolean value_found = false;
-			Node child = node.getFirstChild();
-			while(! value_found && child != null)
-			{
-				if(child.getNodeType() == Node.TEXT_NODE)
-				{
-					Text value = (Text) child;
-					if(ResourcesMetadata.WIDGET_DATE.equals(property.getWidget()) || ResourcesMetadata.WIDGET_DATETIME.equals(property.getWidget()) || ResourcesMetadata.WIDGET_TIME.equals(property.getWidget()))
-					{
-						SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-						Time time = TimeService.newTime();
-						try
-						{
-							Date date = df.parse(value.getData());
-							time = TimeService.newTime(date.getTime());
-						}
-						catch(Exception ignore)
-						{
-							// use "now" as default in that case
-						}
-						property.setValue(0, time);
-					}
-					else if(ResourcesMetadata.WIDGET_ANYURI.equals(property.getWidget()))
-					{
-						Reference ref = EntityManager.newReference(ContentHostingService.getReference(value.getData()));
-						property.setValue(0, ref);
-					}
-					else
-					{
-						property.setValue(0, value.getData());
-					}
-				}
-				child = child.getNextSibling();
-			}
-		}
-		else if(node instanceof Element)
-		{
-			// a nested element
-			Iterator nestedIt = property.getNested().iterator();
-			while(nestedIt.hasNext())
-			{
-				ResourcesMetadata prop = (ResourcesMetadata) nestedIt.next();
-				NodeList nodes = ((Element) node).getElementsByTagName(prop.getLocalname());
-				if(nodes == null)
-				{
-					continue;
-				}
-				for(int i = 0; i < nodes.getLength(); i++)
-				{
-					Node n = nodes.item(i);
-					if(n != null)
-					{
-						ResourcesMetadata instance = prop.addInstance();
-						if(instance != null)
-						{
-							importStructuredArtifact(n, instance);
-						}
-					}
-				}
-			}
-		}
-
-	}	// importStructuredArtifact
-
 	protected static String validateURL(String url) throws MalformedURLException
 	{
 		if (url.equals (NULL_STRING))
@@ -8065,1317 +7674,6 @@ public class ResourcesAction
 		}
 		return url;
 	}
-
-	/**
-	 * Retrieve values for an item from edit context.  Edit context contains just one item at a time of a known type
-	 * (folder, file, text document, structured-artifact, etc).  This method retrieves the data apppropriate to the
-	 * type and updates the values of the ChefEditItem stored as the STATE_STACK_EDIT_ITEM attribute in state.
-	 * @param state
-	 * @param params
-	 * @param item
-	 */
-	protected static void captureValues(SessionState state, ParameterParser params)
-	{
-		Map current_stack_frame = peekAtStack(state);
-
-		ChefEditItem item = (ChefEditItem) current_stack_frame.get(STATE_STACK_EDIT_ITEM);
-		Set alerts = (Set) state.getAttribute(STATE_EDIT_ALERTS);
-		if(alerts == null)
-		{
-			alerts = new HashSet();
-			state.setAttribute(STATE_EDIT_ALERTS, alerts);
-		}
-		String flow = params.getString("flow");
-		boolean intentChanged = "intentChanged".equals(flow);
-		String check_fileName = params.getString("check_fileName");
-		boolean expectFile = "true".equals(check_fileName);
-		String intent = params.getString("intent");
-		String oldintent = (String) current_stack_frame.get(STATE_STACK_EDIT_INTENT);
-		boolean upload_file = expectFile && item.isFileUpload() || ((item.isHtml() || item.isPlaintext()) && !intentChanged && INTENT_REPLACE_FILE.equals(intent) && INTENT_REPLACE_FILE.equals(oldintent));
-		boolean revise_file = (item.isHtml() || item.isPlaintext()) && !intentChanged && INTENT_REVISE_FILE.equals(intent) && INTENT_REVISE_FILE.equals(oldintent);
-
-		String name = params.getString("name");
-		if(name == null || "".equals(name.trim()))
-		{
-			alerts.add(rb.getString("titlenotnull"));
-			// addAlert(state, rb.getString("titlenotnull"));
-		}
-		else
-		{
-			item.setName(name.trim());
-		}
-
-		String description = params.getString("description");
-		if(description == null)
-		{
-			item.setDescription("");
-		}
-		else
-		{
-			item.setDescription(description);
-		}
-
-		item.setContentHasChanged(false);
-
-		if(upload_file)
-		{
-			String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
-			int max_bytes = 1096 * 1096;
-			try
-			{
-				max_bytes = Integer.parseInt(max_file_size_mb) * 1096 * 1096;
-			}
-			catch(Exception e)
-			{
-				// if unable to parse an integer from the value
-				// in the properties file, use 1 MB as a default
-				max_file_size_mb = "1";
-				max_bytes = 1096 * 1096;
-			}
-			/*
-			 // params.getContentLength() returns m_req.getContentLength()
-			if(params.getContentLength() >= max_bytes)
-			{
-				alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
-			}
-			else
-			*/
-			{
-				// check for file replacement
-				FileItem fileitem = params.getFileItem("fileName");
-				if(fileitem == null)
-				{
-					// "The user submitted a file to upload but it was too big!"
-					alerts.clear();
-					alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
-					//item.setMissing("fileName");
-				}
-				else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0)
-				{
-					if(item.getContent() == null || item.getContent().length <= 0)
-					{
-						// "The user submitted the form, but didn't select a file to upload!"
-						alerts.add(rb.getString("choosefile") + ". ");
-						//item.setMissing("fileName");
-					}
-				}
-				else if (fileitem.getFileName().length() > 0)
-				{
-					String filename = Validator.getFileName(fileitem.getFileName());
-					byte[] bytes = fileitem.get();
-					String contenttype = fileitem.getContentType();
-
-					if(bytes.length >= max_bytes)
-					{
-						alerts.clear();
-						alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
-						// item.setMissing("fileName");
-					}
-					else if(bytes.length > 0)
-					{
-						item.setContent(bytes);
-						item.setContentHasChanged(true);
-						item.setMimeType(contenttype);
-						item.setFilename(filename);
-					}
-				}
-			}
-		}
-		else if(revise_file)
-		{
-			// check for input from editor (textarea)
-			String content = params.getString("content");
-			if(content != null)
-			{
-				item.setContent(content);
-				item.setContentHasChanged(true);
-			}
-		}
-		else if(item.isUrl())
-		{
-			String url = params.getString("Url");
-			if(url == null || url.trim().equals(""))
-			{
-				item.setFilename("");
-				alerts.add(rb.getString("validurl"));
-			}
-			else
-			{
-				// valid protocol?
-				item.setFilename(url);
-				try
-				{
-					// test format of input
-					URL u = new URL(url);
-				}
-				catch (MalformedURLException e1)
-				{
-					try
-					{
-						// if URL did not validate, check whether the problem was an
-						// unrecognized protocol, and accept input if that's the case.
-						Pattern pattern = Pattern.compile("\\s*([a-zA-Z0-9]+)://([^\\n]+)");
-						Matcher matcher = pattern.matcher(url);
-						if(matcher.matches())
-						{
-							URL test = new URL("http://" + matcher.group(2));
-						}
-						else
-						{
-							url = "http://" + url;
-							URL test = new URL(url);
-							item.setFilename(url);
-						}
-					}
-					catch (MalformedURLException e2)
-					{
-						// invalid url
-						alerts.add(rb.getString("validurl"));
-					}
-				}
-			}
-		}
-		else if(item.isFolder())
-		{
-			if(item.canSetQuota())
-			{
-				// read the quota fields
-				String setQuota = params.getString("setQuota");
-				boolean hasQuota = params.getBoolean("hasQuota");
-				item.setHasQuota(hasQuota);
-				if(hasQuota)
-				{
-					int q = params.getInt("quota");
-					item.setQuota(Integer.toString(q));
-				}
-			}
-		}
-		else if(item.isStructuredArtifact())
-		{
-			String formtype = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE);
-			if(formtype == null)
-			{
-				formtype = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE);
-				if(formtype == null)
-				{
-					formtype = "";
-				}
-				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
-			}
-			String formtype_check = params.getString("formtype");
-
-			if(formtype_check == null || formtype_check.equals(""))
-			{
-				alerts.add(rb.getString("type"));
-				item.setMissing("formtype");
-			}
-			else if(formtype_check.equals(formtype))
-			{
-				item.setFormtype(formtype);
-				capturePropertyValues(params, item, item.getProperties());
-			}
-		}
-
-		if(! item.isFolder() && ! item.isStructuredArtifact() && ! item.isUrl())
-		{
-			String mime_category = params.getString("mime_category");
-			String mime_subtype = params.getString("mime_subtype");
-
-			if(mime_category != null && mime_subtype != null)
-			{
-				String mimetype = mime_category + "/" + mime_subtype;
-				if(! mimetype.equals(item.getMimeType()))
-				{
-					item.setMimeType(mimetype);
-					item.setContentTypeHasChanged(true);
-				}
-			}
-		}
-
-		if(item.isFileUpload() || item.isHtml() || item.isPlaintext())
-		{
-			BasicRightsAssignment rightsObj = item.getRights();
-			rightsObj.captureValues(params);
-
-			boolean usingCreativeCommons = state.getAttribute(STATE_USING_CREATIVE_COMMONS) != null && state.getAttribute(STATE_USING_CREATIVE_COMMONS).equals(Boolean.TRUE.toString());		
-			
-			if(usingCreativeCommons)
-			{
-				String ccOwnership = params.getString("ccOwnership");
-				if(ccOwnership != null)
-				{
-					item.setRightsownership(ccOwnership);
-				}
-				String ccTerms = params.getString("ccTerms");
-				if(ccTerms != null)
-				{
-					item.setLicense(ccTerms);
-				}
-				String ccCommercial = params.getString("ccCommercial");
-				if(ccCommercial != null)
-				{
-					item.setAllowCommercial(ccCommercial);
-				}
-				String ccModification = params.getString("ccModification");
-				if(ccCommercial != null)
-				{
-					item.setAllowModifications(ccModification);
-				}
-				String ccRightsYear = params.getString("ccRightsYear");
-				if(ccRightsYear != null)
-				{
-					item.setRightstyear(ccRightsYear);
-				}
-				String ccRightsOwner = params.getString("ccRightsOwner");
-				if(ccRightsOwner != null)
-				{
-					item.setRightsowner(ccRightsOwner);
-				}
-
-				/*
-				ccValues.ccOwner = new Array();
-				ccValues.myRights = new Array();
-				ccValues.otherRights = new Array();
-				ccValues.ccCommercial = new Array();
-				ccValues.ccModifications = new Array();
-				ccValues.ccRightsYear = new Array();
-				ccValues.ccRightsOwner = new Array();
-				*/
-			}
-			else
-			{
-				// check for copyright status
-				// check for copyright info
-				// check for copyright alert
-	
-				String copyrightStatus = StringUtil.trimToNull(params.getString ("copyrightStatus"));
-				String copyrightInfo = StringUtil.trimToNull(params.getCleanString ("copyrightInfo"));
-				String copyrightAlert = StringUtil.trimToNull(params.getString("copyrightAlert"));
-	
-				if (copyrightStatus != null)
-				{
-					if (state.getAttribute(COPYRIGHT_NEW_COPYRIGHT) != null && copyrightStatus.equals(state.getAttribute(COPYRIGHT_NEW_COPYRIGHT)))
-					{
-						if (copyrightInfo != null)
-						{
-							item.setCopyrightInfo( copyrightInfo );
-						}
-						else
-						{
-							alerts.add(rb.getString("specifycp2"));
-							// addAlert(state, rb.getString("specifycp2"));
-						}
-					}
-					else if (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT) != null && copyrightStatus.equals (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT)))
-					{
-						item.setCopyrightInfo((String) state.getAttribute (STATE_MY_COPYRIGHT));
-					}
-	
-					item.setCopyrightStatus( copyrightStatus );
-				}
-				item.setCopyrightAlert(copyrightAlert != null);
-			}
-		}
-		if(!  RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
-		{
-			String hidden = params.getString("hidden");
-			String use_start_date = params.getString("use_start_date");
-			String use_end_date = params.getString("use_end_date");
-			String release_month = params.getString("release_month");
-			String release_day = params.getString("release_day");
-			String release_year = params.getString("release_year");
-			String release_hour = params.getString("release_hour");
-			String release_min = params.getString("release_minute");
-			String release_ampm = params.getString("release_ampm");
-			
-			try
-			{
-				String release_time = params.getString("release_time");
-				String retract_month = params.getString("retract_month");
-				String retract_day = params.getString("retract_day");
-				String retract_year = params.getString("retract_year");
-				String retract_time = params.getString("retract_time");
-				String retract_hour = params.getString("retract_hour");
-				String retract_min = params.getString("retract_minute");
-				String retract_ampm = params.getString("retract_ampm");
-				
-				int begin_year = Integer.parseInt(release_year);
-				int begin_month = Integer.parseInt(release_month);
-				int begin_day = Integer.parseInt(release_day);
-				int begin_hour = Integer.parseInt(release_hour);
-				int begin_min = Integer.parseInt(release_min);
-				if("pm".equals(release_ampm))
-				{
-					begin_hour += 12;
-				}
-				else if(begin_hour == 12)
-				{
-					begin_hour = 0;
-				}
-				Time releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
-				item.setReleaseDate(releaseDate);
-				
-				int end_year = Integer.parseInt(retract_year);
-				int end_month = Integer.parseInt(retract_month);
-				int end_day = Integer.parseInt(retract_day);
-				int end_hour = Integer.parseInt(retract_hour);
-				int end_min = Integer.parseInt(retract_min);
-				if("pm".equals(retract_ampm))
-				{
-					end_hour += 12;
-				}
-				else if(begin_hour == 12)
-				{
-					end_hour = 0;
-				}
-				Time retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
-				item.setRetractDate(retractDate);
-				
-				item.setHidden(Boolean.TRUE.toString().equalsIgnoreCase(hidden));
-				item.setUseReleaseDate(Boolean.TRUE.toString().equalsIgnoreCase(use_start_date));
-				item.setUseRetractDate(Boolean.TRUE.toString().equalsIgnoreCase(use_end_date));
-			}
-			catch(NumberFormatException e)
-			{
-				// no values retrieved from date widget, or values are not numbers 
-			}
-			
-			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-			if(preventPublicDisplay == null)
-			{
-				preventPublicDisplay = Boolean.FALSE;
-				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
-			}
-			
-			String access_mode = params.getString("access_mode");
-			
-			if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
-			{
-				// we inherit more than one group and must check whether group access changes at this item
-				String[] access_groups = params.getStrings("access_groups");
-				
-				SortedSet new_groups = new TreeSet();
-				if(access_groups != null)
-				{
-					new_groups.addAll(Arrays.asList(access_groups));
-				}
-				new_groups = item.convertToRefs(new_groups);
-				
-				Collection inh_grps = item.getInheritedGroupRefs();
-				boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
-				
-				if(groups_are_inherited)
-				{
-					new_groups.clear();
-					item.setEntityGroupRefs(new_groups);
-					item.setAccess(AccessMode.INHERITED.toString());
-				}
-				else
-				{
-					item.setEntityGroupRefs(new_groups);
-					item.setAccess(AccessMode.GROUPED.toString());
-				}
-				
-				item.setPubview(false);
-			}
-			else if(PUBLIC_ACCESS.equals(access_mode))
-			{
-				if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
-				{
-					item.setPubview(true);
-					item.setAccess(AccessMode.INHERITED.toString());
-				}
-			}
-			else if(AccessMode.INHERITED.toString().equals(access_mode))
-			{
-				item.setAccess(AccessMode.INHERITED.toString());
-				item.clearGroups();
-				item.setPubview(false);
-			}
-		}
-
-		int noti = NotificationService.NOTI_NONE;
-		// %%STATE_MODE_RESOURCES%%
-		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
-		{
-			// set noti to none if in dropbox mode
-			noti = NotificationService.NOTI_NONE;
-		}
-		else
-		{
-			// read the notification options
-			String notification = params.getString("notify");
-			if ("r".equals(notification))
-			{
-				noti = NotificationService.NOTI_REQUIRED;
-			}
-			else if ("o".equals(notification))
-			{
-				noti = NotificationService.NOTI_OPTIONAL;
-			}
-		}
-		item.setNotification(noti);
-
-		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
-		if(metadataGroups != null && ! metadataGroups.isEmpty())
-		{
-			Iterator groupIt = metadataGroups.iterator();
-			while(groupIt.hasNext())
-			{
-				MetadataGroup group = (MetadataGroup) groupIt.next();
-				if(group.isShowing())
-				{
-					Iterator propIt = group.iterator();
-					while(propIt.hasNext())
-					{
-						ResourcesMetadata prop = (ResourcesMetadata) propIt.next();
-						String propname = prop.getFullname();
-						if(ResourcesMetadata.WIDGET_DATE.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_DATETIME.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_TIME.equals(prop.getWidget()))
-						{
-							int year = 0;
-							int month = 0;
-							int day = 0;
-							int hour = 0;
-							int minute = 0;
-							int second = 0;
-							int millisecond = 0;
-							String ampm = "";
-
-							if(prop.getWidget().equals(ResourcesMetadata.WIDGET_DATE) ||
-								prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
-							{
-								year = params.getInt(propname + "_year", year);
-								month = params.getInt(propname + "_month", month);
-								day = params.getInt(propname + "_day", day);
-
-
-							}
-							if(prop.getWidget().equals(ResourcesMetadata.WIDGET_TIME) ||
-								prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
-							{
-								hour = params.getInt(propname + "_hour", hour);
-								minute = params.getInt(propname + "_minute", minute);
-								second = params.getInt(propname + "_second", second);
-								millisecond = params.getInt(propname + "_millisecond", millisecond);
-								ampm = params.getString(propname + "_ampm").trim();
-
-								if("pm".equalsIgnoreCase("ampm"))
-								{
-									if(hour < 12)
-									{
-										hour += 12;
-									}
-								}
-								else if(hour == 12)
-								{
-									hour = 0;
-								}
-							}
-							if(hour > 23)
-							{
-								hour = hour % 24;
-								day++;
-							}
-
-							Time value = TimeService.newTimeLocal(year, month, day, hour, minute, second, millisecond);
-							item.setMetadataItem(propname,value);
-
-						}
-						else
-						{
-
-							String value = params.getString(propname);
-							if(value != null)
-							{
-								item.setMetadataItem(propname, value);
-							}
-						}
-					}
-				}
-			}
-		}
-		current_stack_frame.put(STATE_STACK_EDIT_ITEM, item);
-		state.setAttribute(STATE_EDIT_ALERTS, alerts);
-
-	}	// captureValues
-
-	/**
-	 * Retrieve from an html form all the values needed to create a new resource
-	 * @param item The ChefEditItem object in which the values are temporarily stored.
-	 * @param index The index of the item (used as a suffix in the name of the form element)
-	 * @param state
-	 * @param params
-	 * @param markMissing Indicates whether to mark required elements if they are missing.
-	 * @return
-	 */
-	public static Set captureValues(ChefEditItem item, int index, SessionState state, ParameterParser params, boolean markMissing)
-	{
-		Map current_stack_frame = peekAtStack(state);
-
-		Set item_alerts = new HashSet();
-		boolean blank_entry = true;
-		item.clearMissing();
-
-		String name = params.getString("name" + index);
-		if(name == null || name.trim().equals(""))
-		{
-			if(markMissing)
-			{
-				item_alerts.add(rb.getString("titlenotnull"));
-				item.setMissing("name");
-			}
-			item.setName("");
-			// addAlert(state, rb.getString("titlenotnull"));
-		}
-		else
-		{
-			item.setName(name);
-			blank_entry = false;
-		}
-
-		String description = params.getString("description" + index);
-		if(description == null || description.trim().equals(""))
-		{
-			item.setDescription("");
-		}
-		else
-		{
-			item.setDescription(description);
-			blank_entry = false;
-		}
-
-		item.setContentHasChanged(false);
-
-		if(item.isFileUpload())
-		{
-			String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
-			int max_bytes = 1024 * 1024;
-			try
-			{
-				max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
-			}
-			catch(Exception e)
-			{
-				// if unable to parse an integer from the value
-				// in the properties file, use 1 MB as a default
-				max_file_size_mb = "1";
-				max_bytes = 1024 * 1024;
-			}
-			/*
-			 // params.getContentLength() returns m_req.getContentLength()
-			if(params.getContentLength() >= max_bytes)
-			{
-				item_alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
-			}
-			else
-			*/
-			{
-				// check for file replacement
-				FileItem fileitem = null;
-				try
-				{
-					fileitem = params.getFileItem("fileName" + index);
-				}
-				catch(Exception e)
-				{
-					// this is an error in Firefox, Mozilla and Netscape
-					// "The user didn't select a file to upload!"
-					if(item.getContent() == null || item.getContent().length <= 0)
-					{
-						item_alerts.add(rb.getString("choosefile") + " " + (index + 1) + ". ");
-						item.setMissing("fileName");
-					}
-				}
-				if(fileitem == null)
-				{
-					// "The user submitted a file to upload but it was too big!"
-					item_alerts.clear();
-					item_alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
-					item.setMissing("fileName");
-				}
-				else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0)
-				{
-					if(item.getContent() == null || item.getContent().length <= 0)
-					{
-						// "The user submitted the form, but didn't select a file to upload!"
-						item_alerts.add(rb.getString("choosefile") + " " + (index + 1) + ". ");
-						item.setMissing("fileName");
-					}
-				}
-				else if (fileitem.getFileName().length() > 0)
-				{
-					String filename = Validator.getFileName(fileitem.getFileName());
-					byte[] bytes = fileitem.get();
-					String contenttype = fileitem.getContentType();
-
-					if(bytes.length >= max_bytes)
-					{
-						item_alerts.clear();
-						item_alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
-						item.setMissing("fileName");
-					}
-					else if(bytes.length > 0)
-					{
-						item.setContent(bytes);
-						item.setContentHasChanged(true);
-						item.setMimeType(contenttype);
-						item.setFilename(filename);
-						blank_entry = false;
-					}
-					else
-					{
-						item_alerts.add(rb.getString("choosefile") + " " + (index + 1) + ". ");
-						item.setMissing("fileName");
-					}
-				}
-
-			}
-		}
-		else if(item.isPlaintext())
-		{
-			// check for input from editor (textarea)
-			String content = params.getString("content" + index);
-			if(content != null)
-			{
-				item.setContentHasChanged(true);
-				item.setContent(content);
-				blank_entry = false;
-			}
-			item.setMimeType(MIME_TYPE_DOCUMENT_PLAINTEXT);
-		}
-		else if(item.isHtml())
-		{
-			// check for input from editor (textarea)
-			String content = params.getCleanString("content" + index);
-			StringBuffer alertMsg = new StringBuffer();
-			content = FormattedText.processHtmlDocument(content, alertMsg);
-			if (alertMsg.length() > 0)
-			{
-				item_alerts.add(alertMsg.toString());
-			}
-			if(content != null && !content.equals(""))
-			{
-				item.setContent(content);
-				item.setContentHasChanged(true);
-				blank_entry = false;
-			}
-			item.setMimeType(MIME_TYPE_DOCUMENT_HTML);
-		}
-		else if(item.isUrl())
-		{
-			item.setMimeType(ResourceProperties.TYPE_URL);
-			String url = params.getString("Url" + index);
-			if(url == null || url.trim().equals(""))
-			{
-				item.setFilename("");
-				item_alerts.add(rb.getString("specifyurl"));
-				item.setMissing("Url");
-			}
-			else
-			{
-				item.setFilename(url);
-				blank_entry = false;
-				// is protocol supplied and, if so, is it recognized?
-				try
-				{
-					// check format of input
-					URL u = new URL(url);
-				}
-				catch (MalformedURLException e1)
-				{
-					try
-					{
-						// if URL did not validate, check whether the problem was an
-						// unrecognized protocol, and accept input if that's the case.
-						Pattern pattern = Pattern.compile("\\s*([a-zA-Z0-9]+)://([^\\n]+)");
-						Matcher matcher = pattern.matcher(url);
-						if(matcher.matches())
-						{
-							URL test = new URL("http://" + matcher.group(2));
-						}
-						else
-						{
-							url = "http://" + url;
-							URL test = new URL(url);
-							item.setFilename(url);
-						}
-					}
-					catch (MalformedURLException e2)
-					{
-						// invalid url
-						item_alerts.add(rb.getString("validurl"));
-						item.setMissing("Url");
-					}
-				}
-			}
-		}
-		else if(item.isStructuredArtifact())
-		{
-			String formtype = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE);
-			if(formtype == null)
-			{
-				formtype = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE);
-				if(formtype == null)
-				{
-					formtype = "";
-				}
-				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
-			}
-			String formtype_check = params.getString("formtype");
-
-			if(formtype_check == null || formtype_check.equals(""))
-			{
-				item_alerts.add("Must select a form type");
-				item.setMissing("formtype");
-			}
-			else if(formtype_check.equals(formtype))
-			{
-				item.setFormtype(formtype);
-				capturePropertyValues(params, item, item.getProperties());
-				// blank_entry = false;
-			}
-			item.setMimeType(MIME_TYPE_STRUCTOBJ);
-
-		}
-		if(item.isFileUpload() || item.isHtml() || item.isPlaintext())
-		{
-			BasicRightsAssignment rightsObj = item.getRights();
-			rightsObj.captureValues(params);
-			
-			boolean usingCreativeCommons = state.getAttribute(STATE_USING_CREATIVE_COMMONS) != null && state.getAttribute(STATE_USING_CREATIVE_COMMONS).equals(Boolean.TRUE.toString());
-			
-			if(usingCreativeCommons)
-			{
-				String ccOwnership = params.getString("ccOwnership" + index);
-				if(ccOwnership != null)
-				{
-					item.setRightsownership(ccOwnership);
-				}
-				String ccTerms = params.getString("ccTerms" + index);
-				if(ccTerms != null)
-				{
-					item.setLicense(ccTerms);
-				}
-				String ccCommercial = params.getString("ccCommercial" + index);
-				if(ccCommercial != null)
-				{
-					item.setAllowCommercial(ccCommercial);
-				}
-				String ccModification = params.getString("ccModification" + index);
-				if(ccCommercial != null)
-				{
-					item.setAllowModifications(ccModification);
-				}
-				String ccRightsYear = params.getString("ccRightsYear" + index);
-				if(ccRightsYear != null)
-				{
-					item.setRightstyear(ccRightsYear);
-				}
-				String ccRightsOwner = params.getString("ccRightsOwner" + index);
-				if(ccRightsOwner != null)
-				{
-					item.setRightsowner(ccRightsOwner);
-				}
-
-				/*
-				ccValues.ccOwner = new Array();
-				ccValues.myRights = new Array();
-				ccValues.otherRights = new Array();
-				ccValues.ccCommercial = new Array();
-				ccValues.ccModifications = new Array();
-				ccValues.ccRightsYear = new Array();
-				ccValues.ccRightsOwner = new Array();
-				*/
-			}
-			else
-			{
-				// check for copyright status
-				// check for copyright info
-				// check for copyright alert
-	
-				String copyrightStatus = StringUtil.trimToNull(params.getString ("copyright" + index));
-				String copyrightInfo = StringUtil.trimToNull(params.getCleanString ("newcopyright" + index));
-				String copyrightAlert = StringUtil.trimToNull(params.getString("copyrightAlert" + index));
-	
-				if (copyrightStatus != null)
-				{
-					if (state.getAttribute(COPYRIGHT_NEW_COPYRIGHT) != null && copyrightStatus.equals(state.getAttribute(COPYRIGHT_NEW_COPYRIGHT)))
-					{
-						if (copyrightInfo != null)
-						{
-							item.setCopyrightInfo( copyrightInfo );
-						}
-						else
-						{
-							item_alerts.add(rb.getString("specifycp2"));
-							// addAlert(state, rb.getString("specifycp2"));
-						}
-					}
-					else if (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT) != null && copyrightStatus.equals (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT)))
-					{
-						item.setCopyrightInfo((String) state.getAttribute (STATE_MY_COPYRIGHT));
-					}
-	
-					item.setCopyrightStatus( copyrightStatus );
-				}
-				item.setCopyrightAlert(copyrightAlert != null);
-			}
-
-		}
-
-		if(!  RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
-		{
-			String hidden = params.getString("hidden" + index);
-			String use_start_date = params.getString("use_start_date" + index);
-			String use_end_date = params.getString("use_end_date" + index);
-			String release_month = params.getString("release_month" + index);
-			String release_day = params.getString("release_day" + index);
-			String release_year = params.getString("release_year" + index);
-			String release_hour = params.getString("release" + index + "_hour");
-			String release_min = params.getString("release" + index + "_minute");
-			String release_ampm = params.getString("release" + index + "_ampm");
-			
-			String retract_month = params.getString("retract_month" + index);
-			String retract_day = params.getString("retract_day" + index);
-			String retract_year = params.getString("retract_year" + index);
-			String retract_hour = params.getString("retract" + index + "_hour");
-			String retract_min = params.getString("retract" + index + "_minute");
-			String retract_ampm = params.getString("retract" + index + "_ampm");
-			
-			try
-			{
-				int begin_year = Integer.parseInt(release_year);
-				int begin_month = Integer.parseInt(release_month);
-				int begin_day = Integer.parseInt(release_day);
-				int begin_hour = Integer.parseInt(release_hour);
-				int begin_min = Integer.parseInt(release_min);
-				if("pm".equals(release_ampm))
-				{
-					begin_hour += 12;
-				}
-				else if(begin_hour == 12)
-				{
-					begin_hour = 0;
-				}
-				Time releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
-				item.setReleaseDate(releaseDate);
-				
-				int end_year = Integer.parseInt(retract_year);
-				int end_month = Integer.parseInt(retract_month);
-				int end_day = Integer.parseInt(retract_day);
-				int end_hour = Integer.parseInt(retract_hour);
-				int end_min = Integer.parseInt(retract_min);
-				if("pm".equals(retract_ampm))
-				{
-					end_hour += 12;
-				}
-				else if(begin_hour == 12)
-				{
-					end_hour = 0;
-				}
-				Time retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
-				item.setRetractDate(retractDate);
-	
-				item.setHidden(Boolean.TRUE.toString().equalsIgnoreCase(hidden));
-				item.setUseReleaseDate(Boolean.TRUE.toString().equalsIgnoreCase(use_start_date));
-				item.setUseRetractDate(Boolean.TRUE.toString().equalsIgnoreCase(use_end_date));
-			}
-			catch(NumberFormatException e)
-			{
-				// no values retrieved from date widget, or values are not numbers
-			}
-			
-			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-			if(preventPublicDisplay == null)
-			{
-				preventPublicDisplay = Boolean.FALSE;
-				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
-			}
-			
-			String access_mode = params.getString("access_mode" + index);
-			
-			if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
-			{
-				// we inherit more than one group and must check whether group access changes at this item
-				String[] access_groups = params.getStrings("access_groups" + index);
-				
-				SortedSet new_groups = new TreeSet();
-				if(access_groups != null)
-				{
-					new_groups.addAll(Arrays.asList(access_groups));
-				}
-				new_groups = item.convertToRefs(new_groups);
-				
-				Collection inh_grps = item.getInheritedGroupRefs();
-				boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
-				
-				if(groups_are_inherited)
-				{
-					new_groups.clear();
-					item.setEntityGroupRefs(new_groups);
-					item.setAccess(AccessMode.INHERITED.toString());
-				}
-				else
-				{
-					item.setEntityGroupRefs(new_groups);
-					item.setAccess(AccessMode.GROUPED.toString());
-				}
-				
-				item.setPubview(false);
-			}
-			else if(PUBLIC_ACCESS.equals(access_mode))
-			{
-				if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
-				{
-					item.setPubview(true);
-					item.setAccess(AccessMode.INHERITED.toString());
-				}
-			}
-			else if(AccessMode.INHERITED.toString().equals(access_mode) )
-			{
-				item.setAccess(AccessMode.INHERITED.toString());
-				item.clearGroups();
-				item.setPubview(false);
-			}
-		}
-
-		int noti = NotificationService.NOTI_NONE;
-		// %%STATE_MODE_RESOURCES%%
-		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
-		{
-			// set noti to none if in dropbox mode
-			noti = NotificationService.NOTI_NONE;
-		}
-		else
-		{
-			// read the notification options
-			String notification = params.getString("notify" + index);
-			if ("r".equals(notification))
-			{
-				noti = NotificationService.NOTI_REQUIRED;
-			}
-			else if ("o".equals(notification))
-			{
-				noti = NotificationService.NOTI_OPTIONAL;
-			}
-		}
-		
-		item.setNotification(noti);
-
-		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
-		if(metadataGroups != null && ! metadataGroups.isEmpty())
-		{
-			Iterator groupIt = metadataGroups.iterator();
-			while(groupIt.hasNext())
-			{
-				MetadataGroup group = (MetadataGroup) groupIt.next();
-				if(item.isGroupShowing(group.getName()))
-				{
-					Iterator propIt = group.iterator();
-					while(propIt.hasNext())
-					{
-						ResourcesMetadata prop = (ResourcesMetadata) propIt.next();
-						String propname = prop.getFullname();
-						if(ResourcesMetadata.WIDGET_DATE.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_DATETIME.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_TIME.equals(prop.getWidget()))
-						{
-							int year = 0;
-							int month = 0;
-							int day = 0;
-							int hour = 0;
-							int minute = 0;
-							int second = 0;
-							int millisecond = 0;
-							String ampm = "";
-
-							if(prop.getWidget().equals(ResourcesMetadata.WIDGET_DATE) ||
-								prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
-							{
-								year = params.getInt(propname + "_" + index + "_year", year);
-								month = params.getInt(propname + "_" + index + "_month", month);
-								day = params.getInt(propname + "_" + index + "_day", day);
-							}
-							if(prop.getWidget().equals(ResourcesMetadata.WIDGET_TIME) ||
-								prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
-							{
-								hour = params.getInt(propname + "_" + index + "_hour", hour);
-								minute = params.getInt(propname + "_" + index + "_minute", minute);
-								second = params.getInt(propname + "_" + index + "_second", second);
-								millisecond = params.getInt(propname + "_" + index + "_millisecond", millisecond);
-								ampm = params.getString(propname + "_" + index + "_ampm").trim();
-
-								if("pm".equalsIgnoreCase(ampm))
-								{
-									if(hour < 12)
-									{
-										hour += 12;
-									}
-								}
-								else if(hour == 12)
-								{
-									hour = 0;
-								}
-							}
-							if(hour > 23)
-							{
-								hour = hour % 24;
-								day++;
-							}
-
-							Time value = TimeService.newTimeLocal(year, month, day, hour, minute, second, millisecond);
-							item.setMetadataItem(propname,value);
-
-						}
-						else
-						{
-							String value = params.getString(propname + "_" + index);
-							if(value != null)
-							{
-								item.setMetadataItem(propname, value);
-							}
-						}
-					}
-				}
-			}
-		}
-		item.markAsBlank(blank_entry);
-
-		return item_alerts;
-
-	}
-
-	/**
-	 * Retrieve values for one or more items from create context.  Create context contains up to ten items at a time
-	 * all of the same type (folder, file, text document, structured-artifact, etc).  This method retrieves the data
-	 * apppropriate to the type and updates the values of the ChefEditItem objects stored as the STATE_STACK_CREATE_ITEMS
-	 * attribute in state. If the third parameter is "true", missing/incorrect user inputs will generate error messages
-	 * and attach flags to the input elements.
-	 * @param state
-	 * @param params
-	 * @param markMissing Should this method generate error messages and add flags for missing/incorrect user inputs?
-	 */
-	protected static void captureMultipleValues(SessionState state, ParameterParser params, boolean markMissing)
-	{
-		Map current_stack_frame = peekAtStack(state);
-		Integer number = (Integer) current_stack_frame.get(STATE_STACK_CREATE_NUMBER);
-		if(number == null)
-		{
-			number = (Integer) state.getAttribute(STATE_CREATE_NUMBER);
-			current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
-		}
-		if(number == null)
-		{
-			number = new Integer(1);
-			current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
-		}
-
-		List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
-		if(new_items == null)
-		{
-			String collectionId = params.getString("collectionId");
-			String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
-			if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
-			{
-				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
-				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
-			}
-
-			String itemType = (String) current_stack_frame.get(STATE_STACK_CREATE_TYPE);
-			if(itemType == null || itemType.trim().equals(""))
-			{
-				itemType = (String) state.getAttribute(STATE_CREATE_TYPE);
-				if(itemType == null || itemType.trim().equals(""))
-				{
-					itemType = TYPE_UPLOAD;
-				}
-				current_stack_frame.put(STATE_STACK_CREATE_TYPE, itemType);
-			}
-			
-			String encoding = (String) state.getAttribute(STATE_ENCODING);
-
-			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-
-			Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
-			if(defaultRetractDate == null)
-			{
-				defaultRetractDate = TimeService.newTime();
-				state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
-			}
-
-			new_items = newEditItems(collectionId, itemType, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), defaultRetractDate, CREATE_MAX_ITEMS);
-			current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
-		}
-
-		Set alerts = (Set) state.getAttribute(STATE_CREATE_ALERTS);
-		if(alerts == null)
-		{
-			alerts = new HashSet();
-			state.setAttribute(STATE_CREATE_ALERTS, alerts);
-		}
-		int actualCount = 0;
-		Set first_item_alerts = null;
-
-		String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
-		int max_bytes = 1024 * 1024;
-		try
-		{
-			max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
-		}
-		catch(Exception e)
-		{
-			// if unable to parse an integer from the value
-			// in the properties file, use 1 MB as a default
-			max_file_size_mb = "1";
-			max_bytes = 1024 * 1024;
-		}
-
-		/*
-		// params.getContentLength() returns m_req.getContentLength()
-		if(params.getContentLength() > max_bytes)
-		{
-			alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
-			state.setAttribute(STATE_CREATE_ALERTS, alerts);
-
-			return;
-		}
-		*/
-		for(int i = 0; i < number.intValue(); i++)
-		{
-			ChefEditItem item = (ChefEditItem) new_items.get(i);
-			Set item_alerts = captureValues(item, i, state, params, markMissing);
-			if(i == 0)
-			{
-				first_item_alerts = item_alerts;
-			}
-			else if(item.isBlank())
-			{
-				item.clearMissing();
-			}
-			if(! item.isBlank())
-			{
-				alerts.addAll(item_alerts);
-				actualCount ++;
-			}
-		}
-		if(actualCount > 0)
-		{
-			ChefEditItem item = (ChefEditItem) new_items.get(0);
-			if(item.isBlank())
-			{
-				item.clearMissing();
-			}
-		}
-		else if(markMissing)
-		{
-			alerts.addAll(first_item_alerts);
-		}
-		state.setAttribute(STATE_CREATE_ALERTS, alerts);
-		current_stack_frame.put(STATE_STACK_CREATE_ACTUAL_COUNT, Integer.toString(actualCount));
-
-	}	// captureMultipleValues
-
-	protected static void capturePropertyValues(ParameterParser params, ChefEditItem item, List properties)
-	{
-		// use the item's properties if they're not supplied
-		if(properties == null)
-		{
-			properties = item.getProperties();
-		}
-		// if max cardinality > 1, value is a list (Iterate over members of list)
-		// else value is an object, not a list
-
-		// if type is nested, object is a Map (iterate over name-value pairs for the properties of the nested object)
-		// else object is type to store value, usually a string or a date/time
-
-		Iterator it = properties.iterator();
-		while(it.hasNext())
-		{
-			ResourcesMetadata prop = (ResourcesMetadata) it.next();
-			String propname = prop.getDottedname();
-
-			if(ResourcesMetadata.WIDGET_NESTED.equals(prop.getWidget()))
-			{
-				// do nothing
-			}
-			else if(ResourcesMetadata.WIDGET_BOOLEAN.equals(prop.getWidget()))
-			{
-				String value = params.getString(propname);
-				if(value == null || Boolean.FALSE.toString().equals(value))
-				{
-					prop.setValue(0, Boolean.FALSE.toString());
-				}
-				else
-				{
-					prop.setValue(0, Boolean.TRUE.toString());
-				}
-			}
-			else if(ResourcesMetadata.WIDGET_DATE.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_DATETIME.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_TIME.equals(prop.getWidget()))
-			{
-				int year = 0;
-				int month = 0;
-				int day = 0;
-				int hour = 0;
-				int minute = 0;
-				int second = 0;
-				int millisecond = 0;
-				String ampm = "";
-
-				if(prop.getWidget().equals(ResourcesMetadata.WIDGET_DATE) ||
-					prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
-				{
-					year = params.getInt(propname + "_year", year);
-					month = params.getInt(propname + "_month", month);
-					day = params.getInt(propname + "_day", day);
-				}
-				if(prop.getWidget().equals(ResourcesMetadata.WIDGET_TIME) ||
-					prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
-				{
-					hour = params.getInt(propname + "_hour", hour);
-					minute = params.getInt(propname + "_minute", minute);
-					second = params.getInt(propname + "_second", second);
-					millisecond = params.getInt(propname + "_millisecond", millisecond);
-					ampm = params.getString(propname + "_ampm");
-
-					if("pm".equalsIgnoreCase(ampm))
-					{
-						if(hour < 12)
-						{
-							hour += 12;
-						}
-					}
-					else if(hour == 12)
-					{
-						hour = 0;
-					}
-				}
-				if(hour > 23)
-				{
-					hour = hour % 24;
-					day++;
-				}
-
-				Time value = TimeService.newTimeLocal(year, month, day, hour, minute, second, millisecond);
-				prop.setValue(0, value);
-			}
-			else if(ResourcesMetadata.WIDGET_ANYURI.equals(prop.getWidget()))
-			{
-				String value = params.getString(propname);
-				if(value != null && ! value.trim().equals(""))
-				{
-					Reference ref = EntityManager.newReference(ContentHostingService.getReference(value));
-					prop.setValue(0, ref);
-				}
-			}
-			else
-			{
-				String value = params.getString(propname);
-				if(value != null)
-				{
-					prop.setValue(0, value);
-				}
-			}
-		}
-
-	}	// capturePropertyValues
 
 	/**
 	* Modify the properties
@@ -16467,7 +14765,6 @@ public class ResourcesAction
 			context.put("theGroupsInThisSite", theGroupsInThisSite);
 		}
 		
-		setupStructuredObjects(state);
 		String show_form_items = (String) current_stack_frame.get(STATE_SHOW_FORM_ITEMS);
 		if(show_form_items == null)
 		{
@@ -16509,48 +14806,6 @@ public class ResourcesAction
 		}
 		*/
 
-		if(TYPE_FORM.equals(itemType))
-		{
-			List listOfHomes = (List) current_stack_frame.get(STATE_STRUCTOBJ_HOMES);
-			if(listOfHomes == null)
-			{
-				setupStructuredObjects(state);
-				listOfHomes = (List) current_stack_frame.get(STATE_STRUCTOBJ_HOMES);
-			}
-			context.put("homes", listOfHomes);
-
-			String formtype = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE);
-			if(formtype == null)
-			{
-				formtype = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE);
-				if(formtype == null)
-				{
-					formtype = "";
-				}
-				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
-			}
-			context.put("formtype", formtype);
-
-			String rootname = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_ROOTNAME);
-			context.put("rootname", rootname);
-
-			context.put("STRING", ResourcesMetadata.WIDGET_STRING);
-			context.put("TEXTAREA", ResourcesMetadata.WIDGET_TEXTAREA);
-			context.put("BOOLEAN", ResourcesMetadata.WIDGET_BOOLEAN);
-			context.put("INTEGER", ResourcesMetadata.WIDGET_INTEGER);
-			context.put("DOUBLE", ResourcesMetadata.WIDGET_DOUBLE);
-			context.put("DATE", ResourcesMetadata.WIDGET_DATE);
-			context.put("TIME", ResourcesMetadata.WIDGET_TIME);
-			context.put("DATETIME", ResourcesMetadata.WIDGET_DATETIME);
-			context.put("ANYURI", ResourcesMetadata.WIDGET_ANYURI);
-			context.put("ENUM", ResourcesMetadata.WIDGET_ENUM);
-			context.put("NESTED", ResourcesMetadata.WIDGET_NESTED);
-			context.put("WYSIWYG", ResourcesMetadata.WIDGET_WYSIWYG);
-
-			context.put("today", TimeService.newTime());
-
-			context.put("DOT", ResourcesMetadata.DOT);
-		}
 		Set missing = (Set) current_stack_frame.remove(STATE_CREATE_MISSING_ITEM);
 		context.put("missing", missing);
 
@@ -16665,55 +14920,6 @@ public class ResourcesAction
 
 		context.put("item", item);
 
-		if(item.isStructuredArtifact())
-		{
-			context.put("formtype", item.getFormtype());
-			current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, item.getFormtype());
-
-			List listOfHomes = (List) current_stack_frame.get(STATE_STRUCTOBJ_HOMES);
-			if(listOfHomes == null)
-			{
-				ResourcesAction.setupStructuredObjects(state);
-				listOfHomes = (List) current_stack_frame.get(STATE_STRUCTOBJ_HOMES);
-			}
-			context.put("homes", listOfHomes);
-
-			String formtype_readonly = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE_READONLY);
-			if(formtype_readonly == null)
-			{
-				formtype_readonly = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE_READONLY);
-				if(formtype_readonly == null)
-				{
-					formtype_readonly = Boolean.FALSE.toString();
-				}
-				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE_READONLY, formtype_readonly);
-			}
-			if(formtype_readonly != null && formtype_readonly.equals(Boolean.TRUE.toString()))
-			{
-				context.put("formtype_readonly", formtype_readonly);
-			}
-
-			String rootname = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_ROOTNAME);
-			context.put("rootname", rootname);
-
-			context.put("STRING", ResourcesMetadata.WIDGET_STRING);
-			context.put("TEXTAREA", ResourcesMetadata.WIDGET_TEXTAREA);
-			context.put("BOOLEAN", ResourcesMetadata.WIDGET_BOOLEAN);
-			context.put("INTEGER", ResourcesMetadata.WIDGET_INTEGER);
-			context.put("DOUBLE", ResourcesMetadata.WIDGET_DOUBLE);
-			context.put("DATE", ResourcesMetadata.WIDGET_DATE);
-			context.put("TIME", ResourcesMetadata.WIDGET_TIME);
-			context.put("DATETIME", ResourcesMetadata.WIDGET_DATETIME);
-			context.put("ANYURI", ResourcesMetadata.WIDGET_ANYURI);
-			context.put("ENUM", ResourcesMetadata.WIDGET_ENUM);
-			context.put("NESTED", ResourcesMetadata.WIDGET_NESTED);
-			context.put("WYSIWYG", ResourcesMetadata.WIDGET_WYSIWYG);
-
-			context.put("today", TimeService.newTime());
-
-			context.put("TRUE", Boolean.TRUE.toString());
-		}
-		
 		if(ContentHostingService.isAvailabilityEnabled())
 		{
 			context.put("availability_is_enabled", Boolean.TRUE);
@@ -17117,64 +15323,6 @@ public class ResourcesAction
 			context.put("availability_is_enabled", Boolean.TRUE);
 		}
 		
-		if(TYPE_FORM.equals(itemType))
-		{
-			setupStructuredObjects(state);
-			List listOfHomes = (List) current_stack_frame.get(STATE_STRUCTOBJ_HOMES);
-			if(listOfHomes == null)
-			{
-				listOfHomes = (List) state.getAttribute(STATE_STRUCTOBJ_HOMES);
-			}
-			context.put("homes", listOfHomes);
-
-			String formtype = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE);
-			if(formtype == null)
-			{
-				formtype = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE);
-				if(formtype == null)
-				{
-					formtype = "";
-				}
-				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
-			}
-			context.put("formtype", formtype);
-
-			String formtype_readonly = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE_READONLY);
-			if(formtype_readonly == null)
-			{
-				formtype_readonly = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE_READONLY);
-				if(formtype_readonly == null)
-				{
-					formtype_readonly = Boolean.FALSE.toString();
-				}
-				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE_READONLY, formtype_readonly);
-			}
-			if(formtype_readonly != null && formtype_readonly.equals(Boolean.TRUE.toString()))
-			{
-				context.put("formtype_readonly", formtype_readonly);
-			}
-
-			String rootname = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_ROOTNAME);
-			context.put("rootname", rootname);
-
-			context.put("STRING", ResourcesMetadata.WIDGET_STRING);
-			context.put("TEXTAREA", ResourcesMetadata.WIDGET_TEXTAREA);
-			context.put("BOOLEAN", ResourcesMetadata.WIDGET_BOOLEAN);
-			context.put("INTEGER", ResourcesMetadata.WIDGET_INTEGER);
-			context.put("DOUBLE", ResourcesMetadata.WIDGET_DOUBLE);
-			context.put("DATE", ResourcesMetadata.WIDGET_DATE);
-			context.put("TIME", ResourcesMetadata.WIDGET_TIME);
-			context.put("DATETIME", ResourcesMetadata.WIDGET_DATETIME);
-			context.put("ANYURI", ResourcesMetadata.WIDGET_ANYURI);
-			context.put("ENUM", ResourcesMetadata.WIDGET_ENUM);
-			context.put("NESTED", ResourcesMetadata.WIDGET_NESTED);
-			context.put("WYSIWYG", ResourcesMetadata.WIDGET_WYSIWYG);
-
-			context.put("today", TimeService.newTime());
-
-			context.put("DOT", ResourcesMetadata.DOT);
-		}
-
 		return TEMPLATE_ITEMTYPE;
 		
 	}	// buildItemTypeContext
@@ -17744,5 +15892,1316 @@ public class ResourcesAction
 		return template;
 
 	}	// buildSelectAttachmentContext
+
+	/**
+	 * Retrieve values for one or more items from create context.  Create context contains up to ten items at a time
+	 * all of the same type (folder, file, text document, structured-artifact, etc).  This method retrieves the data
+	 * apppropriate to the type and updates the values of the ChefEditItem objects stored as the STATE_STACK_CREATE_ITEMS
+	 * attribute in state. If the third parameter is "true", missing/incorrect user inputs will generate error messages
+	 * and attach flags to the input elements.
+	 * @param state
+	 * @param params
+	 * @param markMissing Should this method generate error messages and add flags for missing/incorrect user inputs?
+	 */
+	protected static void captureMultipleValues(SessionState state, ParameterParser params, boolean markMissing)
+	{
+		Map current_stack_frame = peekAtStack(state);
+		Integer number = (Integer) current_stack_frame.get(STATE_STACK_CREATE_NUMBER);
+		if(number == null)
+		{
+			number = (Integer) state.getAttribute(STATE_CREATE_NUMBER);
+			current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
+		}
+		if(number == null)
+		{
+			number = new Integer(1);
+			current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
+		}
+
+		List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
+		if(new_items == null)
+		{
+			String collectionId = params.getString("collectionId");
+			String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
+			if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
+			{
+				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
+				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
+			}
+
+			String itemType = (String) current_stack_frame.get(STATE_STACK_CREATE_TYPE);
+			if(itemType == null || itemType.trim().equals(""))
+			{
+				itemType = (String) state.getAttribute(STATE_CREATE_TYPE);
+				if(itemType == null || itemType.trim().equals(""))
+				{
+					itemType = TYPE_UPLOAD;
+				}
+				current_stack_frame.put(STATE_STACK_CREATE_TYPE, itemType);
+			}
+			
+			String encoding = (String) state.getAttribute(STATE_ENCODING);
+
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+
+			Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
+			if(defaultRetractDate == null)
+			{
+				defaultRetractDate = TimeService.newTime();
+				state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
+			}
+
+			new_items = newEditItems(collectionId, itemType, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), defaultRetractDate, CREATE_MAX_ITEMS);
+			current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
+		}
+
+		Set alerts = (Set) state.getAttribute(STATE_CREATE_ALERTS);
+		if(alerts == null)
+		{
+			alerts = new HashSet();
+			state.setAttribute(STATE_CREATE_ALERTS, alerts);
+		}
+		int actualCount = 0;
+		Set first_item_alerts = null;
+
+		String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
+		int max_bytes = 1024 * 1024;
+		try
+		{
+			max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
+		}
+		catch(Exception e)
+		{
+			// if unable to parse an integer from the value
+			// in the properties file, use 1 MB as a default
+			max_file_size_mb = "1";
+			max_bytes = 1024 * 1024;
+		}
+
+		/*
+		// params.getContentLength() returns m_req.getContentLength()
+		if(params.getContentLength() > max_bytes)
+		{
+			alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
+			state.setAttribute(STATE_CREATE_ALERTS, alerts);
+
+			return;
+		}
+		*/
+		for(int i = 0; i < number.intValue(); i++)
+		{
+			ChefEditItem item = (ChefEditItem) new_items.get(i);
+			Set item_alerts = captureValues(item, i, state, params, markMissing);
+			if(i == 0)
+			{
+				first_item_alerts = item_alerts;
+			}
+			else if(item.isBlank())
+			{
+				item.clearMissing();
+			}
+			if(! item.isBlank())
+			{
+				alerts.addAll(item_alerts);
+				actualCount ++;
+			}
+		}
+		if(actualCount > 0)
+		{
+			ChefEditItem item = (ChefEditItem) new_items.get(0);
+			if(item.isBlank())
+			{
+				item.clearMissing();
+			}
+		}
+		else if(markMissing)
+		{
+			alerts.addAll(first_item_alerts);
+		}
+		state.setAttribute(STATE_CREATE_ALERTS, alerts);
+		current_stack_frame.put(STATE_STACK_CREATE_ACTUAL_COUNT, Integer.toString(actualCount));
+
+	}	// captureMultipleValues
+
+	protected static void capturePropertyValues(ParameterParser params, ChefEditItem item, List properties)
+	{
+		// use the item's properties if they're not supplied
+		if(properties == null)
+		{
+			properties = item.getProperties();
+		}
+		// if max cardinality > 1, value is a list (Iterate over members of list)
+		// else value is an object, not a list
+
+		// if type is nested, object is a Map (iterate over name-value pairs for the properties of the nested object)
+		// else object is type to store value, usually a string or a date/time
+
+		Iterator it = properties.iterator();
+		while(it.hasNext())
+		{
+			ResourcesMetadata prop = (ResourcesMetadata) it.next();
+			String propname = prop.getDottedname();
+
+			if(ResourcesMetadata.WIDGET_NESTED.equals(prop.getWidget()))
+			{
+				// do nothing
+			}
+			else if(ResourcesMetadata.WIDGET_BOOLEAN.equals(prop.getWidget()))
+			{
+				String value = params.getString(propname);
+				if(value == null || Boolean.FALSE.toString().equals(value))
+				{
+					prop.setValue(0, Boolean.FALSE.toString());
+				}
+				else
+				{
+					prop.setValue(0, Boolean.TRUE.toString());
+				}
+			}
+			else if(ResourcesMetadata.WIDGET_DATE.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_DATETIME.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_TIME.equals(prop.getWidget()))
+			{
+				int year = 0;
+				int month = 0;
+				int day = 0;
+				int hour = 0;
+				int minute = 0;
+				int second = 0;
+				int millisecond = 0;
+				String ampm = "";
+
+				if(prop.getWidget().equals(ResourcesMetadata.WIDGET_DATE) ||
+					prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
+				{
+					year = params.getInt(propname + "_year", year);
+					month = params.getInt(propname + "_month", month);
+					day = params.getInt(propname + "_day", day);
+				}
+				if(prop.getWidget().equals(ResourcesMetadata.WIDGET_TIME) ||
+					prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
+				{
+					hour = params.getInt(propname + "_hour", hour);
+					minute = params.getInt(propname + "_minute", minute);
+					second = params.getInt(propname + "_second", second);
+					millisecond = params.getInt(propname + "_millisecond", millisecond);
+					ampm = params.getString(propname + "_ampm");
+
+					if("pm".equalsIgnoreCase(ampm))
+					{
+						if(hour < 12)
+						{
+							hour += 12;
+						}
+					}
+					else if(hour == 12)
+					{
+						hour = 0;
+					}
+				}
+				if(hour > 23)
+				{
+					hour = hour % 24;
+					day++;
+				}
+
+				Time value = TimeService.newTimeLocal(year, month, day, hour, minute, second, millisecond);
+				prop.setValue(0, value);
+			}
+			else if(ResourcesMetadata.WIDGET_ANYURI.equals(prop.getWidget()))
+			{
+				String value = params.getString(propname);
+				if(value != null && ! value.trim().equals(""))
+				{
+					Reference ref = EntityManager.newReference(ContentHostingService.getReference(value));
+					prop.setValue(0, ref);
+				}
+			}
+			else
+			{
+				String value = params.getString(propname);
+				if(value != null)
+				{
+					prop.setValue(0, value);
+				}
+			}
+		}
+
+	}	// capturePropertyValues
+
+	/**
+	 * Retrieve from an html form all the values needed to create a new resource
+	 * @param item The ChefEditItem object in which the values are temporarily stored.
+	 * @param index The index of the item (used as a suffix in the name of the form element)
+	 * @param state
+	 * @param params
+	 * @param markMissing Indicates whether to mark required elements if they are missing.
+	 * @return
+	 */
+	public static Set captureValues(ChefEditItem item, int index, SessionState state, ParameterParser params, boolean markMissing)
+	{
+		Map current_stack_frame = peekAtStack(state);
+
+		Set item_alerts = new HashSet();
+		boolean blank_entry = true;
+		item.clearMissing();
+
+		String name = params.getString("name" + index);
+		if(name == null || name.trim().equals(""))
+		{
+			if(markMissing)
+			{
+				item_alerts.add(rb.getString("titlenotnull"));
+				item.setMissing("name");
+			}
+			item.setName("");
+			// addAlert(state, rb.getString("titlenotnull"));
+		}
+		else
+		{
+			item.setName(name);
+			blank_entry = false;
+		}
+
+		String description = params.getString("description" + index);
+		if(description == null || description.trim().equals(""))
+		{
+			item.setDescription("");
+		}
+		else
+		{
+			item.setDescription(description);
+			blank_entry = false;
+		}
+
+		item.setContentHasChanged(false);
+
+		if(item.isFileUpload())
+		{
+			String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
+			int max_bytes = 1024 * 1024;
+			try
+			{
+				max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
+			}
+			catch(Exception e)
+			{
+				// if unable to parse an integer from the value
+				// in the properties file, use 1 MB as a default
+				max_file_size_mb = "1";
+				max_bytes = 1024 * 1024;
+			}
+			/*
+			 // params.getContentLength() returns m_req.getContentLength()
+			if(params.getContentLength() >= max_bytes)
+			{
+				item_alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
+			}
+			else
+			*/
+			{
+				// check for file replacement
+				FileItem fileitem = null;
+				try
+				{
+					fileitem = params.getFileItem("fileName" + index);
+				}
+				catch(Exception e)
+				{
+					// this is an error in Firefox, Mozilla and Netscape
+					// "The user didn't select a file to upload!"
+					if(item.getContent() == null || item.getContent().length <= 0)
+					{
+						item_alerts.add(rb.getString("choosefile") + " " + (index + 1) + ". ");
+						item.setMissing("fileName");
+					}
+				}
+				if(fileitem == null)
+				{
+					// "The user submitted a file to upload but it was too big!"
+					item_alerts.clear();
+					item_alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
+					item.setMissing("fileName");
+				}
+				else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0)
+				{
+					if(item.getContent() == null || item.getContent().length <= 0)
+					{
+						// "The user submitted the form, but didn't select a file to upload!"
+						item_alerts.add(rb.getString("choosefile") + " " + (index + 1) + ". ");
+						item.setMissing("fileName");
+					}
+				}
+				else if (fileitem.getFileName().length() > 0)
+				{
+					String filename = Validator.getFileName(fileitem.getFileName());
+					byte[] bytes = fileitem.get();
+					String contenttype = fileitem.getContentType();
+
+					if(bytes.length >= max_bytes)
+					{
+						item_alerts.clear();
+						item_alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
+						item.setMissing("fileName");
+					}
+					else if(bytes.length > 0)
+					{
+						item.setContent(bytes);
+						item.setContentHasChanged(true);
+						item.setMimeType(contenttype);
+						item.setFilename(filename);
+						blank_entry = false;
+					}
+					else
+					{
+						item_alerts.add(rb.getString("choosefile") + " " + (index + 1) + ". ");
+						item.setMissing("fileName");
+					}
+				}
+
+			}
+		}
+		else if(item.isPlaintext())
+		{
+			// check for input from editor (textarea)
+			String content = params.getString("content" + index);
+			if(content != null)
+			{
+				item.setContentHasChanged(true);
+				item.setContent(content);
+				blank_entry = false;
+			}
+			item.setMimeType(MIME_TYPE_DOCUMENT_PLAINTEXT);
+		}
+		else if(item.isHtml())
+		{
+			// check for input from editor (textarea)
+			String content = params.getCleanString("content" + index);
+			StringBuffer alertMsg = new StringBuffer();
+			content = FormattedText.processHtmlDocument(content, alertMsg);
+			if (alertMsg.length() > 0)
+			{
+				item_alerts.add(alertMsg.toString());
+			}
+			if(content != null && !content.equals(""))
+			{
+				item.setContent(content);
+				item.setContentHasChanged(true);
+				blank_entry = false;
+			}
+			item.setMimeType(MIME_TYPE_DOCUMENT_HTML);
+		}
+		else if(item.isUrl())
+		{
+			item.setMimeType(ResourceProperties.TYPE_URL);
+			String url = params.getString("Url" + index);
+			if(url == null || url.trim().equals(""))
+			{
+				item.setFilename("");
+				item_alerts.add(rb.getString("specifyurl"));
+				item.setMissing("Url");
+			}
+			else
+			{
+				item.setFilename(url);
+				blank_entry = false;
+				// is protocol supplied and, if so, is it recognized?
+				try
+				{
+					// check format of input
+					URL u = new URL(url);
+				}
+				catch (MalformedURLException e1)
+				{
+					try
+					{
+						// if URL did not validate, check whether the problem was an
+						// unrecognized protocol, and accept input if that's the case.
+						Pattern pattern = Pattern.compile("\\s*([a-zA-Z0-9]+)://([^\\n]+)");
+						Matcher matcher = pattern.matcher(url);
+						if(matcher.matches())
+						{
+							URL test = new URL("http://" + matcher.group(2));
+						}
+						else
+						{
+							url = "http://" + url;
+							URL test = new URL(url);
+							item.setFilename(url);
+						}
+					}
+					catch (MalformedURLException e2)
+					{
+						// invalid url
+						item_alerts.add(rb.getString("validurl"));
+						item.setMissing("Url");
+					}
+				}
+			}
+		}
+		else if(item.isStructuredArtifact())
+		{
+			String formtype = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE);
+			if(formtype == null)
+			{
+				formtype = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE);
+				if(formtype == null)
+				{
+					formtype = "";
+				}
+				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
+			}
+			String formtype_check = params.getString("formtype");
+
+			if(formtype_check == null || formtype_check.equals(""))
+			{
+				item_alerts.add("Must select a form type");
+				item.setMissing("formtype");
+			}
+			else if(formtype_check.equals(formtype))
+			{
+				item.setFormtype(formtype);
+				capturePropertyValues(params, item, item.getProperties());
+				// blank_entry = false;
+			}
+			item.setMimeType(MIME_TYPE_STRUCTOBJ);
+
+		}
+		if(item.isFileUpload() || item.isHtml() || item.isPlaintext())
+		{
+			BasicRightsAssignment rightsObj = item.getRights();
+			rightsObj.captureValues(params);
+			
+			boolean usingCreativeCommons = state.getAttribute(STATE_USING_CREATIVE_COMMONS) != null && state.getAttribute(STATE_USING_CREATIVE_COMMONS).equals(Boolean.TRUE.toString());
+			
+			if(usingCreativeCommons)
+			{
+				String ccOwnership = params.getString("ccOwnership" + index);
+				if(ccOwnership != null)
+				{
+					item.setRightsownership(ccOwnership);
+				}
+				String ccTerms = params.getString("ccTerms" + index);
+				if(ccTerms != null)
+				{
+					item.setLicense(ccTerms);
+				}
+				String ccCommercial = params.getString("ccCommercial" + index);
+				if(ccCommercial != null)
+				{
+					item.setAllowCommercial(ccCommercial);
+				}
+				String ccModification = params.getString("ccModification" + index);
+				if(ccCommercial != null)
+				{
+					item.setAllowModifications(ccModification);
+				}
+				String ccRightsYear = params.getString("ccRightsYear" + index);
+				if(ccRightsYear != null)
+				{
+					item.setRightstyear(ccRightsYear);
+				}
+				String ccRightsOwner = params.getString("ccRightsOwner" + index);
+				if(ccRightsOwner != null)
+				{
+					item.setRightsowner(ccRightsOwner);
+				}
+
+				/*
+				ccValues.ccOwner = new Array();
+				ccValues.myRights = new Array();
+				ccValues.otherRights = new Array();
+				ccValues.ccCommercial = new Array();
+				ccValues.ccModifications = new Array();
+				ccValues.ccRightsYear = new Array();
+				ccValues.ccRightsOwner = new Array();
+				*/
+			}
+			else
+			{
+				// check for copyright status
+				// check for copyright info
+				// check for copyright alert
+	
+				String copyrightStatus = StringUtil.trimToNull(params.getString ("copyright" + index));
+				String copyrightInfo = StringUtil.trimToNull(params.getCleanString ("newcopyright" + index));
+				String copyrightAlert = StringUtil.trimToNull(params.getString("copyrightAlert" + index));
+	
+				if (copyrightStatus != null)
+				{
+					if (state.getAttribute(COPYRIGHT_NEW_COPYRIGHT) != null && copyrightStatus.equals(state.getAttribute(COPYRIGHT_NEW_COPYRIGHT)))
+					{
+						if (copyrightInfo != null)
+						{
+							item.setCopyrightInfo( copyrightInfo );
+						}
+						else
+						{
+							item_alerts.add(rb.getString("specifycp2"));
+							// addAlert(state, rb.getString("specifycp2"));
+						}
+					}
+					else if (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT) != null && copyrightStatus.equals (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT)))
+					{
+						item.setCopyrightInfo((String) state.getAttribute (STATE_MY_COPYRIGHT));
+					}
+	
+					item.setCopyrightStatus( copyrightStatus );
+				}
+				item.setCopyrightAlert(copyrightAlert != null);
+			}
+
+		}
+
+		if(!  RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+		{
+			String hidden = params.getString("hidden" + index);
+			String use_start_date = params.getString("use_start_date" + index);
+			String use_end_date = params.getString("use_end_date" + index);
+			String release_month = params.getString("release_month" + index);
+			String release_day = params.getString("release_day" + index);
+			String release_year = params.getString("release_year" + index);
+			String release_hour = params.getString("release" + index + "_hour");
+			String release_min = params.getString("release" + index + "_minute");
+			String release_ampm = params.getString("release" + index + "_ampm");
+			
+			String retract_month = params.getString("retract_month" + index);
+			String retract_day = params.getString("retract_day" + index);
+			String retract_year = params.getString("retract_year" + index);
+			String retract_hour = params.getString("retract" + index + "_hour");
+			String retract_min = params.getString("retract" + index + "_minute");
+			String retract_ampm = params.getString("retract" + index + "_ampm");
+			
+			try
+			{
+				int begin_year = Integer.parseInt(release_year);
+				int begin_month = Integer.parseInt(release_month);
+				int begin_day = Integer.parseInt(release_day);
+				int begin_hour = Integer.parseInt(release_hour);
+				int begin_min = Integer.parseInt(release_min);
+				if("pm".equals(release_ampm))
+				{
+					begin_hour += 12;
+				}
+				else if(begin_hour == 12)
+				{
+					begin_hour = 0;
+				}
+				Time releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
+				item.setReleaseDate(releaseDate);
+				
+				int end_year = Integer.parseInt(retract_year);
+				int end_month = Integer.parseInt(retract_month);
+				int end_day = Integer.parseInt(retract_day);
+				int end_hour = Integer.parseInt(retract_hour);
+				int end_min = Integer.parseInt(retract_min);
+				if("pm".equals(retract_ampm))
+				{
+					end_hour += 12;
+				}
+				else if(begin_hour == 12)
+				{
+					end_hour = 0;
+				}
+				Time retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
+				item.setRetractDate(retractDate);
+	
+				item.setHidden(Boolean.TRUE.toString().equalsIgnoreCase(hidden));
+				item.setUseReleaseDate(Boolean.TRUE.toString().equalsIgnoreCase(use_start_date));
+				item.setUseRetractDate(Boolean.TRUE.toString().equalsIgnoreCase(use_end_date));
+			}
+			catch(NumberFormatException e)
+			{
+				// no values retrieved from date widget, or values are not numbers
+			}
+			
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+			if(preventPublicDisplay == null)
+			{
+				preventPublicDisplay = Boolean.FALSE;
+				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+			}
+			
+			String access_mode = params.getString("access_mode" + index);
+			
+			if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
+			{
+				// we inherit more than one group and must check whether group access changes at this item
+				String[] access_groups = params.getStrings("access_groups" + index);
+				
+				SortedSet new_groups = new TreeSet();
+				if(access_groups != null)
+				{
+					new_groups.addAll(Arrays.asList(access_groups));
+				}
+				new_groups = item.convertToRefs(new_groups);
+				
+				Collection inh_grps = item.getInheritedGroupRefs();
+				boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
+				
+				if(groups_are_inherited)
+				{
+					new_groups.clear();
+					item.setEntityGroupRefs(new_groups);
+					item.setAccess(AccessMode.INHERITED.toString());
+				}
+				else
+				{
+					item.setEntityGroupRefs(new_groups);
+					item.setAccess(AccessMode.GROUPED.toString());
+				}
+				
+				item.setPubview(false);
+			}
+			else if(PUBLIC_ACCESS.equals(access_mode))
+			{
+				if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
+				{
+					item.setPubview(true);
+					item.setAccess(AccessMode.INHERITED.toString());
+				}
+			}
+			else if(AccessMode.INHERITED.toString().equals(access_mode) )
+			{
+				item.setAccess(AccessMode.INHERITED.toString());
+				item.clearGroups();
+				item.setPubview(false);
+			}
+		}
+
+		int noti = NotificationService.NOTI_NONE;
+		// %%STATE_MODE_RESOURCES%%
+		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+		{
+			// set noti to none if in dropbox mode
+			noti = NotificationService.NOTI_NONE;
+		}
+		else
+		{
+			// read the notification options
+			String notification = params.getString("notify" + index);
+			if ("r".equals(notification))
+			{
+				noti = NotificationService.NOTI_REQUIRED;
+			}
+			else if ("o".equals(notification))
+			{
+				noti = NotificationService.NOTI_OPTIONAL;
+			}
+		}
+		
+		item.setNotification(noti);
+
+		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
+		if(metadataGroups != null && ! metadataGroups.isEmpty())
+		{
+			Iterator groupIt = metadataGroups.iterator();
+			while(groupIt.hasNext())
+			{
+				MetadataGroup group = (MetadataGroup) groupIt.next();
+				if(item.isGroupShowing(group.getName()))
+				{
+					Iterator propIt = group.iterator();
+					while(propIt.hasNext())
+					{
+						ResourcesMetadata prop = (ResourcesMetadata) propIt.next();
+						String propname = prop.getFullname();
+						if(ResourcesMetadata.WIDGET_DATE.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_DATETIME.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_TIME.equals(prop.getWidget()))
+						{
+							int year = 0;
+							int month = 0;
+							int day = 0;
+							int hour = 0;
+							int minute = 0;
+							int second = 0;
+							int millisecond = 0;
+							String ampm = "";
+
+							if(prop.getWidget().equals(ResourcesMetadata.WIDGET_DATE) ||
+								prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
+							{
+								year = params.getInt(propname + "_" + index + "_year", year);
+								month = params.getInt(propname + "_" + index + "_month", month);
+								day = params.getInt(propname + "_" + index + "_day", day);
+							}
+							if(prop.getWidget().equals(ResourcesMetadata.WIDGET_TIME) ||
+								prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
+							{
+								hour = params.getInt(propname + "_" + index + "_hour", hour);
+								minute = params.getInt(propname + "_" + index + "_minute", minute);
+								second = params.getInt(propname + "_" + index + "_second", second);
+								millisecond = params.getInt(propname + "_" + index + "_millisecond", millisecond);
+								ampm = params.getString(propname + "_" + index + "_ampm").trim();
+
+								if("pm".equalsIgnoreCase(ampm))
+								{
+									if(hour < 12)
+									{
+										hour += 12;
+									}
+								}
+								else if(hour == 12)
+								{
+									hour = 0;
+								}
+							}
+							if(hour > 23)
+							{
+								hour = hour % 24;
+								day++;
+							}
+
+							Time value = TimeService.newTimeLocal(year, month, day, hour, minute, second, millisecond);
+							item.setMetadataItem(propname,value);
+
+						}
+						else
+						{
+							String value = params.getString(propname + "_" + index);
+							if(value != null)
+							{
+								item.setMetadataItem(propname, value);
+							}
+						}
+					}
+				}
+			}
+		}
+		item.markAsBlank(blank_entry);
+
+		return item_alerts;
+
+	}	// captureValues
+
+	/**
+	 * Retrieve values for an item from edit context.  Edit context contains just one item at a time of a known type
+	 * (folder, file, text document, structured-artifact, etc).  This method retrieves the data apppropriate to the
+	 * type and updates the values of the ChefEditItem stored as the STATE_STACK_EDIT_ITEM attribute in state.
+	 * @param state
+	 * @param params
+	 * @param item
+	 */
+	protected static void captureValues(SessionState state, ParameterParser params)
+	{
+		Map current_stack_frame = peekAtStack(state);
+
+		ChefEditItem item = (ChefEditItem) current_stack_frame.get(STATE_STACK_EDIT_ITEM);
+		Set alerts = (Set) state.getAttribute(STATE_EDIT_ALERTS);
+		if(alerts == null)
+		{
+			alerts = new HashSet();
+			state.setAttribute(STATE_EDIT_ALERTS, alerts);
+		}
+		String flow = params.getString("flow");
+		boolean intentChanged = "intentChanged".equals(flow);
+		String check_fileName = params.getString("check_fileName");
+		boolean expectFile = "true".equals(check_fileName);
+		String intent = params.getString("intent");
+		String oldintent = (String) current_stack_frame.get(STATE_STACK_EDIT_INTENT);
+		boolean upload_file = expectFile && item.isFileUpload() || ((item.isHtml() || item.isPlaintext()) && !intentChanged && INTENT_REPLACE_FILE.equals(intent) && INTENT_REPLACE_FILE.equals(oldintent));
+		boolean revise_file = (item.isHtml() || item.isPlaintext()) && !intentChanged && INTENT_REVISE_FILE.equals(intent) && INTENT_REVISE_FILE.equals(oldintent);
+
+		String name = params.getString("name");
+		if(name == null || "".equals(name.trim()))
+		{
+			alerts.add(rb.getString("titlenotnull"));
+			// addAlert(state, rb.getString("titlenotnull"));
+		}
+		else
+		{
+			item.setName(name.trim());
+		}
+
+		String description = params.getString("description");
+		if(description == null)
+		{
+			item.setDescription("");
+		}
+		else
+		{
+			item.setDescription(description);
+		}
+
+		item.setContentHasChanged(false);
+
+		if(upload_file)
+		{
+			String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
+			int max_bytes = 1096 * 1096;
+			try
+			{
+				max_bytes = Integer.parseInt(max_file_size_mb) * 1096 * 1096;
+			}
+			catch(Exception e)
+			{
+				// if unable to parse an integer from the value
+				// in the properties file, use 1 MB as a default
+				max_file_size_mb = "1";
+				max_bytes = 1096 * 1096;
+			}
+			/*
+			 // params.getContentLength() returns m_req.getContentLength()
+			if(params.getContentLength() >= max_bytes)
+			{
+				alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
+			}
+			else
+			*/
+			{
+				// check for file replacement
+				FileItem fileitem = params.getFileItem("fileName");
+				if(fileitem == null)
+				{
+					// "The user submitted a file to upload but it was too big!"
+					alerts.clear();
+					alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
+					//item.setMissing("fileName");
+				}
+				else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0)
+				{
+					if(item.getContent() == null || item.getContent().length <= 0)
+					{
+						// "The user submitted the form, but didn't select a file to upload!"
+						alerts.add(rb.getString("choosefile") + ". ");
+						//item.setMissing("fileName");
+					}
+				}
+				else if (fileitem.getFileName().length() > 0)
+				{
+					String filename = Validator.getFileName(fileitem.getFileName());
+					byte[] bytes = fileitem.get();
+					String contenttype = fileitem.getContentType();
+
+					if(bytes.length >= max_bytes)
+					{
+						alerts.clear();
+						alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
+						// item.setMissing("fileName");
+					}
+					else if(bytes.length > 0)
+					{
+						item.setContent(bytes);
+						item.setContentHasChanged(true);
+						item.setMimeType(contenttype);
+						item.setFilename(filename);
+					}
+				}
+			}
+		}
+		else if(revise_file)
+		{
+			// check for input from editor (textarea)
+			String content = params.getString("content");
+			if(content != null)
+			{
+				item.setContent(content);
+				item.setContentHasChanged(true);
+			}
+		}
+		else if(item.isUrl())
+		{
+			String url = params.getString("Url");
+			if(url == null || url.trim().equals(""))
+			{
+				item.setFilename("");
+				alerts.add(rb.getString("validurl"));
+			}
+			else
+			{
+				// valid protocol?
+				item.setFilename(url);
+				try
+				{
+					// test format of input
+					URL u = new URL(url);
+				}
+				catch (MalformedURLException e1)
+				{
+					try
+					{
+						// if URL did not validate, check whether the problem was an
+						// unrecognized protocol, and accept input if that's the case.
+						Pattern pattern = Pattern.compile("\\s*([a-zA-Z0-9]+)://([^\\n]+)");
+						Matcher matcher = pattern.matcher(url);
+						if(matcher.matches())
+						{
+							URL test = new URL("http://" + matcher.group(2));
+						}
+						else
+						{
+							url = "http://" + url;
+							URL test = new URL(url);
+							item.setFilename(url);
+						}
+					}
+					catch (MalformedURLException e2)
+					{
+						// invalid url
+						alerts.add(rb.getString("validurl"));
+					}
+				}
+			}
+		}
+		else if(item.isFolder())
+		{
+			if(item.canSetQuota())
+			{
+				// read the quota fields
+				String setQuota = params.getString("setQuota");
+				boolean hasQuota = params.getBoolean("hasQuota");
+				item.setHasQuota(hasQuota);
+				if(hasQuota)
+				{
+					int q = params.getInt("quota");
+					item.setQuota(Integer.toString(q));
+				}
+			}
+		}
+		else if(item.isStructuredArtifact())
+		{
+			String formtype = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE);
+			if(formtype == null)
+			{
+				formtype = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE);
+				if(formtype == null)
+				{
+					formtype = "";
+				}
+				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
+			}
+			String formtype_check = params.getString("formtype");
+
+			if(formtype_check == null || formtype_check.equals(""))
+			{
+				alerts.add(rb.getString("type"));
+				item.setMissing("formtype");
+			}
+			else if(formtype_check.equals(formtype))
+			{
+				item.setFormtype(formtype);
+				capturePropertyValues(params, item, item.getProperties());
+			}
+		}
+
+		if(! item.isFolder() && ! item.isStructuredArtifact() && ! item.isUrl())
+		{
+			String mime_category = params.getString("mime_category");
+			String mime_subtype = params.getString("mime_subtype");
+
+			if(mime_category != null && mime_subtype != null)
+			{
+				String mimetype = mime_category + "/" + mime_subtype;
+				if(! mimetype.equals(item.getMimeType()))
+				{
+					item.setMimeType(mimetype);
+					item.setContentTypeHasChanged(true);
+				}
+			}
+		}
+
+		if(item.isFileUpload() || item.isHtml() || item.isPlaintext())
+		{
+			BasicRightsAssignment rightsObj = item.getRights();
+			rightsObj.captureValues(params);
+
+			boolean usingCreativeCommons = state.getAttribute(STATE_USING_CREATIVE_COMMONS) != null && state.getAttribute(STATE_USING_CREATIVE_COMMONS).equals(Boolean.TRUE.toString());		
+			
+			if(usingCreativeCommons)
+			{
+				String ccOwnership = params.getString("ccOwnership");
+				if(ccOwnership != null)
+				{
+					item.setRightsownership(ccOwnership);
+				}
+				String ccTerms = params.getString("ccTerms");
+				if(ccTerms != null)
+				{
+					item.setLicense(ccTerms);
+				}
+				String ccCommercial = params.getString("ccCommercial");
+				if(ccCommercial != null)
+				{
+					item.setAllowCommercial(ccCommercial);
+				}
+				String ccModification = params.getString("ccModification");
+				if(ccCommercial != null)
+				{
+					item.setAllowModifications(ccModification);
+				}
+				String ccRightsYear = params.getString("ccRightsYear");
+				if(ccRightsYear != null)
+				{
+					item.setRightstyear(ccRightsYear);
+				}
+				String ccRightsOwner = params.getString("ccRightsOwner");
+				if(ccRightsOwner != null)
+				{
+					item.setRightsowner(ccRightsOwner);
+				}
+
+				/*
+				ccValues.ccOwner = new Array();
+				ccValues.myRights = new Array();
+				ccValues.otherRights = new Array();
+				ccValues.ccCommercial = new Array();
+				ccValues.ccModifications = new Array();
+				ccValues.ccRightsYear = new Array();
+				ccValues.ccRightsOwner = new Array();
+				*/
+			}
+			else
+			{
+				// check for copyright status
+				// check for copyright info
+				// check for copyright alert
+	
+				String copyrightStatus = StringUtil.trimToNull(params.getString ("copyrightStatus"));
+				String copyrightInfo = StringUtil.trimToNull(params.getCleanString ("copyrightInfo"));
+				String copyrightAlert = StringUtil.trimToNull(params.getString("copyrightAlert"));
+	
+				if (copyrightStatus != null)
+				{
+					if (state.getAttribute(COPYRIGHT_NEW_COPYRIGHT) != null && copyrightStatus.equals(state.getAttribute(COPYRIGHT_NEW_COPYRIGHT)))
+					{
+						if (copyrightInfo != null)
+						{
+							item.setCopyrightInfo( copyrightInfo );
+						}
+						else
+						{
+							alerts.add(rb.getString("specifycp2"));
+							// addAlert(state, rb.getString("specifycp2"));
+						}
+					}
+					else if (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT) != null && copyrightStatus.equals (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT)))
+					{
+						item.setCopyrightInfo((String) state.getAttribute (STATE_MY_COPYRIGHT));
+					}
+	
+					item.setCopyrightStatus( copyrightStatus );
+				}
+				item.setCopyrightAlert(copyrightAlert != null);
+			}
+		}
+		if(!  RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+		{
+			String hidden = params.getString("hidden");
+			String use_start_date = params.getString("use_start_date");
+			String use_end_date = params.getString("use_end_date");
+			String release_month = params.getString("release_month");
+			String release_day = params.getString("release_day");
+			String release_year = params.getString("release_year");
+			String release_hour = params.getString("release_hour");
+			String release_min = params.getString("release_minute");
+			String release_ampm = params.getString("release_ampm");
+			
+			try
+			{
+				String release_time = params.getString("release_time");
+				String retract_month = params.getString("retract_month");
+				String retract_day = params.getString("retract_day");
+				String retract_year = params.getString("retract_year");
+				String retract_time = params.getString("retract_time");
+				String retract_hour = params.getString("retract_hour");
+				String retract_min = params.getString("retract_minute");
+				String retract_ampm = params.getString("retract_ampm");
+				
+				int begin_year = Integer.parseInt(release_year);
+				int begin_month = Integer.parseInt(release_month);
+				int begin_day = Integer.parseInt(release_day);
+				int begin_hour = Integer.parseInt(release_hour);
+				int begin_min = Integer.parseInt(release_min);
+				if("pm".equals(release_ampm))
+				{
+					begin_hour += 12;
+				}
+				else if(begin_hour == 12)
+				{
+					begin_hour = 0;
+				}
+				Time releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
+				item.setReleaseDate(releaseDate);
+				
+				int end_year = Integer.parseInt(retract_year);
+				int end_month = Integer.parseInt(retract_month);
+				int end_day = Integer.parseInt(retract_day);
+				int end_hour = Integer.parseInt(retract_hour);
+				int end_min = Integer.parseInt(retract_min);
+				if("pm".equals(retract_ampm))
+				{
+					end_hour += 12;
+				}
+				else if(begin_hour == 12)
+				{
+					end_hour = 0;
+				}
+				Time retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
+				item.setRetractDate(retractDate);
+				
+				item.setHidden(Boolean.TRUE.toString().equalsIgnoreCase(hidden));
+				item.setUseReleaseDate(Boolean.TRUE.toString().equalsIgnoreCase(use_start_date));
+				item.setUseRetractDate(Boolean.TRUE.toString().equalsIgnoreCase(use_end_date));
+			}
+			catch(NumberFormatException e)
+			{
+				// no values retrieved from date widget, or values are not numbers 
+			}
+			
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+			if(preventPublicDisplay == null)
+			{
+				preventPublicDisplay = Boolean.FALSE;
+				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+			}
+			
+			String access_mode = params.getString("access_mode");
+			
+			if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
+			{
+				// we inherit more than one group and must check whether group access changes at this item
+				String[] access_groups = params.getStrings("access_groups");
+				
+				SortedSet new_groups = new TreeSet();
+				if(access_groups != null)
+				{
+					new_groups.addAll(Arrays.asList(access_groups));
+				}
+				new_groups = item.convertToRefs(new_groups);
+				
+				Collection inh_grps = item.getInheritedGroupRefs();
+				boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
+				
+				if(groups_are_inherited)
+				{
+					new_groups.clear();
+					item.setEntityGroupRefs(new_groups);
+					item.setAccess(AccessMode.INHERITED.toString());
+				}
+				else
+				{
+					item.setEntityGroupRefs(new_groups);
+					item.setAccess(AccessMode.GROUPED.toString());
+				}
+				
+				item.setPubview(false);
+			}
+			else if(PUBLIC_ACCESS.equals(access_mode))
+			{
+				if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
+				{
+					item.setPubview(true);
+					item.setAccess(AccessMode.INHERITED.toString());
+				}
+			}
+			else if(AccessMode.INHERITED.toString().equals(access_mode))
+			{
+				item.setAccess(AccessMode.INHERITED.toString());
+				item.clearGroups();
+				item.setPubview(false);
+			}
+		}
+
+		int noti = NotificationService.NOTI_NONE;
+		// %%STATE_MODE_RESOURCES%%
+		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+		{
+			// set noti to none if in dropbox mode
+			noti = NotificationService.NOTI_NONE;
+		}
+		else
+		{
+			// read the notification options
+			String notification = params.getString("notify");
+			if ("r".equals(notification))
+			{
+				noti = NotificationService.NOTI_REQUIRED;
+			}
+			else if ("o".equals(notification))
+			{
+				noti = NotificationService.NOTI_OPTIONAL;
+			}
+		}
+		item.setNotification(noti);
+
+		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
+		if(metadataGroups != null && ! metadataGroups.isEmpty())
+		{
+			Iterator groupIt = metadataGroups.iterator();
+			while(groupIt.hasNext())
+			{
+				MetadataGroup group = (MetadataGroup) groupIt.next();
+				if(group.isShowing())
+				{
+					Iterator propIt = group.iterator();
+					while(propIt.hasNext())
+					{
+						ResourcesMetadata prop = (ResourcesMetadata) propIt.next();
+						String propname = prop.getFullname();
+						if(ResourcesMetadata.WIDGET_DATE.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_DATETIME.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_TIME.equals(prop.getWidget()))
+						{
+							int year = 0;
+							int month = 0;
+							int day = 0;
+							int hour = 0;
+							int minute = 0;
+							int second = 0;
+							int millisecond = 0;
+							String ampm = "";
+
+							if(prop.getWidget().equals(ResourcesMetadata.WIDGET_DATE) ||
+								prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
+							{
+								year = params.getInt(propname + "_year", year);
+								month = params.getInt(propname + "_month", month);
+								day = params.getInt(propname + "_day", day);
+
+
+							}
+							if(prop.getWidget().equals(ResourcesMetadata.WIDGET_TIME) ||
+								prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
+							{
+								hour = params.getInt(propname + "_hour", hour);
+								minute = params.getInt(propname + "_minute", minute);
+								second = params.getInt(propname + "_second", second);
+								millisecond = params.getInt(propname + "_millisecond", millisecond);
+								ampm = params.getString(propname + "_ampm").trim();
+
+								if("pm".equalsIgnoreCase("ampm"))
+								{
+									if(hour < 12)
+									{
+										hour += 12;
+									}
+								}
+								else if(hour == 12)
+								{
+									hour = 0;
+								}
+							}
+							if(hour > 23)
+							{
+								hour = hour % 24;
+								day++;
+							}
+
+							Time value = TimeService.newTimeLocal(year, month, day, hour, minute, second, millisecond);
+							item.setMetadataItem(propname,value);
+
+						}
+						else
+						{
+
+							String value = params.getString(propname);
+							if(value != null)
+							{
+								item.setMetadataItem(propname, value);
+							}
+						}
+					}
+				}
+			}
+		}
+		current_stack_frame.put(STATE_STACK_EDIT_ITEM, item);
+		state.setAttribute(STATE_EDIT_ALERTS, alerts);
+
+	}	// captureValues
 
 }	// ResourcesAction
