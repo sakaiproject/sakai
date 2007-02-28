@@ -1475,6 +1475,42 @@ public class DiscussionForumTool
 	  return ALL_MESSAGES;
   }
   
+  public String processActionGetDisplayThread()
+  {
+	  	selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
+	  
+	    setTopicBeanAssign();
+	    getSelectedTopic();
+	    
+	    List msgsList = selectedTopic.getMessages();
+	    List orderedList = new ArrayList();
+	    selectedThread = new ArrayList();
+	    
+	    Boolean foundHead = false;
+	    Boolean foundAfterHead = false;
+	    
+	    for(int i=0; i<msgsList.size(); i++){
+	    	if(((DiscussionMessageBean)msgsList.get(i)).getMessage().getId().equals(selectedThreadHead.getMessage().getId())){
+	    		((DiscussionMessageBean) msgsList.get(i)).setDepth(0);
+	    		selectedThread.add((DiscussionMessageBean)msgsList.get(i));
+	    		foundHead = true;
+	    	}
+	    	else if(((DiscussionMessageBean)msgsList.get(i)).getMessage().getInReplyTo() == null && foundHead && !foundAfterHead) {
+	    		selectedThreadHead.setHasNextThread(true);
+	    		selectedThreadHead.setNextThreadId(((DiscussionMessageBean)msgsList.get(i)).getMessage().getId());
+	    		foundAfterHead = true;
+	    	} 
+	    	else if (((DiscussionMessageBean)msgsList.get(i)).getMessage().getInReplyTo() == null && !foundHead) {
+	    		selectedThreadHead.setHasPreThread(true);
+	    		selectedThreadHead.setPreThreadId(((DiscussionMessageBean)msgsList.get(i)).getMessage().getId());
+	    	}
+	    }
+
+	    recursiveGetThreadedMsgs(msgsList, orderedList, selectedThreadHead);
+	    selectedThread.addAll(orderedList);
+	    
+	    return THREAD_VIEW;
+  }
   /**
    * @return
    */
@@ -1529,36 +1565,8 @@ public class DiscussionForumTool
 	    }
 	    selectedTopic = getDecoratedTopic(forumManager.getTopicById(new Long(
 	        getExternalParameterByKey(TOPIC_ID))));
-	    setTopicBeanAssign();
-	    getSelectedTopic();
-	    List msgsList = selectedTopic.getMessages();
-	    List orderedList = new ArrayList();
-	    selectedThread = new ArrayList();
 	    
-	    Boolean foundHead = false;
-	    Boolean foundAfterHead = false;
-	    
-	    for(int i=0; i<msgsList.size(); i++){
-	    	if(((DiscussionMessageBean)msgsList.get(i)).getMessage().getId().equals(selectedThreadHead.getMessage().getId())){
-	    		((DiscussionMessageBean) msgsList.get(i)).setDepth(0);
-	    		selectedThread.add((DiscussionMessageBean)msgsList.get(i));
-	    		foundHead = true;
-	    	}
-	    	else if(((DiscussionMessageBean)msgsList.get(i)).getMessage().getInReplyTo() == null && foundHead && !foundAfterHead) {
-	    		selectedThreadHead.setHasNextThread(true);
-	    		selectedThreadHead.setNextThreadId(((DiscussionMessageBean)msgsList.get(i)).getMessage().getId());
-	    		foundAfterHead = true;
-	    	} 
-	    	else if (((DiscussionMessageBean)msgsList.get(i)).getMessage().getInReplyTo() == null && !foundHead) {
-	    		selectedThreadHead.setHasPreThread(true);
-	    		selectedThreadHead.setPreThreadId(((DiscussionMessageBean)msgsList.get(i)).getMessage().getId());
-	    	}
-	    }
-
-	    recursiveGetThreadedMsgs(msgsList, orderedList, selectedThreadHead);
-	    selectedThread.addAll(orderedList);
-	    
-	    return THREAD_VIEW;	  
+	    return processActionGetDisplayThread();	  
   }
 
   /**
@@ -2755,7 +2763,8 @@ public class DiscussionForumTool
 
     this.attachments.clear();
 
-    return THREAD_VIEW; //ALL_MESSAGES;
+    //return ALL_MESSAGES;
+    return processActionGetDisplayThread();
   }
 
   public String processDfReplyMsgSaveDraft()
@@ -4238,6 +4247,14 @@ public class DiscussionForumTool
   /**
    * @return
    */
+  public String processActionMarkAllThreadAsRead()
+  {
+	  return markAllThreadAsRead(true);
+  }
+  
+  /**
+   * @return
+   */
   public String processActionMarkCheckedAsRead()
   {
     return markCheckedMessages(true);
@@ -4296,8 +4313,25 @@ public class DiscussionForumTool
 	      forumManager.markMessageAs(decoMessage.getMessage(), readStatus);
 
 	    }
-	    //return displayTopicById(TOPIC_ID); // reconstruct topic again;
-	    return processActionDisplayThread();
+	    return displayTopicById(TOPIC_ID); // reconstruct topic again;
+  }
+  
+  private String markAllThreadAsRead(boolean readStatus)
+  {
+	  if(selectedThreadHead == null){
+		  setErrorMessage(getResourceBundleString(LOST_ASSOCIATE));
+	      return ALL_MESSAGES;
+	  }
+	  if(selectedThread == null || selectedThread.size() < 1){
+		  setErrorMessage(getResourceBundleString(NO_MARKED_READ_MESSAGE));
+	      return ALL_MESSAGES;
+	  }
+	  Iterator iter = selectedThread.iterator();
+	  while (iter.hasNext()){
+		  DiscussionMessageBean decoMessage = (DiscussionMessageBean) iter.next();
+		  forumManager.markMessageAs(decoMessage.getMessage(), readStatus);
+	  }
+	  return processActionGetDisplayThread();
   }
   
   /**

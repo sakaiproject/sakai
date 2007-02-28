@@ -124,3 +124,10 @@ function toggleDisplay(obj) {
     }
     
 }
+function toggleHide(obj){
+	if(obj.innerHTML.match(/hide/i)){
+		obj.innerHTML = obj.innerHTML.replace('Hide ', '');
+	} else {
+		obj.innerHTML = obj.innerHTML.replace(/(<.+>)([^<>]+)/i, "$1 Hide $2");
+	}
+}

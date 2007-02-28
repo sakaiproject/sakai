@@ -39,7 +39,7 @@
 			<h:column id="_msg_subject">
 					<f:verbatim><div class="hierItemBlock"></f:verbatim>
 
-					<f:verbatim><h4 class="textPanelHeader specialLink"></f:verbatim>
+					<f:verbatim><h4 class="textPanelHeader specialLink" style="width:100%"></f:verbatim>
                                                   
                         <h:outputText value="#{message.message.title}" />		          	
 			          	<h:outputText value=" - #{message.message.author}"/>

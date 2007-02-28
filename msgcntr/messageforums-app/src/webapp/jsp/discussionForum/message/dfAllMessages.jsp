@@ -178,7 +178,7 @@
 	   	        	<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" />
                	</h:commandLink>
                	
-               	<h:outputText escape="false" value="<br />&nbsp;" />
+               	<h:outputText escape="false" value="<br />&nbsp;" rendered="#{message.depth == 0 }" />
                	<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount > 0}"
                		value="#{msgs.cdfm_openb} #{message.childCount} #{msgs.cdfm_lowercase_msg} - #{message.childUnread} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
 
