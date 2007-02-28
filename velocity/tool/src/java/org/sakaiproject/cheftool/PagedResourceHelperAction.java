@@ -43,7 +43,6 @@ import org.sakaiproject.util.StringUtil;
  */
 public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAction
 {
-
 	protected static ResourceBundle rb = ResourceBundle.getBundle("velocity-tool");
 
 	/** The default number of messages per page. */
@@ -91,7 +90,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * Override this to return a list of all the resources that there are to page. Sort them as appropriate, and apply search criteria.
 	 */
-	protected static List readAllResources(SessionState state)
+	protected List readAllResources(SessionState state)
 	{
 		List allResources = new Vector();
 
@@ -134,7 +133,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * Add the menus for a view mode for paging.
 	 */
-	protected static void addViewPagingMenus(Menu bar, SessionState state)
+	protected void addViewPagingMenus(Menu bar, SessionState state)
 	{
 		bar.add(new MenuEntry(rb.getString("viepag.prev"), (state.getAttribute(STATE_PREV_EXISTS) != null), "doView_prev"));
 		bar.add(new MenuEntry(rb.getString("viepag.next"), (state.getAttribute(STATE_NEXT_EXISTS) != null), "doView_next"));
@@ -144,7 +143,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * Add the menus for a list mode for paging.
 	 */
-	protected static void addListPagingMenus(Menu bar, SessionState state)
+	protected void addListPagingMenus(Menu bar, SessionState state)
 	{
 		bar.add(new MenuEntry("First Page", (state.getAttribute(STATE_PREV_PAGE_EXISTS) != null), "doList_first"));
 		bar.add(new MenuEntry("Previous Page", (state.getAttribute(STATE_PREV_PAGE_EXISTS) != null), "doList_prev"));
@@ -156,7 +155,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * Add the menus for search.
 	 */
-	protected static void addSearchMenus(Menu bar, SessionState state)
+	protected void addSearchMenus(Menu bar, SessionState state)
 	{
 		bar.add(new MenuDivider());
 		bar.add(new MenuField(FORM_SEARCH, "toolbar", "doSearch", (String) state.getAttribute(STATE_SEARCH)));
@@ -171,7 +170,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * Add the menus for manual / auto - refresh.
 	 */
-	protected static void addRefreshMenus(Menu bar, SessionState state)
+	protected void addRefreshMenus(Menu bar, SessionState state)
 	{
 		// only offer if there's an observer
 		ObservingCourier observer = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
@@ -191,7 +190,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	 * 
 	 * @return List of MailArchiveMessage to display on this page.
 	 */
-	protected static List prepPage(SessionState state)
+	protected List prepPage(SessionState state)
 	{
 		List rv = new Vector();
 
@@ -402,7 +401,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * Handle a next-message (view) request.
 	 */
-	public static void doView_next(RunData runData)
+	public void doView_next(RunData runData)
 	{
 		// access the portlet element id to find our state
 		String peid = ((JetspeedRunData) runData).getJs_peid();
@@ -416,7 +415,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * Handle a first-message page (list) request.
 	 */
-	public static void doList_first(RunData runData)
+	public void doList_first(RunData runData)
 	{
 		// access the portlet element id to find our state
 		String peid = ((JetspeedRunData) runData).getJs_peid();
@@ -430,7 +429,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * Handle a last-message page (list) request.
 	 */
-	public static void doList_last(RunData runData)
+	public void doList_last(RunData runData)
 	{
 		// access the portlet element id to find our state
 		String peid = ((JetspeedRunData) runData).getJs_peid();
@@ -444,7 +443,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * Handle a next-page (list) request.
 	 */
-	public static void doList_next(RunData runData)
+	public void doList_next(RunData runData)
 	{
 		// access the portlet element id to find our state
 		String peid = ((JetspeedRunData) runData).getJs_peid();
@@ -460,7 +459,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * Handle a request to change the page-size.
 	 */
-	public static void doChange_pagesize(RunData runData)
+	public void doChange_pagesize(RunData runData)
 	{
 		// access the portlet element id to find our state
 		String peid = ((JetspeedRunData) runData).getJs_peid();
@@ -477,7 +476,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * Handle a prev-message (view) request.
 	 */
-	public static void doView_prev(RunData runData)
+	public void doView_prev(RunData runData)
 	{
 		// access the portlet element id to find our state
 		String peid = ((JetspeedRunData) runData).getJs_peid();
@@ -491,7 +490,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * Handle a prev-page (list) request.
 	 */
-	public static void doList_prev(RunData runData)
+	public void doList_prev(RunData runData)
 	{
 		// access the portlet element id to find our state
 		String peid = ((JetspeedRunData) runData).getJs_peid();
@@ -505,7 +504,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * Handle a Search request.
 	 */
-	public static void doSearch(RunData runData)
+	public void doSearch(RunData runData)
 	{
 		// access the portlet element id to find our state
 		String peid = ((JetspeedRunData) runData).getJs_peid();
@@ -548,7 +547,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * Handle a Search Clear request.
 	 */
-	public static void doSearch_clear(RunData runData)
+	public void doSearch_clear(RunData runData)
 	{
 		// access the portlet element id to find our state
 		String peid = ((JetspeedRunData) runData).getJs_peid();
@@ -568,7 +567,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * Reset to the first page
 	 */
-	protected static void resetPaging(SessionState state)
+	protected void resetPaging(SessionState state)
 	{
 		// we are changing the sort, so start from the first page again
 		state.removeAttribute(STATE_TOP_PAGE_MESSAGE_ID);
@@ -584,7 +583,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	 *        The message id.
 	 * @return The index position in the list of the message with this id, or -1 if not found.
 	 */
-	protected static int findResourceInList(List resources, String id)
+	protected int findResourceInList(List resources, String id)
 	{
 		for (int i = 0; i < resources.size(); i++)
 		{
@@ -600,7 +599,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * Toggle auto-update
 	 */
-	public static void doAuto(RunData data, Context context)
+	public void doAuto(RunData data, Context context)
 	{
 		// access the portlet element id to find our state
 		String peid = ((JetspeedRunData) data).getJs_peid();
@@ -628,7 +627,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * The action for when the user want's an update
 	 */
-	public static void doRefresh(RunData data, Context context)
+	public void doRefresh(RunData data, Context context)
 	{
 		// access the portlet element id to find our state
 		String peid = ((JetspeedRunData) data).getJs_peid();
@@ -639,7 +638,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/**
 	 * Enable the observer, unless we are in search mode, where we want it disabled.
 	 */
-	public static void enableObserver(SessionState state)
+	public void enableObserver(SessionState state)
 	{
 		// get the observer
 		ObservingCourier observer = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
