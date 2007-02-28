@@ -118,7 +118,7 @@
       <dependency>
           <groupId>castor</groupId>
           <artifactId>castor</artifactId>
-          <version>1.1</version>
+          <version>1.0</version>
           <properties>
               <deploy.target>shared</deploy.target>
           </properties>
