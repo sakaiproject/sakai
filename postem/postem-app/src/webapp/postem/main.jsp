@@ -7,7 +7,7 @@
 <f:view>
 	<sakai:view title="#{msgs.title_list}">
 		<h:form>
-            <sakai:tool_bar>
+            <sakai:tool_bar rendered="#{PostemTool.editable}">
 			  	<sakai:tool_bar_item
 			    	action="#{PostemTool.processCreateNew}"
 					value="#{msgs.bar_new}" 
