@@ -156,6 +156,13 @@ import org.w3c.dom.Text;
 public class ResourcesAction 
 	extends PagedResourceHelperAction // VelocityPortletPaneledAction
 {
+	/////////////////////////////////////////////////////////////////////////// Methods, Classes, Statics in ResourceType version of Resources
+	
+	public enum ContentPermissions
+	{
+		READ, CREATE, REVISE, DELETE
+	}
+	
 	public static final List<ActionType> CONTENT_NEW_ACTIONS = new Vector<ActionType>();
 	public static final List<ActionType> PASTE_COPIED_ACTIONS = new Vector<ActionType>();
 	public static final List<ActionType> PASTE_MOVED_ACTIONS = new Vector<ActionType>();
@@ -163,6 +170,12 @@ public class ResourcesAction
 	public static final List<ActionType> CONTENT_READ_ACTIONS = new Vector<ActionType>();
 	public static final List<ActionType> CONTENT_MODIFY_ACTIONS = new Vector<ActionType>();
 	public static final List<ActionType> CONTENT_DELETE_ACTIONS = new Vector<ActionType>();
+	
+	public static final List<ActionType> CREATION_ACTIONS = new Vector<ActionType>();
+	public static final List<ActionType> ACTIONS_ON_FOLDERS = new Vector<ActionType>();
+	public static final List<ActionType> ACTIONS_ON_RESOURCES = new Vector<ActionType>();
+	public static final List<ActionType> ACTIONS_ON_MULTIPLE_ITEMS = new Vector<ActionType>();
+
 	
 	// may need to distinguish permission on entity vs permission on its containing collection
 	static
@@ -186,12 +199,7 @@ public class ResourcesAction
 		
 		CONTENT_DELETE_ACTIONS.add(ActionType.MOVE);
 		CONTENT_DELETE_ACTIONS.add(ActionType.DELETE);
-	}
-	
-	public static final List<ActionType> ACTIONS_ON_FOLDERS = new Vector<ActionType>();
-	
-	static
-	{
+
 		ACTIONS_ON_FOLDERS.add(ActionType.VIEW_METADATA);
 		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_METADATA);
 		ACTIONS_ON_FOLDERS.add(ActionType.DUPLICATE);
@@ -199,12 +207,7 @@ public class ResourcesAction
 		ACTIONS_ON_FOLDERS.add(ActionType.MOVE);
 		ACTIONS_ON_FOLDERS.add(ActionType.DELETE);
 		// ACTIONS_ON_FOLDERS.add(ActionType.PASTE_MOVED);
-	}
-	
-	public static final List<ActionType> ACTIONS_ON_RESOURCES = new Vector<ActionType>();
-	
-	static
-	{
+
 		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_CONTENT);
 		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_METADATA);
 		ACTIONS_ON_RESOURCES.add(ActionType.REVISE_METADATA);
@@ -214,16 +217,16 @@ public class ResourcesAction
 		ACTIONS_ON_RESOURCES.add(ActionType.COPY);
 		ACTIONS_ON_RESOURCES.add(ActionType.MOVE);
 		ACTIONS_ON_RESOURCES.add(ActionType.DELETE);
-	}
-	
-	public static final List<ActionType> CREATION_ACTIONS = new Vector<ActionType>();
-	
-	static 
-	{
+
+		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.COPY);
+		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.MOVE);
+		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.DELETE);
+		
 		CREATION_ACTIONS.add(ActionType.NEW_UPLOAD);
 		CREATION_ACTIONS.add(ActionType.NEW_FOLDER);
 		CREATION_ACTIONS.add(ActionType.CREATE);
 		CREATION_ACTIONS.add(ActionType.PASTE_MOVED);
+		CREATION_ACTIONS.add(ActionType.PASTE_COPIED);
 	}
 	
 	public class Labeler
@@ -235,49 +238,49 @@ public class ResourcesAction
 			{
 				switch(action.getActionType())
 				{
-				case NEW_UPLOAD:
-					label = trb.getString("create.uploads");
-					break;
-				case NEW_FOLDER:
-					label = trb.getString("create.folder");
-					break;
-				case CREATE:
-					ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
-					ResourceType typedef = registry.getType(action.getTypeId());
-					String[] args = { typedef.getLabel() };
-					label = trb.getFormattedMessage("create.unknown", args);
-					break;
-				case COPY:
-					label = trb.getString("action.copy");
-					break;
-				case DUPLICATE:
-					label = trb.getString("action.duplicate");
-					break;
-				case DELETE:
-					label = trb.getString("action.delete");
-					break;
-				case MOVE:
-					label = trb.getString("action.move");
-					break;
-				case VIEW_METADATA:
-					label = trb.getString("action.info");
-					break;
-				case REVISE_METADATA:
-					label = trb.getString("action.props");
-					break;
-				case VIEW_CONTENT:
-					label = trb.getString("action.access");
-					break;
-				case REVISE_CONTENT:
-					label = trb.getString("action.revise");
-					break;
-				case REPLACE_CONTENT:
-					label = trb.getString("action.replace");
-					break;
-				default:
-					logger.info("No label provided for ResourceToolAction: " + action.getTypeId() + ResourceToolAction.ACTION_DELIMITER + action.getId());
-					label = action.getId();
-					break;
+					case NEW_UPLOAD:
+						label = trb.getString("create.uploads");
+						break;
+					case NEW_FOLDER:
+						label = trb.getString("create.folder");
+						break;
+					case CREATE:
+						ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+						ResourceType typedef = registry.getType(action.getTypeId());
+						String[] args = { typedef.getLabel() };
+						label = trb.getFormattedMessage("create.unknown", args);
+						break;
+					case COPY:
+						label = trb.getString("action.copy");
+						break;
+					case DUPLICATE:
+						label = trb.getString("action.duplicate");
+						break;
+					case DELETE:
+						label = trb.getString("action.delete");
+						break;
+					case MOVE:
+						label = trb.getString("action.move");
+						break;
+					case VIEW_METADATA:
+						label = trb.getString("action.info");
+						break;
+					case REVISE_METADATA:
+						label = trb.getString("action.props");
+						break;
+					case VIEW_CONTENT:
+						label = trb.getString("action.access");
+						break;
+					case REVISE_CONTENT:
+						label = trb.getString("action.revise");
+						break;
+					case REPLACE_CONTENT:
+						label = trb.getString("action.replace");
+						break;
+					default:
+						logger.info("No label provided for ResourceToolAction: " + action.getTypeId() + ResourceToolAction.ACTION_DELIMITER + action.getId());
+						label = action.getId();
+						break;
 				}
 			}
 			return label;
@@ -289,8 +292,8 @@ public class ResourcesAction
 		protected String name;
 		protected String id;
 		protected List actions;
-		protected List members;
-		protected Set permissions;
+		protected List<ListItem> members;
+		protected Set<ContentPermissions> permissions;
 		protected boolean selected;
 		protected boolean collection;
 		protected String hoverText;
@@ -309,7 +312,7 @@ public class ResourcesAction
 			this.collection = entity.isCollection();
 			this.id = entity.getId();
 			this.name = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-			// this.permissions
+			this.permissions = new TreeSet<ContentPermissions>();
 			this.selected = false;
 			
 			ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
@@ -411,7 +414,7 @@ public class ResourcesAction
 		/**
 		 * @return the permissions
 		 */
-		public Set getPermissions()
+		public Set<ContentPermissions> getPermissions()
 		{
 			return this.permissions;
 		}
@@ -419,19 +422,25 @@ public class ResourcesAction
 		/**
 		 * @param permissions the permissions to set
 		 */
-		public void setPermissions(Set permissions)
+		public void setPermissions(Collection<ContentPermissions> permissions)
 		{
-			this.permissions = permissions;
+			if(this.permissions == null)
+			{
+				this.permissions = new TreeSet<ContentPermissions>();
+			}
+			
+			this.permissions.clear();
+			this.permissions.addAll(permissions);
 		}
 		
 		/**
 		 * @param permission
 		 */
-		public void addPermission(String permission)
+		public void addPermission(ContentPermissions permission)
 		{
 			if(this.permissions == null)
 			{
-				this.permissions = new TreeSet();
+				this.permissions = new TreeSet<ContentPermissions>();
 			}
 			this.permissions.add(permission);
 		}
@@ -440,11 +449,11 @@ public class ResourcesAction
 		 * @param permission
 		 * @return
 		 */
-		public boolean isPermitted(String permission)
+		public boolean isPermitted(ContentPermissions permission)
 		{
 			if(this.permissions == null)
 			{
-				this.permissions = new TreeSet();
+				this.permissions = new TreeSet<ContentPermissions>();
 			}
 			return this.permissions.contains(permission);
 		}
@@ -528,6 +537,17 @@ public class ResourcesAction
 		{
 			this.accessUrl = accessUrl;
 		}
+
+		/**
+         * @param child
+         */
+        public void addChild(ListItem child)
+        {
+	        if(this.members == null)
+	        {
+	        	this.members = new Vector<ListItem>();
+	        }
+        }
 	}
 	
 	/**
@@ -607,6 +627,7 @@ public class ResourcesAction
 		protected String copyrightStatus;
 		protected String copyrightInfo;
 		protected boolean copyrightAlert = false;
+		private List<ResourceToolAction> actions = null;
 		
 		/**
 		 * @param entityId
@@ -700,7 +721,7 @@ public class ResourcesAction
 				}
 				
  				// this.uuid = resource.
-			}
+			}			
 		}
 		
 		public EditItem(String entityId, String collectionId, String resourceType, ResourceToolActionPipe pipe)
@@ -2621,115 +2642,141 @@ public class ResourcesAction
 		
 		if(selectedItem != null)
 		{
-			String resourceType = ResourceType.TYPE_UPLOAD;
-			Reference ref = EntityManager.newReference(selectedItem.getReference());
-			List actions = new Vector();
-			if(selectedItem.isCollection())
-			{
-				resourceType = ResourceType.TYPE_FOLDER;
-			}
-			else
-			{
-				ContentResource resource = (ContentResource) selectedItem;
-				// String mimetype = resource.getContentType();
-				resourceType = resource.getResourceType();
-			}
-			
-			// get the registration for the current item's type 
-			ResourceType typeDef = registry.getType(resourceType);
-			
 			// if copy or move is in progress AND user has content.new for this folder, user can paste in the collection 
 			// (the paste action will only be defined for collections)
-			String item_to_be_moved = (String) state.getAttribute(STATE_ITEM_TO_BE_MOVED);
-			if(item_to_be_moved != null)
-			{
-				List<ResourceToolAction> conditionalContentNewActions = typeDef.getActions(PASTE_MOVED_ACTIONS);
-				if(conditionalContentNewActions != null)
-				{
-					actions.addAll(conditionalContentNewActions);
-				}
-			}
-
 			String item_to_be_copied = (String) state.getAttribute(STATE_ITEM_TO_BE_COPIED);
+			List<String> items_to_be_copied = new Vector();
 			if(item_to_be_copied != null)
 			{
-				List<ResourceToolAction> conditionalContentNewActions = typeDef.getActions(PASTE_COPIED_ACTIONS);
-				if(conditionalContentNewActions != null)
-				{
-					actions.addAll(conditionalContentNewActions);
-				}
-			}
-
-			// certain actions are defined elsewhere but pertain only to collections
-			if(selectedItem.isCollection())
-			{
-				// if item is collection and user has content.new for item, user can create anything 
-				{
-					// iterate over resource-types and get all the registered types and find actions requiring "content.new" permission
-					Collection types = registry.getTypes();
-					Iterator<ActionType> actionTypeIt = CONTENT_NEW_ACTIONS.iterator();
-					while(actionTypeIt.hasNext())
-					{
-						ActionType actionType = actionTypeIt.next();
-						Iterator typeIt = types.iterator();
-						while(typeIt.hasNext())
-						{
-							ResourceType type = (ResourceType) typeIt.next();
-							
-							List<ResourceToolAction> createActions = type.getActions(actionType);
-							if(createActions != null)
-							{
-								actions.addAll(createActions);
-							}
-						}
-					}
-				}
-				
-			}
-
-			// if user has content.read, user can view content, view metadata and/or copy
-			List<ResourceToolAction> contentReadActions = typeDef.getActions(CONTENT_READ_ACTIONS);
-			if(contentReadActions != null)
-			{
-				actions.addAll(contentReadActions);
+				items_to_be_copied.add(item_to_be_copied);
 			}
 			
-			// if user has content.modify, user can revise metadata, revise content, and/or replace content
-			List<ResourceToolAction> contentModifyActions = typeDef.getActions(CONTENT_MODIFY_ACTIONS);
-			if(contentModifyActions != null)
+			String item_to_be_moved = (String) state.getAttribute(STATE_ITEM_TO_BE_MOVED);
+			List<String> items_to_be_moved = new Vector();
+			if(item_to_be_moved != null)
 			{
-				actions.addAll(contentModifyActions);
+				items_to_be_moved.add(item_to_be_moved);
 			}
 			
-			// if user has content.delete, user can move item or delete item
-			List<ResourceToolAction> contentDeleteActions = typeDef.getActions(CONTENT_DELETE_ACTIONS);
-			if(contentDeleteActions != null)
-			{
-				actions.addAll(contentDeleteActions);
-			}
+			List<ResourceToolAction> actions = getActions(selectedItem, registry, items_to_be_moved, items_to_be_copied);
 			
-			// if user has content.new for item's parent and content.read for item, user can duplicate item
-			List<ResourceToolAction> contentNewOnParentActions = typeDef.getActions(CONTENT_NEW_FOR_PARENT_ACTIONS);
-			if(contentNewOnParentActions != null)
-			{
-				actions.addAll(contentNewOnParentActions);
-			}
-			// filter -- remove actions that are not available to the current user in the context of this item
-			Iterator<ResourceToolAction> actionIt = actions.iterator();
-			while(actionIt.hasNext())
-			{
-				ResourceToolAction action = actionIt.next();
-				if(! action.available(ref.getContext()))
-				{
-					actionIt.remove();
-				}
-			}
 			context.put("actions", actions);
 			context.put("labeler", new Labeler());
 		}
 		
 		return "content/sakai_resources_columns";
 	}
+
+	/**
+     * @param selectedItem
+     * @param registry
+     * @param items_to_be_moved
+     * @param items_to_be_copied
+     * @return
+     */
+    protected List<ResourceToolAction> getActions(ContentEntity selectedItem, ResourceTypeRegistry registry, List<String> items_to_be_moved, List<String> items_to_be_copied)
+    {
+	    String resourceType = ResourceType.TYPE_UPLOAD;
+	    Reference ref = EntityManager.newReference(selectedItem.getReference());
+	    List<ResourceToolAction> actions = new Vector<ResourceToolAction>();
+	    if(selectedItem.isCollection())
+	    {
+	    	resourceType = ResourceType.TYPE_FOLDER;
+	    }
+	    else
+	    {
+	    	ContentResource resource = (ContentResource) selectedItem;
+	    	// String mimetype = resource.getContentType();
+	    	resourceType = resource.getResourceType();
+	    }
+	    
+	    // get the registration for the current item's type 
+	    ResourceType typeDef = registry.getType(resourceType);
+	    
+	    if(items_to_be_moved != null && ! items_to_be_moved.isEmpty())
+	    {
+	    	List<ResourceToolAction> conditionalContentNewActions = typeDef.getActions(PASTE_MOVED_ACTIONS);
+	    	if(conditionalContentNewActions != null)
+	    	{
+	    		actions.addAll(conditionalContentNewActions);
+	    	}
+	    }
+
+	    if(items_to_be_copied != null && ! items_to_be_copied.isEmpty())
+	    {
+	    	List<ResourceToolAction> conditionalContentNewActions = typeDef.getActions(PASTE_COPIED_ACTIONS);
+	    	if(conditionalContentNewActions != null)
+	    	{
+	    		actions.addAll(conditionalContentNewActions);
+	    	}
+	    }
+
+	    // certain actions are defined elsewhere but pertain only to collections
+	    if(selectedItem.isCollection())
+	    {
+	    	// if item is collection and user has content.new for item, user can create anything 
+	    	{
+	    		// iterate over resource-types and get all the registered types and find actions requiring "content.new" permission
+	    		Collection types = registry.getTypes();
+	    		Iterator<ActionType> actionTypeIt = CONTENT_NEW_ACTIONS.iterator();
+	    		while(actionTypeIt.hasNext())
+	    		{
+	    			ActionType actionType = actionTypeIt.next();
+	    			Iterator typeIt = types.iterator();
+	    			while(typeIt.hasNext())
+	    			{
+	    				ResourceType type = (ResourceType) typeIt.next();
+	    				
+	    				List<ResourceToolAction> createActions = type.getActions(actionType);
+	    				if(createActions != null)
+	    				{
+	    					actions.addAll(createActions);
+	    				}
+	    			}
+	    		}
+	    	}
+	    	
+	    }
+
+	    // if user has content.read, user can view content, view metadata and/or copy
+	    List<ResourceToolAction> contentReadActions = typeDef.getActions(CONTENT_READ_ACTIONS);
+	    if(contentReadActions != null)
+	    {
+	    	actions.addAll(contentReadActions);
+	    }
+	    
+	    // if user has content.modify, user can revise metadata, revise content, and/or replace content
+	    List<ResourceToolAction> contentModifyActions = typeDef.getActions(CONTENT_MODIFY_ACTIONS);
+	    if(contentModifyActions != null)
+	    {
+	    	actions.addAll(contentModifyActions);
+	    }
+	    
+	    // if user has content.delete, user can move item or delete item
+	    List<ResourceToolAction> contentDeleteActions = typeDef.getActions(CONTENT_DELETE_ACTIONS);
+	    if(contentDeleteActions != null)
+	    {
+	    	actions.addAll(contentDeleteActions);
+	    }
+	    
+	    // if user has content.new for item's parent and content.read for item, user can duplicate item
+	    List<ResourceToolAction> contentNewOnParentActions = typeDef.getActions(CONTENT_NEW_FOR_PARENT_ACTIONS);
+	    if(contentNewOnParentActions != null)
+	    {
+	    	actions.addAll(contentNewOnParentActions);
+	    }
+	    // filter -- remove actions that are not available to the current user in the context of this item
+	    Iterator<ResourceToolAction> actionIt = actions.iterator();
+	    while(actionIt.hasNext())
+	    {
+	    	ResourceToolAction action = actionIt.next();
+	    	if(! action.available(ref.getContext()))
+	    	{
+	    		actionIt.remove();
+	    	}
+	    }
+	    return actions;
+    }
 	
 	public void doReviseProperties(RunData data)
 	{
@@ -6349,25 +6396,6 @@ public class ResourcesAction
 				}
 			}
 		}
-		else if(flow.equals("create") && TYPE_FORM.equals(itemType))
-		{
-			captureMultipleValues(state, params, true);
-			alerts = (Set) state.getAttribute(STATE_CREATE_ALERTS);
-			if(alerts == null)
-			{
-				alerts = new HashSet();
-				state.setAttribute(STATE_CREATE_ALERTS, alerts);
-			}
-			if(alerts.isEmpty())
-			{
-				createStructuredArtifacts(state);
-				alerts = (Set) state.getAttribute(STATE_CREATE_ALERTS);
-				if(alerts.isEmpty())
-				{
-					pop = true;
-				}
-			}
-		}
 		else if(flow.equals("create"))
 		{
 			captureMultipleValues(state, params, true);
@@ -6657,439 +6685,6 @@ public class ResourcesAction
 		}
 
 	}
-
-	/**
-	 * Add a new StructuredArtifact to ContentHosting for each ChefEditItem in the state attribute named STATE_STACK_CREATE_ITEMS.
-	 * The number of items to be added is indicated by the state attribute named STATE_STACK_CREATE_NUMBER, and
-	 * the items are added to the collection identified by the state attribute named STATE_STACK_CREATE_COLLECTION_ID.
-	 * @param state
-	 */
-	private static void createStructuredArtifacts(SessionState state)
-		{
-		Map current_stack_frame = peekAtStack(state);
-		
-		String collectionId = (String) current_stack_frame.get(STATE_STACK_CREATE_COLLECTION_ID);
-		if(collectionId == null || collectionId.trim().length() == 0)
-		{
-			collectionId = (String) state.getAttribute(STATE_CREATE_COLLECTION_ID);
-			if(collectionId == null || collectionId.trim().length() == 0)
-			{
-				collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
-			}
-			current_stack_frame.put(STATE_STACK_CREATE_COLLECTION_ID, collectionId);
-		}
-
-		List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
-		if(new_items == null)
-		{
-			String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
-			if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
-			{
-				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
-				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
-			}
-			String itemType = (String) current_stack_frame.get(STATE_STACK_CREATE_TYPE);
-			if(itemType == null)
-			{
-				itemType = (String) state.getAttribute(STATE_CREATE_TYPE);
-				if(itemType == null)
-				{
-					itemType = ResourcesAction.TYPE_FORM;
-				}
-				current_stack_frame.put(STATE_STACK_CREATE_TYPE, itemType);
-			}
-			String encoding = (String) state.getAttribute(STATE_ENCODING);
-			
-			Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
-			if(defaultRetractDate == null)
-			{
-				defaultRetractDate = TimeService.newTime();
-				state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
-			}
-
-			new_items = newEditItems(collectionId, itemType, encoding, defaultCopyrightStatus, true, defaultRetractDate, CREATE_MAX_ITEMS);
-			current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
-		}
-
-		Set alerts = (Set) state.getAttribute(STATE_CREATE_ALERTS);
-		if(alerts == null)
-		{
-			alerts = new HashSet();
-			state.setAttribute(STATE_CREATE_ALERTS, alerts);
-		}
-
-		Integer number = (Integer) current_stack_frame.get(STATE_STACK_CREATE_NUMBER);
-		if(number == null)
-		{
-			number = (Integer) state.getAttribute(STATE_CREATE_NUMBER);
-		if(number == null)
-		{
-			number = new Integer(1);
-			}
-			current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
-		}
-		int numberOfItems = number.intValue();
-
-		SchemaBean rootSchema = (SchemaBean) current_stack_frame.get(STATE_STACK_STRUCT_OBJ_SCHEMA);
-		SchemaNode rootNode = rootSchema.getSchema();
-
-		outerloop: for(int i = 0; i < numberOfItems; i++)
-		{
-			ChefEditItem item = (ChefEditItem) new_items.get(i);
-			if(item.isBlank())
-			{
-				continue;
-			}
-			SaveArtifactAttempt attempt = new SaveArtifactAttempt(item, rootNode);
-			validateStructuredArtifact(attempt);
-			List errors = attempt.getErrors();
-
-			if(errors.isEmpty())
-			{
-			try
-			{
-					ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties ();
-				resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, item.getName());
-				resourceProperties.addProperty (ResourceProperties.PROP_DESCRIPTION, item.getDescription());
-					resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_ENCODING, UTF_8_ENCODING);
-					resourceProperties.addProperty(ResourceProperties.PROP_STRUCTOBJ_TYPE, item.getFormtype());
-					resourceProperties.addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, org.sakaiproject.metaobj.shared.mgt.MetaobjEntityManager.METAOBJ_ENTITY_PREFIX);
-				List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
-				saveMetadata(resourceProperties, metadataGroups, item);
-					String filename = Validator.escapeResourceName(item.getName()).trim();
-					String extension = ".xml";
-					int attemptNum = 0;
-					String attemptStr = "";
-					String newResourceId = collectionId + filename + attemptStr + extension;
-
-					if(newResourceId.length() > ContentHostingService.MAXIMUM_RESOURCE_ID_LENGTH)
-					{
-						alerts.add(rb.getString("toolong") + " " + newResourceId);
-						continue outerloop;
-					}
-					
-				SortedSet groups = new TreeSet(item.getEntityGroupRefs());
-				groups.retainAll(item.getAllowedAddGroupRefs());
-
-					boolean hidden = false;
-
-					Time releaseDate = null;
-					Time retractDate = null;
-					
-				if(ContentHostingService.isAvailabilityEnabled())
-				{
-						hidden = item.isHidden();
-						
-						if(item.useReleaseDate())
-						{
-							releaseDate = item.getReleaseDate();
-						}
-						
-						if(item.useRetractDate())
-						{
-							retractDate = item.getRetractDate();
-					}
-				}
-				
-					try
-					{
-						ContentResource resource = ContentHostingService.addResource (filename + extension,
-																					collectionId,
-																					MAXIMUM_ATTEMPTS_FOR_UNIQUENESS,
-																					MIME_TYPE_STRUCTOBJ,
-																					item.getContent(),
-																					resourceProperties,
-																					groups,
-																					hidden,
-																					releaseDate,
-																					retractDate,
-																					item.getNotification());
-
-
-				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-				if(preventPublicDisplay == null)
-				{
-					preventPublicDisplay = Boolean.FALSE;
-					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
-				}
-						if(! preventPublicDisplay.booleanValue() && item.isPubview())
-				{
-							ContentHostingService.setPubView(resource.getId(), true);
-				}
-				
-						String mode = (String) state.getAttribute(STATE_MODE);
-						if(MODE_HELPER.equals(mode))
-			{
-							String helper_mode = (String) state.getAttribute(STATE_RESOURCES_HELPER_MODE);
-							if(helper_mode != null && MODE_ATTACHMENT_NEW_ITEM_INIT.equals(helper_mode))
-			{
-								// add to the attachments vector
-								List attachments = EntityManager.newReferenceList();
-								Reference ref = EntityManager.newReference(ContentHostingService.getReference(resource.getId()));
-								attachments.add(ref);
-								cleanupState(state);
-								state.setAttribute(STATE_ATTACHMENTS, attachments);
-			}
-							else
-							{
-								Object attach_links = current_stack_frame.get(STATE_ATTACH_LINKS);
-								if(attach_links == null)
-								{
-									attach_links = state.getAttribute(STATE_ATTACH_LINKS);
-									if(attach_links != null)
-									{
-										current_stack_frame.put(STATE_ATTACH_LINKS, attach_links);
-									}
-								}
-
-								if(attach_links == null)
-								{
-									attachItem(resource.getId(), state);
-								}
-								else
-								{
-									attachLink(resource.getId(), state);
-								}
-							}
-						}
-					}
-					catch(PermissionException e)
-					{
-						alerts.add(rb.getString("notpermis12"));
-						continue outerloop;
-					}
-					catch(IdInvalidException e)
-					{
-						alerts.add(rb.getString("title") + " " + e.getMessage ());
-						continue outerloop;
-					}
-					catch(IdLengthException e)
-					{
-						alerts.add(rb.getString("toolong") + " " + e.getMessage());
-						continue outerloop;
-					}
-					catch(IdUniquenessException e)
-					{
-						alerts.add("Could not add this item to this folder");
-						continue outerloop;
-					}
-					catch(InconsistentException e)
-					{
-						alerts.add(RESOURCE_INVALID_TITLE_STRING);
-						continue outerloop;
-					}
-					catch(OverQuotaException e)
-					{
-						alerts.add(rb.getString("overquota"));
-						continue outerloop;
-					}
-					catch(ServerOverloadException e)
-					{
-						alerts.add(rb.getString("failed"));
-						continue outerloop;
-					} 
-				}
-				catch(RuntimeException e)
-				{
-					logger.debug("ResourcesAction.createStructuredArtifacts ***** Unknown Exception ***** " + e.getMessage());
-					alerts.add(rb.getString("failed"));
-				}
-
-				SortedSet currentMap = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-				if(currentMap == null)
-				{
-					currentMap = new TreeSet();
-					state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
-				}
-				if(!currentMap.contains(collectionId))
-				{
-					currentMap.add (collectionId);
-					//state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
-
-					// add this folder id into the set to be event-observed
-					addObservingPattern(collectionId, state);
-				}
-			}
-			else
-			{
-				Iterator errorIt = errors.iterator();
-				while(errorIt.hasNext())
-				{
-					ValidationError error = (ValidationError) errorIt.next();
-					alerts.add(error.getDefaultMessage());
-				}
-			}
-
-		}
-		state.setAttribute(STATE_CREATE_ALERTS, alerts);
-
-	}
-
-	/**
-	 * Convert from a hierarchical list of ResourcesMetadata objects to an org.w3.dom.Document,
-	 * then to a string representation, then to a metaobj ElementBean.  Validate the ElementBean
-	 * against a SchemaBean.  If it validates, save the string representation. Otherwise, on
-	 * return, the parameter contains a non-empty list of ValidationError objects describing the
-	 * problems.
-	 * @param attempt A wrapper for the ChefEditItem object which contains the hierarchical list of
-	 * ResourcesMetadata objects for this form.  Also contains an initially empty list of
-	 * ValidationError objects that describes any of the problems found in validating the form.
-	 */
-	private static void validateStructuredArtifact(SaveArtifactAttempt attempt)
-	{
-		ChefEditItem item = attempt.getItem();
-		ResourcesMetadata form = item.getForm();
-
-		Stack processStack = new Stack();
-		processStack.push(form);
-		Map parents = new Hashtable();
-		Document doc = Xml.createDocument();
-
-		int count = 0;
-
-		while(!processStack.isEmpty())
-		{
-			Object object = processStack.pop();
-			if(object instanceof ResourcesMetadata)
-			{
-
-				ResourcesMetadata element = (ResourcesMetadata) object;
-				Element node = doc.createElement(element.getLocalname());
-
-				if(element.isNested())
-				{
-					processStack.push(new ElementCarrier(node, element.getDottedname()));
-					List children = element.getNestedInstances();
-					//List children = element.getNested();
-
-					for(int k = children.size() - 1; k >= 0; k--)
-					{
-						ResourcesMetadata child = (ResourcesMetadata) children.get(k);
-						processStack.push(child);
-						parents.put(child.getDottedname(), node);
-					}
-				}
-				else
-				{
-					List values = element.getInstanceValues();
-					Iterator valueIt = values.iterator();
-					while(valueIt.hasNext())
-					{
-						Object value = valueIt.next();
-						if(value == null)
-						{
-							// do nothing
-							continue;
-						}
-						else if(value instanceof String)
-						{
-							if("".equals((String) value))
-							{
-								continue;
-							}
-							node.appendChild(doc.createTextNode((String)value));
-						}
-						else if(value instanceof Time)
-						{
-							Time time = (Time) value;
-							TimeBreakdown breakdown = time.breakdownLocal();
-							int year = breakdown.getYear();
-							int month = breakdown.getMonth();
-							int day = breakdown.getDay();
-							String date = "" + year + (month < 10 ? "-0" : "-") + month + (day < 10 ? "-0" : "-") + day;
-							node.appendChild(doc.createTextNode(date));
-						}
-						else if(value instanceof Date)
-						{
-							Date date = (Date) value;
-							SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-							String formatted = df.format(date);
-							node.appendChild(doc.createTextNode(formatted));
-						}
-						else if(value instanceof Reference)
-						{
-							node.appendChild(doc.createTextNode(((Reference)value).getId()));
-						}
-						else
-						{
-							node.appendChild(doc.createTextNode(value.toString()));
-						}
-					}
-					
-					if(node.hasChildNodes())
-					{
-						Element parent = (Element) parents.get(element.getDottedname());
-						if(parent == null)
-						{
-							doc.appendChild(node);
-							count++;
-						}
-						else
-						{
-							parent.appendChild(node);
-						}
-					}
-				}
-			}
-			else if(object instanceof ElementCarrier)
-			{
-				ElementCarrier carrier = (ElementCarrier) object;
-				Element node = carrier.getElement();
-				Element parent = (Element) parents.get(carrier.getParent());
-				if(parent == null)
-				{
-					doc.appendChild(node);
-					count++;
-				}
-				else
-				{
-					parent.appendChild(node);
-				}
-			}
-
-		}
-
-		String content = Xml.writeDocumentToString(doc);
-		item.setContent(content);
-
-		StructuredArtifactValidationService validator = (StructuredArtifactValidationService) ComponentManager.get("org.sakaiproject.metaobj.shared.mgt.StructuredArtifactValidationService");
-		List errors = new ArrayList();
-
-		// convert the String representation to an ElementBean object.  If that fails,
-		// add an error and return.
-		ElementBean bean = null;
-
-		SAXBuilder builder = new SAXBuilder();
-		StringReader reader = new StringReader(content);
-		try
-		{
-			org.jdom.Document jdoc = builder.build(reader);
-			bean = new ElementBean(jdoc.getRootElement(), attempt.getSchema(), true);
-		}
-		catch (JDOMException e)
-		{
-			// add message to list of errors
-			errors.add(new ValidationError("", "","",null,"JDOMException"));
-		}
-		catch (IOException e)
-		{
-			// add message to list of errors
-			errors.add(new ValidationError("","","",null,"IOException"));
-		}
-
-		// call this.validate(bean, rootSchema, errors) and add results to errors list.
-		if(bean == null)
-		{
-			// add message to list of errors
-			errors.add(new ValidationError("","","",null,"Bean is null"));
-		}
-		else
-		{
-			errors.addAll(validator.validate(bean));
-		}
-		attempt.setErrors(errors);
-
-	}	// validateStructuredArtifact
 
 	/**
 	 * Add a new folder to ContentHosting for each ChefEditItem in the state attribute named STATE_STACK_CREATE_ITEMS.
@@ -11382,20 +10977,6 @@ public class ResourcesAction
 
 		Set alerts = (Set) state.getAttribute(STATE_EDIT_ALERTS);
 
-		if(item.isStructuredArtifact())
-		{
-			SchemaBean bean = (SchemaBean) current_stack_frame.get(STATE_STACK_STRUCT_OBJ_SCHEMA);
-			SaveArtifactAttempt attempt = new SaveArtifactAttempt(item, bean.getSchema());
-			validateStructuredArtifact(attempt);
-
-			Iterator errorIt = attempt.getErrors().iterator();
-			while(errorIt.hasNext())
-			{
-				ValidationError error = (ValidationError) errorIt.next();
-				alerts.add(error.getDefaultMessage());
-			}
-		}
-
 		if(alerts.isEmpty())
 		{
 			// populate the property list
@@ -14045,82 +13626,53 @@ public class ResourcesAction
 
 	}	// getListView
 	
-	public ListItem getListItem(String entityId, ListItem parent, boolean expandAll, Set expandedFolders)
+	public ListItem getListItem(ContentEntity entity, ListItem parent, boolean expandAll, Set expandedFolders)
 	{
 		ListItem item = null;
-		ContentEntity entity = null;
-		try
-		{
-			boolean isCollection = ContentHostingService.isCollection(entityId);
-			if(isCollection)
-			{
-				entity = ContentHostingService.getCollection(entityId);
-				
-			}
-			else
-			{
-				entity = ContentHostingService.getResource(entityId);
-			}
-			
-			Reference ref = EntityManager.newReference(entity.getReference());
+		boolean isCollection = entity.isCollection();
+        
+        Reference ref = EntityManager.newReference(entity.getReference());
 
-			item = new ListItem(entity);
-			
-			/*
-			 * calculate permissions for this entity.  If its access mode is 
-			 * GROUPED, we need to calculate permissions based on current user's 
-			 * role in group. Otherwise, we inherit from containing collection
-			 * and check to see if additional permissions are set on this entity
-			 * that were't set on containing collection...
-			 */
-			Set permissions = new TreeSet();
-			// TODO: Calculate permissions
-			if(GroupAwareEntity.AccessMode.INHERITED == entity.getAccess())
-			{
-				// permissions are same as parent or site
-				if(parent == null)
-				{
-					// permissions are same as site
-					permissions = getPermissions(ref.getContext());
-				}
-				else
-				{
-					// permissions are same as parent
-					permissions.addAll(parent.getPermissions());
-				}
-			}
-			else if(GroupAwareEntity.AccessMode.GROUPED == entity.getAccess())
-			{
-				// permissions are determined by group(s)
-			}
-			item.setPermissions(permissions);
-			
-			if(isCollection)
-			{
-				List childNames = ((ContentCollection) entity).getMembers();
-				Iterator childIt = childNames.iterator();
-				while(childIt.hasNext())
-				{
-					String childId = (String) childIt.next();
-					ListItem child = getListItem(childId, item, expandAll, expandedFolders);
-				}
-			}
-		}
-		catch (IdUnusedException e)
-		{
-			// TODO Auto-generated catch block
-			logger.warn("IdUnusedException ", e);
-		}
-		catch (TypeException e)
-		{
-			// TODO Auto-generated catch block
-			logger.warn("TypeException ", e);
-		}
-		catch (PermissionException e)
-		{
-			// TODO Auto-generated catch block
-			logger.warn("PermissionException ", e);
-		}
+        item = new ListItem(entity);
+        
+        /*
+         * calculate permissions for this entity.  If its access mode is 
+         * GROUPED, we need to calculate permissions based on current user's 
+         * role in group. Otherwise, we inherit from containing collection
+         * and check to see if additional permissions are set on this entity
+         * that were't set on containing collection...
+         */
+        if(GroupAwareEntity.AccessMode.INHERITED == entity.getAccess())
+        {
+        	// permissions are same as parent or site
+        	if(parent == null)
+        	{
+        		// permissions are same as site
+        		item.setPermissions(getPermissions(ref.getContext()));
+        	}
+        	else
+        	{
+        		// permissions are same as parent
+        		item.setPermissions(parent.getPermissions());
+        	}
+        }
+        else if(GroupAwareEntity.AccessMode.GROUPED == entity.getAccess())
+        {
+            // TODO: Calculate permissions
+        	// permissions are determined by group(s)
+        }
+        
+        if(isCollection)
+        {
+        	List<ContentEntity> children = ((ContentCollection) entity).getMemberResources();
+        	Iterator<ContentEntity> childIt = children.iterator();
+        	while(childIt.hasNext())
+        	{
+        		ContentEntity childEntity = childIt.next();
+        		ListItem child = getListItem(childEntity, item, expandAll, expandedFolders);
+        		item.addChild(child);
+        	}
+        }
 		
 		return item;
 	}
@@ -14128,47 +13680,45 @@ public class ResourcesAction
 	 * @param context
 	 * @return
 	 */
-	protected Set getPermissions(String id)
+	protected Collection<ContentPermissions> getPermissions(String id)
 	{
-		Set permissions = new TreeSet();
+		Collection<ContentPermissions> permissions = new Vector<ContentPermissions>();
 		if(ContentHostingService.isCollection(id))
 		{
 			if(ContentHostingService.allowAddCollection(id))
 			{
-				permissions.add(ContentHostingService.AUTH_RESOURCE_ADD);
+				permissions.add(ContentPermissions.CREATE);
+			}
+			if(ContentHostingService.allowRemoveCollection(id))
+			{
+				permissions.add(ContentPermissions.DELETE);
 			}
 			if(ContentHostingService.allowGetCollection(id))
 			{
-				permissions.add(ContentHostingService.AUTH_RESOURCE_READ);
+				permissions.add(ContentPermissions.READ);
 			}
-			/*
-			if(ContentHostingService.allowAddCollection(id) || ContentHostingService.allowAddResource(id))
+			if(ContentHostingService.allowUpdateCollection(id))
 			{
-				permissions.add(ContentHostingService.AUTH_RESOURCE_ADD);
+				permissions.add(ContentPermissions.REVISE);
 			}
-			if(ContentHostingService.allowAddCollection(id) || ContentHostingService.allowAddResource(id))
-			{
-				permissions.add(ContentHostingService.AUTH_RESOURCE_ADD);
-			}
-			if(ContentHostingService.allowAddCollection(id) || ContentHostingService.allowAddResource(id))
-			{
-				permissions.add(ContentHostingService.AUTH_RESOURCE_ADD);
-			}
-			if(ContentHostingService.allowAddCollection(id) || ContentHostingService.allowAddResource(id))
-			{
-				permissions.add(ContentHostingService.AUTH_RESOURCE_ADD);
-			}
-			*/
 		}
 		else
 		{
 			if(ContentHostingService.allowAddResource(id))
 			{
-				permissions.add(ContentHostingService.AUTH_RESOURCE_ADD);
+				permissions.add(ContentPermissions.CREATE);
+			}
+			if(ContentHostingService.allowRemoveResource(id))
+			{
+				permissions.add(ContentPermissions.DELETE);
 			}
 			if(ContentHostingService.allowGetResource(id))
 			{
-				permissions.add(ContentHostingService.AUTH_RESOURCE_READ);
+				permissions.add(ContentPermissions.READ);
+			}
+			if(ContentHostingService.allowUpdateResource(id))
+			{
+				permissions.add(ContentPermissions.REVISE);
 			}
 		}
 		
@@ -14996,6 +14546,751 @@ public class ResourcesAction
 		*/
 	}
 
+			
+
+
+	/**
+	 * Inner class encapsulates information about folders (and final item?) in a collection path (a.k.a. breadcrumb)
+	 * This is being phased out as we switch to the resources type registry.
+	 */
+	public static class ChefPathItem
+	{
+		protected String m_url;
+		protected String m_name;
+		protected String m_id;
+		protected boolean m_canRead;
+		protected boolean m_isFolder;
+		protected boolean m_isLast;
+		protected String m_root;
+		protected boolean m_isLocal;
+
+		public ChefPathItem(String id, String name)
+		{
+			m_id = id;
+			m_name = name;
+			m_canRead = false;
+			m_isFolder = false;
+			m_isLast = false;
+			m_url = "";
+			m_isLocal = true;
+		}
+
+		/**
+		 * @return
+		 */
+		public boolean canRead()
+		{
+			return m_canRead;
+		}
+
+		/**
+		 * @return
+		 */
+		public String getId()
+		{
+			return m_id;
+		}
+
+		/**
+		 * @return
+		 */
+		public boolean isFolder()
+		{
+			return m_isFolder;
+		}
+
+		/**
+		 * @return
+		 */
+		public boolean isLast()
+		{
+			return m_isLast;
+		}
+
+		/**
+		 * @return
+		 */
+		public String getName()
+		{
+			return m_name;
+		}
+
+		/**
+		 * @param canRead
+		 */
+		public void setCanRead(boolean canRead)
+		{
+			m_canRead = canRead;
+		}
+
+		/**
+		 * @param id
+		 */
+		public void setId(String id)
+		{
+			m_id = id;
+		}
+
+		/**
+		 * @param isFolder
+		 */
+		public void setIsFolder(boolean isFolder)
+		{
+			m_isFolder = isFolder;
+		}
+
+		/**
+		 * @param isLast
+		 */
+		public void setLast(boolean isLast)
+		{
+			m_isLast = isLast;
+		}
+
+		/**
+		 * @param name
+		 */
+		public void setName(String name)
+		{
+			m_name = name;
+		}
+
+		/**
+		 * @return
+		 */
+		public String getUrl()
+		{
+			return m_url;
+		}
+
+		/**
+		 * @param url
+		 */
+		public void setUrl(String url)
+		{
+			m_url = url;
+		}
+
+		/**
+		 * @param root
+		 */
+		public void setRoot(String root)
+		{
+			m_root = root;
+		}
+
+		/**
+		 * @return
+		 */
+		public String getRoot()
+		{
+			return m_root;
+		}
+
+		public void setIsLocal(boolean isLocal)
+		{
+			m_isLocal = isLocal;
+		}
+
+		public boolean isLocal()
+		{
+			return m_isLocal;
+		}
+
+	}	// inner class ChefPathItem
+
+	/**
+	 *
+	 * inner class encapsulates information about groups of metadata tags (such as DC, LOM, etc.)
+	 *
+	 */
+	public static class MetadataGroup
+		extends Vector
+	{
+		/**
+		 *
+		 */
+		private static final long serialVersionUID = -821054142728929236L;
+		protected String m_name;
+		protected boolean m_isShowing;
+
+		/**
+		 * @param name
+		 */
+		public MetadataGroup(String name)
+		{
+			super();
+			m_name = name;
+			m_isShowing = false;
+		}
+
+		/**
+		 * @return
+		 */
+		public boolean isShowing()
+		{
+			return m_isShowing;
+		}
+
+		/**
+		 * @param isShowing
+		 */
+		public void setShowing(boolean isShowing)
+		{
+			m_isShowing = isShowing;
+		}
+
+
+		/**
+		 * @return
+		 */
+		public String getName()
+		{
+			return m_name;
+		}
+
+		/**
+		 * @param name
+		 */
+		public void setName(String name)
+		{
+			m_name = name;
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 * needed to determine List.contains()
+		 */
+		public boolean equals(Object obj)
+		{
+			MetadataGroup mg = (MetadataGroup) obj;
+			boolean rv = (obj != null) && (m_name.equals(mg));
+			return rv;
+		}
+
+	}
+
+	public static class AttachItem
+	{
+		protected String m_id;
+		protected String m_displayName;
+		protected String m_accessUrl;
+		protected String m_collectionId;
+		protected String m_contentType;
+
+		/**
+		 * @param id
+		 * @param displayName
+		 * @param collectionId
+		 * @param accessUrl
+		 */
+		public AttachItem(String id, String displayName, String collectionId, String accessUrl)
+		{
+			m_id = id;
+			m_displayName = displayName;
+			m_collectionId = collectionId;
+			m_accessUrl = accessUrl;
+
+		}
+
+		/**
+		 * @return Returns the accessUrl.
+		 */
+		public String getAccessUrl()
+		{
+			return m_accessUrl;
+		}
+		/**
+		 * @param accessUrl The accessUrl to set.
+		 */
+		public void setAccessUrl(String accessUrl)
+		{
+			m_accessUrl = accessUrl;
+		}
+		/**
+		 * @return Returns the collectionId.
+		 */
+		public String getCollectionId()
+		{
+			return m_collectionId;
+		}
+		/**
+		 * @param collectionId The collectionId to set.
+		 */
+		public void setCollectionId(String collectionId)
+		{
+			m_collectionId = collectionId;
+		}
+		/**
+		 * @return Returns the id.
+		 */
+		public String getId()
+		{
+			return m_id;
+		}
+		/**
+		 * @param id The id to set.
+		 */
+		public void setId(String id)
+		{
+			m_id = id;
+		}
+		/**
+		 * @return Returns the name.
+		 */
+		public String getDisplayName()
+		{
+			String displayName = m_displayName;
+			if(displayName == null || displayName.trim().equals(""))
+			{
+				displayName = isolateName(m_id);
+			}
+			return displayName;
+		}
+		/**
+		 * @param name The name to set.
+		 */
+		public void setDisplayName(String name)
+		{
+			m_displayName = name;
+		}
+
+		/**
+		 * @return Returns the contentType.
+		 */
+		public String getContentType()
+		{
+			return m_contentType;
+		}
+
+		/**
+		 * @param contentType
+		 */
+		public void setContentType(String contentType)
+		{
+			this.m_contentType = contentType;
+
+		}
+
+	}	// Inner class AttachItem
+
+	public static class ElementCarrier
+	{
+		protected Element element;
+		protected String parent;
+
+		public ElementCarrier(Element element, String parent)
+		{
+			this.element = element;
+			this.parent = parent;
+
+		}
+
+		public Element getElement()
+		{
+			return element;
+		}
+
+		public void setElement(Element element)
+		{
+			this.element = element;
+		}
+
+		public String getParent()
+		{
+			return parent;
+		}
+
+		public void setParent(String parent)
+		{
+			this.parent = parent;
+		}
+
+	}
+
+	/**
+	* Develop a list of all the site collections that there are to page.
+	* Sort them as appropriate, and apply search criteria.
+	*/
+	protected static List readAllResources(SessionState state)
+	{
+		List other_sites = new Vector();
+
+		String collectionId = (String) state.getAttribute (STATE_ATTACH_COLLECTION_ID);
+		if(collectionId == null)
+		{
+			collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
+		}
+//		SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+//		if(expandedCollections == null)
+//		{
+//			expandedCollections = new TreeSet();
+//			state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+//		}
+		
+		// set the sort values
+		String sortedBy = (String) state.getAttribute (STATE_SORT_BY);
+		String sortedAsc = (String) state.getAttribute (STATE_SORT_ASC);
+		
+		Boolean showRemove = (Boolean) state.getAttribute(STATE_SHOW_REMOVE_ACTION);
+		boolean showRemoveAction = showRemove != null && showRemove.booleanValue();
+		
+		Boolean showMove = (Boolean) state.getAttribute(STATE_SHOW_MOVE_ACTION);
+		boolean showMoveAction = showMove != null && showMove.booleanValue();
+		
+		Boolean showCopy = (Boolean) state.getAttribute(STATE_SHOW_COPY_ACTION);
+		boolean showCopyAction = showCopy != null && showCopy.booleanValue();
+		
+		Set highlightedItems = (Set) state.getAttribute(STATE_HIGHLIGHTED_ITEMS);
+		
+
+		// add user's personal workspace
+		User user = UserDirectoryService.getCurrentUser();
+		String userId = user.getId();
+		String userName = user.getDisplayName();
+		String wsId = SiteService.getUserSiteId(userId);
+		String wsCollectionId = ContentHostingService.getSiteCollection(wsId);
+		if(! collectionId.equals(wsCollectionId))
+		{
+			List members = getListView(wsCollectionId, highlightedItems, (ChefBrowseItem) null, false, state);
+
+            //List members = getBrowseItems(wsCollectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, false, state);
+            if(members != null && members.size() > 0)
+		    {
+		        ChefBrowseItem root = (ChefBrowseItem) members.remove(0);
+				showRemoveAction = showRemoveAction || root.hasDeletableChildren();
+				showMoveAction = showMoveAction || root.hasDeletableChildren();
+				showCopyAction = showCopyAction || root.hasCopyableChildren();
+				
+		        root.addMembers(members);
+		        root.setName(userName + " " + rb.getString("gen.wsreso"));
+		        other_sites.add(root);
+		    }
+		}
+		
+        	// add all other sites user has access to
+		/*
+		 * NOTE: This does not (and should not) get all sites for admin.  
+		 *       Getting all sites for admin is too big a request and
+		 *       would result in too big a display to render in html.
+		 */
+		Map othersites = ContentHostingService.getCollectionMap();
+		Iterator siteIt = othersites.keySet().iterator();
+		SortedSet sort = new TreeSet();
+		while(siteIt.hasNext())
+		{
+              String collId = (String) siteIt.next();
+              String displayName = (String) othersites.get(collId);
+              sort.add(displayName + DELIM + collId);
+		}
+		
+		Iterator sortIt = sort.iterator();
+		while(sortIt.hasNext())
+		{
+			String item = (String) sortIt.next();
+			String displayName = item.substring(0, item.lastIndexOf(DELIM));
+			String collId = item.substring(item.lastIndexOf(DELIM) + 1);
+			if(! collectionId.equals(collId) && ! wsCollectionId.equals(collId))
+			{
+				List members = getListView(collId, highlightedItems, (ChefBrowseItem) null, false, state);
+
+				// List members = getBrowseItems(collId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, false, state);
+				if(members != null && members.size() > 0)
+				{
+					ChefBrowseItem root = (ChefBrowseItem) members.remove(0);
+					root.addMembers(members);
+					root.setName(displayName);
+					other_sites.add(root);
+				}
+              }
+          }
+		
+		return other_sites;
+	}
+	
+	/**
+	* Prepare the current page of site collections to display.
+	* @return List of ChefBrowseItem objects to display on this page.
+	*/
+	protected static List prepPage(SessionState state)
+	{
+		List rv = new Vector();
+
+		// access the page size
+		int pageSize = ((Integer) state.getAttribute(STATE_PAGESIZE)).intValue();
+
+		// cleanup prior prep
+		state.removeAttribute(STATE_NUM_MESSAGES);
+
+		// are we going next or prev, first or last page?
+		boolean goNextPage = state.getAttribute(STATE_GO_NEXT_PAGE) != null;
+		boolean goPrevPage = state.getAttribute(STATE_GO_PREV_PAGE) != null;
+		boolean goFirstPage = state.getAttribute(STATE_GO_FIRST_PAGE) != null;
+		boolean goLastPage = state.getAttribute(STATE_GO_LAST_PAGE) != null;
+		state.removeAttribute(STATE_GO_NEXT_PAGE);
+		state.removeAttribute(STATE_GO_PREV_PAGE);
+		state.removeAttribute(STATE_GO_FIRST_PAGE);
+		state.removeAttribute(STATE_GO_LAST_PAGE);
+
+		// are we going next or prev message?
+		boolean goNext = state.getAttribute(STATE_GO_NEXT) != null;
+		boolean goPrev = state.getAttribute(STATE_GO_PREV) != null;
+		state.removeAttribute(STATE_GO_NEXT);
+		state.removeAttribute(STATE_GO_PREV);
+
+		// read all channel messages
+		List allMessages = readAllResources(state);
+
+		if (allMessages == null)
+		{
+			return rv;
+		}
+		
+		String messageIdAtTheTopOfThePage = null;
+		Object topMsgId = state.getAttribute(STATE_TOP_PAGE_MESSAGE_ID);
+		if(topMsgId == null)
+		{
+			// do nothing
+		}
+		else if(topMsgId instanceof Integer)
+		{
+			messageIdAtTheTopOfThePage = ((Integer) topMsgId).toString();
+		}
+		else if(topMsgId instanceof String)
+		{
+			messageIdAtTheTopOfThePage = (String) topMsgId;
+		}
+
+		// if we have no prev page and do have a top message, then we will stay "pinned" to the top
+		boolean pinToTop = (	(messageIdAtTheTopOfThePage != null)
+							&&	(state.getAttribute(STATE_PREV_PAGE_EXISTS) == null)
+							&&	!goNextPage && !goPrevPage && !goNext && !goPrev && !goFirstPage && !goLastPage);
+
+		// if we have no next page and do have a top message, then we will stay "pinned" to the bottom
+		boolean pinToBottom = (	(messageIdAtTheTopOfThePage != null)
+							&&	(state.getAttribute(STATE_NEXT_PAGE_EXISTS) == null)
+							&&	!goNextPage && !goPrevPage && !goNext && !goPrev && !goFirstPage && !goLastPage);
+
+		// how many messages, total
+		int numMessages = allMessages.size();
+
+		if (numMessages == 0)
+		{
+			return rv;
+		}
+
+		// save the number of messges
+		state.setAttribute(STATE_NUM_MESSAGES, new Integer(numMessages));
+
+		// find the position of the message that is the top first on the page
+		int posStart = 0;
+		if (messageIdAtTheTopOfThePage != null)
+		{
+			// find the next page
+			posStart = findResourceInList(allMessages, messageIdAtTheTopOfThePage);
+
+			// if missing, start at the top
+			if (posStart == -1)
+			{
+				posStart = 0;
+			}
+		}
+		
+		// if going to the next page, adjust
+		if (goNextPage)
+		{
+			posStart += pageSize;
+		}
+
+		// if going to the prev page, adjust
+		else if (goPrevPage)
+		{
+			posStart -= pageSize;
+			if (posStart < 0) posStart = 0;
+		}
+		
+		// if going to the first page, adjust
+		else if (goFirstPage)
+		{
+			posStart = 0;
+		}
+		
+		// if going to the last page, adjust
+		else if (goLastPage)
+		{
+			posStart = numMessages - pageSize;
+			if (posStart < 0) posStart = 0;
+		}
+
+		// pinning
+		if (pinToTop)
+		{
+			posStart = 0;
+		}
+		else if (pinToBottom)
+		{
+			posStart = numMessages - pageSize;
+			if (posStart < 0) posStart = 0;
+		}
+
+		// get the last page fully displayed
+		if (posStart + pageSize > numMessages)
+		{
+			posStart = numMessages - pageSize;
+			if (posStart < 0) posStart = 0;
+		}
+
+		// compute the end to a page size, adjusted for the number of messages available
+		int posEnd = posStart + (pageSize-1);
+		if (posEnd >= numMessages) posEnd = numMessages-1;
+		int numMessagesOnThisPage = (posEnd - posStart) + 1;
+
+		// select the messages on this page
+		for (int i = posStart; i <= posEnd; i++)
+		{
+			rv.add(allMessages.get(i));
+		}
+
+		// save which message is at the top of the page
+		ChefBrowseItem itemAtTheTopOfThePage = (ChefBrowseItem) allMessages.get(posStart);
+		state.setAttribute(STATE_TOP_PAGE_MESSAGE_ID, itemAtTheTopOfThePage.getId());
+		state.setAttribute(STATE_TOP_MESSAGE_INDEX, new Integer(posStart));
+
+
+		// which message starts the next page (if any)
+		int next = posStart + pageSize;
+		if (next < numMessages)
+		{
+			state.setAttribute(STATE_NEXT_PAGE_EXISTS, "");
+		}
+		else
+		{
+			state.removeAttribute(STATE_NEXT_PAGE_EXISTS);
+		}
+
+		// which message ends the prior page (if any)
+		int prev = posStart - 1;
+		if (prev >= 0)
+		{
+			state.setAttribute(STATE_PREV_PAGE_EXISTS, "");
+		}
+		else
+		{
+			state.removeAttribute(STATE_PREV_PAGE_EXISTS);
+		}
+
+		if (state.getAttribute(STATE_VIEW_ID) != null)
+		{
+			int viewPos = findResourceInList(allMessages, (String) state.getAttribute(STATE_VIEW_ID));
+	
+			// are we moving to the next message
+			if (goNext)
+			{
+				// advance
+				viewPos++;
+				if (viewPos >= numMessages) viewPos = numMessages-1;
+			}
+	
+			// are we moving to the prev message
+			if (goPrev)
+			{
+				// retreat
+				viewPos--;
+				if (viewPos < 0) viewPos = 0;
+			}
+			
+			// update the view message
+			state.setAttribute(STATE_VIEW_ID, ((ChefBrowseItem) allMessages.get(viewPos)).getId());
+			
+			// if the view message is no longer on the current page, adjust the page
+			// Note: next time through this will get processed
+			if (viewPos < posStart)
+			{
+				state.setAttribute(STATE_GO_PREV_PAGE, "");
+			}
+			else if (viewPos > posEnd)
+			{
+				state.setAttribute(STATE_GO_NEXT_PAGE, "");
+			}
+			
+			if (viewPos > 0)
+			{
+				state.setAttribute(STATE_PREV_EXISTS,"");
+			}
+			else
+			{
+				state.removeAttribute(STATE_PREV_EXISTS);
+			}
+			
+			if (viewPos < numMessages-1)
+			{
+				state.setAttribute(STATE_NEXT_EXISTS,"");
+			}
+			else
+			{
+				state.removeAttribute(STATE_NEXT_EXISTS);
+			}			
+		}
+
+		return rv;
+
+	}	// prepPage
+	
+	/**
+	* Find the resource with this id in the list.
+	* @param messages The list of messages.
+	* @param id The message id.
+	* @return The index position in the list of the message with this id, or -1 if not found.
+	*/
+	protected static int findResourceInList(List resources, String id)
+	{
+		for (int i = 0; i < resources.size(); i++)
+		{
+			// if this is the one, return this index
+			if (((ChefBrowseItem) (resources.get(i))).getId().equals(id)) return i;
+		}
+
+		// not found
+		return -1;
+
+	}	// findResourceInList
+
+	protected static User getUserProperty(ResourceProperties props, String name)
+	{
+		String id = props.getProperty(name);
+		if (id != null)
+		{
+			try
+			{
+				return UserDirectoryService.getUser(id);
+			}
+			catch (UserNotDefinedException e)
+			{
+			}
+		}
+		
+		return null;
+	}
+
+	/**
+	 * Find the resource name of a given resource id or filepath.
+	 * 
+	 * @param id
+	 *        The resource id.
+	 * @return the resource name.
+	 */
+	protected static String isolateName(String id)
+	{
+		if (id == null) return null;
+		if (id.length() == 0) return null;
+
+		// take after the last resource path separator, not counting one at the very end if there
+		boolean lastIsSeparator = id.charAt(id.length() - 1) == '/';
+		return id.substring(id.lastIndexOf('/', id.length() - 2) + 1, (lastIsSeparator ? id.length() - 1 : id.length()));
+
+	} // isolateName
+
+	/////////////////////////////////////////////////////////////////////////// Methods, Classes, Statics to be deprecated/removed
 	/**
 	 * Internal class that encapsulates all information about a resource that is needed in the browse mode.
 	 * This is being phased out as we switch to the resources type registry.
@@ -16338,8 +16633,7 @@ public class ResourcesAction
 			m_sortable = sortable;
 		}
 		
-	}	// inner class ChefBrowseItem
-
+	}	//	 inner class ChefBrowseItem
 
 	/**
 	 * Inner class encapsulates information about resources (folders and items) for editing
@@ -17446,812 +17740,8 @@ public class ResourcesAction
 			this.m_useRetractDate = useRetractDate;
 		}
 
-
 	}	// inner class ChefEditItem
-
-
-	/**
-	 * Inner class encapsulates information about folders (and final item?) in a collection path (a.k.a. breadcrumb)
-	 * This is being phased out as we switch to the resources type registry.
-	 */
-	public static class ChefPathItem
-	{
-		protected String m_url;
-		protected String m_name;
-		protected String m_id;
-		protected boolean m_canRead;
-		protected boolean m_isFolder;
-		protected boolean m_isLast;
-		protected String m_root;
-		protected boolean m_isLocal;
-
-		public ChefPathItem(String id, String name)
-		{
-			m_id = id;
-			m_name = name;
-			m_canRead = false;
-			m_isFolder = false;
-			m_isLast = false;
-			m_url = "";
-			m_isLocal = true;
-		}
-
-		/**
-		 * @return
-		 */
-		public boolean canRead()
-		{
-			return m_canRead;
-		}
-
-		/**
-		 * @return
-		 */
-		public String getId()
-		{
-			return m_id;
-		}
-
-		/**
-		 * @return
-		 */
-		public boolean isFolder()
-		{
-			return m_isFolder;
-		}
-
-		/**
-		 * @return
-		 */
-		public boolean isLast()
-		{
-			return m_isLast;
-		}
-
-		/**
-		 * @return
-		 */
-		public String getName()
-		{
-			return m_name;
-		}
-
-		/**
-		 * @param canRead
-		 */
-		public void setCanRead(boolean canRead)
-		{
-			m_canRead = canRead;
-		}
-
-		/**
-		 * @param id
-		 */
-		public void setId(String id)
-		{
-			m_id = id;
-		}
-
-		/**
-		 * @param isFolder
-		 */
-		public void setIsFolder(boolean isFolder)
-		{
-			m_isFolder = isFolder;
-		}
-
-		/**
-		 * @param isLast
-		 */
-		public void setLast(boolean isLast)
-		{
-			m_isLast = isLast;
-		}
-
-		/**
-		 * @param name
-		 */
-		public void setName(String name)
-		{
-			m_name = name;
-		}
-
-		/**
-		 * @return
-		 */
-		public String getUrl()
-		{
-			return m_url;
-		}
-
-		/**
-		 * @param url
-		 */
-		public void setUrl(String url)
-		{
-			m_url = url;
-		}
-
-		/**
-		 * @param root
-		 */
-		public void setRoot(String root)
-		{
-			m_root = root;
-		}
-
-		/**
-		 * @return
-		 */
-		public String getRoot()
-		{
-			return m_root;
-		}
-
-		public void setIsLocal(boolean isLocal)
-		{
-			m_isLocal = isLocal;
-		}
-
-		public boolean isLocal()
-		{
-			return m_isLocal;
-		}
-
-	}	// inner class ChefPathItem
-
-	/**
-	 *
-	 * inner class encapsulates information about groups of metadata tags (such as DC, LOM, etc.)
-	 *
-	 */
-	public static class MetadataGroup
-		extends Vector
-	{
-		/**
-		 *
-		 */
-		private static final long serialVersionUID = -821054142728929236L;
-		protected String m_name;
-		protected boolean m_isShowing;
-
-		/**
-		 * @param name
-		 */
-		public MetadataGroup(String name)
-		{
-			super();
-			m_name = name;
-			m_isShowing = false;
-		}
-
-		/**
-		 * @return
-		 */
-		public boolean isShowing()
-		{
-			return m_isShowing;
-		}
-
-		/**
-		 * @param isShowing
-		 */
-		public void setShowing(boolean isShowing)
-		{
-			m_isShowing = isShowing;
-		}
-
-
-		/**
-		 * @return
-		 */
-		public String getName()
-		{
-			return m_name;
-		}
-
-		/**
-		 * @param name
-		 */
-		public void setName(String name)
-		{
-			m_name = name;
-		}
-
-		/* (non-Javadoc)
-		 * @see java.lang.Object#equals(java.lang.Object)
-		 * needed to determine List.contains()
-		 */
-		public boolean equals(Object obj)
-		{
-			MetadataGroup mg = (MetadataGroup) obj;
-			boolean rv = (obj != null) && (m_name.equals(mg));
-			return rv;
-		}
-
-	}
-
-	public static class AttachItem
-	{
-		protected String m_id;
-		protected String m_displayName;
-		protected String m_accessUrl;
-		protected String m_collectionId;
-		protected String m_contentType;
-
-		/**
-		 * @param id
-		 * @param displayName
-		 * @param collectionId
-		 * @param accessUrl
-		 */
-		public AttachItem(String id, String displayName, String collectionId, String accessUrl)
-		{
-			m_id = id;
-			m_displayName = displayName;
-			m_collectionId = collectionId;
-			m_accessUrl = accessUrl;
-
-		}
-
-		/**
-		 * @return Returns the accessUrl.
-		 */
-		public String getAccessUrl()
-		{
-			return m_accessUrl;
-		}
-		/**
-		 * @param accessUrl The accessUrl to set.
-		 */
-		public void setAccessUrl(String accessUrl)
-		{
-			m_accessUrl = accessUrl;
-		}
-		/**
-		 * @return Returns the collectionId.
-		 */
-		public String getCollectionId()
-		{
-			return m_collectionId;
-		}
-		/**
-		 * @param collectionId The collectionId to set.
-		 */
-		public void setCollectionId(String collectionId)
-		{
-			m_collectionId = collectionId;
-		}
-		/**
-		 * @return Returns the id.
-		 */
-		public String getId()
-		{
-			return m_id;
-		}
-		/**
-		 * @param id The id to set.
-		 */
-		public void setId(String id)
-		{
-			m_id = id;
-		}
-		/**
-		 * @return Returns the name.
-		 */
-		public String getDisplayName()
-		{
-			String displayName = m_displayName;
-			if(displayName == null || displayName.trim().equals(""))
-			{
-				displayName = isolateName(m_id);
-			}
-			return displayName;
-		}
-		/**
-		 * @param name The name to set.
-		 */
-		public void setDisplayName(String name)
-		{
-			m_displayName = name;
-		}
-
-		/**
-		 * @return Returns the contentType.
-		 */
-		public String getContentType()
-		{
-			return m_contentType;
-		}
-
-		/**
-		 * @param contentType
-		 */
-		public void setContentType(String contentType)
-		{
-			this.m_contentType = contentType;
-
-		}
-
-	}	// Inner class AttachItem
-
-	public static class ElementCarrier
-	{
-		protected Element element;
-		protected String parent;
-
-		public ElementCarrier(Element element, String parent)
-		{
-			this.element = element;
-			this.parent = parent;
-
-		}
-
-		public Element getElement()
-		{
-			return element;
-		}
-
-		public void setElement(Element element)
-		{
-			this.element = element;
-		}
-
-		public String getParent()
-		{
-			return parent;
-		}
-
-		public void setParent(String parent)
-		{
-			this.parent = parent;
-		}
-
-	}
-
-	public static class SaveArtifactAttempt
-	{
-		protected ChefEditItem item;
-		protected List errors;
-		protected SchemaNode schema;
-
-		public SaveArtifactAttempt(ChefEditItem item, SchemaNode schema)
-		{
-			this.item = item;
-			this.schema = schema;
-		}
-
-		/**
-		 * @return Returns the errors.
-		 */
-		public List getErrors()
-		{
-			return errors;
-		}
-
-		/**
-		 * @param errors The errors to set.
-		 */
-		public void setErrors(List errors)
-		{
-			this.errors = errors;
-		}
-
-		/**
-		 * @return Returns the item.
-		 */
-		public ChefEditItem getItem()
-		{
-			return item;
-		}
-
-		/**
-		 * @param item The item to set.
-		 */
-		public void setItem(ChefEditItem item)
-		{
-			this.item = item;
-		}
-
-		/**
-		 * @return Returns the schema.
-		 */
-		public SchemaNode getSchema()
-		{
-			return schema;
-		}
-
-		/**
-		 * @param schema The schema to set.
-		 */
-		public void setSchema(SchemaNode schema)
-		{
-			this.schema = schema;
-		}
-
-	}
-
-	/**
-	* Develop a list of all the site collections that there are to page.
-	* Sort them as appropriate, and apply search criteria.
-	*/
-	protected static List readAllResources(SessionState state)
-	{
-		List other_sites = new Vector();
-
-		String collectionId = (String) state.getAttribute (STATE_ATTACH_COLLECTION_ID);
-		if(collectionId == null)
-		{
-			collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
-		}
-//		SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-//		if(expandedCollections == null)
-//		{
-//			expandedCollections = new TreeSet();
-//			state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
-//		}
-		
-		// set the sort values
-		String sortedBy = (String) state.getAttribute (STATE_SORT_BY);
-		String sortedAsc = (String) state.getAttribute (STATE_SORT_ASC);
-		
-		Boolean showRemove = (Boolean) state.getAttribute(STATE_SHOW_REMOVE_ACTION);
-		boolean showRemoveAction = showRemove != null && showRemove.booleanValue();
-		
-		Boolean showMove = (Boolean) state.getAttribute(STATE_SHOW_MOVE_ACTION);
-		boolean showMoveAction = showMove != null && showMove.booleanValue();
-		
-		Boolean showCopy = (Boolean) state.getAttribute(STATE_SHOW_COPY_ACTION);
-		boolean showCopyAction = showCopy != null && showCopy.booleanValue();
-		
-		Set highlightedItems = (Set) state.getAttribute(STATE_HIGHLIGHTED_ITEMS);
-		
-
-		// add user's personal workspace
-		User user = UserDirectoryService.getCurrentUser();
-		String userId = user.getId();
-		String userName = user.getDisplayName();
-		String wsId = SiteService.getUserSiteId(userId);
-		String wsCollectionId = ContentHostingService.getSiteCollection(wsId);
-		if(! collectionId.equals(wsCollectionId))
-		{
-			List members = getListView(wsCollectionId, highlightedItems, (ChefBrowseItem) null, false, state);
-
-            //List members = getBrowseItems(wsCollectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, false, state);
-            if(members != null && members.size() > 0)
-		    {
-		        ChefBrowseItem root = (ChefBrowseItem) members.remove(0);
-				showRemoveAction = showRemoveAction || root.hasDeletableChildren();
-				showMoveAction = showMoveAction || root.hasDeletableChildren();
-				showCopyAction = showCopyAction || root.hasCopyableChildren();
-				
-		        root.addMembers(members);
-		        root.setName(userName + " " + rb.getString("gen.wsreso"));
-		        other_sites.add(root);
-		    }
-		}
-		
-        	// add all other sites user has access to
-		/*
-		 * NOTE: This does not (and should not) get all sites for admin.  
-		 *       Getting all sites for admin is too big a request and
-		 *       would result in too big a display to render in html.
-		 */
-		Map othersites = ContentHostingService.getCollectionMap();
-		Iterator siteIt = othersites.keySet().iterator();
-		SortedSet sort = new TreeSet();
-		while(siteIt.hasNext())
-		{
-              String collId = (String) siteIt.next();
-              String displayName = (String) othersites.get(collId);
-              sort.add(displayName + DELIM + collId);
-		}
-		
-		Iterator sortIt = sort.iterator();
-		while(sortIt.hasNext())
-		{
-			String item = (String) sortIt.next();
-			String displayName = item.substring(0, item.lastIndexOf(DELIM));
-			String collId = item.substring(item.lastIndexOf(DELIM) + 1);
-			if(! collectionId.equals(collId) && ! wsCollectionId.equals(collId))
-			{
-				List members = getListView(collId, highlightedItems, (ChefBrowseItem) null, false, state);
-
-				// List members = getBrowseItems(collId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, false, state);
-				if(members != null && members.size() > 0)
-				{
-					ChefBrowseItem root = (ChefBrowseItem) members.remove(0);
-					root.addMembers(members);
-					root.setName(displayName);
-					other_sites.add(root);
-				}
-              }
-          }
-		
-		return other_sites;
-	}
 	
-	/**
-	* Prepare the current page of site collections to display.
-	* @return List of ChefBrowseItem objects to display on this page.
-	*/
-	protected static List prepPage(SessionState state)
-	{
-		List rv = new Vector();
-
-		// access the page size
-		int pageSize = ((Integer) state.getAttribute(STATE_PAGESIZE)).intValue();
-
-		// cleanup prior prep
-		state.removeAttribute(STATE_NUM_MESSAGES);
-
-		// are we going next or prev, first or last page?
-		boolean goNextPage = state.getAttribute(STATE_GO_NEXT_PAGE) != null;
-		boolean goPrevPage = state.getAttribute(STATE_GO_PREV_PAGE) != null;
-		boolean goFirstPage = state.getAttribute(STATE_GO_FIRST_PAGE) != null;
-		boolean goLastPage = state.getAttribute(STATE_GO_LAST_PAGE) != null;
-		state.removeAttribute(STATE_GO_NEXT_PAGE);
-		state.removeAttribute(STATE_GO_PREV_PAGE);
-		state.removeAttribute(STATE_GO_FIRST_PAGE);
-		state.removeAttribute(STATE_GO_LAST_PAGE);
-
-		// are we going next or prev message?
-		boolean goNext = state.getAttribute(STATE_GO_NEXT) != null;
-		boolean goPrev = state.getAttribute(STATE_GO_PREV) != null;
-		state.removeAttribute(STATE_GO_NEXT);
-		state.removeAttribute(STATE_GO_PREV);
-
-		// read all channel messages
-		List allMessages = readAllResources(state);
-
-		if (allMessages == null)
-		{
-			return rv;
-		}
-		
-		String messageIdAtTheTopOfThePage = null;
-		Object topMsgId = state.getAttribute(STATE_TOP_PAGE_MESSAGE_ID);
-		if(topMsgId == null)
-		{
-			// do nothing
-		}
-		else if(topMsgId instanceof Integer)
-		{
-			messageIdAtTheTopOfThePage = ((Integer) topMsgId).toString();
-		}
-		else if(topMsgId instanceof String)
-		{
-			messageIdAtTheTopOfThePage = (String) topMsgId;
-		}
-
-		// if we have no prev page and do have a top message, then we will stay "pinned" to the top
-		boolean pinToTop = (	(messageIdAtTheTopOfThePage != null)
-							&&	(state.getAttribute(STATE_PREV_PAGE_EXISTS) == null)
-							&&	!goNextPage && !goPrevPage && !goNext && !goPrev && !goFirstPage && !goLastPage);
-
-		// if we have no next page and do have a top message, then we will stay "pinned" to the bottom
-		boolean pinToBottom = (	(messageIdAtTheTopOfThePage != null)
-							&&	(state.getAttribute(STATE_NEXT_PAGE_EXISTS) == null)
-							&&	!goNextPage && !goPrevPage && !goNext && !goPrev && !goFirstPage && !goLastPage);
-
-		// how many messages, total
-		int numMessages = allMessages.size();
-
-		if (numMessages == 0)
-		{
-			return rv;
-		}
-
-		// save the number of messges
-		state.setAttribute(STATE_NUM_MESSAGES, new Integer(numMessages));
-
-		// find the position of the message that is the top first on the page
-		int posStart = 0;
-		if (messageIdAtTheTopOfThePage != null)
-		{
-			// find the next page
-			posStart = findResourceInList(allMessages, messageIdAtTheTopOfThePage);
-
-			// if missing, start at the top
-			if (posStart == -1)
-			{
-				posStart = 0;
-			}
-		}
-		
-		// if going to the next page, adjust
-		if (goNextPage)
-		{
-			posStart += pageSize;
-		}
-
-		// if going to the prev page, adjust
-		else if (goPrevPage)
-		{
-			posStart -= pageSize;
-			if (posStart < 0) posStart = 0;
-		}
-		
-		// if going to the first page, adjust
-		else if (goFirstPage)
-		{
-			posStart = 0;
-		}
-		
-		// if going to the last page, adjust
-		else if (goLastPage)
-		{
-			posStart = numMessages - pageSize;
-			if (posStart < 0) posStart = 0;
-		}
-
-		// pinning
-		if (pinToTop)
-		{
-			posStart = 0;
-		}
-		else if (pinToBottom)
-		{
-			posStart = numMessages - pageSize;
-			if (posStart < 0) posStart = 0;
-		}
-
-		// get the last page fully displayed
-		if (posStart + pageSize > numMessages)
-		{
-			posStart = numMessages - pageSize;
-			if (posStart < 0) posStart = 0;
-		}
-
-		// compute the end to a page size, adjusted for the number of messages available
-		int posEnd = posStart + (pageSize-1);
-		if (posEnd >= numMessages) posEnd = numMessages-1;
-		int numMessagesOnThisPage = (posEnd - posStart) + 1;
-
-		// select the messages on this page
-		for (int i = posStart; i <= posEnd; i++)
-		{
-			rv.add(allMessages.get(i));
-		}
-
-		// save which message is at the top of the page
-		ChefBrowseItem itemAtTheTopOfThePage = (ChefBrowseItem) allMessages.get(posStart);
-		state.setAttribute(STATE_TOP_PAGE_MESSAGE_ID, itemAtTheTopOfThePage.getId());
-		state.setAttribute(STATE_TOP_MESSAGE_INDEX, new Integer(posStart));
-
-
-		// which message starts the next page (if any)
-		int next = posStart + pageSize;
-		if (next < numMessages)
-		{
-			state.setAttribute(STATE_NEXT_PAGE_EXISTS, "");
-		}
-		else
-		{
-			state.removeAttribute(STATE_NEXT_PAGE_EXISTS);
-		}
-
-		// which message ends the prior page (if any)
-		int prev = posStart - 1;
-		if (prev >= 0)
-		{
-			state.setAttribute(STATE_PREV_PAGE_EXISTS, "");
-		}
-		else
-		{
-			state.removeAttribute(STATE_PREV_PAGE_EXISTS);
-		}
-
-		if (state.getAttribute(STATE_VIEW_ID) != null)
-		{
-			int viewPos = findResourceInList(allMessages, (String) state.getAttribute(STATE_VIEW_ID));
 	
-			// are we moving to the next message
-			if (goNext)
-			{
-				// advance
-				viewPos++;
-				if (viewPos >= numMessages) viewPos = numMessages-1;
-			}
-	
-			// are we moving to the prev message
-			if (goPrev)
-			{
-				// retreat
-				viewPos--;
-				if (viewPos < 0) viewPos = 0;
-			}
-			
-			// update the view message
-			state.setAttribute(STATE_VIEW_ID, ((ChefBrowseItem) allMessages.get(viewPos)).getId());
-			
-			// if the view message is no longer on the current page, adjust the page
-			// Note: next time through this will get processed
-			if (viewPos < posStart)
-			{
-				state.setAttribute(STATE_GO_PREV_PAGE, "");
-			}
-			else if (viewPos > posEnd)
-			{
-				state.setAttribute(STATE_GO_NEXT_PAGE, "");
-			}
-			
-			if (viewPos > 0)
-			{
-				state.setAttribute(STATE_PREV_EXISTS,"");
-			}
-			else
-			{
-				state.removeAttribute(STATE_PREV_EXISTS);
-			}
-			
-			if (viewPos < numMessages-1)
-			{
-				state.setAttribute(STATE_NEXT_EXISTS,"");
-			}
-			else
-			{
-				state.removeAttribute(STATE_NEXT_EXISTS);
-			}			
-		}
-
-		return rv;
-
-	}	// prepPage
-	
-	/**
-	* Find the resource with this id in the list.
-	* @param messages The list of messages.
-	* @param id The message id.
-	* @return The index position in the list of the message with this id, or -1 if not found.
-	*/
-	protected static int findResourceInList(List resources, String id)
-	{
-		for (int i = 0; i < resources.size(); i++)
-		{
-			// if this is the one, return this index
-			if (((ChefBrowseItem) (resources.get(i))).getId().equals(id)) return i;
-		}
-
-		// not found
-		return -1;
-
-	}	// findResourceInList
-
-	protected static User getUserProperty(ResourceProperties props, String name)
-	{
-		String id = props.getProperty(name);
-		if (id != null)
-		{
-			try
-			{
-				return UserDirectoryService.getUser(id);
-			}
-			catch (UserNotDefinedException e)
-			{
-			}
-		}
-		
-		return null;
-	}
-
-	/**
-	 * Find the resource name of a given resource id or filepath.
-	 * 
-	 * @param id
-	 *        The resource id.
-	 * @return the resource name.
-	 */
-	protected static String isolateName(String id)
-	{
-		if (id == null) return null;
-		if (id.length() == 0) return null;
-
-		// take after the last resource path separator, not counting one at the very end if there
-		boolean lastIsSeparator = id.charAt(id.length() - 1) == '/';
-		return id.substring(id.lastIndexOf('/', id.length() - 2) + 1, (lastIsSeparator ? id.length() - 1 : id.length()));
-
-	} // isolateName
-
 
 }	// ResourcesAction
