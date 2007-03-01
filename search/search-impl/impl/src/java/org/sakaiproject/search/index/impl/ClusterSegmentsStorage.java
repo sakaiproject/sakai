@@ -14,7 +14,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.search.index.impl.JDBCClusterIndexStore.SegmentInfo;
+import org.sakaiproject.search.index.SegmentInfo;
 
 public class ClusterSegmentsStorage
 {
@@ -81,7 +81,7 @@ public class ClusterSegmentsStorage
 
 			try
 			{
-				clusterIndexStore.checkSegmentValidity(addsi.getName(), true);
+				addsi.checkSegmentValidity(true);
 			}
 			catch (Exception ex)
 			{
@@ -90,6 +90,7 @@ public class ClusterSegmentsStorage
 			}
 
 			addsi.setVersion(version);
+			addsi.setCreated();
 			log.debug("Synced " + addsi);
 
 		}
@@ -169,27 +170,25 @@ public class ClusterSegmentsStorage
 			throws IOException
 	{
 
+		// just prior to packing a segment we can say its created
+		addsi.setCreated();
+		
 		File tmpFile = new File(searchIndexDirectory, PACKFILE
 				+ String.valueOf(System.currentTimeMillis()) + ".zip");
 		ZipOutputStream zout = new ZipOutputStream(
 				new FileOutputStream(tmpFile));
-		File segmentFile = clusterIndexStore.getSegmentLocation(addsi.getName(),
-				localStructuredStorage);
-		clusterIndexStore.setCheckSum(segmentFile);
-		clusterIndexStore.setTimeStamp(segmentFile, newVersion);
+		addsi.setCheckSum();
+		addsi.setTimeStamp( newVersion);
 
 		byte[] buffer = new byte[4096];
-		if (segmentFile.isDirectory())
-		{
-			addFile(segmentFile, zout, buffer, 0);
-		}
+		addFile(addsi.getSegmentLocation(), zout, buffer, 0);
 		zout.close();
 		// touch the version
 
 		try
 		{
 			log.debug("Packed " + tmpFile.getName() + "|"
-					+ clusterIndexStore.getNewCheckSum(addsi.getName()) + "|" + tmpFile.length()
+					+ addsi.getCheckSum() + "|" + tmpFile.length()
 					+ "|" + addsi);
 		}
 		catch (Exception e)
@@ -243,9 +242,11 @@ public class ClusterSegmentsStorage
 		List l = clusterIndexStore.getLocalSegments();
 		for (Iterator li = l.iterator(); li.hasNext();)
 		{
-			SegmentInfo sgi = (SegmentInfo) li.next();
-			File f = clusterIndexStore.getSegmentLocation(sgi.getName(), localStructuredStorage);
-			addFile(f, zout, buffer, sgi.getVersion());
+			SegmentInfoImpl sgi = (SegmentInfoImpl) li.next();
+			if ( sgi.isCreated() ) { // Only add segment locations that are created
+				File f = sgi.getSegmentLocation();
+				addFile(f, zout, buffer, sgi.getVersion());
+			}
 		}
 		zout.close();
 		return tmpFile;

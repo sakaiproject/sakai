@@ -26,10 +26,10 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * ClusterFilesystem provides the mechanism by which the local search index is syncronsed
- * with the clustered file system
+ * ClusterFilesystem provides the mechanism by which the local search index is
+ * syncronsed with the clustered file system
+ * 
  * @author ieb
- *
  */
 public interface ClusterFilesystem
 {
@@ -40,7 +40,7 @@ public interface ClusterFilesystem
 	 * 
 	 * @return
 	 */
-	List updateSegments();
+	List<SegmentInfo> updateSegments();
 
 	/**
 	 * get the total size of a segment
@@ -48,7 +48,7 @@ public interface ClusterFilesystem
 	 * @param currentSegment
 	 * @return
 	 */
-	long getTotalSize(File currentSegment);
+//	long getTotalSize(File currentSegment);
 
 	/**
 	 * saves the segments returning a list of segments that were sent to the
@@ -56,13 +56,15 @@ public interface ClusterFilesystem
 	 * 
 	 * @return
 	 */
-	List saveSegments();
-	
+	List<SegmentInfo> saveSegments();
+
 	/**
-	 * Forces all segments from this system into the DB, does not delete any inthe db.
+	 * Forces all segments from this system into the DB, does not delete any
+	 * inthe db.
+	 * 
 	 * @return
 	 */
-	List saveAllSegments();
+	List<SegmentInfo> saveAllSegments();
 
 	/**
 	 * create a new segment
@@ -70,7 +72,7 @@ public interface ClusterFilesystem
 	 * @return
 	 * @throws IOException
 	 */
-	File newSegment() throws IOException;
+	SegmentInfo newSegment() throws IOException;
 
 	/**
 	 * set the location information for the cluster file store
@@ -86,66 +88,73 @@ public interface ClusterFilesystem
 	 * @param currentSegment
 	 * @throws IOException
 	 */
-	void touchSegment(File currentSegment) throws IOException;
+//	void touchSegment(File currentSegment) throws IOException;
 
 	/**
 	 * get a clean temporary index space for building a detached segment
-	 * @param delete if true the temp index will be deleted first, there is only 1 temp index per location
+	 * 
+	 * @param delete
+	 *        if true the temp index will be deleted first, there is only 1 temp
+	 *        index per location
 	 * @return
 	 */
 	File getTemporarySegment(boolean delete);
 
 	/**
 	 * removes the temporary segment
-	 *
 	 */
 	void removeTemporarySegment();
 
 	/**
 	 * Recover a dammaged segment from the DB
+	 * 
 	 * @param segment
 	 */
-	void recoverSegment(String segment);
+	void recoverSegment(SegmentInfo segment);
 
-	/** 
+	/**
 	 * gets the segment name from a path
+	 * 
 	 * @param segment
 	 * @return
 	 */
-	String getSegmentName(String segment);
+//	String getSegmentName(String segment);
 
 	/**
 	 * Checks that a segment is valid
+	 * 
 	 * @param segmentName
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	boolean checkSegmentValidity(String segmentName) throws Exception;
 
 	/**
 	 * Remove a segment from the index.
+	 * 
 	 * @param mergeSegment
 	 */
-	void removeLocalSegment(File mergeSegment);
+	void removeLocalSegment(SegmentInfo mergeSegment);
 
 	long getLastUpdate();
 
 	List getSegmentInfoList();
 
 	/**
-	 * if the thread already has a lock ignore
-	 * get a lock on the index so that it can be updated
-	 * this should block untill a lock becomes free
+	 * if the thread already has a lock ignore get a lock on the index so that
+	 * it can be updated this should block untill a lock becomes free
 	 */
 	void getLock();
 
 	/**
-	 * release the lock, only if there is one
-	 * this should block untill a lock becomes free
+	 * release the lock, only if there is one this should block untill a lock
+	 * becomes free
 	 */
 	void releaseLock();
 
 	/**
-	 * can the Cluster Filesystem cope with multiple indexers running at the same time
+	 * can the Cluster Filesystem cope with multiple indexers running at the
+	 * same time
+	 * 
 	 * @return
 	 */
 	boolean isMultipleIndexers();

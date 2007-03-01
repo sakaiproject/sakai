@@ -331,25 +331,25 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 										Field.Index.UN_TOKENIZED));
 								doc.add(new Field(
 										SearchService.FIELD_CONTAINER,
-										container, Field.Store.COMPRESS,
+										filterNull(container), Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
-								doc.add(new Field(SearchService.FIELD_ID, ref
-										.getId(), Field.Store.COMPRESS,
+								doc.add(new Field(SearchService.FIELD_ID, filterNull(ref
+										.getId()), Field.Store.COMPRESS,
 										Field.Index.NO));
-								doc.add(new Field(SearchService.FIELD_TYPE, ref
-										.getType(), Field.Store.COMPRESS,
+								doc.add(new Field(SearchService.FIELD_TYPE, filterNull(ref
+										.getType()), Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
 								doc.add(new Field(SearchService.FIELD_SUBTYPE,
-										ref.getSubType(), Field.Store.COMPRESS,
+										filterNull(ref.getSubType()), Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
 								doc.add(new Field(
-										SearchService.FIELD_REFERENCE, ref
-												.getReference(),
+										SearchService.FIELD_REFERENCE, filterNull(ref
+												.getReference()),
 										Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
 
 								doc.add(new Field(SearchService.FIELD_CONTEXT,
-										sep.getSiteId(ref),
+										filterNull(sep.getSiteId(ref)),
 										Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
 								if (sep.isContentFromReader(entity))
@@ -365,25 +365,27 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 								else
 								{
 									doc.add(new Field(
-											SearchService.FIELD_CONTENTS, sep
-													.getContent(entity),
+											SearchService.FIELD_CONTENTS, 
+											filterNull(sep
+													.getContent(entity)),
 											Field.Store.NO,
 											Field.Index.TOKENIZED,
 											Field.TermVector.YES));
 								}
+								
 								doc.add(new Field(SearchService.FIELD_TITLE,
-										sep.getTitle(entity),
+										filterNull(sep.getTitle(entity)),
 										Field.Store.COMPRESS,
 										Field.Index.TOKENIZED,
 										Field.TermVector.YES));
-								doc.add(new Field(SearchService.FIELD_TOOL, sep
-										.getTool(), Field.Store.COMPRESS,
+								doc.add(new Field(SearchService.FIELD_TOOL, 
+										filterNull(sep.getTool()), Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
-								doc.add(new Field(SearchService.FIELD_URL, sep
-										.getUrl(entity), Field.Store.COMPRESS,
+								doc.add(new Field(SearchService.FIELD_URL, 
+										filterNull(sep.getUrl(entity)), Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
 								doc.add(new Field(SearchService.FIELD_SITEID,
-										sep.getSiteId(ref),
+										filterNull(sep.getSiteId(ref)),
 										Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
 
@@ -422,7 +424,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 												doc
 														.add(new Field(
 																key,
-																values[i],
+																filterNull(values[i]),
 																Field.Store.COMPRESS,
 																Field.Index.UN_TOKENIZED));
 											}
@@ -506,6 +508,18 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 			}
 		}
 
+	}
+
+	/**
+	 * @param title
+	 * @return
+	 */
+	private String filterNull(String s)
+	{
+		if (  s == null ) {
+			return "";
+		}
+		return s;
 	}
 
 	private int completeUpdate(SearchIndexBuilderWorker worker,
