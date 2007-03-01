@@ -21,16 +21,14 @@
 
 package org.sakaiproject.assignment.taggable.api;
 
-import org.sakaiproject.entity.api.Entity;
-
 import java.util.List;
 
 /**
- * A tag between entities.
+ * A tag from an activity to some object.
  * 
  * @author The Sakai Foundation.
  */
-public interface Tag extends Entity {
+public interface Tag {
 
 	/**
 	 * @return A reference for the activity from which the tag originated.
@@ -38,9 +36,9 @@ public interface Tag extends Entity {
 	public String getActivityRef();
 
 	/**
-	 * @return The entity to which the tag was applied.
+	 * @return The object to which the tag was applied.
 	 */
-	public Entity getEntity();
+	public Object getObject();
 
 	/**
 	 * Method to get the displayable data for each of this tag's fields. This
