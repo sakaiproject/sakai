@@ -199,7 +199,6 @@
 			#set($rootcount = 0)
 			#foreach($root in $this_site)
 				#set($rootcount = $rootcount + 1)
-				<!-- $sysout.println("\n======> new root: $root <======") -->
 				############################### Show top level folder #################
 				<tr>
 					<td headers="expansion">

@@ -211,7 +211,6 @@ public class ResourcesAction
 	{
 		public String getLabel(ResourceToolAction action)
 		{
-			System.out.println("actionType == " + action.getActionType() + " actionLabel == " + action.getLabel());
 			String label = action.getLabel();
 			if(label == null)
 			{
@@ -2164,7 +2163,7 @@ public class ResourcesAction
 			// if the mode is not done, defer to the helper context
 			if (!mode.equals(ResourcesAction.MODE_ATTACHMENT_DONE))
 			{
-				template = ResourcesAction.buildHelperContext(portlet, context, data, state);
+				template = buildHelperContext(portlet, context, data, state);
 				// template = AttachmentAction.buildHelperContext(portlet, context, runData, sstate);
 				return template;
 			}
@@ -2247,6 +2246,201 @@ public class ResourcesAction
 		return template;
 
 	}	// buildMainPanelContext
+
+	/**
+	* Build the context for the helper view
+	*/
+	public static String buildHelperContext (	VelocityPortlet portlet,
+										Context context,
+										RunData data,
+										SessionState state)
+	{
+		if(state.getAttribute(STATE_INITIALIZED) == null)
+		{
+			initStateAttributes(state, portlet);
+			if(state.getAttribute(ResourcesAction.STATE_HELPER_CANCELED_BY_USER) != null)
+			{
+				state.removeAttribute(ResourcesAction.STATE_HELPER_CANCELED_BY_USER);
+			}
+		}
+		String mode = (String) state.getAttribute(STATE_MODE);
+		if(state.getAttribute(STATE_MODE_RESOURCES) == null && MODE_HELPER.equals(mode))
+		{
+			state.setAttribute(ResourcesAction.STATE_MODE_RESOURCES, ResourcesAction.MODE_HELPER);
+		}
+
+		Set selectedItems = (Set) state.getAttribute(STATE_LIST_SELECTIONS);
+		if(selectedItems == null)
+		{
+			selectedItems = new TreeSet();
+			state.setAttribute(STATE_LIST_SELECTIONS, selectedItems);
+		}
+		context.put("selectedItems", selectedItems);
+
+		String helper_mode = (String) state.getAttribute(STATE_RESOURCES_HELPER_MODE);
+		boolean need_to_push = false;
+
+		if(MODE_ATTACHMENT_SELECT.equals(helper_mode))
+		{
+			need_to_push = true;
+			helper_mode = MODE_ATTACHMENT_SELECT_INIT;
+		}
+		else if(MODE_ATTACHMENT_CREATE.equals(helper_mode))
+		{
+			need_to_push = true;
+			helper_mode = MODE_ATTACHMENT_CREATE_INIT;
+		}
+		else if(MODE_ATTACHMENT_NEW_ITEM.equals(helper_mode))
+		{
+			need_to_push = true;
+			helper_mode = MODE_ATTACHMENT_NEW_ITEM_INIT;
+		}
+		else if(MODE_ATTACHMENT_EDIT_ITEM.equals(helper_mode))
+		{
+			need_to_push = true;
+			helper_mode = MODE_ATTACHMENT_EDIT_ITEM_INIT;
+		}
+
+		Map current_stack_frame = null;
+
+		if(need_to_push)
+		{
+			current_stack_frame = pushOnStack(state);
+			current_stack_frame.put(STATE_STACK_EDIT_INTENT, INTENT_REVISE_FILE);
+
+			state.setAttribute(VelocityPortletPaneledAction.STATE_HELPER, ResourcesAction.class.getName());
+			state.setAttribute(STATE_RESOURCES_HELPER_MODE, helper_mode);
+
+			if(MODE_ATTACHMENT_EDIT_ITEM_INIT.equals(helper_mode))
+			{
+				String attachmentId = (String) state.getAttribute(STATE_EDIT_ID);
+				if(attachmentId != null)
+				{
+					current_stack_frame.put(STATE_STACK_EDIT_ID, attachmentId);
+					String collectionId = ContentHostingService.getContainingCollectionId(attachmentId);
+					current_stack_frame.put(STATE_STACK_EDIT_COLLECTION_ID, collectionId);
+
+					ChefEditItem item = getEditItem(attachmentId, collectionId, data);
+
+					if (state.getAttribute(STATE_MESSAGE) == null)
+					{
+						// got resource and sucessfully populated item with values
+						state.setAttribute(STATE_EDIT_ALERTS, new HashSet());
+						current_stack_frame.put(STATE_STACK_EDIT_ITEM, item);
+					}
+				}
+			}
+			else
+			{
+				List attachments = (List) state.getAttribute(STATE_ATTACHMENTS);
+				if(attachments == null)
+				{
+					attachments = EntityManager.newReferenceList();
+				}
+
+				List attached = new Vector();
+
+				Iterator it = attachments.iterator();
+				while(it.hasNext())
+				{
+					try
+					{
+						Reference ref = (Reference) it.next();
+						String itemId = ref.getId();
+						ResourceProperties properties = ref.getProperties();
+						String displayName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+						String containerId = ref.getContainer();
+						String accessUrl = ContentHostingService.getUrl(itemId);
+						String contentType = properties.getProperty(ResourceProperties.PROP_CONTENT_TYPE);
+
+						AttachItem item = new AttachItem(itemId, displayName, containerId, accessUrl);
+						item.setContentType(contentType);
+						attached.add(item);
+					}
+					catch(Exception ignore) {}
+				}
+				current_stack_frame.put(STATE_HELPER_NEW_ITEMS, attached);
+			}
+		}
+		else
+		{
+			current_stack_frame = peekAtStack(state);
+			if(current_stack_frame.get(STATE_STACK_EDIT_INTENT) == null)
+			{
+				current_stack_frame.put(STATE_STACK_EDIT_INTENT, INTENT_REVISE_FILE);
+			}
+		}
+		if(helper_mode == null)
+		{
+			helper_mode = (String) current_stack_frame.get(STATE_RESOURCES_HELPER_MODE);
+		}
+		else
+		{
+			current_stack_frame.put(STATE_RESOURCES_HELPER_MODE, helper_mode);
+		}
+
+		String helper_title = (String) current_stack_frame.get(STATE_ATTACH_TITLE);
+		if(helper_title == null)
+		{
+			helper_title = (String) state.getAttribute(STATE_ATTACH_TITLE);
+			if(helper_title != null)
+			{
+				current_stack_frame.put(STATE_ATTACH_TITLE, helper_title);
+			}
+		}
+		if(helper_title != null)
+		{
+			context.put("helper_title", helper_title);
+		}
+
+		String helper_instruction = (String) current_stack_frame.get(STATE_ATTACH_INSTRUCTION);
+		if(helper_instruction == null)
+		{
+			helper_instruction = (String) state.getAttribute(STATE_ATTACH_INSTRUCTION);
+			if(helper_instruction != null)
+			{
+				current_stack_frame.put(STATE_ATTACH_INSTRUCTION, helper_instruction);
+			}
+		}
+		if(helper_instruction != null)
+		{
+			context.put("helper_instruction", helper_instruction);
+		}
+
+		String title = (String) current_stack_frame.get(STATE_STACK_EDIT_ITEM_TITLE);
+		if(title == null)
+		{
+			title = (String) state.getAttribute(STATE_ATTACH_TEXT);
+			if(title != null)
+			{
+				current_stack_frame.put(STATE_STACK_EDIT_ITEM_TITLE, title);
+			}
+		}
+		if(title != null && title.trim().length() > 0)
+		{
+			context.put("helper_subtitle", title);
+		}
+
+		String template = null;
+		if(MODE_ATTACHMENT_SELECT_INIT.equals(helper_mode))
+		{
+			template = buildSelectAttachmentContext(portlet, context, data, state);
+		}
+		else if(MODE_ATTACHMENT_CREATE_INIT.equals(helper_mode))
+		{
+			template = buildCreateContext(portlet, context, data, state);
+		}
+		else if(MODE_ATTACHMENT_NEW_ITEM_INIT.equals(helper_mode))
+		{
+			template = buildItemTypeContext(portlet, context, data, state);
+		}
+		else if(MODE_ATTACHMENT_EDIT_ITEM_INIT.equals(helper_mode))
+		{
+			template = buildEditContext(portlet, context, data, state);
+		}
+		return template;
+		
+	}	// buildHelperContext
 
 	/**
 	 * @param portlet
@@ -4430,8 +4624,6 @@ public class ResourcesAction
 	{
 		context.put("tlang",rb);
 		
-		context.put("sysout", System.out);
-
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
 
@@ -5368,10 +5560,10 @@ public class ResourcesAction
 		
 		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 
-		Set alerts = (Set) state.getAttribute(STATE_CREATE_ALERTS);
+		Set<String> alerts = (Set<String>) state.getAttribute(STATE_CREATE_ALERTS);
 		if(alerts == null)
 		{
-			alerts = new HashSet();
+			alerts = new HashSet<String>();
 			state.setAttribute(STATE_CREATE_ALERTS, alerts);
 		}
 		Set missing = new HashSet();
@@ -7866,115 +8058,6 @@ public class ResourcesAction
 			state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, ServerConfigurationService.getString("content.upload.max", "1"));
 		}
 		
-//		for(int i = 0; i < 255; i++)
-//		{
-//			try {
-//				if(i < 10)
-//				{
-//					ContentCollectionEdit edit = ContentHostingService.addCollection("/user/x00" + i + "/");
-//					ContentHostingService.commitCollection(edit);
-//					System.out.println("addCollection(\"/user/x00" + i + "/\")");
-//				}
-//				else if(i < 100)
-//				{
-//					ContentCollectionEdit edit = ContentHostingService.addCollection("/user/x0" + i + "/");
-//					ContentHostingService.commitCollection(edit);
-//					System.out.println("addCollection(\"/user/x0" + i + "/\")");
-//				}
-//				else 
-//				{
-//					ContentCollectionEdit edit = ContentHostingService.addCollection("/user/x" + i + "/");
-//					ContentHostingService.commitCollection(edit);
-//					System.out.println("addCollection(\"/user/x" + i + "/\")");
-//				}
-//			} catch (IdUsedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			} catch (IdInvalidException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			} catch (PermissionException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			} catch (InconsistentException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
-//		for(int i = 0; i < 255; i++)
-//		{
-//			try {
-//				if(i < 10)
-//				{
-//					ContentCollectionEdit edit = ContentHostingService.addCollection("/public/x00" + i + "/");
-//					ContentHostingService.commitCollection(edit);
-//					System.out.println("addCollection(\"/public/x00" + i + "/\")");
-//				}
-//				else if(i < 100)
-//				{
-//					ContentCollectionEdit edit = ContentHostingService.addCollection("/public/x0" + i + "/");
-//					ContentHostingService.commitCollection(edit);
-//					System.out.println("addCollection(\"/public/x0" + i + "/\")");
-//				}
-//				else 
-//				{
-//					ContentCollectionEdit edit = ContentHostingService.addCollection("/public/x" + i + "/");
-//					ContentHostingService.commitCollection(edit);
-//					System.out.println("addCollection(\"/public/x" + i + "/\")");
-//				}
-//			} catch (IdUsedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			} catch (IdInvalidException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			} catch (PermissionException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			} catch (InconsistentException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
-//		
-//		for(int i = 0; i < 257; i++)
-//		{
-//			try {
-//				if(i < 10)
-//				{
-//					ContentCollectionEdit edit = ContentHostingService.addCollection("/group/x00" + i + "/");
-//					ContentHostingService.commitCollection(edit);
-//					System.out.println("addCollection(\"/group/x00" + i + "/\")");
-//				}
-//				else if(i < 100)
-//				{
-//					ContentCollectionEdit edit = ContentHostingService.addCollection("/group/x0" + i + "/");
-//					ContentHostingService.commitCollection(edit);
-//					System.out.println("addCollection(\"/group/x0" + i + "/\")");
-//				}
-//				else 
-//				{
-//					ContentCollectionEdit edit = ContentHostingService.addCollection("/group/x" + i + "/");
-//					ContentHostingService.commitCollection(edit);
-//					System.out.println("addCollection(\"/group/x" + i + "/\")");
-//				}
-//			} catch (IdUsedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			} catch (IdInvalidException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			} catch (PermissionException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			} catch (InconsistentException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
-//
-//
-
 		PortletConfig config = portlet.getPortletConfig();
 		try
 		{
@@ -12880,201 +12963,6 @@ public class ResourcesAction
 
 	}	// buildEditContext
 
-	/**
-	* Build the context for the helper view
-	*/
-	public static String buildHelperContext (	VelocityPortlet portlet,
-										Context context,
-										RunData data,
-										SessionState state)
-	{
-		if(state.getAttribute(STATE_INITIALIZED) == null)
-		{
-			initStateAttributes(state, portlet);
-			if(state.getAttribute(ResourcesAction.STATE_HELPER_CANCELED_BY_USER) != null)
-			{
-				state.removeAttribute(ResourcesAction.STATE_HELPER_CANCELED_BY_USER);
-			}
-		}
-		String mode = (String) state.getAttribute(STATE_MODE);
-		if(state.getAttribute(STATE_MODE_RESOURCES) == null && MODE_HELPER.equals(mode))
-		{
-			state.setAttribute(ResourcesAction.STATE_MODE_RESOURCES, ResourcesAction.MODE_HELPER);
-		}
-
-		Set selectedItems = (Set) state.getAttribute(STATE_LIST_SELECTIONS);
-		if(selectedItems == null)
-		{
-			selectedItems = new TreeSet();
-			state.setAttribute(STATE_LIST_SELECTIONS, selectedItems);
-		}
-		context.put("selectedItems", selectedItems);
-
-		String helper_mode = (String) state.getAttribute(STATE_RESOURCES_HELPER_MODE);
-		boolean need_to_push = false;
-
-		if(MODE_ATTACHMENT_SELECT.equals(helper_mode))
-		{
-			need_to_push = true;
-			helper_mode = MODE_ATTACHMENT_SELECT_INIT;
-		}
-		else if(MODE_ATTACHMENT_CREATE.equals(helper_mode))
-		{
-			need_to_push = true;
-			helper_mode = MODE_ATTACHMENT_CREATE_INIT;
-		}
-		else if(MODE_ATTACHMENT_NEW_ITEM.equals(helper_mode))
-		{
-			need_to_push = true;
-			helper_mode = MODE_ATTACHMENT_NEW_ITEM_INIT;
-		}
-		else if(MODE_ATTACHMENT_EDIT_ITEM.equals(helper_mode))
-		{
-			need_to_push = true;
-			helper_mode = MODE_ATTACHMENT_EDIT_ITEM_INIT;
-		}
-
-		Map current_stack_frame = null;
-
-		if(need_to_push)
-		{
-			current_stack_frame = pushOnStack(state);
-			current_stack_frame.put(STATE_STACK_EDIT_INTENT, INTENT_REVISE_FILE);
-
-			state.setAttribute(VelocityPortletPaneledAction.STATE_HELPER, ResourcesAction.class.getName());
-			state.setAttribute(STATE_RESOURCES_HELPER_MODE, helper_mode);
-
-			if(MODE_ATTACHMENT_EDIT_ITEM_INIT.equals(helper_mode))
-			{
-				String attachmentId = (String) state.getAttribute(STATE_EDIT_ID);
-				if(attachmentId != null)
-				{
-					current_stack_frame.put(STATE_STACK_EDIT_ID, attachmentId);
-					String collectionId = ContentHostingService.getContainingCollectionId(attachmentId);
-					current_stack_frame.put(STATE_STACK_EDIT_COLLECTION_ID, collectionId);
-
-					ChefEditItem item = getEditItem(attachmentId, collectionId, data);
-
-					if (state.getAttribute(STATE_MESSAGE) == null)
-					{
-						// got resource and sucessfully populated item with values
-						state.setAttribute(STATE_EDIT_ALERTS, new HashSet());
-						current_stack_frame.put(STATE_STACK_EDIT_ITEM, item);
-					}
-				}
-			}
-			else
-			{
-				List attachments = (List) state.getAttribute(STATE_ATTACHMENTS);
-				if(attachments == null)
-				{
-					attachments = EntityManager.newReferenceList();
-				}
-
-				List attached = new Vector();
-
-				Iterator it = attachments.iterator();
-				while(it.hasNext())
-				{
-					try
-					{
-						Reference ref = (Reference) it.next();
-						String itemId = ref.getId();
-						ResourceProperties properties = ref.getProperties();
-						String displayName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-						String containerId = ref.getContainer();
-						String accessUrl = ContentHostingService.getUrl(itemId);
-						String contentType = properties.getProperty(ResourceProperties.PROP_CONTENT_TYPE);
-
-						AttachItem item = new AttachItem(itemId, displayName, containerId, accessUrl);
-						item.setContentType(contentType);
-						attached.add(item);
-					}
-					catch(Exception ignore) {}
-				}
-				current_stack_frame.put(STATE_HELPER_NEW_ITEMS, attached);
-			}
-		}
-		else
-		{
-			current_stack_frame = peekAtStack(state);
-			if(current_stack_frame.get(STATE_STACK_EDIT_INTENT) == null)
-			{
-				current_stack_frame.put(STATE_STACK_EDIT_INTENT, INTENT_REVISE_FILE);
-			}
-		}
-		if(helper_mode == null)
-		{
-			helper_mode = (String) current_stack_frame.get(STATE_RESOURCES_HELPER_MODE);
-		}
-		else
-		{
-			current_stack_frame.put(STATE_RESOURCES_HELPER_MODE, helper_mode);
-		}
-
-		String helper_title = (String) current_stack_frame.get(STATE_ATTACH_TITLE);
-		if(helper_title == null)
-		{
-			helper_title = (String) state.getAttribute(STATE_ATTACH_TITLE);
-			if(helper_title != null)
-			{
-				current_stack_frame.put(STATE_ATTACH_TITLE, helper_title);
-			}
-		}
-		if(helper_title != null)
-		{
-			context.put("helper_title", helper_title);
-		}
-
-		String helper_instruction = (String) current_stack_frame.get(STATE_ATTACH_INSTRUCTION);
-		if(helper_instruction == null)
-		{
-			helper_instruction = (String) state.getAttribute(STATE_ATTACH_INSTRUCTION);
-			if(helper_instruction != null)
-			{
-				current_stack_frame.put(STATE_ATTACH_INSTRUCTION, helper_instruction);
-			}
-		}
-		if(helper_instruction != null)
-		{
-			context.put("helper_instruction", helper_instruction);
-		}
-
-		String title = (String) current_stack_frame.get(STATE_STACK_EDIT_ITEM_TITLE);
-		if(title == null)
-		{
-			title = (String) state.getAttribute(STATE_ATTACH_TEXT);
-			if(title != null)
-			{
-				current_stack_frame.put(STATE_STACK_EDIT_ITEM_TITLE, title);
-			}
-		}
-		if(title != null && title.trim().length() > 0)
-		{
-			context.put("helper_subtitle", title);
-		}
-
-		String template = null;
-		if(MODE_ATTACHMENT_SELECT_INIT.equals(helper_mode))
-		{
-			template = buildSelectAttachmentContext(portlet, context, data, state);
-		}
-		else if(MODE_ATTACHMENT_CREATE_INIT.equals(helper_mode))
-		{
-			template = buildCreateContext(portlet, context, data, state);
-		}
-		else if(MODE_ATTACHMENT_NEW_ITEM_INIT.equals(helper_mode))
-		{
-			template = buildItemTypeContext(portlet, context, data, state);
-		}
-		else if(MODE_ATTACHMENT_EDIT_ITEM_INIT.equals(helper_mode))
-		{
-			template = buildEditContext(portlet, context, data, state);
-		}
-		return template;
-		
-	}	// buildHelperContext
-
 	public static String buildItemTypeContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
 		context.put("tlang",rb);
@@ -15839,7 +15727,6 @@ public class ResourcesAction
 			}
 			catch (IdUsedException e)
 			{
-				// TODO Auto-generated catch block
 				logger.debug("IdUsedException " + e.getMessage());
 			}
 			catch(RuntimeException e)
@@ -15982,7 +15869,6 @@ public class ResourcesAction
 				}
 				catch(InconsistentException e)
 				{
-					// TODO: Should this be reported to user??
 					logger.debug("ResourcesAction.doSavechanges ***** InconsistentException changing groups ***** " + e.getMessage());
 				}
 								
