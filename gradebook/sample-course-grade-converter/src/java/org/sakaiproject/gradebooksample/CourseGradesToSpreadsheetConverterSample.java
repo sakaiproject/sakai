@@ -54,6 +54,11 @@ import org.sakaiproject.tool.gradebook.CourseGradesToSpreadsheetConverter;
  * based on a string translation table. The converted value is put into the 
  * "Grade" column and the original letter grade is put into the "Comments" column.
  * </ul>
+ * 
+ * Once this has been deployed as a Sakai component, it can be plugged into
+ * the Gradebook application by adding the following line to "sakai.properties":
+ * <p>
+ * gradebook.coursegrades.converter=org.sakaiproject.gradebooksample.CourseGradesToSpreadsheetConverterSample
  */
 public class CourseGradesToSpreadsheetConverterSample implements CourseGradesToSpreadsheetConverter {
 	private static final Log log = LogFactory.getLog(CourseGradesToSpreadsheetConverterSample.class);
