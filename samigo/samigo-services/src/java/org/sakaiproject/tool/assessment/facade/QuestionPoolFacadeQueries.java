@@ -40,7 +40,15 @@ import org.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.model.Tree;
+import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccessData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
@@ -49,7 +57,9 @@ import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 
 public class QuestionPoolFacadeQueries
     extends HibernateDaoSupport implements QuestionPoolFacadeQueriesAPI {
@@ -1043,8 +1053,6 @@ public class QuestionPoolFacadeQueries
       QuestionPoolFacade newPool = (QuestionPoolFacade) oldPool.clone();
       newPool.setParentPoolId(destId);
       newPool.setQuestionPoolId(new Long(0));
-      Set questionSet = newPool.getQuestionPoolItems();
-      newPool.setQuestionPoolItems(new HashSet());
 
       // If Pools in same trees,
       if (!haveCommonRoot) {
@@ -1058,8 +1066,18 @@ public class QuestionPoolFacadeQueries
       }
 
       newPool = savePool(newPool);
+      Iterator iter = oldPool.getQuestions().iterator();
+      ArrayList itemDataArray = new ArrayList();
+      while (iter.hasNext()) {
+    	  ItemDataIfc itemData = (ItemDataIfc) iter.next();
+    	  ItemFacade itemFacade = copyItemFacade2(itemData);
+    	  ItemDataIfc newItemData = itemFacade.getData();
+    	  itemDataArray.add(newItemData);
+      }
+      
       // then save question to pool
-      newPool.setQuestionPoolItems(prepareQuestions(newPool.getQuestionPoolId(), questionSet));
+      newPool.setQuestionPoolItems2(prepareQuestions(newPool.getQuestionPoolId(), itemDataArray));
+      newPool.setQuestions(itemDataArray);
       newPool = savePool(newPool);
 
       // Get the SubPools of oldPool
@@ -1130,6 +1148,16 @@ public class QuestionPoolFacadeQueries
     return h;
   }
 
+  public HashSet prepareQuestions(Long questionPoolId, ArrayList itemDataArray){
+    HashSet set = new HashSet();
+    Iterator iter = itemDataArray.iterator();
+    while (iter.hasNext()){
+      ItemDataIfc itemData = (ItemDataIfc) iter.next();
+      set.add(new QuestionPoolItemData(questionPoolId, itemData.getItemIdString(), (ItemData) itemData));
+    }
+    return set;
+  }
+  /*
   public HashSet prepareQuestions(Long questionPoolId, Set questionSet){
     HashSet set = new HashSet();
     Iterator iter = questionSet.iterator();
@@ -1139,6 +1167,7 @@ public class QuestionPoolFacadeQueries
     }
     return set;
   }
+  */
 
   private void resetTitle(Long destId, QuestionPoolFacade newPool, String oldPoolName){
     //find name by loop through sibslings
@@ -1175,5 +1204,111 @@ public class QuestionPoolFacadeQueries
    else
      newPool.updateDisplayName("Copy("+(maxNum+1)+") of "+oldPoolName);
   }
+  
+  public Long copyItemFacade(ItemDataIfc itemData) {
+	  ItemFacade item = getItemFacade(itemData);
+      ItemService itemService = new ItemService();
+	  Long itemId = itemService.saveItem(item).getItemId();
 
+      return itemId;
+  }
+  
+  public ItemFacade copyItemFacade2(ItemDataIfc itemData) {
+	  ItemFacade item = getItemFacade(itemData);
+      ItemService itemService = new ItemService();
+      return itemService.saveItem(item);
+  }
+	    
+  private ItemFacade getItemFacade(ItemDataIfc itemData) {
+	  ItemFacade item = new ItemFacade();
+	  item.setScore(itemData.getScore());
+      item.setHint(itemData.getHint());
+      item.setStatus(itemData.getStatus());
+      item.setTypeId(itemData.getTypeId());
+      item.setCreatedBy(AgentFacade.getAgentString());
+      item.setCreatedDate(new Date());
+      item.setLastModifiedBy(AgentFacade.getAgentString());
+      item.setLastModifiedDate(new Date());
+      item.setInstruction(itemData.getInstruction());
+      item.setHasRationale(itemData.getHasRationale());
+      item.setTriesAllowed(itemData.getTriesAllowed());
+      item.setDuration(itemData.getDuration());
+
+      item.setItemTextSet(copyItemText(item.getData(), itemData));
+      item.setItemMetaDataSet(copyMetaData(item.getData(), itemData));
+      item.setItemAttachmentSet(copyAttachment(item.getData(), itemData));
+
+      if (itemData.getCorrectItemFeedback() != null && !itemData.getCorrectItemFeedback().equals("")) {
+    	  item.setCorrectItemFeedback(itemData.getCorrectItemFeedback());
+      }
+      if (itemData.getInCorrectItemFeedback() != null && !itemData.getInCorrectItemFeedback().equals("")) {
+    	  item.setInCorrectItemFeedback(itemData.getInCorrectItemFeedback());
+      }
+      if (itemData.getGeneralItemFeedback() != null && !itemData.getGeneralItemFeedback().equals("")) {
+    	  item.setGeneralItemFeedback(itemData.getGeneralItemFeedback());
+      }
+      
+      return item;
+  }
+
+  private HashSet copyItemText(ItemDataIfc toItemData, ItemDataIfc fromItemData) {
+	    HashSet toItemTextSet = new HashSet();
+	    Set fromItemTextSet = fromItemData.getItemTextSet();
+	    Iterator itemTextIter = fromItemTextSet.iterator();
+	      while (itemTextIter.hasNext()) {
+	    	  ItemText fromItemText = (ItemText) itemTextIter.next();
+	    	  ItemText toItemText = new ItemText();
+	    	  toItemText.setItem(toItemData);
+	    	  toItemText.setSequence(fromItemText.getSequence());
+	    	  toItemText.setText(fromItemText.getText());
+	    	  
+	    	  HashSet toAnswerSet = new HashSet();
+	    	  Set fromAnswerSet = fromItemText.getAnswerSet();
+	    	  Iterator answerIter = fromAnswerSet.iterator();
+	    	  while (answerIter.hasNext()) {
+	    		  Answer fromAnswer = (Answer) answerIter.next();
+	    		  Answer toAnswer = new Answer(toItemText, fromAnswer.getText(), fromAnswer.getSequence(), fromAnswer.getLabel(), 
+	    				  fromAnswer.getIsCorrect(), fromAnswer.getGrade(), fromAnswer.getScore());
+	    		  
+	    		  HashSet toAnswerFeedbackSet = new HashSet();
+	    		  Set fromAnswerFeedbackSet = fromAnswer.getAnswerFeedbackSet();
+	    		  Iterator answerFeedbackIter = fromAnswerFeedbackSet.iterator();
+	    		  while (answerFeedbackIter.hasNext()) {
+	    			  AnswerFeedback fromAnswerFeedback = (AnswerFeedback) answerFeedbackIter.next();
+	    			  toAnswerFeedbackSet.add(new AnswerFeedback(toAnswer, fromAnswerFeedback.getTypeId(), fromAnswerFeedback.getText()));
+	    			  toAnswer.setAnswerFeedbackSet(toAnswerFeedbackSet);
+	    		  }
+	    		  toAnswerSet.add(toAnswer);
+	    		  toItemText.setAnswerSet(toAnswerSet);
+	    	  }
+	    	  toItemTextSet.add(toItemText);
+	      }
+	      return toItemTextSet;
+}
+  
+  private HashSet copyMetaData(ItemDataIfc toItemData, ItemDataIfc fromItemData) {
+	    HashSet toSet = new HashSet();
+	    Set fromSet = fromItemData.getItemMetaDataSet();
+	    Iterator iter = fromSet.iterator();
+	    while (iter.hasNext()) {
+	    	ItemMetaData itemMetaData = (ItemMetaData) iter.next();
+	    	toSet.add(new ItemMetaData(toItemData, itemMetaData.getLabel(), itemMetaData.getEntry()));
+	    }
+	    return toSet;
+  }
+  
+  private HashSet copyAttachment(ItemDataIfc toItemData, ItemDataIfc fromItemData) {
+	    HashSet toSet = new HashSet();
+	    Set fromSet = fromItemData.getItemAttachmentSet();
+	    Iterator iter = fromSet.iterator();
+	    while (iter.hasNext()) {
+	    	ItemAttachmentIfc fromItemAttachment = (ItemAttachmentIfc) iter.next();
+	    	toSet.add(new ItemAttachment(fromItemAttachment.getAttachmentId(), toItemData, fromItemAttachment.getResourceId(),
+	    			fromItemAttachment.getFilename(), fromItemAttachment.getMimeType(), fromItemAttachment.getFileSize(),
+	    			fromItemAttachment.getDescription(), fromItemAttachment.getLocation(), fromItemAttachment.getIsLink(),
+	    			fromItemAttachment.getStatus(), AgentFacade.getAgentString(), new Date(), AgentFacade.getAgentString(),
+	    			new Date()));
+	    }
+	    return toSet;
+  }
 }

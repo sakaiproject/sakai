@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
@@ -496,4 +497,8 @@ public class QuestionPoolService
     return PersistenceService.getInstance().getQuestionPoolFacadeQueries().poolIsUnique(new Long(questionPoolId), title, new Long(parentPoolId), agentId);
   }
 
+
+ public Long copyItemFacade(ItemDataIfc itemData){
+   return PersistenceService.getInstance().getQuestionPoolFacadeQueries().copyItemFacade(itemData);
+ }
 }

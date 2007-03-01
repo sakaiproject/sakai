@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccessData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
@@ -204,4 +205,5 @@ public interface QuestionPoolFacadeQueriesAPI
 
   public HashMap getQuestionPoolItemMap();
 
+  public Long copyItemFacade(ItemDataIfc itemData);
 }

@@ -752,6 +752,14 @@ public class QuestionPoolFacade
     this.data.setQuestions(questionPoolItems);
     this.data.setQuestionPoolItems(questionPoolItems);
   }
+  
+  // I don't think line "this.data.setQuestions(questionPoolItems)" is correct
+  // however, don't know what's gonna affect if I take it out
+  // make this new one instead
+  public void setQuestionPoolItems2(Set questionPoolItems) {
+	this.questionPoolItems = questionPoolItems;
+	this.data.setQuestionPoolItems(questionPoolItems);
+  }
 
   public void addQuestionPoolItem(QuestionPoolItemIfc queestionPoolItem){
     Set questionPoolItemSet = getQuestionPoolItems();
@@ -807,6 +815,7 @@ public class QuestionPoolFacade
     return newPool;
   }
 
+  
   public String getOwnerDisplayName() {
     String ownerIdString = this.getOwnerId();
     String ownerDisplayName= AgentFacade.getDisplayName(ownerIdString);
