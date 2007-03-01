@@ -883,27 +883,26 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     //  for group awareness
     try
     {
-    	Site currentSite = SiteService.getSite(toolManager.getCurrentPlacement().getContext());   
-
-    	Collection groups = currentSite.getGroups();    
-    	for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
+    	Collection groups = (Collection) ThreadLocalManager.get("message_center_current_member_groups");
+    	if(groups != null)
     	{
-    		Group currentGroup = (Group) groupIterator.next();  
-    		currentGroup.getTitle();
-
-    		if(currentGroup.getMember(getCurrentUserId()) != null)
+    		for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
     		{
-//    			DBMembershipItem groupItem = forumManager.getDBMember(membershipItems, currentGroup.getTitle(),
-//    					DBMembershipItem.TYPE_GROUP);
-    			DBMembershipItem groupItem = forumManager.getDBMember(areaItemsInThread, currentGroup.getTitle(),
-    				DBMembershipItem.TYPE_GROUP);
-    			if (groupItem != null){
-    				areaItems.add(groupItem);
+    			Group currentGroup = (Group) groupIterator.next();  
+    			currentGroup.getTitle();
+
+    			if(currentGroup.getMember(getCurrentUserId()) != null)
+    			{
+    				DBMembershipItem groupItem = forumManager.getDBMember(areaItemsInThread, currentGroup.getTitle(),
+    						DBMembershipItem.TYPE_GROUP);
+    				if (groupItem != null){
+    					areaItems.add(groupItem);
+    				}
     			}
     		}
     	}
     }
-    catch(IdUnusedException iue)
+    catch(Exception iue)
     {
     	iue.printStackTrace();
     }
@@ -967,27 +966,26 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 	//  for group awareness
     try
     {
-    	Site currentSite = SiteService.getSite(toolManager.getCurrentPlacement().getContext());   
-
-    	Collection groups = currentSite.getGroups();    
-    	for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
+    	Collection groups = (Collection) ThreadLocalManager.get("message_center_current_member_groups");
+    	if(groups != null)
     	{
-    		Group currentGroup = (Group) groupIterator.next();  
-    		currentGroup.getTitle();
-
-    		if(currentGroup.getMember(getCurrentUserId()) != null)
+    		for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
     		{
-//    			DBMembershipItem groupItem = forumManager.getDBMember(membershipItems, currentGroup.getTitle(),
-//    					DBMembershipItem.TYPE_GROUP);
-    			DBMembershipItem groupItem = forumManager.getDBMember(thisForumItemSet, currentGroup.getTitle(),
-    				DBMembershipItem.TYPE_GROUP);
-    			if (groupItem != null){
-    				forumItems.add(groupItem);
+    			Group currentGroup = (Group) groupIterator.next();  
+    			currentGroup.getTitle();
+
+    			if(currentGroup.getMember(getCurrentUserId()) != null)
+    			{
+    				DBMembershipItem groupItem = forumManager.getDBMember(thisForumItemSet, currentGroup.getTitle(),
+    						DBMembershipItem.TYPE_GROUP);
+    				if (groupItem != null){
+    					forumItems.add(groupItem);
+    				}
     			}
     		}
     	}
     }
-    catch(IdUnusedException iue)
+    catch(Exception iue)
     {
     	iue.printStackTrace();
     }
@@ -1064,27 +1062,26 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     //for group awareness
     try
     {
-    	Site currentSite = SiteService.getSite(toolManager.getCurrentPlacement().getContext());   
-
-    	Collection groups = currentSite.getGroups();    
-    	for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
+    	Collection groups = (Collection) ThreadLocalManager.get("message_center_current_member_groups");
+    	if(groups != null)
     	{
-    		Group currentGroup = (Group) groupIterator.next();  
-    		currentGroup.getTitle();
-
-    		if(currentGroup.getMember(getCurrentUserId()) != null)
+    		for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
     		{
-//    			DBMembershipItem groupItem = forumManager.getDBMember(membershipItems, currentGroup.getTitle(),
-//    					DBMembershipItem.TYPE_GROUP);
-    			DBMembershipItem groupItem = forumManager.getDBMember(thisTopicItemSet, currentGroup.getTitle(),
-    				DBMembershipItem.TYPE_GROUP);
-    			if (groupItem != null){
-    				topicItems.add(groupItem);
+    			Group currentGroup = (Group) groupIterator.next();  
+    			currentGroup.getTitle();
+
+    			if(currentGroup.getMember(getCurrentUserId()) != null)
+    			{
+    				DBMembershipItem groupItem = forumManager.getDBMember(thisTopicItemSet, currentGroup.getTitle(),
+    						DBMembershipItem.TYPE_GROUP);
+    				if (groupItem != null){
+    					topicItems.add(groupItem);
+    				}
     			}
     		}
     	}
     }
-    catch(IdUnusedException iue)
+    catch(Exception iue)
     {
     	iue.printStackTrace();
     }
@@ -1345,9 +1342,21 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   			topicItems.add(((Object[])topicItemsList.get(i))[0]);
   	}  	
 
+  	Collection groups = null;
+  	try
+  	{
+  		Site currentSite = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
+  		groups = currentSite.getGroupsWithMember(getCurrentUserId());
+  	}
+    catch(IdUnusedException iue)
+    {
+    	iue.printStackTrace();
+    }
+
+   	ThreadLocalManager.set("message_center_current_member_groups", groups);
   	ThreadLocalManager.set("message_center_membership_area", areaItems);
   	ThreadLocalManager.set("message_center_membership_forum", forumItems);
   	ThreadLocalManager.set("message_center_membership_topic", topicItems);
-		ThreadLocalManager.set("message_center_permission_set", new Boolean(true));
+	ThreadLocalManager.set("message_center_permission_set", new Boolean(true));
   }
 }
