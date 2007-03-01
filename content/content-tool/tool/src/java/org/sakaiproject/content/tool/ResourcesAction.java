@@ -21,21 +21,15 @@
 
 package org.sakaiproject.content.tool;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -51,12 +45,8 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -111,14 +101,8 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.metaobj.shared.control.SchemaBean;
 import org.sakaiproject.metaobj.shared.mgt.HomeFactory;
-import org.sakaiproject.metaobj.shared.mgt.ReadableObjectHome;
-import org.sakaiproject.metaobj.shared.mgt.StructuredArtifactValidationService;
 import org.sakaiproject.metaobj.shared.mgt.home.StructuredArtifactHomeInterface;
-import org.sakaiproject.metaobj.shared.model.ElementBean;
-import org.sakaiproject.metaobj.shared.model.ValidationError;
-import org.sakaiproject.metaobj.utils.xml.SchemaNode;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.Term;
@@ -127,7 +111,6 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -140,12 +123,7 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.Xml;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 
 /**
 * <p>ResourceAction is a ContentHosting application</p>
@@ -233,6 +211,7 @@ public class ResourcesAction
 	{
 		public String getLabel(ResourceToolAction action)
 		{
+			System.out.println("actionType == " + action.getActionType() + " actionLabel == " + action.getLabel());
 			String label = action.getLabel();
 			if(label == null)
 			{
@@ -291,7 +270,8 @@ public class ResourcesAction
 	{
 		protected String name;
 		protected String id;
-		protected List actions;
+		protected List<ResourceToolAction> addActions;
+		protected List<ResourceToolAction> otherActions;
 		protected List<ListItem> members;
 		protected Set<ContentPermissions> permissions;
 		protected boolean selected;
@@ -300,7 +280,15 @@ public class ResourcesAction
 		protected String accessUrl;
 		protected String iconLocation;
 		protected String mimetype;
-		private String resourceType;
+		protected String resourceType;
+		protected boolean isTooBig = false;
+		protected boolean isSortable = false;
+		protected boolean isExpanded = false;
+		protected String size = "";
+		protected String createdBy;
+		protected String modifiedTime;
+		protected int depth;
+		
 		
 		/**
 		 * @param entity
@@ -328,7 +316,7 @@ public class ResourcesAction
 			if(this.collection)
 			{
 				ContentCollection coll = (ContentCollection) entity;
-				this.members = coll.getMembers();
+				//this.members = coll.getMembers();
 				this.iconLocation = ContentTypeImageService.getContentTypeImage("folder");
 			}
 			else 
@@ -343,7 +331,17 @@ public class ResourcesAction
 				{
 					this.iconLocation = ContentTypeImageService.getContentTypeImage(this.mimetype);
 				}
+				String size = "";
+				if(props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH) != null)
+				{
+					// TODO: needs to be localized
+					size = props.getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH) + " (" + Validator.getFileSizeWithDividor(props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH)) +" bytes)";
+				}
+				setSize(size);
+
 			}
+			setCreatedBy(props.getProperty(ResourceProperties.PROP_CREATOR));
+			this.setModifiedTime(props.getPropertyFormatted(ResourceProperties.PROP_MODIFIED_DATE));
 				
 		}
 
@@ -394,6 +392,11 @@ public class ResourcesAction
 		{
 			return this.hoverText;
 		}
+		
+		public boolean isEmpty()
+		{
+			return this.members == null || this.members.isEmpty();
+		}
 
 		/**
 		 * @return the collection
@@ -443,6 +446,11 @@ public class ResourcesAction
 				this.permissions = new TreeSet<ContentPermissions>();
 			}
 			this.permissions.add(permission);
+		}
+		
+		public boolean canRead()
+		{
+			return isPermitted(ContentPermissions.READ);
 		}
 		
 		/**
@@ -509,16 +517,6 @@ public class ResourcesAction
 			return selected;
 		}
 		
-		public List getActions()
-		{
-			return actions;
-		}
-		
-		public void setActions(List actions)
-		{
-			this.actions = actions;
-		}
-
 		/**
 		 * @param hover
 		 */
@@ -554,9 +552,151 @@ public class ResourcesAction
 	        }
 	        this.members.add(member);
         }
+
+		/**
+         * @param b
+         */
+        public void setIsEmpty(boolean b)
+        {
+	        // TODO Auto-generated method stub
+	        
+        }
+
+		/**
+         * @param isSortable
+         */
+        public void setSortable(boolean isSortable)
+        {
+	        this.isSortable  = isSortable;
+        }
+
+		public boolean isTooBig()
+		{
+			return this.isTooBig;
+		}
+		
+		/**
+         * @param b
+         */
+        public void setIsTooBig(boolean isTooBig)
+        {
+	        this.isTooBig = isTooBig;
+        }
+
+		/**
+         * @return the isExpanded
+         */
+        public boolean isExpanded()
+        {
+        	return isExpanded;
+        }
+
+		/**
+         * @param isExpanded the isExpanded to set
+         */
+        public void setExpanded(boolean isExpanded)
+        {
+        	this.isExpanded = isExpanded;
+        }
+
+		/**
+         * @param string
+         */
+        public void setSize(String size)
+        {
+	        this.size = size;
+        }
+
+		/**
+         * @return the size
+         */
+        public String getSize()
+        {
+        	return size;
+        }
+
+		/**
+         * @return the addActions
+         */
+        public List<ResourceToolAction> getAddActions()
+        {
+        	return addActions;
+        }
+
+		/**
+         * @param addActions the addActions to set
+         */
+        public void setAddActions(List<ResourceToolAction> addActions)
+        {
+        	this.addActions = addActions;
+        }
+
+		/**
+         * @return the createdBy
+         */
+        public String getCreatedBy()
+        {
+        	return createdBy;
+        }
+
+		/**
+         * @param createdBy the createdBy to set
+         */
+        public void setCreatedBy(String createdBy)
+        {
+        	this.createdBy = createdBy;
+        }
+
+		/**
+         * @return the modifiedTime
+         */
+        public String getModifiedTime()
+        {
+        	return modifiedTime;
+        }
+
+		/**
+         * @param modifiedTime the modifiedTime to set
+         */
+        public void setModifiedTime(String modifiedTime)
+        {
+        	this.modifiedTime = modifiedTime;
+        }
+
+		/**
+         * @return the otherActions
+         */
+        public List<ResourceToolAction> getOtherActions()
+        {
+        	return otherActions;
+        }
+
+		/**
+         * @param otherActions the otherActions to set
+         */
+        public void setOtherActions(List<ResourceToolAction> otherActions)
+        {
+        	this.otherActions = otherActions;
+        }
+
+		/**
+         * @return the depth
+         */
+        public int getDepth()
+        {
+        	return depth;
+        }
+
+		/**
+         * @param depth the depth to set
+         */
+        public void setDepth(int depth)
+        {
+        	this.depth = depth;
+        }
 	}
-	
-	public ListItem getListItem(ContentEntity entity, ListItem parent, boolean expandAll, Set<String> expandedFolders)
+
+	public ListItem getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, Set<String> expandedFolders, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth)
 	{
 		ListItem item = null;
 		boolean isCollection = entity.isCollection();
@@ -564,6 +704,7 @@ public class ResourcesAction
         Reference ref = EntityManager.newReference(entity.getReference());
 
         item = new ListItem(entity);
+        item.setDepth(depth);
         
         /*
          * calculate permissions for this entity.  If its access mode is 
@@ -591,23 +732,41 @@ public class ResourcesAction
             // TODO: Calculate permissions
         	// permissions are determined by group(s)
         }
-        
-        
-        if(isCollection && (expandAll || expandedFolders.contains(entity.getId())))
+
+        if(isCollection)
         {
-        	if(expandAll)
+        	ContentCollection collection = (ContentCollection) entity;
+        	int collection_size = collection.getMemberCount(); // newMembers.size();
+        	item.setSize(Integer.toString(collection_size));
+			item.setIsEmpty(collection_size < 1);
+			item.setSortable(ContentHostingService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < EXPANDABLE_FOLDER_SIZE_LIMIT);
+			if(collection_size > EXPANDABLE_FOLDER_SIZE_LIMIT)
+			{
+				item.setIsTooBig(true);
+			}
+			else if(expandAll)
         	{
         		expandedFolders.add(entity.getId());
         	}
-        	List<ContentEntity> children = ((ContentCollection) entity).getMemberResources();
-        	Iterator<ContentEntity> childIt = children.iterator();
-        	while(childIt.hasNext())
-        	{
-        		ContentEntity childEntity = childIt.next();
-        		ListItem child = getListItem(childEntity, item, expandAll, expandedFolders);
-        		item.addMember(child);
-        	}
+
+			if(expandedFolders.contains(entity.getId()))
+			{
+				item.setExpanded(true);
+
+		       	List<ContentEntity> children = ((ContentCollection) entity).getMemberResources();
+	        	Iterator<ContentEntity> childIt = children.iterator();
+	        	while(childIt.hasNext())
+	        	{
+	        		ContentEntity childEntity = childIt.next();
+	        		ListItem child = getListItem(childEntity, item, registry, expandAll, expandedFolders, items_to_be_moved, items_to_be_copied, depth + 1);
+	        		item.addMember(child);
+	        	}
+			}
+			
+			item.setAddActions(getAddActions(entity, registry, items_to_be_moved, items_to_be_copied));
         }
+        
+		item.setOtherActions(getActions(entity, registry, items_to_be_moved, items_to_be_copied));
 		
 		return item;
 	}
@@ -1830,12 +1989,13 @@ public class ResourcesAction
 
 	private static final String TEMPLATE_MORE = "content/chef_resources_more";
 	private static final String TEMPLATE_DELETE_CONFIRM = "content/chef_resources_deleteConfirm";
-	private static final String TEMPLATE_DELETE_FINISH = "content/sakai_resources_deleteFinish";
 	private static final String TEMPLATE_PROPERTIES = "content/chef_resources_properties";
 	// private static final String TEMPLATE_REPLACE = "_replace";
 	private static final String TEMPLATE_REORDER = "content/chef_resources_reorder";
 
 	private static final String TEMPLATE_REVISE_METADATA = "content/sakai_resources_properties";
+	private static final String TEMPLATE_DELETE_FINISH = "content/sakai_resources_deleteFinish";
+	private static final String TEMPLATE_NEW_LIST = "content/sakai_resources_list";
 
 	/** the site title */
 	private static final String STATE_SITE_TITLE = PREFIX + "site_title";
@@ -1894,26 +2054,8 @@ public class ResourcesAction
 	/** The null/empty string */
 	private static final String NULL_STRING = "";
 
-	/** The string used when pasting the same resource to the same folder */
-	private static final String DUPLICATE_STRING = rb.getString("copyof") + " ";
-
-	/** The string used when pasting shirtcut of the same resource to the same folder */
-	private static final String SHORTCUT_STRING = rb.getString("shortcut");
-
-	/** The copyright character (Note: could be "\u00a9" if we supported UNICODE for specials -ggolden */
-	private static final String COPYRIGHT_SYMBOL = rb.getString("cpright1");
-
 	/** The String of new copyright */
 	private static final String NEW_COPYRIGHT = "newcopyright";
-
-	/** The resource not exist string */
-	private static final String RESOURCE_NOT_EXIST_STRING = rb.getString("notexist1");
-
-	/** The title invalid string */
-	private static final String RESOURCE_INVALID_TITLE_STRING = rb.getString("titlecannot");
-
-	/** The copy, cut, paste not operate on collection string */
-	private static final String RESOURCE_INVALID_OPERATION_ON_COLLECTION_STRING = rb.getString("notsupported");
 
 	/** The maximum number of suspended operations that can be on the stack. */
 	private static final int MAXIMUM_SUSPENDED_OPERATIONS_STACK_DEPTH = 10;
@@ -2047,7 +2189,8 @@ public class ResourcesAction
 			else
 			{
 				// build the context for list view
-				template = buildChefListContext (portlet, context, data, state);
+				//template = buildChefListContext (portlet, context, data, state);
+				template = buildListContext (portlet, context, data, state);
 			}
 		}
 		else if (mode.equals (MODE_HELPER))
@@ -2803,6 +2946,72 @@ public class ResourcesAction
 	    // get the registration for the current item's type 
 	    ResourceType typeDef = registry.getType(resourceType);
 	    
+	    // if user has content.read, user can view content, view metadata and/or copy
+	    List<ResourceToolAction> contentReadActions = typeDef.getActions(CONTENT_READ_ACTIONS);
+	    if(contentReadActions != null)
+	    {
+	    	actions.addAll(contentReadActions);
+	    }
+	    
+	    // if user has content.modify, user can revise metadata, revise content, and/or replace content
+	    List<ResourceToolAction> contentModifyActions = typeDef.getActions(CONTENT_MODIFY_ACTIONS);
+	    if(contentModifyActions != null)
+	    {
+	    	actions.addAll(contentModifyActions);
+	    }
+	    
+	    // if user has content.delete, user can move item or delete item
+	    List<ResourceToolAction> contentDeleteActions = typeDef.getActions(CONTENT_DELETE_ACTIONS);
+	    if(contentDeleteActions != null)
+	    {
+	    	actions.addAll(contentDeleteActions);
+	    }
+	    
+	    // if user has content.new for item's parent and content.read for item, user can duplicate item
+	    List<ResourceToolAction> contentNewOnParentActions = typeDef.getActions(CONTENT_NEW_FOR_PARENT_ACTIONS);
+	    if(contentNewOnParentActions != null)
+	    {
+	    	actions.addAll(contentNewOnParentActions);
+	    }
+	    // filter -- remove actions that are not available to the current user in the context of this item
+	    Iterator<ResourceToolAction> actionIt = actions.iterator();
+	    while(actionIt.hasNext())
+	    {
+	    	ResourceToolAction action = actionIt.next();
+	    	if(! action.available(ref.getContext()))
+	    	{
+	    		actionIt.remove();
+	    	}
+	    }
+	    return actions;
+    }
+	
+	/**
+     * @param selectedItem
+     * @param registry
+     * @param items_to_be_moved
+     * @param items_to_be_copied
+     * @return
+     */
+    protected List<ResourceToolAction> getAddActions(ContentEntity selectedItem, ResourceTypeRegistry registry, List<String> items_to_be_moved, List<String> items_to_be_copied)
+    {
+	    String resourceType = ResourceType.TYPE_UPLOAD;
+	    Reference ref = EntityManager.newReference(selectedItem.getReference());
+	    List<ResourceToolAction> actions = new Vector<ResourceToolAction>();
+	    if(selectedItem.isCollection())
+	    {
+	    	resourceType = ResourceType.TYPE_FOLDER;
+	    }
+	    else
+	    {
+	    	ContentResource resource = (ContentResource) selectedItem;
+	    	// String mimetype = resource.getContentType();
+	    	resourceType = resource.getResourceType();
+	    }
+	    
+	    // get the registration for the current item's type 
+	    ResourceType typeDef = registry.getType(resourceType);
+	    
 	    if(items_to_be_moved != null && ! items_to_be_moved.isEmpty())
 	    {
 	    	List<ResourceToolAction> conditionalContentNewActions = typeDef.getActions(PASTE_MOVED_ACTIONS);
@@ -2848,43 +3057,6 @@ public class ResourcesAction
 	    	
 	    }
 
-	    // if user has content.read, user can view content, view metadata and/or copy
-	    List<ResourceToolAction> contentReadActions = typeDef.getActions(CONTENT_READ_ACTIONS);
-	    if(contentReadActions != null)
-	    {
-	    	actions.addAll(contentReadActions);
-	    }
-	    
-	    // if user has content.modify, user can revise metadata, revise content, and/or replace content
-	    List<ResourceToolAction> contentModifyActions = typeDef.getActions(CONTENT_MODIFY_ACTIONS);
-	    if(contentModifyActions != null)
-	    {
-	    	actions.addAll(contentModifyActions);
-	    }
-	    
-	    // if user has content.delete, user can move item or delete item
-	    List<ResourceToolAction> contentDeleteActions = typeDef.getActions(CONTENT_DELETE_ACTIONS);
-	    if(contentDeleteActions != null)
-	    {
-	    	actions.addAll(contentDeleteActions);
-	    }
-	    
-	    // if user has content.new for item's parent and content.read for item, user can duplicate item
-	    List<ResourceToolAction> contentNewOnParentActions = typeDef.getActions(CONTENT_NEW_FOR_PARENT_ACTIONS);
-	    if(contentNewOnParentActions != null)
-	    {
-	    	actions.addAll(contentNewOnParentActions);
-	    }
-	    // filter -- remove actions that are not available to the current user in the context of this item
-	    Iterator<ResourceToolAction> actionIt = actions.iterator();
-	    while(actionIt.hasNext())
-	    {
-	    	ResourceToolAction action = actionIt.next();
-	    	if(! action.available(ref.getContext()))
-	    	{
-	    		actionIt.remove();
-	    	}
-	    }
 	    return actions;
     }
 	
@@ -3481,7 +3653,8 @@ public class ResourcesAction
 		// get the parameter-parser
 		ParameterParser params = data.getParameters();
 		
-		String action_string = params.getString("action");
+		String action_element = params.getString("rt_action");
+		String action_string = params.getString(action_element);
 		String selectedItemId = params.getString("selectedItemId");
 		
 		String[] parts = action_string.split(ResourceToolAction.ACTION_DELIMITER);
@@ -3648,7 +3821,7 @@ public class ResourcesAction
 			}
 			catch (IdUnusedException e)
 			{
-				addAlert(state,RESOURCE_NOT_EXIST_STRING);
+				addAlert(state,rb.getString("notexist1"));
 			}
 			catch (InUseException e)
 			{
@@ -4244,8 +4417,8 @@ public class ResourcesAction
 										SessionState state)
 	{
 		context.put("tlang",rb);
-
-		context.put("expandedCollections", state.getAttribute(STATE_EXPANDED_COLLECTIONS));
+		
+		context.put("sysout", System.out);
 
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
@@ -4258,6 +4431,8 @@ public class ResourcesAction
 		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
 		context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
 
+		context.put("ACTION_DELIMITER", ResourceToolAction.ACTION_DELIMITER);
+		
 		Set selectedItems = (Set) state.getAttribute(STATE_LIST_SELECTIONS);
 		if(selectedItems == null)
 		{
@@ -4405,19 +4580,30 @@ public class ResourcesAction
 				// context.put("movedItems", movedItems);
 			}
 
-			SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+			SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 			
 			//ContentCollection coll = contentService.getCollection(collectionId);
 			expandedCollections.add(collectionId);
+			context.put("expandedCollections", expandedCollections);
 
+			ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+			if(registry == null)
+			{
+				registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+				state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+			}
+			
 			state.removeAttribute(STATE_PASTE_ALLOWED_FLAG);
 			
 			ContentCollection collection = ContentHostingService.getCollection(collectionId);
 			
-			ListItem item = getListItem(collection, null, false, expandedCollections);
+			List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEM_TO_BE_COPIED);
+			List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEM_TO_BE_MOVED);
+			
+			ListItem item = getListItem(collection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0);
 
 			//List all_roots = new Vector();
-			List this_site = new Vector();
+			List<ListItem> this_site = new Vector<ListItem>();
 			
 			if(atHome && dropboxMode)
 			{
@@ -4492,7 +4678,6 @@ public class ResourcesAction
 				context.put("pagesize", state.getAttribute(STATE_PAGESIZE));
 				// context.put("pagesizes", PAGESIZES);
 
-
 			}
 
 			// context.put ("other_sites", other_sites);
@@ -4561,7 +4746,9 @@ public class ResourcesAction
 		// pick the "show" template based on the standard template name
 		// String template = (String) getContext(data).get("template");
 
-		return TEMPLATE_LIST;
+		context.put("labeler", new Labeler());
+		
+		return TEMPLATE_NEW_LIST;
 
 	}	// buildListContext
 
@@ -5877,7 +6064,7 @@ public class ResourcesAction
 					}
 					catch (IdUnusedException ee)
 					{
-						addAlert(state,RESOURCE_NOT_EXIST_STRING);
+						addAlert(state,rb.getString("notexist1"));
 					}
 					catch (IdInvalidException ee)
 					{
@@ -5889,7 +6076,7 @@ public class ResourcesAction
 					}
 					catch (InconsistentException ee)
 					{
-						addAlert(state, RESOURCE_INVALID_TITLE_STRING);
+						addAlert(state, rb.getString("titlecannot"));
 					}
 				}
 				catch (TypeException e )
@@ -5999,7 +6186,7 @@ public class ResourcesAction
 				}
 				catch (IdUnusedException e)
 				{
-					addAlert(state,RESOURCE_NOT_EXIST_STRING);
+					addAlert(state,rb.getString("notexist1"));
 				}
 				catch (TypeException e)
 				{
@@ -6115,7 +6302,7 @@ public class ResourcesAction
 				}
 				catch (IdUnusedException e)
 				{
-					addAlert(state,RESOURCE_NOT_EXIST_STRING);
+					addAlert(state,rb.getString("notexist1"));
 				}
 				catch (TypeException e)
 				{
@@ -6663,7 +6850,7 @@ public class ResourcesAction
 		}
 		catch (IdUnusedException e)
 		{
-			addAlert(state, RESOURCE_NOT_EXIST_STRING);
+			addAlert(state, rb.getString("notexist1"));
 		}
 		catch (PermissionException e)
 		{
@@ -7374,9 +7561,9 @@ public class ResourcesAction
 					if (properties.getProperty (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
 					{
 						String alert = (String) state.getAttribute(STATE_MESSAGE);
-						if (alert == null || ((alert != null) && (alert.indexOf(RESOURCE_INVALID_OPERATION_ON_COLLECTION_STRING) == -1)))
+						if (alert == null || ((alert != null) && (alert.indexOf(rb.getString("notsupported")) == -1)))
 						{
-							addAlert(state, RESOURCE_INVALID_OPERATION_ON_COLLECTION_STRING);
+							addAlert(state, rb.getString("notsupported"));
 						}
 					}
 					else
@@ -7397,7 +7584,7 @@ public class ResourcesAction
 				}
 				catch (IdUnusedException e)
 				{
-					addAlert(state,RESOURCE_NOT_EXIST_STRING);
+					addAlert(state,rb.getString("notexist1"));
 				}	// try-catch
 			}
 
@@ -7481,9 +7668,9 @@ public class ResourcesAction
 					if (properties.getProperty (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
 					{
 						String alert = (String) state.getAttribute(STATE_MESSAGE);
-						if (alert == null || ((alert != null) && (alert.indexOf(RESOURCE_INVALID_OPERATION_ON_COLLECTION_STRING) == -1)))
+						if (alert == null || ((alert != null) && (alert.indexOf(rb.getString("notsupported")) == -1)))
 						{
-							addAlert(state, RESOURCE_INVALID_OPERATION_ON_COLLECTION_STRING);
+							addAlert(state, rb.getString("notsupported"));
 						}
 					}
 					*/
@@ -7494,7 +7681,7 @@ public class ResourcesAction
 				}
 				catch (IdUnusedException e)
 				{
-					addAlert(state,RESOURCE_NOT_EXIST_STRING);
+					addAlert(state,rb.getString("notexist1"));
 				}	// try-catch
 			}
 
@@ -7555,9 +7742,9 @@ public class ResourcesAction
 					if (properties.getProperty (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
 					{
 						String alert = (String) state.getAttribute(STATE_MESSAGE);
-						if (alert == null || ((alert != null) && (alert.indexOf(RESOURCE_INVALID_OPERATION_ON_COLLECTION_STRING) == -1)))
+						if (alert == null || ((alert != null) && (alert.indexOf(rb.getString("notsupported")) == -1)))
 						{
-							addAlert(state, RESOURCE_INVALID_OPERATION_ON_COLLECTION_STRING);
+							addAlert(state, rb.getString("notsupported"));
 						}
 					}
 					*/
@@ -7568,7 +7755,7 @@ public class ResourcesAction
 				}
 				catch (IdUnusedException e)
 				{
-					addAlert(state,RESOURCE_NOT_EXIST_STRING);
+					addAlert(state,rb.getString("notexist1"));
 				}	// try-catch
 			}
 
@@ -7587,64 +7774,6 @@ public class ResourcesAction
 
 	}	// doMove
 
-
-	/**
-	 * If copy-flag is set to false, erase the copied-id's list and set copied flags to false
-	 * in all the browse items.  If copied-id's list is empty, set copy-flag to false and set
-	 * copied flags to false in all the browse items. If copy-flag is set to true and copied-id's
-	 * list is not empty, update the copied flags of all browse items so copied flags for the
-	 * copied items are set to true and all others are set to false.
-	 */
-	protected void setCopyFlags(SessionState state)
-	{
-		String copyFlag = (String) state.getAttribute(STATE_COPY_FLAG);
-		List copyItemsVector = (List) state.getAttribute(STATE_COPIED_IDS);
-
-		if(copyFlag == null)
-		{
-			copyFlag = Boolean.FALSE.toString();
-			state.setAttribute(STATE_COPY_FLAG, copyFlag);
-		}
-
-		if(copyFlag.equals(Boolean.TRUE.toString()))
-		{
-			if(copyItemsVector == null)
-			{
-				copyItemsVector = new Vector();
-				state.setAttribute(STATE_COPIED_IDS, copyItemsVector);
-			}
-			if(copyItemsVector.isEmpty())
-			{
-				state.setAttribute(STATE_COPY_FLAG, Boolean.FALSE.toString());
-			}
-		}
-		else
-		{
-			copyItemsVector = new Vector();
-			state.setAttribute(STATE_COPIED_IDS, copyItemsVector);
-		}
-
-		List roots = (List) state.getAttribute(STATE_COLLECTION_ROOTS);
-		Iterator rootIt = roots.iterator();
-		while(rootIt.hasNext())
-		{
-			ChefBrowseItem root = (ChefBrowseItem) rootIt.next();
-			boolean root_copied = copyItemsVector.contains(root.getId());
-			root.setCopied(root_copied);
-
-			List members = root.getMembers();
-			Iterator memberIt = members.iterator();
-			while(memberIt.hasNext())
-			{
-				ChefBrowseItem member = (ChefBrowseItem) memberIt.next();
-				boolean member_copied = copyItemsVector.contains(member.getId());
-				member.setCopied(member_copied);
-			}
-		}
-		// check -- jim
-		state.setAttribute(STATE_COLLECTION_ROOTS, roots);
-
-	}	// setCopyFlags
 
 	/**
 	* Expand all the collection resources.
@@ -7856,7 +7985,7 @@ public class ResourcesAction
 		state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry"));
 
 		TimeBreakdown timeBreakdown = (TimeService.newTime()).breakdownLocal ();
-		String mycopyright = COPYRIGHT_SYMBOL + " " + timeBreakdown.getYear () +", " + UserDirectoryService.getCurrentUser().getDisplayName () + ". All Rights Reserved. ";
+		String mycopyright = rb.getString("cpright1") + " " + timeBreakdown.getYear () +", " + UserDirectoryService.getCurrentUser().getDisplayName () + ". All Rights Reserved. ";
 		state.setAttribute (STATE_MY_COPYRIGHT, mycopyright);
 
 		if(state.getAttribute(STATE_MODE) == null)
@@ -8198,87 +8327,6 @@ public class ResourcesAction
 	}	// initCutContent
 
 	/**
-	* find out whether there is a duplicate item in testVector
-	* @param testVector The Vector to be tested on
-	* @param testSize The integer of the test range
-	* @return The index value of the duplicate ite
-	*/
-	private int repeatedName (Vector testVector, int testSize)
-	{
-		for (int i=1; i <= testSize; i++)
-		{
-			String currentName = (String) testVector.get (i);
-			for (int j=i+1; j <= testSize; j++)
-			{
-				String comparedTitle = (String) testVector.get (j);
-				if (comparedTitle.length()>0 && currentName.length()>0 && comparedTitle.equals (currentName))
-				{
-					return j;
-				}
-			}
-		}
-		return 0;
-
-	}   // repeatedName
-
-	/**
-	* Is the id already exist in the current resource?
-	* @param testVector The Vector to be tested on
-	* @param testSize The integer of the test range
-	* @parma isCollection Looking for collection or not
-	* @return The index value of the exist id
-	*/
-	private int foundInResource (Vector testVector, int testSize, String collectionId, boolean isCollection)
-	{
-		try
-		{
-			ContentCollection c = ContentHostingService.getCollection(collectionId);
-			Iterator membersIterator = c.getMemberResources().iterator();
-			while (membersIterator.hasNext())
-			{
-				ResourceProperties p = ((Entity) membersIterator.next()).getProperties();
-				String displayName = p.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-				if (displayName != null)
-				{
-					String collectionOrResource = p.getProperty(ResourceProperties.PROP_IS_COLLECTION);
-					for (int i=1; i <= testSize; i++)
-					{
-						String testName = (String) testVector.get(i);
-						if ((testName != null) && (displayName.equals (testName))
-						      &&  ((isCollection && collectionOrResource.equals (Boolean.TRUE.toString()))
-								        || (!isCollection && collectionOrResource.equals(Boolean.FALSE.toString()))))
-						{
-							return i;
-						}
-					}	// for
-				}
-			}
-		}
-		catch (IdUnusedException e){}
-		catch (TypeException e){}
-		catch (PermissionException e){}
-
-		return 0;
-
-	}	// foundInResource
-
-	/**
-	* empty String Vector object with the size sepecified
-	* @param size The Vector object size -1
-	* @return The Vector object consists of null Strings
-	*/
-	private static Vector emptyVector (int size)
-	{
-		Vector v = new Vector ();
-		for (int i=0; i <= size; i++)
-		{
-			v.add (i, "");
-		}
-		return v;
-
-	}	// emptyVector
-
-	/**
 	*  Setup for customization
 	**/
 	public String buildOptionsPanelContext( VelocityPortlet portlet,
@@ -8611,9 +8659,9 @@ public class ResourcesAction
 				if (properties.getProperty (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
 				{
 					String alert = (String) state.getAttribute(STATE_MESSAGE);
-					if (alert == null || ((alert != null) && (alert.indexOf(RESOURCE_INVALID_OPERATION_ON_COLLECTION_STRING) == -1)))
+					if (alert == null || ((alert != null) && (alert.indexOf(rb.getString("notsupported")) == -1)))
 					{
-						addAlert(state, RESOURCE_INVALID_OPERATION_ON_COLLECTION_STRING);
+						addAlert(state, rb.getString("notsupported"));
 					}
 				}
 				*/
@@ -8624,7 +8672,7 @@ public class ResourcesAction
 			}
 			catch (IdUnusedException e)
 			{
-				addAlert(state,RESOURCE_NOT_EXIST_STRING);
+				addAlert(state,rb.getString("notexist1"));
 			}	// try-catch
 
 			if (state.getAttribute(STATE_MESSAGE) == null)
@@ -8674,9 +8722,9 @@ public class ResourcesAction
 				if (properties.getProperty (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
 				{
 					String alert = (String) state.getAttribute(STATE_MESSAGE);
-					if (alert == null || ((alert != null) && (alert.indexOf(RESOURCE_INVALID_OPERATION_ON_COLLECTION_STRING) == -1)))
+					if (alert == null || ((alert != null) && (alert.indexOf(rb.getString("notsupported")) == -1)))
 					{
-						addAlert(state, RESOURCE_INVALID_OPERATION_ON_COLLECTION_STRING);
+						addAlert(state, rb.getString("notsupported"));
 					}
 				}
 				else
@@ -8691,7 +8739,7 @@ public class ResourcesAction
 			}
 			catch (IdUnusedException e)
 			{
-				addAlert(state,RESOURCE_NOT_EXIST_STRING);
+				addAlert(state,rb.getString("notexist1"));
 			}
 			catch (InUseException e)
 			{
@@ -8791,9 +8839,9 @@ public class ResourcesAction
 			if (properties.getProperty (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
 			{
 				String alert = (String) state.getAttribute(STATE_MESSAGE);
-				if (alert == null || ((alert != null) && (alert.indexOf(RESOURCE_INVALID_OPERATION_ON_COLLECTION_STRING) == -1)))
+				if (alert == null || ((alert != null) && (alert.indexOf(rb.getString("notsupported")) == -1)))
 				{
-					addAlert(state, RESOURCE_INVALID_OPERATION_ON_COLLECTION_STRING);
+					addAlert(state, rb.getString("notsupported"));
 				}
 			}
 			else
@@ -8801,7 +8849,8 @@ public class ResourcesAction
 				// paste the resource
 				ContentResource resource = ContentHostingService.getResource (itemId);
 				ResourceProperties p = ContentHostingService.getProperties(itemId);
-				String displayName = DUPLICATE_STRING + p.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				String[] args = { p.getProperty(ResourceProperties.PROP_DISPLAY_NAME) };
+				String displayName = rb.getFormattedMessage("copy.name", args);
 
 				String newItemId = ContentHostingService.copyIntoFolder(itemId, collectionId);
 
@@ -8818,7 +8867,7 @@ public class ResourcesAction
 		}
 		catch (IdUnusedException e)
 		{
-			addAlert(state,RESOURCE_NOT_EXIST_STRING);
+			addAlert(state,rb.getString("notexist1"));
 		}
 		catch (IdUsedException e)
 		{
@@ -8834,7 +8883,7 @@ public class ResourcesAction
 		}
 		catch (InconsistentException ee)
 		{
-			addAlert(state, RESOURCE_INVALID_TITLE_STRING);
+			addAlert(state, rb.getString("titlecannot"));
 		}
 		catch(InUseException e)
 		{
@@ -9028,7 +9077,7 @@ public class ResourcesAction
 			rv = false;
 		}
 		String displayName = p.getPropertyFormatted (ResourceProperties.PROP_DISPLAY_NAME);
-		if (displayName.indexOf(SHORTCUT_STRING) != -1)
+		if (displayName.indexOf(rb.getString("shortcut")) != -1)
 		{
 			rv = false;
 		}
@@ -9602,6 +9651,13 @@ public class ResourcesAction
 	*/
 	protected List readAllResources(SessionState state)
 	{
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		
 		List other_sites = new Vector();
 
 		String collectionId = (String) state.getAttribute (STATE_ATTACH_COLLECTION_ID);
@@ -9609,7 +9665,7 @@ public class ResourcesAction
 		{
 			collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
 		}
-		SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 		if(expandedCollections == null)
 		{
 			expandedCollections = new TreeSet();
@@ -9638,12 +9694,15 @@ public class ResourcesAction
 		String userName = user.getDisplayName();
 		String wsId = SiteService.getUserSiteId(userId);
 		String wsCollectionId = ContentHostingService.getSiteCollection(wsId);
+		List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEM_TO_BE_COPIED);
+		List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEM_TO_BE_MOVED);
+		
 		if(! collectionId.equals(wsCollectionId))
 		{
             try
             {
             	ContentCollection wsCollection = ContentHostingService.getCollection(wsCollectionId);
-				ListItem wsRoot = getListItem(wsCollection, null, false, expandedCollections);
+				ListItem wsRoot = getListItem(wsCollection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0 );
 		        other_sites.add(wsRoot);
             }
             catch (IdUnusedException e)
@@ -9663,8 +9722,8 @@ public class ResourcesAction
             }
 		}
 		
-        	// add all other sites user has access to
-		/*
+ 		/*
+		 * add all other sites user has access to
 		 * NOTE: This does not (and should not) get all sites for admin.  
 		 *       Getting all sites for admin is too big a request and
 		 *       would result in too big a display to render in html.
@@ -9682,22 +9741,35 @@ public class ResourcesAction
 		Iterator sortIt = sort.iterator();
 		while(sortIt.hasNext())
 		{
-			String item = (String) sortIt.next();
-			String displayName = item.substring(0, item.lastIndexOf(DELIM));
-			String collId = item.substring(item.lastIndexOf(DELIM) + 1);
+			String keyvalue = (String) sortIt.next();
+			String displayName = keyvalue.substring(0, keyvalue.lastIndexOf(DELIM));
+			String collId = keyvalue.substring(keyvalue.lastIndexOf(DELIM) + 1);
 			if(! collectionId.equals(collId) && ! wsCollectionId.equals(collId))
 			{
-				List members = getListView(collId, highlightedItems, (ChefBrowseItem) null, false, state);
-
-				// List members = getBrowseItems(collId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, false, state);
-				if(members != null && members.size() > 0)
-				{
-					ChefBrowseItem root = (ChefBrowseItem) members.remove(0);
-					root.addMembers(members);
+				ContentCollection collection;
+                try
+                {
+	                collection = ContentHostingService.getCollection(collId);
+					ListItem root = getListItem(collection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0);
 					root.setName(displayName);
 					other_sites.add(root);
-				}
-              }
+                }
+                catch (IdUnusedException e)
+                {
+	                // TODO Auto-generated catch block
+	                logger.warn("IdUnusedException ", e);
+                }
+                catch (TypeException e)
+                {
+	                // TODO Auto-generated catch block
+	                logger.warn("TypeException ", e);
+                }
+                catch (PermissionException e)
+                {
+	                // TODO Auto-generated catch block
+	                logger.warn("PermissionException ", e);
+                }
+			}
           }
 		
 		return other_sites;
@@ -9705,7 +9777,7 @@ public class ResourcesAction
 	
 	/**
 	* Prepare the current page of site collections to display.
-	* @return List of ChefBrowseItem objects to display on this page.
+	* @return List of ListItem objects to display on this page.
 	*/
 	protected List prepPage(SessionState state)
 	{
@@ -13259,7 +13331,7 @@ public class ResourcesAction
 		}
 		catch (IdUnusedException e)
 		{
-			addAlert(state,RESOURCE_NOT_EXIST_STRING);
+			addAlert(state,rb.getString("notexist1"));
 			context.put("notExistFlag", new Boolean(true));
 		}
 		catch (TypeException e)
@@ -15315,7 +15387,7 @@ public class ResourcesAction
 			}
 			catch(InconsistentException e)
 			{
-				alerts.add(RESOURCE_INVALID_TITLE_STRING);
+				alerts.add(rb.getString("titlecannot"));
 				continue outerloop;
 			}
 			catch(OverQuotaException e)
@@ -15504,7 +15576,7 @@ public class ResourcesAction
 			}
 			catch (InconsistentException e)
 			{
-				alerts.add(RESOURCE_INVALID_TITLE_STRING);
+				alerts.add(rb.getString("titlecannot"));
 			}	// try-catch
 		}
 
@@ -15740,7 +15812,7 @@ public class ResourcesAction
 //			}
 			catch(InconsistentException e)
 			{
-				alerts.add(RESOURCE_INVALID_TITLE_STRING);
+				alerts.add(rb.getString("titlecannot"));
 				continue outerloop;
 			}
 			catch(OverQuotaException e)
@@ -16037,8 +16109,8 @@ public class ResourcesAction
 			}
 			catch (IdUnusedException e)
 			{
-				alerts.add(RESOURCE_NOT_EXIST_STRING);
-				// addAlert(state,RESOURCE_NOT_EXIST_STRING);
+				alerts.add(rb.getString("notexist1"));
+				// addAlert(state,rb.getString("notexist1"));
 			}
 			catch (PermissionException e)
 			{
@@ -16929,7 +17001,7 @@ public class ResourcesAction
 			}
 			catch (IdUnusedException e)
 			{
-				addAlert(state,RESOURCE_NOT_EXIST_STRING);
+				addAlert(state,rb.getString("notexist1"));
 			}
 			catch (InUseException e)
 			{
