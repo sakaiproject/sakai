@@ -1,5 +1,5 @@
 <f:view>
-	<h:form name="loginForm">
+	<h:form id="loginForm">
 		<p>Pick one of the following users and then pick a gradebook:</p>
 
 		<ul>

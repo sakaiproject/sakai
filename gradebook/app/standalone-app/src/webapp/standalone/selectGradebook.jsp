@@ -1,5 +1,5 @@
 <f:view>
-	<h:form name="gbForm">
+	<h:form id="gbForm">
 		<p>Pick one of the following gradebooks:</p>
 		<h:dataTable id="table" value="#{selectGradebookBean.gradebooks}" var="gradebook">
 			<h:column>
