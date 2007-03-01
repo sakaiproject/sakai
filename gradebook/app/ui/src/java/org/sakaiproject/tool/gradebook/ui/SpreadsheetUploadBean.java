@@ -622,8 +622,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
             if(logger.isDebugEnabled())logger.debug("persist grade records to database");
             getGradebookManager().updateAssignmentGradesAndComments(assignment,gradeRecords,comments);
-            String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
-            getGradebookBean().getEventTrackingService().postEvent("gradebook.importItem","/gradebook/"+getGradebookId()+"/"+assignment.getName()+"/"+authzLevel);
+            getGradebookBean().getEventTrackingService().postEvent("gradebook.importItem","/gradebook/"+getGradebookId()+"/"+assignment.getName()+"/"+getAuthzLevel());
             return  "spreadsheetPreview";
         } catch (ConflictingAssignmentNameException e) {
             if(logger.isErrorEnabled())logger.error(e);

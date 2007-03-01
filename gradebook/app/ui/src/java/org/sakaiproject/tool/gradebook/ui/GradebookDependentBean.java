@@ -240,4 +240,13 @@ public abstract class GradebookDependentBean extends InitializableBean {
 		return fileName.toString();
 	}
 
+
+    /**
+     * 
+     * @return
+     */
+    public String getAuthzLevel(){
+         return (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
+    }
+
 }

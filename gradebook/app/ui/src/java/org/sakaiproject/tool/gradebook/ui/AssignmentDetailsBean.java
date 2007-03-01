@@ -274,42 +274,44 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	}
 
 	private void saveScores() throws StaleObjectModificationException {
-		if (logger.isInfoEnabled()) logger.info("saveScores " + assignmentId);
+        if (logger.isInfoEnabled()) logger.info("saveScores " + assignmentId);
 		
-		Set excessiveScores = getGradebookManager().updateAssignmentGradesAndComments(assignment, updatedGradeRecords, updatedComments);
+        Set excessiveScores = getGradebookManager().updateAssignmentGradesAndComments(assignment, updatedGradeRecords, updatedComments);
 
         if (logger.isDebugEnabled()) logger.debug("About to save " + updatedComments.size() + " updated comments");
-
-        String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+authzLevel);
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.comment","/gradebook/"+getGradebookId()+"/"+updatedComments.size()+"/"+authzLevel);
+        if(updatedGradeRecords.size() > 0){
+            getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
+        }
+        if(updatedComments.size() > 0){
+            getGradebookBean().getEventTrackingService().postEvent("gradebook.comment","/gradebook/"+getGradebookId()+"/"+updatedComments.size()+"/"+getAuthzLevel());
+        }
         String messageKey = (excessiveScores.size() > 0) ?
                 "assignment_details_scores_saved_excessive" :
                 "assignment_details_scores_saved";
 
         // Let the user know.
         FacesUtil.addMessage(getLocalizedString(messageKey));
-	}
+    }
 
-	public void toggleEditableComments(ActionEvent event) {
-		// Don't write over any scores the user entered before pressing
-		// the "Edit Comments" button.
-		if (!isAllCommentsEditable) {
-			workInProgress = true;
-		}
+    public void toggleEditableComments(ActionEvent event) {
+        // Don't write over any scores the user entered before pressing
+        // the "Edit Comments" button.
+        if (!isAllCommentsEditable) {
+            workInProgress = true;
+        }
 
-		isAllCommentsEditable = !isAllCommentsEditable;
+        isAllCommentsEditable = !isAllCommentsEditable;
     }
 
     /**
-	 * View maintenance methods.
-	 */
-	public Long getAssignmentId() {
-		if (logger.isDebugEnabled()) logger.debug("getAssignmentId " + assignmentId);
-		return assignmentId;
-	}
-	public void setAssignmentId(Long assignmentId) {
-		if (logger.isDebugEnabled()) logger.debug("setAssignmentId " + assignmentId);
+     * View maintenance methods.
+     */
+    public Long getAssignmentId() {
+        if (logger.isDebugEnabled()) logger.debug("getAssignmentId " + assignmentId);
+        return assignmentId;
+    }
+    public void setAssignmentId(Long assignmentId) {
+        if (logger.isDebugEnabled()) logger.debug("setAssignmentId " + assignmentId);
 		this.assignmentId = assignmentId;
 	}
 

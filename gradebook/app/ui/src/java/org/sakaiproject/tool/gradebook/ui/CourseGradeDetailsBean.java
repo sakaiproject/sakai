@@ -214,8 +214,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 
 	private void saveGrades() throws StaleObjectModificationException {
 		getGradebookManager().updateCourseGradeRecords(courseGrade, updatedGradeRecords);
-        String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.updateCourseGrades","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+authzLevel);
+        getGradebookBean().getEventTrackingService().postEvent("gradebook.updateCourseGrades","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
         // Let the user know.
 		FacesUtil.addMessage(getLocalizedString("course_grade_details_grades_saved"));
 	}
@@ -225,8 +224,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 	
     public void exportCsv(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting course grade as CSV for gradebook " + getGradebookUid());
-        String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadCourseGrade","/gradebook/"+getGradebookId()+"/"+authzLevel);
+        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadCourseGrade","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
         FacesUtil.downloadSpreadsheetData(getSpreadsheetData(), 
         		getDownloadFileName(getLocalizedString("export_course_grade_prefix")), 
         		new SpreadsheetDataFileWriterCsv());
@@ -234,8 +232,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 
     public void exportExcel(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting course grade as Excel for gradebook " + getGradebookUid());
-        String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadCourseGrade","/gradebook/"+getGradebookId()+"/"+authzLevel);
+        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadCourseGrade","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
         FacesUtil.downloadSpreadsheetData(getSpreadsheetData(), 
         		getDownloadFileName(getLocalizedString("export_course_grade_prefix")), 
         		new SpreadsheetDataFileWriterXls());

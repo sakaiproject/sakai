@@ -288,8 +288,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 
     public void exportCsv(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting roster as CSV for gradebook " + getGradebookUid());
-        String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+authzLevel);
+        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
         FacesUtil.downloadSpreadsheetData(getSpreadsheetData(), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
         		new SpreadsheetDataFileWriterCsv());
@@ -298,7 +297,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     public void exportExcel(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting roster as Excel for gradebook " + getGradebookUid());
         String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+authzLevel);
+        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
         FacesUtil.downloadSpreadsheetData(getSpreadsheetData(), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
         		new SpreadsheetDataFileWriterXls());
