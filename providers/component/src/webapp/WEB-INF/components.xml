@@ -176,7 +176,7 @@
 								<property name="enrollmentStatusRoleMap">
 									<map>
 										<entry key="enrolled" value="Student" />
-										<entry key="waitlisted" value="Student" />
+										<entry key="wait" value="Student" />
 									</map>
 								</property>
 							</bean>
