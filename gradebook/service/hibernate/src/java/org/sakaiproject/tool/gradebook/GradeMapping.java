@@ -110,7 +110,6 @@ public class GradeMapping implements Serializable, Comparable {
 	 */
 	public String getGrade(Double value) {
 		if(value == null) {
-            if(log.isInfoEnabled()) log.info("Can not get a mapped grade for a null value");
             return null;
         }
         for (Iterator iter = getGrades().iterator(); iter.hasNext();) {
