@@ -2103,8 +2103,8 @@ public class ResourcesAction
 	protected static final String STATE_REVISE_PROPERTIES_ITEM = PREFIX + "revise_properties_item";
 	protected static final String STATE_REVISE_PROPERTIES_ACTION = PREFIX + "revise_properties_action";
 	
-	protected static final String STATE_ITEM_TO_BE_COPIED = PREFIX + "item_to_be_copied";
-	protected static final String STATE_ITEM_TO_BE_MOVED = PREFIX + "item_to_be_moved";
+	protected static final String STATE_ITEMS_TO_BE_COPIED = PREFIX + "items_to_be_copied";
+	protected static final String STATE_ITEMS_TO_BE_MOVED = PREFIX + "items_to_be_moved";
 
 
 	/**
@@ -2897,19 +2897,9 @@ public class ResourcesAction
 		{
 			// if copy or move is in progress AND user has content.new for this folder, user can paste in the collection 
 			// (the paste action will only be defined for collections)
-			String item_to_be_copied = (String) state.getAttribute(STATE_ITEM_TO_BE_COPIED);
-			List<String> items_to_be_copied = new Vector();
-			if(item_to_be_copied != null)
-			{
-				items_to_be_copied.add(item_to_be_copied);
-			}
+			List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_COPIED);
 			
-			String item_to_be_moved = (String) state.getAttribute(STATE_ITEM_TO_BE_MOVED);
-			List<String> items_to_be_moved = new Vector();
-			if(item_to_be_moved != null)
-			{
-				items_to_be_moved.add(item_to_be_moved);
-			}
+			List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
 			
 			List<ResourceToolAction> actions = getActions(selectedItem, registry, items_to_be_moved, items_to_be_copied);
 			
@@ -3742,7 +3732,12 @@ public class ResourcesAction
 			switch(sAction.getActionType())
 			{
 				case COPY:
-					state.setAttribute(STATE_ITEM_TO_BE_COPIED, selectedItemId);
+					List<String> items_to_be_copied = new Vector();
+					if(selectedItemId != null)
+					{
+						items_to_be_copied.add(selectedItemId);
+					}
+					state.setAttribute(STATE_ITEMS_TO_BE_COPIED, items_to_be_copied);
 					break;
 				case DUPLICATE:
 					duplicateItem(state, selectedItemId, ContentHostingService.getContainingCollectionId(selectedItemId));
@@ -3756,7 +3751,12 @@ public class ResourcesAction
 					}
 					break;
 				case MOVE:
-					state.setAttribute(STATE_ITEM_TO_BE_MOVED, selectedItemId);
+					List<String> items_to_be_moved = new Vector();
+					if(selectedItemId != null)
+					{
+						items_to_be_moved.add(selectedItemId);
+					}
+					state.setAttribute(STATE_ITEMS_TO_BE_MOVED, items_to_be_moved);
 					break;
 				case VIEW_METADATA:
 					break;
@@ -3800,19 +3800,24 @@ public class ResourcesAction
 	 */
 	protected void pasteItem(SessionState state, String collectionId)
 	{
-		String item_to_be_moved = (String) state.getAttribute(STATE_ITEM_TO_BE_MOVED);
-		String item_to_be_copied = (String) state.getAttribute(STATE_ITEM_TO_BE_COPIED);
+		List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
+		List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_COPIED);
 	
-		if(item_to_be_moved != null)
+		if(items_to_be_moved != null)
 		{
 			try
 			{
-				// paste moved item into collection 
-				ContentHostingService.moveIntoFolder(item_to_be_moved, collectionId);
-				// TODO expand collection
-				
-				// remove the state attribute
-				state.removeAttribute(STATE_ITEM_TO_BE_MOVED);
+				Iterator<String> moveIt = items_to_be_moved.iterator();
+				while(moveIt.hasNext())
+				{
+					String item = moveIt.next();
+					// paste moved item into collection 
+					ContentHostingService.moveIntoFolder(item, collectionId);
+					// TODO expand collection
+					
+					// remove the state attribute
+					state.removeAttribute(STATE_ITEMS_TO_BE_MOVED);
+				}
 			}
 			catch (PermissionException e)
 			{
@@ -3853,16 +3858,23 @@ public class ResourcesAction
 				addAlert(state, rb.getString("failed"));
 			}
 		}
-		else if(item_to_be_copied != null)
+		else if(items_to_be_copied != null)
 		{
 			try
 			{
-				ContentHostingService.copyIntoFolder(item_to_be_copied, collectionId);
-				// if no errors
-				// TODO expand collection
-				
-				// remove the state attribute
-				state.removeAttribute(STATE_ITEM_TO_BE_COPIED);
+				Iterator<String> copyIt = items_to_be_copied.iterator();
+				while(copyIt.hasNext())
+				{
+					String item = copyIt.next();
+					// paste copied item into collection 
+					ContentHostingService.copyIntoFolder(item, collectionId);
+					
+					// if no errors
+					// TODO expand collection
+					
+					// remove the state attribute
+					state.removeAttribute(STATE_ITEMS_TO_BE_COPIED);
+				}
 			}
 			catch (PermissionException e)
 			{
@@ -4597,8 +4609,8 @@ public class ResourcesAction
 			
 			ContentCollection collection = ContentHostingService.getCollection(collectionId);
 			
-			List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEM_TO_BE_COPIED);
-			List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEM_TO_BE_MOVED);
+			List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_COPIED);
+			List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
 			
 			ListItem item = getListItem(collection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0);
 
@@ -9694,8 +9706,8 @@ public class ResourcesAction
 		String userName = user.getDisplayName();
 		String wsId = SiteService.getUserSiteId(userId);
 		String wsCollectionId = ContentHostingService.getSiteCollection(wsId);
-		List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEM_TO_BE_COPIED);
-		List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEM_TO_BE_MOVED);
+		List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_COPIED);
+		List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
 		
 		if(! collectionId.equals(wsCollectionId))
 		{
