@@ -339,7 +339,7 @@ function togglePresence(target) {
 <a class="editToolBar" 
    href="#" 
    id="toolbarButtonTable" 
-   onclick="addMarkup('content','col|col|col\nnewrow|col|col','{table}\n','\n{table}'); return false;" >
+   onclick="addMarkup('content','${rlb.jsp_table_macro_markup}','{table}\n','\n{table}'); return false;" >
    <img src="/library/image/transparent.gif" 
         border="0" 
         title="${rlb.jsp_toolb_table}" 
