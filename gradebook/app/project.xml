@@ -58,16 +58,6 @@
 			</properties>
 		</dependency>
 
-		<!-- these are to get full Sakai integration -->
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-jsf-app</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-
 		<!-- sakai2 plugin -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
@@ -98,12 +88,18 @@
 	      <version>0.1-dev</version>
 	      <url>http://brutus.apache.org/gump/public/jakarta-commons-sandbox/commons-id/</url>
 	    </dependency>
-	    
+
 	     <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-event-api</artifactId>
             <version>${sakai.version}</version>
         </dependency>
+
+ 		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-component-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
 
 <!-- End Sakai2 Dependencies -->
 

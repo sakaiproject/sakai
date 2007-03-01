@@ -23,7 +23,15 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
@@ -31,10 +39,8 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
-
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
@@ -50,9 +56,9 @@ public abstract class EnrollmentTableBean
     /**
      * A comparator that sorts enrollments by student sortName
      */
-    static final Comparator ENROLLMENT_NAME_COMPARATOR = new Comparator() {
-		public int compare(Object o1, Object o2) {
-            return ((EnrollmentRecord)o1).getUser().getSortName().compareToIgnoreCase(((EnrollmentRecord)o2).getUser().getSortName());
+    static final Comparator<EnrollmentRecord> ENROLLMENT_NAME_COMPARATOR = new Comparator<EnrollmentRecord>() {
+		public int compare(EnrollmentRecord o1, EnrollmentRecord o2) {
+            return o1.getUser().getSortName().compareToIgnoreCase(o2.getUser().getSortName());
 		}
 	};
 
@@ -60,9 +66,9 @@ public abstract class EnrollmentTableBean
      * A comparator that sorts enrollments by student display UID (for installations
      * where a student UID is not a number)
      */
-    static final Comparator ENROLLMENT_DISPLAY_UID_COMPARATOR = new Comparator() {
-        public int compare(Object o1, Object o2) {
-            return ((EnrollmentRecord)o1).getUser().getDisplayId().compareToIgnoreCase(((EnrollmentRecord)o2).getUser().getDisplayId());
+    static final Comparator<EnrollmentRecord> ENROLLMENT_DISPLAY_UID_COMPARATOR = new Comparator<EnrollmentRecord>() {
+        public int compare(EnrollmentRecord o1, EnrollmentRecord o2) {
+            return o1.getUser().getDisplayId().compareToIgnoreCase(o2.getUser().getDisplayId());
         }
     };
 
@@ -70,10 +76,10 @@ public abstract class EnrollmentTableBean
      * A comparator that sorts enrollments by student display UID (for installations
      * where a student UID is a number)
      */
-    static final Comparator ENROLLMENT_DISPLAY_UID_NUMERIC_COMPARATOR = new Comparator() {
-        public int compare(Object o1, Object o2) {
-            long user1DisplayId = Long.parseLong(((EnrollmentRecord)o1).getUser().getDisplayId());
-            long user2DisplayId = Long.parseLong(((EnrollmentRecord)o2).getUser().getDisplayId());
+    static final Comparator<EnrollmentRecord> ENROLLMENT_DISPLAY_UID_NUMERIC_COMPARATOR = new Comparator<EnrollmentRecord>() {
+        public int compare(EnrollmentRecord o1, EnrollmentRecord o2) {
+            long user1DisplayId = Long.parseLong(o1.getUser().getDisplayId());
+            long user2DisplayId = Long.parseLong(o2.getUser().getDisplayId());
             return (int)(user1DisplayId - user2DisplayId);
         }
     };

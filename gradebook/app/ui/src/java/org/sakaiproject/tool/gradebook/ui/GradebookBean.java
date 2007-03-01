@@ -61,6 +61,7 @@ public class GradebookBean extends InitializableBean {
     private Authz authzService;
     private ContextManagement contextManagementService;
     private EventTrackingService eventTrackingService;
+    private ConfigurationBean configurationBean;
 
     /**
      * @return Returns the gradebookId.
@@ -198,6 +199,13 @@ public class GradebookBean extends InitializableBean {
     public void setEventTrackingService(EventTrackingService eventTrackingService) {
         this.eventTrackingService = eventTrackingService;
     }
+
+	public ConfigurationBean getConfigurationBean() {
+		return configurationBean;
+	}
+	public void setConfigurationBean(ConfigurationBean configurationBean) {
+		this.configurationBean = configurationBean;
+	}
 }
 
 

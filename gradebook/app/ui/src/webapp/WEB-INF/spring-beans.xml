@@ -59,4 +59,8 @@
 		</property>
 	</bean>
 
+	<!-- Standard course grade spreadsheet formatting -->
+	<bean id="org.sakaiproject.tool.gradebook.ui.CourseGradesToSpreadsheetConverterDefault"
+		class="org.sakaiproject.tool.gradebook.ui.CourseGradesToSpreadsheetConverterDefault"/>
+
 </beans>

@@ -3,6 +3,16 @@
 
 <beans>
 
+	<!-- Support for overridable plug-in beans. -->
+	<bean id="configurationBean" class="org.sakaiproject.tool.gradebook.ui.ConfigurationBean">
+		<property name="pluginDefaults">
+			<map>
+				<entry key="gradebook.coursegrades.converter"
+					value="org.sakaiproject.tool.gradebook.ui.CourseGradesToSpreadsheetConverterDefault"/>
+			</map>
+		</property>
+	</bean>
+
 	<!--
 		This Spring configuration file specifies a standalone implementation of the facades.
 	-->
@@ -27,7 +37,7 @@
 
     <!-- External Event Tracking Service -->
     <bean id="org_sakaiproject_tool_gradebook_facades_EventTrackingService"
-        class="org.sakaiproject.tool.gradebook.facades.standalone.EventTrackingServiceStandaloneImpl">       
+        class="org.sakaiproject.tool.gradebook.facades.standalone.EventTrackingServiceStandaloneImpl">
     </bean>
 
 

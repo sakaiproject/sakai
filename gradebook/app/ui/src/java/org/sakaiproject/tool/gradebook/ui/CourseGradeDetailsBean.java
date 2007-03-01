@@ -39,10 +39,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
-import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
+import org.sakaiproject.tool.gradebook.CourseGradesToSpreadsheetConverter;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
@@ -53,12 +53,11 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 
 	// View maintenance fields - serializable.
 	private List scoreRows;
-
-	// Controller fields - transient.
 	private CourseGrade courseGrade;
     private List updatedGradeRecords;
     private GradeMapping gradeMapping;
     private double totalPoints;
+    private String courseGradesConverterPlugin;
 
 	public class ScoreRow implements Serializable {
         private EnrollmentRecord enrollment;
@@ -240,51 +239,19 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
     
     private List<List<Object>> getSpreadsheetData() {
     	// Get the full list of filtered enrollments and scores (not just the current page's worth).
-    	List filteredEnrollments = getWorkingEnrollments();
+    	List<EnrollmentRecord> filteredEnrollments = getWorkingEnrollments();
     	Collections.sort(filteredEnrollments, ENROLLMENT_NAME_COMPARATOR);
     	Set<String> studentUids = new HashSet<String>();
-    	for (Iterator iter = filteredEnrollments.iterator(); iter.hasNext(); ) {
-    		EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
+    	for (EnrollmentRecord enrollment : filteredEnrollments) {
     		studentUids.add(enrollment.getUser().getUserUid());
     	}
 
 		CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
-		List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentUids);
-		Map filteredGradesMap = new HashMap();
+		List<CourseGradeRecord> courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentUids);
+		Map<String, CourseGradeRecord> filteredGradesMap = new HashMap<String, CourseGradeRecord>();
 		getGradebookManager().addToGradeRecordMap(filteredGradesMap, courseGradeRecords);
-     	return getSpreadsheetData(filteredEnrollments, courseGrade, filteredGradesMap);
-    }
-    
-    private List<List<Object>> getSpreadsheetData(List enrollments, CourseGrade courseGrade, Map gradesMap) {
-    	List<List<Object>> spreadsheetData = new ArrayList<List<Object>>();
-
-    	// Build column headers.
-        List<Object> headerRow = new ArrayList<Object>();
-        headerRow.add(getLocalizedString("export_student_id"));
-        headerRow.add(getLocalizedString("export_student_name"));
-        headerRow.add(getLocalizedString("course_grade_details_course_grade_column_name"));
-        spreadsheetData.add(headerRow);
-        
-        // Build student grade rows.
-        for (Object enrollment : enrollments) {
-        	User student = ((EnrollmentRecord)enrollment).getUser();
-        	String studentUid = student.getUserUid();
-        	Map studentMap = (Map)gradesMap.get(studentUid);
-        	List<Object> row = new ArrayList<Object>();
-        	row.add(student.getDisplayId());
-        	row.add(student.getSortName());
-        	String grade = null;
-        	if (studentMap != null) {
-        		CourseGradeRecord gradeRecord = (CourseGradeRecord)studentMap.get(courseGrade.getId()); 
-    			if (gradeRecord != null) {
-    				grade = gradeRecord.getDisplayGrade();
-    			}
-        	}
-        	row.add(grade);
-        	spreadsheetData.add(row);
-        }
-    	
-    	return spreadsheetData;
+		CourseGradesToSpreadsheetConverter converter = (CourseGradesToSpreadsheetConverter)getGradebookBean().getConfigurationBean().getPlugin(courseGradesConverterPlugin);
+		return converter.getSpreadsheetData(filteredEnrollments, courseGrade, filteredGradesMap);
     }
 
 	public List getScoreRows() {
@@ -311,4 +278,8 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
     public void setSortColumn(String sortColumn) {
         getPreferencesBean().setCourseGradeDetailsTableSortColumn(sortColumn);
     }
+
+	public void setCourseGradesConverterPlugin(String courseGradesConverterPlugin) {
+		this.courseGradesConverterPlugin = courseGradesConverterPlugin;
+	}
 }

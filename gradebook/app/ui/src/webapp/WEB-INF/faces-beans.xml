@@ -41,7 +41,11 @@
 			<property-name>eventTrackingService</property-name>
 			<value>#{org_sakaiproject_tool_gradebook_facades_EventTrackingService}</value>
 		</managed-property>
-        <!-- This setter comes last. -->
+        <managed-property>
+			<property-name>configurationBean</property-name>
+			<value>#{configurationBean}</value>
+		</managed-property>
+		<!-- This setter comes last. -->
 		<managed-property>
 			<description>Initialization hook</description>
 			<property-name>configured</property-name>
@@ -134,6 +138,10 @@
 		<managed-property>
 			<property-name>pageName</property-name>
 			<value>courseGradeDetails</value>
+		</managed-property>
+		<managed-property>
+			<property-name>courseGradesConverterPlugin</property-name>
+			<value>gradebook.coursegrades.converter</value>
 		</managed-property>
 	</managed-bean>
 
