@@ -63,6 +63,8 @@ public class RemoveAssignmentBean extends GradebookDependentBean implements Seri
                 FacesUtil.addErrorMessage(getLocalizedString("remove_assignment_locking_failure"));
                 return null;
             }
+            String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
+            getGradebookBean().getEventTrackingService().postEvent("gradebook.deleteItem","/gradebook/"+getGradebookId()+"/"+assignment.getName()+"/"+authzLevel);
             FacesUtil.addRedirectSafeMessage(getLocalizedString("remove_assignment_success", new String[] {assignment.getName()}));
             return "overview";
         } else {

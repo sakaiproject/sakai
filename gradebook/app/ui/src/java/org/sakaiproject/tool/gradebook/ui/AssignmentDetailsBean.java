@@ -278,11 +278,14 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		
 		Set excessiveScores = getGradebookManager().updateAssignmentGradesAndComments(assignment, updatedGradeRecords, updatedComments);
 
-		if (logger.isDebugEnabled()) logger.debug("About to save " + updatedComments.size() + " updated comments");
+        if (logger.isDebugEnabled()) logger.debug("About to save " + updatedComments.size() + " updated comments");
 
-		String messageKey = (excessiveScores.size() > 0) ?
-			"assignment_details_scores_saved_excessive" :
-			"assignment_details_scores_saved";
+        String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
+        getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+authzLevel);
+        getGradebookBean().getEventTrackingService().postEvent("gradebook.comment","/gradebook/"+getGradebookId()+"/"+updatedComments.size()+"/"+authzLevel);
+        String messageKey = (excessiveScores.size() > 0) ?
+                "assignment_details_scores_saved_excessive" :
+                "assignment_details_scores_saved";
 
         // Let the user know.
         FacesUtil.addMessage(getLocalizedString(messageKey));
