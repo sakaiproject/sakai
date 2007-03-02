@@ -140,6 +140,17 @@ public interface ResourceToolAction
 		PASTE_COPIED,
 		
 		/**
+		 * Defines a custom sort order for the contents of a folder -- Handled by Resources tool.  Requires 
+		 * 		content.revise permission for the folder.    
+		 */
+		REVISE_ORDER,
+		
+		/**
+		 * Revise folder permissions -- Handled by Resources tool.  Requires site.upd permission.  
+		 */
+		REVISE_PERMISSIONS,
+		
+		/**
 		 * Custom action -- Handled by helper.  May be interactive or service-level.  Custom actions
 		 * 		must implement the CustomToolAction interface to provide Resources tool with a way to 
 		 * 		determine permissions, as well as either InteractionAction or ServiceLevelAction.
@@ -159,6 +170,8 @@ public interface ResourceToolAction
 	public static final String MOVE = "move";
 	public static final String PASTE_MOVED = "paste_moved";
 	public static final String PASTE_COPIED = "paste_copied";
+	public static final String PERMISSIONS = "revise_permissions";
+	public static final String REORDER = "revise_order";
 	
 	public static final String ACTION_DELIMITER = ":";
 		

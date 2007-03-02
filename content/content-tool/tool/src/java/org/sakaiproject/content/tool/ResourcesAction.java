@@ -139,7 +139,7 @@ public class ResourcesAction
 	
 	public enum ContentPermissions
 	{
-		READ, CREATE, REVISE, DELETE
+		READ, CREATE, REVISE, DELETE, SITE_UPDATE
 	}
 	
 	public static final List<ActionType> CONTENT_NEW_ACTIONS = new Vector<ActionType>();
@@ -149,6 +149,7 @@ public class ResourcesAction
 	public static final List<ActionType> CONTENT_READ_ACTIONS = new Vector<ActionType>();
 	public static final List<ActionType> CONTENT_MODIFY_ACTIONS = new Vector<ActionType>();
 	public static final List<ActionType> CONTENT_DELETE_ACTIONS = new Vector<ActionType>();
+	public static final List<ActionType> SITE_UPDATE_ACTIONS = new Vector<ActionType>();
 	
 	public static final List<ActionType> CREATION_ACTIONS = new Vector<ActionType>();
 	public static final List<ActionType> ACTIONS_ON_FOLDERS = new Vector<ActionType>();
@@ -175,9 +176,12 @@ public class ResourcesAction
 		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_METADATA);
 		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_CONTENT);
 		CONTENT_MODIFY_ACTIONS.add(ActionType.REPLACE_CONTENT);
+		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_ORDER);
 		
 		CONTENT_DELETE_ACTIONS.add(ActionType.MOVE);
 		CONTENT_DELETE_ACTIONS.add(ActionType.DELETE);
+		
+		SITE_UPDATE_ACTIONS.add(ActionType.REVISE_PERMISSIONS);
 
 		ACTIONS_ON_FOLDERS.add(ActionType.VIEW_METADATA);
 		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_METADATA);
@@ -185,6 +189,8 @@ public class ResourcesAction
 		ACTIONS_ON_FOLDERS.add(ActionType.COPY);
 		ACTIONS_ON_FOLDERS.add(ActionType.MOVE);
 		ACTIONS_ON_FOLDERS.add(ActionType.DELETE);
+		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_ORDER);
+		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_PERMISSIONS);
 		// ACTIONS_ON_FOLDERS.add(ActionType.PASTE_MOVED);
 
 		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_CONTENT);
@@ -836,6 +842,10 @@ public class ResourcesAction
 			{
 				permissions.add(ContentPermissions.REVISE);
 			}
+			if(SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
+			{
+				permissions.add(ContentPermissions.SITE_UPDATE);
+			}
 		}
 		else
 		{
@@ -854,6 +864,10 @@ public class ResourcesAction
 			if(ContentHostingService.allowUpdateResource(id))
 			{
 				permissions.add(ContentPermissions.REVISE);
+			}
+			if(SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
+			{
+				permissions.add(ContentPermissions.SITE_UPDATE);
 			}
 		}
 		
@@ -3198,6 +3212,13 @@ public class ResourcesAction
 	    if(contentNewOnParentActions != null)
 	    {
 	    	actions.addAll(contentNewOnParentActions);
+	    }
+	    
+	    // if user has content.new for item's parent and content.read for item, user can duplicate item
+	    List<ResourceToolAction> folderPermissionsActions = typeDef.getActions(SITE_UPDATE_ACTIONS);
+	    if(folderPermissionsActions != null)
+	    {
+	    	actions.addAll(folderPermissionsActions);
 	    }
 	    // filter -- remove actions that are not available to the current user in the context of this item
 	    Iterator<ResourceToolAction> actionIt = actions.iterator();

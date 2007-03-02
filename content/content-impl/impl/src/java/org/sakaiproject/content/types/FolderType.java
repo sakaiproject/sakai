@@ -32,6 +32,7 @@ import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -43,6 +44,12 @@ import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.util.BaseResourceType;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
@@ -72,6 +79,8 @@ public class FolderType extends BaseResourceType
 		//actions.put(ResourceToolAction.COPY, new FolderCopyAction());
 		//actions.put(ResourceToolAction.MOVE, new FolderMoveAction());
 		actions.put(ResourceToolAction.DELETE, new FolderDeleteAction());
+		actions.put(ResourceToolAction.REORDER, new FolderReorderAction());
+		actions.put(ResourceToolAction.PERMISSIONS, new FolderPermissionsAction());
 		
 		// initialize actionMap with an empty List for each ActionType
 		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())
@@ -96,7 +105,197 @@ public class FolderType extends BaseResourceType
 		
 
 	}
+	
+	public class FolderPermissionsAction implements InteractionAction
+	{
 
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.InteractionAction#cancelAction(org.sakaiproject.entity.api.Reference, java.lang.String)
+         */
+        public void cancelAction(Reference reference, String initializationId)
+        {
+	        // nothing to do
+	        
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.InteractionAction#finalizeAction(org.sakaiproject.entity.api.Reference, java.lang.String)
+         */
+        public void finalizeAction(Reference reference, String initializationId)
+        {
+	        // nothing to do
+	        
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.InteractionAction#getHelperId()
+         */
+        public String getHelperId()
+        {
+	        return "sakai.permissions.helper";
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.InteractionAction#getRequiredPropertyKeys()
+         */
+        public List getRequiredPropertyKeys()
+        {
+	        // TODO Auto-generated method stub
+	        return null;
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.InteractionAction#initializeAction(org.sakaiproject.entity.api.Reference)
+         */
+        public String initializeAction(Reference reference)
+        {
+    		ToolSession toolSession = SessionManager.getCurrentToolSession();
+
+    		toolSession.setAttribute(PermissionsHelper.TARGET_REF, reference.getReference());
+
+    		// use the folder's context (as a site) for roles
+    		String siteRef = SiteService.siteReference(reference.getContext());
+    		toolSession.setAttribute(PermissionsHelper.ROLES_REF, siteRef);
+
+    		// ... with this description
+    		String title = title = reference.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+    		String[] args = { title };
+ 
+    		toolSession.setAttribute(PermissionsHelper.DESCRIPTION, rb.getFormattedMessage("title.permissions", args));
+
+    		// ... showing only locks that are prpefixed with this
+    		toolSession.setAttribute(PermissionsHelper.PREFIX, "content.");
+
+ 	        return reference.getReference();
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        // TODO Auto-generated method stub
+	        return true;
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+         */
+        public ActionType getActionType()
+        {
+	        // TODO Auto-generated method stub
+	        return ActionType.REVISE_PERMISSIONS;
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#getId()
+         */
+        public String getId()
+        {
+	        // TODO Auto-generated method stub
+	        return ResourceToolAction.PERMISSIONS;
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#getLabel()
+         */
+        public String getLabel()
+        {
+	        // TODO Auto-generated method stub
+	        return rb.getString("action.permissions");
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#getTypeId()
+         */
+        public String getTypeId()
+        {
+	        // TODO Auto-generated method stub
+	        return typeId;
+        }
+
+		
+	}
+
+	public class FolderReorderAction implements ServiceLevelAction
+	{
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
+         */
+        public void cancelAction(Reference reference)
+        {
+	        // nothing to do
+	        
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
+         */
+        public void finalizeAction(Reference reference)
+        {
+	        // nothing to do
+	        
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
+         */
+        public void initializeAction(Reference reference)
+        {
+	        // nothing to do
+	        
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ServiceLevelAction#isMultipleItemAction()
+         */
+        public boolean isMultipleItemAction()
+        {
+	        return false;
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(String context)
+        {
+	        return false;
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+         */
+        public ActionType getActionType()
+        {
+	        return ActionType.REVISE_ORDER;
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#getId()
+         */
+        public String getId()
+        {
+	        return ResourceToolAction.REORDER;
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#getLabel()
+         */
+        public String getLabel()
+        {
+	        return rb.getString("action.reorder");
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#getTypeId()
+         */
+        public String getTypeId()
+        {
+	        return typeId;
+        }
+		
+	}
 
 	public class FolderPasteMovedAction implements ServiceLevelAction
 	{
