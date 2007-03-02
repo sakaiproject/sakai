@@ -22,11 +22,18 @@
 
 package org.sakaiproject.jsf.tag;
 
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 import javax.faces.webapp.UIComponentTag;
+
+import org.sakaiproject.jsf.util.TagUtil;
 
 
 public class ToolBarTag extends UIComponentTag
 {
+  private String separator;
+	
+	
   public String getComponentType()
   {
     return "org.sakaiproject.ToolBar";
@@ -35,6 +42,23 @@ public class ToolBarTag extends UIComponentTag
   public String getRendererType()
   {
     return "org.sakaiproject.ToolBar";
+  }
+  
+  protected void setProperties(UIComponent component)
+  {
+
+    super.setProperties(component);
+
+    FacesContext context = getFacesContext();
+    TagUtil.setString(component, "separator", separator);
+  }
+
+  public String getSeparator() {
+     return separator;
+  }
+
+  public void setSeparator(String separator) {
+     this.separator = separator;
   }
 }
 

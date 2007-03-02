@@ -24,11 +24,16 @@
 package org.sakaiproject.jsf.renderer;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
+
+import org.sakaiproject.jsf.util.RendererUtil;
 
 /**
  * <p>This does not render children, but can deal with children by surrounding them in a comment.</p>
@@ -36,6 +41,15 @@ import javax.faces.render.Renderer;
  */
 public class ToolBarRenderer extends Renderer
 {
+  /**
+   * This component renders its children
+   * @return true
+   */
+  public boolean getRendersChildren()
+  {
+	  return true;
+  }
+  
   public boolean supportsComponentType(UIComponent component)
   {
     return (component instanceof org.sakaiproject.jsf.component.ToolBarComponent);
@@ -51,6 +65,60 @@ public class ToolBarRenderer extends Renderer
     writer.write("<div class=\"navIntraTool\">");
 
     return;
+  }
+  
+  /**
+   * We put all our processing in the encodeChildren method
+   * @param context
+   * @param component
+   * @throws IOException
+   */
+  public void encodeChildren(FacesContext context, UIComponent component)
+    throws IOException
+  {
+    if (!component.isRendered())
+    {
+      return;
+    }
+
+    String clientId = null;
+
+    if (component.getId() != null &&
+      !component.getId().startsWith(UIViewRoot.UNIQUE_ID_PREFIX))
+    {
+      clientId = component.getClientId(context);
+    }
+
+    ResponseWriter writer = context.getResponseWriter();
+
+    if (clientId != null)
+    {
+      writer.startElement("div", component);
+    }
+
+    List children = component.getChildren();
+
+    // this is a special separator attribute, not supported by UIData
+    String separator = (String) RendererUtil.getAttribute(context, component, "separator");
+    if (separator==null) separator="";
+
+    boolean first = true;
+    for (Iterator iter = children.iterator(); iter.hasNext();)
+    {
+      UIComponent child = (UIComponent)iter.next();
+       
+      if (child.isRendered()) {
+         if (!first) writer.write(separator);
+   
+         RendererUtil.encodeRecursive(context, child);
+         first = false;
+      }
+    } 
+      if (clientId != null)
+        {
+        writer.endElement("div");
+      }
+
   }
 
   public void encodeEnd(FacesContext context, UIComponent component) throws IOException

@@ -228,6 +228,12 @@
     	  Determine if this component is to be rendered.
     	</description>
     </attribute>
+    
+    <attribute>
+         <name>separator</name>
+         <required>false</required>
+         <rtexprvalue>false</rtexprvalue>
+     </attribute>
   </tag>
 
 
