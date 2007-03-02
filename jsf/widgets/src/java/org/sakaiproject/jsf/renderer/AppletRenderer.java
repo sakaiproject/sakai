@@ -92,13 +92,19 @@ public class AppletRenderer
     String codebase = (String) RendererUtil.getAttribute(context, component, "codebase");
     String paramList = (String) RendererUtil.getAttribute(context, component, "paramList");
 
+    String name = (String) RendererUtil.getAttribute(context, component, "name");
     Map appParamMap = makeAppletParameters(paramList);
-    appParamMap.put("codebase", codebase);
+    
+    if(null!=codebase) appParamMap.put("codebase", codebase);
+    if(null!=javaArchive) appParamMap.put("archive", javaArchive);
+    //if(null!=name) appParamMap.put("id", name);
     appParamMap.put("code", javaClass);
 
     ResponseWriter writer = context.getResponseWriter();
     renderApplet(width, height, vspace, hspace, codebase, javaClass,
-      javaArchive, appParamMap, writer);
+      javaArchive, 
+      name, 
+      appParamMap, writer);
   }
 
     /**
@@ -164,6 +170,7 @@ public class AppletRenderer
 
   private void renderApplet(String width, String height, String vspace,
     String hspace, String codebase, String javaClass, String javaArchive,
+    String name,
     Map appParamMap, ResponseWriter writer)
     throws IOException
   {
@@ -175,6 +182,8 @@ public class AppletRenderer
     writer.write("    hspace=\"" + hspace + "\" ");
     writer.write("    vspace=\"" + vspace + "\" ");
     writer.write("    codebase=\"" + IE_CODEBASE + "\"");
+    writer.write("    archive=\"" + javaArchive + "\"");
+    writer.write("    id=\"" + name + "\"");
     writer.write(">");
 //    writer.write("    <PARAM name=\"java_code\" value=\"" + javaClass + "\">");
 //    writer.write("    <PARAM name=\"java_archive\" value=\"" + javaArchive +
@@ -194,6 +203,11 @@ public class AppletRenderer
     writer.write("    pluginspage=\"" + NS_PLUGINSPAGE + "\" ");
 //    writer.write("    java_code=\"" + javaClass + "\"");
 //    writer.write("    java_archive=\"" + javaArchive + "");
+    // if the name is not null duplicate it to the id param
+    if(null!=name) {
+    	appParamMap.put("id", name);
+    	appParamMap.put("name", name);
+    }
     renderEmbedParams(writer, appParamMap);
     writer.write("/>");
     writer.write("");
