@@ -20,9 +20,12 @@
 		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
 		
 
-		<sakai:tool_bar>
+		<sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}">
 				<sakai:tool_bar_item value="#{msgs.cdfm_container_title_thread}" action="#{ForumTool.processAddMessage}" id="df_compose_message_dfAllMessages"
 		  			rendered="#{ForumTool.selectedTopic.isNewResponse}" />
+		  			
+		  		<sakai:tool_bar_item action="#{ForumTool.processActionMarkAllAsRead}" value="#{msgs.cdfm_mark_all_as_read}" 
+					rendered="#{ForumTool.selectedTopic.isMarkAsRead}" />
       			
       			<sakai:tool_bar_item value="#{msgs.cdfm_thread_view}" action="#{ForumTool.processActionDisplayThreadedView}" />
       			

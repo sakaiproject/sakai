@@ -1624,7 +1624,17 @@ public class DiscussionForumTool
         getExternalParameterByKey(TOPIC_ID))));
     setTopicBeanAssign();
     getSelectedTopic();
+    
+    //get thread from message
+    Message mes = selectedMessage.getMessage();
+    while( mes.getInReplyTo() != null) {
+    	mes = messageManager.getMessageById(mes.getInReplyTo().getId());
+    }
+    selectedThreadHead = new DiscussionMessageBean(mes, messageManager);
+    
     List tempMsgs = selectedTopic.getMessages();
+    Boolean foundHead = false;
+    Boolean foundAfterHead = false;
     if(tempMsgs != null)
     {
     	for(int i=0; i<tempMsgs.size(); i++)
@@ -1635,10 +1645,21 @@ public class DiscussionForumTool
     			selectedMessage.setDepth(thisDmb.getDepth());
     			selectedMessage.setHasNext(thisDmb.getHasNext());
     			selectedMessage.setHasPre(thisDmb.getHasPre());
-    			break;
+    			foundHead = true;
     		}
+    		else if(((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getInReplyTo() == null && foundHead && !foundAfterHead) {
+        		selectedThreadHead.setHasNextThread(true);
+        		selectedThreadHead.setNextThreadId(((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getId());
+        		foundAfterHead = true;
+        	} 
+        	else if (((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getInReplyTo() == null && !foundHead) {
+        		selectedThreadHead.setHasPreThread(true);
+        		selectedThreadHead.setPreThreadId(((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getId());
+        	}
     	}
     }
+
+     
     // selectedTopic= new DiscussionTopicBean(message.getTopic());
     return MESSAGE_VIEW;
   }
@@ -2756,6 +2777,7 @@ public class DiscussionForumTool
     //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
+    messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(), dMsg.getId(), true);
 
     this.composeBody = null;
     this.composeLabel = null;
@@ -4313,7 +4335,10 @@ public class DiscussionForumTool
 	      forumManager.markMessageAs(decoMessage.getMessage(), readStatus);
 
 	    }
-	    return displayTopicById(TOPIC_ID); // reconstruct topic again;
+	    //return displayTopicById(TOPIC_ID); // reconstruct topic again;
+	    setSelectedForumForCurrentTopic(selectedTopic.getTopic());
+        selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
+	    return processActionDisplayFlatView();
   }
   
   private String markAllThreadAsRead(boolean readStatus)

@@ -13,15 +13,12 @@
 	<h:form id="msgForum">
 	
 		<h:panelGroup rendered="#{PrivateMessagesTool.instructor}">
-			<sakai:tool_bar>
+			<sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}">
         		<sakai:tool_bar_item value="#{msgs.cdfm_new_forum}" action="#{ForumTool.processActionNewForum}" />
-				<f:verbatim><span>| &nbsp; </span></f:verbatim>
       
         		<sakai:tool_bar_item value=" #{msgs.cdfm_organize}" action="#{ForumTool.processActionTemplateOrganize}"  />
-				<f:verbatim><span>| &nbsp; </span></f:verbatim> 
 
  				<sakai:tool_bar_item value=" #{msgs.cdfm_template_setting}" action="#{ForumTool.processActionTemplateSettings}" />
- 				<f:verbatim><span>| &nbsp; </span></f:verbatim> 
 
   				<sakai:tool_bar_item value=" #{msgs.stat_list}" action="#{ForumTool.processActionStatistics}" />
  			</sakai:tool_bar>

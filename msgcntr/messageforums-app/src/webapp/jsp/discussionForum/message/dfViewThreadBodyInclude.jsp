@@ -43,7 +43,7 @@
         	    				<h:outputText value="Reply" />
    	                        </h:commandLink>
    	                        	
-		                    <h:outputText value=" | " />
+		                    <h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
 		                      
 	  					    <h:outputLink value="#" onclick="toggleDisplay('#{message.message.id}_advanced_box'); resize(); toggleHide(this); return false;" >
 								<h:graphicImage value="/images/silk/email_go.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" />
@@ -52,13 +52,13 @@
 	   						<h:outputText escape="false" value="<div id=\"#{message.message.id}_advanced_box\" style=\"display:none\">" />
 	   							<h:commandLink action="#{ForumTool.processDfMsgGrd}" value="#{msgs.cdfm_button_bar_grade}" 
                              		rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}" />
-                             	<h:outputText value=" | " />
+                             	<h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
                              	
                              	<h:commandLink action="#{ForumTool.processDfMsgRvs}" value="#{msgs.cdfm_button_bar_revise}"
 									rendered="#{ForumTool.selectedTopic.isReviseAny}" />
-								<h:outputText value=" | " />
+								<h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
                              	
-	   					    	<h:outputText value="Delete | Approve | Deny" />
+	   					    	<h:outputText value="Delete #{msgs.cdfm_toolbar_separator} Approve #{msgs.cdfm_toolbar_separator} Deny" />
 
 	   						<h:outputText escape="false" value="</div>" />     	
 						  <f:verbatim></div></f:verbatim>

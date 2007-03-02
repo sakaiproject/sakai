@@ -12,13 +12,12 @@
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
 		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
 		
-		<sakai:tool_bar>
+		<sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}">
 				<sakai:tool_bar_item action="#{ForumTool.processDfMsgReplyThread}" value="#{msgs.cdfm_reply_thread}" 
 		  			rendered="#{ForumTool.selectedTopic.isNewResponse}" />
 		  		
 		  		<sakai:tool_bar_item action="#{ForumTool.processActionMarkAllThreadAsRead}" value="#{msgs.cdfm_mark_all_as_read}" 
 					rendered="#{ForumTool.selectedTopic.isMarkAsRead}" />
-      			
  		</sakai:tool_bar>
 			<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel specialLink">
 			    <h:panelGroup>
@@ -48,7 +47,7 @@
 						 <f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 						 <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					 </h:commandLink>
-					 <f:verbatim><h:outputText  id="blankSpace1" value=" |  " /></f:verbatim>				
+					 <f:verbatim><h:outputText  id="blankSpace1" value=" #{msgs.cdfm_toolbar_separator} " /></f:verbatim>				
 					 <h:outputText   value="#{msgs.cdfm_next_thread}" rendered="#{!ForumTool.selectedThreadHead.hasNextThread}" />
 					 <h:commandLink action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_next_thread}" rendered="#{ForumTool.selectedThreadHead.hasNextThread}">
 						<f:param value="#{ForumTool.selectedThreadHead.nextThreadId}" name="messageId"/>
