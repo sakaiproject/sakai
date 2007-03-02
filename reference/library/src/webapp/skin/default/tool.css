@@ -608,6 +608,11 @@ textarea:focus{
 	cursor: pointer;
 }
 
+.navIntraTool span.separator {
+	left: -.5em;
+	position: relative;
+}
+
 /*SECTION 9 MESSAGES*/
 /*see: create any item*/
 .instruction{
