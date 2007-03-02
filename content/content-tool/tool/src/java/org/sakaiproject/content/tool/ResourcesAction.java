@@ -4629,6 +4629,9 @@ public class ResourcesAction
 
 		context.put("TYPE_FOLDER", TYPE_FOLDER);
 		context.put("TYPE_UPLOAD", TYPE_UPLOAD);
+		
+		context.put("listStack", new Stack());
+		context.put("tempStack", new Stack());
 
 		context.put("SITE_ACCESS", AccessMode.SITE.toString());
 		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
@@ -4805,6 +4808,10 @@ public class ResourcesAction
 			List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
 			
 			ListItem item = getListItem(collection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0);
+			
+			List<ListItem> items = convert2list(item);
+			
+			context.put("site", items);
 
 			//List all_roots = new Vector();
 			List<ListItem> this_site = new Vector<ListItem>();
@@ -4817,7 +4824,7 @@ public class ResourcesAction
 			{
 				item.setName(siteTitle + " " + rb.getString("gen.reso"));
 			}
-			context.put("site", item);
+			//context.put("site", item);
 			this_site.add(item);
 			//all_roots.add(root);
 			context.put ("this_site", this_site);
@@ -4956,6 +4963,35 @@ public class ResourcesAction
 
 	}	// buildListContext
 
+	/**
+     * @param item
+     * @return
+     */
+    private List<ListItem> convert2list(ListItem item)
+    {
+    	List<ListItem> list = new Vector<ListItem>();
+    	Stack<ListItem> processStack = new Stack<ListItem>();
+    	
+    	processStack.push(item);
+    	while(! processStack.empty())
+    	{
+    		ListItem parent = processStack.pop();
+    		list.add(parent);
+    		List<ListItem> children = parent.getMembers();
+    		if(children != null)
+    		{
+    			for(int i = children.size() - 1; i >= 0; i--)
+    			{
+    				ListItem child = children.get(i);
+    				processStack.push(child);
+    			}
+    		}
+    	}
+    	
+	    return list;
+	    
+    }	// convert2list
+    
 	/**
 	 * Access the top item on the suspended-operations stack
 	 * @param state The current session state, including the STATE_SUSPENDED_OPERATIONS_STACK attribute.
