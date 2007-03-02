@@ -108,7 +108,7 @@ public class ToolBarRenderer extends Renderer
       UIComponent child = (UIComponent)iter.next();
        
       if (child.isRendered()) {
-         if (!first) writer.write(separator);
+         if (!first && separator !=null && separator != "") writer.write("<span class=\"separator\">" + separator + "</span>");
    
          RendererUtil.encodeRecursive(context, child);
          first = false;
