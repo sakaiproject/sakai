@@ -256,7 +256,7 @@
       
       <groupId>poi</groupId>
       <artifactId>poi</artifactId>
-      <version>3.0-alpha1-20060424</version>
+      <version>3.0-alpha3-20070301</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
@@ -264,7 +264,7 @@
       
       <groupId>poi</groupId>
       <artifactId>poi-scratchpad</artifactId>
-      <version>3.0-alpha1-20060424</version>
+      <version>3.0-alpha3-20070301</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
