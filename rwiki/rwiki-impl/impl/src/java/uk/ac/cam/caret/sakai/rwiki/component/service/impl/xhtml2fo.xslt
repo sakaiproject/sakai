@@ -294,6 +294,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     <xsl:attribute name="border-collapse">separate</xsl:attribute>
     <xsl:attribute name="border-spacing">2px</xsl:attribute>
     <xsl:attribute name="border">1px</xsl:attribute>
+    <xsl:attribute name="table-layout">fixed</xsl:attribute>
     <!--
     <xsl:attribute name="border-style">outset</xsl:attribute>
     -->
@@ -1015,13 +1016,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
        Table
   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-->
 
-  <xsl:template match="table">
+  <xsl:template match="table-ignore">
     <fo:table-and-caption xsl:use-attribute-sets="table-and-caption">
       <xsl:call-template name="make-table-caption"/>
       <fo:table xsl:use-attribute-sets="table">
         <xsl:call-template name="process-table"/>
       </fo:table>
     </fo:table-and-caption>
+  </xsl:template>
+  
+  <xsl:template match="table">
+      <fo:table xsl:use-attribute-sets="table">
+        <xsl:call-template name="process-table"/>
+      </fo:table>
   </xsl:template>
 
   <xsl:template name="make-table-caption">

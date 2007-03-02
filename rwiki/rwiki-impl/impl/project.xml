@@ -219,7 +219,7 @@
     <dependency>
       <groupId>fop</groupId>
       <artifactId>fop</artifactId>
-      <version>20060405</version>
+      <version>20070301</version>
       <type>jar</type>
     </dependency>
     

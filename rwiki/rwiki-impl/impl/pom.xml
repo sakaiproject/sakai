@@ -292,7 +292,7 @@ limitations under the License.
       
       <groupId>fop</groupId>
       <artifactId>fop</artifactId>
-      <version>20060405</version>
+      <version>20070301</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
