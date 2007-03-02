@@ -116,21 +116,21 @@
  	<dependency>
  		<groupId>ca.utoronto.atrc</groupId>
  		<artifactId>accessforall</artifactId>
- 		<version>0.1</version>
+ 		<version>0.3</version>
             <scope>provided</scope>
  	</dependency>
  	
  	<dependency>
  		<groupId>ca.utoronto.atrc</groupId>
  		<artifactId>transformable-common</artifactId>
- 		<version>0.1.1</version>
+ 		<version>0.3</version>
             <scope>provided</scope>
  	</dependency>
  	
  	<dependency>
  		<groupId>ca.utoronto.atrc</groupId>
  		<artifactId>styleable</artifactId>
- 		<version>0.1.2</version>
+ 		<version>0.3</version>
             <scope>provided</scope>
  	</dependency>
    

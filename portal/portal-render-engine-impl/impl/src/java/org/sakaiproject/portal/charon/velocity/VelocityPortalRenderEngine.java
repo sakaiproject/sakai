@@ -67,9 +67,13 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 
 	private boolean styleAble = false;
 
+	private boolean styleAbleContentSummary = false;
+
 	public void init() throws Exception
 	{
 		styleAble = ServerConfigurationService.getBoolean("portal.styleable", false);
+		styleAbleContentSummary = ServerConfigurationService.getBoolean("portal.styleable.contentSummary", false);
+		
 		vengine = new VelocityEngine();
 
 		vengine.setApplicationAttribute(ServletContext.class.getName(), context);
@@ -194,7 +198,8 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	 */
 	private String generateStyleAbleJavaScript()
 	{
-		if (styleAble)
+		// Enable / disable StyleAble javascript based on property flag.
+		if (styleAble && styleAbleContentSummary)
 		{
 			String userId = getCurrentUserId();
 			try
