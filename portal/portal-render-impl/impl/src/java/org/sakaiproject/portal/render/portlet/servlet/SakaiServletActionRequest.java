@@ -23,6 +23,13 @@ public class SakaiServletActionRequest extends HttpServletRequestWrapper
 		this.state = state;
 	}
 
+        @Override
+        public boolean isUserInRole(String string)
+        {
+		boolean retval = SakaiServletUtil.isUserInRole(string, state);
+		return retval;
+        }
+
 	@Override
 	public String getParameter(String string)
 	{

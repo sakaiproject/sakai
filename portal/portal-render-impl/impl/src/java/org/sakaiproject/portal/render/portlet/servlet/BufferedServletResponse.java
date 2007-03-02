@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
 /**
- * ServletRespons instance used to buffer content. This buffering allows for the
+ * ServletResponse instance used to buffer content. This buffering allows for the
  * portlets title to be captured prior to rendering and other similar features.
  * <p/> NOTE: Access the output stream for this response had undertermined
  * results. It is expected that in most situations an IllegalArgumentException

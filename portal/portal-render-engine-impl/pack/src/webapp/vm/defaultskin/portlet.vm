@@ -88,8 +88,9 @@
 		#if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
 			<div class="portletpresence" id="portletletprecense" >
 				 <div class="portletpresencewrapper" id="portletpresencewrapper">
-					<iframe name="presenceIframe" id="presenceIframe" title="${currentSite.sitePages.pageNavSitPresenceTitle}"
-							  frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${currentSite.sitePages.pageNavPresenceUrl}" >
+					<iframe name="presenceIframe" id="presenceIframe" 
+						frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" 
+						src="${currentSite.sitePages.pageNavPresenceUrl}" >
 					</iframe>
 				 </div>
 			 </div>

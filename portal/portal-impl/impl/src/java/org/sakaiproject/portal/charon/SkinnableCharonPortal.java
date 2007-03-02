@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -426,6 +427,15 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		return rcontext;
 	}
 
+	public boolean isPortletPlacement(Placement placement)
+        {
+                if ( placement == null ) return false;
+                Properties toolProps = placement.getTool().getFinalConfig();
+                if ( toolProps == null ) return false;
+                String portletContext = toolProps.getProperty(PortalService.TOOL_PORTLET_CONTEXT_PATH);
+                return (portletContext != null);
+        }
+
 	public Map includeTool(HttpServletResponse res, HttpServletRequest req,
 			ToolConfiguration placement) throws IOException
 	{
@@ -463,9 +473,18 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// for the reset button
 		boolean showResetButton = !"false".equals(placement.getConfig().getProperty(
 				Portal.TOOLCONFIG_SHOW_RESET_BUTTON));
+ 
 		String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, "/tool/",
 				"/tool-reset/")
 				+ "?panel=Main";
+
+		// Reset is different for Portlets
+		if ( isPortletPlacement(placement) ) 
+		{
+			resetActionUrl = Web.serverUrl(req)
+                                + ServerConfigurationService.getString("portalPath") 
+				+ req.getPathInfo() + "?sakai.state.reset=true";
+		}
 
 		// for the help button
 		// get the help document ID from the tool config (tool registration
@@ -504,9 +523,15 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		toolMap.put("toolRenderResult", result);
 		toolMap.put("hasRenderResult", Boolean.valueOf(true));
 		toolMap.put("toolUrl", toolUrl);
-		toolMap
-				.put("toolPlacementIDJS", Web
-						.escapeJavascript("Main" + placement.getId()));
+		if ( isPortletPlacement(placement) ) 
+		{
+			toolMap.put("toolPlacementIDJS", "_self");
+		}
+		else
+		{
+			toolMap.put("toolPlacementIDJS", 
+                        	Web.escapeJavascript("Main" + placement.getId()));
+		}
 		toolMap.put("toolResetActionUrl", resetActionUrl);
 		toolMap.put("toolTitle", titleString);
 		toolMap.put("toolShowResetButton", Boolean.valueOf(showResetButton));
