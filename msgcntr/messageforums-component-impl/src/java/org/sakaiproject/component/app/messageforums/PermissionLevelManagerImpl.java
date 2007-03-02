@@ -293,7 +293,30 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		if (typeUuid == null) {      
       throw new IllegalStateException("type cannot be null");
 		}		
-		return getDefaultPermissionLevel(typeUuid);				
+		PermissionLevel level = getDefaultPermissionLevel(typeUuid);
+		
+    if(level == null)
+    {    
+    	PermissionsMask mask = new PermissionsMask();                
+    	mask.put(PermissionLevel.NEW_FORUM, new Boolean(true)); 
+    	mask.put(PermissionLevel.NEW_TOPIC, new Boolean(true));
+    	mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(true));
+    	mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(true));
+    	mask.put(PermissionLevel.MOVE_POSTING, new Boolean(true));
+    	mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(true));
+    	mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(true));
+    	mask.put(PermissionLevel.READ, new Boolean(true));
+    	mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
+    	mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(true));
+    	mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
+    	mask.put(PermissionLevel.DELETE_ANY, new Boolean(true));
+    	mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
+    	mask.put(PermissionLevel.REVISE_ANY, new Boolean(true));
+
+			return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_OWNER, typeUuid, mask);
+    }
+		else
+			return level;
 	}
   
 	public PermissionLevel getDefaultAuthorPermissionLevel(){
@@ -307,7 +330,31 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		if (typeUuid == null) {      
       throw new IllegalStateException("type cannot be null");
 		}		
-		return getDefaultPermissionLevel(typeUuid);				
+		PermissionLevel level = getDefaultPermissionLevel(typeUuid);
+
+    if(level == null)
+    {
+  		
+      PermissionsMask mask = new PermissionsMask();                
+      mask.put(PermissionLevel.NEW_FORUM, new Boolean(true)); 
+      mask.put(PermissionLevel.NEW_TOPIC, new Boolean(true));
+      mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(true));
+      mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(true));
+      mask.put(PermissionLevel.MOVE_POSTING, new Boolean(true));
+      mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(true));
+      mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(true));
+      mask.put(PermissionLevel.READ, new Boolean(true));
+      mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
+      mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
+      mask.put(PermissionLevel.DELETE_OWN, new Boolean(true));
+      mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
+      mask.put(PermissionLevel.REVISE_OWN, new Boolean(true));
+      mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+
+			return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_AUTHOR, typeUuid, mask);
+    }
+		else
+			return level;
 	}
 	
 	public PermissionLevel getDefaultNoneditingAuthorPermissionLevel(){
@@ -321,7 +368,30 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		if (typeUuid == null) {      
       throw new IllegalStateException("type cannot be null");
 		}		
-		return getDefaultPermissionLevel(typeUuid);				
+		PermissionLevel level = getDefaultPermissionLevel(typeUuid);
+		
+    if(level == null)
+    {
+      PermissionsMask mask = new PermissionsMask();                
+      mask.put(PermissionLevel.NEW_FORUM, new Boolean(true)); 
+      mask.put(PermissionLevel.NEW_TOPIC, new Boolean(true));
+      mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(true));
+      mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(true));
+      mask.put(PermissionLevel.MOVE_POSTING, new Boolean(false));
+      mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(true));
+      mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(true));
+      mask.put(PermissionLevel.READ, new Boolean(true));
+      mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
+      mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
+      mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
+      mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
+      mask.put(PermissionLevel.REVISE_OWN, new Boolean(true));
+      mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+
+			return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR, typeUuid, mask);
+    }
+		else
+			return level;
 	}
 	
 	public PermissionLevel getDefaultReviewerPermissionLevel(){
@@ -335,7 +405,31 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		if (typeUuid == null) {      
       throw new IllegalStateException("type cannot be null");
 		}		
-		return getDefaultPermissionLevel(typeUuid);				
+		PermissionLevel level = getDefaultPermissionLevel(typeUuid);
+		
+    if(level == null)
+    {
+      PermissionsMask mask = new PermissionsMask();                
+      mask.put(PermissionLevel.NEW_FORUM, new Boolean(false)); 
+      mask.put(PermissionLevel.NEW_TOPIC, new Boolean(false));
+      mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(false));
+      mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(false));
+      mask.put(PermissionLevel.MOVE_POSTING, new Boolean(false));
+      mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(false));
+      mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(false));
+      mask.put(PermissionLevel.READ, new Boolean(true));
+      mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
+      mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
+      mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
+      mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
+      mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
+      mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+
+      return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_REVIEWER, typeUuid, mask);
+    }
+		else
+			return level;
+
 	}
 	
   public PermissionLevel getDefaultContributorPermissionLevel(){
@@ -349,8 +443,31 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		if (typeUuid == null) {      
       throw new IllegalStateException("type cannot be null");
 		}		
-		return getDefaultPermissionLevel(typeUuid);				
-	}
+		PermissionLevel level = getDefaultPermissionLevel(typeUuid);
+
+    if(level == null)
+    {
+      PermissionsMask mask = new PermissionsMask();                
+      mask.put(PermissionLevel.NEW_FORUM, new Boolean(false)); 
+      mask.put(PermissionLevel.NEW_TOPIC, new Boolean(false));
+      mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(true));
+      mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(true));
+      mask.put(PermissionLevel.MOVE_POSTING, new Boolean(false));
+      mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(false));
+      mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(false));
+      mask.put(PermissionLevel.READ, new Boolean(true));
+      mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
+      mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
+      mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
+      mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
+      mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
+      mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+			return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR, typeUuid, mask);
+
+    }
+		else
+			return level;	
+  }
   
   public PermissionLevel getDefaultNonePermissionLevel(){
 		
@@ -363,7 +480,30 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		if (typeUuid == null) {      
       throw new IllegalStateException("type cannot be null");
 		}		
-		return getDefaultPermissionLevel(typeUuid);				
+		PermissionLevel level = getDefaultPermissionLevel(typeUuid);
+		
+		if(level == null)
+		{    
+			PermissionsMask mask = new PermissionsMask();                
+			mask.put(PermissionLevel.NEW_FORUM, new Boolean(false)); 
+			mask.put(PermissionLevel.NEW_TOPIC, new Boolean(false));
+			mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(false));
+			mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(false));
+			mask.put(PermissionLevel.MOVE_POSTING, new Boolean(false));
+			mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(false));
+			mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(false));
+			mask.put(PermissionLevel.READ, new Boolean(false));
+			mask.put(PermissionLevel.MARK_AS_READ,new Boolean(false));
+			mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
+			mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
+			mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
+			mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
+			mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+
+			return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE, typeUuid, mask);
+		}
+		else
+			return level;
 	}
   	
 	private PermissionLevel getDefaultPermissionLevel(final String typeUuid){
