@@ -210,7 +210,7 @@ function setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, 
   newResponse.checked= arrayLevel[3];
   r2R.checked= arrayLevel[4];
   newTopic.checked= arrayLevel[5];
-  postGrades.checked= arrayLevel[6];
+  if (postGrades) postGrades.checked= arrayLevel[6];
   read.checked= arrayLevel[7];
   //revisePostings,
   if(arrayLevel[8]==true){
