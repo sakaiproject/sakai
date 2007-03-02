@@ -285,7 +285,12 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 	 */
 	public String getContentTypeImage(String contentType)
 	{
-		String image = m_contentTypeImages.getProperty(contentType.toLowerCase());
+		String image = null;
+		
+		if(contentType != null)
+		{
+			image = m_contentTypeImages.getProperty(contentType.toLowerCase());
+		}
 
 		// if not there, use the DEFAULT_FILE
 		if (image == null) image = DEFAULT_FILE;
@@ -303,8 +308,13 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 	 */
 	public String getContentTypeDisplayName(String contentType)
 	{
-		String name = m_contentTypeDisplayNames.getProperty(contentType.toLowerCase());
-
+		String name = contentType;
+		
+		if(contentType != null)
+		{
+			name = m_contentTypeDisplayNames.getProperty(contentType.toLowerCase());
+		}
+		
 		// if not there, use the content type as the name
 		if (name == null) name = contentType;
 

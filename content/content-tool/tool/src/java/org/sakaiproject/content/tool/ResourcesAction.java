@@ -280,9 +280,10 @@ public class ResourcesAction
 		protected String iconLocation;
 		protected String mimetype;
 		protected String resourceType;
-		protected boolean isTooBig = false;
-		protected boolean isSortable = false;
+		protected boolean isEmpty = true;
 		protected boolean isExpanded = false;
+		protected boolean isSortable = false;
+		protected boolean isTooBig = false;
 		protected String size = "";
 		protected String createdBy;
 		protected String modifiedTime;
@@ -314,9 +315,15 @@ public class ResourcesAction
 
 			if(this.collection)
 			{
-				ContentCollection coll = (ContentCollection) entity;
-				//this.members = coll.getMembers();
-				this.iconLocation = ContentTypeImageService.getContentTypeImage("folder");
+				ContentCollection collection = (ContentCollection) entity;
+	        	int collection_size = collection.getMemberCount(); // newMembers.size();
+	        	setSize(Integer.toString(collection_size));
+				setIsEmpty(collection_size < 1);
+				setSortable(ContentHostingService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < EXPANDABLE_FOLDER_SIZE_LIMIT);
+				if(collection_size > EXPANDABLE_FOLDER_SIZE_LIMIT)
+				{
+					setIsTooBig(true);
+				}
 			}
 			else 
 			{
@@ -341,7 +348,7 @@ public class ResourcesAction
 			}
 			setCreatedBy(props.getProperty(ResourceProperties.PROP_CREATOR));
 			this.setModifiedTime(props.getPropertyFormatted(ResourceProperties.PROP_MODIFIED_DATE));
-				
+					
 		}
 
 		/**
@@ -394,7 +401,7 @@ public class ResourcesAction
 		
 		public boolean isEmpty()
 		{
-			return this.members == null || this.members.isEmpty();
+			return this.isEmpty;
 		}
 
 		/**
@@ -553,12 +560,11 @@ public class ResourcesAction
         }
 
 		/**
-         * @param b
+         * @param isEmpty
          */
-        public void setIsEmpty(boolean b)
+        public void setIsEmpty(boolean isEmpty)
         {
-	        // TODO Auto-generated method stub
-	        
+	        this.isEmpty = isEmpty;
         }
 
 		/**
@@ -718,7 +724,7 @@ public class ResourcesAction
         	if(parent == null)
         	{
         		// permissions are same as site
-        		item.setPermissions(getPermissions(ref.getContext()));
+        		item.setPermissions(getPermissions(entity.getId()));
         	}
         	else
         	{
@@ -735,14 +741,11 @@ public class ResourcesAction
         if(isCollection)
         {
         	ContentCollection collection = (ContentCollection) entity;
-        	int collection_size = collection.getMemberCount(); // newMembers.size();
-        	item.setSize(Integer.toString(collection_size));
-			item.setIsEmpty(collection_size < 1);
-			item.setSortable(ContentHostingService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < EXPANDABLE_FOLDER_SIZE_LIMIT);
-			if(collection_size > EXPANDABLE_FOLDER_SIZE_LIMIT)
-			{
-				item.setIsTooBig(true);
-			}
+        	
+        	if(item.isTooBig)
+        	{
+        		// do nothing
+        	}
 			else if(expandAll)
         	{
         		expandedFolders.add(entity.getId());
@@ -763,6 +766,8 @@ public class ResourcesAction
 			}
 			
 			item.setAddActions(getAddActions(entity, registry, items_to_be_moved, items_to_be_copied));
+			//this.members = coll.getMembers();
+			item.setIconLocation( ContentTypeImageService.getContentTypeImage("folder"));
         }
         
 		item.setOtherActions(getActions(entity, registry, items_to_be_moved, items_to_be_copied));
@@ -4811,11 +4816,6 @@ public class ResourcesAction
 			
 			List<ListItem> items = convert2list(item);
 			
-			context.put("site", items);
-
-			//List all_roots = new Vector();
-			List<ListItem> this_site = new Vector<ListItem>();
-			
 			if(atHome && dropboxMode)
 			{
 				item.setName(siteTitle + " " + rb.getString("gen.drop"));
@@ -4824,13 +4824,10 @@ public class ResourcesAction
 			{
 				item.setName(siteTitle + " " + rb.getString("gen.reso"));
 			}
-			//context.put("site", item);
-			this_site.add(item);
-			//all_roots.add(root);
-			context.put ("this_site", this_site);
+
+			context.put("site", items);
 
 			boolean show_all_sites = false;
-			//List other_sites = new Vector();
 
 			String allowed_to_see_other_sites = (String) state.getAttribute(STATE_SHOW_ALL_SITES);
 			String show_other_sites = (String) state.getAttribute(STATE_SHOW_OTHER_SITES);
@@ -4848,7 +4845,7 @@ public class ResourcesAction
 				//other_sites.addAll(readAllResources(state));
 				//all_roots.addAll(other_sites);
 
-				List messages = obsoletePrepPage(state);
+				List messages = prepPage(state);
 				context.put("other_sites", messages);
 
 				if (state.getAttribute(STATE_NUM_MESSAGES) != null)
