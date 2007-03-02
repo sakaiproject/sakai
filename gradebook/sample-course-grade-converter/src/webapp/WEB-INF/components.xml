@@ -7,7 +7,7 @@
 			<ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
 		</property>
 		<property name="letterGradingSchemeName" value="standard"/>
-		<property name="passGradingSchemeName" value="pass/fail"/>
+		<property name="passGradingSchemeName" value="pnp"/>
 		<property name="satisfactoryGradingSchemeName" value="SF"/>
 		<property name="letterToPassMap">
 			<map>
