@@ -380,7 +380,10 @@ public class ResourcesAction
 				setSize(size);
 
 			}
-			setCreatedBy(props.getProperty(ResourceProperties.PROP_CREATOR));
+			
+			String createdBy = getUserProperty(props, ResourceProperties.PROP_CREATOR).getDisplayName();
+			setCreatedBy(createdBy);
+			// setCreatedBy(props.getProperty(ResourceProperties.PROP_CREATOR));
 			this.setModifiedTime(props.getPropertyFormatted(ResourceProperties.PROP_MODIFIED_DATE));
 					
 		}
