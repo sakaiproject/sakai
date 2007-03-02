@@ -77,6 +77,13 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	 * The maximum sleep time for the wait/notify semaphore
 	 */
 	public long sleepTime = 5L * 60000L;
+	
+	/**
+	 * A load factor 1 is full load, 100 is normal
+	 * The load factor controlls the backoff of the indexer threads.
+	 * If the load Factor is high, the search threads back off more.
+	 */
+	private long loadFactor = 1000L;
 
 	/**
 	 * The currently running index Builder thread
@@ -300,21 +307,21 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 						// if activity == totalDocs and interval > 10
 						boolean process = false;
-						if (totalDocs < 20 && interval > 20000)
+						if (totalDocs < 20 && interval > (20*loadFactor))
 						{
 							process = true;
 						}
 						else if (totalDocs >= 20 && totalDocs < 50
-								&& interval > 10000)
+								&& interval > (10*loadFactor))
 						{
 							process = true;
 						}
 						else if (totalDocs >= 50 && totalDocs < 90
-								&& interval > 5000)
+								&& interval > (5*loadFactor))
 						{
 							process = true;
 						}
-						else if (totalDocs > 90)
+						else if (totalDocs > ((90*loadFactor)/1000))
 						{
 							process = true;
 						}
@@ -335,8 +342,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 						// make certain that we are alive
 
-						if (lastLockMetric > 10000000L
-								|| lastLockInterval > 60000L)
+						if (lastLockMetric > (10000L*loadFactor)
+								|| lastLockInterval > (60L*loadFactor))
 						{
 							if (process && getLockTransaction(2L * 60L * 1000L))
 							{
@@ -1580,6 +1587,22 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 		long s = l / 1000L;
 		l = l - (1000L * s);
 		return "" + h + "h" + m + "m" + s + "." + l + "s";
+	}
+
+	/**
+	 * @return the loadFactor
+	 */
+	public long getLoadFactor()
+	{
+		return loadFactor;
+	}
+
+	/**
+	 * @param loadFactor the loadFactor to set
+	 */
+	public void setLoadFactor(long loadFactor)
+	{
+		this.loadFactor = loadFactor;
 	}
 
 }

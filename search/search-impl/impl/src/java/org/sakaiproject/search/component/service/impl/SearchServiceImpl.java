@@ -37,11 +37,9 @@ import java.util.Map;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpConnectionManager;
-import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.Term;
@@ -808,12 +806,18 @@ public class SearchServiceImpl implements SearchService
 		{
 			public String[] getTerms()
 			{
-				return tf.getTerms();
+				if ( tf != null ) {
+					return tf.getTerms();
+				}
+				return new String[0];
 			}
 
 			public int[] getFrequencies()
 			{
-				return tf.getTermFrequencies();
+				if ( tf != null ) {
+					return tf.getTermFrequencies();
+				}
+				return new int[0];
 			}
 		};
 	}

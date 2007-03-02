@@ -26,7 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -157,7 +157,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		{
 			connection = dataSource.getConnection();
 			List dbSegments = getDBSegments(connection);
-			log.debug("Update: DB Segments = " + dbSegments.size());
+			if (log.isDebugEnabled())
+				log.debug("Update: DB Segments = " + dbSegments.size());
 			// remove files not in the dbSegmentList
 			List<SegmentInfo> localSegments = getLocalSegments();
 
@@ -171,7 +172,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			// delete any segments marked as for deletion
 			deleteAllSegments(deletedSegments);
 
-			log.debug("Update: Local Segments = " + localSegments.size());
+			if (log.isDebugEnabled())
+				log.debug("Update: Local Segments = " + localSegments.size());
 
 			// which of the dbSegments are not present locally
 
@@ -193,11 +195,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				if (!found)
 				{
 					updateLocalSegments.add(db_si);
-					log.debug("Missing Will update " + db_si);
+					if (log.isDebugEnabled()) log.debug("Missing Will update " + db_si);
 				}
 				else
 				{
-					log.debug("Present Will Not update " + db_si);
+					if (log.isDebugEnabled())
+						log.debug("Present Will Not update " + db_si);
 				}
 			}
 
@@ -214,14 +217,16 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					if (name.equals(db_si.getName()) && db_si.getVersion() > version)
 					{
 						updateLocalSegments.add(db_si);
-						log.debug("Newer will Update " + db_si);
+						if (log.isDebugEnabled())
+							log.debug("Newer will Update " + db_si);
 						found = true;
 						break;
 					}
 				}
 				if (!found)
 				{
-					log.debug("Ok will not update " + current_si);
+					if (log.isDebugEnabled())
+						log.debug("Ok will not update " + current_si);
 				}
 			}
 
@@ -266,11 +271,13 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 						if (!found)
 						{
 							removeLocalSegments.add(local_si);
-							log.debug("Will remove " + local_si);
+							if (log.isDebugEnabled())
+								log.debug("Will remove " + local_si);
 						}
 						else
 						{
-							log.debug("Ok Will not remove " + local_si);
+							if (log.isDebugEnabled())
+								log.debug("Ok Will not remove " + local_si);
 						}
 					}
 				}
@@ -318,7 +325,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					// only add those segments that exist after the sync
 					segmentList.add(si);
 				}
-				log.debug("Segment Present at " + f.getName());
+				if (log.isDebugEnabled()) log.debug("Segment Present at " + f.getName());
 			}
 
 			connection.commit();
@@ -365,7 +372,6 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			deleteAll(f);
 		}
 	}
-
 
 	/**
 	 * save the local segments to the DB
@@ -418,12 +424,14 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				if (!found)
 				{
 					removeDBSegments.add(db_si);
-					log.debug("Will remove from the DB " + db_si);
+					if (log.isDebugEnabled())
+						log.debug("Will remove from the DB " + db_si);
 				}
 				else
 				{
 					currentDBSegments.add(db_si);
-					log.debug("In the DB will not remove " + db_si);
+					if (log.isDebugEnabled())
+						log.debug("In the DB will not remove " + db_si);
 				}
 			}
 
@@ -447,11 +455,13 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				if (!found)
 				{
 					updateDBSegments.add(local_si);
-					log.debug(" Will update to the DB " + local_si);
+					if (log.isDebugEnabled())
+						log.debug(" Will update to the DB " + local_si);
 				}
 				else
 				{
-					log.debug(" Will NOT update to the DB " + local_si);
+					if (log.isDebugEnabled())
+						log.debug(" Will NOT update to the DB " + local_si);
 
 				}
 			}
@@ -469,14 +479,16 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					if (name.equals(db_si.getName()) && version > db_si.getVersion())
 					{
 						updateDBSegments.add(db_si);
-						log.debug("Will update modified to the DB " + db_si);
+						if (log.isDebugEnabled())
+							log.debug("Will update modified to the DB " + db_si);
 						found = true;
 						break;
 					}
 				}
 				if (!found)
 				{
-					log.debug("Will not update the DB, matches " + local_si);
+					if (log.isDebugEnabled())
+						log.debug("Will not update the DB, matches " + local_si);
 
 				}
 			}
@@ -501,7 +513,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				SegmentInfo si = (SegmentInfo) i.next();
 				File f = si.getSegmentLocation();
 				segmentList.add(si);
-				log.debug("Segments saved " + f.getName());
+				if (log.isDebugEnabled()) log.debug("Segments saved " + f.getName());
 
 			}
 			connection.commit();
@@ -674,7 +686,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	protected void updateLocalSegmentBLOB(Connection connection, SegmentInfo addsi)
 			throws SQLException, IOException
 	{
-		log.debug("Updating local segment from databse " + addsi);
+		if (log.isDebugEnabled())
+			log.debug("Updating local segment from databse " + addsi);
 		PreparedStatement segmentSelect = null;
 		ResultSet resultSet = null;
 		try
@@ -693,7 +706,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					packetStream = resultSet.getBinaryStream(2);
 					addsi.setForceValidation(); // force revalidation
 					clusterStorage.unpackSegment(addsi, packetStream, version);
-					log.debug("Updated Packet from DB to versiob " + version);
+					if (log.isDebugEnabled())
+						log.debug("Updated Packet from DB to versiob " + version);
 				}
 				finally
 				{
@@ -740,7 +754,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	{
 
 		rmsi.setDeleted();
-		log.debug("LO Marked for deletion " + rmsi);
+		if (log.isDebugEnabled()) log.debug("LO Marked for deletion " + rmsi);
 		/*
 		 * File f = getSegmentLocation(rmsi.getName(), localStructuredStorage);
 		 * deleteAll(f); log.debug("LO Removed " + rmsi);
@@ -772,7 +786,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				SegmentInfo si = new SegmentInfoImpl(name, version, true,
 						localStructuredStorage, searchIndexDirectory);
 				dbsegments.add(si);
-				log.debug("DB Segment " + si);
+				if (log.isDebugEnabled()) log.debug("DB Segment " + si);
 			}
 		}
 		finally
@@ -800,7 +814,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 		if (localSegmentsOnly)
 		{
-			log.debug("Update Patch Requested with inactive Shared Storage ");
+			if (log.isDebugEnabled())
+				log.debug("Update Patch Requested with inactive Shared Storage ");
 		}
 		else
 		{
@@ -855,7 +870,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					throw new SQLException(" Failed to insert patch  ");
 				}
 			}
-			log.debug("DB Updated Patch ");
+			if (log.isDebugEnabled()) log.debug("DB Updated Patch ");
 		}
 		finally
 		{
@@ -903,8 +918,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 		PreparedStatement segmentUpdate = null;
 		PreparedStatement segmentInsert = null;
-		InputStream packetStream = null;
-		OutputStream sharedStream = null;
+		FileChannel packetStream = null;
+		FileChannel sharedStream = null;
 		File packetFile = null;
 		File sharedFinalFile = null;
 		File sharedTempFile = null;
@@ -915,16 +930,11 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			sharedFinalFile = new File(getSharedFileName(INDEX_PATCHNAME,
 					sharedStructuredStorage));
 			packetFile = clusterStorage.packPatch();
-			packetStream = new FileInputStream(packetFile);
+			packetStream = new FileInputStream(packetFile).getChannel();
 			sharedTempFile.getParentFile().mkdirs();
-			sharedStream = new FileOutputStream(sharedTempFile);
+			sharedStream = new FileOutputStream(sharedTempFile).getChannel();
 
-			byte[] b = new byte[1024 * 1024];
-			int l = 0;
-			while ((l = packetStream.read(b)) != -1)
-			{
-				sharedStream.write(b, 0, l);
-			}
+			sharedStream.transferFrom(packetStream, 0, packetStream.size());
 
 			packetStream.close();
 			sharedStream.close();
@@ -950,7 +960,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				}
 			}
 			sharedTempFile.renameTo(sharedFinalFile);
-			log.debug("DB Patch ");
+			if (log.isDebugEnabled()) log.debug("DB Patch ");
 
 		}
 		finally
@@ -1006,7 +1016,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	{
 		if (localSegmentsOnly)
 		{
-			log.debug("Not Saving Segment to DB as no Shared Storage " + addsi);
+			if (log.isDebugEnabled())
+				log.debug("Not Saving Segment to DB as no Shared Storage " + addsi);
 		}
 		else
 		{
@@ -1070,7 +1081,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				}
 			}
 			addsi.setVersion(newVersion);
-			log.debug("DB Updated " + addsi);
+			if (log.isDebugEnabled()) log.debug("DB Updated " + addsi);
 			try
 			{
 				packetStream.close();
@@ -1147,7 +1158,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					}
 				}
 
-				log.debug("DB Removed " + rmsi);
+				if (log.isDebugEnabled()) log.debug("DB Removed " + rmsi);
 			}
 		}
 		finally
@@ -1170,9 +1181,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		File f = null;
 		for (;;)
 		{
-			f = SegmentInfoImpl.getSegmentLocation(
-					String.valueOf(System.currentTimeMillis()), localStructuredStorage,
-					searchIndexDirectory);
+			f = SegmentInfoImpl.getSegmentLocation(String.valueOf(System
+					.currentTimeMillis()), localStructuredStorage, searchIndexDirectory);
 			if (!f.exists())
 			{
 				break;
@@ -1230,11 +1240,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 							if (sgi.isCreated())
 							{
 								l.add(sgi);
-								log.debug("LO Segment " + sgi);
+								if (log.isDebugEnabled()) log.debug("LO Segment " + sgi);
 							}
 							else
 							{
-								log.debug("LO Segment not created " + sgi.toString());
+								if (log.isDebugEnabled())
+									log.debug("LO Segment not created " + sgi.toString());
 							}
 						}
 						else
@@ -1345,7 +1356,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 							localStructuredStorage, searchIndexDirectory);
 					if (sgi.isClusterSegment())
 					{
-						if ( sgi.isDeleted() ) 
+						if (sgi.isDeleted())
 						{
 							l.add(sgi);
 						}
@@ -1433,7 +1444,6 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		this.autoDdl = autoDdl;
 	}
 
-
 	/**
 	 * create a temporary index for indexing operations
 	 */
@@ -1456,6 +1466,122 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		if (f.exists())
 		{
 			deleteAll(f);
+		}
+	}
+
+	public SegmentInfo saveTemporarySegment() throws IOException
+	{
+		SegmentInfo segInfo = newSegment();
+		File s = new File(searchIndexDirectory, TEMP_INDEX_NAME);
+		File d = segInfo.getSegmentLocation();
+		copyAll(s, d);
+		segInfo.setCreated();
+		segInfo.setCheckSum();
+		return segInfo;
+	}
+
+	/**
+	 * Copy a file to a directory, if the source is a directory, the copy
+	 * recurses into the directory. If the destination does not exists, it is
+	 * assumed to be a file.
+	 * 
+	 * @param s
+	 *        the source file
+	 * @param d
+	 *        the source directory
+	 * @throws IOException
+	 */
+	private void copyAll(File s, File d) throws IOException
+	{
+		if (s.isDirectory())
+		{
+			File[] fl = s.listFiles();
+			for (int i = 0; i < fl.length; i++)
+			{
+				if (fl[i].isFile())
+				{
+					copyFile(fl[i], d);
+				}
+				else
+				{
+					File nd = new File(d, fl[i].getName());
+					nd.mkdirs();
+					copyAll(fl[i], nd);
+				}
+			}
+		}
+		else
+		{
+			copyFile(s, d);
+		}
+	}
+
+	/**
+	 * Copy a file from s to d, s will be a file, d may be a file or directory
+	 * 
+	 * @param s
+	 * @param d
+	 * @throws IOException
+	 */
+	private void copyFile(File s, File d) throws IOException
+	{
+		if (log.isDebugEnabled())
+			log.debug("Copying " + s.getAbsolutePath() + " to " + d.getAbsolutePath());
+		if (s.exists() && s.isFile())
+		{
+			File t = d; // target
+			if (d.isDirectory())
+			{
+				if (!d.exists())
+				{
+					d.mkdirs();
+				}
+				t = new File(d, s.getName());
+			}
+			else
+			{
+				File p = d.getParentFile();
+				if (!p.exists())
+				{
+					p.mkdirs();
+				}
+			}
+			FileChannel srcChannel = null;
+			FileChannel dstChannel = null;
+			try
+			{
+				// use nio
+				// Create channel on the source
+				srcChannel = new FileInputStream(s).getChannel();
+
+				// Create channel on the destination
+				dstChannel = new FileOutputStream(t).getChannel();
+
+				// Copy file contents from source to destination
+				dstChannel.transferFrom(srcChannel, 0, srcChannel.size());
+
+				// Close the channels
+			}
+			finally
+			{
+				try
+				{
+					srcChannel.close();
+				}
+				catch (Exception ex)
+				{
+
+				}
+				try
+				{
+					dstChannel.close();
+				}
+				catch (Exception ex)
+				{
+
+				}
+			}
+
 		}
 	}
 
@@ -1522,7 +1648,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	protected void updateLocalPatchFilesystem(Connection connection) throws SQLException,
 			IOException
 	{
-		log.debug("Updating local patch ");
+		if (log.isDebugEnabled()) log.debug("Updating local patch ");
 		PreparedStatement segmentSelect = null;
 		ResultSet resultSet = null;
 		try
@@ -1542,7 +1668,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 							sharedStructuredStorage));
 					packetStream = new FileInputStream(f);
 					clusterStorage.unpackPatch(packetStream);
-					log.debug("Updated Patch ");
+					if (log.isDebugEnabled()) log.debug("Updated Patch ");
 				}
 				finally
 				{
@@ -1557,7 +1683,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			else
 			{
-				log.debug("Didnt find patch in database, this is Ok");
+				if (log.isDebugEnabled())
+					log.debug("Didnt find patch in database, this is Ok");
 			}
 		}
 		finally
@@ -1583,7 +1710,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	private void updateLocalPatchBLOB(Connection connection) throws SQLException,
 			IOException
 	{
-		log.debug("Updating local patch ");
+		if (log.isDebugEnabled()) log.debug("Updating local patch ");
 		PreparedStatement segmentSelect = null;
 		ResultSet resultSet = null;
 		try
@@ -1601,7 +1728,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					long version = resultSet.getLong(1);
 					packetStream = resultSet.getBinaryStream(2);
 					clusterStorage.unpackPatch(packetStream);
-					log.debug("Updated Patch from DB " + version);
+					if (log.isDebugEnabled())
+						log.debug("Updated Patch from DB " + version);
 				}
 				finally
 				{
@@ -1616,7 +1744,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			else
 			{
-				log.debug("Didnt find patch in database, this is Ok ");
+				if (log.isDebugEnabled())
+					log.debug("Didnt find patch in database, this is Ok ");
 			}
 		}
 		finally
@@ -1647,8 +1776,10 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	public boolean checkSegmentValidity(String segmentName) throws Exception
 	{
-		File f = SegmentInfoImpl.getSegmentLocation(segmentName, localStructuredStorage, searchIndexDirectory);
-		SegmentInfo sgi = new SegmentInfoImpl(f,false,localStructuredStorage,searchIndexDirectory);
+		File f = SegmentInfoImpl.getSegmentLocation(segmentName, localStructuredStorage,
+				searchIndexDirectory);
+		SegmentInfo sgi = new SegmentInfoImpl(f, false, localStructuredStorage,
+				searchIndexDirectory);
 		return sgi.checkSegmentValidity(false, validate);
 	}
 
@@ -1669,7 +1800,6 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		this.validate = validate;
 	}
 
-
 	/**
 	 * updat this save this local segment into the db
 	 * 
@@ -1682,8 +1812,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 		PreparedStatement segmentUpdate = null;
 		PreparedStatement segmentInsert = null;
-		InputStream packetStream = null;
-		OutputStream sharedStream = null;
+		FileChannel packetStream = null;
+		FileChannel sharedStream = null;
 		File packetFile = null;
 		File sharedFinalFile = null;
 		File sharedTempFile = null;
@@ -1694,16 +1824,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			sharedFinalFile = new File(getSharedFileName(addsi.getName(),
 					sharedStructuredStorage));
 			packetFile = clusterStorage.packSegment(addsi, newVersion);
-			packetStream = new FileInputStream(packetFile);
+			packetStream = new FileInputStream(packetFile).getChannel();
 			sharedTempFile.getParentFile().mkdirs();
-			sharedStream = new FileOutputStream(sharedTempFile);
+			sharedStream = new FileOutputStream(sharedTempFile).getChannel();
 
-			byte[] b = new byte[1024 * 1024];
-			int l = 0;
-			while ((l = packetStream.read(b)) != -1)
-			{
-				sharedStream.write(b, 0, l);
-			}
+			// Copy file contents from source to destination
+			sharedStream.transferFrom(packetStream, 0, packetStream.size());
 
 			packetStream.close();
 			sharedStream.close();
@@ -1837,7 +1963,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	protected void updateLocalSegmentFilesystem(Connection connection, SegmentInfo addsi)
 			throws SQLException, IOException
 	{
-		log.debug("Updating local segment from databse " + addsi);
+		if (log.isDebugEnabled())
+			log.debug("Updating local segment from databse " + addsi);
 		PreparedStatement segmentSelect = null;
 		ResultSet resultSet = null;
 		try
@@ -1858,7 +1985,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					packetStream = new FileInputStream(f);
 					addsi.setForceValidation(); // force revalidation
 					clusterStorage.unpackSegment(addsi, packetStream, version);
-					log.debug("Updated Local " + addsi);
+					if (log.isDebugEnabled()) log.debug("Updated Local " + addsi);
 				}
 				finally
 				{
@@ -2018,11 +2145,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			{
 				if (files[i].isDirectory())
 				{
-					
+
 					SegmentInfo sgi = null;
 					try
 					{
-						sgi = new SegmentInfoImpl(files[i],false,localStructuredStorage, searchIndexDirectory);
+						sgi = new SegmentInfoImpl(files[i], false,
+								localStructuredStorage, searchIndexDirectory);
 					}
 					catch (IOException e)
 					{
@@ -2095,7 +2223,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 						catch (Exception ex)
 						{
 							log.warn("Failed " + ex.getMessage());
-							log.debug("Debug Failure ", ex);
+							if (log.isDebugEnabled()) log.debug("Debug Failure ", ex);
 						}
 					}
 				}
@@ -2132,7 +2260,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		List<SegmentInfo> l = getLocalSegments();
 		for (Iterator<SegmentInfo> li = l.iterator(); li.hasNext();)
 		{
-			SegmentInfo si =  li.next();
+			SegmentInfo si = li.next();
 			File f = SegmentInfoImpl.getSegmentLocation(si.getName(),
 					!localStructuredStorage, searchIndexDirectory);
 			if (f.exists())
@@ -2148,12 +2276,11 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				catch (Exception ex)
 				{
 					log.warn("Failed " + ex.getMessage());
-					log.debug("Debug Failure ", ex);
+					if (log.isDebugEnabled()) log.debug("Debug Failure ", ex);
 				}
 			}
 		}
 	}
-
 
 	public void getLock()
 	{

@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.lucene.store.Directory;
+
 /**
  * ClusterFilesystem provides the mechanism by which the local search index is
  * syncronsed with the clustered file system
@@ -158,5 +160,13 @@ public interface ClusterFilesystem
 	 * @return
 	 */
 	boolean isMultipleIndexers();
+
+
+	/**
+	 * Save the temporary segment into a permanent segment
+	 * @return
+	 * @throws IOException 
+	 */
+	SegmentInfo saveTemporarySegment() throws IOException;
 
 }

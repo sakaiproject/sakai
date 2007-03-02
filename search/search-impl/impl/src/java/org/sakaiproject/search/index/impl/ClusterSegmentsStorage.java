@@ -55,6 +55,7 @@ public class ClusterSegmentsStorage
 		FileOutputStream fout = null;
 		try
 		{
+			if ( log.isDebugEnabled() ) 
 			log.debug("Starting Patch ");
 			byte[] buffer = new byte[4096];
 			while ((zipEntry = zin.getNextEntry()) != null)
@@ -65,6 +66,7 @@ public class ClusterSegmentsStorage
 				// searchIndexDirectory... hence this is correct
 
 				File f = new File(searchIndexDirectory, zipEntry.getName());
+				if ( log.isDebugEnabled() ) 
 				log.debug("Patching " + f.getAbsolutePath());
 				f.getParentFile().mkdirs();
 				fout = new FileOutputStream(f);
@@ -77,6 +79,7 @@ public class ClusterSegmentsStorage
 				fout.close();
 				f.setLastModified(ts);
 			}
+			if ( log.isDebugEnabled() ) 
 			log.debug("Finished Patch");
 
 			try
@@ -91,6 +94,7 @@ public class ClusterSegmentsStorage
 
 			addsi.setVersion(version);
 			addsi.setCreated();
+			if ( log.isDebugEnabled() ) 
 			log.debug("Synced " + addsi);
 
 		}
@@ -121,6 +125,7 @@ public class ClusterSegmentsStorage
 		FileOutputStream fout = null;
 		try
 		{
+			if ( log.isDebugEnabled() ) 
 			log.debug("Starting Patch ");
 			byte[] buffer = new byte[4096];
 			while ((zipEntry = zin.getNextEntry()) != null)
@@ -130,6 +135,7 @@ public class ClusterSegmentsStorage
 				// the zip index name is the full path from the
 				// searchIndexDirectory
 				File f = new File(searchIndexDirectory, zipEntry.getName());
+				if ( log.isDebugEnabled() ) 
 				log.debug("Patching " + f.getAbsolutePath());
 				f.getParentFile().mkdirs();
 				fout = new FileOutputStream(f);
@@ -143,6 +149,7 @@ public class ClusterSegmentsStorage
 				fout.close();
 				f.setLastModified(ts);
 			}
+			if ( log.isDebugEnabled() ) 
 			log.debug("Finished Patch");
 
 		}
@@ -187,6 +194,7 @@ public class ClusterSegmentsStorage
 
 		try
 		{
+			if ( log.isDebugEnabled() ) 
 			log.debug("Packed " + tmpFile.getName() + "|"
 					+ addsi.getCheckSum() + "|" + tmpFile.length()
 					+ "|" + addsi);

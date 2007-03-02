@@ -56,8 +56,7 @@ import org.sakaiproject.search.index.SegmentInfo;
  */
 public class ClusterFSIndexStorage implements IndexStorage
 {
-	private static final Log log = LogFactory
-			.getLog(ClusterFSIndexStorage.class);
+	private static final Log log = LogFactory.getLog(ClusterFSIndexStorage.class);
 
 	/**
 	 * Location of the index store on local disk, passed to the underlying index
@@ -73,16 +72,17 @@ public class ClusterFSIndexStorage implements IndexStorage
 	/**
 	 * Maximum size of a segment on write
 	 */
-	private long segmentThreshold = 1024 * 1024 * 2; // Maximum Segment size
+	private long segmentThreshold = 1024 * 1024 * 20; // Maximum Segment size
 
 	// is 2M
 
 	private ClusterFilesystem clusterFS = null;
-	
-	
+
 	// maximum size of a segment during merge
 
-	private long maxSegmentSize = 1024L * 1024L * 1500L ; // just short of 1.5G
+	private long maxSegmentSize = 1024L * 1024L * 1500L; // just short of
+
+	// 1.5G
 
 	// maximum size of a segment considered for merge operations
 	private long maxMegeSegmentSize = 1024L * 1024L * 1200L; // 1.2G
@@ -103,12 +103,12 @@ public class ClusterFSIndexStorage implements IndexStorage
 			clusterFS.getLock();
 		}
 		List<SegmentInfo> segments = clusterFS.updateSegments();
-		log.debug("Found " + segments.size() + " segments ");
+		if (log.isDebugEnabled()) log.debug("Found " + segments.size() + " segments ");
 		IndexReader[] readers = new IndexReader[segments.size()];
 		int j = 0;
 		for (Iterator<SegmentInfo> i = segments.iterator(); i.hasNext();)
 		{
-			SegmentInfo segment =  i.next();
+			SegmentInfo segment = i.next();
 			try
 			{
 				if (false)
@@ -153,13 +153,12 @@ public class ClusterFSIndexStorage implements IndexStorage
 						}
 					}
 
-					log.debug("Invalid segment  ", ex);
+					if (log.isDebugEnabled()) log.debug("Invalid segment  ", ex);
 					log
 							.warn("Found corrupted segment ("
 									+ segment.getName()
 									+ ") in Local store, attempting to recover from DB.  Reason: "
-									+ ex.getClass().getName() + ":"
-									+ ex.getMessage());
+									+ ex.getClass().getName() + ":" + ex.getMessage());
 					clusterFS.recoverSegment(segment);
 					readers[j] = IndexReader.open(segment.getSegmentLocation());
 					log
@@ -199,6 +198,8 @@ public class ClusterFSIndexStorage implements IndexStorage
 	public IndexWriter getIndexWriter(boolean create) throws IOException
 	{
 
+		if (log.isDebugEnabled())
+			log.debug("+++++++++++++++++Start Index Writer Cycle   ");
 		// to ensure that we dont dammage the index due to OutOfMemory, if it
 		// should ever happen
 		// we will open a temporary index, which will be merged on completion
@@ -207,11 +208,11 @@ public class ClusterFSIndexStorage implements IndexStorage
 		if (false)
 		{
 			List<SegmentInfo> segments = clusterFS.updateSegments();
-			log.debug("Found " + segments.size() + " segments ");
+			if (log.isDebugEnabled())
+				log.debug("Found " + segments.size() + " segments ");
 			if (segments.size() > 0)
 			{
-				currentSegment = segments
-						.get(segments.size() - 1);
+				currentSegment = segments.get(segments.size() - 1);
 				if (!currentSegment.isClusterSegment()
 						|| currentSegment.getTotalSize() > segmentThreshold)
 				{
@@ -222,9 +223,10 @@ public class ClusterFSIndexStorage implements IndexStorage
 			if (currentSegment == null)
 			{
 				currentSegment = clusterFS.newSegment();
-				log.debug("Created new segment " + currentSegment.getName());
-				indexWriter = new IndexWriter(currentSegment.getSegmentLocation(), getAnalyzer(),
-						true);
+				if (log.isDebugEnabled())
+					log.debug("Created new segment " + currentSegment.getName());
+				indexWriter = new IndexWriter(currentSegment.getSegmentLocation(),
+						getAnalyzer(), true);
 				indexWriter.setUseCompoundFile(true);
 				// indexWriter.setInfoStream(System.out);
 				indexWriter.setMaxMergeDocs(50);
@@ -233,14 +235,16 @@ public class ClusterFSIndexStorage implements IndexStorage
 			else
 			{
 				currentSegment.touchSegment();
-				indexWriter = new IndexWriter(currentSegment.getSegmentLocation(), getAnalyzer(),
-						false);
+				indexWriter = new IndexWriter(currentSegment.getSegmentLocation(),
+						getAnalyzer(), false);
 				indexWriter.setUseCompoundFile(true);
 				// indexWriter.setInfoStream(System.out);
 				indexWriter.setMaxMergeDocs(50);
 				indexWriter.setMergeFactor(50);
 			}
-			log.debug("Using Current Index Writer " + currentSegment.getSegmentLocation().getPath());
+			if (log.isDebugEnabled())
+				log.debug("Using Current Index Writer "
+						+ currentSegment.getSegmentLocation().getPath());
 		}
 		else
 		{
@@ -250,7 +254,8 @@ public class ClusterFSIndexStorage implements IndexStorage
 			// indexWriter.setInfoStream(System.out);
 			indexWriter.setMaxMergeDocs(50);
 			indexWriter.setMergeFactor(50);
-			log.debug("Using Temp Index Writer " + tempIndex.getPath());
+			if (log.isDebugEnabled())
+				log.debug("Using Temp Index Writer " + tempIndex.getPath());
 		}
 		return indexWriter;
 	}
@@ -269,8 +274,9 @@ public class ClusterFSIndexStorage implements IndexStorage
 
 			}
 			long reloadEnd = System.currentTimeMillis();
-			log.debug("Reload Complete " + indexSearcher.maxDoc() + " in "
-					+ (reloadEnd - reloadStart));
+			if (log.isDebugEnabled())
+				log.debug("Reload Complete " + indexSearcher.maxDoc() + " in "
+						+ (reloadEnd - reloadStart));
 
 		}
 		catch (FileNotFoundException e)
@@ -325,7 +331,7 @@ public class ClusterFSIndexStorage implements IndexStorage
 
 	public void doPreIndexUpdate() throws IOException
 	{
-		log.debug("Start Index Cycle");
+		if (log.isDebugEnabled()) log.debug("Start Index Cycle");
 		// dont enable locks
 		FSDirectory.setDisableLocks(true);
 
@@ -339,6 +345,7 @@ public class ClusterFSIndexStorage implements IndexStorage
 	{
 		if (merge)
 		{
+			if (log.isDebugEnabled()) log.debug("Merge Phase 1 : Stating");
 			FSDirectory.setDisableLocks(true);
 			// get the tmp index
 			File tmpSegment = clusterFS.getTemporarySegment(false);
@@ -350,28 +357,33 @@ public class ClusterFSIndexStorage implements IndexStorage
 			// create a size sorted list
 			if (segments.size() > 10)
 			{
-//				long[] segmentSize = new long[segments.size() - 1];
-//				File[] segmentName = new File[segments.size() - 1];
-				for (Iterator<SegmentInfo> i = segments.iterator(); i.hasNext(); )
+				// long[] segmentSize = new long[segments.size() - 1];
+				// File[] segmentName = new File[segments.size() - 1];
+				for (Iterator<SegmentInfo> i = segments.iterator(); i.hasNext();)
 				{
 					i.next().loadSize();
 				}
-				
-				
-				Collections.sort(segments, new Comparator<SegmentInfo>() {
+
+				Collections.sort(segments, new Comparator<SegmentInfo>()
+				{
 
 					public int compare(SegmentInfo o1, SegmentInfo o2)
 					{
 						long l = o1.getSize() - o2.getSize();
-						if ( l ==  0 ) {
+						if (l == 0)
+						{
 							return 0;
-						} else if ( l < 0 ) {
+						}
+						else if (l < 0)
+						{
 							return -1;
-						} else {
+						}
+						else
+						{
 							return 1;
 						}
 					}
-					
+
 				});
 
 				long sizeBlock = 0;
@@ -391,34 +403,37 @@ public class ClusterFSIndexStorage implements IndexStorage
 							{
 								sizeBlock = segments.get(0).getSize();
 								ninblock = 1;
+								if (log.isDebugEnabled())
+									log.debug("Order Size = " + sizeBlock);
 							}
+
 							if (segments.get(i).getSize() > sizeBlock / 10)
 							{
 								ninblock++;
+								// count up blocks that have the same order of
+								// size
 							}
 							else
 							{
+								// if there are more than 2 in the block force a
+								// merge
+								if (ninblock >= 2)
+								{
+									groupstomerge[j++] = mergegroupno;
+								}
+
+								// reset for the next order of magnitude down
 								ninblock = 1;
 								mergegroupno++;
 								sizeBlock = segments.get(i).getSize();
 							}
 							mergegroup[i] = mergegroupno;
-							if (ninblock >= 10)
-							{
-								// if (sizeBlock < 200L * 1024L * 1024L)
-								// {
-								// We will use a cumulative sum to avoid going
-
-								// over 2G when we merge
-								// only perform merge for segments < 200M
-								// oterwise we risk a 2G segment.
-								groupstomerge[j++] = mergegroupno;
-								// }
-								mergegroupno++;
-								ninblock = 0;
-
-							}
 						}
+					}
+					// catch the merge all case
+					if (ninblock >= 2)
+					{
+						groupstomerge[j++] = mergegroupno;
 					}
 					if (j > 0)
 					{
@@ -426,18 +441,16 @@ public class ClusterFSIndexStorage implements IndexStorage
 						for (int i = 0; i < segments.size(); i++)
 						{
 							SegmentInfo si = segments.get(i);
-							status.append("Segment ").append(i).append(" n")
-									.append(si.getName()).append(" s")
-									.append(si.getSize()).append(" g")
-									.append(mergegroup[i]).append("\n");
+							status.append("Segment ").append(i).append(" n").append(
+									si.getName()).append(" s").append(si.getSize())
+									.append(" g").append(mergegroup[i]).append("\n");
 						}
 						for (int i = 0; i < groupstomerge.length; i++)
 						{
-							status.append("Merge group ").append(i)
-									.append(" m").append(groupstomerge[i])
-									.append("\n");
+							status.append("Merge group ").append(i).append(" m").append(
+									groupstomerge[i]).append("\n");
 						}
-						log.info("Search Merge \n" + status);
+						if (log.isDebugEnabled()) log.debug("Search Merge \n" + status);
 					}
 
 				}
@@ -450,16 +463,16 @@ public class ClusterFSIndexStorage implements IndexStorage
 					if (groupstomerge[i] != 0)
 					{
 						StringBuffer status = new StringBuffer();
-						status.append("Group ").append(i).append(" Merge ")
-								.append(groupstomerge[i]).append("\n");
+						status.append("Group ").append(i).append(" Merge ").append(
+								groupstomerge[i]).append("\n");
 						SegmentInfo mergeSegment = clusterFS.newSegment();
 
 						IndexWriter mergeIndexWriter = null;
 						boolean mergeOk = false;
 						try
 						{
-							mergeIndexWriter = new IndexWriter(FSDirectory
-									.getDirectory(mergeSegment.getSegmentLocation(), false),
+							mergeIndexWriter = new IndexWriter(FSDirectory.getDirectory(
+									mergeSegment.getSegmentLocation(), false),
 									getAnalyzer(), true);
 							mergeIndexWriter.setUseCompoundFile(true);
 							// indexWriter.setInfoStream(System.out);
@@ -472,44 +485,37 @@ public class ClusterFSIndexStorage implements IndexStorage
 								SegmentInfo si = segments.get(j);
 								if (mergegroup[j] == groupstomerge[i])
 								{
-									// if we merge this segment will the result probably remain small enough
-									if ((currentSize+si.getSize()) < maxSegmentSize)
+									// if we merge this segment will the result
+									// probably remain small enough
+									if ((currentSize + si.getSize()) < maxSegmentSize)
 									{
 										currentSize += si.getSize();
 
-										Directory d = FSDirectory.getDirectory(
-												si.getSegmentLocation(), false);
+										Directory d = FSDirectory.getDirectory(si
+												.getSegmentLocation(), false);
 										if (d.fileExists("segments"))
 										{
 											status.append("   Merge ").append(
-													si.getName())
-													.append(" >> ").append(
-															mergeSegment
-																	.getName())
-													.append("\n");
+													si.getName()).append(" >> ").append(
+													mergeSegment.getName()).append("\n");
 											indexes.add(d);
 										}
 										else
 										{
-											status.append(
-													"   Skipped, size >  ")
-													.append(maxSegmentSize)
-													.append(" ").append(
-															si
-																	.getName())
-													.append(" >> ").append(
-															mergeSegment
-																	.getName())
-													.append("\n");
+											status.append("   Skipped, size >  ").append(
+													maxSegmentSize).append(" ").append(
+													si.getName()).append(" >> ").append(
+													mergeSegment.getName()).append("\n");
 										}
 									}
 								}
 							}
-							log.info("Merging \n" + status);
+							if (log.isDebugEnabled()) log.debug("Merging \n" + status);
 							mergeIndexWriter.addIndexes((Directory[]) indexes
 									.toArray(new Directory[indexes.size()]));
 							mergeIndexWriter.close();
-							log.info("Done " + groupstomerge[i]);
+							if (log.isDebugEnabled())
+								log.debug("Done " + groupstomerge[i]);
 							mergeIndexWriter = null;
 							// remove old segments
 							mergeOk = true;
@@ -531,9 +537,10 @@ public class ClusterFSIndexStorage implements IndexStorage
 							}
 							catch (Exception ex2)
 							{
-								log.error("Failed to remove merge segment "
-										+ mergeSegment.getName() + " "
-										+ ex2.getMessage());
+								log
+										.error("Failed to remove merge segment "
+												+ mergeSegment.getName() + " "
+												+ ex2.getMessage());
 							}
 
 						}
@@ -553,83 +560,94 @@ public class ClusterFSIndexStorage implements IndexStorage
 							{
 								if (mergegroup[j] == groupstomerge[i])
 								{
-									clusterFS
-											.removeLocalSegment(segments.get(j));
+									clusterFS.removeLocalSegment(segments.get(j));
 								}
 							}
 						}
 					}
 				}
 			}
+			if (log.isDebugEnabled())
+				log.debug("Merge Phase2: Starting on " + segments.size() + " segments ");
 
 			// merge it with the current index
 			SegmentInfo currentSegment = null;
-			IndexWriter indexWriter = null;
-			try
-			{
 
+			if (log.isDebugEnabled())
 				log.debug("Found " + segments.size() + " segments ");
-				if (segments.size() > 0)
+			if (segments.size() > 0)
+			{
+				currentSegment = segments.get(segments.size() - 1);
+				if (!currentSegment.isClusterSegment()
+						|| currentSegment.getTotalSize() > segmentThreshold)
 				{
-					currentSegment = segments.get(segments
-							.size() - 1);
-					if (!currentSegment.isClusterSegment()
-							|| currentSegment.getTotalSize() > segmentThreshold)
-					{
-						currentSegment = null;
-					}
-
+					currentSegment = null;
 				}
-				if (currentSegment == null)
+
+			}
+			if (currentSegment == null)
+			{
+				if (tmpDirectory[0].fileExists("segments"))
 				{
-					currentSegment = clusterFS.newSegment();
-					log
-							.debug("Created new segment "
-									+ currentSegment.getName());
-					indexWriter = new IndexWriter(FSDirectory.getDirectory(
-							currentSegment.getSegmentLocation(), false), getAnalyzer(), true);
-					indexWriter.setUseCompoundFile(true);
-					// indexWriter.setInfoStream(System.out);
-					indexWriter.setMaxMergeDocs(50);
-					indexWriter.setMergeFactor(50);
+					currentSegment = clusterFS.saveTemporarySegment();
 				}
 				else
 				{
+					log
+							.warn("No Segment Created during indexing process, this should not happen, although it is possible tha the indexing operation did not find any files to index.");
+				}
+			}
+			else
+			{
+				IndexWriter indexWriter = null;
+				try
+				{
+					if (log.isDebugEnabled())
+						log.debug("Using Existing Segment " + currentSegment.getName());
 					currentSegment.touchSegment();
-					indexWriter = new IndexWriter(FSDirectory.getDirectory(
-							currentSegment.getSegmentLocation(), false), getAnalyzer(), false);
+					indexWriter = new IndexWriter(FSDirectory.getDirectory(currentSegment
+							.getSegmentLocation(), false), getAnalyzer(), false);
 					indexWriter.setUseCompoundFile(true);
 					// indexWriter.setInfoStream(System.out);
 					indexWriter.setMaxMergeDocs(50);
 					indexWriter.setMergeFactor(50);
-				}
 
-				if (tmpDirectory[0].fileExists("segments"))
-				{
-					log.debug("Merging Temp segment " + tmpSegment.getPath()
-							+ " with current segment "
-							+ currentSegment.getSegmentLocation().getPath());
-					indexWriter.addIndexes(tmpDirectory);
+					if (tmpDirectory[0].fileExists("segments"))
+					{
+						if (log.isDebugEnabled())
+							log.debug("Merging Temp segment " + tmpSegment.getPath()
+									+ " with current segment "
+									+ currentSegment.getSegmentLocation().getPath());
+						indexWriter.addIndexes(tmpDirectory);
+					}
+					else
+					{
+						log.warn("No Merge performed, no tmp segment");
+					}
 				}
-			}
-			finally
-			{
-				try
+				finally
 				{
-					indexWriter.close();
-				}
-				catch (Exception ex)
-				{
-					// dotn care if this fails
+					try
+					{
+						indexWriter.close();
+					}
+					catch (Exception ex)
+					{
+						// dotn care if this fails
+					}
 				}
 			}
 
 		}
+		else
+		{
+			log.debug("Merge Not requested ");
+		}
 		clusterFS.removeTemporarySegment();
 
 		clusterFS.saveSegments();
-
-		log.debug("End Index Cycle");
+		if (log.isDebugEnabled())
+			log.debug("+++++++++++++++++++++++++++++++++++++End Index Cycle");
 	}
 
 	/**
