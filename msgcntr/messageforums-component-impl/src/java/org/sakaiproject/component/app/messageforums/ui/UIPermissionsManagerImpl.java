@@ -918,13 +918,16 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 		}
 		Set allAreaSet = (Set) ThreadLocalManager.get("message_center_membership_area");
 		Set returnSet = new HashSet();
-		Iterator iter = allAreaSet.iterator();
-		while(iter.hasNext())
+		if(allAreaSet != null)
 		{
-			DBMembershipItemImpl thisItem = (DBMembershipItemImpl)iter.next();
-			if(thisItem.getArea() != null && area.getId() != null && area.getId().equals(thisItem.getArea().getId()))
+			Iterator iter = allAreaSet.iterator();
+			while(iter.hasNext())
 			{
-				returnSet.add((DBMembershipItem)thisItem);
+				DBMembershipItemImpl thisItem = (DBMembershipItemImpl)iter.next();
+				if(thisItem.getArea() != null && area.getId() != null && area.getId().equals(thisItem.getArea().getId()))
+				{
+					returnSet.add((DBMembershipItem)thisItem);
+				}
 			}
 		}
 
