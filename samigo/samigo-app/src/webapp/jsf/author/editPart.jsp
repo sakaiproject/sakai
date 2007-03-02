@@ -131,8 +131,9 @@
   <!--/h:selectOneMenu-->
    <h:inputText id="numSelected" disabled="#{sectionBean.type == '1'}" value="#{sectionBean.numberSelected}" />
 
-  <h:selectOneRadio value="#{sectionBean.randomDrawType}" layout="pageDirection" disabled="#{sectionBean.type == '1'}" id="randomDrawType">
-     <f:selectItems value="#{sectionBean.randomDrawList}" />
+  <h:outputText value="#{msg.type_of_randomization}" />
+  <h:selectOneRadio value="#{sectionBean.randomizationType}" layout="pageDirection" disabled="#{sectionBean.type == '1'}" id="randomizationType">
+     <f:selectItems value="#{sectionBean.randomizationTypeList}" />
   </h:selectOneRadio>
 
 </h:panelGrid>

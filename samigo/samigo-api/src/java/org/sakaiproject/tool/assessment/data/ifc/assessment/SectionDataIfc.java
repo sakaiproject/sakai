@@ -44,9 +44,9 @@ public interface SectionDataIfc
   public static String POOLNAME_FOR_RANDOM_DRAW = "POOLNAME_FOR_RANDOM_DRAW";
   public static String NUM_QUESTIONS_DRAWN = "NUM_QUESTIONS_DRAWN";
   
-  public static String RANDOM_DRAW_TYPE = "RANDOM_DRAW_TYPE";
-  public static String BY_USER_ID = "1";
-  public static String BY_SUBMISSION = "2";
+  public static String RANDOMIZATION_TYPE = "RANDOMIZATION_TYPE";
+  public static String PER_SUBMISSION = "1";
+  public static String PER_STUDENT = "2";
   
    Long getSectionId() ;
 

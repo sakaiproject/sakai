@@ -218,7 +218,13 @@ public class DeliveryBean
 
   private boolean noQuestions = false;
 
-
+  // this assessmentGradingId is used to generate seed in getSeed(...) of DeliveryActaionListener.java
+  // We need this because the assessmentGradingData in delivery bean might not be the one we want to display
+  // especially for review assessment and grade assessment. In other word, if student has started taking another assessment, 
+  // the assessmentGradingData in deliver bean will be the newly created one. Then, of course, the assessmentGradingId 
+  // will be the new id which is not what we want in review assessment or grade assessment
+  private Long assessmentGradingId;
+  
   /**
    * Creates a new DeliveryBean object.
    */
@@ -2664,6 +2670,17 @@ public class DeliveryBean
 		return "";
 	}
 
+	  public Long getAssessmentGradingId()
+	  {
+	      return assessmentGradingId;
+	  }
 
+	  public void setAssessmentGradingId(Long assessmentGradingId)
+	  {
+	    this.assessmentGradingId = assessmentGradingId;
+	  }
+
+
+	
 
 }

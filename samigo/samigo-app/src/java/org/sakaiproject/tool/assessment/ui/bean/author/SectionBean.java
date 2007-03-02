@@ -25,42 +25,37 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Iterator;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.ResourceBundle;
-import javax.faces.context.FacesContext;
+
 import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.sakaiproject.tool.assessment.data.model.Tree;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.facade.SectionFacade;
-import org.sakaiproject.tool.assessment.services.QuestionPoolService;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.ui.listener.author.SavePartListener;
-import org.sakaiproject.tool.assessment.ui.listener.author.SavePartAttachmentListener;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
-import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-
-import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.impl.ReferenceComponent;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.model.Tree;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.ui.listener.author.SavePartAttachmentListener;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.SessionManager;
 
 /**
@@ -88,7 +83,7 @@ private String removeAllQuestions; // 1=Yes, 0=No
 private SectionFacade section;
 private AssessmentIfc assessment;
 private String destSectionId; //destinated section where questions will be moved to
-private String randomDrawType;
+private String randomizationType;
 
 private String numberSelected;
 private String selectedPool;  // pool id for the item to be added to
@@ -756,7 +751,7 @@ private List attachmentList;
       this.resourceHash = resourceHash;
   }
   
-  public ArrayList getRandomDrawList(){
+  public ArrayList getRandomizationTypeList(){
 
 	    ArrayList list = new ArrayList();
 
@@ -764,26 +759,25 @@ private List attachmentList;
 	    ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
 
 	    SelectItem selection = new SelectItem();
-	    //selection.setLabel((String)rb.getObject("by"));
-	    selection.setLabel("By Student");
+	    selection.setLabel((String)rb.getObject("randomized_per_submission"));
 	    selection.setValue("1");
 	    list.add(selection);
 	    
 	    selection = new SelectItem();
-	    selection.setLabel("By Submission");
+	    selection.setLabel((String)rb.getObject("randomized_per_student"));
 	    selection.setValue("2");
 	    list.add(selection);
 	    
 	    return list;
 	  }
 
-  public String getRandomDrawType() {
-      return randomDrawType;
+  public String getRandomizationType() {
+      return randomizationType;
   }
 
-  public void setRandomDrawType(String randomDrawType)
+  public void setRandomizationType(String randomizationType)
   {
-      this.randomDrawType = randomDrawType;
+      this.randomizationType = randomizationType;
   }
   
 }

@@ -145,6 +145,13 @@ public class EditPartListener
        if (meta.getLabel().equals(SectionDataIfc.NUM_QUESTIONS_DRAWN)){
          bean.setNumberSelected(meta.getEntry());
        }
+       
+       if (meta.getLabel().equals(SectionDataIfc.RANDOMIZATION_TYPE)){
+           bean.setRandomizationType(meta.getEntry());
+       }
+       else {
+    	   bean.setRandomizationType(SectionDataIfc.PER_SUBMISSION);
+       }
     }
   }
 

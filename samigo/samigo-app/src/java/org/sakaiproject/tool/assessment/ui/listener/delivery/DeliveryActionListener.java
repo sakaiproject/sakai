@@ -192,10 +192,13 @@ public class DeliveryActionListener
               }
               log.debug("GraderComments: getComments()" + agData.getComments());
               delivery.setGraderComment(agData.getComments());
+              delivery.setAssessmentGradingId(agData.getAssessmentGradingId());
               break;
  
       case 4: // Grade assessment
-              itemGradingHash = service.getStudentGradingData(ContextUtil.lookupParam("gradingData"));
+    	  	  String gradingData = ContextUtil.lookupParam("gradingData");
+              itemGradingHash = service.getStudentGradingData(gradingData);
+              delivery.setAssessmentGradingId(Long.valueOf(gradingData));
               ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, false);
               delivery.setAssessmentGrading(ag);
               setDisplayByAssessment(delivery);
@@ -246,6 +249,7 @@ public class DeliveryActionListener
                   }
               }
               log.debug("**** DeliveryAction, itemgrading size="+ag.getItemGradingSet().size());
+              delivery.setAssessmentGradingId(delivery.getAssessmentGrading().getAssessmentGradingId());
               
               // ag can't be null beyond this point and must have persisted to DB
               // version 2.1.1 requirement
@@ -2065,16 +2069,16 @@ public class DeliveryActionListener
   
   private long getSeed(SectionDataIfc sectionData, DeliveryBean delivery, long userSeed) {
 	  long seed = 0;
-	  if ((sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_DRAW_TYPE)!=null) && (sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_DRAW_TYPE).equals(SectionDataIfc.BY_USER_ID))) {
+	  if ((sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE)!=null) && (sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE).equals(SectionDataIfc.PER_STUDENT))) {
 		  seed = userSeed;
 	  }
 	  else {
-		  AssessmentGradingData ag = delivery.getAssessmentGrading();
-		  if (ag == null) { // this happens during preview assessment
+		  Long id = delivery.getAssessmentGradingId();
+		  if (id == null) { // this happens during preview assessment
 			  seed = userSeed;
 		  }
 		  else {
-			  seed = ag.getAssessmentGradingId().longValue();
+			  seed = id.longValue() + sectionData.getSectionId().longValue();
 		  }
 	  }
 	  return seed;
