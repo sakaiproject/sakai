@@ -33,11 +33,11 @@ import org.sakaiproject.util.Web;
 /**
  * @author ieb
  */
-public class PortletHandler extends PageHandler
+public class PDAHandler extends PageHandler
 {
-	public PortletHandler()
+	public PDAHandler()
 	{
-		urlFragment = "portlet";
+		urlFragment = "pda";
 	}
 
 	@Override
@@ -51,12 +51,12 @@ public class PortletHandler extends PageHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 2) && (parts[1].equals("portlet")))
+		if ((parts.length >= 2) && (parts[1].equals("pda")))
 		{
 			try
 			{
 
-				// /portal/portlet/site-id
+				// /portal/pda/site-id
 				String siteId = null;
 				if (parts.length >= 3)
 				{
@@ -65,7 +65,7 @@ public class PortletHandler extends PageHandler
 
 				// This is a pop-up page - it does exactly the same as
 				// /portal/page
-				// /portal/portlet/site-id/page/page-id
+				// /portal/pda/site-id/page/page-id
 				// 1 2 3 4
 				String pageId = null;
 				if ((parts.length == 5) && (parts[3].equals("page")))
@@ -77,14 +77,14 @@ public class PortletHandler extends PageHandler
 
 				// Tool resetting URL - clear state and forward to the real tool
 				// URL
-				// /portal/portlet/site-id/tool-reset/toolId
+				// /portal/pda/site-id/tool-reset/toolId
 				// 0 1 2 3 4
 				String toolId = null;
 				if ((siteId != null) && (parts.length == 5)
 						&& (parts[3].equals("tool-reset")))
 				{
 					toolId = parts[4];
-					String toolUrl = req.getContextPath() + "/portlet/" + siteId
+					String toolUrl = req.getContextPath() + "/pda/" + siteId
 							+ "/tool" + Web.makePath(parts, 4, parts.length);
 					String queryString = req.getQueryString();
 					if (queryString != null)
@@ -97,7 +97,7 @@ public class PortletHandler extends PageHandler
 				}
 
 				// Tool after the reset
-				// /portal/portlet/site-id/tool/toolId
+				// /portal/pda/site-id/tool/toolId
 				if ((parts.length == 5) && (parts[3].equals("tool")))
 				{
 					toolId = parts[4];
@@ -107,7 +107,7 @@ public class PortletHandler extends PageHandler
 				if ("yes".equalsIgnoreCase(forceLogout)
 						|| "true".equalsIgnoreCase(forceLogout))
 				{
-					portal.doLogout(req, res, session, "/portlet");
+					portal.doLogout(req, res, session, "/pda");
 					return END;
 				}
 
@@ -124,11 +124,11 @@ public class PortletHandler extends PageHandler
 
 				PortalRenderContext rcontext = portal.includePortal(req, res, session,
 						siteId, toolId, req.getContextPath() + req.getServletPath(),
-						"portlet",
+						"pda",
 						/* doPages */false, /* resetTools */true,
 						/* includeSummary */false, /* expandSite */false);
 
-				portal.sendResponse(rcontext, res, "portlet", null);
+				portal.sendResponse(rcontext, res, "pda", null);
 				return END;
 			}
 			catch (Exception ex)

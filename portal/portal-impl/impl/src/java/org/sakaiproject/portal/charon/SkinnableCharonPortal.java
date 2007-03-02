@@ -62,7 +62,7 @@ import org.sakaiproject.portal.charon.handlers.NavLoginGalleryHandler;
 import org.sakaiproject.portal.charon.handlers.NavLoginHandler;
 import org.sakaiproject.portal.charon.handlers.OpmlHandler;
 import org.sakaiproject.portal.charon.handlers.PageHandler;
-import org.sakaiproject.portal.charon.handlers.PortletHandler;
+import org.sakaiproject.portal.charon.handlers.PDAHandler;
 import org.sakaiproject.portal.charon.handlers.PresenceHandler;
 import org.sakaiproject.portal.charon.handlers.ReLoginHandler;
 import org.sakaiproject.portal.charon.handlers.RssHandler;
@@ -1694,7 +1694,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		addHandler(new PageHandler());
 		addHandler(worksiteHandler);
 		addHandler(new RssHandler());
-		addHandler(new PortletHandler());
+		addHandler(new PDAHandler());
 		addHandler(new AtomHandler());
 		addHandler(new OpmlHandler());
 		addHandler(galleryHandler);
