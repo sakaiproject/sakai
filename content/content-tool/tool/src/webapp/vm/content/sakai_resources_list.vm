@@ -246,7 +246,7 @@
 							#if ($item.isCollection())
 								#if ($item.canRead())
 									#if ($item.isEmpty())
-										<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="folder" />
+										<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$item.hoverText" />
 									#elseif($item.isTooBig())
 										<img src = "#imageLink("sakai/dir_unexpand.gif")" border="0" title="$tlang.getString('list.toobig')" alt="$tlang.getString('list.toobig')" />
 									#elseif (!$item.isExpanded())
@@ -269,7 +269,7 @@
 										$validator.escapeHtml(${item.name})
 									</a>
 								#else
-									<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="folder" />
+									<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$item.hoverText" />
 									$validator.escapeHtml(${item.name})
 								#end
 							#else
@@ -278,12 +278,12 @@
 										## if there is a copyright alert, show the alert page first
 										<a href="#" 
 											title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"	
-											onclick="openCopyrightWindow('${item.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false"
+											onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false"
 										>
 										#else
-										<a href="${item.url}" target="${item.target}">
+										<a href="${item.accessUrl}" target="${item.target}">
 									#end
-									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border= "0" alt ="" hspace="0" />
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border= "0" alt="$item.hoverText" hspace="0" />
 									</a>
 									#if($item.isLocked())
 										<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="locked" />
@@ -292,20 +292,20 @@
 										## if there is a copyright alert, show the alert page first
 										<a href="#" 
 											title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
-											onclick="openCopyrightWindow('${item.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;"
+											onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;"
 										>
 											$validator.escapeHtml($item.name)
 										</a>
 										&#169;
 									#else
-										<a href="$item.url" target="$item.target"
+										<a href="$item.accessUrl" target="$item.target"
 											title="$tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
 										>
 											$validator.escapeHtml($item.name)
 										</a>
 									#end
 								#else
-									 <img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border="0" alt ="" hspace="0" />
+									 <img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border="0" alt ="$item.hoverText" hspace="0" />
 									#if($item.isLocked())
 										<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="locked" />
 									#end
@@ -717,6 +717,7 @@
 </div>
 <script language="JavaScript" type="text/JavaScript">
 	<!--
+	#*
 		#if($rCount > 0)
 			document.getElementById("removeButton").disabled = false;
 		#end
@@ -729,6 +730,7 @@
 		#if($removeCount > 0 || $moveCount > 0 || $copyCount > 0)
 			document.getElementById("selectall").disabled = false;			
 		#end
+	*#
 		function openCopyrightWindow(theURL,winName,winSettings) 
 		{ 
 		  window.open(theURL,winName,winSettings);

@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -317,7 +318,15 @@ public class ResourcesAction
 			{
 				ContentCollection collection = (ContentCollection) entity;
 	        	int collection_size = collection.getMemberCount(); // newMembers.size();
-	        	setSize(Integer.toString(collection_size));
+	        	if(collection_size == 1)
+	        	{
+	        		setSize(rb.getString("size.item"));
+	        	}
+	        	else
+	        	{
+		        	String[] args = { Integer.toString(collection_size) };
+		        	setSize(rb.getFormattedMessage("size.items", args));
+	        	}
 				setIsEmpty(collection_size < 1);
 				setSortable(ContentHostingService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < EXPANDABLE_FOLDER_SIZE_LIMIT);
 				if(collection_size > EXPANDABLE_FOLDER_SIZE_LIMIT)
@@ -340,8 +349,33 @@ public class ResourcesAction
 				String size = "";
 				if(props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH) != null)
 				{
-					// TODO: needs to be localized
-					size = props.getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH) + " (" + Validator.getFileSizeWithDividor(props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH)) +" bytes)";
+					long size_long = 0;
+	                try
+	                {
+		                size_long = props.getLongProperty(ResourceProperties.PROP_CONTENT_LENGTH);
+	                }
+	                catch (EntityPropertyNotDefinedException e)
+	                {
+		                // TODO Auto-generated catch block
+		                logger.warn("EntityPropertyNotDefinedException for size of " + this.id);
+	                }
+	                catch (EntityPropertyTypeException e)
+	                {
+		                // TODO Auto-generated catch block
+		                logger.warn("EntityPropertyTypeException for size of " + this.id);
+	                }
+					NumberFormat formatter = NumberFormat.getInstance(rb.getLocale());
+					formatter.setMaximumFractionDigits(2);
+					if(size_long > 700000000L)
+					{
+						String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)), formatter.format(size_long) }; 
+						size = rb.getFormattedMessage("size.mb", args);
+					}
+					else 
+					{
+						String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L)), formatter.format(size_long) }; 
+						size = rb.getFormattedMessage("size.kb", args);
+					}
 				}
 				setSize(size);
 
@@ -937,12 +971,12 @@ public class ResourcesAction
 			catch (EntityPropertyNotDefinedException e1)
 			{
 				// TODO Auto-generated catch block
-				logger.warn("EntityPropertyNotDefinedException ", e1);
+				logger.warn("EntityPropertyNotDefinedException for createdTime or modifiedTime of " + this.entityId);
 			}
 			catch (EntityPropertyTypeException e1)
 			{
 				// TODO Auto-generated catch block
-				logger.warn("EntityPropertyTypeException ", e1);
+				logger.warn("EntityPropertyTypeException for createdTime or modifiedTime of " + this.entityId);
 			}
 			this.displayName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 			this.description = props.getProperty(ResourceProperties.PROP_DESCRIPTION);
@@ -6997,7 +7031,33 @@ public class ResourcesAction
 			String size = "";
 			if(properties.getProperty(ResourceProperties.PROP_CONTENT_LENGTH) != null)
 			{
-				size = properties.getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH) + " (" + Validator.getFileSizeWithDividor(properties.getProperty(ResourceProperties.PROP_CONTENT_LENGTH)) +" bytes)";
+				long size_long = 0;
+                try
+                {
+	                size_long = properties.getLongProperty(ResourceProperties.PROP_CONTENT_LENGTH);
+                }
+                catch (EntityPropertyNotDefinedException e)
+                {
+	                // TODO Auto-generated catch block
+	                logger.warn("EntityPropertyNotDefinedException for size of " + item.getId());
+                }
+                catch (EntityPropertyTypeException e)
+                {
+	                // TODO Auto-generated catch block
+	                logger.warn("EntityPropertyTypeException for size of " + item.getId());
+                }
+				NumberFormat formatter = NumberFormat.getInstance(rb.getLocale());
+				formatter.setMaximumFractionDigits(2);
+				if(size_long > 700000000L)
+				{
+					String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)), formatter.format(size_long) }; 
+					size = rb.getFormattedMessage("size.mb", args);
+				}
+				else
+				{
+					String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L)), formatter.format(size_long) }; 
+					size = rb.getFormattedMessage("size.kb", args);
+				}
 			}
 			item.setSize(size);
 

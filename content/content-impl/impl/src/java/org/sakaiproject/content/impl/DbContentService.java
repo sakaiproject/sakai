@@ -50,6 +50,7 @@ import org.sakaiproject.content.api.LockManager;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
 import org.sakaiproject.exception.IdUniquenessException;
@@ -1399,6 +1400,12 @@ public class DbContentService extends BaseContentService
 	            }
 	            
 	            edit.setContentLength(byteCount);
+				ResourcePropertiesEdit props = edit.getPropertiesEdit();
+				props.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(byteCount));
+				if(edit.getContentType() != null)
+				{
+					props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, edit.getContentType());
+				}
             }
             catch (IOException e)
             {
@@ -1474,6 +1481,12 @@ public class DbContentService extends BaseContentService
 				}
 				
 				resource.setContentLength(byteCount);
+				ResourcePropertiesEdit props = resource.getPropertiesEdit();
+				props.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(byteCount));
+				if(resource.getContentType() != null)
+				{
+					props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, resource.getContentType());
+				}
 			}
 //			catch (Throwable t)
 //			{
