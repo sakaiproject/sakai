@@ -4195,9 +4195,22 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							// complete the edit
 							m_assignmentStorage.commit(nAssignment);
 							((BaseAssignmentEdit) nAssignment).closeEdit();
+							
+							try {
+								if (m_taggingManager.isTaggable()) {
+									for (TaggingProvider provider : m_taggingManager
+											.getProviders()) {
+										provider.transferCopyTags(oAssignment,
+												nAssignment);
+									}
+								}
+							} catch (PermissionException pe) {
+								M_log.error(pe.getMessage(), pe);
+							}
 						}
 						catch (Exception ee)
 						{
+							M_log.error(ee.getMessage(), ee);
 						}
 					}
 				} // if-else
@@ -4320,6 +4333,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	public boolean allowRemoveTags(TaggableItem item) {
 		return unlockCheck(SECURE_REMOVE_ASSIGNMENT_SUBMISSION,
 				parseSubmissionRef(item.getReference()));
+	}
+	
+	public boolean allowTransferCopyTags(TaggableActivity activity) {
+		return SecurityService.unlock(SiteService.SECURE_UPDATE_SITE,
+				SiteService.siteReference(activity.getContext()));
 	}
 
 	public String getId() {

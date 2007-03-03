@@ -21,6 +21,7 @@
 
 package org.sakaiproject.assignment.taggable.api;
 
+import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.exception.PermissionException;
 
 /**
@@ -130,4 +131,23 @@ public interface TaggingProvider {
 	 *             tags from the given item.
 	 */
 	public void removeTags(TaggableItem item) throws PermissionException;
+
+	/**
+	 * Method to copy tags from an activity being duplicated to it's duplicate,
+	 * as happens when a context is duplicated (see
+	 * {@link EntityTransferrer#transferCopyEntities(String, String, java.util.List)}).
+	 * This method should check with the activity's producer using
+	 * {@link TaggableActivityProducer#allowTransferCopyTags(TaggableActivity)}
+	 * to make sure the user has permission to perform this action.
+	 * 
+	 * @param fromActivity
+	 *            The activity being duplicated from which to copy tags.
+	 * @param toActivity
+	 *            The duplicate activity to which to copy tags to.
+	 * @throws PermissionException
+	 *             Exception thrown if current user is not allowed to copy tags
+	 *             for the given activities.
+	 */
+	public void transferCopyTags(TaggableActivity fromActivity,
+			TaggableActivity toActivity) throws PermissionException;
 }

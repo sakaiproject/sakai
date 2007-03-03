@@ -23,6 +23,8 @@ package org.sakaiproject.assignment.taggable.api;
 
 import java.util.List;
 
+import org.sakaiproject.entity.api.EntityTransferrer;
+
 /**
  * A service that produces activities that can be tagged.
  * 
@@ -60,6 +62,23 @@ public interface TaggableActivityProducer {
 	 *         false otherwise.
 	 */
 	public boolean allowRemoveTags(TaggableItem item);
+
+	/**
+	 * Method to determine if the current user has permission to copy tags from
+	 * one activity to another, as would happen during
+	 * {@link EntityTransferrer#transferCopyEntities(String, String, List)}.
+	 * This should be checked by
+	 * {@link TaggingProvider#transferCopyTags(TaggableActivity, TaggableActivity)}
+	 * before copying tags. We want tags to be copied when activities are
+	 * duplicated, but only want to do so if the current user is allowed to copy
+	 * the activities.
+	 * 
+	 * @param activity
+	 *            The activity to check permission against.
+	 * @return True if the current user is allowed to copy the specified
+	 *         activity, false otherwise.
+	 */
+	public boolean allowTransferCopyTags(TaggableActivity activity);
 
 	/**
 	 * Method to check if this producer handles the given reference.
