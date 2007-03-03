@@ -686,6 +686,32 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return ag;
   }
 
+  public AssessmentGradingData getLastSubmittedAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString) {
+	    AssessmentGradingData ag = null;
+
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(
+	    				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? order by a.submittedDate desc");
+	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setString(1, agentIdString);
+	    		q.setBoolean(2, true);
+	    		return q.list();
+	    	};
+	    };
+	    List assessmentGradings = getHibernateTemplate().executeFind(hcb);
+
+//	    List assessmentGradings = getHibernateTemplate().find(
+//	        "from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? order by a.submittedDate desc",
+//	         new Object[] { publishedAssessmentId, agentIdString, Boolean.FALSE },
+//	         new org.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING, Hibernate.BOOLEAN });
+	    if (assessmentGradings.size() != 0){
+	      ag = (AssessmentGradingData) assessmentGradings.get(0);
+	      ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
+	    }  
+	    return ag;
+	  }
+  
   public AssessmentGradingIfc getLastAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString) {
     AssessmentGradingData ag = null;
 
@@ -816,8 +842,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   {
     AssessmentGradingData ag = null;
     final String query ="from AssessmentGradingData a "+
-                  " where a.publishedAssessmentId=? and "+
-                  " a.agentId=? order by a.finalScore desc, a.submittedDate desc";
+						" where a.publishedAssessmentId=? and "+
+						" a.agentId=? order by a.finalScore desc, a.submittedDate desc";
 
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -838,6 +864,35 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }  
     return ag;
   }
+  
+  public AssessmentGradingIfc getHighestSubmittedAssessmentGrading(
+	         final Long publishedAssessmentId, final String agentId)
+	  {
+	    AssessmentGradingData ag = null;
+	    final String query ="from AssessmentGradingData a "+
+        					" where a.publishedAssessmentId=? and a.agentId=? and "+
+        					" a.forGrade=?  order by a.finalScore desc, a.submittedDate desc";
+	    
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(query);
+	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setString(1, agentId);
+	    		q.setBoolean(2, true);
+	    		return q.list();
+	    	};
+	    };
+	    List assessmentGradings = getHibernateTemplate().executeFind(hcb);
+
+//	    List assessmentGradings = getHibernateTemplate().find(query,
+//	        new Object[] { publishedAssessmentId, agentId },
+//	        new org.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING });
+	    if (assessmentGradings.size() != 0){
+	      ag = (AssessmentGradingData) assessmentGradings.get(0);
+	      ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
+	    }  
+	    return ag;
+	  }
 
   public List getLastAssessmentGradingList(final Long publishedAssessmentId){
     final String query = "from AssessmentGradingData a where a.publishedAssessmentId=? order by a.agentId asc, a.submittedDate desc";

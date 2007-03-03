@@ -438,6 +438,17 @@ public class GradingService
     }
   }
 
+  public AssessmentGradingData getLastSubmittedAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString) {
+	    try{
+	      return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+	      getLastSubmittedAssessmentGradingByAgentId(new Long(publishedAssessmentId), agentIdString);
+	    }
+	    catch(Exception e)
+	    {
+	      log.error(e); throw new RuntimeException(e);
+	    }
+  }
+  
   public void saveItemGrading(ItemGradingIfc item)
   {
     try {
@@ -524,6 +535,17 @@ public class GradingService
     }
   }
 
+  public AssessmentGradingIfc getHighestSubmittedAssessmentGrading(String publishedAssessmentId, String agentId){
+	    try{
+	      return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+	      getHighestSubmittedAssessmentGrading(new Long(publishedAssessmentId), agentId);
+	    }
+	    catch(Exception e)
+	    {
+	      log.error(e); throw new RuntimeException(e);
+	    }
+	  }
+  
   public Set getItemGradingSet(String assessmentGradingId){
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().

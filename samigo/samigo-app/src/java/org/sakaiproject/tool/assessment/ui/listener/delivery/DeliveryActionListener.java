@@ -185,10 +185,12 @@ public class DeliveryActionListener
               delivery.setFeedbackComponent(component);
               AssessmentGradingData agData = null;
               if (EvaluationModelIfc.LAST_SCORE.equals(scoringoption)){
-            	  agData = (AssessmentGradingData) service.getLastAssessmentGradingByAgentId(id, agent);		// should return ifc also
+            	  //agData = (AssessmentGradingData) service.getLastAssessmentGradingByAgentId(id, agent);		// should return ifc also
+            	  agData = (AssessmentGradingData) service.getLastSubmittedAssessmentGradingByAgentId(id, agent);
               }
               else {
-            	  agData = (AssessmentGradingData) service.getHighestAssessmentGrading(id, agent);
+            	  //agData = (AssessmentGradingData) service.getHighestAssessmentGrading(id, agent);
+            	  agData = (AssessmentGradingData) service.getHighestSubmittedAssessmentGrading(id, agent);
               }
               log.debug("GraderComments: getComments()" + agData.getComments());
               delivery.setGraderComment(agData.getComments());
