@@ -319,13 +319,21 @@
 					</td>
 					<td headers="actions">
 						#if(($item.addActions && !$item.addActions.isEmpty()) || $item.otherActions && !$item.otherActions.isEmpty())
-							<select id="action-$itemcount" name="action-$itemcount" onchange="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='action-$itemcount';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
-								#foreach($action in $item.addActions)
-									<option value="${action.typeId}${ACTION_DELIMITER}$action.id">$labeler.getLabel($action)</option> 
+							<select class="actionmenu" width="100%" id="action-$itemcount" name="action-$itemcount" onchange="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='action-$itemcount';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+								#if($item.addActions && !$item.addActions.isEmpty())
+									<optgroup class="actiongroup" label="$tlang.getString("action.new")"
+										#foreach($action in $item.addActions)
+											<option class="actionitem" value="${action.typeId}${ACTION_DELIMITER}$action.id">$labeler.getLabel($action)</option> 
+										#end
+									</optgroup>
 								#end
 								<option value="" selected="selected">$tlang.getString("action.select")</option>
-								#foreach($action in $item.otherActions)
-									<option value="${action.typeId}${ACTION_DELIMITER}$action.id">$labeler.getLabel($action)</option> 
+								#if($item.otherActions && !$item.otherActions.isEmpty())
+									<optgroup class="actiongroup" label="$item.otherActionsLabel"
+										#foreach($action in $item.otherActions)
+											<option class="actionitem" value="${action.typeId}${ACTION_DELIMITER}$action.id">$labeler.getLabel($action)</option> 
+										#end
+									</optgroup>
 								#end
 							</select>
 						#end

@@ -9462,6 +9462,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			chh = other.getContentHandler();
 			chh_vce = other.getVirtualContentEntity();
 
+			this.m_contentStream = ((BaseResourceEdit) other).m_contentStream;
+
+			m_filePath = ((BaseResourceEdit) other).m_filePath;
+
 			// if there's a body in the other, reference it, else leave this one null
 			// Note: this treats the body byte array as immutable, so to update it one
 			// *must* call setContent() not just getContent and mess with the bytes. -ggolden
@@ -9471,9 +9475,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				m_contentLength = content.length;
 				m_body = content;
 			}
-
-			m_filePath = ((BaseResourceEdit) other).m_filePath;
-
+			
 			// copy other's access mode and list of groups
 			m_access = other.getAccess();
 			m_groups.clear();

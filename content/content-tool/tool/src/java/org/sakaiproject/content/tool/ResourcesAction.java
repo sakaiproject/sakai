@@ -278,6 +278,7 @@ public class ResourcesAction
 		protected String id;
 		protected List<ResourceToolAction> addActions;
 		protected List<ResourceToolAction> otherActions;
+		protected String otherActionsLabel;
 		protected List<ListItem> members;
 		protected Set<ContentPermissions> permissions;
 		protected boolean selected;
@@ -318,6 +319,8 @@ public class ResourcesAction
 			{
 				this.hoverText = typeDef.getLocalizedHoverText(entity);
 				this.iconLocation = typeDef.getIconLocation();
+				String[] args = { typeDef.getLabel() };
+				this.otherActionsLabel = trb.getFormattedMessage("action.other", args);
 			}
 
 			if(this.collection)
@@ -742,6 +745,22 @@ public class ResourcesAction
         {
         	this.depth = depth;
         }
+
+		/**
+         * @return the otherActionsLabel
+         */
+        public String getOtherActionsLabel()
+        {
+        	return otherActionsLabel;
+        }
+
+		/**
+         * @param otherActionsLabel the otherActionsLabel to set
+         */
+        public void setOtherActionsLabel(String otherActionsLabel)
+        {
+        	this.otherActionsLabel = otherActionsLabel;
+        }
 	}
 
 	public ListItem getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, Set<String> expandedFolders, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth)
@@ -808,12 +827,12 @@ public class ResourcesAction
 	        	}
 			}
 			
-			item.setAddActions(getAddActions(entity, registry, items_to_be_moved, items_to_be_copied));
+			item.setAddActions(getAddActions(entity, item.getPermissions(), registry, items_to_be_moved, items_to_be_copied));
 			//this.members = coll.getMembers();
 			item.setIconLocation( ContentTypeImageService.getContentTypeImage("folder"));
         }
         
-		item.setOtherActions(getActions(entity, registry, items_to_be_moved, items_to_be_copied));
+		item.setOtherActions(getActions(entity, item.getPermissions(), registry, items_to_be_moved, items_to_be_copied));
 		
 		return item;
 	}
@@ -951,7 +970,6 @@ public class ResourcesAction
 		protected String copyrightStatus;
 		protected String copyrightInfo;
 		protected boolean copyrightAlert = false;
-		private List<ResourceToolAction> actions = null;
 		
 		/**
 		 * @param entityId
@@ -1818,14 +1836,9 @@ public class ResourcesAction
 
 	private static final String STATE_STACK_CREATE_ITEMS = PREFIX + "stack_create_items";
 	private static final String STATE_STACK_CREATE_ACTUAL_COUNT = PREFIX + "stack_create_actual_count";
-	private static final String STATE_STACK_STRUCTOBJ_ROOTNAME = PREFIX + "stack_create_structured_object_root";
-
 	private static final String STATE_CREATE_ALERTS = PREFIX + "create_alerts";
 	protected static final String STATE_CREATE_MESSAGE = PREFIX + "create_message";
 	private static final String STATE_CREATE_MISSING_ITEM = PREFIX + "create_missing_item";
-	private static final String STATE_STRUCTOBJ_HOMES = PREFIX + "create_structured_object_home";
-	private static final String STATE_STACK_STRUCT_OBJ_SCHEMA = PREFIX + "stack_create_structured_object_schema";
-
 	private static final String MIME_TYPE_DOCUMENT_PLAINTEXT = "text/plain";
 	private static final String MIME_TYPE_DOCUMENT_HTML = "text/html";
 	public static final String MIME_TYPE_STRUCTOBJ = "application/x-osp";
@@ -1838,9 +1851,6 @@ public class ResourcesAction
 	public static final String TYPE_TEXT = MIME_TYPE_DOCUMENT_PLAINTEXT;
 
 	private static final int CREATE_MAX_ITEMS = 10;
-
-	private static final int INTEGER_WIDGET_LENGTH = 12;
-	private static final int DOUBLE_WIDGET_LENGTH = 18;
 
 	private static final 	Pattern INDEXED_FORM_FIELD_PATTERN = Pattern.compile("(.+)\\.(\\d+)");
 
@@ -1923,12 +1933,7 @@ public class ResourcesAction
 	 * object that the current filter should honor.  If this is set to null, then all files will
 	 * be selectable and viewable 
 	 */
-	   public static final String STATE_ATTACH_FILTER = PREFIX + "state_attach_filter";
-
-	/**
-	 * @deprecated use STATE_ATTACH_TITLE and STATE_ATTACH_INSTRUCTION instead
-	 */
-	public static final String STATE_FROM_TEXT = "attachment.from_text";
+	public static final String STATE_ATTACH_FILTER = PREFIX + "state_attach_filter";
 
 	/**
 	 *  the name of the state attribute indicating that the user canceled out of the helper.  Is set only if the user canceled out of the helper. 
@@ -1958,22 +1963,11 @@ public class ResourcesAction
 	
 	/************** the delete context *****************************************/
 
-	/** The delete ids */
-	private static final String STATE_DELETE_IDS = PREFIX + "delete_ids";
-
-	/** The not empty delete ids */
-	private static final String STATE_NOT_EMPTY_DELETE_IDS = PREFIX + "not_empty_delete_ids";
-
 	/** The name of the state attribute containing a list of ChefBrowseItem objects corresponding to resources selected for deletion */
 	private static final String STATE_DELETE_ITEMS = PREFIX + "delete_items";
 
 	/** The name of the state attribute containing a list of ChefBrowseItem objects corresponding to nonempty folders selected for deletion */
 	private static final String STATE_DELETE_ITEMS_NOT_EMPTY = PREFIX + "delete_items_not_empty";
-
-	/** The name of the state attribute containing a list of ChefBrowseItem objects selected for deletion that cannot be deleted */
-	private static final String STATE_DELETE_ITEMS_CANNOT_DELETE = PREFIX + "delete_items_cannot_delete";
-
-	/************** the cut items context *****************************************/
 
 	/** The cut item ids */
 	private static final String STATE_CUT_IDS = PREFIX + "revise_cut_ids";
@@ -2174,9 +2168,6 @@ public class ResourcesAction
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
 		
-		// get CHS
-		org.sakaiproject.content.api.ContentHostingService contentHostingService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute(STATE_CONTENT_SERVICE);
-
 		context.put("copyright_alert_url", COPYRIGHT_ALERT_URL);
 		context.put("ACTION_DELIMITER", ResourceToolAction.ACTION_DELIMITER);
 		
@@ -3031,12 +3022,12 @@ public class ResourcesAction
 		String folderId = null;
 		
 		// need a list of folders (ListItem objects) for one root in context as $folders
-		List folders = new Vector();
+		List<List<ListItem>> folders = new Vector<List<ListItem>>();
 		ContentCollection collection = null;
 		ContentEntity selectedItem = null;
 		
 		// need a list of roots (ListItem objects) in context as $roots
-		List roots = new Vector();
+		List<ListItem> roots = new Vector<ListItem>();
 		Map othersites = ContentHostingService.getCollectionMap();
 		Iterator it = othersites.keySet().iterator();
 		while(it.hasNext())
@@ -3090,7 +3081,7 @@ public class ResourcesAction
 			String collectionId = folderId;
 			folderId = null;
 
-			List folder = new Vector();
+			List<ListItem> folder = new Vector<ListItem>();
 			try 
 			{
 				if(collection == null)
@@ -3151,7 +3142,7 @@ public class ResourcesAction
 			
 			List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
 			
-			List<ResourceToolAction> actions = getActions(selectedItem, registry, items_to_be_moved, items_to_be_copied);
+			List<ResourceToolAction> actions = getActions(selectedItem, new TreeSet(getPermissions(selectedItem.getId())), registry, items_to_be_moved, items_to_be_copied);
 			
 			context.put("actions", actions);
 			context.put("labeler", new Labeler());
@@ -3162,12 +3153,13 @@ public class ResourcesAction
 
 	/**
      * @param selectedItem
-     * @param registry
-     * @param items_to_be_moved
-     * @param items_to_be_copied
-     * @return
+	 * @param permissions TODO
+	 * @param registry
+	 * @param items_to_be_moved
+	 * @param items_to_be_copied
+	 * @return
      */
-    protected List<ResourceToolAction> getActions(ContentEntity selectedItem, ResourceTypeRegistry registry, List<String> items_to_be_moved, List<String> items_to_be_copied)
+    protected List<ResourceToolAction> getActions(ContentEntity selectedItem, Set<ContentPermissions> permissions, ResourceTypeRegistry registry, List<String> items_to_be_moved, List<String> items_to_be_copied)
     {
 	    String resourceType = ResourceType.TYPE_UPLOAD;
 	    Reference ref = EntityManager.newReference(selectedItem.getReference());
@@ -3187,39 +3179,55 @@ public class ResourcesAction
 	    ResourceType typeDef = registry.getType(resourceType);
 	    
 	    // if user has content.read, user can view content, view metadata and/or copy
-	    List<ResourceToolAction> contentReadActions = typeDef.getActions(CONTENT_READ_ACTIONS);
-	    if(contentReadActions != null)
+	    if(permissions.contains(ContentPermissions.READ))
 	    {
-	    	actions.addAll(contentReadActions);
+		    List<ResourceToolAction> contentReadActions = typeDef.getActions(CONTENT_READ_ACTIONS);
+		    if(contentReadActions != null)
+		    {
+		    	actions.addAll(contentReadActions);
+		    }
 	    }
 	    
 	    // if user has content.modify, user can revise metadata, revise content, and/or replace content
-	    List<ResourceToolAction> contentModifyActions = typeDef.getActions(CONTENT_MODIFY_ACTIONS);
-	    if(contentModifyActions != null)
+	    if(permissions.contains(ContentPermissions.REVISE))
 	    {
-	    	actions.addAll(contentModifyActions);
+		    List<ResourceToolAction> contentModifyActions = typeDef.getActions(CONTENT_MODIFY_ACTIONS);
+		    if(contentModifyActions != null)
+		    {
+		    	actions.addAll(contentModifyActions);
+		    }
 	    }
 	    
 	    // if user has content.delete, user can move item or delete item
-	    List<ResourceToolAction> contentDeleteActions = typeDef.getActions(CONTENT_DELETE_ACTIONS);
-	    if(contentDeleteActions != null)
+	    if(permissions.contains(ContentPermissions.DELETE))
 	    {
-	    	actions.addAll(contentDeleteActions);
+		    List<ResourceToolAction> contentDeleteActions = typeDef.getActions(CONTENT_DELETE_ACTIONS);
+		    if(contentDeleteActions != null)
+		    {
+		    	actions.addAll(contentDeleteActions);
+		    }
 	    }
 	    
 	    // if user has content.new for item's parent and content.read for item, user can duplicate item
-	    List<ResourceToolAction> contentNewOnParentActions = typeDef.getActions(CONTENT_NEW_FOR_PARENT_ACTIONS);
-	    if(contentNewOnParentActions != null)
+	    if(permissions.contains(ContentPermissions.CREATE))
 	    {
-	    	actions.addAll(contentNewOnParentActions);
+		    List<ResourceToolAction> contentNewOnParentActions = typeDef.getActions(CONTENT_NEW_FOR_PARENT_ACTIONS);
+		    if(contentNewOnParentActions != null)
+		    {
+		    	actions.addAll(contentNewOnParentActions);
+		    }
 	    }
 	    
 	    // if user has content.new for item's parent and content.read for item, user can duplicate item
-	    List<ResourceToolAction> folderPermissionsActions = typeDef.getActions(SITE_UPDATE_ACTIONS);
-	    if(folderPermissionsActions != null)
+	    if(permissions.contains(ContentPermissions.SITE_UPDATE))
 	    {
-	    	actions.addAll(folderPermissionsActions);
+		    List<ResourceToolAction> folderPermissionsActions = typeDef.getActions(SITE_UPDATE_ACTIONS);
+		    if(folderPermissionsActions != null)
+		    {
+		    	actions.addAll(folderPermissionsActions);
+		    }
 	    }
+	    
 	    // filter -- remove actions that are not available to the current user in the context of this item
 	    Iterator<ResourceToolAction> actionIt = actions.iterator();
 	    while(actionIt.hasNext())
@@ -3235,73 +3243,78 @@ public class ResourcesAction
 	
 	/**
      * @param selectedItem
-     * @param registry
-     * @param items_to_be_moved
-     * @param items_to_be_copied
+	 * @param permissions TODO
+	 * @param registry
+	 * @param items_to_be_moved
+	 * @param items_to_be_copied
      * @return
      */
-    protected List<ResourceToolAction> getAddActions(ContentEntity selectedItem, ResourceTypeRegistry registry, List<String> items_to_be_moved, List<String> items_to_be_copied)
+    protected List<ResourceToolAction> getAddActions(ContentEntity selectedItem, Set<ContentPermissions> permissions, ResourceTypeRegistry registry, List<String> items_to_be_moved, List<String> items_to_be_copied)
     {
 	    String resourceType = ResourceType.TYPE_UPLOAD;
 	    Reference ref = EntityManager.newReference(selectedItem.getReference());
 	    List<ResourceToolAction> actions = new Vector<ResourceToolAction>();
-	    if(selectedItem.isCollection())
-	    {
-	    	resourceType = ResourceType.TYPE_FOLDER;
-	    }
-	    else
-	    {
-	    	ContentResource resource = (ContentResource) selectedItem;
-	    	// String mimetype = resource.getContentType();
-	    	resourceType = resource.getResourceType();
-	    }
 	    
-	    // get the registration for the current item's type 
-	    ResourceType typeDef = registry.getType(resourceType);
-	    
-	    if(items_to_be_moved != null && ! items_to_be_moved.isEmpty())
+	    if(permissions.contains(ContentPermissions.CREATE))
 	    {
-	    	List<ResourceToolAction> conditionalContentNewActions = typeDef.getActions(PASTE_MOVED_ACTIONS);
-	    	if(conditionalContentNewActions != null)
-	    	{
-	    		actions.addAll(conditionalContentNewActions);
-	    	}
-	    }
-
-	    if(items_to_be_copied != null && ! items_to_be_copied.isEmpty())
-	    {
-	    	List<ResourceToolAction> conditionalContentNewActions = typeDef.getActions(PASTE_COPIED_ACTIONS);
-	    	if(conditionalContentNewActions != null)
-	    	{
-	    		actions.addAll(conditionalContentNewActions);
-	    	}
-	    }
-
-	    // certain actions are defined elsewhere but pertain only to collections
-	    if(selectedItem.isCollection())
-	    {
-	    	// if item is collection and user has content.new for item, user can create anything 
-	    	{
-	    		// iterate over resource-types and get all the registered types and find actions requiring "content.new" permission
-	    		Collection types = registry.getTypes();
-	    		Iterator<ActionType> actionTypeIt = CONTENT_NEW_ACTIONS.iterator();
-	    		while(actionTypeIt.hasNext())
-	    		{
-	    			ActionType actionType = actionTypeIt.next();
-	    			Iterator typeIt = types.iterator();
-	    			while(typeIt.hasNext())
-	    			{
-	    				ResourceType type = (ResourceType) typeIt.next();
-	    				
-	    				List<ResourceToolAction> createActions = type.getActions(actionType);
-	    				if(createActions != null)
-	    				{
-	    					actions.addAll(createActions);
-	    				}
-	    			}
-	    		}
-	    	}
-	    	
+		    if(selectedItem.isCollection())
+		    {
+		    	resourceType = ResourceType.TYPE_FOLDER;
+		    }
+		    else
+		    {
+		    	ContentResource resource = (ContentResource) selectedItem;
+		    	// String mimetype = resource.getContentType();
+		    	resourceType = resource.getResourceType();
+		    }
+		    
+		    // get the registration for the current item's type 
+		    ResourceType typeDef = registry.getType(resourceType);
+		    
+		    if(items_to_be_moved != null && ! items_to_be_moved.isEmpty())
+		    {
+		    	List<ResourceToolAction> conditionalContentNewActions = typeDef.getActions(PASTE_MOVED_ACTIONS);
+		    	if(conditionalContentNewActions != null)
+		    	{
+		    		actions.addAll(conditionalContentNewActions);
+		    	}
+		    }
+	
+		    if(items_to_be_copied != null && ! items_to_be_copied.isEmpty())
+		    {
+		    	List<ResourceToolAction> conditionalContentNewActions = typeDef.getActions(PASTE_COPIED_ACTIONS);
+		    	if(conditionalContentNewActions != null)
+		    	{
+		    		actions.addAll(conditionalContentNewActions);
+		    	}
+		    }
+	
+		    // certain actions are defined elsewhere but pertain only to collections
+		    if(selectedItem.isCollection())
+		    {
+		    	// if item is collection and user has content.new for item, user can create anything 
+		    	{
+		    		// iterate over resource-types and get all the registered types and find actions requiring "content.new" permission
+		    		Collection types = registry.getTypes();
+		    		Iterator<ActionType> actionTypeIt = CONTENT_NEW_ACTIONS.iterator();
+		    		while(actionTypeIt.hasNext())
+		    		{
+		    			ActionType actionType = actionTypeIt.next();
+		    			Iterator typeIt = types.iterator();
+		    			while(typeIt.hasNext())
+		    			{
+		    				ResourceType type = (ResourceType) typeIt.next();
+		    				
+		    				List<ResourceToolAction> createActions = type.getActions(actionType);
+		    				if(createActions != null)
+		    				{
+		    					actions.addAll(createActions);
+		    				}
+		    			}
+		    		}
+		    	}
+		    	
+		    }
 	    }
 
 	    return actions;
@@ -3595,16 +3608,29 @@ public class ResourcesAction
 		else if(user_action.equals("save"))
 		{
 			String collectionId = (String) state.getAttribute(STATE_CREATE_WIZARD_COLLECTION_ID);
-			ContentCollection collection;
 			try 
 			{
-				collection = ContentHostingService.getCollection(collectionId );
-				
 				// title
 				String name = params.getString("name");
+				String basename = name.trim();
+				String extension = "";
+				if(name.contains("."))
+				{
+					String[] parts = name.split("\\.");
+					basename = parts[0];
+					if(parts.length > 1)
+					{
+						extension = parts[parts.length - 1];
+					}
+					
+					for(int i = 1; i < parts.length - 1; i++)
+					{
+						basename += "." + parts[i];
+					}
+				}
 				
 				// create resource
-				ContentResourceEdit resource = ContentHostingService.addResource (collectionId + name);
+				ContentResourceEdit resource = ContentHostingService.addResource(collectionId, basename, extension, MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				
 				String resourceType = null;
 				if(pipe != null)
@@ -3839,10 +3865,6 @@ public class ResourcesAction
 			{
 				logger.warn("IdUnusedException", e);
 			} 
-			catch (TypeException e) 
-			{
-				logger.warn("TypeException", e);
-			} 
 			catch (PermissionException e) 
 			{
 				logger.warn("PermissionException", e);
@@ -3851,24 +3873,25 @@ public class ResourcesAction
 			{
 				logger.warn("IdInvalidException", e);
 			} 
-			catch (InconsistentException e) 
-			{
-				logger.warn("InconsistentException", e);
-			} 
 			catch (ServerOverloadException e) 
 			{
 				logger.warn("ServerOverloadException", e);
-			}
-			catch (IdUsedException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("IdUsedException ", e);
 			}
 			catch (OverQuotaException e)
 			{
 				// TODO Auto-generated catch block
 				logger.warn("OverQuotaException ", e);
 			}
+            catch (IdUniquenessException e)
+            {
+	            // TODO Auto-generated catch block
+	            logger.warn("IdUniquenessException ", e);
+            }
+            catch (IdLengthException e)
+            {
+	            // TODO Auto-generated catch block
+	            logger.warn("IdLengthException ", e);
+            }
 			
 		}
 		else if(user_action.equals("cancel"))
@@ -4040,6 +4063,10 @@ public class ResourcesAction
 					break;
 				case PASTE_COPIED:
 					pasteItem(state, selectedItemId);
+					break;
+				case REVISE_ORDER:
+					state.setAttribute(STATE_REORDER_FOLDER, selectedItemId);
+					state.setAttribute(STATE_MODE, MODE_REORDER);
 					break;
 				default:
 					break;
@@ -4266,7 +4293,7 @@ public class ResourcesAction
 		context.put("folderId", folderId);
 		
 		// save expanded folder lists
-		SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 		Map expandedFolderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
 		String need_to_expand_all = (String) state.getAttribute(STATE_NEED_TO_EXPAND_ALL);
 
@@ -15145,7 +15172,6 @@ public class ResourcesAction
 	*/
 	static private void cleanupState(SessionState state)
 	{
-		state.removeAttribute(STATE_FROM_TEXT);
 		state.removeAttribute(STATE_HAS_ATTACHMENT_BEFORE);
 		state.removeAttribute(STATE_ATTACH_SHOW_DROPBOXES);
 		state.removeAttribute(STATE_ATTACH_COLLECTION_ID);

@@ -174,7 +174,6 @@ public class FolderType extends BaseResourceType
          */
         public boolean available(String context)
         {
-	        // TODO Auto-generated method stub
 	        return true;
         }
 
@@ -260,7 +259,7 @@ public class FolderType extends BaseResourceType
          */
         public boolean available(String context)
         {
-	        return false;
+	        return true;
         }
 
 		/* (non-Javadoc)
