@@ -554,6 +554,23 @@ textarea:focus{
 	border: 1px solid #000;
 }
 
+/* select element for actions on items in resources tool's list view */
+.actionmenu{
+	font-size: 85%;
+}
+
+/* optgroup element for actions on items in resources tool's list view */
+.actiongroup{
+	background-color: #fca;
+	padding: .3em 0em 0em 0em;
+}
+
+/* option element for actions on items in resources tool's list view */
+.actionitem{
+	background-color: #ffc;
+	padding: .3em;
+}
+
 
 /*SECTION 8 TOOLBAR*/
 /*see: any tool*/
@@ -999,5 +1016,5 @@ right now "namespaced" for mneme only to avoid any possible conflicts*/
 }
 .samSectionHeader{
 	margin-left: -2em;
-	margin-right -2em;
+	margin-right: -2em;
 }
