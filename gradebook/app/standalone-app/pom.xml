@@ -112,7 +112,7 @@
       <scope>provided</scope>
     </dependency>
 	<dependency>
-		<groupId>sakaiproject</groupId>
+		<groupId>org.sakaiproject</groupId>
 		<artifactId>sakai-component-api</artifactId>
 		<version>${sakai.version}</version>
 	</dependency>

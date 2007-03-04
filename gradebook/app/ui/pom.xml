@@ -106,6 +106,13 @@
     </dependency>
     <dependency>
       
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-component-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
       <groupId>commons-id</groupId>
       <artifactId>commons-id</artifactId>
       <version>0.1-dev</version>

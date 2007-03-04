@@ -16,19 +16,19 @@
   </properties>
   <dependencies>
 		<dependency>
-			<groupId>sakaiproject</groupId>
+			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-gradebook-service-hibernate</artifactId>
 			<version>${sakai.version}</version>
 			<scope>provided</scope>
 		</dependency>
     	<dependency>
-        	<groupId>sakaiproject</groupId>
+        	<groupId>org.sakaiproject</groupId>
 	        <artifactId>sakai-coursemanagement-api</artifactId>
 			<version>${sakai.version}</version>
 			<scope>provided</scope>
     	</dependency>
     	<dependency>
-        	<groupId>sakaiproject</groupId>
+        	<groupId>org.sakaiproject</groupId>
 	        <artifactId>sakai-sections-api</artifactId>
 			<version>${sakai.version}</version>
 			<scope>provided</scope>
