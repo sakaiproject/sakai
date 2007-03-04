@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.InteractionAction;
@@ -172,7 +173,7 @@ public class FolderType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
@@ -257,7 +258,7 @@ public class FolderType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
@@ -301,7 +302,7 @@ public class FolderType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
@@ -371,7 +372,7 @@ public class FolderType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
@@ -441,7 +442,7 @@ public class FolderType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
@@ -511,7 +512,7 @@ public class FolderType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
@@ -573,9 +574,14 @@ public class FolderType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
-	        return true;
+        	boolean rv = true;
+        	if(entity instanceof ContentCollection)
+        	{
+        		rv = (((ContentCollection) entity).getMemberCount() == 0);
+        	}
+	        return rv;
         }
         
 		/* (non-Javadoc)
@@ -640,7 +646,7 @@ public class FolderType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
@@ -707,7 +713,7 @@ public class FolderType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
@@ -786,7 +792,7 @@ public class FolderType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
@@ -853,7 +859,7 @@ public class FolderType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
@@ -915,7 +921,7 @@ public class FolderType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }

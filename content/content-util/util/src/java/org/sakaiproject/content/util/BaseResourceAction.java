@@ -89,7 +89,7 @@ public class BaseResourceAction implements ResourceToolAction {
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
 	 */
-	public boolean available(String context)
+	public boolean available(ContentEntity entity)
 	{
 		return this.available;
 	}
@@ -114,5 +114,13 @@ public class BaseResourceAction implements ResourceToolAction {
 		 */
 		public String getLabel();
 	}
+
+	/**
+     * @param available the available to set
+     */
+    public void setAvailable(boolean available)
+    {
+    	this.available = available;
+    }
 	
 }

@@ -218,10 +218,10 @@ public interface ResourceToolAction
 	public String getLabel();
 	
 	/**
-	 * Should the resources tool make this action available to the current user in the specified context?
-	 * @param context
+	 * Should the resources tool make this action available to the current user with respect to the specified entity?
+	 * @param entity
 	 * @return
 	 */
-	public boolean available(String context);
+	public boolean available(ContentEntity entity);
 	
 }

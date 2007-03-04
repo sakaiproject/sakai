@@ -374,16 +374,26 @@ public class ResourcesAction
 		                logger.warn("EntityPropertyTypeException for size of " + this.id);
 	                }
 					NumberFormat formatter = NumberFormat.getInstance(rb.getLocale());
-					formatter.setMaximumFractionDigits(2);
+					formatter.setMaximumFractionDigits(1);
 					if(size_long > 700000000L)
 					{
-						String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)), formatter.format(size_long) }; 
+						String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)) };
+						size = rb.getFormattedMessage("size.gb", args);
+					}
+					else if(size_long > 700000L)
+					{
+						String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L)) };
 						size = rb.getFormattedMessage("size.mb", args);
+					}
+					else if(size_long > 700L)
+					{
+						String[] args = { formatter.format(1.0 * size_long / 1024L) };
+						size = rb.getFormattedMessage("size.kb", args);
 					}
 					else 
 					{
-						String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L)), formatter.format(size_long) }; 
-						size = rb.getFormattedMessage("size.kb", args);
+						String[] args = { formatter.format(size_long) };
+						size = rb.getFormattedMessage("size.bytes", args);
 					}
 				}
 				setSize(size);
@@ -3233,7 +3243,7 @@ public class ResourcesAction
 	    while(actionIt.hasNext())
 	    {
 	    	ResourceToolAction action = actionIt.next();
-	    	if(! action.available(ref.getContext()))
+	    	if(! action.available((ContentEntity)ref.getEntity()))
 	    	{
 	    		actionIt.remove();
 	    	}
@@ -3315,6 +3325,17 @@ public class ResourcesAction
 		    	}
 		    	
 		    }
+	    }
+	    // filter -- remove actions that are not available to the current user in the context of this item
+	    Iterator<ResourceToolAction> actionIt = actions.iterator();
+	    while(actionIt.hasNext())
+	    {
+	    	ResourceToolAction action = actionIt.next();
+	    	ContentEntity entity = (ContentEntity) ref.getEntity();
+			if(! action.available(entity))
+	    	{
+	    		actionIt.remove();
+	    	}
 	    }
 
 	    return actions;
@@ -7098,16 +7119,26 @@ public class ResourcesAction
 	                logger.warn("EntityPropertyTypeException for size of " + item.getId());
                 }
 				NumberFormat formatter = NumberFormat.getInstance(rb.getLocale());
-				formatter.setMaximumFractionDigits(2);
+				formatter.setMaximumFractionDigits(1);
 				if(size_long > 700000000L)
 				{
-					String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)), formatter.format(size_long) }; 
+					String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)) };
+					size = rb.getFormattedMessage("size.gb", args);
+				}
+				else if(size_long > 700000L)
+				{
+					String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L)) };
 					size = rb.getFormattedMessage("size.mb", args);
 				}
-				else
+				else if(size_long > 700L)
 				{
-					String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L)), formatter.format(size_long) }; 
+					String[] args = { formatter.format(1.0 * size_long / 1024L) };
 					size = rb.getFormattedMessage("size.kb", args);
+				}
+				else 
+				{
+					String[] args = { formatter.format(size_long) };
+					size = rb.getFormattedMessage("size.bytes", args);
 				}
 			}
 			item.setSize(size);

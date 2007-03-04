@@ -63,7 +63,7 @@ public class UrlResourceType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
@@ -147,7 +147,7 @@ public class UrlResourceType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
@@ -214,7 +214,7 @@ public class UrlResourceType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
@@ -276,7 +276,7 @@ public class UrlResourceType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
@@ -343,7 +343,7 @@ public class UrlResourceType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
@@ -411,7 +411,7 @@ public class UrlResourceType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
@@ -479,7 +479,7 @@ public class UrlResourceType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
@@ -541,7 +541,7 @@ public class UrlResourceType extends BaseResourceType
 		/* (non-Javadoc)
          * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
          */
-        public boolean available(String context)
+        public boolean available(ContentEntity entity)
         {
 	        return true;
         }
