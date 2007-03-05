@@ -136,7 +136,7 @@
 			--%>
 			<h:column id="_toggle">
 				<f:facet name="header">
-					<h:commandLink action="#{ForumTool.processActionToggleExpanded}" immediate="true">
+					<h:commandLink action="#{ForumTool.processActionToggleExpanded}" immediate="true" title="#{msgs.cdfm_collapse_expand_all}">
 						<h:graphicImage value="/images/expand.gif" rendered="#{ForumTool.expanded == 'true'}" />
 						<h:graphicImage value="/images/collapse.gif" rendered="#{ForumTool.expanded != 'true'}" />
 					</h:commandLink>
@@ -145,7 +145,7 @@
 			
 			<h:column id="_msg_subject">
 				<f:facet name="header">
-					<h:outputText value="Thread" /> <%-- Don't forget --%>
+					<h:outputText value="#{msgs.cdfm_thread}" />
 				</f:facet>
 
 				<%-- Rendered to view current thread only --%>
@@ -160,7 +160,7 @@
 
 
 				<%-- Rendered to view current message only --%>
-				<h:commandLink action="#{ForumTool.processActionDisplayMessage}" immediate="true" title=" #{message.message.title}"
+				<h:commandLink action="#{ForumTool.processActionDisplayThreadAnchor}" immediate="true" title=" #{message.message.title}"
 					rendered="#{message.depth != 0}">
 				   	<h:outputText value="#{message.message.title}" rendered="#{message.read}" />
     	        	<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read}"/>
@@ -175,7 +175,9 @@
 	                <f:param value="#{message.message.id}" name="messageId"/>
         	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
         	    	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-	   	        	<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" />
+	   	        	<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" 
+	   	        		onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
+	   	        		onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
                	</h:commandLink>
                	
                	<h:outputText escape="false" value="<br />&nbsp;" rendered="#{message.depth == 0 }" />

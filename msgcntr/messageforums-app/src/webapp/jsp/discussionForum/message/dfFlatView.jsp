@@ -24,8 +24,16 @@
 				<sakai:tool_bar_item value="#{msgs.cdfm_container_title_thread}" action="#{ForumTool.processAddMessage}" id="df_compose_message_dfAllMessages"
 		  			rendered="#{ForumTool.selectedTopic.isNewResponse}" />
 		  			
+		  		<h:commandLink action="#{ForumTool.processActionMarkAllThreadAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead}"> 
+      				<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{ForumTool.selectedTopic.isMarkAsRead}" 
+				   	    onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
+   	        			onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
+   	        		<h:outputText value="#{msgs.cdfm_mark_all_as_read}" rendered="#{ForumTool.selectedTopic.isMarkAsRead}" />
+                </h:commandLink>
+                <%--
 		  		<sakai:tool_bar_item action="#{ForumTool.processActionMarkAllAsRead}" value="#{msgs.cdfm_mark_all_as_read}" 
 					rendered="#{ForumTool.selectedTopic.isMarkAsRead}" />
+					--%>
       			
       			<sakai:tool_bar_item value="#{msgs.cdfm_thread_view}" action="#{ForumTool.processActionDisplayThreadedView}" />
       			
@@ -34,6 +42,7 @@
 					
 				<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');">
 					<h:graphicImage url="/images/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+					<h:outputText value="#{msgs.cdfm_print}" />
 				</h:outputLink>
  		</sakai:tool_bar>
 
@@ -85,7 +94,9 @@
    	                        <f:param value="#{message.message.id}" name="messageId"/>
            	    					<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
            	    					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-      						   	<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" />
+      						   	<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" 
+				   	        		onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
+				   	        		onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
                            </h:commandLink>
 	                     <f:verbatim></div></f:verbatim>
 

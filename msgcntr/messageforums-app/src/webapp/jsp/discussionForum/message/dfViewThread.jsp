@@ -16,8 +16,16 @@
 				<sakai:tool_bar_item action="#{ForumTool.processDfMsgReplyThread}" value="#{msgs.cdfm_reply_thread}" 
 		  			rendered="#{ForumTool.selectedTopic.isNewResponse}" />
 		  		
+		  		<h:commandLink action="#{ForumTool.processActionMarkAllThreadAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead}"> 
+      				<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{ForumTool.selectedTopic.isMarkAsRead}" 
+				   	    onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
+   	        			onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
+   	        		<h:outputText value="#{msgs.cdfm_mark_all_as_read}" rendered="#{ForumTool.selectedTopic.isMarkAsRead}" />
+                </h:commandLink>
+                <%--
 		  		<sakai:tool_bar_item action="#{ForumTool.processActionMarkAllThreadAsRead}" value="#{msgs.cdfm_mark_all_as_read}" 
 					rendered="#{ForumTool.selectedTopic.isMarkAsRead}" />
+					--%>
  		</sakai:tool_bar>
 			<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel specialLink">
 			    <h:panelGroup>
@@ -69,7 +77,7 @@
 		
 		<%--rjlowe: Expanded View to show the message bodies, threaded --%>
 		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.selectedThread}" var="message" rendered="#{ForumTool.threaded}"
-   	 		noarrows="true" styleClass="listHier" cellpadding="0" cellspacing="0" width="100%" columnClasses="attach,bogus">
+   	 		noarrows="true" styleClass="listHier" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
 				<%@include file="dfViewThreadBodyInclude.jsp" %>
 			</h:column>
@@ -78,7 +86,9 @@
 		<h:inputHidden id="mainOrForumOrTopic" value="dfAllMessages" />
 		
 	</h:form>
-	
+<%--	<h:outputText escape="false" value="<script type='text/javascript'>setTimeout(function(){document.location.href='##{ForumTool.threadAnchorMessageId}';},200);</script>" /> --%>
+	<h:outputText rendered="#{ForumTool.threadAnchorMessageId != '' && ForumTool.threadAnchorMessageId != null}" escape="false" 
+	value="<script type='text/javascript'>setTimeout(function(){parent.window.scrollTo(0, getScrollDist(document.getElementById('#{ForumTool.threadAnchorMessageId}')));},200);</script>" />
 <%
   String thisId = request.getParameter("panel");
   if (thisId == null) 

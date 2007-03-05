@@ -1,7 +1,7 @@
 
 
-    <h:panelGroup styleClass="specialLink" style="text-align: right;float:right">
-    	<h:outputText value="View By: " />
+    <h:panelGroup styleClass="specialLink">
+    	<h:outputText value="#{msgs.df_view}" />
     	<h:selectOneMenu id="select_label" onchange="this.form.submit();"  valueChangeListener="#{ForumTool.processValueChangedForMessageOrganize}" value="#{ForumTool.selectedMessageView}">
 			<f:selectItem itemValue="thread" itemLabel="#{msgs.msg_organize_thread}" />
    			<f:selectItem itemValue="date" itemLabel="#{msgs.msg_organize_date_asc}" />

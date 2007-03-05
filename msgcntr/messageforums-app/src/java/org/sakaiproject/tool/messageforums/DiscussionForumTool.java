@@ -201,6 +201,7 @@ public class DiscussionForumTool
   private String selectedMessageView = ALL_MESSAGES;
   private String selectedMessageShow = SUBJECT_ONLY;
   private String selectedMessageOrganize = "thread"; 
+  private String threadAnchorMessageId = null;
   private boolean deleteMsg;
   private boolean displayUnreadOnly;
   private boolean errorSynch = false;
@@ -1518,6 +1519,7 @@ public class DiscussionForumTool
   {
 	    LOG.debug("processActionDisplayMessage()");
 
+	    threadAnchorMessageId = null;
 	    String threadId = getExternalParameterByKey(MESSAGE_ID);
 	    String topicId = getExternalParameterByKey(TOPIC_ID);
 	    if (threadId == "")
@@ -1533,15 +1535,19 @@ public class DiscussionForumTool
 	    // Message message=forumManager.getMessageById(new Long(messageId));
 	    Message threadMessage = messageManager.getMessageByIdWithAttachments(new Long(
 	        threadId));
-	    messageManager.markMessageReadForUser(new Long(topicId),
-	        new Long(threadId), true);
 	    if (threadMessage == null)
 	    {
 	      setErrorMessage(getResourceBundleString(MESSAGE_WITH_ID) + threadId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
 	      return gotoMain();
 	    }
-	    threadMessage = messageManager.getMessageByIdWithAttachments(threadMessage.getId());
+	    //threadMessage = messageManager.getMessageByIdWithAttachments(threadMessage.getId());
 	    selectedThreadHead = new DiscussionMessageBean(threadMessage, messageManager);
+	    //make sure we have the thread head of depth 0
+	    while(selectedThreadHead.getMessage().getInReplyTo() != null){
+	    	threadMessage = messageManager.getMessageByIdWithAttachments(selectedThreadHead.getMessage().getInReplyTo().getId());
+	    	selectedThreadHead = new DiscussionMessageBean(
+	    			threadMessage, messageManager);
+	    }
 	    DiscussionTopic topic=forumManager.getTopicById(new Long(
 	        getExternalParameterByKey(TOPIC_ID)));
 	    selectedMessage = selectedThreadHead;
@@ -1567,6 +1573,16 @@ public class DiscussionForumTool
 	        getExternalParameterByKey(TOPIC_ID))));
 	    
 	    return processActionGetDisplayThread();	  
+  }
+  
+  /**
+   * @return
+   */
+  public String processActionDisplayThreadAnchor()
+  {
+	  String returnString = processActionDisplayThread();
+	  threadAnchorMessageId = getExternalParameterByKey(MESSAGE_ID);
+	  return returnString;
   }
 
   /**
@@ -2054,6 +2070,49 @@ public class DiscussionForumTool
     return decoTopic;
   }
 
+  private Boolean resetTopicById(String externalTopicId)
+  {
+	  String topicId = null;
+	    //threaded = true;
+	    selectedTopic = null;
+	    try
+	    {
+	      topicId = getExternalParameterByKey(externalTopicId);
+
+	      if (topicId != null)
+	      {
+	        DiscussionTopic topic = null;
+	        try
+	        {
+	          Long.parseLong(topicId);
+	          topic = forumManager.getTopicById(new Long(topicId));
+	        }
+	        catch (NumberFormatException e)
+	        {
+	          LOG.error(e.getMessage(), e);
+	          setErrorMessage(getResourceBundleString(UNABLE_RETRIEVE_TOPIC));
+	          return false;
+	        }
+
+	        setSelectedForumForCurrentTopic(topic);
+	        selectedTopic = getDecoratedTopic(topic);
+	      }
+	      else
+	      {
+	        LOG.error("Topic with id '" + externalTopicId + "' not found");
+	        setErrorMessage(getResourceBundleString(TOPIC_WITH_ID) + externalTopicId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
+	        return false;
+	      }
+	    }
+	    catch (Exception e)
+	    {
+	      LOG.error(e.getMessage(), e);
+	      setErrorMessage(e.getMessage());
+	      return false;
+	    }
+	    return true;
+  }
+  
   /**
    * @param externalTopicId
    * @return
@@ -2064,45 +2123,11 @@ public class DiscussionForumTool
     {
       LOG.debug("processActionDisplayTopicById(String" + externalTopicId + ")");
     }
-    String topicId = null;
-    //threaded = true;
-    selectedTopic = null;
-    try
-    {
-      topicId = getExternalParameterByKey(externalTopicId);
-
-      if (topicId != null)
-      {
-        DiscussionTopic topic = null;
-        try
-        {
-          Long.parseLong(topicId);
-          topic = forumManager.getTopicById(new Long(topicId));
-        }
-        catch (NumberFormatException e)
-        {
-          LOG.error(e.getMessage(), e);
-          setErrorMessage(getResourceBundleString(UNABLE_RETRIEVE_TOPIC));
-          return gotoMain();
-        }
-
-        setSelectedForumForCurrentTopic(topic);
-        selectedTopic = getDecoratedTopic(topic);
-      }
-      else
-      {
-        LOG.error("Topic with id '" + externalTopicId + "' not found");
-        setErrorMessage(getResourceBundleString(TOPIC_WITH_ID) + externalTopicId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
-        return gotoMain();
-      }
+    if(resetTopicById(externalTopicId)){
+    	return ALL_MESSAGES;
+    } else {
+    	return gotoMain();
     }
-    catch (Exception e)
-    {
-      LOG.error(e.getMessage(), e);
-      setErrorMessage(e.getMessage());
-      return gotoMain();
-    }
-    return ALL_MESSAGES;
   }
 
   private void reset()
@@ -2504,7 +2529,41 @@ public class DiscussionForumTool
 	      setErrorMessage(getResourceBundleString(MESSAGE_WITH_ID) + messageId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
 	      return gotoMain();
 	    }
-	    return displayTopicById(TOPIC_ID); // reconstruct topic again;
+	    if(resetTopicById(TOPIC_ID)){ // reconstruct topic again;
+	    	return null;
+	    } else {
+	    	return gotoMain();
+	    }
+  }
+  
+  /**
+   * @return
+   */
+  public String processDfMsgMarkMsgAsReadFromThread()
+  {
+	    String messageId = getExternalParameterByKey(MESSAGE_ID);
+	    String topicId = getExternalParameterByKey(TOPIC_ID);
+	    if (messageId == null)
+	    {
+	      setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
+	      return gotoMain();
+	    }
+	    if (topicId == null)
+	    {
+	      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
+	      return gotoMain();
+	    }
+	    // Message message=forumManager.getMessageById(new Long(messageId));
+	    Message message = messageManager.getMessageByIdWithAttachments(new Long(
+	        messageId));
+	    messageManager.markMessageReadForUser(new Long(topicId),
+	        new Long(messageId), true);
+	    if (message == null)
+	    {
+	      setErrorMessage(getResourceBundleString(MESSAGE_WITH_ID) + messageId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
+	      return gotoMain();
+	    }
+	    return processActionGetDisplayThread(); // reconstruct thread again;
   }
   
   public String processDfMsgReplyMsgFromEntire()
@@ -4052,6 +4111,16 @@ public class DiscussionForumTool
     this.selectedMessageOrganize = selectedMessageOrganize;
   }
   
+  public String getThreadAnchorMessageId()
+  {
+	  return threadAnchorMessageId;
+  }
+  
+  public void setThreadAnchorMessageId(String newValue)
+  {
+	  threadAnchorMessageId = newValue;
+  }
+  
 
   /**
    * @return Returns the displayUnreadOnly.
@@ -4180,6 +4249,7 @@ public class DiscussionForumTool
 	  //expanded="false";
 	  String changeOrganize = (String) vce.getNewValue();
 	  
+	  threadAnchorMessageId = null;
 	  DiscussionTopic topic = null;
       topic = forumManager.getTopicById(selectedTopic.getTopic().getId());
       setSelectedForumForCurrentTopic(topic);

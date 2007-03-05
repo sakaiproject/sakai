@@ -131,3 +131,13 @@ function toggleHide(obj){
 		obj.innerHTML = obj.innerHTML.replace(/(<.+>)([^<>]+)/i, "$1 Hide $2");
 	}
 }
+function getScrollDist(obj){
+	var curtop = 0;
+	if (obj.offsetParent) {
+		curtop = obj.offsetTop
+		while (obj = obj.offsetParent) {
+			curtop += obj.offsetTop
+		}
+	}
+	return curtop;
+}
