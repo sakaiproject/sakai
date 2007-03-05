@@ -29,15 +29,39 @@
 				  <h:outputText value="#{ForumTool.selectedForum.forum.title}" />
 				  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
 				  	  <h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
+			  	  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+				  	  <h:outputText value="#{ForumTool.selectedThreadHead.message.title}" />
 				  <f:verbatim></h3></div></f:verbatim>
 				 </h:panelGroup>
 		
 	
+		<%--rjlowe: Expanded View to show the message bodies, but not threaded --%>
+		<h:dataTable id="expandedMessages" value="#{ForumTool.selectedThread}" var="message" rendered="#{!ForumTool.threaded}"
+   	 		styleClass="listHier" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
+			<h:column>
+				<f:verbatim><div class="hierItemBlock"></f:verbatim>
+
+					<f:verbatim><h4 class="textPanelHeader specialLink" style="width:100%"></f:verbatim>
+                                                  
+                        <h:outputText value="#{message.message.title}" />		          	
+			          	<h:outputText value=" - #{message.message.author}"/>
+   
+                        <h:outputText value="#{message.message.created}">
+  				   	         <f:convertDateTime pattern="#{msgs.date_format_paren}" />
+            			</h:outputText>
+
+                     <f:verbatim></h4></f:verbatim>
+
+		  			<mf:htmlShowArea value="#{message.message.body}" hideBorder="true" />
+				<f:verbatim></div></f:verbatim>
+			</h:column>
+		</h:dataTable>
+		
 		<%--rjlowe: Expanded View to show the message bodies, threaded --%>
-		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.messages}" var="message" 
+		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.selectedThread}" var="message" rendered="#{ForumTool.threaded}"
    	 		noarrows="true" styleClass="listHier" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
-					<f:verbatim><div class="hierItemBlock"></f:verbatim>
+				<f:verbatim><div class="hierItemBlock"></f:verbatim>
 
 					<f:verbatim><h4 class="textPanelHeader specialLink" style="width:100%"></f:verbatim>
                                                   
@@ -54,9 +78,7 @@
 				<f:verbatim></div></f:verbatim>
 			</h:column>
 		</mf:hierDataTable>
-				
-		<h:inputHidden id="mainOrForumOrTopic" value="dfAllMessages" />
-		
+	
 	</h:form>
 </sakai:view>
 </f:view>

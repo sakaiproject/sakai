@@ -8,6 +8,13 @@
 
 <f:view>
 <sakai:view>
+<script language="JavaScript">
+	// open print preview in another browser window so can size approx what actual
+	// print out will look like
+	function printFriendly(url) {
+		window.open(url,'mywindow','width=960,height=1100'); 		
+	}
+</script>
 	<h:form id="msgForum">
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
 		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
@@ -26,6 +33,11 @@
 		  		<sakai:tool_bar_item action="#{ForumTool.processActionMarkAllThreadAsRead}" value="#{msgs.cdfm_mark_all_as_read}" 
 					rendered="#{ForumTool.selectedTopic.isMarkAsRead}" />
 					--%>
+					
+				<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrlThread}');">
+					<h:graphicImage url="/images/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+					<h:outputText value="#{msgs.cdfm_print}" />
+				</h:outputLink>
  		</sakai:tool_bar>
 			<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel specialLink">
 			    <h:panelGroup>

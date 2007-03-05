@@ -5214,4 +5214,12 @@ public class DiscussionForumTool
 						+ Entity.SEPARATOR + "message" + Entity.SEPARATOR 
 						+ "printFriendly";
 	  }
+	 
+	 public String getPrintFriendlyUrlThread()
+	  {
+		  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
+						+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
+						+ Entity.SEPARATOR + "message" + Entity.SEPARATOR 
+						+ "printFriendlyThread";
+	  }
 }

@@ -64,7 +64,7 @@
 	
 		<%--rjlowe: Expanded View to show the message bodies, threaded --%>
 		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.messages}" var="message" 
-   	 		noarrows="true" styleClass="listHier" cellpadding="0" cellspacing="0" width="100%" columnClasses="attach,bogus">
+   	 		noarrows="true" styleClass="listHier" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
 					<f:verbatim><div class="hierItemBlock"></f:verbatim>
 
