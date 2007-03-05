@@ -9,15 +9,19 @@ import org.apache.pluto.spi.optional.PortletRegistryService;
 import org.apache.pluto.spi.optional.PortletInfoService;
 import org.apache.pluto.spi.optional.PortalAdministrationService;
 // TODO: Uncomment for Pluto 1.1.1
-//import org.apache.pluto.spi.optional.UserInfoService;
+// import org.apache.pluto.spi.optional.PortletServletService;
+// import org.apache.pluto.spi.optional.PortletServletListener;
+// import org.apache.pluto.spi.optional.UserInfoService;
 
 import org.apache.pluto.PortletContainerException;
 
 import javax.portlet.PortletRequest;
+import javax.portlet.PortletResponse;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
@@ -32,27 +36,35 @@ import org.apache.pluto.internal.InternalPortletPreference;
 
 import org.sakaiproject.authz.cover.SecurityService;
 
-// import org.sakaiproject.tool.api.Placement;
-
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 
 import java.net.URLEncoder;
 import java.net.URLDecoder;
 
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.api.Tool;
+
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
 // Reuse the Pluto preference implementation - nothing wrong with it!
 import org.apache.pluto.internal.impl.PortletPreferenceImpl;
-
 
 public class SakaiOptionalPortletContainerServices implements OptionalContainerServices {
 
     private static Log M_log = LogFactory.getLog(SakaiOptionalPortletContainerServices.class);
 
+    protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
+
     // OptionalContainerServices Impl ------------------------------------------
     
     // TODO: Uncomment for Pluto 1.1.1
     // private UserInfoService userInfoService = new SakaiUserInfoService();
+    // private PortletServletService portletServletService = new SakaiPortletServletService();
 
     private PortletPreferencesService prefService = new SakaiPortletPreferencesService();
 
@@ -65,37 +77,33 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 
 
     public PortletRegistryService getPortletRegistryService() {
-        // System.out.println("Sakai portletRegistryService called.");
         return null;
     }
 
     public PortletEnvironmentService getPortletEnvironmentService() {
-        // System.out.println("Sakai portletEnvironmentService called.");
         return null;
     }
     
     public PortletInvokerService getPortletInvokerService() {
-        // System.out.println("Sakai portletInvokerService called.");
         return null;
     }
 
     public PortletInfoService getPortletInfoService() {
-        // System.out.println("Sakai portletInfoService called.");
         return null;
     }
 
     public PortalAdministrationService getPortalAdministrationService() {
-        // System.out.println("Sakai portalAdministrationService called.");
         return null;
     }
 
-    // TODO: Uncomment for Pluto 1.1.1
+    // TODO: Uncomment for Pluto 1.1.1 - Make sure to test
 /*
-    private boolean userInfoLog = true;
     public UserInfoService getUserInfoService() {
-	if ( userInfoLog) M_log.info("Sakai Optional Portal Services returning "+userInfoService);
-        userInfoLog = false;  // Only log once
         return userInfoService;
+    }
+
+    public PortletServletService getPortletServletService() {
+        return portletServletService;
     }
 
     // Our implementations of these local services
@@ -109,7 +117,7 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 
             User user = UserDirectoryService.getCurrentUser();
             if ( user != null ) {
-                // System.out.println("Found Current User="+user.getEid());
+                System.out.println("Found Current User="+user.getEid());
                 retval = new HashMap<String,String> ();
                 retval.put(P3PAttributes.USER_HOME_INFO_ONLINE_EMAIL,user.getEmail());
                 retval.put(P3PAttributes.USER_BUSINESS_INFO_ONLINE_EMAIL,user.getEmail());
@@ -118,10 +126,97 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
                 retval.put(P3PAttributes.USER_NAME_NICKNAME,user.getDisplayName());
             }
 
-            // System.out.println("Returning=" +retval);
+            System.out.println("Returning=" +retval);
             if ( retval == null ) retval = new HashMap();
             return retval;
         }
+    }
+
+    public class SakaiPortletServletService  implements PortletServletService {
+    
+        private List portletServletListeners = null;
+    
+        public List getPortletServletListeners () {
+
+	   if ( portletServletListeners == null ) {
+        	portletServletListeners = new ArrayList(1);
+	    	portletServletListeners.add(new SakaiPortletServletListener());
+	    }
+
+	// System.out.println("SakaiPortletServletService called returninng="+portletServletListeners.get(0));
+            return portletServletListeners ;
+        }
+    }
+
+    public class SakaiPortletServletListener implements  PortletServletListener {
+    
+        public void preRender(PortletRequest request, PortletResponse response)
+	{
+		System.out.println("preRender Called =============");
+		preRequest(request,response);
+		preRequest(request,response);
+	}
+    
+        public void preAction(PortletRequest request, PortletResponse response)
+	{
+		System.out.println("preAction Called =============");
+		preRequest(request,response);
+		preRequest(request,response);
+	}
+
+	private void preRequest(PortletRequest request, PortletResponse response)
+        {
+
+		String placementId = (String) request.getAttribute("org.sakaiproject.portal.api.PortalService_placementid");
+		// System.out.println("place from getAttribute = "+placementId);
+		if ( placementId == null ) {
+			M_log.info("No Placement found");
+			return;  // We have nothing to work with
+		}
+
+        	Session session = SessionManager.getCurrentSession();
+		// System.out.println("Session = "+session);
+		if ( session == null ) {
+			M_log.info("No Session found placementId="+placementId);
+			return;   // We have nothing to work with
+		}
+
+                // System.out.println("UserId="+session.getUserId()+" UserEID="+session.getUserEid());
+
+		// Check to see if there is already a placement in place
+            	Placement ppp = (Placement) ThreadLocalManager.get(CURRENT_PLACEMENT);
+		// System.out.println("ThreadLocal CURRENT_PLACEMENT="+ppp);
+		if ( ppp != null ) {
+			// System.out.println("ThreadLocal CURRENT_PLACEMENT ID="+ppp.getId());
+			if ( placementId.equals(ppp.getId()) ) return;  // Placement in place
+		}
+
+		// find the tool from some site (ToolConfiguration extends Placement)
+		ToolConfiguration siteTool = SiteService.findTool(placementId);
+		// System.out.println("siteTool="+siteTool);
+		if ( siteTool == null ) {
+			M_log.info("No ToolConfiguration found, placementId="+placementId+" session="+session);
+			return;
+		}
+
+		// Actually store the placement in Thread Local
+		ThreadLocalManager.set(CURRENT_PLACEMENT, siteTool);
+
+
+		// *** Testing Printout to see how well we have the APIs Configured ****
+		// ToolSession ts = SessionManager.getCurrentToolSession();
+		// System.out.println("*** TEST *** \nTool Session = "+ts);
+		// if ( ts != null ) System.out.println("ToolSession.getId="+ts.getId());
+
+		// Placement placement = ToolManager.getCurrentPlacement();
+		// System.out.println("Placement = "+placement);
+
+        	// if ( placement != null ) {
+			// String placementContext = placement.getContext();
+			// System.out.println("Context = "+placementContext);
+        	// }
+	 }
+
     }
 */
     // TODO: End Uncomment for Pluto 1.1.1
