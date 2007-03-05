@@ -13,7 +13,7 @@
             <%@include file="/inc/globalMessages.jspf"%>
             <h4><h:outputText value="#{msgs.import_assignment_header}"/></h4>
 
-            <h:panelGrid cellpadding="0" cellspacing="0" columns="3" columnClasses="itemName, shorttext" styleClass="itemSummary">
+            <h:panelGrid cellpadding="0" cellspacing="0" columns="3" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext, itemSummaryLite" styleClass="itemSummaryLite">
                 <h:outputLabel for="title" id="titleLabel" value="#{msgs.import_assignment_title}"/>
 
                 <h:inputText id="title" value="#{spreadsheetUploadBean.assignment.name}" required="true" >

@@ -89,7 +89,7 @@ table {
 }
 
 /* Non-rows item property editing. */
-td.itemSummary {
+td.itemSummary, td.itemSummaryLite {
 	vertical-align:top;
 	font-weight:bold;
 	padding-right:3em;
