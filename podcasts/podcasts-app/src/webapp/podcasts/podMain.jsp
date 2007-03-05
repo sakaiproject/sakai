@@ -16,7 +16,7 @@
       <h:form>
       <h:panelGroup rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasNewPerm}" >
         <sakai:tool_bar>
-          <sakai:tool_bar_item action="podcastAddPlus" value="#{msgs.add}" rendered="#{podHomeBean.hasNewPerm || podHomeBean.canUpdateSite}" />
+          <sakai:tool_bar_item action="podcastAdd" value="#{msgs.add}" rendered="#{podHomeBean.hasNewPerm || podHomeBean.canUpdateSite}" />
           <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" rendered="#{podHomeBean.canUpdateSite}" />
         </sakai:tool_bar>
       </h:panelGroup>
