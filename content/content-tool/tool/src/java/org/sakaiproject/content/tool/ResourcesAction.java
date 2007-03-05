@@ -326,7 +326,7 @@ public class ResourcesAction
 			if(this.collection)
 			{
 				ContentCollection collection = (ContentCollection) entity;
-	        	int collection_size = collection.getMemberCount(); // newMembers.size();
+	        	int collection_size = collection.getMemberCount();
 	        	if(collection_size == 1)
 	        	{
 	        		setSize(rb.getString("size.item"));
@@ -400,8 +400,12 @@ public class ResourcesAction
 
 			}
 			
-			String createdBy = getUserProperty(props, ResourceProperties.PROP_CREATOR).getDisplayName();
-			setCreatedBy(createdBy);
+			User creator = getUserProperty(props, ResourceProperties.PROP_CREATOR);
+			if(creator != null)
+			{
+				String createdBy = creator.getDisplayName();
+				setCreatedBy(createdBy);
+			}
 			// setCreatedBy(props.getProperty(ResourceProperties.PROP_CREATOR));
 			this.setModifiedTime(props.getPropertyFormatted(ResourceProperties.PROP_MODIFIED_DATE));
 					
@@ -827,7 +831,7 @@ public class ResourcesAction
 			{
 				item.setExpanded(true);
 
-		       	List<ContentEntity> children = ((ContentCollection) entity).getMemberResources();
+		       	List<ContentEntity> children = collection.getMemberResources();
 	        	Iterator<ContentEntity> childIt = children.iterator();
 	        	while(childIt.hasNext())
 	        	{
@@ -2597,7 +2601,13 @@ public class ResourcesAction
 			state.setAttribute(STATE_MODE, MODE_CREATE_WIZARD);
 			break;
 		case NEW_UPLOAD:
-			createResources(pipe);
+			String collectionId = createResources(pipe);
+			if(collectionId != null)
+			{
+				// expand folder
+				SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				expandedCollections.add(collectionId);
+			}
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			break;
 		case NEW_FOLDER:
@@ -2768,14 +2778,16 @@ public class ResourcesAction
 	/**
 	 * @param pipe
 	 */
-	private void createResources(ResourceToolActionPipe pipe)
+	private String createResources(ResourceToolActionPipe pipe)
 	{
+		boolean item_added = false;
+		String collectionId = null;
 		MultiFileUploadPipe mfp = (MultiFileUploadPipe) pipe;
 		Iterator<ResourceToolActionPipe> pipeIt = mfp.getPipes().iterator();
 		while(pipeIt.hasNext())
 		{
 			ResourceToolActionPipe fp = pipeIt.next();
-			String collectionId = pipe.getContentEntity().getId();
+			collectionId = pipe.getContentEntity().getId();
 			String name = fp.getFileName();
 			if(name == null || name.trim().equals(""))
 			{
@@ -2823,6 +2835,7 @@ public class ResourcesAction
 				resource.setContentType(fp.getRevisedMimeType());
 				resource.setResourceType(pipe.getAction().getTypeId());
 				ContentHostingService.commitResource(resource, NotificationService.NOTI_NONE);
+				item_added = true;
 			}
 			catch (PermissionException e)
 			{
@@ -2860,6 +2873,8 @@ public class ResourcesAction
 				logger.warn("ServerOverloadException ", e);
 			}
 		}
+		
+		return (item_added ? collectionId : null);
 	}
 
 	/**
@@ -4917,8 +4932,10 @@ public class ResourcesAction
 			
 			List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_COPIED);
 			List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
-			
-			ListItem item = getListItem(collection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0);
+
+			boolean need_to_expand_all = Boolean.TRUE.toString().equals((String)state.getAttribute(STATE_NEED_TO_EXPAND_ALL));
+
+			ListItem item = getListItem(collection, null, registry, need_to_expand_all, expandedCollections, items_to_be_moved, items_to_be_copied, 0);
 			
 			List<ListItem> items = convert2list(item);
 			

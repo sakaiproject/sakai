@@ -255,13 +255,14 @@
 											title= "$tlang.getString('sh.open')">
 											<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
 										</a>
-									#else
-											<img src = "#imageLink("sakai/dir_openroot.gif")" border="0" alt="$tlang.getString('sh.close')" />
-											<a href="#"
+									#elseif ($item.depth > 0)
+										<a href="#"
 											onclick="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$item.Id';document.getElementById('showForm').submit();"
 											title= "$tlang.getString('sh.close')">
-										##<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.close')">
+											<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" alt="$tlang.getString('sh.close')" />
 										</a>
+									#else
+										<img src = "#imageLink("sakai/dir_openroot.gif")" border="0" alt="" />
 									#end
 									<a href="#"
 										onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$item.id';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"

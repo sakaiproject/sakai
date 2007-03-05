@@ -990,9 +990,8 @@ public class DbContentService extends BaseContentService
 					{
 						if(redit.m_contentStream == null)
 						{
-							// no body and no stream
-							M_log.warn("attempt to commit ContentResource with no body and no stream: " + edit.getReference());
-							
+							// no body and no stream -- may result from edit in which body is not accessed or modified
+							M_log.info("ContentResource committed with no change to contents (i.e. no body and no stream for content): " + edit.getReference());
 						}
 						else
 						{
