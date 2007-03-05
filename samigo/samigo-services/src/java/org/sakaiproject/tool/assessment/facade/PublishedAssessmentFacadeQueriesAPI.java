@@ -286,6 +286,8 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public List getPublishedItemIds(Long publishedAssessmentId);
 
+  public HashSet getPublishedItemSet(Long publishedAssessmentId, Long sectionId);
+  
   public Long getItemType(Long publishedItemId);
   
   public HashSet getSectionSetForAssessment(Long publishedAssessmentId);

@@ -86,8 +86,8 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
     </h:commandLink>
     <h:outputText value=" | " />
       <h:outputText value="#{msg.q_view}" />
-    <h:outputText value=" | " rendered="#{!totalScores.hasRandomDrawPart}" />
-    <h:commandLink title="#{msg.t_histogram}" action="histogramScores" immediate="true" rendered="#{!totalScores.hasRandomDrawPart}">
+    <h:outputText value=" | " />
+    <h:commandLink title="#{msg.t_histogram}" action="histogramScores" immediate="true">
       <h:outputText value="#{msg.stat_view}" />
       <f:param name="hasNav" value="true"/>
       <f:actionListener
@@ -112,17 +112,24 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
             <f:param name="newItemId" value="#{iteminit.id}" />
           </h:commandLink>
-	  </h:column>
-
+	    </h:column>
       </samigo:dataLine>
-  	      <h:outputText value="#{msg.random_drow_part} " rendered="#{partinit.isRandomDrawPart}"/>
-		  <h:commandLink title="#{msg.t_totalScores}" action="totalScores" immediate="true" rendered="#{partinit.isRandomDrawPart}">
-		    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
-		    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-		    <h:outputText value="#{msg.grade_by_student}" />
-	      </h:commandLink>
 
-  	      <h:outputText value="#{msg.no_questions} " rendered="#{partinit.noQuestions}"/>
+	  <h:outputText value="#{msg.random_draw_info_1} #{partinit.numberQuestionsDraw} #{msg.random_draw_info_2} #{partinit.numberQuestionsTotal} #{msg.random_draw_info_3} " rendered="#{partinit.isRandomDrawPart}" />
+	  <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="100" rendered="#{partinit.isRandomDrawPart}" >
+        <h:column>
+          <h:commandLink title="#{msg.t_questionScores}"action="questionScores" immediate="true" >
+            <h:outputText value="#{msg.q} #{iteminit.partNumber} "/>
+			<f:actionListener
+              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
+            <f:actionListener
+              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+            <f:param name="newItemId" value="#{iteminit.id}" />
+          </h:commandLink>
+	    </h:column>
+      </samigo:dataLine>
+
+	  <h:outputText value="#{msg.no_questions} " rendered="#{partinit.noQuestions}"/>
     </h:column>
   </h:dataTable>
 

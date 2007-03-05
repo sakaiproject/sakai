@@ -352,7 +352,11 @@ public class PublishedAssessmentService {
   public List getPublishedItemIds(String publishedAssessmentId){
     return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
       getPublishedItemIds(new Long(publishedAssessmentId));
-
+  }
+  
+  public HashSet getPublishedItemSet(Long publishedAssessmentId, Long sectionId){
+    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+    getPublishedItemSet(publishedAssessmentId, sectionId);
   }
 
   public Long getItemType(String publishedItemId){

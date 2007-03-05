@@ -49,6 +49,8 @@ private ArrayList questionNumberList;
   private String id;
   private boolean linked;
   private boolean isRandomDrawPart;
+  private int numberQuestionsDraw;
+  private int numberQuestionsTotal;
   private boolean noQuestions;
 
   /**
@@ -113,12 +115,25 @@ private ArrayList questionNumberList;
 	  this.isRandomDrawPart = isRandomDrawPart;
   }
   
+  
   public boolean getNoQuestions() {
 	  noQuestions = false;
 	  if (questionNumberList.size() == 0) {
 		  noQuestions = true;
 	  }
 	  return noQuestions;
+  }
+  
+  public int getNumberQuestionsDraw() {
+	  return numberQuestionsDraw;
+  }
+  
+  public void setNumberQuestionsDraw(int numberQuestionsDraw) {
+	  this.numberQuestionsDraw = numberQuestionsDraw;
+  }
+  
+  public int getNumberQuestionsTotal() {
+	  return this.questionNumberList.size();
   }
   
 }

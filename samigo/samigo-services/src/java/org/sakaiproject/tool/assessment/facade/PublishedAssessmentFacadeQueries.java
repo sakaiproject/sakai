@@ -1528,11 +1528,10 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		};
 		List l = getHibernateTemplate().executeFind(hcb);
 
-		final String key = SectionDataIfc.AUTHOR_TYPE;
-		final String value = SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE
-				.toString();
+		//final String key = SectionDataIfc.AUTHOR_TYPE;
+		//final String value = SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString();
 		final String query2 = "select s from PublishedAssessmentData p, PublishedSectionData s, PublishedSectionMetaData m "
-				+ " where p.publishedAssessmentId=? and s = m.section and m.label=? and m.entry=? and "
+				+ " where p.publishedAssessmentId=? and s = m.section and "
 				+ " p.publishedAssessmentId=s.assessment.publishedAssessmentId ";
 
 		final HibernateCallback hcb2 = new HibernateCallback() {
@@ -1540,8 +1539,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(query2);
 				q.setLong(0, publishedAssessmentId.longValue());
-				q.setString(1, key);
-				q.setString(2, value);
+				//q.setString(1, key);
+				//q.setString(2, value);
 				return q.list();
 			};
 		};
@@ -1591,6 +1590,33 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		// " p = s.assessment and i.section = s",
 		// new Object[] { publishedAssessmentId },
 		// new org.hibernate.type.Type[] { Hibernate.LONG });
+	}
+	
+	public HashSet getPublishedItemSet(final Long publishedAssessmentId, final Long sectionId) {
+		HashSet itemSet = new HashSet();
+		final HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query q = session
+						.createQuery("select i from PublishedItemData i, PublishedSectionData s, "
+								+ " PublishedAssessmentData p where p.publishedAssessmentId=? "
+								+ " and i.section.id=? and p = s.assessment and i.section = s");
+				q.setLong(0, publishedAssessmentId.longValue());
+				q.setLong(1, sectionId.longValue());
+				return q.list();
+			};
+		};
+		List assessmentGradings = getHibernateTemplate().executeFind(hcb);
+
+	    Iterator iter = assessmentGradings.iterator();
+	    PublishedItemData publishedItemData;
+	    while(iter.hasNext()) {
+	    	publishedItemData = (PublishedItemData) iter.next();
+	    	log.debug("itemId = " + publishedItemData.getItemId());
+	    	itemSet.add(publishedItemData);
+	    }
+	    return itemSet;
+
 	}
 
 	public Long getItemType(final Long publishedItemId) {

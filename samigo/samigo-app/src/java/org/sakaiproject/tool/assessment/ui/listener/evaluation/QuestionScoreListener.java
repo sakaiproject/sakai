@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 // import java.util.HashSet;
 import java.util.Iterator;
 
@@ -319,7 +320,7 @@ public class QuestionScoreListener implements ActionListener,
 				bean.setAllAgents(agents);
 				bean.setTotalPeople(Integer.toString(bean.getAgents().size()));
 				bean.setAnonymous(totalBean.getAnonymous());
-				return true;
+				//return true;
 			}
 
 			// List them by item and assessmentgradingid, so we can
@@ -375,72 +376,72 @@ public class QuestionScoreListener implements ActionListener,
 
 			iter = scores.iterator();
 
-			// will never get here
-			if (!iter.hasNext())
-				return false;
-
-			Object next = iter.next();
-
-			// Okay, here we get the first result set, which has a summary of
-			// information and a pointer to the graded assessment we should be
-			// displaying. We get the graded assessment.
-			ItemGradingData data = (ItemGradingData) next;
-
-			try {
-				bean.setAnonymous(publishedAssessment.getEvaluationModel()
-						.getAnonymousGrading().equals(
-								EvaluationModel.ANONYMOUS_GRADING) ? "true"
-						: "false");
-			} catch (RuntimeException e) {
-				// log.info("No evaluation model.");
-				bean.setAnonymous("false");
-			}
-
-			// below properties don't seem to be used in jsf pages,
-			try {
-				bean.setLateHandling(publishedAssessment
-						.getAssessmentAccessControl().getLateHandling()
-						.toString());
-			} catch (Exception e) {
-				// log.info("No access control model.");
-				bean
-						.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION
-								.toString());
-			}
-			try {
-				bean.setDueDate(publishedAssessment
-						.getAssessmentAccessControl().getDueDate().toString());
-				dueDate = publishedAssessment.getAssessmentAccessControl()
-						.getDueDate();
-			} catch (RuntimeException e) {
-				// log.info("No due date.");
-				bean.setDueDate(new Date().toString());
-			}
-			try {
-				bean.setMaxScore(publishedAssessment.getEvaluationModel()
-						.getFixedTotalScore().toString());
-			} catch (RuntimeException e) {
-				float score = (float) 0.0;
-				Iterator iter2 = publishedAssessment.getSectionArraySorted()
-						.iterator();
-				while (iter2.hasNext()) {
-					SectionDataIfc sdata = (SectionDataIfc) iter2.next();
-					Iterator iter3 = sdata.getItemArraySortedForGrading()
-							.iterator();
-					while (iter3.hasNext()) {
-						ItemDataIfc idata = (ItemDataIfc) iter3.next();
-						if (idata.getItemId().equals(new Long(itemId)))
-							score = idata.getScore().floatValue();
-					}
+			if (iter.hasNext()) {
+				Object next = iter.next();
+				
+				// Okay, here we get the first result set, which has a summary of
+				// information and a pointer to the graded assessment we should be
+				// displaying. We get the graded assessment.
+				ItemGradingData data = (ItemGradingData) next;
+				
+				try {
+					bean.setAnonymous(publishedAssessment.getEvaluationModel()
+							.getAnonymousGrading().equals(
+									EvaluationModel.ANONYMOUS_GRADING) ? "true"
+											: "false");
+				} catch (RuntimeException e) {
+					// log.info("No evaluation model.");
+					bean.setAnonymous("false");
 				}
-				bean.setMaxScore(Float.toString(score));
+				
+				// below properties don't seem to be used in jsf pages,
+				try {
+					bean.setLateHandling(publishedAssessment
+							.getAssessmentAccessControl().getLateHandling()
+							.toString());
+				} catch (Exception e) {
+					// log.info("No access control model.");
+					bean
+					.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION
+							.toString());
+				}
+				try {
+					bean.setDueDate(publishedAssessment
+							.getAssessmentAccessControl().getDueDate().toString());
+					dueDate = publishedAssessment.getAssessmentAccessControl()
+					.getDueDate();
+				} catch (RuntimeException e) {
+					// log.info("No due date.");
+					bean.setDueDate(new Date().toString());
+				}
+				try {
+					bean.setMaxScore(publishedAssessment.getEvaluationModel()
+							.getFixedTotalScore().toString());
+				} catch (RuntimeException e) {
+					float score = (float) 0.0;
+					Iterator iter2 = publishedAssessment.getSectionArraySorted()
+					.iterator();
+					while (iter2.hasNext()) {
+						SectionDataIfc sdata = (SectionDataIfc) iter2.next();
+						Iterator iter3 = sdata.getItemArraySortedForGrading()
+						.iterator();
+						while (iter3.hasNext()) {
+							ItemDataIfc idata = (ItemDataIfc) iter3.next();
+							if (idata.getItemId().equals(new Long(itemId)))
+								score = idata.getScore().floatValue();
+						}
+					}
+					bean.setMaxScore(Float.toString(score));
+					log.debug("itemId 1 = " + data.getPublishedItemId());
+					log.debug("itemId 2 = " + itemId);
+				}
 			}
-
+			
 			// need to get id from somewhere else, not from data. data only
 			// contains answered items , we want to return all items.
-			ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(data
-					.getPublishedItemId());
-
+			// ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(data.getPublishedItemId());
+			ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(Long.valueOf(itemId));
+			
 			if (item != null) {
 				log.debug("item!=null steting type id = "
 						+ item.getTypeId().toString());
@@ -791,12 +792,24 @@ public class QuestionScoreListener implements ActionListener,
 							.getSectionId());
 			part.setIsRandomDrawPart(isRandomDrawPart);
 			part.setPartNumber("" + i);
-
 			part.setId(section.getSectionId().toString());
-			GradingService gradingService = new GradingService();
-			HashSet itemSet = gradingService.getItemSet(publishedAssessment
+			
+			if (isRandomDrawPart) {
+				if (section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
+			        int numberToBeDrawn = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+			        part.setNumberQuestionsDraw(numberToBeDrawn);
+				}
+				PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+				HashSet itemSet = publishedAssessmentService.getPublishedItemSet(publishedAssessment
 					.getPublishedAssessmentId(), section.getSectionId());
-			section.setItemSet(itemSet);
+				section.setItemSet(itemSet);
+			}
+			else {
+				GradingService gradingService = new GradingService();
+				HashSet itemSet = gradingService.getItemSet(publishedAssessment
+					.getPublishedAssessmentId(), section.getSectionId());
+				section.setItemSet(itemSet);
+			}
 			Iterator iter2 = section.getItemArraySortedForGrading().iterator();
 			int j = 1;
 			while (iter2.hasNext()) {
