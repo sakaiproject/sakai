@@ -144,6 +144,8 @@
 			       	<f:param name="calendarRef" value="#{event.calendarRef}"/>
 			       	<f:param name="eventRef" value="#{event.eventRef}"/>
 			    </t:commandLink>
+			    <h:outputText value=" "/>
+			    <t:graphicImage value="#{CalBean.imgLocation}/attachments.gif" rendered="#{event.hasAttachments}" alt="#{msgs.attachments}"/>		        	
 		        <f:verbatim><br></f:verbatim>
 		    </t:dataList>
 		</t:div>
@@ -151,6 +153,7 @@
 		<%/* Selected event */%>
 		<t:div id="div_selected_event" rendered="#{CalBean.viewingSelectedEvent}" style="width:100%; padding-top: 25px;">
 			<f:verbatim><h4></f:verbatim><h:outputText value="#{CalBean.selectedEvent.displayName}"/><f:verbatim></h4></f:verbatim>
+			
 			<h:panelGrid id="panel_selected_event" styleClass="sectionContainerNav" style="width:100%; " columns="2" columnClasses="calTop,calTop"> 		
 				<h:outputLabel for="date" value="#{msgs.date}" />
 		        <h:outputText id="date" value="#{CalBean.selectedEvent.date}" />
@@ -161,24 +164,39 @@
 		        </t:div>
 				<h:outputLabel for="description" value="#{msgs.description}" />
 		        <h:outputText id="description" value="#{CalBean.selectedEvent.description}" />
-				
-				<f:verbatim><p></f:verbatim><f:verbatim><p></f:verbatim>				
+							
+				<f:verbatim><p></f:verbatim><f:verbatim><p></f:verbatim>
 				<h:outputLabel for="location" value="#{msgs.location}" rendered="#{CalBean.selectedEvent.hasLocation}" />
 		        <h:outputText id="location" value="#{CalBean.selectedEvent.location}" rendered="#{CalBean.selectedEvent.hasLocation}" />
 				<h:outputLabel for="groups" value="#{msgs.groups}" rendered="#{CalBean.selectedEvent.showGroups}" />
 		        <h:outputText id="groups" value="#{CalBean.selectedEvent.groups}" rendered="#{CalBean.selectedEvent.showGroups}" />
 				<h:outputLabel for="site" value="#{msgs.site}" />
 		        <h:outputText id="site" value="#{CalBean.selectedEvent.site}" />
+		        <h:outputLabel for="attachments" value="#{msgs.attachments}" rendered="#{CalBean.selectedEvent.hasAttachments}"/>
+		        <t:dataList
+					id="attachments"
+					value="#{CalBean.selectedEvent.attachmentsWrapper}"
+					var="attach"
+			        layout="simple"
+	       		 	style="width:100%"
+	       		 	rendered="#{CalBean.selectedEvent.hasAttachments}"
+					>
+					<h:outputLink value="#{attach.url}" target="_blank">
+			        	<h:outputText value="#{attach.displayName}"/>
+			        </h:outputLink>
+			        <t:graphicImage value="#{CalBean.imgLocation}/attachments.gif" alt="#{msgs.attachments}"/>
+			        <f:verbatim><br></f:verbatim>
+				</t:dataList>
+				<f:verbatim><p></f:verbatim><f:verbatim><p></f:verbatim><f:verbatim><p></f:verbatim>
+				<h:outputLink value="#{CalBean.selectedEvent.url}" target="_parent">
+			    	<h:outputText value="#{msgs.openInSchedule}"/>
+			    </h:outputLink>
 				
-				<f:verbatim><p></f:verbatim><f:verbatim><p></f:verbatim>			
 				<t:div styleClass="act">
 					<h:commandButton value="#{msgs.back}" actionListener="#{CalBean.backToEventList}" immediate="true"/>
 				</t:div>
 				<f:verbatim>&nbsp;</f:verbatim>
-		        	<%/* <h:outputLink value="#{CalBean.selectedEvent.url}">
-		        		<h:outputText value="#{msgs.openInSchedule}"/>
-		        	</h:outputLink> */%>				
-			</h:panelGrid>
+			</h:panelGrid>			
 		</t:div>
 		
 	</t:div>

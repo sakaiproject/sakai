@@ -43,10 +43,13 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
@@ -60,7 +63,9 @@ import org.sakaiproject.util.ResourceLoader;
 public class CalendarBean extends InitializableBean implements Serializable {
 	private static final long						serialVersionUID		= 3399742150736774779L;
 	public static final String						DATE_FORMAT				= "MMM dd, yyyy";
-
+	private static final String 					imgLocation				= "../../../library/image/sakai/";
+	private static final String 					SCHEDULE_TOOL_ID		= "sakai.schedule";
+	
 	/** Our log (commons). */
 	private static Log								LOG						= LogFactory.getLog(CalendarBean.class);
 
@@ -189,6 +194,8 @@ public class CalendarBean extends InitializableBean implements Serializable {
 			es.setType(e.getType());
 			es.setCalendarRef(e.getCalendarReference());
 			es.setEventRef(e.getId());
+			es.setUrl(e.getUrl());
+			es.setAttachments(e.getAttachments());
 			eventList.add(es);
 		}
 		return eventList;
@@ -428,8 +435,11 @@ public class CalendarBean extends InitializableBean implements Serializable {
 				selectedEvent.setType(event.getType());
 				selectedEvent.setDescription(event.getDescription());
 				selectedEvent.setLocation(event.getLocation());
-				selectedEvent.setSite(M_ss.getSite(calendar.getContext()).getTitle());
-				selectedEvent.setUrl(event.getUrl());
+				Site site = M_ss.getSite(calendar.getContext());
+				selectedEvent.setSite(site.getTitle());
+				String eventUrl = buildEventUrl(site, event.getReference());
+				selectedEvent.setUrl(eventUrl);
+				selectedEvent.setAttachments(event.getAttachments());
 				// groups
 				if(M_as.unlock("calendar.all.groups", "/site/"+calendar.getContext())){
 					Collection grps = event.getGroupObjects();
@@ -455,29 +465,45 @@ public class CalendarBean extends InitializableBean implements Serializable {
 		}
 		return selectedEvent;
 	}
+	
+	private String buildEventUrl(Site site, String eventRef) {
+		StringBuffer url = new StringBuffer();
+		ToolConfiguration tc = site.getToolForCommonId(SCHEDULE_TOOL_ID);			
+		url.append(ServerConfigurationService.getPortalUrl());
+		url.append("/directtool/");
+		url.append(tc.getId());
+		url.append("?eventReference=");
+		url.append(eventRef);
+		url.append("&panel=Main&sakai_action=doDescription");
+		
+		return url.toString();
+	}
 
 	public Map getEventImageMap() {
 		if(eventImageMap == null || eventImageMap.size() == 0){
-			String px = "../../../library/image/sakai/";
 			eventImageMap = new HashMap();
-			eventImageMap.put("Academic Calendar", px + "academic_calendar.gif");
-			eventImageMap.put("Activity", px + "activity.gif");
-			eventImageMap.put("Cancellation", px + "cancelled.gif");
-			eventImageMap.put("Class section - Discussion", px + "class_dis.gif");
-			eventImageMap.put("Class section - Lab", px + "class_lab.gif");
-			eventImageMap.put("Class section - Lecture", px + "class_lec.gif");
-			eventImageMap.put("Class section - Small Group", px + "class_sma.gif");
-			eventImageMap.put("Class session", px + "class_session.gif");
-			eventImageMap.put("Computer Session", px + "computersession.gif");
-			eventImageMap.put("Deadline", px + "deadline.gif");
-			eventImageMap.put("Exam", px + "exam.gif");
-			eventImageMap.put("Meeting", px + "meeting.gif");
-			eventImageMap.put("Multidisciplinary Conference", px + "multi-conference.gif");
-			eventImageMap.put("Quiz", px + "quiz.gif");
-			eventImageMap.put("Special event", px + "special_event.gif");
-			eventImageMap.put("Web Assignment", px + "webassignment.gif");
+			eventImageMap.put("Academic Calendar", imgLocation + "academic_calendar.gif");
+			eventImageMap.put("Activity", imgLocation + "activity.gif");
+			eventImageMap.put("Cancellation", imgLocation + "cancelled.gif");
+			eventImageMap.put("Class section - Discussion", imgLocation + "class_dis.gif");
+			eventImageMap.put("Class section - Lab", imgLocation + "class_lab.gif");
+			eventImageMap.put("Class section - Lecture", imgLocation + "class_lec.gif");
+			eventImageMap.put("Class section - Small Group", imgLocation + "class_sma.gif");
+			eventImageMap.put("Class session", imgLocation + "class_session.gif");
+			eventImageMap.put("Computer Session", imgLocation + "computersession.gif");
+			eventImageMap.put("Deadline", imgLocation + "deadline.gif");
+			eventImageMap.put("Exam", imgLocation + "exam.gif");
+			eventImageMap.put("Meeting", imgLocation + "meeting.gif");
+			eventImageMap.put("Multidisciplinary Conference", imgLocation + "multi-conference.gif");
+			eventImageMap.put("Quiz", imgLocation + "quiz.gif");
+			eventImageMap.put("Special event", imgLocation + "special_event.gif");
+			eventImageMap.put("Web Assignment", imgLocation + "webassignment.gif");
 		}
 		return eventImageMap;
+	}
+	
+	public String getImgLocation() {
+		return this.imgLocation;
 	}
 
 	public Date getSelectedMonth() {

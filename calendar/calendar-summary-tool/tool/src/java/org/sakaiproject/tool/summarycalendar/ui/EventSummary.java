@@ -21,7 +21,12 @@
 package org.sakaiproject.tool.summarycalendar.ui;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.time.api.TimeRange;
 
 
@@ -40,6 +45,9 @@ public class EventSummary implements Serializable {
 	private String		calendarRef		= "";
 	private String		eventRef		= "";
 	private String		groups			= "";
+	private boolean		hasAttachments	= false;
+	private List		attachments		= new ArrayList();
+	private List		attachmentsWrp	= new ArrayList();
 
 	public String getDisplayName() {
 		return displayName;
@@ -150,4 +158,33 @@ public class EventSummary implements Serializable {
 		this.eventRef = eventRef;
 	}
 
+	public List getAttachments() {
+		return attachments;
+	}
+
+	public void setAttachments(List attachments) {
+		setHasAttachments(attachments.size() > 0); 
+		this.attachments = attachments;
+		this.attachmentsWrp = new ArrayList();
+		Iterator it = attachments.iterator();
+		while(it.hasNext()){
+			Reference ref = (Reference) it.next();
+			AttachmentWrapper aw = new AttachmentWrapper();
+			aw.setUrl(ref.getUrl());
+			aw.setDisplayName(ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+			attachmentsWrp.add(aw);
+		}
+	}
+
+	public boolean getHasAttachments(){
+		return this.hasAttachments;
+	}
+	
+	public void setHasAttachments(boolean hasAttachments){
+		this.hasAttachments = hasAttachments;
+	}
+	
+	public List getAttachmentsWrapper() {
+		return this.attachmentsWrp;
+	}
 }
